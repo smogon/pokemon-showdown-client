@@ -9,6 +9,18 @@ WARNING: You probably want the [Pokemon Showdown server][1].
 
   [1]: https://github.com/Zarel/Pokemon-Showdown
 
+Testing
+------------------------------------------------------------------------
+
+You can make and test client changes simply by opening `testclient.html`.
+
+It will ask for config data. Config data can be copied from:
+
+http://play.pokemonshowdown.com/action.php?act=upkeep
+
+This will allow you to test changes to the client without setting up your
+own login server.
+
 Setup
 ------------------------------------------------------------------------
 
@@ -33,3 +45,5 @@ License
 Pokemon Showdown's client is distributed under the terms of the [AGPLv3][2].
 
   [2]: http://www.gnu.org/licenses/agpl-3.0.html
+
+WARNING: This is NOT the same license as Pokemon Showdown's server.

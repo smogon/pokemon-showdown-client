@@ -95,21 +95,21 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<meta id="viewport" name="viewport" content="width=640"/>
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 	<script>
+		var Config = {
+			server: '<?php echo $server ?>',
+			serverid: '<?php echo $serverid ?>',
+			serverport: <?php echo $serverport ?>,
+			serverprotocol: '<?php echo $serverprotocol ?>',
+			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>'
+		};
 <?php if (false) { ?>
 		alert('We should be open to the public again in a few minutes.');
-		window.requirelogin = true;
+		Config.requirelogin = true;
 <?php } ?>
-		var server = '<?php echo $server ?>';
-		var serverid = '<?php echo $serverid ?>';
-		var serverport = <?php echo $serverport ?>;
-		var serverprotocol = '<?php echo $serverprotocol ?>';
-		var urlPrefix = '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>';
-		var down = false;
-		// if (!urlPrefix) down = true;
-		var oldie = false;
+		// if (!Config.urlPrefix) Config.down = true;
 	</script>
 	<!--[if lte IE 8]><script>
-		oldie = true;
+		Config.oldie = true;
 	</script><![endif]-->
 <script type="text/javascript">
 
@@ -141,7 +141,7 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		*/
 		</style> 
 		<script>
-			CFInstall.check({mode: "overlay", destination: "http://www.waikiki.com"});
+			CFInstall.check({mode: "overlay", destination: "http://play.pokemonshowdown.com"});
 		</script>
 		<![endif]-->
 
@@ -167,9 +167,6 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<div id="overlay" style="display:none"></div>
 		<div id="tooltipwrapper"><div class="tooltipinner"></div></div>
 		<div id="foehint"></div>
-<script>
-var firewall = <?php echo isset($_REQUEST['firewall'])?'true':'false'; ?>;
-</script>
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading libraries...';
 		</script>
@@ -191,11 +188,11 @@ var firewall = <?php echo isset($_REQUEST['firewall'])?'true':'false'; ?>;
 		<script src="<?php echo $serverlibrary; ?>"></script>
 		<script src="/js/teambuilder.js?v0.7.12"></script>
 		<script src="/js/ladder.js?v0.7.16"></script>
-		<script src="/js/sim.js?v0.8.1.1"></script>
+		<script src="/js/sim.js?v0.8.2b"></script>
 
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to login server...';
-			if (down) overlay('down');
+			if (Config.down) overlay('down');
 		</script>
 		
 		<script src="/data/learnsets.js?v0.7.18.1"></script>

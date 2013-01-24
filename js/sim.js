@@ -3,12 +3,15 @@
 //	document.location.href = '/~~intl/';
 //}
 
-var socket;
+// some setting-like stuff
+Config.server = Config.server || 'sim.smogon.com';
+Config.serverport = Config.serverport || 8000;
+Config.serverprotocol = Config.serverprotocol || 'ws';
 
+var socket;
 var locPrefix = '/';
-var servertoken = window.server || 'novawave.ca';
-//servertoken = 'novawave.ca'; // temporary workaround
-if (window.urlPrefix) locPrefix += urlPrefix;
+var servertoken = Config.server;
+if (Config.urlPrefix) locPrefix += urlPrefix;
 
 // initialize sockets
 var socket = null;
@@ -34,11 +37,6 @@ var curTitle = 'Showdown!';
 var battles = {};
 var formats = [''];
 var teams = [];
-
-// some setting-like stuff
-window.server = window.server || 'novawave.ca';
-window.serverport = window.serverport || 8000;
-window.serverprotocol = window.serverprotocol || 'ws';
 
 var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1 && navigator.userAgent.toLowerCase().indexOf("firefox") <= -1;
 
@@ -142,7 +140,7 @@ function addTab(tab, type) {
 }
 
 function emit(socket, type, data) {
-	if (window.serverprotocol === 'io') {
+	if (Config.serverprotocol === 'io') {
 		socket.emit(type, data);
 	} else {
 		if (typeof data === 'object') data.type = type;
@@ -1065,7 +1063,7 @@ function Lobby(id, elem) {
 		case 'ladder':
 			if (!target) target = me.userid;
 			var self = this;
-			$.get('/action.php?act=ladderget&serverid='+serverid+'&user='+target, function(data) {
+			$.get('/action.php?act=ladderget&serverid='+Config.serverid+'&user='+target, function(data) {
 				try {
 					var buffer = '<div class="ladder"><table>';
 					buffer += '<tr><td colspan="7">User: <strong>'+target+'</strong></td></tr>';
@@ -2229,7 +2227,7 @@ var changeState = function () {};
 var loc = 'lobby';
 if (document.location.pathname.substr(0, locPrefix.length) === locPrefix) {
 	loc = document.location.pathname.substr(locPrefix.length);
-	if (loc === 'test.html' || loc === 'temp.html') loc = 'lobby';
+	if (loc === 'test.html' || loc === 'temp.html' || loc.substr(loc.length-15) === 'testclient.html') loc = 'lobby';
 }
 
 if (window.history && history.pushState) {
@@ -2244,7 +2242,7 @@ if (window.history && history.pushState) {
 	window.onpopstate = function (e) {
 		if (document.location.pathname.substr(0, locPrefix.length) === locPrefix) {
 			loc = document.location.pathname.substr(locPrefix.length);
-			if (loc === 'test.html' || loc === 'temp.html') loc = 'lobby';
+			if (loc === 'test.html' || loc === 'temp.html' || loc.substr(loc.length-15) === 'testclient.html') loc = 'lobby';
 			if (!socket) {
 				return; // haven't even initted yet
 			}
@@ -2730,22 +2728,18 @@ var cookieTeams = true;
 var name = ($.cookie('showdown_username') || '');
 
 // time to connect
-if (!window.down) {
-	$.post('/action.php', {
-		act: 'upkeep',
-		name: name,
-		servertoken: servertoken
-	}, function (data) {
+if (!Config.down) {
+	function onConnect(data) {
 		if (!data) data = {};
 		var token = data.assertion || '';
 
 		if (data.curuser && data.curuser.loggedin) {
 			me.registered = data.curuser;
 			name = data.curuser.username;
-		} else if (oldie) {
+		} else if (Config.oldie) {
 			overlay('unsupported');
 			return;
-		} else if (window.requirelogin) {
+		} else if (Config.requirelogin) {
 			document.getElementById('loading-message').innerHTML = '';
 			overlay('betalogin');
 			return;
@@ -2753,24 +2747,24 @@ if (!window.down) {
 
 		// lib isn't served by servers anymore - security issue, also scalability
 
-		// var lib = (window.serverprotocol === 'io' ? window.io : (window.serverprotocol === 'eio' ? window.eio : window.SockJS));
+		// var lib = (Config.serverprotocol === 'io' ? window.io : (Config.serverprotocol === 'eio' ? window.eio : window.SockJS));
 		// if (!lib) {
-		// 	overlay('message', "<p>Could not connect to Showdown server at <code>" + server + ':' + serverport + "</code>.</p><p>You may have mistyped the address, or the server may be down for maintenance. We apologize for the inconvenience.</p>");
+		// 	overlay('message', "<p>Could not connect to Showdown server at <code>" + Config.server + ':' + Config.serverport + "</code>.</p><p>You may have mistyped the address, or the server may be down for maintenance. We apologize for the inconvenience.</p>");
 		// 	return;
 		// }
 
 		// temporarily relocated connection code
 		/* else if (isAndroid) {
 			alert('Showdown doesn\'t work with the built-in Android browser - please use Firefox for Android instead.');
-			//socket = io.connect('http://'+server+':'+serverport, {transports:['jsonp-polling']});
-			if (window.serverprotocol === 'io') socket = io.connect('http://' + server + ':' + serverport);
-			else socket = new SockJS('http://' + server + ':' + serverport);
+			//socket = io.connect('http://'+Config.server+':'+Config.serverport, {transports:['jsonp-polling']});
+			if (Config.serverprotocol === 'io') socket = io.connect('http://' + Config.server + ':' + Config.serverport);
+			else socket = new SockJS('http://' + Config.server + ':' + Config.serverport);
 		} */
 
 		{
-			if (window.serverprotocol === 'io') socket = io.connect('http://' + server + ':' + serverport);
-			else if (window.serverprotocol === 'eio') socket = new eio.Socket({ host: server, port: serverport });
-			else socket = new SockJS('http://' + server + ':' + serverport);
+			if (Config.serverprotocol === 'io') socket = io.connect('http://' + Config.server + ':' + Config.serverport);
+			else if (Config.serverprotocol === 'eio') socket = new eio.Socket({ host: Config.server, port: Config.serverport });
+			else socket = new SockJS('http://' + Config.server + ':' + Config.serverport);
 		}
 
 		var events = {
@@ -2875,7 +2869,7 @@ if (!window.down) {
 			}
 		};
 
-		if (window.serverprotocol === 'io') {
+		if (Config.serverprotocol === 'io') {
 			for (var e in events) {
 				socket.on(e, (function(type) {
 					return function(data) {
@@ -2935,5 +2929,14 @@ if (!window.down) {
 				overlay('disconnect');
 			};
 		}
-	}, 'json');
+	}
+	if (Config.testclient) {
+		onConnect(Config);
+	} else {
+		$.post('/action.php', {
+			act: 'upkeep',
+			name: name,
+			servertoken: servertoken
+		}, onConnect, 'json');
+	}
 }
