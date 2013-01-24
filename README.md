@@ -25,7 +25,7 @@ Setup
 ------------------------------------------------------------------------
 
 This repository is not "batteries included". It does NOT include everything
-necessary to run a Pokemon Showdown client.
+necessary to run a full Pokemon Showdown client.
 
 In particular, it doesn't include a login/authentication server, nor does it
 include the database abstraction library used by the ladder library (although
