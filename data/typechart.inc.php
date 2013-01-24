@@ -1,0 +1,381 @@
+<?php
+// damage taken is an int, since I don't trust floats. :|
+// 0 = normal
+// 1 = se
+// 2 = resist
+// 3 = immune
+$PokemonTypeDamage = array(1, 2, .5, 0);
+$PokemonTypeChart = array(
+	'Normal' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 0,
+			'Water' => 0,
+			'Grass' => 0,
+			'Electric' => 0,
+			'Ice' => 0,
+			'Fighting' => 1,
+			'Poison' => 0,
+			'Ground' => 0,
+			'Flying' => 0,
+			'Psychic' => 0,
+			'Bug' => 0,
+			'Rock' => 0,
+			'Ghost' => 3,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 0,
+		)
+	),
+	'Fire' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 2,
+			'Water' => 1,
+			'Grass' => 2,
+			'Electric' => 0,
+			'Ice' => 2,
+			'Fighting' => 0,
+			'Poison' => 0,
+			'Ground' => 1,
+			'Flying' => 0,
+			'Psychic' => 0,
+			'Bug' => 2,
+			'Rock' => 1,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 2,
+		)
+	),
+	'Water' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 2,
+			'Water' => 2,
+			'Grass' => 1,
+			'Electric' => 1,
+			'Ice' => 2,
+			'Fighting' => 0,
+			'Poison' => 0,
+			'Ground' => 0,
+			'Flying' => 0,
+			'Psychic' => 0,
+			'Bug' => 0,
+			'Rock' => 0,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 2,
+		)
+	),
+	'Grass' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 1,
+			'Water' => 2,
+			'Grass' => 2,
+			'Electric' => 2,
+			'Ice' => 1,
+			'Fighting' => 0,
+			'Poison' => 1,
+			'Ground' => 2,
+			'Flying' => 1,
+			'Psychic' => 0,
+			'Bug' => 1,
+			'Rock' => 0,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 0,
+		)
+	),
+	'Electric' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 0,
+			'Water' => 0,
+			'Grass' => 0,
+			'Electric' => 2,
+			'Ice' => 0,
+			'Fighting' => 0,
+			'Poison' => 0,
+			'Ground' => 1,
+			'Flying' => 2,
+			'Psychic' => 0,
+			'Bug' => 0,
+			'Rock' => 0,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 2,
+		)
+	),
+	'Ice' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 1,
+			'Water' => 0,
+			'Grass' => 0,
+			'Electric' => 0,
+			'Ice' => 2,
+			'Fighting' => 1,
+			'Poison' => 0,
+			'Ground' => 0,
+			'Flying' => 0,
+			'Psychic' => 0,
+			'Bug' => 0,
+			'Rock' => 1,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 1,
+		)
+	),
+	'Fighting' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 0,
+			'Water' => 0,
+			'Grass' => 0,
+			'Electric' => 0,
+			'Ice' => 0,
+			'Fighting' => 0,
+			'Poison' => 0,
+			'Ground' => 0,
+			'Flying' => 1,
+			'Psychic' => 1,
+			'Bug' => 2,
+			'Rock' => 2,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 2,
+			'Steel' => 0,
+		)
+	),
+	'Poison' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 0,
+			'Water' => 0,
+			'Grass' => 2,
+			'Electric' => 0,
+			'Ice' => 0,
+			'Fighting' => 2,
+			'Poison' => 2,
+			'Ground' => 1,
+			'Flying' => 0,
+			'Psychic' => 1,
+			'Bug' => 2,
+			'Rock' => 0,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 0,
+		)
+	),
+	'Ground' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 0,
+			'Water' => 1,
+			'Grass' => 1,
+			'Electric' => 3,
+			'Ice' => 1,
+			'Fighting' => 0,
+			'Poison' => 2,
+			'Ground' => 0,
+			'Flying' => 0,
+			'Psychic' => 0,
+			'Bug' => 0,
+			'Rock' => 2,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 0,
+		)
+	),
+	'Flying' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 0,
+			'Water' => 0,
+			'Grass' => 2,
+			'Electric' => 1,
+			'Ice' => 1,
+			'Fighting' => 2,
+			'Poison' => 0,
+			'Ground' => 3,
+			'Flying' => 0,
+			'Psychic' => 0,
+			'Bug' => 2,
+			'Rock' => 1,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 0,
+		)
+	),
+	'Psychic' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 0,
+			'Water' => 0,
+			'Grass' => 0,
+			'Electric' => 0,
+			'Ice' => 0,
+			'Fighting' => 2,
+			'Poison' => 0,
+			'Ground' => 0,
+			'Flying' => 0,
+			'Psychic' => 2,
+			'Bug' => 1,
+			'Rock' => 0,
+			'Ghost' => 1,
+			'Dragon' => 0,
+			'Dark' => 1,
+			'Steel' => 0,
+		)
+	),
+	'Bug' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 1,
+			'Water' => 0,
+			'Grass' => 2,
+			'Electric' => 0,
+			'Ice' => 0,
+			'Fighting' => 2,
+			'Poison' => 0,
+			'Ground' => 2,
+			'Flying' => 1,
+			'Psychic' => 0,
+			'Bug' => 0,
+			'Rock' => 1,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 0,
+		)
+	),
+	'Rock' => array(
+		'damageTaken' => array(
+			'Normal' => 2,
+			'Fire' => 2,
+			'Water' => 1,
+			'Grass' => 1,
+			'Electric' => 0,
+			'Ice' => 0,
+			'Fighting' => 1,
+			'Poison' => 2,
+			'Ground' => 1,
+			'Flying' => 2,
+			'Psychic' => 0,
+			'Bug' => 0,
+			'Rock' => 0,
+			'Ghost' => 0,
+			'Dragon' => 0,
+			'Dark' => 0,
+			'Steel' => 1,
+		)
+	),
+	'Ghost' => array(
+		'damageTaken' => array(
+			'Normal' => 3,
+			'Fire' => 0,
+			'Water' => 0,
+			'Grass' => 0,
+			'Electric' => 0,
+			'Ice' => 0,
+			'Fighting' => 3,
+			'Poison' => 2,
+			'Ground' => 0,
+			'Flying' => 0,
+			'Psychic' => 0,
+			'Bug' => 2,
+			'Rock' => 0,
+			'Ghost' => 1,
+			'Dragon' => 0,
+			'Dark' => 1,
+			'Steel' => 0,
+		)
+	),
+	'Dragon' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 2,
+			'Water' => 2,
+			'Grass' => 2,
+			'Electric' => 2,
+			'Ice' => 1,
+			'Fighting' => 0,
+			'Poison' => 0,
+			'Ground' => 0,
+			'Flying' => 0,
+			'Psychic' => 0,
+			'Bug' => 0,
+			'Rock' => 0,
+			'Ghost' => 0,
+			'Dragon' => 1,
+			'Dark' => 0,
+			'Steel' => 0,
+		)
+	),
+	'Dark' => array(
+		'damageTaken' => array(
+			'Normal' => 0,
+			'Fire' => 0,
+			'Water' => 0,
+			'Grass' => 0,
+			'Electric' => 0,
+			'Ice' => 0,
+			'Fighting' => 1,
+			'Poison' => 0,
+			'Ground' => 0,
+			'Flying' => 0,
+			'Psychic' => 3,
+			'Bug' => 1,
+			'Rock' => 0,
+			'Ghost' => 2,
+			'Dragon' => 0,
+			'Dark' => 2,
+			'Steel' => 0,
+		)
+	),
+	'Steel' => array(
+		'damageTaken' => array(
+			'Normal' => 2,
+			'Fire' => 1,
+			'Water' => 0,
+			'Grass' => 2,
+			'Electric' => 0,
+			'Ice' => 2,
+			'Fighting' => 1,
+			'Poison' => 3,
+			'Ground' => 1,
+			'Flying' => 2,
+			'Psychic' => 2,
+			'Bug' => 2,
+			'Rock' => 2,
+			'Ghost' => 2,
+			'Dragon' => 2,
+			'Dark' => 2,
+			'Steel' => 2,
+		)
+	),
+);
+
+function getDamageTaken($attacking, $defending, $defending2=false)
+{
+	global $PokemonTypeDamage, $PokemonTypeChart;
+	$damage = 1;
+	//	var_export($defending);
+	if ($defending['types'])
+	{
+		$defending2 = $defending['types'][1];
+		$defending = $defending['types'][0];
+	}
+	if ($defending) $damage *= $PokemonTypeDamage[$PokemonTypeChart[$defending]['damageTaken'][$attacking]];
+	if ($defending2) $damage *= $PokemonTypeDamage[$PokemonTypeChart[$defending2]['damageTaken'][$attacking]];
+	return $damage;
+}

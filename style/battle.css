@@ -1,0 +1,753 @@
+/*
+
+License: GPLv2
+  <http://www.gnu.org/licenses/gpl-2.0.html>
+
+*/
+
+.battle
+{
+	position: absolute;
+	text-align: left;
+	top: 9px;
+	left: -1px;
+	border: 1px solid #AAAAAA;
+	background: #CFD5DA;
+	width: 640px;
+	height: 360px;
+	overflow: hidden;
+	
+	font-family: Verdana, sans-serif;
+	font-size: 10pt;
+}
+.backdrop
+{
+	width: 700px;
+	height: 500px;
+	position: absolute;
+	top: -90px;
+	left: -50px;
+	background: transparent url(/fx/bg-beach.png) no-repeat scroll left top;
+	opacity: 0.6;
+}
+.battle a
+{
+	color: #2277FF;
+}
+.battle a:hover
+{
+	color: #1155AA;
+}
+.innerbattle
+{
+	position: relative;
+	width: 640px;
+	height: 360px;
+}
+.battle-log-add
+{
+	position: absolute;
+	text-align: left;
+	border: 1px solid #AAAAAA;
+	background: #EEF2F5;
+	top: 369px;
+	left: 640px;
+	right: -1px;
+
+	font-family: Verdana, sans-serif;
+	font-size: 10pt;
+}
+.battle-log
+{
+	position: absolute;
+	text-align: left;
+	border: 1px solid #AAAAAA;
+	background: #EEF2F5;
+	top: 9px;
+	left: 640px;
+	right: -1px;
+	height: 360px;
+
+	font-family: Verdana, sans-serif;
+	font-size: 10pt;
+	overflow-y: scroll;
+}
+.battle-log .inner
+{
+	padding: 4px 8px 0px 8px;
+}
+.battle-log .inner-preempt
+{
+	padding: 0 8px 4px 8px;
+}
+.battle-log .inner-after
+{
+	margin-top: 0.5em;
+}
+.battle-log h2
+{
+	margin: 0.5em -8px;
+	padding: 4px 8px;
+	border: 1px solid #AAAAAA;
+	background: #E0E7EA;
+	border-left: 0; border-right: 0;
+	font-family: Verdana, sans-serif;
+	font-size: 13pt;
+}
+.battle-log .chat
+{
+	vertical-align: middle;
+	padding: 4px 0 2px 0;
+	font-size: 8pt;
+	/* background: #F6FAFF; */
+}
+.battle-log .chat strong
+{
+	color: #40576A;
+}
+.battle-log .chat em
+{
+	padding: 1px 4px 1px 3px;
+	color: #000000;
+	font-style: normal;
+}
+.battle-log .chat em.mine
+{
+	color: #555555;
+}
+.battle-log .rated
+{
+	padding: 3px 4px;
+}
+.battle-log .rated strong
+{
+	color: white;
+	background: #89A;
+	padding: 1px 4px;
+	border-radius: 4px;
+}
+.spacer
+{
+	margin-top: 0.5em;
+}
+
+.playbutton
+{
+	position: absolute;
+	display: block;
+	top: 160px;
+	left: 0;
+	right: 0;
+	text-align: center;
+}
+.playbutton button
+{
+	font-size: 20pt;
+}
+
+.background
+{
+	position: absolute;
+	display: none;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.statbar
+{
+	position: absolute;
+	display: none;
+	width: 154px;
+	min-height: 40px;
+	padding: 2px 4px;
+}
+.statbar strong
+{
+	display: block;
+	text-align: center;
+	color: #222222;
+	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
+}
+.statbar strong small
+{
+	font-weight: normal;
+}
+.statbar .hpbar
+{
+	position: relative;
+	border: 1px solid #777777;
+	background: #FCFEFF;
+	padding: 1px;
+	height: 8px;
+	margin: 0 0 0 0;
+	width: 151px;
+	border-radius: 4px;
+}
+.statbar .hpbar .hp
+{
+	background: #00AA66;
+	border-top: 3px solid #33CC99;
+	height: 3px;
+	border-bottom: 2px solid #007744;
+	border-right: 1px solid #007744;
+	border-radius: 3px;
+}
+.statbar .hpbar .prevhp
+{
+	background: #BBEECC;
+	height: 8px;
+	border-radius: 3px;
+}
+.statbar .hpbar .hptext
+{
+	position: absolute;
+	background: #777777;
+	color: #EEEEEE;
+	text-shadow: #000000 0 1px 0;
+	text-stroke: 1px #000000;
+	font-size: 9px;
+	width: 32px;
+	height: 12px;
+	top: -1px;
+	text-align: center;
+}
+.statbar .hpbar .hptextborder
+{
+	position: absolute;
+	background: transparent;
+	border-top: 1px solid #777777;
+	border-bottom: 1px solid #777777;
+	width: 4px;
+	top: -1px;
+	height: 10px;
+}
+.rstatbar .hpbar .hptext
+{
+	right: -32px;
+	border-radius: 0 4px 4px 0;
+}
+.lstatbar .hpbar .hptext
+{
+	left: -32px;
+	border-radius: 4px 0 0 4px;
+}
+.rstatbar .hpbar .hptextborder
+{
+	right: -3px;
+}
+.lstatbar .hpbar .hptextborder
+{
+	left: -3px;
+}
+.statbar .status
+{
+	min-height: 10px;
+	font-size: 7pt;
+}
+.statbar span
+{
+	padding: 0px 1px;
+	border: 1px solid #FF4400;
+	border-radius: 3px;
+}
+.statbar span.brn,
+.statbar span.psn,
+.statbar span.slp,
+.statbar span.par,
+.statbar span.frz
+{
+	padding: 1px 2px;
+	border: 0;
+	border-radius: 3px;
+}
+.statbar span.brn
+{
+	background: #EE5533;
+	color: #FFFFFF;
+}
+.statbar span.psn
+{
+	background: #A4009A;
+	color: #FFFFFF;
+}
+.statbar span.par
+{
+	background: #9AA400;
+	color: #FFFFFF;
+}
+.statbar span.slp
+{
+	background: #AA77AA;
+	color: #FFFFFF;
+}
+.statbar span.frz
+{
+	background: #009AA4;
+	color: #FFFFFF;
+}
+.statbar span.bad
+{
+	background: #FFE5E0;
+	color: #FF4400;
+	border-color: #FF4400;
+}
+.statbar span.good
+{
+	background: #E5FFE0;
+	color: #33AA00;
+	border-color: #33AA00;
+}
+.statbar span.neutral
+{
+	background: #F0F0F0;
+	color: #555555;
+	border-color: #555555;
+}
+.leftbar
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 450px;
+	width: 100px;
+	background-color: #CCCCCC;
+	background-color: rgba(255,255,255,0.5);
+	border-right: 1px solid rgba(215,215,215,0.5);
+	color: #777777;
+}
+.rightbar
+{
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 450px;
+	width: 100px;
+	background-color: #CCCCCC;
+	background-color: rgba(255,255,255,0.5);
+	border-left: 1px solid rgba(215,215,215,0.5);
+	color: #777777;
+}
+.trainer
+{
+	text-align: center;
+	margin-top: 180px;
+}
+.rightbar .trainer
+{
+	margin-top: 50px;
+}
+.trainer strong
+{
+	display: block;
+	font-size: 8pt;
+	margin-bottom: 2px;
+	overflow: hidden;
+}
+.trainer div
+{
+	width: 86px;
+	height: 90px;
+	opacity: .7;
+	margin: 0 auto;
+	background: transparent none no-repeat scroll center top;
+}
+.trainer div.teamicons
+{
+	width: 97px;
+	height: 24px;
+}
+.teamicons span
+{
+	float: left;
+}
+.leftbar .trainer div.trainersprite,
+.leftbar .teamicons span
+{
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -ms-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+.turn
+{
+	position: absolute;
+	display: none;
+	top: 10px;
+	left: 110px;
+	font-size: 13pt;
+	font-weight: bold;
+	margin: 0;
+	padding: 2px 8px;
+	border: 2px solid #332200;
+	border-radius: 6px;
+	color: #332200;
+	background: #FCFAF2;
+}
+.messagebar
+{
+	position: absolute;
+	display: none;
+	bottom: 10px;
+	left: 110px;
+	right: 110px;
+	color: #CCCCCC;
+	background: #222222;
+	background: rgba(0,0,0,0.75);
+	border-radius: 6px;
+	padding: 4px 6px 0 6px;
+	overflow: hidden;
+}
+.message strong
+{
+	color: #ffffff;
+	font-size: 12pt;
+}
+.message small
+{
+	font-size: 8pt;
+}
+.message p
+{
+	display: none;
+	margin: 0;
+	padding: 0;
+}
+.weather
+{
+	position: absolute;
+	display: none;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+.weather em
+{
+	display: block;
+	margin: 50px 0 0 115px;
+	font-size: 12pt;
+}
+.weather em small
+{
+	font-style: normal;
+}
+.sunweather,
+.sunnydayweather
+{
+	background: #FFEEBB url(/fx/weather-sunnyday.jpg) no-repeat scroll left top;
+	color: #664411;
+	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
+}
+.rainweather,
+.raindanceweather
+{
+	background: #99BBFF url(/fx/weather-raindance.jpg) no-repeat scroll left top;
+	color: #0044BB;
+	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
+}
+.sandstormweather
+{
+	background: #E6E0AC url(/fx/weather-sandstorm.png) no-repeat scroll left top;
+	color: #554433;
+	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
+}
+.hailweather
+{
+	background: #AADDEE url(/fx/weather-hail.png) no-repeat scroll left top;
+	color: #114455;
+	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
+}
+.pseudoweather
+{
+	background: #DDAAEE url(/fx/weather-trickroom.png) no-repeat scroll left top;
+	color: #661155;
+	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
+}
+
+.battle .result
+{
+	display: none;
+	position: absolute;
+	width: 150px;
+	text-align: center;
+}
+.battle .result strong
+{
+	font-weight: bold;
+	padding: 1px 3px;
+	border-radius: 3px;
+}
+.battle .badresult strong
+{
+	color: #FFFFFF;
+	background: #CC0000;
+}
+.battle .goodresult strong
+{
+	color: #FFFFFF;
+	background: #00CC00;
+}
+.battle .neutralresult strong
+{
+	color: #FFFFFF;
+	background: #999999;
+}
+.battle .brnresult strong
+{
+	color: #FFFFFF;
+	background: #EE5533;
+}
+.battle .psnresult strong
+{
+	color: #FFFFFF;
+	background: #A4009A;
+}
+.battle .slpresult strong
+{
+	color: #FFFFFF;
+	background: #AA77AA;
+}
+.battle .parresult strong
+{
+	color: #FFFFFF;
+	background: #9AA400;
+}
+.battle .frzresult strong
+{
+	color: #FFFFFF;
+	background: #009AA4;
+}
+
+.sidecondition-reflect
+{
+	background: #EEEEEE;
+	border: 1px solid #888888;
+	display: none;
+	position: absolute;
+}
+.sidecondition-lightscreen
+{
+	background: #CCCC00;
+	border: 1px solid #AAAA00;
+	display: none;
+	position: absolute;
+}
+.sidecondition-safeguard
+{
+	background: #DD88DD;
+	border: 1px solid #AA66AA;
+	display: none;
+	position: absolute;
+}
+.sidecondition-mist
+{
+	background: #AACCFF;
+	border: 1px solid #5577CC;
+	display: none;
+	position: absolute;
+}
+.turnstatus-protect
+{
+	background: #DD88DD;
+	border: 1px solid #AA66AA;
+	display: none;
+	position: absolute;
+}
+.seeking
+{
+	display: block;
+	position: absolute;
+	top: 0; left: 0; bottom: 0; right: 0;
+	background: #FFFFFF;
+	color: #000000;
+}
+.seeking strong
+{
+	display: block;
+	text-align: center;
+	padding-top: 180px;
+}
+
+#sm2-container
+{
+	position: relative;
+}
+
+.swf_timedout#sm2-container embed,
+.swf_timedout#sm2-container object,
+.swf_timedout#sm2-container audio,
+.movieContainer#sm2-container embed,
+.movieContainer#sm2-container object,
+.movieContainer#sm2-container audio
+{
+	position: absolute;
+	height: 27px;
+	width: 66px;
+	top: -1px;
+	left: -1px;
+}
+.swf_timedout#sm2-container .inner,
+.movieContainer#sm2-container .inner
+{
+	visibility: hidden;
+}
+#sm2-container embed,
+#sm2-container object,
+#sm2-container audio,
+.swf_loaded#sm2-container embed,
+.swf_loaded#sm2-container object,
+.swf_loaded#sm2-container audio
+{
+	position: absolute;
+	height: 27px;
+	width: 27px;
+	top: -1px;
+	left: -87px;
+}
+#sm2-container .inner,
+.swf_loaded#sm2-container .inner
+{
+	visibility: visible;
+}
+
+.chooser
+{
+	float: right;
+	border: 1px solid #AAAAAA;
+	background: #EEF2F5;
+	padding: 0 0 0 0;
+	height: 25px;
+	font-size: 9pt;
+	margin: 0 5px 0 0;
+}
+.leftchooser
+{
+	float: left;
+}
+.chooser em
+{
+	float: left;
+	padding: 5px 6px 0 6px;
+	height: 20px;
+	border-right: 1px solid #CCCCCC;
+	background: #EEEEEE;
+	font-weight: normal;
+}
+.chooser div
+{
+	float: left;
+	padding: 1px 2px;
+}
+.chooser button
+{
+	border: 0;
+	background: transparent;
+	padding: 2px 4px;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+	border-radius: 3px;
+	cursor: pointer;
+}
+.chooser button:hover
+{
+	border: 1px solid #BBBBBB;
+	padding: 1px 3px;
+	background: #EEEEEE;
+}
+.chooser button.sel,
+.chooser button.sel:hover
+{
+	border: 1px solid #999999;
+	padding: 1px 3px;
+	background: #DDDDDD;
+}
+
+
+/* .dark .battle
+{
+	background: #222222;
+	color: #CCCCCC;
+}
+.dark .statbar strong
+{
+	color: #AAAAAA;
+}
+.dark .statbar .hpbar
+{
+	background: #222222;
+}
+.dark .statbar .hpbar .prevhp
+{
+	background: #446755;
+}
+.dark .leftbar,
+.dark .rightbar
+{
+	background: rgba(0,0,0,0.5);
+	color: #CCCCCC;
+}
+.dark .messagebar
+{
+	background: #444444;
+	background: rgba(60,60,60,0.80);
+	color: #CCCCCC;
+} */
+.dark .battle-log
+{
+	background: #333333;
+	color: #CCCCCC;
+}
+.dark .battle-log .chat strong,
+.dark .battle-log .chat em
+{
+	color: #8097BA;
+}
+.dark .battle-log h2
+{
+	background: #555555;
+}
+.dark .chooser
+{
+	background: #666666;
+	color: #CCCCCC;
+}
+.dark .chooser em
+{
+	background: #777777;
+	color: #CCCCCC;
+}
+.dark .chooser button
+{
+	color: #CCCCCC;
+}
+.dark .chooser button:hover
+{
+	border: 1px solid #BBBBBB;
+	padding: 1px 3px;
+	background: #777777;
+	color: #EEEEEE;
+}
+.dark .chooser button.sel,
+.dark .chooser button.sel:hover
+{
+	border: 1px solid #CCCCCC;
+	padding: 1px 3px;
+	background: #999999;
+	color: #F3F3F3;
+}
+
+.itemicon
+{
+	display: block;
+	width: 24px;
+	height: 24px;
+}
+.pokemonicon
+{
+	display: block;
+	width: 32px;
+	height: 24px;
+}

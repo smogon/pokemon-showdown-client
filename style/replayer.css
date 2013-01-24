@@ -1,0 +1,508 @@
+/*
+
+License: GPLv2
+  <http://www.gnu.org/licenses/gpl-2.0.html>
+
+*/
+
+html, body
+{
+	margin: 0;
+	padding: 0;
+	text-align: center; /* lol, I don't support ie6 anyway */
+	font-family: Verdana, sans-serif;
+	font-size: 11pt;
+}
+body
+{
+	position: relative;
+	background: #FAFCFE;
+}
+
+.header {
+	margin: 0;
+	background: #E1E8F2;
+
+	background: -webkit-gradient(linear, left top, left bottom, from(#E1E8F2), to(#D1E1F2));
+	background: -moz-linear-gradient(top,  #E1E8F2,  #D1E1F2);
+	background: linear-gradient(top,  #E1E8F2,  #D1E1F2);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#E1E8F2', endColorstr='#D1E1F2');
+
+	border-bottom: 1px solid #AAA;
+	box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .6), 0px 2px 2px rgba(0, 0, 0, .15);
+	min-height: 50px;
+}
+.header-inner {
+	max-width: 550px;
+	margin: 0 auto;
+}
+.nav, .nav li, .nav-play, .nav-play li {
+	display: block;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	float: left;
+}
+.nav {
+	padding: 15px 6px 15px 6px;
+}
+.header .nav {
+	padding: 15px 0 15px 180px;
+}
+.header .nav-play {
+	padding: 15px 0 15px 15px;
+}
+.nav .button {
+	position: relative;
+	padding: 5px 12px;
+	margin: 0 -1px 0 0;
+	border-radius: 0;
+}
+.nav .button img {
+	position: absolute;
+	top: -8px;
+	left: -170px;
+}
+.nav .button.cur,
+.nav .button.cur:hover {
+	color: #777777;
+	background: #f8f8f8;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.nav .button.cur:hover {
+	border: solid 1px #888888;
+}
+.nav .button:hover {
+	z-index: 10;
+}
+.nav .button.nav-first {
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+}
+.nav .button.nav-last {
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+.button {
+	outline: none;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 0 1px 0 rgba(255,255,255,.4);
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	white-space: nowrap;
+
+	/* default colors */
+	color: #222222;
+	border: solid 1px #AAAAAA;
+	background: #e3e3e3;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e3e3e3));
+	background: -moz-linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	background: linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
+}
+.button:hover {
+	background: #cfcfcf;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#cfcfcf));
+	background: -moz-linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	background: linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f2f2f2', endColorstr='#cfcfcf');
+	border-color: #606060;
+}
+.button:active {
+	background: -webkit-gradient(linear, left top, left bottom, from(#cfcfcf), to(#f2f2f2));
+	background: -moz-linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#cfcfcf', endColorstr='#f2f2f2');
+}
+.greenbutton {
+	background: hsl(100,30%,93%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(100,30%,97%)), to(hsl(100,30%,84%)));
+	background: -moz-linear-gradient(top,  hsl(100,30%,97%),  hsl(100,30%,84%));
+	background: linear-gradient(top,  hsl(100,30%,97%),  hsl(100,30%,84%));
+	border-color: hsl(100,30%,70%);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
+}
+.greenbutton:hover {
+	background: hsl(100,30%,87%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(100,30%,94%)), to(hsl(100,30%,77%)));
+	background: -moz-linear-gradient(top,  hsl(100,30%,94%),  hsl(100,30%,77%));
+	background: linear-gradient(top,  hsl(100,30%,94%),  hsl(100,30%,77%));
+	border-color: hsl(100,30%,41%);
+}
+.greenbutton:active {
+	background: hsl(100,30%,77%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(100,30%,77%)), to(hsl(100,30%,83%)));
+	background: -moz-linear-gradient(top,  hsl(100,30%,77%),  hsl(100,30%,83%));
+	background: linear-gradient(top,  hsl(100,30%,77%),  hsl(100,30%,83%));
+	border-color: hsl(100,30%,41%);
+}
+
+h1
+{
+	padding: 15px;
+	margin: 0 0 15px 0;
+	font-family: Verdana, sans-serif;
+	font-size: 20pt;
+	border-bottom: 1px solid #AAAAAA;
+	background: #EEF2F5;
+}
+
+.wrapper
+{
+	margin: 0 auto;
+	text-align: left;
+	padding: 15px;
+	max-width: 1180px;
+}
+
+.backbutton a
+{
+	width: 8em;
+}
+
+.replay a
+{
+	display: block;
+	padding: 3px 5px;
+	border: 1px solid #ACC3D0;
+	background: #EEF2F5;
+	color: #214065;
+	text-decoration: none;
+	font-size: 8pt;
+}
+.replay a strong
+{
+	display: block;
+	font-size: 11pt;
+	color: #214065;
+}
+.replay a em
+{
+	color: #808185;
+}
+.replay a.replay-link
+{
+	float: right;
+	margin: -15px 15px 0 0;
+}
+.replay a:visited strong
+{
+	color: #808185;
+}
+.replay a:hover,
+.replay a:visited:hover
+{
+	border: 1px solid #7CA0B0;
+	background: #DEE4EA;
+	color: #102025;
+}
+.replay a:hover strong,
+.replay a:visited:hover strong
+{
+	color: #102025;
+}
+
+.replay-controls
+{
+	position:absolute;top:373px;left:5px;right:0px;text-align:left;
+}
+.replay-controls-2
+{
+	position:absolute;top:405px;left:5px;right:0px;text-align:left;
+}
+.replay-wrapper
+{
+	position: relative;
+	padding-top: 460px !important;
+}
+.replay-controls button
+{
+	font-family: Verdana, sans-serif;
+	font-size: 10pt;
+}
+
+.linklist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.linklist a {
+	display: block;
+	margin: 2px 0px 8px 0px;
+	padding: 3px 7px 6px 7px;
+	border: 1px solid #BBCCDD;
+	background: #F8FBFD;
+
+	border-radius: 4px;
+	text-decoration: none;
+	color: #336699;
+	text-shadow: #ffffff 0px -1px 0;
+	box-shadow: 1px 1px 1px #D5D5D5;
+	cursor: pointer;
+
+	overflow: hidden;
+	white-space: nowrap;
+}
+.linklist a small {
+	font-size: 8pt;
+	color: #6699CC;
+}
+.linklist a:hover {
+	border: 1px solid #8899AA;
+	background: #F1F4F9;
+	color: #224466;
+}
+
+
+.error
+{
+	padding: 6px 12px;
+	margin: 1em 0;
+	border: 2px solid #DD4422;
+	background: #FFF8F2;
+	color: #000000;
+}
+.error strong
+{
+	color: #802010;
+}
+
+.urlbox,
+input.urlbox,
+input[disabled=disabled].urlbox
+{
+	cursor: text;
+	display: block;
+	padding: 3px 4px 2px 4px;
+	margin: 0 0 10px -4px;
+	border: 1px solid #AAAAAA;
+	background: #F5F5F5 !important;
+	color: #111111 !important;
+	font-family: Consolas, monospace;
+	font-size: 10pt;
+}
+
+body.dark
+{
+	background: #444444;
+	color: #CCCCCC;
+}
+
+.dark .urlbox
+{
+	border: 1px solid #AAAAAA;
+	background: #555555 !important;
+	color: #CCCCCC !important;
+}
+
+.dark a
+{
+	color: #4488EE;
+}
+
+#altsound
+{
+	font-size: 10pt;
+}
+
+.utilichart, .utilichart li
+{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	display: block;
+	clear: both;
+}
+
+.utilichart li a
+{
+	display: block;
+	height: 28px;
+	padding: 1px 1px 1px 5px;
+	margin: 0 5px 1px 5px;
+}
+.utilichart h3
+{
+	background: #EEF2F5;
+	border: 1px solid #CCCCCC;
+	border-left: 0;
+	border-right: 0;
+	margin: 6px 0;
+	padding: 2px 5px;
+	font-family: Verdana, sans-serif;
+	font-size: 9pt;
+}
+.utilichart li > em
+{
+	display: block;
+	padding: 0 8px;
+	font-size: 10pt;
+}
+.utilichart .col
+{
+	float: left;
+	padding-top: 6px;
+	font-size: 9pt;
+	color: #444444;
+}
+.utilichart .iconcol,
+.utilichart .itemiconcol
+{
+	padding-top: 2px;
+}
+.utilichart .iconcol span
+{
+	display: block;
+	width: 32px;
+	height: 24px;
+	background: transparent none no-repeat scroll 0px -8px;
+}
+.utilichart .itemiconcol span
+{
+	display: block;
+	width: 24px;
+	height: 24px;
+	background: transparent none no-repeat scroll 0px 0px;
+}
+.utilichart .numcol
+{
+	width: 24px;
+	padding-right: 5px;
+	text-align: right;
+	color: #999999;
+	padding-top: 7px;
+	font-size: 8pt;
+}
+.utilichart .statcol,
+.utilichart .bstcol,
+.utilichart .labelcol,
+.utilichart .widelabelcol
+{
+	padding-top: 0;
+	height: 28px;
+	width: 24px;
+	text-align: right;
+	font-size: 8pt;
+}
+.utilichart .labelcol
+{
+	text-align: center;
+	width: 36px;
+}
+.utilichart .widelabelcol
+{
+	text-align: center;
+	width: 60px;
+}
+.utilichart .bstcol
+{
+	padding-left: 2px;
+}
+.utilichart .labelcol em,
+.utilichart .widelabelcol em,
+.utilichart .statcol em,
+.utilichart .bstcol em
+{
+	color: #999999;
+	font-size: 7pt;
+	font-style: normal;
+}
+.utilichart .stattitlecol
+{
+	padding-top: 1px;
+	width: 20px;
+	text-align: right;
+	font-size: 7pt;
+	color: #999999;
+}
+.utilichart .namecol
+{
+	padding-top: 5px;
+	width: 120px;
+	color: #000000;
+	font-size: 10pt;
+}
+.utilichart .pokemonnamecol
+{
+	padding-top: 5px;
+	width: 127px;
+	color: #000000;
+	font-size: 10pt;
+}
+.utilichart .movenamecol
+{
+	padding-top: 5px;
+	width: 160px;
+	color: #000000;
+	font-size: 10pt;
+}
+.utilichart .typecol
+{
+	width: 70px;
+}
+.utilichart .abilitycol
+{
+	padding-top: 7px;
+	font-size: 8pt;
+	width: 90px;
+}
+.utilichart .twoabilitycol
+{
+	padding-top: 0;
+	font-size: 8pt;
+	width: 90px;
+}
+.utilichart b
+{
+	color: #4488CC;
+	text-decoration: underline;
+}
+.utilichart small
+{
+	font-size: 8pt;
+}
+.utilichart .illegalcol em
+{
+	padding: 1px 4px;
+	border: 1px solid #AA2222;
+	color: #AA2222;
+	border-radius: 4px;
+}
+.utilichart .typecol img
+{
+	opacity: 0.5;
+	margin-right: 1px;
+}
+.utilichart .typecol img.b
+{
+	opacity: 1;
+	outline: #4488CC solid 1px;
+	outline-offset: 0;
+	background: #4488CC;
+}
+.utilichart .itemdesccol,
+.utilichart .abilitydesccol,
+.utilichart .movedesccol
+{
+	white-space: nowrap;
+	padding-top: 7px;
+	font-size: 8pt;
+	width: 490px;
+	height: 20px;
+	overflow: hidden;
+	color: #777777;
+}
+.utilichart .movedesccol
+{
+	width: 286px;
+}
+.utilichart .itemdesccol
+{
+	width: 466px;
+}

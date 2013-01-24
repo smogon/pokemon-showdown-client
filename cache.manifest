@@ -1,0 +1,11 @@
+CACHE MANIFEST
+# 2011-02-02
+
+# Explicitly cached 'master entries'.
+CACHE:
+sim.css
+js/
+data/
+
+# Resources that require the user to be online.
+NETWORK:

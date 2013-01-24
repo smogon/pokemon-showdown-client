@@ -1,0 +1,45 @@
+# -FrontPage-
+
+#IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
+
+<Limit GET POST>
+order deny,allow
+deny from all
+allow from all
+</Limit>
+<Limit PUT DELETE>
+order deny,allow
+deny from all
+</Limit>
+
+AddType text/plain .phps
+AddType application/x-tgz .tgz
+AddType application/x-chrome-extension .crx
+AddType application/x-web-app-manifest+json .webapp
+
+<IfModule mod_rewrite.c>
+RewriteEngine on
+
+RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
+RewriteRule ^(.*)$ http://play.pokemonshowdown.com/$1 [R=301,L]
+
+RewriteRule ^$ /lobby [R=301,L]
+RewriteRule ^topsekritsim\.php$ /lobby [R=301,L]
+RewriteRule ^topsekrit3\.php$ /lobby [R=301,L]
+RewriteRule ^temporary508\.php$ /lobby [R=301,L]
+RewriteRule ^temporary508\.php$ /lobby [R=301,L]
+RewriteRule ^sim\.php$ /lobby [R=301,L]
+
+#RewriteRule ^([A-Za-z0-9-]*)$ closed.php [L,QSA]
+
+RewriteRule ^(teambuilder|ladder|lobby|battle)/?$ index.php [L,QSA]
+RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ index.php [L,QSA]
+
+RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http://pokemonshowdown.com/replay/$1 [R=302,L]
+RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
+
+RewriteRule ^~~([^/]*)/?$ /~~$1/lobby [R=301,L]
+RewriteRule ^~~([^/]*)/(teambuilder|ladder|lobby|battle)/?$ index.php?server=$1 [L,QSA]
+RewriteRule ^~~([^/]*)/(lobby|battle)-([A-Za-z0-9-]*)$ index.php?server=$1 [L,QSA]
+
+</IfModule>

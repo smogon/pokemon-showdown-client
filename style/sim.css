@@ -1,0 +1,1748 @@
+/*
+
+License: CC-BY-NC-3.0
+  <http://creativecommons.org/licenses/by-nc/3.0/>
+
+*/
+
+html,body
+{
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+body
+{
+	overflow: hidden;
+}
+body.tiny-layout
+{
+	overflow: auto;
+}
+
+button
+{
+	vertical-align: middle;
+	font: 9pt Verdana;
+}
+button i
+{
+	position: relative;
+	top: -1px;
+	margin: 0 1px 0 -1px;
+	color: #60768F;
+	vertical-align: middle;
+}
+button.closebutton
+{
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	color: #999999;
+}
+button.closebutton:hover
+{
+	color: #656565;
+}
+button.closebutton:active
+{
+	color: #000000;
+}
+button.closebutton i
+{
+	color: inherit;
+	font-size: 11pt;
+	text-shadow: white 0px 1px 0;
+}
+
+#simheader
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	margin: 0;
+	padding: 0;
+	height: 50px;
+	border-bottom: 1px solid #AAAAAA;
+	background: #E1E8F2;
+}
+#simheader h1
+{
+	margin: 0;
+	padding: 10px;
+	background: transparent;
+	border-bottom: 0;
+	font-size: 16pt;
+}
+
+#main
+{
+	text-align: left;
+	position: absolute;
+	top: 51px;
+	left: 131px;
+	right: 0;
+	bottom: 0;
+}
+.action-default
+{
+	padding: 15px 15px;
+	background: transparent;
+}
+.action-waiting
+{
+	margin: 10px 12px;
+	padding: 9px 14px;
+	border: 1px solid #C3C3C3;
+	border-radius: 8px;
+	background: #F3F3F3;
+}
+.action-form,
+.action-notify
+{
+	margin: 10px 12px;
+	padding: 9px 14px;
+	border: 1px solid #F3D3B3;
+	border-radius: 8px;
+	background: #FFF8F0;
+}
+.tiny-layout #main
+{
+	left: 0;
+	padding: 0 0;
+}
+.battle-tab
+{
+	position: relative;
+	height: 100%;
+}
+.mainsection
+{
+	padding: 20px;
+	width: 320px;
+	text-align: center;
+}
+#tab-lobby .mainsection
+{
+	position: absolute;
+	display: block;
+	top: 0;
+	left: 0;
+	right: auto;
+	bottom: 0;
+	overflow: visible;
+	padding: 0;
+	width: 420px;
+}
+.mainsection.teamlist
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 659px;
+	overflow: auto;
+}
+.tiny-layout #tab-lobby .mainsection
+{
+	width: auto;
+}
+.mainsection .maintop
+{
+	position: absolute;
+	top: 0;
+	right: 162px;
+	bottom: 0;
+	left: 0;
+	overflow: auto;
+}
+.tiny-layout .mainsection .maintop
+{
+	position: static;
+	right: 0;
+	margin-right: 162px;
+}
+.mainsection .mainbottom
+{
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 162px;
+	overflow: auto;
+}
+.tiny-layout .mainbottom
+{
+	bottom: auto;
+	overflow: visible;
+}
+.mainsection .mainpopup
+{
+	position: absolute;
+	top: auto;
+	right: 162px;
+	bottom: 0;
+	left: 0;
+	overflow: visible;
+}
+.tiny-layout .mainpopup
+{
+	top: 0;
+	bottom: auto;
+}
+.mainsection .mainpopup .battle-log,
+.mainsection .mainpopup .battle-log-add
+{
+	position: static;
+	width: auto;
+	top: 0; bottom: 0; left: 0; right: 0;
+}
+.mainsection .mainpopup .battle-log
+{
+	clear: right;
+	height: auto;
+	overflow: auto;
+	height: 300px;
+	padding: 1px;
+	border: 0;
+}
+.mainsection .mainpopup .battle-log-add
+{
+	border-left: 0;
+	border-right: 0;
+}
+.mainsection .mainpopup .chatbox
+{
+	margin: 0 13px 0 7px;
+	padding: 4px 0 4px 0;
+}
+#tab-teambuilder .mainsection
+{
+	padding: 8px 10px;
+	width: 631px;
+	text-align: left;
+}
+#tab-ladder .mainsection
+{
+	position: absolute;
+	display: block;
+	top: 0;
+	left: 0;
+	right: auto;
+	bottom: 0;
+	overflow: auto;
+
+	padding: 8px 10px;
+	width: 639px;
+	text-align: left;
+}
+.tiny-layout #tab-lobby .mainsection
+{
+	position: static;
+	height: auto;
+	overflow: visible;
+}
+.tiny-layout #tab-teambuilder .mainsection,
+.tiny-layout #tab-ladder .mainsection
+{
+	height: auto;
+	bottom: auto;
+	overflow: visible;
+}
+.ladder table, .ladder td, .ladder th
+{
+	border-collapse: collapse;
+	border: 1px solid #BBBBBB;
+}
+.ladder td, .ladder th
+{
+	padding: 3px 5px;
+}
+.ladder th
+{
+	text-align: left;
+	font-size: 9pt;
+	background: #EEEEEE;
+}
+#tab-teambuilder textarea.teamedit
+{
+	position: absolute;
+	display: block;
+	top: 60px;
+	left: 10px;
+	right: auto;
+	bottom: 10px;
+	width: 631px;
+	height: auto;
+	text-align: left;
+	font-size: inherit;
+	font-family: inherit;
+}
+.majorbutton
+{
+	font-size: 20px;
+	font-weight: bold;
+}
+.mainbutton
+{
+	box-sizing: border-box;
+	font: 12pt Verdana, sans-serif;
+	
+	display: inline-block;
+	padding: 5px 7px 2px 0;
+
+	outline: none;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 0 1px 0 hsl(210,40%,10%);
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 1px 1px rgba(255,255,255,.8);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 1px 1px rgba(255,255,255,.8);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 1px 1px rgba(255,255,255,.8);
+
+	/* default colors */
+	color: #FFFFFF;
+	border: solid 1px #AAAAAA;
+	background: #779EC5;
+	background: hsl(210,40%,62%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(210,40%,72%)), to(hsl(210,40%,52%)));
+	background: -moz-linear-gradient(top,  hsl(210,40%,72%),  hsl(210,40%,52%));
+	background: linear-gradient(top,  hsl(210,40%,72%),  hsl(210,40%,52%));
+	border-color: hsl(210,40%,40%);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
+}
+.mainbutton:hover
+{
+	background: #5485B6;
+	background: hsl(210,40%,52%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(210,40%,62%)), to(hsl(210,40%,42%)));
+	background: -moz-linear-gradient(top,  hsl(210,40%,62%),  hsl(210,40%,42%));
+	background: linear-gradient(top,  hsl(210,40%,62%),  hsl(210,40%,42%));
+	border-color: hsl(210,40%,21%);
+}
+.mainbutton:active
+{
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 1px rgba(255,255,255,.3), inset 0 1px 1px rgba(0,0,0,.4);
+	background: #406B96;
+	background: hsl(210,40%,42%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(210,40%,42%)), to(hsl(210,40%,58%)));
+	background: -moz-linear-gradient(top,  hsl(210,40%,42%),  hsl(210,40%,58%));
+	background: linear-gradient(top,  hsl(210,40%,42%),  hsl(210,40%,58%));
+	border-color: hsl(210,40%,21%);
+}
+.mainbutton.disabled,
+.mainbutton.disabled:hover,
+.mainbutton.disabled:active
+{
+	background: #EEEEEE;
+	border: 1px solid #CCCCCC;
+	color: #BBBBBB;
+	text-shadow: none;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+.userlist,
+.userlist li
+{
+	display: block;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	text-align: left;
+}
+.userlist
+{
+	border-left: 1px solid #AAAAAA;
+	min-height: 100%;
+	background: #EEF2F5;
+}
+.userlist li
+{
+	border-bottom: 1px solid #CCCCCC;
+	height: 19px;
+	font: 10pt Verdana, sans-serif;
+	white-space: nowrap;
+}
+.userlist li em.group
+{
+	font-style: normal;
+	font-size: 8pt;
+	color: #AAAAAA;
+	display: block;
+	float: left;
+	text-align: center;
+	padding: 1px 0 0 1px;
+	width: 14px;
+}
+.userlist li button
+{
+	box-sizing: border-box;
+	display: block;
+	height: auto;
+	background: transparent;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	height: 19px;
+	width: 100%;
+	white-space: nowrap;
+	font: 10pt Verdana, sans-serif;
+	text-align: left;
+	cursor: pointer;
+}
+.userlist li button:hover
+{
+	background: #DEE2E5;
+}
+.userlist li button:active
+{
+	background: #CED2D5;
+}
+.userlist li.cur
+{
+	background: white;
+}
+.userlist li.cur button,
+.userlist li.cur button:hover
+{
+	background: white;
+	margin: 0 0 0 -1px;
+}
+
+#leftbarbg
+{
+	text-align: left;
+	position: absolute;
+	top: 50px;
+	bottom: 0;
+	left: 0;
+	width: 130px;
+	border-right: 1px solid #AAAAAA;
+	/* background: #F5F9FC; */
+	background: #E1E8F2;
+}
+#leftbarbg div
+{
+	float: right;
+	margin-right: -9px;
+	width: 9px;
+	height: 9px;
+	background: #E1E8F2;
+}
+#leftbarbg div span
+{
+	display: block;
+	width: 9px;
+	height: 9px;
+	background: #FAFCFE;
+	border-left: 1px solid #AAAAAA;
+	border-top: 1px solid #AAAAAA;
+	border-top-left-radius: 6px;
+}
+#leftbar
+{
+	text-align: left;
+	position: absolute;
+	top: 51px;
+	bottom: 0;
+	left: 0;
+	width: 131px;
+	padding: 6px 0 0 0;
+	background: transparent;
+	overflow: auto;
+}
+.tiny-layout #leftbarbg,
+.tiny-layout #leftbar,
+.tiny-layout .lobbychat .battle-log,
+.tiny-layout .lobbychat .battle-log-add
+{
+	display: none;
+}
+.roomlist a
+{
+	display: block;
+	margin: 2px 7px 4px 7px;
+	padding: 0px 2px 1px 2px;
+	border: 1px solid #BBCCDD;
+	background: #F8FBFD;
+	
+	border-radius: 4px;
+	text-decoration: none;
+	color: #336699;
+	text-shadow: #ffffff 0px -1px 0;
+	box-shadow: 1px 1px 1px #D5D5D5;
+	cursor: pointer;
+	font-size: 9pt;
+
+	overflow: hidden;
+	white-space: nowrap;
+}
+.roomlist a small
+{
+	font-size: 8pt;
+}
+.roomlist a:hover
+{
+	border: 1px solid #8899AA;
+	background: #F1F4F9;
+	color: #224466;
+}
+#leftbar a
+{
+	display: block;
+	margin: 2px 1px 6px 7px;
+	padding: 4px 2px 4px 5px;
+	border: 1px solid #BBCCDD;
+	border-right: 0;
+	background: #F8FBFD;
+	
+	border-bottom-left-radius: 4px;
+	border-top-left-radius: 4px;
+	text-decoration: none;
+	color: #336699;
+	text-shadow: #ffffff 0px -1px 0;
+	box-shadow: 1px 1px 1px #D5D5D5;
+	cursor: pointer;
+}
+#leftbar a:hover
+{
+	margin: 2px 1px 6px 6px;
+	padding: 4px 3px 4px 5px;
+	border: 1px solid #8899AA;
+	border-right: 0;
+	background: #F1F4F9;
+	color: #224466;
+}
+#leftbar a.notifying
+{
+	border: 1px solid #FFAA44;
+	border-right: 0;
+	background: #FFF8F2;
+	color: #EE8822;
+}
+#leftbar a.notifying:hover
+{
+	border: 1px solid #D59038;
+	border-right: 0;
+	background: #F7F2EE;
+	color: #BB6619;
+}
+#leftbar a.cur,
+#leftbar a.cur:hover
+{
+	border: 1px solid #AAAAAA;
+	border-right: 0;
+	margin: 2px 0 6px 5px;
+	padding: 4px 5px 4px 5px;
+	background: #FAFCFE;
+	cursor: default;
+}
+#leftbar div .close
+{
+	float: right;
+	margin-right: 2px;
+	margin-top: -27px;
+	color: #555555;
+	font-size: 9pt;
+	cursor: pointer;
+	width: 15px;
+	height: 15px;
+	background: transparent url(/fx/closebuttonsheet.png) no-repeat scroll 0px -16px;
+	z-index: 10;
+}
+#leftbar div .close2
+{
+	margin-top: -31px;
+}
+#leftbar div .close3
+{
+	margin-top: -39px;
+}
+#leftbar div .close0
+{
+	margin-top: -23px;
+}
+#leftbar div .close:hover
+{
+	background: transparent url(/fx/closebuttonsheet.png) no-repeat scroll 0px 0px;
+}
+#leftbar small
+{
+	display: block;
+	margin: 2px 0 2px 8px;
+}
+#leftbar a em
+{
+	font-size: 10pt;
+	display: block;
+	white-space: pre;
+	overflow-x: hidden;
+}
+#leftbar a em.p2
+{
+	padding-left: 0;
+}
+#leftbar a small
+{
+	font-size: 7pt;
+	padding-left: 10px;
+	margin: -2px 0 0 0;
+}
+#leftbar a small.vs
+{
+	margin: -2px 0 -2px 0;
+}
+
+.chatbox
+{
+	margin: 0 10px 0 80px;
+	padding: 5px 0 0 0;
+}
+
+.battlewrapper .battle
+{
+	top: 9px;
+	left: 9px;
+}
+.battlewrapper .battle-log
+{
+	top: 0;
+	right: 0;
+	bottom: 40px;
+	left: 659px;
+	border-top: 0;
+	border-right: 0;
+	height: auto;
+}
+.battlewrapper .battle-log-add
+{
+	top: auto;
+	left: 659px;
+	bottom: 0;
+	right: 0;
+	border-bottom: 0;
+	border-right: 0;
+	padding: 2px 4px;
+	min-height: 36px;
+}
+.huge-layout .battle-log,
+.huge-layout .battle-log-add
+{
+	right: auto;
+	width: 359px;
+}
+#lobbychat
+{
+}
+.lobbychat .battle-log,
+.huge-layout .lobbychat .battle-log
+{
+	position: absolute;
+	top: 51px;
+	right: 0;
+	bottom: 40px;
+	left: 551px; /* 420 + 131 */
+	border-top: 0;
+	border-right: 0;
+	height: auto;
+	width: auto;
+	background: #edf1f4 url(/data/meloettabg.png) no-repeat scroll right bottom;
+}
+.sidelobbychat .battle-log,
+.huge-layout .sidelobbychat .battle-log
+{
+	left: 790px; /* 619 + 131 */
+}
+.huge-layout .secondarylobbychat .battle-log
+{
+	left: 1150px; /* 619 + 131 */
+	right: 0;
+	width: auto;
+}
+.lobbychat .battle-log-add,
+.huge-layout .lobbychat .battle-log-add
+{
+	position: absolute;
+	height: auto;
+	width: auto;
+	top: auto;
+	bottom: 0;
+	right: 0;
+	border-bottom: 0;
+	border-right: 0;
+	padding: 2px 4px;
+	min-height: 36px;
+	left: 551px;
+}
+.sidelobbychat .battle-log-add,
+.huge-layout .sidelobbychat .battle-log-add
+{
+	left: 790px;
+}
+.huge-layout .secondarylobbychat .battle-log-add
+{
+	left: 1150px;
+	right: 0;
+	width: auto;
+}
+.battlewrapper .replay-controls
+{
+	position: absolute;
+	top: 380px;
+	left: 10px;
+	right: auto;
+	bottom: auto;
+	width: 640px;
+}
+.replay-controls .whatdo
+{
+	margin: -2px 0 0 0;
+	font-size: 9pt;
+	color: #555555;
+}
+.replay-controls .whatdo small
+{
+	float: right;
+	padding: 1px 2px;
+	border: 1px solid #999999;
+	border-radius: 4px;
+}
+.replay-controls .whatdo small.weak
+{
+	color: #AAAA22;
+	border-color: #AAAA22;
+}
+.replay-controls .whatdo small.critical
+{
+	color: #EE4433;
+	border-color: #EE4433;
+}
+.tiny-layout .battlewrapper .battle-log,
+.tiny-layout .battlewrapper .battle-log-add,
+.small-layout .battlewrapper .battle-log,
+.small-layout .battlewrapper .battle-log-add
+{
+	display: none;
+}
+
+.tiny-height .controls
+{
+	position: absolute;
+	bottom: 10px;
+	left: 0;
+	right: 0;
+	background: #444444;
+	background: rgba(40,40,40,.85);
+	color: #FFFFFF;
+	padding: 4px 8px;
+}
+.tiny-height .replay-controls .whatdo
+{
+	color: #FFFFFF;
+}
+.tiny-height .replay-controls .whatdo small.weak
+{
+	color: #DDDD55;
+	border-color: #DDDD55;
+}
+.tiny-height .replay-controls .whatdo small.critical
+{
+	color: #FF7766;
+	border-color: #FF7766;
+}
+.tiny-height .movemenu
+{
+	display: none;
+	padding: 0 100px 0 90px;
+}
+.tiny-height .switchmenu
+{
+	display: none;
+	padding: 0 70px 0 180px;
+}
+.tiny-height .moveselect
+{
+	position: absolute;
+	left: 20px;
+	bottom: 20px;
+}
+.tiny-height .switchselect
+{
+	position: absolute;
+	right: 20px;
+	bottom: 20px;
+}
+.controls .moveselect button,
+.controls .switchselect button
+{
+	font-size: 12pt;
+}
+.normal-height .moveselect button,
+.normal-height .switchselect button
+{
+	background: transparent;
+	border: 0;
+	font-weight: bold;
+	font-style: italic;
+	color: #555555;
+	font-size: 11pt;
+	display: block;
+	margin: 0;
+	padding: 9px 0 1px 2px;
+}
+.normal-height .moveselect button
+{
+	color: #884422;
+}
+.normal-height .switchselect button
+{
+	color: #445588;
+}
+.replay-controls .switchmenu button,
+.switchmenu button
+{
+	position: relative;
+	display: block;
+	float: left;
+	width: 100px;
+	margin-right: 8px;
+	font: 9pt Verdana, sans-serif;
+	padding: 5px 5px 5px 0;
+	white-space: pre;
+	overflow: hidden;
+}
+.switchmenu button .pokemonicon
+{
+	float: left;
+	margin: -4px 0;
+	opacity: 0.8;
+}
+.replay-controls .switchmenu button .hpbar,
+.switchmenu button .hpbar
+{
+	position: absolute;
+	display: block;
+	border: 1px solid #AAA;
+	background: #EEE;
+	height: 2px;
+	bottom: 2px; left: 2px; right: 2px;
+	border-radius: 2px;
+	opacity: .6;
+}
+.replay-controls .switchmenu button .hpbar span,
+.switchmenu button .hpbar span
+{
+	display: block;
+	height: 1px;
+	background: #0A6;
+	border-top: 1px solid #3C0;
+	border-radius: 1px;
+}
+.switchmenu button .status
+{
+	position: absolute;
+	display: block;
+	right: 2px;
+	bottom: 1px;
+	width: 5px;
+	height: 5px;
+	padding: 0;
+	border-radius: 2px;
+	border: 1px solid #C2C2C2;
+	opacity: 1.0;
+}
+.status
+{
+	color: white;
+	border-radius: 3px;
+	padding: 0 2px;
+}
+.status.brn
+{
+	background: #EE5533;
+}
+.status.psn
+{
+	background: #A4009A;
+}
+.status.par
+{
+	background: #9AA400;
+}
+.status.slp
+{
+	background: #AA77AA;
+}
+.status.frz
+{
+	background: #009AA4;
+}
+
+
+.tiny-height .replay-controls .whatdo
+{
+	padding-bottom: 50px;
+}
+.tiny-height .replay-controls .move-controls .whatdo,
+.tiny-height .replay-controls .switch-controls .whatdo
+{
+	padding-bottom: 5px;
+}
+.tiny-height .move-controls .movemenu,
+.tiny-height .switch-controls .switchmenu
+{
+	display: block;
+	margin-right: 0;
+}
+
+.movemenu button
+{
+	float: left;
+	display: block;
+	width: 154px;
+	margin-right: 7px;
+	height: 40px;
+	font: 10pt/100% Verdana, sans-serif;
+	position: relative;
+	padding:  6px 4px 0 4px;
+}
+.movemenu button small
+{
+	color: #777777;
+}
+.movemenu button small.type
+{
+	padding-top: 3px;
+	float: left;
+	font-size: 7pt;
+}
+.movemenu button small.pp
+{
+	padding-top: 3px;
+	float: right;
+	font-size: 7pt;
+}
+
+.switchmenu,
+.movemenu
+{
+	display: block;
+	margin-right: -10px;
+}
+.switchmenu button,
+.movemenu button
+{
+	position: relative;
+	outline: none;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 0 1px 0 rgba(255,255,255,.4);
+	border-radius: 5px;
+	margin-top: 2px;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+
+	/* default colors */
+	color: #111111;
+	border: solid 1px #AAAAAA;
+	background: #e3e3e3;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e3e3e3));
+	background: -moz-linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	background: linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
+}
+.switchmenu button:hover,
+.movemenu button:hover
+{
+	background: #cfcfcf;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#cfcfcf));
+	background: -moz-linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	background: linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f2f2f2', endColorstr='#cfcfcf');
+	border-color: #606060;
+}
+.switchmenu button:active,
+.movemenu button:active
+{
+	background: -webkit-gradient(linear, left top, left bottom, from(#cfcfcf), to(#f2f2f2));
+	background: -moz-linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#cfcfcf', endColorstr='#f2f2f2');
+}
+
+.switchmenu button:disabled,
+.movemenu button:disabled
+{
+	cursor: default;
+	background: #F3F3F3 !important;
+	border-color: #CCCCCC !important;
+	-webkit-box-shadow: none !important;
+	-moz-box-shadow: none !important;
+	box-shadow: none !important;
+	color: #777777 !important;
+}
+
+#userbar
+{
+	position: absolute;
+	top: 9px;
+	right: 9px;
+}
+
+#backbutton
+{
+	position: absolute;
+	top: 14px;
+	left: 9px;
+	display: none;
+}
+#backbutton button
+{
+	font-size: 12pt;
+}
+.tiny-layout #backbutton
+{
+	display: block;
+}
+.tiny-layout .lobby#backbutton
+{
+	display: none;
+}
+#inline-nav
+{
+	display: none;
+	padding: 20px;
+}
+#inline-nav a[href="/sim-lobby"]
+{
+	display: none;
+}
+#inline-nav a
+{
+	display: block;
+	padding: 4px 6px;
+	margin: 0 0 6px 0;
+	font-size: 14pt;
+	border: 1px solid #BBCCDD;
+	background: #F7FBFE;
+	color: #336699;
+	text-decoration: none;
+}
+#inline-nav small
+{
+	display: block;
+}
+.tiny-layout #inline-nav
+{
+	margin-right: 160px;
+	display: block;
+}
+
+/* .lobbychat .battle-log .chat:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+} */
+/* .lobbychat .battle-log .chat
+{
+	padding: 3px 0 1px 7em;
+}
+.lobbychat .battle-log .chat strong
+{
+	float: left;
+	margin-left: -7em;
+	min-width: 6.8em;
+	padding-right: .2em;
+	text-align: right;
+	overflow: hidden;
+} */
+.battle-log .chat small
+{
+	font-weight: normal;
+	font-size: 8pt;
+	color: #888888;
+}
+.lobbychat .battle-log .chat em
+{
+	/* float: left; */
+}
+.lobbychat .message
+{
+	padding: 4px 0 2px 0;
+	font-size: 8pt;
+}
+.lobbychat .message strong
+{
+	color: #40576A;
+	font-size: 8pt;
+}
+.lobbychat .message .battle-start
+{
+	text-decoration: none;
+	color: #000000;
+}
+.lobbychat .message .battle-start:hover
+{
+	text-decoration: underline;
+	color: #224488;
+}
+
+.chatbox label
+{
+	float: left;
+	margin-left: -78px;
+	width: 73px;
+	text-align: right;
+	overflow: hidden;
+	white-space: pre;
+
+	font-weight: bold;
+	font-size: 8pt;
+}
+
+.chatbox textarea
+{
+	display: block;
+	height: 1.1em;
+	width: 100%;
+	resize: none;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+}
+
+#tooltipwrapper
+{
+	position: absolute;
+	top: 400px;
+	left: 100px;
+	text-align: left;
+}
+#tooltipwrapper .tooltipinner
+{
+	position: relative;
+}
+#tooltipwrapper .tooltip
+{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 300px;
+	border: 1px solid #888888;
+	background: #EEEEEE;
+	background: rgba(240,240,240,.9);
+	border-radius: 5px;
+}
+#tooltipwrapper .tooltip h2
+{
+	padding: 2px 4px;
+	margin: 0;
+	border-bottom: 1px solid #888888;
+	font-size: 10pt;
+}
+#tooltipwrapper .tooltip h2 small
+{
+	font-weight: normal;
+}
+#tooltipwrapper .tooltip p
+{
+	padding: 2px 4px;
+	margin: 0;
+	font-size: 8pt;
+}
+#tooltipwrapper .tooltip p.section
+{
+	border-top: 1px solid #888888;
+}
+
+.teambar
+{
+	position: absolute;
+	top: 0;
+	left: 118px;
+}
+.teambar button
+{
+	display: block;
+	background: #F3F3F3;
+	border: 1px solid #AAAAAA;
+	padding: 0;
+	margin: -1px 2px 0 0;
+	height: 42px;
+	float: left;
+	width: 88px;
+	cursor: pointer;
+	white-space: pre;
+	font-size: 8pt;
+	font-family: Verdana, Arial, sans-serif;
+}
+.teambar button .pokemonicon
+{
+	margin: 0 auto;
+}
+.teambar button:hover
+{
+	background: #DCDCDC;
+	border-color: #757575;
+}
+.teambar button:active
+{
+	background: #CCCCCC;
+	border-color: #373737;
+}
+.teambar button:disabled,
+.teambar button:disabled:hover,
+.teambar button:disabled:active
+{
+	color: #000000;
+	background: #FCFCFC;
+	border-color: #AAAAAA;
+	opacity: .5;
+	cursor: default;
+}
+.teamchart,
+.teamchart li
+{
+	list-style-type: none;
+	display: block;
+	margin: 0;
+	padding: 0;
+}
+.teamchart
+{
+	padding: 0 10px 10px 10px;
+}
+.teamchart li
+{
+	padding-top: 20px;
+	position: relative;
+}
+.teamchart li.format-select
+{
+	padding-bottom: 10px;
+}
+.teamchart li.format-select label
+{
+	display: block;
+	font-size: 8pt;
+	font-weight: bold;
+}
+.teamchart li.format-select select,
+.teamchart li.format-select option
+{
+	font: 12pt Verdana, sans-serif;
+}
+
+.setchart-nickname
+{
+	position: absolute;
+	left: -5px;
+	top: 5px;
+	border: 1px solid #999999;
+	background: #CBD6E1;
+	border-radius: 5px;
+	padding: 1px 0 0 0;
+	width: 110px;
+
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
+}
+.setchart
+{
+	border: 1px solid #999999;
+	background: #DAE5F0;
+	border-radius: 5px;
+	padding: 2px 0 0 3px;
+	height: 127px;
+	width: 626px;
+	margin-top: 8px;
+	
+background-image: linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
+}
+.setcol
+{
+	height: 127px;
+	width: 112px;
+	float: left;
+}
+.setcol-icon
+{
+	background: transparent none no-repeat scroll center top;
+}
+.setcol-details
+{
+	width: 234px;
+}
+.setcell
+{
+	float: left;
+}
+.setcell-details
+{
+	float: none;
+}
+.setcol-icon .itemicon
+{
+	display: block;
+	margin-left: 88px;
+	margin-top: 60px;
+	width: 24px;
+	height: 24px;
+	background-image: transparent none no-repeat scroll center center;
+	opacity: 0.8;
+}
+.setcell-pokemon
+{
+	margin-top: 0;
+}
+.setcell-details
+{
+	height: 84px;
+}
+.setcol-moves .setcell
+{
+	padding-bottom: 1px;
+}
+.setchart label,
+.setchart-nickname label
+{
+	display: block;
+	font-size: 8pt;
+	font-weight: bold;
+	color: #555555;
+	padding-left: 2px;
+	
+	text-shadow: 1px 1px 0 rgba(255,255,255,.6);
+}
+.setchart-nickname label
+{
+	font-size: 7pt;
+	margin-bottom: -1px;
+}
+.setcol-moves
+{
+	width: 137px;
+}
+.setcol-stats
+{
+	width: 142px;
+}
+.setdetails, .setstats
+{
+	display: block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 1px;
+	margin: 2px 2px 1px 1px;
+	font-size: 7pt;
+	cursor: pointer;
+
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+}
+.setdetails label, .setstats label
+{
+	cursor: pointer;
+}
+.setdetails:hover, .setstats:hover
+{
+	border-color: #474747;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
+	background: #FFFFFF;
+}
+.setdetails:focus, .setstats:focus
+{
+	border: 2px solid #004488;
+	margin: 1px 1px 0 0;
+	outline: 0 none;
+}
+.setdetails:active, .setstats:active
+{
+	box-shadow: inset 0px 2px 2px #AAAAAA;
+	background: #E4E9ED;
+	border: 2px solid #004488;
+	margin: 1px 1px 0 0;
+	outline: 0 none;
+}
+.setdetails
+{
+	width: 230px;
+	height: 34px;
+}
+.setdetails:focus,.setdetails:active
+{
+	width: 232px;
+	height: 36px;
+}
+.setdetails .detailcell
+{
+	border-left: 1px solid #CCCCCC;
+	padding: 2px 4px;
+	display: block;
+	float: left;
+	font-size: 9pt;
+	text-align: center;
+}
+.setdetails .detailcell-first
+{
+	border-left: 0;
+}
+.setchart .setdetails label
+{
+	float: none;
+	display: block;
+	font-weight: normal;
+	font-size: 7pt;
+	text-align: center;
+	padding: 0;
+}
+.setstats
+{
+	width: 138px;
+	height: 108px;
+}
+.setstats:focus,.setstats:active
+{
+	width: 140px;
+	height: 110px;
+}
+.statrow
+{
+	display: block;
+	height: 15px;
+}
+.setchart .setstats label
+{
+	float: left;
+	width: 20px;
+	height: 5px;
+	text-align: right;
+	font-weight: normal;
+	font-size: 7pt;
+	padding: 0;
+}
+.setstats .statgraph
+{
+	float: left;
+	width: 75px;
+	padding: 0 0 0 3px;
+	height: 5px;
+}
+.setstats .statgraph span
+{
+	display: block;
+	margin-top: 3px;
+	height: 6px;
+	background: #CCCCCC;
+}
+.setstats em
+{
+	float: left;
+	font-style: normal;
+	width: 22px;
+	height: 5px;
+	text-align: right;
+}
+.setstats small
+{
+	float: left;
+	font-size: 7pt;
+}
+.setstats .statrow-head em
+{
+	color: #555555;
+}
+.teamnameedit
+{
+	width: 300px;
+}
+.label
+{
+	font-size: 9pt;
+	font-weight: bold;
+	display: block;
+}
+.textbox
+{
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 2px 3px;
+	font-family: Verdana, sans-serif;
+	font-size: 9pt;
+	
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+}
+.setchart input,
+.setchart-nickname input,
+.statform input.inputform
+{
+	display: block;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 1px;
+	margin: 2px 3px 1px 1px;
+	font-family: Verdana, sans-serif;
+	font-size: 9pt;
+	width: 104px;
+	height: 20px;
+	
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+	color: black;
+}
+.setchart input:hover,
+.setchart-nickname input:hover,
+.statform input.inputform:hover,
+.textbox:hover
+{
+	border-color: #474747;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
+	background: #FFFFFF;
+}
+.setchart input:focus,
+.setchart-nickname input:focus,
+.statform input.inputform:focus,
+.textbox:focus
+{
+	outline: 0 none;
+	border: 1px solid #004488;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
+	background: #FFFFFF;
+}
+.setchart input.incomplete {
+	color: #999999;
+}
+.setchart-nickname input
+{
+}
+.setchart .setcell-details input
+{
+	width: 216px;
+}
+.setchart .setcell-item input
+{
+	width: 114px;
+}
+.setchart .setcol-moves input
+{
+	width: 129px;
+}
+
+.teambuilder-results
+{
+	position: absolute;
+	overflow-y: scroll;
+	top: 200px;
+	left: 0;
+	bottom: 0;
+	right: auto;
+	width: 659px;
+}
+.teamchartbox
+{
+	position: absolute;
+	overflow-y: auto;
+	top: 40px;
+	left: 0;
+	bottom: 0;
+	right: auto;
+	width: 659px;
+	border-top: 1px solid #DDDDDD;
+}
+.teambuilder-results .result a
+{
+	border-radius: 4px;
+	padding: 1px 1px 1px 5px;
+	margin: 0 5px 1px 5px;
+	background: transparent;
+	cursor: pointer;
+}
+.teambuilder-results .result a:hover
+{
+	padding: 0px 0px 0px 4px;
+	border: 1px solid #D8D8D8;
+	background: #F8F8F8;
+}
+.teambuilder-results .firstresult a,
+.teambuilder-results .firstresult a:hover
+{
+	padding: 0px 0px 0px 4px;
+	border: 1px solid #CCCCCC;
+	background: #F2F2F2;
+}
+
+.teambuilder-results h3,
+.teambuilder-results .utilichart h3,
+.roomlist h3,
+.mainpopup h3
+{
+	background: #DAE5F0;
+	margin: 6px 0;
+	padding: 2px 5px;
+	font-family: Verdana, sans-serif;
+	font-size: 9pt;
+	text-align: left;
+
+	border: 1px solid #AAAAAA;
+	border-left: 0;
+	border-right: 0;
+	text-shadow: 1px 1px 0 rgba(255,255,255,.6);
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6), 0px 2px 2px rgba(0,0,0,.15);
+}
+.mainpopup h3
+{
+	margin: 0;
+	padding: 0;
+}
+.mainpopup h3 a
+{
+	display: block;
+	padding: 2px 5px;
+	cursor: pointer;
+}
+.mainpopup h3 a:hover
+{
+	color: #113355;
+}
+.mainpopup h3 button
+{
+	float: right;
+	padding: 1px 2px 0 0;
+	margin: 0;
+}
+.statform
+{
+	padding: 10px 20px;
+	font-size: 10pt;
+}
+.statform .col div
+{
+	padding-top: 1px;
+	height: 23px;
+}
+.statform .col div label,
+.statform .col div em,
+.statform .col div b
+{
+	display: block;
+	padding: 5px 0 0 0;
+}
+.statform .col
+{
+	float: left;
+	width: 100px;
+	text-align: right;
+	font-size: 9pt;
+}
+.statform .statscol
+{
+	width: 40px;
+}
+.statform .statscol em,
+.statform .statscol b
+{
+	font-style: normal;
+	font-weight: bold;
+}
+.statform .graphcol
+{
+	width: 205px;
+}
+.statform .graphcol div span
+{
+	margin: 2px 0 0 5px;
+	display: block;
+	height: 8px;
+	border-bottom: 1px solid #AAAAAA;
+	border-right: 1px solid #AAAAAA;
+	background: #CCCCCC;
+}
+.statform .evcol,
+.statform .ivcol
+{
+	width: 48px;
+	text-align: center;
+	margin-right: 10px;
+}
+.statform .totalev b
+{
+	color: #DD2222;
+}
+.statform .totalev em
+{
+	font-style: normal;
+}
+.statform input.numform
+{
+	width: 40px;
+	height: 16px;
+	font-size: 9pt;
+}
+
+.detailsform .formrow
+{
+	padding-left: 100px;
+}
+.detailsform .formrow .formlabel
+{
+	float: left;
+	margin-left: -100px;
+	width: 95px;
+	text-align: right;
+}
+
+.itemicon
+{
+	display: block;
+	width: 24px;
+	height: 24px;
+}
+.pokemonicon
+{
+	display: block;
+	width: 32px;
+	height: 24px;
+}
+
+#overlay
+{
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: #CCCCCC;
+	background: rgba(212, 212, 212, .5);
+	text-align: center;
+}
+#overlay p
+{
+	margin: 0.6em 0;
+}
+#messagebox
+{
+	margin: 4em auto 1em auto;
+	max-width: 480px;
+	max-height: 90%;
+	text-align: left;
+	background: #F2F2F2;
+	border: 1px solid #999999;
+	padding: 5px 10px;
+	
+	border-radius: 6px;
+	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
+	overflow-y: scroll;
+}
