@@ -40,36 +40,36 @@ for (var i=0; i<text.length; i++)
 
 // ES5 indexOf
 if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
-        "use strict";
-        if (this == null) {
-            throw new TypeError();
-        }
-        var t = Object(this);
-        var len = t.length >>> 0;
-        if (len === 0) {
-            return -1;
-        }
-        var n = 0;
-        if (arguments.length > 1) {
-            n = Number(arguments[1]);
-            if (n != n) { // shortcut for verifying if it's NaN
-                n = 0;
-            } else if (n != 0 && n != Infinity && n != -Infinity) {
-                n = (n > 0 || -1) * Math.floor(Math.abs(n));
-            }
-        }
-        if (n >= len) {
-            return -1;
-        }
-        var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
-        for (; k < len; k++) {
-            if (k in t && t[k] === searchElement) {
-                return k;
-            }
-        }
-        return -1;
-    }
+	Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+		"use strict";
+		if (this == null) {
+			throw new TypeError();
+		}
+		var t = Object(this);
+		var len = t.length >>> 0;
+		if (len === 0) {
+			return -1;
+		}
+		var n = 0;
+		if (arguments.length > 1) {
+			n = Number(arguments[1]);
+			if (n != n) { // shortcut for verifying if it's NaN
+				n = 0;
+			} else if (n != 0 && n != Infinity && n != -Infinity) {
+				n = (n > 0 || -1) * Math.floor(Math.abs(n));
+			}
+		}
+		if (n >= len) {
+			return -1;
+		}
+		var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+		for (; k < len; k++) {
+			if (k in t && t[k] === searchElement) {
+				return k;
+			}
+		}
+		return -1;
+	}
 }
 
 // MD5 minified
@@ -349,15 +349,21 @@ var Tools = {
 			var id = toId(name);
 			move = (window.BattleMovedex && window.BattleMovedex[id]) || {};
 			if (move.name) move.exists = true;
-			
+
+			if (!move.exists && id.substr(0,11) === 'hiddenpower') {
+				var matches = /([a-z]*)([0-9]*)/.exec(id);
+				move = $.extend({}, window.BattleMovedex[matches[1]]);
+				move.basePower = matches[2];
+			}
+
 			if (!move.id) move.id = id;
 			if (!move.name) move.name = name;
-			
+
 			if (!move.critRatio) move.critRatio = 1;
 			if (!move.baseType) move.baseType = move.type;
 			if (!move.effectType) move.effectType = 'Move';
 			if (!move.secondaries && move.secondary) move.secondaries = [move.secondary];
-			
+
 			if (!move.anim) move.anim = BattleOtherAnims.attack.anim;
 			$.extend(move, BattleMoveAnims[move.id]);
 		}
