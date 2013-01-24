@@ -11,7 +11,7 @@ Config.serverprotocol = Config.serverprotocol || 'ws';
 var socket;
 var locPrefix = '/';
 var servertoken = Config.server;
-if (Config.urlPrefix) locPrefix += urlPrefix;
+if (Config.urlPrefix) locPrefix += Config.urlPrefix;
 
 // initialize sockets
 var socket = null;
