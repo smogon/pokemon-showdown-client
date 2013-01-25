@@ -350,7 +350,7 @@ var Tools = {
 			move = (window.BattleMovedex && window.BattleMovedex[id]) || {};
 			if (move.name) move.exists = true;
 
-			if (!move.exists && id.substr(0,11) === 'hiddenpower') {
+			if (!move.exists && id.substr(0,11) === 'hiddenpower' && id.length > 11) {
 				var matches = /([a-z]*)([0-9]*)/.exec(id);
 				move = $.extend({}, window.BattleMovedex[matches[1]]);
 				move.basePower = matches[2];
