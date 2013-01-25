@@ -220,6 +220,7 @@ function BattleRoom(id, elem) {
 		}
 	};
 	this.init = function (data) {
+		this.version = (data.version !== undefined) ? data.version : 0;
 		if (selfR.battle.activityQueue) {
 			// re-initialize
 			selfR.battleEnded = false;
@@ -323,6 +324,9 @@ function BattleRoom(id, elem) {
 		}
 		if (update.request) {
 			selfR.me.request = update.request;
+			if (selfR.version > 0) {
+				selfR.send('/ackrequest ' + selfR.me.request.rqid);
+			}
 			selfR.me.request.requestType = 'move';
 			if (selfR.me.request.forceSwitch) {
 				selfR.me.request.requestType = 'switch';
