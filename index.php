@@ -181,7 +181,7 @@ $serverlibrary = $serverlibs[$serverprotocol];
 			document.getElementById('loading-message').innerHTML = 'If the client is taking a long time to load, try refreshing in a few minutes. If it still doesn\'t work, Pokemon Showdown may be down for maintenance. We apologize for the inconvenience.<br /><br />'+document.getElementById('loading-message').innerHTML;
 		</script>
 
-		<script src="/js/battledata.js?v0.8.0"></script>
+		<script src="/js/battledata.js?v0.8.1"></script>
 		<script src="/data/pokedex-mini.js?v0.7.18.8"></script>
 		<script src="/js/battle.js?v0.8b14"></script>
 		<!--script src="http://'.$server.':'.$serverport.'/socket.io/socket.io.js"></script-->
