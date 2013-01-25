@@ -188,7 +188,7 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<script src="<?php echo $serverlibrary; ?>"></script>
 		<script src="/js/teambuilder.js?v0.7.12"></script>
 		<script src="/js/ladder.js?v0.8.2"></script>
-		<script src="/js/sim.js?v0.8.3"></script>
+		<script src="/js/sim.js?v0.8.2b"></script>
 
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to login server...';
