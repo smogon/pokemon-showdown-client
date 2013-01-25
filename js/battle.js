@@ -2476,6 +2476,9 @@ function Battle(frame, logFrame, noPreload) {
 						}
 						actions += "" + poke.getName() + "'s health is sapped by Leech Seed!";
 						break;
+					case 'flameburst':
+						actions += "The bursting flame hit " + poke.getLowerName() + "!";
+						break;
 					default:
 						if (ofpoke) {
 							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "!";
