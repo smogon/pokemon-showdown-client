@@ -183,7 +183,7 @@ $serverlibrary = $serverlibs[$serverprotocol];
 
 		<script src="/js/battledata.js?v0.8.0"></script>
 		<script src="/data/pokedex-mini.js?v0.7.18.8"></script>
-		<script src="/js/battle.js?v0.8b13"></script>
+		<script src="/js/battle.js?v0.8b14"></script>
 		<!--script src="http://'.$server.':'.$serverport.'/socket.io/socket.io.js"></script-->
 		<script src="<?php echo $serverlibrary; ?>"></script>
 		<script src="/js/teambuilder.js?v0.7.12"></script>
