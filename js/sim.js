@@ -277,6 +277,11 @@ function BattleRoom(id, elem) {
 	this.send = function (message) {
 		emit(socket, 'chat', {room:this.id,message:message});
 	};
+	// Same as send, but appends the rqid to the message so that the server
+	// can verify that the decision is sent in response to the correct request.
+	this.sendDecision = function (message) {
+		this.send(message + '|' + this.me.request.rqid);
+	};
 	this.add = function (log) {
 		if (typeof log === 'string') log = log.split('\n');
 		selfR.update({updates:log});
@@ -324,7 +329,10 @@ function BattleRoom(id, elem) {
 		}
 		if (update.request) {
 			selfR.me.request = update.request;
-			if (selfR.version > 0) {
+			if (selfR.version === 1) {
+				// We maintain this for now, in case a server updated during
+				// the brief period where this was the design. However, this
+				// can probably be removed in a few weeks, if desired.
 				selfR.send('/ackrequest ' + selfR.me.request.rqid);
 			}
 			selfR.me.request.requestType = 'move';
@@ -762,7 +770,7 @@ function BattleRoom(id, elem) {
 			return false;
 		}
 		selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
-		selfR.send('/choose '+selfR.choices.join(','));
+		selfR.sendDecision('/choose '+selfR.choices.join(','));
 		selfR.notifying = false;
 		updateRoomList();
 		return false;
@@ -796,7 +804,7 @@ function BattleRoom(id, elem) {
 			}
 		}
 		selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
-		selfR.send('/choose '+selfR.choices.join(','));
+		selfR.sendDecision('/choose '+selfR.choices.join(','));
 		selfR.notifying = false;
 		updateRoomList();
 		return false;
@@ -820,7 +828,7 @@ function BattleRoom(id, elem) {
 			pos = pos+1;
 		}
 		selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
-		selfR.send('/team '+(pos));
+		selfR.sendDecision('/team '+(pos));
 		selfR.notifying = false;
 		updateRoomList();
 		return false;
