@@ -3774,6 +3774,9 @@ function Battle(frame, logFrame, noPreload) {
 					self.mySide.updateStatbar();
 					self.yourSide.updateStatbar();
 					break;
+				case 'payday':
+					actions += 'Coins were scattered everywhere!';
+					break;
 				default:
 					actions += ''+effect.name+' hit!';
 					break;
