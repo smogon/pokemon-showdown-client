@@ -11,11 +11,14 @@
 
 define('SOURCE_FILE', 'index.php');
 
+function replaceMatch($m) {
+	$hash = md5_file($m[2]);
+	return "${m[1]}=\"/${m[2]}?${hash}\"";
+}
+
 file_put_contents(SOURCE_FILE,
 		preg_replace_callback('/(src|href)="\/(.*?)\?[a-z0-9]*?"/',
-				function($m) {
-					$hash = md5_file($m[2]);
-					return "${m[1]}=\"/${m[2]}?${hash}\"";
-				},
-			file_get_contents(SOURCE_FILE)));
+		'replaceMatch',
+		file_get_contents(SOURCE_FILE))
+	);
 
