@@ -210,7 +210,11 @@ function BattleRoom(id, elem) {
 				selfR.joinElem.remove();
 			}
 			selfR.joinElem = null;
-			selfR.controlsElem.html('<div class="controls"><button onclick="return rooms[\'' + selfR.id + '\'].formLeaveBattle()">Leave this battle</button> <p><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Claim victory</small></button> <small>&larr; Your opponent has disconnected. Click this if they don\'t reconnect.</small></p></div>');
+			if (selfR.battle.kickingInactive) {
+				selfR.controlsElem.html('<div class="controls"><button onclick="return rooms[\'' + selfR.id + '\'].formLeaveBattle()">Leave this battle</button> <p><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button> <small>&larr; Your opponent has disconnected. Click this to delay your victory.</small></p></div>');
+			} else {
+				selfR.controlsElem.html('<div class="controls"><button onclick="return rooms[\'' + selfR.id + '\'].formLeaveBattle()">Leave this battle</button> <p><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Claim victory</small></button> <small>&larr; Your opponent has disconnected. Click this if they don\'t reconnect.</small></p></div>');
+			}
 		} else {
 			if (selfR.joinElem) {
 				selfR.joinElem.remove();
@@ -491,7 +495,11 @@ function BattleRoom(id, elem) {
 		selfR.me.callbackWaiting = true;
 		var active = selfR.battle.mySide.active[0];
 		if (!active) active = {};
-		selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em></div> <button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+		if (selfR.battle.kickingInactive) {
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em></div> <button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
+		} else {
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em></div> <button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+		}
 		var act = '';
 		var switchables = [];
 
@@ -735,6 +743,10 @@ function BattleRoom(id, elem) {
 		selfR.send('/kickinactive');
 		return false;
 	};
+	this.formStopBattleTimer = function () {
+		selfR.send('/timer off');
+		return false;
+	};
 	this.formForfeit = function () {
 		selfR.send('/forfeit');
 		return false;
@@ -769,7 +781,11 @@ function BattleRoom(id, elem) {
 			selfR.callback(selfR.battle, 'move2');
 			return false;
 		}
-		selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+		if (selfR.battle.kickingInactive) {
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
+		} else {
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+		}
 		selfR.sendDecision('/choose '+selfR.choices.join(','));
 		selfR.notifying = false;
 		updateRoomList();
@@ -803,7 +819,11 @@ function BattleRoom(id, elem) {
 				return false;
 			}
 		}
-		selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+		if (selfR.battle.kickingInactive) {
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
+		} else {
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+		}
 		selfR.sendDecision('/choose '+selfR.choices.join(','));
 		selfR.notifying = false;
 		updateRoomList();
@@ -827,7 +847,11 @@ function BattleRoom(id, elem) {
 		} else {
 			pos = pos+1;
 		}
-		selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+		if (selfR.battle.kickingInactive) {
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
+		} else {
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+		}
 		selfR.sendDecision('/team '+(pos));
 		selfR.notifying = false;
 		updateRoomList();
