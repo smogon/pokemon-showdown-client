@@ -10,7 +10,7 @@
  */
 
 function replaceMatch($m) {
-	$hash = md5_file($m[2]);
+	$hash = substr(md5_file($m[2]), 0, 8);
 	return "${m[1]}=\"/${m[2]}?${hash}\"";
 }
 
