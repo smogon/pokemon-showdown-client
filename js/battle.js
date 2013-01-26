@@ -3521,7 +3521,7 @@ function Battle(frame, logFrame, noPreload) {
 				var ofpoke = this.getPokemon(kwargs.of);
 				switch (effect.id) {
 				case 'calm':
-					actions += '' + poke.getName() + ' calmed down!';
+					actions += '' + poke.getName() + ' calmed down.';
 					break;
 				case 'confusion':
 					actions += "" + poke.getName() + " is confused!";
@@ -3540,6 +3540,11 @@ function Battle(frame, logFrame, noPreload) {
 					self.resultAnim(poke, 'Quick Guard', 'good', animDelay);
 					actions += "Quick Guard protected " + poke.getLowerName() + "!";
 					break;
+				case 'wideguard':
+					poke.addTurnstatus('wideguard');
+					self.resultAnim(poke, 'Wide Guard', 'good', animDelay);
+					actions += "Wide Guard protected " + poke.getLowerName() + "!";
+					break;
 				case 'protect':
 					poke.addTurnstatus('protect');
 					self.resultAnim(poke, 'Protected', 'good', animDelay);
@@ -3548,7 +3553,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'substitute':
 					if (kwargs.damage) {
 						self.resultAnim(poke, 'Damage', 'bad', animDelay);
-						actions += '' + poke.getName() + "'s substitute took the damage!";
+						actions += 'The substitute took damage for ' + poke.getLowerName() + '!';
 					} else if (kwargs.block) {
 						self.resultAnim(poke, 'Blocked', 'neutral', animDelay);
 						actions += '' + poke.getName() + "'s Substitute blocked " + Tools.getMove(kwargs.block || args[3]).name + '!';
@@ -3570,7 +3575,7 @@ function Battle(frame, logFrame, noPreload) {
 				// move activations
 				case 'trick':
 				case 'switcheroo':
-					actions += '' + poke.getName() + ' switched items with ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' switched items with its target!';
 					break;
 				case 'brickbreak':
 					actions += poke.getName() + " shattered " + ofpoke.getTeamName() + " protections!";
