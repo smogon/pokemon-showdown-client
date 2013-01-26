@@ -17,7 +17,7 @@ function replaceMatch($m) {
 }
 
 file_put_contents(SOURCE_FILE,
-		preg_replace_callback('/(src|href)="\/(.*?)\?[a-z0-9]*?"/',
+	preg_replace_callback('/(src|href)="\/(.*?)\?[a-z0-9]*?"/',
 		'replaceMatch',
 		file_get_contents(SOURCE_FILE))
 	);
