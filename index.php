@@ -84,9 +84,9 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<title>Showdown!</title>
 		<link rel="shortcut icon" href="/favicon.ico" id="dynamic-favicon" />
-		<link rel="stylesheet" href="/style/sim.css?v0.7.15" />
+		<link rel="stylesheet" href="/style/sim.css?" />
 		<link rel="stylesheet" href="/style/sim-types.css" />
-		<link rel="stylesheet" href="/style/battle.css?v0.8b4" />
+		<link rel="stylesheet" href="/style/battle.css?" />
 		<link rel="stylesheet" href="/style/replayer.css" /><!-- utilichart -->
 		<link rel="stylesheet" href="/style/font-awesome.css" />
 <?php if (@$serverdata['customcss']) { ?>
@@ -174,41 +174,41 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<script src="/js/autoresize.jquery.min.js"></script>
 		<script src="/js/jquery-cookie.js"></script>
 		<script src="/js/jquery.json-2.3.min.js"></script>
-		<script src="/js/soundmanager2.js?v0.6"></script>
+		<script src="/js/soundmanager2.js?"></script>
 
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading client...';
 			document.getElementById('loading-message').innerHTML = 'If the client is taking a long time to load, try refreshing in a few minutes. If it still doesn\'t work, Pokemon Showdown may be down for maintenance. We apologize for the inconvenience.<br /><br />'+document.getElementById('loading-message').innerHTML;
 		</script>
 
-		<script src="/js/battledata.js?v0.8.1"></script>
-		<script src="/data/pokedex-mini.js?v0.7.18.8"></script>
-		<script src="/js/battle.js?v0.8.3"></script>
+		<script src="/js/battledata.js?"></script>
+		<script src="/data/pokedex-mini.js?"></script>
+		<script src="/js/battle.js?"></script>
 		<!--script src="http://'.$server.':'.$serverport.'/socket.io/socket.io.js"></script-->
 		<script src="<?php echo $serverlibrary; ?>"></script>
-		<script src="/js/teambuilder.js?v0.7.12"></script>
-		<script src="/js/ladder.js?v0.8.2"></script>
-		<script src="/js/sim.js?v0.8.2c"></script>
+		<script src="/js/teambuilder.js?"></script>
+		<script src="/js/ladder.js?"></script>
+		<script src="/js/sim.js?"></script>
 
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to login server...';
 			if (Config.down) overlay('down');
 		</script>
 		
-		<script src="/data/learnsets.js?v0.7.18.1"></script>
+		<script src="/data/learnsets.js?"></script>
 		
-		<script src="/data/graphics.js?v0.7.16"></script>
-		<script src="/data/pokedex.js?v0.7.18.8"></script>
-		<script src="/data/formats-data.js?v0.8.0"></script>
-		<script src="/data/moves.js?v0.7.10"></script>
-		<script src="/data/items.js?v0.7rc"></script>
-		<script src="/data/abilities.js?v0.7rc"></script>
-		<script src="/data/formats.js?v0.7.12"></script>
-		<script src="/data/typechart.js?v0.6rc"></script>
+		<script src="/data/graphics.js?"></script>
+		<script src="/data/pokedex.js?"></script>
+		<script src="/data/formats-data.js?"></script>
+		<script src="/data/moves.js?"></script>
+		<script src="/data/items.js?"></script>
+		<script src="/data/abilities.js?"></script>
+		<script src="/data/formats.js?"></script>
+		<script src="/data/typechart.js?"></script>
 		
-		<script src="/js/utilichart.js?v0.7rc"></script>
+		<script src="/js/utilichart.js?"></script>
 		
-		<script src="/data/aliases.js?v0.7.18.8" async="async"></script>
+		<script src="/data/aliases.js?" async="async"></script>
 		<script>
 			updateResize();
 			if (init) init();

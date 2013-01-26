@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+<?php
+/**
+ * This script parses index.php and sets the version query string of each
+ * resource to be the MD5 hash of that resource. This script should be executed
+ * from the base directory of the repository.
+ *
+ * On the live web server, this script is set as the following git hooks:
+ *   post-commit, post-checkout, post-merge, post-rewrite
+ */
+
+define('SOURCE_FILE', 'index.php');
+
+file_put_contents(SOURCE_FILE,
+		preg_replace_callback('/(src|href)="\/(.*?)\?[a-z0-9]*?"/',
+				function($m) {
+					$hash = md5_file($m[2]);
+					return "${m[1]}=\"/${m[2]}?${hash}\"";
+				},
+			file_get_contents(SOURCE_FILE)));
+
