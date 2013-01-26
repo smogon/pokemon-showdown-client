@@ -9,16 +9,14 @@
  *   post-commit, post-checkout, post-merge, post-rewrite
  */
 
-define('SOURCE_FILE', 'index.php');
-
 function replaceMatch($m) {
 	$hash = md5_file($m[2]);
 	return "${m[1]}=\"/${m[2]}?${hash}\"";
 }
 
-file_put_contents(SOURCE_FILE,
+file_put_contents('index.php',
 	preg_replace_callback('/(src|href)="\/(.*?)\?[a-z0-9]*?"/',
 		'replaceMatch',
-		file_get_contents(SOURCE_FILE))
+		file_get_contents('index.php.template.txt'))
 	);
 
