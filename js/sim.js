@@ -1490,6 +1490,10 @@ function Lobby(id, elem) {
 		if (autoscroll) {
 			selfR.chatFrameElem.scrollTop(selfR.chatElem.height());
 		}
+		var $children = selfR.chatElem.children();
+		if ($children.length > 900) {
+			$children.slice(0,100).remove();
+		}
 	};
 	this.init = function (data) {
 		if (data.log) {
