@@ -84,9 +84,9 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<title>Showdown!</title>
 		<link rel="shortcut icon" href="/favicon.ico" id="dynamic-favicon" />
-		<link rel="stylesheet" href="/style/sim.css?ad132464820a755b3cac22607f41186d" />
+		<link rel="stylesheet" href="/style/sim.css?" />
 		<link rel="stylesheet" href="/style/sim-types.css" />
-		<link rel="stylesheet" href="/style/battle.css?344eff9ede5e047a42d7b59e4941482b" />
+		<link rel="stylesheet" href="/style/battle.css?" />
 		<link rel="stylesheet" href="/style/replayer.css" /><!-- utilichart -->
 		<link rel="stylesheet" href="/style/font-awesome.css" />
 <?php if (@$serverdata['customcss']) { ?>
@@ -174,41 +174,41 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<script src="/js/autoresize.jquery.min.js"></script>
 		<script src="/js/jquery-cookie.js"></script>
 		<script src="/js/jquery.json-2.3.min.js"></script>
-		<script src="/js/soundmanager2.js?78a94e9e4776904b72093951500ca4e9"></script>
+		<script src="/js/soundmanager2.js?"></script>
 
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading client...';
 			document.getElementById('loading-message').innerHTML = 'If the client is taking a long time to load, try refreshing in a few minutes. If it still doesn\'t work, Pokemon Showdown may be down for maintenance. We apologize for the inconvenience.<br /><br />'+document.getElementById('loading-message').innerHTML;
 		</script>
 
-		<script src="/js/battledata.js?25b6edb6ec7c203323553d7e2bd59871"></script>
-		<script src="/data/pokedex-mini.js?31069eae023eba06035af95bbf45bf19"></script>
-		<script src="/js/battle.js?d107abd32139534fccbb24d3fdfe97be"></script>
+		<script src="/js/battledata.js?"></script>
+		<script src="/data/pokedex-mini.js?"></script>
+		<script src="/js/battle.js?"></script>
 		<!--script src="http://'.$server.':'.$serverport.'/socket.io/socket.io.js"></script-->
 		<script src="<?php echo $serverlibrary; ?>"></script>
-		<script src="/js/teambuilder.js?f3ca9c698e760ad9220929bc192a46b9"></script>
-		<script src="/js/ladder.js?5849f13696a5675196915994a93fd2dc"></script>
-		<script src="/js/sim.js?4b071af63b2778301b7aa70cc622ee32"></script>
+		<script src="/js/teambuilder.js?"></script>
+		<script src="/js/ladder.js?"></script>
+		<script src="/js/sim.js?"></script>
 
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to login server...';
 			if (Config.down) overlay('down');
 		</script>
 		
-		<script src="/data/learnsets.js?5484d5b8d638f79ad1345a454c5bcf36"></script>
+		<script src="/data/learnsets.js?"></script>
 		
-		<script src="/data/graphics.js?2a85e3c1e7689154cb7dc9d77f607d0a"></script>
-		<script src="/data/pokedex.js?5fbff2414292bd31afe28f4d63a18d58"></script>
-		<script src="/data/formats-data.js?b85ad73ad5b72a6fc11904104ec8ef11"></script>
-		<script src="/data/moves.js?b16d99e7caccd058d71a5ad46d463e6a"></script>
-		<script src="/data/items.js?d75aafb982ff6aac8b79026d44038aec"></script>
-		<script src="/data/abilities.js?2dded9d0c30d77fdd9f614c08c60abfb"></script>
-		<script src="/data/formats.js?cb05e940abb842e2b12091cc4d8383e8"></script>
-		<script src="/data/typechart.js?2146fe92ca12a7ea62d3b6f2efab0b36"></script>
+		<script src="/data/graphics.js?"></script>
+		<script src="/data/pokedex.js?"></script>
+		<script src="/data/formats-data.js?"></script>
+		<script src="/data/moves.js?"></script>
+		<script src="/data/items.js?"></script>
+		<script src="/data/abilities.js?"></script>
+		<script src="/data/formats.js?"></script>
+		<script src="/data/typechart.js?"></script>
 		
-		<script src="/js/utilichart.js?f86efee34fa88da1839fdff4ab5a454e"></script>
+		<script src="/js/utilichart.js?"></script>
 		
-		<script src="/data/aliases.js?ed22731441b313b2f27839bbb4569e93" async="async"></script>
+		<script src="/data/aliases.js?" async="async"></script>
 		<script>
 			updateResize();
 			if (init) init();
