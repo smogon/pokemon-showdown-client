@@ -3239,7 +3239,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'yawn':
 					self.resultAnim(poke, 'Drowsy', 'slp', animDelay);
-					actions += "" + poke.getLowerName() + ' grew drowsy!';
+					actions += "" + poke.getName() + ' grew drowsy!';
 					break;
 				case 'smackdown':
 					self.resultAnim(poke, 'Grounded', 'bad', animDelay);
