@@ -2479,6 +2479,9 @@ function Battle(frame, logFrame, noPreload) {
 					case 'flameburst':
 						actions += "The bursting flame hit " + poke.getLowerName() + "!";
 						break;
+					case 'grasspledge':
+						actions += "" + poke.getName() + " is hurt by the sea of fire!";
+						break;
 					default:
 						if (ofpoke) {
 							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "!";
@@ -3684,6 +3687,18 @@ function Battle(frame, logFrame, noPreload) {
 				case 'mist':
 					actions += "" + side.getTeamName() + " became shrouded in mist!";
 					break;
+				case 'firepledge':
+					actions += "A rainbow appeared in the sky on " + side.getLowerTeamName() + "'s side!";
+					break;
+				case 'waterpledge':
+					actions += "A swamp enveloped " + side.getLowerTeamName() + "!";
+					break;
+				case 'grasspledge':
+					actions += "A sea of fire enveloped " + side.getLowerTeamName() + "!";
+					break;
+				default:
+					actions += "" + effect.name + " started!";
+					break;
 				}
 				break;
 			case '-sideend':
@@ -3717,6 +3732,18 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'mist':
 					actions += "" + side.getTeamName() + " is no longer protected by mist!";
+					break;
+				case 'firepledge':
+					actions += "The rainbow on " + side.getLowerTeamName() + "'s side disappeared!";
+					break;
+				case 'waterpledge':
+					actions += "The swamp around " + side.getLowerTeamName() + " disappeared!";
+					break;
+				case 'grasspledge':
+					actions += "The sea of fire around " + side.getLowerTeamName() + " disappeared!";
+					break;
+				default:
+					actions += "" + effect.name + " ended!";
 					break;
 				}
 				break;
