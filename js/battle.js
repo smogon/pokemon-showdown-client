@@ -4297,6 +4297,9 @@ function Battle(frame, logFrame, noPreload) {
 			var move = Tools.getMove(args[3]);
 			self.cantUseMove(poke, effect, move, kwargs);
 			break;
+		case 'message':
+			self.message(self.sanitize(args[1]));
+			break;
 		case 'done':
 		case '':
 			if (self.done || self.endPrevAction()) return;
