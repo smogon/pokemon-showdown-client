@@ -439,6 +439,8 @@ function BattleRoom(id, elem) {
 			if (me.named) {
 				selfR.chatAddElem.html('<form onsubmit="return false" class="chatbox"><label style="' + hashColor(me.userid) + '">' + sanitize(me.name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off" onkeypress="return rooms[\'' + selfR.id + '\'].formKeyPress(event)"></textarea></form>');
 				selfR.chatboxElem = selfR.chatAddElem.find('textarea');
+				// The keypress event does not capture tab, so use keydown.
+				selfR.chatboxElem.keydown(rooms['lobby'].formKeyDown);
 				selfR.chatboxElem.autoResize({
 					animateDuration: 100,
 					extraSpace: 0
@@ -863,6 +865,7 @@ function BattleRoom(id, elem) {
 		selfR.callback(selfR.battle, 'decision');
 		return false;
 	};
+	// Key press in the battle chat textbox.
 	this.formKeyPress = function (e) {
 		hideTooltip();
 		if (e.keyCode === 13) {
@@ -949,6 +952,13 @@ function Lobby(id, elem) {
 	this.joinLeaveElem = null;
 	this.userCount = {};
 	this.userList = {};
+	this.userActivity = [];
+	this.tabComplete = {
+		candidates: null,
+		index: 0,
+		prefix: null,
+		cursor: -1
+	};
 	this.searcher = null;
 	this.selectedTeam = 0;
 	this.selectedFormat = '';
@@ -1198,6 +1208,7 @@ function Lobby(id, elem) {
 				selfR.popupElem.prepend(code);
 			}
 			selfR.popupChatboxElem = selfR.popupElem.find('textarea').last();
+			selfR.popupChatboxElem.keydown(rooms['lobby'].formKeyDown);
 			selfR.popupElem.show();
 			$('#' + selfR.id + '-pmlog-frame').scrollTop($('#' + selfR.id + '-pmlog').height());
 			selfR.popupChatboxElem.autoResize({
@@ -1213,6 +1224,18 @@ function Lobby(id, elem) {
 			if (autoscroll) {
 				$('#' + selfR.id + '-pmlog-frame').scrollTop($('#' + selfR.id + '-pmlog').height());
 			}
+		}
+	};
+	// Mark a user as active for the purpose of tab complete.
+	this.markUserActive = function (userid) {
+		var idx = selfR.userActivity.indexOf(userid);
+		if (idx != -1) {
+			selfR.userActivity.splice(idx, 1);
+		}
+		selfR.userActivity.push(userid);
+		if (selfR.userActivity.length > 400) {
+			// Prune the list.
+			selfR.userActivity.splice(0, 200);
 		}
 	};
 	this.add = function (log) {
@@ -1331,6 +1354,9 @@ function Lobby(id, elem) {
 				var color = hashColor(userid);
 
 				if (me.ignore[userid] && log[i].name.substr(0, 1) === ' ') continue;
+
+				// Add this user to the list of people who have spoken recently.
+				selfR.markUserActive(userid);
 
 				selfR.joinLeaveElem = null;
 				selfR.joinLeave = {
@@ -1840,6 +1866,8 @@ function Lobby(id, elem) {
 			if (me.named) {
 				selfR.chatAddElem.html('<form onsubmit="return false" class="chatbox"><label style="' + hashColor(me.userid) + '">' + sanitize(me.name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off" onkeypress="return rooms[\'' + selfR.id + '\'].formKeyPress(event)"></textarea></form>');
 				selfR.chatboxElem = selfR.chatAddElem.find('textarea');
+				// The keypress event does not capture tab, so use keydown.
+				selfR.chatboxElem.keydown(this.formKeyDown);
 				selfR.chatboxElem.autoResize({
 					animateDuration: 100,
 					extraSpace: 0
@@ -1853,9 +1881,10 @@ function Lobby(id, elem) {
 			selfR.meIdent.named = me.named;
 		}
 	};
+	// Key press in the chat textbox.
 	this.formKeyPress = function (e) {
 		hideTooltip();
-		if (e.keyCode === 13) {
+		if (e.keyCode === 13) {			// Enter
 			var text;
 			if ((text = selfR.chatboxElem.val())) {
 				text = selfR.parseCommand(text);
@@ -1867,6 +1896,71 @@ function Lobby(id, elem) {
 			return false;
 		}
 		return true;
+	};
+	this.formKeyDown = function (e) {
+		hideTooltip();
+		// We only handle the tab key.
+		if (e.keyCode !== 9) return true;
+
+		// No matter what, we don't want to tab away from this box.
+		e.preventDefault();
+
+		// Don't tab complete at the start of the text box.
+		var chatbox = $(e.delegateTarget);
+		var idx = chatbox.prop('selectionStart');
+		if (idx === 0) return true;
+
+		var text = chatbox.val();
+
+		if (idx === selfR.tabComplete.cursor) {
+			// The user is cycling through the candidate names.
+			if (++selfR.tabComplete.index >= selfR.tabComplete.candidates.length) {
+				selfR.tabComplete.index = 0;
+			}
+		} else {
+			// This is a new tab completion.
+
+			// There needs to be non-whitespace to the left of the cursor.
+			var m = /^(.*?)([^ ]*)$/.exec(text.substr(0, idx));
+			if (!m) return true;
+
+			selfR.tabComplete.prefix = m[1];
+			var idprefix = toId(m[2]);
+			var candidates = [];
+
+			for (var i in selfR.userList) {
+				if (!selfR.userList.hasOwnProperty(i)) continue;
+				if (!(typeof i === 'string')) continue;
+				if (i.substr(0, idprefix.length) !== idprefix) continue;
+				candidates.push(i);
+			}
+
+			// Sort by most recent to speak in the chat, or, in the case of a tie,
+			// in alphabetical order.
+			candidates.sort(function(a, b) {
+				var aidx = selfR.userActivity.indexOf(a);
+				var bidx = selfR.userActivity.indexOf(b);
+				if (aidx != -1) {
+					if (bidx != -1) {
+						return bidx - aidx;
+					}
+					return -1; // a comes first
+				} else if (bidx != -1) {
+					return 1;  // b comes first
+				}
+				return a < b;  // alphabetical order
+			});
+			selfR.tabComplete.candidates = candidates;
+			selfR.tabComplete.index = 0;
+		}
+
+		// Substitute in the tab-completed name.
+		var substituteUserId = selfR.tabComplete.candidates[selfR.tabComplete.index];
+		var name = selfR.userList[substituteUserId].substr(1);
+		chatbox.val(selfR.tabComplete.prefix + name + text.substr(idx));
+		var pos = selfR.tabComplete.prefix.length + name.length;
+		chatbox[0].setSelectionRange(pos, pos);
+		selfR.tabComplete.cursor = pos;
 	};
 	this.formRename = function () {
 		overlay('rename');
