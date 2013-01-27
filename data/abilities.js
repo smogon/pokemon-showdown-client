@@ -67,9 +67,13 @@ exports.BattleAbilities = {
 	"airlock": {
 		desc: "While this Pokemon is active, all weather conditions and their effects are disabled.",
 		shortDesc: "While this Pokemon is active, all weather conditions and their effects are disabled.",
+		onStart: function(pokemon) {
+			this.add('-message', 'The effects of weather disappeared. (placeholder)');
+		},
 		onAnyModifyPokemon: function(pokemon) {
 			pokemon.ignore['WeatherTarget'] = true;
 		},
+		onAnyTryWeather: false,
 		id: "airlock",
 		name: "Air Lock",
 		rating: 3,
@@ -109,11 +113,11 @@ exports.BattleAbilities = {
 		onStart: function(pokemon) {
 			var targets = pokemon.side.foe.active;
 			for (var i=0; i<targets.length; i++) {
-				if (targets[i].fainted) return;
+				if (targets[i].fainted) continue;
 				for (var j=0; j<targets[i].moveset.length; j++) {
 					var move = this.getMove(targets[i].moveset[j].move);
 					if (move.category !== 'Status' && (this.getEffectiveness(move.type, pokemon) > 0 || move.ohko)) {
-						this.add('-activate', pokemon, 'Anticipation');
+						this.add('-message', pokemon.name+' shuddered! (placeholder)');
 						return;
 					}
 				}
@@ -145,7 +149,7 @@ exports.BattleAbilities = {
 		onResidual: function(pokemon) {
 			for (var i=0; i<pokemon.side.foe.active.length; i++) {
 				var target = pokemon.side.foe.active[i];
-				if (target.status === 'slp') {
+				if (pokemon.hp && target.status === 'slp') {
 					this.damage(target.maxhp/8, target);
 				}
 			}
@@ -196,14 +200,14 @@ exports.BattleAbilities = {
 	"chlorophyll": {
 		desc: "If this Pokemon is active while Sunny Day is in effect, its speed is temporarily doubled.",
 		shortDesc: "If Sunny Day is active, this Pokemon's Speed is doubled.",
-		onModifyStats: function(stats) {
-			if (this.weather === 'sunnyday') {
-				stats.spe *= 2;
+		onModifySpe: function(spe) {
+			if (this.isWeather('sunnyday')) {
+				return spe * 2;
 			}
 		},
 		id: "chlorophyll",
 		name: "Chlorophyll",
-		rating: 3.5,
+		rating: 2,
 		num: 34
 	},
 	"clearbody": {
@@ -226,9 +230,13 @@ exports.BattleAbilities = {
 	"cloudnine": {
 		desc: "While this Pokemon is active, all weather conditions and their effects are disabled.",
 		shortDesc: "While this Pokemon is active, all weather conditions and their effects are disabled.",
+		onStart: function(pokemon) {
+			this.add('-message', 'The effects of weather disappeared. (placeholder)');
+		},
 		onAnyModifyPokemon: function(pokemon) {
 			pokemon.ignore['WeatherTarget'] = true;
 		},
+		onAnyTryWeather: false,
 		id: "cloudnine",
 		name: "Cloud Nine",
 		rating: 3,
@@ -238,11 +246,12 @@ exports.BattleAbilities = {
 		desc: "This Pokemon's type changes according to the type of the last move that hit this Pokemon.",
 		shortDesc: "This Pokemon's type changes to match the type of the last move that hit it.",
 		onAfterMoveSecondary: function(target, source, effect) {
-			if (effect && effect.effectType === 'Move' && effect.category !== 'Status') {
+			if (target.isActive && effect && effect.effectType === 'Move' && effect.category !== 'Status') {
 				target.addVolatile('colorchange', source, effect);
 			}
 		},
 		effect: {
+			noCopy: true,
 			onStart: function(target, source, effect) {
 				this.effectData.type = 'Normal';
 				if (effect && effect.type && effect.type !== 'Normal') {
@@ -270,7 +279,7 @@ exports.BattleAbilities = {
 	},
 	"compoundeyes": {
 		desc: "The accuracy of this Pokemon's moves receives a 30% increase; for example, a 75% accurate move becomes 97.5% accurate.",
-		shortDesc: "This Pokemon's moves have their Accuracy boosted to 1.3x.",
+		shortDesc: "This Pokemon's moves have their accuracy boosted to 1.3x.",
 		onModifyMove: function(move) {
 			if (typeof move.accuracy !== 'number') return;
 			this.debug('compoundeyes - enhancing accuracy');
@@ -299,7 +308,7 @@ exports.BattleAbilities = {
 		shortDesc: "If this Pokemon is hit by an attack, there is a 30% chance that move gets Disabled.",
 		onAfterDamage: function(damage, target, source, move) {
 			if (!source || source.volatiles['disable']) return;
-			if (source !== target) {
+			if (source !== target && move && move.effectType === 'Move') {
 				if (this.random(10) < 3) {
 					source.addVolatile('disable');
 				}
@@ -331,8 +340,10 @@ exports.BattleAbilities = {
 		desc: "While this Pokemon is active, no Pokemon on the field can use Selfdestruct or Explosion.",
 		shortDesc: "While this Pokemon is active, Selfdestruct, Explosion, and Aftermath do not work.",
 		id: "damp",
-		onAnyTryHit: function(target, source, effect) {
+		onAnyTryMove: function(target, source, effect) {
 			if (effect.id === 'selfdestruct' || effect.id === 'explosion') {
+				this.attrLastMove('[still]');
+				this.add('-activate', this.effectData.target, 'ability: Damp');
 				return false;
 			}
 		},
@@ -342,16 +353,20 @@ exports.BattleAbilities = {
 			}
 		},
 		name: "Damp",
-		rating: 1,
+		rating: 0.5,
 		num: 6
 	},
 	"defeatist": {
 		desc: "Attack and Special Attack are halved when HP is less than half.",
 		shortDesc: "When this Pokemon has 1/2 or less of its max HP, its Attack and Sp. Atk are halved.",
-		onModifyStats: function(stats, pokemon) {
+		onModifyAtk: function(atk, pokemon) {
 			if (pokemon.hp < pokemon.maxhp/2) {
-				stats.atk /= 2;
-				stats.spa /= 2;
+				return atk / 2;
+			}
+		},
+		onModifySpA: function(atk, pokemon) {
+			if (pokemon.hp < pokemon.maxhp/2) {
+				return atk / 2;
 			}
 		},
 		onResidual: function(pokemon) {
@@ -366,7 +381,7 @@ exports.BattleAbilities = {
 		desc: "Raises the user's Attack stat by two stages when a stat is lowered, including the Attack stat. This does not include self-induced stat drops like those from Close Combat.",
 		shortDesc: "This Pokemon's Attack is boosted by 2 for each of its stats that is lowered by a foe.",
 		onAfterEachBoost: function(boost, target, source) {
-			if (!source || target === source) {
+			if (!source || target.side === source.side) {
 				return;
 			}
 			var statsLowered = false;
@@ -392,13 +407,13 @@ exports.BattleAbilities = {
 			var totaldef = 0;
 			var totalspd = 0;
 			for (var i=0; i<foeactive.length; i++) {
-				if (!foeactive[i]) continue;
-				totaldef += foeactive[i].stats.def;
-				totalspd += foeactive[i].stats.spd;
+				if (!foeactive[i] || foeactive[i].fainted) continue;
+				totaldef += foeactive[i].getStat('def');
+				totalspd += foeactive[i].getStat('spd');
 			}
-			if (totaldef >= totalspd) {
+			if (totaldef && totaldef >= totalspd) {
 				this.boost({spa:1});
-			} else {
+			} else if (totalspd) {
 				this.boost({atk:1});
 			}
 		},
@@ -434,9 +449,9 @@ exports.BattleAbilities = {
 	"dryskin": {
 		desc: "This Pokemon absorbs Water attacks and gains a weakness to Fire attacks. If Sunny Day is in effect, this Pokemon takes damage. If Rain Dance is in effect, this Pokemon recovers health.",
 		shortDesc: "This Pokemon is healed 1/4 by Water, 1/8 by Rain; is hurt 1.25x by Fire, 1/8 by Sun.",
-		onImmunity: function(type, pokemon) {
-			if (type === 'Water') {
-				this.heal(pokemon.maxhp/4);
+		onTryHit: function(target, source, move) {
+			if (target !== source && move.type === 'Water') {
+				this.heal(target.maxhp/4);
 				return null;
 			}
 		},
@@ -454,7 +469,7 @@ exports.BattleAbilities = {
 		},
 		id: "dryskin",
 		name: "Dry Skin",
-		rating: 3,
+		rating: 3.5,
 		num: 87
 	},
 	"earlybird": {
@@ -485,7 +500,7 @@ exports.BattleAbilities = {
 	"filter": {
 		desc: "This Pokemon receives one-fourth reduced damage from Super Effective attacks.",
 		shortDesc: "This Pokemon receives 3/4 damage from super effective attacks.",
-		onFoeBasePower: function(basePower, attacker, defender, move) {
+		onSourceBasePower: function(basePower, attacker, defender, move) {
 			if (this.getEffectiveness(move.type, defender) > 0) {
 				this.debug('Filter neutralize');
 				return basePower * 3/4;
@@ -514,9 +529,9 @@ exports.BattleAbilities = {
 	"flareboost": {
 		desc: "When the user with this ability is burned, its Special Attack is raised by 50%.",
 		shortDesc: "When this Pokemon is burned, its special attacks do 1.5x damage.",
-		onModifyStats: function(stats, pokemon) {
-			if (pokemon.status === 'brn') {
-				stats.spa *= 1.5;
+		onBasePower: function(basePower, attacker, defender, move) {
+			if (attacker.status === 'brn' && move.category === 'Special') {
+				return basePower * 1.5;
 			}
 		},
 		id: "flareboost",
@@ -527,9 +542,9 @@ exports.BattleAbilities = {
 	"flashfire": {
 		desc: "This Pokemon is immune to all Fire-type attacks; additionally, its own Fire-type attacks receive a 50% boost if a Fire-type move hits this Pokemon. Multiple boosts do not occur if this Pokemon is hit with multiple Fire-type attacks.",
 		shortDesc: "This Pokemon's Fire attacks do 1.5x damage if hit by one Fire move; Fire immunity.",
-		onImmunity: function(type, pokemon) {
-			if (type === 'Fire') {
-				pokemon.addVolatile('flashfire');
+		onTryHit: function(target, source, move) {
+			if (target !== source && move.type === 'Fire') {
+				target.addVolatile('flashfire');
 				return null;
 			}
 		},
@@ -556,19 +571,30 @@ exports.BattleAbilities = {
 		onStart: function(pokemon) {
 			delete this.effectData.forme;
 		},
-		onModifyStats: function(stats, pokemon) {
-			if (this.weather === 'sunnyday') {
-				stats.atk *= 1.5;
-				stats.spd *= 1.5;
-				if (pokemon.isActive && pokemon.speciesid === 'cherrim' && this.effectData.forme !== 'Sunny') {
-					this.effectData.forme = 'Sunny';
-					this.add('-formechange', pokemon, 'Cherrim-Sunny');
+		onUpdate: function(pokemon) {
+			if (!pokemon.isActive || pokemon.speciesid !== 'cherrim') return;
+			if (this.isWeather('sunnyday')) {
+				if (this.effectData.forme !== 'Sunshine') {
+					this.effectData.forme = 'Sunshine';
+					this.add('-formechange', pokemon, 'Cherrim-Sunshine');
 					this.add('-message', pokemon.name+' transformed! (placeholder)');
 				}
-			} else if (pokemon.isActive && pokemon.speciesid === 'cherrim' && this.effectData.forme) {
-				delete this.effectData.forme;
-				this.add('-formechange', pokemon, 'Cherrim');
-				this.add('-message', pokemon.name+' transformed! (placeholder)');
+			} else {
+				if (this.effectData.forme) {
+					delete this.effectData.forme;
+					this.add('-formechange', pokemon, 'Cherrim');
+					this.add('-message', pokemon.name+' transformed! (placeholder)');
+				}
+			}
+		},
+		onAllyModifyAtk: function(atk) {
+			if (this.isWeather('sunnyday')) {
+				return atk *= 1.5;
+			}
+		},
+		onAllyModifySpD: function(spd) {
+			if (this.isWeather('sunnyday')) {
+				return spd *= 1.5;
 			}
 		},
 		id: "flowergift",
@@ -579,10 +605,10 @@ exports.BattleAbilities = {
 	"forecast": {
 		desc: "This Pokemon's type changes according to the current weather conditions: it becomes Fire-type during Sunny Day, Water-type during Rain Dance, Ice-type during Hail and remains its regular type otherwise.",
 		shortDesc: "Castform's type changes to the current weather condition's type, except Sandstorm.",
-		onModifyPokemon: function(pokemon) {
+		onUpdate: function(pokemon) {
 			if (pokemon.baseTemplate.species !== 'Castform' || pokemon.transformed) return;
 			var forme = null;
-			switch (this.weather) {
+			switch (this.effectiveWeather()) {
 			case 'sunnyday':
 				if (pokemon.template.speciesid !== 'castformsunny') forme = 'Castform-Sunny';
 				break;
@@ -610,7 +636,7 @@ exports.BattleAbilities = {
 	},
 	"forewarn": {
 		desc: "The move with the highest Base Power in the opponent's moveset is revealed.",
-		shortDesc: "On switch-in, this Pokemon is alerted to the foes' move with the highest base power.",
+		shortDesc: "On switch-in, this Pokemon is alerted to the foes' move with the highest Base Power.",
 		onStart: function(pokemon) {
 			var targets = pokemon.side.foe.active;
 			var warnMoves = [];
@@ -633,7 +659,7 @@ exports.BattleAbilities = {
 			}
 			if (!warnMoves.length) return;
 			var warnMove = warnMoves[this.random(warnMoves.length)];
-			this.add('-activate', pokemon, 'ability: Forewarn', warnMove[0]);
+			this.add('-activate', pokemon, 'ability: Forewarn', warnMove);
 		},
 		id: "forewarn",
 		name: "Forewarn",
@@ -667,20 +693,20 @@ exports.BattleAbilities = {
 		shortDesc: "When this Pokemon has 1/2 or less of its max HP, it uses certain Berries early.",
 		id: "gluttony",
 		name: "Gluttony",
-		rating: 1.5,
+		rating: 0,
 		num: 82
 	},
 	"guts": {
 		desc: "When this Pokemon is poisoned (including Toxic), burned, paralyzed or asleep (including self-induced Rest), its Attack stat receives a 50% boost; the burn status' Attack drop is also ignored.",
 		shortDesc: "If this Pokemon is statused, its Attack is 1.5x; burn's Attack drop is ignored.",
-		onModifyStats: function(stats, pokemon) {
+		onModifyAtk: function(atk, pokemon) {
 			if (pokemon.status) {
-				stats.atk *= 1.5;
+				return atk * 1.5;
 			}
 		},
 		id: "guts",
 		name: "Guts",
-		rating: 4,
+		rating: 3,
 		num: 62
 	},
 	"harvest": {
@@ -691,14 +717,14 @@ exports.BattleAbilities = {
 		onResidualOrder: 26,
 		onResidualSubOrder: 1,
 		onResidual: function(pokemon) {
-			if ((this.weather === 'sunnyday') || (this.random(2) === 0)) {
+			if (this.isWeather('sunnyday') || this.random(2) === 0) {
 				if (!pokemon.item && this.getItem(pokemon.lastItem).isBerry) {
 						pokemon.setItem(pokemon.lastItem);
 						this.add("-item", pokemon, pokemon.item, '[from] ability: Harvest');
 				}
 			}
 		},
-		rating: 4,
+		rating: 2,
 		num: 139
 	},
 	"healer": {
@@ -708,6 +734,17 @@ exports.BattleAbilities = {
 		name: "Healer",
 		onResidualOrder: 5,
 		onResidualSubOrder: 1,
+		onResidual: function(pokemon) {
+			var allyActive = pokemon.side.active;
+			if (allyActive.length === 1) {
+				return;
+			}
+			for (var i=0; i<allyActive.length; i++) {
+				if (allyActive[i] && this.isAdjacent(pokemon, allyActive[i]) && allyActive[i].status && this.random(10) < 3) {
+					allyActive[i].cureStatus();
+				}
+			}
+		},
 		rating: 0,
 		num: 131
 	},
@@ -719,7 +756,7 @@ exports.BattleAbilities = {
 				return basePower / 2;
 			}
 		},
-		onDamage: function(damage, attacker, defender, effect) {
+		onDamage: function(damage, target, source, effect) {
 			if (effect && effect.id === 'brn') {
 				return damage / 2;
 			}
@@ -751,8 +788,8 @@ exports.BattleAbilities = {
 	"hugepower": {
 		desc: "This Pokemon's Attack stat is doubled. Therefore, if this Pokemon's Attack stat on the status screen is 200, it effectively has an Attack stat of 400; which is then subject to the full range of stat boosts and reductions.",
 		shortDesc: "This Pokemon's Attack is doubled.",
-		onModifyStats: function(stats) {
-			stats.atk *= 2;
+		onModifyAtk: function(atk) {
+			return atk * 2;
 		},
 		id: "hugepower",
 		name: "Huge Power",
@@ -761,9 +798,9 @@ exports.BattleAbilities = {
 	},
 	"hustle": {
 		desc: "This Pokemon's Attack receives a 50% boost but its Physical attacks receive a 20% drop in Accuracy. For example, a 100% accurate move would become an 80% accurate move. The accuracy of moves that never miss, such as Aerial Ace, remains unaffected.",
-		shortDesc: "This Pokemon's Attack is 1.5x and Accuracy of its physical attacks is 0.8x.",
-		onModifyStats: function(stats) {
-			stats.atk *= 1.5;
+		shortDesc: "This Pokemon's Attack is 1.5x and accuracy of its physical attacks is 0.8x.",
+		onModifyAtk: function(atk) {
+			return atk * 1.5;
 		},
 		onModifyMove: function(move) {
 			if (move.category === 'Physical' && typeof move.accuracy === 'number') {
@@ -781,14 +818,14 @@ exports.BattleAbilities = {
 		onResidualOrder: 5,
 		onResidualSubOrder: 1,
 		onResidual: function(pokemon) {
-			if (pokemon.status && this.weather === 'raindance') {
+			if (pokemon.status && this.isWeather('raindance')) {
 				this.debug('hydration');
 				pokemon.cureStatus();
 			}
 		},
 		id: "hydration",
 		name: "Hydration",
-		rating: 4,
+		rating: 2,
 		num: 93
 	},
 	"hypercutter": {
@@ -803,7 +840,7 @@ exports.BattleAbilities = {
 		},
 		id: "hypercutter",
 		name: "Hyper Cutter",
-		rating: 2,
+		rating: 1.5,
 		num: 52
 	},
 	"icebody": {
@@ -834,20 +871,18 @@ exports.BattleAbilities = {
 		desc: "Illusion will change the appearance of the Pokemon to a different species. This is dependent on the last Pokemon in the player's party. Along with the species itself, Illusion is broken when the user is damaged, but is not broken by Substitute, weather conditions, status ailments, or entry hazards. Illusion will replicate the type of Poke Ball, the species name, and the gender of the Pokemon it is masquerading as.",
 		shortDesc: "This Pokemon appears as the last Pokemon in the party until it takes direct damage.",
 		onBeforeSwitchIn: function(pokemon) {
-			if (!pokemon.volatiles['illusion']) {
-				var i;
-				for (i=pokemon.side.pokemon.length-1; i>pokemon.position; i--) {
-					if (!pokemon.side.pokemon[i]) continue;
-					if (!pokemon.side.pokemon[i].fainted) break;
-				}
-				pokemon.illusion = pokemon.side.pokemon[i];
+			pokemon.illusion = null;
+			for (var i=pokemon.side.pokemon.length-1; i>pokemon.position; i--) {
+				if (!pokemon.side.pokemon[i]) continue;
+				if (!pokemon.side.pokemon[i].fainted) break;
 			}
+			if (!pokemon.side.pokemon[i]) return;
+			if (pokemon === pokemon.side.pokemon[i]) return;
+			pokemon.illusion = pokemon.side.pokemon[i];
 		},
 		onDamage: function(damage, pokemon, source, effect) {
-			if (effect && effect.effectType === 'Move') {
+			if (pokemon.illusion && effect && effect.effectType === 'Move') {
 				this.debug('illusion cleared');
-				//pokemon.addVolatile('illusion');
-				pokemon.setAbility('');
 				pokemon.illusion = null;
 				this.add('replace', pokemon, pokemon.getDetails());
 			}
@@ -860,6 +895,11 @@ exports.BattleAbilities = {
 	"immunity": {
 		desc: "This Pokemon cannot become poisoned nor Toxic poisoned.",
 		shortDesc: "This Pokemon cannot be poisoned. Gaining this Ability while poisoned cures it.",
+		onUpdate: function(pokemon) {
+			if (pokemon.status === 'psn' || pokemon.status === 'tox') {
+				pokemon.cureStatus();
+			}
+		},
 		onImmunity: function(type) {
 			if (type === 'psn') return false;
 		},
@@ -872,7 +912,7 @@ exports.BattleAbilities = {
 		desc: "As soon as the user comes into battle, it Transforms into its opponent, copying the opponent's stats exactly, with the exception of HP. Imposter copies all stat changes on the target originating from moves and abilities such as Swords Dance and Intimidate, but not from items such as Choice Specs. Imposter will not Transform the user if the opponent is an Illusion or if the opponent is behind a Substitute.",
 		shortDesc: "On switch-in, this Pokemon copies the foe it's facing; stats, moves, types, Ability.",
 		onStart: function(pokemon) {
-			var target = pokemon.side.foe.randomActive();
+			var target = pokemon.side.foe.active[pokemon.side.foe.active.length-1-pokemon.position];
 			if (target && pokemon.transformInto(target)) {
 				this.add('-transform', pokemon, target);
 			}
@@ -903,6 +943,11 @@ exports.BattleAbilities = {
 	"insomnia": {
 		desc: "This Pokemon cannot be put to sleep; this includes both opponent-induced sleep as well as user-induced sleep via Rest.",
 		shortDesc: "This Pokemon cannot fall asleep. Gaining this Ability while asleep cures it.",
+		onUpdate: function(pokemon) {
+			if (pokemon.status === 'slp') {
+				pokemon.cureStatus();
+			}
+		},
 		onImmunity: function(type, pokemon) {
 			if (type === 'slp') return false;
 		},
@@ -917,7 +962,7 @@ exports.BattleAbilities = {
 		onStart: function(pokemon) {
 			var foeactive = pokemon.side.foe.active;
 			for (var i=0; i<foeactive.length; i++) {
-				if (!foeactive[i]) continue;
+				if (!foeactive[i] || foeactive[i].fainted) continue;
 				if (foeactive[i].volatiles['substitute']) {
 					// does it give a message?
 					this.add('-activate',foeactive[i],'Substitute','ability: Intimidate','[of] '+pokemon);
@@ -935,6 +980,7 @@ exports.BattleAbilities = {
 	"ironbarbs": {
 		desc: "All moves that make contact with the Pokemon with Iron Barbs will damage the user by 1/8 of their maximum HP after damage is dealt.",
 		shortDesc: "This Pokemon causes other Pokemon making contact to lose 1/8 of their max HP.",
+		onAfterDamageOrder: 1,
 		onAfterDamage: function(damage, target, source, move) {
 			if (source && source !== target && move && move.isContact) {
 				this.damage(source.maxhp/8, source, target);
@@ -974,7 +1020,7 @@ exports.BattleAbilities = {
 	},
 	"keeneye": {
 		desc: "This Pokemon's Accuracy cannot be lowered.",
-		shortDesc: "Prevents other Pokemon from lowering this Pokemon's Accuracy.",
+		shortDesc: "Prevents other Pokemon from lowering this Pokemon's accuracy.",
 		onBoost: function(boost, target, source) {
 			if (source && target === source) return;
 			if (boost['accuracy'] && boost['accuracy'] < 0) {
@@ -995,30 +1041,30 @@ exports.BattleAbilities = {
 		},
 		id: "klutz",
 		name: "Klutz",
-		rating: 1.5,
+		rating: 0,
 		num: 103
 	},
 	"leafguard": {
 		desc: "If this Pokemon is active while Sunny Day is in effect, it cannot become poisoned, burned, paralyzed or put to sleep (other than user-induced Rest). Leaf Guard does not heal status effects that existed before Sunny Day came into effect.",
-		shortDesc: "If Sunny Day is active, this Pokemon cannot be statused, and Rest will fail for it.",
+		shortDesc: "If Sunny Day is active, this Pokemon cannot be statused and Rest will fail for it.",
 		onSetStatus: function(pokemon) {
-			if (this.weather === 'sunnyday') {
+			if (this.isWeather('sunnyday')) {
 				return false;
 			}
 		},
 		onTryHit: function(target, source, move) {
-			if (this.weather === 'sunnyday' && move && move.id === 'yawn') {
+			if (move && move.id === 'yawn' && this.isWeather('sunnyday')) {
 				return false;
 			}
 		},
 		id: "leafguard",
 		name: "Leaf Guard",
-		rating: 3,
+		rating: 1,
 		num: 102
 	},
 	"levitate": {
 		desc: "This Pokemon is immune to Ground-type attacks, Spikes, Toxic Spikes and the Arena Trap ability; it loses these immunities while holding Iron Ball, after using Ingrain or if Gravity is in effect.",
-		shortDesc: "This Pokemon is immune to Ground; Gravity, Ingrain, Smack Down, Iron Ball cancel it.",
+		shortDesc: "This Pokemon is immune to Ground; Gravity, Ingrain, Smack Down, Iron Ball nullify it.",
 		onImmunity: function(type) {
 			if (type === 'Ground') return false;
 		},
@@ -1041,20 +1087,32 @@ exports.BattleAbilities = {
 	"lightningrod": {
 		desc: "During double battles, this Pokemon draws any single-target Electric-type attack to itself. If an opponent uses an Electric-type attack that affects multiple Pokemon, those targets will be hit. This ability does not affect Electric Hidden Power or Judgment. The user is immune to Electric and its Special Attack is increased one stage when hit by one.",
 		shortDesc: "This Pokemon draws Electric moves to itself to boost Sp. Atk by 1; Electric immunity.",
-		onImmunity: function(type, pokemon) {
-			if (type === 'Electric') {
+		onTryHit: function(target, source, move) {
+			if (target !== source && move.type === 'Electric') {
 				this.boost({spa:1});
 				return null;
 			}
 		},
+		onAnyRedirectTargetPriority: 1,
+		onAnyRedirectTarget: function(target, source, source2, move) {
+			if (move.type !== 'Electric') return;
+			if (this.validTarget(this.effectData.target, source, move.target)) {
+				return this.effectData.target;
+			}
+		},
 		id: "lightningrod",
 		name: "Lightningrod",
-		rating: 3,
+		rating: 3.5,
 		num: 32
 	},
 	"limber": {
 		desc: "This Pokemon cannot become paralyzed.",
 		shortDesc: "This Pokemon cannot be paralyzed. Gaining this Ability while paralyzed cures it.",
+		onUpdate: function(pokemon) {
+			if (pokemon.status === 'par') {
+				pokemon.cureStatus();
+			}
+		},
 		onImmunity: function(type, pokemon) {
 			if (type === 'par') return false;
 		},
@@ -1125,6 +1183,11 @@ exports.BattleAbilities = {
 	"magmaarmor": {
 		desc: "This Pokemon cannot become frozen.",
 		shortDesc: "This Pokemon cannot be frozen. Gaining this Ability while frozen cures it.",
+		onUpdate: function(pokemon) {
+			if (pokemon.status === 'frz') {
+				pokemon.cureStatus();
+			}
+		},
 		onImmunity: function(type, pokemon) {
 			if (type === 'frz') return false;
 		},
@@ -1149,9 +1212,9 @@ exports.BattleAbilities = {
 	"marvelscale": {
 		desc: "When this Pokemon becomes burned, poisoned (including Toxic), paralyzed, frozen or put to sleep (including self-induced sleep via Rest), its Defense receives a 50% boost.",
 		shortDesc: "If this Pokemon is statused, its Defense is 1.5x.",
-		onModifyStats: function(stats, pokemon) {
+		onModifyDef: function(def, pokemon) {
 			if (pokemon.status) {
-				stats.def *= 1.5;
+				return def * 1.5;
 			}
 		},
 		id: "marvelscale",
@@ -1162,6 +1225,17 @@ exports.BattleAbilities = {
 	"minus": {
 		desc: "This Pokemon's Special Attack receives a 50% boost in double battles if its partner has the Plus ability.",
 		shortDesc: "If another ally has this Ability or the Plus Ability, this Pokemon's Sp. Atk is 1.5x.",
+		onModifySpA: function(spa, pokemon) {
+			var allyActive = pokemon.side.active;
+			if (allyActive.length === 1) {
+				return;
+			}
+			for (var i=0; i<allyActive.length; i++) {
+				if (allyActive[i] && allyActive[i].position !== pokemon.position && !allyActive[i].fainted && (allyActive[i].ability === 'minus' || allyActive[i].ability === 'plus')) {
+					return spa * 1.5
+				}
+			}
+		},
 		id: "minus",
 		name: "Minus",
 		rating: 0,
@@ -1169,7 +1243,7 @@ exports.BattleAbilities = {
 	},
 	"moldbreaker": {
 		desc: "When this Pokemon becomes active, it nullifies the abilities of opposing active Pokemon that hinder this Pokemon's attacks. These abilities include Battle Armor, Clear Body, Damp, Dry Skin, Filter, Flash Fire, Flower Gift, Heatproof, Herbivore, Hyper Cutter, Immunity, Inner Focus, Insomnia, Keen Eye, Leaf Guard, Levitate, Lightningrod, Limber, Magma Armor, Marvel Scale, Motor Drive, Oblivious, Own Tempo, Sand Veil, Shell Armor, Shield Dust, Simple, Snow Cloak, Solid Rock, Soundproof, Sticky Hold, Storm Drain, Sturdy, Suction Cups, Tangled Feet, Thick Fat, Unaware, Vital Spirit, Volt Absorb, Water Absorb, Water Veil, White Smoke and Wonder Guard.",
-		shortDesc: "This Pokemon's moves ignore the target's Ability if that Ability would modify damage.",
+		shortDesc: "This Pokemon's moves ignore the target's Ability if it could modify the effectiveness.",
 		onStart: function(pokemon) {
 			this.add('-ability', pokemon, 'Mold Breaker');
 		},
@@ -1227,8 +1301,8 @@ exports.BattleAbilities = {
 	"motordrive": {
 		desc: "This Pokemon is immune to all Electric-type attacks, including Thunder Wave, and if an Electric-type attack hits this Pokemon, it receives a one-level Speed boost.",
 		shortDesc: "This Pokemon's Speed is boosted by 1 if hit by an Electric move; Electric immunity.",
-		onImmunity: function(type, pokemon) {
-			if (type === 'Electric') {
+		onTryHit: function(target, source, move) {
+			if (target !== source && move.type === 'Electric') {
 				this.boost({spe:1});
 				return null;
 			}
@@ -1324,7 +1398,7 @@ exports.BattleAbilities = {
 		},
 		id: "noguard",
 		name: "No Guard",
-		rating: 4.1,
+		rating: 4.5,
 		num: 99
 	},
 	"normalize": {
@@ -1343,6 +1417,12 @@ exports.BattleAbilities = {
 	"oblivious": {
 		desc: "This Pokemon cannot become attracted to another Pokemon.",
 		shortDesc: "This Pokemon cannot be infatuated. Gaining this Ability while infatuated cures it.",
+		onUpdate: function(pokemon) {
+			if (pokemon.volatiles['attract']) {
+				pokemon.removeVolatile('attract');
+				this.add("-message", pokemon.name+" got over its infatuation. (placeholder)");
+			}
+		},
 		onImmunity: function(type, pokemon) {
 			if (type === 'attract') {
 				this.add('-immune', pokemon, '[from] Oblivious');
@@ -1388,6 +1468,11 @@ exports.BattleAbilities = {
 	"owntempo": {
 		desc: "This Pokemon cannot become confused.",
 		shortDesc: "This Pokemon cannot be confused. Gaining this Ability while confused cures it.",
+		onUpdate: function(pokemon) {
+			if (pokemon.volatiles['confusion']) {
+				pokemon.removeVolatile('confusion');
+			}
+		},
 		onImmunity: function(type, pokemon) {
 			if (type === 'confusion') {
 				this.add('-immune', pokemon, 'confusion');
@@ -1447,6 +1532,17 @@ exports.BattleAbilities = {
 	"plus": {
 		desc: "This Pokemon's Special Attack receives a 50% boost in double battles if its partner has the Minus ability.",
 		shortDesc: "If another ally has this Ability or the Minus Ability, this Pokemon's Sp. Atk is 1.5x.",
+		onModifySpA: function(spa, pokemon) {
+			var allyActive = pokemon.side.active;
+			if (allyActive.length === 1) {
+				return;
+			}
+			for (var i=0; i<allyActive.length; i++) {
+				if (allyActive[i] && allyActive[i].position !== pokemon.position && !allyActive[i].fainted && (allyActive[i].ability === 'minus' || allyActive[i].ability === 'plus')) {
+					return spa * 1.5
+				}
+			}
+		},
 		id: "plus",
 		name: "Plus",
 		rating: 0,
@@ -1507,11 +1603,10 @@ exports.BattleAbilities = {
 			if (move && move.category === 'Status') {
 				return priority + 1;
 			}
-			return priority;
 		},
 		id: "prankster",
 		name: "Prankster",
-		rating: 4,
+		rating: 4.5,
 		num: 158
 	},
 	"pressure": {
@@ -1526,14 +1621,14 @@ exports.BattleAbilities = {
 		},
 		id: "pressure",
 		name: "Pressure",
-		rating: 1,
+		rating: 2,
 		num: 46
 	},
 	"purepower": {
 		desc: "This Pokemon's Attack stat is doubled. Therefore, if this Pokemon's Attack stat on the status screen is 200, it effectively has an Attack stat of 400; which is then subject to the full range of stat boosts and reductions.",
 		shortDesc: "This Pokemon's Attack is doubled.",
-		onModifyStats: function(stats) {
-			stats.atk *= 2;
+		onModifyAtk: function(atk) {
+			return atk * 2;
 		},
 		id: "purepower",
 		name: "Pure Power",
@@ -1543,9 +1638,9 @@ exports.BattleAbilities = {
 	"quickfeet": {
 		desc: "When this Pokemon is poisoned (including Toxic), burned, paralyzed, asleep (including self-induced Rest) or frozen, its Speed stat receives a 50% boost; the paralysis status' Speed drop is also ignored.",
 		shortDesc: "If this Pokemon is statused, its Speed is 1.5x; paralysis' Speed drop is ignored.",
-		onModifyStats: function(stats, pokemon) {
+		onModifySpe: function(spe, pokemon) {
 			if (pokemon.status) {
-				stats.spe *= 1.5;
+				return spe * 1.5;
 			}
 		},
 		id: "quickfeet",
@@ -1563,7 +1658,7 @@ exports.BattleAbilities = {
 		},
 		id: "raindish",
 		name: "Rain Dish",
-		rating: 3,
+		rating: 1,
 		num: 44
 	},
 	"rattled": {
@@ -1620,23 +1715,24 @@ exports.BattleAbilities = {
 		},
 		id: "rivalry",
 		name: "Rivalry",
-		rating: 2.5,
+		rating: 0.5,
 		num: 79
 	},
 	"rockhead": {
 		desc: "This Pokemon does not receive recoil damage unless it uses Struggle, it misses with Jump Kick or Hi Jump Kick or it is holding Life Orb, Jaboca Berry or Rowap Berry.",
-		shortDesc: "This Pokemon does not receive recoil damage; not Struggle, Life Orb, crash damage.",
+		shortDesc: "This Pokemon does not take recoil damage besides Struggle, Life Orb, crash damage.",
 		onModifyMove: function(move) {
 			delete move.recoil;
 		},
 		id: "rockhead",
 		name: "Rock Head",
-		rating: 3.5,
+		rating: 3,
 		num: 69
 	},
 	"roughskin": {
 		desc: "Causes recoil damage equal to 1/8 of the opponent's max HP if an opponent directly attacks.",
 		shortDesc: "This Pokemon causes other Pokemon making contact to lose 1/8 of their max HP.",
+		onAfterDamageOrder: 1,
 		onAfterDamage: function(damage, target, source, move) {
 			if (source && source !== target && move && move.isContact) {
 				this.damage(source.maxhp/8, source, target);
@@ -1659,7 +1755,7 @@ exports.BattleAbilities = {
 		desc: "Raises the power of Rock, Ground, and Steel-type moves by 30% while a Sandstorm is in effect. It also gives the user immunity to damage from Sandstorm.",
 		shortDesc: "This Pokemon's Rock/Ground/Steel attacks do 1.3x in Sandstorm; immunity to it.",
 		onBasePower: function(basePower, attacker, defender, move) {
-			if (this.weather === 'sandstorm') {
+			if (this.isWeather('sandstorm')) {
 				if (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel') {
 					this.debug('Sand Force boost');
 					return basePower * 13/10;
@@ -1671,15 +1767,15 @@ exports.BattleAbilities = {
 		},
 		id: "sandforce",
 		name: "Sand Force",
-		rating: 3,
+		rating: 2,
 		num: 159
 	},
 	"sandrush": {
 		desc: "Doubles Speed in a Sandstorm, and makes the Pokemon immune to Sandstorm damage.",
 		shortDesc: "If Sandstorm is active, this Pokemon's Speed is doubled; immunity to Sandstorm.",
-		onModifyStats: function(stats, pokemon) {
-			if (this.weather === 'sandstorm') {
-				stats.spe *= 2;
+		onModifySpe: function(spe, pokemon) {
+			if (this.isWeather('sandstorm')) {
+				return spe * 2;
 			}
 		},
 		onImmunity: function(type, pokemon) {
@@ -1687,7 +1783,7 @@ exports.BattleAbilities = {
 		},
 		id: "sandrush",
 		name: "Sand Rush",
-		rating: 3.5,
+		rating: 2,
 		num: 146
 	},
 	"sandstream": {
@@ -1704,34 +1800,34 @@ exports.BattleAbilities = {
 	},
 	"sandveil": {
 		desc: "If active while Sandstorm is in effect, this Pokemon's Evasion receives a 20% boost; if this Pokemon has a typing that would normally take damage from Sandstorm, this Pokemon is also immune to Sandstorm's damage.",
-		shortDesc: "If Sandstorm is active, this Pokemon's Evasion is 1.25x; immunity to Sandstorm.",
+		shortDesc: "If Sandstorm is active, this Pokemon's evasion is 1.25x; immunity to Sandstorm.",
 		onImmunity: function(type, pokemon) {
 			if (type === 'sandstorm') return false;
 		},
-		onSourceModifyMove: function(move) {
-			if (typeof move.accuracy !== 'number') return;
-			if (this.weather === 'sandstorm') {
-				this.debug('sand veil - decreasing accuracy');
-				move.accuracy *= 0.8;
+		onAccuracy: function(accuracy) {
+			if (typeof accuracy !== 'number') return;
+			if (this.isWeather('sandstorm')) {
+				this.debug('Sand Veil - decreasing accuracy');
+				return accuracy * 0.8;
 			}
 		},
 		id: "sandveil",
 		name: "Sand Veil",
-		rating: 3,
+		rating: 1,
 		num: 8
 	},
 	"sapsipper": {
 		desc: "When a Pokemon with Sap Sipper is hit with a Grass-type attack, its attack is increased by one level, and the move itself has no effect. If hit by a multi-hit attack like Bullet Seed, it will increase attack by one stage for each hit. The only Grass-type move that will not activate Sap Sipper is Aromatherapy.",
 		shortDesc: "This Pokemon's Attack is boosted by 1 if hit by any Grass move; Grass immunity.",
-		onImmunity: function(type, pokemon) {
-			if (type === 'Grass') {
+		onTryHit: function(target, source, move) {
+			if (target !== source && move.type === 'Grass') {
 				this.boost({atk:1});
 				return null;
 			}
 		},
 		id: "sapsipper",
 		name: "Sap Sipper",
-		rating: 3,
+		rating: 3.5,
 		num: 157
 	},
 	"scrappy": {
@@ -1785,12 +1881,13 @@ exports.BattleAbilities = {
 		onResidual: function(pokemon) {
 			if (pokemon.status && this.random(3) === 0) {
 				this.debug('shed skin');
+				this.add('-activate', pokemon, 'ability: Shed Skin');
 				pokemon.cureStatus();
 			}
 		},
 		id: "shedskin",
 		name: "Shed Skin",
-		rating: 3,
+		rating: 4,
 		num: 61
 	},
 	"sheerforce": {
@@ -1867,9 +1964,19 @@ exports.BattleAbilities = {
 			onStart: function(target) {
 				this.add('-start', target, 'Slow Start');
 			},
-			onModifyStats: function(stats) {
-				stats.atk /= 2;
-				stats.spe /= 2;
+			onModifyAtk: function(atk, pokemon) {
+				if (pokemon.ability !== 'slowstart') {
+					pokemon.removeVolatile('slowstart');
+					return;
+				}
+				return atk / 2;
+			},
+			onModifySpe: function(spe, pokemon) {
+				if (pokemon.ability !== 'slowstart') {
+					pokemon.removeVolatile('slowstart');
+					return;
+				}
+				return spe / 2;
 			},
 			onEnd: function(target) {
 				this.add('-end', target, 'Slow Start');
@@ -1893,20 +2000,20 @@ exports.BattleAbilities = {
 	},
 	"snowcloak": {
 		desc: "If active while Hail is in effect, this Pokemon's Evasion receives a 20% boost; if this Pokemon has a typing that would normally take damage from Hail, this Pokemon is also immune to Hail's damage.",
-		shortDesc: "If Hail is active, this Pokemon's Evasion is 1.25x; immunity to Hail.",
+		shortDesc: "If Hail is active, this Pokemon's evasion is 1.25x; immunity to Hail.",
 		onImmunity: function(type, pokemon) {
 			if (type === 'hail') return false;
 		},
-		onSourceModifyMove: function(move) {
-			if (typeof move.accuracy !== 'number') return;
-			if (this.weather === 'hail') {
-				this.debug('snow cloak - decreasing accuracy');
-				move.accuracy *= 0.8;
+		onAccuracy: function(accuracy) {
+			if (typeof accuracy !== 'number') return;
+			if (this.isWeather('hail')) {
+				this.debug('Snow Cloak - decreasing accuracy');
+				return accuracy * 0.8;
 			}
 		},
 		id: "snowcloak",
 		name: "Snow Cloak",
-		rating: 2,
+		rating: 0.5,
 		num: 81
 	},
 	"snowwarning": {
@@ -1924,9 +2031,9 @@ exports.BattleAbilities = {
 	"solarpower": {
 		desc: "If this Pokemon is active while Sunny Day is in effect, its Special Attack temporarily receives a 50% boost but this Pokemon also receives damage equal to one-eighth of its max HP after each turn.",
 		shortDesc: "If Sunny Day is active, this Pokemon's Sp. Atk is 1.5x and loses 1/8 max HP per turn.",
-		onModifyStats: function(stats, pokemon) {
-			if (this.weather === 'sunnyday') {
-				stats.spa *= 1.5;
+		onModifySpA: function(spa, pokemon) {
+			if (this.isWeather('sunnyday')) {
+				return spa * 1.5;
 			}
 		},
 		onWeather: function(target, source, effect) {
@@ -1936,13 +2043,13 @@ exports.BattleAbilities = {
 		},
 		id: "solarpower",
 		name: "Solar Power",
-		rating: 3,
+		rating: 1.5,
 		num: 94
 	},
 	"solidrock": {
 		desc: "This Pokemon receives one-fourth reduced damage from Super Effective attacks.",
 		shortDesc: "This Pokemon receives 3/4 damage from super effective attacks.",
-		onFoeBasePower: function(basePower, attacker, defender, move) {
+		onSourceBasePower: function(basePower, attacker, defender, move) {
 			if (this.getEffectiveness(move.type, defender) > 0) {
 				this.debug('Solid Rock neutralize');
 				return basePower * 3/4;
@@ -1955,10 +2062,10 @@ exports.BattleAbilities = {
 	},
 	"soundproof": {
 		desc: "This Pokemon is immune to the effects of the sound-related moves Bug Buzz, Chatter, Echoed Voice, Grasswhistle, Growl, Heal Bell, Hyper Voice, Metal Sound, Perish Song, Relic Song, Roar, Round, Screech, Sing, Snarl, Snore, Supersonic, and Uproar.",
-		shortDesc: "This Pokemon is immune to sound-based moves.",
-		onImmunity: function(type, pokemon) {
-			if (type === 'sound') {
-				this.add('-immune', pokemon.id, '[msg]');
+		shortDesc: "This Pokemon is immune to sound-based moves, except Heal Bell.",
+		onTryHit: function(target, source, move) {
+			if (target !== source && move.isSoundBased) {
+				this.add('-immune', target.id, '[msg]');
 				return null;
 			}
 		},
@@ -1969,7 +2076,7 @@ exports.BattleAbilities = {
 	},
 	"speedboost": {
 		desc: "While this Pokemon is active, its Speed increases by one stage at the end of every turn; the six stage maximum for stat boosts is still in effect.",
-		shortDesc: "This Pokemon's Speed is boosted by 1 at the end of each turn.",
+		shortDesc: "This Pokemon's Speed is boosted by 1 at the end of each full turn on the field.",
 		onResidualOrder: 26,
 		onResidualSubOrder: 1,
 		onResidual: function(pokemon) {
@@ -1984,9 +2091,9 @@ exports.BattleAbilities = {
 	},
 	"stall": {
 		desc: "This Pokemon attacks last in its priority bracket.",
-		shortDesc: "This Pokemon attacks last among Pokemon using the same or greater priority moves.",
-		onModifyMove: function(move) {
-			move.priority -= 0.1;
+		shortDesc: "This Pokemon moves last among Pokemon using the same or greater priority moves.",
+		onModifyPriority: function(priority) {
+			return priority - 0.1;
 		},
 		id: "stall",
 		name: "Stall",
@@ -2054,15 +2161,22 @@ exports.BattleAbilities = {
 	"stormdrain": {
 		desc: "During double battles, this Pokemon draws any single-target Water-type attack to itself. If an opponent uses an Water-type attack that affects multiple Pokemon, those targets will be hit. This ability does not affect Water Hidden Power, Judgment or Weather Ball. The user is immune to Water and its Special Attack is increased one stage when hit by one.",
 		shortDesc: "This Pokemon draws Water moves to itself to boost Sp. Atk by 1; Water immunity.",
-		onImmunity: function(type, pokemon) {
-			if (type === 'Water') {
+		onTryHit: function(target, source, move) {
+			if (target !== source && move.type === 'Water') {
 				this.boost({spa:1});
 				return null;
 			}
 		},
+		onAnyRedirectTargetPriority: 1,
+		onAnyRedirectTarget: function(target, source, source2, move) {
+			if (move.type !== 'Water') return;
+			if (this.validTarget(this.effectData.target, source, move.target)) {
+				return this.effectData.target;
+			}
+		},
 		id: "stormdrain",
 		name: "Storm Drain",
-		rating: 3,
+		rating: 3.5,
 		num: 114
 	},
 	"sturdy": {
@@ -2090,7 +2204,7 @@ exports.BattleAbilities = {
 		onDragOut: false,
 		id: "suctioncups",
 		name: "Suction Cups",
-		rating: 3,
+		rating: 2.5,
 		num: 21
 	},
 	"superluck": {
@@ -2121,14 +2235,14 @@ exports.BattleAbilities = {
 	"swiftswim": {
 		desc: "If this Pokemon is active while Rain Dance is in effect, its speed is temporarily doubled.",
 		shortDesc: "If Rain Dance is active, this Pokemon's Speed is doubled.",
-		onModifyStats: function(stats, pokemon) {
-			if (this.weather === 'raindance') {
-				stats.spe *= 2;
+		onModifySpe: function(spe, pokemon) {
+			if (this.isWeather('raindance')) {
+				return spe * 2;
 			}
 		},
 		id: "swiftswim",
 		name: "Swift Swim",
-		rating: 3.5,
+		rating: 2,
 		num: 33
 	},
 	"synchronize": {
@@ -2146,10 +2260,12 @@ exports.BattleAbilities = {
 	},
 	"tangledfeet": {
 		desc: "When this Pokemon is confused, its opponent's attacks have a 50% chance of missing.",
-		shortDesc: "This Pokemon's Evasion is doubled as long as it is confused.",
-		onSourceModifyMove: function(move, source, target) {
-			if (target && target.volatiles['confusion'] && move.accuracy !== true) {
-				move.accuracy /= 2;
+		shortDesc: "This Pokemon's evasion is doubled as long as it is confused.",
+		onAccuracy: function(accuracy, target) {
+			if (typeof accuracy !== 'number') return;
+			if (target && target.volatiles['confusion']) {
+				this.debug('Tangled Feet - decreasing accuracy');
+				return accuracy * 0.5;
 			}
 		},
 		id: "tangledfeet",
@@ -2159,7 +2275,7 @@ exports.BattleAbilities = {
 	},
 	"technician": {
 		desc: "When this Pokemon uses an attack that has 60 Base Power or less, the move's Base Power receives a 50% boost. For example, a move with 60 Base Power effectively becomes a move with 90 Base Power.",
-		shortDesc: "This Pokemon's attacks of 60 base power or less do 1.5x damage. Includes Struggle.",
+		shortDesc: "This Pokemon's attacks of 60 Base Power or less do 1.5x damage. Includes Struggle.",
 		onBasePowerPriority: 10,
 		onBasePower: function(basePower, attacker, defender, move) {
 			if (basePower <= 60) {
@@ -2175,20 +2291,20 @@ exports.BattleAbilities = {
 	"telepathy": {
 		desc: "If a Pokemon has Telepathy, it will not take damage from its teammates' moves in double and triple battles.",
 		shortDesc: "This Pokemon does not take damage from its allies' attacks.",
-		id: "telepathy",
-		name: "Telepathy",
 		onTryHit: function(target, source, move) {
-			if (target.side === source.side && move.target === 'allAdjacent') {
+			if (target.side === source.side && move.category !== 'Status') {
 				this.add('-activate', target, 'ability: Telepathy');
 				return null;
 			}
 		},
+		id: "telepathy",
+		name: "Telepathy",
 		rating: 0,
 		num: 140
 	},
 	"teravolt": {
 		desc: "When this Pokemon becomes active, it nullifies the abilities of opposing active Pokemon that hinder this Pokemon's attacks. These abilities include Battle Armor, Clear Body, Damp, Dry Skin, Filter, Flash Fire, Flower Gift, Heatproof, Hyper Cutter, Immunity, Inner Focus, Insomnia, Keen Eye, Leaf Guard, Levitate, Lightningrod, Limber, Magma Armor, Marvel Scale, Motor Drive, Oblivious, Own Tempo, Sand Veil, Shell Armor, Shield Dust, Simple, Snow Cloak, Solid Rock, Soundproof, Sticky Hold, Storm Drain, Sturdy, Suction Cups, Tangled Feet, Thick Fat, Unaware, Vital Spirit, Volt Absorb, Water Absorb, Water Veil, White Smoke and Wonder Guard.",
-		shortDesc: "This Pokemon's moves ignore the target's Ability if that Ability would modify damage.",
+		shortDesc: "This Pokemon's moves ignore the target's Ability if it could modify the effectiveness.",
 		onStart: function(pokemon) {
 			this.add('-ability', pokemon, 'Teravolt');
 		},
@@ -2209,7 +2325,7 @@ exports.BattleAbilities = {
 	},
 	"thickfat": {
 		desc: "This Pokemon receives halved damage from Ice-type and Fire-type attacks.",
-		shortDesc: "This Pokemon receives half damage from Ice-type and Fire-type attacks.",
+		shortDesc: "This Pokemon receives half damage from Fire- and Ice-type attacks.",
 		onSourceBasePower: function(basePower, attacker, defender, move) {
 			if (move.type === 'Ice' || move.type === 'Fire') {
 				this.debug('Thick Fat weaken');
@@ -2233,7 +2349,7 @@ exports.BattleAbilities = {
 		},
 		id: "tintedlens",
 		name: "Tinted Lens",
-		rating: 4.5,
+		rating: 4,
 		num: 110
 	},
 	"torrent": {
@@ -2253,9 +2369,9 @@ exports.BattleAbilities = {
 	"toxicboost": {
 		desc: "When the user is poisoned, its Attack stat is raised by 50%.",
 		shortDesc: "When this Pokemon is poisoned, its physical attacks do 1.5x damage.",
-		onModifyStats: function(stats, pokemon) {
-			if (pokemon.status === 'psn' || pokemon.status === 'tox') {
-				stats.atk *= 1.5;
+		onBasePower: function(basePower, attacker, defender, move) {
+			if ((attacker.status === 'psn' || attacker.status === 'tox') && move.category === 'Physical') {
+				return basePower * 1.5;
 			}
 		},
 		id: "toxicboost",
@@ -2270,7 +2386,10 @@ exports.BattleAbilities = {
 			var target = pokemon.side.foe.randomActive();
 			if (!target) return;
 			var ability = this.getAbility(target.ability);
-			if (ability.id === 'flowergift' || ability.id === 'forecast' || ability.id === 'illusion' || ability.id === 'imposter' || ability.id === 'multitype' || ability.id === 'trace' || ability.id === 'wonderguard' || ability.id === 'zenmode') return;
+			var bannedAbilities = {flowergift:1, forecast:1, illusion:1, imposter:1, multitype:1, trace:1, zenmode:1};
+			if (bannedAbilities[target.ability]) {
+				return;
+			}
 			if (pokemon.setAbility(ability)) {
 				this.add('-ability',pokemon, ability,'[from] ability: Trace','[of] '+target);
 			}
@@ -2286,6 +2405,7 @@ exports.BattleAbilities = {
 		onBeforeMove: function(pokemon, target, move) {
 			if (pokemon.removeVolatile('truant')) {
 				this.add('cant',pokemon,'ability: Truant', move);
+				pokemon.movedThisTurn = true;
 				return false;
 			}
 			pokemon.addVolatile('truant');
@@ -2300,7 +2420,7 @@ exports.BattleAbilities = {
 	},
 	"turboblaze": {
 		desc: "When this Pokemon becomes active, it nullifies the abilities of opposing active Pokemon that hinder this Pokemon's attacks. These abilities include Battle Armor, Clear Body, Damp, Dry Skin, Filter, Flash Fire, Flower Gift, Heatproof, Hyper Cutter, Immunity, Inner Focus, Insomnia, Keen Eye, Leaf Guard, Levitate, Lightningrod, Limber, Magma Armor, Marvel Scale, Motor Drive, Oblivious, Own Tempo, Sand Veil, Shell Armor, Shield Dust, Simple, Snow Cloak, Solid Rock, Soundproof, Sticky Hold, Storm Drain, Sturdy, Suction Cups, Tangled Feet, Thick Fat, Unaware, Vital Spirit, Volt Absorb, Water Absorb, Water Veil, White Smoke and Wonder Guard.",
-		shortDesc: "This Pokemon's moves ignore the target's Ability if that Ability would modify damage.",
+		shortDesc: "This Pokemon's moves ignore the target's Ability if it could modify the effectiveness.",
 		onStart: function(pokemon) {
 			this.add('-ability', pokemon, 'Turboblaze');
 		},
@@ -2345,13 +2465,13 @@ exports.BattleAbilities = {
 			pokemon.addVolatile('unburden');
 		},
 		effect: {
-			onModifyStats: function(stats, pokemon) {
+			onModifySpe: function(spe, pokemon) {
 				if (pokemon.ability !== 'unburden') {
 					pokemon.removeVolatile('unburden');
 					return;
 				}
 				if (!pokemon.item) {
-					stats.spe *= 2;
+					return spe * 2;
 				}
 			}
 		},
@@ -2374,7 +2494,7 @@ exports.BattleAbilities = {
 	},
 	"victorystar": {
 		desc: "Raises every friendly Pokemon's Accuracy, including this Pokemon's, by 10% (multiplied).",
-		shortDesc: "This Pokemon and its allies' moves have their Accuracy boosted to 1.1x.",
+		shortDesc: "This Pokemon and its allies' moves have their accuracy boosted to 1.1x.",
 		onAllyModifyMove: function(move) {
 			if (typeof move.accuracy === 'number') {
 				move.accuracy *= 1.1;
@@ -2388,47 +2508,57 @@ exports.BattleAbilities = {
 	"vitalspirit": {
 		desc: "This Pokemon cannot be put to sleep; this includes both opponent-induced sleep as well as user-induced sleep via Rest.",
 		shortDesc: "This Pokemon cannot fall asleep. Gaining this Ability while asleep cures it.",
+		onUpdate: function(pokemon) {
+			if (pokemon.status === 'slp') {
+				pokemon.cureStatus();
+			}
+		},
 		onImmunity: function(type) {
 			if (type === 'slp') return false;
 		},
 		id: "vitalspirit",
 		name: "Vital Spirit",
-		rating: 1,
+		rating: 2,
 		num: 72
 	},
 	"voltabsorb": {
 		desc: "When an Electric-type attack hits this Pokemon, it recovers 25% of its max HP.",
 		shortDesc: "This Pokemon heals 1/4 of its max HP when hit by Electric moves; Electric immunity.",
-		onImmunity: function(type, pokemon) {
-			if (type === 'Electric') {
-				var d = pokemon.heal(pokemon.maxhp/4);
-				this.add('-heal',pokemon,d+pokemon.getHealth(),'[from] ability: Volt Absorb');
+		onTryHit: function(target, source, move) {
+			if (target !== source && move.type === 'Electric') {
+				var d = target.heal(target.maxhp/4);
+				this.add('-heal',target,d+target.getHealth(),'[from] ability: Volt Absorb');
 				return null;
 			}
 		},
 		id: "voltabsorb",
 		name: "Volt Absorb",
-		rating: 3,
+		rating: 3.5,
 		num: 10
 	},
 	"waterabsorb": {
 		desc: "When a Water-type attack hits this Pokemon, it recovers 25% of its max HP.",
 		shortDesc: "This Pokemon heals 1/4 of its max HP when hit by Water moves; Water immunity.",
-		onImmunity: function(type, pokemon) {
-			if (type === 'Water') {
-				var d = pokemon.heal(pokemon.maxhp/4);
-				this.add('-heal',pokemon,d+pokemon.getHealth(),'[from] ability: Water Absorb');
+		onTryHit: function(target, source, move) {
+			if (target !== source && move.type === 'Water') {
+				var d = target.heal(target.maxhp/4);
+				this.add('-heal',target,d+target.getHealth(),'[from] ability: Water Absorb');
 				return null;
 			}
 		},
 		id: "waterabsorb",
 		name: "Water Absorb",
-		rating: 3,
+		rating: 3.5,
 		num: 11
 	},
 	"waterveil": {
 		desc: "This Pokemon cannot become burned.",
 		shortDesc: "This Pokemon cannot be burned. Gaining this Ability while burned cures it.",
+		onUpdate: function(pokemon) {
+			if (pokemon.status === 'brn') {
+				pokemon.cureStatus();
+			}
+		},
 		onImmunity: function(type, pokemon) {
 			if (type === 'brn') return false;
 		},
@@ -2496,12 +2626,12 @@ exports.BattleAbilities = {
 	},
 	"wonderskin": {
 		desc: "Causes the chance of a status move working to be halved. It does not affect moves that inflict status as a secondary effect like Thunder's chance to paralyze.",
-		shortDesc: "All status moves with a set % Accuracy are 50% accurate if used on this Pokemon.",
-		onSourceModifyMovePriority: 10,
-		onSourceModifyMove: function(move) {
+		shortDesc: "All status moves with a set % accuracy are 50% accurate if used on this Pokemon.",
+		onAccuracyPriority: 10,
+		onAccuracy: function(accuracy, target, source, move) {
 			if (move.category === 'Status' && typeof move.accuracy === 'number') {
-				this.debug('setting move accuracy to 50%');
-				move.accuracy = 50;
+				this.debug('Wonder Skin - setting accuracy to 50');
+				return 50;
 			}
 		},
 		id: "wonderskin",
@@ -2526,6 +2656,7 @@ exports.BattleAbilities = {
 		effect: {
 			onStart: function(pokemon) {
 				if (pokemon.transformInto('Darmanitan-Zen')) {
+					pokemon.transformed = false;
 					this.add('-formechange', pokemon, 'Darmanitan-Zen');
 					this.add('-message', 'Zen Mode triggered! (placeholder)');
 				} else {
@@ -2534,6 +2665,7 @@ exports.BattleAbilities = {
 			},
 			onEnd: function(pokemon) {
 				if (pokemon.transformInto('Darmanitan')) {
+					pokemon.transformed = false;
 					this.add('-formechange', pokemon, 'Darmanitan');
 					this.add('-message', 'Zen Mode ended! (placeholder)');
 				} else {
@@ -2542,6 +2674,7 @@ exports.BattleAbilities = {
 			},
 			onUpdate: function(pokemon) {
 				if (pokemon.ability !== 'zenmode') {
+					pokemon.transformed = false;
 					pokemon.removeVolatile('zenmode');
 				}
 			}
@@ -2567,6 +2700,7 @@ exports.BattleAbilities = {
 			}
 		},
 		id: "mountaineer",
+		isNonstandard: true,
 		name: "Mountaineer",
 		rating: 3.5,
 		num: -2
@@ -2575,6 +2709,7 @@ exports.BattleAbilities = {
 		desc: "It can reflect the effect of status moves when switching in.",
 		shortDesc: "On switch-in, this Pokemon blocks certain status moves and uses the move itself.",
 		id: "rebound",
+		isNonstandard: true,
 		name: "Rebound",
 		onAllyTryFieldHit: function(target, source, move) {
 			if (target === source) return;
@@ -2605,6 +2740,7 @@ exports.BattleAbilities = {
 		desc: "Increases the duration of many field effects by two turns when used by this Pokémon.",
 		shortDesc: "The duration of certain field effects is increased by 2 turns if used by this Pokemon.",
 		id: "persistent",
+		isNonstandard: true,
 		name: "Persistent",
 		// implemented in the corresponding move
 		rating: 4,
