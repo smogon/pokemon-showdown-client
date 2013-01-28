@@ -2692,6 +2692,12 @@ function Battle(frame, logFrame, noPreload) {
 					// do nothing
 				} else if (effect.id) {
 					switch (effect.id) {
+					case 'guardswap':
+						actions += '' + poke.getName() + ' switched all changes to its Defense and Sp. Def with the target!';
+						break;
+					case 'heartswap':
+						actions += '' + poke.getName() + ' switched stat changes with the target!';
+						break;
 					case 'powerswap':
 						actions += '' + poke.getName() + ' switched all changes to its Attack and Sp. Attack with the target!';
 						break;
@@ -3592,7 +3598,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " fell for the feint!";
 					break;
 				case 'spite':
-					actions += "It reduced the PP of " + args[3] + " by " + args[4] + "!";
+					actions += "It reduced the PP of " poke.getLowerName() + "'s " + Tools.getMove(args[3]).name + " by " + args[4] + "!";
 					break;
 				case 'gravity':
 					actions += "" + poke.getName() + " couldn't stay airborne because of gravity!";
