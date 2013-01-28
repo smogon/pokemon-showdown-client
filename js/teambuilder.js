@@ -1779,7 +1779,7 @@ function Teambuilder(id, elem)
 			{
 				text += "\n";
 			}
-			for (var j=0; j<curSet.moves.length; j++)
+			if (curSet.moves) for (var j=0; j<curSet.moves.length; j++)
 			{
 				var move = curSet.moves[j];
 				if (move.substr(0,13) === 'Hidden Power ')
