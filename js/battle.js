@@ -3612,6 +3612,27 @@ function Battle(frame, logFrame, noPreload) {
 				case 'struggle':
 					actions += "" + poke.getName() + " has no moves left!";
 					break;
+				case 'bind':
+					actions += '' + poke.getName() + ' was squeezed by ' + ofpoke.getLowerName() + '!';
+					break;
+				case 'wrap':
+					actions += '' + poke.getName() + ' was wrapped by ' + ofpoke.getLowerName() + '!';
+					break;
+				case 'clamp':
+					actions += '' + ofpoke.getName() + ' clamped ' + poke.getLowerName() + '!';
+					break;
+				case 'whirlpool':
+					actions += '' + poke.getName() + ' became trapped in the vortex!';
+					break;
+				case 'firespin':
+					actions += '' + poke.getName() + ' became trapped in the fiery vortex!';
+					break;
+				case 'magmastorm':
+					actions += '' + poke.getName() + ' became trapped by swirling magma!';
+					break;
+				case 'sandtomb':
+					actions += '' + poke.getName() + ' became trapped by Sand Tomb!';
+					break;
 				
 				// ability activations
 				case 'sturdy':
