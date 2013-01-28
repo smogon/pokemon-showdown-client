@@ -5806,6 +5806,12 @@ var BattleMoveAnims = {
 			}, 'accel', 'explode');
 		}
 	},
+	freezeshock: {
+		prepareAnim: BattleOtherAnims.selfstatus.anim,
+		prepareMessage: function(pokemon) {
+			return pokemon.getName()+' became cloaked in a freezing light!';
+		}
+	},
 	iceburn: {
 		prepareAnim: BattleOtherAnims.selfstatus.anim,
 		prepareMessage: function(pokemon) {
