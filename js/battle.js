@@ -3598,7 +3598,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " fell for the feint!";
 					break;
 				case 'spite':
-					actions += "It reduced the PP of " poke.getLowerName() + "'s " + Tools.getMove(args[3]).name + " by " + args[4] + "!";
+					actions += "It reduced the PP of " + poke.getLowerName() + "'s " + Tools.getMove(args[3]).name + " by " + args[4] + "!";
 					break;
 				case 'gravity':
 					actions += "" + poke.getName() + " couldn't stay airborne because of gravity!";
