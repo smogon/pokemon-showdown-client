@@ -309,7 +309,7 @@ function Teambuilder(id, elem)
 			text += '<button onclick="rooms[\''+selfR.id+'\'].formNew(event); return false"><i class="icon-plus-sign"></i> New team</button>';
 			text += ' <button onclick="rooms[\''+selfR.id+'\'].formNew(event, true); return false"><i class="icon-upload-alt"></i> Import from PO</button> <button onclick="rooms[\''+selfR.id+'\'].formToggleBackup(event); return false"><i class="icon-upload-alt"></i> Backup/Restore</button>';
 
-			text += '<p><strong>Clearing your cookies will delete your teams.</strong> If you want to clear your cookies, you can use the Backup/Restore feature to save your teams as text first.</p>';
+			text += '<p><strong>Clearing your cookies or <code>localStorage</code> will delete your teams.</strong> If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 
 			if (teams.length >= 2 && cookieTeams)
 			{
