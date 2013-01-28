@@ -1229,13 +1229,13 @@ function Lobby(id, elem) {
 	// Mark a user as active for the purpose of tab complete.
 	this.markUserActive = function (userid) {
 		var idx = selfR.userActivity.indexOf(userid);
-		if (idx != -1) {
+		if (idx !== -1) {
 			selfR.userActivity.splice(idx, 1);
 		}
 		selfR.userActivity.push(userid);
-		if (selfR.userActivity.length > 400) {
+		if (selfR.userActivity.length > 100) {
 			// Prune the list.
-			selfR.userActivity.splice(0, 200);
+			selfR.userActivity.splice(0, 20);
 		}
 	};
 	this.add = function (log) {
@@ -1900,9 +1900,11 @@ function Lobby(id, elem) {
 	this.formKeyDown = function (e) {
 		hideTooltip();
 		// We only handle the tab key.
-		if (e.keyCode !== 9) return true;
+		// If shift is held down, then don't tab complete, and instead navigate
+		// away from the chatbox.
+		if ((e.keyCode !== 9) || e.shiftKey) return true;
 
-		// No matter what, we don't want to tab away from this box.
+		// We don't want to tab away from this box.
 		e.preventDefault();
 
 		// Don't tab complete at the start of the text box.
@@ -1940,8 +1942,8 @@ function Lobby(id, elem) {
 			candidates.sort(function(a, b) {
 				var aidx = selfR.userActivity.indexOf(a);
 				var bidx = selfR.userActivity.indexOf(b);
-				if (aidx != -1) {
-					if (bidx != -1) {
+				if (aidx !== -1) {
+					if (bidx !== -1) {
 						return bidx - aidx;
 					}
 					return -1; // a comes first
