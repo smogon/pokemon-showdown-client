@@ -156,7 +156,7 @@ function Pokemon(species) {
 				opacity: .6
 			}, BattleEffects.energyball));
 			elem = elem.add(curelem);
- 
+
 			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="/fx/energyball.png" style="display:none;position:absolute" />');
 			curelem = selfP.side.battle.spriteElemsFront[selfP.side.n].children().last();
 			curelem.css(self.pos({
@@ -4225,9 +4225,9 @@ function Battle(frame, logFrame, noPreload) {
 			args.shift();
 			var message = args.join('|');
 			if (message.substr(0,2) === '//') {
-				self.log('<div class="chat">' + getTimestamp() + '<strong style="' + hashColor(toUserid(self.getSide(name).name)) + '">' + self.sanitize(name) + ':</strong> <em>' + messageSanitize(message.substr(1)) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(self.getSide(name).name)) + '">' + self.sanitize(name) + ':</strong> <em>' + messageSanitize(message.substr(1)) + '</em></div>', preempt);
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
-				self.log('<div class="chat">' + getTimestamp() + '<strong style="' + hashColor(toUserid(self.getSide(name).name)) + '">&bull;</strong> <em>' + self.sanitize(name) + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(self.getSide(name).name)) + '">&bull;</strong> <em>' + self.sanitize(name) + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -4237,7 +4237,7 @@ function Battle(frame, logFrame, noPreload) {
 			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
 				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else {
-				self.log('<div class="chat">' + getTimestamp() + '<strong style="' + hashColor(toUserid(self.getSide(name).name)) + '">' + self.sanitize(name) + ':</strong> <em>' + messageSanitize(message) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(self.getSide(name).name)) + '">' + self.sanitize(name) + ':</strong> <em>' + messageSanitize(message) + '</em></div>', preempt);
 			}
 			break;
 		case 'chatmsg':
