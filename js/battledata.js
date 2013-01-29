@@ -299,11 +299,10 @@ var basespecieschart = {
 var Tools = {
 	
 	prefs: (function() {
-		var self = this;
 		var localStorageEntry = 'showdown_prefs';
 		var data = (window.localStorage &&
 				$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
-		return {
+		var self = {
 			get: function(prop) {
 				return data[prop];
 			},
@@ -320,6 +319,7 @@ var Tools = {
 				localStorage.setItem(localStorageEntry, $.toJSON(data));
 			}
 		};
+		return self;
 	})(),
 
 	getEffect: function(effect) {
