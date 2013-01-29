@@ -30,7 +30,7 @@ var me = {
 	curPopup: '',
 	popups: []
 };
-var prefs = {};
+var prefs = (window.localStorage && $.parseJSON(localStorage.getItem('showdown_prefs'))) || {};
 var rooms = {};
 var curRoom = null;
 var curTitle = 'Showdown!';
@@ -39,6 +39,23 @@ var formats = [''];
 var teams = [];
 
 var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1 && navigator.userAgent.toLowerCase().indexOf("firefox") <= -1;
+
+function savePrefs() {
+	if (!window.localStorage) return;
+	localStorage.setItem('showdown_prefs', $.toJSON(prefs));
+}
+
+function getTimestamp() {
+	if (prefs.timestamps === 'off') return '';
+	var date = new Date();
+	var components = [ date.getHours(), date.getMinutes() ];
+	if (prefs.timestamps === 'seconds') {
+		components.push(date.getSeconds());
+	}
+	return '[' + components.map(
+			function(x) { return (x < 10) ? '0' + x : x; }
+		).join(':') + '] ';
+}
 
 // 
 function selectTab(tab, e) {
@@ -261,7 +278,7 @@ function BattleRoom(id, elem) {
 		if (message.pm) {
 			var pmuserid = (toUserid(message.name) === me.userid ? toUserid(message.pm) : toUserid(message.name))
 			if (me.ignore[toUserid(message.name)] && message.name.substr(0, 1) === ' ') return;
-			selfR.add('|chatmsg-raw|' + '<div class="chat"><strong>' + sanitize(message.name.substr(1)) + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(message.pm) + ')</i> ' + messageSanitize(message.message) + '</em>');
+			selfR.add('|chatmsg-raw|' + '<div class="chat">' + getTimestamp() + '<strong>' + sanitize(message.name.substr(1)) + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(message.pm) + ')</i> ' + messageSanitize(message.message) + '</em>');
 		} else if (message.rawMessage) {
 			selfR.add('|chatmsg-raw|' + message.rawMessage);
 		} else if (message.evalRawMessage) {
@@ -1088,19 +1105,34 @@ function Lobby(id, elem) {
 		case 'showjoins':
 			rooms.lobby.add('Join/leave messages: ON');
 			prefs.showjoins = true;
+			savePrefs();
 			return false;
 		case 'hidejoins':
 			rooms.lobby.add('Join/leave messages: HIDDEN');
 			prefs.showjoins = false;
+			savePrefs();
 			return false;
 
 		case 'showbattles':
 			rooms.lobby.add('Battle messages: ON');
 			prefs.showbattles = true;
+			savePrefs();
 			return false;
 		case 'hidebattles':
 			rooms.lobby.add('Battle messages: HIDDEN');
 			prefs.showbattles = false;
+			savePrefs();
+			return false;
+
+		case 'timestamps':
+			// This interface is arguably inconsistent with showbattles/hidebattles,
+			// but it makes more sense here because there are three possible values.
+			if (['off', 'minutes', 'seconds'].indexOf(target) === -1) {
+				rooms.lobby.add("Error: Valid options are /timestamps off, /timestamps minutes, and /timestamps seconds");
+			} else {
+				prefs.timestamps = target;
+				savePrefs();
+			}
 			return false;
 
 		case 'rank':
@@ -1369,7 +1401,7 @@ function Lobby(id, elem) {
 				if (log[i].pm) {
 					var pmuserid = (userid === me.userid ? toUserid(log[i].pm) : userid);
 					if (!me.pm[pmuserid]) me.pm[pmuserid] = '';
-					var pmcode = '<div class="chat"><strong style="' + color + '">' + clickableName + ':</strong> <em> ' + messageSanitize(message) + '</em></div>';
+					var pmcode = '<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em> ' + messageSanitize(message) + '</em></div>';
 					for (var j = 0; j < me.popups.length; j++) {
 						if (pmuserid === me.popups[j]) break;
 					}
@@ -1380,17 +1412,17 @@ function Lobby(id, elem) {
 					} else {
 						selfR.updatePopup();
 					}
-					selfR.chatElem.append('<div class="chat"><strong style="' + color + '">' + clickableName + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</em></div>');
+					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</em></div>');
 				//} else if (log[i].act) {
 				//	selfR.chatElem.append('<div class="chat"><strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + message + '</i></em></div>');
 				} else if (message.substr(0,2) === '//') {
-					selfR.chatElem.append('<div class="chat"><strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message.substr(1)) + '</em></div>');
+					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message.substr(1)) + '</em></div>');
 				} else if (message.substr(0,4).toLowerCase() === '/me ') {
-					selfR.chatElem.append('<div class="chat"><strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
+					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
 				} else if (message.substr(0,5).toLowerCase() === '/mee ') {
-					selfR.chatElem.append('<div class="chat"><strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
+					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
 				} else if (message.substr(0,10).toLowerCase() === '/announce ') {
-					selfR.chatElem.append('<div class="chat"><strong style="' + color + '">' + clickableName + ':</strong> <em style="padding:1px 4px 2px;color:white;background:#6688AA">' + messageSanitize(message.substr(10)) + '</em></div>');
+					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="padding:1px 4px 2px;color:white;background:#6688AA">' + messageSanitize(message.substr(10)) + '</em></div>');
 				} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -1400,7 +1432,8 @@ function Lobby(id, elem) {
 				} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else {
-					selfR.chatElem.append('<div class="chat"><strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
+					// Normal chat message.
+					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
 				}
 			} else if (log[i].name && log[i].action === 'battle') {
 				var id = log[i].room;
