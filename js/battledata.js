@@ -610,3 +610,20 @@ var Tools = {
 		return '<img src="/sprites/types/'+sanitizedType+'.png" alt="'+type+'" height="14" width="32"'+(b?' class="b"':'')+' />';
 	}
 };
+
+var prefs = (window.localStorage && $.parseJSON(localStorage.getItem('showdown_prefs'))) || {};
+function savePrefs() {
+	if (!window.localStorage) return;
+	localStorage.setItem('showdown_prefs', $.toJSON(prefs));
+}
+function getTimestamp() {
+	if (prefs.timestamps === 'off' || prefs.timestamps === undefined) return '';
+	var date = new Date();
+	var components = [ date.getHours(), date.getMinutes() ];
+	if (prefs.timestamps === 'seconds') {
+		components.push(date.getSeconds());
+	}
+	return '[' + components.map(function(x) {
+		return (x < 10) ? '0' + x : x;
+	}).join(':') + '] ';
+}
