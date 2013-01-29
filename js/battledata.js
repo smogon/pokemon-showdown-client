@@ -298,6 +298,29 @@ var basespecieschart = {
 
 var Tools = {
 	
+	prefs: (function() {
+		var localStorageEntry = 'showdown_prefs';
+		var data = (window.localStorage &&
+				$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
+		return {
+			get: function(prop) {
+				return data[prop];
+			},
+			/**
+			 * Set a preference value.
+			 * If save is true-ish, then also save to localStorage immediately.
+			 */
+			set: function(prop, value, save) {
+				data[prop] = value;
+				if (save) this.save();
+			},
+			save: function() {
+				if (!window.localStorage) return;
+				localStorage.setItem(localStorageEntry, $.toJSON(data));
+			}
+		};
+	})(),
+
 	getEffect: function(effect) {
 		if (!effect || typeof effect === 'string') {
 			var name = $.trim(effect||'');
@@ -611,19 +634,3 @@ var Tools = {
 	}
 };
 
-var prefs = (window.localStorage && $.parseJSON(localStorage.getItem('showdown_prefs'))) || {};
-function savePrefs() {
-	if (!window.localStorage) return;
-	localStorage.setItem('showdown_prefs', $.toJSON(prefs));
-}
-function getTimestamp() {
-	if (prefs.timestamps === 'off' || prefs.timestamps === undefined) return '';
-	var date = new Date();
-	var components = [ date.getHours(), date.getMinutes() ];
-	if (prefs.timestamps === 'seconds') {
-		components.push(date.getSeconds());
-	}
-	return '[' + components.map(function(x) {
-		return (x < 10) ? '0' + x : x;
-	}).join(':') + '] ';
-}

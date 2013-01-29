@@ -30,7 +30,6 @@ var me = {
 	curPopup: '',
 	popups: []
 };
-var prefs = (window.localStorage && $.parseJSON(localStorage.getItem('showdown_prefs'))) || {};
 var rooms = {};
 var curRoom = null;
 var curTitle = 'Showdown!';
@@ -39,23 +38,6 @@ var formats = [''];
 var teams = [];
 
 var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1 && navigator.userAgent.toLowerCase().indexOf("firefox") <= -1;
-
-function savePrefs() {
-	if (!window.localStorage) return;
-	localStorage.setItem('showdown_prefs', $.toJSON(prefs));
-}
-
-function getTimestamp() {
-	if ((prefs.timestamps === 'off') || (prefs.timestamps === undefined)) return '';
-	var date = new Date();
-	var components = [ date.getHours(), date.getMinutes() ];
-	if (prefs.timestamps === 'seconds') {
-		components.push(date.getSeconds());
-	}
-	return '[' + components.map(
-			function(x) { return (x < 10) ? '0' + x : x; }
-		).join(':') + '] ';
-}
 
 // 
 function selectTab(tab, e) {
@@ -261,14 +243,9 @@ function BattleRoom(id, elem) {
 		}
 		selfR.battle.play();
 		if (data.battlelog) {
-			// Disable timestamps for the past log because the server does
-			// not tell us what time the messages were sent at.
-			var timestamps = prefs.timestamps;
-			prefs.timestamps = 'off';
 			for (var i = 0; i < data.battlelog.length; i++) {
 				selfR.battle.add(data.battlelog[i]);
 			}
-			prefs.timestamps = timestamps;
 			selfR.battle.fastForwardTo(-1);
 		}
 		selfR.updateMe();
@@ -283,7 +260,7 @@ function BattleRoom(id, elem) {
 		if (message.pm) {
 			var pmuserid = (toUserid(message.name) === me.userid ? toUserid(message.pm) : toUserid(message.name))
 			if (me.ignore[toUserid(message.name)] && message.name.substr(0, 1) === ' ') return;
-			selfR.add('|chatmsg-raw|' + '<div class="chat">' + getTimestamp() + '<strong>' + sanitize(message.name.substr(1)) + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(message.pm) + ')</i> ' + messageSanitize(message.message) + '</em>');
+			selfR.add('|chatmsg-raw|' + '<div class="chat"><strong>' + sanitize(message.name.substr(1)) + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(message.pm) + ')</i> ' + messageSanitize(message.message) + '</em>');
 		} else if (message.rawMessage) {
 			selfR.add('|chatmsg-raw|' + message.rawMessage);
 		} else if (message.evalRawMessage) {
@@ -1109,24 +1086,20 @@ function Lobby(id, elem) {
 
 		case 'showjoins':
 			rooms.lobby.add('Join/leave messages: ON');
-			prefs.showjoins = true;
-			savePrefs();
+			Tools.prefs.set('showjoins', true, true);
 			return false;
 		case 'hidejoins':
 			rooms.lobby.add('Join/leave messages: HIDDEN');
-			prefs.showjoins = false;
-			savePrefs();
+			Tools.prefs.set('showjoins', false, true);
 			return false;
 
 		case 'showbattles':
 			rooms.lobby.add('Battle messages: ON');
-			prefs.showbattles = true;
-			savePrefs();
+			Tools.prefs.set('showbattles', true, true);
 			return false;
 		case 'hidebattles':
 			rooms.lobby.add('Battle messages: HIDDEN');
-			prefs.showbattles = false;
-			savePrefs();
+			Tools.prefs.set('showbattles', false, true);
 			return false;
 
 		case 'timestamps':
@@ -1135,8 +1108,7 @@ function Lobby(id, elem) {
 			if (['off', 'minutes', 'seconds'].indexOf(target) === -1) {
 				rooms.lobby.add("Error: Valid options are /timestamps off, /timestamps minutes, and /timestamps seconds");
 			} else {
-				prefs.timestamps = target;
-				savePrefs();
+				Tools.prefs.set('timestamps', target, true);
 			}
 			return false;
 
@@ -1275,6 +1247,18 @@ function Lobby(id, elem) {
 			selfR.userActivity.splice(0, 20);
 		}
 	};
+	this.getTimestamp = function () {
+		var pref = Tools.prefs.get('timestamps');
+		if ((pref === 'off') || (pref === undefined)) return '';
+		var date = new Date();
+		var components = [ date.getHours(), date.getMinutes() ];
+		if (pref === 'seconds') {
+			components.push(date.getSeconds());
+		}
+		return '[' + components.map(
+				function(x) { return (x < 10) ? '0' + x : x; }
+			).join(':') + '] ';
+	};
 	this.add = function (log) {
 		if (typeof log === 'string') log = log.split('\n');
 		var autoscroll = false;
@@ -1406,7 +1390,7 @@ function Lobby(id, elem) {
 				if (log[i].pm) {
 					var pmuserid = (userid === me.userid ? toUserid(log[i].pm) : userid);
 					if (!me.pm[pmuserid]) me.pm[pmuserid] = '';
-					var pmcode = '<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em> ' + messageSanitize(message) + '</em></div>';
+					var pmcode = '<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em> ' + messageSanitize(message) + '</em></div>';
 					for (var j = 0; j < me.popups.length; j++) {
 						if (pmuserid === me.popups[j]) break;
 					}
@@ -1417,17 +1401,17 @@ function Lobby(id, elem) {
 					} else {
 						selfR.updatePopup();
 					}
-					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</em></div>');
+					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</em></div>');
 				//} else if (log[i].act) {
 				//	selfR.chatElem.append('<div class="chat"><strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + message + '</i></em></div>');
 				} else if (message.substr(0,2) === '//') {
-					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message.substr(1)) + '</em></div>');
+					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message.substr(1)) + '</em></div>');
 				} else if (message.substr(0,4).toLowerCase() === '/me ') {
-					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
+					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
 				} else if (message.substr(0,5).toLowerCase() === '/mee ') {
-					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
+					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
 				} else if (message.substr(0,10).toLowerCase() === '/announce ') {
-					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="padding:1px 4px 2px;color:white;background:#6688AA">' + messageSanitize(message.substr(10)) + '</em></div>');
+					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="padding:1px 4px 2px;color:white;background:#6688AA">' + messageSanitize(message.substr(10)) + '</em></div>');
 				} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -1438,7 +1422,7 @@ function Lobby(id, elem) {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else {
 					// Normal chat message.
-					selfR.chatElem.append('<div class="chat">' + getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
+					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
 				}
 			} else if (log[i].name && log[i].action === 'battle') {
 				var id = log[i].room;
@@ -1452,7 +1436,7 @@ function Lobby(id, elem) {
 				});
 				if (selfR.rooms.length > 8) selfR.rooms.shift();
 
-				if (log[i].silent && !prefs.showbattles) continue;
+				if (log[i].silent && !Tools.prefs.get('showbattles')) continue;
 
 				selfR.joinLeaveElem = null;
 				selfR.joinLeave = {
@@ -1486,7 +1470,7 @@ function Lobby(id, elem) {
 					me.users[toUserid(log[i].name)] = log[i].name;
 					continue;
 				}
-				if (log[i].silent && !prefs.showjoins) continue;
+				if (log[i].silent && !Tools.prefs.get('showjoins')) continue;
 				if (!selfR.joinLeaveElem) {
 					selfR.chatElem.append('<div class="message"><small>Loading...</small></div>');
 					selfR.joinLeaveElem = selfR.chatElem.children().last();
@@ -1569,10 +1553,10 @@ function Lobby(id, elem) {
 			}
 			// Disable timestamps for the past log because the server doesn't
 			// tell us what time the messages were sent at.
-			var timestamps = prefs.timestamps;
-			prefs.timestamps = 'off';
+			var timestamps = Tools.prefs.get('timestamps');
+			Tools.prefs.set('timestamps', 'off');
 			selfR.add(data.log);	// Add past log.
-			prefs.timestamps = timestamps;
+			Tools.prefs.set('timestamps', timestamps);
 		}
 		selfR.update(data);
 		selfR.chatFrameElem.scrollTop(selfR.chatElem.height());
