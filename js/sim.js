@@ -261,9 +261,14 @@ function BattleRoom(id, elem) {
 		}
 		selfR.battle.play();
 		if (data.battlelog) {
+			// Disable timestamps for the past log because the server does
+			// not tell us what time the messages were sent at.
+			var timestamps = prefs.timestamps;
+			prefs.timestamps = 'off';
 			for (var i = 0; i < data.battlelog.length; i++) {
 				selfR.battle.add(data.battlelog[i]);
 			}
+			prefs.timestamps = timestamps;
 			selfR.battle.fastForwardTo(-1);
 		}
 		selfR.updateMe();
@@ -1562,7 +1567,12 @@ function Lobby(id, elem) {
 					data.log = data.log.splice(data.log.length - 100);
 				}
 			}
-			selfR.add(data.log);
+			// Disable timestamps for the past log because the server doesn't
+			// tell us what time the messages were sent at.
+			var timestamps = prefs.timestamps;
+			prefs.timestamps = 'off';
+			selfR.add(data.log);	// Add past log.
+			prefs.timestamps = timestamps;
 		}
 		selfR.update(data);
 		selfR.chatFrameElem.scrollTop(selfR.chatElem.height());
