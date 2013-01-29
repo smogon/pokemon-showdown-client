@@ -2283,7 +2283,7 @@ function Battle(frame, logFrame, noPreload) {
 		}
 		if (!self.fastForward) {
 			// skip
-			if (kwargs.miss) {
+			if (kwargs.miss && target.side) {
 				target = target.side.missedPokemon;
 			}
 			if (kwargs.notarget) {
