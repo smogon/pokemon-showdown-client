@@ -1880,6 +1880,7 @@ function Battle(frame, logFrame, noPreload) {
 				mudsport: '<span class="good">Mud&nbsp;Sport</span> ',
 				substitute: '',
 				// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
+				uproar: '<span class="neutral">Uproar</span>',
 				roost: '<span class="neutral">Landed</span>',
 				protect: '<span class="good">Protect</span>',
 				quickguard: '<span class="good">Quick&nbsp;Guard</span>',
@@ -2815,6 +2816,7 @@ function Battle(frame, logFrame, noPreload) {
 			case '-fail':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
+				var fromeffect = Tools.getEffect(kwargs.from);
 				if (poke) {
 					self.resultAnim(poke, 'Failed', 'neutral', animDelay);
 				}
@@ -2829,8 +2831,17 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " is already poisoned.";
 					break;
 				case 'slp':
-					self.resultAnim(poke, 'Already asleep', 'neutral', animDelay);
-					actions += "" + poke.getName() + " is already asleep.";
+					if (fromeffect.id === 'uproar') {
+						self.resultAnim(poke, 'Failed', 'neutral', animDelay);
+						if (kwargs.msg) {
+							actions += "But " + poke.getLowerName() + " can't sleep in an uproar!";
+						} else {
+							actions += "But the uproar kept " + poke.getLowerName() + " awake!";
+						}
+					} else {
+						self.resultAnim(poke, 'Already asleep', 'neutral', animDelay);
+						actions += "" + poke.getName() + " is already asleep.";
+					}
 					break;
 				case 'par':
 					self.resultAnim(poke, 'Already paralyzed', 'neutral', animDelay);
@@ -3376,6 +3387,13 @@ function Battle(frame, logFrame, noPreload) {
 						actions += '' + poke.getName() + ' put in a substitute!';
 					}
 					break;
+				case 'uproar':
+					if (kwargs.upkeep) {
+						actions += "" + poke.getName() + " is making an uproar!";
+					} else {
+						actions += "" + poke.getName() + " caused an uproar!";
+					}
+					break;
 				case 'doomdesire':
 					actions += '' + poke.getName() + ' chose Doom Desire as its destiny!';
 					break;
@@ -3454,6 +3472,9 @@ function Battle(frame, logFrame, noPreload) {
 					poke.sprite.animSubFade();
 					self.resultAnim(poke, 'Faded', 'bad', animDelay);
 					actions += '' + poke.getName() + "'s substitute faded!";
+					break;
+				case 'uproar':
+					actions += "" + poke.getName() + " calmed down.";
 					break;
 				default:
 					if (effect.effectType === 'Move') {
