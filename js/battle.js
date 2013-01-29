@@ -2397,7 +2397,7 @@ function Battle(frame, logFrame, noPreload) {
 			self.animationDelay += 500;
 		}
 	};
-	this.runMinor = function (args, kwargs) {
+	this.runMinor = function (args, kwargs, preempt, nextArgs, nextKwargs) {
 		var actions = '';
 		var hiddenactions = '';
 		var minors = self.minorQueue;
@@ -2407,6 +2407,7 @@ function Battle(frame, logFrame, noPreload) {
 		}
 		if (args) {
 			if (args[0] === '-crit' || args[0] === '-supereffective' || args[0] === '-resisted') args.then = '.';
+			if (args[0] === '-damage' && kwargs.from === 'Leech Seed' && nextArgs[0] === '-heal' && nextKwargs.silent) args.then = '.';
 			minors.push([args, kwargs]);
 			if (args.simult || args.then) {
 				return;
@@ -4402,15 +4403,31 @@ function Battle(frame, logFrame, noPreload) {
 				// default to '.' so it evaluates to boolean true
 				kwargs[argstr.substr(1,bracketPos-1)] = ($.trim(argstr.substr(bracketPos+1)) || '.');
 			}
+
+			// parse the next line if it's a minor: runMinor needs it parsed to determine when to merge minors
+			var nextLine = '', nextArgs = [''], nextKwargs = {};
+			nextLine = self.activityQueue[self.activityStep+1];
+			if (nextLine && nextLine.substr(0,2) === '|-') {
+				nextLine = $.trim(nextLine.substr(1));
+				nextArgs = nextLine.split('|');
+				while (nextArgs[nextArgs.length-1] && nextArgs[nextArgs.length-1].substr(0,1) === '[') {
+					var bracketPos = nextArgs[nextArgs.length-1].indexOf(']');
+					if (bracketPos <= 0) break;
+					var argstr = nextArgs.pop();
+					// default to '.' so it evaluates to boolean true
+					nextKwargs[argstr.substr(1,bracketPos-1)] = ($.trim(argstr.substr(bracketPos+1)) || '.');
+				}
+			}
+
 			if (self.debug) {
 				if (args[0].substr(0,1) === '-') {
-					self.runMinor(args, kwargs);
+					self.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
 				} else {
 					self.runMajor(args, kwargs, preempt);
 				}
 			} else try {
 				if (args[0].substr(0,1) === '-') {
-					self.runMinor(args, kwargs);
+					self.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
 				} else {
 					self.runMajor(args, kwargs, preempt);
 				}
