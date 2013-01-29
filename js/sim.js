@@ -46,7 +46,7 @@ function savePrefs() {
 }
 
 function getTimestamp() {
-	if (prefs.timestamps === 'off') return '';
+	if ((prefs.timestamps === 'off') || (prefs.timestamps === undefined)) return '';
 	var date = new Date();
 	var components = [ date.getHours(), date.getMinutes() ];
 	if (prefs.timestamps === 'seconds') {
