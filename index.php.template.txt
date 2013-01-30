@@ -170,7 +170,7 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading libraries...';
 		</script>
-		<script src="/js/jquery-1.7.min.js"></script>
+		<script src="/js/jquery-1.9.0.min.js"></script>
 		<script src="/js/autoresize.jquery.min.js"></script>
 		<script src="/js/jquery-cookie.js"></script>
 		<script src="/js/jquery.json-2.3.min.js"></script>
