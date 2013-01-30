@@ -14,9 +14,9 @@ Testing
 
 You can make and test client changes simply by opening `testclient.html`.
 
-It will ask for config data. Config data can be copied from:
+It will ask for config data. Config data for the main server can be copied from:
 
-http://play.pokemonshowdown.com/action.php?act=upkeep
+http://play.pokemonshowdown.com/action.php?act=upkeep&servertoken=sim.smogon.com
 
 This will allow you to test changes to the client without setting up your
 own login server.
