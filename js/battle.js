@@ -3661,7 +3661,13 @@ function Battle(frame, logFrame, noPreload) {
 				case 'sandtomb':
 					actions += '' + poke.getName() + ' became trapped by Sand Tomb!';
 					break;
-				
+				case 'afteryou':
+					actions += '' + poke.getName() + ' took the kind offer!';
+					break;
+				case 'quash':
+					actions += "" + poke.getName() + "'s move was postponed!";
+					break;
+
 				// ability activations
 				case 'sturdy':
 					actions += '' + poke.getName() + ' held on thanks to Sturdy!';
