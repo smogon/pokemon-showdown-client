@@ -2759,7 +2759,7 @@ function overlayClose() {
 
 function renameMe(name) {
 	if (me.userid !== toId(name)) {
-		$.get('/action.php?act=getassertion&userid='+toId(name), function(data){
+		$.get('/action.php?act=getassertion&servertoken=' + encodeURIComponent(servertoken) + '&userid=' + toId(name), function(data){
 			if (data === ';') {
 				overlay('login', {name: name});
 			} else if (data.indexOf('\n') >= 0) {

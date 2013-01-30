@@ -42,13 +42,19 @@ foreach ($reqs as $reqData) {
 		unset($curuser['userdata']);
 		$out['curuser'] = $curuser;
 		$out['actionsuccess'] = !!$curuser;
+		if (empty($reqData['servertoken'])) {
+			die('Bogus request.');
+		}
 		if ($curuser && $reqData['servertoken'])
 		{
 			$out['sessiontoken'] = $users->getSessionToken($reqData['servertoken']) . '::' . $reqData['servertoken'];
 		}
-		$out['assertion'] = $users->getAssertion($curuser['userid']);
+		$out['assertion'] = $users->getAssertion($curuser['userid'], $reqData['servertoken']);
 		break;
 	case 'register':
+		if (empty($reqData['servertoken'])) {
+			die('Bogus request.');
+		}
 		$user = array();
 		$user['username'] = @$_POST['username'];
 		if (strlen($users->userid($user['username'])) < 1)
@@ -74,7 +80,8 @@ foreach ($reqs as $reqData) {
 		else if ($user = $users->addUser($user, $_POST['password']))
 		{
 			$out['curuser'] = $user;
-			$out['assertion'] = $users->getAssertion($user['userid'], $user);
+			$out['assertion'] = $users->getAssertion($user['userid'],
+					$reqData['servertoken'], $user);
 			$out['actionsuccess'] = true;
 			if ($curuser && @$reqData['servertoken'])
 			{
@@ -91,7 +98,12 @@ foreach ($reqs as $reqData) {
 		$out['curuser'] = $curuser;
 		if (empty($reqData['name'])) $userid = $curuser['userid'];
 		else $userid = $users->userid($reqData['name']);
-		$out['assertion'] = $users->getAssertion($userid);
+
+		if (empty($reqData['servertoken'])) {
+			die('Bogus request.'); // Will not happen with official client.
+		}
+
+		$out['assertion'] = $users->getAssertion($userid, $reqData['servertoken']);
 		break;
 	case 'checklogin':
 		// direct
@@ -117,7 +129,10 @@ foreach ($reqs as $reqData) {
 		break;
 	case 'getassertion':
 		// direct
-		die($users->getAssertion(@$reqData['userid']));
+		if (empty($reqData['servertoken'])) {
+			die('Probably cached version of client.');
+		}
+		die($users->getAssertion(@$reqData['userid'], $reqData['servertoken']));
 		break;
 	case 'verifysessiontoken':
 		// direct
