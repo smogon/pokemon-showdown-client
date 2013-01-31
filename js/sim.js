@@ -1111,6 +1111,45 @@ function Lobby(id, elem) {
 				Tools.prefs.set('timestamps', target, true);
 			}
 			return false;
+		
+		case 'highlight':
+			var highlights = Tools.prefs.get('highlights');
+			if (!highlights) highlights = Array();
+			if (target.indexOf(',') > -1) {
+				var targets = target.split(',');
+				for (var i=0, len=targets.length; i<len; i++) {
+					targets[i] = targets[i].trim();
+				}
+				switch (targets[0]) {
+					case 'add':
+						for (var i=1, len=targets.length; i<len; i++) {
+							highlights.push(targets[i].trim());
+						}
+						break;
+					case 'delete':
+						var newHls = Array();
+						for (var i=0, len=highlights.length; i<len; i++) {
+							if (targets.indexOf(highlights[i]) === -1) {
+								newHls.push(highlights[i]);
+							}
+						}
+						highlights = newHls;
+						break;
+				}
+				Tools.prefs.set('highlights', highlights, true);
+			} else {
+				if (target === 'delete') {
+					Tools.prefs.set('hisghlights', false, true);
+				} else if (target === 'show' || target === 'list') {
+					// Shows a list of the current highlighting words
+					var hls = highlights.join(', ');
+					rooms.lobby.add("Current highlighting words: " + hls);
+				} else {
+					// Wrong command
+					rooms.lobby.add("Error: Valid options are /highlight add, [word]; /highlight delete, [word]; (remove word for highlight cleaning), and /highlight show.");
+				}
+			}
+			return false;
 
 		case 'rank':
 		case 'ranking':
@@ -1259,6 +1298,18 @@ function Lobby(id, elem) {
 				function(x) { return (x < 10) ? '0' + x : x; }
 			).join(':') + '] ';
 	};
+	this.getHighlight = function (message) {
+		var matches = false;
+		var highlights = Tools.prefs.get('highlights');
+		for (var i=1, len=highlights.length; i<len; i++) {
+			var word = highlights[i].trim();
+			var regex = new RegExp('\\b' + word + '\\b', 'gi');
+			matches = message.match(regex);
+			if (matches !== false && matches !== null) return true;
+		}
+		
+		return matches;
+	};
 	this.add = function (log) {
 		if (typeof log === 'string') log = log.split('\n');
 		var autoscroll = false;
@@ -1386,11 +1437,13 @@ function Lobby(id, elem) {
 				};
 				var clickableName = '<span style="cursor:pointer" onclick="return rooms.lobby.formChallenge(\'' + userid + '\');">' + sanitize(log[i].name.substr(1)) + '</span>';
 				var message = log[i].message;
+				var highlight = (selfR.getHighlight(message))? ' style="background-color:#F84;"' : '';
+				var chatDiv = '<div class="chat"' + highlight + '>';
 				if (log[i].name.substr(0, 1) !== ' ') clickableName = '<small>' + sanitize(log[i].name.substr(0, 1)) + '</small>'+clickableName;
 				if (log[i].pm) {
 					var pmuserid = (userid === me.userid ? toUserid(log[i].pm) : userid);
 					if (!me.pm[pmuserid]) me.pm[pmuserid] = '';
-					var pmcode = '<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em> ' + messageSanitize(message) + '</em></div>';
+					var pmcode = chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em> ' + messageSanitize(message) + '</em></div>';
 					for (var j = 0; j < me.popups.length; j++) {
 						if (pmuserid === me.popups[j]) break;
 					}
@@ -1401,17 +1454,17 @@ function Lobby(id, elem) {
 					} else {
 						selfR.updatePopup();
 					}
-					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</em></div>');
+					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</em></div>');
 				//} else if (log[i].act) {
 				//	selfR.chatElem.append('<div class="chat"><strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + message + '</i></em></div>');
 				} else if (message.substr(0,2) === '//') {
-					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message.substr(1)) + '</em></div>');
+					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message.substr(1)) + '</em></div>');
 				} else if (message.substr(0,4).toLowerCase() === '/me ') {
-					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
+					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
 				} else if (message.substr(0,5).toLowerCase() === '/mee ') {
-					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
+					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
 				} else if (message.substr(0,10).toLowerCase() === '/announce ') {
-					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="padding:1px 4px 2px;color:white;background:#6688AA">' + messageSanitize(message.substr(10)) + '</em></div>');
+					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="padding:1px 4px 2px;color:white;background:#6688AA">' + messageSanitize(message.substr(10)) + '</em></div>');
 				} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -1422,7 +1475,7 @@ function Lobby(id, elem) {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else {
 					// Normal chat message.
-					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
+					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
 				}
 			} else if (log[i].name && log[i].action === 'battle') {
 				var id = log[i].room;
@@ -2759,7 +2812,7 @@ function overlayClose() {
 
 function renameMe(name) {
 	if (me.userid !== toId(name)) {
-		$.get('/action.php?act=getassertion&servertoken=' + encodeURIComponent(servertoken) + '&userid=' + toId(name), function(data){
+		$.get('/action.php?act=getassertion&userid='+toId(name), function(data){
 			if (data === ';') {
 				overlay('login', {name: name});
 			} else if (data.indexOf('\n') >= 0) {
