@@ -107,6 +107,7 @@ foreach ($reqs as $reqData) {
 		break;
 	case 'checklogin':
 		// direct
+		header('Content-type: text/plain');
 		die(!!$users->getUser($reqData['userid']));
 		break;
 	case 'logout':
@@ -125,6 +126,7 @@ foreach ($reqs as $reqData) {
 		break;
 	case 'getsessiontoken':
 		// direct
+		header('Content-type: text/plain');
 		die($users->getSessionToken($reqData['servertoken']));
 		break;
 	case 'getassertion':
@@ -132,6 +134,7 @@ foreach ($reqs as $reqData) {
 		if (empty($reqData['servertoken'])) {
 			die('Probably cached version of client.');
 		}
+		header('Content-type: text/plain');
 		die($users->getAssertion(@$reqData['userid'], $reqData['servertoken']));
 		break;
 	case 'verifysessiontoken':
