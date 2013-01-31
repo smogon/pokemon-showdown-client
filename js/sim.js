@@ -1,8 +1,3 @@
-// redirect Brazilians to the international server
-//if ((document.referrer.match(/\.br\//) || document.referrer.match(/\.br$/)) && document.location.pathname.substr(0, 7) !== '/~~intl') {
-//	document.location.href = '/~~intl/';
-//}
-
 // some setting-like stuff
 Config.server = Config.server || 'sim.smogon.com';
 Config.serverport = Config.serverport || 8000;
