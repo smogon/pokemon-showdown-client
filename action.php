@@ -131,11 +131,13 @@ foreach ($reqs as $reqData) {
 		break;
 	case 'getassertion':
 		// direct
-		if (empty($reqData['servertoken'])) {
-			die('Probably cached version of client.');
+		if (empty($reqData['servertoken']) || empty($reqData['userid'])) {
+			die('servertoken and userid required');
 		}
 		header('Content-type: text/plain');
-		die($users->getAssertion(@$reqData['userid'], $reqData['servertoken']));
+		$userid = $users->userid($reqData['userid']);
+		$servertoken = htmlspecialchars($reqData['servertoken']);
+		die($users->getAssertion($userid, $servertoken));
 		break;
 	case 'verifysessiontoken':
 		// direct
