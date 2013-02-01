@@ -2482,7 +2482,7 @@ function Battle(frame, logFrame, noPreload) {
 						break;
 					case 'jumpkick':
 					case 'hijumpkick':
-						actions += "" + poke.getname() + " kept going and crashed!";
+						actions += "" + poke.getName() + " kept going and crashed!";
 						break;
 					default:
 						if (ofpoke) {
@@ -2701,7 +2701,7 @@ function Battle(frame, logFrame, noPreload) {
 						actions += '' + poke.getName() + ' switched stat changes with the target!';
 						break;
 					case 'powerswap':
-						actions += '' + poke.getName() + ' switched all changes to its Attack and Sp. Attack with the target!';
+						actions += '' + poke.getName() + ' switched all changes to its Attack and Sp. Atk with the target!';
 						break;
 					}
 				}
@@ -2808,7 +2808,7 @@ function Battle(frame, logFrame, noPreload) {
 			case '-miss':
 				var poke = this.getPokemon(args[1]);
 				if (kwargs.msg) {
-					actions += "" + poke.getName('lower') + " avoided the attack!";
+					actions += "" + poke.getName() + " avoided the attack!";
 				} else {
 					actions += poke.getName() + "'s attack missed!";
 				}
@@ -2921,7 +2921,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'par':
 					self.resultAnim(poke, 'Paralyzed', 'par', animDelay);
-					actions += "" + poke.getName() + " was paralyzed! It may be unable to move!";
+					actions += "" + poke.getName() + " is paralyzed! It may be unable to move!";
 					break;
 				case 'frz':
 					self.resultAnim(poke, 'Frozen', 'frz', animDelay);
@@ -3010,19 +3010,16 @@ function Battle(frame, logFrame, noPreload) {
 				
 				if (effect.id) switch (effect.id) {
 				case 'recycle':
+				case 'pickup':
 					actions += '' + poke.getName() + ' found one ' + item.name + '!';
 					self.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				case 'frisk':
 					actions += "" + ofpoke.getName() + " frisked its target and found one " + item.name + "!";
 					break;
-				case 'pickup':
-					actions += '' + poke.getName() + ' found one ' + item.name + '!';
-					self.resultAnim(poke, item.name, 'neutral', animDelay);
-					break;
 				case 'thief':
 				case 'covet':
-					actions += '' + poke.getName() + ' stole ' + ofpoke.getName('lower') + "'s item!";
+					actions += '' + poke.getName() + ' stole ' + ofpoke.getName('lower') + "'s " + item.name + "!";
 					self.resultAnim(poke, item.name, 'neutral', animDelay);
 					self.resultAnim(ofpoke, 'Item Stolen', 'bad', animDelay);
 					break;
@@ -3031,7 +3028,7 @@ function Battle(frame, logFrame, noPreload) {
 					self.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				default:
-					actions += '' + poke.getName() + ' obtained one ' + item.name + '!';
+					actions += '' + poke.getName() + ' obtained one ' + item.name + '.';
 					self.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				} else switch (item.id) {
@@ -3103,7 +3100,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " used its " + item.name + " to come back to its senses!";
 					break;
 				case 'whiteherb':
-					actions += "" + poke.getName() + " restored its status using White Herb!";
+					actions += "" + poke.getName() + " restored its status using its White Herb!";
 					break;
 				case 'ejectbutton':
 					actions += "" + poke.getName() + " is switched out with the Eject Button!";
@@ -3214,7 +3211,7 @@ function Battle(frame, logFrame, noPreload) {
 					poke.volatiles.typechange[2] = args[3];
 					if (fromeffect.id) {
 						if (fromeffect.id === 'reflecttype') {
-							actions += "" + poke.getName() + "'s type changed to match " + ofpoke.getName('lower') + "!";
+							actions += "" + poke.getName() + "'s type changed to match " + ofpoke.getName('lower') + "'s!";
 						} else {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
 						}
@@ -3227,7 +3224,8 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " switched its Attack and Defense!";
 					break;
 				case 'foresight':
-					self.resultAnim(poke, 'Foresight', 'bad', animDelay);
+				case 'miracleeye':
+					self.resultAnim(poke, 'Identified', 'bad', animDelay);
 					actions += "" + poke.getName() + " was identified!";
 					break;
 				case 'telekinesis':
@@ -3264,11 +3262,11 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'smackdown':
 					self.resultAnim(poke, 'Grounded', 'bad', animDelay);
-					actions += "" + poke.getName('lower') + ' fell straight down!';
+					actions += "" + poke.getName() + ' fell straight down!';
 					break;
 				case 'flashfire':
 					self.resultAnim(poke, 'Flash Fire', 'good', animDelay);
-					actions += poke.getName() + '\'s Flash Fire raised the power of its Fire-type moves!';
+					actions += 'The power of ' + poke.getName('lower') + '\'s Fire-type moves rose!';
 					break;
 				case 'taunt':
 					self.resultAnim(poke, 'Taunted', 'bad', animDelay);
@@ -3420,7 +3418,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'telekinesis':
 					self.resultAnim(poke, 'Telekinesis&nbsp;ended', 'neutral', animDelay);
-					actions += "Telekinesis ended!";
+					actions += "" + poke.getName() + " was freed from the telekinesis!";
 					break;
 				case 'confusion':
 					self.resultAnim(poke, 'Confusion&nbsp;ended', 'good', animDelay);
@@ -3629,7 +3627,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "Magnitude " + args[3] + "!";
 					break;
 				case 'sketch':
-					actions += "" + poke.getName() + " learned " + args[3] + "!";
+					actions += "" + poke.getName() + " sketched " + args[3] + "!";
 					break;
 				case 'skillswap':
 					actions += "" + poke.getName() + " swapped Abilities with its target!";
@@ -3701,8 +3699,9 @@ function Battle(frame, logFrame, noPreload) {
 				
 				// item activations
 				case 'custapberry':
+				case 'quickclaw':
 					//actions += ''+poke.getName()+' is already preparing its next move!';
-					actions += '' + poke.getName() + '\'s Custap Berry lets it move first!';
+					actions += '' + poke.getName() + '\'s ' + effect.name + ' let it move first!';
 					break;
 				case 'leppaberry':
 					actions += '' + poke.getName() + " restored " + args[3] + "'s PP using its Leppa Berry!";
@@ -3728,13 +3727,13 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "Poison spikes were scattered all around the feet of " + side.getLowerTeamName() + "!";
 					break;
 				case 'tailwind':
-					actions += "A tailwind started blowing behind " + side.getLowerTeamName() + "!";
+					actions += "The tailwind blew from behind " + side.getLowerTeamName() + "!";
 					break;
 				case 'reflect':
-					actions += "Reflect raised " + side.getLowerTeamName() + "'s defense!";
+					actions += "Reflect raised " + side.getLowerTeamName() + "'s Defense!";
 					break;
 				case 'lightscreen':
-					actions += "Light Screen raised " + side.getLowerTeamName() + "'s special defense!";
+					actions += "Light Screen raised " + side.getLowerTeamName() + "'s Special Defense!";
 					break;
 				case 'safeguard':
 					actions += "" + side.getTeamName() + " became cloaked in a mystical veil!";
@@ -3777,10 +3776,10 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + side.getTeamName() + "'s tailwind petered out!";
 					break;
 				case 'reflect':
-					actions += "" + side.getTeamName() + "'s reflect wore off!";
+					actions += "" + side.getTeamName() + "'s Reflect wore off!";
 					break;
 				case 'lightscreen':
-					actions += "" + side.getTeamName() + "'s light screen wore off!";
+					actions += "" + side.getTeamName() + "'s Light Screen wore off!";
 					break;
 				case 'safeguard':
 					actions += "" + side.getTeamName() + " is no longer protected by Safeguard!";
@@ -3819,10 +3818,10 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + ' twisted the dimensions!';
 					break;
 				case 'wonderroom':
-					actions += "" + poke.getName() + ' swapped the Sp. Def. and the Defense of all the pokemon!';
+					actions += "It created a bizarre area in which the Defense and Sp. Def stats are swapped!";
 					break;
 				case 'magicroom':
-					actions += "" + poke.getName() + ' cancelled the items\' effects!';
+					actions += "It created a bizarre area in which Pok&#xE9;mon's held items lose their effects!";
 					break;
 				case 'gravity':
 					actions += "Gravity intensified!";
@@ -3840,10 +3839,10 @@ function Battle(frame, logFrame, noPreload) {
 					actions += 'The twisted dimensions returned to normal!';
 					break;
 				case 'wonderroom':
-					actions += 'The Sp. Def and Defense of the pokemon went back to normal!';
+					actions += 'Wonder Room wore off, and the Defense and Sp. Def stats returned to normal!';
 					break;
 				case 'magicroom':
-					actions += 'The items are now working again!';
+					actions += "Magic Room wore off, and the held items' effects returned to normal!";
 					break;
 				case 'gravity':
 					actions += 'Gravity returned to normal!';
