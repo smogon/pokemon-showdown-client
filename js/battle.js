@@ -266,18 +266,14 @@ function Pokemon(species) {
 		selfP.clearTurnstatuses();
 		selfP.clearMovestatuses();
 	};
-	this.getName = function () {
+	this.getName = function (type) {
 		if (selfP.side.n === 0) {
 			return sanitize(selfP.name);
 		} else {
-			return "The foe's " + sanitize(selfP.name);
-		}
-	}
-	this.getLowerName = function () {
-		if (selfP.side.n === 0) {
-			return sanitize(selfP.name);
-		} else {
-			return "the foe's " + sanitize(selfP.name);
+			return (type === 'lower' ?
+			"the foe's " + sanitize(selfP.name) :
+			"The foe's " + sanitize(selfP.name)
+			);
 		}
 	}
 	this.getTitle = function () {
@@ -2349,7 +2345,7 @@ function Battle(frame, logFrame, noPreload) {
 			self.message('' + pokemon.getName() + ' is fast asleep.');
 			break;
 		case 'skydrop':
-			self.message('Sky Drop won\'t let ' + pokemon.getLowerName() + ' go!');
+			self.message('Sky Drop won\'t let ' + pokemon.getName('lower') + ' go!');
 			break;
 		case 'truant':
 			self.resultAnim(pokemon, 'Truant', 'neutral');
@@ -2439,7 +2435,7 @@ function Battle(frame, logFrame, noPreload) {
 					var ofpoke = this.getPokemon(kwargs.of);
 					switch (effect.id) {
 					case 'stealthrock':
-						actions += "Pointed stones dug into " + poke.getLowerName() + "!";
+						actions += "Pointed stones dug into " + poke.getName('lower') + "!";
 						break;
 					case 'spikes':
 						actions += "" + poke.getName() + " is hurt by the spikes!";
@@ -2479,14 +2475,14 @@ function Battle(frame, logFrame, noPreload) {
 						actions += "" + poke.getName() + "'s health is sapped by Leech Seed!";
 						break;
 					case 'flameburst':
-						actions += "The bursting flame hit " + poke.getLowerName() + "!";
+						actions += "The bursting flame hit " + poke.getName('lower') + "!";
 						break;
 					case 'grasspledge':
 						actions += "" + poke.getName() + " is hurt by the sea of fire!";
 						break;
 					default:
 						if (ofpoke) {
-							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "!";
+							actions += "" + poke.getName() + " is hurt by " + ofpoke.getName('lower') + "'s " + effect.name + "!";
 						} else if (effect.effectType === 'Item' || effect.effectType === 'Ability') {
 							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
 						} else if (kwargs.partiallytrapped) {
@@ -2521,13 +2517,13 @@ function Battle(frame, logFrame, noPreload) {
 						actions += "" + poke.getName() + " absorbed nutrients with its roots!";
 						break;
 					case 'aquaring':
-						actions += "Aqua Ring restored " + poke.getLowerName() + "'s HP!";
+						actions += "Aqua Ring restored " + poke.getName('lower') + "'s HP!";
 						break;
 					case 'raindish': case 'dryskin': case 'icebody':
 						actions += "" + poke.getName() + "'s " + effect.name + " heals it!";
 						break;
 					case 'healingwish':
-						actions += "The healing wish came true for "+poke.getLowerName()+"!";
+						actions += "The healing wish came true for "+poke.getName('lower')+"!";
 						self.lastmove = 'healing-wish';
 						Tools.getMove('healingwish').residualAnim(self, [poke.sprite]);
 						poke.side.wisher = null;
@@ -2611,7 +2607,7 @@ function Battle(frame, logFrame, noPreload) {
 					switch (effect.id) {
 					default:
 						if (effect.effectType === 'Item') {
-							actions += "The " + effect.name + amountString+" raised " + poke.getLowerName() + "'s " + BattleStats[stat] + "!";
+							actions += "The " + effect.name + amountString+" raised " + poke.getName('lower') + "'s " + BattleStats[stat] + "!";
 						} else {
 							actions += "" + poke.getName() + "'s " + effect.name +amountString+" raised its " + BattleStats[stat] + "!";
 						}
@@ -2642,7 +2638,7 @@ function Battle(frame, logFrame, noPreload) {
 					switch (effect.id) {
 					default:
 						if (effect.effectType === 'Item') {
-							actions += "The " + effect.name + amountString+" lowered " + poke.getLowerName() + "'s " + BattleStats[stat] + "!";
+							actions += "The " + effect.name + amountString+" lowered " + poke.getName('lower') + "'s " + BattleStats[stat] + "!";
 						} else {
 							actions += "" + poke.getName() + "'s " + effect.name +amountString+" lowered its " + BattleStats[stat] + "!";
 						}
@@ -2733,7 +2729,7 @@ function Battle(frame, logFrame, noPreload) {
 					// do nothing
 				} else {
 					self.resultAnim(poke, 'Stats copied', 'neutral', animDelay);
-					actions += "" + poke.getName() + " copied " + frompoke.getLowerName() + "'s stat changes!";
+					actions += "" + poke.getName() + " copied " + frompoke.getName('lower') + "'s stat changes!";
 				}
 				break;
 			case '-clearboost':
@@ -2797,7 +2793,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				default:
 					if (kwargs.msg) {
-						actions += "It doesn't affect " + poke.getLowerName() + "... ";
+						actions += "It doesn't affect " + poke.getName('lower') + "... ";
 					} else {
 						actions += "It had no effect! ";
 					}
@@ -2808,7 +2804,7 @@ function Battle(frame, logFrame, noPreload) {
 			case '-miss':
 				var poke = this.getPokemon(args[1]);
 				if (kwargs.msg) {
-					actions += "" + poke.getLowerName() + " avoided the attack!";
+					actions += "" + poke.getName('lower') + " avoided the attack!";
 				} else {
 					actions += poke.getName() + "'s attack missed!";
 				}
@@ -2835,9 +2831,9 @@ function Battle(frame, logFrame, noPreload) {
 					if (fromeffect.id === 'uproar') {
 						self.resultAnim(poke, 'Failed', 'neutral', animDelay);
 						if (kwargs.msg) {
-							actions += "But " + poke.getLowerName() + " can't sleep in an uproar!";
+							actions += "But " + poke.getName('lower') + " can't sleep in an uproar!";
 						} else {
-							actions += "But the uproar kept " + poke.getLowerName() + " awake!";
+							actions += "But the uproar kept " + poke.getName('lower') + " awake!";
 						}
 					} else {
 						self.resultAnim(poke, 'Already asleep', 'neutral', animDelay);
@@ -2938,7 +2934,7 @@ function Battle(frame, logFrame, noPreload) {
 				
 				if (effect.id) switch (effect.id) {
 				case 'psychoshift':
-					actions += '' + poke.getName() + ' moved its status onto ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' moved its status onto ' + ofpoke.getName('lower') + '!';
 					self.resultAnim(poke, 'Cured', 'good', animDelay);
 					break;
 				default:
@@ -3022,7 +3018,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'thief':
 				case 'covet':
-					actions += '' + poke.getName() + ' stole ' + ofpoke.getLowerName() + "'s item!";
+					actions += '' + poke.getName() + ' stole ' + ofpoke.getName('lower') + "'s item!";
 					self.resultAnim(poke, item.name, 'neutral', animDelay);
 					self.resultAnim(ofpoke, 'Item Stolen', 'bad', animDelay);
 					break;
@@ -3059,14 +3055,14 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + ' ate its ' + item.name + '!';
 					self.lastmove = item.id;
 				} else if (kwargs.weaken) {
-					actions += 'The ' + item.name + ' weakened the damage to '+poke.getLowerName();
+					actions += 'The ' + item.name + ' weakened the damage to '+poke.getName('lower');
 					self.lastmove = item.id;
 				} else if (effect.id) switch (effect.id) {
 				case 'fling':
 					actions += "" + poke.getName() + ' flung its ' + item.name + '!';
 					break;
 				case 'knockoff':
-					actions += '' + ofpoke.getName() + ' knocked off ' + poke.getLowerName() + '\'s ' + item.name + '!';
+					actions += '' + ofpoke.getName() + ' knocked off ' + poke.getName('lower') + '\'s ' + item.name + '!';
 					self.resultAnim(poke, 'Item knocked off', 'neutral', animDelay);
 					break;
 				case 'stealeat':
@@ -3109,7 +3105,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " is switched out with the Eject Button!";
 					break;
 				case 'redcard':
-					actions += "" + poke.getName() + " held up its Red Card against " + ofpoke.getLowerName() + "!";
+					actions += "" + poke.getName() + " held up its Red Card against " + ofpoke.getName('lower') + "!";
 					break;
 				default:
 					actions += "" + poke.getName() + "'s " + item.name + " activated!";
@@ -3128,10 +3124,10 @@ function Battle(frame, logFrame, noPreload) {
 					// do nothing
 				} else if (effect.id) switch (effect.id) {
 				case 'trace':
-					actions += '' + poke.getName() + ' traced ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
+					actions += '' + poke.getName() + ' traced ' + ofpoke.getName('lower') + '\'s ' + ability.name + '!';
 					break;
 				case 'roleplay':
-					actions += '' + poke.getName() + ' copied ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
+					actions += '' + poke.getName() + ' copied ' + ofpoke.getName('lower') + '\'s ' + ability.name + '!';
 					break;
 				case 'mummy':
 					actions += "" + poke.getName() + "'s Ability became Mummy!";
@@ -3153,7 +3149,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " is radiating a bursting aura!";
 					break;
 				case 'intimidate':
-					actions += '' + poke.getName() + ' intimidates ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' intimidates ' + ofpoke.getName('lower') + '!';
 					break;
 				case 'unnerve':
 					actions += "" + poke.getName() + "'s Unnerve makes " + args[3] + "'s team too nervous to eat Berries!";
@@ -3214,7 +3210,7 @@ function Battle(frame, logFrame, noPreload) {
 					poke.volatiles.typechange[2] = args[3];
 					if (fromeffect.id) {
 						if (fromeffect.id === 'reflecttype') {
-							actions += "" + poke.getName() + "'s type changed to match " + ofpoke.getLowerName() + "!";
+							actions += "" + poke.getName() + "'s type changed to match " + ofpoke.getName('lower') + "!";
 						} else {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
 						}
@@ -3264,7 +3260,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'smackdown':
 					self.resultAnim(poke, 'Grounded', 'bad', animDelay);
-					actions += "" + poke.getLowerName() + ' fell straight down!';
+					actions += "" + poke.getName('lower') + ' fell straight down!';
 					break;
 				case 'flashfire':
 					self.resultAnim(poke, 'Flash Fire', 'good', animDelay);
@@ -3360,7 +3356,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'curse':
 					self.resultAnim(poke, 'Cursed', 'bad', animDelay);
-					actions += "" + ofpoke.getName() + " cut its own HP and laid a curse on " + poke.getLowerName() + "!";
+					actions += "" + ofpoke.getName() + " cut its own HP and laid a curse on " + poke.getName('lower') + "!";
 					break;
 				case 'nightmare':
 					self.resultAnim(poke, 'Nightmare', 'bad', animDelay);
@@ -3377,7 +3373,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'substitute':
 					if (kwargs.damage) {
 						self.resultAnim(poke, 'Damage', 'bad', animDelay);
-						actions += "The substitute took damage for "+poke.getLowerName()+"!";
+						actions += "The substitute took damage for "+poke.getName('lower')+"!";
 					} else if (kwargs.block) {
 						self.resultAnim(poke, 'Blocked', 'neutral', animDelay);
 						actions += 'But it failed!';
@@ -3464,7 +3460,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'magnetrise':
 					if (poke.side.n === 0) actions += "" + poke.getName() + "'s electromagnetism wore off!";
-					else actions += "The electromagnetism of "+poke.getLowerName()+" wore off!";
+					else actions += "The electromagnetism of "+poke.getName('lower')+" wore off!";
 					break;
 				case 'perishsong':
 					poke.removeVolatile('perish3');
@@ -3515,7 +3511,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'helpinghand':
 					self.resultAnim(poke, 'Helping Hand', 'good', animDelay);
-					actions += '' + ofpoke.getName() + " is ready to help " + poke.getLowerName() + "!";
+					actions += '' + ofpoke.getName() + " is ready to help " + poke.getName('lower') + "!";
 					break;
 				case 'focuspunch':
 					self.resultAnim(poke, 'Focusing', 'neutral', animDelay);
@@ -3561,7 +3557,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + ' took its attacker down with it!';
 					break;
 				case 'snatch':
-					actions += "" + poke.getName() + " snatched " + ofpoke.getLowerName() + "'s move!";
+					actions += "" + poke.getName() + " snatched " + ofpoke.getName('lower') + "'s move!";
 					break;
 				case 'grudge':
 					actions += "" + poke.getName() + "'s " + args[3] + " lost all its PP due to the grudge!";
@@ -3569,12 +3565,12 @@ function Battle(frame, logFrame, noPreload) {
 				case 'quickguard':
 					poke.addTurnstatus('quickguard');
 					self.resultAnim(poke, 'Quick Guard', 'good', animDelay);
-					actions += "Quick Guard protected " + poke.getLowerName() + "!";
+					actions += "Quick Guard protected " + poke.getName('lower') + "!";
 					break;
 				case 'wideguard':
 					poke.addTurnstatus('wideguard');
 					self.resultAnim(poke, 'Wide Guard', 'good', animDelay);
-					actions += "Wide Guard protected " + poke.getLowerName() + "!";
+					actions += "Wide Guard protected " + poke.getName('lower') + "!";
 					break;
 				case 'protect':
 					poke.addTurnstatus('protect');
@@ -3584,7 +3580,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'substitute':
 					if (kwargs.damage) {
 						self.resultAnim(poke, 'Damage', 'bad', animDelay);
-						actions += 'The substitute took damage for ' + poke.getLowerName() + '!';
+						actions += 'The substitute took damage for ' + poke.getName('lower') + '!';
 					} else if (kwargs.block) {
 						self.resultAnim(poke, 'Blocked', 'neutral', animDelay);
 						actions += '' + poke.getName() + "'s Substitute blocked " + Tools.getMove(kwargs.block || args[3]).name + '!';
@@ -3594,7 +3590,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + ' swapped Abilities with its target!';
 					break;
 				case 'attract':
-					actions += '' + poke.getName() + ' is in love with ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' is in love with ' + ofpoke.getName('lower') + '!';
 					break;
 				case 'bide':
 					actions += "" + poke.getName() + " is storing energy!";
@@ -3620,7 +3616,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " fell for the feint!";
 					break;
 				case 'spite':
-					actions += "It reduced the PP of " + poke.getLowerName() + "'s " + Tools.getMove(args[3]).name + " by " + args[4] + "!";
+					actions += "It reduced the PP of " + poke.getName('lower') + "'s " + Tools.getMove(args[3]).name + " by " + args[4] + "!";
 					break;
 				case 'gravity':
 					actions += "" + poke.getName() + " couldn't stay airborne because of gravity!";
@@ -3641,13 +3637,13 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " has no moves left!";
 					break;
 				case 'bind':
-					actions += '' + poke.getName() + ' was squeezed by ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' was squeezed by ' + ofpoke.getName('lower') + '!';
 					break;
 				case 'wrap':
-					actions += '' + poke.getName() + ' was wrapped by ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' was wrapped by ' + ofpoke.getName('lower') + '!';
 					break;
 				case 'clamp':
-					actions += '' + ofpoke.getName() + ' clamped ' + poke.getLowerName() + '!';
+					actions += '' + ofpoke.getName() + ' clamped ' + poke.getName('lower') + '!';
 					break;
 				case 'whirlpool':
 					actions += '' + poke.getName() + ' became trapped in the vortex!';
