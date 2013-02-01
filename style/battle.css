@@ -131,6 +131,32 @@ License: GPLv2
 	margin-top: 0.5em;
 }
 
+/** Vertical layering of sprites and effects **/
+#sprites_op>img:nth-child(1)
+{
+	z-index: 3;
+}
+#sprites_op>img:nth-child(2)
+{
+	z-index: 2;
+}
+#sprites_op>img:nth-child(3)
+{
+	z-index: 1;
+}
+#front_op>*
+{
+	z-index: 10;
+}
+#stat_container>*
+{
+	z-index: 20;
+}
+#fx_container>*
+{
+	z-index: 30;
+}
+
 .playbutton
 {
 	position: absolute;
@@ -139,6 +165,7 @@ License: GPLv2
 	left: 0;
 	right: 0;
 	text-align: center;
+	z-index: 100;
 }
 .playbutton button
 {
