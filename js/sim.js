@@ -1434,7 +1434,7 @@ function Lobby(id, elem) {
 				};
 				var clickableName = '<span style="cursor:pointer" onclick="return rooms.lobby.formChallenge(\'' + userid + '\');">' + sanitize(log[i].name.substr(1)) + '</span>';
 				var message = log[i].message;
-				var highlight = (selfR.getHighlight(message))? ' style="background-color:#F84;"' : '';
+				var highlight = (selfR.getHighlight(message))? ' style="background-color:#FDA;"' : '';
 				var chatDiv = '<div class="chat"' + highlight + '>';
 				if (log[i].name.substr(0, 1) !== ' ') clickableName = '<small>' + sanitize(log[i].name.substr(0, 1)) + '</small>'+clickableName;
 				if (log[i].pm) {
