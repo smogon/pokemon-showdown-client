@@ -1116,29 +1116,32 @@ function Lobby(id, elem) {
 					targets[i] = targets[i].trim();
 				}
 				switch (targets[0]) {
-					case 'add':
-						for (var i=1, len=targets.length; i<len; i++) {
-							highlights.push(targets[i].trim());
+				case 'add':
+					for (var i=1, len=targets.length; i<len; i++) {
+						highlights.push(targets[i].trim());
+					}
+					rooms.lobby.add("Now highlighting words: " + highlights.join(', '));
+					// We update the regex
+					this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
+					break;
+				case 'delete':
+					var newHls = [];
+					for (var i=0, len=highlights.length; i<len; i++) {
+						if (targets.indexOf(highlights[i]) === -1) {
+							newHls.push(highlights[i]);
 						}
-						// We update the regex
-						this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
-						break;
-					case 'delete':
-						var newHls = [];
-						for (var i=0, len=highlights.length; i<len; i++) {
-							if (targets.indexOf(highlights[i]) === -1) {
-								newHls.push(highlights[i]);
-							}
-						}
-						highlights = newHls;
-						// We update the regex
-						this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
-						break;
+					}
+					highlights = newHls;
+					rooms.lobby.add("Now highlighting words: " + highlights.join(', '));
+					// We update the regex
+					this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
+					break;
 				}
 				Tools.prefs.set('highlights', highlights, true);
 			} else {
 				if (target === 'delete') {
 					Tools.prefs.set('highlights', false, true);
+					rooms.lobby.add("All highlights cleared");
 				} else if (target === 'show' || target === 'list') {
 					// Shows a list of the current highlighting words
 					if (highlights.length > 0) {
