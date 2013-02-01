@@ -2810,7 +2810,7 @@ function Battle(frame, logFrame, noPreload) {
 				if (kwargs.msg) {
 					actions += "" + poke.getLowerName() + " avoided the attack!";
 				} else {
-					actions += "The attack of " + poke.getLowerName() + " missed!";
+					actions += poke.getName() + "'s attack missed!";
 				}
 				break;
 				
