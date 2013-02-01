@@ -695,8 +695,8 @@ function Battle(frame, logFrame, noPreload) {
 		this.cryurl = '';
 		if (spriteData) {
 			sp = spriteData;
-			self.spriteElems[siden].append('<img src="' + sp.url + '" style="display:none;position:absolute" />');
-			this.elem = self.spriteElems[siden].children().last();
+			self.spriteElems[siden][siden?'prepend':'append']('<img src="' + sp.url + '" style="display:none;position:absolute" />');
+			this.elem = self.spriteElems[siden].children()[siden?'first':'last']();
 			this.cryurl = spriteData.cryurl;
 		} else {
 			sp = {
