@@ -2480,6 +2480,10 @@ function Battle(frame, logFrame, noPreload) {
 					case 'grasspledge':
 						actions += "" + poke.getName() + " is hurt by the sea of fire!";
 						break;
+					case 'jumpkick':
+					case 'hijumpkick':
+						actions += "" + poke.getname() + " kept going and crashed!";
+						break;
 					default:
 						if (ofpoke) {
 							actions += "" + poke.getName() + " is hurt by " + ofpoke.getName('lower') + "'s " + effect.name + "!";
