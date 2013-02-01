@@ -1830,7 +1830,9 @@ function Lobby(id, elem) {
 			'@': 1,
 			'%': 1,
 			'+': 1,
-			' ': 0
+			' ': 0,
+			'!': 0,
+			'#': 0
 		};
 		var RankOrder = {
 			'~': 1,
@@ -1838,7 +1840,9 @@ function Lobby(id, elem) {
 			'@': 3,
 			'%': 4,
 			'+': 5,
-			' ': 6
+			' ': 6,
+			'!': 7,
+			'#': 8
 		};
 		var users = [];
 		if (selfR.userList) users = Object.keys(selfR.userList).sort(function(a,b){
