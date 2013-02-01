@@ -42,4 +42,6 @@ RewriteRule ^~~([^/]*)/?$ /~~$1/lobby [R=301,L]
 RewriteRule ^~~([^/]*)/(teambuilder|ladder|lobby|battle)/?$ index.php?server=$1 [L,QSA]
 RewriteRule ^~~([^/]*)/(lobby|battle)-([A-Za-z0-9-]*)$ index.php?server=$1 [L,QSA]
 
+RewriteRule ^backup/.*$ - [F]
+
 </IfModule>
