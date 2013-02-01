@@ -165,7 +165,7 @@ foreach ($reqs as $reqData) {
 		
 		//var_export($users->getUserData($reqData['p1']));
 		if (!$server ||
-				($_SERVER['REMOTE_ADDR'] !== gethostbyname($server['server'])) ||
+				($users->getIp() !== gethostbyname($server['server'])) ||
 				($server['token'] !== md5($reqData['servertoken']))) {
 			$out = 0;
 			break;
@@ -189,7 +189,7 @@ foreach ($reqs as $reqData) {
 		
 		//var_export($users->getUserData($reqData['p1']));
 		if (!$server ||
-				($_SERVER['REMOTE_ADDR'] !== gethostbyname($server['server'])) ||
+				($users->getIp() !== gethostbyname($server['server'])) ||
 				($server['token'] !== md5($reqData['servertoken']))) {
 			$out = 0;
 			break;
