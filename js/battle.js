@@ -526,19 +526,19 @@ function Battle(frame, logFrame, noPreload) {
 		self.elem.append('<div></div>');
 		self.spriteElem = self.elem.children().last();
 
-		self.spriteElem.append('<div id="sprites_op"></div>');
+		self.spriteElem.append('<div></div>');
 		self.spriteElems[1] = self.spriteElem.children().last();
-		self.spriteElem.append('<div id="front_op"></div>');
+		self.spriteElem.append('<div></div>');
 		self.spriteElemsFront[1] = self.spriteElem.children().last();
-		self.spriteElem.append('<div id="front_p"></div>');
+		self.spriteElem.append('<div></div>');
 		self.spriteElemsFront[0] = self.spriteElem.children().last();
-		self.spriteElem.append('<div id="sprites_p"></div>');
+		self.spriteElem.append('<div></div>');
 		self.spriteElems[0] = self.spriteElem.children().last();
 
-		self.elem.append('<div id="stat_container"></div>');
+		self.elem.append('<div></div>');
 		self.statElem = self.elem.children().last();
 
-		self.elem.append('<div id="fx_container"></div>');
+		self.elem.append('<div></div>');
 		self.fxElem = self.elem.children().last();
 
 		self.elem.append('<div class="leftbar"></div>');
