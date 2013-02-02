@@ -101,7 +101,7 @@ function Teambuilder(id, elem)
 			
 			if (selfR.exportMode)
 			{
-				text += '<textarea class="teamedit" onkeypress="return rooms[\''+selfR.id+'\'].formKeyPress(event)">'+sanitize(selfR.toText(selfR.activeTeam.team))+'</textarea>';
+				text += '<textarea class="teamedit" onkeypress="return rooms[\''+selfR.id+'\'].formKeyPress(event)" rows="17">'+sanitize(selfR.toText(selfR.activeTeam.team))+'</textarea>';
 			}
 			else
 			{
@@ -254,7 +254,7 @@ function Teambuilder(id, elem)
 		else if (selfR.exportAllMode)
 		{
 			text = '<button onclick="rooms[\''+selfR.id+'\'].formBack(event); return false"><i class="icon-chevron-left"></i> Team List</button> <button onclick="rooms[\''+selfR.id+'\'].formSave(event); return false" class="savebutton"><i class="icon-save"></i> Save</button>';
-			text += '<textarea class="teamedit" onkeypress="return rooms[\''+selfR.id+'\'].formKeyPress(event)">'+sanitize(selfR.teamsToText())+'</textarea>';
+			text += '<textarea class="teamedit" onkeypress="return rooms[\''+selfR.id+'\'].formKeyPress(event)" rows="17">'+sanitize(selfR.teamsToText())+'</textarea>';
 
 			selfR.teamListElem.html(text);
 			selfR.teamListElem.show();
