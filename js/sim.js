@@ -2814,6 +2814,12 @@ function overlay(overlayType, data) {
 		if (data.error) {
 			contents += '<p class="error">' + data.error + '</p>';
 		}
+		contents += '<p>Your username can be chosen and changed at any time. Keep in mind:</p>';
+		contents += '<ol>';
+		contents += '<li>Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</li>';
+		contents += '<li>Usernames may not reference sexual activity, directly or indirectly.</li>';
+		contents += '<li>Usernames may not impersonate a recognized user (a user with %, @, &, or ~ next to their name).</li>';
+		contents += '</ol>';
 		contents += '<p><label class="label">Username:</label> <input class="textbox" type="text" id="overlay_name" value="' + (me.named ? sanitize(me.name) : '') + '" /></p>';
 		contents += '<p><button type="submit"><strong>Choose name</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		selectElem = '#overlay_name';
