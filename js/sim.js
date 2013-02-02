@@ -3089,7 +3089,9 @@ if (!Config.down) {
 				overlay('disconnect');
 			},
 			nameTaken: function (data) {
-				if (data && data.name) {
+				if (data && data.permanent) {
+					overlay('message', data.reason);
+				} else if (data && data.name) {
 					overlay('login', data);
 				} else if (data) {
 					overlay('rename', {
