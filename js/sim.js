@@ -1307,7 +1307,15 @@ function Lobby(id, elem) {
 	this.getHighlight = function (message) {
 		var highlights = Tools.prefs.get('highlights') || [];
 		if (!this.regex) {
-			this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
+			try {
+				this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
+			} catch (e) {
+				// If the expression above is not a regexp, we'll get here.
+				// Don't throw an exception because that would prevent the chat
+				// message from showing up, or, when the lobby is initialising,
+				// it will prevent the initialisation from completing.
+				return false;
+			}
 		}
 		return ((highlights.length > 0) && this.regex.test(message));
 	};
