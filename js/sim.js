@@ -1306,9 +1306,10 @@ function Lobby(id, elem) {
 	};
 	this.getHighlight = function (message) {
 		var highlights = Tools.prefs.get('highlights') || [];
-		if (!this.regex) this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
-		if (highlights.length > 0) return this.regex.test(message);
-		return false;
+		if (!this.regex) {
+			this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
+		}
+		return ((highlights.length > 0) && this.regex.test(message));
 	};
 	this.add = function (log) {
 		if (typeof log === 'string') log = log.split('\n');
@@ -1437,7 +1438,14 @@ function Lobby(id, elem) {
 				};
 				var clickableName = '<span style="cursor:pointer" onclick="return rooms.lobby.formChallenge(\'' + userid + '\');">' + sanitize(log[i].name.substr(1)) + '</span>';
 				var message = log[i].message;
-				var highlight = (selfR.getHighlight(message))? ' style="background-color:#FDA;"' : '';
+				var isHighlighted = selfR.getHighlight(message);
+				if (isHighlighted) {
+					notify({
+						type: 'highlight',
+						user: log[i].name
+					});
+				}
+				var highlight = isHighlighted ? ' style="background-color:#FDA;"' : '';
 				var chatDiv = '<div class="chat"' + highlight + '>';
 				if (log[i].name.substr(0, 1) !== ' ') clickableName = '<small>' + sanitize(log[i].name.substr(0, 1)) + '</small>'+clickableName;
 				if (log[i].pm) {
@@ -2592,6 +2600,9 @@ var favicon = {
 				case 'challenge':
 					message = ""+data.user+" has challenged you to a battle!";
 					break;
+				case 'highlight':
+					message = 'You have been highlighted by ' + data.user + '!';
+					break;
 				case 'yourMove':
 				case 'yourSwitch':
 					message = "It's your move in your battle against "+data.user+".";
@@ -2621,6 +2632,12 @@ var favicon = {
 				macgap.growl.notify({
 					title: "Challenged!",
 					content: ""+data.user+" has challenged you to a battle!"
+				});
+				break;
+			case 'highlight':
+				macgap.growl.notify({
+					title: 'Highlighted!',
+					content: 'You have been highlighted by ' + data.user + '!'
 				});
 				break;
 			case 'yourMove':
@@ -2666,6 +2683,9 @@ var favicon = {
 				switch (activeNotificationData.type) {
 				case 'challenge':
 					document.title = 'CHALLENGED';
+					break;
+				case 'highlight':
+					document.title = 'HIGHLIGHTED';
 					break;
 				case 'yourMove':
 				case 'yourSwitch':
