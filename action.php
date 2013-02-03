@@ -13,6 +13,16 @@ include_once '../pokemonshowdown.com/lib/ntbb-session.lib.php';
 //include_once 'lib/ntbb-ladder.lib.php';
 include_once '../pokemonshowdown.com/config/servers.inc.php';
 
+function getServerToken($cookiepath) {
+	global $PokemonServers;
+	if (!preg_match('/\/~~([^:]*)(:[0-9]*)?/', $cookiepath, $matches)) {
+		return NULL;
+	}
+	$serverid = $matches[1];
+	$server = @$PokemonServers[$serverid];
+	return $server ? $server['server'] : $serverid;
+}
+
 $reqs = array($_REQUEST);
 $multiReqs = false;
 if (@$_REQUEST['json']) {
@@ -42,17 +52,19 @@ foreach ($reqs as $reqData) {
 		unset($curuser['userdata']);
 		$out['curuser'] = $curuser;
 		$out['actionsuccess'] = !!$curuser;
-		if (empty($reqData['servertoken'])) {
+		$servertoken = getServerToken($users->getCookiePath());
+		if (!$servertoken) {
 			die('Bogus request.');
 		}
-		if ($curuser && $reqData['servertoken'])
+		if ($curuser && $servertoken)
 		{
-			$out['sessiontoken'] = $users->getSessionToken($reqData['servertoken']) . '::' . $reqData['servertoken'];
+			$out['sessiontoken'] = $users->getSessionToken($servertoken) . '::' . $servertoken;
 		}
-		$out['assertion'] = $users->getAssertion($curuser['userid'], $reqData['servertoken']);
+		$out['assertion'] = $users->getAssertion($curuser['userid'], $servertoken);
 		break;
 	case 'register':
-		if (empty($reqData['servertoken'])) {
+		$servertoken = getServerToken($users->getCookiePath());
+		if (!$servertoken) {
 			die('Bogus request.');
 		}
 		$user = array();
@@ -81,11 +93,11 @@ foreach ($reqs as $reqData) {
 		{
 			$out['curuser'] = $user;
 			$out['assertion'] = $users->getAssertion($user['userid'],
-					$reqData['servertoken'], $user);
+					$servertoken, $user);
 			$out['actionsuccess'] = true;
-			if ($curuser && @$reqData['servertoken'])
+			if ($curuser && $servertoken)
 			{
-				$out['sessiontoken'] = $users->getSessionToken($reqData['servertoken']) . '::' . $reqData['servertoken'];
+				$out['sessiontoken'] = $users->getSessionToken($servertoken) . '::' . $servertoken;
 			}
 		}
 		else
@@ -99,11 +111,12 @@ foreach ($reqs as $reqData) {
 		if (empty($reqData['name'])) $userid = $curuser['userid'];
 		else $userid = $users->userid($reqData['name']);
 
-		if (empty($reqData['servertoken'])) {
+		$servertoken = getServerToken($users->getCookiePath());
+		if (!$servertoken) {
 			die('Bogus request.'); // Will not happen with official client.
 		}
 
-		$out['assertion'] = $users->getAssertion($userid, $reqData['servertoken']);
+		$out['assertion'] = $users->getAssertion($userid, $servertoken);
 		break;
 	case 'checklogin':
 		// direct
@@ -127,16 +140,21 @@ foreach ($reqs as $reqData) {
 	case 'getsessiontoken':
 		// direct
 		header('Content-type: text/plain');
-		die($users->getSessionToken($reqData['servertoken']));
+		$servertoken = getServerToken($users->getCookiePath());
+		if (!$servertoken) {
+			die('Bogus request');
+		}
+		die($users->getSessionToken($servertoken));
 		break;
 	case 'getassertion':
 		// direct
-		if (empty($reqData['servertoken']) || empty($reqData['userid'])) {
-			die('servertoken and userid required');
+		$servertoken = getServerToken($users->getCookiePath());
+		if (!$servertoken || empty($reqData['userid'])) {
+			die('Bogus request.');
 		}
 		header('Content-type: text/plain');
 		$userid = $users->userid($reqData['userid']);
-		$servertoken = htmlspecialchars($reqData['servertoken']);
+		$servertoken = htmlspecialchars($servertoken);
 		die($users->getAssertion($userid, $servertoken));
 		break;
 	case 'verifysessiontoken':
@@ -146,14 +164,15 @@ foreach ($reqs as $reqData) {
 			// ok
 			die('1');
 		}
-		$user = $users->verifySessionToken(@$reqData['token'], @$reqData['servertoken']);
+		$servertoken = getServerToken($users->getCookiePath());
+		$user = $users->verifySessionToken(@$reqData['token'], $servertoken);
 		if (!$user) die('');
 		if ($reqData['userid'] !== $user['userid']) die('');
 		$serveruserdata = array(
 			'userid' => $user['userid'],
 			'username' => $user['username'],
 			'group' => $user['group']
-	//		'userserverdata' => @$user['userdata']['psserver'][@$reqData['servertoken']]
+	//		'userserverdata' => @$user['userdata']['psserver'][$servertoken]
 		);
 		header('Content-type: application/json');
 		die(json_encode($serveruserdata));

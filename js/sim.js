@@ -7,6 +7,7 @@ var socket;
 var locPrefix = '/';
 var servertoken = Config.server;
 if (Config.urlPrefix) locPrefix += Config.urlPrefix;
+var actionphp = '/~~' + Config.serverid + '/action.php';
 
 // initialize sockets
 var socket = null;
@@ -1163,7 +1164,7 @@ function Lobby(id, elem) {
 		case 'ladder':
 			if (!target) target = me.userid;
 			var self = this;
-			$.get('/action.php?act=ladderget&serverid='+Config.serverid+'&user='+target, function(data) {
+			$.get(actionphp + '?act=ladderget&serverid='+Config.serverid+'&user='+target, function(data) {
 				try {
 					var buffer = '<div class="ladder"><table>';
 					buffer += '<tr><td colspan="7">User: <strong>'+target+'</strong></td></tr>';
@@ -1741,10 +1742,9 @@ function Lobby(id, elem) {
 			$('#' + selfR.id + '-roomlist').html('<div class="roomlist"><div><small>(' + i + ' battle' + (i == 1 ? '' : 's') + ')</small></div>' + roomListCode + '</div>');
 		} else if (data.command === 'savereplay') {
 			var id = data.id;
-			$.post('/action.php?act=uploadreplay', {
+			$.post(actionphp + '?act=uploadreplay', {
 				log: data.log,
-				id: data.id,
-				sid: $.cookie('sid')
+				id: data.id
 			}, function(data) {
 				if (data === 'success') {
 					overlay('replayuploaded', id);
@@ -2231,9 +2231,6 @@ function updateMe() {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + sanitize(me.name) + mutebutton + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');
 	}
 	$('#userbar').prepend('<small>[<a href="http://pokemonshowdown.com/rules" target="_blank">Rules</a>] [<a href="http://www.smogon.com/forums/showthread.php?t=3469932" target="_blank">Report bug</a>]</small> ');
-	if (me.token) $.cookie('showdown_token', me.token, {
-		expires: 14
-	});
 	if (rooms.lobby) {
 		rooms.lobby.updateMe();
 		rooms.lobby.debounceUpdate();
@@ -2852,7 +2849,7 @@ function overlayClose() {
 
 function renameMe(name) {
 	if (me.userid !== toId(name)) {
-		$.get('/action.php?act=getassertion&servertoken=' + encodeURIComponent(servertoken) + '&userid=' + toId(name), function(data){
+		$.get(actionphp + '?act=getassertion&userid=' + toId(name), function(data){
 			if (data === ';') {
 				overlay('login', {name: name});
 			} else if (data.indexOf('\n') >= 0) {
@@ -2875,11 +2872,10 @@ function overlaySubmit(e, overlayType) {
 	case 'login':
 	case 'betalogin':
 		var name = $('#overlay_username').val();
-		$.post('/action.php', {
+		$.post(actionphp, {
 			act: 'login',
 			name: name,
-			pass: $('#overlay_password').val(),
-			servertoken: servertoken
+			pass: $('#overlay_password').val()
 		}, function (data) {
 			if (!data) data = {};
 			var token = data.assertion;
@@ -2908,13 +2904,12 @@ function overlaySubmit(e, overlayType) {
 	case 'register':
 		var name = $('#overlay_username').val();
 		var captcha = $('#overlay_captcha').val();
-		$.post('/action.php', {
+		$.post(actionphp, {
 			act: 'register',
 			username: name,
 			password: $('#overlay_password').val(),
 			cpassword: $('#overlay_cpassword').val(),
-			captcha: captcha,
-			servertoken: servertoken
+			captcha: captcha
 		}, function (data) {
 			if (!data) data = {};
 			var token = data.assertion;
@@ -3191,10 +3186,9 @@ if (!Config.down) {
 	if (Config.testclient) {
 		onConnect(Config);
 	} else {
-		$.post('/action.php', {
+		$.post(actionphp, {
 			act: 'upkeep',
-			name: name,
-			servertoken: servertoken
+			name: name
 		}, onConnect, 'json');
 	}
 }
