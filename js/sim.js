@@ -1126,7 +1126,7 @@ function Lobby(id, elem) {
 				timestamps.pms = targets[1];
 				break;
 			}
-			rooms.lobby.add('Timestamp preferences set to: ' + targets[1] + ' for ' + targets[0] + '.');
+			rooms.lobby.add('Timestamps preference set to: `' + targets[1] + '` for `' + targets[0] + '`.');
 			Tools.prefs.set('timestamps', timestamps, true);
 			return false;
 			
