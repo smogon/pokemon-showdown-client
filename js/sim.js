@@ -1099,12 +1099,26 @@ function Lobby(id, elem) {
 			return false;
 
 		case 'timestamps':
-			// This interface is arguably inconsistent with showbattles/hidebattles,
-			// but it makes more sense here because there are three possible values.
-			if (['off', 'minutes', 'seconds'].indexOf(target) === -1) {
-				rooms.lobby.add("Error: Valid options are /timestamps off, /timestamps minutes, and /timestamps seconds");
+			var targets = target.split(',');
+			targets[1] = targets[1].trim();
+			var timestamps = Tools.prefs.get('timestamps') || {'lobby':'off', 'pms':'off'};
+			if (['all', 'lobby', 'pms'].indexOf(targets[0]) === -1
+			|| ['off', 'minutes', 'seconds'].indexOf(targets[1]) === -1) {
+				rooms.lobby.add("Error: Valid options are /timestamps [all|lobby|pms], [minutes|seconds|off]");
 			} else {
-				Tools.prefs.set('timestamps', target, true);
+				switch (targets[0]) {
+				case 'all':
+					timestamps.lobby = targets[1];
+					timestamps.pms = targets[1];
+					break;
+				case 'lobby':
+					timestamps.lobby = targets[1];
+					break;
+				case 'pms':
+					timestamps.pms = targets[1];
+					break;
+				}
+				Tools.prefs.set('timestamps', timestamps, true);
 			}
 			return false;
 			
@@ -1293,12 +1307,18 @@ function Lobby(id, elem) {
 			selfR.userActivity.splice(0, 20);
 		}
 	};
-	this.getTimestamp = function () {
-		var pref = Tools.prefs.get('timestamps');
-		if ((pref === 'off') || (pref === undefined)) return '';
+	this.getTimestamp = function (section) {
+		var pref = Tools.prefs.get('timestamps') || {'pms':'off', 'lobby':'off'};
+		if (section === 'pms') {
+			var sectionPref = pref.pms || 'off';
+		} else {
+			var sectionPref = pref.lobby || 'off';
+		}
+		
+		if ((sectionPref === 'off') || (sectionPref === undefined)) return '';
 		var date = new Date();
 		var components = [ date.getHours(), date.getMinutes() ];
-		if (pref === 'seconds') {
+		if (sectionPref === 'seconds') {
 			components.push(date.getSeconds());
 		}
 		return '[' + components.map(
@@ -1456,8 +1476,10 @@ function Lobby(id, elem) {
 				}
 				var highlight = isHighlighted ? ' style="background-color:#FDA;"' : '';
 				var chatDiv = '<div class="chat"' + highlight + '>';
+				var timestamp = selfR.getTimestamp('lobby');
 				if (log[i].name.substr(0, 1) !== ' ') clickableName = '<small>' + sanitize(log[i].name.substr(0, 1)) + '</small>'+clickableName;
 				if (log[i].pm) {
+					timestamp = selfR.getTimestamp('pms');
 					var pmuserid = (userid === me.userid ? toUserid(log[i].pm) : userid);
 					if (!me.pm[pmuserid]) me.pm[pmuserid] = '';
 					var pmcode = '<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em> ' + messageSanitize(message) + '</em></div>';
@@ -1478,17 +1500,17 @@ function Lobby(id, elem) {
 					} else {
 						selfR.updatePopup();
 					}
-					selfR.chatElem.append('<div class="chat">' + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</em></div>');
+					selfR.chatElem.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</em></div>');
 				//} else if (log[i].act) {
 				//	selfR.chatElem.append('<div class="chat"><strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + message + '</i></em></div>');
 				} else if (message.substr(0,2) === '//') {
-					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message.substr(1)) + '</em></div>');
+					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message.substr(1)) + '</em></div>');
 				} else if (message.substr(0,4).toLowerCase() === '/me ') {
-					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
+					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
 				} else if (message.substr(0,5).toLowerCase() === '/mee ') {
-					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
+					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
 				} else if (message.substr(0,10).toLowerCase() === '/announce ') {
-					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="padding:1px 4px 2px;color:white;background:#6688AA">' + messageSanitize(message.substr(10)) + '</em></div>');
+					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="padding:1px 4px 2px;color:white;background:#6688AA">' + messageSanitize(message.substr(10)) + '</em></div>');
 				} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -1499,7 +1521,7 @@ function Lobby(id, elem) {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else {
 					// Normal chat message.
-					selfR.chatElem.append(chatDiv + selfR.getTimestamp() + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
+					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
 				}
 			} else if (log[i].name && log[i].action === 'battle') {
 				var id = log[i].room;
