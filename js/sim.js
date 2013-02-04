@@ -1464,7 +1464,14 @@ function Lobby(id, elem) {
 					for (var j = 0; j < me.popups.length; j++) {
 						if (pmuserid === me.popups[j]) break;
 					}
-					if (j == me.popups.length) me.popups.unshift(pmuserid);
+					if (j == me.popups.length) {
+						// This is a new PM.
+						me.popups.unshift(pmuserid);
+						notify({
+							type: 'pm',
+							user: log[i].name
+						});
+					}
 					me.pm[pmuserid] += pmcode;
 					if (me.popups.length && me.popups[me.popups.length - 1] === pmuserid) {
 						selfR.updatePopup(pmcode);
@@ -2608,6 +2615,9 @@ var favicon = {
 				case 'highlight':
 					message = 'You have been highlighted by ' + data.user + '!';
 					break;
+				case 'pm':
+					message = 'You have received a PM from ' + data.user + '!';
+					break;
 				case 'yourMove':
 				case 'yourSwitch':
 					message = "It's your move in your battle against "+data.user+".";
@@ -2643,6 +2653,12 @@ var favicon = {
 				macgap.growl.notify({
 					title: 'Highlighted!',
 					content: 'You have been highlighted by ' + data.user + '!'
+				});
+				break;
+			case 'pm':
+				macgap.growl.notify({
+					title: 'PM!',
+					content: 'You have received a PM from ' + data.user + '!'
 				});
 				break;
 			case 'yourMove':
@@ -2691,6 +2707,9 @@ var favicon = {
 					break;
 				case 'highlight':
 					document.title = 'HIGHLIGHTED';
+					break;
+				case 'pm':
+					document.title = 'PM';
 					break;
 				case 'yourMove':
 				case 'yourSwitch':
