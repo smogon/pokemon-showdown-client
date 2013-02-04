@@ -791,7 +791,7 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.subsp = subsp;
 			selfS.iw = subsp.w;
 			selfS.ih = subsp.h;
-			self.spriteElemsFront[siden].append('<img src="' + subsp.url + '" style="display:none;position:absolute;z-index:10" />');
+			self.spriteElemsFront[siden].append('<img src="' + subsp.url + '" style="display:none;position:absolute" />');
 			selfS.subElem = self.spriteElemsFront[siden].children().last();
 
 			//temp//selfS.subElem.css({position: 'absolute', display: 'block'});
@@ -914,6 +914,13 @@ function Battle(frame, logFrame, noPreload) {
 			if (!selfS.isBackSprite && slot == 1) selfS.statbarOffset = 17;
 			if (selfS.isBackSprite && slot == 1) selfS.statbarOffset = -7;
 
+			// make sure element is in the right z-order
+			if (!slot && selfS.isBackSprite || slot && !selfS.isBackSprite) {
+				selfS.elem.prependTo(selfS.elem.parent());
+			} else {
+				selfS.elem.appendTo(selfS.elem.parent());
+			}
+
 			var pos = self.pos(selfS, {
 				w: 0,
 				h: 96
@@ -925,7 +932,7 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.w = sp.w;
 			selfS.h = sp.h;
 			selfS.elem.css({
-				'z-index': (selfS.isBackSprite ? 1+slot : 4-slot),
+				// 'z-index': (selfS.isBackSprite ? 1+slot : 4-slot),
 				position: 'absolute',
 				display: 'block'
 			});
@@ -982,6 +989,13 @@ function Battle(frame, logFrame, noPreload) {
 			if (!selfS.isBackSprite && slot == 1) selfS.statbarOffset = 17;
 			if (selfS.isBackSprite && slot == 1) selfS.statbarOffset = -7;
 
+			// make sure element is in the right z-order
+			if (!slot && selfS.isBackSprite || slot && !selfS.isBackSprite) {
+				selfS.elem.prependTo(selfS.elem.parent());
+			} else {
+				selfS.elem.appendTo(selfS.elem.parent());
+			}
+
 			var pos = self.pos(selfS, {
 				w: 0,
 				h: 96
@@ -991,7 +1005,7 @@ function Battle(frame, logFrame, noPreload) {
 
 			selfS.anim();
 			selfS.elem.css({
-				'z-index': (selfS.isBackSprite ? 1+slot : 4-slot),
+				// 'z-index': (selfS.isBackSprite ? 1+slot : 4-slot),
 				position: 'absolute',
 				opacity: 0,
 				display: 'block'
