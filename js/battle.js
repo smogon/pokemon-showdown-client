@@ -791,7 +791,7 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.subsp = subsp;
 			selfS.iw = subsp.w;
 			selfS.ih = subsp.h;
-			self.spriteElemsFront[siden].append('<img src="' + subsp.url + '" style="display:none;position:absolute" />');
+			self.spriteElemsFront[siden].append('<img src="' + subsp.url + '" style="display:none;position:absolute;z-index:10" />');
 			selfS.subElem = self.spriteElemsFront[siden].children().last();
 
 			//temp//selfS.subElem.css({position: 'absolute', display: 'block'});
@@ -925,6 +925,7 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.w = sp.w;
 			selfS.h = sp.h;
 			selfS.elem.css({
+				'z-index': (selfS.isBackSprite ? 1+slot : 4-slot),
 				position: 'absolute',
 				display: 'block'
 			});
@@ -990,6 +991,7 @@ function Battle(frame, logFrame, noPreload) {
 
 			selfS.anim();
 			selfS.elem.css({
+				'z-index': (selfS.isBackSprite ? 1+slot : 4-slot),
 				position: 'absolute',
 				opacity: 0,
 				display: 'block'
