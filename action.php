@@ -30,6 +30,7 @@ if (@$_REQUEST['json']) {
 	$multiReqs = true;
 }
 
+$outPrefix = ']'; // JSON output should not be valid JavaScript
 $outArray = array();
 
 foreach ($reqs as $reqData) {
@@ -175,7 +176,7 @@ foreach ($reqs as $reqData) {
 	//		'userserverdata' => @$user['userdata']['psserver'][$servertoken]
 		);
 		header('Content-type: application/json');
-		die(json_encode($serveruserdata));
+		die($outPrefix . json_encode($serveruserdata));
 		break;
 	case 'ladderupdate':
 		include_once 'lib/ntbb-ladder.lib.php';
@@ -200,6 +201,7 @@ foreach ($reqs as $reqData) {
 		$out['p2rating'] = $p2['rating'];
 		unset($out['p1rating']['rpdata']);
 		unset($out['p2rating']['rpdata']);
+		$outPrefix = '';	// No need for prefix since only usable by server.
 		break;
 	case 'prepreplay':
 		include_once 'lib/ntbb-ladder.lib.php';
@@ -224,6 +226,7 @@ foreach ($reqs as $reqData) {
 		} else {
 			$out = !!$db->query("INSERT INTO `ntbb_replays` (`id`,`loghash`,`p1`,`p2`,`format`,`date`) VALUES ('".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."','".$db->escape($reqData['p1'])."','".$db->escape($reqData['p2'])."','".$db->escape($reqData['format'])."',".time().")");
 		}
+		$outPrefix = '';	// No need for prefix since only usable by server.
 		break;
 	case 'uploadreplay':
 		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
@@ -255,7 +258,7 @@ foreach ($reqs as $reqData) {
 		$user = $users->getUserData($reqData['user']);
 		$ladder->getAllRatings($user);
 		header('Content-type: application/json');
-		die(json_encode($user['ratings']));
+		die($outPrefix . json_encode($user['ratings']));
 		break;
 	case 'ladderformatget':
 		include_once 'lib/ntbb-ladder.lib.php';
@@ -271,7 +274,7 @@ foreach ($reqs as $reqData) {
 		unset($user['rating']['formatid']);
 		unset($user['rating']['rpdata']);
 		header('Content-type: application/json');
-		die(json_encode($user['rating']));
+		die($outPrefix . json_encode($user['rating']));
 		break;
 	case 'ladderformatgetmmr':
 	case 'mmr':
@@ -312,8 +315,8 @@ foreach ($reqs as $reqData) {
 // json output
 if ($multiReqs) {
 	header('Content-type: application/json');
-	die(json_encode($outArray));
+	die($outPrefix . json_encode($outArray));
 } else {
 	header('Content-type: application/json');
-	die(json_encode($out));
+	die($outPrefix . json_encode($out));
 }

@@ -297,7 +297,15 @@ var basespecieschart = {
 };
 
 var Tools = {
-	
+
+	safeJson: function(f) {
+		return function(data) {
+			if (data.length < 1) return;
+			if (data[0] == ']') data = data.substr(1);
+			return f.call(this, $.parseJSON(data));
+		};
+	},
+
 	prefs: (function() {
 		var localStorageEntry = 'showdown_prefs';
 		var data = (window.localStorage &&
