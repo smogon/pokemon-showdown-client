@@ -1186,7 +1186,7 @@ function Lobby(id, elem) {
 		case 'ladder':
 			if (!target) target = me.userid;
 			var self = this;
-			$.get(actionphp + '?act=ladderget&serverid='+Config.serverid+'&user='+target, function(data) {
+			$.get(actionphp + '?act=ladderget&serverid='+Config.serverid+'&user='+target, Tools.safeJson(function(data) {
 				try {
 					var buffer = '<div class="ladder"><table>';
 					buffer += '<tr><td colspan="7">User: <strong>'+target+'</strong></td></tr>';
@@ -1209,7 +1209,7 @@ function Lobby(id, elem) {
 					self.rawMessage(buffer);
 				} catch(e) {
 				}
-			}, 'json');
+			}), 'text');
 			return false;
 			
 		case 'buttonban':
@@ -2919,7 +2919,7 @@ function overlaySubmit(e, overlayType) {
 			act: 'login',
 			name: name,
 			pass: $('#overlay_password').val()
-		}, function (data) {
+		}, Tools.safeJson(function (data) {
 			if (!data) data = {};
 			var token = data.assertion;
 			if (data.curuser && data.curuser.loggedin) {
@@ -2941,7 +2941,7 @@ function overlaySubmit(e, overlayType) {
 					error: 'Wrong password.'
 				});
 			}
-		}, 'json');
+		}), 'text');
 		overlayClose();
 		break;
 	case 'register':
@@ -2953,7 +2953,7 @@ function overlaySubmit(e, overlayType) {
 			password: $('#overlay_password').val(),
 			cpassword: $('#overlay_cpassword').val(),
 			captcha: captcha
-		}, function (data) {
+		}, Tools.safeJson(function (data) {
 			if (!data) data = {};
 			var token = data.assertion;
 			if (data.curuser && data.curuser.loggedin) {
@@ -2973,7 +2973,7 @@ function overlaySubmit(e, overlayType) {
 					error: data.actionerror
 				});
 			}
-		}, 'json').error(function (e) {
+		}), 'text').error(function (e) {
 			alert('error: ' + e);
 		});
 		overlayClose();
@@ -3232,6 +3232,6 @@ if (!Config.down) {
 		$.post(actionphp, {
 			act: 'upkeep',
 			name: name
-		}, onConnect, 'json');
+		}, Tools.safeJson(onConnect), 'text');
 	}
 }
