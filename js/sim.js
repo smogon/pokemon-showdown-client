@@ -954,6 +954,10 @@ function Lobby(id, elem) {
 		prefix: null,
 		cursor: -1
 	};
+	this.fastLine = {
+			sentences: [],
+			index: 0
+	};
 	this.searcher = null;
 	this.selectedTeam = 0;
 	this.selectedFormat = '';
@@ -1237,6 +1241,17 @@ function Lobby(id, elem) {
 			rooms.lobby.send('/kick ' + target + ', ' + reason);
 			return false;
 		}
+		
+		// Spam protection
+		var lastSentence = this.fastLine.sentences[this.fastLine.sentences.length - 1] || '';
+		if (text === lastSentence) {
+			rooms.lobby.add('You already sent that message.');
+			return false;
+		}
+		this.fastLine.sentences.push(text);
+		// We reset the index
+		this.fastLine.index = this.fastLine.sentences.length - 1;
+		
 		return text;
 	};
 	this.popupOpen = function (userid) {
@@ -2030,70 +2045,99 @@ function Lobby(id, elem) {
 	};
 	this.formKeyDown = function (e) {
 		hideTooltip();
-		// We only handle the tab key.
-		// If shift is held down, then don't tab complete, and instead navigate
+		// We only handle the tab key for tab complete.
+		// If shift is held down, then don't run actions, and instead navigate
 		// away from the chatbox.
-		if ((e.keyCode !== 9) || e.shiftKey) return true;
-
-		// We don't want to tab away from this box.
-		e.preventDefault();
-
-		// Don't tab complete at the start of the text box.
+		if (e.shiftKey) return true;
 		var chatbox = $(e.delegateTarget);
-		var idx = chatbox.prop('selectionStart');
-		if (idx === 0) return true;
-
-		var text = chatbox.val();
-
-		if (idx === selfR.tabComplete.cursor) {
-			// The user is cycling through the candidate names.
-			if (++selfR.tabComplete.index >= selfR.tabComplete.candidates.length) {
+		switch (e.keyCode) {
+		case 9: 
+			// We don't want to tab away from this box.
+			e.preventDefault();
+	
+			// Don't tab complete at the start of the text box.
+			var idx = chatbox.prop('selectionStart');
+			if (idx === 0) return true;
+	
+			var text = chatbox.val();
+	
+			if (idx === selfR.tabComplete.cursor) {
+				// The user is cycling through the candidate names.
+				if (++selfR.tabComplete.index >= selfR.tabComplete.candidates.length) {
+					selfR.tabComplete.index = 0;
+				}
+			} else {
+				// This is a new tab completion.
+	
+				// There needs to be non-whitespace to the left of the cursor.
+				var m = /^(.*?)([^ ]*)$/.exec(text.substr(0, idx));
+				if (!m) return true;
+	
+				selfR.tabComplete.prefix = m[1];
+				var idprefix = toId(m[2]);
+				var candidates = [];
+	
+				for (var i in selfR.userList) {
+					if (!selfR.userList.hasOwnProperty(i)) continue;
+					if (!(typeof i === 'string')) continue;
+					if (i.substr(0, idprefix.length) !== idprefix) continue;
+					candidates.push(i);
+				}
+	
+				// Sort by most recent to speak in the chat, or, in the case of a tie,
+				// in alphabetical order.
+				candidates.sort(function(a, b) {
+					var aidx = selfR.userActivity.indexOf(a);
+					var bidx = selfR.userActivity.indexOf(b);
+					if (aidx !== -1) {
+						if (bidx !== -1) {
+							return bidx - aidx;
+						}
+						return -1; // a comes first
+					} else if (bidx != -1) {
+						return 1;  // b comes first
+					}
+					return a < b;  // alphabetical order
+				});
+				selfR.tabComplete.candidates = candidates;
 				selfR.tabComplete.index = 0;
 			}
-		} else {
-			// This is a new tab completion.
-
-			// There needs to be non-whitespace to the left of the cursor.
-			var m = /^(.*?)([^ ]*)$/.exec(text.substr(0, idx));
-			if (!m) return true;
-
-			selfR.tabComplete.prefix = m[1];
-			var idprefix = toId(m[2]);
-			var candidates = [];
-
-			for (var i in selfR.userList) {
-				if (!selfR.userList.hasOwnProperty(i)) continue;
-				if (!(typeof i === 'string')) continue;
-				if (i.substr(0, idprefix.length) !== idprefix) continue;
-				candidates.push(i);
+	
+			// Substitute in the tab-completed name.
+			var substituteUserId = selfR.tabComplete.candidates[selfR.tabComplete.index];
+			var name = selfR.userList[substituteUserId].substr(1);
+			chatbox.val(selfR.tabComplete.prefix + name + text.substr(idx));
+			var pos = selfR.tabComplete.prefix.length + name.length;
+			chatbox[0].setSelectionRange(pos, pos);
+			selfR.tabComplete.cursor = pos;
+			return true;
+		case 38:
+			// Up key: Let's check for last sentence
+			e.preventDefault();
+			
+			// Retrieve the sentence and put it in chat box
+			var sentence = selfR.fastLine.sentences[selfR.fastLine.index];
+			if (sentence !== undefined && sentence !== '') chatbox.val(sentence);
+			
+			// We go to the next unless we are at the first one
+			if (selfR.fastLine.index > 0) selfR.fastLine.index--;
+			return true;
+		case 40:
+			// Down key
+			e.preventDefault();
+			
+			// Pressed down, let's check if we can go down. Otherwise, blank text
+			if (selfR.fastLine.index >= (selfR.fastLine.sentences.length - 1)) {
+				chatbox.val('');
+			} else {
+				selfR.fastLine.index++;
+				chatbox.val(selfR.fastLine.sentences[selfR.fastLine.index]);
 			}
-
-			// Sort by most recent to speak in the chat, or, in the case of a tie,
-			// in alphabetical order.
-			candidates.sort(function(a, b) {
-				var aidx = selfR.userActivity.indexOf(a);
-				var bidx = selfR.userActivity.indexOf(b);
-				if (aidx !== -1) {
-					if (bidx !== -1) {
-						return bidx - aidx;
-					}
-					return -1; // a comes first
-				} else if (bidx != -1) {
-					return 1;  // b comes first
-				}
-				return a < b;  // alphabetical order
-			});
-			selfR.tabComplete.candidates = candidates;
-			selfR.tabComplete.index = 0;
-		}
-
-		// Substitute in the tab-completed name.
-		var substituteUserId = selfR.tabComplete.candidates[selfR.tabComplete.index];
-		var name = selfR.userList[substituteUserId].substr(1);
-		chatbox.val(selfR.tabComplete.prefix + name + text.substr(idx));
-		var pos = selfR.tabComplete.prefix.length + name.length;
-		chatbox[0].setSelectionRange(pos, pos);
-		selfR.tabComplete.cursor = pos;
+			return true;
+		} // End of e.keyCode switch
+		
+		// We go out on other keys
+		return true;
 	};
 	this.formRename = function () {
 		overlay('rename');
