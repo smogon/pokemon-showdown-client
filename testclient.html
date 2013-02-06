@@ -12,7 +12,9 @@
 		<meta id="viewport" name="viewport" content="width=640"/>
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 	<script>
-		var Config = JSON.parse(prompt("Input config data"));
+		var text = prompt("Input config data");
+		if (text[0] === ']') text = text.substr(1);
+		var Config = JSON.parse(text);
 		Config.testclient = true;
 	</script>
 	<!--[if lte IE 8]><script>
