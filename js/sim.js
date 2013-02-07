@@ -2048,13 +2048,12 @@ function Lobby(id, elem) {
 	};
 	this.formKeyDown = function (e) {
 		hideTooltip();
-		// We only handle the tab key for tab complete.
-		// If shift is held down, then don't run actions, and instead navigate
-		// away from the chatbox.
-		if (e.shiftKey) return true;
 		var chatbox = $(e.delegateTarget);
 		switch (e.keyCode) {
 		case 9:		// Tab key
+			// Don't tab complete if the shift key is held down.
+			if (e.shiftKey) return true;
+
 			// We don't want to tab away from this box.
 			e.preventDefault();
 
