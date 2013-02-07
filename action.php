@@ -306,7 +306,6 @@ foreach ($reqs as $reqData) {
 		$out = $ladder->getTop();
 		break;
 	case 'logcachedindex':
-		if (!$_POST) die('');
 		$logfile = '../pokemonshowdown.com/config/cachelog';
 		$clienttimestamp = @$reqData['clienttimestamp'];
 		$servertimestamp = @$reqData['servertimestamp'];
@@ -324,13 +323,15 @@ foreach ($reqs as $reqData) {
 		$clienttimestampformatted = date('c', $clienttimestamp);
 		$servertimestampformatted = date('c', $servertimestamp);
 		$servertimestampnowformatted = date('c', $servertimestampnow);
+		$lagtimeformatted = date('i:s', $servertimestampnow - $servertimestamp);
 		$useragent = @$_SERVER['HTTP_USER_AGENT'];
 		$ip = @$_SERVER['REMOTE_ADDR'];
 		$clientip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
 		file_put_contents($logfile,
 			"[$ip ($clientip); $useragent] " .
 			"index.php generated at $servertimestampformatted; " .
-			"logcachedindex run at $servertimestampnowformatted (client reported time of $clienttimestampformatted)\n",
+			"logcachedindex run at $servertimestampnowformatted (client reported time of $clienttimestampformatted); " .
+			"lag time of $lagtimeformatted\n",
 			FILE_APPEND | LOCK_EX);
 		die('');	// No output.
 		break;
