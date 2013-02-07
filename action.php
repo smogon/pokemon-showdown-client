@@ -306,6 +306,7 @@ foreach ($reqs as $reqData) {
 		$out = $ladder->getTop();
 		break;
 	case 'logcachedindex':
+		if (!$_POST) die('');
 		$logfile = '../pokemonshowdown.com/config/cachelog';
 		$clienttimestamp = @$reqData['clienttimestamp'];
 		$servertimestamp = @$reqData['servertimestamp'];
