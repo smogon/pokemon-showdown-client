@@ -110,9 +110,15 @@ $upkeep['assertion'] = $users->getAssertion($userid, $server);
 			serverport: <?php echo $serverport ?>,
 			serverprotocol: '<?php echo $serverprotocol ?>',
 			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>',
-			upkeep: <?php echo json_encode($upkeep) ?>,
-			timestamp: <?php echo time() ?>
+			upkeep: <?php echo json_encode($upkeep) ?>
 		};
+		(function() {
+			var timestamp = <?php echo time() ?>;
+			var dateNow = Date.now() / 1000;
+			if (dateNow - timestamp > 300) {	// Five minutes
+				document.createElement('img').src = '/action.php?act=logcachedindex&clienttimestamp=' + dateNow + '&servertimestamp=' + timestamp;
+			}
+		})();
 <?php if (false) { ?>
 		alert('We should be open to the public again in a few minutes.');
 		Config.requirelogin = true;
@@ -182,20 +188,6 @@ $upkeep['assertion'] = $users->getAssertion($userid, $server);
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading libraries...';
 		</script>
 		<script src="/js/jquery-1.9.0.min.js"></script>
-
-		<script>
-			(function() {
-				var dateNow = Date.now() / 1000;
-				if (dateNow - Config.timestamp > 50) {
-					$.post('/action.php', {
-						act: 'logcachedindex',
-						clienttimestamp: dateNow,
-						servertimestamp: Config.timestamp
-					});
-				}
-			})();
-		</script>
-
 		<script src="/js/autoresize.jquery.min.js"></script>
 		<script src="/js/jquery-cookie.js"></script>
 		<script src="/js/jquery.json-2.3.min.js"></script>
