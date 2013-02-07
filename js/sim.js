@@ -8,6 +8,7 @@ var locPrefix = '/';
 var servertoken = Config.server;
 if (Config.urlPrefix) locPrefix += Config.urlPrefix;
 var actionphp = '/~~' + Config.serverid + '/action.php';
+var _gaq = _gaq || [];
 
 // initialize sockets
 var socket = null;
@@ -2301,7 +2302,7 @@ function updateMe() {
 	} else {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + sanitize(me.name) + mutebutton + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');
 	}
-	$('#userbar').prepend('<small>[<a href="http://pokemonshowdown.com/rules" target="_blank">Rules</a>] [<a href="http://www.smogon.com/forums/showthread.php?t=3469932" target="_blank">Report bug</a>]</small> ');
+	$('#userbar').prepend('<small>[<a href="http://pokemonshowdown.com/rules" target="_blank">Rules</a>] [<a href="http://www.smogon.com/forums/showthread.php?t=3469932" target="_blank" onclick="_gaq.push([\'_trackEvent\', \'Report bug link\', Config.serverid]); return true;">Report bug</a>]</small> ');
 	if (rooms.lobby) {
 		rooms.lobby.updateMe();
 		rooms.lobby.debounceUpdate();
