@@ -2904,6 +2904,16 @@ function Battle(frame, logFrame, noPreload) {
 				actions += "But nothing happened! ";
 				break;
 				
+			case '-waiting':
+				var poke = this.getPokemon(args[1]);
+				var ofpoke = this.getPokemon(args[2]);
+				actions += "" + poke.getName() + " is waiting for " + ofpoke.getLowerName() + "'s move...";
+				break;
+				
+			case '-combine':
+				actions += "The two moves are joined! It's a combined move!";
+				break;
+				
 			case '-prepare':
 				var poke = this.getPokemon(args[1]);
 				var move = Tools.getMove(args[2]);
