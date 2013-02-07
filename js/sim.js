@@ -3226,5 +3226,13 @@ if (!Config.down) {
 			};
 		}
 	}
-	onConnect(Config.upkeep);
+	if ((Date.now() / 1000) - Config.timestamp > 50) {
+		// The browser cached index.php...
+		$.post(actionphp, {
+			act: 'upkeep',
+			name: name
+		}, Tools.safeJson(onConnect), 'text');
+	} else {
+		onConnect(Config.upkeep);
+	}
 }

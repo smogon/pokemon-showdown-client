@@ -109,7 +109,8 @@ $upkeep['assertion'] = $users->getAssertion($userid, $server);
 			serverport: <?php echo $serverport ?>,
 			serverprotocol: '<?php echo $serverprotocol ?>',
 			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>',
-			upkeep: <?php echo json_encode($upkeep) ?>
+			upkeep: <?php echo json_encode($upkeep) ?>,
+			timestamp: <?php echo time() ?>
 		};
 <?php if (false) { ?>
 		alert('We should be open to the public again in a few minutes.');
