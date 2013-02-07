@@ -317,13 +317,20 @@ foreach ($reqs as $reqData) {
 		// If we get here, the user's clock may actually still just be wrong,
 		// but if so, it's not wrong by very much and there's not really any
 		// way we can check for that case.
-		$ip = $_SERVER['REMOTE_ADDR'];
+
+		// date() throws a warning if a timezone is not explicitly set.
+		date_default_timezone_set('America/Edmonton');
+		$clienttimestampformatted = date('c', $clienttimestamp);
+		$servertimestampformatted = date('c', $servertimestamp);
+		$servertimestampnowformatted = date('c', $servertimestampnow);
+		$useragent = @$_SERVER['HTTP_USER_AGENT'];
+		$ip = @$_SERVER['REMOTE_ADDR'];
 		$clientip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
 		file_put_contents($logfile,
-			"[$ip ($clientip)] " .
-			"index.php generated at $servertimestamp; " .
-			"logcachedindex run at $servertimestampnow (client reported time of $clienttimestamp)\n",
-			FILE_APPEND |  LOCK_EX);
+			"[$ip ($clientip); $useragent] " .
+			"index.php generated at $servertimestampformatted; " .
+			"logcachedindex run at $servertimestampnowformatted (client reported time of $clienttimestampformatted)\n",
+			FILE_APPEND | LOCK_EX);
 		die('');	// No output.
 		break;
 	default:
