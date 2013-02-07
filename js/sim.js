@@ -3226,12 +3226,5 @@ if (!Config.down) {
 			};
 		}
 	}
-	if (Config.testclient) {
-		onConnect(Config);
-	} else {
-		$.post(actionphp, {
-			act: 'upkeep',
-			name: name
-		}, Tools.safeJson(onConnect), 'text');
-	}
+	onConnect(Config.upkeep);
 }
