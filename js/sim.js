@@ -3226,7 +3226,7 @@ if (!Config.down) {
 			};
 		}
 	}
-	var daetNow = Date.now() / 1000;
+	var dateNow = Date.now() / 1000;
 	if (dateNow - Config.timestamp > 50) {
 		// The browser may have cached index.php...
 		$.post(actionphp, {
