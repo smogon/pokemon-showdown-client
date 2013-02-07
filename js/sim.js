@@ -2118,6 +2118,15 @@ function Lobby(id, elem) {
 		case 38:	// Up key
 			e.preventDefault();
 			if (selfR.chatHistory.index > 0) {
+				var line = chatbox.val();
+				if (selfR.chatHistory.index === selfR.chatHistory.sentences.length) {
+					if (line !== '') {
+						selfR.chatHistory.push(line);
+						--selfR.chatHistory.index;
+					}
+				} else {
+					selfR.chatHistory.sentences[selfR.chatHistory.index] = line;
+				}
 				chatbox.val(selfR.chatHistory.sentences[--selfR.chatHistory.index]);
 			}
 			return true;
@@ -2125,10 +2134,18 @@ function Lobby(id, elem) {
 		case 40:	// Down key
 			e.preventDefault();
 
-			if (selfR.chatHistory.index >= selfR.chatHistory.sentences.length - 1) {
-				selfR.chatHistory.index = selfR.chatHistory.sentences.length;
+			if (selfR.chatHistory.index === selfR.chatHistory.sentences.length) {
+				var line = chatbox.val();
+				if (line !== '') {
+					selfR.chatHistory.push(line);
+					chatbox.val('');
+				}
+			} else if (selfR.chatHistory.index === selfR.chatHistory.sentences.length - 1) {
+				selfR.chatHistory.sentences[selfR.chatHistory.index] = chatbox.val();
 				chatbox.val('');
+				++selfR.chatHistory.index;
 			} else {
+				selfR.chatHistory.sentences[selfR.chatHistory.index] = chatbox.val();
 				chatbox.val(selfR.chatHistory.sentences[++selfR.chatHistory.index]);
 			}
 			return true;
