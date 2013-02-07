@@ -305,6 +305,27 @@ foreach ($reqs as $reqData) {
 		$ladder = new NTBBLadder($server['id'], $reqData['format']);
 		$out = $ladder->getTop();
 		break;
+	case 'logcachedindex':
+		$logfile = '../pokemonshowdown.com/config/cachelog';
+		$clienttimestamp = @$reqData['clienttimestamp'];
+		$servertimestamp = @$reqData['servertimestamp'];
+		$servertimestampnow = time();
+		if ($servertimestampnow - $servertimestamp <= 50) {
+			// The user's clock is just wrong; don't log.
+			die('');
+		}
+		// If we get here, the user's clock may actually still just be wrong,
+		// but if so, it's not wrong by very much and there's not really any
+		// way we can check for that case.
+		$ip = $_SERVER['REMOTE_ADDR'];
+		$clientip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
+		file_put_contents($logfile,
+			"[$ip ($clientip)] " .
+			"index.php generated at $servertimestamp; " .
+			"logcachedindex run at $servertimestampnow (client reported time of $clienttimestamp)\n",
+			FILE_APPEND |  LOCK_EX);
+		die('');	// No output.
+		break;
 	default:
 		break;
 	}
