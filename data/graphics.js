@@ -2070,9 +2070,6 @@ var BattleMoveAnims = {
 			attacker.anim({
 				opacity: 0.8,
 				time: 300
-			}, 'linear').anim({
-				opacity: 1,
-				time: 300
 			}, 'linear');
 		},
 		prepareMessage: function(pokemon) {
