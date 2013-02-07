@@ -3226,13 +3226,14 @@ if (!Config.down) {
 			};
 		}
 	}
-	if ((Date.now() / 1000) - Config.timestamp > 50) {
-		// The browser cached index.php...
+	var daetNow = Date.now() / 1000;
+	if (dateNow - Config.timestamp > 50) {
+		// The browser may have cached index.php...
 		$.post(actionphp, {
-			act: 'upkeep',
-			name: name
-		}, Tools.safeJson(onConnect), 'text');
-	} else {
-		onConnect(Config.upkeep);
+			act: 'logcachedindex',
+			clienttimestamp: dateNow,
+			servertimestamp: Config.timestamp
+		});
 	}
+	onConnect(Config.upkeep);
 }
