@@ -187,7 +187,7 @@ $upkeep['assertion'] = $users->getAssertion($userid, $server);
 			(function() {
 				var dateNow = Date.now() / 1000;
 				if (dateNow - Config.timestamp > 50) {
-					$.post(actionphp, {
+					$.post('/action.php', {
 						act: 'logcachedindex',
 						clienttimestamp: dateNow,
 						servertimestamp: Config.timestamp
