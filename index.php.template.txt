@@ -202,7 +202,6 @@ $upkeep['assertion'] = $users->getAssertion($userid, $server);
 		<script src="/js/sim.js?"></script>
 
 		<script>
-			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to login server...';
 			if (Config.down) overlay('down');
 		</script>
 		
