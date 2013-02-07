@@ -20,6 +20,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 $defaultserver = 'showdown';
 
 include '../pokemonshowdown.com/config/servers.inc.php';
+include '../pokemonshowdown.com/lib/ntbb-session.lib.php';
 
 $server = @$_REQUEST['server'];
 $serverport = 0;
@@ -77,6 +78,13 @@ $serverlibs = array(
 );
 $serverlibrary = $serverlibs[$serverprotocol];
 
+$upkeep = array();
+unset($curuser['userdata']);
+$upkeep['curuser'] = $curuser;
+if (empty($_COOKIE['showdown_username'])) $userid = $curuser['userid'];
+else $userid = $users->userid($_COOKIE['showdown_username']);
+$upkeep['assertion'] = $users->getAssertion($userid, $server);
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -100,7 +108,8 @@ $serverlibrary = $serverlibs[$serverprotocol];
 			serverid: '<?php echo $serverid ?>',
 			serverport: <?php echo $serverport ?>,
 			serverprotocol: '<?php echo $serverprotocol ?>',
-			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>'
+			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>',
+			upkeep: <?php echo json_encode($upkeep) ?>
 		};
 <?php if (false) { ?>
 		alert('We should be open to the public again in a few minutes.');
