@@ -16,7 +16,7 @@
 		if (text[0] === ']') text = text.substr(1);
 		var Config = {
 			upkeep: JSON.parse(text),
-			timestamp: Date.now()
+			timestamp: Date.now() / 1000
 		};
 	</script>
 	<!--[if lte IE 8]><script>
