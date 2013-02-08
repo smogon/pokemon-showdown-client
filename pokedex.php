@@ -4,20 +4,22 @@
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<title>Showdown!</title>
 		<link rel="shortcut icon" href="/favicon.ico" id="dynamic-favicon" />
-		<link rel="stylesheet" href="/sim.css" />
-		<link rel="stylesheet" href="/sim-types.css" />
-		<link rel="stylesheet" href="/battle.css" />
-		<link rel="stylesheet" href="/replayer.css" />
-		<script src="/js/jquery-1.6.2.min.js"></script>
+		<link rel="stylesheet" href="/style/sim.css" />
+		<link rel="stylesheet" href="/style/sim-types.css" />
+		<link rel="stylesheet" href="/style/battle.css" />
+		<link rel="stylesheet" href="/style/replayer.css" />
+		<script src="/js/jquery-1.9.0.min.js"></script>
 		<script src="/js/autoresize.jquery.min.js"></script>
 		<script src="/js/jquery-cookie.js"></script>
 		<script src="/js/jquery.json-2.3.min.js"></script>
 		<script src="/data/pokedex-mini.js"></script>
 		
-		<script>var exports={}</script>
+		<script>var exports=this</script>
 		
 		<script src="/data/pokedex.js"></script>
-		<script src="/data/movedex.js"></script>
+		<script src="/data/moves.js"></script>
+		<script src="/data/items.js"></script>
+		<script src="/data/abilities.js"></script>
 		<script src="/data/formats.js"></script>
 
 		<script src="/js/battledata.js"></script>
