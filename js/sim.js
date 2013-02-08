@@ -2892,7 +2892,7 @@ function overlay(overlayType, data) {
 	case 'testclientgetassertion':
 		contents += '<p>Because of the <a href="https://en.wikipedia.org/wiki/Same-origin_policy" target="_blank">same-origin policy</a>, some manual work is required to log in using <code>testclient.html</code>.</p>';
 		contents += '<iframe src="' + data.query + '" style="width: 100%; height: 50px;" class="textbox"></iframe>';
-		contents += '<p>Please copy <strong>all the text</strong> from the box above and paste it in the box below. If the box above just shows a semi-colon (;), log in using the <a href="http://play.pokemonshowdown.com" target="_blank">official client</a> and then refresh this page.</p>';
+		contents += '<p>Please copy <strong>all the text</strong> from the box above and paste it in the box below. If the box above just shows a semi-colon (;) or says "Bogus request", log in using the <a href="http://play.pokemonshowdown.com" target="_blank">official client</a> and then refresh this page.</p>';
 		contents += '<input class="textbox" type="hidden" id="overlay_username" value="' + data.name + '" />';
 		contents += '<p><label class="label">Data from the box above:</label> <input style="width: 100%;" class="textbox" type="text" id="overlay_assertion" /></p>';
 		contents += '<p><button type="submit"><strong>Log in</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
