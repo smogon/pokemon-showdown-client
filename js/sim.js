@@ -2982,6 +2982,9 @@ function renameMe(name) {
 			overlay('testclientgetassertion', { name: name, query: query });
 			return;
 		}
+		if (name === '') {
+			return;
+		}
 		$.get(query, function(data) {
 			if (data === ';') {
 				overlay('login', {name: name});
