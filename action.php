@@ -61,7 +61,10 @@ foreach ($reqs as $reqData) {
 		{
 			$out['sessiontoken'] = $users->getSessionToken($servertoken) . '::' . $servertoken;
 		}
-		$out['assertion'] = $users->getAssertion($curuser['userid'], $servertoken);
+		$challengekeyid = empty($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+		$challenge = empty($reqData['challenge']) ? '' : $reqData['challenge'];
+		$out['assertion'] = $users->getAssertion($curuser['userid'], $servertoken, null,
+			$challengekeyid, $challenge);
 		break;
 	case 'register':
 		$servertoken = getServerToken($users->getCookiePath());
@@ -92,9 +95,11 @@ foreach ($reqs as $reqData) {
 		}
 		else if ($user = $users->addUser($user, $_POST['password']))
 		{
+			$challengekeyid = empty($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+			$challenge = empty($reqData['challenge']) ? '' : $reqData['challenge'];
 			$out['curuser'] = $user;
 			$out['assertion'] = $users->getAssertion($user['userid'],
-					$servertoken, $user);
+					$servertoken, $user, $challengekeyid, $challenge);
 			$out['actionsuccess'] = true;
 			if ($curuser && $servertoken)
 			{
@@ -116,7 +121,7 @@ foreach ($reqs as $reqData) {
 		if (!$servertoken) {
 			die('Bogus request.'); // Will not happen with official client.
 		}
-
+		// The `upkeep` action does not support challenge-response authentication.
 		$out['assertion'] = $users->getAssertion($userid, $servertoken);
 		break;
 	case 'checklogin':
@@ -153,10 +158,13 @@ foreach ($reqs as $reqData) {
 		if (!$servertoken || empty($reqData['userid'])) {
 			die('Bogus request.');
 		}
+		$challengekeyid = empty($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+		$challenge = empty($reqData['challenge']) ? '' : $reqData['challenge'];
 		header('Content-type: text/plain');
 		$userid = $users->userid($reqData['userid']);
-		$servertoken = htmlspecialchars($servertoken);
-		die($users->getAssertion($userid, $servertoken));
+		$servertoken = htmlspecialchars($servertoken);	// Protect against theoretical IE6 XSS
+		$challenge = htmlspecialchars($challenge);		// Protect against theoretical IE6 XSS
+		die($users->getAssertion($userid, $servertoken, null, $challengekeyid, $challenge));
 		break;
 	case 'verifysessiontoken':
 		// direct
