@@ -19,7 +19,12 @@ own login server.
 
 Certain things will fail:
 
-Registering, changing name, the ladder tab, and the /ladder command
++ Registering
++ Changing name to a registered name other than the one you are currently
+  logged in with (however, changing to an unregistered name will work, and
+  you can even change back to your original registered name afterward)
++ The ladder tab
++ The `/ladder` command
 
 Everything else can be tested, though.
 
