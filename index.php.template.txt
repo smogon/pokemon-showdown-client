@@ -46,6 +46,7 @@ if ($colonpos) {
 }
 
 $serverdata = array();
+$challengeresponse = false;
 if (@$PokemonServers[$server]) {
 	$serverid = $server;
 	$serverdata = $PokemonServers[$server];
@@ -53,6 +54,7 @@ if (@$PokemonServers[$server]) {
 	if (!$serverprotocol) $serverprotocol = $PokemonServers[$serverid]['protocol'];
 	$server = $PokemonServers[$serverid]['server'];
 	if ($serverport != $PokemonServers[$serverid]['port']) $serverid .= ':'.$serverport;
+	$challengeresponse = !empty($PokemonServers[$server]['challengeresponse']);
 }
 if ($localflag) $server = 'localhost';
 
@@ -84,7 +86,10 @@ unset($curuser['userdata']);
 $upkeep['curuser'] = $curuser;
 if (empty($_COOKIE['showdown_username'])) $userid = $curuser['userid'];
 else $userid = $users->userid($_COOKIE['showdown_username']);
-$upkeep['assertion'] = $users->getAssertion($userid, $server);
+
+if (!$challengeresponse) {
+	$upkeep['assertion'] = $users->getAssertion($userid, $server);
+}
 
 ?>
 <!DOCTYPE html>
