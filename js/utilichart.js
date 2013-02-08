@@ -11,7 +11,7 @@ function BattleChart()
 	this.pokemon = [];
 	for (var i in BattlePokedex)
 	{
-		BattlePokedex[i].name = BattlePokedex[i].basespecies || BattlePokedex[i].species;
+		BattlePokedex[i].name = BattlePokedex[i].species;
 		this.pokemon.push(BattlePokedex[i]);
 	}
 	this.items = [];
