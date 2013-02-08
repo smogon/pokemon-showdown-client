@@ -155,13 +155,14 @@ foreach ($reqs as $reqData) {
 	case 'getassertion':
 		// direct
 		$servertoken = getServerToken($users->getCookiePath());
-		if (!$servertoken || empty($reqData['userid'])) {
+		if (!$servertoken) {
 			die('Bogus request.');
 		}
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 		header('Content-type: text/plain');
-		$userid = $users->userid($reqData['userid']);
+		if (empty($reqData['userid'])) $userid = $curuser['userid'];
+		else $userid = $users->userid($reqData['userid']);
 		$servertoken = htmlspecialchars($servertoken);	// Protect against theoretical IE6 XSS
 		die($users->getAssertion($userid, $servertoken, null, $challengekeyid, $challenge));
 		break;
