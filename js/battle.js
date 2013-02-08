@@ -3057,6 +3057,10 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + ' harvested one ' + item.name + '!';
 					self.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
+				case 'bestow':
+					actions += '' + poke.getName() + ' received ' + item.name + ' from ' + ofpoke.getLowerName() + '!';
+					self.resultAnim(poke, item.name, 'neutral', animDelay);
+					break;
 				default:
 					actions += '' + poke.getName() + ' obtained one ' + item.name + '.';
 					self.resultAnim(poke, item.name, 'neutral', animDelay);
@@ -3695,6 +3699,12 @@ function Battle(frame, logFrame, noPreload) {
 				case 'quash':
 					actions += "" + poke.getName() + "'s move was postponed!";
 					break;
+				case 'powersplit':
+					actions += '' + poke.getName() + ' shared its power with the target!';
+					break;
+				case 'guardsplit':
+					actions += '' + poke.getName() + ' shared its guard with the target!';
+					break;
 
 				// ability activations
 				case 'sturdy':
@@ -3771,6 +3781,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'mist':
 					actions += "" + side.getTeamName() + " became shrouded in mist!";
 					break;
+				case 'luckychant':
+					actions += 'The Lucky Chant shielded ' + side.getLowerTeamName() + ' from critical hits!';
+					break;
 				case 'firepledge':
 					actions += "A rainbow appeared in the sky on " + side.getLowerTeamName() + "'s side!";
 					break;
@@ -3816,6 +3829,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'mist':
 					actions += "" + side.getTeamName() + " is no longer protected by mist!";
+					break;
+				case 'luckychant':
+					actions += "" + side.getTeamName() + "'s Lucky Chant wore off!";
 					break;
 				case 'firepledge':
 					actions += "The rainbow on " + side.getLowerTeamName() + "'s side disappeared!";
