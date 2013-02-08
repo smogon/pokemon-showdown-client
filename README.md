@@ -14,10 +14,6 @@ Testing
 
 You can make and test client changes simply by opening `testclient.html`.
 
-It will ask for config data. Config data for the main server can be copied from:
-
-http://play.pokemonshowdown.com/~~showdown/action.php?act=upkeep
-
 This will allow you to test changes to the client without setting up your
 own login server.
 
@@ -27,7 +23,7 @@ Registering, changing name, the ladder tab, and the /ladder command
 
 Everything else can be tested, though.
 
-Setup
+Warning
 ------------------------------------------------------------------------
 
 This repository is not "batteries included". It does NOT include everything
