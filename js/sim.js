@@ -18,6 +18,8 @@ var me = {
 	registered: false,
 	userid: '',
 	token: '',
+	challengekeyid: -1,
+	challenge: '',
 	users: {},
 	rooms: {},
 	ignore: {},
@@ -1662,6 +1664,7 @@ function Lobby(id, elem) {
 			$children.slice(0,100).remove();
 		}
 	};
+	// Lobby init
 	this.init = function (data) {
 		if (data.log) {
 			selfR.chatElem.html('');
@@ -2557,7 +2560,11 @@ if (window.history && history.pushState) {
 	changeState = function (newLoc) {
 		if (!initialized) return;
 		if (document.location.pathname !== locPrefix + newLoc) {
-			history.pushState(null, null, locPrefix + newLoc);
+			try {
+				history.pushState(null, null, locPrefix + newLoc);
+			} catch (e) {
+				// Throws insecure operation when running on local filesystem.
+			}
 		}
 		loc = newLoc;
 	};
@@ -2950,7 +2957,9 @@ function overlayClose() {
 
 function renameMe(name) {
 	if (me.userid !== toId(name)) {
-		$.get(actionphp + '?act=getassertion&userid=' + toId(name), function(data){
+		$.get(actionphp + '?act=getassertion&userid=' + toId(name) +
+				'&challengekeyid=' + me.challengekeyid +
+				'&challenge=' + me.challenge, function(data) {
 			if (data === ';') {
 				overlay('login', {name: name});
 			} else if (data.indexOf('\n') >= 0) {
@@ -2976,7 +2985,9 @@ function overlaySubmit(e, overlayType) {
 		$.post(actionphp, {
 			act: 'login',
 			name: name,
-			pass: $('#overlay_password').val()
+			pass: $('#overlay_password').val(),
+			challengekeyid: me.challengekeyid,
+			challenge: me.challenge
 		}, Tools.safeJson(function (data) {
 			if (!data) data = {};
 			var token = data.assertion;
@@ -2988,11 +2999,6 @@ function overlaySubmit(e, overlayType) {
 					return;
 				}
 				rooms.lobby.send('/trn '+name+',0,'+token);
-				/* emit(socket, 'rename', {
-					name: name,
-					token: token
-				}); */
-				//overlay('message', "Logged in successfully.");
 			} else {
 				overlay(overlayType, {
 					name: name,
@@ -3010,7 +3016,9 @@ function overlaySubmit(e, overlayType) {
 			username: name,
 			password: $('#overlay_password').val(),
 			cpassword: $('#overlay_cpassword').val(),
-			captcha: captcha
+			captcha: captcha,
+			challengekeyid: me.challengekeyid,
+			challenge: me.challenge
 		}, Tools.safeJson(function (data) {
 			if (!data) data = {};
 			var token = data.assertion;
@@ -3077,161 +3085,184 @@ var cookieTeams = true;
 	}
 })();
 
-var name = ($.cookie('showdown_username') || '');
-
 // time to connect
-if (!Config.down) {
-	function onConnect(data) {
-		if (!data) data = {};
-		var token = data.assertion || '';
+(function(data, name) {
+	if (Config.down) return;
 
-		if (data.curuser && data.curuser.loggedin) {
-			me.registered = data.curuser;
-			name = data.curuser.username;
-		} else if (Config.oldie) {
-			overlay('unsupported');
-			return;
-		} else if (Config.requirelogin) {
-			document.getElementById('loading-message').innerHTML = '';
-			overlay('betalogin');
-			return;
-		}
+	if (!data) data = {};
+	var token = data.assertion || '';
 
-		// lib isn't served by servers anymore - security issue, also scalability
+	if (data.curuser && data.curuser.loggedin) {
+		me.registered = data.curuser;
+		name = data.curuser.username;
+	} else if (Config.oldie) {
+		overlay('unsupported');
+		return;
+	} else if (Config.requirelogin) {
+		document.getElementById('loading-message').innerHTML = '';
+		overlay('betalogin');
+		return;
+	}
 
-		// var lib = (Config.serverprotocol === 'io' ? window.io : (Config.serverprotocol === 'eio' ? window.eio : window.SockJS));
-		// if (!lib) {
-		// 	overlay('message', "<p>Could not connect to Showdown server at <code>" + Config.server + ':' + Config.serverport + "</code>.</p><p>You may have mistyped the address, or the server may be down for maintenance. We apologize for the inconvenience.</p>");
-		// 	return;
-		// }
+	if (Config.serverprotocol === 'io') socket = io.connect('http://' + Config.server + ':' + Config.serverport);
+	else if (Config.serverprotocol === 'eio') socket = new eio.Socket({ host: Config.server, port: Config.serverport });
+	else socket = new SockJS('http://' + Config.server + ':' + Config.serverport);
 
-		// temporarily relocated connection code
-		/* else if (isAndroid) {
-			alert('Showdown doesn\'t work with the built-in Android browser - please use Firefox for Android instead.');
-			//socket = io.connect('http://'+Config.server+':'+Config.serverport, {transports:['jsonp-polling']});
-			if (Config.serverprotocol === 'io') socket = io.connect('http://' + Config.server + ':' + Config.serverport);
-			else socket = new SockJS('http://' + Config.server + ':' + Config.serverport);
-		} */
-
-		{
-			if (Config.serverprotocol === 'io') socket = io.connect('http://' + Config.server + ':' + Config.serverport);
-			else if (Config.serverprotocol === 'eio') socket = new eio.Socket({ host: Config.server, port: Config.serverport });
-			else socket = new SockJS('http://' + Config.server + ':' + Config.serverport);
-		}
-
-		var events = {
-			init: function (data) {
-				if (data.name) {
-					me.name = data.name;
-					me.named = data.named;
-					me.userid = data.userid;
-					me.renamePending = !! data.renamePending;
-					if (data.token) me.token = data.token;
-				}
-				if (data.notFound) {
-					selectTab('lobby');
-					return;
-				}
-				var tempInitialize = function () {
-						addTab(data.room, data.roomType);
-						var room = rooms[data.room];
-						room.init(data);
-						updateMe(data);
-						$('#loading-message').remove();
-						//if (!initialized) // (!initialized && rooms[loc])
-						{
-							if (loc && loc !== 'lobby') {
-								selectTab(loc);
-							}
-						}
-					};
-				if (!initialized) {
-					socketInit = tempInitialize;
-				} else {
-					tempInitialize();
-				}
-			},
-			update: function (data) {
-				if (typeof data.name !== 'undefined') {
-					me.name = data.name;
-					me.named = data.named;
-					me.userid = data.userid;
-					me.renamePending = !! data.renamePending;
-					if (data.token) me.token = data.token;
-				}
-				if (typeof data.challengesFrom !== 'undefined') {
-					me.challengesFrom = data.challengesFrom;
-					rooms.lobby.notifying = false;
-					for (var i in me.challengesFrom) {
-						rooms.lobby.notifying = true;
-						break;
+	var events = {
+		init: function (data) {
+			if (data.name) {
+				me.name = data.name;
+				me.named = data.named;
+				me.userid = data.userid;
+				me.renamePending = !! data.renamePending;
+				if (data.token) me.token = data.token;
+			}
+			if (data.notFound) {
+				selectTab('lobby');
+				return;
+			}
+			var tempInitialize = function () {
+					addTab(data.room, data.roomType);
+					var room = rooms[data.room];
+					room.init(data);
+					updateMe(data);
+					$('#loading-message').remove();
+					if (loc && loc !== 'lobby') {
+						selectTab(loc);
 					}
-					updateRoomList();
-					rooms.lobby.updateMainTop();
-				}
-				if (typeof data.challengeTo !== 'undefined') {
-					me.challengeTo = data.challengeTo;
-					rooms.lobby.updateMainTop();
-				}
-				updateMe(data);
-				if (data.room && rooms[data.room]) {
-					rooms[data.room].update(data);
-				} else if (curRoom) {
-					//curRoom.update(data);
-				}
-			},
-			disconnect: function () {
-				$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
-				overlay('disconnect');
-			},
-			nameTaken: function (data) {
-				if (data && data.permanent) {
-					overlay('message', data.reason);
-				} else if (data && data.name) {
-					overlay('login', data);
-				} else if (data) {
-					overlay('rename', {
-						error: data.reason
-					});
-				} else {
-					alert('nameTaken signal');
-					$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">nameTaken signal</strong> ');
-				}
-			},
-			message: function (message) {
-				if (message.html) {
-					overlay('message', message.html);
-					return;
-				}
-				if (message.message) message = message.message;
-				overlay('message', '<div style="white-space:pre-wrap">' + message + '</div>');
-			},
-			command: function (message) {
-				if (message.room && rooms[message.room]) {
-					rooms[message.room].command(message);
-				}
-			},
-			console: function (message) {
-				var room = null;
-				if (message.room && rooms[message.room]) {
-					room = rooms[message.room];
-					if (room) room.add(message);
-					//if (room.id === 'lobby' && message.silent) room.updateMainElem();
-				} else {
-					if (curRoom) curRoom.message(message, true);
-				}
+				};
+			if (!initialized) {
+				socketInit = tempInitialize;
+			} else {
+				tempInitialize();
 			}
-		};
+		},
+		update: function (data) {
+			if (typeof data.name !== 'undefined') {
+				me.name = data.name;
+				me.named = data.named;
+				me.userid = data.userid;
+				me.renamePending = !! data.renamePending;
+				if (data.token) me.token = data.token;
+			}
+			if (typeof data.challengesFrom !== 'undefined') {
+				me.challengesFrom = data.challengesFrom;
+				rooms.lobby.notifying = false;
+				for (var i in me.challengesFrom) {
+					rooms.lobby.notifying = true;
+					break;
+				}
+				updateRoomList();
+				rooms.lobby.updateMainTop();
+			}
+			if (typeof data.challengeTo !== 'undefined') {
+				me.challengeTo = data.challengeTo;
+				rooms.lobby.updateMainTop();
+			}
+			updateMe(data);
+			if (data.room && rooms[data.room]) {
+				rooms[data.room].update(data);
+			} else if (curRoom) {
+				//curRoom.update(data);
+			}
+		},
+		disconnect: function () {
+			$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
+			overlay('disconnect');
+		},
+		nameTaken: function (data) {
+			if (data && data.permanent) {
+				overlay('message', data.reason);
+			} else if (data && data.name) {
+				overlay('login', data);
+			} else if (data) {
+				overlay('rename', {
+					error: data.reason
+				});
+			} else {
+				alert('nameTaken signal');
+				$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">nameTaken signal</strong> ');
+			}
+		},
+		message: function (message) {
+			if (message.html) {
+				overlay('message', message.html);
+				return;
+			}
+			if (message.message) message = message.message;
+			overlay('message', '<div style="white-space:pre-wrap">' + message + '</div>');
+		},
+		command: function (message) {
+			if (message.room && rooms[message.room]) {
+				rooms[message.room].command(message);
+			}
+		},
+		console: function (message) {
+			var room = null;
+			if (message.room && rooms[message.room]) {
+				room = rooms[message.room];
+				if (room) room.add(message);
+				//if (room.id === 'lobby' && message.silent) room.updateMainElem();
+			} else {
+				if (curRoom) curRoom.message(message, true);
+			}
+		}
+	};
 
-		if (Config.serverprotocol === 'io') {
-			for (var e in events) {
-				socket.on(e, (function(type) {
-					return function(data) {
-						events[type](data);
-					};
-				})(e));
+	function parseSpecialData(text) {
+		var parts = text.split('|');
+		if (parts.length < 2) return false;
+
+		if (parts[1] === 'challenge-string') {
+			me.challengekeyid = parseInt(parts[2], 10);
+			me.challenge = parts[3];
+			renameMe(name);
+			return true;
+		}
+		return false;
+	}
+
+	if (Config.serverprotocol === 'io') {
+		for (var e in events) {
+			socket.on(e, (function(type) {
+				return function(data) {
+					events[type](data);
+				};
+			})(e));
+		}
+		socket.on('data', function(text) {
+			var roomid = 'lobby';
+			if (text.substr(0,1) === '>') {
+				var nlIndex = text.indexOf('\n');
+				if (nlIndex < 0) return;
+				roomid = text.substr(1,nlIndex-1);
+				text = text.substr(nlIndex+1);
 			}
-			socket.on('data', function(text) {
+			if (!parseSpecialData(text)) {
+				rooms[roomid].add(text);
+			}
+		});
+		if (!name) token = '';
+		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
+		emit(socket, 'join', {
+			name: name,
+			room: 'lobby',
+			token: token
+		});
+	} else {
+		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
+		socket.onopen = function() {
+			if (!name) token = '';
+			document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
+			emit(socket, 'join', {
+				name: name,
+				room: 'lobby',
+				token: token
+			});
+		};
+		socket.onmessage = function(msg) {
+			if (msg.data.substr(0,1) !== '{') {
+				var text = msg.data;
 				var roomid = 'lobby';
 				if (text.substr(0,1) === '>') {
 					var nlIndex = text.indexOf('\n');
@@ -3239,50 +3270,18 @@ if (!Config.down) {
 					roomid = text.substr(1,nlIndex-1);
 					text = text.substr(nlIndex+1);
 				}
-				rooms[roomid].add(text);
-				return;
-			});
-			if (!name) token = '';
-			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
-			emit(socket, 'join', {
-				name: name,
-				room: 'lobby',
-				token: token
-			});
-		} else {
-			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
-			socket.onopen = function() {
-				if (!name) token = '';
-				document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
-				emit(socket, 'join', {
-					name: name,
-					room: 'lobby',
-					token: token
-				});
-			};
-			socket.onmessage = function(msg) {
-				if (msg.data.substr(0,1) !== '{') {
-					var text = msg.data;
-					var roomid = 'lobby';
-					if (text.substr(0,1) === '>') {
-						var nlIndex = text.indexOf('\n');
-						if (nlIndex < 0) return;
-						roomid = text.substr(1,nlIndex-1);
-						text = text.substr(nlIndex+1);
-					}
-					// if (window.console && console.log) console.log('<< '+text);
+				if (!parseSpecialData(text)) {
 					rooms[roomid].add(text);
-					return;
 				}
-				var data = $.parseJSON(msg.data);
-				if (!data) return;
-				if (events[data.type]) events[data.type](data);
-			};
-			socket.onclose = function () {
-				$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
-				overlay('disconnect');
-			};
-		}
+				return;
+			}
+			var data = $.parseJSON(msg.data);
+			if (!data) return;
+			if (events[data.type]) events[data.type](data);
+		};
+		socket.onclose = function () {
+			$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
+			overlay('disconnect');
+		};
 	}
-	onConnect(Config.upkeep);
-}
+})(Config.upkeep, $.cookie('showdown_username') || '');
