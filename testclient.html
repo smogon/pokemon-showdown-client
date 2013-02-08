@@ -12,9 +12,13 @@
 		<meta id="viewport" name="viewport" content="width=640"/>
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 	<script>
-		var text = prompt("Input config data");
-		if (text[0] === ']') text = text.substr(1);
-		var Config = { upkeep: JSON.parse(text) };
+		var Config = {
+			serverid: 'showdown',
+			server: 'sim.smogon.com',
+			serverport: 8000,
+			serverprotocol: 'ws',
+			testclient: true
+		};
 	</script>
 	<!--[if lte IE 8]><script>
 		oldie = true;
@@ -83,10 +87,6 @@
 		<script src="js/ladder.js?test"></script>
 		<script src="js/sim.js?test"></script>
 
-		<script>
-			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to login server...';
-		</script>
-		
 		<script src="data/learnsets.js?test"></script>
 		
 		<script src="data/graphics.js?test"></script>
