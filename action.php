@@ -163,7 +163,6 @@ foreach ($reqs as $reqData) {
 		header('Content-type: text/plain');
 		$userid = $users->userid($reqData['userid']);
 		$servertoken = htmlspecialchars($servertoken);	// Protect against theoretical IE6 XSS
-		$challenge = htmlspecialchars($challenge);		// Protect against theoretical IE6 XSS
 		die($users->getAssertion($userid, $servertoken, null, $challengekeyid, $challenge));
 		break;
 	case 'verifysessiontoken':
