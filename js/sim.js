@@ -3031,6 +3031,10 @@ function overlaySubmit(e, overlayType) {
 	case 'testclientgetassertion':
 		var assertion = $('#overlay_assertion').val();
 		var name = $('#overlay_username').val();
+		if (name === '') {
+			// Get the userid from the assertion (assume challenge-response).
+			name = assertion.split(',')[1];
+		}
 		rooms.lobby.send('/trn ' + name + ',0,' + assertion);
 		overlayClose();
 		break;
