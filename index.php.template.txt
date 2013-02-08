@@ -54,7 +54,7 @@ if (@$PokemonServers[$server]) {
 	if (!$serverprotocol) $serverprotocol = $PokemonServers[$serverid]['protocol'];
 	$server = $PokemonServers[$serverid]['server'];
 	if ($serverport != $PokemonServers[$serverid]['port']) $serverid .= ':'.$serverport;
-	$challengeresponse = !empty($PokemonServers[$server]['challengeresponse']);
+	$challengeresponse = !empty($PokemonServers[$serverid]['challengeresponse']);
 }
 if ($localflag) $server = 'localhost';
 
@@ -62,6 +62,7 @@ if (!$server) {
 	$server = $PokemonServers[$defaultserver]['server'];
 	$serverport = $PokemonServers[$defaultserver]['port'];
 	$serverprotocol = @$PokemonServers[$defaultserver]['protocol'];
+	$challengeresponse = !empty($PokemonServers[$defaultserver]['challengeresponse']);
 	$serverid = $defaultserver;
 }
 else if (!$serverid) {
