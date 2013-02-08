@@ -2996,8 +2996,8 @@ function overlaySubmit(e, overlayType) {
 	switch (overlayType) {
 	case 'rename':
 		var name = $('#overlay_name').val();
-		renameMe(name);
 		overlayClose();
+		renameMe(name);
 		break;
 	case 'login':
 	case 'betalogin':
@@ -3242,7 +3242,11 @@ var cookieTeams = true;
 		if (parts[1] === 'challenge-string') {
 			me.challengekeyid = parseInt(parts[2], 10);
 			me.challenge = parts[3];
-			renameMe(name);
+			if (name !== '') {
+				renameMe(name);
+			} else {
+				overlay('rename');
+			}
 			return true;
 		}
 		return false;
