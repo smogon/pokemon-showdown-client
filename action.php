@@ -61,8 +61,8 @@ foreach ($reqs as $reqData) {
 		{
 			$out['sessiontoken'] = $users->getSessionToken($servertoken) . '::' . $servertoken;
 		}
-		$challengekeyid = empty($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
-		$challenge = empty($reqData['challenge']) ? '' : $reqData['challenge'];
+		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 		$out['assertion'] = $users->getAssertion($curuser['userid'], $servertoken, null,
 			$challengekeyid, $challenge);
 		break;
@@ -95,8 +95,8 @@ foreach ($reqs as $reqData) {
 		}
 		else if ($user = $users->addUser($user, $_POST['password']))
 		{
-			$challengekeyid = empty($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
-			$challenge = empty($reqData['challenge']) ? '' : $reqData['challenge'];
+			$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+			$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 			$out['curuser'] = $user;
 			$out['assertion'] = $users->getAssertion($user['userid'],
 					$servertoken, $user, $challengekeyid, $challenge);
@@ -158,8 +158,8 @@ foreach ($reqs as $reqData) {
 		if (!$servertoken || empty($reqData['userid'])) {
 			die('Bogus request.');
 		}
-		$challengekeyid = empty($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
-		$challenge = empty($reqData['challenge']) ? '' : $reqData['challenge'];
+		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 		header('Content-type: text/plain');
 		$userid = $users->userid($reqData['userid']);
 		$servertoken = htmlspecialchars($servertoken);	// Protect against theoretical IE6 XSS
