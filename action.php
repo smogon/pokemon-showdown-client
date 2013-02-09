@@ -126,7 +126,7 @@ foreach ($reqs as $reqData) {
 		}
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
-		header('Content-type: text/plain');
+		header('Content-type: text/plain; charset=utf-8');
 		if (empty($reqData['userid'])) $userid = $curuser['userid'];
 		else $userid = $users->userid($reqData['userid']);
 		$servertoken = htmlspecialchars($servertoken);	// Protect against theoretical IE6 XSS
