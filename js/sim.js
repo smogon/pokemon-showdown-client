@@ -1674,11 +1674,6 @@ function Lobby(id, elem) {
 	this.init = function (data) {
 		if (data.log) {
 			selfR.chatElem.html('');
-			if (!me.registered || me.registered.group !== '2') {
-				if (data.log.length > 100) {
-					data.log = data.log.splice(data.log.length - 100);
-				}
-			}
 			// Disable timestamps for the past log because the server doesn't
 			// tell us what time the messages were sent at.
 			var timestamps = Tools.prefs.get('timestamps');

@@ -86,8 +86,7 @@ $upkeep = array();
 $upkeep['curuser'] = array(
 	'userid' => @$curuser['userid'],
 	'username' => @$curuser['username'],
-	'loggedin' => @$curuser['loggedin'],
-	'group' => @$curuser['group']
+	'loggedin' => @$curuser['loggedin']
 );
 if (!$challengeresponse) {
 	if (empty($_COOKIE['showdown_username'])) $userid = $curuser['userid'];
