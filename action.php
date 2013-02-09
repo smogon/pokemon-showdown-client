@@ -41,10 +41,6 @@ foreach ($reqs as $reqData) {
 		'action' => @$reqData['act']
 	);
 
-	// if ($_REQUEST['debug']) {
-	// 	var_export($reqData);
-	// }
-
 	switch (@$reqData['act'])
 	{
 	case 'login':
@@ -116,33 +112,11 @@ foreach ($reqs as $reqData) {
 			$out['actionerror'] = 'Your username is already taken.';
 		}
 		break;
-	case 'checklogin':
-		// direct
-		header('Content-type: text/plain');
-		die(!!$users->getUser($reqData['userid']));
-		break;
 	case 'logout':
 		if (!$_POST) die();
 		$users->logout();
 		$out['curuser'] = $curuser;
 		$out['actionsuccess'] = true;
-		break;
-	case 'savedata':
-		if (!$_POST) die();
-		$userdata = $curuser['userdata'];
-		$userdata['psclient'] = $reqData['userdata'];
-		$out['actionsuccess'] = $users->modifyUser($curuser, array(
-			'userdata' => $userdata
-		));
-		break;
-	case 'getsessiontoken':
-		// direct
-		header('Content-type: text/plain');
-		$servertoken = getServerToken($users->getCookiePath());
-		if (!$servertoken) {
-			die('Bogus request');
-		}
-		die($users->getSessionToken($servertoken));
 		break;
 	case 'getassertion':
 		// direct
@@ -158,32 +132,11 @@ foreach ($reqs as $reqData) {
 		$servertoken = htmlspecialchars($servertoken);	// Protect against theoretical IE6 XSS
 		die($users->getAssertion($userid, $servertoken, null, $challengekeyid, $challenge));
 		break;
-	case 'verifysessiontoken':
-		// direct
-		if (!$users->getUser(@$reqData['userid']))
-		{
-			// ok
-			die('1');
-		}
-		$servertoken = getServerToken($users->getCookiePath());
-		$user = $users->verifySessionToken(@$reqData['token'], $servertoken);
-		if (!$user) die('');
-		if ($reqData['userid'] !== $user['userid']) die('');
-		$serveruserdata = array(
-			'userid' => $user['userid'],
-			'username' => $user['username'],
-			'group' => $user['group']
-	//		'userserverdata' => @$user['userdata']['psserver'][$servertoken]
-		);
-		header('Content-type: application/json');
-		die($outPrefix . json_encode($serveruserdata));
-		break;
 	case 'ladderupdate':
 		include_once 'lib/ntbb-ladder.lib.php';
 		
 		$server = @$PokemonServers[@$reqData['serverid']];
 		
-		//var_export($users->getUserData($reqData['p1']));
 		if (!$server ||
 				($users->getIp() !== gethostbyname($server['server'])) ||
 				($server['token'] && ($server['token'] !== md5($reqData['servertoken'])))) {
@@ -208,7 +161,6 @@ foreach ($reqs as $reqData) {
 		
 		$server = @$PokemonServers[@$reqData['serverid']];
 		
-		//var_export($users->getUserData($reqData['p1']));
 		if (!$server ||
 				($users->getIp() !== gethostbyname($server['server'])) ||
 				($server['token'] && ($server['token'] !== md5($reqData['servertoken'])))) {
@@ -260,7 +212,7 @@ foreach ($reqs as $reqData) {
 		header('Content-type: application/json');
 		die($outPrefix . json_encode($user['ratings']));
 		break;
-	case 'ladderformatget':
+	case 'ladderformatget':		// Currently unused.
 		include_once 'lib/ntbb-ladder.lib.php';
 
 		$server = $PokemonServers[$reqData['serverid']];
@@ -292,7 +244,7 @@ foreach ($reqs as $reqData) {
 			$out = ($user['rating']['r']+$user['rating']['rpr'])/2;
 		}
 		break;
-	case 'laddertop':
+	case 'laddertop':			// Currently unused.
 		include_once 'lib/ntbb-ladder.lib.php';
 		
 		$server = $PokemonServers[$reqData['serverid']];
