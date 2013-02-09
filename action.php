@@ -116,19 +116,6 @@ foreach ($reqs as $reqData) {
 			$out['actionerror'] = 'Your username is already taken.';
 		}
 		break;
-	case 'upkeep':
-		unset($curuser['userdata']);
-		$out['curuser'] = $curuser;
-		if (empty($reqData['name'])) $userid = $curuser['userid'];
-		else $userid = $users->userid($reqData['name']);
-
-		$servertoken = getServerToken($users->getCookiePath());
-		if (!$servertoken) {
-			die('Bogus request.'); // Will not happen with official client.
-		}
-		// The `upkeep` action does not support challenge-response authentication.
-		$out['assertion'] = $users->getAssertion($userid, $servertoken);
-		break;
 	case 'checklogin':
 		// direct
 		header('Content-type: text/plain');
