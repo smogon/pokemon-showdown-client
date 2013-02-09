@@ -41,7 +41,7 @@ RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
 RewriteRule ^~~([^/]*)/?$ /~~$1/lobby [R=301,L]
 RewriteRule ^~~([^/]*)/(teambuilder|ladder|lobby|battle)/?$ index.php?server=$1 [L,QSA]
 RewriteRule ^~~([^/]*)/(lobby|battle)-([A-Za-z0-9-]*)$ index.php?server=$1 [L,QSA]
-RewriteRule ^~~([^/]*)/action\.php$ action.php [L]
+RewriteRule ^~~([^:/]*)(:[0-9]*)?/action\.php$ action.php?serverid=$1 [L,QSA]
 
 RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]

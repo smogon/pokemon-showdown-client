@@ -13,12 +13,8 @@ include_once '../pokemonshowdown.com/lib/ntbb-session.lib.php';
 //include_once 'lib/ntbb-ladder.lib.php';
 include_once '../pokemonshowdown.com/config/servers.inc.php';
 
-function getServerToken($cookiepath) {
+function getServerHostName($serverid) {
 	global $PokemonServers;
-	if (!preg_match('/\/~~([^:]*)(:[0-9]*)?/', $cookiepath, $matches)) {
-		return NULL;
-	}
-	$serverid = $matches[1];
 	$server = @$PokemonServers[$serverid];
 	return $server ? $server['server'] : $serverid;
 }
@@ -49,22 +45,22 @@ foreach ($reqs as $reqData) {
 		unset($curuser['userdata']);
 		$out['curuser'] = $curuser;
 		$out['actionsuccess'] = !!$curuser;
-		$servertoken = getServerToken($users->getCookiePath());
-		if (!$servertoken) {
+		$serverhostname = getServerHostName(@$reqData['serverid']);
+		if (!$serverhostname) {
 			die('Bogus request.');
 		}
-		if ($curuser && $servertoken)
+		if ($curuser && $serverhostname)
 		{
-			$out['sessiontoken'] = $users->getSessionToken($servertoken) . '::' . $servertoken;
+			$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
 		}
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
-		$out['assertion'] = $users->getAssertion($curuser['userid'], $servertoken, null,
+		$out['assertion'] = $users->getAssertion($curuser['userid'], $serverhostname, null,
 			$challengekeyid, $challenge);
 		break;
 	case 'register':
-		$servertoken = getServerToken($users->getCookiePath());
-		if (!$servertoken) {
+		$serverhostname = getServerHostName(@$reqData['serverid']);
+		if (!$serverhostname) {
 			die('Bogus request.');
 		}
 		$user = array();
@@ -100,11 +96,11 @@ foreach ($reqs as $reqData) {
 			$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 			$out['curuser'] = $user;
 			$out['assertion'] = $users->getAssertion($user['userid'],
-					$servertoken, $user, $challengekeyid, $challenge);
+					$serverhostname, $user, $challengekeyid, $challenge);
 			$out['actionsuccess'] = true;
-			if ($curuser && $servertoken)
+			if ($curuser && $serverhostname)
 			{
-				$out['sessiontoken'] = $users->getSessionToken($servertoken) . '::' . $servertoken;
+				$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
 			}
 		}
 		else
@@ -120,8 +116,8 @@ foreach ($reqs as $reqData) {
 		break;
 	case 'getassertion':
 		// direct
-		$servertoken = getServerToken($users->getCookiePath());
-		if (!$servertoken) {
+		$serverhostname = getServerHostName(@$reqData['serverid']);
+		if (!$serverhostname) {
 			die('Bogus request.');
 		}
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
@@ -129,8 +125,8 @@ foreach ($reqs as $reqData) {
 		header('Content-type: text/plain; charset=utf-8');
 		if (empty($reqData['userid'])) $userid = $curuser['userid'];
 		else $userid = $users->userid($reqData['userid']);
-		$servertoken = htmlspecialchars($servertoken);	// Protect against theoretical IE6 XSS
-		die($users->getAssertion($userid, $servertoken, null, $challengekeyid, $challenge));
+		$serverhostname = htmlspecialchars($serverhostname);	// Protect against theoretical IE6 XSS
+		die($users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge));
 		break;
 	case 'ladderupdate':
 		include_once 'lib/ntbb-ladder.lib.php';
@@ -139,7 +135,7 @@ foreach ($reqs as $reqData) {
 		
 		if (!$server ||
 				($users->getIp() !== gethostbyname($server['server'])) ||
-				($server['token'] && ($server['token'] !== md5($reqData['servertoken'])))) {
+				(!empty($server['token']) && ($server['token'] !== md5($reqData['servertoken'])))) {
 			$out = 0;
 			break;
 		}
@@ -163,7 +159,7 @@ foreach ($reqs as $reqData) {
 		
 		if (!$server ||
 				($users->getIp() !== gethostbyname($server['server'])) ||
-				($server['token'] && ($server['token'] !== md5($reqData['servertoken'])))) {
+				(!empty($server['token']) && ($server['token'] !== md5($reqData['servertoken'])))) {
 			$out = 0;
 			break;
 		}
