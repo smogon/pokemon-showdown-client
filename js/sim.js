@@ -1211,7 +1211,7 @@ function Lobby(id, elem) {
 		case 'ladder':
 			if (!target) target = me.userid;
 			var self = this;
-			$.get(actionphp + '?act=ladderget&serverid='+Config.serverid+'&user='+target, Tools.safeJson(function(data) {
+			$.get(actionphp + '?act=ladderget&serverid='+Config.serverid.split(':')[0]+'&user='+target, Tools.safeJson(function(data) {
 				try {
 					var buffer = '<div class="ladder"><table>';
 					buffer += '<tr><td colspan="7">User: <strong>'+target+'</strong></td></tr>';
