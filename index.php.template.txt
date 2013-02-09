@@ -83,12 +83,15 @@ $serverlibs = array(
 $serverlibrary = $serverlibs[$serverprotocol];
 
 $upkeep = array();
-unset($curuser['userdata']);
-$upkeep['curuser'] = $curuser;
-if (empty($_COOKIE['showdown_username'])) $userid = $curuser['userid'];
-else $userid = $users->userid($_COOKIE['showdown_username']);
-
+$upkeep['curuser'] = array(
+	'userid' => @$curuser['userid'],
+	'username' => @$curuser['username'],
+	'loggedin' => @$curuser['loggedin'],
+	'group' => @$curuser['group']
+);
 if (!$challengeresponse) {
+	if (empty($_COOKIE['showdown_username'])) $userid = $curuser['userid'];
+	else $userid = $users->userid($_COOKIE['showdown_username']);
 	$upkeep['assertion'] = $users->getAssertion($userid, $server);
 }
 
