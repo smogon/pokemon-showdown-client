@@ -73,9 +73,14 @@ foreach ($reqs as $reqData) {
 		}
 		$user = array();
 		$user['username'] = @$_POST['username'];
-		if (strlen($users->userid($user['username'])) < 1)
+		$userid = $users->userid($user['username']);
+		if (strlen($userid) < 1)
 		{
 			$out['actionerror'] = 'Your username must contain at least one letter or number.';
+		}
+		else if (substr($userid, 0, 5) === 'guest')
+		{
+			$out['actionerror'] = 'Your username cannot start with \'guest\'.';
 		}
 		else if (strlen($user['username']) > 64)
 		{
