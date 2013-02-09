@@ -212,22 +212,6 @@ foreach ($reqs as $reqData) {
 		header('Content-type: application/json');
 		die($outPrefix . json_encode($user['ratings']));
 		break;
-	case 'ladderformatget':		// Currently unused.
-		include_once 'lib/ntbb-ladder.lib.php';
-
-		$server = $PokemonServers[$reqData['serverid']];
-		if (!$server) die('');
-
-		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
-		$user = $users->getUserData($reqData['user']);
-		$ladder->getRating($user);
-		if (!@$user['rating']) die();
-		unset($user['rating']['serverid']);
-		unset($user['rating']['formatid']);
-		unset($user['rating']['rpdata']);
-		header('Content-type: application/json');
-		die($outPrefix . json_encode($user['rating']));
-		break;
 	case 'ladderformatgetmmr':
 	case 'mmr':
 		include_once 'lib/ntbb-ladder.lib.php';
@@ -243,19 +227,6 @@ foreach ($reqs as $reqData) {
 		} else {
 			$out = ($user['rating']['r']+$user['rating']['rpr'])/2;
 		}
-		break;
-	case 'laddertop':			// Currently unused.
-		include_once 'lib/ntbb-ladder.lib.php';
-		
-		$server = $PokemonServers[$reqData['serverid']];
-		
-		if (!$server)
-		{
-			die('');
-		}
-		
-		$ladder = new NTBBLadder($server['id'], $reqData['format']);
-		$out = $ladder->getTop();
 		break;
 	case 'logcachedindex':
 		$logfile = '../pokemonshowdown.com/config/cachelog';
