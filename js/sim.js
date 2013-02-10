@@ -1039,7 +1039,7 @@ function Lobby(id, elem) {
 		if (e.keyCode === 13) {
 			var text;
 			if ((text = selfR.popupChatboxElem.val())) {
-				selfR.chatHistory.push
+				selfR.chatHistory.push(text);
 				text = selfR.parseCommand(text);
 				if (text) {
 					var splitText = text.split('\n');
