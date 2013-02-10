@@ -874,9 +874,9 @@ function BattleRoom(id, elem) {
 		if (e.keyCode === 13) {
 			if (selfR.chatboxElem.val()) {
 				var text = selfR.chatboxElem.val();
+				rooms.lobby.chatHistory.push(text);
 				text = rooms.lobby.parseCommand(text);
 				if (text) {
-					rooms.lobby.chatHistory.push(text);
 					selfR.send(text);
 				}
 				selfR.chatboxElem.val('');
@@ -965,14 +965,14 @@ function Lobby(id, elem) {
 	};
 	this.chatHistory = (function() {
 		var self = {
-			sentences: [],
+			lines: [],
 			index: 0,
 			push: function(line) {
-				if (self.sentences.length > 100) {
-					self.sentences.splice(0, 20);
+				if (self.lines.length > 100) {
+					self.lines.splice(0, 20);
 				}
-				self.sentences.push(line);
-				self.index = self.sentences.length;
+				self.lines.push(line);
+				self.index = self.lines.length;
 			}
 		};
 		return self;
@@ -1039,9 +1039,9 @@ function Lobby(id, elem) {
 		if (e.keyCode === 13) {
 			var text;
 			if ((text = selfR.popupChatboxElem.val())) {
+				selfR.chatHistory.push
 				text = selfR.parseCommand(text);
 				if (text) {
-					selfR.chatHistory.push(text);
 					var splitText = text.split('\n');
 					for (var i=0, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = '/msg ' + me.curPopup + ', ' + splitText[i];
 					selfR.send(splitText.join('\n'));
@@ -2039,9 +2039,9 @@ function Lobby(id, elem) {
 		if (e.keyCode === 13) {			// Enter
 			var text;
 			if ((text = selfR.chatboxElem.val())) {
+				selfR.chatHistory.push(text);
 				text = selfR.parseCommand(text);
 				if (text) {
-					selfR.chatHistory.push(text);
 					selfR.send(text);
 				}
 				selfR.chatboxElem.val('');
@@ -2122,34 +2122,34 @@ function Lobby(id, elem) {
 			e.preventDefault();
 			if (selfR.chatHistory.index > 0) {
 				var line = chatbox.val();
-				if (selfR.chatHistory.index === selfR.chatHistory.sentences.length) {
+				if (selfR.chatHistory.index === selfR.chatHistory.lines.length) {
 					if (line !== '') {
 						selfR.chatHistory.push(line);
 						--selfR.chatHistory.index;
 					}
 				} else {
-					selfR.chatHistory.sentences[selfR.chatHistory.index] = line;
+					selfR.chatHistory.lines[selfR.chatHistory.index] = line;
 				}
-				chatbox.val(selfR.chatHistory.sentences[--selfR.chatHistory.index]);
+				chatbox.val(selfR.chatHistory.lines[--selfR.chatHistory.index]);
 			}
 			return true;
 
 		case 40:	// Down key
 			e.preventDefault();
 
-			if (selfR.chatHistory.index === selfR.chatHistory.sentences.length) {
+			if (selfR.chatHistory.index === selfR.chatHistory.lines.length) {
 				var line = chatbox.val();
 				if (line !== '') {
 					selfR.chatHistory.push(line);
 					chatbox.val('');
 				}
-			} else if (selfR.chatHistory.index === selfR.chatHistory.sentences.length - 1) {
-				selfR.chatHistory.sentences[selfR.chatHistory.index] = chatbox.val();
+			} else if (selfR.chatHistory.index === selfR.chatHistory.lines.length - 1) {
+				selfR.chatHistory.lines[selfR.chatHistory.index] = chatbox.val();
 				chatbox.val('');
 				++selfR.chatHistory.index;
 			} else {
-				selfR.chatHistory.sentences[selfR.chatHistory.index] = chatbox.val();
-				chatbox.val(selfR.chatHistory.sentences[++selfR.chatHistory.index]);
+				selfR.chatHistory.lines[selfR.chatHistory.index] = chatbox.val();
+				chatbox.val(selfR.chatHistory.lines[++selfR.chatHistory.index]);
 			}
 			return true;
 		}
