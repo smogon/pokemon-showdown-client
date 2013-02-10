@@ -55,7 +55,7 @@ function Ladder(id, elem)
 		} else {
 			this.ladderElem.html('<p><button onclick="rooms[\''+selfR.id+'\'].formSelectFormat(\'\')"><i class="icon-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p>');
 			var format = selfR.activeFormat;
-			$.get('/ladder.php?format='+format+'&server='+Config.serverid+'&output=html', function(data){
+			$.get('/ladder.php?format='+format+'&server='+Config.serverid.split(':')[0]+'&output=html', function(data){
 				if (selfR.activeFormat !== format) return;
 				var text = '<p><button onclick="rooms[\''+selfR.id+'\'].formSelectFormat(\'\')"><i class="icon-chevron-left"></i> Format List</button></p>';
 				text += '<h3>'+format+' Top 100</h3>';
