@@ -109,8 +109,15 @@ foreach ($reqs as $reqData) {
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 		header('Content-type: text/plain; charset=utf-8');
-		if (empty($reqData['userid'])) $userid = $curuser['userid'];
-		else $userid = $users->userid($reqData['userid']);
+		if (empty($reqData['userid'])) {
+			$userid = $curuser['userid'];
+			if ($userid === 'guest') {
+				// Special error message for this case.
+				die(';');
+			}
+		} else {
+			$userid = $users->userid($reqData['userid']);
+		}
 		$serverhostname = htmlspecialchars($serverhostname);	// Protect against theoretical IE6 XSS
 		die($users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge));
 		break;
