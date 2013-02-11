@@ -37,8 +37,7 @@ foreach ($reqs as $reqData) {
 		'action' => @$reqData['act']
 	);
 
-	switch (@$reqData['act'])
-	{
+	switch (@$reqData['act']) {
 	case 'login':
 		if (!$_POST) die();
 		$users->login($reqData['name'], $reqData['pass']);
@@ -49,8 +48,7 @@ foreach ($reqs as $reqData) {
 		if (!$serverhostname) {
 			die('Bogus request.');
 		}
-		if ($curuser && $serverhostname)
-		{
+		if ($curuser && $serverhostname) {
 			$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
 		}
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
@@ -66,53 +64,33 @@ foreach ($reqs as $reqData) {
 		$user = array();
 		$user['username'] = @$_POST['username'];
 		$userid = $users->userid($user['username']);
-		if (strlen($userid) < 1)
-		{
+		if (strlen($userid) < 1) {
 			$out['actionerror'] = 'Your username must contain at least one letter or number.';
-		}
-		else if (substr($userid, 0, 5) === 'guest')
-		{
+		} else if (substr($userid, 0, 5) === 'guest') {
 			$out['actionerror'] = 'Your username cannot start with \'guest\'.';
-		}
-		else if (strlen($user['username']) > 64)
-		{
+		} else if (strlen($user['username']) > 64) {
 			$out['actionerror'] = 'Your username must be less than 64 characters long.';
-		}
-		else if (strlen(@$_POST['password']) < 5)
-		{
+		} else if (strlen(@$_POST['password']) < 5) {
 			$out['actionerror'] = 'Your password must be at least 5 characters long.';
-		}
-		else if (@$_POST['password'] !== @$_POST['cpassword'])
-		{
+		} else if (@$_POST['password'] !== @$_POST['cpassword']) {
 			$out['actionerror'] = 'Your passwords do not match.';
-		}
-		else if (trim(strtolower(@$_POST['captcha'])) !== 'pikachu')
-		{
+		} else if (trim(strtolower(@$_POST['captcha'])) !== 'pikachu') {
 			$out['actionerror'] = 'Please answer the anti-spam question given.';
-		}
-		else if (($lastregistration = $users->getLastRegistration()) === false)
-		{
+		} else if (($lastregistration = $users->getLastRegistration()) === false) {
 			$out['actionerror'] = 'A database error occurred. Please try again.';
-		}
-		else if ($lastregistration && (time() - $lastregistration < 60 * 60 * 24))
-		{
+		} else if ($lastregistration && (time() - $lastregistration < 60 * 60 * 24)) {
 			$out['actionerror'] = 'You can\'t register more than one username per day. Try again in a day.';
-		}
-		else if ($user = $users->addUser($user, $_POST['password']))
-		{
+		} else if ($user = $users->addUser($user, $_POST['password'])) {
 			$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 			$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 			$out['curuser'] = $user;
 			$out['assertion'] = $users->getAssertion($user['userid'],
 					$serverhostname, $user, $challengekeyid, $challenge);
 			$out['actionsuccess'] = true;
-			if ($curuser && $serverhostname)
-			{
+			if ($curuser && $serverhostname) {
 				$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
 			}
-		}
-		else
-		{
+		} else {
 			$out['actionerror'] = 'Your username is already taken.';
 		}
 		break;
