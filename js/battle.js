@@ -1594,7 +1594,11 @@ function Battle(frame, logFrame, noPreload) {
 				pokemon.copyVolatileFrom(selfS.lastPokemon);
 			}
 
-			self.message('' + sanitize(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
+			if (pokemon.side.n === 0) {
+				self.message('Go! ' + pokemon.getName() + '!');
+			} else {
+				self.message('' + sanitize(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
+			}
 
 			pokemon.sprite.animSummon(slot);
 			if (pokemon.hasVolatile('substitute')) {
@@ -1756,7 +1760,15 @@ function Battle(frame, logFrame, noPreload) {
 				pokemon.removeVolatile('transform');
 				pokemon.removeVolatile('formechange');
 			}
-			self.message('' + sanitize(pokemon.side.name) + ' called ' + sanitize(pokemon.name) + ' back!');
+			if (pokemon.lastmove === 'uturn' || pokemon.lastmove === 'voltswitch') {
+				self.message('' + pokemon.getName() + ' went back to ' + sanitize(pokemon.side.name) + '!');
+			} else if (pokemon.lastmove !== 'batonpass') {
+				if (pokemon.side.n === 0) {
+					self.message('' + pokemon.getName() + ', come back!');
+				} else {
+					self.message('' + sanitize(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
+				}
+			}
 			selfS.lastPokemon = pokemon;
 			selfS.active[slot] = null;
 
