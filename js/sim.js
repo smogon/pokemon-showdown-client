@@ -1260,6 +1260,15 @@ function Lobby(id, elem) {
 			if (reason === false) reason = '';
 			rooms.lobby.send('/kick ' + target + ', ' + reason);
 			return false;
+
+		case 'avatar':
+			var parts = target.split(',');
+			var avatar = parseInt(parts[0], 10);
+			if (avatar) {
+				Tools.prefs.set('avatar', avatar, true);
+			}
+			return text; // Send the /avatar command through to the server.
+
 		}
 
 		return text;
@@ -1683,6 +1692,13 @@ function Lobby(id, elem) {
 		selfR.update(data);
 		selfR.chatFrameElem.scrollTop(selfR.chatElem.height());
 		selfR.updateMe();
+		// Preferred avatar feature
+		var avatar = Tools.prefs.get('avatar');
+		if (avatar) {
+			// This will be compatible even with servers that don't support
+			// the second argument for /avatar yet.
+			selfR.send('/avatar ' + avatar + ',1');
+		}
 	};
 	this.update = function (data) {
 		if (data.logUpdate) {
