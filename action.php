@@ -68,8 +68,8 @@ foreach ($reqs as $reqData) {
 			$out['actionerror'] = 'Your username must contain at least one letter or number.';
 		} else if (substr($userid, 0, 5) === 'guest') {
 			$out['actionerror'] = 'Your username cannot start with \'guest\'.';
-		} else if (strlen($user['username']) > 64) {
-			$out['actionerror'] = 'Your username must be less than 64 characters long.';
+		} else if (strlen($user['username']) > 18) {
+			$out['actionerror'] = 'Your username must be less than 19 characters long.';
 		} else if (strlen(@$_POST['password']) < 5) {
 			$out['actionerror'] = 'Your password must be at least 5 characters long.';
 		} else if (@$_POST['password'] !== @$_POST['cpassword']) {
