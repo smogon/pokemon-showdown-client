@@ -2982,6 +2982,8 @@ function renameMe(name) {
 		$.get(query, function(data) {
 			if (data === ';') {
 				overlay('login', {name: name});
+			} else if (data.substr(0, 2) === ';;') {
+				overlay('rename', {error: data.substr(2)});
 			} else if (data.indexOf('\n') >= 0) {
 				alert("The login server is overloaded. Please try again later.");
 			} else {
