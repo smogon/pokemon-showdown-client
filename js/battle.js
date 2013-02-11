@@ -3717,6 +3717,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'guardsplit':
 					actions += '' + poke.getName() + ' shared its guard with the target!';
 					break;
+				case 'ingrain':
+					actions += '' + poke.getName() + ' anchored itself with its roots!';
+					break;
 
 				// ability activations
 				case 'sturdy':
@@ -3747,6 +3750,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'telepathy':
 					actions += "" + poke.getName() + " avoids attacks by its ally Pok&#xE9;mon!";
+					break;
+				case 'suctioncups':
+					actions += '' + poke.getName() + ' anchors itself!';
 					break;
 				
 				// item activations
