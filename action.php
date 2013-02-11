@@ -39,7 +39,7 @@ foreach ($reqs as $reqData) {
 
 	switch (@$reqData['act']) {
 	case 'login':
-		if (!$_POST) die();
+		if (!$_POST || empty($reqData['name']) || empty($reqData['pass'])) die();
 		$users->login($reqData['name'], $reqData['pass']);
 		unset($curuser['userdata']);
 		$out['curuser'] = $curuser;
