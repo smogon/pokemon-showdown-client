@@ -90,6 +90,14 @@ foreach ($reqs as $reqData) {
 		{
 			$out['actionerror'] = 'Please answer the anti-spam question given.';
 		}
+		else if (($lastregistration = $users->getLastRegistration()) === false)
+		{
+			$out['actionerror'] = 'A database error occurred. Please try again.';
+		}
+		else if ($lastregistration && (time() - $lastregistration < 60 * 60 * 24))
+		{
+			$out['actionerror'] = 'You can\'t register more than one username per day. Try again in a day.';
+		}
 		else if ($user = $users->addUser($user, $_POST['password']))
 		{
 			$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
