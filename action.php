@@ -76,10 +76,10 @@ foreach ($reqs as $reqData) {
 			$out['actionerror'] = 'Your passwords do not match.';
 		} else if (trim(strtolower(@$_POST['captcha'])) !== 'pikachu') {
 			$out['actionerror'] = 'Please answer the anti-spam question given.';
-		} else if (($lastregistration = $users->getLastRegistration()) === false) {
+		} else if (($registrationcount = $users->getRecentRegistrationCount()) === false) {
 			$out['actionerror'] = 'A database error occurred. Please try again.';
-		} else if ($lastregistration && (time() - $lastregistration < 60 * 60 * 24)) {
-			$out['actionerror'] = 'You can\'t register more than one username per day. Try again in a day.';
+		} else if ($registrationcount >= 2) {
+			$out['actionerror'] = 'You can\'t register more than two usernames every two hours. Try again later.';
 		} else if ($user = $users->addUser($user, $_POST['password'])) {
 			$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 			$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
