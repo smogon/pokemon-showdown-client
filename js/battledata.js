@@ -304,7 +304,7 @@ var Tools = {
 			// For now, allow all URIs.
 			// Later we may filter out most URIs, except those on a whitelist.
 			return uri;
-		}
+		};
 		var tagPolicy = function(tagName, attribs) {
 			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
 				return undefined;
