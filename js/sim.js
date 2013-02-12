@@ -3282,11 +3282,13 @@ var cookieTeams = true;
 		var parts = text.split('|');
 		if (parts.length < 2) return false;
 
-		if (parts[1] === 'challenge-string') {
-			me.challengekeyid = parseInt(parts[2], 10);
-			me.challenge = parts[3];
-			renameMe(name);
-			return true;
+		switch (parts[1]) {
+			case 'challenge-string':
+			case 'challstr':
+				me.challengekeyid = parseInt(parts[2], 10);
+				me.challenge = parts[3];
+				renameMe(name);
+				return true;
 		}
 		return false;
 	}
