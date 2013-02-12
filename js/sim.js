@@ -268,7 +268,7 @@ function BattleRoom(id, elem) {
 		} else if (message.rawMessage) {
 			// This is sanitised in battle.js.
 			selfR.add('|chatmsg-raw|' + message.rawMessage);
-		} else if (message.evalRulesRedirect) {
+		} else if (message.evalRulesRedirect || message.evalRawMessage) {
 			// TODO: This will be removed in due course.
 			window.location.href = 'http://pokemonshowdown.com/rules';
 		} else if (message.name) {
@@ -1592,7 +1592,7 @@ function Lobby(id, elem) {
 			} else if (log[i].rawMessage) {
 				// TODO: Sanitise for safe URIs only, after we bring in the safe URI list.
 				selfR.chatElem.append('<div class="message">' + html_sanitize(log[i].rawMessage, function(uri) { return uri; }) + '</div>');
-			} else if (log[i].evalRulesRedirect) {
+			} else if (log[i].evalRulesRedirect || message.evalRawMessage) {
 				// TODO: This will be removed in due course.
 				window.location.href = 'http://pokemonshowdown.com/rules';
 			} else if (log[i].name && (log[i].action === 'join' || log[i].action === 'leave' || log[i].action === 'rename')) {
