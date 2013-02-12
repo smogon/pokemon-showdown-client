@@ -4322,7 +4322,7 @@ function Battle(frame, logFrame, noPreload) {
 			if (m) {
 				// This is a temporary hack so that this keeps working for old servers.
 				// This check can be removed later.
-				self.log('<div class="chat">' + list + '</div>');
+				self.log('<div class="chat">' + m[0] + '</div>');
 			} else {
 				// TODO: Sanitise for safe URIs only, after we bring in the safe URI list.
 				self.log('<div class="chat">' + html_sanitize(list, function(uri) { return uri; }) + '</div>', preempt);
