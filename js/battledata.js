@@ -313,7 +313,7 @@ var Tools = {
 			// html.sanitizeAttribs is not very customisable, so this a bit ugly.
 			var blankIdx = undefined;
 			if (tagName === 'a') {
-				for (var i = 0; i < attribs.length; ++i) {
+				for (var i = 0; i < attribs.length - 1; ++i) {
 					if ((attribs[i] === 'target') && (attribs[i + 1] === '_blank')) {
 						blankIdx = i + 1;
 						break;
