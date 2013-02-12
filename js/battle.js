@@ -4318,11 +4318,21 @@ function Battle(frame, logFrame, noPreload) {
 		case 'raw':
 			args.shift();
 			list = args.join('|');
-			// TODO: Sanitise for safe URIs only, after we bring in the safe URI list.
-			self.log('<div class="chat">' + html_sanitize(list, function(uri) { return uri; }) + '</div>', preempt);
+			var m = /<div style="background-color:#6688AA;color:white;padding:2px 4px"><b>Register an account to protect your ladder rating!<\/b><br \/><button onclick="overlay\('register',{ifuserid:'[a-z0-9]*'}\);return false"><b>Register<\/b><\/button><\/div>/.exec(list);
+			if (m) {
+				// This is a temporary hack so that this keeps working for old servers.
+				// This check can be removed later.
+				self.log('<div class="chat">' + list + '</div>');
+			} else {
+				// TODO: Sanitise for safe URIs only, after we bring in the safe URI list.
+				self.log('<div class="chat">' + html_sanitize(list, function(uri) { return uri; }) + '</div>', preempt);
+			}
 			break;
 		case 'pm':
 			self.log('<div class="chat"><strong>' + sanitize(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + args[2] + '\')">(Private to ' + sanitize(args[3]) + ')</i> ' + messageSanitize(args[4]) + '</span>');
+			break;
+		case 'askreg':
+			self.log('<div class="message-register-account"><b>Register an account to protect your ladder rating!</b><br /><button onclick="overlay(\'register\',{ifuserid:\''+args[1]+'\'});return false"><b>Register</b></button></div>');
 			break;
 		case 'inactive':
 			self.kickingInactive = true;
