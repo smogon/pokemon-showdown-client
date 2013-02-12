@@ -312,17 +312,36 @@ var Tools = {
 			// In addition to the normal whitelist, allow target='_blank'.
 			// html.sanitizeAttribs is not very customisable, so this a bit ugly.
 			var blankIdx = undefined;
+			var extra = [];
 			if (tagName === 'a') {
-				for (var i = 0; i < attribs.length - 1; ++i) {
-					if ((attribs[i] === 'target') && (attribs[i + 1] === '_blank')) {
-						blankIdx = i + 1;
-						break;
+				for (var i = 0; i < attribs.length - 1; i += 2) {
+					switch (attribs[i]) {
+						case 'target':
+							if (attribs[i + 1] === '_blank') {
+								blankIdx = i + 1;
+							}
+							break;
+						case 'room':
+							// Special custom attribute for linking to a room.
+							// This attribute will be stripped by `sanitizeAttribs`
+							// below, and is only used to signal to add an `onclick`
+							// handler here.
+							if (!(/^[a-z0-9\-]*$/.test(attribs[i + 1]))) {
+								// Bogus roomid - could be used to inject JavaScript.
+								break;
+							}
+							extra.push('onclick');
+							extra.push('return selectTab(\'' + attribs[i + 1] + '\');');
+							break;
 					}
 				}
 			}
 			attribs = html.sanitizeAttribs(tagName, attribs, uriRewriter);
 			if (blankIdx !== undefined) {
 				attribs[blankIdx] = '_blank';
+			}
+			if (extra.length > 0) {
+				attribs = attribs.concat(extra);
 			}
 			return {attribs: attribs};
 		};
