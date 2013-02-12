@@ -1814,7 +1814,7 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 	color: white;
 	padding: 2px 4px;
 }
-.message-modchat-disable
+.message-modchat-disable,
 .message-endlockdown,
 .message-register-account
 {
