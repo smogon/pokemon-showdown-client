@@ -266,6 +266,10 @@ button.closebutton i
 	font-size: 9pt;
 	background: #EEEEEE;
 }
+.ladder span
+{
+	color: gray;
+}
 #tab-teambuilder textarea.teamedit
 {
 	position: absolute;
@@ -1746,4 +1750,98 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 	border-radius: 6px;
 	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
 	overflow-y: scroll;
+}
+
+/** Various kinds of messages injected into the chat by commands **/
+
+.message-server-crash,
+.message-modchat-enable,
+.message-disable-ladder
+{
+	background: #BB6655;
+	color: white;
+	padding: 2px 4px;
+}
+.message-modchat-group
+{
+	background: #AA6655;
+	color: white;
+	padding: 2px 4px;
+}
+.message-declare
+{
+	background: #7067AB;
+	color: white;
+	padding: 2px 4px;
+}
+.message-announce
+{
+	background: #6688AA;
+	color: white;
+	padding: 1px 4px 2px;
+}
+.message-announce a,
+.message-declare a
+{
+	/* Readable link colour */
+	color: white;
+}
+.message-enableladder,
+.message-crashfixed,
+.message-crashnoted
+{
+	background-color: #559955;
+	color: white;
+	padding: 2px 4px;
+}
+.message-groups,
+.message-avatars,
+.message-opensource,
+.message-intro,
+.message-calc,
+.message-cap,
+.message-othermetas,
+.message-rules,
+.message-faq,
+.message-tiers
+{
+	border: 1px solid #6688AA;
+	padding: 2px 4px;
+}
+.message-lockdown
+{
+	background-color: #AA5544;
+	color: white;
+	padding: 2px 4px;
+}
+.message-modchat-disable
+.message-endlockdown,
+.message-register-account
+{
+	background-color: #6688AA;
+	color: white;
+	padding: 2px 4px;
+}
+.message-learn-canlearn
+{
+	color: #228822;
+	text-decoration: underline;
+}
+.message-learn-cannotlearn
+{
+	color: #CC2222;
+	text-decoration: underline;
+}
+.message-learn-list
+{
+	margin-top: 0;
+	margin-bottom: 0;
+}
+.message-throttle-notice
+{
+	color: red;
+}
+.message-pm
+{
+	color: #007100;
 }

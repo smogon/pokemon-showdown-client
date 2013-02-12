@@ -264,11 +264,13 @@ function BattleRoom(id, elem) {
 		if (message.pm) {
 			var pmuserid = (toUserid(message.name) === me.userid ? toUserid(message.pm) : toUserid(message.name))
 			if (me.ignore[toUserid(message.name)] && message.name.substr(0, 1) === ' ') return;
-			selfR.add('|chatmsg-raw|' + '<div class="chat"><strong>' + sanitize(message.name.substr(1)) + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(message.pm) + ')</i> ' + messageSanitize(message.message) + '</em>');
+			selfR.add('|pm|' + message.name.substr(1) + '|' + pmuserid + '|' + message.pm + '|' + message.message);
 		} else if (message.rawMessage) {
+			// This is sanitised in battle.js.
 			selfR.add('|chatmsg-raw|' + message.rawMessage);
-		} else if (message.evalRawMessage) {
-			selfR.add('|chatmsg-raw|' + eval(message.evalRawMessage));
+		} else if (message.evalRulesRedirect) {
+			// TODO: This will be removed in due course.
+			window.location.href = 'http://pokemonshowdown.com/rules';
 		} else if (message.name) {
 			selfR.add('|chat|' + message.name.substr(1) + '|' + message.message);
 		} else if (message.message) {
@@ -1222,7 +1224,7 @@ function Lobby(id, elem) {
 							var row = data[i];
 							buffer += '<tr><td>'+row.formatid+'</td><td><strong>'+Math.round(row.acre)+'</strong></td><td>'+Math.round(row.gxe,1)+'</td><td>';
 							if (row.rprd > 50) {
-								buffer += '<span style="color:gray"><em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em> <small>(provisional)</small></span>';
+								buffer += '<span><em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em> <small>(provisional)</small></span>';
 							} else {
 								buffer += '<em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em>';
 							}
@@ -1536,7 +1538,7 @@ function Lobby(id, elem) {
 					} else {
 						selfR.updatePopup();
 					}
-					selfR.chatElem.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="color:#007100"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</em></div>');
+					selfR.chatElem.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</span></div>');
 				//} else if (log[i].act) {
 				//	selfR.chatElem.append('<div class="chat"><strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + message + '</i></em></div>');
 				} else if (message.substr(0,2) === '//') {
@@ -1546,7 +1548,7 @@ function Lobby(id, elem) {
 				} else if (message.substr(0,5).toLowerCase() === '/mee ') {
 					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
 				} else if (message.substr(0,10).toLowerCase() === '/announce ') {
-					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em style="padding:1px 4px 2px;color:white;background:#6688AA">' + messageSanitize(message.substr(10)) + '</em></div>');
+					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + messageSanitize(message.substr(10)) + '</span></div>');
 				} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -1588,9 +1590,11 @@ function Lobby(id, elem) {
 			} else if (log[i].message) {
 				selfR.chatElem.append('<div class="message">' + sanitize(log[i].message) + '</div>');
 			} else if (log[i].rawMessage) {
-				selfR.chatElem.append('<div class="message">' + log[i].rawMessage + '</div>');
-			} else if (log[i].evalRawMessage) {
-				selfR.chatElem.append('<div class="message">' + eval(log[i].evalRawMessage) + '</div>');
+				// TODO: Sanitise for safe URIs only, after we bring in the safe URI list.
+				selfR.chatElem.append('<div class="message">' + html_sanitize(log[i].rawMessage, function(uri) { return uri; }) + '</div>');
+			} else if (log[i].evalRulesRedirect) {
+				// TODO: This will be removed in due course.
+				window.location.href = 'http://pokemonshowdown.com/rules';
 			} else if (log[i].name && (log[i].action === 'join' || log[i].action === 'leave' || log[i].action === 'rename')) {
 				var userid = toUserid(log[i].name);
 				if (log[i].action === 'join') {
