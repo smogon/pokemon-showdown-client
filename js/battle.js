@@ -4318,7 +4318,11 @@ function Battle(frame, logFrame, noPreload) {
 		case 'raw':
 			args.shift();
 			list = args.join('|');
-			self.log('<div class="chat">' + list + '</div>', preempt);
+			// TODO: Sanitise for safe URIs only, after we bring in the safe URI list.
+			self.log('<div class="chat">' + html_sanitize(list, function(uri) { return uri; }) + '</div>', preempt);
+			break;
+		case 'pm':
+			self.log('<div class="chat"><strong>' + sanitize(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + args[2] + '\')">(Private to ' + sanitize(args[3]) + ')</i> ' + messageSanitize(args[4]) + '</span>');
 			break;
 		case 'inactive':
 			self.kickingInactive = true;
