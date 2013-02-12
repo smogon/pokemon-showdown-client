@@ -299,6 +299,38 @@ var basespecieschart = {
 
 var Tools = {
 
+	htmlSanitize: (function() {
+		var uriRewriter = function(uri) {
+			// For now, allow all URIs.
+			// Later we may filter out most URIs, except those on a whitelist.
+			return uri;
+		}
+		var tagPolicy = function(tagName, attribs) {
+			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
+				return undefined;
+			}
+			// In addition to the normal whitelist, allow target='_blank'.
+			// html.sanitizeAttribs is not very customisable, so this a bit ugly.
+			var blankIdx = undefined;
+			if (tagName === 'a') {
+				for (var i = 0; i < attribs.length; ++i) {
+					if ((attribs[i] === 'target') && (attribs[i + 1] === '_blank')) {
+						blankIdx = i + 1;
+						break;
+					}
+				}
+			}
+			attribs = html.sanitizeAttribs(tagName, attribs, uriRewriter);
+			if (blankIdx !== undefined) {
+				attribs[blankIdx] = '_blank';
+			}
+			return {attribs: attribs};
+		};
+		return function(input) {
+			return html.sanitizeWithPolicy(input, tagPolicy);
+		};
+	})(),
+
 	safeJson: function(f) {
 		return function(data) {
 			if (data.length < 1) return;

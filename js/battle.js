@@ -4325,7 +4325,7 @@ function Battle(frame, logFrame, noPreload) {
 				self.log('<div class="chat">' + m[0] + '</div>');
 			} else {
 				// TODO: Sanitise for safe URIs only, after we bring in the safe URI list.
-				self.log('<div class="chat">' + html_sanitize(list, function(uri) { return uri; }) + '</div>', preempt);
+				self.log('<div class="chat">' + Tools.htmlSanitize(list) + '</div>', preempt);
 			}
 			break;
 		case 'pm':

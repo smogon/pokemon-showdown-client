@@ -1595,8 +1595,7 @@ function Lobby(id, elem) {
 				if (log[i].rawMessage === '<div style="background-color:#6688AA;color:white;padding:2px 4px"><b>Register an account to protect your ladder rating!</b><br /><button onclick="overlay(\'register\',{ifuserid:\''+me.userid+'\'});return false"><b>Register</b></button></div>') {
 					selfR.chatElem.append('<div class="message">' + log[i].rawMessage + '</div>');
 				} else {
-					// TODO: Sanitise for safe URIs only, after we bring in the safe URI list.
-					selfR.chatElem.append('<div class="message">' + html_sanitize(log[i].rawMessage, function(uri) { return uri; }) + '</div>');
+					selfR.chatElem.append('<div class="message">' + Tools.htmlSanitize(log[i].rawMessage) + '</div>');
 				}
 			} else if (log[i].evalRulesRedirect || log[i].evalRawMessage) {
 				// TODO: This will be removed in due course.
