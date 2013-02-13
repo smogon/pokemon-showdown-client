@@ -2082,8 +2082,9 @@ function Lobby(id, elem) {
 		var chatbox = $(e.delegateTarget);
 		switch (e.keyCode) {
 		case 9:		// Tab key
-			// Don't tab complete if the shift key is held down.
+			// don't do anything if a modifier is pressed
 			if (e.shiftKey) return true;
+			if (e.ctrlKey) return true;
 
 			// We don't want to tab away from this box.
 			e.preventDefault();
@@ -2146,6 +2147,10 @@ function Lobby(id, elem) {
 			return true;
 
 		case 38:	// Up key
+			// don't do anything if a modifier is pressed
+			if (e.shiftKey) return true;
+			if (e.ctrlKey) return true;
+
 			e.preventDefault();
 			if (selfR.chatHistory.index > 0) {
 				var line = chatbox.val();
@@ -2162,6 +2167,10 @@ function Lobby(id, elem) {
 			return true;
 
 		case 40:	// Down key
+			// don't do anything if a modifier is pressed
+			if (e.shiftKey) return true;
+			if (e.ctrlKey) return true;
+
 			e.preventDefault();
 
 			if (selfR.chatHistory.index === selfR.chatHistory.lines.length) {
