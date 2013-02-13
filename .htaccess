@@ -23,7 +23,7 @@ RewriteEngine on
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*)$ http://play.pokemonshowdown.com/$1 [R=301,L]
 
-RewriteRule ^$ /lobby [R=301,L]
+#RewriteRule ^$ /lobby [R=301,L]
 RewriteRule ^topsekritsim\.php$ /lobby [R=301,L]
 RewriteRule ^topsekrit3\.php$ /lobby [R=301,L]
 RewriteRule ^temporary508\.php$ /lobby [R=301,L]
