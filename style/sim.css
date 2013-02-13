@@ -1824,11 +1824,13 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 }
 .message-learn-canlearn
 {
+	font-weight: bold;
 	color: #228822;
 	text-decoration: underline;
 }
 .message-learn-cannotlearn
 {
+	font-weight: bold;
 	color: #CC2222;
 	text-decoration: underline;
 }
