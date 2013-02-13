@@ -18,7 +18,7 @@ $timenow = time();
 $expiration = ($lastmodified ? $lastmodified : $timenow) + 3600;
 header('Expires: ' . gmdate('D, d M Y H:i:s T', $expiration));
 
-if (empty($_REQUEST['invalidate']) && ($expiration < $timenow)) {
+if (empty($_REQUEST['invalidate']) || ($expiration < $timenow)) {
 	// Don't check for modifications more than once an hour.
 	readfile($cssfile);
 	die();
