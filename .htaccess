@@ -45,5 +45,6 @@ RewriteRule ^~~([^:/]*)(:[0-9]*)?/action\.php$ action.php?serverid=$1 [L,QSA]
 
 RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
+RewriteRule ^lib/ - [F]
 
 </IfModule>
