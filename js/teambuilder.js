@@ -580,7 +580,7 @@ function Teambuilder(id, elem)
 					if (move.id === 'toxic' || move.id === 'leechseed' || move.id === 'willowisp') moveCount['Stall']++;
 					moveCount['Support']++;
 				}
-			} else if (move.id === 'rapidspin' || move.id === 'knockoff') {
+			} else if (move.id === 'rapidspin' || move.id === 'knockoff' || move.id === 'counter' || move.id === 'mirrorcoat' || move.id === 'metalburst') {
 				moveCount['Support']++;
 			} else if (move.id === 'nightshade' || move.id === 'seismictoss') {
 				moveCount['Offense']++;
