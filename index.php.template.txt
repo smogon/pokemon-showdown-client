@@ -107,7 +107,7 @@ if (!$challengeresponse) {
 		<link rel="stylesheet" href="/style/replayer.css" /><!-- utilichart -->
 		<link rel="stylesheet" href="/style/font-awesome.css" />
 <?php if (@$serverdata['customcss']) { ?>
-		<link rel="stylesheet" href="<?php echo $serverdata['customcss'] ?>" />
+		<link rel="stylesheet" href="/style/custom/<?php echo $serverid ?>.css" />
 <?php } ?>
 		<meta id="viewport" name="viewport" content="width=640"/>
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
