@@ -14,7 +14,8 @@ $cssfile = '../pokemonshowdown.com/config/customcss/' . $server;
 
 // No need to sanitise $server because it should be safe already.
 $lastmodified = @filemtime($cssfile);
-if ($lastmodified && (time() - $lastmodified) < 3600) {
+$timenow = time();
+if ($lastmodified && ($timenow - $lastmodified) < 3600) {
 	// Don't check for modifications more than once an hour.
 	readfile($cssfile);
 	die();
@@ -35,7 +36,6 @@ if ($curlret) {
 	if ($code === 304) {
 		// No modifications.
 		readfile($cssfile);
-		touch($cssfile);	// Don't check again for an hour.
 	} else if ($code === 200) {
 		// Sanitise the CSS.
 		require '../pokemonshowdown.com/lib/htmlpurifier/HTMLPurifier.auto.php';
@@ -53,6 +53,6 @@ if ($curlret) {
 		// Error condition - clear the cached file.
 		file_put_contents($cssfile, '');
 	}
+	touch($cssfile, $timenow);	// Don't check again for an hour.
 }
 curl_close($curl);
-
