@@ -10,12 +10,15 @@ if (empty($customcssuri)) {
 	die();
 }
 
+// No need to sanitise $server because it should be safe already.
 $cssfile = '../pokemonshowdown.com/config/customcss/' . $server;
 
-// No need to sanitise $server because it should be safe already.
 $lastmodified = @filemtime($cssfile);
 $timenow = time();
-if ($lastmodified && ($timenow - $lastmodified) < 3600) {
+$expiration = ($lastmodified ? $lastmodified : $timenow) + 3600;
+header('Expires: ' . gmdate('D, d M Y H:i:s T', $expiration));
+
+if ($lastmodified && (($timenow - $lastmodified) < 3600)) {
 	// Don't check for modifications more than once an hour.
 	readfile($cssfile);
 	die();
