@@ -1781,16 +1781,29 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 	padding: 1px 4px 2px;
 }
 .message-announce a,
-.message-declare a
+.message-declare a,
+.broadcast-green a,
+.broadcast-blue a,
+.broadcast-red a
 {
 	/* Readable link colour */
 	color: white;
 }
 .message-enableladder,
 .message-crashfixed,
-.message-crashnoted
+.message-crashnoted,
+.broadcast-green
 {
 	background-color: #559955;
+	color: white;
+	padding: 2px 4px;
+}
+.message-modchat-disable,
+.message-endlockdown,
+.message-register-account,
+.broadcast-blue
+{
+	background-color: #6688AA;
 	color: white;
 	padding: 2px 4px;
 }
@@ -1803,22 +1816,16 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 .message-othermetas,
 .message-rules,
 .message-faq,
-.message-tiers
+.message-tiers,
+.infobox
 {
 	border: 1px solid #6688AA;
 	padding: 2px 4px;
 }
-.message-lockdown
+.message-lockdown,
+.broadcast-red
 {
 	background-color: #AA5544;
-	color: white;
-	padding: 2px 4px;
-}
-.message-modchat-disable,
-.message-endlockdown,
-.message-register-account
-{
-	background-color: #6688AA;
 	color: white;
 	padding: 2px 4px;
 }
