@@ -2838,11 +2838,12 @@ function Battle(frame, logFrame, noPreload) {
 				break;
 				
 			case '-miss':
-				var poke = this.getPokemon(args[1]);
-				if (kwargs.msg) {
-					actions += "" + poke.getName() + " avoided the attack!";
+				var user = this.getPokemon(args[1]);
+				var target = this.getPokemon(args[2]);
+				if (target) {
+					actions += "" + target.getName() + " avoided the attack!";
 				} else {
-					actions += poke.getName() + "'s attack missed!";
+					actions += "" + user.getName() + "'s attack missed!";
 				}
 				break;
 				
