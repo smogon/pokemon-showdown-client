@@ -345,34 +345,49 @@ function BattleRoom(id, elem) {
 				selfR.send('/ackrequest ' + selfR.me.request.rqid);
 			}
 			selfR.me.request.requestType = 'move';
+			var notifyObject = null;
 			if (selfR.me.request.forceSwitch) {
 				selfR.me.request.requestType = 'switch';
-				notify({
+				notifyObject = {
 					type: 'yourSwitch',
-					room: selfR.id,
-					user: selfR.battle.yourSide.name
-				});
-				selfR.notifying = true;
-				updateRoomList();
+					room: selfR.id
+				};
 			} else if (selfR.me.request.teamPreview) {
 				selfR.me.request.requestType = 'team';
-				notify({
+				notifyObject = {
 					type: 'yourSwitch',
-					room: selfR.id,
-					user: selfR.battle.yourSide.name
-				});
-				selfR.notifying = true;
-				updateRoomList();
+					room: selfR.id
+				};
 			} else if (selfR.me.request.wait) {
 				selfR.me.request.requestType = 'wait';
 			} else {
-				notify({
+				notifyObject = {
 					type: 'yourMove',
-					room: selfR.id,
-					user: selfR.battle.yourSide.name
-				});
-				selfR.notifying = true;
-				updateRoomList();
+					room: selfR.id
+				};
+			}
+			if (notifyObject) {
+				var doNotify = function() {
+					notify(notifyObject);
+					selfR.notifying = true;
+					updateRoomList();
+				};
+				if (selfR.battle.yourSide.initialized) {
+					// The opponent's name is already known.
+					notifyObject.user = selfR.battle.yourSide.name;
+					doNotify();
+				} else {
+					// The opponent's name isn't known yet, so wait until it is
+					// known before sending the notification, so that it can include
+					// the opponent's name.
+					var callback = selfR.battle.stagnateCallback;
+					selfR.battle.stagnateCallback = function(battle) {
+						notifyObject.user = battle.yourSide.name;
+						doNotify();
+						battle.stagnateCallback = callback;
+						if (callback) callback(battle);
+					};
+				}
 			}
 			//if (selfR.me.callbackWaiting) selfR.callback();
 		}
