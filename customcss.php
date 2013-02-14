@@ -36,10 +36,7 @@ curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 $curlret = curl_exec($curl);
 if ($curlret) {
 	$code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-	if ($code === 304) {
-		// No modifications.
-		readfile($cssfile);
-	} else if ($code === 200) {
+	if ($code === 200) {
 		// Sanitise the CSS.
 		require '../pokemonshowdown.com/lib/htmlpurifier/HTMLPurifier.auto.php';
 		require '../pokemonshowdown.com/lib/csstidy/class.csstidy.php';
@@ -53,8 +50,8 @@ if ($curlret) {
 		file_put_contents($cssfile, $outputcss);
 		echo $outputcss;
 	} else {
-		// Error condition - clear the cached file.
-		file_put_contents($cssfile, '');
+		// Either no modifications (status: 304) or an error condition.
+		readfile($cssfile);
 	}
 	touch($cssfile, $timenow);	// Don't check again for an hour.
 }
