@@ -217,38 +217,6 @@ foreach ($reqs as $reqData) {
 			$out = ($user['rating']['r']+$user['rating']['rpr'])/2;
 		}
 		break;
-	case 'logcachedindex':
-		$logfile = '../pokemonshowdown.com/config/cachelog';
-		$clienttimestamp = @$reqData['clienttimestamp'];
-		$servertimestamp = @$reqData['servertimestamp'];
-		$servertimestampnow = time();
-		if ($servertimestampnow - $servertimestamp <= 50) {
-			// The user's clock is just wrong; don't log.
-			die('');
-		}
-		// If we get here, the user's clock may actually still just be wrong,
-		// but if so, it's not wrong by very much and there's not really any
-		// way we can check for that case.
-
-		// date() throws a warning if a timezone is not explicitly set.
-		date_default_timezone_set('America/Edmonton');
-		$clienttimestampformatted = date('c', $clienttimestamp);
-		$servertimestampformatted = date('c', $servertimestamp);
-		$servertimestampnowformatted = date('c', $servertimestampnow);
-		$lagtimeformatted = date('i:s', $servertimestampnow - $servertimestamp);
-		$useragent = @$_SERVER['HTTP_USER_AGENT'];
-		$ip = @$_SERVER['REMOTE_ADDR'];
-		$clientip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
-		file_put_contents($logfile,
-			"[$ip ($clientip); $useragent] " .
-			"index.php generated at $servertimestampformatted; " .
-			"logcachedindex run at $servertimestampnowformatted (client reported time of $clienttimestampformatted); " .
-			"lag time of $lagtimeformatted\n",
-			FILE_APPEND | LOCK_EX);
-		die('');	// No output.
-		break;
-	default:
-		break;
 	}
 
 	if ($multiReqs) $outArray[] = $out;
