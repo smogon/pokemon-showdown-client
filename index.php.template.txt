@@ -120,18 +120,6 @@ if (!$challengeresponse) {
 			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>',
 			upkeep: <?php echo json_encode($upkeep) ?>
 		};
-		(function() {
-			var timestamp = <?php echo time() ?>;
-			var dateNow = Date.now() / 1000;
-			if (dateNow - timestamp > 300) {	// Five minutes
-				document.createElement('img').src = '/action.php?act=logcachedindex&clienttimestamp=' + dateNow + '&servertimestamp=' + timestamp;
-			}
-		})();
-<?php if (false) { ?>
-		alert('We should be open to the public again in a few minutes.');
-		Config.requirelogin = true;
-<?php } ?>
-		// if (!Config.urlPrefix) Config.down = true;
 	</script>
 	<!--[if lte IE 8]><script>
 		Config.oldie = true;
