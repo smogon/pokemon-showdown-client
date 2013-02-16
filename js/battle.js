@@ -1595,7 +1595,7 @@ function Battle(frame, logFrame, noPreload) {
 			}
 
 			if (pokemon.side.n === 0) {
-				self.message('Go! ' + pokemon.getName() + '!');
+				self.message('Go! ' + pokemon.getFullName() + '!');
 			} else {
 				self.message('' + sanitize(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
 			}
