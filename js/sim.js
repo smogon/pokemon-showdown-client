@@ -1457,6 +1457,10 @@ function Lobby(id, elem) {
 						rawMessage: row.slice(1).join('|')
 					};
 					break;
+				case 'refresh':
+					// refresh the page
+					document.location.reload(true);
+					break;
 				case 'formats':
 					var isSection = false;
 					var section = '';
