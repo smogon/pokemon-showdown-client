@@ -228,8 +228,8 @@ foreach ($reqs as $reqData) {
 				'serverid' => @$i['id'],
 				'name' => @$i['name'],
 				'server' => @$i['server'],
-				'port' => @$i['port'],
-				'protocol' => @$i['protocol']
+				'serverport' => @$i['port'],
+				'serverprotocol' => @$i['protocol']
 			);
 		}
 		break;
