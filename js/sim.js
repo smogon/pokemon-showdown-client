@@ -2947,7 +2947,7 @@ function overlay(overlayType, data) {
 		var servers = data.servers;
 		for (var i = 0; i < servers.length; ++i) {
 			var server = servers[i];
-			var onclick = 'overlayClose();Config=$.parseJSON(decodeURIComponent(\'' + encodeURIComponent($.toJSON(server)) + '\'));connect();updateResize();if (init) init();return false;';
+			var onclick = 'overlayClose();Config=$.parseJSON(decodeURIComponent(\'' + encodeURIComponent($.toJSON(server)).replace(/[!'()]/g, escape).replace(/\*/g, "%2A") + '\'));connect();updateResize();if (init) init();return false;';
 			var display = server.name + ' (' + server.server;
 			if (server.serverport) display += ':' + server.serverport;
 			display += ')';
