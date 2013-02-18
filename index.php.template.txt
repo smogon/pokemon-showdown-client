@@ -206,6 +206,7 @@ if (!$challengeresponse) {
 
 		<script>
 			if (Config.down) overlay('down');
+			else connect();
 		</script>
 		
 		<script src="/data/learnsets.js?"></script>

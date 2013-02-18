@@ -1,19 +1,9 @@
-// some setting-like stuff
-Config.server = Config.server || 'sim.smogon.com';
-Config.serverport = Config.serverport || 8000;
-Config.serverprotocol = Config.serverprotocol || 'ws';
-
+// these three variables are populated in connect()
 var socket;
-var locPrefix = '/';
-if (Config.urlPrefix) locPrefix += Config.urlPrefix;
-var actionphp = (function() {
-	var ret = '/~~' + Config.serverid + '/action.php';
-	if (Config.testclient) {
-		ret = 'http://play.pokemonshowdown.com' + ret;
-	}
-	return ret;
-})();
-var _gaq = _gaq || [];
+var locPrefix;
+var actionphp;
+
+var _gaq = _gaq || [];	// google analytics queue
 
 // initialize sockets
 var socket = null;
@@ -2952,6 +2942,18 @@ function overlay(overlayType, data) {
 		contents += '<p><button type="submit"><strong>Log in</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		selectElem = '#overlay_assertion';
 		break;
+	case 'testclientserverlist':
+		contents += '<p>Choose a server to join:</p>'
+		var servers = data.servers;
+		for (var i = 0; i < servers.length; ++i) {
+			var server = servers[i];
+			var onclick = 'overlayClose();Config=$.parseJSON(decodeURIComponent(\'' + encodeURIComponent($.toJSON(server)) + '\'));connect();updateResize();if (init) init();return false;';
+			var display = server.name + ' (' + server.server;
+			if (server.serverport) display += ':' + server.serverport;
+			display += ')';
+			contents += '<p><button onclick="' + onclick + '">' + display + '</button></p>';
+		}
+		break;
 	case 'betalogin':
 		if (!data) data = {};
 		contents += '<p><strong>Pokemon Showdown is in private beta testing.</strong></p>';
@@ -3183,12 +3185,25 @@ var cookieTeams = true;
 	}
 })();
 
-// time to connect
-(function(data, name) {
-	if (Config.down) return;
+function connect() {
+	Config.server = Config.server || 'sim.smogon.com';
+	Config.serverport = Config.serverport || 8000;
+	Config.serverprotocol = Config.serverprotocol || 'ws';
 
-	if (!data) data = {};
+	var name = $.cookie('showdown_username') || '';
+	var data = Config.upkeep || {};
 	var token = data.assertion || '';
+
+	locPrefix = (function() {
+		var ret = '/';
+		if (Config.testclient) ret += Config.urlPrefix;
+		return ret;
+	})();
+	actionphp = (function() {
+		var ret = '/~~' + Config.serverid + '/action.php';
+		if (Config.testclient) ret = 'http://play.pokemonshowdown.com' + ret;
+		return ret;
+	})();
 
 	if (data.curuser && data.curuser.loggedin) {
 		me.registered = data.curuser;
@@ -3384,4 +3399,4 @@ var cookieTeams = true;
 			overlay('disconnect');
 		};
 	}
-})(Config.upkeep, $.cookie('showdown_username') || '');
+}

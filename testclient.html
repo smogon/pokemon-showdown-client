@@ -11,15 +11,6 @@
 		<link rel="stylesheet" href="style/font-awesome.css" />
 		<meta id="viewport" name="viewport" content="width=640"/>
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
-	<script>
-		var Config = {
-			serverid: 'showdown',
-			server: 'sim.smogon.com',
-			serverport: 8000,
-			serverprotocol: 'ws',
-			testclient: true
-		};
-	</script>
 	<!--[if lte IE 8]><script>
 		oldie = true;
 	</script><![endif]-->
@@ -102,9 +93,24 @@
 		<script src="js/utilichart.js?test"></script>
 		
 		<script src="data/aliases.js?test"></script>
+
 		<script>
-			updateResize();
-			if (init) init();
+			(function() {
+				// This uri accepts cross-domain requests.
+				var uri = 'http://play.pokemonshowdown.com/action.php?act=serverlist';
+				$.get(uri, Tools.safeJson(function(data) {
+					var servers = data.servers;
+					servers.unshift({
+						serverid: 'localhost',
+						name: 'localhost',
+						server: 'localhost',
+					});
+					servers.forEach(function(server) {
+						server.testclient = true;
+					});
+					overlay('testclientserverlist', {servers: servers});
+				}), 'text');
+			})();
 		</script>
 	</body>
 </html>
