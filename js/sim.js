@@ -1145,8 +1145,8 @@ function Lobby(id, elem) {
 					|| (targets.length < 2)
 					|| (['off', 'minutes', 'seconds'].indexOf(
 						targets[1] = targets[1].trim()) === -1)) {
-				rooms.lobby.add("Error: Valid options are /timestamps [all|lobby|pms], [minutes|seconds|off]");
-				return false;
+				rooms.lobby.add('Error: Invalid /timestamps command');
+				return '/help timestamps';	// show help
 			}
 			var timestamps = Tools.prefs.get('timestamps') || {};
 			if (typeof timestamps === 'string') {
@@ -1184,7 +1184,7 @@ function Lobby(id, elem) {
 					for (var i=1, len=targets.length; i<len; i++) {
 						highlights.push(targets[i].trim());
 					}
-					rooms.lobby.add("Now highlighting words: " + highlights.join(', '));
+					rooms.lobby.add("Now highlighting on: " + highlights.join(', '));
 					// We update the regex
 					this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
 					break;
@@ -1196,7 +1196,7 @@ function Lobby(id, elem) {
 						}
 					}
 					highlights = newHls;
-					rooms.lobby.add("Now highlighting words: " + highlights.join(', '));
+					rooms.lobby.add("Now highlighting on: " + highlights.join(', '));
 					// We update the regex
 					this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
 					break;
@@ -1210,13 +1210,14 @@ function Lobby(id, elem) {
 					// Shows a list of the current highlighting words
 					if (highlights.length > 0) {
 						var hls = highlights.join(', ');
+						rooms.lobby.add('Current highlight list: ' + hls);
 					} else {
-						var hls = 'Currently none.';
+						rooms.lobby.add('Your highlight list is empty.');
 					}
-					rooms.lobby.add("Current highlighting words: " + hls);
 				} else {
 					// Wrong command
-					rooms.lobby.add("Error: Valid options are /highlight add, [word]; /highlight delete, [word]; (remove word for highlight cleaning), and /highlight show.");
+					rooms.lobby.add('Error: Invalid /highlight command.');
+					return '/help highlight';	// show help
 				}
 			}
 			return false;
