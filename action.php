@@ -217,6 +217,22 @@ foreach ($reqs as $reqData) {
 			$out = ($user['rating']['r']+$user['rating']['rpr'])/2;
 		}
 		break;
+	case 'serverlist':
+		if ($multiReqs) die(); // necessary for security purposes
+		if (empty($PokemonServers)) die(); // shouldn't happen
+		header('Access-Control-Allow-Origin: *');	// allow cross-domain requests
+		$out['servers'] = array();
+		foreach ($PokemonServers as &$i) {
+			if (!empty($i['hidden'])) continue;
+			$out['servers'][] = array(
+				'serverid' => @$i['id'],
+				'name' => @$i['name'],
+				'server' => @$i['server'],
+				'port' => @$i['port'],
+				'protocol' => @$i['protocol']
+			);
+		}
+		break;
 	}
 
 	if ($multiReqs) $outArray[] = $out;
