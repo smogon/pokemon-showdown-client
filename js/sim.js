@@ -1800,14 +1800,19 @@ function Lobby(id, elem) {
 			if (data.ip) {
 				// Mute and Ban buttons for auths
 				var banMuteBuffer = '';
-				// var isAuth = me.users[me.userid].substr(0,1) in {'%':1, '@':1, '&':1, '~':1};
-				if (me.users[userid].substr(0,1) === '!') {
-					banMuteBuffer += '<br /><button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonunmute ' + userid + '\');">Unmute</button>';
-				} else {
-					banMuteBuffer += '<br /><button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonmute ' + userid + '\');">Mute</button>';
+				var mygroup = me.users[me.userid].substr(0, 1);
+				if ([' ', '!', '#'].indexOf(mygroup) === -1) {
+					banMuteBuffer += '<br /><br />';
+					if (me.users[userid].substr(0, 1) === '!') {
+						banMuteBuffer += '<button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonunmute ' + userid + '\');">Unmute</button>';
+					} else {
+						banMuteBuffer += '<button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonmute ' + userid + '\');">Mute</button>';
+					}
+					if (mygroup !== '%') {
+						banMuteBuffer += ' <button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonban ' + userid + '\');">Ban</button>';
+						banMuteBuffer += ' <button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonkick ' + userid + '\');">Kick</button>';
+					}
 				}
-				banMuteBuffer += ' <button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonban ' + userid + '\');">Ban</button>';
-				banMuteBuffer += ' <button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonkick ' + userid + '\');">Kick</button>';
 				roomListCode = '<div class="action-form"><small>IP: <a href="http://www.geoiptool.com/en/?IP=' + data.ip + '" target="iplookup">' + data.ip + '</a></small>'+banMuteBuffer+'</div>' + roomListCode;
 			}
 			$('#' + selfR.id + '-userrooms-' + userid).html(roomListCode);
