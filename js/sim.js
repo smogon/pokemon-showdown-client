@@ -1801,7 +1801,7 @@ function Lobby(id, elem) {
 				// Mute and Ban buttons for auths
 				var banMuteBuffer = '';
 				var mygroup = me.users[me.userid].substr(0, 1);
-				if ([' ', '!', '#'].indexOf(mygroup) === -1) {
+				if ([' ', '!', '#', '+'].indexOf(mygroup) === -1) {
 					banMuteBuffer += '<br /><br />';
 					if (me.users[userid].substr(0, 1) === '!') {
 						banMuteBuffer += '<button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonunmute ' + userid + '\');">Unmute</button>';
