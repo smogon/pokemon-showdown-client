@@ -2792,6 +2792,7 @@ var favicon = {
 	} else if (window.macgap) {
 		// MacGap notifications! :o
 		notify = function (data) {
+			if (window.focused) return;
 			var message = '';
 			switch (data.type) {
 			case 'challenge':
@@ -2834,9 +2835,10 @@ var favicon = {
 	} else {
 		var activeNotificationData = null;
 		notify = function (data) {
+			if (window.focused) return;
 			favicon.animate(['/favicon-notify.ico', '/favicon-notify2.ico']);
 			activeNotificationData = data;
-			activeNotification = setInterval(updateNotifyTitle, 500);
+			activeNotification = setInterval(updateNotifyTitle, 1500);
 		};
 		dismissNotify = function () {
 			favicon.change('/favicon.ico');
