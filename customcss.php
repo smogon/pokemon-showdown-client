@@ -41,7 +41,8 @@ if ($curlret) {
 		require '../pokemonshowdown.com/lib/htmlpurifier/HTMLPurifier.auto.php';
 		require '../pokemonshowdown.com/lib/csstidy/class.csstidy.php';
 		$config = HTMLPurifier_Config::createDefault();
-		$config->set('Filter.ExtractStyleBlocks', TRUE);
+		$config->set('Filter.ExtractStyleBlocks', true);
+		$config->set('CSS.Proprietary', true);
 		$purifier = new HTMLPurifier($config);
 		$level = error_reporting(E_ALL & ~E_STRICT);
 		$html = $purifier->purify('<style>' . $curlret . '</style>');
