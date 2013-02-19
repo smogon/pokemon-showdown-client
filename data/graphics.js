@@ -2038,7 +2038,7 @@ var BattleMoveAnims = {
 			}, 'linear');
 		},
 		prepareMessage: function(pokemon) {
-			return pokemon.getName()+' flew high up!';
+			return pokemon.getName()+' flew up high!';
 		}
 	},
 	skydrop: {
@@ -5818,7 +5818,7 @@ var BattleMoveAnims = {
 	razorwind: {
 		prepareAnim: BattleOtherAnims.selfstatus.anim,
 		prepareMessage: function(pokemon) {
-			return pokemon.getName()+' created a whirlwind!';
+			return pokemon.getName()+' whipped up a whirlwind!';
 		}
 	},
 	overheat: {
