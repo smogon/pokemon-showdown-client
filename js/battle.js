@@ -1866,7 +1866,6 @@ function Battle(frame, logFrame, noPreload) {
 				confusion: '<span class="bad">Confused</span> ',
 				healblock: '<span class="bad">Heal&nbsp;Block</span> ',
 				yawn: '<span class="bad">Drowsy</span> ',
-				smackdown: '<span class="bad">Grounded</span> ',
 				flashfire: '<span class="good">Flash&nbsp;Fire</span> ',
 				imprison: '<span class="good">Imprisoning&nbsp;foe</span> ',
 				formechange: '',
@@ -2359,6 +2358,9 @@ function Battle(frame, logFrame, noPreload) {
 		{
 		case 'taunt':
 			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' after the taunt!');
+			break;
+		case 'gravity':
+			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of gravity!');
 			break;
 		case 'imprison':
 			self.message('' + pokemon.getName() + ' can\'t use the sealed ' + move.name + '!');
@@ -3307,10 +3309,6 @@ function Battle(frame, logFrame, noPreload) {
 					self.resultAnim(poke, 'Drowsy', 'slp', animDelay);
 					actions += "" + poke.getName() + ' grew drowsy!';
 					break;
-				case 'smackdown':
-					self.resultAnim(poke, 'Grounded', 'bad', animDelay);
-					actions += "" + poke.getName() + ' fell straight down!';
-					break;
 				case 'flashfire':
 					self.resultAnim(poke, 'Flash Fire', 'good', animDelay);
 					actions += 'The power of ' + poke.getLowerName() + '\'s Fire-type moves rose!';
@@ -3418,6 +3416,8 @@ function Battle(frame, logFrame, noPreload) {
 				case 'smackdown':
 					self.resultAnim(poke, 'Smacked Down', 'bad', animDelay);
 					actions += "" + poke.getName() + " fell straight down!";
+					poke.removeVolatile('magnetrise');
+					poke.removeVolatile('telekinesis');
 					break;
 				case 'substitute':
 					if (kwargs.damage) {
@@ -3596,9 +3596,6 @@ function Battle(frame, logFrame, noPreload) {
 				var effect = Tools.getEffect(args[2]);
 				var ofpoke = this.getPokemon(kwargs.of);
 				switch (effect.id) {
-				case 'calm':
-					actions += '' + poke.getName() + ' calmed down.';
-					break;
 				case 'confusion':
 					actions += "" + poke.getName() + " is confused!";
 					break;
@@ -3635,9 +3632,6 @@ function Battle(frame, logFrame, noPreload) {
 						actions += '' + poke.getName() + "'s Substitute blocked " + Tools.getMove(kwargs.block || args[3]).name + '!';
 					}
 					break;
-				case 'skillswap':
-					actions += '' + poke.getName() + ' swapped Abilities with its target!';
-					break;
 				case 'attract':
 					actions += '' + poke.getName() + ' is in love with ' + ofpoke.getLowerName() + '!';
 					break;
@@ -3669,6 +3663,8 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'gravity':
 					actions += "" + poke.getName() + " couldn't stay airborne because of gravity!";
+					poke.removeVolatile('magnetrise');
+					poke.removeVolatile('telekinesis');
 					break;
 				case 'magnitude':
 					actions += "Magnitude " + args[3] + "!";
