@@ -39,7 +39,7 @@ var curRoom = null;
 var curTitle = 'Showdown!';
 var battles = {};
 var formats = [''];
-var teams = [];
+var teams = null;
 
 var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1 && navigator.userAgent.toLowerCase().indexOf("firefox") <= -1;
 
@@ -3170,8 +3170,9 @@ function init() {
 }
 
 var cookieTeams = true;
-(function () {
+teams = (function() {
 	var savedTeam = $.parseJSON($.cookie('showdown_team1'));
+	var teams = [];
 	if (savedTeam) {
 		teams.push(savedTeam);
 	}
@@ -3188,6 +3189,7 @@ var cookieTeams = true;
 		var teamString = localStorage.getItem('showdown_teams');
 		if (teamString) teams = JSON.parse(teamString);
 	}
+	return teams;
 })();
 
 // time to connect
