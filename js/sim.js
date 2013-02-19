@@ -994,6 +994,7 @@ function Lobby(id, elem) {
 		};
 		return self;
 	})();
+	this.highlightRegExp = null;
 	this.searcher = null;
 	this.selectedTeam = 0;
 	this.selectedFormat = '';
@@ -1186,7 +1187,7 @@ function Lobby(id, elem) {
 					}
 					rooms.lobby.add("Now highlighting on: " + highlights.join(', '));
 					// We update the regex
-					this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
+					this.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 					break;
 				case 'delete':
 					var newHls = [];
@@ -1198,7 +1199,7 @@ function Lobby(id, elem) {
 					highlights = newHls;
 					rooms.lobby.add("Now highlighting on: " + highlights.join(', '));
 					// We update the regex
-					this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
+					this.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 					break;
 				}
 				Tools.prefs.set('highlights', highlights, true);
@@ -1382,9 +1383,9 @@ function Lobby(id, elem) {
 	};
 	this.getHighlight = function (message) {
 		var highlights = Tools.prefs.get('highlights') || [];
-		if (!this.regex) {
+		if (!this.highlightRegExp) {
 			try {
-				this.regex = new RegExp('\\b('+highlights.join('|')+')\\b', 'gi');
+				this.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 			} catch (e) {
 				// If the expression above is not a regexp, we'll get here.
 				// Don't throw an exception because that would prevent the chat
@@ -1393,7 +1394,7 @@ function Lobby(id, elem) {
 				return false;
 			}
 		}
-		return ((highlights.length > 0) && this.regex.test(message));
+		return ((highlights.length > 0) && this.highlightRegExp.test(message));
 	};
 	this.add = function (log) {
 		if (typeof log === 'string') log = log.split('\n');
