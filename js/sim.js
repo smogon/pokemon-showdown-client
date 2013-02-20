@@ -891,6 +891,7 @@ function BattleRoom(id, elem) {
 		if (e.keyCode === 13) {
 			if (selfR.chatboxElem.val()) {
 				var text = selfR.chatboxElem.val();
+				rooms.lobby.tabComplete.reset();
 				rooms.lobby.chatHistory.push(text);
 				text = rooms.lobby.parseCommand(text);
 				if (text) {
@@ -978,7 +979,10 @@ function Lobby(id, elem) {
 		candidates: null,
 		index: 0,
 		prefix: null,
-		cursor: -1
+		cursor: -1,
+		reset: function() {
+			this.cursor = -1;
+		}
 	};
 	this.chatHistory = (function() {
 		var self = {
@@ -1057,6 +1061,7 @@ function Lobby(id, elem) {
 		if (e.keyCode === 13) {
 			var text;
 			if ((text = selfR.popupChatboxElem.val())) {
+				selfR.tabComplete.reset();
 				selfR.chatHistory.push(text);
 				text = selfR.parseCommand(text);
 				if (text) {
@@ -2137,6 +2142,7 @@ function Lobby(id, elem) {
 		if (e.keyCode === 13) {			// Enter
 			var text;
 			if ((text = selfR.chatboxElem.val())) {
+				selfR.tabComplete.reset();
 				selfR.chatHistory.push(text);
 				text = selfR.parseCommand(text);
 				if (text) {
