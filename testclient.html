@@ -19,6 +19,20 @@
 			serverprotocol: 'ws',
 			testclient: true
 		};
+		(function() {
+			if (location.search !== '') {
+				var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
+				if (m) {
+					Config.serverid = m[1];
+					Config.server = m[2];
+					if (m[3]) {
+						Config.serverport = m[3];
+					}
+				} else {
+					alert('Unrecognised query string syntax: ' + location.search);
+				}
+			}
+		})();
 	</script>
 	<!--[if lte IE 8]><script>
 		oldie = true;
