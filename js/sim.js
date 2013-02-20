@@ -1997,8 +1997,48 @@ function Lobby(id, elem) {
 		}
 		selfR.debounceUpdateTimeout = null;
 	};
+	this.timeEvent = (function() {
+		var data = [];
+		var last;
+		var current;
+		var starts = [];
+		return {
+			start: function() {
+				last = +new Date();
+				starts.push(last);
+				data.push(current = [0]);
+			},
+			end: function() {
+			},
+			checkpoint: function() {
+				var now = +new Date();
+				current.push(now - last);
+				last = now;
+			},
+			getResults: function() {
+				var average = [];
+				var total = [];
+				var trials = data.length;
+				for (var i = 0; i < data[0].length; ++i) {
+					var sum = 0;
+					for (var j = 0; j < trials; ++j) {
+						sum += data[j][i];
+					}
+					average[i] = Math.round(sum / trials * 10) / 10;
+					total[i] = sum;
+				}
+				var intervals = [];
+				for (var i = 0; i < starts.length - 1; ++i) {
+					intervals[i] = starts[i + 1] - starts[i];
+				}
+				return {average: average, total: total, intervals: intervals};
+			}
+		};
+	})();
 	this.updateMainElem = function (force) {
+		//selfR.timeEvent.start();      // 0
 		selfR.updateMainTop(force);
+		//selfR.timeEvent.checkpoint(); // 1
 
 		var text = '';
 		text += '<ul class="userlist">';
@@ -2024,12 +2064,14 @@ function Lobby(id, elem) {
 			'#': 8
 		};
 		var users = [];
+		//selfR.timeEvent.checkpoint(); // 2
 		if (selfR.userList) users = Object.keys(selfR.userList).sort(function(a,b){
 			var aRank = RankOrder[selfR.userList[a].substr(0,1)];
 			var bRank = RankOrder[selfR.userList[b].substr(0,1)];
 			if (aRank != bRank) return aRank - bRank;
 			return (a>b?1:-1);
 		});
+		//selfR.timeEvent.checkpoint(); // 3
 		for (var i=0, len=users.length; i<users.length; i++) {
 			var userid = users[i];
 			var group = selfR.userList[userid].substr(0, 1);
@@ -2050,6 +2092,7 @@ function Lobby(id, elem) {
 			text += '</button>';
 			text += '</li>';
 		}
+		//selfR.timeEvent.checkpoint(); // 4
 		if (!users.length) {
 			text += '<li>No named users online</li>';
 		}
@@ -2064,7 +2107,9 @@ function Lobby(id, elem) {
 			text += '<li style="text-align:center;padding:2px 0"><small>(' + selfR.userCount.guests + ' guest' + (selfR.userCount.guests == 1 ? '' : 's') + ')</small></li>';
 		}
 		text += '</ul>';
-		selfR.mainBottomElem.html(text);
+		selfR.mainBottomElem.html(text); // note: very slow
+		//selfR.timeEvent.checkpoint(); // 5
+		//selfR.timeEvent.end();
 	};
 	this.updateMe = function () {
 		if (selfR.meIdent.name !== me.name || selfR.meIdent.named !== me.named) {
