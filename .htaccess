@@ -47,5 +47,11 @@ RewriteRule ^style/custom/([A-Za-z0-9-]*)\.css$ customcss.php?server=$1 [L]
 RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
 RewriteRule ^lib/ - [F]
+RewriteRule ^githooks/ - [F]
+
+RewriteRule ^\.gitignore$ - [F]
+RewriteRule ^README\.md$ - [F]
+RewriteRule ^index\.php\.template\.txt$ - [F]
+RewriteRule ^testclient\.html$ - [F]
 
 </IfModule>
