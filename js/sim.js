@@ -1631,11 +1631,13 @@ function Lobby(id, elem) {
 					me.users[userid] = log[i].name;
 					selfR.userList.add(userid);
 					selfR.userList.updateUserCount();
+					selfR.userList.updateNoUsersOnline();
 				} else if (log[i].action === 'leave') {
 					if (me.users[userid]) selfR.userCount.users--;
 					delete me.users[userid];
 					selfR.userList.remove(userid);
 					selfR.userList.updateUserCount();
+					selfR.userList.updateNoUsersOnline();
 				} else if (log[i].action === 'rename') {
 					if (log[i].oldid) delete me.users[toUserid(log[i].oldid)];
 					me.users[userid] = log[i].name;
@@ -2039,7 +2041,7 @@ function Lobby(id, elem) {
 		};
 	})();
 	this.userList = {
-		ranks : {
+		ranks: {
 			'~': 2,
 			'&': 2,
 			'@': 1,
@@ -2131,6 +2133,9 @@ function Lobby(id, elem) {
 			var bRank = this.rankOrder[me.users[b] ? me.users[b].substr(0, 1) : ' '];
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
+		},
+		updateNoUsersOnline: function() {
+			$('#userlist-empty').html((me.users.length === 0) ? 'No named users online' : '');
 		},
 		construct: function() {
 			var text = '';
