@@ -1596,6 +1596,8 @@ function Lobby(id, elem) {
 				});
 				if (selfR.rooms.length > 8) selfR.rooms.shift();
 
+				selfR.debounceUpdate();
+
 				if (log[i].silent && !Tools.prefs.get('showbattles')) continue;
 
 				selfR.joinLeaveElem = null;
