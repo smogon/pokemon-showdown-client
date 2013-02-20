@@ -1986,7 +1986,7 @@ function Lobby(id, elem) {
 		if (!selfR.debounceUpdateTimeout) {
 			selfR.updateMainElem();
 			selfR.debounceUpdateQueued = false;
-			selfR.debounceUpdateTimeout = setTimeout(selfR.debounceUpdateEnd, 600);
+			selfR.debounceUpdateTimeout = setTimeout(selfR.debounceUpdateEnd, 2000);
 		} else {
 			selfR.debounceUpdateQueued = true;
 		}
