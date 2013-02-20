@@ -1018,7 +1018,7 @@ function Lobby(id, elem) {
 	this.dealloc = function () {};
 	this.focus = function () {
 		selfR.updateMe();
-		selfR.updateMainElem(true);
+		selfR.updateMainTop(true);
 		selfR.chatFrameElem.scrollTop(selfR.chatElem.height());
 		if (selfR.chatboxElem) selfR.chatboxElem.focus();
 	};
@@ -1437,7 +1437,6 @@ function Lobby(id, elem) {
 						name: row[1],
 						silent: (row[0] === 'J')
 					};
-					updateMe();
 					break;
 				case 'l':
 				case 'L':
@@ -1446,7 +1445,6 @@ function Lobby(id, elem) {
 						name: row[1],
 						silent: (row[0] === 'L')
 					};
-					updateMe();
 					break;
 				case 'n':
 				case 'N':
@@ -1456,7 +1454,6 @@ function Lobby(id, elem) {
 						oldid: row[2],
 						silent: true
 					};
-					updateMe();
 					break;
 				case 'raw':
 					log[i] = {
@@ -1632,12 +1629,18 @@ function Lobby(id, elem) {
 					if (log[i].oldid) delete me.users[toUserid(log[i].oldid)];
 					if (!me.users[userid]) selfR.userCount.users++;
 					me.users[userid] = log[i].name;
+					selfR.userList.add(userid);
+					selfR.userList.updateUserCount();
 				} else if (log[i].action === 'leave') {
 					if (me.users[userid]) selfR.userCount.users--;
 					delete me.users[userid];
+					selfR.userList.remove(userid);
+					selfR.userList.updateUserCount();
 				} else if (log[i].action === 'rename') {
 					if (log[i].oldid) delete me.users[toUserid(log[i].oldid)];
-					me.users[toUserid(log[i].name)] = log[i].name;
+					me.users[userid] = log[i].name;
+					selfR.userList.remove(log[i].oldid);
+					selfR.userList.add(userid);
 					continue;
 				}
 				if (log[i].silent && !Tools.prefs.get('showjoins')) continue;
@@ -1748,26 +1751,21 @@ function Lobby(id, elem) {
 		if (typeof data.searcher !== 'undefined') {
 			selfR.searcher = data.searcher;
 		}
-		if (typeof data.users !== 'undefined') {
-			selfR.userList = data.users;
-			selfR.userCount.users = 'who knows';
-			me.users = data.users.list;
-		}
 		if (typeof data.u !== 'undefined') {
 			selfR.userCount = {};
-			selfR.userList = {};
+			me.users = {};
 			var commaIndex = data.u.indexOf(',');
 			if (commaIndex >= 0) {
 				selfR.userCount.users = parseInt(data.u.substr(0,commaIndex),10);
 				var users = data.u.substr(commaIndex+1).split(',');
 				for (var i=0,len=users.length; i<len; i++) {
-					if (users[i]) selfR.userList[toId(users[i])] = users[i];
+					if (users[i]) me.users[toId(users[i])] = users[i];
 				}
 			} else {
 				selfR.userCount.users = parseInt(data.u);
 				selfR.userCount.guests = selfR.userCount.users;
 			}
-			me.users = selfR.userList;
+			selfR.userList.construct();
 		}
 		if (data.rooms) {
 			selfR.rooms = [];
@@ -1779,7 +1777,7 @@ function Lobby(id, elem) {
 				selfR.rooms.unshift(room);
 			}
 		}
-		//selfR.updateMainElem();
+		//selfR.updateMainTop();
 		selfR.updateMe();
 	};
 	this.mainTopState = '';
@@ -1989,7 +1987,7 @@ function Lobby(id, elem) {
 	this.debounceUpdateQueued = false;
 	this.debounceUpdate = function() {
 		if (!selfR.debounceUpdateTimeout) {
-			selfR.updateMainElem();
+			selfR.updateMainTop();
 			selfR.debounceUpdateQueued = false;
 			selfR.debounceUpdateTimeout = setTimeout(selfR.debounceUpdateEnd, 2000);
 		} else {
@@ -1998,7 +1996,7 @@ function Lobby(id, elem) {
 	};
 	this.debounceUpdateEnd = function() {
 		if (selfR.debounceUpdateQueued) {
-			selfR.updateMainElem();
+			selfR.updateMainTop();
 		}
 		selfR.debounceUpdateTimeout = null;
 	};
@@ -2040,15 +2038,8 @@ function Lobby(id, elem) {
 			}
 		};
 	})();
-	this.updateMainElem = function (force) {
-		//selfR.timeEvent.start();      // 0
-		selfR.updateMainTop(force);
-		//selfR.timeEvent.checkpoint(); // 1
-
-		var text = '';
-		text += '<ul class="userlist">';
-		text += '<li style="text-align:center;padding:2px 0"><small>' + (selfR.userCount.users || '0') + ' users online:</small></li>';
-		var Ranks = {
+	this.userList = {
+		ranks : {
 			'~': 2,
 			'&': 2,
 			'@': 1,
@@ -2057,8 +2048,8 @@ function Lobby(id, elem) {
 			' ': 0,
 			'!': 0,
 			'#': 0
-		};
-		var RankOrder = {
+		},
+		rankOrder: {
 			'~': 1,
 			'&': 2,
 			'@': 3,
@@ -2067,54 +2058,111 @@ function Lobby(id, elem) {
 			' ': 6,
 			'!': 7,
 			'#': 8
-		};
-		var users = [];
-		//selfR.timeEvent.checkpoint(); // 2
-		if (selfR.userList) users = Object.keys(selfR.userList).sort(function(a,b){
-			var aRank = RankOrder[selfR.userList[a].substr(0,1)];
-			var bRank = RankOrder[selfR.userList[b].substr(0,1)];
-			if (aRank != bRank) return aRank - bRank;
-			return (a>b?1:-1);
-		});
-		//selfR.timeEvent.checkpoint(); // 3
-		for (var i=0, len=users.length; i<users.length; i++) {
-			var userid = users[i];
-			var group = selfR.userList[userid].substr(0, 1);
-			text += '<li' + (me.userForm === userid ? ' class="cur"' : '') + '>';
+		},
+		updateUserCount: function() {
+			$('#usercount-users').html(selfR.userCount.users || '0');
+		},
+		updateCurrentUser: function() {
+			$('.userlist > .cur').attr('class', '');
+			$('#userlist-user-' + me.userForm).attr('class', 'cur');
+		},
+		add: function(userid) {
+			var users = $('.userlist').children();
+			// Determine where to insert the user using a binary search.
+			var left = 0;
+			var right = users.length - 1;
+			while (right >= left) {
+				var mid = Math.floor((right - left) / 2 + left);
+				var cmp = this.elemComparator(users[mid], userid);
+				if (cmp < 0) {
+					left = mid + 1;
+				} else if (cmp > 0) {
+					right = mid - 1;
+				} else {
+					// The user is already in the list.
+					return;
+				}
+			}
+			$(this.constructItem(userid)).insertAfter($(users[right]));
+		},
+		remove: function(userid) {
+			$('#userlist-user-' + userid).remove();
+		},
+		constructItem: function(userid) {
+			var group = me.users[userid].substr(0, 1);
+			var text = '';
+			// Sanitising the `userid` here is probably unnecessary, because
+			// IDs can't contain anything dangerous.
+			text += '<li' + (me.userForm === userid ? ' class="cur"' : '') + ' id="userlist-user-' + sanitize(userid) + '">';
 			if (me.named) {
 				text += '<button class="userbutton" onclick="return rooms[\'' + selfR.id + '\'].formChallenge(\'' + sanitize(userid) + '\')">';
 			} else {
 				text += '<button class="userbutton" onclick="return rooms[\'' + selfR.id + '\'].formRename()">';
 			}
-			text += '<em class="group' + (Ranks[group]===2 ? ' staffgroup' : '') + '">' + sanitize(group) + '</em>';
+			text += '<em class="group' + (this.ranks[group]===2 ? ' staffgroup' : '') + '">' + sanitize(group) + '</em>';
 			if (group === '~' || group === '&') {
-				text += '<strong><em style="' + hashColor(userid) + '">' + sanitize(selfR.userList[userid].substr(1)) + '</em></strong>';
+				text += '<strong><em style="' + hashColor(userid) + '">' + sanitize(me.users[userid].substr(1)) + '</em></strong>';
 			} else if (group === '%' || group === '@') {
-				text += '<strong style="' + hashColor(userid) + '">' + sanitize(selfR.userList[userid].substr(1)) + '</strong>';
+				text += '<strong style="' + hashColor(userid) + '">' + sanitize(me.users[userid].substr(1)) + '</strong>';
 			} else {
-				text += '<span style="' + hashColor(userid) + '">' + sanitize(selfR.userList[userid].substr(1)) + '</span>';
+				text += '<span style="' + hashColor(userid) + '">' + sanitize(me.users[userid].substr(1)) + '</span>';
 			}
 			text += '</button>';
 			text += '</li>';
+			return text;
+		},
+		elemComparator: function(elem, userid) {
+			var id = elem.id;
+			switch (id) {
+				case 'userlist-users':
+					return -1; // `elem` comes first
+				case 'userlist-empty':
+				case 'userlist-unregistered':
+				case 'userlist-guests':
+					return 1; // `userid` comes first
+			}
+			// extract the portion of the `id` after 'userlist-user-'
+			var elemuserid = id.substr(14);
+			return this.comparator(elemuserid, userid);
+		},
+		comparator: function(a, b) {
+			if (a === b) return 0;
+			var aRank = this.rankOrder[me.users[a] ? me.users[a].substr(0, 1) : ' '];
+			var bRank = this.rankOrder[me.users[b] ? me.users[b].substr(0, 1) : ' '];
+			if (aRank !== bRank) return aRank - bRank;
+			return (a > b ? 1 : -1);
+		},
+		construct: function() {
+			var text = '';
+			text += '<ul class="userlist">';
+			text += '<li id="userlist-users" style="text-align:center;padding:2px 0"><small><span id="usercount-users">' + (selfR.userCount.users || '0') + '</span> users online:</small></li>';
+			var users = [];
+			if (me.users) {
+				var self = this;
+				users = Object.keys(me.users).sort(function(a, b) {
+					return self.comparator(a, b);
+				});
+			}
+			for (var i=0, len=users.length; i<users.length; i++) {
+				var userid = users[i];
+				text += this.constructItem(userid);
+			}
+			if (!users.length) {
+				text += '<li id="userlist-empty">No named users online</li>';
+			}
+			if (selfR.userCount.unregistered) {
+				text += '<li id="userlist-unregistered" style="height:auto;padding-top:5px;padding-bottom:5px">';
+				text += '<span style="font-size:10pt;display:block;text-align:center;padding-bottom:5px;font-style:italic">Due to lag, <span id="usercount-unregistered">' + selfR.userCount.unregistered + '</span> unregistered users are hidden.</span>';
+				text += ' <button' + (me.challengeTo ? ' disabled="disabled"' : ' onclick="var gname=prompt(\'Challenge who?\');if (gname) rooms[\'' + selfR.id + '\'].formChallenge(gname);return false"') + '>Challenge an unregistered user</button>';
+				text += '<div style="clear:both"></div>';
+				text += '</li>';
+			}
+			if (selfR.userCount.guests) {
+				text += '<li id="userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="usercount-guests">' + selfR.userCount.guests + '</span> guest' + (selfR.userCount.guests == 1 ? '' : 's') + ')</small></li>';
+			}
+			text += '</ul>';
+			selfR.mainBottomElem.html(text);
 		}
-		//selfR.timeEvent.checkpoint(); // 4
-		if (!users.length) {
-			text += '<li>No named users online</li>';
-		}
-		if (selfR.userCount.unregistered) {
-			text += '<li style="height:auto;padding-top:5px;padding-bottom:5px">';
-			text += '<span style="font-size:10pt;display:block;text-align:center;padding-bottom:5px;font-style:italic">Due to lag, ' + selfR.userCount.unregistered + ' unregistered users are hidden.</span>';
-			text += ' <button' + (me.challengeTo ? ' disabled="disabled"' : ' onclick="var gname=prompt(\'Challenge who?\');if (gname) rooms[\'' + selfR.id + '\'].formChallenge(gname);return false"') + '>Challenge an unregistered user</button>';
-			text += '<div style="clear:both"></div>';
-			text += '</li>';
-		}
-		if (selfR.userCount.guests) {
-			text += '<li style="text-align:center;padding:2px 0"><small>(' + selfR.userCount.guests + ' guest' + (selfR.userCount.guests == 1 ? '' : 's') + ')</small></li>';
-		}
-		text += '</ul>';
-		selfR.mainBottomElem.html(text); // note: very slow
-		//selfR.timeEvent.checkpoint(); // 5
-		//selfR.timeEvent.end();
 	};
 	this.updateMe = function () {
 		if (selfR.meIdent.name !== me.name || selfR.meIdent.named !== me.named) {
@@ -2188,8 +2236,8 @@ function Lobby(id, elem) {
 				var idprefix = toId(m[2]);
 				var candidates = [];
 
-				for (var i in selfR.userList) {
-					if (!selfR.userList.hasOwnProperty(i)) continue;
+				for (var i in me.users) {
+					if (!me.users.hasOwnProperty(i)) continue;
 					if (!(typeof i === 'string')) continue;
 					if (i.substr(0, idprefix.length) !== idprefix) continue;
 					candidates.push(i);
@@ -2216,7 +2264,7 @@ function Lobby(id, elem) {
 
 			// Substitute in the tab-completed name.
 			var substituteUserId = selfR.tabComplete.candidates[selfR.tabComplete.index];
-			var name = selfR.userList[substituteUserId].substr(1);
+			var name = me.users[substituteUserId].substr(1);
 			chatbox.val(selfR.tabComplete.prefix + name + text.substr(idx));
 			var pos = selfR.tabComplete.prefix.length + name.length;
 			chatbox[0].setSelectionRange(pos, pos);
@@ -2291,7 +2339,8 @@ function Lobby(id, elem) {
 	};
 	this.formChallenge = function (user) {
 		me.userForm = user;
-		selfR.updateMainElem();
+		selfR.userList.updateCurrentUser();
+		selfR.updateMainTop();
 		$(window).scrollTop(51);
 		return false;
 	};
@@ -2392,6 +2441,7 @@ function Lobby(id, elem) {
 		requestNotify();
 		var format = $('#' + selfR.id + '-format').val();
 		me.userForm = '';
+		selfR.userList.updateCurrentUser();
 		selectTeam($('#' + selfR.id + '-team').val());
 		selfR.send('/challenge '+userid+', '+format);
 		return false;
@@ -2399,10 +2449,11 @@ function Lobby(id, elem) {
 	this.formCloseUserForm = function (userid) {
 		if (me.userForm) {
 			me.userForm = '';
-			selfR.updateMainElem();
+			selfR.userList.updateCurrentUser();
+			selfR.updateMainTop();
 			return false;
 		}
-		selfR.updateMainElem();
+		selfR.updateMainTop();
 		selfR.send('/cancelchallenge '+userid);
 		return false;
 	};
@@ -3360,7 +3411,7 @@ teams = (function() {
 			if (message.room && rooms[message.room]) {
 				room = rooms[message.room];
 				if (room) room.add(message);
-				//if (room.id === 'lobby' && message.silent) room.updateMainElem();
+				//if (room.id === 'lobby' && message.silent) room.updateMainTop();
 			} else {
 				if (curRoom) curRoom.message(message, true);
 			}
