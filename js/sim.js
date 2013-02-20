@@ -2134,8 +2134,21 @@ function Lobby(id, elem) {
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
+		noNamedUsersOnline: '<li id="userlist-empty">No named users online</li>',
 		updateNoUsersOnline: function() {
-			$('#userlist-empty').html((me.users.length === 0) ? 'No named users online' : '');
+			var elem = $('#userlist-empty');
+			if ($("[id^=userlist-user-]").length === 0) {
+				if (elem.length === 0) {
+					var guests = $('#userlist-guests');
+					if (guests.length === 0) {
+						$('.userlist').append($(this.noNamedUsersOnline));
+					} else {
+						guests.before($(this.noNamedUsersOnline));
+					}
+				}
+			} else {
+				elem.remove();
+			}
 		},
 		construct: function() {
 			var text = '';
@@ -2153,7 +2166,7 @@ function Lobby(id, elem) {
 				text += this.constructItem(userid);
 			}
 			if (!users.length) {
-				text += '<li id="userlist-empty">No named users online</li>';
+				text += this.noNamedUsersOnline;
 			}
 			if (selfR.userCount.unregistered) {
 				text += '<li id="userlist-unregistered" style="height:auto;padding-top:5px;padding-bottom:5px">';
