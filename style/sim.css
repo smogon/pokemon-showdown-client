@@ -653,7 +653,8 @@ button.closebutton i
 	height: auto;
 	width: auto;
 	background: #edf1f4 url(/data/meloettabg.png) no-repeat scroll right bottom;
-	word-wrap: break-word; /* CSS3 */
+	word-wrap: break-word;
+	overflow-x: hidden;
 }
 .sidelobbychat .battle-log,
 .huge-layout .sidelobbychat .battle-log
