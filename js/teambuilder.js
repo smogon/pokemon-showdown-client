@@ -1,4 +1,3 @@
-
 function Teambuilder(id, elem)
 {
 	var selfR = this;
@@ -364,7 +363,7 @@ function Teambuilder(id, elem)
 			if (!movelist[move.id]) {
 				if (movelist['sketch']) {
 					if (move.isViable) return 'Usable Sketch Moves';
-					return 'Sketch Moves';
+					else if (move.id !== 'chatter' && move.id !== 'struggle') return 'Sketch Moves';
 				}
 				return 'Illegal';
 			}
