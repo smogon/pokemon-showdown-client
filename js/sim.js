@@ -2092,17 +2092,19 @@ function Lobby(id, elem) {
 		remove: function(userid) {
 			$('#userlist-user-' + userid).remove();
 		},
+		buttonOnClick: function(userid) {
+			if (me.named) {
+				return selfR.formChallenge(userid);
+			}
+			return selfR.formRename();
+		},
 		constructItem: function(userid) {
 			var group = me.users[userid].substr(0, 1);
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
 			text += '<li' + (me.userForm === userid ? ' class="cur"' : '') + ' id="userlist-user-' + sanitize(userid) + '">';
-			if (me.named) {
-				text += '<button class="userbutton" onclick="return rooms[\'' + selfR.id + '\'].formChallenge(\'' + sanitize(userid) + '\')">';
-			} else {
-				text += '<button class="userbutton" onclick="return rooms[\'' + selfR.id + '\'].formRename()">';
-			}
+			text += '<button class="userbutton" onclick="return rooms.lobby.userList.buttonOnClick(\'' + sanitize(userid) + '\')">';
 			text += '<em class="group' + (this.ranks[group]===2 ? ' staffgroup' : '') + '">' + sanitize(group) + '</em>';
 			if (group === '~' || group === '&') {
 				text += '<strong><em style="' + hashColor(userid) + '">' + sanitize(me.users[userid].substr(1)) + '</em></strong>';
