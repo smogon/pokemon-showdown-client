@@ -190,7 +190,10 @@ if (!$challengeresponse) {
 		<script src="/js/autoresize.jquery.min.js"></script>
 		<script src="/js/jquery-cookie.js"></script>
 		<script src="/js/jquery.json-2.3.min.js"></script>
-		<script src="/js/soundmanager2.js"></script>
+		<script src="/js/soundmanager2-nodebug-jsmin.js"></script>
+		<script>
+			soundManager.setup({url: '/swf/'});
+		</script>
 		<script src="/js/html-sanitizer-minified.js"></script>
 
 		<script>
