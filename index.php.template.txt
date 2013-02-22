@@ -118,10 +118,10 @@ if (!$challengeresponse) {
 			server: '<?php echo $server ?>',
 			serverid: '<?php echo $serverid ?>',
 			serverport: <?php echo $serverport ?>,
-			<?php if (!empty($serveraltport)) echo "serveraltport: $serveraltport,"; ?>
+			<?php if (!empty($serveraltport)) echo "serveraltport: $serveraltport,\n"; ?>
 			serverprotocol: '<?php echo $serverprotocol ?>',
 			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>',
-			upkeep: <?php echo json_encode($upkeep) ?>
+			upkeep: <?php echo json_encode($upkeep) . "\n" ?>
 		};
 	</script>
 	<!--[if lte IE 8]><script>
