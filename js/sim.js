@@ -344,13 +344,7 @@ function BattleRoom(id, elem) {
 			}
 		}
 		if (update.request) {
-			selfR.me.request = update.request;
-			if (selfR.version === 1) {
-				// We maintain this for now, in case a server updated during
-				// the brief period where this was the design. However, this
-				// can probably be removed in a few weeks, if desired.
-				selfR.send('/ackrequest ' + selfR.me.request.rqid);
-			}
+			selfR.me.request = update.request; // currently unused
 			selfR.me.request.requestType = 'move';
 			var notifyObject = null;
 			if (selfR.me.request.forceSwitch) {
