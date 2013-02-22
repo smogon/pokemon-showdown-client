@@ -3335,9 +3335,15 @@ teams = (function() {
 		return;
 	}
 
-	if (Config.serverprotocol === 'io') socket = io.connect('http://' + Config.server + ':' + Config.serverport);
-	else if (Config.serverprotocol === 'eio') socket = new eio.Socket({ host: Config.server, port: Config.serverport });
-	else socket = new SockJS('http://' + Config.server + ':' + Config.serverport);
+	var constructSocket = function(host, port) {
+		if (Config.serverprotocol === 'io') return io.connect('http://' + host + ':' + port);
+		else if (Config.serverprotocol === 'eio') return new eio.Socket({ host: host, port: port });
+		else return new SockJS('http://' + host + ':' + port);
+	};
+	if (Tools.prefs.get('altport_' + Config.serverid) && Config.serveraltport) {
+		Config.serverport = Config.serveraltport;
+	}
+	socket = constructSocket(Config.server, Config.serverport);
 
 	var events = {
 		init: function (data) {
@@ -3483,8 +3489,15 @@ teams = (function() {
 			token: token
 		});
 	} else {
-		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
+		var socketopened = false;
+		var altport = (Config.serverport === Config.serveraltport);
+		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server' + (altport ? ' on port ' + Config.serverport : '') + '...';
 		socket.onopen = function() {
+			socketopened = true;
+			if (altport) {
+				Tools.prefs.set('altport_' + Config.serverid, true, true);
+				_gaq.push(['_trackEvent', 'Alt port connection', Config.serverid]);
+			}
 			if (!name) token = '';
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
 			emit(socket, 'join', {
@@ -3513,6 +3526,19 @@ teams = (function() {
 			if (events[data.type]) events[data.type](data);
 		};
 		socket.onclose = function () {
+			if (!socketopened && Config.serveraltport && !altport) {
+				altport = true;
+				Config.serverport = Config.serveraltport;
+				socket = (function() {
+					var s = constructSocket(Config.server, Config.serverport);
+					s.onopen = socket.onopen;
+					s.onmessage = socket.onmessage;
+					s.onclose = socket.onclose;
+					return s;
+				})();
+				document.getElementById('loading-message').innerHTML += '<br />Attempting to connect on port ' + Config.serverport + '...';
+				return;
+			}
 			$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
 			overlay('disconnect');
 		};
