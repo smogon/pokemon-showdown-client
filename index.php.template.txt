@@ -51,6 +51,7 @@ if (@$PokemonServers[$server]) {
 	$serverid = $server;
 	$serverdata = $PokemonServers[$server];
 	if (!$serverport) $serverport = $PokemonServers[$serverid]['port'];
+	$serveraltport = @$PokemonServers[$serverid]['altport'];
 	if (!$serverprotocol) $serverprotocol = $PokemonServers[$serverid]['protocol'];
 	$server = $PokemonServers[$serverid]['server'];
 	if ($serverport != $PokemonServers[$serverid]['port']) $serverid .= ':'.$serverport;
@@ -61,6 +62,7 @@ if ($localflag) $server = 'localhost';
 if (!$server) {
 	$server = $PokemonServers[$defaultserver]['server'];
 	$serverport = $PokemonServers[$defaultserver]['port'];
+	$serveraltport = @$PokemonServers[$defaultserver]['altport'];
 	$serverprotocol = @$PokemonServers[$defaultserver]['protocol'];
 	$challengeresponse = !empty($PokemonServers[$defaultserver]['challengeresponse']);
 	$serverid = $defaultserver;
@@ -116,6 +118,7 @@ if (!$challengeresponse) {
 			server: '<?php echo $server ?>',
 			serverid: '<?php echo $serverid ?>',
 			serverport: <?php echo $serverport ?>,
+			<?php if (!empty($serveraltport)) echo "serveraltport: $serveraltport,"; ?>
 			serverprotocol: '<?php echo $serverprotocol ?>',
 			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>',
 			upkeep: <?php echo json_encode($upkeep) ?>
