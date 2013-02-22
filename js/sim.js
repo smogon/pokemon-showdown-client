@@ -28,7 +28,14 @@ var me = {
 	users: {},
 	rooms: {},
 	ignore: {},
-	mute: $.cookie('showdown_mute'),
+	mute: (function(c) {
+		if (c !== null) {
+			Tools.prefs.set('mute', !!c, true);
+			$.cookie('showdown_mute', null);
+			return c;
+		}
+		return Tools.prefs.get('mute');
+	})($.cookie('showdown_mute')),
 	lastChallengeNotification: '',
 	pm: {},
 	curPopup: '',
@@ -2517,7 +2524,7 @@ function updateMe() {
 
 function formMute() {
 	me.mute = !me.mute;
-	$.cookie('showdown_mute', me.mute ? '1' : '');
+	Tools.prefs.set('mute', !!me.mute, true);
 	if (curRoom.battle) {
 		curRoom.battle.setMute(me.mute);
 	}
