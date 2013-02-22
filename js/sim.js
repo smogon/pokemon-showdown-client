@@ -2279,7 +2279,7 @@ function Lobby(id, elem) {
 					} else if (bidx != -1) {
 						return 1;  // b comes first
 					}
-					return a < b;  // alphabetical order
+					return (a < b) ? -1 : 1;  // alphabetical order
 				});
 				selfR.tabComplete.candidates = candidates;
 				selfR.tabComplete.index = 0;
