@@ -2000,10 +2000,10 @@ function Lobby(id, elem) {
 		}
 	};
 	this.debounceUpdateEnd = function() {
-		if (selfR.debounceUpdateQueued) {
-			selfR.updateMainTop();
-		}
 		selfR.debounceUpdateTimeout = null;
+		if (selfR.debounceUpdateQueued) {
+			selfR.debounceUpdate();
+		}
 	};
 	this.timeEvent = (function() {
 		var data = [];
