@@ -896,6 +896,18 @@ function BattleRoom(id, elem) {
 				rooms.lobby.chatHistory.push(text);
 				text = rooms.lobby.parseCommand(text);
 				if (text) {
+					// Checking for multiline PMs
+					if (text.indexOf(',') > -1 && (text.substr(0, 4) === '/msg' || text.substr(0, 8) === '/whisper' || text.substr(0, 3) === '/w ')) {
+						var splitText = text.split('\n');
+						var messageTo = text.substr(0, text.indexOf(',') + 1);
+						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = messageTo + splitText[i];
+						text = splitText.join('\n');
+					} else if (text.substr(0, 6) === '/reply'|| text.substr(0, 3) === '/r ') {
+						// Reply does not use commas
+						var splitText = text.split('\n');
+						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = '/r ' + splitText[i];
+						text = splitText.join('\n');
+					} 
 					selfR.send(text);
 				}
 				selfR.chatboxElem.val('');
@@ -1403,7 +1415,16 @@ function Lobby(id, elem) {
 		return ((highlights.length > 0) && this.highlightRegExp.test(message));
 	};
 	this.add = function (log) {
-		if (typeof log === 'string') log = log.split('\n');
+		if (typeof log === 'string') {
+			log = log.split('\n');
+			// Check if it was a Private Message
+			// Using '/whisper' and '/w ' with space to not to collide with other commands
+			/*if (log[0].substr(0, 4) === '/msg' || log[0].substr(0, 8) === '/whisper' || log[0].substr(0, 3) === '/w ' || log[0].substr(0, 6) === '/reply'|| log[0].substr(0, 3) === '/r ') {
+				for (i=1; i<log.length; i++) {
+					log[i] = '/msg ' + log[i];
+				}
+			}*/
+		}
 		var autoscroll = false;
 		if (selfR.chatFrameElem.scrollTop() + 60 >= selfR.chatElem.height() - selfR.chatFrameElem.height()) {
 			autoscroll = true;
@@ -2217,6 +2238,18 @@ function Lobby(id, elem) {
 				selfR.chatHistory.push(text);
 				text = selfR.parseCommand(text);
 				if (text) {
+					// Checking for multiline PMs
+					if (text.indexOf(',') > -1 && (text.substr(0, 4) === '/msg' || text.substr(0, 8) === '/whisper' || text.substr(0, 3) === '/w ')) {
+						var splitText = text.split('\n');
+						var messageTo = text.substr(0, text.indexOf(',') + 1);
+						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = messageTo + splitText[i];
+						text = splitText.join('\n');
+					} else if (text.substr(0, 6) === '/reply'|| text.substr(0, 3) === '/r ') {
+						// Reply does not use commas
+						var splitText = text.split('\n');
+						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = '/r ' + splitText[i];
+						text = splitText.join('\n');
+					} 
 					selfR.send(text);
 				}
 				selfR.chatboxElem.val('');
