@@ -897,7 +897,7 @@ function BattleRoom(id, elem) {
 				text = rooms.lobby.parseCommand(text);
 				if (text) {
 					// Checking for multiline PMs
-					if (text.indexOf(',') > -1 && (text.substr(0, 4) === '/msg' || text.substr(0, 8) === '/whisper' || text.substr(0, 3) === '/w ' || text.substr(0, 3) === '/pm ')) {
+					if (text.indexOf(',') > -1 && (text.substr(0, 4) === '/msg' || text.substr(0, 8) === '/whisper' || text.substr(0, 3) === '/w ' || text.substr(0, 3) === '/pm')) {
 						var splitText = text.split('\n');
 						var messageTo = text.substr(0, text.indexOf(',') + 1);
 						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = messageTo + splitText[i];
@@ -1415,9 +1415,7 @@ function Lobby(id, elem) {
 		return ((highlights.length > 0) && this.highlightRegExp.test(message));
 	};
 	this.add = function (log) {
-		if (typeof log === 'string') {
-			log = log.split('\n');
-		}
+		if (typeof log === 'string') log = log.split('\n');
 		var autoscroll = false;
 		if (selfR.chatFrameElem.scrollTop() + 60 >= selfR.chatElem.height() - selfR.chatFrameElem.height()) {
 			autoscroll = true;
@@ -2232,7 +2230,7 @@ function Lobby(id, elem) {
 				text = selfR.parseCommand(text);
 				if (text) {
 					// Checking for multiline PMs
-					if (text.indexOf(',') > -1 && (text.substr(0, 4) === '/msg' || text.substr(0, 8) === '/whisper' || text.substr(0, 3) === '/w ' || text.substr(0, 3) === '/pm ')) {
+					if (text.indexOf(',') > -1 && (text.substr(0, 4) === '/msg' || text.substr(0, 8) === '/whisper' || text.substr(0, 3) === '/w ' || text.substr(0, 3) === '/pm')) {
 						var splitText = text.split('\n');
 						var messageTo = text.substr(0, text.indexOf(',') + 1);
 						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = messageTo + splitText[i];
