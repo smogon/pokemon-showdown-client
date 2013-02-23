@@ -136,7 +136,7 @@ foreach ($reqs as $reqData) {
 		$usercount = @$reqData['users'];
 		if (!is_numeric($date) || !is_numeric($usercount)) break;
 
-		$out = !!$db->query("INSERT INTO `ntbb_userstats` (`serverid`, `date`, `usercount`) VALUES ('" . $db->escape($serverid) . "', '" . $db->escape($date) . "', '" . $db->escape($usercount) . "')'");
+		$out = !!$db->query("INSERT INTO `ntbb_userstats` (`serverid`, `date`, `usercount`) VALUES ('" . $db->escape($serverid) . "', '" . $db->escape($date) . "', '" . $db->escape($usercount) . "')");
 
 		if ($serverid !== 'showdown') {
 			$db->query("DELETE FROM `ntbb_userstats` WHERE `serverid` = '" . $db->escape($serverid) . "' AND id < " . $db->insert_id());
