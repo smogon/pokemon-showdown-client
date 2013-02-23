@@ -121,6 +121,27 @@ foreach ($reqs as $reqData) {
 		$serverhostname = htmlspecialchars($serverhostname);	// Protect against theoretical IE6 XSS
 		die($users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge));
 		break;
+	case 'updateuserstats':
+		$serverid = @$reqData['serverid'];
+		$server = @$PokemonServers[$serverid];
+
+		if (!$server ||
+				($users->getIp() !== gethostbyname($server['server'])) ||
+				(!empty($server['token']) && ($server['token'] !== md5($reqData['servertoken'])))) {
+			$out = 0;
+			break;
+		}
+
+		$date = @$reqData['date'];
+		$usercount = @$reqData['users'];
+		if (!is_numeric($date) || !is_numeric($usercount)) break;
+
+		$out = !!$db->query("INSERT INTO `ntbb_userstats` (`serverid`, `date`, `usercount`) VALUES ('" . $db->escape($serverid) . "', '" . $db->escape($date) . "', '" . $db->escape($usercount) . "')'");
+
+		if ($serverid !== 'showdown') {
+			$db->query("DELETE FROM `ntbb_userstats` WHERE `serverid` = '" . $db->escape($serverid) . "' AND id < " . $db->insert_id());
+		}
+		break;
 	case 'ladderupdate':
 		include_once 'lib/ntbb-ladder.lib.php';
 		
