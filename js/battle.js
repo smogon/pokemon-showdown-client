@@ -303,7 +303,7 @@ function Pokemon(species) {
 				name += ' (fainted)';
 			} else {
 				var statustext = '';
-				if (selfP.hp !== selfP.maxhp) statustext = '' + parseInt(100 * selfP.hp / selfP.maxhp) + '%';
+				if (selfP.hp !== selfP.maxhp) statustext = selfP.hpDisplay();
 				if (selfP.status) {
 					if (statustext) statustext += '|';
 					statustext += selfP.status;
@@ -410,7 +410,10 @@ function Pokemon(species) {
 			return 1;
 		}
 		return w;
-	}
+	};
+	this.hpDisplay = function () {
+		return selfP.hpWidth(48) + '/48';
+	};
 };
 
 function Battle(frame, logFrame, noPreload) {
@@ -1841,7 +1844,7 @@ function Battle(frame, logFrame, noPreload) {
 					width: w,
 					'border-right-width': (w ? 1 : 0)
 				});
-				pokemon.statbarElem.find('.hptext').html('' + pokemon.hpWidth(100) + '%');
+				pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 			}
 			var status = '';
 			if (pokemon.status === 'brn') {
@@ -2268,14 +2271,22 @@ function Battle(frame, logFrame, noPreload) {
 		pokemon.side.updateStatbar(pokemon);
 		self.activityWait(effectElem);
 	}
+	this.damageDisplay = function (percent) {
+		// For now, the server sends damage as Math.floor(pixels * 100 / 48).
+		// This should be refactored to send a numerator and denominator.
+		// Fortunately, there is a one-to-one mapping between the damage
+		// percent sent by the server and the number of pixels.
+		var pixels = Math.ceil(percent * 48 / 100);
+		return pixels + '/48 pixel' + ((pixels !== 1) ? 's' : '');
+	};
 	this.damageAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) {
 			i = 0;
 		}
 		var w = pokemon.hpWidth(150);
-		self.resultAnim(pokemon, '&minus;' + Math.round(damage) + '%', 'bad', i);
-		pokemon.statbarElem.find('.hptext').html('' + pokemon.hpWidth(100) + '%');
+		self.resultAnim(pokemon, '&minus;' + self.damageDisplay(damage), 'bad', i);
+		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (!self.fastForward) pokemon.statbarElem.find('div.hp').delay(self.animationDelay).animate({
 			width: w,
 			'border-right-width': w ? 1 : 0
@@ -2287,8 +2298,8 @@ function Battle(frame, logFrame, noPreload) {
 			i = 0;
 		}
 		var w = pokemon.hpWidth(150);
-		self.resultAnim(pokemon, '+' + Math.round(damage) + '%', 'good', i);
-		pokemon.statbarElem.find('.hptext').html('' + pokemon.hpWidth(100) + '%');
+		self.resultAnim(pokemon, '+' + self.damageDisplay(damage), 'good', i);
+		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (!self.fastForward) pokemon.statbarElem.find('div.hp').animate({
 			width: w,
 			'border-right-width': w ? 1 : 0
@@ -2531,7 +2542,7 @@ function Battle(frame, logFrame, noPreload) {
 						break;
 					}
 				} else {
-					hiddenactions += "" + poke.getName() + " lost " + damage + "% of its health!";
+					hiddenactions += "" + poke.getName() + " lost " + self.damageDisplay(damage) + " of its health!";
 				}
 				break;
 			case '-heal':
