@@ -2291,7 +2291,7 @@ function Battle(frame, logFrame, noPreload) {
 			i = 0;
 		}
 		var w = pokemon.hpWidth(150);
-		self.resultAnim(pokemon, '&minus;' + self.damageDisplay(damage), 'bad', i);
+		self.resultAnim(pokemon, '&minus;' + pokemon.hpWidth(100) + '%', 'bad', i);
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (!self.fastForward) pokemon.statbarElem.find('div.hp').delay(self.animationDelay).animate({
 			width: w,
@@ -2304,7 +2304,7 @@ function Battle(frame, logFrame, noPreload) {
 			i = 0;
 		}
 		var w = pokemon.hpWidth(150);
-		self.resultAnim(pokemon, '+' + self.damageDisplay(damage), 'good', i);
+		self.resultAnim(pokemon, '+' + pokemon.hpWidth(100) + '%', 'good', i);
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (!self.fastForward) pokemon.statbarElem.find('div.hp').animate({
 			width: w,
