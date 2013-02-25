@@ -2291,7 +2291,8 @@ function Battle(frame, logFrame, noPreload) {
 			i = 0;
 		}
 		var w = pokemon.hpWidth(150);
-		self.resultAnim(pokemon, '&minus;' + pokemon.hpWidth(100) + '%', 'bad', i);
+		var percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100);
+		self.resultAnim(pokemon, '&minus;' + percent + '%', 'bad', i);
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (!self.fastForward) pokemon.statbarElem.find('div.hp').delay(self.animationDelay).animate({
 			width: w,
@@ -2304,7 +2305,8 @@ function Battle(frame, logFrame, noPreload) {
 			i = 0;
 		}
 		var w = pokemon.hpWidth(150);
-		self.resultAnim(pokemon, '+' + pokemon.hpWidth(100) + '%', 'good', i);
+		var percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100);
+		self.resultAnim(pokemon, '+' + percent + '%', 'good', i);
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (!self.fastForward) pokemon.statbarElem.find('div.hp').animate({
 			width: w,
