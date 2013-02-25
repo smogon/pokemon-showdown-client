@@ -303,7 +303,9 @@ function Pokemon(species) {
 				name += ' (fainted)';
 			} else {
 				var statustext = '';
-				if (selfP.hp !== selfP.maxhp) statustext = selfP.hpDisplay();
+				if (selfP.hp !== selfP.maxhp) {
+					statustext += selfP.hp + '/' + selfP.maxhp + ' (~' + selfP.hpWidth(100) + '%)';
+				}
 				if (selfP.status) {
 					if (statustext) statustext += '|';
 					statustext += selfP.status;
@@ -2542,7 +2544,11 @@ function Battle(frame, logFrame, noPreload) {
 						break;
 					}
 				} else {
-					hiddenactions += "" + poke.getName() + " lost " + self.damageDisplay(damage) + " of its health!";
+					// The server sends Math.floor(pixels * 100 / 48), but we want to
+					// show a rounded percent. Fortunately, this is possible. Do not
+					// tamper with this expression unless you understand the math.
+					var percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100);
+					hiddenactions += "" + poke.getName() + " lost " + self.damageDisplay(damage) + " (~" + percent + "%) of its health!";
 				}
 				break;
 			case '-heal':
