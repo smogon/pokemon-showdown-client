@@ -403,11 +403,11 @@ function Pokemon(species) {
 			selfP.name = selfP.species;
 		}
 	};
-	this.hpWidth = function (maxWidth) {
-		if (selfP.fainted || selfP.zerohp) {
+	this.hpWidth = function (maxWidth, hp = selfP.hp) {
+		if (hp == 0) {
 			return 0;
 		}
-		var w = parseInt(maxWidth * selfP.hp / selfP.maxhp);
+		var w = parseInt(maxWidth * hp / selfP.maxhp);
 		if (w < 1) {
 			return 1;
 		}
@@ -2476,6 +2476,7 @@ function Battle(frame, logFrame, noPreload) {
 				var poke = this.getPokemon(args[1]);
 				var damage = parseFloat(args[2]);
 				if (isNaN(damage)) damage = 50; // wtf
+				poke.lasthp = poke.hp;
 				poke.hp -= poke.maxhp * damage / 100;
 				poke.healthParse(args[2]);
 				self.damageAnim(poke, damage, animDelay);
@@ -2550,11 +2551,26 @@ function Battle(frame, logFrame, noPreload) {
 						break;
 					}
 				} else {
-					// The server sends Math.floor(pixels * 100 / 48), but we want to
-					// show a rounded percent. Fortunately, this is possible. Do not
-					// tamper with this expression unless you understand the math.
-					var percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100);
-					hiddenactions += "" + poke.getName() + " lost <abbr title='" + self.damageDisplay(damage) + "'>" + percent + "%</abbr> of its health!";
+					// The server sends Math.floor(pixels * 100 / 48),
+					// but we want to show a rounded percent.
+					var percent;
+					
+					// There are some special cases when dealing with low values.
+					
+					// If the HP bar doesn't change, forget the %.
+					if (poke.hpWidth(100, poke.lasthp) - poke.hpWidth(100) == 0) {
+						percent = 0;
+						hiddenactions += "" + poke.getName() + " lost <abbr title='" + self.damageDisplay(damage) + "'>a small amount</abbr> of health!";
+					}
+					else {
+						// Fainting from 1% should show a 1% loss.
+						if (poke.hp == 0 && damage/100 <= 1/48) { percent = 1; }
+						// Show the correct % damage to reach 1%.
+						else if (poke.hp <= 1/48) { percent = damage || 1; }
+						
+						else { percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100); }
+						hiddenactions += "" + poke.getName() + " lost <abbr title='" + self.damageDisplay(damage) + "'>" + percent + "%</abbr> of its health!";
+					}
 				}
 				break;
 			case '-heal':
