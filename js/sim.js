@@ -2692,9 +2692,10 @@ function showTooltip(thing, type, elem, ownHeight, isActive) {
 			text += ' '+Tools.getTypeIcon(types[1]);
 		}
 		text += '</h2>';
-		if (!isActive) {
-			text += '<p>HP: ' + Math.round(100 * pokemon.hp / pokemon.maxhp) + '% ('+pokemon.hp+'/'+pokemon.maxhp+')'+(pokemon.status?' <span class="status '+pokemon.status+'">'+pokemon.status.toUpperCase()+'</span>':'')+'</p>';
-		}
+		var exacthp = '';
+		if (pokemon.maxhp != 100 && pokemon.maxhp != 1000 && pokemon.maxhp != 48) exacthp = ' ('+pokemon.hp+'/'+pokemon.maxhp+')';
+		if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>('+pokemon.hp+'/'+pokemon.maxhp+' pixels)</small>';
+		text += '<p>HP: ' + Math.round(100 * pokemon.hp / pokemon.maxhp) + '%'+exacthp+(pokemon.status?' <span class="status '+pokemon.status+'">'+pokemon.status.toUpperCase()+'</span>':'')+'</p>';
 		if (!pokemon.baseAbility && (!pokemon.ability || pokemon.ability.substr(0, 2) === '??')) {
 			text += '<p>Possible abilities: ' + Tools.getAbility(template.abilities['0']).name;
 			if (template.abilities['1']) text += ', ' + Tools.getAbility(template.abilities['1']).name;
