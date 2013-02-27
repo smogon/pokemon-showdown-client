@@ -407,11 +407,8 @@ function Pokemon(species) {
 		if (selfP.fainted || selfP.zerohp) {
 			return 0;
 		}
-		var w = parseInt(maxWidth * selfP.hp / selfP.maxhp);
-		if (w < 1) {
-			return 1;
-		}
-		return w;
+		if (selfP.hp == 1 && selfP.maxhp > 10) return 1;
+		return Math.round(maxWidth * selfP.hp / selfP.maxhp) || 1;
 	};
 	this.hpDisplay = function () {
 		var percent = selfP.hpWidth(100);
