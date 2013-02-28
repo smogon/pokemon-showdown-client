@@ -6,6 +6,13 @@ error_reporting(E_ALL);
 
 include_once dirname(__FILE__).'/../../pokemonshowdown.com/lib/ntbb-database.lib.php';
 
+// connect to the ladder database instead of the main database
+$db = new NTBBDatabase($config['ladder_server'],
+		$config['ladder_username'],
+		$config['ladder_password'],
+		$config['ladder_database'],
+		$config['ladder_prefix']);
+
 class Glicko2Player {
 	public $rating;
 	public $rd;
