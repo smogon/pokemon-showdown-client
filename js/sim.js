@@ -39,7 +39,11 @@ var me = {
 	lastChallengeNotification: '',
 	pm: {},
 	curPopup: '',
-	popups: []
+	popups: [],
+	idle: {
+		message: false,
+		lastReply: {}
+	}
 };
 var rooms = {};
 var curRoom = null;
@@ -1293,6 +1297,18 @@ function Lobby(id, elem) {
 				Tools.prefs.set('avatar', avatar, true);
 			}
 			return text; // Send the /avatar command through to the server.
+			
+		case 'idle': case 'away': case 'blockchallenges':
+			if (target) {
+				me.idle.message = target;
+			} else {
+				me.idle.message = '';
+			}
+			return text;
+			
+		case 'back': case 'allowchallenges':
+			me.idle.message = false;
+			return text;
 
 		}
 
@@ -1563,6 +1579,16 @@ function Lobby(id, elem) {
 						selfR.updatePopup();
 					}
 					selfR.chatElem.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + sanitize(log[i].pm) + ')</i> ' + messageSanitize(message) + '</span></div>');
+					// Let's check if the user is away to send the idle message
+					if (me.idle.message !== false && userid !== me.userid) {
+						// We need to create a new date to check time
+						var time = new Date();
+						// 2 minutes between every idle message
+						if (!me.idle.lastReply[userid] || (time.getTime() - me.idle.lastReply[userid]) > 120000) {
+							rooms.lobby.send('/msg ' + userid + ', [Auto-reply] ' + ((me.idle.message !== '') ? '' + me.idle.message + '' : "I'm idle right now") + '.');
+							me.idle.lastReply[userid] = time.getTime();
+						}
+					}
 				//} else if (log[i].act) {
 				//	selfR.chatElem.append('<div class="chat"><strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + message + '</i></em></div>');
 				} else if (message.substr(0,2) === '//') {
