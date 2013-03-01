@@ -3342,9 +3342,7 @@ teams = (function() {
 		else if (Config.serverprotocol === 'eio') return new eio.Socket({ host: host, port: port });
 		else return new SockJS('http://' + host + ':' + port);
 	};
-	if (Tools.prefs.get('altport_' + Config.serverid) && Config.serveraltport) {
-		Config.serverport = Config.serveraltport;
-	}
+
 	socket = constructSocket(Config.server, Config.serverport);
 
 	var events = {
@@ -3493,11 +3491,10 @@ teams = (function() {
 	} else {
 		var socketopened = false;
 		var altport = (Config.serverport === Config.serveraltport);
-		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server' + (altport ? ' on port ' + Config.serverport : '') + '...';
+		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
 		socket.onopen = function() {
 			socketopened = true;
 			if (altport) {
-				Tools.prefs.set('altport_' + Config.serverid, true, true);
 				_gaq.push(['_trackEvent', 'Alt port connection', Config.serverid]);
 			}
 			if (!name) token = '';
@@ -3538,7 +3535,6 @@ teams = (function() {
 					s.onclose = socket.onclose;
 					return s;
 				})();
-				document.getElementById('loading-message').innerHTML += '<br />Attempting to connect on port ' + Config.serverport + '...';
 				return;
 			}
 			$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
