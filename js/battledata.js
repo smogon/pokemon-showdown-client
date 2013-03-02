@@ -326,7 +326,7 @@ var Tools = {
 			/pokemon-online\.eu/i,
 			/pokecheck\.org/i,
 			/youtube\.com/i,
-			/challonge.com\.com/i
+			/challonge\.com/i
 		];
 		var pattern = /^https?:\/\/([A-Za-z0-9\-]*\.)?(([^\\\/]*)\.(com|org|net|eu))(\/.*)?/i;
 		return function(uri) {
