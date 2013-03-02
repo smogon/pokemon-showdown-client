@@ -134,7 +134,7 @@ function jsEscape(str) {
 }
 
 function messageSanitize(str) {
-	return sanitize(str).replace(/\`\`([^< ]([^<`]*?[^< ])?)\`\`/g, '<code>$1</code>').replace(/\~\~([^< ]([^<]*?[^< ])?)\~\~/g, '<s>$1</s>').replace(/(https?\:\/\/[a-z0-9-.]+(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|tk)((\/([^\s]*[^\s?.,])?)?|\b))/ig, '<a href="$1" target="_blank">$1</a>').replace(/<a href="([a-z]*[^a-z:])/g, '<a href="http://$1').replace(/(\bgoogle ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&q=$2" target="_blank">$1</a>').replace(/(\bgl ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$2" target="_blank">$1</a>').replace(/(\bwiki ?\[([^\]<]+)\])/ig, '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=$2" target="_blank">$1</a>').replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$1" target="_blank">$1</a>').replace(/\_\_([^< ]([^<]*?[^< ])?)\_\_/g, '<i>$1</i>').replace(/\*\*([^< ]([^<]*?[^< ])?)\*\*/g, '<b>$1</b>');
+	return sanitize(str).replace(/\`\`([^< ]([^<`]*?[^< ])?)\`\`/g, '<code>$1</code>').replace(/\~\~([^< ]([^<]*?[^< ])?)\~\~/g, '<s>$1</s>').replace(/(https?\:\/\/[a-z0-9-.]+(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|tk)((\/([^\s]*[^\s?.,])?)?|\b))/ig, '<a href="$1" target="_blank" onclick="return Tools.showInterstice(this.href);">$1</a>').replace(/<a href="([a-z]*[^a-z:])/g, '<a href="http://$1').replace(/(\bgoogle ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&q=$2" target="_blank">$1</a>').replace(/(\bgl ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$2" target="_blank">$1</a>').replace(/(\bwiki ?\[([^\]<]+)\])/ig, '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=$2" target="_blank">$1</a>').replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$1" target="_blank">$1</a>').replace(/\_\_([^< ]([^<]*?[^< ])?)\_\_/g, '<i>$1</i>').replace(/\*\*([^< ]([^<]*?[^< ])?)\*\*/g, '<b>$1</b>');
 }
 
 function toId(text) {
@@ -303,6 +303,50 @@ var basespecieschart = {
 
 var Tools = {
 
+	showInterstice: (function() {
+		var whitelist = [
+			/pokemonshowdown\.com/i,
+			/smogon\.com/i,
+			/upokecenter\.com/i,
+			/wikipedia\.org/i,
+			/wikimedia\.org/i,
+			/github\.com/i,
+			/veekun\.com/i,
+			/bulbagarden\.net/i,
+			/serebii\.net/i,
+			/nuggetbridge\.com/i,
+			/reddit\.com/i,
+			/gamefaqs\.com/i,
+			/facebook\.com/i,
+			/twitter\.com/i,
+			/deviantart\.com/i,
+			/pokecommunity\.com/i,
+			/pokemonlab\.com/i,
+			/shoddybattle\.com/i,
+			/pokemon-online\.eu/i,
+			/pokecheck\.org/i,
+			/youtube\.com/i,
+			/challonge.com\.com/i
+		];
+		var pattern = /^https?:\/\/([A-Za-z0-9\-]*\.)?(([^\\\/]*)\.(com|org|net|eu))(\/.*)?/i;
+		return function(uri) {
+			var m = pattern.exec(uri);
+			if (m) {
+				for (var i = 0; i < whitelist.length; ++i) {
+					if (whitelist[i].test(m[2])) return;
+				}
+			}
+			// This has to work in the replay viewer as well as in sim.js,
+			// so use an absolute URI.
+			window.open(
+				'http://www.pokemonshowdown.com/interstice?uri=' +
+					encodeURIComponent(uri),
+				'interstice'
+			);
+			return false;
+		};
+	})(),
+
 	htmlSanitize: (function() {
 		var uriRewriter = function(uri) {
 			// For now, allow all URIs.
@@ -316,10 +360,13 @@ var Tools = {
 			// In addition to the normal whitelist, allow target='_blank'.
 			// html.sanitizeAttribs is not very customisable, so this a bit ugly.
 			var blankIdx = undefined;
-			var extra = [];
+			var extra = {};
 			if (tagName === 'a') {
 				for (var i = 0; i < attribs.length - 1; i += 2) {
 					switch (attribs[i]) {
+						case 'href':
+							extra['onclick'] = 'return Tools.showInterstice(this.href);';
+							break;
 						case 'target':
 							if (attribs[i + 1] === '_blank') {
 								blankIdx = i + 1;
@@ -334,8 +381,7 @@ var Tools = {
 								// Bogus roomid - could be used to inject JavaScript.
 								break;
 							}
-							extra.push('onclick');
-							extra.push('return selectTab(\'' + attribs[i + 1] + '\');');
+							extra['onclick'] = 'return selectTab(\'' + attribs[i + 1] + '\');';
 							break;
 					}
 				}
@@ -344,8 +390,9 @@ var Tools = {
 			if (blankIdx !== undefined) {
 				attribs[blankIdx] = '_blank';
 			}
-			if (extra.length > 0) {
-				attribs = attribs.concat(extra);
+			for (var i in extra) {
+				attribs.push(i);
+				attribs.push(extra[i]);
 			}
 			return {attribs: attribs};
 		};
