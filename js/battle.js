@@ -3542,6 +3542,12 @@ function Battle(frame, logFrame, noPreload) {
 				case 'uproar':
 					actions += "" + poke.getName() + " calmed down.";
 					break;
+				case 'stockpile':
+				    poke.removeVolatile('stockpile1');
+				    poke.removeVolatile('stockpile2');
+				    poke.removeVolatile('stockpile3');
+					actions += "" + poke.getName() + "'s stockpiled effect wore off!";
+					break;
 				default:
 					if (effect.effectType === 'Move') {
 						actions += '' + poke.getName() + " took the " + effect.name + " attack!";
