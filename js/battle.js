@@ -3543,9 +3543,9 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " calmed down.";
 					break;
 				case 'stockpile':
-				    poke.removeVolatile('stockpile1');
-				    poke.removeVolatile('stockpile2');
-				    poke.removeVolatile('stockpile3');
+					poke.removeVolatile('stockpile1');
+					poke.removeVolatile('stockpile2');
+					poke.removeVolatile('stockpile3');
 					actions += "" + poke.getName() + "'s stockpiled effect wore off!";
 					break;
 				default:
