@@ -816,6 +816,7 @@ function Teambuilder(id, elem)
 		};
 
 		plusStat = statChart[role][0];
+		if (role === 'Fast Bulky Support') moveCount['Ultrafast'] = 0;
 		if (plusStat === 'spe' && (moveCount['Ultrafast'] || evs['spe'] < 252)) {
 			if (statChart[role][1] === 'atk' || statChart[role][1] == 'spa') {
 				plusStat = statChart[role][1];
