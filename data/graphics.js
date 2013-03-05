@@ -2330,6 +2330,9 @@ var BattleMoveAnims = {
 	seismictoss: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
+	smackdown: {
+		anim: BattleOtherAnims.contactattack.anim
+	},
 	bite: {
 		anim: function(battle, args) {
 			var attacker = args[0];
