@@ -3685,6 +3685,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " couldn't stay airborne because of gravity!";
 					poke.removeVolatile('magnetrise');
 					poke.removeVolatile('telekinesis');
+					poke.sprite.anim({time:100});
 					break;
 				case 'magnitude':
 					actions += "Magnitude " + args[3] + "!";
