@@ -136,10 +136,15 @@ foreach ($reqs as $reqData) {
 		$usercount = @$reqData['users'];
 		if (!is_numeric($date) || !is_numeric($usercount)) break;
 
-		$out = !!$db->query("INSERT INTO `ntbb_userstats` (`serverid`, `date`, `usercount`) VALUES ('" . $db->escape($serverid) . "', '" . $db->escape($date) . "', '" . $db->escape($usercount) . "') ON DUPLICATE KEY UPDATE date='" . $db->escape($date) . "', usercount='" . $db->escape($usercount) . "'");
+		$out = !!$db->query(
+			"INSERT INTO `ntbb_userstats` (`serverid`, `date`, `usercount`) " .
+				"VALUES ('" . $db->escape($serverid) . "', '" . $db->escape($date) . "', '" . $db->escape($usercount) . "') " .
+				"ON DUPLICATE KEY UPDATE `date`='" . $db->escape($date) . "', `usercount`='" . $db->escape($usercount) . "'");
 
 		if ($serverid === 'showdown') {
-			$db->query("INSERT INTO `ntbb_userstatshistory` (`date`, `usercount`) VALUES ('" . $db->escape($date) . "', '" . $db->escape($usercount) . "')");
+			$db->query(
+				"INSERT INTO `ntbb_userstatshistory` (`date`, `usercount`) " .
+				"VALUES ('" . $db->escape($date) . "', '" . $db->escape($usercount) . "')");
 		}
 		break;
 	case 'ladderupdate':
