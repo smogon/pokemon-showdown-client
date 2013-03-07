@@ -307,9 +307,9 @@ var Tools = {
 		var patterns = (function(whitelist) {
 			var patterns = [];
 			for (var i = 0; i < whitelist.length; ++i) {
-				patterns[i] = new RegExp('https?://([A-Za-z0-9-]*\\.)?' +
+				patterns.push(new RegExp('https?://([A-Za-z0-9-]*\\.)?' +
 					whitelist[i] +
-					'(/.*)?', 'i');
+					'(/.*)?', 'i'));
 			}
 			return patterns;
 		})((Config && Config.whitelist) ? Config.whitelist : []);
