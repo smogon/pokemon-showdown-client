@@ -304,34 +304,15 @@ var basespecieschart = {
 var Tools = {
 
 	showInterstice: (function() {
-		var whitelist = [
-			'pokemonshowdown\\.com',
-			'smogon\\.com',
-			'upokecenter\\.com',
-			'wikipedia\\.org',
-			'wikimedia\\.org',
-			'github\\.com',
-			'veekun\\.com',
-			'bulbagarden\\.net',
-			'serebii\\.net',
-			'nuggetbridge\\.com',
-			'reddit\\.com',
-			'gamefaqs\\.com',
-			'facebook\\.com',
-			'twitter\\.com',
-			'deviantart\\.com',
-			'pokecommunity\\.com',
-			'pokemonlab\\.com',
-			'shoddybattle\\.com',
-			'pokemon-online\\.eu',
-			'pokecheck\\.org',
-			'youtube\\.com',
-			'challonge\\.com'
-		];
-		var patterns = [];
-		for (var i = 0; i < whitelist.length; ++i) {
-			patterns[i] = new RegExp('https?://([A-Za-z0-9-]*\\.)?' + whitelist[i] + '(/.*)?', 'i');
-		}
+		var patterns = (function(whitelist) {
+			var patterns = [];
+			for (var i = 0; i < whitelist.length; ++i) {
+				patterns[i] = new RegExp('https?://([A-Za-z0-9-]*\\.)?' +
+					whitelist[i] +
+					'(/.*)?', 'i');
+			}
+			return patterns;
+		})((Config && Config.whitelist) ? Config.whitelist : []);
 		return function(uri) {
 			for (var i = 0; i < patterns.length; ++i) {
 				if (patterns[i].test(uri)) return;
