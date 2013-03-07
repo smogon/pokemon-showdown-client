@@ -305,36 +305,36 @@ var Tools = {
 
 	showInterstice: (function() {
 		var whitelist = [
-			/pokemonshowdown\.com/i,
-			/smogon\.com/i,
-			/upokecenter\.com/i,
-			/wikipedia\.org/i,
-			/wikimedia\.org/i,
-			/github\.com/i,
-			/veekun\.com/i,
-			/bulbagarden\.net/i,
-			/serebii\.net/i,
-			/nuggetbridge\.com/i,
-			/reddit\.com/i,
-			/gamefaqs\.com/i,
-			/facebook\.com/i,
-			/twitter\.com/i,
-			/deviantart\.com/i,
-			/pokecommunity\.com/i,
-			/pokemonlab\.com/i,
-			/shoddybattle\.com/i,
-			/pokemon-online\.eu/i,
-			/pokecheck\.org/i,
-			/youtube\.com/i,
-			/challonge\.com/i
+			'pokemonshowdown\\.com',
+			'smogon\\.com',
+			'upokecenter\\.com',
+			'wikipedia\\.org',
+			'wikimedia\\.org',
+			'github\\.com',
+			'veekun\\.com',
+			'bulbagarden\\.net',
+			'serebii\\.net',
+			'nuggetbridge\\.com',
+			'reddit\\.com',
+			'gamefaqs\\.com',
+			'facebook\\.com',
+			'twitter\\.com',
+			'deviantart\\.com',
+			'pokecommunity\\.com',
+			'pokemonlab\\.com',
+			'shoddybattle\\.com',
+			'pokemon-online\\.eu',
+			'pokecheck\\.org',
+			'youtube\\.com',
+			'challonge\\.com'
 		];
-		var pattern = /^https?:\/\/([A-Za-z0-9\-]*\.)?(([^\\\/]*)\.(com|org|net|eu))(\/.*)?/i;
+		var patterns = [];
+		for (var i = 0; i < whitelist.length; ++i) {
+			patterns[i] = new RegExp('https?://([A-Za-z0-9-]*\\.)?' + whitelist[i] + '(/.*)?', 'i');
+		}
 		return function(uri) {
-			var m = pattern.exec(uri);
-			if (m) {
-				for (var i = 0; i < whitelist.length; ++i) {
-					if (whitelist[i].test(m[2])) return;
-				}
+			for (var i = 0; i < patterns.length; ++i) {
+				if (patterns[i].test(uri)) return;
 			}
 			// This has to work in the replay viewer as well as in sim.js,
 			// so use an absolute URI.
