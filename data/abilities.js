@@ -245,31 +245,12 @@ exports.BattleAbilities = {
 	"colorchange": {
 		desc: "This Pokemon's type changes according to the type of the last move that hit this Pokemon.",
 		shortDesc: "This Pokemon's type changes to match the type of the last move that hit it.",
-		onAfterMoveSecondary: function(target, source, effect) {
-			if (target.isActive && effect && effect.effectType === 'Move' && effect.category !== 'Status') {
-				target.addVolatile('colorchange', source, effect);
-			}
-		},
-		effect: {
-			noCopy: true,
-			onStart: function(target, source, effect) {
-				this.effectData.type = 'Normal';
-				if (effect && effect.type && effect.type !== 'Normal') {
-					this.add('-start', target, 'typechange', effect.type, '[from] Color Change');
-					this.effectData.type = effect.type;
-				} else {
-					return false;
+		onAfterMoveSecondary: function(target, source, move) {
+			if (target.isActive && move && move.effectType === 'Move' && move.category !== 'Status') {
+				if (!target.hasType(move.type)) {
+					this.add('-start', target, 'typechange', move.type, '[from] Color Change');
+					target.types = [move.type];
 				}
-			},
-			onRestart: function(target, source, effect) {
-				if (effect && effect.type && effect.type !== this.effectData.type) {
-					this.add('-start', target, 'typechange', effect.type, '[from] Color Change');
-					this.effectData.type = effect.type;
-				}
-			},
-			onModifyPokemon: function(target) {
-				if (!this.effectData.type) this.effectData.type = 'Normal';
-				target.types = [this.effectData.type];
 			}
 		},
 		id: "colorchange",
@@ -325,9 +306,7 @@ exports.BattleAbilities = {
 		onAfterDamage: function(damage, target, source, move) {
 			if (move && move.isContact) {
 				if (this.random(10) < 3) {
-					if (source.addVolatile('attract', target)) {
-						this.add('-start', source, 'Attract', '[from] Cute Charm', '[of] '+target);
-					}
+					source.addVolatile('attract', target);
 				}
 			}
 		},
@@ -623,8 +602,7 @@ exports.BattleAbilities = {
 				break;
 			}
 			if (pokemon.isActive && forme) {
-				pokemon.transformInto(forme);
-				pokemon.transformed = false;
+				pokemon.formeChange(forme);
 				this.add('-formechange', pokemon, forme);
 				this.add('-message', pokemon.name+' transformed! (placeholder)');
 			}
@@ -671,6 +649,12 @@ exports.BattleAbilities = {
 		shortDesc: "This Pokemon's allies receive 3/4 damage from other Pokemon's attacks.",
 		id: "friendguard",
 		name: "Friend Guard",
+		onAnyBasePower: function(basePower, attacker, defender, move) {
+			var target = this.effectData.target;
+			if (defender !== target && defender.side === target.side) {
+				return basePower * 3/4;
+			}
+		},
 		rating: 0,
 		num: 132
 	},
@@ -880,13 +864,7 @@ exports.BattleAbilities = {
 			if (pokemon === pokemon.side.pokemon[i]) return;
 			pokemon.illusion = pokemon.side.pokemon[i];
 		},
-		onDamage: function(damage, pokemon, source, effect) {
-			if (pokemon.illusion && effect && effect.effectType === 'Move') {
-				this.debug('illusion cleared');
-				pokemon.illusion = null;
-				this.add('replace', pokemon, pokemon.getDetails());
-			}
-		},
+		// illusion clearing is hardcoded in the damage function
 		id: "illusion",
 		name: "Illusion",
 		rating: 4.5,
@@ -1036,6 +1014,7 @@ exports.BattleAbilities = {
 	"klutz": {
 		desc: "This Pokemon ignores both the positive and negative effects of its held item, other than the speed-halving and EV-enhancing effects of Macho Brace, Power Anklet, Power Band, Power Belt, Power Bracer, Power Lens, and Power Weight. Fling cannot be used.",
 		shortDesc: "This Pokemon's held item has no effect, except Macho Brace. Fling cannot be used.",
+		onModifyPokemonPriority: 1,
 		onModifyPokemon: function(pokemon) {
 			pokemon.ignore['Item'] = true;
 		},
@@ -2201,7 +2180,11 @@ exports.BattleAbilities = {
 	"suctioncups": {
 		desc: "This Pokemon cannot be forced out.",
 		shortDesc: "This Pokemon cannot be forced to switch out by another Pokemon's attack or item.",
-		onDragOut: false,
+		onDragOutPriority: 1,
+		onDragOut: function(pokemon) {
+			this.add('-activate', pokemon, 'ability: Suction Cups');
+			return false;
+		},
 		id: "suctioncups",
 		name: "Suction Cups",
 		rating: 2.5,
@@ -2405,7 +2388,6 @@ exports.BattleAbilities = {
 		onBeforeMove: function(pokemon, target, move) {
 			if (pokemon.removeVolatile('truant')) {
 				this.add('cant',pokemon,'ability: Truant', move);
-				pokemon.movedThisTurn = true;
 				return false;
 			}
 			pokemon.addVolatile('truant');
@@ -2655,8 +2637,7 @@ exports.BattleAbilities = {
 		},
 		effect: {
 			onStart: function(pokemon) {
-				if (pokemon.transformInto('Darmanitan-Zen')) {
-					pokemon.transformed = false;
+				if (pokemon.formeChange('Darmanitan-Zen')) {
 					this.add('-formechange', pokemon, 'Darmanitan-Zen');
 					this.add('-message', 'Zen Mode triggered! (placeholder)');
 				} else {
@@ -2664,8 +2645,7 @@ exports.BattleAbilities = {
 				}
 			},
 			onEnd: function(pokemon) {
-				if (pokemon.transformInto('Darmanitan')) {
-					pokemon.transformed = false;
+				if (pokemon.formeChange('Darmanitan')) {
 					this.add('-formechange', pokemon, 'Darmanitan');
 					this.add('-message', 'Zen Mode ended! (placeholder)');
 				} else {
