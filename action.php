@@ -64,10 +64,7 @@ foreach ($reqs as $reqData) {
 		unset($curuser['userdata']);
 		$out['curuser'] = $curuser;
 		$out['actionsuccess'] = !!$curuser;
-		$serverhostname = getServerHostName(@$reqData['serverid']);
-		if (!$serverhostname) {
-			die('Bogus request.');
-		}
+		$serverhostname = '' . getServerHostName(@$reqData['serverid']);
 		if ($curuser && $serverhostname) {
 			$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
 		}
@@ -78,10 +75,7 @@ foreach ($reqs as $reqData) {
 			$challengekeyid, $challenge, $challengeprefix);
 		break;
 	case 'register':
-		$serverhostname = getServerHostName(@$reqData['serverid']);
-		if (!$serverhostname) {
-			die('Bogus request.');
-		}
+		$serverhostname = '' . getServerHostName(@$reqData['serverid']);
 		$user = array();
 		$user['username'] = @$_POST['username'];
 		$userid = $users->userid($user['username']);
@@ -124,10 +118,7 @@ foreach ($reqs as $reqData) {
 		break;
 	case 'getassertion':
 		// direct
-		$serverhostname = getServerHostName(@$reqData['serverid']);
-		if (!$serverhostname) {
-			die('Bogus request.');
-		}
+		$serverhostname = '' . getServerHostName(@$reqData['serverid']);
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 		$challengeprefix = verifyCrossDomainRequest();
