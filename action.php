@@ -19,6 +19,25 @@ function getServerHostName($serverid) {
 	return $server ? $server['server'] : $serverid;
 }
 
+function verifyCrossDomainRequest() {
+	global $multiReqs, $config;
+	// No cross-domain multi-requests for security reasons.
+	// No need to do anything if this isn't a cross-domain request.
+	if ($multiReqs || !isset($_SERVER['HTTP_ORIGIN'])) {
+		return '';
+	}
+
+	$origin = $_SERVER['HTTP_ORIGIN'];
+	if (!isset($config['cors'][$origin])) {
+		// Bogus request.
+		return '';
+	}
+
+	// Valid CORS request.
+	header('Access-Control-Allow-Origin: ' . $origin);
+	return $config['cors'][$origin];
+}
+
 $reqs = array($_REQUEST);
 $multiReqs = false;
 if (@$_REQUEST['json']) {
@@ -53,8 +72,9 @@ foreach ($reqs as $reqData) {
 		}
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+		$challengeprefix = verifyCrossDomainRequest();
 		$out['assertion'] = $users->getAssertion($curuser['userid'], $serverhostname, null,
-			$challengekeyid, $challenge);
+			$challengekeyid, $challenge, $challengeprefix);
 		break;
 	case 'register':
 		$serverhostname = getServerHostName(@$reqData['serverid']);
@@ -83,9 +103,10 @@ foreach ($reqs as $reqData) {
 		} else if ($user = $users->addUser($user, $_POST['password'])) {
 			$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 			$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+			$challengeprefix = verifyCrossDomainRequest();
 			$out['curuser'] = $user;
 			$out['assertion'] = $users->getAssertion($user['userid'],
-					$serverhostname, $user, $challengekeyid, $challenge);
+					$serverhostname, $user, $challengekeyid, $challenge, $challengeprefix);
 			$out['actionsuccess'] = true;
 			if ($curuser && $serverhostname) {
 				$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
@@ -108,6 +129,7 @@ foreach ($reqs as $reqData) {
 		}
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+		$challengeprefix = verifyCrossDomainRequest();
 		header('Content-type: text/plain; charset=utf-8');
 		if (empty($reqData['userid'])) {
 			$userid = $curuser['userid'];
@@ -119,7 +141,7 @@ foreach ($reqs as $reqData) {
 			$userid = $users->userid($reqData['userid']);
 		}
 		$serverhostname = htmlspecialchars($serverhostname);	// Protect against theoretical IE6 XSS
-		die($users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge));
+		die($users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge, $challengeprefix));
 		break;
 	case 'updateuserstats':
 		$serverid = @$reqData['serverid'];
