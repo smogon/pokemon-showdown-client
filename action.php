@@ -35,6 +35,7 @@ function verifyCrossDomainRequest() {
 
 	// Valid CORS request.
 	header('Access-Control-Allow-Origin: ' . $origin);
+	header('Access-Control-Allow-Credentials: true');
 	return $config['cors'][$origin];
 }
 
