@@ -896,6 +896,18 @@ function BattleRoom(id, elem) {
 				rooms.lobby.chatHistory.push(text);
 				text = rooms.lobby.parseCommand(text);
 				if (text) {
+					// Checking for multiline PMs
+					if (text.indexOf(',') > -1 && (text.substr(0, 4) === '/msg' || text.substr(0, 8) === '/whisper' || text.substr(0, 3) === '/w ' || text.substr(0, 3) === '/pm')) {
+						var splitText = text.split('\n');
+						var messageTo = text.substr(0, text.indexOf(',') + 1);
+						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = messageTo + splitText[i];
+						text = splitText.join('\n');
+					} else if (text.substr(0, 6) === '/reply'|| text.substr(0, 3) === '/r ') {
+						// Reply does not use commas
+						var splitText = text.split('\n');
+						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = '/r ' + splitText[i];
+						text = splitText.join('\n');
+					} 
 					selfR.send(text);
 				}
 				selfR.chatboxElem.val('');
@@ -2217,6 +2229,18 @@ function Lobby(id, elem) {
 				selfR.chatHistory.push(text);
 				text = selfR.parseCommand(text);
 				if (text) {
+					// Checking for multiline PMs
+					if (text.indexOf(',') > -1 && (text.substr(0, 4) === '/msg' || text.substr(0, 8) === '/whisper' || text.substr(0, 3) === '/w ' || text.substr(0, 3) === '/pm')) {
+						var splitText = text.split('\n');
+						var messageTo = text.substr(0, text.indexOf(',') + 1);
+						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = messageTo + splitText[i];
+						text = splitText.join('\n');
+					} else if (text.substr(0, 6) === '/reply'|| text.substr(0, 3) === '/r ') {
+						// Reply does not use commas
+						var splitText = text.split('\n');
+						for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = '/r ' + splitText[i];
+						text = splitText.join('\n');
+					} 
 					selfR.send(text);
 				}
 				selfR.chatboxElem.val('');
