@@ -7,6 +7,8 @@ License: MIT License
 
 if (!window.exports) window.exports = window;
 
+var _gaq = _gaq || [];
+
 // todo: http://www.youtube.com/watch?v=eEwAPnIev38
 // 32.930 - 1:13.032
 // 32930 to 73032
@@ -316,8 +318,12 @@ var Tools = {
 		})((Config && Config.whitelist) ? Config.whitelist : []);
 		return function(uri) {
 			for (var i = 0; i < patterns.length; ++i) {
-				if (patterns[i].test(uri)) return;
+				if (patterns[i].test(uri)) {
+					_gaq.push(['_trackEvent', 'External link', uri]);
+					return;
+				}
 			}
+			_gaq.push(['_trackEvent', 'Interstice link', uri]);
 			// This has to work in the replay viewer as well as in sim.js,
 			// so use an absolute URI.
 			window.open(
