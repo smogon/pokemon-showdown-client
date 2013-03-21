@@ -25,6 +25,7 @@ var me = {
 	token: '',
 	challengekeyid: -1,
 	challenge: '',
+	renameQueued: false,
 	users: {},
 	rooms: {},
 	ignore: {},
@@ -1744,6 +1745,10 @@ function Lobby(id, elem) {
 				selfR.send('/avatar ' + avatar + ',1');
 			}
 		}
+		if (me.renameQueued) {
+			renameMe(me.renameQueued);
+			me.renameQueued = false;
+		}
 	};
 	this.update = function (data) {
 		if (data.logUpdate) {
@@ -3455,7 +3460,11 @@ teams = (function() {
 			case 'challstr':
 				me.challengekeyid = parseInt(parts[2], 10);
 				me.challenge = parts[3];
-				renameMe(name);
+				if (rooms.lobby !== undefined) {
+					renameMe(name);
+				} else {
+					me.renameQueued = name;
+				}
 				return true;
 		}
 		return false;
