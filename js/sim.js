@@ -3515,7 +3515,7 @@ teams = (function() {
 					roomid = text.substr(1,nlIndex-1);
 					text = text.substr(nlIndex+1);
 				}
-				if (!parseSpecialData(text)) {
+				if (!parseSpecialData(text) && (rooms[roomid] !== undefined)) {
 					rooms[roomid].add(text);
 				}
 				return;
