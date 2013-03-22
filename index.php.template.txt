@@ -57,6 +57,14 @@ if ($colonpos) {
 	$server = substr($server, 0, $colonpos);
 }
 
+if ($psim) {
+	$hyphenpos = strrpos($server, '-');
+	if ($hyphenpos) {
+		$serverport = substr($server, $hyphenpos + 1);
+		$server = substr($server, 0, $hyphenpos);
+	}
+}
+
 $serverdata = array();
 $challengeresponse = false;
 if (@$PokemonServers[$server]) {
