@@ -306,6 +306,8 @@ var basespecieschart = {
 
 var Tools = {
 
+	resourcePrefix: 'http://play.pokemonshowdown.com/',
+
 	showInterstice: (function() {
 		var patterns = (function(whitelist) {
 			var patterns = [];
@@ -596,11 +598,11 @@ var Tools = {
 			var num = '' + BattlePokemonSprites[pokemon.speciesid].num;
 			if (num.length < 3) num = '0' + num;
 			if (num.length < 3) num = '0' + num;
-			cryurl = '/audio/cries/' + num + '.wav';
+			cryurl = Tools.resourcePrefix + 'audio/cries/' + num + '.wav';
 		}
 		if (pokemon.shiny) back += '-shiny';
 		if (window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
-			var url = '/sprites/bwani'+back;
+			var url = Tools.resourcePrefix + 'sprites/bwani'+back;
 			url += '/'+spriteid;
 			var spriteType = 'ani';
 			if (BattlePokemonSprites[pokemon.speciesid][facing]['anif'] && pokemon.gender === 'F') {
@@ -620,7 +622,7 @@ var Tools = {
 		return {
 			w: 96,
 			h: 96,
-			url: '/sprites/bw'+back+'/' + spriteid + '.png',
+			url: Tools.resourcePrefix + 'sprites/bw'+back+'/' + spriteid + '.png',
 			cryurl: cryurl,
 			isBackSprite: isBack
 		};
@@ -629,11 +631,11 @@ var Tools = {
 	getIcon: function(pokemon) {
 		var num = 0;
 		if (pokemon === 'pokeball') {
-			return 'background:transparent url(/sprites/bwicons-pokeball-sheet.png) no-repeat scroll -0px -8px';
+			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-pokeball-sheet.png) no-repeat scroll -0px -8px';
 		} else if (pokemon === 'pokeball-statused') {
-			return 'background:transparent url(/sprites/bwicons-pokeball-sheet.png) no-repeat scroll -32px -8px';
+			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-pokeball-sheet.png) no-repeat scroll -32px -8px';
 		} else if (pokemon === 'pokeball-none') {
-			return 'background:transparent url(/sprites/bwicons-pokeball-sheet.png) no-repeat scroll -64px -8px';
+			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-pokeball-sheet.png) no-repeat scroll -64px -8px';
 		}
 		var id = toId(pokemon);
 		if (pokemon && pokemon.species) id = toId(pokemon.species);
@@ -696,7 +698,7 @@ var Tools = {
 		var top = 8 + Math.floor(num / 16) * 32;
 		var left = (num % 16) * 32;
 		var fainted = (pokemon && pokemon.fainted?';opacity:.4':'');
-		return 'background:transparent url(/sprites/bwicons-sheet.png?v0.7.18) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-sheet.png?v0.7.18) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
 	getTeambuilderSprite: function(pokemon) {
@@ -715,7 +717,7 @@ var Tools = {
 		if (BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].front && BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
 			id+='-f';
 		}
-		return 'background-image:url(/sprites/bw'+shiny+'/'+id+'.png)';
+		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw'+shiny+'/'+id+'.png)';
 	},
 
 	getItemIcon: function(item) {
@@ -725,12 +727,12 @@ var Tools = {
 
 		var top = Math.floor(num / 16) * 24;
 		var left = (num % 16) * 24;
-		return 'background:transparent url(/sprites/itemicons-sheet.png) no-repeat scroll -' + left + 'px -' + top + 'px';
+		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/itemicons-sheet.png) no-repeat scroll -' + left + 'px -' + top + 'px';
 	},
 
 	getTypeIcon: function(type, b) { // b is just for utilichart.js
 		sanitizedType = type.replace(/\?/g,'%3f');
-		return '<img src="/sprites/types/'+sanitizedType+'.png" alt="'+type+'" height="14" width="32"'+(b?' class="b"':'')+' />';
+		return '<img src="' + Tools.resourcePrefix + 'sprites/types/'+sanitizedType+'.png" alt="'+type+'" height="14" width="32"'+(b?' class="b"':'')+' />';
 	}
 };
 

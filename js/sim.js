@@ -1812,7 +1812,7 @@ function Lobby(id, elem) {
 				roomListCode += '<div><a href="' + locPrefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
 			}
 
-			var code = '<img src="/sprites/trainers/' + data.avatar + '.png" />';
+			var code = '<img src="' + Tools.resourcePrefix + 'sprites/trainers/' + data.avatar + '.png" />';
 			if (roomListCode) {
 				roomListCode = '<div class="action-form">In rooms:<br /><div class="roomlist">' + roomListCode + '</div></div>';
 			}
@@ -2661,7 +2661,7 @@ function showTooltip(thing, type, elem, ownHeight, isActive) {
 		if (!accuracy || accuracy === true) accuracy = '&mdash;';
 		else accuracy = '' + accuracy + '%';
 		text = '<div class="tooltipinner"><div class="tooltip">';
-		text += '<h2>' + move.name + '<br />'+Tools.getTypeIcon(move.type)+' <img src="/sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
+		text += '<h2>' + move.name + '<br />'+Tools.getTypeIcon(move.type)+' <img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
 		text += '<p>Base power: ' + basePower + '</p>';
 		text += '<p>Accuracy: ' + accuracy + '</p>';
 		if (move.desc) {
@@ -2879,7 +2879,7 @@ var favicon = {
 			return false;
 		};
 		dismissNotify = function () {
-			favicon.change('/favicon.ico');
+			favicon.change(Tools.resourcePrefix + 'favicon.ico');
 			if (activeNotification) {
 				activeNotification.cancel();
 				activeNotification = null;
@@ -2888,7 +2888,7 @@ var favicon = {
 		};
 		notify = function (data) {
 			if (window.focused) return;
-			favicon.animate(['/favicon-notify.ico', '/favicon-notify2.ico']);
+			favicon.animate([Tools.resourcePrefix + 'favicon-notify.ico', Tools.resourcePrefix + 'favicon-notify2.ico']);
 			if (needEnableNotify()) {
 				requestNotify();
 			} else {
@@ -3062,7 +3062,7 @@ function overlay(overlayType, data) {
 		contents += '<p><label class="label">Username:</label> ' + (data.name || me.name) + '<input type="hidden" id="overlay_username" value="' + sanitize(data.name || me.name) + '" /></p>';
 		contents += '<p><label class="label">Password:</label> <input class="textbox" type="password" id="overlay_password" /></p>';
 		contents += '<p><label class="label">Password (confirm):</label> <input class="textbox" type="password" id="overlay_cpassword" /></p>';
-		contents += '<p><img src="/sprites/bwani/pikachu.gif" /></p>';
+		contents += '<p><img src="' + Tools.resourcePrefix + 'sprites/bwani/pikachu.gif" /></p>';
 		contents += '<p><label class="label">What is this pokemon?</label> <input class="textbox" type="text" id="overlay_captcha" value="' + sanitize(data.captcha) + '" /></p>';
 		contents += '<p><button type="submit"><strong>Register</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		selectElem = '#overlay_password';
