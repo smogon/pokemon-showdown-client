@@ -3562,7 +3562,7 @@ teams = (function() {
 			};
 		}
 	};
-	if (Config.crossdomain === undefined) {
+	if ((Config.crossdomain === undefined) || (window.postMessage === undefined)) {
 		connect(Config.upkeep, $.cookie('showdown_username') || '');
 	} else {
 		var origin = 'http://play.pokemonshowdown.com';

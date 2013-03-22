@@ -99,11 +99,8 @@ $serverlibs = array(
 );
 $serverlibrary = $serverlibs[$serverprotocol];
 
-$upkeep = null;
-if (!$psim) {
-	include '../pokemonshowdown.com/lib/ntbb-session.lib.php';
-	$upkeep = $users->getUpkeep($challengeresponse);
-}
+include '../pokemonshowdown.com/lib/ntbb-session.lib.php';
+$upkeep = $users->getUpkeep($challengeresponse);
 
 ?>
 <!DOCTYPE html>
@@ -130,14 +127,13 @@ if (!$psim) {
 			<?php if (!empty($serveraltport)) echo "serveraltport: $serveraltport,\n"; ?>
 			serverprotocol: '<?php echo $serverprotocol ?>',
 			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown' && !$psim) echo '~~',$serverid,'/'; ?>',
-<?php if (!$psim) { ?>
-			upkeep: <?php echo json_encode($upkeep) . "\n" ?>
-<?php } else { ?>
+<?php if ($psim) { ?>
 			crossdomain: {
 				prefix: <?php echo json_encode($hostprefix) ?>,
 				challengeresponse: <?php echo intval($challengeresponse) ?>
-			}
+			},
 <?php } ?>
+			upkeep: <?php echo json_encode($upkeep) . "\n" ?>
 		};
 	</script>
 	<!--[if lte IE 8]><script>
