@@ -24,6 +24,9 @@ RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC,OR]
 RewriteCond %{HTTP_HOST} ^(www\.)?psim\.us$ [NC]
 RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
 
+RewriteCond %{HTTP_HOST} ^(.*?)-8000\.psim\.us$ [NC]
+RewriteRule ^(.*) http://%1.psim.us/$1 [R=301,L]
+
 RewriteRule ^topsekritsim\.php$ / [R=301,L]
 RewriteRule ^topsekrit3\.php$ / [R=301,L]
 RewriteRule ^temporary508\.php$ / [R=301,L]
@@ -39,7 +42,6 @@ RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http://pokemonshowdown.com/replay/$1
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
 
 RewriteRule ^~~([^:/]*)(:[0-9]*)?/action\.php$ action.php?serverid=$1 [L,QSA]
-RewriteRule ^~~([^:/]*)(:8000)?(/.*)?$ http://$1.psim.us$2 [R=301,L]
 RewriteRule ^~~([^:/]*):([0-9]*)(/.*)?$ http://$1-$2.psim.us$3 [R=301,L]
 RewriteRule ^style/custom/([A-Za-z0-9-]*)\.css$ customcss.php?server=$1 [L]
 
