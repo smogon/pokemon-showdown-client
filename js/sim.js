@@ -3562,7 +3562,9 @@ teams = (function() {
 		$(window).on('message', function($e) {
 			var e = $e.originalEvent;
 			if (e.origin !== origin) return;
-			$.cookie('sid', e.data.sid);
+			if (e.data.sid) {
+				$.cookie('sid', e.data.sid);
+			}
 			if (e.data.teams) {
 				cookieTeams = false;
 				teams = $.parseJSON(e.data.teams);
@@ -3580,7 +3582,7 @@ teams = (function() {
 					prefs: $.toJSON(this.data)
 				}, origin);
 			};
-			connect(e.data.upkeep, e.data.username);
+			connect(e.data.upkeep, e.data.username || $.cookie('showdown_username'));
 		});
 		var $iframe = $(
 			'<iframe src="http://play.pokemonshowdown.com/crossdomain.php?prefix=' +
