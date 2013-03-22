@@ -152,7 +152,11 @@ if (!$psim) {
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-26211653-1']);
+<?php if (!$psim) { ?>
   _gaq.push(['_setDomainName', 'pokemonshowdown.com']);
+<?php } else { ?>
+  _gaq.push(['_setDomainName', 'psim.us']);
+<?php } ?>
   _gaq.push(['_trackPageview']);
 
   (function() {
