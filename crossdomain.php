@@ -34,7 +34,7 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 			$.cookie('showdown_username', e.data.username, {expires: 14});
 		}
 		if (e.data.sid) {
-			$.cookie('sid', e.data.username, {expires: 14});
+			$.cookie('sid', e.data.sid, {expires: 14});
 		}
 		if (e.data.teams) {
 			localStorage.setItem('showdown_teams', e.data.teams);
