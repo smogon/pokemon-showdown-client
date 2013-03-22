@@ -20,10 +20,10 @@ AddType application/x-web-app-manifest+json .webapp
 <IfModule mod_rewrite.c>
 RewriteEngine on
 
-RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
-RewriteRule ^(.*)$ http://play.pokemonshowdown.com/$1 [R=301,L]
+RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC,OR]
+RewriteCond %{HTTP_HOST} ^(www\.)?psim\.us$ [NC]
+RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
 
-#RewriteRule ^$ /lobby [R=301,L]
 RewriteRule ^topsekritsim\.php$ / [R=301,L]
 RewriteRule ^topsekrit3\.php$ / [R=301,L]
 RewriteRule ^temporary508\.php$ / [R=301,L]

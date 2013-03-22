@@ -7,11 +7,6 @@ if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/lobby') {
 		header('Location: http://pokemonshowdown.com/');
 		die();
 	}
-	if ($_SERVER['HTTP_HOST'] === 'psim.us' || $_SERVER['HTTP_HOST'] === 'www.psim.us') {
-		header('HTTP/1.1 303 See Other');
-		header('Location: http://play.pokemonshowdown.com/');
-		die();
-	}
 }
 
 // if (substr($_SERVER['REQUEST_URI'],0,8) === '/battle-') {
