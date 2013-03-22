@@ -3,8 +3,13 @@
 // no direct linking to the lobby
 if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/lobby') {
 	if (!empty($_SERVER['HTTP_REFERER']) && !preg_match('/^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)/', $_SERVER['HTTP_REFERER'])) {
-		header('HTTP/1.1 303 See Other'); 
+		header('HTTP/1.1 303 See Other');
 		header('Location: http://pokemonshowdown.com/');
+		die();
+	}
+	if ($_SERVER['HTTP_HOST'] === 'psim.us' || $_SERVER['HTTP_HOST'] === 'www.psim.us') {
+		header('HTTP/1.1 303 See Other');
+		header('Location: http://play.pokemonshowdown.com/');
 		die();
 	}
 }
@@ -21,13 +26,20 @@ header('Expires: 0'); // Proxies.
 $defaultserver = 'showdown';
 
 include '../pokemonshowdown.com/config/servers.inc.php';
-include '../pokemonshowdown.com/lib/ntbb-session.lib.php';
 
 $server = @$_REQUEST['server'];
 $serverport = 0;
 $serverprotocol = '';
 $serverid = '';
 $usingdefaultserver = false;
+
+$psim = false;
+$hostprefix = '';
+if (strlen($_SERVER['HTTP_HOST']) > 8 && substr($_SERVER['HTTP_HOST'], -7) === 'psim.us') {
+	$hostprefix = substr($_SERVER['HTTP_HOST'], 0, -8);
+	$server = $hostprefix;
+	$psim = true;
+}
 
 $colonpos = strpos($server, ':');
 $protocolpos = strrpos($server, '|');
@@ -84,16 +96,10 @@ $serverlibs = array(
 );
 $serverlibrary = $serverlibs[$serverprotocol];
 
-$upkeep = array();
-$upkeep['curuser'] = array(
-	'userid' => @$curuser['userid'],
-	'username' => @$curuser['username'],
-	'loggedin' => @$curuser['loggedin']
-);
-if (!$challengeresponse) {
-	if (empty($_COOKIE['showdown_username'])) $userid = $curuser['userid'];
-	else $userid = $users->userid($_COOKIE['showdown_username']);
-	$upkeep['assertion'] = $users->getAssertion($userid, $server);
+$upkeep = null;
+if (!$psim) {
+	include '../pokemonshowdown.com/lib/ntbb-session.lib.php';
+	$upkeep = $users->getUpkeep($challengeresponse);
 }
 
 ?>
@@ -120,8 +126,15 @@ if (!$challengeresponse) {
 			serverport: <?php echo $serverport ?>,
 			<?php if (!empty($serveraltport)) echo "serveraltport: $serveraltport,\n"; ?>
 			serverprotocol: '<?php echo $serverprotocol ?>',
-			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown') echo '~~',$serverid,'/'; ?>',
+			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown' && !$psim) echo '~~',$serverid,'/'; ?>',
+<?php if (!$psim) { ?>
 			upkeep: <?php echo json_encode($upkeep) . "\n" ?>
+<?php } else { ?>
+			crossdomain: {
+				prefix: <?php echo json_encode($hostprefix) ?>,
+				challengeresponse: <?php echo intval($challengeresponse) ?>
+			}
+<?php } ?>
 		};
 	</script>
 	<!--[if lte IE 8]><script>
