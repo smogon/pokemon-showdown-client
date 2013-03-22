@@ -2,7 +2,7 @@
 
 // no direct linking to the lobby
 if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/lobby') {
-	if (!empty($_SERVER['HTTP_REFERER']) && !preg_match('/^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)/', $_SERVER['HTTP_REFERER'])) {
+	if (!empty($_SERVER['HTTP_REFERER']) && !preg_match('/^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)/', $_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_HOST'] === 'play.pokemonshowdown.com') {
 		header('HTTP/1.1 303 See Other');
 		header('Location: http://pokemonshowdown.com/');
 		die();
