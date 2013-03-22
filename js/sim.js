@@ -2512,6 +2512,7 @@ function updateMe() {
 		$.cookie('showdown_username', me.name, {
 			expires: 14
 		});
+		Tools.postCrossDomainMessage({username: me.name});
 	} else {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + sanitize(me.name) + mutebutton + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');
 	}
@@ -3210,6 +3211,9 @@ function overlaySubmit(e, overlayType) {
 			challenge: me.challenge
 		}, Tools.safeJson(function (data) {
 			if (!data) data = {};
+			if (data.sid !== undefined) {
+				Tools.postCrossDomainMessage({sid: data.sid});
+			}
 			var token = data.assertion;
 			if (data.curuser && data.curuser.loggedin) {
 				me.registered = data.curuser;
@@ -3260,6 +3264,9 @@ function overlaySubmit(e, overlayType) {
 			challenge: me.challenge
 		}, Tools.safeJson(function (data) {
 			if (!data) data = {};
+			if (data.sid !== undefined) {
+				Tools.postCrossDomainMessage({sid: data.sid});
+			}
 			var token = data.assertion;
 			if (data.curuser && data.curuser.loggedin) {
 				me.registered = data.curuser;
@@ -3562,27 +3569,28 @@ teams = (function() {
 		$(window).on('message', function($e) {
 			var e = $e.originalEvent;
 			if (e.origin !== origin) return;
-			if (e.data.sid) {
-				$.cookie('sid', e.data.sid);
-			}
+			Tools.postCrossDomainMessage = function(data) {
+				return e.source.postMessage(data, origin);
+			};
+			// sid
+			$.cookie('sid', e.data.sid);
+			// teams
 			if (e.data.teams) {
 				cookieTeams = false;
 				teams = $.parseJSON(e.data.teams);
 			}
 			Teambuilder.writeTeams = function() {
-				e.source.postMessage({
-					teams: $.toJSON(teams)
-				}, origin);
+				Tools.postCrossDomainMessage({teams: $.toJSON(teams)});
 			};
+			// prefs
 			if (e.data.prefs) {
 				Tools.prefs.data = $.parseJSON(e.data.prefs);
 			}
 			Tools.prefs.save = function() {
-				e.source.postMessage({
-					prefs: $.toJSON(this.data)
-				}, origin);
+				Tools.postCrossDomainMessage({prefs: $.toJSON(this.data)});
 			};
-			connect(e.data.upkeep, e.data.username || $.cookie('showdown_username'));
+			// connect
+			connect(e.data.upkeep, e.data.username);
 		});
 		var $iframe = $(
 			'<iframe src="http://play.pokemonshowdown.com/crossdomain.php?prefix=' +

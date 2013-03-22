@@ -73,6 +73,7 @@ foreach ($reqs as $reqData) {
 		$challengeprefix = verifyCrossDomainRequest();
 		$out['assertion'] = $users->getAssertion($curuser['userid'], $serverhostname, null,
 			$challengekeyid, $challenge, $challengeprefix);
+		$out['sid'] = $users->sid;
 		break;
 	case 'register':
 		$serverhostname = '' . getServerHostName(@$reqData['serverid']);
@@ -102,6 +103,7 @@ foreach ($reqs as $reqData) {
 			$out['curuser'] = $user;
 			$out['assertion'] = $users->getAssertion($user['userid'],
 					$serverhostname, $user, $challengekeyid, $challenge, $challengeprefix);
+			$out['sid'] = $users->sid;
 			$out['actionsuccess'] = true;
 			if ($curuser && $serverhostname) {
 				$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
