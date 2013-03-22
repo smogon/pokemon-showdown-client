@@ -3566,20 +3566,20 @@ teams = (function() {
 			if (e.data.teams) {
 				cookieTeams = false;
 				teams = $.parseJSON(e.data.teams);
-				Teambuilder.writeTeams = function() {
-					e.source.postMessage({
-						teams: $.toJSON(teams)
-					}, origin);
-				};
 			}
+			Teambuilder.writeTeams = function() {
+				e.source.postMessage({
+					teams: $.toJSON(teams)
+				}, origin);
+			};
 			if (e.data.prefs) {
 				Tools.prefs.data = $.parseJSON(e.data.prefs);
-				Tools.prefs.save = function() {
-					e.source.postMessage({
-						prefs: $.toJSON(this.data)
-					}, origin);
-				};
 			}
+			Tools.prefs.save = function() {
+				e.source.postMessage({
+					prefs: $.toJSON(this.data)
+				}, origin);
+			};
 			connect(e.data.upkeep, e.data.username);
 		});
 		var $iframe = $(
