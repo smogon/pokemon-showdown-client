@@ -133,7 +133,7 @@ function Pokemon(species) {
 		if (selfP.hasVolatile(volatile)) return;
 		selfP.volatiles[volatile] = [volatile, null];
 		if (volatile === 'leechseed') {
-			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="/fx/energyball.png" style="display:none;position:absolute" />');
+			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
 			var curelem = selfP.side.battle.spriteElemsFront[selfP.side.n].children().last();
 			curelem.css(self.pos({
 				display: 'block',
@@ -145,7 +145,7 @@ function Pokemon(species) {
 			}, BattleEffects.energyball));
 			var elem = curelem;
 
-			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="/fx/energyball.png" style="display:none;position:absolute" />');
+			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
 			curelem = selfP.side.battle.spriteElemsFront[selfP.side.n].children().last();
 			curelem.css(self.pos({
 				display: 'block',
@@ -157,7 +157,7 @@ function Pokemon(species) {
 			}, BattleEffects.energyball));
 			elem = elem.add(curelem);
 
-			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="/fx/energyball.png" style="display:none;position:absolute" />');
+			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
 			curelem = selfP.side.battle.spriteElemsFront[selfP.side.n].children().last();
 			curelem.css(self.pos({
 				display: 'block',
@@ -4799,13 +4799,13 @@ function Battle(frame, logFrame, noPreload) {
 		for (i in BattleEffects) {
 			if (BattleEffects[i].url) self.preloadImage(BattleEffects[i].url);
 		}
-		self.preloadImage('/fx/weather-raindance.jpg'); // rain is used often enough to precache
-		self.preloadImage('/sprites/bw/substitute.png');
-		self.preloadImage('/sprites/bw-back/substitute.png');
-		//self.preloadImage('/fx/bg.jpg');
+		self.preloadImage(Tools.resourcePrefix + 'fx/weather-raindance.jpg'); // rain is used often enough to precache
+		self.preloadImage(Tools.resourcePrefix + 'sprites/bw/substitute.png');
+		self.preloadImage(Tools.resourcePrefix + 'sprites/bw-back/substitute.png');
+		//self.preloadImage(Tools.resourcePrefix + 'fx/bg.jpg');
 	};
 	this.preloadSounds = function () {
-		//self.preloadAudio('audio/bw-trainer-battle.mp3');
+		//self.preloadAudio(Tools.resourcePrefix + 'audio/bw-trainer-battle.mp3');
 	}
 	this.preloadAudio = function (url, autoplay) {
 		if (noPreload) return;
@@ -4845,29 +4845,29 @@ function Battle(frame, logFrame, noPreload) {
 			if (window.forceBgm) bgmNum = window.forceBgm;
 			switch (bgmNum) {
 			case -1:
-				self.preloadBgm('/audio/bw2-homika-dogars.mp3', true, 1661, 68131);
+				self.preloadBgm(Tools.resourcePrefix + 'audio/bw2-homika-dogars.mp3', true, 1661, 68131);
 				break;
 			case 0:
-				self.preloadBgm('/audio/hgss-kanto-trainer.mp3', true, 13003, 94656);
+				self.preloadBgm(Tools.resourcePrefix + 'audio/hgss-kanto-trainer.mp3', true, 13003, 94656);
 				break;
 			case 1:
-				self.preloadBgm('/audio/bw-subway-trainer.mp3', true, 15503, 110984);
+				self.preloadBgm(Tools.resourcePrefix + 'audio/bw-subway-trainer.mp3', true, 15503, 110984);
 				break;
 			case 2:
-				self.preloadBgm('/audio/bw-trainer.mp3', true, 14629, 110109);
+				self.preloadBgm(Tools.resourcePrefix + 'audio/bw-trainer.mp3', true, 14629, 110109);
 				break;
 			case 3:
-				self.preloadBgm('/audio/bw-rival.mp3', true, 19180, 57373);
+				self.preloadBgm(Tools.resourcePrefix + 'audio/bw-rival.mp3', true, 19180, 57373);
 				break;
 			case 4:
-				self.preloadBgm('/audio/dpp-trainer.mp3', true, 13440, 96959);
+				self.preloadBgm(Tools.resourcePrefix + 'audio/dpp-trainer.mp3', true, 13440, 96959);
 				break;
 			case 5:
-				self.preloadBgm('/audio/hgss-johto-trainer.mp3', true, 23731, 125086);
+				self.preloadBgm(Tools.resourcePrefix + 'audio/hgss-johto-trainer.mp3', true, 23731, 125086);
 				break;
 			case 6:
 			default:
-				self.preloadBgm('/audio/dpp-rival.mp3', true, 13888, 66352);
+				self.preloadBgm(Tools.resourcePrefix + 'audio/dpp-rival.mp3', true, 13888, 66352);
 				break;
 			}
 			return;

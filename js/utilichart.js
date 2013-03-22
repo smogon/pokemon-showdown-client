@@ -243,7 +243,7 @@ function BattleChart()
 		
 		text += '<span class="col typecol">';
 		text += Tools.getTypeIcon(move.type, match.type);
-		text += '<img src="/sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32"'+(match.category?' class="b"':'')+' />';
+		text += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32"'+(match.category?' class="b"':'')+' />';
 		text += '</span> ';
 		
 		text += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';

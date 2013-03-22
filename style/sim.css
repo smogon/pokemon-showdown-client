@@ -553,7 +553,7 @@ button.closebutton i
 	cursor: pointer;
 	width: 15px;
 	height: 15px;
-	background: transparent url(/fx/closebuttonsheet.png) no-repeat scroll 0px -16px;
+	background: transparent url(http://play.pokemonshowdown.com/fx/closebuttonsheet.png) no-repeat scroll 0px -16px;
 	z-index: 10;
 }
 #leftbar div .close2
@@ -570,7 +570,7 @@ button.closebutton i
 }
 #leftbar div .close:hover
 {
-	background: transparent url(/fx/closebuttonsheet.png) no-repeat scroll 0px 0px;
+	background: transparent url(http://play.pokemonshowdown.com/fx/closebuttonsheet.png) no-repeat scroll 0px 0px;
 }
 #leftbar small
 {
@@ -652,7 +652,7 @@ button.closebutton i
 	border-right: 0;
 	height: auto;
 	width: auto;
-	background: #edf1f4 url(/data/meloettabg.png) no-repeat scroll right bottom;
+	background: #edf1f4 url(http://play.pokemonshowdown.com/data/meloettabg.png) no-repeat scroll right bottom;
 	word-wrap: break-word;
 	overflow-x: hidden;
 }
