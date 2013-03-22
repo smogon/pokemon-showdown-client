@@ -2088,41 +2088,8 @@ function Teambuilder(id, elem)
 			selfR.parseText(selfR.teamEditElem.val(), true);
 		}
 
-		if (window.localStorage)
-		{
-			$.cookie('showdown_team1', null);
-			$.cookie('showdown_team2', null);
-			$.cookie('showdown_team3', null);
-			
-			localStorage.setItem('showdown_teams', JSON.stringify(teams));
-		}
-		else
-		{
-			if (teams[0])
-			{
-				$.cookie('showdown_team1', null);
-				$.cookie('showdown_team1', $.toJSON(teams[0]),{expires:60,domain:'pokemonshowdown.com'});
-			}
-			else
-			{
-				$.cookie('showdown_team1', null);
-				$.cookie('showdown_team1', null, {domain:'pokemonshowdown.com'});
-			}
-			if (teams[1])
-			{
-				$.cookie('showdown_team2', null);
-				$.cookie('showdown_team2', $.toJSON(teams[1]),{expires:60,domain:'pokemonshowdown.com'});
-			}
-			else
-			{
-				$.cookie('showdown_team2', null);
-				$.cookie('showdown_team2', null, {domain:'pokemonshowdown.com'});
-			}
-			$.cookie('showdown_team3', null);
-		}
-		
+		Teambuilder.writeTeams();
 		selectedTeam = -2;
-		
 		selfR.formBack();
 	};
 	this.formBack = function() {
@@ -2232,6 +2199,40 @@ function Teambuilder(id, elem)
 
 	selfR.init();
 }
+Teambuilder.writeTeams = function() {
+	if (window.localStorage)
+	{
+		$.cookie('showdown_team1', null);
+		$.cookie('showdown_team2', null);
+		$.cookie('showdown_team3', null);
+
+		localStorage.setItem('showdown_teams', JSON.stringify(teams));
+	}
+	else
+	{
+		if (teams[0])
+		{
+			$.cookie('showdown_team1', null);
+			$.cookie('showdown_team1', $.toJSON(teams[0]),{expires:60,domain:'pokemonshowdown.com'});
+		}
+		else
+		{
+			$.cookie('showdown_team1', null);
+			$.cookie('showdown_team1', null, {domain:'pokemonshowdown.com'});
+		}
+		if (teams[1])
+		{
+			$.cookie('showdown_team2', null);
+			$.cookie('showdown_team2', $.toJSON(teams[1]),{expires:60,domain:'pokemonshowdown.com'});
+		}
+		else
+		{
+			$.cookie('showdown_team2', null);
+			$.cookie('showdown_team2', null, {domain:'pokemonshowdown.com'});
+		}
+		$.cookie('showdown_team3', null);
+	}
+};
 
 var deletedTeam = null;
 var deletedTeamLoc = -1;

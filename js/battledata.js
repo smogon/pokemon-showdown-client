@@ -399,23 +399,23 @@ var Tools = {
 
 	prefs: (function() {
 		var localStorageEntry = 'showdown_prefs';
-		var data = (window.localStorage &&
-				$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
 		var self = {
+			data: (window.localStorage &&
+                                $.parseJSON(localStorage.getItem(localStorageEntry))) || {},
 			get: function(prop) {
-				return data[prop];
+				return self.data[prop];
 			},
 			/**
 			 * Set a preference value.
 			 * If save is true-ish, then also save to localStorage immediately.
 			 */
 			set: function(prop, value, save) {
-				data[prop] = value;
+				self.data[prop] = value;
 				if (save) self.save();
 			},
 			save: function() {
 				if (!window.localStorage) return;
-				localStorage.setItem(localStorageEntry, $.toJSON(data));
+				localStorage.setItem(localStorageEntry, $.toJSON(self.data));
 			}
 		};
 		return self;

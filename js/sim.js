@@ -54,6 +54,7 @@ var isAndroid = navigator.userAgent.toLowerCase().indexOf("android") > -1 && nav
 // 
 function selectTab(tab, e) {
 	if (e && e.preventDefault) e.preventDefault();
+	if (!tab) tab = 'lobby';
 	if (!rooms[tab]) {
 		joinTab(tab);
 		return false;
@@ -83,7 +84,7 @@ function selectTab(tab, e) {
 }
 
 function joinTab(tab) {
-	if (tab === 'lobby') return;
+	if (!tab || tab === 'lobby') return;
 	if (rooms.lobby) rooms.lobby.send('/join '+tab);
 }
 
@@ -2533,7 +2534,7 @@ function formMute() {
 function updateRoomList() {
 	var code = '';
 	if (!curRoom) curRoom = rooms.lobby;
-	code += '<div><a id="tabtab-lobby" class="tab' + (curRoom.id === 'lobby' ? ' cur' : '') + (rooms.lobby && rooms.lobby.notifying ? ' notifying' : '') + '" href="' + locPrefix + 'lobby" onclick="selectTab(\'lobby\'); return false"><i class="icon-comments-alt"></i> Lobby</a>';
+	code += '<div><a id="tabtab-lobby" class="tab' + (curRoom.id === 'lobby' ? ' cur' : '') + (rooms.lobby && rooms.lobby.notifying ? ' notifying' : '') + '" href="' + locPrefix + '" onclick="selectTab(\'lobby\'); return false"><i class="icon-comments-alt"></i> Lobby</a>';
 	code += '<a id="tabtab-teambuilder"' + (curRoom.id === 'teambuilder' ? ' class="cur"' : '') + ' href="' + locPrefix + 'teambuilder" onclick="selectTab(\'teambuilder\', event);return false"><i class="icon-edit"></i> Teambuilder</a>';
 	code += '<a id="tabtab-ladder"' + (curRoom.id === 'ladder' ? ' class="cur"' : '') + ' href="' + locPrefix + 'ladder" onclick="selectTab(\'ladder\');return false"><i class="icon-list-ol"></i> Ladder</a></div>';
 
@@ -2745,16 +2746,18 @@ var changeState = function () {};
 var loc = 'lobby';
 if (document.location.pathname.substr(0, locPrefix.length) === locPrefix) {
 	loc = document.location.pathname.substr(locPrefix.length);
-	if (loc === 'test.html' || loc === 'temp.html' || loc.substr(loc.length-15) === 'testclient.html') loc = 'lobby';
+	if (!loc || loc === 'test.html' || loc === 'temp.html' || loc.substr(loc.length-15) === 'testclient.html') loc = 'lobby';
 }
 
 if (window.history && history.pushState) {
 	// HTML5 history
 	changeState = function (newLoc) {
 		if (!initialized) return;
-		if (document.location.pathname !== locPrefix + newLoc) {
+		var urlLoc = newLoc;
+		if (urlLoc === 'lobby') urlLoc = '';
+		if (document.location.pathname !== locPrefix + urlLoc) {
 			try {
-				history.pushState(null, null, locPrefix + newLoc);
+				history.pushState(null, null, locPrefix + urlLoc);
 			} catch (e) {
 				// Throws insecure operation when running on local filesystem.
 			}
@@ -2764,7 +2767,7 @@ if (window.history && history.pushState) {
 	window.onpopstate = function (e) {
 		if (document.location.pathname.substr(0, locPrefix.length) === locPrefix) {
 			loc = document.location.pathname.substr(locPrefix.length);
-			if (loc === 'test.html' || loc === 'temp.html' || loc.substr(loc.length-15) === 'testclient.html') loc = 'lobby';
+			if (!loc || loc === 'test.html' || loc === 'temp.html' || loc.substr(loc.length-15) === 'testclient.html') loc = 'lobby';
 			if (!socket) {
 				return; // haven't even initted yet
 			}
@@ -3324,199 +3327,162 @@ teams = (function() {
 })();
 
 // time to connect
-(function(data, name) {
-	if (Config.down) return;
+(function() {
+	var connect = function(data, name) {
+		if (Config.down) return;
 
-	if (!data) data = {};
-	var token = data.assertion || '';
+		if (!data) data = {};
+		var token = data.assertion || '';
 
-	if (data.curuser && data.curuser.loggedin) {
-		me.registered = data.curuser;
-		name = data.curuser.username;
-	} else if (Config.oldie) {
-		overlay('unsupported');
-		return;
-	} else if (Config.requirelogin) {
-		document.getElementById('loading-message').innerHTML = '';
-		overlay('betalogin');
-		return;
-	}
-
-	var constructSocket = function(host, port) {
-		if (Config.serverprotocol === 'io') return io.connect('http://' + host + ':' + port);
-		else if (Config.serverprotocol === 'eio') return new eio.Socket({ host: host, port: port });
-		else return new SockJS('http://' + host + ':' + port);
-	};
-
-	socket = constructSocket(Config.server, Config.serverport);
-
-	var events = {
-		init: function (data) {
-			if (data.name) {
-				me.name = data.name;
-				me.named = data.named;
-				me.userid = data.userid;
-				me.renamePending = !! data.renamePending;
-				if (data.token) me.token = data.token;
-			}
-			if (data.notFound) {
-				selectTab('lobby');
-				return;
-			}
-			var tempInitialize = function () {
-					addTab(data.room, data.roomType);
-					var room = rooms[data.room];
-					room.init(data);
-					updateMe(data);
-					$('#loading-message').remove();
-					if (loc && loc !== 'lobby') {
-						selectTab(loc);
-					}
-				};
-			if (!initialized) {
-				socketInit = tempInitialize;
-			} else {
-				tempInitialize();
-			}
-		},
-		update: function (data) {
-			if (typeof data.name !== 'undefined') {
-				me.name = data.name;
-				me.named = data.named;
-				me.userid = data.userid;
-				me.renamePending = !! data.renamePending;
-				if (data.token) me.token = data.token;
-			}
-			if (typeof data.challengesFrom !== 'undefined') {
-				me.challengesFrom = data.challengesFrom;
-				rooms.lobby.notifying = false;
-				for (var i in me.challengesFrom) {
-					rooms.lobby.notifying = true;
-					break;
-				}
-				updateRoomList();
-				rooms.lobby.updateMainTop();
-			}
-			if (typeof data.challengeTo !== 'undefined') {
-				me.challengeTo = data.challengeTo;
-				rooms.lobby.updateMainTop();
-			}
-			updateMe(data);
-			if (data.room && rooms[data.room]) {
-				rooms[data.room].update(data);
-			} else if (curRoom) {
-				//curRoom.update(data);
-			}
-		},
-		disconnect: function () {
-			$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
-			overlay('disconnect');
-		},
-		nameTaken: function (data) {
-			if (data && data.permanent) {
-				overlay('message', data.reason);
-			} else if (data && data.name) {
-				overlay('login', data);
-			} else if (data) {
-				overlay('rename', {
-					error: data.reason
-				});
-			} else {
-				alert('nameTaken signal');
-				$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">nameTaken signal</strong> ');
-			}
-		},
-		message: function (message) {
-			if (message.html) {
-				overlay('message', message.html);
-				return;
-			}
-			if (message.message) message = message.message;
-			overlay('message', '<div style="white-space:pre-wrap">' + message + '</div>');
-		},
-		command: function (message) {
-			if (message.room && rooms[message.room]) {
-				rooms[message.room].command(message);
-			}
-		},
-		console: function (message) {
-			var room = null;
-			if (message.room && rooms[message.room]) {
-				room = rooms[message.room];
-				if (room) room.add(message);
-				//if (room.id === 'lobby' && message.silent) room.updateMainTop();
-			} else {
-				if (curRoom) curRoom.message(message, true);
-			}
+		if (data.curuser && data.curuser.loggedin) {
+			me.registered = data.curuser;
+			name = data.curuser.username;
+		} else if (Config.oldie) {
+			overlay('unsupported');
+			return;
+		} else if (Config.requirelogin) {
+			document.getElementById('loading-message').innerHTML = '';
+			overlay('betalogin');
+			return;
 		}
-	};
 
-	function parseSpecialData(text) {
-		var parts = text.split('|');
-		if (parts.length < 2) return false;
-
-		switch (parts[1]) {
-			case 'challenge-string':
-			case 'challstr':
-				me.challengekeyid = parseInt(parts[2], 10);
-				me.challenge = parts[3];
-				if (rooms.lobby !== undefined) {
-					renameMe(name);
-				} else {
-					me.renameQueued = name;
-				}
-				return true;
-		}
-		return false;
-	}
-
-	if (Config.serverprotocol === 'io') {
-		for (var e in events) {
-			socket.on(e, (function(type) {
-				return function(data) {
-					events[type](data);
-				};
-			})(e));
-		}
-		socket.on('data', function(text) {
-			var roomid = 'lobby';
-			if (text.substr(0,1) === '>') {
-				var nlIndex = text.indexOf('\n');
-				if (nlIndex < 0) return;
-				roomid = text.substr(1,nlIndex-1);
-				text = text.substr(nlIndex+1);
-			}
-			if (!parseSpecialData(text) && (rooms[roomid] !== undefined)) {
-				rooms[roomid].add(text);
-			}
-		});
-		if (!name) token = '';
-		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
-		emit(socket, 'join', {
-			name: name,
-			room: 'lobby',
-			token: token
-		});
-	} else {
-		var socketopened = false;
-		var altport = (Config.serverport === Config.serveraltport);
-		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
-		socket.onopen = function() {
-			socketopened = true;
-			if (altport) {
-				_gaq.push(['_trackEvent', 'Alt port connection', Config.serverid]);
-			}
-			if (!name) token = '';
-			document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
-			emit(socket, 'join', {
-				name: name,
-				room: 'lobby',
-				token: token
-			});
+		var constructSocket = function(host, port) {
+			if (Config.serverprotocol === 'io') return io.connect('http://' + host + ':' + port);
+			else if (Config.serverprotocol === 'eio') return new eio.Socket({ host: host, port: port });
+			else return new SockJS('http://' + host + ':' + port);
 		};
-		socket.onmessage = function(msg) {
-			if (msg.data.substr(0,1) !== '{') {
-				var text = msg.data;
+
+		socket = constructSocket(Config.server, Config.serverport);
+
+		var events = {
+			init: function (data) {
+				if (data.name) {
+					me.name = data.name;
+					me.named = data.named;
+					me.userid = data.userid;
+					me.renamePending = !! data.renamePending;
+					if (data.token) me.token = data.token;
+				}
+				if (data.notFound) {
+					selectTab('lobby');
+					return;
+				}
+				var tempInitialize = function () {
+						addTab(data.room, data.roomType);
+						var room = rooms[data.room];
+						room.init(data);
+						updateMe(data);
+						$('#loading-message').remove();
+						if (loc && loc !== 'lobby') {
+							selectTab(loc);
+						}
+					};
+				if (!initialized) {
+					socketInit = tempInitialize;
+				} else {
+					tempInitialize();
+				}
+			},
+			update: function (data) {
+				if (typeof data.name !== 'undefined') {
+					me.name = data.name;
+					me.named = data.named;
+					me.userid = data.userid;
+					me.renamePending = !! data.renamePending;
+					if (data.token) me.token = data.token;
+				}
+				if (typeof data.challengesFrom !== 'undefined') {
+					me.challengesFrom = data.challengesFrom;
+					rooms.lobby.notifying = false;
+					for (var i in me.challengesFrom) {
+						rooms.lobby.notifying = true;
+						break;
+					}
+					updateRoomList();
+					rooms.lobby.updateMainTop();
+				}
+				if (typeof data.challengeTo !== 'undefined') {
+					me.challengeTo = data.challengeTo;
+					rooms.lobby.updateMainTop();
+				}
+				updateMe(data);
+				if (data.room && rooms[data.room]) {
+					rooms[data.room].update(data);
+				} else if (curRoom) {
+					//curRoom.update(data);
+				}
+			},
+			disconnect: function () {
+				$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
+				overlay('disconnect');
+			},
+			nameTaken: function (data) {
+				if (data && data.permanent) {
+					overlay('message', data.reason);
+				} else if (data && data.name) {
+					overlay('login', data);
+				} else if (data) {
+					overlay('rename', {
+						error: data.reason
+					});
+				} else {
+					alert('nameTaken signal');
+					$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">nameTaken signal</strong> ');
+				}
+			},
+			message: function (message) {
+				if (message.html) {
+					overlay('message', message.html);
+					return;
+				}
+				if (message.message) message = message.message;
+				overlay('message', '<div style="white-space:pre-wrap">' + message + '</div>');
+			},
+			command: function (message) {
+				if (message.room && rooms[message.room]) {
+					rooms[message.room].command(message);
+				}
+			},
+			console: function (message) {
+				var room = null;
+				if (message.room && rooms[message.room]) {
+					room = rooms[message.room];
+					if (room) room.add(message);
+					//if (room.id === 'lobby' && message.silent) room.updateMainTop();
+				} else {
+					if (curRoom) curRoom.message(message, true);
+				}
+			}
+		};
+
+		function parseSpecialData(text) {
+			var parts = text.split('|');
+			if (parts.length < 2) return false;
+
+			switch (parts[1]) {
+				case 'challenge-string':
+				case 'challstr':
+					me.challengekeyid = parseInt(parts[2], 10);
+					me.challenge = parts[3];
+					if (rooms.lobby !== undefined) {
+						renameMe(name);
+					} else {
+						me.renameQueued = name;
+					}
+					return true;
+			}
+			return false;
+		}
+
+		if (Config.serverprotocol === 'io') {
+			for (var e in events) {
+				socket.on(e, (function(type) {
+					return function(data) {
+						events[type](data);
+					};
+				})(e));
+			}
+			socket.on('data', function(text) {
 				var roomid = 'lobby';
 				if (text.substr(0,1) === '>') {
 					var nlIndex = text.indexOf('\n');
@@ -3527,27 +3493,102 @@ teams = (function() {
 				if (!parseSpecialData(text) && (rooms[roomid] !== undefined)) {
 					rooms[roomid].add(text);
 				}
-				return;
+			});
+			if (!name) token = '';
+			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
+			emit(socket, 'join', {
+				name: name,
+				room: 'lobby',
+				token: token
+			});
+		} else {
+			var socketopened = false;
+			var altport = (Config.serverport === Config.serveraltport);
+			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
+			socket.onopen = function() {
+				socketopened = true;
+				if (altport) {
+					_gaq.push(['_trackEvent', 'Alt port connection', Config.serverid]);
+				}
+				if (!name) token = '';
+				document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
+				emit(socket, 'join', {
+					name: name,
+					room: 'lobby',
+					token: token
+				});
+			};
+			socket.onmessage = function(msg) {
+				if (msg.data.substr(0,1) !== '{') {
+					var text = msg.data;
+					var roomid = 'lobby';
+					if (text.substr(0,1) === '>') {
+						var nlIndex = text.indexOf('\n');
+						if (nlIndex < 0) return;
+						roomid = text.substr(1,nlIndex-1);
+						text = text.substr(nlIndex+1);
+					}
+					if (!parseSpecialData(text) && (rooms[roomid] !== undefined)) {
+						rooms[roomid].add(text);
+					}
+					return;
+				}
+				var data = $.parseJSON(msg.data);
+				if (!data) return;
+				if (events[data.type]) events[data.type](data);
+			};
+			socket.onclose = function () {
+				if (!socketopened && Config.serveraltport && !altport) {
+					altport = true;
+					Config.serverport = Config.serveraltport;
+					socket = (function() {
+						var s = constructSocket(Config.server, Config.serverport);
+						s.onopen = socket.onopen;
+						s.onmessage = socket.onmessage;
+						s.onclose = socket.onclose;
+						return s;
+					})();
+					return;
+				}
+				$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
+				overlay('disconnect');
+			};
+		}
+	};
+	if (Config.crossdomain === undefined) {
+		connect(Config.upkeep, $.cookie('showdown_username') || '');
+	} else {
+		var origin = 'http://play.pokemonshowdown.com';
+		$(window).on('message', function($e) {
+			var e = $e.originalEvent;
+			if (e.origin !== origin) return;
+			$.cookie('sid', e.data.sid);
+			if (e.data.teams) {
+				cookieTeams = false;
+				teams = $.parseJSON(e.data.teams);
+				Teambuilder.writeTeams = function() {
+					e.source.postMessage({
+						teams: $.toJSON(teams)
+					}, origin);
+				};
 			}
-			var data = $.parseJSON(msg.data);
-			if (!data) return;
-			if (events[data.type]) events[data.type](data);
-		};
-		socket.onclose = function () {
-			if (!socketopened && Config.serveraltport && !altport) {
-				altport = true;
-				Config.serverport = Config.serveraltport;
-				socket = (function() {
-					var s = constructSocket(Config.server, Config.serverport);
-					s.onopen = socket.onopen;
-					s.onmessage = socket.onmessage;
-					s.onclose = socket.onclose;
-					return s;
-				})();
-				return;
+			if (e.data.prefs) {
+				Tools.prefs.data = $.parseJSON(e.data.prefs);
+				Tools.prefs.save = function() {
+					e.source.postMessage({
+						prefs: $.toJSON(this.data)
+					}, origin);
+				};
 			}
-			$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
-			overlay('disconnect');
-		};
+			connect(e.data.upkeep, e.data.username);
+		});
+		var $iframe = $(
+			'<iframe src="http://play.pokemonshowdown.com/crossdomain.php?prefix=' +
+			encodeURIComponent(Config.crossdomain.prefix) +
+			'&amp;challengeresponse=' +
+			encodeURIComponent(Config.crossdomain.challengeresponse) +
+			'" style="display: none;"></iframe>'
+		);
+		$('body').append($iframe);
 	}
-})(Config.upkeep, $.cookie('showdown_username') || '');
+})();
