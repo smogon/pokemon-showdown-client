@@ -308,6 +308,8 @@ var Tools = {
 
 	resourcePrefix: 'http://play.pokemonshowdown.com/',
 
+	postCrossDomainMessage: function(data) {},
+
 	showInterstice: (function() {
 		var patterns = (function(whitelist) {
 			var patterns = [];
