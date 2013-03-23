@@ -115,6 +115,7 @@ function hashColor(name) {
 	if (name === 'aurora') hash = MD5('c6n6fek');
 	if (name === 'solace') hash = MD5('amorlan');
 	if (name === 'jdarden') hash = MD5('dragonair');
+	if (name === 'queenofrandoms') hash = MD5('hahaqor');
 	if (name === 'cathy') return colorCache[name] = 'color:#ff5cb6;';
 	var H = parseInt(hash.substr(4, 4), 16) % 360;
 	var S = parseInt(hash.substr(0, 4), 16) % 50 + 50;
