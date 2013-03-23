@@ -39,6 +39,38 @@ function verifyCrossDomainRequest() {
 	return $config['cors'][$origin];
 }
 
+function findServer() {
+	global $PokemonServers, $reqData, $users;
+
+	$serverid = @$reqData['serverid'];
+	if (!isset($PokemonServers[$serverid])) return null;
+	$server =& $PokemonServers[$serverid];
+	$ip = $users->getIp();
+	if (!$server) {
+		// Try to find the server by source IP, rather than by serverid.
+		foreach ($PokemonServers as &$i) {
+			if (empty($i['ipidentification'])) continue;
+			if (!isset($i['ipcache'])) {
+				$i['ipcache'] = gethostbyname($i['server']);
+			}
+			if ($i['ipcache'] === $ip) {
+				$server =& $i;
+				break;
+			}
+		}
+		if (!$server) return null;
+	} else {
+		if (!isset($server['ipcache'])) {
+			$server['ipcache'] = gethostbyname($server['server']);
+		}
+		if ($ip !== $server['ipcache']) return null;
+	}
+	if (!empty($server['token'])) {
+		if ($server['token'] !== md5($reqData['servertoken'])) return null;
+	}
+	return $server;
+}
+
 $reqs = array($_REQUEST);
 $multiReqs = false;
 if (@$_REQUEST['json']) {
@@ -138,12 +170,8 @@ foreach ($reqs as $reqData) {
 		die($users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge, $challengeprefix));
 		break;
 	case 'updateuserstats':
-		$serverid = @$reqData['serverid'];
-		$server = @$PokemonServers[$serverid];
-
-		if (!$server ||
-				($users->getIp() !== gethostbyname($server['server'])) ||
-				(!empty($server['token']) && ($server['token'] !== md5($reqData['servertoken'])))) {
+		$server = findServer();
+		if (!$server) {
 			$out = 0;
 			break;
 		}
@@ -154,10 +182,10 @@ foreach ($reqs as $reqData) {
 
 		$out = !!$db->query(
 			"INSERT INTO `ntbb_userstats` (`serverid`, `date`, `usercount`) " .
-				"VALUES ('" . $db->escape($serverid) . "', '" . $db->escape($date) . "', '" . $db->escape($usercount) . "') " .
+				"VALUES ('" . $db->escape($server['id']) . "', '" . $db->escape($date) . "', '" . $db->escape($usercount) . "') " .
 				"ON DUPLICATE KEY UPDATE `date`='" . $db->escape($date) . "', `usercount`='" . $db->escape($usercount) . "'");
 
-		if ($serverid === 'showdown') {
+		if ($server['id'] === 'showdown') {
 			$db->query(
 				"INSERT INTO `ntbb_userstatshistory` (`date`, `usercount`) " .
 				"VALUES ('" . $db->escape($date) . "', '" . $db->escape($usercount) . "')");
@@ -166,11 +194,8 @@ foreach ($reqs as $reqData) {
 	case 'ladderupdate':
 		include_once 'lib/ntbb-ladder.lib.php';
 		
-		$server = @$PokemonServers[@$reqData['serverid']];
-		
-		if (!$server ||
-				($users->getIp() !== gethostbyname($server['server'])) ||
-				(!empty($server['token']) && ($server['token'] !== md5($reqData['servertoken'])))) {
+		$server = findServer();
+		if (!$server) {
 			$out = 0;
 			break;
 		}
@@ -190,16 +215,13 @@ foreach ($reqs as $reqData) {
 	case 'prepreplay':
 		include_once 'lib/ntbb-ladder.lib.php';
 		
-		$server = @$PokemonServers[@$reqData['serverid']];
-		
-		if (!$server ||
-				($users->getIp() !== gethostbyname($server['server'])) ||
-				(!empty($server['token']) && ($server['token'] !== md5($reqData['servertoken'])))) {
+		$server = findServer();
+		if (!$server) {
 			$out = 0;
 			break;
 		}
 		
-		if (@$reqData['serverid'] !== 'showdown') break; // let's not think about other servers yet
+		if (@$server['id'] !== 'showdown') break; // let's not think about other servers yet
 		
 		$res = $db->query("SELECT * FROM `ntbb_replays` WHERE `id`='".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."'");
 		$replay = $db->fetch_assoc($res);
