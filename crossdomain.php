@@ -9,13 +9,21 @@ header('Expires: 0'); // Proxies.
 
 require '../pokemonshowdown.com/lib/ntbb-session.lib.php';
 
+$server = strval(@$_REQUEST['server']);
 $challengeresponse = intval(@$_REQUEST['challengeresponse']);
-$upkeep = $users->getUpkeep($challengeresponse);
+
+// Checking the form of $server is probably not necessary, but we do it
+// for greater certainity.
+if (!preg_match('/^[a-zA-Z0-9-_\.]*$/', $server)) {
+	die();
+}
+$upkeep = $users->getUpkeep($server, $challengeresponse);
+
 $prefix = strval(@$_REQUEST['prefix']);
 // Need to check the form of $prefix to avoid some vulnerabilities.
 // This check should be robust enough for now.
 if (!preg_match('/^[a-zA-Z0-9-_\.]*$/', $prefix)) {
-	die('Invalid prefix');
+	die();
 }
 $origin = 'http://' . $prefix . '.psim.us';
 $username = isset($_COOKIE['showdown_username']) ? $_COOKIE['showdown_username'] : '';

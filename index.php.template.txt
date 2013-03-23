@@ -100,7 +100,7 @@ $serverlibs = array(
 $serverlibrary = $serverlibs[$serverprotocol];
 
 include '../pokemonshowdown.com/lib/ntbb-session.lib.php';
-$upkeep = $users->getUpkeep($challengeresponse);
+$upkeep = $users->getUpkeep($server, $challengeresponse);
 
 ?>
 <!DOCTYPE html>

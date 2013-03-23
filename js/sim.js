@@ -3597,6 +3597,8 @@ teams = (function() {
 			encodeURIComponent(Config.crossdomain.prefix) +
 			'&amp;challengeresponse=' +
 			encodeURIComponent(Config.crossdomain.challengeresponse) +
+			'&amp;server=' +
+			encodeURIComponent(Config.server) +
 			'" style="display: none;"></iframe>'
 		);
 		$('body').append($iframe);
