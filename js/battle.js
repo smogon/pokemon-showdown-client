@@ -1320,10 +1320,10 @@ function Battle(frame, logFrame, noPreload) {
 			}
 			pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 			if (selfS.n === 1) {
-				if (selfS.initialized) self.rightbarElem.html('<div class="trainer"><strong>' + sanitize(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(/sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
+				if (selfS.initialized) self.rightbarElem.html('<div class="trainer"><strong>' + sanitize(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resourcePrefix + 'sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
 				else self.rightbarElem.find('.trainer').css('opacity',0.4);
 			} else {
-				if (selfS.initialized) self.leftbarElem.html('<div class="trainer"><strong>' + sanitize(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(/sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
+				if (selfS.initialized) self.leftbarElem.html('<div class="trainer"><strong>' + sanitize(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resourcePrefix + 'sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
 				else self.leftbarElem.find('.trainer').css('opacity',0.4);
 			}
 		};
