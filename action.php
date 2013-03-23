@@ -43,10 +43,9 @@ function findServer() {
 	global $PokemonServers, $reqData, $users;
 
 	$serverid = @$reqData['serverid'];
-	if (!isset($PokemonServers[$serverid])) return null;
-	$server =& $PokemonServers[$serverid];
+	$server = null;
 	$ip = $users->getIp();
-	if (!$server) {
+	if (!isset($PokemonServers[$serverid])) {
 		// Try to find the server by source IP, rather than by serverid.
 		foreach ($PokemonServers as &$i) {
 			if (empty($i['ipidentification'])) continue;
@@ -60,6 +59,7 @@ function findServer() {
 		}
 		if (!$server) return null;
 	} else {
+		$server =& $PokemonServers[$serverid];
 		if (!isset($server['ipcache'])) {
 			$server['ipcache'] = gethostbyname($server['server']);
 		}
