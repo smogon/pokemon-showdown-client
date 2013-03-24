@@ -1816,7 +1816,8 @@ function Lobby(id, elem) {
 			if (roomListCode) {
 				roomListCode = '<div class="action-form">In rooms:<br /><div class="roomlist">' + roomListCode + '</div></div>';
 			}
-			if (data.ip) {
+			if (data.ip || data.ips) {
+				var ips = data.ips || [data.ip];
 				// Mute and Ban buttons for auths
 				var banMuteBuffer = '';
 				var mygroup = me.users[me.userid].substr(0, 1);
@@ -1832,7 +1833,11 @@ function Lobby(id, elem) {
 						banMuteBuffer += ' <button onclick="rooms[\'' + selfR.id + '\'].parseCommand(\'/buttonkick ' + userid + '\');">Kick</button>';
 					}
 				}
-				roomListCode = '<div class="action-form"><small>IP: <a href="http://www.geoiptool.com/en/?IP=' + data.ip + '" target="iplookup">' + data.ip + '</a></small>'+banMuteBuffer+'</div>' + roomListCode;
+				var ipbits = [];
+				for (var i = 0; i < ips.length; ++i) {
+					ipbits.push('<a href="http://www.geoiptool.com/en/?IP=' + ips[i] + '" target="iplookup">' + ips[i] + '</a>');
+				}
+				roomListCode = '<div class="action-form"><small>IP' + ((ips.length > 1) ? 's' : '') + ': ' + ipbits.join(', ') + '</small>' + banMuteBuffer + '</div>' + roomListCode;
 			}
 			$('#' + selfR.id + '-userrooms-' + userid).html(roomListCode);
 			$('#' + selfR.id + '-userdetails-' + userid).html(code);
