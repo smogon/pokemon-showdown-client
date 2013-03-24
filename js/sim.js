@@ -3582,6 +3582,9 @@ teams = (function() {
 			Teambuilder.writeTeams = function() {
 				Tools.postCrossDomainMessage({teams: $.toJSON(teams)});
 			};
+			if (rooms.teambuilder) {
+				rooms.teambuilder.init();
+			}
 			// prefs
 			if (e.data.prefs) {
 				Tools.prefs.data = $.parseJSON(e.data.prefs);
