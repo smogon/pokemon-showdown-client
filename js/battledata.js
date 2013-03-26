@@ -150,9 +150,21 @@ function messageSanitize(str) {
 		// ~~strikethrough~~
 		replace(/\~\~([^< ]([^<]*?[^< ])?)\~\~/g, '<s>$1</s>').
 		// linking of URIs
-		replace(/(https?\:\/\/[a-z0-9-.]+(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)((\/([^\s]*[^\s?.,])?)?|\b))/ig, '<a href="$1" target="_blank" onclick="return Tools.showInterstice(this.href);">$1</a>').
-		// insertion of http:// before URIs without a URI scheme specified
-		replace(/<a href="([a-z]*[^a-z:])/g, '<a href="http://$1').
+		replace(/(https?\:\/\/[a-z0-9-.]+(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)((\/([^\s]*[^\s?.,])?)?|\b))/ig, function(uri) {
+			// Insert http:// before URIs without a URI scheme specified.
+			var fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
+			var event;
+			if (Tools.interstice.isWhitelisted(fulluri)) {
+				event = 'External link';
+			} else {
+				event = 'Interstice link';
+				fulluri = Tools.interstice.getURI(fulluri);
+			}
+			return '<a href="' + fulluri +
+				'" target="_blank" onclick="_gaq.push([\'_trackEvent\', ' +
+				event +
+				', uri]); return false">' + uri + '</a>';
+		}).
 		// google [[blah]]
 		// google[[blah]]
 		//   Google search for 'blah'
@@ -343,7 +355,7 @@ var Tools = {
 
 	postCrossDomainMessage: function(data) {},
 
-	showInterstice: (function() {
+	interstice: (function() {
 		var patterns = (function(whitelist) {
 			var patterns = [];
 			for (var i = 0; i < whitelist.length; ++i) {
@@ -353,29 +365,23 @@ var Tools = {
 			}
 			return patterns;
 		})((Config && Config.whitelist) ? Config.whitelist : []);
-		return function(uri) {
-			for (var i = 0; i < patterns.length; ++i) {
-				if (patterns[i].test(uri)) {
-					_gaq.push(['_trackEvent', 'External link', uri]);
-					return;
+		return {
+			isWhitelisted: function(uri) {
+				for (var i = 0; i < patterns.length; ++i) {
+					if (patterns[i].test(uri)) {
+						return true;
+					}
 				}
+				return false;
+			},
+			getURI: function(uri) {
+				return 'http://www.pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
 			}
-			_gaq.push(['_trackEvent', 'Interstice link', uri]);
-			// This has to work in the replay viewer as well as in sim.js,
-			// so use an absolute URI.
-			window.open(
-				'http://www.pokemonshowdown.com/interstice?uri=' +
-					encodeURIComponent(uri),
-				'interstice'
-			);
-			return false;
 		};
 	})(),
 
 	htmlSanitize: (function() {
 		var uriRewriter = function(uri) {
-			// For now, allow all URIs.
-			// Later we may filter out most URIs, except those on a whitelist.
 			return uri;
 		};
 		var tagPolicy = function(tagName, attribs) {
@@ -390,7 +396,9 @@ var Tools = {
 				for (var i = 0; i < attribs.length - 1; i += 2) {
 					switch (attribs[i]) {
 						case 'href':
-							extra['onclick'] = 'return Tools.showInterstice(this.href);';
+							if (!Tools.interstice.isWhitelisted(attribs[i + 1])) {
+								attribs[i + 1] = Tools.interstice.getURI(attribs[i + 1]);
+							}
 							break;
 						case 'target':
 							if (attribs[i + 1] === '_blank') {
