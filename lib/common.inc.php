@@ -46,7 +46,7 @@ function getGroup($username) {
 
 function getLoginInformation() {
 	global $user;
-	return '<p>You are logged in as ' . $user['group'] . $user['userid'] . '.</p>';
+	return '<p>You are logged in as ' . $user['group'] . htmlentities($user['userid']) . '.</p>';
 }
 
 define('AUTH_NOASSERTION', 0);
