@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>Get Assertion</title>
+<script src="js/lib/jquery-1.9.0.min.js"></script>
+<script src="js/lib/jquery-cookie.js"></script>
+Connecting to login server...
+<script>
+$.ajax({
+	url: 'http://play.pokemonshowdown.com/action.php?act=getassertion&challengekeyid=1',
+	type: 'GET',
+	xhrFields: {
+		withCredentials: true
+	},
+	crossDomain: true
+}).done(function(data) {
+	$.cookie('assertion', data);
+	if (location.search) {
+		document.location = decodeURIComponent(location.search.substr(1));
+	} else {
+		document.location = '/';
+	}
+});
+</script>
