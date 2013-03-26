@@ -35,7 +35,7 @@ if (isset($_REQUEST['file']) && $month) {
 	);
 	$db->close();
 	// output the log file
-	header('Content-Type: text/plain');
+	header('Content-Type: text/plain;charset=utf-8');
 	readfile($logfile);
 	die;
 }
