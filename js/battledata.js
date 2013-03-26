@@ -139,7 +139,38 @@ function jsEscape(str) {
 }
 
 function messageSanitize(str) {
-	return sanitize(str).replace(/\`\`([^< ]([^<`]*?[^< ])?)\`\`/g, '<code>$1</code>').replace(/\~\~([^< ]([^<]*?[^< ])?)\~\~/g, '<s>$1</s>').replace(/(https?\:\/\/[a-z0-9-.]+(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)((\/([^\s]*[^\s?.,])?)?|\b))/ig, '<a href="$1" target="_blank" onclick="return Tools.showInterstice(this.href);">$1</a>').replace(/<a href="([a-z]*[^a-z:])/g, '<a href="http://$1').replace(/(\bgoogle ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&q=$2" target="_blank">$1</a>').replace(/(\bgl ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$2" target="_blank">$1</a>').replace(/(\bwiki ?\[([^\]<]+)\])/ig, '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=$2" target="_blank">$1</a>').replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$1" target="_blank">$1</a>').replace(/\_\_([^< ]([^<]*?[^< ])?)\_\_/g, '<i>$1</i>').replace(/\*\*([^< ]([^<]*?[^< ])?)\*\*/g, '<b>$1</b>');
+	str = sanitize(str);
+	// Don't format console commands (>>).
+	if (str.substr(0, 8) === '&gt;&gt;') return str;
+	// Don't format console results (<<).
+	if (str.substr(0, 8) === '&lt;&lt;') return str;
+	return str.
+		// ``code``
+		replace(/\`\`([^< ]([^<`]*?[^< ])?)\`\`/g, '<code>$1</code>').
+		// ~~strikethrough~~
+		replace(/\~\~([^< ]([^<]*?[^< ])?)\~\~/g, '<s>$1</s>').
+		// linking of URIs
+		replace(/(https?\:\/\/[a-z0-9-.]+(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)((\/([^\s]*[^\s?.,])?)?|\b))/ig, '<a href="$1" target="_blank" onclick="return Tools.showInterstice(this.href);">$1</a>').
+		// insertion of http:// before URIs without a URI scheme specified
+		replace(/<a href="([a-z]*[^a-z:])/g, '<a href="http://$1').
+		// google [[blah]]
+		// google[[blah]]
+		//   Google search for 'blah'
+		replace(/(\bgoogle ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&q=$2" target="_blank">$1</a>').
+		// gl [[blah]]
+		// gl[[blah]
+		//   Google search for 'blah' and visit the first result ("I'm feeling lucky")
+		replace(/(\bgl ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$2" target="_blank">$1</a>').
+		// wiki [[blah]]
+		//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
+		replace(/(\bwiki ?\[([^\]<]+)\])/ig, '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=$2" target="_blank">$1</a>').
+		// [[blah]]
+		//   Short form of gl[[blah]]
+		replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$1" target="_blank">$1</a>').
+		// __italics__
+		replace(/\_\_([^< ]([^<]*?[^< ])?)\_\_/g, '<i>$1</i>').
+		// **bold**
+		replace(/\*\*([^< ]([^<]*?[^< ])?)\*\*/g, '<b>$1</b>');
 }
 
 function toId(text) {
