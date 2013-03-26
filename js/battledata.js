@@ -161,9 +161,9 @@ function messageSanitize(str) {
 				fulluri = Tools.interstice.getURI(fulluri);
 			}
 			return '<a href="' + fulluri +
-				'" target="_blank" onclick="_gaq.push([\'_trackEvent\', ' +
+				'" target="_blank" onclick="_gaq.push([\'_trackEvent\', \'' +
 				event +
-				', \'' + jsEscape(fulluri) + '\']); return false">' + uri + '</a>';
+				'\', \'' + jsEscape(fulluri) + '\']); return false">' + uri + '</a>';
 		}).
 		// google [[blah]]
 		// google[[blah]]
