@@ -53,7 +53,7 @@ $months = glob($config['logdirectory'] . '/*', GLOB_ONLYDIR);
 <ul>
 <?php
 foreach ($months as &$i) {
-	$i = basename($i);
+	$i = htmlentities(basename($i));
 	echo "<li><a href='$i/'>$i</a></li>";
 }
 ?>
@@ -71,7 +71,7 @@ $files = glob($config['logdirectory'] . '/' . $month . '/*');
 <li><a href="/">..</a></li>
 <?php
 foreach ($files as &$i) {
-	$i = basename($i);
+	$i = htmlentities(basename($i));
 	$logfile = $config['logdirectory'] . '/' . $month . '/' . $i;
 	$size = round(@filesize($logfile) / 1024 / 1024, 1);
 	echo "<li><a href='$i'>$i</a> ($size MiB)</li>";
