@@ -163,7 +163,7 @@ function messageSanitize(str) {
 			return '<a href="' + fulluri +
 				'" target="_blank" onclick="_gaq.push([\'_trackEvent\', \'' +
 				event +
-				'\', \'' + jsEscape(fulluri) + '\']); return false">' + uri + '</a>';
+				'\', \'' + jsEscape(fulluri) + '\']);">' + uri + '</a>';
 		}).
 		// google [[blah]]
 		// google[[blah]]
