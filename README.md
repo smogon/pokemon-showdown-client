@@ -1,12 +1,8 @@
 # Pokemon Showdown Log Viewer
 
 This orphan branch contains a basic solution for allowing moderators
-of your server to view lobby logs.
-
-You will have to copy `config/config-example.inc.php` to
-`config/config.inc.php` and make the necessary modifications. You will
-also have to contact us to arrange for a CORS prefix to be added
-for your domain.
+of a server to view lobby logs. This is the code that runs
+http://logs.pokemonshowdown.com:8080/
 
 We do not intend to offer any support for setting up the log viewer,
 as it is primarily intended for use by the main server, and is for
