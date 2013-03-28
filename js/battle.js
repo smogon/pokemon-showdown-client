@@ -68,12 +68,40 @@ function Pokemon(species) {
 	this.id = '';
 	this.statbarElem = null;
 
-	this.healthParse = function (hpstring) {
-		if (!hpstring || !hpstring.length || hpstring.substr(hpstring.length-1) !== ')') return;
+	this.getPixels = function () {
+		if (selfP.zerohp) return 0;
+		return Math.floor(selfP.hp * 48 / selfP.maxhp) || 1;
+	};
+	// returns [delta, denominator, percent] or false
+	this.healthParse = function (hpstring, parsedamage, heal) {
+		if (!hpstring || !hpstring.length) return false;
 		var parenIndex = hpstring.lastIndexOf('(');
-		if (parenIndex < 0) return;
+		if (parenIndex >= 0) {
+			// old style damage and health reporting
+			if (parsedamage) {
+				var damage = parseFloat(hpstring);
+				// unusual check preseved for backward compatbility
+				if (isNaN(damage)) damage = 50;
+				if (heal) {
+					selfP.hp += selfP.maxhp * damage / 100;
+					if (selfP.hp > selfP.maxhp) selfP.hp = selfP.maxhp;
+				} else {
+					selfP.hp -= selfP.maxhp * damage / 100;
+				}
+				// ignore return value of recursive call for backward compatibility
+				this.healthParse(hpstring);
+				// complicated expressions preserved for backward compatibility
+				var percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100);
+				var pixels = Math.ceil(damage * 48 / 100);
+				return [pixels, 48, percent];
+			}
+			if (hpstring.substr(hpstring.length-1) !== ')') {
+				return false;
+			}
+			hpstring = hpstring.substr(parenIndex+1, hpstring.length-parenIndex-2);
+		}
 		
-		var hp = hpstring.substr(parenIndex+1, hpstring.length-parenIndex-2).split(' ');
+		var hp = hpstring.split(' ');
 		var status = hp[1];
 		hp = hp[0];
 
@@ -91,20 +119,29 @@ function Pokemon(species) {
 		}
 
 		// hp parse
+		var oldpixels = selfP.getPixels();
+		selfP.hpcolor = '';
 		if (hp === '0' || hp === '0.0') {
 			selfP.hp = 0;
 			selfP.zerohp = true;
 		} else if (hp.indexOf('/') > 0) {
 			var hp = hp.split('/');
-			if (isNaN(parseFloat(hp[0])) || isNaN(parseFloat(hp[1]))) return;
+			if (isNaN(parseFloat(hp[0])) || isNaN(parseFloat(hp[1]))) {
+				return false;
+			}
 			selfP.hp = parseFloat(hp[0]);
 			selfP.maxhp = parseFloat(hp[1]);
+			if (hp[1].substr(hp[1].length - 1) === 'y') {
+				selfP.hpcolor = 'y';
+			}
 			if (!selfP.hp) {
 				selfP.zerohp = true;
 			}
 		} else if (!isNaN(parseFloat(hp))) {
 			selfP.hp = selfP.maxhp * parseFloat(hp) / 100;
 		}
+		var delta = Math.abs(selfP.getPixels() - oldpixels);
+		return [delta, 48, Math.round(delta * 100 / 48)];
 	};
 	this.checkDetails = function(details, ident) {
 		if (details === selfP.details) return true;
@@ -412,7 +449,8 @@ function Pokemon(species) {
 	};
 	this.hpDisplay = function () {
 		var percent = selfP.hpWidth(100);
-		if ((percent > 0) && (percent <= 2)) {
+		// the check for pixel HP here is a hack
+		if ((selfP.maxhp === 48) && (percent > 0) && (percent <= 2)) {
 			percent = 1;
 		}
 		return percent + '%';
@@ -2274,22 +2312,13 @@ function Battle(frame, logFrame, noPreload) {
 		pokemon.side.updateStatbar(pokemon);
 		self.activityWait(effectElem);
 	}
-	this.damageDisplay = function (percent) {
-		// For now, the server sends damage as Math.floor(pixels * 100 / 48).
-		// This should be refactored to send a numerator and denominator.
-		// Fortunately, there is a one-to-one mapping between the damage
-		// percent sent by the server and the number of pixels.
-		var pixels = Math.ceil(percent * 48 / 100);
-		return pixels + '/48 pixel' + ((pixels !== 1) ? 's' : '');
-	};
 	this.damageAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) {
 			i = 0;
 		}
 		var w = pokemon.hpWidth(150);
-		var percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100);
-		self.resultAnim(pokemon, '&minus;' + percent + '%', 'bad', i);
+		self.resultAnim(pokemon, '&minus;' + damage + '%', 'bad', i);
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (!self.fastForward) pokemon.statbarElem.find('div.hp').delay(self.animationDelay).animate({
 			width: w,
@@ -2302,8 +2331,7 @@ function Battle(frame, logFrame, noPreload) {
 			i = 0;
 		}
 		var w = pokemon.hpWidth(150);
-		var percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100);
-		self.resultAnim(pokemon, '+' + percent + '%', 'good', i);
+		self.resultAnim(pokemon, '+' + damage + '%', 'good', i);
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (!self.fastForward) pokemon.statbarElem.find('div.hp').animate({
 			width: w,
@@ -2471,12 +2499,10 @@ function Battle(frame, logFrame, noPreload) {
 			switch (args[0]) {
 			case '-damage':
 				var poke = this.getPokemon(args[1]);
-				var damage = parseFloat(args[2]);
-				if (isNaN(damage)) damage = 50; // wtf
-				poke.hp -= poke.maxhp * damage / 100;
-				poke.healthParse(args[2]);
-				self.damageAnim(poke, damage, animDelay);
-				self.lastDamage = (damage || 1);
+				var damage = poke.healthParse(args[2], true);
+				if (damage === false) break;
+				self.damageAnim(poke, damage[2], animDelay);
+				self.lastDamage = (damage[2] || 1);
 				
 				if (kwargs.silent) {
 					// do nothing
@@ -2547,23 +2573,18 @@ function Battle(frame, logFrame, noPreload) {
 						break;
 					}
 				} else {
-					// The server sends Math.floor(pixels * 100 / 48), but we want to
-					// show a rounded percent. Fortunately, this is possible. Do not
-					// tamper with this expression unless you understand the math.
-					var percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100);
-					hiddenactions += "" + poke.getName() + " lost <abbr title='" + self.damageDisplay(damage) + "'>" + percent + "%</abbr> of its health!";
+					var hover = '' + damage[0] + '/' + damage[1];
+					if (damage[1] === 48) { // this is a hack
+						hover += ' pixels';
+					}
+					hiddenactions += "" + poke.getName() + " lost <abbr title='" + hover + "'>" + damage[2] + "%</abbr> of its health!";
 				}
 				break;
 			case '-heal':
 				var poke = this.getPokemon(args[1]);
-				var damage = parseFloat(args[2]);
-				if (isNaN(damage)) damage = 50;
-				poke.hp += poke.maxhp * damage / 100;
-				if (poke.hp > poke.maxhp) {
-					poke.hp = poke.maxhp;
-				}
-				poke.healthParse(args[2]);
-				self.healAnim(poke, damage, animDelay);
+				var damage = poke.healthParse(args[2], true, true);
+				if (damage === false) break;
+				self.healAnim(poke, damage[2], animDelay);
 				
 				if (kwargs.silent) {
 					// do nothing
