@@ -351,7 +351,7 @@ var basespecieschart = {
 
 var Tools = {
 
-	resourcePrefix: 'http://play.pokemonshowdown.com/',
+	resourcePrefix: '//play.pokemonshowdown.com/',
 
 	postCrossDomainMessage: function(data) {},
 

@@ -177,7 +177,7 @@ $upkeep = $users->getUpkeep($server, $challengeresponse);
 		<![endif]-->
 
 		<div id="simheader">
-			<h1 style="margin-top:2px;margin-right:10em;padding-top:0;"><img src="http://play.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /></h1>
+			<h1 style="margin-top:2px;margin-right:10em;padding-top:0;"><img src="//play.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /></h1>
 		</div>
 		<div id="leftbarbg"><div><span></span></div></div>
 		<div id="leftbar">
