@@ -9,7 +9,7 @@ if (Config.urlPrefix) locPrefix += Config.urlPrefix;
 var actionphp = (function() {
 	var ret = '/~~' + Config.serverid + '/action.php';
 	if (Config.testclient) {
-		ret = '//play.pokemonshowdown.com' + ret;
+		ret = 'http://play.pokemonshowdown.com' + ret;
 	}
 	return ret;
 })();
