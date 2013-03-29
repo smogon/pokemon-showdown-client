@@ -191,26 +191,26 @@ License: GPLv2
 
 .statbar .hpbar .hp
 {
-	background: #00AA66;
-	border-top: 3px solid #33CC99;
-	height: 3px;
-	border-bottom: 2px solid #007744;
-	border-right: 1px solid #007744;
+	height: 4px;
+	border-top: 2px solid #00dd60;
+	background: #00bb51;
+	border-bottom: 2px solid #007734;
+	border-right: 1px solid #007734;
 	border-radius: 3px;
 }
 .statbar .hpbar .hp-yellow
 {
-	border-top-color: #f9fd96;
-	background-color: #f2fa11;
-	border-bottom-color: #dde405;
-	border-right-color: #dde405;
+	border-top-color: #f8e379;
+	background-color: #f5d538;
+	border-bottom-color: #be9f0a;
+	border-right-color: #be9f0a;
 }
 .statbar .hpbar .hp-red
 {
-	border-top-color: #f88;
-	background-color: #f33;
-	border-bottom-color: #e00;
-	border-right-color: #e00;
+	border-top-color: #f37f67;
+	background-color: #ee4928;
+	border-bottom-color: #a3260d;
+	border-right-color: #a3260d;
 }
 
 /* The declaration order of these prevhp* classes is significant. */
@@ -223,11 +223,11 @@ License: GPLv2
 }
 .statbar .hpbar .prevhp-yellow
 {
-	background-color: #fbfdb7;
+	background-color: #fcf4ca;
 }
 .statbar .hpbar .prevhp-red
 {
-	background-color: #fcc;
+	background-color: #facec5;
 }
 
 /****************/
