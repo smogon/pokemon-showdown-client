@@ -83,10 +83,6 @@ function Pokemon(species) {
 		}
 		return '';
 	};
-	this.getPixels = function () {
-		if (selfP.zerohp) return 0;
-		return Math.floor(selfP.hp * 48 / selfP.maxhp) || 1;
-	};
 	// returns [delta, denominator, percent] or false
 	this.healthParse = function (hpstring, parsedamage, heal) {
 		if (!hpstring || !hpstring.length) return false;
@@ -119,7 +115,8 @@ function Pokemon(species) {
 		var hp = hpstring.split(' ');
 		var status = hp[1];
 		hp = hp[0];
-		var oldpixels = selfP.getPixels();
+		var oldhp = (selfP.zerohp || selfP.fainted) ? 0 : (selfP.hp || 1);
+		var oldmaxhp = selfP.maxhp;
 
 		// status parse
 		if (!status) {
@@ -157,8 +154,10 @@ function Pokemon(species) {
 		} else if (!isNaN(parseFloat(hp))) {
 			selfP.hp = selfP.maxhp * parseFloat(hp) / 100;
 		}
-		var delta = Math.abs(selfP.getPixels() - oldpixels);
-		return [delta, 48, Math.round(delta * 100 / 48)];
+
+		var oldnum = oldhp ? (Math.floor(oldhp / oldmaxhp * selfP.maxhp) || 1) : 0;
+		var delta = Math.abs(selfP.hp - oldnum);
+		return [delta, selfP.maxhp, Math.round(delta * 100 / selfP.maxhp)];
 	};
 	this.checkDetails = function(details, ident) {
 		if (details === selfP.details) return true;
