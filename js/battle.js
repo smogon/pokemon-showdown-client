@@ -104,6 +104,7 @@ function Pokemon(species) {
 		var hp = hpstring.split(' ');
 		var status = hp[1];
 		hp = hp[0];
+		var oldpixels = selfP.getPixels();
 
 		// status parse
 		if (!status) {
@@ -119,7 +120,6 @@ function Pokemon(species) {
 		}
 
 		// hp parse
-		var oldpixels = selfP.getPixels();
 		selfP.hpcolor = '';
 		if (hp === '0' || hp === '0.0') {
 			selfP.hp = 0;
