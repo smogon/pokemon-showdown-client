@@ -99,8 +99,12 @@ function Pokemon(species) {
 				} else {
 					selfP.hp -= selfP.maxhp * damage / 100;
 				}
-				// ignore return value of recursive call for backward compatibility
-				this.healthParse(hpstring);
+				// parse the absolute health information
+				var ret = this.healthParse(hpstring);
+				if (ret && (ret[1] === 100)) {
+					// support for old replays with nearest-100th damage and health
+					return [damage, 100, damage];
+				}
 				// complicated expressions preserved for backward compatibility
 				var percent = Math.round(Math.ceil(damage * 48 / 100) / 48 * 100);
 				var pixels = Math.ceil(damage * 48 / 100);
@@ -2630,11 +2634,15 @@ function Battle(frame, logFrame, noPreload) {
 						break;
 					}
 				} else {
-					var hover = '' + damage[0] + '/' + damage[1];
-					if (damage[1] === 48) { // this is a hack
-						hover += ' pixels';
+					var damageinfo = '' + damage[2] + '%';
+					if (damage[1] !== 100) {
+						var hover = '' + damage[0] + '/' + damage[1];
+						if (damage[1] === 48) { // this is a hack
+							hover += ' pixels';
+						}
+						damageinfo = '<abbr title="' + hover + '">' + damageinfo + '</abbr>';
 					}
-					hiddenactions += "" + poke.getName() + " lost <abbr title='" + hover + "'>" + damage[2] + "%</abbr> of its health!";
+					hiddenactions += "" + poke.getName() + " lost " + damageinfo + " of its health!";
 				}
 				break;
 			case '-heal':
