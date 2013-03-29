@@ -48,6 +48,7 @@ function Pokemon(species) {
 
 	this.hp = 0;
 	this.maxhp = 0;
+	this.hpcolor = '';
 	this.moves = [];
 	this.ability = '';
 	this.item = '';
@@ -68,6 +69,20 @@ function Pokemon(species) {
 	this.id = '';
 	this.statbarElem = null;
 
+	this.getHPColor = function () {
+		if (selfP.hpcolor) return selfP.hpcolor;
+		var ratio = selfP.hp / selfP.maxhp;
+		if (ratio > 0.5) return 'g';
+		if (ratio > 0.2) return 'y';
+		return 'r';
+	};
+	this.getHPColorClass = function () {
+		switch (selfP.getHPColor()) {
+			case 'y': return ' hpbar-yellow';
+			case 'r': return ' hpbar-red';
+		}
+		return '';
+	};
 	this.getPixels = function () {
 		if (selfP.zerohp) return 0;
 		return Math.floor(selfP.hp * 48 / selfP.maxhp) || 1;
@@ -1877,16 +1892,26 @@ function Battle(frame, logFrame, noPreload) {
 			if (!pokemon || !pokemon.statbarElem) {
 				return;
 			}
-			if (updatePrevhp) {
-				pokemon.statbarElem.find('.prevhp').css('width', pokemon.hpWidth(150) + 1);
-			}
+			var hpcolor;
 			if (updatePrevhp || updateHp) {
+				hpcolor = pokemon.getHPColor();
 				var w = pokemon.hpWidth(150);
-				pokemon.statbarElem.find('.hp').css({
+				var $hp = pokemon.statbarElem.find('.hp');
+				$hp.css({
 					width: w,
 					'border-right-width': (w ? 1 : 0)
 				});
+				if (hpcolor === 'g') $hp.removeClass('hp-yellow hp-red');
+				else if (hpcolor === 'y') $hp.removeClass('hp-red').addClass('hp-yellow');
+				else $hp.addClass('hp-red');
 				pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
+			}
+			if (updatePrevhp) {
+				var $prevhp = pokemon.statbarElem.find('.prevhp');
+				$prevhp.css('width', pokemon.hpWidth(150) + 1);
+				if (hpcolor === 'g') $prevhp.removeClass('prevhp-yellow prevhp-red');
+				else if (hpcolor ==='y' ) $prevhp.removeClass('prevhp-red').addClass('prevhp-yellow');
+				else $prevhp.addClass('prevhp-red');
 			}
 			var status = '';
 			if (pokemon.status === 'brn') {
@@ -2313,31 +2338,80 @@ function Battle(frame, logFrame, noPreload) {
 		pokemon.side.updateStatbar(pokemon);
 		self.activityWait(effectElem);
 	}
+	// "static" function
+	this.hpAnim = function ($hp, w, ratio, callback) {
+		$hp.animate({
+			width: w,
+			'border-right-width': w ? 1 : 0
+		}, ratio * 350, callback);
+	};
 	this.damageAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) {
 			i = 0;
 		}
-		var w = pokemon.hpWidth(150);
 		self.resultAnim(pokemon, '&minus;' + damage + '%', 'bad', i);
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
-		if (!self.fastForward) pokemon.statbarElem.find('div.hp').delay(self.animationDelay).animate({
-			width: w,
-			'border-right-width': w ? 1 : 0
-		}, 350);
+		if (self.fastForward) return;
+
+		var $hp = pokemon.statbarElem.find('div.hp').delay(self.animationDelay);
+		var w = pokemon.hpWidth(150);
+		var width = $hp.width();
+		var delta = width - w;
+		var hpcolor = pokemon.getHPColor();
+		var animRed = function() {
+			if (width > w) {
+				if (hpcolor !== 'y') $hp.addClass('hp-red');
+				self.hpAnim($hp, w, (width - w) / delta);
+			}
+		};
+		var animYellow = function() {
+			if ((width > w) && (width > 30)) {
+				var oldwidth = width;
+				width = (w < 31) ? 31 : w;
+				if (hpcolor !== 'g') $hp.addClass('hp-yellow');
+				self.hpAnim($hp, width, (oldwidth - width) / delta, animRed);
+			} else animRed();
+		};
+		if ((width > w) && (width > 75)) {
+			var oldwidth = width;
+			width = (w < 76) ? 76 : w;
+			self.hpAnim($hp, width, (oldwidth - width) / delta, animYellow);
+		} else animYellow();
 	}
 	this.healAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) {
 			i = 0;
 		}
-		var w = pokemon.hpWidth(150);
 		self.resultAnim(pokemon, '+' + damage + '%', 'good', i);
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
-		if (!self.fastForward) pokemon.statbarElem.find('div.hp').animate({
-			width: w,
-			'border-right-width': w ? 1 : 0
-		}, 350);
+		if (self.fastForward) return;
+
+		var $hp = pokemon.statbarElem.find('div.hp');
+		var w = pokemon.hpWidth(150);
+		var width = $hp.width();
+		var delta = w - width;
+		var hpcolor = pokemon.getHPColor();
+		var animGreen = function() {
+			if (width < w) {
+				if (hpcolor !== 'y') $hp.removeClass('hp-red hp-yellow');
+				self.hpAnim($hp, w, (w - width) / delta);
+			}
+		};
+		var animYellow = function() {
+			if ((width < w) && (width < 76)) {
+				var oldwidth = w;
+				width = (w > 75) ? 75 : w;
+				if (hpcolor !== 'r') $hp.removeClass('hp-red').addClass('hp-yellow');
+				self.hpAnim($hp, width, (width - oldwidth) / delta, animGreen);
+			} else animGreen();
+		};
+		if ((width < w) && (width < 31)) {
+			var oldwidth = w;
+			width = (w > 30) ? 30 : w;
+			self.hpAnim($hp, width, (width - oldwidth) / delta, animYellow);
+		} else animYellow();
 	}
 	this.useMove = function (pokemon, move, target, kwargs) {
 		var fromeffect = Tools.getEffect(kwargs.from);
