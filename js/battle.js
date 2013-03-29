@@ -2348,72 +2348,54 @@ function Battle(frame, logFrame, noPreload) {
 	};
 	this.damageAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
-		if (!i) {
-			i = 0;
-		}
-		self.resultAnim(pokemon, '&minus;' + damage + '%', 'bad', i);
+		if (!i) i = 0;
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (self.fastForward) return;
+
+		self.resultAnim(pokemon, '&minus;' + damage + '%', 'bad', i);
 
 		var $hp = pokemon.statbarElem.find('div.hp').delay(self.animationDelay);
 		var w = pokemon.hpWidth(150);
-		var width = $hp.width();
-		var delta = width - w;
 		var hpcolor = pokemon.getHPColor();
-		var animRed = function() {
-			if (width > w) {
-				if (hpcolor !== 'y') $hp.addClass('hp-red');
-				self.hpAnim($hp, w, (width - w) / delta);
-			}
+		var callback;
+		if (hpcolor === 'y') callback = function() {
+			$hp.addClass('hp-yellow');
 		};
-		var animYellow = function() {
-			if ((width > w) && (width > 30)) {
-				var oldwidth = width;
-				width = (w < 31) ? 31 : w;
-				if (hpcolor !== 'g') $hp.addClass('hp-yellow');
-				self.hpAnim($hp, width, (oldwidth - width) / delta, animRed);
-			} else animRed();
+		if (hpcolor === 'r') callback = function() {
+			$hp.addClass('hp-yellow');
+			$hp.addClass('hp-red');
 		};
-		if ((width > w) && (width > 75)) {
-			var oldwidth = width;
-			width = (w < 76) ? 76 : w;
-			self.hpAnim($hp, width, (oldwidth - width) / delta, animYellow);
-		} else animYellow();
-	}
+
+		$hp.animate({
+			width: w,
+			'border-right-width': w ? 1 : 0
+		}, 350, callback);
+	};
 	this.healAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
-		if (!i) {
-			i = 0;
-		}
-		self.resultAnim(pokemon, '+' + damage + '%', 'good', i);
+		if (!i) i = 0;
 		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (self.fastForward) return;
 
-		var $hp = pokemon.statbarElem.find('div.hp');
+		self.resultAnim(pokemon, '+' + damage + '%', 'good', i);
+
+		var $hp = pokemon.statbarElem.find('div.hp').delay(self.animationDelay);
 		var w = pokemon.hpWidth(150);
-		var width = $hp.width();
-		var delta = w - width;
 		var hpcolor = pokemon.getHPColor();
-		var animGreen = function() {
-			if (width < w) {
-				if (hpcolor !== 'y') $hp.removeClass('hp-red hp-yellow');
-				self.hpAnim($hp, w, (w - width) / delta);
-			}
+		var callback;
+		if (hpcolor === 'g') callback = function() {
+			$hp.removeClass('hp-yellow');
+			$hp.removeClass('hp-red');
 		};
-		var animYellow = function() {
-			if ((width < w) && (width < 76)) {
-				var oldwidth = w;
-				width = (w > 75) ? 75 : w;
-				if (hpcolor !== 'r') $hp.removeClass('hp-red').addClass('hp-yellow');
-				self.hpAnim($hp, width, (width - oldwidth) / delta, animGreen);
-			} else animGreen();
+		if (hpcolor === 'y') callback = function() {
+			$hp.removeClass('hp-red');
 		};
-		if ((width < w) && (width < 31)) {
-			var oldwidth = w;
-			width = (w > 30) ? 30 : w;
-			self.hpAnim($hp, width, (width - oldwidth) / delta, animYellow);
-		} else animYellow();
-	}
+
+		$hp.animate({
+			width: w,
+			'border-right-width': w ? 1 : 0
+		}, 350, callback);
+	};
 	this.useMove = function (pokemon, move, target, kwargs) {
 		var fromeffect = Tools.getEffect(kwargs.from);
 		pokemon.clearMovestatuses();
