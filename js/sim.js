@@ -9,7 +9,7 @@ if (Config.urlPrefix) locPrefix += Config.urlPrefix;
 var actionphp = (function() {
 	var ret = '/~~' + Config.serverid + '/action.php';
 	if (Config.testclient) {
-		ret = 'http://play.pokemonshowdown.com' + ret;
+		ret = '//play.pokemonshowdown.com' + ret;
 	}
 	return ret;
 })();
@@ -3601,7 +3601,7 @@ teams = (function() {
 			connect(e.data.upkeep, e.data.username);
 		});
 		var $iframe = $(
-			'<iframe src="http://play.pokemonshowdown.com/crossdomain.php?prefix=' +
+			'<iframe src="//play.pokemonshowdown.com/crossdomain.php?prefix=' +
 			encodeURIComponent(Config.crossdomain.prefix) +
 			'&amp;challengeresponse=' +
 			encodeURIComponent(Config.crossdomain.challengeresponse) +
