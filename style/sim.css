@@ -837,6 +837,9 @@ button.closebutton i
 	border-radius: 2px;
 	opacity: .6;
 }
+
+/* The declaration order of these three hpbar* classes is significant. */
+
 .replay-controls .switchmenu button .hpbar span,
 .switchmenu button .hpbar span
 {
@@ -846,6 +849,21 @@ button.closebutton i
 	border-top: 1px solid #3C0;
 	border-radius: 1px;
 }
+.replay-controls .switchmenu button .hpbar-yellow span,
+.switchmenu button .hpbar-yellow span
+{
+	border-top-color: #f5fa43;
+	background-color: #f2f812;
+}
+.replay-controls .switchmenu button .hpbar-red span,
+.switchmenu button .hpbar-red span
+{
+	border-top-color: #faa;
+	background-color: #f55;
+}
+
+/****************/
+
 .switchmenu button .status
 {
 	position: absolute;

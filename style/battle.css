@@ -186,6 +186,9 @@ License: GPLv2
 	width: 151px;
 	border-radius: 4px;
 }
+
+/* The declaration order of these hp* classes is significant. */
+
 .statbar .hpbar .hp
 {
 	background: #00AA66;
@@ -195,12 +198,40 @@ License: GPLv2
 	border-right: 1px solid #007744;
 	border-radius: 3px;
 }
+.statbar .hpbar .hp-yellow
+{
+	border-top-color: #f9fd96;
+	background-color: #f2fa11;
+	border-bottom-color: #dde405;
+	border-right-color: #dde405;
+}
+.statbar .hpbar .hp-red
+{
+	border-top-color: #f88;
+	background-color: #f33;
+	border-bottom-color: #e00;
+	border-right-color: #e00;
+}
+
+/* The declaration order of these prevhp* classes is significant. */
+
 .statbar .hpbar .prevhp
 {
 	background: #BBEECC;
 	height: 8px;
 	border-radius: 3px;
 }
+.statbar .hpbar .prevhp-yellow
+{
+	background-color: #fbfdb7;
+}
+.statbar .hpbar .prevhp-red
+{
+	background-color: #fcc;
+}
+
+/****************/
+
 .statbar .hpbar .hptext
 {
 	position: absolute;
