@@ -28,7 +28,13 @@ function verifyCrossDomainRequest() {
 	}
 
 	$origin = $_SERVER['HTTP_ORIGIN'];
-	if (!isset($config['cors'][$origin])) {
+	$prefix = null;
+	foreach ($config['cors'] as $i => &$j) {
+		if (!preg_match($i, $origin)) continue;
+		$prefix = $j;
+		break;
+	}
+	if ($prefix === null) {
 		// Bogus request.
 		return '';
 	}
@@ -36,7 +42,7 @@ function verifyCrossDomainRequest() {
 	// Valid CORS request.
 	header('Access-Control-Allow-Origin: ' . $origin);
 	header('Access-Control-Allow-Credentials: true');
-	return $config['cors'][$origin];
+	return $prefix;
 }
 
 function findServer() {
