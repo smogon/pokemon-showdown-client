@@ -60,10 +60,12 @@ function findServer() {
 		if (!$server) return null;
 	} else {
 		$server =& $PokemonServers[$serverid];
-		if (!isset($server['ipcache'])) {
-			$server['ipcache'] = gethostbyname($server['server']);
+		if (empty($server['skipipcheck'])) {
+			if (!isset($server['ipcache'])) {
+				$server['ipcache'] = gethostbyname($server['server']);
+			}
+			if ($ip !== $server['ipcache']) return null;
 		}
-		if ($ip !== $server['ipcache']) return null;
 	}
 	if (!empty($server['token'])) {
 		if ($server['token'] !== md5($reqData['servertoken'])) return null;
@@ -178,7 +180,10 @@ foreach ($reqs as $reqData) {
 
 		$date = @$reqData['date'];
 		$usercount = @$reqData['users'];
-		if (!is_numeric($date) || !is_numeric($usercount)) break;
+		if (!is_numeric($date) || !is_numeric($usercount)) {
+			$out = 0;
+			break;
+		}
 
 		$out = !!$db->query(
 			"INSERT INTO `ntbb_userstats` (`serverid`, `date`, `usercount`) " .
@@ -190,6 +195,7 @@ foreach ($reqs as $reqData) {
 				"INSERT INTO `ntbb_userstatshistory` (`date`, `usercount`) " .
 				"VALUES ('" . $db->escape($date) . "', '" . $db->escape($usercount) . "')");
 		}
+		$outprefix = '';
 		break;
 	case 'ladderupdate':
 		include_once 'lib/ntbb-ladder.lib.php';
