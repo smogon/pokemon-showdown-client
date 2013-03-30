@@ -88,35 +88,36 @@ var colorCache = {};
 function hashColor(name) {
 	if (colorCache[name]) return colorCache[name];
 	
-	var hash = MD5(name);
+	var hash = {
 	// and now, we are handling username color requests
-	if (name === 'drielmei') hash = MD5('drielme');
-	if (name === 'theimmortal') hash = MD5('taco');
-	if (name === 'bmelts') hash = MD5('testmelts');
-	if (name === 'zarel') hash = MD5('aeo');
-	if (name === 'zarell') hash = MD5('aeo');
-	if (name === 'greatsage') hash = MD5('test454');
-	if (name === 'snowflakes') hash = MD5('snowflake');
-	if (name === 'jumpluff') hash = MD5('zacchaeus');
-	if (name === 'zacchaeus') hash = MD5('jumpluff');
-	if (name === 'kraw') hash = MD5('kraw1');
-	if (name === 'growlithe') hash = MD5('steamroll');
-	if (name === 'snowflakes') hash = MD5('endedinariot');
-	if (name === 'doomvendingmachine') hash = MD5('theimmortal');
-	if (name === 'mikel') hash = MD5('mikkel');
-	if (name === 'arcticblast') hash = MD5('rsem');
-	if (name === 'mjb') hash = MD5('thefourthchaser');
-	if (name === 'thefourthchaser') hash = MD5('mjb');
-	if (name === 'mikedecishere') hash = MD5('aoswmike');
-	if (name === 'heartsonfire') hash = MD5('haatsuonfaiyaa');
-	if (name === 'limi') hash = MD5('azure2');
-	if (name === 'haunter') hash = MD5('cathy');
-	if (name === 'ginganinja') hash = MD5('piratesandninjas');
-	if (name === 'aurora') hash = MD5('c6n6fek');
-	if (name === 'solace') hash = MD5('amorlan');
-	if (name === 'jdarden') hash = MD5('dragonair');
-	if (name === 'queenofrandoms') hash = MD5('hahaqor');
-	if (name === 'jelandee') hash = MD5('ericbreviglieri');
+		'drielmei': MD5('drielme'),
+		'theimmortal': MD5('taco'),
+		'bmelts': MD5('testmelts'),
+		'zarel': MD5('aeo'),
+		'zarell': MD5('aeo'),
+		'greatsage': MD5('test454'),
+		'snowflakes': MD5('snowflake'),
+		'jumpluff': MD5('zacchaeus'),
+		'zacchaeus': MD5('jumpluff'),
+		'kraw': MD5('kraw1'),
+		'growlithe': MD5('steamroll'),
+		'snowflakes': MD5('endedinariot'),
+		'doomvendingmachine': MD5('theimmortal'),
+		'mikel': MD5('mikkel'),
+		'arcticblast': MD5('rsem'),
+		'mjb': MD5('thefourthchaser'),
+		'thefourthchaser': MD5('mjb'),
+		'mikedecishere': MD5('aoswmike'),
+		'heartsonfire': MD5('haatsuonfaiyaa'),
+		'limi': MD5('azure2'),
+		'haunter': MD5('cathy'),
+		'ginganinja': MD5('piratesandninjas'),
+		'aurora': MD5('c6n6fek'),
+		'solace': MD5('amorlan'),
+		'jdarden': MD5('dragonair'),
+		'queenofrandoms': MD5('hahaqor'),
+		'jelandee': MD5('ericbreviglieri'),
+	}[name] || MD5(name);
 	if (name === 'cathy') return colorCache[name] = 'color:#ff5cb6;';
 	var H = parseInt(hash.substr(4, 4), 16) % 360;
 	var S = parseInt(hash.substr(0, 4), 16) % 50 + 50;
