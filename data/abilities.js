@@ -312,7 +312,7 @@ exports.BattleAbilities = {
 		},
 		id: "cutecharm",
 		name: "Cute Charm",
-		rating: 2,
+		rating: 1,
 		num: 56
 	},
 	"damp": {
@@ -1637,7 +1637,7 @@ exports.BattleAbilities = {
 		},
 		id: "raindish",
 		name: "Rain Dish",
-		rating: 1,
+		rating: 1.5,
 		num: 44
 	},
 	"rattled": {
@@ -2509,7 +2509,7 @@ exports.BattleAbilities = {
 		onTryHit: function(target, source, move) {
 			if (target !== source && move.type === 'Electric') {
 				var d = target.heal(target.maxhp/4);
-				this.add('-heal',target,d+target.getHealth(),'[from] ability: Volt Absorb');
+				this.add('-heal',target,target.getHealth(),'[from] ability: Volt Absorb');
 				return null;
 			}
 		},
@@ -2524,7 +2524,7 @@ exports.BattleAbilities = {
 		onTryHit: function(target, source, move) {
 			if (target !== source && move.type === 'Water') {
 				var d = target.heal(target.maxhp/4);
-				this.add('-heal',target,d+target.getHealth(),'[from] ability: Water Absorb');
+				this.add('-heal',target,target.getHealth(),'[from] ability: Water Absorb');
 				return null;
 			}
 		},
@@ -2582,22 +2582,11 @@ exports.BattleAbilities = {
 	"wonderguard": {
 		desc: "This Pokemon only receives damage from attacks belonging to types that cause Super Effective to this Pokemon. Wonder Guard does not protect a Pokemon from status ailments (burn, freeze, paralysis, poison, sleep, Toxic or any of their side effects or damage), recoil damage nor the moves Beat Up, Bide, Doom Desire, Fire Fang, Future Sight, Hail, Leech Seed, Sandstorm, Spikes, Stealth Rock and Struggle. Wonder Guard cannot be Skill Swapped nor Role Played. Trace, however, does copy Wonder Guard.",
 		shortDesc: "This Pokemon can only be damaged by super effective moves and indirect damage.",
-		onDamagePriority: 10,
-		onDamage: function(damage, target, source, effect) {
-			if (effect.effectType !== 'Move') return;
-			if (effect.type === '???' || effect.id === 'Struggle') return;
-			this.debug('Wonder Guard immunity: '+effect.id);
-			if (this.getEffectiveness(effect.type, target) <= 0) {
-				this.add('-activate',target,'ability: Wonder Guard');
-				return null;
-			}
-		},
-		onSubDamage: function(damage, target, source, effect) {
-			if (effect.effectType !== 'Move') return;
-			if (target.negateImmunity[effect.type]) return;
-			this.debug('Wonder Guard immunity: '+effect.id);
-			if (this.getEffectiveness(effect.type, target) <= 0) {
-				this.add('-activate',target,'ability: Wonder Guard');
+		onTryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status' || move.type === '???' || move.id === 'struggle') return;
+			this.debug('Wonder Guard immunity: '+move.id);
+			if (this.getEffectiveness(move.type, target) <= 0) {
+				this.add('-activate', target, 'ability: Wonder Guard');
 				return null;
 			}
 		},
@@ -2618,7 +2607,7 @@ exports.BattleAbilities = {
 		},
 		id: "wonderskin",
 		name: "Wonder Skin",
-		rating: 1,
+		rating: 3,
 		num: 147
 	},
 	"zenmode": {
