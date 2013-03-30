@@ -122,19 +122,6 @@ function Pokemon(species) {
 		var oldhp = (selfP.zerohp || selfP.fainted) ? 0 : (selfP.hp || 1);
 		var oldmaxhp = selfP.maxhp;
 
-		// status parse
-		if (!status) {
-			selfP.status = '';
-		} else if (status === 'par' || status === 'brn' || status === 'slp' || status === 'frz' || status === 'tox') {
-			selfP.status = status;
-		} else if (status === 'psn' && selfP.status !== 'tox') {
-			selfP.status = status;
-		} else if (status === 'fnt') {
-			selfP.hp = 0;
-			selfP.zerohp = true;
-			selfP.fainted = true;
-		}
-
 		// hp parse
 		selfP.hpcolor = '';
 		if (hp === '0' || hp === '0.0') {
@@ -157,6 +144,19 @@ function Pokemon(species) {
 			}
 		} else if (!isNaN(parseFloat(hp))) {
 			selfP.hp = selfP.maxhp * parseFloat(hp) / 100;
+		}
+
+		// status parse
+		if (!status) {
+			selfP.status = '';
+		} else if (status === 'par' || status === 'brn' || status === 'slp' || status === 'frz' || status === 'tox') {
+			selfP.status = status;
+		} else if (status === 'psn' && selfP.status !== 'tox') {
+			selfP.status = status;
+		} else if (status === 'fnt') {
+			selfP.hp = 0;
+			selfP.zerohp = true;
+			selfP.fainted = true;
 		}
 
 		var oldnum = oldhp ? (Math.floor(oldhp / oldmaxhp * selfP.maxhp) || 1) : 0;
