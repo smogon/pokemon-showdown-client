@@ -2187,8 +2187,8 @@ function Teambuilder(id, elem)
 				}
 				if (template.speciesid === 'shaymin') {
 					template = Tools.getTemplate('shayminsky');
-				} else if (toId(template.basespecies) !== toId(template.species) && toId(template.basespecies) !== 'kyurem') {
-					template = Tools.getTemplate(template.basespecies);
+				} else if (toId(template.baseSpecies) !== toId(template.species) && toId(template.baseSpecies) !== 'kyurem') {
+					template = Tools.getTemplate(template.baseSpecies);
 				} else {
 					template = Tools.getTemplate(template.prevo);
 				}

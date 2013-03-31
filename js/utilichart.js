@@ -73,17 +73,17 @@ function BattleChart()
 		
 		var name = sanitize(pokemon.name);
 		
-		if (pokemon.forme && pokemon.basespecies) name = pokemon.basespecies;
+		if (pokemon.forme && pokemon.baseSpecies) name = pokemon.baseSpecies;
 		if (match.name)
 		{
 			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
 		}
-		if (pokemon.forme && pokemon.basespecies)
+		if (pokemon.forme && pokemon.baseSpecies)
 		{
-			if (match.name && match.name.end > pokemon.basespecies.length)
+			if (match.name && match.name.end > pokemon.baseSpecies.length)
 			{
-				if (match.name.start < pokemon.basespecies.length+1) match.name.start = pokemon.basespecies.length+1;
-				name += '<small>-'+pokemon.forme.substr(0, match.name.start-(pokemon.basespecies.length+1))+'<b>'+pokemon.name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+pokemon.name.substr(match.name.end)+'</small>';
+				if (match.name.start < pokemon.baseSpecies.length+1) match.name.start = pokemon.baseSpecies.length+1;
+				name += '<small>-'+pokemon.forme.substr(0, match.name.start-(pokemon.baseSpecies.length+1))+'<b>'+pokemon.name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+pokemon.name.substr(match.name.end)+'</small>';
 			}
 			else
 			{
