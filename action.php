@@ -15,6 +15,7 @@ include_once '../pokemonshowdown.com/config/servers.inc.php';
 
 function getServerHostName($serverid) {
 	global $PokemonServers;
+	if (empty($serverid)) $serverid = 'showdown';
 	$server = @$PokemonServers[$serverid];
 	return $server ? $server['server'] : $serverid;
 }
