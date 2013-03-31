@@ -323,7 +323,7 @@ var StatNames = { // proper style
 	spe: 'Spe'
 };
 
-var basespecieschart = {
+var baseSpeciesChart = {
 	'unown': 1,
 	'castform': 1,
 	'deoxys': 1,
@@ -583,9 +583,9 @@ var Tools = {
 			if (!window.BattlePokedex) window.BattlePokedex = {};
 			if (!window.BattlePokedex[id]) {
 				template = window.BattlePokedex[id] = {};
-				for (var k in basespecieschart) {
+				for (var k in baseSpeciesChart) {
 					if (id.length > k.length && id.substr(0, k.length) === k) {
-						template.basespecies = k;
+						template.baseSpecies = k;
 						template.forme = id.substr(k.length);
 					}
 				}
@@ -604,10 +604,10 @@ var Tools = {
 			if (!template.name) template.name = name;
 			if (!template.speciesid) template.speciesid = id;
 			if (!template.species) template.species = name;
-			if (!template.basespecies) template.basespecies = name;
+			if (!template.baseSpecies) template.baseSpecies = name;
 			if (!template.forme) template.forme = '';
-			if (!template.formeletter) template.formeletter = '';
-			if (!template.spriteid) template.spriteid = toId(template.basespecies)+(template.basespecies!==name?'-'+toId(template.forme):'');
+			if (!template.formeLetter) template.formeLetter = '';
+			if (!template.spriteid) template.spriteid = toId(template.baseSpecies)+(template.baseSpecies!==name?'-'+toId(template.forme):'');
 		}
 		return template;
 	},
@@ -625,8 +625,8 @@ var Tools = {
 			}
 			if (template.speciesid === 'shaymin') {
 				template = Tools.getTemplate('shayminsky');
-			} else if (template.basespecies !== template.species) {
-				template = Tools.getTemplate(template.basespecies);
+			} else if (template.baseSpecies !== template.species) {
+				template = Tools.getTemplate(template.baseSpecies);
 			} else {
 				template = Tools.getTemplate(template.prevo);
 			}
