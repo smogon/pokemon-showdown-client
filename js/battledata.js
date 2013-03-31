@@ -158,7 +158,9 @@ function messageSanitize(str) {
 				event = 'External link';
 			} else {
 				event = 'Interstice link';
-				fulluri = Tools.interstice.getURI(fulluri);
+				fulluri = fulluri.replace(/&amp;/g, '&').
+					replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+				fulluri = sanitize(Tools.interstice.getURI(fulluri));
 			}
 			return '<a href="' + fulluri +
 				'" target="_blank" onclick="_gaq.push([\'_trackEvent\', \'' +
