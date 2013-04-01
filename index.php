@@ -82,3 +82,4 @@ foreach ($files as &$i) {
 <p>You can also go back to the <a href="/">list of months</a>.</p>
 
 <?php } ?>
+<p style="font-size: 11px;">The current time on the server is <?php echo str_replace("\n", '', htmlentities(`date`)) ?>.</p>
