@@ -132,6 +132,11 @@ function sanitize(str, jsEscapeToo) {
 	if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
 	return str;
 }
+function unsanitize(str) {
+	str = (str?''+str:'');
+	return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').
+		replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+}
 function jsEscape(str) {
 	str = (str?''+str:'');
 	str = str.replace(/'/g, '\\\'');
@@ -158,29 +163,43 @@ function messageSanitize(str) {
 				event = 'External link';
 			} else {
 				event = 'Interstice link';
-				fulluri = fulluri.replace(/&amp;/g, '&').
-					replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
-				fulluri = sanitize(Tools.interstice.getURI(fulluri));
+				fulluri = sanitize(Tools.interstice.getURI(unsanitize(fulluri)));
 			}
 			return '<a href="' + fulluri +
 				'" target="_blank" onclick="_gaq.push([\'_trackEvent\', \'' +
 				event +
 				'\', \'' + jsEscape(fulluri) + '\']);">' + uri + '</a>';
 		}).
-		// google [[blah]]
-		// google[[blah]]
+		// google [blah]
+		// google[blah]
 		//   Google search for 'blah'
-		replace(/(\bgoogle ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&q=$2" target="_blank">$1</a>').
-		// gl [[blah]]
-		// gl[[blah]
+		replace(/(\bgoogle ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
+			p2 = sanitize(encodeURIComponent(unsanitize(p2)));
+			return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p2 +
+				'" target="_blank">' + p1 + '</a>';
+		}).
+		// gl [blah]
+		// gl[blah
 		//   Google search for 'blah' and visit the first result ("I'm feeling lucky")
-		replace(/(\bgl ?\[([^\]<]+)\])/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$2" target="_blank">$1</a>').
-		// wiki [[blah]]
+		replace(/(\bgl ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
+			p2 = sanitize(encodeURIComponent(unsanitize(p2)));
+			return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + p2 +
+				'" target="_blank">' + p1 + '</a>';
+		}).
+		// wiki [blah]
 		//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
-		replace(/(\bwiki ?\[([^\]<]+)\])/ig, '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=$2" target="_blank">$1</a>').
+		replace(/(\bwiki ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
+			p2 = sanitize(encodeURIComponent(unsanitize(p2)));
+			return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
+				p2 + '" target="_blank">' + p1 + '</a>';
+		}).
 		// [[blah]]
 		//   Short form of gl[[blah]]
-		replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=$1" target="_blank">$1</a>').
+		replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, function(p0, p1) {
+			var q = sanitize(encodeURIComponent(unsanitize(p1)));
+			return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
+				'" target="_blank">' + p1 +'</a>';
+		}).
 		// __italics__
 		replace(/\_\_([^< ]([^<]*?[^< ])?)\_\_/g, '<i>$1</i>').
 		// **bold**
