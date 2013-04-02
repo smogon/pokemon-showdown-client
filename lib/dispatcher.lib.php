@@ -52,12 +52,17 @@ class ActionDispatcher {
 		return $prefix;
 	}
 
+	public function getIp() {
+		global $users;
+		return $users->getIp();
+	}
+
 	public function findServer() {
-		global $PokemonServers, $users;
+		global $PokemonServers;
 
 		$serverid = @$this->reqData['serverid'];
 		$server = null;
-		$ip = $users->getIp();
+		$ip = $this->getIp();
 		if (!isset($PokemonServers[$serverid])) {
 			// Try to find the server by source IP, rather than by serverid.
 			foreach ($PokemonServers as &$i) {
