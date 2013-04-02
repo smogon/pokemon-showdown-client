@@ -669,14 +669,14 @@ var Tools = {
 			cryurl = Tools.resourcePrefix + 'audio/cries/' + num + '.wav';
 		}
 
-		// april fool's
-		return {
-			w: 96,
-			h: 96,
-			url: Tools.resourcePrefix + 'sprites/afd'+back+'/' + spriteid + '.png',
-			cryurl: cryurl,
-			isBackSprite: isBack
-		};
+		// April Fool's 2013
+		// return {
+		// 	w: 96,
+		// 	h: 96,
+		// 	url: Tools.resourcePrefix + 'sprites/afd'+back+'/' + spriteid + '.png',
+		// 	cryurl: cryurl,
+		// 	isBackSprite: isBack
+		// };
 
 		if (pokemon.shiny) back += '-shiny';
 		if (window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
