@@ -27,7 +27,7 @@
 					Config.serverid = m[1];
 					Config.server = m[2];
 					if (m[3]) {
-						Config.serverport = m[3];
+						Config.serverport = m[3].substr(1);
 					}
 				} else {
 					alert('Unrecognised query string syntax: ' + location.search);

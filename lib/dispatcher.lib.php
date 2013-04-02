@@ -1,0 +1,345 @@
+<?php
+
+class ActionDispatcher {
+	private $reqs;
+	private $multiReqs = false;
+	private $reqData;
+	private $outPrefix = ']'; // JSON output should not be valid JavaScript
+	private $outArray = array();
+
+	public function __construct($handlers) {
+		$this->handlers = $handlers;
+		$this->reqs = array($_REQUEST);
+		if (@$_REQUEST['json']) {
+			$this->reqs = json_decode($_REQUEST['json'], true);
+			$this->multiReqs = true;
+		}
+	}
+
+	public function setPrefix($prefix) {
+		$this->outPrefix = $prefix;
+	}
+
+	public function getServerHostName($serverid) {
+		global $PokemonServers;
+		$server = @$PokemonServers[$serverid];
+		return $server ? $server['server'] : $serverid;
+	}
+
+	public function verifyCrossDomainRequest() {
+		global $config;
+		// No cross-domain multi-requests for security reasons.
+		// No need to do anything if this isn't a cross-domain request.
+		if ($this->multiReqs || !isset($_SERVER['HTTP_ORIGIN'])) {
+			return '';
+		}
+
+		$origin = $_SERVER['HTTP_ORIGIN'];
+		$prefix = null;
+		foreach ($config['cors'] as $i => &$j) {
+			if (!preg_match($i, $origin)) continue;
+			$prefix = $j;
+			break;
+		}
+		if ($prefix === null) {
+			// Bogus request.
+			return '';
+		}
+
+		// Valid CORS request.
+		header('Access-Control-Allow-Origin: ' . $origin);
+		header('Access-Control-Allow-Credentials: true');
+		return $prefix;
+	}
+
+	public function findServer() {
+		global $PokemonServers, $users;
+
+		$serverid = @$this->reqData['serverid'];
+		$server = null;
+		$ip = $users->getIp();
+		if (!isset($PokemonServers[$serverid])) {
+			// Try to find the server by source IP, rather than by serverid.
+			foreach ($PokemonServers as &$i) {
+				if (empty($i['ipidentification'])) continue;
+				if (!isset($i['ipcache'])) {
+					$i['ipcache'] = gethostbyname($i['server']);
+				}
+				if ($i['ipcache'] === $ip) {
+					$server =& $i;
+					break;
+				}
+			}
+			if (!$server) return null;
+		} else {
+			$server =& $PokemonServers[$serverid];
+			if (empty($server['skipipcheck'])) {
+				if (!isset($server['ipcache'])) {
+					$server['ipcache'] = gethostbyname($server['server']);
+				}
+				if ($ip !== $server['ipcache']) return null;
+			}
+		}
+		if (!empty($server['token'])) {
+			if ($server['token'] !== md5($this->reqData['servertoken'])) return null;
+		}
+		return $server;
+	}
+
+	function executeActions() {
+		$outArray = null;
+		if ($this->multiReqs) $outArray = array();
+
+		foreach ($this->reqs as $this->reqData) {
+			$this->reqData = array_merge($_REQUEST, $this->reqData);
+			$action = @$this->reqData['act'];
+			if (!ctype_alnum($action)) die('{"error":"invalid action"}');
+			$out = array(
+				'action' => $action
+			);
+
+			foreach ($this->handlers as &$i) {
+				if (method_exists($i, $action)) {
+					$i->$action($this, $this->reqData, $out);
+				}
+			}
+
+			if ($this->multiReqs) $outArray[] = $out;
+		}
+		// json output
+		if ($this->multiReqs) {
+			header('Content-type: application/json');
+			die($this->outPrefix . json_encode($outArray));
+		} else {
+			header('Content-type: application/json');
+			die($this->outPrefix . json_encode($out));
+		}
+	}
+}
+
+class DefaultActionHandler {
+	function login($dispatcher, &$reqData, &$out) {
+		global $users, $curuser;
+
+		if (!$_POST || empty($reqData['name']) || empty($reqData['pass'])) die();
+		$users->login($reqData['name'], $reqData['pass']);
+		unset($curuser['userdata']);
+		$out['curuser'] = $curuser;
+		$out['actionsuccess'] = !!$curuser;
+		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
+		if ($curuser && $serverhostname) {
+			$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
+		}
+		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
+		$out['assertion'] = $users->getAssertion($curuser['userid'], $serverhostname, null,
+			$challengekeyid, $challenge, $challengeprefix);
+		$out['sid'] = $users->sid;
+	}
+
+	function register($dispatcher, &$reqData, &$out) {
+		global $users, $curuser;
+
+		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
+		$user = array();
+		$user['username'] = @$_POST['username'];
+		$userid = $users->userid($user['username']);
+		if (strlen($userid) < 1) {
+			$out['actionerror'] = 'Your username must contain at least one letter or number.';
+		} else if (substr($userid, 0, 5) === 'guest') {
+			$out['actionerror'] = 'Your username cannot start with \'guest\'.';
+		} else if (strlen($user['username']) > 18) {
+			$out['actionerror'] = 'Your username must be less than 19 characters long.';
+		} else if (strlen(@$_POST['password']) < 5) {
+			$out['actionerror'] = 'Your password must be at least 5 characters long.';
+		} else if (@$_POST['password'] !== @$_POST['cpassword']) {
+			$out['actionerror'] = 'Your passwords do not match.';
+		} else if (trim(strtolower(@$_POST['captcha'])) !== 'pikachu') {
+			$out['actionerror'] = 'Please answer the anti-spam question given.';
+		} else if (($registrationcount = $users->getRecentRegistrationCount()) === false) {
+			$out['actionerror'] = 'A database error occurred. Please try again.';
+		} else if ($registrationcount >= 2) {
+			$out['actionerror'] = 'You can\'t register more than two usernames every two hours. Try again later.';
+		} else if ($user = $users->addUser($user, $_POST['password'])) {
+			$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+			$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+			$challengeprefix = $dispatcher->verifyCrossDomainRequest();
+			$out['curuser'] = $user;
+			$out['assertion'] = $users->getAssertion($user['userid'],
+					$serverhostname, $user, $challengekeyid, $challenge, $challengeprefix);
+			$out['sid'] = $users->sid;
+			$out['actionsuccess'] = true;
+			if ($curuser && $serverhostname) {
+				$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
+			}
+		} else {
+			$out['actionerror'] = 'Your username is already taken.';
+		}
+	}
+
+	function logout($dispatcher, &$reqData, &$out) {
+		global $users, $curuser;
+
+		if (!$_POST) die();
+		$users->logout();
+		$out['curuser'] = $curuser;
+		$out['actionsuccess'] = true;
+	}
+
+	function getassertion($dispatcher, &$reqData, &$out) {
+		global $users, $curuser;
+
+		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
+		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
+		header('Content-type: text/plain; charset=utf-8');
+		if (empty($reqData['userid'])) {
+			$userid = $curuser['userid'];
+			if ($userid === 'guest') {
+				// Special error message for this case.
+				die(';');
+			}
+		} else {
+			$userid = $users->userid($reqData['userid']);
+		}
+		$serverhostname = htmlspecialchars($serverhostname); // Protect against theoretical IE6 XSS
+		die($users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge, $challengeprefix));
+	}
+
+	function updateuserstats($dispatcher, &$reqData, &$out) {
+		global $db;
+
+		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out = 0;
+			return;
+		}
+
+		$date = @$reqData['date'];
+		$usercount = @$reqData['users'];
+		if (!is_numeric($date) || !is_numeric($usercount)) {
+			$out = 0;
+			return;
+		}
+
+		$out = !!$db->query(
+			"INSERT INTO `ntbb_userstats` (`serverid`, `date`, `usercount`) " .
+				"VALUES ('" . $db->escape($server['id']) . "', '" . $db->escape($date) . "', '" . $db->escape($usercount) . "') " .
+				"ON DUPLICATE KEY UPDATE `date`='" . $db->escape($date) . "', `usercount`='" . $db->escape($usercount) . "'");
+
+		if ($server['id'] === 'showdown') {
+			$db->query(
+				"INSERT INTO `ntbb_userstatshistory` (`date`, `usercount`) " .
+				"VALUES ('" . $db->escape($date) . "', '" . $db->escape($usercount) . "')");
+		}
+		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
+	}
+
+	function prepreplay($dispatcher, &$reqData, &$out) {
+		global $db;
+		include_once 'lib/ntbb-ladder.lib.php'; // not clear if this is needed
+
+		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out = 0;
+			break;
+		}
+
+		if (@$server['id'] !== 'showdown') break; // let's not think about other servers yet
+
+		$res = $db->query("SELECT * FROM `ntbb_replays` WHERE `id`='".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."'");
+		$replay = $db->fetch_assoc($res);
+
+		if ($replay && !$replay['loghash']) {
+			$out = !!$db->query("UPDATE `ntbb_replays` SET `loghash` = '".$db->escape($reqData['loghash'])."' WHERE `id`='".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."'");
+		} else {
+			$out = !!$db->query("INSERT INTO `ntbb_replays` (`id`,`loghash`,`p1`,`p2`,`format`,`date`) VALUES ('".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."','".$db->escape($reqData['p1'])."','".$db->escape($reqData['p2'])."','".$db->escape($reqData['format'])."',".time().")");
+		}
+		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
+	}
+
+	function uploadreplay($dispatcher, &$reqData, &$out) {
+		global $db;
+
+		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
+		if (!$_POST['id']) die('ID needed');
+		$id = $_POST['id'];
+
+		$res = $db->query("SELECT * FROM `ntbb_replays` WHERE `id` = '".$db->escape($id)."'");
+
+		$replay = $db->fetch_assoc($res);
+		if (!$replay) die('not found');
+		if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
+			$_POST['log'] = str_replace("\r",'', $_POST['log']);
+			if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
+				die('hash mismatch');
+			}
+		}
+
+		$db->query("UPDATE `ntbb_replays` SET `log` = '".$db->escape($_POST['log'])."', `loghash` = '' WHERE `id` = '".$db->escape($id)."'");
+
+		die('success');
+	}
+}
+
+class LadderActionHandler {
+	function ladderupdate($dispatcher, &$reqData, &$out) {
+		global $users;
+		include_once 'lib/ntbb-ladder.lib.php';
+
+		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out = 0;
+			return;
+		}
+
+		$ladder = new NTBBLadder($server['id'], $reqData['format']);
+		$p1 = $users->getUserData($reqData['p1']);
+		$p2 = $users->getUserData($reqData['p2']);
+
+		$ladder->updateRating($p1, $p2, floatval($reqData['score']));
+		$out['actionsuccess'] = true;
+		$out['p1rating'] = $p1['rating'];
+		$out['p2rating'] = $p2['rating'];
+		unset($out['p1rating']['rpdata']);
+		unset($out['p2rating']['rpdata']);
+		$dispatcher->setPrefix('');	// No need for prefix since only usable by server.
+	}
+
+	function ladderget($dispatcher, &$reqData, &$out) {
+		global $PokemonServers, $users;
+		include_once 'lib/ntbb-ladder.lib.php';
+
+		$server = @$PokemonServers[@$reqData['serverid']];
+		if (!$server) die('');
+
+		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
+		$user = $users->getUserData(@$reqData['user']);
+		$ladder->getAllRatings($user);
+		$out = $user['ratings'];
+	}
+
+	// deprecated action name
+	function ladderformatgetmmr($dispatcher, &$reqData, &$out) {
+		$this->mmr($dispatcher, $reqData, $out);
+	}
+
+	function mmr($dispatcher, &$reqData, &$out) {
+		global $PokemonServers, $users;
+		include_once 'lib/ntbb-ladder.lib.php';
+
+		$server = @$PokemonServers[@$reqData['serverid']];
+		if (!$server) die('');
+
+		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
+		$user = $users->getUserData(@$reqData['user']);
+		$ladder->getRating($user);
+		if (!@$user['rating']) {
+			$out = 1500;
+		} else {
+			$out = ($user['rating']['r']+$user['rating']['rpr'])/2;
+		}
+	}
+}
