@@ -2440,25 +2440,26 @@ function Battle(frame, logFrame, noPreload) {
 			case 'sleeptalk':
 			default:
 				// April Fool's 2013
-				// if (move.id === 'earthquake') {
-				// 	self.message(pokemon.getName() + ' used <strong>Fissure</strong>!');
-				// 	self.message('Just kidding! It was <strong>Earthquake</strong>!');
-				// }
-				self.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+				if (window.Config && Config.afd && move.id === 'earthquake') {
+					self.message(pokemon.getName() + ' used <strong>Fissure</strong>!');
+					self.message('Just kidding! It was <strong>Earthquake</strong>!');
+				} else {
+					self.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+				}
 				break;
 			}
 			// April Fool's 2013
-			// if (move.id === 'taunt') {
-			// 	var quotes = [
-			// 		"Yo mama so fat, she 4x resists Ice- and Fire-type attacks!",
-			// 		"Yo mama so ugly, Captivate raises her opponent's Special Attack!",
-			// 		"Yo mama so dumb, she lowers her Special Attack when she uses Nasty Plot!",
-			// 		"Yo mama so fat, Smogon switched to Pokemon Showdown because PO had an integer overflow bug when you used Grass Knot against her!",
-			// 		"Yo mama so dumb, she thought Sylveon would be Light Type!"
-			// 	];
-			// 	var quote = quotes[(self.p1.name.charCodeAt(2) + self.p2.name.charCodeAt(2) + self.turn) % quotes.length];
-			// 	self.message(pokemon.getName() + " said, \"" + quote + "\"");
-			// }
+			if (window.Config && Config.afd && move.id === 'taunt') {
+				var quotes = [
+					"Yo mama so fat, she 4x resists Ice- and Fire-type attacks!",
+					"Yo mama so ugly, Captivate raises her opponent's Special Attack!",
+					"Yo mama so dumb, she lowers her Special Attack when she uses Nasty Plot!",
+					"Yo mama so fat, Smogon switched to Pokemon Showdown because PO had an integer overflow bug when you used Grass Knot against her!",
+					"Yo mama so dumb, she thought Sylveon would be Light Type!"
+				];
+				var quote = quotes[(self.p1.name.charCodeAt(2) + self.p2.name.charCodeAt(2) + self.turn) % quotes.length];
+				self.message(pokemon.getName() + " said, \"" + quote + "\"");
+			}
 		}
 		pokemon.lastmove = move.id;
 		self.lastmove = move.id;
