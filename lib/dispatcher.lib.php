@@ -296,7 +296,6 @@ class LadderActionHandler {
 	}
 
 	public function ladderupdate($dispatcher, &$reqData, &$out) {
-		global $users;
 		include_once 'lib/ntbb-ladder.lib.php';
 
 		$server = $dispatcher->findServer();
@@ -324,7 +323,7 @@ class LadderActionHandler {
 	}
 
 	public function ladderget($dispatcher, &$reqData, &$out) {
-		global $PokemonServers, $users;
+		global $PokemonServers;
 		include_once 'lib/ntbb-ladder.lib.php';
 
 		$server = @$PokemonServers[@$reqData['serverid']];
@@ -343,7 +342,7 @@ class LadderActionHandler {
 	}
 
 	public function mmr($dispatcher, &$reqData, &$out) {
-		global $PokemonServers, $users;
+		global $PokemonServers;
 		include_once 'lib/ntbb-ladder.lib.php';
 
 		$server = @$PokemonServers[@$reqData['serverid']];
