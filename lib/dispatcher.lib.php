@@ -86,7 +86,7 @@ class ActionDispatcher {
 		return $server;
 	}
 
-	function executeActions() {
+	public function executeActions() {
 		$outArray = null;
 		if ($this->multiReqs) $outArray = array();
 
@@ -99,7 +99,7 @@ class ActionDispatcher {
 			);
 
 			foreach ($this->handlers as &$i) {
-				if (method_exists($i, $action)) {
+				if (is_callable(array($i, $action))) {
 					$i->$action($this, $this->reqData, $out);
 				}
 			}
@@ -118,7 +118,7 @@ class ActionDispatcher {
 }
 
 class DefaultActionHandler {
-	function login($dispatcher, &$reqData, &$out) {
+	public function login($dispatcher, &$reqData, &$out) {
 		global $users, $curuser;
 
 		if (!$_POST || empty($reqData['name']) || empty($reqData['pass'])) die();
@@ -138,7 +138,7 @@ class DefaultActionHandler {
 		$out['sid'] = $users->sid;
 	}
 
-	function register($dispatcher, &$reqData, &$out) {
+	public function register($dispatcher, &$reqData, &$out) {
 		global $users, $curuser;
 
 		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
@@ -178,7 +178,7 @@ class DefaultActionHandler {
 		}
 	}
 
-	function logout($dispatcher, &$reqData, &$out) {
+	public function logout($dispatcher, &$reqData, &$out) {
 		global $users, $curuser;
 
 		if (!$_POST) die();
@@ -187,7 +187,7 @@ class DefaultActionHandler {
 		$out['actionsuccess'] = true;
 	}
 
-	function getassertion($dispatcher, &$reqData, &$out) {
+	public function getassertion($dispatcher, &$reqData, &$out) {
 		global $users, $curuser;
 
 		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
@@ -208,7 +208,7 @@ class DefaultActionHandler {
 		die($users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge, $challengeprefix));
 	}
 
-	function updateuserstats($dispatcher, &$reqData, &$out) {
+	public function updateuserstats($dispatcher, &$reqData, &$out) {
 		global $db;
 
 		$server = $dispatcher->findServer();
@@ -237,7 +237,7 @@ class DefaultActionHandler {
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
 	}
 
-	function prepreplay($dispatcher, &$reqData, &$out) {
+	public function prepreplay($dispatcher, &$reqData, &$out) {
 		global $db;
 		include_once 'lib/ntbb-ladder.lib.php'; // not clear if this is needed
 
@@ -260,10 +260,10 @@ class DefaultActionHandler {
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
 	}
 
-	function uploadreplay($dispatcher, &$reqData, &$out) {
+	public function uploadreplay($dispatcher, &$reqData, &$out) {
 		global $db;
 
-		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
+		public function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
 		if (!$_POST['id']) die('ID needed');
 		$id = $_POST['id'];
 
@@ -284,8 +284,18 @@ class DefaultActionHandler {
 	}
 }
 
+// This class should not depend on ntbb-session.lib.php.
 class LadderActionHandler {
-	function ladderupdate($dispatcher, &$reqData, &$out) {
+	// There's no need to make a database query for this.
+	private function getUserData($username) {
+		if (!$username) $username = '';
+		if (strlen($username) > 18) return false;
+		$userid = strtr($username, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz");
+		$userid = preg_replace('/[^A-Za-z0-9]+/', '', $userid);
+		return array('userid' => $userid, 'username' => $username);
+	}
+
+	public function ladderupdate($dispatcher, &$reqData, &$out) {
 		global $users;
 		include_once 'lib/ntbb-ladder.lib.php';
 
@@ -295,9 +305,14 @@ class LadderActionHandler {
 			return;
 		}
 
-		$ladder = new NTBBLadder($server['id'], $reqData['format']);
-		$p1 = $users->getUserData($reqData['p1']);
-		$p2 = $users->getUserData($reqData['p2']);
+		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
+		$p1 = $this->getUserData(@$reqData['p1']);
+		$p2 = $this->getUserData(@$reqData['p2']);
+		if (!$p1 || !$p2) {
+			// The server should not send usernames > 18 characters long.
+			$out = 0;
+			return;
+		}
 
 		$ladder->updateRating($p1, $p2, floatval($reqData['score']));
 		$out['actionsuccess'] = true;
@@ -308,25 +323,26 @@ class LadderActionHandler {
 		$dispatcher->setPrefix('');	// No need for prefix since only usable by server.
 	}
 
-	function ladderget($dispatcher, &$reqData, &$out) {
+	public function ladderget($dispatcher, &$reqData, &$out) {
 		global $PokemonServers, $users;
 		include_once 'lib/ntbb-ladder.lib.php';
 
 		$server = @$PokemonServers[@$reqData['serverid']];
-		if (!$server) die('');
+		if (!$server) die;
 
 		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
-		$user = $users->getUserData(@$reqData['user']);
+		$user = $this->getUserData(@$reqData['user']);
+		if (!$user) die;
 		$ladder->getAllRatings($user);
 		$out = $user['ratings'];
 	}
 
 	// deprecated action name
-	function ladderformatgetmmr($dispatcher, &$reqData, &$out) {
+	public function ladderformatgetmmr($dispatcher, &$reqData, &$out) {
 		$this->mmr($dispatcher, $reqData, $out);
 	}
 
-	function mmr($dispatcher, &$reqData, &$out) {
+	public function mmr($dispatcher, &$reqData, &$out) {
 		global $PokemonServers, $users;
 		include_once 'lib/ntbb-ladder.lib.php';
 
@@ -334,12 +350,13 @@ class LadderActionHandler {
 		if (!$server) die('');
 
 		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
-		$user = $users->getUserData(@$reqData['user']);
-		$ladder->getRating($user);
-		if (!@$user['rating']) {
-			$out = 1500;
-		} else {
-			$out = ($user['rating']['r']+$user['rating']['rpr'])/2;
+		$user = $this->getUserData(@$reqData['user']);
+		$out = 1500;
+		if ($user) {
+			$ladder->getRating($user);
+			if (@$user['rating']) {
+				$out = ($user['rating']['r']+$user['rating']['rpr'])/2;
+			}
 		}
 	}
 }
