@@ -58,6 +58,7 @@ if ($psim) {
 	if ($hyphenpos) {
 		if (substr($server, $hyphenpos + 1) === 'afd') {
 			$afd = true;
+			$server = substr($server, 0, $hyphenpos);
 		} else {
 			$serverport = substr($server, $hyphenpos + 1);
 			$server = substr($server, 0, $hyphenpos);
