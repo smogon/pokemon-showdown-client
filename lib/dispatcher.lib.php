@@ -263,7 +263,7 @@ class DefaultActionHandler {
 	public function uploadreplay($dispatcher, &$reqData, &$out) {
 		global $db;
 
-		public function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
+		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
 		if (!$_POST['id']) die('ID needed');
 		$id = $_POST['id'];
 
