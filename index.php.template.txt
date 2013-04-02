@@ -52,11 +52,16 @@ if ($colonpos) {
 	$server = substr($server, 0, $colonpos);
 }
 
+$afd = false;
 if ($psim) {
 	$hyphenpos = strrpos($server, '-');
 	if ($hyphenpos) {
-		$serverport = substr($server, $hyphenpos + 1);
-		$server = substr($server, 0, $hyphenpos);
+		if (substr($server, $hyphenpos + 1) === 'afd') {
+			$afd = true;
+		} else {
+			$serverport = substr($server, $hyphenpos + 1);
+			$server = substr($server, 0, $hyphenpos);
+		}
 	}
 }
 
@@ -135,6 +140,9 @@ $upkeep = $users->getUpkeep($server, $challengeresponse);
 <?php } ?>
 			upkeep: <?php echo json_encode($upkeep) . "\n" ?>
 		};
+<?php if ($afd) { ?>
+		Config.afd = true;
+<?php } ?>
 	</script>
 	<!--[if lte IE 8]><script>
 		Config.oldie = true;
