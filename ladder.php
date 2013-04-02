@@ -91,7 +91,7 @@ foreach ($toplist as $row)
 	$i++;
 ?>
 		<tr<?php if (floatval($row['rprd']) > 100) echo ' style="color:#999"';?>>
-			<td><?php echo $i; ?></td><td><?php echo $row['username']; ?></td><td><strong><?php echo round($row['acre']); ?></strong></td><td><?php echo number_format($row['gxe'],1); ?></td>
+			<td><?php echo $i; ?></td><td><?php echo htmlentities($row['username']); ?></td><td><strong><?php echo round($row['acre']); ?></strong></td><td><?php echo number_format($row['gxe'],1); ?></td>
 			<td><?php echo '<em>'.round($row['rpr']).'<small> &#177; '.round($row['rprd']).'</small></em>'; if (floatval($row['rprd']) > 100) echo ' <small>(provisional)</small>'; ?></td>
 		</tr>
 <?php
