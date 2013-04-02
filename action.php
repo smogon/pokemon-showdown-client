@@ -268,11 +268,11 @@ foreach ($reqs as $reqData) {
 	case 'ladderget':
 		include_once 'lib/ntbb-ladder.lib.php';
 		
-		$server = $PokemonServers[$reqData['serverid']];
+		$server = @$PokemonServers[@$reqData['serverid']];
 		if (!$server) die('');
 		
 		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
-		$user = $users->getUserData($reqData['user']);
+		$user = $users->getUserData(@$reqData['user']);
 		$ladder->getAllRatings($user);
 		header('Content-type: application/json');
 		die($outPrefix . json_encode($user['ratings']));
@@ -281,11 +281,11 @@ foreach ($reqs as $reqData) {
 	case 'mmr':
 		include_once 'lib/ntbb-ladder.lib.php';
 
-		$server = $PokemonServers[$reqData['serverid']];
+		$server = @$PokemonServers[@$reqData['serverid']];
 		if (!$server) die('');
 
 		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
-		$user = $users->getUserData($reqData['user']);
+		$user = $users->getUserData(@$reqData['user']);
 		$ladder->getRating($user);
 		if (!@$user['rating']) {
 			$out = 1500;
