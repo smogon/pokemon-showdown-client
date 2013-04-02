@@ -239,7 +239,7 @@ class DefaultActionHandler {
 
 	public function prepreplay($dispatcher, &$reqData, &$out) {
 		global $db;
-		include_once 'lib/ntbb-ladder.lib.php'; // not clear if this is needed
+		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php'; // not clear if this is needed
 
 		$server = $dispatcher->findServer();
 		if (!$server) {
@@ -296,7 +296,7 @@ class LadderActionHandler {
 	}
 
 	public function ladderupdate($dispatcher, &$reqData, &$out) {
-		include_once 'lib/ntbb-ladder.lib.php';
+		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
 
 		$server = $dispatcher->findServer();
 		if (!$server) {
@@ -324,7 +324,7 @@ class LadderActionHandler {
 
 	public function ladderget($dispatcher, &$reqData, &$out) {
 		global $PokemonServers;
-		include_once 'lib/ntbb-ladder.lib.php';
+		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
 
 		$server = @$PokemonServers[@$reqData['serverid']];
 		if (!$server) die;
@@ -343,7 +343,7 @@ class LadderActionHandler {
 
 	public function mmr($dispatcher, &$reqData, &$out) {
 		global $PokemonServers;
-		include_once 'lib/ntbb-ladder.lib.php';
+		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
 
 		$server = @$PokemonServers[@$reqData['serverid']];
 		if (!$server) die('');
