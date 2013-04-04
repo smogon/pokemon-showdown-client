@@ -824,7 +824,7 @@ function Battle(frame, logFrame, noPreload) {
 		this.animTransform = function (species) {
 			if (!selfS.oldsp) selfS.oldsp = selfS.sp;
 			if (species.volatiles && species.volatiles.formechange) species = species.volatiles.formechange[2];
-			sp = Tools.getSpriteData(species, selfS.isBackSprite ? 0 : 1);
+			sp = Tools.getSpriteData(species, selfS.isBackSprite ? 0 : 1, {afd: self.tier === "[Seasonal] Fools Festival"});
 			selfS.sp = sp;
 			selfS.elem.animate(self.pos({
 				x: selfS.x,
@@ -863,7 +863,7 @@ function Battle(frame, logFrame, noPreload) {
 			}
 		};
 		this.animSub = function () {
-			subsp = Tools.getSpriteData('substitute', siden);
+			subsp = Tools.getSpriteData('substitute', siden, {afd: self.tier === "[Seasonal] Fools Festival"});
 			selfS.subsp = subsp;
 			selfS.iw = subsp.w;
 			selfS.ih = subsp.h;
@@ -1332,7 +1332,7 @@ function Battle(frame, logFrame, noPreload) {
 			for (var i = 0; i < selfS.pokemon.length; i++) {
 				poke = selfS.pokemon[i];
 				poke.sprite.destroy();
-				poke.sprite = new self.Sprite(Tools.getSpriteData(poke, selfS.n), selfS.x, selfS.y, selfS.z, selfS.n);
+				poke.sprite = new self.Sprite(Tools.getSpriteData(poke, selfS.n, {afd: self.tier === "[Seasonal] Fools Festival"}), selfS.x, selfS.y, selfS.z, selfS.n);
 			}
 		};
 		this.setSprite = function (spriteid) {
@@ -1616,7 +1616,7 @@ function Battle(frame, logFrame, noPreload) {
 			if ((!poke.ability || poke.ability.substr(0,2) === '??') && poke.baseAbility) poke.ability = poke.baseAbility;
 			poke.id = id;
 			poke.reset();
-			poke.sprite = new self.Sprite(Tools.getSpriteData(poke, selfS.n), selfS.x, selfS.y, selfS.z, selfS.n);
+			poke.sprite = new self.Sprite(Tools.getSpriteData(poke, selfS.n, {afd: self.tier === "[Seasonal] Fools Festival"}), selfS.x, selfS.y, selfS.z, selfS.n);
 
 			if (typeof replaceSlot !== 'undefined') {
 				selfS.pokemon[replaceSlot] = poke;
@@ -4369,7 +4369,7 @@ function Battle(frame, logFrame, noPreload) {
 			for (var i = 0; i < self.sides[k].pokemon.length; i++) {
 				var pokemon = self.sides[k].pokemon[i];
 
-				var spriteData = Tools.getSpriteData(pokemon, k);
+				var spriteData = Tools.getSpriteData(pokemon, k, {afd: self.tier === "[Seasonal] Fools Festival"});
 				var y = 0;
 				var x = 0;
 				if (k) {
@@ -4408,6 +4408,7 @@ function Battle(frame, logFrame, noPreload) {
 			if (!args[1]) args[1] = '';
 			for (var i in kwargs) args[1] += '['+i+'] '+kwargs[i];
 			self.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + self.sanitize(args[1]) + '</strong></div>');
+			self.tier = args[1];
 			break;
 		case 'gametype':
 			self.gameType = args[1];
