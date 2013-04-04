@@ -887,7 +887,7 @@ button.closebutton i
 {
 	background: #EE5533;
 }
-.status.psn
+.status.psn, .status.tox
 {
 	background: #A4009A;
 }
