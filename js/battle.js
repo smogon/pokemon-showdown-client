@@ -121,6 +121,7 @@ function Pokemon(species) {
 		hp = hp[0];
 		var oldhp = (selfP.zerohp || selfP.fainted) ? 0 : (selfP.hp || 1);
 		var oldmaxhp = selfP.maxhp;
+		var oldwidth = selfP.hpWidth(100);
 
 		// hp parse
 		selfP.hpcolor = '';
@@ -161,7 +162,8 @@ function Pokemon(species) {
 
 		var oldnum = oldhp ? (Math.floor(oldhp / oldmaxhp * selfP.maxhp) || 1) : 0;
 		var delta = Math.abs(selfP.hp - oldnum);
-		return [delta, selfP.maxhp, Math.round(delta * 100 / selfP.maxhp)];
+		var deltawidth = Math.abs(selfP.hpWidth(100) - oldwidth);
+		return [delta, selfP.maxhp, deltawidth];
 	};
 	this.checkDetails = function(details, ident) {
 		if (details === selfP.details) return true;
@@ -464,16 +466,26 @@ function Pokemon(species) {
 		if (selfP.fainted || selfP.zerohp) {
 			return 0;
 		}
+		// this treats the 1 pixel => 1% special case.
+		// it also treats some other things in a somewhat arbitrary fashion.
 		if (selfP.hp == 1 && selfP.maxhp > 10) return 1;
-		return Math.round(maxWidth * selfP.hp / selfP.maxhp) || 1;
+		var ratio;
+		if (selfP.maxhp === 48) {
+			// special case ratio computation for pixel health.
+			if (selfP.hp === 48) {
+				// ratio of 1 for full health.
+				ratio = 1;
+			} else {
+				// use the top of the range, truncated to the 100ths place.
+				ratio = Math.floor(((selfP.hp + 1) / 48 - 0.5/714) * 100) / 100;
+			}
+		} else {
+			ratio = selfP.hp / selfP.maxhp;
+		}
+		return Math.round(maxWidth * ratio) || 1;
 	};
 	this.hpDisplay = function () {
-		var percent = selfP.hpWidth(100);
-		// the check for pixel HP here is a hack
-		if ((selfP.maxhp === 48) && (percent > 0) && (percent <= 2)) {
-			percent = 1;
-		}
-		return percent + '%';
+		return selfP.hpWidth(100) + '%';
 	};
 };
 
