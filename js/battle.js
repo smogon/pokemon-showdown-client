@@ -2114,8 +2114,17 @@ function Battle(frame, logFrame, noPreload) {
 		self.message('This replay ends here.');
 		self.done = 1;
 	}
+	this.endLastTurn = function() {
+		if (!self.endLastTurnPending) return;
+		self.endLastTurnPending = false;
+		self.mySide.updateStatbar(null, true);
+		self.yourSide.updateStatbar(null, true);
+	}
 	this.setTurn = function (turnnum) {
 		turnnum = parseInt(turnnum);
+		if (turnnum == self.turn+1) {
+			self.endLastTurnPending = true;
+		}
 		self.turn = turnnum;
 		self.updateWeatherLeft();
 
@@ -2123,8 +2132,6 @@ function Battle(frame, logFrame, noPreload) {
 		if (self.mySide.active[1]) self.mySide.active[1].clearTurnstatuses();
 		if (self.yourSide.active[0]) self.yourSide.active[0].clearTurnstatuses();
 		if (self.yourSide.active[1]) self.yourSide.active[1].clearTurnstatuses();
-		self.mySide.updateStatbar(null, true);
-		self.yourSide.updateStatbar(null, true);
 
 		self.log('<h2>Turn ' + turnnum + '</h2>');
 
@@ -4531,6 +4538,7 @@ function Battle(frame, logFrame, noPreload) {
 		case 'switch':
 		case 'drag':
 		case 'replace':
+			self.endLastTurn();
 			if (self.waitForResult()) return;
 			var poke = self.getPokemon('other: '+args[1], args[2]);
 			var slot = poke.slot;
@@ -4554,6 +4562,7 @@ function Battle(frame, logFrame, noPreload) {
 			poke.side.faint(poke);
 			break;
 		case 'move':
+			self.endLastTurn();
 			if (!kwargs.from && self.waitForResult()) return;
 			var poke = self.getPokemon(args[1]);
 			var move = Tools.getMove(args[2]);
@@ -4564,6 +4573,7 @@ function Battle(frame, logFrame, noPreload) {
 			poke.sprite.afterMove();
 			break;
 		case 'cant':
+			self.endLastTurn();
 			if (self.waitForResult()) return;
 			var poke = self.getPokemon(args[1]);
 			var effect = Tools.getEffect(args[2]);
