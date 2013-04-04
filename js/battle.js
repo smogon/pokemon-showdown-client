@@ -2489,8 +2489,7 @@ function Battle(frame, logFrame, noPreload) {
 	this.cantUseMove = function (pokemon, effect, move, kwargs) {
 		pokemon.clearMovestatuses();
 		pokemon.side.updateStatbar(pokemon, true);
-		switch (effect.id)
-		{
+		switch (effect.id) {
 		case 'taunt':
 			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' after the taunt!');
 			break;
@@ -2543,6 +2542,7 @@ function Battle(frame, logFrame, noPreload) {
 			self.message('<small>' + pokemon.getName() + (move.name ? ' can\'t use ' + move.name + '' : ' can\'t move') + '!</small>');
 			break;
 		}
+		pokemon.sprite.anim({time:1});
 	};
 	this.prepareMove = function (pokemon, move, target) {
 		if (!move.prepareAnim) return;
