@@ -655,7 +655,7 @@ var Tools = {
 		return learnset;
 	},
 	
-	getSpriteData: function(pokemon, siden) {
+	getSpriteData: function(pokemon, siden, options) {
 		pokemon = Tools.getTemplate(pokemon);
 		var isBack = !siden;
 		var back = (siden?'':'-back');
@@ -670,7 +670,7 @@ var Tools = {
 		}
 
 		// April Fool's 2013
-		if (window.Config && Config.afd) {
+		if (window.Config && Config.afd || options && options.afd) {
 			return {
 				w: 96,
 				h: 96,
