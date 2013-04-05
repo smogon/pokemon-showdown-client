@@ -1873,6 +1873,8 @@ function Lobby(id, elem) {
 			}, function(data) {
 				if (data === 'success') {
 					overlay('replayuploaded', id);
+				} else if (data === 'hash mismatch') {
+					overlay('message', "Someone else is already uploading a replay. Try again in five seconds.");
 				} else {
 					overlay('message', "Error while uploading replay: "+data);
 				}

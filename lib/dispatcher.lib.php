@@ -259,8 +259,12 @@ class DefaultActionHandler {
 		$res = $db->query("SELECT * FROM `ntbb_replays` WHERE `id`='".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."'");
 		$replay = $db->fetch_assoc($res);
 
-		if ($replay && !$replay['loghash']) {
-			$out = !!$db->query("UPDATE `ntbb_replays` SET `loghash` = '".$db->escape($reqData['loghash'])."' WHERE `id`='".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."'");
+		if ($replay) {
+			// A replay with this ID already exists
+			if (time() > $replay['date']+5) {
+				// Allow it to be overwritten if it's been 5 seconds already
+				$out = !!$db->query("UPDATE `ntbb_replays` SET `loghash` = '".$db->escape($reqData['loghash'])."' WHERE `id`='".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."'");
+			}
 		} else {
 			$out = !!$db->query("INSERT INTO `ntbb_replays` (`id`,`loghash`,`p1`,`p2`,`format`,`date`) VALUES ('".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."','".$db->escape($reqData['p1'])."','".$db->escape($reqData['p2'])."','".$db->escape($reqData['format'])."',".time().")");
 		}
@@ -281,6 +285,12 @@ class DefaultActionHandler {
 		if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
 			$_POST['log'] = str_replace("\r",'', $_POST['log']);
 			if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
+				// Someone else tried to upload a replay of the same battle,
+				// while we were uploading this
+				if ($replay['log']) {
+					// A log already exists; good enough
+					die('success');
+				}
 				die('hash mismatch');
 			}
 		}
