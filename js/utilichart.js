@@ -248,6 +248,7 @@ function BattleChart()
 		
 		text += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
 		text += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
+		text += '<span class="col widelabelcol"><em>PP</em><br />'+move.pp+'&ndash;'+(move.pp*1.6)+'</span> ';
 		
 		text += '<span class="col movedesccol">'+sanitize(move.shortDesc || move.desc)+'</span> ';
 		
