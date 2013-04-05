@@ -2115,10 +2115,11 @@ function Battle(frame, logFrame, noPreload) {
 		self.done = 1;
 	}
 	this.endLastTurn = function() {
-		if (!self.endLastTurnPending) return;
-		self.endLastTurnPending = false;
-		self.mySide.updateStatbar(null, true);
-		self.yourSide.updateStatbar(null, true);
+		if (self.endLastTurnPending) {
+			self.endLastTurnPending = false;
+			self.mySide.updateStatbar(null, true);
+			self.yourSide.updateStatbar(null, true);
+		}
 	}
 	this.setTurn = function (turnnum) {
 		turnnum = parseInt(turnnum);
@@ -2421,11 +2422,10 @@ function Battle(frame, logFrame, noPreload) {
 	this.useMove = function (pokemon, move, target, kwargs) {
 		var fromeffect = Tools.getEffect(kwargs.from);
 		pokemon.clearMovestatuses();
-		pokemon.side.updateStatbar(pokemon, true);
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch');
-			pokemon.side.updateStatbar(pokemon);
 		}
+		pokemon.side.updateStatbar(pokemon);
 		if (!target) {
 			target = pokemon.side.foe.active[0];
 		}
@@ -2495,7 +2495,7 @@ function Battle(frame, logFrame, noPreload) {
 	};
 	this.cantUseMove = function (pokemon, effect, move, kwargs) {
 		pokemon.clearMovestatuses();
-		pokemon.side.updateStatbar(pokemon, true);
+		pokemon.side.updateStatbar(pokemon);
 		switch (effect.id) {
 		case 'taunt':
 			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' after the taunt!');
