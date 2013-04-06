@@ -3289,9 +3289,7 @@ function overlaySubmit(e, overlayType) {
 					error: data.actionerror
 				});
 			}
-		}), 'text').error(function (e) {
-			alert('error: ' + e);
-		});
+		}), 'text');
 		overlayClose();
 		break;
 	case 'forfeit':
@@ -3570,36 +3568,56 @@ teams = (function() {
 		connect(Config.upkeep, $.cookie('showdown_username') || '');
 	} else {
 		var origin = 'http://play.pokemonshowdown.com';
-		$(window).on('message', function($e) {
-			var e = $e.originalEvent;
-			if (e.origin !== origin) return;
-			var data = $.parseJSON(e.data);
-			Tools.postCrossDomainMessage = function(data) {
-				return e.source.postMessage($.toJSON(data), origin);
+		$(window).on('message', (function() {
+			var callbacks = [];
+			return function($e) {
+				var e = $e.originalEvent;
+				if (e.origin !== origin) return;
+				var data = $.parseJSON(e.data);
+				if (data.upkeep) {
+					Tools.postCrossDomainMessage = function(data) {
+						return e.source.postMessage($.toJSON(data), origin);
+					};
+					// ajax requests
+					$.get = function(uri, callback, type) {
+						var idx = callbacks.length;
+						callbacks[idx] = callback;
+						Tools.postCrossDomainMessage({get: [uri, idx, type]});
+					};
+					$.post = function(uri, data, callback, type) {
+						var idx = callbacks.length;
+						callbacks[idx] = callback;
+						Tools.postCrossDomainMessage({post: [uri, data, idx, type]});
+					};
+					// teams
+					if (data.teams) {
+						cookieTeams = false;
+						teams = $.parseJSON(data.teams);
+					}
+					Teambuilder.writeTeams = function() {
+						Tools.postCrossDomainMessage({teams: $.toJSON(teams)});
+					};
+					if (rooms.teambuilder) {
+						rooms.teambuilder.init();
+					}
+					// prefs
+					if (data.prefs) {
+						Tools.prefs.data = $.parseJSON(data.prefs);
+					}
+					Tools.prefs.save = function() {
+						Tools.postCrossDomainMessage({prefs: $.toJSON(this.data)});
+					};
+					// connect
+					connect(data.upkeep, data.username);
+				} else if (data.ajax) {
+					var idx = data.ajax[0];
+					if (callbacks[idx]) {
+						callbacks[idx](data.ajax[1]);
+						delete callbacks[idx];
+					}
+				}
 			};
-			// sid
-			$.cookie('sid', data.sid);
-			// teams
-			if (data.teams) {
-				cookieTeams = false;
-				teams = $.parseJSON(data.teams);
-			}
-			Teambuilder.writeTeams = function() {
-				Tools.postCrossDomainMessage({teams: $.toJSON(teams)});
-			};
-			if (rooms.teambuilder) {
-				rooms.teambuilder.init();
-			}
-			// prefs
-			if (data.prefs) {
-				Tools.prefs.data = $.parseJSON(data.prefs);
-			}
-			Tools.prefs.save = function() {
-				Tools.postCrossDomainMessage({prefs: $.toJSON(this.data)});
-			};
-			// connect
-			connect(data.upkeep, data.username);
-		});
+		})());
 		var $iframe = $(
 			'<iframe src="//play.pokemonshowdown.com/crossdomain.php?prefix=' +
 			encodeURIComponent(Config.crossdomain.prefix) +
