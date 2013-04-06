@@ -249,7 +249,7 @@ class DefaultActionHandler {
 		$server = $dispatcher->findServer();
 		if (!$server) {
 			$out = 0;
-			break;
+			return;
 		}
 
 		if (@$server['id'] !== 'showdown') {
