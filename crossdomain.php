@@ -32,12 +32,14 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 <!DOCTYPE html>
 <script src="/js/jquery-1.9.0.min.js"></script>
 <script src="/js/jquery-cookie.js"></script>
+<script src="/js/jquery.json-2.3.min.js"></script>
 <script>
 (function() {
 	var origin = <?php echo json_encode($origin) ?>;
 	$(window).on('message', function($e) {
 		var e = $e.originalEvent;
 		if (e.origin !== origin) return;
+		e.data = $.parseJSON(e.data);
 		if (e.data.username) {
 			$.cookie('showdown_username', e.data.username, {expires: 14});
 		}
@@ -60,6 +62,6 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 		message.teams = localStorage.getItem('showdown_teams');
 		message.prefs = localStorage.getItem('showdown_prefs');
 	}
-	window.parent.postMessage(message, origin);
+	window.parent.postMessage($.toJSON(message), origin);
 })();
 </script>

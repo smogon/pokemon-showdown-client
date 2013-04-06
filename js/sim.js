@@ -3573,8 +3573,9 @@ teams = (function() {
 		$(window).on('message', function($e) {
 			var e = $e.originalEvent;
 			if (e.origin !== origin) return;
+			e.data = $.parseJSON(e.data);
 			Tools.postCrossDomainMessage = function(data) {
-				return e.source.postMessage(data, origin);
+				return e.source.postMessage($.toJSON(data), origin);
 			};
 			// sid
 			$.cookie('sid', e.data.sid);
