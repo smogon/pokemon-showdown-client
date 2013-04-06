@@ -531,7 +531,7 @@ var Tools = {
 				effect.exists = true;
 			}
 			if (!effect.id) effect.id = id;
-			if (!effect.name) effect.name = name;
+			if (!effect.name) effect.name = sanitize(name);
 			if (!effect.category) effect.category = 'Effect';
 			if (!effect.effectType) effect.effectType = 'Effect';
 		}
@@ -552,7 +552,7 @@ var Tools = {
 			}
 
 			if (!move.id) move.id = id;
-			if (!move.name) move.name = name;
+			if (!move.name) move.name = sanitize(name);
 
 			if (!move.critRatio) move.critRatio = 1;
 			if (!move.baseType) move.baseType = move.type;
@@ -572,7 +572,7 @@ var Tools = {
 			item = (window.BattleItems && window.BattleItems[id]) || {};
 			if (item.name) item.exists = true;
 			if (!item.id) item.id = id;
-			if (!item.name) item.name = name;
+			if (!item.name) item.name = sanitize(name);
 			if (!item.category) item.category = 'Effect';
 			if (!item.effectType) item.effectType = 'Item';
 		}
@@ -586,7 +586,7 @@ var Tools = {
 			ability = (window.BattleAbilities && window.BattleAbilities[id]) || {};
 			if (ability.name) ability.exists = true;
 			if (!ability.id) ability.id = id;
-			if (!ability.name) ability.name = name;
+			if (!ability.name) ability.name = sanitize(name);
 			if (!ability.category) ability.category = 'Effect';
 			if (!ability.effectType) ability.effectType = 'Ability';
 		}
@@ -622,7 +622,7 @@ var Tools = {
 				template.learnset = window.BattleLearnsets[id].learnset;
 			}
 			if (!template.id) template.id = id;
-			if (!template.name) template.name = name;
+			if (!template.name) template.name = name = sanitize(name);
 			if (!template.speciesid) template.speciesid = id;
 			if (!template.species) template.species = name;
 			if (!template.baseSpecies) template.baseSpecies = name;
