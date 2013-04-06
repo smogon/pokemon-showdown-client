@@ -2439,7 +2439,8 @@ function Battle(frame, logFrame, noPreload) {
 			case 'magicbounce':
 			case 'magiccoat':
 			case 'rebound':
-				kwargs.still = '1';
+				self.resultAnim(target, 'Magic Coat', 'good');
+				self.message(target.getName() + "'s " + move.name + " was bounced back by " +  fromeffect.name + "!");
 				break;
 			case 'metronome':
 				self.message('Waggling a finger let it use <strong>' + move.name + '</strong>!');
@@ -3880,12 +3881,12 @@ function Battle(frame, logFrame, noPreload) {
 				case 'magicbounce':
 				case 'magiccoat':
 				case 'rebound':
-					self.resultAnim(poke, 'Magic Coat', 'good', animDelay);
-					if (effect.id === 'magiccoat') {
-						poke.addTurnstatus('magiccoat');
-					}
-					actions += "" + ofpoke.getName() + "'s " + args[3] + " was bounced back by " + effect.name + "!";
-					Tools.getMove(args[3]).anim(self, [poke.sprite, ofpoke.sprite]);
+					// self.resultAnim(poke, 'Magic Coat', 'good', animDelay);
+					// if (effect.id === 'magiccoat') {
+					// 	poke.addTurnstatus('magiccoat');
+					// }
+					// actions += "" + ofpoke.getName() + "'s " + args[3] + " was bounced back by " + effect.name + "!";
+					// Tools.getMove(args[3]).anim(self, [poke.sprite, ofpoke.sprite]);
 					break;
 				case 'wonderguard':
 					self.resultAnim(poke, 'Immune', 'neutral', animDelay);
