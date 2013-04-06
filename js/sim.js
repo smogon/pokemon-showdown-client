@@ -1874,7 +1874,9 @@ function Lobby(id, elem) {
 				if (data === 'success') {
 					overlay('replayuploaded', id);
 				} else if (data === 'hash mismatch') {
-					overlay('message', "Someone else is already uploading a replay. Try again in five seconds.");
+					overlay('message', "Someone else is already uploading a replay of this battle. Try again in five seconds.");
+				} else if (data === 'not found') {
+					overlay('message', "This server isn't registered, and doesn't support uploading replays.");
 				} else {
 					overlay('message', "Error while uploading replay: "+data);
 				}
