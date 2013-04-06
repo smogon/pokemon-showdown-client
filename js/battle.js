@@ -2471,7 +2471,7 @@ function Battle(frame, logFrame, noPreload) {
 				self.message(pokemon.getName() + " said, \"" + quote + "\"");
 			}
 		}
-		if (!self.fastForward) {
+		if (!self.fastForward && !kwargs.still) {
 			// skip
 			if (kwargs.miss && target.side) {
 				target = target.side.missedPokemon;
@@ -2481,7 +2481,7 @@ function Battle(frame, logFrame, noPreload) {
 			}
 			if (kwargs.prepare || kwargs.anim === 'prepare') {
 				self.prepareMove(pokemon, move, target);
-			} else if (!kwargs.still && !kwargs.notarget) {
+			} else if (!kwargs.notarget) {
 				move.anim(self, [pokemon.sprite, target.sprite]);
 			}
 		}
