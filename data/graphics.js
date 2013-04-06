@@ -26,83 +26,83 @@ This license DOES NOT extend to any other files of the Pokemon replay viewer.
 
 var BattleEffects = {
 	wisp: {
-		url: '/fx/wisp.png',
+		url: 'fx/wisp.png',
 		w: 100, h: 100
 	},
 	poisonwisp: {
-		url: '/fx/poisonwisp.png',
+		url: 'fx/poisonwisp.png',
 		w: 100, h: 100
 	},
 	waterwisp: {
-		url: '/fx/waterwisp.png',
+		url: 'fx/waterwisp.png',
 		w: 100, h: 100
 	},
 	fireball: {
-		url: '/fx/fireball.png',
+		url: 'fx/fireball.png',
 		w: 64, h: 64
 	},
 	icicle: {
-		url: '/fx/icicle.png', // http://opengameart.org/content/icicle-spell
+		url: 'fx/icicle.png', // http://opengameart.org/content/icicle-spell
 		w: 80, h: 60
 	},
 	lightning: {
-		url: '/fx/lightning.png', // http://opengameart.org/content/lightning-shock-spell
+		url: 'fx/lightning.png', // http://opengameart.org/content/lightning-shock-spell
 		w: 48, h: 229
 	},
 	rock: {
-		url: '/fx/rock.png', // http://opengameart.org/content/rock-low-poly
+		url: 'fx/rock.png', // http://opengameart.org/content/rock-low-poly
 		w: 80, h: 80
 	},
 	rocks: {
-		url: '/fx/rocks.png', // Pokemon Online - Gilad
+		url: 'fx/rocks.png', // Pokemon Online - Gilad
 		w: 100, h: 100
 	},
 	rock1: {
-		url: '/fx/rock1.png', // Pokemon Online - Gilad
+		url: 'fx/rock1.png', // Pokemon Online - Gilad
 		w: 64, h: 80
 	},
 	rock2: {
-		url: '/fx/rock2.png', // Pokemon Online - Gilad
+		url: 'fx/rock2.png', // Pokemon Online - Gilad
 		w: 66, h: 72
 	},
 	caltrop: {
-		url: '/fx/caltrop.png', // http://en.wikipedia.org/wiki/File:Caltrop.jpg
+		url: 'fx/caltrop.png', // http://en.wikipedia.org/wiki/File:Caltrop.jpg
 		w: 80, h: 80
 	},
 	poisoncaltrop: {
-		url: '/fx/poisoncaltrop.png', // http://en.wikipedia.org/wiki/File:Caltrop.jpg
+		url: 'fx/poisoncaltrop.png', // http://en.wikipedia.org/wiki/File:Caltrop.jpg
 		w: 80, h: 80
 	},
 	shadowball: {
-		url: '/fx/shadowball.png',
+		url: 'fx/shadowball.png',
 		w: 100, h: 100
 	},
 	energyball: {
-		url: '/fx/energyball.png',
+		url: 'fx/energyball.png',
 		w: 100, h: 100
 	},
 	electroball: {
-		url: '/fx/electroball.png',
+		url: 'fx/electroball.png',
 		w: 100, h: 100
 	},
 	pokeball: {
-		url: '/fx/pokeball.png',
+		url: 'fx/pokeball.png',
 		w: 24, h: 24
 	},
 	fist: {
-		url: '/fx/fist.png',
+		url: 'fx/fist.png',
 		w: 56, h: 44
 	},
 	foot: {
-		url: '/fx/foot.png',
+		url: 'fx/foot.png',
 		w: 52, h: 64
 	},
 	topbite: {
-		url: '/fx/topbite.png',
+		url: 'fx/topbite.png',
 		w: 108, h: 64
 	},
 	bottombite: {
-		url: '/fx/bottombite.png',
+		url: 'fx/bottombite.png',
 		w: 108, h: 64
 	},
 	none: {
@@ -110,6 +110,13 @@ var BattleEffects = {
 		w: 100, h: 100
 	}
 };
+(function() {
+	if (!window.Tools || !Tools.resourcePrefix) return;
+	for (var i in BattleEffects) {
+		if (!BattleEffects[i].url) continue;
+		BattleEffects[i].url = Tools.resourcePrefix + BattleEffects[i].url;
+	}
+})();
 var BattleBackdrops = [
 	'bg-beach.png',
 	'bg-beachshore.png',
