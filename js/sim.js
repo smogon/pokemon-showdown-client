@@ -1618,13 +1618,7 @@ function Lobby(id, elem) {
 			} else if (log[i].message) {
 				selfR.chatElem.append('<div class="message">' + sanitize(log[i].message) + '</div>');
 			} else if (log[i].rawMessage) {
-				// This is so that the register link continues to work on old servers.
-				// It can be removed later.
-				if (log[i].rawMessage === '<div style="background-color:#6688AA;color:white;padding:2px 4px"><b>Register an account to protect your ladder rating!</b><br /><button onclick="overlay(\'register\',{ifuserid:\''+me.userid+'\'});return false"><b>Register</b></button></div>') {
-					selfR.chatElem.append('<div class="message">' + log[i].rawMessage + '</div>');
-				} else {
-					selfR.chatElem.append('<div class="message">' + Tools.htmlSanitize(log[i].rawMessage) + '</div>');
-				}
+				selfR.chatElem.append('<div class="message">' + Tools.htmlSanitize(log[i].rawMessage) + '</div>');
 			} else if (log[i].evalRulesRedirect || log[i].evalRawMessage) {
 				// TODO: This will be removed in due course.
 				window.location.href = 'http://pokemonshowdown.com/rules';
