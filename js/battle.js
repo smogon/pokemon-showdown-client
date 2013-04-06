@@ -2449,6 +2449,9 @@ function Battle(frame, logFrame, noPreload) {
 		if (!kwargs.silent) {
 			switch (fromeffect.id) {
 			case 'snatch':
+			case 'magicbounce':
+			case 'magiccoat':
+			case 'rebound':
 				break;
 			case 'metronome':
 				self.message('Waggling a finger let it use <strong>' + move.name + '</strong>!');
