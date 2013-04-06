@@ -3573,16 +3573,16 @@ teams = (function() {
 		$(window).on('message', function($e) {
 			var e = $e.originalEvent;
 			if (e.origin !== origin) return;
-			e.data = $.parseJSON(e.data);
+			var data = $.parseJSON(e.data);
 			Tools.postCrossDomainMessage = function(data) {
 				return e.source.postMessage($.toJSON(data), origin);
 			};
 			// sid
-			$.cookie('sid', e.data.sid);
+			$.cookie('sid', data.sid);
 			// teams
-			if (e.data.teams) {
+			if (data.teams) {
 				cookieTeams = false;
-				teams = $.parseJSON(e.data.teams);
+				teams = $.parseJSON(data.teams);
 			}
 			Teambuilder.writeTeams = function() {
 				Tools.postCrossDomainMessage({teams: $.toJSON(teams)});
@@ -3591,14 +3591,14 @@ teams = (function() {
 				rooms.teambuilder.init();
 			}
 			// prefs
-			if (e.data.prefs) {
-				Tools.prefs.data = $.parseJSON(e.data.prefs);
+			if (data.prefs) {
+				Tools.prefs.data = $.parseJSON(data.prefs);
 			}
 			Tools.prefs.save = function() {
 				Tools.postCrossDomainMessage({prefs: $.toJSON(this.data)});
 			};
 			// connect
-			connect(e.data.upkeep, e.data.username);
+			connect(data.upkeep, data.username);
 		});
 		var $iframe = $(
 			'<iframe src="//play.pokemonshowdown.com/crossdomain.php?prefix=' +

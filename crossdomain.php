@@ -39,18 +39,18 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 	$(window).on('message', function($e) {
 		var e = $e.originalEvent;
 		if (e.origin !== origin) return;
-		e.data = $.parseJSON(e.data);
-		if (e.data.username) {
-			$.cookie('showdown_username', e.data.username, {expires: 14});
+		var data = $.parseJSON(e.data);
+		if (data.username) {
+			$.cookie('showdown_username', data.username, {expires: 14});
 		}
-		if (e.data.sid) {
-			$.cookie('sid', e.data.sid, {expires: 14});
+		if (data.sid) {
+			$.cookie('sid', data.sid, {expires: 14});
 		}
-		if (e.data.teams) {
-			localStorage.setItem('showdown_teams', e.data.teams);
+		if (data.teams) {
+			localStorage.setItem('showdown_teams', data.teams);
 		}
-		if (e.data.prefs) {
-			localStorage.setItem('showdown_prefs', e.data.prefs);
+		if (data.prefs) {
+			localStorage.setItem('showdown_prefs', data.prefs);
 		}
 	});
 	var message = {
