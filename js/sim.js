@@ -2915,7 +2915,7 @@ var favicon = {
 				}
 				//var notification = window.webkitNotifications.createHTMLNotification('http://play.pokemonshowdown.com/notification.php?type=' + data.type + '&person=' + encodeURIComponent(data.user) + '&personid=' + data.userid + '&room=' + data.room)
 				var notification = new Notification("Pokemon Showdown", {
-					iconUrl: "/favicon-notify.gif",
+					iconUrl: Tools.resourcePrefix + "favicon-notify.gif",
 					body: message,
 					tag: data.type+'-'+data.room+'-'+data.user,
 					onclose: function (event) {
@@ -2975,7 +2975,7 @@ var favicon = {
 		var activeNotificationData = null;
 		notify = function (data) {
 			if (window.focused) return;
-			favicon.animate(['/favicon-notify.ico', '/favicon-notify2.ico']);
+			favicon.animate([Tools.resourcePrefix + 'favicon-notify.ico', Tools.resourcePrefix + 'favicon-notify2.ico']);
 			activeNotificationData = data;
 			activeNotification = setInterval(updateNotifyTitle, 1500);
 		};
