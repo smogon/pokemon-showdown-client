@@ -2432,26 +2432,14 @@ function Battle(frame, logFrame, noPreload) {
 		if (!target) {
 			target = pokemon.side.foe.missedPokemon;
 		}
-		if (!self.fastForward) {
-			// skip
-			if (kwargs.miss && target.side) {
-				target = target.side.missedPokemon;
-			}
-			if (kwargs.notarget) {
-				target = pokemon.side.foe.missedPokemon;
-			}
-			if (kwargs.prepare || kwargs.anim === 'prepare') {
-				self.prepareMove(pokemon, move, target);
-			} else if (!kwargs.still && !kwargs.notarget) {
-				move.anim(self, [pokemon.sprite, target.sprite]);
-			}
-		}
 		if (!kwargs.silent) {
 			switch (fromeffect.id) {
 			case 'snatch':
+				break;
 			case 'magicbounce':
 			case 'magiccoat':
 			case 'rebound':
+				kwargs.still = '1';
 				break;
 			case 'metronome':
 				self.message('Waggling a finger let it use <strong>' + move.name + '</strong>!');
@@ -2481,6 +2469,20 @@ function Battle(frame, logFrame, noPreload) {
 				];
 				var quote = quotes[(self.p1.name.charCodeAt(2) + self.p2.name.charCodeAt(2) + self.turn) % quotes.length];
 				self.message(pokemon.getName() + " said, \"" + quote + "\"");
+			}
+		}
+		if (!self.fastForward) {
+			// skip
+			if (kwargs.miss && target.side) {
+				target = target.side.missedPokemon;
+			}
+			if (kwargs.notarget) {
+				target = pokemon.side.foe.missedPokemon;
+			}
+			if (kwargs.prepare || kwargs.anim === 'prepare') {
+				self.prepareMove(pokemon, move, target);
+			} else if (!kwargs.still && !kwargs.notarget) {
+				move.anim(self, [pokemon.sprite, target.sprite]);
 			}
 		}
 		pokemon.lastmove = move.id;
