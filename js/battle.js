@@ -591,7 +591,7 @@ function Battle(frame, logFrame, noPreload) {
 		self.logPreemptElem = logFrame.children().last();
 		logFrame.append('<div class="inner-after"></div>');
 
-		self.elem.append('<div class="backdrop" style="background-image:url(/fx/' + self.backdropImage + ');display:block;opacity:0"></div>');
+		self.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + 'fx/' + self.backdropImage + ');display:block;opacity:0"></div>');
 		self.bgElem = self.elem.children().last();
 		self.bgElem.animate({
 			opacity: 0.6
