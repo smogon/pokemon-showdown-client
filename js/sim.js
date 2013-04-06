@@ -3215,9 +3215,6 @@ function overlaySubmit(e, overlayType) {
 			challenge: me.challenge
 		}, Tools.safeJson(function (data) {
 			if (!data) data = {};
-			if (data.sid !== undefined) {
-				Tools.postCrossDomainMessage({sid: data.sid});
-			}
 			var token = data.assertion;
 			if (data.curuser && data.curuser.loggedin) {
 				me.registered = data.curuser;
@@ -3268,9 +3265,6 @@ function overlaySubmit(e, overlayType) {
 			challenge: me.challenge
 		}, Tools.safeJson(function (data) {
 			if (!data) data = {};
-			if (data.sid !== undefined) {
-				Tools.postCrossDomainMessage({sid: data.sid});
-			}
 			var token = data.assertion;
 			if (data.curuser && data.curuser.loggedin) {
 				me.registered = data.curuser;
