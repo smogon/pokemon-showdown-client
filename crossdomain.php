@@ -36,6 +36,9 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 <script>
 (function() {
 	var origin = <?php echo json_encode($origin) ?>;
+	var postMessage = function(message) {
+		return window.parent.postMessage($.toJSON(message), origin);
+	};
 	$(window).on('message', function($e) {
 		var e = $e.originalEvent;
 		if (e.origin !== origin) return;
@@ -43,8 +46,15 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 		if (data.username) {
 			$.cookie('showdown_username', data.username, {expires: 14});
 		}
-		if (data.sid) {
-			$.cookie('sid', data.sid, {expires: 14});
+		if (data.get) {
+			$.get(data.get[0], function(ajaxdata) {
+				postMessage({ajax: [data.get[1], ajaxdata]});
+			}, data.get[2]);
+		}
+		if (data.post) {
+			$.post(data.post[0], data.post[1], function(ajaxdata) {
+				postMessage({ajax: [data.post[2], ajaxdata]});
+			}, data.post[3]);
 		}
 		if (data.teams) {
 			localStorage.setItem('showdown_teams', data.teams);
@@ -62,6 +72,6 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 		message.teams = localStorage.getItem('showdown_teams');
 		message.prefs = localStorage.getItem('showdown_prefs');
 	}
-	window.parent.postMessage($.toJSON(message), origin);
+	postMessage(message);
 })();
 </script>
