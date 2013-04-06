@@ -119,7 +119,7 @@ $upkeep = $users->getUpkeep($server, $challengeresponse);
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/sim-types.css" />
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/battle.css?" />
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/replayer.css" /><!-- utilichart -->
-		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/font-awesome.css" />
+		<link rel="stylesheet" href="/style/font-awesome.css" />
 <?php if (@$serverdata['customcss']) { ?>
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/customcss.php?server=<?php echo $serverid ?>" />
 <?php } ?>

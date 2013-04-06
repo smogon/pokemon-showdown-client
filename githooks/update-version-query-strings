@@ -10,7 +10,8 @@
  */
 
 function replaceMatch($m) {
-	$hash = substr(md5_file($m[2]), 0, 8);
+	$filename = str_replace('/play.pokemonshowdown.com/', '', $m[2]);
+	$hash = substr(md5_file($filename), 0, 8);
 	return "${m[1]}=\"/${m[2]}?${hash}\"";
 }
 
