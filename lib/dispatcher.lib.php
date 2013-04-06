@@ -256,7 +256,7 @@ class DefaultActionHandler {
 			$reqData['id'] = $server['id'].'-'.$reqData['id'];
 		}
 
-		$res = $db->query("SELECT * FROM `ntbb_replays` WHERE `id`='".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."'");
+		$res = $db->query("SELECT * FROM `ntbb_replays` WHERE `id`='".$db->escape($reqData['id'])."'");
 		$replay = $db->fetch_assoc($res);
 
 		if ($replay) {
