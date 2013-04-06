@@ -140,7 +140,6 @@ class DefaultActionHandler {
 		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
 		$out['assertion'] = $users->getAssertion($curuser['userid'], $serverhostname, null,
 			$challengekeyid, $challenge, $challengeprefix);
-		$out['sid'] = $users->sid;
 	}
 
 	public function register($dispatcher, &$reqData, &$out) {
@@ -173,7 +172,6 @@ class DefaultActionHandler {
 			$out['curuser'] = $user;
 			$out['assertion'] = $users->getAssertion($user['userid'],
 					$serverhostname, $user, $challengekeyid, $challenge, $challengeprefix);
-			$out['sid'] = $users->sid;
 			$out['actionsuccess'] = true;
 			if ($curuser && $serverhostname) {
 				$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
