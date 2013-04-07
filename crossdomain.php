@@ -7,18 +7,6 @@ header('Cache-Control: no-cache, no-store, must-revalidate'); // HTTP 1.1.
 header('Pragma: no-cache'); // HTTP 1.0.
 header('Expires: 0'); // Proxies.
 
-require '../pokemonshowdown.com/lib/ntbb-session.lib.php';
-
-$server = strval(@$_REQUEST['server']);
-$challengeresponse = intval(@$_REQUEST['challengeresponse']);
-
-// Checking the form of $server is probably not necessary, but we do it
-// for greater certainity.
-if (!preg_match('/^[a-zA-Z0-9-_\.]*$/', $server)) {
-	die();
-}
-$upkeep = $users->getUpkeep($server, $challengeresponse);
-
 $prefix = strval(@$_REQUEST['prefix']);
 // Need to check the form of $prefix to avoid some vulnerabilities.
 // This check should be robust enough for now.
@@ -26,7 +14,6 @@ if (!preg_match('/^[a-zA-Z0-9-_\.]*$/', $prefix)) {
 	die();
 }
 $origin = 'http://' . $prefix . '.psim.us';
-$username = isset($_COOKIE['showdown_username']) ? $_COOKIE['showdown_username'] : '';
 ?>
 <!DOCTYPE html>
 <script src="/js/jquery-1.9.0.min.js"></script>
@@ -62,10 +49,7 @@ $username = isset($_COOKIE['showdown_username']) ? $_COOKIE['showdown_username']
 			localStorage.setItem('showdown_prefs', data.prefs);
 		}
 	});
-	var message = {
-		upkeep: <?php echo json_encode($upkeep) ?>,
-		username: <?php echo json_encode($username) ?>
-	};
+	var message = {};
 	try {
 		if (window.localStorage) {
 			message.teams = localStorage.getItem('showdown_teams');

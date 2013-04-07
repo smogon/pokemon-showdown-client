@@ -105,9 +105,6 @@ $serverlibs = array(
 );
 $serverlibrary = $serverlibs[$serverprotocol];
 
-include '../pokemonshowdown.com/lib/ntbb-session.lib.php';
-$upkeep = $users->getUpkeep($server, $challengeresponse);
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -132,14 +129,12 @@ $upkeep = $users->getUpkeep($server, $challengeresponse);
 			serverport: <?php echo $serverport ?>,
 			<?php if (!empty($serveraltport)) echo "serveraltport: $serveraltport,\n"; ?>
 			serverprotocol: '<?php echo $serverprotocol ?>',
-			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown' && !$psim) echo '~~',$serverid,'/'; ?>',
 <?php if ($psim) { ?>
 			crossdomain: {
-				prefix: <?php echo json_encode($hostprefix) ?>,
-				challengeresponse: <?php echo intval($challengeresponse) ?>
+				prefix: <?php echo json_encode($hostprefix) ?>
 			},
 <?php } ?>
-			upkeep: <?php echo json_encode($upkeep) . "\n" ?>
+			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown' && !$psim) echo '~~',$serverid,'/'; ?>'
 		};
 <?php if ($afd) { ?>
 		Config.afd = true;

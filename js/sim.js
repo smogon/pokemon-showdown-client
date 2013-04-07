@@ -15,33 +15,80 @@ var actionphp = (function() {
 })();
 var _gaq = _gaq || [];
 
-// initialize sockets
 var socket = null;
-var me = {
-	name: '',
-	named: false,
-	registered: false,
-	userid: '',
-	token: '',
-	challengekeyid: -1,
-	challenge: '',
-	renameQueued: false,
-	users: {},
-	rooms: {},
-	ignore: {},
-	mute: (function(c) {
-		if (c !== null) {
-			Tools.prefs.set('mute', !!c, true);
-			$.cookie('showdown_mute', null);
-			return c;
+var me = (function() {
+	var finishRename = function(name, assertion) {
+		if (assertion === ';') {
+			overlay('login', {name: name});
+		} else if (assertion.substr(0, 2) === ';;') {
+			overlay('rename', {error: assertion.substr(2)});
+		} else if (assertion.indexOf('\n') >= 0) {
+			alert("The login server is overloaded. Please try again later.");
+		} else {
+			rooms.lobby.send('/trn '+name+',0,'+assertion);
 		}
-		return Tools.prefs.get('mute');
-	})($.cookie('showdown_mute')),
-	lastChallengeNotification: '',
-	pm: {},
-	curPopup: '',
-	popups: []
-};
+	};
+	return {
+		name: '',
+		named: false,
+		registered: false,
+		userid: '',
+		token: '',
+		challengekeyid: -1,
+		challenge: '',
+		renameQueued: false,
+		users: {},
+		rooms: {},
+		ignore: {},
+		mute: (function(c) {
+			if (c !== null) {
+				Tools.prefs.set('mute', !!c, true);
+				$.cookie('showdown_mute', null);
+				return c;
+			}
+			return Tools.prefs.get('mute');
+		})($.cookie('showdown_mute')),
+		lastChallengeNotification: '',
+		pm: {},
+		curPopup: '',
+		popups: [],
+		rename: function(name) {
+			if (this.userid !== toUserid(name)) {
+				var query = actionphp + '?act=getassertion&userid=' + toUserid(name) +
+						'&challengekeyid=' + this.challengekeyid +
+						'&challenge=' + this.challenge;
+				if (Config.testclient) {
+					overlay('testclientgetassertion', { name: name, query: query });
+					return;
+				}
+				if (name === '') {
+					return;
+				}
+				$.get(query, function(data) {
+					finishRename(name, data);
+				});
+			} else {
+				rooms.lobby.send('/trn '+name);
+			}
+		},
+		upkeepRename: function() {
+			if (Config.testclient) return this.rename(''); // TODO: improve this
+			var query = actionphp + '?act=upkeep' +
+					'&challengekeyid=' + this.challengekeyid +
+					'&challenge=' + this.challenge;
+			$.get(query, Tools.safeJson(function(data) {
+				if (!data.username) return;
+				if (data.loggedin) {
+					this.registered = {
+						username: data.username,
+						userid: toUserid(data.username)
+					};
+				}
+				finishRename(data.username, data.assertion);
+			}), 'text');
+		}
+	};
+})();
 var rooms = {};
 var curRoom = null;
 var curTitle = 'Showdown!';
@@ -1124,7 +1171,7 @@ function Lobby(id, elem) {
 
 		case 'nick':
 			if (target) {
-				renameMe(target);
+				me.rename(target);
 			} else {
 				rooms.lobby.formRename();
 			}
@@ -1741,7 +1788,7 @@ function Lobby(id, elem) {
 			}
 		}
 		if (me.renameQueued) {
-			renameMe(me.renameQueued);
+			me.upkeepRename();
 			me.renameQueued = false;
 		}
 	};
@@ -3175,40 +3222,12 @@ function overlayClose() {
 	$('#overlay').html('');
 	$('#overlay').hide();
 };
-
-function renameMe(name) {
-	if (me.userid !== toId(name)) {
-		var query = actionphp + '?act=getassertion&userid=' + toId(name) +
-				'&challengekeyid=' + me.challengekeyid +
-				'&challenge=' + me.challenge;
-		if (Config.testclient) {
-			overlay('testclientgetassertion', { name: name, query: query });
-			return;
-		}
-		if (name === '') {
-			return;
-		}
-		$.get(query, function(data) {
-			if (data === ';') {
-				overlay('login', {name: name});
-			} else if (data.substr(0, 2) === ';;') {
-				overlay('rename', {error: data.substr(2)});
-			} else if (data.indexOf('\n') >= 0) {
-				alert("The login server is overloaded. Please try again later.");
-			} else {
-				rooms.lobby.send('/trn '+name+',0,'+data);
-			}
-		});
-	} else {
-		rooms.lobby.send('/trn '+name);
-	}
-}
 function overlaySubmit(e, overlayType) {
 	switch (overlayType) {
 	case 'rename':
 		var name = $('#overlay_name').val();
 		overlayClose();
-		renameMe(name);
+		me.rename(name);
 		break;
 	case 'login':
 	case 'betalogin':
@@ -3337,21 +3356,11 @@ teams = (function() {
 
 // time to connect
 (function() {
-	var connect = function(data, name) {
+	var connect = function() {
 		if (Config.down) return;
 
-		if (!data) data = {};
-		var token = data.assertion || '';
-
-		if (data.curuser && data.curuser.loggedin) {
-			me.registered = data.curuser;
-			name = data.curuser.username;
-		} else if (Config.oldie) {
+		if (Config.oldie) {
 			overlay('unsupported');
-			return;
-		} else if (Config.requirelogin) {
-			document.getElementById('loading-message').innerHTML = '';
-			overlay('betalogin');
 			return;
 		}
 
@@ -3474,9 +3483,9 @@ teams = (function() {
 					me.challengekeyid = parseInt(parts[2], 10);
 					me.challenge = parts[3];
 					if (rooms.lobby !== undefined) {
-						renameMe(name);
+						me.upkeepRename();
 					} else {
-						me.renameQueued = name;
+						me.renameQueued = true;
 					}
 					return true;
 			}
@@ -3503,13 +3512,8 @@ teams = (function() {
 					rooms[roomid].add(text);
 				}
 			});
-			if (!name) token = '';
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
-			emit(socket, 'join', {
-				name: name,
-				room: 'lobby',
-				token: token
-			});
+			emit(socket, 'join', {room: 'lobby'});
 		} else {
 			var socketopened = false;
 			var altport = (Config.serverport === Config.serveraltport);
@@ -3519,13 +3523,8 @@ teams = (function() {
 				if (altport) {
 					_gaq.push(['_trackEvent', 'Alt port connection', Config.serverid]);
 				}
-				if (!name) token = '';
 				document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
-				emit(socket, 'join', {
-					name: name,
-					room: 'lobby',
-					token: token
-				});
+				emit(socket, 'join', {room: 'lobby'});
 			};
 			socket.onmessage = function(msg) {
 				if (msg.data.substr(0,1) !== '{') {
@@ -3564,73 +3563,68 @@ teams = (function() {
 			};
 		}
 	};
-	if ((Config.crossdomain === undefined) || (window.postMessage === undefined)) {
-		connect(Config.upkeep, $.cookie('showdown_username') || '');
-	} else {
-		var origin = 'http://play.pokemonshowdown.com';
-		$(window).on('message', (function() {
-			var callbacks = [];
-			return function($e) {
-				var e = $e.originalEvent;
-				if (e.origin !== origin) return;
-				var data = $.parseJSON(e.data);
-				if (data.upkeep) {
-					Tools.postCrossDomainMessage = function(data) {
-						return e.source.postMessage($.toJSON(data), origin);
-					};
-					// ajax requests
-					$.get = function(uri, callback, type) {
-						var idx = callbacks.length;
-						callbacks[idx] = callback;
-						Tools.postCrossDomainMessage({get: [uri, idx, type]});
-					};
-					$.post = function(uri, data, callback, type) {
-						var idx = callbacks.length;
-						callbacks[idx] = callback;
-						Tools.postCrossDomainMessage({post: [uri, data, idx, type]});
-					};
-					// teams
-					if (data.teams) {
-						cookieTeams = false;
-						teams = $.parseJSON(data.teams);
-					}
-					Teambuilder.writeTeams = function() {
-						Tools.postCrossDomainMessage({teams: $.toJSON(teams)});
-					};
-					if (rooms.teambuilder) {
-						rooms.teambuilder.init();
-					}
-					// prefs
-					if (data.prefs) {
-						Tools.prefs.data = $.parseJSON(data.prefs);
-					}
-					Tools.prefs.save = function() {
-						Tools.postCrossDomainMessage({prefs: $.toJSON(this.data)});
-					};
-					// check for third-party cookies being disabled
-					if (data.nothirdparty) {
-						overlay('message', 'You have third-party cookies disabled in your browser. Pokemon Showdown uses third-party cookies and <code>localStorage</code> to handle teams, preferences, and logging in on third-party servers. We recommend that you enable third-party cookies and then refresh this page. You can ignore this recommendation if you want, but some things might not work properly on third-party servers.');
-					}
-					// connect
-					connect(data.upkeep, data.username);
-				} else if (data.ajax) {
-					var idx = data.ajax[0];
-					if (callbacks[idx]) {
-						callbacks[idx](data.ajax[1]);
-						delete callbacks[idx];
-					}
-				}
-			};
-		})());
-		var $iframe = $(
-			'<iframe src="//play.pokemonshowdown.com/crossdomain.php?prefix=' +
-			encodeURIComponent(Config.crossdomain.prefix) +
-			'&amp;challengeresponse=' +
-			encodeURIComponent(Config.crossdomain.challengeresponse) +
-			'&amp;server=' +
-			encodeURIComponent(Config.server) +
-			'" style="display: none;"></iframe>'
-		);
-		$('body').append($iframe);
+	if (!Config.crossdomain || !window.postMessage) {
+		return connect();
 	}
+	var origin = 'http://play.pokemonshowdown.com';
+	$(window).on('message', (function() {
+		var callbacks = [];
+		return function($e) {
+			var e = $e.originalEvent;
+			if (e.origin !== origin) return;
+			var data = $.parseJSON(e.data);
+			if (data.upkeep) {
+				Tools.postCrossDomainMessage = function(data) {
+					return e.source.postMessage($.toJSON(data), origin);
+				};
+				// ajax requests
+				$.get = function(uri, callback, type) {
+					var idx = callbacks.length;
+					callbacks[idx] = callback;
+					Tools.postCrossDomainMessage({get: [uri, idx, type]});
+				};
+				$.post = function(uri, data, callback, type) {
+					var idx = callbacks.length;
+					callbacks[idx] = callback;
+					Tools.postCrossDomainMessage({post: [uri, data, idx, type]});
+				};
+				// teams
+				if (data.teams) {
+					cookieTeams = false;
+					teams = $.parseJSON(data.teams);
+				}
+				Teambuilder.writeTeams = function() {
+					Tools.postCrossDomainMessage({teams: $.toJSON(teams)});
+				};
+				if (rooms.teambuilder) {
+					rooms.teambuilder.init();
+				}
+				// prefs
+				if (data.prefs) {
+					Tools.prefs.data = $.parseJSON(data.prefs);
+				}
+				Tools.prefs.save = function() {
+					Tools.postCrossDomainMessage({prefs: $.toJSON(this.data)});
+				};
+				// check for third-party cookies being disabled
+				if (data.nothirdparty) {
+					overlay('message', 'You have third-party cookies disabled in your browser. Pokemon Showdown uses third-party cookies and <code>localStorage</code> to handle teams, preferences, and logging in on third-party servers. We recommend that you enable third-party cookies and then refresh this page. You can ignore this recommendation if you want, but some things might not work properly on third-party servers.');
+				}
+				// connect
+				connect();
+			} else if (data.ajax) {
+				var idx = data.ajax[0];
+				if (callbacks[idx]) {
+					callbacks[idx](data.ajax[1]);
+					delete callbacks[idx];
+				}
+			}
+		};
+	})());
+	var $iframe = $(
+		'<iframe src="//play.pokemonshowdown.com/crossdomain.php?prefix=' +
+		encodeURIComponent(Config.crossdomain.prefix) +
+		'" style="display: none;"></iframe>'
+	);
+	$('body').append($iframe);
 })();
