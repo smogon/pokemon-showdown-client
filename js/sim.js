@@ -1787,7 +1787,7 @@ function Lobby(id, elem) {
 	};
 	this.mainTopState = '';
 	this.parseBattleID = function (id) {
-		if (id.indexOf('-') > 6) {
+		if (id.lastIndexOf('-') > 6) {
 			return id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
 		}
 		return id.match(/^battle\-([a-z0-9]*[a-z])[0-9]*$/);
