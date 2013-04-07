@@ -68,10 +68,12 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 		username: <?php echo json_encode($username) ?>,
 		sid: <?php echo json_encode($sid) ?>
 	};
-	if (window.localStorage) {
-		message.teams = localStorage.getItem('showdown_teams');
-		message.prefs = localStorage.getItem('showdown_prefs');
-	}
+	try {
+		if (window.localStorage) {
+			message.teams = localStorage.getItem('showdown_teams');
+			message.prefs = localStorage.getItem('showdown_prefs');
+		}
+	} catch (e) {}
 	postMessage(message);
 })();
 </script>
