@@ -73,7 +73,9 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 			message.teams = localStorage.getItem('showdown_teams');
 			message.prefs = localStorage.getItem('showdown_prefs');
 		}
-	} catch (e) {}
+	} catch (e) {
+		message.nothirdparty = true;
+	}
 	postMessage(message);
 })();
 </script>
