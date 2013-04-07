@@ -3622,7 +3622,7 @@ teams = (function() {
 		};
 	})());
 	var $iframe = $(
-		'<iframe src="//play.pokemonshowdown.com/crossdomain.php?prefix=' +
+		'<iframe src="//play.pokemonshowdown.com/crossdomain.html?' +
 		encodeURIComponent(Config.crossdomain.prefix) +
 		'" style="display: none;"></iframe>'
 	);
