@@ -211,6 +211,27 @@ class DefaultActionHandler {
 		die($users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge, $challengeprefix));
 	}
 
+	public function upkeep($dispatcher, &$reqData, &$out) {
+		global $users, $curuser;
+
+		$out['loggedin'] = $curuser['loggedin'];
+		$userid = '';
+		if ($curuser['loggedin']) {
+			$out['username'] = $curuser['username'];
+			$userid = $curuser['userid'];
+		} else if (isset($_COOKIE['showdown_username'])) {
+			$out['username'] = $_COOKIE['showdown_username'];
+			$userid = $users->userid($out['username']);
+		}
+		if ($userid !== '') {
+			$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
+			$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
+			$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+			$challengeprefix = $dispatcher->verifyCrossDomainRequest();
+			$out['assertion'] = $users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge, $challengeprefix);
+		}
+	}
+
 	public function updateuserstats($dispatcher, &$reqData, &$out) {
 		global $db;
 
