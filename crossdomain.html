@@ -1,27 +1,13 @@
-<?php
-// This file allows psim.us to use the cookies and localStorage
-// from play.pokemonshowdown.com.
-
-// Never cache.
-header('Cache-Control: no-cache, no-store, must-revalidate'); // HTTP 1.1.
-header('Pragma: no-cache'); // HTTP 1.0.
-header('Expires: 0'); // Proxies.
-
-$prefix = strval(@$_REQUEST['prefix']);
-// Need to check the form of $prefix to avoid some vulnerabilities.
-// This check should be robust enough for now.
-if (!preg_match('/^[a-zA-Z0-9-_\.]*$/', $prefix)) {
-	die();
-}
-$origin = 'http://' . $prefix . '.psim.us';
-?>
 <!DOCTYPE html>
 <script src="/js/jquery-1.9.0.min.js"></script>
 <script src="/js/jquery-cookie.js"></script>
 <script src="/js/jquery.json-2.3.min.js"></script>
 <script>
 (function() {
-	var origin = <?php echo json_encode($origin) ?>;
+	if (!location.search) return;
+	var prefix = decodeURIComponent(location.search.substr(1));
+	if (!(/^[a-zA-Z0-9-_\.]*$/.test(prefix))) return;
+	var origin = 'http://' + prefix + '.psim.us';
 	var postMessage = function(message) {
 		return window.parent.postMessage($.toJSON(message), origin);
 	};
