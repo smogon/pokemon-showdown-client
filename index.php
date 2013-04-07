@@ -44,6 +44,7 @@ if (isset($_REQUEST['file']) && $month) {
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <title>Pokemon Showdown Logs</title>
+<link rel="shortcut icon" href="//play.pokemonshowdown.com/favicon.ico" />
 <?php echo getLoginInformation() ?>
 <?php if (!$month) { ?>
 <?php
