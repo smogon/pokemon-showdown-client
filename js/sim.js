@@ -1589,7 +1589,7 @@ function Lobby(id, elem) {
 				}
 			} else if (log[i].name && log[i].action === 'battle') {
 				var id = log[i].room;
-				var matches = id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
+				var matches = selfR.parseBattleID(id);
 				var format = (matches ? matches[1] : '');
 				selfR.rooms.push({
 					id: id,
@@ -1776,7 +1776,7 @@ function Lobby(id, elem) {
 			selfR.rooms = [];
 			for (var id in data.rooms) {
 				var room = data.rooms[id];
-				var matches = id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
+				var matches = selfR.parseBattleID(id);
 				room.format = (matches ? matches[1] : '');
 				room.id = id;
 				selfR.rooms.unshift(room);
@@ -1786,6 +1786,12 @@ function Lobby(id, elem) {
 		selfR.updateMe();
 	};
 	this.mainTopState = '';
+	this.parseBattleID = function (id) {
+		if (id.indexOf('-') > 6) {
+			return id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
+		}
+		return id.match(/^battle\-([a-z0-9]*[a-z])[0-9]*$/);
+	};
 	this.command = function (data) {
 		if (data.command === 'userdetails') {
 			var userid = data.userid;
@@ -1794,11 +1800,11 @@ function Lobby(id, elem) {
 			var roomListCode = '';
 			for (var id in data.rooms) {
 				var roomData = data.rooms[id];
-				var matches = id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
+				var matches = selfR.parseBattleID(id);
 				var format = (matches ? '<small>[' + matches[1] + ']</small><br />' : '');
 				var roomDesc = format + '<em class="p1">' + sanitize(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + sanitize(roomData.p2) + '</em>';
 				if (!roomData.p1) {
-					matches = id.match(/[^0-9]([0-9]*)$/);
+					matches = id.match(/[^0-9]([0-9]*)$/); // TODO: Fix this
 					roomDesc = format + 'empty room ' + matches[1];
 				} else if (!roomData.p2) {
 					roomDesc = format + '<em class="p1">' + sanitize(roomData.p1) + '</em>';
@@ -1841,7 +1847,7 @@ function Lobby(id, elem) {
 			var i = 0;
 			for (var id in data.rooms) {
 				var roomData = data.rooms[id];
-				var matches = id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
+				var matches = selfR.parseBattleID(id);
 				var format = (matches ? '<small>[' + matches[1] + ']</small><br />' : '');
 				var roomDesc = format + '<em class="p1">' + sanitize(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + sanitize(roomData.p2) + '</em>';
 				if (!roomData.p1) {
