@@ -16,9 +16,9 @@ $.ajax({
 }).done(function(data) {
 	$.cookie('assertion', data);
 	if (location.search) {
-		document.location = decodeURIComponent(location.search.substr(1));
+		document.location.replace(decodeURIComponent(location.search.substr(1)));
 	} else {
-		document.location = '/';
+		document.location.replace('/');
 	}
 });
 </script>
