@@ -27,7 +27,6 @@ if (!preg_match('/^[a-zA-Z0-9-_\.]*$/', $prefix)) {
 }
 $origin = 'http://' . $prefix . '.psim.us';
 $username = isset($_COOKIE['showdown_username']) ? $_COOKIE['showdown_username'] : '';
-$sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 ?>
 <!DOCTYPE html>
 <script src="/js/jquery-1.9.0.min.js"></script>
@@ -65,8 +64,7 @@ $sid = isset($_COOKIE['sid']) ? $_COOKIE['sid'] : '';
 	});
 	var message = {
 		upkeep: <?php echo json_encode($upkeep) ?>,
-		username: <?php echo json_encode($username) ?>,
-		sid: <?php echo json_encode($sid) ?>
+		username: <?php echo json_encode($username) ?>
 	};
 	try {
 		if (window.localStorage) {
