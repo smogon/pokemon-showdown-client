@@ -49,7 +49,7 @@ $origin = 'http://' . $prefix . '.psim.us';
 			localStorage.setItem('showdown_prefs', data.prefs);
 		}
 	});
-	var message = {};
+	var message = {init: true};
 	try {
 		if (window.localStorage) {
 			message.teams = localStorage.getItem('showdown_teams');

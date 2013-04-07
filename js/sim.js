@@ -3573,7 +3573,7 @@ teams = (function() {
 			var e = $e.originalEvent;
 			if (e.origin !== origin) return;
 			var data = $.parseJSON(e.data);
-			if (data.upkeep) {
+			if (data.init) {
 				Tools.postCrossDomainMessage = function(data) {
 					return e.source.postMessage($.toJSON(data), origin);
 				};
