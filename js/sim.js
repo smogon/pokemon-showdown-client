@@ -3614,7 +3614,7 @@ teams = (function() {
 				};
 				// check for third-party cookies being disabled
 				if (data.nothirdparty) {
-					overlay('message', 'You have third-party cookies disabled in your browser. Pokemon Showdown uses third-party cookies and <code>localStorage</code> to handle teams, preferences, and logging in on third-party servers. We recommend that you enable third-party cookies and then refresh this page. You can ignore this recommendation if you want, but some things might not work properly on third-party servers.');
+					overlay('message', 'You have third-party cookies disabled in your browser.</p><p>Pokemon Showdown uses third-party cookies and <code>localStorage</code> to handle teams, preferences, and logging in on third-party servers.</p><p>We recommend that you enable third-party cookies and then refresh this page. You can ignore this recommendation if you want, but some things might not work properly on third-party servers.');
 				}
 				// connect
 				connect();

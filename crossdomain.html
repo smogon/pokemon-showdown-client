@@ -41,6 +41,11 @@
 			message.teams = localStorage.getItem('showdown_teams');
 			message.prefs = localStorage.getItem('showdown_prefs');
 		}
+		$.cookie('testcookie', 1);
+		if (!$.cookie('testcookie')) {
+			message.nothirdparty = true;
+		}
+		$.cookie('testcookie', null);
 	} catch (e) {
 		message.nothirdparty = true;
 	}
