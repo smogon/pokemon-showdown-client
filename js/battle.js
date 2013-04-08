@@ -109,7 +109,7 @@ function Pokemon(species) {
 	};
 	this.getFormattedRange = function (range, precision, separator) {
 		if (range[0] === range[1]) {
-			return (range[0] * 100).toFixed(precision) + '%';
+			return Math.abs(range[0] * 100).toFixed(precision) + '%';
 		}
 		var lower, upper;
 		if (precision === 0) {
