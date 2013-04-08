@@ -1842,18 +1842,6 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.lastPokemon = pokemon;
 			selfS.active[slot] = null;
 
-			if ((pokemon.ability === 'Regenerator') && pokemon.hp < pokemon.maxhp) {
-				var damage = 100 / 3;
-				pokemon.hp += pokemon.maxhp * damage / 100;
-				if (pokemon.hp > pokemon.maxhp) {
-					damage -= 100 * (pokemon.hp - pokemon.maxhp) / pokemon.maxhp;
-					pokemon.hp = pokemon.maxhp;
-				}
-			}
-			if ((pokemon.ability === 'NaturalCure') && pokemon.status) {
-				pokemon.status = '';
-			}
-
 			selfS.updateStatbar(pokemon, true);
 			pokemon.sprite.animUnsummon();
 			if (self.fastForward) {
