@@ -86,6 +86,11 @@ var me = (function() {
 				}
 				finishRename(data.username, data.assertion);
 			}), 'text');
+		},
+		setPersistentName: function() {
+			$.cookie('showdown_username', this.name, {
+				expires: 14
+			});
 		}
 	};
 })();
@@ -2566,10 +2571,7 @@ function updateMe() {
 	var mutebutton = ' <button onclick="return formMute()" style="width:30px;font-size:9pt">' + (me.mute ? '<i class="icon-volume-off" title="Unmute"></i>' : '<i class="icon-volume-up" title="Mute"></i>') + '</button>';
 	if (me.named) {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#779EC5"></i> ' + sanitize(me.name) + mutebutton + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Change name</button>');
-		$.cookie('showdown_username', me.name, {
-			expires: 14
-		});
-		Tools.postCrossDomainMessage({username: me.name});
+		me.setPersistentName();
 	} else {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + sanitize(me.name) + mutebutton + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');
 	}
@@ -3574,19 +3576,23 @@ teams = (function() {
 			if (e.origin !== origin) return;
 			var data = $.parseJSON(e.data);
 			if (data.init) {
-				Tools.postCrossDomainMessage = function(data) {
+				var postCrossDomainMessage = function(data) {
 					return e.source.postMessage($.toJSON(data), origin);
+				};
+				// persistent username
+				me.setPersistentName = function() {
+					postCrossDomainMessage({username: this.name});
 				};
 				// ajax requests
 				$.get = function(uri, callback, type) {
 					var idx = callbacks.length;
 					callbacks[idx] = callback;
-					Tools.postCrossDomainMessage({get: [uri, idx, type]});
+					postCrossDomainMessage({get: [uri, idx, type]});
 				};
 				$.post = function(uri, data, callback, type) {
 					var idx = callbacks.length;
 					callbacks[idx] = callback;
-					Tools.postCrossDomainMessage({post: [uri, data, idx, type]});
+					postCrossDomainMessage({post: [uri, data, idx, type]});
 				};
 				// teams
 				if (data.teams) {
@@ -3594,7 +3600,7 @@ teams = (function() {
 					teams = $.parseJSON(data.teams);
 				}
 				Teambuilder.writeTeams = function() {
-					Tools.postCrossDomainMessage({teams: $.toJSON(teams)});
+					postCrossDomainMessage({teams: $.toJSON(teams)});
 				};
 				if (rooms.teambuilder) {
 					rooms.teambuilder.init();
@@ -3604,7 +3610,7 @@ teams = (function() {
 					Tools.prefs.data = $.parseJSON(data.prefs);
 				}
 				Tools.prefs.save = function() {
-					Tools.postCrossDomainMessage({prefs: $.toJSON(this.data)});
+					postCrossDomainMessage({prefs: $.toJSON(this.data)});
 				};
 				// check for third-party cookies being disabled
 				if (data.nothirdparty) {
