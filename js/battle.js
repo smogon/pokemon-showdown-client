@@ -1606,14 +1606,8 @@ function Battle(frame, logFrame, noPreload) {
 			poke.spaStat = 10;
 			poke.spdStat = 10;
 			poke.maxhp = 1000;
-			if (self.gen === 5 && (species === 'Mienfoo' || species === 'Mienshao' || species === 'Tangrowth' || species === 'Slowking' || species === 'Slowbro')) {
-				poke.ability = '??Regenerator';
-			}
-			if (self.gen > 2 && (species === 'Staryu' || species === 'Starmie' || species === 'Shaymin' || species === 'Blissey' || species === 'Chansey' || species === 'Celebi')) {
-				poke.ability = '??NaturalCure';
-			}
 			if (pokeobj) poke = $.extend(poke, pokeobj);
-			if ((!poke.ability || poke.ability.substr(0,2) === '??') && poke.baseAbility) poke.ability = poke.baseAbility;
+			if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
 			poke.id = id;
 			poke.reset();
 			poke.sprite = new self.Sprite(Tools.getSpriteData(poke, selfS.n, {afd: self.tier === "[Seasonal] Fools Festival"}), selfS.x, selfS.y, selfS.z, selfS.n);
@@ -1848,7 +1842,7 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.lastPokemon = pokemon;
 			selfS.active[slot] = null;
 
-			if ((pokemon.ability === 'Regenerator' || pokemon.ability === '??Regenerator') && pokemon.hp < pokemon.maxhp) {
+			if ((pokemon.ability === 'Regenerator') && pokemon.hp < pokemon.maxhp) {
 				var damage = 100 / 3;
 				pokemon.hp += pokemon.maxhp * damage / 100;
 				if (pokemon.hp > pokemon.maxhp) {
@@ -1856,7 +1850,7 @@ function Battle(frame, logFrame, noPreload) {
 					pokemon.hp = pokemon.maxhp;
 				}
 			}
-			if ((pokemon.ability === 'NaturalCure' || pokemon.ability === '??NaturalCure') && pokemon.status) {
+			if ((pokemon.ability === 'NaturalCure') && pokemon.status) {
 				pokemon.status = '';
 			}
 

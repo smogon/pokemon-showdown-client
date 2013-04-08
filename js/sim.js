@@ -490,7 +490,7 @@ function BattleRoom(id, elem) {
 			pokemon.healthParse(pokemonData.condition);
 			if (pokemonData.baseAbility) {
 				pokemon.baseAbility = pokemonData.baseAbility;
-				if (!pokemon.ability || pokemon.ability.substr(0,2) === '??') pokemon.ability = pokemon.baseAbility;
+				if (!pokemon.ability) pokemon.ability = pokemon.baseAbility;
 			}
 			pokemon.item = pokemonData.item;
 			pokemon.moves = pokemonData.moves;
@@ -2760,7 +2760,7 @@ function showTooltip(thing, type, elem, ownHeight, isActive) {
 		if (pokemon.maxhp != 100 && pokemon.maxhp != 1000 && pokemon.maxhp != 48) exacthp = ' ('+pokemon.hp+'/'+pokemon.maxhp+')';
 		if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>('+pokemon.hp+'/'+pokemon.maxhp+' pixels)</small>';
 		text += '<p>HP: ' + pokemon.hpDisplay() +exacthp+(pokemon.status?' <span class="status '+pokemon.status+'">'+pokemon.status.toUpperCase()+'</span>':'')+'</p>';
-		if (!pokemon.baseAbility && (!pokemon.ability || pokemon.ability.substr(0, 2) === '??')) {
+		if (!pokemon.baseAbility && !pokemon.ability) {
 			text += '<p>Possible abilities: ' + Tools.getAbility(template.abilities['0']).name;
 			if (template.abilities['1']) text += ', ' + Tools.getAbility(template.abilities['1']).name;
 			if (template.abilities['DW']) text += ', ' + Tools.getAbility(template.abilities['DW']).name;
