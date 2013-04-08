@@ -135,7 +135,7 @@ var BattleBackdrops = [
 	'bg-route.png'
 ];
 var BattleStats = {
-	atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed', accuracy: 'Accuracy', evasion: 'Evasion'
+	atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed', accuracy: 'accuracy', evasion: 'evasiveness'
 };
 var BattleItems = {
 };
