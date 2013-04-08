@@ -5012,6 +5012,10 @@ function Battle(frame, logFrame, noPreload) {
 	this.preloadBgm = function (url, autoplay, loopstart, loopend) {
 		if (!url) {
 			var bgmNum = Math.floor(Math.random() * 7);
+			for (var i = 0; i < self.mySide.pokemon.length; i++) {
+				var pokemon = self.mySide.pokemon[i];
+				if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) bgmNum = -1;
+			}
 			if (window.forceBgm) bgmNum = window.forceBgm;
 			switch (bgmNum) {
 			case -1:
