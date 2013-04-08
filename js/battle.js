@@ -83,7 +83,64 @@ function Pokemon(species) {
 		}
 		return '';
 	};
-	// returns [delta, denominator, percent] or false
+	var epsilon = 0.5/714;
+	this.getPixelRange = function (pixels, color) {
+		if (pixels === 0) {
+			return [0, 0];
+		} else if (pixels === 1) {
+			return [0 + epsilon, 2/48 - epsilon];
+		} else if (pixels === 9) {
+			if (color === 'y') { // ratio is > 0.2
+				return [0.2 + epsilon, 10/48 - epsilon];
+			} else { // ratio is <= 0.2
+				return [9/48, 0.2];
+			}
+		} else if (pixels === 24) {
+			if (color === 'g') { // ratio is > 0.5
+				return [0.5 + epsilon, 25/48 - epsilon];
+			} else { // ratio is exactly 0.5
+				return [0.5, 0.5];
+			}
+		} else if (pixels === 48) {
+			return [1, 1];
+		} else {
+			return [pixels/48, (pixels + 1)/48 - epsilon];
+		}
+	};
+	this.getFormattedRange = function (range, precision, separator) {
+		if (range[0] === range[1]) {
+			return (range[0] * 100).toFixed(precision) + '%';
+		}
+		var lower, upper;
+		if (precision === 0) {
+			lower = Math.floor(range[0] * 100);
+			upper = Math.ceil(range[1] * 100);
+		} else {
+			lower = (range[0] * 100).toFixed(precision);
+			upper = (range[1] * 100).toFixed(precision);
+		}
+		return lower + separator + upper + '%';
+	};
+	this.getDamageRange = function (damage) {
+		if (damage[1] !== 48) {
+			var ratio = damage[0] / damage[1];
+			return [ratio, ratio];
+		} else if (damage[3] === undefined) {
+			// wrong pixel damage.
+			// this case exists for backward compatibility only.
+			return [damage[2] / 100, damage[2] / 100];
+		}
+		// pixel damage
+		var oldrange = selfP.getPixelRange(damage[3], damage[4]);
+		var newrange = selfP.getPixelRange(damage[3] + damage[0], selfP.hpcolor);
+		if (oldrange[0] < newrange[0]) { // swap order
+			var r = oldrange;
+			oldrange = newrange;
+			newrange = r;
+		}
+		return [oldrange[0] - newrange[1], oldrange[1] - newrange[0]];
+	};
+	// returns [delta, denominator, percent(, oldnum, oldcolor)] or false
 	this.healthParse = function (hpstring, parsedamage, heal) {
 		if (!hpstring || !hpstring.length) return false;
 		var parenIndex = hpstring.lastIndexOf('(');
@@ -122,6 +179,7 @@ function Pokemon(species) {
 		var oldhp = (selfP.zerohp || selfP.fainted) ? 0 : (selfP.hp || 1);
 		var oldmaxhp = selfP.maxhp;
 		var oldwidth = selfP.hpWidth(100);
+		var oldcolor = selfP.hpcolor;
 
 		// hp parse
 		selfP.hpcolor = '';
@@ -161,9 +219,9 @@ function Pokemon(species) {
 		}
 
 		var oldnum = oldhp ? (Math.floor(oldhp / oldmaxhp * selfP.maxhp) || 1) : 0;
-		var delta = Math.abs(selfP.hp - oldnum);
-		var deltawidth = Math.abs(selfP.hpWidth(100) - oldwidth);
-		return [delta, selfP.maxhp, deltawidth];
+		var delta = selfP.hp - oldnum;
+		var deltawidth = selfP.hpWidth(100) - oldwidth;
+		return [delta, selfP.maxhp, deltawidth, oldnum, oldcolor];
 	};
 	this.checkDetails = function(details, ident) {
 		if (details === selfP.details) return true;
@@ -485,7 +543,13 @@ function Pokemon(species) {
 		return Math.round(maxWidth * ratio) || 1;
 	};
 	this.hpDisplay = function () {
-		return selfP.hpWidth(100) + '%';
+		if (selfP.maxhp === 100) {
+			return selfP.hp + '%';
+		} else if (selfP.maxhp !== 48) {
+			return (selfP.hp / selfP.maxhp * 100).toFixed(1) + '%';
+		}
+		var range = selfP.getPixelRange(selfP.hp, selfP.hpcolor);
+		return selfP.getFormattedRange(range, 1, '–');
 	};
 };
 
@@ -1651,7 +1715,7 @@ function Battle(frame, logFrame, noPreload) {
 			var gender = '';
 			if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
 			if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
-			return '<div class="statbar' + (selfS.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + sanitize(pokemon.name) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
+			return '<div class="statbar' + (selfS.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + sanitize(pokemon.name) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><!--<div class="hptext"></div><div class="hptextborder"></div>--><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
 		};
 		this.switchIn = function (pokemon, slot) {
 			if (slot === undefined) slot = pokemon.slot;
@@ -1902,7 +1966,7 @@ function Battle(frame, logFrame, noPreload) {
 				if (hpcolor === 'g') $hp.removeClass('hp-yellow hp-red');
 				else if (hpcolor === 'y') $hp.removeClass('hp-red').addClass('hp-yellow');
 				else $hp.addClass('hp-red');
-				pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
+				//pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 			}
 			if (updatePrevhp) {
 				var $prevhp = pokemon.statbarElem.find('.prevhp');
@@ -2354,10 +2418,10 @@ function Battle(frame, logFrame, noPreload) {
 	this.damageAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) i = 0;
-		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
+		//pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (self.fastForward) return;
 
-		self.resultAnim(pokemon, '&minus;' + damage + '%', 'bad', i);
+		self.resultAnim(pokemon, '&minus;' + damage, 'bad', i);
 
 		var $hp = pokemon.statbarElem.find('div.hp').delay(self.animationDelay);
 		var w = pokemon.hpWidth(150);
@@ -2379,10 +2443,10 @@ function Battle(frame, logFrame, noPreload) {
 	this.healAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) i = 0;
-		pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
+		//pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
 		if (self.fastForward) return;
 
-		self.resultAnim(pokemon, '+' + damage + '%', 'good', i);
+		self.resultAnim(pokemon, '+' + damage, 'good', i);
 
 		var $hp = pokemon.statbarElem.find('div.hp').delay(self.animationDelay);
 		var w = pokemon.hpWidth(150);
@@ -2590,8 +2654,9 @@ function Battle(frame, logFrame, noPreload) {
 				var poke = this.getPokemon(args[1]);
 				var damage = poke.healthParse(args[2], true);
 				if (damage === false) break;
-				self.damageAnim(poke, damage[2], animDelay);
-				self.lastDamage = (damage[2] || 1);
+				self.lastDamage = (damage[2] || 1); // not sure if this is used for anything
+				var range = poke.getDamageRange(damage);
+				self.damageAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
 				
 				if (kwargs.silent) {
 					// do nothing
@@ -2662,7 +2727,7 @@ function Battle(frame, logFrame, noPreload) {
 						break;
 					}
 				} else {
-					var damageinfo = '' + damage[2] + '%';
+					var damageinfo = '' + poke.getFormattedRange(range, 1, '–');
 					if (damage[1] !== 100) {
 						var hover = '' + damage[0] + '/' + damage[1];
 						if (damage[1] === 48) { // this is a hack
@@ -2677,7 +2742,8 @@ function Battle(frame, logFrame, noPreload) {
 				var poke = this.getPokemon(args[1]);
 				var damage = poke.healthParse(args[2], true, true);
 				if (damage === false) break;
-				self.healAnim(poke, damage[2], animDelay);
+				var range = poke.getDamageRange(damage);
+				self.healAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
 				
 				if (kwargs.silent) {
 					// do nothing
