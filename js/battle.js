@@ -141,9 +141,8 @@ function Pokemon(species) {
 		return [oldrange[0] - newrange[1], oldrange[1] - newrange[0]];
 	};
 	// returns [delta, denominator, percent(, oldnum, oldcolor)] or false
-	this.healthParse = function (hpstring, parsedamage, heal, exacthealth) {
+	this.healthParse = function (hpstring, parsedamage, heal) {
 		if (!hpstring || !hpstring.length) return false;
-		if (exacthealth) hpstring = selfP.side.battle.exactHealth.shift() || hpstring;
 		var parenIndex = hpstring.lastIndexOf('(');
 		if (parenIndex >= 0) {
 			// old style damage and health reporting
@@ -598,8 +597,6 @@ function Battle(frame, logFrame, noPreload) {
 
 	self.backdropImage = BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
 
-	this.exactHealth = [];
-
 	// 0 = uninitialized
 	// 1 = ready
 	// 2 = playing
@@ -647,7 +644,6 @@ function Battle(frame, logFrame, noPreload) {
 		self.weatherMinTimeLeft = 0;
 		self.pseudoWeather = [];
 		self.lastMove = '';
-		self.exactHealth = [];
 
 		// DOM state
 		self.frameElem.empty();
@@ -2656,7 +2652,7 @@ function Battle(frame, logFrame, noPreload) {
 			switch (args[0]) {
 			case '-damage':
 				var poke = this.getPokemon(args[1]);
-				var damage = poke.healthParse(args[2], true, false, true);
+				var damage = poke.healthParse(args[2], true);
 				if (damage === false) break;
 				self.lastDamage = (damage[2] || 1); // not sure if this is used for anything
 				var range = poke.getDamageRange(damage);
@@ -2744,7 +2740,7 @@ function Battle(frame, logFrame, noPreload) {
 				break;
 			case '-heal':
 				var poke = this.getPokemon(args[1]);
-				var damage = poke.healthParse(args[2], true, true, true);
+				var damage = poke.healthParse(args[2], true, true);
 				if (damage === false) break;
 				var range = poke.getDamageRange(damage);
 				self.healAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
@@ -2806,7 +2802,7 @@ function Battle(frame, logFrame, noPreload) {
 					var cpoke = self.getPokemon(args[1+2*k]);
 					if (cpoke) {
 						var oldhp = cpoke.hp;
-						cpoke.healthParse(args[2+2*k], false, false, true);
+						cpoke.healthParse(args[2+2*k]);
 						var diff = parseFloat(args[2+2*k]);
 						if (isNaN(diff)) {
 							diff = cpoke.hp - oldhp;
@@ -4589,7 +4585,7 @@ function Battle(frame, logFrame, noPreload) {
 			if (self.waitForResult()) return;
 			var poke = self.getPokemon('other: '+args[1], args[2]);
 			var slot = poke.slot;
-			poke.healthParse(args[3], false, false, true);
+			poke.healthParse(args[3]);
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot])
 				{
