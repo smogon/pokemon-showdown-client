@@ -141,9 +141,9 @@ function Pokemon(species) {
 		return [oldrange[0] - newrange[1], oldrange[1] - newrange[0]];
 	};
 	// returns [delta, denominator, percent(, oldnum, oldcolor)] or false
-	this.healthParse = function (hpstring, parsedamage, heal) {
+	this.healthParse = function (hpstring, parsedamage, heal, exacthealth) {
 		if (!hpstring || !hpstring.length) return false;
-		if (parsedamage) hpstring = selfP.side.battle.exactHealth.shift() || hpstring;
+		if (exacthealth) hpstring = selfP.side.battle.exactHealth.shift() || hpstring;
 		var parenIndex = hpstring.lastIndexOf('(');
 		if (parenIndex >= 0) {
 			// old style damage and health reporting
@@ -2656,7 +2656,7 @@ function Battle(frame, logFrame, noPreload) {
 			switch (args[0]) {
 			case '-damage':
 				var poke = this.getPokemon(args[1]);
-				var damage = poke.healthParse(args[2], true);
+				var damage = poke.healthParse(args[2], true, false, true);
 				if (damage === false) break;
 				self.lastDamage = (damage[2] || 1); // not sure if this is used for anything
 				var range = poke.getDamageRange(damage);
@@ -2744,7 +2744,7 @@ function Battle(frame, logFrame, noPreload) {
 				break;
 			case '-heal':
 				var poke = this.getPokemon(args[1]);
-				var damage = poke.healthParse(args[2], true, true);
+				var damage = poke.healthParse(args[2], true, true, true);
 				if (damage === false) break;
 				var range = poke.getDamageRange(damage);
 				self.healAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
@@ -2806,7 +2806,7 @@ function Battle(frame, logFrame, noPreload) {
 					var cpoke = self.getPokemon(args[1+2*k]);
 					if (cpoke) {
 						var oldhp = cpoke.hp;
-						cpoke.healthParse(args[2+2*k]);
+						cpoke.healthParse(args[2+2*k], false, false, true);
 						var diff = parseFloat(args[2+2*k]);
 						if (isNaN(diff)) {
 							diff = cpoke.hp - oldhp;
@@ -4589,7 +4589,7 @@ function Battle(frame, logFrame, noPreload) {
 			if (self.waitForResult()) return;
 			var poke = self.getPokemon('other: '+args[1], args[2]);
 			var slot = poke.slot;
-			poke.healthParse(args[3]);
+			poke.healthParse(args[3], false, false, true);
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot])
 				{
