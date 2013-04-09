@@ -392,12 +392,14 @@ function BattleRoom(id, elem) {
 					selfR.battle.instantAdd(update.updates[i]);
 				} else {
 					if (update.updates[i].substr(0,10) === '|callback|') selfR.controlsElem.html('');
-					if (update.updates[i].substr(0,12) === '| callback | ') selfR.controlsElem.html('');
 					selfR.battle.add(update.updates[i]);
 				}
 			}
 		}
 		if (update.request) {
+			if (update.request.side) {
+				selfR.battle.exactHealth = (update.request.side.exactHealth || '').split(',');
+			}
 			selfR.me.request = update.request; // currently unused
 			selfR.me.request.requestType = 'move';
 			var notifyObject = null;

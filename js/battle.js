@@ -143,6 +143,7 @@ function Pokemon(species) {
 	// returns [delta, denominator, percent(, oldnum, oldcolor)] or false
 	this.healthParse = function (hpstring, parsedamage, heal) {
 		if (!hpstring || !hpstring.length) return false;
+		if (parsedamage) hpstring = selfP.side.battle.exactHealth.shift() || hpstring;
 		var parenIndex = hpstring.lastIndexOf('(');
 		if (parenIndex >= 0) {
 			// old style damage and health reporting
@@ -597,6 +598,8 @@ function Battle(frame, logFrame, noPreload) {
 
 	self.backdropImage = BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
 
+	this.exactHealth = [];
+
 	// 0 = uninitialized
 	// 1 = ready
 	// 2 = playing
@@ -644,6 +647,7 @@ function Battle(frame, logFrame, noPreload) {
 		self.weatherMinTimeLeft = 0;
 		self.pseudoWeather = [];
 		self.lastMove = '';
+		self.exactHealth = [];
 
 		// DOM state
 		self.frameElem.empty();
