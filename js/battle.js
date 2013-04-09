@@ -193,6 +193,9 @@ function Pokemon(species) {
 			}
 			selfP.hp = parseFloat(hp[0]);
 			selfP.maxhp = parseFloat(hp[1]);
+			if (oldmaxhp === 0) { // max hp not known before parsing this message
+				oldmaxhp = oldhp = selfP.maxhp;
+			}
 			if (selfP.hp > selfP.maxhp) selfP.hp = selfP.maxhp;
 			var colorchar = hp[1].substr(hp[1].length - 1);
 			if ((colorchar === 'y') || (colorchar === 'g')) {
