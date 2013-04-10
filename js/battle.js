@@ -545,14 +545,15 @@ function Pokemon(species) {
 		}
 		return Math.round(maxWidth * ratio) || 1;
 	};
-	this.hpDisplay = function () {
+	this.hpDisplay = function (precision) {
+		if (precision === undefined) precision = 1;
 		if (selfP.maxhp === 100) {
 			return selfP.hp + '%';
 		} else if (selfP.maxhp !== 48) {
-			return (selfP.hp / selfP.maxhp * 100).toFixed(1) + '%';
+			return (selfP.hp / selfP.maxhp * 100).toFixed(precision) + '%';
 		}
 		var range = selfP.getPixelRange(selfP.hp, selfP.hpcolor);
-		return selfP.getFormattedRange(range, 1, '–');
+		return selfP.getFormattedRange(range, precision, '–');
 	};
 };
 
@@ -1718,7 +1719,7 @@ function Battle(frame, logFrame, noPreload) {
 			var gender = '';
 			if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
 			if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
-			return '<div class="statbar' + (selfS.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + sanitize(pokemon.name) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><!--<div class="hptext"></div><div class="hptextborder"></div>--><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
+			return '<div class="statbar' + (selfS.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + sanitize(pokemon.name) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
 		};
 		this.switchIn = function (pokemon, slot) {
 			if (slot === undefined) slot = pokemon.slot;
@@ -1948,6 +1949,18 @@ function Battle(frame, logFrame, noPreload) {
 			});
 			if (self.faintCallback) self.faintCallback(self, selfS);
 		};
+		this.updateHPText = function (pokemon) {
+			var $hptext = pokemon.statbarElem.find('.hptext');
+			var $hptextborder = pokemon.statbarElem.find('.hptextborder');
+			if (pokemon.maxhp === 48) {
+				$hptext.hide();
+				$hptextborder.hide();
+			} else {
+				$hptext.html(pokemon.hpDisplay(0));
+				$hptext.show();
+				$hptextborder.show();
+			}
+		};
 		this.updateStatbar = function (pokemon, updatePrevhp, updateHp) {
 			if (!pokemon) {
 				if (selfS.active[0]) selfS.updateStatbar(selfS.active[0], updatePrevhp, updateHp);
@@ -1969,7 +1982,7 @@ function Battle(frame, logFrame, noPreload) {
 				if (hpcolor === 'g') $hp.removeClass('hp-yellow hp-red');
 				else if (hpcolor === 'y') $hp.removeClass('hp-red').addClass('hp-yellow');
 				else $hp.addClass('hp-red');
-				//pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
+				selfS.updateHPText(pokemon);
 			}
 			if (updatePrevhp) {
 				var $prevhp = pokemon.statbarElem.find('.prevhp');
@@ -2421,7 +2434,7 @@ function Battle(frame, logFrame, noPreload) {
 	this.damageAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) i = 0;
-		//pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
+		pokemon.side.updateHPText(pokemon);
 		if (self.fastForward) return;
 
 		self.resultAnim(pokemon, '&minus;' + damage, 'bad', i);
@@ -2446,7 +2459,7 @@ function Battle(frame, logFrame, noPreload) {
 	this.healAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) i = 0;
-		//pokemon.statbarElem.find('.hptext').html(pokemon.hpDisplay());
+		pokemon.side.updateHPText(pokemon);
 		if (self.fastForward) return;
 
 		self.resultAnim(pokemon, '+' + damage, 'good', i);
