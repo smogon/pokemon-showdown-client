@@ -132,11 +132,11 @@ function Pokemon(species) {
 		}
 		// pixel damage
 		var oldrange = selfP.getPixelRange(damage[3], damage[4]);
+		var newrange = selfP.getPixelRange(damage[3] + damage[0], selfP.hpcolor);
 		if (damage[0] === 0) {
 			// no change in displayed pixel width
-			return [0, oldrange[1] - oldrange[0]];
+			return [0, newrange[1] - newrange[0]];
 		}
-		var newrange = selfP.getPixelRange(damage[3] + damage[0], selfP.hpcolor);
 		if (oldrange[0] < newrange[0]) { // swap order
 			var r = oldrange;
 			oldrange = newrange;
