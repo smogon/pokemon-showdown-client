@@ -2749,7 +2749,8 @@ function Battle(frame, logFrame, noPreload) {
 				} else {
 					var damageinfo = '' + poke.getFormattedRange(range, 1, '–');
 					if (damage[1] !== 100) {
-						var hover = '' + damage[0] + '/' + damage[1];
+						var hover = '' + ((damage[0] < 0) ? '&minus;' : '') +
+							Math.abs(damage[0]) + '/' + damage[1];
 						if (damage[1] === 48) { // this is a hack
 							hover += ' pixels';
 						}
