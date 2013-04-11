@@ -527,27 +527,31 @@ function Pokemon(species) {
 			selfP.name = selfP.species;
 		}
 	};
+	// This function is used for two things:
+	//   1) The percentage to display beside the HP bar.
+	//   2) The width to draw an HP bar.
+	//
+	// This function is NOT used in the calculation of any other displayed
+	// percentages or ranges, which have their own, more complex, formulae.
 	this.hpWidth = function (maxWidth) {
 		if (selfP.fainted || selfP.zerohp) {
 			return 0;
 		}
-		// this treats the 1 pixel => 1% special case.
-		// it also treats some other things in a somewhat arbitrary fashion.
+		// special case for low health...
 		if (selfP.hp == 1 && selfP.maxhp > 10) return 1;
-		var ratio;
 		if (selfP.maxhp === 48) {
-			// special case ratio computation for pixel health.
-			if (selfP.hp === 48) {
-				// ratio of 1 for full health.
-				ratio = 1;
-			} else {
-				// use the top of the range, truncated to the 100ths place.
-				ratio = Math.floor(((selfP.hp + 1) / 48 - 0.5/714) * 100) / 100;
-			}
-		} else {
-			ratio = selfP.hp / selfP.maxhp;
+			// Draw the health bar to the middle of the range.
+			// This affects the width of the visual health bar *only*; it
+			// does not affect the ranges displayed in any way.
+			var range = this.getPixelRange(selfP.hp, selfP.hpcolor);
+			var ratio = (range[0] + range[1]) / 2;
+			return Math.round(maxWidth * ratio) || 1;
 		}
-		return Math.round(maxWidth * ratio) || 1;
+		var percentage = Math.ceil(selfP.hp / selfP.maxhp * 100);
+		if ((percentage === 100) && (selfP.hp < selfP.maxhp)) {
+			percentage = 99;
+		}
+		return percentage * maxWidth / 100;
 	};
 	this.hpDisplay = function (precision) {
 		if (precision === undefined) precision = 1;
@@ -1960,7 +1964,7 @@ function Battle(frame, logFrame, noPreload) {
 				$hptext.hide();
 				$hptextborder.hide();
 			} else {
-				$hptext.html(pokemon.hpDisplay(0));
+				$hptext.html(pokemon.hpWidth(100) + '%');
 				$hptext.show();
 				$hptextborder.show();
 			}
