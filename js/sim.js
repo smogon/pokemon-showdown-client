@@ -758,6 +758,7 @@ function BattleRoom(id, elem) {
 			selfR.notifying = true;
 			break;
 		case 'switch':
+			selfR.me.finalDecision = false;
 			if (type !== 'switch2') {
 				selfR.choices = [];
 				selfR.choiceSwitchFlags = {};
