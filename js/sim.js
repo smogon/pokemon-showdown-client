@@ -883,6 +883,7 @@ function BattleRoom(id, elem) {
 			selfR.callback(selfR.battle, 'move2');
 			return false;
 		}
+		selfR.me.finalDecision = false;
 		if (selfR.battle.kickingInactive) {
 			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> ' + (selfR.me.finalDecision ? '' : '<button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button>') + '</div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
 		} else {
