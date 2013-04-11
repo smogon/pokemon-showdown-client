@@ -541,6 +541,18 @@ function BattleRoom(id, elem) {
 			selfR.battleEnded = true;
 			updateRoomList();
 			return;
+		} else if (type === 'trapped') {
+			var idx = parseInt(moveTarget[1], 10); // moveTarget is a poor name now...
+			if (selfR.me.request && selfR.me.request.active &&
+					selfR.me.request.active[idx]) {
+				// This pokemon is now known to be trapped.
+				selfR.me.request.active[idx].trapped = true;
+				// TODO: Maybe a more sophisticated UI for this.
+				// In singles, this isn't really necessary because the switch UI will be
+				// immediately disabled. However, in doubles it might not be obvious why
+				// the player is being asked to make a new decision without this message.
+				selfR.battle.add(selfR.battle.mySide.active[idx].getName() + ' is trapped!');
+			}
 		}
 
 		var myActive = selfR.battle.mySide.active;
@@ -610,6 +622,15 @@ function BattleRoom(id, elem) {
 				if (active.active) active = active.active[pos];
 				var moves = active.moves;
 				var trapped = active.trapped;
+				selfR.me.finalDecision = active.maybeTrapped || false;
+				if (selfR.me.finalDecision) {
+					for (var i = pos + 1; i < selfR.battle.mySide.active.length; ++i) {
+						var p = selfR.battle.mySide.active[i];
+						if (p && !p.fainted) {
+							selfR.me.finalDecision = false;
+						}
+					}
+				}
 
 				var controls = '<div class="controls"><div class="whatdo">';
 				if (type === 'move2' || type === 'movetarget') {
@@ -715,6 +736,9 @@ function BattleRoom(id, elem) {
 					controls += '<em>You are trapped and cannot switch!</em>';
 				} else {
 					controls += '';
+					if (selfR.me.finalDecision) {
+						controls += '<em>You <strong>might</strong> be trapped, so you won\'t be able to cancel a switch!</em><br/>';
+					}
 					for (var i = 0; i < switchables.length; i++) {
 						var pokemon = switchables[i];
 						pokemon.name = pokemon.ident.substr(4);
@@ -859,9 +883,9 @@ function BattleRoom(id, elem) {
 			return false;
 		}
 		if (selfR.battle.kickingInactive) {
-			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> ' + (selfR.me.finalDecision ? '' : '<button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button>') + '</div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
 		} else {
-			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> ' + (selfR.me.finalDecision ? '' : '<button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button>') + '</div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
 		}
 		selfR.sendDecision('/choose '+selfR.choices.join(','));
 		selfR.notifying = false;
@@ -897,9 +921,9 @@ function BattleRoom(id, elem) {
 			}
 		}
 		if (selfR.battle.kickingInactive) {
-			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> ' + (selfR.me.finalDecision ? '' : '<button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button>') + '</div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
 		} else {
-			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> ' + (selfR.me.finalDecision ? '' : '<button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button>') + '</div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
 		}
 		selfR.sendDecision('/choose '+selfR.choices.join(','));
 		selfR.notifying = false;
@@ -925,9 +949,9 @@ function BattleRoom(id, elem) {
 			pos = pos+1;
 		}
 		if (selfR.battle.kickingInactive) {
-			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> ' + (selfR.me.finalDecision ? '' : '<button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button>') + '</div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formStopBattleTimer();return false"><small>Stop timer</small></button>');
 		} else {
-			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> <button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button></div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
+			selfR.controlsElem.html('<div class="controls"><em>Waiting for opponent...</em> ' + (selfR.me.finalDecision ? '' : '<button onclick="rooms[\'' + selfR.id + '\'].formUndoDecision(); return false">Cancel</button>') + '</div> <br /><button onclick="rooms[\'' + selfR.id + '\'].formKickInactive();return false"><small>Kick inactive player</small></button>');
 		}
 		selfR.sendDecision('/team '+(pos));
 		selfR.notifying = false;
