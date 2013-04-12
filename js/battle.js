@@ -543,7 +543,7 @@ function Pokemon(species) {
 			// Draw the health bar to the middle of the range.
 			// This affects the width of the visual health bar *only*; it
 			// does not affect the ranges displayed in any way.
-			var range = this.getPixelRange(selfP.hp, selfP.hpcolor);
+			var range = selfP.getPixelRange(selfP.hp, selfP.hpcolor);
 			var ratio = (range[0] + range[1]) / 2;
 			return Math.round(maxWidth * ratio) || 1;
 		}
