@@ -115,7 +115,7 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/sim.css?" />
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/sim-types.css" />
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/battle.css?" />
-		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/replayer.css" /><!-- utilichart -->
+		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/utilichart.css" />
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/font-awesome.css" />
 <?php if (@$serverdata['customcss']) { ?>
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/customcss.php?server=<?php echo $serverid ?>" />
