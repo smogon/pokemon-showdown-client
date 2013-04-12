@@ -4815,7 +4815,7 @@ function Battle(frame, logFrame, noPreload) {
 		self.paused = true;
 		self.playbackState = 3;
 		if (self.resumeButton) {
-			self.frameElem.append('<div class="playbutton"><button>Resume</button></div>');
+			self.frameElem.append('<div class="playbutton"><button data-action="resume"><i class="icon-play"></i> Resume</button></div>');
 			self.frameElem.find('div.playbutton button').click(self.resumeButton);
 		}
 		self.soundPause();
