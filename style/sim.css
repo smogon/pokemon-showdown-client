@@ -5,15 +5,19 @@ License: CC-BY-NC-3.0
 
 */
 
-html,body
+html, body
 {
 	margin: 0;
 	padding: 0;
 	height: 100%;
+	text-align: center; /* lol, I don't support ie6 anyway */
+	font-family: Verdana, sans-serif;
+	font-size: 11pt;
 }
-
 body
 {
+	position: relative;
+	background: #FAFCFE;
 	overflow: hidden;
 }
 body.tiny-layout
