@@ -90,7 +90,11 @@
 	background: #F1F4F9;
 	color: #224466;
 }
-
+.linklist a.cur,
+.linklist a.cur:hover {
+	background: #D1DCEB none;
+	border: 1px solid #6A80A6;
+}
 
 .error
 {
@@ -112,7 +116,7 @@ input[disabled=disabled].urlbox
 	cursor: text;
 	display: block;
 	padding: 3px 4px 2px 4px;
-	margin: 0 0 10px -4px;
+	margin: 10px 14px 10px 14px;
 	border: 1px solid #AAAAAA;
 	background: #F5F5F5 !important;
 	color: #111111 !important;
@@ -136,4 +140,21 @@ body.dark
 .dark a
 {
 	color: #4488EE;
+}
+
+.dark .pfx-panel
+{
+	background: #444444;
+	color: #CCCCCC;
+	box-shadow: none;
+}
+.dark .pfx-topbar,
+.dark .footer
+{
+	display: none;
+}
+
+.pfx-body-padded
+{
+	padding: 0 10px;
 }
