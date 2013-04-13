@@ -468,8 +468,7 @@ var Tools = {
 	prefs: (function() {
 		var localStorageEntry = 'showdown_prefs';
 		var self = {
-			data: (window.localStorage &&
-                                $.parseJSON(localStorage.getItem(localStorageEntry))) || {},
+			data: (window.localStorage && $.parseJSON(localStorage.getItem(localStorageEntry))) || {},
 			get: function(prop) {
 				return self.data[prop];
 			},

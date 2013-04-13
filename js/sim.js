@@ -2589,12 +2589,12 @@ function updateMe() {
 	} */
 
 	//var mutebutton = ' <button onclick="return formMute()" style="height:20px;vertical-align:middle;">' + (me.isMuted() ? '<img src="/fx/mute.png" width="18" height="18" alt="Unmute" />' : '<img src="/fx/sound.png" width="18" height="18" alt="Mute" />') + '</button>';
-	var mutebutton = ' <button onclick="return formMute()" style="width:30px;font-size:9pt">' + (me.isMuted() ? '<i class="icon-volume-off" title="Unmute"></i>' : '<i class="icon-volume-up" title="Mute"></i>') + '</button>';
+	var buttons = ' <button onclick="overlay(\'options\');return false" style="width:30px;font-size:14px"><i class="icon-cog"></i></button> <button onclick="return formMute()" style="width:30px;font-size:14px">' + (me.isMuted() ? '<i class="icon-volume-off" title="Unmute"></i>' : '<i class="icon-volume-up" title="Mute"></i>') + '</button>';
 	if (me.named) {
-		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#779EC5"></i> ' + sanitize(me.name) + mutebutton + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Change name</button>');
+		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#779EC5"></i> ' + sanitize(me.name) + buttons + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Change name</button>');
 		me.setPersistentName();
 	} else {
-		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + sanitize(me.name) + mutebutton + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');
+		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + sanitize(me.name) + buttons + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');
 	}
 	$('#userbar').prepend('<small><a href="http://pokemonshowdown.com/" target="_blank">Website</a> &nbsp; <a href="http://pokemonshowdown.com/rules" target="_blank">Rules</a> &nbsp; </small> ');
 	if (rooms.lobby) {
@@ -3157,9 +3157,20 @@ function overlay(overlayType, data) {
 			contents += '<p>The name you chose is registered.</p>';
 		}
 		contents += '<p><label class="label">Username:</label> ' + data.name + '<input type="hidden" id="overlay_username" value="' + sanitize(data.name) + '" /></p>';
-		contents += '<p><label class="label">Password:</label> <input class="textbox" type="password" id="overlay_password" /></p>';
+		contents += '<p><label class="label">Password: <input class="textbox" type="password" id="overlay_password" /></label></p>';
 		contents += '<p><button type="submit"><strong>Log in</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		selectElem = '#overlay_password';
+		break;
+	case 'options':
+		contents += '<!--p><label class="label">Ignore list: <input class="textbox" type="text" value="'+sanitize(Object.keys(me.ignore).join(', '))+'" /></label><br /><small>Separate names with commas</small></p-->';
+
+		var timestamps = (Tools.prefs.get('timestamps') || {});
+		contents += '<p><label class="optlabel">Timestamps in lobby chat: <select id="pref_timestamps_lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
+		contents += '<p><label class="optlabel">Timestamps in PM\'s: <select id="pref_timestamps_pms"><option value="off">Off</option><option value="minutes"'+(timestamps.pms==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.pms==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
+
+		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs.get('showjoins')?' checked="checked"':'')+'> Always show joins/leaves</label></p>';
+		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs.get('showbattles')?' checked="checked"':'')+'> Always show battle starts</label></p>';
+		contents += '<p><button type="submit"><strong>Save</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		break;
 	case 'testclientgetassertion':
 		contents += '<p>Because of the <a href="https://en.wikipedia.org/wiki/Same-origin_policy" target="_blank">same-origin policy</a>, some manual work is required to log in using <code>testclient.html</code>.</p>';
@@ -3233,6 +3244,12 @@ function overlay(overlayType, data) {
 		contents += '<p>You have been disconnected - possibly because the server was restarted.</p>'
 		contents += '<p><button onclick="document.location.reload();return false" id="overlay_refresh"><strong>Reconnect</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		focusElem = '#overlay_refresh';
+		break;
+	default:
+		contents += '<p>Error: message not found</p>';
+		contents += '<p><button onclick="overlayClose();return false" id="overlay_ok">:(</button></p>';
+		focusElem = '#overlay_ok';
+		break;
 	}
 	$('#overlay').html('<form id="messagebox" onsubmit="overlaySubmit(event, \'' + overlayType + '\'); return false">' + contents + '</form>');
 	$('#overlay').show();
@@ -3278,6 +3295,16 @@ function overlaySubmit(e, overlayType) {
 				});
 			}
 		}), 'text');
+		overlayClose();
+		break;
+	case 'options':
+		Tools.prefs.set('timestamps', {
+			lobby: $('#pref_timestamps_lobby').val(),
+			pms: $('#pref_timestamps_pms').val()
+		}, false);
+		Tools.prefs.set('showjoins', !!$('#pref_showjoins')[0].checked, false);
+		Tools.prefs.set('showbattles', !!$('#pref_showbattles')[0].checked, false);
+		Tools.prefs.save();
 		overlayClose();
 		break;
 	case 'testclientgetassertion':
