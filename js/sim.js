@@ -3162,6 +3162,11 @@ function overlay(overlayType, data) {
 		selectElem = '#overlay_password';
 		break;
 	case 'options':
+
+		contents += '<p><label class="optlabel">Avatar: <button onclick="overlaySubmit(null, \'options\');overlay(\'avatars\');return false">Change avatar</button></label></p>';
+
+		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_noanim"'+(Tools.prefs.get('noanim')?' checked="checked"':'')+'> Disable animations</label></p>';
+
 		contents += '<!--p><label class="label">Ignore list: <input class="textbox" type="text" value="'+sanitize(Object.keys(me.ignore).join(', '))+'" /></label><br /><small>Separate names with commas</small></p-->';
 
 		var timestamps = (Tools.prefs.get('timestamps') || {});
@@ -3170,13 +3175,12 @@ function overlay(overlayType, data) {
 
 		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs.get('showjoins')?' checked="checked"':'')+'> Always show joins/leaves in lobby chat</label></p>';
 		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs.get('showbattles')?' checked="checked"':'')+'> Always show battle starts in lobby chat</label></p>';
-		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_noanim"'+(Tools.prefs.get('noanim')?' checked="checked"':'')+'> Disable animations</label></p>';
-		contents += '<p><label class="optlabel">Avatar: <button onclick="overlaySubmit(null, \'options\');overlay(\'avatars\');return false">Change avatar</button></label></p>';
+
 		contents += '<p><button type="submit"><strong>Save</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		break;
 	case 'avatars':
 
-		contents += '<p>Choose an avatar or <button onclick="overlayClose();return false">Cancel</button></p>';
+		contents += '<p>Choose an avatar or <button onclick="overlayClose();overlay(\'options\');return false">Cancel</button></p>';
 
 		contents += '<div class="avatarlist">';
 		for (var i=1; i<=293; i++) {
@@ -3185,7 +3189,7 @@ function overlay(overlayType, data) {
 		}
 		contents += '</div><div style="clear:left"></div>';
 
-		contents += '<p><button onclick="overlayClose();return false">Cancel</button></p>';
+		contents += '<p><button onclick="overlayClose();overlay(\'options\');return false">Cancel</button></p>';
 		break;
 	case 'testclientgetassertion':
 		contents += '<p>Because of the <a href="https://en.wikipedia.org/wiki/Same-origin_policy" target="_blank">same-origin policy</a>, some manual work is required to log in using <code>testclient.html</code>.</p>';
