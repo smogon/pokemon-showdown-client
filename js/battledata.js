@@ -678,7 +678,7 @@ var Tools = {
 		}
 
 		if (pokemon.shiny) back += '-shiny';
-		if (window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
+		if (!Tools.prefs.get('noanim') && window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
 			var url = Tools.resourcePrefix + 'sprites/bwani'+back;
 			url += '/'+spriteid;
 			var spriteType = 'ani';
