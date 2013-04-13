@@ -389,6 +389,7 @@ function BattleRoom(id, elem) {
 					if (update.updates[i].substr(0,10) === '|callback|') selfR.controlsElem.html('');
 					if (update.updates[i].substr(0,12) === '| callback | ') selfR.controlsElem.html('');
 					selfR.battle.add(update.updates[i]);
+					if (Tools.prefs.get('noanim')) selfR.battle.fastForwardTo(-1);
 				}
 			}
 		}
@@ -3168,8 +3169,9 @@ function overlay(overlayType, data) {
 		contents += '<p><label class="optlabel">Timestamps in lobby chat: <select id="pref_timestamps_lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
 		contents += '<p><label class="optlabel">Timestamps in PM\'s: <select id="pref_timestamps_pms"><option value="off">Off</option><option value="minutes"'+(timestamps.pms==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.pms==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
 
-		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs.get('showjoins')?' checked="checked"':'')+'> Always show joins/leaves</label></p>';
-		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs.get('showbattles')?' checked="checked"':'')+'> Always show battle starts</label></p>';
+		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs.get('showjoins')?' checked="checked"':'')+'> Always show joins/leaves in lobby chat</label></p>';
+		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs.get('showbattles')?' checked="checked"':'')+'> Always show battle starts in lobby chat</label></p>';
+		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_noanim"'+(Tools.prefs.get('noanim')?' checked="checked"':'')+'> Disable animations</label></p>';
 		contents += '<p><button type="submit"><strong>Save</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		break;
 	case 'testclientgetassertion':
@@ -3304,6 +3306,7 @@ function overlaySubmit(e, overlayType) {
 		}, false);
 		Tools.prefs.set('showjoins', !!$('#pref_showjoins')[0].checked, false);
 		Tools.prefs.set('showbattles', !!$('#pref_showbattles')[0].checked, false);
+		Tools.prefs.set('noanim', !!$('#pref_noanim')[0].checked, false);
 		Tools.prefs.save();
 		overlayClose();
 		break;
