@@ -40,14 +40,9 @@ var me = (function() {
 		users: {},
 		rooms: {},
 		ignore: {},
-		mute: (function(c) {
-			if (c !== null) {
-				Tools.prefs.set('mute', !!c, true);
-				$.cookie('showdown_mute', null);
-				return c;
-			}
-			return Tools.prefs.get('mute');
-		})($.cookie('showdown_mute')),
+		isMuted: function() {
+			return !!Tools.prefs.get('mute');
+		},
 		lastChallengeNotification: '',
 		pm: {},
 		curPopup: '',
@@ -123,7 +118,7 @@ function selectTab(tab, e) {
 	}
 	$('#tabtab-' + tab).addClass('cur');
 	if (curRoom && curRoom.battle) {
-		curRoom.battle.setMute(me.mute);
+		curRoom.battle.setMute(me.isMuted());
 		curRoom.battle.play();
 	}
 	curRoom.focus();
@@ -298,7 +293,7 @@ function BattleRoom(id, elem) {
 				selfR.battle.messageSpeed = 80;
 			}
 
-			selfR.battle.setMute(me.mute);
+			selfR.battle.setMute(me.isMuted());
 			selfR.battle.customCallback = selfR.callback;
 			selfR.battle.startCallback = selfR.updateJoinButton;
 			selfR.battle.stagnateCallback = selfR.updateJoinButton;
@@ -376,7 +371,7 @@ function BattleRoom(id, elem) {
 						selfR.battle.messageSpeed = 80;
 					}
 
-					selfR.battle.setMute(me.mute);
+					selfR.battle.setMute(me.isMuted());
 					selfR.battle.customCallback = selfR.callback;
 					selfR.battle.startCallback = selfR.updateJoinButton;
 					selfR.battle.stagnateCallback = selfR.updateJoinButton;
@@ -1012,7 +1007,7 @@ function BattleRoom(id, elem) {
 		this.battle.messageSpeed = 80;
 	}
 
-	this.battle.setMute(me.mute);
+	this.battle.setMute(me.isMuted());
 	this.battle.customCallback = this.callback;
 	this.battle.endCallback = this.endCallback;
 	this.battle.startCallback = this.updateMe;
@@ -2593,8 +2588,8 @@ function updateMe() {
 		notifybutton = '<button onclick="return requestNotify()"><strong style="color:red">ENABLE NOTIFICATIONS</strong></button> ';
 	} */
 
-	//var mutebutton = ' <button onclick="return formMute()" style="height:20px;vertical-align:middle;">' + (me.mute ? '<img src="/fx/mute.png" width="18" height="18" alt="Unmute" />' : '<img src="/fx/sound.png" width="18" height="18" alt="Mute" />') + '</button>';
-	var mutebutton = ' <button onclick="return formMute()" style="width:30px;font-size:9pt">' + (me.mute ? '<i class="icon-volume-off" title="Unmute"></i>' : '<i class="icon-volume-up" title="Mute"></i>') + '</button>';
+	//var mutebutton = ' <button onclick="return formMute()" style="height:20px;vertical-align:middle;">' + (me.isMuted() ? '<img src="/fx/mute.png" width="18" height="18" alt="Unmute" />' : '<img src="/fx/sound.png" width="18" height="18" alt="Mute" />') + '</button>';
+	var mutebutton = ' <button onclick="return formMute()" style="width:30px;font-size:9pt">' + (me.isMuted() ? '<i class="icon-volume-off" title="Unmute"></i>' : '<i class="icon-volume-up" title="Mute"></i>') + '</button>';
 	if (me.named) {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#779EC5"></i> ' + sanitize(me.name) + mutebutton + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Change name</button>');
 		me.setPersistentName();
@@ -2609,10 +2604,9 @@ function updateMe() {
 }
 
 function formMute() {
-	me.mute = !me.mute;
-	Tools.prefs.set('mute', !!me.mute, true);
+	Tools.prefs.set('mute', !me.isMuted(), true);
 	if (curRoom.battle) {
-		curRoom.battle.setMute(me.mute);
+		curRoom.battle.setMute(me.isMuted());
 	}
 	updateMe();
 }
