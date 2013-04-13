@@ -388,8 +388,7 @@ function BattleRoom(id, elem) {
 				} else {
 					if (update.updates[i].substr(0,10) === '|callback|') selfR.controlsElem.html('');
 					if (update.updates[i].substr(0,12) === '| callback | ') selfR.controlsElem.html('');
-					selfR.battle.add(update.updates[i]);
-					if (Tools.prefs.get('noanim')) selfR.battle.fastForwardTo(-1);
+					selfR.battle.add(update.updates[i], Tools.prefs.get('noanim'));
 				}
 			}
 		}
@@ -3172,7 +3171,21 @@ function overlay(overlayType, data) {
 		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs.get('showjoins')?' checked="checked"':'')+'> Always show joins/leaves in lobby chat</label></p>';
 		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs.get('showbattles')?' checked="checked"':'')+'> Always show battle starts in lobby chat</label></p>';
 		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_noanim"'+(Tools.prefs.get('noanim')?' checked="checked"':'')+'> Disable animations</label></p>';
+		contents += '<p><label class="optlabel">Avatar: <button onclick="overlaySubmit(null, \'options\');overlay(\'avatars\');return false">Change avatar</button></label></p>';
 		contents += '<p><button type="submit"><strong>Save</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
+		break;
+	case 'avatars':
+
+		contents += '<p>Choose an avatar or <button onclick="overlayClose();return false">Cancel</button></p>';
+
+		contents += '<div class="avatarlist">';
+		for (var i=1; i<=293; i++) {
+			var offset = '-'+(((i-1)%16)*80)+'px -'+(Math.floor((i-1)/16)*80)+'px'
+			contents += '<button onclick="rooms.lobby.parseCommand(\'/avatar '+i+'\');rooms.lobby.send(\'/avatar '+i+'\');overlayClose();return false" style="background-position:'+offset+'"></button>';
+		}
+		contents += '</div><div style="clear:left"></div>';
+
+		contents += '<p><button onclick="overlayClose();return false">Cancel</button></p>';
 		break;
 	case 'testclientgetassertion':
 		contents += '<p>Because of the <a href="https://en.wikipedia.org/wiki/Same-origin_policy" target="_blank">same-origin policy</a>, some manual work is required to log in using <code>testclient.html</code>.</p>';
