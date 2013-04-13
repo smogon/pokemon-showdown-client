@@ -1502,6 +1502,15 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 	font-weight: bold;
 	display: block;
 }
+.optlabel
+{
+	font-size: 9pt;
+	display: block;
+}
+.label .textbox
+{
+	display: block;
+}
 .textbox
 {
 	border: 1px solid #AAAAAA;
