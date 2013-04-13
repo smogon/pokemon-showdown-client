@@ -1205,20 +1205,20 @@ function Lobby(id, elem) {
 
 		case 'showjoins':
 			rooms.lobby.add('Join/leave messages: ON');
-			Tools.prefs.set('showjoins', true, true);
+			Tools.prefs.set('showjoins', true);
 			return false;
 		case 'hidejoins':
 			rooms.lobby.add('Join/leave messages: HIDDEN');
-			Tools.prefs.set('showjoins', false, true);
+			Tools.prefs.set('showjoins', false);
 			return false;
 
 		case 'showbattles':
 			rooms.lobby.add('Battle messages: ON');
-			Tools.prefs.set('showbattles', true, true);
+			Tools.prefs.set('showbattles', true);
 			return false;
 		case 'hidebattles':
 			rooms.lobby.add('Battle messages: HIDDEN');
-			Tools.prefs.set('showbattles', false, true);
+			Tools.prefs.set('showbattles', false);
 			return false;
 
 		case 'timestamps':
@@ -1250,7 +1250,7 @@ function Lobby(id, elem) {
 				break;
 			}
 			rooms.lobby.add('Timestamps preference set to: `' + targets[1] + '` for `' + targets[0] + '`.');
-			Tools.prefs.set('timestamps', timestamps, true);
+			Tools.prefs.set('timestamps', timestamps);
 			return false;
 			
 		case 'highlight':
@@ -1283,10 +1283,10 @@ function Lobby(id, elem) {
 					this.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 					break;
 				}
-				Tools.prefs.set('highlights', highlights, true);
+				Tools.prefs.set('highlights', highlights);
 			} else {
 				if (target === 'delete') {
-					Tools.prefs.set('highlights', false, true);
+					Tools.prefs.set('highlights', false);
 					rooms.lobby.add("All highlights cleared");
 				} else if (target === 'show' || target === 'list') {
 					// Shows a list of the current highlighting words
@@ -1365,7 +1365,7 @@ function Lobby(id, elem) {
 			var parts = target.split(',');
 			var avatar = parseInt(parts[0], 10);
 			if (avatar) {
-				Tools.prefs.set('avatar', avatar, true);
+				Tools.prefs.set('avatar', avatar);
 			}
 			return text; // Send the /avatar command through to the server.
 
@@ -1797,9 +1797,9 @@ function Lobby(id, elem) {
 			// Disable timestamps for the past log because the server doesn't
 			// tell us what time the messages were sent at.
 			var timestamps = Tools.prefs.get('timestamps');
-			Tools.prefs.set('timestamps', 'off');
+			Tools.prefs.set('timestamps', 'off', false);
 			selfR.add(data.log);	// Add past log.
-			Tools.prefs.set('timestamps', timestamps);
+			Tools.prefs.set('timestamps', timestamps, false);
 		}
 		selfR.update(data);
 		selfR.chatFrameElem.scrollTop(selfR.chatElem.height());

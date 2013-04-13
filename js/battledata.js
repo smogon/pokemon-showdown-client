@@ -475,11 +475,11 @@ var Tools = {
 			},
 			/**
 			 * Set a preference value.
-			 * If save is true-ish, then also save to localStorage immediately.
+			 * Unless save is `false`, then also save to localStorage immediately.
 			 */
 			set: function(prop, value, save) {
 				self.data[prop] = value;
-				if (save) self.save();
+				if (save !== false) self.save();
 			},
 			save: function() {
 				if (!window.localStorage) return;
