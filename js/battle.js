@@ -2432,18 +2432,10 @@ function Battle(frame, logFrame, noPreload) {
 		pokemon.side.updateStatbar(pokemon);
 		self.activityWait(effectElem);
 	}
-	// "static" function
-	this.hpAnim = function ($hp, w, ratio, callback) {
-		$hp.animate({
-			width: w,
-			'border-right-width': w ? 1 : 0
-		}, ratio * 350, callback);
-	};
 	this.damageAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) i = 0;
 		pokemon.side.updateHPText(pokemon);
-		if (self.fastForward) return;
 
 		self.resultAnim(pokemon, '&minus;' + damage, 'bad', i);
 
@@ -2459,16 +2451,23 @@ function Battle(frame, logFrame, noPreload) {
 			$hp.addClass('hp-red');
 		};
 
-		$hp.animate({
-			width: w,
-			'border-right-width': w ? 1 : 0
-		}, 350, callback);
+		if (self.fastForward) {
+			$hp.css({
+				width: w,
+				'border-right-width': w ? 1 : 0
+			});
+			if (callback) callback();
+		} else {
+			$hp.animate({
+				width: w,
+				'border-right-width': w ? 1 : 0
+			}, 350, callback);
+		}
 	};
 	this.healAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) i = 0;
 		pokemon.side.updateHPText(pokemon);
-		if (self.fastForward) return;
 
 		self.resultAnim(pokemon, '+' + damage, 'good', i);
 
@@ -2484,10 +2483,18 @@ function Battle(frame, logFrame, noPreload) {
 			$hp.removeClass('hp-red');
 		};
 
-		$hp.animate({
-			width: w,
-			'border-right-width': w ? 1 : 0
-		}, 350, callback);
+		if (self.fastForward) {
+			$hp.css({
+				width: w,
+				'border-right-width': w ? 1 : 0
+			});
+			if (callback) callback();
+		} else {
+			$hp.animate({
+				width: w,
+				'border-right-width': w ? 1 : 0
+			}, 350, callback);
+		}
 	};
 	this.useMove = function (pokemon, move, target, kwargs) {
 		var fromeffect = Tools.getEffect(kwargs.from);
@@ -4417,7 +4424,7 @@ function Battle(frame, logFrame, noPreload) {
 		};
 	}
 
-	this.add = function (command) {
+	this.add = function (command, fastForward) {
 		if (self.playbackState === 0) {
 			self.playbackState = 1;
 			self.activityQueue.push(command);
@@ -4427,7 +4434,11 @@ function Battle(frame, logFrame, noPreload) {
 			self.activityQueue.push(command);
 			self.activityQueueActive = true;
 			self.soundStart();
-			self.nextActivity();
+			if (fastForward) {
+				self.fastForwardTo(-1);
+			} else {
+				self.nextActivity();
+			}
 		} else {
 			self.activityQueue.push(command);
 		}
