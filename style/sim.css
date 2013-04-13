@@ -497,6 +497,26 @@ button.closebutton i
 	background: #F1F4F9;
 	color: #224466;
 }
+.avatarlist button
+{
+	display: block;
+	float: left;
+	margin: 2px;
+	width: 80px;
+	height: 80px;
+
+	border: 1px solid #F2F2F2;
+	background: transparent url(//play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
+	border-radius: 4px;
+	box-shadow: none;
+	cursor: pointer;
+}
+.avatarlist button:hover
+{
+	border: 1px solid #8899AA;
+	background-color: #F1F4F9;
+	box-shadow: 1px 1px 1px #D5D5D5;
+}
 #leftbar a
 {
 	display: block;
