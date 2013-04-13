@@ -1781,7 +1781,7 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 	
 	border-radius: 6px;
 	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 /** Various kinds of messages injected into the chat by commands **/
