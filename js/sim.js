@@ -17,18 +17,7 @@ var _gaq = _gaq || [];
 
 var socket = null;
 var me = (function() {
-	var finishRename = function(name, assertion) {
-		if (assertion === ';') {
-			overlay('login', {name: name});
-		} else if (assertion.substr(0, 2) === ';;') {
-			overlay('rename', {error: assertion.substr(2)});
-		} else if (assertion.indexOf('\n') >= 0) {
-			alert("The login server is overloaded. Please try again later.");
-		} else {
-			rooms.lobby.send('/trn '+name+',0,'+assertion);
-		}
-	};
-	return {
+	var me = {
 		name: '',
 		named: false,
 		registered: false,
@@ -40,68 +29,80 @@ var me = (function() {
 		users: {},
 		rooms: {},
 		ignore: {},
-		isMuted: function() {
-			return !!Tools.prefs.get('mute');
-		},
 		lastChallengeNotification: '',
 		pm: {},
 		curPopup: '',
-		popups: [],
-		rename: function(name) {
-			if (this.userid !== toUserid(name)) {
-				var query = actionphp + '?act=getassertion&userid=' +
-						encodeURIComponent(toUserid(name)) +
-						'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
-						'&challenge=' + encodeURIComponent(this.challenge);
-				if (Config.testclient) {
-					overlay('testclientgetassertion', { name: name, query: query });
-					return;
-				}
-				if (name === '') {
-					return;
-				}
-				$.get(query, function(data) {
-					finishRename(name, data);
-				});
-			} else {
-				rooms.lobby.send('/trn '+name);
-			}
-		},
-		upkeepRename: function() {
-			if (Config.testclient) return this.rename(''); // TODO: improve this
-			var query = actionphp + '?act=upkeep' +
-					'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
-					'&challenge=' + encodeURIComponent(this.challenge);
-			$.get(query, Tools.safeJson(function(data) {
-				if (!data.username) return;
-				if (data.loggedin) {
-					this.registered = {
-						username: data.username,
-						userid: toUserid(data.username)
-					};
-				}
-				finishRename(data.username, data.assertion);
-			}), 'text');
-		},
-		logout: function() {
-			$.post(actionphp, {
-				act: 'logout',
-				userid: this.userid // anti-CSRF
-			});
-			rooms.lobby.send('/logout');
-		},
-		setPersistentName: function(name) {
-			$.cookie('showdown_username', (name !== undefined) ? name : this.name, {
-				expires: 14
-			});
-		},
-		setNamed: function(named) {
-			this.named = named;
-			if (!named) {
-				this.setPersistentName(null); // kill `showdown_username` cookie
-			}
+		popups: []
+	};
+	me.isMuted = function() {
+		return !!Tools.prefs.get('mute');
+	};
+	var finishRename = function(name, assertion) {
+		if (assertion === ';') {
+			overlay('login', {name: name});
+		} else if (assertion.substr(0, 2) === ';;') {
+			overlay('rename', {error: assertion.substr(2)});
+		} else if (assertion.indexOf('\n') >= 0) {
+			alert("The login server is overloaded. Please try again later.");
+		} else {
+			rooms.lobby.send('/trn '+name+',0,'+assertion);
 		}
 	};
+	me.rename = function(name) {
+		if (this.userid !== toUserid(name)) {
+			var query = actionphp + '?act=getassertion&userid=' +
+					encodeURIComponent(toUserid(name)) +
+					'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
+					'&challenge=' + encodeURIComponent(this.challenge);
+			if (Config.testclient) {
+				overlay('testclientgetassertion', { name: name, query: query });
+				return;
+			}
+			if (name === '') {
+				return;
+			}
+			$.get(query, function(data) {
+				finishRename(name, data);
+			});
+		} else {
+			rooms.lobby.send('/trn '+name);
+		}
+	};
+	me.upkeepRename = function() {
+		if (Config.testclient) return this.rename(''); // TODO: improve this
+		var query = actionphp + '?act=upkeep' +
+				'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
+				'&challenge=' + encodeURIComponent(this.challenge);
+		$.get(query, Tools.safeJson(function(data) {
+			if (!data.username) return;
+			if (data.loggedin) {
+				this.registered = {
+					username: data.username,
+					userid: toUserid(data.username)
+				};
+			}
+			finishRename(data.username, data.assertion);
+		}), 'text');
+	};
+	me.logout = function() {
+		$.post(actionphp, {
+			act: 'logout',
+			userid: this.userid // anti-CSRF
+		});
+		rooms.lobby.send('/logout');
+	};
+	me.setPersistentName = function(name) {
+		$.cookie('showdown_username', (name !== undefined) ? name : this.name, {
+			expires: 14
+		});
+	};
+	me.setNamed = function(named) {
+		this.named = named;
+		if (!named) {
+			this.setPersistentName(null); // kill `showdown_username` cookie
+		}
+	};
+	return me;
 })();
 var rooms = {};
 var curRoom = null;
