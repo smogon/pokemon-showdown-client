@@ -191,7 +191,7 @@ class DefaultActionHandler {
 			die;
 		}
 		$users->logout(); // this kills the `sid` cookie
-		setcookie('showdown_username', '', time()-60*60*24*2, '/', 'pokemonshowdown.com');
+		setcookie('showdown_username', '', time()-60*60*24*2, '/', 'play.pokemonshowdown.com');
 		$out['actionsuccess'] = true;
 	}
 
