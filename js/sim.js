@@ -84,21 +84,17 @@ var me = (function() {
 			}), 'text');
 		},
 		logout: function() {
-			var userid = this.userid;
-			rooms.lobby.send('/logout');
-			setTimeout(function() {
-				if (!me.named) {
-					$.post(actionphp, {
-						act: 'logout',
-						userid: userid // anti-CSRF
-					});
-				} else {
-					overlay('message', 'This server does not support logging out.');
+			$.post(actionphp, {
+				act: 'logout',
+				userid: this.userid // anti-CSRF
+			}, Tools.safeJson(function(data) {
+				if (data.actionsuccess) {
+					rooms.lobby.send('/logout');
 				}
-			}, 300);
+			}));
 		},
-		setPersistentName: function() {
-			$.cookie('showdown_username', this.name, {
+		setPersistentName: function(name) {
+			$.cookie('showdown_username', (name !== undefined) ? name : this.name, {
 				expires: 14
 			});
 		}
@@ -2610,6 +2606,7 @@ function updateMe() {
 		me.setPersistentName();
 	} else {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + sanitize(me.name) + buttons + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');
+		me.setPersistentName(null);
 	}
 	$('#userbar').prepend('<small><a href="http://pokemonshowdown.com/" target="_blank">Website</a> &nbsp; <a href="http://pokemonshowdown.com/rules" target="_blank">Rules</a> &nbsp; </small> ');
 	if (rooms.lobby) {
