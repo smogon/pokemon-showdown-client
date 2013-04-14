@@ -15,7 +15,7 @@
 		var e = $e.originalEvent;
 		if (e.origin !== origin) return;
 		var data = $.parseJSON(e.data);
-		if (data.username) {
+		if (data.username !== undefined) {
 			$.cookie('showdown_username', data.username, {expires: 14});
 		}
 		if (data.get) {
