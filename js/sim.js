@@ -1907,7 +1907,7 @@ function Lobby(id, elem) {
 				var ips = data.ips || [data.ip];
 				// Mute and Ban buttons for auths
 				var banMuteBuffer = '';
-				var mygroup = me.users[me.userid].substr(0, 1);
+				var mygroup = (me.users[me.userid] || ' ').substr(0, 1);
 				if ([' ', '!', '#', '+'].indexOf(mygroup) === -1) {
 					banMuteBuffer += '<br /><br />';
 					if (me.users[userid].substr(0, 1) === '!') {
