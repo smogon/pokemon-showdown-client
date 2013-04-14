@@ -84,12 +84,13 @@ var me = (function() {
 			}), 'text');
 		},
 		logout: function() {
+			var userid = this.userid;
 			rooms.lobby.send('/logout');
 			setTimeout(function() {
 				if (!me.named) {
 					$.post(actionphp, {
 						act: 'logout',
-						userid: me.userid // anti-CSRF
+						userid: userid // anti-CSRF
 					});
 				} else {
 					overlay('message', 'This server does not support logging out.');
