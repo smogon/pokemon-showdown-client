@@ -3176,6 +3176,11 @@ function overlay(overlayType, data) {
 		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs.get('showjoins')?' checked="checked"':'')+'> Always show joins/leaves in lobby chat</label></p>';
 		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs.get('showbattles')?' checked="checked"':'')+'> Always show battle starts in lobby chat</label></p>';
 
+		if (curRoom.battle) {
+			contents += '<h3>Current room</h3>';
+			contents += '<p><label class="optlabel"><input type="checkbox" id="pref_ignorespects"'+(curRoom.battle.ignoreSpects?' checked="checked"':'')+'> Ignore spectators</label></p>';
+		}
+
 		contents += '<p><button type="submit"><strong>Save</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		break;
 	case 'avatars':
@@ -3324,6 +3329,9 @@ function overlaySubmit(e, overlayType) {
 		Tools.prefs.set('showjoins', !!$('#pref_showjoins')[0].checked, false);
 		Tools.prefs.set('showbattles', !!$('#pref_showbattles')[0].checked, false);
 		Tools.prefs.set('noanim', !!$('#pref_noanim')[0].checked, false);
+		if (curRoom.battle) {
+			curRoom.battle.ignoreSpects = !!$('#pref_ignorespects').prop('checked');
+		}
 		Tools.prefs.save();
 		overlayClose();
 		break;
