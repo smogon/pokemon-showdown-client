@@ -49,9 +49,10 @@ var me = (function() {
 		popups: [],
 		rename: function(name) {
 			if (this.userid !== toUserid(name)) {
-				var query = actionphp + '?act=getassertion&userid=' + toUserid(name) +
-						'&challengekeyid=' + this.challengekeyid +
-						'&challenge=' + this.challenge;
+				var query = actionphp + '?act=getassertion&userid=' +
+						encodeURIComponent(toUserid(name)) +
+						'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
+						'&challenge=' + encodeURIComponent(this.challenge);
 				if (Config.testclient) {
 					overlay('testclientgetassertion', { name: name, query: query });
 					return;
@@ -69,8 +70,8 @@ var me = (function() {
 		upkeepRename: function() {
 			if (Config.testclient) return this.rename(''); // TODO: improve this
 			var query = actionphp + '?act=upkeep' +
-					'&challengekeyid=' + this.challengekeyid +
-					'&challenge=' + this.challenge;
+					'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
+					'&challenge=' + encodeURIComponent(this.challenge);
 			$.get(query, Tools.safeJson(function(data) {
 				if (!data.username) return;
 				if (data.loggedin) {
@@ -1310,7 +1311,7 @@ function Lobby(id, elem) {
 		case 'ladder':
 			if (!target) target = me.userid;
 			var self = this;
-			$.get(actionphp + '?act=ladderget&user='+target, Tools.safeJson(function(data) {
+			$.get(actionphp + '?act=ladderget&user='+encodeURIComponent(target), Tools.safeJson(function(data) {
 				try {
 					var buffer = '<div class="ladder"><table>';
 					buffer += '<tr><td colspan="7">User: <strong>'+target+'</strong></td></tr>';
