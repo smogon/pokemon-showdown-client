@@ -3109,6 +3109,7 @@ function overlay(overlayType, data) {
 	var contents = '';
 	var focusElem = '';
 	var selectElem = '';
+	var customAttrs = '';
 	switch (overlayType) {
 	case 'message':
 		contents = '<p>' + data + '</p>';
@@ -3162,7 +3163,6 @@ function overlay(overlayType, data) {
 		selectElem = '#overlay_password';
 		break;
 	case 'options':
-
 		contents += '<p><label class="optlabel">Avatar: <button onclick="overlaySubmit(null, \'options\');overlay(\'avatars\');return false">Change avatar</button></label></p>';
 
 		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_noanim"'+(Tools.prefs.get('noanim')?' checked="checked"':'')+'> Disable animations</label></p>';
@@ -3184,7 +3184,7 @@ function overlay(overlayType, data) {
 		contents += '<p><button type="submit"><strong>Save</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		break;
 	case 'avatars':
-
+		customAttrs = ' style="max-width:860px"';
 		contents += '<p>Choose an avatar or <button onclick="overlayClose();overlay(\'options\');return false">Cancel</button></p>';
 
 		contents += '<div class="avatarlist">';
@@ -3275,7 +3275,7 @@ function overlay(overlayType, data) {
 		focusElem = '#overlay_ok';
 		break;
 	}
-	$('#overlay').html('<form id="messagebox" onsubmit="overlaySubmit(event, \'' + overlayType + '\'); return false">' + contents + '</form>');
+	$('#overlay').html('<form id="messagebox" onsubmit="overlaySubmit(event, \'' + overlayType + '\'); return false"'+customAttrs+'>' + contents + '</form>');
 	$('#overlay').show();
 	if (selectElem) $(selectElem).select();
 	else if (focusElem) $(focusElem).focus();
