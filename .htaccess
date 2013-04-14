@@ -27,6 +27,9 @@ RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
 RewriteCond %{HTTP_HOST} ^(.*?)-8000\.psim\.us$ [NC]
 RewriteRule ^(.*) http://%1.psim.us/$1 [R=301,L]
 
+RewriteCond %{HTTP_HOST} !^play\.pokemonshowdown\.com$ [NC]
+RewriteRule ^sprites/(.*)$ http://play.pokemonshowdown.com/sprites/$1 [R=301,L]
+
 RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [env=SAFERESOURCE]
 Header set Access-Control-Allow-Origin * env=SAFERESOURCE
 
