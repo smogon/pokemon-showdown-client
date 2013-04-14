@@ -3173,8 +3173,8 @@ function overlay(overlayType, data) {
 		contents += '<p><label class="optlabel">Timestamps in lobby chat: <select id="pref_timestamps_lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
 		contents += '<p><label class="optlabel">Timestamps in PM\'s: <select id="pref_timestamps_pms"><option value="off">Off</option><option value="minutes"'+(timestamps.pms==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.pms==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
 
-		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs.get('showjoins')?' checked="checked"':'')+'> Always show joins/leaves in lobby chat</label></p>';
-		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs.get('showbattles')?' checked="checked"':'')+'> Always show battle starts in lobby chat</label></p>';
+		contents += '<!--p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs.get('showjoins')?' checked="checked"':'')+'> Always show joins/leaves in lobby chat</label></p-->';
+		contents += '<!--p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs.get('showbattles')?' checked="checked"':'')+'> Always show battle starts in lobby chat</label></p-->';
 
 		if (curRoom.battle) {
 			contents += '<h3>Current room</h3>';
@@ -3326,9 +3326,9 @@ function overlaySubmit(e, overlayType) {
 			lobby: $('#pref_timestamps_lobby').val(),
 			pms: $('#pref_timestamps_pms').val()
 		}, false);
-		Tools.prefs.set('showjoins', !!$('#pref_showjoins')[0].checked, false);
-		Tools.prefs.set('showbattles', !!$('#pref_showbattles')[0].checked, false);
-		Tools.prefs.set('noanim', !!$('#pref_noanim')[0].checked, false);
+		// Tools.prefs.set('showjoins', !!$('#pref_showjoins').prop('checked'), false);
+		// Tools.prefs.set('showbattles', !!$('#pref_showbattles').prop('checked'), false);
+		Tools.prefs.set('noanim', !!$('#pref_noanim').prop('checked'), false);
 		if (curRoom.battle) {
 			curRoom.battle.ignoreSpects = !!$('#pref_ignorespects').prop('checked');
 		}
