@@ -22,7 +22,6 @@ var me = (function() {
 		named: false,
 		registered: false,
 		userid: '',
-		token: '',
 		challengekeyid: -1,
 		challenge: '',
 		renameQueued: false,
@@ -3471,7 +3470,6 @@ teams = (function() {
 					me.named = data.named;
 					me.userid = data.userid;
 					me.renamePending = !! data.renamePending;
-					if (data.token) me.token = data.token;
 				}
 				if (data.notFound) {
 					selectTab('lobby');
@@ -3499,7 +3497,6 @@ teams = (function() {
 					me.setNamed(data.named);
 					me.userid = data.userid;
 					me.renamePending = !! data.renamePending;
-					if (data.token) me.token = data.token;
 				}
 				if (typeof data.challengesFrom !== 'undefined') {
 					me.challengesFrom = data.challengesFrom;
