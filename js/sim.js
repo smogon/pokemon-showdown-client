@@ -5,7 +5,6 @@ Config.serverprotocol = Config.serverprotocol || 'ws';
 
 var socket;
 var locPrefix = '/';
-if (Config.urlPrefix) locPrefix += Config.urlPrefix;
 var actionphp = (function() {
 	var ret = '/~~' + Config.serverid + '/action.php';
 	if (Config.testclient) {
@@ -3716,7 +3715,7 @@ teams = (function() {
 	})());
 	var $iframe = $(
 		'<iframe src="//play.pokemonshowdown.com/crossdomain.html?' +
-		encodeURIComponent(Config.crossdomain.prefix) +
+		encodeURIComponent(Config.crossdomain) +
 		'" style="display: none;"></iframe>'
 	);
 	$('body').append($iframe);
