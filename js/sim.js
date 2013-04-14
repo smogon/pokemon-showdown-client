@@ -83,6 +83,19 @@ var me = (function() {
 				finishRename(data.username, data.assertion);
 			}), 'text');
 		},
+		logout: function() {
+			rooms.lobby.send('/logout');
+			setTimeout(function() {
+				if (!me.named) {
+					$.post(actionphp, {
+						act: 'logout',
+						userid: me.userid // anti-CSRF
+					});
+				} else {
+					overlay('message', 'This server does not support logging out.');
+				}
+			}, 300);
+		},
 		setPersistentName: function() {
 			$.cookie('showdown_username', this.name, {
 				expires: 14
@@ -2592,7 +2605,7 @@ function updateMe() {
 	//var mutebutton = ' <button onclick="return formMute()" style="height:20px;vertical-align:middle;">' + (me.isMuted() ? '<img src="/fx/mute.png" width="18" height="18" alt="Unmute" />' : '<img src="/fx/sound.png" width="18" height="18" alt="Mute" />') + '</button>';
 	var buttons = ' <button onclick="overlay(\'options\');return false" style="width:30px;font-size:14px"><i class="icon-cog"></i></button> <button onclick="return formMute()" style="width:30px;font-size:14px">' + (me.isMuted() ? '<i class="icon-volume-off" title="Unmute"></i>' : '<i class="icon-volume-up" title="Mute"></i>') + '</button>';
 	if (me.named) {
-		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#779EC5"></i> ' + sanitize(me.name) + buttons + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Change name</button>');
+		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#779EC5"></i> ' + sanitize(me.name) + buttons + ' <button onclick="me.logout(); return false;" style="font-size:9pt">Log out</button>');
 		me.setPersistentName();
 	} else {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + sanitize(me.name) + buttons + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');

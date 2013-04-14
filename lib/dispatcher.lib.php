@@ -184,9 +184,14 @@ class DefaultActionHandler {
 	public function logout($dispatcher, &$reqData, &$out) {
 		global $users, $curuser;
 
-		if (!$_POST) die();
-		$users->logout();
-		$out['curuser'] = $curuser;
+		if (!$_POST ||
+				!isset($reqData['userid']) ||
+				// some CSRF protection (client must know current userid)
+				($reqData['userid'] !== $curuser['userid'])) {
+			die;
+		}
+		$users->logout(); // this kills the `sid` cookie
+		setcookie('showdown_username', '', time()-60*60*24*2, '/', 'pokemonshowdown.com');
 		$out['actionsuccess'] = true;
 	}
 
