@@ -121,9 +121,9 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 	<script>
 		var Config = {
-			server: '<?php echo $server ?>',
-			serverid: '<?php echo $serverid ?>',
-			serverport: <?php echo $serverport ?>,
+			server: <?php echo json_encode($server) ?>,
+			serverid: <?php echo json_encode($serverid) ?>,
+			serverport: <?php echo intval($serverport) ?>,
 			<?php if (!empty($serveraltport)) echo "serveraltport: $serveraltport,\n"; ?>
 <?php if ($psim) { ?>
 			crossdomain: <?php echo json_encode($hostprefix) ?>,
