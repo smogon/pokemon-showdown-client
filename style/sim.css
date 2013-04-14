@@ -1781,6 +1781,7 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 	bottom: 0;
 	left: 0;
 	right: 0;
+	overflow: auto;
 	background: #CCCCCC;
 	background: rgba(212, 212, 212, .5);
 	text-align: center;
@@ -1793,7 +1794,6 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 {
 	margin: 4em auto 1em auto;
 	max-width: 480px;
-	max-height: 90%;
 	text-align: left;
 	background: #F2F2F2;
 	border: 1px solid #999999;
@@ -1801,7 +1801,6 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 	
 	border-radius: 6px;
 	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
-	overflow-y: auto;
 }
 
 /** Various kinds of messages injected into the chat by commands **/
