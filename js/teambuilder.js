@@ -139,7 +139,7 @@ function Teambuilder(id, elem)
 					text += '<li value="'+i+'">';
 					if (!set.species)
 					{
-						text += '<div class="setchart"><div class="setcol setcol-icon" style="background-image:url(/sprites/bw/0.png);"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
+						text += '<div class="setchart"><div class="setcol setcol-icon" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
 						text += '</li>';
 						if (selfR.activePokemon)
 						{
