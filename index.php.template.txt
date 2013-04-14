@@ -67,7 +67,6 @@ if ($psim) {
 }
 
 $serverdata = array();
-$challengeresponse = false;
 if (@$PokemonServers[$server]) {
 	$serverid = $server;
 	$serverdata = $PokemonServers[$server];
@@ -76,7 +75,6 @@ if (@$PokemonServers[$server]) {
 	if (!$serverprotocol) $serverprotocol = $PokemonServers[$serverid]['protocol'];
 	$server = $PokemonServers[$serverid]['server'];
 	if ($serverport != $PokemonServers[$serverid]['port']) $serverid .= ':'.$serverport;
-	$challengeresponse = !empty($PokemonServers[$serverid]['challengeresponse']);
 }
 if ($localflag) $server = 'localhost';
 
@@ -85,7 +83,6 @@ if (!$server) {
 	$serverport = $PokemonServers[$defaultserver]['port'];
 	$serveraltport = @$PokemonServers[$defaultserver]['altport'];
 	$serverprotocol = @$PokemonServers[$defaultserver]['protocol'];
-	$challengeresponse = !empty($PokemonServers[$defaultserver]['challengeresponse']);
 	$serverid = $defaultserver;
 }
 else if (!$serverid) {
@@ -128,13 +125,10 @@ $serverlibrary = $serverlibs[$serverprotocol];
 			serverid: '<?php echo $serverid ?>',
 			serverport: <?php echo $serverport ?>,
 			<?php if (!empty($serveraltport)) echo "serveraltport: $serveraltport,\n"; ?>
-			serverprotocol: '<?php echo $serverprotocol ?>',
 <?php if ($psim) { ?>
-			crossdomain: {
-				prefix: <?php echo json_encode($hostprefix) ?>
-			},
+			crossdomain: <?php echo json_encode($hostprefix) ?>,
 <?php } ?>
-			urlPrefix: '<?php if ($serverid && $serverid !== 'showdown' && !$psim) echo '~~',$serverid,'/'; ?>'
+			serverprotocol: '<?php echo $serverprotocol ?>'
 		};
 <?php if ($afd) { ?>
 		Config.afd = true;
