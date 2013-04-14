@@ -2609,7 +2609,6 @@ function updateMe() {
 		me.setPersistentName();
 	} else {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + sanitize(me.name) + buttons + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');
-		me.setPersistentName(null);
 	}
 	$('#userbar').prepend('<small><a href="http://pokemonshowdown.com/" target="_blank">Website</a> &nbsp; <a href="http://pokemonshowdown.com/rules" target="_blank">Rules</a> &nbsp; </small> ');
 	if (rooms.lobby) {
@@ -3468,7 +3467,7 @@ teams = (function() {
 			init: function (data) {
 				if (data.name) {
 					me.name = data.name;
-					me.setNamed(data.named);
+					me.named = data.named;
 					me.userid = data.userid;
 					me.renamePending = !! data.renamePending;
 					if (data.token) me.token = data.token;
