@@ -87,16 +87,19 @@ var me = (function() {
 			$.post(actionphp, {
 				act: 'logout',
 				userid: this.userid // anti-CSRF
-			}, Tools.safeJson(function(data) {
-				if (data.actionsuccess) {
-					rooms.lobby.send('/logout');
-				}
-			}));
+			});
+			rooms.lobby.send('/logout');
 		},
 		setPersistentName: function(name) {
 			$.cookie('showdown_username', (name !== undefined) ? name : this.name, {
 				expires: 14
 			});
+		},
+		setNamed: function(named) {
+			this.named = named;
+			if (!named) {
+				this.setPersistentName(null); // kill `showdown_username` cookie
+			}
 		}
 	};
 })();
@@ -3465,7 +3468,7 @@ teams = (function() {
 			init: function (data) {
 				if (data.name) {
 					me.name = data.name;
-					me.named = data.named;
+					me.setNamed(data.named);
 					me.userid = data.userid;
 					me.renamePending = !! data.renamePending;
 					if (data.token) me.token = data.token;
@@ -3493,7 +3496,7 @@ teams = (function() {
 			update: function (data) {
 				if (typeof data.name !== 'undefined') {
 					me.name = data.name;
-					me.named = data.named;
+					me.setNamed(data.named);
 					me.userid = data.userid;
 					me.renamePending = !! data.renamePending;
 					if (data.token) me.token = data.token;
