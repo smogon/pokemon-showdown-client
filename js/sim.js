@@ -2,19 +2,8 @@
 Config.server = Config.server || 'sim.smogon.com';
 Config.serverport = Config.serverport || 8000;
 Config.serverprotocol = Config.serverprotocol || 'ws';
+Config.locPrefix = Config.locPrefix || '/'; // this is essentially obsolete now
 
-var socket;
-var locPrefix = '/';
-var actionphp = (function() {
-	var ret = '/~~' + Config.serverid + '/action.php';
-	if (Config.testclient) {
-		ret = 'http://play.pokemonshowdown.com' + ret;
-	}
-	return ret;
-})();
-var _gaq = _gaq || [];
-
-var socket = null;
 var me = (function() {
 	var me = {
 		name: '',
@@ -30,7 +19,20 @@ var me = (function() {
 		lastChallengeNotification: '',
 		pm: {},
 		curPopup: '',
-		popups: []
+		popups: [],
+		socket: null,
+		socketInit: null,
+		initialized: false,
+		loc: 'lobby'
+	};
+	me.getActionPHP = function() {
+		var ret = '/~~' + Config.serverid + '/action.php';
+		if (Config.testclient) {
+			ret = 'http://play.pokemonshowdown.com' + ret;
+		}
+		return (this.getActionPHP = function() {
+			return ret;
+		})();
 	};
 	me.isMuted = function() {
 		return !!Tools.prefs('mute');
@@ -48,7 +50,7 @@ var me = (function() {
 	};
 	me.rename = function(name) {
 		if (this.userid !== toUserid(name)) {
-			var query = actionphp + '?act=getassertion&userid=' +
+			var query = me.getActionPHP() + '?act=getassertion&userid=' +
 					encodeURIComponent(toUserid(name)) +
 					'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
 					'&challenge=' + encodeURIComponent(this.challenge);
@@ -68,7 +70,7 @@ var me = (function() {
 	};
 	me.upkeepRename = function() {
 		if (Config.testclient) return this.rename(''); // TODO: improve this
-		var query = actionphp + '?act=upkeep' +
+		var query = me.getActionPHP() + '?act=upkeep' +
 				'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
 				'&challenge=' + encodeURIComponent(this.challenge);
 		$.get(query, Tools.safeJSON(function(data) {
@@ -83,7 +85,7 @@ var me = (function() {
 		}), 'text');
 	};
 	me.logout = function() {
-		$.post(actionphp, {
+		$.post(me.getActionPHP(), {
 			act: 'logout',
 			userid: this.userid // anti-CSRF
 		});
@@ -100,6 +102,7 @@ var me = (function() {
 			this.setPersistentName(null); // kill `showdown_username` cookie
 		}
 	};
+	me.changeState = function() {};
 	return me;
 })();
 var rooms = {};
@@ -138,7 +141,7 @@ function selectTab(tab, e) {
 	$(window).scrollTop(51);
 	if (tab === 'lobby') $('#backbutton').addClass('lobby');
 	else $('#backbutton').removeClass('lobby');
-	changeState(tab);
+	me.changeState(tab);
 	updateLobbyChat(tab);
 	return false;
 }
@@ -204,7 +207,7 @@ function addTab(tab, type) {
 		rooms[tab] = room;
 		break;
 	}
-	if (tab === loc || (tab !== 'lobby' && tab !== 'teambuilder' && tab !== 'ladder')) {
+	if (tab === me.loc || (tab !== 'lobby' && tab !== 'teambuilder' && tab !== 'ladder')) {
 		selectTab(tab);
 	} else {
 		rooms[tab].elem.hide();
@@ -353,7 +356,7 @@ function BattleRoom(id, elem) {
 		}
 	};
 	this.send = function (message) {
-		emit(socket, 'chat', {room:this.id,message:message});
+		emit(me.socket, 'chat', {room:this.id,message:message});
 	};
 	// Same as send, but appends the rqid to the message so that the server
 	// can verify that the decision is sent in response to the correct request.
@@ -1124,7 +1127,7 @@ function Lobby(id, elem) {
 		}
 	};
 	this.send = function (message) {
-		emit(socket, 'chat', {room:'',message:message});
+		emit(me.socket, 'chat', {room:'',message:message});
 	};
 	this.clear = function () {
 		selfR.chatElem.html('');
@@ -1323,7 +1326,7 @@ function Lobby(id, elem) {
 		case 'ladder':
 			if (!target) target = me.userid;
 			var self = this;
-			$.get(actionphp + '?act=ladderget&user='+encodeURIComponent(target), Tools.safeJSON(function(data) {
+			$.get(me.getActionPHP() + '?act=ladderget&user='+encodeURIComponent(target), Tools.safeJSON(function(data) {
 				try {
 					var buffer = '<div class="ladder"><table>';
 					buffer += '<tr><td colspan="7">User: <strong>'+target+'</strong></td></tr>';
@@ -1700,7 +1703,7 @@ function Lobby(id, elem) {
 					battletype = log[i].format + ' battle';
 					if (log[i].format === 'Random Battle') battletype = 'Random Battle';
 				}
-				selfR.chatElem.append('<div class="message"><a href="' + locPrefix+id + '" onclick="selectTab(\'' + id + '\'); return false" class="battle-start">' + battletype + ' started between <strong style="' + hashColor(toUserid(log[i].name)) + '">' + Tools.escapeHTML(log[i].name) + '</strong> and <strong style="' + hashColor(toUserid(log[i].name2)) + '">' + Tools.escapeHTML(log[i].name2) + '</strong>.</a></div>');
+				selfR.chatElem.append('<div class="message"><a href="' + Config.locPrefix+id + '" onclick="selectTab(\'' + id + '\'); return false" class="battle-start">' + battletype + ' started between <strong style="' + hashColor(toUserid(log[i].name)) + '">' + Tools.escapeHTML(log[i].name) + '</strong> and <strong style="' + hashColor(toUserid(log[i].name2)) + '">' + Tools.escapeHTML(log[i].name2) + '</strong>.</a></div>');
 			} else if (log[i].message) {
 				selfR.chatElem.append('<div class="message">' + Tools.escapeHTML(log[i].message) + '</div>');
 			} else if (log[i].rawMessage) {
@@ -1895,7 +1898,7 @@ function Lobby(id, elem) {
 				} else if (!roomData.p2) {
 					roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
 				}
-				roomListCode += '<div><a href="' + locPrefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
+				roomListCode += '<div><a href="' + Config.locPrefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
 			}
 
 			var code = '<img src="' + Tools.resourcePrefix + 'sprites/trainers/' + data.avatar + '.png" />';
@@ -1942,7 +1945,7 @@ function Lobby(id, elem) {
 				} else if (!roomData.p2) {
 					roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
 				}
-				roomListCode += '<div><a href="' + locPrefix+id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
+				roomListCode += '<div><a href="' + Config.locPrefix+id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
 				i++;
 			}
 
@@ -1953,7 +1956,7 @@ function Lobby(id, elem) {
 		} else if (data.command === 'savereplay') {
 			var id = data.id;
 			if (Config.serverid && Config.serverid !== 'showdown') id = Config.serverid+'-'+id;
-			$.post(actionphp + '?act=uploadreplay', {
+			$.post(me.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
 				id: id
 			}, function(data) {
@@ -2054,7 +2057,7 @@ function Lobby(id, elem) {
 				var roomData = selfR.rooms[i];
 				if (!roomListCode) roomListCode += '<h3>Watch battles</h3>';
 				var roomDesc = '<small>[' + Tools.getEffect(roomData.format).name + ']</small><br /><em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
-				roomListCode += '<div><a href="' + locPrefix + '' + roomData.id + '" onclick="selectTab(\'' + roomData.id + '\');return false">' + roomDesc + '</a></div>';
+				roomListCode += '<div><a href="' + Config.locPrefix + '' + roomData.id + '" onclick="selectTab(\'' + roomData.id + '\');return false">' + roomDesc + '</a></div>';
 			}
 			if (roomListCode) roomListCode += '<button onclick="rooms[\'' + selfR.id + '\'].formChallenge(\'#lobby-rooms\');return false">All battles &rarr;</button>';
 
@@ -2627,9 +2630,9 @@ function formMute() {
 function updateRoomList() {
 	var code = '';
 	if (!curRoom) curRoom = rooms.lobby;
-	code += '<div><a id="tabtab-lobby" class="tab' + (curRoom.id === 'lobby' ? ' cur' : '') + (rooms.lobby && rooms.lobby.notifying ? ' notifying' : '') + '" href="' + locPrefix + '" onclick="selectTab(\'lobby\'); return false"><i class="icon-comments-alt"></i> Lobby</a>';
-	code += '<a id="tabtab-teambuilder"' + (curRoom.id === 'teambuilder' ? ' class="cur"' : '') + ' href="' + locPrefix + 'teambuilder" onclick="selectTab(\'teambuilder\', event);return false"><i class="icon-edit"></i> Teambuilder</a>';
-	code += '<a id="tabtab-ladder"' + (curRoom.id === 'ladder' ? ' class="cur"' : '') + ' href="' + locPrefix + 'ladder" onclick="selectTab(\'ladder\');return false"><i class="icon-list-ol"></i> Ladder</a></div>';
+	code += '<div><a id="tabtab-lobby" class="tab' + (curRoom.id === 'lobby' ? ' cur' : '') + (rooms.lobby && rooms.lobby.notifying ? ' notifying' : '') + '" href="' + Config.locPrefix + '" onclick="selectTab(\'lobby\'); return false"><i class="icon-comments-alt"></i> Lobby</a>';
+	code += '<a id="tabtab-teambuilder"' + (curRoom.id === 'teambuilder' ? ' class="cur"' : '') + ' href="' + Config.locPrefix + 'teambuilder" onclick="selectTab(\'teambuilder\', event);return false"><i class="icon-edit"></i> Teambuilder</a>';
+	code += '<a id="tabtab-ladder"' + (curRoom.id === 'ladder' ? ' class="cur"' : '') + ' href="' + Config.locPrefix + 'ladder" onclick="selectTab(\'ladder\');return false"><i class="icon-list-ol"></i> Ladder</a></div>';
 
 	var shownRooms = {
 		lobby: true,
@@ -2671,7 +2674,7 @@ function updateRoomList() {
 				closesize = 'close0';
 			}
 		}
-		code += '<div><a id="tabtab-' + id + '" class="tab battletab' + (curRoom.id === id ? ' cur' : '') + (rooms[id] && rooms[id].notifying ? ' notifying' : '') + '" href="' + locPrefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a><span onclick="leaveTab(\'' + id + '\')" class="close ' + closesize + '"></span></div>';
+		code += '<div><a id="tabtab-' + id + '" class="tab battletab' + (curRoom.id === id ? ' cur' : '') + (rooms[id] && rooms[id].notifying ? ' notifying' : '') + '" href="' + Config.locPrefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a><span onclick="leaveTab(\'' + id + '\')" class="close ' + closesize + '"></span></div>';
 	}
 	$('#leftbar').html(code);
 	$('#inline-nav').html('<h3>Your tabs</h3>' + code.replace(/ id="[^"]*"/g, ''));
@@ -2828,43 +2831,36 @@ function hideTooltip() {
 	return true;
 }
 
-var initialized = false;
-
-var socketInit = null;
-
 $(window).resize(updateResize);
 
-var changeState = function () {};
-
-var loc = 'lobby';
-if (document.location.pathname.substr(0, locPrefix.length) === locPrefix) {
-	loc = document.location.pathname.substr(locPrefix.length);
-	if (!loc || loc === 'test.html' || loc === 'temp.html' || loc.substr(loc.length-15) === 'testclient.html') loc = 'lobby';
+if (document.location.pathname.substr(0, Config.locPrefix.length) === Config.locPrefix) {
+	me.loc = document.location.pathname.substr(Config.locPrefix.length);
+	if (!me.loc || me.loc === 'test.html' || me.loc === 'temp.html' || me.loc.substr(me.loc.length-15) === 'testclient.html') me.loc = 'lobby';
 }
 
 if (window.history && history.pushState) {
 	// HTML5 history
-	changeState = function (newLoc) {
-		if (!initialized) return;
+	me.changeState = function (newLoc) {
+		if (!me.initialized) return;
 		var urlLoc = newLoc;
 		if (urlLoc === 'lobby') urlLoc = '';
-		if (document.location.pathname !== locPrefix + urlLoc) {
+		if (document.location.pathname !== Config.locPrefix + urlLoc) {
 			try {
-				history.pushState(null, null, locPrefix + urlLoc);
+				history.pushState(null, null, Config.locPrefix + urlLoc);
 			} catch (e) {
 				// Throws insecure operation when running on local filesystem.
 			}
 		}
-		loc = newLoc;
+		me.loc = newLoc;
 	};
 	window.onpopstate = function (e) {
-		if (document.location.pathname.substr(0, locPrefix.length) === locPrefix) {
-			loc = document.location.pathname.substr(locPrefix.length);
-			if (!loc || loc === 'test.html' || loc === 'temp.html' || loc.substr(loc.length-15) === 'testclient.html') loc = 'lobby';
-			if (!socket) {
+		if (document.location.pathname.substr(0, Config.locPrefix.length) === Config.locPrefix) {
+			me.loc = document.location.pathname.substr(Config.locPrefix.length);
+			if (!me.loc || me.loc === 'test.html' || me.loc === 'temp.html' || me.loc.substr(me.loc.length-15) === 'testclient.html') me.loc = 'lobby';
+			if (!me.socket) {
 				return; // haven't even initted yet
 			}
-			selectTab(loc);
+			selectTab(me.loc);
 		}
 	};
 }
@@ -3308,7 +3304,7 @@ function overlaySubmit(e, overlayType) {
 	case 'login':
 	case 'betalogin':
 		var name = $('#overlay_username').val();
-		$.post(actionphp, {
+		$.post(me.getActionPHP(), {
 			act: 'login',
 			name: name,
 			pass: $('#overlay_password').val(),
@@ -3320,7 +3316,7 @@ function overlaySubmit(e, overlayType) {
 			if (data.curuser && data.curuser.loggedin) {
 				me.registered = data.curuser;
 				name = data.curuser.username;
-				if (!socket) {
+				if (!me.socket) {
 					document.location.reload();
 					return;
 				}
@@ -3370,7 +3366,7 @@ function overlaySubmit(e, overlayType) {
 	case 'register':
 		var name = $('#overlay_username').val();
 		var captcha = $('#overlay_captcha').val();
-		$.post(actionphp, {
+		$.post(me.getActionPHP(), {
 			act: 'register',
 			username: name,
 			password: $('#overlay_password').val(),
@@ -3384,7 +3380,7 @@ function overlaySubmit(e, overlayType) {
 			if (data.curuser && data.curuser.loggedin) {
 				me.registered = data.curuser;
 				name = data.curuser.username;
-				if (!socket) {
+				if (!me.socket) {
 					document.location.reload();
 					return;
 				}
@@ -3416,9 +3412,9 @@ function init() {
 	addTab('teambuilder', 'teambuilder');
 	addTab('ladder', 'ladder');
 
-	if (socketInit) socketInit();
+	if (me.socketInit) me.socketInit();
 
-	initialized = true;
+	me.initialized = true;
 }
 
 var cookieTeams = true;
@@ -3460,7 +3456,7 @@ teams = (function() {
 			else return new SockJS('http://' + host + ':' + port);
 		};
 
-		socket = constructSocket(Config.server, Config.serverport);
+		me.socket = constructSocket(Config.server, Config.serverport);
 
 		var events = {
 			init: function (data) {
@@ -3480,12 +3476,12 @@ teams = (function() {
 						room.init(data);
 						updateMe(data);
 						$('#loading-message').remove();
-						if (loc && loc !== 'lobby') {
-							selectTab(loc);
+						if (me.loc && me.loc !== 'lobby') {
+							selectTab(me.loc);
 						}
 					};
-				if (!initialized) {
-					socketInit = tempInitialize;
+				if (!me.initialized) {
+					me.socketInit = tempInitialize;
 				} else {
 					tempInitialize();
 				}
@@ -3582,13 +3578,13 @@ teams = (function() {
 
 		if (Config.serverprotocol === 'io') {
 			for (var e in events) {
-				socket.on(e, (function(type) {
+				me.socket.on(e, (function(type) {
 					return function(data) {
 						events[type](data);
 					};
 				})(e));
 			}
-			socket.on('data', function(text) {
+			me.socket.on('data', function(text) {
 				var roomid = 'lobby';
 				if (text.substr(0,1) === '>') {
 					var nlIndex = text.indexOf('\n');
@@ -3601,20 +3597,20 @@ teams = (function() {
 				}
 			});
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
-			emit(socket, 'join', {room: 'lobby'});
+			emit(me.socket, 'join', {room: 'lobby'});
 		} else {
 			var socketopened = false;
 			var altport = (Config.serverport === Config.serveraltport);
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
-			socket.onopen = function() {
+			me.socket.onopen = function() {
 				socketopened = true;
-				if (altport) {
+				if (altport && window._gaq) {
 					_gaq.push(['_trackEvent', 'Alt port connection', Config.serverid]);
 				}
 				document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
-				emit(socket, 'join', {room: 'lobby'});
+				emit(me.socket, 'join', {room: 'lobby'});
 			};
-			socket.onmessage = function(msg) {
+			me.socket.onmessage = function(msg) {
 				if (msg.data.substr(0,1) !== '{') {
 					var text = msg.data;
 					var roomid = 'lobby';
@@ -3633,17 +3629,17 @@ teams = (function() {
 				if (!data) return;
 				if (events[data.type]) events[data.type](data);
 			};
-			socket.onclose = function () {
+			me.socket.onclose = function () {
 				if (!socketopened && Config.serveraltport && !altport) {
 					altport = true;
 					Config.serverport = Config.serveraltport;
-					socket = (function() {
+					me.socket = (function(socket) {
 						var s = constructSocket(Config.server, Config.serverport);
 						s.onopen = socket.onopen;
 						s.onmessage = socket.onmessage;
 						s.onclose = socket.onclose;
 						return s;
-					})();
+					})(me.socket);
 					return;
 				}
 				$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');

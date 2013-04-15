@@ -28,7 +28,7 @@ function Ladder(id, elem)
 		rooms.lobby.message(message);
 	};
 	this.send = function (message) {
-		emit(socket, 'chat', {room:'',message:message});
+		emit(me.socket, 'chat', {room:'',message:message});
 	};
 	this.update = function(data) {
 		if (!data) {
