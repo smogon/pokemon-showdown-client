@@ -33,7 +33,7 @@ var me = (function() {
 		popups: []
 	};
 	me.isMuted = function() {
-		return !!Tools.prefs.get('mute');
+		return !!Tools.prefs('mute');
 	};
 	var finishRename = function(name, assertion) {
 		if (assertion === ';') {
@@ -401,7 +401,7 @@ function BattleRoom(id, elem) {
 				} else {
 					if (update.updates[i].substr(0,10) === '|callback|') selfR.controlsElem.html('');
 					if (update.updates[i].substr(0,12) === '| callback | ') selfR.controlsElem.html('');
-					selfR.battle.add(update.updates[i], Tools.prefs.get('noanim'));
+					selfR.battle.add(update.updates[i], Tools.prefs('noanim'));
 				}
 			}
 		}
@@ -1218,20 +1218,20 @@ function Lobby(id, elem) {
 
 		case 'showjoins':
 			rooms.lobby.add('Join/leave messages: ON');
-			Tools.prefs.set('showjoins', true);
+			Tools.prefs('showjoins', true);
 			return false;
 		case 'hidejoins':
 			rooms.lobby.add('Join/leave messages: HIDDEN');
-			Tools.prefs.set('showjoins', false);
+			Tools.prefs('showjoins', false);
 			return false;
 
 		case 'showbattles':
 			rooms.lobby.add('Battle messages: ON');
-			Tools.prefs.set('showbattles', true);
+			Tools.prefs('showbattles', true);
 			return false;
 		case 'hidebattles':
 			rooms.lobby.add('Battle messages: HIDDEN');
-			Tools.prefs.set('showbattles', false);
+			Tools.prefs('showbattles', false);
 			return false;
 
 		case 'timestamps':
@@ -1243,7 +1243,7 @@ function Lobby(id, elem) {
 				rooms.lobby.add('Error: Invalid /timestamps command');
 				return '/help timestamps';	// show help
 			}
-			var timestamps = Tools.prefs.get('timestamps') || {};
+			var timestamps = Tools.prefs('timestamps') || {};
 			if (typeof timestamps === 'string') {
 				// The previous has a timestamps preference from the previous
 				// regime. We can't set properties of a string, so set it to
@@ -1263,11 +1263,11 @@ function Lobby(id, elem) {
 				break;
 			}
 			rooms.lobby.add('Timestamps preference set to: `' + targets[1] + '` for `' + targets[0] + '`.');
-			Tools.prefs.set('timestamps', timestamps);
+			Tools.prefs('timestamps', timestamps);
 			return false;
 			
 		case 'highlight':
-			var highlights = Tools.prefs.get('highlights') || [];
+			var highlights = Tools.prefs('highlights') || [];
 			if (target.indexOf(',') > -1) {
 				var targets = target.split(',');
 				// trim the targets to be safe
@@ -1296,10 +1296,10 @@ function Lobby(id, elem) {
 					this.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 					break;
 				}
-				Tools.prefs.set('highlights', highlights);
+				Tools.prefs('highlights', highlights);
 			} else {
 				if (target === 'delete') {
-					Tools.prefs.set('highlights', false);
+					Tools.prefs('highlights', false);
 					rooms.lobby.add("All highlights cleared");
 				} else if (target === 'show' || target === 'list') {
 					// Shows a list of the current highlighting words
@@ -1378,7 +1378,7 @@ function Lobby(id, elem) {
 			var parts = target.split(',');
 			var avatar = parseInt(parts[0], 10);
 			if (avatar) {
-				Tools.prefs.set('avatar', avatar);
+				Tools.prefs('avatar', avatar);
 			}
 			return text; // Send the /avatar command through to the server.
 
@@ -1463,7 +1463,7 @@ function Lobby(id, elem) {
 		}
 	};
 	this.getTimestamp = function (section) {
-		var pref = Tools.prefs.get('timestamps') || {};
+		var pref = Tools.prefs('timestamps') || {};
 		var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
 		if ((sectionPref === 'off') || (sectionPref === undefined)) return '';
 		var date = new Date();
@@ -1476,7 +1476,7 @@ function Lobby(id, elem) {
 			).join(':') + '] ';
 	};
 	this.getHighlight = function (message) {
-		var highlights = Tools.prefs.get('highlights') || [];
+		var highlights = Tools.prefs('highlights') || [];
 		if (!this.highlightRegExp) {
 			try {
 				this.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
@@ -1687,7 +1687,7 @@ function Lobby(id, elem) {
 
 				selfR.debounceUpdate();
 
-				if (log[i].silent && !Tools.prefs.get('showbattles')) continue;
+				if (log[i].silent && !Tools.prefs('showbattles')) continue;
 
 				selfR.joinLeaveElem = null;
 				selfR.joinLeave = {
@@ -1730,7 +1730,7 @@ function Lobby(id, elem) {
 					selfR.userList.add(userid);
 					continue;
 				}
-				if (log[i].silent && !Tools.prefs.get('showjoins')) continue;
+				if (log[i].silent && !Tools.prefs('showjoins')) continue;
 				if (!selfR.joinLeaveElem) {
 					selfR.chatElem.append('<div class="message"><small>Loading...</small></div>');
 					selfR.joinLeaveElem = selfR.chatElem.children().last();
@@ -1809,17 +1809,17 @@ function Lobby(id, elem) {
 			selfR.chatElem.html('');
 			// Disable timestamps for the past log because the server doesn't
 			// tell us what time the messages were sent at.
-			var timestamps = Tools.prefs.get('timestamps');
-			Tools.prefs.set('timestamps', 'off', false);
+			var timestamps = Tools.prefs('timestamps');
+			Tools.prefs('timestamps', 'off', false);
 			selfR.add(data.log);	// Add past log.
-			Tools.prefs.set('timestamps', timestamps, false);
+			Tools.prefs('timestamps', timestamps, false);
 		}
 		selfR.update(data);
 		selfR.chatFrameElem.scrollTop(selfR.chatElem.height());
 		selfR.updateMe();
 		if (me.named) {
 			// Preferred avatar feature
-			var avatar = Tools.prefs.get('avatar');
+			var avatar = Tools.prefs('avatar');
 			if (avatar) {
 				// This will be compatible even with servers that don't support
 				// the second argument for /avatar yet.
@@ -2617,7 +2617,7 @@ function updateMe() {
 }
 
 function formMute() {
-	Tools.prefs.set('mute', !me.isMuted(), true);
+	Tools.prefs('mute', !me.isMuted());
 	if (curRoom.battle) {
 		curRoom.battle.setMute(me.isMuted());
 	}
@@ -3178,16 +3178,16 @@ function overlay(overlayType, data) {
 	case 'options':
 		contents += '<p><label class="optlabel">Avatar: <button onclick="overlaySubmit(null, \'options\');overlay(\'avatars\');return false">Change avatar</button></label></p>';
 
-		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_noanim"'+(Tools.prefs.get('noanim')?' checked="checked"':'')+'> Disable animations</label></p>';
+		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_noanim"'+(Tools.prefs('noanim')?' checked="checked"':'')+'> Disable animations</label></p>';
 
 		contents += '<!--p><label class="label">Ignore list: <input class="textbox" type="text" value="'+sanitize(Object.keys(me.ignore).join(', '))+'" /></label><br /><small>Separate names with commas</small></p-->';
 
-		var timestamps = (Tools.prefs.get('timestamps') || {});
+		var timestamps = (Tools.prefs('timestamps') || {});
 		contents += '<p><label class="optlabel">Timestamps in lobby chat: <select id="pref_timestamps_lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
 		contents += '<p><label class="optlabel">Timestamps in PM\'s: <select id="pref_timestamps_pms"><option value="off">Off</option><option value="minutes"'+(timestamps.pms==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.pms==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
 
-		contents += '<!--p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs.get('showjoins')?' checked="checked"':'')+'> Always show joins/leaves in lobby chat</label></p-->';
-		contents += '<!--p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs.get('showbattles')?' checked="checked"':'')+'> Always show battle starts in lobby chat</label></p-->';
+		contents += '<!--p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs('showjoins')?' checked="checked"':'')+'> Always show joins/leaves in lobby chat</label></p-->';
+		contents += '<!--p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs('showbattles')?' checked="checked"':'')+'> Always show battle starts in lobby chat</label></p-->';
 
 		if (curRoom.battle) {
 			contents += '<h3>Current room</h3>';
@@ -3335,13 +3335,13 @@ function overlaySubmit(e, overlayType) {
 		overlayClose();
 		break;
 	case 'options':
-		Tools.prefs.set('timestamps', {
+		Tools.prefs('timestamps', {
 			lobby: $('#pref_timestamps_lobby').val(),
 			pms: $('#pref_timestamps_pms').val()
 		}, false);
-		// Tools.prefs.set('showjoins', !!$('#pref_showjoins').prop('checked'), false);
-		// Tools.prefs.set('showbattles', !!$('#pref_showbattles').prop('checked'), false);
-		Tools.prefs.set('noanim', !!$('#pref_noanim').prop('checked'), false);
+		// Tools.prefs('showjoins', !!$('#pref_showjoins').prop('checked'), false);
+		// Tools.prefs('showbattles', !!$('#pref_showbattles').prop('checked'), false);
+		Tools.prefs('noanim', !!$('#pref_noanim').prop('checked'), false);
 		if (curRoom.battle) {
 			curRoom.battle.ignoreSpects = !!$('#pref_ignorespects').prop('checked');
 		}
