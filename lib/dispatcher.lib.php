@@ -274,15 +274,26 @@ class DefaultActionHandler {
 		if (
 				// the server must be registered
 				!$server ||
-				// the server must send a battle ID
+				// the server must send all the required values
 				!isset($reqData['id']) ||
-				// the battle ID must be of the correct form
-				!preg_match('/^[a-z0-9]*-[0-9]*$/', $reqData['id'])) {
+				!isset($reqData['format']) ||
+				!isset($reqData['loghash']) ||
+				!isset($reqData['p1']) ||
+				!isset($reqData['p2']) ||
+				// player usernames cannot be longer than 18 characters
+				(strlen($reqData['p1']) > 18) ||
+				(strlen($reqData['p2']) > 18) ||
+				// the battle ID must be valid
+				!preg_match('/^([a-z0-9]+)-[0-9]+$/', $reqData['id'], $m1) ||
+				// the format ID must be valid
+				!preg_match('/^([a-z0-9]+)$/', $reqData['format'], $m2) ||
+				// the format from the battle ID must match the format ID
+				($m1[1] !== $m2[1])) {
 			$out = 0;
 			return;
 		}
 
-		if (@$server['id'] !== 'showdown') {
+		if ($server['id'] !== 'showdown') {
 			$reqData['id'] = $server['id'].'-'.$reqData['id'];
 		}
 
@@ -312,7 +323,7 @@ class DefaultActionHandler {
 
 		$replay = $db->fetch_assoc($res);
 		if (!$replay) {
-			if (!preg_match('/^[a-z0-9]*-[a-z0-9]*-[0-9]*$/', $reqData['id'])) {
+			if (!preg_match('/^[a-z0-9]+-[a-z0-9]+-[0-9]+$/', $reqData['id'])) {
 				die('invalid id');
 			}
 			die('not found');
