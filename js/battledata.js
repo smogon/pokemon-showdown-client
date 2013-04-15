@@ -442,7 +442,7 @@ var Tools = {
 					'(/.*)?', 'i'));
 			}
 			return patterns;
-		})((Config && Config.whitelist) ? Config.whitelist : []);
+		})((window.Config && Config.whitelist) ? Config.whitelist : []);
 		return {
 			isWhitelisted: function(uri) {
 				for (var i = 0; i < patterns.length; ++i) {
