@@ -271,7 +271,13 @@ class DefaultActionHandler {
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php'; // not clear if this is needed
 
 		$server = $dispatcher->findServer();
-		if (!$server) {
+		if (
+				// the server must be registered
+				!$server ||
+				// the server must send a battle ID
+				!isset($reqData['id']) ||
+				// the battle ID must be of the correct form
+				!preg_match('/^[a-z0-9]*-[0-9]*$/', $reqData['id'])) {
 			$out = 0;
 			return;
 		}
@@ -299,13 +305,18 @@ class DefaultActionHandler {
 		global $db;
 
 		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
-		if (!$_POST['id']) die('ID needed');
+		if (!isset($_POST['id'])) die('ID needed');
 		$id = $_POST['id'];
 
 		$res = $db->query("SELECT * FROM `ntbb_replays` WHERE `id` = '".$db->escape($id)."'");
 
 		$replay = $db->fetch_assoc($res);
-		if (!$replay) die('not found');
+		if (!$replay) {
+			if (!preg_match('/^[a-z0-9]*-[a-z0-9]*-[0-9]*$/', $reqData['id'])) {
+				die('invalid id');
+			}
+			die('not found');
+		}
 		if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
 			$_POST['log'] = str_replace("\r",'', $_POST['log']);
 			if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
