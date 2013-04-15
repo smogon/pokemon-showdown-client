@@ -41,7 +41,7 @@ function Teambuilder(id, elem)
 		rooms.lobby.message(message);
 	};
 	this.send = function (message) {
-		emit(socket, 'chat', {room:'',message:message});
+		emit(me.socket, 'chat', {room:'',message:message});
 	};
 	this.update = function(data) {
 		if (!data)
@@ -2250,9 +2250,9 @@ function selectTeam(i)
 	}
 
 	// if (i < 0) {
-	// 	emit(socket, 'saveTeam', {team: null});
+	// 	emit(me.socket, 'saveTeam', {team: null});
 	// } else {
-	// 	emit(socket, 'saveTeam', {team: teams[i].team});
+	// 	emit(me.socket, 'saveTeam', {team: teams[i].team});
 	// }
 	selectedTeam = i;
 }

@@ -7,8 +7,6 @@ License: MIT License
 
 if (!window.exports) window.exports = window;
 
-var _gaq = _gaq || [];
-
 // todo: http://www.youtube.com/watch?v=eEwAPnIev38
 // 32.930 - 1:13.032
 // 32930 to 73032
@@ -148,7 +146,7 @@ function messageSanitize(str) {
 				fulluri = Tools.escapeHTML(Tools.interstice.getURI(Tools.unescapeHTML(fulluri)));
 			}
 			return '<a href="' + fulluri +
-				'" target="_blank" onclick="_gaq.push([\'_trackEvent\', \'' +
+				'" target="_blank" onclick="if (window._gaq) _gaq.push([\'_trackEvent\', \'' +
 				event +
 				'\', \'' + Tools.escapeQuotes(fulluri) + '\']);">' + uri + '</a>';
 		}).
