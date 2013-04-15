@@ -1966,7 +1966,7 @@ function Lobby(id, elem) {
 			$('#' + selfR.id + '-roomlist').html('<div class="roomlist"><div><small>(' + i + ' battle' + (i == 1 ? '' : 's') + ')</small></div>' + roomListCode + '</div>');
 		} else if (data.command === 'savereplay') {
 			var id = data.id;
-			if (Config.serverid && Config.serverid !== 'showdown') id = Config.serverid+'-'+id;
+			if (Config.serverid && Config.serverid !== 'showdown') id = Config.serverid.split(':')[0]+'-'+id;
 			$.post(me.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
 				id: id
