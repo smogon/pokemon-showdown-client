@@ -1835,14 +1835,12 @@ function Lobby(id, elem) {
 		selfR.update(data);
 		selfR.chatFrameElem.scrollTop(selfR.chatElem.height());
 		selfR.updateMe();
-		if (me.named) {
-			// Preferred avatar feature
-			var avatar = Tools.prefs('avatar');
-			if (avatar) {
-				// This will be compatible even with servers that don't support
-				// the second argument for /avatar yet.
-				selfR.send('/avatar ' + avatar + ',1');
-			}
+		// Preferred avatar feature
+		var avatar = Tools.prefs('avatar');
+		if (avatar) {
+			// This will be compatible even with servers that don't support
+			// the second argument for /avatar yet.
+			selfR.send('/avatar ' + avatar + ',1');
 		}
 		if (me.renameQueued) {
 			me.upkeepRename();
