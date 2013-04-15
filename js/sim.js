@@ -1974,12 +1974,17 @@ function Lobby(id, elem) {
 				log: data.log,
 				id: id
 			}, function(data) {
+				if ((serverid === 'showdown') && (data === 'invalid id')) {
+					data = 'not found';
+				}
 				if (data === 'success') {
 					overlay('replayuploaded', id);
 				} else if (data === 'hash mismatch') {
 					overlay('message', "Someone else is already uploading a replay of this battle. Try again in five seconds.");
 				} else if (data === 'not found') {
 					overlay('message', "This server isn't registered, and doesn't support uploading replays.");
+				} else if (data === 'invalid id') {
+					overlay('message', "This server is using invalid battle IDs, so this replay can't be uploaded.");
 				} else {
 					overlay('message', "Error while uploading replay: "+data);
 				}
