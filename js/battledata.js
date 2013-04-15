@@ -554,8 +554,10 @@ var Tools = {
 			if (!move.effectType) move.effectType = 'Move';
 			if (!move.secondaries && move.secondary) move.secondaries = [move.secondary];
 
-			if (!move.anim) move.anim = BattleOtherAnims.attack.anim;
-			$.extend(move, BattleMoveAnims[move.id]);
+			if (window.BattleMoveAnims) {
+				if (!move.anim) move.anim = BattleOtherAnims.attack.anim;
+				$.extend(move, BattleMoveAnims[move.id]);
+			}
 		}
 		return move;
 	},
@@ -624,6 +626,7 @@ var Tools = {
 			if (!template.forme) template.forme = '';
 			if (!template.formeLetter) template.formeLetter = '';
 			if (!template.spriteid) template.spriteid = toId(template.baseSpecies)+(template.baseSpecies!==name?'-'+toId(template.forme):'');
+			if (!template.effectType) template.effectType = 'Template';
 		}
 		return template;
 	},
