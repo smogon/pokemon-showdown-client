@@ -55,7 +55,11 @@ var me = (function() {
 					'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
 					'&challenge=' + encodeURIComponent(this.challenge);
 			if (Config.testclient) {
-				overlay('testclientgetassertion', { name: name, query: query });
+				overlay('testclientproxy', {
+					name: name,
+					query: query,
+					action: 'getassertion'
+				});
 				return;
 			}
 			if (name === '') {
@@ -68,21 +72,28 @@ var me = (function() {
 			rooms.lobby.send('/trn '+name);
 		}
 	};
+	me.finishUpkeepRename = Tools.safeJSON(function(data) {
+		if (!data.username) return;
+		if (data.loggedin) {
+			this.registered = {
+				username: data.username,
+				userid: toUserid(data.username)
+			};
+		}
+		finishRename(data.username, data.assertion);
+	});
 	me.upkeepRename = function() {
-		if (Config.testclient) return this.rename(''); // TODO: improve this
 		var query = me.getActionPHP() + '?act=upkeep' +
 				'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
 				'&challenge=' + encodeURIComponent(this.challenge);
-		$.get(query, Tools.safeJSON(function(data) {
-			if (!data.username) return;
-			if (data.loggedin) {
-				this.registered = {
-					username: data.username,
-					userid: toUserid(data.username)
-				};
-			}
-			finishRename(data.username, data.assertion);
-		}), 'text');
+		if (Config.testclient) {
+			overlay('testclientproxy', {
+				query: query,
+				action: 'upkeep'
+			});
+			return;
+		}
+		$.get(query, me.finishUpkeepRename, 'text');
 	};
 	me.logout = function() {
 		$.post(me.getActionPHP(), {
@@ -3205,7 +3216,7 @@ function overlay(overlayType, data) {
 
 		contents += '<p><button onclick="overlayClose();overlay(\'options\');return false">Cancel</button></p>';
 		break;
-	case 'testclientgetassertion':
+	case 'testclientproxy':
 		contents += '<p>Because of the <a href="https://en.wikipedia.org/wiki/Same-origin_policy" target="_blank">same-origin policy</a>, some manual work is required to log in using <code>testclient.html</code>.</p>';
 		contents += '<iframe id="overlay_iframe" src="' + data.query + '" style="width: 100%; height: 50px;" class="textbox"></iframe>';
 		contents += '<p>Please copy <strong>all the text</strong> from the box above and paste it in the box below. If the box above just shows a semi-colon (;), log in using the <a href="http://play.pokemonshowdown.com" target="_blank">official client</a> and then refresh this page.</p>';
@@ -3213,6 +3224,7 @@ function overlay(overlayType, data) {
 			contents += '<p><strong>' + data.error + '</strong></p>';
 		}
 		contents += '<input class="textbox" type="hidden" id="overlay_username" value="' + data.name + '" />';
+		contents += '<input class="textbox" type="hidden" id="overlay_action" value="' + data.action + '" />';
 		contents += '<p><label class="label">Data from the box above:</label> <input style="width: 100%;" class="textbox" type="text" id="overlay_assertion" /></p>';
 		contents += '<p><button type="submit"><strong>Log in</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		selectElem = '#overlay_assertion';
@@ -3344,17 +3356,22 @@ function overlaySubmit(e, overlayType) {
 		Tools.prefs.save();
 		overlayClose();
 		break;
-	case 'testclientgetassertion':
+	case 'testclientproxy':
+		var action = $('#overlay_action').val();
 		var assertion = $('#overlay_assertion').val();
 		var query = $('#overlay_iframe').attr('src');
 		var name = $('#overlay_username').val();
 		overlayClose();
-		if (!assertion.split(';')[1]) {
+		if (action === 'upkeep') {
+			me.finishUpkeepRename(assertion);
+		} else if (!assertion.split(';')[1]) {
 			// The user only selected part of the textbox.
-			overlay('testclientgetassertion', {
+			overlay('testclientproxy', {
 				name: name,
 				query: query,
-				error: 'You didn\'t select all the text last time. Try again.' });
+				error: 'You didn\'t select all the text last time. Try again.',
+				action: 'getassertion'
+			});
 		} else {
 			if (name === '') {
 				// Get the userid from the assertion (assume challenge-response).
