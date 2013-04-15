@@ -5031,7 +5031,7 @@ function Battle(frame, logFrame, noPreload) {
 				id: token,
 				url: url,
 				autoPlay: autoplay,
-				volume: 50,
+				volume: (typeof(Tools.prefs('volume')) === 'undefined') ? 50 : Tools.prefs('volume'),
 				onload: function () {
 					self.preloadDone++;
 					self.preloadCallback(self.preloadNeeded === self.preloadDone, self.preloadDone, self.preloadNeeded);
@@ -5103,7 +5103,7 @@ function Battle(frame, logFrame, noPreload) {
 				id: token,
 				url: url,
 				autoPlay: autoplay,
-				volume: 50,
+				volume: (typeof(Tools.prefs('volume')) === 'undefined') ? 50 : Tools.prefs('volume'),
 				onload: function () {
 					self.preloadDone++;
 					self.preloadCallback(self.preloadNeeded === self.preloadDone, self.preloadDone, self.preloadNeeded);
