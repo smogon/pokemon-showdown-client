@@ -1,8 +1,12 @@
 // some setting-like stuff
-Config.server = Config.server || 'sim.smogon.com';
-Config.serverport = Config.serverport || 8000;
-Config.serverprotocol = Config.serverprotocol || 'ws';
-Config.locPrefix = Config.locPrefix || '/'; // this is essentially obsolete now
+Config.defaultserver = {
+	server: 'sim.smogon.com',
+	serverid: 'showdown',
+	serverport: 8000,
+	serveraltport: 80,
+	serverprotocol: 'ws'
+};
+Config.locPrefix = '/'; // this is essentially obsolete now
 
 var me = (function() {
 	var me = {
@@ -3665,7 +3669,10 @@ teams = (function() {
 			};
 		}
 	};
-	if (!Config.crossdomain || !window.postMessage) {
+	if (!Config.psim || !window.postMessage) {
+		if (!Config.testclient) {
+			$.extend(Config, Config.defaultserver);
+		}
 		return connect();
 	}
 	var origin = 'http://play.pokemonshowdown.com';
@@ -3675,10 +3682,19 @@ teams = (function() {
 			var e = $e.originalEvent;
 			if (e.origin !== origin) return;
 			var data = $.parseJSON(e.data);
-			if (data.init) {
+			if (data.config) {
 				var postCrossDomainMessage = function(data) {
 					return e.source.postMessage($.toJSON(data), origin);
 				};
+				// server config information
+				// `data.config.serverprotocol` is ignored for now
+				$.extend(Config, data.config);
+				if (Config.customcss) {
+					var $link = $('<link rel="stylesheet" ' +
+						'href="//play.pokemonshowdown.com/customcss.php?server=' +
+						encodeURIComponent(Config.serverid) + '" />');
+					$('head').append($link);
+				}
 				// persistent username
 				me.setPersistentName = function() {
 					postCrossDomainMessage({username: this.name});
@@ -3728,8 +3744,8 @@ teams = (function() {
 		};
 	})());
 	var $iframe = $(
-		'<iframe src="//play.pokemonshowdown.com/crossdomain.html?' +
-		encodeURIComponent(Config.crossdomain) +
+		'<iframe src="//play.pokemonshowdown.com/crossdomain.php?prefix=' +
+		encodeURIComponent(Config.psim[1]) +
 		'" style="display: none;"></iframe>'
 	);
 	$('body').append($iframe);
