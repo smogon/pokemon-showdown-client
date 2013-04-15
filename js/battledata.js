@@ -467,25 +467,22 @@ var Tools = {
 
 	prefs: (function() {
 		var localStorageEntry = 'showdown_prefs';
-		var self = {
-			data: (window.localStorage && $.parseJSON(localStorage.getItem(localStorageEntry))) || {},
-			get: function(prop) {
-				return self.data[prop];
-			},
-			/**
-			 * Set a preference value.
-			 * Unless save is `false`, then also save to localStorage immediately.
-			 */
-			set: function(prop, value, save) {
-				self.data[prop] = value;
-				if (save !== false) self.save();
-			},
-			save: function() {
-				if (!window.localStorage) return;
-				localStorage.setItem(localStorageEntry, $.toJSON(self.data));
+		var prefs = function(prop, value, save) {
+			if (value === undefined) {
+				// get preference
+				return prefs.data[prop];
 			}
+			// set preference
+			prefs.data[prop] = value;
+			if (save !== false) prefs.save();
 		};
-		return self;
+		prefs.data = (window.localStorage &&
+			$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
+		prefs.save = function() {
+			if (!window.localStorage) return;
+			localStorage.setItem(localStorageEntry, $.toJSON(this.data));
+		};
+		return prefs;
 	})(),
 
 	getEffect: function(effect) {
@@ -678,7 +675,7 @@ var Tools = {
 		}
 
 		if (pokemon.shiny) back += '-shiny';
-		if (!Tools.prefs.get('noanim') && window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
+		if (!Tools.prefs('noanim') && window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
 			var url = Tools.resourcePrefix + 'sprites/bwani'+back;
 			url += '/'+spriteid;
 			var spriteType = 'ani';
