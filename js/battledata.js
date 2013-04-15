@@ -125,26 +125,8 @@ function hashColor(name) {
 	return colorCache[name];
 }
 
-// a few library functions
-function sanitize(str, jsEscapeToo) {
-	str = (str?''+str:'');
-	str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-	if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
-	return str;
-}
-function unsanitize(str) {
-	str = (str?''+str:'');
-	return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').
-		replace(/&lt;/g, '<').replace(/&amp;/g, '&');
-}
-function jsEscape(str) {
-	str = (str?''+str:'');
-	str = str.replace(/'/g, '\\\'');
-	return str;
-}
-
 function messageSanitize(str) {
-	str = sanitize(str);
+	str = Tools.escapeHTML(str);
 	// Don't format console commands (>>).
 	if (str.substr(0, 8) === '&gt;&gt;') return str;
 	// Don't format console results (<<).
@@ -163,18 +145,18 @@ function messageSanitize(str) {
 				event = 'External link';
 			} else {
 				event = 'Interstice link';
-				fulluri = sanitize(Tools.interstice.getURI(unsanitize(fulluri)));
+				fulluri = Tools.escapeHTML(Tools.interstice.getURI(Tools.unescapeHTML(fulluri)));
 			}
 			return '<a href="' + fulluri +
 				'" target="_blank" onclick="_gaq.push([\'_trackEvent\', \'' +
 				event +
-				'\', \'' + jsEscape(fulluri) + '\']);">' + uri + '</a>';
+				'\', \'' + Tools.escapeQuotes(fulluri) + '\']);">' + uri + '</a>';
 		}).
 		// google [blah]
 		// google[blah]
 		//   Google search for 'blah'
 		replace(/(\bgoogle ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
-			p2 = sanitize(encodeURIComponent(unsanitize(p2)));
+			p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 			return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p2 +
 				'" target="_blank">' + p1 + '</a>';
 		}).
@@ -182,21 +164,21 @@ function messageSanitize(str) {
 		// gl[blah
 		//   Google search for 'blah' and visit the first result ("I'm feeling lucky")
 		replace(/(\bgl ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
-			p2 = sanitize(encodeURIComponent(unsanitize(p2)));
+			p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 			return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + p2 +
 				'" target="_blank">' + p1 + '</a>';
 		}).
 		// wiki [blah]
 		//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
 		replace(/(\bwiki ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
-			p2 = sanitize(encodeURIComponent(unsanitize(p2)));
+			p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 			return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
 				p2 + '" target="_blank">' + p1 + '</a>';
 		}).
 		// [[blah]]
 		//   Short form of gl[[blah]]
 		replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, function(p0, p1) {
-			var q = sanitize(encodeURIComponent(unsanitize(p1)));
+			var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 			return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
 				'" target="_blank">' + p1 +'</a>';
 		}).
@@ -378,32 +360,26 @@ var Tools = {
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
-	interstice: (function() {
-		var patterns = (function(whitelist) {
-			var patterns = [];
-			for (var i = 0; i < whitelist.length; ++i) {
-				patterns.push(new RegExp('https?://([A-Za-z0-9-]*\\.)?' +
-					whitelist[i] +
-					'(/.*)?', 'i'));
-			}
-			return patterns;
-		})((Config && Config.whitelist) ? Config.whitelist : []);
-		return {
-			isWhitelisted: function(uri) {
-				for (var i = 0; i < patterns.length; ++i) {
-					if (patterns[i].test(uri)) {
-						return true;
-					}
-				}
-				return false;
-			},
-			getURI: function(uri) {
-				return 'http://www.pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
-			}
-		};
-	})(),
+	escapeHTML: function(str, jsEscapeToo) {
+		str = (str?''+str:'');
+		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
+		return str;
+	},
 
-	htmlSanitize: (function() {
+	unescapeHTML: function(str) {
+		str = (str?''+str:'');
+		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').
+			replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+	},
+
+	escapeQuotes: function(str) {
+		str = (str?''+str:'');
+		str = str.replace(/'/g, '\\\'');
+		return str;
+	},
+
+	sanitizeHTML: (function() {
 		var uriRewriter = function(uri) {
 			return uri;
 		};
@@ -457,7 +433,32 @@ var Tools = {
 		};
 	})(),
 
-	safeJson: function(f) {
+	interstice: (function() {
+		var patterns = (function(whitelist) {
+			var patterns = [];
+			for (var i = 0; i < whitelist.length; ++i) {
+				patterns.push(new RegExp('https?://([A-Za-z0-9-]*\\.)?' +
+					whitelist[i] +
+					'(/.*)?', 'i'));
+			}
+			return patterns;
+		})((Config && Config.whitelist) ? Config.whitelist : []);
+		return {
+			isWhitelisted: function(uri) {
+				for (var i = 0; i < patterns.length; ++i) {
+					if (patterns[i].test(uri)) {
+						return true;
+					}
+				}
+				return false;
+			},
+			getURI: function(uri) {
+				return 'http://www.pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
+			}
+		};
+	})(),
+
+	safeJSON: function(f) {
 		return function(data) {
 			if (data.length < 1) return;
 			if (data[0] == ']') data = data.substr(1);
@@ -525,7 +526,7 @@ var Tools = {
 				effect.exists = true;
 			}
 			if (!effect.id) effect.id = id;
-			if (!effect.name) effect.name = sanitize(name);
+			if (!effect.name) effect.name = Tools.escapeHTML(name);
 			if (!effect.category) effect.category = 'Effect';
 			if (!effect.effectType) effect.effectType = 'Effect';
 		}
@@ -546,7 +547,7 @@ var Tools = {
 			}
 
 			if (!move.id) move.id = id;
-			if (!move.name) move.name = sanitize(name);
+			if (!move.name) move.name = Tools.escapeHTML(name);
 
 			if (!move.critRatio) move.critRatio = 1;
 			if (!move.baseType) move.baseType = move.type;
@@ -566,7 +567,7 @@ var Tools = {
 			item = (window.BattleItems && window.BattleItems[id]) || {};
 			if (item.name) item.exists = true;
 			if (!item.id) item.id = id;
-			if (!item.name) item.name = sanitize(name);
+			if (!item.name) item.name = Tools.escapeHTML(name);
 			if (!item.category) item.category = 'Effect';
 			if (!item.effectType) item.effectType = 'Item';
 		}
@@ -580,7 +581,7 @@ var Tools = {
 			ability = (window.BattleAbilities && window.BattleAbilities[id]) || {};
 			if (ability.name) ability.exists = true;
 			if (!ability.id) ability.id = id;
-			if (!ability.name) ability.name = sanitize(name);
+			if (!ability.name) ability.name = Tools.escapeHTML(name);
 			if (!ability.category) ability.category = 'Effect';
 			if (!ability.effectType) ability.effectType = 'Ability';
 		}
@@ -616,7 +617,7 @@ var Tools = {
 				template.learnset = window.BattleLearnsets[id].learnset;
 			}
 			if (!template.id) template.id = id;
-			if (!template.name) template.name = name = sanitize(name);
+			if (!template.name) template.name = name = Tools.escapeHTML(name);
 			if (!template.speciesid) template.speciesid = id;
 			if (!template.species) template.species = name;
 			if (!template.baseSpecies) template.baseSpecies = name;
