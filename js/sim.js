@@ -1383,7 +1383,7 @@ function Lobby(id, elem) {
 			return text; // Send the /avatar command through to the server.
 		
 		case 'volume':
-			vol = parseInt(target);
+			var vol = parseInt(target);
 			if(isNaN(vol)) {
 				rooms.lobby.add('Please enter a valid number between 1 and 100');
 				return false;
