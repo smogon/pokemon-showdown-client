@@ -4184,6 +4184,7 @@ function Battle(frame, logFrame, noPreload) {
 			
 			default:
 				self.logConsole('Unknown minor: ' + args[0]);
+				if (self.errorCallback) self.errorCallback(self);
 				break;
 			}
 		}
@@ -4690,6 +4691,7 @@ function Battle(frame, logFrame, noPreload) {
 		default:
 			self.logConsole('unknown command: ' + args[0]);
 			self.log('<div>Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
+			if (self.errorCallback) self.errorCallback(self);
 			break;
 		}
 	};
@@ -4751,6 +4753,7 @@ function Battle(frame, logFrame, noPreload) {
 				} else {
 					self.log('<div class="chat">Error: ' + Tools.escapeHTML(''+e) + '</div>', preempt);
 				}
+				if (self.errorCallback) self.errorCallback(self);
 			}
 		} else {
 			self.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
@@ -4972,6 +4975,7 @@ function Battle(frame, logFrame, noPreload) {
 	this.stagnateCallback = null;
 	this.endCallback = null;
 	this.customCallback = null;
+	this.errorCallback = null;
 
 	// external
 	this.resumeButton = this.play;
