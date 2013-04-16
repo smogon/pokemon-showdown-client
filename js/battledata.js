@@ -652,6 +652,21 @@ var Tools = {
 		return learnset;
 	},
 	
+	getType: function(type) {
+		if (!type || typeof type === 'string') {
+			var id = toId(type);
+			id = id.substr(0,1).toUpperCase() + id.substr(1);
+			type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
+			if (type.damageTaken) type.exists = true;
+			if (!type.id) type.id = id;
+			if (!type.name) type.name = id;
+			if (!type.effectType) {
+				type.effectType = 'Type';
+			}
+		}
+		return type;
+	},
+
 	getSpriteData: function(pokemon, siden, options) {
 		pokemon = Tools.getTemplate(pokemon);
 		var isBack = !siden;
