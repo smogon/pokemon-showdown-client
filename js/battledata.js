@@ -85,37 +85,15 @@ var colorCache = {};
 
 function hashColor(name) {
 	if (colorCache[name]) return colorCache[name];
-	
-	var hash = MD5(name);
-	// and now, we are handling username color requests
-	if (name === 'drielmei') hash = MD5('drielme');
-	if (name === 'theimmortal') hash = MD5('taco');
-	if (name === 'bmelts') hash = MD5('testmelts');
-	if (name === 'zarel') hash = MD5('aeo');
-	if (name === 'zarell') hash = MD5('aeo');
-	if (name === 'greatsage') hash = MD5('test454');
-	if (name === 'snowflakes') hash = MD5('snowflake');
-	if (name === 'jumpluff') hash = MD5('zacchaeus');
-	if (name === 'zacchaeus') hash = MD5('jumpluff');
-	if (name === 'kraw') hash = MD5('kraw1');
-	if (name === 'growlithe') hash = MD5('steamroll');
-	if (name === 'snowflakes') hash = MD5('endedinariot');
-	if (name === 'doomvendingmachine') hash = MD5('theimmortal');
-	if (name === 'mikel') hash = MD5('mikkel');
-	if (name === 'arcticblast') hash = MD5('rsem');
-	if (name === 'mjb') hash = MD5('thefourthchaser');
-	if (name === 'thefourthchaser') hash = MD5('mjb');
-	if (name === 'mikedecishere') hash = MD5('aoswmike');
-	if (name === 'heartsonfire') hash = MD5('haatsuonfaiyaa');
-	if (name === 'limi') hash = MD5('azure2');
-	if (name === 'haunter') hash = MD5('cathy');
-	if (name === 'ginganinja') hash = MD5('piratesandninjas');
-	if (name === 'aurora') hash = MD5('c6n6fek');
-	if (name === 'solace') hash = MD5('amorlan');
-	if (name === 'jdarden') hash = MD5('dragonair');
-	if (name === 'queenofrandoms') hash = MD5('hahaqor');
-	if (name === 'jelandee') hash = MD5('ericbreviglieri');
-	if (name === 'cathy') return colorCache[name] = 'color:#ff5cb6;';
+	var hash;
+	if (window.Config && Config.customcolors && Config.customcolors[name]) {
+		if (Config.customcolors[name].color) {
+			return colorCache[name] = 'color:' + Config.customcolors[name].color + ';';
+		}
+		hash = MD5(Config.customcolors[name]);
+	} else {
+		hash = MD5(name);
+	}
 	var H = parseInt(hash.substr(4, 4), 16) % 360;
 	var S = parseInt(hash.substr(0, 4), 16) % 50 + 50;
 	var L = parseInt(hash.substr(8, 4), 16) % 20 + 25;
