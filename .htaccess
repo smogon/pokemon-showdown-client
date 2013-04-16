@@ -34,8 +34,21 @@ RewriteRule ^sim\.php$ / [R=301,L]
 
 #RewriteRule ^([A-Za-z0-9-]*)$ closed.php [L,QSA]
 
-RewriteRule ^(teambuilder|ladder|lobby|battle)/?$ index.php [L,QSA]
-RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ index.php [L,QSA]
+RewriteRule ^$ - [E=NOCACHE]
+RewriteRule ^(teambuilder|ladder|lobby|battle)/?$ ./ [L,QSA,E=NOCACHE]
+RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ ./ [L,QSA,E=NOCACHE]
+
+# Request clients not to cache the index.
+Header set Cache-Control "no-cache, no-store, must-revalidate" env=NOCACHE
+Header set Pragma "no-cache" env=NOCACHE
+Header set Expires "0" env=NOCACHE
+
+# No direct linking to the lobby.
+RewriteCond %{REQUEST_URI} ^/(lobby)?$
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
+RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
+RewriteRule ^.* http://www.pokemonshowdown.com/ [R=303,L]
 
 RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http://pokemonshowdown.com/replay/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
@@ -51,7 +64,7 @@ RewriteRule ^githooks/ - [F]
 
 RewriteRule ^\.gitignore$ - [F]
 RewriteRule ^README\.md$ - [F]
-RewriteRule ^index\.php\.template\.txt$ - [F]
+RewriteRule ^index\.template\.html$ - [F]
 RewriteRule ^testclient\.html$ - [F]
 
 </IfModule>
