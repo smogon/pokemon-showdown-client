@@ -14,7 +14,9 @@ $.ajax({
 	},
 	crossDomain: true
 }).done(function(data) {
-	$.cookie('assertion', data);
+	var date = new Date();
+	date.setTime(+date + 15 * 60 * 1000)
+	$.cookie('assertion', data, {expires: date});
 	if (location.search) {
 		document.location.replace(decodeURIComponent(location.search.substr(1)));
 	} else {
