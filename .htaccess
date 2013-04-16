@@ -35,8 +35,9 @@ RewriteRule ^sim\.php$ / [R=301,L]
 #RewriteRule ^([A-Za-z0-9-]*)$ closed.php [L,QSA]
 
 RewriteRule ^$ - [E=NOCACHE]
-RewriteRule ^(teambuilder|ladder|lobby|battle)/?$ ./ [L,QSA,E=NOCACHE]
-RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ ./ [L,QSA,E=NOCACHE]
+RewriteRule ^(teambuilder|ladder|lobby|battle)$ ./ [L,E=NOCACHE]
+RewriteRule ^(teambuilder|ladder|lobby|battle)/$ /$1 [R=301,L]
+RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ ./ [L,E=NOCACHE]
 
 # Request clients not to cache the index.
 Header set Cache-Control "no-cache, no-store, must-revalidate" env=NOCACHE
