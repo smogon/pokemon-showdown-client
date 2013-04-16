@@ -15,9 +15,9 @@ function replaceMatch($m) {
 	return "${m[1]}=\"/${m[2]}?${hash}\"";
 }
 
-file_put_contents('index.php',
+file_put_contents('index.html',
 	preg_replace_callback('/(src|href)="\/(.*?)\?[a-z0-9]*?"/',
 		'replaceMatch',
-		file_get_contents('index.php.template.txt'))
+		file_get_contents('index.template.html'))
 	);
 
