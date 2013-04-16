@@ -1,7 +1,8 @@
 <?php
 $config = array();
-$config['server'] = strval(@$_REQUEST['prefix']);
-if (!preg_match('/^[a-zA-Z0-9-_\.]*$/', $config['server'])) die;
+$config['server'] = strtolower(strval(@$_REQUEST['prefix']));
+if (!preg_match('/^[a-z0-9-_\.]*$/', $config['server'])) die;
+if ($config['server'] === 'logs') die;
 $origin = 'http://' . $config['server'] . '.psim.us';
 
 include_once '../pokemonshowdown.com/config/servers.inc.php';
