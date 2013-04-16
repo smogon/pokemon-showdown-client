@@ -24,32 +24,36 @@
 	// Search functions
 	//
 
-	Search.prototype.q = '';
+	Search.prototype.q = null;
 	var typeTable = {
 		pokemon: 0,
-		move: 1,
-		item: 2,
-		ability: 3
+		type: 1,
+		move: 2,
+		item: 3,
+		ability: 4,
+		category: 5
 	};
 	var typeName = {
 		pokemon: 'Pokemon',
+		type: 'Type',
 		move: 'Moves',
 		item: 'Items',
-		ability: 'Abilities'
+		ability: 'Abilities',
+		category: 'Category'
 	};
 	Search.prototype.find = function(query) {
 		query = toId(query);
 
 		if (query === this.q) {
-			return;
+			return false;
 		}
 		this.q = query;
 		if (!query) {
-			this.$el.html('');
-			return;
+			this.el.innerHTML = '';
+			return true;
 		}
 
-		var i = this.getClosest(query);
+		var i = Search.getClosest(query);
 		if (!BattleSearchIndex[i]) i--;
 
 		var bufs = ['','','',''];
@@ -59,19 +63,21 @@
 			var type = BattleSearchIndexType[i+j];
 			var matchLength = query.length;
 
+			if (!id) break;
 			if (id.substr(0,query.length) !== query) {
 				if (j) break;
 				matchLength = 0;
 			}
 
 			if (!bufs[typeTable[type]]) bufs[typeTable[type]] = '<li><h3>'+typeName[type]+'</h3></li>';
-			bufs[typeTable[type]] += this.renderRow(id, type, 0, matchLength + (BattleSearchIndexOffset[i+j][matchLength-1]||'0').charCodeAt(0)-48);
+			bufs[typeTable[type]] += Search.renderRow(id, type, 0, matchLength + (BattleSearchIndexOffset[i+j][matchLength-1]||'0').charCodeAt(0)-48);
 		}
 
-		this.$el.html('<ul class="utilichart">'+bufs.join('')+'</ul>');
+		this.el.innerHTML = '<ul class="utilichart">'+bufs.join('')+'</ul>';
+		return true;
 	};
 
-	Search.prototype.getClosest = function(query) {
+	Search.getClosest = function(query) {
 		// binary search through the index!
 		var left = 0;
 		var right = BattleSearchIndex.length - 1;
@@ -91,48 +97,39 @@
 
 	//
 	// Rendering functions
+	// 
+	// These are all static!
 	//
 
-	Search.prototype.renderRow = function(id, type, matchStart, matchLength, errorMessage) {
+	Search.urlRoot = '';
+
+	Search.renderRow = function(id, type, matchStart, matchLength, errorMessage) {
 		switch (type) {
 		case 'pokemon':
-			var pokemon = Tools.getTemplate(id);
-			return this.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage);
+			var pokemon = BattlePokedex[id];
+			return Search.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage);
 		case 'move':
-			var move = Tools.getMove(id);
-			return this.renderMoveRow(move, matchStart, matchLength, errorMessage);
+			var move = BattleMovedex[id];
+			return Search.renderMoveRow(move, matchStart, matchLength, errorMessage);
 		case 'item':
-			var item = Tools.getItem(id);
-			return this.renderItemRow(item, matchStart, matchLength, errorMessage);
+			var item = BattleItems[id];
+			return Search.renderItemRow(item, matchStart, matchLength, errorMessage);
 		case 'ability':
-			var ability = Tools.getAbility(id);
-			return this.renderAbilityRow(ability, matchStart, matchLength, errorMessage);
+			var ability = BattleAbilities[id];
+			return Search.renderAbilityRow(ability, matchStart, matchLength, errorMessage);
+		case 'type':
+			var type = {name: id[0].toUpperCase()+id.substr(1)};
+			return Search.renderTypeRow(type, matchStart, matchLength, errorMessage);
+		case 'category':
+			var category = {name: id[0].toUpperCase()+id.substr(1)};
+			return Search.renderCategoryRow(category, matchStart, matchLength, errorMessage);
 		}
 		return 'Error: not found';
 	};
-	Search.prototype.renderRowByIdLength = function(id, type, idMatchLength, errorMessage) {
-		switch (type) {
-		case 'pokemon':
-			var pokemon = Tools.getTemplate(id);
-			idMatchLength += pokemon.species.substr(0, idMatchLength).replace(/[a-zA-Z0-9]+/,'').length;
-			return this.renderPokemonRow(pokemon, 0, idMatchLength, errorMessage);
-		case 'move':
-			var move = Tools.getMove(id);
-			idMatchLength += move.name.substr(0, idMatchLength).replace(/[a-zA-Z0-9]+/,'').length;
-			return this.renderMoveRow(move, 0, idMatchLength, errorMessage);
-		case 'item':
-			var item = Tools.getItem(id);
-			idMatchLength += item.name.substr(0, idMatchLength).replace(/[a-zA-Z0-9]+/,'').length;
-			return this.renderItemRow(item, 0, idMatchLength, errorMessage);
-		case 'ability':
-			var ability = Tools.getAbility(id);
-			idMatchLength += ability.name.substr(0, idMatchLength).replace(/[a-zA-Z0-9]+/,'').length;
-			return this.renderAbilityRow(ability, 0, idMatchLength, errorMessage);
-		}
-		return 'Error: not found';
-	};
-	Search.prototype.renderPokemonRow = function(pokemon, matchStart, matchLength, errorMessage) {
-		var buf = '<li class="result"><a data-name="'+Tools.escapeHTML(pokemon.species)+'">';
+	Search.renderPokemonRow = function(pokemon, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'pokemon/'+toId(pokemon.species)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
 
 		// number
 		buf += '<span class="col numcol">'+(pokemon.num)+'</span> ';
@@ -213,8 +210,10 @@
 		return buf;
 	};
 
-	Search.prototype.renderItemRow = function(item, matchStart, matchLength, errorMessage) {
-		var buf = '<li class="result"><a data-name="'+Tools.escapeHTML(item.name)+'">';
+	Search.renderItemRow = function(item, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'item/'+toId(item.name)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(item.name)+'">';
 
 		// icon
 		buf += '<span class="col itemiconcol">';
@@ -242,8 +241,10 @@
 
 		return buf;
 	};
-	Search.prototype.renderAbilityRow = function(ability, matchStart, matchLength, errorMessage) {
-		var buf = '<li class="result"><a data-name="'+Tools.escapeHTML(ability.name)+'">';
+	Search.renderAbilityRow = function(ability, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'ability/'+toId(ability.name)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(ability.name)+'">';
 
 		// name
 		var name = ability.name;
@@ -258,15 +259,17 @@
 			buf += '</a></li>';
 			return buf;
 		}
-		
+
 		buf += '<span class="col abilitydesccol">'+Tools.escapeHTML(ability.shortDesc || ability.desc)+'</span> ';
-		
+
 		buf += '</a></li>';
-		
+
 		return buf;
 	};
-	Search.prototype.renderMoveRow = function(move, matchStart, matchLength, errorMessage) {
-		var buf = '<li class="result"><a data-name="'+Tools.escapeHTML(move.name)+'">';
+	Search.renderMoveRow = function(move, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'move/'+toId(move.name)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
 
 		// name
 		var name = move.name;
@@ -307,6 +310,87 @@
 
 		// desc
 		buf += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
+
+		buf += '</a></li>';
+
+		return buf;
+	};
+	Search.renderAbilityRow = function(ability, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'ability/'+toId(ability.name)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(ability.name)+'">';
+
+		// name
+		var name = ability.name;
+		if (matchLength) {
+			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+		}
+		buf += '<span class="col namecol">'+name+'</span> ';
+
+		// error
+		if (errorMessage) {
+			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '</a></li>';
+			return buf;
+		}
+		
+		buf += '<span class="col abilitydesccol">'+Tools.escapeHTML(ability.shortDesc || ability.desc)+'</span> ';
+		
+		buf += '</a></li>';
+		
+		return buf;
+	};
+	Search.renderTypeRow = function(type, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'type/'+toId(type.name)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(type.name)+'">';
+
+		// name
+		var name = type.name;
+		if (matchLength) {
+			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+		}
+		buf += '<span class="col namecol">'+name+'</span> ';
+
+		// error
+		if (errorMessage) {
+			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '</a></li>';
+			return buf;
+		}
+
+		// type
+		buf += '<span class="col typecol">';
+		buf += Tools.getTypeIcon(type.name);
+		buf += '</span> ';
+
+		buf += '</a></li>';
+
+		return buf;
+	};
+	Search.renderCategoryRow = function(category, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'category/'+toId(category.name)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(category.name)+'">';
+
+		// name
+		var name = category.name;
+		if (matchLength) {
+			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+		}
+		buf += '<span class="col namecol">'+name+'</span> ';
+
+		// error
+		if (errorMessage) {
+			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '</a></li>';
+			return buf;
+		}
+
+		// category
+		buf += '<span class="col typecol">';
+		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+category.name+'.png" alt="'+category.name+'" height="14" width="32" />';
+		buf += '</span> ';
 
 		buf += '</a></li>';
 
