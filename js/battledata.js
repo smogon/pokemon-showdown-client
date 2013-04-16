@@ -608,6 +608,7 @@ var Tools = {
 				template.exists = false;
 			}
 			template = window.BattlePokedex[id];
+			if (template.species) name = template.species;
 			if (template.exists === undefined) template.exists = true;
 			if (window.BattleFormatsData && window.BattleFormatsData[id]) {
 				template.tier = window.BattleFormatsData[id].tier;
