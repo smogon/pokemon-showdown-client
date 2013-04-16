@@ -42,6 +42,7 @@
 // });
 
 exports.BattleSearchIndex = [
+"abomasnow",
 "abra",
 "absol",
 "absorb",
@@ -1747,6 +1748,7 @@ exports.BattleSearchIndex = [
 exports.BattleSearchIndexType = [
 "pokemon",
 "pokemon",
+"pokemon",
 "move",
 "item",
 "pokemon",
@@ -3448,6 +3450,7 @@ exports.BattleSearchIndexType = [
 ];
 
 exports.BattleSearchIndexOffset = [
+"",
 "",
 "",
 "",
