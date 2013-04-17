@@ -677,11 +677,11 @@ button.closebutton i
 	height: auto;
 	width: auto;
 	background: #edf1f4 url(//play.pokemonshowdown.com/data/meloettabg.png) no-repeat scroll right bottom;
+	overflow-x: hidden;
 }
 .battle-log
 {
 	word-wrap: break-word;
-	overflow-x: hidden;
 }
 .sidelobbychat .battle-log,
 .huge-layout .sidelobbychat .battle-log
