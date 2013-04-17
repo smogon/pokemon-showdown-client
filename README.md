@@ -12,13 +12,13 @@ WARNING: You probably want the [Pokemon Showdown server][1].
 Testing
 ------------------------------------------------------------------------
 
-You can make and test client changes simply by opening `testclient.html`.
+You can make and test client changes simply by opening `index.template.html`.
 This will allow you to test changes to the client without setting up your
 own login server.
 
 You can connect to an arbitrary server by navigating to
-`testclient.html?~~host:port`. For example, to connect to a server running
-locally on port 8000, you can navigate to `testclient.html?~~localhost:8000`.
+`index.template.html?host:port`. For example, to connect to a server running
+locally on port 8000, you can navigate to `index.template.html?localhost:8000`.
 
 Certain things will fail:
 
