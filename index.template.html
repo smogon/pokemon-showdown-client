@@ -3,19 +3,24 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<title>Showdown!</title>
-		<link rel="shortcut icon" href="//play.pokemonshowdown.com/favicon.ico" id="dynamic-favicon" />
-		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/sim.css?" />
-		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/sim-types.css" />
-		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/battle.css?" />
-		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/utilichart.css" />
-		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/font-awesome.css" />
-		<meta id="viewport" name="viewport" content="width=640"/>
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+		<base href="http://play.pokemonshowdown.com/" id="base" />
 		<script>
 			var Config = {
-				psim: /^(.*)\.psim\.us$/i.exec(document.location.hostname)
+				psim: /^(.*)\.psim\.us$/i.exec(document.location.hostname),
+				testclient: (document.location.protocol === 'file:')
 			};
+			if (Config.testclient) (function(base) {
+				base.parentNode.removeChild(base);
+			})(document.getElementById('base'));
 		</script>
+		<link rel="shortcut icon" href="favicon.ico" id="dynamic-favicon" />
+		<link rel="stylesheet" href="style/sim.css?" />
+		<link rel="stylesheet" href="style/sim-types.css" />
+		<link rel="stylesheet" href="style/battle.css?" />
+		<link rel="stylesheet" href="style/utilichart.css" />
+		<link rel="stylesheet" href="style/font-awesome.css" />
+		<meta id="viewport" name="viewport" content="width=640"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 		<script>
 			var _gaq = _gaq || [];
 			if (!Config.psim) {
@@ -54,7 +59,7 @@
 		<![endif]-->
 
 		<div id="simheader">
-			<h1 style="margin-top:2px;margin-right:10em;padding-top:0;"><img src="//play.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /></h1>
+			<h1 style="margin-top:2px;margin-right:10em;padding-top:0;"><img src="pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /></h1>
 		</div>
 		<div id="leftbarbg"><div><span></span></div></div>
 		<div id="leftbar">
@@ -78,49 +83,49 @@
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading libraries...';
 		</script>
-		<script src="//play.pokemonshowdown.com/js/jquery-1.9.0.min.js"></script>
-		<script src="//play.pokemonshowdown.com/js/jquery-cookie.js"></script>
-		<script src="//play.pokemonshowdown.com/js/autoresize.jquery.min.js"></script>
-		<script src="//play.pokemonshowdown.com/js/jquery.json-2.3.min.js"></script>
-		<script src="//play.pokemonshowdown.com/js/soundmanager2-nodebug-jsmin.js"></script>
+		<script src="js/jquery-1.9.0.min.js"></script>
+		<script src="js/jquery-cookie.js"></script>
+		<script src="js/autoresize.jquery.min.js"></script>
+		<script src="js/jquery.json-2.3.min.js"></script>
+		<script src="js/soundmanager2-nodebug-jsmin.js"></script>
 		<script>
-			soundManager.setup({url: '//play.pokemonshowdown.com/swf/'});
+			soundManager.setup({url: 'swf/'});
 		</script>
-		<script src="//play.pokemonshowdown.com/js/html-sanitizer-minified.js"></script>
+		<script src="js/html-sanitizer-minified.js"></script>
 
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading client...';
 			document.getElementById('loading-message').innerHTML = 'If the client is taking a long time to load, try refreshing in a few minutes. If it still doesn\'t work, Pokemon Showdown may be down for maintenance. We apologize for the inconvenience.<br /><br />'+document.getElementById('loading-message').innerHTML;
 		</script>
 
-		<script src="//play.pokemonshowdown.com/js/config.js?"></script>
-		<script src="//play.pokemonshowdown.com/js/battledata.js?"></script>
-		<script src="//play.pokemonshowdown.com/data/pokedex-mini.js?"></script>
-		<script src="//play.pokemonshowdown.com/js/battle.js?"></script>
-		<script src="//play.pokemonshowdown.com/js/sockjs-0.3.min.js"></script>
-		<script src="//play.pokemonshowdown.com/js/teambuilder.js?"></script>
-		<script src="//play.pokemonshowdown.com/js/ladder.js?"></script>
-		<script src="//play.pokemonshowdown.com/js/sim.js?"></script>
+		<script src="js/config.js?"></script>
+		<script src="js/battledata.js?"></script>
+		<script src="data/pokedex-mini.js?"></script>
+		<script src="js/battle.js?"></script>
+		<script src="js/sockjs-0.3.min.js"></script>
+		<script src="js/teambuilder.js?"></script>
+		<script src="js/ladder.js?"></script>
+		<script src="js/sim.js?"></script>
 
 		<script>
 			if (!teams) Config.down = true;
 			if (Config.down) overlay('down');
 		</script>
 		
-		<script src="//play.pokemonshowdown.com/data/learnsets.js?"></script>
+		<script src="data/learnsets.js?"></script>
 		
-		<script src="//play.pokemonshowdown.com/data/graphics.js?"></script>
-		<script src="//play.pokemonshowdown.com/data/pokedex.js?"></script>
-		<script src="//play.pokemonshowdown.com/data/formats-data.js?"></script>
-		<script src="//play.pokemonshowdown.com/data/moves.js?"></script>
-		<script src="//play.pokemonshowdown.com/data/items.js?"></script>
-		<script src="//play.pokemonshowdown.com/data/abilities.js?"></script>
-		<script src="//play.pokemonshowdown.com/data/formats.js?"></script>
-		<script src="//play.pokemonshowdown.com/data/typechart.js?"></script>
+		<script src="data/graphics.js?"></script>
+		<script src="data/pokedex.js?"></script>
+		<script src="data/formats-data.js?"></script>
+		<script src="data/moves.js?"></script>
+		<script src="data/items.js?"></script>
+		<script src="data/abilities.js?"></script>
+		<script src="data/formats.js?"></script>
+		<script src="data/typechart.js?"></script>
 		
-		<script src="//play.pokemonshowdown.com/js/utilichart.js?"></script>
+		<script src="js/utilichart.js?"></script>
 		
-		<script src="//play.pokemonshowdown.com/data/aliases.js?" async="async"></script>
+		<script src="data/aliases.js?" async="async"></script>
 		<script>
 			updateResize();
 			if (init) init();
