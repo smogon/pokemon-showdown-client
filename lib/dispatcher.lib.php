@@ -98,7 +98,7 @@ class ActionDispatcher {
 		foreach ($this->reqs as $this->reqData) {
 			$this->reqData = array_merge($_REQUEST, $this->reqData);
 			$action = @$this->reqData['act'];
-			if (!ctype_alnum($action)) die('{"error":"invalid action"}');
+			if (!ctype_alnum($action)) die;
 			$out = array(
 				'action' => $action
 			);
@@ -112,11 +112,15 @@ class ActionDispatcher {
 			if ($this->multiReqs) $outArray[] = $out;
 		}
 		// json output
+		if ($this->outPrefix !== '') {
+			// Technically this is not JSON because of the initial prefix.
+			header('Content-Type: text/plain; charset=utf-8');
+		} else {
+			header('Content-Type: application/json');
+		}
 		if ($this->multiReqs) {
-			header('Content-type: application/json');
 			die($this->outPrefix . json_encode($outArray));
 		} else {
-			header('Content-type: application/json');
 			die($this->outPrefix . json_encode($out));
 		}
 	}
@@ -202,7 +206,7 @@ class DefaultActionHandler {
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
-		header('Content-type: text/plain; charset=utf-8');
+		header('Content-Type: text/plain; charset=utf-8');
 		if (empty($reqData['userid'])) {
 			$userid = $curuser['userid'];
 			if ($userid === 'guest') {
@@ -316,6 +320,7 @@ class DefaultActionHandler {
 		global $db;
 
 		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
+		header('Content-Type: text/plain; charset=utf-8');
 		if (!isset($_POST['id'])) die('ID needed');
 		$id = $_POST['id'];
 
