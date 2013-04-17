@@ -99,9 +99,7 @@ class ActionDispatcher {
 			$this->reqData = array_merge($_REQUEST, $this->reqData);
 			$action = @$this->reqData['act'];
 			if (!ctype_alnum($action)) die;
-			$out = array(
-				'action' => $action
-			);
+			$out = array();
 
 			foreach ($this->handlers as &$i) {
 				if (is_callable(array($i, $action))) {
