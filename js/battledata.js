@@ -7,8 +7,6 @@ License: MIT License
 
 if (!window.exports) window.exports = window;
 
-var _gaq = _gaq || [];
-
 // todo: http://www.youtube.com/watch?v=eEwAPnIev38
 // 32.930 - 1:13.032
 // 32930 to 73032
@@ -87,37 +85,15 @@ var colorCache = {};
 
 function hashColor(name) {
 	if (colorCache[name]) return colorCache[name];
-	
-	var hash = MD5(name);
-	// and now, we are handling username color requests
-	if (name === 'drielmei') hash = MD5('drielme');
-	if (name === 'theimmortal') hash = MD5('taco');
-	if (name === 'bmelts') hash = MD5('testmelts');
-	if (name === 'zarel') hash = MD5('aeo');
-	if (name === 'zarell') hash = MD5('aeo');
-	if (name === 'greatsage') hash = MD5('test454');
-	if (name === 'snowflakes') hash = MD5('snowflake');
-	if (name === 'jumpluff') hash = MD5('zacchaeus');
-	if (name === 'zacchaeus') hash = MD5('jumpluff');
-	if (name === 'kraw') hash = MD5('kraw1');
-	if (name === 'growlithe') hash = MD5('steamroll');
-	if (name === 'snowflakes') hash = MD5('endedinariot');
-	if (name === 'doomvendingmachine') hash = MD5('theimmortal');
-	if (name === 'mikel') hash = MD5('mikkel');
-	if (name === 'arcticblast') hash = MD5('rsem');
-	if (name === 'mjb') hash = MD5('thefourthchaser');
-	if (name === 'thefourthchaser') hash = MD5('mjb');
-	if (name === 'mikedecishere') hash = MD5('aoswmike');
-	if (name === 'heartsonfire') hash = MD5('haatsuonfaiyaa');
-	if (name === 'limi') hash = MD5('azure2');
-	if (name === 'haunter') hash = MD5('cathy');
-	if (name === 'ginganinja') hash = MD5('piratesandninjas');
-	if (name === 'aurora') hash = MD5('c6n6fek');
-	if (name === 'solace') hash = MD5('amorlan');
-	if (name === 'jdarden') hash = MD5('dragonair');
-	if (name === 'queenofrandoms') hash = MD5('hahaqor');
-	if (name === 'jelandee') hash = MD5('ericbreviglieri');
-	if (name === 'cathy') return colorCache[name] = 'color:#ff5cb6;';
+	var hash;
+	if (window.Config && Config.customcolors && Config.customcolors[name]) {
+		if (Config.customcolors[name].color) {
+			return colorCache[name] = 'color:' + Config.customcolors[name].color + ';';
+		}
+		hash = MD5(Config.customcolors[name]);
+	} else {
+		hash = MD5(name);
+	}
 	var H = parseInt(hash.substr(4, 4), 16) % 360;
 	var S = parseInt(hash.substr(0, 4), 16) % 50 + 50;
 	var L = parseInt(hash.substr(8, 4), 16) % 20 + 25;
@@ -125,26 +101,8 @@ function hashColor(name) {
 	return colorCache[name];
 }
 
-// a few library functions
-function sanitize(str, jsEscapeToo) {
-	str = (str?''+str:'');
-	str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-	if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
-	return str;
-}
-function unsanitize(str) {
-	str = (str?''+str:'');
-	return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').
-		replace(/&lt;/g, '<').replace(/&amp;/g, '&');
-}
-function jsEscape(str) {
-	str = (str?''+str:'');
-	str = str.replace(/'/g, '\\\'');
-	return str;
-}
-
 function messageSanitize(str) {
-	str = sanitize(str);
+	str = Tools.escapeHTML(str);
 	// Don't format console commands (>>).
 	if (str.substr(0, 8) === '&gt;&gt;') return str;
 	// Don't format console results (<<).
@@ -163,18 +121,18 @@ function messageSanitize(str) {
 				event = 'External link';
 			} else {
 				event = 'Interstice link';
-				fulluri = sanitize(Tools.interstice.getURI(unsanitize(fulluri)));
+				fulluri = Tools.escapeHTML(Tools.interstice.getURI(Tools.unescapeHTML(fulluri)));
 			}
 			return '<a href="' + fulluri +
-				'" target="_blank" onclick="_gaq.push([\'_trackEvent\', \'' +
+				'" target="_blank" onclick="if (window._gaq) _gaq.push([\'_trackEvent\', \'' +
 				event +
-				'\', \'' + jsEscape(fulluri) + '\']);">' + uri + '</a>';
+				'\', \'' + Tools.escapeQuotes(fulluri) + '\']);">' + uri + '</a>';
 		}).
 		// google [blah]
 		// google[blah]
 		//   Google search for 'blah'
 		replace(/(\bgoogle ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
-			p2 = sanitize(encodeURIComponent(unsanitize(p2)));
+			p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 			return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p2 +
 				'" target="_blank">' + p1 + '</a>';
 		}).
@@ -182,21 +140,21 @@ function messageSanitize(str) {
 		// gl[blah
 		//   Google search for 'blah' and visit the first result ("I'm feeling lucky")
 		replace(/(\bgl ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
-			p2 = sanitize(encodeURIComponent(unsanitize(p2)));
+			p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 			return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + p2 +
 				'" target="_blank">' + p1 + '</a>';
 		}).
 		// wiki [blah]
 		//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
 		replace(/(\bwiki ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
-			p2 = sanitize(encodeURIComponent(unsanitize(p2)));
+			p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 			return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
 				p2 + '" target="_blank">' + p1 + '</a>';
 		}).
 		// [[blah]]
 		//   Short form of gl[[blah]]
 		replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, function(p0, p1) {
-			var q = sanitize(encodeURIComponent(unsanitize(p1)));
+			var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 			return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
 				'" target="_blank">' + p1 +'</a>';
 		}).
@@ -378,32 +336,26 @@ var Tools = {
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
-	interstice: (function() {
-		var patterns = (function(whitelist) {
-			var patterns = [];
-			for (var i = 0; i < whitelist.length; ++i) {
-				patterns.push(new RegExp('https?://([A-Za-z0-9-]*\\.)?' +
-					whitelist[i] +
-					'(/.*)?', 'i'));
-			}
-			return patterns;
-		})((Config && Config.whitelist) ? Config.whitelist : []);
-		return {
-			isWhitelisted: function(uri) {
-				for (var i = 0; i < patterns.length; ++i) {
-					if (patterns[i].test(uri)) {
-						return true;
-					}
-				}
-				return false;
-			},
-			getURI: function(uri) {
-				return 'http://www.pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
-			}
-		};
-	})(),
+	escapeHTML: function(str, jsEscapeToo) {
+		str = (str?''+str:'');
+		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
+		return str;
+	},
 
-	htmlSanitize: (function() {
+	unescapeHTML: function(str) {
+		str = (str?''+str:'');
+		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').
+			replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+	},
+
+	escapeQuotes: function(str) {
+		str = (str?''+str:'');
+		str = str.replace(/'/g, '\\\'');
+		return str;
+	},
+
+	sanitizeHTML: (function() {
 		var uriRewriter = function(uri) {
 			return uri;
 		};
@@ -457,7 +409,32 @@ var Tools = {
 		};
 	})(),
 
-	safeJson: function(f) {
+	interstice: (function() {
+		var patterns = (function(whitelist) {
+			var patterns = [];
+			for (var i = 0; i < whitelist.length; ++i) {
+				patterns.push(new RegExp('https?://([A-Za-z0-9-]*\\.)?' +
+					whitelist[i] +
+					'(/.*)?', 'i'));
+			}
+			return patterns;
+		})((window.Config && Config.whitelist) ? Config.whitelist : []);
+		return {
+			isWhitelisted: function(uri) {
+				for (var i = 0; i < patterns.length; ++i) {
+					if (patterns[i].test(uri)) {
+						return true;
+					}
+				}
+				return false;
+			},
+			getURI: function(uri) {
+				return 'http://www.pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
+			}
+		};
+	})(),
+
+	safeJSON: function(f) {
 		return function(data) {
 			if (data.length < 1) return;
 			if (data[0] == ']') data = data.substr(1);
@@ -525,7 +502,7 @@ var Tools = {
 				effect.exists = true;
 			}
 			if (!effect.id) effect.id = id;
-			if (!effect.name) effect.name = sanitize(name);
+			if (!effect.name) effect.name = Tools.escapeHTML(name);
 			if (!effect.category) effect.category = 'Effect';
 			if (!effect.effectType) effect.effectType = 'Effect';
 		}
@@ -546,15 +523,17 @@ var Tools = {
 			}
 
 			if (!move.id) move.id = id;
-			if (!move.name) move.name = sanitize(name);
+			if (!move.name) move.name = Tools.escapeHTML(name);
 
 			if (!move.critRatio) move.critRatio = 1;
 			if (!move.baseType) move.baseType = move.type;
 			if (!move.effectType) move.effectType = 'Move';
 			if (!move.secondaries && move.secondary) move.secondaries = [move.secondary];
 
-			if (!move.anim) move.anim = BattleOtherAnims.attack.anim;
-			$.extend(move, BattleMoveAnims[move.id]);
+			if (window.BattleMoveAnims) {
+				if (!move.anim) move.anim = BattleOtherAnims.attack.anim;
+				$.extend(move, BattleMoveAnims[move.id]);
+			}
 		}
 		return move;
 	},
@@ -566,7 +545,7 @@ var Tools = {
 			item = (window.BattleItems && window.BattleItems[id]) || {};
 			if (item.name) item.exists = true;
 			if (!item.id) item.id = id;
-			if (!item.name) item.name = sanitize(name);
+			if (!item.name) item.name = Tools.escapeHTML(name);
 			if (!item.category) item.category = 'Effect';
 			if (!item.effectType) item.effectType = 'Item';
 		}
@@ -580,7 +559,7 @@ var Tools = {
 			ability = (window.BattleAbilities && window.BattleAbilities[id]) || {};
 			if (ability.name) ability.exists = true;
 			if (!ability.id) ability.id = id;
-			if (!ability.name) ability.name = sanitize(name);
+			if (!ability.name) ability.name = Tools.escapeHTML(name);
 			if (!ability.category) ability.category = 'Effect';
 			if (!ability.effectType) ability.effectType = 'Ability';
 		}
@@ -607,6 +586,7 @@ var Tools = {
 				template.exists = false;
 			}
 			template = window.BattlePokedex[id];
+			if (template.species) name = template.species;
 			if (template.exists === undefined) template.exists = true;
 			if (window.BattleFormatsData && window.BattleFormatsData[id]) {
 				template.tier = window.BattleFormatsData[id].tier;
@@ -616,13 +596,14 @@ var Tools = {
 				template.learnset = window.BattleLearnsets[id].learnset;
 			}
 			if (!template.id) template.id = id;
-			if (!template.name) template.name = name = sanitize(name);
+			if (!template.name) template.name = name = Tools.escapeHTML(name);
 			if (!template.speciesid) template.speciesid = id;
 			if (!template.species) template.species = name;
 			if (!template.baseSpecies) template.baseSpecies = name;
 			if (!template.forme) template.forme = '';
 			if (!template.formeLetter) template.formeLetter = '';
 			if (!template.spriteid) template.spriteid = toId(template.baseSpecies)+(template.baseSpecies!==name?'-'+toId(template.forme):'');
+			if (!template.effectType) template.effectType = 'Template';
 		}
 		return template;
 	},
@@ -649,6 +630,21 @@ var Tools = {
 		return learnset;
 	},
 	
+	getType: function(type) {
+		if (!type || typeof type === 'string') {
+			var id = toId(type);
+			id = id.substr(0,1).toUpperCase() + id.substr(1);
+			type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
+			if (type.damageTaken) type.exists = true;
+			if (!type.id) type.id = id;
+			if (!type.name) type.name = id;
+			if (!type.effectType) {
+				type.effectType = 'Type';
+			}
+		}
+		return type;
+	},
+
 	getSpriteData: function(pokemon, siden, options) {
 		pokemon = Tools.getTemplate(pokemon);
 		var isBack = !siden;

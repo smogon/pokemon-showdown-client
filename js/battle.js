@@ -392,16 +392,16 @@ function Pokemon(species) {
 	};
 	this.getName = function () {
 		if (selfP.side.n === 0) {
-			return sanitize(selfP.name);
+			return Tools.escapeHTML(selfP.name);
 		} else {
-			return "The foe's " + sanitize(selfP.name);
+			return "The foe's " + Tools.escapeHTML(selfP.name);
 		}
 	};
 	this.getLowerName = function () {
 		if (selfP.side.n === 0) {
-			return sanitize(selfP.name);
+			return Tools.escapeHTML(selfP.name);
 		} else {
-			return "the foe's " + sanitize(selfP.name);
+			return "the foe's " + Tools.escapeHTML(selfP.name);
 		}
 	};
 	this.getTitle = function () {
@@ -414,7 +414,7 @@ function Pokemon(species) {
 		return titlestring;
 	};
 	this.getFullName = function (plaintext) {
-		var name = sanitize(selfP.name);
+		var name = Tools.escapeHTML(selfP.name);
 		if (selfP.name !== selfP.species) {
 			if (plaintext) {
 				name += ' (' + selfP.species + ')';
@@ -1466,10 +1466,10 @@ function Battle(frame, logFrame, noPreload) {
 			}
 			pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 			if (selfS.n === 1) {
-				if (selfS.initialized) self.rightbarElem.html('<div class="trainer"><strong>' + sanitize(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resourcePrefix + 'sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
+				if (selfS.initialized) self.rightbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resourcePrefix + 'sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
 				else self.rightbarElem.find('.trainer').css('opacity',0.4);
 			} else {
-				if (selfS.initialized) self.leftbarElem.html('<div class="trainer"><strong>' + sanitize(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resourcePrefix + 'sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
+				if (selfS.initialized) self.leftbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resourcePrefix + 'sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
 				else self.leftbarElem.find('.trainer').css('opacity',0.4);
 			}
 		};
@@ -1727,7 +1727,7 @@ function Battle(frame, logFrame, noPreload) {
 			var gender = '';
 			if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
 			if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
-			return '<div class="statbar' + (selfS.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + sanitize(pokemon.name) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
+			return '<div class="statbar' + (selfS.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + Tools.escapeHTML(pokemon.name) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
 		};
 		this.switchIn = function (pokemon, slot) {
 			if (slot === undefined) slot = pokemon.slot;
@@ -1743,7 +1743,7 @@ function Battle(frame, logFrame, noPreload) {
 			if (pokemon.side.n === 0) {
 				self.message('Go! ' + pokemon.getFullName() + '!');
 			} else {
-				self.message('' + sanitize(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
+				self.message('' + Tools.escapeHTML(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
 			}
 
 			pokemon.sprite.animSummon(slot);
@@ -1907,12 +1907,12 @@ function Battle(frame, logFrame, noPreload) {
 				pokemon.removeVolatile('formechange');
 			}
 			if (pokemon.lastmove === 'uturn' || pokemon.lastmove === 'voltswitch') {
-				self.message('' + pokemon.getName() + ' went back to ' + sanitize(pokemon.side.name) + '!');
+				self.message('' + pokemon.getName() + ' went back to ' + Tools.escapeHTML(pokemon.side.name) + '!');
 			} else if (pokemon.lastmove !== 'batonpass') {
 				if (pokemon.side.n === 0) {
 					self.message('' + pokemon.getName() + ', come back!');
 				} else {
-					self.message('' + sanitize(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
+					self.message('' + Tools.escapeHTML(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
 				}
 			}
 			selfS.lastPokemon = pokemon;
@@ -2170,13 +2170,13 @@ function Battle(frame, logFrame, noPreload) {
 	// activities
 	//
 	this.start = function () {
-		self.log('<div>Battle between ' + sanitize(self.p1.name) + ' and ' + sanitize(self.p2.name) + ' started!</div>');
+		self.log('<div>Battle between ' + Tools.escapeHTML(self.p1.name) + ' and ' + Tools.escapeHTML(self.p2.name) + ' started!</div>');
 		if (self.startCallback) self.startCallback(self);
 	}
 	this.winner = function (winner) {
 		if (self.fastForward !== -2) self.fastForwardOff();
 		if (winner) self.message('' + winner + ' won the battle!');
-		else self.message('Tie between ' + sanitize(self.p1.name) + ' and ' + sanitize(self.p2.name) + '!');
+		else self.message('Tie between ' + Tools.escapeHTML(self.p1.name) + ' and ' + Tools.escapeHTML(self.p2.name) + '!');
 		self.done = 1;
 	}
 	this.prematureEnd = function () {
@@ -4164,7 +4164,7 @@ function Battle(frame, logFrame, noPreload) {
 				break;
 			
 			case '-message':
-				actions += self.sanitize(args[1]);
+				actions += Tools.escapeHTML(args[1]);
 				break;
 			
 			case '-anim':
@@ -4184,6 +4184,7 @@ function Battle(frame, logFrame, noPreload) {
 			
 			default:
 				self.logConsole('Unknown minor: ' + args[0]);
+				if (self.errorCallback) self.errorCallback(self);
 				break;
 			}
 		}
@@ -4448,9 +4449,6 @@ function Battle(frame, logFrame, noPreload) {
 		self.preemptActivityQueue.push(command);
 		self.add(command);
 	}
-	this.sanitize = function (str) {
-		return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-	}
 	this.teamPreview = function (start) {
 		for (var k = 0; k < 2; k++) {
 			var teamText = '';
@@ -4480,7 +4478,7 @@ function Battle(frame, logFrame, noPreload) {
 			self.sides[k].totalPokemon = i;
 			self.sides[k].updateSidebar();
 			if (teamText) {
-				self.log('<div class="chat"><strong>' + self.sanitize(self.sides[k].name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + self.sanitize(teamText) + '</em></div>');
+				self.log('<div class="chat"><strong>' + Tools.escapeHTML(self.sides[k].name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + Tools.escapeHTML(teamText) + '</em></div>');
 			}
 			self.spriteElems[k].html(text);
 		}
@@ -4501,7 +4499,7 @@ function Battle(frame, logFrame, noPreload) {
 		case 'tier':
 			if (!args[1]) args[1] = '';
 			for (var i in kwargs) args[1] += '['+i+'] '+kwargs[i];
-			self.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + self.sanitize(args[1]) + '</strong></div>');
+			self.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
 			self.tier = args[1];
 			break;
 		case 'gametype':
@@ -4512,11 +4510,11 @@ function Battle(frame, logFrame, noPreload) {
 			}
 			break;
 		case 'variation':
-			self.log('<div><small>Variation: <em>' + self.sanitize(args[1]) + '</em></small></div>');
+			self.log('<div><small>Variation: <em>' + Tools.escapeHTML(args[1]) + '</em></small></div>');
 			break;
 		case 'rule':
 			var ruleArgs = args[1].split(': ');
-			self.log('<div><small><em>' + self.sanitize(ruleArgs[0]) + (ruleArgs[1]?':':'') + '</em> ' + self.sanitize(ruleArgs[1]||'') + '</div>');
+			self.log('<div><small><em>' + Tools.escapeHTML(ruleArgs[0]) + (ruleArgs[1]?':':'') + '</em> ' + Tools.escapeHTML(ruleArgs[1]||'') + '</div>');
 			break;
 		case 'rated':
 			self.rated = true;
@@ -4530,9 +4528,9 @@ function Battle(frame, logFrame, noPreload) {
 			args.shift();
 			var message = args.join('|');
 			if (message.substr(0,2) === '//') {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + self.sanitize(name) + ':</strong> <em>' + messageSanitize(message.substr(1)) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + messageSanitize(message.substr(1)) + '</em></div>', preempt);
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + self.sanitize(name) + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + Tools.escapeHTML(name) + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -4542,47 +4540,47 @@ function Battle(frame, logFrame, noPreload) {
 			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
 				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + self.sanitize(name) + ':</strong> <em>' + messageSanitize(message) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + messageSanitize(message) + '</em></div>', preempt);
 			}
 			break;
 		case 'chatmsg':
 			args.shift();
 			list = args.join('|');
-			self.log('<div class="chat">' + self.sanitize(list) + '</div>', preempt);
+			self.log('<div class="chat">' + Tools.escapeHTML(list) + '</div>', preempt);
 			break;
 		case 'chatmsg-raw':
 		case 'raw':
 			args.shift();
 			list = args.join('|');
-			self.log('<div class="chat">' + Tools.htmlSanitize(list) + '</div>', preempt);
+			self.log('<div class="chat">' + Tools.sanitizeHTML(list) + '</div>', preempt);
 			break;
 		case 'pm':
-			self.log('<div class="chat"><strong>' + self.sanitize(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + sanitize(args[2], true) + '\')">(Private to ' + sanitize(args[3]) + ')</i> ' + messageSanitize(args[4]) + '</span>');
+			self.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + messageSanitize(args[4]) + '</span>');
 			break;
 		case 'askreg':
-			self.log('<div class="message-register-account"><b>Register an account to protect your ladder rating!</b><br /><button onclick="overlay(\'register\',{ifuserid:\''+sanitize(args[1], true)+'\'});return false"><b>Register</b></button></div>');
+			self.log('<div class="message-register-account"><b>Register an account to protect your ladder rating!</b><br /><button onclick="overlay(\'register\',{ifuserid:\''+Tools.escapeHTML(args[1], true)+'\'});return false"><b>Register</b></button></div>');
 			break;
 		case 'inactive':
 			self.kickingInactive = true;
 			args.shift();
 			list = args.join('|');
-			self.log('<div class="chat" style="color:#992222">' + self.sanitize(list) + '</div>', preempt);
+			self.log('<div class="chat" style="color:#992222">' + Tools.escapeHTML(list) + '</div>', preempt);
 			break;
 		case 'inactiveoff':
 			self.kickingInactive = false;
 			args.shift();
 			list = args.join('|');
-			self.log('<div class="chat" style="color:#992222">' + self.sanitize(list) + '</div>', preempt);
+			self.log('<div class="chat" style="color:#992222">' + Tools.escapeHTML(list) + '</div>', preempt);
 			break;
 		case 'join':
 		case 'j':
 		case 'J':
-			self.log('<div class="chat"><small>' + self.sanitize(args[1]) + ' joined.</small></div>', preempt);
+			self.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
 			break;
 		case 'leave':
 		case 'l':
 		case 'L':
-			self.log('<div class="chat"><small>' + self.sanitize(args[1]) + ' left.</small></div>', preempt);
+			self.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
 			break;
 		case 'spectator':
 		case 'spectatorleave':
@@ -4661,7 +4659,7 @@ function Battle(frame, logFrame, noPreload) {
 			self.cantUseMove(poke, effect, move, kwargs);
 			break;
 		case 'message':
-			self.message(self.sanitize(args[1]));
+			self.message(Tools.escapeHTML(args[1]));
 			break;
 		case 'done':
 		case '':
@@ -4669,12 +4667,12 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'error':
 			args.shift();
-			self.message('<strong>Error:</strong> ' + self.sanitize(args.join('|')));
+			self.message('<strong>Error:</strong> ' + Tools.escapeHTML(args.join('|')));
 			self.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
 			break;
 		case 'warning':
 			args.shift();
-			self.message('<strong>Warning:</strong> ' + self.sanitize(args.join('|')));
+			self.message('<strong>Warning:</strong> ' + Tools.escapeHTML(args.join('|')));
 			self.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
 			self.activityWait(1000);
 			break;
@@ -4688,11 +4686,12 @@ function Battle(frame, logFrame, noPreload) {
 		case 'debug':
 			args.shift();
 			name = args.join(' ');
-			self.log('<div class="chat"><small style="color:#999">[DEBUG] ' + self.sanitize(name) + '.</small></div>', preempt);
+			self.log('<div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div>', preempt);
 			break;
 		default:
 			self.logConsole('unknown command: ' + args[0]);
-			self.log('<div>Unknown command: ' + self.sanitize(args[0]) + '</div>');
+			self.log('<div>Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
+			if (self.errorCallback) self.errorCallback(self);
 			break;
 		}
 	};
@@ -4746,17 +4745,18 @@ function Battle(frame, logFrame, noPreload) {
 					self.runMajor(args, kwargs, preempt);
 				}
 			} catch (e) {
-				self.log('<div class="chat">Error parsing: ' + self.sanitize(str) + '</div>', preempt);
+				self.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + '</div>', preempt);
 				if (e.stack) {
 					var stack = ''+e.stack;
 					stack = stack.split("\n").slice(0,2).join("\n");
-					self.log('<div class="chat" style="white-space:pre-wrap">' + self.sanitize(stack) + '</div>', preempt);
+					self.log('<div class="chat" style="white-space:pre-wrap">' + Tools.escapeHTML(stack) + '</div>', preempt);
 				} else {
-					self.log('<div class="chat">Error: ' + self.sanitize(''+e) + '</div>', preempt);
+					self.log('<div class="chat">Error: ' + Tools.escapeHTML(''+e) + '</div>', preempt);
 				}
+				if (self.errorCallback) self.errorCallback(self);
 			}
 		} else {
-			self.log('<div class="chat">' + self.sanitize(str) + '</div>', preempt);
+			self.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
 		}
 	}
 	this.endPrevAction = function () {
@@ -4975,6 +4975,7 @@ function Battle(frame, logFrame, noPreload) {
 	this.stagnateCallback = null;
 	this.endCallback = null;
 	this.customCallback = null;
+	this.errorCallback = null;
 
 	// external
 	this.resumeButton = this.play;

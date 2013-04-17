@@ -41,7 +41,7 @@ function Teambuilder(id, elem)
 		rooms.lobby.message(message);
 	};
 	this.send = function (message) {
-		emit(socket, 'chat', {room:'',message:message});
+		emit(me.socket, 'chat', {room:'',message:message});
 	};
 	this.update = function(data) {
 		if (!data)
@@ -80,11 +80,11 @@ function Teambuilder(id, elem)
 					}
 					else if (i == selfR.activePokemonIndex)
 					{
-						text += '<button disabled="disabled" class="pokemon">'+pokemonicon+sanitize(set.name || '<i class="icon-plus"></i>')+'</button> ';
+						text += '<button disabled="disabled" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name || '<i class="icon-plus"></i>')+'</button> ';
 					}
 					else
 					{
-						text += '<button onclick="rooms[\''+selfR.id+'\'].formSelectPokemon('+i+');return false" class="pokemon">'+pokemonicon+sanitize(set.name)+'</button> ';
+						text += '<button onclick="rooms[\''+selfR.id+'\'].formSelectPokemon('+i+');return false" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name)+'</button> ';
 					}
 				}
 				if (selfR.activeTeam.team.length < 6 && !isAdd)
@@ -95,12 +95,12 @@ function Teambuilder(id, elem)
 			}
 			else
 			{
-				text = '<button onclick="rooms[\''+selfR.id+'\'].formBack(event); return false"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+sanitize(selfR.activeTeam.name)+'" /> <button onclick="rooms[\''+selfR.id+'\'].formSave(event); return false" class="savebutton"><i class="icon-save"></i> Save</button> <button onclick="rooms[\''+selfR.id+'\'].formToggleExport(event); return false"><i class="icon-upload-alt"></i> Import/Export</button>';
+				text = '<button onclick="rooms[\''+selfR.id+'\'].formBack(event); return false"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(selfR.activeTeam.name)+'" /> <button onclick="rooms[\''+selfR.id+'\'].formSave(event); return false" class="savebutton"><i class="icon-save"></i> Save</button> <button onclick="rooms[\''+selfR.id+'\'].formToggleExport(event); return false"><i class="icon-upload-alt"></i> Import/Export</button>';
 			}
 			
 			if (selfR.exportMode)
 			{
-				text += '<textarea class="teamedit" onkeypress="return rooms[\''+selfR.id+'\'].formKeyPress(event)" rows="17">'+sanitize(selfR.toText(selfR.activeTeam.team))+'</textarea>';
+				text += '<textarea class="teamedit" onkeypress="return rooms[\''+selfR.id+'\'].formKeyPress(event)" rows="17">'+Tools.escapeHTML(selfR.toText(selfR.activeTeam.team))+'</textarea>';
 			}
 			else
 			{
@@ -148,7 +148,7 @@ function Teambuilder(id, elem)
 						continue;
 					}
 					text += '<div class="setchart-nickname">';
-					text += '<label>Nickname</label><input type="text" value="'+sanitize(set.name||set.species)+'" onchange="rooms[\''+selfR.id+'\'].activeTeam.team['+i+'].name = (this.value||rooms[\''+selfR.id+'\'].activeTeam.team['+i+'].species)" />';
+					text += '<label>Nickname</label><input type="text" value="'+Tools.escapeHTML(set.name||set.species)+'" onchange="rooms[\''+selfR.id+'\'].activeTeam.team['+i+'].name = (this.value||rooms[\''+selfR.id+'\'].activeTeam.team['+i+'].species)" />';
 					text += '</div>';
 					text += '<div class="setchart">';
 					
@@ -159,7 +159,7 @@ function Teambuilder(id, elem)
 						var item = Tools.getItem(set.item);
 						itemicon = '<span class="itemicon"'+(selfR.activePokemon?' id="'+selfR.id+'-itemicon"':'')+' style="'+Tools.getItemIcon(item)+'"></span>';
 					}
-					text += '<div class="setcol setcol-icon"'+(selfR.activePokemon?' id="'+selfR.id+'-pokemonicon"':'')+' style='+Tools.getTeambuilderSprite(set)+';">'+itemicon+'<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="'+sanitize(set.species)+'" /></div></div>';
+					text += '<div class="setcol setcol-icon"'+(selfR.activePokemon?' id="'+selfR.id+'-pokemonicon"':'')+' style='+Tools.getTeambuilderSprite(set)+';">'+itemicon+'<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="'+Tools.escapeHTML(set.species)+'" /></div></div>';
 
 					// details
 					text += '<div class="setcol setcol-details"><div class="setrow">';
@@ -177,17 +177,17 @@ function Teambuilder(id, elem)
 
 					text += '</button></div>';
 					text += '</div><div class="setrow">';
-					text += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="chartinput" value="'+sanitize(set.item)+'" /></div>';
-					text += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="chartinput" value="'+sanitize(set.ability)+'" /></div>';
+					text += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="chartinput" value="'+Tools.escapeHTML(set.item)+'" /></div>';
+					text += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="chartinput" value="'+Tools.escapeHTML(set.ability)+'" /></div>';
 					text += '</div></div>';
 					
 					// moves
 					if (!set.moves) set.moves = [];
 					text += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
-					text += '<input type="text" name="move1" class="chartinput" value="'+sanitize(set.moves[0])+'" /></div>';
-					text += '<div class="setcell"><input type="text" name="move2" class="chartinput" value="'+sanitize(set.moves[1])+'" /></div>';
-					text += '<div class="setcell"><input type="text" name="move3" class="chartinput" value="'+sanitize(set.moves[2])+'" /></div>';
-					text += '<div class="setcell"><input type="text" name="move4" class="chartinput" value="'+sanitize(set.moves[3])+'" /></div>';
+					text += '<input type="text" name="move1" class="chartinput" value="'+Tools.escapeHTML(set.moves[0])+'" /></div>';
+					text += '<div class="setcell"><input type="text" name="move2" class="chartinput" value="'+Tools.escapeHTML(set.moves[1])+'" /></div>';
+					text += '<div class="setcell"><input type="text" name="move3" class="chartinput" value="'+Tools.escapeHTML(set.moves[2])+'" /></div>';
+					text += '<div class="setcell"><input type="text" name="move4" class="chartinput" value="'+Tools.escapeHTML(set.moves[3])+'" /></div>';
 					text += '</div>';
 					
 					// stats
@@ -253,7 +253,7 @@ function Teambuilder(id, elem)
 		else if (selfR.exportAllMode)
 		{
 			text = '<button onclick="rooms[\''+selfR.id+'\'].formBack(event); return false"><i class="icon-chevron-left"></i> Team List</button> <button onclick="rooms[\''+selfR.id+'\'].formSave(event); return false" class="savebutton"><i class="icon-save"></i> Save</button>';
-			text += '<textarea class="teamedit" onkeypress="return rooms[\''+selfR.id+'\'].formKeyPress(event)" rows="17">'+sanitize(selfR.teamsToText())+'</textarea>';
+			text += '<textarea class="teamedit" onkeypress="return rooms[\''+selfR.id+'\'].formKeyPress(event)" rows="17">'+Tools.escapeHTML(selfR.teamsToText())+'</textarea>';
 
 			selfR.teamListElem.html(text);
 			selfR.teamListElem.show();
@@ -295,11 +295,11 @@ function Teambuilder(id, elem)
 					formatText = '['+team.format+'] ';
 				}
 
-				text += '<li><button onclick="rooms[\''+selfR.id+'\'].formOpen('+i+'); return false" style="width:400px">'+formatText+'<strong>'+sanitize(team.name)+'</strong><br /><small>';
+				text += '<li><button onclick="rooms[\''+selfR.id+'\'].formOpen('+i+'); return false" style="width:400px">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 				for (var j=0; j<team.team.length; j++)
 				{
 					if (j!=0) text += ' / ';
-					text += ''+sanitize(team.team[j].name);
+					text += ''+Tools.escapeHTML(team.team[j].name);
 				}
 				text += '</small></button> <button onclick="rooms[\''+selfR.id+'\'].formOpen('+i+'); return false"><i class="icon-pencil"></i>Edit</button> <button onclick="rooms[\''+selfR.id+'\'].formDelete('+i+'); return false"><i class="icon-trash"></i>Delete</button></li>';
 			}
@@ -2250,9 +2250,9 @@ function selectTeam(i)
 	}
 
 	// if (i < 0) {
-	// 	emit(socket, 'saveTeam', {team: null});
+	// 	emit(me.socket, 'saveTeam', {team: null});
 	// } else {
-	// 	emit(socket, 'saveTeam', {team: teams[i].team});
+	// 	emit(me.socket, 'saveTeam', {team: teams[i].team});
 	// }
 	selectedTeam = i;
 }

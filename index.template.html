@@ -1,108 +1,3 @@
-<?php
-
-// no direct linking to the lobby
-if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/lobby') {
-	if (!empty($_SERVER['HTTP_REFERER']) && !preg_match('/^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)/', $_SERVER['HTTP_REFERER']) && $_SERVER['HTTP_HOST'] === 'play.pokemonshowdown.com') {
-		header('HTTP/1.1 303 See Other');
-		header('Location: http://pokemonshowdown.com/');
-		die();
-	}
-}
-
-// if (substr($_SERVER['REQUEST_URI'],0,8) === '/battle-') {
-// 	$id = substr($_SERVER['REQUEST_URI'],8);
-// }
-
-// never cache
-header('Cache-Control: no-cache, no-store, must-revalidate'); // HTTP 1.1.
-header('Pragma: no-cache'); // HTTP 1.0.
-header('Expires: 0'); // Proxies.
-
-$defaultserver = 'showdown';
-
-include '../pokemonshowdown.com/config/servers.inc.php';
-
-$server = @$_REQUEST['server'];
-$serverport = 0;
-$serverprotocol = '';
-$serverid = '';
-$usingdefaultserver = false;
-
-$psim = false;
-$hostprefix = '';
-if (strlen($_SERVER['HTTP_HOST']) > 8 && substr($_SERVER['HTTP_HOST'], -7) === 'psim.us') {
-	$hostprefix = substr($_SERVER['HTTP_HOST'], 0, -8);
-	$server = $hostprefix;
-	$psim = true;
-}
-
-$colonpos = strpos($server, ':');
-$protocolpos = strrpos($server, '|');
-$serverport = intval(@$_REQUEST['serverport']);
-
-$localflag = false;
-if ($protocolpos) {
-	$serverprotocol = substr($server, $protocolpos+1);
-	if (!strlen($serverprotocol)) $localflag = true;
-	$server = substr($server, 0, $protocolpos);
-}
-
-if ($colonpos) {
-	if (!$serverport) $serverport = substr($server, $colonpos+1);
-	$server = substr($server, 0, $colonpos);
-}
-
-$afd = false;
-if ($psim) {
-	$hyphenpos = strrpos($server, '-');
-	if ($hyphenpos) {
-		if (substr($server, $hyphenpos + 1) === 'afd') {
-			$afd = true;
-			$server = substr($server, 0, $hyphenpos);
-		} else if (ctype_digit(substr($server, $hyphenpos + 1))) {
-			$serverport = substr($server, $hyphenpos + 1);
-			$server = substr($server, 0, $hyphenpos);
-		}
-	}
-}
-
-$serverdata = array();
-if (@$PokemonServers[$server]) {
-	$serverid = $server;
-	$serverdata = $PokemonServers[$server];
-	if (!$serverport) $serverport = $PokemonServers[$serverid]['port'];
-	$serveraltport = @$PokemonServers[$serverid]['altport'];
-	if (!$serverprotocol) $serverprotocol = $PokemonServers[$serverid]['protocol'];
-	$server = $PokemonServers[$serverid]['server'];
-	if ($serverport != $PokemonServers[$serverid]['port']) $serverid .= ':'.$serverport;
-}
-if ($localflag) $server = 'localhost';
-
-if (!$server) {
-	$server = $PokemonServers[$defaultserver]['server'];
-	$serverport = $PokemonServers[$defaultserver]['port'];
-	$serveraltport = @$PokemonServers[$defaultserver]['altport'];
-	$serverprotocol = @$PokemonServers[$defaultserver]['protocol'];
-	$serverid = $defaultserver;
-}
-else if (!$serverid) {
-	$serverid = $server.($serverport?':'.$serverport:'');
-}
-if (!$serverport) {
-	$serverport = 8000;
-}
-if ($serverprotocol !== 'io' && $serverprotocol !== 'eio') {
-	$serverprotocol = 'ws';
-}
-
-$serverlibs = array(
-	'io' => '/js/socket.io.js',
-	'eio' => '/js/engine.io.js',
-	'ws' => '/js/sockjs-0.3.min.js'
-);
-$serverlibrary = $serverlibs[$serverprotocol];
-
-?>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -114,46 +9,28 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/battle.css?" />
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/utilichart.css" />
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/font-awesome.css" />
-<?php if (@$serverdata['customcss']) { ?>
-		<link rel="stylesheet" href="//play.pokemonshowdown.com/customcss.php?server=<?php echo $serverid ?>" />
-<?php } ?>
 		<meta id="viewport" name="viewport" content="width=640"/>
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
-	<script>
-		var Config = {
-			server: <?php echo json_encode($server) ?>,
-			serverid: <?php echo json_encode($serverid) ?>,
-			serverport: <?php echo intval($serverport) ?>,
-			<?php if (!empty($serveraltport)) echo "serveraltport: $serveraltport,\n"; ?>
-<?php if ($psim) { ?>
-			crossdomain: <?php echo json_encode($hostprefix) ?>,
-<?php } ?>
-			serverprotocol: '<?php echo $serverprotocol ?>'
-		};
-<?php if ($afd) { ?>
-		Config.afd = true;
-<?php } ?>
-	</script>
-	<!--[if lte IE 8]><script>
-		Config.oldie = true;
-	</script><![endif]-->
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-<?php if (!$psim) { ?>
-  _gaq.push(['_setAccount', 'UA-26211653-1'], ['_setDomainName', 'pokemonshowdown.com']);
-<?php } else { ?>
-  _gaq.push(['_setAccount', 'UA-26211653-2'], ['_setDomainName', 'psim.us']);
-<?php } ?>
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
+		<script>
+			var Config = {
+				psim: /^(.*)\.psim\.us$/i.exec(document.location.hostname)
+			};
+			var _gaq = _gaq || [];
+			if (!Config.psim) {
+				_gaq.push(['_setAccount', 'UA-26211653-1'], ['_setDomainName', 'pokemonshowdown.com']);
+			} else {
+				_gaq.push(['_setAccount', 'UA-26211653-2'], ['_setDomainName', 'psim.us']);
+			}
+			_gaq.push(['_trackPageview']);
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		</script>
+		<!--[if lte IE 8]><script>
+			Config.oldie = true;
+		</script><![endif]-->
 	</head>
 	<body>
 
@@ -218,8 +95,7 @@ $serverlibrary = $serverlibs[$serverprotocol];
 		<script src="//play.pokemonshowdown.com/js/battledata.js?"></script>
 		<script src="//play.pokemonshowdown.com/data/pokedex-mini.js?"></script>
 		<script src="//play.pokemonshowdown.com/js/battle.js?"></script>
-		<!--script src="http://'.$server.':'.$serverport.'/socket.io/socket.io.js"></script-->
-		<script src="//play.pokemonshowdown.com<?php echo $serverlibrary; ?>"></script>
+		<script src="//play.pokemonshowdown.com/js/sockjs-0.3.min.js"></script>
 		<script src="//play.pokemonshowdown.com/js/teambuilder.js?"></script>
 		<script src="//play.pokemonshowdown.com/js/ladder.js?"></script>
 		<script src="//play.pokemonshowdown.com/js/sim.js?"></script>

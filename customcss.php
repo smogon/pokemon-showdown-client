@@ -55,5 +55,7 @@ if ($curlret) {
 		readfile($cssfile);
 	}
 	touch($cssfile, $timenow);	// Don't check again for an hour.
+} else if (file_exists($cssfile)) {
+	readfile($cssfile);
 }
 curl_close($curl);

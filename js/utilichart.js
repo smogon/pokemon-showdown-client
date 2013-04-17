@@ -67,11 +67,11 @@ function BattleChart()
 		}
 	};
 	this.pokemonRow = function(pokemon, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+sanitize(pokemon.species,true)+'\')">';
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+Tools.escapeHTML(pokemon.species,true)+'\')">';
 		
 		text += '<span class="col numcol">'+(pokemon.num)+'</span> ';
 		
-		var name = sanitize(pokemon.name);
+		var name = Tools.escapeHTML(pokemon.name);
 		
 		if (pokemon.forme && pokemon.baseSpecies) name = pokemon.baseSpecies;
 		if (match.name)
@@ -157,7 +157,7 @@ function BattleChart()
 		return text;
 	};
 	this.itemRow = function(item, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+sanitize(item.name,true)+'\')">';
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+Tools.escapeHTML(item.name,true)+'\')">';
 		
 		var url = item.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z-]+/g, '');
 		url = '/sprites/itemicons/'+url+'.png';
@@ -166,7 +166,7 @@ function BattleChart()
 		text += '<span style="'+Tools.getItemIcon(item)+'"></span>';
 		text += '</span> ';
 		
-		var name = sanitize(item.name);
+		var name = Tools.escapeHTML(item.name);
 		
 		if (match.name)
 		{
@@ -181,16 +181,16 @@ function BattleChart()
 			return text;
 		}
 		
-		text += '<span class="col itemdesccol">'+sanitize(item.shortDesc || item.desc)+'</span> ';
+		text += '<span class="col itemdesccol">'+Tools.escapeHTML(item.shortDesc || item.desc)+'</span> ';
 		
 		text += '</a></li>';
 		
 		return text;
 	};
 	this.abilityRow = function(ability, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+sanitize(ability.name,true)+'\')">';
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+Tools.escapeHTML(ability.name,true)+'\')">';
 		
-		var name = sanitize(ability.name);
+		var name = Tools.escapeHTML(ability.name);
 		if (match.name)
 		{
 			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
@@ -204,16 +204,16 @@ function BattleChart()
 			return text;
 		}
 		
-		text += '<span class="col abilitydesccol">'+sanitize(ability.shortDesc || ability.desc)+'</span> ';
+		text += '<span class="col abilitydesccol">'+Tools.escapeHTML(ability.shortDesc || ability.desc)+'</span> ';
 		
 		text += '</a></li>';
 		
 		return text;
 	};
 	this.moveRow = function(move, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+sanitize(move.name,true)+'\')">';
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+Tools.escapeHTML(move.name,true)+'\')">';
 		
-		var name = sanitize(move.name);
+		var name = Tools.escapeHTML(move.name);
 		var hplen = 'Hidden Power'.length;
 		if (name.substr(0, hplen) === 'Hidden Power') name = 'Hidden Power';
 		if (match.name)
@@ -249,7 +249,7 @@ function BattleChart()
 		text += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
 		text += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
 		
-		text += '<span class="col movedesccol">'+sanitize(move.shortDesc || move.desc)+'</span> ';
+		text += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
 		
 		text += '</a></li>';
 		

@@ -20,15 +20,8 @@ AddType application/x-web-app-manifest+json .webapp
 <IfModule mod_rewrite.c>
 RewriteEngine on
 
-RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC,OR]
-RewriteCond %{HTTP_HOST} ^(www\.)?psim\.us$ [NC]
+RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
-
-RewriteCond %{HTTP_HOST} ^(.*?)-8000\.psim\.us$ [NC]
-RewriteRule ^(.*) http://%1.psim.us/$1 [R=301,L]
-
-RewriteCond %{HTTP_HOST} !^play\.pokemonshowdown\.com$ [NC]
-RewriteRule ^sprites/(.*)$ http://play.pokemonshowdown.com/sprites/$1 [R=301,L]
 
 RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [env=SAFERESOURCE]
 Header set Access-Control-Allow-Origin * env=SAFERESOURCE
@@ -41,8 +34,22 @@ RewriteRule ^sim\.php$ / [R=301,L]
 
 #RewriteRule ^([A-Za-z0-9-]*)$ closed.php [L,QSA]
 
-RewriteRule ^(teambuilder|ladder|lobby|battle)/?$ index.php [L,QSA]
-RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ index.php [L,QSA]
+RewriteRule ^$ - [E=NOCACHE]
+RewriteRule ^(teambuilder|ladder|lobby|battle)$ ./ [L,E=NOCACHE]
+RewriteRule ^(teambuilder|ladder|lobby|battle)/$ /$1 [R=301,L]
+RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ ./ [L,E=NOCACHE]
+
+# Request clients not to cache the index.
+Header set Cache-Control "no-cache, no-store, must-revalidate" env=NOCACHE
+Header set Pragma "no-cache" env=NOCACHE
+Header set Expires "0" env=NOCACHE
+
+# No direct linking to the lobby.
+RewriteCond %{REQUEST_URI} ^/(lobby)?$
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
+RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
+RewriteRule ^.* http://www.pokemonshowdown.com/ [R=303,L]
 
 RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http://pokemonshowdown.com/replay/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
@@ -50,7 +57,6 @@ RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
 RewriteRule ^~~([^:/]*)(:[0-9]*)?/action\.php$ action.php?serverid=$1 [L,QSA]
 RewriteRule ^~~([^:/]*)(/.*)?$ http://$1.psim.us$2 [R=301,L]
 RewriteRule ^~~([^:/]*):([0-9]*)(/.*)?$ http://$1-$2.psim.us$3 [R=301,L]
-RewriteRule ^style/custom/([A-Za-z0-9-]*)\.css$ customcss.php?server=$1 [L]
 
 RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
@@ -59,7 +65,7 @@ RewriteRule ^githooks/ - [F]
 
 RewriteRule ^\.gitignore$ - [F]
 RewriteRule ^README\.md$ - [F]
-RewriteRule ^index\.php\.template\.txt$ - [F]
+RewriteRule ^index\.template\.html$ - [F]
 RewriteRule ^testclient\.html$ - [F]
 
 </IfModule>
