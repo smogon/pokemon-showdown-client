@@ -17,7 +17,9 @@
     "https://appstore.mozillalabs.com",
     "https://marketplace.mozilla.org",
     "https://marketplace.firefox.com",
-    "http://www.pokemonshowdown.com"
+    "http://pokemonshowdown.com",
+    "http://www.pokemonshowdown.com",
+    "https://www.pokemonshowdown.com"
   ],
   "default_locale": "en"
 }
