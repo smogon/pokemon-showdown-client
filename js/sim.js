@@ -2854,7 +2854,7 @@ $(window).resize(updateResize);
 
 if (document.location.pathname.substr(0, Config.locPrefix.length) === Config.locPrefix) {
 	me.loc = document.location.pathname.substr(Config.locPrefix.length);
-	if (!me.loc || Config.testclient) me.loc = 'lobby';
+	if (!me.loc || me.loc === 'test.html' || me.loc === 'temp.html' || me.loc.substr(me.loc.length-15) === 'testclient.html') me.loc = 'lobby';
 }
 
 if (window.history && history.pushState) {
@@ -2875,7 +2875,7 @@ if (window.history && history.pushState) {
 	window.onpopstate = function (e) {
 		if (document.location.pathname.substr(0, Config.locPrefix.length) === Config.locPrefix) {
 			me.loc = document.location.pathname.substr(Config.locPrefix.length);
-			if (!me.loc || Config.testclient) me.loc = 'lobby';
+			if (!me.loc || me.loc === 'test.html' || me.loc === 'temp.html' || me.loc.substr(me.loc.length-15) === 'testclient.html') me.loc = 'lobby';
 			if (!me.socket) {
 				return; // haven't even initted yet
 			}
@@ -3680,19 +3680,9 @@ teams = (function() {
 		}
 	};
 	if (!Config.psim) {
-		// normal connection to main server
-		$.extend(Config, Config.defaultserver);
-		(function() {
-			if (!Config.testclient) return;
-			// for testing locally
-			$('head').append('<script src="http://play.pokemonshowdown.com/js/config.js" />');
-			if (!location.search) return;
-			var m = /\?(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
-			if (!m) return;
-			Config.serverid = m[1];
-			Config.server = m[2];
-			if (m[3]) Config.serverport = m[3].substr(1);
-		})();
+		if (!Config.testclient) {
+			$.extend(Config, Config.defaultserver);
+		}
 		return connect();
 	} else if (!window.postMessage) {
 		// browser does not support cross-document messaging
