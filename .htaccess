@@ -23,8 +23,8 @@ RewriteEngine on
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
 
-RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [env=SAFERESOURCE]
-Header set Access-Control-Allow-Origin * env=SAFERESOURCE
+RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [E=SAFE_RESOURCE]
+Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
 
 RewriteRule ^topsekritsim\.php$ / [R=301,L]
 RewriteRule ^topsekrit3\.php$ / [R=301,L]
@@ -34,15 +34,16 @@ RewriteRule ^sim\.php$ / [R=301,L]
 
 #RewriteRule ^([A-Za-z0-9-]*)$ closed.php [L,QSA]
 
-RewriteRule ^$ - [E=NOCACHE]
-RewriteRule ^(teambuilder|ladder|lobby|battle)$ ./ [L,E=NOCACHE]
+RewriteRule ^$ - [E=INDEX_PAGE]
+RewriteRule ^(teambuilder|ladder|lobby|battle)$ ./ [L,E=INDEX_PAGE]
 RewriteRule ^(teambuilder|ladder|lobby|battle)/$ /$1 [R=301,L]
-RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ ./ [L,E=NOCACHE]
+RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE]
 
-# Request clients not to cache the index.
-Header set Cache-Control "no-cache, no-store, must-revalidate" env=NOCACHE
-Header set Pragma "no-cache" env=NOCACHE
-Header set Expires "0" env=NOCACHE
+# Headers for the index page.
+Header set Cache-Control "no-cache, no-store, must-revalidate" env=INDEX_PAGE
+Header set Pragma "no-cache" env=INDEX_PAGE
+Header set Expires "0" env=INDEX_PAGE
+Header set X-UA-Compatible "IE=Edge,chrome=1" env=INDEX_PAGE
 
 # No direct linking to the lobby.
 RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
