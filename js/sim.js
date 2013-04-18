@@ -2866,7 +2866,7 @@ if (window.history && history.pushState) {
 		if (document.location.pathname !== Config.locPrefix + urlLoc) {
 			try {
 				history.pushState(null, null, Config.locPrefix + urlLoc);
-				if (_gaq) {
+				if (window._gaq) {
 					_gaq.push(['_trackPageview', Config.locPrefix + urlLoc]);
 				}
 			} catch (e) {
