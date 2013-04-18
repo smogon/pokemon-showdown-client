@@ -35,8 +35,9 @@ RewriteRule ^sim\.php$ / [R=301,L]
 #RewriteRule ^([A-Za-z0-9-]*)$ closed.php [L,QSA]
 
 RewriteRule ^$ - [E=INDEX_PAGE]
-RewriteRule ^(teambuilder|ladder|lobby|battle)$ ./ [L,E=INDEX_PAGE]
-RewriteRule ^(teambuilder|ladder|lobby|battle)/$ /$1 [R=301,L]
+RewriteRule ^lobby/?$ / [R=301,L]
+RewriteRule ^(teambuilder|ladder|battle)$ ./ [L,E=INDEX_PAGE]
+RewriteRule ^(teambuilder|ladder|battle)/$ /$1 [R=301,L]
 RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE]
 
 # Headers for the index page.
