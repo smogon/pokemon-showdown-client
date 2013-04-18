@@ -55,6 +55,9 @@ RewriteRule ^.* http://www.pokemonshowdown.com/ [R=303,L]
 RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http://pokemonshowdown.com/replay/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
 
+RewriteCond %{QUERY_STRING} !output=html
+RewriteRule ^ladder\.php$ http://www.pokemonshowdown.com/ladder/ [R=301,L]
+
 RewriteRule ^~~([^:/]*)(:[0-9]*)?/action\.php$ action.php?serverid=$1 [L,QSA]
 RewriteRule ^~~([^:/]*)(/.*)?$ http://$1.psim.us$2 [R=301,L]
 RewriteRule ^~~([^:/]*):([0-9]*)(/.*)?$ http://$1-$2.psim.us$3 [R=301,L]

@@ -14,59 +14,6 @@ if (!ctype_alnum($formatid)) {
 }
 
 $ladder = new NTBBLadder($serverid, $formatid);
-
-if (!$output)
-{
-
-?><!DOCTYPE html>
-<html></head>
-	<title>Ladder</title>
-
-	<style>
-	<!--
-		html
-		{
-			margin: 0;
-			padding: 0;
-		}
-		body
-		{
-			margin: 20px;
-			padding: 0;
-			font-family: Verdana, Helvetica, sans-serif;
-			font-size: 11pt;
-		}
-		h1
-		{
-			margin: -20px -20px 0 -20px;
-			background: #E1E8F2;
-			border-bottom: 1px solid #AAA;
-			text-align: center;
-		}
-		table, td, th
-		{
-			border-collapse: collapse;
-			border: 1px solid #BBBBBB;
-		}
-		td, th
-		{
-			padding: 3px 5px;
-		}
-		th
-		{
-			text-align: left;
-			font-size: 9pt;
-			background: #EEEEEE;
-		}
-	-->
-	</style>
-
-</head><body>
-
-	<h1><img src="/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /></h1>
-	<h2><?php echo $formatid; ?> ladder</h2>
-<?php
-}
 ?>
 	<table>
 		<tr>
@@ -98,11 +45,3 @@ foreach ($toplist as $row)
 }
 ?>
 	</table>
-<?php
-if (!$output)
-{
-?>
-</body></html>
-<?php
-}
-?>
