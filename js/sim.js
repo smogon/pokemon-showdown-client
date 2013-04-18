@@ -3150,6 +3150,12 @@ function overlay(overlayType, data) {
 		contents += '<p><button onclick="window.open(\'/replay/battle-'+data+'\',\'_blank\');overlayClose();return false" id="overlay_ok"><strong>Open</strong></button> <button onclick="overlayClose();return false" id="overlay_cancel">Cancel</button></p>';
 		focusElem = '#overlay_ok';
 		break;
+	case 'nothirdparty':
+		contents += '<p>You have third-party cookies disabled in your browser.</p>';
+		contents += '<p>Pokemon Showdown uses third-party cookies and <code>localStorage</code> to handle teams, preferences, and logging in on third-party servers.</p>';
+		contents += '<p>We recommend that you enable third-party cookies and then refresh this page. You can ignore this recommendation if you want, but some things might not work properly on third-party servers.</p>';
+		focusElem = '#overlay_ok';
+		break;
 	case 'init':
 		if (data) return;
 		contents = '<p><strong>Pokemon Showdown is BETA</strong> and unfinished. If you are looking for something that isn\'t frequently down for maintenance and bug fixes, please check back in several weeks.</p>';
@@ -3672,7 +3678,8 @@ teams = (function() {
 			};
 		}
 	};
-	if (!Config.psim || !window.postMessage) {
+	if (!Config.psim) {
+		// normal connection to main server
 		$.extend(Config, Config.defaultserver);
 		(function() {
 			if (!Config.testclient) return;
@@ -3686,6 +3693,9 @@ teams = (function() {
 			if (m[3]) Config.serverport = m[3].substr(1);
 		})();
 		return connect();
+	} else if (!window.postMessage) {
+		// browser does not support cross-document messaging
+		return overlay('unsupported');
 	}
 	var origin = 'http://play.pokemonshowdown.com';
 	$(window).on('message', (function() {
@@ -3742,7 +3752,7 @@ teams = (function() {
 				};
 				// check for third-party cookies being disabled
 				if (data.nothirdparty) {
-					overlay('message', 'You have third-party cookies disabled in your browser.</p><p>Pokemon Showdown uses third-party cookies and <code>localStorage</code> to handle teams, preferences, and logging in on third-party servers.</p><p>We recommend that you enable third-party cookies and then refresh this page. You can ignore this recommendation if you want, but some things might not work properly on third-party servers.');
+					overlay('nothirdparty');
 				}
 				// connect
 				connect();
