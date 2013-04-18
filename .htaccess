@@ -43,7 +43,6 @@ RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE]
 Header set Cache-Control "no-cache, no-store, must-revalidate" env=INDEX_PAGE
 Header set Pragma "no-cache" env=INDEX_PAGE
 Header set Expires "0" env=INDEX_PAGE
-Header set X-UA-Compatible "IE=Edge,chrome=1" env=INDEX_PAGE
 
 # No direct linking to the lobby.
 RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
