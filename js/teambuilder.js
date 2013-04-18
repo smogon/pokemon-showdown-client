@@ -194,7 +194,7 @@ function Teambuilder(id, elem)
 					text += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="setstats" id="'+selfR.id+'-setstats" name="stats" class="chartinput" onclick="rooms[\''+selfR.id+'\'].formChartClick(event); return false">';
 					text += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
 					var stats = {};
-					for (var j in StatNames)
+					for (var j in BattleStatNames)
 					{
 						stats[j] = selfR.getStat(j, set);
 						var ev = '<em>'+(set.evs[j] || '')+'</em>';
@@ -211,7 +211,7 @@ function Teambuilder(id, elem)
 						if (width>75) width = 75;
 						var color = Math.floor(stats[j]*180/714);
 						if (color>360) color = 360;
-						text += '<span class="statrow"><label>'+StatNames[j]+'</label> <span class="statgraph"><span style="width:'+width+'px;background:hsl('+color+',40%,75%);"></span></span> '+ev+'</span>';
+						text += '<span class="statrow"><label>'+BattleStatNames[j]+'</label> <span class="statgraph"><span style="width:'+width+'px;background:hsl('+color+',40%,75%);"></span></span> '+ev+'</span>';
 					}
 					text += '</button></div></div>';
 					
@@ -918,9 +918,9 @@ function Teambuilder(id, elem)
 			guessedMinus = guessedEVs.minusStat; delete guessedEVs.minusStat;
 			text += ' <br /></small><button onclick="rooms[\''+selfR.id+'\'].updateStatForm(true);return false">';
 			for (var i in guessedEVs) {
-				text += ''+guessedEVs[i]+' '+StatNames[i]+' / ';
+				text += ''+guessedEVs[i]+' '+BattleStatNames[i]+' / ';
 			}
-			text += ' (+'+StatNames[guessedPlus]+', -'+StatNames[guessedMinus]+')</button>';
+			text += ' (+'+BattleStatNames[guessedPlus]+', -'+BattleStatNames[guessedMinus]+')</button>';
 			text += ' <small><br />('+role+' | bulk: phys '+Math.round(selfR.moveCount.physicalBulk/1000)+' + spec '+Math.round(selfR.moveCount.specialBulk/1000)+' = '+Math.round(selfR.moveCount.bulk/1000)+')</small></p>';
 		}
 
@@ -1014,7 +1014,7 @@ function Teambuilder(id, elem)
 			text += '<option value="'+i+'"'+(curNature===nature?'selected="selected"':'')+'>'+i;
 			if (curNature.plus)
 			{
-				text += ' (+'+StatNames[curNature.plus]+', -'+StatNames[curNature.minus]+')';
+				text += ' (+'+BattleStatNames[curNature.plus]+', -'+BattleStatNames[curNature.minus]+')';
 			}
 			text += '</option>';
 		}
@@ -1039,7 +1039,7 @@ function Teambuilder(id, elem)
 			selfR.minus = '';
 		}
 		nature = BattleNatures[set.nature||'Serious'];
-		for (var i in StatNames)
+		for (var i in BattleStatNames)
 		{
 			var val = ''+(set.evs[i]||'');
 			if (nature.plus === i)
@@ -1122,7 +1122,7 @@ function Teambuilder(id, elem)
 		$('#'+selfR.id+'-nature').val(set.nature||'Serious');
 		
 		text = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
-		for (var j in StatNames)
+		for (var j in BattleStatNames)
 		{
 			var ev = '<em>'+(set.evs[j] || '')+'</em>';
 			if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === j)
@@ -1138,7 +1138,7 @@ function Teambuilder(id, elem)
 			if (width>75) width = 75;
 			var color = Math.floor(stats[j]*180/714);
 			if (color>360) color = 360;
-			text += '<span class="statrow"><label>'+StatNames[j]+'</label> <span class="statgraph"><span style="width:'+width+'px;background:hsl('+color+',40%,75%);"></span></span> '+ev+'</span>';
+			text += '<span class="statrow"><label>'+BattleStatNames[j]+'</label> <span class="statgraph"><span style="width:'+width+'px;background:hsl('+color+',40%,75%);"></span></span> '+ev+'</span>';
 		}
 		$('#'+selfR.id+'-setstats').html(text);
 	};
@@ -1608,7 +1608,7 @@ function Teambuilder(id, elem)
 					var evLine = $.trim(evLines[j]);
 					var spaceIndex = evLine.indexOf(' ');
 					if (spaceIndex === -1) continue;
-					var statid = StatIDs[evLine.substr(spaceIndex+1)];
+					var statid = BattleStatIDs[evLine.substr(spaceIndex+1)];
 					var statval = parseInt(evLine.substr(0, spaceIndex));
 					if (!statid) continue;
 					curSet.evs[statid] = statval;
@@ -1622,7 +1622,7 @@ function Teambuilder(id, elem)
 					var ivLine = ivLines[j];
 					var spaceIndex = ivLine.indexOf(' ');
 					if (spaceIndex === -1) continue;
-					var statid = StatIDs[ivLine.substr(spaceIndex+1)];
+					var statid = BattleStatIDs[ivLine.substr(spaceIndex+1)];
 					var statval = parseInt(ivLine.substr(0, spaceIndex));
 					if (!statid) continue;
 					curSet.ivs[statid] = statval;
@@ -1711,7 +1711,7 @@ function Teambuilder(id, elem)
 				{
 					text += ' / ';
 				}
-				text += ''+curSet.evs[j]+' '+POStatNames[j];
+				text += ''+curSet.evs[j]+' '+BattlePOStatNames[j];
 			}
 			if (!first)
 			{
@@ -1732,7 +1732,7 @@ function Teambuilder(id, elem)
 					if (move.substr(0,13) === 'Hidden Power ' && move.substr(0,14) !== 'Hidden Power [')
 					{
 						hpType = move.substr(13);
-						for (var stat in StatNames)
+						for (var stat in BattleStatNames)
 						{
 							if (curSet.ivs[stat] !== exports.BattleTypeChart[hpType].HPivs[stat])
 							{
@@ -1748,7 +1748,7 @@ function Teambuilder(id, elem)
 				}
 				if (defaultIvs && !hpType)
 				{
-					for (var stat in StatNames)
+					for (var stat in BattleStatNames)
 					{
 						if (curSet.ivs[stat] !== 31 && typeof curSet.ivs[stat] !== undefined)
 						{
@@ -1771,7 +1771,7 @@ function Teambuilder(id, elem)
 						{
 							text += ' / ';
 						}
-						text += ''+curSet.ivs[stat]+' '+POStatNames[stat];
+						text += ''+curSet.ivs[stat]+' '+BattlePOStatNames[stat];
 					}					
 				}
 			}
