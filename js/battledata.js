@@ -266,7 +266,7 @@ var BattleNatures = {
 		minus: 'atk'
 	}
 };
-var StatIDs = {
+var BattleStatIDs = {
 	HP: 'hp',
 	hp: 'hp',
 	Atk: 'atk',
@@ -285,7 +285,7 @@ var StatIDs = {
 	Spd: 'spe',
 	spe: 'spe'
 };
-var POStatNames = { // PO style
+var BattlePOStatNames = { // PO style
 	hp: 'HP',
 	atk: 'Atk',
 	def: 'Def',
@@ -293,7 +293,7 @@ var POStatNames = { // PO style
 	spd: 'SDef',
 	spe: 'Spd'
 };
-var StatNames = { // proper style
+var BattleStatNames = { // proper style
 	hp: 'HP',
 	atk: 'Atk',
 	def: 'Def',
