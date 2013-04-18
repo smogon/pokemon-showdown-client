@@ -3154,6 +3154,7 @@ function overlay(overlayType, data) {
 		contents += '<p>You have third-party cookies disabled in your browser.</p>';
 		contents += '<p>Pokemon Showdown uses third-party cookies and <code>localStorage</code> to handle teams, preferences, and logging in on third-party servers.</p>';
 		contents += '<p>We recommend that you enable third-party cookies and then refresh this page. You can ignore this recommendation if you want, but some things might not work properly on third-party servers.</p>';
+		contents += '<p><button onclick="overlayClose();return false" id="overlay_ok">OK</button></p>';
 		focusElem = '#overlay_ok';
 		break;
 	case 'init':
