@@ -35,6 +35,7 @@
 {
 	float: left;
 	padding-top: 6px;
+	height: 22px;
 	font-size: 9pt;
 	color: #444444;
 }
@@ -111,6 +112,7 @@
 .utilichart .namecol
 {
 	padding-top: 5px;
+	height: 23px;
 	width: 120px;
 	color: #000000;
 	font-size: 10pt;
@@ -118,6 +120,7 @@
 .utilichart .pokemonnamecol
 {
 	padding-top: 5px;
+	height: 23px;
 	width: 127px;
 	color: #000000;
 	font-size: 10pt;
@@ -125,6 +128,7 @@
 .utilichart .movenamecol
 {
 	padding-top: 5px;
+	height: 23px;
 	width: 160px;
 	color: #000000;
 	font-size: 10pt;
@@ -136,12 +140,14 @@
 .utilichart .abilitycol
 {
 	padding-top: 7px;
+	height: 21px;
 	font-size: 8pt;
 	width: 90px;
 }
 .utilichart .twoabilitycol
 {
 	padding-top: 0;
+	height: 28px;
 	font-size: 8pt;
 	width: 90px;
 }
@@ -157,6 +163,7 @@
 .utilichart .illegalcol em
 {
 	padding: 1px 4px;
+	height: auto;
 	border: 1px solid #AA2222;
 	color: #AA2222;
 	border-radius: 4px;
@@ -181,7 +188,7 @@
 	padding-top: 7px;
 	font-size: 8pt;
 	width: 490px;
-	height: 20px;
+	height: 21px;
 	overflow: hidden;
 	color: #777777;
 }
