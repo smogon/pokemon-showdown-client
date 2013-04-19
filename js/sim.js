@@ -2877,8 +2877,13 @@ if (window.history && history.pushState) {
 	};
 	window.onpopstate = function (e) {
 		if (document.location.pathname.substr(0, Config.locPrefix.length) === Config.locPrefix) {
+			var oldloc = me.loc;
 			me.loc = document.location.pathname.substr(Config.locPrefix.length);
 			if (!me.loc || me.loc === 'test.html' || me.loc === 'temp.html' || me.loc.substr(me.loc.length-15) === 'testclient.html') me.loc = 'lobby';
+			if ((me.loc !== oldloc) && window._gaq) {
+				var urlLoc = (me.loc !== 'lobby') ? me.loc : '';
+				_gaq.push(['_trackPageview', Config.locPrefix + urlLoc]);
+			}
 			if (!me.socket) {
 				return; // haven't even initted yet
 			}
