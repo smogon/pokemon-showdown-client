@@ -70,6 +70,7 @@
 			}
 
 			if (!bufs[typeTable[type]]) bufs[typeTable[type]] = '<li><h3>'+typeName[type]+'</h3></li>';
+			if (!matchLength) bufs[typeTable[type]] = '<li class="notfound"><em>No exact match found. The next match alphabetically is:</em></li>'+bufs[typeTable[type]];
 			bufs[typeTable[type]] += Search.renderRow(id, type, 0, matchLength + (BattleSearchIndexOffset[i+j][matchLength-1]||'0').charCodeAt(0)-48);
 		}
 
