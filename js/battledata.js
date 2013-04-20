@@ -715,6 +715,7 @@ var Tools = {
 		else if (window.BattlePokedex[id] && BattlePokedex[id].num) num = BattlePokedex[id].num;
 		if (num < 0) num = 0;
 		var altNums = {
+			"egg": 651,
 			"rotomfan": 699,
 			"rotomfrost": 700,
 			"rotomheat": 701,
