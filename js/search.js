@@ -50,11 +50,13 @@
 		this.q = query;
 		if (!query) {
 			this.el.innerHTML = '';
+			this.exactMatch = false;
 			return true;
 		}
 
 		var i = Search.getClosest(query);
 		if (!BattleSearchIndex[i]) i--;
+		this.exactMatch = (query === BattleSearchIndex[i]);
 
 		var bufs = ['','','',''];
 
