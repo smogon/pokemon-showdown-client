@@ -55,10 +55,11 @@
 		}
 
 		var i = Search.getClosest(query);
-		if (!BattleSearchIndex[i]) i--;
+		if (!BattleSearchIndex[i] || query === 'metronome') i--;
 		this.exactMatch = (query === BattleSearchIndex[i]);
 
 		var bufs = ['','','',''];
+		var topbufIndex = -1;
 
 		for (var j=0; j<15; j++) {
 			var id = BattleSearchIndex[i+j];
@@ -70,13 +71,22 @@
 				if (j) break;
 				matchLength = 0;
 			}
+			if (j === 0 && this.exactMatch) {
+				topbufIndex = typeTable[type];
+			}
 
 			if (!bufs[typeTable[type]]) bufs[typeTable[type]] = '<li><h3>'+typeName[type]+'</h3></li>';
 			if (!matchLength) bufs[typeTable[type]] = '<li class="notfound"><em>No exact match found. The next match alphabetically is:</em></li>'+bufs[typeTable[type]];
 			bufs[typeTable[type]] += Search.renderRow(id, type, 0, matchLength + (BattleSearchIndexOffset[i+j][matchLength-1]||'0').charCodeAt(0)-48);
 		}
 
-		this.el.innerHTML = '<ul class="utilichart">'+bufs.join('')+'</ul>';
+		var topbuf = '';
+		if (topbufIndex >= 0) {
+			topbuf = bufs[topbufIndex];
+			bufs[topbufIndex] = '';
+		}
+
+		this.el.innerHTML = '<ul class="utilichart">'+topbuf+bufs.join('')+'</ul>';
 		return true;
 	};
 
