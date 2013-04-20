@@ -13,7 +13,8 @@ if (empty($ladderdb)) {
 			$config['ladder_username'],
 			$config['ladder_password'],
 			$config['ladder_database'],
-			$config['ladder_prefix']);
+			$config['ladder_prefix'],
+			$config['ladder_charset']);
 }
 
 class Glicko2Player {
