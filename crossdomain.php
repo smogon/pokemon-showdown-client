@@ -42,7 +42,7 @@ if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
 }
 ?>
 <!DOCTYPE html>
-<script src="/js/jquery-1.9.0.min.js"></script>
+<script src="/js/jquery-2.0.0.min.js"></script>
 <script src="/js/jquery-cookie.js"></script>
 <script src="/js/jquery.json-2.3.min.js"></script>
 <script>
