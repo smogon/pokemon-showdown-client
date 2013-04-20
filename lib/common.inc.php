@@ -99,7 +99,7 @@ if (in_array($user['auth'], array(AUTH_NOASSERTION, AUTH_EXPIRED, AUTH_INVALID))
 } else if (in_array($user['auth'], array(AUTH_NOSESSION, AUTH_NOPERMISSION))) {
 	// expire assertion cookie
 	setcookie('assertion', '', time() - 3600, '/');
-	die('You don\'t have permission to view this page. Log into Pokemon Showdown with an account of group @, &, or ~, and then come back to this page.');
+	die('You don\'t have permission to view this page. Log into Pokemon Showdown with an account of group @, &, or ~, and then come back to this page. Alternatively, you might have third-party cookies disabled in your browser. You\'ll need to enable them before using the log viewer.');
 } else if ($user['auth'] !== AUTH_VALID) {
 	die('This should be impossible.');
 }
