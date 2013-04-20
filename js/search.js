@@ -212,6 +212,72 @@
 
 		return buf;
 	};
+	Search.renderTaggedPokemonRow = function(pokemon, tag, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'pokemon/'+toId(pokemon.species)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
+
+		// tag
+		buf += '<span class="col tagcol">'+tag+'</span> ';
+
+		// icon
+		buf += '<span class="col iconcol">';
+		buf += '<span style="'+Tools.getIcon(pokemon)+'"></span>';
+		buf += '</span> ';
+
+		// name
+		var name = pokemon.species;
+		var tagStart = (pokemon.forme ? name.length-pokemon.forme.length-1 : 0);
+		if (tagStart) name = name.substr(0, tagStart) + '<small>'+pokemon.species.substr(tagStart)+'</small>';
+		buf += '<span class="col pokemonnamecol" style="white-space:nowrap">'+name+'</span> ';
+
+		// error
+		if (errorMessage) {
+			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '</a></li>';
+			return buf;
+		}
+
+		// type
+		buf += '<span class="col typecol">';
+		for (var i=0; i<pokemon.types.length; i++) {
+			buf += Tools.getTypeIcon(pokemon.types[i]);
+		}
+		buf += '</span> ';
+
+		// abilities
+		buf += '<span style="float:left;min-height:26px">';
+		if (pokemon.abilities['1']) {
+			buf += '<span class="col twoabilitycol">';
+		} else {
+			buf += '<span class="col abilitycol">';
+		}
+		for (var i in pokemon.abilities) {
+			var ability = pokemon.abilities[i];
+			if (!ability) continue;
+
+			if (i === '1') buf += '<br />';
+			if (i === 'DW') ability = '</span><span class="col abilitycol"><em>'+pokemon.abilities[i]+'</em>';
+			buf += ability;
+		}
+		if (!pokemon.abilities['DW']) buf += '</span><span class="col abilitycol">';
+		buf += '</span>';
+		buf += '</span>';
+
+		// base stats
+		buf += '<span style="float:left;min-height:26px">';
+		buf += '<span class="col statcol"><em>HP</em><br />'+pokemon.baseStats.hp+'</span> ';
+		buf += '<span class="col statcol"><em>Atk</em><br />'+pokemon.baseStats.atk+'</span> ';
+		buf += '<span class="col statcol"><em>Def</em><br />'+pokemon.baseStats.def+'</span> ';
+		buf += '<span class="col statcol"><em>SpA</em><br />'+pokemon.baseStats.spa+'</span> ';
+		buf += '<span class="col statcol"><em>SpD</em><br />'+pokemon.baseStats.spd+'</span> ';
+		buf += '<span class="col statcol"><em>Spe</em><br />'+pokemon.baseStats.spe+'</span> ';
+		buf += '</span>';
+
+		buf += '</a></li>';
+
+		return buf;
+	};
 
 	Search.renderItemRow = function(item, matchStart, matchLength, errorMessage) {
 		var attrs = '';
@@ -318,6 +384,44 @@
 
 		return buf;
 	};
+	Search.renderTaggedMoveRow = function(move, tag, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'move/'+toId(move.name)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
+
+		// tag
+		buf += '<span class="col tagcol">'+tag+'</span> ';
+
+		// name
+		var name = move.name;
+		if (name.substr(0, 12) === 'Hidden Power') name = 'Hidden Power';
+		buf += '<span class="col shortmovenamecol">'+name+'</span> ';
+
+		// error
+		if (errorMessage) {
+			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '</a></li>';
+			return buf;
+		}
+
+		// type
+		buf += '<span class="col typecol">';
+		buf += Tools.getTypeIcon(move.type);
+		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32" />';
+		buf += '</span> ';
+
+		// power, accuracy
+		buf += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
+		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
+
+		// desc
+		buf += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
+
+		buf += '</a></li>';
+
+		return buf;
+	};
+
 	Search.renderAbilityRow = function(ability, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'ability/'+toId(ability.name)+'" data-target="push"';

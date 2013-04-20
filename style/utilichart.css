@@ -133,6 +133,25 @@
 	color: #000000;
 	font-size: 10pt;
 }
+.utilichart .shortmovenamecol
+{
+	padding-top: 5px;
+	height: 23px;
+	width: 112px;
+	color: #000000;
+	font-size: 10pt;
+}
+.utilichart .tagcol
+{
+	padding-top: 5px;
+	height: 23px;
+	width: 42px;
+	border-right: 1px solid #CCCCCC;
+	margin-right: 5px;
+	text-align: center;
+	color: #000000;
+	font-size: 10pt;
+}
 .utilichart .typecol
 {
 	width: 70px;
