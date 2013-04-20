@@ -404,11 +404,6 @@ class LadderActionHandler {
 		$out = $user['ratings'];
 	}
 
-	// deprecated action name
-	public function ladderformatgetmmr($dispatcher, &$reqData, &$out) {
-		$this->mmr($dispatcher, $reqData, $out);
-	}
-
 	public function mmr($dispatcher, &$reqData, &$out) {
 		global $PokemonServers;
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
