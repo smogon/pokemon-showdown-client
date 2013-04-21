@@ -145,7 +145,7 @@
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
 
 		// number
-		buf += '<span class="col numcol">'+(pokemon.num)+'</span> ';
+		buf += '<span class="col numcol">'+(pokemon.num>=0 ? pokemon.num : 'CAP')+'</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
