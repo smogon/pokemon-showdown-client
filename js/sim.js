@@ -2031,7 +2031,7 @@ function Lobby(id, elem) {
 			}
 			selfR.selectedFormat = toId(challenge.format);
 			text = '<div class="action-notify"><button class="closebutton" style="float:right;margin:-6px -10px 0 0" onclick="return rooms[\'' + selfR.id + '\'].formRejectChallenge(\'' + Tools.escapeHTML(challenge.from) + '\')"><i class="icon-remove-sign"></i></button>';
-			text += 'Challenge from: ' + (me.users[challenge.from] || challenge.from) + '<br /><label class="label">Format:</label> ' + Tools.escapeHTML(challenge.format) + '</br >';
+			text += 'Challenge from: ' + Tools.escapeHTML(me.users[challenge.from] || challenge.from) + '<br /><label class="label">Format:</label> ' + Tools.escapeHTML(challenge.format) + '</br >';
 			text += '' + selfR.getTeamSelect(challenge.format) + '<br />';
 			text += '<button onclick="return rooms[\'' + selfR.id + '\'].formAcceptChallenge(\'' + Tools.escapeHTML(challenge.from) + '\')" id="' + selfR.id + '-gobutton"' + (selfR.goDisabled ? ' disabled="disabled"' : '') + '>Accept</button> <button onclick="return rooms[\'' + selfR.id + '\'].formRejectChallenge(\'' + Tools.escapeHTML(challenge.from) + '\')"><small>Reject</small></button></div>';
 		} else if (me.userForm) {
@@ -2076,17 +2076,23 @@ function Lobby(id, elem) {
 
 			var teamname = 'Random team';
 			if (selectedTeam >= 0) teamname = teams[selectedTeam].name;
-			text = '<div class="action-waiting">Challenging: ' + (me.users[me.challengeTo.to] || me.challengeTo.to) + '<br />Format: ' + me.challengeTo.format + '<br />Team: ' + teamname + '<br /><button onclick="return rooms[\'' + selfR.id + '\'].formCloseUserForm(\'' + Tools.escapeHTML(me.challengeTo.to) + '\')"><small>Cancel</small></button></div>';
+			text = '<div class="action-waiting">Challenging: ' + Tools.escapeHTML(me.users[me.challengeTo.to] || me.challengeTo.to) + '<br />Format: ' + Tools.escapeHTML(me.challengeTo.format) + '<br />Team: ' + Tools.escapeHTML(teamname) + '<br /><button onclick="return rooms[\'' + selfR.id + '\'].formCloseUserForm(\'' + Tools.escapeHTML(me.challengeTo.to) + '\')"><small>Cancel</small></button></div>';
 		} else if (selfR.me.searching) {
 			if (selfR.mainTopState === 'searching') return;
 			selfR.mainTopState = 'searching';
 
-			text = '<div class="action-waiting">Format: ' + selfR.me.searching.format + '<br />Searching...<br /><button onclick="return rooms[\'' + selfR.id + '\'].formSearchBattle(false)"><small>Cancel</small></button></div>';
+			text = '<div class="action-waiting">Format: ' + Tools.escapeHTML(selfR.me.searching.format) + '<br />Searching...<br /><button onclick="return rooms[\'' + selfR.id + '\'].formSearchBattle(false)"><small>Cancel</small></button></div>';
 		} else {
 			var roomListCode = '';
 			for (var i=selfR.rooms.length-1; i>=0; i--) {
-				var roomData = selfR.rooms[i];
 				if (!roomListCode) roomListCode += '<h3>Watch battles</h3>';
+				var roomData = selfR.rooms[i];
+				if (!selfR.parseBattleID(roomData.id)) {
+					// It should be impossible to get here because the battle ID
+					// is already verified elsewhere, but we check here for
+					// greater certainty against JavaScript injection.
+					continue;
+				}
 				var roomDesc = '<small>[' + Tools.getEffect(roomData.format).name + ']</small><br /><em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
 				roomListCode += '<div><a href="' + Config.locPrefix + '' + roomData.id + '" onclick="selectTab(\'' + roomData.id + '\');return false">' + roomDesc + '</a></div>';
 			}
@@ -2094,7 +2100,7 @@ function Lobby(id, elem) {
 
 			var searcherText = '';
 			if (selfR.searcher) {
-				searcherText = '<small>There ' + (selfR.searcher === 1 ? 'is' : 'are') + ' ' + selfR.searcher + ' other ' + (selfR.searcher === 1 ? 'person' : 'people') + ' searching.</small>';
+				searcherText = '<small>There ' + (selfR.searcher === 1 ? 'is' : 'are') + ' ' + Tools.escapeHTML(selfR.searcher) + ' other ' + (selfR.searcher === 1 ? 'person' : 'people') + ' searching.</small>';
 			}
 			if (selfR.mainTopState === 'search-'+selfR.selectedFormat+(!selfR.goDisabled?'-nogo':'')) {
 				$('#' + selfR.id + '-searcher').html(searcherText);
