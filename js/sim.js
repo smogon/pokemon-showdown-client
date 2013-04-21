@@ -3228,6 +3228,8 @@ function overlay(overlayType, data) {
 		contents += '<!--p><label class="optlabel"><input type="checkbox" id="pref_showjoins"'+(Tools.prefs('showjoins')?' checked="checked"':'')+'> Always show joins/leaves in lobby chat</label></p-->';
 		contents += '<!--p><label class="optlabel"><input type="checkbox" id="pref_showbattles"'+(Tools.prefs('showbattles')?' checked="checked"':'')+'> Always show battle starts in lobby chat</label></p-->';
 
+		contents += '<p><label class="optlabel"><input type="checkbox" id="pref_lobbychatoff"'+(rooms.lobby.lobbyChatOff?' checked="checked"':'')+'> Disable lobby chat</label></p>';
+
 		if (curRoom.battle) {
 			contents += '<h3>Current room</h3>';
 			contents += '<p><label class="optlabel"><input type="checkbox" id="pref_ignorespects"'+(curRoom.battle.ignoreSpects?' checked="checked"':'')+'> Ignore spectators</label></p>';
@@ -3384,6 +3386,15 @@ function overlaySubmit(e, overlayType) {
 		Tools.prefs('noanim', !!$('#pref_noanim').prop('checked'), false);
 		if (curRoom.battle) {
 			curRoom.battle.ignoreSpects = !!$('#pref_ignorespects').prop('checked');
+		}
+		if (!!$('#pref_lobbychatoff').prop('checked') != !!rooms.lobby.lobbyChatOff) {
+			if (rooms.lobby.lobbyChatOff) {
+				rooms.lobby.lobbyChatOff = false;
+				rooms.lobby.send('/lobbychat on');
+			} else {
+				rooms.lobby.lobbyChatOff = true;
+				rooms.lobby.send('/lobbychat off');
+			}
 		}
 		Tools.prefs.save();
 		overlayClose();
