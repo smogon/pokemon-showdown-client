@@ -3520,6 +3520,9 @@ teams = (function() {
 					return;
 				}
 				var tempInitialize = function () {
+						if (!(/[a-z0-9-]*/.test('' + data.room))) {
+							return; // bogus room ID could be used to inject JavaScript
+						}
 						addTab(data.room, data.roomType);
 						var room = rooms[data.room];
 						room.init(data);
