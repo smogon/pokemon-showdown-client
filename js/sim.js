@@ -1902,7 +1902,7 @@ function Lobby(id, elem) {
 	};
 	this.command = function (data) {
 		if (data.command === 'userdetails') {
-			var userid = data.userid;
+			var userid = toUserid(data.userid);
 			if (!$('#' + selfR.id + '-userdetails-' + userid).length) return;
 
 			var roomListCode = '';
@@ -1923,7 +1923,7 @@ function Lobby(id, elem) {
 				roomListCode += '<div><a href="' + Config.locPrefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
 			}
 
-			var code = '<img src="' + Tools.resourcePrefix + 'sprites/trainers/' + data.avatar + '.png" />';
+			var code = '<img src="' + Tools.resourcePrefix + 'sprites/trainers/' + parseInt(data.avatar, 10) + '.png" />';
 			if (roomListCode) {
 				roomListCode = '<div class="action-form">In rooms:<br /><div class="roomlist">' + roomListCode + '</div></div>';
 			}
@@ -1946,7 +1946,7 @@ function Lobby(id, elem) {
 				}
 				var ipbits = [];
 				for (var i = 0; i < ips.length; ++i) {
-					ipbits.push('<a href="http://www.geoiptool.com/en/?IP=' + ips[i] + '" target="iplookup">' + ips[i] + '</a>');
+					ipbits.push('<a href="http://www.geoiptool.com/en/?IP=' + encodeURIComponent(ips[i]) + '" target="iplookup">' + Tools.escapeHTML(ips[i]) + '</a>');
 				}
 				roomListCode = '<div class="action-form"><small>IP' + ((ips.length > 1) ? 's' : '') + ': ' + ipbits.join(', ') + '</small>' + banMuteBuffer + '</div>' + roomListCode;
 			}
