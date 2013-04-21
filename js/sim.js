@@ -1694,6 +1694,9 @@ function Lobby(id, elem) {
 			} else if (log[i].name && log[i].action === 'battle') {
 				var id = log[i].room;
 				var matches = selfR.parseBattleID(id);
+				if (!matches) {
+					continue; // bogus room ID could be used to inject JavaScript
+				}
 				var format = (matches ? matches[1] : '');
 				selfR.rooms.push({
 					id: id,
@@ -1879,6 +1882,9 @@ function Lobby(id, elem) {
 			for (var id in data.rooms) {
 				var room = data.rooms[id];
 				var matches = selfR.parseBattleID(id);
+				if (!matches) {
+					continue; // bogus room ID could be used to inject JavaScript
+				}
 				room.format = (matches ? matches[1] : '');
 				room.id = id;
 				selfR.rooms.unshift(room);
@@ -1903,6 +1909,9 @@ function Lobby(id, elem) {
 			for (var id in data.rooms) {
 				var roomData = data.rooms[id];
 				var matches = selfR.parseBattleID(id);
+				if (!matches) {
+					continue; // bogus room ID could be used to inject JavaScript
+				}
 				var format = (matches ? '<small>[' + matches[1] + ']</small><br />' : '');
 				var roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
 				if (!roomData.p1) {
