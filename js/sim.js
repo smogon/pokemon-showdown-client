@@ -1704,7 +1704,7 @@ function Lobby(id, elem) {
 					p1: log[i].name,
 					p2: log[i].name2
 				});
-				if (selfR.rooms.length > 8) selfR.rooms.shift();
+				if (selfR.rooms.length > 6) selfR.rooms.shift();
 
 				selfR.debounceUpdate();
 
@@ -1956,11 +1956,20 @@ function Lobby(id, elem) {
 			if (!$('#' + selfR.id + '-roomlist').length) return;
 			var roomListCode = '';
 			var i = 0;
+			selfR.rooms.splice(0);
 			for (var id in data.rooms) {
 				var roomData = data.rooms[id];
 				var matches = selfR.parseBattleID(id);
 				if (!matches) {
 					continue; // bogus room ID could be used to inject JavaScript
+				}
+				if (selfR.rooms.length < 6) {
+					selfR.rooms.unshift({
+						id: id,
+						format: matches[1],
+						p1: roomData.p1,
+						p2: roomData.p2
+					});
 				}
 				var format = (matches ? '<small>[' + matches[1] + ']</small><br />' : '');
 				var roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
