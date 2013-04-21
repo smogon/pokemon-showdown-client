@@ -1959,6 +1959,9 @@ function Lobby(id, elem) {
 			for (var id in data.rooms) {
 				var roomData = data.rooms[id];
 				var matches = selfR.parseBattleID(id);
+				if (!matches) {
+					continue; // bogus room ID could be used to inject JavaScript
+				}
 				var format = (matches ? '<small>[' + matches[1] + ']</small><br />' : '');
 				var roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
 				if (!roomData.p1) {
