@@ -1956,7 +1956,7 @@ function Lobby(id, elem) {
 			if (!$('#' + selfR.id + '-roomlist').length) return;
 			var roomListCode = '';
 			var i = 0;
-			selfR.rooms.splice(0);
+			selfR.rooms.length = 0;
 			for (var id in data.rooms) {
 				var roomData = data.rooms[id];
 				var matches = selfR.parseBattleID(id);
