@@ -101,25 +101,6 @@ function hashColor(name) {
 	return colorCache[name];
 }
 
-// Translation function
-var _ = (function() {
-	var re = /@[0-9]+/g;
-	var args = {};
-	var callback = function (args) { return function(i) { return args[+i.substr(1)+1] || ""; }; };
-	var lt = {en: 0, jp: 1, fr: 2, it: 3, de: 4, es: 5};
-	var lang = (window.Config && Config.language && lt[Config.language]) ? lt[Config.language] : 0;
-
-	if(lang && window.exports && exports.Translations)
-	{
-		return function f (message) {
-			var m = exports.Translations.hasOwnProperty(message) ? exports.Translations[message][lang-1] : message;
-			return m.replace(re, callback(f.arguments));
-		};
-	} else {
-		return function f (message) { return m.replace(re, callback(f.arguments)); };
-	}
-})();
-
 function messageSanitize(str) {
 	str = Tools.escapeHTML(str);
 	// Don't format console commands (>>).
