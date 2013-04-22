@@ -41,6 +41,15 @@
 // 	return '';
 // });
 
+// BattleSearchCountIndex = {};
+// for (var type in BattleTypeChart) {
+// 	BattleSearchCountIndex[type+' move'] = Object.keys(BattleMovedex).filter(function(id){ if (BattleMovedex[id].type === type) return true; }).length;
+// }
+
+// for (var type in BattleTypeChart) {
+// 	BattleSearchCountIndex[type+' pokemon'] = Object.keys(BattlePokedex).filter(function(id){ if (BattlePokedex[id].types.indexOf(type) >= 0) return true; }).length;
+// }
+
 exports.BattleSearchIndex = [
 "abomasnow",
 "abra",
@@ -5152,3 +5161,5 @@ exports.BattleSearchIndexOffset = [
 "",
 ""
 ];
+
+exports.BattleSearchCountIndex = {"Bug move":22,"Dark move":30,"Dragon move":14,"Electric move":21,"Fighting move":40,"Fire move":30,"Flying move":23,"Ghost move":18,"Grass move":34,"Ground move":18,"Ice move":21,"Normal move":167,"Poison move":22,"Psychic move":54,"Rock move":17,"Steel move":19,"Water move":28,"Bug pokemon":72,"Dark pokemon":42,"Dragon pokemon":34,"Electric pokemon":49,"Fighting pokemon":47,"Fire pokemon":54,"Flying pokemon":89,"Ghost pokemon":32,"Grass pokemon":81,"Ground pokemon":63,"Ice pokemon":35,"Normal pokemon":99,"Poison pokemon":60,"Psychic pokemon":74,"Rock pokemon":49,"Steel pokemon":44,"Water pokemon":116};
