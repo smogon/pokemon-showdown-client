@@ -264,6 +264,9 @@ class DefaultActionHandler {
 			$db->query(
 				"INSERT INTO `ntbb_userstatshistory` (`date`, `usercount`) " .
 				"VALUES ('" . $db->escape($date) . "', '" . $db->escape($usercount) . "')");
+
+			include_once dirname(__FILE__) . '../../pokemonshowdown.com/lib/poregistry.lib.php';
+			PORegistry::updateUserStats();
 		}
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
 	}
