@@ -1679,6 +1679,8 @@ function Lobby(id, elem) {
 					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + '<i>' + messageSanitize(message.substr(5)) + '</i></em></div>');
 				} else if (message.substr(0,10).toLowerCase() === '/announce ') {
 					selfR.chatElem.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + messageSanitize(message.substr(10)) + '</span></div>');
+				} else if (message.substr(0,6).toLowerCase() === '/warn ') {
+					overlay('rules', {warning: message.substr(6)});
 				} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 					selfR.chatElem.append('<div class="message"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 				} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -3341,6 +3343,29 @@ function overlay(overlayType, data) {
 		contents += '<p>You have been disconnected - possibly because the server was restarted.</p>'
 		contents += '<p><button onclick="document.location.reload();return false" id="overlay_refresh"><strong>Reconnect</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		focusElem = '#overlay_refresh';
+		break;
+	case 'rules':
+		customAttrs = ' style="max-width:760px"';
+		var warning = (data && 'warning' in data);
+		if (warning) {
+			contents += '<p><strong style="color:red">'+(Tools.escapeHTML(data.warning)||'You have been warned for breaking the rules.')+'</strong></p>';
+		}
+		contents += '<h2>Pokemon Showdown Rules</h2>';
+		contents += '<b>Global</b><br /><br /><b>1.</b> Be nice to people. Respect people. Don\'t be rude to people.<br /><br /><b>2.</b> PS is based in the US. Follow US laws. Don\'t distribute pirated material, and don\'t slander others. PS is available to users younger than 18, so porn is strictly forbidden.<br /><br /><b>3.</b>&nbsp;No cheating. Don\'t exploit bugs to gain an unfair advantage. Don\'t game the system (by intentionally losing against yourself or a friend in a ladder match, by timerstalling, etc).<br /><b></b><br /><b>4.</b>&nbsp;English only.<br /><br /><b>5.</b> The First Amendment does not apply to PS, since PS is not a government organization.<br /><br /><b>6.</b> Rules are subject to moderator interpretation, punishment is subject to moderator discretion.<br /><br />';
+		contents += '<b>Lobby chat</b><br /><br /><b>1.</b> Do not spam, flame, or troll. This includes advertising, asking questions with one-word answers, and flooding the chat by copy/pasting lots of text.<br /><br /><b>2.</b> Don\'t call unnecessary attention to yourself. Don\'t be obnoxious. ALL CAPS, <i><b>formatting</b></i>, and -&gt; ASCII art &lt;- are acceptable to emphasize things, but should be used sparingly, not all the time.<br /><br /><b>3.</b> No minimodding: don\'t mod if it\'s not your job. Don\'t tell people they\'ll be muted, don\'t ask for people to be muted, and don\'t talk about whether or not people should be muted ("inb4 mute", etc). This applies to bans and other punishments, too.<br /><br /><b>4.</b> We reserve the right to tell you to stop discussing moderator decisions if you become unreasonable or belligerent.<br /><br />';
+		if (!warning) {
+			contents += '<b>Usernames</b><br /><br />Your username can be chosen and changed at any time. Keep in mind:<br /><br /><b>1.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).<br /><br /><b>2.</b> Usernames may not reference sexual activity, directly or indirectly.<br /><br /><b>3.</b> Usernames may not impersonate a recognized user (a user with %, @, &amp;, or ~ next to their name).<br /><br />This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.';
+		}
+		if (warning) {
+			contents += '<p><button onclick="overlayClose();return false" id="overlay_ok" disabled>Close</button><small id="overlay_warn"> You will be able to close this in 5 seconds</small></p>';
+			setTimeout(function(){
+				$('#overlay_ok')[0].disabled = false;
+				$('#overlay_warn').hide();
+			}, 5000);
+		} else {
+			contents += '<p><button onclick="overlayClose();return false" id="overlay_ok">Close</button></p>';
+			focusElem = '#overlay_ok';
+		}
 		break;
 	default:
 		contents += '<p>Error: message not found</p>';
