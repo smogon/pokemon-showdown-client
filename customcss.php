@@ -5,9 +5,13 @@ include '../pokemonshowdown.com/config/servers.inc.php';
 header('Content-type: text/css');
 
 $server = @$_REQUEST['server'];
-$customcssuri = @$PokemonServers[$server]['customcss'];
+if (empty($PokemonServers[$server])) {
+	die('server not found');
+}
+$serverdata = $PokemonServers[$server];
+$customcssuri = @$serverdata['customcss'];
 if (empty($customcssuri)) {
-	die();
+	$customcssuri = 'http://'.$serverdata['server'].':'.$serverdata['port'].'/custom.css';
 }
 
 // No need to sanitise $server because it should be safe already.
@@ -17,6 +21,8 @@ $lastmodified = @filemtime($cssfile);
 $timenow = time();
 $expiration = ($lastmodified ? $lastmodified : $timenow) + 3600;
 header('Expires: ' . gmdate('D, d M Y H:i:s T', $expiration));
+
+// echo '/* ', $customcssuri, ' */';
 
 if (!isset($_REQUEST['invalidate']) && $lastmodified && (($timenow - $lastmodified) < 3600)) {
 	// Don't check for modifications more than once an hour.

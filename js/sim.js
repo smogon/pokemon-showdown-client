@@ -3790,7 +3790,7 @@ teams = (function() {
 				// server config information
 				// `data.config.serverprotocol` is ignored for now
 				$.extend(Config, data.config);
-				if (Config.customcss) {
+				if (Config.registeredserver) {
 					var $link = $('<link rel="stylesheet" ' +
 						'href="//play.pokemonshowdown.com/customcss.php?server=' +
 						encodeURIComponent(Config.serverid) + '" />');
