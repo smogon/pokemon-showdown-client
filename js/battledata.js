@@ -349,7 +349,7 @@ var Tools = {
 		}
 		// just pick a random avatar
 		var sprites = [1, 2, 101, 102, 169, 170];
-		return resolveAvatar(sprites[Math.floor(Math.random() * sprites.length)]);
+		return Tools.resolveAvatar(sprites[Math.floor(Math.random() * sprites.length)]);
 	},
 
 	escapeHTML: function(str, jsEscapeToo) {

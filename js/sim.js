@@ -4,7 +4,8 @@ Config.defaultserver = {
 	serverid: 'showdown',
 	serverport: 8000,
 	serveraltport: 80,
-	serverprotocol: 'ws'
+	serverprotocol: 'ws',
+	registeredserver: true
 };
 Config.sockjsprefix = '/showdown';
 Config.locprefix = '/';
