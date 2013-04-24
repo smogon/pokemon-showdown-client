@@ -32,10 +32,28 @@ if (isset($PokemonServers[$config['server']])) {
 	if (isset($server['altport'])) $config['serveraltport'] = $server['altport'];
 	if (isset($server['customcss'])) $config['customcss'] = true;
 	$config['registeredserver'] = true;
-} else if (isset($config['serverport'])) {
-	$config['serverid'] .= ':' . $config['serverport'];
 } else {
-	$config['serverport'] = 8000; // default port
+	if (isset($config['serverport'])) {
+		$config['serverid'] .= ':' . $config['serverport'];
+	} else {
+		$config['serverport'] = 8000; // default port
+	}
+
+	// see if this is actually a registered server
+	$ip = gethostbyname($config['server']);
+	foreach ($PokemonServers as &$server) {
+		if (!isset($server['ipcache'])) {
+			$server['ipcache'] = gethostbyname($server['server']);
+		}
+		if ($ip === $server['ipcache']) {
+			if (($config['serverport'] === $server['port']) ||
+					(isset($server['altport']) &&
+						$config['serverport'] === $server['altport'])) {
+				$config['redirect'] = 'http://' . $server['id'] . '.psim.us';
+				break;
+			}
+		}
+	}
 }
 
 if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
@@ -48,6 +66,10 @@ if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
 <script src="/js/jquery.json-2.3.min.js"></script>
 <script>
 (function() {
+	var config = <?php echo json_encode($config) ?>;
+	if (config.redirect) {
+		return parent.location.replace(config.redirect);
+	}
 	var origin = <?php echo json_encode($origin) ?>;
 	var postMessage = function(message) {
 		return window.parent.postMessage($.toJSON(message), origin);
@@ -76,7 +98,7 @@ if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
 			localStorage.setItem('showdown_prefs', data.prefs);
 		}
 	});
-	var message = {config: <?php echo json_encode($config) ?>};
+	var message = {config: config};
 	try {
 		if (window.localStorage) {
 			message.teams = localStorage.getItem('showdown_teams');
