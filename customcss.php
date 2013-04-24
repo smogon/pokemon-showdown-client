@@ -43,6 +43,8 @@ if ($curlret) {
 		$config = HTMLPurifier_Config::createDefault();
 		$config->set('Filter.ExtractStyleBlocks', true);
 		$config->set('CSS.Proprietary', true);
+		$config->set('CSS.AllowImportant', true);
+		$config->set('CSS.AllowTricky', true);
 		$purifier = new HTMLPurifier($config);
 		$level = error_reporting(E_ALL & ~E_STRICT);
 		$html = $purifier->purify('<style>' . $curlret . '</style>');
