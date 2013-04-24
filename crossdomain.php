@@ -67,9 +67,6 @@ if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
 <script>
 (function() {
 	var config = <?php echo json_encode($config) ?>;
-	if (config.redirect) {
-		return parent.location.replace(config.redirect);
-	}
 	var origin = <?php echo json_encode($origin) ?>;
 	var postMessage = function(message) {
 		return window.parent.postMessage($.toJSON(message), origin);
