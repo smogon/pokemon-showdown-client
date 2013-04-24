@@ -3746,15 +3746,15 @@ teams = (function() {
 			};
 			me.socket.onclose = function () {
 				if (!socketopened) {
-					if (Config.serveraltport && !altport) {
-						altport = true;
-						Config.serverport = Config.serveraltport;
-						me.socket = reconstructSocket(me.socket);
-						return;
-					}
 					if (!altprefix) {
 						altprefix = true;
 						Config.sockjsprefix = (Config.sockjsprefix === '/showdown') ? '' : '/showdown';
+						me.socket = reconstructSocket(me.socket);
+						return;
+					}
+					if (Config.serveraltport && !altport) {
+						altport = true;
+						Config.serverport = Config.serveraltport;
 						me.socket = reconstructSocket(me.socket);
 						return;
 					}
