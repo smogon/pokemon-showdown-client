@@ -7,7 +7,7 @@ Config.defaultserver = {
 	serverprotocol: 'ws'
 };
 Config.sockjsprefix = '/showdown';
-Config.locPrefix = '/';
+Config.locprefix = '/';
 
 var me = (function() {
 	var me = {
@@ -1724,7 +1724,7 @@ function Lobby(id, elem) {
 					battletype = log[i].format + ' battle';
 					if (log[i].format === 'Random Battle') battletype = 'Random Battle';
 				}
-				selfR.chatElem.append('<div class="message"><a href="' + Config.locPrefix+id + '" onclick="selectTab(\'' + id + '\'); return false" class="battle-start">' + battletype + ' started between <strong style="' + hashColor(toUserid(log[i].name)) + '">' + Tools.escapeHTML(log[i].name) + '</strong> and <strong style="' + hashColor(toUserid(log[i].name2)) + '">' + Tools.escapeHTML(log[i].name2) + '</strong>.</a></div>');
+				selfR.chatElem.append('<div class="message"><a href="' + Config.locprefix+id + '" onclick="selectTab(\'' + id + '\'); return false" class="battle-start">' + battletype + ' started between <strong style="' + hashColor(toUserid(log[i].name)) + '">' + Tools.escapeHTML(log[i].name) + '</strong> and <strong style="' + hashColor(toUserid(log[i].name2)) + '">' + Tools.escapeHTML(log[i].name2) + '</strong>.</a></div>');
 			} else if (log[i].message) {
 				selfR.chatElem.append('<div class="message">' + Tools.escapeHTML(log[i].message) + '</div>');
 			} else if (log[i].rawMessage) {
@@ -1923,7 +1923,7 @@ function Lobby(id, elem) {
 				} else if (!roomData.p2) {
 					roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
 				}
-				roomListCode += '<div><a href="' + Config.locPrefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
+				roomListCode += '<div><a href="' + Config.locprefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
 			}
 
 			var code = '<img src="' + Tools.resourcePrefix + 'sprites/trainers/' + parseInt(data.avatar, 10) + '.png" />';
@@ -1982,7 +1982,7 @@ function Lobby(id, elem) {
 				} else if (!roomData.p2) {
 					roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
 				}
-				roomListCode += '<div><a href="' + Config.locPrefix+id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
+				roomListCode += '<div><a href="' + Config.locprefix+id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
 				i++;
 			}
 
@@ -2106,7 +2106,7 @@ function Lobby(id, elem) {
 					continue;
 				}
 				var roomDesc = '<small>[' + Tools.getEffect(roomData.format).name + ']</small><br /><em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
-				roomListCode += '<div><a href="' + Config.locPrefix + '' + roomData.id + '" onclick="selectTab(\'' + roomData.id + '\');return false">' + roomDesc + '</a></div>';
+				roomListCode += '<div><a href="' + Config.locprefix + '' + roomData.id + '" onclick="selectTab(\'' + roomData.id + '\');return false">' + roomDesc + '</a></div>';
 			}
 			if (roomListCode) roomListCode += '<button onclick="rooms[\'' + selfR.id + '\'].formChallenge(\'#lobby-rooms\');return false">All battles &rarr;</button>';
 
@@ -2679,9 +2679,9 @@ function formMute() {
 function updateRoomList() {
 	var code = '';
 	if (!curRoom) curRoom = rooms.lobby;
-	code += '<div><a id="tabtab-lobby" class="tab' + (curRoom.id === 'lobby' ? ' cur' : '') + (rooms.lobby && rooms.lobby.notifying ? ' notifying' : '') + '" href="' + Config.locPrefix + '" onclick="selectTab(\'lobby\'); return false"><i class="icon-comments-alt"></i> Lobby</a>';
-	code += '<a id="tabtab-teambuilder"' + (curRoom.id === 'teambuilder' ? ' class="cur"' : '') + ' href="' + Config.locPrefix + 'teambuilder" onclick="selectTab(\'teambuilder\', event);return false"><i class="icon-edit"></i> Teambuilder</a>';
-	code += '<a id="tabtab-ladder"' + (curRoom.id === 'ladder' ? ' class="cur"' : '') + ' href="' + Config.locPrefix + 'ladder" onclick="selectTab(\'ladder\');return false"><i class="icon-list-ol"></i> Ladder</a></div>';
+	code += '<div><a id="tabtab-lobby" class="tab' + (curRoom.id === 'lobby' ? ' cur' : '') + (rooms.lobby && rooms.lobby.notifying ? ' notifying' : '') + '" href="' + Config.locprefix + '" onclick="selectTab(\'lobby\'); return false"><i class="icon-comments-alt"></i> Lobby</a>';
+	code += '<a id="tabtab-teambuilder"' + (curRoom.id === 'teambuilder' ? ' class="cur"' : '') + ' href="' + Config.locprefix + 'teambuilder" onclick="selectTab(\'teambuilder\', event);return false"><i class="icon-edit"></i> Teambuilder</a>';
+	code += '<a id="tabtab-ladder"' + (curRoom.id === 'ladder' ? ' class="cur"' : '') + ' href="' + Config.locprefix + 'ladder" onclick="selectTab(\'ladder\');return false"><i class="icon-list-ol"></i> Ladder</a></div>';
 
 	var shownRooms = {
 		lobby: true,
@@ -2723,7 +2723,7 @@ function updateRoomList() {
 				closesize = 'close0';
 			}
 		}
-		code += '<div><a id="tabtab-' + id + '" class="tab battletab' + (curRoom.id === id ? ' cur' : '') + (rooms[id] && rooms[id].notifying ? ' notifying' : '') + '" href="' + Config.locPrefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a><span onclick="leaveTab(\'' + id + '\')" class="close ' + closesize + '"></span></div>';
+		code += '<div><a id="tabtab-' + id + '" class="tab battletab' + (curRoom.id === id ? ' cur' : '') + (rooms[id] && rooms[id].notifying ? ' notifying' : '') + '" href="' + Config.locprefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a><span onclick="leaveTab(\'' + id + '\')" class="close ' + closesize + '"></span></div>';
 	}
 	$('#leftbar').html(code);
 	$('#inline-nav').html('<h3>Your tabs</h3>' + code.replace(/ id="[^"]*"/g, ''));
@@ -2882,8 +2882,8 @@ function hideTooltip() {
 
 $(window).resize(updateResize);
 
-if (document.location.pathname.substr(0, Config.locPrefix.length) === Config.locPrefix) {
-	me.loc = document.location.pathname.substr(Config.locPrefix.length);
+if (document.location.pathname.substr(0, Config.locprefix.length) === Config.locprefix) {
+	me.loc = document.location.pathname.substr(Config.locprefix.length);
 	if (!me.loc || me.loc === 'test.html' || me.loc === 'temp.html' || me.loc.substr(me.loc.length-15) === 'testclient.html') me.loc = 'lobby';
 }
 
@@ -2893,11 +2893,11 @@ if (window.history && history.pushState) {
 		if (!me.initialized) return;
 		var urlLoc = newLoc;
 		if (urlLoc === 'lobby') urlLoc = '';
-		if (document.location.pathname !== Config.locPrefix + urlLoc) {
+		if (document.location.pathname !== Config.locprefix + urlLoc) {
 			try {
-				history.pushState(null, null, Config.locPrefix + urlLoc);
+				history.pushState(null, null, Config.locprefix + urlLoc);
 				if (window._gaq) {
-					_gaq.push(['_trackPageview', Config.locPrefix + urlLoc]);
+					_gaq.push(['_trackPageview', Config.locprefix + urlLoc]);
 				}
 			} catch (e) {
 				// Throws insecure operation when running on local filesystem.
@@ -2906,13 +2906,13 @@ if (window.history && history.pushState) {
 		me.loc = newLoc;
 	};
 	window.onpopstate = function (e) {
-		if (document.location.pathname.substr(0, Config.locPrefix.length) === Config.locPrefix) {
+		if (document.location.pathname.substr(0, Config.locprefix.length) === Config.locprefix) {
 			var oldloc = me.loc;
-			me.loc = document.location.pathname.substr(Config.locPrefix.length);
+			me.loc = document.location.pathname.substr(Config.locprefix.length);
 			if (!me.loc || me.loc === 'test.html' || me.loc === 'temp.html' || me.loc.substr(me.loc.length-15) === 'testclient.html') me.loc = 'lobby';
 			if ((me.loc !== oldloc) && window._gaq) {
 				var urlLoc = (me.loc !== 'lobby') ? me.loc : '';
-				_gaq.push(['_trackPageview', Config.locPrefix + urlLoc]);
+				_gaq.push(['_trackPageview', Config.locprefix + urlLoc]);
 			}
 			if (!me.socket) {
 				return; // haven't even initted yet
