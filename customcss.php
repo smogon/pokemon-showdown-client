@@ -17,7 +17,7 @@ if (empty($customcssuri)) {
 }
 
 // No need to sanitise $server because it should be safe already.
-$cssfile = '../pokemonshowdown.com/config/customcss/' . $server;
+$cssfile = '../pokemonshowdown.com/config/customcss/' . $server . '.css';
 
 $lastmodified = @filemtime($cssfile);
 $timenow = time();
