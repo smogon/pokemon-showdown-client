@@ -2,13 +2,15 @@
 
 include '../pokemonshowdown.com/config/servers.inc.php';
 
-header('Content-type: text/css');
-
 $server = @$_REQUEST['server'];
 if (empty($PokemonServers[$server])) {
+	header('Content-Type: text/plain; charset=utf-8');
 	die('server not found');
 }
-$serverdata = $PokemonServers[$server];
+
+header('Content-Type: text/css'); // the CSS file should specify a charset
+
+$serverdata =& $PokemonServers[$server];
 $customcssuri = @$serverdata['customcss'];
 if (empty($customcssuri)) {
 	$customcssuri = 'http://'.$serverdata['server'].':'.$serverdata['port'].'/custom.css';
