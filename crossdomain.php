@@ -31,6 +31,7 @@ if (isset($PokemonServers[$config['server']])) {
 	}
 	if (isset($server['altport'])) $config['serveraltport'] = $server['altport'];
 	if (isset($server['customcss'])) $config['customcss'] = true;
+	$config['registeredserver'] = true;
 } else if (isset($config['serverport'])) {
 	$config['serverid'] .= ':' . $config['serverport'];
 } else {

@@ -403,6 +403,11 @@ License: GPLv2
     -ms-transform: scaleX(-1);
     transform: scaleX(-1);
 }
+.trainersprite
+{
+	max-width: 80px;
+	max-height: 80px;
+}
 .turn
 {
 	position: absolute;

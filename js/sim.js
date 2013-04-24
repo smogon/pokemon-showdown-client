@@ -1926,7 +1926,7 @@ function Lobby(id, elem) {
 				roomListCode += '<div><a href="' + Config.locprefix + '' + id + '" onclick="selectTab(\'' + id + '\');return false">' + roomDesc + '</a></div>';
 			}
 
-			var code = '<img src="' + Tools.resourcePrefix + 'sprites/trainers/' + parseInt(data.avatar, 10) + '.png" />';
+			var code = '<img class="trainersprite" src="' + Tools.resolveAvatar(data.avatar) + '" />';
 			if (roomListCode) {
 				roomListCode = '<div class="action-form">In rooms:<br /><div class="roomlist">' + roomListCode + '</div></div>';
 			}

@@ -1466,10 +1466,10 @@ function Battle(frame, logFrame, noPreload) {
 			}
 			pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 			if (selfS.n === 1) {
-				if (selfS.initialized) self.rightbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resourcePrefix + 'sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
+				if (selfS.initialized) self.rightbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(selfS.spriteid) + ')"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
 				else self.rightbarElem.find('.trainer').css('opacity',0.4);
 			} else {
-				if (selfS.initialized) self.leftbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resourcePrefix + 'sprites/trainers/' + selfS.spriteid + '.png)"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
+				if (selfS.initialized) self.leftbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(selfS.spriteid) + ')"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
 				else self.leftbarElem.find('.trainer').css('opacity',0.4);
 			}
 		};
@@ -4587,7 +4587,7 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'player':
 			self.getSide(args[1]).setName(args[2]);
-			self.getSide(args[1]).setSprite(parseInt(args[3]));
+			self.getSide(args[1]).setSprite(args[3]);
 			break;
 		case 'win':
 			self.winner(args[1]);
