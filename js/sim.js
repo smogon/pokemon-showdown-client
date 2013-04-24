@@ -6,7 +6,8 @@ Config.defaultserver = {
 	serveraltport: 80,
 	serverprotocol: 'ws'
 };
-Config.locPrefix = '/'; // this is essentially obsolete now
+Config.sockjsprefix = '/showdown';
+Config.locPrefix = '/';
 
 var me = (function() {
 	var me = {
@@ -3553,13 +3554,13 @@ teams = (function() {
 			return;
 		}
 
-		var constructSocket = function(host, port) {
+		var constructSocket = function(host, port, prefix) {
 			if (Config.serverprotocol === 'io') return io.connect('http://' + host + ':' + port);
 			else if (Config.serverprotocol === 'eio') return new eio.Socket({ host: host, port: port });
-			else return new SockJS('http://' + host + ':' + port);
+			else return new SockJS('http://' + host + ':' + port + prefix);
 		};
 
-		me.socket = constructSocket(Config.server, Config.serverport);
+		me.socket = constructSocket(Config.server, Config.serverport, Config.sockjsprefix);
 
 		var events = {
 			init: function (data) {
@@ -3707,6 +3708,7 @@ teams = (function() {
 		} else {
 			var socketopened = false;
 			var altport = (Config.serverport === Config.serveraltport);
+			var altprefix = false;
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
 			me.socket.onopen = function() {
 				socketopened = true;
@@ -3735,18 +3737,27 @@ teams = (function() {
 				if (!data) return;
 				if (events[data.type]) events[data.type](data);
 			};
+			var reconstructSocket = function(socket) {
+				var s = constructSocket(Config.server, Config.serverport, Config.sockjsprefix);
+				s.onopen = socket.onopen;
+				s.onmessage = socket.onmessage;
+				s.onclose = socket.onclose;
+				return s;
+			};
 			me.socket.onclose = function () {
-				if (!socketopened && Config.serveraltport && !altport) {
-					altport = true;
-					Config.serverport = Config.serveraltport;
-					me.socket = (function(socket) {
-						var s = constructSocket(Config.server, Config.serverport);
-						s.onopen = socket.onopen;
-						s.onmessage = socket.onmessage;
-						s.onclose = socket.onclose;
-						return s;
-					})(me.socket);
-					return;
+				if (!socketopened) {
+					if (Config.serveraltport && !altport) {
+						altport = true;
+						Config.serverport = Config.serveraltport;
+						me.socket = reconstructSocket(me.socket);
+						return;
+					}
+					if (!altprefix) {
+						altprefix = true;
+						Config.sockjsprefix = (Config.sockjsprefix === '/showdown') ? '' : '/showdown';
+						me.socket = reconstructSocket(me.socket);
+						return;
+					}
 				}
 				$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
 				overlay('disconnect');
