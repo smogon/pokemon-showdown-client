@@ -336,6 +336,22 @@ var Tools = {
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
+	resolveAvatar: function(avatar) {
+		var avatarnum = Number(avatar);
+		if (!isNaN(avatarnum)) {
+			// default avatars
+			return Tools.resourcePrefix + 'sprites/trainers/' + avatarnum + '.png';
+		}
+		if (window.Config && Config.server && Config.registeredserver) {
+			// custom avatar served by the server
+			return 'http://' + Config.server + ':' + Config.serverport +
+				'/avatars/' + encodeURIComponent(avatar);
+		}
+		// just pick a random avatar
+		var sprites = [1, 2, 101, 102, 169, 170];
+		return resolveAvatar(sprites[Math.floor(Math.random() * sprites.length)]);
+	},
+
 	escapeHTML: function(str, jsEscapeToo) {
 		str = (str?''+str:'');
 		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
