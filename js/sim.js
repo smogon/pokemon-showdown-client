@@ -3513,14 +3513,14 @@ function overlaySubmit(e, overlayType) {
 	}
 }
 
-function init() {
+var init = function() {
 	addTab('teambuilder', 'teambuilder');
 	addTab('ladder', 'ladder');
 
 	if (me.socketInit) me.socketInit();
 
 	me.initialized = true;
-}
+};
 
 var cookieTeams = true;
 teams = (function() {
@@ -3774,9 +3774,11 @@ teams = (function() {
 		// browser does not support cross-document messaging
 		return overlay('unsupported');
 	}
-	var origin = 'http://play.pokemonshowdown.com';
 	$(window).on('message', (function() {
+		var origin = 'http://play.pokemonshowdown.com';
 		var callbacks = [];
+		var init = window.init;
+		window.init = null;
 		return function($e) {
 			var e = $e.originalEvent;
 			if (e.origin !== origin) return;
@@ -3817,9 +3819,6 @@ teams = (function() {
 				Teambuilder.writeTeams = function() {
 					postCrossDomainMessage({teams: $.toJSON(teams)});
 				};
-				if (rooms.teambuilder) {
-					rooms.teambuilder.init();
-				}
 				// prefs
 				if (data.prefs) {
 					Tools.prefs.data = $.parseJSON(data.prefs);
@@ -3833,6 +3832,7 @@ teams = (function() {
 				}
 				// connect
 				connect();
+				init();
 			} else if (data.ajax) {
 				var idx = data.ajax[0];
 				if (callbacks[idx]) {
