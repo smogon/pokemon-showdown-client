@@ -46,21 +46,29 @@ if ($curlret) {
 		// Sanitise the CSS.
 		require '../pokemonshowdown.com/lib/htmlpurifier/HTMLPurifier.auto.php';
 		require '../pokemonshowdown.com/lib/csstidy/class.csstidy.php';
+
 		$config = HTMLPurifier_Config::createDefault();
+
 		$config->set('Filter.ExtractStyleBlocks', true);
 		$config->set('CSS.Proprietary', true);
 		$config->set('CSS.AllowImportant', true);
 		$config->set('CSS.AllowTricky', true);
-		$purifier = new HTMLPurifier($config);
 		$level = error_reporting(E_ALL & ~E_STRICT);
-		$html = $purifier->purify('<style>' . $curlret . '</style>');
-		error_reporting($level);
-		list($outputcss) = $purifier->context->get('StyleBlocks');
+
+		// $purifier = new HTMLPurifier($config);
+		// $html = $purifier->purify('<style>' . $curlret . '</style>');
+		// error_reporting($level);
+		// list($outputcss) = $purifier->context->get('StyleBlocks');
+
+		$context = new HTMLPurifier_Context();
+		$filter = new HTMLPurifier_Filter_ExtractStyleBlocks();
+		$outputcss = $filter->cleanCSS($curlret, $config, $context);
+
 		file_put_contents($cssfile, $outputcss);
 		echo $outputcss;
 	} else {
 		// Either no modifications (status: 304) or an error condition.
-		readfile($cssfile);
+		if ($lastmodified) readfile($cssfile);
 	}
 	touch($cssfile, $timenow);	// Don't check again for an hour.
 } else if (file_exists($cssfile)) {
