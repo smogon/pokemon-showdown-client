@@ -3788,9 +3788,6 @@ teams = (function() {
 				// server config information
 				// `data.config.serverprotocol` is ignored for now
 				$.extend(Config, data.config);
-				if (Config.redirect) {
-					return document.location.replace(Config.redirect + document.location.pathname);
-				}
 				if (Config.customcss) {
 					var $link = $('<link rel="stylesheet" ' +
 						'href="//play.pokemonshowdown.com/customcss.php?server=' +
@@ -3848,6 +3845,7 @@ teams = (function() {
 	var $iframe = $(
 		'<iframe src="//play.pokemonshowdown.com/crossdomain.php?prefix=' +
 		encodeURIComponent(Config.psim[1]) +
+		'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
 		'" style="display: none;"></iframe>'
 	);
 	$('body').append($iframe);
