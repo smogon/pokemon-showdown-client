@@ -247,6 +247,27 @@ function emit(socket, type, data) {
 	}
 }
 
+function checkMultiLines(text) {
+	// Checking for multiline commands
+	if (text.substr(0, 1) === '/') {
+	 	var splitText = text.split('\n');
+ 		// We need to make a different check for PMs since they use commas and other commands do not
+	 	if (text.indexOf(',') > -1 && (text.substr(0, 4) === '/msg' || text.substr(0, 8) === '/whisper' || text.substr(0, 3) === '/w ')) {
+	 		var messageTo = text.substr(0, text.indexOf(',') + 1);
+	 		for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = messageTo + splitText[i];
+	 		text = splitText.join('\n');
+ 		} else {
+ 			var firstLine = splitText[0];
+ 			firstLine = firstLine.split(' ');
+ 			var command = firstLine[0];
+ 			for (var i=1, len=splitText.length; i<len; i++) if (splitText[i]) splitText[i] = command + ' ' + splitText[i];
+ 			text = splitText.join('\n'); 
+ 		}
+	}
+	
+	return text;
+}
+
 function BattleRoom(id, elem) {
 	var selfR = this;
 	this.id = id;
@@ -1004,6 +1025,7 @@ function BattleRoom(id, elem) {
 				rooms.lobby.chatHistory.push(text);
 				text = rooms.lobby.parseCommand(text);
 				if (text) {
+					text = checkMultiLines(text);
 					selfR.send(text);
 				}
 				selfR.chatboxElem.val('');
@@ -2372,6 +2394,7 @@ function Lobby(id, elem) {
 				selfR.chatHistory.push(text);
 				text = selfR.parseCommand(text);
 				if (text) {
+					text = checkMultiLines(text);
 					selfR.send(text);
 				}
 				selfR.chatboxElem.val('');
