@@ -49,7 +49,8 @@ if (isset($PokemonServers[$config['server']])) {
 			if (($config['serverport'] === $server['port']) ||
 					(isset($server['altport']) &&
 						$config['serverport'] === $server['altport'])) {
-				$config['redirect'] = 'http://' . $server['id'] . '.psim.us';
+				$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
+				$config['redirect'] = 'http://' . $server['id'] . '.psim.us/' . rawurlencode($path);
 				break;
 			}
 		}
@@ -67,6 +68,9 @@ if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
 <script>
 (function() {
 	var config = <?php echo json_encode($config) ?>;
+	if (config.redirect) {
+		return parent.location.replace(config.redirect);
+	}
 	var origin = <?php echo json_encode($origin) ?>;
 	var postMessage = function(message) {
 		return window.parent.postMessage($.toJSON(message), origin);
