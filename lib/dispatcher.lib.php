@@ -134,9 +134,6 @@ class DefaultActionHandler {
 		$out['curuser'] = $curuser;
 		$out['actionsuccess'] = !!$curuser;
 		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
-		if ($curuser && $serverhostname) {
-			$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
-		}
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
 		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
@@ -175,9 +172,6 @@ class DefaultActionHandler {
 			$out['assertion'] = $users->getAssertion($user['userid'],
 					$serverhostname, $user, $challengekeyid, $challenge, $challengeprefix);
 			$out['actionsuccess'] = true;
-			if ($curuser && $serverhostname) {
-				$out['sessiontoken'] = $users->getSessionToken($serverhostname) . '::' . $serverhostname;
-			}
 		} else {
 			$out['actionerror'] = 'Your username is already taken.';
 		}
