@@ -3563,7 +3563,6 @@ teams = (function() {
 					me.name = data.name;
 					me.named = data.named;
 					me.userid = data.userid;
-					me.renamePending = !! data.renamePending;
 				}
 				if (data.notFound) {
 					selectTab('lobby');
@@ -3593,7 +3592,6 @@ teams = (function() {
 					me.name = data.name;
 					me.setNamed(data.named);
 					me.userid = data.userid;
-					me.renamePending = !! data.renamePending;
 				}
 				if (typeof data.challengesFrom !== 'undefined') {
 					me.challengesFrom = data.challengesFrom;
