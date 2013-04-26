@@ -3607,6 +3607,9 @@ teams = (function() {
 					me.challengeTo = data.challengeTo;
 					rooms.lobby.updateMainTop();
 				}
+				if (typeof data.searching !== 'undefined') {
+					data.room = data.room || 'lobby';
+				}
 				updateMe(data);
 				if (data.room && rooms[data.room]) {
 					rooms[data.room].update(data);
