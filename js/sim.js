@@ -4,7 +4,6 @@ Config.defaultserver = {
 	serverid: 'showdown',
 	serverport: 8000,
 	serveraltport: 80,
-	serverprotocol: 'ws',
 	registeredserver: true
 };
 Config.sockjsprefix = '/showdown';
@@ -232,18 +231,14 @@ function addTab(tab, type) {
 }
 
 function emit(socket, type, data) {
-	if (Config.serverprotocol === 'io') {
-		socket.emit(type, data);
-	} else {
-		if (typeof data === 'object') data.type = type;
-		else data = {type: type, message: data};
+	if (typeof data === 'object') data.type = type;
+	else data = {type: type, message: data};
 
-		if (data.type === 'chat') {
-			// if (window.console && console.log) console.log('>> '+data.room+'|'+data.message);
-			socket.send(''+data.room+'|'+data.message);
-		} else {
-			socket.send($.toJSON(data));
-		}
+	if (data.type === 'chat') {
+		// if (window.console && console.log) console.log('>> '+data.room+'|'+data.message);
+		socket.send(''+data.room+'|'+data.message);
+	} else {
+		socket.send($.toJSON(data));
 	}
 }
 
@@ -3555,13 +3550,12 @@ teams = (function() {
 			return;
 		}
 
-		var constructSocket = function(host, port, prefix) {
-			if (Config.serverprotocol === 'io') return io.connect('http://' + host + ':' + port);
-			else if (Config.serverprotocol === 'eio') return new eio.Socket({ host: host, port: port });
-			else return new SockJS('http://' + host + ':' + port + prefix);
+		var constructSocket = function() {
+			return new SockJS('http://' + Config.server + ':' +
+				Config.serverport + Config.sockjsprefix);
 		};
 
-		me.socket = constructSocket(Config.server, Config.serverport, Config.sockjsprefix);
+		me.socket = constructSocket();
 
 		var events = {
 			init: function (data) {
@@ -3665,7 +3659,7 @@ teams = (function() {
 			}
 		};
 
-		function parseSpecialData(text) {
+		var parseSpecialData = function(text) {
 			var parts = text.split('|');
 			if (parts.length < 2) return false;
 
@@ -3682,17 +3676,23 @@ teams = (function() {
 					return true;
 			}
 			return false;
-		}
+		};
 
-		if (Config.serverprotocol === 'io') {
-			for (var e in events) {
-				me.socket.on(e, (function(type) {
-					return function(data) {
-						events[type](data);
-					};
-				})(e));
+		var socketopened = false;
+		var altport = (Config.serverport === Config.serveraltport);
+		var altprefix = false;
+		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
+		me.socket.onopen = function() {
+			socketopened = true;
+			if (altport && window._gaq) {
+				_gaq.push(['_trackEvent', 'Alt port connection', Config.serverid]);
 			}
-			me.socket.on('data', function(text) {
+			document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
+			emit(me.socket, 'join', {room: 'lobby'});
+		};
+		me.socket.onmessage = function(msg) {
+			if (msg.data.substr(0,1) !== '{') {
+				var text = msg.data;
 				var roomid = 'lobby';
 				if (text.substr(0,1) === '>') {
 					var nlIndex = text.indexOf('\n');
@@ -3703,67 +3703,37 @@ teams = (function() {
 				if (!parseSpecialData(text) && (rooms[roomid] !== undefined)) {
 					rooms[roomid].add(text);
 				}
-			});
-			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
-			emit(me.socket, 'join', {room: 'lobby'});
-		} else {
-			var socketopened = false;
-			var altport = (Config.serverport === Config.serveraltport);
-			var altprefix = false;
-			document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
-			me.socket.onopen = function() {
-				socketopened = true;
-				if (altport && window._gaq) {
-					_gaq.push(['_trackEvent', 'Alt port connection', Config.serverid]);
-				}
-				document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
-				emit(me.socket, 'join', {room: 'lobby'});
-			};
-			me.socket.onmessage = function(msg) {
-				if (msg.data.substr(0,1) !== '{') {
-					var text = msg.data;
-					var roomid = 'lobby';
-					if (text.substr(0,1) === '>') {
-						var nlIndex = text.indexOf('\n');
-						if (nlIndex < 0) return;
-						roomid = text.substr(1,nlIndex-1);
-						text = text.substr(nlIndex+1);
-					}
-					if (!parseSpecialData(text) && (rooms[roomid] !== undefined)) {
-						rooms[roomid].add(text);
-					}
+				return;
+			}
+			var data = $.parseJSON(msg.data);
+			if (!data) return;
+			if (events[data.type]) events[data.type](data);
+		};
+		var reconstructSocket = function(socket) {
+			var s = constructSocket();
+			s.onopen = socket.onopen;
+			s.onmessage = socket.onmessage;
+			s.onclose = socket.onclose;
+			return s;
+		};
+		me.socket.onclose = function () {
+			if (!socketopened) {
+				if (Config.serveraltport && !altport) {
+					altport = true;
+					Config.serverport = Config.serveraltport;
+					me.socket = reconstructSocket(me.socket);
 					return;
 				}
-				var data = $.parseJSON(msg.data);
-				if (!data) return;
-				if (events[data.type]) events[data.type](data);
-			};
-			var reconstructSocket = function(socket) {
-				var s = constructSocket(Config.server, Config.serverport, Config.sockjsprefix);
-				s.onopen = socket.onopen;
-				s.onmessage = socket.onmessage;
-				s.onclose = socket.onclose;
-				return s;
-			};
-			me.socket.onclose = function () {
-				if (!socketopened) {
-					if (Config.serveraltport && !altport) {
-						altport = true;
-						Config.serverport = Config.serveraltport;
-						me.socket = reconstructSocket(me.socket);
-						return;
-					}
-					if (!altprefix) {
-						altprefix = true;
-						Config.sockjsprefix = (Config.sockjsprefix === '/showdown') ? '' : '/showdown';
-						me.socket = reconstructSocket(me.socket);
-						return;
-					}
+				if (!altprefix) {
+					altprefix = true;
+					Config.sockjsprefix = '';
+					me.socket = reconstructSocket(me.socket);
+					return;
 				}
-				$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
-				overlay('disconnect');
-			};
-		}
+			}
+			$('#userbar').prepend('<strong style="color:#BB0000;border:1px solid #BB0000;padding:0px 2px;font-size:10pt;">disconnect detected</strong> ');
+			overlay('disconnect');
+		};
 	};
 	if (!Config.psim) {
 		if (!Config.testclient) {
@@ -3788,7 +3758,6 @@ teams = (function() {
 					return e.source.postMessage($.toJSON(data), origin);
 				};
 				// server config information
-				// `data.config.serverprotocol` is ignored for now
 				$.extend(Config, data.config);
 				if (Config.registeredserver) {
 					var $link = $('<link rel="stylesheet" ' +
