@@ -1,6 +1,8 @@
 (function($) {
 
 	var MainMenuRoom = this.MainMenuRoom = this.Room.extend({
+		minWidth: 480,
+		maxWidth: 480,
 		events: {
 			'click .button': 'clickButton'
 		},
@@ -12,6 +14,13 @@
 			// right menu
 			buf += '<div class="rightmenu"><div class="mainmenu"><p><button class="button" value="lobby">Join lobby chat</button></p></div></div>';
 			this.$el.html(buf);
+		},
+		updateRightMenu: function() {
+			if (app.sideRoom) {
+				this.$('.rightmenu').hide();
+			} else {
+				this.$('.rightmenu').show();
+			}
 		},
 		clickButton: function(e) {
 			e.preventDefault();

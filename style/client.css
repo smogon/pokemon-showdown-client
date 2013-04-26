@@ -40,12 +40,14 @@ body {
 	display: block;
 	list-style: none;
 	margin: 0;
-	padding: 0 0 0 10px;
+	padding: 0 0 0 0;
 	text-align: left;
 
 	color: white;
 	text-shadow: 0 1px 0 black;
 	font-size: 10pt;
+
+	line-height: 100%;
 }
 .tabbar:after {
 	content: "";
@@ -53,17 +55,18 @@ body {
 	height: 6px;
 	background: #f8f8f8;
 	border: solid 1px #AAAAAA;
-	margin: 4px 0 0 -10px;
+	margin: 4px 0 0 0;
 	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
 	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
 	box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
 .tabbar.maintabbar {
-	padding-left: 150px;
+	padding-left: 142px;
 }
 .tabbar.maintabbar:after {
-	margin-left: -150px;
+	margin-left: -142px;
 }
+
 .tabbar li,
 .tabbar ul {
 	display: inline;
@@ -131,6 +134,7 @@ body {
 }
 .tabbar li:first-child a.button {
 	border-top-left-radius: 5px;
+	margin-left: 8px;
 }
 .tabbar li:last-child a.button {
 	border-top-right-radius: 5px;
@@ -150,14 +154,17 @@ body {
 
 	text-decoration: none;
 	font-size: 14px;
-	color: #777777;
+	color: #999999;
 	text-shadow: none;
 }
 .tabbar a.cur + .closebutton {
 	top: 0;
 }
 .tabbar .closebutton:hover {
-	color: black;
+	color: #BB2222;
+}
+.tabbar .closebutton:active {
+	color: #661111;
 }
 
 /* ROOMS */

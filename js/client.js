@@ -59,9 +59,13 @@
 
 		initializeRooms: function() {
 			this.rooms = {};
+
+			$(window).on('resize', _.bind(this.updateLayout, this));
 		},
+		// the currently active room
 		curRoom: null,
 		curSideRoom: null,
+		sideRoom: null,
 		joinRoom: function(id, type) {
 			if (this.rooms[id]) {
 				this.focusRoom(id);
@@ -93,16 +97,83 @@
 			if (!room) return false;
 			if (this.curRoom === room || this.curSideRoom === room) return true;
 
-			if (this.curRoom) {
-				this.curRoom.hide();
-				this.curRoom = null;
+			this.updateSideRoom(id);
+			this.updateLayout();
+			if (this.curSideRoom !== room) {
+				if (this.curRoom) {
+					this.curRoom.hide();
+					this.curRoom = null;
+				}
+				this.curRoom = window.room = room;
+				this.updateLayout();
+				if (this.curRoom.id === id) this.navigate(id);
 			}
-			this.curRoom = room;
-			this.curRoom.show();
 
-			app.navigate(id);
-			this.topbar.updateTabbar();
 			return;
+		},
+		updateLayout: function() {
+			if (!this.curRoom) return; // can happen during initialization
+			if (!this.sideRoom) {
+				this.curRoom.show('full');
+				this.topbar.updateTabbar();
+				return;
+			}
+			var leftMin = (this.curRoom.minWidth || this.curRoom.bestWidth);
+			var rightMin = (this.sideRoom.minWidth || this.sideRoom.bestWidth);
+			var available = $('body').width();
+			if (this.curRoom.isSideRoom) {
+				// we're trying to focus a side room
+				if (available >= this.rooms[''].minWidth + leftMin) {
+					// it fits to the right of the main menu, so do that
+					this.curSideRoom = this.sideRoom = this.curRoom;
+					this.curRoom = this.rooms[''];
+					leftMin = (this.curRoom.minWidth || this.curRoom.bestWidth);
+					rightMin = (this.sideRoom.minWidth || this.sideRoom.bestWidth);
+				} else if (this.sideRoom) {
+					// nooo
+					if (this.curSideRoom) {
+						this.curSideRoom.hide();
+						this.curSideRoom = null;
+					}
+					this.curRoom.show('full');
+					this.topbar.updateTabbar();
+					return;
+				}
+			}
+			if (available < leftMin + rightMin) {
+				if (this.curSideRoom) {
+					this.curSideRoom.hide();
+					this.curSideRoom = null;
+				}
+				this.curRoom.show('full');
+				this.topbar.updateTabbar();
+				return;
+			}
+			this.curSideRoom = this.sideRoom;
+			var leftMax = (this.curRoom.maxWidth || this.curRoom.bestWidth);
+			var rightMax = (this.sideRoom.maxWidth || this.sideRoom.bestWidth);
+			var rightWidth = rightMin;
+			if (leftMax + rightMax <= available) {
+				rightWidth = rightMax;
+			} else {
+				available -= leftMin + rightMin;
+				var wanted = leftMax - leftMin + rightMax - rightMin;
+				if (wanted) rightWidth = Math.floor(rightMin + (rightMax - rightMin) * available / wanted);
+			}
+			this.curRoom.show('left', rightWidth);
+			this.curSideRoom.show('right', rightWidth);
+			this.topbar.updateTabbar();
+		},
+		updateSideRoom: function(id) {
+			if (id && this.rooms[id].isSideRoom) {
+				this.sideRoom = this.rooms[id];
+				if (this.curSideRoom && this.curSideRoom !== this.sideRoom) {
+					this.curSideRoom.hide();
+					this.curSideRoom = this.sideRoom;
+				}
+				// updateLayout will null curSideRoom if there's
+				// no room for this room
+			}
 		},
 		leaveRoom: function(id) {
 			var room = this.rooms[id];
@@ -116,7 +187,12 @@
 				if (room === this.curRoom) this.focusRoom('');
 				delete this.rooms[id];
 				room.destroy();
-				this.topbar.updateTabbar();
+				if (room === this.sideRoom) {
+					this.sideRoom = null;
+					this.curSideRoom = null;
+					this.updateSideRoom();
+				}
+				this.updateLayout();
 				return true;
 			}
 			return false;
@@ -135,24 +211,41 @@
 		},
 		'$tabbar': null,
 		updateTabbar: function() {
-			var curId = '';
-			if (app.curRoom) curId = app.curRoom.id;
+			var curId = (app.curRoom ? app.curRoom.id : '');
+			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
+
 			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+'" href="'+app.root+'"><i class="icon-home"></i> Home</a></li></ul>';
 			var atLeastOne = false;
+			var sideBuf = '';
 			for (var id in app.rooms) {
 				if (!id) continue;
 				var name = id;
 				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> Lobby chat';
 				else if (id === 'teambuilder') name = '<i class="icon-edit"></i> Teambuilder';
 				else if (id === 'ladder') name = '<i class="icon-list-ol"></i> Ladder';
+				if (app.rooms[id].isSideRoom) {
+					if (!sideBuf) sideBuf = '<ul>';
+					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+					continue;
+				}
 				if (!atLeastOne) {
-					buf += ' <ul>';
+					buf += '<ul>';
 					atLeastOne = true;
 				}
 				buf += '<li><a class="button'+(curId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
-			this.$tabbar.html(buf);
+			if (app.curSideRoom) {
+				var sideWidth = app.curSideRoom.width;
+				this.$tabbar.css({right:sideWidth}).html(buf);
+				this.$sidetabbar.css({left:'auto',width:sideWidth,right:0}).show().html(sideBuf);
+			} else {
+				buf += sideBuf;
+				this.$tabbar.css({right:0}).html(buf);
+				this.$sidetabbar.hide();
+			}
+
+			if (app.rooms['']) app.rooms[''].updateRightMenu();
 		},
 		click: function(e) {
 			e.preventDefault();
@@ -195,7 +288,20 @@
 
 		// graphical
 
-		show: function() {
+		bestWidth: 640,
+		show: function(position, rightWidth) {
+			switch (position) {
+			case 'left':
+				this.$el.css({left: 0, width: 'auto', right: rightWidth});
+				break;
+			case 'right':
+				this.$el.css({left: 'auto', width: rightWidth, right: 0});
+				this.width = rightWidth;
+				break;
+			case 'full':
+				this.$el.css({left: 0, width: 'auto', right: 0});
+				break;
+			}
 			this.$el.show();
 			this.focus();
 		},
@@ -215,6 +321,8 @@
 	});
 
 	var ChatRoom = this.ChatRoom = Room.extend({
+		minWidth: 320,
+		isSideRoom: true,
 		initialize: function() {
 			var buf = '<div class="chat-log"><div class="inner"></div><div class="inner-after"></div></div><div class="chat-log-add">Connecting...</div>';
 			this.$el.addClass('ps-room-light').html(buf);
