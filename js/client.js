@@ -214,15 +214,16 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+'" href="'+app.root+'"><i class="icon-home"></i> Home</a></li></ul>';
+			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+'" href="'+app.root+'"><i class="icon-home"></i> Home</a></li>';
+			if (app.rooms.teambuilder) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> Teambuilder</a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
+			if (app.rooms.ladder) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> Ladder</a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
+			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
 			for (var id in app.rooms) {
-				if (!id) continue;
+				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var name = id;
 				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> Lobby chat';
-				else if (id === 'teambuilder') name = '<i class="icon-edit"></i> Teambuilder';
-				else if (id === 'ladder') name = '<i class="icon-list-ol"></i> Ladder';
 				if (app.rooms[id].isSideRoom) {
 					if (!sideBuf) sideBuf = '<ul>';
 					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
