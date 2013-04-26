@@ -62,10 +62,10 @@ body {
 	box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
 .tabbar.maintabbar {
-	padding-left: 142px;
+	padding-left: 144px;
 }
 .tabbar.maintabbar:after {
-	margin-left: -142px;
+	margin-left: -144px;
 }
 
 .tabbar li,
@@ -145,7 +145,7 @@ body {
 }
 .tabbar li:first-child a.button {
 	border-top-left-radius: 5px;
-	margin-left: 8px;
+	margin-left: 6px;
 }
 .tabbar li:last-child a.button {
 	border-top-right-radius: 5px;
