@@ -23,7 +23,6 @@ $config['serverid'] = $config['server'];
 if (isset($PokemonServers[$config['server']])) {
 	$server =& $PokemonServers[$config['server']];
 	$config['server'] = $server['server'];
-	if (isset($server['protocol'])) $config['serverprotocol'] = $server['protocol'];
 	if (!isset($config['serverport'])) {
 		$config['serverport'] = $server['port'];
 	} else if ($config['serverport'] !== $server['port']) {
@@ -54,10 +53,6 @@ if (isset($PokemonServers[$config['server']])) {
 			}
 		}
 	}
-}
-
-if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
-	$config['serverprotocol'] = 'ws'; // default protocol
 }
 ?>
 <!DOCTYPE html>
