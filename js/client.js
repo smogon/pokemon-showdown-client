@@ -293,7 +293,7 @@
 		show: function(position, rightWidth) {
 			switch (position) {
 			case 'left':
-				this.$el.css({left: 0, width: 'auto', right: rightWidth});
+				this.$el.css({left: 0, width: 'auto', right: rightWidth+1});
 				break;
 			case 'right':
 				this.$el.css({left: 'auto', width: rightWidth, right: 0});
