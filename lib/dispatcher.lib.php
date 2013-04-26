@@ -66,7 +66,6 @@ class ActionDispatcher {
 		if (!isset($PokemonServers[$serverid])) {
 			// Try to find the server by source IP, rather than by serverid.
 			foreach ($PokemonServers as &$i) {
-				if (empty($i['ipidentification'])) continue;
 				if (!isset($i['ipcache'])) {
 					$i['ipcache'] = gethostbyname($i['server']);
 				}
