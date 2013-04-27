@@ -3,6 +3,7 @@ BattlePokemonSprites = {
 	"necturna": {num:-2, front:{ani:{w: 77, h: 87}},back:{ani:{w: 71, h: 85}}},
 	"mollux": {num:-3, front:{ani:{w: 60, h: 67}},back:{ani:{w: 59, h: 64}}},
 	"aurumoth": {num:-4, front:{ani:{w: 80, h: 72}},back:{ani:{w: 84, h: 76}}},
+	"malaconda": {num:-5, front:{ani:{w: 87, h: 76}},back:{ani:{w: 89, h: 79}}},
 	"syclant": {num:-51},
 	"revenankh": {num:-52},
 	"pyroak": {num:-53},
