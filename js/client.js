@@ -736,17 +736,4 @@
 		}
 	});
 
-	var ChatRoom = this.ChatRoom = Room.extend({
-		minWidth: 320,
-		isSideRoom: true,
-		initialize: function() {
-			var buf = '<div class="chat-log"><div class="inner"></div><div class="inner-after"></div></div><div class="chat-log-add">Connecting...</div>';
-			this.$el.addClass('ps-room-light').html(buf);
-			app.user.on('change', this.updateUser, this);
-		},
-		updateUser: function() {
-			//
-		}
-	});
-
 }).call(this, jQuery);
