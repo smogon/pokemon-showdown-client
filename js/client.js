@@ -16,18 +16,121 @@
 
 	var User = this.User = Backbone.Model.extend({
 		defaults: {
-			name: "Guest",
+			name: 'Guest',
+			userid: 'guest',
 			registered: false,
 			named: false,
-			avatar: 0
+			avatar: 0,
+			challengekeyid: -1,
+			challenge: ''
 		},
-		connect: function() {
-			console.log('TODO: Connect to ' + Config.server.host + ':' + Config.server.port);
+		/**
+		 * Return the path to the login server `action.php` file. AJAX requests
+		 * to this file will always be made on the `play.pokemonshowdown.com`
+		 * domain in order to have access to the correct cookies.
+		 */
+		getActionPHP: function() {
+			var ret = '/~~' + Config.server.id + '/action.php';
+			if (Config.testclient) {
+				ret = 'http://play.pokemonshowdown.com' + ret;
+			}
+			return (this.getActionPHP = function() {
+				return ret;
+			})();
+		},
+		/**
+		 * Process a signed assertion returned from the login server.
+		 * Emits the following events (arguments in brackets):
+		 *
+		 *   `login:authrequried` (name)
+		 *     triggered if the user needs to authenticate with this name
+		 *
+		 *   `login:invalidname` (name, error)
+		 *     triggered if the user's name is invalid
+		 *
+		 *   `login:noresponse`
+		 *     triggered if the login server did not return a response
+		 */
+		finishRename: function(name, assertion) {
+			if (assertion === ';') {
+				this.trigger('login:authrequried', name);
+			} else if (assertion.substr(0, 2) === ';;') {
+				this.trigger('login:invalidname', name, assertion.substr(2));
+			} else if (assertion.indexOf('\n') >= 0) {
+				this.trigger('login:noresponse');
+			} else {
+				app.send('/trn ' + name + ',0,' + assertion);
+			}
+		},
+		/**
+		 * Rename this user to an arbitrary username. If the username is
+		 * registered and the user does not currently have a session
+		 * associated with that userid, then the user will be required to
+		 * authenticate.
+		 *
+		 * See `finishRename` above for a list of events this can emit.
+		 */
+		rename: function(name) {
+			if (this.userid !== toUserid(name)) {
+				var query = this.getActionPHP() + '?act=getassertion&userid=' +
+						encodeURIComponent(toUserid(name)) +
+						'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
+						'&challenge=' + encodeURIComponent(this.challenge);
+				var self = this;
+				$.get(query, function(data) {
+					self.finishRename(name, data);
+				});
+			} else {
+				app.send('/trn ' + name);
+			}
+		},
+		/**
+		 * Rename the user based on the `sid` and `showdown_username` cookies.
+		 * Specifically, if the user has a valid session, the user will be
+		 * renamed to the username associated with that session. If the user
+		 * does not have a valid session but does have a persistent username
+		 * (i.e. a `showdown_username` cookie), the user will be renamed to
+		 * that name; if that name is registered, the user will be required
+		 * to authenticate.
+		 *
+		 * See `finishRename` above for a list of events this can emit.
+		 */
+		upkeepRename: function() {
+			var query = this.getActionPHP() + '?act=upkeep' +
+					'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
+					'&challenge=' + encodeURIComponent(this.challenge);
+			var self = this;
+			$.get(query, Tools.safeJSON(function(data) {
+				if (!data.username) return;
+				if (data.loggedin) {
+					self.registered = {
+						username: data.username,
+						userid: toUserid(data.username)
+					};
+				}
+				self.finishRename(data.username, data.assertion);
+			}, 'text');
+		},
+		/**
+		 * Log out from the server (but remain connected as a guest).
+		 */
+		logout: function() {
+			$.post(this.getActionPHP(), {
+				act: 'logout',
+				userid: this.userid
+			});
+			app.send('/logout');
 		},
 		setPersistentName: function(name) {
 			$.cookie('showdown_username', (name !== undefined) ? name : this.name, {
 				expires: 14
 			});
+		},
+		setNamed: function(named) {
+			this.named = named;
+			if (!named) {
+				this.setPersistentName(null); // kill `showdown_username` cookie
+			}
 		},
 		/**
 		 * This function loads teams from `localStorage` or cookies. This function
@@ -55,18 +158,98 @@
 					this.teams.push(savedTeam);
 				}
 			}
+		}
+	});
+
+	var App = this.App = Backbone.Router.extend({
+		root: '/',
+		routes: {
+			'*path': 'dispatchFragment'
 		},
 		initialize: function() {
+			window.app = this;
+			$('#main').html('');
+			this.initializeRooms();
+
+			this.user = new User();
+
+			this.topbar = new Topbar({el: $('#header')});
+			Backbone.history.start({pushState: true});
+			this.addRoom('');
+
+			this.on('init:loadteams', function(teams) {
+				// Teams have finished loading.
+				// TODO: Handle this.
+			});
+
+			this.on('init:unsupported', function() {
+				alert('Your browser is unsupported.');
+			});
+
+			this.on('init:nothirdparty', function() {
+				alert('You have third-party cookies disabled in your browser, which is likely to cause problems. You should enable them and then refresh this page.');
+			});
+
+			this.user.on('login:authrequried', function(name) {
+				alert('The name ' + name + ' is registered, but you aren\'t logged in :(');
+			});
+
+			this.on('init:identify', function() {
+				alert('You\'ve successfully joined the server as ' + this.user.name + '!');
+			});
+
+			// TODO: Various other events...
+
+			this.initializeConnection();
+		},
+		/**
+		 * Start up the client, including loading teams and preferences,
+		 * determining which server to connect to, and actually establishing
+		 * a connection to that server.
+		 *
+		 * Triggers the following events (arguments in brackets):
+		 *   `init:unsupported`
+		 * 	   triggered if the user's browser is unsupported
+		 *
+		 *   `init:loadteams` (teams)
+		 *     triggered when loads are finished loading
+		 *
+		 *   `init:nothirdparty`
+		 *     triggered if the user has third-party cookies disabled and
+		 *     third-party cookies/storage are necessary for full functioning
+		 *     (i.e. stuff will probably be broken for the user, so show an
+		 *     error message)
+		 *
+		 *   `init:socketopened`
+		 *     triggered once a socket has been opened to the sim server; this
+		 *     does NOT mean that the user has signed in yet, merely that the
+		 *     SockJS connection has been established.
+		 *
+		 *   `init:connectionerror`
+		 *     triggered if a connection to the sim server could not be
+		 *     established
+		 *
+		 *   `init:socketclosed`
+		 *     triggered if the SockJS socket closes
+		 *
+		 *   `init:identify`
+ 		 *     triggered once the user has successfully identified (i.e. logged
+		 *     in) with the server
+		 */
+		initializeConnection: function() {
 			var origindomain = 'play.pokemonshowdown.com';
 			if (document.location.hostname === origindomain) {
-				this.loadTeams();
+				this.user.loadTeams();
+				this.trigger('init:loadteams', self.user.teams);
 				Config.server = Config.defaultserver;
 				return this.connect();
 			} else if (!window.postMessage) {
 				// browser does not support cross-document messaging
-				// TODO: display better error message
-				return alert('Your browser is unsupported.');
+				return this.trigger('init:unsupported');
 			}
+			// If the URI in the address bar is not `play.pokemonshowdown.com`,
+			// we receive teams, prefs, and server connection information from
+			// crossdomain.php on play.pokemonshowdown.com.
 			var self = this;
 			$(window).on('message', (function() {
 				var origin = document.location.protocol + '//' + origindomain;
@@ -89,7 +272,7 @@
 							$('head').append($link);
 						}
 						// persistent username
-						self.setPersistentName = function() {
+						self.user.setPersistentName = function() {
 							postCrossDomainMessage({username: this.name});
 						};
 						// ajax requests
@@ -104,14 +287,15 @@
 							postCrossDomainMessage({post: [uri, data, idx, type]});
 						};
 						// teams
-						self.teams = [];
+						self.user.teams = [];
 						if (data.teams) {
-							cookieTeams = false;
-							self.teams = $.parseJSON(data.teams);
+							self.user.cookieTeams = false;
+							self.user.teams = $.parseJSON(data.teams);
 						}
 						TeambuilderRoom.writeTeams = function(teams) {
 							postCrossDomainMessage({teams: $.toJSON(teams)});
 						};
+						self.trigger('init:loadteams', self.user.teams);
 						// prefs
 						if (data.prefs) {
 							Tools.prefs.data = $.parseJSON(data.prefs);
@@ -121,9 +305,7 @@
 						};
 						// check for third-party cookies being disabled
 						if (data.nothirdparty) {
-							// TODO: Show better warning that disabling third-party cookies
-							//       may result in things not working.
-							alert('You have third-party cookies disabled, which may break this!');
+							self.trigger('init:nothirdparty');
 						}
 						// connect
 						self.connect();
@@ -146,24 +328,128 @@
 				'" style="display: none;"></iframe>'
 			);
 			$('body').append($iframe);
-		}
-	});
-
-	var App = this.App = Backbone.Router.extend({
-		root: '/',
-		routes: {
-			'*path': 'dispatchFragment'
 		},
-		initialize: function() {
-			window.app = this;
-			$('#main').html('');
-			this.initializeRooms();
+		/**
+		 * This function establishes the actual connection to the sim server.
+		 * This is intended to be called only by `initializeConnection` above.
+		 * Don't call this function directly.
+		 */
+		connect: function() {
+			var self = this;
+			var constructSocket = function() {
+				return new SockJS('http://' + Config.server.host + ':' +
+					Config.server.port + Config.sockjsprefix);
+			};
+			this.socket = constructSocket();
 
-			this.user = new User();
+			/**
+			 * This object defines event handles for JSON-style messages.
+			 */
+			var events = {
+				init: function (data) {
+					if (data.name !== undefined) {
+						self.user.name = data.name;
+						self.user.userid = toUserid(self.user.name);
+						self.user.named = data.named;
+					}
+					// TODO: All other handling of `init` messages.
+				},
+				update: function (data) {
+					if (data.name !== undefined) {
+						self.user.name = data.name;
+						self.user.userid = toUserid(self.user.name);
+						var identifying = !self.user.named && data.named;
+						self.user.setNamed(data.named);
+						if (identifying) {
+							self.trigger('init:identify');
+						}
+					}
+					// TODO: All other handling of `update` messages.
+				},
+				/**
+				 * TODO: Handle all other JSON-style messages.
+				 */
+				disconnect: function () {},
+				nameTaken: function (data) {},
+				message: function (message) {},
+				command: function (message) {},
+				console: function (message) {}
+			};
 
-			this.topbar = new Topbar({el: $('#header')});
-			Backbone.history.start({pushState: true});
-			this.addRoom('');
+			var parseSpecialData = function(text) {
+				var parts = text.split('|');
+				if (parts.length < 2) return false;
+
+				switch (parts[1]) {
+					case 'challenge-string':
+					case 'challstr':
+						self.user.challengekeyid = parseInt(parts[2], 10);
+						self.user.challenge = parts[3];
+						self.user.upkeepRename();
+						return true;
+				}
+				return false;
+			};
+
+			var socketopened = false;
+			var altport = (Config.server.port === Config.server.altport);
+			var altprefix = false;
+
+			this.socket.onopen = function() {
+				socketopened = true;
+				if (altport && window._gaq) {
+					_gaq.push(['_trackEvent', 'Alt port connection', Config.server.id]);
+				}
+				self.trigger('init:socketopened');
+				// Join the lobby. This is necessary for now.
+				// TODO: Revise this later if desired.
+				emit(self.socket, 'join', {room: 'lobby'});
+			};
+			this.socket.onmessage = function(msg) {
+				if (msg.data.substr(0,1) !== '{') {
+					var text = msg.data;
+					var roomid = 'lobby';
+					if (text.substr(0,1) === '>') {
+						var nlIndex = text.indexOf('\n');
+						if (nlIndex < 0) return;
+						roomid = text.substr(1,nlIndex-1);
+						text = text.substr(nlIndex+1);
+					}
+					if (!parseSpecialData(text)) {
+						// TODO: Handle this non-JSON message!
+					}
+					return;
+				}
+				var data = $.parseJSON(msg.data);
+				if (!data) return;
+				// Handle JSON messages.
+				if (events[data.type]) events[data.type](data);
+			};
+			var reconstructSocket = function(socket) {
+				var s = constructSocket();
+				s.onopen = socket.onopen;
+				s.onmessage = socket.onmessage;
+				s.onclose = socket.onclose;
+				return s;
+			};
+			this.socket.onclose = function() {
+				if (!socketopened) {
+					if (Config.server.altport && !altport) {
+						altport = true;
+						Config.server.port = Config.server.altport;
+						self.socket = reconstructSocket(self.socket);
+						return;
+					}
+					if (!altprefix) {
+						altprefix = true;
+						Config.sockjsprefix = '';
+						self.socket = reconstructSocket(self.socket);
+						return;
+					}
+					return self.trigger('init:connectionerror');
+				}
+				self.trigger('init:socketclosed');
+			};
 		},
 		dispatchFragment: function(fragment) {
 			this.joinRoom(fragment||'');
