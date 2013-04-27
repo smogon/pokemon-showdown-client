@@ -176,11 +176,6 @@
 			Backbone.history.start({pushState: true});
 			this.addRoom('');
 
-			this.on('init:loadteams', function(teams) {
-				// Teams have finished loading.
-				// TODO: Handle this.
-			});
-
 			this.on('init:unsupported', function() {
 				alert('Your browser is unsupported.');
 			});
@@ -233,7 +228,7 @@
 			var origindomain = 'play.pokemonshowdown.com';
 			if (document.location.hostname === origindomain) {
 				this.user.loadTeams();
-				this.trigger('init:loadteams', self.user.teams);
+				this.trigger('init:loadteams');
 				Config.server = Config.defaultserver;
 				return this.connect();
 			} else if (!window.postMessage) {
@@ -280,15 +275,16 @@
 							postCrossDomainMessage({post: [uri, data, idx, type]});
 						};
 						// teams
-						self.user.teams = [];
 						if (data.teams) {
 							self.user.cookieTeams = false;
 							self.user.teams = $.parseJSON(data.teams);
+						} else {
+							self.user.teams = [];
 						}
 						TeambuilderRoom.writeTeams = function(teams) {
 							postCrossDomainMessage({teams: $.toJSON(teams)});
 						};
-						self.trigger('init:loadteams', self.user.teams);
+						self.trigger('init:loadteams');
 						// prefs
 						if (data.prefs) {
 							Tools.prefs.data = $.parseJSON(data.prefs);
