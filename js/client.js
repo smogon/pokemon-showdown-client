@@ -622,7 +622,7 @@
 			'click a': 'click'
 		},
 		initialize: function() {
-			this.$el.html('<img class="logo" src="//play.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="tabbar sidetabbar" style="display:none"></div>');
+			this.$el.html('<img class="logo" src="/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="tabbar sidetabbar" style="display:none"></div>');
 			this.$tabbar = this.$('.maintabbar');
 			this.$sidetabbar = this.$('.sidetabbar');
 			this.updateTabbar();
