@@ -109,7 +109,7 @@
 					};
 				}
 				self.finishRename(data.username, data.assertion);
-			}, 'text');
+			}), 'text');
 		},
 		/**
 		 * Log out from the server (but remain connected as a guest).
@@ -195,7 +195,7 @@
 			});
 
 			this.on('init:identify', function() {
-				alert('You\'ve successfully joined the server as ' + this.user.name + '!');
+				alert('Congratulations, you\'ve successfully joined the server as ' + this.user.name + '!');
 			});
 
 			// TODO: Various other events...
@@ -403,7 +403,7 @@
 				self.trigger('init:socketopened');
 				// Join the lobby. This is necessary for now.
 				// TODO: Revise this later if desired.
-				emit(self.socket, 'join', {room: 'lobby'});
+				self.send({room: 'lobby'}, 'join');
 			};
 			this.socket.onmessage = function(msg) {
 				if (msg.data.substr(0,1) !== '{') {
