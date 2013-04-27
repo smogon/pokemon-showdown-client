@@ -2531,7 +2531,7 @@ function Battle(frame, logFrame, noPreload) {
 			case 'sleeptalk':
 			default:
 				// April Fool's 2013
-				if (window.Config && Config.afd && move.id === 'earthquake') {
+				if (window.Config && Config.server && Config.server.afd && move.id === 'earthquake') {
 					self.message(pokemon.getName() + ' used <strong>Fissure</strong>!');
 					self.message('Just kidding! It was <strong>Earthquake</strong>!');
 				} else {
@@ -2540,7 +2540,7 @@ function Battle(frame, logFrame, noPreload) {
 				break;
 			}
 			// April Fool's 2013
-			if (window.Config && Config.afd && move.id === 'taunt') {
+			if (window.Config && Config.server && Config.server.afd && move.id === 'taunt') {
 				var quotes = [
 					"Yo mama so fat, she 4x resists Ice- and Fire-type attacks!",
 					"Yo mama so ugly, Captivate raises her opponent's Special Attack!",

@@ -1,10 +1,10 @@
 // some setting-like stuff
 Config.defaultserver = {
-	server: 'sim.smogon.com',
-	serverid: 'showdown',
-	serverport: 8000,
-	serveraltport: 80,
-	registeredserver: true
+	id: 'showdown',
+	host: 'sim.smogon.com',
+	port: 8000,
+	altport: 80,
+	registered: true
 };
 Config.sockjsprefix = '/showdown';
 Config.locprefix = '/';
@@ -31,7 +31,7 @@ var me = (function() {
 		loc: 'lobby'
 	};
 	me.getActionPHP = function() {
-		var ret = '/~~' + Config.serverid + '/action.php';
+		var ret = '/~~' + Config.server.id + '/action.php';
 		if (Config.testclient) {
 			ret = 'http://play.pokemonshowdown.com' + ret;
 		}
@@ -1988,7 +1988,7 @@ function Lobby(id, elem) {
 			$('#' + selfR.id + '-roomlist').html('<div class="roomlist"><div><small>(' + i + ' battle' + (i == 1 ? '' : 's') + ')</small></div>' + roomListCode + '</div>');
 		} else if (data.command === 'savereplay') {
 			var id = data.id;
-			var serverid = Config.serverid && toId(Config.serverid.split(':')[0]);
+			var serverid = Config.server.id && toId(Config.server.id.split(':')[0]);
 			if (serverid && serverid !== 'showdown') id = serverid+'-'+id;
 			$.post(me.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
@@ -3551,8 +3551,8 @@ teams = (function() {
 		}
 
 		var constructSocket = function() {
-			return new SockJS('http://' + Config.server + ':' +
-				Config.serverport + Config.sockjsprefix);
+			return new SockJS('http://' + Config.server.host + ':' +
+				Config.server.port + Config.sockjsprefix);
 		};
 
 		me.socket = constructSocket();
@@ -3680,13 +3680,13 @@ teams = (function() {
 		};
 
 		var socketopened = false;
-		var altport = (Config.serverport === Config.serveraltport);
+		var altport = (Config.server.port === Config.server.altport);
 		var altprefix = false;
 		document.getElementById('loading-message').innerHTML += ' DONE<br />Connecting to Showdown server...';
 		me.socket.onopen = function() {
 			socketopened = true;
 			if (altport && window._gaq) {
-				_gaq.push(['_trackEvent', 'Alt port connection', Config.serverid]);
+				_gaq.push(['_trackEvent', 'Alt port connection', Config.server.id]);
 			}
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Joining Showdown server...';
 			emit(me.socket, 'join', {room: 'lobby'});
@@ -3719,9 +3719,9 @@ teams = (function() {
 		};
 		me.socket.onclose = function () {
 			if (!socketopened) {
-				if (Config.serveraltport && !altport) {
+				if (Config.server.altport && !altport) {
 					altport = true;
-					Config.serverport = Config.serveraltport;
+					Config.server.port = Config.server.altport;
 					me.socket = reconstructSocket(me.socket);
 					return;
 				}
@@ -3738,7 +3738,7 @@ teams = (function() {
 	};
 	if (!Config.psim) {
 		if (!Config.testclient) {
-			$.extend(Config, Config.defaultserver);
+			Config.server = Config.defaultserver;
 		}
 		return connect();
 	} else if (!window.postMessage) {
@@ -3754,16 +3754,16 @@ teams = (function() {
 			var e = $e.originalEvent;
 			if (e.origin !== origin) return;
 			var data = $.parseJSON(e.data);
-			if (data.config) {
+			if (data.server) {
 				var postCrossDomainMessage = function(data) {
 					return e.source.postMessage($.toJSON(data), origin);
 				};
 				// server config information
-				$.extend(Config, data.config);
-				if (Config.registeredserver) {
+				Config.server = data.server;
+				if (Config.server.registered) {
 					var $link = $('<link rel="stylesheet" ' +
 						'href="//play.pokemonshowdown.com/customcss.php?server=' +
-						encodeURIComponent(Config.serverid) + '" />');
+						encodeURIComponent(Config.server.id) + '" />');
 					$('head').append($link);
 				}
 				// persistent username

@@ -342,9 +342,9 @@ var Tools = {
 			// default avatars
 			return Tools.resourcePrefix + 'sprites/trainers/' + avatarnum + '.png';
 		}
-		if (window.Config && Config.server && Config.registeredserver) {
+		if (window.Config && Config.server && Config.server.registered) {
 			// custom avatar served by the server
-			return 'http://' + Config.server + ':' + Config.serverport +
+			return 'http://' + Config.server.host + ':' + Config.server.port +
 				'/avatars/' + encodeURIComponent(avatar);
 		}
 		// just pick a random avatar
@@ -676,7 +676,7 @@ var Tools = {
 		}
 
 		// April Fool's 2013
-		if (window.Config && Config.afd || options && options.afd) {
+		if (window.Config && Config.server && Config.server.afd || options && options.afd) {
 			return {
 				w: 96,
 				h: 96,
