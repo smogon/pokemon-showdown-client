@@ -301,6 +301,7 @@ var BattleStatNames = { // proper style
 	spd: 'SpD',
 	spe: 'Spe'
 };
+var BattleFormats = {}; //
 
 var baseSpeciesChart = {
 	'unown': 1,
