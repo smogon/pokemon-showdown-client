@@ -1,9 +1,19 @@
 <?php
 $config = array();
-$config['host'] = strtolower(strval(@$_REQUEST['prefix']));
-if (!preg_match('/^[a-z0-9-_\.]*$/', $config['host'])) die;
-if ($config['host'] === 'logs') die;
-$origin = 'http://' . $config['host'] . '.psim.us';
+
+$host = strtolower(strval(@$_REQUEST['host']));
+$devClient = false;
+if (preg_match('/^([a-z0-9-_\.]*?)\.dev\.psim\.us$/', $host, $m)) {
+	$config['host'] = $m[1];
+	$devClient = true;
+} else if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $host, $m)) {
+	$config['host'] = $m[1];
+	if ($config['host'] === 'logs') die; // not authorised
+} else if ($host === 'dev.pokemonshowdown.com') {
+	$config['host'] = 'dev';
+} else {
+	die; // not authorised
+}
 
 include_once '../pokemonshowdown.com/config/servers.inc.php';
 
@@ -48,7 +58,8 @@ if (isset($PokemonServers[$config['host']])) {
 					(isset($server['altport']) &&
 						$config['port'] === $server['altport'])) {
 				$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
-				$config['redirect'] = 'http://' . $server['id'] . '.psim.us/' . rawurlencode($path);
+				$domain = ($devClient ? 'dev.' : '') . 'psim.us';
+				$config['redirect'] = 'http://' . $server['id'] . '.' . $domain . '/' . rawurlencode($path);
 				break;
 			}
 		}
@@ -69,7 +80,7 @@ if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
 	if (config.redirect) {
 		return parent.location.replace(config.redirect);
 	}
-	var origin = <?php echo json_encode($origin) ?>;
+	var origin = <?php echo json_encode('http://' . $host) ?>;
 	var postMessage = function(message) {
 		return window.parent.postMessage($.toJSON(message), origin);
 	};
