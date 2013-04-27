@@ -1396,6 +1396,18 @@ function Lobby(id, elem) {
 				Tools.prefs('avatar', avatar);
 			}
 			return text; // Send the /avatar command through to the server.
+		
+		case 'hidepms':
+			if (target && target === 'on') {
+				Tools.prefs('hidepms', true);
+				rooms.lobby.add('You are now hiding PMs from Lobby chat.');
+			} else if (target && target === 'off') {
+				Tools.prefs('hidepms', false);
+				rooms.lobby.add('You are now showing PMs in Lobby chat.');
+			} else {
+				rooms.lobby.add('Your Hide PMs preference is set to ' + Tools.prefs('hidepms') + '.');
+			}
+			return false;
 
 		}
 
@@ -1665,7 +1677,8 @@ function Lobby(id, elem) {
 					} else {
 						selfR.updatePopup();
 					}
-					selfR.chatElem.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + Tools.escapeHTML(log[i].pm) + ')</i> ' + messageSanitize(message) + '</span></div>');
+					var hidePms = Tools.prefs('hidepms') || false;
+					if (hidePms === false) selfR.chatElem.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + Tools.escapeHTML(log[i].pm) + ')</i> ' + messageSanitize(message) + '</span></div>');
 				//} else if (log[i].act) {
 				//	selfR.chatElem.append('<div class="chat"><strong style="' + color + '">&bull;</strong> <em' + (log[i].name.substr(1) === me.name ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + message + '</i></em></div>');
 				} else if (message.substr(0,2) === '//') {
