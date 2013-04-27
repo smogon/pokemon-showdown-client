@@ -226,6 +226,7 @@ body {
 	left: 0;
 	right: 0;
 	bottom: 0;
+
 	overflow: auto;
 	-webkit-overflow-scrolling: touch,
 	overflow-scrolling: touch,
@@ -340,6 +341,10 @@ body {
 	right: 0;
 	bottom: 40px;
 	font-size: 10pt;
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch,
+	overflow-scrolling: touch,
 }
 .chat-log-add {
 	position: absolute;
@@ -358,6 +363,11 @@ body {
 .chat-log .chat em {
 	padding: 0 4px 0 3px;
 	font-style: normal;
+}
+.chat-log .chat small {
+	font-weight: normal;
+	font-size: 8pt;
+	color: #888888;
 }
 .chat-log .inner {
 	padding: 4px 8px 0px 8px;
