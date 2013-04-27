@@ -126,7 +126,7 @@
 			app.send('/logout');
 		},
 		setPersistentName: function(name) {
-			$.cookie('showdown_username', (name !== undefined) ? name : this.name, {
+			$.cookie('showdown_username', (name !== undefined) ? name : this.get('name'), {
 				expires: 14
 			});
 		},
@@ -261,7 +261,7 @@
 						}
 						// persistent username
 						self.user.setPersistentName = function() {
-							postCrossDomainMessage({username: this.name});
+							postCrossDomainMessage({username: this.get('name')});
 						};
 						// ajax requests
 						$.get = function(uri, callback, type) {
