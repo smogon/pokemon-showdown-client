@@ -13,13 +13,11 @@
 		<meta name="robots" content="noindex" />
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 		<script>
-			var Config = {
-				psim: /^(.*)\.psim\.us$/i.exec(document.location.hostname)
-			};
+			var Config = {};
 		</script>
 		<script>
 			var _gaq = _gaq || [];
-			if (!Config.psim) {
+			if (!(/^(.*)\.psim\.us$/i.test(document.location.hostname))) {
 				_gaq.push(['_setAccount', 'UA-26211653-1'], ['_setDomainName', 'pokemonshowdown.com']);
 			} else {
 				_gaq.push(['_setAccount', 'UA-26211653-2'], ['_setDomainName', 'psim.us']);

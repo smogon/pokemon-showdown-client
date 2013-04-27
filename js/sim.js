@@ -3736,7 +3736,8 @@ teams = (function() {
 			overlay('disconnect');
 		};
 	};
-	if (!Config.psim) {
+	var origindomain = 'play.pokemonshowdown.com';
+	if ((document.location.hostname === origindomain) || Config.testclient) {
 		if (!Config.testclient) {
 			Config.server = Config.defaultserver;
 		}
@@ -3746,7 +3747,7 @@ teams = (function() {
 		return overlay('unsupported');
 	}
 	$(window).on('message', (function() {
-		var origin = 'http://play.pokemonshowdown.com';
+		var origin = document.location.protocol + '//' + origindomain;
 		var callbacks = [];
 		var init = window.init;
 		window.init = null;
@@ -3813,8 +3814,8 @@ teams = (function() {
 		};
 	})());
 	var $iframe = $(
-		'<iframe src="//play.pokemonshowdown.com/crossdomain.php?prefix=' +
-		encodeURIComponent(Config.psim[1]) +
+		'<iframe src="//play.pokemonshowdown.com/crossdomain.php?host=' +
+		encodeURIComponent(document.location.hostname) +
 		'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
 		'" style="display: none;"></iframe>'
 	);
