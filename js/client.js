@@ -22,7 +22,12 @@
 			avatar: 0
 		},
 		connect: function() {
-			alert('TODO: Connect to ' + Config.server.host + ':' + Config.server.port);
+			console.log('TODO: Connect to ' + Config.server.host + ':' + Config.server.port);
+		},
+		setPersistentName: function(name) {
+			$.cookie('showdown_username', (name !== undefined) ? name : this.name, {
+				expires: 14
+			});
 		},
 		/**
 		 * This function loads teams from `localStorage` or cookies. This function
@@ -84,7 +89,7 @@
 							$('head').append($link);
 						}
 						// persistent username
-						me.setPersistentName = function() {
+						self.setPersistentName = function() {
 							postCrossDomainMessage({username: this.name});
 						};
 						// ajax requests
