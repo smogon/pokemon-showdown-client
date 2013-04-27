@@ -339,6 +339,7 @@ body {
 	left: 0;
 	right: 0;
 	bottom: 40px;
+	font-size: 10pt;
 }
 .chat-log-add {
 	position: absolute;
@@ -349,7 +350,21 @@ body {
 	padding: 3px 4px 0 4px;
 	border-top: 1px solid #AAAAAA;
 }
-
+.chat-log .message,
+.chat-log .chat {
+	padding: 4px 0 2px 0;
+	font-size: 8pt;
+}
+.chat-log .chat em {
+	padding: 0 4px 0 3px;
+	font-style: normal;
+}
+.chat-log .inner {
+	padding: 4px 8px 0px 8px;
+}
+.chat-log .inner-after {
+	margin-top 0.5em;
+}
 
 .chatbox {
 	margin: 0 10px 0 80px;
