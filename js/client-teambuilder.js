@@ -23,6 +23,7 @@
 			if (this[e.currentTarget.value]) this[e.currentTarget.value].call(this, e);
 		},
 		saveTeams: function() {
+			TeambuilderRoom.writeTeams(teams);
 			this.update();
 		},
 
@@ -401,6 +402,10 @@
 			}
 		}
 
+	}, {
+		writeTeams: function(teams) {
+			// TODO: Write `teams` into localStorage or cookies here.
+		}
 	});
 
 }).call(this, jQuery);

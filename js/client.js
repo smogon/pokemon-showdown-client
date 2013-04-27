@@ -1,9 +1,14 @@
 (function($) {
 
+	// `defaultserver` specifies the server to use when the domain name in the
+	// address bar is `play.pokemonshowdown.com`. If the domain name in the
+	// address bar is something else (including `dev.pokemonshowdown.com`), the
+	// server to use will be determined by `crossdomain.php`, not this object.
 	Config.defaultserver = {
-		id: 'dev',
+		id: 'showdown',
 		host: 'sim.smogon.com',
-		port: 8001,
+		port: 8000,
+		altport: 80,
 		registered: true
 	};
 	Config.sockjsprefix = '/showdown';
@@ -16,7 +21,16 @@
 			named: false,
 			avatar: 0
 		},
-		initialize: function() {
+		connect: function() {
+			alert('TODO: Connect to ' + Config.server.host + ':' + Config.server.port);
+		},
+		/**
+		 * This function loads teams from `localStorage` or cookies. This function
+		 * is only used if the client is running on `play.pokemonshowdown.com`. If the
+		 * client is running on another domain (including `dev.pokemonshowdown.com`),
+		 * then teams are received from `crossdomain.php` instead.
+		 */
+		loadTeams: function() {
 			this.teams = [];
 			if (window.localStorage) {
 				var teamString = localStorage.getItem('showdown_teams');
@@ -36,6 +50,97 @@
 					this.teams.push(savedTeam);
 				}
 			}
+		},
+		initialize: function() {
+			var origindomain = 'play.pokemonshowdown.com';
+			if (document.location.hostname === origindomain) {
+				this.loadTeams();
+				Config.server = Config.defaultserver;
+				return this.connect();
+			} else if (!window.postMessage) {
+				// browser does not support cross-document messaging
+				// TODO: display better error message
+				return alert('Your browser is unsupported.');
+			}
+			var self = this;
+			$(window).on('message', (function() {
+				var origin = document.location.protocol + '//' + origindomain;
+				var callbacks = {};
+				var callbackIdx = 0;
+				return function($e) {
+					var e = $e.originalEvent;
+					if (e.origin !== origin) return;
+					var data = $.parseJSON(e.data);
+					if (data.server) {
+						var postCrossDomainMessage = function(data) {
+							return e.source.postMessage($.toJSON(data), origin);
+						};
+						// server config information
+						Config.server = data.server;
+						if (Config.server.registered) {
+							var $link = $('<link rel="stylesheet" ' +
+								'href="//play.pokemonshowdown.com/customcss.php?server=' +
+								encodeURIComponent(Config.server.id) + '" />');
+							$('head').append($link);
+						}
+						// persistent username
+						me.setPersistentName = function() {
+							postCrossDomainMessage({username: this.name});
+						};
+						// ajax requests
+						$.get = function(uri, callback, type) {
+							var idx = callbackIdx++;
+							callbacks[idx] = callback;
+							postCrossDomainMessage({get: [uri, idx, type]});
+						};
+						$.post = function(uri, data, callback, type) {
+							var idx = callbackIdx++;
+							callbacks[idx] = callback;
+							postCrossDomainMessage({post: [uri, data, idx, type]});
+						};
+						// teams
+						self.teams = [];
+						if (data.teams) {
+							cookieTeams = false;
+							self.teams = $.parseJSON(data.teams);
+						}
+						TeambuilderRoom.writeTeams = function(teams) {
+							postCrossDomainMessage({teams: $.toJSON(teams)});
+						};
+						// prefs
+						if (data.prefs) {
+							Tools.prefs.data = $.parseJSON(data.prefs);
+						}
+						Tools.prefs.save = function() {
+							postCrossDomainMessage({prefs: $.toJSON(this.data)});
+						};
+						// check for third-party cookies being disabled
+						if (data.nothirdparty) {
+							// TODO: Show better warning that disabling third-party cookies
+							//       may result in things not working.
+							alert('You have third-party cookies disabled, which may break this!');
+						}
+						// connect
+						self.connect();
+					} else if (data.ajax) {
+						var idx = data.ajax[0];
+						if (callbacks[idx]) {
+							callbacks[idx](data.ajax[1]);
+							delete callbacks[idx];
+						}
+					}
+				};
+			})());
+			// Note that the URI here is intentionally `play.pokemonshowdown.com`,
+			// and not `dev.pokemonshowdown.com`, in order to make teams, prefs,
+			// and other things work properly.
+			var $iframe = $(
+				'<iframe src="//play.pokemonshowdown.com/crossdomain.php?host=' +
+				encodeURIComponent(document.location.hostname) +
+				'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
+				'" style="display: none;"></iframe>'
+			);
+			$('body').append($iframe);
 		}
 	});
 
