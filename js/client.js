@@ -1,10 +1,9 @@
 (function($) {
 
 	Config.defaultserver = {
-		server: 'sim.smogon.com',
-		serverid: 'dev',
-		serverport: 8001,
-		serverprotocol: 'ws',
+		id: 'dev',
+		host: 'sim.smogon.com',
+		port: 8001,
 		registered: true
 	};
 	Config.sockjsprefix = '/showdown';
