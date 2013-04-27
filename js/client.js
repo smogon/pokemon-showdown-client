@@ -16,6 +16,27 @@
 			registered: false,
 			named: false,
 			avatar: 0
+		},
+		initialize: function() {
+			this.teams = [];
+			if (window.localStorage) {
+				var teamString = localStorage.getItem('showdown_teams');
+				if (teamString) this.teams = JSON.parse(teamString);
+			} else {
+				this.cookieTeams = true;
+				var savedTeam = $.parseJSON($.cookie('showdown_team1'));
+				if (savedTeam) {
+					this.teams.push(savedTeam);
+				}
+				savedTeam = $.parseJSON($.cookie('showdown_team2'));
+				if (savedTeam) {
+					this.teams.push(savedTeam);
+				}
+				savedTeam = $.parseJSON($.cookie('showdown_team3'));
+				if (savedTeam) {
+					this.teams.push(savedTeam);
+				}
+			}
 		}
 	});
 
@@ -28,7 +49,9 @@
 			window.app = this;
 			$('#main').html('');
 			this.initializeRooms();
+
 			this.user = new User();
+
 			this.topbar = new Topbar({el: $('#header')});
 			Backbone.history.start({pushState: true});
 			this.addRoom('');
