@@ -1,53 +1,52 @@
 <?php
 $config = array();
-$config['server'] = strtolower(strval(@$_REQUEST['prefix']));
-if (!preg_match('/^[a-z0-9-_\.]*$/', $config['server'])) die;
-if ($config['server'] === 'logs') die;
-$origin = 'http://' . $config['server'] . '.psim.us';
+$config['host'] = strtolower(strval(@$_REQUEST['prefix']));
+if (!preg_match('/^[a-z0-9-_\.]*$/', $config['host'])) die;
+if ($config['host'] === 'logs') die;
+$origin = 'http://' . $config['host'] . '.psim.us';
 
 include_once '../pokemonshowdown.com/config/servers.inc.php';
 
-$hyphenpos = strrpos($config['server'], '-');
+$hyphenpos = strrpos($config['host'], '-');
 if ($hyphenpos) {
-	$postfix = substr($config['server'], $hyphenpos + 1);
+	$postfix = substr($config['host'], $hyphenpos + 1);
 	if ($postfix === 'afd') {
 		$config['afd'] = true;
-		$config['server'] = substr($config['server'], 0, $hyphenpos);
+		$config['host'] = substr($config['host'], 0, $hyphenpos);
 	} else if (ctype_digit($postfix)) {
-		$config['serverport'] = intval(substr($config['server'], $hyphenpos + 1));
-		$config['server'] = substr($config['server'], 0, $hyphenpos);
+		$config['port'] = intval(substr($config['host'], $hyphenpos + 1));
+		$config['host'] = substr($config['host'], 0, $hyphenpos);
 	}
 }
 
-$config['serverid'] = $config['server'];
-if (isset($PokemonServers[$config['server']])) {
-	$server =& $PokemonServers[$config['server']];
-	$config['server'] = $server['server'];
-	if (isset($server['protocol'])) $config['serverprotocol'] = $server['protocol'];
-	if (!isset($config['serverport'])) {
-		$config['serverport'] = $server['port'];
-	} else if ($config['serverport'] !== $server['port']) {
-		$config['serverid'] .= ':' . $config['serverport'];
+$config['id'] = $config['host'];
+if (isset($PokemonServers[$config['host']])) {
+	$server =& $PokemonServers[$config['host']];
+	$config['host'] = $server['server'];
+	if (!isset($config['port'])) {
+		$config['port'] = $server['port'];
+	} else if ($config['port'] !== $server['port']) {
+		$config['id'] .= ':' . $config['port'];
 	}
-	if (isset($server['altport'])) $config['serveraltport'] = $server['altport'];
-	$config['registeredserver'] = true;
+	if (isset($server['altport'])) $config['altport'] = $server['altport'];
+	$config['registered'] = true;
 } else {
-	if (isset($config['serverport'])) {
-		$config['serverid'] .= ':' . $config['serverport'];
+	if (isset($config['port'])) {
+		$config['id'] .= ':' . $config['port'];
 	} else {
-		$config['serverport'] = 8000; // default port
+		$config['port'] = 8000; // default port
 	}
 
 	// see if this is actually a registered server
-	$ip = gethostbyname($config['server']);
+	$ip = gethostbyname($config['host']);
 	foreach ($PokemonServers as &$server) {
 		if (!isset($server['ipcache'])) {
 			$server['ipcache'] = gethostbyname($server['server']);
 		}
 		if ($ip === $server['ipcache']) {
-			if (($config['serverport'] === $server['port']) ||
+			if (($config['port'] === $server['port']) ||
 					(isset($server['altport']) &&
-						$config['serverport'] === $server['altport'])) {
+						$config['port'] === $server['altport'])) {
 				$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
 				$config['redirect'] = 'http://' . $server['id'] . '.psim.us/' . rawurlencode($path);
 				break;
@@ -98,7 +97,7 @@ if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
 			localStorage.setItem('showdown_prefs', data.prefs);
 		}
 	});
-	var message = {config: config};
+	var message = {server: config};
 	try {
 		if (window.localStorage) {
 			message.teams = localStorage.getItem('showdown_teams');
