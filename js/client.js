@@ -16,13 +16,11 @@
 
 	var User = this.User = Backbone.Model.extend({
 		defaults: {
-			name: 'Guest',
-			userid: 'guest',
+			name: '',
+			userid: '',
 			registered: false,
 			named: false,
-			avatar: 0,
-			challengekeyid: -1,
-			challenge: ''
+			avatar: 0
 		},
 		/**
 		 * Return the path to the login server `action.php` file. AJAX requests
@@ -84,32 +82,38 @@
 				app.send('/trn ' + name);
 			}
 		},
-		/**
-		 * Rename the user based on the `sid` and `showdown_username` cookies.
-		 * Specifically, if the user has a valid session, the user will be
-		 * renamed to the username associated with that session. If the user
-		 * does not have a valid session but does have a persistent username
-		 * (i.e. a `showdown_username` cookie), the user will be renamed to
-		 * that name; if that name is registered, the user will be required
-		 * to authenticate.
-		 *
-		 * See `finishRename` above for a list of events this can emit.
-		 */
-		upkeepRename: function() {
-			var query = this.getActionPHP() + '?act=upkeep' +
-					'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
-					'&challenge=' + encodeURIComponent(this.challenge);
-			var self = this;
-			$.get(query, Tools.safeJSON(function(data) {
-				if (!data.username) return;
-				if (data.loggedin) {
-					self.registered = {
-						username: data.username,
-						userid: toUserid(data.username)
-					};
-				}
-				self.finishRename(data.username, data.assertion);
-			}), 'text');
+		challengekeyid: -1,
+		challenge: '',
+		receiveChallenge: function(attrs) {
+			if (attrs.challenge) {
+				/**
+				 * Rename the user based on the `sid` and `showdown_username` cookies.
+				 * Specifically, if the user has a valid session, the user will be
+				 * renamed to the username associated with that session. If the user
+				 * does not have a valid session but does have a persistent username
+				 * (i.e. a `showdown_username` cookie), the user will be renamed to
+				 * that name; if that name is registered, the user will be required
+				 * to authenticate.
+				 *
+				 * See `finishRename` above for a list of events this can emit.
+				 */
+				var query = this.getActionPHP() + '?act=upkeep' +
+						'&challengekeyid=' + encodeURIComponent(attrs.challengekeyid) +
+						'&challenge=' + encodeURIComponent(attrs.challenge);
+				var self = this;
+				$.get(query, Tools.safeJSON(function(data) {
+					if (!data.username) return;
+					if (data.loggedin) {
+						self.set('registered', {
+							username: data.username,
+							userid: toUserid(data.username)
+						});
+					}
+					self.finishRename(data.username, data.assertion);
+				}), 'text');
+			}
+			this.challengekeyid = attrs.challengekeyid;
+			this.challenge = attrs.challenge;
 		},
 		/**
 		 * Log out from the server (but remain connected as a guest).
@@ -126,18 +130,13 @@
 				expires: 14
 			});
 		},
-		setNamed: function(named) {
-			this.named = named;
-			if (!named) {
-				this.setPersistentName(null); // kill `showdown_username` cookie
-			}
-		},
 		/**
 		 * This function loads teams from `localStorage` or cookies. This function
 		 * is only used if the client is running on `play.pokemonshowdown.com`. If the
 		 * client is running on another domain (including `dev.pokemonshowdown.com`),
 		 * then teams are received from `crossdomain.php` instead.
 		 */
+		teams: null,
 		loadTeams: function() {
 			this.teams = [];
 			if (window.localStorage) {
@@ -193,12 +192,6 @@
 			this.user.on('login:authrequried', function(name) {
 				alert('The name ' + name + ' is registered, but you aren\'t logged in :(');
 			});
-
-			this.on('init:identify', function() {
-				alert('Congratulations, you\'ve successfully joined the server as ' + this.user.name + '!');
-			});
-
-			// TODO: Various other events...
 
 			this.initializeConnection();
 		},
@@ -348,20 +341,23 @@
 			var events = {
 				init: function (data) {
 					if (data.name !== undefined) {
-						self.user.name = data.name;
-						self.user.userid = toUserid(self.user.name);
-						self.user.named = data.named;
+						self.user.set({
+							name: data.name,
+							userid: toUserid(data.name),
+							named: data.named
+						});
 					}
 					// TODO: All other handling of `init` messages.
 				},
 				update: function (data) {
 					if (data.name !== undefined) {
-						self.user.name = data.name;
-						self.user.userid = toUserid(self.user.name);
-						var identifying = !self.user.named && data.named;
-						self.user.setNamed(data.named);
-						if (identifying) {
-							self.trigger('init:identify');
+						self.user.set({
+							name: data.name,
+							userid: toUserid(data.name),
+							named: data.named
+						});
+						if (!data.named) {
+							self.user.setPersistentName(null); // kill `showdown_username` cookie
 						}
 					}
 					// TODO: All other handling of `update` messages.
@@ -374,21 +370,6 @@
 				message: function (message) {},
 				command: function (message) {},
 				console: function (message) {}
-			};
-
-			var parseSpecialData = function(text) {
-				var parts = text.split('|');
-				if (parts.length < 2) return false;
-
-				switch (parts[1]) {
-					case 'challenge-string':
-					case 'challstr':
-						self.user.challengekeyid = parseInt(parts[2], 10);
-						self.user.challenge = parts[3];
-						self.user.upkeepRename();
-						return true;
-				}
-				return false;
 			};
 
 			var socketopened = false;
@@ -407,17 +388,7 @@
 			};
 			this.socket.onmessage = function(msg) {
 				if (msg.data.substr(0,1) !== '{') {
-					var text = msg.data;
-					var roomid = 'lobby';
-					if (text.substr(0,1) === '>') {
-						var nlIndex = text.indexOf('\n');
-						if (nlIndex < 0) return;
-						roomid = text.substr(1,nlIndex-1);
-						text = text.substr(nlIndex+1);
-					}
-					if (!parseSpecialData(text)) {
-						// TODO: Handle this non-JSON message!
-					}
+					self.receive(msg.data);
 					return;
 				}
 				var data = $.parseJSON(msg.data);
@@ -469,8 +440,38 @@
 		/**
 		 * Receive from sim server
 		 */
-		receive: function() {
-			//
+		receive: function(data) {
+			console.log('received: '+data);
+			var roomid = '';
+			if (data.substr(0,1) === '>') {
+				var nlIndex = data.indexOf('\n');
+				if (nlIndex < 0) return;
+				roomid = data.substr(1,nlIndex-1);
+				data = data.substr(nlIndex+1);
+			}
+			if (roomid) {
+				if (this.rooms[roomid]) {
+					this.rooms[roomid].receive(data);
+				}
+				return;
+			}
+
+			var parts = data.split('|');
+			if (parts.length < 2) return false;
+
+			switch (parts[1]) {
+			case 'challenge-string':
+			case 'challstr':
+				this.user.receiveChallenge({
+					challengekeyid: parseInt(parts[2], 10),
+					challenge: parts[3]
+				});
+				break;
+			default:
+				this.joinRoom('lobby');
+				this.rooms['lobby'].receive(data);
+				break;
+			}
 		},
 
 		// Room management
