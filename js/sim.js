@@ -3186,7 +3186,7 @@ function overlay(overlayType, data) {
 		break;
 	case 'nothirdparty':
 		contents += '<p>You have third-party cookies disabled in your browser.</p>';
-		contents += '<p>Pokemon Showdown uses third-party cookies and <code>localStorage</code> to handle teams, preferences, and logging in on third-party servers.</p>';
+		contents += '<p>Pok&eacute;mon Showdown uses third-party cookies and <code>localStorage</code> to handle teams, preferences, and logging in on third-party servers.</p>';
 		contents += '<p>We recommend that you enable third-party cookies and then refresh this page. You can ignore this recommendation if you want, but some things might not work properly on third-party servers.</p>';
 		contents += '<p><button onclick="overlayClose();return false" id="overlay_ok">OK</button></p>';
 		focusElem = '#overlay_ok';
@@ -3347,7 +3347,7 @@ function overlay(overlayType, data) {
 		if (warning) {
 			contents += '<p><strong style="color:red">'+(Tools.escapeHTML(data.warning)||'You have been warned for breaking the rules.')+'</strong></p>';
 		}
-		contents += '<h2>Pokemon Showdown Rules</h2>';
+		contents += '<h2>Pok&eacute;mon Showdown Rules</h2>';
 		contents += '<b>Global</b><br /><br /><b>1.</b> Be nice to people. Respect people. Don\'t be rude to people.<br /><br /><b>2.</b> PS is based in the US. Follow US laws. Don\'t distribute pirated material, and don\'t slander others. PS is available to users younger than 18, so porn is strictly forbidden.<br /><br /><b>3.</b>&nbsp;No cheating. Don\'t exploit bugs to gain an unfair advantage. Don\'t game the system (by intentionally losing against yourself or a friend in a ladder match, by timerstalling, etc).<br /><b></b><br /><b>4.</b>&nbsp;English only.<br /><br /><b>5.</b> The First Amendment does not apply to PS, since PS is not a government organization.<br /><br /><b>6.</b> Rules are subject to moderator interpretation, punishment is subject to moderator discretion.<br /><br />';
 		contents += '<b>Lobby chat</b><br /><br /><b>1.</b> Do not spam, flame, or troll. This includes advertising, asking questions with one-word answers, and flooding the chat by copy/pasting lots of text.<br /><br /><b>2.</b> Don\'t call unnecessary attention to yourself. Don\'t be obnoxious. ALL CAPS, <i><b>formatting</b></i>, and -&gt; ASCII art &lt;- are acceptable to emphasize things, but should be used sparingly, not all the time.<br /><br /><b>3.</b> No minimodding: don\'t mod if it\'s not your job. Don\'t tell people they\'ll be muted, don\'t ask for people to be muted, and don\'t talk about whether or not people should be muted ("inb4 mute", etc). This applies to bans and other punishments, too.<br /><br /><b>4.</b> We reserve the right to tell you to stop discussing moderator decisions if you become unreasonable or belligerent.<br /><br />';
 		if (!warning) {
