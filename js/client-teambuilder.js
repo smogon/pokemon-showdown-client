@@ -9,6 +9,7 @@
 
 			// left menu
 			this.$el.addClass('ps-room-light');
+			app.on('init:loadteams', this.update, this);
 			this.update();
 		},
 		focus: function() {
@@ -51,7 +52,13 @@
 		deletedTeam: null,
 		deletedTeamLoc: -1,
 		updateTeamList: function() {
+			var teams = app.user.teams;
 			var buf = '<div class="pad"><p>lol zarel this is a horrible teambuilder</p>'
+			if (!teams) {
+				buf += '<p>that\'s because we\'re not done loading it...</p></div>';
+				this.$el.html(buf);
+				return;
+			}
 			buf += '<p>i know stfu im not done with it</p>'
 			buf += '<ul>';
 			if (!teams.length) {
