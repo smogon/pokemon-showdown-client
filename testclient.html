@@ -13,20 +13,22 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 	<script>
 		var Config = {
-			serverid: 'showdown',
-			server: 'sim.smogon.com',
-			serverport: 8000,
-			serveraltport: 80,
-			testclient: true
+			testclient: true,
+			server: {
+				id: 'showdown',
+				host: 'sim.smogon.com',
+				port: 8000,
+				altport: 80
+			}
 		};
 		(function() {
 			if (location.search !== '') {
 				var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
 				if (m) {
-					Config.serverid = m[1];
-					Config.server = m[2];
+					Config.server.id = m[1];
+					Config.server.host = m[2];
 					if (m[3]) {
-						Config.serverport = m[3].substr(1);
+						Config.server.port = m[3].substr(1);
 					}
 				} else {
 					alert('Unrecognised query string syntax: ' + location.search);
