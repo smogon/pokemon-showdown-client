@@ -434,6 +434,12 @@
 			}
 			return ((highlights.length > 0) && app.highlightRegExp.test(message));
 		},
+		parseBattleID: function(id) {
+			if (id.lastIndexOf('-') > 6) {
+				return id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
+			}
+			return id.match(/^battle\-([a-z0-9]*[a-z])[0-9]*$/);
+		},
 		getTimestamp: function(section) {
 			var pref = Tools.prefs('timestamps') || {};
 			var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
