@@ -38,7 +38,7 @@
 			this.send('/lobbychat on');
 		},
 		updateLayout: function() {
-			if (this.$el.width() >= 610) {
+			if (this.$el.width() >= 570) {
 				this.$userList.show();
 				this.$chatFrame.addClass('hasuserlist');
 				this.$chatAdd.addClass('hasuserlist');
@@ -586,7 +586,7 @@
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
-		noNamedUsersOnline: '<li id="userlist-empty">No named users online</li>',
+		noNamedUsersOnline: '<li id="userlist-empty">Only guests online</li>',
 		updateNoUsersOnline: function() {
 			var elem = $('#userlist-empty');
 			if ($("[id^=userlist-user-]").length === 0) {

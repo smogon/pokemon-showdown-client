@@ -1,8 +1,9 @@
 (function($) {
 
 	var MainMenuRoom = this.MainMenuRoom = this.Room.extend({
-		minWidth: 480,
-		maxWidth: 480,
+		// minWidth: 480,
+		// maxWidth: 480,
+		bestWidth: 360,
 		events: {
 			'click .button': 'clickButton'
 		},
