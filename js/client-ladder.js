@@ -3,6 +3,7 @@
 	var LadderRoom = this.LadderRoom = this.Room.extend({
 		initialize: function() {
 			this.$el.addClass('ps-room-light');
+			app.on('init:formats', this.update, this);
 			this.update();
 		},
 		events: {
