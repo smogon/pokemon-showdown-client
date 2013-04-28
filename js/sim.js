@@ -3235,13 +3235,13 @@ function overlay(overlayType, data) {
 	case 'login':
 		if (!data) data = {};
 		if (data.error) {
-			contents += '<p class="error">' + data.error + '</p>';
+			contents += '<p class="error">' + Tools.escapeHTML(data.error) + '</p>';
 		} else if (data.reason) {
-			contents += '<p>' + data.reason + '</p>';
+			contents += '<p>' + Tools.escapeHTML(data.reason) + '</p>';
 		} else {
 			contents += '<p>The name you chose is registered.</p>';
 		}
-		contents += '<p><label class="label">Username:</label> ' + data.name + '<input type="hidden" id="overlay_username" value="' + Tools.escapeHTML(data.name) + '" /></p>';
+		contents += '<p><label class="label">Username:</label> ' + Tools.escapeHTML(data.name) + '<input type="hidden" id="overlay_username" value="' + Tools.escapeHTML(data.name) + '" /></p>';
 		contents += '<p><label class="label">Password: <input class="textbox" type="password" id="overlay_password" /></label></p>';
 		contents += '<p><button type="submit"><strong>Log in</strong></button> <button onclick="overlayClose();return false">Cancel</button></p>';
 		selectElem = '#overlay_password';
@@ -3638,7 +3638,7 @@ teams = (function() {
 			},
 			nameTaken: function (data) {
 				if (data && data.permanent) {
-					overlay('message', data.reason);
+					overlay('message', Tools.sanitizeHTML(data.reason));
 				} else if (data && data.name) {
 					overlay('login', data);
 				} else if (data) {
@@ -3652,11 +3652,11 @@ teams = (function() {
 			},
 			message: function (message) {
 				if (message.html) {
-					overlay('message', message.html);
+					overlay('message', Tools.sanitizeHTML(message.html));
 					return;
 				}
 				if (message.message) message = message.message;
-				overlay('message', '<div style="white-space:pre-wrap">' + message + '</div>');
+				overlay('message', '<div style="white-space:pre-wrap">' + Tools.escapeHTML(message) + '</div>');
 			},
 			command: function (message) {
 				if (message.room && rooms[message.room]) {
