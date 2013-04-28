@@ -383,6 +383,7 @@ body {
 .chatbox label {
 	float: left;
 	margin-left: -78px;
+	padding-top: 2px;
 	width: 73px;
 	text-align: right;
 	overflow: hidden;
