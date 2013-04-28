@@ -1568,6 +1568,9 @@ function Lobby(id, elem) {
 					// refresh the page
 					document.location.reload(true);
 					break;
+				case 'users':
+					selfR.parseUserList(row.slice(1).join('|'));
+					break;
 				case 'formats':
 					var isSection = false;
 					var section = '';
@@ -1849,6 +1852,22 @@ function Lobby(id, elem) {
 			me.renameQueued = false;
 		}
 	};
+	this.parseUserList = function(userList) {
+		selfR.userCount = {};
+		me.users = {};
+		var commaIndex = userList.indexOf(',');
+		if (commaIndex >= 0) {
+			selfR.userCount.users = parseInt(userList.substr(0,commaIndex),10);
+			var users = userList.substr(commaIndex+1).split(',');
+			for (var i=0,len=users.length; i<len; i++) {
+				if (users[i]) me.users[toId(users[i])] = users[i];
+			}
+		} else {
+			selfR.userCount.users = parseInt(userList);
+			selfR.userCount.guests = selfR.userCount.users;
+		}
+		selfR.userList.construct();
+	};
 	this.update = function (data) {
 		if (data.logUpdate) {
 			selfR.add(data.logUpdate);
@@ -1861,20 +1880,7 @@ function Lobby(id, elem) {
 			selfR.searcher = data.searcher;
 		}
 		if (typeof data.u !== 'undefined') {
-			selfR.userCount = {};
-			me.users = {};
-			var commaIndex = data.u.indexOf(',');
-			if (commaIndex >= 0) {
-				selfR.userCount.users = parseInt(data.u.substr(0,commaIndex),10);
-				var users = data.u.substr(commaIndex+1).split(',');
-				for (var i=0,len=users.length; i<len; i++) {
-					if (users[i]) me.users[toId(users[i])] = users[i];
-				}
-			} else {
-				selfR.userCount.users = parseInt(data.u);
-				selfR.userCount.guests = selfR.userCount.users;
-			}
-			selfR.userList.construct();
+			this.parseUserList(data.u);
 		}
 		if (data.rooms) {
 			selfR.rooms = [];
