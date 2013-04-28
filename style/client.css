@@ -352,6 +352,7 @@ body {
 	right: 0;
 	bottom: 40px;
 	font-size: 10pt;
+	background: rgba(242,247,250,.4);
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch,
@@ -362,13 +363,9 @@ body {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	height: 36px;
+	min-height: 36px;
 	padding: 3px 4px 0 4px;
 	border-top: 1px solid #AAAAAA;
-}
-.chat-log.hasuserlist,
-.chat-log-add.hasuserlist {
-	left: 161px;
 }
 .chat-log .message,
 .chat-log .chat {
@@ -388,7 +385,7 @@ body {
 	padding: 4px 8px 0px 8px;
 }
 .chat-log .inner-after {
-	margin-top 0.5em;
+	margin-top: 0.5em;
 }
 
 .chatbox {
@@ -422,8 +419,16 @@ body {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: 160px;
+	width: 145px;
 	border-right: 1px solid #AAAAAA;
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch,
+	overflow-scrolling: touch,
+}
+.chat-log.hasuserlist,
+.chat-log-add.hasuserlist {
+	left: 146px;
 }
 .userlist,
 .userlist li {
@@ -455,12 +460,12 @@ body {
 	height: auto;
 	background: transparent;
 	border: 0;
-	padding: 0;
+	padding: 1px 0;
 	margin: 0;
 	height: 19px;
 	width: 100%;
 	white-space: nowrap;
-	font: 10pt Verdana, sans-serif;
+	font: 9pt Verdana, sans-serif;
 	text-align: left;
 	cursor: pointer;
 }
