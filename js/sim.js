@@ -1512,6 +1512,7 @@ function Lobby(id, elem) {
 			autoscroll = true;
 		}
 		selfR.lastUpdate = log;
+		var initializing;
 		for (var i = 0; i < log.length; i++) {
 			if (typeof log[i] === 'string') {
 				if (log[i].substr(0,1) !== '|') log[i] = '||'+log[i];
@@ -1611,6 +1612,11 @@ function Lobby(id, elem) {
 						}
 					}
 					selfR.updateMainTop(true);
+					break;
+				case 'init':
+					// new init message
+					initializing = Tools.prefs('timestamps');
+					Tools.prefs('timestamps', 'off', false);
 					break;
 				case '':
 				default:
@@ -1824,6 +1830,9 @@ function Lobby(id, elem) {
 		var $children = selfR.chatElem.children();
 		if ($children.length > 900) {
 			$children.slice(0,100).remove();
+		}
+		if (initializing) {
+			Tools.prefs('timestamps', initializing, false);
 		}
 	};
 	// Lobby init
