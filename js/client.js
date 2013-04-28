@@ -638,7 +638,7 @@
 			for (var id in app.rooms) {
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var name = id;
-				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> Lobby chat';
+				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> Lobby';
 				if (app.rooms[id].isSideRoom) {
 					if (!sideBuf) sideBuf = '<ul>';
 					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
