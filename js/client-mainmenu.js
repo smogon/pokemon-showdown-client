@@ -14,6 +14,16 @@
 			// right menu
 			buf += '<div class="rightmenu"><div class="mainmenu"><p><button class="button" value="lobby">Join lobby chat</button></p></div></div>';
 			this.$el.html(buf);
+
+			app.on('init:formats', this.updateSearch, this);
+			this.updateSearch();
+		},
+		updateSearch: function() {
+			if (window.BattleFormats) {
+				this.$('button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
+			} else {
+				this.$('button.big').html('<em>Connecting...</em>').addClass('disabled');
+			}
 		},
 		updateRightMenu: function() {
 			if (app.sideRoom) {
