@@ -2,6 +2,7 @@
 
 	var ChatRoom = this.ChatRoom = this.Room.extend({
 		minWidth: 320,
+		maxWidth: 800,
 		isSideRoom: true,
 		events: {
 			'keypress textarea': 'keyPress',
@@ -12,7 +13,7 @@
 			this.$el.addClass('ps-room-light').html(buf);
 
 			this.$chatAdd = this.$('.chat-log-add');
-			this.$chatFrame = this.$('.battle-log');
+			this.$chatFrame = this.$('.chat-log');
 			this.$chat = this.$('.inner');
 			this.$chatbox = null;
 
@@ -25,8 +26,9 @@
 				'leave': []
 			};
 
+			this.$userList = this.$('.userlist');
 			this.userList = new UserList({
-				el: this.$('.userlist'),
+				el: this.$userList,
 				room: this
 			});
 
@@ -34,6 +36,21 @@
 			this.updateUser();
 
 			this.send('/lobbychat on');
+		},
+		updateLayout: function() {
+			if (this.$el.width() >= 640) {
+				this.$userList.show();
+				this.$chatFrame.addClass('hasuserlist');
+				this.$chatAdd.addClass('hasuserlist');
+			} else {
+				this.$userList.hide();
+				this.$chatFrame.removeClass('hasuserlist');
+				this.$chatAdd.removeClass('hasuserlist');
+			}
+		},
+		show: function() {
+			Room.prototype.show.apply(this, arguments);
+			this.updateLayout();
 		},
 		submit: function(e) {
 			e.preventDefault();
@@ -158,6 +175,10 @@
 					document.location.reload(true);
 					break;
 
+				case 'users':
+					this.parseUserList(row[1]);
+					break;
+
 				case 'formats':
 					this.parseFormats(row);
 					break;
@@ -172,6 +193,22 @@
 					break;
 				}
 			}
+		},
+		parseUserList: function(userList) {
+			this.userCount = {};
+			this.users = {};
+			var commaIndex = userList.indexOf(',');
+			if (commaIndex >= 0) {
+				this.userCount.users = parseInt(userList.substr(0,commaIndex),10);
+				var users = userList.substr(commaIndex+1).split(',');
+				for (var i=0,len=users.length; i<len; i++) {
+					if (users[i]) this.users[toId(users[i])] = users[i];
+				}
+			} else {
+				this.userCount.users = parseInt(userList);
+				this.userCount.guests = this.userCount.users;
+			}
+			this.userList.construct();
 		},
 		parseFormats: function(formatsList) {
 			var isSection = false;
@@ -212,6 +249,7 @@
 					};
 				}
 			}
+			app.trigger('init:formats');
 		},
 		addJoinLeave: function(action, name, oldid, silent) {
 			var userid = toUserid(name);
@@ -412,13 +450,15 @@
 
 	var UserList = this.UserList = Backbone.View.extend({
 		initialize: function(options) {
-			var room = this.room = options.room;
+			this.room = options.room;
+		},
+		construct: function() {
 			var buf = '';
-			buf += '<li id="userlist-users" style="text-align:center;padding:2px 0"><small><span id="usercount-users">' + (room.userCount.users || '0') + '</span> users online:</small></li>';
+			buf += '<li id="userlist-users" style="text-align:center;padding:2px 0"><small><span id="usercount-users">' + (this.room.userCount.users || '0') + '</span> users online:</small></li>';
 			var users = [];
-			if (room.users) {
+			if (this.room.users) {
 				var self = this;
-				users = Object.keys(room.users).sort(function(a, b) {
+				users = Object.keys(this.room.users).sort(function(a, b) {
 					return self.comparator(a, b);
 				});
 			}
@@ -429,15 +469,15 @@
 			if (!users.length) {
 				buf += this.noNamedUsersOnline;
 			}
-			if (room.userCount.unregistered) {
+			if (this.room.userCount.unregistered) {
 				buf += '<li id="userlist-unregistered" style="height:auto;padding-top:5px;padding-bottom:5px">';
-				buf += '<span style="font-size:10pt;display:block;text-align:center;padding-bottom:5px;font-style:italic">Due to lag, <span id="usercount-unregistered">' + room.userCount.unregistered + '</span> unregistered users are hidden.</span>';
-				buf += ' <button' + (room.challengeTo ? ' disabled="disabled"' : ' onclick="var gname=prompt(\'Challenge who?\');if (gname) rooms[\'' + room.id + '\'].formChallenge(gname);return false"') + '>Challenge an unregistered user</button>';
+				buf += '<span style="font-size:10pt;display:block;text-align:center;padding-bottom:5px;font-style:italic">Due to lag, <span id="usercount-unregistered">' + this.room.userCount.unregistered + '</span> unregistered users are hidden.</span>';
+				buf += ' <button' + (this.room.challengeTo ? ' disabled="disabled"' : ' onclick="var gname=prompt(\'Challenge who?\');if (gname) rooms[\'' + this.room.id + '\'].formChallenge(gname);return false"') + '>Challenge an unregistered user</button>';
 				buf += '<div style="clear:both"></div>';
 				buf += '</li>';
 			}
-			if (room.userCount.guests) {
-				buf += '<li id="userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="usercount-guests">' + room.userCount.guests + '</span> guest' + (room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
+			if (this.room.userCount.guests) {
+				buf += '<li id="userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
 			}
 			this.$el.html(buf);
 		},
@@ -502,7 +542,7 @@
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="userlist-user-' + Tools.escapeHTML(userid) + '">';
-			text += '<button class="userbutton" onclick="return rooms.lobby.userList.buttonOnClick(\'' + Tools.escapeHTML(userid) + '\')">';
+			text += '<button class="userbutton" data-userid="' + Tools.escapeHTML(userid) + '">';
 			text += '<em class="group' + (this.ranks[group]===2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
 			if (group === '~' || group === '&') {
 				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(this.room.users[userid].substr(1)) + '</em></strong>';
