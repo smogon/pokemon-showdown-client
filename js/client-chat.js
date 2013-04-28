@@ -126,6 +126,10 @@
 				if (line.substr(0,1) !== '|') line = '||'+line;
 				var row = line.substr(1).split('|');
 				switch (row[0]) {
+				case 'init':
+					// ignore (handled elsewhere)
+					break;
+
 				case 'c':
 				case 'chat':
 					this.addChat(row[1], row.slice(2).join('|'));
