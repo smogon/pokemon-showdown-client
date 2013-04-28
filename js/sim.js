@@ -3586,6 +3586,11 @@ teams = (function() {
 					selectTab('lobby');
 					return;
 				}
+				// empty room indicates lobby
+				if (!data.room) {
+					data.room = 'lobby';
+					data.roomType = 'lobby';
+				}
 				var tempInitialize = function () {
 						if (!(/^[a-z0-9-]*$/.test('' + data.room))) {
 							return; // bogus room ID could be used to inject JavaScript
