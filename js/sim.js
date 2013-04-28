@@ -1613,6 +1613,9 @@ function Lobby(id, elem) {
 					}
 					selfR.updateMainTop(true);
 					break;
+				case 'popup':
+					overlay('message', '<div style="white-space:pre-wrap">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
+					break;
 				case 'init':
 					// new init message
 					initializing = Tools.prefs('timestamps');
