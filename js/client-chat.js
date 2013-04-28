@@ -34,8 +34,6 @@
 
 			app.user.on('change', this.updateUser, this);
 			this.updateUser();
-
-			this.send('/lobbychat on');
 		},
 		updateLayout: function() {
 			if (this.$el.width() >= 570) {
@@ -96,9 +94,11 @@
 		focus: function() {
 			if (this.$chatbox) this.$chatbox.focus();
 		},
-		destroy: function() {
-			this.send('/lobbychat off');
-			Room.prototype.destroy.apply(this, arguments);
+		join: function() {
+			this.send('/join '+this.id);
+		},
+		leave: function() {
+			this.send('/leave '+this.id);
 		},
 		receive: function(data) {
 			this.add(data);

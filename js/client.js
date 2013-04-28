@@ -679,6 +679,10 @@
 	});
 
 	var Room = this.Room = Backbone.View.extend({
+		constructor: function() {
+			Backbone.View.apply(this, arguments);
+			this.join();
+		},
 
 		// communication
 
@@ -727,10 +731,13 @@
 		},
 		focus: function() {},
 		blur: function() {},
+		join: function() {},
+		leave: function() {},
 
 		// allocation
 
 		destroy: function() {
+			this.leave();
 			this.remove();
 			delete this.app;
 		}
