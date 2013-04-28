@@ -38,7 +38,7 @@
 			this.send('/lobbychat on');
 		},
 		updateLayout: function() {
-			if (this.$el.width() >= 640) {
+			if (this.$el.width() >= 610) {
 				this.$userList.show();
 				this.$chatFrame.addClass('hasuserlist');
 				this.$chatAdd.addClass('hasuserlist');
