@@ -45,14 +45,12 @@ body {
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
 }
-.textbox:hover
-{
+.textbox:hover {
 	border-color: #474747;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
 	background: #FFFFFF;
 }
-.textbox:focus
-{
+.textbox:focus {
 	outline: 0 none;
 	border: 1px solid #004488;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
@@ -237,8 +235,8 @@ body {
 	bottom: 0;
 
 	overflow: auto;
-	-webkit-overflow-scrolling: touch,
-	overflow-scrolling: touch,
+	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
 }
 .ps-room.ps-room-light {
 	background: rgba(242,247,250,.85);
@@ -375,8 +373,8 @@ body {
 	background: rgba(242,247,250,.5);
 
 	overflow: auto;
-	-webkit-overflow-scrolling: touch,
-	overflow-scrolling: touch,
+	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
 }
 .chat-log-add {
 	position: absolute;
@@ -443,8 +441,8 @@ body {
 	border-right: 1px solid #AAAAAA;
 
 	overflow: auto;
-	-webkit-overflow-scrolling: touch,
-	overflow-scrolling: touch,
+	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
 }
 .chat-log.hasuserlist,
 .chat-log-add.hasuserlist {
@@ -502,4 +500,469 @@ body {
 .userlist li.cur button:hover {
 	background: white;
 	margin: 0 0 0 -1px;
+}
+
+/*********************************************************
+ * Teambuilder
+ *********************************************************/
+
+.teamedit {
+	position: absolute;
+	display: block;
+	top: 45px;
+	left: 10px;
+	right: 10px;
+	bottom: 10px;
+	width: auto;
+	height: auto;
+	text-align: left;
+	font-size: inherit;
+	font-family: inherit;
+}
+
+.teambar {
+	position: absolute;
+	top: 0;
+	left: 118px;
+}
+.teambar button {
+	display: block;
+	background: #F3F3F3;
+	border: 1px solid #AAAAAA;
+	padding: 0;
+	margin: -1px 2px 0 0;
+	height: 42px;
+	float: left;
+	width: 88px;
+	cursor: pointer;
+	white-space: pre;
+	font-size: 8pt;
+	font-family: Verdana, Arial, sans-serif;
+}
+.teambar button .pokemonicon {
+	margin: 0 auto;
+}
+.teambar button:hover {
+	background: #DCDCDC;
+	border-color: #757575;
+}
+.teambar button:active {
+	background: #CCCCCC;
+	border-color: #373737;
+}
+.teambar button:disabled,
+.teambar button:disabled:hover,
+.teambar button:disabled:active {
+	color: #000000;
+	background: #FCFCFC;
+	border-color: #AAAAAA;
+	opacity: .5;
+	cursor: default;
+}
+.teamchart,
+.teamchart li {
+	list-style-type: none;
+	display: block;
+	margin: 0;
+	padding: 0;
+}
+.teamchart {
+	padding: 0 10px 10px 10px;
+}
+.teamchart li {
+	padding-top: 20px;
+	position: relative;
+}
+.teamchart li.format-select {
+	padding-bottom: 10px;
+}
+.teamchart li.format-select label {
+	display: block;
+	font-size: 8pt;
+	font-weight: bold;
+}
+.teamchart li.format-select select,
+.teamchart li.format-select option {
+	font: 12pt Verdana, sans-serif;
+}
+
+.setchart-nickname {
+	position: absolute;
+	left: -5px;
+	top: 5px;
+	border: 1px solid #999999;
+	background: #CBD6E1;
+	border-radius: 5px;
+	padding: 1px 0 0 0;
+	width: 110px;
+
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
+}
+.setchart {
+	border: 1px solid #999999;
+	background: #DAE5F0;
+	border-radius: 5px;
+	padding: 2px 0 0 3px;
+	height: 127px;
+	width: 626px;
+	margin-top: 8px;
+	
+background-image: linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
+}
+.setcol {
+	height: 127px;
+	width: 112px;
+	float: left;
+}
+.setcol-icon {
+	background: transparent none no-repeat scroll center top;
+}
+.setcol-details {
+	width: 234px;
+}
+.setcell {
+	float: left;
+}
+.setcell-details {
+	float: none;
+}
+.setcol-icon .itemicon {
+	display: block;
+	margin-left: 88px;
+	margin-top: 60px;
+	width: 24px;
+	height: 24px;
+	background-image: transparent none no-repeat scroll center center;
+	opacity: 0.8;
+}
+.setcell-pokemon {
+	margin-top: 0;
+}
+.setcell-details {
+	height: 84px;
+}
+.setcol-moves .setcell {
+	padding-bottom: 1px;
+}
+.setchart label,
+.setchart-nickname label {
+	display: block;
+	font-size: 8pt;
+	font-weight: bold;
+	color: #555555;
+	padding-left: 2px;
+	
+	text-shadow: 1px 1px 0 rgba(255,255,255,.6);
+}
+.setchart-nickname label {
+	font-size: 7pt;
+	margin-bottom: -1px;
+}
+.setcol-moves {
+	width: 137px;
+}
+.setcol-stats {
+	width: 142px;
+}
+.setdetails, .setstats {
+	display: block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 1px;
+	margin: 2px 2px 1px 1px;
+	font-size: 7pt;
+	cursor: pointer;
+
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+}
+.setdetails label, .setstats label {
+	cursor: pointer;
+}
+.setdetails:hover, .setstats:hover {
+	border-color: #474747;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
+	background: #FFFFFF;
+}
+.setdetails:focus, .setstats:focus {
+	border: 2px solid #004488;
+	margin: 1px 1px 0 0;
+	outline: 0 none;
+}
+.setdetails:active, .setstats:active {
+	box-shadow: inset 0px 2px 2px #AAAAAA;
+	background: #E4E9ED;
+	border: 2px solid #004488;
+	margin: 1px 1px 0 0;
+	outline: 0 none;
+}
+.setdetails {
+	width: 230px;
+	height: 34px;
+}
+.setdetails:focus,.setdetails:active {
+	width: 232px;
+	height: 36px;
+}
+.setdetails .detailcell {
+	border-left: 1px solid #CCCCCC;
+	padding: 2px 4px;
+	display: block;
+	float: left;
+	font-size: 9pt;
+	text-align: center;
+}
+.setdetails .detailcell-first {
+	border-left: 0;
+}
+.setchart .setdetails label {
+	float: none;
+	display: block;
+	font-weight: normal;
+	font-size: 7pt;
+	text-align: center;
+	padding: 0;
+}
+.setstats {
+	width: 138px;
+	height: 108px;
+}
+.setstats:focus,.setstats:active {
+	width: 140px;
+	height: 110px;
+}
+.statrow {
+	display: block;
+	height: 15px;
+}
+.setchart .setstats label {
+	float: left;
+	width: 20px;
+	height: 5px;
+	text-align: right;
+	font-weight: normal;
+	font-size: 7pt;
+	padding: 0;
+}
+.setstats .statgraph {
+	float: left;
+	width: 75px;
+	padding: 0 0 0 3px;
+	height: 5px;
+}
+.setstats .statgraph span {
+	display: block;
+	margin-top: 3px;
+	height: 6px;
+	background: #CCCCCC;
+}
+.setstats em {
+	float: left;
+	font-style: normal;
+	width: 22px;
+	height: 5px;
+	text-align: right;
+}
+.setstats small {
+	float: left;
+	font-size: 7pt;
+}
+.setstats .statrow-head em {
+	color: #555555;
+}
+.teamnameedit {
+	width: 300px;
+}
+.label {
+	font-size: 9pt;
+	font-weight: bold;
+	display: block;
+}
+.optlabel {
+	font-size: 9pt;
+	display: block;
+}
+.label .textbox {
+	display: block;
+}
+.setchart input,
+.setchart-nickname input,
+.statform input.inputform {
+	display: block;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 1px;
+	margin: 2px 3px 1px 1px;
+	font-family: Verdana, sans-serif;
+	font-size: 9pt;
+	width: 104px;
+	height: 20px;
+	
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+	color: black;
+}
+.setchart input:hover,
+.setchart-nickname input:hover,
+.statform input.inputform:hover,
+.textbox:hover {
+	border-color: #474747;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
+	background: #FFFFFF;
+}
+.setchart input:focus,
+.setchart-nickname input:focus,
+.statform input.inputform:focus,
+.textbox:focus {
+	outline: 0 none;
+	border: 1px solid #004488;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
+	background: #FFFFFF;
+}
+.setchart input.incomplete {
+	color: #999999;
+}
+.setchart-nickname input {
+}
+.setchart .setcell-details input {
+	width: 216px;
+}
+.setchart .setcell-item input {
+	width: 114px;
+}
+.setchart .setcol-moves input {
+	width: 129px;
+}
+
+.teambuilder-results {
+	position: absolute;
+	top: 200px;
+	left: 0;
+	bottom: 0;
+	right: 0;
+
+	overflow-y: scroll;
+	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
+}
+.teamchartbox {
+	position: absolute;
+	top: 40px;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	border-top: 1px solid #AAAAAA;
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
+}
+.teambuilder-results .result a {
+	border-radius: 4px;
+	padding: 1px 1px 1px 5px;
+	margin: 0 5px 1px 5px;
+	background: transparent;
+	cursor: pointer;
+}
+.teambuilder-results .result a:hover {
+	padding: 0px 0px 0px 4px;
+	border: 1px solid #D8D8D8;
+	background: #F8F8F8;
+}
+.teambuilder-results .firstresult a,
+.teambuilder-results .firstresult a:hover {
+	padding: 0px 0px 0px 4px;
+	border: 1px solid #CCCCCC;
+	background: #F2F2F2;
+}
+
+.teambuilder-results h3,
+.teambuilder-results .utilichart h3 {
+	background: #DAE5F0;
+	margin: 6px 0;
+	padding: 2px 5px;
+	font-family: Verdana, sans-serif;
+	font-size: 9pt;
+	text-align: left;
+
+	border: 1px solid #AAAAAA;
+	border-left: 0;
+	border-right: 0;
+	text-shadow: 1px 1px 0 rgba(255,255,255,.6);
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6), 0px 2px 2px rgba(0,0,0,.15);
+}
+
+.statform {
+	padding: 10px 20px;
+	font-size: 10pt;
+}
+.statform .col div {
+	padding-top: 1px;
+	height: 23px;
+}
+.statform .col div label,
+.statform .col div em,
+.statform .col div b {
+	display: block;
+	padding: 5px 0 0 0;
+}
+.statform .col {
+	float: left;
+	width: 100px;
+	text-align: right;
+	font-size: 9pt;
+}
+.statform .statscol {
+	width: 40px;
+}
+.statform .statscol em,
+.statform .statscol b {
+	font-style: normal;
+	font-weight: bold;
+}
+.statform .graphcol {
+	width: 205px;
+}
+.statform .graphcol div span {
+	margin: 2px 0 0 5px;
+	display: block;
+	height: 8px;
+	border-bottom: 1px solid #AAAAAA;
+	border-right: 1px solid #AAAAAA;
+	background: #CCCCCC;
+}
+.statform .evcol,
+.statform .ivcol {
+	width: 48px;
+	text-align: center;
+	margin-right: 10px;
+}
+.statform .totalev b {
+	color: #DD2222;
+}
+.statform .totalev em {
+	font-style: normal;
+}
+.statform input.numform {
+	width: 40px;
+	height: 16px;
+	font-size: 9pt;
+}
+
+.detailsform .formrow {
+	padding-left: 100px;
+}
+.detailsform .formrow .formlabel {
+	float: left;
+	margin-left: -100px;
+	width: 95px;
+	text-align: right;
 }
