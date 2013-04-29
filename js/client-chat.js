@@ -348,10 +348,9 @@
 			}
 			this.$joinLeave.html('<small style="color: #555555">' + message + '</small>');
 		},
-		addChat: function(name, message) {
+		addChat: function(name, message, pm) {
 			var userid = toUserid(name);
 			var color = hashColor(userid);
-			var pm = false;
 
 			// if (me.ignore[userid] && name.substr(0, 1) === ' ') continue;
 
@@ -376,26 +375,7 @@
 			var timestamp = this.getTimestamp('lobby');
 			if (name.substr(0, 1) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>'+clickableName;
 			if (pm) {
-				var pmuserid = (userid === me.userid ? toUserid(pm) : userid);
-				if (!me.pm[pmuserid]) me.pm[pmuserid] = '';
-				var pmcode = '<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em> ' + messageSanitize(message) + '</em></div>';
-				for (var j = 0; j < me.popups.length; j++) {
-					if (pmuserid === me.popups[j]) break;
-				}
-				if (j == me.popups.length) {
-					// This is a new PM.
-					me.popups.unshift(pmuserid);
-					notify({
-						type: 'pm',
-						user: name
-					});
-				}
-				me.pm[pmuserid] += pmcode;
-				if (me.popups.length && me.popups[me.popups.length - 1] === pmuserid) {
-					this.updatePopup(pmcode);
-				} else {
-					this.updatePopup();
-				}
+				var pmuserid = toUserid(pm);
 				this.$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + messageSanitize(message) + '</span></div>');
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
