@@ -259,8 +259,8 @@ body {
 .mainmenu {
 	display: block;
 	padding: 10px 15px;
-	margin: 40px 40px 0 40px;
-	max-width: 360px;
+	margin: 40px 25px 0 40px;
+	max-width: 350px;
 	border-radius: 20px;
 
 	background: rgba(201, 207, 219, .6);
