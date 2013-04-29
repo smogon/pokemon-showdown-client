@@ -281,8 +281,8 @@
 						} else {
 							self.user.teams = [];
 						}
-						TeambuilderRoom.writeTeams = function(teams) {
-							postCrossDomainMessage({teams: $.toJSON(teams)});
+						TeambuilderRoom.saveTeams = function() {
+							postCrossDomainMessage({teams: $.toJSON(app.user.teams)});
 						};
 						self.trigger('init:loadteams');
 						// prefs
