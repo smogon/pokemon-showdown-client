@@ -399,6 +399,9 @@ body {
 	font-size: 8pt;
 	color: #888888;
 }
+.message-pm {
+	color: #007100;
+}
 .chat-log .inner {
 	padding: 4px 8px 0px 8px;
 }

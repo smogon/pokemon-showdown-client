@@ -359,13 +359,23 @@
 					// TODO: All other handling of `update` messages.
 				},
 				/**
-				 * TODO: Handle all other JSON-style messages.
+				 * These are all deprecated. Stop using them. :|
 				 */
+				message: function (message) {},
+				console: function (message) {
+					if (message.pm) {
+						// the only case we're going to handle
+						self.rooms[''].addPM(message.name, message.message, message.pm);
+						if (self.rooms['lobby']) {
+							self.rooms['lobby'].addChat(message.name, message.message, message.pm);
+						}
+					} else {
+						self.receive(message.message);
+					}
+				},
 				disconnect: function () {},
 				nameTaken: function (data) {},
-				message: function (message) {},
 				command: function (message) {},
-				console: function (message) {}
 			};
 
 			var socketopened = false;
@@ -452,15 +462,19 @@
 				return;
 			}
 
-			var parts = data.split('|');
-			if (parts.length < 2) return false;
+			var parts;
+			if (data.charAt(0) === '|') {
+				parts = data.substr(1).split('|');
+			} else {
+				parts = [];
+			}
 
-			switch (parts[1]) {
+			switch (parts[0]) {
 			case 'challenge-string':
 			case 'challstr':
 				this.user.receiveChallenge({
-					challengekeyid: parseInt(parts[2], 10),
-					challenge: parts[3]
+					challengekeyid: parseInt(parts[1], 10),
+					challenge: parts[2]
 				});
 				break;
 			default:

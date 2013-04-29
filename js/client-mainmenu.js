@@ -20,6 +20,9 @@
 			app.on('init:formats', this.updateSearch, this);
 			this.updateSearch();
 		},
+		addPM: function(name, message, target) {
+			//
+		},
 		updateSearch: function() {
 			if (window.BattleFormats) {
 				this.$('button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
