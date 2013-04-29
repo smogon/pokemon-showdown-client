@@ -3,7 +3,8 @@
 	var MainMenuRoom = this.MainMenuRoom = this.Room.extend({
 		// minWidth: 480,
 		// maxWidth: 480,
-		bestWidth: 360,
+		minWidth: 345,
+		bestWidth: 345,
 		events: {
 			'click .button': 'clickButton'
 		},
