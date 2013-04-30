@@ -75,6 +75,7 @@
 				var $chat = $pmWindow.find('.inner');
 				$chatFrame.scrollTop($chat.height());
 			}
+			this.$el.scrollTop(0);
 			return $pmWindow;
 		},
 		closePM: function(e) {
