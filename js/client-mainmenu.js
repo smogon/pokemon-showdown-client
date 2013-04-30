@@ -56,7 +56,13 @@
 			var userid = toId(name);
 			var $pmWindow = this.$pmBox.find('.pm-window-'+userid);
 			if (!$pmWindow.length) {
-				var buf = '<div class="pm-window pm-window-'+userid+'" data-userid="'+userid+'"><h3><button class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></button>'+Tools.escapeHTML(name)+'</h3><div class="pm-log"><div class="inner"></div></div>';
+				group = name.charAt(0);
+				if (group === ' ') {
+					group = '';
+				} else {
+					group = '<small>'+Tools.escapeHTML(group)+'</small>';
+				}
+				var buf = '<div class="pm-window pm-window-'+userid+'" data-userid="'+userid+'"><h3><button class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></button>'+group+Tools.escapeHTML(name.substr(1))+'</h3><div class="pm-log"><div class="inner"></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
 				$pmWindow.find('textarea').autoResize({
