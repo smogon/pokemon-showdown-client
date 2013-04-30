@@ -201,24 +201,28 @@ body {
 	display: inline-block;
 	margin: 0 0 0 -17px;
 	width: 17px;
-	padding: 0;
-	border: 0;
 	position: relative;
 	z-index: 11;
 	top: -14px;
-
-	text-decoration: none;
-	font-size: 14px;
-	color: #999999;
-	text-shadow: none;
 }
 .tabbar a.cur + .closebutton {
 	top: -15px;
 }
-.tabbar .closebutton:hover {
+.closebutton {
+	text-decoration: none;
+	font-size: 14px;
+	color: #999999;
+	text-shadow: none;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	cursor: pointer;
+}
+.closebutton:hover {
 	color: #BB2222;
 }
-.tabbar .closebutton:active {
+.closebutton:active {
 	color: #661111;
 }
 
@@ -262,35 +266,102 @@ body {
  *********************************************************/
 
 .leftmenu {
-	float: left;
+	padding: 40px 0 0 0;
+	width: 324px;
 }
 .rightmenu {
+	position: absolute;
+	top: 40px;
+	right: 25px;
+}
+.activitymenu {
+	position: absolute;
+	left: 325px;
+	top: 40px;
+}
+
+.pmbox {
+	width: 270px;
+	margin: 0 auto;
+	min-height: 2px;
+}
+.pm-window {
+	margin-bottom: 12px;
+}
+.pm-window h3 {
+	background: #f8f8f8;
+	color: #777777;
+	margin: 0;
+	padding: 2px 5px;
+	font-size: 11pt;
+	border: 1px solid #AAAAAA;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+.pm-window h3 .closebutton {
 	float: right;
 }
+.pm-log {
+	min-height: 100px;
+	max-height: 300px;
+	background: rgba(242,247,250,.925);
+	color: black;
+	word-wrap: break-word;
+	border: 1px solid #AAAAAA;
+	border-top: 0;
+	border-bottom: 0;
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
+}
+.pm-log-add {
+	border: 1px solid #AAAAAA;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+	background: rgba(242,247,250,.85);
+}
+.pm-window.collapsed .pm-log,
+.pm-window.collapsed .pm-log-add {
+	display: none;
+}
+
+.tiny-layout .leftmenu,
+.tiny-layout .rightmenu,
+.tiny-layout .mainmenu,
+.tiny-layout .activitymenu {
+	position: static;
+	top: 0;
+	right: 0;
+	left: 0;
+	margin: 0;
+	padding: 0;
+}
+.tiny-layout .activitymenu {
+	padding-top: 38px;
+}
+
 .mainmessage,
-.mainmenu {
+.menugroup {
 	display: block;
-	padding: 10px 15px;
-	margin: 40px 25px 0 40px;
-	max-width: 350px;
+	padding: 10px 0;
+	margin: 0 27px 40px 27px;
+	max-width: 400px;
 	border-radius: 20px;
 
 	background: rgba(201, 207, 219, .6);
 	color: black;
 }
-.mainmenu {
+.menugroup {
 	background: rgba(201, 207, 219, .4);
-	width: 240px;
 	text-align: center;
 }
-.rightmenu .mainmenu {
-	margin-left: 0;
-}
+
 .mainmessage p,
-.mainmenu p {
+.menugroup p {
 	margin: 10px 0;
 }
-.mainmenu .button {
+.menugroup .button {
 	box-sizing: border-box;
 	font-size: 12pt;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
@@ -321,12 +392,12 @@ body {
 	border-color: hsl(210,40%,40%);
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
 }
-.mainmenu button.big {
+.menugroup button.big {
 	width: 230px;
 	padding: 7px 7px 5px 7px;
 	font-size: 14pt;
 }
-.mainmenu .button:hover {
+.menugroup .button:hover {
 	background: #5485B6;
 	background: hsl(210,40%,52%);
 	background: -webkit-gradient(linear, left top, left bottom, from(hsl(210,40%,62%)), to(hsl(210,40%,42%)));
@@ -334,7 +405,7 @@ body {
 	background: linear-gradient(top,  hsl(210,40%,62%),  hsl(210,40%,42%));
 	border-color: hsl(210,40%,21%);
 }
-.mainmenu .button:active {
+.menugroup .button:active {
 	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 1px rgba(255,255,255,.3), inset 0 1px 1px rgba(0,0,0,.4);
 	background: #406B96;
 	background: hsl(210,40%,42%);
@@ -343,14 +414,34 @@ body {
 	background: linear-gradient(top,  hsl(210,40%,42%),  hsl(210,40%,58%));
 	border-color: hsl(210,40%,21%);
 }
-.mainmenu .button.disabled,
-.mainmenu .button.disabled:hover,
-.mainmenu .button.disabled:active {
+.menugroup .button.disabled,
+.menugroup .button.disabled:hover,
+.menugroup .button.disabled:active {
 	background: #EEEEEE;
 	border: 1px solid #CCCCCC;
 	color: #BBBBBB;
 	text-shadow: none;
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+
+.rightmenu {
+	width: 294px;
+}
+.rightmenu .menugroup .button {
+	width: 180px;
+}
+@media (max-width:895px) {
+	.rightmenu {
+		position: static;
+		top: 0;
+		right: 0;
+	}
+	.rightmenu {
+		width: 324px;
+	}
+	.rightmenu .menugroup .button {
+		width: 200px;
+	}
 }
 
 /*********************************************************
@@ -393,6 +484,8 @@ body {
 	bottom: 40px;
 	font-size: 10pt;
 	background: rgba(242,247,250,.5);
+	color: black;
+	word-wrap: break-word;
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
@@ -408,15 +501,16 @@ body {
 	border-top: 1px solid #AAAAAA;
 }
 .chat-log .message,
-.chat-log .chat {
+.chat-log .chat,
+.pm-log .chat {
 	padding: 4px 0 2px 0;
 	font-size: 8pt;
 }
-.chat-log .chat em {
+.chat em {
 	padding: 0 4px 0 3px;
 	font-style: normal;
 }
-.chat-log .chat small {
+.chat small {
 	font-weight: normal;
 	font-size: 8pt;
 	color: #888888;
@@ -424,16 +518,18 @@ body {
 .message-pm {
 	color: #007100;
 }
-.chat-log .inner {
-	padding: 4px 8px 0px 8px;
-}
-.chat-log .inner-after {
-	margin-top: 0.5em;
+.chat-log .inner,
+.pm-log .inner {
+	padding: 4px 8px 6px 8px;
 }
 
 .chatbox {
 	margin: 0 10px 0 80px;
 	padding: 5px 0 0 0;
+}
+.chatbox.nolabel {
+	margin: 0 14px 0 6px;
+	padding: 5px 0 5px 0;
 }
 .chatbox label {
 	float: left;

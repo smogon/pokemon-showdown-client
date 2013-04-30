@@ -1,33 +1,112 @@
 (function($) {
 
 	var MainMenuRoom = this.MainMenuRoom = this.Room.extend({
-		// minWidth: 480,
-		// maxWidth: 480,
-		minWidth: 345,
-		bestWidth: 345,
+		tinyWidth: 340,
+		bestWidth: 628,
 		events: {
-			'click .button': 'clickButton'
+			'click .button': 'clickButton',
+			'keydown textarea': 'keyPress',
+			'click .username': 'clickUsername',
+			'click .closebutton': 'closePM'
 		},
 		initialize: function() {
 			// left menu
-			var buf = '<div class="leftmenu"><div class="mainmenu"><p><button class="button big" value="search"><strong>Look for a battle</strong></button></p></div>';
-			buf += '<div class="mainmenu"><p><button class="button" value="teambuilder">Teambuilder</button></p><p><button class="button" value="ladder">Ladder</button></p></div></div>';
+			var buf = '<div class="leftmenu"><div class="activitymenu"><div class="pmbox"></div></div>';
+			buf += '<div class="mainmenu"><div class="menugroup"><p><button class="button big" value="search"><strong>Look for a battle</strong></button></p></div>';
+			buf += '<div class="menugroup"><p><button class="button" value="teambuilder">Teambuilder</button></p><p><button class="button" value="ladder">Ladder</button></p></div></div></div>';
 
 			// right menu
-			buf += '<div class="rightmenu"><div class="mainmenu"><p><button class="button" value="lobby">Join lobby chat</button></p></div></div>';
+			buf += '<div class="rightmenu"><div class="menugroup"><p><button class="button" value="lobby">Join lobby chat</button></p></div></div>';
 			this.$el.html(buf);
+
+			this.$activityMenu = $('.activitymenu');
+			this.$pmBox = this.$activityMenu.find('.pmbox');
 
 			app.on('init:formats', this.updateSearch, this);
 			this.updateSearch();
 		},
 		addPM: function(name, message, target) {
-			//
+			var oName = name;
+			if (toId(name) === app.user.get('userid')) {
+				oName = target;
+			}
+
+			var $pmWindow = this.openPM(oName);
+
+			var $chatFrame = $pmWindow.find('.pm-log');
+			var $chat = $pmWindow.find('.inner');
+			if ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height()) {
+				autoscroll = true;
+			}
+
+			var timestamp = ChatRoom.getTimestamp('pms');
+			var color = hashColor(toId(name));
+			var clickableName = '<span style="cursor:pointer" class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
+			if (name.substr(0, 1) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>'+clickableName;
+			$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (target === oName ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
+
+			if (autoscroll) {
+				$chatFrame.scrollTop($chat.height());
+			}
+		},
+		openPM: function(name) {
+			var userid = toId(name);
+			var $pmWindow = this.$pmBox.find('.pm-window-'+userid);
+			if (!$pmWindow.length) {
+				var buf = '<div class="pm-window pm-window-'+userid+'" data-userid="'+userid+'"><h3><button class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></button>'+Tools.escapeHTML(name)+'</h3><div class="pm-log"><div class="inner"></div></div>';
+				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form></div></div>';
+				$pmWindow = $(buf).prependTo(this.$pmBox);
+				$pmWindow.find('textarea').autoResize({
+					animateDuration: 100,
+					extraSpace: 0
+				});
+			} else {
+				$pmWindow.show();
+			}
+			return $pmWindow;
+		},
+		closePM: function(e) {
+			var userid;
+			if (e.currentTarget) {
+				e.preventDefault();
+				e.stopPropagation();
+				userid = $(e.currentTarget).closest('.pm-window').data('userid');
+			} else {
+				userid = toId(e);
+			}
+			this.$pmBox.find('.pm-window-'+userid).hide();
+		},
+		focusPM: function(name) {
+			this.openPM(name).find('textarea').focus();
+		},
+		keyPress: function(e) {
+			if (e.keyCode === 13 && !e.shiftKey) { // Enter
+				var $target = $(e.currentTarget);
+				e.preventDefault();
+				e.stopPropagation();
+				var text;
+				if ((text = $target.val())) {
+					// this.tabComplete.reset();
+					// this.chatHistory.push(text);
+					var userid = $target.closest('.pm-window').data('userid');
+					text = ('\n'+text).replace(/\n/g, '\n/pm '+userid+', ').substr(1);
+					this.send(text);
+					$(e.currentTarget).val('');
+				}
+			} else if (e.keyCode === 27) { // Esc
+				this.closePM(e);
+			}
+		},
+		clickUsername: function(e) {
+			e.stopPropagation();
+			var name = $(e.currentTarget).data('name');
+			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		updateSearch: function() {
 			if (window.BattleFormats) {
-				this.$('button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
+				this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
 			} else {
-				this.$('button.big').html('<em>Connecting...</em>').addClass('disabled');
+				this.$('.mainmenu button.big').html('<em>Connecting...</em>').addClass('disabled');
 			}
 		},
 		updateRightMenu: function() {
@@ -41,6 +120,9 @@
 			e.preventDefault();
 			var $target = $(e.currentTarget);
 			switch ($target.val()) {
+			case 'search':
+				alert('we don\'t support battles yet :(');
+				break;
 			case 'lobby':
 				app.joinRoom('lobby');
 				break;

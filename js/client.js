@@ -368,7 +368,7 @@
 						// the only case we're going to handle
 						self.rooms[''].addPM(message.name, message.message, message.pm);
 						if (self.rooms['lobby']) {
-							self.rooms['lobby'].addChat(message.name, message.message, message.pm);
+							self.rooms['lobby'].addPM(message.name, message.message, message.pm);
 						}
 					} else {
 						self.receive(message.message);
@@ -550,6 +550,13 @@
 			this.dismissPopups();
 			if (!this.sideRoom) {
 				this.curRoom.show('full');
+				if (this.curRoom.id === '') {
+					if ($('body').width() < this.curRoom.bestWidth) {
+						this.curRoom.$el.addClass('tiny-layout');
+					} else {
+						this.curRoom.$el.removeClass('tiny-layout');
+					}
+				}
 				this.topbar.updateTabbar();
 				return;
 			}
@@ -558,11 +565,11 @@
 			var available = $('body').width();
 			if (this.curRoom.isSideRoom) {
 				// we're trying to focus a side room
-				if (available >= this.rooms[''].minWidth + leftMin) {
+				if (available >= this.rooms[''].tinyWidth + leftMin) {
 					// it fits to the right of the main menu, so do that
 					this.curSideRoom = this.sideRoom = this.curRoom;
 					this.curRoom = this.rooms[''];
-					leftMin = (this.curRoom.minWidth || this.curRoom.bestWidth);
+					leftMin = this.curRoom.tinyWidth;
 					rightMin = (this.sideRoom.minWidth || this.sideRoom.bestWidth);
 				} else if (this.sideRoom) {
 					// nooo
@@ -574,6 +581,8 @@
 					this.topbar.updateTabbar();
 					return;
 				}
+			} else if (this.curRoom.id === '') {
+				leftMin = this.curRoom.tinyWidth;
 			}
 			if (available < leftMin + rightMin) {
 				if (this.curSideRoom) {
@@ -585,6 +594,21 @@
 				return;
 			}
 			this.curSideRoom = this.sideRoom;
+
+			if (leftMin === this.curRoom.tinyWidth) {
+				if (available < this.curRoom.bestWidth + 570) {
+					// there's only room for the tiny layout :(
+					rightWidth = available - leftMin;
+					this.curRoom.show('left', rightWidth);
+					this.curRoom.$el.addClass('tiny-layout');
+					this.curSideRoom.show('right', rightWidth);
+					this.topbar.updateTabbar();
+					return;
+				}
+				leftMin = (this.curRoom.minWidth || this.curRoom.bestWidth);
+				this.curRoom.$el.removeClass('tiny-layout');
+			}
+
 			var leftMax = (this.curRoom.maxWidth || this.curRoom.bestWidth);
 			var rightMax = (this.sideRoom.maxWidth || this.sideRoom.bestWidth);
 			var rightWidth = rightMin;
@@ -825,7 +849,7 @@
 		// other than the popup will still be possible (and will dismiss
 		// the popup).
 		type: 'normal',
-		width: 260,
+		width: 270,
 
 		constructor: function(data) {
 			if (data && data.sourceEl) {
@@ -893,7 +917,7 @@
 			buf += '<small>' + (group || '&nbsp;') + '</small><br />';
 			buf += '</div>';
 
-			buf += '<div class="buttonbar"><button value="challenge" disabled>Challenge</button> <button value="pm" disabled>PM</button> <button value="close">Close</close></div>';
+			buf += '<div class="buttonbar"><button value="challenge" disabled>Challenge</button> <button value="pm">PM</button> <button value="close">Close</close></div>';
 
 			this.$el.html(buf);
 		},
@@ -903,6 +927,9 @@
 			case 'challenge':
 				break;
 			case 'pm':
+				this.close();
+				app.focusRoom('');
+				app.rooms[''].focusPM(this.data.name);
 				break;
 			case 'close':
 				this.close();
