@@ -6,7 +6,8 @@
 		isSideRoom: true,
 		events: {
 			'keypress textarea': 'keyPress',
-			'submit form': 'submit'
+			'submit form': 'submit',
+			'click .username': 'clickUsername'
 		},
 		initialize: function() {
 			var buf = '<ul class="userlist" style="display:none"></ul><div class="chat-log"><div class="inner"></div><div class="inner-after"></div></div><div class="chat-log-add">Connecting...</div>';
@@ -69,6 +70,11 @@
 					this.$chatbox.val('');
 				}
 			}
+		},
+		clickUsername: function(e) {
+			e.stopPropagation();
+			var name = $(e.currentTarget).data('name');
+			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		updateUser: function() {
 			var name = app.user.get('name');
@@ -362,7 +368,7 @@
 				'join': [],
 				'leave': []
 			};
-			var clickableName = '<span style="cursor:pointer" class="username" data-userid="' + userid + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
+			var clickableName = '<span style="cursor:pointer" class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 			var isHighlighted = this.getHighlight(message);
 			if (isHighlighted) {
 				// notify({
@@ -462,7 +468,7 @@
 			if (this.room.userCount.unregistered) {
 				buf += '<li id="userlist-unregistered" style="height:auto;padding-top:5px;padding-bottom:5px">';
 				buf += '<span style="font-size:10pt;display:block;text-align:center;padding-bottom:5px;font-style:italic">Due to lag, <span id="usercount-unregistered">' + this.room.userCount.unregistered + '</span> unregistered users are hidden.</span>';
-				buf += ' <button' + (this.room.challengeTo ? ' disabled="disabled"' : ' onclick="var gname=prompt(\'Challenge who?\');if (gname) rooms[\'' + this.room.id + '\'].formChallenge(gname);return false"') + '>Challenge an unregistered user</button>';
+				buf += ' <button>Challenge an unregistered user</button>';
 				buf += '<div style="clear:both"></div>';
 				buf += '</li>';
 			}
@@ -527,19 +533,20 @@
 			return selfR.formRename();
 		},
 		constructItem: function(userid) {
-			var group = this.room.users[userid].substr(0, 1);
+			var name = this.room.users[userid];
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="userlist-user-' + Tools.escapeHTML(userid) + '">';
-			text += '<button class="userbutton" data-userid="' + Tools.escapeHTML(userid) + '">';
+			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
+			var group = name.charAt(0);
 			text += '<em class="group' + (this.ranks[group]===2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
 			if (group === '~' || group === '&') {
-				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(this.room.users[userid].substr(1)) + '</em></strong>';
+				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</em></strong>';
 			} else if (group === '%' || group === '@') {
-				text += '<strong style="' + hashColor(userid) + '">' + Tools.escapeHTML(this.room.users[userid].substr(1)) + '</strong>';
+				text += '<strong style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</strong>';
 			} else {
-				text += '<span style="' + hashColor(userid) + '">' + Tools.escapeHTML(this.room.users[userid].substr(1)) + '</span>';
+				text += '<span style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 			}
 			text += '</button>';
 			text += '</li>';
