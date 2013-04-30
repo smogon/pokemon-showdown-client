@@ -7,7 +7,8 @@
 		events: {
 			'keypress textarea': 'keyPress',
 			'submit form': 'submit',
-			'click .username': 'clickUsername'
+			'click .username': 'clickUsername',
+			'click': 'clickBackground'
 		},
 		initialize: function() {
 			var buf = '<ul class="userlist" style="display:none"></ul><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
@@ -74,8 +75,18 @@
 		},
 		clickUsername: function(e) {
 			e.stopPropagation();
+			e.preventDefault();
 			var name = $(e.currentTarget).data('name');
 			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
+		},
+		clickBackground: function(e) {
+			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
+				if (window.getSelection && !window.getSelection().isCollapsed) {
+					return;
+				}
+				app.dismissPopups();
+				this.$chatbox.focus();
+			}
 		},
 		updateUser: function() {
 			var name = app.user.get('name');

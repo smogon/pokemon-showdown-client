@@ -7,7 +7,8 @@
 			'click .button': 'clickButton',
 			'keydown textarea': 'keyPress',
 			'click .username': 'clickUsername',
-			'click .closebutton': 'closePM'
+			'click .closebutton': 'closePM',
+			'click .pm-window': 'clickPMBackground'
 		},
 		initialize: function() {
 			// left menu
@@ -54,7 +55,7 @@
 			var $pmWindow = this.$pmBox.find('.pm-window-'+userid);
 			if (!$pmWindow.length) {
 				var buf = '<div class="pm-window pm-window-'+userid+'" data-userid="'+userid+'"><h3><button class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></button>'+Tools.escapeHTML(name)+'</h3><div class="pm-log"><div class="inner"></div></div>';
-				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form></div></div>';
+				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
 				$pmWindow.find('textarea').autoResize({
 					animateDuration: 100,
@@ -77,7 +78,7 @@
 			this.$pmBox.find('.pm-window-'+userid).hide();
 		},
 		focusPM: function(name) {
-			this.openPM(name).find('textarea').focus();
+			this.openPM(name).find('textarea[name=message]').focus();
 		},
 		keyPress: function(e) {
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter
@@ -101,6 +102,15 @@
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
 			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
+		},
+		clickPMBackground: function(e) {
+			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
+				if (window.getSelection && !window.getSelection().isCollapsed) {
+					return;
+				}
+				app.dismissPopups();
+				$(e.currentTarget).find('textarea[name=message]').focus();
+			}
 		},
 		updateSearch: function() {
 			if (window.BattleFormats) {
