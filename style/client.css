@@ -289,7 +289,7 @@ body {
 	margin-bottom: 12px;
 }
 .pm-window h3 {
-	background: #f8f8f8;
+	background: rgba(248,248,248,.8);
 	color: #777777;
 	margin: 0;
 	padding: 2px 5px;
@@ -297,6 +297,7 @@ body {
 	border: 1px solid #AAAAAA;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
+	cursor: default;
 }
 .pm-window h3 .closebutton {
 	float: right;
@@ -324,6 +325,15 @@ body {
 .pm-window.collapsed .pm-log,
 .pm-window.collapsed .pm-log-add {
 	display: none;
+}
+.pm-window.focused h3,
+.pm-window.focused .pm-log,
+.pm-window.focused .pm-log.add {
+	border-color: #555555;
+}
+.pm-window.focused h3 {
+	background: #f8f8f8;
+	color: #222222;
 }
 
 .tiny-layout .leftmenu,
