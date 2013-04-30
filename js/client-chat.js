@@ -101,7 +101,7 @@
 				this.$chatAdd.html('<form class="chatbox"><label style="' + hashColor(userid) + '">' + Tools.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
 				this.$chatbox = this.$chatAdd.find('textarea');
 				this.$chatbox.autoResize({
-					animateDuration: 100,
+					animate: false,
 					extraSpace: 0
 				});
 				if (this === app.curSideRoom || this === app.curRoom) {
