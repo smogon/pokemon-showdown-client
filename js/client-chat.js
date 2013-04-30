@@ -10,7 +10,7 @@
 			'click .username': 'clickUsername'
 		},
 		initialize: function() {
-			var buf = '<ul class="userlist" style="display:none"></ul><div class="chat-log"><div class="inner"></div><div class="inner-after"></div></div><div class="chat-log-add">Connecting...</div>';
+			var buf = '<ul class="userlist" style="display:none"></ul><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
 			this.$el.addClass('ps-room-light').html(buf);
 
 			this.$chatAdd = this.$('.chat-log-add');
@@ -46,6 +46,7 @@
 				this.$chatFrame.removeClass('hasuserlist');
 				this.$chatAdd.removeClass('hasuserlist');
 			}
+			this.$chatFrame.scrollTop(this.$chat.height());
 		},
 		show: function() {
 			Room.prototype.show.apply(this, arguments);
@@ -56,7 +57,7 @@
 			e.stopPropagation();
 		},
 		keyPress: function(e) {
-			if (e.keyCode === 13) { // Enter
+			if (e.keyCode === 13 && !e.shiftKey) { // Enter
 				e.preventDefault();
 				e.stopPropagation();
 				var text;
@@ -124,6 +125,16 @@
 			var $children = this.$chat.children();
 			if ($children.length > 900) {
 				$children.slice(0,100).remove();
+			}
+		},
+		addPM: function(user, message, pm) {
+			var autoscroll = false;
+			if (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height()) {
+				autoscroll = true;
+			}
+			this.addChat(user, message, pm);
+			if (autoscroll) {
+				this.$chatFrame.scrollTop(this.$chat.height());
 			}
 		},
 		addRow: function(line) {
@@ -378,7 +389,7 @@
 			}
 			var highlight = isHighlighted ? ' style="background-color:#FDA;"' : '';
 			var chatDiv = '<div class="chat"' + highlight + '>';
-			var timestamp = this.getTimestamp('lobby');
+			var timestamp = ChatRoom.getTimestamp('lobby');
 			if (name.substr(0, 1) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>'+clickableName;
 			if (pm) {
 				var pmuserid = toUserid(pm);
@@ -426,6 +437,8 @@
 			}
 			return id.match(/^battle\-([a-z0-9]*[a-z])[0-9]*$/);
 		},
+		markUserActive: function() {}
+	}, {
 		getTimestamp: function(section) {
 			var pref = Tools.prefs('timestamps') || {};
 			var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
@@ -438,8 +451,7 @@
 			return '[' + components.map(
 					function(x) { return (x < 10) ? '0' + x : x; }
 				).join(':') + '] ';
-		},
-		markUserActive: function() {}
+		}
 	});
 
 	// user list
