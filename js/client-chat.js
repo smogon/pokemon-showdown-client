@@ -2,7 +2,7 @@
 
 	var ChatRoom = this.ChatRoom = this.Room.extend({
 		minWidth: 320,
-		maxWidth: 800,
+		maxWidth: 1024,
 		isSideRoom: true,
 		events: {
 			'keypress textarea': 'keyPress',
