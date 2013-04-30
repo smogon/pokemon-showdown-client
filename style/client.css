@@ -77,7 +77,7 @@ body {
 
 .tabbar {
 	position: absolute;
-	bottom: -8px;
+	bottom: -6px;
 	left: 0;
 	right: 0;
 
@@ -233,7 +233,7 @@ body {
 .ps-room {
 	position: absolute;
 	display: block;
-	top: 58px;
+	top: 56px;
 	left: 0;
 	right: 0;
 	bottom: 0;
@@ -341,7 +341,16 @@ body {
 	padding-top: 38px;
 }
 
-.mainmessage,
+.mainmessage {
+	display: block;
+	padding: 10px 15px;
+	margin: 30px 40px;
+	max-width: 400px;
+	border-radius: 20px;
+
+	background: rgba(201, 207, 219, .8);
+	color: black;
+}
 .menugroup {
 	display: block;
 	padding: 10px 0;
