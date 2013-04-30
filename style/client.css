@@ -243,6 +243,20 @@ body {
 	color: black;
 }
 
+.ps-popup {
+	position: absolute;
+	top: auto; right: auto; left: auto; bottom: auto;
+	max-width: 480px;
+	text-align: left;
+	background: #E1E8E8;
+	color: black;
+	border: 1px solid #999999;
+	padding: 5px 10px;
+
+	border-radius: 6px;
+	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
+}
+
 /*********************************************************
  * Main menu
  *********************************************************/
@@ -363,6 +377,14 @@ body {
  * Chat
  *********************************************************/
 
+.userdetails {
+	height: 80px;
+	padding: 1px 1px 1px 86px;
+}
+.userdetails img {
+	float: left;
+	margin-left: -85px;
+}
 .chat-log {
 	position: absolute;
 	top: 0;

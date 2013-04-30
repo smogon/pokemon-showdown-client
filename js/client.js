@@ -169,6 +169,7 @@
 			window.app = this;
 			$('#main').html('');
 			this.initializeRooms();
+			this.initializePopups();
 
 			this.user = new User();
 
@@ -375,7 +376,9 @@
 				},
 				disconnect: function () {},
 				nameTaken: function (data) {},
-				command: function (message) {},
+				command: function (message) {
+					self.trigger('response:'+message.command, message);
+				}
 			};
 
 			var socketopened = false;
@@ -484,7 +487,9 @@
 			}
 		},
 
-		// Room management
+		/*********************************************************
+		 * Rooms
+		 *********************************************************/
 
 		initializeRooms: function() {
 			this.rooms = {};
@@ -542,6 +547,7 @@
 		},
 		updateLayout: function() {
 			if (!this.curRoom) return; // can happen during initialization
+			this.dismissPopups();
 			if (!this.sideRoom) {
 				this.curRoom.show('full');
 				this.topbar.updateTabbar();
@@ -625,7 +631,59 @@
 				return true;
 			}
 			return false;
+		},
+
+		/*********************************************************
+		 * Popups
+		 *********************************************************/
+
+		popups: null,
+		initializePopups: function() {
+			this.popups = [];
+		},
+
+		addPopup: function(id, type, data) {
+			if (!data) data = {};
+
+			while (this.popups.length) {
+				var prevPopup = this.popups[this.popups.length-1];
+				if (prevPopup.id === id) {
+					var sourceEl = prevPopup.sourceEl[0];
+					this.popups.pop().remove();
+					if ($(data.sourceEl)[0] === sourceEl) return;
+				} else if (prevPopup.id !== id.substr(0,prevPopup.id.length)) {
+					this.popups.pop().remove();
+				} else {
+					break;
+				}
+			}
+
+			data.id = id;
+			data.el = $('<div class="ps-popup"></div>').appendTo('body');
+			if (!type) type = Popup;
+			var popup = new type(data);
+			this.popups.push(popup);
+			return popup;
+		},
+		closePopup: function(id) {
+			if (this.popups.length) {
+				var popup = this.popups.pop();
+				popup.remove();
+				return true;
+			}
+			return false;
+		},
+		dismissPopups: function() {
+			var success = false;
+			while (this.popups.length) {
+				var popup = this.popups[this.popups.length-1];
+				if (popup.type !== 'normal') return success;
+				this.popups.pop().remove();
+				success = true;
+			}
+			return success;
 		}
+
 	});
 
 	var Topbar = this.Topbar = Backbone.View.extend({
@@ -722,7 +780,7 @@
 
 		// graphical
 
-		bestWidth: 640,
+		bestWidth: 659,
 		show: function(position, rightWidth) {
 			switch (position) {
 			case 'left':
@@ -755,6 +813,104 @@
 			this.remove();
 			delete this.app;
 		}
+	});
+
+	var Popup = this.Popup = Backbone.View.extend({
+
+		// If type is 'modal', background will turn gray and popup won't be
+		// dismissible except by interacting with it.
+		// If type is 'semimodal', background will turn gray, but clicking
+		// the background will dismiss it.
+		// Otherwise, background won't change, and interacting with anything
+		// other than the popup will still be possible (and will dismiss
+		// the popup).
+		type: 'normal',
+		width: 260,
+
+		constructor: function(data) {
+			if (data && data.sourceEl) {
+				this.sourceEl = data.sourceEl = $(data.sourceEl);
+				var offset = this.sourceEl.offset();
+				var $el = $(data.el || data.$el);
+
+				var room = $(window).height();
+				if (offset.top <= room*3/4) {
+					$el.css('top', offset.top + this.sourceEl.outerHeight());
+				} else {
+					$el.css('bottom', room - offset.top);
+				}
+
+				$el.css('width', this.width - 22);
+				room = $(window).width() - offset.left;
+				if (room < this.width + 10) {
+					$el.css('right', 10);
+				} else {
+					$el.css('left', offset.left);
+				}
+			}
+			Backbone.View.apply(this, arguments);
+		},
+
+		close: function() {
+			app.closePopup();
+		}
+	});
+	var UserPopup = this.UserPopup = Popup.extend({
+		initialize: function(data) {
+			data.userid = toId(data.name);
+			this.data = data = _.extend(data, UserPopup.dataCache[data.userid]);
+			app.on('response:userdetails', this.update, this);
+			app.send('/cmd userdetails '+data.userid);
+			this.update();
+		},
+		events: {
+			'click button': 'dispatchClick'
+		},
+		update: function(data) {
+			if (data && data.userid === this.data.userid) {
+				data = _.extend(this.data, data);
+				UserPopup.dataCache[data.userid] = data;
+			} else {
+				data = this.data;
+			}
+			var userid = data.userid;
+			var name = data.name;
+			var avatar = data.avatar || '';
+			var groupDetails = {
+				'~': "Administrator (~)",
+				'&': "Leader (&amp;)",
+				'@': "Moderator (@)",
+				'%': "Driver (%)",
+				'+': "Voiced (+)",
+				'!': "<span style='color:#777777'>Muted (!)</span>"
+			};
+			var group = (groupDetails[name.substr(0, 1)] || '');
+			if (group || name.charAt(0) === ' ') name = name.substr(1);
+
+			var buf = '<div class="userdetails">';
+			if (avatar) buf += '<img class="trainersprite" src="'+Tools.resolveAvatar(avatar)+'" />';
+			buf += '<strong>' + Tools.escapeHTML(name) + '</strong><br />';
+			buf += '<small>' + (group || '&nbsp;') + '</small><br />';
+			buf += '</div>';
+
+			buf += '<div class="buttonbar"><button value="challenge" disabled>Challenge</button> <button value="pm" disabled>PM</button> <button value="close">Close</close></div>';
+
+			this.$el.html(buf);
+		},
+		dispatchClick: function(e) {
+			e.preventDefault();
+			switch (e.currentTarget.value) {
+			case 'challenge':
+				break;
+			case 'pm':
+				break;
+			case 'close':
+				this.close();
+				break;
+			}
+		}
+	},{
+		dataCache: {}
 	});
 
 }).call(this, jQuery);
