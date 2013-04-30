@@ -8,7 +8,9 @@
 			'keydown textarea': 'keyPress',
 			'click .username': 'clickUsername',
 			'click .closebutton': 'closePM',
-			'click .pm-window': 'clickPMBackground'
+			'click .pm-window': 'clickPMBackground',
+			'focus textarea': 'onFocusPM',
+			'blur textarea': 'onBlurPM'
 		},
 		initialize: function() {
 			// left menu
@@ -78,7 +80,13 @@
 			this.$pmBox.find('.pm-window-'+userid).hide();
 		},
 		focusPM: function(name) {
-			this.openPM(name).find('textarea[name=message]').focus();
+			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
+		},
+		onFocusPM: function(e) {
+			$(e.currentTarget).closest('.pm-window').addClass('focused');
+		},
+		onBlurPM: function(e) {
+			$(e.currentTarget).closest('.pm-window').removeClass('focused');
 		},
 		keyPress: function(e) {
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter
