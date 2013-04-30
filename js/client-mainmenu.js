@@ -66,7 +66,7 @@
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
 				$pmWindow.find('textarea').autoResize({
-					animateDuration: 100,
+					animate: false,
 					extraSpace: 0
 				});
 			} else {
