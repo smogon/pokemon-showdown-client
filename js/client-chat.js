@@ -5,7 +5,7 @@
 		maxWidth: 1024,
 		isSideRoom: true,
 		events: {
-			'keypress textarea': 'keyPress',
+			'keydown textarea': 'keyPress',
 			'submit form': 'submit',
 			'click .username': 'clickUsername',
 			'click .message-pm i': 'openPM',
@@ -22,6 +22,8 @@
 
 			this.users = {};
 			this.userCount = {};
+
+			this.initializeTabComplete();
 
 			this.$joinLeave = null;
 			this.joinLeave = {
@@ -64,13 +66,18 @@
 				e.stopPropagation();
 				var text;
 				if ((text = this.$chatbox.val())) {
-					// this.tabComplete.reset();
+					this.tabComplete.reset();
 					// this.chatHistory.push(text);
 					// text = this.parseCommand(text);
 					if (text) {
 						this.send(text);
 					}
 					this.$chatbox.val('');
+				}
+			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab
+				if (this.handleTabComplete(this.$chatbox)) {
+					e.preventDefault();
+					e.stopPropagation();
 				}
 			}
 		},
@@ -457,7 +464,92 @@
 			}
 			return id.match(/^battle\-([a-z0-9]*[a-z])[0-9]*$/);
 		},
-		markUserActive: function() {}
+
+		// tab completion
+
+		initializeTabComplete: function() {
+			this.tabComplete = {
+				candidates: null,
+				index: 0,
+				prefix: null,
+				cursor: -1,
+				reset: function() {
+					this.cursor = -1;
+				}
+			};
+			this.userActivity = [];
+		},
+		markUserActive: function(userid) {
+			var idx = this.userActivity.indexOf(userid);
+			if (idx !== -1) {
+				this.userActivity.splice(idx, 1);
+			}
+			this.userActivity.push(userid);
+			if (this.userActivity.length > 100) {
+				// Prune the list.
+				this.userActivity.splice(0, 20);
+			}
+		},
+		tabComplete: null,
+		userActivity: null,
+		handleTabComplete: function($textbox) {
+			// Don't tab complete at the start of the text box.
+			var idx = $textbox.prop('selectionStart');
+			if (idx === 0) return false;
+
+			var text = $textbox.val();
+
+			if (idx === this.tabComplete.cursor) {
+				// The user is cycling through the candidate names.
+				if (++this.tabComplete.index >= this.tabComplete.candidates.length) {
+					this.tabComplete.index = 0;
+				}
+			} else {
+				// This is a new tab completion.
+
+				// There needs to be non-whitespace to the left of the cursor.
+				var m = /^(.*?)([^ ]*)$/.exec(text.substr(0, idx));
+				if (!m) return false;
+
+				this.tabComplete.prefix = m[1];
+				var idprefix = toId(m[2]);
+				var candidates = [];
+
+				for (var i in this.users) {
+					if (i.substr(0, idprefix.length) === idprefix) {
+						candidates.push(i);
+					}
+				}
+
+				// Sort by most recent to speak in the chat, or, in the case of a tie,
+				// in alphabetical order.
+				var self = this;
+				candidates.sort(function(a, b) {
+					var aidx = self.userActivity.indexOf(a);
+					var bidx = self.userActivity.indexOf(b);
+					if (aidx !== -1) {
+						if (bidx !== -1) {
+							return bidx - aidx;
+						}
+						return -1; // a comes first
+					} else if (bidx != -1) {
+						return 1;  // b comes first
+					}
+					return (a < b) ? -1 : 1;  // alphabetical order
+				});
+				self.tabComplete.candidates = candidates;
+				self.tabComplete.index = 0;
+			}
+
+			// Substitute in the tab-completed name.
+			var substituteUserId = this.tabComplete.candidates[this.tabComplete.index];
+			var name = this.users[substituteUserId].substr(1);
+			$textbox.val(this.tabComplete.prefix + name + text.substr(idx));
+			var pos = this.tabComplete.prefix.length + name.length;
+			$textbox[0].setSelectionRange(pos, pos);
+			this.tabComplete.cursor = pos;
+			return true;
+		}
 	}, {
 		getTimestamp: function(section) {
 			var pref = Tools.prefs('timestamps') || {};
