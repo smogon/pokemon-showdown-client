@@ -297,10 +297,18 @@ body {
 	border: 1px solid #AAAAAA;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
-	cursor: default;
+	cursor: pointer;
+}
+.pm-window h3:hover {
+	color: #333333;
 }
 .pm-window h3 .closebutton {
 	float: right;
+}
+.pm-window h3 small {
+	color: #888888;
+	font-weight: normal;
+	vertical-align: 1px;
 }
 .pm-log {
 	min-height: 100px;
@@ -328,12 +336,14 @@ body {
 }
 .pm-window.focused h3,
 .pm-window.focused .pm-log,
-.pm-window.focused .pm-log.add {
+.pm-window.focused .pm-log-add {
 	border-color: #555555;
 }
-.pm-window.focused h3 {
+.pm-window.focused h3,
+.pm-window.focused h3:hover {
 	background: #f8f8f8;
 	color: #222222;
+	cursor: default;
 }
 
 .tiny-layout .leftmenu,
