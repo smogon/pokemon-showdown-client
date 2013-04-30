@@ -370,6 +370,8 @@
 						if (self.rooms['lobby']) {
 							self.rooms['lobby'].addPM(message.name, message.message, message.pm);
 						}
+					} else if (message.rawMessage) {
+						self.receive('|raw|'+message.rawMessage);
 					} else {
 						self.receive(message.message);
 					}
