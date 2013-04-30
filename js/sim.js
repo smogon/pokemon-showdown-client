@@ -3452,6 +3452,7 @@ function overlaySubmit(e, overlayType) {
 			} else {
 				rooms.lobby.lobbyChatOff = true;
 				rooms.lobby.send('/lobbychat off');
+				rooms.lobby.clear();
 			}
 		}
 		Tools.prefs.save();
