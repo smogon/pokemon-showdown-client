@@ -8,6 +8,7 @@
 			'keypress textarea': 'keyPress',
 			'submit form': 'submit',
 			'click .username': 'clickUsername',
+			'click .message-pm i': 'openPM',
 			'click': 'clickBackground'
 		},
 		initialize: function() {
@@ -79,13 +80,19 @@
 			var name = $(e.currentTarget).data('name');
 			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
+		openPM: function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			app.focusRoom('');
+			app.rooms[''].focusPM($(e.currentTarget).data('name'));
+		},
 		clickBackground: function(e) {
 			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
 				if (window.getSelection && !window.getSelection().isCollapsed) {
 					return;
 				}
 				app.dismissPopups();
-				this.$chatbox.focus();
+				if (this.$chatbox) this.$chatbox.focus();
 			}
 		},
 		updateUser: function() {
@@ -184,7 +191,7 @@
 						battletype = format + ' battle';
 						if (format === 'Random Battle') battletype = 'Random Battle';
 					}
-					this.$chat.append('<div class="message"><a href="' + Config.locprefix+id + '" onclick="selectTab(\'' + id + '\'); return false" class="battle-start">' + battletype + ' started between <strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + '</strong> and <strong style="' + hashColor(toUserid(name2)) + '">' + Tools.escapeHTML(name2) + '</strong>.</a></div>');
+					this.$chat.append('<div class="message"><a href="' + Config.locprefix+id + '" class="battle-start">' + battletype + ' started between <strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + '</strong> and <strong style="' + hashColor(toUserid(name2)) + '">' + Tools.escapeHTML(name2) + '</strong>.</a></div>');
 					break;
 
 				case 'j':
@@ -401,10 +408,12 @@
 			var highlight = isHighlighted ? ' style="background-color:#FDA;"' : '';
 			var chatDiv = '<div class="chat"' + highlight + '>';
 			var timestamp = ChatRoom.getTimestamp('lobby');
-			if (name.substr(0, 1) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>'+clickableName;
+			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
 			if (pm) {
 				var pmuserid = toUserid(pm);
-				this.$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + pmuserid + '\')">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + messageSanitize(message) + '</span></div>');
+				var oName = pm;
+				if (pmuserid === app.user.get('userid')) oName = name;
+				this.$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i style="cursor:pointer" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + messageSanitize(message) + '</span></div>');
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
 			} else if (message.substr(0,5).toLowerCase() === '/mee ') {
