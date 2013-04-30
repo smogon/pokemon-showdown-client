@@ -71,6 +71,9 @@
 				});
 			} else {
 				$pmWindow.show();
+				var $chatFrame = $pmWindow.find('.pm-log');
+				var $chat = $pmWindow.find('.inner');
+				$chatFrame.scrollTop($chat.height());
 			}
 			return $pmWindow;
 		},
