@@ -174,6 +174,7 @@
 
 				case 'c':
 				case 'chat':
+					if (/[a-zA-Z0-9]/.test(row[1].charAt(0))) row[1] = ' '+row[1];
 					this.addChat(row[1], row.slice(2).join('|'));
 					break;
 
@@ -202,11 +203,13 @@
 					break;
 
 				case 'j':
+				case 'join':
 				case 'J':
 					this.addJoinLeave('join', row[1], null, row[0] === 'J');
 					break;
 
 				case 'l':
+				case 'leave':
 				case 'L':
 					this.addJoinLeave('leave', row[1], null, row[0] === 'L');
 					break;
@@ -230,8 +233,11 @@
 					break;
 
 				case '':
-				default:
 					this.$chat.append('<div class="message">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
+					break;
+
+				default:
+					this.$chat.append('<div class="message"><code>|' + Tools.escapeHTML(row.join('|')) + '</code></div>');
 					break;
 				}
 			}
