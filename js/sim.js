@@ -3752,9 +3752,11 @@ teams = (function() {
 		me.socket.onclose = function () {
 			if (!socketopened) {
 				if (Config.server.altport && !altport) {
-					//altport = true;
-					//Config.server.port = Config.server.altport;
-					//me.socket = reconstructSocket(me.socket);
+					if (document.location.protocol === 'http:') {
+						altport = true;
+						Config.server.port = Config.server.altport;
+						me.socket = reconstructSocket(me.socket);
+					}
 					return document.location.replace('http://' + Config.server.id.split(':')[0] + '-' +
 						Config.server.altport + '.psim.us' + document.location.pathname);
 				}
@@ -3770,12 +3772,15 @@ teams = (function() {
 		};
 	};
 	var origindomain = 'play.pokemonshowdown.com';
-	if ((document.location.hostname === origindomain) || Config.testclient) {
+	if (((document.location.protocol === 'https:' || !$.cookie('showdown_ssl')) && (document.location.hostname === origindomain)) || Config.testclient) {
 		if (document.location.protocol === 'https:') {
 			if (!$.cookie('showdown_ssl')) {
 				return document.location.replace('http://' + document.location.hostname +
 					document.location.pathname);
 			}
+		} else if (!$.cookie('showdown_ssl')) {
+			// nothing fancy required
+			Config.defaultserver.port = 8000;
 		} else if ((!teams.length && !Object.keys(Tools.prefs.data).length) ||
 				$.cookie('showdown_ssl')) {
 			// use the https domain
