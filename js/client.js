@@ -839,10 +839,11 @@
 		updateUserbar: function() {
 			var buf = '';
 			var name = ' '+app.user.get('name');
+			var color = hashColor(app.user.get('userid'));
 			if (app.user.get('named')) {
-				buf = '<i class="icon-user" style="color:#779EC5"></i> <span class="username" data-name="'+Tools.escapeHTML(name)+'">'+Tools.escapeHTML(name)+'</span>';
+				buf = '<span class="username" data-name="'+Tools.escapeHTML(name)+'" style="'+color+'"><i class="icon-user" style="color:#779EC5"></i> '+Tools.escapeHTML(name)+'</span>';
 			} else {
-				buf = '<i class="icon-user" style="color:#999"></i> <span class="username" data-name="'+Tools.escapeHTML(name)+'">'+Tools.escapeHTML(name)+'</span>';
+				buf = '<span class="username" data-name="'+Tools.escapeHTML(name)+'" style="color:#999"><i class="icon-user" style="color:#999"></i> '+Tools.escapeHTML(name)+'</span>';
 			}
 			this.$userbar.html(buf);
 		},
