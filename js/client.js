@@ -234,6 +234,8 @@
 		initializeConnection: function() {
 			var origindomain = 'play.pokemonshowdown.com';
 			if (document.location.hostname === origindomain) {
+				// TODO: BEFORE DEPLOYING THIS, add in code to check for use
+				//       of http://play.pokemonshowdown.com here.
 				this.user.loadTeams();
 				this.trigger('init:loadteams');
 				Config.server = Config.defaultserver;
@@ -247,12 +249,17 @@
 			// crossdomain.php on play.pokemonshowdown.com.
 			var self = this;
 			$(window).on('message', (function() {
-				var origin = document.location.protocol + '//' + origindomain;
+				var origin;
 				var callbacks = {};
 				var callbackIdx = 0;
 				return function($e) {
 					var e = $e.originalEvent;
-					if (e.origin !== origin) return;
+					if ((e.origin === 'http://' + origindomain) ||
+							(e.origin === 'https://' + origindomain)) {
+						origin = e.origin;
+					} else {
+						return; // unauthorised source origin
+					}
 					var data = $.parseJSON(e.data);
 					if (data.server) {
 						var postCrossDomainMessage = function(data) {
@@ -333,7 +340,8 @@
 		connect: function() {
 			var self = this;
 			var constructSocket = function() {
-				return new SockJS('http://' + Config.server.host + ':' +
+				var protocol = (Config.server.port === 443) ? 'https' : 'http';
+				return new SockJS(protocol + '://' + Config.server.host + ':' +
 					Config.server.port + Config.sockjsprefix);
 			};
 			this.socket = constructSocket();
