@@ -811,7 +811,7 @@
 	var Topbar = this.Topbar = Backbone.View.extend({
 		events: {
 			'click a': 'click',
-			'click username': 'clickUsername'
+			'click .username': 'clickUsername'
 		},
 		initialize: function() {
 			this.$el.html('<img class="logo" src="/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="tabbar sidetabbar" style="display:none"></div><div class="userbar"></div>');
@@ -826,10 +826,11 @@
 		'$tabbar': null,
 		updateUserbar: function() {
 			var buf = '';
+			var name = ' '+app.user.get('name');
 			if (app.user.get('named')) {
-				buf = '<i class="icon-user" style="color:#779EC5"></i> <span class="username">'+Tools.escapeHTML(app.user.get('name'))+'</span>';
+				buf = '<i class="icon-user" style="color:#779EC5"></i> <span class="username" data-name="'+Tools.escapeHTML(name)+'">'+Tools.escapeHTML(name)+'</span>';
 			} else {
-				buf = '<i class="icon-user" style="color:#999"></i> <span class="username">'+Tools.escapeHTML(app.user.get('name'))+'</span>';
+				buf = '<i class="icon-user" style="color:#999"></i> <span class="username" data-name="'+Tools.escapeHTML(name)+'">'+Tools.escapeHTML(name)+'</span>';
 			}
 			this.$userbar.html(buf);
 		},
@@ -1003,7 +1004,9 @@
 	var UserPopup = this.UserPopup = Popup.extend({
 		initialize: function(data) {
 			data.userid = toId(data.name);
+			var name = data.name;
 			this.data = data = _.extend(data, UserPopup.dataCache[data.userid]);
+			data.name = name;
 			app.on('response:userdetails', this.update, this);
 			app.send('/cmd userdetails '+data.userid);
 			this.update();

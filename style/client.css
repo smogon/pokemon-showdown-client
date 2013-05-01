@@ -81,6 +81,9 @@ body {
 	right: 10px;
 	font-weight: bold;
 }
+.username {
+	cursor: pointer;
+}
 
 .tabbar {
 	position: absolute;
