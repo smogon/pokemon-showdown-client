@@ -98,9 +98,10 @@ if (isset($PokemonServers[$config['host']])) {
 				document.location.pathname + document.location.search;
 			return;
 		};
-		if (!message.teams && !message.prefs) {
+		if ((!message.teams && !message.prefs) || $.cookie('showdown_ssl')) {
 			// use the https origin storage
-			//return executeRedirect();
+			$.cookie('showdown_ssl', 1, {expires: 14});
+			return executeRedirect();
 		}
 		// copy the existing http storage over to the https origin
 		$(window).on('message', function($e) {
@@ -109,15 +110,15 @@ if (isset($PokemonServers[$config['host']])) {
 			if (e.origin !== origin) return;
 			if (e.data === 'init') {
 				e.source.postMessage($.toJSON(message), origin);
-			} else {
-				// TODO: Wipe out the `http` origin `localStorage` here.
-				//executeRedirect();
-				console.log('done copying to https origin');
+			} else if (e.data === 'done') {
+				$.cookie('showdown_ssl', 1, {expires: 14});
+				localStorage.clear();
+				return executeRedirect();
 			}
 		});
 		var $iframe = $('<iframe src="https://play.pokemonshowdown.com/crossprotocol.html" style="display: none;"></iframe>');
 		$('body').append($iframe);
-		//return;
+		return;
 	}
 	var origin = <?php echo json_encode('http://' . $host) ?>;
 	var postMessage = function(message) {
