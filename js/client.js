@@ -742,6 +742,12 @@
 				}
 				// updateLayout will null curSideRoom if there's
 				// no room for this room
+			} else if (!this.sideRoom) {
+				for (var i in this.rooms) {
+					if (this.rooms[i].isSideRoom) {
+						this.sideRoom = this.rooms[i];
+					}
+				}
 			}
 		},
 		leaveRoom: function(id) {
