@@ -570,6 +570,9 @@ body {
 .message-pm {
 	color: #007100;
 }
+.message-pm .pmnote {
+	cursor: pointer;
+}
 .chat-log .inner,
 .pm-log .inner {
 	padding: 4px 8px 6px 8px;
