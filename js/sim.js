@@ -3752,10 +3752,11 @@ teams = (function() {
 		me.socket.onclose = function () {
 			if (!socketopened) {
 				if (Config.server.altport && !altport) {
-					altport = true;
-					Config.server.port = Config.server.altport;
-					me.socket = reconstructSocket(me.socket);
-					return;
+					//altport = true;
+					//Config.server.port = Config.server.altport;
+					//me.socket = reconstructSocket(me.socket);
+					return document.location.replace('http://' + Config.server.id.split(':')[0] + '-' +
+						Config.server.altport + '.psim.us' + document.location.pathname);
 				}
 				if (!altprefix) {
 					altprefix = true;
