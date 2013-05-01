@@ -23,6 +23,10 @@ RewriteEngine on
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
 
+#RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
+#RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
+#RewriteRule ^(.*) https://play.pokemonshowdown.com/$1 [R=301,L]
+
 RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [E=SAFE_RESOURCE]
 Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
 

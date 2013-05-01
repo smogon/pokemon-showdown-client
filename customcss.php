@@ -13,7 +13,8 @@ header('Content-Type: text/css'); // the CSS file should specify a charset
 $serverdata =& $PokemonServers[$server];
 $customcssuri = @$serverdata['customcss'];
 if (empty($customcssuri)) {
-	$customcssuri = 'http://'.$serverdata['server'].':'.$serverdata['port'].'/custom.css';
+	$protocol = ($serverdata['port'] === 443) ? 'https' : 'http';
+	$customcssuri = $protocol . '://'.$serverdata['server'].':'.$serverdata['port'].'/custom.css';
 }
 
 // No need to sanitise $server because it should be safe already.

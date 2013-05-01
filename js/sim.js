@@ -1,7 +1,7 @@
 // some setting-like stuff
 Config.defaultserver = {
 	id: 'showdown',
-	host: 'sim.smogon.com',
+	host: 'sim.psim.us',
 	port: 8000,
 	altport: 80,
 	registered: true
@@ -3572,7 +3572,8 @@ teams = (function() {
 		}
 
 		var constructSocket = function() {
-			return new SockJS('http://' + Config.server.host + ':' +
+			var protocol = (Config.server.port === 443) ? 'https' : 'http';
+			return new SockJS(protocol + '://' + Config.server.host + ':' +
 				Config.server.port + Config.sockjsprefix);
 		};
 
@@ -3769,6 +3770,9 @@ teams = (function() {
 	};
 	var origindomain = 'play.pokemonshowdown.com';
 	if ((document.location.hostname === origindomain) || Config.testclient) {
+		if ((document.location.protocol === 'https:') && !Tools.prefs('portedstorage')) {
+			return document.location.replace('http://' + document.location.hostname + document.location.pathname);
+		}
 		if (!Config.testclient) {
 			Config.server = Config.defaultserver;
 		}
