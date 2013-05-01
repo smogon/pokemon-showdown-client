@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<script src="/js/jquery-2.0.0.min.js"></script>
+<script>
+(function() {
+	var origin = 'http://play.pokemonshowdown.com';
+	var postMessage = function(message) {
+		return window.parent.postMessage(message, origin);
+	};
+	$(window).on('message', function($e) {
+		var e = $e.originalEvent;
+		if (e.origin !== origin) return;
+		var data = $.parseJSON(e.data);
+		if (data.teams) {
+			localStorage.setItem('showdown_teams', data.teams);
+		}
+		data.prefs = data.prefs || {};
+		data.prefs.portedstorage = true;
+		localStorage.setItem('showdown_prefs', data.prefs);
+		postMessage('done');
+	});
+	postMessage('init');
+})();
+</script>
