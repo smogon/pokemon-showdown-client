@@ -371,6 +371,10 @@
 							self.user.setPersistentName(null); // kill `showdown_username` cookie
 						}
 					}
+					if (data.updates) {
+						var room = self.rooms[data.room];
+						if (room) room.receive(data.updates.join('\n'));
+					}
 					// TODO: All other handling of `update` messages.
 				},
 				/**
