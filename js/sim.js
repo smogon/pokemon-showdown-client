@@ -3531,11 +3531,11 @@ var init = function() {
 	addTab('teambuilder', 'teambuilder');
 	addTab('ladder', 'ladder');
 
+	me.initialized = true;
 	for (var i = 0; i < me.socketInit.length; ++i) {
 		me.socketInit[i]();
 	}
-
-	me.initialized = true;
+	me.socketInit.length = 0;
 };
 
 var cookieTeams = true;
@@ -3595,23 +3595,18 @@ teams = (function() {
 					data.room = 'lobby';
 					data.roomType = 'lobby';
 				}
-				var tempInitialize = function () {
-						if (!(/^[a-z0-9-]*$/.test('' + data.room))) {
-							return; // bogus room ID could be used to inject JavaScript
-						}
-						addTab(data.room, data.roomType);
-						var room = rooms[data.room];
-						room.init(data);
-						updateMe(data);
-						$('#loading-message').remove();
-						if (me.loc && me.loc !== 'lobby') {
-							selectTab(me.loc);
-						}
-					};
-				if (!me.initialized) {
-					me.socketInit.push(tempInitialize);
-				} else {
-					tempInitialize();
+				if (!(/^[a-z0-9-]*$/.test('' + data.room))) {
+					return; // bogus room ID could be used to inject JavaScript
+				}
+				if (!(data.room in rooms)) {
+					addTab(data.room, data.roomType);
+				}
+				var room = rooms[data.room];
+				room.init(data);
+				updateMe(data);
+				$('#loading-message').remove();
+				if (me.loc && me.loc !== 'lobby') {
+					selectTab(me.loc);
 				}
 			},
 			update: function (data) {
@@ -3719,23 +3714,32 @@ teams = (function() {
 			emit(me.socket, 'join', {room: 'lobby'});
 		};
 		me.socket.onmessage = function(msg) {
-			if (msg.data.substr(0,1) !== '{') {
-				var text = msg.data;
-				var roomid = 'lobby';
-				if (text.substr(0,1) === '>') {
-					var nlIndex = text.indexOf('\n');
-					if (nlIndex < 0) return;
-					roomid = text.substr(1,nlIndex-1);
-					text = text.substr(nlIndex+1);
-				}
-				if (!parseSpecialData(text) && (rooms[roomid] !== undefined)) {
-					rooms[roomid].add(text);
-				}
+			if (!me.initialized) {
+				me.socketInit.push(function() {
+					me.socket.onmessage(msg);
+				});
 				return;
 			}
-			var data = $.parseJSON(msg.data);
-			if (!data) return;
-			if (events[data.type]) events[data.type](data);
+			me.socket.onmessage = function(msg) {
+				if (msg.data.substr(0,1) !== '{') {
+					var text = msg.data;
+					var roomid = 'lobby';
+					if (text.substr(0,1) === '>') {
+						var nlIndex = text.indexOf('\n');
+						if (nlIndex < 0) return;
+						roomid = text.substr(1,nlIndex-1);
+						text = text.substr(nlIndex+1);
+					}
+					if (!parseSpecialData(text) && (rooms[roomid] !== undefined)) {
+						rooms[roomid].add(text);
+					}
+					return;
+				}
+				var data = $.parseJSON(msg.data);
+				if (!data) return;
+				if (events[data.type]) events[data.type](data);
+			};
+			return me.socket.onmessage(msg);
 		};
 		var reconstructSocket = function(socket) {
 			var s = constructSocket();
