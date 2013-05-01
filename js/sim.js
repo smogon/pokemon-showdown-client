@@ -2,7 +2,7 @@
 Config.defaultserver = {
 	id: 'showdown',
 	host: 'sim.psim.us',
-	port: 8000,
+	port: 443,
 	altport: 80,
 	registered: true
 };
@@ -3771,14 +3771,16 @@ teams = (function() {
 	var origindomain = 'play.pokemonshowdown.com';
 	if ((document.location.hostname === origindomain) || Config.testclient) {
 		if (document.location.protocol === 'https:') {
-			if (!Tools.prefs('portedstorage')) {
-				//return document.location.replace('http://' + document.location.hostname +
-				//	document.location.pathname);
+			if (!$.cookie('showdown_ssl')) {
+				return document.location.replace('http://' + document.location.hostname +
+					document.location.pathname);
 			}
-		} else if (!teams.length && !Object.keys(Tools.prefs.data).length) {
+		} else if ((!teams.length && !Object.keys(Tools.prefs.data).length) ||
+				$.cookie('showdown_ssl')) {
 			// use the https domain
-			//return document.location.replace('https://' + document.location.hostname +
-			//	document.location.pathname);
+			$.cookie('showdown_ssl', 1, {expires: 14});
+			return document.location.replace('https://' + document.location.hostname +
+				document.location.pathname);
 		} else if (window.postMessage) {
 			// copy the existing http storage over to the https origin
 			$(window).on('message', function($e) {
@@ -3790,16 +3792,16 @@ teams = (function() {
 						teams: $.toJSON(teams),
 						prefs: $.toJSON(Tools.prefs.data)
 					}), origin);
-				} else {
-					// TODO: Wipe out the `http` origin `localStorage` here.
-					//return document.location.replace('https://' + document.location.hostname +
-					//	document.location.pathname);
-					console.log('done copying to https origin');
+				} else if (e.data === 'done') {
+					$.cookie('showdown_ssl', 1, {expires: 14});
+					localStorage.clear();
+					return document.location.replace('https://' + document.location.hostname +
+						document.location.pathname);
 				}
 			});
 			var $iframe = $('<iframe src="https://play.pokemonshowdown.com/crossprotocol.html" style="display: none;"></iframe>');
 			$('body').append($iframe);
-			//return;
+			return;
 		}
 		if (!Config.testclient) {
 			Config.server = Config.defaultserver;
