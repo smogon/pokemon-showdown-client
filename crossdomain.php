@@ -77,6 +77,47 @@ if (isset($PokemonServers[$config['host']])) {
 	if (config.redirect) {
 		return parent.location.replace(config.redirect);
 	}
+	var message = {server: config};
+	try {
+		if (window.localStorage) {
+			message.teams = localStorage.getItem('showdown_teams');
+			message.prefs = localStorage.getItem('showdown_prefs');
+		}
+		$.cookie('testcookie', 1);
+		if (!$.cookie('testcookie')) {
+			message.nothirdparty = true;
+		}
+		$.cookie('testcookie', null);
+	} catch (e) {
+		message.nothirdparty = true;
+	}
+	if (!message.nothirdparty && (document.location.protocol === 'http:')) {
+		var executeRedirect = function() {
+			document.location = 'https://' + document.location.hostname +
+				document.location.pathname + document.location.search;
+			return;
+		};
+		if (!message.teams && !message.prefs) {
+			// use the https origin storage
+			return executeRedirect();
+		}
+		// copy the existing http storage over to the https origin
+		$(window).on('message', function($e) {
+			var e = $e.originalEvent;
+			var origin = 'https://play.pokemonshowdown.com';
+			if (e.origin !== origin) return;
+			if (e.data === 'init') {
+				e.source.postMessage($.toJSON(message), origin);
+			} else {
+				// TODO: Wipe out the `http` origin `localStorage` here.
+				//executeRedirect();
+				console.log('done copying to https origin');
+			}
+		});
+		var $iframe = $('<iframe src="https://play.pokemonshowdown.com/crossprotocol.html" style="display: none;"></iframe>');
+		$('body').append($iframe);
+		//return;
+	}
 	var origin = <?php echo json_encode('http://' . $host) ?>;
 	var postMessage = function(message) {
 		return window.parent.postMessage($.toJSON(message), origin);
@@ -105,20 +146,6 @@ if (isset($PokemonServers[$config['host']])) {
 			localStorage.setItem('showdown_prefs', data.prefs);
 		}
 	});
-	var message = {server: config};
-	try {
-		if (window.localStorage) {
-			message.teams = localStorage.getItem('showdown_teams');
-			message.prefs = localStorage.getItem('showdown_prefs');
-		}
-		$.cookie('testcookie', 1);
-		if (!$.cookie('testcookie')) {
-			message.nothirdparty = true;
-		}
-		$.cookie('testcookie', null);
-	} catch (e) {
-		message.nothirdparty = true;
-	}
 	postMessage(message);
 })();
 </script>

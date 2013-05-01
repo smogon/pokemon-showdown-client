@@ -3770,8 +3770,36 @@ teams = (function() {
 	};
 	var origindomain = 'play.pokemonshowdown.com';
 	if ((document.location.hostname === origindomain) || Config.testclient) {
-		if ((document.location.protocol === 'https:') && !Tools.prefs('portedstorage')) {
-			return document.location.replace('http://' + document.location.hostname + document.location.pathname);
+		if (document.location.protocol === 'https:') {
+			if (!Tools.prefs('portedstorage')) {
+				//return document.location.replace('http://' + document.location.hostname +
+				//	document.location.pathname);
+			}
+		} else if (!teams.length && !Object.keys(Tools.prefs.data).length) {
+			// use the https domain
+			//return document.location.replace('https://' + document.location.hostname +
+			//	document.location.pathname);
+		} else if (window.postMessage) {
+			// copy the existing http storage over to the https origin
+			$(window).on('message', function($e) {
+				var e = $e.originalEvent;
+				var origin = 'https://play.pokemonshowdown.com';
+				if (e.origin !== origin) return;
+				if (e.data === 'init') {
+					e.source.postMessage($.toJSON({
+						teams: teams,
+						prefs: Tools.prefs.data
+					}), origin);
+				} else {
+					// TODO: Wipe out the `http` origin `localStorage` here.
+					//return document.location.replace('https://' + document.location.hostname +
+					//	document.location.pathname);
+					console.log('done copying to https origin');
+				}
+			});
+			var $iframe = $('<iframe src="https://play.pokemonshowdown.com/crossprotocol.html" style="display: none;"></iframe>');
+			$('body').append($iframe);
+			//return;
 		}
 		if (!Config.testclient) {
 			Config.server = Config.defaultserver;
@@ -3782,13 +3810,18 @@ teams = (function() {
 		return overlay('unsupported');
 	}
 	$(window).on('message', (function() {
-		var origin = document.location.protocol + '//' + origindomain;
+		var origin;
 		var callbacks = [];
 		var init = window.init;
 		window.init = null;
 		return function($e) {
 			var e = $e.originalEvent;
-			if (e.origin !== origin) return;
+			if ((e.origin === 'http://' + origindomain) ||
+					(e.origin === 'https://' + origindomain)) {
+				origin = e.origin;
+			} else {
+				return; // unauthorised source origin
+			}
 			var data = $.parseJSON(e.data);
 			if (data.server) {
 				var postCrossDomainMessage = function(data) {
@@ -3849,7 +3882,7 @@ teams = (function() {
 		};
 	})());
 	var $iframe = $(
-		'<iframe src="//play.pokemonshowdown.com/crossdomain.php?host=' +
+		'<iframe src="http://play.pokemonshowdown.com/crossdomain.php?host=' +
 		encodeURIComponent(document.location.hostname) +
 		'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
 		'" style="display: none;"></iframe>'
