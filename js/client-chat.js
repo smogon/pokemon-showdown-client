@@ -359,7 +359,7 @@
 				'join': [],
 				'leave': []
 			};
-			var clickableName = '<span style="cursor:pointer" class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
+			var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 			var isHighlighted = this.getHighlight(message);
 			if (isHighlighted) {
 				// notify({
@@ -375,7 +375,7 @@
 				var pmuserid = toUserid(pm);
 				var oName = pm;
 				if (pmuserid === app.user.get('userid')) oName = name;
-				this.$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i style="cursor:pointer" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + messageSanitize(message) + '</span></div>');
+				this.$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i class="cursor:pointer" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + messageSanitize(message) + '</span></div>');
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>');
 			} else if (message.substr(0,5).toLowerCase() === '/mee ') {
