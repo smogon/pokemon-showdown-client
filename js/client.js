@@ -14,6 +14,12 @@
 	Config.sockjsprefix = '/showdown';
 	Config.root = '/';
 
+	// sanitize a room ID
+	// shouldn't actually do anything except against a malicious server
+	var toRoomid = this.toRoomid = function(roomid) {
+		return roomid.replace(/[^a-zA-Z0-9-]+/g, '');
+	}
+
 	var User = this.User = Backbone.Model.extend({
 		defaults: {
 			name: '',
@@ -964,7 +970,7 @@
 		// other than the popup will still be possible (and will dismiss
 		// the popup).
 		type: 'normal',
-		width: 270,
+		width: 300,
 
 		constructor: function(data) {
 			if (data && data.sourceEl) {
@@ -1003,7 +1009,8 @@
 			this.update();
 		},
 		events: {
-			'click button': 'dispatchClick'
+			'click button': 'dispatchClick',
+			'click .ilink': 'clickLink'
 		},
 		update: function(data) {
 			if (data && data.userid === this.data.userid) {
@@ -1029,15 +1036,43 @@
 			var buf = '<div class="userdetails">';
 			if (avatar) buf += '<img class="trainersprite" src="'+Tools.resolveAvatar(avatar)+'" />';
 			buf += '<strong>' + Tools.escapeHTML(name) + '</strong><br />';
-			buf += '<small>' + (group || '&nbsp;') + '</small><br />';
+			buf += '<small>' + (group || '&nbsp;') + '</small>';
+			if (data.rooms) {
+				var battlebuf = '';
+				var chatbuf = '';
+				for (var i in data.rooms) {
+					if (i === 'global') continue;
+					var roomid = toRoomid(i);
+					if (roomid.substr(0,7) === 'battle-') {
+						if (!battlebuf) battlebuf = '<br /><em>Battles:</em> ';
+						else battlebuf += ', ';
+						battlebuf += '<a href="'+app.root+roomid+'" class="ilink">'+roomid.substr(7)+'</a>';
+					} else {
+						if (!chatbuf) chatbuf = '<br /><em>Chatrooms:</em> ';
+						else chatbuf += ', ';
+						chatbuf += '<a href="'+app.root+roomid+'" class="ilink">'+roomid+'</a>';
+					}
+				}
+				buf += '<small class="rooms">'+battlebuf+chatbuf+'</small>';
+			} else if (data.rooms === false) {
+				buf += '<strong class="offline">OFFLINE</strong>';
+			}
 			buf += '</div>';
 
 			buf += '<div class="buttonbar"><button value="challenge" disabled>Challenge</button> <button value="pm">PM</button> <button value="close">Close</close></div>';
 
 			this.$el.html(buf);
 		},
+		clickLink: function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			this.close();
+			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
+			app.joinRoom(roomid);
+		},
 		dispatchClick: function(e) {
 			e.preventDefault();
+			e.stopPropagation();
 			switch (e.currentTarget.value) {
 			case 'challenge':
 				break;

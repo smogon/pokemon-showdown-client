@@ -509,12 +509,21 @@ body {
  *********************************************************/
 
 .userdetails {
-	height: 80px;
+	min-height: 80px;
 	padding: 1px 1px 1px 86px;
 }
 .userdetails img {
 	float: left;
 	margin-left: -85px;
+}
+.userdetails .rooms {
+	font-size: 8pt;
+}
+.userdetails .offline {
+	color: red;
+}
+.buttonbar {
+	clear: both;
 }
 .chat-log {
 	position: absolute;
