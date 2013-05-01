@@ -127,10 +127,10 @@
 			if (this.$chatbox) this.$chatbox.focus();
 		},
 		join: function() {
-			this.send('/join '+this.id);
+			app.send('/join '+this.id);
 		},
 		leave: function() {
-			this.send('/leave '+this.id);
+			app.send('/leave '+this.id);
 		},
 		receive: function(data) {
 			this.add(data);
