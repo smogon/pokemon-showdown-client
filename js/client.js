@@ -791,15 +791,29 @@
 
 	var Topbar = this.Topbar = Backbone.View.extend({
 		events: {
-			'click a': 'click'
+			'click a': 'click',
+			'click username': 'clickUsername'
 		},
 		initialize: function() {
-			this.$el.html('<img class="logo" src="/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="tabbar sidetabbar" style="display:none"></div>');
+			this.$el.html('<img class="logo" src="/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="tabbar sidetabbar" style="display:none"></div><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar');
 			this.$sidetabbar = this.$('.sidetabbar');
+			this.$userbar = this.$('.userbar');
 			this.updateTabbar();
+
+			app.user.on('change', this.updateUserbar, this);
+			this.updateUserbar();
 		},
 		'$tabbar': null,
+		updateUserbar: function() {
+			var buf = '';
+			if (app.user.get('named')) {
+				buf = '<i class="icon-user" style="color:#779EC5"></i> <span class="username">'+Tools.escapeHTML(app.user.get('name'))+'</span>';
+			} else {
+				buf = '<i class="icon-user" style="color:#999"></i> <span class="username">'+Tools.escapeHTML(app.user.get('name'))+'</span>';
+			}
+			this.$userbar.html(buf);
+		},
 		updateTabbar: function() {
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
@@ -812,8 +826,12 @@
 			var sideBuf = '';
 			for (var id in app.rooms) {
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
-				var name = id;
+				var name = '<i></i>'+id;
 				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> Lobby';
+				if (id.substr(0,7) === 'battle-') {
+					var parts = id.substr(7).split('-');
+					name = '<i class="text">'+parts[0]+'</i>'+parts[1];
+				}
 				if (app.rooms[id].isSideRoom) {
 					if (!sideBuf) sideBuf = '<ul>';
 					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
@@ -837,6 +855,11 @@
 			}
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
+		},
+		clickUsername: function(e) {
+			e.stopPropagation();
+			var name = $(e.currentTarget).data('name');
+			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		click: function(e) {
 			e.preventDefault();
