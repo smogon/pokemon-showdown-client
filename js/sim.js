@@ -3588,25 +3588,28 @@ teams = (function() {
 					selectTab('lobby');
 					return;
 				}
-				// empty room indicates global room, but treat it as lobby
-				// for the purpose of sim.js
+				// empty room indicates global room
+				// note: you must join the lobby at initialisation if using sim.js
 				if (!data.room) {
-					data.room = 'lobby';
-					data.roomType = 'lobby';
+					me.globalRoomData = data;
+					return;
+				} else if ((data.room === 'lobby') && me.globalRoomData) {
+					$.extend(data, me.globalRoomData);
+					delete me.globalRoomData;
 				}
 				var tempInitialize = function () {
-						if (!(/^[a-z0-9-]*$/.test('' + data.room))) {
-							return; // bogus room ID could be used to inject JavaScript
-						}
-						addTab(data.room, data.roomType);
-						var room = rooms[data.room];
-						room.init(data);
-						updateMe(data);
-						$('#loading-message').remove();
-						if (me.loc && me.loc !== 'lobby') {
-							selectTab(me.loc);
-						}
-					};
+					if (!(/^[a-z0-9-]*$/.test('' + data.room))) {
+						return; // bogus room ID could be used to inject JavaScript
+					}
+					addTab(data.room, data.roomType);
+					var room = rooms[data.room];
+					room.init(data);
+					updateMe(data);
+					$('#loading-message').remove();
+					if (me.loc && me.loc !== 'lobby') {
+						selectTab(me.loc);
+					}
+				};
 				if (!me.initialized) {
 					me.socketInit.push(tempInitialize);
 				} else {
