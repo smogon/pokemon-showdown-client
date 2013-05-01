@@ -344,7 +344,8 @@ var Tools = {
 		}
 		if (window.Config && Config.server && Config.server.registered) {
 			// custom avatar served by the server
-			return 'http://' + Config.server.host + ':' + Config.server.port +
+			var protocol = (Config.server.port === 443) ? 'https' : 'http';
+			return protocol + '://' + Config.server.host + ':' + Config.server.port +
 				'/avatars/' + encodeURIComponent(avatar);
 		}
 		// just pick a random avatar
