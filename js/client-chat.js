@@ -225,10 +225,6 @@
 					this.parseUserList(row[1]);
 					break;
 
-				case 'formats':
-					this.parseFormats(row);
-					break;
-
 				case 'raw':
 					this.$chat.append('<div class="message">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
@@ -255,47 +251,6 @@
 				this.userCount.guests = this.userCount.users;
 			}
 			this.userList.construct();
-		},
-		parseFormats: function(formatsList) {
-			var isSection = false;
-			var section = '';
-			BattleFormats = {};
-			for (var j=1; j<formatsList.length; j++) {
-				if (isSection) {
-					section = formatsList[j];
-					isSection = false;
-				} else if (formatsList[j] === '') {
-					isSection = true;
-				} else {
-					var searchShow = true;
-					var challengeShow = true;
-					var team = null;
-					var name = formatsList[j];
-					if (name.substr(name.length-2) === ',#') { // preset teams
-						team = 'preset';
-						name = name.substr(0,name.length-2);
-					}
-					if (name.substr(name.length-2) === ',,') { // search-only
-						challengeShow = false;
-						name = name.substr(0,name.length-2);
-					} else if (name.substr(name.length-1) === ',') { // challenge-only
-						searchShow = false;
-						name = name.substr(0,name.length-1);
-					}
-					BattleFormats[toId(name)] = {
-						id: toId(name),
-						name: name,
-						team: team,
-						section: section,
-						searchShow: searchShow,
-						challengeShow: challengeShow,
-						rated: challengeShow && searchShow,
-						isTeambuilderFormat: challengeShow && searchShow && !team,
-						effectType: 'Format'
-					};
-				}
-			}
-			app.trigger('init:formats');
 		},
 		addJoinLeave: function(action, name, oldid, silent) {
 			var userid = toUserid(name);
