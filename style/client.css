@@ -158,6 +158,10 @@ body {
 	font-style: normal;
 	font-weight: bold;
 	font-size: 14px;
+	height: 14px;
+}
+.tabbar a.button i.text {
+	font-size: 11px;
 }
 .tabbar a.button:hover {
 	background: #cfcfcf;
