@@ -535,7 +535,7 @@
 		},
 		construct: function() {
 			var buf = '';
-			buf += '<li id="userlist-users" style="text-align:center;padding:2px 0"><small><span id="usercount-users">' + (this.room.userCount.users || '0') + '</span> users online:</small></li>';
+			buf += '<li id="userlist-users" style="text-align:center;padding:2px 0"><small><span id="usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
 			var users = [];
 			if (this.room.users) {
 				var self = this;
@@ -658,7 +658,7 @@
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
-		noNamedUsersOnline: '<li id="userlist-empty">Only guests online</li>',
+		noNamedUsersOnline: '<li id="userlist-empty">Only guests</li>',
 		updateNoUsersOnline: function() {
 			var elem = $('#userlist-empty');
 			if ($("[id^=userlist-user-]").length === 0) {
