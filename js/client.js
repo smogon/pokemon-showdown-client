@@ -174,7 +174,6 @@
 			this.user = new User();
 
 			this.topbar = new Topbar({el: $('#header')});
-			Backbone.history.start({pushState: true});
 			this.addRoom('');
 
 			this.on('init:unsupported', function() {
@@ -190,6 +189,7 @@
 			});
 
 			this.initializeConnection();
+			Backbone.history.start({pushState: true});
 		},
 		/**
 		 * Start up the client, including loading teams and preferences,
@@ -404,6 +404,13 @@
 				// Join the lobby. This is necessary for now.
 				// TODO: Revise this later if desired.
 				self.send({room: 'lobby'}, 'join');
+				if (self.sendQueue) {
+					var queue = self.sendQueue;
+					delete self.sendQueue;
+					for (var i=0; i<queue.length; i++) {
+						self.send(queue[i]);
+					}
+				}
 			};
 			this.socket.onmessage = function(msg) {
 				if (msg.data.substr(0,1) !== '{') {
@@ -448,7 +455,13 @@
 		 * Send to sim server
 		 */
 		send: function(data, type) {
-			if (!this.socket) return;
+			if (!this.socket) {
+				if (typeof data === 'string') {
+					if (!this.sendQueue) this.sendQueue = [];
+					this.sendQueue.push(data);
+				}
+				return;
+			}
 			if (typeof data === 'object') {
 				if (type) data.type = type;
 				this.socket.send($.toJSON(data));
