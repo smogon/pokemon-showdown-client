@@ -2589,6 +2589,9 @@ function Battle(frame, logFrame, noPreload) {
 		case 'gravity':
 			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of gravity!');
 			break;
+		case 'healblock':
+			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of Heal Block!');
+			break;
 		case 'imprison':
 			self.message('' + pokemon.getName() + ' can\'t use the sealed ' + move.name + '!');
 			break;
@@ -2624,7 +2627,7 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'flinch':
 			self.resultAnim(pokemon, 'Flinched', 'neutral');
-			self.message(pokemon.getName() + ' flinched!');
+			self.message(pokemon.getName() + ' flinched and couldn\'t move!');
 			pokemon.removeTurnstatus('focuspunch');
 			break;
 		case 'attract':
