@@ -77,9 +77,13 @@ body {
 
 .userbar {
 	position: absolute;
-	top: 10px;
-	right: 10px;
+	top: 14px;
+	right: 14px;
 	font-weight: bold;
+}
+.userbar .username {
+	color: black;
+	text-shadow: 1px 1px 0 #f8f8f8, 1px -1px 0 #f8f8f8, -1px 1px 0 #f8f8f8, -1px -1px 0 #f8f8f8;
 }
 .username {
 	cursor: pointer;
