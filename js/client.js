@@ -344,6 +344,14 @@
 							named: data.named
 						});
 					}
+					if (data.room) {
+						self.joinRoom(data.room, data.roomType);
+						if (data.log) {
+							self.rooms[data.room].add(data.log.join('\n'));
+						} else if (data.battlelog) {
+							self.rooms[data.room].add(data.battlelog.join('\n'));
+						}
+					}
 					// TODO: All other handling of `init` messages.
 				},
 				update: function (data) {
@@ -461,6 +469,13 @@
 				data = data.substr(nlIndex+1);
 			}
 			if (roomid) {
+				if (data.substr(0,6) === '|init|') {
+					var roomType = data.substr(6);
+					var roomTypeLFIndex = roomType.indexOf('\n');
+					if (roomTypeLFIndex >= 0) roomType = roomType.substr(0, roomTypeLFIndex);
+					roomType = toId(roomType);
+					this.joinRoom(roomid, roomType);
+				}
 				if (this.rooms[roomid]) {
 					this.rooms[roomid].receive(data);
 				}
@@ -566,11 +581,23 @@
 			if (this.rooms[id]) return this.rooms[id];
 
 			var el = $('<div class="ps-room" style="display:none"></div>').appendTo('body');
-			type = type || {
+			var typeName = '';
+			if (typeof type === 'string') {
+				typeName = type;
+				type = null;
+			}
+			var roomTable = {
 				'': MainMenuRoom,
 				'teambuilder': TeambuilderRoom,
-				'ladder': LadderRoom
-			}[id];
+				'ladder': LadderRoom,
+				'lobby': ChatRoom,
+			};
+			var typeTable = {
+				'battle': ChatRoom,
+				'chat': ChatRoom
+			};
+			if (roomTable[id]) type = roomTable[id];
+			if (!type) type = typeTable[typeName];
 			if (!type) type = ChatRoom;
 			var room = this.rooms[id] = new type({
 				id: id,
