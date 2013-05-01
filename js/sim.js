@@ -3787,8 +3787,8 @@ teams = (function() {
 				if (e.origin !== origin) return;
 				if (e.data === 'init') {
 					e.source.postMessage($.toJSON({
-						teams: teams,
-						prefs: Tools.prefs.data
+						teams: $.toJSON(teams),
+						prefs: $.toJSON(Tools.prefs.data)
 					}), origin);
 				} else {
 					// TODO: Wipe out the `http` origin `localStorage` here.

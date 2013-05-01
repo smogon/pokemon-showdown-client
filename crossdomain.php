@@ -71,6 +71,7 @@ if (isset($PokemonServers[$config['host']])) {
 <script src="/js/jquery-2.0.0.min.js"></script>
 <script src="/js/jquery-cookie.js"></script>
 <script src="/js/jquery.json-2.3.min.js"></script>
+<body>
 <script>
 (function() {
 	var config = <?php echo json_encode($config) ?>;
@@ -99,7 +100,7 @@ if (isset($PokemonServers[$config['host']])) {
 		};
 		if (!message.teams && !message.prefs) {
 			// use the https origin storage
-			return executeRedirect();
+			//return executeRedirect();
 		}
 		// copy the existing http storage over to the https origin
 		$(window).on('message', function($e) {
