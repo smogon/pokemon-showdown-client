@@ -26,7 +26,7 @@ var me = (function() {
 		curPopup: '',
 		popups: [],
 		socket: null,
-		socketInit: null,
+		socketInit: [],
 		initialized: false,
 		loc: 'lobby'
 	};
@@ -3530,7 +3530,9 @@ var init = function() {
 	addTab('teambuilder', 'teambuilder');
 	addTab('ladder', 'ladder');
 
-	if (me.socketInit) me.socketInit();
+	for (var i = 0; i < me.socketInit.length; ++i) {
+		me.socketInit[i]();
+	}
 
 	me.initialized = true;
 };
@@ -3586,7 +3588,8 @@ teams = (function() {
 					selectTab('lobby');
 					return;
 				}
-				// empty room indicates lobby
+				// empty room indicates global room, but treat it as lobby
+				// for the purpose of sim.js
 				if (!data.room) {
 					data.room = 'lobby';
 					data.roomType = 'lobby';
@@ -3605,7 +3608,7 @@ teams = (function() {
 						}
 					};
 				if (!me.initialized) {
-					me.socketInit = tempInitialize;
+					me.socketInit.push(tempInitialize);
 				} else {
 					tempInitialize();
 				}
