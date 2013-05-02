@@ -8,6 +8,7 @@
 			'keydown textarea': 'keyPress',
 			'submit form': 'submit',
 			'click .username': 'clickUsername',
+			'click .ilink': 'clickLink',
 			'click .message-pm i': 'openPM',
 			'click': 'clickBackground'
 		},
@@ -86,6 +87,12 @@
 			e.preventDefault();
 			var name = $(e.currentTarget).data('name');
 			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
+		},
+		clickLink: function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
+			app.joinRoom(roomid);
 		},
 		openPM: function(e) {
 			e.preventDefault();
@@ -199,7 +206,7 @@
 						battletype = format + ' battle';
 						if (format === 'Random Battle') battletype = 'Random Battle';
 					}
-					this.$chat.append('<div class="message"><a href="' + Config.locprefix+id + '" class="battle-start">' + battletype + ' started between <strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + '</strong> and <strong style="' + hashColor(toUserid(name2)) + '">' + Tools.escapeHTML(name2) + '</strong>.</a></div>');
+					this.$chat.append('<div class="message"><a href="' + app.root+id + '" class="battle-start ilink">' + battletype + ' started between <strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + '</strong> and <strong style="' + hashColor(toUserid(name2)) + '">' + Tools.escapeHTML(name2) + '</strong>.</a></div>');
 					break;
 
 				case 'j':
