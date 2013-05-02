@@ -213,12 +213,12 @@ body {
 	border-top-right-radius: 5px;
 }
 .tabbar a.closable {
-	padding-right: 14px;
+	padding-right: 15px;
 }
 .tabbar .closebutton {
 	display: inline-block;
-	margin: 0 0 0 -17px;
-	width: 17px;
+	margin: 0 0 0 -18px;
+	width: 18px;
 	position: relative;
 	z-index: 11;
 	top: -14px;
