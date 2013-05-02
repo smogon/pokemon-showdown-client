@@ -206,7 +206,7 @@
 						battletype = format + ' battle';
 						if (format === 'Random Battle') battletype = 'Random Battle';
 					}
-					this.$chat.append('<div class="message"><a href="' + app.root+id + '" class="battle-start ilink">' + battletype + ' started between <strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + '</strong> and <strong style="' + hashColor(toUserid(name2)) + '">' + Tools.escapeHTML(name2) + '</strong>.</a></div>');
+					this.$chat.append('<div class="notice"><a href="' + app.root+id + '" class="battle-start ilink">' + battletype + ' started between <strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + '</strong> and <strong style="' + hashColor(toUserid(name2)) + '">' + Tools.escapeHTML(name2) + '</strong>.</a></div>');
 					break;
 
 				case 'j':
@@ -236,15 +236,15 @@
 					break;
 
 				case 'raw':
-					this.$chat.append('<div class="message">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
+					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
 				case '':
-					this.$chat.append('<div class="message">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
+					this.$chat.append('<div class="notice">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
 				default:
-					this.$chat.append('<div class="message"><code>|' + Tools.escapeHTML(row.join('|')) + '</code></div>');
+					this.$chat.append('<div class="notice"><code>|' + Tools.escapeHTML(row.join('|')) + '</code></div>');
 					break;
 				}
 			}
