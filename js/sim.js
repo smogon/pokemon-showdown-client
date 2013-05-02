@@ -3780,6 +3780,7 @@ teams = (function() {
 				return document.location.replace('http://' + document.location.hostname +
 					document.location.pathname);
 			}
+			$.cookie('showdown_ssl', 1, {expires: 365*3});
 		} else if (!$.cookie('showdown_ssl') && !$.cookie('showdown_ssl_convert')) {
 			// nothing fancy required
 			Config.defaultserver.port = 8000;
