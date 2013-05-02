@@ -87,7 +87,28 @@
 			} else {
 				userid = toId(e);
 			}
-			this.$pmBox.find('.pm-window-'+userid).hide();
+			$pmWindow = this.$pmBox.find('.pm-window-'+userid)
+			$pmWindow.hide();
+
+			var $next = $pmWindow.next();
+			while ($next.length && $next.css('display') === 'none') {
+				$next = $next.next();
+			}
+			if ($next.length) {
+				$next.find('textarea[name=message]').focus();
+				return;
+			}
+
+			$next = $pmWindow.prev();
+			while ($next.length && $next.css('display') === 'none') {
+				$next = $next.prev();
+			}
+			if ($next.length) {
+				$next.find('textarea[name=message]').focus();
+				return;
+			}
+
+			if (app.curSideRoom) app.curSideRoom.focus();
 		},
 		focusPM: function(name) {
 			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
