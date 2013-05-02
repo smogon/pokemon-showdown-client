@@ -581,6 +581,14 @@ body {
 .pm-log .inner {
 	padding: 4px 8px 6px 8px;
 }
+a.ilink {
+	text-decoration: none;
+	color: #224488;
+}
+a.ilink:hover {
+	text-decoration: underline;
+	color: #6688CC;
+}
 
 .chatbox {
 	margin: 0 10px 0 80px;
