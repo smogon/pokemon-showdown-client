@@ -359,11 +359,15 @@
 						});
 					}
 					if (data.room) {
-						self.joinRoom(data.room, data.roomType);
+						if (data.room === 'lobby') {
+							self.addRoom(roomid, roomType);
+						} else {
+							self.joinRoom(data.room, data.roomType);
+						}
 						if (data.log) {
 							self.rooms[data.room].add(data.log.join('\n'));
 						} else if (data.battlelog) {
-							self.rooms[data.room].add(data.battlelog.join('\n'));
+							self.rooms[data.room].init(data.battlelog.join('\n'));
 						}
 					}
 					// TODO: All other handling of `init` messages.
@@ -467,7 +471,7 @@
 			};
 		},
 		dispatchFragment: function(fragment) {
-			this.joinRoom(fragment||'');
+			this.tryJoinRoom(fragment||'');
 		},
 		/**
 		 * Send to sim server
@@ -505,7 +509,11 @@
 					var roomTypeLFIndex = roomType.indexOf('\n');
 					if (roomTypeLFIndex >= 0) roomType = roomType.substr(0, roomTypeLFIndex);
 					roomType = toId(roomType);
-					this.joinRoom(roomid, roomType);
+					if (roomid === 'lobby') {
+						this.addRoom(roomid, roomType);
+					} else {
+						this.joinRoom(roomid, roomType);
+					}
 				}
 				if (this.rooms[roomid]) {
 					this.rooms[roomid].receive(data);
@@ -608,6 +616,13 @@
 			this.focusRoom(id);
 			return room;
 		},
+		tryJoinRoom: function(id) {
+			if (this.rooms[id]) {
+				this.joinRoom(id);
+			} else {
+				this.send('/join '+id);
+			}
+		},
 		addRoom: function(id, type) {
 			if (this.rooms[id]) return this.rooms[id];
 
@@ -624,7 +639,7 @@
 				'lobby': ChatRoom,
 			};
 			var typeTable = {
-				'battle': ChatRoom,
+				'battle': BattleRoom,
 				'chat': ChatRoom
 			};
 			if (roomTable[id]) type = roomTable[id];
@@ -1090,7 +1105,7 @@
 			e.stopPropagation();
 			this.close();
 			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
-			app.joinRoom(roomid);
+			app.tryJoinRoom(roomid);
 		},
 		dispatchClick: function(e) {
 			e.preventDefault();
