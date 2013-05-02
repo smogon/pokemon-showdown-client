@@ -20,6 +20,12 @@ AddType application/x-web-app-manifest+json .webapp
 <IfModule mod_rewrite.c>
 RewriteEngine on
 
+# Send bingbot a `noindex` header on every page.
+RewriteCond %{HTTP_USER_AGENT} bingbot
+RewriteRule ^(.*) - [E=BINGBOT]
+Header set X-Robots-Tag "noindex" env=BINGBOT
+Header unset Vary env=BINGBOT
+
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
 
