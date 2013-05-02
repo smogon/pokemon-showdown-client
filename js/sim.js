@@ -3776,10 +3776,11 @@ teams = (function() {
 	if (((document.location.protocol === 'https:' || !$.cookie('showdown_ssl')) && (document.location.hostname === origindomain)) || Config.testclient) {
 		if (document.location.protocol === 'https:') {
 			if (!$.cookie('showdown_ssl')) {
+				$.cookie('showdown_ssl_convert', 1);
 				return document.location.replace('http://' + document.location.hostname +
 					document.location.pathname);
 			}
-		} else if (!$.cookie('showdown_ssl')) {
+		} else if (!$.cookie('showdown_ssl') && !$.cookie('showdown_ssl_convert')) {
 			// nothing fancy required
 			Config.defaultserver.port = 8000;
 		} else if ((!teams.length && !Object.keys(Tools.prefs.data).length) ||
