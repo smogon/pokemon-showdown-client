@@ -102,7 +102,7 @@ if (isset($PokemonServers[$config['host']])) {
 		};
 		if (/**(!message.teams && !message.prefs) ||**/ $.cookie('showdown_ssl')) {
 			// use the https origin storage
-			$.cookie('showdown_ssl', 1, {expires: 14});
+			$.cookie('showdown_ssl', 1, {expires: 365*3});
 			return executeRedirect();
 		}
 		// copy the existing http storage over to the https origin
@@ -113,7 +113,7 @@ if (isset($PokemonServers[$config['host']])) {
 			if (e.data === 'init') {
 				e.source.postMessage($.toJSON(message), origin);
 			} else if (e.data === 'done') {
-				$.cookie('showdown_ssl', 1, {expires: 14});
+				$.cookie('showdown_ssl', 1, {expires: 365*3});
 				localStorage.clear();
 				return executeRedirect();
 			}

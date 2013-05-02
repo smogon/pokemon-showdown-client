@@ -3786,7 +3786,7 @@ teams = (function() {
 		} else if ((!teams.length && !Object.keys(Tools.prefs.data).length) ||
 				$.cookie('showdown_ssl')) {
 			// use the https domain
-			$.cookie('showdown_ssl', 1, {expires: 14});
+			$.cookie('showdown_ssl', 1, {expires: 365*3});
 			return document.location.replace('https://' + document.location.hostname +
 				document.location.pathname);
 		} else if (window.postMessage) {
@@ -3801,7 +3801,7 @@ teams = (function() {
 						prefs: $.toJSON(Tools.prefs.data)
 					}), origin);
 				} else if (e.data === 'done') {
-					$.cookie('showdown_ssl', 1, {expires: 14});
+					$.cookie('showdown_ssl', 1, {expires: 365*3});
 					localStorage.clear();
 					return document.location.replace('https://' + document.location.hostname +
 						document.location.pathname);
