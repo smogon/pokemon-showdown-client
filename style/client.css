@@ -556,7 +556,7 @@ body {
 	padding: 3px 4px 0 4px;
 	border-top: 1px solid #AAAAAA;
 }
-.chat-log .message,
+.chat-log .notice,
 .chat-log .chat,
 .pm-log .chat {
 	padding: 4px 0 2px 0;
