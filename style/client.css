@@ -264,6 +264,10 @@ body {
 	background: rgba(242,247,250,.85);
 	color: black;
 }
+.ps-room.ps-room-opaque {
+	background: #EEF2F5;
+	color: black;
+}
 
 .ps-popup {
 	position: absolute;
@@ -741,6 +745,52 @@ a.ilink:hover {
 .userlist li.cur button:hover {
 	background: white;
 	margin: 0 0 0 -1px;
+}
+
+/*********************************************************
+ * Battle
+ *********************************************************/
+
+.ps-room .battle-log {
+	position: absolute;
+	top: 0;
+	left: 640px;
+	right: 0;
+	bottom: 40px;
+	height: auto;
+	width: auto;
+
+	word-wrap: break-word;
+	border-right: 0;
+	border-top: 0;
+	border-bottom: 0;
+}
+.ps-room .battle-log-add {
+	position: absolute;
+	bottom: 0;
+	left: 640px;
+	right: 0;
+	top: auto;
+	min-height: 36px;
+	height: auto;
+	width: auto;
+
+	padding: 3px 4px 0 4px;
+	border-right: 0;
+	border-bottom: 0;
+}
+.ps-room .battle {
+	border-top: 0;
+	border-left: 0;
+	border-right: 0;
+	top: 0;
+	left: 0;
+}
+.ps-room .battle-controls {
+	position: absolute;
+	top: 360px;
+	left: 0;
+	width: 640px;
 }
 
 /*********************************************************

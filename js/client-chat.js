@@ -60,21 +60,20 @@
 		submit: function(e) {
 			e.preventDefault();
 			e.stopPropagation();
+			var text;
+			if ((text = this.$chatbox.val())) {
+				this.tabComplete.reset();
+				// this.chatHistory.push(text);
+				// text = this.parseCommand(text);
+				if (text) {
+					this.send(text);
+				}
+				this.$chatbox.val('');
+			}
 		},
 		keyPress: function(e) {
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter
-				e.preventDefault();
-				e.stopPropagation();
-				var text;
-				if ((text = this.$chatbox.val())) {
-					this.tabComplete.reset();
-					// this.chatHistory.push(text);
-					// text = this.parseCommand(text);
-					if (text) {
-						this.send(text);
-					}
-					this.$chatbox.val('');
-				}
+				this.submit(e);
 			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab
 				if (this.handleTabComplete(this.$chatbox)) {
 					e.preventDefault();
@@ -92,7 +91,7 @@
 			e.preventDefault();
 			e.stopPropagation();
 			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
-			app.joinRoom(roomid);
+			app.tryJoinRoom(roomid);
 		},
 		openPM: function(e) {
 			e.preventDefault();
