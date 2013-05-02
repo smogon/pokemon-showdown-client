@@ -147,13 +147,13 @@ class DefaultActionHandler {
 		$user = array();
 		$user['username'] = @$_POST['username'];
 		$userid = $users->userid($user['username']);
-		if (strlen($userid) < 1) {
+		if (mb_strlen($userid) < 1) {
 			$out['actionerror'] = 'Your username must contain at least one letter or number.';
 		} else if (substr($userid, 0, 5) === 'guest') {
 			$out['actionerror'] = 'Your username cannot start with \'guest\'.';
-		} else if (strlen($user['username']) > 18) {
+		} else if (mb_strlen($user['username']) > 18) {
 			$out['actionerror'] = 'Your username must be less than 19 characters long.';
-		} else if (strlen(@$_POST['password']) < 5) {
+		} else if (mb_strlen(@$_POST['password']) < 5) {
 			$out['actionerror'] = 'Your password must be at least 5 characters long.';
 		} else if (@$_POST['password'] !== @$_POST['cpassword']) {
 			$out['actionerror'] = 'Your passwords do not match.';
@@ -276,8 +276,8 @@ class DefaultActionHandler {
 				!isset($reqData['p1']) ||
 				!isset($reqData['p2']) ||
 				// player usernames cannot be longer than 18 characters
-				(strlen($reqData['p1']) > 18) ||
-				(strlen($reqData['p2']) > 18) ||
+				(mb_strlen($reqData['p1']) > 18) ||
+				(mb_strlen($reqData['p2']) > 18) ||
 				// the battle ID must be valid
 				!preg_match('/^([a-z0-9]+)-[0-9]+$/', $reqData['id'], $m1) ||
 				// the format ID must be valid
@@ -350,7 +350,7 @@ class LadderActionHandler {
 	// There's no need to make a database query for this.
 	private function getUserData($username) {
 		if (!$username) $username = '';
-		if (strlen($username) > 18) return false;
+		if (mb_strlen($username) > 18) return false;
 		$userid = strtr($username, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz");
 		$userid = preg_replace('/[^A-Za-z0-9]+/', '', $userid);
 		return array('userid' => $userid, 'username' => $username);
