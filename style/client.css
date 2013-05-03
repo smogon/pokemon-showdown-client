@@ -301,9 +301,16 @@ body {
 	left: 325px;
 	top: 40px;
 }
+.mainmenu {
+	padding: 0 0 30px 0;
+}
 
+.mainmenuwrapper {
+	position: relative;
+	min-height: 100%;
+}
 .mainmenufooter {
-	position: fixed;
+	position: absolute;
 	bottom: 15px;
 	left: 20px;
 	color: #BBBBBB;
@@ -390,7 +397,6 @@ body {
 
 .tiny-layout .leftmenu,
 .tiny-layout .rightmenu,
-.tiny-layout .mainmenu,
 .tiny-layout .activitymenu {
 	position: static;
 	top: 0;
@@ -399,8 +405,11 @@ body {
 	margin: 0;
 	padding: 0;
 }
+.tiny-layout .leftmenu {
+	padding-top: 30px;
+}
 .tiny-layout .activitymenu {
-	padding-top: 38px;
+	padding-bottom: 8px;
 }
 
 .mainmessage {
@@ -416,7 +425,7 @@ body {
 .menugroup {
 	display: block;
 	padding: 10px 0;
-	margin: 0 27px 40px 27px;
+	margin: 0 27px 30px 27px;
 	max-width: 400px;
 	border-radius: 20px;
 
@@ -502,10 +511,14 @@ body {
 	width: 180px;
 }
 @media (max-width:895px) {
+	.mainmenu {
+		padding-bottom: 0;
+	}
 	.rightmenu {
 		position: static;
 		top: 0;
 		right: 0;
+		padding-bottom: 30px;
 	}
 	.rightmenu {
 		width: 324px;

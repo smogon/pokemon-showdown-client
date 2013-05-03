@@ -13,11 +13,10 @@
 			'blur textarea': 'onBlurPM'
 		},
 		initialize: function() {
-			// left menu
-			var buf = '<div class="leftmenu">';
+			var buf = '<div class="mainmenuwrapper">';
 
 			// left menu 2 (high-res: right, low-res: top)
-			buf += '<div class="activitymenu"><div class="pmbox"></div></div>';
+			buf += '<div class="leftmenu"><div class="activitymenu"><div class="pmbox"></div></div>';
 
 			// left menu 1 (high-res: left, low-res: bottom)
 			buf += '<div class="mainmenu"><div class="menugroup"><p><button class="button big" value="search"><strong>Look for a battle</strong></button></p></div>';
@@ -29,9 +28,10 @@
 			// footer
 			buf += '<div class="mainmenufooter"><small><a href="//pokemonshowdown.com/" target="_blank">Website</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small></div>';
 
+			buf += '</div>';
 			this.$el.html(buf);
 
-			this.$activityMenu = $('.activitymenu');
+			this.$activityMenu = this.$('.activitymenu');
 			this.$pmBox = this.$activityMenu.find('.pmbox');
 
 			app.on('init:formats', this.updateSearch, this);
