@@ -189,12 +189,12 @@
 					var challenge = data.challengesFrom[userid];
 					var $challenge = self.openChallenge(name, $pmWindow);
 					var buf = '<p>'+Tools.escapeHTML(name)+' wants to battle!</p>';
-					buf += '<p><label>Format:</label><strong>'+Tools.escapeFormat(challenge.format)+'</strong></p>';
+					buf += '<p><label class="label">Format:</label><strong>'+Tools.escapeFormat(challenge.format)+'</strong></p>';
 					if (challenge.format === 'randombattle') {
-						buf += '<p><label>Team:</label><strong>random team</strong></p>';
+						buf += '<p><label class="label">Team:</label><strong>random team</strong></p>';
 						buf += '<p><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p>';
 					} else {
-						buf += '<p><label>Team:</label><strong>idk man</strong></p>';
+						buf += '<p><label class="label">Team:</label><strong>idk man</strong></p>';
 						buf += '<p><button disabled><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p>';
 					}
 					$challenge.html(buf);
@@ -217,8 +217,8 @@
 				var $challenge = this.openChallenge(name);
 
 				var buf = '<p>Waiting for '+Tools.escapeHTML(name)+'...</p>';
-				buf += '<p><label>Format:</label><strong>'+Tools.escapeFormat(challenge.format)+'</strong></p>';
-				buf += '<p><label>Team:</label><strong>random team</strong></p>';
+				buf += '<p><label class="label">Format:</label><strong>'+Tools.escapeFormat(challenge.format)+'</strong></p>';
+				buf += '<p><label class="label">Team:</label><strong>random team</strong></p>';
 				buf += '<p><button name="cancelChallenge">Cancel</button></p>';
 
 				$challenge.html(buf);
@@ -257,8 +257,8 @@
 			}
 			$challenge = this.openChallenge(name);
 			var buf = '<p>Challenge '+Tools.escapeHTML(name)+'?</p>';
-			buf += '<p><label>Format:</label><strong>Random Battle</strong></p>';
-			buf += '<p><label>Team:</label><strong>random team</strong></p>';
+			buf += '<p><label class="label">Format:</label><strong>Random Battle</strong></p>';
+			buf += '<p><label class="label">Team:</label><strong>random team</strong></p>';
 			buf += '<p><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p>';
 			$challenge.html(buf);
 		},
@@ -277,8 +277,8 @@
 			var name = $(target).closest('.pm-window').data('name');
 
 			var buf = '<p>Challenging '+Tools.escapeHTML(name)+'...</p>';
-			buf += '<p><label>Format:</label><strong>Random Battle</strong></p>';
-			buf += '<p><label>Team:</label><strong>random team</strong></p>';
+			buf += '<p><label class="label">Format:</label><strong>Random Battle</strong></p>';
+			buf += '<p><label class="label">Team:</label><strong>random team</strong></p>';
 			buf += '<p><button name="cancelChallenge">Cancel</button></p>';
 
 			$(target).closest('.challenge').html(buf);
