@@ -3,15 +3,14 @@ $config = array();
 
 $host = strtolower(strval(@$_REQUEST['host']));
 $devClient = false;
-if (preg_match('/^([a-z0-9-_\.]*?)\.dev\.psim\.us$/', $host, $m)) {
+if (preg_match('/^([a-z0-9-_\.]*?)\.beta\.psim\.us$/', $host, $m)) {
 	$config['host'] = $m[1];
 	$devClient = true;
 } else if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $host, $m)) {
 	$config['host'] = $m[1];
 	if ($config['host'] === 'logs') die; // not authorised
 	if ($config['host'] === 'sim') die; // not authorised
-} else if ($host === 'dev.pokemonshowdown.com') {
-	$config['host'] = 'dev';
+	if ($config['host'] === 'beta') $config['host'] = 'showdown';
 } else if ($host === 'play.pokemonshowdown.com') {
 	$config['host'] = 'showdown-8000';
 } else {
@@ -61,7 +60,7 @@ if (isset($PokemonServers[$config['host']])) {
 					(isset($server['altport']) &&
 						$config['port'] === $server['altport'])) {
 				$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
-				$domain = ($devClient ? 'dev.' : '') . 'psim.us';
+				$domain = ($devClient ? 'beta.' : '') . 'psim.us';
 				$config['redirect'] = 'http://' . $server['id'] . '.' . $domain . '/' . rawurlencode($path);
 				break;
 			}
