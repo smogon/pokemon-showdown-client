@@ -1039,6 +1039,7 @@
 		initialize: function(data) {
 			data.userid = toId(data.name);
 			var name = data.name;
+			if (/[a-zA-Z0-9]/.test(name.charAt(0))) name = ' '+name;
 			this.data = data = _.extend(data, UserPopup.dataCache[data.userid]);
 			data.name = name;
 			app.on('response:userdetails', this.update, this);
