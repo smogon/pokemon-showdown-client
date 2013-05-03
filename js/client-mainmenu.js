@@ -109,6 +109,10 @@
 			if ($rejectButton.length) {
 				this.rejectChallenge(userid, $rejectButton);
 			}
+			$rejectButton = $pmWindow.find('button[name=cancelChallenge]');
+			if ($rejectButton.length) {
+				this.cancelChallenge(userid, $rejectButton);
+			}
 
 			var $next = $pmWindow.next();
 			while ($next.length && $next.css('display') === 'none') {
@@ -204,7 +208,7 @@
 						if ($challenge.find('button[name=acceptChallenge]').length) {
 							$challenge.html('<p>The challenge was cancelled.</p><p><button name="dismissChallenge">OK</button></p>');
 						} else {
-							$challenge.html('<p>The challenge was rejected.</p><p><button name="dismissChallenge">OK</button></p>');
+							this.dismissChallenge();
 						}
 					}
 				}
