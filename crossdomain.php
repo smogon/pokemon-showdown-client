@@ -3,14 +3,16 @@ $config = array();
 
 $host = strtolower(strval(@$_REQUEST['host']));
 $devClient = false;
-if (preg_match('/^([a-z0-9-_\.]*?)\.dev\.psim\.us$/', $host, $m)) {
+if (preg_match('/^([a-z0-9-_\.]*?)\.beta\.psim\.us$/', $host, $m)) {
 	$config['host'] = $m[1];
 	$devClient = true;
 } else if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $host, $m)) {
 	$config['host'] = $m[1];
 	if ($config['host'] === 'logs') die; // not authorised
-} else if ($host === 'dev.pokemonshowdown.com') {
-	$config['host'] = 'dev';
+	if ($config['host'] === 'sim') die; // not authorised
+	if ($config['host'] === 'beta') $config['host'] = 'showdown';
+} else if ($host === 'play.pokemonshowdown.com') {
+	$config['host'] = 'showdown-8000';
 } else {
 	die; // not authorised
 }
@@ -58,27 +60,66 @@ if (isset($PokemonServers[$config['host']])) {
 					(isset($server['altport']) &&
 						$config['port'] === $server['altport'])) {
 				$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
-				$domain = ($devClient ? 'dev.' : '') . 'psim.us';
+				$domain = ($devClient ? 'beta.' : '') . 'psim.us';
 				$config['redirect'] = 'http://' . $server['id'] . '.' . $domain . '/' . rawurlencode($path);
 				break;
 			}
 		}
 	}
 }
-
-if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
-	$config['serverprotocol'] = 'ws'; // default protocol
-}
 ?>
 <!DOCTYPE html>
 <script src="/js/jquery-2.0.0.min.js"></script>
 <script src="/js/jquery-cookie.js"></script>
 <script src="/js/jquery.json-2.3.min.js"></script>
+<body>
 <script>
 (function() {
 	var config = <?php echo json_encode($config) ?>;
 	if (config.redirect) {
 		return parent.location.replace(config.redirect);
+	}
+	var message = {server: config};
+	try {
+		if (window.localStorage) {
+			message.teams = localStorage.getItem('showdown_teams');
+			message.prefs = localStorage.getItem('showdown_prefs');
+		}
+		$.cookie('testcookie', 1);
+		if (!$.cookie('testcookie')) {
+			message.nothirdparty = true;
+		}
+		$.cookie('testcookie', null);
+	} catch (e) {
+		message.nothirdparty = true;
+	}
+	if (!message.nothirdparty && (document.location.protocol === 'http:')) {
+		var executeRedirect = function() {
+			document.location = 'https://' + document.location.hostname +
+				document.location.pathname + document.location.search;
+			return;
+		};
+		if (/**(!message.teams && !message.prefs) ||**/ $.cookie('showdown_ssl')) {
+			// use the https origin storage
+			$.cookie('showdown_ssl', 1, {expires: 365*3});
+			return executeRedirect();
+		}
+		// copy the existing http storage over to the https origin
+		/**$(window).on('message', function($e) {
+			var e = $e.originalEvent;
+			var origin = 'https://play.pokemonshowdown.com';
+			if (e.origin !== origin) return;
+			if (e.data === 'init') {
+				e.source.postMessage($.toJSON(message), origin);
+			} else if (e.data === 'done') {
+				$.cookie('showdown_ssl', 1, {expires: 365*3});
+				localStorage.clear();
+				return executeRedirect();
+			}
+		});
+		var $iframe = $('<iframe src="https://play.pokemonshowdown.com/crossprotocol.html" style="display: none;"></iframe>');
+		$('body').append($iframe);
+		return;**/
 	}
 	var origin = <?php echo json_encode('http://' . $host) ?>;
 	var postMessage = function(message) {
@@ -108,20 +149,6 @@ if (!in_array(@$config['serverprotocol'], array('io', 'eio'))) {
 			localStorage.setItem('showdown_prefs', data.prefs);
 		}
 	});
-	var message = {server: config};
-	try {
-		if (window.localStorage) {
-			message.teams = localStorage.getItem('showdown_teams');
-			message.prefs = localStorage.getItem('showdown_prefs');
-		}
-		$.cookie('testcookie', 1);
-		if (!$.cookie('testcookie')) {
-			message.nothirdparty = true;
-		}
-		$.cookie('testcookie', null);
-	} catch (e) {
-		message.nothirdparty = true;
-	}
 	postMessage(message);
 })();
 </script>
