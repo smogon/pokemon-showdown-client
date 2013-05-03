@@ -36,6 +36,11 @@
 			app.on('init:formats', this.updateSearch, this);
 			this.updateSearch();
 		},
+
+		/*********************************************************
+		 * PMs
+		 *********************************************************/
+
 		addPM: function(name, message, target) {
 			var oName = name;
 			if (toId(name) === app.user.get('userid')) {
@@ -70,7 +75,7 @@
 				} else {
 					group = '<small>'+Tools.escapeHTML(group)+'</small>';
 				}
-				var buf = '<div class="pm-window pm-window-'+userid+'" data-userid="'+userid+'"><h3><button class="closebutton" href="'+app.root+'teambuilder" tabindex="-1"><i class="icon-remove-sign"></i></button>'+group+Tools.escapeHTML(name.substr(1))+'</h3><div class="pm-log"><div class="inner"></div></div>';
+				var buf = '<div class="pm-window pm-window-'+userid+'" data-userid="'+userid+'" data-name="'+name+'"><h3><button class="closebutton" href="'+app.root+'teambuilder" tabindex="-1"><i class="icon-remove-sign"></i></button>'+group+Tools.escapeHTML(name.substr(1))+'</h3><div class="pm-log"><div class="inner"></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
 				$pmWindow.find('textarea').autoResize({
@@ -99,6 +104,11 @@
 			}
 			$pmWindow = this.$pmBox.find('.pm-window-'+userid)
 			$pmWindow.hide();
+
+			var $rejectButton = $pmWindow.find('button[name=rejectChallenge]');
+			if ($rejectButton.length) {
+				this.rejectChallenge(userid, $rejectButton);
+			}
 
 			var $next = $pmWindow.next();
 			while ($next.length && $next.css('display') === 'none') {
@@ -162,6 +172,67 @@
 				e.stopPropagation();
 			}
 		},
+		challengesFrom: null,
+		challengeTo: null,
+		updateChallenges: function(data) {
+			this.challengesFrom = data.challengesFrom;
+			this.challengeTo = data.challengeTo;
+			for (var i in data.challengesFrom) {
+				this.openPM(' '+i, true);
+			}
+			var self = this;
+			this.$('.pm-window').each(function(i, el) {
+				var $pmWindow = $(el);
+				var userid = $pmWindow.data('userid');
+				var name = $pmWindow.data('name');
+				if (data.challengesFrom[userid]) {
+					var challenge = data.challengesFrom[userid];
+					var $challenge = self.openChallenge(name, $pmWindow);
+					var buf = '<p>'+Tools.escapeHTML(name)+' wants to battle!</p>';
+					buf += '<p><label>Format:</label><strong>'+Tools.escapeFormat(challenge.format)+'</strong></p>';
+					if (challenge.format === 'randombattle') {
+						buf += '<p><label>Team:</label><strong>random team</strong></p>';
+						buf += '<p><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p>';
+					} else {
+						buf += '<p><label>Team:</label><strong>idk man</strong></p>';
+						buf += '<p><button disabled><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p>';
+					}
+					$challenge.html(buf);
+				} else {
+					var $challenge = $pmWindow.find('.challenge');
+					if ($challenge.length) {
+						if ($challenge.find('button[name=acceptChallenge]').length) {
+							$challenge.html('<p>The challenge was cancelled.</p><p><button name="dismissChallenge">OK</button></p>');
+						} else {
+							$challenge.html('<p>The challenge was rejected.</p><p><button name="dismissChallenge">OK</button></p>');
+						}
+					}
+				}
+			});
+
+			if (data.challengeTo) {
+				var challenge = data.challengeTo;
+				var name = challenge.to;
+				var userid = toId(name);
+				var $challenge = this.openChallenge(name);
+
+				var buf = '<p>Waiting for '+Tools.escapeHTML(name)+'...</p>';
+				buf += '<p><label>Format:</label><strong>'+Tools.escapeFormat(challenge.format)+'</strong></p>';
+				buf += '<p><label>Team:</label><strong>random team</strong></p>';
+				buf += '<p><button name="cancelChallenge">Cancel</button></p>';
+
+				$challenge.html(buf);
+			}
+		},
+		openChallenge: function(name, $pmWindow) {
+			var userid = toId(name);
+			if (!$pmWindow) $pmWindow = this.openPM(name, true);
+			var $challenge = $pmWindow.find('.challenge');
+			if (!$challenge.length) {
+				$challenge = $('<div class="challenge"></div>').insertAfter($pmWindow.find('h3'));
+			}
+			return $challenge;
+		},
 		updateSearch: function() {
 			if (window.BattleFormats) {
 				this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
@@ -175,6 +246,51 @@
 			} else {
 				this.$('.rightmenu').show();
 			}
+		},
+
+		// challenge buttons
+		challenge: function(name) {
+			var userid = toId(name);
+			var $challenge = this.$('.pm-window-'+userid+' .challenge');
+			if ($challenge.length && !$challenge.find('button[name=dismissChallenge]').length) {
+				return;
+			}
+			$challenge = this.openChallenge(name);
+			var buf = '<p>Challenge '+Tools.escapeHTML(name)+'?</p>';
+			buf += '<p><label>Format:</label><strong>Random Battle</strong></p>';
+			buf += '<p><label>Team:</label><strong>random team</strong></p>';
+			buf += '<p><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p>';
+			$challenge.html(buf);
+		},
+		acceptChallenge: function(i, target) {
+			var userid = $(target).closest('.pm-window').data('userid');
+			$(target).closest('.challenge').remove();
+			app.send('/accept '+userid);
+		},
+		rejectChallenge: function(i, target) {
+			var userid = $(target).closest('.pm-window').data('userid');
+			$(target).closest('.challenge').remove();
+			app.send('/reject '+userid);
+		},
+		makeChallenge: function(i, target) {
+			var userid = $(target).closest('.pm-window').data('userid');
+			var name = $(target).closest('.pm-window').data('name');
+
+			var buf = '<p>Challenging '+Tools.escapeHTML(name)+'...</p>';
+			buf += '<p><label>Format:</label><strong>Random Battle</strong></p>';
+			buf += '<p><label>Team:</label><strong>random team</strong></p>';
+			buf += '<p><button name="cancelChallenge">Cancel</button></p>';
+
+			$(target).closest('.challenge').html(buf);
+			app.send('/challenge '+userid+', randombattle');
+		},
+		cancelChallenge: function(i, target) {
+			var userid = $(target).closest('.pm-window').data('userid');
+			$(target).closest('.challenge').remove();
+			app.send('/cancelchallenge '+userid);
+		},
+		dismissChallenge: function(i, target) {
+			$(target).closest('.challenge').remove();
 		},
 
 		// buttons

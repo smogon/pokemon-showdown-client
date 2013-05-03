@@ -387,6 +387,9 @@
 						var room = self.rooms[data.room];
 						if (room) room.receive(data.updates.join('\n'));
 					}
+					if (data.challengesFrom) {
+						if (self.rooms['']) self.rooms[''].updateChallenges(data);
+					}
 					// TODO: All other handling of `update` messages.
 				},
 				/**
@@ -1123,7 +1126,7 @@
 			}
 			buf += '</div>';
 
-			buf += '<div class="buttonbar"><button value="challenge" disabled>Challenge</button> <button value="pm">PM</button> <button value="close">Close</close></div>';
+			buf += '<div class="buttonbar"><button value="challenge">Challenge</button> <button value="pm">PM</button> <button value="close">Close</close></div>';
 
 			this.$el.html(buf);
 		},
@@ -1139,6 +1142,9 @@
 			e.stopPropagation();
 			switch (e.currentTarget.value) {
 			case 'challenge':
+				this.close();
+				app.focusRoom('');
+				app.rooms[''].challenge(this.data.name);
 				break;
 			case 'pm':
 				this.close();

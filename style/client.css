@@ -394,6 +394,16 @@ body {
 	color: #222222;
 	cursor: default;
 }
+.challenge {
+	margin-top: -1px;
+	background: #fcd2b3;
+	border: 1px solid #f57b21;
+	color: #682f05;
+	padding: 1px 5px;
+}
+.challenge p {
+	margin: 4px 0;
+}
 
 .tiny-layout .leftmenu,
 .tiny-layout .rightmenu,
