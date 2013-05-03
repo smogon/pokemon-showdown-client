@@ -1126,7 +1126,11 @@
 			}
 			buf += '</div>';
 
-			buf += '<div class="buttonbar"><button value="challenge">Challenge</button> <button value="pm">PM</button> <button value="close">Close</close></div>';
+			if (userid === app.user.get('userid')) {
+				buf += '<div class="buttonbar"><button disabled>Challenge</button> <button disabled>PM</button> <button value="close">Close</close></div>';
+			} else {
+				buf += '<div class="buttonbar"><button value="challenge">Challenge</button> <button value="pm">PM</button> <button value="close">Close</close></div>';
+			}
 
 			this.$el.html(buf);
 		},
