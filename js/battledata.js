@@ -353,6 +353,13 @@ var Tools = {
 		return Tools.resolveAvatar(sprites[Math.floor(Math.random() * sprites.length)]);
 	},
 
+	escapeFormat: function(formatid) {
+		if (window.BattleFormats && BattleFormats[formatid]) {
+			return Tools.escapeHTML(BattleFormats[formatid].name)
+		}
+		return Tools.escapeHTML(formatid);
+	},
+
 	escapeHTML: function(str, jsEscapeToo) {
 		str = (str?''+str:'');
 		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

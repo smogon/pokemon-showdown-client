@@ -185,7 +185,7 @@
 					if (!matches) {
 						return; // bogus room ID could be used to inject JavaScript
 					}
-					var format = (matches ? matches[1] : '');
+					var format = Tools.escapeFormat(matches ? matches[1] : '');
 
 					if (silent && !Tools.prefs('showbattles')) return;
 
