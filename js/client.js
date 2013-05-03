@@ -360,7 +360,7 @@
 					}
 					if (data.room) {
 						if (data.room === 'lobby') {
-							self.addRoom(roomid, roomType);
+							self.addRoom('lobby');
 						} else {
 							self.joinRoom(data.room, data.roomType);
 						}
