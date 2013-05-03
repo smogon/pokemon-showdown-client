@@ -33,8 +33,7 @@
 		events: {
 			'keydown textarea': 'keyPress',
 			'submit form': 'submit',
-			'click .username': 'clickUsername',
-			'click': 'clickBackground'
+			'click .username': 'clickUsername'
 		},
 		battleEnded: false,
 		focus: function() {
@@ -143,15 +142,6 @@
 			e.preventDefault();
 			var name = $(e.currentTarget).data('name');
 			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
-		},
-		clickBackground: function(e) {
-			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
-				if (window.getSelection && !window.getSelection().isCollapsed) {
-					return;
-				}
-				app.dismissPopups();
-				if (this.$chatbox) this.$chatbox.focus();
-			}
 		},
 
 		/*********************************************************
