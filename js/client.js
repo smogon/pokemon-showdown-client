@@ -951,7 +951,7 @@
 				app.dismissPopups();
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				this[target.name].call(this, target.value);
+				this[target.name].call(this, target.value, target);
 			}
 		},
 		dispatchClickBackground: function(e) {

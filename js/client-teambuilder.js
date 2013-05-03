@@ -18,8 +18,6 @@
 			}
 		},
 		events: {
-			'click button': 'dispatchClick',
-
 			// teambuilder events
 			'keydown .chartinput': 'chartKeydown'
 		},
@@ -77,7 +75,7 @@
 			var buf = '';
 
 			if (this.exportMode) {
-				buf = '<div class="pad"><button value="back"><i class="icon-chevron-left"></i> Team List</button> <button value="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <button name="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
 				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(this.teamsToText())+'</textarea>';
 				this.$el.html(buf);
 				return;
@@ -93,12 +91,12 @@
 			buf += '<ul>';
 			if (!teams.length) {
 				if (this.deletedTeamLoc >= 0) {
-					buf += '<li><button value="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
+					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
 				}
 				buf += '<li><em>you don\'t have any teams lol</em></li>';
 			} else for (var i=0; i<teams.length+1; i++) {
 				if (i === this.deletedTeamLoc) {
-					buf += '<li><button value="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
+					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
 				}
 				if (i >= teams.length) break;
 
@@ -113,17 +111,17 @@
 					formatText = '['+team.format+'] ';
 				}
 
-				buf += '<li><button value="edit" data-i="'+i+'" style="width:400px">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+				buf += '<li><button name="edit" value="'+i+'" style="width:400px">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 				for (var j=0; j<team.team.length; j++) {
 					if (j!=0) buf += ' / ';
 					buf += ''+Tools.escapeHTML(team.team[j].name);
 				}
-				buf += '</small></button> <button value="edit" data-i="'+i+'"><i class="icon-pencil"></i>Edit</button> <button value="delete" data-i="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
+				buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 			}
 			buf += '</ul>';
 
-			buf += '<button value="new"><i class="icon-plus-sign"></i> New team</button>';
-			buf += ' <button value="import"><i class="icon-upload-alt"></i> Import from PO</button> <button value="backup"><i class="icon-upload-alt"></i> Backup/Restore</button>';
+			buf += '<button name="new"><i class="icon-plus-sign"></i> New team</button>';
+			buf += ' <button name="import"><i class="icon-upload-alt"></i> Import from PO</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore</button>';
 
 			buf += '<p><strong>Clearing your cookies or <code>localStorage</code> will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 
@@ -135,14 +133,14 @@
 			this.$el.html(buf);
 		},
 		// button actions
-		edit: function(e) {
-			var i = +$(e.currentTarget).data('i');
+		edit: function(i) {
+			var i = +i;
 			this.curTeam = teams[i];
 			this.curTeamIndex = i;
 			this.update();
 		},
-		delete: function(e) {
-			var i = +$(e.currentTarget).data('i');
+		delete: function(i) {
+			var i = +i;
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
 			this.saveTeams();
@@ -196,10 +194,10 @@
 		updateTeamView: function() {
 			var buf = '';
 			if (this.exportMode) {
-				buf = '<div class="pad"><button value="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button value="saveImport" class="savebutton"><i class="icon-save"></i> Save</button> <button value="saveImport"><i class="icon-upload-alt"></i> Import/Export</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(this.toText(this.curTeam.team))+'</textarea>';
 			} else {
-				buf = '<div class="pad"><button value="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button value="back" class="savebutton"><i class="icon-save"></i> Save</button> <button value="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="back" class="savebutton"><i class="icon-save"></i> Save</button> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				var i=0;
@@ -223,7 +221,7 @@
 					buf += this.renderSet(this.curTeam.team[i], i);
 				}
 				if (i < 6) {
-					buf += '<li><button value="addPokemon" class="majorbutton"><i class="icon-plus"></i> Add pokemon</button></li>';
+					buf += '<li><button name="addPokemon" class="majorbutton"><i class="icon-plus"></i> Add pokemon</button></li>';
 				}
 				buf += '</ol>';
 				buf += '</div>';
@@ -253,7 +251,7 @@
 
 			// details
 			buf += '<div class="setcol setcol-details"><div class="setrow">';
-			buf += '<div class="setcell setcell-details"><label>Details</label><button class="setdetails" tabindex="-1" name="details" value="chartOpenDetails">';
+			buf += '<div class="setcell setcell-details"><label>Details</label><button class="setdetails" tabindex="-1" name="details">';
 
 			var GenderChart = {
 				'M': 'Male',
@@ -281,7 +279,7 @@
 			buf += '</div>';
 
 			// stats
-			buf += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="setstats" name="stats" class="chartinput" value="chartOpenStats">';
+			buf += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="setstats" name="stats" class="chartinput">';
 			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
 			var stats = {};
 			for (var j in BattleStatNames) {
@@ -334,7 +332,7 @@
 		updateSetView: function() {
 			// pokemon
 			var buf = '<div class="pad">';
-			buf += '<button value="back"><i class="icon-chevron-left"></i> Entire Team</button></div>';
+			buf += '<button name="back"><i class="icon-chevron-left"></i> Entire Team</button></div>';
 			buf += '<div class="teambar">';
 			var isAdd = false;
 			if (this.curTeam.team.length && !this.curTeam.team[this.curTeam.team.length-1].name && this.curSetLoc !== this.curTeam.team.length-1) {
@@ -349,11 +347,11 @@
 				} else if (i == this.curSetLoc) {
 					buf += '<button disabled="disabled" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name || '<i class="icon-plus"></i>')+'</button> ';
 				} else {
-					buf += '<button value="selectPokemon" data-i="'+i+'" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name)+'</button> ';
+					buf += '<button name="selectPokemon" value="'+i+'" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name)+'</button> ';
 				}
 			}
 			if (this.curTeam.team.length < 6 && !isAdd) {
-				buf += '<button value="addPokemon"><i class="icon-plus"></i></button> ';
+				buf += '<button name="addPokemon"><i class="icon-plus"></i></button> ';
 			}
 			buf += '</div>';
 
@@ -423,7 +421,6 @@
 		},
 
 		selectPokemon: function(i) {
-			if (i && i.currentTarget) i = $(i.currentTarget).data('i');
 			i = +i;
 			var set = this.curTeam.team[i];
 			if (set) {
@@ -432,11 +429,11 @@
 				this.update();
 			}
 		},
-		chartOpenStats: function(e) {
-			this.selectPokemon($(e.currentTarget).closest('li').val());
+		stats: function(i, button) {
+			this.selectPokemon($(button).closest('li').val());
 		},
-		chartOpenDetails: function(e) {
-			this.selectPokemon($(e.currentTarget).closest('li').val());
+		details: function(i, button) {
+			this.selectPokemon($(button).closest('li').val());
 		},
 		chartKeydown: function() {
 			//

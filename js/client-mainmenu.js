@@ -4,7 +4,6 @@
 		tinyWidth: 340,
 		bestWidth: 628,
 		events: {
-			'click .button': 'clickButton',
 			'keydown textarea': 'keyPress',
 			'click .username': 'clickUsername',
 			'click .closebutton': 'closePM',
@@ -19,11 +18,11 @@
 			buf += '<div class="leftmenu"><div class="activitymenu"><div class="pmbox"></div></div>';
 
 			// left menu 1 (high-res: left, low-res: bottom)
-			buf += '<div class="mainmenu"><div class="menugroup"><p><button class="button big" value="search"><strong>Look for a battle</strong></button></p></div>';
-			buf += '<div class="menugroup"><p><button class="button" value="teambuilder">Teambuilder</button></p><p><button class="button" value="ladder">Ladder</button></p></div></div></div>';
+			buf += '<div class="mainmenu"><div class="menugroup"><p><button class="button big" name="search"><strong>Look for a battle</strong></button></p></div>';
+			buf += '<div class="menugroup"><p><button class="button" name="joinRoom" value="teambuilder">Teambuilder</button></p><p><button class="button" name="joinRoom" value="ladder">Ladder</button></p></div></div></div>';
 
 			// right menu
-			buf += '<div class="rightmenu"><div class="menugroup"><p><button class="button" value="lobby">Join lobby chat</button></p></div></div>';
+			buf += '<div class="rightmenu"><div class="menugroup"><p><button class="button" name="joinRoom" value="lobby">Join lobby chat</button></p></div></div>';
 
 			// footer
 			buf += '<div class="mainmenufooter"><small><a href="//pokemonshowdown.com/" target="_blank">Website</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small></div>';
@@ -175,23 +174,13 @@
 				this.$('.rightmenu').show();
 			}
 		},
-		clickButton: function(e) {
-			e.preventDefault();
-			var $target = $(e.currentTarget);
-			switch ($target.val()) {
-			case 'search':
-				alert('we don\'t support battles yet :(');
-				break;
-			case 'lobby':
-				app.joinRoom('lobby');
-				break;
-			case 'teambuilder':
-				app.joinRoom('teambuilder');
-				break;
-			case 'ladder':
-				app.joinRoom('ladder');
-				break;
-			}
+
+		// buttons
+		search: function() {
+			alert('we don\'t support battles yet :(');
+		},
+		joinRoom: function(room) {
+				app.joinRoom(room);
 		}
 	});
 
