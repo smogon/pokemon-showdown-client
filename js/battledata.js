@@ -445,6 +445,10 @@ var Tools = {
 		})((window.Config && Config.whitelist) ? Config.whitelist : []);
 		return {
 			isWhitelisted: function(uri) {
+				if ((uri[0] === '/') && (uri[1] !== '/')) {
+					// domain-relative URIs are safe
+					return true;
+				}
 				for (var i = 0; i < patterns.length; ++i) {
 					if (patterns[i].test(uri)) {
 						return true;
