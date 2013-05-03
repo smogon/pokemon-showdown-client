@@ -880,7 +880,7 @@
 			'click .username': 'clickUsername'
 		},
 		initialize: function() {
-			this.$el.html('<img class="logo" src="/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="tabbar sidetabbar" style="display:none"></div><div class="userbar"></div>');
+			this.$el.html('<img class="logo" src="//dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="tabbar sidetabbar" style="display:none"></div><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar');
 			this.$sidetabbar = this.$('.sidetabbar');
 			this.$userbar = this.$('.userbar');
