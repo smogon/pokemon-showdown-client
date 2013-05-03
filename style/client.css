@@ -302,6 +302,26 @@ body {
 	top: 40px;
 }
 
+.mainmenufooter {
+	position: fixed;
+	bottom: 15px;
+	left: 20px;
+	color: #BBBBBB;
+}
+.mainmenufooter small {
+	font-size: 9pt;
+}
+.mainmenufooter a {
+	text-decoration: underline;
+	color: #6688CC;
+	text-shadow: 1px 0 0 black;
+}
+.mainmenufooter a:hover {
+	text-decoration: underline;
+	color: #99BBFF;
+	text-shadow: 1px 0 0 black;
+}
+
 .pmbox {
 	width: 270px;
 	margin: 0 auto;
