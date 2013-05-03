@@ -543,7 +543,7 @@
 
 			default:
 				if (data.substr(0,6) === '|init|') {
-					this.joinRoom('lobby');
+					this.addRoom('lobby');
 				}
 				if (this.rooms['lobby']) {
 					this.rooms['lobby'].receive(data);
@@ -612,18 +612,23 @@
 				return this.rooms[id];
 			}
 
-			var room = this.addRoom(id, type);
+			var room = this._addRoom(id, type);
 			this.focusRoom(id);
 			return room;
 		},
 		tryJoinRoom: function(id) {
-			if (this.rooms[id]) {
+			if (this.rooms[id] || id === 'teambuilder' || id === 'ladder') {
 				this.joinRoom(id);
 			} else {
 				this.send('/join '+id);
 			}
 		},
 		addRoom: function(id, type) {
+			this._addRoom(id, type);
+			this.updateSideRoom();
+			this.updateLayout();
+		},
+		_addRoom: function(id, type) {
 			if (this.rooms[id]) return this.rooms[id];
 
 			var el = $('<div class="ps-room" style="display:none"></div>').appendTo('body');
