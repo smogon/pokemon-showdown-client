@@ -301,7 +301,6 @@ var BattleStatNames = { // proper style
 	spd: 'SpD',
 	spe: 'Spe'
 };
-var BattleFormats = {}; //
 
 var baseSpeciesChart = {
 	'unown': 1,
@@ -345,7 +344,8 @@ var Tools = {
 		}
 		if (window.Config && Config.server && Config.server.registered) {
 			// custom avatar served by the server
-			return 'http://' + Config.server.host + ':' + Config.server.port +
+			var protocol = (Config.server.port === 443) ? 'https' : 'http';
+			return protocol + '://' + Config.server.host + ':' + Config.server.port +
 				'/avatars/' + encodeURIComponent(avatar);
 		}
 		// just pick a random avatar
@@ -779,7 +779,8 @@ var Tools = {
 			"tomohawk": 752+11,
 			"necturna": 752+12,
 			"mollux": 752+13,
-			"aurumoth": 752+14
+			"aurumoth": 752+14,
+			"malaconda": 752+15,
 		};
 		if (altNums[id]) {
 			num = altNums[id];
@@ -793,7 +794,7 @@ var Tools = {
 		var top = 8 + Math.floor(num / 16) * 32;
 		var left = (num % 16) * 32;
 		var fainted = (pokemon && pokemon.fainted?';opacity:.4':'');
-		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-sheet.png?v0.7.18) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-sheet.png?v0.8.5) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
 	getTeambuilderSprite: function(pokemon) {
