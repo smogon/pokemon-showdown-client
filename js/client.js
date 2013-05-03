@@ -350,8 +350,12 @@
 			 * This object defines event handles for JSON-style messages.
 			 */
 			var events = {
+				/**
+				 * These are all deprecated. Stop using them. :|
+				 */
 				init: function (data) {
 					if (data.name !== undefined) {
+						// Legacy
 						self.user.set({
 							name: data.name,
 							userid: toUserid(data.name),
@@ -359,6 +363,10 @@
 						});
 					}
 					if (data.room) {
+						// Correct way to initialize rooms:
+						//   >ROOMID
+						//   |init|ROOMTYPE
+						//   LOG
 						if (data.room === 'lobby') {
 							self.addRoom('lobby');
 						} else {
@@ -370,10 +378,10 @@
 							self.rooms[data.room].init(data.battlelog.join('\n'));
 						}
 					}
-					// TODO: All other handling of `init` messages.
 				},
 				update: function (data) {
 					if (data.name !== undefined) {
+						// Legacy
 						self.user.set({
 							name: data.name,
 							userid: toUserid(data.name),
@@ -384,34 +392,51 @@
 						}
 					}
 					if (data.updates) {
+						// Correct way to send battlelog updates:
+						//   >ROOMID
+						//   BATTLELOG
 						var room = self.rooms[data.room];
 						if (room) room.receive(data.updates.join('\n'));
 					}
 					if (data.challengesFrom) {
+						// Legacy
 						if (self.rooms['']) self.rooms[''].updateChallenges(data);
 					}
-					// TODO: All other handling of `update` messages.
+					if (data.request) {
+						// Legacy
+						var room = self.rooms[data.room];
+						if (room && room.receiveRequest) {
+							if (data.request.side) data.request.side.id = data.side;
+							room.receiveRequest(data.request);
+						}
+					}
 				},
-				/**
-				 * These are all deprecated. Stop using them. :|
-				 */
-				message: function (message) {},
+				message: function (message) {
+					// Correct way to send popups: (unimplemented)
+					//   |popup|MESSAGE
+				},
 				console: function (message) {
 					if (message.pm) {
-						// the only case we're going to handle
+						// Correct way to send PMs: (unimplemented)
+						//   |pm|SOURCE|TARGET|MESSAGE
 						self.rooms[''].addPM(message.name, message.message, message.pm);
 						if (self.rooms['lobby']) {
 							self.rooms['lobby'].addPM(message.name, message.message, message.pm);
 						}
 					} else if (message.rawMessage) {
+						// Correct way to send raw console messages:
+						//   |raw|RAWMESSAGE
 						self.receive('|raw|'+message.rawMessage);
 					} else {
+						// Correct way to send console messages:
+						//   MESSAGE
 						self.receive(message.message);
 					}
 				},
 				disconnect: function () {},
 				nameTaken: function (data) {},
 				command: function (message) {
+					// Legacy
 					self.trigger('response:'+message.command, message);
 				}
 			};
