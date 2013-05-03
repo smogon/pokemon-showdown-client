@@ -831,9 +831,267 @@ a.ilink:hover {
 }
 .ps-room .battle-controls {
 	position: absolute;
-	top: 360px;
+	top: 370px;
 	left: 0;
 	width: 640px;
+}
+
+.battle-controls .whatdo {
+	margin-top: -2px;
+	padding: 0 8px;
+	font-size: 9pt;
+	color: #555555;
+}
+.battle-controls .whatdo small {
+	float: right;
+	padding: 1px 2px;
+	border: 1px solid #999999;
+	border-radius: 4px;
+}
+.battle-controls .whatdo small.weak {
+	color: #AAAA22;
+	border-color: #AAAA22;
+}
+.battle-controls .whatdo small.critical {
+	color: #EE4433;
+	border-color: #EE4433;
+}
+.tiny-layout .battlewrapper .battle-log,
+.tiny-layout .battlewrapper .battle-log-add,
+.small-layout .battlewrapper .battle-log,
+.small-layout .battlewrapper .battle-log-add {
+	display: none;
+}
+
+.tiny-height .controls {
+	position: absolute;
+	bottom: 10px;
+	left: 0;
+	right: 0;
+	background: #444444;
+	background: rgba(40,40,40,.85);
+	color: #FFFFFF;
+	padding: 4px 8px;
+}
+.tiny-height .battle-controls .whatdo {
+	color: #FFFFFF;
+}
+.tiny-height .battle-controls .whatdo small.weak {
+	color: #DDDD55;
+	border-color: #DDDD55;
+}
+.tiny-height .battle-controls .whatdo small.critical {
+	color: #FF7766;
+	border-color: #FF7766;
+}
+.tiny-height .movemenu {
+	display: none;
+	padding: 0 100px 0 90px;
+}
+.tiny-height .switchmenu {
+	display: none;
+	padding: 0 70px 0 180px;
+}
+.tiny-height .moveselect {
+	position: absolute;
+	left: 20px;
+	bottom: 20px;
+}
+.tiny-height .switchselect {
+	position: absolute;
+	right: 20px;
+	bottom: 20px;
+}
+.moveselect button,
+.switchselect button {
+	background: transparent;
+	border: 0;
+	font-weight: bold;
+	font-style: italic;
+	color: #555555;
+	font-size: 12pt;
+	display: block;
+	margin: 0;
+	padding: 9px 7px 1px 7px;
+}
+.moveselect button {
+	color: #884422;
+}
+.switchselect button {
+	color: #445588;
+}
+.switchmenu button {
+	position: relative;
+	display: block;
+	float: left;
+	width: 100px;
+	margin-right: 6px;
+	font: 9pt Verdana, sans-serif;
+	padding: 5px 5px 5px 0;
+	white-space: pre;
+	overflow: hidden;
+}
+.switchmenu button .pokemonicon {
+	float: left;
+	margin: -4px 0;
+	opacity: 0.8;
+}
+.switchmenu button .hpbar {
+	position: absolute;
+	display: block;
+	border: 1px solid #AAA;
+	background: #EEE;
+	height: 2px;
+	bottom: 2px; left: 2px; right: 2px;
+	border-radius: 2px;
+	opacity: .6;
+}
+
+/* The declaration order of these three hpbar* classes is significant. */
+
+.switchmenu button .hpbar span {
+	display: block;
+	height: 1px;
+	background: #0A6;
+	border-top: 1px solid #3C0;
+	border-radius: 1px;
+}
+.switchmenu button .hpbar-yellow span {
+	border-top-color: #a5aa53;
+	background-color: #a2a822;
+}
+.switchmenu button .hpbar-red span {
+	border-top-color: #faa;
+	background-color: #f55;
+}
+
+/****************/
+
+.switchmenu button .status {
+	position: absolute;
+	display: block;
+	right: 2px;
+	bottom: 1px;
+	width: 5px;
+	height: 5px;
+	padding: 0;
+	border-radius: 2px;
+	border: 1px solid #C2C2C2;
+	opacity: 1.0;
+}
+.status {
+	color: white;
+	border-radius: 3px;
+	padding: 0 2px;
+}
+.status.brn {
+	background: #EE5533;
+}
+.status.psn, .status.tox {
+	background: #A4009A;
+}
+.status.par {
+	background: #9AA400;
+}
+.status.slp {
+	background: #AA77AA;
+}
+.status.frz {
+	background: #009AA4;
+}
+
+.tiny-height .battle-controls .whatdo {
+	padding-bottom: 50px;
+}
+.tiny-height .battle-controls .move-controls .whatdo,
+.tiny-height .battle-controls .switch-controls .whatdo {
+	padding-bottom: 5px;
+}
+.tiny-height .move-controls .movemenu,
+.tiny-height .switch-controls .switchmenu {
+	display: block;
+	margin-right: 0;
+}
+
+.movemenu button {
+	float: left;
+	display: block;
+	width: 153px;
+	margin-right: 6px;
+	height: 40px;
+	font: 10pt/100% Verdana, sans-serif;
+	position: relative;
+	padding:  6px 4px 0 4px;
+}
+.movemenu button small {
+	color: #777777;
+}
+.movemenu button small.type {
+	padding-top: 3px;
+	float: left;
+	font-size: 7pt;
+}
+.movemenu button small.pp {
+	padding-top: 3px;
+	float: right;
+	font-size: 7pt;
+}
+
+.switchmenu,
+.movemenu {
+	display: block;
+	margin-right: -10px;
+	padding-left: 5px;
+}
+.switchmenu button,
+.movemenu button {
+	position: relative;
+	outline: none;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 0 1px 0 rgba(255,255,255,.4);
+	border-radius: 5px;
+	margin-top: 2px;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+
+	/* default colors */
+	color: #111111;
+	border: solid 1px #AAAAAA;
+	background: #e3e3e3;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e3e3e3));
+	background: -moz-linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	background: linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
+}
+.switchmenu button:hover,
+.movemenu button:hover {
+	background: #cfcfcf;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#cfcfcf));
+	background: -moz-linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	background: linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f2f2f2', endColorstr='#cfcfcf');
+	border-color: #606060;
+}
+.switchmenu button:active,
+.movemenu button:active {
+	background: -webkit-gradient(linear, left top, left bottom, from(#cfcfcf), to(#f2f2f2));
+	background: -moz-linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#cfcfcf', endColorstr='#f2f2f2');
+}
+
+.switchmenu button:disabled,
+.movemenu button:disabled {
+	cursor: default;
+	background: #F3F3F3 !important;
+	border-color: #CCCCCC !important;
+	-webkit-box-shadow: none !important;
+	-moz-box-shadow: none !important;
+	box-shadow: none !important;
+	color: #777777 !important;
 }
 
 /*********************************************************
