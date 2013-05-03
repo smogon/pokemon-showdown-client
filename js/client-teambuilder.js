@@ -332,7 +332,7 @@
 		updateSetView: function() {
 			// pokemon
 			var buf = '<div class="pad">';
-			buf += '<button name="back"><i class="icon-chevron-left"></i> Entire Team</button></div>';
+			buf += '<button name="back"><i class="icon-chevron-left"></i> Team</button></div>';
 			buf += '<div class="teambar">';
 			var isAdd = false;
 			if (this.curTeam.team.length && !this.curTeam.team[this.curTeam.team.length-1].name && this.curSetLoc !== this.curTeam.team.length-1) {
