@@ -42,7 +42,7 @@
 				oName = target;
 			}
 
-			var $pmWindow = this.openPM(oName);
+			var $pmWindow = this.openPM(oName, true);
 
 			var $chatFrame = $pmWindow.find('.pm-log');
 			var $chat = $pmWindow.find('.inner');
@@ -60,7 +60,7 @@
 				$chatFrame.scrollTop($chat.height());
 			}
 		},
-		openPM: function(name) {
+		openPM: function(name, dontFocus) {
 			var userid = toId(name);
 			var $pmWindow = this.$pmBox.find('.pm-window-'+userid);
 			if (!$pmWindow.length) {
@@ -79,11 +79,13 @@
 				});
 			} else {
 				$pmWindow.show();
-				var $chatFrame = $pmWindow.find('.pm-log');
-				var $chat = $pmWindow.find('.inner');
-				$chatFrame.scrollTop($chat.height());
+				if (!dontFocus) {
+					var $chatFrame = $pmWindow.find('.pm-log');
+					var $chat = $pmWindow.find('.inner');
+					$chatFrame.scrollTop($chat.height());
+				}
 			}
-			this.$el.scrollTop(0);
+			if (!dontFocus) this.$el.scrollTop(0);
 			return $pmWindow;
 		},
 		closePM: function(e) {
