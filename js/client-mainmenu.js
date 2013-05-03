@@ -20,6 +20,10 @@
 
 			// right menu
 			buf += '<div class="rightmenu"><div class="menugroup"><p><button class="button" value="lobby">Join lobby chat</button></p></div></div>';
+
+			// footer
+			buf += '<div class="mainmenufooter"><small><a href="//pokemonshowdown.com/" target="_blank">Website</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a></small></div>';
+
 			this.$el.html(buf);
 
 			this.$activityMenu = $('.activitymenu');
