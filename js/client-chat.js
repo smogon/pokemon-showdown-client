@@ -9,8 +9,7 @@
 			'submit form': 'submit',
 			'click .username': 'clickUsername',
 			'click .ilink': 'clickLink',
-			'click .message-pm i': 'openPM',
-			'click': 'clickBackground'
+			'click .message-pm i': 'openPM'
 		},
 		initialize: function() {
 			var buf = '<ul class="userlist" style="display:none"></ul><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
@@ -98,15 +97,6 @@
 			e.stopPropagation();
 			app.focusRoom('');
 			app.rooms[''].focusPM($(e.currentTarget).data('name'));
-		},
-		clickBackground: function(e) {
-			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
-				if (window.getSelection && !window.getSelection().isCollapsed) {
-					return;
-				}
-				app.dismissPopups();
-				if (this.$chatbox) this.$chatbox.focus();
-			}
 		},
 		updateUser: function() {
 			var name = app.user.get('name');

@@ -932,8 +932,29 @@
 
 	var Room = this.Room = Backbone.View.extend({
 		constructor: function() {
+			if (!this.events) this.events = {};
+			this.events['click button'] = 'dispatchClickButton';
+			this.events['click'] = 'dispatchClickBackground';
+
 			Backbone.View.apply(this, arguments);
+
 			this.join();
+		},
+		dispatchClickButton: function(e) {
+			var target = e.currentTarget;
+			if (target.name) {
+				app.dismissPopups();
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				this[target.name].call(this, target.value);
+			}
+		},
+		dispatchClickBackground: function(e) {
+			app.dismissPopups();
+			if (e.shiftKey || (window.getSelection && !window.getSelection().isCollapsed)) {
+				return;
+			}
+			this.focus();
 		},
 
 		// communication

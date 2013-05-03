@@ -158,6 +158,7 @@
 				}
 				app.dismissPopups();
 				$(e.currentTarget).find('textarea[name=message]').focus();
+				e.stopPropagation();
 			}
 		},
 		updateSearch: function() {
