@@ -1094,6 +1094,46 @@ a.ilink:hover {
 	color: #777777 !important;
 }
 
+/****************/
+
+#tooltipwrapper {
+	position: absolute;
+	top: 400px;
+	left: 100px;
+	text-align: left;
+	color: black;
+}
+#tooltipwrapper .tooltipinner {
+	position: relative;
+}
+#tooltipwrapper .tooltip {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 300px;
+	border: 1px solid #888888;
+	background: #EEEEEE;
+	background: rgba(240,240,240,.9);
+	border-radius: 5px;
+}
+#tooltipwrapper .tooltip h2 {
+	padding: 2px 4px;
+	margin: 0;
+	border-bottom: 1px solid #888888;
+	font-size: 10pt;
+}
+#tooltipwrapper .tooltip h2 small {
+	font-weight: normal;
+}
+#tooltipwrapper .tooltip p {
+	padding: 2px 4px;
+	margin: 0;
+	font-size: 8pt;
+}
+#tooltipwrapper .tooltip p.section {
+	border-top: 1px solid #888888;
+}
+
 /*********************************************************
  * Teambuilder
  *********************************************************/
