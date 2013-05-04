@@ -209,8 +209,11 @@
 					var $challenge = $pmWindow.find('.challenge');
 					if ($challenge.length) {
 						if ($challenge.find('button[name=acceptChallenge]').length) {
+							// Someone was challenging you, but cancelled their challenge
 							$challenge.html('<form class="battleform"><p>The challenge was cancelled.</p><p class="buttonbar"><button name="dismissChallenge">OK</button></p></form>');
-						} else {
+						} else if ($challenge.find('button[name=cancelChallenge]').length) {
+							// You were challenging someone else, and they either accepted
+							// or rejected it
 							$challenge.remove();
 						}
 					}
