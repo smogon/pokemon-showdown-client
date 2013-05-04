@@ -335,7 +335,7 @@ body {
 
 .popupmenu button.sel {
 	padding: 0 3px;
-	border: 1px solid #BBBBBB;
+	border: 1px solid #AAAAAA;
 }
 .popupmenu button:hover,
 .popupmenu button.sel:hover {
@@ -386,7 +386,7 @@ body {
 }
 .select:disabled {
 	border-color: #999999;
-	background: rgba(220,220,220,.6);
+	background: rgba(220,220,220,.65);
 	color: #555555;
 }
 .select:disabled:after {
