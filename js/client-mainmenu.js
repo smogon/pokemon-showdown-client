@@ -473,7 +473,7 @@
 			}
 
 			if (bufs[1]) {
-				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs[0]+'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[1]+(bufs[2]?''+bufs[2]:'')+'</ul><div style="clear:left"></div>');
+				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs[0]+'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[1]+(bufs[2]?'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[2]:'')+'</ul><div style="clear:left"></div>');
 			} else {
 				this.$el.html('<ul class="popupmenu">'+bufs[0]+'</ul>');
 			}

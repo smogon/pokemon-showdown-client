@@ -272,7 +272,6 @@ body {
 .ps-popup {
 	position: absolute;
 	top: auto; right: auto; left: auto; bottom: auto;
-	max-width: 480px;
 	text-align: left;
 	background: #E1E8E8;
 	color: black;
