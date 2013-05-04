@@ -464,7 +464,7 @@
 
 			case 'team':
 				var controls = '<div class="controls"><div class="whatdo">';
-				if (!this.choice) {
+				if (!this.choice || !this.choice.done) {
 					this.choice = {
 						teamPreview: [1,2,3,4,5,6].slice(0,switchables.length),
 						done: 0,
