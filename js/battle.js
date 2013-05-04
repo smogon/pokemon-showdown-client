@@ -2174,13 +2174,13 @@ function Battle(frame, logFrame, noPreload) {
 		if (self.startCallback) self.startCallback(self);
 	}
 	this.winner = function (winner) {
-		if (self.fastForward !== -2) self.fastForwardOff();
+		// if (self.fastForward !== -2) self.fastForwardOff();
 		if (winner) self.message('' + winner + ' won the battle!');
 		else self.message('Tie between ' + Tools.escapeHTML(self.p1.name) + ' and ' + Tools.escapeHTML(self.p2.name) + '!');
 		self.done = 1;
 	}
 	this.prematureEnd = function () {
-		if (self.fastForward !== -2) self.fastForwardOff();
+		// if (self.fastForward !== -2) self.fastForwardOff();
 		self.message('This replay ends here.');
 		self.done = 1;
 	}
@@ -4543,7 +4543,7 @@ function Battle(frame, logFrame, noPreload) {
 			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
 				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + messageSanitize(message) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + Tools.escapeHTML(name) + ':</strong> <em>' + messageSanitize(message) + '</em></div>', preempt);
 			}
 			break;
 		case 'chatmsg':
@@ -4705,6 +4705,7 @@ function Battle(frame, logFrame, noPreload) {
 			return;
 		}
 		str = $.trim(str);
+		if (!str) return;
 		if (str.substr(0,1) === '|') {
 			var args = ['done'], kwargs = {};
 			str = $.trim(str.substr(1));
