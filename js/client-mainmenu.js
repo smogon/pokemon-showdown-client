@@ -41,6 +41,8 @@
 
 			app.on('init:formats', this.updateFormats, this);
 			this.updateFormats();
+
+			app.user.on('saveteams', this.updateTeams, this);
 		},
 
 		/*********************************************************
@@ -238,18 +240,31 @@
 			return $challenge;
 		},
 		updateFormats: function() {
-			if (window.BattleFormats) {
-				this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
-				var self = this;
-				this.$('button[name=format]').each(function(i, el) {
-					var val = el.value;
-					var $teamButton = $(el).closest('form').find('button[name=team]');
-					$(el).replaceWith(self.renderFormats(val));
-					$teamButton.replaceWith(self.renderTeams(val));
-				});
-			} else {
+			if (!window.BattleFormats) {
 				this.$('.mainmenu button.big').html('<em>Connecting...</em>').addClass('disabled');
+				return;
 			}
+
+			this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
+			var self = this;
+			this.$('button[name=format]').each(function(i, el) {
+				var val = el.value;
+				var $teamButton = $(el).closest('form').find('button[name=team]');
+				$(el).replaceWith(self.renderFormats(val));
+				$teamButton.replaceWith(self.renderTeams(val));
+			});
+		},
+		updateTeams: function() {
+			if (!window.BattleFormats) return;
+			var teams = app.user.teams;
+			var self = this;
+
+			this.$('button[name=team]').each(function(i, el) {
+				var val = el.value;
+				if (val === 'random') return;
+				var format = $(el).closest('form').find('button[name=format]').val();
+				$(el).replaceWith(self.renderTeams(format, val));
+			});
 		},
 		updateRightMenu: function() {
 			if (app.sideRoom) {
@@ -350,7 +365,7 @@
 		},
 		curTeamFormat: '',
 		curTeamIndex: -1,
-		renderTeams: function(formatid) {
+		renderTeams: function(formatid, teamIndex) {
 			if (!app.user.teams || !window.BattleFormats) {
 				return '<button class="select teamselect" name="team" disabled><em>Loading...</em></button>';
 			}
@@ -365,17 +380,20 @@
 			if (!teams.length) {
 				return '<button class="select teamselect" name="team" disabled>You have no teams</button>'
 			}
-			var teamIndex = 0;
-			if (this.curTeamIndex >= 0) {
-				teamIndex = this.curTeamIndex;
-			}
-			if (this.curTeamFormat !== formatid) {
-				for (var i=0; i<teams.length; i++) {
-					if (teams[i].format === formatid) {
-						teamIndex = i;
-						break;
+			if (teamIndex === undefined) {
+				if (this.curTeamIndex >= 0) {
+					teamIndex = this.curTeamIndex;
+				}
+				if (this.curTeamFormat !== formatid) {
+					for (var i=0; i<teams.length; i++) {
+						if (teams[i].format === formatid) {
+							teamIndex = i;
+							break;
+						}
 					}
 				}
+			} else {
+				teamIndex = +teamIndex;
 			}
 			return '<button class="select teamselect" name="team" value="'+teamIndex+'">'+TeamPopup.renderTeam(teamIndex)+'</button>';
 		},
