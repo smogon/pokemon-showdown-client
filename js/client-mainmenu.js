@@ -409,6 +409,7 @@
 				}
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + Tools.escapeHTML(format.name) + '</button></li>';
 			}
+
 			if (bufs[1]) {
 				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs[0]+'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[1]+'</ul><div style="clear:left"></div>');
 			} else {
@@ -426,36 +427,56 @@
 
 	var TeamPopup = this.TeamPopup = this.Popup.extend({
 		initialize: function(data) {
-			var buf = '';
+			var bufs = ['','',''];
+			var curBuf = 0;
 			var teams = app.user.teams;
+
+			var bufBoundary = 27;
+			var bufBoundary2 = 54;
+			if (teams.length > 54) {
+				bufBoundary2 = Math.floor(2*teams.length/3);
+				bufBoundary = Math.floor(teams.length/3);
+			} else if (teams.length > 27) {
+				bufBoundary = Math.floor(teams.length/2);
+			}
+
 			if (!teams.length) {
-				buf = '<li><em>You have no teams</em></li>';
+				bufs[curBuf] = '<li><em>You have no teams</em></li>';
 			} else {
 				var format = BattleFormats[data.format];
 				var curTeam = +data.team;
 				var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
-				buf = '<li><h3>'+Tools.escapeFormat(teamFormat)+' teams</h3></li>';
-				var atLeastOne = false;
+				bufs[curBuf] = '<li><h3>'+Tools.escapeFormat(teamFormat)+' teams</h3></li>';
+				var count = 0;
 				for (var i = 0; i < teams.length; i++) {
 					if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 						var selected = (i === curTeam);
-						buf += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
-						atLeastOne = true;
+						bufs[curBuf] += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
+						count++;
+						if (count === bufBoundary) curBuf = 1;
+						if (count === bufBoundary2) curBuf = 2;
 					}
 				}
-				if (!atLeastOne) buf += '<li><em>You have no '+Tools.escapeFormat(teamFormat)+' teams</em></li>';
-				buf += '<li><h3>Other teams</h3></li>';
+				if (!count) bufs[curBuf] += '<li><em>You have no '+Tools.escapeFormat(teamFormat)+' teams</em></li>';
+				bufs[curBuf] += '<li><h3>Other teams</h3></li>';
 				for (var i = 0; i < teams.length; i++) {
 					if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) continue;
 					var selected = (i === curTeam);
-					buf += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
+					bufs[curBuf] += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
+					count++;
+					if (count === bufBoundary) curBuf = 1;
+					if (count === bufBoundary2) curBuf = 2;
 				}
 			}
 			if (format.canUseRandomTeam) {
-				buf += '<li><button value="-1">Random Team</button></li>';
+				bufs[curBuf] += '<li><button value="-1">Random Team</button></li>';
 			}
 
-			this.$el.html('<ul class="popupmenu teams">'+buf+'</ul>');
+			if (bufs[1]) {
+				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs[0]+'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[1]+(bufs[2]?''+bufs[2]:'')+'</ul><div style="clear:left"></div>');
+			} else {
+				this.$el.html('<ul class="popupmenu">'+bufs[0]+'</ul>');
+			}
 		},
 		selectTeam: function(i) {
 			var formatid = this.sourceEl.closest('form').find('button[name=format]').val();
