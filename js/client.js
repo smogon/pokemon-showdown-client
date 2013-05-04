@@ -1062,32 +1062,46 @@
 		// other than the popup will still be possible (and will dismiss
 		// the popup).
 		type: 'normal',
-		width: 300,
 
 		constructor: function(data) {
+			var $el = $(data.el || data.$el);
+			var $measurer = $('<div style="position:relative;height:0;overflow:hidden"></div>').appendTo('body');
+			$el.appendTo($measurer);
+			$el.css('width', this.width - 22);
+
 			if (!this.events) this.events = {};
 			this.events['click button'] = 'dispatchClickButton';
 			if (data && data.sourceEl) {
 				this.sourceEl = data.sourceEl = $(data.sourceEl);
-				var offset = this.sourceEl.offset();
-				var $el = $(data.el || data.$el);
-
-				var room = $(window).height();
-				if (offset.top <= room*3/4) {
-					$el.css('top', offset.top + this.sourceEl.outerHeight());
-				} else {
-					$el.css('bottom', room - offset.top);
-				}
-
-				$el.css('width', this.width - 22);
-				room = $(window).width() - offset.left;
-				if (room < this.width + 10) {
-					$el.css('right', 10);
-				} else {
-					$el.css('left', offset.left);
-				}
 			}
+
 			Backbone.View.apply(this, arguments);
+
+			var offset = this.sourceEl.offset();
+
+			var room = $(window).height();
+			var height = $el.outerHeight();
+			var sourceHeight = this.sourceEl.outerHeight();
+			if (room > offset.top + sourceHeight + height + 5) {
+				$el.css('top', offset.top + sourceHeight);
+			} else if (height + 5 <= offset.top) {
+				$el.css('bottom', room - offset.top);
+			} else if (height + 10 < room) {
+				$el.css('bottom', 5);
+			} else {
+				$el.css('top', 0);
+			}
+
+			room = $(window).width() - offset.left;
+			var outerWidth = $el.outerWidth();
+			if (room < outerWidth + 10) {
+				$el.css('right', 10);
+			} else {
+				$el.css('left', offset.left);
+			}
+
+			$el.appendTo('body');
+			$measurer.remove();
 		},
 
 		dispatchClickButton: function(e) {
