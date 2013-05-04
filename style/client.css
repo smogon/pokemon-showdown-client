@@ -353,9 +353,11 @@ body {
 	text-align: left;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 
-	border-radius: 3px;
+	border-radius: 4px;
 	border: 1px solid #555555;
 	background: #EEEEEE;
+	background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#DDDDDD));
+	background: linear-gradient(top,  #FFFFFF,  #DDDDDD);
 	color: black;
 }
 .select.teamselect {
@@ -364,6 +366,14 @@ body {
 .select:hover {
 	border-color: #888888;
 	background: #FFFFFF;
+	background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#EEEEEE));
+	background: linear-gradient(top,  #FFFFFF,  #EEEEEE);
+}
+.select:active {
+	border-color: #777777;
+	background: #DDDDDD;
+	background: -webkit-gradient(linear, left top, left bottom, from(#CCCCCC), to(#FFFFFF));
+	background: linear-gradient(top,  #CCCCCC,  #FFFFFF);
 }
 .select:after {
 	float: right;
