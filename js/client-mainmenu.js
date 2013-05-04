@@ -9,16 +9,22 @@
 			'click .closebutton': 'closePM',
 			'click .pm-window': 'clickPMBackground',
 			'focus textarea': 'onFocusPM',
-			'blur textarea': 'onBlurPM'
+			'blur textarea': 'onBlurPM',
+			'click button.formatselect': 'selectFormat',
+			'click button.teamselect': 'selectTeam'
 		},
 		initialize: function() {
+
 			var buf = '<div class="mainmenuwrapper">';
 
 			// left menu 2 (high-res: right, low-res: top)
 			buf += '<div class="leftmenu"><div class="activitymenu"><div class="pmbox"></div></div>';
 
 			// left menu 1 (high-res: left, low-res: bottom)
-			buf += '<div class="mainmenu"><div class="menugroup"><p><button class="button big" name="search"><strong>Look for a battle</strong></button></p></div>';
+			buf += '<div class="mainmenu"><div class="menugroup"><form class="battleform" data-search="1">';
+			buf += '<p><label class="label">Format:</label>'+this.renderFormats()+'</p>';
+			buf += '<p><label class="label">Team:</label>'+this.renderTeams()+'</p>';
+			buf += '<p><button class="button big" name="search"><strong>Look for a battle</strong></button></p></form></div>';
 			buf += '<div class="menugroup"><p><button class="button" name="joinRoom" value="teambuilder">Teambuilder</button></p><p><button class="button" name="joinRoom" value="ladder">Ladder</button></p></div></div></div>';
 
 			// right menu
@@ -33,8 +39,8 @@
 			this.$activityMenu = this.$('.activitymenu');
 			this.$pmBox = this.$activityMenu.find('.pmbox');
 
-			app.on('init:formats', this.updateSearch, this);
-			this.updateSearch();
+			app.on('init:formats', this.updateFormats, this);
+			this.updateFormats();
 		},
 
 		/*********************************************************
@@ -192,23 +198,18 @@
 				if (data.challengesFrom[userid]) {
 					var challenge = data.challengesFrom[userid];
 					var $challenge = self.openChallenge(name, $pmWindow);
-					var buf = '<p>'+Tools.escapeHTML(name)+' wants to battle!</p>';
-					buf += '<p><label class="label">Format:</label><strong>'+Tools.escapeFormat(challenge.format)+'</strong></p>';
-					if (challenge.format === 'randombattle') {
-						buf += '<p><label class="label">Team:</label><strong>random team</strong></p>';
-						buf += '<p><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p>';
-					} else {
-						buf += '<p><label class="label">Team:</label><strong>idk man</strong></p>';
-						buf += '<p><button disabled><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p>';
-					}
+					var buf = '<form class="battleform"><p>'+Tools.escapeHTML(name)+' wants to battle!</p>';
+					buf += '<p><label class="label">Format:</label>'+self.renderFormats(challenge.format, true)+'</p>';
+					buf += '<p><label class="label">Team:</label>'+self.renderTeams(challenge.format)+'</p>';
+					buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
 					$challenge.html(buf);
 				} else {
 					var $challenge = $pmWindow.find('.challenge');
 					if ($challenge.length) {
 						if ($challenge.find('button[name=acceptChallenge]').length) {
-							$challenge.html('<p>The challenge was cancelled.</p><p><button name="dismissChallenge">OK</button></p>');
+							$challenge.html('<form class="battleform"><p>The challenge was cancelled.</p><p class="buttonbar"><button name="dismissChallenge">OK</button></p></form>');
 						} else {
-							this.dismissChallenge();
+							$challenge.remove();
 						}
 					}
 				}
@@ -220,10 +221,9 @@
 				var userid = toId(name);
 				var $challenge = this.openChallenge(name);
 
-				var buf = '<p>Waiting for '+Tools.escapeHTML(name)+'...</p>';
+				var buf = '<form class="battleform"><p>Waiting for '+Tools.escapeHTML(name)+'...</p>';
 				buf += '<p><label class="label">Format:</label><strong>'+Tools.escapeFormat(challenge.format)+'</strong></p>';
-				buf += '<p><label class="label">Team:</label><strong>random team</strong></p>';
-				buf += '<p><button name="cancelChallenge">Cancel</button></p>';
+				buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 				$challenge.html(buf);
 			}
@@ -237,9 +237,16 @@
 			}
 			return $challenge;
 		},
-		updateSearch: function() {
+		updateFormats: function() {
 			if (window.BattleFormats) {
 				this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
+				var self = this;
+				this.$('button[name=format]').each(function(i, el) {
+					var val = el.value;
+					var $teamButton = $(el).closest('form').find('button[name=team]');
+					$(el).replaceWith(self.renderFormats(val));
+					$teamButton.replaceWith(self.renderTeams(val));
+				});
 			} else {
 				this.$('.mainmenu button.big').html('<em>Connecting...</em>').addClass('disabled');
 			}
@@ -260,15 +267,22 @@
 				return;
 			}
 			$challenge = this.openChallenge(name);
-			var buf = '<p>Challenge '+Tools.escapeHTML(name)+'?</p>';
-			buf += '<p><label class="label">Format:</label><strong>Random Battle</strong></p>';
-			buf += '<p><label class="label">Team:</label><strong>random team</strong></p>';
-			buf += '<p><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p>';
+			var buf = '<form class="battleform"><p>Challenge '+Tools.escapeHTML(name)+'?</p>';
+			buf += '<p><label class="label">Format:</label>'+this.renderFormats()+'</p>';
+			buf += '<p><label class="label">Team:</label>'+this.renderTeams()+'</p>';
+			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
 		acceptChallenge: function(i, target) {
-			var userid = $(target).closest('.pm-window').data('userid');
+			var $pmWindow = $(target).closest('.pm-window');
+			var userid = $pmWindow.data('userid');
+
+			var teamIndex = $pmWindow.find('button[name=team]').val();
+			var team = null;
+			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
+
 			$(target).closest('.challenge').remove();
+			if (team) app.send('/saveteam '+$.toJSON(team));
 			app.send('/accept '+userid);
 		},
 		rejectChallenge: function(i, target) {
@@ -277,16 +291,22 @@
 			app.send('/reject '+userid);
 		},
 		makeChallenge: function(i, target) {
-			var userid = $(target).closest('.pm-window').data('userid');
-			var name = $(target).closest('.pm-window').data('name');
+			var $pmWindow = $(target).closest('.pm-window');
+			var userid = $pmWindow.data('userid');
+			var name = $pmWindow.data('name');
+			var format = $pmWindow.find('button[name=format]').val();
 
-			var buf = '<p>Challenging '+Tools.escapeHTML(name)+'...</p>';
-			buf += '<p><label class="label">Format:</label><strong>Random Battle</strong></p>';
-			buf += '<p><label class="label">Team:</label><strong>random team</strong></p>';
-			buf += '<p><button name="cancelChallenge">Cancel</button></p>';
+			var teamIndex = $pmWindow.find('button[name=team]').val();
+			var team = null;
+			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
+
+			var buf = '<form class="battleform"><p>Challenging '+Tools.escapeHTML(name)+'...</p>';
+			buf += '<p><label class="label">Format:</label><strong>'+Tools.escapeFormat(format)+'</strong></p>';
+			buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 			$(target).closest('.challenge').html(buf);
-			app.send('/challenge '+userid+', randombattle');
+			if (team) app.send('/saveteam '+$.toJSON(team));
+			app.send('/challenge '+userid+', '+format);
 		},
 		cancelChallenge: function(i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
@@ -296,13 +316,163 @@
 		dismissChallenge: function(i, target) {
 			$(target).closest('.challenge').remove();
 		},
+		format: function(format, button) {
+			app.addPopup('format', FormatPopup, {format: format, sourceEl: button});
+		},
+		team: function(team, button) {
+			var format = $(button).closest('form').find('button[name=format]').val();
+			app.addPopup('team', TeamPopup, {team: team, format: format, sourceEl: button});
+		},
+
+		// format/team selection
+
+		curFormat: '',
+		renderFormats: function(formatid, noChoice) {
+			if (!window.BattleFormats) {
+				return '<button class="select formatselect" name="format" disabled value="'+Tools.escapeHTML(formatid)+'"><em>Loading...</em></button>';
+			}
+			if (_.isEmpty(BattleFormats)) {
+				return '<button class="select formatselect" name="format" disabled><em>No formats available</em></button>'
+			}
+			if (!noChoice) {
+				this.curFormat = formatid;
+				if (!this.curFormat) {
+					if (BattleFormats['randombattle']) {
+						this.curFormat = 'randombattle';
+					} else for (var i in BattleFormats) {
+						this.curFormat = i;
+						break;
+					}
+				}
+				formatid = this.curFormat;
+			}
+			return '<button class="select formatselect'+(noChoice?' preselected':'')+'" name="format" value="'+formatid+'"'+(noChoice?' disabled':'')+'>'+Tools.escapeFormat(formatid)+'</button>';
+		},
+		curTeamFormat: '',
+		curTeamIndex: -1,
+		renderTeams: function(formatid) {
+			if (!app.user.teams || !window.BattleFormats) {
+				return '<button class="select teamselect" name="team" disabled><em>Loading...</em></button>';
+			}
+			if (!formatid) formatid = this.curFormat;
+			if (!window.BattleFormats[formatid]) {
+				return '<button class="select teamselect" name="team" disabled></button>';
+			}
+			if (window.BattleFormats[formatid].team) {
+				return '<button class="select teamselect preselected" name="team" value="random" disabled>Random team</button>';
+			}
+			var teams = app.user.teams;
+			if (!teams.length) {
+				return '<button class="select teamselect" name="team" disabled>You have no teams</button>'
+			}
+			var teamIndex = 0;
+			if (this.curTeamIndex >= 0) {
+				teamIndex = this.curTeamIndex;
+			}
+			if (this.curTeamFormat !== formatid) {
+				for (var i=0; i<teams.length; i++) {
+					if (teams[i].format === formatid) {
+						teamIndex = i;
+						break;
+					}
+				}
+			}
+			return '<button class="select teamselect" name="team" value="'+teamIndex+'">'+TeamPopup.renderTeam(teamIndex)+'</button>';
+		},
 
 		// buttons
 		search: function() {
 			alert('we don\'t support battles yet :(');
 		},
 		joinRoom: function(room) {
-				app.joinRoom(room);
+			app.joinRoom(room);
+		}
+	});
+
+	var FormatPopup = this.FormatPopup = this.Popup.extend({
+		initialize: function(data) {
+			var curFormat = data.format;
+			var selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
+			var bufs = ['',''];
+			var curBuf = 0;
+			var curSection = '';
+			for (var i in BattleFormats) {
+				var format = BattleFormats[i];
+				var selected = false;
+				if (format.effectType !== 'Format') continue;
+				if (selectType && !format[selectType + 'Show']) continue;
+
+				if (format.section && format.section !== curSection) {
+					curSection = format.section;
+					curBuf = (curSection === 'Doubles' || curSection === 'Past Generations') ? 1 : 0;
+					bufs[curBuf] += '<li><h3>'+Tools.escapeHTML(curSection)+'</li>';
+				}
+				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + Tools.escapeHTML(format.name) + '</button></li>';
+			}
+			if (bufs[1]) {
+				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs[0]+'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[1]+'</ul><div style="clear:left"></div>');
+			} else {
+				this.$el.html('<ul class="popupmenu">'+bufs[0]+'</ul>');
+			}
+		},
+		selectFormat: function(format) {
+			var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
+			this.sourceEl.val(format).html(Tools.escapeFormat(format));
+			$teamButton.replaceWith(app.rooms[''].renderTeams(format));
+			app.rooms[''].curFormat = format;
+			this.close();
+		}
+	});
+
+	var TeamPopup = this.TeamPopup = this.Popup.extend({
+		initialize: function(data) {
+			var buf = '';
+			var teams = app.user.teams;
+			if (!teams.length) {
+				buf = '<li><em>You have no teams</em></li>';
+			} else {
+				var format = BattleFormats[data.format];
+				var curTeam = +data.team;
+				var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
+				buf = '<li><h3>'+Tools.escapeFormat(teamFormat)+' teams</h3></li>';
+				var atLeastOne = false;
+				for (var i = 0; i < teams.length; i++) {
+					if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
+						var selected = (i === curTeam);
+						buf += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
+						atLeastOne = true;
+					}
+				}
+				if (!atLeastOne) buf += '<li><em>You have no '+Tools.escapeFormat(teamFormat)+' teams</em></li>';
+				buf += '<li><h3>Other teams</h3></li>';
+				for (var i = 0; i < teams.length; i++) {
+					if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) continue;
+					var selected = (i === curTeam);
+					buf += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
+				}
+			}
+			if (format.canUseRandomTeam) {
+				buf += '<li><button value="-1">Random Team</button></li>';
+			}
+
+			this.$el.html('<ul class="popupmenu teams">'+buf+'</ul>');
+		},
+		selectTeam: function(i) {
+			var formatid = this.sourceEl.closest('form').find('button[name=format]').val();
+			i = +i;
+			this.sourceEl.val(i).html(TeamPopup.renderTeam(i));
+			app.rooms[''].curTeamIndex = i;
+			app.rooms[''].curTeamFormat = formatid;
+			this.close();
+		}
+	}, {
+		renderTeam: function(i) {
+			var team = app.user.teams[i];
+			var buf = ''+Tools.escapeHTML(team.name)+'<br />';
+			for (var i=0; i<team.team.length; i++) {
+				buf += '<span class="pokemonicon" style="float:left;'+Tools.getIcon(team.team[i])+'"></span>';
+			}
+			return buf;
 		}
 	});
 

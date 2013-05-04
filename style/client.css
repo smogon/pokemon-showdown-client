@@ -281,6 +281,111 @@ body {
 
 	border-radius: 6px;
 	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
+	z-index: 100;
+}
+.popupmenu, popupmenu li {
+	margin: -2px 0 -1px 0;
+	padding: 0;
+	list-style: none;
+	font-size: 8pt;
+}
+.popupmenu h3 {
+	margin: 5px 0 0 -2px;
+	padding: 1px 0;
+	font-size: 8pt;
+	color: #579;
+}
+.popupmenu li:first-child h3 {
+	margin-top: 0;
+}
+.popupmenu button {
+	display: block;
+	cursor: pointer;
+	font-size: 8pt;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	margin: 0 0 0 6px;
+	padding: 0 4px;
+	border: 0;
+	border-radius: 2px;
+	background: transparent;
+	width: 204px;
+	height: 19px;
+	text-align: left;
+
+	box-sizing: border-box;
+}
+@media (max-height:590px) {
+	.popupmenu button {
+		height: 17px;
+	}
+	.popupmenu h3 {
+		margin-top: 2px;
+	}
+	.popupmenu, popupmenu li {
+		margin: -3px 0 -2px 0;
+	}
+}
+@media (max-height:518px) {
+	.popupmenu button {
+		height: 16px;
+	}
+	.popupmenu h3 {
+		margin-top: 1px;
+	}
+}
+
+.popupmenu button.sel {
+	padding: 0 3px;
+	border: 1px solid #BBBBBB;
+}
+.popupmenu button:hover,
+.popupmenu button.sel:hover {
+	padding: 0 3px;
+	border: 1px solid #888888;
+	background: #D5D5D5;
+}
+.select {
+	cursor: pointer;
+	box-sizing: border-box;
+	width: 230px;
+	height: 28px;
+	padding: 0 5px;
+	font-size: 9pt;
+	text-align: left;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+
+	border-radius: 3px;
+	border: 1px solid #555555;
+	background: #EEEEEE;
+	color: black;
+}
+.select.teamselect {
+	height: 43px;
+}
+.select:hover {
+	border-color: #888888;
+	background: #FFFFFF;
+}
+.select:after {
+	float: right;
+	margin-top: 1px;
+	font-size: 14px;
+	content: "\f0d7";
+  font-family: FontAwesome;
+  -webkit-font-smoothing: antialiased;
+  color: #777777;
+}
+.select:disabled {
+	border-color: #999999;
+	background: rgba(187,187,187,.5);
+	color: #555555;
+}
+.select:disabled:after {
+	content: "";
+}
+.select.preselected,
+.select:disabled.preselected {
+	color: black;
 }
 
 /*********************************************************
@@ -303,6 +408,15 @@ body {
 }
 .mainmenu {
 	padding: 0 0 30px 0;
+}
+
+.battleform {
+	width: 230px;
+	text-align: left;
+	margin: 0 auto;
+}
+.battleform .buttonbar {
+	text-align: center;
 }
 
 .mainmenuwrapper {
@@ -440,7 +554,8 @@ body {
 	border-radius: 20px;
 
 	background: rgba(201, 207, 219, .6);
-	color: black;
+	color: white;
+	text-shadow: 0 1px 0 black;
 }
 .menugroup {
 	background: rgba(201, 207, 219, .4);
@@ -564,6 +679,7 @@ body {
 
 .userdetails {
 	min-height: 80px;
+	width: 191px;
 	padding: 1px 1px 1px 86px;
 }
 .userdetails img {
