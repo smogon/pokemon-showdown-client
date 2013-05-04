@@ -28,6 +28,7 @@
 		},
 		saveTeams: function() {
 			TeambuilderRoom.saveTeams();
+			app.user.trigger('saveteams');
 			this.update();
 		},
 		back: function() {
