@@ -766,23 +766,19 @@
 			return ' onmouseover="room.showTooltip(\'' + Tools.escapeHTML(''+thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ', ' + (isActive ? 'true' : 'false') + ')" onmouseout="room.hideTooltip()" onmouseup="room.hideTooltip()"';
 		},
 		showTooltip: function(thing, type, elem, ownHeight, isActive) {
-			if (!$('#tooltipwrapper')) $(body).append('<div id="tooltipwrapper"></div>');
-			return false;
 			var offset = {
 				left: 150,
 				top: 500
 			};
 			if (elem) offset = $(elem).offset();
-			var x = offset.left - 25;
+			var x = offset.left - 2;
 			if (elem) {
 				if (ownHeight) offset = $(elem).offset();
 				else offset = $(elem).parent().offset();
 			}
-			var y = offset.top - 15;
+			var y = offset.top - 5;
 
-			if (widthClass === 'tiny-layout') {
-				if (x > 360) x = 360;
-			}
+			if (x > 335) x = 335;
 			if (y < 140) y = 140;
 			$('#tooltipwrapper').css({
 				left: x,
@@ -809,11 +805,11 @@
 				text += '</div></div>';
 				break;
 			case 'pokemon':
-				var pokemon = curRoom.battle.getPokemon(thing);
+				var pokemon = this.battle.getPokemon(thing);
 				if (!pokemon) return;
 				//fallthrough
 			case 'sidepokemon':
-				if (!pokemon) pokemon = curRoom.battle.mySide.pokemon[parseInt(thing)];
+				if (!pokemon) pokemon = this.battle.mySide.pokemon[parseInt(thing)];
 				text = '<div class="tooltipinner"><div class="tooltip">';
 				text += '<h2>' + pokemon.getFullName() + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
 
@@ -865,8 +861,8 @@
 				text += '</div></div>';
 				break;
 			}
-			$('#tooltipwrapper').html(text);
-			return true;
+			if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper"></div>');
+			$('#tooltipwrapper').html(text).appendTo(document.body);
 		},
 		hideTooltip: function() {
 			$('#tooltipwrapper').html('');
