@@ -833,6 +833,7 @@
 		addPopup: function(id, type, data) {
 			if (!data) data = {};
 
+			if ($(data.sourceEl)[0] === this.dismissingSource) return;
 			while (this.popups.length) {
 				var prevPopup = this.popups[this.popups.length-1];
 				if (prevPopup.id === id) {
@@ -862,14 +863,15 @@
 			return false;
 		},
 		dismissPopups: function() {
-			var success = false;
+			var source = false;
 			while (this.popups.length) {
 				var popup = this.popups[this.popups.length-1];
-				if (popup.type !== 'normal') return success;
+				if (popup.type !== 'normal') return source;
+				if (popup.sourceEl) source = popup.sourceEl[0];
+				if (!source) source = true;
 				this.popups.pop().remove();
-				success = true;
 			}
-			return success;
+			return source;
 		}
 
 	});
@@ -976,10 +978,11 @@
 		dispatchClickButton: function(e) {
 			var target = e.currentTarget;
 			if (target.name) {
-				app.dismissPopups();
+				app.dismissingSource = app.dismissPopups();
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				this[target.name].call(this, target.value, target);
+				delete app.dismissingSource;
 			}
 		},
 		dispatchClickBackground: function(e) {
@@ -1062,6 +1065,8 @@
 		width: 300,
 
 		constructor: function(data) {
+			if (!this.events) this.events = {};
+			this.events['click button'] = 'dispatchClickButton';
 			if (data && data.sourceEl) {
 				this.sourceEl = data.sourceEl = $(data.sourceEl);
 				var offset = this.sourceEl.offset();
@@ -1083,6 +1088,15 @@
 				}
 			}
 			Backbone.View.apply(this, arguments);
+		},
+
+		dispatchClickButton: function(e) {
+			var target = e.currentTarget;
+			if (target.name) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				this[target.name].call(this, target.value, target);
+			}
 		},
 
 		close: function() {
@@ -1152,9 +1166,9 @@
 			buf += '</div>';
 
 			if (userid === app.user.get('userid')) {
-				buf += '<div class="buttonbar"><button disabled>Challenge</button> <button disabled>PM</button> <button value="close">Close</close></div>';
+				buf += '<div class="buttonbar"><button disabled>Challenge</button> <button disabled>PM</button> <button name="close">Close</close></div>';
 			} else {
-				buf += '<div class="buttonbar"><button value="challenge">Challenge</button> <button value="pm">PM</button> <button value="close">Close</close></div>';
+				buf += '<div class="buttonbar"><button name="challenge">Challenge</button> <button name="pm">PM</button> <button name="close">Close</close></div>';
 			}
 
 			this.$el.html(buf);
@@ -1166,24 +1180,15 @@
 			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
 			app.tryJoinRoom(roomid);
 		},
-		dispatchClick: function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			switch (e.currentTarget.value) {
-			case 'challenge':
-				this.close();
-				app.focusRoom('');
-				app.rooms[''].challenge(this.data.name);
-				break;
-			case 'pm':
-				this.close();
-				app.focusRoom('');
-				app.rooms[''].focusPM(this.data.name);
-				break;
-			case 'close':
-				this.close();
-				break;
-			}
+		challenge: function() {
+			this.close();
+			app.focusRoom('');
+			app.rooms[''].challenge(this.data.name);
+		},
+		pm: function() {
+			this.close();
+			app.focusRoom('');
+			app.rooms[''].focusPM(this.data.name);
 		}
 	},{
 		dataCache: {}
