@@ -685,7 +685,7 @@
 			this.updateControlsForPlayer();
 		},
 		chooseMoveTarget: function(posString) {
-			this.choices.choices[this.choices.choices.length-1] += ' '+posString;
+			this.choice.choices[this.choice.choices.length-1] += ' '+posString;
 			this.chooseMove();
 		},
 		chooseSwitch: function(pos) {
