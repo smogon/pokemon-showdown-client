@@ -359,7 +359,7 @@
 				return '<button class="select teamselect" name="team" disabled></button>';
 			}
 			if (window.BattleFormats[formatid].team) {
-				return '<button class="select teamselect preselected" name="team" value="random" disabled>Random team</button>';
+				return '<button class="select teamselect preselected" name="team" value="random" disabled>'+TeamPopup.renderTeam('random')+'</button>';
 			}
 			var teams = app.user.teams;
 			if (!teams.length) {
@@ -427,17 +427,19 @@
 
 	var TeamPopup = this.TeamPopup = this.Popup.extend({
 		initialize: function(data) {
-			var bufs = ['','',''];
+			var bufs = ['','','','',''];
 			var curBuf = 0;
 			var teams = app.user.teams;
 
-			var bufBoundary = 27;
-			var bufBoundary2 = 54;
-			if (teams.length > 54) {
-				bufBoundary2 = Math.floor(2*teams.length/3);
-				bufBoundary = Math.floor(teams.length/3);
+			var bufBoundary = 128;
+			if (teams.length > 128 && $(window).width() > 1080) {
+				bufBoundary = Math.ceil(teams.length/5);
+			} else if (teams.length > 81) {
+				bufBoundary = Math.ceil(teams.length/4);
+			} else if (teams.length > 54) {
+				bufBoundary = Math.ceil(teams.length/3);
 			} else if (teams.length > 27) {
-				bufBoundary = Math.floor(teams.length/2);
+				bufBoundary = Math.ceil(teams.length/2);
 			}
 
 			if (!teams.length) {
@@ -446,26 +448,28 @@
 				var format = BattleFormats[data.format];
 				var curTeam = +data.team;
 				var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
-				bufs[curBuf] = '<li><h3>'+Tools.escapeFormat(teamFormat)+' teams</h3></li>';
-				var count = 0;
-				for (var i = 0; i < teams.length; i++) {
-					if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
-						var selected = (i === curTeam);
-						bufs[curBuf] += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
-						count++;
-						if (count === bufBoundary) curBuf = 1;
-						if (count === bufBoundary2) curBuf = 2;
+				if (teamFormat) {
+					bufs[curBuf] = '<li><h3>'+Tools.escapeFormat(teamFormat)+' teams</h3></li>';
+					var count = 0;
+					for (var i = 0; i < teams.length; i++) {
+						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
+							var selected = (i === curTeam);
+							bufs[curBuf] += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
+							count++;
+							if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+						}
 					}
+					if (!count) bufs[curBuf] += '<li><em>You have no '+Tools.escapeFormat(teamFormat)+' teams</em></li>';
+					bufs[curBuf] += '<li><h3>Other teams</h3></li>';
+				} else {
+					bufs[curBuf] = '<li><h3>All teams</h3></li>';
 				}
-				if (!count) bufs[curBuf] += '<li><em>You have no '+Tools.escapeFormat(teamFormat)+' teams</em></li>';
-				bufs[curBuf] += '<li><h3>Other teams</h3></li>';
 				for (var i = 0; i < teams.length; i++) {
-					if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) continue;
+					if (teamFormat && teams[i].format === teamFormat) continue;
 					var selected = (i === curTeam);
 					bufs[curBuf] += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
 					count++;
-					if (count === bufBoundary) curBuf = 1;
-					if (count === bufBoundary2) curBuf = 2;
+					if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 				}
 			}
 			if (format.canUseRandomTeam) {
@@ -473,7 +477,8 @@
 			}
 
 			if (bufs[1]) {
-				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs[0]+'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[1]+(bufs[2]?'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[2]:'')+'</ul><div style="clear:left"></div>');
+				while (!bufs[bufs.length-1]) bufs.pop();
+				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs.join('</ul><ul class="popupmenu" style="float:left;padding-left:5px">')+'</ul><div style="clear:left"></div>');
 			} else {
 				this.$el.html('<ul class="popupmenu">'+bufs[0]+'</ul>');
 			}
@@ -488,6 +493,13 @@
 		}
 	}, {
 		renderTeam: function(i) {
+			if (i === 'random') {
+				var buf = 'Random team<br />';
+				for (var i=0; i<6; i++) {
+					buf += '<span class="pokemonicon" style="float:left;'+Tools.getIcon()+'"></span>';
+				}
+				return buf;
+			}
 			var team = app.user.teams[i];
 			var buf = ''+Tools.escapeHTML(team.name)+'<br />';
 			for (var i=0; i<team.team.length; i++) {
