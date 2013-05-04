@@ -348,7 +348,7 @@ body {
 	cursor: pointer;
 	box-sizing: border-box;
 	width: 230px;
-	height: 28px;
+	height: 32px;
 	padding: 0 5px;
 	font-size: 9pt;
 	text-align: left;
@@ -377,7 +377,7 @@ body {
 }
 .select:disabled {
 	border-color: #999999;
-	background: rgba(187,187,187,.5);
+	background: rgba(220,220,220,.6);
 	color: #555555;
 }
 .select:disabled:after {
