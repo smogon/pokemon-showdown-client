@@ -414,6 +414,7 @@
 				message: function (message) {
 					// Correct way to send popups: (unimplemented)
 					//   |popup|MESSAGE
+					alert(message.message);
 				},
 				console: function (message) {
 					if (message.pm) {
