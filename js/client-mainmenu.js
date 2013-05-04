@@ -282,7 +282,7 @@
 			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
 
 			$(target).closest('.challenge').remove();
-			if (team) app.send('/saveteam '+$.toJSON(team));
+			if (team) app.send('/utm '+$.toJSON(team));
 			app.send('/accept '+userid);
 		},
 		rejectChallenge: function(i, target) {
@@ -305,7 +305,7 @@
 			buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 			$(target).closest('.challenge').html(buf);
-			if (team) app.send('/saveteam '+$.toJSON(team));
+			if (team) app.send('/utm '+$.toJSON(team));
 			app.send('/challenge '+userid+', '+format);
 		},
 		cancelChallenge: function(i, target) {
