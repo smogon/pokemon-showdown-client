@@ -920,13 +920,23 @@
 			var sideBuf = '';
 			for (var id in app.rooms) {
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
-				var name = '<i></i>'+id;
+				var room = app.rooms[id];
+				var name = '<i class="icon-comment-alt"></i>'+id;
 				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> Lobby';
 				if (id.substr(0,7) === 'battle-') {
 					var parts = id.substr(7).split('-');
-					name = '<i class="text">'+parts[0]+'</i>'+parts[1];
+					var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
+					var p2 = (room && room.battle && room.battle.p2 && room.battle.p2.name) || '';
+					if (p1 && p2) {
+						name = ''+Tools.escapeHTML(p1)+' v. '+Tools.escapeHTML(p2);
+					} else if (p1 || p2) {
+						name = ''+Tools.escapeHTML(p1)+Tools.escapeHTML(p2);
+					} else {
+						name = '(empty room)';
+					}
+					name = '<i class="text">'+parts[0]+'</i>'+name;
 				}
-				if (app.rooms[id].isSideRoom) {
+				if (room.isSideRoom) {
 					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 					continue;
 				}
