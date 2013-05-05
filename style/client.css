@@ -99,6 +99,7 @@ body {
 	list-style: none;
 	margin: 0;
 	padding: 0 0 0 0;
+	height: 44px;
 	text-align: left;
 
 	color: white;
@@ -107,9 +108,13 @@ body {
 
 	line-height: 100%;
 }
-.tabbar:after {
+.tabbar:before {
 	content: "";
 	display: block;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
 	height: 6px;
 	background: #f8f8f8;
 	border: solid 1px #AAAAAA;
@@ -132,6 +137,10 @@ body {
 	list-style: none;
 	margin: 0;
 	padding: 0;
+}
+.tabbar ul {
+	float: left;
+	display: block;
 }
 .tabbar a.button {
 	outline: none;

@@ -764,7 +764,7 @@
 					// there's only room for the tiny layout :(
 					this.curRoom.show('left', leftMin);
 					this.curRoom.$el.addClass('tiny-layout');
-					this.curSideRoom.show('right', leftMin, available - leftMin);
+					this.curSideRoom.show('right', leftMin);
 					this.topbar.updateTabbar();
 					return;
 				}
@@ -783,7 +783,7 @@
 				if (wanted) leftWidth = Math.floor(leftMin + (leftMax - leftMin) * bufAvailable / wanted);
 			}
 			this.curRoom.show('left', leftWidth);
-			this.curSideRoom.show('right', leftWidth, available - leftWidth);
+			this.curSideRoom.show('right', leftWidth);
 			this.topbar.updateTabbar();
 		},
 		updateSideRoom: function(id) {
@@ -887,9 +887,9 @@
 			'click .username': 'clickUsername'
 		},
 		initialize: function() {
-			this.$el.html('<img class="logo" src="//dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="tabbar sidetabbar" style="display:none"></div><div class="userbar"></div>');
+			this.$el.html('<img class="logo" src="//dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><!-- div class="tabbar sidetabbar" style="display:none"></div--><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar');
-			this.$sidetabbar = this.$('.sidetabbar');
+			// this.$sidetabbar = this.$('.sidetabbar');
 			this.$userbar = this.$('.userbar');
 			this.updateTabbar();
 
@@ -927,7 +927,6 @@
 					name = '<i class="text">'+parts[0]+'</i>'+parts[1];
 				}
 				if (app.rooms[id].isSideRoom) {
-					if (!sideBuf) sideBuf = '<ul>';
 					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 					continue;
 				}
@@ -939,13 +938,11 @@
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (app.curSideRoom) {
-				var sideWidth = app.curSideRoom.width;
-				this.$tabbar.css({right:sideWidth}).html(buf);
-				this.$sidetabbar.css({left:'auto',width:sideWidth,right:0}).show().html(sideBuf);
+				if (sideBuf) buf += '<ul class="siderooms" style="float:none;margin-left:'+(app.curSideRoom.leftWidth-144)+'px">'+sideBuf+'</ul>';
+				this.$tabbar.html(buf);
 			} else {
-				buf += sideBuf;
-				this.$tabbar.css({right:0}).html(buf);
-				this.$sidetabbar.hide();
+				if (sideBuf) buf += '<ul>'+sideBuf+'</ul>';
+				this.$tabbar.html(buf);
 			}
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
@@ -1023,14 +1020,14 @@
 		// graphical
 
 		bestWidth: 659,
-		show: function(position, leftWidth, rightWidth) {
+		show: function(position, leftWidth) {
 			switch (position) {
 			case 'left':
 				this.$el.css({left: 0, width: leftWidth, right: 'auto'});
 				break;
 			case 'right':
 				this.$el.css({left: leftWidth+1, width: 'auto', right: 0});
-				this.width = rightWidth;
+				this.leftWidth = leftWidth;
 				break;
 			case 'full':
 				this.$el.css({left: 0, width: 'auto', right: 0});
