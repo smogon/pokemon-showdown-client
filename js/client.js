@@ -726,7 +726,7 @@
 			}
 			var leftMin = (this.curRoom.minWidth || this.curRoom.bestWidth);
 			var rightMin = (this.sideRoom.minWidth || this.sideRoom.bestWidth);
-			var available = $('body').width();
+			var available = $(window).width();
 			if (this.curRoom.isSideRoom) {
 				// we're trying to focus a side room
 				if (available >= this.rooms[''].tinyWidth + leftMin) {
@@ -762,10 +762,9 @@
 			if (leftMin === this.curRoom.tinyWidth) {
 				if (available < this.curRoom.bestWidth + 570) {
 					// there's only room for the tiny layout :(
-					rightWidth = available - leftMin;
-					this.curRoom.show('left', rightWidth);
+					this.curRoom.show('left', leftMin);
 					this.curRoom.$el.addClass('tiny-layout');
-					this.curSideRoom.show('right', rightWidth);
+					this.curSideRoom.show('right', leftMin, available - leftMin);
 					this.topbar.updateTabbar();
 					return;
 				}
@@ -775,16 +774,16 @@
 
 			var leftMax = (this.curRoom.maxWidth || this.curRoom.bestWidth);
 			var rightMax = (this.sideRoom.maxWidth || this.sideRoom.bestWidth);
-			var rightWidth = rightMin;
+			var leftWidth = leftMin;
 			if (leftMax + rightMax <= available) {
-				rightWidth = rightMax;
+				leftWidth = leftMax;
 			} else {
-				available -= leftMin + rightMin;
+				var bufAvailable = available - leftMin - rightMin;
 				var wanted = leftMax - leftMin + rightMax - rightMin;
-				if (wanted) rightWidth = Math.floor(rightMin + (rightMax - rightMin) * available / wanted);
+				if (wanted) leftWidth = Math.floor(leftMin + (leftMax - leftMin) * bufAvailable / wanted);
 			}
-			this.curRoom.show('left', rightWidth);
-			this.curSideRoom.show('right', rightWidth);
+			this.curRoom.show('left', leftWidth);
+			this.curSideRoom.show('right', leftWidth, available - leftWidth);
 			this.topbar.updateTabbar();
 		},
 		updateSideRoom: function(id) {
@@ -1024,13 +1023,13 @@
 		// graphical
 
 		bestWidth: 659,
-		show: function(position, rightWidth) {
+		show: function(position, leftWidth, rightWidth) {
 			switch (position) {
 			case 'left':
-				this.$el.css({left: 0, width: 'auto', right: rightWidth+1});
+				this.$el.css({left: 0, width: leftWidth, right: 'auto'});
 				break;
 			case 'right':
-				this.$el.css({left: 'auto', width: rightWidth, right: 0});
+				this.$el.css({left: leftWidth+1, width: 'auto', right: 0});
 				this.width = rightWidth;
 				break;
 			case 'full':
