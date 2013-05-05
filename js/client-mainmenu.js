@@ -255,7 +255,7 @@
 				var $challenge = this.openChallenge(name);
 
 				var buf = '<form class="battleform"><p>Waiting for '+Tools.escapeHTML(name)+'...</p>';
-				buf += '<p><label class="label">Format:</label><strong>'+Tools.escapeFormat(challenge.format)+'</strong></p>';
+				buf += '<p><label class="label">Format:</label>'+this.renderFormats(challenge.format, true)+'</p>';
 				buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 				$challenge.html(buf);
@@ -412,6 +412,7 @@
 				return '<button class="select teamselect" name="team" disabled>You have no teams</button>'
 			}
 			if (teamIndex === undefined) {
+				teamIndex = 0;
 				if (this.curTeamIndex >= 0) {
 					teamIndex = this.curTeamIndex;
 				}

@@ -354,26 +354,28 @@ body {
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 
 	border-radius: 4px;
-	border: 1px solid #555555;
+	border: 1px solid #888888;
 	background: #EEEEEE;
-	background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#DDDDDD));
-	background: linear-gradient(top,  #FFFFFF,  #DDDDDD);
+	box-shadow: inset 0 1px 0 #FFFFFF;
+	background: -webkit-gradient(linear, left top, left bottom, from(#edf2f8), to(#d7e3ec));
+	background: linear-gradient(top,  #edf2f8,  #d7e3ec);
 	color: black;
 }
 .select.teamselect {
 	height: 43px;
 }
 .select:hover {
-	border-color: #888888;
+	border-color: #555555;
 	background: #FFFFFF;
-	background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#EEEEEE));
-	background: linear-gradient(top,  #FFFFFF,  #EEEEEE);
+	background: -webkit-gradient(linear, left top, left bottom, from(#dce4ec), to(#c6d3e0));
+	background: linear-gradient(top,  #dce4ec,  #c6d3e0);
 }
 .select:active {
 	border-color: #777777;
 	background: #DDDDDD;
-	background: -webkit-gradient(linear, left top, left bottom, from(#CCCCCC), to(#FFFFFF));
-	background: linear-gradient(top,  #CCCCCC,  #FFFFFF);
+	box-shadow: none;
+	background: -webkit-gradient(linear, left top, left bottom, from(#d1dce6), to(#e7edf2));
+	background: linear-gradient(top,  #d1dce6,  #e7edf2);
 }
 .select:after {
 	float: right;
@@ -388,6 +390,7 @@ body {
 	border-color: #999999;
 	background: rgba(220,220,220,.65);
 	color: #555555;
+	box-shadow: none;
 }
 .select:disabled:after {
 	content: "";
@@ -608,7 +611,7 @@ body {
 }
 .menugroup button.big {
 	width: 230px;
-	padding: 7px 7px 5px 7px;
+	padding: 6px 7px 6px 7px;
 	font-size: 14pt;
 }
 .menugroup .button:hover {
@@ -633,7 +636,7 @@ body {
 .menugroup .button.disabled:active {
 	background: #EEEEEE;
 	border: 1px solid #CCCCCC;
-	color: #BBBBBB;
+	color: #999999;
 	text-shadow: none;
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
@@ -901,10 +904,10 @@ a.ilink:hover {
 	cursor: pointer;
 }
 .userlist li button:hover {
-	background: #DEE2E5;
+	background: #dce4ec;
 }
 .userlist li button:active {
-	background: #CED2D5;
+	background: #ccd4dc;
 }
 .userlist li.cur {
 	background: white;
