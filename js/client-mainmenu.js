@@ -186,6 +186,34 @@
 		},
 		challengesFrom: null,
 		challengeTo: null,
+		resetPending: function() {
+			this.updateSearch();
+			var self = this;
+			this.$('form.pending').closest('.pm-window').each(function(i, el) {
+				self.challenge($(el).data('userid'));
+			});
+		},
+		searching: false,
+		updateSearch: function(data) {
+			if (data) this.searching = data.searching;
+			var $searchForm = $('.mainmenu button.big').closest('form');
+			var $formatButton = $searchForm.find('button[name=format]');
+			var $teamButton = $searchForm.find('button[name=team]');
+			if (this.searching) {
+				$formatButton.addClass('preselected')[0].disabled = true;
+				$teamButton.addClass('preselected')[0].disabled = true;
+				$searchForm.find('button.big').html('<strong><i class="icon-refresh icon-spin"></i> Searching...</strong>').addClass('disabled');
+			} else {
+				var format = $formatButton.val();
+				var teamIndex = $teamButton.val();
+				$formatButton.replaceWith(this.renderFormats(format));
+				$teamButton.replaceWith(this.renderTeams(format, teamIndex));
+
+				$searchForm.find('button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
+				$searchForm.find('button.cancelSearch').html('<strong>Look for a battle</strong>').removeClass('disabled');
+				$searchForm.find('p.cancel').remove();
+			}
+		},
 		updateChallenges: function(data) {
 			this.challengesFrom = data.challengesFrom;
 			this.challengeTo = data.challengeTo;
@@ -248,7 +276,7 @@
 				return;
 			}
 
-			this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
+			if (!this.searching) this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
 			var self = this;
 			this.$('button[name=format]').each(function(i, el) {
 				var val = el.value;
@@ -318,8 +346,8 @@
 			var team = null;
 			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
 
-			var buf = '<form class="battleform"><p>Challenging '+Tools.escapeHTML(name)+'...</p>';
-			buf += '<p><label class="label">Format:</label><strong>'+Tools.escapeFormat(format)+'</strong></p>';
+			var buf = '<form class="battleform pending"><p>Challenging '+Tools.escapeHTML(name)+'...</p>';
+			buf += '<p><label class="label">Format:</label>'+this.renderFormats(format, true)+'</p>';
 			buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 			$(target).closest('.challenge').html(buf);
@@ -402,8 +430,31 @@
 		},
 
 		// buttons
-		search: function() {
-			alert('we don\'t support battles yet :(');
+		search: function(i, button) {
+			var $searchForm = $(button).closest('form');
+			if ($searchForm.find('.cancel').length) {
+				return;
+			}
+			var $formatButton = $searchForm.find('button[name=format]');
+			var $teamButton = $searchForm.find('button[name=team]');
+
+			var format = $formatButton.val();
+			var teamIndex = $teamButton.val();
+			var team = null;
+			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
+
+			$formatButton.addClass('preselected')[0].disabled = true;
+			$teamButton.addClass('preselected')[0].disabled = true;
+			$searchForm.find('button.big').html('<strong><i class="icon-refresh icon-spin"></i> Connecting...</strong>').addClass('disabled');
+			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
+
+			if (team) app.send('/utm '+$.toJSON(team));
+			app.send('/search '+format);
+		},
+		cancelSearch: function() {
+			app.send('/cancelsearch');
+			this.searching = false;
+			this.updateSearch();
 		},
 		joinRoom: function(room) {
 			app.joinRoom(room);

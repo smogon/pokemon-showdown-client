@@ -398,9 +398,13 @@
 						var room = self.rooms[data.room];
 						if (room) room.receive(data.updates.join('\n'));
 					}
-					if (data.challengesFrom) {
+					if ('challengesFrom' in data) {
 						// Legacy
 						if (self.rooms['']) self.rooms[''].updateChallenges(data);
+					}
+					if ('searching' in data) {
+						// Legacy
+						if (self.rooms['']) self.rooms[''].updateSearch(data);
 					}
 					if (data.request) {
 						// Legacy
@@ -415,6 +419,7 @@
 					// Correct way to send popups: (unimplemented)
 					//   |popup|MESSAGE
 					alert(message.message);
+					if (self.rooms['']) self.rooms[''].resetPending();
 				},
 				console: function (message) {
 					if (message.pm) {
