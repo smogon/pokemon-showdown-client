@@ -19,7 +19,9 @@
 		},
 		events: {
 			// teambuilder events
-			'keydown .chartinput': 'chartKeydown'
+			'keydown .chartinput': 'chartKeydown',
+			'focus .chartinput': 'chartFocus',
+			'change .chartinput': 'chartChange'
 		},
 		dispatchClick: function(e) {
 			e.preventDefault();
@@ -323,7 +325,7 @@
 			this.curSet = newPokemon;
 			this.curSetLoc = this.curTeam.team.length-1;
 			this.update();
-			// selfR.teamBuilderElem.find('.setcell-pokemon input').select();
+			this.$('input[name=pokemon]').select();
 		},
 
 		/*********************************************************
@@ -368,6 +370,170 @@
 			buf += '<div class="teambuilder-results"></div>';
 
 			this.$el.html(buf);
+			this.$chart = this.$('.teambuilder-results');
+		},
+		curChartType: '',
+		curChartName: '',
+		updateChart: function() {
+			var type = this.curChartType;
+			if (type === 'stats') {
+				this.updateStatForm();
+				return;
+			}
+			if (type === 'details') {
+				this.updateDetailsForm();
+				return;
+			}
+			this.$chart.html('<em>Loading '+this.curChartType+'...</em>');
+		},
+		setStatFormGuesses: function() {
+			this.updateStatForm(true);
+		},
+		updateStatForm: function(setGuessed) {
+			var buf = '';
+			var set = this.curSet;
+			buf += '<h3>EVs</h3>';
+			buf += '<div class="statform">';
+			var role = this.guessRole();
+
+			var guessedEVs = {};
+			var guessedPlus = '';
+			var guessedMinus = '';
+			buf += '<p><small>Suggested spread:';
+			if (role === '?') {
+				buf += '<br />(Please choose 4 moves to get a suggested spread)</small></p>';
+			} else {
+				guessedEVs = this.guessEVs(role);
+				guessedPlus = guessedEVs.plusStat; delete guessedEVs.plusStat;
+				guessedMinus = guessedEVs.minusStat; delete guessedEVs.minusStat;
+				buf += ' <br /></small><button name="setStatFormGuesses">';
+				for (var i in guessedEVs) {
+					buf += ''+guessedEVs[i]+' '+BattleStatNames[i]+' / ';
+				}
+				buf += ' (+'+BattleStatNames[guessedPlus]+', -'+BattleStatNames[guessedMinus]+')</button>';
+				buf += ' <small><br />('+role+' | bulk: phys '+Math.round(this.moveCount.physicalBulk/1000)+' + spec '+Math.round(this.moveCount.specialBulk/1000)+' = '+Math.round(this.moveCount.bulk/1000)+')</small></p>';
+			}
+
+			if (setGuessed) {
+				set.evs = guessedEVs;
+				this.plus = guessedPlus;
+				this.minus = guessedMinus;
+				this.updateNature();
+			}
+
+			var stats = {hp:'',atk:'',def:'',spa:'',spd:'',spe:''};
+			if (!set) return;
+			var nature = BattleNatures[set.nature || 'Serious'];
+			if (!nature) nature = {};
+
+			// label column
+			buf += '<div class="col labelcol"><div></div>';
+			buf += '<div><label>Hit Points</label></div><div><label>Attack</label></div><div><label>Defense</label></div><div><label>Special Attack</label></div><div><label>Special Defense</label></div><div><label>Speed</label></div>';
+			buf += '</div>';
+			
+			buf += '<div class="col statscol"><div></div>';
+			for (var i in stats) {
+				stats[i] = this.getStat(i);
+				buf += '<div><b>'+stats[i]+'</b></div>';
+			}
+			buf += '</div>';
+			
+			buf += '<div class="col graphcol"><div></div>';
+			for (var i in stats) {
+				var width = stats[i]*200/504;
+				if (i=='hp') width = Math.floor(stats[i]*200/704);
+				if (width > 199) width = 199;
+				var color = Math.floor(stats[i]*180/714);
+				if (color>360) color = 360;
+				buf += '<div><em><span style="width:'+Math.floor(width)+'px;background:hsl('+color+',85%,45%);border-color:hsl('+color+',85%,35%)"></span></em></div>';
+			}
+			buf += '<div><em>Remaining:</em></div>';
+			buf += '</div>';
+			
+			buf += '<div class="col evcol"><div><strong>EVs</strong></div>';
+			var totalev = 0;
+			this.plus = '';
+			this.minus = '';
+			for (var i in stats) {
+				var width = stats[i]*200/504;
+				if (i=='hp') width = stats[i]*200/704;
+				if (width > 200) width = 200;
+				var val = ''+(set.evs[i]||'');
+				if (nature.plus === i) {
+					val += '+';
+					this.plus = i;
+				}
+				if (nature.minus === i) {
+					val += '-';
+					this.minus = i;
+				}
+				buf += '<div><input type="text" name="stat-'+i+'" value="'+val+'" class="inputform numform" /></div>';
+				totalev += (set.evs[i]||0);
+			}
+			if (totalev <= 510) {
+				buf += '<div class="totalev"><em>'+(totalev>508?0:508-totalev)+'</em></div>';
+			} else {
+				buf += '<div class="totalev"><b>'+(510-totalev)+'</b></div>';
+			}
+			buf += '</div>';
+			
+			buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
+			var totalev = 0;
+			if (!set.ivs) set.ivs = {};
+			for (var i in stats) {
+				if (typeof set.ivs[i] === 'undefined') set.ivs[i] = 31;
+				var val = ''+(set.ivs[i]);
+				buf += '<div><input type="text" name="iv-'+i+'" value="'+val+'" class="inputform numform" /></div>';
+			}
+			//buf += '<div class="totaliv"><b>'+''+'</b></div>';
+			buf += '</div>';
+			
+			buf += '<p style="clear:both">Nature: <select name="nature">';
+			for (var i in BattleNatures) {
+				var curNature = BattleNatures[i];
+				buf += '<option value="'+i+'"'+(curNature===nature?'selected="selected"':'')+'>'+i;
+				if (curNature.plus) {
+					buf += ' (+'+BattleStatNames[curNature.plus]+', -'+BattleStatNames[curNature.minus]+')';
+				}
+				buf += '</option>';
+			}
+			buf += '</select></p>';
+			
+			buf += '<p><em>Protip:</em> You can also set natures by typing "+" and "-" next to a stat.</p>';
+			
+			buf += '</div>';
+			this.$chart.html(buf);
+		},
+		updateDetailsForm: function() {
+			var buf = '';
+			var set = this.curSet;
+			var template = Tools.getTemplate(set.species);
+			if (!set) return;
+			buf += '<h3>Details</h3>';
+			buf += '<div class="detailsform">';
+
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="'+(set.level||100)+'" class="inputform numform" /></div></div>';
+
+			buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
+			if (template.gender) {
+				var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
+				buf += genderTable[template.gender];
+			} else {
+				buf += '<label><input type="radio" name="gender" value="yes"'+(set.gender==='M'?' checked="checked"':'')+' /> Male</label> ';
+				buf += '<label><input type="radio" name="gender" value="no"'+(set.gender==='F'?' checked="checked"':'')+' /> Female</label> ';
+				buf += '<label><input type="radio" name="gender" value="no"'+(!set.gender?' checked="checked"':'')+' /> Random</label>';
+			}
+			buf += '</div></div>';
+
+			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="'+(typeof set.happiness==='number'?set.happiness:255)+'" class="inputform numform" /></div></div>';
+
+			buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
+			buf += '<label><input type="radio" name="shiny" value="yes"'+(set.shiny?' checked="checked"':'')+' /> Yes</label> ';
+			buf += '<label><input type="radio" name="shiny" value="no"'+(!set.shiny?' checked="checked"':'')+' /> No</label>';
+			buf += '</div></div>';
+
+			buf += '</div>';
+			this.$chart.html(buf);
 		},
 
 		arrangeCallback: {
@@ -431,13 +597,107 @@
 			}
 		},
 		stats: function(i, button) {
-			this.selectPokemon($(button).closest('li').val());
+			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
+			this.curChartType = 'stats';
+			this.updateStatForm();
 		},
 		details: function(i, button) {
-			this.selectPokemon($(button).closest('li').val());
+			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
+			this.curChartType = 'details';
+			this.updateDetailsForm();
+		},
+		chartTypes: {
+			pokemon: 'pokemon',
+			item: 'item',
+			ability: 'ability',
+			move1: 'move',
+			move2: 'move',
+			move3: 'move',
+			move4: 'move',
+			stats: 'stats',
+			details: 'details'
 		},
 		chartKeydown: function() {
 			//
+		},
+		chartFocus: function(e) {
+			var $target = $(e.currentTarget);
+			var name = e.currentTarget.name;
+			var type = this.chartTypes[name];
+
+			if (!this.curSet) {
+				var i = +$target.closest('li').prop('value');
+				this.curSet = this.curTeam.team[i];
+				this.curSetLoc = i;
+				this.update();
+				if (type === 'stats' || type === 'details') {
+					this.$('button[name='+name+']').click();
+				} else {
+					this.$('input[name='+name+']').select();
+				}
+				return;
+			}
+
+			this.curChartName = name;
+			this.curChartType = type;
+			this.updateChart();
+		},
+		chartChange: function(e) {
+			var name = e.currentTarget.name;
+			var type = this.chartTypes[name];
+			var val = Chart.firstResult;
+			var id = toId(e.currentTarget.value);
+			if (toId(val) !== id) {
+				$(e.currentTarget).addClass('incomplete');
+				return;
+			}
+			e.currentTarget.value = val;
+			switch (name) {
+			case 'pokemon':
+				// selfR.formChangePokemon(val);
+				break;
+			case 'item':
+				if (val || e.currentTarget.value === '') {
+					this.curSet.item = val;
+					// selfR.updatePokemonSprite();
+				}
+				break;
+			case 'ability':
+				if (val) {
+					this.curSet.ability = val;
+				}
+				break;
+			case 'move1':
+				if (val || e.currentTarget.value === '') {
+					this.curSet.moves[0] = val;
+					// selfR.formChooseMove(val);
+				}
+				break;
+			case 'move2':
+				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
+				if (val || e.currentTarget.value === '') {
+					this.curSet.moves[1] = val;
+					// selfR.formChooseMove(val);
+				}
+				break;
+			case 'move3':
+				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
+				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
+				if (val || e.currentTarget.value === '') {
+					this.curSet.moves[2] = val;
+					// selfR.formChooseMove(val);
+				}
+				break;
+			case 'move4':
+				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
+				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
+				if (!this.curSet.moves[2]) this.curSet.moves[2] = '';
+				if (val || e.currentTarget.value === '') {
+					this.curSet.moves[3] = val;
+					// selfR.formChooseMove(val);
+				}
+				break;
+			}
 		},
 
 		/*********************************************************
