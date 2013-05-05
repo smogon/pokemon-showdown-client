@@ -912,17 +912,17 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+'" href="'+app.root+'"><i class="icon-home"></i> Home</a></li>';
-			if (app.rooms.teambuilder) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> Teambuilder</a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
-			if (app.rooms.ladder) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> Ladder</a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
+			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
+			if (app.rooms.teambuilder) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
+			if (app.rooms.ladder) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
 			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
 			for (var id in app.rooms) {
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
-				var name = '<i class="icon-comment-alt"></i>'+id;
-				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> Lobby';
+				var name = '<i class="icon-comment-alt"></i> <span>'+id+'</span>';
+				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> <span>Lobby</span>';
 				if (id.substr(0,7) === 'battle-') {
 					var parts = id.substr(7).split('-');
 					var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
@@ -934,7 +934,7 @@
 					} else {
 						name = '(empty room)';
 					}
-					name = '<i class="text">'+parts[0]+'</i>'+name;
+					name = '<i class="text">'+parts[0]+'</i><span>'+name+'</span>';
 				}
 				if (room.isSideRoom) {
 					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';

@@ -146,6 +146,7 @@ body {
 	outline: none;
 	display: inline-block;
 	height: 28px;
+	min-width: 60px;
 	cursor: pointer;
 	text-align: center;
 	text-decoration: none;
@@ -167,7 +168,7 @@ body {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
 
 	position: relative;
-	padding: 3px 10px 3px 10px;
+	padding: 3px 2px 3px 2px;
 	margin: 0 -1px 0 0;
 	top: 1px;
 	border-radius: 0;
@@ -182,9 +183,19 @@ body {
 	font-size: 14px;
 	height: 14px;
 }
+.tabbar a.button span {
+	display: block;
+	overflow: hidden;
+}
 .tabbar a.button i.text {
 	font-size: 11px;
+	margin-right: 8px;
+	padding-left: 0;
+	overflow: hidden;
 	font-weight: bold;
+}
+.tabbar a.button i.text + span {
+	margin-right: -6px;
 }
 .tabbar a.button:hover {
 	background: #cfcfcf;
@@ -222,7 +233,7 @@ body {
 	border-top-right-radius: 5px;
 }
 .tabbar a.closable {
-	padding-right: 15px;
+	padding-right: 8px;
 }
 .tabbar .closebutton {
 	display: inline-block;
