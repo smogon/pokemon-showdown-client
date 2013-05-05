@@ -209,6 +209,10 @@
 				this.$battle.append(this.$join);
 
 			}
+
+			// This intentionally doesn't happen if the battle is still playing,
+			// since those early-return.
+			app.topbar.updateTabbar();
 		},
 		updateControlsForPlayer: function() {
 			if (!this.request) {
