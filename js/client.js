@@ -838,7 +838,10 @@
 		addPopup: function(id, type, data) {
 			if (!data) data = {};
 
-			if ($(data.sourceEl)[0] === this.dismissingSource) return;
+			if (data.sourceEl === undefined && app.dispatchingButton) {
+				data.sourceEl = app.dispatchingButton;
+			}
+			if (this.dismissingSource && $(data.sourceEl)[0] === this.dismissingSource) return;
 			while (this.popups.length) {
 				var prevPopup = this.popups[this.popups.length-1];
 				if (prevPopup.id === id) {
@@ -853,9 +856,23 @@
 			}
 
 			data.id = id;
-			data.el = $('<div class="ps-popup"></div>').appendTo('body');
 			if (!type) type = Popup;
+
 			var popup = new type(data);
+
+			if (popup.type === 'normal') {
+				$('body').append(popup.el);
+			} else {
+				var $overlay = $('<div class="ps-overlay"></div>').appendTo('body').append(popup.el)
+				if (popup.type === 'semimodal') {
+					$overlay.on('click', function(e) {
+						if (e.currentTarget === e.target) {
+							popup.close();
+						}
+					});
+				}
+			}
+
 			this.popups.push(popup);
 			return popup;
 		},
@@ -884,7 +901,8 @@
 	var Topbar = this.Topbar = Backbone.View.extend({
 		events: {
 			'click a': 'click',
-			'click .username': 'clickUsername'
+			'click .username': 'clickUsername',
+			'click button': 'dispatchClickButton'
 		},
 		initialize: function() {
 			this.$el.html('<img class="logo" src="//dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><!-- div class="tabbar sidetabbar" style="display:none"></div--><div class="userbar"></div>');
@@ -957,6 +975,18 @@
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
 		},
+		dispatchClickButton: function(e) {
+			var target = e.currentTarget;
+			if (target.name) {
+				app.dismissingSource = app.dismissPopups();
+				app.dispatchingButton = target;
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				this[target.name].call(this, target.value, target);
+				delete app.dismissingSource;
+				delete app.dispatchingButton;
+			}
+		},
 		clickUsername: function(e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
@@ -978,10 +1008,11 @@
 	});
 
 	var Room = this.Room = Backbone.View.extend({
+		className: 'ps-room',
 		constructor: function() {
 			if (!this.events) this.events = {};
-			this.events['click button'] = 'dispatchClickButton';
-			this.events['click'] = 'dispatchClickBackground';
+			if (!this.events['click button']) this.events['click button'] = 'dispatchClickButton';
+			if (!this.events['click']) this.events['click'] = 'dispatchClickBackground';
 
 			Backbone.View.apply(this, arguments);
 
@@ -991,10 +1022,12 @@
 			var target = e.currentTarget;
 			if (target.name) {
 				app.dismissingSource = app.dismissPopups();
+				app.dispatchingButton = target;
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				this[target.name].call(this, target.value, target);
 				delete app.dismissingSource;
+				delete app.dispatchingButton;
 			}
 		},
 		dispatchClickBackground: function(e) {
@@ -1075,60 +1108,89 @@
 		// the popup).
 		type: 'normal',
 
+		className: 'ps-popup',
 		constructor: function(data) {
-			var $el = $(data.el || data.$el);
-			var $measurer = $('<div style="position:relative;height:0;overflow:hidden"></div>').appendTo('body');
-			$el.appendTo($measurer);
-			$el.css('width', this.width - 22);
-
 			if (!this.events) this.events = {};
-			this.events['click button'] = 'dispatchClickButton';
+			if (!this.events['click button']) this.events['click button'] = 'dispatchClickButton';
+			if (!this.events['submit form']) this.events['submit form'] = 'dispatchSubmit';
 			if (data && data.sourceEl) {
 				this.sourceEl = data.sourceEl = $(data.sourceEl);
 			}
 
 			Backbone.View.apply(this, arguments);
 
-			var offset = this.sourceEl.offset();
+			if (this.type === 'normal') {
+				// nonmodal popup: should be positioned near source element
+				var $el = this.$el;
+				var $measurer = $('<div style="position:relative;height:0;overflow:hidden"></div>').appendTo('body').append($el);
+				$el.css('width', this.width - 22);
 
-			var room = $(window).height();
-			var height = $el.outerHeight();
-			var sourceHeight = this.sourceEl.outerHeight();
-			if (room > offset.top + sourceHeight + height + 5) {
-				$el.css('top', offset.top + sourceHeight);
-			} else if (height + 5 <= offset.top) {
-				$el.css('bottom', room - offset.top);
-			} else if (height + 10 < room) {
-				$el.css('bottom', 5);
-			} else {
-				$el.css('top', 0);
+				var offset = this.sourceEl.offset();
+
+				var room = $(window).height();
+				var height = $el.outerHeight();
+				var sourceHeight = this.sourceEl.outerHeight();
+				if (room > offset.top + sourceHeight + height + 5 &&
+					(offset.top + sourceHeight < room * 2/3 || offset.top + sourceHeight + 200 < room)) {
+					$el.css('top', offset.top + sourceHeight);
+				} else if (height + 5 <= offset.top) {
+					$el.css('bottom', room - offset.top);
+				} else if (height + 10 < room) {
+					$el.css('bottom', 5);
+				} else {
+					$el.css('top', 0);
+				}
+
+				room = $(window).width() - offset.left;
+				var outerWidth = $el.outerWidth();
+				if (room < outerWidth + 10) {
+					$el.css('right', 10);
+				} else {
+					$el.css('left', offset.left);
+				}
+				$el.detach();
+				$measurer.remove();
 			}
-
-			room = $(window).width() - offset.left;
-			var outerWidth = $el.outerWidth();
-			if (room < outerWidth + 10) {
-				$el.css('right', 10);
-			} else {
-				$el.css('left', offset.left);
-			}
-
-			$el.appendTo('body');
-			$measurer.remove();
 		},
 
 		dispatchClickButton: function(e) {
 			var target = e.currentTarget;
 			if (target.name) {
+				app.dispatchingButton = target;
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				this[target.name].call(this, target.value, target);
+				delete app.dispatchingButton;
 			}
+		},
+		dispatchSubmit: function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var dataArray = $(e.currentTarget).serializeArray();
+			var data = {};
+			for (var i=0, len=dataArray.length; i<len; i++) {
+				var name = dataArray[i].name, value = dataArray[i].value;
+				if (data[name]) {
+					if (!data[name].push) data[name] = [data[name]];
+					data[name].push(value||'');
+				} else {
+					data[name] = (value||'');
+				}
+			}
+			this.submit(data);
+		},
+
+		remove: function() {
+			var $parent = this.$el.parent();
+			Backbone.View.prototype.remove.apply(this, arguments);
+			if ($parent.hasClass('ps-overlay')) $parent.remove();
 		},
 
 		close: function() {
 			app.closePopup();
 		}
 	});
+
 	var UserPopup = this.UserPopup = Popup.extend({
 		initialize: function(data) {
 			data.userid = toId(data.name);
@@ -1141,7 +1203,6 @@
 			this.update();
 		},
 		events: {
-			'click button': 'dispatchClick',
 			'click .ilink': 'clickLink'
 		},
 		update: function(data) {

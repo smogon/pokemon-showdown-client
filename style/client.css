@@ -289,6 +289,20 @@ body {
 	color: black;
 }
 
+.ps-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #CCCCCC;
+	background: rgba(212, 212, 212, .5);
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
+	z-index: 20;
+}
 .ps-popup {
 	position: absolute;
 	top: auto; right: auto; left: auto; bottom: auto;
@@ -300,8 +314,41 @@ body {
 
 	border-radius: 6px;
 	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
-	z-index: 100;
+	z-index: 20;
 }
+.ps-overlay .ps-popup {
+	position: static;
+	margin: 100px auto 0 auto;
+	max-width: 320px;
+}
+.ps-popup p {
+	margin: 7px 0;
+}
+p.or {
+	font-size: 12pt;
+	font-style: italic;
+	font-weight: bold;
+	color: #444444;
+	margin: 20px 0;
+}
+p.or:before,
+p.or:after {
+	content: "";
+	font-size: 10px;
+	padding: 0 0 0 65px;
+	margin: 0 9px 0 0;
+	border-bottom: 1px solid #777777;
+	position: relative;
+	top: -7px;
+}
+p.or:after {
+	margin: 0 0 0 9px;
+}
+.ps-popup p.error {
+	font-weight: bold;
+	color: #EE4422;
+}
+
 .popupmenu, popupmenu li {
 	margin: -2px 0 -1px 0;
 	padding: 0;
