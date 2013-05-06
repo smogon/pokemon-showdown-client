@@ -278,7 +278,7 @@
 				buf += '</li>';
 				return buf;
 			}
-			buf += '<div class="setmenu"><button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>'
+			buf += '<div class="setmenu"><button name="moveSet"><i class="icon-move"></i>Move</button> <button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" value="'+Tools.escapeHTML(set.name||set.species)+'" name="nickname" />';
 			buf += '</div>';
@@ -393,7 +393,14 @@
 			this.save();
 		},
 
-		// deletion
+		// move/delete
+		moveSet: function(i, button) {
+			i = +($(button).closest('li').attr('value'));
+			app.addPopup('moveSet', MovePopup, {
+				i: i,
+				team: this.curTeam.team
+			});
+		},
 		deleteSet: function(i, button) {
 			i = +($(button).closest('li').attr('value'));
 			this.deletedSetLoc = i;
@@ -1898,6 +1905,42 @@
 		}
 	});
 
-	var MovePopup = Popup.extend({});
+	var MovePopup = exports.MovePopup = Popup.extend({
+		initialize: function(data) {
+			var buf = '<ul class="popupmenu">';
+			this.i = data.i;
+			this.team = data.team;
+			for (var i=0; i<data.team.length; i++) {
+				var set = data.team[i];
+				if (i !== data.i && i !== data.i+1) {
+					buf += '<li><button name="moveHere" value="'+i+'"><i class="icon-arrow-right"></i> Move here</button></li>';
+				}
+				buf += '<li'+(i===data.i?' style="opacity:.3"':' style="opacity:.6"')+'><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(set)+'"></span> '+Tools.escapeHTML(set.name)+'</li>';
+			}
+			if (i !== data.i && i !== data.i+1) {
+				buf += '<li><button name="moveHere" value="'+i+'"><i class="icon-arrow-right"></i> Move here</button></li>';
+			}
+			buf += '</ul>';
+			this.$el.html(buf);
+		},
+		moveHere: function(i) {
+			this.close();
+			i = +i;
+
+			var movedSet = this.team.splice(this.i, 1)[0];
+
+			if (i > this.i) i--;
+			this.team.splice(i, 0, movedSet);
+
+			app.rooms['teambuilder'].save();
+			if (app.rooms['teambuilder'].curSet) {
+				app.rooms['teambuilder'].curSetLoc = i;
+				app.rooms['teambuilder'].update();
+				app.rooms['teambuilder'].updateChart();
+			} else {
+				app.rooms['teambuilder'].update();
+			}
+		}
+	});
 
 })(window, jQuery);
