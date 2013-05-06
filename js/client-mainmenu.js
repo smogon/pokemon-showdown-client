@@ -190,6 +190,7 @@
 			this.updateSearch();
 			var self = this;
 			this.$('form.pending').closest('.pm-window').each(function(i, el) {
+				$(el).find('.challenge').remove();
 				self.challenge($(el).data('userid'));
 			});
 		},
