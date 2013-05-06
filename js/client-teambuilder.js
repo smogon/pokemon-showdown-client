@@ -98,6 +98,9 @@
 			var teams = app.user.teams;
 			var buf = '';
 
+			this.deletedSet = null;
+			this.deletedSetLoc = -1;
+
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <button name="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
 				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(this.teamsToText())+'</textarea>';
@@ -243,9 +246,18 @@
 				}
 				if (!this.curTeam.team.length) {
 					buf += '<li><em>you have no pokemon lol</em></li>';
+					if (this.deletedSet) {
+						buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
+					}
 				}
 				for (i=0; i<this.curTeam.team.length; i++) {
+					if (this.curTeam.team.length < 6 && this.deletedSet && i === this.deletedSetLoc) {
+						buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
+					}
 					buf += this.renderSet(this.curTeam.team[i], i);
+				}
+				if (this.deletedSet && i === this.deletedSetLoc) {
+					buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
 				}
 				if (i < 6) {
 					buf += '<li><button name="addPokemon" class="majorbutton"><i class="icon-plus"></i> Add pokemon</button></li>';
@@ -259,10 +271,14 @@
 			var template = Tools.getTemplate(set.species);
 			var buf = '<li value="'+i+'">';
 			if (!set.species) {
+				if (this.deletedSet) {
+					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></div>';
+				}
 				buf += '<div class="setchart"><div class="setcol setcol-icon" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
+			buf += '<div class="setmenu"><button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>'
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" value="'+Tools.escapeHTML(set.name||set.species)+'" name="nickname" />';
 			buf += '</div>';
@@ -336,18 +352,22 @@
 		},
 		addPokemon: function() {
 			if (!this.curTeam) return;
-			var newPokemon = {
-				name: '',
-				species: '',
-				item: '',
-				nature: '',
-				evs: {},
-				ivs: {},
-				moves: []
-			};
-			this.curTeam.team.push(newPokemon);
-			this.curSet = newPokemon;
-			this.curSetLoc = this.curTeam.team.length-1;
+			var team = this.curTeam.team;
+			if (team[team.length-1].species) {
+				var newPokemon = {
+					name: '',
+					species: '',
+					item: '',
+					nature: '',
+					evs: {},
+					ivs: {},
+					moves: []
+				};
+				team.push(newPokemon);
+			}
+			this.curSet = team[team.length-1];
+			this.curSetLoc = team.length-1;
+			this.curChartName = '';
 			this.update();
 			this.$('input[name=pokemon]').select();
 		},
@@ -371,6 +391,38 @@
 			var name = $.trim(e.currentTarget.value) || team.species;
 			e.currentTarget.value = team.name = name;
 			this.save();
+		},
+
+		// deletion
+		deleteSet: function(i, button) {
+			i = +($(button).closest('li').attr('value'));
+			this.deletedSetLoc = i;
+			this.deletedSet = this.curTeam.team.splice(i, 1)[0];
+			if (this.curSet) {
+				this.addPokemon();
+			} else {
+				this.update();
+			}
+			this.save();
+		},
+		undeleteSet: function() {
+			if (this.deletedSet) {
+				var loc = this.deletedSetLoc;
+				this.curTeam.team.splice(loc, 0, this.deletedSet);
+				this.deletedSet = null;
+				this.deletedSetLoc = -1;
+				this.save();
+
+				if (this.curSet) {
+					this.curSetLoc = loc;
+					this.curSet = this.curTeam.team[loc];
+					this.curChartName = '';
+					this.update();
+					this.updateChart();
+				} else {
+					this.update();
+				}
+			}
 		},
 
 		/*********************************************************
@@ -513,7 +565,7 @@
 				self.updateChartTimeout = null;
 				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
 				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self)));
-			});
+			}, 10);
 		},
 		updateChartTimeout: null,
 		updateChartDelayed: function() {
@@ -531,12 +583,13 @@
 			if (set) {
 				this.curSet = set;
 				this.curSetLoc = i;
-				this.update();
 				var name = this.curChartName;
 				if (name === 'details' || name === 'stats') {
+					this.update();
 					this.updateChart();
 				} else {
 					this.curChartName = '';
+					this.update();
 					this.$('input[name='+name+']').select();
 				}
 			}
@@ -1844,5 +1897,7 @@
 			}
 		}
 	});
+
+	var MovePopup = Popup.extend({});
 
 })(window, jQuery);

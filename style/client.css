@@ -1412,6 +1412,19 @@ a.ilink:hover {
 	font: 12pt Verdana, sans-serif;
 }
 
+.setmenu {
+	position: absolute;
+	top: 5px;
+	left: 130px;
+	width: 503px;
+	text-align: right;
+}
+.setmenu-left {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	text-align: left;
+}
 .setchart-nickname {
 	position: absolute;
 	left: -5px;
