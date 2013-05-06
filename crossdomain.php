@@ -11,6 +11,8 @@ if (preg_match('/^([a-z0-9-_\.]*?)\.beta\.psim\.us$/', $host, $m)) {
 	if ($config['host'] === 'logs') die; // not authorised
 	if ($config['host'] === 'sim') die; // not authorised
 	if ($config['host'] === 'beta') $config['host'] = 'showdown';
+} else if ($host === 'dev.pokemonshowdown.com') {
+	$config['host'] = 'dev';
 } else if ($host === 'play.pokemonshowdown.com') {
 	$config['host'] = 'showdown-8000';
 } else {
