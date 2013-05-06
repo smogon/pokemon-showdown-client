@@ -1,6 +1,6 @@
 (function($) {
 
-	var BattleRoom = this.BattleRoom = this.Room.extend({
+	var BattleRoom = this.BattleRoom = ConsoleRoom.extend({
 		minWidth: 955,
 		maxWidth: 1180,
 		initialize: function(data) {
@@ -26,19 +26,8 @@
 			this.battle.stagnateCallback = _.bind(this.updateControls, this);
 
 			this.battle.play();
-
-			app.user.on('change', this.updateUser, this);
-			this.updateUser();
-		},
-		events: {
-			'keydown textarea': 'keyPress',
-			'submit form': 'submit',
-			'click .username': 'clickUsername'
 		},
 		battleEnded: false,
-		focus: function() {
-			if (this.$chatbox) this.$chatbox.focus();
-		},
 		join: function() {
 			app.send('/join '+this.id);
 		},
@@ -92,57 +81,6 @@
 			}
 			this.battle.add('', Tools.prefs('noanim'));
 			this.updateControls();
-		},
-		updateUser: function() {
-			var name = app.user.get('name');
-			var userid = app.user.get('userid');
-			if (!name) {
-				this.$chatAdd.html('Connecting...');
-				this.$chatbox = null;
-			} else if (!app.user.get('named')) {
-				this.$chatAdd.html('<form><button>Join chat</button></form>');
-				this.$chatbox = null;
-			} else {
-				this.$chatAdd.html('<form class="chatbox"><label style="' + hashColor(userid) + '">' + Tools.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
-				this.$chatbox = this.$chatAdd.find('textarea');
-				this.$chatbox.autoResize({
-					animate: false,
-					extraSpace: 0
-				});
-				if (this === app.curSideRoom || this === app.curRoom) {
-					this.$chatbox.focus();
-				}
-			}
-		},
-		submit: function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			var text;
-			if ((text = this.$chatbox.val())) {
-				// this.tabComplete.reset();
-				// this.chatHistory.push(text);
-				// text = this.parseCommand(text);
-				if (text) {
-					this.send(text);
-				}
-				this.$chatbox.val('');
-			}
-		},
-		keyPress: function(e) {
-			if (e.keyCode === 13 && !e.shiftKey) { // Enter
-				this.submit(e);
-			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab
-				// if (this.handleTabComplete(this.$chatbox)) {
-				// 	e.preventDefault();
-				// 	e.stopPropagation();
-				// }
-			}
-		},
-		clickUsername: function(e) {
-			e.stopPropagation();
-			e.preventDefault();
-			var name = $(e.currentTarget).data('name');
-			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 
 		/*********************************************************

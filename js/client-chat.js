@@ -1,60 +1,50 @@
 (function($) {
 
-	var ChatRoom = this.ChatRoom = this.Room.extend({
-		minWidth: 320,
-		maxWidth: 1024,
-		isSideRoom: true,
-		events: {
-			'keydown textarea': 'keyPress',
-			'submit form': 'submit',
-			'click .username': 'clickUsername',
-			'click .ilink': 'clickLink',
-			'click .message-pm i': 'openPM'
-		},
-		initialize: function() {
-			var buf = '<ul class="userlist" style="display:none"></ul><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
-			this.$el.addClass('ps-room-light').html(buf);
-
-			this.$chatAdd = this.$('.chat-log-add');
-			this.$chatFrame = this.$('.chat-log');
-			this.$chat = this.$('.inner');
-			this.$chatbox = null;
-
-			this.users = {};
-			this.userCount = {};
+	var ConsoleRoom = this.ConsoleRoom = Room.extend({
+		constructor: function() {
+			if (!this.events) this.events = {};
+			if (!this.events['click .ilink']) this.events['click .ilink'] = 'clickLink';
+			if (!this.events['click .username']) this.events['click .username'] = 'clickUsername';
+			if (!this.events['submit form']) this.events['submit form'] = 'submit';
+			if (!this.events['keydown textarea']) this.events['keydown textarea'] = 'keyPress';
+			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
 
 			this.initializeTabComplete();
 
-			this.$joinLeave = null;
-			this.joinLeave = {
-				'join': [],
-				'leave': []
-			};
-
-			this.$userList = this.$('.userlist');
-			this.userList = new UserList({
-				el: this.$userList,
-				room: this
-			});
+			// this MUST set up this.$chatAdd
+			Room.apply(this, arguments);
 
 			app.user.on('change', this.updateUser, this);
 			this.updateUser();
 		},
-		updateLayout: function() {
-			if (this.$el.width() >= 570) {
-				this.$userList.show();
-				this.$chatFrame.addClass('hasuserlist');
-				this.$chatAdd.addClass('hasuserlist');
+		updateUser: function() {
+			var name = app.user.get('name');
+			var userid = app.user.get('userid');
+			if (!name) {
+				this.$chatAdd.html('Connecting...');
+				this.$chatbox = null;
+			} else if (!app.user.get('named')) {
+				this.$chatAdd.html('<form><button name="login">Join chat</button></form>');
+				this.$chatbox = null;
 			} else {
-				this.$userList.hide();
-				this.$chatFrame.removeClass('hasuserlist');
-				this.$chatAdd.removeClass('hasuserlist');
+				this.$chatAdd.html('<form class="chatbox"><label style="' + hashColor(userid) + '">' + Tools.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
+				this.$chatbox = this.$chatAdd.find('textarea');
+				this.$chatbox.autoResize({
+					animate: false,	
+					extraSpace: 0
+				});
+				if (this === app.curSideRoom || this === app.curRoom) {
+					this.$chatbox.focus();
+				}
 			}
-			this.$chatFrame.scrollTop(this.$chat.height());
 		},
-		show: function() {
-			Room.prototype.show.apply(this, arguments);
-			this.updateLayout();
+
+		focus: function() {
+			if (this.$chatbox) this.$chatbox.focus();
+		},
+
+		login: function() {
+			app.addPopup('login', LoginPopup);
 		},
 		submit: function(e) {
 			e.preventDefault();
@@ -98,29 +88,157 @@
 			app.focusRoom('');
 			app.rooms[''].focusPM($(e.currentTarget).data('name'));
 		},
-		updateUser: function() {
-			var name = app.user.get('name');
-			var userid = app.user.get('userid');
-			if (!name) {
-				this.$chatAdd.html('Connecting...');
-				this.$chatbox = null;
-			} else if (!app.user.get('named')) {
-				this.$chatAdd.html('<form><button>Join chat</button></form>');
-				this.$chatbox = null;
-			} else {
-				this.$chatAdd.html('<form class="chatbox"><label style="' + hashColor(userid) + '">' + Tools.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
-				this.$chatbox = this.$chatAdd.find('textarea');
-				this.$chatbox.autoResize({
-					animate: false,
-					extraSpace: 0
-				});
-				if (this === app.curSideRoom || this === app.curRoom) {
-					this.$chatbox.focus();
+
+		// highlight
+
+		getHighlight: function(message) {
+			var highlights = Tools.prefs('highlights') || [];
+			if (!app.highlightRegExp) {
+				try {
+					app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
+				} catch (e) {
+					// If the expression above is not a regexp, we'll get here.
+					// Don't throw an exception because that would prevent the chat
+					// message from showing up, or, when the lobby is initialising,
+					// it will prevent the initialisation from completing.
+					return false;
 				}
 			}
+			return ((highlights.length > 0) && app.highlightRegExp.test(message));
 		},
-		focus: function() {
-			if (this.$chatbox) this.$chatbox.focus();
+
+		// tab completion
+
+		initializeTabComplete: function() {
+			this.tabComplete = {
+				candidates: null,
+				index: 0,
+				prefix: null,
+				cursor: -1,
+				reset: function() {
+					this.cursor = -1;
+				}
+			};
+			this.userActivity = [];
+		},
+		markUserActive: function(userid) {
+			var idx = this.userActivity.indexOf(userid);
+			if (idx !== -1) {
+				this.userActivity.splice(idx, 1);
+			}
+			this.userActivity.push(userid);
+			if (this.userActivity.length > 100) {
+				// Prune the list.
+				this.userActivity.splice(0, 20);
+			}
+		},
+		tabComplete: null,
+		userActivity: null,
+		handleTabComplete: function($textbox) {
+			// Don't tab complete at the start of the text box.
+			var idx = $textbox.prop('selectionStart');
+			if (idx === 0) return false;
+
+			var users = this.users || (app.rooms['lobby']?app.rooms['lobby'].users:{});
+
+			var text = $textbox.val();
+
+			if (idx === this.tabComplete.cursor) {
+				// The user is cycling through the candidate names.
+				if (++this.tabComplete.index >= this.tabComplete.candidates.length) {
+					this.tabComplete.index = 0;
+				}
+			} else {
+				// This is a new tab completion.
+
+				// There needs to be non-whitespace to the left of the cursor.
+				var m = /^(.*?)([^ ]*)$/.exec(text.substr(0, idx));
+				if (!m) return false;
+
+				this.tabComplete.prefix = m[1];
+				var idprefix = toId(m[2]);
+				var candidates = [];
+
+				for (var i in users) {
+					if (i.substr(0, idprefix.length) === idprefix) {
+						candidates.push(i);
+					}
+				}
+
+				// Sort by most recent to speak in the chat, or, in the case of a tie,
+				// in alphabetical order.
+				var self = this;
+				candidates.sort(function(a, b) {
+					var aidx = self.userActivity.indexOf(a);
+					var bidx = self.userActivity.indexOf(b);
+					if (aidx !== -1) {
+						if (bidx !== -1) {
+							return bidx - aidx;
+						}
+						return -1; // a comes first
+					} else if (bidx != -1) {
+						return 1;  // b comes first
+					}
+					return (a < b) ? -1 : 1;  // alphabetical order
+				});
+				this.tabComplete.candidates = candidates;
+				this.tabComplete.index = 0;
+			}
+
+			// Substitute in the tab-completed name.
+			var substituteUserId = this.tabComplete.candidates[this.tabComplete.index];
+			var name = users[substituteUserId].substr(1);
+			$textbox.val(this.tabComplete.prefix + name + text.substr(idx));
+			var pos = this.tabComplete.prefix.length + name.length;
+			$textbox[0].setSelectionRange(pos, pos);
+			this.tabComplete.cursor = pos;
+			return true;
+		}
+	});
+
+	var ChatRoom = this.ChatRoom = ConsoleRoom.extend({
+		minWidth: 320,
+		maxWidth: 1024,
+		isSideRoom: true,
+		initialize: function() {
+			var buf = '<ul class="userlist" style="display:none"></ul><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
+			this.$el.addClass('ps-room-light').html(buf);
+
+			this.$chatAdd = this.$('.chat-log-add');
+			this.$chatFrame = this.$('.chat-log');
+			this.$chat = this.$('.inner');
+			this.$chatbox = null;
+
+			this.users = {};
+			this.userCount = {};
+
+			this.$joinLeave = null;
+			this.joinLeave = {
+				'join': [],
+				'leave': []
+			};
+
+			this.$userList = this.$('.userlist');
+			this.userList = new UserList({
+				el: this.$userList,
+				room: this
+			});
+		},
+		updateLayout: function() {
+			if (this.$el.width() >= 570) {
+				this.$userList.show();
+				this.$chatFrame.addClass('hasuserlist');
+				this.$chatAdd.addClass('hasuserlist');
+			} else {
+				this.$userList.hide();
+				this.$chatFrame.removeClass('hasuserlist');
+				this.$chatAdd.removeClass('hasuserlist');
+			}
+			this.$chatFrame.scrollTop(this.$chat.height());
+		},
+		show: function() {
+			Room.prototype.show.apply(this, arguments);
+			this.updateLayout();
 		},
 		join: function() {
 			app.send('/join '+this.id);
@@ -400,113 +518,12 @@
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
 			}
 		},
-		getHighlight: function(message) {
-			var highlights = Tools.prefs('highlights') || [];
-			if (!app.highlightRegExp) {
-				try {
-					app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
-				} catch (e) {
-					// If the expression above is not a regexp, we'll get here.
-					// Don't throw an exception because that would prevent the chat
-					// message from showing up, or, when the lobby is initialising,
-					// it will prevent the initialisation from completing.
-					return false;
-				}
-			}
-			return ((highlights.length > 0) && app.highlightRegExp.test(message));
-		},
 		parseBattleID: function(id) {
 			if (id.lastIndexOf('-') > 6) {
 				return id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
 			}
 			return id.match(/^battle\-([a-z0-9]*[a-z])[0-9]*$/);
 		},
-
-		// tab completion
-
-		initializeTabComplete: function() {
-			this.tabComplete = {
-				candidates: null,
-				index: 0,
-				prefix: null,
-				cursor: -1,
-				reset: function() {
-					this.cursor = -1;
-				}
-			};
-			this.userActivity = [];
-		},
-		markUserActive: function(userid) {
-			var idx = this.userActivity.indexOf(userid);
-			if (idx !== -1) {
-				this.userActivity.splice(idx, 1);
-			}
-			this.userActivity.push(userid);
-			if (this.userActivity.length > 100) {
-				// Prune the list.
-				this.userActivity.splice(0, 20);
-			}
-		},
-		tabComplete: null,
-		userActivity: null,
-		handleTabComplete: function($textbox) {
-			// Don't tab complete at the start of the text box.
-			var idx = $textbox.prop('selectionStart');
-			if (idx === 0) return false;
-
-			var text = $textbox.val();
-
-			if (idx === this.tabComplete.cursor) {
-				// The user is cycling through the candidate names.
-				if (++this.tabComplete.index >= this.tabComplete.candidates.length) {
-					this.tabComplete.index = 0;
-				}
-			} else {
-				// This is a new tab completion.
-
-				// There needs to be non-whitespace to the left of the cursor.
-				var m = /^(.*?)([^ ]*)$/.exec(text.substr(0, idx));
-				if (!m) return false;
-
-				this.tabComplete.prefix = m[1];
-				var idprefix = toId(m[2]);
-				var candidates = [];
-
-				for (var i in this.users) {
-					if (i.substr(0, idprefix.length) === idprefix) {
-						candidates.push(i);
-					}
-				}
-
-				// Sort by most recent to speak in the chat, or, in the case of a tie,
-				// in alphabetical order.
-				var self = this;
-				candidates.sort(function(a, b) {
-					var aidx = self.userActivity.indexOf(a);
-					var bidx = self.userActivity.indexOf(b);
-					if (aidx !== -1) {
-						if (bidx !== -1) {
-							return bidx - aidx;
-						}
-						return -1; // a comes first
-					} else if (bidx != -1) {
-						return 1;  // b comes first
-					}
-					return (a < b) ? -1 : 1;  // alphabetical order
-				});
-				self.tabComplete.candidates = candidates;
-				self.tabComplete.index = 0;
-			}
-
-			// Substitute in the tab-completed name.
-			var substituteUserId = this.tabComplete.candidates[this.tabComplete.index];
-			var name = this.users[substituteUserId].substr(1);
-			$textbox.val(this.tabComplete.prefix + name + text.substr(idx));
-			var pos = this.tabComplete.prefix.length + name.length;
-			$textbox[0].setSelectionRange(pos, pos);
-			this.tabComplete.cursor = pos;
-			return true;
-		}
 	}, {
 		getTimestamp: function(section) {
 			var pref = Tools.prefs('timestamps') || {};
