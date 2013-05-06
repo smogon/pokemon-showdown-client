@@ -1433,11 +1433,11 @@ a.ilink:hover {
 	width: 626px;
 	margin-top: 8px;
 	
-background-image: linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	
 	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
 }
@@ -1727,12 +1727,12 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 }
 
 .statform {
-	padding: 10px 20px;
+	padding: 10px 13px;
 	font-size: 10pt;
 }
-.statform .col div {
+.statform .col > div {
 	padding-top: 1px;
-	height: 23px;
+	height: 28px;
 }
 .statform .col div label,
 .statform .col div em,
@@ -1742,12 +1742,15 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 }
 .statform .col {
 	float: left;
-	width: 100px;
+	width: 52px;
 	text-align: right;
 	font-size: 9pt;
 }
+.statform .basestatscol {
+	width: 38px;
+}
 .statform .statscol {
-	width: 40px;
+	width: 36px;
 }
 .statform .statscol em,
 .statform .statscol b {
@@ -1758,7 +1761,7 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 	width: 205px;
 }
 .statform .graphcol div span {
-	margin: 2px 0 0 5px;
+	margin: 3px 0 0 5px;
 	display: block;
 	height: 8px;
 	border-bottom: 1px solid #AAAAAA;
@@ -1769,7 +1772,17 @@ background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225
 .statform .ivcol {
 	width: 48px;
 	text-align: center;
-	margin-right: 10px;
+}
+.statform .evslidercol {
+	width: 173px;
+	margin-right: 9px;
+	margin-left: 5px;
+	padding-top: 7px;
+	text-align: center;
+}
+.evslider {
+	width: 172px;
+	margin: 0 auto;
 }
 .statform .totalev b {
 	color: #DD2222;
