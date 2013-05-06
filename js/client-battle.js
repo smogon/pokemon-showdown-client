@@ -15,11 +15,11 @@
 			this.$join = null;
 			this.$foeHint = this.$el.find('.foehint');
 
+			// BattleSound.setMute(me.isMuted());
 			this.battle = new Battle(this.$battle, this.$chatFrame);
 
 			this.$chat = this.$chatFrame.find('.inner');
 
-			// this.battle.setMute(me.isMuted());
 			this.battle.customCallback = _.bind(this.updateControls, this);
 			this.battle.endCallback = _.bind(this.updateControls, this);
 			this.battle.startCallback = _.bind(this.updateControls, this);
@@ -49,6 +49,13 @@
 		},
 		receive: function(data) {
 			this.add(data);
+		},
+		focus: function() {
+			this.battle.play();
+			ConsoleRoom.prototype.focus.call(this);
+		},
+		blur: function() {
+			this.battle.pause();
 		},
 		init: function(data) {
 			var log = data.split('\n');
@@ -531,7 +538,7 @@
 			this.side = sideData.id;
 			if (this.battle.sidesSwitched !== !!(this.side === 'p2')) {
 				sidesSwitched = true;
-				this.battle.reset();
+				this.battle.reset(true);
 				this.battle.switchSides();
 				if (midBattle) {
 					this.battle.fastForwardTo(-1);
