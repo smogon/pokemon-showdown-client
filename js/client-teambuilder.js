@@ -1,9 +1,9 @@
-(function($) {
+(function(exports, $) {
 
 	// this is a useful global
 	var teams;
 
-	var TeambuilderRoom = this.TeambuilderRoom = this.Room.extend({
+	var TeambuilderRoom = exports.TeambuilderRoom = exports.Room.extend({
 		initialize: function() {
 			teams = app.user.teams;
 
@@ -17,7 +17,25 @@
 				this.buildMovelists();
 			}
 		},
+		blur: function() {
+			if (this.saveFlag) {
+				this.saveFlag = false;
+				app.user.trigger('saveteams');
+			}
+		},
 		events: {
+			// team changes
+			'change input.teamnameedit': 'teamNameChange',
+			'change select[name=format]': 'formatChange',
+			'change input[name=nickname]': 'nicknameChange',
+
+			// details
+			'change .detailsform input': 'detailsChange',
+
+			// stats
+			'keyup .statform input.numform': 'statKeyUp',
+			'change select[name=nature]': 'natureChange',
+
 			// teambuilder events
 			'keydown .chartinput': 'chartKeydown',
 			'focus .chartinput': 'chartFocus',
@@ -29,6 +47,7 @@
 			if (this[e.currentTarget.value]) this[e.currentTarget.value].call(this, e);
 		},
 		saveTeams: function() {
+			// save and return
 			TeambuilderRoom.saveTeams();
 			app.user.trigger('saveteams');
 			this.update();
@@ -200,14 +219,14 @@
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(this.toText(this.curTeam.team))+'</textarea>';
 			} else {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="back" class="savebutton"><i class="icon-save"></i> Save</button> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				var i=0;
 				if (this.curTeam.team.length && !this.curTeam.team[this.curTeam.team.length-1].species) {
 					this.curTeam.team.splice(this.curTeam.team.length-1, 1);
 				}
-				if (BattleFormats) {
+				if (exports.BattleFormats) {
 					buf += '<li class="format-select"><label>Format:</label><select name="format"><option value="">(None)</option>';
 					for (var i in BattleFormats) {
 						if (BattleFormats[i].isTeambuilderFormat) {
@@ -262,7 +281,7 @@
 				'N': '&mdash;'
 			};
 			buf += '<span class="detailcell detailcell-first"><label>Level</label>'+(set.level||100)+'</span>';
-			buf += '<span class="detailcell"><label>Gender</label>'+GenderChart[set.gender||'N']+'</span>';
+			buf += '<span class="detailcell"><label>Gender</label>'+GenderChart[template.gender||set.gender||'N']+'</span>';
 			buf += '<span class="detailcell"><label>Happiness</label>'+(set.happiness||255)+'</span>';
 			buf += '<span class="detailcell"><label>Shiny</label>'+(set.shiny?'Yes':'No')+'</span>';
 
@@ -327,6 +346,27 @@
 			this.update();
 			this.$('input[name=pokemon]').select();
 		},
+		saveFlag: false,
+		save: function() {
+			this.saveFlag = true;
+			TeambuilderRoom.saveTeams();
+		},
+		teamNameChange: function(e) {
+			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled '+(this.curTeamLoc+1));
+			e.currentTarget.value = this.curTeam.name;
+			this.save();
+		},
+		formatChange: function(e) {
+			this.curTeam.format = e.currentTarget.value;
+			this.save();
+		},
+		nicknameChange: function(e) {
+			var i = +$(e.currentTarget).closest('li').attr('value');
+			var team = this.curTeam.team[i];
+			var name = $.trim(e.currentTarget.value) || team.species;
+			e.currentTarget.value = team.name = name;
+			this.save();
+		},
 
 		/*********************************************************
 		 * Set view
@@ -343,7 +383,7 @@
 			}
 			for (var i=0; i<this.curTeam.team.length; i++) {
 				var set = this.curTeam.team[i];
-				var pokemonicon = '<span class="pokemonicon" id="pokemonicon-'+i+'" style="'+Tools.getIcon(set)+'"></span>';
+				var pokemonicon = '<span class="pokemonicon pokemonicon-'+i+'" style="'+Tools.getIcon(set)+'"></span>';
 				if (!set.name) {
 					buf += '<button disabled="disabled" class="addpokemon"><i class="icon-plus"></i></button> ';
 					isAdd = true;
@@ -372,6 +412,83 @@
 			this.$el.html(buf);
 			this.$chart = this.$('.teambuilder-results');
 		},
+		updatePokemonSprite: function() {
+			var set = this.curSet;
+			if (!set) return;
+			var shiny = (set.shiny ? '-shiny' : '');
+			var sprite = Tools.getTemplate(set.species).spriteid;
+			if (BattlePokemonSprites && BattlePokemonSprites[sprite] && BattlePokemonSprites[sprite].front && BattlePokemonSprites[sprite].front.anif && set.gender === 'F') {
+				sprite += '-f';
+			}
+
+			this.$('.setcol-icon').css('background-image', Tools.getTeambuilderSprite(set).substr(17));
+
+			this.$('.pokemonicon-'+this.curSetLoc).css('background', Tools.getIcon(set).substr(11));
+
+			var item = Tools.getItem(set.item);
+			if (item.id) {
+				this.$('.setcol-icon .itemicon').css('background', Tools.getItemIcon(item).substr(11));
+			} else {
+				this.$('.setcol-icon .itemicon').css('background', 'none');
+			}
+
+			this.updateStatGraph();
+		},
+		updateStatGraph: function() {
+			var set = this.curSet;
+			if (!set) return;
+
+			var stats = {hp:'',atk:'',def:'',spa:'',spd:'',spe:''};
+
+			// stat cell
+			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
+			for (var stat in stats) {
+				stats[stat] = this.getStat(stat, set);
+				var ev = '<em>'+(set.evs[stat] || '')+'</em>';
+				if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
+					ev += '<small>+</small>';
+				}
+				else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
+					ev += '<small>&minus;</small>';
+				}
+				var width = stats[stat]*75/504;
+				if (stat == 'hp') width = stats[stat]*75/704;
+				if (width > 75) width = 75;
+				var color = Math.floor(stats[stat]*180/714);
+				if (color > 360) color = 360;
+				buf += '<span class="statrow"><label>'+BattleStatNames[stat]+'</label> <span class="statgraph"><span style="width:'+width+'px;background:hsl('+color+',40%,75%);"></span></span> '+ev+'</span>';
+			}
+			this.$('button[name=stats]').html(buf);
+
+			if (this.curChartType !== 'stats') return;
+
+			buf = '<div></div>';
+			for (var stat in stats) {
+				buf += '<div><b>'+stats[stat]+'</b></div>';
+			}
+			this.$chart.find('.statscol').html(buf);
+
+			buf = '<div></div>';
+			var totalev = 0;
+			for (var stat in stats) {
+				var width = stats[stat]*200/504;
+				if (stat == 'hp') width = stats[stat]*200/704;
+				if (width > 200) width = 200;
+				var color = Math.floor(stats[stat]*180/714);
+				if (color > 360) color = 360;
+				buf += '<div><em><span style="width:'+Math.floor(width)+'px;background:hsl('+color+',85%,45%);border-color:hsl('+color+',85%,35%)"></span></em></div>';
+				totalev += (set.evs[stat]||0);
+			}
+			buf += '<div><em>Remaining:</em></div>';
+			this.$chart.find('.graphcol').html(buf);
+
+			if (totalev <= 510) {
+				this.$chart.find('.totalev').html('<em>'+(totalev>508?0:508-totalev)+'</em>');
+			} else {
+				this.$chart.find('.totalev').html('<b>'+(510-totalev)+'</b>');
+			}
+			this.$chart.find('select[name=nature]').val(set.nature||'Serious');
+		},
 		curChartType: '',
 		curChartName: '',
 		updateChart: function() {
@@ -386,12 +503,37 @@
 			}
 			this.$chart.html('<em>Loading '+this.curChartType+'...</em>');
 		},
-		setStatFormGuesses: function() {
-			this.updateStatForm(true);
+		selectPokemon: function(i) {
+			i = +i;
+			var set = this.curTeam.team[i];
+			if (set) {
+				this.curSet = set;
+				this.curSetLoc = i;
+				this.update();
+				this.updateChart();
+			}
 		},
+		stats: function(i, button) {
+			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
+			this.curChartType = 'stats';
+			this.updateStatForm();
+		},
+		details: function(i, button) {
+			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
+			this.curChartType = 'details';
+			this.updateDetailsForm();
+		},
+
+		/*********************************************************
+		 * Set stat form
+		 *********************************************************/
+
+		plus: '',
+		minus: '',
 		updateStatForm: function(setGuessed) {
 			var buf = '';
 			var set = this.curSet;
+			var baseStats = Tools.getTemplate(this.curSet.species).baseStats;
 			buf += '<h3>EVs</h3>';
 			buf += '<div class="statform">';
 			var role = this.guessRole();
@@ -419,6 +561,11 @@
 				this.plus = guessedPlus;
 				this.minus = guessedMinus;
 				this.updateNature();
+
+				this.save();
+				this.updateStatGraph();
+				this.natureChange();
+				return;
 			}
 
 			var stats = {hp:'',atk:'',def:'',spa:'',spd:'',spe:''};
@@ -428,18 +575,18 @@
 
 			// label column
 			buf += '<div class="col labelcol"><div></div>';
-			buf += '<div><label>Hit Points</label></div><div><label>Attack</label></div><div><label>Defense</label></div><div><label>Special Attack</label></div><div><label>Special Defense</label></div><div><label>Speed</label></div>';
+			buf += '<div><label>HP</label></div><div><label>Attack</label></div><div><label>Defense</label></div><div><label>Sp. Atk.</label></div><div><label>Sp. Def.</label></div><div><label>Speed</label></div>';
 			buf += '</div>';
-			
-			buf += '<div class="col statscol"><div></div>';
+
+			buf += '<div class="col basestatscol"><div><em>Base</em></div>';
 			for (var i in stats) {
-				stats[i] = this.getStat(i);
-				buf += '<div><b>'+stats[i]+'</b></div>';
+				buf += '<div><b>'+baseStats[i]+'</b></div>';
 			}
 			buf += '</div>';
-			
+
 			buf += '<div class="col graphcol"><div></div>';
 			for (var i in stats) {
+				stats[i] = this.getStat(i);
 				var width = stats[i]*200/504;
 				if (i=='hp') width = Math.floor(stats[i]*200/704);
 				if (width > 199) width = 199;
@@ -449,7 +596,7 @@
 			}
 			buf += '<div><em>Remaining:</em></div>';
 			buf += '</div>';
-			
+
 			buf += '<div class="col evcol"><div><strong>EVs</strong></div>';
 			var totalev = 0;
 			this.plus = '';
@@ -476,18 +623,29 @@
 				buf += '<div class="totalev"><b>'+(510-totalev)+'</b></div>';
 			}
 			buf += '</div>';
-			
+
+			buf += '<div class="col evslidercol"><div></div>';
+			for (var i in stats) {
+				buf += '<div><input type="slider" name="evslider-'+i+'" value="'+(set.evs[i]||'0')+'" min="0" max="252" step="4" class="evslider" /></div>';
+			}
+			buf += '</div>';
+
 			buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
 			var totalev = 0;
 			if (!set.ivs) set.ivs = {};
 			for (var i in stats) {
 				if (typeof set.ivs[i] === 'undefined') set.ivs[i] = 31;
 				var val = ''+(set.ivs[i]);
-				buf += '<div><input type="text" name="iv-'+i+'" value="'+val+'" class="inputform numform" /></div>';
+				buf += '<div><input type="number" name="iv-'+i+'" value="'+val+'" class="inputform numform" /></div>';
 			}
-			//buf += '<div class="totaliv"><b>'+''+'</b></div>';
 			buf += '</div>';
-			
+
+			buf += '<div class="col statscol"><div></div>';
+			for (var i in stats) {
+				buf += '<div><b>'+stats[i]+'</b></div>';
+			}
+			buf += '</div>';
+
 			buf += '<p style="clear:both">Nature: <select name="nature">';
 			for (var i in BattleNatures) {
 				var curNature = BattleNatures[i];
@@ -498,43 +656,247 @@
 				buf += '</option>';
 			}
 			buf += '</select></p>';
-			
+
 			buf += '<p><em>Protip:</em> You can also set natures by typing "+" and "-" next to a stat.</p>';
-			
+
 			buf += '</div>';
 			this.$chart.html(buf);
+			var self = this;
+			this.suppressSliderCallback = true;
+			this.$chart.find('.evslider').slider({
+				from: 0,
+				to: 252,
+				step: 4,
+				skin: 'round_plastic',
+				onstatechange: function(val) {
+					if (!self.suppressSliderCallback) self.statSlide(val, this);
+				},
+				callback: function() {
+					self.save();
+				}
+			});
+			this.suppressSliderCallback = false;
 		},
+		setStatFormGuesses: function() {
+			this.updateStatForm(true);
+		},
+		setSlider: function(stat, val) {
+			this.suppressSliderCallback = true;
+			this.$chart.find('input[name=evslider-'+stat+']').slider('value', val||0);
+			this.suppressSliderCallback = false;
+		},
+		updateNature: function() {
+			var set = this.curSet;
+			if (!set) return;
+
+			if (this.plus === '' || this.minus === '') {
+				set.nature = 'Serious';
+			} else {
+				for (var i in BattleNatures) {
+					if (BattleNatures[i].plus === this.plus && BattleNatures[i].minus === this.minus) {
+						set.nature = i;
+						break;
+					}
+				}
+			}
+		},
+		statKeyUp: function(e) {
+			var inputName = '';
+			inputName = e.currentTarget.name;
+			var val = Math.abs(parseInt(e.currentTarget.value, 10));
+			var set = this.curSet;
+			if (!set) return;
+
+			if (inputName.substr(0,5) === 'stat-') {
+				// EV
+				// Handle + and -
+				var stat = inputName.substr(5);
+				if (!set.evs) set.evs = {};
+
+				var lastchar = e.currentTarget.value.charAt(e.target.value.length-1);
+				var firstchar = e.currentTarget.value.charAt(0);
+				var natureChange = true;
+				if ((lastchar === '+' || firstchar === '+') && stat !== 'hp') {
+					if (this.plus && this.plus !== stat) this.$chart.find('input[name=stat-'+this.plus+']').val(set.evs[this.plus]||'');
+					this.plus = stat;
+				} else if ((lastchar === '-' || lastchar === "\u2212" || firstchar === '-' || firstchar === "\u2212") && stat !== 'hp') {
+					if (this.minus && this.minus !== stat) this.$chart.find('input[name=stat-'+this.minus+']').val(set.evs[this.minus]||'');
+					this.minus = stat;
+				} else if (this.plus === stat) {
+					this.plus = '';
+				} else if (this.minus === stat) {
+					this.minus = '';
+				} else {
+					natureChange = false;
+				}
+				if (natureChange) {
+					this.updateNature();
+				}
+
+				// cap
+				if (val > 252) val = 252;
+				if (val < 0) val = 0;
+
+				if (set.evs[stat] !== val || natureChange) {
+					set.evs[stat] = val;
+					this.setSlider(stat, val);
+					this.updateStatGraph();
+				}
+			} else {
+				// IV
+				var stat = inputName.substr(3);
+
+				if (val > 31) val = 31;
+				if (val < 1) val = 1;
+
+				if (!set.ivs) set.ivs = {};
+				if (set.ivs[stat] !== val) {
+					set.ivs[stat] = val;
+					this.updateStatGraph();
+				}
+			}
+		},
+		statSlide: function(val, slider) {
+			var stat = slider.inputNode[0].name.substr(9);
+			var set = this.curSet;
+			val = +val;
+
+			if (!this.ignoreEVLimits && set.evs) {
+				var total = 0;
+				for (var i in set.evs) {
+					total += (i===stat?val:set.evs[i]);
+				}
+				if (total > 508 && val - total + 508 >= 0) {
+					// don't allow dragging beyond 508 EVs
+					val = val - total + 508;
+
+					// Don't try this at home.
+					// I am a trained professional.
+					slider.o.pointers[0].set(val);
+				}
+			}
+
+			if (!set.evs) set.evs = {};
+			set.evs[stat] = val;
+
+			val = ''+(val||'')+(this.plus===stat?'+':'')+(this.minus===stat?'-':'');
+			this.$('input[name=stat-'+stat+']').val(val);
+
+			this.updateStatGraph();
+		},
+		natureChange: function(e) {
+			var set = this.curSet;
+			if (!set) return;
+
+			if (e) {
+				set.nature = e.currentTarget.value;
+			}
+			this.plus = '';
+			this.minus = '';
+			var nature = BattleNatures[set.nature||'Serious'];
+			for (var i in BattleStatNames) {
+				var val = ''+(set.evs[i]||'');
+				if (nature.plus === i) {
+					this.plus = i;
+					val += '+';
+				}
+				if (nature.minus === i) {
+					this.minus = i;
+					val += '-';
+				}
+				this.$chart.find('input[name=stat-'+i+']').val(val);
+				if (!e) this.setSlider(i, set.evs[i]);
+			}
+
+			this.save();
+			this.updateStatGraph();
+		},
+
+		/*********************************************************
+		 * Set details form
+		 *********************************************************/
+
 		updateDetailsForm: function() {
 			var buf = '';
 			var set = this.curSet;
 			var template = Tools.getTemplate(set.species);
 			if (!set) return;
 			buf += '<h3>Details</h3>';
-			buf += '<div class="detailsform">';
+			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="'+(set.level||100)+'" class="inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="'+(set.level||100)+'" class="textbox inputform numform" /></div></div>';
 
 			buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
 			if (template.gender) {
 				var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
 				buf += genderTable[template.gender];
 			} else {
-				buf += '<label><input type="radio" name="gender" value="yes"'+(set.gender==='M'?' checked="checked"':'')+' /> Male</label> ';
-				buf += '<label><input type="radio" name="gender" value="no"'+(set.gender==='F'?' checked="checked"':'')+' /> Female</label> ';
-				buf += '<label><input type="radio" name="gender" value="no"'+(!set.gender?' checked="checked"':'')+' /> Random</label>';
+				buf += '<label><input type="radio" name="gender" value="M"'+(set.gender==='M'?' checked':'')+' /> Male</label> ';
+				buf += '<label><input type="radio" name="gender" value="F"'+(set.gender==='F'?' checked':'')+' /> Female</label> ';
+				buf += '<label><input type="radio" name="gender" value="N"'+(!set.gender?' checked':'')+' /> Random</label>';
 			}
 			buf += '</div></div>';
 
-			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="'+(typeof set.happiness==='number'?set.happiness:255)+'" class="inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="'+(typeof set.happiness==='number'?set.happiness:255)+'" class="textbox inputform numform" /></div></div>';
 
 			buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
-			buf += '<label><input type="radio" name="shiny" value="yes"'+(set.shiny?' checked="checked"':'')+' /> Yes</label> ';
-			buf += '<label><input type="radio" name="shiny" value="no"'+(!set.shiny?' checked="checked"':'')+' /> No</label>';
+			buf += '<label><input type="radio" name="shiny" value="yes"'+(set.shiny?' checked':'')+' /> Yes</label> ';
+			buf += '<label><input type="radio" name="shiny" value="no"'+(!set.shiny?' checked':'')+' /> No</label>';
 			buf += '</div></div>';
 
-			buf += '</div>';
+			buf += '</form>';
 			this.$chart.html(buf);
 		},
+		detailsChange: function() {
+			var set = this.curSet;
+			if (!set) return;
+
+			// level
+			var level = parseInt(this.$chart.find('input[name=level]').val(),10);
+			if (!level || level > 100 || level < 1) level = 100;
+			if (level !== 100 || set.level) set.level = level;
+
+			// happiness
+			var happiness = parseInt(this.$chart.find('input[name=happiness]').val(),10);
+			if (happiness > 255) happiness = 255;
+			if (happiness < 0) happiness = 255;
+			if (happiness !== 255 || set.happiness || set.happiness === 0) set.happiness = happiness;
+
+			// shiny
+			var shiny = (this.$chart.find('input[name=shiny]:checked').val() === 'yes');
+			if (shiny) {
+				set.shiny = true;
+			} else {
+				delete set.shiny;
+			}
+
+			var gender = this.$chart.find('input[name=gender]:checked').val();
+			if (gender === 'M' || gender === 'F') {
+				set.gender = gender;
+			} else {
+				delete set.gender;
+			}
+
+			// update details cell
+			var buf = '';
+			var GenderChart = {
+				'M': 'Male',
+				'F': 'Female',
+				'N': '&mdash;'
+			};
+			buf += '<span class="detailcell detailcell-first"><label>Level</label>'+(set.level||100)+'</span>';
+			buf += '<span class="detailcell"><label>Gender</label>'+GenderChart[set.gender||'N']+'</span>';
+			buf += '<span class="detailcell"><label>Happiness</label>'+(typeof set.happiness==='number'?set.happiness:255)+'</span>';
+			buf += '<span class="detailcell"><label>Shiny</label>'+(set.shiny?'Yes':'No')+'</span>';
+			this.$('button[name=details]').html(buf);
+
+			this.save();
+			this.updatePokemonSprite();
+		},
+
+		/*********************************************************
+		 * Set charts
+		 *********************************************************/
 
 		arrangeCallback: {
 			pokemon: function(pokemon) {
@@ -587,25 +949,6 @@
 			}
 		},
 
-		selectPokemon: function(i) {
-			i = +i;
-			var set = this.curTeam.team[i];
-			if (set) {
-				this.curSet = set;
-				this.curSetLoc = i;
-				this.update();
-			}
-		},
-		stats: function(i, button) {
-			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
-			this.curChartType = 'stats';
-			this.updateStatForm();
-		},
-		details: function(i, button) {
-			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
-			this.curChartType = 'details';
-			this.updateDetailsForm();
-		},
 		chartTypes: {
 			pokemon: 'pokemon',
 			item: 'item',
@@ -1245,7 +1588,8 @@
 				}
 			}
 
-			if (this.curTeam && (this.curTeam.format === 'hackmons' || this.curTeam.format === 'balancedhackmons')) {
+			this.ignoreEVLimits = (this.curTeam.format === 'hackmons' || this.curTeam.format === 'balancedhackmons');
+			if (this.curTeam && this.ignoreEVLimits) {
 				evs = {hp:252, atk:252, def:252, spa:252, spd:252, spe:252};
 				if (hasMove['gyroball'] || hasMove['trickroom']) delete evs.spe;
 			} else {
@@ -1413,4 +1757,4 @@
 		}
 	});
 
-}).call(this, jQuery);
+})(window, jQuery);
