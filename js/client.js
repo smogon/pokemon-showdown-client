@@ -1286,7 +1286,7 @@
 			}
 			buf += '</div>';
 
-			if (userid === app.user.get('userid')) {
+			if (userid === app.user.get('userid') || !app.user.get('named')) {
 				buf += '<div class="buttonbar"><button disabled>Challenge</button> <button disabled>PM</button> <button name="close">Close</close></div>';
 			} else {
 				buf += '<div class="buttonbar"><button name="challenge">Challenge</button> <button name="pm">PM</button> <button name="close">Close</close></div>';
