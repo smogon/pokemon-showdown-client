@@ -1727,8 +1727,11 @@ a.ilink:hover {
 }
 
 .statform {
-	padding: 10px 13px;
+	padding: 3px 13px 10px 13px;
 	font-size: 10pt;
+}
+.statform p.suggested {
+	margin: 5px 0;
 }
 .statform .col > div {
 	padding-top: 1px;
