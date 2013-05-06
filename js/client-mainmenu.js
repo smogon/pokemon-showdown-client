@@ -328,7 +328,7 @@
 			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
 
 			$(target).closest('.challenge').remove();
-			app.send('/utm '+(team?$.toJSON(team):''));
+			app.send('/utm '+(team?$.toJSON(team):'null'));
 			app.send('/accept '+userid);
 		},
 		rejectChallenge: function(i, target) {
@@ -351,7 +351,7 @@
 			buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 			$(target).closest('.challenge').html(buf);
-			app.send('/utm '+(team?$.toJSON(team):''));
+			app.send('/utm '+(team?$.toJSON(team):'null'));
 			app.send('/challenge '+userid+', '+format);
 		},
 		cancelChallenge: function(i, target) {
@@ -449,7 +449,7 @@
 			$searchForm.find('button.big').html('<strong><i class="icon-refresh icon-spin"></i> Connecting...</strong>').addClass('disabled');
 			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
 
-			app.send('/utm '+(team?$.toJSON(team):''));
+			app.send('/utm '+(team?$.toJSON(team):'null'));
 			app.send('/search '+format);
 		},
 		cancelSearch: function() {
