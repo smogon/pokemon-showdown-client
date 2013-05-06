@@ -46,7 +46,7 @@
 		 * Process a signed assertion returned from the login server.
 		 * Emits the following events (arguments in brackets):
 		 *
-		 *   `login:authrequried` (name)
+		 *   `login:authrequired` (name)
 		 *     triggered if the user needs to authenticate with this name
 		 *
 		 *   `login:invalidname` (name, error)
@@ -57,7 +57,7 @@
 		 */
 		finishRename: function(name, assertion) {
 			if (assertion === ';') {
-				this.trigger('login:authrequried', name);
+				this.trigger('login:authrequired', name);
 			} else if (assertion.substr(0, 2) === ';;') {
 				this.trigger('login:invalidname', name, assertion.substr(2));
 			} else if (assertion.indexOf('\n') >= 0) {
@@ -75,7 +75,7 @@
 		 * See `finishRename` above for a list of events this can emit.
 		 */
 		rename: function(name) {
-			if (this.userid !== toUserid(name)) {
+			if (this.get('userid') !== toUserid(name)) {
 				var query = this.getActionPHP() + '?act=getassertion&userid=' +
 						encodeURIComponent(toUserid(name)) +
 						'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
@@ -87,6 +87,32 @@
 			} else {
 				app.send('/trn ' + name);
 			}
+		},
+		passwordRename: function(name, password) {
+			var self = this;
+			$.post(this.getActionPHP(), {
+				act: 'login',
+				name: name,
+				pass: password,
+				challengekeyid: this.challengekeyid,
+				challenge: this.challenge
+			}, Tools.safeJSON(function(data) {
+				if (data && data.curuser && data.curuser.loggedin) {
+					// success!
+					self.set('registered', data.curuser);
+					if (!app.socket) {
+						document.location.reload();
+						return;
+					}
+					self.finishRename(name, data.assertion);
+				} else {
+					// wrong password
+					app.addPopup('password', LoginPasswordPopup, {
+						username: name,
+						error: 'Wrong password.'
+					});
+				}
+			}), 'text');
 		},
 		challengekeyid: -1,
 		challenge: '',
@@ -127,7 +153,7 @@
 		logout: function() {
 			$.post(this.getActionPHP(), {
 				act: 'logout',
-				userid: this.userid
+				userid: this.get('userid')
 			});
 			app.send('/logout');
 		},
@@ -182,6 +208,8 @@
 			this.topbar = new Topbar({el: $('#header')});
 			this.addRoom('');
 
+			var self = this;
+
 			this.on('init:unsupported', function() {
 				alert('Your browser is unsupported.');
 			});
@@ -190,8 +218,8 @@
 				alert('You have third-party cookies disabled in your browser, which is likely to cause problems. You should enable them and then refresh this page.');
 			});
 
-			this.user.on('login:authrequried', function(name) {
-				alert('The name ' + name + ' is registered, but you aren\'t logged in :(');
+			this.user.on('login:authrequired', function(name) {
+				self.addPopup('password', LoginPasswordPopup, {username: name});
 			});
 
 			this.initializeConnection();
@@ -920,11 +948,17 @@
 			var name = ' '+app.user.get('name');
 			var color = hashColor(app.user.get('userid'));
 			if (app.user.get('named')) {
-				buf = '<span class="username" data-name="'+Tools.escapeHTML(name)+'" style="'+color+'"><i class="icon-user" style="color:#779EC5"></i> '+Tools.escapeHTML(name)+'</span>';
+				buf = '<span class="username" data-name="'+Tools.escapeHTML(name)+'" style="'+color+'"><i class="icon-user" style="color:#779EC5"></i> '+Tools.escapeHTML(name)+'</span> <button name="logout">Log out</button>';
 			} else {
-				buf = '<span class="username" data-name="'+Tools.escapeHTML(name)+'" style="color:#999"><i class="icon-user" style="color:#999"></i> '+Tools.escapeHTML(name)+'</span>';
+				buf = '<button name="login">Choose name</button>';
 			}
 			this.$userbar.html(buf);
+		},
+		login: function() {
+			app.addPopup('login', LoginPopup);
+		},
+		logout: function() {
+			app.user.logout();
 		},
 		updateTabbar: function() {
 			var curId = (app.curRoom ? app.curRoom.id : '');
@@ -1279,6 +1313,80 @@
 		}
 	},{
 		dataCache: {}
+	});
+
+	var LoginPopup = this.LoginPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function(data) {
+			var buf = '<form>';
+
+			if (data.error) {
+				buf += '<p class="error">' + Tools.escapeHTML(data.error) + '</p>';
+				if (data.error.indexOf(' forced you to change ') >= 0) {
+					buf += '<p>Keep in mind these rules:</p>';
+					buf += '<ol>';
+					buf += '<li>Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</li>';
+					buf += '<li>Usernames may not reference sexual activity, directly or indirectly.</li>';
+					buf += '<li>Usernames may not impersonate a recognized user (a user with %, @, &, or ~ next to their name).</li>';
+					buf += '</ol>';
+				}
+			} else if (data.reason) {
+				buf += '<p>' + Tools.escapeHTML(data.reason) + '</p>';
+			}
+
+			var name = (data.name || '');
+			if (!name && app.user.get('named')) name = app.user.get('name');
+			buf += '<p><label class="label">Username: <input class="textbox" type="text" name="username" value="'+Tools.escapeHTML(name)+'" autofocus></label></p>';
+			buf += '<p class="buttonbar"><button type="submit"><strong>Choose name</strong></button> <button name="close">Cancel</button></p>';
+
+			buf += '</form>';
+			this.$el.html(buf);
+		},
+		submit: function(data) {
+			app.user.rename(data.username);
+			this.close();
+		}
+	});
+	var LoginPasswordPopup = this.LoginPasswordPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function(data) {
+			var buf = '<form>';
+
+			if (data.error) {
+				buf += '<p class="error">' + Tools.escapeHTML(data.error) + '</p>';
+				if (data.error.indexOf(' forced you to change ') >= 0) {
+					buf += '<p>Keep in mind these rules:</p>';
+					buf += '<ol>';
+					buf += '<li>Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</li>';
+					buf += '<li>Usernames may not reference sexual activity, directly or indirectly.</li>';
+					buf += '<li>Usernames may not impersonate a recognized user (a user with %, @, &, or ~ next to their name).</li>';
+					buf += '</ol>';
+				}
+			} else if (data.reason) {
+				buf += '<p>' + Tools.escapeHTML(data.reason) + '</p>';
+			} else {
+				buf += '<p class="error">The name you chose is registered.</p>';
+			}
+
+			buf += '<p>Log in:</p>';
+			buf += '<p><label class="label">Username: </label><strong>'+Tools.escapeHTML(data.username)+'<input type="hidden" name="username" value="'+Tools.escapeHTML(data.username)+'" /></strong></p>';
+			buf += '<p><label class="label">Password: <input class="textbox" type="password" name="password" autofocus></label></p>';
+			buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
+
+			buf += '<p class="or">or</p>';
+			buf += '<p class="buttonbar"><button name="login">Choose another name</button></p>';
+
+			buf += '</form>';
+			this.$el.html(buf);
+		},
+		login: function() {
+			this.close();
+			app.addPopup('login', LoginPopup);
+		},
+		submit: function(data) {
+			this.close();
+			app.user.passwordRename(data.username, data.password);
+		}
 	});
 
 }).call(this, jQuery);
