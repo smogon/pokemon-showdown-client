@@ -37,7 +37,9 @@
 			'change select[name=nature]': 'natureChange',
 
 			// teambuilder events
+			'click .utilichart a': 'chartClick',
 			'keydown .chartinput': 'chartKeydown',
+			'keyup .chartinput': 'chartKeyup',
 			'focus .chartinput': 'chartFocus',
 			'change .chartinput': 'chartChange'
 		},
@@ -214,6 +216,9 @@
 		 *********************************************************/
 
 		updateTeamView: function() {
+			this.curChartName = '';
+			this.curChartType = '';
+
 			var buf = '';
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button></div>';
@@ -502,6 +507,23 @@
 				return;
 			}
 			this.$chart.html('<em>Loading '+this.curChartType+'...</em>');
+			var self = this;
+			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
+			this.updateChartTimeout = setTimeout(function() {
+				self.updateChartTimeout = null;
+				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
+				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self)));
+			});
+		},
+		updateChartTimeout: null,
+		updateChartDelayed: function() {
+			var self = this;
+			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
+			this.updateChartTimeout = setTimeout(function() {
+				self.updateChartTimeout = null;
+				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
+				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, false, _.bind(self.arrangeCallback[self.curChartType], self)));
+			}, 200);
 		},
 		selectPokemon: function(i) {
 			i = +i;
@@ -510,16 +532,24 @@
 				this.curSet = set;
 				this.curSetLoc = i;
 				this.update();
-				this.updateChart();
+				var name = this.curChartName;
+				if (name === 'details' || name === 'stats') {
+					this.updateChart();
+				} else {
+					this.curChartName = '';
+					this.$('input[name='+name+']').select();
+				}
 			}
 		},
 		stats: function(i, button) {
 			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
+			this.curChartName = 'stats';
 			this.curChartType = 'stats';
 			this.updateStatForm();
 		},
 		details: function(i, button) {
 			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
+			this.curChartName = 'details';
 			this.curChartType = 'details';
 			this.updateDetailsForm();
 		},
@@ -934,7 +964,7 @@
 				if (!this.curSet) return;
 				if (!move) return ['Viable Moves', 'Usable Moves', 'Moves', 'Usable Sketch Moves', 'Sketch Moves'];
 				var id = toId(this.curSet.species);
-				var movelist = selfR.movelists[id];
+				var movelist = Tools.movelists[id];
 				if (!movelist) return 'Illegal';
 				if (!movelist[move.id]) {
 					if (movelist['sketch']) {
@@ -960,13 +990,33 @@
 			stats: 'stats',
 			details: 'details'
 		},
-		chartKeydown: function() {
-			//
+		chartClick: function(e) {
+			this.chartSet($(e.currentTarget).data('name'), true);
+		},
+		chartKeydown: function(e) {
+			var modifier = (e.shiftKey || e.ctrlKey || e.altKey || e.metaKey || e.cmdKey);
+			if (e.keyCode === 13 || (e.keyCode === 9 && !modifier)) {
+				if (!this.arrangeCallback[this.curChartType]) return;
+				e.stopPropagation();
+				e.preventDefault();
+
+				var name = e.currentTarget.name;
+				this.$chart.html(Chart.chart(e.currentTarget.value, this.curChartType, false, _.bind(this.arrangeCallback[this.curChartType], this)));
+				var val = Chart.firstResult;
+				this.chartSet(val, true);
+				return;
+			}
+		},
+		chartKeyup: function() {
+			this.updateChartDelayed();
 		},
 		chartFocus: function(e) {
 			var $target = $(e.currentTarget);
 			var name = e.currentTarget.name;
 			var type = this.chartTypes[name];
+			$target.removeClass('incomplete');
+
+			if (this.curChartName === name) return;
 
 			if (!this.curSet) {
 				var i = +$target.closest('li').prop('value');
@@ -988,59 +1038,96 @@
 		chartChange: function(e) {
 			var name = e.currentTarget.name;
 			var type = this.chartTypes[name];
+			this.$chart.html(Chart.chart(e.currentTarget.value, type, false, _.bind(this.arrangeCallback[this.curChartType], this)));
 			var val = Chart.firstResult;
 			var id = toId(e.currentTarget.value);
 			if (toId(val) !== id) {
 				$(e.currentTarget).addClass('incomplete');
 				return;
 			}
-			e.currentTarget.value = val;
-			switch (name) {
+			this.chartSet(val);
+		},
+		chartSet: function(val, selectNext) {
+			var inputName = this.curChartName;
+			var id = toId(val);
+			this.$('input[name='+inputName+']').val(val);
+			switch (inputName) {
 			case 'pokemon':
-				// selfR.formChangePokemon(val);
+				this.setPokemon(val);
 				break;
 			case 'item':
-				if (val || e.currentTarget.value === '') {
-					this.curSet.item = val;
-					// selfR.updatePokemonSprite();
-				}
+				this.curSet.item = val;
+				this.updatePokemonSprite();
+				if (selectNext) this.$('input[name=ability]').select();
 				break;
 			case 'ability':
-				if (val) {
-					this.curSet.ability = val;
-				}
+				this.curSet.ability = val;
+				if (selectNext) this.$('input[name=move1]').select();
 				break;
 			case 'move1':
-				if (val || e.currentTarget.value === '') {
-					this.curSet.moves[0] = val;
-					// selfR.formChooseMove(val);
-				}
+				this.curSet.moves[0] = val;
+				this.chooseMove(val);
+				if (selectNext) this.$('input[name=move2]').select();
 				break;
 			case 'move2':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
-				if (val || e.currentTarget.value === '') {
-					this.curSet.moves[1] = val;
-					// selfR.formChooseMove(val);
-				}
+				this.curSet.moves[1] = val;
+				this.chooseMove(val);
+				this.$('input[name=move3]').select();
 				break;
 			case 'move3':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
 				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
-				if (val || e.currentTarget.value === '') {
-					this.curSet.moves[2] = val;
-					// selfR.formChooseMove(val);
-				}
+				this.curSet.moves[2] = val;
+				this.chooseMove(val);
+				if (selectNext) this.$('input[name=move4]').select();
 				break;
 			case 'move4':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
 				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
 				if (!this.curSet.moves[2]) this.curSet.moves[2] = '';
-				if (val || e.currentTarget.value === '') {
-					this.curSet.moves[3] = val;
-					// selfR.formChooseMove(val);
-				}
+				this.curSet.moves[3] = val;
+				this.chooseMove(val);
+				if (selectNext) this.stats();
 				break;
 			}
+			this.save();
+		},
+		chooseMove: function(move) {
+			var set = this.curSet;
+			if (!set) return;
+			if (move.substr(0,13) === 'Hidden Power ') {
+				set.ivs = {};
+				for (var i in exports.BattleTypeChart[move.substr(13)].HPivs) {
+					set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPivs[i];
+				}
+			} else if (move === 'Gyro Ball' || move === 'Trick Room') {
+				set.ivs = {spe:0};
+			}
+		},
+		setPokemon: function(val) {
+			var set = this.curSet;
+			var template = Tools.getTemplate(val);
+			var newPokemon = !set.species;
+			if (!template.exists || set.species === template.species) return;
+
+			if (!set.species || set.name === set.species) {
+				set.name = '';
+			}
+			set.species = val;
+			if (this.curTeam && this.curTeam.format === 'lc' && !set.level) set.level = 5;
+			set.ability = template.abilities['0'];
+			if (template.gender) {
+				set.gender = template.gender;
+			}
+			if (set.gender === 'N') {
+				delete set.gender;
+			}
+			if (!set.name) {
+				set.name = template.species;
+			}
+			this.updateSetView();
+			this.$('input[name=item]').select();
 		},
 
 		/*********************************************************
@@ -1705,6 +1792,7 @@
 		// initialization
 
 		buildMovelists: function() {
+			if (!window.BattlePokedex) return;
 			Tools.movelists = {};
 			for (var pokemon in window.BattlePokedex) {
 				var template = Tools.getTemplate(pokemon);

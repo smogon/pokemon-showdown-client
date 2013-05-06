@@ -1654,7 +1654,8 @@ a.ilink:hover {
 	background: #FFFFFF;
 }
 .setchart input.incomplete {
-	color: #999999;
+	color: #CC3311;
+	border-color: #CC3311;
 }
 .setchart-nickname input {
 }
