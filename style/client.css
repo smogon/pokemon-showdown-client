@@ -514,12 +514,11 @@ p.or:after {
 .mainmenufooter a {
 	text-decoration: underline;
 	color: #6688CC;
-	text-shadow: 1px 0 0 black;
+	text-shadow: 0 -1px 0 black;
 }
 .mainmenufooter a:hover {
 	text-decoration: underline;
 	color: #99BBFF;
-	text-shadow: 1px 0 0 black;
 }
 
 .pmbox {
@@ -716,7 +715,7 @@ p.or:after {
 }
 @media (max-width:895px) {
 	.mainmenu {
-		padding-bottom: 0;
+		padding-bottom: 1px;
 	}
 	.rightmenu {
 		position: static;
