@@ -1030,6 +1030,10 @@ a.ilink:hover {
 	width: 640px;
 }
 
+.battle-controls p {
+	margin: 2px 0 8px 0;
+	padding: 0 8px;
+}
 .battle-controls .whatdo {
 	margin-top: -2px;
 	padding: 0 8px;
@@ -1412,12 +1416,28 @@ a.ilink:hover {
 	font: 12pt Verdana, sans-serif;
 }
 
+.majorbutton {
+	font-size: 14pt;
+}
+
 .setmenu {
 	position: absolute;
 	top: 5px;
 	left: 130px;
 	width: 503px;
 	text-align: right;
+}
+.setmenu button {
+	cursor: pointer;
+	background: transparent;
+	border: 0;
+	border-radius: 4px;
+	padding: 3px 6px;
+}
+.setmenu button:hover {
+	border: 1px solid #888888;
+	padding: 2px 5px;
+	background: #D5D5D5;
 }
 .setmenu-left {
 	position: absolute;
@@ -1775,7 +1795,7 @@ a.ilink:hover {
 	font-weight: bold;
 }
 .statform .graphcol {
-	width: 205px;
+	width: 185px;
 }
 .statform .graphcol div span {
 	margin: 3px 0 0 5px;
@@ -1791,14 +1811,14 @@ a.ilink:hover {
 	text-align: center;
 }
 .statform .evslidercol {
-	width: 173px;
+	width: 193px;
 	margin-right: 9px;
 	margin-left: 5px;
 	padding-top: 7px;
 	text-align: center;
 }
 .evslider {
-	width: 172px;
+	width: 192px;
 	margin: 0 auto;
 }
 .statform .totalev b {

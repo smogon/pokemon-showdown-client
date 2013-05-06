@@ -102,7 +102,7 @@
 			} else if (this.battle.playbackState === 2) {
 
 				// battle is playing
-				this.$controls.html('<button name="skipTurn">Skip turn <i class="icon-step-forward"></i></button>');
+				this.$controls.html('<p><button name="skipTurn">Skip turn <i class="icon-step-forward"></i></button></p>');
 				return;
 
 			}
@@ -128,7 +128,7 @@
 			if (this.battle.done) {
 
 				// battle has ended
-				this.$controls.html('<div class="controls"><em><button name="instantReplay"><i class="icon-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="icon-upload"></i> Share replay</button></div>');
+				this.$controls.html('<div class="controls"><p><em><button name="instantReplay"><i class="icon-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="icon-upload"></i> Share replay</button></p></div>');
 
 			} else if (this.side) {
 
@@ -138,7 +138,7 @@
 			} else if (this.battle.mySide.initialized && this.battle.yourSide.initialized) {
 
 				// full battle
-				this.$controls.html('<em>Waiting for players...</em>');
+				this.$controls.html('<p><em>Waiting for players...</em></p>');
 
 			} else {
 

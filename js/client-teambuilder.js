@@ -535,9 +535,9 @@
 			buf = '<div></div>';
 			var totalev = 0;
 			for (var stat in stats) {
-				var width = stats[stat]*200/504;
-				if (stat == 'hp') width = stats[stat]*200/704;
-				if (width > 200) width = 200;
+				var width = stats[stat]*180/504;
+				if (stat == 'hp') width = stats[stat]*180/704;
+				if (width > 179) width = 179;
 				var color = Math.floor(stats[stat]*180/714);
 				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:'+Math.floor(width)+'px;background:hsl('+color+',85%,45%);border-color:hsl('+color+',85%,35%)"></span></em></div>';
@@ -677,9 +677,9 @@
 			buf += '<div class="col graphcol"><div></div>';
 			for (var i in stats) {
 				stats[i] = this.getStat(i);
-				var width = stats[i]*200/504;
-				if (i=='hp') width = Math.floor(stats[i]*200/704);
-				if (width > 199) width = 199;
+				var width = stats[i]*180/504;
+				if (i=='hp') width = Math.floor(stats[i]*180/704);
+				if (width > 179) width = 179;
 				var color = Math.floor(stats[i]*180/714);
 				if (color>360) color = 360;
 				buf += '<div><em><span style="width:'+Math.floor(width)+'px;background:hsl('+color+',85%,45%);border-color:hsl('+color+',85%,35%)"></span></em></div>';
@@ -726,7 +726,7 @@
 			for (var i in stats) {
 				if (typeof set.ivs[i] === 'undefined') set.ivs[i] = 31;
 				var val = ''+(set.ivs[i]);
-				buf += '<div><input type="number" name="iv-'+i+'" value="'+val+'" class="inputform numform" /></div>';
+				buf += '<div><input type="number" name="iv-'+i+'" value="'+val+'" class="inputform numform" min="1" max="31" step="1" /></div>';
 			}
 			buf += '</div>';
 
