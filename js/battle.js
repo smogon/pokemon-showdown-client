@@ -75,7 +75,7 @@ function BattleSoundLibrary() {
 			this.stopBgm();
 		}
 		this.bgm = this.loadBgm(url, loopstart, loopstop).setVolume(this.bgmVolume);
-		if (!this.mute) {
+		if (!this.muted) {
 			if (this.bgm.paused) {
 				this.bgm.resume();
 			} else {
@@ -97,9 +97,11 @@ function BattleSoundLibrary() {
 
 	// setting
 	this.setMute = function(muted) {
+		muted = !!muted;
+		if (this.muted == muted) return;
 		this.muted = muted;
 		if (muted) {
-			if (this.bgm) this.bgm.stop();
+			if (this.bgm) this.bgm.pause();
 		} else {
 			if (this.bgm) this.bgm.play();
 		}
@@ -4625,7 +4627,7 @@ function Battle(frame, logFrame, noPreload) {
 			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
 				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + messageSanitize(message) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + Tools.escapeHTML(name) + ':</strong> <em>' + messageSanitize(message) + '</em></div>', preempt);
 			}
 			break;
 		case 'chatmsg':
@@ -4643,7 +4645,7 @@ function Battle(frame, logFrame, noPreload) {
 			self.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + messageSanitize(args[4]) + '</span>');
 			break;
 		case 'askreg':
-			self.log('<div class="message-register-account"><b>Register an account to protect your ladder rating!</b><br /><button onclick="overlay(\'register\',{ifuserid:\''+Tools.escapeHTML(args[1], true)+'\'});return false"><b>Register</b></button></div>');
+			self.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="'+Tools.escapeHTML(args[1])+'"><b>Register</b></button></div>');
 			break;
 		case 'inactive':
 			self.kickingInactive = true;
@@ -4787,6 +4789,7 @@ function Battle(frame, logFrame, noPreload) {
 			return;
 		}
 		str = $.trim(str);
+		if (!str) return;
 		if (str.substr(0,1) === '|') {
 			var args = ['done'], kwargs = {};
 			str = $.trim(str.substr(1));

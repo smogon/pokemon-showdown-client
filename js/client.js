@@ -28,6 +28,13 @@
 			named: false,
 			avatar: 0
 		},
+		initialize: function() {
+			app.on('response:userdetails', function(data) {
+				if (data.userid === this.get('userid')) {
+					this.set('avatar', data.avatar);
+				}
+			}, this);
+		},
 		/**
 		 * Return the path to the login server `action.php` file. AJAX requests
 		 * to this file will always be made on the `play.pokemonshowdown.com`
@@ -873,7 +880,7 @@
 			while (this.popups.length) {
 				var prevPopup = this.popups[this.popups.length-1];
 				if (prevPopup.id === id) {
-					var sourceEl = prevPopup.sourceEl[0];
+					var sourceEl = prevPopup.sourceEl ? prevPopup.sourceEl[0] : null;
 					this.popups.pop().remove();
 					if ($(data.sourceEl)[0] === sourceEl) return;
 				} else if (prevPopup.id !== id.substr(0,prevPopup.id.length)) {
@@ -901,8 +908,14 @@
 				}
 			}
 
+			if (popup.domInitialize) popup.domInitialize(data);
 			this.popups.push(popup);
 			return popup;
+		},
+		addPopupMessage: function(message) {
+			// shorthand for adding a popup message
+			// this is the equivalent of alert(message)
+			app.addPopup('message', Popup, {message: message});
 		},
 		closePopup: function(id) {
 			if (this.popups.length) {
@@ -933,7 +946,7 @@
 			'click button': 'dispatchClickButton'
 		},
 		initialize: function() {
-			this.$el.html('<img class="logo" src="//dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><!-- div class="tabbar sidetabbar" style="display:none"></div--><div class="userbar"></div>');
+			this.$el.html('<img class="logo" src="//dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar');
 			// this.$sidetabbar = this.$('.sidetabbar');
 			this.$userbar = this.$('.userbar');
@@ -942,24 +955,35 @@
 			app.user.on('change', this.updateUserbar, this);
 			this.updateUserbar();
 		},
-		'$tabbar': null,
+
+		// userbar
 		updateUserbar: function() {
 			var buf = '';
 			var name = ' '+app.user.get('name');
 			var color = hashColor(app.user.get('userid'));
 			if (app.user.get('named')) {
-				buf = '<span class="username" data-name="'+Tools.escapeHTML(name)+'" style="'+color+'"><i class="icon-user" style="color:#779EC5"></i> '+Tools.escapeHTML(name)+'</span> <button name="logout">Log out</button>';
+				buf = '<span class="username" data-name="'+Tools.escapeHTML(name)+'" style="'+color+'"><i class="icon-user" style="color:#779EC5"></i> '+Tools.escapeHTML(name)+'</span> <button class="icon" name="openSounds"><i class="'+(Tools.prefs('mute')?'icon-volume-off':'icon-volume-up')+'"></i></button> <button class="icon" name="openOptions"><i class="icon-cog"></i></button>';
 			} else {
-				buf = '<button name="login">Choose name</button>';
+				buf = '<button name="login">Choose name</button> <button class="icon" name="openSounds"><i class="'+(Tools.prefs('mute')?'icon-volume-off':'icon-volume-up')+'"></i></button> <button class="icon" name="openOptions"><i class="icon-cog"></i></button>';
 			}
 			this.$userbar.html(buf);
 		},
 		login: function() {
 			app.addPopup('login', LoginPopup);
 		},
-		logout: function() {
-			app.user.logout();
+		openSounds: function() {
+			app.addPopup('sounds', SoundsPopup);
 		},
+		openOptions: function() {
+			app.addPopup('options', OptionsPopup);
+		},
+		clickUsername: function(e) {
+			e.stopPropagation();
+			var name = $(e.currentTarget).data('name');
+			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
+		},
+
+		// tabbar
 		updateTabbar: function() {
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
@@ -1020,11 +1044,6 @@
 				delete app.dismissingSource;
 				delete app.dispatchingButton;
 			}
-		},
-		clickUsername: function(e) {
-			e.stopPropagation();
-			var name = $(e.currentTarget).data('name');
-			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		click: function(e) {
 			e.preventDefault();
@@ -1153,6 +1172,9 @@
 
 			Backbone.View.apply(this, arguments);
 
+			// if we have no source, we can't attach to anything
+			if (this.type === 'normal' && !this.sourceEl) this.type = 'semimodal';
+
 			if (this.type === 'normal') {
 				// nonmodal popup: should be positioned near source element
 				var $el = this.$el;
@@ -1185,6 +1207,10 @@
 				$el.detach();
 				$measurer.remove();
 			}
+		},
+		initialize: function(data) {
+			this.type = 'semimodal';
+			this.$el.html('<p style="white-space:pre-wrap">'+Tools.escapeHTML(data.message)+'</p><p class="buttonbar"><button name="close" autofocus><strong>OK</strong></button></p>').css('max-width', 480);
 		},
 
 		dispatchClickButton: function(e) {
@@ -1237,7 +1263,8 @@
 			this.update();
 		},
 		events: {
-			'click .ilink': 'clickLink'
+			'click .ilink': 'clickLink',
+			'click .yours': 'avatars'
 		},
 		update: function(data) {
 			if (data && data.userid === this.data.userid) {
@@ -1261,7 +1288,7 @@
 			if (group || name.charAt(0) === ' ') name = name.substr(1);
 
 			var buf = '<div class="userdetails">';
-			if (avatar) buf += '<img class="trainersprite" src="'+Tools.resolveAvatar(avatar)+'" />';
+			if (avatar) buf += '<img class="trainersprite'+(userid===app.user.get('userid')?' yours':'')+'" src="'+Tools.resolveAvatar(avatar)+'" />';
 			buf += '<strong>' + Tools.escapeHTML(name) + '</strong><br />';
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (data.rooms) {
@@ -1287,9 +1314,9 @@
 			buf += '</div>';
 
 			if (userid === app.user.get('userid') || !app.user.get('named')) {
-				buf += '<div class="buttonbar"><button disabled>Challenge</button> <button disabled>PM</button> <button name="close">Close</close></div>';
+				buf += '<p class="buttonbar"><button disabled>Challenge</button> <button disabled>PM</button> <button name="close">Close</button></p>';
 			} else {
-				buf += '<div class="buttonbar"><button name="challenge">Challenge</button> <button name="pm">PM</button> <button name="close">Close</close></div>';
+				buf += '<p class="buttonbar"><button name="challenge">Challenge</button> <button name="pm">PM</button> <button name="close">Close</button></p>';
 			}
 
 			this.$el.html(buf);
@@ -1300,6 +1327,9 @@
 			this.close();
 			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
 			app.tryJoinRoom(roomid);
+		},
+		avatars: function() {
+			app.addPopup('user:avatars', AvatarsPopup);
 		},
 		challenge: function() {
 			this.close();
@@ -1347,6 +1377,7 @@
 			this.close();
 		}
 	});
+
 	var LoginPasswordPopup = this.LoginPasswordPopup = Popup.extend({
 		type: 'semimodal',
 		initialize: function(data) {
@@ -1386,6 +1417,153 @@
 		submit: function(data) {
 			this.close();
 			app.user.passwordRename(data.username, data.password);
+		}
+	});
+
+	var SoundsPopup = this.SoundsPopup = Popup.extend({
+		initialize: function(data) {
+			var buf = '';
+			var muted = !!Tools.prefs('mute');
+			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>'+(muted?'<em>(muted)</em>':'<input type="slider" name="effectvolume" value="'+(Tools.prefs('effectvolume')||50)+'" />')+'</p>';
+			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>'+(muted?'<em>(muted)</em>':'<input type="slider" name="musicvolume" value="'+(Tools.prefs('musicvolume')||50)+'" />')+'</p>'
+			buf += '<p><label class="optlabel"><input type="checkbox" name="muted"'+(muted?' checked':'')+' /> Mute sounds</label></p>';
+			this.$el.html(buf).css('min-width', 160);
+		},
+		events: {
+			'change input[name=muted]': 'setMute'
+		},
+		domInitialize: function() {
+			var self = this;
+			this.$('.effect-volume input').slider({
+				from: 0,
+				to: 100,
+				step: 1,
+				dimension: '%',
+				skin: 'round_plastic',
+				onstatechange: function(val) {
+					self.setEffectVolume(val);
+				}
+			});
+			this.$('.music-volume input').slider({
+				from: 0,
+				to: 100,
+				step: 1,
+				dimension: '%',
+				skin: 'round_plastic',
+				onstatechange: function(val) {
+					self.setMusicVolume(val);
+				}
+			});
+		},
+		setMute: function(e) {
+			var muted = !!e.currentTarget.checked;
+			Tools.prefs('mute', muted);
+			BattleSound.setMute(muted);
+
+			if (!muted) {
+				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><input type="slider" name="effectvolume" value="'+(Tools.prefs('effectvolume')||50)+'" />');
+				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><input type="slider" name="musicvolume" value="'+(Tools.prefs('musicvolume')||50)+'" />');
+				this.domInitialize();
+			} else {
+				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><em>(muted)</em>');
+				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><em>(muted)</em>');
+			}
+
+			app.topbar.$('button[name=openSounds]').html('<i class="'+(muted?'icon-volume-off':'icon-volume-up')+'"></i>');
+		},
+		setEffectVolume: function(volume) {
+			BattleSound.setEffectVolume(volume);
+			Tools.prefs('effectvolume', volume);
+		},
+		setMusicVolume: function(volume) {
+			BattleSound.setBgmVolume(volume);
+			Tools.prefs('musicvolume', volume);
+		}
+	});
+
+	var OptionsPopup = this.OptionsPopup = Popup.extend({
+		initialize: function(data) {
+			app.user.on('change', this.update, this);
+			app.send('/cmd userdetails '+app.user.get('userid'));
+			this.update();
+		},
+		events: {
+			'change input[name=noanim]': 'setNoanim',
+			'change input[name=ignorespects]': 'setIgnoreSpects',
+			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
+			'change select[name=timestamps-pms]': 'setTimestampsPMs',
+			'click img': 'avatars'
+		},
+		update: function() {
+			var name = app.user.get('name');
+			var avatar = app.user.get('avatar');
+
+			var buf = '';
+			buf += '<p>'+(avatar?'<img class="trainersprite" src="'+Tools.resolveAvatar(avatar)+'" width="40" height="40" style="vertical-align:middle" />':'')+'<strong>'+Tools.escapeHTML(name)+'</strong></p>';
+			buf += '<p><button name="avatars">Change avatar</button></p>';
+
+			buf += '<hr />';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
+
+			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
+			buf += '<p><label class="optlabel">Timestamps in lobby chat: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
+			buf += '<p><label class="optlabel">Timestamps in PM\'s: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"'+(timestamps.pms==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.pms==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
+
+			if (app.curRoom.battle) {
+				buf += '<hr />';
+				buf += '<h3>Current room</h3>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"'+(app.curRoom.battle.ignoreSpects?' checked':'')+'> Ignore spectators</label></p>';
+			}
+
+			buf += '<hr />';
+			buf += '<p class="buttonbar" style="text-align:right"><button name="logout"><strong>Log out</strong></button></p>';
+			this.$el.html(buf).css('min-width', 160);
+		},
+		setNoanim: function(e) {
+			var noanim = !!e.currentTarget.checked;
+			Tools.prefs('noanim', noanim);
+		},
+		setIgnoreSpects: function(e) {
+			if (app.curRoom.battle) {
+				app.curRoom.battle.ignoreSpects = !!e.currentTarget.checked;
+			}
+		},
+		setTimestampsLobby: function(e) {
+			this.timestamps.lobby = e.currentTarget.value;
+		},
+		setTimestampsPMs: function(e) {
+			this.timestamps.pms = e.currentTarget.value;
+		},
+		avatars: function() {
+			app.addPopup('options:avatars', AvatarsPopup);
+		},
+		logout: function() {
+			app.user.logout();
+			this.close();
+		}
+	});
+
+	var AvatarsPopup = this.AvatarsPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function() {
+			var cur = +app.user.get('avatar');
+			var buf = '';
+			buf += '<p>Choose an avatar or <button name="close">Cancel</button></p>';
+
+			buf += '<div class="avatarlist">';
+			for (var i=1; i<=293; i++) {
+				var offset = '-'+(((i-1)%16)*80)+'px -'+(Math.floor((i-1)/16)*80)+'px'
+				buf += '<button name="setAvatar" value="'+i+'" style="background-position:'+offset+'"'+(i===cur?' class="cur"':'')+'></button>';
+			}
+			buf += '</div><div style="clear:left"></div>';
+
+			buf += '<p><button name="close">Cancel</button></p>';
+			this.$el.html(buf).css('max-width', 780);
+		},
+		setAvatar: function(i) {
+			app.send('/avatar '+i);
+			app.send('/cmd userdetails '+app.user.get('userid'));
+			this.close();
 		}
 	});
 
