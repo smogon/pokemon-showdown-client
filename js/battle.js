@@ -58,13 +58,20 @@ function BattleSoundLibrary() {
 		if (this.bgmCache[url]) {
 			return this.bgmCache[url];
 		}
-		return this.bgmCache[url] = soundManager.createSound({
+		this.bgmCache[url] = soundManager.createSound({
 			id: url,
 			url: Tools.resourcePrefix + url,
 			volume: this.bgmVolume
-		}).onposition(loopend, function() {
+		});
+		if (!this.bgmCache[url]) {
+			// couldn't load
+			// suppress crash
+			return this.bgmCache[url] = this.soundPlaceholder;
+		}
+		this.bgmCache[url].onposition(loopend, function() {
 			this.setPosition(loopstart);
 		});
+		return this.bgmCache[url];
 	};
 	this.playBgm = function(url, loopstart, loopstop) {
 		if (this.bgm === this.loadBgm(url, loopstart, loopstop)) {
@@ -112,6 +119,15 @@ function BattleSoundLibrary() {
 	};
 	this.setEffectVolume = function(effectVolume) {
 		this.effectVolume = effectVolume;
+	};
+
+	// misc
+	this.soundPlaceholder = {
+		play: function(){},
+		pause: function(){},
+		stop: function(){},
+		resume: function(){},
+		setVolume: function(){}
 	};
 }
 var BattleSound = new BattleSoundLibrary();
