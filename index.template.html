@@ -69,6 +69,13 @@
 		<script src="//play.pokemonshowdown.com/js/soundmanager2-nodebug-jsmin.js"></script>
 		<script>
 			soundManager.setup({url: '//play.pokemonshowdown.com/swf/'});
+			soundManager.ontimeout(function () {
+				soundManager.useHTML5Audio = true;
+				soundManager.preferFlash = false;
+				setTimeout(function () {
+					soundManager.reboot();
+				}, 1);
+			});
 		</script>
 		<script src="//play.pokemonshowdown.com/js/html-sanitizer-minified.js"></script>
 		<script src="//dev.pokemonshowdown.com/js/lib/lodash.compat.js"></script>
