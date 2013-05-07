@@ -4658,7 +4658,8 @@ function Battle(frame, logFrame, noPreload) {
 			self.log('<div class="chat">' + Tools.sanitizeHTML(list) + '</div>', preempt);
 			break;
 		case 'pm':
-			self.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + messageSanitize(args[4]) + '</span>');
+			var hidePms = Tools.prefs('hidepms') || false;
+			if (hidePms === false) self.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + messageSanitize(args[4]) + '</span>');
 			break;
 		case 'askreg':
 			self.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="'+Tools.escapeHTML(args[1])+'"><b>Register</b></button></div>');
