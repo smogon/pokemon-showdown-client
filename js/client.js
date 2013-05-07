@@ -218,11 +218,11 @@
 			var self = this;
 
 			this.on('init:unsupported', function() {
-				alert('Your browser is unsupported.');
+				self.addPopupMessage('Your browser is unsupported.');
 			});
 
 			this.on('init:nothirdparty', function() {
-				alert('You have third-party cookies disabled in your browser, which is likely to cause problems. You should enable them and then refresh this page.');
+				self.addPopupMessage('You have third-party cookies disabled in your browser, which is likely to cause problems. You should enable them and then refresh this page.');
 			});
 
 			this.user.on('login:authrequired', function(name) {
@@ -453,7 +453,7 @@
 				message: function (message) {
 					// Correct way to send popups: (unimplemented)
 					//   |popup|MESSAGE
-					alert(message.message);
+					self.addPopupMessage(message.message);
 					if (self.rooms['']) self.rooms[''].resetPending();
 				},
 				console: function (message) {
