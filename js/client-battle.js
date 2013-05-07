@@ -15,7 +15,7 @@
 			this.$join = null;
 			this.$foeHint = this.$el.find('.foehint');
 
-			// BattleSound.setMute(me.isMuted());
+			BattleSound.setMute(Tools.prefs('mute'));
 			this.battle = new Battle(this.$battle, this.$chatFrame);
 
 			this.$chat = this.$chatFrame.find('.inner');
@@ -601,6 +601,13 @@
 		skipTurn: function() {
 			this.battle.skipTurn();
 		},
+		register: function(userid) {
+			var registered = app.user.get('registered');
+			if (registered && registered.userid !== userid) registered = false;
+			if (!registered && userid === app.user.get('userid')) {
+				app.addPopup('register', RegisterPopup);
+			}
+		},
 
 		// choice buttons
 		chooseMove: function(move) {
@@ -815,6 +822,59 @@
 		},
 		hideTooltip: function() {
 			$('#tooltipwrapper').html('');
+		}
+	});
+
+	var RegisterPopup = this.RegisterPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function(data) {
+			var buf = '<form>';
+			if (data.error) {
+				buf += '<p class="error">' + data.error + '</p>';
+			} else if (data.reason) {
+				buf += '<p>' + data.reason + '</p>';
+			} else {
+				buf += '<p>Register an account:</p>';
+			}
+			buf += '<p><label class="label">Username:</label> ' + (data.name || app.user.get('name')) + '<input type="hidden" name="name" value="' + Tools.escapeHTML(data.name || app.user.get('name')) + '" /></p>';
+			buf += '<p><label class="label">Password:</label> <input class="textbox" type="password" name="password" autofocus /></p>';
+			buf += '<p><label class="label">Password (confirm):</label> <input class="textbox" type="password" name="cpassword" /></p>';
+			buf += '<p><img src="' + Tools.resourcePrefix + 'sprites/bwani/pikachu.gif" /></p>';
+			buf += '<p><label class="label">What is this pokemon?</label> <input class="textbox" type="text" name="captcha" value="' + Tools.escapeHTML(data.captcha) + '" /></p>';
+			buf += '<p class="buttonbar"><button type="submit"><strong>Register</strong></button> <button name="close">Cancel</button></p></form>';
+			this.$el.html(buf);
+		},
+		submit: function(data) {
+			var name = data.name;
+			var captcha = data.captcha;
+			$.post(app.user.getActionPHP(), {
+				act: 'register',
+				username: name,
+				password: data.password,
+				cpassword: data.cpassword,
+				captcha: captcha,
+				challengekeyid: app.user.challengekeyid,
+				challenge: app.user.challenge
+			}, Tools.safeJSON(function (data) {
+				if (!data) data = {};
+				var token = data.assertion;
+				if (data.curuser && data.curuser.loggedin) {
+					app.user.set('registered', data.curuser);
+					var name = data.curuser.username;
+					if (!app.socket) {
+						document.location.reload();
+						return;
+					}
+					app.send('/trn '+name+',1,'+token);
+					app.addPopupMessage("You have been successfully registered.");
+				} else {
+					app.addPopup('register', RegisterPopup, {
+						name: name,
+						captcha: captcha,
+						error: data.actionerror
+					});
+				}
+			}), 'text');
 		}
 	});
 

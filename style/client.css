@@ -88,6 +88,15 @@ body {
 .username {
 	cursor: pointer;
 }
+.userbar button {
+	cursor: pointer;
+}
+.userbar button.icon {
+	height: 21px;
+	width: 23px;
+	font-size: 14px;
+	padding: 0;
+}
 
 .tabbar {
 	position: absolute;
@@ -313,7 +322,7 @@ body {
 	background: #E1E8E8;
 	color: black;
 	border: 1px solid #999999;
-	padding: 5px 10px;
+	padding: 2px 10px;
 
 	border-radius: 6px;
 	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
@@ -321,11 +330,15 @@ body {
 }
 .ps-overlay .ps-popup {
 	position: static;
-	margin: 100px auto 0 auto;
+	margin: 100px auto 20px auto;
 	max-width: 320px;
 }
-.ps-popup p {
+.ps-popup p,
+.ps-popup h3 {
 	margin: 7px 0;
+}
+.ps-popup h3 {
+	font-size: 12pt;
 }
 p.or {
 	font-size: 12pt;
@@ -758,24 +771,6 @@ p.or:after {
  * Chat
  *********************************************************/
 
-.userdetails {
-	min-height: 80px;
-	width: 191px;
-	padding: 1px 1px 1px 86px;
-}
-.userdetails img {
-	float: left;
-	margin-left: -85px;
-}
-.userdetails .rooms {
-	font-size: 8pt;
-}
-.userdetails .offline {
-	color: red;
-}
-.buttonbar {
-	clear: both;
-}
 .chat-log {
 	position: absolute;
 	top: 0;
@@ -1844,4 +1839,72 @@ a.ilink:hover {
 	margin-left: -100px;
 	width: 95px;
 	text-align: right;
+}
+
+/*********************************************************
+ * Popups
+ *********************************************************/
+
+.userdetails {
+	min-height: 80px;
+	width: 191px;
+	padding: 1px 1px 1px 86px;
+	margin: 5px 0;
+}
+.userdetails img {
+	float: left;
+	margin-left: -85px;
+}
+.userdetails .rooms {
+	font-size: 8pt;
+}
+.userdetails .offline {
+	color: red;
+}
+.trainersprite.yours {
+	cursor: pointer;
+}
+.buttonbar {
+	clear: both;
+}
+
+.avatarlist button {
+	display: block;
+	float: left;
+	margin: 2px;
+	width: 80px;
+	height: 80px;
+
+	border: 1px solid #E1E8E8;
+	background: transparent url(//play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
+	border-radius: 4px;
+	box-shadow: none;
+	cursor: pointer;
+}
+.avatarlist button.cur {
+	border-color: #999999;
+}
+.avatarlist button:hover,
+.avatarlist button.cur:hover {
+	border: 1px solid #8899AA;
+	background-color: #F1F4F9;
+	box-shadow: 1px 1px 1px #D5D5D5;
+}
+
+.effect-volume,
+.music-volume {
+	height: 39px;
+}
+.effect-volume label,
+.music-volume label {
+	padding-bottom: 12px;
+	font-size: 8pt;
+}
+.effect-volume em,
+.music-volume em {
+	display: block;
+	margin-top: -6px;
+	font-size: 9pt;
+	padding-left: 5px;
+	color: #555555;
 }
