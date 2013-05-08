@@ -459,15 +459,15 @@
 				break;
 
 			default:
-				var buf = '<div class="controls"><em>Waiting for opponent...</em> ';
+				var buf = '<div class="controls"><p><em>Waiting for opponent...</em> ';
 				if (this.choice && this.choice.waiting && !this.finalDecision) {
 					buf += '<button name="undoChoice">Cancel</button>';
 				}
-				buf += '</div>';
+				buf += '</p></div>';
 				if (this.battle.kickingInactive) {
-					buf += ' <br /><button name="setTimer" value="off"><small>Stop timer</small></button>';
+					buf += '<p><button name="setTimer" value="off"><small>Stop timer</small></button></p>';
 				} else {
-					buf += ' <br /><button name="setTimer" value="on"><small>Kick inactive player</small></button>';
+					buf += '<p><button name="setTimer" value="on"><small>Kick inactive player</small></button></p>';
 				}
 				this.$controls.html(buf);
 				break;
