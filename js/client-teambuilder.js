@@ -138,7 +138,7 @@
 					formatText = '['+team.format+'] ';
 				}
 
-				buf += '<li><button name="edit" value="'+i+'" style="width:400px">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+				buf += '<li><button name="edit" value="'+i+'" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 				for (var j=0; j<team.team.length; j++) {
 					if (j!=0) buf += ' / ';
 					buf += ''+Tools.escapeHTML(team.team[j].name);
