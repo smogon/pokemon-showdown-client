@@ -36,7 +36,16 @@ if (isset($_REQUEST['file']) && $month) {
 	$db->close();
 	// output the log file
 	header('Content-Type: text/plain;charset=utf-8');
-	readfile($logfile);
+	if (!isset($_REQUEST['onlychat'])) {
+		readfile($logfile);
+	} else {
+		$lines = file($logfile);
+		foreach ($lines as &$i) {
+			if (preg_match('/\|c\|/', $i)) {
+				echo $i;
+			}
+		}
+	}
 	die;
 }
 
@@ -75,7 +84,7 @@ foreach ($files as &$i) {
 	$i = htmlentities(basename($i));
 	$logfile = $config['logdirectory'] . '/' . $month . '/' . $i;
 	$size = round(@filesize($logfile) / 1024 / 1024, 1);
-	echo "<li><a href='$i'>$i</a> ($size MiB)</li>";
+	echo "<li><a href='$i'>$i</a> ($size MiB) or view <a href='$i?onlychat'>only chat</a></li>";
 }
 ?>
 </ul>
