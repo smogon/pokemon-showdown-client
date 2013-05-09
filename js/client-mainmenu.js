@@ -446,6 +446,12 @@
 			if ($searchForm.find('.cancel').length) {
 				return;
 			}
+
+			if (!app.user.get('named')) {
+				app.addPopup('login', LoginPopup);
+				return;
+			}
+
 			var $formatButton = $searchForm.find('button[name=format]');
 			var $teamButton = $searchForm.find('button[name=team]');
 
