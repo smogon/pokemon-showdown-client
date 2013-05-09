@@ -28,6 +28,12 @@
 		window.Notification = window.webkitNotification;
 	}
 
+	// this is called being lazy
+	window.selectTab = function(tab) {
+		app.tryJoinRoom(tab);
+		return false;
+	};
+
 	var User = this.User = Backbone.Model.extend({
 		defaults: {
 			name: '',
