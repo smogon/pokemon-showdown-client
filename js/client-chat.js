@@ -53,7 +53,7 @@
 			if ((text = this.$chatbox.val())) {
 				this.tabComplete.reset();
 				// this.chatHistory.push(text);
-				// text = this.parseCommand(text);
+				text = this.parseCommand(text);
 				if (text) {
 					this.send(text);
 				}
@@ -88,6 +88,9 @@
 			e.stopPropagation();
 			app.focusRoom('');
 			app.rooms[''].focusPM($(e.currentTarget).data('name'));
+		},
+		clear: function() {
+			if (this.$chat) this.$chat.html('');
 		},
 
 		// highlight
@@ -194,6 +197,234 @@
 			$textbox[0].setSelectionRange(pos, pos);
 			this.tabComplete.cursor = pos;
 			return true;
+		},
+
+		// command parsing
+
+		parseCommand: function(text) {
+			var cmd = '';
+			var target = '';
+			if (text.substr(0,2) !== '//' && text.substr(0,1) === '/') {
+				var spaceIndex = text.indexOf(' ');
+				if (spaceIndex > 0) {
+					cmd = text.substr(1, spaceIndex-1);
+					target = text.substr(spaceIndex+1);
+				} else {
+					cmd = text.substr(1);
+					target = '';
+				}
+			}
+
+			switch (cmd.toLowerCase()) {
+			case 'challenge':
+			case 'user':
+			case 'open':
+				if (!target) target = prompt('Who?');
+				if (target) app.addPopup('user', UserPopup, {name: target});
+				return false;
+
+			case 'ignore':
+				if (app.ignore[toUserid(target)]) {
+					this.add('User ' + target + ' is already on your ignore list. (Moderator messages will not be ignored.)');
+				} else {
+					app.ignore[toUserid(target)] = 1;
+					this.add('User ' + target + ' ignored. (Moderator messages will not be ignored.)');
+				}
+				return false;
+
+			case 'unignore':
+				if (!app.ignore[toUserid(target)]) {
+					this.add('User ' + target + ' isn\'t on your ignore list.');
+				} else {
+					delete app.ignore[toUserid(target)];
+					this.add('User ' + target + ' no longer ignored.');
+				}
+				return false;
+
+			case 'clear':
+				if (this.clear) {
+					this.clear();
+				} else {
+					this.add('||This room can\'t be cleared');
+				}
+				return false;
+
+			case 'nick':
+				if (target) {
+					app.user.rename(target);
+				} else {
+					app.addPopup('login', LoginPopup);
+				}
+				return false;
+
+			case 'showjoins':
+				this.add('Join/leave messages: ON');
+				Tools.prefs('showjoins', true);
+				return false;
+			case 'hidejoins':
+				this.add('Join/leave messages: HIDDEN');
+				Tools.prefs('showjoins', false);
+				return false;
+
+			case 'showbattles':
+				this.add('Battle messages: ON');
+				Tools.prefs('showbattles', true);
+				return false;
+			case 'hidebattles':
+				this.add('Battle messages: HIDDEN');
+				Tools.prefs('showbattles', false);
+				return false;
+
+			case 'timestamps':
+				var targets = target.split(',');
+				if ((['all', 'lobby', 'pms'].indexOf(targets[0]) === -1)
+						|| (targets.length < 2)
+						|| (['off', 'minutes', 'seconds'].indexOf(
+							targets[1] = targets[1].trim()) === -1)) {
+					this.add('Error: Invalid /timestamps command');
+					return '/help timestamps';	// show help
+				}
+				var timestamps = Tools.prefs('timestamps') || {};
+				if (typeof timestamps === 'string') {
+					// The previous has a timestamps preference from the previous
+					// regime. We can't set properties of a string, so set it to
+					// an empty object.
+					timestamps = {};
+				}
+				switch (targets[0]) {
+				case 'all':
+					timestamps.lobby = targets[1];
+					timestamps.pms = targets[1];
+					break;
+				case 'lobby':
+					timestamps.lobby = targets[1];
+					break;
+				case 'pms':
+					timestamps.pms = targets[1];
+					break;
+				}
+				this.add('Timestamps preference set to: `' + targets[1] + '` for `' + targets[0] + '`.');
+				Tools.prefs('timestamps', timestamps);
+				return false;
+
+			case 'highlight':
+				var highlights = Tools.prefs('highlights') || [];
+				if (target.indexOf(',') > -1) {
+					var targets = target.split(',');
+					// trim the targets to be safe
+					for (var i=0, len=targets.length; i<len; i++) {
+						targets[i] = targets[i].trim();
+					}
+					switch (targets[0]) {
+					case 'add':
+						for (var i=1, len=targets.length; i<len; i++) {
+							highlights.push(targets[i].trim());
+						}
+						this.add("Now highlighting on: " + highlights.join(', '));
+						// We update the regex
+						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
+						break;
+					case 'delete':
+						var newHls = [];
+						for (var i=0, len=highlights.length; i<len; i++) {
+							if (targets.indexOf(highlights[i]) === -1) {
+								newHls.push(highlights[i]);
+							}
+						}
+						highlights = newHls;
+						this.add("Now highlighting on: " + highlights.join(', '));
+						// We update the regex
+						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
+						break;
+					}
+					Tools.prefs('highlights', highlights);
+				} else {
+					if (target === 'delete') {
+						Tools.prefs('highlights', false);
+						this.add("All highlights cleared");
+					} else if (target === 'show' || target === 'list') {
+						// Shows a list of the current highlighting words
+						if (highlights.length > 0) {
+							var hls = highlights.join(', ');
+							this.add('Current highlight list: ' + hls);
+						} else {
+							this.add('Your highlight list is empty.');
+						}
+					} else {
+						// Wrong command
+						this.add('Error: Invalid /highlight command.');
+						return '/help highlight';	// show help
+					}
+				}
+				return false;
+
+			case 'rank':
+			case 'ranking':
+			case 'rating':
+			case 'ladder':
+				if (!target) target = app.user.get('userid');
+				var self = this;
+				$.get(app.user.getActionPHP() + '?act=ladderget&user='+encodeURIComponent(target), Tools.safeJSON(function(data) {
+					try {
+						var buffer = '<div class="ladder"><table>';
+						buffer += '<tr><td colspan="7">User: <strong>'+target+'</strong></td></tr>';
+						if (!data.length) {
+							buffer += '<tr><td colspan="7"><em>This user has not played any ladder games yet.</em></td></tr>';
+						} else {
+							buffer += '<tr><th>Format</th><th>ACRE</th><th>GXE</th><th>Glicko2</th><th>W</th><th>L</th><th>T</th></tr>';
+							for (var i=0; i<data.length; i++) {
+								var row = data[i];
+								buffer += '<tr><td>'+row.formatid+'</td><td><strong>'+Math.round(row.acre)+'</strong></td><td>'+Math.round(row.gxe,1)+'</td><td>';
+								if (row.rprd > 50) {
+									buffer += '<span><em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em> <small>(provisional)</small></span>';
+								} else {
+									buffer += '<em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em>';
+								}
+								buffer += '</td><td>'+row.w+'</td><td>'+row.l+'</td><td>'+row.t+'</td></tr>';
+							}
+						}
+						buffer += '</table></div>';
+						self.add('|raw|'+buffer);
+					} catch(e) {}
+				}), 'text');
+				return false;
+
+			case 'buttonban':
+				var reason = prompt('Why do you wish to ban this user?');
+				if (reason === null) return false;
+				if (reason === false) reason = '';
+				this.send('/ban ' + target + ', ' + reason);
+				return false;
+
+			case 'buttonmute':
+				var reason = prompt('Why do you wish to mute this user?');
+				if (reason === null) return false;
+				if (reason === false) reason = '';
+				this.send('/mute ' + target + ', ' + reason);
+				return false;
+
+			case 'buttonunmute':
+				this.send('/unmute ' + target);
+				return false;
+
+			case 'buttonkick':
+				var reason = prompt('Why do you wish to kick this user?');
+				if (reason === null) return false;
+				if (reason === false) reason = '';
+				this.send('/kick ' + target + ', ' + reason);
+				return false;
+
+			case 'avatar':
+				var parts = target.split(',');
+				var avatar = parseInt(parts[0], 10);
+				if (avatar) {
+					Tools.prefs('avatar', avatar);
+				}
+				return text; // Send the /avatar command through to the server.
+
+			}
+
+			return text;
 		}
 	});
 
@@ -470,7 +701,7 @@
 			var userid = toUserid(name);
 			var color = hashColor(userid);
 
-			// if (me.ignore[userid] && name.substr(0, 1) === ' ') continue;
+			if (app.ignore[userid] && name.substr(0, 1) === ' ') return;
 
 			// Add this user to the list of people who have spoken recently.
 			this.markUserActive(userid);

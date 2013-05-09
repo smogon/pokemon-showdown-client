@@ -226,6 +226,7 @@
 			this.initializePopups();
 
 			this.user = new User();
+			this.ignore = {};
 
 			this.topbar = new Topbar({el: $('#header')});
 			this.addRoom('');
@@ -1690,6 +1691,7 @@
 		setAvatar: function(i) {
 			app.send('/avatar '+i);
 			app.send('/cmd userdetails '+app.user.get('userid'));
+			Tools.prefs('avatar', i);
 			this.close();
 		}
 	});
