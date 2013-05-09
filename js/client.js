@@ -1072,6 +1072,7 @@
 			}
 		},
 		click: function(e) {
+			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			var $target = $(e.currentTarget);
 			var id = $target.attr('href');
@@ -1445,6 +1446,7 @@
 			this.$el.html(buf);
 		},
 		clickLink: function(e) {
+			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			e.stopPropagation();
 			this.close();
