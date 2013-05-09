@@ -53,6 +53,8 @@
 			var oName = name;
 			if (toId(name) === app.user.get('userid')) {
 				oName = target;
+			} else {
+				this.notifyOnce("PM from "+oName, "\""+message+"\"", 'pm');
 			}
 
 			var $pmWindow = this.openPM(oName, true);
@@ -228,6 +230,9 @@
 				var name = $pmWindow.data('name');
 				if (data.challengesFrom[userid]) {
 					var challenge = data.challengesFrom[userid];
+					if (!$pmWindow.find('.challenge').length) {
+						self.notifyOnce("Challenge from "+name, "Format: "+Tools.escapeFormat(challenge.format), 'challenge:'+userid);
+					}
 					var $challenge = self.openChallenge(name, $pmWindow);
 					var buf = '<form class="battleform"><p>'+Tools.escapeHTML(name)+' wants to battle!</p>';
 					buf += '<p><label class="label">Format:</label>'+self.renderFormats(challenge.format, true)+'</p>';
@@ -245,6 +250,7 @@
 							// or rejected it
 							$challenge.remove();
 						}
+						self.closeNotification('challenge:'+userid);
 					}
 				}
 			});
@@ -321,6 +327,7 @@
 			$challenge.html(buf);
 		},
 		acceptChallenge: function(i, target) {
+			this.requestNotifications();
 			var $pmWindow = $(target).closest('.pm-window');
 			var userid = $pmWindow.data('userid');
 
@@ -338,6 +345,7 @@
 			app.send('/reject '+userid);
 		},
 		makeChallenge: function(i, target) {
+			this.requestNotifications();
 			var $pmWindow = $(target).closest('.pm-window');
 			var userid = $pmWindow.data('userid');
 			var name = $pmWindow.data('name');
@@ -433,6 +441,7 @@
 
 		// buttons
 		search: function(i, button) {
+			this.requestNotifications();
 			var $searchForm = $(button).closest('form');
 			if ($searchForm.find('.cancel').length) {
 				return;

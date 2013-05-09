@@ -482,10 +482,7 @@
 			var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 			var isHighlighted = this.getHighlight(message);
 			if (isHighlighted) {
-				// notify({
-				// 	type: 'highlight',
-				// 	user: name
-				// });
+				this.notifyOnce("Mentioned by "+name, "\""+message+"\"", 'highlight');
 			}
 			var highlight = isHighlighted ? ' style="background-color:#FDA;"' : '';
 			var chatDiv = '<div class="chat"' + highlight + '>';

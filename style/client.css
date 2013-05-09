@@ -222,6 +222,14 @@ body {
 	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#cfcfcf', endColorstr='#f2f2f2');
 }
+.tabbar a.button.notifying {
+	border-color: #AA8866;
+	background: #e3c3a3;
+}
+.tabbar a.button.notifying:hover {
+	border-color: #604020;
+	background: #cfaf8f;
+}
 .tabbar a.button.cur,
 .tabbar a.button.cur:hover {
 	color: #777777;
