@@ -353,7 +353,7 @@
 		addPokemon: function() {
 			if (!this.curTeam) return;
 			var team = this.curTeam.team;
-			if (team[team.length-1].species) {
+			if (!team.length || team[team.length-1].species) {
 				var newPokemon = {
 					name: '',
 					species: '',
