@@ -1110,7 +1110,7 @@
 		chartSet: function(val, selectNext) {
 			var inputName = this.curChartName;
 			var id = toId(val);
-			this.$('input[name='+inputName+']').val(val);
+			this.$('input[name='+inputName+']').val(val).removeClass('incomplete');
 			switch (inputName) {
 			case 'pokemon':
 				this.setPokemon(val);
