@@ -106,9 +106,9 @@
 				this.$controls.html('');
 				return;
 
-			} else if (this.battle.playbackState === 2) {
+			} else if (this.battle.playbackState === 2 || this.battle.playbackState === 3) {
 
-				// battle is playing
+				// battle is playing or paused
 				this.$controls.html('<p><button name="skipTurn">Skip turn <i class="icon-step-forward"></i></button></p>');
 				return;
 
@@ -169,7 +169,6 @@
 			}
 
 			var battle = this.battle;
-			// this.notifying = false;
 
 			if (!this.choice) {
 				this.updateSide(this.request.side);
@@ -375,7 +374,6 @@
 					controls += '</div></div></div>';
 					this.$controls.html(controls);
 				}
-				this.notifying = true;
 				break;
 
 			case 'switch':
@@ -408,7 +406,6 @@
 				controls += '</div></div></div>';
 				this.$controls.html(controls);
 				this.selectSwitch();
-				this.notifying = true;
 				break;
 
 			case 'team':
@@ -455,7 +452,6 @@
 				controls += '</div></div>';
 				this.$controls.html(controls);
 				this.selectSwitch();
-				this.notifying = true;
 				break;
 
 			default:
@@ -484,23 +480,10 @@
 			var notifyObject = null;
 			if (request.forceSwitch) {
 				request.requestType = 'switch';
-				notifyObject = {
-					type: 'yourSwitch',
-					room: this.id
-				};
 			} else if (request.teamPreview) {
 				request.requestType = 'team';
-				notifyObject = {
-					type: 'yourSwitch',
-					room: this.id
-				};
 			} else if (request.wait) {
 				request.requestType = 'wait';
-			} else {
-				notifyObject = {
-					type: 'yourMove',
-					room: this.id
-				};
 			}
 
 			this.choice = null;
@@ -508,30 +491,22 @@
 			if (request.side) {
 				this.updateSideLocation(request.side, true);
 			}
-
-			// if (notifyObject) {
-			// 	var doNotify = function() {
-			// 		notify(notifyObject);
-			// 		this.notifying = true;
-			// 		updateRoomList();
-			// 	};
-			// 	if (this.battle.yourSide.initialized) {
-			// 		// The opponent's name is already known.
-			// 		notifyObject.user = this.battle.yourSide.name;
-			// 		doNotify();
-			// 	} else {
-			// 		// The opponent's name isn't known yet, so wait until it is
-			// 		// known before sending the notification, so that it can include
-			// 		// the opponent's name.
-			// 		var callback = this.battle.stagnateCallback;
-			// 		this.battle.stagnateCallback = function(battle) {
-			// 			notifyObject.user = battle.yourSide.name;
-			// 			doNotify();
-			// 			battle.stagnateCallback = callback;
-			// 			if (callback) callback(battle);
-			// 		};
-			// 	}
-			// }
+			this.notifyRequest();
+		},
+		notifyRequest: function() {
+			var oName = this.battle.yourSide.name;
+			if (oName) oName = " against "+oName;
+			switch (this.request.requestType) {
+			case 'move':
+				this.notify("Your move!", "Move in your battle"+oName, 'choice');
+				break;
+			case 'switch':
+				this.notify("Your switch!", "Switch in your battle"+oName, 'choice');
+				break;
+			case 'team':
+				this.notify("Team preview!", "Choose your team order in your battle"+oName, 'choice');
+				break;
+			}
 		},
 		updateSideLocation: function(sideData, midBattle) {
 			if (!sideData.id) return;
@@ -634,7 +609,7 @@
 			}
 
 			this.sendDecision('/choose '+this.choice.choices.join(','));
-			this.notifying = false;
+			this.closeNotification('choice');
 
 			this.finalDecision = false;
 			this.choice = {waiting: true};
@@ -665,7 +640,7 @@
 			}
 
 			this.sendDecision('/choose '+this.choice.choices.join(','));
-			this.notifying = false;
+			this.closeNotification('choice');
 
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
@@ -691,14 +666,14 @@
 			}
 
 			this.sendDecision('/team '+(pos));
-			this.notifying = false;
+			this.closeNotification('choice');
 
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
 		undoChoice: function(pos) {
 			this.send('/undo');
-			this.notifying = true;
+			this.notifyRequest();
 
 			this.choice = null;
 			this.updateControlsForPlayer();
@@ -706,7 +681,7 @@
 		leaveBattle: function() {
 			this.hideTooltip();
 			this.send('/leavebattle');
-			this.notifying = false;
+			this.closeNotification('choice');
 		},
 		selectSwitch: function() {
 			this.hideTooltip();

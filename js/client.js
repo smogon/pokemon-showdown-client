@@ -20,6 +20,14 @@
 		return roomid.replace(/[^a-zA-Z0-9-]+/g, '');
 	}
 
+	// support Safari 6 notifications
+	// trying to use new-spec notifications on old versions of Chrome will crash
+	// certain older versions of Chrome and there doesn't appear to be a way to
+	// feature-detect them
+	if (!window.Notification && window.webkitNotification && navigator.userAgent.indexOf('Chrome') <= 0) {
+		window.Notification = window.webkitNotification;
+	}
+
 	var User = this.User = Backbone.Model.extend({
 		defaults: {
 			name: '',
@@ -204,6 +212,7 @@
 		routes: {
 			'*path': 'dispatchFragment'
 		},
+		focused: true,
 		initialize: function() {
 			window.app = this;
 			$('#main').html('');
@@ -227,6 +236,17 @@
 
 			this.user.on('login:authrequired', function(name) {
 				self.addPopup('password', LoginPasswordPopup, {username: name});
+			});
+
+			$(window).on('focus click', function() {
+				if (!self.focused) {
+					self.focused = true;
+					self.curRoom.dismissNotification();
+					if (self.curSideRoom) self.curSideRoom.dismissNotification();
+				}
+			});
+			$(window).on('blur', function() {
+				self.focused = false;
 			});
 
 			this.initializeConnection();
@@ -988,9 +1008,9 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
-			if (app.rooms.teambuilder) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
-			if (app.rooms.ladder) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
+			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notifications?' notifying':'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
+			if (app.rooms['teambuilder']) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
+			if (app.rooms['ladder']) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
 			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
@@ -1013,14 +1033,14 @@
 					name = '<i class="text">'+parts[0]+'</i><span>'+name+'</span>';
 				}
 				if (room.isSideRoom) {
-					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 					continue;
 				}
 				if (!atLeastOne) {
 					buf += '<ul>';
 					atLeastOne = true;
 				}
-				buf += '<li><a class="button'+(curId===id?' cur':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (app.curSideRoom) {
@@ -1113,7 +1133,7 @@
 			//
 		},
 
-		// graphical
+		// layout
 
 		bestWidth: 659,
 		show: function(position, leftWidth) {
@@ -1130,6 +1150,7 @@
 				break;
 			}
 			this.$el.show();
+			this.dismissNotification();
 			this.focus();
 		},
 		hide: function() {
@@ -1141,9 +1162,105 @@
 		join: function() {},
 		leave: function() {},
 
+		// notifications
+
+		requestNotifications: function() {
+			if (window.Notification && Notification.requestPermission) {
+				Notification.requestPermission(function(permission) {});
+			}
+		},
+		notifications: null,
+		notify: function(title, body, tag, once) {
+			if (once && app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (!tag) tag = 'message';
+			if (!this.notifications) this.notifications = {};
+			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) {
+				this.notifications[tag] = {};
+			} else if (window.Notification) {
+				// old one doesn't need to be closed; sending the tag should
+				// automatically replace the old notification
+				var notification = this.notifications[tag] = new Notification(title, {
+					lang: 'en',
+					body: body,
+					tag: this.id+':'+tag,
+				});
+				var self = this;
+				notification.onclose = function() {
+					self.dismissNotification(tag);
+				};
+				notification.onclick = function() {
+					self.clickNotification(tag);
+				};
+				if (once) notification.psAutoclose = true;
+			} else if (window.macgap) {
+				macgap.growl.notify({
+					title: title,
+					content: body
+				});
+				this.notifications[tag] = {};
+				if (once) notification.psAutoclose = true;
+			} else {
+				this.notifications[tag] = {};
+				if (once) notification.psAutoclose = true;
+			}
+			app.topbar.updateTabbar();
+		},
+		notifyOnce: function(title, body, tag) {
+			return this.notify(title, body, tag, true);
+		},
+		closeNotification: function(tag, alreadyClosed) {
+			if (!this.notifications) return;
+			if (!tag) {
+				for (tag in this.notifications) {
+					if (this.notifications[tag].close) this.notifications[tag].close();
+				}
+				this.notifications = null;
+				app.topbar.updateTabbar();
+				return;
+			}
+			if (!this.notifications[tag]) return;
+			if (!alreadyClosed && this.notifications[tag].close) this.notifications[tag].close();
+			delete this.notifications[tag];
+			if (_.isEmpty(this.notifications)) {
+				this.notifications = null;
+				app.topbar.updateTabbar();
+			}
+		},
+		dismissNotification: function(tag) {
+			if (!this.notifications) return;
+			if (!tag) {
+				for (tag in this.notifications) {
+					if (!this.notifications[tag].psAutoclose) continue;
+					if (this.notifications[tag].close) this.notifications[tag].close();
+					delete this.notifications[tag];
+				}
+				if (_.isEmpty(this.notifications)) {
+					this.notifications = null;
+					app.topbar.updateTabbar();
+				}
+				return;
+			}
+			if (!this.notifications[tag]) return;
+			if (this.notifications[tag].close) this.notifications[tag].close();
+			if (this.notifications[tag].psAutoclose) {
+				delete this.notifications[tag];
+				if (_.isEmpty(this.notifications)) {
+					this.notifications = null;
+					app.topbar.updateTabbar();
+				}
+			} else {
+				this.notifications[tag] = {};
+			}
+		},
+		clickNotification: function(tag) {
+			this.dismissNotification(tag);
+			app.focusRoom(this.id);
+		},
+
 		// allocation
 
 		destroy: function() {
+			this.closeNotification();
 			this.leave();
 			this.remove();
 			delete this.app;
@@ -1332,11 +1449,13 @@
 			app.addPopup('user:avatars', AvatarsPopup);
 		},
 		challenge: function() {
+			app.rooms[''].requestNotifications();
 			this.close();
 			app.focusRoom('');
 			app.rooms[''].challenge(this.data.name);
 		},
 		pm: function() {
+			app.rooms[''].requestNotifications();
 			this.close();
 			app.focusRoom('');
 			app.rooms[''].focusPM(this.data.name);
