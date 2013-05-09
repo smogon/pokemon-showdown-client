@@ -77,6 +77,7 @@
 			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		clickLink: function(e) {
+			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			e.stopPropagation();
 			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
