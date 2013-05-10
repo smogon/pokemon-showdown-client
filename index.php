@@ -41,9 +41,8 @@ if (isset($_REQUEST['file']) && $month) {
 	} else {
 		$lines = file($logfile);
 		foreach ($lines as &$i) {
-			if (preg_match('/\|c\|/', $i)) {
-				echo $i;
-			}
+			if (preg_match('/\|(N|J|L|userstats)\|/', $i)) continue;
+			echo $i;
 		}
 	}
 	die;
