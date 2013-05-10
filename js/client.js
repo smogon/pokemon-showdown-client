@@ -519,9 +519,9 @@
 					_gaq.push(['_trackEvent', 'Alt port connection', Config.server.id]);
 				}
 				self.trigger('init:socketopened');
-				// Join the lobby. This is necessary for now.
-				// TODO: Revise this later if desired.
-				self.send({room: 'lobby'}, 'join');
+				// Join the lobby if it fits on the screen.
+				// Send the join message even if it doesn't, for legacy servers.
+				self.send({room: 'lobby', nojoin: ($(window).width() < 916)}, 'join');
 				if (self.sendQueue) {
 					var queue = self.sendQueue;
 					delete self.sendQueue;
