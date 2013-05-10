@@ -775,6 +775,37 @@ p.or:after {
 	color: gray;
 }
 
+.roomlist {
+	text-align: center;
+}
+.roomlist a.ilink {
+	display: block;
+	margin: 2px 7px 4px 7px;
+	padding: 0px 2px 1px 2px;
+	border: 1px solid #BBCCDD;
+	background: #F8FBFD;
+	
+	border-radius: 4px;
+	text-decoration: none;
+	color: #336699;
+	text-shadow: #ffffff 0px -1px 0;
+	box-shadow: 1px 1px 1px #D5D5D5;
+	cursor: pointer;
+	font-size: 9pt;
+
+	overflow: hidden;
+	white-space: nowrap;
+}
+.roomlist a.ilink small {
+	font-size: 8pt;
+}
+.roomlist a.ilink:hover {
+	border: 1px solid #8899AA;
+	background: #F1F4F9;
+	color: #224466;
+	text-decoration: none;
+}
+
 /*********************************************************
  * Chat
  *********************************************************/

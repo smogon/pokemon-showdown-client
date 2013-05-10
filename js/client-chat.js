@@ -531,7 +531,7 @@
 					name2 = row[3];
 					silent = (row[0] === 'B');
 
-					var matches = this.parseBattleID(id);
+					var matches = ChatRoom.parseBattleID(id);
 					if (!matches) {
 						return; // bogus room ID could be used to inject JavaScript
 					}
@@ -751,13 +751,7 @@
 				if (message.substr(0,2) === '//') message = message.substr(1);
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + messageSanitize(message) + '</em></div>');
 			}
-		},
-		parseBattleID: function(id) {
-			if (id.lastIndexOf('-') > 6) {
-				return id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
-			}
-			return id.match(/^battle\-([a-z0-9]*[a-z])[0-9]*$/);
-		},
+		}
 	}, {
 		getTimestamp: function(section) {
 			var pref = Tools.prefs('timestamps') || {};
@@ -771,6 +765,12 @@
 			return '[' + components.map(
 					function(x) { return (x < 10) ? '0' + x : x; }
 				).join(':') + '] ';
+		},
+		parseBattleID: function(id) {
+			if (id.lastIndexOf('-') > 6) {
+				return id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
+			}
+			return id.match(/^battle\-([a-z0-9]*[a-z])[0-9]*$/);
 		}
 	});
 
