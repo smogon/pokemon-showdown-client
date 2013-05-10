@@ -447,6 +447,9 @@
 						} else if (data.battlelog) {
 							self.rooms[data.room].init(data.battlelog.join('\n'));
 						}
+						if (data.u) {
+							self.rooms[data.room].parseUserList(data.u);
+						}
 					}
 				},
 				update: function (data) {

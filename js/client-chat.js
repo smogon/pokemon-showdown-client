@@ -574,6 +574,11 @@
 					this.parseUserList(row[1]);
 					break;
 
+				case 'formats':
+					// deprecated; please send formats to the global room
+					app.parseFormats(row);
+					break;
+
 				case 'raw':
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
