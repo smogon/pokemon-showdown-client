@@ -1310,6 +1310,10 @@ a.ilink:hover {
 	.switch-controls .switchselect button {
 		background: #BBBBBB;
 	}
+	.controls .timer {
+		float: right;
+		margin-top: -25px;
+	}
 }
 
 /****************/
