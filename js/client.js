@@ -1205,10 +1205,12 @@
 					title: title,
 					content: body
 				});
-				this.notifications[tag] = {};
+				var notification = {};
+				this.notifications[tag] = notification;
 				if (once) notification.psAutoclose = true;
 			} else {
-				this.notifications[tag] = {};
+				var notification = {};
+				this.notifications[tag] = notification;
 				if (once) notification.psAutoclose = true;
 			}
 			app.topbar.updateTabbar();

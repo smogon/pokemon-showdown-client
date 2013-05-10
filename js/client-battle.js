@@ -170,7 +170,7 @@
 			this.controlsShown = true;
 			if (!this.request) {
 				if (this.battle.kickingInactive) {
-					this.$controls.html('<div class="controls"><p><button name="setTimer" value="off"><small>Stop timer</small></button> <small>&larr; Your opponent has disconnected. Click this to delay your victory.</small></p></div>');
+					this.$controls.html('<div class="controls"><p><button name="setTimer" value="off"><small>Stop timer</small></button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p></div>');
 				} else {
 					this.$controls.html('<div class="controls"><p><button name="setTimer" value="on"><small>Claim victory</small></button> <small>&larr; Your opponent has disconnected. Click this if they don\'t reconnect.</small></p></div>');
 				}
@@ -467,12 +467,13 @@
 				if (this.choice && this.choice.waiting && !this.finalDecision) {
 					buf += '<button name="undoChoice">Cancel</button>';
 				}
-				buf += '</p></div>';
+				buf += '</p>';
 				if (this.battle.kickingInactive) {
-					buf += '<p><button name="setTimer" value="off"><small>Stop timer</small></button></p>';
+					buf += '<p class="timer"><button name="setTimer" value="off"><small>Stop timer</small></button></p>';
 				} else {
-					buf += '<p><button name="setTimer" value="on"><small>Kick inactive player</small></button></p>';
+					buf += '<p class="timer"><button name="setTimer" value="on"><small>Start timer</small></button></p>';
 				}
+				buf += '</div>';
 				this.$controls.html(buf);
 				break;
 			}
