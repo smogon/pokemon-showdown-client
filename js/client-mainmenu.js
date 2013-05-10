@@ -25,6 +25,9 @@
 			buf += '<p><label class="label">Format:</label>'+this.renderFormats()+'</p>';
 			buf += '<p><label class="label">Team:</label>'+this.renderTeams()+'</p>';
 			buf += '<p><button class="button big" name="search"><strong>Look for a battle</strong></button></p></form></div>';
+
+			buf += '<div class="menugroup"><p><button class="button" name="roomlist">Watch a battle</button></p></div>';
+
 			buf += '<div class="menugroup"><p><button class="button" name="joinRoom" value="teambuilder">Teambuilder</button></p><p><button class="button" name="joinRoom" value="ladder">Ladder</button></p></div></div></div>';
 
 			// right menu
@@ -475,6 +478,9 @@
 		},
 		joinRoom: function(room) {
 			app.joinRoom(room);
+		},
+		roomlist: function() {
+			app.addPopup('roomlist', BattleListPopup);
 		}
 	});
 
@@ -595,6 +601,63 @@
 				buf += '<span class="pokemonicon" style="float:left;'+Tools.getIcon(team.team[i])+'"></span>';
 			}
 			return buf;
+		}
+	});
+
+	var BattleListPopup = this.BattleListPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function() {
+			app.on('response:roomlist', this.update, this);
+			app.send('/cmd roomlist');
+			this.update();
+		},
+		events: {
+			'click .ilink': 'clickLink'
+		},
+		update: function(data) {
+			if (!data) {
+				this.$el.html('<p>Loading...</p>');
+				return;
+			}
+			var buf = '';
+			var i = 0;
+			for (var id in data.rooms) {
+				var roomData = data.rooms[id];
+				var matches = ChatRoom.parseBattleID(id);
+				if (!matches) {
+					continue; // bogus room ID could be used to inject JavaScript
+				}
+				var format = (matches ? '<small>[' + matches[1] + ']</small><br />' : '');
+				var roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
+				if (!roomData.p1) {
+					matches = id.match(/[^0-9]([0-9]*)$/);
+					roomDesc = format + 'empty room ' + matches[1];
+				} else if (!roomData.p2) {
+					roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
+				}
+				buf += '<div><a href="' + app.root+id + '" class="ilink">' + roomDesc + '</a></div>';
+				i++;
+			}
+
+			if (!i) {
+				buf = '<p>No battles are going on right now.</p>';
+			} else {
+				buf = '<div class="roomlist"><p><button name="refresh"><i class="icon-refresh"></i> Refresh</button> <button name="close"><i class="icon-remove"></i> Close</button></p><p>'+i+' battles</p>'+buf+'</div>';
+			}
+
+			this.$el.html(buf);
+		},
+		clickLink: function(e) {
+			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
+			e.preventDefault();
+			e.stopPropagation();
+			this.close();
+			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
+			app.tryJoinRoom(roomid);
+		},
+		refresh: function(i, button) {
+			button.disabled = true;
+			app.send('/cmd roomlist');
 		}
 	});
 

@@ -602,7 +602,7 @@
 		 * Receive from sim server
 		 */
 		receive: function(data) {
-			console.log('received: '+data);
+			// console.log('received: '+data);
 			var roomid = '';
 			if (data.substr(0,1) === '>') {
 				var nlIndex = data.indexOf('\n');
