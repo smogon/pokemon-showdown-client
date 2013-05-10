@@ -607,19 +607,46 @@
 	var BattleListPopup = this.BattleListPopup = Popup.extend({
 		type: 'semimodal',
 		initialize: function() {
+			var buf = '<div class="roomlist"><p><button name="refresh"><i class="icon-refresh"></i> Refresh</button> <button name="close"><i class="icon-remove"></i> Close</button></p>';
+
+			buf += '<p><label>Format:</label><select name="format"><option value="">(All formats)</option>';
+			for (var i in BattleFormats) {
+				if (BattleFormats[i].searchShow) {
+					var activeFormat = (this.format === i?' selected=':'');
+					buf += '<option value="'+i+'"'+activeFormat+'>'+BattleFormats[i].name+'</option>';
+				}
+			}
+			buf += '</select></p>';
+			buf += '<div class="list"><p>Loading...</p></div>';
+			buf += '</div>';
+			this.$el.html(buf);
+			this.$list = this.$('.list');
+
 			app.on('response:roomlist', this.update, this);
 			app.send('/cmd roomlist');
 			this.update();
 		},
 		events: {
-			'click .ilink': 'clickLink'
+			'click .ilink': 'clickLink',
+			'change select': 'changeFormat'
+		},
+		format: '',
+		changeFormat: function(e) {
+			this.format = e.currentTarget.value;
+			this.update();
 		},
 		update: function(data) {
-			if (!data) {
-				this.$el.html('<p>Loading...</p>');
+			if (!data && !this.data) {
+				this.$list.html('<p>Loading...</p>');
 				return;
 			}
+			if (!data) {
+				data = this.data;
+			} else {
+				this.data = data;
+			}
 			var buf = '';
+
 			var i = 0;
 			for (var id in data.rooms) {
 				var roomData = data.rooms[id];
@@ -627,25 +654,27 @@
 				if (!matches) {
 					continue; // bogus room ID could be used to inject JavaScript
 				}
-				var format = (matches ? '<small>[' + matches[1] + ']</small><br />' : '');
-				var roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
+				var format = (matches[1]||'');
+				if (this.format && format !== this.format) continue;
+				var formatBuf = (format ? '<small>[' + Tools.escapeFormat(format) + ']</small><br />' : '');
+				var roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
 				if (!roomData.p1) {
 					matches = id.match(/[^0-9]([0-9]*)$/);
-					roomDesc = format + 'empty room ' + matches[1];
+					roomDesc = formatBuf + 'empty room ' + matches[1];
 				} else if (!roomData.p2) {
-					roomDesc = format + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
+					roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
 				}
 				buf += '<div><a href="' + app.root+id + '" class="ilink">' + roomDesc + '</a></div>';
 				i++;
 			}
 
 			if (!i) {
-				buf = '<p>No battles are going on right now.</p>';
+				buf = '<p>No '+Tools.escapeFormat(this.format)+' battles are going on right now.</p>';
 			} else {
-				buf = '<div class="roomlist"><p><button name="refresh"><i class="icon-refresh"></i> Refresh</button> <button name="close"><i class="icon-remove"></i> Close</button></p><p>'+i+' battles</p>'+buf+'</div>';
+				buf = '<p>'+i+' '+Tools.escapeFormat(this.format)+' battles</p>' + buf;
 			}
 
-			this.$el.html(buf);
+			this.$list.html(buf);
 		},
 		clickLink: function(e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
