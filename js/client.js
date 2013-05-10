@@ -241,6 +241,14 @@
 				self.addPopupMessage('You have third-party cookies disabled in your browser, which is likely to cause problems. You should enable them and then refresh this page.');
 			});
 
+			this.on('init:socketclosed', function() {
+				self.addPopup('reconnect', ReconnectPopup);
+			});
+
+			this.on('init:connectionerror', function() {
+				self.addPopup('reconnect', ReconnectPopup, {cantconnect: true});
+			});
+
 			this.user.on('login:authrequired', function(name) {
 				self.addPopup('password', LoginPasswordPopup, {username: name});
 			});
@@ -1473,6 +1481,27 @@
 		}
 	},{
 		dataCache: {}
+	});
+
+	var ReconnectPopup = this.ReconnectPopup = Popup.extend({
+		type: 'modal',
+		initialize: function(data) {
+			var buf = '<form>';
+
+			if (data.cantconnect) {
+				buf += '<p class="error">Couldn\'t connect to server!</p>';
+				buf += '<p class="buttonbar"><button type="submit">Retry</button> <button name="close">Close</button></p>';
+			} else {
+				buf += '<p>You have been disconnected &ndash; possibly because the server was restarted.</p>'
+				buf += '<p class="buttonbar"><button type="submit" autofocus><strong>Reconnect</strong></button> <button name="close">Close</button></p>';
+			}
+
+			buf += '</form>';
+			this.$el.html(buf);
+		},
+		submit: function(data) {
+			document.location.reload();
+		}
 	});
 
 	var LoginPopup = this.LoginPopup = Popup.extend({
