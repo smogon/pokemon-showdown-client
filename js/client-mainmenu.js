@@ -543,9 +543,9 @@
 				var format = BattleFormats[data.format];
 				var curTeam = +data.team;
 				var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
+				var count = 0;
 				if (teamFormat) {
 					bufs[curBuf] = '<li><h3>'+Tools.escapeFormat(teamFormat)+' teams</h3></li>';
-					var count = 0;
 					for (var i = 0; i < teams.length; i++) {
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
