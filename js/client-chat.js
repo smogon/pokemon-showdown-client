@@ -51,6 +51,10 @@
 			e.stopPropagation();
 			var text;
 			if ((text = this.$chatbox.val())) {
+				if (!$.trim(text)) {
+					this.$chatbox.val('');
+					return;
+				}
 				this.tabComplete.reset();
 				// this.chatHistory.push(text);
 				text = this.parseCommand(text);
