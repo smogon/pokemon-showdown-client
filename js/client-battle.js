@@ -101,18 +101,19 @@
 				this.$join = null;
 			}
 
+			var controlsShown = this.controlsShown;
+			this.controlsShown = false;
+
 			if (this.battle.playbackState === 5) {
 
 				// battle is seeking
 				this.$controls.html('');
-				this.controlsShown = false;
 				return;
 
 			} else if (this.battle.playbackState === 2 || this.battle.playbackState === 3) {
 
 				// battle is playing or paused
 				this.$controls.html('<p><button name="skipTurn">Skip turn <i class="icon-step-forward"></i></button></p>');
-				this.controlsShown = false;
 				return;
 
 			}
@@ -143,7 +144,8 @@
 			} else if (this.side) {
 
 				// player
-				this.updateControlsForPlayer(true);
+				this.controlsShown = true;
+				if (!controlsShown) this.updateControlsForPlayer();
 
 			} else if (this.battle.mySide.initialized && this.battle.yourSide.initialized) {
 
@@ -162,12 +164,9 @@
 			// This intentionally doesn't happen if the battle is still playing,
 			// since those early-return.
 			app.topbar.updateTabbar();
-			if (!this.side) this.controlsShown = false;
 		},
 		controlsShown: false,
-		updateControlsForPlayer: function(noForce) {
-			if (noForce && this.controlsShown) return false;
-			this.controlsShown = true;
+		updateControlsForPlayer: function() {
 			if (!this.request) {
 				if (this.battle.kickingInactive) {
 					this.$controls.html('<div class="controls"><p><button name="setTimer" value="off"><small>Stop timer</small></button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p></div>');
