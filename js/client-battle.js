@@ -357,9 +357,6 @@
 						controls += movebuttons;
 					}
 					controls += '<div style="clear:left"></div>';
-					if (hasDisabled) {
-						// controls += '<small>(grayed out moves have been disabled by Disable, Encore, or something like that)</small>';
-					}
 					controls += '</div></div><div class="switchcontrols"><div class="switchselect"><button name="selectSwitch">Switch</button></div><div class="switchmenu">';
 					if (trapped) {
 						controls += '<em>You are trapped and cannot switch!</em>';
