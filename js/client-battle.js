@@ -720,6 +720,7 @@
 
 			if (x > 335) x = 335;
 			if (y < 140) y = 140;
+			if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper"></div>');
 			$('#tooltipwrapper').css({
 				left: x,
 				top: y
@@ -744,6 +745,7 @@
 				}
 				text += '</div></div>';
 				break;
+
 			case 'pokemon':
 				var pokemon = this.battle.getPokemon(thing);
 				if (!pokemon) return;
@@ -801,7 +803,6 @@
 				text += '</div></div>';
 				break;
 			}
-			if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper"></div>');
 			$('#tooltipwrapper').html(text).appendTo(document.body);
 		},
 		hideTooltip: function() {
