@@ -178,9 +178,8 @@
 
 			var battle = this.battle;
 
-			if (!this.choice) {
-				this.updateSide(this.request.side);
-			}
+			// TODO: investigate when to do this
+			this.updateSide(this.request.side);
 
 			// updated trappedness
 			if (false && 'trapped') {
