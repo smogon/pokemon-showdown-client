@@ -1348,7 +1348,7 @@
 		},
 		initialize: function(data) {
 			this.type = 'semimodal';
-			this.$el.html('<p style="white-space:pre-wrap">'+Tools.escapeHTML(data.message)+'</p><p class="buttonbar"><button name="close" autofocus><strong>OK</strong></button></p>').css('max-width', 480);
+			this.$el.html('<p style="white-space:pre-wrap">'+Tools.parseMessage(data.message)+'</p><p class="buttonbar"><button name="close" autofocus><strong>OK</strong></button></p>').css('max-width', 480);
 		},
 
 		dispatchClickButton: function(e) {
