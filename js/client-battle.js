@@ -686,6 +686,10 @@
 			this.choice = null;
 			this.updateControlsForPlayer();
 		},
+		clearChoice: function() {
+			this.choice = null;
+			this.updateControlsForPlayer();
+		},
 		leaveBattle: function() {
 			this.hideTooltip();
 			this.send('/leavebattle');
