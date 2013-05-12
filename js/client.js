@@ -1420,6 +1420,7 @@
 				'@': "Moderator (@)",
 				'%': "Driver (%)",
 				'+': "Voiced (+)",
+				'#': "<span style='color:#777777'>Locked (#)</span>",
 				'!': "<span style='color:#777777'>Muted (!)</span>"
 			};
 			var group = (groupDetails[name.substr(0, 1)] || '');
