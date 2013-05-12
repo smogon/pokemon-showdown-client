@@ -123,11 +123,11 @@ function BattleSoundLibrary() {
 
 	// misc
 	this.soundPlaceholder = {
-		play: function(){},
-		pause: function(){},
-		stop: function(){},
-		resume: function(){},
-		setVolume: function(){}
+		play: function(){ return this; },
+		pause: function(){ return this; },
+		stop: function(){ return this; },
+		resume: function(){ return this; },
+		setVolume: function(){ return this; }
 	};
 }
 var BattleSound = new BattleSoundLibrary();
