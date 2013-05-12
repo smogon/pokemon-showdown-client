@@ -671,7 +671,7 @@
 			if (!i) {
 				buf = '<p>No '+Tools.escapeFormat(this.format)+' battles are going on right now.</p>';
 			} else {
-				buf = '<p>'+i+' '+Tools.escapeFormat(this.format)+' battles</p>' + buf;
+				buf = '<p>'+i+' '+Tools.escapeFormat(this.format)+' '+(i === 1 ? 'battle' : 'battles')+'</p>' + buf;
 			}
 
 			this.$list.html(buf);
