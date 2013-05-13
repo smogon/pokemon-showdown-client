@@ -726,7 +726,7 @@
 			for (var i in stats) {
 				if (typeof set.ivs[i] === 'undefined') set.ivs[i] = 31;
 				var val = ''+(set.ivs[i]);
-				buf += '<div><input type="number" name="iv-'+i+'" value="'+val+'" class="inputform numform" min="1" max="31" step="1" /></div>';
+				buf += '<div><input type="number" name="iv-'+i+'" value="'+val+'" class="inputform numform" min="0" max="31" step="1" /></div>';
 			}
 			buf += '</div>';
 
