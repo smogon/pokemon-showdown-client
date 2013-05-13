@@ -1451,8 +1451,8 @@ function Battle(frame, logFrame, noPreload) {
 		var selfS = this;
 		this.battle = self;
 
-		this.name = 'Player';
-		this.id = 'Player';
+		this.name = '';
+		this.id = '';
 		this.initialized = false;
 		this.n = n;
 		this.foe = null;
