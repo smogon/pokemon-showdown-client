@@ -141,23 +141,40 @@
 				// battle has ended
 				this.$controls.html('<div class="controls"><p><em><button name="instantReplay"><i class="icon-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="icon-upload"></i> Share replay</button></p></div>');
 
+			} else if (!this.battle.mySide.initialized || !this.battle.yourSide.initialized) {
+
+				// empty battle
+
+				if (this.side) {
+					if (this.battle.kickingInactive) {
+						this.$controls.html('<div class="controls"><p><button name="setTimer" value="off"><small>Stop timer</small></button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p></div>');
+					} else {
+						this.$controls.html('<div class="controls"><p><button name="setTimer" value="on"><small>Claim victory</small></button> <small>&larr; Your opponent has disconnected. Click this if they don\'t reconnect.</small></p></div>');
+					}
+				} else {
+					this.$controls.html('<p><em>Waiting for players...</em></p>');
+					this.$join = $('<div class="playbutton"><button name="joinBattle">Join Battle</button></div>');
+					this.$battle.append(this.$join);
+				}
+
 			} else if (this.side) {
 
 				// player
-				this.controlsShown = true;
-				if (!controlsShown) this.updateControlsForPlayer();
-
-			} else if (this.battle.mySide.initialized && this.battle.yourSide.initialized) {
-
-				// full battle
-				this.$controls.html('<p><em>Waiting for players...</em></p>');
+				if (!this.request) {
+					if (this.battle.kickingInactive) {
+						this.$controls.html('<div class="controls"><p><button name="setTimer" value="off"><small>Stop timer</small></button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p></div>');
+					} else {
+						this.$controls.html('<div class="controls"><p><button name="setTimer" value="on"><small>Claim victory</small></button> <small>&larr; Your opponent has disconnected. Click this if they don\'t reconnect.</small></p></div>');
+					}
+				} else {
+					this.controlsShown = true;
+					if (!controlsShown) this.updateControlsForPlayer();
+				}
 
 			} else {
 
-				// empty battle
+				// full battle
 				this.$controls.html('<p><em>Waiting for players...</em></p>');
-				this.$join = $('<div class="playbutton"><button name="joinBattle">Join Battle</button></div>');
-				this.$battle.append(this.$join);
 
 			}
 
@@ -167,18 +184,7 @@
 		},
 		controlsShown: false,
 		updateControlsForPlayer: function() {
-			if (!this.request) {
-				if (this.battle.kickingInactive) {
-					this.$controls.html('<div class="controls"><p><button name="setTimer" value="off"><small>Stop timer</small></button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p></div>');
-				} else {
-					this.$controls.html('<div class="controls"><p><button name="setTimer" value="on"><small>Claim victory</small></button> <small>&larr; Your opponent has disconnected. Click this if they don\'t reconnect.</small></p></div>');
-				}
-			}
-
 			var battle = this.battle;
-
-			// TODO: investigate when to do this
-			this.updateSide(this.request.side);
 
 			// updated trappedness
 			if (false && 'trapped') {
@@ -202,6 +208,9 @@
 			var act = '';
 			var switchables = [];
 			if (this.request) {
+				// TODO: investigate when to do this
+				this.updateSide(this.request.side);
+
 				act = this.request.requestType;
 				if (this.request.side) {
 					switchables = this.battle.mySide.pokemon;
