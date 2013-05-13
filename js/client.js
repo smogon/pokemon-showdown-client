@@ -253,6 +253,8 @@
 				self.addPopup(LoginPasswordPopup, {username: name});
 			});
 
+			this.on('response:savereplay', this.uploadReplay, this);
+
 			$(window).on('focus click', function() {
 				if (!self.focused) {
 					self.focused = true;
@@ -698,6 +700,30 @@
 				}
 			}
 			this.trigger('init:formats');
+		},
+		uploadReplay: function(data) {
+			var id = data.id;
+			var serverid = Config.server.id && toId(Config.server.id.split(':')[0]);
+			if (serverid && serverid !== 'showdown') id = serverid+'-'+id;
+			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
+				log: data.log,
+				id: id
+			}, function(data) {
+				if ((serverid === 'showdown') && (data === 'invalid id')) {
+					data = 'not found';
+				}
+				if (data === 'success') {
+					app.addPopup(ReplayUploadedPopup, {id: id});
+				} else if (data === 'hash mismatch') {
+					app.addPopupMessage("Someone else is already uploading a replay of this battle. Try again in five seconds.");
+				} else if (data === 'not found') {
+					app.addPopupMessage("This server isn't registered, and doesn't support uploading replays.");
+				} else if (data === 'invalid id') {
+					app.addPopupMessage("This server is using invalid battle IDs, so this replay can't be uploaded.");
+				} else {
+					app.addPopupMessage("Error while uploading replay: "+data);
+				}
+			});
 		},
 
 		/*********************************************************
@@ -1736,6 +1762,27 @@
 			app.send('/avatar '+i);
 			app.send('/cmd userdetails '+app.user.get('userid'));
 			Tools.prefs('avatar', i);
+			this.close();
+		}
+	});
+
+	var ReplayUploadedPopup = this.ReplayUploadedPopup = Popup.extend({
+		type: 'semimodal',
+		events: {
+			'click a': 'clickClose'
+		},
+		initialize: function(data) {
+			var buf = '';
+			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
+			buf += '<p><a href="http://www.pokemonshowdown.com/replay/'+data.id+'" target="_blank">http://www.pokemonshowdown.com/replay/'+data.id+'</a></p>';
+			buf += '<p><button type="submit" class="autofocus"><strong>Open</strong></button> <button name="close">Cancel</button></p>';
+			this.$el.html(buf).css('max-width', 620);
+		},
+		clickClose: function() {
+			this.close();
+		},
+		submit: function(i) {
+			window.open('http://www.pokemonshowdown.com/replay/battle-'+this.id, '_blank');
 			this.close();
 		}
 	});
