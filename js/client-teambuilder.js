@@ -151,7 +151,7 @@
 			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
 			buf += '</ul>';
 
-			buf += '<button name="import"><i class="icon-upload-alt"></i> Import from PO</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore</button>';
+			buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
 
 			buf += '<p><strong>Clearing your cookies or <code>localStorage</code> will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 
@@ -259,9 +259,6 @@
 				}
 				if (!this.curTeam.team.length) {
 					buf += '<li><em>you have no pokemon lol</em></li>';
-					if (this.deletedSet) {
-						buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
-					}
 				}
 				for (i=0; i<this.curTeam.team.length; i++) {
 					if (this.curTeam.team.length < 6 && this.deletedSet && i === this.deletedSetLoc) {
@@ -271,6 +268,9 @@
 				}
 				if (this.deletedSet && i === this.deletedSetLoc) {
 					buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
+				}
+				if (i === 0) {
+					buf += '<li><button name="import" class="majorbutton"><i class="icon-upload-alt"></i> Import from text</button></li>';
 				}
 				if (i < 6) {
 					buf += '<li><button name="addPokemon" class="majorbutton"><i class="icon-plus"></i> Add pokemon</button></li>';
