@@ -98,6 +98,9 @@ body {
 	text-align: center;
 	padding: 0;
 }
+.userbar button.icon i {
+	margin: 0 -5px;
+}
 
 .tabbar {
 	position: absolute;

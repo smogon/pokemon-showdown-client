@@ -128,7 +128,7 @@
 					self.finishRename(name, data.assertion);
 				} else {
 					// wrong password
-					app.addPopup('password', LoginPasswordPopup, {
+					app.addPopup(LoginPasswordPopup, {
 						username: name,
 						error: 'Wrong password.'
 					});
@@ -242,15 +242,15 @@
 			});
 
 			this.on('init:socketclosed', function() {
-				self.addPopup('reconnect', ReconnectPopup);
+				self.addPopup(ReconnectPopup);
 			});
 
 			this.on('init:connectionerror', function() {
-				self.addPopup('reconnect', ReconnectPopup, {cantconnect: true});
+				self.addPopup(ReconnectPopup, {cantconnect: true});
 			});
 
 			this.user.on('login:authrequired', function(name) {
-				self.addPopup('password', LoginPasswordPopup, {username: name});
+				self.addPopup(LoginPasswordPopup, {username: name});
 			});
 
 			$(window).on('focus click', function() {
@@ -908,27 +908,26 @@
 			this.popups = [];
 		},
 
-		addPopup: function(id, type, data) {
+		addPopup: function(type, data) {
 			if (!data) data = {};
 
 			if (data.sourceEl === undefined && app.dispatchingButton) {
 				data.sourceEl = app.dispatchingButton;
 			}
+			if (data.sourcePopup === undefined && app.dispatchingPopup) {
+				data.sourcePopup = app.dispatchingPopup;
+			}
 			if (this.dismissingSource && $(data.sourceEl)[0] === this.dismissingSource) return;
 			while (this.popups.length) {
 				var prevPopup = this.popups[this.popups.length-1];
-				if (prevPopup.id === id) {
-					var sourceEl = prevPopup.sourceEl ? prevPopup.sourceEl[0] : null;
-					this.popups.pop().remove();
-					if ($(data.sourceEl)[0] === sourceEl) return;
-				} else if (prevPopup.id !== id.substr(0,prevPopup.id.length)) {
-					this.popups.pop().remove();
-				} else {
+				if (data.sourcePopup === prevPopup) {
 					break;
 				}
+				var sourceEl = prevPopup.sourceEl ? prevPopup.sourceEl[0] : null;
+				this.popups.pop().remove();
+				if ($(data.sourceEl)[0] === sourceEl) return;
 			}
 
-			data.id = id;
 			if (!type) type = Popup;
 
 			var popup = new type(data);
@@ -954,7 +953,7 @@
 		addPopupMessage: function(message) {
 			// shorthand for adding a popup message
 			// this is the equivalent of alert(message)
-			app.addPopup('message', Popup, {message: message});
+			app.addPopup(Popup, {message: message});
 		},
 		closePopup: function(id) {
 			if (this.popups.length) {
@@ -1008,18 +1007,18 @@
 			this.$userbar.html(buf);
 		},
 		login: function() {
-			app.addPopup('login', LoginPopup);
+			app.addPopup(LoginPopup);
 		},
 		openSounds: function() {
-			app.addPopup('sounds', SoundsPopup);
+			app.addPopup(SoundsPopup);
 		},
 		openOptions: function() {
-			app.addPopup('options', OptionsPopup);
+			app.addPopup(OptionsPopup);
 		},
 		clickUsername: function(e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
-			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 
 		// tabbar
@@ -1356,10 +1355,12 @@
 			var target = e.currentTarget;
 			if (target.name) {
 				app.dispatchingButton = target;
+				app.dispatchingPopup = this;
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				this[target.name].call(this, target.value, target);
 				delete app.dispatchingButton;
+				delete app.dispatchingPopup;
 			}
 		},
 		dispatchSubmit: function(e) {
@@ -1470,7 +1471,7 @@
 			app.tryJoinRoom(roomid);
 		},
 		avatars: function() {
-			app.addPopup('user:avatars', AvatarsPopup);
+			app.addPopup(AvatarsPopup);
 		},
 		challenge: function() {
 			app.rooms[''].requestNotifications();
@@ -1576,7 +1577,7 @@
 		},
 		login: function() {
 			this.close();
-			app.addPopup('login', LoginPopup);
+			app.addPopup(LoginPopup);
 		},
 		submit: function(data) {
 			this.close();
@@ -1703,10 +1704,10 @@
 			this.timestamps.pms = e.currentTarget.value;
 		},
 		avatars: function() {
-			app.addPopup('options:avatars', AvatarsPopup);
+			app.addPopup(AvatarsPopup);
 		},
 		login: function() {
-			app.addPopup('options:login', LoginPopup);
+			app.addPopup(LoginPopup);
 		},
 		logout: function() {
 			app.user.logout();

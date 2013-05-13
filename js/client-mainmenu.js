@@ -177,7 +177,7 @@
 		clickUsername: function(e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
-			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		clickPMBackground: function(e) {
 			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
@@ -375,11 +375,11 @@
 			$(target).closest('.challenge').remove();
 		},
 		format: function(format, button) {
-			app.addPopup('format', FormatPopup, {format: format, sourceEl: button});
+			app.addPopup(FormatPopup, {format: format, sourceEl: button});
 		},
 		team: function(team, button) {
 			var format = $(button).closest('form').find('button[name=format]').val();
-			app.addPopup('team', TeamPopup, {team: team, format: format, sourceEl: button});
+			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: button});
 		},
 
 		// format/team selection
@@ -451,7 +451,7 @@
 			}
 
 			if (!app.user.get('named')) {
-				app.addPopup('login', LoginPopup);
+				app.addPopup(LoginPopup);
 				return;
 			}
 
@@ -480,7 +480,7 @@
 			app.joinRoom(room);
 		},
 		roomlist: function() {
-			app.addPopup('roomlist', BattleListPopup);
+			app.addPopup(BattleListPopup);
 		}
 	});
 

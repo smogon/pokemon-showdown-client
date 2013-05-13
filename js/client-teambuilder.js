@@ -396,7 +396,7 @@
 		// move/delete
 		moveSet: function(i, button) {
 			i = +($(button).closest('li').attr('value'));
-			app.addPopup('moveSet', MovePopup, {
+			app.addPopup(MovePopup, {
 				i: i,
 				team: this.curTeam.team
 			});
