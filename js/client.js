@@ -947,6 +947,7 @@
 			}
 
 			if (popup.domInitialize) popup.domInitialize(data);
+			popup.$('.autofocus').focus();
 			this.popups.push(popup);
 			return popup;
 		},
@@ -1348,7 +1349,7 @@
 		},
 		initialize: function(data) {
 			this.type = 'semimodal';
-			this.$el.html('<p style="white-space:pre-wrap">'+Tools.parseMessage(data.message)+'</p><p class="buttonbar"><button name="close" autofocus><strong>OK</strong></button></p>').css('max-width', 480);
+			this.$el.html('<p style="white-space:pre-wrap">'+Tools.parseMessage(data.message)+'</p><p class="buttonbar"><button name="close" class="autofocus"><strong>OK</strong></button></p>').css('max-width', 480);
 		},
 
 		dispatchClickButton: function(e) {
@@ -1497,7 +1498,7 @@
 				buf += '<p class="buttonbar"><button type="submit">Retry</button> <button name="close">Close</button></p>';
 			} else {
 				buf += '<p>You have been disconnected &ndash; possibly because the server was restarted.</p>'
-				buf += '<p class="buttonbar"><button type="submit" autofocus><strong>Reconnect</strong></button> <button name="close">Close</button></p>';
+				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button name="close">Close</button></p>';
 			}
 
 			buf += '</form>';
@@ -1529,7 +1530,7 @@
 
 			var name = (data.name || '');
 			if (!name && app.user.get('named')) name = app.user.get('name');
-			buf += '<p><label class="label">Username: <input class="textbox" type="text" name="username" value="'+Tools.escapeHTML(name)+'" autofocus></label></p>';
+			buf += '<p><label class="label">Username: <input class="textbox autofocus" type="text" name="username" value="'+Tools.escapeHTML(name)+'"></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Choose name</strong></button> <button name="close">Cancel</button></p>';
 
 			buf += '</form>';
@@ -1564,7 +1565,7 @@
 
 			buf += '<p>Log in:</p>';
 			buf += '<p><label class="label">Username: </label><strong>'+Tools.escapeHTML(data.username)+'<input type="hidden" name="username" value="'+Tools.escapeHTML(data.username)+'" /></strong></p>';
-			buf += '<p><label class="label">Password: <input class="textbox" type="password" name="password" autofocus></label></p>';
+			buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password"></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
 
 			buf += '<p class="or">or</p>';

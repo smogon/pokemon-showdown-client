@@ -505,6 +505,7 @@
 				this.updateSideLocation(request.side, true);
 			}
 			this.notifyRequest();
+			this.update();
 		},
 		notifyRequest: function() {
 			var oName = this.battle.yourSide.name;
@@ -830,7 +831,7 @@
 				buf += '<p>Register an account:</p>';
 			}
 			buf += '<p><label class="label">Username:</label> ' + (data.name || app.user.get('name')) + '<input type="hidden" name="name" value="' + Tools.escapeHTML(data.name || app.user.get('name')) + '" /></p>';
-			buf += '<p><label class="label">Password:</label> <input class="textbox" type="password" name="password" autofocus /></p>';
+			buf += '<p><label class="label">Password:</label> <input class="textbox autofocus" type="password" name="password" /></p>';
 			buf += '<p><label class="label">Password (confirm):</label> <input class="textbox" type="password" name="cpassword" /></p>';
 			buf += '<p><img src="' + Tools.resourcePrefix + 'sprites/bwani/pikachu.gif" /></p>';
 			buf += '<p><label class="label">What is this pokemon?</label> <input class="textbox" type="text" name="captcha" value="' + Tools.escapeHTML(data.captcha) + '" /></p>';
