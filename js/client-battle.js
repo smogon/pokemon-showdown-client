@@ -505,7 +505,7 @@
 				this.updateSideLocation(request.side, true);
 			}
 			this.notifyRequest();
-			this.update();
+			this.updateControls();
 		},
 		notifyRequest: function() {
 			var oName = this.battle.yourSide.name;
