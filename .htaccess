@@ -29,6 +29,7 @@ Header unset Vary env=BINGBOT
 # Redirect dev.pokemonshowdown.com to beta.psim.us
 # RewriteCond %{HTTP_HOST} ^(www\.)?dev\.pokemonshowdown\.com$ [NC]
 # RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
+# RewriteCond %{REMOTE_ADDR} !^173\.252\.196\.254$
 # RewriteCond %{REQUEST_URI} ^/$ [OR]
 # RewriteCond %{REQUEST_URI} ^/robots\.txt$ [OR]
 # RewriteCond %{REQUEST_URI} ^/(teambuilder|ladder|lobby|battle)/?$ [OR]
@@ -70,6 +71,7 @@ RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
 RewriteCond %{HTTP_REFERER} !^$
 RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
 RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
+RewriteCond %{REMOTE_ADDR} !^173\.252\.196\.254$
 RewriteRule ^.* http://www.pokemonshowdown.com/ [R=303,L]
 
 RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http://www.pokemonshowdown.com/replay/$1 [R=302,L]
