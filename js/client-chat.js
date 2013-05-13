@@ -67,6 +67,10 @@
 		keyPress: function(e) {
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter
 				this.submit(e);
+			} else if (e.keyCode === 33) { // Pg Up
+				this.$chatFrame.scrollTop(this.$chatFrame.scrollTop() - this.$chatFrame.height() + 60);
+			} else if (e.keyCode === 34) { // Pg Dn
+				this.$chatFrame.scrollTop(this.$chatFrame.scrollTop() + this.$chatFrame.height() - 60);
 			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab
 				if (this.handleTabComplete(this.$chatbox)) {
 					e.preventDefault();
