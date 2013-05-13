@@ -44,7 +44,7 @@
 		},
 
 		login: function() {
-			app.addPopup('login', LoginPopup);
+			app.addPopup(LoginPopup);
 		},
 		submit: function(e) {
 			e.preventDefault();
@@ -78,7 +78,7 @@
 			e.stopPropagation();
 			e.preventDefault();
 			var name = $(e.currentTarget).data('name');
-			app.addPopup('user', UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		clickLink: function(e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
@@ -224,7 +224,7 @@
 			case 'user':
 			case 'open':
 				if (!target) target = prompt('Who?');
-				if (target) app.addPopup('user', UserPopup, {name: target});
+				if (target) app.addPopup(UserPopup, {name: target});
 				return false;
 
 			case 'ignore':
@@ -257,7 +257,7 @@
 				if (target) {
 					app.user.rename(target);
 				} else {
-					app.addPopup('login', LoginPopup);
+					app.addPopup(LoginPopup);
 				}
 				return false;
 

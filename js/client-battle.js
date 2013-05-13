@@ -594,7 +594,7 @@
 			var registered = app.user.get('registered');
 			if (registered && registered.userid !== userid) registered = false;
 			if (!registered && userid === app.user.get('userid')) {
-				app.addPopup('register', RegisterPopup);
+				app.addPopup(RegisterPopup);
 			}
 		},
 
@@ -862,7 +862,7 @@
 					app.send('/trn '+name+',1,'+token);
 					app.addPopupMessage("You have been successfully registered.");
 				} else {
-					app.addPopup('register', RegisterPopup, {
+					app.addPopup(RegisterPopup, {
 						name: name,
 						captcha: captcha,
 						error: data.actionerror
