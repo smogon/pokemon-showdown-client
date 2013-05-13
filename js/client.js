@@ -1680,7 +1680,11 @@
 			}
 
 			buf += '<hr />';
-			buf += '<p class="buttonbar" style="text-align:right"><button name="logout"><strong>Log out</strong></button></p>';
+			if (app.user.get('named')) {
+				buf += '<p class="buttonbar" style="text-align:right"><button name="logout"><strong>Log out</strong></button></p>';
+			} else {
+				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Choose name</button></p>';
+			}
 			this.$el.html(buf).css('min-width', 160);
 		},
 		setNoanim: function(e) {
@@ -1700,6 +1704,9 @@
 		},
 		avatars: function() {
 			app.addPopup('options:avatars', AvatarsPopup);
+		},
+		login: function() {
+			app.addPopup('options:login', LoginPopup);
 		},
 		logout: function() {
 			app.user.logout();
