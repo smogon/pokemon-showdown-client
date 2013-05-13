@@ -121,34 +121,37 @@
 					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
 				}
 				buf += '<li><em>you don\'t have any teams lol</em></li>';
-			} else for (var i=0; i<teams.length+1; i++) {
-				if (i === this.deletedTeamLoc) {
-					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
-				}
-				if (i >= teams.length) break;
+			} else {
+				buf += '<li><button name="newTop"><i class="icon-plus-sign"></i> New team</button></li>';
+				for (var i=0; i<teams.length+1; i++) {
+					if (i === this.deletedTeamLoc) {
+						buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
+					}
+					if (i >= teams.length) break;
 
-				if (i==2 && app.user.cookieTeams) {
-					buf += '<li>== UNSAVED TEAM LINE ==<br /><small>All teams below this line will not be saved.</small></li>';
-				}
+					if (i==2 && app.user.cookieTeams) {
+						buf += '<li>== UNSAVED TEAM LINE ==<br /><small>All teams below this line will not be saved.</small></li>';
+					}
 
-				var team = teams[i];
+					var team = teams[i];
 
-				var formatText = '';
-				if (team.format) {
-					formatText = '['+team.format+'] ';
-				}
+					var formatText = '';
+					if (team.format) {
+						formatText = '['+team.format+'] ';
+					}
 
-				buf += '<li><button name="edit" value="'+i+'" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
-				for (var j=0; j<team.team.length; j++) {
-					if (j!=0) buf += ' / ';
-					buf += ''+Tools.escapeHTML(team.team[j].name);
+					buf += '<li><button name="edit" value="'+i+'" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+					for (var j=0; j<team.team.length; j++) {
+						if (j!=0) buf += ' / ';
+						buf += ''+Tools.escapeHTML(team.team[j].name);
+					}
+					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 				}
-				buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 			}
+			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
 			buf += '</ul>';
 
-			buf += '<button name="new"><i class="icon-plus-sign"></i> New team</button>';
-			buf += ' <button name="import"><i class="icon-upload-alt"></i> Import from PO</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore</button>';
+			buf += '<button name="import"><i class="icon-upload-alt"></i> Import from PO</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore</button>';
 
 			buf += '<p><strong>Clearing your cookies or <code>localStorage</code> will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 
@@ -192,6 +195,16 @@
 			teams.push(newTeam);
 			this.curTeam = newTeam;
 			this.curTeamLoc = teams.length-1;
+			this.update();
+		},
+		newTop: function() {
+			var newTeam = {
+				name: 'Untitled '+(teams.length+1),
+				team: []
+			};
+			teams.unshift(newTeam);
+			this.curTeam = newTeam;
+			this.curTeamLoc = 0;
 			this.update();
 		},
 		import: function() {
