@@ -342,7 +342,7 @@ body {
 }
 .ps-overlay .ps-popup {
 	position: static;
-	margin: 100px auto 20px auto;
+	margin: 80px auto 20px auto;
 	max-width: 320px;
 }
 .ps-popup p,
