@@ -479,7 +479,7 @@
 						// Legacy
 						if (self.rooms['']) self.rooms[''].updateSearch(data);
 					}
-					if (data.request) {
+					if ('request' in data) {
 						// Legacy
 						var room = self.rooms[data.room];
 						if (room && room.receiveRequest) {
