@@ -212,7 +212,11 @@ function Pokemon(species) {
 	};
 	this.getFormattedRange = function (range, precision, separator) {
 		if (range[0] === range[1]) {
-			return Math.abs(range[0] * 100).toFixed(precision) + '%';
+			var percentage = Math.abs(range[0] * 100);
+			if (Math.floor(percentage) === percentage) {
+				return percentage + '%';
+			}
+			return percentage.toFixed(precision) + '%';
 		}
 		var lower, upper;
 		if (precision === 0) {
