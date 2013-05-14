@@ -35,6 +35,13 @@
 			app.send('/leave '+this.id);
 			if (this.battle) this.battle.dealloc();
 		},
+		requestLeave: function() {
+			if (this.side && this.battle && this.battle.rated && !this.battle.done) {
+				app.addPopup(ForfeitPopup, {room: this});
+				return false;
+			}
+			return true;
+		},
 		updateLayout: function() {
 			if (this.$el.width() < 950) {
 				this.battle.messageDelay = 800;
@@ -869,6 +876,20 @@
 					});
 				}
 			}), 'text');
+		}
+	});
+
+	var ForfeitPopup = this.ForfeitPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function(data) {
+			this.room = data.room;
+			var buf = '<form><p>Are you sure you want to forfeit?</p>';
+			buf += '<p><button type="submit"><strong>Forfeit</strong></button> <button name="close" class="autofocus">Cancel</button></p></form>';
+			this.$el.html(buf);
+		},
+		submit: function(data) {
+			this.room.send('/forfeit');
+			this.close();
 		}
 	});
 
