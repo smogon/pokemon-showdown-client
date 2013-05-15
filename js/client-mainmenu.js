@@ -710,10 +710,10 @@
 			buf += '<li><p>[<strong>Marty-D</strong>] <small>&ndash; Research, Development</small></p></li></ul>';
 			buf += '<h2>Contributors</h2>';
 			buf += '<ul><li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>';
-			buf += '<li><p>[The <strong>Immortal</strong>] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Juanma Serrano</strong> [Joim] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><a href="http://kyle-dove.deviantart.com/" target="_blank" class="subtle"><strong>Kyle Dove</strong> [Kyle_Dove]</a> <small>&ndash; Art (battle backdrops)</small></p></li>';
 			buf += '<li><p><a href="http://yilx.deviantart.com/" target="_blank" class="subtle"><strong>Samuel Teo</strong> [Yilx]</a> <small>&ndash; Art (main background)</small></p></li>';
+			buf += '<li><p>[<strong>The Immortal</strong>] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p>[<strong>Zracknel</strong>] <small>&ndash; Art (battle weather backdrops)</small></p></li></ul>';
 			buf += '<p class="buttonbar"><button name="close" class="autofocus"><strong>They sound like cool people</strong></button></p>';
 			this.$el.addClass('credits').html(buf);
