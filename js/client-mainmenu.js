@@ -700,7 +700,7 @@
 		initialize: function() {
 			var buf = '';
 			buf += '<p style="text-align:center"><img src="http://dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown (beta)" /></p>';
-			buf += '<p style="text-align:center"><small>Version 0.9 beta</small></p>';
+			buf += '<p style="text-align:center"><small>Version '+Config.version+'</small></p>';
 			buf += '<p style="text-align:center"><small>(Credits in alphabetical order)</small></p>';
 			buf += '<h2>Owner</h2>';
 			buf += '<ul><li><p><a href="http://guangcongluo.com/" target="_blank" class="subtle"><strong>Guangcong Luo</strong> [<strong>Zarel</strong>]</a> <small>&ndash; Development, Design</small></p></li></ul>';
