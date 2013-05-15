@@ -707,7 +707,7 @@
 			buf += '<ul><li><p><a href="https://cathyjf.com/" target="_blank" class="subtle"><strong>Cathy J. Fitzpatrick</strong> [cathyjf]</a> <small>&ndash; Development</small></p></li></ul>';
 			buf += '<h2>Staff</h2>';
 			buf += '<ul><li><p><a href="http://meltsner.com/" target="_blank" class="subtle"><strong>Bill Meltsner</strong> [bmelts]</a> <small>&ndash; Development</small></p></li>';
-			buf += '<li><p>[<strong>Marty-D</strong>] <small>&ndash; Research, Development</small></p></li></ul>';
+			buf += '<li><p><strong>Mathieu Dias-Martins</strong> [Marty-D] <small>&ndash; Research, Development</small></p></li></ul>';
 			buf += '<h2>Contributors</h2>';
 			buf += '<ul><li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Juanma Serrano</strong> [Joim] <small>&ndash; Development</small></p></li>';
