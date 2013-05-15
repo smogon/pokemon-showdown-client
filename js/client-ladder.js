@@ -14,8 +14,13 @@
 					this.$el.html('<div class="pad"><em>Loading...</em></div>');
 					return;
 				}
+				var curSection = '';
 				for (var i in BattleFormats) {
 					var format = BattleFormats[i];
+					if (format.section && format.section !== curSection) {
+						curSection = format.section;
+						ladderButtons += '</ul><h3>'+Tools.escapeHTML(curSection)+'</h3><ul>';
+					}
 					if (!format.searchShow || !format.rated) continue;
 					ladderButtons += '<li style="margin:5px"><button name="selectFormat" value="'+i+'" style="width:400px;height:30px;text-align:left;font:12pt Verdana">'+format.name+'</button></li>';
 				}
