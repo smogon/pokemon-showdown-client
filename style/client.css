@@ -853,6 +853,7 @@ p.or:after {
 .credits li small {
 	font-size: 10pt;
 	display: block;
+	color: #555555;
 }
 
 /*********************************************************
