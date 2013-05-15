@@ -274,10 +274,11 @@ body {
 	width: 18px;
 	position: relative;
 	z-index: 11;
-	top: -14px;
+	top: 5px;
+	vertical-align: top;
 }
 .tabbar a.cur + .closebutton {
-	top: -15px;
+	top: 4px;
 }
 .closebutton {
 	text-decoration: none;
