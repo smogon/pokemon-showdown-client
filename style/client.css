@@ -32,6 +32,10 @@ body {
 	font-size: 9pt;
 	display: block;
 }
+.label strong {
+	font-size: 11pt;
+	display: block;
+}
 .label .textbox {
 	display: block;
 }
@@ -383,6 +387,7 @@ p.or {
 	font-weight: bold;
 	color: #444444;
 	margin: 20px 0;
+	text-align: center;
 }
 p.or:before,
 p.or:after {
@@ -843,7 +848,7 @@ p.or:after {
 	font-size: 11pt;
 	font-style: italic;
 	margin-bottom: 0;
-	color: #224466;
+	color: #6688AA;
 }
 .credits ul {
 	padding-left: 1.5em;
@@ -1951,6 +1956,14 @@ a.ilink:hover {
 /*********************************************************
  * Popups
  *********************************************************/
+
+.ps-popup .label {
+	width: 210px;
+	margin: 0 auto;
+}
+.ps-popup .textbox {
+	width: 200px;
+}
 
 .userdetails {
 	min-height: 80px;

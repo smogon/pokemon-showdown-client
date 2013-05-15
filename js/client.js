@@ -1493,9 +1493,9 @@
 			buf += '</div>';
 
 			if (userid === app.user.get('userid') || !app.user.get('named')) {
-				buf += '<p class="buttonbar"><button disabled>Challenge</button> <button disabled>PM</button> <button name="close">Close</button></p>';
+				buf += '<p class="buttonbar"><button disabled>Challenge</button> <button disabled>Chat</button></p>';
 			} else {
-				buf += '<p class="buttonbar"><button name="challenge">Challenge</button> <button name="pm">PM</button> <button name="close">Close</button></p>';
+				buf += '<p class="buttonbar"><button name="challenge">Challenge</button> <button name="pm">Chat</button></p>';
 			}
 
 			this.$el.html(buf);
@@ -1603,7 +1603,7 @@
 			}
 
 			buf += '<p>Log in:</p>';
-			buf += '<p><label class="label">Username: </label><strong>'+Tools.escapeHTML(data.username)+'<input type="hidden" name="username" value="'+Tools.escapeHTML(data.username)+'" /></strong></p>';
+			buf += '<p><label class="label">Username: <strong>'+Tools.escapeHTML(data.username)+'<input type="hidden" name="username" value="'+Tools.escapeHTML(data.username)+'" /></strong></label></p>';
 			buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password"></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
 
