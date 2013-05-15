@@ -1,5 +1,7 @@
 (function($) {
 
+	Config.version = '0.9 beta';
+
 	// `defaultserver` specifies the server to use when the domain name in the
 	// address bar is `play.pokemonshowdown.com`. If the domain name in the
 	// address bar is something else (including `dev.pokemonshowdown.com`), the
