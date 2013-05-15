@@ -169,7 +169,7 @@
 			this.curTeamIndex = i;
 			this.update();
 		},
-		delete: function(i) {
+		"delete": function(i) {
 			var i = +i;
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
@@ -187,7 +187,7 @@
 			this.parseText(this.$('.teamedit').val(), true);
 			this.back();
 		},
-		new: function() {
+		"new": function() {
 			var newTeam = {
 				name: 'Untitled '+(teams.length+1),
 				team: []
@@ -207,7 +207,7 @@
 			this.curTeamLoc = 0;
 			this.update();
 		},
-		import: function() {
+		"import": function() {
 			if (this.exportMode) return this.back();
 			if (!this.curTeam) {
 				var newTeam = {
