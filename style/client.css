@@ -104,7 +104,7 @@ body {
 
 .tabbar {
 	position: absolute;
-	bottom: -6px;
+	bottom: 1px;
 	left: 0;
 	right: 0;
 
@@ -112,7 +112,7 @@ body {
 	list-style: none;
 	margin: 0;
 	padding: 0 0 0 0;
-	height: 44px;
+	height: 37px;
 	text-align: left;
 
 	color: white;
@@ -121,13 +121,13 @@ body {
 
 	line-height: 100%;
 }
-.tabbar:before {
+.maintabbarbottom {
 	content: "";
 	display: block;
 	position: absolute;
 	left: 0;
 	right: 0;
-	bottom: 0;
+	bottom: -6px;
 	height: 6px;
 	background: #f8f8f8;
 	border: solid 1px #AAAAAA;
@@ -138,10 +138,22 @@ body {
 	box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
 .tabbar.maintabbar {
-	padding-left: 144px;
+	margin-left: 144px;
+	margin-right: 165px;
+	overflow: hidden;
 }
-.tabbar.maintabbar:after {
-	margin-left: -144px;
+.maintabbar .inner {
+	width: 400%;
+}
+.maintabbar .overflow {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	z-index: 12;
+}
+.maintabbar .overflow button {
+	height: 36px;
+	margin: 0;
 }
 
 .tabbar li,
