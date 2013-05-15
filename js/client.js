@@ -1010,8 +1010,8 @@
 			'click button': 'dispatchClickButton'
 		},
 		initialize: function() {
-			this.$el.html('<img class="logo" src="//dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="tabbar maintabbar"></div><div class="userbar"></div>');
-			this.$tabbar = this.$('.maintabbar');
+			this.$el.html('<img class="logo" src="//dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
+			this.$tabbar = this.$('.maintabbar .inner');
 			// this.$sidetabbar = this.$('.sidetabbar');
 			this.$userbar = this.$('.userbar');
 			this.updateTabbar();
@@ -1087,12 +1087,19 @@
 				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
-			if (app.curSideRoom) {
-				if (sideBuf) buf += '<ul class="siderooms" style="float:none;margin-left:'+(app.curSideRoom.leftWidth-144)+'px">'+sideBuf+'</ul>';
-				this.$tabbar.html(buf);
-			} else {
-				if (sideBuf) buf += '<ul>'+sideBuf+'</ul>';
-				this.$tabbar.html(buf);
+			if (sideBuf) {
+				if (app.curSideRoom) {
+					buf += '<ul class="siderooms" style="float:none;margin-left:'+(app.curSideRoom.leftWidth-144)+'px">'+sideBuf+'</ul>';
+				} else {
+					buf += '<ul>'+sideBuf+'</ul>';
+				}
+			}
+			this.$tabbar.html(buf);
+			var $lastLi = this.$tabbar.children().last().children().last();
+			var offset = $lastLi.offset();
+			var width = $lastLi.outerWidth();
+			if (offset.top >= 37 || offset.left + width > $(window).width() - 165) {
+				this.$tabbar.append('<div class="overflow"><button name="tablist"><i class="icon-caret-down"></i></button></div>');
 			}
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
@@ -1122,6 +1129,9 @@
 			} else {
 				app.focusRoom(id);
 			}
+		},
+		tablist: function() {
+			app.addPopup(TabListPopup);
 		}
 	});
 
@@ -1813,6 +1823,73 @@
 		rulesTimeout: function() {
 			this.$('button')[0].disabled = false;
 			this.$('.overlay-warn').remove();
+		}
+	});
+
+	var TabListPopup = this.TabListPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function() {
+			var curId = (app.curRoom ? app.curRoom.id : '');
+			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
+
+			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notifications?' notifying':'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
+			if (app.rooms['teambuilder']) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
+			if (app.rooms['ladder']) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
+			buf += '</ul>';
+			var atLeastOne = false;
+			var sideBuf = '';
+			for (var id in app.rooms) {
+				if (!id || id === 'teambuilder' || id === 'ladder') continue;
+				var room = app.rooms[id];
+				var name = '<i class="icon-comment-alt"></i> <span>'+id+'</span>';
+				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> <span>Lobby</span>';
+				if (id.substr(0,7) === 'battle-') {
+					var parts = id.substr(7).split('-');
+					var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
+					var p2 = (room && room.battle && room.battle.p2 && room.battle.p2.name) || '';
+					if (p1 && p2) {
+						name = ''+Tools.escapeHTML(p1)+' v. '+Tools.escapeHTML(p2);
+					} else if (p1 || p2) {
+						name = ''+Tools.escapeHTML(p1)+Tools.escapeHTML(p2);
+					} else {
+						name = '(empty room)';
+					}
+					name = '<i class="text">'+parts[0]+'</i><span>'+name+'</span>';
+				}
+				if (room.isSideRoom) {
+					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+					continue;
+				}
+				if (!atLeastOne) {
+					buf += '<ul>';
+					atLeastOne = true;
+				}
+				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+			}
+			if (atLeastOne) buf += '</ul>';
+			if (sideBuf) {
+				buf += '<ul>'+sideBuf+'</ul>';
+			}
+			this.$el.addClass('tablist').html(buf);
+		},
+		events: {
+			'click a': 'click'
+		},
+		click: function(e) {
+			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
+			e.preventDefault();
+			var $target = $(e.currentTarget);
+			var id = $target.attr('href');
+			if (id.substr(0, app.root.length) === app.root) {
+				id = id.substr(app.root.length);
+			}
+			if ($target.hasClass('closebutton')) {
+				app.leaveRoom(id);
+				this.initialize();
+			} else {
+				this.close();
+				app.focusRoom(id);
+			}
 		}
 	});
 
