@@ -393,7 +393,7 @@ p.or:before,
 p.or:after {
 	content: "";
 	font-size: 10px;
-	padding: 0 0 0 65px;
+	padding: 0 0 0 85px;
 	margin: 0 9px 0 0;
 	border-bottom: 1px solid #777777;
 	position: relative;
@@ -842,6 +842,7 @@ p.or:after {
 
 .ps-popup.credits {
 	max-width: 380px;
+	margin-top: 20px;
 	padding: 5px 60px;
 }
 .credits h2 {
