@@ -56,6 +56,18 @@ body {
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
 	background: #FFFFFF;
 }
+a.subtle {
+	text-decoration: none;
+	color: black;
+}
+a.subtle:hover {
+	text-decoration: underline;
+	color: #6688CC;
+}
+.buttonbar {
+	margin-top: 1em;
+	text-align: center;
+}
 
 /*********************************************************
  * Header
@@ -821,6 +833,26 @@ p.or:after {
 	background: #F1F4F9;
 	color: #224466;
 	text-decoration: none;
+}
+
+.ps-popup.credits {
+	max-width: 380px;
+	padding: 5px 60px;
+}
+.credits h2 {
+	font-size: 11pt;
+	font-style: italic;
+	margin-bottom: 0;
+	color: #224466;
+}
+.credits ul {
+	padding-left: 1.5em;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+.credits li small {
+	font-size: 10pt;
+	display: block;
 }
 
 /*********************************************************

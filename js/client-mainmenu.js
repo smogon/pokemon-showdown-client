@@ -28,7 +28,9 @@
 
 			buf += '<div class="menugroup"><p><button class="button" name="roomlist">Watch a battle</button></p></div>';
 
-			buf += '<div class="menugroup"><p><button class="button" name="joinRoom" value="teambuilder">Teambuilder</button></p><p><button class="button" name="joinRoom" value="ladder">Ladder</button></p></div></div></div>';
+			buf += '<div class="menugroup"><p><button class="button" name="joinRoom" value="teambuilder">Teambuilder</button></p>';
+			buf += '<p><button class="button" name="joinRoom" value="ladder">Ladder</button></p>';
+			buf += '<p><button class="button" name="credits">Credits</button></p></div></div></div>';
 
 			// right menu
 			buf += '<div class="rightmenu"><div class="menugroup"><p><button class="button" name="joinRoom" value="lobby">Join lobby chat</button></p></div></div>';
@@ -479,6 +481,9 @@
 		joinRoom: function(room) {
 			app.joinRoom(room);
 		},
+		credits: function() {
+			app.addPopup(CreditsPopup);
+		},
 		roomlist: function() {
 			app.addPopup(BattleListPopup);
 		}
@@ -687,6 +692,32 @@
 		refresh: function(i, button) {
 			button.disabled = true;
 			app.send('/cmd roomlist');
+		}
+	});
+
+	var CreditsPopup = this.CreditsPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function() {
+			var buf = '';
+			buf += '<p style="text-align:center"><img src="http://dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown (beta)" /></p>';
+			buf += '<p style="text-align:center"><small>Version 0.9 beta</small></p>';
+			buf += '<p style="text-align:center"><small>(Credits in alphabetical order)</small></p>';
+			buf += '<h2>Owner</h2>';
+			buf += '<ul><li><p><a href="http://guangcongluo.com/" target="_blank" class="subtle"><strong>Guangcong Luo</strong> [<strong>Zarel</strong>]</a> <small>&ndash; Development, Design</small></p></li></ul>';
+			buf += '<h2>Senior Project Staff</h2>';
+			buf += '<ul><li><p><a href="https://cathyjf.com/" target="_blank" class="subtle"><strong>Cathy J. Fitzpatrick</strong> [<strong>cathyjf</strong>]</a> <small>&ndash; Development</small></p></li></ul>';
+			buf += '<h2>Project Staff</h2>';
+			buf += '<ul><li><p><a href="http://meltsner.com/" target="_blank" class="subtle"><strong>Bill Meltsner</strong> [<strong>bmelts</strong>]</a> <small>&ndash; Development</small></p></li>';
+			buf += '<li><p>[<strong>Marty-D</strong>] <small>&ndash; Research, Development</small></p></li></ul>';
+			buf += '<h2>Contributors</h2>';
+			buf += '<ul><li><p><strong>Cody Thompson</strong> [<strong>Rising_Dusk</strong>] <small>&ndash; Development</small></p></li>';
+			buf += '<li><p>[The <strong>Immortal</strong>] <small>&ndash; Development</small></p></li>';
+			buf += '<li><p>[<strong>Joim</strong>] <small>&ndash; Development</small></p></li>';
+			buf += '<li><p><a href="http://kyle-dove.deviantart.com/" target="_blank" class="subtle"><strong>Kyle Dove</strong> [<strong>Kyle_Dove</strong>]</a> <small>&ndash; Art (battle backdrops)</small></p></li>';
+			buf += '<li><p><a href="http://yilx.deviantart.com/" target="_blank" class="subtle"><strong>Samuel Teo</strong> [<strong>Yilx</strong>]</a> <small>&ndash; Art (main background)</small></p></li>';
+			buf += '<li><p>[<strong>Zracknel</strong>] <small>&ndash; Art (battle weather backdrops)</small></p></li></ul>';
+			buf += '<p class="buttonbar"><button name="close" class="autofocus"><strong>They sound like cool people</strong></button></p>';
+			this.$el.addClass('credits').html(buf);
 		}
 	});
 
