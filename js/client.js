@@ -1353,6 +1353,8 @@
 			if (data && data.sourceEl) {
 				this.sourceEl = data.sourceEl = $(data.sourceEl);
 			}
+			if (data.type) this.type = data.type;
+			if (data.position) this.position = data.position;
 
 			Backbone.View.apply(this, arguments);
 
@@ -1369,25 +1371,41 @@
 
 				var room = $(window).height();
 				var height = $el.outerHeight();
+				var width = $el.outerWidth();
 				var sourceHeight = this.sourceEl.outerHeight();
-				if (room > offset.top + sourceHeight + height + 5 &&
-					(offset.top + sourceHeight < room * 2/3 || offset.top + sourceHeight + 200 < room)) {
-					$el.css('top', offset.top + sourceHeight);
-				} else if (height + 5 <= offset.top) {
-					$el.css('bottom', room - offset.top);
-				} else if (height + 10 < room) {
-					$el.css('bottom', 5);
+
+				if (this.position === 'right') {
+
+					if (room > offset.top + height + 5 &&
+						(offset.top < room * 2/3 || offset.top + 200 < room)) {
+						$el.css('top', offset.top);
+					} else {
+						$el.css('bottom', room - offset.top - sourceHeight);
+					}
+					$el.css('left', offset.left + this.sourceEl.outerWidth());
+
 				} else {
-					$el.css('top', 0);
+
+					if (room > offset.top + sourceHeight + height + 5 &&
+						(offset.top + sourceHeight < room * 2/3 || offset.top + sourceHeight + 200 < room)) {
+						$el.css('top', offset.top + sourceHeight);
+					} else if (height + 5 <= offset.top) {
+						$el.css('bottom', room - offset.top);
+					} else if (height + 10 < room) {
+						$el.css('bottom', 5);
+					} else {
+						$el.css('top', 0);
+					}
+
+					room = $(window).width() - offset.left;
+					if (room < width + 10) {
+						$el.css('right', 10);
+					} else {
+						$el.css('left', offset.left);
+					}
+
 				}
 
-				room = $(window).width() - offset.left;
-				var outerWidth = $el.outerWidth();
-				if (room < outerWidth + 10) {
-					$el.css('right', 10);
-				} else {
-					$el.css('left', offset.left);
-				}
 				$el.detach();
 				$measurer.remove();
 			}
