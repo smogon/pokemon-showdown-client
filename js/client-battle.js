@@ -889,6 +889,7 @@
 		},
 		submit: function(data) {
 			this.room.send('/forfeit');
+			app.removeRoom(this.room.id);
 			this.close();
 		}
 	});
