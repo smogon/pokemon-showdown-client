@@ -81,8 +81,12 @@
 		clickUsername: function(e) {
 			e.stopPropagation();
 			e.preventDefault();
+			var position;
+			if (e.currentTarget.className === 'userbutton username') {
+				position = 'right';
+			}
 			var name = $(e.currentTarget).data('name');
-			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget, position: position});
 		},
 		clickLink: function(e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
@@ -804,13 +808,6 @@
 			}
 			if (!users.length) {
 				buf += this.noNamedUsersOnline;
-			}
-			if (this.room.userCount.unregistered) {
-				buf += '<li id="userlist-unregistered" style="height:auto;padding-top:5px;padding-bottom:5px">';
-				buf += '<span style="font-size:10pt;display:block;text-align:center;padding-bottom:5px;font-style:italic">Due to lag, <span id="usercount-unregistered">' + this.room.userCount.unregistered + '</span> unregistered users are hidden.</span>';
-				buf += ' <button>Challenge an unregistered user</button>';
-				buf += '<div style="clear:both"></div>';
-				buf += '</li>';
 			}
 			if (this.room.userCount.guests) {
 				buf += '<li id="userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
