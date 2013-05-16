@@ -9,6 +9,14 @@ Config.defaultserver = {
 Config.sockjsprefix = '/showdown';
 Config.locprefix = '/';
 
+// placeholder until the real chart loads
+window.Chart = {
+	pokemonRow: function() {},
+	itemRow: function() {},
+	abilityRow: function() {},
+	moveRow: function() {}
+};
+
 var me = (function() {
 	var me = {
 		name: '',
