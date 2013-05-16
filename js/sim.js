@@ -17,6 +17,9 @@ window.Chart = {
 	moveRow: function() {}
 };
 
+// placeholder until the real formats load
+window.BattleFormats = {};
+
 var me = (function() {
 	var me = {
 		name: '',
