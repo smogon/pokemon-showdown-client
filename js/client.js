@@ -1380,7 +1380,7 @@
 						(offset.top < room * 2/3 || offset.top + 200 < room)) {
 						$el.css('top', offset.top);
 					} else {
-						$el.css('bottom', room - offset.top - sourceHeight);
+						$el.css('bottom', Math.max(room - offset.top - sourceHeight, 0));
 					}
 					$el.css('left', offset.left + this.sourceEl.outerWidth());
 
