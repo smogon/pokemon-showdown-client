@@ -36,6 +36,14 @@
 		return false;
 	};
 
+	// placeholder until the real chart loads
+	window.Chart = {
+		pokemonRow: function() {},
+		itemRow: function() {},
+		abilityRow: function() {},
+		moveRow: function() {}
+	};
+
 	var User = this.User = Backbone.Model.extend({
 		defaults: {
 			name: '',
