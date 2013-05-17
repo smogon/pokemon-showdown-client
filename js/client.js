@@ -252,7 +252,8 @@
 			});
 
 			this.on('init:socketclosed', function() {
-				self.addPopup(ReconnectPopup);
+				self.reconnectPending = true;
+				if (!self.popups.length) self.addPopup(ReconnectPopup);
 			});
 
 			this.on('init:connectionerror', function() {
@@ -995,6 +996,7 @@
 			if (this.popups.length) {
 				var popup = this.popups.pop();
 				popup.remove();
+				if (this.reconnectPending) this.addPopup(ReconnectPopup);
 				return true;
 			}
 			return false;
@@ -1556,6 +1558,7 @@
 	var ReconnectPopup = this.ReconnectPopup = Popup.extend({
 		type: 'modal',
 		initialize: function(data) {
+			app.reconnectPending = false;
 			var buf = '<form>';
 
 			if (data.cantconnect) {
