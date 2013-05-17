@@ -645,6 +645,7 @@
 				this.$list.html('<p>Loading...</p>');
 				return;
 			}
+			this.$('button[name=refresh]')[0].disabled = false;
 			if (!data) {
 				data = this.data;
 			} else {
