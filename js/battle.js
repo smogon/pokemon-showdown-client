@@ -2281,13 +2281,11 @@ function Battle(frame, logFrame, noPreload) {
 		if (self.startCallback) self.startCallback(self);
 	}
 	this.winner = function (winner) {
-		if (self.fastForward !== -2) self.fastForwardOff();
 		if (winner) self.message('' + winner + ' won the battle!');
 		else self.message('Tie between ' + Tools.escapeHTML(self.p1.name) + ' and ' + Tools.escapeHTML(self.p2.name) + '!');
 		self.done = 1;
 	}
 	this.prematureEnd = function () {
-		if (self.fastForward !== -2) self.fastForwardOff();
 		self.message('This replay ends here.');
 		self.done = 1;
 	}
