@@ -457,7 +457,7 @@ var Tools = {
 				return false;
 			},
 			getURI: function(uri) {
-				return 'http://www.pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
+				return 'http://pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
 			}
 		};
 	})(),

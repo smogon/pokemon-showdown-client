@@ -365,7 +365,7 @@ function BattleRoom(id, elem) {
 			selfR.add('|chatmsg-raw|' + message.rawMessage);
 		} else if (message.evalRulesRedirect || message.evalRawMessage) {
 			// TODO: This will be removed in due course.
-			window.location.href = 'http://www.pokemonshowdown.com/rules';
+			window.location.href = 'http://pokemonshowdown.com/rules';
 		} else if (message.name) {
 			selfR.add('|chat|' + message.name.substr(1) + '|' + message.message);
 		} else if (message.message) {
@@ -1750,7 +1750,7 @@ function Lobby(id, elem) {
 				selfR.chatElem.append('<div class="message">' + Tools.sanitizeHTML(log[i].rawMessage) + '</div>');
 			} else if (log[i].evalRulesRedirect || log[i].evalRawMessage) {
 				// TODO: This will be removed in due course.
-				window.location.href = 'http://www.pokemonshowdown.com/rules';
+				window.location.href = 'http://pokemonshowdown.com/rules';
 			} else if (log[i].name && (log[i].action === 'join' || log[i].action === 'leave' || log[i].action === 'rename')) {
 				var userid = toUserid(log[i].name);
 				if (log[i].action === 'join') {
@@ -2686,7 +2686,7 @@ function updateMe() {
 	} else {
 		$('#userbar').html(notifybutton + '<i class="icon-user" style="color:#999"></i> ' + Tools.escapeHTML(me.name) + buttons + ' <button onclick="return rooms[\'lobby\'].formRename()" style="font-size:9pt">Choose name</button>');
 	}
-	$('#userbar').prepend('<small><a href="http://www.pokemonshowdown.com/" target="_blank">Website</a> &nbsp; <a href="http://www.pokemonshowdown.com/rules" target="_blank">Rules</a> &nbsp; </small> ');
+	$('#userbar').prepend('<small><a href="http://pokemonshowdown.com/" target="_blank">Website</a> &nbsp; <a href="http://pokemonshowdown.com/rules" target="_blank">Rules</a> &nbsp; </small> ');
 	if (rooms.lobby) {
 		rooms.lobby.updateMe();
 		rooms.lobby.debounceUpdate();
@@ -3209,7 +3209,7 @@ function overlay(overlayType, data) {
 		break;
 	case 'replayuploaded':
 		contents = '<p>Your replay has been uploaded! It\'s available at:</p>';
-		contents += '<p><a href="http://www.pokemonshowdown.com/replay/'+data+'" target="_blank" onclick="overlayClose()">http://www.pokemonshowdown.com/replay/'+data+'</a></p>';
+		contents += '<p><a href="http://pokemonshowdown.com/replay/'+data+'" target="_blank" onclick="overlayClose()">http://pokemonshowdown.com/replay/'+data+'</a></p>';
 		contents += '<p><button onclick="window.open(\'/replay/battle-'+data+'\',\'_blank\');overlayClose();return false" id="overlay_ok"><strong>Open</strong></button> <button onclick="overlayClose();return false" id="overlay_cancel">Cancel</button></p>';
 		focusElem = '#overlay_ok';
 		break;
