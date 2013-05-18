@@ -546,7 +546,8 @@ var Tools = {
 
 			if (!move.exists && id.substr(0,11) === 'hiddenpower' && id.length > 11) {
 				var matches = /([a-z]*)([0-9]*)/.exec(id);
-				move = $.extend({}, window.BattleMovedex[matches[1]]);
+				move = (window.BattleMovedex && window.BattleMovedex[matches[1]]) || {};
+				move = $.extend({}, move);
 				move.basePower = matches[2];
 			}
 
