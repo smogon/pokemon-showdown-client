@@ -27,15 +27,15 @@ Header set X-Robots-Tag "noindex" env=BINGBOT
 Header unset Vary env=BINGBOT
 
 # Redirect dev.pokemonshowdown.com to beta.psim.us
-RewriteCond %{HTTP_HOST} ^(www\.)?dev\.pokemonshowdown\.com$ [NC]
-RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
-RewriteCond %{REMOTE_ADDR} !^173\.213\.97\.68$
-RewriteCond %{REMOTE_ADDR} !^173\.252\.196\.254$
-RewriteCond %{REQUEST_URI} ^/$ [OR]
-RewriteCond %{REQUEST_URI} ^/robots\.txt$ [OR]
-RewriteCond %{REQUEST_URI} ^/(teambuilder|ladder|lobby|battle)/?$ [OR]
-RewriteCond %{REQUEST_URI} ^/(lobby|battle)-([A-Za-z0-9-]*)$
-RewriteRule ^(.*) http://beta.psim.us/$1 [R=301,L]
+# RewriteCond %{HTTP_HOST} ^(www\.)?dev\.pokemonshowdown\.com$ [NC]
+# RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
+# RewriteCond %{REMOTE_ADDR} !^173\.213\.97\.68$
+# RewriteCond %{REMOTE_ADDR} !^173\.252\.196\.254$
+# RewriteCond %{REQUEST_URI} ^/$ [OR]
+# RewriteCond %{REQUEST_URI} ^/robots\.txt$ [OR]
+# RewriteCond %{REQUEST_URI} ^/(teambuilder|ladder|lobby|battle)/?$ [OR]
+# RewriteCond %{REQUEST_URI} ^/(lobby|battle)-([A-Za-z0-9-]*)$
+# RewriteRule ^(.*) http://beta.psim.us/$1 [R=301,L]
 
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
