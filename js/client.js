@@ -545,7 +545,13 @@
 				self.trigger('init:socketopened');
 				// Join the lobby if it fits on the screen.
 				// Send the join message even if it doesn't, for legacy servers.
-				self.send({room: 'lobby', nojoin: ($(window).width() < 916)}, 'join');
+				self.send((function() {
+					var msg = {room: 'lobby'};
+					if ($(window).width() < 916) {
+						msg.nojoin = 1;
+					}
+					return msg;
+				})(), 'join');
 				if (self.sendQueue) {
 					var queue = self.sendQueue;
 					delete self.sendQueue;
