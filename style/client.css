@@ -855,6 +855,10 @@ p.or:after {
 	padding-left: 1.5em;
 	margin-top: 0;
 	margin-bottom: 0;
+	color: #88AACC;
+}
+.credits ul li p {
+	color: black;
 }
 .credits li small {
 	font-size: 10pt;
