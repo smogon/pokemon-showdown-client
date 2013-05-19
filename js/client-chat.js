@@ -77,13 +77,13 @@
 					e.preventDefault();
 					e.stopPropagation();
 				}
-			} else if (e.keyCode === 38 && !e.shiftKey && !e.ctrlKey) { // Up key
-				if (this.chatHistoryUp(this.$chatbox)) {
+			} else if (e.keyCode === 38 && !e.shiftKey && !e.altKey) { // Up key
+				if (this.chatHistoryUp(this.$chatbox, e)) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
-			} else if (e.keyCode === 40 && !e.shiftKey && !e.ctrlKey) { // Down key
-				if (this.chatHistoryDown(this.$chatbox)) {
+			} else if (e.keyCode === 40 && !e.shiftKey && !e.altKey) { // Down key
+				if (this.chatHistoryDown(this.$chatbox, e)) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
@@ -151,9 +151,9 @@
 			};
 			this.chatHistory = chatHistory;
 		},
-		chatHistoryUp: function($textbox) {
+		chatHistoryUp: function($textboxm, e) {
 			var idx = $textbox.prop('selectionStart');
-			if (idx !== 0) return false;
+			if (e && !e.ctrlKey && idx !== 0) return false;
 			if (this.chatHistory.index > 0) {
 				var line = $textbox.val();
 				if (this.chatHistory.index === this.chatHistory.lines.length) {
@@ -169,10 +169,10 @@
 			}
 			return true;
 		},
-		chatHistoryDown: function($textbox) {
+		chatHistoryDown: function($textbox, e) {
 			var idx = $textbox.prop('selectionStart');
 			var line = $textbox.val();
-			if (idx !== line.length) return false;
+			if (e && !e.ctrlKey && idx !== line.length) return false;
 			if (this.chatHistory.index === this.chatHistory.lines.length) {
 				if (line !== '') {
 					this.chatHistory.push(line);
