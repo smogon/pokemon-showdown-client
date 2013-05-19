@@ -88,7 +88,16 @@
 					this.$controls.html('');
 				}
 
-				if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
+				if (logLine.substr(0, 18) === '|callback|trapped|') {
+					var idx = logLine.substr(18);
+					this.request.active[idx].trapped = true;
+					// TODO: Maybe a more sophisticated UI for this.
+					// In singles, this isn't really necessary because the switch UI will be
+					// immediately disabled. However, in doubles it might not be obvious why
+					// the player is being asked to make a new decision without this message.
+					delete this.choice;
+					this.battle.activityQueue.push('|message|'+this.battle.mySide.active[idx].getName() + ' is trapped and cannot switch!');
+				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
 					this.battle.instantAdd(logLine);
 				} else {
 					this.battle.activityQueue.push(logLine);
@@ -192,21 +201,6 @@
 		controlsShown: false,
 		updateControlsForPlayer: function() {
 			var battle = this.battle;
-
-			// updated trappedness
-			if (false && 'trapped') {
-				var idx = parseInt(moveTarget[1], 10); // moveTarget is a poor name now...
-				if (this.request && this.request.active &&
-						this.request.active[idx]) {
-					// This pokemon is now known to be trapped.
-					this.request.active[idx].trapped = true;
-					// TODO: Maybe a more sophisticated UI for this.
-					// In singles, this isn't really necessary because the switch UI will be
-					// immediately disabled. However, in doubles it might not be obvious why
-					// the player is being asked to make a new decision without this message.
-					this.battle.add(this.battle.mySide.active[idx].getName() + ' is trapped!');
-				}
-			}
 
 			this.callbackWaiting = true;
 			var active = this.battle.mySide.active[0];
