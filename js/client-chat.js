@@ -169,7 +169,7 @@
 
 				// There needs to be non-whitespace to the left of the cursor.
 				var m = /^(.*?)([^ ]*)$/.exec(text.substr(0, idx));
-				if (!m) return false;
+				if (!m) return true;
 
 				this.tabComplete.prefix = m[1];
 				var idprefix = toId(m[2]);
