@@ -1407,6 +1407,18 @@ function Lobby(id, elem) {
 				Tools.prefs('avatar', avatar);
 			}
 			return text; // Send the /avatar command through to the server.
+		
+		case 'volume':
+			var vol = parseInt(target);
+			if(isNaN(vol) || vol < 1 || vol > 100) {
+				rooms.lobby.add('Please enter a valid number between 1 and 100');
+				return false;
+			}
+			for(id in soundManager.soundIDs)
+				soundManager.setVolume(soundManager.soundIDs[id], vol);
+			rooms.lobby.add('Setting volume to '+vol);
+			Tools.prefs('volume', vol, true);
+			return false;
 
 		}
 
