@@ -10,6 +10,7 @@
 			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
 
 			this.initializeTabComplete();
+			this.initializeChatHistory();
 
 			// this MUST set up this.$chatAdd
 			Room.apply(this, arguments);
@@ -56,7 +57,7 @@
 					return;
 				}
 				this.tabComplete.reset();
-				// this.chatHistory.push(text);
+				this.chatHistory.push(text);
 				text = this.parseCommand(text);
 				if (text) {
 					this.send(text);
@@ -65,14 +66,24 @@
 			}
 		},
 		keyPress: function(e) {
-			if (e.keyCode === 13 && !e.shiftKey) { // Enter
+			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
-			} else if (e.keyCode === 33) { // Pg Up
+			} else if (e.keyCode === 33) { // Pg Up key
 				this.$chatFrame.scrollTop(this.$chatFrame.scrollTop() - this.$chatFrame.height() + 60);
-			} else if (e.keyCode === 34) { // Pg Dn
+			} else if (e.keyCode === 34) { // Pg Dn key
 				this.$chatFrame.scrollTop(this.$chatFrame.scrollTop() + this.$chatFrame.height() - 60);
-			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab
+			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab key
 				if (this.handleTabComplete(this.$chatbox)) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			} else if (e.keyCode === 38 && !e.shiftKey && !e.ctrlKey) { // Up key
+				if (this.chatHistoryUp(this.$chatbox)) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			} else if (e.keyCode === 40 && !e.shiftKey && !e.ctrlKey) { // Down key
+				if (this.chatHistoryDown(this.$chatbox)) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
@@ -121,6 +132,63 @@
 				}
 			}
 			return ((highlights.length > 0) && app.highlightRegExp.test(message));
+		},
+
+		// chat history
+
+		chatHistory: null,
+		initializeChatHistory: function() {
+			var chatHistory = {
+				lines: [],
+				index: 0,
+				push: function(line) {
+					if (chatHistory.lines.length > 100) {
+						chatHistory.lines.splice(0, 20);
+					}
+					chatHistory.lines.push(line);
+					chatHistory.index = chatHistory.lines.length;
+				}
+			};
+			this.chatHistory = chatHistory;
+		},
+		chatHistoryUp: function($textbox) {
+			var idx = $textbox.prop('selectionStart');
+			if (idx !== 0) return false;
+			if (this.chatHistory.index > 0) {
+				var line = $textbox.val();
+				if (this.chatHistory.index === this.chatHistory.lines.length) {
+					if (line !== '') {
+						this.chatHistory.push(line);
+						--this.chatHistory.index;
+					}
+				} else {
+					this.chatHistory.lines[this.chatHistory.index] = line;
+				}
+				$textbox.val(this.chatHistory.lines[--this.chatHistory.index]);
+				if ($textbox[0].setSelectionRange) $textbox[0].setSelectionRange(0, 0);
+			}
+			return true;
+		},
+		chatHistoryDown: function($textbox) {
+			var idx = $textbox.prop('selectionStart');
+			var line = $textbox.val();
+			if (idx !== line.length) return false;
+			if (this.chatHistory.index === this.chatHistory.lines.length) {
+				if (line !== '') {
+					this.chatHistory.push(line);
+					$textbox.val('');
+				}
+			} else if (this.chatHistory.index === this.chatHistory.lines.length - 1) {
+				this.chatHistory.lines[this.chatHistory.index] = $textbox.val();
+				$textbox.val('');
+				++this.chatHistory.index;
+			} else {
+				this.chatHistory.lines[this.chatHistory.index] = $textbox.val();
+				line = this.chatHistory.lines[++this.chatHistory.index];
+				$textbox.val(line);
+				if ($textbox[0].setSelectionRange) $textbox[0].setSelectionRange(line.length, line.length);
+			}
+			return true;
 		},
 
 		// tab completion
