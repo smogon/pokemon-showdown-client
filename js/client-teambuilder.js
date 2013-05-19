@@ -8,7 +8,7 @@
 			teams = app.user.teams;
 
 			// left menu
-			this.$el.addClass('ps-room-light');
+			this.$el.addClass('ps-room-light').addClass('scrollable');
 			app.on('init:loadteams', this.update, this);
 			this.update();
 		},

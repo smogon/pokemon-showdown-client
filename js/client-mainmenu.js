@@ -14,6 +14,7 @@
 			'click button.teamselect': 'selectTeam'
 		},
 		initialize: function() {
+			this.$el.addClass('scrollable');
 
 			var buf = '<div class="mainmenuwrapper">';
 
