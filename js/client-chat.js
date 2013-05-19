@@ -729,9 +729,12 @@
 				'leave': []
 			};
 			var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
-			var isHighlighted = this.getHighlight(message);
-			if (isHighlighted) {
-				this.notifyOnce("Mentioned by "+name, "\""+message+"\"", 'highlight');
+			if (!pm) {
+				// PMs already notify in the main menu; no need to make them notify again
+				var isHighlighted = this.getHighlight(message);
+				if (isHighlighted) {
+					this.notifyOnce("Mentioned by "+name, "\""+message+"\"", 'highlight');
+				}
 			}
 			var highlight = isHighlighted ? ' style="background-color:#FDA;"' : '';
 			var chatDiv = '<div class="chat"' + highlight + '>';
