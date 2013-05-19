@@ -561,7 +561,10 @@
 				}
 			};
 			this.socket.onmessage = function(msg) {
-				if (msg.data.substr(0,1) !== '{') {
+				if (window.console && console.log && (Config.server.id !== 'showdown' || msg.data.charAt(0) !== '|')) {
+					console.log('received: '+msg.data);
+				}
+				if (msg.data.charAt(0) !== '{') {
 					self.receive(msg.data);
 					return;
 				}
@@ -621,7 +624,6 @@
 		 * Receive from sim server
 		 */
 		receive: function(data) {
-			// console.log('received: '+data);
 			var roomid = '';
 			if (data.substr(0,1) === '>') {
 				var nlIndex = data.indexOf('\n');
