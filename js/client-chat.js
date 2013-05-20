@@ -151,11 +151,11 @@
 			};
 			this.chatHistory = chatHistory;
 		},
-		chatHistoryUp: function($textboxm, e) {
-			var idx = $textbox.prop('selectionStart');
-			if (e && !e.ctrlKey && idx !== 0) return false;
+		chatHistoryUp: function($textbox, e) {
+			var idx = +$textbox.prop('selectionStart');
+			var line = $textbox.val();
+			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
 			if (this.chatHistory.index > 0) {
-				var line = $textbox.val();
 				if (this.chatHistory.index === this.chatHistory.lines.length) {
 					if (line !== '') {
 						this.chatHistory.push(line);
@@ -165,14 +165,14 @@
 					this.chatHistory.lines[this.chatHistory.index] = line;
 				}
 				$textbox.val(this.chatHistory.lines[--this.chatHistory.index]);
-				if ($textbox[0].setSelectionRange) $textbox[0].setSelectionRange(0, 0);
+				return true;
 			}
-			return true;
+			return false;
 		},
 		chatHistoryDown: function($textbox, e) {
-			var idx = $textbox.prop('selectionStart');
+			var idx = +$textbox.prop('selectionStart');
 			var line = $textbox.val();
-			if (e && !e.ctrlKey && idx !== line.length) return false;
+			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
 			if (this.chatHistory.index === this.chatHistory.lines.length) {
 				if (line !== '') {
 					this.chatHistory.push(line);
@@ -186,7 +186,6 @@
 				this.chatHistory.lines[this.chatHistory.index] = $textbox.val();
 				line = this.chatHistory.lines[++this.chatHistory.index];
 				$textbox.val(line);
-				if ($textbox[0].setSelectionRange) $textbox[0].setSelectionRange(line.length, line.length);
 			}
 			return true;
 		},
