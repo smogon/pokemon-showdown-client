@@ -175,6 +175,11 @@
 				}
 			} else if (e.keyCode === 27) { // Esc
 				this.closePM(e);
+			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab key
+				if (app.rooms['lobby'] && app.rooms['lobby'].handleTabComplete($(e.currentTarget))) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
 			}
 		},
 		clickUsername: function(e) {
