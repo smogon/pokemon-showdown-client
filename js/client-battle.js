@@ -535,6 +535,7 @@
 				} else {
 					this.battle.play();
 				}
+				this.$chat = this.$chatFrame.find('.inner');
 			}
 		},
 		updateSide: function(sideData) {
