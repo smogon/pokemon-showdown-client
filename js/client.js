@@ -529,9 +529,7 @@
 							userid: toUserid(data.name),
 							named: data.named
 						});
-						if (!data.named) {
-							self.user.setPersistentName(null); // kill `showdown_username` cookie
-						}
+						self.user.setPersistentName(data.named ? data.name : null);
 					}
 					if (data.updates) {
 						// Correct way to send battlelog updates:
