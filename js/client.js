@@ -1,6 +1,7 @@
 (function($) {
 
 	Config.version = '0.9 beta';
+	Config.origindomain = 'play.pokemonshowdown.com';
 
 	// `defaultserver` specifies the server to use when the domain name in the
 	// address bar is `play.pokemonshowdown.com` and the protocol is HTTPS.
@@ -310,8 +311,7 @@
 		 *     triggered if the SockJS socket closes
 		 */
 		initializeConnection: function() {
-			var origindomain = 'play.pokemonshowdown.com';
-			if ((document.location.hostname !== origindomain) && !Config.testclient) {
+			if ((document.location.hostname !== Config.origindomain) && !Config.testclient) {
 				// Handle *.psim.us.
 				return this.initializeCrossDomainConnection();
 			}
@@ -396,8 +396,8 @@
 				var callbackIdx = 0;
 				return function($e) {
 					var e = $e.originalEvent;
-					if ((e.origin === 'http://' + origindomain) ||
-							(e.origin === 'https://' + origindomain)) {
+					if ((e.origin === 'http://' + Config.origindomain) ||
+							(e.origin === 'https://' + Config.origindomain)) {
 						origin = e.origin;
 					} else {
 						return; // unauthorised source origin
