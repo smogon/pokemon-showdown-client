@@ -72,7 +72,8 @@
 .utilichart .statcol,
 .utilichart .bstcol,
 .utilichart .labelcol,
-.utilichart .widelabelcol
+.utilichart .widelabelcol,
+.utilichart .pplabelcol
 {
 	padding-top: 0;
 	height: 28px;
@@ -83,12 +84,19 @@
 .utilichart .labelcol
 {
 	text-align: center;
-	width: 36px;
+	width: 30px;
+	margin-left: -2px;
 }
 .utilichart .widelabelcol
 {
 	text-align: center;
-	width: 58px;
+	width: 50px;
+}
+.utilichart .pplabelcol
+{
+	text-align: center;
+	width: 18px;
+	padding-right: 5px;
 }
 .utilichart .bstcol
 {
@@ -96,6 +104,7 @@
 }
 .utilichart .labelcol em,
 .utilichart .widelabelcol em,
+.utilichart .pplabelcol em,
 .utilichart .statcol em,
 .utilichart .bstcol em
 {
@@ -131,7 +140,7 @@
 {
 	padding-top: 5px;
 	height: 23px;
-	width: 160px;
+	width: 152px;
 	color: #000000;
 	font-size: 10pt;
 }
@@ -180,6 +189,10 @@
 .utilichart small
 {
 	font-size: 8pt;
+}
+.utilichart small b
+{
+	font-weight: normal;
 }
 .utilichart .illegalcol em
 {
