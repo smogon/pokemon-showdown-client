@@ -609,6 +609,14 @@
 					}
 					return msg;
 				})(), 'join');
+
+				var avatar = Tools.prefs('avatar');
+				if (avatar) {
+					// This will be compatible even with servers that don't support
+					// the second argument for /avatar yet.
+					self.send('/avatar ' + avatar + ',1');
+				}
+
 				if (self.sendQueue) {
 					var queue = self.sendQueue;
 					delete self.sendQueue;
