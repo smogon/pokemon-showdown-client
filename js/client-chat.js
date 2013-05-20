@@ -270,6 +270,7 @@
 
 			// Substitute in the tab-completed name.
 			var substituteUserId = this.tabComplete.candidates[this.tabComplete.index];
+			if (!users[substituteUserId]) return true;
 			var name = users[substituteUserId].substr(1);
 			$textbox.val(this.tabComplete.prefix + name + text.substr(idx));
 			var pos = this.tabComplete.prefix.length + name.length;
