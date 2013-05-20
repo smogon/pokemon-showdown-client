@@ -1042,10 +1042,11 @@
 
 			var popup = new type(data);
 
+			var $overlay;
 			if (popup.type === 'normal') {
 				$('body').append(popup.el);
 			} else {
-				var $overlay = $('<div class="ps-overlay"></div>').appendTo('body').append(popup.el)
+				$overlay = $('<div class="ps-overlay"></div>').appendTo('body').append(popup.el)
 				if (popup.type === 'semimodal') {
 					$overlay.on('click', function(e) {
 						if (e.currentTarget === e.target) {
@@ -1057,6 +1058,7 @@
 
 			if (popup.domInitialize) popup.domInitialize(data);
 			popup.$('.autofocus').focus();
+			if ($overlay) $overlay.scrollTop(0);
 			this.popups.push(popup);
 			return popup;
 		},
