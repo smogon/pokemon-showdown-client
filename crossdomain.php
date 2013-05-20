@@ -69,6 +69,13 @@ if (isset($PokemonServers[$config['host']])) {
 		}
 	}
 }
+
+// For Internet Explorer.
+// See http://www.p3pwriter.com/LRN_111.asp
+// See also http://stackoverflow.com/questions/389456/cookie-blocked-not-saved-in-iframe-in-internet-explorer
+//
+// The privacy fields specified here should be accurate.
+header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 ?>
 <!DOCTYPE html>
 <script src="/js/jquery-2.0.0.min.js"></script>
