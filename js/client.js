@@ -67,7 +67,7 @@
 		getActionPHP: function() {
 			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
-				ret = 'http://play.pokemonshowdown.com' + ret;
+				ret = 'http://' + Config.origindomain + ret;
 			}
 			return (this.getActionPHP = function() {
 				return ret;
@@ -341,7 +341,7 @@
 					// over to the HTTPS origin.
 					$(window).on('message', function($e) {
 						var e = $e.originalEvent;
-						var origin = 'https://play.pokemonshowdown.com';
+						var origin = 'https://' + Config.origindomain;
 						if (e.origin !== origin) return;
 						if (e.data === 'init') {
 							e.source.postMessage($.toJSON({
