@@ -582,7 +582,11 @@
 					}
 				},
 				disconnect: function () {},
-				nameTaken: function (data) {},
+				nameTaken: function (data) {
+					// Legacy -- but still how the server communicates that a
+					// name is taken, so we need to support it for now.
+					app.addPopup(LoginPopup, {reason: data.reason || ''});
+				},
 				command: function (message) {
 					// Legacy
 					self.trigger('response:'+message.command, message);
