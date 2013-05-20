@@ -4,12 +4,12 @@
 	Config.origindomain = 'play.pokemonshowdown.com';
 
 	// `defaultserver` specifies the server to use when the domain name in the
-	// address bar is `play.pokemonshowdown.com` and the protocol is HTTPS.
-	// If the protocol is HTTP, the default port will be adjusted to 8000.
+	// address bar is `Config.origindomain`.
 	Config.defaultserver = {
 		id: 'showdown',
 		host: 'sim.psim.us',
 		port: 443,
+		httpport: 8000,
 		altport: 80,
 		registered: true
 	};
@@ -335,7 +335,7 @@
 					// This user is not using HTTPS now and has never used
 					// HTTPS before, so her localStorage is still under the
 					// HTTP origin domain: connect on port 8000, not 443.
-					Config.defaultserver.port = 8000;
+					Config.defaultserver.port = Config.defaultserver.httpport;
 				} else {
 					// First time using HTTPS: copy the existing HTTP storage
 					// over to the HTTPS origin.
