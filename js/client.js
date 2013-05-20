@@ -3,13 +3,12 @@
 	Config.version = '0.9 beta';
 
 	// `defaultserver` specifies the server to use when the domain name in the
-	// address bar is `play.pokemonshowdown.com`. If the domain name in the
-	// address bar is something else (including `dev.pokemonshowdown.com`), the
-	// server to use will be determined by `crossdomain.php`, not this object.
+	// address bar is `play.pokemonshowdown.com` and the protocol is HTTPS.
+	// If the protocol is HTTP, the default port will be adjusted to 8000.
 	Config.defaultserver = {
 		id: 'showdown',
-		host: 'sim.smogon.com',
-		port: 8000,
+		host: 'sim.psim.us',
+		port: 443,
 		altport: 80,
 		registered: true
 	};
@@ -309,21 +308,81 @@
 		 *
 		 *   `init:socketclosed`
 		 *     triggered if the SockJS socket closes
-		 *
-		 *   `init:identify`
- 		 *     triggered once the user has successfully identified (i.e. logged
-		 *     in) with the server
 		 */
 		initializeConnection: function() {
 			var origindomain = 'play.pokemonshowdown.com';
-			if (document.location.hostname === origindomain) {
-				// TODO: BEFORE DEPLOYING THIS, add in code to check for use
-				//       of http://play.pokemonshowdown.com here.
-				this.user.loadTeams();
-				this.trigger('init:loadteams');
-				Config.server = Config.defaultserver;
-				return this.connect();
-			} else if (!window.postMessage) {
+			if ((document.location.hostname !== origindomain) && !Config.testclient) {
+				// Handle *.psim.us.
+				return this.initializeCrossDomainConnection();
+			}
+			if (document.location.protocol === 'https:') {
+				if (!$.cookie('showdown_ssl')) {
+					// Never used HTTPS before, so we have to copy over the
+					// HTTP origin localStorage. We have to redirect to the
+					// HTTP site in order to do this. We set a cookie
+					// indicating that we redirected for the purpose of copying
+					// over the localStorage.
+					$.cookie('showdown_ssl_convert', 1);
+					return document.location.replace('http://' + document.location.hostname +
+						document.location.pathname);
+				}
+				// Renew the `showdown_ssl` cookie.
+				$.cookie('showdown_ssl', 1, {expires: 365*3});
+			} else if (!$.cookie('showdown_ssl')) {
+				// localStorage is currently located on the HTTP origin.
+
+				if (!$.cookie('showdown_ssl_convert') || !('postMessage' in window)) {
+					// This user is not using HTTPS now and has never used
+					// HTTPS before, so her localStorage is still under the
+					// HTTP origin domain: connect on port 8000, not 443.
+					Config.defaultserver.port = 8000;
+				} else {
+					// First time using HTTPS: copy the existing HTTP storage
+					// over to the HTTPS origin.
+					$(window).on('message', function($e) {
+						var e = $e.originalEvent;
+						var origin = 'https://play.pokemonshowdown.com';
+						if (e.origin !== origin) return;
+						if (e.data === 'init') {
+							e.source.postMessage($.toJSON({
+								teams: $.toJSON(teams),
+								prefs: $.toJSON(Tools.prefs.data)
+							}), origin);
+						} else if (e.data === 'done') {
+							// Set a cookie to indicate that localStorage is now under
+							// the HTTPS origin.
+							$.cookie('showdown_ssl', 1, {expires: 365*3});
+							localStorage.clear();
+							return document.location.replace('https://' + document.location.hostname +
+								document.location.pathname);
+						}
+					});
+					var $iframe = $('<iframe src="https://play.pokemonshowdown.com/crossprotocol.html" style="display: none;"></iframe>');
+					$('body').append($iframe);
+					return;
+				}
+			} else if (!Config.testclient) {
+				// The user is using HTTP right now, but has used HTTPS in the
+				// past, so her localStorage is located on the HTTPS origin:
+				// hence we need to use the cross-domain code to load the
+				// localStorage because the HTTPS origin is considered a
+				// different domain for the purpose of localStorage.
+				return this.initializeCrossDomainConnection();
+			}
+
+			// Simple connection: no cross-domain logic needed.
+			Config.server = Config.server || Config.defaultserver;
+			this.user.loadTeams();
+			this.trigger('init:loadteams');
+			return this.connect();
+		},
+		/**
+		 * Handle a cross-domain connection: that is, a connection where the
+		 * client is loaded from a different domain from the one where the
+		 * user's localStorage is located.
+		 */
+		initializeCrossDomainConnection: function() {
+			if (!('postMessage' in window)) {
 				// browser does not support cross-document messaging
 				return this.trigger('init:unsupported');
 			}
@@ -404,9 +463,6 @@
 					}
 				};
 			})());
-			// Note that the URI here is intentionally `play.pokemonshowdown.com`,
-			// and not `dev.pokemonshowdown.com`, in order to make teams, prefs,
-			// and other things work properly.
 			var $iframe = $(
 				'<iframe src="//play.pokemonshowdown.com/crossdomain.php?host=' +
 				encodeURIComponent(document.location.hostname) +
