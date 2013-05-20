@@ -196,8 +196,8 @@
 		/**
 		 * This function loads teams from `localStorage` or cookies. This function
 		 * is only used if the client is running on `play.pokemonshowdown.com`. If the
-		 * client is running on another domain (including `dev.pokemonshowdown.com`),
-		 * then teams are received from `crossdomain.php` instead.
+		 * client is running on another domain, then teams are received from
+		 * `crossdomain.php` instead.
 		 */
 		teams: null,
 		loadTeams: function() {
@@ -1086,7 +1086,7 @@
 			'click button': 'dispatchClickButton'
 		},
 		initialize: function() {
-			this.$el.html('<img class="logo" src="//dev.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
+			this.$el.html('<img class="logo" src="//play.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar .inner');
 			// this.$sidetabbar = this.$('.sidetabbar');
 			this.$userbar = this.$('.userbar');
