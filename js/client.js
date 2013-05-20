@@ -581,7 +581,6 @@
 						self.receive(message.message);
 					}
 				},
-				disconnect: function () {},
 				nameTaken: function (data) {
 					// Legacy -- but still how the server communicates that a
 					// name is taken, so we need to support it for now.
