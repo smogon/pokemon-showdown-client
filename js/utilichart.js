@@ -4,6 +4,7 @@ function BattleChart()
 	
 	this.firstResult = '';
 	this.exactResult = false;
+	this.lastSearch = '[init]';
 	
 	// I know, I know, lots of memory
 	// but these are arrays of pointers, so it's not _horrible_
@@ -67,7 +68,7 @@ function BattleChart()
 		}
 	};
 	this.pokemonRow = function(pokemon, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+Tools.escapeHTML(pokemon.species,true)+'\')">';
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
 		
 		text += '<span class="col numcol">'+(pokemon.num)+'</span> ';
 		
@@ -157,7 +158,7 @@ function BattleChart()
 		return text;
 	};
 	this.itemRow = function(item, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+Tools.escapeHTML(item.name,true)+'\')">';
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(item.name)+'">';
 		
 		var url = item.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z-]+/g, '');
 		url = '/sprites/itemicons/'+url+'.png';
@@ -188,7 +189,7 @@ function BattleChart()
 		return text;
 	};
 	this.abilityRow = function(ability, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+Tools.escapeHTML(ability.name,true)+'\')">';
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(ability.name)+'">';
 		
 		var name = Tools.escapeHTML(ability.name);
 		if (match.name)
@@ -211,7 +212,7 @@ function BattleChart()
 		return text;
 	};
 	this.moveRow = function(move, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' onclick="Chart.select(\''+Tools.escapeHTML(move.name,true)+'\')">';
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
 		
 		var name = Tools.escapeHTML(move.name);
 		var hplen = 'Hidden Power'.length;
@@ -248,6 +249,7 @@ function BattleChart()
 		
 		text += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
 		text += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
+		text += '<span class="col pplabelcol"><em>PP</em><br />'+(move.pp!==1?move.pp*8/5:move.pp)+'</span> ';
 		
 		text += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
 		
@@ -256,6 +258,11 @@ function BattleChart()
 		return text;
 	};
 	this.chart = function(searchTerm, type, init, thisArrange, thisSort) {
+		if (!searchTerm) searchTerm = '';
+		else searchTerm = searchTerm.toLowerCase();
+		if (!init && searchTerm === self.lastSearch) return;
+		self.lastSearch = searchTerm;
+		
 		var chartData = {
 			exact: {},
 			start: {},
@@ -271,8 +278,6 @@ function BattleChart()
 		
 		self.firstResult = '';
 		self.exactResult = false;
-		if (!searchTerm) searchTerm = '';
-		else searchTerm = searchTerm.toLowerCase();
 		
 		var buckets = thisArrange();
 		var things = [];

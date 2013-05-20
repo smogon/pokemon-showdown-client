@@ -29,6 +29,109 @@ $.extend($.easing, {
 	}
 });
 
+function BattleSoundLibrary() {
+	// options
+	this.effectVolume = 50;
+	this.bgmVolume = 50;
+	this.muted = false;
+
+	// effects
+	this.effectCache = {};
+	this.loadEffect = function(url) {
+		if (this.effectCache[url]) {
+			return this.effectCache[url];
+		}
+		return this.effectCache[url] = soundManager.createSound({
+			id: url,
+			url: Tools.resourcePrefix + url,
+			volume: this.effectVolume
+		});
+	};
+	this.playEffect = function(url) {
+		if (!this.mute) this.loadEffect(url).setVolume(this.effectVolume).play();
+	};
+
+	// bgm
+	this.bgmCache = {};
+	this.bgm = null;
+	this.loadBgm = function(url, loopstart, loopend) {
+		if (this.bgmCache[url]) {
+			return this.bgmCache[url];
+		}
+		this.bgmCache[url] = soundManager.createSound({
+			id: url,
+			url: Tools.resourcePrefix + url,
+			volume: this.bgmVolume
+		});
+		if (!this.bgmCache[url]) {
+			// couldn't load
+			// suppress crash
+			return this.bgmCache[url] = this.soundPlaceholder;
+		}
+		this.bgmCache[url].onposition(loopend, function() {
+			this.setPosition(loopstart);
+		});
+		return this.bgmCache[url];
+	};
+	this.playBgm = function(url, loopstart, loopstop) {
+		if (this.bgm === this.loadBgm(url, loopstart, loopstop)) {
+			if (!this.bgm.paused && this.bgm.playState) {
+				return;
+			}
+		} else {
+			this.stopBgm();
+		}
+		this.bgm = this.loadBgm(url, loopstart, loopstop).setVolume(this.bgmVolume);
+		if (!this.muted) {
+			if (this.bgm.paused) {
+				this.bgm.resume();
+			} else {
+				this.bgm.play();
+			}
+		}
+	};
+	this.pauseBgm = function() {
+		if (this.bgm) {
+			this.bgm.pause();
+		}
+	};
+	this.stopBgm = function() {
+		if (this.bgm) {
+			this.bgm.stop();
+			this.bgm = null;
+		}
+	};
+
+	// setting
+	this.setMute = function(muted) {
+		muted = !!muted;
+		if (this.muted == muted) return;
+		this.muted = muted;
+		if (muted) {
+			if (this.bgm) this.bgm.pause();
+		} else {
+			if (this.bgm) this.bgm.play();
+		}
+	};
+	this.setBgmVolume = function(bgmVolume) {
+		this.bgmVolume = bgmVolume;
+		if (this.bgm) this.bgm.setVolume(bgmVolume);
+	};
+	this.setEffectVolume = function(effectVolume) {
+		this.effectVolume = effectVolume;
+	};
+
+	// misc
+	this.soundPlaceholder = {
+		play: function(){ return this; },
+		pause: function(){ return this; },
+		stop: function(){ return this; },
+		resume: function(){ return this; },
+		setVolume: function(){ return this; }
+	};
+}
+var BattleSound = new BattleSoundLibrary();
+
 function Pokemon(species) {
 	var selfP = this;
 
@@ -651,7 +754,7 @@ function Battle(frame, logFrame, noPreload) {
 		self.p2 = self.yourSide;
 		self.gen = 5;
 	};
-	this.reset = function () {
+	this.reset = function (dontResetSound) {
 		// battle state
 		self.turn = 0;
 		self.done = 0;
@@ -737,7 +840,7 @@ function Battle(frame, logFrame, noPreload) {
 		self.paused = true;
 		if (self.playbackState !== 5) {
 			self.playbackState = (self.activityQueue.length ? 1 : 0);
-			self.soundStop();
+			if (!dontResetSound) self.soundStop();
 		}
 	};
 	this.dealloc = function () {
@@ -1103,7 +1206,7 @@ function Battle(frame, logFrame, noPreload) {
 			}
 			if (selfS.cryurl) {
 				//self.logConsole('cry: '+selfS.cryurl);
-				self.playAudio(selfS.cryurl);
+				BattleSound.playEffect(selfS.cryurl);
 			}
 			selfS.elem.css(self.pos({
 				x: selfS.x,
@@ -1352,8 +1455,8 @@ function Battle(frame, logFrame, noPreload) {
 		var selfS = this;
 		this.battle = self;
 
-		this.name = 'Player';
-		this.id = 'Player';
+		this.name = '';
+		this.id = '';
 		this.initialized = false;
 		this.n = n;
 		this.foe = null;
@@ -2178,13 +2281,11 @@ function Battle(frame, logFrame, noPreload) {
 		if (self.startCallback) self.startCallback(self);
 	}
 	this.winner = function (winner) {
-		// if (self.fastForward !== -2) self.fastForwardOff();
 		if (winner) self.message('' + winner + ' won the battle!');
 		else self.message('Tie between ' + Tools.escapeHTML(self.p1.name) + ' and ' + Tools.escapeHTML(self.p2.name) + '!');
 		self.done = 1;
 	}
 	this.prematureEnd = function () {
-		// if (self.fastForward !== -2) self.fastForwardOff();
 		self.message('This replay ends here.');
 		self.done = 1;
 	}
@@ -2593,9 +2694,6 @@ function Battle(frame, logFrame, noPreload) {
 		case 'gravity':
 			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of gravity!');
 			break;
-		case 'healblock':
-			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of Heal Block!');
-			break;
 		case 'imprison':
 			self.message('' + pokemon.getName() + ' can\'t use the sealed ' + move.name + '!');
 			break;
@@ -2631,7 +2729,7 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'flinch':
 			self.resultAnim(pokemon, 'Flinched', 'neutral');
-			self.message(pokemon.getName() + ' flinched and couldn\'t move!');
+			self.message(pokemon.getName() + ' flinched!');
 			pokemon.removeTurnstatus('focuspunch');
 			break;
 		case 'attract':
@@ -4535,9 +4633,9 @@ function Battle(frame, logFrame, noPreload) {
 			args.shift();
 			var message = args.join('|');
 			if (message.substr(0,2) === '//') {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + messageSanitize(message.substr(1)) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + Tools.parseMessage(message.substr(1)) + '</em></div>', preempt);
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + Tools.escapeHTML(name) + ' <i>' + messageSanitize(message.substr(4)) + '</i></em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + Tools.escapeHTML(name) + ' <i>' + Tools.parseMessage(message.substr(4)) + '</i></em></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -4547,7 +4645,7 @@ function Battle(frame, logFrame, noPreload) {
 			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
 				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + Tools.escapeHTML(name) + ':</strong> <em>' + messageSanitize(message) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + Tools.escapeHTML(name) + ':</strong> <em>' + Tools.parseMessage(message) + '</em></div>', preempt);
 			}
 			break;
 		case 'chatmsg':
@@ -4562,10 +4660,10 @@ function Battle(frame, logFrame, noPreload) {
 			self.log('<div class="chat">' + Tools.sanitizeHTML(list) + '</div>', preempt);
 			break;
 		case 'pm':
-			self.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + messageSanitize(args[4]) + '</span>');
+			self.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + Tools.parseMessage(args[4]) + '</span>');
 			break;
 		case 'askreg':
-			self.log('<div class="message-register-account"><b>Register an account to protect your ladder rating!</b><br /><button onclick="overlay(\'register\',{ifuserid:\''+Tools.escapeHTML(args[1], true)+'\'});return false"><b>Register</b></button></div>');
+			self.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="'+Tools.escapeHTML(args[1])+'"><b>Register</b></button></div>');
 			break;
 		case 'inactive':
 			self.kickingInactive = true;
@@ -4961,7 +5059,7 @@ function Battle(frame, logFrame, noPreload) {
 		/* for (var i = 0; i < queue.length && i < 20; i++) {
 			if (queue[i].substr(0, 8) === 'pokemon ') {
 				var sp = self.parseSpriteData(queue[i].substr(8));
-				self.preloadAudio(sp.cryurl);
+				BattleSound.loadEffect(sp.cryurl);
 				self.preloadImage(sp.url);
 				if (sp.url === '/sprites/bwani/meloetta.gif') {
 					self.preloadImage('/sprites/bwani/meloetta-pirouette.gif');
@@ -5020,171 +5118,64 @@ function Battle(frame, logFrame, noPreload) {
 		self.preloadImage(Tools.resourcePrefix + 'sprites/bw-back/substitute.png');
 		//self.preloadImage(Tools.resourcePrefix + 'fx/bg.jpg');
 	};
-	this.preloadSounds = function () {
-		//self.preloadAudio(Tools.resourcePrefix + 'audio/bw-trainer-battle.mp3');
-	}
-	this.preloadAudio = function (url, autoplay) {
-		if (noPreload) return;
-		var token = url.replace(/\.(wav|mp3)$/, '').replace(/\//g, '-');
-		if (self.preloadCache[token]) {
-			return;
+	self.bgm = null;
+	this.preloadBgm = function() {
+		var bgmNum = Math.floor(Math.random() * 7);
+
+		for (var i = 0; i < self.mySide.pokemon.length; i++) {
+			var pokemon = self.mySide.pokemon[i];
+			if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) bgmNum = -1;
 		}
-		self.preloadNeeded++;
-		if ((sound = soundManager.getSoundById(token))) {
-			self.preloadCache[token] = sound;
-			sound.play();
-			self.preloadDone++;
-			self.preloadCallback(self.preloadNeeded === self.preloadDone, self.preloadDone, self.preloadNeeded);
-		} else {
-			self.preloadCache[token] = soundManager.createSound({
-				id: token,
-				url: url,
-				autoPlay: autoplay,
-				volume: 50,
-				onload: function () {
-					self.preloadDone++;
-					self.preloadCallback(self.preloadNeeded === self.preloadDone, self.preloadDone, self.preloadNeeded);
-				}
-			});
-		}
-		if (!self.preloadCache[token]) {
-			// error
-			return;
-		}
-		if (!autoplay) {
-			self.preloadCache[token].load();
-		}
-	};
-	this.preloadBgm = function (url, autoplay, loopstart, loopend) {
-		if (!url) {
-			var bgmNum = Math.floor(Math.random() * 7);
-			for (var i = 0; i < self.mySide.pokemon.length; i++) {
-				var pokemon = self.mySide.pokemon[i];
-				if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) bgmNum = -1;
-			}
-			if (window.forceBgm) bgmNum = window.forceBgm;
-			switch (bgmNum) {
-			case -1:
-				self.preloadBgm(Tools.resourcePrefix + 'audio/bw2-homika-dogars.mp3', true, 1661, 68131);
-				break;
-			case 0:
-				self.preloadBgm(Tools.resourcePrefix + 'audio/hgss-kanto-trainer.mp3', true, 13003, 94656);
-				break;
-			case 1:
-				self.preloadBgm(Tools.resourcePrefix + 'audio/bw-subway-trainer.mp3', true, 15503, 110984);
-				break;
-			case 2:
-				self.preloadBgm(Tools.resourcePrefix + 'audio/bw-trainer.mp3', true, 14629, 110109);
-				break;
-			case 3:
-				self.preloadBgm(Tools.resourcePrefix + 'audio/bw-rival.mp3', true, 19180, 57373);
-				break;
-			case 4:
-				self.preloadBgm(Tools.resourcePrefix + 'audio/dpp-trainer.mp3', true, 13440, 96959);
-				break;
-			case 5:
-				self.preloadBgm(Tools.resourcePrefix + 'audio/hgss-johto-trainer.mp3', true, 23731, 125086);
-				break;
-			case 6:
-			default:
-				self.preloadBgm(Tools.resourcePrefix + 'audio/dpp-rival.mp3', true, 13888, 66352);
-				break;
-			}
-			return;
-		}
-		if (noPreload) return;
-		var token = url.replace(/\.(wav|mp3)$/, '').replace(/\//g, '-');
-		if (self.preloadCache[token]) {
-			if (autoplay) {
-				self.preloadCache[token].play();
-			}
-			return;
-		}
-		self.preloadNeeded++;
-		var sound;
-		if ((sound = soundManager.getSoundById(token))) {
-			self.preloadCache[token] = sound;
-			sound.play();
-			self.preloadDone++;
-			self.preloadCallback(self.preloadNeeded === self.preloadDone, self.preloadDone, self.preloadNeeded);
-		} else {
-			self.preloadCache[token] = soundManager.createSound({
-				id: token,
-				url: url,
-				autoPlay: autoplay,
-				volume: 50,
-				onload: function () {
-					self.preloadDone++;
-					self.preloadCallback(self.preloadNeeded === self.preloadDone, self.preloadDone, self.preloadNeeded);
-				}
-			});
-		}
-		if (!self.preloadCache[token]) {
-			// error
-			return;
-		}
-		self.bgm = self.preloadCache[token];
-		self.preloadCache[token].onposition(loopend, function () {
-			// loop music
-			self.preloadCache[token].setPosition(loopstart);
-			//$('#loopcount').html(''+(++self.loopcount));
-		});
-		if (!autoplay) {
-			self.preloadCache[token].load();
-		}
-	};
-	this.getToken = function (url) {
-		return url.replace(/\.(wav|mp3)$/, '').replace(/\//g, '-');
-	};
-	this.playAudio = function (url) {
-		if (self.mute) return;
-		var token = url.replace(/\.(wav|mp3)$/, '').replace(/\//g, '-');
-		if (!self.preloadCache[token]) {
-			self.preloadAudio(url, true);
-		} else {
-			self.preloadCache[token].play();
+
+		if (window.forceBgm) bgmNum = window.forceBgm;
+		switch (bgmNum) {
+		case -1:
+			BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 1661, 68131);
+			self.bgm = 'audio/bw2-homika-dogars.mp3';
+			break;
+		case 0:
+			BattleSound.loadBgm('audio/hgss-kanto-trainer.mp3', 13003, 94656);
+			self.bgm = 'audio/hgss-kanto-trainer.mp3';
+			break;
+		case 1:
+			BattleSound.loadBgm('audio/bw-subway-trainer.mp3', 15503, 110984);
+			self.bgm = 'audio/bw-subway-trainer.mp3';
+			break;
+		case 2:
+			BattleSound.loadBgm('audio/bw-trainer.mp3', 14629, 110109);
+			self.bgm = 'audio/bw-trainer.mp3';
+			break;
+		case 3:
+			BattleSound.loadBgm('audio/bw-rival.mp3', 19180, 57373);
+			self.bgm = 'audio/bw-rival.mp3';
+			break;
+		case 4:
+			BattleSound.loadBgm('audio/dpp-trainer.mp3', 13440, 96959);
+			self.bgm = 'audio/dpp-trainer.mp3';
+			break;
+		case 5:
+			BattleSound.loadBgm('audio/hgss-johto-trainer.mp3', 23731, 125086);
+			self.bgm = 'audio/hgss-johto-trainer.mp3';
+			break;
+		case 6:
+		default:
+			BattleSound.loadBgm('audio/dpp-rival.mp3', 13888, 66352);
+			self.bgm = 'audio/dpp-rival.mp3';
+			break;
 		}
 	};
 	this.setMute = function (mute) {
-		self.mute = mute;
-		if (!mute) {
-			if (self.playbackState === 2 || self.playbackState === 5) {
-				self.soundStart();
-			}
-			if (self.playbackState === 4 && !self.done) {
-				self.soundStart();
-			}
-		} else {
-			self.soundPause();
-		}
+		BattleSound.setMute(mute);
 	};
-	self.soundState = 0;
-	self.bgm = null;
-	self.loopcount = 0;
-	// 0 = stopped
-	// 1 = playing
-	// 2 = paused
 	this.soundStart = function () {
-		if (self.mute) return;
-		if (self.soundState === 0) {
-			self.soundState = 1;
-			self.preloadBgm();
-			//self.playAudio('audio/bw-trainer-battle.mp3');
-			//self.bgm = self.preloadCache[self.getToken('audio/bw-trainer-battle.mp3')];
-		} else if (self.soundState === 2) {
-			self.soundState = 1;
-			if (self.bgm) self.bgm.resume();
-		}
+		if (!this.bgm) this.preloadBgm();
+		BattleSound.playBgm(this.bgm);
 	};
 	this.soundStop = function () {
-		soundManager.stopAll();
-		self.soundState = 0;
+		BattleSound.stopBgm();
 	};
 	this.soundPause = function () {
-		if (self.soundState === 1) {
-			if (self.bgm) self.bgm.pause();
-			self.soundState = 2;
-		}
+		BattleSound.pauseBgm();
 	};
 
 	this.messageDelay = 8;
