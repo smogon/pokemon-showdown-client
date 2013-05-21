@@ -441,7 +441,7 @@
 						// teams
 						if (data.teams) {
 							self.user.cookieTeams = false;
-							self.user.teams = $.parseJSON(data.teams);
+							self.user.teams = $.parseJSON(data.teams) || [];
 						} else {
 							self.user.teams = [];
 						}
