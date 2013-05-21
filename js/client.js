@@ -1325,16 +1325,18 @@
 		// notifications
 
 		requestNotifications: function() {
-			if (window.webkitNotifications && webkitNotifications.requestPermission) {
-				// Notification.requestPermission crashes Chrome 23:
-				//   https://code.google.com/p/chromium/issues/detail?id=139594
-				// In lieu of a way to detect Chrome 23, we'll just use the old
-				// requestPermission API, which works to request permissions for
-				// the new Notification spec anyway.
-				webkitNotifications.requestPermission();
-			} else if (window.Notification && Notification.requestPermission) {
-				Notification.requestPermission(function(permission) {});
-			}
+			try {
+				if (window.webkitNotifications && webkitNotifications.requestPermission) {
+					// Notification.requestPermission crashes Chrome 23:
+					//   https://code.google.com/p/chromium/issues/detail?id=139594
+					// In lieu of a way to detect Chrome 23, we'll just use the old
+					// requestPermission API, which works to request permissions for
+					// the new Notification spec anyway.
+					webkitNotifications.requestPermission();
+				} else if (window.Notification && Notification.requestPermission) {
+					Notification.requestPermission(function(permission) {});
+				}
+			} catch (e) {}
 		},
 		notifications: null,
 		notify: function(title, body, tag, once) {
