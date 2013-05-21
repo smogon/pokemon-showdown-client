@@ -781,9 +781,13 @@
 					text += '<small>(Type changed)</small><br />';
 					types = [pokemon.volatiles.typechange[2]];
 				}
-				text += Tools.getTypeIcon(types[0]);
-				if (types[1]) {
-					text += ' '+Tools.getTypeIcon(types[1]);
+				if (types) {
+					text += Tools.getTypeIcon(types[0]);
+					if (types[1]) {
+						text += ' '+Tools.getTypeIcon(types[1]);
+					}
+				} else {
+					text += 'Types unknown';
 				}
 				text += '</h2>';
 				var exacthp = '';
