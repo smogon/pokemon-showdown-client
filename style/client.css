@@ -206,7 +206,6 @@ a.subtle:hover {
 	background: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e3e3e3));
 	background: -moz-linear-gradient(top,  #f6f6f6,  #e3e3e3);
 	background: linear-gradient(top,  #f6f6f6,  #e3e3e3);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
 
 	position: relative;
 	padding: 3px 2px 3px 2px;
@@ -243,7 +242,6 @@ a.subtle:hover {
 	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#cfcfcf));
 	background: -moz-linear-gradient(top,  #f2f2f2,  #cfcfcf);
 	background: linear-gradient(top,  #f2f2f2,  #cfcfcf);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f2f2f2', endColorstr='#cfcfcf');
 	border-color: #606060;
 
 	z-index: 10;
@@ -252,7 +250,6 @@ a.subtle:hover {
 	background: -webkit-gradient(linear, left top, left bottom, from(#cfcfcf), to(#f2f2f2));
 	background: -moz-linear-gradient(top,  #cfcfcf,  #f2f2f2);
 	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#cfcfcf', endColorstr='#f2f2f2');
 }
 .tabbar a.button.notifying {
 	border-color: #AA8866;
@@ -732,7 +729,6 @@ p.or:after {
 	background: -moz-linear-gradient(top,  hsl(210,40%,72%),  hsl(210,40%,52%));
 	background: linear-gradient(top,  hsl(210,40%,72%),  hsl(210,40%,52%));
 	border-color: hsl(210,40%,40%);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
 }
 .menugroup button.big {
 	width: 230px;
@@ -1309,7 +1305,6 @@ a.ilink:hover {
 	background: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e3e3e3));
 	background: -moz-linear-gradient(top,  #f6f6f6,  #e3e3e3);
 	background: linear-gradient(top,  #f6f6f6,  #e3e3e3);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
 }
 .switchmenu button:hover,
 .movemenu button:hover {
@@ -1317,7 +1312,6 @@ a.ilink:hover {
 	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#cfcfcf));
 	background: -moz-linear-gradient(top,  #f2f2f2,  #cfcfcf);
 	background: linear-gradient(top,  #f2f2f2,  #cfcfcf);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#f2f2f2', endColorstr='#cfcfcf');
 	border-color: #606060;
 }
 .switchmenu button:active,
@@ -1325,7 +1319,6 @@ a.ilink:hover {
 	background: -webkit-gradient(linear, left top, left bottom, from(#cfcfcf), to(#f2f2f2));
 	background: -moz-linear-gradient(top,  #cfcfcf,  #f2f2f2);
 	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#cfcfcf', endColorstr='#f2f2f2');
 }
 
 .switchmenu button:disabled,

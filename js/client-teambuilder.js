@@ -9,7 +9,7 @@
 
 			// left menu
 			this.$el.addClass('ps-room-light').addClass('scrollable');
-			app.on('init:loadteams', this.update, this);
+			app.on('init:loadprefs', this.update, this);
 			this.update();
 		},
 		focus: function() {

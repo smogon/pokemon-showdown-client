@@ -1,6 +1,6 @@
 (function($) {
 
-	Config.version = '0.9 beta';
+	Config.version = '0.9.0';
 	Config.origindomain = 'play.pokemonshowdown.com';
 
 	// `defaultserver` specifies the server to use when the domain name in the
@@ -67,7 +67,7 @@
 		getActionPHP: function() {
 			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
-				ret = 'http://play.pokemonshowdown.com' + ret;
+				ret = 'http://' + Config.origindomain + ret;
 			}
 			return (this.getActionPHP = function() {
 				return ret;
@@ -243,6 +243,16 @@
 
 			var self = this;
 
+			this.on('init:loadprefs', function() {
+				var bg = Tools.prefs('bg');
+				if (bg) {
+					$(document.body).css({
+						background: bg,
+						'background-size': 'cover'
+					});
+				}
+			});
+
 			this.on('init:unsupported', function() {
 				self.addPopupMessage('Your browser is unsupported.');
 			});
@@ -289,8 +299,9 @@
 		 *   `init:unsupported`
 		 * 	   triggered if the user's browser is unsupported
 		 *
-		 *   `init:loadteams` (teams)
-		 *     triggered when loads are finished loading
+		 *   `init:loadprefs`
+		 *     triggered when preferences/teams are finished loading and are
+		 *     safe to read
 		 *
 		 *   `init:nothirdparty`
 		 *     triggered if the user has third-party cookies disabled and
@@ -341,7 +352,7 @@
 					// over to the HTTPS origin.
 					$(window).on('message', function($e) {
 						var e = $e.originalEvent;
-						var origin = 'https://play.pokemonshowdown.com';
+						var origin = 'https://' + Config.origindomain;
 						if (e.origin !== origin) return;
 						if (e.data === 'init') {
 							e.source.postMessage($.toJSON({
@@ -373,7 +384,7 @@
 			// Simple connection: no cross-domain logic needed.
 			Config.server = Config.server || Config.defaultserver;
 			this.user.loadTeams();
-			this.trigger('init:loadteams');
+			this.trigger('init:loadprefs');
 			return this.connect();
 		},
 		/**
@@ -440,11 +451,11 @@
 						TeambuilderRoom.saveTeams = function() {
 							postCrossDomainMessage({teams: $.toJSON(app.user.teams)});
 						};
-						self.trigger('init:loadteams');
 						// prefs
 						if (data.prefs) {
 							Tools.prefs.data = $.parseJSON(data.prefs);
 						}
+						self.trigger('init:loadprefs');
 						Tools.prefs.save = function() {
 							postCrossDomainMessage({prefs: $.toJSON(this.data)});
 						};
@@ -529,9 +540,7 @@
 							userid: toUserid(data.name),
 							named: data.named
 						});
-						if (!data.named) {
-							self.user.setPersistentName(null); // kill `showdown_username` cookie
-						}
+						self.user.setPersistentName(data.named ? data.name : null);
 					}
 					if (data.updates) {
 						// Correct way to send battlelog updates:
@@ -558,17 +567,17 @@
 					}
 				},
 				message: function (message) {
-					// Correct way to send popups: (unimplemented)
+					// Correct way to send popups:
 					//   |popup|MESSAGE
 					self.addPopupMessage(message.message);
 					if (self.rooms['']) self.rooms[''].resetPending();
 				},
 				console: function (message) {
 					if (message.pm) {
-						// Correct way to send PMs: (unimplemented)
+						// Correct way to send PMs:
 						//   |pm|SOURCE|TARGET|MESSAGE
 						self.rooms[''].addPM(message.name, message.message, message.pm);
-						if (self.rooms['lobby']) {
+						if (self.rooms['lobby'] && !Tools.prefs('nolobbypm')) {
 							self.rooms['lobby'].addPM(message.name, message.message, message.pm);
 						}
 					} else if (message.rawMessage) {
@@ -611,6 +620,14 @@
 					}
 					return msg;
 				})(), 'join');
+
+				var avatar = Tools.prefs('avatar');
+				if (avatar) {
+					// This will be compatible even with servers that don't support
+					// the second argument for /avatar yet.
+					self.send('/avatar ' + avatar + ',1');
+				}
+
 				if (self.sendQueue) {
 					var queue = self.sendQueue;
 					delete self.sendQueue;
@@ -726,6 +743,19 @@
 
 			case 'formats':
 				this.parseFormats(parts);
+				break;
+
+			case 'popup':
+				this.addPopupMessage(data.substr(7).replace(/\|\|/g, '\n'));
+				if (this.rooms['']) this.rooms[''].resetPending();
+				break;
+
+			case 'pm':
+				var message = parts.slice(3).join('|');
+				this.rooms[''].addPM(parts[1], message, parts[2]);
+				if (this.rooms['lobby'] && !Tools.prefs('nolobbypm')) {
+					this.rooms['lobby'].addPM(parts[1], message, parts[2]);
+				}
 				break;
 
 			default:
@@ -1036,10 +1066,11 @@
 
 			var popup = new type(data);
 
+			var $overlay;
 			if (popup.type === 'normal') {
 				$('body').append(popup.el);
 			} else {
-				var $overlay = $('<div class="ps-overlay"></div>').appendTo('body').append(popup.el)
+				$overlay = $('<div class="ps-overlay"></div>').appendTo('body').append(popup.el)
 				if (popup.type === 'semimodal') {
 					$overlay.on('click', function(e) {
 						if (e.currentTarget === e.target) {
@@ -1051,6 +1082,7 @@
 
 			if (popup.domInitialize) popup.domInitialize(data);
 			popup.$('.autofocus').focus();
+			if ($overlay) $overlay.scrollTop(0);
 			this.popups.push(popup);
 			return popup;
 		},
@@ -1788,7 +1820,9 @@
 		},
 		events: {
 			'change input[name=noanim]': 'setNoanim',
+			'change input[name=nolobbypm]': 'setNolobbypm',
 			'change input[name=ignorespects]': 'setIgnoreSpects',
+			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
 			'click img': 'avatars'
@@ -1803,6 +1837,8 @@
 
 			buf += '<hr />';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
+			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Waterfall</option><option value="#344b6c"'+(Tools.prefs('bg')?' selected="selected"':'')+'>Solid blue</option></select></label></p>';
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in lobby chat: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
@@ -1826,10 +1862,23 @@
 			var noanim = !!e.currentTarget.checked;
 			Tools.prefs('noanim', noanim);
 		},
+		setNolobbypm: function(e) {
+			var nolobbypm = !!e.currentTarget.checked;
+			Tools.prefs('nolobbypm', nolobbypm);
+		},
 		setIgnoreSpects: function(e) {
 			if (app.curRoom.battle) {
 				app.curRoom.battle.ignoreSpects = !!e.currentTarget.checked;
 			}
+		},
+		setBg: function(e) {
+			var bg = e.currentTarget.value;
+			Tools.prefs('bg', bg);
+			if (!bg) bg = '#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed';
+			$(document.body).css({
+				background: bg,
+				'background-size': 'cover'
+			});
 		},
 		setTimestampsLobby: function(e) {
 			this.timestamps.lobby = e.currentTarget.value;

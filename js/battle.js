@@ -851,12 +851,13 @@ function Battle(frame, logFrame, noPreload) {
 		if (window.console && console.log) console.log(text);
 	};
 	this.log = function (html, preempt) {
+		var willScroll = (self.logFrameElem.scrollTop() + 60 >= self.logElem.height() + self.logPreemptElem.height() - self.logFrameElem.height());
 		if (preempt) {
 			self.logPreemptElem.append(html);
 		} else {
 			self.logElem.append(html);
 		}
-		if (self.logFrameElem.scrollTop() + 60 >= self.logElem.height() + self.logPreemptElem.height() - self.logFrameElem.height()) {
+		if (willScroll) {
 			self.logFrameElem.scrollTop(self.logElem.height() + self.logPreemptElem.height());
 		}
 	};
