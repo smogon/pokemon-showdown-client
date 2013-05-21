@@ -324,7 +324,7 @@ class NTBBLadder {
 		}
 
 		if ($newM) {
-			// grab old ratings
+			// grab oldacre
 			{
 				$oldM = $rating->M;
 				$oldR = $rating->rating;
@@ -332,7 +332,8 @@ class NTBBLadder {
 				$oldSigma = $rating->sigma;
 				$rating->Update();
 
-				$prevAcre = $this->getAcre($rating) + $offset;
+				$user['rating']['oldacre'] = $this->getAcre($rating) + $offset;
+				$newOldRd = $rating->rd;
 
 				$rating = new Glicko2Player($oldR, $oldRd, $oldSigma);
 				$rating->M = $oldM;
@@ -355,6 +356,14 @@ class NTBBLadder {
 		}
 
 		$rating->Update();
+
+		// grab oldrdacre
+		if ($newM) {
+			$newRd = $rating->rd;
+			$rating->rd = $newOldRd;
+			$user['rating']['oldrdacre'] = $this->getAcre($rating) + $offset;
+			$rating->rd = $newRd;
+		}
 
 		$oldrpr = $user['rating']['rpr'];
 
@@ -381,11 +390,11 @@ class NTBBLadder {
 			}
 
 			// minimum +1 ACRE on win, minimum -1 ACRE on loss
-			if ($newM['score'] > .9 && $user['rating']['acre'] < $prevAcre + 1) {
-				$user['rating']['acre'] = $prevAcre + 1;
+			if ($newM['score'] > .9 && $user['rating']['acre'] < $user['rating']['oldacre'] + 1) {
+				$user['rating']['acre'] = $user['rating']['oldacre'] + 1;
 			}
-			if ($newM['score'] < .1 && $user['rating']['acre'] > $prevAcre - 1) {
-				$user['rating']['acre'] = $prevAcre - 1;
+			if ($newM['score'] < .1 && $user['rating']['acre'] > $user['rating']['oldacre'] - 1) {
+				$user['rating']['acre'] = $user['rating']['oldacre'] - 1;
 			}
 		}
 		if ($offset) {
