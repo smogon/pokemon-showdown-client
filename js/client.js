@@ -566,7 +566,7 @@
 						// Correct way to send PMs:
 						//   |pm|SOURCE|TARGET|MESSAGE
 						self.rooms[''].addPM(message.name, message.message, message.pm);
-						if (self.rooms['lobby']) {
+						if (self.rooms['lobby'] && !Tools.prefs('nolobbypm')) {
 							self.rooms['lobby'].addPM(message.name, message.message, message.pm);
 						}
 					} else if (message.rawMessage) {
@@ -742,7 +742,7 @@
 			case 'pm':
 				var message = parts.slice(3).join('|');
 				this.rooms[''].addPM(parts[1], message, parts[2]);
-				if (this.rooms['lobby']) {
+				if (this.rooms['lobby'] && !Tools.prefs('nolobbypm')) {
 					this.rooms['lobby'].addPM(parts[1], message, parts[2]);
 				}
 				break;
@@ -1809,6 +1809,7 @@
 		},
 		events: {
 			'change input[name=noanim]': 'setNoanim',
+			'change input[name=nolobbypm]': 'setNolobbypm',
 			'change input[name=ignorespects]': 'setIgnoreSpects',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
@@ -1824,6 +1825,7 @@
 
 			buf += '<hr />';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in lobby chat: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
@@ -1846,6 +1848,10 @@
 		setNoanim: function(e) {
 			var noanim = !!e.currentTarget.checked;
 			Tools.prefs('noanim', noanim);
+		},
+		setNolobbypm: function(e) {
+			var nolobbypm = !!e.currentTarget.checked;
+			Tools.prefs('nolobbypm', nolobbypm);
 		},
 		setIgnoreSpects: function(e) {
 			if (app.curRoom.battle) {
