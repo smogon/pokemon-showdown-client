@@ -1,6 +1,6 @@
 (function($) {
 
-	Config.version = '0.9 beta';
+	Config.version = '0.9.0';
 	Config.origindomain = 'play.pokemonshowdown.com';
 
 	// `defaultserver` specifies the server to use when the domain name in the
