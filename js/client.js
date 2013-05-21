@@ -244,6 +244,15 @@
 						'background-size': 'cover'
 					});
 				}
+
+				var muted = Tools.prefs('mute');
+				BattleSound.setMute(muted);
+
+				var effectVolume = Tools.prefs('effectvolume');
+				if (effectVolume !== undefined) BattleSound.setEffectVolume(effectVolume);
+
+				var musicVolume = Tools.prefs('musicvolume');
+				if (musicVolume !== undefined) BattleSound.setBgmVolume(musicVolume);
 			});
 
 			this.on('init:unsupported', function() {
