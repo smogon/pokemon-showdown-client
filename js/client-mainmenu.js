@@ -206,6 +206,9 @@
 				$(el).find('.challenge').remove();
 				self.challenge($(el).data('userid'));
 			});
+			this.$('button[name=acceptChallenge]').each(function(i, el) {
+				el.disabled = false;
+			});
 		},
 		searching: false,
 		updateSearch: function(data) {
@@ -253,9 +256,15 @@
 				} else {
 					var $challenge = $pmWindow.find('.challenge');
 					if ($challenge.length) {
-						if ($challenge.find('button[name=acceptChallenge]').length) {
-							// Someone was challenging you, but cancelled their challenge
-							$challenge.html('<form class="battleform"><p>The challenge was cancelled.</p><p class="buttonbar"><button name="dismissChallenge">OK</button></p></form>');
+						var $acceptButton = $challenge.find('button[name=acceptChallenge]');
+						if ($acceptButton.length) {
+							if ($acceptButton[0].disabled) {
+								// You accepted someone's challenge and it started
+								$challenge.remove();
+							} else {
+								// Someone was challenging you, but cancelled their challenge
+								$challenge.html('<form class="battleform"><p>The challenge was cancelled.</p><p class="buttonbar"><button name="dismissChallenge">OK</button></p></form>');
+							}
 						} else if ($challenge.find('button[name=cancelChallenge]').length) {
 							// You were challenging someone else, and they either accepted
 							// or rejected it
@@ -342,11 +351,16 @@
 			var $pmWindow = $(target).closest('.pm-window');
 			var userid = $pmWindow.data('userid');
 
+			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
 			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
+			if (!window.BattleFormats[format].team && !team) {
+				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
+				return;
+			}
 
-			$(target).closest('.challenge').remove();
+			target.disabled = true;
 			app.send('/utm '+(team?$.toJSON(team):'null'));
 			app.send('/accept '+userid);
 		},
@@ -360,11 +374,15 @@
 			var $pmWindow = $(target).closest('.pm-window');
 			var userid = $pmWindow.data('userid');
 			var name = $pmWindow.data('name');
-			var format = $pmWindow.find('button[name=format]').val();
 
+			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
 			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
+			if (!window.BattleFormats[format].team && !team) {
+				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
+				return;
+			}
 
 			var buf = '<form class="battleform pending"><p>Challenging '+Tools.escapeHTML(name)+'...</p>';
 			buf += '<p><label class="label">Format:</label>'+this.renderFormats(format, true)+'</p>';
@@ -470,6 +488,10 @@
 			var teamIndex = $teamButton.val();
 			var team = null;
 			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
+			if (!window.BattleFormats[format].team && !team) {
+				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
+				return;
+			}
 
 			$formatButton.addClass('preselected')[0].disabled = true;
 			$teamButton.addClass('preselected')[0].disabled = true;
