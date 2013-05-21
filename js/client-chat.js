@@ -590,7 +590,7 @@
 		},
 		addRow: function(line) {
 			var name, name2, room, action, silent, oldid;
-			if (typeof line === 'string') {
+			if (line && typeof line === 'string') {
 				if (line.substr(0,1) !== '|') line = '||'+line;
 				var row = line.substr(1).split('|');
 				switch (row[0]) {
