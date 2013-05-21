@@ -556,7 +556,7 @@
 					}
 				},
 				message: function (message) {
-					// Correct way to send popups: (unimplemented)
+					// Correct way to send popups:
 					//   |popup|MESSAGE
 					self.addPopupMessage(message.message);
 					if (self.rooms['']) self.rooms[''].resetPending();
@@ -732,6 +732,11 @@
 
 			case 'formats':
 				this.parseFormats(parts);
+				break;
+
+			case 'popup':
+				this.addPopupMessage(data.substr(7).replace(/\|\|/g, '\n'));
+				if (this.rooms['']) this.rooms[''].resetPending();
 				break;
 
 			default:
