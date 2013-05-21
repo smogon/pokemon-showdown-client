@@ -289,8 +289,9 @@
 		 *   `init:unsupported`
 		 * 	   triggered if the user's browser is unsupported
 		 *
-		 *   `init:loadteams` (teams)
-		 *     triggered when loads are finished loading
+		 *   `init:loadprefs`
+		 *     triggered when preferences/teams are finished loading and are
+		 *     safe to read
 		 *
 		 *   `init:nothirdparty`
 		 *     triggered if the user has third-party cookies disabled and
@@ -373,7 +374,7 @@
 			// Simple connection: no cross-domain logic needed.
 			Config.server = Config.server || Config.defaultserver;
 			this.user.loadTeams();
-			this.trigger('init:loadteams');
+			this.trigger('init:loadprefs');
 			return this.connect();
 		},
 		/**
@@ -440,11 +441,11 @@
 						TeambuilderRoom.saveTeams = function() {
 							postCrossDomainMessage({teams: $.toJSON(app.user.teams)});
 						};
-						self.trigger('init:loadteams');
 						// prefs
 						if (data.prefs) {
 							Tools.prefs.data = $.parseJSON(data.prefs);
 						}
+						self.trigger('init:loadprefs');
 						Tools.prefs.save = function() {
 							postCrossDomainMessage({prefs: $.toJSON(this.data)});
 						};
