@@ -41,11 +41,15 @@ function BattleSoundLibrary() {
 		if (this.effectCache[url]) {
 			return this.effectCache[url];
 		}
-		return this.effectCache[url] = soundManager.createSound({
+		this.effectCache[url] = soundManager.createSound({
 			id: url,
 			url: Tools.resourcePrefix + url,
 			volume: this.effectVolume
 		});
+		if (!this.effectCache[url]) {
+			this.effectCache[url] = this.soundPlaceholder;
+		}
+		return this.effectCache[url];
 	};
 	this.playEffect = function(url) {
 		if (!this.mute) this.loadEffect(url).setVolume(this.effectVolume).play();
