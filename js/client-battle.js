@@ -857,10 +857,6 @@
 				if (data.curuser && data.curuser.loggedin) {
 					app.user.set('registered', data.curuser);
 					var name = data.curuser.username;
-					if (!app.socket) {
-						document.location.reload();
-						return;
-					}
 					app.send('/trn '+name+',1,'+token);
 					app.addPopupMessage("You have been successfully registered.");
 				} else {
