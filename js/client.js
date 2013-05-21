@@ -563,7 +563,7 @@
 				},
 				console: function (message) {
 					if (message.pm) {
-						// Correct way to send PMs: (unimplemented)
+						// Correct way to send PMs:
 						//   |pm|SOURCE|TARGET|MESSAGE
 						self.rooms[''].addPM(message.name, message.message, message.pm);
 						if (self.rooms['lobby']) {
@@ -737,6 +737,14 @@
 			case 'popup':
 				this.addPopupMessage(data.substr(7).replace(/\|\|/g, '\n'));
 				if (this.rooms['']) this.rooms[''].resetPending();
+				break;
+
+			case 'pm':
+				var message = parts.slice(3).join('|');
+				this.rooms[''].addPM(parts[1], message, parts[2]);
+				if (this.rooms['lobby']) {
+					this.rooms['lobby'].addPM(parts[1], message, parts[2]);
+				}
 				break;
 
 			default:
