@@ -243,6 +243,16 @@
 
 			var self = this;
 
+			this.on('init:loadprefs', function() {
+				var bg = Tools.prefs('bg');
+				if (bg) {
+					$(document.body).css({
+						background: bg,
+						'background-size': 'cover'
+					});
+				}
+			});
+
 			this.on('init:unsupported', function() {
 				self.addPopupMessage('Your browser is unsupported.');
 			});
@@ -1812,6 +1822,7 @@
 			'change input[name=noanim]': 'setNoanim',
 			'change input[name=nolobbypm]': 'setNolobbypm',
 			'change input[name=ignorespects]': 'setIgnoreSpects',
+			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
 			'click img': 'avatars'
@@ -1827,6 +1838,7 @@
 			buf += '<hr />';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
+			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Waterfall</option><option value="#344b6c"'+(Tools.prefs('bg')?' selected="selected"':'')+'>Solid blue</option></select></label></p>';
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in lobby chat: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
@@ -1858,6 +1870,15 @@
 			if (app.curRoom.battle) {
 				app.curRoom.battle.ignoreSpects = !!e.currentTarget.checked;
 			}
+		},
+		setBg: function(e) {
+			var bg = e.currentTarget.value;
+			Tools.prefs('bg', bg);
+			if (!bg) bg = '#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed';
+			$(document.body).css({
+				background: bg,
+				'background-size': 'cover'
+			});
 		},
 		setTimestampsLobby: function(e) {
 			this.timestamps.lobby = e.currentTarget.value;
