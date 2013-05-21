@@ -685,7 +685,7 @@ var Tools = {
 			var num = '' + BattlePokemonSprites[pokemon.speciesid].num;
 			if (num.length < 3) num = '0' + num;
 			if (num.length < 3) num = '0' + num;
-			cryurl = Tools.resourcePrefix + 'audio/cries/' + num + '.wav';
+			cryurl = 'audio/cries/' + num + '.wav';
 		}
 
 		// April Fool's 2013
