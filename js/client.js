@@ -272,7 +272,7 @@
 			$(window).on('focus click', function() {
 				if (!self.focused) {
 					self.focused = true;
-					self.curRoom.dismissNotification();
+					if (self.curRoom) self.curRoom.dismissNotification();
 					if (self.curSideRoom) self.curSideRoom.dismissNotification();
 				}
 			});
