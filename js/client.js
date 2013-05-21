@@ -1828,9 +1828,9 @@
 			buf += '<p><button name="avatars">Change avatar</button></p>';
 
 			buf += '<hr />';
+			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Waterfall</option><option value="#344b6c"'+(Tools.prefs('bg')?' selected="selected"':'')+'>Solid blue</option></select></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
-			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Waterfall</option><option value="#344b6c"'+(Tools.prefs('bg')?' selected="selected"':'')+'>Solid blue</option></select></label></p>';
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in lobby chat: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
