@@ -33,6 +33,17 @@
 				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 			})();
 		</script>
+		<script>
+			window.onerror = function(err, uri, line) {
+				var msg = uri + ':' + line + ': ' + err;
+				if ('_gaq' in window) {
+					_gaq.push(['_trackEvent', 'Client error', msg]);
+				} else {
+					alert('ERROR: ' + msg);
+				}
+				return false;
+			};
+		</script>
 	</head>
 	<body>
 
