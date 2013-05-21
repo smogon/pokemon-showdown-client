@@ -353,7 +353,7 @@
 						if (e.origin !== origin) return;
 						if (e.data === 'init') {
 							e.source.postMessage($.toJSON({
-								teams: $.toJSON(teams),
+								teams: $.toJSON(app.user.teams),
 								prefs: $.toJSON(Tools.prefs.data)
 							}), origin);
 						} else if (e.data === 'done') {
