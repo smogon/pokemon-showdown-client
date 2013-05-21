@@ -137,7 +137,7 @@
 					var team = teams[i];
 
 					if (!team) {
-						buf += '<li>Error: corrupted team</li>';
+						buf += '<li>Error: A corrupted team was dropped</li>';
 						teams.splice(i,1);
 						i--;
 						if (this.deletedTeamLoc && this.deletedTeamLoc > i) this.deletedTeamLoc--;
