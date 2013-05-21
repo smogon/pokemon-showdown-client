@@ -52,7 +52,7 @@ function BattleSoundLibrary() {
 		return this.effectCache[url];
 	};
 	this.playEffect = function(url) {
-		if (!this.mute) this.loadEffect(url).setVolume(this.effectVolume).play();
+		if (!this.muted) this.loadEffect(url).setVolume(this.effectVolume).play();
 	};
 
 	// bgm
