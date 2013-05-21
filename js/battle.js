@@ -31,9 +31,9 @@ $.extend($.easing, {
 
 function BattleSoundLibrary() {
 	// options
-	this.effectVolume = 50;
-	this.bgmVolume = 50;
-	this.muted = false;
+	this.effectVolume = (Tools.prefs('effectvolume')||50);
+	this.bgmVolume = (Tools.prefs('musicvolume')||50);
+	this.muted = (Tools.prefs('mute')||false);
 
 	// effects
 	this.effectCache = {};
