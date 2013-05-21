@@ -352,6 +352,7 @@
 						var origin = 'https://' + Config.origindomain;
 						if (e.origin !== origin) return;
 						if (e.data === 'init') {
+							app.user.loadTeams();
 							e.source.postMessage($.toJSON({
 								teams: $.toJSON(app.user.teams),
 								prefs: $.toJSON(Tools.prefs.data)
