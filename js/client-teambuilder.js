@@ -136,6 +136,14 @@
 
 					var team = teams[i];
 
+					if (!team) {
+						buf += '<li>Error: corrupted team</li>';
+						teams.splice(i,1);
+						i--;
+						if (this.deletedTeamLoc && this.deletedTeamLoc > i) this.deletedTeamLoc--;
+						continue;
+					}
+
 					var formatText = '';
 					if (team.format) {
 						formatText = '['+team.format+'] ';
