@@ -128,10 +128,6 @@
 				if (data && data.curuser && data.curuser.loggedin) {
 					// success!
 					self.set('registered', data.curuser);
-					if (!app.socket) {
-						document.location.reload();
-						return;
-					}
 					self.finishRename(name, data.assertion);
 				} else {
 					// wrong password
@@ -680,7 +676,7 @@
 		 * Send to sim server
 		 */
 		send: function(data, type) {
-			if (!this.socket) {
+			if (!this.socket || (this.socket.readyState !== SockJS.OPEN)) {
 				if (typeof data === 'string') {
 					if (!this.sendQueue) this.sendQueue = [];
 					this.sendQueue.push(data);
@@ -1281,7 +1277,7 @@
 		 * Send to sim server
 		 */
 		send: function(data, type) {
-			if (!app.socket) return;
+			if (!app.socket || (app.socket.readyState !== SockJS.OPEN)) return;
 			if (typeof data === 'object') {
 				if (type) data.type = type;
 				data.room = this.id;
