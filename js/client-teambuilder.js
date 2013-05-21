@@ -871,6 +871,7 @@
 		statSlide: function(val, slider) {
 			var stat = slider.inputNode[0].name.substr(9);
 			var set = this.curSet;
+			if (!set) return;
 			val = +val;
 
 			if (!this.ignoreEVLimits && set.evs) {
