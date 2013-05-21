@@ -629,6 +629,7 @@
 				return buf;
 			}
 			var team = app.user.teams[i];
+			if (!team) return 'Error: Corrupted team';
 			var buf = ''+Tools.escapeHTML(team.name)+'<br />';
 			for (var i=0; i<team.team.length; i++) {
 				buf += '<span class="pokemonicon" style="float:left;'+Tools.getIcon(team.team[i])+'"></span>';
