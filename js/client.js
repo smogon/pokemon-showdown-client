@@ -23,10 +23,7 @@
 	};
 
 	// support Safari 6 notifications
-	// trying to use new-spec notifications on old versions of Chrome will crash
-	// certain older versions of Chrome and there doesn't appear to be a way to
-	// feature-detect them
-	if (!window.Notification && window.webkitNotification && navigator.userAgent.indexOf('Chrome') <= 0) {
+	if (!window.Notification && window.webkitNotification) {
 		window.Notification = window.webkitNotification;
 	}
 
@@ -1331,7 +1328,14 @@
 		// notifications
 
 		requestNotifications: function() {
-			if (window.Notification && Notification.requestPermission) {
+			if (window.webkitNotifications && webkitNotifications.requestPermission) {
+				// Notification.requestPermission crashes Chrome 23:
+				//   https://code.google.com/p/chromium/issues/detail?id=139594
+				// In lieu of a way to detect Chrome 23, we'll just use the old
+				// requestPermission API, which works to request permissions for
+				// the new Notification spec anyway.
+				webkitNotifications.requestPermission();
+			} else if (window.Notification && Notification.requestPermission) {
 				Notification.requestPermission(function(permission) {});
 			}
 		},
