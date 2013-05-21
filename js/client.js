@@ -610,13 +610,13 @@
 				self.trigger('init:socketopened');
 				// Join the lobby if it fits on the screen.
 				// Send the join message even if it doesn't, for legacy servers.
-				self.send((function() {
-					var msg = {room: 'lobby'};
-					if ($(window).width() < 916) {
-						msg.nojoin = 1;
-					}
-					return msg;
-				})(), 'join');
+				if (Config.server.id !== 'showdown') {
+					self.send({room: 'lobby', nojoin: 1}, 'join');
+				}
+
+				if ($(window).width() >= 916) {
+					self.send('/join lobby');
+				}
 
 				var avatar = Tools.prefs('avatar');
 				if (avatar) {
