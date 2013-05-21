@@ -608,7 +608,7 @@
 				// Join the lobby if it fits on the screen.
 				// Send the join message even if it doesn't, for legacy servers.
 				if (Config.server.id !== 'showdown') {
-					self.send({room: 'lobby', nojoin: 1}, 'join');
+					self.send('{"room":"lobby","nojoin":1,"type":"join"}', true);
 				}
 
 				if ($(window).width() >= 916) {
@@ -626,7 +626,7 @@
 					var queue = self.sendQueue;
 					delete self.sendQueue;
 					for (var i=0; i<queue.length; i++) {
-						self.send(queue[i]);
+						self.send(queue[i], true);
 					}
 				}
 			};
@@ -675,20 +675,18 @@
 		/**
 		 * Send to sim server
 		 */
-		send: function(data, type) {
+		send: function(data, room) {
+			if (room && room !== 'lobby' && room !== true) {
+				data = room+'|'+data;
+			} else if (room !== true) {
+				data = '|'+data;
+			}
 			if (!this.socket || (this.socket.readyState !== SockJS.OPEN)) {
-				if (typeof data === 'string') {
-					if (!this.sendQueue) this.sendQueue = [];
-					this.sendQueue.push(data);
-				}
+				if (!this.sendQueue) this.sendQueue = [];
+				this.sendQueue.push(data);
 				return;
 			}
-			if (typeof data === 'object') {
-				if (type) data.type = type;
-				this.socket.send($.toJSON(data));
-			} else {
-				this.socket.send('|'+data);
-			}
+			this.socket.send(data);
 		},
 		/**
 		 * Receive from sim server
@@ -1276,15 +1274,8 @@
 		/**
 		 * Send to sim server
 		 */
-		send: function(data, type) {
-			if (!app.socket || (app.socket.readyState !== SockJS.OPEN)) return;
-			if (typeof data === 'object') {
-				if (type) data.type = type;
-				data.room = this.id;
-				app.socket.send($.toJSON(data));
-			} else {
-				app.socket.send(''+this.id+'|'+data);
-			}
+		send: function(data) {
+			app.send(data, this.id);
 		},
 		/**
 		 * Receive from sim server
