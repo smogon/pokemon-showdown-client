@@ -58,6 +58,7 @@
 			if (this.exportMode) {
 				this.exportMode = false;
 			} else if (this.curSet) {
+				app.clearGlobalListeners();
 				this.curSet = null;
 			} else if (this.curTeam) {
 				this.curTeam = null;
@@ -579,6 +580,7 @@
 		curChartName: '',
 		updateChart: function() {
 			var type = this.curChartType;
+			app.clearGlobalListeners();
 			if (type === 'stats') {
 				this.updateStatForm();
 				return;
@@ -775,6 +777,7 @@
 			this.$chart.html(buf);
 			var self = this;
 			this.suppressSliderCallback = true;
+			app.clearGlobalListeners();
 			this.$chart.find('.evslider').slider({
 				from: 0,
 				to: 252,
@@ -1898,6 +1901,10 @@
 				} while (template && template.species && !alreadyChecked[template.speciesid]);
 				Tools.movelists[pokemon] = moves;
 			}
+		},
+		destroy: function() {
+			app.clearGlobalListeners();
+			Room.prototype.destroy.call(this);
 		}
 	}, {
 		// static
