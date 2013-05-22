@@ -380,6 +380,26 @@ var Tools = {
 	},
 
 	sanitizeHTML: (function() {
+		// Add <marquee> to the whitelist.
+		// See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee
+		// for the list of attributes.
+		$.extend(html4.ELEMENTS, {
+			'marquee': 0
+		});
+		$.extend(html4.ATTRIBS, {
+			'marquee::behavior': 0,
+			'marquee::bgcolor': 0,
+			'marquee::direction': 0,
+			'marquee::height': 0,
+			'marquee::hspace': 0,
+			'marquee::loop': 0,
+			'marquee::scrollamount': 0,
+			'marquee::scrolldelay': 0,
+			'marquee::truespeed': 0,
+			'marquee::vspace': 0,
+			'marquee::width': 0
+		});
+
 		var uriRewriter = function(uri) {
 			return uri;
 		};
