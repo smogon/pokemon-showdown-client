@@ -401,7 +401,7 @@
 			$(target).closest('.challenge').remove();
 		},
 		format: function(format, button) {
-			app.addPopup(FormatPopup, {format: format, sourceEl: button});
+			if (window.BattleFormats) app.addPopup(FormatPopup, {format: format, sourceEl: button});
 		},
 		team: function(team, button) {
 			var format = $(button).closest('form').find('button[name=format]').val();
