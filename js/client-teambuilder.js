@@ -118,6 +118,7 @@
 			buf = '<div class="pad"><p>y\'know zarel this is a pretty good teambuilder</p>'
 			buf += '<p>aww thanks I\'m glad you like it :)</p>'
 			buf += '<ul>';
+			if (TeambuilderRoom.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
 			if (!teams.length) {
 				if (this.deletedTeamLoc >= 0) {
 					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
@@ -1914,7 +1915,16 @@
 				$.cookie('showdown_team2', null);
 				$.cookie('showdown_team3', null);
 
-				localStorage.setItem('showdown_teams', JSON.stringify(teams));
+				TeambuilderRoom.cantSave = false;
+				try {
+					localStorage.setItem('showdown_teams', JSON.stringify(teams));
+				} catch (e) {
+					if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
+						TeambuilderRoom.cantSave = true;
+					} else {
+						throw e;
+					}
+				}
 			} else {
 				if (teams[0]) {
 					$.cookie('showdown_team1', null);
