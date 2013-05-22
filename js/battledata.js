@@ -762,7 +762,7 @@ var Tools = {
 		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) id = toId(pokemon.volatiles.formechange[2]);
 		if (pokemon && pokemon.num !== undefined) num = pokemon.num;
 		else if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) num = BattlePokemonSprites[id].num;
-		else if (window.BattlePokedex[id] && BattlePokedex[id].num) num = BattlePokedex[id].num;
+		else if (window.BattlePokedex && window.BattlePokedex[id] && BattlePokedex[id].num) num = BattlePokedex[id].num;
 		if (num < 0) num = 0;
 		var altNums = {
 			"egg": 651,
