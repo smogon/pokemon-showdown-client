@@ -795,15 +795,43 @@
 						searchShow = false;
 						name = name.substr(0,name.length-1);
 					}
-					BattleFormats[toId(name)] = {
-						id: toId(name),
+					var id = toId(name);
+					var isTeambuilderFormat = challengeShow && searchShow && !team;
+					var teambuilderFormat;
+					if (isTeambuilderFormat) {
+						var parenPos = name.indexOf('(');
+						if (parenPos > 0 && name.charAt(name.length-1) === ')') {
+							// variation of existing tier
+							teambuilderFormat = toId(name.substr(0, parenPos));
+							if (BattleFormats[teambuilderFormat]) {
+								BattleFormats[teambuilderFormat].isTeambuilderFormat = true;
+							} else {
+								BattleFormats[teambuilderFormat] = {
+									id: teambuilderFormat,
+									name: $.trim(name.substr(0, parenPos)),
+									team: team,
+									section: section,
+									rated: challengeShow && searchShow,
+									isTeambuilderFormat: true,
+									effectType: 'Format'
+								};
+							}
+							isTeambuilderFormat = false;
+						}
+					}
+					if (BattleFormats[id] && BattleFormats[id].isTeambuilderFormat) {
+						isTeambuilderFormat = true;
+					}
+					BattleFormats[id] = {
+						id: id,
 						name: name,
 						team: team,
 						section: section,
 						searchShow: searchShow,
 						challengeShow: challengeShow,
 						rated: challengeShow && searchShow,
-						isTeambuilderFormat: challengeShow && searchShow && !team,
+						teambuilderFormat: teambuilderFormat,
+						isTeambuilderFormat: isTeambuilderFormat,
 						effectType: 'Format'
 					};
 				}
