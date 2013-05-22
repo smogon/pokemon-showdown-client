@@ -875,7 +875,22 @@
 		initializeRooms: function() {
 			this.rooms = {};
 
-			$(window).on('resize', _.bind(this.updateLayout, this));
+			$(window).on('resize', _.bind(this.resize, this));
+		},
+		fixedWidth: true,
+		resize: function() {
+			if (window.screen && screen.width && screen.width >= 640) {
+				if (this.fixedWidth) {
+					document.getElementById('viewport').setAttribute('content','width=device-width');
+					this.fixedWidth = false;
+				}
+			} else {
+				if (!this.fixedWidth) {
+					document.getElementById('viewport').setAttribute('content','width=640');
+					this.fixedWidth = true;
+				}
+			}
+			this.updateLayout();
 		},
 		// the currently active room
 		curRoom: null,
