@@ -380,11 +380,12 @@ var Tools = {
 	},
 
 	sanitizeHTML: (function() {
-		// Add <marquee> to the whitelist.
+		// Add <marquee> and <blink> to the whitelist.
 		// See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee
 		// for the list of attributes.
 		$.extend(html4.ELEMENTS, {
-			'marquee': 0
+			'marquee': 0,
+			'blink': 0
 		});
 		$.extend(html4.ATTRIBS, {
 			'marquee::behavior': 0,
