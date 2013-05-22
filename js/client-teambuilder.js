@@ -1840,7 +1840,7 @@
 			if (!set) return 0;
 			var template = Tools.getTemplate(set.species);
 			if (!template.exists) return 0;
-			
+
 			if (!set.ivs) set.ivs = {
 				hp: 31,
 				atk: 31,
@@ -1859,7 +1859,7 @@
 			};
 			if (!set.level) set.level = 100;
 			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
-			
+
 			if (stat === 'hp') {
 				if (template.baseStats['hp'] === 1) return 1;
 				return Math.floor(Math.floor(2*template.baseStats['hp']+(set.ivs['hp']||0)+Math.floor((evOverride||set.evs['hp']||0)/4)+100)*set.level / 100 + 10);
