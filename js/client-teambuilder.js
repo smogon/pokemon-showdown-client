@@ -1839,8 +1839,6 @@
 		getStat: function(stat, set, evOverride, natureOverride) {
 			if (!set) set = this.curSet;
 			if (!set) return 0;
-			var template = Tools.getTemplate(set.species);
-			if (!template.exists) return 0;
 
 			if (!set.ivs) set.ivs = {
 				hp: 31,
@@ -1858,6 +1856,12 @@
 				spd: 0,
 				spe: 0
 			};
+
+			// do this after setting set.evs because it's assumed to exist
+			// after getStat is run
+			var template = Tools.getTemplate(set.species);
+			if (!template.exists) return 0;
+
 			if (!set.level) set.level = 100;
 			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
 
