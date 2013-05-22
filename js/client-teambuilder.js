@@ -859,7 +859,7 @@
 				var stat = inputName.substr(3);
 
 				if (val > 31) val = 31;
-				if (val < 1) val = 1;
+				if (val < 0) val = 0;
 
 				if (!set.ivs) set.ivs = {};
 				if (set.ivs[stat] !== val) {
