@@ -2034,7 +2034,7 @@ a.ilink:hover {
 
 @-webkit-keyframes blinker {  
 	from { opacity: 1.0; }
- 	to { opacity: 0.0; }
+	to { opacity: 0.0; }
 }
 blink {
 	-webkit-animation-name: blinker;  
