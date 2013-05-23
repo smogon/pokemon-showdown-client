@@ -656,6 +656,7 @@
 
 				case 'usercount':
 					this.userCount.globalUsers = parseInt(row[1], 10);
+					this.userList.updateUserCount();
 					break;
 
 				case 'formats':
