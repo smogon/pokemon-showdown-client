@@ -45,18 +45,20 @@ if (isset($PokemonServers[$config['host']])) {
 	}
 
 	// see if this is actually a registered server
-	$ip = gethostbyname($config['host']);
-	foreach ($PokemonServers as &$server) {
-		if (!isset($server['ipcache'])) {
-			$server['ipcache'] = gethostbyname($server['server']);
-		}
-		if ($ip === $server['ipcache']) {
-			if (($config['port'] === $server['port']) ||
-					(isset($server['altport']) &&
-						$config['port'] === $server['altport'])) {
-				$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
-				$config['redirect'] = 'http://' . $server['id'] . '.psim.us/' . rawurlencode($path);
-				break;
+	if ($config['host'] !== 'localhost') {
+		$ip = gethostbyname($config['host']);
+		foreach ($PokemonServers as &$server) {
+			if (!isset($server['ipcache'])) {
+				$server['ipcache'] = gethostbyname($server['server']);
+			}
+			if ($ip === $server['ipcache']) {
+				if (($config['port'] === $server['port']) ||
+						(isset($server['altport']) &&
+							$config['port'] === $server['altport'])) {
+					$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
+					$config['redirect'] = 'http://' . $server['id'] . '.psim.us/' . rawurlencode($path);
+					break;
+				}
 			}
 		}
 	}
