@@ -376,9 +376,6 @@
 						controls += '<em>You are trapped and cannot switch!</em>';
 					} else {
 						controls += '';
-						if (this.finalDecision) {
-							controls += '<em>You <strong>might</strong> be trapped, so you won\'t be able to cancel a switch!</em><br/>';
-						}
 						for (var i = 0; i < switchables.length; i++) {
 							var pokemon = switchables[i];
 							pokemon.name = pokemon.ident.substr(4);
@@ -387,6 +384,9 @@
 							} else {
 								controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
 							}
+						}
+						if (this.finalDecision) {
+							controls += '<em style="display:block;clear:both">You <strong>might</strong> be trapped, so you won\'t be able to cancel a switch!</em><br/>';
 						}
 					}
 					controls += '</div></div></div>';
