@@ -758,7 +758,7 @@
 					name: name,
 					userid: toUserid(name),
 					named: named,
-					avatar: +parts[3]
+					avatar: parts[3]
 				});
 				this.user.setPersistentName(named ? name : null);
 				break;
