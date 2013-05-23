@@ -654,6 +654,10 @@
 					this.parseUserList(row[1]);
 					break;
 
+				case 'usercount':
+					this.userCount.globalUsers = parseInt(row[1], 10);
+					break;
+
 				case 'formats':
 					// deprecated; please send formats to the global room
 					app.parseFormats(row);
@@ -906,7 +910,8 @@
 			'#': 8
 		},
 		updateUserCount: function() {
-			$('#usercount-users').html(this.room.userCount.users || '0');
+			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
+			$('#usercount-users').html('' + users);
 		},
 		updateCurrentUser: function() {
 			$('.userlist > .cur').attr('class', '');
