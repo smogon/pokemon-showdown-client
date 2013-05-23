@@ -514,7 +514,6 @@
 							userid: toUserid(data.name),
 							named: data.named
 						});
-						if ('avatar' in data) self.user.set('avatar', data.avatar);
 					}
 					if (data.room) {
 						// Correct way to initialize rooms:
@@ -538,7 +537,8 @@
 				},
 				update: function (data) {
 					if (data.name !== undefined) {
-						// Legacy
+						// Correct way to send user updates:
+						//   |updateuser|NAME|NAMED|AVATAR
 						self.user.set({
 							name: data.name,
 							userid: toUserid(data.name),
@@ -554,11 +554,13 @@
 						if (room) room.receive(data.updates.join('\n'));
 					}
 					if ('challengesFrom' in data) {
-						// Legacy
+						// Correct way to send challenge updates:
+						//   |updatechallenges|CHALLENGEDATA
 						if (self.rooms['']) self.rooms[''].updateChallenges(data);
 					}
 					if ('searching' in data) {
-						// Legacy
+						// Correct way to send search updates:
+						//   |updatesearch|SEARCHDATA
 						if (self.rooms['']) self.rooms[''].updateSearch(data);
 					}
 					if ('request' in data) {
@@ -747,6 +749,30 @@
 
 			case 'formats':
 				this.parseFormats(parts);
+				break;
+
+			case 'updateuser':
+				var name = parts[1];
+				var named = !!+parts[2];
+				this.user.set({
+					name: name,
+					userid: toUserid(name),
+					named: named,
+					avatar: +parts[3]
+				});
+				this.user.setPersistentName(named ? name : null);
+				break;
+
+			case 'updatechallenges':
+				if (self.rooms['']) {
+					self.rooms[''].updateChallenges($.parseJSON(data.substr(18)));
+				}
+				break;
+
+			case 'updatesearch':
+				if (self.rooms['']) {
+					self.rooms[''].updateSearch($.parseJSON(data.substr(14)));
+				}
 				break;
 
 			case 'popup':
