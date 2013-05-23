@@ -187,7 +187,9 @@
 					}
 				} else {
 					this.controlsShown = true;
-					if (!controlsShown) this.updateControlsForPlayer();
+					if (!controlsShown && !(this.choice && this.choice.waiting)) {
+						this.updateControlsForPlayer();
+					}
 				}
 
 			} else {
