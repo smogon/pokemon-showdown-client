@@ -599,9 +599,9 @@
 					}
 				},
 				nameTaken: function (data) {
-					// Legacy -- but still how the server communicates that a
-					// name is taken, so we need to support it for now.
-					app.addPopup(LoginPopup, {reason: data.reason || ''});
+					// Correct way to declare a name taken:
+					//   |nametaken|NAME|MESSAGE
+					app.addPopup(LoginPopup, {name: data.name, reason: data.reason || ''});
 				},
 				command: function (message) {
 					// Legacy
@@ -761,6 +761,10 @@
 					avatar: parts[3]
 				});
 				this.user.setPersistentName(named ? name : null);
+				break;
+
+			case 'nametaken':
+				app.addPopup(LoginPopup, {name: parts[1] || '', reason: parts[2] || ''});
 				break;
 
 			case 'updatechallenges':
