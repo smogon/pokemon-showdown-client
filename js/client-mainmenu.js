@@ -470,6 +470,7 @@
 
 		// buttons
 		search: function(i, button) {
+			if (!window.BattleFormats) return;
 			this.requestNotifications();
 			var $searchForm = $(button).closest('form');
 			if ($searchForm.find('.cancel').length) {
@@ -644,10 +645,12 @@
 			var buf = '<div class="roomlist"><p><button name="refresh"><i class="icon-refresh"></i> Refresh</button> <button name="close"><i class="icon-remove"></i> Close</button></p>';
 
 			buf += '<p><label>Format:</label><select name="format"><option value="">(All formats)</option>';
-			for (var i in BattleFormats) {
-				if (BattleFormats[i].searchShow) {
-					var activeFormat = (this.format === i?' selected=':'');
-					buf += '<option value="'+i+'"'+activeFormat+'>'+BattleFormats[i].name+'</option>';
+			if (window.BattleFormats) {
+				for (var i in BattleFormats) {
+					if (BattleFormats[i].searchShow) {
+						var activeFormat = (this.format === i?' selected=':'');
+						buf += '<option value="'+i+'"'+activeFormat+'>'+BattleFormats[i].name+'</option>';
+					}
 				}
 			}
 			buf += '</select></p>';
@@ -656,6 +659,7 @@
 			this.$el.html(buf);
 			this.$list = this.$('.list');
 
+			app.on('init:formats', this.initialize, this);
 			app.on('response:roomlist', this.update, this);
 			app.send('/cmd roomlist');
 			this.update();
