@@ -514,6 +514,7 @@
 							userid: toUserid(data.name),
 							named: data.named
 						});
+						if ('avatar' in data) self.user.set('avatar', data.avatar);
 					}
 					if (data.room) {
 						// Correct way to initialize rooms:
@@ -561,7 +562,9 @@
 						if (self.rooms['']) self.rooms[''].updateSearch(data);
 					}
 					if ('request' in data) {
-						// Legacy
+						// Correct way to send requests:
+						//   >ROOMID
+						//   |request|REQUEST
 						var room = self.rooms[data.room];
 						if (room && room.receiveRequest) {
 							if (data.request.side) data.request.side.id = data.side;

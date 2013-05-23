@@ -78,6 +78,9 @@
 			if (data.substr(0,6) === '|init|') {
 				return this.init(data);
 			}
+			if (data.substr(0,9) === '|request|') {
+				return this.receiveRequest($.parseJSON(data.substr(9)));
+			}
 
 			var log = data.split('\n');
 			for (var i = 0; i < log.length; i++) {
@@ -490,6 +493,10 @@
 		},
 		request: null,
 		receiveRequest: function(request) {
+			if (!request) {
+				this.side = '';
+				return;
+			}
 			request.requestType = 'move';
 			var notifyObject = null;
 			if (request.forceSwitch) {
