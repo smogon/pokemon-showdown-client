@@ -887,7 +887,7 @@
 		},
 		construct: function() {
 			var buf = '';
-			buf += '<li id="' + this.room + '-userlist-users" style="text-align:center;padding:2px 0"><small><span id="' + this.room + '-usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
+			buf += '<li id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0"><small><span id="' + this.room.id + '-usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
 			var users = [];
 			if (this.room.users) {
 				var self = this;
@@ -903,7 +903,7 @@
 				buf += this.noNamedUsersOnline;
 			}
 			if (this.room.userCount.guests) {
-				buf += '<li id="' + this.room + '-userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="' + this.room + '-usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
+				buf += '<li id="' + this.room.id + '-userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="' + this.room.id + '-usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
 			}
 			this.$el.html(buf);
 		},
@@ -929,11 +929,11 @@
 		},
 		updateUserCount: function() {
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
-			$('#' + this.room + '-usercount-users').html('' + users);
+			$('#' + this.room.id + '-usercount-users').html('' + users);
 		},
 		updateCurrentUser: function() {
 			$('.userlist > .cur').attr('class', ''); // this doesn't need to be namespaced
-			$('#' + this.room + '-userlist-user-' + me.userForm).attr('class', 'cur');
+			$('#' + this.room.id + '-userlist-user-' + me.userForm).attr('class', 'cur');
 		},
 		add: function(userid) {
 			var users = this.$el.children();
@@ -955,7 +955,7 @@
 			$(this.constructItem(userid)).insertAfter($(users[right]));
 		},
 		remove: function(userid) {
-			$('#' + this.room + '-userlist-user-' + userid).remove();
+			$('#' + this.room.id + '-userlist-user-' + userid).remove();
 		},
 		buttonOnClick: function(userid) {
 			if (app.user.get('named')) {
@@ -968,7 +968,7 @@
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
-			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room +'-userlist-user-' + Tools.escapeHTML(userid) + '">';
+			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id +'-userlist-user-' + Tools.escapeHTML(userid) + '">';
 			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
 			var group = name.charAt(0);
 			text += '<em class="group' + (this.ranks[group]===2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
@@ -985,7 +985,7 @@
 		},
 		elemComparator: function(elem, userid) {
 			// look at the part of the `id` after the roomid
-			var id = elem.id.substr(this.room.length + 1);
+			var id = elem.id.substr(this.room.id.length + 1);
 			switch (id) {
 				case 'userlist-users':
 					return -1; // `elem` comes first
@@ -1006,13 +1006,13 @@
 			return (a > b ? 1 : -1);
 		},
 		getNoNamedUsersOnline: function() {
-			return '<li id="' + this.room + '-userlist-empty">Only guests</li>';
+			return '<li id="' + this.room.id + '-userlist-empty">Only guests</li>';
 		},
 		updateNoUsersOnline: function() {
-			var elem = $('#' + this.room + '-userlist-empty');
-			if ($("[id^=" + this.room + "-userlist-user-]").length === 0) {
+			var elem = $('#' + this.room.id + '-userlist-empty');
+			if ($("[id^=" + this.room.id + "-userlist-user-]").length === 0) {
 				if (elem.length === 0) {
-					var guests = $('#' + this.room + '-userlist-guests');
+					var guests = $('#' + this.room.id + '-userlist-guests');
 					if (guests.length === 0) {
 						this.$el.append($(this.getNoNamedUsersOnline()));
 					} else {
