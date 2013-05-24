@@ -116,6 +116,21 @@
 			if (this.$chat) this.$chat.html('');
 		},
 
+		// support for buttons that can be sent by the server:
+
+		joinRoom: function(room) {
+			app.joinRoom(room);
+		},
+		avatars: function() {
+			app.addPopup(AvatarsPopup);
+		},
+		openSounds: function() {
+			app.addPopup(SoundsPopup, {type:'semimodal'});
+		},
+		openOptions: function() {
+			app.addPopup(OptionsPopup, {type:'semimodal'});
+		},
+
 		// highlight
 
 		getHighlight: function(message) {
