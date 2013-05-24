@@ -508,7 +508,9 @@
 				 */
 				init: function (data) {
 					if (data.name !== undefined) {
-						// Legacy
+						// Correct way to update user data:
+						//   |updateuser|NAME|NAMED|AVATAR
+						// NAMED should be 1 or 0
 						self.user.set({
 							name: data.name,
 							userid: toUserid(data.name),
@@ -604,7 +606,8 @@
 					app.addPopup(LoginPopup, {name: data.name, reason: data.reason || ''});
 				},
 				command: function (message) {
-					// Legacy
+					// Correct way to send a query response:
+					//   |queryresponse|TYPE|MESSAGE
 					self.trigger('response:'+message.command, message);
 				}
 			};
@@ -771,6 +774,11 @@
 
 			case 'nametaken':
 				app.addPopup(LoginPopup, {name: parts[1] || '', reason: parts[2] || ''});
+				break;
+
+			case 'queryresponse':
+				var responseData = JSON.parse(data.substr(16+parts[1].length));
+				app.trigger('response:'+parts[1], responseData);
 				break;
 
 			case 'updatechallenges':
