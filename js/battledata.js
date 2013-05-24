@@ -312,17 +312,28 @@ var Tools = {
 			replace(/(https?\:\/\/[a-z0-9-.]+(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)((\/([^\s]*[^\s?.,])?)?|\b))/ig, function(uri) {
 				// Insert http:// before URIs without a URI scheme specified.
 				var fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
-				var event;
-				if (Tools.interstice.isWhitelisted(fulluri)) {
-					event = 'External link';
+				var onclick;
+				var r = new RegExp('^https?://' +
+					document.location.hostname.replace(/\./g, '\\.') +
+					'/([a-zA-Z0-9-]+)$');
+				var m = r.exec(fulluri);
+				if (m) {
+					onclick = "return selectTab('" + m[1] + "');";
 				} else {
-					event = 'Interstice link';
-					fulluri = Tools.escapeHTML(Tools.interstice.getURI(Tools.unescapeHTML(fulluri)));
+					var event;
+					if (Tools.interstice.isWhitelisted(fulluri)) {
+						event = 'External link';
+					} else {
+						event = 'Interstice link';
+						fulluri = Tools.escapeHTML(Tools.interstice.getURI(
+								Tools.unescapeHTML(fulluri)
+						));
+					}
+					onclick = 'if (window._gaq) _gaq.push([\'_trackEvent\', \'' +
+							event + '\', \'' + Tools.escapeQuotes(fulluri) + '\']);';
 				}
 				return '<a href="' + fulluri +
-					'" target="_blank" onclick="if (window._gaq) _gaq.push([\'_trackEvent\', \'' +
-					event +
-					'\', \'' + Tools.escapeQuotes(fulluri) + '\']);">' + uri + '</a>';
+					'" target="_blank" onclick="' + onclick + '">' + uri + '</a>';
 			}).
 			// google [blah]
 			// google[blah]
