@@ -872,7 +872,7 @@
 		},
 		construct: function() {
 			var buf = '';
-			buf += '<li id="userlist-users" style="text-align:center;padding:2px 0"><small><span id="usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
+			buf += '<li id="' + this.room + '-userlist-users" style="text-align:center;padding:2px 0"><small><span id="' + this.room + '-usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
 			var users = [];
 			if (this.room.users) {
 				var self = this;
@@ -888,7 +888,7 @@
 				buf += this.noNamedUsersOnline;
 			}
 			if (this.room.userCount.guests) {
-				buf += '<li id="userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
+				buf += '<li id="' + this.room + '-userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="' + this.room + '-usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
 			}
 			this.$el.html(buf);
 		},
@@ -914,11 +914,11 @@
 		},
 		updateUserCount: function() {
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
-			$('#usercount-users').html('' + users);
+			$('#' + this.room + '-usercount-users').html('' + users);
 		},
 		updateCurrentUser: function() {
-			$('.userlist > .cur').attr('class', '');
-			$('#userlist-user-' + me.userForm).attr('class', 'cur');
+			$('.userlist > .cur').attr('class', ''); // this doesn't need to be namespaced
+			$('#' + this.room + '-userlist-user-' + me.userForm).attr('class', 'cur');
 		},
 		add: function(userid) {
 			var users = this.$el.children();
@@ -940,7 +940,7 @@
 			$(this.constructItem(userid)).insertAfter($(users[right]));
 		},
 		remove: function(userid) {
-			$('#userlist-user-' + userid).remove();
+			$('#' + this.room + '-userlist-user-' + userid).remove();
 		},
 		buttonOnClick: function(userid) {
 			if (app.user.get('named')) {
@@ -953,7 +953,7 @@
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
-			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="userlist-user-' + Tools.escapeHTML(userid) + '">';
+			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room +'-userlist-user-' + Tools.escapeHTML(userid) + '">';
 			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
 			var group = name.charAt(0);
 			text += '<em class="group' + (this.ranks[group]===2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
@@ -969,7 +969,8 @@
 			return text;
 		},
 		elemComparator: function(elem, userid) {
-			var id = elem.id;
+			// look at the part of the `id` after the roomid
+			var id = elem.id.substr(this.room.length + 1);
 			switch (id) {
 				case 'userlist-users':
 					return -1; // `elem` comes first
@@ -989,16 +990,18 @@
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
-		noNamedUsersOnline: '<li id="userlist-empty">Only guests</li>',
+		getNoNamedUsersOnline: function() {
+			return '<li id="' + this.room + '-userlist-empty">Only guests</li>';
+		},
 		updateNoUsersOnline: function() {
-			var elem = $('#userlist-empty');
-			if ($("[id^=userlist-user-]").length === 0) {
+			var elem = $('#' + this.room + '-userlist-empty');
+			if ($("[id^=" + this.room + "-userlist-user-]").length === 0) {
 				if (elem.length === 0) {
-					var guests = $('#userlist-guests');
+					var guests = $('#' + this.room + '-userlist-guests');
 					if (guests.length === 0) {
-						this.$el.append($(this.noNamedUsersOnline));
+						this.$el.append($(this.getNoNamedUsersOnline()));
 					} else {
-						guests.before($(this.noNamedUsersOnline));
+						guests.before($(this.getNoNamedUsersOnline()));
 					}
 				}
 			} else {
