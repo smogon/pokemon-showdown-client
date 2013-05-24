@@ -86,8 +86,9 @@
 			for (var i = 0; i < log.length; i++) {
 				var logLine = log[i];
 
-				if (logLine === '') {
+				if (logLine === '|') {
 					this.callbackWaiting = false;
+					this.controlsShown = false;
 					this.$controls.html('');
 				}
 
@@ -187,7 +188,7 @@
 					}
 				} else {
 					this.controlsShown = true;
-					if (!controlsShown && !(this.choice && this.choice.waiting)) {
+					if (!controlsShown || (this.choice && this.choice.waiting)) {
 						this.updateControlsForPlayer();
 					}
 				}
