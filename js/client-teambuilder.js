@@ -465,6 +465,29 @@
 			var buf = '<div class="pad">';
 			buf += '<button name="back"><i class="icon-chevron-left"></i> Team</button></div>';
 			buf += '<div class="teambar">';
+			buf += this.renderTeambar();
+			buf += '</div>';
+
+			// pokemon
+			buf += '<div class="teamchartbox">';
+			buf += '<ol class="teamchart">';
+			buf += this.renderSet(this.curSet, this.curSetLoc);
+			buf += '</ol>';
+			buf += '</div>';
+
+			// results
+			this.chartPrevSearch = '[init]';
+			buf += '<div class="teambuilder-results"></div>';
+
+			this.$el.html(buf);
+			this.$chart = this.$('.teambuilder-results');
+		},
+		updateSetTop: function() {
+			this.$('.teambar').html(this.renderTeambar());
+			this.$('.teamchart').first().html(this.renderSet(this.curSet, this.curSetLoc));
+		},
+		renderTeambar: function() {
+			var buf = '';
 			var isAdd = false;
 			if (this.curTeam.team.length && !this.curTeam.team[this.curTeam.team.length-1].name && this.curSetLoc !== this.curTeam.team.length-1) {
 				this.curTeam.team.splice(this.curTeam.team.length-1, 1);
@@ -484,21 +507,7 @@
 			if (this.curTeam.team.length < 6 && !isAdd) {
 				buf += '<button name="addPokemon"><i class="icon-plus"></i></button> ';
 			}
-			buf += '</div>';
-
-			// pokemon
-			buf += '<div class="teamchartbox">';
-			buf += '<ol class="teamchart">';
-			buf += this.renderSet(this.curSet, this.curSetLoc);
-			buf += '</ol>';
-			buf += '</div>';
-
-			// results
-			this.chartPrevSearch = '[init]';
-			buf += '<div class="teambuilder-results"></div>';
-
-			this.$el.html(buf);
-			this.$chart = this.$('.teambuilder-results');
+			return buf;
 		},
 		updatePokemonSprite: function() {
 			var set = this.curSet;
@@ -1140,7 +1149,7 @@
 			this.$('input[name='+inputName+']').val(val).removeClass('incomplete');
 			switch (inputName) {
 			case 'pokemon':
-				this.setPokemon(val);
+				this.setPokemon(val, selectNext);
 				break;
 			case 'item':
 				this.curSet.item = val;
@@ -1192,7 +1201,7 @@
 				set.ivs = {spe:0};
 			}
 		},
-		setPokemon: function(val) {
+		setPokemon: function(val, selectNext) {
 			var set = this.curSet;
 			var template = Tools.getTemplate(val);
 			var newPokemon = !set.species;
@@ -1213,8 +1222,8 @@
 			if (!set.name) {
 				set.name = template.species;
 			}
-			this.updateSetView();
-			this.$('input[name=item]').select();
+			this.updateSetTop();
+			if (selectNext) this.$('input[name=item]').select();
 		},
 
 		/*********************************************************
