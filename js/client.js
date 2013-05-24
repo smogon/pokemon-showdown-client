@@ -782,14 +782,14 @@
 				break;
 
 			case 'updatechallenges':
-				if (self.rooms['']) {
-					self.rooms[''].updateChallenges($.parseJSON(data.substr(18)));
+				if (this.rooms['']) {
+					this.rooms[''].updateChallenges($.parseJSON(data.substr(18)));
 				}
 				break;
 
 			case 'updatesearch':
-				if (self.rooms['']) {
-					self.rooms[''].updateSearch($.parseJSON(data.substr(14)));
+				if (this.rooms['']) {
+					this.rooms[''].updateSearch($.parseJSON(data.substr(14)));
 				}
 				break;
 
