@@ -900,7 +900,7 @@
 				buf += this.constructItem(userid);
 			}
 			if (!users.length) {
-				buf += this.noNamedUsersOnline;
+				buf += this.getNoNamedUsersOnline();
 			}
 			if (this.room.userCount.guests) {
 				buf += '<li id="' + this.room.id + '-userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="' + this.room.id + '-usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
