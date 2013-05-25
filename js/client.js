@@ -397,12 +397,17 @@
 		 */
 		initializeTestClient: function() {
 			var self = this;
-			$.get = function(uri, callback/*, type*/) {
-				// `type` is unused
+			var showUnsupported = function() {
+				self.addPopupMessage('The requested action is not supported by testclient.html. Please complete this action in the official client instead.');
+			};
+			$.get = function(uri, callback, type) {
+				if (type === 'html') {
+					return showUnsupported();
+				}
 				self.addPopup(ProxyPopup, {uri: uri, callback: callback});
 			};
 			$.post = function(/*uri, data, callback, type*/) {
-				self.addPopupMessage('The requested action is not yet supported by testclient.html. Please log in or register using the official client, and then load testclient.html afterward.');
+				showUnsupported();
 			};
 		},
 		/**
