@@ -26,8 +26,7 @@ Certain things will fail:
 + Changing name to a registered name other than the one you are currently
   logged in with (however, changing to an unregistered name will work, and
   you can even change back to your original registered name afterward)
-+ The ladder tab
-+ The `/ladder` command
++ The ladder room (however, the `/ladder` command does work)
 
 Everything else can be tested, though.
 
