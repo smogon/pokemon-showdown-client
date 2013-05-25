@@ -19,11 +19,11 @@
 				if (location.search !== '') {
 					var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
 					if (m) {
-						Config.server.id = m[1];
-						Config.server.host = m[2];
-						if (m[3]) {
-							Config.server.port = m[3].substr(1);
-						}
+						Config.server = {
+							id: m[1],
+							host: m[2],
+							port: (m[3] && m[3].substr(1)) || 8000
+						};
 					} else {
 						alert('Unrecognised query string syntax: ' + location.search);
 					}
