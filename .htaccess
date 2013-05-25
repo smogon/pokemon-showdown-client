@@ -1,17 +1,3 @@
-# -FrontPage-
-
-#IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
-
-<Limit GET POST>
-order deny,allow
-deny from all
-allow from all
-</Limit>
-<Limit PUT DELETE>
-order deny,allow
-deny from all
-</Limit>
-
 AddType text/plain .phps
 AddType application/x-tgz .tgz
 AddType application/x-chrome-extension .crx
@@ -31,12 +17,6 @@ RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
 
 RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [E=SAFE_RESOURCE:1]
 Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
-
-RewriteRule ^topsekritsim\.php$ / [R=301,L]
-RewriteRule ^topsekrit3\.php$ / [R=301,L]
-RewriteRule ^temporary508\.php$ / [R=301,L]
-RewriteRule ^temporary508\.php$ / [R=301,L]
-RewriteRule ^sim\.php$ / [R=301,L]
 
 RewriteRule ^$ - [E=INDEX_PAGE:1]
 RewriteRule ^lobby/?$ / [R=301,L]
