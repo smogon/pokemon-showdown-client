@@ -2,19 +2,27 @@
 
 require_once 'lib/common.inc.php'; // performs authorisation
 
+$roomid = null;
+if (isset($_REQUEST['roomid'])) {
+	$roomid = $_REQUEST['roomid'];
+	if (!preg_match('/^[a-zA-Z0-9-]+$/', $roomid) || !file_exists($config['logdirectory'] . '/' . $roomid)) {
+		die('Invalid roomid specified.');
+	}
+}
+
 $month = null;
-if (isset($_REQUEST['month'])) {
+if (isset($_REQUEST['month']) && $roomid) {
 	$month = $_REQUEST['month'];
-	if (!preg_match('/^[0-9]+-[0-9]+$/', $month) || !file_exists($config['logdirectory'] . '/' . $month)) {
+	if (!preg_match('/^[0-9]+-[0-9]+$/', $month) || !file_exists($config['logdirectory'] . '/' . $roomid . '/' . $month)) {
 	        die('Invalid month specified.');
 	}
 }
 
 $file = null;
-if (isset($_REQUEST['file']) && $month) {
+if (isset($_REQUEST['file']) && $month && $roomid) {
 	$file = $_REQUEST['file'];
-	if (!preg_match('/^[0-9]+-[0-9]+-[0-9]+\.txt$/', $file) ||
-			!file_exists($logfile = $config['logdirectory'] . '/' . $month . '/' . $file)) {
+	$logfile = $config['logdirectory'] . '/' . $roomid . '/' . $month . '/' . $file;
+	if (!preg_match('/^[0-9]+-[0-9]+-[0-9]+\.txt$/', $file) || !file_exists($logfile)) {
 		die('Invalid file specified.');
 	}
 	// record this log access in the database
@@ -54,11 +62,11 @@ if (isset($_REQUEST['file']) && $month) {
 <title>Pokemon Showdown Logs</title>
 <link rel="shortcut icon" href="//play.pokemonshowdown.com/favicon.ico" />
 <?php echo getLoginInformation() ?>
-<?php if (!$month) { ?>
+<?php if (!$roomid) { ?>
 <?php
-$months = glob($config['logdirectory'] . '/*', GLOB_ONLYDIR);
+$roomids = glob($config['logdirectory'] . '/*', GLOB_ONLYDIR);
 ?>
-<p>Please choose which month's logs to view:</p>
+<p>Please choose which room's logs to view:</p>
 <ul>
 <?php
 foreach ($months as &$i) {
@@ -67,13 +75,29 @@ foreach ($months as &$i) {
 }
 ?>
 </ul>
+<?php } else if ($roomid && !$month) { ?>
+<?php
+$months = glob($config['logdirectory'] . '/' . $roomid . '/*', GLOB_ONLYDIR);
+?>
+<p>Please choose which month's logs to view for the <code><?php echo $roomid ?></code> room:</p>
+<ul>
+<?php
+foreach ($months as &$i) {
+	$i = htmlentities(basename($i));
+	echo "<li><a href='$i/'>$i</a></li>";
+}
+?>
+</ul>
+
+<p>You can also go back to the <a href="../">list of rooms</a>.</p>
+
 <?php } else { ?>
 
 <?php
-$files = glob($config['logdirectory'] . '/' . $month . '/*');
+$files = glob($config['logdirectory'] . '/' . $roomid . '/' . $month . '/*');
 ?>
 
-<p>Choose a log file to view in <?php echo $month ?>.</p>
+<p>Choose a log file to view in <?php echo $month ?> for the <code><?php echo $roomid ?></code> room.</p>
 <p>Note: Log files are large and may make your browser lag while they load.</p>
 <div style="margin-bottom: -15px;"><?php echo $month ?>/</div>
 <ul>
@@ -81,14 +105,14 @@ $files = glob($config['logdirectory'] . '/' . $month . '/*');
 <?php
 foreach ($files as &$i) {
 	$i = htmlentities(basename($i));
-	$logfile = $config['logdirectory'] . '/' . $month . '/' . $i;
+	$logfile = $config['logdirectory'] . '/' . $roomid . '/' . $month . '/' . $i;
 	$size = round(@filesize($logfile) / 1024 / 1024, 1);
 	echo "<li><a href='$i'>$i</a> ($size MiB) or view <a href='$i?onlychat'>only chat</a></li>";
 }
 ?>
 </ul>
 
-<p>You can also go back to the <a href="/">list of months</a>.</p>
+<p>You can also go back to the <a href="../">list of months</a>.</p>
 
 <?php } ?>
 <p style="font-size: 11px;">The current time on the server is <?php echo str_replace("\n", '', htmlentities(`date`)) ?>.</p>

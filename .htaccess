@@ -7,5 +7,9 @@ RewriteRule ^config/ - [F]
 RewriteRule ^lib/ - [F]
 RewriteRule ^\.git/ - [F]
 
-RewriteRule ^([0-9-]+)/$ ./?month=$1 [QSA]
-RewriteRule ^([0-9-]+)/([0-9-]+\.txt)$ ./?month=$1&file=$2 [QSA]
+RewriteRule ^([0-9-]+)/$ /lobby/$1/ [R=301,L]
+RewriteRule ^([0-9-]+)/([0-9-]+\.txt)$ /lobby/$1/$2 [R=301,L]
+
+RewriteRule ^([a-zA-Z0-9-]+)/$ ./?roomid=$1 [QSA]
+RewriteRule ^([a-zA-Z0-9-]+)/([0-9-]+)/$ ./?roomid=$1&month=$2 [QSA]
+RewriteRule ^([a-zA-Z0-9-]+)/([0-9-]+)/([0-9-]+\.txt)$ ./?roomid=$1&month=$2&file=$3 [QSA]
