@@ -656,6 +656,7 @@
 					break;
 
 				case 'n':
+				case 'name':
 				case 'N':
 					this.addJoinLeave('rename', row[1], row[2], true);
 					break;
@@ -682,6 +683,7 @@
 					break;
 
 				case 'raw':
+				case 'html':
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 

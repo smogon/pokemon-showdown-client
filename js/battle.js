@@ -4660,6 +4660,7 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'chatmsg-raw':
 		case 'raw':
+		case 'html':
 			args.shift();
 			list = args.join('|');
 			self.log('<div class="chat">' + Tools.sanitizeHTML(list) + '</div>', preempt);
