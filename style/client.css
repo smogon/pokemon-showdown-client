@@ -879,6 +879,7 @@ p.or:after {
 	word-wrap: break-word;
 
 	overflow: auto;
+	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
 }
