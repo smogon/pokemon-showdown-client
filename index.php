@@ -69,7 +69,7 @@ $roomids = glob($config['logdirectory'] . '/*', GLOB_ONLYDIR);
 <p>Please choose which room's logs to view:</p>
 <ul>
 <?php
-foreach ($months as &$i) {
+foreach ($roomids as &$i) {
 	$i = htmlentities(basename($i));
 	echo "<li><a href='$i/'>$i</a></li>";
 }
