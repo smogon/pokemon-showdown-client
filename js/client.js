@@ -1197,7 +1197,7 @@
 			}
 
 			if (popup.domInitialize) popup.domInitialize(data);
-			popup.$('.autofocus').focus();
+			popup.$('.autofocus').select().focus();
 			if ($overlay) $overlay.scrollTop(0);
 			this.popups.push(popup);
 			return popup;
@@ -1824,12 +1824,6 @@
 		submit: function(data) {
 			this.close();
 			app.user.rename(data.username);
-		},
-		domInitialize: function() {
-			var $input = this.$('input[name=username]');
-			if ('setSelectionRange' in $input[0]) {
-				$input[0].setSelectionRange(0, $input.val().length);
-			}
 		}
 	});
 
