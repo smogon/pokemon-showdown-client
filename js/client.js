@@ -1824,6 +1824,12 @@
 		submit: function(data) {
 			this.close();
 			app.user.rename(data.username);
+		},
+		domInitialize: function() {
+			var $input = this.$('input[name=username]');
+			if ('setSelectionRange' in $input[0]) {
+				$input[0].setSelectionRange(0, $input.val().length);
+			}
 		}
 	});
 
