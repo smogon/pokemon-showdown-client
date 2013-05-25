@@ -26,23 +26,8 @@ RewriteRule ^(.*) - [E=BINGBOT:1]
 Header set X-Robots-Tag "noindex" env=BINGBOT
 Header unset Vary env=BINGBOT
 
-# Redirect dev.pokemonshowdown.com to beta.psim.us
-# RewriteCond %{HTTP_HOST} ^(www\.)?dev\.pokemonshowdown\.com$ [NC]
-# RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
-# RewriteCond %{REMOTE_ADDR} !^173\.213\.97\.68$
-# RewriteCond %{REMOTE_ADDR} !^173\.252\.196\.254$
-# RewriteCond %{REQUEST_URI} ^/$ [OR]
-# RewriteCond %{REQUEST_URI} ^/robots\.txt$ [OR]
-# RewriteCond %{REQUEST_URI} ^/(teambuilder|ladder|lobby|battle)/?$ [OR]
-# RewriteCond %{REQUEST_URI} ^/(lobby|battle)-([A-Za-z0-9-]*)$
-# RewriteRule ^(.*) http://beta.psim.us/$1 [R=301,L]
-
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
-
-#RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
-#RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
-#RewriteRule ^(.*) https://play.pokemonshowdown.com/$1 [R=301,L]
 
 RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [E=SAFE_RESOURCE:1]
 Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
@@ -52,8 +37,6 @@ RewriteRule ^topsekrit3\.php$ / [R=301,L]
 RewriteRule ^temporary508\.php$ / [R=301,L]
 RewriteRule ^temporary508\.php$ / [R=301,L]
 RewriteRule ^sim\.php$ / [R=301,L]
-
-#RewriteRule ^([A-Za-z0-9-]*)$ closed.php [L,QSA]
 
 RewriteRule ^$ - [E=INDEX_PAGE:1]
 RewriteRule ^lobby/?$ / [R=301,L]
@@ -71,17 +54,14 @@ Header set X-Robots-Tag "noindex" env=INDEX_PAGE
 RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
 RewriteCond %{HTTP_REFERER} !^$
 RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
-RewriteCond %{REMOTE_ADDR} !^69\.85\.87\.173$
-RewriteCond %{REMOTE_ADDR} !^173\.213\.97\.68$
-RewriteCond %{REMOTE_ADDR} !^173\.252\.196\.254$
 RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
-RewriteRule ^.* http://www.pokemonshowdown.com/ [R=303,L]
+RewriteRule ^.* http://pokemonshowdown.com/ [R=303,L]
 
-RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http://www.pokemonshowdown.com/replay/$1 [R=302,L]
+RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http://pokemonshowdown.com/replay/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
 
 RewriteCond %{QUERY_STRING} !output=html
-RewriteRule ^ladder\.php$ http://www.pokemonshowdown.com/ladder/ [R=301,L]
+RewriteRule ^ladder\.php$ http://pokemonshowdown.com/ladder/ [R=301,L]
 
 RewriteRule ^~~([^:/]*)(:[0-9]*)?/action\.php$ action.php?serverid=$1 [L,QSA]
 RewriteRule ^~~([^:/]*)(/.*)?$ http://$1.psim.us$2 [R=301,L]
