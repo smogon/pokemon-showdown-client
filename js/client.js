@@ -834,6 +834,14 @@
 				}
 				break;
 
+			case 'roomerror':
+				if (!this.curRoom && !this.curSideRoom) {
+					// if we fail to join any room, show the main menu
+					this.tryJoinRoom('');
+				}
+				this.addPopupMessage(parts.slice(2).join('|'));
+				break;
+
 			default:
 				if (data.substr(0,6) === '|init|') {
 					this.addRoom('lobby');
