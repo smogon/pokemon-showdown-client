@@ -402,7 +402,10 @@
 			};
 			$.get = function(uri, callback, type) {
 				if (type === 'html') {
-					return showUnsupported();
+					uri += '&testclient';
+				}
+				if (uri[0] === '/') { // relative URI
+					uri = Tools.resourcePrefix + uri.substr(1);
 				}
 				self.addPopup(ProxyPopup, {uri: uri, callback: callback});
 			};
