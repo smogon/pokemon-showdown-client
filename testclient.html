@@ -4,41 +4,35 @@
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<title>Showdown!</title>
 		<link rel="shortcut icon" href="favicon.ico" id="dynamic-favicon" />
-		<link rel="stylesheet" href="style/sim.css" />
+		<link rel="stylesheet" href="style/client.css" />
 		<link rel="stylesheet" href="style/sim-types.css" />
 		<link rel="stylesheet" href="style/battle.css" />
-		<link rel="stylesheet" href="style/replayer.css" /><!-- utilichart -->
+		<link rel="stylesheet" href="style/utilichart.css" />
 		<link rel="stylesheet" href="style/font-awesome.css" />
-		<meta id="viewport" name="viewport" content="width=640"/>
+		<link rel="stylesheet" href="style/jquery.slider.min.css" />
+		<meta id="viewport" name="viewport" content="width=640" />
+		<meta name="robots" content="noindex" />
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
-	<script>
-		var Config = {
-			testclient: true,
-			server: {
-				id: 'showdown',
-				host: 'sim.smogon.com',
-				port: 8000,
-				altport: 80
-			}
-		};
-		(function() {
-			if (location.search !== '') {
-				var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
-				if (m) {
-					Config.server.id = m[1];
-					Config.server.host = m[2];
-					if (m[3]) {
-						Config.server.port = m[3].substr(1);
+		<script>
+			var Config = {testclient: true};
+			(function() {
+				if (location.search !== '') {
+					var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
+					if (m) {
+						Config.server.id = m[1];
+						Config.server.host = m[2];
+						if (m[3]) {
+							Config.server.port = m[3].substr(1);
+						}
+					} else {
+						alert('Unrecognised query string syntax: ' + location.search);
 					}
-				} else {
-					alert('Unrecognised query string syntax: ' + location.search);
 				}
-			}
-		})();
-	</script>
-	<!--[if lte IE 8]><script>
-		oldie = true;
-	</script><![endif]-->
+			})();
+		</script>
+		<!--[if lte IE 8]><script>
+			Config.oldie = true;
+		</script><![endif]-->
 	</head>
 	<body>
 
@@ -59,72 +53,66 @@
 		</script>
 		<![endif]-->
 
-		<div id="simheader">
-			<h1 style="margin-top:2px;margin-right:10em;padding-top:0;"><img src="pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /></h1>
-		</div>
-		<div id="leftbarbg"><div><span></span></div></div>
-		<div id="leftbar">
-			<div>
-				<a id="tabtab-lobby" class="cur" href="#" onclick="return selectTab('lobby');">Lobby</a>
-			</div>
+		<div id="header" class="header">
+			<img class="logo" src="pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /><div class="maintabbarbottom"></div>
 		</div>
 		<div id="main">
-			<div id="loading-message" style="padding:20px">Initializing... <noscript>Surprise, surprise, this requires JavaScript</noscript></div>
+			<div id="loading-message" class="mainmessage">Initializing... <noscript>FAILED<br /><br />Pok&eacute;mon Showdown requires JavaScript.</noscript></div>
 		</div>
-		<div id="lobbychat" class="lobbychat"></div>
-		<div id="userbar">
-			<em>Connecting...</em>
-		</div>
-		<div id="backbutton">
-			<div><button onclick="return selectTab('lobby');">&laquo; Lobby</button></div>
-		</div>
-		<div id="overlay" style="display:none"></div>
-		<div id="tooltipwrapper"><div class="tooltipinner"></div></div>
-		<div id="foehint"></div>
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading libraries...';
 		</script>
-		<script src="js/jquery-2.0.0.min.js"></script>
-		<script src="js/autoresize.jquery.min.js"></script>
-		<script src="js/jquery-cookie.js"></script>
-		<script src="js/jquery.json-2.3.min.js"></script>
-		<script src="js/soundmanager2-nodebug-jsmin.js"></script>
+		<script src="js/lib/jquery-2.0.0.min.js"></script>
+		<script src="js/lib/jquery-cookie.js"></script>
+		<script src="js/lib/autoresize.jquery.min.js"></script>
+		<script src="js/lib/jquery.json-2.3.min.js"></script>
+		<script src="js/lib/soundmanager2-nodebug-jsmin.js"></script>
 		<script>
 			soundManager.setup({url: 'swf/'});
 		</script>
-		<script src="js/html-sanitizer-minified.js"></script>
+		<script src="js/lib/html-sanitizer-minified.js"></script>
+		<script src="js/lib/lodash.compat.js"></script>
+		<script src="js/lib/backbone.js"></script>
 
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading client...';
-			document.getElementById('loading-message').innerHTML = 'If the client is taking a long time to load, try refreshing in a few minutes. If it still doesn\'t work, Pokemon Showdown may be down for maintenance. We apologize for the inconvenience.<br /><br />'+document.getElementById('loading-message').innerHTML;
+			document.getElementById('loading-message').innerHTML = 'If the client is taking a long time to load, try refreshing in a few minutes. If it still doesn\'t work, Pok&eacute;mon Showdown may be down for maintenance. We apologize for the inconvenience.<br /><br />'+document.getElementById('loading-message').innerHTML;
 		</script>
 
 		<script src="http://play.pokemonshowdown.com/js/config.js"></script>
-		<script src="js/battledata.js?test"></script>
-		<script src="data/pokedex-mini.js?test"></script>
-		<script src="js/battle.js?test"></script>
-		<script src="js/sockjs-0.3.min.js"></script>
-		<script src="js/teambuilder.js?test"></script>
-		<script src="js/ladder.js?test"></script>
-		<script src="js/sim.js?test"></script>
+		<script src="js/battledata.js"></script>
+		<script src="data/pokedex-mini.js"></script>
+		<script src="js/battle.js"></script>
+		<script src="js/lib/sockjs-0.3.min.js"></script>
 
-		<script src="data/learnsets.js?test"></script>
-		
-		<script src="data/graphics.js?test"></script>
-		<script src="data/pokedex.js?test"></script>
-		<script src="data/formats-data.js?test"></script>
-		<script src="data/moves.js?test"></script>
-		<script src="data/items.js?test"></script>
-		<script src="data/abilities.js?test"></script>
-		<script src="data/formats.js?test"></script>
-		<script src="data/typechart.js?test"></script>
-		
-		<script src="js/utilichart.js?test"></script>
-		
-		<script src="data/aliases.js?test"></script>
+		<script src="js/client.js"></script>
+		<script src="js/client-mainmenu.js"></script>
+		<script src="js/client-teambuilder.js"></script>
+		<script src="js/client-ladder.js"></script>
+		<script src="js/client-chat.js"></script>
+		<script src="js/client-battle.js"></script>
+
 		<script>
-			updateResize();
-			if (init) init();
+			// HTML5 history throws exceptions when running on file://
+			Backbone.History.prototype.navigate = function() {};
+
+			var app = new App();
 		</script>
+
+		<script src="data/learnsets.js"></script>
+		<script src="js/lib/jquery.slider.min.js"></script>
+
+		<script src="data/graphics.js"></script>
+		<script src="data/pokedex.js"></script>
+		<script src="data/formats-data.js"></script>
+		<script src="data/moves.js"></script>
+		<script src="data/items.js"></script>
+		<script src="data/abilities.js"></script>
+		<script src="data/typechart.js"></script>
+
+		<script src="js/utilichart.js"></script>
+
+		<script src="data/aliases.js" async="async"></script>
+
 	</body>
 </html>
