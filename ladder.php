@@ -4,13 +4,16 @@ include 'lib/ntbb-ladder.lib.php';
 
 $serverid = 'showdown';
 $formatid = 'OU';
-$output = @$_REQUEST['output'];
 
 if (@$_REQUEST['format']) $formatid = $_REQUEST['format'];
 if (@$_REQUEST['server']) $serverid = $_REQUEST['server'];
 
 if (!ctype_alnum($formatid)) {
 	die('denied');
+}
+
+if (isset($_REQUEST['testclient'])) {
+	header('Content-Type: text/plain; charset=utf-8');
 }
 
 $ladder = new NTBBLadder($serverid, $formatid);

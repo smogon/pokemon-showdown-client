@@ -20,13 +20,12 @@ You can connect to an arbitrary server by navigating to
 `testclient.html?~~host:port`. For example, to connect to a server running
 locally on port 8000, you can navigate to `testclient.html?~~localhost:8000`.
 
-Certain things will fail:
+The following things will fail in `testclient.html`:
 
 + Registering
 + Changing name to a registered name other than the one you are currently
   logged in with (however, changing to an unregistered name will work, and
   you can even change back to your original registered name afterward)
-+ The ladder room (however, the `/ladder` command does work)
 
 Everything else can be tested, though.
 
