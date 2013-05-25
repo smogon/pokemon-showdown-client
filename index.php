@@ -38,7 +38,7 @@ if (isset($_REQUEST['file']) && $month && $roomid) {
 		'logviewerlog` (userid, filename) VALUES (\'' .
 		$db->real_escape_string($user['userid']) .
 		'\', \'' .
-		$db->real_escape_string($month . '/' . $file) .
+		$db->real_escape_string($roomid . '/' . $month . '/' . $file) .
 		'\')'
 	);
 	$db->close();
