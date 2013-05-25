@@ -328,7 +328,9 @@
 				// Handle *.psim.us.
 				return this.initializeCrossDomainConnection();
 			}
-			if (document.location.protocol === 'https:') {
+			if (Config.testclient) {
+				this.initializeTestClient();
+			} else if (document.location.protocol === 'https:') {
 				if (!$.cookie('showdown_ssl')) {
 					// Never used HTTPS before, so we have to copy over the
 					// HTTP origin localStorage. We have to redirect to the
@@ -375,7 +377,7 @@
 					$('body').append($iframe);
 					return;
 				}
-			} else if (!Config.testclient) {
+			} else {
 				// The user is using HTTP right now, but has used HTTPS in the
 				// past, so her localStorage is located on the HTTPS origin:
 				// hence we need to use the cross-domain code to load the
@@ -389,6 +391,19 @@
 			this.user.loadTeams();
 			this.trigger('init:loadprefs');
 			return this.connect();
+		},
+		/**
+		 * Initialise the client when running on the file:// filesystem.
+		 */
+		initializeTestClient: function() {
+			var self = this;
+			$.get = function(uri, callback/*, type*/) {
+				// `type` is unused
+				self.addPopup(ProxyPopup, {uri: uri, callback: callback});
+			};
+			$.post = function(/*uri, data, callback, type*/) {
+				self.addPopupMessage('The requested action is not yet supported by testclient.html. Please log in or register using the official client, and then load testclient.html afterward.');
+			};
 		},
 		/**
 		 * Handle a cross-domain connection: that is, a connection where the
@@ -687,6 +702,11 @@
 			};
 		},
 		dispatchFragment: function(fragment) {
+			if (Config.testclient) {
+				// Fragment dispatching doesn't work in testclient.html.
+				// Just open the main menu.
+				fragment = '';
+			}
 			this.tryJoinRoom(fragment||'');
 		},
 		/**
@@ -1217,7 +1237,7 @@
 			'click button': 'dispatchClickButton'
 		},
 		initialize: function() {
-			this.$el.html('<img class="logo" src="//play.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pokemon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
+			this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar .inner');
 			// this.$sidetabbar = this.$('.sidetabbar');
 			this.$userbar = this.$('.userbar');
@@ -1802,8 +1822,8 @@
 			this.$el.html(buf);
 		},
 		submit: function(data) {
-			app.user.rename(data.username);
 			this.close();
+			app.user.rename(data.username);
 		}
 	});
 
@@ -1846,6 +1866,26 @@
 		submit: function(data) {
 			this.close();
 			app.user.passwordRename(data.username, data.password);
+		}
+	});
+
+	var ProxyPopup = this.ProxyPopup = Popup.extend({
+		type: 'modal',
+		initialize: function(data) {
+			this.callback = data.callback;
+
+			var buf = '<form>';
+			buf += '<p>Because of the <a href="https://en.wikipedia.org/wiki/Same-origin_policy" target="_blank">same-origin policy</a>, some manual work is required to complete the requested action when using <code>testclient.html</code>.</p>';
+			buf += '<iframe id="overlay_iframe" src="' + data.uri + '" style="width: 100%; height: 50px;" class="textbox"></iframe>';
+			buf += '<p>Please copy <strong>all the text</strong> from the box above and paste it in the box below.</p>';
+			buf += '<p><label class="label" style="float: left;">Data from the box above:</label> <input style="width: 100%;" class="textbox autofocus" type="text" name="result" /></p>';
+			buf += '<p class="buttonbar"><button type="submit"><strong>Submit</strong></button> <button name="close">Cancel</button></p>';
+			buf += '</form>';
+			this.$el.html(buf).css('min-width', 500);
+		},
+		submit: function(data) {
+			this.close();
+			this.callback(data.result);
 		}
 	});
 
