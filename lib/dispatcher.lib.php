@@ -343,6 +343,17 @@ class DefaultActionHandler {
 
 		die('success');
 	}
+
+	public function invalidatecss($dispatcher, &$reqData, &$out) {
+		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out = 0;
+			return;
+		}
+		// No need to sanitise $server['id'] because it should be safe already.
+		$cssfile = dirname(__FILE__) . '/../../pokemonshowdown.com/config/customcss/' . $server['id'] . '.css';
+		@unlink($cssfile);
+	}
 }
 
 // This class should not depend on ntbb-session.lib.php.
