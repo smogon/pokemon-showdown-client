@@ -6,6 +6,9 @@ AddType application/x-web-app-manifest+json .webapp
 <IfModule mod_rewrite.c>
 RewriteEngine on
 
+RewriteCond %{HTTP:X-Forwarded-Proto} ^https$
+RewriteRule ^(.*) - [E=P_SUFFIX:s]
+
 # Send bingbot a `noindex` header on every page.
 RewriteCond %{HTTP_USER_AGENT} bingbot
 RewriteRule ^(.*) - [E=BINGBOT:1]
@@ -13,7 +16,7 @@ Header set X-Robots-Tag "noindex" env=BINGBOT
 Header unset Vary env=BINGBOT
 
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
-RewriteRule ^(.*) http://play.pokemonshowdown.com/$1 [R=301,L]
+RewriteRule ^(.*) http%{ENV:P_SUFFIX}://play.pokemonshowdown.com/$1 [R=301,L]
 
 RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [E=SAFE_RESOURCE:1]
 Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
@@ -35,13 +38,13 @@ RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
 RewriteCond %{HTTP_REFERER} !^$
 RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
 RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
-RewriteRule ^.* http://pokemonshowdown.com/ [R=303,L]
+RewriteRule ^.* http%{ENV:P_SUFFIX}://pokemonshowdown.com/ [R=303,L]
 
-RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http://pokemonshowdown.com/replay/$1 [R=302,L]
+RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/replay/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
 
 RewriteCond %{QUERY_STRING} !output=html
-RewriteRule ^ladder\.php$ http://pokemonshowdown.com/ladder/ [R=301,L]
+RewriteRule ^ladder\.php$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/ladder/ [R=301,L]
 
 RewriteRule ^~~([^:/]*)(:[0-9]*)?/action\.php$ action.php?serverid=$1 [L,QSA]
 RewriteRule ^~~([^:/]*)(/.*)?$ http://$1.psim.us$2 [R=301,L]
