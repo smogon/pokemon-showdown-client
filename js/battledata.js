@@ -391,6 +391,11 @@ var Tools = {
 	},
 
 	sanitizeHTML: (function() {
+		if (!('html4' in window)) {
+			return function() {
+				throw new Error('sanitizeHTML requires caja');
+			};
+		}
 		// Add <marquee> and <blink> to the whitelist.
 		// See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee
 		// for the list of attributes.
