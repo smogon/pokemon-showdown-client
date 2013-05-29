@@ -272,6 +272,10 @@
 				self.addPopup(ReconnectPopup, {cantconnect: true});
 			});
 
+			this.user.on('login:invalidname', function(name, reason) {
+				app.addPopup(LoginPopup, {name: name, reason: reason});
+			});
+
 			this.user.on('login:authrequired', function(name) {
 				self.addPopup(LoginPasswordPopup, {username: name});
 			});
