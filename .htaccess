@@ -21,11 +21,15 @@ RewriteRule ^(.*) http%{ENV:P_SUFFIX}://play.pokemonshowdown.com/$1 [R=301,L]
 RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [E=SAFE_RESOURCE:1]
 Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
 
-RewriteRule ^$ - [E=INDEX_PAGE:1]
+# TODO: fix bug where you can't join lobby directly
 RewriteRule ^lobby/?$ / [R=301,L]
-RewriteRule ^(teambuilder|ladder|battle)$ ./ [L,E=INDEX_PAGE:1]
-RewriteRule ^(teambuilder|ladder|battle)/$ /$1 [R=301,L]
-RewriteRule ^(lobby|battle)-([A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
+
+# roomid with a slash after it: remove the slash
+RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
+
+# Anything that looks like a roomid: connect to the server
+RewriteRule ^$ - [E=INDEX_PAGE:1]
+RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
 
 # Headers for the index page.
 Header set Cache-Control "no-cache, no-store, must-revalidate" env=INDEX_PAGE
