@@ -772,7 +772,11 @@
 					var pipeIndex = data.indexOf('|');
 					if (pipeIndex >= 0) {
 						this.addPopupMessage(data.substr(pipeIndex+1));
+						// data = data.substr(0, pipeIndex);
 					}
+					// handle error codes here
+					// data is the error code
+					return;
 				}
 				if (this.rooms[roomid]) {
 					this.rooms[roomid].receive(data);
