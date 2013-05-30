@@ -832,15 +832,29 @@
 			var chatDiv = '<div class="chat"' + highlight + '>';
 			var timestamp = ChatRoom.getTimestamp('lobby');
 			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
+			var outputChat = (function() {
+				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
+			}).bind(this);
+			var showme = !((Tools.prefs('chatformatting') || {}).hideme);
 			if (pm) {
 				var pmuserid = toUserid(pm);
 				var oName = pm;
 				if (pmuserid === app.user.get('userid')) oName = name;
 				this.$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span></div>');
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
-				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4)) + '</i></em></div>');
+				message = message.substr(4);
+				if (showme) {
+					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message) + '</i></em></div>');
+				} else {
+					outputChat();
+				}
 			} else if (message.substr(0,5).toLowerCase() === '/mee ') {
-				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message.substr(5)) + '</i></em></div>');
+				message = message.substr(5);
+				if (showme) {
+					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message) + '</i></em></div>');
+				} else {
+					outputChat();
+				}
 			} else if (message.substr(0,10).toLowerCase() === '/announce ') {
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
 			} else if (message.substr(0,6).toLowerCase() === '/warn ') {
@@ -856,7 +870,7 @@
 			} else {
 				// Normal chat message.
 				if (message.substr(0,2) === '//') message = message.substr(1);
-				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
+				outputChat();
 			}
 		}
 	}, {
