@@ -841,31 +841,31 @@
 				var oName = pm;
 				if (pmuserid === app.user.get('userid')) oName = name;
 				this.$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span></div>');
-			} else if (message.substr(0,4).toLowerCase() === '/me ') {
+			} else if (message.substr(0,4) === '/me ') {
 				message = message.substr(4);
 				if (showme) {
 					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message) + '</i></em></div>');
 				} else {
 					outputChat();
 				}
-			} else if (message.substr(0,5).toLowerCase() === '/mee ') {
+			} else if (message.substr(0,5) === '/mee ') {
 				message = message.substr(5);
 				if (showme) {
 					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message) + '</i></em></div>');
 				} else {
 					outputChat();
 				}
-			} else if (message.substr(0,10).toLowerCase() === '/announce ') {
+			} else if (message.substr(0,10) === '/announce ') {
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
-			} else if (message.substr(0,6).toLowerCase() === '/warn ') {
+			} else if (message.substr(0,6) === '/warn ') {
 				app.addPopup(RulesPopup, {warning: message.substr(6)});
-			} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
+			} else if (message.substr(0,14) === '/data-pokemon ') {
 				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
+			} else if (message.substr(0,11) === '/data-item ') {
 				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,14).toLowerCase() === '/data-ability ') {
+			} else if (message.substr(0,14) === '/data-ability ') {
 				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
+			} else if (message.substr(0,11) === '/data-move ') {
 				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 			} else {
 				// Normal chat message.
