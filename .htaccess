@@ -21,6 +21,14 @@ RewriteRule ^(.*) http%{ENV:P_SUFFIX}://play.pokemonshowdown.com/$1 [R=301,L]
 RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [E=SAFE_RESOURCE:1]
 Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
 
+# Redirect old battles to their corresponding replay
+RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
+RewriteRule ^battle-([A-Za-z0-9]+-?20[0-6][0-9]{5})$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/replay/$1 [R=302,L]
+RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
+RewriteRule ^battle-([A-Za-z0-9]+-?1[0-9]{7})$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/replay/$1 [R=302,L]
+RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
+RewriteRule ^battle-([A-Za-z0-9]+-?[0-9]{1,7})$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/replay/$1 [R=302,L]
+
 # TODO: fix bug where you can't join lobby directly
 RewriteRule ^lobby/?$ / [R=301,L]
 
