@@ -1,6 +1,7 @@
 (function($) {
 
 	var MainMenuRoom = this.MainMenuRoom = this.Room.extend({
+		type: 'mainmenu',
 		tinyWidth: 340,
 		bestWidth: 628,
 		events: {

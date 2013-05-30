@@ -1,6 +1,7 @@
 (function($) {
 
 	var LadderRoom = this.LadderRoom = this.Room.extend({
+		type: 'ladder',
 		initialize: function() {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			app.on('init:formats', this.update, this);

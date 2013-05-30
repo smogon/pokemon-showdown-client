@@ -1,6 +1,7 @@
 (function($) {
 
 	var ConsoleRoom = this.ConsoleRoom = Room.extend({
+		type: 'chat',
 		constructor: function() {
 			if (!this.events) this.events = {};
 			if (!this.events['click .ilink']) this.events['click .ilink'] = 'clickLink';

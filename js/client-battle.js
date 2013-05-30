@@ -1,6 +1,7 @@
 (function($) {
 
 	var BattleRoom = this.BattleRoom = ConsoleRoom.extend({
+		type: 'battle',
 		minWidth: 955,
 		maxWidth: 1180,
 		initialize: function(data) {
