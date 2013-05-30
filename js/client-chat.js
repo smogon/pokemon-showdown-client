@@ -832,9 +832,10 @@
 			var chatDiv = '<div class="chat"' + highlight + '>';
 			var timestamp = ChatRoom.getTimestamp('lobby');
 			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
-			var outputChat = (function() {
-				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
-			}).bind(this);
+			var self = this;
+			var outputChat = function() {
+				self.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
+			};
 			var showme = !((Tools.prefs('chatformatting') || {}).hideme);
 			if (pm) {
 				var pmuserid = toUserid(pm);
