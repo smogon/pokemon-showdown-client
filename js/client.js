@@ -656,7 +656,7 @@
 				}
 
 				if ($(window).width() >= 916) {
-					self.send('/join lobby');
+					self.addRoom('lobby');
 				}
 
 				var avatar = Tools.prefs('avatar');
@@ -745,7 +745,7 @@
 			if (data.substr(0,1) === '>') {
 				var nlIndex = data.indexOf('\n');
 				if (nlIndex < 0) return;
-				roomid = data.substr(1,nlIndex-1);
+				roomid = toRoomid(data.substr(1,nlIndex-1));
 				data = data.substr(nlIndex+1);
 			}
 			if (roomid) {
@@ -754,13 +754,15 @@
 					var roomTypeLFIndex = roomType.indexOf('\n');
 					if (roomTypeLFIndex >= 0) roomType = roomType.substr(0, roomTypeLFIndex);
 					roomType = toId(roomType);
-					if (roomid === 'lobby') {
-						this.addRoom(roomid, roomType);
+					if (this.rooms[roomid]) {
+						// make sure we have the correct roomType
+						this.addRoom(roomid, roomType, true);
 					} else {
-						this.joinRoom(roomid, roomType);
+						this.joinRoom(roomid, roomType, true);
 					}
 				} else if (data.substr(0,8) === '|deinit|' || data.substr(0,8) === '|noinit|') {
 					this.removeRoom(roomid);
+					if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
 					data = data.substr(8);
 					var pipeIndex = data.indexOf('|');
 					if (pipeIndex >= 0) {
@@ -846,10 +848,8 @@
 				break;
 
 			case 'roomerror':
-				if (!this.curRoom && !this.curSideRoom) {
-					// if we fail to join any room, show the main menu
-					this.tryJoinRoom('');
-				}
+				this.removeRoom(parts[1]);
+				if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
 				this.addPopupMessage(parts.slice(2).join('|'));
 				break;
 
@@ -990,30 +990,37 @@
 		curRoom: null,
 		curSideRoom: null,
 		sideRoom: null,
-		joinRoom: function(id, type) {
+		joinRoom: function(id, type, nojoin) {
 			if (this.rooms[id]) {
 				this.focusRoom(id);
 				return this.rooms[id];
 			}
 
-			var room = this._addRoom(id, type);
+			var room = this._addRoom(id, type, nojoin);
 			this.focusRoom(id);
 			return room;
 		},
 		tryJoinRoom: function(id) {
-			if (this.rooms[id] || id === 'teambuilder' || id === 'ladder') {
-				this.joinRoom(id);
-			} else {
-				this.send('/join '+id);
-			}
+			this.joinRoom(id);
 		},
-		addRoom: function(id, type) {
-			this._addRoom(id, type);
+		addRoom: function(id, type, nojoin) {
+			this._addRoom(id, type, nojoin);
 			this.updateSideRoom();
 			this.updateLayout();
 		},
-		_addRoom: function(id, type) {
-			if (this.rooms[id]) return this.rooms[id];
+		_addRoom: function(id, type, nojoin) {
+			var oldRoom;
+			if (this.rooms[id]) {
+				if (type && this.rooms[id].type !== type) {
+					// this room changed type
+					// (or the type we guessed it would be was wrong)
+					var oldRoom = this.rooms[id];
+					oldRoom.destroy();
+					delete this.rooms[id];
+				} else {
+					return this.rooms[id];
+				}
+			}
 
 			var el = $('<div class="ps-room" style="display:none"></div>').appendTo('body');
 			var typeName = '';
@@ -1031,13 +1038,32 @@
 				'battle': BattleRoom,
 				'chat': ChatRoom
 			};
+
+			// the room table overrides everything else
 			if (roomTable[id]) type = roomTable[id];
+
+			// otherwise, the passed type wins
 			if (!type) type = typeTable[typeName];
-			if (!type) type = ChatRoom;
+
+			// otherwise, infer the room type
+			if (!type) {
+				if (id.substr(0,7) === 'battle-') {
+					type = BattleRoom;
+				} else {
+					type = ChatRoom;
+				}
+			}
+
 			var room = this.rooms[id] = new type({
 				id: id,
-				el: el
+				el: el,
+				nojoin: nojoin
 			});
+			if (oldRoom) {
+				if (this.curRoom === oldRoom) this.curRoom = room;
+				if (this.curSideRoom === oldRoom) this.curSideRoom = room;
+				if (this.sideRoom === oldRoom) this.sideRoom = room;
+			}
 			return room;
 		},
 		focusRoom: function(id) {
@@ -1391,14 +1417,14 @@
 
 	var Room = this.Room = Backbone.View.extend({
 		className: 'ps-room',
-		constructor: function() {
+		constructor: function(options) {
 			if (!this.events) this.events = {};
 			if (!this.events['click button']) this.events['click button'] = 'dispatchClickButton';
 			if (!this.events['click']) this.events['click'] = 'dispatchClickBackground';
 
 			Backbone.View.apply(this, arguments);
 
-			this.join();
+			if (!(options && options.nojoin)) this.join();
 		},
 		dispatchClickButton: function(e) {
 			var target = e.currentTarget;

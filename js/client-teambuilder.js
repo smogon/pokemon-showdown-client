@@ -4,6 +4,7 @@
 	var teams;
 
 	var TeambuilderRoom = exports.TeambuilderRoom = exports.Room.extend({
+		type: 'teambuilder',
 		initialize: function() {
 			teams = app.user.teams;
 
