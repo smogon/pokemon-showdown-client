@@ -50,7 +50,17 @@ RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
 RewriteCond %{HTTP_REFERER} !^$
 RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
 RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
-RewriteRule ^.* http%{ENV:P_SUFFIX}://pokemonshowdown.com/ [R=303,L]
+RewriteRule .* - [E=LOBBY_REDIRECT:1]
+
+RewriteCond %{ENV:LOBBY_REDIRECT}%{ENV:P_SUFFIX} =1
+RewriteRule ^.* http://pokemonshowdown.com/ [R=303,L]
+
+RewriteCond %{ENV:LOBBY_REDIRECT}%{ENV:P_SUFFIX} =1s
+RewriteRule ^.* http://pokemonshowdown.com/secure [R=303,L]
+
+RewriteCond %{HTTP_REFERER} =http://pokemonshowdown.com/secure
+RewriteCond %{ENV:P_SUFFIX} !=s
+RewriteRule ^(.*) https://play.pokemonshowdown.com/$1
 
 RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/replay/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
