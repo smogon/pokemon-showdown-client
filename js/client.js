@@ -719,7 +719,9 @@
 				// Just open the main menu.
 				fragment = '';
 			}
-			this.tryJoinRoom(fragment||'');
+			if (!fragment) fragment = '';
+			if (this.initialFragment === undefined) this.initialFragment = fragment;
+			this.tryJoinRoom(fragment);
 		},
 		/**
 		 * Send to sim server
@@ -760,9 +762,12 @@
 					} else {
 						this.joinRoom(roomid, roomType, true);
 					}
-				} else if (data.substr(0,8) === '|deinit|' || data.substr(0,8) === '|noinit|') {
-					this.removeRoom(roomid);
-					if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
+				} else if ((data+'|').substr(0,8) === '|deinit|' || (data+'|').substr(0,8) === '|noinit|') {
+					if (data.charAt(1) === 'd') { // deinit
+						this.removeRoom(roomid);
+					} else { // noinit
+						this.unjoinRoom(roomid);
+					}
 					data = data.substr(8);
 					var pipeIndex = data.indexOf('|');
 					if (pipeIndex >= 0) {
@@ -848,8 +853,8 @@
 				break;
 
 			case 'roomerror':
-				this.removeRoom(parts[1]);
-				if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
+				// deprecated; use |deinit| or |noinit|
+				this.unjoinRoom(parts[1]);
 				this.addPopupMessage(parts.slice(2).join('|'));
 				break;
 
@@ -999,6 +1004,22 @@
 			var room = this._addRoom(id, type, nojoin);
 			this.focusRoom(id);
 			return room;
+		},
+		/**
+		 * We tried to join a room but it didn't exist
+		 */
+		unjoinRoom: function(id, noinit) {
+			if (Config.server.id && this.rooms[id] && this.rooms[id].type === 'battle') {
+				if (id === this.initialFragment) {
+					// you were direct-linked to this nonexistent room
+					var replayid = id.substr(7);
+					if (Config.server.id !== 'showdown') replayid = Config.server.id+'-'+replayid;
+					document.location.replace('http://pokemonshowdown.com/replay/'+replayid);
+					return;
+				}
+			}
+			this.removeRoom(id);
+			if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
 		},
 		tryJoinRoom: function(id) {
 			this.joinRoom(id);
