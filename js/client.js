@@ -759,6 +759,13 @@
 					} else {
 						this.joinRoom(roomid, roomType);
 					}
+				} else if (data.substr(0,8) === '|deinit|' || data.substr(0,8) === '|noinit|') {
+					this.removeRoom(roomid);
+					data = data.substr(8);
+					var pipeIndex = data.indexOf('|');
+					if (pipeIndex >= 0) {
+						this.addPopupMessage(data.substr(pipeIndex+1));
+					}
 				}
 				if (this.rooms[roomid]) {
 					this.rooms[roomid].receive(data);
