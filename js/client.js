@@ -460,8 +460,10 @@
 							$('head').append($link);
 						}
 						// persistent username
-						self.user.setPersistentName = function() {
-							postCrossDomainMessage({username: this.get('name')});
+						self.user.setPersistentName = function(name) {
+							postCrossDomainMessage({
+								username: ((name !== undefined) ? name : this.get('name'))
+							});
 						};
 						// ajax requests
 						$.get = function(uri, callback, type) {
