@@ -750,39 +750,48 @@
 				roomid = toRoomid(data.substr(1,nlIndex-1));
 				data = data.substr(nlIndex+1);
 			}
-			if (roomid) {
-				if (data.substr(0,6) === '|init|') {
-					var roomType = data.substr(6);
-					var roomTypeLFIndex = roomType.indexOf('\n');
-					if (roomTypeLFIndex >= 0) roomType = roomType.substr(0, roomTypeLFIndex);
-					roomType = toId(roomType);
-					if (this.rooms[roomid]) {
-						// make sure we have the correct roomType
-						this.addRoom(roomid, roomType, true);
-					} else {
-						this.joinRoom(roomid, roomType, true);
-					}
-				} else if ((data+'|').substr(0,8) === '|deinit|' || (data+'|').substr(0,8) === '|noinit|') {
-					if (data.charAt(1) === 'd') { // deinit
-						this.removeRoom(roomid);
-					} else { // noinit
-						this.unjoinRoom(roomid);
-					}
-					data = data.substr(8);
-					var pipeIndex = data.indexOf('|');
-					if (pipeIndex >= 0) {
-						this.addPopupMessage(data.substr(pipeIndex+1));
-						// data = data.substr(0, pipeIndex);
-					}
-					// handle error codes here
-					// data is the error code
-					return;
+			if (data.substr(0,6) === '|init|') {
+				if (!roomid) roomid = 'lobby';
+				var roomType = data.substr(6);
+				var roomTypeLFIndex = roomType.indexOf('\n');
+				if (roomTypeLFIndex >= 0) roomType = roomType.substr(0, roomTypeLFIndex);
+				roomType = toId(roomType);
+				if (this.rooms[roomid]) {
+					// make sure we have the correct roomType
+					this.addRoom(roomid, roomType, true);
+				} else {
+					this.joinRoom(roomid, roomType, true);
 				}
+			} else if ((data+'|').substr(0,8) === '|deinit|' || (data+'|').substr(0,8) === '|noinit|') {
+				if (!roomid) roomid = 'lobby';
+				if (data.charAt(1) === 'd') { // deinit
+					this.removeRoom(roomid);
+				} else { // noinit
+					this.unjoinRoom(roomid);
+				}
+				data = data.substr(8);
+				var pipeIndex = data.indexOf('|');
+				if (pipeIndex >= 0) {
+					this.addPopupMessage(data.substr(pipeIndex+1));
+					// data = data.substr(0, pipeIndex);
+				}
+				// handle error codes here
+				// data is the error code
+				return;
+			}
+			if (roomid) {
 				if (this.rooms[roomid]) {
 					this.rooms[roomid].receive(data);
 				}
 				return;
 			}
+
+			// Since roomid is blank, it could be either a global message or
+			// a lobby message. (For bandwidth reasons, lobby messages can
+			// have blank roomids.)
+
+			// If it starts with a messagetype in the global messagetype
+			// list, we'll assume global; otherwise, we'll assume lobby.
 
 			var parts;
 			if (data.charAt(0) === '|') {
@@ -863,9 +872,9 @@
 				break;
 
 			default:
-				if (data.substr(0,6) === '|init|') {
-					this.addRoom('lobby');
-				}
+				// the messagetype wasn't in our list of recognized global
+				// messagetypes; so the message is presumed to be for the
+				// lobby.
 				if (this.rooms['lobby']) {
 					this.rooms['lobby'].receive(data);
 				}
