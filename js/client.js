@@ -233,6 +233,9 @@
 
 			this.topbar = new Topbar({el: $('#header')});
 			this.addRoom('');
+			if ($(window).width() >= 916) {
+				this.addRoom('lobby');
+			}
 
 			var self = this;
 
@@ -653,10 +656,6 @@
 				// Send the join message even if it doesn't, for legacy servers.
 				if (Config.server.id !== 'showdown') {
 					self.send('{"room":"lobby","nojoin":1,"type":"join"}', true);
-				}
-
-				if ($(window).width() >= 916) {
-					self.addRoom('lobby');
 				}
 
 				var avatar = Tools.prefs('avatar');
