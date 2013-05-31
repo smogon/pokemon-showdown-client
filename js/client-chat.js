@@ -67,8 +67,84 @@
 			}
 		},
 		keyPress: function(e) {
+			var cmdKey = (e.ctrlKey || e.cmdKey || e.metaKey || e.altKey);
+			var textbox = e.currentTarget;
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
+			} else if (e.keyCode === 73 && cmdKey && !e.shiftKey) { // Ctrl+I key
+				if (!textbox.setSelectionRange) return;
+				var value = textbox.value;
+				var start = textbox.selectionStart;
+				var end = textbox.selectionEnd;
+
+				// make sure start and end aren't midway through the syntax
+				if (value.charAt(start) === '_' && value.charAt(start-1) === '_' &&
+						value.charAt(start-2) !== '_') {
+					start++;
+				}
+				if (value.charAt(end) === '_' && value.charAt(end-1) === '_' &&
+						value.charAt(end-2) !== '_') {
+					end--;
+				}
+
+				// wrap in __
+				value = value.substr(0,start)+'__'+value.substr(start,end-start)+'__'+value.substr(end);
+				start += 2, end += 2;
+
+				// prevent nesting
+				if (value.substr(start-4, 4) === '____') {
+					value = value.substr(0, start-4) + value.substr(start);
+					start -= 4, end -= 4;
+				} else if (start !== end && value.substr(start-2, 4) === '____') {
+					value = value.substr(0, start-2) + value.substr(start+2);
+					start -= 2, end -= 4;
+				}
+				if (value.substr(end, 4) === '____') {
+					value = value.substr(0, end) + value.substr(end+4);
+				} else if (start !== end && value.substr(end-2, 4) === '____') {
+					value = value.substr(0, end-2) + value.substr(end+2);
+					end -= 2;
+				}
+
+				textbox.value = value;
+				textbox.setSelectionRange(start, end);
+			} else if (e.keyCode === 66 && cmdKey && !e.shiftKey) { // Ctrl+B key
+				if (!textbox.setSelectionRange) return;
+				var value = textbox.value;
+				var start = textbox.selectionStart;
+				var end = textbox.selectionEnd;
+
+				// make sure start and end aren't midway through the syntax
+				if (value.charAt(start) === '*' && value.charAt(start-1) === '*' &&
+						value.charAt(start-2) !== '*') {
+					start++;
+				}
+				if (value.charAt(end) === '*' && value.charAt(end-1) === '*' &&
+						value.charAt(end-2) !== '*') {
+					end--;
+				}
+
+				// wrap in **
+				value = value.substr(0,start)+'**'+value.substr(start,end-start)+'**'+value.substr(end);
+				start += 2, end += 2;
+
+				// prevent nesting
+				if (value.substr(start-4, 4) === '****') {
+					value = value.substr(0, start-4) + value.substr(start);
+					start -= 4, end -= 4;
+				} else if (start !== end && value.substr(start-2, 4) === '****') {
+					value = value.substr(0, start-2) + value.substr(start+2);
+					start -= 2, end -= 4;
+				}
+				if (value.substr(end, 4) === '****') {
+					value = value.substr(0, end) + value.substr(end+4);
+				} else if (start !== end && value.substr(end-2, 4) === '****') {
+					value = value.substr(0, end-2) + value.substr(end+2);
+					end -= 2;
+				}
+
+				textbox.value = value;
+				textbox.setSelectionRange(start, end);
 			} else if (e.keyCode === 33) { // Pg Up key
 				this.$chatFrame.scrollTop(this.$chatFrame.scrollTop() - this.$chatFrame.height() + 60);
 			} else if (e.keyCode === 34) { // Pg Dn key
