@@ -2125,9 +2125,11 @@
 		},
 		setTimestampsLobby: function(e) {
 			this.timestamps.lobby = e.currentTarget.value;
+			Tools.prefs('timestamps', this.timestamps);
 		},
 		setTimestampsPMs: function(e) {
 			this.timestamps.pms = e.currentTarget.value;
+			Tools.prefs('timestamps', this.timestamps);
 		},
 		avatars: function() {
 			app.addPopup(AvatarsPopup);
