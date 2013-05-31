@@ -765,19 +765,32 @@
 				}
 			} else if ((data+'|').substr(0,8) === '|deinit|' || (data+'|').substr(0,8) === '|noinit|') {
 				if (!roomid) roomid = 'lobby';
-				if (data.charAt(1) === 'd') { // deinit
-					this.removeRoom(roomid);
-				} else { // noinit
-					this.unjoinRoom(roomid);
-				}
+				var isdeinit = (data.charAt(1) === 'd');
 				data = data.substr(8);
 				var pipeIndex = data.indexOf('|');
+				var errormessage;
 				if (pipeIndex >= 0) {
-					this.addPopupMessage(data.substr(pipeIndex+1));
-					// data = data.substr(0, pipeIndex);
+					errormessage = data.substr(pipeIndex+1);
+					data = data.substr(0, pipeIndex);
 				}
 				// handle error codes here
 				// data is the error code
+				if (data === 'namerequired') {
+					this.removeRoom(roomid);
+					var self = this;
+					this.once('init:choosename', function() {
+						self.joinRoom(roomid);
+					});
+				} else {
+					if (isdeinit) { // deinit
+						this.removeRoom(roomid);
+					} else { // noinit
+						this.unjoinRoom(roomid);
+					}
+					if (errormessage) {
+						this.addPopupMessage(errormessage);
+					}
+				}
 				return;
 			}
 			if (roomid) {
@@ -830,6 +843,9 @@
 					avatar: parts[3]
 				});
 				this.user.setPersistentName(named ? name : null);
+				if (named) {
+					this.trigger('init:choosename');
+				}
 				break;
 
 			case 'nametaken':
