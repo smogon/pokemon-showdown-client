@@ -276,7 +276,7 @@
 			});
 
 			this.user.on('login:invalidname', function(name, reason) {
-				app.addPopup(LoginPopup, {name: name, reason: reason});
+				self.addPopup(LoginPopup, {name: name, reason: reason});
 			});
 
 			this.user.on('login:authrequired', function(name) {
@@ -334,8 +334,7 @@
 			if ((document.location.hostname !== Config.origindomain) && !Config.testclient) {
 				// Handle *.psim.us.
 				return this.initializeCrossDomainConnection();
-			}
-			if (Config.testclient) {
+			} else if (Config.testclient) {
 				this.initializeTestClient();
 			} else if (document.location.protocol === 'https:') {
 				if (!$.cookie('showdown_ssl')) {
