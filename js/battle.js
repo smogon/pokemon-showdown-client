@@ -4814,7 +4814,10 @@ function Battle(frame, logFrame, noPreload) {
 		}
 		str = $.trim(str);
 		if (!str) return;
-		if (str.substr(0,1) === '|') {
+		if (str.charAt(0) !== '|' || str.substr(0,2) === '||') {
+			if (str.charAt(0) === '|') str = str.substr(2);
+			self.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
+		} else {
 			var args = ['done'], kwargs = {};
 			str = $.trim(str.substr(1));
 			if (str !== '') {
@@ -4867,8 +4870,6 @@ function Battle(frame, logFrame, noPreload) {
 				}
 				if (self.errorCallback) self.errorCallback(self);
 			}
-		} else {
-			self.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
 		}
 	}
 	this.endPrevAction = function () {
