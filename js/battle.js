@@ -4675,13 +4675,13 @@ function Battle(frame, logFrame, noPreload) {
 			self.kickingInactive = true;
 			args.shift();
 			list = args.join('|');
-			self.log('<div class="chat" style="color:#992222">' + Tools.escapeHTML(list) + '</div>', preempt);
+			self.log('<div class="chat timer">' + Tools.escapeHTML(list) + '</div>', preempt);
 			break;
 		case 'inactiveoff':
 			self.kickingInactive = false;
 			args.shift();
 			list = args.join('|');
-			self.log('<div class="chat" style="color:#992222">' + Tools.escapeHTML(list) + '</div>', preempt);
+			self.log('<div class="chat timer">' + Tools.escapeHTML(list) + '</div>', preempt);
 			break;
 		case 'join':
 		case 'j':
