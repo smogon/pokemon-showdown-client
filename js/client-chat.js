@@ -905,8 +905,8 @@
 					this.notifyOnce("Mentioned by "+name, "\""+message+"\"", 'highlight');
 				}
 			}
-			var highlight = isHighlighted ? ' style="background-color:#FDA;"' : '';
-			var chatDiv = '<div class="chat"' + highlight + '>';
+			var highlight = isHighlighted ? ' highlighted' : '';
+			var chatDiv = '<div class="chat' + highlight + '">';
 			var timestamp = ChatRoom.getTimestamp('lobby');
 			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
 			var self = this;
