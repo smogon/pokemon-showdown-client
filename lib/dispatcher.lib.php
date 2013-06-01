@@ -176,6 +176,30 @@ class DefaultActionHandler {
 		}
 	}
 
+	public function changepassword($dispatcher, &$reqData, &$out) {
+		global $users, $curuser;
+
+		if (!$_POST ||
+				!isset($reqData['oldpassword']) ||
+				!isset($reqData['password']) ||
+				!isset($reqData['cpassword'])) {
+			$out['actionerror'] = 'Invalid request.';
+		} else if (!$curuser['loggedin']) {
+			$out['actionerror'] = 'Your session has expired. Please log in again.';
+		} else if ($reqData['password'] !== $reqData['cpassword']) {
+			$out['actionerror'] = 'Your new passwords do not match.';
+		} else if (!$users->passwordVerify($curuser['userid'], $reqData['oldpassword'])) {
+			$out['actionerror'] = 'Your old password was incorrect.';
+		} else if (mb_strlen($reqData['password']) < 5) {
+			$out['actionerror'] = 'Your new password must be at least 5 characters long.';
+		} else if (!$users->modifyUser($curuser['userid'], array(
+				'password' => $reqData['password']))) {
+			$out['actionerror'] = 'A database error occurred. Please try again.';
+		} else {
+			$out['actionsuccess'] = true;
+		}
+	}
+
 	public function logout($dispatcher, &$reqData, &$out) {
 		global $users, $curuser;
 
