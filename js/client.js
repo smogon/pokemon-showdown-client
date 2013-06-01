@@ -1931,6 +1931,41 @@
 		}
 	});
 
+	var ChangePasswordPopup = this.ChangePasswordPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function(data) {
+			var buf = '<form>';
+			if (data.error) {
+				buf += '<p class="error">' + data.error + '</p>';
+			} else {
+				buf += '<p>Change your password:</p>';
+			}
+			buf += '<p><label class="label">Username: ' + app.user.get('name') + '</label></p>';
+			buf += '<p><label class="label">Old password: <input class="textbox autofocus" type="password" name="oldpassword" /></label></p>';
+			buf += '<p><label class="label">New password: <input class="textbox" type="password" name="password" /></label></p>';
+			buf += '<p><label class="label">New password (confirm): <input class="textbox" type="password" name="cpassword" /></label></p>';
+			buf += '<p class="buttonbar"><button type="submit"><strong>Submit</strong></button> <button name="close">Cancel</button></p></form>';
+			this.$el.html(buf);
+		},
+		submit: function(data) {
+			$.post(app.user.getActionPHP(), {
+				act: 'changepassword',
+				oldpassword: data.oldpassword,
+				password: data.password,
+				cpassword: data.cpassword
+			}, Tools.safeJSON(function(data) {
+				if (!data) data = {};
+				if (data.actionsuccess) {
+					app.addPopupMessage("Your password was successfully changed.");
+				} else {
+					app.addPopup(ChangePasswordPopup, {
+						error: data.actionerror
+					});
+				}
+			}), 'text');
+		}
+	});
+
 	var LoginPasswordPopup = this.LoginPasswordPopup = Popup.extend({
 		type: 'semimodal',
 		initialize: function(data) {
@@ -2095,7 +2130,13 @@
 
 			buf += '<hr />';
 			if (app.user.get('named')) {
-				buf += '<p class="buttonbar" style="text-align:right"><button name="logout"><strong>Log out</strong></button></p>';
+				buf += '<p class="buttonbar" style="text-align:right">';
+				var registered = app.user.get('registered');
+				if (registered && (registered.userid === app.user.get('userid'))) {
+					buf += '<button name="changepassword">Change password</button> ';
+				}
+				buf += '<button name="logout"><strong>Log out</strong></button>';
+				buf += '</p>';
 			} else {
 				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Choose name</button></p>';
 			}
@@ -2139,6 +2180,9 @@
 		},
 		login: function() {
 			app.addPopup(LoginPopup);
+		},
+		changepassword: function() {
+			app.addPopup(ChangePasswordPopup);
 		},
 		logout: function() {
 			app.user.logout();
