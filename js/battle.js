@@ -3236,6 +3236,10 @@ function Battle(frame, logFrame, noPreload) {
 						actions += '' + poke.getName() + ' already has a substitute!';
 					}
 					break;
+				case 'unboost':
+					self.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
+					actions += "" + poke.getName() + "'s " + (args[3] ? args[3] + " was" : "stats were") + " not lowered!";
+					break;
 				case '':
 				default:
 					actions += "But it failed!";
