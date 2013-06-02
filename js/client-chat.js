@@ -2,6 +2,7 @@
 
 	var ConsoleRoom = this.ConsoleRoom = Room.extend({
 		type: 'chat',
+		title: '',
 		constructor: function() {
 			if (!this.events) this.events = {};
 			if (!this.events['click .ilink']) this.events['click .ilink'] = 'clickLink';
@@ -688,6 +689,10 @@
 				switch (row[0]) {
 				case 'init':
 					// ignore (handled elsewhere)
+					break;
+
+				case 'title':
+					this.title = row[1];
 					break;
 
 				case 'c':

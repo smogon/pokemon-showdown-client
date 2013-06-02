@@ -1391,20 +1391,22 @@
 			for (var id in app.rooms) {
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
-				var name = '<i class="icon-comment-alt"></i> <span>'+id+'</span>';
-				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> <span>Lobby</span>';
+				var name = '<i class="icon-comment-alt"></i> <span>'+(room.title||(id==='lobby'?'Lobby':id))+'</span>';
 				if (id.substr(0,7) === 'battle-') {
-					var parts = id.substr(7).split('-');
-					var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
-					var p2 = (room && room.battle && room.battle.p2 && room.battle.p2.name) || '';
-					if (p1 && p2) {
-						name = ''+Tools.escapeHTML(p1)+' v. '+Tools.escapeHTML(p2);
-					} else if (p1 || p2) {
-						name = ''+Tools.escapeHTML(p1)+Tools.escapeHTML(p2);
-					} else {
-						name = '(empty room)';
+					name = room.title;
+					var formatid = id.substr(7).split('-')[0];
+					if (!name) {
+						var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
+						var p2 = (room && room.battle && room.battle.p2 && room.battle.p2.name) || '';
+						if (p1 && p2) {
+							name = ''+Tools.escapeHTML(p1)+' v. '+Tools.escapeHTML(p2);
+						} else if (p1 || p2) {
+							name = ''+Tools.escapeHTML(p1)+Tools.escapeHTML(p2);
+						} else {
+							name = '(empty room)';
+						}
 					}
-					name = '<i class="text">'+parts[0]+'</i><span>'+name+'</span>';
+					name = '<i class="text">'+formatid+'</i><span>'+name+'</span>';
 				}
 				if (room.isSideRoom) {
 					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';

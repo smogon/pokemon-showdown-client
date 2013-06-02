@@ -2,6 +2,7 @@
 
 	var BattleRoom = this.BattleRoom = ConsoleRoom.extend({
 		type: 'battle',
+		title: '',
 		minWidth: 955,
 		maxWidth: 1180,
 		initialize: function(data) {
@@ -68,6 +69,10 @@
 		init: function(data) {
 			var log = data.split('\n');
 			if (data.substr(0,6) === '|init|') log.shift();
+			if (log.length && log[0].substr(0, 7) === '|title|') {
+				this.title = log[0].substr(7);
+				log.shift();
+			}
 			if (this.battle.activityQueue.length) return;
 			this.battle.activityQueue = log;
 			this.battle.fastForwardTo(-1);
@@ -102,6 +107,8 @@
 					// the player is being asked to make a new decision without this message.
 					delete this.choice;
 					this.battle.activityQueue.push('|message|'+this.battle.mySide.active[idx].getName() + ' is trapped and cannot switch!');
+				} else if (logLine.substr(0, 7) === '|title|') {
+					this.title = logLine.substr(7);
 				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
 					this.battle.instantAdd(logLine);
 				} else {
