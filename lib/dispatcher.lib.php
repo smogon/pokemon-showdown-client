@@ -27,7 +27,7 @@ class ActionDispatcher {
 	}
 
 	public function verifyCrossDomainRequest() {
-		global $config;
+		global $psconfig;
 		// No cross-domain multi-requests for security reasons.
 		// No need to do anything if this isn't a cross-domain request.
 		if ($this->multiReqs || !isset($_SERVER['HTTP_ORIGIN'])) {
@@ -36,7 +36,7 @@ class ActionDispatcher {
 
 		$origin = $_SERVER['HTTP_ORIGIN'];
 		$prefix = null;
-		foreach ($config['cors'] as $i => &$j) {
+		foreach ($psconfig['cors'] as $i => &$j) {
 			if (!preg_match($i, $origin)) continue;
 			$prefix = $j;
 			break;
@@ -257,7 +257,7 @@ class DefaultActionHandler {
 	}
 
 	public function updateuserstats($dispatcher, &$reqData, &$out) {
-		global $db;
+		global $psdb;
 
 		$server = $dispatcher->findServer();
 		if (!$server) {
@@ -272,21 +272,21 @@ class DefaultActionHandler {
 			return;
 		}
 
-		$out = !!$db->query(
+		$out = !!$psdb->query(
 			"INSERT INTO `ntbb_userstats` (`serverid`, `date`, `usercount`) " .
-				"VALUES ('" . $db->escape($server['id']) . "', '" . $db->escape($date) . "', '" . $db->escape($usercount) . "') " .
-				"ON DUPLICATE KEY UPDATE `date`='" . $db->escape($date) . "', `usercount`='" . $db->escape($usercount) . "'");
+				"VALUES ('" . $psdb->escape($server['id']) . "', '" . $psdb->escape($date) . "', '" . $psdb->escape($usercount) . "') " .
+				"ON DUPLICATE KEY UPDATE `date`='" . $psdb->escape($date) . "', `usercount`='" . $psdb->escape($usercount) . "'");
 
 		if ($server['id'] === 'showdown') {
-			$db->query(
+			$psdb->query(
 				"INSERT INTO `ntbb_userstatshistory` (`date`, `usercount`) " .
-				"VALUES ('" . $db->escape($date) . "', '" . $db->escape($usercount) . "')");
+				"VALUES ('" . $psdb->escape($date) . "', '" . $psdb->escape($usercount) . "')");
 		}
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
 	}
 
 	public function prepreplay($dispatcher, &$reqData, &$out) {
-		global $db;
+		global $psdb;
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php'; // not clear if this is needed
 
 		$server = $dispatcher->findServer();
@@ -316,32 +316,32 @@ class DefaultActionHandler {
 			$reqData['id'] = $server['id'].'-'.$reqData['id'];
 		}
 
-		$res = $db->query("SELECT * FROM `ntbb_replays` WHERE `id`='".$db->escape($reqData['id'])."'");
-		$replay = $db->fetch_assoc($res);
+		$res = $psdb->query("SELECT * FROM `ntbb_replays` WHERE `id`='".$psdb->escape($reqData['id'])."'");
+		$replay = $psdb->fetch_assoc($res);
 
 		if ($replay) {
 			// A replay with this ID already exists
 			if (time() > $replay['date']+5) {
 				// Allow it to be overwritten if it's been 5 seconds already
-				$out = !!$db->query("UPDATE `ntbb_replays` SET `loghash` = '".$db->escape($reqData['loghash'])."' WHERE `id`='".$db->escape($reqData['id'])."'");
+				$out = !!$psdb->query("UPDATE `ntbb_replays` SET `loghash` = '".$psdb->escape($reqData['loghash'])."' WHERE `id`='".$psdb->escape($reqData['id'])."'");
 			}
 		} else {
-			$out = !!$db->query("INSERT INTO `ntbb_replays` (`id`,`loghash`,`p1`,`p2`,`format`,`date`) VALUES ('".$db->escape($reqData['id'])."','".$db->escape($reqData['loghash'])."','".$db->escape($reqData['p1'])."','".$db->escape($reqData['p2'])."','".$db->escape($reqData['format'])."',".time().")");
+			$out = !!$psdb->query("INSERT INTO `ntbb_replays` (`id`,`loghash`,`p1`,`p2`,`format`,`date`) VALUES ('".$psdb->escape($reqData['id'])."','".$psdb->escape($reqData['loghash'])."','".$psdb->escape($reqData['p1'])."','".$psdb->escape($reqData['p2'])."','".$psdb->escape($reqData['format'])."',".time().")");
 		}
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
 	}
 
 	public function uploadreplay($dispatcher, &$reqData, &$out) {
-		global $db;
+		global $psdb;
 
 		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
 		header('Content-Type: text/plain; charset=utf-8');
 		if (!isset($_POST['id'])) die('ID needed');
 		$id = $_POST['id'];
 
-		$res = $db->query("SELECT * FROM `ntbb_replays` WHERE `id` = '".$db->escape($id)."'");
+		$res = $psdb->query("SELECT * FROM `ntbb_replays` WHERE `id` = '".$psdb->escape($id)."'");
 
-		$replay = $db->fetch_assoc($res);
+		$replay = $psdb->fetch_assoc($res);
 		if (!$replay) {
 			if (!preg_match('/^[a-z0-9]+-[a-z0-9]+-[0-9]+$/', $reqData['id'])) {
 				die('invalid id');
@@ -363,7 +363,7 @@ class DefaultActionHandler {
 			}
 		}
 
-		$db->query("UPDATE `ntbb_replays` SET `log` = '".$db->escape($_POST['log'])."', `loghash` = '' WHERE `id` = '".$db->escape($id)."'");
+		$psdb->query("UPDATE `ntbb_replays` SET `log` = '".$psdb->escape($_POST['log'])."', `loghash` = '' WHERE `id` = '".$psdb->escape($id)."'");
 
 		die('success');
 	}
