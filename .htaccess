@@ -35,8 +35,8 @@ RewriteRule ^lobby/?$ / [R=301,L]
 # roomid with a slash after it: remove the slash
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
-RewriteCond %{ENV:P_SUFFIX} =s
-RewriteRule ^([A-Za-z0-9-]*)$ http://play.pokemonshowdown.com/$1 [L=R03,L]
+#RewriteCond %{ENV:P_SUFFIX} =s
+#RewriteRule ^([A-Za-z0-9-]*)$ http://play.pokemonshowdown.com/$1 [L=R03,L]
 
 # Anything that looks like a roomid: connect to the server
 RewriteRule ^$ - [E=INDEX_PAGE:1]
@@ -61,9 +61,9 @@ RewriteRule ^.* http://pokemonshowdown.com/ [R=303,L]
 RewriteCond %{ENV:LOBBY_REDIRECT}%{ENV:P_SUFFIX} =1s
 RewriteRule ^.* http://pokemonshowdown.com/secure [R=303,L]
 
-#RewriteCond %{HTTP_REFERER} =http://pokemonshowdown.com/secure
-#RewriteCond %{ENV:P_SUFFIX} !=s
-#RewriteRule ^(.*) https://play.pokemonshowdown.com/$1
+RewriteCond %{HTTP_REFERER} =http://pokemonshowdown.com/secure
+RewriteCond %{ENV:P_SUFFIX} !=s
+RewriteRule ^(.*) https://play.pokemonshowdown.com/$1
 
 RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/replay/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
