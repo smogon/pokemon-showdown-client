@@ -53,6 +53,7 @@ RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
 RewriteCond %{HTTP_REFERER} !^$
 RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
 RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
+RewriteCond %{REMOTE_ADDR} !^173\.252\.196\.254$
 RewriteRule .* - [E=LOBBY_REDIRECT:1]
 
 RewriteCond %{ENV:LOBBY_REDIRECT}%{ENV:P_SUFFIX} =1
