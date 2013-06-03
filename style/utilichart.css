@@ -7,6 +7,10 @@
 	clear: both;
 	word-wrap: normal;
 }
+.utilichart li
+{
+	padding-top: 1px;
+}
 
 .utilichart li a
 {
