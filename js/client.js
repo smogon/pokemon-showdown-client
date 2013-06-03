@@ -9,7 +9,7 @@
 		id: 'showdown',
 		host: 'sim.psim.us',
 		port: 443,
-		httpport: 8000,
+		httpport: 8080,
 		altport: 80,
 		registered: true
 	};
