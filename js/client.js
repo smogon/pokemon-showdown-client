@@ -231,9 +231,12 @@
 			this.user = new User();
 			this.ignore = {};
 
+			// down
+			//this.down = true;
+
 			this.topbar = new Topbar({el: $('#header')});
 			this.addRoom('');
-			if ($(window).width() >= 916) {
+			if (!this.down && $(window).width() >= 916) {
 				this.addRoom('lobby');
 			}
 
@@ -522,6 +525,8 @@
 		 * Don't call this function directly.
 		 */
 		connect: function() {
+			if (this.down) return;
+
 			var self = this;
 			var constructSocket = function() {
 				var protocol = (Config.server.port === 443) ? 'https' : 'http';
