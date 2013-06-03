@@ -41,11 +41,13 @@ function BattleSoundLibrary() {
 		if (this.effectCache[url]) {
 			return this.effectCache[url];
 		}
-		this.effectCache[url] = soundManager.createSound({
-			id: url,
-			url: Tools.resourcePrefix + url,
-			volume: this.effectVolume
-		});
+		try {
+			this.effectCache[url] = soundManager.createSound({
+				id: url,
+				url: Tools.resourcePrefix + url,
+				volume: this.effectVolume
+			});
+		} catch (e) {}
 		if (!this.effectCache[url]) {
 			this.effectCache[url] = this.soundPlaceholder;
 		}
@@ -62,11 +64,13 @@ function BattleSoundLibrary() {
 		if (this.bgmCache[url]) {
 			return this.bgmCache[url];
 		}
-		this.bgmCache[url] = soundManager.createSound({
-			id: url,
-			url: Tools.resourcePrefix + url,
-			volume: this.bgmVolume
-		});
+		try {
+			this.bgmCache[url] = soundManager.createSound({
+				id: url,
+				url: Tools.resourcePrefix + url,
+				volume: this.bgmVolume
+			});
+		} catch (e) {}
 		if (!this.bgmCache[url]) {
 			// couldn't load
 			// suppress crash
@@ -85,14 +89,16 @@ function BattleSoundLibrary() {
 		} else {
 			this.stopBgm();
 		}
-		this.bgm = this.loadBgm(url, loopstart, loopstop).setVolume(this.bgmVolume);
-		if (!this.muted) {
-			if (this.bgm.paused) {
-				this.bgm.resume();
-			} else {
-				this.bgm.play();
+		try {
+			this.bgm = this.loadBgm(url, loopstart, loopstop).setVolume(this.bgmVolume);
+			if (!this.muted) {
+				if (this.bgm.paused) {
+					this.bgm.resume();
+				} else {
+					this.bgm.play();
+				}
 			}
-		}
+		} catch(e) {}
 	};
 	this.pauseBgm = function() {
 		if (this.bgm) {
@@ -119,7 +125,11 @@ function BattleSoundLibrary() {
 	};
 	this.setBgmVolume = function(bgmVolume) {
 		this.bgmVolume = bgmVolume;
-		if (this.bgm) this.bgm.setVolume(bgmVolume);
+		if (this.bgm) {
+			try {
+				this.bgm.setVolume(bgmVolume);
+			} catch (e) {}
+		}
 	};
 	this.setEffectVolume = function(effectVolume) {
 		this.effectVolume = effectVolume;
