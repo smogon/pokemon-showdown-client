@@ -23,19 +23,34 @@
 			buf += '<div class="leftmenu"><div class="activitymenu"><div class="pmbox"></div></div>';
 
 			// left menu 1 (high-res: left, low-res: bottom)
-			buf += '<div class="mainmenu"><div class="menugroup"><form class="battleform" data-search="1">';
-			buf += '<p><label class="label">Format:</label>'+this.renderFormats()+'</p>';
-			buf += '<p><label class="label">Team:</label>'+this.renderTeams()+'</p>';
-			buf += '<p><button class="button big" name="search"><strong>Look for a battle</strong></button></p></form></div>';
+			buf += '<div class="mainmenu">';
+			if (app.down) {
+				buf += '<div class="menugroup">';
+				buf += '<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p>';
+				buf += '<p><span class="pokemonicon" style="margin:0 auto;background:transparent url(//play.pokemonshowdown.com/sprites/bwicons-sheet.png?v0.8.5) no-repeat scroll -288px -424px"></span> Bear with us as we freak out.</p>';
+				buf += '<p>(We\'ll be back up in a few hours.)</p>';
+				buf += '</div>';
+			} else {
+				buf += '<div class="menugroup"><form class="battleform" data-search="1">';
+				buf += '<p><label class="label">Format:</label>'+this.renderFormats()+'</p>';
+				buf += '<p><label class="label">Team:</label>'+this.renderTeams()+'</p>';
+				buf += '<p><button class="button big" name="search"><strong>Look for a battle</strong></button></p></form></div>';
 
-			buf += '<div class="menugroup"><p><button class="button" name="roomlist">Watch a battle</button></p></div>';
+				buf += '<div class="menugroup"><p><button class="button" name="roomlist">Watch a battle</button></p></div>';
+			}
 
 			buf += '<div class="menugroup"><p><button class="button" name="joinRoom" value="teambuilder">Teambuilder</button></p>';
-			buf += '<p><button class="button" name="joinRoom" value="ladder">Ladder</button></p>';
+			if (app.down) {
+				buf += '<p><button class="button disabled" name="joinRoom" value="ladder" disabled>Ladder</button></p>';
+			} else {
+				buf += '<p><button class="button" name="joinRoom" value="ladder">Ladder</button></p>';
+			}
 			buf += '<p><button class="button" name="credits">Credits</button></p></div></div></div>';
 
 			// right menu
-			buf += '<div class="rightmenu"><div class="menugroup"><p><button class="button" name="joinRoom" value="lobby">Join lobby chat</button></p></div></div>';
+			if (!app.down) {
+				buf += '<div class="rightmenu"><div class="menugroup"><p><button class="button" name="joinRoom" value="lobby">Join lobby chat</button></p></div></div>';
+			}
 
 			// footer
 			buf += '<div class="mainmenufooter"><small><a href="//pokemonshowdown.com/" target="_blank">Website</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small></div>';

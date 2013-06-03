@@ -755,6 +755,7 @@ p.or:after {
 .menugroup .button.disabled,
 .menugroup .button.disabled:hover,
 .menugroup .button.disabled:active {
+	cursor: default;
 	background: #EEEEEE;
 	border: 1px solid #CCCCCC;
 	color: #999999;
