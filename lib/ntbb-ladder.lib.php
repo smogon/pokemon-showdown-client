@@ -9,12 +9,17 @@ error_reporting(E_ALL);
 // connect to the ladder database (if we aren't already connected)
 if (empty($ladderdb)) {
 	global $ladderdb, $config;
-	$ladderdb = new NTBBDatabase($config['ladder_server'],
-			$config['ladder_username'],
-			$config['ladder_password'],
-			$config['ladder_database'],
-			$config['ladder_prefix'],
-			$config['ladder_charset']);
+	if (empty($config['ladder_server'])) {
+		global $db;
+		$ladderdb = $db;
+	} else {
+		$ladderdb = new NTBBDatabase($config['ladder_server'],
+				$config['ladder_username'],
+				$config['ladder_password'],
+				$config['ladder_database'],
+				$config['ladder_prefix'],
+				$config['ladder_charset']);
+	}
 }
 
 class Glicko2Player {
