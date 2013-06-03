@@ -383,9 +383,10 @@
 		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32" />';
 		buf += '</span> ';
 
-		// power, accuracy
+		// power, accuracy, pp
 		buf += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
 		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />'+(move.pp!==1?move.pp*8/5:move.pp)+'</span> ';
 
 		// desc
 		buf += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
@@ -420,9 +421,10 @@
 		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32" />';
 		buf += '</span> ';
 
-		// power, accuracy
+		// power, accuracy, pp
 		buf += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
 		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />'+(move.pp!==1?move.pp*8/5:move.pp)+'</span> ';
 
 		// desc
 		buf += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
