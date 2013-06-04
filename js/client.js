@@ -2190,6 +2190,8 @@
 				var registered = app.user.get('registered');
 				if (registered && (registered.userid === app.user.get('userid'))) {
 					buf += '<button name="changepassword">Change password</button> ';
+				} else {
+					buf += '<button name="register">Register</button> ';
 				}
 				buf += '<button name="logout"><strong>Log out</strong></button>';
 				buf += '</p>';
@@ -2236,6 +2238,9 @@
 		},
 		login: function() {
 			app.addPopup(LoginPopup);
+		},
+		register: function() {
+			app.addPopup(RegisterPopup);
 		},
 		changepassword: function() {
 			app.addPopup(ChangePasswordPopup);
