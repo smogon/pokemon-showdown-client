@@ -140,6 +140,14 @@
 	color: #000000;
 	font-size: 10pt;
 }
+.utilichart .shortpokemonnamecol
+{
+	padding-top: 5px;
+	height: 23px;
+	width: 118px;
+	color: #000000;
+	font-size: 10pt;
+}
 .utilichart .movenamecol
 {
 	padding-top: 5px;
@@ -160,12 +168,16 @@
 {
 	padding-top: 5px;
 	height: 23px;
-	width: 42px;
+	width: 34px;
 	border-right: 1px solid #CCCCCC;
 	margin-right: 5px;
 	text-align: center;
 	color: #000000;
 	font-size: 10pt;
+}
+.utilichart .tagcol.shorttagcol
+{
+	margin-right: 1px;
 }
 .utilichart .typecol
 {
