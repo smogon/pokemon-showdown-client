@@ -1807,6 +1807,7 @@
 				if (template.id === 'dragonite' && evs['hp']) evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
 				if (evTotal < 508) {
 					var remaining = 508 - evTotal;
+					if (remaining > 252) remaining = 252;
 					if (!evs['atk'] && moveCount['PhysicalAttack']) {
 						evs['atk'] = remaining;
 					} else if (!evs['spa'] && moveCount['SpecialAttack']) {
