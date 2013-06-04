@@ -222,13 +222,13 @@
 
 		return buf;
 	};
-	Search.renderTaggedPokemonRow = function(pokemon, tag, errorMessage) {
+	Search.renderTaggedPokemonRowInner = function(pokemon, tag, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'pokemon/'+toId(pokemon.species)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
+		var buf = '<a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
 
 		// tag
-		buf += '<span class="col tagcol">'+tag+'</span> ';
+		buf += '<span class="col tagcol shorttagcol">'+tag+'</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
@@ -239,7 +239,7 @@
 		var name = pokemon.species;
 		var tagStart = (pokemon.forme ? name.length-pokemon.forme.length-1 : 0);
 		if (tagStart) name = name.substr(0, tagStart) + '<small>'+pokemon.species.substr(tagStart)+'</small>';
-		buf += '<span class="col pokemonnamecol" style="white-space:nowrap">'+name+'</span> ';
+		buf += '<span class="col shortpokemonnamecol" style="white-space:nowrap">'+name+'</span> ';
 
 		// error
 		if (errorMessage) {
@@ -282,16 +282,19 @@
 		buf += '<span class="col statcol"><em>SpA</em><br />'+pokemon.baseStats.spa+'</span> ';
 		buf += '<span class="col statcol"><em>SpD</em><br />'+pokemon.baseStats.spd+'</span> ';
 		buf += '<span class="col statcol"><em>Spe</em><br />'+pokemon.baseStats.spe+'</span> ';
+		var bst = 0;
+		for (i in pokemon.baseStats) bst += pokemon.baseStats[i];
+		buf += '<span class="col bstcol"><em>BST<br />'+bst+'</em></span> ';
 		buf += '</span>';
 
-		buf += '</a></li>';
+		buf += '</a>';
 
 		return buf;
 	};
 
 	Search.renderItemRow = function(item, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'item/'+toId(item.name)+'" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'items/'+toId(item.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(item.name)+'">';
 
 		// icon
@@ -322,7 +325,7 @@
 	};
 	Search.renderAbilityRow = function(ability, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'ability/'+toId(ability.name)+'" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'abilities/'+toId(ability.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(ability.name)+'">';
 
 		// name
@@ -347,7 +350,7 @@
 	};
 	Search.renderMoveRow = function(move, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'move/'+toId(move.name)+'" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'moves/'+toId(move.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
 
 		// name
@@ -397,7 +400,7 @@
 	};
 	Search.renderTaggedMoveRow = function(move, tag, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'move/'+toId(move.name)+'" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'moves/'+toId(move.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
 
 		// tag
@@ -434,34 +437,9 @@
 		return buf;
 	};
 
-	Search.renderAbilityRow = function(ability, matchStart, matchLength, errorMessage) {
-		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'ability/'+toId(ability.name)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(ability.name)+'">';
-
-		// name
-		var name = ability.name;
-		if (matchLength) {
-			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
-		}
-		buf += '<span class="col namecol">'+name+'</span> ';
-
-		// error
-		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
-			buf += '</a></li>';
-			return buf;
-		}
-		
-		buf += '<span class="col abilitydesccol">'+Tools.escapeHTML(ability.shortDesc || ability.desc)+'</span> ';
-		
-		buf += '</a></li>';
-		
-		return buf;
-	};
 	Search.renderTypeRow = function(type, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'type/'+toId(type.name)+'" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'types/'+toId(type.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(type.name)+'">';
 
 		// name
@@ -489,7 +467,7 @@
 	};
 	Search.renderCategoryRow = function(category, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'category/'+toId(category.name)+'" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'categories/'+toId(category.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(category.name)+'">';
 
 		// name
