@@ -55,7 +55,7 @@
 		}
 
 		var i = Search.getClosest(query);
-		if (!BattleSearchIndex[i] || query === 'metronome') i--;
+		if (!BattleSearchIndex[i] || query === 'metronome' || query === 'psychic') i--;
 		this.exactMatch = (query === BattleSearchIndex[i]);
 
 		var bufs = ['','','',''];
