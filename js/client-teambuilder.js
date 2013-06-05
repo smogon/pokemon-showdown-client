@@ -1839,6 +1839,10 @@
 				minusStat = 'def';
 			}
 
+			if (plusStat === minusStat) {
+				minusStat = (plusStat==='spe' ? 'spd' : 'spe');
+			}
+
 			evs.plusStat = plusStat;
 			evs.minusStat = minusStat;
 
