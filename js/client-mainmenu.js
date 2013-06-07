@@ -93,15 +93,15 @@
 			if (name.substr(0, 1) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>'+clickableName;
 
 			if (message.substr(0,4) === '/me ') {
-				$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4)) + '</i></em></div>');
+				$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4), name) + '</i></em></div>');
 			} else if (message.substr(0,5) === '/mee ') {
-				$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message.substr(5)) + '</i></em></div>');
+				$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message.substr(5), name) + '</i></em></div>');
 			} else if (message.substr(0,8) === '/invite ') {
 				var roomid = toRoomid(message.substr(8));
 				$chat.append('<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "'+roomid+'"</em></div>');
 				$chat.append('<div class="notice"><button name="joinRoom" value="'+roomid+'">Join '+roomid+'</button></div>');
 			} else if (message.substr(0,10) === '/announce ') {
-				$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
+				$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10), name) + '</span></div>');
 			} else if (message.substr(0,14) === '/data-pokemon ') {
 				$chat.append('<div class="message"><ul class="utilichart">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,11) === '/data-item ') {
@@ -113,7 +113,7 @@
 			} else {
 				// Normal chat message.
 				if (message.substr(0,2) === '//') message = message.substr(1);
-				$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (target === oName ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
+				$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (target === oName ? ' class="mine"' : '') + '>' + Tools.parseMessage(message, name) + '</em></div>');
 			}
 
 			if (autoscroll) {
