@@ -337,6 +337,7 @@ var Tools = {
 					onclick = 'if (window._gaq) _gaq.push([\'_trackEvent\', \'' +
 							event + '\', \'' + Tools.escapeQuotes(fulluri) + '\']);';
 				}
+				var classbit = '';
 				if (linkclass) {
 					classbit = ' class="message-link-' + toId(linkclass) + '"';
 				}
