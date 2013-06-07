@@ -297,7 +297,7 @@ var Tools = {
 		return Tools.escapeHTML(formatid);
 	},
 
-	parseMessage: function(str) {
+	parseMessage: function(str, linkclass) {
 		str = Tools.escapeHTML(str);
 		// Don't format console commands (>>).
 		if (str.substr(0, 8) === '&gt;&gt;') return str;
@@ -337,8 +337,12 @@ var Tools = {
 					onclick = 'if (window._gaq) _gaq.push([\'_trackEvent\', \'' +
 							event + '\', \'' + Tools.escapeQuotes(fulluri) + '\']);';
 				}
+				if (linkclass) {
+					classbit = ' class="message-link-' + toId(linkclass) + '"';
+				}
 				return '<a href="' + fulluri +
-					'" target="_blank" onclick="' + onclick + '">' + uri + '</a>';
+					'" target="_blank" onclick="' + onclick + '"' + classbit +
+						'>' + uri + '</a>';
 			});
 			// google [blah]
 			// google[blah]
