@@ -4037,6 +4037,12 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'skillswap':
 					actions += "" + poke.getName() + " swapped Abilities with its target!";
+					if (ofpoke && poke.side !== ofpoke.side) {
+						self.resultAnim(poke, args[3], 'neutral', 1);
+						self.resultAnim(ofpoke, args[4], 'neutral', 4);
+						actions += "<br />" + poke.getName() + " acquired " + args[3] + "!";
+						actions += "<br />" + ofpoke.getName() + " acquired " + args[4] + "!";
+					}
 					break;
 				case 'charge':
 					actions += "" + poke.getName() + " began charging power!";
