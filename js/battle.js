@@ -4030,10 +4030,10 @@ function Battle(frame, logFrame, noPreload) {
 					poke.sprite.anim({time:100});
 					break;
 				case 'magnitude':
-					actions += "Magnitude " + args[3] + "!";
+					actions += "Magnitude " + Tools.escapeHTML(args[3]) + "!";
 					break;
 				case 'sketch':
-					actions += "" + poke.getName() + " sketched " + args[3] + "!";
+					actions += "" + poke.getName() + " sketched " + Tools.escapeHTML(args[3]) + "!";
 					break;
 				case 'skillswap':
 					actions += "" + poke.getName() + " swapped Abilities with its target!";
@@ -4103,7 +4103,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + "'s' Speed Boost increases its speed!";
 					break;
 				case 'forewarn':
-					actions += "" + poke.getName() + "'s Forewarn alerted it to " + args[3] + "!";
+					actions += "" + poke.getName() + "'s Forewarn alerted it to " + Tools.escapeHTML(args[3]) + "!";
 					break;
 				case 'anticipation':
 					actions += "" + poke.getName() + " shuddered!";
@@ -4122,7 +4122,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + '\'s ' + effect.name + ' let it move first!';
 					break;
 				case 'leppaberry':
-					actions += '' + poke.getName() + " restored " + args[3] + "'s PP using its Leppa Berry!";
+					actions += '' + poke.getName() + " restored " + Tools.escapeHTML(args[3]) + "'s PP using its Leppa Berry!";
 					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " activated!";
@@ -4309,7 +4309,7 @@ function Battle(frame, logFrame, noPreload) {
 				break;
 
 			case '-hint':
-				hiddenactions += '('+args[1]+')';
+				hiddenactions += '('+Tools.escapeHTML(args[1])+')';
 				break;
 			
 			default:
