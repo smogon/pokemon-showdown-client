@@ -52,8 +52,9 @@ Header set X-Robots-Tag "noindex" env=INDEX_PAGE
 RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
 RewriteCond %{HTTP_REFERER} !^$
 RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
-RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
-RewriteCond %{HTTP:CF-Connecting-IP} !^173\.252\.196\.254$
+RewriteCond %{REMOTE_ADDR} !=127.0.0.1
+RewriteCond %{HTTP:CF-Connecting-IP} !=173.252.196.254
+RewriteCond %{HTTP:CF-Connecting-IP} !=198.27.67.31
 RewriteRule .* - [E=LOBBY_REDIRECT:1]
 
 RewriteCond %{ENV:LOBBY_REDIRECT}%{ENV:P_SUFFIX} =1
