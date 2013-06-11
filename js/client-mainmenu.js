@@ -72,6 +72,9 @@
 		 *********************************************************/
 
 		addPM: function(name, message, target) {
+			var userid = toUserid(name);
+			if (app.ignore[userid] && name.substr(0, 1) === ' ') return;
+
 			var oName = name;
 			if (toId(name) === app.user.get('userid')) {
 				oName = target;
