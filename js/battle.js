@@ -2744,12 +2744,16 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'flinch':
 			self.resultAnim(pokemon, 'Flinched', 'neutral');
-			self.message(pokemon.getName() + ' flinched!');
+			self.message(pokemon.getName() + ' flinched and couldn\'t move!');
 			pokemon.removeTurnstatus('focuspunch');
 			break;
 		case 'attract':
 			self.resultAnim(pokemon, 'Immobilized', 'neutral');
 			self.message(pokemon.getName() + ' is immobilized by love!');
+			break;
+		case 'nopp':
+			self.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+			self.message('But there was no PP left for the move!');
 			break;
 		default:
 			self.message('<small>' + pokemon.getName() + (move.name ? ' can\'t use ' + move.name + '' : ' can\'t move') + '!</small>');
