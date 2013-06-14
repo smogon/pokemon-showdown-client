@@ -2709,6 +2709,9 @@ function Battle(frame, logFrame, noPreload) {
 		case 'gravity':
 			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of gravity!');
 			break;
+		case 'healblock':
+			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of Heal Block!');
+			break;
 		case 'imprison':
 			self.message('' + pokemon.getName() + ' can\'t use the sealed ' + move.name + '!');
 			break;
