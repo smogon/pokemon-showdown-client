@@ -1,5 +1,5 @@
 BattlePokemonSprites = {
-	"tomohawk": {num:-1, front:{ani:{w: 96, h: 96}}},
+	"tomohawk": {num:-1, front:{ani:{w: 93, h: 59}, anif:{w: 93, h: 59}},back:{ani:{w: 92, h: 62}, anif:{w: 92, h: 62}}},
 	"necturna": {num:-2, front:{ani:{w: 77, h: 87}},back:{ani:{w: 71, h: 85}}},
 	"mollux": {num:-3, front:{ani:{w: 60, h: 67}},back:{ani:{w: 59, h: 64}}},
 	"aurumoth": {num:-4, front:{ani:{w: 80, h: 72}},back:{ani:{w: 84, h: 76}}},
