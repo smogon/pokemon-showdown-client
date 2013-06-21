@@ -436,13 +436,13 @@ var Tools = {
 		};
 		var tagPolicy = function(tagName, attribs) {
 			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
-				return undefined;
+				return;
 			}
-			// In addition to the normal whitelist, allow target='_blank'.
-			// html.sanitizeAttribs is not very customisable, so this a bit ugly.
-			var blankIdx = undefined;
+			var targetIdx;
 			var extra = {};
 			if (tagName === 'a') {
+				// Special handling of <a> tags.
+
 				for (var i = 0; i < attribs.length - 1; i += 2) {
 					switch (attribs[i]) {
 						case 'href':
@@ -451,9 +451,7 @@ var Tools = {
 							}
 							break;
 						case 'target':
-							if (attribs[i + 1] === '_blank') {
-								blankIdx = i + 1;
-							}
+							targetIdx = i + 1;
 							break;
 						case 'room':
 							// Special custom attribute for linking to a room.
@@ -470,8 +468,10 @@ var Tools = {
 				}
 			}
 			attribs = html.sanitizeAttribs(tagName, attribs, uriRewriter);
-			if (blankIdx !== undefined) {
-				attribs[blankIdx] = '_blank';
+			if (targetIdx !== undefined) {
+				attribs[targetIdx] = '_blank';
+			} else {
+				extra['target'] = '_blank';
 			}
 			for (var i in extra) {
 				attribs.push(i);
