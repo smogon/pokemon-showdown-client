@@ -147,7 +147,7 @@ class DefaultActionHandler {
 		$user = array();
 		$user['username'] = @$_POST['username'];
 		$userid = $users->userid($user['username']);
-		if ((mb_strlen($userid) < 1) || is_numeric($userid)) {
+		if ((mb_strlen($userid) < 1) || ctype_digit($userid)) {
 			$out['actionerror'] = 'Your username must contain at least one letter.';
 		} else if (substr($userid, 0, 5) === 'guest') {
 			$out['actionerror'] = 'Your username cannot start with \'guest\'.';
