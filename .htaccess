@@ -32,7 +32,9 @@ RewriteRule ^battle-([a-z]+[0-9]{1,7})$ http%{ENV:P_SUFFIX}://pokemonshowdown.co
 # TODO: fix bug where you can't join lobby directly
 RewriteRule ^lobby/?$ / [R=301,L]
 
-# roomid with a slash after it: remove the slash
+# roomid with a slash after it: remove the slash, unless the roomid
+# is also an actual directory
+RewriteCond %{DOCUMENT_ROOT}/$1 !-d
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
 #RewriteCond %{ENV:P_SUFFIX} =s
