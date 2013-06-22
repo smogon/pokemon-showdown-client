@@ -1921,7 +1921,7 @@
 					buf += '</ol>';
 				}
 			} else if (data.reason) {
-				buf += '<p>' + Tools.escapeHTML(data.reason) + '</p>';
+				buf += '<p>' + Tools.parseMessage(data.reason) + '</p>';
 			}
 
 			var name = (data.name || '');
