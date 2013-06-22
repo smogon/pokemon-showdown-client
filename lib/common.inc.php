@@ -68,8 +68,7 @@ function getAuthorization(&$userid, &$authenticated, &$group) {
 	$hexsignature = $parts[1];
 	$publickey = openssl_pkey_get_public($config['loginserverpublickey']);
 	if ($publickey === false) {
-		echo 'ERROR: Invalid public key.\n';
-		die();
+		die("ERROR: Invalid public key.\n");
 	}
 	$res = openssl_verify($assertion, hex2bin($hexsignature), $publickey);
 	if ($res !== 1) return AUTH_INVALID;
