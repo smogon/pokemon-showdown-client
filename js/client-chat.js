@@ -1022,7 +1022,8 @@
 			'+': 1,
 			' ': 0,
 			'!': 0,
-			'#': 0
+			'#': 0,
+			'‽': 0
 		},
 		rankOrder: {
 			'~': 1,
@@ -1032,7 +1033,8 @@
 			'+': 5,
 			' ': 6,
 			'!': 7,
-			'#': 8
+			'#': 8,
+			'‽': 8
 		},
 		updateUserCount: function() {
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
@@ -1107,8 +1109,8 @@
 		},
 		comparator: function(a, b) {
 			if (a === b) return 0;
-			var aRank = this.rankOrder[this.room.users[a] ? this.room.users[a].substr(0, 1) : ' '];
-			var bRank = this.rankOrder[this.room.users[b] ? this.room.users[b].substr(0, 1) : ' '];
+			var aRank = (this.rankOrder[this.room.users[a] ? this.room.users[a].substr(0, 1) : ' '] || 5);
+			var bRank = (this.rankOrder[this.room.users[b] ? this.room.users[b].substr(0, 1) : ' '] || 5);
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
