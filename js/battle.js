@@ -4826,6 +4826,8 @@ function Battle(frame, logFrame, noPreload) {
 			name = args.join(' ');
 			self.log('<div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div>', preempt);
 			break;
+		case 'unlink':
+			break;
 		default:
 			self.logConsole('unknown command: ' + args[0]);
 			self.log('<div>Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
