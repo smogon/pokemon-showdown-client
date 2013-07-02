@@ -761,8 +761,8 @@
 				var roomTypeLFIndex = roomType.indexOf('\n');
 				if (roomTypeLFIndex >= 0) roomType = roomType.substr(0, roomTypeLFIndex);
 				roomType = toId(roomType);
-				if (this.rooms[roomid]) {
-					// make sure we have the correct roomType
+				if (this.rooms[roomid] || roomid === 'staff') {
+					// staff is always joined in background
 					this.addRoom(roomid, roomType, true);
 				} else {
 					this.joinRoom(roomid, roomType, true);
@@ -1088,17 +1088,18 @@
 				'teambuilder': TeambuilderRoom,
 				'ladder': LadderRoom,
 				'lobby': ChatRoom,
+				'staff': ChatRoom,
 			};
 			var typeTable = {
 				'battle': BattleRoom,
 				'chat': ChatRoom
 			};
 
-			// the room table overrides everything else
-			if (roomTable[id]) type = roomTable[id];
+			// the passed type overrides everything else
+			if (typeName) type = typeTable[typeName];
 
-			// otherwise, the passed type wins
-			if (!type) type = typeTable[typeName];
+			// otherwise, the room table has precedence
+			if (!type) type = roomTable[id];
 
 			// otherwise, infer the room type
 			if (!type) {
