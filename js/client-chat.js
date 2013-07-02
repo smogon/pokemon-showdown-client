@@ -660,9 +660,15 @@
 			if (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height()) {
 				autoscroll = true;
 			}
+			var userlist = '';
 			for (var i = 0; i < log.length; i++) {
-				this.addRow(log[i]);
+				if (log[i].substr(0,7) === '|users|') {
+					userlist = log[i];
+				} else {
+					this.addRow(log[i]);
+				}
 			}
+			if (userlist) this.addRow(userlist);
 			if (autoscroll) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
@@ -1045,6 +1051,7 @@
 			$('#' + this.room.id + '-userlist-user-' + me.userForm).attr('class', 'cur');
 		},
 		add: function(userid) {
+			$('#' + this.room.id + '-userlist-user-' + userid).remove();
 			var users = this.$el.children();
 			// Determine where to insert the user using a binary search.
 			var left = 0;
