@@ -1021,6 +1021,7 @@
 			this.$el.html(buf);
 		},
 		ranks: {
+			'#': 2,
 			'~': 2,
 			'&': 2,
 			'@': 1,
@@ -1028,19 +1029,18 @@
 			'+': 1,
 			' ': 0,
 			'!': 0,
-			'#': 0,
 			'‽': 0
 		},
 		rankOrder: {
-			'~': 1,
-			'&': 2,
-			'@': 3,
-			'%': 4,
-			'+': 5,
-			' ': 6,
-			'!': 7,
-			'#': 8,
-			'‽': 8
+			'#': 1,
+			'~': 2,
+			'&': 3,
+			'@': 4,
+			'%': 5,
+			'+': 6,
+			' ': 7,
+			'!': 8,
+			'‽': 9
 		},
 		updateUserCount: function() {
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
@@ -1088,7 +1088,7 @@
 			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
 			var group = name.charAt(0);
 			text += '<em class="group' + (this.ranks[group]===2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
-			if (group === '~' || group === '&') {
+			if (group === '~' || group === '&' || group === '#') {
 				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</em></strong>';
 			} else if (group === '%' || group === '@') {
 				text += '<strong style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</strong>';

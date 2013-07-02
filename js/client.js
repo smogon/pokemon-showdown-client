@@ -1811,12 +1811,13 @@
 			var name = data.name;
 			var avatar = data.avatar || '';
 			var groupDetails = {
+				'#': "Room Owner (#)",
 				'~': "Administrator (~)",
 				'&': "Leader (&amp;)",
 				'@': "Moderator (@)",
 				'%': "Driver (%)",
 				'+': "Voiced (+)",
-				'#': "<span style='color:#777777'>Locked (#)</span>",
+				'‽': "<span style='color:#777777'>Locked (‽)</span>",
 				'!': "<span style='color:#777777'>Muted (!)</span>"
 			};
 			var group = (groupDetails[name.substr(0, 1)] || '');
