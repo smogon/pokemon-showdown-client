@@ -808,12 +808,12 @@ p.or:after {
 }
 
 .roomlist {
-	text-align: center;
+	text-align: left;
 }
 .roomlist a.ilink {
 	display: block;
 	margin: 2px 7px 4px 7px;
-	padding: 0px 2px 1px 2px;
+	padding: 1px 4px 2px 4px;
 	border: 1px solid #BBCCDD;
 	background: #F8FBFD;
 	
@@ -823,7 +823,7 @@ p.or:after {
 	text-shadow: #ffffff 0px -1px 0;
 	box-shadow: 1px 1px 1px #D5D5D5;
 	cursor: pointer;
-	font-size: 9pt;
+	font-size: 10pt;
 
 	overflow: hidden;
 	white-space: nowrap;

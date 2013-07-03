@@ -1086,6 +1086,7 @@
 			var roomTable = {
 				'': MainMenuRoom,
 				'teambuilder': TeambuilderRoom,
+				'rooms': RoomsRoom,
 				'ladder': LadderRoom,
 				'lobby': ChatRoom,
 				'staff': ChatRoom,
@@ -1415,7 +1416,7 @@
 					name = '<i class="text">'+formatid+'</i><span>'+name+'</span>';
 				}
 				if (room.isSideRoom) {
-					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+					if (id !== 'rooms') sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 					continue;
 				}
 				if (!atLeastOne) {
@@ -1423,6 +1424,9 @@
 					atLeastOne = true;
 				}
 				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+			}
+			if (Config.server && Config.server.id === 'showdown') {
+				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (sideBuf) {
@@ -1465,7 +1469,7 @@
 			if ($target.hasClass('closebutton')) {
 				app.leaveRoom(id);
 			} else {
-				app.focusRoom(id);
+				app.joinRoom(id);
 			}
 		},
 		tablist: function() {
@@ -2382,7 +2386,7 @@
 					name = '<i class="text">'+parts[0]+'</i><span>'+name+'</span>';
 				}
 				if (room.isSideRoom) {
-					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+					if (room.id !== 'rooms') sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 					continue;
 				}
 				if (!atLeastOne) {
@@ -2390,6 +2394,9 @@
 					atLeastOne = true;
 				}
 				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+			}
+			if (Config.server.id === 'showdown') {
+				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (sideBuf) {
