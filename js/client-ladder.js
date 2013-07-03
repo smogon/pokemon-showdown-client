@@ -2,6 +2,7 @@
 
 	var LadderRoom = this.LadderRoom = this.Room.extend({
 		type: 'ladder',
+		title: 'Ladder',
 		initialize: function() {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			app.on('init:formats', this.update, this);
