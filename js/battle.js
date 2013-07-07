@@ -624,6 +624,7 @@ function Pokemon(species) {
 			selfP.removeVolatile('yawn');
 			selfP.removeVolatile('confusion');
 			selfP.removeVolatile('airballoon');
+			selfP.removeVolatile('typechange');
 		}
 		selfP.removeVolatile('transform');
 		selfP.removeVolatile('formechange');
