@@ -256,9 +256,17 @@ class NTBBLadder {
 			$needUpdate = false;
 			$top = array();
 
-			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' AND `serverid` = '{$this->serverid}' ORDER BY `lacre` DESC LIMIT 100");
+			$limit = 500;
+			// if (isset($GLOBALS['curuser']) && $GLOBALS['curuser']['group'] != 0) {
+			// 	$limit = 1000;
+			// }
 
+			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' AND `serverid` = '{$this->serverid}' ORDER BY `lacre` DESC LIMIT $limit");
+
+			$j = 0;
 			while ($row = $ladderdb->fetch_assoc($res)) {
+				$j++;
+				if ($row['lacre'] < 0 && $j > 50) break;
 				$user = array(
 					'username' => $row['username'],
 					'userid' => $row['userid'],
