@@ -622,7 +622,6 @@ function Pokemon(species) {
 		//selfP.lastmove = pokemon.lastmove; // I think
 		if (!copyAll) {
 			selfP.removeVolatile('yawn');
-			selfP.removeVolatile('confusion');
 			selfP.removeVolatile('airballoon');
 			selfP.removeVolatile('typechange');
 		}
