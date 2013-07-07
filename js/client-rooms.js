@@ -47,20 +47,24 @@
 				this.$el.html(buf);
 				return;
 			}
-			var buf = '<div class="pad"><div class="roomlist" style="max-width:300px">';
+			var buf = '<div class="pad"><div class="roomlist" style="max-width:480px">';
 
 			buf += '<h2>Official chat rooms</h2>';
 			for (var i=0; i<rooms.official.length; i++) {
 				var roomData = rooms.official[i];
 				var id = toId(roomData.title);
-				buf += '<div><a href="' + app.root+id + '" class="ilink"><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>(' + Number(roomData.userCount) + ' users)' + Tools.escapeHTML(roomData.desc||'')+ '</small></a></div>';
+				buf += '<div><a href="' + app.root+id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc||'')+ '</small></a></div>';
 			}
 
 			buf += '<h2>Chat rooms</h2>';
+			rooms.chat.sort(function(a, b) {
+				return b.userCount - a.userCount;
+			});
 			for (var i=0; i<rooms.chat.length; i++) {
 				var roomData = rooms.chat[i];
 				var id = toId(roomData.title);
-				buf += '<div><a href="' + app.root+id + '" class="ilink"><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>(' + Number(roomData.userCount) + ' users)' + Tools.escapeHTML(roomData.desc||'')+ '</small></a></div>';
+				var escapedDesc = Tools.escapeHTML(roomData.desc||'');
+				buf += '<div><a href="' + app.root+id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + escapedDesc + '</small></a></div>';
 			}
 
 			buf += '</div></div>';
