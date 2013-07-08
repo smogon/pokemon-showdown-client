@@ -4286,8 +4286,14 @@ function Battle(frame, logFrame, noPreload) {
 				switch (effect.id) {
 				case 'perishsong':
 					actions += 'All Pok&#xE9;mon hearing the song will faint in three turns!';
-					if (self.mySide.active[0]) self.mySide.active[0].addVolatile('perish3');
-					if (self.yourSide.active[0]) self.yourSide.active[0].addVolatile('perish3');
+					if (self.mySide.active[0] && !self.mySide.active[0].volatiles['perish0']
+					&& !self.mySide.active[0].volatiles['perish1'] && !self.mySide.active[0].volatiles['perish2']) {
+						self.mySide.active[0].addVolatile('perish3');
+					}
+					if (self.yourSide.active[0] && !self.yourSide.active[0].volatiles['perish0']
+					 && !self.yourSide.active[0].volatiles['perish1'] && !self.yourSide.active[0].volatiles['perish2']) {
+						self.yourSide.active[0].addVolatile('perish3');
+					}
 					self.mySide.updateStatbar();
 					self.yourSide.updateStatbar();
 					break;
