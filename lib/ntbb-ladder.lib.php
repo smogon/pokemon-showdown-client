@@ -286,6 +286,11 @@ class NTBBLadder {
 		return $top;
 	}
 
+	function clearAllRatings() {
+		global $ladderdb;
+		$res = $ladderdb->query("DELETE FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' AND `serverid` = '{$this->serverid}'");
+	}
+
 	function saveRating($user) {
 		global $ladderdb;
 		if (!$user['rating']) return false;
