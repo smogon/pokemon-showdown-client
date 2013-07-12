@@ -75,6 +75,10 @@
 			var userid = toUserid(name);
 			if (app.ignore[userid] && name.substr(0, 1) === ' ') return;
 
+			if (app.curSideRoom && app.curSideRoom.addPM && !Tools.prefs('nolobbypm')) {
+				app.curSideRoom.addPM(parts[1], message, parts[2]);
+			}
+
 			var oName = name;
 			if (toId(name) === app.user.get('userid')) {
 				oName = target;
