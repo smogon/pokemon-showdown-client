@@ -906,7 +906,7 @@
 			var userid = toUserid(name);
 			var color = hashColor(userid);
 
-			if (app.ignore[userid] && name.substr(0, 1) === ' ') return;
+			if (app.ignore[userid] && (name.charAt(0) === ' ' || name.charAt(0) === '+')) return;
 
 			// Add this user to the list of people who have spoken recently.
 			this.markUserActive(userid);
