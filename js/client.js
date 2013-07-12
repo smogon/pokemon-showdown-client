@@ -880,10 +880,8 @@
 
 			case 'pm':
 				var message = parts.slice(3).join('|');
+
 				this.rooms[''].addPM(parts[1], message, parts[2]);
-				if (this.rooms['lobby'] && !Tools.prefs('nolobbypm')) {
-					this.rooms['lobby'].addPM(parts[1], message, parts[2]);
-				}
 				break;
 
 			case 'roomerror':
