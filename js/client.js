@@ -232,7 +232,10 @@
 			this.ignore = {};
 
 			// down
-			//this.down = true;
+			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = true;
+			if (document.location.hostname === 'play.pokemonshowdown.com') {
+				app.supportsRooms = true;
+			}
 
 			this.topbar = new Topbar({el: $('#header')});
 			this.addRoom('');
@@ -300,6 +303,7 @@
 			});
 
 			this.initializeConnection();
+
 			Backbone.history.start({pushState: true});
 		},
 		/**
@@ -1423,7 +1427,7 @@
 				}
 				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 			}
-			if (Config.server && Config.server.id === 'showdown') {
+			if (app.supportsRooms) {
 				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
@@ -2393,7 +2397,7 @@
 				}
 				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 			}
-			if (Config.server.id === 'showdown') {
+			if (app.supportsRooms) {
 				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
