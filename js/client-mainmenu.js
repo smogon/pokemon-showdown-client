@@ -76,7 +76,7 @@
 			if (app.ignore[userid] && name.substr(0, 1) === ' ') return;
 
 			if (app.curSideRoom && app.curSideRoom.addPM && !Tools.prefs('nolobbypm')) {
-				app.curSideRoom.addPM(parts[1], message, parts[2]);
+				app.curSideRoom.addPM(name, message, target);
 			}
 
 			var oName = name;
