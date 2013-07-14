@@ -1,6 +1,8 @@
 (function($) {
 
 	var RoomsRoom = this.RoomsRoom = Room.extend({
+		minWidth: 320,
+		maxWidth: 1024,
 		type: 'rooms',
 		title: 'Rooms',
 		isSideRoom: true,
