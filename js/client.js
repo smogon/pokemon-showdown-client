@@ -291,6 +291,8 @@
 
 			this.on('response:savereplay', this.uploadReplay, this);
 
+			this.on('response:rooms', this.roomsResponse, this);
+
 			$(window).on('focus click', function() {
 				if (!self.focused) {
 					self.focused = true;
@@ -996,6 +998,12 @@
 					app.addPopupMessage("Error while uploading replay: "+data);
 				}
 			});
+		},
+		roomsResponse: function(data) {
+			this.supportsRooms = true;
+			if (data) {
+				this.roomsData = data;
+			}
 		},
 		clearGlobalListeners: function() {
 			// jslider doesn't clear these when it should,

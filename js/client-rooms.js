@@ -35,9 +35,9 @@
 		update: function(rooms) {
 			if (rooms) {
 				this.lastUpdate = new Date().getTime();
-				this.rooms = rooms;
+				app.roomsData = rooms;
 			} else {
-				rooms = this.rooms;
+				rooms = app.roomsData;
 			}
 			if (!app.user.get('named')) {
 				var buf = '<div class="pad"><p>You must be logged in to join rooms.</p></div>';
