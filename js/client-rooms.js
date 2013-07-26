@@ -40,11 +40,6 @@
 				rooms = app.roomsData;
 			}
 			var buf = '<div class="pad"><button style="float:right" name="close">Close</button>';
-			if (!app.user.get('named')) {
-				buf += '<p>You must be logged in to join rooms.</p></div>';
-				this.$el.html(buf);
-				return;
-			}
 			if (!rooms) {
 				buf += '<p>Loading...</p></div>';
 				this.$el.html(buf);
