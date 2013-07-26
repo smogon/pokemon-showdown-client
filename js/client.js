@@ -240,7 +240,11 @@
 			this.topbar = new Topbar({el: $('#header')});
 			this.addRoom('');
 			if (!this.down && $(window).width() >= 916) {
-				this.addRoom('lobby');
+				if (document.location.hostname === 'play.pokemonshowdown.com') {
+					this.addRoom('rooms');
+				} else {
+					this.addRoom('lobby');
+				}
 			}
 
 			var self = this;
@@ -796,6 +800,7 @@
 						this.removeRoom(roomid);
 					} else { // noinit
 						this.unjoinRoom(roomid);
+						if (roomid === 'lobby') this.joinRoom('rooms');
 					}
 					if (errormessage) {
 						this.addPopupMessage(errormessage);
