@@ -1667,6 +1667,9 @@
 			this.dismissNotification(tag);
 			app.focusRoom(this.id);
 		},
+		close: function() {
+			app.leaveRoom(this.id);
+		},
 
 		// allocation
 
