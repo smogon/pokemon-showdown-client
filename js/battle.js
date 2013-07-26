@@ -4651,6 +4651,10 @@ function Battle(frame, logFrame, noPreload) {
 				if (self.mySide.active.length < 2) self.mySide.active.push(null);
 				if (self.yourSide.active.length < 2) self.yourSide.active.push(null);
 			}
+			if (args[1] === 'triples' || args[1] === 'rotation') {
+				if (self.mySide.active.length < 3) self.mySide.active.push(null);
+				if (self.yourSide.active.length < 3) self.yourSide.active.push(null); 
+			}
 			break;
 		case 'variation':
 			self.log('<div><small>Variation: <em>' + Tools.escapeHTML(args[1]) + '</em></small></div>');
