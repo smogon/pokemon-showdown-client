@@ -47,6 +47,16 @@
 			}
 			buf += '<div class="roomlist" style="max-width:480px">';
 
+			if (rooms.userCount) {
+				var userCount = Number(rooms.userCount);
+				var battleCount = Number(rooms.battleCount);
+				buf += '<p>'+userCount+' '+(userCount==1?'user':'users')+' online';
+				if (battleCount) {
+					buf += ', '+battleCount+' active '+(userCount==1?'battle':'battles');
+				}
+				buf += '</p>';
+			}
+
 			buf += '<h2>Official chat rooms</h2>';
 			for (var i=0; i<rooms.official.length; i++) {
 				var roomData = rooms.official[i];
