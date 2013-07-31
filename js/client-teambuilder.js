@@ -1276,17 +1276,15 @@
 						line = line.substr(0, line.length-4);
 					}
 					var parenIndex = line.lastIndexOf(' (');
-					var species = '';
 					if (line.substr(line.length-1) === ')' && parenIndex !== -1) {
 						line = line.substr(0, line.length-1);
-						species = line.substr(parenIndex+2);
+						curSet.species = Tools.getTemplate(line.substr(parenIndex+2)).name;
 						line = line.substr(0, parenIndex);
 						curSet.name = line;
 					} else {
-						species = line;
+						curSet.species = Tools.getTemplate(line).name;
+						curSet.name = curSet.species;
 					}
-					curSet.species = BattleAliases[toId(species)] || species;
-					if (!curSet.name) curSet.name = curSet.species;
 				} else if (line.substr(0, 7) === 'Trait: ') {
 					line = line.substr(7);
 					curSet.ability = line;
