@@ -1278,12 +1278,13 @@
 					var parenIndex = line.lastIndexOf(' (');
 					if (line.substr(line.length-1) === ')' && parenIndex !== -1) {
 						line = line.substr(0, line.length-1);
-						curSet.species = line.substr(parenIndex+2);
+						curSet.species = BattleAliases[toId(line.substr(parenIndex+2))] ? BattleAliases[toId(line.substr(parenIndex+2))] : line.substr(parenIndex+2);
 						line = line.substr(0, parenIndex);
 						curSet.name = line;
 					} else {
-						curSet.name = line;
-						curSet.species = line;
+						var species = BattleAliases[toId(line)] ? BattleAliases[toId(line)] : line;
+						curSet.name = species;
+						curSet.species = species;
 					}
 				} else if (line.substr(0, 7) === 'Trait: ') {
 					line = line.substr(7);
