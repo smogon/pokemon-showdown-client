@@ -51,9 +51,7 @@
 				var userCount = Number(rooms.userCount);
 				var battleCount = Number(rooms.battleCount);
 				buf += '<p>'+userCount+' '+(userCount==1?'user':'users')+' online';
-				if (battleCount) {
-					buf += ', '+battleCount+' active '+(userCount==1?'battle':'battles');
-				}
+				buf += ', '+battleCount+' active '+(battleCount==1?'battle':'battles');
 				buf += '</p>';
 			}
 
