@@ -45,7 +45,7 @@ body {
 	padding: 2px 3px;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	font-size: 9pt;
-	
+
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
 }
@@ -816,7 +816,7 @@ p.or:after {
 	padding: 1px 4px 2px 4px;
 	border: 1px solid #BBCCDD;
 	background: #F8FBFD;
-	
+
 	border-radius: 4px;
 	text-decoration: none;
 	color: #336699;
@@ -962,6 +962,105 @@ a.ilink:hover {
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
+/* Tournaments */
+
+.tournament-wrapper {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2em;
+	line-height: 2em;
+	text-align: center;
+	border-bottom: 1px #aaa solid;
+}
+.tournament-wrapper.active {
+	display: block;
+}
+.tournament-wrapper.active + .chat-log {
+	top: 2.4em;
+}
+
+.tournament-box {
+	position: absolute;
+	top: 2em;
+	left: 0;
+	right: 0;
+	z-index: 1;
+	line-height: 1em;
+	border-bottom: 1px #aaa solid;
+	background-color: rgba(242, 247, 250, 0.85);
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.5s ease-in-out;
+	-o-transition: max-height 0.5s ease-in-out;
+	-moz-transition: max-height 0.5s ease-in-out;
+	-webkit-transition: max-height 0.5s ease-in-out;
+}
+
+.tournament-title {
+	font-weight: bold;
+}
+
+.tournament-bracket {
+	max-height: 200px;
+	overflow: auto;
+	font-size: 8pt;
+	border-bottom: 1px #aaa solid;
+}
+.tournament-bracket-table {
+	margin: 10px auto;
+	empty-cells: hide;
+	border-bottom: 1px #aaa solid;
+	border-collapse: collapse;
+}
+.tournament-bracket-table td, .tournament-bracket-table th {
+	border: 1px #aaa solid;
+	padding: 5px;
+}
+.tournament-bracket-table .empty,
+.tournament-bracket-table .tournament-bracket-table-cell-null {
+	border-width: 0;
+}
+.tournament-bracket-table-cell-result-win {
+	background-color: rgba(0, 255, 0, 0.2)
+}
+.tournament-bracket-table-cell-result-draw {
+	background-color: rgba(255, 255, 0, 0.2)
+}
+.tournament-bracket-table-cell-result-loss {
+	background-color: rgba(255, 0, 0, 0.2)
+}
+
+.tournament-tools {
+	padding: 10px;
+}
+
+.tournament-join,
+.tournament-leave {
+	display: none;
+}
+.tournament-join.active,
+.tournament-leave.active {
+	display: inline;
+}
+
+.tournament-nomatches,
+.tournament-challenge,
+.tournament-challengeby,
+.tournament-challenging,
+.tournament-challenged {
+	display: none;
+}
+.tournament-nomatches.active,
+.tournament-challenge.active,
+.tournament-challengeby.active,
+.tournament-challenging.active,
+.tournament-challenged.active  {
+	display: block;
+}
+
 /* Messages */
 
 .message-announce {
@@ -1029,7 +1128,8 @@ a.ilink:hover {
 	overflow-scrolling: touch;
 }
 .chat-log.hasuserlist,
-.chat-log-add.hasuserlist {
+.chat-log-add.hasuserlist,
+.tournament-wrapper.hasuserlist {
 	left: 146px;
 }
 .userlist,
@@ -1582,13 +1682,13 @@ a.ilink:hover {
 	height: 127px;
 	width: 626px;
 	margin-top: 8px;
-	
+
 	background-image: linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-	
+
 	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
 }
 .setcol {
@@ -1633,7 +1733,7 @@ a.ilink:hover {
 	font-weight: bold;
 	color: #555555;
 	padding-left: 2px;
-	
+
 	text-shadow: 1px 1px 0 rgba(255,255,255,.6);
 }
 .setchart-nickname label {
@@ -1781,7 +1881,7 @@ a.ilink:hover {
 	font-size: 9pt;
 	width: 104px;
 	height: 20px;
-	
+
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
 	color: black;
@@ -2040,7 +2140,7 @@ a.ilink:hover {
  * <blink>
  *********************************************************/
 
-@-webkit-keyframes blinker {  
+@-webkit-keyframes blinker {
 	from { opacity: 1.0; }
 	to { opacity: 0.0; }
 }
@@ -2056,6 +2156,6 @@ blink {
 	animation-name: blinker;
 	animation-iteration-count: infinite;
 	animation-timing-function: cubic-bezier(1.0,0,0,1.0);
-	animation-duration: 1s; 
+	animation-duration: 1s;
 	text-decoration: none;
 }

@@ -33,7 +33,7 @@
 				this.$chatAdd.html('<form class="chatbox"><label style="' + hashColor(userid) + '">' + Tools.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
 				this.$chatbox = this.$chatAdd.find('textarea');
 				this.$chatbox.autoResize({
-					animate: false,	
+					animate: false,
 					extraSpace: 0
 				});
 				if (this === app.curSideRoom || this === app.curRoom) {
@@ -606,13 +606,16 @@
 		maxWidth: 1024,
 		isSideRoom: true,
 		initialize: function() {
-			var buf = '<ul class="userlist" style="display:none"></ul><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
+			var buf = '<ul class="userlist" style="display:none"></ul><div class="tournament-wrapper"></div><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
 			this.$el.addClass('ps-room-light').html(buf);
 
 			this.$chatAdd = this.$('.chat-log-add');
 			this.$chatFrame = this.$('.chat-log');
 			this.$chat = this.$('.inner');
 			this.$chatbox = null;
+
+			this.$tournamentWrapper = this.$('.tournament-wrapper');
+			this.tournamentBox = new TournamentBox(this, this.$tournamentWrapper);
 
 			this.users = {};
 			this.userCount = {};
@@ -634,10 +637,12 @@
 				this.$userList.show();
 				this.$chatFrame.addClass('hasuserlist');
 				this.$chatAdd.addClass('hasuserlist');
+				this.$tournamentWrapper.addClass('hasuserlist');
 			} else {
 				this.$userList.hide();
 				this.$chatFrame.removeClass('hasuserlist');
 				this.$chatAdd.removeClass('hasuserlist');
+				this.$tournamentWrapper.removeClass('hasuserlist');
 			}
 			this.$chatFrame.scrollTop(this.$chat.height());
 		},
@@ -783,6 +788,11 @@
 					});
 					break;
 
+				case 'tournament':
+				case 'tournaments':
+					if (!this.tournamentBox.parseMessage(row.slice(1), row[0] === 'tournaments'))
+						break;
+
 				case '':
 					this.$chat.append('<div class="notice">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
 					break;
@@ -792,6 +802,9 @@
 					break;
 				}
 			}
+		},
+		tournamentButton: function(val, button) {
+			this.tournamentBox[$(button).data('type')](val, button);
 		},
 		parseUserList: function(userList) {
 			this.userCount = {};
