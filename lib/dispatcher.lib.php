@@ -445,7 +445,7 @@ class LadderActionHandler {
 		if ($user) {
 			$ladder->getRating($user);
 			if (@$user['rating']) {
-				$out = ($user['rating']['r']+$user['rating']['rpr'])/2;
+				$out = ($user['rating']['rpr']);
 			}
 		}
 	}
