@@ -12,7 +12,7 @@ if (!window.exports) window.exports = window;
 // 32930 to 73032
 // subway
 // 1:33.120 - 3:08.614
-/* 
+/*
 
 // PO importer
 
@@ -709,7 +709,7 @@ var Tools = {
 		} while (template && template.species && !alreadyChecked[template.speciesid]);
 		return learnset;
 	},
-	
+
 	getType: function(type) {
 		if (!type || typeof type === 'string') {
 			var id = toId(type);

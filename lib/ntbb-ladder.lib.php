@@ -272,12 +272,12 @@ class NTBBLadder {
 					'userid' => $row['userid'],
 					'rating' => $row
 				);
-	
+
 				if ($this->update($user)) {
 					$this->saveRating($user);
 					$needUpdate = true;
 				}
-	
+
 				unset($row['rpdata']);
 				$top[] = $row;
 			}
