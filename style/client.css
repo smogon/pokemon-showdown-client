@@ -982,6 +982,11 @@ a.ilink:hover {
 	top: 2.4em;
 }
 
+.tournament-title {
+	font-weight: bold;
+	cursor: pointer;
+}
+
 .tournament-box {
 	position: absolute;
 	top: 2em;
@@ -997,10 +1002,6 @@ a.ilink:hover {
 	-o-transition: max-height 0.5s ease-in-out;
 	-moz-transition: max-height 0.5s ease-in-out;
 	-webkit-transition: max-height 0.5s ease-in-out;
-}
-
-.tournament-title {
-	font-weight: bold;
 }
 
 .tournament-bracket {
