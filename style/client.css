@@ -1007,7 +1007,6 @@ a.ilink:hover {
 	max-height: 200px;
 	overflow: auto;
 	font-size: 8pt;
-	border-bottom: 1px #aaa solid;
 }
 .tournament-bracket-table {
 	margin: 10px auto;
@@ -1035,6 +1034,11 @@ a.ilink:hover {
 
 .tournament-tools {
 	padding: 10px;
+	display: none;
+	border-top: 1px #aaa solid;
+}
+.tournament-tools.active {
+	display: block;
 }
 
 .tournament-join,
