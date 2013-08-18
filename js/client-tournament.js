@@ -107,7 +107,7 @@
 						break;
 
 					case 'update':
-						this.$tools.find('.active').removeClass('active');
+						this.$tools.find('.active').andSelf().removeClass('active');
 						if (this.info && this.info.isStarted)
 							this.$noMatches.addClass('active');
 						this.challenges = null;
@@ -240,6 +240,8 @@
 					this.$leave.addClass('active');
 				else
 					this.$join.addClass('active');
+			if (!this.info.isStarted || isJoined)
+				this.$tools.addClass('active');
 		},
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
