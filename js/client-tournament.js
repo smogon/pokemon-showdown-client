@@ -89,18 +89,23 @@
 			});
 		}
 
+		TournamentBox.prototype.updateLayout = function () {
+			this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight: '');
+		};
+
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
 			if (isBroadcast) {
 				// TODO
 				return true;
 			} else {
-				if (!this.isActive) {
+				var cmd = data.shift().toLowerCase();
+
+				if (!this.isActive && cmd !== 'end') {
 					this.$wrapper.addClass("active");
 					this.$box.addClass("active");
 					this.isActive = true;
 				}
 
-				var cmd = data.shift().toLowerCase();
 				switch (cmd) {
 					case 'create':
 						this.room.$chat.append("<div class=\"tournament-message-create\">A " + BattleFormats[data.shift()].name + " " + data.join('|') + " Tournament has been created.</div>");
@@ -202,15 +207,8 @@
 						this.info = null;
 						this.bracketData = null;
 
-						// A quick start and end will not fire the transitionend event, so we delay a bit so the transition happens
-						var self = this;
-						setTimeout(function () {
-							if (self.isActive)
-								return;
-							self.$box.removeClass("active");
-							self.$box.css('max-height', '');
-							self.$box.css('transition', '');
-						}, 0);
+						this.$box.removeClass("active");
+						this.$box.css('transition', '');
 
 						if (cmd === 'forceend')
 							this.room.$chat.append("<div class=\"tournament-message-forceend\">The tournament was forcibly ended.</div>");
