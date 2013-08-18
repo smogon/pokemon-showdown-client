@@ -106,6 +106,22 @@
 						this.room.$chat.append("<div class=\"tournament-message-create\">A " + BattleFormats[data.shift()].name + " " + data.join('|') + " Tournament has been created.</div>");
 						break;
 
+					case 'join':
+						this.room.$chat.append("<div class=\"tournament-message-join\">" + Tools.escapeHTML(data[0]) + " has joined the tournament</div>");
+						break;
+
+					case 'leave':
+						this.room.$chat.append("<div class=\"tournament-message-leave\">" + Tools.escapeHTML(data[0]) + " has left the tournament</div>");
+						break;
+
+					case 'start':
+						this.room.$chat.append("<div class=\"tournament-message-start\">The tournament has started!</div>");
+						break;
+
+					case 'disqualify':
+						this.room.$chat.append("<div class=\"tournament-message-disqualify\">" + Tools.escapeHTML(data[0]) + " has been disqualified from the tournament</div>");
+						break;
+
 					case 'update':
 						this.$tools.find('.active').andSelf().removeClass('active');
 						if (this.info && this.info.isStarted)
@@ -154,6 +170,23 @@
 						this.$challengeTeam.children().data('type', 'challengeTeam');
 						this.$challengeTeam.children().attr('name', 'tournamentButton');
 						this.$challenged.addClass("active");
+						break;
+
+					case 'battlestart':
+						this.room.$chat.append('<div class="tournament-message-battlestart"><a href="' + app.root + toRoomid(data[2]).toLowerCase() + '" class="ilink">' +
+							"A tournament battle between " + Tools.escapeHTML(data[0]) + " and " + Tools.escapeHTML(data[1]) + " has started." +
+							'</a></div>');
+						break;
+
+					case 'battleend':
+						var result = "drawn";
+						if (data[2] === 'win')
+							result = "won";
+						else if (data[2] === 'loss')
+							result = "lost";
+						this.room.$chat.append('<div class="tournament-message-battleend">' +
+							Tools.escapeHTML(data[0]) + " has " + result + " the match " + Tools.escapeHTML(data[3].split(',').join(' - ')) + " against " + Tools.escapeHTML(data[1]) +
+							'</div>');
 						break;
 
 					case 'end':
