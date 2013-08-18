@@ -13,9 +13,9 @@
 		<script src="/js/jquery-cookie.js"></script>
 		<script src="/js/jquery.json-2.3.min.js"></script>
 		<script src="/data/pokedex-mini.js"></script>
-		
+
 		<script>var exports=this</script>
-		
+
 		<script src="/data/pokedex.js"></script>
 		<script src="/data/moves.js"></script>
 		<script src="/data/items.js"></script>
@@ -24,17 +24,17 @@
 
 		<script src="/js/battledata.js"></script>
 		<script src="/js/utilichart.js"></script>
-		
+
 		<style>
 		body { text-align: left; }
 		</style>
 	</head>
 	<body>
 		<div style="padding:20px"><input id="searchTerm" type="text" onkeyup="update()" size="50" autofocus /></div>
-		
+
 		<div id="results">
 		</div>
-		
+
 		<script>
 var timeout = null;
 var prevSearch = 'init';

@@ -297,7 +297,7 @@ function Pokemon(species) {
 			}
 			hpstring = hpstring.substr(parenIndex+1, hpstring.length-parenIndex-2);
 		}
-		
+
 		var hp = hpstring.split(' ');
 		var status = hp[1];
 		hp = hp[0];
@@ -2806,7 +2806,7 @@ function Battle(frame, logFrame, noPreload) {
 			kwargs = row[1];
 			animDelay = nextAnimDelay;
 			if (!kwargs.simult) nextAnimDelay++;
-			
+
 			switch (args[0]) {
 			case '-damage':
 				var poke = this.getPokemon(args[1]);
@@ -2815,7 +2815,7 @@ function Battle(frame, logFrame, noPreload) {
 				self.lastDamage = (damage[2] || 1); // not sure if this is used for anything
 				var range = poke.getDamageRange(damage);
 				self.damageAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				} else if (kwargs.from) {
@@ -2903,7 +2903,7 @@ function Battle(frame, logFrame, noPreload) {
 				if (damage === false) break;
 				var range = poke.getDamageRange(damage);
 				self.healAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				} else if (kwargs.from) {
@@ -2980,9 +2980,9 @@ function Battle(frame, logFrame, noPreload) {
 					actions += 'The battlers shared their pain!';
 					break;
 				}
-				
+
 				break;
-				
+
 			case '-boost':
 				var poke = this.getPokemon(args[1]);
 				var stat = args[2];
@@ -2992,7 +2992,7 @@ function Battle(frame, logFrame, noPreload) {
 				}
 				poke.boosts[stat] += amount;
 				self.resultAnim(poke, poke.getBoost(stat), 'good', animDelay);
-				
+
 				var amountString = '';
 				if (amount === 2) amountString = ' sharply';
 				if (amount >= 3) amountString = ' drastically';
@@ -3023,7 +3023,7 @@ function Battle(frame, logFrame, noPreload) {
 				}
 				poke.boosts[stat] -= amount;
 				self.resultAnim(poke, poke.getBoost(stat), 'bad', animDelay);
-				
+
 				var amountString = '';
 				if (amount === 2) amountString = ' harshly';
 				if (amount >= 3) amountString = ' severely';
@@ -3053,7 +3053,7 @@ function Battle(frame, logFrame, noPreload) {
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.boosts[stat] = amount;
 				self.resultAnim(poke, poke.getBoost(stat), (amount>0?'good':'bad'), animDelay);
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				} else if (kwargs.from) {
@@ -3082,7 +3082,7 @@ function Battle(frame, logFrame, noPreload) {
 				}
 				self.resultAnim(poke, 'Stats swapped', 'neutral', animDelay);
 				self.resultAnim(poke2, 'Stats swapped', 'neutral', animDelay);
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				} else if (effect.id) {
@@ -3105,7 +3105,7 @@ function Battle(frame, logFrame, noPreload) {
 					if (poke.boosts[i] < 0) delete poke.boosts[i];
 				}
 				self.resultAnim(poke, 'Restored', 'good', animDelay);
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				}
@@ -3121,7 +3121,7 @@ function Battle(frame, logFrame, noPreload) {
 					if (!poke.boosts[stats[i]]) delete poke.boosts[stats[i]];
 				}
 				//poke.boosts = $.extend({}, frompoke.boosts);
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				} else {
@@ -3133,7 +3133,7 @@ function Battle(frame, logFrame, noPreload) {
 				var poke = this.getPokemon(args[1]);
 				poke.boosts = {};
 				self.resultAnim(poke, 'Stats reset', 'neutral', animDelay);
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				} else {
@@ -3158,28 +3158,28 @@ function Battle(frame, logFrame, noPreload) {
 					actions += 'All stat changes were eliminated!';
 				}
 				break;
-				
+
 			case '-crit':
 				var poke = this.getPokemon(args[1]);
 				for (var j=1; !poke && j<10; j++) poke = this.getPokemon(minors[i+j][0][1]);
 				if (poke) self.resultAnim(poke, 'Critical hit', 'bad', animDelay);
 				actions += "A critical hit! ";
 				break;
-				
+
 			case '-supereffective':
 				var poke = this.getPokemon(args[1]);
 				for (var j=1; !poke && j<10; j++) poke = this.getPokemon(minors[i+j][0][1]);
 				if (poke) self.resultAnim(poke, 'Super-effective', 'bad', animDelay);
 				actions += "It's super effective! ";
 				break;
-				
+
 			case '-resisted':
 				var poke = this.getPokemon(args[1]);
 				for (var j=1; !poke && j<10; j++) poke = this.getPokemon(minors[i+j][0][1]);
 				if (poke) self.resultAnim(poke, 'Resisted', 'neutral', animDelay);
 				actions += "It's not very effective... ";
 				break;
-				
+
 			case '-immune':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
@@ -3197,7 +3197,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-miss':
 				var user = this.getPokemon(args[1]);
 				var target = this.getPokemon(args[2]);
@@ -3207,7 +3207,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + user.getName() + "'s attack missed!";
 				}
 				break;
-				
+
 			case '-fail':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
@@ -3263,48 +3263,48 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-notarget':
 				actions += "But there was no target...";
 				break;
-				
+
 			case '-ohko':
 				actions += "It's a one-hit KO!";
 				break;
-				
+
 			case '-hitcount':
 				var hits = parseInt(args[2]);
 				if (self.multiHitMove && self.multiHitMove[3] === 0 && hits > 0) self.animMultiHitMove();
 				actions += 'Hit ' + hits + ' time(s)!';
 				break;
-				
+
 			case '-nothing':
 				actions += "But nothing happened! ";
 				break;
-				
+
 			case '-waiting':
 				var poke = this.getPokemon(args[1]);
 				var ofpoke = this.getPokemon(args[2]);
 				actions += "" + poke.getName() + " is waiting for " + ofpoke.getLowerName() + "'s move...";
 				break;
-				
+
 			case '-combine':
 				actions += "The two moves are joined! It's a combined move!";
 				break;
-				
+
 			case '-prepare':
 				var poke = this.getPokemon(args[1]);
 				var move = Tools.getMove(args[2]);
 				var target = this.getPokemon(args[3]);
 				self.prepareMove(poke, move, target);
 				break;
-				
+
 			case '-status':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(kwargs.from);
 				poke.status = args[2];
 				poke.removeVolatile('yawn');
-				
+
 				switch (args[2]) {
 				case 'brn':
 					self.resultAnim(poke, 'Burned', 'brn', animDelay);
@@ -3337,13 +3337,13 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-curestatus':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.status = '';
-				
+
 				if (effect.id) switch (effect.id) {
 				case 'psychoshift':
 					actions += '' + poke.getName() + ' moved its status onto ' + ofpoke.getLowerName() + '!';
@@ -3385,13 +3385,13 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + "'s status cleared!";
 				}
 				break;
-				
+
 			case '-cureteam':
 				var poke = this.getPokemon(args[1]);
 				for (var k = 0; k < poke.side.pokemon.length; k++) {
 					poke.side.pokemon[k].status = '';
 				}
-				
+
 				self.resultAnim(poke, 'Team Cured', 'good', animDelay);
 				var effect = Tools.getEffect(kwargs.from);
 				switch (effect.id) {
@@ -3406,7 +3406,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-item':
 				var poke = this.getPokemon(args[1]);
 				var item = Tools.getItem(args[2]);
@@ -3415,7 +3415,7 @@ function Battle(frame, logFrame, noPreload) {
 				poke.item = item.name;
 				poke.removeVolatile('airballoon');
 				if (item.id === 'airballoon') poke.addVolatile('airballoon');
-				
+
 				if (effect.id) switch (effect.id) {
 				case 'recycle':
 				case 'pickup':
@@ -3453,7 +3453,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-enditem':
 				var poke = this.getPokemon(args[1]);
 				var item = Tools.getItem(args[2]);
@@ -3461,7 +3461,7 @@ function Battle(frame, logFrame, noPreload) {
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.item = '';
 				poke.removeVolatile('airballoon');
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				} else if (kwargs.eat) {
@@ -3525,14 +3525,14 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-ability':
 				var poke = this.getPokemon(args[1]);
 				var ability = Tools.getAbility(args[2]);
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.ability = ability.name;
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				} else if (effect.id) switch (effect.id) {
@@ -3572,13 +3572,13 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-endability':
 				var poke = this.getPokemon(args[1]);
 				var ability = Tools.getAbility(args[2]);
 				var effect = Tools.getEffect(kwargs.from);
 				poke.ability = '';
-				
+
 				if (kwargs.silent) {
 					// do nothing
 				} else switch (effect.id) {
@@ -3587,7 +3587,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-			
+
 			case '-transform':
 				var poke = this.getPokemon(args[1]);
 				var tpoke = this.getPokemon(args[2]);
@@ -3610,14 +3610,14 @@ function Battle(frame, logFrame, noPreload) {
 				poke.volatiles.formechange[2] = template.species;
 				poke.side.updateStatbar();
 				break;
-			
+
 			case '-start':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
 				var ofpoke = this.getPokemon(kwargs.of);
 				var fromeffect = Tools.getEffect(kwargs.from);
 				poke.addVolatile(effect.id);
-				
+
 				switch (effect.id) {
 				case 'typechange':
 					poke.volatiles.typechange[2] = args[3];
@@ -3905,7 +3905,7 @@ function Battle(frame, logFrame, noPreload) {
 				var ofpoke = this.getPokemon(kwargs.of);
 				var fromeffect = Tools.getEffect(kwargs.from);
 				poke.addTurnstatus(effect.id);
-				
+
 				switch (effect.id) {
 				case 'roost':
 					self.resultAnim(poke, 'Landed', 'neutral', animDelay);
@@ -3949,7 +3949,7 @@ function Battle(frame, logFrame, noPreload) {
 				var ofpoke = this.getPokemon(kwargs.of);
 				var fromeffect = Tools.getEffect(kwargs.from);
 				poke.addMovestatus(effect.id);
-				
+
 				switch (effect.id) {
 				case 'grudge':
 					actions += '' + poke.getName() + ' wants its target to bear a grudge!';
@@ -3959,7 +3959,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-activate':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
@@ -4010,7 +4010,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'mist':
 					actions += "" + poke.getName() + " is protected by the mist!";
 					break;
-				
+
 				// move activations
 				case 'trick':
 				case 'switcheroo':
@@ -4121,7 +4121,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'suctioncups':
 					actions += '' + poke.getName() + ' anchors itself!';
 					break;
-				
+
 				// item activations
 				case 'custapberry':
 				case 'quickclaw':
@@ -4135,12 +4135,12 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + "'s " + effect.name + " activated!";
 				}
 				break;
-				
+
 			case '-sidestart':
 				var side = this.getSide(args[1]);
 				var effect = Tools.getEffect(args[2]);
 				side.addSideCondition(effect.name);
-				
+
 				switch (effect.id) {
 				case 'stealthrock':
 					actions += "Pointed stones float in the air around " + side.getLowerTeamName() + "!";
@@ -4189,7 +4189,7 @@ function Battle(frame, logFrame, noPreload) {
 				var from = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
 				side.removeSideCondition(effect.name);
-				
+
 				switch (effect.id) {
 				case 'stealthrock':
 					actions += "The pointed stones disappeared from around " + side.getLowerTeamName() + "!";
@@ -4232,18 +4232,18 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-weather':
 				var effect = Tools.getEffect(args[1]);
 				var poke = this.getPokemon(kwargs.of);
 				self.changeWeather(effect.name, poke, kwargs.upkeep);
 				break;
-				
+
 			case '-fieldstart':
 				var effect = Tools.getEffect(args[1]);
 				var poke = this.getPokemon(kwargs.of);
 				self.addPseudoWeather(effect.name, poke);
-				
+
 				switch (effect.id) {
 				case 'trickroom':
 					actions += "" + poke.getName() + ' twisted the dimensions!';
@@ -4259,12 +4259,12 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-fieldend':
 				var effect = Tools.getEffect(args[1]);
 				var poke = this.getPokemon(kwargs.of);
 				self.removePseudoWeather(effect.name, poke);
-				
+
 				switch (effect.id) {
 				case 'trickroom':
 					actions += 'The twisted dimensions returned to normal!';
@@ -4280,7 +4280,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-				
+
 			case '-fieldactivate':
 				var effect = Tools.getEffect(args[1]);
 				switch (effect.id) {
@@ -4305,11 +4305,11 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				}
 				break;
-			
+
 			case '-message':
 				actions += Tools.escapeHTML(args[1]);
 				break;
-			
+
 			case '-anim':
 				var poke = self.getPokemon(args[1]);
 				var move = Tools.getMove(args[2]);
@@ -4324,7 +4324,7 @@ function Battle(frame, logFrame, noPreload) {
 			case '-hint':
 				hiddenactions += '('+Tools.escapeHTML(args[1])+')';
 				break;
-			
+
 			default:
 				self.logConsole('Unknown minor: ' + args[0]);
 				if (self.errorCallback) self.errorCallback(self);
@@ -4653,7 +4653,7 @@ function Battle(frame, logFrame, noPreload) {
 			}
 			if (args[1] === 'triples' || args[1] === 'rotation') {
 				if (self.mySide.active.length < 3) self.mySide.active.push(null);
-				if (self.yourSide.active.length < 3) self.yourSide.active.push(null); 
+				if (self.yourSide.active.length < 3) self.yourSide.active.push(null);
 			}
 			break;
 		case 'variation':

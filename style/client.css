@@ -45,7 +45,7 @@ body {
 	padding: 2px 3px;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	font-size: 9pt;
-	
+
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
 }
@@ -816,7 +816,7 @@ p.or:after {
 	padding: 1px 4px 2px 4px;
 	border: 1px solid #BBCCDD;
 	background: #F8FBFD;
-	
+
 	border-radius: 4px;
 	text-decoration: none;
 	color: #336699;
@@ -1582,13 +1582,13 @@ a.ilink:hover {
 	height: 127px;
 	width: 626px;
 	margin-top: 8px;
-	
+
 	background-image: linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-	
+
 	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
 }
 .setcol {
@@ -1633,7 +1633,7 @@ a.ilink:hover {
 	font-weight: bold;
 	color: #555555;
 	padding-left: 2px;
-	
+
 	text-shadow: 1px 1px 0 rgba(255,255,255,.6);
 }
 .setchart-nickname label {
@@ -1781,7 +1781,7 @@ a.ilink:hover {
 	font-size: 9pt;
 	width: 104px;
 	height: 20px;
-	
+
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
 	color: black;
@@ -2040,7 +2040,7 @@ a.ilink:hover {
  * <blink>
  *********************************************************/
 
-@-webkit-keyframes blinker {  
+@-webkit-keyframes blinker {
 	from { opacity: 1.0; }
 	to { opacity: 0.0; }
 }
@@ -2056,6 +2056,6 @@ blink {
 	animation-name: blinker;
 	animation-iteration-count: infinite;
 	animation-timing-function: cubic-bezier(1.0,0,0,1.0);
-	animation-duration: 1s; 
+	animation-duration: 1s;
 	text-decoration: none;
 }
