@@ -191,8 +191,10 @@
 
 					case 'end':
 						this.room.$chat.append("<div class=\"tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(data[0].split(','))) + " for winning the tournament!</div>");
-						if (data[1])
-							this.room.$chat.append("<div class=\"tournament-message-end-runnerup\">Runner-up" + (data[1].length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(data[1].split(','))) + "</div>");
+						if (data[1]) {
+							var runnerUps = data[1].split(',');
+							this.room.$chat.append("<div class=\"tournament-message-end-runnerup\">Runner-up" + (runnerUps.length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(runnerUps)) + "</div>");
+						}
 						// Fallthrough
 
 					case 'forceend':
