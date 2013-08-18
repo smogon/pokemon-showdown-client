@@ -127,7 +127,7 @@
 
 					case 'challenges':
 						this.$noMatches.removeClass('active');
-						this.challenges = data.join('|').split(',');
+						this.challenges = data[0].split(',');
 						this.$challengeUser.html(this.renderChallengeUsers());
 						this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
 						this.$challengeTeam.children().data('type', 'challengeTeam');
@@ -137,7 +137,7 @@
 
 					case 'challengebys':
 						this.$noMatches.removeClass('active');
-						this.challengeBys = data.join('|').split(',');
+						this.challengeBys = data[0].split(',');
 						this.$challengeBy.text((this.challenges ? "Or" : "Please") + " wait for " + arrayToPhrase(this.challengeBys, "or") + " to challenge you.");
 						this.$challengeBy.addClass("active");
 						break;
