@@ -645,6 +645,7 @@
 				this.$tournamentWrapper.removeClass('hasuserlist');
 			}
 			this.$chatFrame.scrollTop(this.$chat.height());
+			this.tournamentBox.updateLayout();
 		},
 		show: function() {
 			Room.prototype.show.apply(this, arguments);
