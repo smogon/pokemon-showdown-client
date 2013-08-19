@@ -446,7 +446,7 @@
 					if (this.battle.gameType === 'doubles') {
 						this.choice.count = 2;
 					}
-					if (this.battle.gameType === 'triples' || this.battle.gameType === 'rotation') { 
+					if (this.battle.gameType === 'triples' || this.battle.gameType === 'rotation') {
 						this.choice.count = 3;
 					}
 					controls += 'How will you start the battle?</div>';

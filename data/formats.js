@@ -381,7 +381,7 @@ exports.BattleFormats = {
 		effectType: 'Rule',
 		validateSet: function(set) {
 			var template = this.getTemplate(set.species || set.name);
-			
+
 			if (template.prevo) {
 				return [set.species+" isn't the first in its evolution family."];
 			}

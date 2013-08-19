@@ -26,9 +26,9 @@
 					if (!format.searchShow || !format.rated) continue;
 					ladderButtons += '<li style="margin:5px"><button name="selectFormat" value="'+i+'" style="width:400px;height:30px;text-align:left;font:12pt Verdana">'+format.name+'</button></li>';
 				}
-				this.$el.html('<div class="ladder pad"><p>See a user\'s ranking with <code>/ranking <em>username</em></code></p>' + 
+				this.$el.html('<div class="ladder pad"><p>See a user\'s ranking with <code>/ranking <em>username</em></code></p>' +
 					//'<p><strong style="color:red">I\'m really really sorry, but as a warning: we\'re going to reset the ladder again soon to fix some more ladder bugs.</strong></p>' +
-	 				'<p>(btw if you couldn\'t tell the ladder screens aren\'t done yet; they\'ll look nicer than this once I\'m done.)</p><ul>' +
+					'<p>(btw if you couldn\'t tell the ladder screens aren\'t done yet; they\'ll look nicer than this once I\'m done.)</p><ul>' +
 					ladderButtons +
 					'</ul></div>');
 			} else {
