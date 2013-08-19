@@ -1019,6 +1019,9 @@ a.ilink:hover {
 	border: 1px #aaa solid;
 	padding: 5px;
 }
+.tournament-bracket-table td {
+	white-space: nowrap;
+}
 .tournament-bracket-table .empty,
 .tournament-bracket-table .tournament-bracket-table-cell-null {
 	border-width: 0;
