@@ -27,13 +27,13 @@ Out-of-game
 p1 [user full]
 p2 [user full]
 	Initialize a Side associated with [user], in the corresponding slot.
-	
+
 	If [side full] is empty, remove the Side in that slot.
 
 p3 [user full]
 p4 [user full]
 	The same as p1 and p2. Can be ignored by clients that don't support 3-player and 4-player.
-	
+
 	In 2v2, alliances are p1 and p3 against p2 and p4.
 
 chat [user] [message full]
@@ -59,7 +59,7 @@ poke [pokemon]
 
 previewpoke [pokemon]
 	Initialize a pokemon for the purposes of Team Preview.
-	
+
 	Two differences from `poke`: Will initialize a new pokemon even if a pokemon with that ID already exists, and the initialized pokemon will have an unknown name.
 
 preview
@@ -107,7 +107,7 @@ Effects
 
 -start [pokemon] [effect] [source]
 	The effect [effect] starts on [pokemon].
-	
+
 	Clients that track effects should keep in mind that some effects may end without a message.
 
 -turnstart [pokemon] [effect] [source]
@@ -115,28 +115,28 @@ Effects
 
 -end [pokemon] [effect] [source]
 	The effect [effect] ends on [pokemon].
-	
+
 	Generally not used for abilities ("-start" is called on the new ability, which replaces it).
 	Generally not used for items ("-take" or "-start" is called, depending on whether the item was replaced or removed).
 
 -remove [pokemon] [effect] [source]
 	The effect [effect] ends on [pokemon], unnaturally.
-	
+
 	Aside from animation and message differences, this is identical to using "-end".
 
 -activate [pokemon] [effect] [source]
 	The effect [effect] activates on [pokemon].
-	
+
 	This is usually just a message and/or an animation; the results of the effect activation are described later.
 
 -use [pokemon] [effect] [source]
 	[pokemon] uses the item [effect].
-	
+
 	Aside from animation and message differences, this is identical to using "-activate" followed by "-end".
 
 -take [pokemon] [effect] [source]
 	[pokemon]'s item [effect] is taken from it.
-	
+
 	Identical to -end, but usually comes with a different animation and message.
 
 -sidestart [user] [effect] [source]
@@ -147,7 +147,7 @@ Effects
 
 -fieldstart [effect] [source]
 	The field effect [effect] starts.
- 
+
 -fieldstart [effect] [source]
 	The field effect [effect] ends.
 
@@ -169,4 +169,3 @@ Boosts
 
 -swapboost [pokemon] [pokemon2] [source]
 	Swap [pokemon]'s boosts and [pokemon2]'s boosts.
- 
