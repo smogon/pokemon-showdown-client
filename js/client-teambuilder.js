@@ -1441,7 +1441,7 @@
 								text += ' / ';
 							}
 							text += ''+curSet.ivs[stat]+' '+BattlePOStatNames[stat];
-						}					
+						}
 					}
 				}
 				if (!first) {
