@@ -108,23 +108,23 @@
 
 				switch (cmd) {
 					case 'create':
-						this.room.$chat.append("<div class=\"tournament-message-create\">A " + BattleFormats[data.shift()].name + " " + data.join('|') + " Tournament has been created.</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + BattleFormats[data.shift()].name + " " + data.join('|') + " Tournament has been created.</div>");
 						break;
 
 					case 'join':
-						this.room.$chat.append("<div class=\"tournament-message-join\">" + Tools.escapeHTML(data[0]) + " has joined the tournament</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-join\">" + Tools.escapeHTML(data[0]) + " has joined the tournament</div>");
 						break;
 
 					case 'leave':
-						this.room.$chat.append("<div class=\"tournament-message-leave\">" + Tools.escapeHTML(data[0]) + " has left the tournament</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-leave\">" + Tools.escapeHTML(data[0]) + " has left the tournament</div>");
 						break;
 
 					case 'start':
-						this.room.$chat.append("<div class=\"tournament-message-start\">The tournament has started!</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
 						break;
 
 					case 'disqualify':
-						this.room.$chat.append("<div class=\"tournament-message-disqualify\">" + Tools.escapeHTML(data[0]) + " has been disqualified from the tournament</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-disqualify\">" + Tools.escapeHTML(data[0]) + " has been disqualified from the tournament</div>");
 						break;
 
 					case 'update':
@@ -178,7 +178,7 @@
 						break;
 
 					case 'battlestart':
-						this.room.$chat.append('<div class="tournament-message-battlestart"><a href="' + app.root + toRoomid(data[2]).toLowerCase() + '" class="ilink">' +
+						this.room.$chat.append('<div class="notice tournament-message-battlestart"><a href="' + app.root + toRoomid(data[2]).toLowerCase() + '" class="ilink">' +
 							"A tournament battle between " + Tools.escapeHTML(data[0]) + " and " + Tools.escapeHTML(data[1]) + " has started." +
 							'</a></div>');
 						break;
@@ -189,16 +189,16 @@
 							result = "won";
 						else if (data[2] === 'loss')
 							result = "lost";
-						this.room.$chat.append('<div class="tournament-message-battleend">' +
+						this.room.$chat.append('<div class="notice tournament-message-battleend">' +
 							Tools.escapeHTML(data[0]) + " has " + result + " the match " + Tools.escapeHTML(data[3].split(',').join(' - ')) + " against " + Tools.escapeHTML(data[1]) +
 							'</div>');
 						break;
 
 					case 'end':
-						this.room.$chat.append("<div class=\"tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(data[0].split(','))) + " for winning the tournament!</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(data[0].split(','))) + " for winning the tournament!</div>");
 						if (data[1]) {
 							var runnerUps = data[1].split(',');
-							this.room.$chat.append("<div class=\"tournament-message-end-runnerup\">Runner-up" + (runnerUps.length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(runnerUps)) + "</div>");
+							this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (runnerUps.length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(runnerUps)) + "</div>");
 						}
 						// Fallthrough
 
@@ -211,7 +211,7 @@
 						this.$box.css('transition', '');
 
 						if (cmd === 'forceend')
-							this.room.$chat.append("<div class=\"tournament-message-forceend\">The tournament was forcibly ended.</div>");
+							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">The tournament was forcibly ended.</div>");
 						break;
 
 					default:
