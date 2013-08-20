@@ -1065,7 +1065,7 @@ a.ilink:hover {
 .tournament-challenge.active,
 .tournament-challengeby.active,
 .tournament-challenging.active,
-.tournament-challenged.active  {
+.tournament-challenged.active {
 	display: block;
 }
 
