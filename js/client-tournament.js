@@ -55,6 +55,7 @@
 
 			this.isActive = false;
 			this.info = null;
+			this.isJoined = false;
 			this.bracketData = null;
 			this.challenges = null;
 			this.challengeBys = null;
@@ -131,6 +132,7 @@
 						this.$tools.find('.active').andSelf().removeClass('active');
 						if (this.info && this.info.isStarted)
 							this.$noMatches.addClass('active');
+						this.isJoined = false;
 						this.challenges = null;
 						this.challengeBys = null;
 						break;
@@ -141,9 +143,26 @@
 						this.$generator.text(this.info.generator);
 						break;
 
+					case 'isjoined':
+						this.isJoined = true;
+						break;
+
 					case 'bracketdata':
+						// The 'isjoined' packet isn't a guaranteed packet to all users, so that packet's
+						// handling is placed in the immediate next guaranteed packet, here
+						if (!this.info.isStarted)
+							if (this.isJoined)
+								this.$leave.addClass('active');
+							else
+								this.$join.addClass('active');
+						if (!this.info.isStarted || this.isJoined)
+							this.$tools.addClass('active');
+
 						this.bracketData = JSON.parse(data.join('|'));
-						this.showBracket(this.bracketData);
+						this.$bracket.empty()
+						var bracket = this.generateBracket(this.bracketData);
+						if (bracket)
+							this.$bracket.append(bracket);
 						break;
 
 					case 'challenges':
@@ -195,11 +214,16 @@
 						break;
 
 					case 'end':
-						this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(data[0].split(','))) + " for winning the tournament!</div>");
-						if (data[1]) {
-							var runnerUps = data[1].split(',');
-							this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (runnerUps.length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(runnerUps)) + "</div>");
-						}
+						var endData = JSON.parse(data[0]);
+
+						var bracket = this.generateBracket(endData.bracketData);
+						if (bracket)
+							this.room.$chat.append($('<div class="notice tournament-message-end-bracket"></div>').append(bracket));
+
+						this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the tournament!</div>");
+						if (endData.results[1])
+							this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
+
 						// Fallthrough
 
 					case 'forceend':
@@ -222,20 +246,16 @@
 			}
 		};
 
-		TournamentBox.prototype.showBracket = function (data) {
-			var isJoined = false;
+		TournamentBox.prototype.generateBracket = function (data) {
 			if (data.type === 'tree') {
 				// TODO
 			} else if (data.type === 'table') {
-				this.$bracket.empty();
 				var $table = $('<table class="tournament-bracket-table"></table>');
 
 				var $colHeaders = $('<tr><td class="empty"></td></tr>');
 				$table.append($colHeaders);
 				data.tableHeaders.cols.forEach(function (name) {
 					$colHeaders.append($('<th></th>').text(name));
-					if (app.user.attributes.name === name)
-						isJoined = true;
 				});
 
 				data.tableHeaders.rows.forEach(function (name, r) {
@@ -265,16 +285,8 @@
 				});
 
 				if (data.tableContents.length > 0)
-					this.$bracket.append($table);
+					return $table;
 			}
-
-			if (!this.info.isStarted)
-				if (isJoined)
-					this.$leave.addClass('active');
-				else
-					this.$join.addClass('active');
-			if (!this.info.isStarted || isJoined)
-				this.$tools.addClass('active');
 		},
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
