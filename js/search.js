@@ -110,7 +110,7 @@
 
 	//
 	// Rendering functions
-	// 
+	//
 	// These are all static!
 	//
 

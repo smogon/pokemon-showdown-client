@@ -16,7 +16,7 @@ License: GPLv2
 	width: 640px;
 	height: 360px;
 	overflow: hidden;
-	
+
 	font-family: Verdana, sans-serif;
 	font-size: 10pt;
 }
@@ -403,11 +403,11 @@ License: GPLv2
 .leftbar .trainer div.trainersprite,
 .leftbar .teamicons span
 {
-    -moz-transform: scaleX(-1);
-    -webkit-transform: scaleX(-1);
-    -o-transform: scaleX(-1);
-    -ms-transform: scaleX(-1);
-    transform: scaleX(-1);
+	-moz-transform: scaleX(-1);
+	-webkit-transform: scaleX(-1);
+	-o-transform: scaleX(-1);
+	-ms-transform: scaleX(-1);
+	transform: scaleX(-1);
 }
 .trainersprite
 {
