@@ -1,17 +1,17 @@
 // var index = [];
-// 
+//
 // index = index.concat(Object.keys(BattlePokedex).map(function(x){return x+' pokemon'}))
 // index = index.concat(Object.keys(BattleMovedex).map(function(x){return x+' move'}))
 // index = index.concat(Object.keys(BattleItems).map(function(x){return x+' item'}))
 // index = index.concat(Object.keys(BattleAbilities).map(function(x){return x+' ability'}))
 // index = index.concat(Object.keys(BattleTypeChart).map(function(x){return toId(x)+' type'}))
 // index = index.concat(['physical', 'special', 'status'].map(function(x){return toId(x)+' category'}))
-// 
+//
 // index.sort();
-// 
+//
 // BattleSearchIndex = index.map(function(x){return x.split(' ')[0]});
 // BattleSearchIndexType = index.map(function(x){return x.split(' ')[1]});
-// 
+//
 // BattleSearchIndexOffset = BattleSearchIndex.map(function(id, i){
 // 	var name='';
 // 	switch (BattleSearchIndexType[i]) {
