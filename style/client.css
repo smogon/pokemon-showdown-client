@@ -1069,6 +1069,10 @@ a.ilink:hover {
 	display: block;
 }
 
+div[class^='tournament-message-'], div[class*=' tournament-message-'] {
+	font-weight: bold;
+}
+
 /* Messages */
 
 .message-announce {
