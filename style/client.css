@@ -1076,6 +1076,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	font-weight: normal !important;
 	max-height: 400px;
 	overflow: auto;
+	text-align: center;
 }
 
 /* Messages */
