@@ -26,7 +26,11 @@
 			buf += '<div class="mainmenu">';
 			if (app.down) {
 				buf += '<div class="menugroup">';
-				buf += '<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>';
+				if (app.down === 'ddos') {
+					buf += '<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p>';
+				} else {
+					buf += '<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>';
+				}
 				buf += '<p><span class="pokemonicon" style="margin:0 auto;background:transparent url(//play.pokemonshowdown.com/sprites/bwicons-sheet.png?v0.8.5) no-repeat scroll -288px -424px"></span> Bear with us as we freak out.</p>';
 				buf += '<p>(We\'ll be back up in a few hours.)</p>';
 				buf += '</div>';
