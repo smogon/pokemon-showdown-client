@@ -232,7 +232,7 @@
 			this.ignore = {};
 
 			// down
-			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = true;
+			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = 'ddos';
 			if (document.location.hostname === 'play.pokemonshowdown.com') {
 				app.supportsRooms = true;
 			}
