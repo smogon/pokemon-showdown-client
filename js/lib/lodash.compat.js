@@ -13,16 +13,18 @@
   var undefined;
 
   /** Detect free variable `exports` */
-  var freeExports = typeof exports == 'object' && exports;
+  // var freeExports = typeof exports == 'object' && exports;
+  var freeExports = false;
 
   /** Detect free variable `module` */
-  var freeModule = typeof module == 'object' && module && module.exports == freeExports && module;
+  // var freeModule = typeof module == 'object' && module && module.exports == freeExports && module;
+  var freeModule = false;
 
   /** Detect free variable `global`, from Node.js or Browserified code, and use it as `window` */
   var freeGlobal = typeof global == 'object' && global;
-  if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
-    window = freeGlobal;
-  }
+  // if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
+  //   window = freeGlobal;
+  // }
 
   /** Used to generate unique IDs */
   var idCounter = 0;
