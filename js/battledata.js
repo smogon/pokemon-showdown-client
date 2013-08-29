@@ -7,6 +7,9 @@ License: MIT License
 
 if (!window.exports) window.exports = window;
 
+window.nodewebkit = false;
+if (typeof process !== 'undefined' && process.versions && process.versions['node-webkit']) window.nodewebkit = true;
+
 // todo: http://www.youtube.com/watch?v=eEwAPnIev38
 // 32.930 - 1:13.032
 // 32930 to 73032
