@@ -1,5 +1,17 @@
 (function($) {
 
+	if (window.nodewebkit) {
+		window.gui = require('nw.gui');
+		$('body').on('click', 'a', function(e) {
+			if (this.target === '_blank') {
+				gui.Shell.openExternal(this.href);
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		});
+		window.nwWindow = gui.Window.get();
+	}
+
 	Config.version = '0.9.0';
 	Config.origindomain = 'play.pokemonshowdown.com';
 
@@ -297,16 +309,29 @@
 
 			this.on('response:rooms', this.roomsResponse, this);
 
-			$(window).on('focus click', function() {
-				if (!self.focused) {
-					self.focused = true;
-					if (self.curRoom) self.curRoom.dismissNotification();
-					if (self.curSideRoom) self.curSideRoom.dismissNotification();
-				}
-			});
-			$(window).on('blur', function() {
-				self.focused = false;
-			});
+			if (window.nodewebkit) {
+				nwWindow.on('focus', function() {
+					if (!self.focused) {
+						self.focused = true;
+						if (self.curRoom) self.curRoom.dismissNotification();
+						if (self.curSideRoom) self.curSideRoom.dismissNotification();
+					}
+				});
+				nwWindow.on('blur', function() {
+					self.focused = false;
+				});
+			} else {
+				$(window).on('focus click', function() {
+					if (!self.focused) {
+						self.focused = true;
+						if (self.curRoom) self.curRoom.dismissNotification();
+						if (self.curSideRoom) self.curSideRoom.dismissNotification();
+					}
+				});
+				$(window).on('blur', function() {
+					self.focused = false;
+				});
+			}
 
 			this.initializeConnection();
 
@@ -1590,6 +1615,8 @@
 			if (!this.notifications) this.notifications = {};
 			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) {
 				this.notifications[tag] = {};
+			} else if (window.nodewebkit) {
+				nwWindow.requestAttention(true);
 			} else if (window.Notification) {
 				// old one doesn't need to be closed; sending the tag should
 				// automatically replace the old notification
@@ -1625,6 +1652,7 @@
 			return this.notify(title, body, tag, true);
 		},
 		closeNotification: function(tag, alreadyClosed) {
+			if (window.nodewebkit) nwWindow.requestAttention(false);
 			if (!this.notifications) return;
 			if (!tag) {
 				for (tag in this.notifications) {
@@ -1643,6 +1671,7 @@
 			}
 		},
 		dismissNotification: function(tag) {
+			if (window.nodewebkit) nwWindow.requestAttention(false);
 			if (!this.notifications) return;
 			if (!tag) {
 				for (tag in this.notifications) {
