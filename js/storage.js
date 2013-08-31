@@ -88,10 +88,19 @@ _Storage.prototype.nwLogChat = function(roomid, line) {
 			streams[i].end();
 		}
 	}
+
+	var now = new Date();
+	var hours = ''+now.getHours();
+	if (hours.length < 2) hours = '0'+hours;
+	var minutes = ''+now.getHours();
+	if (minutes.length < 2) minutes = '0'+minutes;
+	var timestamp = '['+hours+':'+minutes+'] ';
+
 	if (!this.chatLogStreams[roomid]) {
 		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir+'Logs/'+chatLogFdMonth+'/'+roomid+'.txt', {flags:'a'});
+		this.chatLogStreams[roomid].write('\n\n\nLog starting '+now+'\n\n');
 	}
-	this.chatLogStreams[roomid].write(line+'\n');
+	this.chatLogStreams[roomid].write(timestamp+line+'\n');
 };
 
 // saving
