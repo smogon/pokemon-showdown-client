@@ -77,6 +77,7 @@ _Storage.prototype.nwStopLoggingChat = function() {
 	}
 };
 _Storage.prototype.nwLogChat = function(roomid, line) {
+	roomid = toRoomid(roomid);
 	var self = this;
 	if (!this.loggingChat) return;
 	var chatLogFdMonth = this.getLogMonth();
