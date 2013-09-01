@@ -90,6 +90,8 @@
 				this.notifyOnce("PM from "+oName, "\""+message+"\"", 'pm');
 			}
 
+			Storage.logChat('pm-'+toId(oName), ''+name+': '+message);
+
 			var $pmWindow = this.openPM(oName, true);
 
 			var $chatFrame = $pmWindow.find('.pm-log');
