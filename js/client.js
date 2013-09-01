@@ -278,6 +278,8 @@
 
 				var musicVolume = Tools.prefs('musicvolume');
 				if (musicVolume !== undefined) BattleSound.setBgmVolume(musicVolume);
+
+				if (Tools.prefs('logchat')) Storage.startLoggingChat();
 			});
 
 			this.on('init:unsupported', function() {
@@ -2211,6 +2213,7 @@
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
+			'change input[name=logchat]': 'setLogChat',
 			'click img': 'avatars'
 		},
 		update: function() {
@@ -2237,6 +2240,13 @@
 				buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"'+(app.curRoom.battle.ignoreSpects?' checked':'')+'> Ignore spectators</label></p>';
 			}
 
+			if (window.nodewebkit) {
+				buf += '<hr />';
+				buf += '<h3>Desktop app</h3>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="logchat"'+(Tools.prefs('logchat')?' checked':'')+'> Log chat</label></p>';
+				buf += '<p id="openLogFolderButton"'+(Storage.dir?'':' style="display:none"')+'><button name="openLogFolder">Open log folder</button></p>';
+			}
+
 			buf += '<hr />';
 			if (app.user.get('named')) {
 				buf += '<p class="buttonbar" style="text-align:right">';
@@ -2252,6 +2262,20 @@
 				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Choose name</button></p>';
 			}
 			this.$el.html(buf).css('min-width', 160);
+		},
+		openLogFolder: function() {
+			gui.Shell.openItem(Storage.documentsDir + 'My Games/Pokemon Showdown/');
+			// gui.Shell.showItemInFolder(Storage.dir);
+		},
+		setLogChat: function(e) {
+			var logchat = !!e.currentTarget.checked;
+			if (logchat) {
+				Storage.startLoggingChat();
+				$('#openLogFolderButton').show();
+			} else {
+				Storage.stopLoggingChat();
+			}
+			Tools.prefs('logchat', logchat);
 		},
 		setNoanim: function(e) {
 			var noanim = !!e.currentTarget.checked;
