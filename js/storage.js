@@ -35,7 +35,7 @@ _Storage.prototype.initDirectory = function() {
 };
 
 _Storage.prototype.initDirectory2 = function() {
-	//
+	if (Tools.prefs('logchat')) this.startLoggingChat();
 };
 
 _Storage.prototype.getLogMonth = function() {
