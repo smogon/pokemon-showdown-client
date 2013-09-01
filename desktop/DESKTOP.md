@@ -35,7 +35,7 @@ Packaging for Windows
 3. Edit `pokemonshowdown.exe` with [Resource Hacker][2], and replace the
    node-webkit icon with`icons/pokemonshowdown.ico`
 
-3. Using [NSIS][2], build `pokemonshowdown.nsi`
+4. Using [NSIS][2], build `pokemonshowdown.nsi`
 
   [2]: http://www.angusj.com/resourcehacker/
   [3]: http://nsis.sourceforge.net/
