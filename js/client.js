@@ -739,6 +739,10 @@
 			this.socket.onclose = function() {
 				if (!socketopened) {
 					if (Config.server.altport && !altport) {
+						if (document.location.protocol === 'https:') {
+							return document.location.replace('http://' +
+								document.location.host + document.location.pathname);
+						}
 						altport = true;
 						Config.server.port = Config.server.altport;
 						self.socket = reconstructSocket(self.socket);
