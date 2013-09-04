@@ -810,7 +810,7 @@
 			buf += '<h2>Staff</h2>';
 			buf += '<ul><li><p><a href="http://meltsner.com/" target="_blank" class="subtle"><strong>Bill Meltsner</strong> [bmelts]</a> <small>&ndash; Development</small></p></li></ul>';
 			buf += '<h2>Retired Staff</h2>';
-			buf += '<ul><li><p><strong>Cathy J. Fitzpatrick</strong> [cathyjf] <small>&ndash; Development</small></p></li>';
+			buf += '<ul><li><p><a href="https://cathyjf.com/" target="_blank" class="subtle"><strong>Cathy J. Fitzpatrick</strong> [cathyjf]</a> <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Mathieu Dias-Martins</strong> [Marty-D] <small>&ndash; Research (game mechanics), Development</small></p></li></ul>';
 			buf += '<h2>Contributors</h2>';
 			buf += '<ul><li><p><strong>Andrew Goodsell</strong> [Zracknel] <small>&ndash; Art (battle weather backdrops)</small></p></li>';
