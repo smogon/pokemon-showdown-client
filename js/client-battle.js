@@ -573,13 +573,9 @@
 					pokemon.slot = i;
 					// if (pokemon.side.active[i] && pokemon.side.active[i].ident == pokemon.ident) pokemon.side.active[i] = pokemon;
 					if (pokemon.side.active[i] && pokemon.side.active[i].ident == pokemon.ident) {
-						for (var j in {item:1, ability:1, baseAbility:1}) {
-							if (pokemon[j]) {
-								pokemon.side.active[i][j] = pokemon[j];
-							} else {
-								pokemon.side.active[i][j] = pokemonData[j];
-							}
-						}
+						pokemon.side.active[i].item = pokemon.item || pokemonData.item;
+						pokemon.side.active[i].ability = pokemon.ability || pokemonData.ability;
+						pokemon.side.active[i].baseAbility = pokemon.baseAbility || pokemonData.baseAbility;
 					}
 				} else {
 					pokemon = this.battle.getPokemon('new: '+pokemonData.ident, pokemonData.details);
