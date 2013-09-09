@@ -817,6 +817,7 @@
 			buf += '<ul><li><p><strong>Andrew Goodsell</strong> [Zracknel] <small>&ndash; Art (battle weather backdrops)</small></p></li>';
 			buf += '<li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><a href="http://kyle-dove.deviantart.com/" target="_blank" class="subtle"><strong>Kyle Dove</strong> [Kyle_Dove]</a> <small>&ndash; Art (battle backdrops)</small></p></li>';
+			buf += '<li><p><strong>Robin Vandenbrande</strong> [Quinella] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><a href="http://yilx.deviantart.com/" target="_blank" class="subtle"><strong>Samuel Teo</strong> [Yilx]</a> <small>&ndash; Art (main background)</small></p></li>';
 			buf += '<li><p>[<strong>The Immortal</strong>] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><a href="http://vtas.deviantart.com/" target="_blank" class="subtle"><strong>Vivian Zou</strong> [Vtas]</a> <small>&ndash; Art (alternate main background)</small></p></li>';
