@@ -124,7 +124,7 @@
 
 				switch (cmd) {
 					case 'create':
-						this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + BattleFormats[data.shift()].name + " " + data.join('|') + " Tournament has been created.</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + BattleFormats[data.shift()].name + " " + Tools.escapeHTML(data.join('|')) + " Tournament has been created.</div>");
 						break;
 
 					case 'join':
