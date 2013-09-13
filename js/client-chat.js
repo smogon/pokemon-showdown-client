@@ -959,6 +959,7 @@
 				} else {
 					outputChat();
 				}
+				Storage.logChat(this.id, '* '+name+' '+message);
 			} else if (message.substr(0,5) === '/mee ') {
 				message = message.substr(5);
 				if (showme) {
@@ -966,8 +967,10 @@
 				} else {
 					outputChat();
 				}
+				Storage.logChat(this.id, '* '+name+message);
 			} else if (message.substr(0,10) === '/announce ') {
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10), name) + '</span></div>');
+				Storage.logChat(this.id, ''+name+': /announce '+message);
 			} else if (message.substr(0,6) === '/warn ') {
 				app.addPopup(RulesPopup, {warning: message.substr(6)});
 			} else if (message.substr(0,14) === '/data-pokemon ') {
@@ -982,6 +985,7 @@
 				// Normal chat message.
 				if (message.substr(0,2) === '//') message = message.substr(1);
 				outputChat();
+				Storage.logChat(this.id, ''+name+': '+message);
 			}
 		}
 	}, {

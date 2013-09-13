@@ -573,9 +573,9 @@
 					pokemon.slot = i;
 					// if (pokemon.side.active[i] && pokemon.side.active[i].ident == pokemon.ident) pokemon.side.active[i] = pokemon;
 					if (pokemon.side.active[i] && pokemon.side.active[i].ident == pokemon.ident) {
-						pokemon.side.active[i].item = pokemon.item;
-						pokemon.side.active[i].ability = pokemon.ability;
-						pokemon.side.active[i].baseAbility = pokemon.baseAbility;
+						pokemon.side.active[i].item = pokemon.item || pokemonData.item;
+						pokemon.side.active[i].ability = pokemon.ability || pokemonData.ability;
+						pokemon.side.active[i].baseAbility = pokemon.baseAbility || pokemonData.baseAbility;
 					}
 				} else {
 					pokemon = this.battle.getPokemon('new: '+pokemonData.ident, pokemonData.details);

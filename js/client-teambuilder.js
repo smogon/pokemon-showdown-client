@@ -1198,8 +1198,17 @@
 				for (var i in exports.BattleTypeChart[move.substr(13)].HPivs) {
 					set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPivs[i];
 				}
+				var moves = this.curSet.moves;
+				for (var i = 0; i < moves.length; ++i) {
+					if (moves[i] === 'Gyro Ball' || moves[i] === 'Trick Room') set.ivs['spe'] = set.ivs['spe'] % 4;
+				}
 			} else if (move === 'Gyro Ball' || move === 'Trick Room') {
-				set.ivs = {spe:0};
+				var hasHiddenPower = false;
+				var moves = this.curSet.moves;
+				for (var i = 0; i < moves.length; ++i) {
+					if (moves[i].substr(0,13) === 'Hidden Power ') hasHiddenPower = true;
+				}
+				set.ivs['spe'] = hasHiddenPower ? set.ivs['spe'] % 4 : 0;
 			}
 		},
 		setPokemon: function(val, selectNext) {
