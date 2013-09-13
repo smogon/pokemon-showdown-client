@@ -62,9 +62,7 @@
 
 			var self = this;
 			this.$title.on('click', function() {
-				self.$box.toggleClass('active');
-				self.$box.css('transition', '');
-				self.$box.css('max-height', self.$box.hasClass('active') ? self.$box[0].scrollHeight: '');
+				self.toggleBoxVisibility();
 			});
 			this.$box.on('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
 				if (self.$box.hasClass('active'))
@@ -72,6 +70,7 @@
 				if (!self.isActive)
 					self.$wrapper.removeClass('active');
 			});
+
 			this.$join.on('click', function() {
 				self.room.send('/tournament join');
 			});
@@ -92,6 +91,22 @@
 
 		TournamentBox.prototype.updateLayout = function () {
 			this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight: '');
+		};
+		TournamentBox.prototype.setBoxVisibility = function (isVisible) {
+			if (isVisible) {
+				if (this.$box.hasClass('active'))
+					return;
+				this.$box.addClass('active');
+			} else {
+				if (!this.$box.hasClass('active'))
+					return;
+				this.$box.removeClass('active');
+			}
+			this.$box.css('transition', '');
+			this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight: '');
+		};
+		TournamentBox.prototype.toggleBoxVisibility = function () {
+			this.setBoxVisibility(!this.$box.hasClass('active'));
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
@@ -173,6 +188,7 @@
 						this.$challengeTeam.children().data('type', 'challengeTeam');
 						this.$challengeTeam.children().attr('name', 'tournamentButton');
 						this.$challenge.addClass("active");
+						this.setBoxVisibility(true);
 						break;
 
 					case 'challengebys':
@@ -194,6 +210,7 @@
 						this.$challengeTeam.children().data('type', 'challengeTeam');
 						this.$challengeTeam.children().attr('name', 'tournamentButton');
 						this.$challenged.addClass("active");
+						this.setBoxVisibility(true);
 						break;
 
 					case 'battlestart':
