@@ -26,7 +26,11 @@
 			buf += '<div class="mainmenu">';
 			if (app.down) {
 				buf += '<div class="menugroup">';
-				buf += '<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>';
+				if (app.down === 'ddos') {
+					buf += '<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p>';
+				} else {
+					buf += '<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>';
+				}
 				buf += '<p><span class="pokemonicon" style="margin:0 auto;background:transparent url(//play.pokemonshowdown.com/sprites/bwicons-sheet.png?v0.8.5) no-repeat scroll -288px -424px"></span> Bear with us as we freak out.</p>';
 				buf += '<p>(We\'ll be back up in a few hours.)</p>';
 				buf += '</div>';
@@ -85,6 +89,8 @@
 			} else {
 				this.notifyOnce("PM from "+oName, "\""+message+"\"", 'pm');
 			}
+
+			Storage.logChat('pm-'+toId(oName), ''+name+': '+message);
 
 			var $pmWindow = this.openPM(oName, true);
 
@@ -801,18 +807,21 @@
 			if (Config.version) buf += '<p style="text-align:center;color:#555555"><small>Version <strong>'+Config.version+'</strong></small></p>';
 			buf += '<h2>Owner</h2>';
 			buf += '<ul><li><p><a href="http://guangcongluo.com/" target="_blank" class="subtle"><strong>Guangcong Luo</strong> [Zarel]</a> <small>&ndash; Development, Design</small></p></li></ul>';
-			buf += '<h2>Senior Staff</h2>';
-			buf += '<ul><li><p><a href="https://cathyjf.com/" target="_blank" class="subtle"><strong>Cathy J. Fitzpatrick</strong> [cathyjf]</a> <small>&ndash; Development</small></p></li></ul>';
 			buf += '<h2>Staff</h2>';
 			buf += '<ul><li><p><a href="http://meltsner.com/" target="_blank" class="subtle"><strong>Bill Meltsner</strong> [bmelts]</a> <small>&ndash; Development</small></p></li>';
+			buf += '<li><p><strong>Juanma Serrano</strong> [Joim] <small>&ndash; Development</small></p></li></ul>';
+			buf += '<h2>Retired Staff</h2>';
+			buf += '<ul><li><p><a href="https://cathyjf.com/" target="_blank" class="subtle"><strong>Cathy J. Fitzpatrick</strong> [cathyjf]</a> <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Mathieu Dias-Martins</strong> [Marty-D] <small>&ndash; Research (game mechanics), Development</small></p></li></ul>';
 			buf += '<h2>Contributors</h2>';
 			buf += '<ul><li><p><strong>Andrew Goodsell</strong> [Zracknel] <small>&ndash; Art (battle weather backdrops)</small></p></li>';
 			buf += '<li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>';
-			buf += '<li><p><strong>Juanma Serrano</strong> [Joim] <small>&ndash; Development</small></p></li>';
+			buf += '<li><p><strong>Hugh Gordon</strong> [V4] <small>&ndash; Research (game mechanics), Development</small></p></li>';
 			buf += '<li><p><a href="http://kyle-dove.deviantart.com/" target="_blank" class="subtle"><strong>Kyle Dove</strong> [Kyle_Dove]</a> <small>&ndash; Art (battle backdrops)</small></p></li>';
+			buf += '<li><p><strong>Robin Vandenbrande</strong> [Quinella] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><a href="http://yilx.deviantart.com/" target="_blank" class="subtle"><strong>Samuel Teo</strong> [Yilx]</a> <small>&ndash; Art (main background)</small></p></li>';
-			buf += '<li><p>[<strong>The Immortal</strong>] <small>&ndash; Development</small></p></li></ul>';
+			buf += '<li><p>[<strong>The Immortal</strong>] <small>&ndash; Development</small></p></li>';
+			buf += '<li><p><a href="http://vtas.deviantart.com/" target="_blank" class="subtle"><strong>Vivian Zou</strong> [Vtas]</a> <small>&ndash; Art (alternate main background)</small></p></li>';
 			buf += '<p class="buttonbar"><button name="close" class="autofocus"><strong>They sound like cool people</strong></button></p>';
 			this.$el.addClass('credits').html(buf);
 		}

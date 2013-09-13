@@ -1,5 +1,17 @@
 (function($) {
 
+	if (window.nodewebkit) {
+		window.gui = require('nw.gui');
+		$('body').on('click', 'a', function(e) {
+			if (this.target === '_blank') {
+				gui.Shell.openExternal(this.href);
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		});
+		window.nwWindow = gui.Window.get();
+	}
+
 	Config.version = '0.9.0';
 	Config.origindomain = 'play.pokemonshowdown.com';
 
@@ -232,7 +244,7 @@
 			this.ignore = {};
 
 			// down
-			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = true;
+			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = 'ddos';
 			if (document.location.hostname === 'play.pokemonshowdown.com') {
 				app.supportsRooms = true;
 			}
@@ -266,6 +278,8 @@
 
 				var musicVolume = Tools.prefs('musicvolume');
 				if (musicVolume !== undefined) BattleSound.setBgmVolume(musicVolume);
+
+				if (Tools.prefs('logchat')) Storage.startLoggingChat();
 			});
 
 			this.on('init:unsupported', function() {
@@ -297,16 +311,29 @@
 
 			this.on('response:rooms', this.roomsResponse, this);
 
-			$(window).on('focus click', function() {
-				if (!self.focused) {
-					self.focused = true;
-					if (self.curRoom) self.curRoom.dismissNotification();
-					if (self.curSideRoom) self.curSideRoom.dismissNotification();
-				}
-			});
-			$(window).on('blur', function() {
-				self.focused = false;
-			});
+			if (window.nodewebkit) {
+				nwWindow.on('focus', function() {
+					if (!self.focused) {
+						self.focused = true;
+						if (self.curRoom) self.curRoom.dismissNotification();
+						if (self.curSideRoom) self.curSideRoom.dismissNotification();
+					}
+				});
+				nwWindow.on('blur', function() {
+					self.focused = false;
+				});
+			} else {
+				$(window).on('focus click', function() {
+					if (!self.focused) {
+						self.focused = true;
+						if (self.curRoom) self.curRoom.dismissNotification();
+						if (self.curSideRoom) self.curSideRoom.dismissNotification();
+					}
+				});
+				$(window).on('blur', function() {
+					self.focused = false;
+				});
+			}
 
 			this.initializeConnection();
 
@@ -712,6 +739,10 @@
 			this.socket.onclose = function() {
 				if (!socketopened) {
 					if (Config.server.altport && !altport) {
+						if (document.location.protocol === 'https:') {
+							return document.location.replace('http://' +
+								document.location.host + document.location.pathname);
+						}
 						altport = true;
 						Config.server.port = Config.server.altport;
 						self.socket = reconstructSocket(self.socket);
@@ -1590,6 +1621,8 @@
 			if (!this.notifications) this.notifications = {};
 			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) {
 				this.notifications[tag] = {};
+			} else if (window.nodewebkit) {
+				nwWindow.requestAttention(true);
 			} else if (window.Notification) {
 				// old one doesn't need to be closed; sending the tag should
 				// automatically replace the old notification
@@ -1625,6 +1658,7 @@
 			return this.notify(title, body, tag, true);
 		},
 		closeNotification: function(tag, alreadyClosed) {
+			if (window.nodewebkit) nwWindow.requestAttention(false);
 			if (!this.notifications) return;
 			if (!tag) {
 				for (tag in this.notifications) {
@@ -1643,6 +1677,7 @@
 			}
 		},
 		dismissNotification: function(tag) {
+			if (window.nodewebkit) nwWindow.requestAttention(false);
 			if (!this.notifications) return;
 			if (!tag) {
 				for (tag in this.notifications) {
@@ -2182,6 +2217,7 @@
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
+			'change input[name=logchat]': 'setLogChat',
 			'click img': 'avatars'
 		},
 		update: function() {
@@ -2208,6 +2244,13 @@
 				buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"'+(app.curRoom.battle.ignoreSpects?' checked':'')+'> Ignore spectators</label></p>';
 			}
 
+			if (window.nodewebkit) {
+				buf += '<hr />';
+				buf += '<h3>Desktop app</h3>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="logchat"'+(Tools.prefs('logchat')?' checked':'')+'> Log chat</label></p>';
+				buf += '<p id="openLogFolderButton"'+(Storage.dir?'':' style="display:none"')+'><button name="openLogFolder">Open log folder</button></p>';
+			}
+
 			buf += '<hr />';
 			if (app.user.get('named')) {
 				buf += '<p class="buttonbar" style="text-align:right">';
@@ -2223,6 +2266,20 @@
 				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Choose name</button></p>';
 			}
 			this.$el.html(buf).css('min-width', 160);
+		},
+		openLogFolder: function() {
+			gui.Shell.openItem(Storage.documentsDir + 'My Games/Pokemon Showdown/');
+			// gui.Shell.showItemInFolder(Storage.dir);
+		},
+		setLogChat: function(e) {
+			var logchat = !!e.currentTarget.checked;
+			if (logchat) {
+				Storage.startLoggingChat();
+				$('#openLogFolderButton').show();
+			} else {
+				Storage.stopLoggingChat();
+			}
+			Tools.prefs('logchat', logchat);
 		},
 		setNoanim: function(e) {
 			var noanim = !!e.currentTarget.checked;

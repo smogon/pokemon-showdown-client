@@ -3620,6 +3620,7 @@ function Battle(frame, logFrame, noPreload) {
 
 				switch (effect.id) {
 				case 'typechange':
+					args[3] = Tools.escapeHTML(args[3]);
 					poke.volatiles.typechange[2] = args[3];
 					if (fromeffect.id) {
 						if (fromeffect.id === 'reflecttype') {
@@ -3686,7 +3687,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'disable':
 					self.resultAnim(poke, 'Disabled', 'bad', animDelay);
-					actions += "" + poke.getName() + "'s " + args[3] + " was disabled!";
+					actions += "" + poke.getName() + "'s " + Tools.escapeHTML(args[3]) + " was disabled!";
 					break;
 				case 'embargo':
 					self.resultAnim(poke, 'Embargo', 'bad', animDelay);
@@ -3810,7 +3811,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + ' foresaw an attack!';
 					break;
 				case 'mimic':
-					actions += '' + poke.getName() + ' learned ' + args[3] + '!';
+					actions += '' + poke.getName() + ' learned ' + Tools.escapeHTML(args[3]) + '!';
 					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " started!";
@@ -3975,7 +3976,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " snatched " + ofpoke.getLowerName() + "'s move!";
 					break;
 				case 'grudge':
-					actions += "" + poke.getName() + "'s " + args[3] + " lost all its PP due to the grudge!";
+					actions += "" + poke.getName() + "'s " + Tools.escapeHTML(args[3]) + " lost all its PP due to the grudge!";
 					break;
 				case 'quickguard':
 					poke.addTurnstatus('quickguard');
@@ -4028,7 +4029,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " fell for the feint!";
 					break;
 				case 'spite':
-					actions += "It reduced the PP of " + poke.getLowerName() + "'s " + Tools.getMove(args[3]).name + " by " + args[4] + "!";
+					actions += "It reduced the PP of " + poke.getLowerName() + "'s " + Tools.getMove(args[3]).name + " by " + Tools.escapeHTML(args[4]) + "!";
 					break;
 				case 'gravity':
 					actions += "" + poke.getName() + " couldn't stay airborne because of gravity!";
