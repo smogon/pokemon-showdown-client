@@ -124,7 +124,10 @@
 
 				switch (cmd) {
 					case 'create':
-						this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + BattleFormats[data.shift()].name + " " + Tools.escapeHTML(data.join('|')) + " Tournament has been created.</div>");
+						var format = BattleFormats[data[0]].name;
+						var type = data[1];
+						this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + format + " " + Tools.escapeHTML(type) + " Tournament has been created.</div>");
+						this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + format + "\nType: " + type, 'tournament-create');
 						break;
 
 					case 'join':
@@ -188,7 +191,9 @@
 						this.$challengeTeam.children().data('type', 'challengeTeam');
 						this.$challengeTeam.children().attr('name', 'tournamentButton');
 						this.$challenge.addClass("active");
+
 						this.setBoxVisibility(true);
+						this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
 						break;
 
 					case 'challengebys':
@@ -210,7 +215,9 @@
 						this.$challengeTeam.children().data('type', 'challengeTeam');
 						this.$challengeTeam.children().attr('name', 'tournamentButton');
 						this.$challenged.addClass("active");
+
 						this.setBoxVisibility(true);
+						this.room.notifyOnce("Tournament challenge from " + data[0], "Room: " + this.room.title, 'tournament-challenged');
 						break;
 
 					case 'battlestart':
