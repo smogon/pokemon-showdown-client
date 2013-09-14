@@ -286,7 +286,7 @@ class DefaultActionHandler {
 	}
 
 	public function prepreplay($dispatcher, &$reqData, &$out) {
-		global $psdb;
+		global $psdb, $users;
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php'; // not clear if this is needed
 
 		$server = $dispatcher->findServer();
@@ -326,13 +326,15 @@ class DefaultActionHandler {
 				$out = !!$psdb->query("UPDATE `ntbb_replays` SET `loghash` = '".$psdb->escape($reqData['loghash'])."' WHERE `id`='".$psdb->escape($reqData['id'])."'");
 			}
 		} else {
-			$out = !!$psdb->query("INSERT INTO `ntbb_replays` (`id`,`loghash`,`p1`,`p2`,`format`,`date`) VALUES ('".$psdb->escape($reqData['id'])."','".$psdb->escape($reqData['loghash'])."','".$psdb->escape($reqData['p1'])."','".$psdb->escape($reqData['p2'])."','".$psdb->escape($reqData['format'])."',".time().")");
+			$p1 = $users->wordfilter($reqData['p1']);
+			$p2 = $users->wordfilter($reqData['p2']);
+			$out = !!$psdb->query("INSERT INTO `ntbb_replays` (`id`,`loghash`,`p1`,`p2`,`format`,`date`) VALUES ('".$psdb->escape($reqData['id'])."','".$psdb->escape($reqData['loghash'])."','".$psdb->escape($p1)."','".$psdb->escape($p2)."','".$psdb->escape($reqData['format'])."',".time().")");
 		}
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
 	}
 
 	public function uploadreplay($dispatcher, &$reqData, &$out) {
-		global $psdb;
+		global $psdb, $users;
 
 		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
 		header('Content-Type: text/plain; charset=utf-8');
@@ -363,7 +365,7 @@ class DefaultActionHandler {
 			}
 		}
 
-		$psdb->query("UPDATE `ntbb_replays` SET `log` = '".$psdb->escape($_POST['log'])."', `loghash` = '' WHERE `id` = '".$psdb->escape($id)."'");
+		$psdb->query("UPDATE `ntbb_replays` SET `log` = '".$psdb->escape($users->wordfilter($_POST['log']))."', `loghash` = '' WHERE `id` = '".$psdb->escape($id)."'");
 
 		die('success');
 	}
