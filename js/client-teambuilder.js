@@ -6,7 +6,7 @@
 	var TeambuilderRoom = exports.TeambuilderRoom = exports.Room.extend({
 		type: 'teambuilder',
 		initialize: function() {
-			teams = app.user.teams;
+			teams = Storage.teams;
 
 			// left menu
 			this.$el.addClass('ps-room-light').addClass('scrollable');
@@ -51,7 +51,7 @@
 		},
 		saveTeams: function() {
 			// save and return
-			TeambuilderRoom.saveTeams();
+			Storage.saveTeams();
 			app.user.trigger('saveteams');
 			this.update();
 		},
@@ -80,7 +80,7 @@
 		curSetLoc: 0,
 		exportMode: false,
 		update: function() {
-			teams = app.user.teams;
+			teams = Storage.teams;
 			if (this.curTeam) {
 				if (this.curSet) {
 					return this.updateSetView();
@@ -97,7 +97,7 @@
 		deletedTeam: null,
 		deletedTeamLoc: -1,
 		updateTeamList: function() {
-			var teams = app.user.teams;
+			var teams = Storage.teams;
 			var buf = '';
 
 			this.deletedSet = null;
@@ -119,7 +119,7 @@
 			buf = '<div class="pad"><p>y\'know zarel this is a pretty good teambuilder</p>'
 			buf += '<p>aww thanks I\'m glad you like it :)</p>'
 			buf += '<ul>';
-			if (TeambuilderRoom.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
+			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
 			if (!teams.length) {
 				if (this.deletedTeamLoc >= 0) {
 					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
@@ -132,10 +132,6 @@
 						buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
 					}
 					if (i >= teams.length) break;
-
-					if (i==2 && app.user.cookieTeams) {
-						buf += '<li>== UNSAVED TEAM LINE ==<br /><small>All teams below this line will not be saved.</small></li>';
-					}
 
 					var team = teams[i];
 
@@ -165,11 +161,8 @@
 
 			buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
 
-			buf += '<p><strong>Clearing your cookies or <code>localStorage</code> will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
+			buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 
-			if (teams.length >= 2 && app.user.cookieTeams) {
-				buf += ' <strong>WARNING:</strong> Additional teams WILL NOT BE SAVED.';
-			}
 			buf += '</div>';
 
 			this.$el.html(buf);
@@ -399,7 +392,7 @@
 		saveFlag: false,
 		save: function() {
 			this.saveFlag = true;
-			TeambuilderRoom.saveTeams();
+			Storage.saveTeams();
 		},
 		teamNameChange: function(e) {
 			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled '+(this.curTeamLoc+1));
@@ -1247,8 +1240,8 @@
 			var team = [];
 			var curSet = null;
 			if (teams === true) {
-				app.user.teams = [];
-				teams = app.user.teams;
+				Storage.teams = [];
+				teams = Storage.teams;
 			}
 			for (var i=0; i<text.length; i++) {
 				var line = $.trim(text[i]);
@@ -1934,42 +1927,6 @@
 		destroy: function() {
 			app.clearGlobalListeners();
 			Room.prototype.destroy.call(this);
-		}
-	}, {
-		// static
-		saveTeams: function() {
-			if (window.localStorage) {
-				$.cookie('showdown_team1', null);
-				$.cookie('showdown_team2', null);
-				$.cookie('showdown_team3', null);
-
-				TeambuilderRoom.cantSave = false;
-				try {
-					localStorage.setItem('showdown_teams', JSON.stringify(teams));
-				} catch (e) {
-					if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
-						TeambuilderRoom.cantSave = true;
-					} else {
-						throw e;
-					}
-				}
-			} else {
-				if (teams[0]) {
-					$.cookie('showdown_team1', null);
-					$.cookie('showdown_team1', $.toJSON(teams[0]),{expires:60,domain:'pokemonshowdown.com'});
-				} else {
-					$.cookie('showdown_team1', null);
-					$.cookie('showdown_team1', null, {domain:'pokemonshowdown.com'});
-				}
-				if (teams[1]) {
-					$.cookie('showdown_team2', null);
-					$.cookie('showdown_team2', $.toJSON(teams[1]),{expires:60,domain:'pokemonshowdown.com'});
-				} else {
-					$.cookie('showdown_team2', null);
-					$.cookie('showdown_team2', null, {domain:'pokemonshowdown.com'});
-				}
-				$.cookie('showdown_team3', null);
-			}
 		}
 	});
 
