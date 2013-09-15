@@ -296,6 +296,7 @@
 					node.name = n;
 
 					node.children.forEach(function (child) {
+						child.parentId = node.id;
 						stack.push(child);
 					});
 					++n;
@@ -326,7 +327,7 @@
 
 						onBeforePlotLine: function (edge){
 							if (edge.nodeTo.data.team && edge.nodeTo.data.team === edge.nodeFrom.data.team) {
-								edge.data.$color = '#ee0';
+								edge.data.$color = '#aa0';
 								edge.data.$lineWidth = 3;
 							} else {
 								delete edge.data.$color;
@@ -381,7 +382,10 @@
 
 							var parentNode = null;
 							for (var a in node.adjacencies)
-								if (node.adjacencies[a].nodeFrom === node) {
+								if (node.adjacencies[a].nodeFrom.id === node.data.parentId) {
+									parentNode = node.adjacencies[a].nodeFrom;
+									break;
+								} else if (node.adjacencies[a].nodeTo.id === node.data.parentId) {
 									parentNode = node.adjacencies[a].nodeTo;
 									break;
 								}
