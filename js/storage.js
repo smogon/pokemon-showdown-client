@@ -115,7 +115,7 @@ _Storage.prototype.initDirectory2 = function() {
 };
 
 _Storage.prototype.revealFolder = function() {
-	gui.Shell.openItem(self.dir);
+	gui.Shell.openItem(this.dir);
 };
 
 // teams
@@ -141,8 +141,7 @@ _Storage.prototype.nwLoadTeamFile = function(filename) {
 		// not a team file
 		self.nwTeamsLeft--;
 		if (!self.nwTeamsLeft) {
-			self.teams.sort(self.teamCompare);
-			app.trigger('init:loadteams');
+			self.nwFinishedLoadingTeams();
 		}
 		return;
 	}
@@ -162,11 +161,15 @@ _Storage.prototype.nwLoadTeamFile = function(filename) {
 			});
 			self.nwTeamsLeft--;
 			if (!self.nwTeamsLeft) {
-				self.teams.sort(self.teamCompare);
-				app.trigger('init:loadteams');
+				self.nwFinishedLoadingTeams();
 			}
 		}
 	});
+};
+
+_Storage.prototype.nwFinishedLoadingTeams = function() {
+	this.teams.sort(this.teamCompare);
+	window.app.trigger('init:loadteams');
 };
 
 _Storage.prototype.teamCompare = function(a, b) {
