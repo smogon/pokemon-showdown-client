@@ -30,6 +30,7 @@ _Storage.prototype.loadTeams = function() {
 	if (window.localStorage) {
 		var teamString = localStorage.getItem('showdown_teams');
 		if (teamString) this.teams = JSON.parse(teamString);
+		app.trigger('init:loadteams');
 	}
 };
 
@@ -81,8 +82,70 @@ _Storage.prototype.initDirectory = function() {
 };
 
 _Storage.prototype.initDirectory2 = function() {
-	if (Tools.prefs('logchat')) this.startLoggingChat();
+	var self = this;
+	fs.mkdir(self.documentsDir+'My Games', function() {
+		fs.mkdir(self.documentsDir+'My Games/Pokemon Showdown', function() {
+			fs.stat(self.documentsDir+'My Games/Pokemon Showdown', function(err, stats) {
+				if (err) return;
+				if (stats.isDirectory()) {
+					self.dir = self.documentsDir+'My Games/Pokemon Showdown/';
+					// self.nwLoadTeams();
+					if (Tools.prefs('logchat')) self.startLoggingChat();
+					fs.mkdir(self.dir+'Logs', function() {});
+					fs.mkdir(self.dir+'Teams', function() {});
+				}
+			});
+		});
+	});
 };
+
+// teams
+
+_Storage.prototype.nwLoadTeams = function() {
+	var self = this;
+	fs.readdir(this.dir+'Teams', function(err, files) {
+		if (err) return;
+		self.teams = [];
+		self.nwTeamsLeft = files.length;
+		for (var i=0; i<files.length; i++) {
+			self.nwLoadTeamFile(files[i]);
+		}
+	});
+};
+
+_Storage.prototype.nwLoadTeamFile = function(filename) {
+	var self = this;
+	var line = filename;
+	if (line.substr(line.length-4).toLowerCase() === '.txt') {
+		line = line.substr(0, line.length-4);
+	} else {
+		// not a team file
+		self.nwTeamsLeft--;
+		return;
+	}
+	var format = '';
+	var bracketIndex = line.indexOf(']');
+	if (bracketIndex >= 0) {
+		format = line.substr(1, bracketIndex-1);
+		line = $.trim(line.substr(bracketIndex+1));
+	}
+	fs.readFile(this.dir+'Teams/'+filename, function(err, data) {
+		if (!err) {
+			self.teams.push({
+				filename: filename,
+				name: line,
+				format: format,
+				team: TeambuilderRoom.parseText(''+data)
+			});
+			self.nwTeamsLeft--;
+			if (!self.nwTeamsLeft) {
+				app.trigger('init:loadteams');
+			}
+		}
+	});
+}
+
+// logs
 
 _Storage.prototype.getLogMonth = function() {
 	var now = new Date();
@@ -95,20 +158,15 @@ _Storage.prototype.nwStartLoggingChat = function() {
 	if (!self.documentsDir) return; // too early; initDirectory2 will call us when it's time
 	if (self.loggingChat) return;
 	// callback hell! ^_^
-	fs.mkdir(self.documentsDir+'My Games', function() {
-		fs.mkdir(self.documentsDir+'My Games/Pokemon Showdown', function() {
-			fs.mkdir(self.documentsDir+'My Games/Pokemon Showdown/Logs', function() {
-				self.chatLogFdMonth = self.getLogMonth();
-				fs.mkdir(self.documentsDir+'My Games/Pokemon Showdown/Logs/'+self.chatLogFdMonth, function() {
-					fs.stat(self.documentsDir+'My Games/Pokemon Showdown/Logs/'+self.chatLogFdMonth, function(err, stats) {
-						if (err) return;
-						if (stats.isDirectory()) {
-							self.dir = self.documentsDir+'My Games/Pokemon Showdown/';
-							self.loggingChat = true;
-							self.chatLogStreams = {};
-						}
-					});
-				});
+	fs.mkdir(self.dir+'Logs', function() {
+		self.chatLogFdMonth = self.getLogMonth();
+		fs.mkdir(self.dir+'Logs/'+self.chatLogFdMonth, function() {
+			fs.stat(self.dir+'Logs/'+self.chatLogFdMonth, function(err, stats) {
+				if (err) return;
+				if (stats.isDirectory()) {
+					self.loggingChat = true;
+					self.chatLogStreams = {};
+				}
 			});
 		});
 	});

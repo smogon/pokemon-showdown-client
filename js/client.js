@@ -493,6 +493,7 @@
 						} else {
 							Storage.teams = [];
 						}
+						self.trigger('init:loadteams');
 						Storage.saveTeams = function() {
 							postCrossDomainMessage({teams: $.toJSON(Storage.teams)});
 						};
