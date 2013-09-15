@@ -58,15 +58,19 @@
 		back: function() {
 			if (this.exportMode) {
 				this.exportMode = false;
+				Storage.saveTeams();
 			} else if (this.curSet) {
 				app.clearGlobalListeners();
 				this.curSet = null;
+				Storage.saveTeams();
 			} else if (this.curTeam) {
+				Storage.saveTeam(this.curTeam);
 				this.curTeam = null;
 			} else {
 				return;
 			}
-			this.saveTeams();
+			app.user.trigger('saveteams');
+			this.update();
 		},
 
 		// the teambuilder has three views:
@@ -119,6 +123,7 @@
 			buf = '<div class="pad"><p>y\'know zarel this is a pretty good teambuilder</p>'
 			buf += '<p>aww thanks I\'m glad you like it :)</p>'
 			buf += '<ul>';
+			if (!window.localStorage && !window.nodewebkit) buf += '<li>== CAN\'T SAVE ==<br /><small>Your browser doesn\'t support <code>localStorage</code> and can\'t save teams! Update to a newer browser.</small></li>';
 			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
 			if (!teams.length) {
 				if (this.deletedTeamLoc >= 0) {
@@ -161,7 +166,7 @@
 
 			buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
 
-			buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
+			if (!window.nodewebkit) buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 
 			buf += '</div>';
 
@@ -178,18 +183,20 @@
 			var i = +i;
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
-			this.saveTeams();
+			Storage.deleteTeam(this.deletedTeam);
 		},
 		undoDelete: function() {
 			if (this.deletedTeamLoc >= 0) {
 				teams.splice(this.deletedTeamLoc, 0, this.deletedTeam);
+				var undeletedTeam = this.deletedTeam;
 				this.deletedTeam = null;
 				this.deletedTeamLoc = -1;
-				this.saveTeams();
+				Storage.saveTeam(undeletedTeam);
 			}
 		},
 		saveBackup: function() {
 			TeambuilderRoom.parseText(this.$('.teamedit').val(), true);
+			Storage.saveAllTeams();
 			this.back();
 		},
 		"new": function() {
@@ -1808,10 +1815,10 @@
 					if (line.substr(0,14) === 'Hidden Power [') {
 						var hptype = line.substr(14, line.length-15);
 						line = 'Hidden Power ' + hptype;
-						if (!curSet.ivs) {
+						if (!curSet.ivs && window.BattleTypeChart) {
 							curSet.ivs = {};
-							for (var stat in exports.BattleTypeChart[hptype].HPivs) {
-								curSet.ivs[stat] = exports.BattleTypeChart[hptype].HPivs[stat];
+							for (var stat in window.BattleTypeChart[hptype].HPivs) {
+								curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
 							}
 						}
 					}

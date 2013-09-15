@@ -36,10 +36,6 @@ _Storage.prototype.loadTeams = function() {
 
 _Storage.prototype.saveTeams = function() {
 	if (window.localStorage) {
-		$.cookie('showdown_team1', null);
-		$.cookie('showdown_team2', null);
-		$.cookie('showdown_team3', null);
-
 		Storage.cantSave = false;
 		try {
 			localStorage.setItem('showdown_teams', JSON.stringify(this.teams));
@@ -51,6 +47,18 @@ _Storage.prototype.saveTeams = function() {
 			}
 		}
 	}
+};
+
+_Storage.prototype.saveTeam = function() {
+	this.saveTeams();
+};
+
+_Storage.prototype.deleteTeam = function() {
+	this.saveTeams();
+};
+
+_Storage.prototype.saveAllTeams = function() {
+	this.saveTeams();
 };
 
 /*********************************************************
@@ -89,10 +97,17 @@ _Storage.prototype.initDirectory2 = function() {
 				if (err) return;
 				if (stats.isDirectory()) {
 					self.dir = self.documentsDir+'My Games/Pokemon Showdown/';
-					// self.nwLoadTeams();
-					if (Tools.prefs('logchat')) self.startLoggingChat();
 					fs.mkdir(self.dir+'Logs', function() {});
 					fs.mkdir(self.dir+'Teams', function() {});
+
+					// load teams
+					self.nwLoadTeams();
+					self.saveAllTeams = self.nwSaveAllTeams;
+					self.saveTeam = self.nwSaveTeam;
+					self.deleteTeam = self.nwDeleteTeam;
+
+					// logging
+					if (Tools.prefs('logchat')) self.startLoggingChat();
 				}
 			});
 		});
@@ -121,6 +136,10 @@ _Storage.prototype.nwLoadTeamFile = function(filename) {
 	} else {
 		// not a team file
 		self.nwTeamsLeft--;
+		if (!self.nwTeamsLeft) {
+			self.teams.sort(self.teamCompare);
+			app.trigger('init:loadteams');
+		}
 		return;
 	}
 	var format = '';
@@ -139,11 +158,88 @@ _Storage.prototype.nwLoadTeamFile = function(filename) {
 			});
 			self.nwTeamsLeft--;
 			if (!self.nwTeamsLeft) {
+				self.teams.sort(self.teamCompare);
 				app.trigger('init:loadteams');
 			}
 		}
 	});
-}
+};
+
+_Storage.prototype.teamCompare = function(a, b) {
+	if (a.name > b.name) return 1;
+	if (a.name < b.name) return -1;
+	return 0;
+};
+
+_Storage.prototype.nwDeleteAllTeams = function(callback) {
+	var self = this;
+	fs.readdir(this.dir+'Teams', function(err, files) {
+		if (err) return;
+		self.nwTeamsLeft = files.length;
+		if (!self.nwTeamsLeft) {
+			callback();
+			return;
+		}
+		for (var i=0; i<files.length; i++) {
+			self.nwDeleteTeamFile(files[i], callback);
+		}
+	});
+};
+
+_Storage.prototype.nwDeleteTeamFile = function(filename, callback) {
+	var self = this;
+	var line = filename;
+	if (line.substr(line.length-4).toLowerCase() === '.txt') {
+		line = line.substr(0, line.length-4);
+	} else {
+		// not a team file
+		self.nwTeamsLeft--;
+		if (!self.nwTeamsLeft) callback();
+		return;
+	}
+	fs.unlink(this.dir+'Teams/'+filename, function(err) {
+		self.nwTeamsLeft--;
+		if (!self.nwTeamsLeft) callback();
+	});
+};
+
+_Storage.prototype.nwSaveTeam = function(team) {
+	var filename = team.name+'.txt';
+	if (team.format) filename = '['+team.format+'] '+filename;
+	filename = $.trim(filename).replace(/[\\\/]+/g, '');
+
+	if (team.filename && filename !== team.filename) {
+		fs.unlink(this.dir+'Teams/'+team.filename, function() {});
+	}
+	team.filename = filename;
+	fs.writeFile(this.dir+'Teams/'+filename, TeambuilderRoom.toText(team.team).replace(/\n/g,'\r\n'));
+};
+
+_Storage.prototype.nwDeleteTeam = function(team) {
+	if (team.filename) {
+		fs.unlink(this.dir+'Teams/'+team.filename, function() {});
+		delete team.filename;
+	}
+};
+
+_Storage.prototype.nwSaveAllTeams = function() {
+	var self = this;
+	this.nwDeleteAllTeams(function() {
+		self.nwDoSaveAllTeams();
+	});
+};
+
+_Storage.prototype.nwDoSaveAllTeams = function() {
+	for (var i=0; i<this.teams.length; i++) {
+		var team = this.teams[i];
+		var filename = team.name+'.txt';
+		if (team.format) filename = '['+team.format+'] '+filename;
+		filename = $.trim(filename).replace(/[\\\/]+/g, '');
+
+		team.filename = filename;
+		fs.writeFile(this.dir+'Teams/'+filename, TeambuilderRoom.toText(team.team).replace(/\n/g,'\r\n'));
+	}
+};
 
 // logs
 
