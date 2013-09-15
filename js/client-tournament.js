@@ -234,6 +234,7 @@
 							result = "lost";
 						this.room.$chat.append('<div class="notice tournament-message-battleend">' +
 							Tools.escapeHTML(data[0]) + " has " + result + " the match " + Tools.escapeHTML(data[3].split(',').join(' - ')) + " against " + Tools.escapeHTML(data[1]) +
+							(data[4] ? " but the tournament does not support drawing, so it did not count" : "") +
 							'</div>');
 						break;
 
