@@ -272,8 +272,138 @@
 
 		TournamentBox.prototype.generateBracket = function (data) {
 			if (data.type === 'tree') {
-				// TODO
+				if (!data.rootNode)
+					return;
+
+				var id = 'tournament-bracket-tree-' + Math.floor(Math.random() * 0x100000000);
+
+				// Change tree format to infovis-compatible
+				var stack = [data.rootNode];
+				var n = 0;
+				while (stack.length > 0) {
+					var node = stack.pop();
+
+					node.data = {};
+					for (var key in node)
+						if (key !== 'children' && key !== 'data') {
+							node.data[key] = node[key];
+							delete node[key];
+						}
+					node.data.children = node.children;
+
+					node.id = id + "-" + n;
+					node.name = n;
+
+					node.children.forEach(function (child) {
+						stack.push(child);
+					});
+					++n;
+				}
+
+				var $div = $('<div class="tournament-bracket-tree" id="' + id + '"></div>');
+				setTimeout(function () {
+					$div.parent().css('overflow', 'hidden');
+					var st = new $jit.ST({
+						injectInto: id,
+						constrained: false,
+						levelsToShow: 999,
+						orientation: 'right',
+						duration: 0,
+						fps: 60,
+						transition: $jit.Trans.linear,
+						Navigation: {enable: true, panning: true},
+
+						Node: {height: 30, width: 150, type: 'rectangle', CanvasStyles: {fillStyle: 'rgba(0, 0, 0, 0)'}, overridable: true},
+						Edge: {type: "bezier", overridable: true},
+
+						onBeforePlotNode: function (node) {
+							if (node.data.children.length === 0)
+								node.data.$height = 20;
+							else
+								delete node.data.$height;
+						},
+
+						onBeforePlotLine: function (edge){
+							if (edge.nodeTo.data.team && edge.nodeTo.data.team === edge.nodeFrom.data.team) {
+								edge.data.$color = '#ee0';
+								edge.data.$lineWidth = 3;
+							} else {
+								delete edge.data.$color;
+								delete edge.data.$lineWidth;
+							}
+						},
+
+						onCreateLabel: function (label, node) {
+							var $label = $(label);
+
+							if (node.data.children.length === 0) {
+								$label.addClass('tournament-bracket-tree-node-team');
+								$label.text(node.data.team || "Unavailable");
+							} else {
+								$label.addClass('tournament-bracket-tree-node-match');
+								$label.addClass('tournament-bracket-tree-node-match-' + node.data.state);
+								if (node.data.state === 'unavailable')
+									$label.text("Unavailable");
+								else {
+									var $teams = $('<div></div>');
+									$teams.addClass('tournament-bracket-tree-node-match-teams');
+									var $teamA = $('<span></span>');
+									$teamA.addClass('tournament-bracket-tree-node-match-team');
+									var $teamB = $teamA.clone();
+									$teamA.text(node.data.children[0].data.team);
+									$teamB.text(node.data.children[1].data.team);
+									$teams.append($teamA).append(" vs ").append($teamB);
+
+									if (node.data.state === 'available')
+										$label.append("Waiting");
+									else if (node.data.state === 'inprogress')
+										$label.append('<a href="' + app.root + toRoomid(node.data.room).toLowerCase() + '" class="ilink">In-progress</a>');
+									else if (node.data.state === 'finished') {
+										if (node.data.result === 'win') {
+											$teamA.addClass('tournament-bracket-tree-node-match-team-win');
+											$teamB.addClass('tournament-bracket-tree-node-match-team-loss');
+										} else if (node.data.result === 'loss') {
+											$teamA.addClass('tournament-bracket-tree-node-match-team-loss');
+											$teamB.addClass('tournament-bracket-tree-node-match-team-win');
+										} else {
+											$teamA.addClass('tournament-bracket-tree-node-match-team-draw');
+											$teamB.addClass('tournament-bracket-tree-node-match-team-draw');
+										}
+
+										$label.addClass('tournament-bracket-tree-node-match-result-' + node.data.result);
+										$label.append(Tools.escapeHTML(node.data.score.join(" - ")));
+									}
+
+									$label.prepend($teams)
+								}
+							}
+
+							var parentNode = null;
+							for (var a in node.adjacencies)
+								if (node.adjacencies[a].nodeFrom === node) {
+									parentNode = node.adjacencies[a].nodeTo;
+									break;
+								}
+
+							if (parentNode && parentNode.data.state === 'finished')
+								if (parentNode.data.result === 'draw')
+									$label.addClass("tournament-bracket-tree-node-draw");
+								else if (node.data.team === parentNode.data.team)
+									$label.addClass("tournament-bracket-tree-node-win");
+								else
+									$label.addClass("tournament-bracket-tree-node-loss");
+						}
+					});
+					st.loadJSON(data.rootNode);
+					st.compute();
+					st.onClick(st.root);
+				}, 0);
+
+				return $div;
 			} else if (data.type === 'table') {
+				if (data.tableContents.length === 0)
+					return;
+
 				var $table = $('<table class="tournament-bracket-table"></table>');
 
 				var $colHeaders = $('<tr><td class="empty"></td></tr>');
@@ -294,13 +424,13 @@
 							return;
 						}
 						$cell.addClass('tournament-bracket-table-cell-' + cell.state);
-						if (cell.state === 'unavailable') {
+						if (cell.state === 'unavailable')
 							$cell.text("Unavailable");
-						} else if (cell.state === 'available') {
+						else if (cell.state === 'available')
 							$cell.text("Waiting");
-						} else if (cell.state === "inprogress") {
+						else if (cell.state === "inprogress")
 							$cell.html('<a href="' + app.root + toRoomid(cell.room).toLowerCase() + '" class="ilink">In-progress</a>');
-						} else if (cell.state === 'finished') {
+						else if (cell.state === 'finished') {
 							$cell.addClass('tournament-bracket-table-cell-result-' + cell.result);
 							$cell.text(cell.score.join(" - "));
 						}
@@ -308,8 +438,7 @@
 					$row.append($('<th class="tournament-bracket-row-score"></th>').text(data.scores[r]));
 				});
 
-				if (data.tableContents.length > 0)
-					return $table;
+				return $table;
 			}
 		},
 
