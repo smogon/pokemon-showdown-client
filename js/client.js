@@ -2240,8 +2240,7 @@
 			this.$el.html(buf).css('min-width', 160);
 		},
 		openLogFolder: function() {
-			gui.Shell.openItem(Storage.documentsDir + 'My Games/Pokemon Showdown/');
-			// gui.Shell.showItemInFolder(Storage.dir);
+			Storage.revealFolder();
 		},
 		setLogChat: function(e) {
 			var logchat = !!e.currentTarget.checked;

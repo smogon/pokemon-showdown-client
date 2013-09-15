@@ -164,15 +164,22 @@
 			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
 			buf += '</ul>';
 
-			buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
+			if (window.nodewebkit) {
+				buf += '<button name="revealFolder"><i class="icon-folder-open"></i> Reveal teams folder</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
+			} else {
+				buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
 
-			if (!window.nodewebkit) buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
+				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
+			}
 
 			buf += '</div>';
 
 			this.$el.html(buf);
 		},
 		// button actions
+		revealFolder: function() {
+			Storage.revealFolder();
+		},
 		edit: function(i) {
 			var i = +i;
 			this.curTeam = teams[i];
