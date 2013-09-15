@@ -165,7 +165,7 @@
 			buf += '</ul>';
 
 			if (window.nodewebkit) {
-				buf += '<button name="revealFolder"><i class="icon-folder-open"></i> Reveal teams folder</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
+				buf += '<button name="revealFolder"><i class="icon-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder"><i class="icon-refresh"></i> Reload teams files</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
 			} else {
 				buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
 
@@ -179,6 +179,9 @@
 		// button actions
 		revealFolder: function() {
 			Storage.revealFolder();
+		},
+		reloadTeamsFolder: function() {
+			Storage.nwLoadTeams();
 		},
 		edit: function(i) {
 			var i = +i;
