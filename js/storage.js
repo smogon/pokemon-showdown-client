@@ -10,6 +10,52 @@ function _Storage() {
 	}
 }
 
+/*********************************************************
+ * Teams
+ *********************************************************/
+
+/**
+ * Teams are normally loaded from `localStorage`.
+ * If the client isn't running on `play.pokemonshowdown.com`, though,
+ * teams are received from `crossdomain.php` instead.
+ */
+
+_Storage.prototype.teams = null;
+
+_Storage.prototype.loadTeams = function() {
+	this.teams = [];
+	if (window.nodewebkit) {
+		return;
+	}
+	if (window.localStorage) {
+		var teamString = localStorage.getItem('showdown_teams');
+		if (teamString) this.teams = JSON.parse(teamString);
+	}
+};
+
+_Storage.prototype.saveTeams = function() {
+	if (window.localStorage) {
+		$.cookie('showdown_team1', null);
+		$.cookie('showdown_team2', null);
+		$.cookie('showdown_team3', null);
+
+		Storage.cantSave = false;
+		try {
+			localStorage.setItem('showdown_teams', JSON.stringify(this.teams));
+		} catch (e) {
+			if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
+				Storage.cantSave = true;
+			} else {
+				throw e;
+			}
+		}
+	}
+};
+
+/*********************************************************
+ * Node-webkit
+ *********************************************************/
+
 _Storage.prototype.initDirectory = function() {
 	var self = this;
 

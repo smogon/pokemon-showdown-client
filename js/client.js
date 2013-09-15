@@ -198,34 +198,6 @@
 				expires: 14
 			});
 		},
-		/**
-		 * This function loads teams from `localStorage` or cookies. This function
-		 * is only used if the client is running on `play.pokemonshowdown.com`. If the
-		 * client is running on another domain, then teams are received from
-		 * `crossdomain.php` instead.
-		 */
-		teams: null,
-		loadTeams: function() {
-			this.teams = [];
-			if (window.localStorage) {
-				var teamString = localStorage.getItem('showdown_teams');
-				if (teamString) this.teams = JSON.parse(teamString);
-			} else {
-				this.cookieTeams = true;
-				var savedTeam = $.parseJSON($.cookie('showdown_team1'));
-				if (savedTeam) {
-					this.teams.push(savedTeam);
-				}
-				savedTeam = $.parseJSON($.cookie('showdown_team2'));
-				if (savedTeam) {
-					this.teams.push(savedTeam);
-				}
-				savedTeam = $.parseJSON($.cookie('showdown_team3'));
-				if (savedTeam) {
-					this.teams.push(savedTeam);
-				}
-			}
-		}
 	});
 
 	var App = this.App = Backbone.Router.extend({
@@ -405,9 +377,9 @@
 						var origin = 'https://' + Config.origindomain;
 						if (e.origin !== origin) return;
 						if (e.data === 'init') {
-							app.user.loadTeams();
+							Storage.loadTeams();
 							e.source.postMessage($.toJSON({
-								teams: $.toJSON(app.user.teams),
+								teams: $.toJSON(Storage.teams),
 								prefs: $.toJSON(Tools.prefs.data)
 							}), origin);
 						} else if (e.data === 'done') {
@@ -434,7 +406,7 @@
 
 			// Simple connection: no cross-domain logic needed.
 			Config.server = Config.server || Config.defaultserver;
-			this.user.loadTeams();
+			Storage.loadTeams();
 			this.trigger('init:loadprefs');
 			return this.connect();
 		},
@@ -517,13 +489,12 @@
 						};
 						// teams
 						if (data.teams) {
-							self.user.cookieTeams = false;
-							self.user.teams = $.parseJSON(data.teams) || [];
+							Storage.teams = $.parseJSON(data.teams) || [];
 						} else {
-							self.user.teams = [];
+							Storage.teams = [];
 						}
-						TeambuilderRoom.saveTeams = function() {
-							postCrossDomainMessage({teams: $.toJSON(app.user.teams)});
+						Storage.saveTeams = function() {
+							postCrossDomainMessage({teams: $.toJSON(Storage.teams)});
 						};
 						// prefs
 						if (data.prefs) {
