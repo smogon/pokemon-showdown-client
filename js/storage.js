@@ -114,6 +114,10 @@ _Storage.prototype.initDirectory2 = function() {
 	});
 };
 
+_Storage.prototype.revealFolder = function() {
+	gui.Shell.openItem(self.dir);
+};
+
 // teams
 
 _Storage.prototype.nwLoadTeams = function() {
