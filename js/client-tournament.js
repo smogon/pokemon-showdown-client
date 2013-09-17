@@ -7,6 +7,51 @@
 		return array.slice(0, -1).join(", ") + " " + finalSeparator + " " + array.slice(-1)[0];
 	}
 
+	function makeDraggable(element, position) {
+		var $element = $(element);
+		position = position || {};
+		var isMouseDown = false;
+		var innerX = 0;
+		var innerY = 0;
+
+		$element.css({
+			'user-select': 'none',
+			cursor: 'default',
+			position: 'absolute'
+		});
+
+		if (!('left' in position) || position.isDefault) {
+			position.left = $element.parent().width() / 2 - $element.width() / 2;
+			position.top = 0;
+			position.isDefault = true;
+		}
+
+		$element.css({
+			left: position.left,
+			top: position.top
+		});
+
+		$element.on('mousedown', function (e) {
+			innerX = e.pageX - this.offsetLeft;
+			innerY = e.pageY - this.offsetTop;
+			isMouseDown = true;
+		}).on('mouseup', function () {
+			isMouseDown = false;
+		});
+
+		$(document).on('mousemove', function (e) {
+			if (isMouseDown) {
+				position.left = e.pageX - innerX;
+				position.top = e.pageY - innerY;
+				delete position.isDefault;
+				$element.css({
+					left: position.left,
+					top: position.top
+				});
+			}
+		});
+	}
+
 	var TournamentBox = this.TournamentBox = (function () {
 		function TournamentBox(room, $wrapper) {
 			this.room = room;
@@ -57,6 +102,7 @@
 			this.info = null;
 			this.isJoined = false;
 			this.bracketData = null;
+			this.savedBracketPosition = {};
 			this.challenges = null;
 			this.challengeBys = null;
 
@@ -147,6 +193,7 @@
 						break;
 
 					case 'update':
+						this.$bracket.removeClass('tournament-bracket-overflowing');
 						this.$tools.find('.active').andSelf().removeClass('active');
 						if (this.info && this.info.isStarted)
 							this.$noMatches.addClass('active');
@@ -178,9 +225,15 @@
 
 						this.bracketData = JSON.parse(data.join('|'));
 						this.$bracket.empty()
-						var bracket = this.generateBracket(this.bracketData);
-						if (bracket)
-							this.$bracket.append(bracket);
+						var $bracket = this.generateBracket(this.bracketData);
+						if ($bracket) {
+							this.$bracket.append($bracket);
+							if (this.$bracket[0].offsetHeight < this.$bracket[0].scrollHeight ||
+								this.$bracket[0].offsetWidth < this.$bracket[0].scrollWidth) {
+								this.$bracket.addClass('tournament-bracket-overflowing');
+								makeDraggable($bracket, this.savedBracketPosition);
+							}
+						}
 						break;
 
 					case 'challenges':
@@ -241,9 +294,16 @@
 					case 'end':
 						var endData = JSON.parse(data[0]);
 
-						var bracket = this.generateBracket(endData.bracketData);
-						if (bracket)
-							this.room.$chat.append($('<div class="notice tournament-message-end-bracket"></div>').append(bracket));
+						var $bracket = this.generateBracket(endData.bracketData);
+						if ($bracket) {
+							var $bracketMessage = $('<div class="notice tournament-message-end-bracket"></div>').append($bracket);
+							this.room.$chat.append($bracketMessage);
+							if ($bracketMessage[0].offsetHeight < $bracketMessage[0].scrollHeight ||
+								$bracketMessage[0].offsetWidth < $bracketMessage[0].scrollWidth) {
+								$bracketMessage.addClass('tournament-message-end-bracket-overflowing');
+								makeDraggable($bracket);
+							}
+						}
 
 						this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the tournament!</div>");
 						if (endData.results[1])
@@ -255,6 +315,7 @@
 						this.isActive = false;
 						this.info = null;
 						this.bracketData = null;
+						this.savedBracketPosition = {};
 
 						this.$box.removeClass("active");
 						this.$box.css('transition', '');
@@ -276,133 +337,135 @@
 				if (!data.rootNode)
 					return;
 
-				var id = 'tournament-bracket-tree-' + Math.floor(Math.random() * 0x100000000);
+				var nodeSize = {
+					width: 150, height: 20,
+					radius: 5,
+					separationX: 30, separationY: 15
+				};
 
-				// Change tree format to infovis-compatible
-				var stack = [data.rootNode];
-				var n = 0;
+				var $div = $('<div class="tournament-bracket-tree"></div>');
+
+				var nodesByDepth = [];
+				var stack = [{node: data.rootNode, depth: 0}];
 				while (stack.length > 0) {
-					var node = stack.pop();
+					var frame = stack.pop();
 
-					node.data = {};
-					for (var key in node)
-						if (key !== 'children' && key !== 'data') {
-							node.data[key] = node[key];
-							delete node[key];
-						}
-					node.data.children = node.children;
+					if (!nodesByDepth[frame.depth])
+						nodesByDepth.push(0);
+					++nodesByDepth[frame.depth];
 
-					node.id = id + "-" + n;
-					node.name = n;
-
-					node.children.forEach(function (child) {
-						child.parentId = node.id;
-						stack.push(child);
+					frame.node.children.forEach(function (child) {
+						stack.push({node: child, depth: frame.depth + 1});
 					});
-					++n;
 				}
+				var maxDepth = nodesByDepth.length;
+				var maxWidth = 0;
+				nodesByDepth.forEach(function (nodes) {
+					if (nodes > maxWidth)
+						maxWidth = nodes;
+				});
 
-				var $div = $('<div class="tournament-bracket-tree" id="' + id + '"></div>');
-				setTimeout(function () {
-					$div.parent().css('overflow', 'hidden');
-					var st = new $jit.ST({
-						injectInto: id,
-						constrained: false,
-						levelsToShow: 999,
-						orientation: 'right',
-						duration: 0,
-						fps: 60,
-						transition: $jit.Trans.linear,
-						Navigation: {enable: true, panning: true},
+				nodeSize.realWidth = nodeSize.width + nodeSize.radius * 2;
+				nodeSize.realHeight = nodeSize.height + nodeSize.radius * 2;
+				nodeSize.smallRealHeight = nodeSize.height / 2 + nodeSize.radius * 2;
+				var size = {
+					width: nodeSize.realWidth * maxDepth + nodeSize.separationX * maxDepth,
+					height: nodeSize.realHeight * (maxWidth + 0.5) + nodeSize.separationY * maxWidth
+				};
 
-						Node: {height: 30, width: 150, type: 'rectangle', CanvasStyles: {fillStyle: 'rgba(0, 0, 0, 0)'}, overridable: true},
-						Edge: {type: "bezier", overridable: true},
-
-						onBeforePlotNode: function (node) {
-							if (node.data.children.length === 0)
-								node.data.$height = 20;
-							else
-								delete node.data.$height;
-						},
-
-						onBeforePlotLine: function (edge){
-							if (edge.nodeTo.data.team && edge.nodeTo.data.team === edge.nodeFrom.data.team) {
-								edge.data.$color = '#aa0';
-								edge.data.$lineWidth = 3;
-							} else {
-								delete edge.data.$color;
-								delete edge.data.$lineWidth;
-							}
-						},
-
-						onCreateLabel: function (label, node) {
-							var $label = $(label);
-
-							if (node.data.children.length === 0) {
-								$label.addClass('tournament-bracket-tree-node-team');
-								$label.text(node.data.team || "Unavailable");
-							} else {
-								$label.addClass('tournament-bracket-tree-node-match');
-								$label.addClass('tournament-bracket-tree-node-match-' + node.data.state);
-								if (node.data.state === 'unavailable')
-									$label.text("Unavailable");
-								else {
-									var $teams = $('<div></div>');
-									$teams.addClass('tournament-bracket-tree-node-match-teams');
-									var $teamA = $('<span></span>');
-									$teamA.addClass('tournament-bracket-tree-node-match-team');
-									var $teamB = $teamA.clone();
-									$teamA.text(node.data.children[0].data.team);
-									$teamB.text(node.data.children[1].data.team);
-									$teams.append($teamA).append(" vs ").append($teamB);
-
-									if (node.data.state === 'available')
-										$label.append("Waiting");
-									else if (node.data.state === 'inprogress')
-										$label.append('<a href="' + app.root + toRoomid(node.data.room).toLowerCase() + '" class="ilink">In-progress</a>');
-									else if (node.data.state === 'finished') {
-										if (node.data.result === 'win') {
-											$teamA.addClass('tournament-bracket-tree-node-match-team-win');
-											$teamB.addClass('tournament-bracket-tree-node-match-team-loss');
-										} else if (node.data.result === 'loss') {
-											$teamA.addClass('tournament-bracket-tree-node-match-team-loss');
-											$teamB.addClass('tournament-bracket-tree-node-match-team-win');
-										} else {
-											$teamA.addClass('tournament-bracket-tree-node-match-team-draw');
-											$teamB.addClass('tournament-bracket-tree-node-match-team-draw');
-										}
-
-										$label.addClass('tournament-bracket-tree-node-match-result-' + node.data.result);
-										$label.append(Tools.escapeHTML(node.data.score.join(" - ")));
-									}
-
-									$label.prepend($teams)
-								}
-							}
-
-							var parentNode = null;
-							for (var a in node.adjacencies)
-								if (node.adjacencies[a].nodeFrom.id === node.data.parentId) {
-									parentNode = node.adjacencies[a].nodeFrom;
-									break;
-								} else if (node.adjacencies[a].nodeTo.id === node.data.parentId) {
-									parentNode = node.adjacencies[a].nodeTo;
-									break;
-								}
-
-							if (parentNode && parentNode.data.state === 'finished')
-								if (parentNode.data.result === 'draw')
-									$label.addClass("tournament-bracket-tree-node-draw");
-								else if (node.data.team === parentNode.data.team)
-									$label.addClass("tournament-bracket-tree-node-win");
-								else
-									$label.addClass("tournament-bracket-tree-node-loss");
-						}
+				var tree = d3.layout.tree()
+					.size([size.height, size.width - nodeSize.realWidth - nodeSize.separationX])
+					.separation(function () { return 1; })
+					.children(function (node) {
+						return node.children.length === 0 ? null : node.children;
 					});
-					st.loadJSON(data.rootNode);
-					st.compute();
-					st.onClick(st.root);
-				}, 0);
+				var nodes = tree.nodes(data.rootNode);
+				var links = tree.links(nodes);
+
+				var layoutRoot = d3.select($div[0])
+					.append('svg:svg').attr('width', size.width).attr('height', size.height)
+					.append('svg:g')
+					.attr('transform', 'translate(' + (-(nodeSize.realWidth + nodeSize.separationX) / 2) + ',0)');
+
+				var link = d3.svg.diagonal()
+					.source(function (link) {
+						return {x: link.source.x, y: link.source.y + nodeSize.realWidth / 2};
+					})
+					.target(function (link) {
+						return {x: link.target.x, y: link.target.y - nodeSize.realWidth / 2};
+					})
+					.projection(function (link) {
+						return [size.width - link.y, link.x];
+					});
+				layoutRoot.selectAll('path.tournament-bracket-tree-link').data(links).enter()
+					.append('svg:path')
+					.attr('d', link)
+					.classed('tournament-bracket-tree-link', true)
+					.classed('tournament-bracket-tree-link-active', function (link) {
+						return link.source.team === link.target.team;
+					});
+
+				var nodeGroup = layoutRoot.selectAll('g.tournament-bracket-tree-node').data(nodes).enter()
+					.append('svg:g').classed('tournament-bracket-tree-node', true).attr('transform', function (node) {
+						return 'translate(' + (size.width - node.y) + ',' + node.x + ')';
+					});
+				nodeGroup.append('svg:rect')
+					.attr('rx', nodeSize.radius)
+					.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth)
+					.each(function (node) {
+						var elem = d3.select(this);
+						if (node.children.length === 0)
+							elem.attr('y', -nodeSize.smallRealHeight / 2).attr('height', nodeSize.smallRealHeight);
+						else
+							elem.attr('y', -nodeSize.realHeight / 2).attr('height', nodeSize.realHeight);
+					});
+				nodeGroup.each(function (node) {
+					var elem = d3.select(this);
+					if (node.children.length === 0) {
+						elem.classed('tournament-bracket-tree-node-team', true);
+						elem.append('svg:text').text(node.team || "Unavailable");
+					} else {
+						elem.classed('tournament-bracket-tree-node-match', true);
+						elem.classed('tournament-bracket-tree-node-match-' + node.state, true);
+						if (node.state === 'unavailable')
+							elem.append('svg:text').text("Unavailable");
+						else {
+							var teams = elem.append('svg:text').attr('y', -nodeSize.realHeight / 5).classed('tournament-bracket-tree-node-match-teams', true);
+							var teamA = teams.append('svg:tspan').classed('tournament-bracket-tree-node-match-team', true).text(node.children[0].team);
+							teams.append('svg:tspan').text(" vs ");
+							var teamB = teams.append('svg:tspan').classed('tournament-bracket-tree-node-match-team', true).text(node.children[1].team);
+
+							var score = elem.append('svg:text').attr('y', nodeSize.realHeight / 5);
+							if (node.state === 'available')
+								score.text("Waiting");
+							else if (node.state === 'inprogress')
+								score.append('svg:a').attr('xlink:href', app.root + toRoomid(node.room).toLowerCase()).classed('ilink', true).text("In-progress");
+							else if (node.state === 'finished') {
+								if (node.result === 'win') {
+									teamA.classed('tournament-bracket-tree-node-match-team-win', true);
+									teamB.classed('tournament-bracket-tree-node-match-team-loss', true);
+								} else if (node.result === 'loss') {
+									teamA.classed('tournament-bracket-tree-node-match-team-loss', true);
+									teamB.classed('tournament-bracket-tree-node-match-team-win', true);
+								} else {
+									teamA.classed('tournament-bracket-tree-node-match-team-draw', true);
+									teamB.classed('tournament-bracket-tree-node-match-team-draw', true);
+								}
+
+								elem.classed('tournament-bracket-tree-node-match-result-' + node.result, true);
+								score.text(node.score.join(" - "));
+							}
+						}
+					}
+
+					if (node.parent && node.parent.state === 'finished')
+						if (node.parent.result === 'draw')
+							elem.classed('tournament-bracket-tree-node-draw', true);
+						else if (node.team === node.parent.team)
+							elem.classed('tournament-bracket-tree-node-win', true);
+						else
+							elem.classed('tournament-bracket-tree-node-loss', true);
+				});
 
 				return $div;
 			} else if (data.type === 'table') {
