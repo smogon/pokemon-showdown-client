@@ -1006,12 +1006,20 @@ a.ilink:hover {
 
 .tournament-bracket {
 	max-height: 200px;
-	overflow: auto;
+	padding: 10px;
+	overflow: hidden;
 	font-size: 8pt;
+}
+.tournament-bracket-overflowing {
+	height: 200px;
+	padding: 0;
+	position: relative;
+	left: 0;
+	top: 0;
 }
 
 .tournament-bracket-table {
-	margin: 10px auto;
+	margin: 0 auto;
 	empty-cells: hide;
 	border-bottom: 1px #aaa solid;
 	border-collapse: collapse;
@@ -1037,48 +1045,47 @@ a.ilink:hover {
 	background-color: rgba(255, 0, 0, 0.2)
 }
 
-.tournament-bracket-tree {
-	width: 100%;
-	height: 200px;
+.tournament-bracket-tree-link {
+	fill: none;
+	stroke: #aaa;
 }
-.tournament-bracket-tree-node-match, .tournament-bracket-tree-node-team {
-	height: 27px;
-	width: 148px;
-	border: 1px solid rgba(178, 183, 191, 0.7);
-	border-radius: 5px 5px 5px 5px;
-	background-color: rgba(225, 232, 242, 0.7);
-	color: #000;
+.tournament-bracket-tree-link-active {
+	stroke: #aa0;
+	stroke-width: 3px;
+}
+.tournament-bracket-tree-node > rect {
+	/* Note: Due to SVG limitations, dimensions and border radii are in client-tournament.js (nodeSize) */
+	fill: rgba(225, 232, 242, 0.7);
+	stroke: rgba(178, 183, 191, 0.7);
+}
+.tournament-bracket-tree-node-win > rect {
+	fill: rgba(0, 255, 0, 0.2);
+	stroke: rgba(0, 255, 0, 0.5);
+}
+.tournament-bracket-tree-node-draw > rect {
+	fill: rgba(255, 255, 0, 0.2);
+	stroke: rgba(255, 255, 0, 0.5);
+}
+.tournament-bracket-tree-node-loss > rect {
+	fill: rgba(255, 0, 0, 0.2);
+	stroke: rgba(255, 0, 0, 0.5);
+}
+.tournament-bracket-tree-node > text {
 	font-size: 0.8em;
-	line-height: 1.5em;
-	text-align: center;
-	cursor: default;
-	user-select: none;
+	text-anchor: middle;
+	dominant-baseline: central;
 }
-.tournament-bracket-tree-node-team {
-	height: 17px;
-	line-height: 17px;
+.tournament-bracket-tree-node > text > a {
+	fill: #248;
 }
-.tournament-bracket-tree-node-match-unavailable {
-	line-height: 27px;
+.tournament-bracket-tree-node > text > a:hover {
+	fill: #68c;
 }
 .tournament-bracket-tree-node-match-team {
 	font-weight: bold;
 }
 .tournament-bracket-tree-node-match-team-draw, .tournament-bracket-tree-node-match-team-loss {
-	color: #aaa;
-}
-
-.tournament-bracket-tree-node-win {
-	background-color: rgba(0, 255, 0, 0.2);
-	border-color: rgba(0, 255, 0, 0.5);
-}
-.tournament-bracket-tree-node-draw {
-	background-color: rgba(255, 255, 0, 0.2);
-	border-color: rgba(255, 255, 0, 0.5);
-}
-.tournament-bracket-tree-node-loss {
-	background-color: rgba(255, 0, 0, 0.2);
-	border-color: rgba(255, 0, 0, 0.5);
+	fill: #aaa;
 }
 
 .tournament-tools {
@@ -1120,8 +1127,14 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 .tournament-message-end-bracket {
 	font-weight: normal !important;
 	max-height: 400px;
-	overflow: auto;
+	overflow: hidden;
 	text-align: center;
+}
+.tournament-message-end-bracket-overflowing {
+	height: 400px;
+	position: relative;
+	left: 0;
+	top: 0;
 }
 
 /* Messages */
