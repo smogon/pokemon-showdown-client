@@ -402,7 +402,7 @@
 					.attr('d', link)
 					.classed('tournament-bracket-tree-link', true)
 					.classed('tournament-bracket-tree-link-active', function (link) {
-						return link.target.state === 'finished' && link.source.team === link.target.team;
+						return link.source.state === 'finished' && link.source.team === link.target.team;
 					});
 
 				var nodeGroup = layoutRoot.selectAll('g.tournament-bracket-tree-node').data(nodes).enter()
