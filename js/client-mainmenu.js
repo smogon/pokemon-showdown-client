@@ -384,7 +384,7 @@
 		},
 		updateTeams: function() {
 			if (!window.BattleFormats) return;
-			var teams = app.user.teams;
+			var teams = Storage.teams;
 			var self = this;
 
 			this.$('button[name=team]').each(function(i, el) {
@@ -424,7 +424,7 @@
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
-			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
+			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex].team;
 			if (!window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 				return;
@@ -448,7 +448,7 @@
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
-			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
+			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex].team;
 			if (!window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 				return;
@@ -505,7 +505,7 @@
 		curTeamFormat: '',
 		curTeamIndex: -1,
 		renderTeams: function(formatid, teamIndex) {
-			if (!app.user.teams || !window.BattleFormats) {
+			if (!Storage.teams || !window.BattleFormats) {
 				return '<button class="select teamselect" name="team" disabled><em>Loading...</em></button>';
 			}
 			if (!formatid) formatid = this.curFormat;
@@ -515,7 +515,7 @@
 			if (window.BattleFormats[formatid].team) {
 				return '<button class="select teamselect preselected" name="team" value="random" disabled>'+TeamPopup.renderTeam('random')+'</button>';
 			}
-			var teams = app.user.teams;
+			var teams = Storage.teams;
 			if (!teams.length) {
 				return '<button class="select teamselect" name="team" disabled>You have no teams</button>'
 			}
@@ -558,7 +558,7 @@
 			var format = $formatButton.val();
 			var teamIndex = $teamButton.val();
 			var team = null;
-			if (app.user.teams[teamIndex]) team = app.user.teams[teamIndex].team;
+			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex].team;
 			if (!window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 				return;
@@ -628,7 +628,7 @@
 		initialize: function(data) {
 			var bufs = ['','','','',''];
 			var curBuf = 0;
-			var teams = app.user.teams;
+			var teams = Storage.teams;
 
 			var bufBoundary = 128;
 			if (teams.length > 128 && $(window).width() > 1080) {
@@ -699,7 +699,7 @@
 				}
 				return buf;
 			}
-			var team = app.user.teams[i];
+			var team = Storage.teams[i];
 			if (!team) return 'Error: Corrupted team';
 			var buf = ''+Tools.escapeHTML(team.name)+'<br />';
 			for (var i=0; i<team.team.length; i++) {

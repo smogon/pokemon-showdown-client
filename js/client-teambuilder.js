@@ -6,11 +6,11 @@
 	var TeambuilderRoom = exports.TeambuilderRoom = exports.Room.extend({
 		type: 'teambuilder',
 		initialize: function() {
-			teams = app.user.teams;
+			teams = Storage.teams;
 
 			// left menu
 			this.$el.addClass('ps-room-light').addClass('scrollable');
-			app.on('init:loadprefs', this.update, this);
+			app.on('init:loadteams', this.update, this);
 			this.update();
 		},
 		focus: function() {
@@ -51,22 +51,26 @@
 		},
 		saveTeams: function() {
 			// save and return
-			TeambuilderRoom.saveTeams();
+			Storage.saveTeams();
 			app.user.trigger('saveteams');
 			this.update();
 		},
 		back: function() {
 			if (this.exportMode) {
 				this.exportMode = false;
+				Storage.saveTeams();
 			} else if (this.curSet) {
 				app.clearGlobalListeners();
 				this.curSet = null;
+				Storage.saveTeams();
 			} else if (this.curTeam) {
+				Storage.saveTeam(this.curTeam);
 				this.curTeam = null;
 			} else {
 				return;
 			}
-			this.saveTeams();
+			app.user.trigger('saveteams');
+			this.update();
 		},
 
 		// the teambuilder has three views:
@@ -80,7 +84,7 @@
 		curSetLoc: 0,
 		exportMode: false,
 		update: function() {
-			teams = app.user.teams;
+			teams = Storage.teams;
 			if (this.curTeam) {
 				if (this.curSet) {
 					return this.updateSetView();
@@ -97,7 +101,7 @@
 		deletedTeam: null,
 		deletedTeamLoc: -1,
 		updateTeamList: function() {
-			var teams = app.user.teams;
+			var teams = Storage.teams;
 			var buf = '';
 
 			this.deletedSet = null;
@@ -105,7 +109,7 @@
 
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <button name="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
-				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(this.teamsToText())+'</textarea>';
+				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(TeambuilderRoom.teamsToText())+'</textarea>';
 				this.$el.html(buf);
 				return;
 			}
@@ -119,7 +123,8 @@
 			buf = '<div class="pad"><p>y\'know zarel this is a pretty good teambuilder</p>'
 			buf += '<p>aww thanks I\'m glad you like it :)</p>'
 			buf += '<ul>';
-			if (TeambuilderRoom.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
+			if (!window.localStorage && !window.nodewebkit) buf += '<li>== CAN\'T SAVE ==<br /><small>Your browser doesn\'t support <code>localStorage</code> and can\'t save teams! Update to a newer browser.</small></li>';
+			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
 			if (!teams.length) {
 				if (this.deletedTeamLoc >= 0) {
 					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
@@ -132,10 +137,6 @@
 						buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
 					}
 					if (i >= teams.length) break;
-
-					if (i==2 && app.user.cookieTeams) {
-						buf += '<li>== UNSAVED TEAM LINE ==<br /><small>All teams below this line will not be saved.</small></li>';
-					}
 
 					var team = teams[i];
 
@@ -163,18 +164,25 @@
 			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
 			buf += '</ul>';
 
-			buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
+			if (window.nodewebkit) {
+				buf += '<button name="revealFolder"><i class="icon-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder"><i class="icon-refresh"></i> Reload teams files</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
+			} else {
+				buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
 
-			buf += '<p><strong>Clearing your cookies or <code>localStorage</code> will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
-
-			if (teams.length >= 2 && app.user.cookieTeams) {
-				buf += ' <strong>WARNING:</strong> Additional teams WILL NOT BE SAVED.';
+				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 			}
+
 			buf += '</div>';
 
 			this.$el.html(buf);
 		},
 		// button actions
+		revealFolder: function() {
+			Storage.revealFolder();
+		},
+		reloadTeamsFolder: function() {
+			Storage.nwLoadTeams();
+		},
 		edit: function(i) {
 			var i = +i;
 			this.curTeam = teams[i];
@@ -185,18 +193,20 @@
 			var i = +i;
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
-			this.saveTeams();
+			Storage.deleteTeam(this.deletedTeam);
 		},
 		undoDelete: function() {
 			if (this.deletedTeamLoc >= 0) {
 				teams.splice(this.deletedTeamLoc, 0, this.deletedTeam);
+				var undeletedTeam = this.deletedTeam;
 				this.deletedTeam = null;
 				this.deletedTeamLoc = -1;
-				this.saveTeams();
+				Storage.saveTeam(undeletedTeam);
 			}
 		},
 		saveBackup: function() {
-			this.parseText(this.$('.teamedit').val(), true);
+			TeambuilderRoom.parseText(this.$('.teamedit').val(), true);
+			Storage.saveAllTeams();
 			this.back();
 		},
 		"new": function() {
@@ -250,7 +260,7 @@
 			var buf = '';
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
-				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(this.toText(this.curTeam.team))+'</textarea>';
+				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(TeambuilderRoom.toText(this.curTeam.team))+'</textarea>';
 			} else {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
@@ -372,7 +382,7 @@
 		},
 
 		saveImport: function() {
-			this.curTeam.team = this.parseText(this.$('.teamedit').val());
+			this.curTeam.team = TeambuilderRoom.parseText(this.$('.teamedit').val());
 			this.back();
 		},
 		addPokemon: function() {
@@ -399,7 +409,7 @@
 		saveFlag: false,
 		save: function() {
 			this.saveFlag = true;
-			TeambuilderRoom.saveTeams();
+			Storage.saveTeams();
 		},
 		teamNameChange: function(e) {
 			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled '+(this.curTeamLoc+1));
@@ -1240,234 +1250,6 @@
 		 * Utility functions
 		 *********************************************************/
 
-		// text import/export
-
-		parseText: function(text, teams) {
-			var text = text.split("\n");
-			var team = [];
-			var curSet = null;
-			if (teams === true) {
-				app.user.teams = [];
-				teams = app.user.teams;
-			}
-			for (var i=0; i<text.length; i++) {
-				var line = $.trim(text[i]);
-				if (line === '' || line === '---') {
-					curSet = null;
-				} else if (line.substr(0, 3) === '===' && teams) {
-					team = [];
-					line = $.trim(line.substr(3, line.length-6));
-					var format = '';
-					var bracketIndex = line.indexOf(']');
-					if (bracketIndex >= 0) {
-						format = line.substr(1, bracketIndex-1);
-						line = $.trim(line.substr(bracketIndex+1));
-					}
-					teams.push({
-						name: line,
-						format: format,
-						team: team
-					});
-				} else if (!curSet) {
-					curSet = {name: '', species: '', gender: ''};
-					team.push(curSet);
-					var atIndex = line.lastIndexOf(' @ ');
-					if (atIndex !== -1) {
-						curSet.item = line.substr(atIndex+3);
-						line = line.substr(0, atIndex);
-					}
-					if (line.substr(line.length-4) === ' (M)') {
-						curSet.gender = 'M';
-						line = line.substr(0, line.length-4);
-					}
-					if (line.substr(line.length-4) === ' (F)') {
-						curSet.gender = 'F';
-						line = line.substr(0, line.length-4);
-					}
-					var parenIndex = line.lastIndexOf(' (');
-					if (line.substr(line.length-1) === ')' && parenIndex !== -1) {
-						line = line.substr(0, line.length-1);
-						curSet.species = Tools.getTemplate(line.substr(parenIndex+2)).name;
-						line = line.substr(0, parenIndex);
-						curSet.name = line;
-					} else {
-						curSet.species = Tools.getTemplate(line).name;
-						curSet.name = curSet.species;
-					}
-				} else if (line.substr(0, 7) === 'Trait: ') {
-					line = line.substr(7);
-					curSet.ability = line;
-				} else if (line === 'Shiny: Yes') {
-					curSet.shiny = true;
-				} else if (line.substr(0, 7) === 'Level: ') {
-					line = line.substr(7);
-					curSet.level = +line;
-				} else if (line.substr(0, 11) === 'Happiness: ') {
-					line = line.substr(11);
-					curSet.happiness = +line;
-				} else if (line.substr(0, 9) === 'Ability: ') {
-					line = line.substr(9);
-					curSet.ability = line;
-				} else if (line.substr(0, 5) === 'EVs: ') {
-					line = line.substr(5);
-					var evLines = line.split('/');
-					curSet.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
-					for (var j=0; j<evLines.length; j++) {
-						var evLine = $.trim(evLines[j]);
-						var spaceIndex = evLine.indexOf(' ');
-						if (spaceIndex === -1) continue;
-						var statid = BattleStatIDs[evLine.substr(spaceIndex+1)];
-						var statval = parseInt(evLine.substr(0, spaceIndex));
-						if (!statid) continue;
-						curSet.evs[statid] = statval;
-					}
-				} else if (line.substr(0, 5) === 'IVs: ') {
-					line = line.substr(5);
-					var ivLines = line.split(' / ');
-					curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
-					for (var j=0; j<ivLines.length; j++) {
-						var ivLine = ivLines[j];
-						var spaceIndex = ivLine.indexOf(' ');
-						if (spaceIndex === -1) continue;
-						var statid = BattleStatIDs[ivLine.substr(spaceIndex+1)];
-						var statval = parseInt(ivLine.substr(0, spaceIndex));
-						if (!statid) continue;
-						curSet.ivs[statid] = statval;
-					}
-				} else if (line.match(/^[A-Za-z]+ (N|n)ature/)) {
-					var natureIndex = line.indexOf(' Nature');
-					if (natureIndex === -1) natureIndex = line.indexOf(' nature');
-					if (natureIndex === -1) continue;
-					line = line.substr(0, natureIndex);
-					curSet.nature = line;
-				} else if (line.substr(0,1) === '-' || line.substr(0,1) === '~') {
-					line = line.substr(1);
-					if (line.substr(0,1) === ' ') line = line.substr(1);
-					if (!curSet.moves) curSet.moves = [];
-					if (line.substr(0,14) === 'Hidden Power [') {
-						var hptype = line.substr(14, line.length-15);
-						line = 'Hidden Power ' + hptype;
-						if (!curSet.ivs) {
-							curSet.ivs = {};
-							for (var stat in exports.BattleTypeChart[hptype].HPivs) {
-								curSet.ivs[stat] = exports.BattleTypeChart[hptype].HPivs[stat];
-							}
-						}
-					}
-					curSet.moves.push(line);
-				}
-			}
-			return team;
-		},
-		teamsToText: function() {
-			var buf = '';
-			for (var i=0,len=teams.length; i<len; i++) {
-				var team = teams[i];
-				buf += '=== '+(team.format?'['+team.format+'] ':'')+team.name+' ===\n\n';
-				buf += this.toText(team.team);
-				buf += '\n';
-			}
-			return buf;
-		},
-		toText: function(team) {
-			var text = '';
-			for (var i=0; i<team.length; i++) {
-				var curSet = team[i];
-				if (curSet.name !== curSet.species) {
-					text += ''+curSet.name+' ('+curSet.species+')';
-				} else {
-					text += ''+curSet.species;
-				}
-				if (curSet.gender === 'M') text += ' (M)';
-				if (curSet.gender === 'F') text += ' (F)';
-				if (curSet.item) {
-					text += ' @ '+curSet.item;
-				}
-				text += "\n";
-				if (curSet.ability) {
-					text += 'Trait: '+curSet.ability+"\n";
-				}
-				if (curSet.level && curSet.level != 100) {
-					text += 'Level: '+curSet.level+"\n";
-				}
-				if (curSet.shiny) {
-					text += 'Shiny: Yes\n';
-				}
-				if (curSet.happiness && curSet.happiness !== 255) {
-					text += 'Happiness: '+curSet.happiness+"\n";
-				}
-				var first = true;
-				for (var j in curSet.evs) {
-					if (!curSet.evs[j]) continue;
-					if (first) {
-						text += 'EVs: ';
-						first = false;
-					} else {
-						text += ' / ';
-					}
-					text += ''+curSet.evs[j]+' '+BattlePOStatNames[j];
-				}
-				if (!first) {
-					text += "\n";
-				}
-				if (curSet.nature) {
-					text += ''+curSet.nature+' Nature'+"\n";
-				}
-				var first = true;
-				if (curSet.ivs) {
-					var defaultIvs = true;
-					var hpType = false;
-					for (var j=0; j<curSet.moves.length; j++) {
-						var move = curSet.moves[j];
-						if (move.substr(0,13) === 'Hidden Power ' && move.substr(0,14) !== 'Hidden Power [') {
-							hpType = move.substr(13);
-							for (var stat in BattleStatNames) {
-								if (curSet.ivs[stat] !== exports.BattleTypeChart[hpType].HPivs[stat]) {
-									if (!(typeof curSet.ivs[stat] === 'undefined' && exports.BattleTypeChart[hpType].HPivs[stat] == 31) &&
-										!(curSet.ivs[stat] == 31 && typeof exports.BattleTypeChart[hpType].HPivs[stat] === 'undefined')) {
-										defaultIvs = false;
-										break;
-									}
-								}
-							}
-						}
-					}
-					if (defaultIvs && !hpType) {
-						for (var stat in BattleStatNames) {
-							if (curSet.ivs[stat] !== 31 && typeof curSet.ivs[stat] !== undefined) {
-								defaultIvs = false;
-								break;
-							}
-						}
-					}
-					if (!defaultIvs) {
-						for (var stat in curSet.ivs) {
-							if (typeof curSet.ivs[stat] === 'undefined' || curSet.ivs[stat] == 31) continue;
-							if (first) {
-								text += 'IVs: ';
-								first = false;
-							} else {
-								text += ' / ';
-							}
-							text += ''+curSet.ivs[stat]+' '+BattlePOStatNames[stat];
-						}
-					}
-				}
-				if (!first) {
-					text += "\n";
-				}
-				if (curSet.moves) for (var j=0; j<curSet.moves.length; j++) {
-					var move = curSet.moves[j];
-					if (move.substr(0,13) === 'Hidden Power ') {
-						move = move.substr(0,13) + '[' + move.substr(13) + ']';
-					}
-					text += '- '+move+"\n";
-				}
-				text += "\n";
-			}
-			return text;
-		},
-
 		// EV guesser
 
 		guessRole: function() {
@@ -1936,40 +1718,232 @@
 			Room.prototype.destroy.call(this);
 		}
 	}, {
-		// static
-		saveTeams: function() {
-			if (window.localStorage) {
-				$.cookie('showdown_team1', null);
-				$.cookie('showdown_team2', null);
-				$.cookie('showdown_team3', null);
+		// text import/export
 
-				TeambuilderRoom.cantSave = false;
-				try {
-					localStorage.setItem('showdown_teams', JSON.stringify(teams));
-				} catch (e) {
-					if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
-						TeambuilderRoom.cantSave = true;
+		parseText: function(text, teams) {
+			var text = text.split("\n");
+			var team = [];
+			var curSet = null;
+			if (teams === true) {
+				Storage.teams = [];
+				teams = Storage.teams;
+			}
+			for (var i=0; i<text.length; i++) {
+				var line = $.trim(text[i]);
+				if (line === '' || line === '---') {
+					curSet = null;
+				} else if (line.substr(0, 3) === '===' && teams) {
+					team = [];
+					line = $.trim(line.substr(3, line.length-6));
+					var format = '';
+					var bracketIndex = line.indexOf(']');
+					if (bracketIndex >= 0) {
+						format = line.substr(1, bracketIndex-1);
+						line = $.trim(line.substr(bracketIndex+1));
+					}
+					teams.push({
+						name: line,
+						format: format,
+						team: team
+					});
+				} else if (!curSet) {
+					curSet = {name: '', species: '', gender: ''};
+					team.push(curSet);
+					var atIndex = line.lastIndexOf(' @ ');
+					if (atIndex !== -1) {
+						curSet.item = line.substr(atIndex+3);
+						line = line.substr(0, atIndex);
+					}
+					if (line.substr(line.length-4) === ' (M)') {
+						curSet.gender = 'M';
+						line = line.substr(0, line.length-4);
+					}
+					if (line.substr(line.length-4) === ' (F)') {
+						curSet.gender = 'F';
+						line = line.substr(0, line.length-4);
+					}
+					var parenIndex = line.lastIndexOf(' (');
+					if (line.substr(line.length-1) === ')' && parenIndex !== -1) {
+						line = line.substr(0, line.length-1);
+						curSet.species = Tools.getTemplate(line.substr(parenIndex+2)).name;
+						line = line.substr(0, parenIndex);
+						curSet.name = line;
 					} else {
-						throw e;
+						curSet.species = Tools.getTemplate(line).name;
+						curSet.name = curSet.species;
+					}
+				} else if (line.substr(0, 7) === 'Trait: ') {
+					line = line.substr(7);
+					curSet.ability = line;
+				} else if (line === 'Shiny: Yes') {
+					curSet.shiny = true;
+				} else if (line.substr(0, 7) === 'Level: ') {
+					line = line.substr(7);
+					curSet.level = +line;
+				} else if (line.substr(0, 11) === 'Happiness: ') {
+					line = line.substr(11);
+					curSet.happiness = +line;
+				} else if (line.substr(0, 9) === 'Ability: ') {
+					line = line.substr(9);
+					curSet.ability = line;
+				} else if (line.substr(0, 5) === 'EVs: ') {
+					line = line.substr(5);
+					var evLines = line.split('/');
+					curSet.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+					for (var j=0; j<evLines.length; j++) {
+						var evLine = $.trim(evLines[j]);
+						var spaceIndex = evLine.indexOf(' ');
+						if (spaceIndex === -1) continue;
+						var statid = BattleStatIDs[evLine.substr(spaceIndex+1)];
+						var statval = parseInt(evLine.substr(0, spaceIndex));
+						if (!statid) continue;
+						curSet.evs[statid] = statval;
+					}
+				} else if (line.substr(0, 5) === 'IVs: ') {
+					line = line.substr(5);
+					var ivLines = line.split(' / ');
+					curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+					for (var j=0; j<ivLines.length; j++) {
+						var ivLine = ivLines[j];
+						var spaceIndex = ivLine.indexOf(' ');
+						if (spaceIndex === -1) continue;
+						var statid = BattleStatIDs[ivLine.substr(spaceIndex+1)];
+						var statval = parseInt(ivLine.substr(0, spaceIndex));
+						if (!statid) continue;
+						curSet.ivs[statid] = statval;
+					}
+				} else if (line.match(/^[A-Za-z]+ (N|n)ature/)) {
+					var natureIndex = line.indexOf(' Nature');
+					if (natureIndex === -1) natureIndex = line.indexOf(' nature');
+					if (natureIndex === -1) continue;
+					line = line.substr(0, natureIndex);
+					curSet.nature = line;
+				} else if (line.substr(0,1) === '-' || line.substr(0,1) === '~') {
+					line = line.substr(1);
+					if (line.substr(0,1) === ' ') line = line.substr(1);
+					if (!curSet.moves) curSet.moves = [];
+					if (line.substr(0,14) === 'Hidden Power [') {
+						var hptype = line.substr(14, line.length-15);
+						line = 'Hidden Power ' + hptype;
+						if (!curSet.ivs && window.BattleTypeChart) {
+							curSet.ivs = {};
+							for (var stat in window.BattleTypeChart[hptype].HPivs) {
+								curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
+							}
+						}
+					}
+					curSet.moves.push(line);
+				}
+			}
+			return team;
+		},
+		teamsToText: function() {
+			var buf = '';
+			for (var i=0,len=teams.length; i<len; i++) {
+				var team = teams[i];
+				buf += '=== '+(team.format?'['+team.format+'] ':'')+team.name+' ===\n\n';
+				buf += TeambuilderRoom.toText(team.team);
+				buf += '\n';
+			}
+			return buf;
+		},
+		toText: function(team) {
+			var text = '';
+			for (var i=0; i<team.length; i++) {
+				var curSet = team[i];
+				if (curSet.name !== curSet.species) {
+					text += ''+curSet.name+' ('+curSet.species+')';
+				} else {
+					text += ''+curSet.species;
+				}
+				if (curSet.gender === 'M') text += ' (M)';
+				if (curSet.gender === 'F') text += ' (F)';
+				if (curSet.item) {
+					text += ' @ '+curSet.item;
+				}
+				text += "\n";
+				if (curSet.ability) {
+					text += 'Trait: '+curSet.ability+"\n";
+				}
+				if (curSet.level && curSet.level != 100) {
+					text += 'Level: '+curSet.level+"\n";
+				}
+				if (curSet.shiny) {
+					text += 'Shiny: Yes\n';
+				}
+				if (curSet.happiness && curSet.happiness !== 255) {
+					text += 'Happiness: '+curSet.happiness+"\n";
+				}
+				var first = true;
+				for (var j in curSet.evs) {
+					if (!curSet.evs[j]) continue;
+					if (first) {
+						text += 'EVs: ';
+						first = false;
+					} else {
+						text += ' / ';
+					}
+					text += ''+curSet.evs[j]+' '+BattlePOStatNames[j];
+				}
+				if (!first) {
+					text += "\n";
+				}
+				if (curSet.nature) {
+					text += ''+curSet.nature+' Nature'+"\n";
+				}
+				var first = true;
+				if (curSet.ivs) {
+					var defaultIvs = true;
+					var hpType = false;
+					for (var j=0; j<curSet.moves.length; j++) {
+						var move = curSet.moves[j];
+						if (move.substr(0,13) === 'Hidden Power ' && move.substr(0,14) !== 'Hidden Power [') {
+							hpType = move.substr(13);
+							for (var stat in BattleStatNames) {
+								if (curSet.ivs[stat] !== exports.BattleTypeChart[hpType].HPivs[stat]) {
+									if (!(typeof curSet.ivs[stat] === 'undefined' && exports.BattleTypeChart[hpType].HPivs[stat] == 31) &&
+										!(curSet.ivs[stat] == 31 && typeof exports.BattleTypeChart[hpType].HPivs[stat] === 'undefined')) {
+										defaultIvs = false;
+										break;
+									}
+								}
+							}
+						}
+					}
+					if (defaultIvs && !hpType) {
+						for (var stat in BattleStatNames) {
+							if (curSet.ivs[stat] !== 31 && typeof curSet.ivs[stat] !== undefined) {
+								defaultIvs = false;
+								break;
+							}
+						}
+					}
+					if (!defaultIvs) {
+						for (var stat in curSet.ivs) {
+							if (typeof curSet.ivs[stat] === 'undefined' || curSet.ivs[stat] == 31) continue;
+							if (first) {
+								text += 'IVs: ';
+								first = false;
+							} else {
+								text += ' / ';
+							}
+							text += ''+curSet.ivs[stat]+' '+BattlePOStatNames[stat];
+						}
 					}
 				}
-			} else {
-				if (teams[0]) {
-					$.cookie('showdown_team1', null);
-					$.cookie('showdown_team1', $.toJSON(teams[0]),{expires:60,domain:'pokemonshowdown.com'});
-				} else {
-					$.cookie('showdown_team1', null);
-					$.cookie('showdown_team1', null, {domain:'pokemonshowdown.com'});
+				if (!first) {
+					text += "\n";
 				}
-				if (teams[1]) {
-					$.cookie('showdown_team2', null);
-					$.cookie('showdown_team2', $.toJSON(teams[1]),{expires:60,domain:'pokemonshowdown.com'});
-				} else {
-					$.cookie('showdown_team2', null);
-					$.cookie('showdown_team2', null, {domain:'pokemonshowdown.com'});
+				if (curSet.moves) for (var j=0; j<curSet.moves.length; j++) {
+					var move = curSet.moves[j];
+					if (move.substr(0,13) === 'Hidden Power ') {
+						move = move.substr(0,13) + '[' + move.substr(13) + ']';
+					}
+					text += '- '+move+"\n";
 				}
-				$.cookie('showdown_team3', null);
+				text += "\n";
 			}
+			return text;
 		}
 	});
 
