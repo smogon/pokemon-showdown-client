@@ -323,7 +323,7 @@ var Tools = {
 				var onclick;
 				var r = new RegExp('^https?://' +
 					document.location.hostname.replace(/\./g, '\\.') +
-					'(\\:[0-9]+)?/([a-zA-Z0-9-]+)$');
+					'/([a-zA-Z0-9-]+)$');
 				var m = r.exec(fulluri);
 				if (m) {
 					onclick = "return selectTab('" + m[1] + "');";
