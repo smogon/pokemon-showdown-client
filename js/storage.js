@@ -122,17 +122,18 @@ _Storage.prototype.revealFolder = function() {
 
 _Storage.prototype.nwLoadTeams = function() {
 	var self = this;
+	var localApp = window.app;
 	fs.readdir(this.dir+'Teams', function(err, files) {
 		if (err) return;
 		self.teams = [];
 		self.nwTeamsLeft = files.length;
 		for (var i=0; i<files.length; i++) {
-			self.nwLoadTeamFile(files[i]);
+			self.nwLoadTeamFile(files[i], localApp);
 		}
 	});
 };
 
-_Storage.prototype.nwLoadTeamFile = function(filename) {
+_Storage.prototype.nwLoadTeamFile = function(filename, localApp) {
 	var self = this;
 	var line = filename;
 	if (line.substr(line.length-4).toLowerCase() === '.txt') {
@@ -141,7 +142,7 @@ _Storage.prototype.nwLoadTeamFile = function(filename) {
 		// not a team file
 		self.nwTeamsLeft--;
 		if (!self.nwTeamsLeft) {
-			self.nwFinishedLoadingTeams();
+			self.nwFinishedLoadingTeams(localApp);
 		}
 		return;
 	}
@@ -161,15 +162,16 @@ _Storage.prototype.nwLoadTeamFile = function(filename) {
 			});
 			self.nwTeamsLeft--;
 			if (!self.nwTeamsLeft) {
-				self.nwFinishedLoadingTeams();
+				self.nwFinishedLoadingTeams(localApp);
 			}
 		}
 	});
 };
 
-_Storage.prototype.nwFinishedLoadingTeams = function() {
+_Storage.prototype.nwFinishedLoadingTeams = function(app) {
 	this.teams.sort(this.teamCompare);
-	window.app.trigger('init:loadteams');
+	if (!app) app = window.app;
+	if (app) app.trigger('init:loadteams');
 };
 
 _Storage.prototype.teamCompare = function(a, b) {
