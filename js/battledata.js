@@ -317,7 +317,7 @@ var Tools = {
 				options.hidestrikethrough ? '$1' : '<s>$1</s>');
 		// linking of URIs
 		if (!options.hidelinks) {
-			str = str.replace(/(https?\:\/\/[a-z0-9-.]+(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)((\/([^\s]*[^\s?.,])?)?|\b))/ig, function(uri) {
+			str = str.replace(/(https?\:\/\/[a-z0-9-.]+(\:[0-9]+)?(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)(\:[0-9]+)?((\/([^\s]*[^\s?.,])?)?|\b))/ig, function(uri) {
 				// Insert http:// before URIs without a URI scheme specified.
 				var fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
 				var onclick;
@@ -891,4 +891,3 @@ var Tools = {
 		return '<img src="' + Tools.resourcePrefix + 'sprites/types/'+sanitizedType+'.png" alt="'+type+'" height="14" width="32"'+(b?' class="b"':'')+' />';
 	}
 };
-

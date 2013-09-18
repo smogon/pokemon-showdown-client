@@ -3390,6 +3390,7 @@ function Battle(frame, logFrame, noPreload) {
 				var poke = this.getPokemon(args[1]);
 				for (var k = 0; k < poke.side.pokemon.length; k++) {
 					poke.side.pokemon[k].status = '';
+					poke.side.updateStatbar(poke.side.pokemon[k]);
 				}
 
 				self.resultAnim(poke, 'Team Cured', 'good', animDelay);
