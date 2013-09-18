@@ -85,4 +85,7 @@ RewriteRule ^README\.md$ - [F]
 RewriteRule ^index\.template\.html$ - [F]
 RewriteRule ^testclient\.html$ - [F]
 
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(apple-touch-icon-precomposed\.png)$ - [R=404,L]
+
 </IfModule>
