@@ -8,7 +8,9 @@ if (empty($PokemonServers[$server])) {
 	die('server not found');
 }
 
-header('Content-Type: text/css'); // the CSS file should specify a charset
+$invalidate = isset($_REQUEST['invalidate']);
+
+if (!$invalidate) header('Content-Type: text/css'); // the CSS file should specify a charset
 
 $serverdata =& $PokemonServers[$server];
 $customcssuri = @$serverdata['customcss'];
@@ -27,14 +29,14 @@ header('Expires: ' . gmdate('D, d M Y H:i:s T', $expiration));
 
 // echo '/* ', $customcssuri, ' */';
 
-if (!isset($_REQUEST['invalidate']) && $lastmodified && (($timenow - $lastmodified) < 3600)) {
+if (!$invalidate && $lastmodified && (($timenow - $lastmodified) < 3600)) {
 	// Don't check for modifications more than once an hour.
 	readfile($cssfile);
 	die();
 }
 
 $curl = curl_init($customcssuri);
-if ($lastmodified && !isset($_REQUEST['invalidate'])) {
+if ($lastmodified && !$invalidate) {
 	curl_setopt($curl, CURLOPT_HTTPHEADER, array(
 		'If-Modified-Since: ' . gmdate('D, d M Y H:i:s T', $lastmodified)
 	));
@@ -68,13 +70,26 @@ if ($curlret) {
 		$outputcss = $filter->cleanCSS($curlret, $config, $context);
 
 		file_put_contents($cssfile, $outputcss);
-		echo $outputcss;
+		if (!$invalidate) echo $outputcss;
 	} else {
 		// Either no modifications (status: 304) or an error condition.
+		if ($invalidate) die('Error: custom CSS file not found');
 		if ($lastmodified) readfile($cssfile);
 	}
 	touch($cssfile, $timenow);	// Don't check again for an hour.
 } else if (file_exists($cssfile)) {
+	if ($invalidate) die('Error: custom CSS file not found');
 	readfile($cssfile);
 }
 curl_close($curl);
+
+if ($invalidate) {
+?>
+<p>
+	Done: <?= htmlspecialchars($customcssuri) ?> was reloaded.
+</p>
+<p>
+	<a href="http://pokemonshowdown.com/servers/<?= $server ?>">Back to server management</a>
+</p>
+<?php
+}
