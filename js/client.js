@@ -7,6 +7,7 @@
 				gui.Shell.openExternal(this.href);
 				e.preventDefault();
 				e.stopPropagation();
+				e.stopImmediatePropagation();
 			}
 		});
 		window.nwWindow = gui.Window.get();
@@ -1276,6 +1277,19 @@
 			}
 			return false;
 		},
+		openInNewWindow: function(url) {
+			if (window.nodewebkit) {
+				gui.Shell.openExternal(url);
+			} else {
+				window.open(url, '_blank');
+			}
+		},
+		clickLink: function(e) {
+			if (window.nodewebkit) {
+				gui.Shell.openExternal(e.target.href);
+				return false;
+			}
+		},
 
 		/*********************************************************
 		 * Popups
@@ -2367,7 +2381,7 @@
 			this.close();
 		},
 		submit: function(i) {
-			window.open('http://pokemonshowdown.com/replay/battle-'+this.id, '_blank');
+			app.openInNewWindow('http://pokemonshowdown.com/replay/battle-'+this.id);
 			this.close();
 		}
 	});
