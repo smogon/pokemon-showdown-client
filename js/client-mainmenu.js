@@ -69,6 +69,19 @@
 			this.updateFormats();
 
 			app.user.on('saveteams', this.updateTeams, this);
+
+			app.on('init:loadprefs', this.addNews, this);
+			if (app.prefsLoaded) this.addNews();
+		},
+
+		// news
+
+		addNews: function() {
+			var newsId = '1990';
+			if (newsId === ''+Tools.prefs('readnews')) return;
+			this.$pmBox.prepend('<div class="pm-window news-embed" data-newsid="'+newsId+'"><h3><button class="closebutton" tabindex="-1"><i class="icon-remove-sign"></i></button>Latest News</h3><div class="pm-log" style="overflow:visible;height:400px;max-height:none">' +
+				'<iframe src="/news-embed.php?news'+(window.nodewebkit || document.location.protocol === 'https:'?'&amp;https':'')+'" width="270" height="400" border="0" style="border:0;width:100%;height:400px"></iframe>' +
+				'</div></div>');
 		},
 
 		/*********************************************************
@@ -169,6 +182,15 @@
 				userid = $(e.currentTarget).closest('.pm-window').data('userid');
 			} else {
 				userid = toId(e);
+			}
+			var $pmWindow;
+			if (!userid) {
+				// not a true PM; just close the window
+				$pmWindow = $(e.currentTarget).closest('.pm-window');
+				var newsId = $pmWindow.data('newsid');
+				if (newsId) Tools.prefs('readnews', ''+newsId);
+				$pmWindow.remove();
+				return;
 			}
 			$pmWindow = this.$pmBox.find('.pm-window-'+userid)
 			$pmWindow.hide();
