@@ -234,7 +234,9 @@
 
 			var self = this;
 
+			this.prefsLoaded = false;
 			this.on('init:loadprefs', function() {
+				self.prefsLoaded = true;
 				var bg = Tools.prefs('bg');
 				if (bg) {
 					$(document.body).css({
