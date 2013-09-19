@@ -195,6 +195,7 @@
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
 			Storage.deleteTeam(this.deletedTeam);
+			this.update();
 		},
 		undoDelete: function() {
 			if (this.deletedTeamLoc >= 0) {
@@ -203,6 +204,7 @@
 				this.deletedTeam = null;
 				this.deletedTeamLoc = -1;
 				Storage.saveTeam(undeletedTeam);
+				this.update();
 			}
 		},
 		saveBackup: function() {
