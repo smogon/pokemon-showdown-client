@@ -124,12 +124,12 @@
 				self.room.send('/tournament leave');
 			});
 			this.$challengeChallenge.on('click', function() {
-				var team = app.user.teams[self.$challengeTeam.children().val()];
+				var team = Storage.teams[self.$challengeTeam.children().val()];
 				self.room.send('/utm ' + JSON.stringify(team ? team.team : null));
 				self.room.send('/tournament challenge ' + self.$challengeUser.children().val());
 			});
 			this.$challengeAccept.on('click', function() {
-				var team = app.user.teams[self.$challengeTeam.children().val()];
+				var team = Storage.teams[self.$challengeTeam.children().val()];
 				self.room.send('/utm ' + JSON.stringify(team ? team.team : null));
 				self.room.send('/tournament acceptchallenge');
 			});
