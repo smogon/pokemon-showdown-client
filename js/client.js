@@ -209,7 +209,6 @@
 		focused: true,
 		initialize: function() {
 			window.app = this;
-			$('#main').html('');
 			this.initializeRooms();
 			this.initializePopups();
 
@@ -1098,7 +1097,12 @@
 				}
 			}
 
-			var el = $('<div class="ps-room" style="display:none"></div>').appendTo('body');
+			var el;
+			if (!id) {
+				el = $('#mainmenu');
+			} else {
+				el = $('<div class="ps-room" style="display:none"></div>').appendTo('body');
+			}
 			var typeName = '';
 			if (typeof type === 'string') {
 				typeName = type;

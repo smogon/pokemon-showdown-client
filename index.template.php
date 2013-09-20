@@ -67,9 +67,34 @@
 		<div id="header" class="header">
 			<img class="logo" src="//play.pokemonshowdown.com/pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /><div class="maintabbarbottom"></div>
 		</div>
-		<div id="main">
-			<div id="loading-message" class="mainmessage">Initializing... <noscript>FAILED<br /><br />Pok&eacute;mon Showdown requires JavaScript.</noscript></div>
-		</div>
+		<div class="ps-room scrollable" id="mainmenu"><div class="mainmenuwrapper">
+			<div class="leftmenu">
+				<div class="activitymenu">
+					<div class="pmbox">
+<?php
+if ($_COOKIE['showdown_readnews'] !== '<!-- newsid -->') {
+?>
+						<div class="pm-window news-embed" data-newsid="<!-- newsid -->">
+							<h3><button class="closebutton" tabindex="-1"><i class="icon-remove-sign"></i></button>Latest News</h3>
+							<div class="pm-log">
+								<div style="font-size:9pt;padding:1px 10px"><!-- news --></div>
+							</div>
+						</div>
+<?php
+}
+?>
+					</div>
+				</div>
+				<div class="mainmenu">
+					<div id="loading-message" class="mainmessage">Initializing... <noscript>FAILED<br /><br />Pok&eacute;mon Showdown requires JavaScript.</noscript></div>
+				</div>
+			</div>
+			<div class="rightmenu">
+			</div>
+			<div class="mainmenufooter">
+				<small><a href="//pokemonshowdown.com/" target="_blank"><strong>Pokémon Showdown</strong></a> | <a href="http://smogon.com/" target="_blank"><strong>Smogon</strong></a><br><a href="//pokemonshowdown.com/dex/" target="_blank">Pokédex</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small> | <small><a href="//pokemonshowdown.com/forums/" target="_blank">Forum</a></small>
+			</div>
+		</div></div>
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading libraries...';
 		</script>

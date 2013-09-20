@@ -17,13 +17,11 @@
 		initialize: function() {
 			this.$el.addClass('scrollable');
 
-			var buf = '<div class="mainmenuwrapper">';
-
 			// left menu 2 (high-res: right, low-res: top)
-			buf += '<div class="leftmenu"><div class="activitymenu"><div class="pmbox"></div></div>';
+			// (created during page load)
 
 			// left menu 1 (high-res: left, low-res: bottom)
-			buf += '<div class="mainmenu">';
+			var buf = '';
 			if (app.down) {
 				buf += '<div class="menugroup">';
 				if (app.down === 'ddos') {
@@ -49,18 +47,16 @@
 			} else {
 				buf += '<p><button class="button" name="joinRoom" value="ladder">Ladder</button></p>';
 			}
-			buf += '<p><button class="button" name="credits">Credits</button></p></div></div></div>';
+			buf += '<p><button class="button" name="credits">Credits</button></p></div></div>';
+			this.$('.mainmenu').html(buf);
 
 			// right menu
 			if (!app.down) {
-				buf += '<div class="rightmenu"><div class="menugroup"><p><button class="button" name="joinRoom" value="lobby">Join lobby chat</button></p></div></div>';
+				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button" name="joinRoom" value="lobby">Join lobby chat</button></p></div>');
 			}
 
 			// footer
-			buf += '<div class="mainmenufooter"><small><a href="//pokemonshowdown.com/" target="_blank"><strong>Pok&eacute;mon Showdown</strong></a> | <a href="http://smogon.com/" target="_blank"><strong>Smogon</strong></a><br /><a href="//pokemonshowdown.com/dex/" target="_blank">Pok&eacute;dex</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small> | <small><a href="//pokemonshowdown.com/forums/" target="_blank">Forum</a></div>';
-
-			buf += '</div>';
-			this.$el.html(buf);
+			// (created during page load)
 
 			this.$activityMenu = this.$('.activitymenu');
 			this.$pmBox = this.$activityMenu.find('.pmbox');
@@ -69,9 +65,6 @@
 			this.updateFormats();
 
 			app.user.on('saveteams', this.updateTeams, this);
-
-			app.on('init:loadprefs', this.addNews, this);
-			if (app.prefsLoaded) this.addNews();
 		},
 
 		// news
@@ -188,7 +181,9 @@
 				// not a true PM; just close the window
 				$pmWindow = $(e.currentTarget).closest('.pm-window');
 				var newsId = $pmWindow.data('newsid');
-				if (newsId) Tools.prefs('readnews', ''+newsId);
+				if (newsId) {
+					$.cookie('showdown_readnews', ''+newsId, {expires: 365});
+				}
 				$pmWindow.remove();
 				return;
 			}
