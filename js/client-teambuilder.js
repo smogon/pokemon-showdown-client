@@ -34,7 +34,8 @@
 			'change .detailsform input': 'detailsChange',
 
 			// stats
-			'keyup .statform input.numform': 'statKeyUp',
+			'keyup .statform input.numform': 'statChange',
+			'input .statform input[type=number].numform': 'statChange',
 			'change select[name=nature]': 'natureChange',
 
 			// teambuilder events
@@ -836,7 +837,7 @@
 				}
 			}
 		},
-		statKeyUp: function(e) {
+		statChange: function(e) {
 			var inputName = '';
 			inputName = e.currentTarget.name;
 			var val = Math.abs(parseInt(e.currentTarget.value, 10));
