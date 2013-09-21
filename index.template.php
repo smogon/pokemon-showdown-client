@@ -17,7 +17,7 @@
 			var Config = {};
 		</script>
 		<!--[if lte IE 8]><script>
-			Config.oldie = true;
+			document.location.replace('http://pokemonshowdown.com/autodownload/win');
 		</script><![endif]-->
 		<script>
 			var _gaq = _gaq || [];
