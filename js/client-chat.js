@@ -707,6 +707,11 @@
 					this.addChat(row[1], row.slice(2).join('|'));
 					break;
 
+				case 'tc':
+					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' '+row[2];
+					this.addChat(row[2], row.slice(3).join('|'), false, row[1]);
+					break;
+
 				case 'b':
 				case 'B':
 					var id = row[1];
@@ -902,7 +907,7 @@
 			}
 			this.$joinLeave.html('<small style="color: #555555">' + message + '</small>');
 		},
-		addChat: function(name, message, pm) {
+		addChat: function(name, message, pm, deltatime) {
 			var userid = toUserid(name);
 			var color = hashColor(userid);
 
@@ -926,7 +931,7 @@
 			}
 			var highlight = isHighlighted ? ' highlighted' : '';
 			var chatDiv = '<div class="chat' + highlight + '">';
-			var timestamp = ChatRoom.getTimestamp('lobby');
+			var timestamp = ChatRoom.getTimestamp('lobby', deltatime);
 			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
 			var self = this;
 			var outputChat = function() {
@@ -975,11 +980,15 @@
 			}
 		}
 	}, {
-		getTimestamp: function(section) {
+		getTimestamp: function(section, deltatime) {
 			var pref = Tools.prefs('timestamps') || {};
 			var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
 			if ((sectionPref === 'off') || (sectionPref === undefined)) return '';
-			var date = new Date();
+			if (!deltatime || isNaN(deltatime)) {
+				var date = new Date();
+			} else {
+				var date = new Date(Date.now() - deltatime * 1000);
+			}
 			var components = [ date.getHours(), date.getMinutes() ];
 			if (sectionPref === 'seconds') {
 				components.push(date.getSeconds());
