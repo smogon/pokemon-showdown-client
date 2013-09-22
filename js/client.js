@@ -1630,7 +1630,7 @@
 				notification.onclick = function() {
 					self.clickNotification(tag);
 				};
-				if (Tools.prefs('nopnotifications')) {
+				if (Tools.prefs('temporarynotifications')) {
 					setTimeout(function () {
 						notification.cancel();
 					}, 5000);
@@ -2210,7 +2210,7 @@
 		events: {
 			'change input[name=noanim]': 'setNoanim',
 			'change input[name=nolobbypm]': 'setNolobbypm',
-			'change input[name=pnotifications]': 'setPersistentNotifications',
+			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=ignorespects]': 'setIgnoreSpects',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
@@ -2232,7 +2232,7 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
 
 			if (window.Notification) {
-				buf += '<p><label class="optlabel"><input type="checkbox" name="pnotifications"'+(Tools.prefs('nopnotifications')?'':' checked')+' /> Persistent notifications</label></p>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"'+(Tools.prefs('temporarynotifications')?' checked':'')+' /> Temporary notifications</label></p>';
 			}
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
@@ -2290,9 +2290,9 @@
 			var nolobbypm = !!e.currentTarget.checked;
 			Tools.prefs('nolobbypm', nolobbypm);
 		},
-		setPersistentNotifications: function (e) {
-			var nopnotifications = !e.currentTarget.checked;
-			Tools.prefs('nopnotifications', nopnotifications);
+		setTemporaryNotifications: function (e) {
+			var temporarynotifications = !!e.currentTarget.checked;
+			Tools.prefs('temporarynotifications', temporarynotifications);
 		},
 		setIgnoreSpects: function(e) {
 			if (app.curRoom.battle) {
