@@ -1630,6 +1630,11 @@
 				notification.onclick = function() {
 					self.clickNotification(tag);
 				};
+				if (Tools.prefs('nopnotifications')) {
+					setTimeout(function () {
+						notification.cancel();
+					}, 5000);
+				}
 				if (once) notification.psAutoclose = true;
 			} else if (window.macgap) {
 				macgap.growl.notify({
@@ -2205,6 +2210,7 @@
 		events: {
 			'change input[name=noanim]': 'setNoanim',
 			'change input[name=nolobbypm]': 'setNolobbypm',
+			'change input[name=pnotifications]': 'setPersistentNotifications',
 			'change input[name=ignorespects]': 'setIgnoreSpects',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
@@ -2224,6 +2230,10 @@
 			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Waterfall</option><option value="#344b6c"'+(Tools.prefs('bg')?' selected="selected"':'')+'>Solid blue</option></select></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
+
+			if (window.Notification) {
+				buf += '<p><label class="optlabel"><input type="checkbox" name="pnotifications"'+(Tools.prefs('nopnotifications')?'':' checked')+' /> Persistent notifications</label></p>';
+			}
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in lobby chat: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
@@ -2279,6 +2289,10 @@
 		setNolobbypm: function(e) {
 			var nolobbypm = !!e.currentTarget.checked;
 			Tools.prefs('nolobbypm', nolobbypm);
+		},
+		setPersistentNotifications: function (e) {
+			var nopnotifications = !e.currentTarget.checked;
+			Tools.prefs('nopnotifications', nopnotifications);
 		},
 		setIgnoreSpects: function(e) {
 			if (app.curRoom.battle) {
