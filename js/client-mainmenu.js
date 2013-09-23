@@ -621,9 +621,9 @@
 				if (format.section && format.section !== curSection) {
 					curSection = format.section;
 					if (!BattleFormats._supportsColumns) {
-						curBuf = (curSection === 'Doubles' || curSection === 'Past Generations') ? 1 : 0;
+						curBuf = (curSection === 'Doubles' || curSection === 'Past Generations') ? 2 : 1;
 					} else {
-						curBuf = format.column || 0;
+						curBuf = format.column || 1;
 					}
 					if (!bufs[curBuf]) {
 						bufs[curBuf] = '';
@@ -634,7 +634,7 @@
 			}
 
 			var html = '';
-			for (var i = 0, l = bufs.length; i < l; i++) {
+			for (var i = 1, l = bufs.length; i < l; i++) {
 				html += '<ul class="popupmenu"';
 				if (l > 1) {
 					html += ' style="float:left';
