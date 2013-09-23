@@ -928,13 +928,15 @@
 				if (isSection) {
 					section = formatsList[j];
 					isSection = false;
-				} else if (formatsList[j] === '' || !isNaN(formatsList[j])) {
+				} else if (formatsList[j] === '' || (formatsList[j].substr(0, 1) === ',' && !isNaN(formatsList[j].substr(1)))) {
 					isSection = true;
 
-					var newColumn = parseInt(formatsList[j]) || 0;
-					if (column !== newColumn) {
-						column = newColumn;
-						columnChanged = true;
+					if (formatsList[j]) {
+						var newColumn = parseInt(formatsList[j].substr(1)) || 0;
+						if (column !== newColumn) {
+							column = newColumn;
+							columnChanged = true;
+						}
 					}
 				} else {
 					var searchShow = true;
