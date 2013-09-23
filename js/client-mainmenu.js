@@ -634,7 +634,7 @@
 			}
 
 			var html = '';
-			for (var i = 0, l = bufs.length; i < l; i++) {
+			for (var i = 1, l = bufs.length; i < l; i++) {
 				html += '<ul class="popupmenu"';
 				if (l > 1) {
 					html += ' style="float:left';
