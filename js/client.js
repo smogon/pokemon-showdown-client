@@ -919,13 +919,25 @@
 		parseFormats: function(formatsList) {
 			var isSection = false;
 			var section = '';
+
+			var column = 0;
+			var columnChanged = false;
+
 			BattleFormats = {};
 			for (var j=1; j<formatsList.length; j++) {
 				if (isSection) {
 					section = formatsList[j];
 					isSection = false;
-				} else if (formatsList[j] === '') {
+				} else if (formatsList[j] === '' || (formatsList[j].substr(0, 1) === ',' && !isNaN(formatsList[j].substr(1)))) {
 					isSection = true;
+
+					if (formatsList[j]) {
+						var newColumn = parseInt(formatsList[j].substr(1)) || 0;
+						if (column !== newColumn) {
+							column = newColumn;
+							columnChanged = true;
+						}
+					}
 				} else {
 					var searchShow = true;
 					var challengeShow = true;
@@ -958,6 +970,7 @@
 									name: $.trim(name.substr(0, parenPos)),
 									team: team,
 									section: section,
+									column: column,
 									rated: challengeShow && searchShow,
 									isTeambuilderFormat: true,
 									effectType: 'Format'
@@ -974,6 +987,7 @@
 						name: name,
 						team: team,
 						section: section,
+						column: column,
 						searchShow: searchShow,
 						challengeShow: challengeShow,
 						rated: challengeShow && searchShow,
@@ -983,6 +997,7 @@
 					};
 				}
 			}
+			BattleFormats._supportsColumns = columnChanged;
 			this.trigger('init:formats');
 		},
 		uploadReplay: function(data) {
