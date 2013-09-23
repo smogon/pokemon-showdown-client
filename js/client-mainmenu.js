@@ -609,7 +609,7 @@
 		initialize: function(data) {
 			var curFormat = data.format;
 			var selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
-			var bufs = ['',''];
+			var bufs = [];
 			var curBuf = 0;
 			var curSection = '';
 			for (var i in BattleFormats) {
@@ -620,17 +620,33 @@
 
 				if (format.section && format.section !== curSection) {
 					curSection = format.section;
-					curBuf = (curSection === 'Doubles' || curSection === 'Past Generations') ? 1 : 0;
+					if (!BattleFormats._supportsColumns) {
+						curBuf = (curSection === 'Doubles' || curSection === 'Past Generations') ? 1 : 0;
+					} else {
+						curBuf = format.column || 0;
+					}
+					if (!bufs[curBuf]) {
+						bufs[curBuf] = '';
+					}
 					bufs[curBuf] += '<li><h3>'+Tools.escapeHTML(curSection)+'</li>';
 				}
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + Tools.escapeHTML(format.name) + '</button></li>';
 			}
 
-			if (bufs[1]) {
-				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs[0]+'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[1]+'</ul><div style="clear:left"></div>');
-			} else {
-				this.$el.html('<ul class="popupmenu">'+bufs[0]+'</ul>');
+			var html = '';
+			for (var i = 0, l = bufs.length; i < l; i++) {
+				html += '<ul class="popupmenu"';
+				if (l > 1) {
+					html += ' style="float:left';
+					if (i > 0) {
+						html += ';padding-left:5px';
+					}
+					html += '"';
+				}
+				html += '>' + bufs[i] + '</ul>';
 			}
+			html += '<div style="clear:left"></div>';
+			this.$el.html(html);
 		},
 		selectFormat: function(format) {
 			var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
