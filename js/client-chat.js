@@ -699,6 +699,7 @@
 
 				case 'title':
 					this.title = row[1];
+					app.topbar.updateTabbar();
 					break;
 
 				case 'c':
