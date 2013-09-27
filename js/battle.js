@@ -5215,7 +5215,15 @@ function Battle(frame, logFrame, noPreload) {
 	this.setMute = function (mute) {
 		BattleSound.setMute(mute);
 	};
+	this.soundStartIterations = 0;
 	this.soundStart = function () {
+		// We don't want to waste more than 2.5 seconds waiting for the Pokemon
+		// array to be populated just for a song... Dogars <3
+		if (!this.mySide.pokemon.length && this.soundStartIterations++ < 5) {
+			setTimeout(this.soundStart.bind(this), 500);
+			return;
+		}
+
 		if (!this.bgm) this.preloadBgm();
 		BattleSound.playBgm(this.bgm);
 	};
