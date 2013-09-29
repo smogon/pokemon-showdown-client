@@ -385,6 +385,14 @@ var Tools = {
 		// **bold**
 		str = str.replace(/\*\*([^< ]([^<]*?[^< ])?)\*\*/g,
 			options.hidebold ? '$1' : '<b>$1</b>');
+
+		if (str.toLowerCase().substr(0, 7) === 'spoiler') {
+			var offset = 7;
+			if (str.charAt(7) === ':') offset++;
+			if (str.charAt(offset) === ' ') offset++;
+			str = str.substr(0, offset)+'<span class="spoiler">'+str.substr(offset)+'</span>';
+		}
+
 		return str;
 	},
 
