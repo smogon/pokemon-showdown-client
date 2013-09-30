@@ -23,7 +23,10 @@
 		updateUser: function() {
 			var name = app.user.get('name');
 			var userid = app.user.get('userid');
-			if (!name) {
+			if (this.expired) {
+				this.$chatAdd.html('This room is expired');
+				this.$chatbox = null;
+			} else if (!name) {
 				this.$chatAdd.html('Connecting...');
 				this.$chatbox = null;
 			} else if (!app.user.get('named')) {

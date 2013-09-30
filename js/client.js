@@ -782,8 +782,21 @@
 				} else {
 					this.joinRoom(roomid, roomType, true);
 				}
+			} else if ((data+'|').substr(0,8) === '|expire|') {
+				var room = this.rooms[roomid];
+				if (room) {
+					room.expired = true;
+					if (room.updateUser) room.updateUser();
+				}
+				return;
 			} else if ((data+'|').substr(0,8) === '|deinit|' || (data+'|').substr(0,8) === '|noinit|') {
 				if (!roomid) roomid = 'lobby';
+
+				if (this.rooms[roomid] && this.rooms[roomid].expired) {
+					// expired rooms aren't closed when left
+					return;
+				}
+
 				var isdeinit = (data.charAt(1) === 'd');
 				data = data.substr(8);
 				var pipeIndex = data.indexOf('|');
