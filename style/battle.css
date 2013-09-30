@@ -135,6 +135,14 @@ License: GPLv2
 	border: 0px solid #AAAAAA;
 	padding: 1px 4px;
 }
+.spoiler a {
+	color: #E2E2E2;
+}
+.spoiler:hover a,
+.spoiler:active a,
+.spoiler-shown a {
+	color: #2288CC;
+}
 .battle-log .rated
 {
 	padding: 3px 4px;
