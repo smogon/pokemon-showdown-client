@@ -386,11 +386,15 @@ var Tools = {
 		str = str.replace(/\*\*([^< ]([^<]*?[^< ])?)\*\*/g,
 			options.hidebold ? '$1' : '<b>$1</b>');
 
-		if (!options.hidespoiler && str.toLowerCase().substr(0, 7) === 'spoiler') {
-			var offset = 7;
-			if (str.charAt(7) === ':') offset++;
-			if (str.charAt(offset) === ' ') offset++;
-			str = str.substr(0, offset)+'<span class="spoiler">'+str.substr(offset)+'</span>';
+		if (!options.hidespoiler) {
+			var spoilerIndex = str.toLowerCase().indexOf('spoiler:');
+			if (spoilerIndex < 0) spoilerIndex = str.toLowerCase().indexOf('spoilers:');
+			if (spoilerIndex >= 0) {
+				var offset = spoilerIndex+8;
+				if (str.charAt(offset) === ':') offset++;
+				if (str.charAt(offset) === ' ') offset++;
+				str = str.substr(0, offset)+'<span class="spoiler">'+str.substr(offset)+'</span>';
+			}
 		}
 
 		return str;
