@@ -3532,7 +3532,6 @@ function Battle(frame, logFrame, noPreload) {
 				var ability = Tools.getAbility(args[2]);
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
-				var side = this.getSide(args[3]);
 				poke.ability = ability.name;
 
 				if (kwargs.silent) {
@@ -3567,7 +3566,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + ' intimidates ' + ofpoke.getLowerName() + '!';
 					break;
 				case 'unnerve':
-					actions += "" + poke.getName() + "'s Unnerve makes " + side.getLowerTeamName() + " too nervous to eat Berries!";
+					actions += "" + poke.getName() + "'s Unnerve makes " + this.getSide(args[3]).getLowerTeamName() + " too nervous to eat Berries!";
 					break;
 				default:
 					actions += "" + poke.getName() + " has " + ability.name + "!";
