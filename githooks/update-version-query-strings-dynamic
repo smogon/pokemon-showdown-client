@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+/**
+ * This script parses index.php and sets the version query string of each
+ * resource to be the MD5 hash of that resource. This script should be executed
+ * from the base directory of the repository.
+ *
+ * On the live web server, this script is set as the following git hooks:
+ *   post-commit, post-checkout, post-merge, post-rewrite
+ */
+
+date_default_timezone_set('America/Los_Angeles');
+
+include __DIR__.'/../../pokemonshowdown.com/news/include.php';
+
+function replaceMatch($m) {
+	$filename = str_replace('/play.pokemonshowdown.com/', '', $m[2]);
+	$hash = substr(md5_file($filename), 0, 8);
+	return "${m[1]}=\"/${m[2]}?${hash}\"";
+}
+
+file_put_contents('index.php',
+	str_replace('<!-- newsid -->',
+		getNewsId(),
+		str_replace('<!-- news -->',
+			''.renderNews().'',
+			preg_replace_callback('/(src|href)="\/(.*?)\?[a-z0-9]*?"/',
+				'replaceMatch',
+				file_get_contents('index.template.php'))))
+	);
+
