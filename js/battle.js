@@ -1899,6 +1899,9 @@ function Battle(frame, logFrame, noPreload) {
 				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
 				opacity: 1
 			}, 400);
+
+			self.dogarsCheck(pokemon);
+
 			if (self.switchCallback) self.switchCallback(self, selfS);
 		};
 		this.dragIn = function (pokemon, slot) {
@@ -1980,6 +1983,9 @@ function Battle(frame, logFrame, noPreload) {
 					opacity: 1
 				}, 400);
 			}
+
+			self.dogarsCheck(pokemon);
+
 			if (self.dragCallback) self.dragCallback(self, selfS);
 		};
 		this.replace = function (pokemon, slot) {
@@ -5167,15 +5173,30 @@ function Battle(frame, logFrame, noPreload) {
 		//self.preloadImage(Tools.resourcePrefix + 'fx/bg.jpg');
 	};
 	self.bgm = null;
+	this.dogarsCheck = function(pokemon) {
+		if (pokemon.side.n === 1) return;
+
+		if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) {
+			if (window.forceBgm !== -1) {
+				window.originalBgm = window.bgmNum;
+				window.forceBgm = -1;
+				self.preloadBgm();
+				self.soundStart();
+			}
+		} else if (window.forceBgm === -1) {
+			window.forceBgm = null;
+			if (window.originalBgm || window.originalBgm === 0) {
+				window.forceBgm = window.originalBgm;
+			}
+			self.preloadBgm();
+			self.soundStart();
+		}
+	};
 	this.preloadBgm = function() {
 		var bgmNum = Math.floor(Math.random() * 7);
 
-		for (var i = 0; i < self.mySide.pokemon.length; i++) {
-			var pokemon = self.mySide.pokemon[i];
-			if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) bgmNum = -1;
-		}
-
-		if (window.forceBgm) bgmNum = window.forceBgm;
+		if (window.forceBgm || window.forceBgm === 0) bgmNum = window.forceBgm;
+		window.bgmNum = bgmNum;
 		switch (bgmNum) {
 		case -1:
 			BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 1661, 68131);
