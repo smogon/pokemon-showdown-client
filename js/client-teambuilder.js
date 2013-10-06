@@ -1869,7 +1869,7 @@
 				}
 				text += "\n";
 				if (curSet.ability) {
-					text += 'Trait: '+curSet.ability+"\n";
+					text += 'Ability: '+curSet.ability+"\n";
 				}
 				if (curSet.level && curSet.level != 100) {
 					text += 'Level: '+curSet.level+"\n";
