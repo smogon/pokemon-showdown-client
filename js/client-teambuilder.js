@@ -1778,6 +1778,9 @@
 				} else if (line.substr(0, 7) === 'Trait: ') {
 					line = line.substr(7);
 					curSet.ability = line;
+				} else if (line.substr(0, 9) === 'Ability: ') {
+					line = line.substr(9);
+					curSet.ability = line;
 				} else if (line === 'Shiny: Yes') {
 					curSet.shiny = true;
 				} else if (line.substr(0, 7) === 'Level: ') {
