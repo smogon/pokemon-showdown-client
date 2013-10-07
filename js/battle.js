@@ -4494,7 +4494,7 @@ function Battle(frame, logFrame, noPreload) {
 						pokemon.searchid = searchid;
 						pokemon.ident = pokemonid;
 						if (pokemon.needsReplace) {
-							pokemon = self.p1.newPokemon(self.parseDetails(name, pokemonid, details), i);
+							pokemon = self.p1.newPokemon(self.parseDetails(name, pokemonid, details || ""), i);
 						}
 					}
 					pokemon.slot = slot;
