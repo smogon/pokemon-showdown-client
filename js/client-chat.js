@@ -393,6 +393,15 @@
 
 			switch (cmd.toLowerCase()) {
 			case 'challenge':
+				var targets = target.split(',').map($.trim);
+				
+				if (!targets[0]) targets[0] = prompt('Who?');
+				target = toId(targets[0]);
+				this.challengeData = { userid: target, format: targets[1] || '', team: targets[2] || '' };
+				app.on('response:userdetails', this.challengeUserdetails, this);
+				app.send('/cmd userdetails '+target);
+				return false;
+
 			case 'user':
 			case 'open':
 				if (!target) target = prompt('Who?');
@@ -601,6 +610,24 @@
 			}
 
 			return text;
+		},
+
+		challengeData: {},
+		challengeUserdetails: function (data) {
+			app.off('response:userdetails', this.challengeUserdetails);
+
+			if (!data || this.challengeData.userid !== data.userid) return;
+
+			if (data.rooms === false) {
+				this.add('This player does not exist or is not online.');
+				return;
+			}
+
+			app.rooms[''].requestNotifications();
+			app.focusRoom('');
+			var name = data.name || this.challengeData.userid;
+			if (/^[a-z0-9]/i.test(name)) name = ' ' + name;
+			app.rooms[''].challenge(name, this.challengeData.format, this.challengeData.team);
 		}
 	});
 

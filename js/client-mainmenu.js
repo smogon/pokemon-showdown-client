@@ -253,7 +253,7 @@
 		},
 		clickUsername: function(e) {
 			e.stopPropagation();
-			var name = $(e.currentTarget).data('name');
+			var name = $(e.currentTarget).data('name');console.log("HAHAHAHAHA", name);
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		clickPMBackground: function(e) {
@@ -420,16 +420,29 @@
 		},
 
 		// challenge buttons
-		challenge: function(name) {
+		challenge: function(name, format, team) {
 			var userid = toId(name);
 			var $challenge = this.$('.pm-window-'+userid+' .challenge');
 			if ($challenge.length && !$challenge.find('button[name=dismissChallenge]').length) {
 				return;
 			}
+
+			if (format) format = toId(format);
+			var teamIndex = undefined;
+			if (Storage.teams && team) {
+				var team = toId(team);
+				for (var i = 0; i < Storage.teams.length; i++) {
+					if (team === toId(Storage.teams[i].name || '')) {
+						teamIndex = i;
+						break;
+					}
+				}
+			}
+
 			$challenge = this.openChallenge(name);
 			var buf = '<form class="battleform"><p>Challenge '+Tools.escapeHTML(name)+'?</p>';
-			buf += '<p><label class="label">Format:</label>'+this.renderFormats()+'</p>';
-			buf += '<p><label class="label">Team:</label>'+this.renderTeams()+'</p>';
+			buf += '<p><label class="label">Format:</label>'+this.renderFormats(format)+'</p>';
+			buf += '<p><label class="label">Team:</label>'+this.renderTeams(format, teamIndex)+'</p>';
 			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
