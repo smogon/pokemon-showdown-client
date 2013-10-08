@@ -253,7 +253,7 @@
 		},
 		clickUsername: function(e) {
 			e.stopPropagation();
-			var name = $(e.currentTarget).data('name');console.log("HAHAHAHAHA", name);
+			var name = $(e.currentTarget).data('name');
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		clickPMBackground: function(e) {
