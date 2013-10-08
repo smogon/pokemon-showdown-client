@@ -623,7 +623,6 @@
 				return;
 			}
 
-			app.rooms[''].requestNotifications();
 			app.focusRoom('');
 			var name = data.name || this.challengeData.userid;
 			if (/^[a-z0-9]/i.test(name)) name = ' ' + name;
