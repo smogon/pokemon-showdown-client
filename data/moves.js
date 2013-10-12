@@ -682,7 +682,7 @@ exports.BattleMovedex = {
 		basePower: 0,
 		category: "Status",
 		desc: "Lowers the target's Attack by 1 stage. Priority +1.",
-		shortDesc: "Lowers foe's Defense by 1. Priority +1.",
+		shortDesc: "Lowers foe's Attack by 1. Priority +1.",
 		id: "babydolleyes",
 		name: "Baby-Doll Eyes",
 		pp: 25,
@@ -4089,6 +4089,9 @@ exports.BattleMovedex = {
 		id: "flyingpress",
 		name: "Flying Press",
 		pp: 10,
+		onModifyEffectiveness: function(effectiveness, target) {
+			return effectiveness + this.getEffectiveness('Flying', target);
+		},
 		priority: 0,
 		secondary: false,
 		target: "normal",
@@ -4297,6 +4300,9 @@ exports.BattleMovedex = {
 		name: "Freeze Dry",
 		pp: 15,
 		priority: 0,
+		onModifyEffectiveness: function(effectiveness, target) {
+			if (target.hasType('Water')) return effectiveness + 2;
+		},
 		secondary: {
 			chance: 10,
 			status: 'frz'
@@ -6593,6 +6599,57 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Psychic"
 	},
+	"kingsshield": {
+		num: -6,
+		gen: 6,
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		desc: "Protects. Contactors get -Atk.",
+		shortDesc: "Protects. Contactors get -Atk.",
+		id: "kingsshield",
+		isViable: true,
+		name: "King's Shield",
+		pp: 10,
+		priority: 4,
+		stallingMove: true, // Note: stallingMove is not used anywhere.
+		volatileStatus: 'kingsshield',
+		onTryHit: function(pokemon) {
+			return !!this.willAct() && this.runEvent('StallMove', pokemon);
+		},
+		onHit: function(pokemon) {
+			pokemon.addVolatile('stall');
+		},
+		effect: {
+			duration: 1,
+			onStart: function(target) {
+				this.add('-singleturn', target, "King's Shield");
+			},
+			onTryHitPriority: 3,
+			onTryHit: function(target, source, move) {
+				if (move.breaksProtect) {
+					target.removeVolatile("King's Shield");
+					return;
+				}
+				if (move && (move.target === 'self' || move.isNotProtectable)) return;
+				this.add('-activate', target, "King's Shield");
+				var lockedmove = source.getVolatile('lockedmove');
+				if (lockedmove) {
+					// Outrage counter is reset
+					if (source.volatiles['lockedmove'].duration === 2) {
+						delete source.volatiles['lockedmove'];
+					}
+				}
+				if (move.isContact) {
+					this.boost({atk:-2}, source, target, this.getMove("King's Shield"));
+				}
+				return null;
+			}
+		},
+		secondary: false,
+		target: "self",
+		type: "Steel"
+	},
 	"knockoff": {
 		num: 282,
 		accuracy: 100,
@@ -7217,6 +7274,45 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Steel"
 	},
+	"magneticfield": {
+		num: -6,
+		gen: 6,
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		desc: "For 5 turns, powers up Electric attacks.",
+		shortDesc: "For 5 turns, powers up Electric attacks.",
+		id: "magneticfield",
+		name: "Magnetic Field",
+		pp: 5,
+		priority: 0,
+		pseudoWeather: 'magneticfield',
+		effect: {
+			duration: 5,
+			durationCallback: function(target, source, effect) {
+				if (source && source.ability === 'persistent') {
+					return 7;
+				}
+				return 5;
+			},
+			onBasePower: function(basePower, user, target, move) {
+				if (move.type === 'Electric') {
+					this.debug('electric move strengthened');
+					return this.chainModify(1.5);
+				}
+			},
+			onStart: function() {
+				this.add('-fieldstart', 'move: Magnetic Field');
+			},
+			onResidualOrder: 22,
+			onEnd: function() {
+				this.add('-fieldend', 'move: Magnetic Field');
+			}
+		},
+		secondary: false,
+		target: "all",
+		type: "Electric"
+	},
 	"magnetrise": {
 		num: 393,
 		accuracy: true,
@@ -7826,6 +7922,62 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Psychic"
 	},
+	"mistyterrain": {
+		num: -6,
+		gen: 6,
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		desc: "For 5 turns, pokemon cannot have major status problems or confusion inflicted on them by other Pokemon.",
+		shortDesc: "5 turns: protects grounded pokemon from status.",
+		id: "mistyterrain",
+		name: "Misty Terrain",
+		pp: 25,
+		priority: 0,
+		isSnatchable: true,
+		pseudoWeather: 'mistyterrain',
+		effect: {
+			duration: 5,
+			durationCallback: function(target, source, effect) {
+				if (source && source.ability === 'persistent') {
+					return 7;
+				}
+				return 5;
+			},
+			onSetStatus: function(status, target, source, effect) {
+				if (!target.runImmunity('Ground')) return;
+				if (source && source !== target || (effect && effect.id === 'toxicspikes')) {
+					this.debug('misty terrain preventing status');
+					return false;
+				}
+			},
+			onTryConfusion: function(target, source, effect) {
+				if (!target.runImmunity('Ground')) return;
+				if (source && source !== target) {
+					this.debug('misty terrain preventing confusion');
+					return false;
+				}
+			},
+			onTryHit: function(target, source, move) {
+				if (!target.runImmunity('Ground')) return;
+				if (move && move.id === 'yawn') {
+					this.debug('blocking yawn');
+					return false;
+				}
+			},
+			onStart: function(side) {
+				this.add('-fieldstart', 'Misty Terrain');
+			},
+			onResidualOrder: 21,
+			onResidualSubOrder: 2,
+			onEnd: function(side) {
+				this.add('-fieldend', 'Misty Terrain');
+			}
+		},
+		secondary: false,
+		target: "all",
+		type: "Fairy"
+	},
 	"moonblast": {
 		num: -6,
 		gen: 6,
@@ -8411,6 +8563,27 @@ exports.BattleMovedex = {
 		target: "allAdjacent",
 		type: "Electric"
 	},
+	"partingshot": {
+		num: -6,
+		gen: 6,
+		accuracy: 100,
+		basePower: 0,
+		category: "Status",
+		desc: "Lowers all adjacent foes' Attack and Special Attack by 1 stage, then the user switches out.",
+		shortDesc: "Foe's Atk/SpA -1, then switch out.",
+		id: "partingshot",
+		name: "Parting Shot",
+		pp: 40,
+		priority: 0,
+		selfSwitch: true,
+		boosts: {
+			atk: -1,
+			spa: -1
+		},
+		secondary: false,
+		target: "normal",
+		type: "Normal"
+	},
 	"payday": {
 		num: 6,
 		accuracy: 100,
@@ -8607,8 +8780,8 @@ exports.BattleMovedex = {
 		category: "Physical",
 		desc: "Deals damage to one adjacent target.",
 		shortDesc: "Deals damage to one adjacent target.",
-		id: "playnice",
-		name: "Play Nice",
+		id: "playaround",
+		name: "Play Around",
 		pp: 20,
 		priority: 0,
 		secondary: false,
@@ -8782,6 +8955,28 @@ exports.BattleMovedex = {
 		secondary: false,
 		target: "normal",
 		type: "Normal"
+	},
+	"powder": {
+		num: -6,
+		accuracy: 100,
+		basePower: 0,
+		category: "Status",
+		desc: "Covers the target in powder that explodes if the target uses a Fire-type move.",
+		shortDesc: "Foe takes damage when using Fire moves.",
+		id: "powder",
+		name: "Powder",
+		pp: 20,
+		priority: 0,
+		isBounceable: true,
+		volatileStatus: 'powder',
+		effect: {
+			onStart: function(target) {
+				this.add('-start', target, 'Powder');
+			}
+		},
+		secondary: false,
+		target: "normal",
+		type: "Bug"
 	},
 	"powdersnow": {
 		num: 181,
@@ -12853,6 +13048,33 @@ exports.BattleMovedex = {
 		secondary: false,
 		target: "normal",
 		type: "Normal"
+	},
+	"topsyturvy": {
+		num: -6,
+		gen: 6,
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		desc: "Inverts target's stat stages.",
+		shortDesc: "Inverts target's stat stages.",
+		id: "topsyturvy",
+		name: "Topsy-turvy",
+		pp: 10,
+		priority: 0,
+		onHit: function(target) {
+			var targetBoosts = {};
+
+			for (var i in target.boosts) {
+				target.boosts[i] = -target.boosts[i];
+			}
+
+			target.setBoost(targetBoosts);
+
+			this.add('-invertboost', target, '[from] move: Topsy-turvy');
+		},
+		secondary: false,
+		target: "normal",
+		type: "Dark"
 	},
 	"torment": {
 		num: 259,
