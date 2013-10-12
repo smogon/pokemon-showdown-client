@@ -3146,6 +3146,19 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + '\'s stat changes were removed!';
 				}
 				break;
+			case '-invertboost':
+				var poke = this.getPokemon(args[1]);
+				for (i in poke.boosts) {
+					poke.boosts[i] = -poke.boosts[i];
+				}
+				self.resultAnim(poke, 'Stats inverted', 'neutral', animDelay);
+
+				if (kwargs.silent) {
+					// do nothing
+				} else {
+					actions += '' + poke.getName() + '\'s stat changes were inverted!';
+				}
+				break;
 			case '-clearallboost':
 				for (var slot=0; slot<self.mySide.active.length; slot++) {
 					if (self.mySide.active[slot]) {
@@ -4265,6 +4278,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'gravity':
 					actions += "Gravity intensified!";
 					break;
+				default:
+					actions += effect.name+" started!";
+					break;
 				}
 				break;
 
@@ -4285,6 +4301,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'gravity':
 					actions += 'Gravity returned to normal!';
+					break;
+				default:
+					actions += effect.name+" ended!";
 					break;
 				}
 				break;
