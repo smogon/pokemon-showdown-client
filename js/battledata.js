@@ -547,8 +547,11 @@ var Tools = {
 			prefs.data[prop] = value;
 			if (save !== false) prefs.save();
 		};
-		prefs.data = (window.localStorage &&
-			$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
+		prefs.data = {};
+		try {
+			prefs.data = (window.localStorage &&
+				$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
+		} catch (e) {}
 		prefs.save = function() {
 			if (!window.localStorage) return;
 			localStorage.setItem(localStorageEntry, $.toJSON(this.data));
