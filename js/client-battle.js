@@ -818,7 +818,7 @@
 				if (!pokemon.baseAbility && !pokemon.ability) {
 					text += '<p>Possible abilities: ' + Tools.getAbility(template.abilities['0']).name;
 					if (template.abilities['1']) text += ', ' + Tools.getAbility(template.abilities['1']).name;
-					if (template.abilities['DW']) text += ', ' + Tools.getAbility(template.abilities['DW']).name;
+					if (template.abilities['H']) text += ', ' + Tools.getAbility(template.abilities['H']).name;
 					text += '</p>';
 				} else if (pokemon.ability) {
 					text += '<p>Ability: ' + Tools.getAbility(pokemon.ability).name + '</p>';

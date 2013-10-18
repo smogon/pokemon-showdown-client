@@ -1062,12 +1062,12 @@
 			},
 			ability: function(ability) {
 				if (!this.curSet) return;
-				if (!ability) return ['Abilities', 'Dream World Ability'];
+				if (!ability) return ['Abilities', 'Hidden Ability'];
 				var template = Tools.getTemplate(this.curSet.species);
 				if (!template.abilities) return 'Abilities';
 				if (ability.name === template.abilities['0']) return 'Abilities';
 				if (ability.name === template.abilities['1']) return 'Abilities';
-				if (ability.name === template.abilities['DW']) return 'Dream World Ability';
+				if (ability.name === template.abilities['H']) return 'Hidden Ability';
 				return 'Illegal';
 			},
 			move: function(move) {
