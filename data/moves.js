@@ -5127,8 +5127,16 @@ exports.BattleMovedex = {
 				this.add('-fieldstart', 'move: Grassy Terrain', '[of] '+source);
 			},
 			onResidualOrder: 7,
-			onResidual: function(pokemon) {
-				if (pokemon.runImmunity('Ground')) this.heal(pokemon.maxhp / 16);
+			onResidual: function(battle) {
+				this.debug('onResidual battle');
+				for (var s in battle.sides) {
+					for (var p in battle.sides[s].active) {
+						if (battle.sides[s].active[p].runImmunity('Ground')) {
+							this.debug('Pokémon is grounded, healing through Grassy Terrain.');
+							this.heal(battle.sides[s].active[p].maxhp / 16, battle.sides[s].active[p], battle.sides[s].active[p]);
+						}
+					}
+				}
 			},
 			onEnd: function() {
 				this.add('-fieldend', 'move: Grassy Terrain', '[of] '+this.effectData.source);
@@ -9329,6 +9337,9 @@ exports.BattleMovedex = {
 		pp: 35,
 		priority: 0,
 		isPowder: true,
+		onTryHit: function(pokemon) {
+			return !pokemon.hasType('Grass');
+		},
 		status: 'psn',
 		secondary: false,
 		target: "normal",
@@ -9400,6 +9411,9 @@ exports.BattleMovedex = {
 		pp: 20,
 		priority: 1,
 		isPowder: true,
+		onTryHit: function(pokemon) {
+			return !pokemon.hasType('Grass');
+		},
 		isBounceable: true,
 		volatileStatus: 'powder',
 		effect: {
@@ -10061,7 +10075,16 @@ exports.BattleMovedex = {
 		pp: 20,
 		priority: 3,
 		isPowder: true,
-		volatileStatus: 'followme',
+		volatileStatus: 'ragepowder',
+		effect: {
+			duration: 1,
+			onFoeRedirectTarget: function(target, source, source2, move) {
+				if (!source.hasType('Grass') && this.validTarget(this.effectData.target, source, move.target)) {
+					this.debug("Rage Powder redirected target of move");
+					return this.effectData.target;
+				}
+			}
+		},
 		secondary: false,
 		target: "self",
 		type: "Bug"
@@ -11817,6 +11840,9 @@ exports.BattleMovedex = {
 		pp: 15,
 		priority: 0,
 		isPowder: true,
+		onTryHit: function(pokemon) {
+			return !pokemon.hasType('Grass');
+		},
 		status: 'slp',
 		secondary: false,
 		target: "normal",
