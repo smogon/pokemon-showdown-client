@@ -202,6 +202,26 @@ exports.BattleItems = {
 		gen: 3,
 		desc: "Holder is cured if it is frozen. Single use."
 	},
+	"assaultvest": {
+		id: "assaultvest",
+		name: "Assault Vest",
+		spritenum: 0,
+		onModifySpDPriority: 1,
+		onModifySpD: function(spd) {
+			return this.chainModify(1.5);
+		},
+		onModifyPokemon: function(pokemon) {
+			var moves = pokemon.moveset;
+			for (var i=0; i<moves.length; i++) {
+				if (this.getMove(moves[i].move).category === 'Status') {
+					moves[i].disabled = true;
+				}
+			}
+		},
+		num: -7,
+		gen: 6,
+		desc: "Holder's Sp. Def is 1.5x, but it can only use damaging moves."
+	},
 	"babiriberry": {
 		id: "babiriberry",
 		name: "Babiri Berry",
@@ -3313,6 +3333,23 @@ exports.BattleItems = {
 		num: 5,
 		gen: 1,
 		desc: "A special Poke Ball that is used only in the Safari Zone and Great Marsh."
+	},
+	"safetygoggles": {
+		id: "safetygoggles",
+		name: "Safety Goggles",
+		spritenum: 0,
+		onImmunity: function(type, pokemon) {
+			if (type === 'sandstorm' || type === 'hail') return false;
+		},
+		onTryHit: function(pokemon, target, move) {
+			if (move.isPowder) {
+				this.add('-immune', pokemon, '[msg]', '[from] Safety Goggles');
+				return null;
+			}
+		},
+		num: -8,
+		gen: 6,
+		desc: "Protects the holder from weather-related damage and powder moves."
 	},
 	"salacberry": {
 		id: "salacberry",
