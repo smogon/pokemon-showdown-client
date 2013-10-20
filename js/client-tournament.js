@@ -7,12 +7,31 @@
 		return array.slice(0, -1).join(", ") + " " + finalSeparator + " " + array.slice(-1)[0];
 	}
 
+	function clampPosition(element, position) {
+		var $element = $(element);
+
+		var elementWidth = $element.width();
+		var parentWidth = $element.parent().width();
+		if (parentWidth >= elementWidth)
+			position.left = parentWidth / 2 - elementWidth / 2;
+		else if (position.left < parentWidth - elementWidth)
+			position.left = parentWidth - elementWidth;
+		else if (position.left > 0)
+			position.left = 0;
+
+		var elementHeight = $element.height();
+		var parentHeight = $element.parent().height();
+		if (parentHeight >= elementHeight)
+			position.top = parentHeight / 2 - elementHeight / 2;
+		else if (position.top < parentHeight - elementHeight)
+			position.top = parentHeight - elementHeight;
+		else if (position.top > 0)
+			position.top = 0;
+	}
+
 	function makeDraggable(element, position) {
 		var $element = $(element);
 		position = position || {};
-		var isMouseDown = false;
-		var innerX = 0;
-		var innerY = 0;
 
 		$element.css({
 			'user-select': 'none',
@@ -26,10 +45,15 @@
 			position.isDefault = true;
 		}
 
+		clampPosition(element, position);
 		$element.css({
 			left: position.left,
 			top: position.top
 		});
+
+		var isMouseDown = false;
+		var innerX = 0;
+		var innerY = 0;
 
 		$element.on('mousedown', function (e) {
 			innerX = e.pageX - this.offsetLeft;
@@ -44,6 +68,7 @@
 				position.left = e.pageX - innerX;
 				position.top = e.pageY - innerY;
 				delete position.isDefault;
+				clampPosition(element, position);
 				$element.css({
 					left: position.left,
 					top: position.top
@@ -137,6 +162,13 @@
 
 		TournamentBox.prototype.updateLayout = function () {
 			this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight: '');
+			if (this.$bracket.hasClass('tournament-bracket-overflowing')) {
+				clampPosition(this.$bracket.children(), this.savedBracketPosition);
+				this.$bracket.children().css({
+					left: this.savedBracketPosition.left,
+					top: this.savedBracketPosition.top
+				});
+			}
 		};
 		TournamentBox.prototype.setBoxVisibility = function (isVisible) {
 			if (isVisible) {
