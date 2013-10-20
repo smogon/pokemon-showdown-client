@@ -134,10 +134,10 @@ function BattleChart()
 			{
 				ability = ability.substr(0, match.ability[i].start)+'<b>'+ability.substr(match.ability[i].start, match.ability[i].end-match.ability[i].start)+'</b>'+ability.substr(match.ability[i].end);
 			}
-			if (i == 'DW') ability = '</span><span class="col abilitycol"><em>'+ability+'</em>';
+			if (i == 'H') ability = '</span><span class="col abilitycol"><em>'+ability+'</em>';
 			text += ability;
 		}
-		if (!pokemon.abilities['DW']) text += '</span><span class="col abilitycol">';
+		if (!pokemon.abilities['H']) text += '</span><span class="col abilitycol">';
 		text += '</span>';
 		text += '</span>';
 
@@ -405,13 +405,13 @@ function BattleChart()
 						}
 					}
 
-					if (thing.abilities['DW'])
+					if (thing.abilities['H'])
 					{
-						index = thing.abilities['DW'].toLowerCase().indexOf(searchTerm);
+						index = thing.abilities['H'].toLowerCase().indexOf(searchTerm);
 						if (index == 0)
 						{
 							matchType = 'fullstart';
-							match.ability = {DW:{
+							match.ability = {H:{
 								start: 0,
 								end: searchTerm.length
 							}};

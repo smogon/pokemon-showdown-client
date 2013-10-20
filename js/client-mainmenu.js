@@ -17,13 +17,11 @@
 		initialize: function() {
 			this.$el.addClass('scrollable');
 
-			var buf = '<div class="mainmenuwrapper">';
-
 			// left menu 2 (high-res: right, low-res: top)
-			buf += '<div class="leftmenu"><div class="activitymenu"><div class="pmbox"></div></div>';
+			// (created during page load)
 
 			// left menu 1 (high-res: left, low-res: bottom)
-			buf += '<div class="mainmenu">';
+			var buf = '';
 			if (app.down) {
 				buf += '<div class="menugroup">';
 				if (app.down === 'ddos') {
@@ -49,18 +47,16 @@
 			} else {
 				buf += '<p><button class="button" name="joinRoom" value="ladder">Ladder</button></p>';
 			}
-			buf += '<p><button class="button" name="credits">Credits</button></p></div></div></div>';
+			buf += '<p><button class="button" name="credits">Credits</button></p></div></div>';
+			this.$('.mainmenu').html(buf);
 
 			// right menu
 			if (!app.down) {
-				buf += '<div class="rightmenu"><div class="menugroup"><p><button class="button" name="joinRoom" value="lobby">Join lobby chat</button></p></div></div>';
+				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button" name="joinRoom" value="lobby">Join lobby chat</button></p></div>');
 			}
 
 			// footer
-			buf += '<div class="mainmenufooter"><small><a href="//pokemonshowdown.com/" target="_blank"><strong>Pok&eacute;mon Showdown</strong></a> | <a href="http://smogon.com/" target="_blank"><strong>Smogon</strong></a><br /><a href="//pokemonshowdown.com/dex/" target="_blank">Pok&eacute;dex</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small> | <small><a href="//pokemonshowdown.com/forums/" target="_blank">Forum</a></div>';
-
-			buf += '</div>';
-			this.$el.html(buf);
+			// (created during page load)
 
 			this.$activityMenu = this.$('.activitymenu');
 			this.$pmBox = this.$activityMenu.find('.pmbox');
@@ -69,6 +65,16 @@
 			this.updateFormats();
 
 			app.user.on('saveteams', this.updateTeams, this);
+		},
+
+		// news
+
+		addNews: function() {
+			var newsId = '1990';
+			if (newsId === ''+Tools.prefs('readnews')) return;
+			this.$pmBox.prepend('<div class="pm-window news-embed" data-newsid="'+newsId+'"><h3><button class="closebutton" tabindex="-1"><i class="icon-remove-sign"></i></button>Latest News</h3><div class="pm-log" style="overflow:visible;height:400px;max-height:none">' +
+				'<iframe src="/news-embed.php?news'+(window.nodewebkit || document.location.protocol === 'https:'?'&amp;https':'')+'" width="270" height="400" border="0" style="border:0;width:100%;height:400px"></iframe>' +
+				'</div></div>');
 		},
 
 		/*********************************************************
@@ -169,6 +175,17 @@
 				userid = $(e.currentTarget).closest('.pm-window').data('userid');
 			} else {
 				userid = toId(e);
+			}
+			var $pmWindow;
+			if (!userid) {
+				// not a true PM; just close the window
+				$pmWindow = $(e.currentTarget).closest('.pm-window');
+				var newsId = $pmWindow.data('newsid');
+				if (newsId) {
+					$.cookie('showdown_readnews', ''+newsId, {expires: 365});
+				}
+				$pmWindow.remove();
+				return;
 			}
 			$pmWindow = this.$pmBox.find('.pm-window-'+userid)
 			$pmWindow.hide();
@@ -403,16 +420,29 @@
 		},
 
 		// challenge buttons
-		challenge: function(name) {
+		challenge: function(name, format, team) {
 			var userid = toId(name);
 			var $challenge = this.$('.pm-window-'+userid+' .challenge');
 			if ($challenge.length && !$challenge.find('button[name=dismissChallenge]').length) {
 				return;
 			}
+
+			if (format) format = toId(format);
+			var teamIndex = undefined;
+			if (Storage.teams && team) {
+				var team = toId(team);
+				for (var i = 0; i < Storage.teams.length; i++) {
+					if (team === toId(Storage.teams[i].name || '')) {
+						teamIndex = i;
+						break;
+					}
+				}
+			}
+
 			$challenge = this.openChallenge(name);
 			var buf = '<form class="battleform"><p>Challenge '+Tools.escapeHTML(name)+'?</p>';
-			buf += '<p><label class="label">Format:</label>'+this.renderFormats()+'</p>';
-			buf += '<p><label class="label">Team:</label>'+this.renderTeams()+'</p>';
+			buf += '<p><label class="label">Format:</label>'+this.renderFormats(format)+'</p>';
+			buf += '<p><label class="label">Team:</label>'+this.renderTeams(format, teamIndex)+'</p>';
 			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
@@ -592,7 +622,7 @@
 		initialize: function(data) {
 			var curFormat = data.format;
 			var selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
-			var bufs = ['',''];
+			var bufs = [];
 			var curBuf = 0;
 			var curSection = '';
 			for (var i in BattleFormats) {
@@ -603,17 +633,33 @@
 
 				if (format.section && format.section !== curSection) {
 					curSection = format.section;
-					curBuf = (curSection === 'Doubles' || curSection === 'Past Generations') ? 1 : 0;
+					if (!BattleFormats._supportsColumns) {
+						curBuf = (curSection === 'Doubles' || curSection === 'Past Generations') ? 2 : 1;
+					} else {
+						curBuf = format.column || 1;
+					}
+					if (!bufs[curBuf]) {
+						bufs[curBuf] = '';
+					}
 					bufs[curBuf] += '<li><h3>'+Tools.escapeHTML(curSection)+'</li>';
 				}
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + Tools.escapeHTML(format.name) + '</button></li>';
 			}
 
-			if (bufs[1]) {
-				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs[0]+'</ul><ul class="popupmenu" style="float:left;padding-left:5px">'+bufs[1]+'</ul><div style="clear:left"></div>');
-			} else {
-				this.$el.html('<ul class="popupmenu">'+bufs[0]+'</ul>');
+			var html = '';
+			for (var i = 1, l = bufs.length; i < l; i++) {
+				html += '<ul class="popupmenu"';
+				if (l > 1) {
+					html += ' style="float:left';
+					if (i > 0) {
+						html += ';padding-left:5px';
+					}
+					html += '"';
+				}
+				html += '>' + bufs[i] + '</ul>';
 			}
+			html += '<div style="clear:left"></div>';
+			this.$el.html(html);
 		},
 		selectFormat: function(format) {
 			var $teamButton = this.sourceEl.closest('form').find('button[name=team]');

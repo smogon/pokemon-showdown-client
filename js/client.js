@@ -7,6 +7,7 @@
 				gui.Shell.openExternal(this.href);
 				e.preventDefault();
 				e.stopPropagation();
+				e.stopImmediatePropagation();
 			}
 		});
 		window.nwWindow = gui.Window.get();
@@ -208,7 +209,6 @@
 		focused: true,
 		initialize: function() {
 			window.app = this;
-			$('#main').html('');
 			this.initializeRooms();
 			this.initializePopups();
 
@@ -233,7 +233,9 @@
 
 			var self = this;
 
+			this.prefsLoaded = false;
 			this.on('init:loadprefs', function() {
+				self.prefsLoaded = true;
 				var bg = Tools.prefs('bg');
 				if (bg) {
 					$(document.body).css({
@@ -780,8 +782,21 @@
 				} else {
 					this.joinRoom(roomid, roomType, true);
 				}
+			} else if ((data+'|').substr(0,8) === '|expire|') {
+				var room = this.rooms[roomid];
+				if (room) {
+					room.expired = true;
+					if (room.updateUser) room.updateUser();
+				}
+				return;
 			} else if ((data+'|').substr(0,8) === '|deinit|' || (data+'|').substr(0,8) === '|noinit|') {
 				if (!roomid) roomid = 'lobby';
+
+				if (this.rooms[roomid] && this.rooms[roomid].expired) {
+					// expired rooms aren't closed when left
+					return;
+				}
+
 				var isdeinit = (data.charAt(1) === 'd');
 				data = data.substr(8);
 				var pipeIndex = data.indexOf('|');
@@ -917,13 +932,25 @@
 		parseFormats: function(formatsList) {
 			var isSection = false;
 			var section = '';
+
+			var column = 0;
+			var columnChanged = false;
+
 			BattleFormats = {};
 			for (var j=1; j<formatsList.length; j++) {
 				if (isSection) {
 					section = formatsList[j];
 					isSection = false;
-				} else if (formatsList[j] === '') {
+				} else if (formatsList[j] === '' || (formatsList[j].substr(0, 1) === ',' && !isNaN(formatsList[j].substr(1)))) {
 					isSection = true;
+
+					if (formatsList[j]) {
+						var newColumn = parseInt(formatsList[j].substr(1)) || 0;
+						if (column !== newColumn) {
+							column = newColumn;
+							columnChanged = true;
+						}
+					}
 				} else {
 					var searchShow = true;
 					var challengeShow = true;
@@ -956,6 +983,7 @@
 									name: $.trim(name.substr(0, parenPos)),
 									team: team,
 									section: section,
+									column: column,
 									rated: challengeShow && searchShow,
 									isTeambuilderFormat: true,
 									effectType: 'Format'
@@ -972,6 +1000,7 @@
 						name: name,
 						team: team,
 						section: section,
+						column: column,
 						searchShow: searchShow,
 						challengeShow: challengeShow,
 						rated: challengeShow && searchShow,
@@ -981,6 +1010,7 @@
 					};
 				}
 			}
+			BattleFormats._supportsColumns = columnChanged;
 			this.trigger('init:formats');
 		},
 		uploadReplay: function(data) {
@@ -1095,7 +1125,12 @@
 				}
 			}
 
-			var el = $('<div class="ps-room" style="display:none"></div>').appendTo('body');
+			var el;
+			if (!id) {
+				el = $('#mainmenu');
+			} else {
+				el = $('<div class="ps-room" style="display:none"></div>').appendTo('body');
+			}
 			var typeName = '';
 			if (typeof type === 'string') {
 				typeName = type;
@@ -1275,6 +1310,19 @@
 				return true;
 			}
 			return false;
+		},
+		openInNewWindow: function(url) {
+			if (window.nodewebkit) {
+				gui.Shell.openExternal(url);
+			} else {
+				window.open(url, '_blank');
+			}
+		},
+		clickLink: function(e) {
+			if (window.nodewebkit) {
+				gui.Shell.openExternal(e.target.href);
+				return false;
+			}
 		},
 
 		/*********************************************************
@@ -1610,6 +1658,11 @@
 				notification.onclick = function() {
 					self.clickNotification(tag);
 				};
+				if (Tools.prefs('temporarynotifications')) {
+					setTimeout(function () {
+						notification.cancel();
+					}, 5000);
+				}
 				if (once) notification.psAutoclose = true;
 			} else if (window.macgap) {
 				macgap.growl.notify({
@@ -2185,6 +2238,7 @@
 		events: {
 			'change input[name=noanim]': 'setNoanim',
 			'change input[name=nolobbypm]': 'setNolobbypm',
+			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=ignorespects]': 'setIgnoreSpects',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
@@ -2201,9 +2255,13 @@
 			buf += '<p><button name="avatars">Change avatar</button></p>';
 
 			buf += '<hr />';
-			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Waterfall</option><option value="#344b6c"'+(Tools.prefs('bg')?' selected="selected"':'')+'>Solid blue</option></select></label></p>';
+			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c"'+(Tools.prefs('bg')?' selected="selected"':'')+'>Solid blue</option></select></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
+
+			if (window.Notification) {
+				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"'+(Tools.prefs('temporarynotifications')?' checked':'')+' /> Temporary notifications</label></p>';
+			}
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in lobby chat: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
@@ -2260,6 +2318,10 @@
 			var nolobbypm = !!e.currentTarget.checked;
 			Tools.prefs('nolobbypm', nolobbypm);
 		},
+		setTemporaryNotifications: function (e) {
+			var temporarynotifications = !!e.currentTarget.checked;
+			Tools.prefs('temporarynotifications', temporarynotifications);
+		},
 		setIgnoreSpects: function(e) {
 			if (app.curRoom.battle) {
 				app.curRoom.battle.ignoreSpects = !!e.currentTarget.checked;
@@ -2268,7 +2330,7 @@
 		setBg: function(e) {
 			var bg = e.currentTarget.value;
 			Tools.prefs('bg', bg);
-			if (!bg) bg = '#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed';
+			if (!bg) bg = '#546bac url(/fx/client-bg-horizon.jpg) no-repeat left center fixed';
 			$(document.body).css({
 				background: bg,
 				'background-size': 'cover'
@@ -2315,6 +2377,7 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="monospace" ' + (cur.hidemonospace ? 'checked' : '') + ' /> Suppress ``<code>monospace</code>``</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="strikethrough" ' + (cur.hidestrikethrough ? 'checked' : '') + ' /> Suppress ~~<s>strikethrough</s>~~</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="me" ' + (cur.hideme ? 'checked' : '') + ' /> Suppress <code>/me</code> <em>action formatting</em></label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="spoiler" ' + (cur.hidespoiler ? 'checked' : '') + ' /> Suppress spoiler hiding</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="links" ' + (cur.hidelinks ? 'checked' : '') + ' /> Suppress clickable links</label></p>';
 			buf += '<p><button name="close">Close</button></p>';
 			this.$el.html(buf);
@@ -2367,7 +2430,7 @@
 			this.close();
 		},
 		submit: function(i) {
-			window.open('http://pokemonshowdown.com/replay/battle-'+this.id, '_blank');
+			app.openInNewWindow('http://pokemonshowdown.com/replay/battle-'+this.id);
 			this.close();
 		}
 	});
