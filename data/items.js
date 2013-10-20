@@ -1,4 +1,24 @@
 exports.BattleItems = {
+	"abomasite": {
+		id: "abomasite",
+		name: "Abomasite",
+		spritenum: 0,
+		megaStone: "Abomasnow-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Abomasnow."
+	},
+	"absolite": {
+		id: "absolite",
+		name: "Absolite",
+		spritenum: 0,
+		megaStone: "Absol-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Absol."
+	},
 	"absorbbulb": {
 		id: "absorbbulb",
 		name: "Absorb Bulb",
@@ -22,14 +42,35 @@ exports.BattleItems = {
 		fling: {
 			basePower: 60
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && user.baseTemplate.species === 'Dialga' && (move.type === 'Steel' || move.type === 'Dragon')) {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 135,
 		gen: 4,
 		desc: "If holder is a Dialga, its Steel- and Dragon-type attacks have 1.2x power."
+	},
+	"aerodactylite": {
+		id: "aerodactylite",
+		name: "Aerodactylite",
+		spritenum: 0,
+		megaStone: "Aerodactyl-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Aerodactyl."
+	},
+	"aggronite": {
+		id: "aggronite",
+		name: "Aggronite",
+		spritenum: 0,
+		megaStone: "Aggron-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Aggron."
 	},
 	"aguavberry": {
 		id: "aguavberry",
@@ -85,6 +126,26 @@ exports.BattleItems = {
 		num: 541,
 		gen: 5,
 		desc: "Holder is immune to Ground-type attacks. Pops when holder is hit."
+	},
+	"alakazite": {
+		id: "alakazite",
+		name: "Alakazite",
+		spritenum: 0,
+		megaStone: "Alakazam-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Alakazam."
+	},
+	"ampharosite": {
+		id: "ampharosite",
+		name: "Ampharosite",
+		spritenum: 0,
+		megaStone: "Ampharos-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Ampharos."
 	},
 	"apicotberry": {
 		id: "apicotberry",
@@ -150,11 +211,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Steel"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Steel' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -162,6 +223,16 @@ exports.BattleItems = {
 		num: 199,
 		gen: 4,
 		desc: "Halves damage taken from a super effective Steel-type attack. Single use."
+	},
+	"banettite": {
+		id: "banettite",
+		name: "Banettite",
+		spritenum: 0,
+		megaStone: "Banette-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Banette."
 	},
 	"belueberry": {
 		id: "belueberry",
@@ -231,9 +302,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Fighting') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 241,
@@ -267,14 +339,35 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Dark') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 240,
 		gen: 2,
 		desc: "Holder's Dark-type attacks have 1.2x power."
+	},
+	"blastoisinite": {
+		id: "blastoisinite",
+		name: "Blastoisinite",
+		spritenum: 0,
+		megaStone: "Blastoise-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Blastoise."
+	},
+	"blazikenite": {
+		id: "blazikenite",
+		name: "Blazikenite",
+		spritenum: 0,
+		megaStone: "Blaziken-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Blaziken."
 	},
 	"blukberry": {
 		id: "blukberry",
@@ -310,11 +403,12 @@ exports.BattleItems = {
 		name: "Bug Gem",
 		spritenum: 53,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Bug') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Bug Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Bug Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -357,14 +451,35 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Fire') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 249,
 		gen: 2,
 		desc: "Holder's Fire-type attacks have 1.2x power."
+	},
+	"charizarditex": {
+		id: "charizarditex",
+		name: "Charizardite X",
+		spritenum: 0,
+		megaStone: "Charizard-Mega-X",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Charizard into Mega Charizard X."
+	},
+	"charizarditey": {
+		id: "charizarditey",
+		name: "Charizardite Y",
+		spritenum: 0,
+		megaStone: "Charizard-Mega-Y",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Charizard into Mega Charizard Y."
 	},
 	"chartiberry": {
 		id: "chartiberry",
@@ -375,11 +490,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Rock"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Rock' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -451,11 +566,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Normal"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Normal' && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -492,8 +607,9 @@ exports.BattleItems = {
 		onModifyMove: function(move, pokemon) {
 			pokemon.addVolatile('choicelock');
 		},
+		onModifyAtkPriority: 1,
 		onModifyAtk: function(atk) {
-			return atk * 1.5;
+			return this.chainModify(1.5);
 		},
 		isChoice: true,
 		num: 220,
@@ -516,8 +632,8 @@ exports.BattleItems = {
 		onModifyMove: function(move, pokemon) {
 			pokemon.addVolatile('choicelock');
 		},
-		onModifySpe: function(spe) {
-			return spe * 1.5;
+		onModifySpe: function(speMod) {
+			return this.chain(speMod, 1.5);
 		},
 		isChoice: true,
 		num: 287,
@@ -540,8 +656,9 @@ exports.BattleItems = {
 		onModifyMove: function(move, pokemon) {
 			pokemon.addVolatile('choicelock');
 		},
+		onModifySpAPriority: 1,
 		onModifySpA: function(spa) {
-			return spa * 1.5;
+			return this.chainModify(1.5);
 		},
 		isChoice: true,
 		num: 297,
@@ -557,11 +674,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Fighting"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Fighting' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -590,11 +707,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Flying"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Flying' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -612,11 +729,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Dark"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Dark' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -687,11 +804,12 @@ exports.BattleItems = {
 		name: "Dark Gem",
 		spritenum: 89,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Dark') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Dark Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Dark Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -706,9 +824,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onModifySpDPriority: 2,
 		onModifySpD: function(spd, pokemon) {
 			if (pokemon.baseTemplate.species === 'Clamperl') {
-				return spd * 2;
+				return this.chainModify(2);
 			}
 		},
 		num: 227,
@@ -722,9 +841,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 90
 		},
+		onModifySpAPriority: 1,
 		onModifySpA: function(spa, pokemon) {
 			if (pokemon.baseTemplate.species === 'Clamperl') {
-				return spa * 2;
+				return this.chainModify(2);
 			}
 		},
 		num: 226,
@@ -787,9 +907,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Dragon',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Dragon') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 311,
@@ -803,9 +924,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 70
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Dragon') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 250,
@@ -817,11 +939,12 @@ exports.BattleItems = {
 		name: "Dragon Gem",
 		spritenum: 107,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Dragon') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Dragon Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Dragon Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -837,9 +960,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Dark',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Dark') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 312,
@@ -883,9 +1007,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Ground',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Ground') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 305,
@@ -931,11 +1056,12 @@ exports.BattleItems = {
 		name: "Electric Gem",
 		spritenum: 120,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Electric') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Electric Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Electric Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -990,14 +1116,16 @@ exports.BattleItems = {
 		fling: {
 			basePower: 40
 		},
+		onModifyDefPriority: 2,
 		onModifyDef: function(def, pokemon) {
 			if (pokemon.baseTemplate.nfe) {
-				return def * 1.5;
+				return this.chainModify(1.5);
 			}
 		},
+		onModifySpDPriority: 2,
 		onModifySpD: function(spd, pokemon) {
 			if (pokemon.baseTemplate.nfe) {
-				return spd * 1.5;
+				return this.chainModify(1.5);
 			}
 		},
 		num: 538,
@@ -1011,9 +1139,9 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
-		onBasePower: function(basePower, user, target, move) {
+		onModifyDamage: function(damage, source, target, move) {
 			if (move && this.getEffectiveness(move.type, target) > 0) {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 268,
@@ -1033,11 +1161,12 @@ exports.BattleItems = {
 		name: "Fighting Gem",
 		spritenum: 139,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Fighting') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Fighting Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Fighting Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -1074,11 +1203,12 @@ exports.BattleItems = {
 		name: "Fire Gem",
 		spritenum: 141,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Fire') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Fire Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Fire Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -1094,9 +1224,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Fighting',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Fighting') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 303,
@@ -1131,9 +1262,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Fire',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Fire') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 298,
@@ -1159,11 +1291,12 @@ exports.BattleItems = {
 		name: "Flying Gem",
 		spritenum: 149,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Flying') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Flying Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Flying Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -1243,16 +1376,47 @@ exports.BattleItems = {
 		gen: 3,
 		desc: "Raises Defense by 1 when at 1/4 max HP or less. Single use."
 	},
+	"garchompite": {
+		id: "garchompite",
+		name: "Garchompite",
+		spritenum: 0,
+		megaStone: "Garchomp-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Garchomp."
+	},
+	"gardevoirite": {
+		id: "gardevoirite",
+		name: "Gardevoirite",
+		spritenum: 0,
+		megaStone: "Gardevoir-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Gardevoir."
+	},
+	"gengarite": {
+		id: "gengarite",
+		name: "Gengarite",
+		spritenum: 0,
+		megaStone: "Gengar-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Gengar."
+	},
 	"ghostgem": {
 		id: "ghostgem",
 		name: "Ghost Gem",
 		spritenum: 161,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Ghost') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Ghost Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Ghost Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -1265,11 +1429,11 @@ exports.BattleItems = {
 		name: "Grass Gem",
 		spritenum: 172,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
 			if (move.type === 'Grass') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Grass Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Grass Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -1317,9 +1481,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 60
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (user.baseTemplate.num === 487 && (move.type === 'Ghost' || move.type === 'Dragon')) {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		onTakeItem: function(item, pokemon, source) {
@@ -1336,17 +1501,28 @@ exports.BattleItems = {
 		name: "Ground Gem",
 		spritenum: 182,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Ground') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Ground Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Ground Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
 		num: 555,
 		gen: 5,
 		desc: "Holder's first successful Ground-type attack will have 1.5x power. Single use."
+	},
+	"gyaradosite": {
+		id: "gyaradosite",
+		name: "Gyaradosite",
+		spritenum: 0,
+		megaStone: "Gyarados-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Gyarados."
 	},
 	"habanberry": {
 		id: "habanberry",
@@ -1357,11 +1533,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Dragon"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Dragon' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -1377,9 +1553,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 100
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Rock') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 238,
@@ -1424,6 +1601,16 @@ exports.BattleItems = {
 		gen: 3,
 		desc: "Can be revived into Omanyte."
 	},
+	"heracronite": {
+		id: "heracronite",
+		name: "Heracronite",
+		spritenum: 0,
+		megaStone: "Heracross-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Heracross."
+	},
 	"hondewberry": {
 		id: "hondewberry",
 		name: "Hondew Berry",
@@ -1436,6 +1623,16 @@ exports.BattleItems = {
 		num: 172,
 		gen: 3,
 		desc: "No competitive use."
+	},
+	"houndoominite": {
+		id: "houndoominite",
+		name: "Houndoominite",
+		spritenum: 0,
+		megaStone: "Houndoom-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Houndoom."
 	},
 	"iapapaberry": {
 		id: "iapapaberry",
@@ -1466,11 +1663,12 @@ exports.BattleItems = {
 		name: "Ice Gem",
 		spritenum: 218,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Ice') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Ice Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Ice Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -1486,9 +1684,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Ice',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Ice') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 302,
@@ -1514,9 +1713,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Bug',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Bug') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 308,
@@ -1533,8 +1733,8 @@ exports.BattleItems = {
 		onModifyPokemon: function(pokemon) {
 			pokemon.negateImmunity['Ground'] = true;
 		},
-		onModifySpe: function(spe) {
-			return spe / 2;
+		onModifySpe: function(speMod) {
+			return this.chain(speMod, .5);
 		},
 		num: 278,
 		gen: 4,
@@ -1548,9 +1748,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Steel',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Steel') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 313,
@@ -1587,11 +1788,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Ghost"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Ghost' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -1609,11 +1810,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Poison"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Poison' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -1634,6 +1835,16 @@ exports.BattleItems = {
 		num: 170,
 		gen: 3,
 		desc: "No competitive use."
+	},
+	"kangaskhanite": {
+		id: "kangaskhanite",
+		name: "Kangaskhanite",
+		spritenum: 0,
+		megaStone: "Kangaskhan-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Kangaskhan."
 	},
 	"kingsrock": {
 		id: "kingsrock",
@@ -1803,9 +2014,11 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
-		onBasePower: function(basePower, user) {
-			user.addVolatile('lifeorb');
-			return basePower * 1.3;
+		onModifyDamage: function(damage, source, target, move) {
+			if (source) {
+				source.addVolatile('lifeorb');
+				return this.chainModify(1.3);
+			}
 		},
 		effect: {
 			duration: 1,
@@ -1828,14 +2041,16 @@ exports.BattleItems = {
 			basePower: 30,
 			status: 'par'
 		},
+		onModifyAtkPriority: 1,
 		onModifyAtk: function(atk, pokemon) {
 			if (pokemon.baseTemplate.species === 'Pikachu') {
-				return atk * 2;
+				return this.chainModify(2);
 			}
 		},
+		onModifySpAPriority: 1,
 		onModifySpA: function(spa, pokemon) {
 			if (pokemon.baseTemplate.species === 'Pikachu') {
-				return spa * 2;
+				return this.chainModify(2);
 			}
 		},
 		num: 236,
@@ -1861,6 +2076,16 @@ exports.BattleItems = {
 		num: 496,
 		gen: 2,
 		desc: "Poke Ball for catching Pokemon that are the opposite gender of your Pokemon."
+	},
+	"lucarionite": {
+		id: "lucarionite",
+		name: "Lucarionite",
+		spritenum: 0,
+		megaStone: "Lucario-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Lucario."
 	},
 	"luckypunch": {
 		id: "luckypunch",
@@ -1915,9 +2140,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 60
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && user.baseTemplate.species === 'Palkia' && (move.type === 'Water' || move.type === 'Dragon')) {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 136,
@@ -1939,8 +2165,8 @@ exports.BattleItems = {
 		fling: {
 			basePower: 60
 		},
-		onModifySpe: function(spe) {
-			return spe / 2;
+		onModifySpe: function(speMod) {
+			return this.chain(speMod, 0.5);
 		},
 		num: 215,
 		gen: 3,
@@ -1953,9 +2179,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Electric') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 242,
@@ -2007,6 +2234,16 @@ exports.BattleItems = {
 		gen: 2,
 		desc: "This item cannot be given to or taken from a Pokemon, except by Knock Off."
 	},
+	"manectite": {
+		id: "manectite",
+		name: "Manectite",
+		spritenum: 0,
+		megaStone: "Manectric-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Manectric."
+	},
 	"masterball": {
 		id: "masterball",
 		name: "Master Ball",
@@ -2014,6 +2251,16 @@ exports.BattleItems = {
 		num: 1,
 		gen: 1,
 		desc: "The best Ball with the ultimate performance. It will catch any wild Pokemon."
+	},
+	"mawilite": {
+		id: "mawilite",
+		name: "Mawilite",
+		spritenum: 0,
+		megaStone: "Mawile-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Mawile."
 	},
 	"meadowplate": {
 		id: "meadowplate",
@@ -2023,14 +2270,25 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Grass',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Grass') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 301,
 		gen: 4,
 		desc: "Holder's Grass-type attacks have 1.2x power. Judgment is Grass-type."
+	},
+	"medichamite": {
+		id: "medichamite",
+		name: "Medichamite",
+		spritenum: 0,
+		megaStone: "Medicham-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Medicham."
 	},
 	"mentalherb": {
 		id: "mentalherb",
@@ -2073,9 +2331,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Steel') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 233,
@@ -2089,9 +2348,10 @@ exports.BattleItems = {
 			basePower: 10
 		},
 		spritenum: 287,
+		onModifyDefPriority: 2,
 		onModifyDef: function(def, pokemon) {
 			if (pokemon.template.species === 'Ditto') {
-				return def * 2;
+				return this.chainModify(2);
 			}
 		},
 		num: 257,
@@ -2109,24 +2369,48 @@ exports.BattleItems = {
 			pokemon.addVolatile('metronome');
 		},
 		effect: {
-			onBasePower: function(basePower, pokemon, target, move) {
+			onStart: function(pokemon) {
+				this.effectData.numConsecutive = 0;
+				this.effectData.lastMove = '';
+			},
+			onBeforeMove: function(pokemon, target, move) {
 				if (pokemon.item !== 'metronome') {
 					pokemon.removeVolatile('metronome');
 					return;
 				}
-				if (!this.effectData.move || this.effectData.move !== move.id) {
-					this.effectData.move = move.id;
-					this.effectData.numConsecutive = 0;
-				} else if (this.effectData.numConsecutive < 5) {
-					this.effectData.numConsecutive++;
-				}
-				var bpMod = [1, 1.2, 1.4, 1.6, 1.8, 2];
-				return basePower * bpMod[this.effectData.numConsecutive];
+				if (this.effectData.lastMove === move.id) this.effectData.numConsecutive++;
+				else this.effectData.numConsecutive = 0;
+				this.effectData.lastMove = move.id;
+			},
+			onModifyDamage: function(damage, source, target, move) {
+				var numConsecutive = this.effectData.numConsecutive > 5 ? 5 : this.effectData.numConsecutive;
+				var dmgMod = [1, 1.2, 1.4, 1.6, 1.8, 2];
+				return this.chainModify(dmgMod[numConsecutive]);
 			}
 		},
 		num: 277,
 		gen: 4,
 		desc: "Damage of moves used on consecutive turns is increased. Max 2x after 5 turns."
+	},
+	"mewtwonitex": {
+		id: "mewtwonitex",
+		name: "Mewtwonite X",
+		spritenum: 0,
+		megaStone: "Mewtwo-Mega-X",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Mewtwo into Mega Mewtwo X."
+	},
+	"mewtwonitey": {
+		id: "mewtwonitey",
+		name: "Mewtwonite Y",
+		spritenum: 0,
+		megaStone: "Mewtwo-Mega-Y",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Mewtwo into Mega Mewtwo Y."
 	},
 	"micleberry": {
 		id: "micleberry",
@@ -2138,18 +2422,18 @@ exports.BattleItems = {
 			type: "Rock"
 		},
 		onResidual: function(pokemon) {
-			if (pokemon.hp <= pokemon.maxhp/4 || (pokemon.hp <= pokemon.maxhp/2 && pokemon.ability === 'Gluttony')) {
+			if (pokemon.hp <= pokemon.maxhp/4 || (pokemon.hp <= pokemon.maxhp/2 && pokemon.ability === 'gluttony')) {
 				pokemon.eatItem();
 			}
 		},
 		onEat: function(pokemon) {
-			pokemon.addVolatile('MicleBerry');
+			pokemon.addVolatile('micleberry');
 		},
 		effect: {
 			duration: 2,
 			onModifyMove: function(move, pokemon) {
 				this.add('-enditem', pokemon, 'Micle Berry');
-				pokemon.removeVolatile('MicleBerry');
+				pokemon.removeVolatile('micleberry');
 				if (typeof move.accuracy === 'number') {
 					move.accuracy *= 1.2;
 				}
@@ -2159,14 +2443,6 @@ exports.BattleItems = {
 		gen: 4,
 		desc: "Holder's next move has 1.2x accuracy when at 1/4 max HP or less. Single use."
 	},
-	"moonball": {
-		id: "moonball",
-		name: "Moon Ball",
-		spritenum: 294,
-		num: 498,
-		gen: 2,
-		desc: "A Poke Ball for catching Pokemon that evolve using the Moon Stone."
-	},
 	"mindplate": {
 		id: "mindplate",
 		name: "Mind Plate",
@@ -2175,9 +2451,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Psychic',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Psychic') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 307,
@@ -2191,14 +2468,23 @@ exports.BattleItems = {
 			basePower: 30
 		},
 		spritenum: 292,
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Grass') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 239,
 		gen: 2,
 		desc: "Holder's Grass-type attacks have 1.2x power."
+	},
+	"moonball": {
+		id: "moonball",
+		name: "Moon Ball",
+		spritenum: 294,
+		num: 498,
+		gen: 2,
+		desc: "A Poke Ball for catching Pokemon that evolve using the Moon Stone."
 	},
 	"muscleband": {
 		id: "muscleband",
@@ -2207,9 +2493,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.category === 'Physical') {
-				return basePower * 1.1;
+				return this.chainModify(1.1);
 			}
 		},
 		num: 266,
@@ -2223,9 +2510,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Water') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 243,
@@ -2268,9 +2556,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Ice') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 246,
@@ -2295,11 +2584,12 @@ exports.BattleItems = {
 		name: "Normal Gem",
 		spritenum: 307,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Normal') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Normal Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Normal Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -2316,11 +2606,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Fire"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Fire' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -2336,9 +2626,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Psychic') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 314,
@@ -2407,11 +2698,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Water"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Water' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -2429,11 +2720,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Psychic"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Psychic' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -2520,6 +2811,34 @@ exports.BattleItems = {
 		gen: 3,
 		desc: "No competitive use."
 	},
+	"pinsirite": {
+		id: "pinsirite",
+		name: "Pinsirite",
+		spritenum: 0,
+		megaStone: "Pinsir-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Pinsir."
+	},
+	"pixieplate": {
+		id: "pixieplate",
+		name: "Pixie Plate",
+		spritenum: -6,
+		fling: {
+			basePower: 90
+		},
+		onPlate: 'Fairy',
+		onBasePowerPriority: 6,
+		onBasePower: function(basePower, user, target, move) {
+			if (move && move.type === 'Fairy') {
+				return this.chainModify(1.2);
+			}
+		},
+		num: 311,
+		gen: 6,
+		desc: "Holder's Fairy-type attacks have 1.2x power. Judgment is Fairy-type."
+	},
 	"plumefossil": {
 		id: "plumefossil",
 		name: "Plume Fossil",
@@ -2539,9 +2858,10 @@ exports.BattleItems = {
 			basePower: 70,
 			status: 'psn'
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Poison') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 245,
@@ -2553,11 +2873,12 @@ exports.BattleItems = {
 		name: "Poison Gem",
 		spritenum: 344,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Poison') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Poison Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Poison Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -2616,11 +2937,12 @@ exports.BattleItems = {
 		name: "Psychic Gem",
 		spritenum: 369,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Psychic') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Psychic Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Psychic Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -2673,9 +2995,9 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
-		onModifySpe: function(spe, pokemon) {
+		onModifySpe: function(speMod, pokemon) {
 			if (pokemon.template.species === 'Ditto') {
-				return spe * 2;
+				return this.chain(speMod, 2);
 			}
 		},
 		num: 274,
@@ -2789,6 +3111,7 @@ exports.BattleItems = {
 		},
 		onAfterMoveSecondary: function(target, source, move) {
 			if (source && source !== target && source.hp && target.hp && move && move.category !== 'Status') {
+				if (!source.isActive) return;
 				if (target.useItem(null, source)) { // This order is correct - the item is used up even against a pokemon with Ingrain or that otherwise can't be forced out
 					if (this.runEvent('DragOut', source, target, move)) {
 						this.dragIn(source.side, source.position);
@@ -2817,11 +3140,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Grass"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Grass' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -2849,11 +3172,12 @@ exports.BattleItems = {
 		name: "Rock Gem",
 		spritenum: 415,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Rock') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Rock Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Rock Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -2868,9 +3192,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Rock') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 315,
@@ -2912,9 +3237,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Grass') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 318,
@@ -2971,6 +3297,16 @@ exports.BattleItems = {
 		gen: 3,
 		desc: "Raises Speed by 1 when at 1/4 max HP or less. Single use."
 	},
+	"scizorite": {
+		id: "scizorite",
+		name: "Scizorite",
+		spritenum: 0,
+		megaStone: "Scizor-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Scizor."
+	},
 	"scopelens": {
 		id: "scopelens",
 		name: "Scope Lens",
@@ -2992,9 +3328,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Water') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 254,
@@ -3008,9 +3345,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 50
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move && move.type === 'Flying') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 244,
@@ -3069,11 +3407,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Ground"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Ground' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -3089,9 +3427,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Normal') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 251,
@@ -3105,9 +3444,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Bug') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 222,
@@ -3154,9 +3494,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Flying',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Flying') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 306,
@@ -3174,6 +3515,22 @@ exports.BattleItems = {
 		gen: 4,
 		desc: "Holder's use of Sandstorm lasts 8 turns instead of 5."
 	},
+	"snowball": {
+		id: "snowball",
+		name: "Snowball",
+		spritenum: 0,
+		fling: {
+			basePower: 30
+		},
+		onAfterDamage: function(damage, target, source, move) {
+			if (move.type === 'Ice' && target.useItem()) {
+				this.boost({atk: 1});
+			}
+		},
+		num: -6,
+		gen: 6,
+		desc: "Raises Attack by 1 if hit by an Ice-type attack. Single use."
+	},
 	"softsand": {
 		id: "softsand",
 		name: "Soft Sand",
@@ -3181,9 +3538,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Ground') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 237,
@@ -3197,14 +3555,16 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onModifySpAPriority: 1,
 		onModifySpA: function(spa, pokemon) {
 			if (pokemon.baseTemplate.species === 'Latios' || pokemon.baseTemplate.species === 'Latias') {
-				return spa * 1.5;
+				return this.chainModify(1.5);
 			}
 		},
+		onModifySpDPriority: 2,
 		onModifySpD: function(spd, pokemon) {
 			if (pokemon.baseTemplate.species === 'Latios' || pokemon.baseTemplate.species === 'Latias') {
-				return spd * 1.5;
+				return this.chainModify(1.5);
 			}
 		},
 		num: 225,
@@ -3218,9 +3578,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Ghost') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 247,
@@ -3248,9 +3609,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Water',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Water') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 299,
@@ -3265,9 +3627,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Ghost',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Ghost') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 310,
@@ -3312,18 +3675,19 @@ exports.BattleItems = {
 		},
 		num: 207,
 		gen: 3,
-		desc: "Raises a random stat by 2 when at 1/4 max HP or less. Single use."
+		desc: "Raises a random stat by 2 when at 1/4 max HP or less (not acc/eva). Single use."
 	},
 	"steelgem": {
 		id: "steelgem",
 		name: "Steel Gem",
 		spritenum: 473,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Steel') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Steel Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Steel Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -3378,9 +3742,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Rock',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Rock') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 309,
@@ -3409,11 +3774,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Bug"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Bug' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -3429,9 +3794,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 90
 		},
+		onModifyAtkPriority: 1,
 		onModifyAtk: function(atk, pokemon) {
 			if (pokemon.baseTemplate.species === 'Cubone' || pokemon.baseTemplate.species === 'Marowak') {
-				return atk * 2;
+				return this.chainModify(2);
 			}
 		},
 		num: 258,
@@ -3474,9 +3840,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Poison',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Poison') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 304,
@@ -3490,14 +3857,25 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Psychic') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 248,
 		gen: 2,
 		desc: "Holder's Psychic-type attacks have 1.2x power."
+	},
+	"tyranitarite": {
+		id: "tyranitarite",
+		name: "Tyranitarite",
+		spritenum: 0,
+		megaStone: "Tyranitar-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Tyranitar."
 	},
 	"ultraball": {
 		id: "ultraball",
@@ -3506,6 +3884,16 @@ exports.BattleItems = {
 		num: 2,
 		gen: 1,
 		desc: "An ultra-performance Ball that provides a higher catch rate than a Great Ball."
+	},
+	"venusaurite": {
+		id: "venusaurite",
+		name: "Venusaurite",
+		spritenum: 0,
+		megaStone: "Venusaur-Mega",
+		onTakeItem: false,
+		num: -6,
+		gen: 6,
+		desc: "Mega-evolves Venusaur."
 	},
 	"wacanberry": {
 		id: "wacanberry",
@@ -3516,11 +3904,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Electric"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Electric' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -3534,11 +3922,12 @@ exports.BattleItems = {
 		name: "Water Gem",
 		spritenum: 528,
 		isGem: true,
-		onBasePowerMultiplier: function(multiplier, user, target, move) {
+		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Water') {
-				if (user.useItem()) {
-					this.add('-enditem', user, 'Water Gem', '[from] gem', '[move] '+move.name);
-					return multiplier * 1.5;
+				if (source.useItem()) {
+					this.add('-enditem', source, 'Water Gem', '[from] gem', '[move] '+move.name);
+					source.addVolatile('gem');
 				}
 			}
 		},
@@ -3566,9 +3955,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Water') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 317,
@@ -3673,9 +4063,10 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10
 		},
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.category === 'Special') {
-				return basePower * 1.1;
+				return this.chainModify(1.1);
 			}
 		},
 		num: 267,
@@ -3691,11 +4082,11 @@ exports.BattleItems = {
 			basePower: 60,
 			type: "Ice"
 		},
-		onSourceBasePower: function(basePower, user, target, move) {
+		onSourceModifyDamage: function(damage, source, target, move) {
 			if (move.type === 'Ice' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
 				if (target.eatItem()) {
 					this.debug('-50% reduction');
-					return basePower * 0.5;
+					return this.chainModify(0.5);
 				}
 			}
 		},
@@ -3712,9 +4103,10 @@ exports.BattleItems = {
 			basePower: 90
 		},
 		onPlate: 'Electric',
+		onBasePowerPriority: 6,
 		onBasePower: function(basePower, user, target, move) {
 			if (move.type === 'Electric') {
-				return basePower * 1.2;
+				return this.chainModify(1.2);
 			}
 		},
 		num: 300,

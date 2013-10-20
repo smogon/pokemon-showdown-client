@@ -198,10 +198,10 @@
 			if (!ability) continue;
 
 			if (i === '1') buf += '<br />';
-			if (i === 'DW') ability = '</span><span class="col abilitycol"><em>'+pokemon.abilities[i]+'</em>';
+			if (i === 'H') ability = '</span><span class="col abilitycol"><em>'+pokemon.abilities[i]+'</em>';
 			buf += ability;
 		}
-		if (!pokemon.abilities['DW']) buf += '</span><span class="col abilitycol">';
+		if (!pokemon.abilities['H']) buf += '</span><span class="col abilitycol">';
 		buf += '</span>';
 		buf += '</span>';
 
@@ -267,10 +267,10 @@
 			if (!ability) continue;
 
 			if (i === '1') buf += '<br />';
-			if (i === 'DW') ability = '</span><span class="col abilitycol"><em>'+pokemon.abilities[i]+'</em>';
+			if (i === 'H') ability = '</span><span class="col abilitycol"><em>'+pokemon.abilities[i]+'</em>';
 			buf += ability;
 		}
-		if (!pokemon.abilities['DW']) buf += '</span><span class="col abilitycol">';
+		if (!pokemon.abilities['H']) buf += '</span><span class="col abilitycol">';
 		buf += '</span>';
 		buf += '</span>';
 

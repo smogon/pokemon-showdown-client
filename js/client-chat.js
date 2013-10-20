@@ -23,7 +23,10 @@
 		updateUser: function() {
 			var name = app.user.get('name');
 			var userid = app.user.get('userid');
-			if (!name) {
+			if (this.expired) {
+				this.$chatAdd.html('This room is expired');
+				this.$chatbox = null;
+			} else if (!name) {
 				this.$chatAdd.html('Connecting...');
 				this.$chatbox = null;
 			} else if (!app.user.get('named')) {
@@ -390,6 +393,15 @@
 
 			switch (cmd.toLowerCase()) {
 			case 'challenge':
+				var targets = target.split(',').map($.trim);
+				
+				if (!targets[0]) targets[0] = prompt('Who?');
+				target = toId(targets[0]);
+				this.challengeData = { userid: target, format: targets[1] || '', team: targets[2] || '' };
+				app.on('response:userdetails', this.challengeUserdetails, this);
+				app.send('/cmd userdetails '+target);
+				return false;
+
 			case 'user':
 			case 'open':
 				if (!target) target = prompt('Who?');
@@ -598,6 +610,23 @@
 			}
 
 			return text;
+		},
+
+		challengeData: {},
+		challengeUserdetails: function (data) {
+			app.off('response:userdetails', this.challengeUserdetails);
+
+			if (!data || this.challengeData.userid !== data.userid) return;
+
+			if (data.rooms === false) {
+				this.add('This player does not exist or is not online.');
+				return;
+			}
+
+			app.focusRoom('');
+			var name = data.name || this.challengeData.userid;
+			if (/^[a-z0-9]/i.test(name)) name = ' ' + name;
+			app.rooms[''].challenge(name, this.challengeData.format, this.challengeData.team);
 		}
 	});
 
@@ -705,12 +734,18 @@
 
 				case 'title':
 					this.title = row[1];
+					app.topbar.updateTabbar();
 					break;
 
 				case 'c':
 				case 'chat':
 					if (/[a-zA-Z0-9]/.test(row[1].charAt(0))) row[1] = ' '+row[1];
 					this.addChat(row[1], row.slice(2).join('|'));
+					break;
+
+				case 'tc':
+					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' '+row[2];
+					this.addChat(row[2], row.slice(3).join('|'), false, row[1]);
 					break;
 
 				case 'b':
@@ -916,7 +951,7 @@
 			}
 			this.$joinLeave.html('<small style="color: #555555">' + message + '</small>');
 		},
-		addChat: function(name, message, pm) {
+		addChat: function(name, message, pm, deltatime) {
 			var userid = toUserid(name);
 			var color = hashColor(userid);
 
@@ -940,7 +975,7 @@
 			}
 			var highlight = isHighlighted ? ' highlighted' : '';
 			var chatDiv = '<div class="chat' + highlight + '">';
-			var timestamp = ChatRoom.getTimestamp('lobby');
+			var timestamp = ChatRoom.getTimestamp('lobby', deltatime);
 			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
 			var self = this;
 			var outputChat = function() {
@@ -989,11 +1024,15 @@
 			}
 		}
 	}, {
-		getTimestamp: function(section) {
+		getTimestamp: function(section, deltatime) {
 			var pref = Tools.prefs('timestamps') || {};
 			var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
 			if ((sectionPref === 'off') || (sectionPref === undefined)) return '';
-			var date = new Date();
+			if (!deltatime || isNaN(deltatime)) {
+				var date = new Date();
+			} else {
+				var date = new Date(Date.now() - deltatime * 1000);
+			}
 			var components = [ date.getHours(), date.getMinutes() ];
 			if (sectionPref === 'seconds') {
 				components.push(date.getSeconds());

@@ -34,7 +34,8 @@
 			'change .detailsform input': 'detailsChange',
 
 			// stats
-			'keyup .statform input.numform': 'statKeyUp',
+			'keyup .statform input.numform': 'statChange',
+			'input .statform input[type=number].numform': 'statChange',
 			'change select[name=nature]': 'natureChange',
 
 			// teambuilder events
@@ -194,6 +195,7 @@
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
 			Storage.deleteTeam(this.deletedTeam);
+			this.update();
 		},
 		undoDelete: function() {
 			if (this.deletedTeamLoc >= 0) {
@@ -202,6 +204,7 @@
 				this.deletedTeam = null;
 				this.deletedTeamLoc = -1;
 				Storage.saveTeam(undeletedTeam);
+				this.update();
 			}
 		},
 		saveBackup: function() {
@@ -836,7 +839,7 @@
 				}
 			}
 		},
-		statKeyUp: function(e) {
+		statChange: function(e) {
 			var inputName = '';
 			inputName = e.currentTarget.name;
 			var val = Math.abs(parseInt(e.currentTarget.value, 10));
@@ -1040,17 +1043,17 @@
 				if (!pokemon) {
 					if (this.curTeam) {
 						if (this.curTeam.format === 'uber') return ['Uber','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'cap') return ['G5CAP','G4CAP','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'ou') return ['OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'uu') return ['UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'ru') return ['RU','BL3','NU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'nu') return ['NU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'lc') return ['LC','NU'];
 					}
-					return ['OU','Unreleased','Uber','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC','G5CAP','G4CAP'];
+					return ['OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC','CAP'];
 				}
 				var tierData = exports.BattleFormatsData[toId(pokemon.species)];
-				if (!tierData) return 'Limbo';
+				if (!tierData) return 'Illegal';
 				return tierData.tier;
 			},
 			item: function(item) {
@@ -1059,12 +1062,12 @@
 			},
 			ability: function(ability) {
 				if (!this.curSet) return;
-				if (!ability) return ['Abilities', 'Dream World Ability'];
+				if (!ability) return ['Abilities', 'Hidden Ability'];
 				var template = Tools.getTemplate(this.curSet.species);
 				if (!template.abilities) return 'Abilities';
 				if (ability.name === template.abilities['0']) return 'Abilities';
 				if (ability.name === template.abilities['1']) return 'Abilities';
-				if (ability.name === template.abilities['DW']) return 'Dream World Ability';
+				if (ability.name === template.abilities['H']) return 'Hidden Ability';
 				return 'Illegal';
 			},
 			move: function(move) {
@@ -1775,6 +1778,9 @@
 				} else if (line.substr(0, 7) === 'Trait: ') {
 					line = line.substr(7);
 					curSet.ability = line;
+				} else if (line.substr(0, 9) === 'Ability: ') {
+					line = line.substr(9);
+					curSet.ability = line;
 				} else if (line === 'Shiny: Yes') {
 					curSet.shiny = true;
 				} else if (line.substr(0, 7) === 'Level: ') {
@@ -1863,7 +1869,7 @@
 				}
 				text += "\n";
 				if (curSet.ability) {
-					text += 'Trait: '+curSet.ability+"\n";
+					text += 'Ability: '+curSet.ability+"\n";
 				}
 				if (curSet.level && curSet.level != 100) {
 					text += 'Level: '+curSet.level+"\n";

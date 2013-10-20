@@ -265,7 +265,19 @@ var baseSpeciesChart = {
 	'thundurus': 1,
 	'landorus': 1,
 	'kyurem': 1,
-	'keldeo': 1
+	'keldeo': 1,
+	'aegislash': 1,
+
+	// mega evolutions
+	'charizard': 1,
+	'blastoise': 1,
+	'venusaur': 1,
+	'ampharos': 1,
+	'mawile': 1,
+	'garchomp': 1,
+	'lucario': 1,
+	'absol': 1,
+	'mewtwo': 1
 };
 
 var Tools = {
@@ -385,6 +397,18 @@ var Tools = {
 		// **bold**
 		str = str.replace(/\*\*([^< ]([^<]*?[^< ])?)\*\*/g,
 			options.hidebold ? '$1' : '<b>$1</b>');
+
+		if (!options.hidespoiler) {
+			var spoilerIndex = str.toLowerCase().indexOf('spoiler:');
+			if (spoilerIndex < 0) spoilerIndex = str.toLowerCase().indexOf('spoilers:');
+			if (spoilerIndex >= 0) {
+				var offset = spoilerIndex+8;
+				if (str.charAt(offset) === ':') offset++;
+				if (str.charAt(offset) === ' ') offset++;
+				str = str.substr(0, offset)+'<span class="spoiler">'+str.substr(offset)+'</span>';
+			}
+		}
+
 		return str;
 	},
 
@@ -535,8 +559,11 @@ var Tools = {
 			prefs.data[prop] = value;
 			if (save !== false) prefs.save();
 		};
-		prefs.data = (window.localStorage &&
-			$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
+		prefs.data = {};
+		try {
+			prefs.data = (window.localStorage &&
+				$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
+		} catch (e) {}
 		prefs.save = function() {
 			if (!window.localStorage) return;
 			localStorage.setItem(localStorageEntry, $.toJSON(this.data));
@@ -685,7 +712,15 @@ var Tools = {
 			if (!template.baseSpecies) template.baseSpecies = name;
 			if (!template.forme) template.forme = '';
 			if (!template.formeLetter) template.formeLetter = '';
-			if (!template.spriteid) template.spriteid = toId(template.baseSpecies)+(template.baseSpecies!==name?'-'+toId(template.forme):'');
+			if (!template.spriteid) {
+				var formeid = '';
+				if (template.baseSpecies !== name) {
+					formeid = '-'+toId(template.forme);
+					if (formeid === '-megax') formeid = '-mega-x';
+					if (formeid === '-megay') formeid = '-mega-y';
+				}
+				template.spriteid = toId(template.baseSpecies)+formeid;
+			}
 			if (!template.effectType) template.effectType = 'Template';
 		}
 		return template;
@@ -797,6 +832,7 @@ var Tools = {
 		else if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) num = BattlePokemonSprites[id].num;
 		else if (window.BattlePokedex && window.BattlePokedex[id] && BattlePokedex[id].num) num = BattlePokedex[id].num;
 		if (num < 0) num = 0;
+		if (num > 649) num = 0;
 		var altNums = {
 			"egg": 651,
 			"rotomfan": 699,
