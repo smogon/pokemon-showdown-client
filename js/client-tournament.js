@@ -59,8 +59,6 @@
 			innerX = e.pageX - this.offsetLeft;
 			innerY = e.pageY - this.offsetTop;
 			isMouseDown = true;
-		}).on('mouseup', function () {
-			isMouseDown = false;
 		});
 
 		$(document).on('mousemove', function (e) {
@@ -74,6 +72,8 @@
 					top: position.top
 				});
 			}
+		}).on('mouseup', function () {
+			isMouseDown = false;
 		});
 	}
 
