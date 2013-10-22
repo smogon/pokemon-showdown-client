@@ -906,7 +906,10 @@ exports.BattleAbilities = {
 	"grasspelt": {
 		desc: "This Pokemon's Defense is boosted in Grassy Terrain",
 		shortDesc: "This Pokemon's Defense is boosted in Grassy Terrain.",
-		//todo
+		onModifyDefPriority: 6,
+		onModifyDef: function(pokemon) {
+			if (this.pseudoWeather['grassyterrain']) return this.chainModify(1.5);
+		},
 		id: "grasspelt",
 		name: "Grass Pelt",
 		rating: 2,
@@ -1129,8 +1132,8 @@ exports.BattleAbilities = {
 		shortDesc: "On switch-in, this Pokemon copies the foe it's facing; stats, moves, types, Ability.",
 		onStart: function(pokemon) {
 			var target = pokemon.side.foe.active[pokemon.side.foe.active.length-1-pokemon.position];
-			if (target && pokemon.transformInto(target, pokemon)) {
-				this.add('-transform', pokemon, target);
+			if (target) {
+				pokemon.transformInto(target, pokemon);
 			}
 		},
 		id: "imposter",
@@ -1919,7 +1922,7 @@ exports.BattleAbilities = {
 		desc: "Changes user's type to match the user's current move before it attacks.",
 		shortDesc: "Changes user's type to match its move.",
 		onBeforeMove: function(pokemon, target, move) {
-			if (move && !pokemon.hasType(move.type)) {
+			if (move && pokemon.types.join() !== move.type) {
 				this.add('-start', pokemon, 'typechange', move.type, '[from] Protean');
 				pokemon.types = [move.type];
 			}
