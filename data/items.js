@@ -2125,6 +2125,22 @@ exports.BattleItems = {
 		gen: 3,
 		desc: "Holder cures itself if it is confused or has a major status problem. Single use."
 	},
+	"luminousmoss": {
+		id: "luminousmoss",
+		name: "Luminous Moss",
+		spritenum: 0,
+		fling: {
+			basePower: 30
+		},
+		onAfterDamage: function(damage, target, source, move) {
+			if (move.type === 'Water' && target.useItem()) {
+				this.boost({spd: 1});
+			}
+		},
+		num: -6,
+		gen: 6,
+		desc: "Raises Special Defense by 1 if hit by a Water-type attack. Single use."
+	},
 	"lureball": {
 		id: "lureball",
 		name: "Lure Ball",
@@ -3247,6 +3263,28 @@ exports.BattleItems = {
 		gen: 4,
 		desc: "Holder's Grass-type attacks have 1.2x power."
 	},
+	"roseliberry": {
+		id: "roseliberry",
+		name: "Roseli Berry",
+		spritenum: 0,
+		isBerry: true,
+		naturalGift: {
+			basePower: 60,
+			type: "Fairy"
+		},
+		onSourceModifyDamage: function(damage, source, target, move) {
+			if (move.type === 'Fairy' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
+				if (target.eatItem()) {
+					this.debug('-50% reduction');
+					return this.chainModify(0.5);
+				}
+			}
+		},
+		onEat: function() { },
+		num: -6,
+		gen: 6,
+		desc: "Halves damage taken from a super effective Fairy-type attack. Single use."
+	},
 	"rowapberry": {
 		id: "rowapberry",
 		name: "Rowap Berry",
@@ -3964,6 +4002,19 @@ exports.BattleItems = {
 		num: 317,
 		gen: 4,
 		desc: "Holder's Water-type attacks have 1.2x power."
+	},
+	"weaknesspolicy": {
+		id: "weaknesspolicy",
+		name: "Weakness Policy",
+		spritenum: 0,
+		onHit: function(target, source, move) {
+			if (target.hp && move.category !== 'Status' && this.getEffectiveness(move.type, target) > 0 && target.useItem()) {
+				this.boost({atk: 2, spa: 2});
+			}
+		},
+		num: -6,
+		gen: 6,
+		desc: "Attack and Sp. Atk sharply increase when hit super effectively. Single use."
 	},
 	"wepearberry": {
 		id: "wepearberry",
