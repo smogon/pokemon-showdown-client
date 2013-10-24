@@ -3443,7 +3443,12 @@ function Battle(frame, logFrame, noPreload) {
 					self.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				case 'frisk':
-					actions += "" + ofpoke.getName() + " frisked its target and found one " + item.name + "!";
+					if (kwargs.identify) { // used for gen 6
+						actions += '' + ofpoke.getName() + ' frisked ' + poke.getLowerName() + ' and found its ' + item.name + '!';
+						self.resultAnim(poke, item.name, 'neutral', animDelay);
+					} else {
+						actions += '' + ofpoke.getName() + ' frisked its target and found one ' + item.name + '!';
+					}
 					break;
 				case 'thief':
 				case 'covet':
