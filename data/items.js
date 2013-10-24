@@ -1843,6 +1843,23 @@ exports.BattleItems = {
 		gen: 4,
 		desc: "Halves damage taken from a super effective Poison-type attack. Single use."
 	},
+	"keeberry": {
+		id: "keeberry",
+		name: "Kee Berry",
+		spritenum: 0,
+		isBerry: true,
+		onAfterDamage: function(damage, target, source, move) {
+			if (move.category === 'Physical') {
+				target.eatItem();
+			}
+		},
+		onEat: function(pokemon) {
+			this.boost({def: 1});
+		},
+		num: -6,
+		gen: 6,
+		desc: "Raises Defense by 1 if hit by a Physical attack. Single use."
+	},
 	"kelpsyberry": {
 		id: "kelpsyberry",
 		name: "Kelpsy Berry",
@@ -2279,6 +2296,23 @@ exports.BattleItems = {
 		num: -6,
 		gen: 6,
 		desc: "Mega-evolves Manectric."
+	},
+	"marangaberry": {
+		id: "marangaberry",
+		name: "Maranga Berry",
+		spritenum: 0,
+		isBerry: true,
+		onAfterDamage: function(damage, target, source, move) {
+			if (move.category === 'Special') {
+				target.eatItem()
+			}
+		},
+		onEat: function(pokemon) {
+			this.boost({spd: 1});
+		},
+		num: -6,
+		gen: 6,
+		desc: "Raises Special Defense by 1 if hit by a Special attack. Single use."
 	},
 	"masterball": {
 		id: "masterball",

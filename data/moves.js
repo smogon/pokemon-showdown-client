@@ -5986,22 +5986,6 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Electric"
 	},
-	"hiddenpowerfairy": {
-		accuracy: 100,
-		basePower: 60,
-		category: "Special",
-		desc: "",
-		shortDesc: "",
-		id: "hiddenpower",
-		isViable: true,
-		name: "Hidden Power Fairy",
-		pp: 15,
-		priority: 0,
-		secondary: false,
-		target: "normal",
-		type: "Fairy",
-		gen: 6
-	},
 	"hiddenpowerfighting": {
 		accuracy: 100,
 		basePower: 60,
@@ -13659,6 +13643,7 @@ exports.BattleMovedex = {
 		name: "Topsy-turvy",
 		pp: 10,
 		priority: 0,
+		isBounceable: true,
 		onHit: function(target) {
 			var targetBoosts = {};
 
