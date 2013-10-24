@@ -1042,15 +1042,15 @@
 			pokemon: function(pokemon) {
 				if (!pokemon) {
 					if (this.curTeam) {
-						if (this.curTeam.format === 'uber') return ['Uber','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'ou') return ['OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'uu') return ['UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'ru') return ['RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'nu') return ['NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'lc') return ['LC','NU'];
+						if (this.curTeam.format === 'gen5uber') return ['Uber','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'cap') return ['CAP','OU','Limbo','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5ou') return ['OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5uu') return ['UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5ru') return ['RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5nu') return ['NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5lc') return ['LC','NU'];
 					}
-					return ['OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC','CAP'];
+					return ['OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','Unreleased','Limbo NFE','NFE','LC Uber','LC','CAP'];
 				}
 				var tierData = exports.BattleFormatsData[toId(pokemon.species)];
 				if (!tierData) return 'Illegal';
