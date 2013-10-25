@@ -524,6 +524,7 @@
 					if (BattleFormats['randombattle']) {
 						this.curFormat = 'randombattle';
 					} else for (var i in BattleFormats) {
+						if (!BattleFormats[i].searchShow || !BattleFormats[i].challengeShow) continue;
 						this.curFormat = i;
 						break;
 					}
