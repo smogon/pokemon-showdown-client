@@ -613,6 +613,12 @@
 				this.updateDetailsForm();
 				return;
 			}
+
+			// cache movelist ref
+			var speciesid = toId(this.curSet.species);
+			var g6 = (this.curTeam.format && this.curTeam.format.substr(0,3) !== 'gen' && this.curTeam.format.substr(0,8) !== 'pokebank');
+			this.movelist = (g6 ? Tools.g6movelists[speciesid] : Tools.movelists[speciesid]);
+
 			this.$chart.html('<em>Loading '+this.curChartType+'...</em>');
 			var self = this;
 			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
@@ -624,6 +630,11 @@
 		},
 		updateChartTimeout: null,
 		updateChartDelayed: function() {
+			// cache movelist ref
+			var speciesid = toId(this.curSet.species);
+			var g6 = (this.curTeam.format && this.curTeam.format.substr(0,3) !== 'gen' && this.curTeam.format.substr(0,8) !== 'pokebank');
+			this.movelist = (g6 ? Tools.g6movelists[speciesid] : Tools.movelists[speciesid]);
+
 			var self = this;
 			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
 			this.updateChartTimeout = setTimeout(function() {
@@ -1073,8 +1084,7 @@
 			move: function(move) {
 				if (!this.curSet) return;
 				if (!move) return ['Viable Moves', 'Usable Moves', 'Moves', 'Usable Sketch Moves', 'Sketch Moves'];
-				var id = toId(this.curSet.species);
-				var movelist = Tools.movelists[id];
+				var movelist = this.movelist;
 				if (!movelist) return 'Illegal';
 				if (!movelist[move.id]) {
 					if (movelist['sketch']) {
@@ -1083,7 +1093,8 @@
 					}
 					return 'Illegal';
 				}
-				if (BattleFormatsData && BattleFormatsData[id] && BattleFormatsData[id].viableMoves && BattleFormatsData[id].viableMoves[move.id]) return 'Viable Moves';
+				var speciesid = toId(this.curSet.species);
+				if (window.BattleFormatsData && BattleFormatsData[speciesid] && BattleFormatsData[speciesid].viableMoves && BattleFormatsData[speciesid].viableMoves[move.id]) return 'Viable Moves';
 				if (move.isViable) return 'Usable Moves';
 				return 'Moves';
 			}
@@ -1694,15 +1705,18 @@
 		buildMovelists: function() {
 			if (!window.BattlePokedex) return;
 			Tools.movelists = {};
+			Tools.g6movelists = {};
 			for (var pokemon in window.BattlePokedex) {
 				var template = Tools.getTemplate(pokemon);
 				var moves = {};
+				var g6moves = {};
 				var alreadyChecked = {};
 				do {
 					alreadyChecked[template.speciesid] = true;
 					if (template.learnset) {
 						for (var l in template.learnset) {
 							moves[l] = true;
+							if (template.learnset[l].length) g6moves[l] = true;
 						}
 					}
 					if (template.speciesid === 'shaymin') {
@@ -1714,6 +1728,7 @@
 					}
 				} while (template && template.species && !alreadyChecked[template.speciesid]);
 				Tools.movelists[pokemon] = moves;
+				Tools.g6movelists[pokemon] = g6moves;
 			}
 		},
 		destroy: function() {
