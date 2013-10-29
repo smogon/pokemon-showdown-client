@@ -2875,7 +2875,7 @@ function Battle(frame, logFrame, noPreload) {
 						actions += "" + poke.getName() + " is hurt by the sea of fire!";
 						break;
 					case 'jumpkick':
-					case 'hijumpkick':
+					case 'highjumpkick':
 						actions += "" + poke.getName() + " kept going and crashed!";
 						break;
 					default:
