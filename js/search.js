@@ -61,6 +61,8 @@
 		var bufs = ['','','',''];
 		var topbufIndex = -1;
 
+		var nearMatch = (BattleSearchIndex[i].substr(0,query.length) !== query);
+		if (nearMatch && i) i--;
 		for (var j=0; j<15; j++) {
 			var id = BattleSearchIndex[i+j];
 			var type = BattleSearchIndexType[i+j];
@@ -68,7 +70,7 @@
 
 			if (!id) break;
 			if (id.substr(0,query.length) !== query) {
-				if (j) break;
+				if (!(nearMatch && j<=1)) break;
 				matchLength = 0;
 			}
 			if (j === 0 && this.exactMatch) {
@@ -76,7 +78,6 @@
 			}
 
 			if (!bufs[typeTable[type]]) bufs[typeTable[type]] = '<li><h3>'+typeName[type]+'</h3></li>';
-			if (!matchLength) bufs[typeTable[type]] = '<li class="notfound"><em>No exact match found. The next match alphabetically is:</em></li>'+bufs[typeTable[type]];
 			bufs[typeTable[type]] += Search.renderRow(id, type, 0, matchLength + (BattleSearchIndexOffset[i+j][matchLength-1]||'0').charCodeAt(0)-48);
 		}
 
@@ -85,6 +86,8 @@
 			topbuf = bufs[topbufIndex];
 			bufs[topbufIndex] = '';
 		}
+
+		if (nearMatch) topbuf = '<li class="notfound"><em>No exact match found. The closest matches alphabetically are:</em></li>'+topbuf;
 
 		this.el.innerHTML = '<ul class="utilichart">'+topbuf+bufs.join('')+'</ul>';
 		return true;
