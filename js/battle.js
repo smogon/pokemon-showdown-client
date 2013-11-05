@@ -3592,6 +3592,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'unnerve':
 					actions += "" + poke.getName() + "'s Unnerve makes " + this.getSide(args[3]).getLowerTeamName() + " too nervous to eat Berries!";
 					break;
+				case 'aurabreak':
+					actions += "" + poke.getName() + " reversed all other Pokémon's auras!";
+					break;
 				default:
 					actions += "" + poke.getName() + " has " + ability.name + "!";
 					break;
