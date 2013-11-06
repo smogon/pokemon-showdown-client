@@ -9,7 +9,7 @@ Ratings and how they work:
 
 -1: Detrimental
 	  An ability that does more harm than good.
-	ex. Defeatist, Klutz
+	ex. Defeatist, Normalize
 
  0: Useless
 	  An ability with no net effect on a Pokemon during a battle.
@@ -18,7 +18,7 @@ Ratings and how they work:
  1: Ineffective
 	  An ability that has a minimal effect. Should never be chosen over
 	  any other ability.
-	ex. Pressure, Damp
+	ex. Damp, Shell Armor
 
  2: Situationally useful
 	  An ability that can be useful in certain situations.
@@ -31,11 +31,11 @@ Ratings and how they work:
  4: Very useful
 	  One of the most popular abilities. The difference between 3 and 4
 	  can be ambiguous.
-	ex. Technician, Intimidate
+	ex. Technician, Protean
 
  5: Essential
 	  The sort of ability that defines metagames.
-	ex. Drizzle, Magnet Pull
+	ex. Drizzle, Shadow Tag
 
 */
 
@@ -65,8 +65,8 @@ exports.BattleAbilities = {
 		num: 106
 	},
 	"aerilate": {
-		desc: "Turns all of this Pokemon's Normal-typed attacks into Flying-typed. Does 1.3x damage. Does not affect Hidden Power.",
-		shortDesc: "This Pokemon's Normal moves become Flying. Does 1.3x damage.",
+		desc: "Turns all of this Pokemon's Normal-typed attacks into Flying-type and deal 1.3x damage. Does not affect Hidden Power.",
+		shortDesc: "This Pokemon's Normal moves become Flying-type and do 1.3x damage.",
 		onModifyMove: function(move, pokemon) {
 			if (move.type === 'Normal' && move.id !== 'hiddenpower') {
 				move.type = 'Flying';
@@ -169,15 +169,25 @@ exports.BattleAbilities = {
 		rating: 5,
 		num: 71
 	},
+	"aromaveil": {
+		desc: "Protects allies from attacks that limit their move choices.",
+		shortDesc: "Protects allies from attacks that limit their move choices.",
+		//todo
+		id: "aromaveil",
+		name: "Aroma Veil",
+		rating: 0,
+		num: -6,
+		gen: 6
+	},
 	"aurabreak": {
 		desc: "Reverses the effect of Dark Aura and Fairy Aura.",
 		shortDesc: "Reverses the effect of Aura abilities.",
 		onStart: function(pokemon) {
-			this.add('-message', 'The effects of aura abilities are reversed. (placeholder)');
+			this.add('-ability', pokemon, 'Aura Break');
 		},
 		id: "aurabreak",
 		name: "Aura Break",
-		rating: 3,
+		rating: 2,
 		num: -6,
 		gen: 6
 	},
@@ -245,6 +255,21 @@ exports.BattleAbilities = {
 		rating: 2,
 		num: 66
 	},
+	"bulletproof": {
+		desc: "This Pokemon is protected from some Ball and Bomb moves.",
+		shortDesc: "This Pokemon is protected from ball and bomb moves.",
+		onTryHit: function(pokemon, target, move) {
+			if (move.isBallMove || move.isBombMove) {
+				this.add('-immune', pokemon, '[msg]', '[from] Bulletproof');
+				return null;
+			}
+		},
+		id: "bulletproof",
+		name: "Bulletproof",
+		rating: 3,
+		num: -6,
+		gen: 6
+	},
 	"cheekpouch": {
 		desc: "Increases HP when this Pokemon consumes a berry.",
 		shortDesc: "Increases HP when this Pokemon consumes a berry.",
@@ -255,7 +280,7 @@ exports.BattleAbilities = {
 		},
 		id: "cheekpouch",
 		name: "Cheek Pouch",
-		rating: 3,
+		rating: 2,
 		num: -6,
 		gen: 6
 	},
@@ -887,7 +912,7 @@ exports.BattleAbilities = {
 		},
 		id: "galewings",
 		name: "Gale Wings",
-		rating: 3.5,
+		rating: 4.5,
 		num: -6,
 		gen: 6
 	},
@@ -896,7 +921,7 @@ exports.BattleAbilities = {
 		shortDesc: "When this Pokemon has 1/2 or less of its max HP, it uses certain Berries early.",
 		id: "gluttony",
 		name: "Gluttony",
-		rating: 0,
+		rating: 1.5,
 		num: 82
 	},
 	"gooey": {
@@ -907,7 +932,7 @@ exports.BattleAbilities = {
 		},
 		id: "gooey",
 		name: "Gooey",
-		rating: 3.5,
+		rating: 3,
 		num: -6,
 		gen: 6
 	},
@@ -1004,7 +1029,7 @@ exports.BattleAbilities = {
 		},
 		id: "heavymetal",
 		name: "Heavy Metal",
-		rating: 0,
+		rating: -1,
 		num: 134
 	},
 	"honeygather": {
@@ -1150,12 +1175,12 @@ exports.BattleAbilities = {
 		num: 150
 	},
 	"infiltrator": {
-		desc: "Ignores Reflect, Light Screen and Safeguard under effect on the target.",
-		shortDesc: "This Pokemon's moves ignore the foe's Reflect, Light Screen, Safeguard, and Mist.",
+		desc: "Ignores Substitute, Reflect, Light Screen, and Safeguard on the target.",
+		shortDesc: "This Pokemon's moves ignore the foe's Substitute, Reflect, Light Screen, Safeguard, and Mist.",
 		// Implemented in the corresponding effects.
 		id: "infiltrator",
 		name: "Infiltrator",
-		rating: 1,
+		rating: 2.5,
 		num: 151
 	},
 	"innerfocus": {
@@ -1201,7 +1226,7 @@ exports.BattleAbilities = {
 		},
 		id: "intimidate",
 		name: "Intimidate",
-		rating: 4,
+		rating: 3.5,
 		num: 22
 	},
 	"ironbarbs": {
@@ -1478,7 +1503,7 @@ exports.BattleAbilities = {
 		},
 		id: "magnetpull",
 		name: "Magnet Pull",
-		rating: 5,
+		rating: 4.5,
 		num: 42
 	},
 	"marvelscale": {
@@ -1639,7 +1664,7 @@ exports.BattleAbilities = {
 		},
 		id: "multitype",
 		name: "Multitype",
-		rating: 5,
+		rating: 4,
 		num: 121
 	},
 	"mummy": {
@@ -1681,7 +1706,7 @@ exports.BattleAbilities = {
 		},
 		id: "noguard",
 		name: "No Guard",
-		rating: 4.5,
+		rating: 4,
 		num: 99
 	},
 	"normalize": {
@@ -1742,7 +1767,7 @@ exports.BattleAbilities = {
 		},
 		id: "overcoat",
 		name: "Overcoat",
-		rating: 1,
+		rating: 2,
 		num: 142
 	},
 	"overgrow": {
@@ -1808,7 +1833,7 @@ exports.BattleAbilities = {
 		},
 		id: "parentalbond",
 		name: "Parental Bond",
-		rating: 3,
+		rating: 4.5,
 		num: -6,
 		gen: 6
 	},
@@ -1858,7 +1883,7 @@ exports.BattleAbilities = {
 		num: 124
 	},
 	"pixilate": {
-		desc: "Turns all of this Pokemon's Normal-typed attacks into Fairy-typed and deal 1.3x damage. Does not affect Hidden Power.",
+		desc: "Turns all of this Pokemon's Normal-typed attacks into Fairy-type and deal 1.3x damage. Does not affect Hidden Power.",
 		shortDesc: "This Pokemon's Normal moves become Fairy-type and do 1.3x damage.",
 		onModifyMove: function(move, pokemon) {
 			if (move.type === 'Normal' && move.id !== 'hiddenpower') {
@@ -1972,7 +1997,7 @@ exports.BattleAbilities = {
 		},
 		id: "pressure",
 		name: "Pressure",
-		rating: 2,
+		rating: 1.5,
 		num: 46
 	},
 	"protean": {
@@ -1988,7 +2013,7 @@ exports.BattleAbilities = {
 		},
 		id: "protean",
 		name: "Protean",
-		rating: 1.5,
+		rating: 4,
 		num: -6,
 		gen: 6
 	},
@@ -2088,7 +2113,7 @@ exports.BattleAbilities = {
 		},
 		id: "regenerator",
 		name: "Regenerator",
-		rating: 4.5,
+		rating: 4,
 		num: 144
 	},
 	"rivalry": {
@@ -2188,7 +2213,7 @@ exports.BattleAbilities = {
 		},
 		id: "sandstream",
 		name: "Sand Stream",
-		rating: 5,
+		rating: 4.5,
 		num: 45
 	},
 	"sandveil": {
@@ -2206,7 +2231,7 @@ exports.BattleAbilities = {
 		},
 		id: "sandveil",
 		name: "Sand Veil",
-		rating: 1,
+		rating: 1.5,
 		num: 8
 	},
 	"sapsipper": {
@@ -2423,7 +2448,7 @@ exports.BattleAbilities = {
 		},
 		id: "snowcloak",
 		name: "Snow Cloak",
-		rating: 0.5,
+		rating: 1,
 		num: 81
 	},
 	"snowwarning": {
@@ -2434,7 +2459,7 @@ exports.BattleAbilities = {
 		},
 		id: "snowwarning",
 		name: "Snow Warning",
-		rating: 4.5,
+		rating: 4,
 		num: 117
 	},
 	"solarpower": {
@@ -2894,12 +2919,12 @@ exports.BattleAbilities = {
 		num: 137
 	},
 	"toughclaws": {
-		desc: "This Pokemon's contact attacks do 1.2x damage.",
-		shortDesc: "This Pokemon's contact attacks do 1.2x damage.",
+		desc: "This Pokemon's contact attacks do 1.33x damage.",
+		shortDesc: "This Pokemon's contact attacks do 33% more damage.",
 		onBasePowerPriority: 8,
 		onBasePower: function(basePower, attacker, defender, move) {
 			if (move.isContact) {
-				return this.chainModify(1.2);
+				return this.chainModify(1.33);
 			}
 		},
 		id: "toughclaws",
@@ -2981,7 +3006,7 @@ exports.BattleAbilities = {
 			move.ignoreAccuracy = true;
 			move.ignoreOffensive = true;
 		},
-		rating: 2,
+		rating: 3,
 		num: 109
 	},
 	"unburden": {
@@ -3265,7 +3290,7 @@ exports.BattleAbilities = {
 		effect: {
 			duration: 1
 		},
-		rating: 4.5,
+		rating: 4,
 		num: -3
 	},
 	"persistent": {
