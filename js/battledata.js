@@ -294,6 +294,9 @@ var Tools = {
 			// default avatars
 			return Tools.resourcePrefix + 'sprites/trainers/' + avatarnum + '.png';
 		}
+		if (avatar.charAt(0) === '#') {
+			return Tools.resourcePrefix + 'sprites/trainers/' + toId(avatar.substr(1)) + '.png';
+		}
 		if (window.Config && Config.server && Config.server.registered) {
 			// custom avatar served by the server
 			var protocol = (Config.server.port === 443) ? 'https' : 'http';
