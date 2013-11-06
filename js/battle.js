@@ -515,14 +515,14 @@ function Pokemon(species) {
 		if (selfP.side.n === 0) {
 			return Tools.escapeHTML(selfP.name);
 		} else {
-			return "The foe's " + Tools.escapeHTML(selfP.name);
+			return "The opposing " + Tools.escapeHTML(selfP.name);
 		}
 	};
 	this.getLowerName = function () {
 		if (selfP.side.n === 0) {
 			return Tools.escapeHTML(selfP.name);
 		} else {
-			return "the foe's " + Tools.escapeHTML(selfP.name);
+			return "the opposing " + Tools.escapeHTML(selfP.name);
 		}
 	};
 	this.getTitle = function () {
@@ -1563,11 +1563,11 @@ function Battle(frame, logFrame, noPreload) {
 		};
 		this.getTeamName = function () {
 			if (selfS === self.mySide) return "Your team";
-			return "The foe's team";
+			return "The opposing team";
 		};
 		this.getLowerTeamName = function () {
 			if (selfS === self.mySide) return "your team";
-			return "the foe's team";
+			return "the opposing team";
 		};
 		this.updateSidebar = function () {
 			var pokemonhtml = '';
@@ -3381,7 +3381,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'tox':
 				case 'psn':
 					self.resultAnim(poke, 'Poison cured', 'good', animDelay);
-					var n = poke.side.n; // hack for eliminating "the foe's"
+					var n = poke.side.n; // hack for eliminating "the opposing"
 					poke.side.n = 0;
 					actions += "" + poke.getName() + " was cured of its poisoning.";
 					poke.side.n = n;
