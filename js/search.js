@@ -55,7 +55,7 @@
 		}
 
 		var i = Search.getClosest(query);
-		if (!BattleSearchIndex[i] || query === 'metronome' || query === 'psychic') i--;
+		// if (!BattleSearchIndex[i] || query === 'metronome' || query === 'psychic') i--;
 		this.exactMatch = (query === BattleSearchIndex[i]);
 
 		var bufs = ['','','',''];
@@ -398,6 +398,42 @@
 		buf += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
 
 		buf += '</a></li>';
+
+		return buf;
+	};
+	Search.renderMoveRowInner = function(move, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'moves/'+toId(move.name)+'" data-target="push"';
+		var buf = '<a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
+
+		// name
+		var name = move.name;
+		var tagStart = (name.substr(0, 12) === 'Hidden Power' ? 12 : 0);
+		if (tagStart) name = name.substr(0, tagStart) + '<small>'+move.name.substr(tagStart)+'</small>';
+		buf += '<span class="col movenamecol">'+name+'</span> ';
+
+		// error
+		if (errorMessage) {
+			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '</a></li>';
+			return buf;
+		}
+
+		// type
+		buf += '<span class="col typecol">';
+		buf += Tools.getTypeIcon(move.type);
+		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32" />';
+		buf += '</span> ';
+
+		// power, accuracy, pp
+		buf += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
+		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />'+(move.pp!==1?move.pp*8/5:move.pp)+'</span> ';
+
+		// desc
+		buf += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
+
+		buf += '</a>';
 
 		return buf;
 	};
