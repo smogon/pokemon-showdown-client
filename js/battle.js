@@ -4180,6 +4180,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'toxicspikes':
 					actions += "Poison spikes were scattered all around the feet of " + side.getLowerTeamName() + "!";
 					break;
+				case 'stickyweb':
+					actions += "A sticky web spreads out beneath " + side.getLowerTeamName() + "'s feet!";
+					break;
 				case 'tailwind':
 					actions += "The tailwind blew from behind " + side.getLowerTeamName() + "!";
 					break;
