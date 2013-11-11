@@ -65,16 +65,11 @@
 			this.updateFormats();
 
 			app.user.on('saveteams', this.updateTeams, this);
-		},
 
-		// news
-
-		addNews: function() {
-			var newsId = '1990';
-			if (newsId === ''+Tools.prefs('readnews')) return;
-			this.$pmBox.prepend('<div class="pm-window news-embed" data-newsid="'+newsId+'"><h3><button class="closebutton" tabindex="-1"><i class="icon-remove-sign"></i></button>Latest News</h3><div class="pm-log" style="overflow:visible;height:400px;max-height:none">' +
-				'<iframe src="/news-embed.php?news'+(window.nodewebkit || document.location.protocol === 'https:'?'&amp;https':'')+'" width="270" height="400" border="0" style="border:0;width:100%;height:400px"></iframe>' +
-				'</div></div>');
+			// remove the news box if they've already read it
+			if ($('.news-embed').data('newsid') === Tools.prefs('readnews')) {
+				$('.news-embed').remove();
+			}
 		},
 
 		/*********************************************************
@@ -182,7 +177,7 @@
 				$pmWindow = $(e.currentTarget).closest('.pm-window');
 				var newsId = $pmWindow.data('newsid');
 				if (newsId) {
-					$.cookie('showdown_readnews', ''+newsId, {expires: 365});
+					Tools.prefs('readnews', newsId);
 				}
 				$pmWindow.remove();
 				return;
