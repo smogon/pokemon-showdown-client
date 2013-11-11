@@ -2196,6 +2196,7 @@ function Battle(frame, logFrame, noPreload) {
 				protect: '<span class="good">Protect</span>',
 				quickguard: '<span class="good">Quick&nbsp;Guard</span>',
 				wideguard: '<span class="good">Wide&nbsp;Guard</span>',
+				kingsshield: '<span class="good">King\'s&nbsp;Shield</span>',
 				helpinghand: '<span class="good">Helping&nbsp;Hand</span>',
 				magiccoat: '<span class="good">Magic&nbsp;Coat</span>',
 				destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
