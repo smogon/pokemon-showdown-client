@@ -515,14 +515,14 @@ function Pokemon(species) {
 		if (selfP.side.n === 0) {
 			return Tools.escapeHTML(selfP.name);
 		} else {
-			return "The foe's " + Tools.escapeHTML(selfP.name);
+			return "The opposing " + Tools.escapeHTML(selfP.name);
 		}
 	};
 	this.getLowerName = function () {
 		if (selfP.side.n === 0) {
 			return Tools.escapeHTML(selfP.name);
 		} else {
-			return "the foe's " + Tools.escapeHTML(selfP.name);
+			return "the opposing " + Tools.escapeHTML(selfP.name);
 		}
 	};
 	this.getTitle = function () {
@@ -1563,11 +1563,11 @@ function Battle(frame, logFrame, noPreload) {
 		};
 		this.getTeamName = function () {
 			if (selfS === self.mySide) return "Your team";
-			return "The foe's team";
+			return "The opposing team";
 		};
 		this.getLowerTeamName = function () {
 			if (selfS === self.mySide) return "your team";
-			return "the foe's team";
+			return "the opposing team";
 		};
 		this.updateSidebar = function () {
 			var pokemonhtml = '';
@@ -2875,7 +2875,7 @@ function Battle(frame, logFrame, noPreload) {
 						actions += "" + poke.getName() + " is hurt by the sea of fire!";
 						break;
 					case 'jumpkick':
-					case 'hijumpkick':
+					case 'highjumpkick':
 						actions += "" + poke.getName() + " kept going and crashed!";
 						break;
 					default:
@@ -3381,7 +3381,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'tox':
 				case 'psn':
 					self.resultAnim(poke, 'Poison cured', 'good', animDelay);
-					var n = poke.side.n; // hack for eliminating "the foe's"
+					var n = poke.side.n; // hack for eliminating "the opposing"
 					poke.side.n = 0;
 					actions += "" + poke.getName() + " was cured of its poisoning.";
 					poke.side.n = n;
@@ -3443,7 +3443,12 @@ function Battle(frame, logFrame, noPreload) {
 					self.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				case 'frisk':
-					actions += "" + ofpoke.getName() + " frisked its target and found one " + item.name + "!";
+					if (kwargs.identify) { // used for gen 6
+						actions += '' + ofpoke.getName() + ' frisked ' + poke.getLowerName() + ' and found its ' + item.name + '!';
+						self.resultAnim(poke, item.name, 'neutral', animDelay);
+					} else {
+						actions += '' + ofpoke.getName() + ' frisked its target and found one ' + item.name + '!';
+					}
 					break;
 				case 'thief':
 				case 'covet':
@@ -3586,6 +3591,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'unnerve':
 					actions += "" + poke.getName() + "'s Unnerve makes " + this.getSide(args[3]).getLowerTeamName() + " too nervous to eat Berries!";
+					break;
+				case 'aurabreak':
+					actions += "" + poke.getName() + " reversed all other Pokémon's auras!";
 					break;
 				default:
 					actions += "" + poke.getName() + " has " + ability.name + "!";
@@ -4172,6 +4180,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'toxicspikes':
 					actions += "Poison spikes were scattered all around the feet of " + side.getLowerTeamName() + "!";
 					break;
+				case 'stickyweb':
+					actions += "A sticky web spreads out beneath " + side.getLowerTeamName() + "'s feet!";
+					break;
 				case 'tailwind':
 					actions += "The tailwind blew from behind " + side.getLowerTeamName() + "!";
 					break;
@@ -4396,6 +4407,7 @@ function Battle(frame, logFrame, noPreload) {
 	} */
 	this.parseDetails = function (name, pokemonid, details, output) {
 		if (!output) output = {};
+		if (!details) details = "";
 		output.details = details;
 		output.name = name;
 		output.species = name;
@@ -4513,7 +4525,7 @@ function Battle(frame, logFrame, noPreload) {
 						pokemon.searchid = searchid;
 						pokemon.ident = pokemonid;
 						if (pokemon.needsReplace) {
-							pokemon = self.p1.newPokemon(self.parseDetails(name, pokemonid, details || ""), i);
+							pokemon = self.p1.newPokemon(self.parseDetails(name, pokemonid, details), i);
 						}
 					}
 					pokemon.slot = slot;

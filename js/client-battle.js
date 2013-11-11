@@ -379,6 +379,9 @@
 					} else {
 						controls += movebuttons;
 					}
+					if (Tools.getItem(switchables[pos].item).megaStone) {
+						controls += '<br /><label><input type="checkbox" name="megaevo" /> Mega evolution</label>'
+					}
 					controls += '<div style="clear:left"></div>';
 					controls += '</div></div><div class="switchcontrols"><div class="switchselect"><button name="selectSwitch">Switch</button></div><div class="switchmenu">';
 					if (trapped) {
@@ -626,9 +629,10 @@
 			var myActive = this.battle.mySide.active;
 			var target = Tools.getMove(move).target;
 			this.hideTooltip();
+			var isMega = !!(this.$('input[name=megaevo]')[0]||'').checked;
 			if (move !== undefined) {
 				var choosableTargets = {normal:1, any:1, adjacentAlly:1, adjacentAllyOrSelf:1, adjacentFoe:1};
-				this.choice.choices.push('move '+move);
+				this.choice.choices.push('move '+move+(isMega?' mega':''));
 				if (myActive.length > 1 && target in choosableTargets) {
 					this.choice.type = 'movetarget';
 					this.choice.moveTarget = target;

@@ -2382,7 +2382,7 @@ var BattleMoveAnims = {
 	pursuit: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
-	hijumpkick: {
+	highjumpkick: {
 		anim: function(battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
@@ -6157,10 +6157,10 @@ BattleMoveAnims['darkpulse'] = {anim:BattleMoveAnims['shadowball'].anim};
 BattleMoveAnims['roaroftime'] = {anim:BattleMoveAnims['dracometeor'].anim};
 BattleMoveAnims['spacialrend'] = {anim:BattleMoveAnims['dracometeor'].anim};
 
-BattleMoveAnims['jumpkick'] = {anim:BattleMoveAnims['hijumpkick'].anim};
-BattleMoveAnims['lowkick'] = {anim:BattleMoveAnims['hijumpkick'].anim};
-BattleMoveAnims['megakick'] = {anim:BattleMoveAnims['hijumpkick'].anim};
-BattleMoveAnims['blazekick'] = {anim:BattleMoveAnims['hijumpkick'].anim};
+BattleMoveAnims['jumpkick'] = {anim:BattleMoveAnims['highjumpkick'].anim};
+BattleMoveAnims['lowkick'] = {anim:BattleMoveAnims['highjumpkick'].anim};
+BattleMoveAnims['megakick'] = {anim:BattleMoveAnims['highjumpkick'].anim};
+BattleMoveAnims['blazekick'] = {anim:BattleMoveAnims['highjumpkick'].anim};
 BattleMoveAnims['meteormash'] = {anim:BattleMoveAnims['hammerarm'].anim};
 BattleMoveAnims['skyuppercut'] = {anim:BattleMoveAnims['hammerarm'].anim};
 BattleMoveAnims['headsmash'] = {anim:BattleMoveAnims['gigaimpact'].anim};

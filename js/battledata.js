@@ -294,6 +294,9 @@ var Tools = {
 			// default avatars
 			return Tools.resourcePrefix + 'sprites/trainers/' + avatarnum + '.png';
 		}
+		if (avatar.charAt(0) === '#') {
+			return Tools.resourcePrefix + 'sprites/trainers/' + toId(avatar.substr(1)) + '.png';
+		}
 		if (window.Config && Config.server && Config.server.registered) {
 			// custom avatar served by the server
 			var protocol = (Config.server.port === 443) ? 'https' : 'http';
@@ -832,64 +835,66 @@ var Tools = {
 		else if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) num = BattlePokemonSprites[id].num;
 		else if (window.BattlePokedex && window.BattlePokedex[id] && BattlePokedex[id].num) num = BattlePokedex[id].num;
 		if (num < 0) num = 0;
-		if (num > 649) num = 0;
+		if (num > 718) num = 0;
 		var altNums = {
-			"egg": 651,
-			"rotomfan": 699,
-			"rotomfrost": 700,
-			"rotomheat": 701,
-			"rotommow": 702,
-			"rotomwash": 703,
-			"giratinaorigin": 705,
-			"shayminsky": 707,
-			"basculinbluestriped": 709,
-			"darmanitanzen": 712,
-			"deoxysattack": 683,
-			"deoxysdefense": 684,
-			"deoxysspeed": 686,
-			"wormadamsandy": 691,
-			"wormadamtrash": 692,
-			"cherrimsunshine": 694,
-			"castformrainy": 680,
-			"castformsnowy": 681,
-			"castformsunny": 682,
-			"meloettapirouette": 724,
-			"tornadustherian": 736,
-			"thundurustherian": 737,
-			"landorustherian": 738,
-			"kyuremblack": 739,
-			"kyuremwhite": 740,
-			"keldeoresolute": 741,
-			"syclant": 752+0,
-			"revenankh": 752+1,
-			"pyroak": 752+2,
-			"fidgit": 752+3,
-			"stratagem": 752+4,
-			"arghonaut": 752+5,
-			"kitsunoh": 752+6,
-			"cyclohm": 752+7,
-			"colossoil": 752+8,
-			"krilowatt": 752+9,
-			"voodoom": 752+10,
-			"tomohawk": 752+11,
-			"necturna": 752+12,
-			"mollux": 752+13,
-			"aurumoth": 752+14,
-			"malaconda": 752+15,
+			"egg": 731,
+			"rotomfan": 779,
+			"rotomfrost": 780,
+			"rotomheat": 781,
+			"rotommow": 782,
+			"rotomwash": 783,
+			"giratinaorigin": 785,
+			"shayminsky": 787,
+			"basculinbluestriped": 789,
+			"darmanitanzen": 792,
+			"deoxysattack": 763,
+			"deoxysdefense": 764,
+			"deoxysspeed": 766,
+			"wormadamsandy": 771,
+			"wormadamtrash": 772,
+			"cherrimsunshine": 774,
+			"castformrainy": 760,
+			"castformsnowy": 761,
+			"castformsunny": 762,
+			"meloettapirouette": 804,
+			"meowsticf": 809,
+			"tornadustherian": 816,
+			"thundurustherian": 817,
+			"landorustherian": 818,
+			"kyuremblack": 819,
+			"kyuremwhite": 820,
+			"keldeoresolute": 821,
+			"syclant": 832+0,
+			"revenankh": 832+1,
+			"pyroak": 832+2,
+			"fidgit": 832+3,
+			"stratagem": 832+4,
+			"arghonaut": 832+5,
+			"kitsunoh": 832+6,
+			"cyclohm": 832+7,
+			"colossoil": 832+8,
+			"krilowatt": 832+9,
+			"voodoom": 832+10,
+			"tomohawk": 832+11,
+			"necturna": 832+12,
+			"mollux": 832+13,
+			"aurumoth": 832+14,
+			"malaconda": 832+15,
 		};
 		if (altNums[id]) {
 			num = altNums[id];
 		}
 		if (pokemon && pokemon.gender === 'F') {
-			if (id === 'unfezant') num = 708;
-			else if (id === 'frillish') num = 721;
-			else if (id === 'jellicent') num = 722;
+			if (id === 'unfezant') num = 788;
+			else if (id === 'frillish') num = 801;
+			else if (id === 'jellicent') num = 802;
+			else if (id === 'meowstic') num = 809;
 		}
 
 		var top = 8 + Math.floor(num / 16) * 32;
 		var left = (num % 16) * 32;
 		var fainted = (pokemon && pokemon.fainted?';opacity:.4':'');
-		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-sheet.png?v0.8.5) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-sheet-g6.png?v0.9xyb1) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
 	getTeambuilderSprite: function(pokemon) {

@@ -613,6 +613,12 @@
 				this.updateDetailsForm();
 				return;
 			}
+
+			// cache movelist ref
+			var speciesid = toId(this.curSet.species);
+			var g6 = (this.curTeam.format && this.curTeam.format.substr(0,3) !== 'gen' && this.curTeam.format.substr(0,8) !== 'pokebank');
+			this.movelist = (g6 ? Tools.g6movelists[speciesid] : Tools.movelists[speciesid]);
+
 			this.$chart.html('<em>Loading '+this.curChartType+'...</em>');
 			var self = this;
 			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
@@ -624,6 +630,11 @@
 		},
 		updateChartTimeout: null,
 		updateChartDelayed: function() {
+			// cache movelist ref
+			var speciesid = toId(this.curSet.species);
+			var g6 = (this.curTeam.format && this.curTeam.format.substr(0,3) !== 'gen' && this.curTeam.format.substr(0,8) !== 'pokebank');
+			this.movelist = (g6 ? Tools.g6movelists[speciesid] : Tools.movelists[speciesid]);
+
 			var self = this;
 			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
 			this.updateChartTimeout = setTimeout(function() {
@@ -1042,15 +1053,15 @@
 			pokemon: function(pokemon) {
 				if (!pokemon) {
 					if (this.curTeam) {
-						if (this.curTeam.format === 'uber') return ['Uber','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'ou') return ['OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'uu') return ['UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'ru') return ['RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'nu') return ['NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'lc') return ['LC','NU'];
+						if (this.curTeam.format === 'gen5uber') return ['Uber','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'cap') return ['CAP','OU','Limbo','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5ou') return ['OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5uu') return ['UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5ru') return ['RU','BL3','NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5nu') return ['NU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'gen5lc') return ['LC','NU'];
 					}
-					return ['OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC','CAP'];
+					return ['OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','Unreleased','Limbo NFE','NFE','LC Uber','LC','CAP'];
 				}
 				var tierData = exports.BattleFormatsData[toId(pokemon.species)];
 				if (!tierData) return 'Illegal';
@@ -1073,8 +1084,7 @@
 			move: function(move) {
 				if (!this.curSet) return;
 				if (!move) return ['Viable Moves', 'Usable Moves', 'Moves', 'Usable Sketch Moves', 'Sketch Moves'];
-				var id = toId(this.curSet.species);
-				var movelist = Tools.movelists[id];
+				var movelist = this.movelist;
 				if (!movelist) return 'Illegal';
 				if (!movelist[move.id]) {
 					if (movelist['sketch']) {
@@ -1083,7 +1093,8 @@
 					}
 					return 'Illegal';
 				}
-				if (BattleFormatsData && BattleFormatsData[id] && BattleFormatsData[id].viableMoves && BattleFormatsData[id].viableMoves[move.id]) return 'Viable Moves';
+				var speciesid = toId(this.curSet.species);
+				if (window.BattleFormatsData && BattleFormatsData[speciesid] && BattleFormatsData[speciesid].viableMoves && BattleFormatsData[speciesid].viableMoves[move.id]) return 'Viable Moves';
 				if (move.isViable) return 'Usable Moves';
 				return 'Moves';
 			}
@@ -1694,15 +1705,18 @@
 		buildMovelists: function() {
 			if (!window.BattlePokedex) return;
 			Tools.movelists = {};
+			Tools.g6movelists = {};
 			for (var pokemon in window.BattlePokedex) {
 				var template = Tools.getTemplate(pokemon);
 				var moves = {};
+				var g6moves = {};
 				var alreadyChecked = {};
 				do {
 					alreadyChecked[template.speciesid] = true;
 					if (template.learnset) {
 						for (var l in template.learnset) {
 							moves[l] = true;
+							if (template.learnset[l].length) g6moves[l] = true;
 						}
 					}
 					if (template.speciesid === 'shaymin') {
@@ -1714,6 +1728,7 @@
 					}
 				} while (template && template.species && !alreadyChecked[template.speciesid]);
 				Tools.movelists[pokemon] = moves;
+				Tools.g6movelists[pokemon] = g6moves;
 			}
 		},
 		destroy: function() {
@@ -1905,13 +1920,14 @@
 						var move = curSet.moves[j];
 						if (move.substr(0,13) === 'Hidden Power ' && move.substr(0,14) !== 'Hidden Power [') {
 							hpType = move.substr(13);
+							if (!exports.BattleTypeChart[hpType].HPivs) {
+								alert("That is not a valid Hidden Power type.");
+								continue;
+							}
 							for (var stat in BattleStatNames) {
-								if (curSet.ivs[stat] !== exports.BattleTypeChart[hpType].HPivs[stat]) {
-									if (!(typeof curSet.ivs[stat] === 'undefined' && exports.BattleTypeChart[hpType].HPivs[stat] == 31) &&
-										!(curSet.ivs[stat] == 31 && typeof exports.BattleTypeChart[hpType].HPivs[stat] === 'undefined')) {
-										defaultIvs = false;
-										break;
-									}
+								if ((curSet.ivs[stat]===undefined?31:curSet.ivs[stat]) !== (exports.BattleTypeChart[hpType].HPivs[stat]||31)) {
+									defaultIvs = false;
+									break;
 								}
 							}
 						}

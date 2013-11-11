@@ -202,6 +202,26 @@ exports.BattleItems = {
 		gen: 3,
 		desc: "Holder is cured if it is frozen. Single use."
 	},
+	"assaultvest": {
+		id: "assaultvest",
+		name: "Assault Vest",
+		spritenum: 0,
+		onModifySpDPriority: 1,
+		onModifySpD: function(spd) {
+			return this.chainModify(1.5);
+		},
+		onModifyPokemon: function(pokemon) {
+			var moves = pokemon.moveset;
+			for (var i=0; i<moves.length; i++) {
+				if (this.getMove(moves[i].move).category === 'Status') {
+					moves[i].disabled = true;
+				}
+			}
+		},
+		num: -7,
+		gen: 6,
+		desc: "Holder's Sp. Def is 1.5x, but it can only use damaging moves."
+	},
 	"babiriberry": {
 		id: "babiriberry",
 		name: "Babiri Berry",
@@ -401,6 +421,7 @@ exports.BattleItems = {
 	"buggem": {
 		id: "buggem",
 		name: "Bug Gem",
+		isUnreleased: true,
 		spritenum: 53,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -802,6 +823,7 @@ exports.BattleItems = {
 	"darkgem": {
 		id: "darkgem",
 		name: "Dark Gem",
+		isUnreleased: true,
 		spritenum: 89,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -937,6 +959,7 @@ exports.BattleItems = {
 	"dragongem": {
 		id: "dragongem",
 		name: "Dragon Gem",
+		isUnreleased: true,
 		spritenum: 107,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -1054,6 +1077,7 @@ exports.BattleItems = {
 	"electricgem": {
 		id: "electricgem",
 		name: "Electric Gem",
+		isUnreleased: true,
 		spritenum: 120,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -1159,6 +1183,7 @@ exports.BattleItems = {
 	"fightinggem": {
 		id: "fightinggem",
 		name: "Fighting Gem",
+		isUnreleased: true,
 		spritenum: 139,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -1201,6 +1226,7 @@ exports.BattleItems = {
 	"firegem": {
 		id: "firegem",
 		name: "Fire Gem",
+		isUnreleased: true,
 		spritenum: 141,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -1289,6 +1315,7 @@ exports.BattleItems = {
 	"flyinggem": {
 		id: "flyinggem",
 		name: "Flying Gem",
+		isUnreleased: true,
 		spritenum: 149,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -1409,6 +1436,7 @@ exports.BattleItems = {
 	"ghostgem": {
 		id: "ghostgem",
 		name: "Ghost Gem",
+		isUnreleased: true,
 		spritenum: 161,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -1427,6 +1455,7 @@ exports.BattleItems = {
 	"grassgem": {
 		id: "grassgem",
 		name: "Grass Gem",
+		isUnreleased: true,
 		spritenum: 172,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -1499,6 +1528,7 @@ exports.BattleItems = {
 	"groundgem": {
 		id: "groundgem",
 		name: "Ground Gem",
+		isUnreleased: true,
 		spritenum: 182,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -1661,6 +1691,7 @@ exports.BattleItems = {
 	"icegem": {
 		id: "icegem",
 		name: "Ice Gem",
+		isUnreleased: true,
 		spritenum: 218,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -1822,6 +1853,23 @@ exports.BattleItems = {
 		num: 190,
 		gen: 4,
 		desc: "Halves damage taken from a super effective Poison-type attack. Single use."
+	},
+	"keeberry": {
+		id: "keeberry",
+		name: "Kee Berry",
+		spritenum: 0,
+		isBerry: true,
+		onAfterDamage: function(damage, target, source, move) {
+			if (move.category === 'Physical') {
+				target.eatItem();
+			}
+		},
+		onEat: function(pokemon) {
+			this.boost({def: 1});
+		},
+		num: -6,
+		gen: 6,
+		desc: "Raises Defense by 1 if hit by a Physical attack. Single use."
 	},
 	"kelpsyberry": {
 		id: "kelpsyberry",
@@ -2125,6 +2173,22 @@ exports.BattleItems = {
 		gen: 3,
 		desc: "Holder cures itself if it is confused or has a major status problem. Single use."
 	},
+	"luminousmoss": {
+		id: "luminousmoss",
+		name: "Luminous Moss",
+		spritenum: 0,
+		fling: {
+			basePower: 30
+		},
+		onAfterDamage: function(damage, target, source, move) {
+			if (move.type === 'Water' && target.useItem()) {
+				this.boost({spd: 1});
+			}
+		},
+		num: -6,
+		gen: 6,
+		desc: "Raises Special Defense by 1 if hit by a Water-type attack. Single use."
+	},
 	"lureball": {
 		id: "lureball",
 		name: "Lure Ball",
@@ -2243,6 +2307,23 @@ exports.BattleItems = {
 		num: -6,
 		gen: 6,
 		desc: "Mega-evolves Manectric."
+	},
+	"marangaberry": {
+		id: "marangaberry",
+		name: "Maranga Berry",
+		spritenum: 0,
+		isBerry: true,
+		onAfterDamage: function(damage, target, source, move) {
+			if (move.category === 'Special') {
+				target.eatItem()
+			}
+		},
+		onEat: function(pokemon) {
+			this.boost({spd: 1});
+		},
+		num: -6,
+		gen: 6,
+		desc: "Raises Special Defense by 1 if hit by a Special attack. Single use."
 	},
 	"masterball": {
 		id: "masterball",
@@ -2871,6 +2952,7 @@ exports.BattleItems = {
 	"poisongem": {
 		id: "poisongem",
 		name: "Poison Gem",
+		isUnreleased: true,
 		spritenum: 344,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -2935,6 +3017,7 @@ exports.BattleItems = {
 	"psychicgem": {
 		id: "psychicgem",
 		name: "Psychic Gem",
+		isUnreleased: true,
 		spritenum: 369,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -3170,6 +3253,7 @@ exports.BattleItems = {
 	"rockgem": {
 		id: "rockgem",
 		name: "Rock Gem",
+		isUnreleased: true,
 		spritenum: 415,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -3247,6 +3331,28 @@ exports.BattleItems = {
 		gen: 4,
 		desc: "Holder's Grass-type attacks have 1.2x power."
 	},
+	"roseliberry": {
+		id: "roseliberry",
+		name: "Roseli Berry",
+		spritenum: 0,
+		isBerry: true,
+		naturalGift: {
+			basePower: 60,
+			type: "Fairy"
+		},
+		onSourceModifyDamage: function(damage, source, target, move) {
+			if (move.type === 'Fairy' && this.getEffectiveness(move.type, target) > 0 && !target.volatiles['substitute']) {
+				if (target.eatItem()) {
+					this.debug('-50% reduction');
+					return this.chainModify(0.5);
+				}
+			}
+		},
+		onEat: function() { },
+		num: -6,
+		gen: 6,
+		desc: "Halves damage taken from a super effective Fairy-type attack. Single use."
+	},
 	"rowapberry": {
 		id: "rowapberry",
 		name: "Rowap Berry",
@@ -3275,6 +3381,23 @@ exports.BattleItems = {
 		num: 5,
 		gen: 1,
 		desc: "A special Poke Ball that is used only in the Safari Zone and Great Marsh."
+	},
+	"safetygoggles": {
+		id: "safetygoggles",
+		name: "Safety Goggles",
+		spritenum: 0,
+		onImmunity: function(type, pokemon) {
+			if (type === 'sandstorm' || type === 'hail') return false;
+		},
+		onTryHit: function(pokemon, target, move) {
+			if (move.isPowder) {
+				this.add('-immune', pokemon, '[msg]', '[from] Safety Goggles');
+				return null;
+			}
+		},
+		num: -8,
+		gen: 6,
+		desc: "Protects the holder from weather-related damage and powder moves."
 	},
 	"salacberry": {
 		id: "salacberry",
@@ -3680,6 +3803,7 @@ exports.BattleItems = {
 	"steelgem": {
 		id: "steelgem",
 		name: "Steel Gem",
+		isUnreleased: true,
 		spritenum: 473,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -3920,6 +4044,7 @@ exports.BattleItems = {
 	"watergem": {
 		id: "watergem",
 		name: "Water Gem",
+		isUnreleased: true,
 		spritenum: 528,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
@@ -3964,6 +4089,19 @@ exports.BattleItems = {
 		num: 317,
 		gen: 4,
 		desc: "Holder's Water-type attacks have 1.2x power."
+	},
+	"weaknesspolicy": {
+		id: "weaknesspolicy",
+		name: "Weakness Policy",
+		spritenum: 0,
+		onHit: function(target, source, move) {
+			if (target.hp && move.category !== 'Status' && this.getEffectiveness(move.type, target) > 0 && target.useItem()) {
+				this.boost({atk: 2, spa: 2});
+			}
+		},
+		num: -6,
+		gen: 6,
+		desc: "Attack and Sp. Atk sharply increase when hit super effectively. Single use."
 	},
 	"wepearberry": {
 		id: "wepearberry",
