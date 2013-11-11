@@ -3625,7 +3625,7 @@ function Battle(frame, logFrame, noPreload) {
 				poke.boosts = $.extend({}, tpoke.boosts);
 				poke.addVolatile('transform');
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
-				//poke.removeVolatile('typechange'); // does this happen??
+				poke.removeVolatile('typechange');
 				poke.ability = tpoke.ability;
 				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
 				self.resultAnim(poke, 'Transformed', 'good', animDelay);
@@ -3636,6 +3636,7 @@ function Battle(frame, logFrame, noPreload) {
 				if (poke.sprite.sp.shiny) template.shiny = true;
 				poke.sprite.animTransform(template);
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
+				poke.removeVolatile('typechange'); 
 				poke.volatiles.formechange[2] = template.species;
 				poke.side.updateStatbar();
 				break;
