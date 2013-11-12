@@ -31,7 +31,8 @@
 		move: 2,
 		item: 3,
 		ability: 4,
-		category: 5
+		egggroup: 5,
+		category: 6
 	};
 	var typeName = {
 		pokemon: 'Pokemon',
@@ -39,6 +40,7 @@
 		move: 'Moves',
 		item: 'Items',
 		ability: 'Abilities',
+		egggroup: 'Egg group',
 		category: 'Category'
 	};
 	Search.prototype.find = function(query) {
@@ -55,7 +57,8 @@
 		}
 
 		var i = Search.getClosest(query);
-		// if (!BattleSearchIndex[i] || query === 'metronome' || query === 'psychic') i--;
+		if (!BattleSearchIndex[i]) i--;
+		if (BattleSearchIndex[i-1] && BattleSearchIndex[i-1] === query) i--;
 		this.exactMatch = (query === BattleSearchIndex[i]);
 
 		var bufs = ['','','',''];
@@ -136,6 +139,9 @@
 		case 'type':
 			var type = {name: id[0].toUpperCase()+id.substr(1)};
 			return Search.renderTypeRow(type, matchStart, matchLength, errorMessage);
+		case 'egggroup':
+			var egggroup = {name: id[0].toUpperCase()+id.substr(1)};
+			return Search.renderEggGroupRow(egggroup, matchStart, matchLength, errorMessage);
 		case 'category':
 			var category = {name: id[0].toUpperCase()+id.substr(1)};
 			return Search.renderCategoryRow(category, matchStart, matchLength, errorMessage);
@@ -527,6 +533,29 @@
 		buf += '<span class="col typecol">';
 		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+category.name+'.png" alt="'+category.name+'" height="14" width="32" />';
 		buf += '</span> ';
+
+		buf += '</a></li>';
+
+		return buf;
+	};
+	Search.renderEggGroupRow = function(egggroup, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'egggroups/'+toId(egggroup.name)+'" data-target="push"';
+		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(egggroup.name)+'">';
+
+		// name
+		var name = egggroup.name;
+		if (matchLength) {
+			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+		}
+		buf += '<span class="col namecol">'+name+'</span> ';
+
+		// error
+		if (errorMessage) {
+			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '</a></li>';
+			return buf;
+		}
 
 		buf += '</a></li>';
 
