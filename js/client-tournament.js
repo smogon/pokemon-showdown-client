@@ -168,6 +168,12 @@
 					left: this.savedBracketPosition.left,
 					top: this.savedBracketPosition.top
 				});
+			} else {
+				if (this.$bracket[0].offsetHeight < this.$bracket[0].scrollHeight ||
+					this.$bracket[0].offsetWidth < this.$bracket[0].scrollWidth) {
+					this.$bracket.addClass('tournament-bracket-overflowing');
+					makeDraggable(this.$bracket.children().first(), this.savedBracketPosition);
+				}
 			}
 		};
 		TournamentBox.prototype.setBoxVisibility = function (isVisible) {
@@ -260,11 +266,7 @@
 						var $bracket = this.generateBracket(this.bracketData);
 						if ($bracket) {
 							this.$bracket.append($bracket);
-							if (this.$bracket[0].offsetHeight < this.$bracket[0].scrollHeight ||
-								this.$bracket[0].offsetWidth < this.$bracket[0].scrollWidth) {
-								this.$bracket.addClass('tournament-bracket-overflowing');
-								makeDraggable($bracket, this.savedBracketPosition);
-							}
+							this.updateLayout();
 						}
 						break;
 
