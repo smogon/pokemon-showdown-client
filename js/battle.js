@@ -2422,13 +2422,8 @@ function Battle(frame, logFrame, noPreload) {
 				self.weatherMinTimeLeft = 0;
 			} else {
 				self.message('<small>' + newWeather.startMessage + '</small>');
-				if (self.turn === 0) {
-					self.weatherTimeLeft = 0;
-					self.weatherMinTimeLeft = 0;
-				} else {
-					self.weatherTimeLeft = 8;
-					self.weatherMinTimeLeft = 5;
-				}
+				self.weatherTimeLeft = 8;
+				self.weatherMinTimeLeft = 5;
 			}
 		}
 		if (self.weather && !newWeather) {
