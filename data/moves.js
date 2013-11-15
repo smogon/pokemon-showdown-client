@@ -6946,7 +6946,7 @@ exports.BattleMovedex = {
 		effect: {
 			duration: 1,
 			onStart: function(target) {
-				this.add('-singleturn', target, "King's Shield");
+				this.add('-singleturn', target, 'Protect');
 			},
 			onTryHitPriority: 3,
 			onTryHit: function(target, source, move) {
@@ -6955,7 +6955,7 @@ exports.BattleMovedex = {
 					return;
 				}
 				if (move && (move.category === 'Status' || move.isNotProtectable || move.id === 'suckerpunch')) return;
-				this.add('-activate', target, "King's Shield");
+				this.add('-activate', target, 'Protect');
 				var lockedmove = source.getVolatile('lockedmove');
 				if (lockedmove) {
 					// Outrage counter is reset
@@ -7771,8 +7771,8 @@ exports.BattleMovedex = {
 		priority: 0,
 		stallingMove: true, // Note: stallingMove is not used anywhere.
 		volatileStatus: 'matblock',
-		onTryHit: function(target, pokemon) {
-			if (pokemon.activeTurns > 1) {
+		onTryHitSide: function(side, source) {
+			if (source.activeTurns > 1) {
 				this.add('-message', '(Mat Block only works your first turn out.)');
 				return false;
 			}
@@ -7783,18 +7783,25 @@ exports.BattleMovedex = {
 				this.add('-singleturn', target, 'Mat Block');
 			},
 			onTryHitPriority: 3,
-			onTryHit: function(target, source, move) {
+			onAllyTryHit: function(target, source, move) {
 				if (move.breaksProtect) {
 					target.removeVolatile('Mat Block');
 					return;
 				}
 				if (move && (move.target === 'self' || move.category === 'Status')) return;
-				this.add('-activate', target, 'Mat Block');
+				this.add('-activate', target, 'Mat Block', move.name);
+				var lockedmove = source.getVolatile('lockedmove');
+				if (lockedmove) {
+					// Outrage counter is reset
+					if (source.volatiles['lockedmove'].duration === 2) {
+						delete source.volatiles['lockedmove'];
+					}
+				}
 				return null;
 			}
 		},
 		secondary: false,
-		target: "normal",
+		target: "allySide",
 		type: "Fighting"
 	},
 	"mefirst": {
@@ -9985,7 +9992,7 @@ exports.BattleMovedex = {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
-		desc: "The user and its party members are protected from attacks with original priority greater than 0 made by other Pokemon, including allies, during this turn. This attack has a 1/X chance of being successful, where X starts at 1 and doubles each time this move is successfully used. X resets to 1 if this attack fails or if the user's last used move is not Detect, Endure, Protect, Quick Guard, or Wide Guard. If X is 256 or more, this move has a 1/(2^32) chance of being successful. Fails if the user moves last this turn or if this move is already in effect for the user's side. Priority +3.",
+		desc: "The user and its party members are protected from attacks with priority greater than 0 made by other Pokemon, including allies, during this turn. Fails if the user moves last this turn or if this move is already in effect for the user's side. Priority +3.",
 		shortDesc: "Protects allies from priority attacks this turn.",
 		id: "quickguard",
 		name: "Quick Guard",
@@ -9993,12 +10000,8 @@ exports.BattleMovedex = {
 		priority: 3,
 		isSnatchable: true,
 		sideCondition: 'quickguard',
-		stallingMove: true, // Note: stallingMove is not used anywhere.
 		onTryHitSide: function(side, source) {
-			return this.willAct() && this.runEvent('StallMove', source);
-		},
-		onHitSide: function(side, source) {
-			source.addVolatile('stall');
+			return this.willAct();
 		},
 		effect: {
 			duration: 1,
@@ -10007,9 +10010,9 @@ exports.BattleMovedex = {
 			},
 			onTryHitPriority: 4,
 			onTryHit: function(target, source, effect) {
-				// Quick Guard only blocks moves with a natural positive priority
-				// (e.g. it doesn't block 0 priority moves boosted by Prankster)
-				if (effect && (effect.id === 'Feint' || this.getMove(effect.id).priority <= 0)) {
+				// Quick Guard blocks moves with positive priority, even those given increased priority by Prankster or Gale Wings.
+				// (e.g. it blocks 0 priority moves boosted by Prankster or Gale Wings)
+				if (effect && (effect.id === 'Feint' || effect.priority <= 0)) {
 					return;
 				}
 				this.add('-activate', target, 'Quick Guard');
@@ -12856,7 +12859,7 @@ exports.BattleMovedex = {
 					this.debug('sub bypass: self hit');
 					return;
 				}
-				if (move.notSubBlocked || source.ability === 'infiltrator' && this.gen >= 6) {
+				if (move.notSubBlocked || (source.ability === 'infiltrator' || move.isSoundBased) && this.gen >= 6) {
 					return;
 				}
 				if (move.category === 'Status') {
@@ -13725,6 +13728,12 @@ exports.BattleMovedex = {
 		name: "Toxic",
 		pp: 10,
 		priority: 0,
+		onModifyMove: function(move, pokemon) {
+			if (pokemon.hasType('Poison')) {
+				move.accuracy = true;
+				move.alwaysHit = true;
+			}
+		},
 		status: 'tox',
 		secondary: false,
 		target: "normal",
@@ -14540,7 +14549,7 @@ exports.BattleMovedex = {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
-		desc: "The user and its party members are protected from damaging attacks made by other Pokemon, including allies, during this turn that target all adjacent foes or all adjacent Pokemon. This attack has a 1/X chance of being successful, where X starts at 1 and doubles each time this move is successfully used. X resets to 1 if this attack fails or if the user's last used move is not Detect, Endure, Protect, Quick Guard, or Wide Guard. If X is 256 or more, this move has a 1/(2^32) chance of being successful. Fails if the user moves last this turn or if this move is already in effect for the user's side. Priority +3.",
+		desc: "The user and its party members are protected from damaging attacks made by other Pokemon, including allies, during this turn that target all adjacent foes or all adjacent Pokemon. Fails if the user moves last this turn or if this move is already in effect for the user's side. Priority +3.",
 		shortDesc: "Protects allies from multi-target hits this turn.",
 		id: "wideguard",
 		name: "Wide Guard",
@@ -14548,12 +14557,8 @@ exports.BattleMovedex = {
 		priority: 3,
 		isSnatchable: true,
 		sideCondition: 'wideguard',
-		stallingMove: true, // Note: stallingMove is not used anywhere.
 		onTryHitSide: function(side, source) {
-			return this.willAct() && this.runEvent('StallMove', source);
-		},
-		onHitSide: function(side, source) {
-			source.addVolatile('stall');
+			return this.willAct();
 		},
 		effect: {
 			duration: 1,
