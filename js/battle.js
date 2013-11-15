@@ -3965,6 +3965,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'magiccoat':
 					actions += '' + poke.getName() + ' shrouded itself with Magic Coat!';
 					break;
+				case 'matblock':
+					actions += '' + poke.getName() + ' intends to flip up a mat and block incoming attacks!';
+					break;
 				}
 				break;
 			case '-singlemove':
@@ -4116,6 +4119,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'ingrain':
 					actions += '' + poke.getName() + ' anchored itself with its roots!';
+					break;
+				case 'matblock':
+					actions += '' + Tools.escapeHTML(args[3]) + ' was blocked by the kicked-up mat!';
 					break;
 
 				// ability activations
