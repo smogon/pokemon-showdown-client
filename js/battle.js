@@ -4037,6 +4037,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'mist':
 					actions += "" + poke.getName() + " is protected by the mist!";
 					break;
+				case 'trapped':
+					actions += "" + poke.getName() + " can no longer escape!";
+					break;
 
 				// move activations
 				case 'trick':
