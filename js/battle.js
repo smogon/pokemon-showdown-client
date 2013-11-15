@@ -2196,6 +2196,7 @@ function Battle(frame, logFrame, noPreload) {
 				protect: '<span class="good">Protect</span>',
 				quickguard: '<span class="good">Quick&nbsp;Guard</span>',
 				wideguard: '<span class="good">Wide&nbsp;Guard</span>',
+				kingsshield: '<span class="good">King\'s&nbsp;Shield</span>',
 				helpinghand: '<span class="good">Helping&nbsp;Hand</span>',
 				magiccoat: '<span class="good">Magic&nbsp;Coat</span>',
 				destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
@@ -3619,7 +3620,7 @@ function Battle(frame, logFrame, noPreload) {
 				poke.boosts = $.extend({}, tpoke.boosts);
 				poke.addVolatile('transform');
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
-				//poke.removeVolatile('typechange'); // does this happen??
+				poke.removeVolatile('typechange');
 				poke.ability = tpoke.ability;
 				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
 				self.resultAnim(poke, 'Transformed', 'good', animDelay);
@@ -3630,6 +3631,7 @@ function Battle(frame, logFrame, noPreload) {
 				if (poke.sprite.sp.shiny) template.shiny = true;
 				poke.sprite.animTransform(template);
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
+				poke.removeVolatile('typechange'); 
 				poke.volatiles.formechange[2] = template.species;
 				poke.side.updateStatbar();
 				break;
