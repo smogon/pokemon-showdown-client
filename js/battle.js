@@ -3836,6 +3836,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'mimic':
 					actions += '' + poke.getName() + ' learned ' + Tools.escapeHTML(args[3]) + '!';
 					break;
+				case 'powder':
+					actions += '' + poke.getName() + ' is covered in powder!';
+					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " started!";
 				}
@@ -4122,6 +4125,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'matblock':
 					actions += '' + Tools.escapeHTML(args[3]) + ' was blocked by the kicked-up mat!';
+					break;
+				case 'powder':
+					actions += 'When the flame touched the powder on the Pokémon, it exploded!';
 					break;
 
 				// ability activations
