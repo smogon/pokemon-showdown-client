@@ -4127,7 +4127,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + Tools.escapeHTML(args[3]) + ' was blocked by the kicked-up mat!';
 					break;
 				case 'powder':
-					actions += '' + 'When the flame touched the powder on the Pok&#xE9;mon, it exploded!';
+					actions += '' + 'When the flame touched the powder on the Pokémon, it exploded!';
 					break;
 
 				// ability activations
