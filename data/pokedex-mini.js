@@ -744,7 +744,7 @@ BattlePokemonSprites = {
 	"aegislash":{num:681},
 	"spritzee":{num:682, front:{ani:{w: 96, h: 96}}},
 	"aromatisse":{num:683},
-	"swirlix":{num:684, front:{ani:{w: 96, h: 96}}},
+	"swirlix":{num:684,
 	"slurpuff":{num:685},
 	"inkay":{num:686},
 	"malamar":{num:687, front:{ani:{w: 96, h: 96}},back:{ani:{w: 96, h: 96}}},
