@@ -6126,6 +6126,8 @@ BattleMoveAnims['petaldance'] = {anim:BattleMoveAnims['solarbeam'].anim};
 BattleMoveAnims['magicalleaf'] = {anim:BattleMoveAnims['energyball'].anim};
 BattleMoveAnims['sleeppowder'] = {anim:BattleMoveAnims['spore'].anim};
 BattleMoveAnims['poisonpowder'] = {anim:BattleMoveAnims['spore'].anim};
+BattleMoveAnims['stunspore'] = {anim:BattleMoveAnims['spore'].anim};
+BattleMoveAnims['powder'] = {anim:BattleMoveAnims['spore'].anim};
 
 BattleMoveAnims['waterpulse'] = {anim:BattleMoveAnims['scald'].anim};
 BattleMoveAnims['bubblebeam'] = {anim:BattleMoveAnims['scald'].anim};
