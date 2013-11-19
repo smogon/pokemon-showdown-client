@@ -3648,6 +3648,10 @@ function Battle(frame, logFrame, noPreload) {
 					if (fromeffect.id) {
 						if (fromeffect.id === 'reflecttype') {
 							actions += "" + poke.getName() + "'s type changed to match " + ofpoke.getLowerName() + "'s!";
+						} else if (fromeffect.id === 'forestscurse') {
+							actions += "Grass type was added to " + poke.getLowerName();
+						} else if (fromeffect.id === 'trickortreat') {
+							actions += "Ghost type was added to " + poke.getLowerName();
 						} else {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
 						}
