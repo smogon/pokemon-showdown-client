@@ -804,13 +804,10 @@
 				}
 				if (pokemon.volatiles.typechange) {
 					text += '<small>(Type changed)</small><br />';
-					types = [pokemon.volatiles.typechange[2]];
+					types = pokemon.volatiles.typechange[2].split(', ');
 				}
 				if (types) {
-					text += Tools.getTypeIcon(types[0]);
-					if (types[1]) {
-						text += ' '+Tools.getTypeIcon(types[1]);
-					}
+					text += types.map(Tools.getTypeIcon).join(' ');
 				} else {
 					text += 'Types unknown';
 				}
