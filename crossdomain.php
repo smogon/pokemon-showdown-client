@@ -39,7 +39,7 @@ if (isset($PokemonServers[$config['host']])) {
 	$config['registered'] = true;
 
 	// $yourip = $_SERVER['REMOTE_ADDR'];
-	$yourip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	$yourip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
 	if (substr($config['host'].':', 0, strlen($yourip)+1) === $yourip.':') {
 		$config['host'] = 'localhost'.substr($config['host'],strlen($yourip));
 	}
