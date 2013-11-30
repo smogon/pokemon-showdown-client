@@ -326,7 +326,7 @@ class NTBBLadder {
 
 				$rating->Update();
 				if ($offset) {
-					$rating->r += $offset;
+					$rating->rating += $offset;
 					$rating->mu += $offset/173.7178;
 					$offset = 0;
 				}
