@@ -3840,7 +3840,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'mimic':
 					actions += '' + poke.getName() + ' learned ' + Tools.escapeHTML(args[3]) + '!';
 					break;
-				case 'ragepowder':
+				case 'followme':
 					actions += '' + poke.getName() + ' became the center of attention!';
 					break;
 				case 'powder':
