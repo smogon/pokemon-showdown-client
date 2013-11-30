@@ -287,7 +287,7 @@ class DefaultActionHandler {
 
 	public function prepreplay($dispatcher, &$reqData, &$out) {
 		global $psdb, $users;
-		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php'; // not clear if this is needed
+		// include_once dirname(__FILE__) . '/ntbb-ladder.lib.php'; // not clear if this is needed
 
 		$server = $dispatcher->findServer();
 		if (
@@ -316,58 +316,19 @@ class DefaultActionHandler {
 			$reqData['id'] = $server['id'].'-'.$reqData['id'];
 		}
 
-		$res = $psdb->query("SELECT * FROM `ntbb_replays` WHERE `id`='".$psdb->escape($reqData['id'])."'");
-		$replay = $psdb->fetch_assoc($res);
+		include_once __DIR__.'/../../replay.pokemonshowdown.com/replays.lib.php';
+		$out = $GLOBALS['Replays']->prepUpload($reqData);
 
-		if ($replay) {
-			// A replay with this ID already exists
-			if (time() > $replay['date']+5) {
-				// Allow it to be overwritten if it's been 5 seconds already
-				$out = !!$psdb->query("UPDATE `ntbb_replays` SET `loghash` = '".$psdb->escape($reqData['loghash'])."' WHERE `id`='".$psdb->escape($reqData['id'])."'");
-			}
-		} else {
-			$p1 = $users->wordfilter($reqData['p1']);
-			$p2 = $users->wordfilter($reqData['p2']);
-			$out = !!$psdb->query("INSERT INTO `ntbb_replays` (`id`,`loghash`,`p1`,`p2`,`format`,`date`) VALUES ('".$psdb->escape($reqData['id'])."','".$psdb->escape($reqData['loghash'])."','".$psdb->escape($p1)."','".$psdb->escape($p2)."','".$psdb->escape($reqData['format'])."',".time().")");
-		}
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
 	}
 
 	public function uploadreplay($dispatcher, &$reqData, &$out) {
 		global $psdb, $users;
 
-		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
 		header('Content-Type: text/plain; charset=utf-8');
-		if (!isset($_POST['id'])) die('ID needed');
-		$id = $_POST['id'];
 
-		$res = $psdb->query("SELECT * FROM `ntbb_replays` WHERE `id` = '".$psdb->escape($id)."'");
-
-		$replay = $psdb->fetch_assoc($res);
-		if (!$replay) {
-			if (!preg_match('/^[a-z0-9]+-[a-z0-9]+-[0-9]+$/', $reqData['id'])) {
-				die('invalid id');
-			}
-			die('not found');
-		}
-		if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
-			$_POST['log'] = str_replace("\r",'', $_POST['log']);
-			if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
-				// Hashes don't match.
-
-				// Someone else tried to upload a replay of the same battle,
-				// while we were uploading this
-				if ($replay['log']) {
-					// A log already exists; good enough
-					die('success');
-				}
-				die('hash mismatch');
-			}
-		}
-
-		$psdb->query("UPDATE `ntbb_replays` SET `log` = '".$psdb->escape($users->wordfilter($_POST['log']))."', `loghash` = '' WHERE `id` = '".$psdb->escape($id)."'");
-
-		die('success');
+		include __DIR__.'/../../replay.pokemonshowdown.com/replays.lib.php';
+		die($GLOBALS['Replays']->upload($reqData));
 	}
 
 	public function invalidatecss($dispatcher, &$reqData, &$out) {
