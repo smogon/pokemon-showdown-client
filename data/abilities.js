@@ -156,7 +156,7 @@ exports.BattleAbilities = {
 		shortDesc: "Prevents foes from switching out normally unless they have immunity to Ground.",
 		onFoeModifyPokemon: function(pokemon) {
 			if (pokemon.runImmunity('Ground', false)) {
-				pokemon.trapped = true;
+				pokemon.tryTrap();
 			}
 		},
 		onFoeMaybeTrapPokemon: function(pokemon) {
@@ -879,12 +879,13 @@ exports.BattleAbilities = {
 		num: 132
 	},
 	"frisk": {
-		desc: "When this Pokemon enters the field, it identifies the opponent's held item; in double battles, the held item of an unrevealed, randomly selected opponent is identified.",
-		shortDesc: "On switch-in, this Pokemon identifies a random foe's held item.",
+		desc: "When this Pokemon enters the field, it identifies all the opponent's held items.",
+		shortDesc: "On switch-in, this Pokemon identifies the foe's held items.",
 		onStart: function(pokemon) {
 			var foeactive = pokemon.side.foe.active;
 			for (var i=0; i<foeactive.length; i++) {
-				if (foeactive[i] && foeactive[i].item) {
+				if (!foeactive[i] || foeactive[i].fainted) continue;
+				if (foeactive[i].item) {
 					this.add('-item', foeactive[i], foeactive[i].getItem().name, '[from] ability: Frisk', '[of] '+pokemon, '[identify]');
 				}
 			}
@@ -1402,20 +1403,17 @@ exports.BattleAbilities = {
 	"magician": {
 		desc: "If this Pokemon is not holding an item, it steals the held item of a target it hits with a move.",
 		shortDesc: "This Pokemon steals the held item of a target it hits with a move.",
-		onFoeAfterDamage: function(damage, target, source, move) {
-			if (source && source !== target && move) {
-				if (source.item) {
-					return;
-				}
+		onHit: function(target, source, move) {
+			// We need to hard check if the ability is Magician since the event will be run both ways.
+			if (target && target !== source && move && source.ability === 'magician') {
+				if (source.item) return;
 				var yourItem = target.takeItem(source);
-				if (!yourItem) {
-					return;
-				}
+				if (!yourItem) return;
 				if (!source.setItem(yourItem)) {
 					target.item = yourItem.id; // bypass setItem so we don't break choicelock or anything
 					return;
 				}
-				this.add('-item', source, yourItem, '[from] Magician');
+				this.add('-item', source, yourItem, '[from] ability: Magician', '[of] ' + target);
 			}
 		},
 		id: "magician",
@@ -1496,7 +1494,7 @@ exports.BattleAbilities = {
 		shortDesc: "Prevents Steel-type foes from switching out normally.",
 		onFoeModifyPokemon: function(pokemon) {
 			if (pokemon.hasType('Steel')) {
-				pokemon.trapped = true;
+				pokemon.tryTrap();
 			}
 		},
 		onFoeMaybeTrapPokemon: function(pokemon) {
@@ -2288,7 +2286,7 @@ exports.BattleAbilities = {
 		shortDesc: "Prevents foes from switching out normally unless they also have this Ability.",
 		onFoeModifyPokemon: function(pokemon) {
 			if (pokemon.ability !== 'shadowtag') {
-				pokemon.trapped = true;
+				pokemon.tryTrap();
 			}
 		},
 		onFoeMaybeTrapPokemon: function(pokemon) {
@@ -2928,13 +2926,13 @@ exports.BattleAbilities = {
 		gen: 6
 	},
 	"trace": {
-		desc: "When this Pokemon enters the field, it temporarily copies an opponent's ability (except Multitype). This ability remains with this Pokemon until it leaves the field.",
+		desc: "When this Pokemon enters the field, it temporarily copies an opponent's ability. This ability remains with this Pokemon until it leaves the field.",
 		shortDesc: "On switch-in, or when it can, this Pokemon copies a random adjacent foe's Ability.",
 		onUpdate: function(pokemon) {
 			var target = pokemon.side.foe.randomActive();
 			if (!target) return;
 			var ability = this.getAbility(target.ability);
-			var bannedAbilities = {flowergift:1, forecast:1, illusion:1, imposter:1, multitype:1, trace:1, zenmode:1};
+			var bannedAbilities = {flowergift:1, forecast:1, illusion:1, imposter:1, multitype:1, stancechange:1, trace:1, zenmode:1};
 			if (bannedAbilities[target.ability]) {
 				return;
 			}
