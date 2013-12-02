@@ -186,7 +186,7 @@ exports.BattleTypeChart = {
   },
   "Ghost": {
     "damageTaken": {
-      trapping: 3,
+      trapped: 3,
       "Bug": 2,
       "Dark": 1,
       "Dragon": 0,
@@ -210,6 +210,7 @@ exports.BattleTypeChart = {
   },
   "Grass": {
     "damageTaken": {
+      powder: 3,
       "Bug": 1,
       "Dark": 0,
       "Dragon": 0,

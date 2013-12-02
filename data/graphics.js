@@ -1280,6 +1280,12 @@ var BattleMoveAnims = {
 	detect: {
 		anim: BattleOtherAnims.selfstatus.anim
 	},
+	kingsshield: {
+		anim: BattleOtherAnims.selfstatus.anim
+	},
+	spikyshield: {
+		anim: BattleOtherAnims.selfstatus.anim
+	},
 	endure: {
 		anim: BattleOtherAnims.selfstatus.anim
 	},
@@ -2323,9 +2329,6 @@ var BattleMoveAnims = {
 		anim: BattleOtherAnims.clawattack.anim
 	},
 	nightslash: {
-		anim: BattleOtherAnims.clawattack.anim
-	},
-	psychocut: {
 		anim: BattleOtherAnims.clawattack.anim
 	},
 	sacredsword: {
@@ -6126,6 +6129,8 @@ BattleMoveAnims['petaldance'] = {anim:BattleMoveAnims['solarbeam'].anim};
 BattleMoveAnims['magicalleaf'] = {anim:BattleMoveAnims['energyball'].anim};
 BattleMoveAnims['sleeppowder'] = {anim:BattleMoveAnims['spore'].anim};
 BattleMoveAnims['poisonpowder'] = {anim:BattleMoveAnims['spore'].anim};
+BattleMoveAnims['stunspore'] = {anim:BattleMoveAnims['spore'].anim};
+BattleMoveAnims['powder'] = {anim:BattleMoveAnims['spore'].anim};
 
 BattleMoveAnims['waterpulse'] = {anim:BattleMoveAnims['scald'].anim};
 BattleMoveAnims['bubblebeam'] = {anim:BattleMoveAnims['scald'].anim};
@@ -6187,6 +6192,7 @@ BattleMoveAnims['revenge'] = {anim:BattleMoveAnims['bodyslam'].anim};
 BattleMoveAnims['rockclimb'] = {anim:BattleMoveAnims['bodyslam'].anim};
 BattleMoveAnims['retaliate'] = {anim:BattleMoveAnims['bodyslam'].anim};
 BattleMoveAnims['superpower'] = {anim:BattleMoveAnims['closecombat'].anim};
+BattleMoveAnims['playrough'] = {anim:BattleMoveAnims['closecombat'].anim};
 BattleMoveAnims['scratch'] = {anim:BattleMoveAnims['nightslash'].anim};
 BattleMoveAnims['slash'] = {anim:BattleMoveAnims['nightslash'].anim};
 BattleMoveAnims['boneclub'] = {anim:BattleMoveAnims['nightslash'].anim};
@@ -6198,6 +6204,7 @@ BattleMoveAnims['acidspray'] = {anim:BattleMoveAnims['dragonpulse'].anim};
 
 BattleMoveAnims['gust'] = {anim:BattleMoveAnims['whirlwind'].anim};
 BattleMoveAnims['twister'] = {anim:BattleMoveAnims['whirlwind'].anim};
+BattleMoveAnims['psychocut'] = {anim:BattleMoveAnims['airslash'].anim};
 
 BattleMoveAnims['hypervoice'] = {anim:BattleMoveAnims['roar'].anim};
 BattleMoveAnims['chatter'] = {anim:BattleMoveAnims['roar'].anim};

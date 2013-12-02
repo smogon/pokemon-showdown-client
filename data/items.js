@@ -5,7 +5,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Abomasnow-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 674,
 		gen: 6,
 		desc: "Mega-evolves Abomasnow."
 	},
@@ -15,7 +15,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Absol-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 677,
 		gen: 6,
 		desc: "Mega-evolves Absol."
 	},
@@ -58,7 +58,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Aerodactyl-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 672,
 		gen: 6,
 		desc: "Mega-evolves Aerodactyl."
 	},
@@ -68,7 +68,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Aggron-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 667,
 		gen: 6,
 		desc: "Mega-evolves Aggron."
 	},
@@ -130,7 +130,7 @@ exports.BattleItems = {
 	"alakazite": {
 		id: "alakazite",
 		name: "Alakazite",
-		spritenum: 0,
+		spritenum: 679,
 		megaStone: "Alakazam-Mega",
 		onTakeItem: false,
 		num: -6,
@@ -140,7 +140,7 @@ exports.BattleItems = {
 	"ampharosite": {
 		id: "ampharosite",
 		name: "Ampharosite",
-		spritenum: 0,
+		spritenum: 658,
 		megaStone: "Ampharos-Mega",
 		onTakeItem: false,
 		num: -6,
@@ -250,7 +250,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Banette-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 668,
 		gen: 6,
 		desc: "Mega-evolves Banette."
 	},
@@ -354,7 +354,7 @@ exports.BattleItems = {
 	},
 	"blackglasses": {
 		id: "blackglasses",
-		name: "BlackGlasses",
+		name: "Black Glasses",
 		spritenum: 35,
 		fling: {
 			basePower: 30
@@ -372,7 +372,7 @@ exports.BattleItems = {
 	"blastoisinite": {
 		id: "blastoisinite",
 		name: "Blastoisinite",
-		spritenum: 0,
+		spritenum: 661,
 		megaStone: "Blastoise-Mega",
 		onTakeItem: false,
 		num: -6,
@@ -385,7 +385,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Blaziken-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 664,
 		gen: 6,
 		desc: "Mega-evolves Blaziken."
 	},
@@ -435,7 +435,7 @@ exports.BattleItems = {
 		},
 		num: 558,
 		gen: 5,
-		desc: "Holder's first successful Bug-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Bug-type attack will have 1.3x power. Single use."
 	},
 	"burndrive": {
 		id: "burndrive",
@@ -488,7 +488,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Charizard-Mega-X",
 		onTakeItem: false,
-		num: -6,
+		num: 660,
 		gen: 6,
 		desc: "Mega-evolves Charizard into Mega Charizard X."
 	},
@@ -498,7 +498,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Charizard-Mega-Y",
 		onTakeItem: false,
-		num: -6,
+		num: 678,
 		gen: 6,
 		desc: "Mega-evolves Charizard into Mega Charizard Y."
 	},
@@ -837,7 +837,7 @@ exports.BattleItems = {
 		},
 		num: 562,
 		gen: 5,
-		desc: "Holder's first successful Dark-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Dark-type attack will have 1.3x power. Single use."
 	},
 	"deepseascale": {
 		id: "deepseascale",
@@ -973,7 +973,7 @@ exports.BattleItems = {
 		},
 		num: 561,
 		gen: 5,
-		desc: "Holder's first successful Dragon-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Dragon-type attack will have 1.3x power. Single use."
 	},
 	"dreadplate": {
 		id: "dreadplate",
@@ -1091,7 +1091,7 @@ exports.BattleItems = {
 		},
 		num: 550,
 		gen: 5,
-		desc: "Holder's first successful Electric-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Electric-type attack will have 1.3x power. Single use."
 	},
 	"energypowder": {
 		id: "energypowder",
@@ -1197,7 +1197,7 @@ exports.BattleItems = {
 		},
 		num: 553,
 		gen: 5,
-		desc: "Holder's first successful Fighting-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Fighting-type attack will have 1.3x power. Single use."
 	},
 	"figyberry": {
 		id: "figyberry",
@@ -1240,7 +1240,7 @@ exports.BattleItems = {
 		},
 		num: 548,
 		gen: 5,
-		desc: "Holder's first successful Fire-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Fire-type attack will have 1.3x power. Single use."
 	},
 	"fistplate": {
 		id: "fistplate",
@@ -1329,7 +1329,7 @@ exports.BattleItems = {
 		},
 		num: 556,
 		gen: 5,
-		desc: "Holder's first successful Flying-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Flying-type attack will have 1.3x power. Single use."
 	},
 	"focusband": {
 		id: "focusband",
@@ -1409,7 +1409,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Garchomp-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 683,
 		gen: 6,
 		desc: "Mega-evolves Garchomp."
 	},
@@ -1419,7 +1419,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Gardevoir-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 657,
 		gen: 6,
 		desc: "Mega-evolves Gardevoir."
 	},
@@ -1429,7 +1429,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Gengar-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 656,
 		gen: 6,
 		desc: "Mega-evolves Gengar."
 	},
@@ -1450,7 +1450,7 @@ exports.BattleItems = {
 		},
 		num: 560,
 		gen: 5,
-		desc: "Holder's first successful Ghost-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Ghost-type attack will have 1.3x power. Single use."
 	},
 	"grassgem": {
 		id: "grassgem",
@@ -1459,6 +1459,7 @@ exports.BattleItems = {
 		spritenum: 172,
 		isGem: true,
 		onSourceTryPrimaryHit: function(target, source, move) {
+			if (target === source || move.category === 'Status') return;
 			if (move.type === 'Grass') {
 				if (source.useItem()) {
 					this.add('-enditem', source, 'Grass Gem', '[from] gem', '[move] '+move.name);
@@ -1468,7 +1469,7 @@ exports.BattleItems = {
 		},
 		num: 551,
 		gen: 5,
-		desc: "Holder's first successful Grass-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Grass-type attack will have 1.3x power. Single use."
 	},
 	"greatball": {
 		id: "greatball",
@@ -1542,7 +1543,7 @@ exports.BattleItems = {
 		},
 		num: 555,
 		gen: 5,
-		desc: "Holder's first successful Ground-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Ground-type attack will have 1.3x power. Single use."
 	},
 	"gyaradosite": {
 		id: "gyaradosite",
@@ -1550,7 +1551,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Gyarados-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 676,
 		gen: 6,
 		desc: "Mega-evolves Gyarados."
 	},
@@ -1637,7 +1638,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Heracross-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 680,
 		gen: 6,
 		desc: "Mega-evolves Heracross."
 	},
@@ -1660,7 +1661,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Houndoom-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 666,
 		gen: 6,
 		desc: "Mega-evolves Houndoom."
 	},
@@ -1705,7 +1706,7 @@ exports.BattleItems = {
 		},
 		num: 552,
 		gen: 5,
-		desc: "Holder's first successful Ice-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Ice-type attack will have 1.3x power. Single use."
 	},
 	"icicleplate": {
 		id: "icicleplate",
@@ -1890,7 +1891,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Kangaskhan-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 675,
 		gen: 6,
 		desc: "Mega-evolves Kangaskhan."
 	},
@@ -2131,7 +2132,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Lucario-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 673,
 		gen: 6,
 		desc: "Mega-evolves Lucario."
 	},
@@ -2304,7 +2305,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Manectric-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 682,
 		gen: 6,
 		desc: "Mega-evolves Manectric."
 	},
@@ -2339,7 +2340,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Mawile-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 681,
 		gen: 6,
 		desc: "Mega-evolves Mawile."
 	},
@@ -2367,7 +2368,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Medicham-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 665,
 		gen: 6,
 		desc: "Mega-evolves Medicham."
 	},
@@ -2479,7 +2480,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Mewtwo-Mega-X",
 		onTakeItem: false,
-		num: -6,
+		num: 662,
 		gen: 6,
 		desc: "Mega-evolves Mewtwo into Mega Mewtwo X."
 	},
@@ -2489,7 +2490,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Mewtwo-Mega-Y",
 		onTakeItem: false,
-		num: -6,
+		num: 663,
 		gen: 6,
 		desc: "Mega-evolves Mewtwo into Mega Mewtwo Y."
 	},
@@ -2632,7 +2633,7 @@ exports.BattleItems = {
 	},
 	"nevermeltice": {
 		id: "nevermeltice",
-		name: "NeverMeltIce",
+		name: "Never-Melt Ice",
 		spritenum: 305,
 		fling: {
 			basePower: 30
@@ -2676,7 +2677,7 @@ exports.BattleItems = {
 		},
 		num: 564,
 		gen: 5,
-		desc: "Holder's first successful Normal-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Normal-type attack will have 1.3x power. Single use."
 	},
 	"occaberry": {
 		id: "occaberry",
@@ -2898,7 +2899,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Pinsir-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 671,
 		gen: 6,
 		desc: "Mega-evolves Pinsir."
 	},
@@ -2966,7 +2967,7 @@ exports.BattleItems = {
 		},
 		num: 554,
 		gen: 5,
-		desc: "Holder's first successful Poison-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Poison-type attack will have 1.3x power. Single use."
 	},
 	"pokeball": {
 		id: "pokeball",
@@ -3031,7 +3032,7 @@ exports.BattleItems = {
 		},
 		num: 557,
 		gen: 5,
-		desc: "Holder's first successful Psychic-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Psychic-type attack will have 1.3x power. Single use."
 	},
 	"qualotberry": {
 		id: "qualotberry",
@@ -3267,7 +3268,7 @@ exports.BattleItems = {
 		},
 		num: 559,
 		gen: 5,
-		desc: "Holder's first successful Rock-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Rock-type attack will have 1.3x power. Single use."
 	},
 	"rockincense": {
 		id: "rockincense",
@@ -3426,7 +3427,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Scizor-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 670,
 		gen: 6,
 		desc: "Mega-evolves Scizor."
 	},
@@ -3817,7 +3818,7 @@ exports.BattleItems = {
 		},
 		num: 563,
 		gen: 5,
-		desc: "Holder's first successful Steel-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Steel-type attack will have 1.3x power. Single use."
 	},
 	"stick": {
 		id: "stick",
@@ -3997,7 +3998,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Tyranitar-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 669,
 		gen: 6,
 		desc: "Mega-evolves Tyranitar."
 	},
@@ -4015,7 +4016,7 @@ exports.BattleItems = {
 		spritenum: 0,
 		megaStone: "Venusaur-Mega",
 		onTakeItem: false,
-		num: -6,
+		num: 659,
 		gen: 6,
 		desc: "Mega-evolves Venusaur."
 	},
@@ -4058,7 +4059,7 @@ exports.BattleItems = {
 		},
 		num: 549,
 		gen: 5,
-		desc: "Holder's first successful Water-type attack will have 1.5x power. Single use."
+		desc: "Holder's first successful Water-type attack will have 1.3x power. Single use."
 	},
 	"watmelberry": {
 		id: "watmelberry",

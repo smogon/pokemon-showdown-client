@@ -660,6 +660,7 @@ p.or:after {
 	top: 0;
 	right: 0;
 	left: 0;
+	width: auto;
 	margin: 0;
 	padding: 0;
 }
