@@ -287,7 +287,7 @@ class DefaultActionHandler {
 
 	public function prepreplay($dispatcher, &$reqData, &$out) {
 		global $psdb, $users;
-		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php'; // not clear if this is needed
+		// include_once dirname(__FILE__) . '/ntbb-ladder.lib.php'; // not clear if this is needed
 
 		$server = $dispatcher->findServer();
 		if (
@@ -316,58 +316,19 @@ class DefaultActionHandler {
 			$reqData['id'] = $server['id'].'-'.$reqData['id'];
 		}
 
-		$res = $psdb->query("SELECT * FROM `ntbb_replays` WHERE `id`='".$psdb->escape($reqData['id'])."'");
-		$replay = $psdb->fetch_assoc($res);
+		include_once __DIR__.'/../../replay.pokemonshowdown.com/replays.lib.php';
+		$out = $GLOBALS['Replays']->prepUpload($reqData);
 
-		if ($replay) {
-			// A replay with this ID already exists
-			if (time() > $replay['date']+5) {
-				// Allow it to be overwritten if it's been 5 seconds already
-				$out = !!$psdb->query("UPDATE `ntbb_replays` SET `loghash` = '".$psdb->escape($reqData['loghash'])."' WHERE `id`='".$psdb->escape($reqData['id'])."'");
-			}
-		} else {
-			$p1 = $users->wordfilter($reqData['p1']);
-			$p2 = $users->wordfilter($reqData['p2']);
-			$out = !!$psdb->query("INSERT INTO `ntbb_replays` (`id`,`loghash`,`p1`,`p2`,`format`,`date`) VALUES ('".$psdb->escape($reqData['id'])."','".$psdb->escape($reqData['loghash'])."','".$psdb->escape($p1)."','".$psdb->escape($p2)."','".$psdb->escape($reqData['format'])."',".time().")");
-		}
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
 	}
 
 	public function uploadreplay($dispatcher, &$reqData, &$out) {
 		global $psdb, $users;
 
-		function stripNonAscii($str) { return preg_replace('/[^(\x20-\x7F)]+/','', $str); }
 		header('Content-Type: text/plain; charset=utf-8');
-		if (!isset($_POST['id'])) die('ID needed');
-		$id = $_POST['id'];
 
-		$res = $psdb->query("SELECT * FROM `ntbb_replays` WHERE `id` = '".$psdb->escape($id)."'");
-
-		$replay = $psdb->fetch_assoc($res);
-		if (!$replay) {
-			if (!preg_match('/^[a-z0-9]+-[a-z0-9]+-[0-9]+$/', $reqData['id'])) {
-				die('invalid id');
-			}
-			die('not found');
-		}
-		if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
-			$_POST['log'] = str_replace("\r",'', $_POST['log']);
-			if (md5(stripNonAscii($_POST['log'])) !== $replay['loghash']) {
-				// Hashes don't match.
-
-				// Someone else tried to upload a replay of the same battle,
-				// while we were uploading this
-				if ($replay['log']) {
-					// A log already exists; good enough
-					die('success');
-				}
-				die('hash mismatch');
-			}
-		}
-
-		$psdb->query("UPDATE `ntbb_replays` SET `log` = '".$psdb->escape($users->wordfilter($_POST['log']))."', `loghash` = '' WHERE `id` = '".$psdb->escape($id)."'");
-
-		die('success');
+		include __DIR__.'/../../replay.pokemonshowdown.com/replays.lib.php';
+		die($GLOBALS['Replays']->upload($reqData));
 	}
 
 	public function invalidatecss($dispatcher, &$reqData, &$out) {
@@ -379,6 +340,130 @@ class DefaultActionHandler {
 		// No need to sanitise $server['id'] because it should be safe already.
 		$cssfile = dirname(__FILE__) . '/../../pokemonshowdown.com/config/customcss/' . $server['id'] . '.css';
 		@unlink($cssfile);
+	}
+
+	/**
+	 * This function returns all friends of $curuser
+	 * Formatting:
+	 *   [prefix][username]|[prefix][username]|...
+	 *     [prefix] is empty if the request has been accepted, a hash (symbol)
+	 *       if a request has been sent by the player and is still pending,
+	 *       or a comma if it is a received friend request.
+	 *     [username] is the username (yes, NAME, not id) of the player.
+	 * Example: Zarel|,haunter|#chaos
+	 *   Zarel is already on the friend list, a friend request from haunter is
+	 *   still waiting for approval, and a friend request has been sent to
+	 *   chaos.
+	 */
+	public function getfriends($dispatcher, &$reqData, &$out) {
+		global $psdb, $curuser;
+
+		// A valid curuser array is needed
+		if (!@$curuser['loggedin'] || !@$curuser['userid']) {
+			die('Not using a valid nick; you should be registered and logged in in order to add friends.');
+		}
+
+		$player = $psdb->escape($curuser['userid']);
+		$friends = array();
+		$friendsQuery = $psdb->query(
+			"SELECT `us`.`username`, `fr`.`p1`, `fr`.`accepted` " .
+			"FROM `ntbb_friendlist` AS `fr` " .
+			"INNER JOIN `ntbb_users` AS `us` ON `us`.`userid` = IF(`fr`.`p1` = '" . $player . "', `fr`.`p2`, `fr`.`p1`) " .
+			"WHERE `p1`='" . $player . "' OR `p2`='" . $player . "'"
+		);
+		while ($friend = $psdb->fetch_assoc($friendsQuery)) {
+			$prefix = '';
+			if ((int) $friend['accepted'] === 0) {
+				if ($friend['p1'] === $curuser['userid']) {
+					// Request sent and pending
+					$prefix = '#';
+				} else {
+					// Received friend request
+					$prefix = ',';
+				}
+			}
+			$friends[] = $prefix .  $friend['username'];
+		}
+
+		// We add ] here so that we can check in the client if it's a valid
+		// response that we've received (i.e. check if there are errors or not)
+		die(']' . implode('|', $friends));
+	}
+
+	/**
+	 * This function does two things:
+	 * - sends a friend request if the player is not in his/her friend list yet
+	 * - accepts a friend request sent by the player given in the query string
+	 */
+	public function addfriend($dispatcher, &$reqData, &$out) {
+		global $psdb, $users, $curuser;
+
+		// A valid curuser array is needed
+		if (!@$curuser['loggedin'] || !@$curuser['userid']) {
+			die('Not using a valid nick; you should be registered and logged in in order to add friends.');
+		}
+
+		// Check if the other player exists
+		$id = $users->userid(@$reqData['player']);
+		if (!$id) die('Invalid playername given.');
+		$player = $users->getUser($id);
+		if (!$player) die('The given player does not exist.');
+
+		// Check if there isn't a friendship between those two already
+		$p1 = $psdb->escape($curuser['userid']);
+		$p2 = $psdb->escape($player['userid']);
+		$res = $psdb->query(
+			"SELECT p1, accepted " .
+			"FROM `ntbb_friendlist` " .
+			"WHERE (" .
+				"`p1`='" . $p1 . "' AND `p2`='" . $p2 . "'" .
+			") OR (" .
+				"`p1`='" . $p2 . "' AND `p2`='" . $p1 . "'" .
+			")"
+		);
+		$record = $psdb->fetch_assoc($res);
+		if ($record) {
+			// A record in the database exists. Now we check if it's accepted
+			// or not. If not, we'll accept it, otherwise send an error
+			if ($record['p1'] !== $curuser['userid'] && ((int) $record['accepted']) === 0) {
+				$psdb->query("UPDATE `ntbb_friendlist` SET `accepted` = '1' WHERE `p1`='" . $p2 . "' AND `p2`='" . $p1 . "'");
+				// The ] denotes that it was successful
+				die(']The friend request by ' . $player['username'] . ' has been accepted.');
+			} else {
+				die('This player is already in your friend list or a friend request is still pending.');
+			}
+		}
+
+		// Everything's okay, so insert it
+		$psdb->query("INSERT INTO `ntbb_friendlist` (`p1`, `p2`) VALUES ('" . $p1 . "', '" . $p2 . "')");
+		// The ] denotes that it was successful
+		die(']A friend request has been sent to ' . $player['username'] . '!');
+	}
+	
+	/**
+	 * This function simply removes the friend given in the query string.
+	 */
+	public function removefriend($dispatcher, &$reqData, &$out) {
+		global $psdb, $users, $curuser;
+
+		// A valid curuser array is needed
+		if (!@$curuser['loggedin'] || !@$curuser['userid']) {
+			die('Not using a valid nick; you should be registered and logged in in order to add friends.');
+		}
+
+		$userid = $psdb->escape($curuser['userid']);
+		$player = $psdb->escape($reqData['player']);
+		$res = $psdb->query(
+			"DELETE FROM `ntbb_friendlist` " .
+			"WHERE (" .
+				"`p1`='" . $userid . "' AND `p2`='" . $player . "'" .
+			") OR (" .
+				"`p1`='" . $player . "' AND `p2`='" . $userid . "'" .
+			") " .
+			"LIMIT 1"
+		);
+		if (mysqli_affected_rows($psdb->db)) die(']' . $reqData['player'] . ' has been removed from your friend list.');
+		die('Could not remove ' . $reqData['player'] . ' from your friend list.');
 	}
 }
 

@@ -2422,13 +2422,8 @@ function Battle(frame, logFrame, noPreload) {
 				self.weatherMinTimeLeft = 0;
 			} else {
 				self.message('<small>' + newWeather.startMessage + '</small>');
-				if (self.turn === 0) {
-					self.weatherTimeLeft = 0;
-					self.weatherMinTimeLeft = 0;
-				} else {
-					self.weatherTimeLeft = 8;
-					self.weatherMinTimeLeft = 5;
-				}
+				self.weatherTimeLeft = 8;
+				self.weatherMinTimeLeft = 5;
 			}
 		}
 		if (self.weather && !newWeather) {
@@ -3653,6 +3648,10 @@ function Battle(frame, logFrame, noPreload) {
 					if (fromeffect.id) {
 						if (fromeffect.id === 'reflecttype') {
 							actions += "" + poke.getName() + "'s type changed to match " + ofpoke.getLowerName() + "'s!";
+						} else if (fromeffect.id === 'forestscurse') {
+							actions += "Grass type was added to " + poke.getLowerName();
+						} else if (fromeffect.id === 'trickortreat') {
+							actions += "Ghost type was added to " + poke.getLowerName();
 						} else {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
 						}
@@ -3841,6 +3840,12 @@ function Battle(frame, logFrame, noPreload) {
 				case 'mimic':
 					actions += '' + poke.getName() + ' learned ' + Tools.escapeHTML(args[3]) + '!';
 					break;
+				case 'ragepowder':
+					actions += '' + poke.getName() + ' became the center of attention!';
+					break;
+				case 'powder':
+					actions += '' + poke.getName() + ' is covered in powder!';
+					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " started!";
 				}
@@ -3970,6 +3975,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'magiccoat':
 					actions += '' + poke.getName() + ' shrouded itself with Magic Coat!';
 					break;
+				case 'matblock':
+					actions += '' + poke.getName() + ' intends to flip up a mat and block incoming attacks!';
+					break;
 				}
 				break;
 			case '-singlemove':
@@ -4038,6 +4046,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'mist':
 					actions += "" + poke.getName() + " is protected by the mist!";
+					break;
+				case 'trapped':
+					actions += "" + poke.getName() + " can no longer escape!";
 					break;
 
 				// move activations
@@ -4121,6 +4132,12 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'ingrain':
 					actions += '' + poke.getName() + ' anchored itself with its roots!';
+					break;
+				case 'matblock':
+					actions += '' + Tools.escapeHTML(args[3]) + ' was blocked by the kicked-up mat!';
+					break;
+				case 'powder':
+					actions += 'When the flame touched the powder on the Pokémon, it exploded!';
 					break;
 
 				// ability activations

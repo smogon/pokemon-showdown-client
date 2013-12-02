@@ -880,6 +880,7 @@ var Tools = {
 			"mollux": 832+13,
 			"aurumoth": 832+14,
 			"malaconda": 832+15,
+			"cawmodore": 832+16,
 		};
 		if (altNums[id]) {
 			num = altNums[id];
