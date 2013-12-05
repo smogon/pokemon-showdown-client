@@ -4121,6 +4121,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'sandtomb':
 					actions += '' + poke.getName() + ' became trapped by Sand Tomb!';
 					break;
+				case 'infestation':
+					actions += '' + poke.getName() + ' has been afflicted with an infestation by ' + ofpoke.getLowerName() + '!';
+					break;
 				case 'afteryou':
 					actions += '' + poke.getName() + ' took the kind offer!';
 					break;
