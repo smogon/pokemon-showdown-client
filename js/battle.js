@@ -3846,6 +3846,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'powder':
 					actions += '' + poke.getName() + ' is covered in powder!';
 					break;
+				case 'stickyweb':
+					actions += '' + poke.getName() + ' was caught in a sticky web!';
+					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " started!";
 				}
@@ -4248,6 +4251,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'toxicspikes':
 					actions += "The poison spikes disappeared from around " + side.getLowerTeamName() + "'s feet!";
+					break;
+				case 'stickyweb':
+					actions += "The sticky web has disappeared from beneath " + side.getLowerTeamName() + "'s feet!";
 					break;
 				case 'tailwind':
 					actions += "" + side.getTeamName() + "'s tailwind petered out!";
