@@ -1423,6 +1423,12 @@ var BattleMoveAnims = {
 	charge: {
 		anim: BattleOtherAnims.lightstatus.anim
 	},
+	geomancy: {
+		prepareAnim: BattleOtherAnims.lightstatus.anim,
+		prepareMessage: function(pokemon) {
+			return pokemon.getName()+' is absorbing power!';
+		}
+	},
 	substitute: {
 		anim: function(){}
 	},
