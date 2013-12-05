@@ -71,21 +71,19 @@ _Storage.prototype.initDirectory = function() {
 	var dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
 	if (!(dir.charAt(dir.length-1) in {'/':1, '\\':1})) dir += '/';
 	fs.stat(dir+'Documents', function(err, stats) {
-		if (err) return;
-		if (stats.isDirectory()) {
+		if (err || !stats.isDirectory()) {
+			fs.stat(dir+'My Documents', function(err, stats) {
+				if (err || !stats.isDirectory()) {
+					self.documentsDir = dir;
+				} else {
+					self.documentsDir = dir+'My Documents/';
+				}
+				self.initDirectory2();
+			});
+		} else {
 			self.documentsDir = dir+'Documents/';
 			self.initDirectory2();
-			return;
 		}
-		fs.stat(dir+'My Documents', function(err, stats) {
-			if (err) return;
-			if (stats.isDirectory()) {
-				self.documentsDir = dir+'My Documents/';
-			} else {
-				self.documentsDir = dir;
-			}
-			self.initDirectory2();
-		});
 	});
 };
 
