@@ -541,3 +541,35 @@
 	background: linear-gradient(top,  hsl(24,18%,77%),  hsl(24,18%,83%));
 	border-color: hsl(24,18%,41%);
 }
+
+.movemenu button.type-Fairy
+{
+	/* bg: 97 to 90, border: 70 */
+	background: hsl(310,41%,93%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(310,41%,97%)), to(hsl(310,41%,84%)));
+	background: -moz-linear-gradient(top,  hsl(310,41%,97%),  hsl(310,41%,84%));
+	background: linear-gradient(top,  hsl(310,41%,97%),  hsl(310,41%,84%));
+	border-color: hsl(310,41%,70%);
+}
+.movemenu button.type-Fairy small
+{
+	color: hsl(310,41%,41%);
+}
+.movemenu button.type-Fairy:hover
+{
+	/* bg: 95 to 83, border: 41 */
+	background: hsl(310,41%,87%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(310,41%,94%)), to(hsl(310,41%,77%)));
+	background: -moz-linear-gradient(top,  hsl(310,41%,94%),  hsl(310,41%,77%));
+	background: linear-gradient(top,  hsl(310,41%,94%),  hsl(310,41%,77%));
+	border-color: hsl(310,41%,41%);
+}
+.movemenu button.type-Fairy:active
+{
+	/* bg: 83 to 88, border: 41 */
+	background: hsl(310,41%,77%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(310,41%,77%)), to(hsl(310,41%,83%)));
+	background: -moz-linear-gradient(top,  hsl(310,41%,77%),  hsl(310,41%,83%));
+	background: linear-gradient(top,  hsl(310,41%,77%),  hsl(310,41%,83%));
+	border-color: hsl(310,41%,41%);
+}
