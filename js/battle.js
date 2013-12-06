@@ -3846,9 +3846,6 @@ function Battle(frame, logFrame, noPreload) {
 				case 'powder':
 					actions += '' + poke.getName() + ' is covered in powder!';
 					break;
-				case 'stickyweb':
-					actions += '' + poke.getName() + ' was caught in a sticky web!';
-					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " started!";
 				}
@@ -4052,6 +4049,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'trapped':
 					actions += "" + poke.getName() + " can no longer escape!";
+					break;
+				case 'stickyweb':
+					actions += '' + poke.getName() + ' was caught in a sticky web!';
 					break;
 
 				// move activations
