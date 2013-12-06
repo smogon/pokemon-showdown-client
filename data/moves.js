@@ -4272,20 +4272,23 @@ exports.BattleMovedex = {
 		basePower: 0,
 		category: "Status",
 		desc: "The user raises the Defense stat of all Grass-type Pokemon in battle.",
-		shortDesc: "Raises Defense by 2 of Grass types in battle.",
+		shortDesc: "Raises Defense by 1 of Grass types in battle.",
 		id: "flowershield",
 		name: "Flower Shield",
 		pp: 25,
 		priority: 0,
 		onHitField: function(target, source) {
+			var targets = [];
 			for (var i=0; i<this.sides.length; i++) {
 				for (var j=0; j<this.sides[i].active.length; j++) {
 					if (this.sides[i].active[j] && this.sides[i].active[j].hasType('Grass')) {
-						// Apply the boost from source's Flower Shield if it has Grass type
-						this.boost({def: 2}, this.sides[i].active[j], source, this.getMove('Flower Shield'));
+						// This move affects every Grass-type Pokemon in play.
+						targets.push(this.sides[i].active[j]);
 					}
 				}
 			}
+			if (!targets.length) return false; // No targets; move fails
+			for (var i=0; i<targets.length; i++) this.boost({def: 1}, targets[i], source, this.getMove('Flower Shield'));
 		},
 		secondary: false,
 		target: "all",
@@ -4989,24 +4992,6 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Normal"
 	},
-	"glowpunch": {
-		num: -6,
-		gen: 6,
-		accuracy: 100,
-		basePower: 70,
-		category: "Physical",
-		desc: "Deals damage to one adjacent target. Makes contact. Damage is boosted to 1.2x by the Ability Iron Fist.",
-		shortDesc: "Deals damage to one adjacent target.",
-		id: "glowpunch",
-		name: "Glow Punch",
-		pp: 20,
-		priority: 0,
-		isContact: true,
-		isPunchAttack: true,
-		secondary: false,
-		target: "normal",
-		type: "Fire"
-	},
 	"grassknot": {
 		num: 447,
 		accuracy: 100,
@@ -5703,10 +5688,8 @@ exports.BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		isBounceable: true,
-		isPulseMove: true,
 		onHit: function(pokemon) {
-			if (pokemon.ability === 'megalauncher') this.heal(this.modify(pokemon.maxhp, 0.75));
-			else this.heal(Math.ceil(pokemon.maxhp * 0.5));
+			this.heal(Math.ceil(pokemon.maxhp * 0.5));
 		},
 		secondary: false,
 		target: "normal",
@@ -7660,12 +7643,13 @@ exports.BattleMovedex = {
 		pseudoWeather: 'magneticfield',
 		effect: {
 			duration: 5,
-			durationCallback: function(target, source, effect) {
-				if (source && source.ability === 'persistent') {
+			/*durationCallback: function(target, source, effect) {
+				// Persistent isn't updated for BW/XY moves
+				if (source && source.ability === 'Persistent') {
 					return 7;
 				}
 				return 5;
-			},
+			},*/
 			onBasePower: function(basePower, user, target, move) {
 				if (move.type === 'Electric') {
 					this.debug('electric move strengthened');
@@ -9239,22 +9223,6 @@ exports.BattleMovedex = {
 		secondary: false,
 		target: "normal",
 		type: "Bug"
-	},
-	"playaround": {
-		num: -6,
-		gen: 6,
-		accuracy: 100,
-		basePower: 70,
-		category: "Physical",
-		desc: "Deals damage to one adjacent target.",
-		shortDesc: "Deals damage to one adjacent target.",
-		id: "playaround",
-		name: "Play Around",
-		pp: 20,
-		priority: 0,
-		secondary: false,
-		target: "normal",
-		type: "Fairy"
 	},
 	"playnice": {
 		num: -6,
@@ -12540,7 +12508,7 @@ exports.BattleMovedex = {
 		effect: {
 			// this is a side condition
 			onStart: function(side) {
-				this.add('-sidestart',side,'move: Stealth Rock');
+				this.add('-sidestart', side, 'move: Stealth Rock');
 			},
 			onSwitchIn: function(pokemon) {
 				var typeMod = this.getEffectiveness('Rock', pokemon);
@@ -12600,6 +12568,7 @@ exports.BattleMovedex = {
 			},
 			onSwitchIn: function(pokemon) {
 				if (!pokemon.runImmunity('Ground')) return;
+				this.add('-start', pokemon, 'Sticky Web');
 				this.boost({spe: -1}, pokemon, pokemon, this.getMove('stickyweb'));
 			}
 		},
