@@ -270,14 +270,8 @@ var baseSpeciesChart = {
 
 	// mega evolutions
 	'charizard': 1,
-	'blastoise': 1,
-	'venusaur': 1,
-	'ampharos': 1,
-	'mawile': 1,
-	'garchomp': 1,
-	'lucario': 1,
-	'absol': 1,
 	'mewtwo': 1
+	// others are hardcoded by ending with 'mega'
 };
 
 var Tools = {
@@ -695,6 +689,10 @@ var Tools = {
 						template.baseSpecies = k;
 						template.forme = id.substr(k.length);
 					}
+				}
+				if (id !== 'yanmega' && id.substr(id.length-4) === 'mega') {
+					template.baseSpecies = id.substr(0, id.length-4);
+					template.forme = id.substr(id.length-4);
 				}
 				template.exists = false;
 			}
