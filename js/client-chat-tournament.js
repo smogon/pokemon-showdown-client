@@ -211,7 +211,7 @@
 					case 'create':
 						var format = BattleFormats[data[0]].name;
 						var type = data[1];
-						this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + format + " " + Tools.escapeHTML(type) + " Tournament has been created.</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament has been created.</div>");
 						this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + format + "\nType: " + type, 'tournament-create');
 						break;
 
