@@ -562,7 +562,8 @@
 	var UserPopup = this.Popup.extend({
 		initialize: function (data) {
 			this.$el.html('<ul class="popupmenu">' + data.users.map(function (user) {
-				return '<li><button name="selectUser" value="' + Tools.escapeQuotes(user) + '"' + (user === data.user ? ' class="sel"' : '') + '>' + Tools.escapeHTML(user) + '</button></li>';
+				var escapedUser = Tools.escapeHTML(user);
+				return '<li><button name="selectUser" value="' + Tools.escapeQuotes(escapedUser) + '"' + (user === data.user ? ' class="sel"' : '') + '>' + escapedUser + '</button></li>';
 			}).join('') + '</ul>');
 		},
 		selectUser: function (user) {
