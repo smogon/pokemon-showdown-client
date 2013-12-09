@@ -194,6 +194,7 @@
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
+			if (Config.server.id !== "battletower") return true;
 			if (isBroadcast) {
 				// TODO
 				return true;
