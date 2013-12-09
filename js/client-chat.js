@@ -644,7 +644,7 @@
 			this.$chatbox = null;
 
 			this.$tournamentWrapper = this.$('.tournament-wrapper');
-			this.tournamentBox = new TournamentBox(this, this.$tournamentWrapper);
+			this.tournamentBox = null;
 
 			this.users = {};
 			this.userCount = {};
@@ -674,7 +674,7 @@
 				this.$tournamentWrapper.removeClass('hasuserlist');
 			}
 			this.$chatFrame.scrollTop(this.$chat.height());
-			this.tournamentBox.updateLayout();
+			if (this.tournamentBox) this.tournamentBox.updateLayout();
 		},
 		show: function() {
 			Room.prototype.show.apply(this, arguments);
@@ -826,6 +826,7 @@
 
 				case 'tournament':
 				case 'tournaments':
+					if (!this.tournamentBox) this.tournamentBox = new TournamentBox(this, this.$tournamentWrapper);
 					if (!this.tournamentBox.parseMessage(row.slice(1), row[0] === 'tournaments'))
 						break;
 					// fallthrough in case of unparsed message
@@ -841,7 +842,7 @@
 			}
 		},
 		tournamentButton: function(val, button) {
-			this.tournamentBox[$(button).data('type')](val, button);
+			if (this.tournamentBox) this.tournamentBox[$(button).data('type')](val, button);
 		},
 		parseUserList: function(userList) {
 			this.userCount = {};
