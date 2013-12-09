@@ -394,7 +394,7 @@
 			switch (cmd.toLowerCase()) {
 			case 'challenge':
 				var targets = target.split(',').map($.trim);
-				
+
 				if (!targets[0]) targets[0] = prompt('Who?');
 				target = toId(targets[0]);
 				this.challengeData = { userid: target, format: targets[1] || '', team: targets[2] || '' };
@@ -828,6 +828,7 @@
 				case 'tournaments':
 					if (!this.tournamentBox.parseMessage(row.slice(1), row[0] === 'tournaments'))
 						break;
+					// fallthrough in case of unparsed message
 
 				case '':
 					this.$chat.append('<div class="notice">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
