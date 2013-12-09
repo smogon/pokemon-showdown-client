@@ -394,7 +394,7 @@
 			switch (cmd.toLowerCase()) {
 			case 'challenge':
 				var targets = target.split(',').map($.trim);
-				
+
 				if (!targets[0]) targets[0] = prompt('Who?');
 				target = toId(targets[0]);
 				this.challengeData = { userid: target, format: targets[1] || '', team: targets[2] || '' };
@@ -635,13 +635,16 @@
 		maxWidth: 1024,
 		isSideRoom: true,
 		initialize: function() {
-			var buf = '<ul class="userlist" style="display:none"></ul><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
+			var buf = '<ul class="userlist" style="display:none"></ul><div class="tournament-wrapper"></div><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
 			this.$el.addClass('ps-room-light').html(buf);
 
 			this.$chatAdd = this.$('.chat-log-add');
 			this.$chatFrame = this.$('.chat-log');
 			this.$chat = this.$('.inner');
 			this.$chatbox = null;
+
+			this.$tournamentWrapper = this.$('.tournament-wrapper');
+			this.tournamentBox = null;
 
 			this.users = {};
 			this.userCount = {};
@@ -663,12 +666,15 @@
 				this.$userList.show();
 				this.$chatFrame.addClass('hasuserlist');
 				this.$chatAdd.addClass('hasuserlist');
+				this.$tournamentWrapper.addClass('hasuserlist');
 			} else {
 				this.$userList.hide();
 				this.$chatFrame.removeClass('hasuserlist');
 				this.$chatAdd.removeClass('hasuserlist');
+				this.$tournamentWrapper.removeClass('hasuserlist');
 			}
 			this.$chatFrame.scrollTop(this.$chat.height());
+			if (this.tournamentBox) this.tournamentBox.updateLayout();
 		},
 		show: function() {
 			Room.prototype.show.apply(this, arguments);
@@ -818,6 +824,13 @@
 					});
 					break;
 
+				case 'tournament':
+				case 'tournaments':
+					if (!this.tournamentBox) this.tournamentBox = new TournamentBox(this, this.$tournamentWrapper);
+					if (!this.tournamentBox.parseMessage(row.slice(1), row[0] === 'tournaments'))
+						break;
+					// fallthrough in case of unparsed message
+
 				case '':
 					this.$chat.append('<div class="notice">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
 					break;
@@ -827,6 +840,9 @@
 					break;
 				}
 			}
+		},
+		tournamentButton: function(val, button) {
+			if (this.tournamentBox) this.tournamentBox[$(button).data('type')](val, button);
 		},
 		parseUserList: function(userList) {
 			this.userCount = {};

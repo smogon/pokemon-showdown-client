@@ -963,6 +963,181 @@ a.ilink:hover {
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
+/* Tournaments */
+
+.tournament-wrapper {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2em;
+	line-height: 2em;
+	text-align: center;
+	border-bottom: 1px #aaa solid;
+}
+.tournament-wrapper.active {
+	display: block;
+}
+.tournament-wrapper.active + .chat-log {
+	top: 2.4em;
+}
+
+.tournament-title {
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.tournament-box {
+	position: absolute;
+	top: 2em;
+	left: 0;
+	right: 0;
+	z-index: 1;
+	line-height: 1em;
+	border-bottom: 1px #aaa solid;
+	background-color: rgba(242, 247, 250, 0.85);
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.5s ease-in-out;
+	-o-transition: max-height 0.5s ease-in-out;
+	-moz-transition: max-height 0.5s ease-in-out;
+	-webkit-transition: max-height 0.5s ease-in-out;
+}
+
+.tournament-bracket {
+	max-height: 200px;
+	padding: 10px;
+	overflow: hidden;
+	font-size: 8pt;
+}
+.tournament-bracket-overflowing {
+	height: 200px;
+	padding: 0;
+	position: relative;
+	left: 0;
+	top: 0;
+}
+
+.tournament-bracket-table {
+	margin: 0 auto;
+	empty-cells: hide;
+	border-bottom: 1px #aaa solid;
+	border-collapse: collapse;
+}
+.tournament-bracket-table td, .tournament-bracket-table th {
+	border: 1px #aaa solid;
+	padding: 5px;
+}
+.tournament-bracket-table td {
+	white-space: nowrap;
+}
+.tournament-bracket-table .empty,
+.tournament-bracket-table .tournament-bracket-table-cell-null {
+	border-width: 0;
+}
+.tournament-bracket-table-cell-result-win {
+	background-color: rgba(0, 255, 0, 0.2)
+}
+.tournament-bracket-table-cell-result-draw {
+	background-color: rgba(255, 255, 0, 0.2)
+}
+.tournament-bracket-table-cell-result-loss {
+	background-color: rgba(255, 0, 0, 0.2)
+}
+
+.tournament-bracket-tree-link {
+	fill: none;
+	stroke: #aaa;
+}
+.tournament-bracket-tree-link-active {
+	stroke: #aa0;
+	stroke-width: 3px;
+}
+.tournament-bracket-tree-node > rect {
+	/* Note: Due to SVG limitations, dimensions and border radii are in client-tournament.js (nodeSize) */
+	fill: rgba(225, 232, 242, 0.7);
+	stroke: rgba(178, 183, 191, 0.7);
+}
+.tournament-bracket-tree-node-win > rect {
+	fill: rgba(0, 255, 0, 0.2);
+	stroke: rgba(0, 255, 0, 0.5);
+}
+.tournament-bracket-tree-node-draw > rect {
+	fill: rgba(255, 255, 0, 0.2);
+	stroke: rgba(255, 255, 0, 0.5);
+}
+.tournament-bracket-tree-node-loss > rect {
+	fill: rgba(255, 0, 0, 0.2);
+	stroke: rgba(255, 0, 0, 0.5);
+}
+.tournament-bracket-tree-node > text {
+	font-size: 0.8em;
+	text-anchor: middle;
+	dominant-baseline: central;
+}
+.tournament-bracket-tree-node > text > a {
+	fill: #248;
+}
+.tournament-bracket-tree-node > text > a:hover {
+	fill: #68c;
+}
+.tournament-bracket-tree-node-match-team {
+	font-weight: bold;
+}
+.tournament-bracket-tree-node-match-team-draw, .tournament-bracket-tree-node-match-team-loss {
+	fill: #aaa;
+}
+
+.tournament-tools {
+	padding: 10px;
+	display: none;
+	border-top: 1px #aaa solid;
+}
+.tournament-tools.active {
+	display: block;
+}
+
+.tournament-join,
+.tournament-leave {
+	display: none;
+}
+.tournament-join.active,
+.tournament-leave.active {
+	display: inline;
+}
+
+.tournament-nomatches,
+.tournament-challenge,
+.tournament-challengeby,
+.tournament-challenging,
+.tournament-challenged {
+	display: none;
+}
+.tournament-nomatches.active,
+.tournament-challenge.active,
+.tournament-challengeby.active,
+.tournament-challenging.active,
+.tournament-challenged.active {
+	display: block;
+}
+
+div[class^='tournament-message-'], div[class*=' tournament-message-'] {
+	font-weight: bold;
+}
+.tournament-message-end-bracket {
+	font-weight: normal !important;
+	max-height: 400px;
+	overflow: hidden;
+	text-align: center;
+}
+.tournament-message-end-bracket-overflowing {
+	height: 400px;
+	position: relative;
+	left: 0;
+	top: 0;
+}
+
 /* Messages */
 
 .message-announce {
@@ -1030,7 +1205,8 @@ a.ilink:hover {
 	overflow-scrolling: touch;
 }
 .chat-log.hasuserlist,
-.chat-log-add.hasuserlist {
+.chat-log-add.hasuserlist,
+.tournament-wrapper.hasuserlist {
 	left: 146px;
 }
 .userlist,
