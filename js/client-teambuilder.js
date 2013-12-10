@@ -318,7 +318,7 @@
 			}
 			buf += '<div class="setmenu"><button name="moveSet"><i class="icon-move"></i>Move</button> <button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
-			buf += '<label>Nickname</label><input type="text" value="'+Tools.escapeHTML(set.name||set.species)+'" name="nickname" />';
+			buf += '<label>Nickname</label><input type="text" value="'+Tools.escapeHTML(set.name||set.baseSpecies||set.species)+'" name="nickname" />';
 			buf += '</div>';
 			buf += '<div class="setchart">';
 
