@@ -723,7 +723,7 @@ BattlePokemonSprites = {
 	"greninja":{num:658},
 	"bunnelby":{num:659},
 	"diggersby":{num:660},
-	"fletchling":{num:661},
+	"fletchling":{num:661, front:{ani:{w: 96, h: 96}}},
 	"fletchinder":{num:662},
 	"talonflame":{num:663, front:{ani:{w: 130, h: 100}},back:{ani:{w: 130, h: 100}}},
 	"scatterbug":{num:664},
