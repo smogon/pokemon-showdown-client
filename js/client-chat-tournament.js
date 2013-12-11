@@ -123,13 +123,8 @@
 			this.$challengedMessage = $wrapper.find('.tournament-challenged-message');
 			this.$challengeAccept = $wrapper.find('.tournament-challenge-accept');
 
-			this.isActive = false;
-			this.info = null;
-			this.isJoined = false;
-			this.bracketData = null;
+			this.info = {};
 			this.savedBracketPosition = {};
-			this.challenges = null;
-			this.challengeBys = null;
 
 			var self = this;
 			this.$title.on('click', function() {
@@ -138,7 +133,7 @@
 			this.$box.on('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
 				if (self.$box.hasClass('active'))
 					self.$box.css('transition', 'none');
-				if (!self.isActive)
+				if (!self.info.isActive)
 					self.$wrapper.removeClass('active');
 			});
 
@@ -201,10 +196,10 @@
 			} else {
 				var cmd = data.shift().toLowerCase();
 
-				if (!this.isActive && cmd !== 'end') {
+				if (!this.info.isActive && cmd !== 'end') {
 					this.$wrapper.addClass("active");
 					this.$box.addClass("active");
-					this.isActive = true;
+					this.info.isActive = true;
 				}
 
 				switch (cmd) {
@@ -232,80 +227,64 @@
 						break;
 
 					case 'update':
-						this.$bracket.removeClass('tournament-bracket-overflowing');
-						this.$tools.find('.active').andSelf().removeClass('active');
-						if (this.info && this.info.isStarted)
-							this.$noMatches.addClass('active');
-						this.isJoined = false;
-						this.challenges = null;
-						this.challengeBys = null;
+						$.extend(this.info, JSON.parse(data.join('|')));
 						break;
 
-					case 'info':
-						this.info = JSON.parse(data.join('|'));
+					case 'updateend':
 						this.$format.text(BattleFormats[this.info.format].name);
 						this.$generator.text(this.info.generator);
-						break;
 
-					case 'isjoined':
-						this.isJoined = true;
-						break;
+						// Update the toolbox
+						this.$join.toggleClass('active', !this.info.isStarted && !this.info.isJoined);
+						this.$leave.toggleClass('active', !this.info.isStarted && this.info.isJoined);
+						this.$tools.toggleClass('active', !this.info.isStarted || this.info.isJoined);
 
-					case 'bracketdata':
-						// The 'isjoined' packet isn't a guaranteed packet to all users, so that packet's
-						// handling is placed in the immediate next guaranteed packet, here
-						if (!this.info.isStarted)
-							if (this.isJoined)
-								this.$leave.addClass('active');
-							else
-								this.$join.addClass('active');
-						if (!this.info.isStarted || this.isJoined)
-							this.$tools.addClass('active');
-
-						this.bracketData = JSON.parse(data.join('|'));
-						this.$bracket.empty()
-						var $bracket = this.generateBracket(this.bracketData);
+						// Update the bracket
+						this.$bracket.empty();
+						this.$bracket.removeClass('tournament-bracket-overflowing');
+						var $bracket = this.generateBracket(this.info.bracketData);
 						if ($bracket) {
 							this.$bracket.append($bracket);
 							this.updateLayout();
 						}
-						break;
 
-					case 'challenges':
-						this.$noMatches.removeClass('active');
-						this.challenges = data[0].split(',');
-						this.$challengeUser.html(this.renderChallengeUsers());
-						this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
-						this.$challengeTeam.children().data('type', 'challengeTeam');
-						this.$challengeTeam.children().attr('name', 'tournamentButton');
-						this.$challenge.addClass("active");
+						// Update the challenges
+						this.$noMatches.toggleClass('active', this.info.isStarted &&
+							this.info.challenges.length === 0 && this.info.challengeBys.length === 0 &&
+							!this.info.challenging && !this.info.challenged);
+						this.$challenge.toggleClass('active', this.info.challenges.length > 0);
+						this.$challengeBy.toggleClass('active', this.info.challengeBys.length > 0);
+						this.$challenging.toggleClass('active', !!this.info.challenging);
+						this.$challenged.toggleClass('active', !!this.info.challenged);
 
-						this.setBoxVisibility(true);
-						this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
-						break;
+						if (this.info.challenges.length > 0) {
+							this.$challengeUser.html(this.renderChallengeUsers());
+							this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
+							this.$challengeTeam.children().data('type', 'challengeTeam');
+							this.$challengeTeam.children().attr('name', 'tournamentButton');
 
-					case 'challengebys':
-						this.$noMatches.removeClass('active');
-						this.challengeBys = data[0].split(',');
-						this.$challengeBy.text((this.challenges ? "Or" : "Please") + " wait for " + arrayToPhrase(this.challengeBys, "or") + " to challenge you.");
-						this.$challengeBy.addClass("active");
-						break;
+							this.setBoxVisibility(true);
+							this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
+						}
 
-					case 'challenging':
-						this.$noMatches.removeClass('active');
-						this.$challenging.text("Challenging " + data[0] + "...").addClass("active");
-						break;
+						if (this.info.challengeBys.length > 0)
+							this.$challengeBy.text((this.info.challenges.length > 0 ? "Or" : "Please") + " wait for " + arrayToPhrase(this.info.challengeBys, "or") + " to challenge you.");
 
-					case 'challenged':
-						this.$noMatches.removeClass('active');
-						this.$challengedMessage.text(data[0] + " has challenged you.");
-						this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
-						this.$challengeTeam.children().data('type', 'challengeTeam');
-						this.$challengeTeam.children().attr('name', 'tournamentButton');
-						this.$challenged.addClass("active");
+						if (this.info.challenging) {
+							this.$challenging.text("Challenging " + this.info.challenging + "...");
+							// TODO: Add cancel button
+						}
 
-						this.setBoxVisibility(true);
-						this.room.notifyOnce("Tournament challenge from " + data[0], "Room: " + this.room.title, 'tournament-challenged');
+						if (this.info.challenged) {
+							this.$challengedMessage.text(this.info.challenged + " has challenged you.");
+							this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
+							this.$challengeTeam.children().data('type', 'challengeTeam');
+							this.$challengeTeam.children().attr('name', 'tournamentButton');
+
+							this.setBoxVisibility(true);
+							this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
+						}
+
 						break;
 
 					case 'battlestart':
@@ -347,12 +326,10 @@
 						// Fallthrough
 
 					case 'forceend':
-						this.isActive = false;
-						this.info = null;
-						this.bracketData = null;
+						this.info = {};
 						this.savedBracketPosition = {};
 
-						this.$box.removeClass("active");
+						this.$box.removeClass('active');
 						this.$box.css('transition', '');
 
 						if (cmd === 'forceend')
@@ -546,10 +523,10 @@
 		},
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
-			return '<button class="select" value="' + toId(this.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">' + Tools.escapeHTML(this.challenges[0]) + '</button>';
+			return '<button class="select" value="' + toId(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">' + Tools.escapeHTML(this.info.challenges[0]) + '</button>';
 		};
 		TournamentBox.prototype.challengeUser = function (user, button) {
-			app.addPopup(UserPopup, {user: user, users: this.challenges, sourceEl: button});
+			app.addPopup(UserPopup, {user: user, users: this.info.challenges, sourceEl: button});
 		};
 
 		TournamentBox.prototype.challengeTeam = function (team, button) {
