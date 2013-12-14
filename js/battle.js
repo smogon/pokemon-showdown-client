@@ -3978,6 +3978,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'matblock':
 					actions += '' + poke.getName() + ' intends to flip up a mat and block incoming attacks!';
 					break;
+				case 'electrify':
+					actions += '' + poke.getName() + '\'s moves have been electrified!';
+					break;
 				}
 				break;
 			case '-singlemove':
@@ -4363,6 +4366,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'payday':
 					actions += 'Coins were scattered everywhere!';
+					break;
+				case 'iondeluge':
+					actions += 'A deluge of ions showers the battlefield!';
 					break;
 				default:
 					actions += ''+effect.name+' hit!';
