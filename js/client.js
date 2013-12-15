@@ -2422,7 +2422,7 @@
 		initialize: function(data) {
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
-			buf += '<p><a href="http://pokemonshowdown.com/replay/'+data.id+'" target="_blank">http://pokemonshowdown.com/replay/'+data.id+'</a></p>';
+			buf += '<p><a href="http://replay.pokemonshowdown.com/'+data.id+'" target="_blank">http://replay.pokemonshowdown.com/'+data.id+'</a></p>';
 			buf += '<p><button type="submit" class="autofocus"><strong>Open</strong></button> <button name="close">Cancel</button></p>';
 			this.$el.html(buf).css('max-width', 620);
 		},
