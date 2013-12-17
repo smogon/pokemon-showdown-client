@@ -972,7 +972,8 @@
 				// PMs already notify in the main menu; no need to make them notify again
 				var isHighlighted = this.getHighlight(message);
 				if (isHighlighted) {
-					this.notifyOnce("Mentioned by "+name, "\""+message+"\"", 'highlight');
+					var notifyTitle = "Mentioned by "+name+(this.id === 'lobby' ? '' : " in "+this.title);
+					this.notifyOnce(notifyTitle, "\""+message+"\"", 'highlight');
 				}
 			}
 			var highlight = isHighlighted ? ' highlighted' : '';
