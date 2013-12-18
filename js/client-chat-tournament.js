@@ -240,9 +240,9 @@
 						this.$tools.toggleClass('active', !this.info.isStarted || this.info.isJoined);
 
 						// Update the bracket
+						var $bracket = this.generateBracket(this.info.bracketData);
 						this.$bracket.empty();
 						this.$bracket.removeClass('tournament-bracket-overflowing');
-						var $bracket = this.generateBracket(this.info.bracketData);
 						if ($bracket) {
 							this.$bracket.append($bracket);
 							this.updateLayout();
