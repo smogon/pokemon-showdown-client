@@ -1211,11 +1211,12 @@
 				return;
 			}
 			var leftMin = (this.curRoom.minWidth || this.curRoom.bestWidth);
+			var leftMinMain = (this.curRoom.minMainWidth || leftMin);
 			var rightMin = (this.sideRoom.minWidth || this.sideRoom.bestWidth);
 			var available = $(window).width();
 			if (this.curRoom.isSideRoom) {
 				// we're trying to focus a side room
-				if (available >= this.rooms[''].tinyWidth + leftMin) {
+				if (available >= this.rooms[''].tinyWidth + leftMinMain) {
 					// it fits to the right of the main menu, so do that
 					this.curSideRoom = this.sideRoom = this.curRoom;
 					this.curRoom = this.rooms[''];

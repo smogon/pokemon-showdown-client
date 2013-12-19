@@ -632,6 +632,7 @@
 
 	var ChatRoom = this.ChatRoom = ConsoleRoom.extend({
 		minWidth: 320,
+		minMainWidth: 580,
 		maxWidth: 1024,
 		isSideRoom: true,
 		initialize: function() {
