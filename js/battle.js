@@ -2202,7 +2202,8 @@ function Battle(frame, logFrame, noPreload) {
 				snatch: '<span class="good">Snatch</span>',
 				grudge: '<span class="good">Grudge</span>',
 				endure: '<span class="good">Endure</span>',
-				focuspunch: '<span class="neutral">Focusing</span>'
+				focuspunch: '<span class="neutral">Focusing</span>',
+				powder: '<span class="bad">Powder</span>'
 			};
 			for (i in pokemon.volatiles) {
 				if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
