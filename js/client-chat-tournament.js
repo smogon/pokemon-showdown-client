@@ -137,7 +137,7 @@
 				if (self.$box.hasClass('active'))
 					self.$box.css('transition', 'none');
 				if (!self.info.isActive)
-					self.$wrapper.removeClass('active');
+					self.$wrapper.find('.active').andSelf().removeClass('active');
 			});
 
 			this.$join.on('click', function() {
@@ -333,8 +333,10 @@
 						this.info = {};
 						this.savedBracketPosition = {};
 
-						this.$box.removeClass('active');
-						this.$box.css('transition', '');
+						if (!this.$box.hasClass('active'))
+							this.$wrapper.find('.active').andSelf().removeClass('active');
+						else
+							this.setBoxVisibility(false);
 
 						if (cmd === 'forceend')
 							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">The tournament was forcibly ended.</div>");
