@@ -198,13 +198,6 @@
 				return true;
 			} else {
 				var cmd = data.shift().toLowerCase();
-
-				if (!this.info.isActive && cmd !== 'end') {
-					this.$wrapper.addClass("active");
-					this.$box.addClass("active");
-					this.info.isActive = true;
-				}
-
 				switch (cmd) {
 					case 'create':
 						var format = BattleFormats[data[0]].name;
@@ -236,6 +229,12 @@
 						break;
 
 					case 'updateend':
+						if (!this.info.isActive) {
+							this.$wrapper.addClass("active");
+							this.$box.addClass("active");
+							this.info.isActive = true;
+						}
+				
 						this.$format.text(BattleFormats[this.info.format].name);
 						this.$generator.text(this.info.generator);
 
