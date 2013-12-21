@@ -83,7 +83,10 @@
 			this.$wrapper = $wrapper;
 
 			$wrapper.html(
-				'<div class="tournament-title"><span class="tournament-format"></span> <span class="tournament-generator"></span> Tournament</div>' +
+				'<div class="tournament-title">' +
+					'<span class="tournament-format"></span> <span class="tournament-generator"></span> Tournament' +
+					'<div class="tournament-toggle">Toggle</div>' +
+				'</div>' +
 				'<div class="tournament-box">' +
 					'<div class="tournament-bracket"></div>' +
 					'<div class="tournament-tools">' +
