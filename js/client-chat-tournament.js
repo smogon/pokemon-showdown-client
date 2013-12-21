@@ -222,6 +222,8 @@
 						break;
 
 					case 'start':
+						if (!this.info.isJoined)
+							this.setBoxVisibility(false);
 						this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
 						break;
 
