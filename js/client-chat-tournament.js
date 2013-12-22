@@ -135,7 +135,7 @@
 				self.toggleBoxVisibility();
 			});
 			this.$box.on('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
-				if (self.$box.hasClass('active'))
+				if (self.isBoxVisible())
 					self.$box.css('transition', 'none');
 				if (!self.info.isActive)
 					self.$wrapper.find('.active').andSelf().removeClass('active');
@@ -160,7 +160,7 @@
 		}
 
 		TournamentBox.prototype.updateLayout = function () {
-			this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight: '');
+			this.$box.css('max-height', this.isBoxVisible() ? this.$box[0].scrollHeight : '');
 			if (this.$bracket.hasClass('tournament-bracket-overflowing')) {
 				clampPosition(this.$bracket.children(), this.savedBracketPosition);
 				this.$bracket.children().css({
@@ -175,21 +175,21 @@
 				}
 			}
 		};
-		TournamentBox.prototype.setBoxVisibility = function (isVisible) {
-			if (isVisible) {
-				if (this.$box.hasClass('active'))
-					return;
-				this.$box.addClass('active');
-			} else {
-				if (!this.$box.hasClass('active'))
-					return;
-				this.$box.removeClass('active');
-			}
-			this.$box.css('transition', '');
-			this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight: '');
+		TournamentBox.prototype.isBoxVisible = function () {
+			return this.$box.hasClass('active');
 		};
-		TournamentBox.prototype.toggleBoxVisibility = function () {
-			this.setBoxVisibility(!this.$box.hasClass('active'));
+		TournamentBox.prototype.toggleBoxVisibility = function (isVisible) {
+			var isCurrentlyVisible = this.isBoxVisible();
+			if (isVisible === undefined)
+				isVisible = !isCurrentlyVisible;
+
+			if ((isVisible && isCurrentlyVisible) ||
+				(!isVisible && !isCurrentlyVisible))
+				return;
+
+			this.$box.toggleClass('active', !!isVisible);
+			this.$box.css('transition', '');
+			this.$box.css('max-height', isVisible ? this.$box[0].scrollHeight : '');
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
@@ -217,7 +217,7 @@
 
 					case 'start':
 						if (!this.info.isJoined)
-							this.setBoxVisibility(false);
+							this.toggleBoxVisibility(false);
 						this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
 						break;
 
@@ -232,8 +232,8 @@
 					case 'updateend':
 						if (!this.info.isActive) {
 							this.$wrapper.addClass("active");
-							if (this.info.isJoined)
-								this.$box.addClass("active");
+							if (!this.updates.isStarted || this.updates.isJoined)
+								this.toggleBoxVisibility(true);
 							this.info.isActive = true;
 						}
 
@@ -266,7 +266,7 @@
 									this.$challengeTeam.children().data('type', 'challengeTeam');
 									this.$challengeTeam.children().attr('name', 'tournamentButton');
 
-									this.setBoxVisibility(true);
+									this.toggleBoxVisibility(true);
 									this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
 								}
 							}
@@ -293,7 +293,7 @@
 									this.$challengeTeam.children().data('type', 'challengeTeam');
 									this.$challengeTeam.children().attr('name', 'tournamentButton');
 
-									this.setBoxVisibility(true);
+									this.toggleBoxVisibility(true);
 									this.room.notifyOnce("Tournament challenge from " + this.updates.challenged, "Room: " + this.room.title, 'tournament-challenged');
 								}
 							}
@@ -350,10 +350,10 @@
 						this.info = {};
 						this.savedBracketPosition = {};
 
-						if (!this.$box.hasClass('active'))
+						if (!this.isBoxVisible())
 							this.$wrapper.find('.active').andSelf().removeClass('active');
 						else
-							this.setBoxVisibility(false);
+							this.toggleBoxVisibility(false);
 
 						if (cmd === 'forceend')
 							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">The tournament was forcibly ended.</div>");
@@ -363,7 +363,7 @@
 						return true;
 				}
 
-				this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight : '');
+				this.$box.css('max-height', this.isBoxVisible() ? this.$box[0].scrollHeight : '');
 			}
 		};
 
