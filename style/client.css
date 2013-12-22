@@ -987,16 +987,22 @@ a.ilink:hover {
 	font-weight: bold;
 	cursor: pointer;
 }
-.tournament-toggle {
+
+.tournament-status, .tournament-toggle {
 	position: absolute;
-	right: 0;
 	top: 0;
 	padding: 0 0.5em;
 	font-weight: normal;
 	font-size: 80%;
 	background-color: rgba(242, 247, 250, 0.85);
-	border-left: 1px #aaa solid;
 	border-right: 1px #aaa solid;
+}
+.tournament-status {
+	left: 0;
+}
+.tournament-toggle {
+	right: 0;
+	border-left: 1px #aaa solid;
 }
 
 .tournament-box {
