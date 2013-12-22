@@ -85,6 +85,7 @@
 			$wrapper.html(
 				'<div class="tournament-title">' +
 					'<span class="tournament-format"></span> <span class="tournament-generator"></span> Tournament' +
+					'<div class="tournament-status"></div>' +
 					'<div class="tournament-toggle">Toggle</div>' +
 				'</div>' +
 				'<div class="tournament-box">' +
@@ -110,6 +111,7 @@
 			this.$title = $wrapper.find('.tournament-title');
 			this.$format = $wrapper.find('.tournament-format');
 			this.$generator = $wrapper.find('.tournament-generator');
+			this.$status = $wrapper.find('.tournament-status');
 			this.$box = $wrapper.find('.tournament-box');
 			this.$bracket = $wrapper.find('.tournament-bracket');
 			this.$tools = $wrapper.find('.tournament-tools');
@@ -239,6 +241,7 @@
 
 						this.$format.text(BattleFormats[this.updates.format].name);
 						this.$generator.text(this.updates.generator);
+						this.$status.text(this.updates.isStarted ? "In Progress" : "Signups");
 
 						// Update the toolbox
 						this.$join.toggleClass('active', !this.updates.isStarted && !this.updates.isJoined);
