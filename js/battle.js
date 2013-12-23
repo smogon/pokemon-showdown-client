@@ -3290,7 +3290,7 @@ function Battle(frame, logFrame, noPreload) {
 			case '-hitcount':
 				var hits = parseInt(args[2]);
 				if (self.multiHitMove && self.multiHitMove[3] === 0 && hits > 0) self.animMultiHitMove();
-				actions += 'Hit ' + hits + ' time(s)!';
+				actions += 'Hit ' + hits + (hits > 1 ? ' times!' : ' time!');
 				break;
 
 			case '-nothing':
