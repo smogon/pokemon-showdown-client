@@ -235,25 +235,26 @@
 						break;
 
 					case 'updateend':
+						$.extend(this.info, this.updates);
 						if (!this.info.isActive) {
 							this.$wrapper.addClass("active");
-							if (!this.updates.isStarted || this.updates.isJoined)
+							if (!this.info.isStarted || this.info.isJoined)
 								this.toggleBoxVisibility(true);
 							this.info.isActive = true;
 						}
 
-						this.$format.text(BattleFormats[this.updates.format].name);
-						this.$generator.text(this.updates.generator);
-						this.$status.text(this.updates.isStarted ? "In Progress" : "Signups");
+						this.$format.text(BattleFormats[this.info.format].name);
+						this.$generator.text(this.info.generator);
+						this.$status.text(this.info.isStarted ? "In Progress" : "Signups");
 
 						// Update the toolbox
-						this.$join.toggleClass('active', !this.updates.isStarted && !this.updates.isJoined);
-						this.$leave.toggleClass('active', !this.updates.isStarted && this.updates.isJoined);
-						this.$tools.toggleClass('active', !this.updates.isStarted || this.updates.isJoined);
+						this.$join.toggleClass('active', !this.info.isStarted && !this.info.isJoined);
+						this.$leave.toggleClass('active', !this.info.isStarted && this.info.isJoined);
+						this.$tools.toggleClass('active', !this.info.isStarted || this.info.isJoined);
 
 						// Update the bracket
 						if ('bracketData' in this.updates) {
-							var $bracket = this.generateBracket(this.updates.bracketData);
+							var $bracket = this.generateBracket(this.info.bracketData);
 							this.$bracket.empty();
 							this.$bracket.removeClass('tournament-bracket-overflowing');
 							if ($bracket) {
@@ -262,13 +263,13 @@
 							}
 						}
 
-						if (this.updates.isStarted) {
+						if (this.info.isStarted) {
 							// Update the challenges
 							if ('challenges' in this.updates) {
-								this.$challenge.toggleClass('active', this.updates.challenges.length > 0);
-								if (this.updates.challenges.length > 0) {
+								this.$challenge.toggleClass('active', this.info.challenges.length > 0);
+								if (this.info.challenges.length > 0) {
 									this.$challengeUser.html(this.renderChallengeUsers());
-									this.$challengeTeam.html(app.rooms[''].renderTeams(this.updates.format));
+									this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
 									this.$challengeTeam.children().data('type', 'challengeTeam');
 									this.$challengeTeam.children().attr('name', 'tournamentButton');
 
@@ -278,34 +279,33 @@
 							}
 
 							if ('challengeBys' in this.updates) {
-								this.$challengeBy.toggleClass('active', this.updates.challengeBys.length > 0);
-								if (this.updates.challengeBys.length > 0)
-									this.$challengeBy.text((this.updates.challenges.length > 0 ? "Or" : "Please") + " wait for " + arrayToPhrase(this.updates.challengeBys, "or") + " to challenge you.");
+								this.$challengeBy.toggleClass('active', this.info.challengeBys.length > 0);
+								if (this.info.challengeBys.length > 0)
+									this.$challengeBy.text((this.info.challenges.length > 0 ? "Or" : "Please") + " wait for " + arrayToPhrase(this.info.challengeBys, "or") + " to challenge you.");
 							}
 
 							if ('challenging' in this.updates) {
-								this.$challenging.toggleClass('active', !!this.updates.challenging);
-								if (this.updates.challenging) {
-									this.$challenging.text("Challenging " + this.updates.challenging + "...");
+								this.$challenging.toggleClass('active', !!this.info.challenging);
+								if (this.info.challenging) {
+									this.$challenging.text("Challenging " + this.info.challenging + "...");
 									// TODO: Add cancel button
 								}
 							}
 
 							if ('challenged' in this.updates) {
-								this.$challenged.toggleClass('active', !!this.updates.challenged);
-								if (this.updates.challenged) {
-									this.$challengedMessage.text(this.updates.challenged + " has challenged you.");
-									this.$challengeTeam.html(app.rooms[''].renderTeams(this.updates.format));
+								this.$challenged.toggleClass('active', !!this.info.challenged);
+								if (this.info.challenged) {
+									this.$challengedMessage.text(this.info.challenged + " has challenged you.");
+									this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
 									this.$challengeTeam.children().data('type', 'challengeTeam');
 									this.$challengeTeam.children().attr('name', 'tournamentButton');
 
 									this.toggleBoxVisibility(true);
-									this.room.notifyOnce("Tournament challenge from " + this.updates.challenged, "Room: " + this.room.title, 'tournament-challenged');
+									this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
 								}
 							}
 						}
 
-						$.extend(this.info, this.updates);
 						this.updates = {};
 
 						this.$noMatches.toggleClass('active', this.info.isStarted &&
