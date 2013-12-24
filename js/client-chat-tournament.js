@@ -13,11 +13,11 @@
 		var elementWidth = $element.width();
 		var parentWidth = $element.parent().width();
 		if (parentWidth >= elementWidth)
-			position.left = parentWidth / 2 - elementWidth / 2;
-		else if (position.left < parentWidth - elementWidth)
-			position.left = parentWidth - elementWidth;
-		else if (position.left > 0)
-			position.left = 0;
+			position.right = parentWidth / 2 - elementWidth / 2;
+		else if (position.right < parentWidth - elementWidth)
+			position.right = parentWidth - elementWidth;
+		else if (position.right > 0)
+			position.right = 0;
 
 		var elementHeight = $element.height();
 		var parentHeight = $element.parent().height();
@@ -39,36 +39,39 @@
 			position: 'absolute'
 		});
 
-		if (!('left' in position) || position.isDefault) {
-			position.left = $element.parent().width() / 2 - $element.width() / 2;
+		if (!('right' in position) || position.isDefault) {
+			position.right = $element.parent().width() / 2 - $element.width() / 2;
 			position.top = 0;
 			position.isDefault = true;
 		}
 
 		clampPosition(element, position);
 		$element.css({
-			left: position.left,
+			right: position.right,
 			top: position.top
 		});
 
 		var isMouseDown = false;
+		// Note: Origin starts from the top right instead of the top left here,
+		// because when a battle room is opened, the left side moves but the right doesn't,
+		// so we have to use the right side to keep the element in the same location.
 		var innerX = 0;
 		var innerY = 0;
 
 		$element.on('mousedown', function (e) {
-			innerX = e.pageX - this.offsetLeft;
+			innerX = e.pageX + ($element.parent().width() - $element.width() - this.offsetLeft);
 			innerY = e.pageY - this.offsetTop;
 			isMouseDown = true;
 		});
 
 		$(document).on('mousemove', function (e) {
 			if (isMouseDown) {
-				position.left = e.pageX - innerX;
+				position.right = innerX - e.pageX;
 				position.top = e.pageY - innerY;
 				delete position.isDefault;
 				clampPosition(element, position);
 				$element.css({
-					left: position.left,
+					right: position.right,
 					top: position.top
 				});
 			}
@@ -166,7 +169,7 @@
 			if (this.$bracket.hasClass('tournament-bracket-overflowing')) {
 				clampPosition(this.$bracket.children(), this.savedBracketPosition);
 				this.$bracket.children().css({
-					left: this.savedBracketPosition.left,
+					right: this.savedBracketPosition.right,
 					top: this.savedBracketPosition.top
 				});
 			} else {
