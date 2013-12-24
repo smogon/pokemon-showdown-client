@@ -365,6 +365,7 @@
 
 					case 'forceend':
 						this.info = {};
+						this.updates = {};
 						this.savedBracketPosition = {};
 
 						if (!this.isBoxVisible())
