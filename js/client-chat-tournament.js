@@ -234,7 +234,6 @@
 					case 'start':
 						if (!this.info.isJoined)
 							this.toggleBoxVisibility(false);
-						this.updateTeams();
 						this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
 						break;
 
@@ -261,8 +260,11 @@
 						}
 						if ('generator' in this.updates)
 							this.$generator.text(this.info.generator);
-						if ('isStarted' in this.updates)
+						if ('isStarted' in this.updates) {
 							this.$status.text(this.info.isStarted ? "In Progress" : "Signups");
+							if (this.info.isStarted)
+								this.updateTeams();
+						}
 
 						// Update the toolbox
 						if ('isStarted' in this.updates || 'isJoined' in this.updates) {
@@ -282,7 +284,7 @@
 							}
 						}
 
-						if (this.info.isStarted) {
+						if (this.info.isStarted && this.info.isJoined) {
 							// Update the challenges
 							if ('challenges' in this.updates) {
 								this.$challenge.toggleClass('active', this.info.challenges.length > 0);
@@ -315,14 +317,13 @@
 									this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
 								}
 							}
+
+							this.$noMatches.toggleClass('active',
+								this.info.challenges.length === 0 && this.info.challengeBys.length === 0 &&
+								!this.info.challenging && !this.info.challenged);
 						}
 
 						this.updates = {};
-
-						this.$noMatches.toggleClass('active', this.info.isStarted &&
-							this.info.challenges.length === 0 && this.info.challengeBys.length === 0 &&
-							!this.info.challenging && !this.info.challenged);
-
 						break;
 
 					case 'battlestart':
