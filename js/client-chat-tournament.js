@@ -492,6 +492,8 @@
 							var score = elem.append('svg:text').attr('y', nodeSize.realHeight / 5);
 							if (node.state === 'available')
 								score.text("Waiting");
+							else if (node.state === 'challenging')
+								score.text("Challenging");
 							else if (node.state === 'inprogress')
 								score.append('svg:a').attr('xlink:href', app.root + toRoomid(node.room).toLowerCase()).classed('ilink', true).text("In-progress");
 							else if (node.state === 'finished') {
@@ -550,6 +552,8 @@
 							$cell.text("Unavailable");
 						else if (cell.state === 'available')
 							$cell.text("Waiting");
+						else if (cell.state === 'challenging')
+							$cell.text("Challenging");
 						else if (cell.state === "inprogress")
 							$cell.html('<a href="' + app.root + toRoomid(cell.room).toLowerCase() + '" class="ilink">In-progress</a>');
 						else if (cell.state === 'finished') {
