@@ -1102,7 +1102,7 @@ a.ilink:hover {
 	stroke-width: 3px;
 }
 .tournament-bracket-tree-node > rect {
-	/* Note: Due to SVG limitations, dimensions and border radii are in client-tournament.js (nodeSize) */
+	/* Note: Due to SVG limitations, dimensions and border radii are in client-chat-tournament.js (nodeSize) */
 	fill: rgba(225, 232, 242, 0.7);
 	stroke: rgba(178, 183, 191, 0.7);
 }
