@@ -29,7 +29,7 @@
 			position.top = 0;
 	}
 
-	function makeDraggable(element, position) {
+	function makeDraggable(element, popoutCallback, position) {
 		var $element = $(element);
 		position = position || {};
 
@@ -38,6 +38,9 @@
 			cursor: 'default',
 			position: 'absolute'
 		});
+
+		if (popoutCallback)
+			$element.parent().append($('<a class="tournament-popout-link ilink" href="#">Pop-out</a>').on('click', popoutCallback));
 
 		if (!('right' in position) || position.isDefault) {
 			position.right = $element.parent().width() / 2 - $element.width() / 2;
@@ -135,6 +138,9 @@
 			this.updates = {};
 			this.savedBracketPosition = {};
 
+			this.bracketPopup = null;
+			this.savedPopoutBracketPosition = {};
+
 			var self = this;
 			this.$title.on('click', function() {
 				self.toggleBoxVisibility();
@@ -169,8 +175,8 @@
 		TournamentBox.prototype.updateLayout = function () {
 			this.$box.css('max-height', this.isBoxVisible() ? this.$box[0].scrollHeight : '');
 			if (this.$bracket.hasClass('tournament-bracket-overflowing')) {
-				clampPosition(this.$bracket.children(), this.savedBracketPosition);
-				this.$bracket.children().css({
+				clampPosition(this.$bracket.children().first(), this.savedBracketPosition);
+				this.$bracket.children().first().css({
 					right: this.savedBracketPosition.right,
 					top: this.savedBracketPosition.top
 				});
@@ -178,7 +184,7 @@
 				if (this.$bracket[0].offsetHeight < this.$bracket[0].scrollHeight ||
 					this.$bracket[0].offsetWidth < this.$bracket[0].scrollWidth) {
 					this.$bracket.addClass('tournament-bracket-overflowing');
-					makeDraggable(this.$bracket.children().first(), this.savedBracketPosition);
+					makeDraggable(this.$bracket.children().first(), this.showBracketPopup.bind(this, this.info.bracketData, false), this.savedBracketPosition);
 				}
 			}
 		};
@@ -281,6 +287,9 @@
 							if ($bracket) {
 								this.$bracket.append($bracket);
 								this.updateLayout();
+
+								if (this.bracketPopup)
+									this.bracketPopup.updateBracket(this.generateBracket(this.info.bracketData));
 							}
 						}
 
@@ -354,7 +363,7 @@
 							if ($bracketMessage[0].offsetHeight < $bracketMessage[0].scrollHeight ||
 								$bracketMessage[0].offsetWidth < $bracketMessage[0].scrollWidth) {
 								$bracketMessage.addClass('tournament-message-end-bracket-overflowing');
-								makeDraggable($bracket);
+								makeDraggable($bracket, this.showBracketPopup.bind(this, endData.bracketData, true));
 							}
 						}
 
@@ -368,6 +377,10 @@
 						this.info = {};
 						this.updates = {};
 						this.savedBracketPosition = {};
+
+						if (this.bracketPopup)
+							this.bracketPopup.close();
+						this.savedPopoutBracketPosition = {};
 
 						if (!this.isBoxVisible())
 							this.$wrapper.find('.active').andSelf().removeClass('active');
@@ -566,7 +579,13 @@
 
 				return $table;
 			}
-		},
+		};
+		TournamentBox.prototype.showBracketPopup = function (data, isStandalone) {
+			if (isStandalone)
+				app.addPopup(BracketPopup, {$bracket: this.generateBracket(data)});
+			else
+				this.bracketPopup = app.addPopup(BracketPopup, {parent: this, $bracket: this.generateBracket(data)});
+		};
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
 			return '<button class="select" value="' + toId(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">' + Tools.escapeHTML(this.info.challenges[0]) + '</button>';
@@ -592,6 +611,36 @@
 		selectUser: function (user) {
 			this.sourceEl.val(toId(user)).text(user);
 			this.close();
+		}
+	});
+
+	var BracketPopup = this.Popup.extend({
+		type: 'semimodal',
+		className: 'ps-popup tournament-popout-bracket',
+		initialize: function (data) {
+			this.parent = data.parent;
+			setTimeout(this.updateBracket.bind(this, data.$bracket), 0);
+		},
+		updateBracket: function ($bracket) {
+			this.$el.empty();
+			this.$el.append($bracket);
+			this.$el.append('<p class="buttonbar"><button name="close">Close</button></p>');
+
+			// Please keep these two values in-sync with .tournament-popout-bracket in client.css
+			var maxWidth = 0.8;
+			var maxHeight = 0.8;
+
+			var isWidthOverflowed = $bracket[0].scrollWidth > window.innerWidth * maxWidth;
+			var isHeightOverflowed = $bracket[0].scrollHeight > window.innerHeight * maxHeight;
+			this.$el.css('width', isWidthOverflowed ? window.innerWidth * maxWidth : $bracket[0].scrollWidth);
+			this.$el.css('height', isHeightOverflowed ? window.innerHeight * maxHeight : $bracket[0].scrollHeight);
+			if (isWidthOverflowed || isHeightOverflowed)
+				makeDraggable($bracket, null, this.parent ? this.parent.savedPopoutBracketPosition : null);
+		},
+		close: function () {
+			if (this.parent)
+				this.parent.bracketPopup = null;
+			Popup.prototype.close.call(this);
 		}
 	});
 
