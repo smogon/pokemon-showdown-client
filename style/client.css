@@ -1037,6 +1037,35 @@ a.ilink:hover {
 	top: 0;
 }
 
+.tournament-popout-link {
+	position: absolute;
+	bottom: 0.5em;
+	right: 0.5em;
+}
+.tournament-popout-bracket {
+	/* Actual max-width and -height setting is in client-chat-tournament.js (BracketPopup)
+	max-width: 80%;
+	max-height: 80%;*/
+	max-width: inherit !important;
+	position: relative !important;
+	left: 0;
+	top: 0;
+	overflow: hidden;
+	padding: 0;
+	font-size: 8pt;
+	text-align: center;
+}
+.tournament-popout-bracket > *[class^='tournament-bracket-'] {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.tournament-popout-bracket > .buttonbar {
+	position: absolute;
+	right: 0.5em;
+	bottom: 0;
+}
+
 .tournament-bracket-table {
 	margin: 0 auto;
 	empty-cells: hide;
