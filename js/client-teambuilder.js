@@ -632,7 +632,7 @@
 		updateChartDelayed: function() {
 			// cache movelist ref
 			var speciesid = toId(this.curSet.species);
-			var g6 = (this.curTeam.format && this.curTeam.format.substr(0,3) !== 'gen' && this.curTeam.format.substr(0,8) !== 'pokebank' && this.curTeam.format.substr(0, 3) !== 'cap');
+			var g6 = (this.curTeam.format && this.curTeam.format.substr(0,7) !== 'vgc2014');
 			this.movelist = (g6 ? Tools.g6movelists[speciesid] : Tools.movelists[speciesid]);
 
 			var self = this;
