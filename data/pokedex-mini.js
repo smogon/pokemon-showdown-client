@@ -492,7 +492,7 @@ BattlePokemonSprites = {
 	"mantyke": {num:458, front:{ani:{w: 64, h: 60}},back:{ani:{w: 69, h: 60}}},
 	"snover": {num:459, front:{ani:{w: 72, h: 56}, anif:{w: 72, h: 56}},back:{ani:{w: 72, h: 55}, anif:{w: 72, h: 55}}},
 	"abomasnow": {num:460, front:{ani:{w: 96, h: 79}, anif:{w: 96, h: 79}},back:{ani:{w: 95, h: 86}, anif:{w: 95, h: 86}}},
-	"ambomasnowmega": :{num:460, front:{ani:{w: 96, h: 96}}},
+	"ambomasnowmega": {num:460, front:{ani:{w: 96, h: 96}}},
 	"weavile": {num:461, front:{ani:{w: 56, h: 81}, anif:{w: 56, h: 81}},back:{ani:{w: 47, h: 77}, anif:{w: 47, h: 77}}},
 	"magnezone": {num:462, front:{ani:{w: 84, h: 61}},back:{ani:{w: 84, h: 57}}},
 	"lickilicky": {num:463, front:{ani:{w: 70, h: 77}},back:{ani:{w: 80, h: 81}}},
