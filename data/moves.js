@@ -450,7 +450,7 @@ exports.BattleMovedex = {
 				for (var i=0; i<pokemon.moves.length; i++) {
 					var move = pokemon.moves[i];
 					var noAssist = {
-						assist:1, bestow:1, bounce:1, chatter:1, circlethrow:1, copycat:1, counter:1, covet:1, destinybond:1, detect:1, dig:1, dive:1, dragontail:1, endure:1, feint:1, fly:1, focuspunch:1, followme:1, helpinghand:1, mefirst:1, metronome:1, mimic:1, mirrorcoat:1, mirrormove:1, naturepower:1, phantomforce:1, protect:1, ragepowder:1, shadowforce:1, sketch:1, sleeptalk:1, snatch:1, struggle:1, switcheroo:1, thief:1, transform:1, trick:1
+						assist:1, bestow:1, bounce:1, chatter:1, circlethrow:1, copycat:1, counter:1, covet:1, destinybond:1, detect:1, dig:1, dive:1, dragontail:1, endure:1, feint:1, fly:1, focuspunch:1, followme:1, helpinghand:1, mefirst:1, metronome:1, mimic:1, mirrorcoat:1, mirrormove:1, naturepower:1, phantomforce:1, protect:1, ragepowder:1, roar:1, shadowforce:1, sketch:1, sleeptalk:1, snatch:1, struggle:1, switcheroo:1, thief:1, transform:1, trick:1, whirlwind:1
 					};
 					if (move && !noAssist[move]) {
 						moves.push(move);
@@ -2033,7 +2033,7 @@ exports.BattleMovedex = {
 		shortDesc: "If the user has no item, it steals the target's.",
 		id: "covet",
 		name: "Covet",
-		pp: 40,
+		pp: 25,
 		priority: 0,
 		isContact: true,
 		onHit: function(target, source) {
@@ -3153,7 +3153,7 @@ exports.BattleMovedex = {
 		gen: 6,
 		accuracy: 100,
 		basePower: 0,
-		category: "Special",
+		category: "Status",
 		desc: "Harshly lowers the target's Special Attack stat.",
 		shortDesc: "Lowers the target's Sp. Atk by 2.",
 		id: "eerieimpulse",
@@ -3244,16 +3244,12 @@ exports.BattleMovedex = {
 		volatileStatus: 'electrify',
 		effect: {
 			duration: 1,
-			// TODO: Proper messages
-			onStart: function(pokemon) {
-				this.add('-start', pokemon, 'Electrify');
+			onStart: function(target) {
+				this.add('-singleturn',target,'move: Electrify');
 			},
 			onModifyMove: function(move) {
 				this.debug('Electrify making move type electric');
 				move.type = 'Electric';
-			},
-			onEnd: function(pokemon) {
-				this.add('-end', pokemon, 'Electrify');
 			}
 		},
 		secondary: false,
@@ -3516,8 +3512,8 @@ exports.BattleMovedex = {
 		isBounceable: true,
 		onTryHit: function(target, source) {
 			if (target === source) return false;
-			var bannedTargetAbilities = {multitype:1, truant:1};
-			var bannedSourceAbilities = {flowergift:1, forecast:1, illusion:1, imposter:1, multitype:1, trace:1, zenmode:1};
+			var bannedTargetAbilities = {multitype:1, stancechange:1, truant:1};
+			var bannedSourceAbilities = {flowergift:1, forecast:1, illusion:1, imposter:1, multitype:1, stancechange:1, trace:1, zenmode:1};
 			if (bannedTargetAbilities[target.ability] || bannedSourceAbilities[source.ability] || target.ability === source.ability) {
 				return false;
 			}
@@ -3657,7 +3653,7 @@ exports.BattleMovedex = {
 		priority: 0,
 		//todo
 		secondary: false,
-		target: "normal",
+		target: "all",
 		type: "Fairy"
 	},
 	"fairywind": {
@@ -6774,11 +6770,12 @@ exports.BattleMovedex = {
 		id: "iondeluge",
 		name: "Ion Deluge",
 		pp: 25,
-		priority: 0,
+		priority: 1,
 		volatileStatus: 'iondeluge',
 		effect: {
+			duration: 1,
 			onStart: function(target) {
-				this.add('-start', target, 'move: Ion Deluge');
+				this.add('-fieldactivate', target, 'move: Ion Deluge');
 			},
 			onModifyMove: function(move, pokemon) {
 				if (move.type === 'Normal') {
@@ -6788,7 +6785,7 @@ exports.BattleMovedex = {
 			}
 		},
 		secondary: false,
-		target: "normal",
+		target: "all",
 		type: "Electric"
 	},
 	"irondefense": {
@@ -6989,7 +6986,7 @@ exports.BattleMovedex = {
 		id: "knockoff",
 		isViable: true,
 		name: "Knock Off",
-		pp: 20,
+		pp: 25,
 		priority: 0,
 		isContact: true,
 		onBasePowerPriority: 4,
@@ -7000,14 +6997,16 @@ exports.BattleMovedex = {
 			}
 		},
 		onHit: function(target, source) {
-			var item = target.getItem();
-			if (item.id === 'mail') {
-				target.setItem('');
-			} else {
-				item = target.takeItem(source);
-			}
-			if (item) {
-				this.add('-enditem', target, item.name, '[from] move: Knock Off', '[of] '+source);
+			if (source.hp) {
+				var item = target.getItem();
+				if (item.id === 'mail') {
+					target.setItem('');
+				} else {
+					item = target.takeItem(source);
+				}
+				if (item) {
+					this.add('-enditem', target, item.name, '[from] move: Knock Off', '[of] '+source);
+				}
 			}
 		},
 		secondary: false,
@@ -7028,7 +7027,7 @@ exports.BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		secondary: false,
-		target: "normal",
+		target: "allAdjacentFoes",
 		type: "Ground"
 	},
 	"lastresort": {
@@ -7628,46 +7627,6 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Steel"
 	},
-	"magneticfield": {
-		num: -6,
-		gen: 6,
-		accuracy: true,
-		basePower: 0,
-		category: "Status",
-		desc: "For 5 turns, powers up Electric attacks.",
-		shortDesc: "For 5 turns, powers up Electric attacks.",
-		id: "magneticfield",
-		name: "Magnetic Field",
-		pp: 5,
-		priority: 0,
-		pseudoWeather: 'magneticfield',
-		effect: {
-			duration: 5,
-			/*durationCallback: function(target, source, effect) {
-				// Persistent isn't updated for BW/XY moves
-				if (source && source.ability === 'Persistent') {
-					return 7;
-				}
-				return 5;
-			},*/
-			onBasePower: function(basePower, user, target, move) {
-				if (move.type === 'Electric') {
-					this.debug('electric move strengthened');
-					return this.chainModify(1.5);
-				}
-			},
-			onStart: function() {
-				this.add('-fieldstart', 'move: Magnetic Field');
-			},
-			onResidualOrder: 22,
-			onEnd: function() {
-				this.add('-fieldend', 'move: Magnetic Field');
-			}
-		},
-		secondary: false,
-		target: "all",
-		type: "Electric"
-	},
 	"magneticflux": {
 		num: -6,
 		gen: 6,
@@ -8185,10 +8144,16 @@ exports.BattleMovedex = {
 		volatileStatus: 'minimize',
 		effect: {
 			noCopy: true,
-			onSourceModifyDamage: function(damage, source, target, move) {
-				if (move.id === 'stomp' || move.id === 'steamroller') {
+			onSourceModifyDamage: function (damage, source, target, move) {
+				if (move.id in {'stomp':1, 'steamroller':1, 'bodyslam':1, 'flyingpress':1, 'dragonrush':1, 'phantomforce':1}) {
 					return this.chainModify(2);
 				}
+			},
+			onAccuracy: function (accuracy, target, source, move) {
+				if (move.id in {'stomp':1, 'steamroller':1, 'bodyslam':1, 'flyingpress':1, 'dragonrush':1, 'phantomforce':1}) {
+					return true;
+				}
+				return accuracy;
 			}
 		},
 		boosts: {
@@ -8358,7 +8323,7 @@ exports.BattleMovedex = {
 		basePower: 0,
 		category: "Status",
 		desc: "For five turns, Grounded Pokemon cannot have major status problems or confusion inflicted on them by other Pokemon. Their Dragon-type moves are weakened by 50%.",
-		shortDesc: "If on ground, prevents status + Dragon moves weaker.",
+		shortDesc: "Prevents status and weakens Dragon if grounded.",
 		id: "mistyterrain",
 		name: "Misty Terrain",
 		pp: 10,
@@ -9442,7 +9407,8 @@ exports.BattleMovedex = {
 				this.add('-start', target, 'Powder');
 			},
 			onBeforeMove: function(pokemon, target, move) {
-				if (move.type === 'Fire') {
+				var item = pokemon.getItem();
+				if (move.type === 'Fire' || (move.name === 'Hidden Power' && pokemon.hpType === 'Fire') || (move.name === 'Weather Ball' && this.isWeather('sunnyday')) || (item.isBerry && move.name === 'Natural Gift' && item.naturalGift.type === 'Fire') || (move.name === 'Judgment' && item.name === 'Flame Plate')) {
 					this.add('-activate', pokemon, 'Powder');
 					this.directDamage(Math.floor(pokemon.maxhp / 4) + 1);
 					return false;
@@ -9800,7 +9766,7 @@ exports.BattleMovedex = {
 	},
 	"psychoshift": {
 		num: 375,
-		accuracy: 90,
+		accuracy: 100,
 		basePower: 0,
 		category: "Status",
 		desc: "The user's major status problem is transferred to one adjacent target, and the user is cured. Fails if the target already has a major status problem.",
@@ -11722,6 +11688,10 @@ exports.BattleMovedex = {
 			if (defender.volatiles['substitute'] || defender.side === attacker.side) {
 				return false;
 			}
+			if (defender.weightkg >= 200) {
+				this.add('message', defender.species + ' is too heavy. (placeholder)');
+				return null;
+			}
 			if (defender.volatiles['protect']) {
 				this.add('-activate', defender, 'Protect');
 				return null;
@@ -11735,7 +11705,7 @@ exports.BattleMovedex = {
 			return null;
 		},
 		onTryHit: function(target) {
-			if (target.hasType('Flying')) {
+			if (!target.hasType('Flying')) {
 				this.add('-immune', target, '[msg]');
 				return null;
 			}
@@ -12568,8 +12538,8 @@ exports.BattleMovedex = {
 			},
 			onSwitchIn: function(pokemon) {
 				if (!pokemon.runImmunity('Ground')) return;
-				this.add('-start', pokemon, 'Sticky Web');
-				this.boost({spe: -1}, pokemon, pokemon, this.getMove('stickyweb'));
+				this.add('-activate', pokemon, 'move: Sticky Web');
+				this.boost({spe: -1}, pokemon, pokemon.side.foe.active[0], this.getMove('stickyweb'));
 			}
 		},
 		secondary: false,
@@ -13391,7 +13361,7 @@ exports.BattleMovedex = {
 	"technoblast": {
 		num: 546,
 		accuracy: 100,
-		basePower: 85,
+		basePower: 120,
 		category: "Special",
 		desc: "Deals damage to one adjacent target. This move's type depends on the user's held Drive.",
 		shortDesc: "Type varies based on the held Drive.",
@@ -13483,7 +13453,7 @@ exports.BattleMovedex = {
 		shortDesc: "If the user has no item, it steals the target's.",
 		id: "thief",
 		name: "Thief",
-		pp: 10,
+		pp: 25,
 		priority: 0,
 		isContact: true,
 		onHit: function(target, source) {
