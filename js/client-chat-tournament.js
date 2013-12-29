@@ -13,11 +13,11 @@
 		var elementWidth = $element.width();
 		var parentWidth = $element.parent().width();
 		if (parentWidth >= elementWidth)
-			position.left = parentWidth / 2 - elementWidth / 2;
-		else if (position.left < parentWidth - elementWidth)
-			position.left = parentWidth - elementWidth;
-		else if (position.left > 0)
-			position.left = 0;
+			position.right = parentWidth / 2 - elementWidth / 2;
+		else if (position.right < parentWidth - elementWidth)
+			position.right = parentWidth - elementWidth;
+		else if (position.right > 0)
+			position.right = 0;
 
 		var elementHeight = $element.height();
 		var parentHeight = $element.parent().height();
@@ -29,7 +29,7 @@
 			position.top = 0;
 	}
 
-	function makeDraggable(element, position) {
+	function makeDraggable(element, popoutCallback, position) {
 		var $element = $(element);
 		position = position || {};
 
@@ -39,36 +39,42 @@
 			position: 'absolute'
 		});
 
-		if (!('left' in position) || position.isDefault) {
-			position.left = $element.parent().width() / 2 - $element.width() / 2;
+		if (popoutCallback)
+			$element.parent().append($('<a class="tournament-popout-link ilink" href="#">Pop-out</a>').on('click', popoutCallback));
+
+		if (!('right' in position) || position.isDefault) {
+			position.right = $element.parent().width() / 2 - $element.width() / 2;
 			position.top = 0;
 			position.isDefault = true;
 		}
 
 		clampPosition(element, position);
 		$element.css({
-			left: position.left,
+			right: position.right,
 			top: position.top
 		});
 
 		var isMouseDown = false;
+		// Note: Origin starts from the top right instead of the top left here,
+		// because when a battle room is opened, the left side moves but the right doesn't,
+		// so we have to use the right side to keep the element in the same location.
 		var innerX = 0;
 		var innerY = 0;
 
 		$element.on('mousedown', function (e) {
-			innerX = e.pageX - this.offsetLeft;
+			innerX = e.pageX + ($element.parent().width() - $element.width() - this.offsetLeft);
 			innerY = e.pageY - this.offsetTop;
 			isMouseDown = true;
 		});
 
 		$(document).on('mousemove', function (e) {
 			if (isMouseDown) {
-				position.left = e.pageX - innerX;
+				position.right = innerX - e.pageX;
 				position.top = e.pageY - innerY;
 				delete position.isDefault;
 				clampPosition(element, position);
 				$element.css({
-					left: position.left,
+					right: position.right,
 					top: position.top
 				});
 			}
@@ -83,7 +89,11 @@
 			this.$wrapper = $wrapper;
 
 			$wrapper.html(
-				'<div class="tournament-title"><span class="tournament-format"></span> <span class="tournament-generator"></span> Tournament</div>' +
+				'<div class="tournament-title">' +
+					'<span class="tournament-format"></span> <span class="tournament-generator"></span> Tournament' +
+					'<div class="tournament-status"></div>' +
+					'<div class="tournament-toggle">Toggle</div>' +
+				'</div>' +
 				'<div class="tournament-box">' +
 					'<div class="tournament-bracket"></div>' +
 					'<div class="tournament-tools">' +
@@ -107,6 +117,7 @@
 			this.$title = $wrapper.find('.tournament-title');
 			this.$format = $wrapper.find('.tournament-format');
 			this.$generator = $wrapper.find('.tournament-generator');
+			this.$status = $wrapper.find('.tournament-status');
 			this.$box = $wrapper.find('.tournament-box');
 			this.$bracket = $wrapper.find('.tournament-bracket');
 			this.$tools = $wrapper.find('.tournament-tools');
@@ -123,23 +134,22 @@
 			this.$challengedMessage = $wrapper.find('.tournament-challenged-message');
 			this.$challengeAccept = $wrapper.find('.tournament-challenge-accept');
 
-			this.isActive = false;
-			this.info = null;
-			this.isJoined = false;
-			this.bracketData = null;
+			this.info = {};
+			this.updates = {};
 			this.savedBracketPosition = {};
-			this.challenges = null;
-			this.challengeBys = null;
+
+			this.bracketPopup = null;
+			this.savedPopoutBracketPosition = {};
 
 			var self = this;
 			this.$title.on('click', function() {
 				self.toggleBoxVisibility();
 			});
 			this.$box.on('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
-				if (self.$box.hasClass('active'))
+				if (self.isBoxVisible())
 					self.$box.css('transition', 'none');
-				if (!self.isActive)
-					self.$wrapper.removeClass('active');
+				if (!self.info.isActive)
+					self.$wrapper.find('.active').andSelf().removeClass('active');
 			});
 
 			this.$join.on('click', function() {
@@ -158,39 +168,50 @@
 				self.room.send('/utm ' + JSON.stringify(team ? team.team : null));
 				self.room.send('/tournament acceptchallenge');
 			});
+
+			app.user.on('saveteams', this.updateTeams, this);
 		}
 
 		TournamentBox.prototype.updateLayout = function () {
-			this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight: '');
+			this.$box.css('max-height', this.isBoxVisible() ? this.$box[0].scrollHeight : '');
 			if (this.$bracket.hasClass('tournament-bracket-overflowing')) {
-				clampPosition(this.$bracket.children(), this.savedBracketPosition);
-				this.$bracket.children().css({
-					left: this.savedBracketPosition.left,
+				clampPosition(this.$bracket.children().first(), this.savedBracketPosition);
+				this.$bracket.children().first().css({
+					right: this.savedBracketPosition.right,
 					top: this.savedBracketPosition.top
 				});
 			} else {
 				if (this.$bracket[0].offsetHeight < this.$bracket[0].scrollHeight ||
 					this.$bracket[0].offsetWidth < this.$bracket[0].scrollWidth) {
 					this.$bracket.addClass('tournament-bracket-overflowing');
-					makeDraggable(this.$bracket.children().first(), this.savedBracketPosition);
+					makeDraggable(this.$bracket.children().first(), this.showBracketPopup.bind(this, this.info.bracketData, false), this.savedBracketPosition);
 				}
 			}
 		};
-		TournamentBox.prototype.setBoxVisibility = function (isVisible) {
-			if (isVisible) {
-				if (this.$box.hasClass('active'))
-					return;
-				this.$box.addClass('active');
-			} else {
-				if (!this.$box.hasClass('active'))
-					return;
-				this.$box.removeClass('active');
-			}
-			this.$box.css('transition', '');
-			this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight: '');
+		TournamentBox.prototype.updateTeams = function () {
+			if (!this.info.isJoined || !this.info.isStarted)
+				return;
+
+			this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
+			this.$challengeTeam.children().data('type', 'challengeTeam');
+			this.$challengeTeam.children().attr('name', 'tournamentButton');
 		};
-		TournamentBox.prototype.toggleBoxVisibility = function () {
-			this.setBoxVisibility(!this.$box.hasClass('active'));
+
+		TournamentBox.prototype.isBoxVisible = function () {
+			return this.$box.hasClass('active');
+		};
+		TournamentBox.prototype.toggleBoxVisibility = function (isVisible) {
+			var isCurrentlyVisible = this.isBoxVisible();
+			if (isVisible === undefined)
+				isVisible = !isCurrentlyVisible;
+
+			if ((isVisible && isCurrentlyVisible) ||
+				(!isVisible && !isCurrentlyVisible))
+				return;
+
+			this.$box.toggleClass('active', !!isVisible);
+			this.$box.css('transition', '');
+			this.$box.css('max-height', isVisible ? this.$box[0].scrollHeight : '');
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
@@ -200,13 +221,6 @@
 				return true;
 			} else {
 				var cmd = data.shift().toLowerCase();
-
-				if (!this.isActive && cmd !== 'end') {
-					this.$wrapper.addClass("active");
-					this.$box.addClass("active");
-					this.isActive = true;
-				}
-
 				switch (cmd) {
 					case 'create':
 						var format = BattleFormats[data[0]].name;
@@ -224,6 +238,8 @@
 						break;
 
 					case 'start':
+						if (!this.info.isJoined)
+							this.toggleBoxVisibility(false);
 						this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
 						break;
 
@@ -232,80 +248,91 @@
 						break;
 
 					case 'update':
-						this.$bracket.removeClass('tournament-bracket-overflowing');
-						this.$tools.find('.active').andSelf().removeClass('active');
-						if (this.info && this.info.isStarted)
-							this.$noMatches.addClass('active');
-						this.isJoined = false;
-						this.challenges = null;
-						this.challengeBys = null;
+						$.extend(this.updates, JSON.parse(data.join('|')));
 						break;
 
-					case 'info':
-						this.info = JSON.parse(data.join('|'));
-						this.$format.text(BattleFormats[this.info.format].name);
-						this.$generator.text(this.info.generator);
-						break;
-
-					case 'isjoined':
-						this.isJoined = true;
-						break;
-
-					case 'bracketdata':
-						// The 'isjoined' packet isn't a guaranteed packet to all users, so that packet's
-						// handling is placed in the immediate next guaranteed packet, here
-						if (!this.info.isStarted)
-							if (this.isJoined)
-								this.$leave.addClass('active');
-							else
-								this.$join.addClass('active');
-						if (!this.info.isStarted || this.isJoined)
-							this.$tools.addClass('active');
-
-						this.bracketData = JSON.parse(data.join('|'));
-						this.$bracket.empty()
-						var $bracket = this.generateBracket(this.bracketData);
-						if ($bracket) {
-							this.$bracket.append($bracket);
-							this.updateLayout();
+					case 'updateend':
+						$.extend(this.info, this.updates);
+						if (!this.info.isActive) {
+							this.$wrapper.addClass("active");
+							if (!this.info.isStarted || this.info.isJoined)
+								this.toggleBoxVisibility(true);
+							this.info.isActive = true;
 						}
-						break;
 
-					case 'challenges':
-						this.$noMatches.removeClass('active');
-						this.challenges = data[0].split(',');
-						this.$challengeUser.html(this.renderChallengeUsers());
-						this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
-						this.$challengeTeam.children().data('type', 'challengeTeam');
-						this.$challengeTeam.children().attr('name', 'tournamentButton');
-						this.$challenge.addClass("active");
+						if ('format' in this.updates) {
+							this.$format.text(BattleFormats[this.info.format].name);
+							this.updateTeams();
+						}
+						if ('generator' in this.updates)
+							this.$generator.text(this.info.generator);
+						if ('isStarted' in this.updates) {
+							this.$status.text(this.info.isStarted ? "In Progress" : "Signups");
+							if (this.info.isStarted)
+								this.updateTeams();
+						}
 
-						this.setBoxVisibility(true);
-						this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
-						break;
+						// Update the toolbox
+						if ('isStarted' in this.updates || 'isJoined' in this.updates) {
+							this.$join.toggleClass('active', !this.info.isStarted && !this.info.isJoined);
+							this.$leave.toggleClass('active', !this.info.isStarted && this.info.isJoined);
+							this.$tools.toggleClass('active', !this.info.isStarted || this.info.isJoined);
+						}
 
-					case 'challengebys':
-						this.$noMatches.removeClass('active');
-						this.challengeBys = data[0].split(',');
-						this.$challengeBy.text((this.challenges ? "Or" : "Please") + " wait for " + arrayToPhrase(this.challengeBys, "or") + " to challenge you.");
-						this.$challengeBy.addClass("active");
-						break;
+						// Update the bracket
+						if ('bracketData' in this.updates) {
+							var $bracket = this.generateBracket(this.info.bracketData);
+							this.$bracket.empty();
+							this.$bracket.removeClass('tournament-bracket-overflowing');
+							if ($bracket) {
+								this.$bracket.append($bracket);
+								this.updateLayout();
 
-					case 'challenging':
-						this.$noMatches.removeClass('active');
-						this.$challenging.text("Challenging " + data[0] + "...").addClass("active");
-						break;
+								if (this.bracketPopup)
+									this.bracketPopup.updateBracket(this.generateBracket(this.info.bracketData));
+							}
+						}
 
-					case 'challenged':
-						this.$noMatches.removeClass('active');
-						this.$challengedMessage.text(data[0] + " has challenged you.");
-						this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
-						this.$challengeTeam.children().data('type', 'challengeTeam');
-						this.$challengeTeam.children().attr('name', 'tournamentButton');
-						this.$challenged.addClass("active");
+						if (this.info.isStarted && this.info.isJoined) {
+							// Update the challenges
+							if ('challenges' in this.updates) {
+								this.$challenge.toggleClass('active', this.info.challenges.length > 0);
+								if (this.info.challenges.length > 0) {
+									this.$challengeUser.html(this.renderChallengeUsers());
+									this.toggleBoxVisibility(true);
+									this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
+								}
+							}
 
-						this.setBoxVisibility(true);
-						this.room.notifyOnce("Tournament challenge from " + data[0], "Room: " + this.room.title, 'tournament-challenged');
+							if ('challengeBys' in this.updates) {
+								this.$challengeBy.toggleClass('active', this.info.challengeBys.length > 0);
+								if (this.info.challengeBys.length > 0)
+									this.$challengeBy.text((this.info.challenges.length > 0 ? "Or" : "Please") + " wait for " + arrayToPhrase(this.info.challengeBys, "or") + " to challenge you.");
+							}
+
+							if ('challenging' in this.updates) {
+								this.$challenging.toggleClass('active', !!this.info.challenging);
+								if (this.info.challenging) {
+									this.$challenging.text("Challenging " + this.info.challenging + "...");
+									// TODO: Add cancel button
+								}
+							}
+
+							if ('challenged' in this.updates) {
+								this.$challenged.toggleClass('active', !!this.info.challenged);
+								if (this.info.challenged) {
+									this.$challengedMessage.text(this.info.challenged + " has challenged you.");
+									this.toggleBoxVisibility(true);
+									this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
+								}
+							}
+
+							this.$noMatches.toggleClass('active',
+								this.info.challenges.length === 0 && this.info.challengeBys.length === 0 &&
+								!this.info.challenging && !this.info.challenged);
+						}
+
+						this.updates = {};
 						break;
 
 					case 'battlestart':
@@ -336,7 +363,7 @@
 							if ($bracketMessage[0].offsetHeight < $bracketMessage[0].scrollHeight ||
 								$bracketMessage[0].offsetWidth < $bracketMessage[0].scrollWidth) {
 								$bracketMessage.addClass('tournament-message-end-bracket-overflowing');
-								makeDraggable($bracket);
+								makeDraggable($bracket, this.showBracketPopup.bind(this, endData.bracketData, true));
 							}
 						}
 
@@ -347,13 +374,18 @@
 						// Fallthrough
 
 					case 'forceend':
-						this.isActive = false;
-						this.info = null;
-						this.bracketData = null;
+						this.info = {};
+						this.updates = {};
 						this.savedBracketPosition = {};
 
-						this.$box.removeClass("active");
-						this.$box.css('transition', '');
+						if (this.bracketPopup)
+							this.bracketPopup.close();
+						this.savedPopoutBracketPosition = {};
+
+						if (!this.isBoxVisible())
+							this.$wrapper.find('.active').andSelf().removeClass('active');
+						else
+							this.toggleBoxVisibility(false);
 
 						if (cmd === 'forceend')
 							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">The tournament was forcibly ended.</div>");
@@ -363,7 +395,7 @@
 						return true;
 				}
 
-				this.$box.css('max-height', this.$box.hasClass('active') ? this.$box[0].scrollHeight : '');
+				this.$box.css('max-height', this.isBoxVisible() ? this.$box[0].scrollHeight : '');
 			}
 		};
 
@@ -473,6 +505,8 @@
 							var score = elem.append('svg:text').attr('y', nodeSize.realHeight / 5);
 							if (node.state === 'available')
 								score.text("Waiting");
+							else if (node.state === 'challenging')
+								score.text("Challenging");
 							else if (node.state === 'inprogress')
 								score.append('svg:a').attr('xlink:href', app.root + toRoomid(node.room).toLowerCase()).classed('ilink', true).text("In-progress");
 							else if (node.state === 'finished') {
@@ -531,6 +565,8 @@
 							$cell.text("Unavailable");
 						else if (cell.state === 'available')
 							$cell.text("Waiting");
+						else if (cell.state === 'challenging')
+							$cell.text("Challenging");
 						else if (cell.state === "inprogress")
 							$cell.html('<a href="' + app.root + toRoomid(cell.room).toLowerCase() + '" class="ilink">In-progress</a>');
 						else if (cell.state === 'finished') {
@@ -543,13 +579,19 @@
 
 				return $table;
 			}
-		},
+		};
+		TournamentBox.prototype.showBracketPopup = function (data, isStandalone) {
+			if (isStandalone)
+				app.addPopup(BracketPopup, {$bracket: this.generateBracket(data)});
+			else
+				this.bracketPopup = app.addPopup(BracketPopup, {parent: this, $bracket: this.generateBracket(data)});
+		};
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
-			return '<button class="select" value="' + toId(this.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">' + Tools.escapeHTML(this.challenges[0]) + '</button>';
+			return '<button class="select" value="' + toId(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">' + Tools.escapeHTML(this.info.challenges[0]) + '</button>';
 		};
 		TournamentBox.prototype.challengeUser = function (user, button) {
-			app.addPopup(UserPopup, {user: user, users: this.challenges, sourceEl: button});
+			app.addPopup(UserPopup, {user: user, users: this.info.challenges, sourceEl: button});
 		};
 
 		TournamentBox.prototype.challengeTeam = function (team, button) {
@@ -569,6 +611,36 @@
 		selectUser: function (user) {
 			this.sourceEl.val(toId(user)).text(user);
 			this.close();
+		}
+	});
+
+	var BracketPopup = this.Popup.extend({
+		type: 'semimodal',
+		className: 'ps-popup tournament-popout-bracket',
+		initialize: function (data) {
+			this.parent = data.parent;
+			setTimeout(this.updateBracket.bind(this, data.$bracket), 0);
+		},
+		updateBracket: function ($bracket) {
+			this.$el.empty();
+			this.$el.append($bracket);
+			this.$el.append('<p class="buttonbar"><button name="close">Close</button></p>');
+
+			// Please keep these two values in-sync with .tournament-popout-bracket in client.css
+			var maxWidth = 0.8;
+			var maxHeight = 0.8;
+
+			var isWidthOverflowed = $bracket[0].scrollWidth > window.innerWidth * maxWidth;
+			var isHeightOverflowed = $bracket[0].scrollHeight > window.innerHeight * maxHeight;
+			this.$el.css('width', isWidthOverflowed ? window.innerWidth * maxWidth : $bracket[0].scrollWidth);
+			this.$el.css('height', isHeightOverflowed ? window.innerHeight * maxHeight : $bracket[0].scrollHeight);
+			if (isWidthOverflowed || isHeightOverflowed)
+				makeDraggable($bracket, null, this.parent ? this.parent.savedPopoutBracketPosition : null);
+		},
+		close: function () {
+			if (this.parent)
+				this.parent.bracketPopup = null;
+			Popup.prototype.close.call(this);
 		}
 	});
 

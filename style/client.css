@@ -988,6 +988,23 @@ a.ilink:hover {
 	cursor: pointer;
 }
 
+.tournament-status, .tournament-toggle {
+	position: absolute;
+	top: 0;
+	padding: 0 0.5em;
+	font-weight: normal;
+	font-size: 80%;
+	background-color: rgba(242, 247, 250, 0.85);
+	border-right: 1px #aaa solid;
+}
+.tournament-status {
+	left: 0;
+}
+.tournament-toggle {
+	right: 0;
+	border-left: 1px #aaa solid;
+}
+
 .tournament-box {
 	position: absolute;
 	top: 2em;
@@ -996,6 +1013,7 @@ a.ilink:hover {
 	z-index: 1;
 	line-height: 1em;
 	border-bottom: 1px #aaa solid;
+	border-right: 1px #aaa solid;
 	background-color: rgba(242, 247, 250, 0.85);
 	max-height: 0;
 	overflow: hidden;
@@ -1017,6 +1035,35 @@ a.ilink:hover {
 	position: relative;
 	left: 0;
 	top: 0;
+}
+
+.tournament-popout-link {
+	position: absolute;
+	bottom: 0.5em;
+	right: 0.5em;
+}
+.tournament-popout-bracket {
+	/* Actual max-width and -height setting is in client-chat-tournament.js (BracketPopup)
+	max-width: 80%;
+	max-height: 80%;*/
+	max-width: inherit !important;
+	position: relative !important;
+	left: 0;
+	top: 0;
+	overflow: hidden;
+	padding: 0;
+	font-size: 8pt;
+	text-align: center;
+}
+.tournament-popout-bracket > *[class^='tournament-bracket-'] {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.tournament-popout-bracket > .buttonbar {
+	position: absolute;
+	right: 0.5em;
+	bottom: 0;
 }
 
 .tournament-bracket-table {
@@ -1055,7 +1102,7 @@ a.ilink:hover {
 	stroke-width: 3px;
 }
 .tournament-bracket-tree-node > rect {
-	/* Note: Due to SVG limitations, dimensions and border radii are in client-tournament.js (nodeSize) */
+	/* Note: Due to SVG limitations, dimensions and border radii are in client-chat-tournament.js (nodeSize) */
 	fill: rgba(225, 232, 242, 0.7);
 	stroke: rgba(178, 183, 191, 0.7);
 }
