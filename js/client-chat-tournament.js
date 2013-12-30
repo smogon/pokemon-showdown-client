@@ -382,7 +382,7 @@
 							this.bracketPopup.close();
 						this.savedPopoutBracketPosition = {};
 
-						if (!this.isBoxVisible())
+						if (!this.isBoxVisible() || app.curSideRoom !== this.room)
 							this.$wrapper.find('.active').andSelf().removeClass('active');
 						else
 							this.toggleBoxVisibility(false);
