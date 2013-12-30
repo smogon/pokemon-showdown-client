@@ -101,14 +101,14 @@
 						'<div class="tournament-nomatches">There are currently no new matches available for you. Please wait for some other battles to end.</div>' +
 						'<div class="tournament-challenge">' +
 							'<span class="tournament-challenge-user"></span>' +
-							'<span class="tournament-challenge-team"></span>' +
+							'<span class="tournament-team"></span>' +
 							'<button class="button tournament-challenge-challenge">Challenge</button>' +
 						'</div>' +
 						'<div class="tournament-challengeby"></div>' +
 						'<div class="tournament-challenging"></div>' +
 						'<div class="tournament-challenged">' +
 							'<div class="tournament-challenged-message"></div>' +
-							'<span class="tournament-challenge-team"></span>' +
+							'<span class="tournament-team"></span>' +
 							'<button class="button tournament-challenge-accept">Accept</button>' +
 						'</div>' +
 					'</div>' +
@@ -124,9 +124,9 @@
 			this.$join = $wrapper.find('.tournament-join');
 			this.$leave = $wrapper.find('.tournament-leave');
 			this.$noMatches = $wrapper.find('.tournament-nomatches');
+			this.$teamSelect = $wrapper.find('.tournament-team');
 			this.$challenge = $wrapper.find('.tournament-challenge');
 			this.$challengeUser = $wrapper.find('.tournament-challenge-user');
-			this.$challengeTeam = $wrapper.find('.tournament-challenge-team');
 			this.$challengeChallenge = $wrapper.find('.tournament-challenge-challenge');
 			this.$challengeBy = $wrapper.find('.tournament-challengeby');
 			this.$challenging = $wrapper.find('.tournament-challenging');
@@ -159,12 +159,12 @@
 				self.room.send('/tournament leave');
 			});
 			this.$challengeChallenge.on('click', function() {
-				var team = Storage.teams[self.$challengeTeam.children().val()];
+				var team = Storage.teams[self.$challenge.find('.tournament-team').children().val()];
 				self.room.send('/utm ' + JSON.stringify(team ? team.team : null));
 				self.room.send('/tournament challenge ' + self.$challengeUser.children().val());
 			});
 			this.$challengeAccept.on('click', function() {
-				var team = Storage.teams[self.$challengeTeam.children().val()];
+				var team = Storage.teams[self.$challenged.find('.tournament-team').children().val()];
 				self.room.send('/utm ' + JSON.stringify(team ? team.team : null));
 				self.room.send('/tournament acceptchallenge');
 			});
@@ -192,9 +192,9 @@
 			if (!this.info.isJoined || !this.info.isStarted)
 				return;
 
-			this.$challengeTeam.html(app.rooms[''].renderTeams(this.info.format));
-			this.$challengeTeam.children().data('type', 'challengeTeam');
-			this.$challengeTeam.children().attr('name', 'tournamentButton');
+			this.$teamSelect.html(app.rooms[''].renderTeams(this.info.format));
+			this.$teamSelect.children().data('type', 'teamSelect');
+			this.$teamSelect.children().attr('name', 'tournamentButton');
 		};
 
 		TournamentBox.prototype.isBoxVisible = function () {
@@ -382,7 +382,7 @@
 							this.bracketPopup.close();
 						this.savedPopoutBracketPosition = {};
 
-						if (!this.isBoxVisible())
+						if (!this.isBoxVisible() || app.curSideRoom !== this.room)
 							this.$wrapper.find('.active').andSelf().removeClass('active');
 						else
 							this.toggleBoxVisibility(false);
@@ -594,7 +594,7 @@
 			app.addPopup(UserPopup, {user: user, users: this.info.challenges, sourceEl: button});
 		};
 
-		TournamentBox.prototype.challengeTeam = function (team, button) {
+		TournamentBox.prototype.teamSelect = function (team, button) {
 			app.addPopup(TeamPopup, {team: team, format: this.info.format, sourceEl: button});
 		};
 
