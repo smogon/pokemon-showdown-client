@@ -721,7 +721,7 @@ BattlePokemonSprites = {
 	"fennekin":{num:653},
 	"braixen":{num:654},
 	"delphox":{num:655},
-	"froakie":{num:656, front:{ani:{w: 50, h: 50}}},
+	"froakie":{num:656},
 	"frogadier":{num:657},
 	"greninja":{num:658},
 	"bunnelby":{num:659},
