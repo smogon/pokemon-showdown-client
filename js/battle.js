@@ -4057,6 +4057,12 @@ function Battle(frame, logFrame, noPreload) {
 				case 'stickyweb':
 					actions += '' + poke.getName() + ' was caught in a sticky web!';
 					break;
+				case 'happyhour':
+					actions += 'Everyone is caught up in the happy atmosphere!';
+					break;
+				case 'celebrate':
+					actions += 'Congratulations, ' + Tools.escapeHTML(poke.side.name) + '!';
+					break;
 
 				// move activations
 				case 'trick':
