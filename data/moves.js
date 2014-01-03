@@ -6189,6 +6189,23 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Fighting"
 	},
+	"holdback": {
+		gen: 6,
+		accuracy: 100,
+		basePower: 40,
+		category: "Physical",
+		desc: "Deals damage to one adjacent target but leaves it with at least 1HP. Makes contact.",
+		shortDesc: "Always leaves the target with at least 1 HP.",
+		id: "holdback",
+		name: "Hold Back",
+		pp: 40,
+		priority: 0,
+		isContact: true,
+		noFaint: true,
+		secondary: false,
+		target: "normal",
+		type: "Normal"
+	},
 	"honeclaws": {
 		num: 468,
 		accuracy: true,
@@ -7597,7 +7614,7 @@ exports.BattleMovedex = {
 	"magmastorm": {
 		num: 463,
 		accuracy: 75,
-		basePower: 120,
+		basePower: 100,
 		category: "Special",
 		desc: "Deals damage to one adjacent target and prevents it from switching for four or five turns; seven turns if the user is holding Grip Claw. Causes damage to the target equal to 1/16 of its maximum HP (1/8 if the user is holding Binding Band), rounded down, at the end of each turn during effect. The target can still switch out if it is holding Shed Shell or uses Baton Pass, U-turn, or Volt Switch. The effect ends if either the user or the target leaves the field, or if the target uses Rapid Spin. This effect is not stackable or reset by using this or another partial-trapping move.",
 		shortDesc: "Traps and damages the target for 4-5 turns.",
@@ -11705,7 +11722,7 @@ exports.BattleMovedex = {
 			return null;
 		},
 		onTryHit: function(target) {
-			if (!target.hasType('Flying')) {
+			if (target.hasType('Flying')) {
 				this.add('-immune', target, '[msg]');
 				return null;
 			}
