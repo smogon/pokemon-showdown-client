@@ -3634,6 +3634,17 @@ function Battle(frame, logFrame, noPreload) {
 				poke.volatiles.formechange[2] = template.species;
 				poke.side.updateStatbar();
 				break;
+			case '-permaformechange': // Just copies -formechange for now
+				var poke = this.getPokemon(args[1]);
+				var template = Tools.getTemplate(args[2]);
+				var megaEvolution = kwargs.megaevo;
+				if (poke.sprite.sp.shiny) template.shiny = true;
+				poke.sprite.animTransform(template);
+				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
+				poke.volatiles.formechange[2] = template.species;
+				if (megaEvolution) actions += '' + poke.getName() + ' has Mega Evolved into ' + template.species + '!';
+				poke.side.updateStatbar();
+				break;
 
 			case '-start':
 				var poke = this.getPokemon(args[1]);
