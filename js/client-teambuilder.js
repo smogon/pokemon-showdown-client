@@ -1053,15 +1053,13 @@
 			pokemon: function(pokemon) {
 				if (!pokemon) {
 					if (this.curTeam) {
-						if (this.curTeam.format === 'gen5uber') return ['Uber','OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'cap') return ['CAP','OU','Limbo','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'gen5ou') return ['OU','BL','UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'gen5uu') return ['UU','BL2','RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'gen5ru') return ['RU','BL3','NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'gen5nu') return ['NU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'gen5lc') return ['LC','NU'];
+						if (this.curTeam.format === 'ou') return ['OU','BL','Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'uu') return ['Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'lc') return ['LC','NFE','Limbo'];
 					}
-					return ['OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','Unreleased','Limbo NFE','NFE','LC Uber','LC','CAP'];
+					// return ['OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','Unreleased','Limbo NFE','NFE','LC Uber','LC','CAP'];
+					return ['OU','Uber','BL','Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC','Unreleased','CAP'];
 				}
 				var tierData = exports.BattleFormatsData[toId(pokemon.species)];
 				if (!tierData) return 'Illegal';
@@ -1083,7 +1081,7 @@
 			},
 			move: function(move) {
 				if (!this.curSet) return;
-				if (!move) return ['Viable Moves', 'Usable Moves', 'Moves', 'Usable Sketch Moves', 'Sketch Moves'];
+				if (!move) return ['Usable Moves', 'Moves', 'Usable Sketch Moves', 'Sketch Moves'];
 				var movelist = this.movelist;
 				if (!movelist) return 'Illegal';
 				if (!movelist[move.id]) {
@@ -1094,7 +1092,6 @@
 					return 'Illegal';
 				}
 				var speciesid = toId(this.curSet.species);
-				if (window.BattleFormatsData && BattleFormatsData[speciesid] && BattleFormatsData[speciesid].viableMoves && BattleFormatsData[speciesid].viableMoves[move.id]) return 'Viable Moves';
 				if (move.isViable) return 'Usable Moves';
 				return 'Moves';
 			}
