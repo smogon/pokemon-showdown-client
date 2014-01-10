@@ -293,7 +293,7 @@ a.subtle:hover {
 .tabbar a.cur + .closebutton {
 	top: 4px;
 }
-.closebutton {
+.closebutton, .minimizebutton {
 	text-decoration: none;
 	font-size: 14px;
 	color: #999999;
@@ -304,10 +304,10 @@ a.subtle:hover {
 	background: transparent;
 	cursor: pointer;
 }
-.closebutton:hover {
+.closebutton:hover, .minimizebutton:hover {
 	color: #BB2222;
 }
-.closebutton:active {
+.closebutton:active, .minimizebutton:active {
 	color: #661111;
 }
 
@@ -599,8 +599,12 @@ p.or:after {
 .pm-window h3:hover {
 	color: #333333;
 }
-.pm-window h3 .closebutton {
+.pm-window h3.pm-minimized {
+	border-radius: 5px;
+}
+.pm-window h3 .closebutton, .pm-window h3 .minimizebutton {
 	float: right;
+	padding-right: 1px;
 }
 .pm-window h3 small {
 	color: #888888;
