@@ -1899,6 +1899,7 @@
 				'&': "Leader (&amp;)",
 				'@': "Moderator (@)",
 				'%': "Driver (%)",
+				'\u2605': "Player (\u2605)",
 				'+': "Voiced (+)",
 				'‽': "<span style='color:#777777'>Locked (‽)</span>",
 				'!': "<span style='color:#777777'>Muted (!)</span>"
