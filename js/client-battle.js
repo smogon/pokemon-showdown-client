@@ -379,7 +379,7 @@
 					} else {
 						controls += movebuttons;
 					}
-					if (Tools.getItem(switchables[pos].item).megaStone && !switchables[pos].volatiles.formechange) {
+					if (switchables[pos].canMegaEvo || Tools.getItem(switchables[pos].item).megaStone && !switchables[pos].volatiles.formechange) {
 						controls += '<br /><label><input type="checkbox" name="megaevo" /> Mega evolution</label>'
 					}
 					controls += '<div style="clear:left"></div>';
@@ -590,6 +590,7 @@
 				}
 				pokemon.item = pokemonData.item;
 				pokemon.moves = pokemonData.moves;
+				pokemon.canMegaEvo = pokemonData.canMegaEvo;
 			}
 			this.battle.mySide.updateSidebar();
 		},
