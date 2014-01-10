@@ -4757,13 +4757,13 @@ function Battle(frame, logFrame, noPreload) {
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
 				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + Tools.escapeHTML(name) + ' <i>' + Tools.parseMessage(message.substr(4), name) + '</i></em></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
-				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
-				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-ability ') {
-				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
-				self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else {
 				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + Tools.escapeHTML(name) + ':</strong> <em>' + Tools.parseMessage(message, name) + '</em></div>', preempt);
 			}
