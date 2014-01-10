@@ -8,6 +8,7 @@
 			'keydown textarea': 'keyPress',
 			'click .username': 'clickUsername',
 			'click .closebutton': 'closePM',
+			'click .minimizebutton': 'minimizePM',
 			'click .pm-window': 'clickPMBackground',
 			'focus textarea': 'onFocusPM',
 			'blur textarea': 'onBlurPM',
@@ -138,6 +139,10 @@
 			if (autoscroll) {
 				$chatFrame.scrollTop($chat.height());
 			}
+
+			if ($pmWindow.data('minimized') && name.substr(1) !== app.user.get('name')) {
+				$pmWindow.find('h3').prepend('<i class="icon-exclamation-sign" style="margin-right: 3px;"></i>');
+			}
 		},
 		openPM: function(name, dontFocus) {
 			var userid = toId(name);
@@ -149,7 +154,11 @@
 				} else {
 					group = '<small>'+Tools.escapeHTML(group)+'</small>';
 				}
-				var buf = '<div class="pm-window pm-window-'+userid+'" data-userid="'+userid+'" data-name="'+name+'"><h3><button class="closebutton" href="'+app.root+'teambuilder" tabindex="-1"><i class="icon-remove-sign"></i></button>'+group+Tools.escapeHTML(name.substr(1))+'</h3><div class="pm-log"><div class="inner"></div></div>';
+				var buf = '<div class="pm-window pm-window-'+userid+'" data-userid="'+userid+'" data-name="'+name+'">';
+				buf += '<h3><button class="closebutton" href="'+app.root+'teambuilder" tabindex="-1"><i class="icon-remove-sign"></i></button>';
+				buf += '<button class="minimizebutton" href="'+app.root+'teambuilder" tabindex="-1"><i class="icon-minus-sign"></i></button>';
+				buf += group+Tools.escapeHTML(name.substr(1))+'</h3>';
+				buf += '<div class="pm-log"><div class="inner"></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
 				$pmWindow.find('textarea').autoResize({
@@ -219,6 +228,31 @@
 
 			if (app.curSideRoom) app.curSideRoom.focus();
 		},
+		minimizePM: function(e) {
+			var $pmWindow;
+			if (e.currentTarget) {
+				e.preventDefault();
+				e.stopPropagation();
+				$pmWindow = $(e.currentTarget).closest('.pm-window');
+			}
+			if (!$pmWindow) {
+				return;
+			}
+
+			var $pmHeader = $pmWindow.find('h3');
+			var $pmContent = $pmWindow.find('.pm-log, .pm-log-add');
+			if (!$pmWindow.data('minimized')) {
+				$pmContent.hide();
+				$pmHeader.addClass('pm-minimized');
+				$pmWindow.data('minimized', true);
+			} else {
+				$pmContent.show();
+				$pmHeader.removeClass('pm-minimized');
+				$pmWindow.data('minimized', false);
+			}
+
+			$pmWindow.find('i.icon-exclamation-sign').remove();
+		},
 		focusPM: function(name) {
 			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
 		},
@@ -262,7 +296,11 @@
 					return;
 				}
 				app.dismissPopups();
-				$(e.currentTarget).find('textarea[name=message]').focus();
+				var $target = $(e.currentTarget);
+				if ($target.data('minimized')) {
+					this.minimizePM(e);
+				}
+				$target.find('textarea[name=message]').focus();
 			}
 		},
 
