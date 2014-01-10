@@ -141,7 +141,7 @@
 			}
 
 			if ($pmWindow.data('minimized') && name.substr(1) !== app.user.get('name')) {
-				$pmWindow.find('h3').prepend('<i class="icon-exclamation-sign" style="margin-right: 3px;"></i>');
+				$pmWindow.find('h3').addClass('pm-notifying');
 			}
 		},
 		openPM: function(name, dontFocus) {
@@ -251,7 +251,7 @@
 				$pmWindow.data('minimized', false);
 			}
 
-			$pmWindow.find('i.icon-exclamation-sign').remove();
+			$pmWindow.find('h3').removeClass('pm-notifying');
 		},
 		focusPM: function(name) {
 			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
