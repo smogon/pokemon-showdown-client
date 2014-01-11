@@ -613,6 +613,9 @@
 				this.updateDetailsForm();
 				return;
 			}
+			if (type == 'pokemon') {
+				this.updateSuggestions();
+			}
 
 			// cache movelist ref
 			var speciesid = toId(this.curSet.species);
@@ -625,7 +628,7 @@
 			this.updateChartTimeout = setTimeout(function() {
 				self.updateChartTimeout = null;
 				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
-				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self)));
+				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self), _.bind(self.sortCallback[self.curChartType], self)));
 			}, 10);
 		},
 		updateChartTimeout: null,
@@ -640,7 +643,7 @@
 			this.updateChartTimeout = setTimeout(function() {
 				self.updateChartTimeout = null;
 				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
-				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, false, _.bind(self.arrangeCallback[self.curChartType], self)));
+				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, false, _.bind(self.arrangeCallback[self.curChartType], self), _.bind(self.sortCallback[self.curChartType], self)));
 			}, 200);
 		},
 		selectPokemon: function(i) {
@@ -1048,18 +1051,70 @@
 		/*********************************************************
 		 * Set charts
 		 *********************************************************/
-
+		getSuggestionScore: function(pokemon) {
+			if(this.curTeam && this.curTeam.format == 'ou') {
+				if(this.suggestions && this.suggestions[pokemon.name]) {
+					return this.suggestions[pokemon.name];
+				}
+			}
+			return 0;
+		},
+		updateSuggestions: function() {
+			//Find counters to pokemon on your team
+			var teamCounters = {};
+			for(var i = 0; i < this.curTeam.team.length; i++) {
+				if(i != this.curSetLoc) { //Don't count a pokemon we're replacing
+					var pokTeamData = teamData[this.curTeam.team[i].name];
+					if(!pokTeamData) continue; //No data available
+					for(var j = 0; j < pokTeamData.counters.length; j++) {
+						var counter = pokTeamData.counters[j];
+						if(!teamCounters[counter.name]) {
+							teamCounters[counter.name] = 0;
+						}
+						teamCounters[counter.name] += counter.weight * teamData[counter.name].weight;
+					}
+				}
+			}
+			//Look for counters to counters
+			this.suggestions = {};
+			for(var counterName in teamCounters) {
+				var counterWeight = teamCounters[counterName];
+				var counterTeamData = teamData[counterName];
+				if(!counterTeamData) continue; //No data available
+				var counterCounters = counterTeamData.counters;
+				//Unweight counters if something else on your team already handles them
+				for(var i = 0; i < counterCounters.length; i++) {
+					for(var j = 0; j < this.curTeam.team.length; j++) {
+						if(j != this.curSetLoc && this.curTeam.team[j].name == counterCounters[i].name) {
+							counterWeight -= counterCounters[i].weight;
+						}
+					}
+				}
+				//Find suggestions
+				for(var i = 0; i < counterCounters.length; i++) {
+					if(counterWeight > 0) {
+						if(!this.suggestions[counterCounters[i].name]) {
+							this.suggestions[counterCounters[i].name] = 0;
+						}
+						this.suggestions[counterCounters[i].name] += counterCounters[i].weight * counterWeight;
+					}
+				}
+			}
+		},
 		arrangeCallback: {
 			pokemon: function(pokemon) {
 				if (!pokemon) {
 					if (this.curTeam) {
-						if (this.curTeam.format === 'ou') return ['OU','BL','Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'ou') return ['Suggestions', 'OU','BL','Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'uu') return ['Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'lc') return ['LC','NFE','Limbo'];
 					}
-					// return ['OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','Unreleased','Limbo NFE','NFE','LC Uber','LC','CAP'];
+					// return ['Suggestions' 'OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','Unreleased','Limbo NFE','NFE','LC Uber','LC','CAP'];
 					return ['OU','Uber','BL','Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC','Unreleased','CAP'];
+				}
+				if(this.getSuggestionScore(pokemon)) {
+					return 'Suggestions';
 				}
 				var tierData = exports.BattleFormatsData[toId(pokemon.species)];
 				if (!tierData) return 'Illegal';
@@ -1096,7 +1151,22 @@
 				return 'Moves';
 			}
 		},
-
+		sortCallback: {
+			pokemon: function(a, b) {
+				if(this.curTeam.format == 'ou') {
+					//Use team suggestion engine
+					//if(this.curTeam.team.length > 1) {
+						var aScore = this.getSuggestionScore(a);
+						var bScore = this.getSuggestionScore(b);
+						if(aScore != bScore) {
+							return aScore < bScore ? 1 : -1;
+						}
+						//}
+				}
+				//Regular old alphabetical sort
+				return (a.name == b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			}
+		},
 		chartTypes: {
 			pokemon: 'pokemon',
 			item: 'item',
@@ -1119,7 +1189,7 @@
 				e.preventDefault();
 
 				var name = e.currentTarget.name;
-				this.$chart.html(Chart.chart(e.currentTarget.value, this.curChartType, false, _.bind(this.arrangeCallback[this.curChartType], this)));
+				this.$chart.html(Chart.chart(e.currentTarget.value, this.curChartType, false, _.bind(this.arrangeCallback[this.curChartType], this), _.bind(this.sortCallback[this.curChartType], this)));
 				var val = Chart.firstResult;
 				this.chartSet(val, true);
 				return;
@@ -1156,7 +1226,7 @@
 		chartChange: function(e) {
 			var name = e.currentTarget.name;
 			var type = this.chartTypes[name];
-			this.$chart.html(Chart.chart(e.currentTarget.value, type, false, _.bind(this.arrangeCallback[this.curChartType], this)));
+			this.$chart.html(Chart.chart(e.currentTarget.value, type, false, _.bind(this.arrangeCallback[this.curChartType], this), _.bind(this.sortCallback[this.curChartType], this)));
 			var val = Chart.firstResult;
 			var id = toId(e.currentTarget.value);
 			if (toId(val) !== id) {
