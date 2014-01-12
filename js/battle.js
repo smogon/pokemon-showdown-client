@@ -5272,7 +5272,7 @@ function Battle(frame, logFrame, noPreload) {
 		}
 	};
 	this.preloadBgm = function() {
-		var bgmNum = Math.floor(Math.random() * 7);
+		var bgmNum = Math.floor(Math.random() * 11);
 
 		if (window.forceBgm || window.forceBgm === 0) bgmNum = window.forceBgm;
 		window.bgmNum = bgmNum;
@@ -5306,9 +5306,25 @@ function Battle(frame, logFrame, noPreload) {
 			self.bgm = 'audio/hgss-johto-trainer.mp3';
 			break;
 		case 6:
-		default:
 			BattleSound.loadBgm('audio/dpp-rival.mp3', 13888, 66352);
 			self.bgm = 'audio/dpp-rival.mp3';
+			break;
+		case 7:
+			BattleSound.loadBgm('audio/bw2-kanto-gym-leader.mp3', 14626, 58986);
+			self.bgm = 'audio/bw2-kanto-gym-leader.mp3';
+			break;
+		case 8:
+			BattleSound.loadBgm('audio/bw2-rival.mp3', 7152, 68708);
+			self.bgm = 'audio/bw2-rival.mp3';
+			break;
+		case 9:
+			BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469);
+			self.bgm = 'audio/xy-trainer.mp3';
+			break;
+		case 10:
+		default:
+			BattleSound.loadBgm('audio/xy-rival.mp3', 7802, 58634);
+			self.bgm = 'audio/xy-rival.mp3';
 			break;
 		}
 	};
