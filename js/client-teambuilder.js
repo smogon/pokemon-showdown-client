@@ -1155,13 +1155,13 @@
 			pokemon: function(a, b) {
 				if(this.curTeam.format == 'ou') {
 					//Use team suggestion engine
-					//if(this.curTeam.team.length > 1) {
+					if(this.curTeam.team.length > 1) {
 						var aScore = this.getSuggestionScore(a);
 						var bScore = this.getSuggestionScore(b);
 						if(aScore != bScore) {
 							return aScore < bScore ? 1 : -1;
 						}
-						//}
+					}
 				}
 				//Regular old alphabetical sort
 				return (a.name == b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
