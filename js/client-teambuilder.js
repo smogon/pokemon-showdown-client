@@ -1066,12 +1066,12 @@
 				if(i != this.curSetLoc) { //Don't count a pokemon we're replacing
 					var pokTeamData = teamData[this.curTeam.team[i].name];
 					if(!pokTeamData) continue; //No data available
-					for(var j = 0; j < pokTeamData.counters.length; j++) {
-						var counter = pokTeamData.counters[j];
-						if(!teamCounters[counter.name]) {
-							teamCounters[counter.name] = 0;
+					for(var counterName in pokTeamData.counters) {
+						var counterWeight = pokTeamData.counters[counterName];
+						if(!teamCounters[counterName]) {
+							teamCounters[counterName] = 0;
 						}
-						teamCounters[counter.name] += counter.weight * teamData[counter.name].weight;
+						teamCounters[counterName] += counterWeight * teamData[counterName].weight;
 					}
 				}
 			}
@@ -1083,20 +1083,20 @@
 				if(!counterTeamData) continue; //No data available
 				var counterCounters = counterTeamData.counters;
 				//Unweight counters if something else on your team already handles them
-				for(var i = 0; i < counterCounters.length; i++) {
+				for(var counterCounterName in counterCounters) {
 					for(var j = 0; j < this.curTeam.team.length; j++) {
-						if(j != this.curSetLoc && this.curTeam.team[j].name == counterCounters[i].name) {
-							counterWeight -= counterCounters[i].weight;
+						if(j != this.curSetLoc && this.curTeam.team[j].name == counterCounterName) {
+							counterWeight -= counterCounters[counterCounterName];
 						}
 					}
 				}
 				//Find suggestions
-				for(var i = 0; i < counterCounters.length; i++) {
+				for(var counterCounterName in counterCounters) {
 					if(counterWeight > 0) {
-						if(!this.suggestions[counterCounters[i].name]) {
-							this.suggestions[counterCounters[i].name] = 0;
+						if(!this.suggestions[counterCounterName]) {
+							this.suggestions[counterCounterName] = 0;
 						}
-						this.suggestions[counterCounters[i].name] += counterCounters[i].weight * counterWeight;
+						this.suggestions[counterCounterName] += counterCounters[counterCounterName] * counterWeight;
 					}
 				}
 			}
