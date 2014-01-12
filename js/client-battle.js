@@ -379,7 +379,7 @@
 					} else {
 						controls += movebuttons;
 					}
-					if (switchables[pos].canMegaEvo || Tools.getItem(switchables[pos].item).megaStone && !switchables[pos].volatiles.formechange) {
+					if (switchables[pos].canMegaEvo) {
 						controls += '<br /><label><input type="checkbox" name="megaevo" /> Mega evolution</label>'
 					}
 					controls += '<div style="clear:left"></div>';
