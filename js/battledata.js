@@ -363,7 +363,7 @@ var Tools = {
 			str = str.replace(/(\bgoogle ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
 				p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p2 +
-					'" target="_blank">' + p1 + '</a>';
+					'" target="_blank" class="searching">' + p1 + '</a>';
 			});
 			// gl [blah]
 			// gl[blah]
@@ -371,21 +371,21 @@ var Tools = {
 			str = str.replace(/(\bgl ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
 				p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + p2 +
-					'" target="_blank">' + p1 + '</a>';
+					'" target="_blank" class="searching">' + p1 + '</a>';
 			});
 			// wiki [blah]
 			//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
 			str = str.replace(/(\bwiki ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
 				p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 				return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
-					p2 + '" target="_blank">' + p1 + '</a>';
+					p2 + '" target="_blank" class="searching">' + p1 + '</a>';
 			});
 			// [[blah]]
 			//   Short form of gl[blah]
 			str = str.replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, function(p0, p1) {
 				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
-					'" target="_blank">' + p1 +'</a>';
+					'" target="_blank" class="searching">' + p1 +'</a>';
 			});
 		}
 		// __italics__
