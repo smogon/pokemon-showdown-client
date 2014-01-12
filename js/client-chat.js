@@ -822,9 +822,6 @@
 					// so that it can be included in the scrollback buffer.
 					$('.message-link-' + toId(row[1])).each(function() {
 						$(this).replaceWith($(this).html());
-					})
-					$('a.searching').each(function() {
-						$(this).replaceWith($(this).html());
 					});
 					break;
 
