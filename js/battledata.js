@@ -361,31 +361,51 @@ var Tools = {
 			// google[blah]
 			//   Google search for 'blah'
 			str = str.replace(/(\bgoogle ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
+				var classbit = '';
+				if (linkclass) {
+					classbit = ' class="message-link-' + toId(linkclass) + '"';
+					}
 				p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p2 +
-					'" target="_blank" class="searching">' + p1 + '</a>';
+					'" target="_blank" ' + classbit +
+						'>' + p1 + '</a>';
 			});
 			// gl [blah]
 			// gl[blah]
 			//   Google search for 'blah' and visit the first result ("I'm feeling lucky")
 			str = str.replace(/(\bgl ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
+				var classbit = '';
+				if (linkclass) {
+					classbit = ' class="message-link-' + toId(linkclass) + '"';
+					}
 				p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + p2 +
-					'" target="_blank" class="searching">' + p1 + '</a>';
+					'" target="_blank" ' + classbit +
+						'>' + p1 + '</a>';
 			});
 			// wiki [blah]
 			//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
 			str = str.replace(/(\bwiki ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
+				var classbit = '';
+				if (linkclass) {
+					classbit = ' class="message-link-' + toId(linkclass) + '"';
+					}
 				p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
 				return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
-					p2 + '" target="_blank" class="searching">' + p1 + '</a>';
+					p2 + '" target="_blank" ' + classbit +
+						'>' + p1 + '</a>';
 			});
 			// [[blah]]
 			//   Short form of gl[blah]
 			str = str.replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, function(p0, p1) {
+				var classbit = '';
+				if (linkclass) {
+					classbit = ' class="message-link-' + toId(linkclass) + '"';
+					}
 				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
-					'" target="_blank" class="searching">' + p1 +'</a>';
+					'" target="_blank" ' + classbit +
+						'>' + p1 +'</a>';
 			});
 		}
 		// __italics__
