@@ -705,7 +705,7 @@ function Battle(frame, logFrame, noPreload) {
 	this.p2 = null;
 	this.sides = [];
 	this.lastMove = '';
-	this.gen = 5;
+	this.gen = 6;
 
 	this.frameElem = frame;
 	this.logFrameElem = logFrame;
@@ -768,7 +768,12 @@ function Battle(frame, logFrame, noPreload) {
 		self.sides = [self.mySide, self.yourSide];
 		self.p1 = self.mySide;
 		self.p2 = self.yourSide;
-		self.gen = 5;
+		self.gen = 6;
+	};
+	this.updateGen = function () {
+		if (this.gen < 4) self.backdropImage = '';
+		else if (this.gen < 6) self.backdropImage = 'bg.jpg';
+		if (self.bgElem) self.bgElem.css('background-image','url(' + Tools.resourcePrefix + 'fx/' + self.backdropImage + ')');
 	};
 	this.reset = function (dontResetSound) {
 		// battle state
@@ -790,6 +795,7 @@ function Battle(frame, logFrame, noPreload) {
 		self.logPreemptElem = logFrame.children().last();
 		logFrame.append('<div class="inner-after"></div>');
 
+		this.updateGen();
 		self.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + 'fx/' + self.backdropImage + ');display:block;opacity:0"></div>');
 		self.bgElem = self.elem.children().last();
 		self.bgElem.animate({
@@ -4906,6 +4912,7 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'gen':
 			self.gen = parseInt(args[1]);
+			self.updateGen();
 			break;
 		case 'callback':
 			args.shift();
