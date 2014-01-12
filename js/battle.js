@@ -38,7 +38,7 @@ function BattleSoundLibrary() {
 	// effects
 	this.effectCache = {};
 	this.loadEffect = function(url) {
-		if (this.effectCache[url]) {
+		if (this.effectCache[url] && this.effectCache[url] !== this.soundPlaceholder) {
 			return this.effectCache[url];
 		}
 		try {
@@ -62,7 +62,9 @@ function BattleSoundLibrary() {
 	this.bgm = null;
 	this.loadBgm = function(url, loopstart, loopend) {
 		if (this.bgmCache[url]) {
-			return this.bgmCache[url];
+			if (this.bgmCache[url] !== this.soundPlaceholder || loopstart === undefined) {
+				return this.bgmCache[url];
+			}
 		}
 		try {
 			this.bgmCache[url] = soundManager.createSound({
