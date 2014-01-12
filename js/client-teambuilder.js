@@ -1052,48 +1052,48 @@
 		 * Set charts
 		 *********************************************************/
 		getSuggestionScore: function(pokemon) {
-			if(this.curTeam && this.curTeam.format == 'ou') {
-				if(this.suggestions && this.suggestions[pokemon.name]) {
+			if (this.curTeam && this.curTeam.format == 'ou') {
+				if (this.suggestions && this.suggestions[pokemon.name]) {
 					return this.suggestions[pokemon.name];
 				}
 			}
 			return 0;
 		},
 		updateSuggestions: function() {
-			//Find counters to pokemon on your team
+			// Find counters to pokemon on your team
 			var teamCounters = {};
-			for(var i = 0; i < this.curTeam.team.length; i++) {
-				if(i != this.curSetLoc) { //Don't count a pokemon we're replacing
+			for (var i = 0; i < this.curTeam.team.length; i++) {
+				if (i != this.curSetLoc) { // Don't count a pokemon we're replacing
 					var pokTeamData = teamData[this.curTeam.team[i].name];
-					if(!pokTeamData) continue; //No data available
-					for(var counterName in pokTeamData.counters) {
+					if (!pokTeamData) continue; // No data available
+					for (var counterName in pokTeamData.counters) {
 						var counterWeight = pokTeamData.counters[counterName];
-						if(!teamCounters[counterName]) {
+						if (!teamCounters[counterName]) {
 							teamCounters[counterName] = 0;
 						}
 						teamCounters[counterName] += counterWeight * teamData[counterName].weight;
 					}
 				}
 			}
-			//Look for counters to counters
+			// Look for counters to counters
 			this.suggestions = {};
-			for(var counterName in teamCounters) {
+			for (var counterName in teamCounters) {
 				var counterWeight = teamCounters[counterName];
 				var counterTeamData = teamData[counterName];
-				if(!counterTeamData) continue; //No data available
+				if (!counterTeamData) continue; // No data available
 				var counterCounters = counterTeamData.counters;
-				//Unweight counters if something else on your team already handles them
-				for(var counterCounterName in counterCounters) {
-					for(var j = 0; j < this.curTeam.team.length; j++) {
-						if(j != this.curSetLoc && this.curTeam.team[j].name == counterCounterName) {
+				// Unweight counters if something else on your team already handles them
+				for (var counterCounterName in counterCounters) {
+					for (var j = 0; j < this.curTeam.team.length; j++) {
+						if (j != this.curSetLoc && this.curTeam.team[j].name == counterCounterName) {
 							counterWeight -= counterCounters[counterCounterName];
 						}
 					}
 				}
-				//Find suggestions
-				for(var counterCounterName in counterCounters) {
-					if(counterWeight > 0) {
-						if(!this.suggestions[counterCounterName]) {
+				// Find suggestions
+				for (var counterCounterName in counterCounters) {
+					if (counterWeight > 0) {
+						if (!this.suggestions[counterCounterName]) {
 							this.suggestions[counterCounterName] = 0;
 						}
 						this.suggestions[counterCounterName] += counterCounters[counterCounterName] * counterWeight;
@@ -1113,7 +1113,7 @@
 					// return ['Suggestions' 'OU','Limbo','Uber','BL','UU','BL2','RU','BL3','NU','Unreleased','Limbo NFE','NFE','LC Uber','LC','CAP'];
 					return ['OU','Uber','BL','Limbo A','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC','Unreleased','CAP'];
 				}
-				if(this.getSuggestionScore(pokemon)) {
+				if (this.getSuggestionScore(pokemon)) {
 					return 'Suggestions';
 				}
 				var tierData = exports.BattleFormatsData[toId(pokemon.species)];
@@ -1153,17 +1153,17 @@
 		},
 		sortCallback: {
 			pokemon: function(a, b) {
-				if(this.curTeam.format == 'ou') {
-					//Use team suggestion engine
-					if(this.curTeam.team.length > 1) {
+				if (this.curTeam.format == 'ou') {
+					// Use team suggestion engine
+					if (this.curTeam.team.length > 1) {
 						var aScore = this.getSuggestionScore(a);
 						var bScore = this.getSuggestionScore(b);
-						if(aScore != bScore) {
+						if (aScore != bScore) {
 							return aScore < bScore ? 1 : -1;
 						}
 					}
 				}
-				//Regular old alphabetical sort
+				// Regular old alphabetical sort
 				return (a.name == b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
 			}
 		},
