@@ -556,7 +556,7 @@
 						if (!data.length) {
 							buffer += '<tr><td colspan="7"><em>This user has not played any ladder games yet.</em></td></tr>';
 						} else {
-							buffer += '<tr><th>Format</th><th>ACRE</th><th>GXE</th><th>Glicko2</th><th>W</th><th>L</th><th>T</th></tr>';
+							buffer += '<tr><th>Format</th><th>Elo</th><th>GXE</th><th>Glicko2</th><th>W</th><th>L</th><th>T</th></tr>';
 							for (var i=0; i<data.length; i++) {
 								var row = data[i];
 								buffer += '<tr><td>'+row.formatid+'</td><td><strong>'+Math.round(row.acre)+'</strong></td><td>'+Math.round(row.gxe,1)+'</td><td>';
