@@ -2211,7 +2211,9 @@ function Battle(frame, logFrame, noPreload) {
 				grudge: '<span class="good">Grudge</span>',
 				endure: '<span class="good">Endure</span>',
 				focuspunch: '<span class="neutral">Focusing</span>',
-				powder: '<span class="bad">Powder</span>'
+				powder: '<span class="bad">Powder</span>',
+				ragepowder: '<span class="good">Rage Powder</span>',
+				followme: '<span class="good">Follow Me</span>'
 			};
 			for (i in pokemon.volatiles) {
 				if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
@@ -3849,6 +3851,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'mimic':
 					actions += '' + poke.getName() + ' learned ' + Tools.escapeHTML(args[3]) + '!';
 					break;
+				case 'followme':
 				case 'ragepowder':
 					actions += '' + poke.getName() + ' became the center of attention!';
 					break;
