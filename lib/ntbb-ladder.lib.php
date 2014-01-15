@@ -398,11 +398,11 @@ class NTBBLadder {
 		if (!@$p2['rating']) $this->getRating($p2, true);
 
 		if (!$p1M) {
-			$p2rating = new Glicko2Player($p2['rating']['rpr'], $p2['rating']['rprd'], $p2['rating']['rpsigma']);
+			$p2rating = new Glicko2Player($p2['rating']['r'], $p2['rating']['rd'], $p2['rating']['sigma']);
 			$p1M = $p2rating->MatchElement($p1score);
 		}
 		if (!$p2M) {
-			$p1rating = new Glicko2Player($p1['rating']['rpr'], $p1['rating']['rprd'], $p1['rating']['rpsigma']);
+			$p1rating = new Glicko2Player($p1['rating']['r'], $p1['rating']['rd'], $p1['rating']['sigma']);
 			$p2M = $p1rating->MatchElement(1 - $p1score);
 		}
 		$p1M['score'] = $p1score;
