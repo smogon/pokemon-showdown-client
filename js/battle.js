@@ -3853,6 +3853,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'followme':
 				case 'ragepowder':
+				case 'followme':
 					actions += '' + poke.getName() + ' became the center of attention!';
 					break;
 				case 'powder':
