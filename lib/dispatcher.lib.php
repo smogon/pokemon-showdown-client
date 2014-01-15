@@ -528,11 +528,11 @@ class LadderActionHandler {
 
 		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
 		$user = $this->getUserData(@$reqData['user']);
-		$out = 1500;
+		$out = 1000;
 		if ($user) {
 			$ladder->getRating($user);
 			if (@$user['rating']) {
-				$out = intval(($user['rating']['rpr']*2 + $user['rating']['r']) / 3);
+				$out = intval($user['rating']['acre']);
 			}
 		}
 	}

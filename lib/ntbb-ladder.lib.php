@@ -216,7 +216,7 @@ class NTBBLadder {
 					't' => 0,
 					'gxe' => 50,
 					'acre' => 1000,
-					'lacre' => -4000,
+					'lacre' => 1000,
 				);
 				return true;
 			}
@@ -266,7 +266,7 @@ class NTBBLadder {
 			$j = 0;
 			while ($row = $ladderdb->fetch_assoc($res)) {
 				$j++;
-				if ($row['lacre'] < 0 && $j > 50) break;
+				// if ($row['lacre'] < 0 && $j > 50) break;
 				$user = array(
 					'username' => $row['username'],
 					'userid' => $row['userid'],
@@ -298,11 +298,7 @@ class NTBBLadder {
 		return !!$ladderdb->query("UPDATE `{$ladderdb->prefix}ladder` SET `w`={$user['rating']['w']}, `l`={$user['rating']['l']}, `t`={$user['rating']['t']}, `r`={$user['rating']['r']}, `rd`={$user['rating']['rd']}, `sigma`={$user['rating']['sigma']}, `rptime`={$user['rating']['rptime']}, `rpr`={$user['rating']['rpr']}, `rprd`={$user['rating']['rprd']}, `rpsigma`={$user['rating']['rpsigma']}, `rpdata`='".$ladderdb->escape($user['rating']['rpdata'])."', `gxe`={$user['rating']['gxe']}, `acre`={$user['rating']['acre']}, `lacre`={$user['rating']['lacre']} WHERE `entryid` = {$user['rating']['entryid']} LIMIT 1");
 	}
 
-	function getAcre($rating) {
-		return $rating->rating - $rating->rd*500/355.13567109546;
-	}
-
-	function update(&$user, $newM = false, $force = false) {
+	function update(&$user, $newM = false, $newMelo = 1000, $force = false) {
 		$offset = 0;
 
 		$rp = $this->getrp();
@@ -318,9 +314,9 @@ class NTBBLadder {
 			//var_export($rating->M);
 		}
 
-		if ($rp > $user['rating']['rptime'] || count($rating->M) >= 14) {
+		if ($rp > $user['rating']['rptime']) {
 			$i=0;
-			while ($rp > $user['rating']['rptime'] || count($rating->M) >= 14) {
+			while ($rp > $user['rating']['rptime']) {
 				$i++;
 				if ($i > 1000) break;
 
@@ -342,21 +338,6 @@ class NTBBLadder {
 		}
 
 		if ($newM) {
-			// grab oldacre
-			{
-				$oldM = $rating->M;
-				$oldR = $rating->rating;
-				$oldRd = $rating->rd;
-				$oldSigma = $rating->sigma;
-				$rating->Update();
-
-				$user['rating']['oldacre'] = $this->getAcre($rating) + $offset;
-				$newOldRd = $rating->rd;
-
-				$rating = new Glicko2Player($oldR, $oldRd, $oldSigma);
-				$rating->M = $oldM;
-			}
-
 			$rating->M[] = $newM;
 			if ($newM['score'] > 0.99) {
 				$user['rating']['w']++;
@@ -375,14 +356,6 @@ class NTBBLadder {
 
 		$rating->Update();
 
-		// grab oldrdacre
-		if ($newM) {
-			$newRd = $rating->rd;
-			$rating->rd = $newOldRd;
-			$user['rating']['oldrdacre'] = $this->getAcre($rating) + $offset;
-			$rating->rd = $newRd;
-		}
-
 		$oldrpr = $user['rating']['rpr'];
 
 		$user['rating']['rpr'] = $rating->rating;
@@ -390,37 +363,33 @@ class NTBBLadder {
 		$user['rating']['rpsigma'] = $rating->sigma;
 
 		$user['rating']['gxe'] = round(100 / (1 + pow(10,((1500 - $rating->rating) * pi() / sqrt(3 * log(10)*log(10) * $rating->rd*$rating->rd + 2500 * (64 * pi()*pi() + 147 * log(10)*log(10)))))), 1);
-		$user['rating']['acre'] = $this->getAcre($rating) + $offset;
 
 		if ($newM) {
 			// compensate for Glicko2 bug: don't lose rating on win, don't gain rating on lose
-			if ($newM['score'] > .9 && $rating->rating < $oldrpr) {
-				$delta = $oldrpr - $rating->rating;
-				$offset += $delta;
-				$user['rating']['acre'] += $delta;
-				$user['rating']['rpr'] += $delta;
-			}
-			if ($newM['score'] < .1 && $rating->rating > $oldrpr) {
-				$delta = $oldrpr - $rating->rating;
-				$offset += $delta;
-				$user['rating']['acre'] += $delta;
-				$user['rating']['rpr'] += $delta;
-			}
-
-			// minimum +1 ACRE on win, minimum -1 ACRE on loss
-			if ($newM['score'] > .9 && $user['rating']['acre'] < $user['rating']['oldacre'] + 1) {
-				$user['rating']['acre'] = $user['rating']['oldacre'] + 1;
-			}
-			if ($newM['score'] < .1 && $user['rating']['acre'] > $user['rating']['oldacre'] - 1) {
-				$user['rating']['acre'] = $user['rating']['oldacre'] - 1;
-			}
+			// if ($newM['score'] > .9 && $rating->rating < $oldrpr) {
+			// 	$delta = $oldrpr - $rating->rating;
+			// 	$offset += $delta;
+			// 	$user['rating']['rpr'] += $delta;
+			// }
+			// if ($newM['score'] < .1 && $rating->rating > $oldrpr) {
+			// 	$delta = $oldrpr - $rating->rating;
+			// 	$offset += $delta;
+			// 	$user['rating']['rpr'] += $delta;
+			// }
 		}
 		if ($offset) {
 			$user['rating']['rpdata'] .= '##'.$offset;
 		}
 
-		$user['rating']['lacre'] = $user['rating']['acre'];
-		if ($user['rating']['rprd'] > 100) $user['rating']['lacre'] -= 5000;
+
+		if ($newM) {
+			$elo = $user['rating']['oldacre'] = $user['rating']['acre'];
+
+			$E = 1 / (1 + pow(10, ($newMelo - $elo) / 400));
+			$elo += 50 * ($newM['score'] - $E);
+
+			$user['rating']['lacre'] = $user['rating']['acre'] = $elo;
+		}
 
 		return true;
 	}
@@ -438,9 +407,11 @@ class NTBBLadder {
 		}
 		$p1M['score'] = $p1score;
 		$p2M['score'] = 1 - $p1score;
+		$p1Macre = $p2['rating']['acre'];
+		$p2Macre = $p1['rating']['acre'];
 
-		$this->update($p1, $p1M);
-		$this->update($p2, $p2M);
+		$this->update($p1, $p1M, $p1Macre);
+		$this->update($p2, $p2M, $p2Macre);
 
 		$this->saveRating($p1);
 		$this->saveRating($p2);
