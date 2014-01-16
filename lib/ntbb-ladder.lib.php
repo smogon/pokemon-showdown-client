@@ -22,142 +22,92 @@ if (empty($ladderdb)) {
 	}
 }
 
-class Glicko2Player {
+class GlickoPlayer {
 	public $rating;
 	public $rd;
-	public $sigma;
-
-	public $mu;
-	public $phi;
-	public $tau;
 
 	private $pi2 = 9.8696044;
+	private $RDmax = 130.0;
+	private $RDmin = 25.0;
+	private $c;
+	private $q = 0.00575646273 ;
 
 	var $M = array();
 
-	function __construct($rating = 1500, $rd = 350, $volatility = 0.06, $mu = null, $phi = null, $sigma = null, $systemconstant = 0.75) {
+	function __construct($rating = 1500, $rd = 130.0) {
 		// Step 1
 		$this->rating = $rating;
 		$this->rd = $rd;
-		// volatility
-		if (is_null($sigma)) {
-			$this->sigma = $volatility;
-		} else {
-			$this->sigma = $sigma;
-		}
-		// System Constant
-		$this->tau = $systemconstant;
-
-		// Step 2
-		// Rating
-		if (is_null($mu)) {
-			$this->mu = ( $this->rating - 1500 ) / 173.7178;
-		} else {
-			$this->mu = $mu;
-		}
-		// Rating Deviation
-		if (is_null($phi)) {
-			$this->phi = $this->rd / 173.7178;
-		} else {
-			$this->phi = $phi;
-		}
+		$this->c = sqrt(($this->RDmax * $this->RDmax - $this->RDmin * $this->RDmin) / 365.0);
 	}
 
-	function AddWin($OtherPlayer) {
+	function addWin($OtherPlayer) {
 		$this->M[] = $OtherPlayer->MatchElement(1);
 	}
 
-	function AddLoss($OtherPlayer) {
+	function addLoss($OtherPlayer) {
 		$this->M[] = $OtherPlayer->MatchElement(0);
 	}
 
-	function AddDraw($OtherPlayer) {
+	function addDraw($OtherPlayer) {
 		$this->M[] = $OtherPlayer->MatchElement(0.5);
 	}
 
-	function Update() {
-		$Results = $this->AddMatches($this->M);
-		$this->rating = $Results['r'];
-		$this->rd = $Results['RD'];
-		$this->mu = $Results['mu'];
-		$this->phi = $Results['phi'];
-		$this->sigma = $Results['sigma'];
+	function update() {
+		$results = $this->AddMatches($this->M);
+		$this->rating = $results['R'];
+		$this->rd = $results['RD'];
 		$this->M = array();
 	}
 
-	function MatchElement($score) {
-		return array( 'mu' => $this->mu, 'phi' => $this->phi, 'score' => $score );
+	function matchElement($score) {
+		return array('R' => $this->rating, 'RD' => $this->rd, 'score' => $score);
 	}
 
-	function AddMatches($M) {
-		// This is where the Glicko2 rating calculation actually happens
+	function addMatches($M) {
+		// This is where the Glicko rating calculation actually happens
 
-		// Follow along the steps using: http://www.glicko.net/glicko/glicko2.pdf
+		// Follow along the steps using: http://www.glicko.net/glicko/glicko.pdf
 
 		if (count($M) == 0) {
-			$phi_p = sqrt( ( $this->phi * $this->phi ) + ( $this->sigma * $this->sigma ) );
-			return array( 'r' => $this->rating, 'RD' => 173.7178 * $phi_p, 'mu' => $this->mu, 'phi' => $phi_p, 'sigma' => $this->sigma ) ;
+			$RD = sqrt(($this->rd * $this->rd) + ($this->c * $this->c));
+			return array('R' => $this->rating, 'RD' => $RD);
 		}
 
-		// summation parts of Step 3 & 4 & 7
-		$v_sum = 0;
-		$delta_sum = 0;
-		$mu_p_sum = 0;
+		$A = 0.0;
+		$d2 = 0.0;
 		for ($j = 0; $j < count($M); $j++) {
-			$E = $this->E( $this->mu, $M[$j]['mu'], $M[$j]['phi'] );
-			$g = $this->g( $M[$j]['phi'] );
-			$v_sum +=  ( $g * $g * $E * ( 1 - $E ) );
+			$E = $this->E($this->rating, $M[$j]['R'], $M[$j]['RD']);
+			$g = $this->g($M[$j]['RD']);
 
-			$delta_sum += $g * ( $M[$j]['score'] - $E );
+			$d2 +=  ($g * $g * $E * (1 - $E));
 
-			$mu_p_sum += $g * ( $M[$j]['score'] - $E );
+			$A += $g * ($M[$j]['score'] - $E);
 		}
 
-		// Step 3
-		// Estimated variance
-		$v = 1.0 / $v_sum;
+		$d2 = 1.0 / $this->q / $this->q / $d2;
 
-		// Step 4
-		// Estimated improvment in rating
-		$delta = $v * $delta_sum;
+		$RD = 1.0 / sqrt(1.0 / ($this->rd * $this->rd) + 1.0 / $d2);
+		$R = $this->rating + $this->q * ($RD * $RD) * $A;
 
-		// Step 5
-		$a = log( $this->sigma * $this->sigma );
-		$x_prev = $a;
-		$x = $x_prev;
-		$tausq = $this->tau * $this->tau;
-		$phisq = $this->phi * $this->phi;
-		$deltasq = $delta * $delta;
-		do {
-			$exp_xp = exp( $x_prev );
-			$d = $this->phi * $this->phi + $v + $exp_xp;
-			$deltadsq = $deltasq / ($d * $d);
-			$h1 = -( $x_prev - $a ) / ( $tausq ) - ( 0.5 * $exp_xp / $d ) + ( 0.5 * $exp_xp * $deltadsq );
-			$h2 = ( -1.0 / $tausq ) - ( ( 0.5 * $exp_xp ) * ( $phisq + $v ) / ( $d * $d ) ) + ( 0.5 * $deltasq * $exp_xp * ( $phisq + $v - $exp_xp ) / ( $d * $d * $d ) );
-			$tmp_x = $x;
-			$x = $x_prev - ( $h1 / $h2 );
-			$x_prev = $tmp_x;
-		} while (abs($x - $x_prev) > 0.1);
 
-		$sigma_p = exp( $x / 2 );
+		if ($RD > $this->RDmax) {
+			$RD = $this->RDmax;
+		}
 
-		// Step 6
-		$phi_star = sqrt( $phisq + ( $sigma_p * $sigma_p ) );
+		if ($RD < $this->RDmin) {
+			$RD = $this->RDmin;
+		}
 
-		// Step 7
-		$phi_p = 1.0 / ( sqrt( ( 1.0 / ( $phi_star * $phi_star ) ) + ( 1.0 / $v ) ) );
-		// New mu
-		$mu_p = $this->mu + $phi_p * $phi_p * $mu_p_sum;
-
-		return array( 'r' => ( 173.7178 * $mu_p ) + 1500, 'RD' => 173.7178 * $phi_p, 'mu' => $mu_p, 'phi' => $phi_p, 'sigma' => $sigma_p );
+		return array('R' => $R, 'RD' => $RD);
 	}
 
-	function g($phi) {
-		return 1.0 / ( sqrt( 1.0 + ( 3.0 * $phi * $phi) / ( $this->pi2 ) ) );
+	function g($RD) {
+		return 1.0 / sqrt(1.0 + 3.0 * $this->q * $this->q * $RD * $RD / $this->pi2) ;
 	}
 
-	function E($mu, $mu_j, $phi_j) {
-		return 1.0 / ( 1.0 + exp( -$this->g($phi_j) * ( $mu - $mu_j ) ) );
+	function E($R, $R_j, $RD_j) {
+		return 1.0 / (1.0 + pow(10.0, -$this->g($RD_j) * ($R - $R_j) / 400.0));
 	}
 }
 
@@ -203,12 +153,11 @@ class NTBBLadder {
 					'userid' => $user['userid'],
 					'username' => $user['username'],
 					'r' => 1500,
-					'rd' => 350,
-					'sigma' => 0.06,
+					'rd' => 130,
+					'sigma' => 0,
 					'rpr' => 1500,
-					'rprd' => 350,
-					'rpsigma' => 0.06,
-					'gxe' => 0,
+					'rprd' => 130,
+					'rpsigma' => 0,
 					'rptime' => $rp,
 					'rpdata' => '',
 					'w' => 0,
@@ -306,7 +255,7 @@ class NTBBLadder {
 			return false;
 		}
 
-		$rating = new Glicko2Player($user['rating']['r'], $user['rating']['rd'], $user['rating']['sigma']);
+		$rating = new GlickoPlayer($user['rating']['r'], $user['rating']['rd']);
 		if ($user['rating']['rpdata']) {
 			$rpdata = explode('##',$user['rating']['rpdata']);
 			if (count($rpdata) > 1) $offset = floatval($rpdata[1]);
@@ -320,17 +269,15 @@ class NTBBLadder {
 				$i++;
 				if ($i > 1000) break;
 
-				$rating->Update();
+				$rating->update();
 				if ($offset) {
 					$rating->rating += $offset;
-					$rating->mu += $offset/173.7178;
 					$offset = 0;
 				}
 				$user['rating']['rptime'] = $this->nextrp($user['rating']['rptime']);
 			}
 			$user['rating']['r'] = $rating->rating;
 			$user['rating']['rd'] = $rating->rd;
-			$user['rating']['sigma'] = $rating->sigma;
 			$user['rating']['gxe'] = 0;
 			if ($user['rating']['rd'] < 100) {
 				$user['rating']['gxe'] = 1; //round(100 / (1 + pow(10,((1500 - $user['rating']['r']) * pi() / sqrt(3 * log(10)*log(10) * $user['rating']['rd']*$user['rating']['rd'] + 2500 * (64 * pi()*pi() + 147 * log(10)*log(10)))))));
@@ -360,7 +307,6 @@ class NTBBLadder {
 
 		$user['rating']['rpr'] = $rating->rating;
 		$user['rating']['rprd'] = $rating->rd;
-		$user['rating']['rpsigma'] = $rating->sigma;
 
 		$user['rating']['gxe'] = round(100 / (1 + pow(10,((1500 - $rating->rating) * pi() / sqrt(3 * log(10)*log(10) * $rating->rd*$rating->rd + 2500 * (64 * pi()*pi() + 147 * log(10)*log(10)))))), 1);
 
@@ -388,6 +334,8 @@ class NTBBLadder {
 			$E = 1 / (1 + pow(10, ($newMelo - $elo) / 400));
 			$elo += 50 * ($newM['score'] - $E);
 
+			if ($elo < 1000) $elo = 1000;
+
 			$user['rating']['lacre'] = $user['rating']['acre'] = $elo;
 		}
 
@@ -398,11 +346,11 @@ class NTBBLadder {
 		if (!@$p2['rating']) $this->getRating($p2, true);
 
 		if (!$p1M) {
-			$p2rating = new Glicko2Player($p2['rating']['r'], $p2['rating']['rd'], $p2['rating']['sigma']);
+			$p2rating = new GlickoPlayer($p2['rating']['r'], $p2['rating']['rd']);
 			$p1M = $p2rating->MatchElement($p1score);
 		}
 		if (!$p2M) {
-			$p1rating = new Glicko2Player($p1['rating']['r'], $p1['rating']['rd'], $p1['rating']['sigma']);
+			$p1rating = new GlickoPlayer($p1['rating']['r'], $p1['rating']['rd']);
 			$p2M = $p1rating->MatchElement(1 - $p1score);
 		}
 		$p1M['score'] = $p1score;
