@@ -278,10 +278,6 @@ class NTBBLadder {
 			}
 			$user['rating']['r'] = $rating->rating;
 			$user['rating']['rd'] = $rating->rd;
-			$user['rating']['gxe'] = 0;
-			if ($user['rating']['rd'] < 100) {
-				$user['rating']['gxe'] = 1; //round(100 / (1 + pow(10,((1500 - $user['rating']['r']) * pi() / sqrt(3 * log(10)*log(10) * $user['rating']['rd']*$user['rating']['rd'] + 2500 * (64 * pi()*pi() + 147 * log(10)*log(10)))))));
-			}
 		}
 
 		if ($newM) {
@@ -308,7 +304,8 @@ class NTBBLadder {
 		$user['rating']['rpr'] = $rating->rating;
 		$user['rating']['rprd'] = $rating->rd;
 
-		$user['rating']['gxe'] = round(100 / (1 + pow(10,((1500 - $rating->rating) * pi() / sqrt(3 * log(10)*log(10) * $rating->rd*$rating->rd + 2500 * (64 * pi()*pi() + 147 * log(10)*log(10)))))), 1);
+		// $user['rating']['gxe'] = round(100 / (1 + pow(10,((1500 - $rating->rating) * pi() / sqrt(3 * log(10)*log(10) * $rating->rd*$rating->rd + 2500 * (64 * pi()*pi() + 147 * log(10)*log(10)))))), 1);
+		$user['rating']['gxe'] = round(100 / (1 + pow(10,((1500 - $rating->rating) / 400 / sqrt(1 + 0.0000100724 * ($rating->rd*$rating->rd + 130*130))))), 1);
 
 		if ($newM) {
 			// compensate for Glicko2 bug: don't lose rating on win, don't gain rating on lose
