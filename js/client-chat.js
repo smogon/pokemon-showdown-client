@@ -565,9 +565,9 @@
 								} else {
 									buffer += '<em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em>';
 								}
-								var N=row.w+row.l+row.t;
-								buffer += '<td>'+Math.round(40.0*row.gxe*Math.pow(2.0,-34.0/N),0)+'</td>';
-								buffer += '<td>'+Math.round(1000.0+(2*row.gxe-100)*N/4.0,0)+'</td>';
+								var N=parseInt(row.w)+parseInt(row.l)+parseInt(row.t);
+								buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-34.0/N),0)+'</td>';
+								buffer += '<td>'+Math.round(1000.0+(2*parseFloat(row.gxe)-100)*N/4.0,0)+'</td>';
 								buffer += '</td><td>'+row.w+'</td><td>'+row.l+'</td><td>'+row.t+'</td></tr>';
 							}
 						}
