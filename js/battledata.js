@@ -267,6 +267,7 @@ var baseSpeciesChart = {
 	'kyurem': 1,
 	'keldeo': 1,
 	'aegislash': 1,
+	'gourgeist': 1,
 
 	// mega evolutions
 	'charizard': 1,
