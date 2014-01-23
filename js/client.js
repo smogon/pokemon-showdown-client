@@ -20,7 +20,7 @@
 	// address bar is `Config.origindomain`.
 	Config.defaultserver = {
 		id: 'showdown',
-		host: 'sim.psim.us',
+		host: 'sim.smogon.com',
 		port: 443,
 		httpport: 8000,
 		altport: 80,
