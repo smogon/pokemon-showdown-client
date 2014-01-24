@@ -6244,3 +6244,5 @@ BattleMoveAnims['charm'] = {anim:BattleMoveAnims['attract'].anim};
 BattleMoveAnims['armthrust'] = {anim:BattleMoveAnims['cometpunch'].anim, multhit:true};
 
 BattleMoveAnims['iciclecrash'] = {anim:BattleMoveAnims['avalanche'].anim};
+
+BattleMoveAnims['phantomforce'] = {anim:BattleMoveAnims['shadowforce'].anim,prepareAnim:BattleMoveAnims['shadowforce'].prepareAnim,prepareMessage:BattleMoveAnims['shadowforce'].prepareMessage};
