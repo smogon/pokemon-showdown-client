@@ -68,14 +68,34 @@
 			app.user.on('saveteams', this.updateTeams, this);
 		},
 
+		addPseudoPM: function(options) {
+			if (!options) return;
+			options.title = options.title || '';
+			options.html = options.html || '';
+			options.cssClass = options.cssClass || '';
+			options.height = options.height || 'auto';
+			options.attributes = options.attributes || '';
+			options.append = options.append || false;
+			options.noMinimize = options.noMinimize || false;
+
+			this.$pmBox[options.append ? 'append' : 'prepend']('<div class="pm-window ' + options.cssClass + '" ' + options.attributes + '><h3><button class="closebutton" tabindex="-1"><i class="icon-remove-sign"></i></button>' + (!options.noMinimize ? '<button class="minimizebutton" tabindex="-1"><i class="icon-minus-sign"></i></button>' : '') + options.title + '</h3><div class="pm-log" style="overflow:visible;height:' + (typeof options.height === 'number' ? options.height + 'px' : options.height) + ';' + (parseInt(options.height) ? 'max-height:none' : '') + '">' +
+				options.html +
+				'</div></div>');
+		},
+
 		// news
 
 		addNews: function() {
 			var newsId = '1990';
 			if (newsId === ''+Tools.prefs('readnews')) return;
-			this.$pmBox.prepend('<div class="pm-window news-embed" data-newsid="'+newsId+'"><h3><button class="closebutton" tabindex="-1"><i class="icon-remove-sign"></i></button>Latest News</h3><div class="pm-log" style="overflow:visible;height:400px;max-height:none">' +
-				'<iframe src="/news-embed.php?news'+(window.nodewebkit || document.location.protocol === 'https:'?'&amp;https':'')+'" width="270" height="400" border="0" style="border:0;width:100%;height:400px"></iframe>' +
-				'</div></div>');
+			this.addPseudoPM({
+				title: 'Latest News',
+				html: '<iframe src="/news-embed.php?news'+(window.nodewebkit || document.location.protocol === 'https:'?'&amp;https':'')+'" width="270" height="400" border="0" style="border:0;width:100%;height:400px"></iframe>',
+				attributes: 'data-newsid="'+newsId+'"',
+				cssClass: 'news-embed',
+				height: 400,
+				noMinimize: true
+			});
 		},
 
 		/*********************************************************
