@@ -699,7 +699,7 @@
 				guessedMinus = guessedEVs.minusStat; delete guessedEVs.minusStat;
 				buf += ' </small><button name="setStatFormGuesses">'+role+': ';
 				for (var i in guessedEVs) {
-					buf += ''+guessedEVs[i]+' '+BattleStatNames[i]+' / ';
+					if (guessedEVs[i]) buf += ''+guessedEVs[i]+' '+BattleStatNames[i]+' / ';
 				}
 				buf += ' (+'+BattleStatNames[guessedPlus]+', -'+BattleStatNames[guessedMinus]+')</button></p>';
 				//buf += ' <small>('+role+' | bulk: phys '+Math.round(this.moveCount.physicalBulk/1000)+' + spec '+Math.round(this.moveCount.specialBulk/1000)+' = '+Math.round(this.moveCount.bulk/1000)+')</small>';
