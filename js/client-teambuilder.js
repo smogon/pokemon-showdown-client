@@ -1230,6 +1230,10 @@
 					if (moves[i].substr(0,13) === 'Hidden Power ') hasHiddenPower = true;
 				}
 				set.ivs['spe'] = hasHiddenPower ? set.ivs['spe'] % 4 : 0;
+			} else if (move === 'Return') {
+				this.curSet.happiness = 255;
+			} else if (move === 'Frustration') {
+				this.curSet.happiness = 0;
 			}
 		},
 		setPokemon: function(val, selectNext) {
@@ -1849,6 +1853,9 @@
 								curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
 							}
 						}
+					}
+					if (line === 'Frustration') {
+						curSet.happiness = 0;
 					}
 					curSet.moves.push(line);
 				}
