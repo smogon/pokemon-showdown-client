@@ -311,6 +311,8 @@
 
 			this.initializeConnection();
 
+			Friendlist.initialize();
+
 			Backbone.history.start({pushState: true});
 		},
 		/**
@@ -919,6 +921,25 @@
 				this.addPopupMessage(parts.slice(2).join('|'));
 				break;
 
+			case 'friendlist':
+				// this message is sent if friend list is supported by the
+				// server
+				if (Friendlist) {
+					Friendlist.enable();
+				}
+				var nlIndex = data.indexOf('\n');
+				if (nlIndex > 0) {
+					this.receive(data.substr(nlIndex + 1));
+				}
+				break;
+
+			case 'fl':
+				// every friendlist command uses fl
+				if (Friendlist && !Friendlist.disabled) {
+					Friendlist.parseMessage(parts.slice(1));
+				}
+				break;
+
 			default:
 				// the messagetype wasn't in our list of recognized global
 				// messagetypes; so the message is presumed to be for the
@@ -1141,6 +1162,7 @@
 				'teambuilder': TeambuilderRoom,
 				'rooms': RoomsRoom,
 				'ladder': LadderRoom,
+				'friendlist': FriendlistRoom,
 				'lobby': ChatRoom,
 				'staff': ChatRoom,
 			};
@@ -1459,11 +1481,12 @@
 			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notifications?' notifying':'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
 			if (app.rooms['teambuilder']) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
 			if (app.rooms['ladder']) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
+			if (app.rooms['friendlist']) buf += '<li><a class="button'+(curId==='friendlist'?' cur':'')+' closable" href="'+app.root+'friendlist"><i class="icon-heart"></i> <span>Friend list</span></a><a class="closebutton" href="'+app.root+'friendlist"><i class="icon-remove-sign"></i></a></li>';
 			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
 			for (var id in app.rooms) {
-				if (!id || id === 'teambuilder' || id === 'ladder') continue;
+				if (!id || id === 'teambuilder' || id === 'ladder' || id === 'friendlist') continue;
 				var room = app.rooms[id];
 				var name = '<i class="icon-comment-alt"></i> <span>'+(Tools.escapeHTML(room.title)||(id==='lobby'?'Lobby':id))+'</span>';
 				if (id.substr(0,7) === 'battle-') {
@@ -1931,6 +1954,12 @@
 			} else if (data.rooms === false) {
 				buf += '<strong class="offline">OFFLINE</strong>';
 			}
+			if (Friendlist && !Friendlist.disabled) {
+				var fa = Friendlist.friendAction(name);
+				if (fa) {
+					buf += '<p><button name="friendAction">' + fa + '</button></p>';
+				}
+			}
 			buf += '</div>';
 
 			if (userid === app.user.get('userid') || !app.user.get('named')) {
@@ -1951,6 +1980,11 @@
 		},
 		avatars: function() {
 			app.addPopup(AvatarsPopup);
+		},
+		friendAction: function(x, btn) {
+			this.close();
+			app.tryJoinRoom('friendlist');
+			Friendlist.friendAction(this.data.name, btn);
 		},
 		challenge: function() {
 			app.rooms[''].requestNotifications();
@@ -2242,6 +2276,7 @@
 			'change input[name=nolobbypm]': 'setNolobbypm',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=ignorespects]': 'setIgnoreSpects',
+			'change input[name=nofriendlistnotifications]': 'setNoFriendlistNotifications',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
@@ -2263,6 +2298,10 @@
 
 			if (window.Notification) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"'+(Tools.prefs('temporarynotifications')?' checked':'')+' /> Temporary notifications</label></p>';
+
+				if (Friendlist && !Friendlist.disabled) {
+					buf += '<p><label class="optlabel"><input type="checkbox" name="nofriendlistnotifications"'+(Tools.prefs('nofriendlistnotifications')?' checked':'')+' /> No friend list notifications</label></p>';
+				}
 			}
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
@@ -2328,6 +2367,10 @@
 			if (app.curRoom.battle) {
 				app.curRoom.battle.ignoreSpects = !!e.currentTarget.checked;
 			}
+		},
+		setNoFriendlistNotifications: function(e) {
+			var nofriendlistnotifications = !!e.currentTarget.checked;
+			Tools.prefs('nofriendlistnotifications', nofriendlistnotifications);
 		},
 		setBg: function(e) {
 			var bg = e.currentTarget.value;
@@ -2475,11 +2518,12 @@
 			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notifications?' notifying':'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
 			if (app.rooms['teambuilder']) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
 			if (app.rooms['ladder']) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
+			if (app.rooms['friendlist']) buf += '<li><a class="button'+(curId==='friendlist'?' cur':'')+' closable" href="'+app.root+'friendlist"><i class="icon-heart"></i> <span>Friend list</span></a><a class="closebutton" href="'+app.root+'friendlist"><i class="icon-remove-sign"></i></a></li>';
 			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
 			for (var id in app.rooms) {
-				if (!id || id === 'teambuilder' || id === 'ladder') continue;
+				if (!id || id === 'teambuilder' || id === 'ladder' || id === 'friendlist') continue;
 				var room = app.rooms[id];
 				var name = '<i class="icon-comment-alt"></i> <span>'+id+'</span>';
 				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> <span>Lobby</span>';

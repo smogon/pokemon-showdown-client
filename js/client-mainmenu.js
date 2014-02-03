@@ -48,6 +48,7 @@
 			} else {
 				buf += '<p><button class="button" name="joinRoom" value="ladder">Ladder</button></p>';
 			}
+			buf += '<p><button class="button disabled" name="joinRoom" value="friendlist" disabled>Friend list</button></p>';
 			buf += '<p><button class="button" name="credits">Credits</button></p></div></div>';
 			this.$('.mainmenu').html(buf);
 

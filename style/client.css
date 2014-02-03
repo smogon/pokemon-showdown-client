@@ -2201,6 +2201,58 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 }
 
 /*********************************************************
+ * Friend list
+ *********************************************************/
+.friendlistbox .utilichart > li > h3 {
+	background: #DAE5F0;
+	margin: 6px 0;
+	padding: 2px 5px;
+	font-family: Verdana, sans-serif;
+	font-size: 9pt;
+	text-align: left;
+
+	border: 1px solid #AAAAAA;
+	border-left: 0;
+	border-right: 0;
+	text-shadow: 1px 1px 0 rgba(255,255,255,.6);
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6), 0px 2px 2px rgba(0,0,0,.15);
+}
+
+.friendlistbox .result a {
+	width: 100%;
+	padding-top: 6px;
+	padding: 9px 1px 1px 4px;
+	cursor: default;
+}
+
+.friendlistbox .result a:hover {
+	border: 1px solid #D8D8D8;
+	border-radius: 4px;
+	background-color: #F8F8F8;
+	padding: 8px 0 0 3px;
+}
+
+.friendlistbox .onlinebox,
+.friendlistbox .offlinebox {
+	width: 48px;
+	padding: 1px;
+	float: right;
+	border-radius: 4px;
+	margin: -1px 16px 0 0;
+	text-align: center;
+}
+
+.friendlistbox .onlinebox {
+	border: 1px solid #2A2;
+	color: #2A2;
+}
+
+.friendlistbox .offlinebox {
+	border: 1px solid #A22;
+	color: #A22;
+}
+
+/*********************************************************
  * Popups
  *********************************************************/
 
