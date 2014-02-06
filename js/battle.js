@@ -3937,6 +3937,9 @@ function Battle(frame, logFrame, noPreload) {
 					poke.removeVolatile('stockpile3');
 					actions += "" + poke.getName() + "'s stockpiled effect wore off!";
 					break;
+				case 'infestation':
+					actions += '' + poke.getName() + ' was freed from Infestation!';
+					break;
 				default:
 					if (effect.effectType === 'Move') {
 						actions += '' + poke.getName() + " took the " + effect.name + " attack!";
