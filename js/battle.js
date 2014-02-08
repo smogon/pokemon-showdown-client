@@ -2070,6 +2070,53 @@ function Battle(frame, logFrame, noPreload) {
 			});
 			//pokemon.statbarElem.done(pokemon.statbarElem.remove());
 		};
+		this.swap = function (pokemon, target) {
+			if (pokemon === target) return;
+
+			self.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+
+			var oslot = pokemon.slot;
+			var nslot = target.slot;
+
+			pokemon.slot = nslot;
+			target.slot = oslot;
+			selfS.active[nslot] = pokemon;
+			selfS.active[oslot] = target;
+
+			pokemon.sprite.animUnsummon(true);
+			target.sprite.animUnsummon(true);
+
+			pokemon.sprite.animSummon(nslot, true);
+			target.sprite.animSummon(oslot, true);
+
+			if (pokemon.statbarElem) {
+				pokemon.statbarElem.remove();
+			}
+			if (target.statbarElem) {
+				target.statbarElem.remove();
+			}
+
+			self.statElem.append(selfS.getStatbarHTML(pokemon));
+			pokemon.statbarElem = self.statElem.children().last();
+			self.statElem.append(selfS.getStatbarHTML(target));
+			target.statbarElem = self.statElem.children().last();
+
+			selfS.updateStatbar(pokemon, true);
+			selfS.updateStatbar(target, true);
+
+			pokemon.statbarElem.css({
+				display: 'block',
+				left: pokemon.sprite.left - 80,
+				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+				opacity: 1
+			});
+			target.statbarElem.css({
+				display: 'block',
+				left: target.sprite.left - 80,
+				top: target.sprite.top - 73 - target.sprite.statbarOffset,
+				opacity: 1
+			});
+		};
 		this.faint = function (pokemon, slot) {
 			if (slot === undefined) slot = pokemon.slot;
 			pokemon.clearVolatile();
@@ -4878,6 +4925,10 @@ function Battle(frame, logFrame, noPreload) {
 			if (self.waitForResult()) return;
 			var poke = self.getPokemon(args[1]);
 			poke.side.faint(poke);
+			break;
+		case 'swap':
+			var poke = self.getPokemon('other: ' + args[1]);
+			poke.side.swap(poke, self.getPokemon('other: ' + args[2]));
 			break;
 		case 'move':
 			self.endLastTurn();
