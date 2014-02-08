@@ -58,6 +58,7 @@ RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$
 RewriteCond %{REMOTE_ADDR} !=127.0.0.1
 RewriteCond %{HTTP:CF-Connecting-IP} !=173.252.196.254
 RewriteCond %{HTTP:CF-Connecting-IP} !=198.27.67.31
+RewriteCond %{HTTP:CF-Connecting-IP} !=162.243.13.96
 RewriteRule .* - [E=LOBBY_REDIRECT:1]
 
 RewriteCond %{ENV:LOBBY_REDIRECT}%{ENV:P_SUFFIX} =1
