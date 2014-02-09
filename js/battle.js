@@ -2924,7 +2924,7 @@ function Battle(frame, logFrame, noPreload) {
 					case 'flameburst':
 						actions += "The bursting flame hit " + poke.getLowerName() + "!";
 						break;
-					case 'grasspledge':
+					case 'firepledge':
 						actions += "" + poke.getName() + " is hurt by the sea of fire!";
 						break;
 					case 'jumpkick':
