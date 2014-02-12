@@ -328,8 +328,21 @@ class NTBBLadder {
 		if ($newM) {
 			$elo = $user['rating']['oldacre'] = $user['rating']['acre'];
 
+			$K = 50;
+			if ($elo < 1100) {
+				if ($newM['score'] < 0.5) {
+					$K = 20 + ($elo - 1000)*30/100;
+				} else if ($newM['score'] > 0.5) {
+					$K = 80 - ($elo - 1000)*30/100;
+				}
+			} else if ($elo > 1400) {
+				$K = 40;
+			} else if ($elo > 1600) {
+				$K = 32;
+			}
+
 			$E = 1 / (1 + pow(10, ($newMelo - $elo) / 400));
-			$elo += 50 * ($newM['score'] - $E);
+			$elo += $K * ($newM['score'] - $E);
 
 			if ($elo < 1000) $elo = 1000;
 
