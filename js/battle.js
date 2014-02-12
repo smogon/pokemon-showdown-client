@@ -2070,10 +2070,17 @@ function Battle(frame, logFrame, noPreload) {
 			});
 			//pokemon.statbarElem.done(pokemon.statbarElem.remove());
 		};
-		this.swap = function (pokemon, target) {
+		this.swap = function (pokemon, target, kwargs) {
 			if (pokemon === target) return;
 
-			self.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+			if (!kwargs.silent) {
+				var fromeffect = Tools.getEffect(kwargs.from);
+				switch (fromeffect.id) {
+					case 'allyswitch':
+						self.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+						break;
+				}
+			}
 
 			var oslot = pokemon.slot;
 			var nslot = target.slot;
@@ -4928,7 +4935,7 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'swap':
 			var poke = self.getPokemon('other: ' + args[1]);
-			poke.side.swap(poke, self.getPokemon('other: ' + args[2]));
+			poke.side.swap(poke, self.getPokemon('other: ' + args[2]), kwargs);
 			break;
 		case 'move':
 			self.endLastTurn();
