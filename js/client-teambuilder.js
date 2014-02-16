@@ -341,7 +341,7 @@
 			};
 			buf += '<span class="detailcell detailcell-first"><label>Level</label>'+(set.level||100)+'</span>';
 			buf += '<span class="detailcell"><label>Gender</label>'+GenderChart[template.gender||set.gender||'N']+'</span>';
-			buf += '<span class="detailcell"><label>Happiness</label>'+(set.happiness||255)+'</span>';
+			buf += '<span class="detailcell"><label>Happiness</label>'+(typeof set.happiness === 'number'?set.happiness:255)+'</span>';
 			buf += '<span class="detailcell"><label>Shiny</label>'+(set.shiny?'Yes':'No')+'</span>';
 
 			buf += '</button></div>';
