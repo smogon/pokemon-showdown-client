@@ -1233,7 +1233,7 @@
 			} else if (move === 'Return') {
 				this.curSet.happiness = 255;
 			} else if (move === 'Frustration') {
-				this.curSet.happiness = 0;
+				this.curSet.happiness = 1;
 			}
 		},
 		setPokemon: function(val, selectNext) {
