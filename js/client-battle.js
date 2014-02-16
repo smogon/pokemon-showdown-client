@@ -591,6 +591,7 @@
 				pokemon.item = pokemonData.item;
 				pokemon.moves = pokemonData.moves;
 				pokemon.canMegaEvo = pokemonData.canMegaEvo;
+				pokemon.stats = pokemonData.stats;
 			}
 			this.battle.mySide.updateSidebar();
 		},
@@ -829,6 +830,9 @@
 				}
 				if (pokemon.item) {
 					text += '<p>Item: ' + Tools.getItem(pokemon.item).name + '</p>';
+				}
+				if (pokemon.stats) {
+					text += '<p>Stats: HP ' + pokemon.stats['hp'] + ' / Atk ' + pokemon.stats['atk'] + ' / Def ' + pokemon.stats['def'] + ' / SpA ' + pokemon.stats['spa'] + ' / SpD ' + pokemon.stats['spd'] + ' / Spe ' + pokemon.stats['spe'] + '</p>';
 				}
 				if (pokemon.moves && pokemon.moves.length && (!isActive || isActive === 'foe')) {
 					text += '<p class="section">';
