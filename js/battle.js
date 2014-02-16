@@ -4251,6 +4251,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'suctioncups':
 					actions += '' + poke.getName() + ' anchors itself!';
 					break;
+				case 'symbiosis':
+					actions += '' + poke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + ofpoke.getLowerName();
+					break;
 
 				// item activations
 				case 'custapberry':
