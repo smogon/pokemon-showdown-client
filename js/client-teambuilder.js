@@ -1011,7 +1011,8 @@
 			var happiness = parseInt(this.$chart.find('input[name=happiness]').val(),10);
 			if (happiness > 255) happiness = 255;
 			if (happiness < 0) happiness = 255;
-			if (happiness !== 255 || set.happiness || set.happiness === 0) set.happiness = happiness;
+			set.happiness = happiness;
+			if (set.happiness === 255) delete set.happiness;
 
 			// shiny
 			var shiny = (this.$chart.find('input[name=shiny]:checked').val() === 'yes');
@@ -1896,7 +1897,7 @@
 				if (curSet.shiny) {
 					text += 'Shiny: Yes\n';
 				}
-				if (curSet.happiness && curSet.happiness !== 255) {
+				if (typeof curSet.happiness === 'number' && curSet.happiness !== 255) {
 					text += 'Happiness: '+curSet.happiness+"\n";
 				}
 				var first = true;
