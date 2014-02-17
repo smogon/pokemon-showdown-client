@@ -832,7 +832,7 @@
 					text += '<p>Item: ' + Tools.getItem(pokemon.item).name + '</p>';
 				}
 				if (pokemon.stats) {
-					text += '<p>Atk&nbsp;' + pokemon.stats['atk'] + ' / Def&nbsp;' + pokemon.stats['def'] + ' / SpA&nbsp;' + pokemon.stats['spa'] + ' / SpD&nbsp;' + pokemon.stats['spd'] + ' / Spe&nbsp;' + pokemon.stats['spe'] + '</p>';
+					text += '<p>' + pokemon.stats['atk'] + ' Atk /&nbsp;' + pokemon.stats['def'] + ' Def /&nbsp;' + pokemon.stats['spa'] + ' SpA /&nbsp;' + pokemon.stats['spd'] + ' SpD /&nbsp;' + pokemon.stats['spe'] + ' Spe</p>';
 				}
 				if (pokemon.moves && pokemon.moves.length && (!isActive || isActive === 'foe')) {
 					text += '<p class="section">';
