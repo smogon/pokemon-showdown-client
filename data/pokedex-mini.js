@@ -802,7 +802,7 @@ BattlePokemonSprites = {
 	"avalugg":{num:713, front:{ani:{w:121,h:57}}, back:{ani:{w:120,h:58}}},
 	"noibat":{num:714, front:{ani:{w:85,h:96}}, back:{ani:{w:64,h:98}}},
 	"noivern":{num:715, front:{ani:{w:184,h:156}}, back:{ani:{w:162,h:157}}},
-	"xerneas":{num:716, front:{ani:{w:104,h:125}}, back:{ani:{w:99,h:128}}},
+	"xerneas":{num:716, front:{ani:{w:106,h:127}}, back:{ani:{w:94,h:128}}},
 	"yveltal":{num:717, front:{ani:{w:201,h:188}}, back:{ani:{w:186,h:194}}},
 	"zygarde":{num:71, front:{ani:{w:96,h:107}}, back:{ani:{w:113,h:123}}}
 };
