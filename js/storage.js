@@ -30,6 +30,13 @@ _Storage.prototype.loadTeams = function() {
 	if (window.localStorage) {
 		var teamString = localStorage.getItem('showdown_teams');
 		if (teamString) this.teams = JSON.parse(teamString);
+		for (var i=0, l=this.teams.length; i<l; i++) {
+			for (var j=0, m=this.teams[i].team.length; j<m; j++) {
+				if (this.teams[i].team[j].name === this.teams[i].team[j].species) {
+					delete this.teams[i].team[j].name;
+				}
+			}
+		}
 		app.trigger('init:loadteams');
 	}
 };
@@ -168,6 +175,13 @@ _Storage.prototype.nwLoadTeamFile = function(filename, localApp) {
 
 _Storage.prototype.nwFinishedLoadingTeams = function(app) {
 	this.teams.sort(this.teamCompare);
+	for (var i=0, l=this.teams.length; i<l; i++) {
+		for (var j=0, m=this.teams[i].team.length; j<m; j++) {
+			if (this.teams[i].team[j].name === this.teams[i].team[j].species) {
+				delete this.teams[i].team[j].name;
+			}
+		}
+	}
 	if (!app) app = window.app;
 	if (app) app.trigger('init:loadteams');
 };
