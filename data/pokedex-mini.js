@@ -85,6 +85,7 @@ BattlePokemonSprites = {
 	"abra": {num:63, front:{ani:{w:69,h:53}}, back:{ani:{w:74,h:51}}},
 	"kadabra": {num:64, front:{ani:{w:70,h:71}}, back:{ani:{w:93,h:69}}},
 	"alakazam": {num:65, front:{ani:{w:77,h:79}}, back:{ani:{w:71,h:79}}},
+	"alakazammega": {num:65, front:{ani:{w:113,h:115}}, back:{ani:{w:109,h:109}}},
 	"machop": {num:66, front:{ani:{w:39,h:63}}, back:{ani:{w:44,h:63}}},
 	"machoke": {num:67, front:{ani:{w:72,h:87}}, back:{ani:{w:60,h:88}}},
 	"machamp": {num:68, front:{ani:{w:84,h:100}}, back:{ani:{w:73,h:97}}},
