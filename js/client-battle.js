@@ -252,7 +252,7 @@
 							choices: [],
 							switchFlags: {}
 						}
-						while (switchables[this.choice.choices.length] && switchables[this.choice.choices.length].fainted) {
+						if (this.choice.choices.length > 1) while (switchables[this.choice.choices.length] && switchables[this.choice.choices.length].fainted) {
 							this.choice.choices.push('pass');
 						}
 					}
