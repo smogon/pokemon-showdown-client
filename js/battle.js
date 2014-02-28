@@ -3387,11 +3387,11 @@ function Battle(frame, logFrame, noPreload) {
 				switch (args[2]) {
 				case 'brn':
 					self.resultAnim(poke, 'Burned', 'brn', animDelay);
-					actions += "" + poke.getName() + " was burned!";
+					actions += "" + poke.getName() + " was burned" + (effect.exists ? " by the " + effect.name : "") + "!";
 					break;
 				case 'tox':
 					self.resultAnim(poke, 'Toxic poison', 'psn', animDelay);
-					actions += "" + poke.getName() + " was badly poisoned!";
+					actions += "" + poke.getName() + " was badly poisoned" + (effect.exists ? " by the " + effect.name : "") + "!";
 					break;
 				case 'psn':
 					self.resultAnim(poke, 'Poisoned', 'psn', animDelay);
