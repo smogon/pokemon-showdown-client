@@ -154,6 +154,7 @@ BattlePokemonSprites = {
 	"tauros": {num:128, front:{ani:{w:97,h:95}}, back:{ani:{w:132,h:104}}},
 	"magikarp": {num:129, front:{ani:{w:58,h:60}}, back:{ani:{w:61,h:58}}},
 	"gyarados": {num:130, front:{ani:{w:115,h:99}}, back:{ani:{w:150,h:102}}},
+	"gyaradosmega": {num:130, front:{ani:{w:193,h:122}}, back:{ani:{w:184,h:127}}},	
 	"lapras": {num:131, front:{ani:{w:94,h:84}}, back:{ani:{w:93,h:82}}},
 	"ditto": {num:132, front:{ani:{w:43,h:35}}, back:{ani:{w:36,h:35}}},
 	"eevee": {num:133, front:{ani:{w:64,h:55}}, back:{ani:{w:72,h:54}}},
