@@ -806,5 +806,5 @@ BattlePokemonSprites = {
 	"noivern":{num:715, front:{ani:{w:184,h:156}}, back:{ani:{w:162,h:157}}},
 	"xerneas":{num:716, front:{ani:{w:106,h:127}}, back:{ani:{w:94,h:128}}},
 	"yveltal":{num:717, front:{ani:{w:201,h:188}}, back:{ani:{w:186,h:194}}},
-	"zygarde":{num:71, front:{ani:{w:96,h:107}}, back:{ani:{w:113,h:123}}}
+	"zygarde":{num:718, front:{ani:{w:96,h:107}}, back:{ani:{w:113,h:123}}}
 };
