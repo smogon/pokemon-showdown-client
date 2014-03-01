@@ -3655,6 +3655,12 @@ function Battle(frame, logFrame, noPreload) {
 				case 'aurabreak':
 					actions += "" + poke.getName() + " reversed all other Pokémon's auras!";
 					break;
+				case 'fairyaura':
+					actions += "" + poke.getName() + " is radiating a fairy aura!";
+					break;
+				case 'darkaura':
+					actions += "" + poke.getName() + " is radiating a dark aura!";
+					break;
 				default:
 					actions += "" + poke.getName() + " has " + ability.name + "!";
 					break;
