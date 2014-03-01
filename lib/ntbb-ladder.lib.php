@@ -271,14 +271,21 @@ class NTBBLadder {
 				$i++;
 				if ($i > 1000) break;
 
+				// decay
+				if ($elo >= 1400) {
+					if (count($rating->M)) {
+						// user was active
+						$elo -= 0 + intval(($elo-1400)/100);
+					} else {
+						// user was inactive
+						$elo -= 1 + intval(($elo-1400)/50);
+					}
+				}
+
 				$rating->update();
 				if ($offset) {
 					$rating->rating += $offset;
 					$offset = 0;
-				}
-
-				if ($elo >= 1400) {
-					$elo -= 1 + intval(($elo-1400)/50);
 				}
 
 				$user['rating']['rptime'] = $this->nextrp($user['rating']['rptime']);
