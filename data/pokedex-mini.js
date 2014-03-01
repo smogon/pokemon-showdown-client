@@ -754,7 +754,7 @@ BattlePokemonSprites = {
 	"spewpa":{num:665, front:{ani:{w:44,h:43}}, back:{ani:{w:42,h:43}}},
 	"vivillon":{num:666, front:{ani:{w:104,h:104}}, back:{ani:{w:96,h:113}}},
 	"litleo":{num:667, front:{ani:{w:51,h:61}}, back:{ani:{w:61,h:59}}},
-	"pyroar":{num:668, front:{ani:{w: 79, h: 99}, anif:{w: 192, h: 192}},back:{ani:{w: 127, h: 100}, anif:{w: 192, h: 192}}},
+	"pyroar":{num:668, front:{ani:{w:79, h:99}, anif:{w:192, h:192}},back:{ani:{w:127, h:100}, anif:{w:192, h:192}}},
 	"flabebe":{num:669, front:{ani:{w:76,h:78}}, back:{ani:{w:75,h:79}}},
 	"floette":{num:670, front:{ani:{w:61,h:95}}, back:{ani:{w:62,h:97}}},
 	"floetteaz":{num:670, front:{ani:{w:81,h:90}}, back:{ani:{w:86,h:99}}},	
@@ -810,5 +810,5 @@ BattlePokemonSprites = {
 	"xerneas":{num:716, front:{ani:{w:106,h:127}}, back:{ani:{w:94,h:128}}},
 	"yveltal":{num:717, front:{ani:{w:201,h:188}}, back:{ani:{w:186,h:194}}},
 	"zygarde":{num:718, front:{ani:{w:96,h:107}}, back:{ani:{w:113,h:123}}},
-	"diancie":{num:719, front:{ani:{w:50,h:90}}, back:{ani:{w:50,h:90}}}	
+	"diancie":{num:719, front:{ani:{w:50,h:90}}, back:{ani:{w:50,h:90}}}
 };
