@@ -757,7 +757,7 @@ BattlePokemonSprites = {
 	"pyroar":{num:668, front:{ani:{w:79, h:99}, anif:{w:192, h:192}},back:{ani:{w:127, h:100}, anif:{w:112, h:100}}},
 	"flabebe":{num:669, front:{ani:{w:76,h:78}}, back:{ani:{w:75,h:79}}},
 	"floette":{num:670, front:{ani:{w:61,h:95}}, back:{ani:{w:62,h:97}}},
-	"floetteaz":{num:670, front:{ani:{w:81,h:90}}, back:{ani:{w:86,h:99}}},	
+	"floetteeternalflower":{num:670, front:{ani:{w:81,h:90}}, back:{ani:{w:86,h:99}}},	
 	"florges":{num:671, front:{ani:{w:80,h:100}}, back:{ani:{w:75,h:105}}},
 	"skiddo":{num:672, front:{ani:{w:48,h:63}}, back:{ani:{w:57,h:62}}},
 	"gogoat":{num:673, front:{ani:{w:57,h:83}}, back:{ani:{w:69,h:81}}},
