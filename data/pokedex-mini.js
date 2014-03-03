@@ -244,6 +244,7 @@ BattlePokemonSprites = {
 	"scizormega": {num:212, front:{ani:{w:79,h:103}}, back:{ani:{w:70,h:104}}},
 	"shuckle": {num:213, front:{ani:{w:71,h:57}}, back:{ani:{w:72,h:55}}},
 	"heracross": {num:214, front:{ani:{w:90,h:87}}, back:{ani:{w:75,h:81}}},
+	"heracrossmega": {num:214, front:{ani:{w:111,h:111}}, back:{ani:{w:113,h:100}}},	
 	"sneasel": {num:215, front:{ani:{w:47,h:72}}, back:{ani:{w:46,h:68}}},
 	"teddiursa": {num:216, front:{ani:{w:47,h:57}}, back:{ani:{w:36,h:58}}},
 	"ursaring": {num:217, front:{ani:{w:68,h:95}}, back:{ani:{w:69,h:92}}},
