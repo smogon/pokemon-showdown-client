@@ -231,6 +231,7 @@ BattlePokemonSprites = {
 	"granbull": {num:210, front:{ani:{w: 49, h: 62}},back:{ani:{w: 48, h: 60}}},
 	"qwilfish": {num:211, front:{ani:{w: 49, h: 56}},back:{ani:{w: 57, h: 58}}},
 	"scizor": {num:212, front:{ani:{w: 75, h: 73}, anif:{w: 75, h: 73}},back:{ani:{w: 68, h: 75}, anif:{w: 68, h: 75}}},
+	"scizormega": {num:212, front:{ani:{w: 96, h: 96}},back:{ani:{w: 96, h: 96}}},	
 	"shuckle": {num:213, front:{ani:{w: 54, h: 46}},back:{ani:{w: 54, h: 49}}},
 	"heracross": {num:214, front:{ani:{w: 61, h: 70}, anif:{w: 61, h: 65}},back:{ani:{w: 67, h: 72}, anif:{w: 67, h: 71}}},
 	"sneasel": {num:215, front:{ani:{w: 58, h: 52}, anif:{w: 55, h: 50}},back:{ani:{w: 58, h: 52}, anif:{w: 55, h: 50}}},
