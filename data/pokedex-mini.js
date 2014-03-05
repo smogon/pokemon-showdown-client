@@ -798,7 +798,7 @@ BattlePokemonSprites = {
 	"goodra":{num:706, front:{ani:{w:60,h:102}}, back:{ani:{w:71,h:101}}},
 	"klefki":{num:707, front:{ani:{w:69,h:88}}, back:{ani:{w:65,h:88}}},
 	"phantump":{num:708, front:{ani:{w:67,h:60}}, back:{ani:{w:64,h:61}}},
-	"trevenant":{num:709, front:{ani:{w:114,h:100}}, back:{ani:{w:102,h:98}}},
+	"trevenant":{num:709, front:{ani:{w:192,h:192}}, back:{ani:{w:102,h:98}}},
 	"pumpkaboo":{num:710, front:{ani:{w:56,h:59}}, back:{ani:{w:44,h:58}}},
 	"gourgeist":{num:711, front:{ani:{w:53,h:83}}, back:{ani:{w:49,h:84}}},
 	"gourgeistsmall":{num:711, front:{ani:{w:46,h:74}}, back:{ani:{w:43,h:74}}},
