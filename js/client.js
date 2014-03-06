@@ -1660,7 +1660,7 @@
 					self.clickNotification(tag);
 				};
 				if (Tools.prefs('temporarynotifications')) {
-					setTimeout(function () {
+					if (notification.cancel) setTimeout(function () {
 						notification.cancel();
 					}, 5000);
 				}
