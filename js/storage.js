@@ -63,6 +63,7 @@ _Storage.prototype.saveAllTeams = function() {
 
 _Storage.prototype.packTeam = function(team) {
 	var buf = '';
+	if (!team) return '';
 
 	for (var i=0; i<team.length; i++) {
 		var set = team[i];
@@ -72,8 +73,8 @@ _Storage.prototype.packTeam = function(team) {
 		buf += (set.name || set.species);
 
 		// species
-		var id = toId(set.species);
-		buf += '|' + (toId(set.name) === id ? '' : id);
+		var id = toId(set.species || set.name);
+		buf += '|' + (toId(set.name || set.species) === id ? '' : id);
 
 		// item
 		buf += '|' + toId(set.item);
@@ -134,6 +135,13 @@ _Storage.prototype.packTeam = function(team) {
 			buf += '|'
 		}
 
+		// level
+		if (set.level && set.level != 100) {
+			buf += '|'+set.level;
+		} else {
+			buf += '|'
+		}
+
 		// happiness
 		if (set.happiness !== undefined && set.happiness !== 255) {
 			buf += '|'+set.happiness;
@@ -146,6 +154,8 @@ _Storage.prototype.packTeam = function(team) {
 };
 
 _Storage.prototype.fastUnpackTeam = function(buf) {
+	if (!buf) return null;
+
 	var team = [];
 	var i = 0, j = 0;
 
@@ -223,6 +233,11 @@ _Storage.prototype.fastUnpackTeam = function(buf) {
 		// shiny
 		j = buf.indexOf('|', i);
 		if (i !== j) set.shiny = true;
+		i = j+1;
+
+		// level
+		j = buf.indexOf('|', i);
+		if (i !== j) set.level = parseInt(buf.substring(i, j), 10);
 		i = j+1;
 
 		// happiness
