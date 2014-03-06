@@ -388,14 +388,15 @@
 				var userid = $pmWindow.data('userid');
 				var name = $pmWindow.data('name');
 				if (data.challengesFrom[userid]) {
-					var challenge = data.challengesFrom[userid];
+					var format = data.challengesFrom[userid];
+					if (format.format) format = format.format;
 					if (!$pmWindow.find('.challenge').length) {
-						self.notifyOnce("Challenge from "+name, "Format: "+Tools.escapeFormat(challenge.format), 'challenge:'+userid);
+						self.notifyOnce("Challenge from "+name, "Format: "+Tools.escapeFormat(format), 'challenge:'+userid);
 					}
 					var $challenge = self.openChallenge(name, $pmWindow);
 					var buf = '<form class="battleform"><p>'+Tools.escapeHTML(name)+' wants to battle!</p>';
-					buf += '<p><label class="label">Format:</label>'+self.renderFormats(challenge.format, true)+'</p>';
-					buf += '<p><label class="label">Team:</label>'+self.renderTeams(challenge.format)+'</p>';
+					buf += '<p><label class="label">Format:</label>'+self.renderFormats(format, true)+'</p>';
+					buf += '<p><label class="label">Team:</label>'+self.renderTeams(format)+'</p>';
 					buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
 					$challenge.html(buf);
 				} else {
