@@ -389,7 +389,6 @@
 				var name = $pmWindow.data('name');
 				if (data.challengesFrom[userid]) {
 					var format = data.challengesFrom[userid];
-					if (format.format) format = format.format;
 					if (!$pmWindow.find('.challenge').length) {
 						self.notifyOnce("Challenge from "+name, "Format: "+Tools.escapeFormat(format), 'challenge:'+userid);
 					}
