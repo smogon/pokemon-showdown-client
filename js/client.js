@@ -760,6 +760,12 @@
 			this.socket.send(data);
 		},
 		/**
+		 * Send team to sim server
+		 */
+		sendTeam: function(team) {
+			this.send('/utm '+Storage.packTeam(team));
+		},
+		/**
 		 * Receive from sim server
 		 */
 		receive: function(data) {
