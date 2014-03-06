@@ -520,7 +520,7 @@
 			}
 
 			target.disabled = true;
-			app.send('/utm '+(team?$.toJSON(team):'null'));
+			app.sendTeam(team);
 			app.send('/accept '+userid);
 		},
 		rejectChallenge: function(i, target) {
@@ -548,7 +548,7 @@
 			buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 			$(target).closest('.challenge').html(buf);
-			app.send('/utm '+(team?$.toJSON(team):'null'));
+			app.sendTeam(team);
 			app.send('/challenge '+userid+', '+format);
 		},
 		cancelChallenge: function(i, target) {
@@ -659,7 +659,7 @@
 			$searchForm.find('button.big').html('<strong><i class="icon-refresh icon-spin"></i> Connecting...</strong>').addClass('disabled');
 			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
 
-			app.send('/utm '+(team?$.toJSON(team):'null'));
+			app.sendTeam(team);
 			app.send('/search '+format);
 		},
 		cancelSearch: function() {
