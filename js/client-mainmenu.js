@@ -109,8 +109,14 @@
 
 		addTells: function(tells) {
 			tells = tells.split('|');
-			for (var i = 0; i<tells.length; i++) tells[i] = Tools.escapeHTML(tells[i].replace('&#124;', '|'), true);
-			var formattedTells = '<div class="inner"><div class="chat">' + tells.join('</div><div class="chat">') + '</div></div>';
+			var formattedTells = [];
+			for (var i = 0; i<tells.length; i += 2) {
+				var username = tells[i];
+				var color = hashColor(toId(username));
+				var message = tells[i+1].replace('&#124;', '|') || '';
+				formattedTells.push('<strong style="' + color + '">' + username + '</strong>' + Tools.escapeHTML(message, true));
+			}
+			formattedTells = '<div class="inner"><div class="chat">' + formattedTells.join('</div><div class="chat">') + '</div></div>';
 
 			this.addPseudoPM({
 				title: 'Offline Messages',
