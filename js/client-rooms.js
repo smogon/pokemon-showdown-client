@@ -50,8 +50,9 @@
 			if (rooms.userCount) {
 				var userCount = Number(rooms.userCount);
 				var battleCount = Number(rooms.battleCount);
-				buf += '<p>'+userCount+' '+(userCount==1?'user':'users')+' online';
-				buf += ', '+battleCount+' active '+(battleCount==1?'battle':'battles');
+				buf += '<p style="height:60px">';
+				buf += '<span style="float:left;width:200px;height:50px;padding:3px 8px;text-align:center"><strong style="display:block;font-size:18pt;font-weight:normal">'+userCount+'</strong> '+(userCount==1?'user':'users')+' online</span> ';
+				buf += '<span style="float:left;width:200px;height:50px;padding:3px 8px;text-align:center"><strong style="display:block;font-size:18pt;font-weight:normal">'+battleCount+'</strong> active '+(battleCount==1?'battle':'battles')+'</span>';
 				buf += '</p>';
 			}
 
