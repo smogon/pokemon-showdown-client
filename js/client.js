@@ -2246,6 +2246,7 @@
 		events: {
 			'change input[name=noanim]': 'setNoanim',
 			'change input[name=nolobbypm]': 'setNolobbypm',
+			'change input[name=bwsprites]': 'setBwsprites',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=ignorespects]': 'setIgnoreSpects',
 			'change select[name=bg]': 'setBg',
@@ -2266,7 +2267,8 @@
 			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c"'+(Tools.prefs('bg')?' selected="selected"':'')+'>Solid blue</option></select></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
-
+                        buf += '<p><label class="optlabel"><input type="checkbox" name="bwsprites"'+(Tools.prefs('bwsprites')?' checked':'')+' /> Use BW Sprites over XY Sprites</label></p>'; 
+                          
 			if (window.Notification) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"'+(Tools.prefs('temporarynotifications')?' checked':'')+' /> Temporary notifications</label></p>';
 			}
@@ -2344,6 +2346,59 @@
 				'background-size': 'cover'
 			});
 		},
+		setBwsprites: function(e) {
+		pokemon = Tools.getTemplate(pokemon);
+		var isBack = !siden;
+		var back = (siden?'':'-back');
+		var facing = (siden?'front':'back');
+		var cryurl = '';
+		var spriteid = pokemon.spriteid;
+		if (window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid]) {
+			var num = '' + BattlePokemonSprites[pokemon.speciesid].num;
+			if (num.length < 3) num = '0' + num;
+			if (num.length < 3) num = '0' + num;
+			cryurl = Tools.resourcePrefix + 'audio/cries/' + num + '.wav';
+		}
+
+		// April Fool's 2013
+		if (window.Config && Config.server && Config.server.afd || options && options.afd) {
+			return {
+				w: 96,
+				h: 96,
+				url: Tools.resourcePrefix + 'sprites/afd'+back+'/' + spriteid + '.png',
+				cryurl: cryurl,
+				isBackSprite: isBack
+			};
+		}
+
+		if (pokemon.shiny) back += '-shiny';
+		if (!Tools.prefs('noanim') && window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
+			var url = Tools.resourcePrefix + 'sprites/bwani'+back;
+			url += '/'+spriteid;
+			var spriteType = 'ani';
+			if (BattlePokemonSprites[pokemon.speciesid][facing]['anif'] && pokemon.gender === 'F') {
+				url += '-f';
+				spriteType = 'anif';
+			}
+			url += '.gif';
+			return {
+				w: BattlePokemonSprites[pokemon.speciesid][facing][spriteType].w,
+				h: BattlePokemonSprites[pokemon.speciesid][facing][spriteType].h,
+				url: url,
+				cryurl: cryurl,
+				isBackSprite: isBack,
+				shiny: pokemon.shiny
+			};
+		}
+		return {
+			w: 96,
+			h: 96,
+			url: Tools.resourcePrefix + 'sprites/bw'+back+'/' + spriteid + '.png',
+			cryurl: cryurl,
+			isBackSprite: isBack
+		};
+			Tools.prefs('bwsprites', bwsprites);
+	},
 		setTimestampsLobby: function(e) {
 			this.timestamps.lobby = e.currentTarget.value;
 			Tools.prefs('timestamps', this.timestamps);
