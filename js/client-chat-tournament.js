@@ -160,12 +160,12 @@
 			});
 			this.$challengeChallenge.on('click', function() {
 				var team = Storage.teams[self.$challenge.find('.tournament-team').children().val()];
-				self.room.send('/utm ' + JSON.stringify(team ? team.team : null));
+				self.room.send('/utm ' + Storage.packTeam(team ? team.team : null));
 				self.room.send('/tournament challenge ' + self.$challengeUser.children().val());
 			});
 			this.$challengeAccept.on('click', function() {
 				var team = Storage.teams[self.$challenged.find('.tournament-team').children().val()];
-				self.room.send('/utm ' + JSON.stringify(team ? team.team : null));
+				self.room.send('/utm ' + Storage.packTeam(team ? team.team : null));
 				self.room.send('/tournament acceptchallenge');
 			});
 
