@@ -141,7 +141,7 @@
 			} else if (this.battle.playbackState === 2 || this.battle.playbackState === 3) {
 
 				// battle is playing or paused
-				this.$controls.html('<p><button name="skipTurn">Skip turn <i class="icon-step-forward"></i></button></p>');
+				this.$controls.html('<p><button name="skipTurn">Skip turn <i class="icon-step-forward"></i></button><button name="goToEnd">Go to last turn <i class="icon-fast-forward"></i></button></p>');
 				return;
 
 			}
@@ -617,6 +617,9 @@
 		},
 		skipTurn: function() {
 			this.battle.skipTurn();
+		},
+		goToEnd: function() {
+			while (this.battle.activityQueueActive) this.battle.skipTurn();
 		},
 		register: function(userid) {
 			var registered = app.user.get('registered');
