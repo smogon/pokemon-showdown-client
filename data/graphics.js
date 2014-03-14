@@ -2346,9 +2346,6 @@ var BattleMoveAnims = {
 	seismictoss: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
-	smackdown: {
-		anim: BattleOtherAnims.contactattack.anim
-	},
 	drillpeck: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
@@ -6246,3 +6243,5 @@ BattleMoveAnims['armthrust'] = {anim:BattleMoveAnims['cometpunch'].anim, multhit
 BattleMoveAnims['iciclecrash'] = {anim:BattleMoveAnims['avalanche'].anim};
 
 BattleMoveAnims['phantomforce'] = {anim:BattleMoveAnims['shadowforce'].anim,prepareAnim:BattleMoveAnims['shadowforce'].prepareAnim,prepareMessage:BattleMoveAnims['shadowforce'].prepareMessage};
+
+BattleMoveAnims['smackdown'] = {anim:BattleMoveAnims['rockblast'].anim};
