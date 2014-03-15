@@ -380,7 +380,7 @@
 						controls += movebuttons;
 					}
 					if (switchables[pos].canMegaEvo) {
-						controls += '<br /><label><input type="checkbox" name="megaevo" /> Mega evolution</label>'
+						controls += '<br /><label><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;evolution</label>'
 					}
 					controls += '<div style="clear:left"></div>';
 					controls += '</div></div><div class="switchcontrols"><div class="switchselect"><button name="selectSwitch">Switch</button></div><div class="switchmenu">';
