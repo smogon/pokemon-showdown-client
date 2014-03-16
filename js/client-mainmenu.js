@@ -38,8 +38,6 @@
 				buf += '<p><label class="label">Format:</label>'+this.renderFormats()+'</p>';
 				buf += '<p><label class="label">Team:</label>'+this.renderTeams()+'</p>';
 				buf += '<p><button class="button big" name="search"><strong>Look for a battle</strong></button></p></form></div>';
-
-				buf += '<div class="menugroup"><p><button class="button" name="roomlist">Watch a battle</button></p></div>';
 			}
 
 			buf += '<div class="menugroup"><p><button class="button" name="joinRoom" value="teambuilder">Teambuilder</button></p>';
@@ -49,6 +47,9 @@
 				buf += '<p><button class="button" name="joinRoom" value="ladder">Ladder</button></p>';
 			}
 			buf += '<p><button class="button" name="credits">Credits</button></p></div></div>';
+
+			if (!app.down) buf += '<div class="menugroup"><p><button class="button" name="roomlist">Watch a battle</button></p></div>';
+
 			this.$('.mainmenu').html(buf);
 
 			// right menu
