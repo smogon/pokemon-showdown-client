@@ -552,9 +552,9 @@
 				$.get(app.user.getActionPHP() + '?act=ladderget&user='+encodeURIComponent(target), Tools.safeJSON(function(data) {
 					try {
 						var buffer = '<div class="ladder"><table>';
-						buffer += '<tr><td colspan="7">User: <strong>'+target+'</strong></td></tr>';
+						buffer += '<tr><td colspan="8">User: <strong>'+target+'</strong></td></tr>';
 						if (!data.length) {
-							buffer += '<tr><td colspan="7"><em>This user has not played any ladder games yet.</em></td></tr>';
+							buffer += '<tr><td colspan="8"><em>This user has not played any ladder games yet.</em></td></tr>';
 						} else {
 							buffer += '<tr><th>Format</th><th>Elo</th><th>GXE</th><th>Glicko-1</th><th>COIL</th><th>W</th><th>L</th><th>T</th></tr>';
 							for (var i=0; i<data.length; i++) {
