@@ -2268,7 +2268,7 @@
 			buf += '<p><button name="avatars">Change avatar</button></p>';
 
 			buf += '<hr />';
-			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c"'+(Tools.prefs('bg')?' selected="selected"':'')+'>Solid blue</option></select></label></p>';
+			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Charizards</option><option value="#344b6c url(/fx/client-bg-horizon.jpg) no-repeat left center fixed">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c">Solid blue</option>'+(Tools.prefs('bg')?'<option value="" selected></option>':'')+'</select></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
 
@@ -2343,7 +2343,7 @@
 		setBg: function(e) {
 			var bg = e.currentTarget.value;
 			Tools.prefs('bg', bg);
-			if (!bg) bg = '#546bac url(/fx/client-bg-horizon.jpg) no-repeat left center fixed';
+			if (!bg) bg = '#344b6c url(/fx/client-bg-charizards.jpg) no-repeat left center fixed';
 			$(document.body).css({
 				background: bg,
 				'background-size': 'cover'
