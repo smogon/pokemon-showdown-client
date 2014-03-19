@@ -242,6 +242,11 @@
 						background: bg,
 						'background-size': 'cover'
 					});
+				} else if (Config.server.id === 'smogtours') {
+					$(document.body).css({
+						background: '#546bac url(//play.pokemonshowdown.com/fx/client-bg-shaymin.jpg) no-repeat left center fixed',
+						'background-size': 'cover'
+					});
 				}
 
 				var muted = Tools.prefs('mute');
