@@ -566,7 +566,13 @@
 									buffer += '<em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em>';
 								}
 								var N=parseInt(row.w)+parseInt(row.l)+parseInt(row.t);
-								buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-43.0/N),0)+'</td>';
+								if (row.formatid === 'lcsuspecttest') {
+									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-43.0/N),0)+'</td>';
+								} else if (row.formatid === 'oususpecttest') {
+									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-17.0/N),0)+'</td>';
+								} else {
+									buffer += '<td>--</td>';
+								}
 								buffer += '</td><td>'+row.w+'</td><td>'+row.l+'</td><td>'+row.t+'</td></tr>';
 							}
 						}
