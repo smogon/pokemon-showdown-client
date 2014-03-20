@@ -979,7 +979,7 @@
 						name = name.substr(0,name.length-1);
 					}
 					var id = toId(name);
-					var isTeambuilderFormat = challengeShow && searchShow && !team;
+					var isTeambuilderFormat = searchShow && !team;
 					var teambuilderFormat = undefined;
 					if (isTeambuilderFormat) {
 						var parenPos = name.indexOf('(');
@@ -995,7 +995,7 @@
 									team: team,
 									section: section,
 									column: column,
-									rated: challengeShow && searchShow,
+									rated: false,
 									isTeambuilderFormat: true,
 									effectType: 'Format'
 								};
@@ -1014,7 +1014,7 @@
 						column: column,
 						searchShow: searchShow,
 						challengeShow: challengeShow,
-						rated: challengeShow && searchShow,
+						rated: searchShow && id.substr(0,7) !== 'unrated',
 						teambuilderFormat: teambuilderFormat,
 						isTeambuilderFormat: isTeambuilderFormat,
 						effectType: 'Format'
