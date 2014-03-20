@@ -450,7 +450,7 @@ _Storage.prototype.nwDoSaveAllTeams = function() {
 
 _Storage.prototype.getLogMonth = function() {
 	var now = new Date();
-	var month = ''+now.getMonth();
+	var month = ''+(now.getMonth()+1);
 	if (month.length < 2) month = '0'+month;
 	return ''+now.getFullYear()+'-'+month;
 };
