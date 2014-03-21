@@ -619,7 +619,7 @@
 			this.battle.skipTurn();
 		},
 		goToEnd: function() {
-			while (this.battle.activityQueueActive) this.battle.skipTurn();
+			while (this.battle.activityQueueActive === true) this.battle.skipTurn();
 		},
 		register: function(userid) {
 			var registered = app.user.get('registered');
