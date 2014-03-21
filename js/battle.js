@@ -5216,7 +5216,7 @@ function Battle(frame, logFrame, noPreload) {
 		self.animationDelay = 0;
 		while (true) {
 			self.activityAnimations = $();
-			if (self.activityStep == self.activityQueue.length) {
+			if (self.activityStep >= self.activityQueue.length) {
 				self.activityQueueActive = false;
 				self.paused = true;
 				self.fastForwardOff();
