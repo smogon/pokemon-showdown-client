@@ -790,6 +790,7 @@ var Tools = {
 			};
 		}
 
+		if (pokemon.shiny) back += '-shiny';
 		if (!Tools.prefs('noanim') && window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
 			var url = Tools.resourcePrefix + 'sprites/xyani'+back;
 			url += '/'+spriteid;
@@ -808,7 +809,6 @@ var Tools = {
 				shiny: pokemon.shiny
 			};
 		}
-		if (pokemon.shiny) back += '-shiny'; // we don't have shiny sprites yet
 		return {
 			w: 96,
 			h: 96,
