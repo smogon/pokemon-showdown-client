@@ -391,6 +391,44 @@
 							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">The tournament was forcibly ended.</div>");
 						break;
 
+					case 'error':
+						var appendError = (function(message) {
+							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + message + "</div>");
+						}).bind(this);
+
+						switch (data[0]) {
+							case 'BracketFrozen':
+							case 'AlreadyStarted':
+								appendError("The tournament has already started.");
+								break;
+
+							case 'BracketNotFrozen':
+							case 'NotStarted':
+								appendError("The tournament hasn't started yet.");
+								break;
+
+							case 'UserAlreadyAdded':
+								appendError("You are already in the tournament.");
+								break;
+
+							case 'AltUserAlreadyAdded':
+								appendError("One of your alts is already in the tournament.");
+								break;
+
+							case 'UserNotAdded':
+								appendError("You aren't in the tournament.");
+								break;
+
+							case 'InvalidMatch':
+								appendError("That isn't a valid tournament matchup.");
+								break;
+
+							default:
+								appendError("Unknown error: " + data[0]);
+								break;
+						}
+						break;
+
 					default:
 						return true;
 				}
