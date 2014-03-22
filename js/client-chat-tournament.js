@@ -215,7 +215,6 @@
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
-			if (Config.server.id !== "battletower") return true;
 			var cmd = data.shift().toLowerCase();
 			if (isBroadcast) {
 				switch (cmd) {
