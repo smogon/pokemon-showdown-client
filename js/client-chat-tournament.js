@@ -215,12 +215,24 @@
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
-			if (Config.server.id !== "battletower") return true;
+			var cmd = data.shift().toLowerCase();
 			if (isBroadcast) {
-				// TODO
-				return true;
+				switch (cmd) {
+					case 'info':
+						var $infoList = $('<ul></ul>');
+						JSON.parse(data.join('|')).forEach(function (tournament) {
+							var $info = $('<li></li>');
+							$info.text(": " + BattleFormats[tournament.format].name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
+							$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
+							$infoList.append($info);
+						});
+						this.room.$chat.append($('<div class="notice">').append($('<div class="infobox tournaments-info"></div></div>').append($infoList)));
+						break;
+
+					default:
+						return true;
+				}
 			} else {
-				var cmd = data.shift().toLowerCase();
 				switch (cmd) {
 					case 'create':
 						var format = BattleFormats[data[0]].name;
@@ -389,6 +401,48 @@
 
 						if (cmd === 'forceend')
 							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">The tournament was forcibly ended.</div>");
+						break;
+
+					case 'error':
+						var appendError = (function(message) {
+							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + message + "</div>");
+						}).bind(this);
+
+						switch (data[0]) {
+							case 'BracketFrozen':
+							case 'AlreadyStarted':
+								appendError("The tournament has already started.");
+								break;
+
+							case 'BracketNotFrozen':
+							case 'NotStarted':
+								appendError("The tournament hasn't started yet.");
+								break;
+
+							case 'UserAlreadyAdded':
+								appendError("You are already in the tournament.");
+								break;
+
+							case 'AltUserAlreadyAdded':
+								appendError("One of your alts is already in the tournament.");
+								break;
+
+							case 'UserNotAdded':
+								appendError("You aren't in the tournament.");
+								break;
+
+							case 'NotEnoughUsers':
+								appendError("There isn't enough users.");
+								break;
+
+							case 'InvalidMatch':
+								appendError("That isn't a valid tournament matchup.");
+								break;
+
+							default:
+								appendError("Unknown error: " + data[0]);
+								break;
+						}
 						break;
 
 					default:

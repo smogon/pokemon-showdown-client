@@ -985,6 +985,12 @@ a.ilink:hover {
 
 /* Tournaments */
 
+.tournaments-info > ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
 .tournament-wrapper {
 	display: none;
 	position: absolute;
