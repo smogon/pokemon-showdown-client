@@ -432,6 +432,10 @@
 								appendError("You aren't in the tournament.");
 								break;
 
+							case 'NotEnoughUsers':
+								appendError("There isn't enough users.");
+								break;
+
 							case 'InvalidMatch':
 								appendError("That isn't a valid tournament matchup.");
 								break;
