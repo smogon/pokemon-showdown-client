@@ -216,11 +216,24 @@
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
 			if (Config.server.id !== "battletower") return true;
+			var cmd = data.shift().toLowerCase();
 			if (isBroadcast) {
-				// TODO
-				return true;
+				switch (cmd) {
+					case 'info':
+						var $infoList = $('<ul></ul>');
+						JSON.parse(data.join('|')).forEach(function (tournament) {
+							var $info = $('<li></li>');
+							$info.text(": " + BattleFormats[tournament.format].name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
+							$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
+							$infoList.append($info);
+						});
+						this.room.$chat.append($('<div class="notice">').append($('<div class="infobox tournaments-info"></div></div>').append($infoList)));
+						break;
+
+					default:
+						return true;
+				}
 			} else {
-				var cmd = data.shift().toLowerCase();
 				switch (cmd) {
 					case 'create':
 						var format = BattleFormats[data[0]].name;
