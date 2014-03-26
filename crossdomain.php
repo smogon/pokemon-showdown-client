@@ -78,7 +78,7 @@ if (isset($PokemonServers[$config['host']])) {
 header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 ?>
 <!DOCTYPE html>
-<script src="/js/lib/jquery-2.0.0.min.js"></script>
+<script src="/js/lib/jquery-2.1.0.min.js"></script>
 <script src="/js/lib/jquery-cookie.js"></script>
 <script src="/js/lib/jquery.json-2.3.min.js"></script>
 <body>
