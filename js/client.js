@@ -1671,9 +1671,11 @@
 					self.clickNotification(tag);
 				};
 				if (Tools.prefs('temporarynotifications')) {
-					if (notification.cancel) setTimeout(function () {
-						notification.cancel();
-					}, 5000);
+					if (notification.cancel) {
+						setTimeout(function() {notification.cancel();}, 5000);
+					} else if (notification.close) {
+						setTimeout(function() {notification.close();}, 5000);
+					}
 				}
 				if (once) notification.psAutoclose = true;
 			} else if (window.macgap) {
