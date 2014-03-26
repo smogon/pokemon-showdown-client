@@ -1920,7 +1920,7 @@
 
 			var buf = '<div class="userdetails">';
 			if (avatar) buf += '<img class="trainersprite'+(userid===app.user.get('userid')?' yours':'')+'" src="'+Tools.resolveAvatar(avatar)+'" />';
-			buf += '<strong>' + Tools.escapeHTML(name) + '</strong><br />';
+			buf += '<strong><a href="//pokemonshowdown.com/users/'+userid+'" target="_blank">' + Tools.escapeHTML(name) + '</a></strong><br />';
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (data.rooms) {
 				var battlebuf = '';
