@@ -4,14 +4,14 @@
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<title>Showdown!</title>
 		<link rel="shortcut icon" href="/favicon.ico" id="dynamic-favicon" />
-		<link rel="stylesheet" href="/style/sim.css" />
+		<link rel="stylesheet" href="/style/utilichart.css" />
 		<link rel="stylesheet" href="/style/sim-types.css" />
 		<link rel="stylesheet" href="/style/battle.css" />
-		<link rel="stylesheet" href="/style/replayer.css" />
-		<script src="/js/jquery-2.0.0.min.js"></script>
-		<script src="/js/autoresize.jquery.min.js"></script>
-		<script src="/js/jquery-cookie.js"></script>
-		<script src="/js/jquery.json-2.3.min.js"></script>
+		<link rel="stylesheet" href="/style/replay.css" />
+		<script src="/js/lib/jquery-2.1.0.min.js"></script>
+		<script src="/js/lib/autoresize.jquery.min.js"></script>
+		<script src="/js/lib/jquery-cookie.js"></script>
+		<script src="/js/lib/jquery.json-2.3.min.js"></script>
 		<script src="/data/pokedex-mini.js"></script>
 
 		<script>var exports=this</script>
