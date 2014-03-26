@@ -930,5 +930,11 @@ var Tools = {
 		if (!type) return '';
 		var sanitizedType = type.replace(/\?/g,'%3f');
 		return '<img src="' + Tools.resourcePrefix + 'sprites/types/'+sanitizedType+'.png" alt="'+type+'" height="14" width="32"'+(b?' class="b"':'')+' />';
+	},
+	
+	getPokeball: function(pokeball, w, h) {
+		if (!pokeball) return '';
+		var id = Tools.getItem(pokeball).id;
+		return '<img src="' + Tools.resourcePrefix + 'fx/pokeballs/' + pokeball + '.png" width="'+(w||24)+'" height="'+(h||24)+'" />';
 	}
 };
