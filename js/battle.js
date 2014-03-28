@@ -4229,6 +4229,9 @@ function Battle(frame, logFrame, noPreload) {
 				case 'powder':
 					actions += 'When the flame touched the powder on the Pokémon, it exploded!';
 					break;
+				case 'fairylock':
+					actions += 'No one will be able to run away during the next turn!';
+					break;
 
 				// ability activations
 				case 'sturdy':
