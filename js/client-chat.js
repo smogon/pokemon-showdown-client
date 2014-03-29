@@ -607,6 +607,14 @@
 				this.send('/kick ' + target + ', ' + reason);
 				return false;
 
+			case 'join':
+				var room = toId(target);
+				if (app.rooms[room]) {
+					app.focusRoom(room);
+					return false;
+				}
+				return text; // Send the /join command through to the server.
+
 			case 'avatar':
 				var parts = target.split(',');
 				var avatar = parseInt(parts[0], 10);
