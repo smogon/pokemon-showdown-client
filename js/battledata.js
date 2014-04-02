@@ -779,7 +779,9 @@ var Tools = {
 			cryurl = 'audio/cries/' + num + '.wav';
 		}
 
-		// April Fool's 2013
+		if (pokemon.shiny) back += '-shiny';
+
+		// April Fool's 2014
 		if (window.Config && Config.server && Config.server.afd || options && options.afd) {
 			return {
 				w: 96,
@@ -790,7 +792,6 @@ var Tools = {
 			};
 		}
 
-		if (pokemon.shiny) back += '-shiny';
 		if (!Tools.prefs('noanim') && window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
 			var url = Tools.resourcePrefix + 'sprites/xyani'+back;
 			url += '/'+spriteid;

@@ -413,6 +413,7 @@
 
 			// Simple connection: no cross-domain logic needed.
 			Config.server = Config.server || Config.defaultserver;
+			// Config.server.afd = true;
 			Storage.loadTeams();
 			this.trigger('init:loadprefs');
 			return this.connect();
@@ -471,6 +472,7 @@
 						};
 						// server config information
 						Config.server = data.server;
+						// Config.server.afd = true;
 						if (Config.server.registered) {
 							var $link = $('<link rel="stylesheet" ' +
 								'href="//play.pokemonshowdown.com/customcss.php?server=' +
