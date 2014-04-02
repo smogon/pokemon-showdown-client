@@ -290,6 +290,10 @@ class DefaultActionHandler {
 		// include_once dirname(__FILE__) . '/ntbb-ladder.lib.php'; // not clear if this is needed
 
 		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out['errorip'] = $this->getIp();
+			return;
+		}
 		if (
 				// the server must be registered
 				!$server ||
@@ -334,7 +338,7 @@ class DefaultActionHandler {
 	public function invalidatecss($dispatcher, &$reqData, &$out) {
 		$server = $dispatcher->findServer();
 		if (!$server) {
-			$out = 0;
+			$out['errorip'] = $this->getIp();
 			return;
 		}
 		// No need to sanitise $server['id'] because it should be safe already.
@@ -524,7 +528,10 @@ class LadderActionHandler {
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
 
 		$server = @$PokemonServers[@$reqData['serverid']];
-		if (!$server) die('');
+		if (!$server) {
+			$out['errorip'] = $this->getIp();
+			return;
+		}
 
 		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
 		$user = $this->getUserData(@$reqData['user']);
