@@ -524,12 +524,12 @@ class LadderActionHandler {
 	}
 
 	public function mmr($dispatcher, &$reqData, &$out) {
-		global $PokemonServers;
+		global $PokemonServers, $users;
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
 
 		$server = @$PokemonServers[@$reqData['serverid']];
 		if (!$server) {
-			$out['errorip'] = $this->getIp();
+			$out['errorip'] = $users->getIp();
 			return;
 		}
 
