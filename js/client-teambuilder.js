@@ -1304,8 +1304,8 @@
 					if (move.id === 'batonpass' || move.id === 'healingwish' || move.id === 'lunardance') {
 						moveCount['Support']++;
 					} else if (move.id === 'naturepower') {
-						moveCount['Physical']++;
-					} else if (move.id === 'protect' || move.id === 'detect') {
+						moveCount['Special']++;
+					} else if (move.id === 'protect' || move.id === 'detect' || move.id === 'spikyshield' || move.id === 'kingsshield') {
 						moveCount['Stall']++;
 					} else if (move.id === 'wish') {
 						moveCount['Restoration']++;
@@ -1320,7 +1320,7 @@
 							moveCount['SpecialSetup']++;
 						} else if (move.id === 'dragondance' || move.id === 'swordsdance' || move.id === 'coil' || move.id === 'bulkup' || move.id === 'curse' || move.id === 'bellydrum') {
 							moveCount['PhysicalSetup']++;
-						} else if (move.id === 'nastyplot' || move.id === 'tailglow' || move.id === 'quiverdance' || move.id === 'calmmind') {
+						} else if (move.id === 'nastyplot' || move.id === 'tailglow' || move.id === 'quiverdance' || move.id === 'calmmind' || move.id === 'geomancy') {
 							moveCount['SpecialSetup']++;
 						}
 						if (move.id === 'substitute') moveCount['Stall']++;
@@ -1333,6 +1333,9 @@
 					moveCount['Support']++;
 				} else if (move.id === 'nightshade' || move.id === 'seismictoss' || move.id === 'foulplay') {
 					moveCount['Offense']++;
+				} else if (move.id === 'fellstinger') {
+					moveCount['PhysicalSetup']++;
+					moveCount['Setup']++;
 				} else {
 					moveCount[move.category]++;
 					moveCount['Offense']++;
@@ -1346,6 +1349,11 @@
 			moveCount['Special'] += moveCount['SpecialSetup'];
 
 			if (hasMove['dragondance'] || hasMove['quiverdance']) moveCount['Ultrafast'] = 1;
+			if (hasMove['knockoff'] && moveCount['Physical'] >= 2) { // Knock Off this gen can be a support move or an offensive move
+				moveCount['Physical']++;
+				moveCount['PhysicalAttack']++;
+				moveCount['Offense']++;
+			}
 
 			var isFast = (stats.spe > 95);
 			var physicalBulk = (stats.hp+75)*(stats.def+87);
@@ -1365,7 +1373,7 @@
 			}
 			if (abilityid === 'flamebody') physicalBulk *= 1.1;
 
-			if (hasMove['calmmind'] || hasMove['quiverdance']) {
+			if (hasMove['calmmind'] || hasMove['quiverdance'] || hasMove['geomancy']) {
 				specialBulk *= 1.3;
 				moveCount['SpecialStall']++;
 			}
@@ -1426,6 +1434,7 @@
 				physicalBulk *= 1.5;
 				specialBulk *= 1.5;
 			}
+			if (itemid === 'assaultvest') specialBulk *= 1.5;
 
 			var bulk = physicalBulk + specialBulk;
 			if (bulk < 46000 && stats.spe >= 70) isFast = true;
