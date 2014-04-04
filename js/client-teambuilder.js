@@ -1329,7 +1329,7 @@
 						if (move.id === 'toxic' || move.id === 'leechseed' || move.id === 'willowisp') moveCount['Stall']++;
 						moveCount['Support']++;
 					}
-				} else if (move.id === 'rapidspin' || move.id === 'knockoff' || move.id === 'counter' || move.id === 'mirrorcoat' || move.id === 'metalburst') {
+				} else if (move.id === 'rapidspin' || move.id === 'counter' || move.id === 'mirrorcoat' || move.id === 'metalburst') {
 					moveCount['Support']++;
 				} else if (move.id === 'nightshade' || move.id === 'seismictoss' || move.id === 'foulplay') {
 					moveCount['Offense']++;
@@ -1339,6 +1339,7 @@
 				} else {
 					moveCount[move.category]++;
 					moveCount['Offense']++;
+					if (move.id === 'knockoff') moveCount['Support']++;
 					if (move.id === 'scald' || move.id === 'voltswitch' || move.id === 'uturn') moveCount[move.category] -= 0.2;
 				}
 			}
@@ -1349,11 +1350,6 @@
 			moveCount['Special'] += moveCount['SpecialSetup'];
 
 			if (hasMove['dragondance'] || hasMove['quiverdance']) moveCount['Ultrafast'] = 1;
-			if (hasMove['knockoff'] && moveCount['Physical'] >= 2) { // Knock Off this gen can be a support move or an offensive move
-				moveCount['Physical']++;
-				moveCount['PhysicalAttack']++;
-				moveCount['Offense']++;
-			}
 
 			var isFast = (stats.spe > 95);
 			var physicalBulk = (stats.hp+75)*(stats.def+87);
