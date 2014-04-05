@@ -395,7 +395,7 @@ var Tools = {
 			});
 		}
 		// __italics__
-		str = str.replace(/\_\_([^< ]([^<]*?[^< ])?)\_\_/g,
+		str = str.replace(/\_\_([^< ]([^<]*?[^< ])?)\_\_(?![^<]*?<\/a)/g,
 				options.hideitalics ? '$1' : '<i>$1</i>');
 		// **bold**
 		str = str.replace(/\*\*([^< ]([^<]*?[^< ])?)\*\*/g,
