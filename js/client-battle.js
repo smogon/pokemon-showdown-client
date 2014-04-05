@@ -74,7 +74,11 @@
 				log.shift();
 			}
 			if (this.battle.activityQueue.length) return;
-			this.battle.activityQueue = log;
+			this.battle.activityQueue = log.filter(function(logLine) {
+				var parts = logLine.split('|');
+				if (parts[1] !== 'c' && parts[1] !== 'chat' && parts[1] !== 'chatmsg') return true;
+				return !app.ignore[toId(parts[2])];
+			});
 			this.battle.fastForwardTo(-1);
 			this.updateLayout();
 			this.updateControls();
@@ -98,21 +102,37 @@
 					this.$controls.html('');
 				}
 
-				if (logLine.substr(0, 18) === '|callback|trapped|') {
-					var idx = logLine.substr(18);
-					this.request.active[idx].trapped = true;
-					// TODO: Maybe a more sophisticated UI for this.
-					// In singles, this isn't really necessary because the switch UI will be
-					// immediately disabled. However, in doubles it might not be obvious why
-					// the player is being asked to make a new decision without this message.
-					delete this.choice;
-					this.battle.activityQueue.push('|message|'+this.battle.mySide.active[idx].getName() + ' is trapped and cannot switch!');
-				} else if (logLine.substr(0, 7) === '|title|') {
-					this.title = logLine.substr(7);
-				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
-					this.battle.instantAdd(logLine);
-				} else {
+				var parts = logLine.split('|');
+				if (parts[0].length) {
 					this.battle.activityQueue.push(logLine);
+					continue;
+				}
+				switch(parts[1]) {
+					case 'title':
+						this.title = parts.slice(2).join('');
+						break;
+					case 'chat': case 'c': case 'chatmsg':
+						if (app.ignore[toId(parts[2])]) continue;
+						this.battle.instantAdd(logLine);
+						break;
+					case 'inactive':
+						this.battle.instantAdd(logLine);
+						break;
+					case 'callback':
+						if (parts[2] === 'trapped') {
+							var idx = logLine.substr(18);
+							this.request.active[idx].trapped = true;
+							// TODO: Maybe a more sophisticated UI for this.
+							// In singles, this isn't really necessary because the switch UI will be
+							// immediately disabled. However, in doubles it might not be obvious why
+							// the player is being asked to make a new decision without this message.
+							delete this.choice;
+							this.battle.activityQueue.push('|message|'+this.battle.mySide.active[idx].getName() + ' is trapped and cannot switch!');
+							break;
+						}
+						/** falls through **/
+					default:
+						this.battle.activityQueue.push(logLine);
 				}
 			}
 			this.battle.add('', Tools.prefs('noanim'));
