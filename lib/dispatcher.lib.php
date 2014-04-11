@@ -291,7 +291,7 @@ class DefaultActionHandler {
 
 		$server = $dispatcher->findServer();
 		if (!$server) {
-			$out['errorip'] = $this->getIp();
+			$out['errorip'] = $dispatcher->getIp();
 			return;
 		}
 		if (
@@ -338,7 +338,7 @@ class DefaultActionHandler {
 	public function invalidatecss($dispatcher, &$reqData, &$out) {
 		$server = $dispatcher->findServer();
 		if (!$server) {
-			$out['errorip'] = $this->getIp();
+			$out['errorip'] = $dispatcher->getIp();
 			return;
 		}
 		// No need to sanitise $server['id'] because it should be safe already.
@@ -487,7 +487,7 @@ class LadderActionHandler {
 
 		$server = $dispatcher->findServer();
 		if (!$server) {
-			$out = 0;
+			$out['errorip'] = $dispatcher->getIp();
 			return;
 		}
 
@@ -524,12 +524,12 @@ class LadderActionHandler {
 	}
 
 	public function mmr($dispatcher, &$reqData, &$out) {
-		global $PokemonServers, $users;
+		global $PokemonServers;
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
 
-		$server = @$PokemonServers[@$reqData['serverid']];
+		$server = $dispatcher->findServer();
 		if (!$server) {
-			$out['errorip'] = $users->getIp();
+			$out['errorip'] = $dispatcher->getIp();
 			return;
 		}
 
