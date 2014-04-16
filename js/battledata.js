@@ -268,6 +268,7 @@ var baseSpeciesChart = {
 	'keldeo': 1,
 	'aegislash': 1,
 	'gourgeist': 1,
+	'pumpkaboo': 1,
 
 	// mega evolutions
 	'charizard': 1,
