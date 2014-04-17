@@ -1412,7 +1412,9 @@
 				app.dispatchingButton = target;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				this[target.name].call(this, target.value, target);
+				if (target.name !== 'send') {
+					this[target.name].call(this, target.value, target);
+				}
 				delete app.dismissingSource;
 				delete app.dispatchingButton;
 			}
