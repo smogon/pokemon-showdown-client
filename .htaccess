@@ -37,9 +37,6 @@ RewriteRule ^lobby/?$ / [R=301,L]
 RewriteCond %{DOCUMENT_ROOT}/$1 !-d
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
-#RewriteCond %{ENV:P_SUFFIX} =s
-#RewriteRule ^([A-Za-z0-9-]*)$ http://play.pokemonshowdown.com/$1 [L=R03,L]
-
 # Anything that looks like a roomid: connect to the server
 RewriteRule ^$ - [E=INDEX_PAGE:1]
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
@@ -56,16 +53,11 @@ RewriteCond %{HTTP_REFERER} !^$
 RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$
 RewriteCond %{REMOTE_ADDR} !=127.0.0.1
+RewriteCond %{REMOTE_ADDR} !=162.243.13.96
 RewriteCond %{HTTP:CF-Connecting-IP} !=173.252.196.254
 RewriteCond %{HTTP:CF-Connecting-IP} !=198.27.67.31
 RewriteCond %{HTTP:CF-Connecting-IP} !=162.243.13.96
-RewriteRule .* - [E=LOBBY_REDIRECT:1]
-
-RewriteCond %{ENV:LOBBY_REDIRECT}%{ENV:P_SUFFIX} =1
-RewriteRule ^.* http://pokemonshowdown.com/ [R=303,L]
-
-RewriteCond %{ENV:LOBBY_REDIRECT}%{ENV:P_SUFFIX} =1s
-RewriteRule ^.* http://pokemonshowdown.com/secure [R=303,L]
+RewriteRule .* http%{ENV:P_SUFFIX}://pokemonshowdown.com/ [R=303,L]
 
 RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/replay/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
