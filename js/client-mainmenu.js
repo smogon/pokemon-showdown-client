@@ -930,6 +930,7 @@
 			buf += '<li><p><strong>Ben Frengley</strong> [TalkTakesTime] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Leonardo Julca</strong> [Slayer95] <small>&ndash; Development</small></p></li>';
+			buf += '<li><p><strong>Quinton Lee</strong> [sirDonovan] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Robin Vandenbrande</strong> [Quinella] <small>&ndash; Development</small></p></li></ul>';
 			buf += '<h2>More</h2>';
 			buf += '<ul><li><p><a href="http://pokemonshowdown.com/credits" target="_blank">Full Credits List</a></p></li></ul>';
