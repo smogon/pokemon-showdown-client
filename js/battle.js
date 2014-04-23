@@ -3371,6 +3371,13 @@ function Battle(frame, logFrame, noPreload) {
 						actions += '' + poke.getName() + ' already has a substitute!';
 					}
 					break;
+				case 'skydrop':
+					if (kwargs.heavy) {
+						actions += '' + poke.getName() + ' is too heavy to be lifted!';
+					} else {
+						actions += "But it failed!";
+					}
+					break;
 				case 'unboost':
 					self.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s " + (args[3] ? args[3] + " was" : "stats were") + " not lowered!";
