@@ -397,7 +397,7 @@
 								controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
 							}
 						}
-						if (this.finalDecision) {
+						if (this.finalDecision && this.battle.gen > 2) {
 							controls += '<em style="display:block;clear:both">You <strong>might</strong> be trapped, so you won\'t be able to cancel a switch!</em><br/>';
 						}
 					}
@@ -821,15 +821,17 @@
 				if (pokemon.maxhp != 100 && pokemon.maxhp != 1000 && pokemon.maxhp != 48) exacthp = ' ('+pokemon.hp+'/'+pokemon.maxhp+')';
 				if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>('+pokemon.hp+'/'+pokemon.maxhp+' pixels)</small>';
 				text += '<p>HP: ' + pokemon.hpDisplay() +exacthp+(pokemon.status?' <span class="status '+pokemon.status+'">'+pokemon.status.toUpperCase()+'</span>':'')+'</p>';
-				if (!pokemon.baseAbility && !pokemon.ability) {
-					text += '<p>Possible abilities: ' + Tools.getAbility(template.abilities['0']).name;
-					if (template.abilities['1']) text += ', ' + Tools.getAbility(template.abilities['1']).name;
-					if (template.abilities['H']) text += ', ' + Tools.getAbility(template.abilities['H']).name;
-					text += '</p>';
-				} else if (pokemon.ability) {
-					text += '<p>Ability: ' + Tools.getAbility(pokemon.ability).name + '</p>';
-				} else if (pokemon.baseAbility) {
-					text += '<p>Ability: ' + Tools.getAbility(pokemon.baseAbility).name + '</p>';
+				if (this.battle.gen > 2) {
+					if (!pokemon.baseAbility && !pokemon.ability) {
+						text += '<p>Possible abilities: ' + Tools.getAbility(template.abilities['0']).name;
+						if (template.abilities['1']) text += ', ' + Tools.getAbility(template.abilities['1']).name;
+						if (template.abilities['H']) text += ', ' + Tools.getAbility(template.abilities['H']).name;
+						text += '</p>';
+					} else if (pokemon.ability) {
+						text += '<p>Ability: ' + Tools.getAbility(pokemon.ability).name + '</p>';
+					} else if (pokemon.baseAbility) {
+						text += '<p>Ability: ' + Tools.getAbility(pokemon.baseAbility).name + '</p>';
+					}
 				}
 				if (pokemon.item) {
 					text += '<p>Item: ' + Tools.getItem(pokemon.item).name + '</p>';
