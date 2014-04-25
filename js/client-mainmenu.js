@@ -385,6 +385,10 @@
 			this.challengesFrom = data.challengesFrom;
 			this.challengeTo = data.challengeTo;
 			for (var i in data.challengesFrom) {
+				if (app.ignore[i]) {
+					delete data.challengesFrom[i];
+					continue;
+				}
 				this.openPM(' '+i, true);
 			}
 			var self = this;

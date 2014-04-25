@@ -4887,6 +4887,7 @@ function Battle(frame, logFrame, noPreload) {
 		case 'c':
 			name = args[1];
 			if (self.ignoreSpects && !self.getSide(name).battle) break;
+			if (window.app && app.ignore && app.ignore[toUserid(name)]) break;
 			args.shift();
 			args.shift();
 			var message = args.join('|');
