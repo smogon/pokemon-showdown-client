@@ -269,6 +269,7 @@ var baseSpeciesChart = {
 	'aegislash': 1,
 	'gourgeist': 1,
 	'pumpkaboo': 1,
+	'meowstic': 1,
 
 	// mega evolutions
 	'charizard': 1,
