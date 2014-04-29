@@ -1056,7 +1056,7 @@
 					if (this.curTeam) {
 						if (this.curTeam.format === 'ou') return ['OU','BL','UU','BL2','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','UU','BL2','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'uu') return ['BL2','UU','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'uu') return ['UU','BL2','Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'ru') return ['Limbo B','Limbo C','Limbo','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'lc') return ['LC','NFE','Limbo'];
 					}
