@@ -805,6 +805,8 @@ BattlePokemonSprites = {
 	"phantump":{num:708, front:{ani:{w:67,h:60}}, back:{ani:{w:64,h:61}}},
 	"trevenant":{num:709, front:{ani:{w:192,h:192}}, back:{ani:{w:102,h:98}}},
 	"pumpkaboo":{num:710, front:{ani:{w:56,h:59}}, back:{ani:{w:44,h:58}}},
+	"pumpkaboosmall":{num:710, front:{ani:{w:48,h:50}}, back:{ani:{w:43,h:48}}},
+	"pumpkaboolarge":{num:710, front:{ani:{w:62,h:65}}, back:{ani:{w:56,h:64}}},
 	"gourgeist":{num:711, front:{ani:{w:53,h:83}}, back:{ani:{w:49,h:84}}},
 	"gourgeistsmall":{num:711, front:{ani:{w:46,h:74}}, back:{ani:{w:43,h:74}}},
 	"gourgeistlarge":{num:711, front:{ani:{w:53,h:83}}, back:{ani:{w:49,h:84}}},
