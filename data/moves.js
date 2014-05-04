@@ -10100,6 +10100,9 @@ exports.BattleMovedex = {
 		onTryHitSide: function (side, source) {
 			return this.willAct();
 		},
+		onHitSide: function (side, source) {
+			source.addVolatile('stall');
+		},
 		effect: {
 			duration: 1,
 			onStart: function (target, source) {
@@ -11813,7 +11816,7 @@ exports.BattleMovedex = {
 				return false;
 			}
 			if (defender.weightkg >= 200) {
-				this.add('-fail', defender, '[heavy]');
+				this.add('-fail', defender, 'move: Sky Drop', '[heavy]');
 				return null;
 			}
 			if (defender.volatiles['protect']) {
@@ -11825,7 +11828,7 @@ exports.BattleMovedex = {
 				return null;
 			}
 			this.add('-prepare', attacker, move.name, defender);
-			attacker.addVolatile(move.id, defender);
+			attacker.addVolatile('twoturnmove', defender);
 			return null;
 		},
 		onTryHit: function (target) {
@@ -11836,7 +11839,6 @@ exports.BattleMovedex = {
 		},
 		effect: {
 			duration: 2,
-			onLockMove: 'skydrop',
 			onDragOut: false,
 			onSourceDragOut: false,
 			onFoeModifyPokemon: function (defender) {
@@ -14737,6 +14739,9 @@ exports.BattleMovedex = {
 		sideCondition: 'wideguard',
 		onTryHitSide: function (side, source) {
 			return this.willAct();
+		},
+		onHitSide: function (side, source) {
+			source.addVolatile('stall');
 		},
 		effect: {
 			duration: 1,

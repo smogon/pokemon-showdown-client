@@ -1,4 +1,16 @@
 exports.BattleAliases = {
+	// formats
+	"randbats": "Random Battle",
+	"overused": "OU",
+	"underused": "UU",
+	"rarelyused": "RU",
+	"neverused": "NU",
+	"vgc": "VGC 2014",
+	"bh": "Balanced Hackmons",
+	"monotype": "OU Monotype",
+	"createapokemon": "CAP",
+	"cc1v1": "Challenge Cup 1vs1",
+
 	// mega evos
 	"megaabomasnow": "Abomasnow-Mega",
 	"megaabsol": "Absol-Mega",
@@ -19,6 +31,8 @@ exports.BattleAliases = {
 	"megaheracross": "Heracross-Mega",
 	"megahoundoom": "Houndoom-Mega",
 	"megakangaskhan": "Kangaskhan-Mega",
+	"megalatias": "Latias-Mega",
+	"megalatios": "Latios-Mega",
 	"megalucario": "Lucario-Mega",
 	"megaluke": "Lucario-Mega",
 	"megamanectric": "Manectric-Mega",
@@ -46,6 +60,7 @@ exports.BattleAliases = {
 	"cherrimsunny": "Cherrim-Sunshine",
 	"darmanitanz": "Darmanitan-Zen",
 	"darmanitanzenmode": "Darmanitan-Zen",
+	"deoxysnormal": "Deoxys",
 	"deoxysa": "Deoxys-Attack",
 	"deoa": "Deoxys-Attack",
 	"deoxysd": "Deoxys-Defense",
@@ -76,6 +91,7 @@ exports.BattleAliases = {
 	"wormadamground": "Wormadam-Sandy",
 	"wormadams": "Wormadam-Trash",
 	"wormadamsteel": "Wormadam-Trash",
+	"floettee": "Floette-Eternal-Flower",
 
 	// base formes
 	"nidoranfemale": "Nidoran-F",
@@ -122,6 +138,17 @@ exports.BattleAliases = {
 	"specs": "Choice Specs",
 	"yache": "Yache Berry",
 
+	// gen 1-2 berries
+	"berry": "Oran Berry",
+	"bitterberry": "Persim Berry",
+	"burntberry": "Rawst Berry",
+	"goldberry": "Sitrus Berry",
+	"iceberry": "Aspear Berry",
+	"mintberry": "Chesto Berry",
+	"mysteryberry": "Leppa Berry",
+	"przcureberry": "Cheri Berry",
+	"psncureberry": "Pecha Berry",
+
 	// pokemon
 	"aboma": "Abomasnow",
 	"chomp": "Garchomp",
@@ -134,8 +161,8 @@ exports.BattleAliases = {
 	"kyub": "Kyurem-Black",
 	"kyuw": "Kyurem-White",
 	"lando": "Landorus",
-	"lando-i": "Landorus",
-	"lando-t": "Landorus-Therian",
+	"landoi": "Landorus",
+	"landot": "Landorus-Therian",
 	"luke":  "Lucario",
 	"mence": "Salamence",
 	"p2": "Porygon2",
