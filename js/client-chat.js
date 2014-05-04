@@ -572,7 +572,6 @@
 									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-17.0/N),0)+'</td>';
 								} else if (row.formatid === 'smogondoubles' || row.formatid === 'smogondoublessuspecttest') {
 									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-15.0/N),0)+'</td>';
-								}
 								} else {
 									buffer += '<td>--</td>';
 								}
