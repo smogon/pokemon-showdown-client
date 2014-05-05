@@ -1057,7 +1057,7 @@
 						if (this.curTeam.format === 'ou') return ['OU','BL','UU','BL2','RU','Limbo','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','UU','BL2','RU','Limbo','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'uu') return ['UU','BL2','RU','Limbo','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'ru') return ['Limbo','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'ru') return ['RU', 'Limbo','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'lc') return ['LC'];
 					}
 					return ['OU','Uber','BL','UU','BL2','RU','Limbo','NFE','LC Uber','LC','Unreleased','CAP'];
