@@ -48,7 +48,7 @@ foreach ($toplist as $row)
 			<td>
 			<?php if ($row['formatid'] == 'lcsuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-43.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'oususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-17.0/$N) : 0,1,'.','');
-			elseif ($row['formatid'] == 'smogondoubles' || $row['formatid'] == 'smogondoublessuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-15.0/$N) : 0,1,'.','');
+			elseif ($row['formatid'] == 'smogondoublescurrent' || $row['formatid'] == 'smogondoublessuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-15.0/$N) : 0,1,'.','');
 			else echo '--';	?></td>
 		</tr>
 <?php
