@@ -305,7 +305,15 @@
 			} else if (e.keyCode === 27) { // Esc
 				this.closePM(e);
 			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab key
-				if (app.curSideRoom && app.curSideRoom.handleTabComplete && app.curSideRoom.handleTabComplete($(e.currentTarget))) {
+				var handlerRoom = app.curSideRoom;
+				if (!handlerRoom) {
+					for (var roomid in app.rooms) {
+						if (!app.rooms[roomid].handleTabComplete) continue;
+						handlerRoom = app.rooms[roomid];
+						break;
+					}
+				}
+				if (handlerRoom && handlerRoom.handleTabComplete && handlerRoom.handleTabComplete($(e.currentTarget))) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
