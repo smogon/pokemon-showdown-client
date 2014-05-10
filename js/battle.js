@@ -4361,13 +4361,13 @@ function Battle(frame, logFrame, noPreload) {
 					actions += 'The Lucky Chant shielded ' + side.getLowerTeamName() + ' from critical hits!';
 					break;
 				case 'firepledge':
-					actions += "A rainbow appeared in the sky on " + side.getLowerTeamName() + "'s side!";
+					actions += "A sea of fire enveloped " + side.getLowerTeamName() + "!";
 					break;
 				case 'waterpledge':
-					actions += "A swamp enveloped " + side.getLowerTeamName() + "!";
+					actions += "A rainbow appeared in the sky on " + side.getLowerTeamName() + "'s side!";
 					break;
 				case 'grasspledge':
-					actions += "A sea of fire enveloped " + side.getLowerTeamName() + "!";
+					actions += "A swamp enveloped " + side.getLowerTeamName() + "!";
 					break;
 				default:
 					actions += "" + effect.name + " started!";
@@ -4413,13 +4413,13 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + side.getTeamName() + "'s Lucky Chant wore off!";
 					break;
 				case 'firepledge':
-					actions += "The rainbow on " + side.getLowerTeamName() + "'s side disappeared!";
+					actions += "The sea of fire around " + side.getLowerTeamName() + " disappeared!";
 					break;
 				case 'waterpledge':
-					actions += "The swamp around " + side.getLowerTeamName() + " disappeared!";
+					actions += "The rainbow on " + side.getLowerTeamName() + "'s side disappeared!";
 					break;
 				case 'grasspledge':
-					actions += "The sea of fire around " + side.getLowerTeamName() + " disappeared!";
+					actions += "The swamp around " + side.getLowerTeamName() + " disappeared!";
 					break;
 				default:
 					actions += "" + effect.name + " ended!";
