@@ -4977,6 +4977,18 @@ function Battle(frame, logFrame, noPreload) {
 		case 'detailschange':
 			if (self.waitForResult()) return;
 			var poke = self.getPokemon(args[1]);
+			var newSpecies;
+			var commaIndex = args[2].indexOf(',');
+			if (commaIndex === -1) {
+				newSpecies = args[2];
+			} else {
+				newSpecies = args[2].substr(0, commaIndex);
+			}
+			var template = Tools.getTemplate(newSpecies);
+			if (poke.sprite.sp.shiny) template.shiny = true;
+			poke.sprite.animTransform(template);
+			poke.removeVolatile('typechange');
+			poke.side.updateStatbar();
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
 			break;
 		case 'teampreview':
