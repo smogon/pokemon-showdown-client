@@ -4974,6 +4974,11 @@ function Battle(frame, logFrame, noPreload) {
 		case 'poke':
 			self.getPokemon('new: '+args[1], args[2]);
 			break;
+		case 'detailschange':
+			if (self.waitForResult()) return;
+			var poke = self.getPokemon(args[1]);
+			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
+			break;
 		case 'teampreview':
 			self.teamPreview(true);
 			self.teamPreviewCount = args[1];
