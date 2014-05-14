@@ -769,56 +769,67 @@ var Tools = {
 
 	getSpriteData: function(pokemon, siden, options) {
 		pokemon = Tools.getTemplate(pokemon);
-		var isBack = !siden;
-		var back = (siden?'':'-back');
-		var facing = (siden?'front':'back');
-		var cryurl = '';
-		var spriteid = pokemon.spriteid;
-		if (window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid]) {
-			var num = '' + BattlePokemonSprites[pokemon.speciesid].num;
-			if (num.length < 3) num = '0' + num;
-			if (num.length < 3) num = '0' + num;
-			cryurl = 'audio/cries/' + num + '.wav';
+		var spriteData = {
+			w: 96,
+			h: 96,
+			url: Tools.resourcePrefix + 'sprites/',
+			isBackSprite: false,
+			cryurl: '',
+			shiny: pokemon.shiny
+		};
+		var name = pokemon.spriteid;
+		var dir, isBack, facing;
+		if (siden) {
+			dir = '';
+			facing = 'front';
+		} else {
+			spriteData.isBack = true;
+			dir = '-back';
+			facing = 'back';
 		}
 
-		if (pokemon.shiny) back += '-shiny';
+		var animationData = window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid];
+		if (animationData) {
+			var num = '' + animationData.num;
+			if (num.length < 3) num = '0' + num;
+			if (num.length < 3) num = '0' + num;
+			spriteData.cryurl = 'audio/cries/' + num + '.wav';
+		}
+
+		if (pokemon.shiny) dir += '-shiny';
 
 		// April Fool's 2014
 		if (window.Config && Config.server && Config.server.afd || options && options.afd) {
-			return {
-				w: 96,
-				h: 96,
-				url: Tools.resourcePrefix + 'sprites/afd'+back+'/' + spriteid + '.png',
-				cryurl: cryurl,
-				isBackSprite: isBack
-			};
+			dir = 'afd' + dir;
+			spriteData.url += dir + '/' + name + '.png';
+			return spriteData;
 		}
 
-		if (!Tools.prefs('noanim') && window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid] && BattlePokemonSprites[pokemon.speciesid][facing]) {
-			var url = Tools.resourcePrefix + 'sprites/xyani'+back;
-			url += '/'+spriteid;
-			var spriteType = 'ani';
-			if (BattlePokemonSprites[pokemon.speciesid][facing]['anif'] && pokemon.gender === 'F') {
-				url += '-f';
-				spriteType = 'anif';
+		var gen = 'xy';
+
+		if (animationData && animationData[facing]) {
+			var spriteType = '';
+			if (animationData[facing]['anif'] && pokemon.gender === 'F') {
+				name += '-f';
+				spriteType += 'f';
 			}
-			url += '.gif';
-			return {
-				w: BattlePokemonSprites[pokemon.speciesid][facing][spriteType].w,
-				h: BattlePokemonSprites[pokemon.speciesid][facing][spriteType].h,
-				url: url,
-				cryurl: cryurl,
-				isBackSprite: isBack,
-				shiny: pokemon.shiny
-			};
+			if (!Tools.prefs('noanim')) {
+				spriteType = 'ani' + spriteType;
+				dir = gen + 'ani' + dir;
+
+				spriteData.w = animationData[facing][spriteType].w;
+				spriteData.h = animationData[facing][spriteType].h;
+				spriteData.url += dir + '/' + name + '.gif';
+				return spriteData;
+			}
 		}
-		return {
-			w: 96,
-			h: 96,
-			url: Tools.resourcePrefix + 'sprites/bw'+back+'/' + spriteid + '.png',
-			cryurl: cryurl,
-			isBackSprite: isBack
-		};
+		// if there is no entry or enough data in pokedex-mini.js or the animations are disabled, use BW static sprites
+		gen = 'bw';
+		dir = gen + dir;
+
+		spriteData.url += dir+'/' + name + '.png';
+
+		return spriteData;
 	},
 
 	getIcon: function(pokemon) {
