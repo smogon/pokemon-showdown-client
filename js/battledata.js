@@ -783,7 +783,7 @@ var Tools = {
 			dir = '';
 			facing = 'front';
 		} else {
-			spriteData.isBack = true;
+			spriteData.isBackSprite = true;
 			dir = '-back';
 			facing = 'back';
 		}
