@@ -806,6 +806,7 @@
 				case 'n':
 				case 'name':
 				case 'N':
+					if (!this.users[toUserid(row[2])]) return;
 					this.addJoinLeave('rename', row[1], row[2], true);
 					break;
 
