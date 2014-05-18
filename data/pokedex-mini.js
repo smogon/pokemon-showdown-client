@@ -672,7 +672,7 @@ BattlePokemonSprites = {
 	"escavalier": {num:589, front:{ani:{w:105,h:101}}, back:{ani:{w:108,h:99}}},
 	"foongus": {num:590, front:{ani:{w:47,h:48}}, back:{ani:{w:47,h:48}}},
 	"amoonguss": {num:591, front:{ani:{w:78,h:75}}, back:{ani:{w:74,h:75}}},
-	"frillish": {num:592, front:{ani:{w:74,h:87}}, back:{ani:{w:72,h:86}}},
+	"frillish": {num:592, front:{ani:{w:68, h:86}, anif:{w:74, h:87}}, back:{ani:{w:50, h:86}, anif:{w:72, h:86}}},
 	"jellicent": {num:593, front:{ani:{w:86, h:105}, anif:{w:99, h:103}}, back:{ani:{w:87, h:105}, anif:{w:96, h:106}}},
 	"alomomola": {num:594, front:{ani:{w:44,h:100}}, back:{ani:{w:56,h:108}}},
 	"joltik": {num:595, front:{ani:{w:47,h:31}}, back:{ani:{w:47,h:33}}},
