@@ -878,7 +878,7 @@ var Tools = {
 			"kyuremblack": 819,
 			"kyuremwhite": 820,
 			"keldeoresolute": 821,
-			"veusaurmega": 864,
+			"venusaurmega": 864,
 			"charizardmegax": 865,
 			"charizardmegay": 866,
 			"blastoisemega": 867,
