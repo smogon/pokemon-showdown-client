@@ -4996,6 +4996,7 @@ function Battle(frame, logFrame, noPreload) {
 			poke.spriteid = template.spriteid;
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
+			poke.side.updateSidebar();
 			break;
 		case 'teampreview':
 			self.teamPreview(true);
