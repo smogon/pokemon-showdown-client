@@ -619,7 +619,7 @@
 			this.battle.skipTurn();
 		},
 		goToEnd: function() {
-			while (this.battle.activityQueueActive) this.battle.skipTurn();
+			this.battle.fastForwardTo(-1);
 		},
 		register: function(userid) {
 			var registered = app.user.get('registered');
