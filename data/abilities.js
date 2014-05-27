@@ -169,10 +169,10 @@ exports.BattleAbilities = {
 		num: 71
 	},
 	"aromaveil": {
-		desc: "Protects allies from attacks that limit their move choices.",
-		shortDesc: "Protects allies from attacks that limit their move choices.",
+		desc: "Protects this Pokemon and its allies from Attract, Disable, Encore, Heal Block, Taunt, and Torment.",
+		shortDesc: "Protects from Attract, Disable, Encore, Heal Block, Taunt, and Torment.",
 		onAllyTryHit: function (target, source, move) {
-			if (move && move.id in {disable:1, encore:1, healblock:1, imprison:1, taunt:1, torment:1}) {
+			if (move && move.id in {attract:1, disable:1, encore:1, healblock:1, taunt:1, torment:1}) {
 				return false;
 			}
 		},
@@ -2375,7 +2375,7 @@ exports.BattleAbilities = {
 			},
 			onModifyAtkPriority: 5,
 			onModifyAtk: function (atk, pokemon) {
-				if (!pokemon.hasAbility('slowstart')) {
+				if (pokemon.ignore['Ability'] === true || pokemon.ability !== 'slowstart') {
 					pokemon.removeVolatile('slowstart');
 					return;
 				}
@@ -2992,7 +2992,7 @@ exports.BattleAbilities = {
 		},
 		effect: {
 			onModifySpe: function (speMod, pokemon) {
-				if (!pokemon.hasAbility('unburden')) {
+				if (pokemon.ignore['Ability'] === true || pokemon.ability !== 'unburden') {
 					pokemon.removeVolatile('unburden');
 					return;
 				}
