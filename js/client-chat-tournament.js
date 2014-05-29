@@ -222,7 +222,7 @@
 						var $infoList = $('<ul></ul>');
 						JSON.parse(data.join('|')).forEach(function (tournament) {
 							var $info = $('<li></li>');
-							$info.text(": " + BattleFormats[tournament.format].name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
+							$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
 							$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
 							$infoList.append($info);
 						});
@@ -235,7 +235,7 @@
 			} else {
 				switch (cmd) {
 					case 'create':
-						var format = BattleFormats[data[0]].name;
+						var format = Tools.getEffect(data[0]).name;
 						var type = data[1];
 						this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament has been created.</div>");
 						this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + format + "\nType: " + type, 'tournament-create');
@@ -273,7 +273,7 @@
 						}
 
 						if ('format' in this.updates) {
-							this.$format.text(BattleFormats[this.info.format].name);
+							this.$format.text(Tools.getEffect(this.info.format).name);
 							this.updateTeams();
 						}
 						if ('generator' in this.updates)
