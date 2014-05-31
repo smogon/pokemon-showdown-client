@@ -1256,6 +1256,7 @@
 			if (set.gender === 'N') {
 				delete set.gender;
 			}
+			set.ivs = {};
 			if (!set.name) {
 				set.name = template.species;
 			}
