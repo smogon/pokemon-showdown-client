@@ -1244,22 +1244,20 @@
 			var newPokemon = !set.species;
 			if (!template.exists || set.species === template.species) return;
 
-			if (!set.species || set.name === set.species) {
-				set.name = '';
-			}
+			set.name = template.species;
 			set.species = val;
-			if (this.curTeam && this.curTeam.format === 'lc' && !set.level) set.level = 5;
+			if (set.level) delete set.level;
+			if (this.curTeam && this.curTeam.format === 'lc') set.level = 5;
+			if (set.gender) delete set.gender;
+			if (template.gender && template.gender !== 'N') set.gender = template.gender;
+			if (set.happiness) delete set.happiness;
+			if (set.shiny) delete set.shiny;
+			set.item = '';
 			set.ability = template.abilities['0'];
-			if (template.gender) {
-				set.gender = template.gender;
-			}
-			if (set.gender === 'N') {
-				delete set.gender;
-			}
+			set.moves = [];
+			set.evs = {};
 			set.ivs = {};
-			if (!set.name) {
-				set.name = template.species;
-			}
+			set.nature = '';
 			this.updateSetTop();
 			if (selectNext) this.$('input[name=item]').select();
 		},
