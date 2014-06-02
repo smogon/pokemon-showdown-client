@@ -559,8 +559,8 @@
 
 			this.socket.onopen = function() {
 				socketopened = true;
-				if (altport && window._gaq) {
-					_gaq.push(['_trackEvent', 'Alt port connection', Config.server.id]);
+				if (altport && window.ga) {
+					ga('send', 'event', 'Alt port connection', Config.server.id);
 				}
 				self.trigger('init:socketopened');
 

@@ -333,7 +333,10 @@ var Tools = {
 			if (linkclass) {
 				classbit = ' class="message-link-' + toId(linkclass) + '"';
 			}
-			str = str.replace(/(https?\:\/\/[a-z0-9-.]+(\:[0-9]+)?(\/([^\s]*[^\s?.,])?)?|[a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)(\:[0-9]+)?((\/([^\s]*[^\s?.,])?)?|\b))/ig, function(uri) {
+			str = str.replace(/(https?\:\/\/[a-z0-9-.]+(\:[0-9]+)?(\/([^\s]*[^\s?.,])?)?|[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}|([a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)(\:[0-9]+)?|qmark\.tk|hisouten\.koumakan\.jp)((\/([^\s]*[^\s?.,])?)?|\b))/ig, function(uri) {
+				if (/[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}/ig.test(uri)) {
+					return '<a href="mailto:'+uri+'" target="_blank"'+classbit+'>'+uri+'</u>';
+				}
 				// Insert http:// before URIs without a URI scheme specified.
 				var fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
 				var onclick;
@@ -353,8 +356,8 @@ var Tools = {
 								Tools.unescapeHTML(fulluri)
 						));
 					}
-					onclick = 'if (window._gaq) _gaq.push([\'_trackEvent\', \'' +
-							event + '\', \'' + Tools.escapeQuotes(fulluri) + '\']);';
+					onclick = 'if (window.ga) ga(\'send\', \'event\', \'' +
+							event + '\', \'' + Tools.escapeQuotes(fulluri) + '\');';
 				}
 				return '<a href="' + fulluri +
 					'" target="_blank" onclick="' + onclick + '"' + classbit +
