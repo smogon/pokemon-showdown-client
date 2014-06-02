@@ -4991,9 +4991,12 @@ function Battle(frame, logFrame, noPreload) {
 			if (poke.sprite.sp.shiny) template.shiny = true;
 			poke.sprite.animTransform(template);
 			poke.sprite.oldsp = null;
-			poke.side.updateStatbar();
-			poke.species = newSpecies;
 			poke.spriteid = template.spriteid;
+			poke.side.updateStatbar();
+
+			poke.species = newSpecies;
+			poke.ability = poke.baseAbility = template.abilities['0'];
+
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
 			poke.side.updateSidebar();
