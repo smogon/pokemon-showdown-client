@@ -1771,7 +1771,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	position: relative;
 }
 .teamchart li.format-select {
-	padding-bottom: 10px;
+	padding: 4px 0 10px;
 }
 .teamchart li.format-select label {
 	display: block;
@@ -2069,6 +2069,101 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	width: 129px;
 }
 
+.teambuilder-clipboard-container {
+	height: 52px;
+	max-width: 640px;
+	font-size: 8pt;
+	padding: 4px;
+	position: relative;
+
+	border: 1px solid #FFAA00;
+	border-radius: 5px;
+}
+.teambuilder-clipboard-title {
+	width: 74px;
+	padding-top: 8px;
+	font-weight: bold;
+
+	position: absolute;
+	top: 4px;
+	left: 8px;
+}
+.teambuilder-clipboard-data {
+	display: block;
+	width: 520px;
+	height: 26px;
+	overflow: hidden;
+	cursor: pointer;
+
+	border: 1px solid #999999;
+	border-radius: 5px;
+	background-image: linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	outline: none;
+
+	position: absolute;
+	top: 4px;
+	right: 8px;
+	z-index: 2;
+}
+.teambuilder-clipboard-data:hover {
+	border: 1px solid #BBBBBB;
+}
+.teambuilder-clipboard-data .result {
+	height: 26px;
+}
+.teambuilder-clipboard-data span {
+	display: block;
+	height: 24px;
+
+	float: left;
+}
+.teambuilder-clipboard-data .icon {
+	width: 32px;
+}
+.teambuilder-clipboard-data .species {
+	width: 118px;
+	padding-top: 6px;
+	margin-left: 4px;
+}
+.teambuilder-clipboard-data .ability-item {
+	width: 98px;
+	padding-left: 2px;
+	margin-top: -1px;
+}
+.teambuilder-clipboard-data .moves {
+	width: 126px;
+	padding-left: 2px;
+	margin-top: -1px;
+}
+.teambuilder-clipboard-data .section {
+	height: 100%;
+	padding: 1px;
+	border-right: 1px solid #999999;
+	float: left;
+}
+.teambuilder-clipboard-data .section.no-border {
+	border: none;
+}
+.teambuilder-clipboard-buttons {
+	display: block;
+	width: 520px;
+
+	position: absolute;
+	top: 34px;
+	right: 8px;
+}
+.teambuilder-clipboard-button-left {
+	float: left;
+	height: 22px;
+}
+.teambuilder-clipboard-button-right {
+	float: right;
+	height: 22px;
+}
 .teambuilder-results {
 	position: absolute;
 	top: 200px;
