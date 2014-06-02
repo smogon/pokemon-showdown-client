@@ -43,7 +43,12 @@
 			'keydown .chartinput': 'chartKeydown',
 			'keyup .chartinput': 'chartKeyup',
 			'focus .chartinput': 'chartFocus',
-			'change .chartinput': 'chartChange'
+			'change .chartinput': 'chartChange',
+
+			// clipboard
+			'click .teambuilder-clipboard-data .result': 'clipboardResultSelect',
+			'click .teambuilder-clipboard-data': 'clipboardExpand',
+			'blur .teambuilder-clipboard-data': 'clipboardShrink'
 		},
 		dispatchClick: function(e) {
 			e.preventDefault();
@@ -121,8 +126,9 @@
 				this.$el.html(buf);
 				return;
 			}
-			buf = '<div class="pad"><p>y\'know zarel this is a pretty good teambuilder</p>'
-			buf += '<p>aww thanks I\'m glad you like it :)</p>'
+			buf = '<div class="pad"><p>y\'know zarel this is a pretty good teambuilder</p>';
+			buf += '<p>aww thanks I\'m glad you like it :)</p>';
+			buf += this.clipboardHTML();
 			buf += '<ul>';
 			if (!window.localStorage && !window.nodewebkit) buf += '<li>== CAN\'T SAVE ==<br /><small>Your browser doesn\'t support <code>localStorage</code> and can\'t save teams! Update to a newer browser.</small></li>';
 			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
@@ -268,6 +274,7 @@
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
+				buf += '<li>' + this.clipboardHTML() + '</li>';
 				var i=0;
 				if (this.curTeam.team.length && !this.curTeam.team[this.curTeam.team.length-1].species) {
 					this.curTeam.team.splice(this.curTeam.team.length-1, 1);
@@ -298,7 +305,7 @@
 					buf += '<li><button name="import" class="majorbutton"><i class="icon-upload-alt"></i> Import from text</button></li>';
 				}
 				if (i < 6) {
-					buf += '<li><button name="addPokemon" class="majorbutton"><i class="icon-plus"></i> Add pokemon</button></li>';
+					buf += '<li><button name="addPokemon" class="majorbutton"><i class="icon-plus"></i> Add Pokemon</button></li>';
 				}
 				buf += '</ol>';
 				buf += '</div>';
@@ -316,7 +323,7 @@
 				buf += '</li>';
 				return buf;
 			}
-			buf += '<div class="setmenu"><button name="moveSet"><i class="icon-move"></i>Move</button> <button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>';
+			buf += '<div class="setmenu"><button name="copySet"><i class="icon-copy"></i>Copy</button> <button name="moveSet"><i class="icon-move"></i>Move</button> <button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" value="'+Tools.escapeHTML(set.name||set.species)+'" name="nickname" />';
 			buf += '</div>';
@@ -409,6 +416,18 @@
 			this.update();
 			this.$('input[name=pokemon]').select();
 		},
+		pastePokemon: function(i, btn) {
+			if (!this.curTeam) return;
+			var team = this.curTeam.team;
+			if (team.length >= 6) return;
+			if (!this.clipboardCount()) return;
+
+			if (team.push($.extend(true, {}, this.clipboard[0])) >= 6) {
+				$(btn).css('display', 'none');
+			}
+			this.update();
+			this.save();
+		},
 		saveFlag: false,
 		save: function() {
 			this.saveFlag = true;
@@ -431,7 +450,131 @@
 			this.save();
 		},
 
-		// move/delete
+		// clipboard
+		clipboard: [],
+		clipboardCount: function() {
+			return this.clipboard.length;
+		},
+		clipboardVisible: function() {
+			return !!this.clipboardCount();
+		},
+		clipboardHTML: function() {
+			var buf = '';
+			buf += '<div class="teambuilder-clipboard-container" style="display: ' + (this.clipboardVisible() ? 'block' : 'none') + ';">';
+			buf += '<div class="teambuilder-clipboard-title">Clipboard:</div>';
+			buf += '<div class="teambuilder-clipboard-data" tabindex="-1">' + this.clipboardInnerHTML() + '</div>';
+			buf += '<div class="teambuilder-clipboard-buttons">';
+			if (this.curTeam && this.curTeam.team.length < 6) {
+				buf += '<button name="pastePokemon" class="teambuilder-clipboard-button-left"><i class="icon-paste"></i> Paste!</button>';
+			}
+			buf += '<button name="clipboardRemoveAll" class="teambuilder-clipboard-button-right"><i class="icon-trash"></i> Clear clipboard</button>';
+			buf += '</div>';
+			buf += '</div>';
+
+			return buf;
+		},
+		clipboardInnerHTMLCache: '',
+		clipboardInnerHTML: function() {
+			if (this.clipboardInnerHTMLCache) {
+				return this.clipboardInnerHTMLCache;
+			}
+
+			var buf = '';
+			for (var i = 0; i < this.clipboardCount(); i++) {
+				var res = this.clipboard[i];
+				var pokemon = Tools.getTemplate(res.species);
+
+				buf += '<div class="result" data-id="' + i + '">';
+				buf += '<div class="section"><span class="icon" style="' + Tools.getIcon(res.species) + '"></span>';
+				buf += '<span class="species">' + (pokemon.species === pokemon.baseSpecies ? pokemon.species : (pokemon.baseSpecies + '-<small>' + pokemon.species.substr(pokemon.baseSpecies.length + 1) + '</small>')) + '</span></div>';
+				buf += '<div class="section"><span class="ability-item">' + res.ability + '<br />' + res.item + '</span></div>';
+				buf += '<div class="section no-border">';
+				for (var j = 0; j < 4; j++) {
+					if (!(j & 1)) {
+						buf += '<span class="moves">';
+					}
+					buf += res.moves[j] + (!(j & 1) ? '<br />' : '');
+					if (j & 1) {
+						buf += '</span>';
+					}
+				}
+				buf += '</div>';
+				buf += '</div>';
+			}
+
+			this.clipboardInnerHTMLCache = buf;
+			return buf;
+		},
+		clipboardUpdate: function() {
+			this.clipboardInnerHTMLCache = '';
+			$('.teambuilder-clipboard-data').html(this.clipboardInnerHTML());
+		},
+		clipboardExpanded: false,
+		clipboardExpand: function() {
+			var $clipboard = $('.teambuilder-clipboard-data');
+			$clipboard.animate({ height: this.clipboardCount() * 28 }, 500, function() {
+				setTimeout(function() { $clipboard.focus(); }, 100);
+			});
+
+			setTimeout(function() {
+				this.clipboardExpanded = true;
+			}.bind(this), 10);
+		},
+		clipboardShrink: function() {
+			var $clipboard = $('.teambuilder-clipboard-data');
+			$clipboard.animate({ height: 26 }, 500);
+
+			setTimeout(function() {
+				this.clipboardExpanded = false;
+			}.bind(this), 10);
+		},
+		clipboardResultSelect: function(e) {
+			if (!this.clipboardExpanded) return;
+
+			e.stopPropagation();
+			var target = +($(e.target).closest('.result').data('id'));
+			if (target === -1) {
+				this.clipboardShrink();
+				this.clipboardRemoveAll();
+				return;
+			}
+
+			this.clipboard.unshift(this.clipboard.splice(target, 1)[0]);
+			this.clipboardUpdate();
+			this.clipboardShrink();
+		},
+		clipboardAdd: function(set) {
+			if (this.clipboard.unshift(set) > 6) {
+				// we don't want the clipboard so big that it lags the teambuilder
+				this.clipboard.pop();
+			}
+			this.clipboardUpdate();
+
+			if (this.clipboardCount() === 1) {
+				var $clipboard = $('.teambuilder-clipboard-container').css('opacity', 0);
+				$clipboard.slideDown(250, function () {
+					$clipboard.animate({ opacity: 1 }, 250);
+				});
+			}
+		},
+		clipboardRemoveAll: function() {
+			this.clipboard = [];
+
+			var self = this;
+			var $clipboard = $('.teambuilder-clipboard-container');
+			$clipboard.animate({ opacity: 0 }, 250, function () {
+				$clipboard.slideUp(250, function() {
+					self.clipboardUpdate();
+				});
+			});
+		},
+
+		// copy/move/delete
+		copySet: function(i, button) {
+			i = +($(button).closest('li').attr('value'));
+			this.clipboardAdd($.extend(true, {}, this.curTeam.team[i]));
+			button.blur();
+		},
 		moveSet: function(i, button) {
 			i = +($(button).closest('li').attr('value'));
 			app.addPopup(MovePopup, {
