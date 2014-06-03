@@ -4995,7 +4995,7 @@ function Battle(frame, logFrame, noPreload) {
 			poke.side.updateStatbar();
 
 			poke.species = newSpecies;
-			poke.ability = poke.baseAbility = template.abilities['0'];
+			poke.ability = poke.baseAbility = (template.abilities ? template.abilities['0'] : '');
 
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
