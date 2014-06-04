@@ -625,7 +625,7 @@
 				// Just open the main menu.
 				fragment = '';
 			}
-			if (!fragment) fragment = '';
+			fragment = toRoomid(fragment || '');
 			if (this.initialFragment === undefined) this.initialFragment = fragment;
 			this.tryJoinRoom(fragment);
 		},
