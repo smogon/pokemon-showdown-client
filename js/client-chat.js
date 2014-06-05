@@ -495,7 +495,7 @@
 			case 'highlight':
 				var highlights = Tools.prefs('highlights') || [];
 				if (target.indexOf(',') > -1) {
-					var targets = target.split(',');
+					var targets = target.match(/[^,]+(,\d*}[^,]*)?/g);
 					// trim the targets to be safe
 					for (var i=0, len=targets.length; i<len; i++) {
 						targets[i] = targets[i].trim();
