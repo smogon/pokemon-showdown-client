@@ -989,9 +989,10 @@
 				'leave': []
 			};
 			var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
-			if (!pm) {
+			var isHighlighted = false;
+			if (!pm && userid !== app.user.get('userid')) {
 				// PMs already notify in the main menu; no need to make them notify again
-				var isHighlighted = this.getHighlight(message);
+				isHighlighted = this.getHighlight(message);
 				if (isHighlighted) {
 					var notifyTitle = "Mentioned by "+name+(this.id === 'lobby' ? '' : " in "+this.title);
 					this.notifyOnce(notifyTitle, "\""+message+"\"", 'highlight');
