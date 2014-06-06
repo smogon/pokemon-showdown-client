@@ -68,6 +68,14 @@
 					this.set('avatar', data.avatar);
 				}
 			}, this);
+			var self = this;
+			this.on('change:name', function() {
+				if (!self.get('named')) {
+					self.nameRegExp = null;
+				} else {
+					self.nameRegExp = new RegExp('\\b'+Tools.escapeRegExp(self.get('name'))+'\\b', 'i');
+				}
+			});
 		},
 		/**
 		 * Return the path to the login server `action.php` file. AJAX requests

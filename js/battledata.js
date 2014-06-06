@@ -428,6 +428,10 @@ var Tools = {
 			replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	},
 
+	escapeRegExp: function(str) {
+		return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+	},
+
 	escapeQuotes: function(str) {
 		str = (str?''+str:'');
 		str = str.replace(/'/g, '\\\'');
