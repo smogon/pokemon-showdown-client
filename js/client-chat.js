@@ -227,6 +227,9 @@
 					return false;
 				}
 			}
+			if (!Tools.prefs('noselfhighlight') && app.user.nameRegExp) {
+				if (app.user.nameRegExp.test(message)) return true;
+			}
 			return ((highlights.length > 0) && app.highlightRegExp.test(message));
 		},
 
