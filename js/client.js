@@ -2148,6 +2148,7 @@
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
 			'change input[name=logchat]': 'setLogChat',
+			'change input[name=selfhighlight]': 'setSelfHighlight',
 			'click img': 'avatars'
 		},
 		update: function() {
@@ -2162,6 +2163,7 @@
 			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Charizards</option><option value="#344b6c url(/fx/client-bg-horizon.jpg) no-repeat left center fixed">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c">Solid blue</option>'+(Tools.prefs('bg')?'<option value="" selected></option>':'')+'</select></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in lobby chat</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"'+(!Tools.prefs('noselfhighlight')?' checked':'')+'> Highlight when your name is said in chat</label></p>';
 
 			if (window.Notification) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"'+(Tools.prefs('temporarynotifications')?' checked':'')+' /> Temporary notifications</label></p>';
@@ -2217,6 +2219,10 @@
 		setNoanim: function(e) {
 			var noanim = !!e.currentTarget.checked;
 			Tools.prefs('noanim', noanim);
+		},
+		setSelfHighlight: function(e) {
+			var noselfhighlight = !e.currentTarget.checked;
+			Tools.prefs('noselfhighlight', noselfhighlight);
 		},
 		setNolobbypm: function(e) {
 			var nolobbypm = !!e.currentTarget.checked;
