@@ -487,13 +487,13 @@
 				buf += '<div class="result" data-id="' + i + '">';
 				buf += '<div class="section"><span class="icon" style="' + Tools.getIcon(res.species) + '"></span>';
 				buf += '<span class="species">' + (pokemon.species === pokemon.baseSpecies ? pokemon.species : (pokemon.baseSpecies + '-<small>' + pokemon.species.substr(pokemon.baseSpecies.length + 1) + '</small>')) + '</span></div>';
-				buf += '<div class="section"><span class="ability-item">' + res.ability + '<br />' + res.item + '</span></div>';
+				buf += '<div class="section"><span class="ability-item">' + (res.ability || '<i>No ability</i>') + '<br />' + (res.item || '<i>No item</i>') + '</span></div>';
 				buf += '<div class="section no-border">';
 				for (var j = 0; j < 4; j++) {
 					if (!(j & 1)) {
 						buf += '<span class="moves">';
 					}
-					buf += res.moves[j] + (!(j & 1) ? '<br />' : '');
+					buf += (res.moves[j] || '<i>No move</i>') + (!(j & 1) ? '<br />' : '');
 					if (j & 1) {
 						buf += '</span>';
 					}
