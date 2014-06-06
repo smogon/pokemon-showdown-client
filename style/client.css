@@ -174,14 +174,12 @@ a.subtle:hover {
 
 .tabbar li,
 .tabbar ul {
-	display: inline;
+	display: block;
+	float: left;
+
 	list-style: none;
 	margin: 0;
 	padding: 0;
-}
-.tabbar ul {
-	float: left;
-	display: block;
 }
 .tabbar a.button {
 	outline: none;
