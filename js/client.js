@@ -1352,7 +1352,26 @@
 		},
 
 		// tabbar
+		roomOrder: [],
+		roomOrderInit: function() {
+			var rooms = Object.keys(app.rooms);
+			if (rooms.length === this.roomOrder.length) return;
+
+			var diff = $(rooms).not(this.roomOrder).get();
+			this.roomOrder.push.apply(this.roomOrder, diff); // add new rooms
+			this.roomOrder = $(this.roomOrder).filter(rooms).get(); // remove closed rooms
+			console.log(this.roomOrder);
+		},
+		roomOrderSave: function($ul, overwrite) {
+			var rooms = [];
+			$ul.parent().find('li:not(.unsortable)').each(function() {
+				rooms.push(toId($(this).find('a').attr('href').substr(1)));
+			});
+			this.roomOrder = rooms;
+		},
 		updateTabbar: function() {
+			this.roomOrderInit();
+
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
@@ -1362,8 +1381,9 @@
 			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
-			for (var id in app.rooms) {
-				if (!id || id === 'teambuilder' || id === 'ladder') continue;
+			for (var i = 0, len = this.roomOrder.length; i < len; i++) {
+				var id = this.roomOrder[i];
+				if (!id || id === 'rooms' || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
 				var name = '<i class="icon-comment-alt"></i> <span>'+(Tools.escapeHTML(room.title)||(id==='lobby'?'Lobby':id))+'</span>';
 				if (id.substr(0,7) === 'battle-') {
@@ -1383,7 +1403,7 @@
 					name = '<i class="text">'+formatid+'</i><span>'+name+'</span>';
 				}
 				if (room.isSideRoom) {
-					if (id !== 'rooms') sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+					sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 					continue;
 				}
 				if (!atLeastOne) {
@@ -1393,7 +1413,7 @@
 				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 			}
 			if (app.supportsRooms) {
-				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
+				sideBuf += '<li class="unsortable"><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (sideBuf) {
@@ -1404,11 +1424,43 @@
 				}
 			}
 			this.$tabbar.html(buf);
-			var $lastLi = this.$tabbar.children().last().children().last();
+			var $lastUl = this.$tabbar.children().last();
+			var $lastLi = $lastUl.children().last();
 			var offset = $lastLi.offset();
 			var width = $lastLi.outerWidth();
 			if (offset.top >= 37 || offset.left + width > $(window).width() - 165) {
 				this.$tabbar.append('<div class="overflow"><button name="tablist"><i class="icon-caret-down"></i></button></div>');
+			}
+
+			var self = this;
+			var saveTimeout = false;
+			var minRooms = (app.supportsRooms ? 2 : 1);
+			$lastUl.sortable('destroy');
+			if ($lastUl.find('li').length > minRooms) {
+				$lastUl.sortable({
+					vertical: false,
+					nested: false,
+					delay: 100,
+					itemSelector: 'li:not(.unsortable)',
+					onDragStart: function($item, container, _super) {
+						$item.parent().prepend('<li class="unsortable"><a class="button first-placeholder"></a></li>');
+						_super($item, container);
+					},
+					onDrop: function($item, container, _super) {
+						// we need to use a timeout for this because onDrop gets
+						// called twice for some reason
+						// not that it'd be a big deal though...
+						if (saveTimeout) {
+							clearTimeout(saveTimeout);
+						}
+						setTimeout(function() {
+							self.roomOrderSave.call(self, $lastUl);
+							self.updateTabbar();
+						}, 20);
+
+						_super($item, container);
+					}
+				});
 			}
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
