@@ -19,6 +19,16 @@ body {
   background-size: cover;
 }
 
+body.dragging, body.dragging * {
+	cursor: move !important;
+}
+.dragged {
+	position: absolute;
+	top: 0;
+	opacity: 0.5;
+	z-index: 2000;
+}
+
 .pad {
 	margin: 0;
 	padding: 5px 15px;
@@ -310,6 +320,34 @@ a.subtle:hover {
 .closebutton:active,
 .minimizebutton:active {
 	color: #661111;
+}
+.tabbar ul.siderooms li.placeholder {
+	position: relative;
+}
+.tabbar ul.siderooms li.placeholder:before {
+	position: absolute;
+	z-index: 1999;
+	left: 0;
+	top: 14px;
+
+	content: '';
+	width: 0;
+	height: 0;
+	margin-top: 0;
+
+	border: 6px solid transparent;
+	border-right-color: #FFAA00;
+	border-left: none;
+}
+.tabbar ul.siderooms li a.first-placeholder {
+	background: transparent;
+	border: none;
+	border-radius: 0;
+
+	padding: 0;
+
+	min-width: 0;
+	width: 1px;
 }
 
 /*********************************************************
