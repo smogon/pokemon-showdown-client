@@ -56,7 +56,7 @@
 				buf += '</p>';
 			}
 
-			buf += '<h2>Official chat rooms</h2>';
+			buf += '<h2 style="clear:left">Official chat rooms</h2>';
 			for (var i=0; i<rooms.official.length; i++) {
 				var roomData = rooms.official[i];
 				var id = toId(roomData.title);
