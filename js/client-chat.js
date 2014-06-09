@@ -46,7 +46,11 @@
 		},
 
 		focus: function() {
-			if (this.$chatbox) this.$chatbox.focus();
+			if (this.$chatbox) {
+				this.$chatbox.focus();
+			} else {
+				this.$('button[name=login]').focus();
+			}
 		},
 
 		login: function() {
