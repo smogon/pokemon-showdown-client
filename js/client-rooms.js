@@ -31,6 +31,12 @@
 				app.send('/cmd rooms');
 				this.lastUpdate = new Date().getTime();
 			}
+			// this.$('button[name=joinRoomPopup]').focus();
+		},
+		joinRoomPopup: function() {
+			var roomName = prompt("Room name?");
+			if (!roomName) return;
+			app.tryJoinRoom(roomName);
 		},
 		update: function(rooms) {
 			if (rooms) {
@@ -73,6 +79,8 @@
 				var escapedDesc = Tools.escapeHTML(roomData.desc||'');
 				buf += '<div><a href="' + app.root+id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + escapedDesc + '</small></a></div>';
 			}
+
+			buf += '<p><button name="joinRoomPopup">Join other room</button></p>'
 
 			buf += '</div></div>';
 			this.$el.html(buf);
