@@ -1474,7 +1474,7 @@
 					}
 				} else if (move.id === 'rapidspin' || move.id === 'counter' || move.id === 'mirrorcoat' || move.id === 'metalburst') {
 					moveCount['Support']++;
-				} else if (move.id === 'nightshade' || move.id === 'seismictoss' || move.id === 'foulplay') {
+				} else if (move.id === 'nightshade' || move.id === 'seismictoss' || move.id === 'foulplay' || move.id === 'finalgambit') {
 					moveCount['Offense']++;
 				} else if (move.id === 'fellstinger') {
 					moveCount['PhysicalSetup']++;
