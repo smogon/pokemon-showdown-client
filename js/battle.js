@@ -1193,8 +1193,8 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.x = slot * (selfS.isBackSprite ? -1 : 1) * -50;
 			selfS.y = slot * (selfS.isBackSprite ? -1 : 1) * 10;
 			selfS.statbarOffset = 0;
-			if (!selfS.isBackSprite && slot == 1) selfS.statbarOffset = 17;
-			if (selfS.isBackSprite && slot == 1) selfS.statbarOffset = -7;
+			if (!selfS.isBackSprite) selfS.statbarOffset = 17 * slot;
+			if (selfS.isBackSprite) selfS.statbarOffset = -7 * slot;
 
 			// make sure element is in the right z-order
 			if (!slot && selfS.isBackSprite || slot && !selfS.isBackSprite) {
@@ -1268,8 +1268,8 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.x = slot * (selfS.isBackSprite ? -1 : 1) * -50;
 			selfS.y = slot * (selfS.isBackSprite ? -1 : 1) * 10;
 			selfS.statbarOffset = 0;
-			if (!selfS.isBackSprite && slot == 1) selfS.statbarOffset = 17;
-			if (selfS.isBackSprite && slot == 1) selfS.statbarOffset = -7;
+			if (!selfS.isBackSprite) selfS.statbarOffset = 17 * slot;
+			if (selfS.isBackSprite) selfS.statbarOffset = -7 * slot;
 
 			// make sure element is in the right z-order
 			if (!slot && selfS.isBackSprite || slot && !selfS.isBackSprite) {
@@ -2222,6 +2222,7 @@ function Battle(frame, logFrame, noPreload) {
 			if (!pokemon) {
 				if (selfS.active[0]) selfS.updateStatbar(selfS.active[0], updatePrevhp, updateHp);
 				if (selfS.active[1]) selfS.updateStatbar(selfS.active[1], updatePrevhp, updateHp);
+				if (selfS.active[2]) selfS.updateStatbar(selfS.active[2], updatePrevhp, updateHp);
 				return;
 			}
 			if (!pokemon || !pokemon.statbarElem) {
@@ -2451,8 +2452,10 @@ function Battle(frame, logFrame, noPreload) {
 
 		if (self.mySide.active[0]) self.mySide.active[0].clearTurnstatuses();
 		if (self.mySide.active[1]) self.mySide.active[1].clearTurnstatuses();
+		if (self.mySide.active[2]) self.mySide.active[2].clearTurnstatuses();
 		if (self.yourSide.active[0]) self.yourSide.active[0].clearTurnstatuses();
 		if (self.yourSide.active[1]) self.yourSide.active[1].clearTurnstatuses();
+		if (self.yourSide.active[2]) self.yourSide.active[2].clearTurnstatuses();
 
 		self.log('<h2>Turn ' + turnnum + '</h2>');
 
