@@ -2070,7 +2070,66 @@ function Battle(frame, logFrame, noPreload) {
 			});
 			//pokemon.statbarElem.done(pokemon.statbarElem.remove());
 		};
-		this.swap = function (pokemon, target, kwargs) {
+		this.swapTo = function (pokemon, slot, kwargs) {
+			if (pokemon.slot === slot) return;
+			var target = selfS.active[slot];
+
+			if (target && !kwargs.silent) {
+				var fromeffect = Tools.getEffect(kwargs.from);
+				switch (fromeffect.id) {
+					case 'allyswitch':		
+						self.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+						break;
+					default:
+						self.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+						break;
+				}
+			}
+
+			var oslot = pokemon.slot;
+
+			if (target) target.slot = pokemon.slot;
+			pokemon.slot = slot;
+			selfS.active[slot] = pokemon;
+			selfS.active[oslot] = target;
+
+			pokemon.sprite.animUnsummon(true);
+			if (target) target.sprite.animUnsummon(true);
+
+			pokemon.sprite.animSummon(slot, true);
+			if (target) target.sprite.animSummon(oslot, true);
+
+			if (pokemon.statbarElem) {
+				pokemon.statbarElem.remove();
+			}
+			if (target && target.statbarElem) {
+				target.statbarElem.remove();
+			}
+
+			self.statElem.append(selfS.getStatbarHTML(pokemon));
+			pokemon.statbarElem = self.statElem.children().last();
+			if (target) {
+				self.statElem.append(selfS.getStatbarHTML(target));
+				target.statbarElem = self.statElem.children().last();
+			}
+
+			selfS.updateStatbar(pokemon, true);
+			if (target) selfS.updateStatbar(target, true);
+
+			pokemon.statbarElem.css({
+				display: 'block',
+				left: pokemon.sprite.left - 80,
+				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+				opacity: 1
+			});
+			if (target) target.statbarElem.css({
+				display: 'block',
+				left: target.sprite.left - 80,
+				top: target.sprite.top - 73 - target.sprite.statbarOffset,
+				opacity: 1
+			});
+		};
+		this.swapWith = function (pokemon, target, kwargs) {
 			if (pokemon === target) return;
 
 			if (!kwargs.silent) {
@@ -5033,8 +5092,13 @@ function Battle(frame, logFrame, noPreload) {
 			poke.side.faint(poke);
 			break;
 		case 'swap':
-			var poke = self.getPokemon('other: ' + args[1]);
-			poke.side.swap(poke, self.getPokemon('other: ' + args[2]), kwargs);
+			if (isNaN(Number(args[2]))) {
+				var poke = self.getPokemon('other: ' + args[1]);
+				poke.side.swapWith(poke, self.getPokemon('other: ' + args[2]), kwargs);
+			} else {
+				var poke = self.getPokemon(args[1]);
+				poke.side.swapTo(poke, args[2], kwargs);
+			}
 			break;
 		case 'move':
 			self.endLastTurn();
