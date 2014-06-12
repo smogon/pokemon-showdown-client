@@ -912,8 +912,11 @@
 				//fallthrough
 			case 'sidepokemon':
 				if (!pokemon) pokemon = this.battle.mySide.pokemon[parseInt(thing)];
+				var gender = '';
+				if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
+				if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
 				text = '<div class="tooltipinner"><div class="tooltip">';
-				text += '<h2>' + pokemon.getFullName() + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
+				text += '<h2>' + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
 
 				var types = pokemon.types;
 				var template = pokemon;
