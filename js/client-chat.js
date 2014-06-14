@@ -1048,6 +1048,8 @@
 				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,11) === '/data-move ') {
 				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
+			} else if (message.substr(0,13) === '/data-nature ') {
+				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.natureRow(Tools.getNature(message.substr(13)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 			} else {
 				// Normal chat message.
 				if (message.substr(0,2) === '//') message = message.substr(1);

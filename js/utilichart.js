@@ -65,6 +65,9 @@ function BattleChart()
 		case 'move':
 			return self.moveRow(thing, attrs, match, isFirst);
 			break;
+		case 'nature':
+			return self.natureRow(thing, attrs, match, isFirst);
+			break;
 		}
 	};
 	this.pokemonRow = function(pokemon, attrs, match, isFirst) {
@@ -254,6 +257,25 @@ function BattleChart()
 		text += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
 
 		text += '</a></li>';
+
+		return text;
+	};
+	this.natureRow = function(nature, attrs, match, isFirst) {
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(nature.name)+'">';
+
+		var name = Tools.escapeHTML(nature.name);
+		if (match.name)
+		{
+			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
+		}
+		text += '<span class="col namecol">'+name+'</span> ';
+		text += '<span class="col abilitydesccol">';
+		if (nature.plus) {
+			text += 'This nature increases the pokemon\'s ' + BattleStatNames[nature.plus] + ', but decreases its ' + BattleStatNames[nature.minus] + '.';
+		} else {
+			text += 'This pokémon nature has no effect on stats.';
+		}
+		text += '</span> </a></li>';
 
 		return text;
 	};
