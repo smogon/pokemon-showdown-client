@@ -774,6 +774,25 @@ var Tools = {
 		return type;
 	},
 
+	getNature: function(nature) {
+		if (!nature || typeof nature === 'string') {
+			var name = $.trim(nature||'');
+			var id = toId(name);
+			id = id.substr(0, 1).toUpperCase() + id.substr(1);
+			if (window.BattleNatures) nature = window.BattleNatures[id];
+			if (typeof nature === 'object') {
+				nature.exists = true;
+			} else {
+				nature = {};
+			}
+			if (!nature.id) nature.id = id;
+			if (!nature.name) nature.name = Tools.escapeHTML(name);
+			if (!nature.category) nature.category = 'Effect';
+			if (!nature.effectType) nature.effectType = 'Nature';
+		}
+		return nature;
+	},
+
 	getSpriteData: function(pokemon, siden, options) {
 		pokemon = Tools.getTemplate(pokemon);
 		var spriteData = {
