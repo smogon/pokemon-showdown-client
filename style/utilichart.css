@@ -250,3 +250,75 @@
 {
 	width: 464px;
 }
+.utilichart .colorcol
+{
+	padding-top: 0;
+	width: 72px;
+	text-align: center;
+	font-size: 8pt;
+	margin-left: -4px;
+}
+.utilichart .heightmcol
+{
+	padding-top: 0;
+	width: 72px;
+	text-align: center;
+	font-size: 8pt;
+}
+.utilichart .weightKgcol
+{
+	padding-top: 0;
+	width: 100px;
+	text-align: center;
+	font-size: 8pt;
+	margin-left: -8px;
+}
+.utilichart .weighthitcol
+{
+	width: 64px;
+}
+.utilichart .tiercol
+{
+	padding-top: 0;
+	height: 20px;
+	width: 40px;
+	margin-left: 4px;
+}
+.utilichart .evolevelcol
+{
+	padding-top: 0;
+	height: 20px;
+	width: 144px;
+}
+.utilichart .eggGroupcol
+{
+	padding-top: 0;
+	height: 20px;
+	width: 240px;
+	font-size: 8pt;
+	margin-top: 2px;
+}
+.utilichart .colorcol em
+{
+	color: #999999;
+	font-size: 8pt;
+	font-style: normal;
+}
+.utilichart .heightmcol em
+{
+	color: #999999;
+	font-size: 8pt;
+	font-style: normal;
+}
+.utilichart .weightKgcol em
+{
+	color: #999999;
+	font-size: 8pt;
+	font-style: normal;
+}
+.utilichart .eggGroupcol em
+{
+	color: #999999;
+	font-size: 8pt;
+	font-style: normal;
+}
