@@ -157,6 +157,78 @@ function BattleChart()
 
 		return text;
 	};
+	this.detailsRow = function(pokemon, attrs, match, isFirst) {
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
+
+		text += '<span class="col numcol">'+(pokemon.num)+'</span> ';
+
+		var name = Tools.escapeHTML(pokemon.name);
+
+		if (pokemon.forme && pokemon.baseSpecies) name = pokemon.baseSpecies;
+		if (match.name)
+		{
+			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
+		}
+		if (pokemon.forme && pokemon.baseSpecies)
+		{
+			if (match.name && match.name.end > pokemon.baseSpecies.length)
+			{
+				if (match.name.start < pokemon.baseSpecies.length+1) match.name.start = pokemon.baseSpecies.length+1;
+				name += '<small>-'+pokemon.forme.substr(0, match.name.start-(pokemon.baseSpecies.length+1))+'<b>'+pokemon.name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+pokemon.name.substr(match.name.end)+'</small>';
+			}
+			else
+			{
+				name += '<small>-'+pokemon.forme+'</small>';
+			}
+		}
+
+		/* if (match.name)
+		{
+			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
+		} */
+		text += '<span class="col iconcol">';
+		text += '<span style="'+Tools.getIcon(pokemon)+'"></span>';
+		text += '</span> ';
+		text += '<span class="col pokemonnamecol" style="white-space:nowrap">'+name+'</span> ';
+
+		if (self.illegalBuckets[match.bucket])
+		{
+			text += '<span class="col illegalcol"><em>'+self.illegalBuckets[match.bucket]+'</em></span> ';
+			text += '</a></li>';
+			return text;
+		}
+		text += '<span class="col colorcol"><em>Dex color</em><br />'+(pokemon.color)+'</span> ';
+		text += '<span class="col heightmcol"><em>Height</em><br />'+(pokemon.heightm)+'m</span> ';
+		if (pokemon.weightkg >= 200) {
+			var weighthit = 120;
+		} else if (pokemon.weightkg >= 100) {
+			var weighthit = 100;
+		} else if (pokemon.weightkg >= 50) {
+			var weighthit = 80;
+		} else if (pokemon.weightkg >= 25) {
+			var weighthit = 60;
+		} else if (pokemon.weightkg >= 10) {
+			var weighthit = 40;
+		} else {
+			var weighthit = 20;
+		}
+		text += '<span class="col weightKgcol"><em>Weight</em><br />'+(pokemon.weightkg)+'Kg <i>('+ weighthit +' BP)</i></span> ';
+		text += '<span style="float:left;min-height:26px">';
+
+		text += '<span class="col tiercol">'+(pokemon.tier)+'</span> ';
+		if (!pokemon.evos) {
+			text += '<span class="col evolevelcol">Does Not Evolve</span> ';
+		} else {
+			var evolve = Tools.getTemplate(pokemon.evos[0]);
+			text += '<span class="col evolevelcol">Evolves at level: '+(evolve.evoLevel)+'</span> ';
+		}
+		
+		text += '<span class="col eggGroupcol"><em>Egg Group(s):</em> '+(pokemon.eggGroups.slice(0, pokemon.eggGroups.length).join(", "))+'</span> ';
+
+		text += '</a></li>';
+
+		return text;
+	};
 	this.itemRow = function(item, attrs, match, isFirst) {
 		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(item.name)+'">';
 
