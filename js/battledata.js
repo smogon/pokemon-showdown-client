@@ -712,6 +712,7 @@ var Tools = {
 			if (window.BattleFormatsData && window.BattleFormatsData[id]) {
 				template.tier = window.BattleFormatsData[id].tier;
 				template.isNonstandard = window.BattleFormatsData[id].isNonstandard;
+				template.unreleasedHidden = window.BattleFormatsData[id].unreleasedHidden;
 			}
 			if (window.BattleLearnsets && window.BattleLearnsets[id]) {
 				template.learnset = window.BattleLearnsets[id].learnset;

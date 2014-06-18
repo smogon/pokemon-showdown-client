@@ -70,7 +70,10 @@ function BattleChart()
 	this.pokemonRow = function(pokemon, attrs, match, isFirst) {
 		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
 
-		text += '<span class="col numcol">'+(pokemon.num)+'</span> ';
+		var tier = pokemon.tier;
+		if (!tier) tier = Tools.getTemplate(pokemon.baseSpecies).tier || 'Illegal';
+
+		text += '<span class="col numcol">'+tier+'</span> ';
 
 		var name = Tools.escapeHTML(pokemon.name);
 
@@ -134,7 +137,9 @@ function BattleChart()
 			{
 				ability = ability.substr(0, match.ability[i].start)+'<b>'+ability.substr(match.ability[i].start, match.ability[i].end-match.ability[i].start)+'</b>'+ability.substr(match.ability[i].end);
 			}
-			if (i == 'H') ability = '</span><span class="col abilitycol"><em>'+ability+'</em>';
+			if (i == 'H') {
+				ability = '</span><span class="col abilitycol"><em>' + (pokemon.unreleasedHidden ? '<s>'+ability+'</s>' : ability) + '</em>';
+			}
 			text += ability;
 		}
 		if (!pokemon.abilities['H']) text += '</span><span class="col abilitycol">';
