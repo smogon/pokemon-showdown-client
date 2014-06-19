@@ -1,13 +1,22 @@
 Pokémon Showdown Client
 ========================================================================
 
-This is a repository for some of the client code for Pokémon Showdown.
+Navigation: [Website][1] | [Server repository][2] | **Client repository**
+
+  [1]: http://pokemonshowdown.com/
+  [2]: https://github.com/Zarel/Pokemon-Showdown
+  
+Introduction
+------------------------------------------------------------------------
+
+This is a repository for most of the client code for Pokémon Showdown.
 
 This is what runs `play.pokemonshowdown.com`.
 
-WARNING: You probably want the [Pokémon Showdown server][1].
+**WARNING: You probably want the [Pokémon Showdown server][3]**, if you're
+setting up a server.
 
-  [1]: https://github.com/Zarel/Pokemon-Showdown
+  [3]: https://github.com/Zarel/Pokemon-Showdown
 
 Testing
 ------------------------------------------------------------------------
@@ -50,8 +59,8 @@ wish to contribute and submit pull requests to Pokémon Showdown's client.
 License
 ------------------------------------------------------------------------
 
-Pokémon Showdown's client is distributed under the terms of the [AGPLv3][2].
+Pokémon Showdown's client is distributed under the terms of the [AGPLv3][4].
 
-  [2]: http://www.gnu.org/licenses/agpl-3.0.html
+  [4]: http://www.gnu.org/licenses/agpl-3.0.html
 
 WARNING: This is NOT the same license as Pokémon Showdown's server.
