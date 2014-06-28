@@ -432,7 +432,7 @@
 								break;
 
 							case 'NotEnoughUsers':
-								appendError("There isn't enough users.");
+								appendError("There aren't enough users.");
 								break;
 
 							case 'InvalidMatch':
