@@ -3809,8 +3809,8 @@ function Battle(frame, logFrame, noPreload) {
 			case '-formechange':
 				var poke = this.getPokemon(args[1]);
 				var template = Tools.getTemplate(args[2]);
-				if (poke.sprite.sp.shiny) template.shiny = true;
-				poke.sprite.animTransform(template);
+				var spriteData = {'shiny': poke.sprite.sp.shiny};
+				poke.sprite.animTransform($.extend(spriteData, template));
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
 				poke.volatiles.formechange[2] = template.species;
 				poke.side.updateStatbar();
@@ -5053,8 +5053,8 @@ function Battle(frame, logFrame, noPreload) {
 				newSpecies = args[2].substr(0, commaIndex);
 			}
 			var template = Tools.getTemplate(newSpecies);
-			if (poke.sprite.sp.shiny) template.shiny = true;
-			poke.sprite.animTransform(template);
+			var spriteData = {'shiny': poke.sprite.sp.shiny};
+			poke.sprite.animTransform($.extend(spriteData, template));
 			poke.sprite.oldsp = null;
 			poke.spriteid = template.spriteid;
 			poke.side.updateStatbar();
