@@ -2049,7 +2049,7 @@
 					text += 'Happiness: '+curSet.happiness+"\n";
 				}
 				var first = true;
-				for (var j in curSet.evs) {
+				for (var j in BattleStatNames) {
 					if (!curSet.evs[j]) continue;
 					if (first) {
 						text += 'EVs: ';
@@ -2057,7 +2057,7 @@
 					} else {
 						text += ' / ';
 					}
-					text += ''+curSet.evs[j]+' '+BattlePOStatNames[j];
+					text += ''+curSet.evs[j]+' '+BattleStatNames[j];
 				}
 				if (!first) {
 					text += "\n";
@@ -2094,7 +2094,7 @@
 						}
 					}
 					if (!defaultIvs) {
-						for (var stat in curSet.ivs) {
+						for (var stat in BattleStatNames) {
 							if (typeof curSet.ivs[stat] === 'undefined' || curSet.ivs[stat] == 31) continue;
 							if (first) {
 								text += 'IVs: ';
@@ -2102,7 +2102,7 @@
 							} else {
 								text += ' / ';
 							}
-							text += ''+curSet.ivs[stat]+' '+BattlePOStatNames[stat];
+							text += ''+curSet.ivs[stat]+' '+BattleStatNames[stat];
 						}
 					}
 				}
