@@ -998,7 +998,7 @@
 		 *********************************************************/
 
 		initializeRooms: function() {
-			this.rooms = {};
+			this.rooms = Object.create(null); // {}
 
 			$(window).on('resize', _.bind(this.resize, this));
 		},
