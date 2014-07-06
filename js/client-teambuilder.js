@@ -2049,7 +2049,7 @@
 					text += 'Happiness: '+curSet.happiness+"\n";
 				}
 				var first = true;
-				for (var j in BattleStatNames) {
+				for (var j in curSet.evs) {
 					if (!curSet.evs[j]) continue;
 					if (first) {
 						text += 'EVs: ';
@@ -2077,7 +2077,7 @@
 								alert("That is not a valid Hidden Power type.");
 								continue;
 							}
-							for (var stat in BattleStatNames) {
+							for (var stat in curSet.ivs) {
 								if ((curSet.ivs[stat]===undefined?31:curSet.ivs[stat]) !== (exports.BattleTypeChart[hpType].HPivs[stat]||31)) {
 									defaultIvs = false;
 									break;
