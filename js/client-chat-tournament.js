@@ -223,13 +223,17 @@
 			if (isBroadcast) {
 				switch (cmd) {
 					case 'info':
-						var $infoList = $('<ul></ul>');
-						JSON.parse(data.join('|')).forEach(function (tournament) {
-							var $info = $('<li></li>');
-							$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
-							$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
-							$infoList.append($info);
-						});
+						var tournaments = JSON.parse(data.join('|'));
+						var $infoList = "No tournaments are currently running.";
+						if (tournaments.length > 0) {
+							$infoList = $('<ul></ul>');
+							tournaments.forEach(function (tournament) {
+								var $info = $('<li></li>');
+								$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
+								$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
+								$infoList.append($info);
+							});
+						}
 						this.room.$chat.append($('<div class="notice">').append($('<div class="infobox tournaments-info"></div></div>').append($infoList)));
 						break;
 
