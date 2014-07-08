@@ -138,6 +138,10 @@
 			this.updates = {};
 			this.savedBracketPosition = {};
 
+			this.$lastJoinLeaveMessage = null;
+			this.batchedJoins = [];
+			this.batchedLeaves = [];
+
 			this.bracketPopup = null;
 			this.savedPopoutBracketPosition = {};
 
@@ -219,13 +223,17 @@
 			if (isBroadcast) {
 				switch (cmd) {
 					case 'info':
-						var $infoList = $('<ul></ul>');
-						JSON.parse(data.join('|')).forEach(function (tournament) {
-							var $info = $('<li></li>');
-							$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
-							$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
-							$infoList.append($info);
-						});
+						var tournaments = JSON.parse(data.join('|'));
+						var $infoList = "No tournaments are currently running.";
+						if (tournaments.length > 0) {
+							$infoList = $('<ul></ul>');
+							tournaments.forEach(function (tournament) {
+								var $info = $('<li></li>');
+								$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
+								$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
+								$infoList.append($info);
+							});
+						}
 						this.room.$chat.append($('<div class="notice">').append($('<div class="infobox tournaments-info"></div></div>').append($infoList)));
 						break;
 
@@ -242,11 +250,27 @@
 						break;
 
 					case 'join':
-						this.room.$chat.append("<div class=\"notice tournament-message-join\">" + Tools.escapeHTML(data[0]) + " has joined the tournament</div>");
-						break;
-
 					case 'leave':
-						this.room.$chat.append("<div class=\"notice tournament-message-leave\">" + Tools.escapeHTML(data[0]) + " has left the tournament</div>");
+						if (this.$lastJoinLeaveMessage && !this.$lastJoinLeaveMessage.is(this.room.$chat.children().last())) {
+							this.$lastJoinLeaveMessage = null;
+							this.batchedJoins = [];
+							this.batchedLeaves = [];
+						}
+						if (!this.$lastJoinLeaveMessage) {
+							this.$lastJoinLeaveMessage = $('<div class="notice tournament-message-joinleave"></div>');
+							this.room.$chat.append(this.$lastJoinLeaveMessage);
+						}
+
+						(cmd === 'join' ? this.batchedJoins : this.batchedLeaves).push(data[0]);
+
+						var message = [];
+						var joins = this.batchedJoins.slice(0, 5);
+						var leaves = this.batchedLeaves.slice(0, 5);
+						if (this.batchedJoins.length > 5) joins.push((this.batchedJoins.length - 5) + " others");
+						if (this.batchedLeaves.length > 5) leaves.push((this.batchedLeaves.length - 5) + " others");
+						if (joins.length > 0) message.push(arrayToPhrase(joins) + " joined the tournament");
+						if (leaves.length > 0) message.push(arrayToPhrase(leaves) + " left the tournament");
+						this.$lastJoinLeaveMessage.text(message.join("; ") + ".");
 						break;
 
 					case 'start':
@@ -379,7 +403,9 @@
 							}
 						}
 
-						this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the tournament!</div>");
+						var format = Tools.getEffect(endData.format).name;
+						var type = endData.generator;
+						this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament!</div>");
 						if (endData.results[1])
 							this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
 
@@ -566,7 +592,14 @@
 							else if (node.state === 'challenging')
 								score.text("Challenging");
 							else if (node.state === 'inprogress')
-								score.append('svg:a').attr('xlink:href', app.root + toRoomid(node.room).toLowerCase()).classed('ilink', true).text("In-progress");
+								score.append('svg:a').attr('xlink:href', app.root + toRoomid(node.room).toLowerCase()).classed('ilink', true).text("In-progress").on('click', function () {
+									var e = d3.event;
+									if (e.cmdKey || e.metaKey || e.ctrlKey) return;
+									e.preventDefault();
+									e.stopPropagation();
+									var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
+									app.tryJoinRoom(roomid);
+								});
 							else if (node.state === 'finished') {
 								if (node.result === 'win') {
 									teamA.classed('tournament-bracket-tree-node-match-team-win', true);
@@ -626,7 +659,13 @@
 						else if (cell.state === 'challenging')
 							$cell.text("Challenging");
 						else if (cell.state === "inprogress")
-							$cell.html('<a href="' + app.root + toRoomid(cell.room).toLowerCase() + '" class="ilink">In-progress</a>');
+							$cell.html('<a href="' + app.root + toRoomid(cell.room).toLowerCase() + '" class="ilink">In-progress</a>').children().on('click', function (e) {
+								if (e.cmdKey || e.metaKey || e.ctrlKey) return;
+								e.preventDefault();
+								e.stopPropagation();
+								var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
+								app.tryJoinRoom(roomid);
+							});
 						else if (cell.state === 'finished') {
 							$cell.addClass('tournament-bracket-table-cell-result-' + cell.result);
 							$cell.text(cell.score.join(" - "));
