@@ -138,6 +138,10 @@
 			this.updates = {};
 			this.savedBracketPosition = {};
 
+			this.$lastJoinLeaveMessage = null;
+			this.batchedJoins = [];
+			this.batchedLeaves = [];
+
 			this.bracketPopup = null;
 			this.savedPopoutBracketPosition = {};
 
@@ -242,11 +246,27 @@
 						break;
 
 					case 'join':
-						this.room.$chat.append("<div class=\"notice tournament-message-join\">" + Tools.escapeHTML(data[0]) + " has joined the tournament</div>");
-						break;
-
 					case 'leave':
-						this.room.$chat.append("<div class=\"notice tournament-message-leave\">" + Tools.escapeHTML(data[0]) + " has left the tournament</div>");
+						if (this.$lastJoinLeaveMessage && !this.$lastJoinLeaveMessage.is(this.room.$chat.children().last())) {
+							this.$lastJoinLeaveMessage = null;
+							this.batchedJoins = [];
+							this.batchedLeaves = [];
+						}
+						if (!this.$lastJoinLeaveMessage) {
+							this.$lastJoinLeaveMessage = $('<div class="notice tournament-message-joinleave"></div>');
+							this.room.$chat.append(this.$lastJoinLeaveMessage);
+						}
+
+						(cmd === 'join' ? this.batchedJoins : this.batchedLeaves).push(data[0]);
+
+						var message = [];
+						var joins = this.batchedJoins.slice(0, 5);
+						var leaves = this.batchedLeaves.slice(0, 5);
+						if (this.batchedJoins.length > 5) joins.push((this.batchedJoins.length - 5) + " others");
+						if (this.batchedLeaves.length > 5) leaves.push((this.batchedLeaves.length - 5) + " others");
+						if (joins.length > 0) message.push(arrayToPhrase(joins) + " joined the tournament");
+						if (leaves.length > 0) message.push(arrayToPhrase(leaves) + " left the tournament");
+						this.$lastJoinLeaveMessage.text(message.join("; ") + ".");
 						break;
 
 					case 'start':
