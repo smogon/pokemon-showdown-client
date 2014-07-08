@@ -2049,15 +2049,17 @@
 					text += 'Happiness: '+curSet.happiness+"\n";
 				}
 				var first = true;
-				for (var j in curSet.evs) {
-					if (!curSet.evs[j]) continue;
-					if (first) {
-						text += 'EVs: ';
-						first = false;
-					} else {
-						text += ' / ';
+				if (curSet.evs) {
+					for (var j in BattleStatNames) {
+						if (!curSet.evs[j]) continue;
+						if (first) {
+							text += 'EVs: ';
+							first = false;
+						} else {
+							text += ' / ';
+						}
+						text += ''+curSet.evs[j]+' '+BattleStatNames[j];
 					}
-					text += ''+curSet.evs[j]+' '+BattleStatNames[j];
 				}
 				if (!first) {
 					text += "\n";
@@ -2077,7 +2079,7 @@
 								alert("That is not a valid Hidden Power type.");
 								continue;
 							}
-							for (var stat in curSet.ivs) {
+							for (var stat in BattleStatNames) {
 								if ((curSet.ivs[stat]===undefined?31:curSet.ivs[stat]) !== (exports.BattleTypeChart[hpType].HPivs[stat]||31)) {
 									defaultIvs = false;
 									break;
