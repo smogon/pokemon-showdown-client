@@ -588,7 +588,14 @@
 							else if (node.state === 'challenging')
 								score.text("Challenging");
 							else if (node.state === 'inprogress')
-								score.append('svg:a').attr('xlink:href', app.root + toRoomid(node.room).toLowerCase()).classed('ilink', true).text("In-progress");
+								score.append('svg:a').attr('xlink:href', app.root + toRoomid(node.room).toLowerCase()).classed('ilink', true).text("In-progress").on('click', function () {
+									var e = d3.event;
+									if (e.cmdKey || e.metaKey || e.ctrlKey) return;
+									e.preventDefault();
+									e.stopPropagation();
+									var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
+									app.tryJoinRoom(roomid);
+								});
 							else if (node.state === 'finished') {
 								if (node.result === 'win') {
 									teamA.classed('tournament-bracket-tree-node-match-team-win', true);
@@ -648,7 +655,13 @@
 						else if (cell.state === 'challenging')
 							$cell.text("Challenging");
 						else if (cell.state === "inprogress")
-							$cell.html('<a href="' + app.root + toRoomid(cell.room).toLowerCase() + '" class="ilink">In-progress</a>');
+							$cell.html('<a href="' + app.root + toRoomid(cell.room).toLowerCase() + '" class="ilink">In-progress</a>').children().on('click', function (e) {
+								if (e.cmdKey || e.metaKey || e.ctrlKey) return;
+								e.preventDefault();
+								e.stopPropagation();
+								var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
+								app.tryJoinRoom(roomid);
+							});
 						else if (cell.state === 'finished') {
 							$cell.addClass('tournament-bracket-table-cell-result-' + cell.result);
 							$cell.text(cell.score.join(" - "));
