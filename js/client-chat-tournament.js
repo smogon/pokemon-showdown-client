@@ -399,7 +399,9 @@
 							}
 						}
 
-						this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the tournament!</div>");
+						var format = Tools.getEffect(endData.format).name;
+						var type = endData.generator;
+						this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament!</div>");
 						if (endData.results[1])
 							this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
 
