@@ -854,9 +854,9 @@
 
 				case 'tournament':
 				case 'tournaments':
+					if (Tools.prefs('notournaments')) break;
 					if (!this.tournamentBox) this.tournamentBox = new TournamentBox(this, this.$tournamentWrapper);
-					if (!this.tournamentBox.parseMessage(row.slice(1), row[0] === 'tournaments'))
-						break;
+					if (!this.tournamentBox.parseMessage(row.slice(1), row[0] === 'tournaments')) break;
 					// fallthrough in case of unparsed message
 
 				case '':
