@@ -500,54 +500,14 @@
 				return false;
 
 			case 'highlight':
-				var highlights = Tools.prefs('highlights') || [];
-				if (target.indexOf(',') > -1) {
-					var targets = target.split(',');
-					// trim the targets to be safe
-					for (var i=0, len=targets.length; i<len; i++) {
-						targets[i] = targets[i].trim();
-					}
-					switch (targets[0]) {
-					case 'add':
-						for (var i=1, len=targets.length; i<len; i++) {
-							highlights.push(targets[i].trim());
-						}
-						this.add("Now highlighting on: " + highlights.join(', '));
-						// We update the regex
-						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
-						break;
-					case 'delete':
-						var newHls = [];
-						for (var i=0, len=highlights.length; i<len; i++) {
-							if (targets.indexOf(highlights[i]) === -1) {
-								newHls.push(highlights[i]);
-							}
-						}
-						highlights = newHls;
-						this.add("Now highlighting on: " + highlights.join(', '));
-						// We update the regex
-						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
-						break;
-					}
-					Tools.prefs('highlights', highlights);
-				} else {
-					if (target === 'delete') {
-						Tools.prefs('highlights', false);
-						this.add("All highlights cleared");
-					} else if (target === 'show' || target === 'list') {
-						// Shows a list of the current highlighting words
-						if (highlights.length > 0) {
-							var hls = highlights.join(', ');
-							this.add('Current highlight list: ' + hls);
-						} else {
-							this.add('Your highlight list is empty.');
-						}
-					} else {
-						// Wrong command
-						this.add('Error: Invalid /highlight command.');
-						return '/help highlight';	// show help
-					}
-				}
+				if (!toId(target)) return '/help highlight';
+				this.updatePrefs(target, 'highlight');
+				return false;
+
+			case 'autojoin':
+				if (!target) return '/autojoin'; // joins rooms configured to be autojoined on the server
+				if (!toId(target)) return '/help autojoin';
+				this.updatePrefs(target, 'autojoin');
 				return false;
 
 			case 'rank':
@@ -872,6 +832,74 @@
 		tournamentButton: function(val, button) {
 			if (this.tournamentBox) this.tournamentBox[$(button).data('type')](val, button);
 		},
+		updatePrefs: function(tarList, cmd) {
+			if (cmd !== 'highlight' && cmd !== 'autojoin') return;
+			tarList = tarList.split(',');
+			var tarLen = tarList.length;
+			var opt = tarList[0];
+			var pref = cmd + 's';
+			var curList = Tools.prefs(pref) || [];
+			if (tarList.length > 1) {
+				if (cmd === 'highlight') {
+					for (var i = 0; i < tarLen; i++) {
+						tarList[i] = tarList[i].trim();
+					}
+				} else {
+					for (var i = 0; i < tarLen; i++) {
+						tarList[i] = toId(tarList[i]);
+					}
+				}
+				switch (opt) {
+				case 'add':
+					if (cmd === 'highlight') {
+						for (var i = 1; i < tarLen; i++) {
+							if (curList.indexOf(tarList[i]) === -1) curList.push(tarList[i]);
+						}
+					} else {
+						for (var i = 1; i < tarLen; i++) {
+							// the global room's id is ''
+							if (!app.rooms[tarList[i]] || 
+							    tarList[i] === 'lobby' || tarList[i] === 'staff' || tarList[i] === 'rooms' || tarList[i] === '') continue;
+							if (curList.indexOf(tarList[i]) === -1) curList.push(tarList[i]);
+						}
+					}
+					break;
+				case 'delete':
+					var newList = []
+					for (var i = 0, curLen = curList.length; i < curLen; i++) {
+						if (tarList.indexOf(curList[i]) === -1) newList.push(curList[i]);
+					}
+					curList = newList;
+					break;
+				default:
+					this.add('Error: Invalid /' + cmd + ' command.');
+					this.send('/help ' + cmd);
+					return;
+				}
+				if (cmd === 'highlight') {
+					this.add('Now highlighting on: ' + curList.join(', '));
+					app.highlightRegExp = new RegExp('\\b(' + curList.join('|') + ')\\b', 'i');
+				} else {
+					this.add('Now autojoining rooms: ' + curList.join(', '));
+				}
+				Tools.prefs(pref, curList);
+				return;
+			}
+			if (opt === 'delete') {
+				Tools.prefs(pref, false);
+				this.add('All ' + cmd + 's cleared.');
+			} else if (opt === 'list') {
+				if (curList.length) {
+					this.add('Current ' + cmd + ' list: ' + curList.join(', '));
+				} else {
+					this.add('Your ' + cmd + ' list is empty.');
+				}
+			} else {
+				this.add('Error: Invalid /' + cmd + ' command.');
+				this.send('/help ' + cmd);
+			}
+		},
+
 		parseUserList: function(userList) {
 			this.userCount = {};
 			this.users = {};
