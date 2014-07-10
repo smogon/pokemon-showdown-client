@@ -5154,7 +5154,7 @@ function Battle(frame, logFrame, noPreload) {
 		case 'debug':
 			args.shift();
 			name = args.join(' ');
-			self.log('<div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div>', preempt);
+			self.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div></div>', preempt);
 			break;
 		case 'unlink':
 			break;
