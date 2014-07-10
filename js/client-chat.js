@@ -449,6 +449,29 @@
 				}
 				return false;
 
+			case 'showdebug':
+				this.add('Debug battle messages: ON');
+				Tools.prefs('showdebug', true);
+				var debugStyle = $('#debugstyle').get(0);
+				var onCSS = '.debug {display: block;}';
+				if (!debugStyle) {
+					$('head').append('<style id="debugstyle">'+onCSS+'</style>');
+				} else {
+					debugStyle.innerHTML = onCSS;
+				}
+				return false;
+			case 'hidedebug':
+				this.add('Debug battle messages: HIDDEN');
+				Tools.prefs('showdebug', false);
+				var debugStyle = $('#debugstyle').get(0);
+				var offCSS = '.debug {display: none;}';
+				if (!debugStyle) {
+					$('head').append('<style id="debugstyle">'+offCSS+'</style>');
+				} else {
+					debugStyle.innerHTML = offCSS;
+				}
+				return false;
+
 			case 'showjoins':
 				this.add('Join/leave messages: ON');
 				Tools.prefs('showjoins', true);

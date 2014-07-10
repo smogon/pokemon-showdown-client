@@ -267,6 +267,15 @@
 				if (musicVolume !== undefined) BattleSound.setBgmVolume(musicVolume);
 
 				if (Tools.prefs('logchat')) Storage.startLoggingChat();
+				if (Tools.prefs('showdebug')) {
+					var debugStyle = $('#debugstyle').get(0);
+					var onCSS = '.debug {display: block;}';
+					if (!debugStyle) {
+						$('head').append('<style id="debugstyle">'+onCSS+'</style>');
+					} else {
+						debugStyle.innerHTML = onCSS;
+					}
+				}
 			});
 
 			this.on('init:unsupported', function() {
