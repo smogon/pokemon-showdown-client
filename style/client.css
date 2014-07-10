@@ -930,6 +930,9 @@ p.or:after {
 .chat.timer {
 	color: #992222;
 }
+.debug {
+	display: none;
+}
 .highlighted {
 	background-color: #FFDDAA;
 }
