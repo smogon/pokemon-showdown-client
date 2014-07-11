@@ -1558,7 +1558,7 @@ exports.BattleMovedex = {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
-		desc: "No in-game effect.",
+		desc: "The Pokémon congratulates you on your special day!",
 		shortDesc: "No in-game effect.",
 		id: "celebrate",
 		name: "Celebrate",
@@ -1887,26 +1887,16 @@ exports.BattleMovedex = {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
-		desc: "The user's type changes to match the original type of one of its four moves besides this move, at random, but not either of its current types. Fails if the user cannot change its type, or if this move would only be able to select one of the user's current types.",
-		shortDesc: "Changes user's type to match a known move.",
+		desc: "The user's type changes to match the original type of the move in its first move slot. Fails if the user cannot change its type, or if this move is one of the user's current types.",
+		shortDesc: "Changes user's type to match its first move.",
 		id: "conversion",
 		name: "Conversion",
 		pp: 30,
 		priority: 0,
 		isSnatchable: true,
 		onHit: function (target) {
-			var possibleTypes = target.moveset.map(function (val){
-				var move = this.getMove(val.id);
-				if (move.id !== 'conversion' && !target.hasType(move.type)) {
-					return move.type;
-				}
-			}, this).compact();
-			if (!possibleTypes.length) {
-				return false;
-			}
-			var type = possibleTypes[this.random(possibleTypes.length)];
-
-			if (!target.setType(type)) return false;
+			var type = this.getMove(target.moveset[0].id).type;
+			if (target.hasType(type) || !target.setType(type)) return false;
 			this.add('-start', target, 'typechange', type);
 		},
 		secondary: false,
@@ -2525,7 +2515,6 @@ exports.BattleMovedex = {
 		name: "Diamond Storm",
 		pp: 5,
 		priority: 0,
-		isUnreleased: true,
 		secondary: {
 			chance: 50,
 			self: {
@@ -5991,9 +5980,6 @@ exports.BattleMovedex = {
 		priority: 5,
 		isNotProtectable: true,
 		volatileStatus: 'helpinghand',
-		onTryHit: function (target, source) {
-			if (target === source) return false;
-		},
 		effect: {
 			duration: 1,
 			onStart: function (target, source) {
@@ -6319,6 +6305,24 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Normal"
 	},
+	"holdhands": {
+		num: 615,
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		desc: "Ally Pokémon hold hands. This makes them very happy.",
+		shortDesc: "No in-game effect.",
+		id: "holdhands",
+		name: "Hold Hands",
+		pp: 40,
+		priority: 0,
+		onTryHit: function (target, source) {
+			return null;
+		},
+		secondary: false,
+		target: "adjacentAlly",
+		type: "Normal"
+	},
 	"honeclaws": {
 		num: 468,
 		accuracy: true,
@@ -6519,6 +6523,7 @@ exports.BattleMovedex = {
 		priority: 0,
 		isUnreleased: true,
 		breaksProtect: true,
+		notSubBlocked: true,
 		secondary: false,
 		target: "normal",
 		type: "Psychic"
@@ -8221,7 +8226,7 @@ exports.BattleMovedex = {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
-		desc: "A random move is selected for use, other than After You, Assist, Bestow, Chatter, Copycat, Counter, Covet, Destiny Bond, Detect, Endure, Feint, Focus Punch, Follow Me, Freeze Shock, Helping Hand, Ice Burn, Me First, Metronome, Mimic, Mirror Coat, Mirror Move, Nature Power, Protect, Quash, Quick Guard, Rage Powder, Relic Song, Secret Sword, Sketch, Sleep Talk, Snarl, Snatch, Snore, Struggle, Switcheroo, Techno Blast, Thief, Transform, Trick, V-create, or Wide Guard.",
+		desc: "A random move is selected for use, other than After You, Assist, Belch, Bestow, Celebrate, Chatter, Copycat, Counter, Covet, Crafty Shield, Destiny Bond, Detect, Diamond Storm, Endure, Feint, Focus Punch, Follow Me, Freeze Shock, Happy Hour, Helping Hand, Hold Hands, Hyperspace Hole, Ice Burn, King's Shield, Light of Ruin, Mat Block, Me First, Metronome, Mimic, Mirror Coat, Mirror Move, Nature Power, Protect, Quash, Quick Guard, Rage Powder, Relic Song, Secret Sword, Sketch, Sleep Talk, Snarl, Snatch, Snore, Spiky Shield, Steam Eruption, Struggle, Switcheroo, Techno Blast, Thief, Thousand Arrows, Thousand Waves, Transform, Trick, V-create, or Wide Guard.",
 		shortDesc: "Picks a random move.",
 		id: "metronome",
 		name: "Metronome",
@@ -8234,7 +8239,7 @@ exports.BattleMovedex = {
 				if (i !== move.id) continue;
 				if (move.isNonstandard) continue;
 				var noMetronome = {
-					afteryou:1, assist:1, bestow:1, chatter:1, copycat:1, counter:1, covet:1, destinybond:1, detect:1, endure:1, feint:1, focuspunch:1, followme:1, freezeshock:1, helpinghand:1, iceburn:1, mefirst:1, metronome:1, mimic:1, mirrorcoat:1, mirrormove:1, naturepower:1, protect:1, quash:1, quickguard:1, ragepowder:1, relicsong:1, secretsword:1, sketch:1, sleeptalk:1, snatch:1, snarl:1, snore:1, struggle:1, switcheroo:1, technoblast:1, thief:1, transform:1, trick:1, vcreate:1, wideguard:1, diamondstorm:1, steameruption:1, hyperspacehole:1, thousandarrows:1, thousandwaves:1
+					afteryou:1, assist:1, belch:1, bestow:1, celebrate:1, chatter:1, copycat:1, counter:1, covet:1, craftyshield:1, destinybond:1, detect:1, diamondstorm:1, endure:1, feint:1, focuspunch:1, followme:1, freezeshock:1, happyhour:1, helpinghand:1, holdhands:1, hyperspacehole:1, iceburn:1, kingsshield:1, lightofruin:1, matblock:1, mefirst:1, metronome:1, mimic:1, mirrorcoat:1, mirrormove:1, naturepower:1, protect:1, quash:1, quickguard:1, ragepowder:1, relicsong:1, secretsword:1, sketch:1, sleeptalk:1, snarl:1, snatch:1, snore:1, spikyshield:1, steameruption:1, struggle:1, switcheroo:1, technoblast:1, thief:1, thousandarrows:1, thousandwaves:1, transform:1, trick:1, vcreate:1, wideguard:1
 				};
 				if (!noMetronome[move.id]) {
 					moves.push(move);
@@ -13135,7 +13140,7 @@ exports.BattleMovedex = {
 		isContact: true,
 		onTryHit: function (target) {
 			var decision = this.willMove(target);
-			if (!decision || decision.choice !== 'move' || (decision.move.category === 'Status' && decision.move.id !== 'mefirst')) {
+			if (!decision || decision.choice !== 'move' || (decision.move.category === 'Status' && decision.move.id !== 'mefirst') || target.volatiles.mustrecharge) {
 				return false;
 			}
 		},
