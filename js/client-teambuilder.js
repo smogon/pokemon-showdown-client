@@ -1222,7 +1222,7 @@
 				if (ability.name === template.abilities['0']) return 'Abilities';
 				if (ability.name === template.abilities['1']) return 'Abilities';
 				if (ability.name === template.abilities['H']) return 'Hidden Ability';
-				if (!this.curTeam || this.curTeam.format !== 'balancedhackmons') return 'Illegal';
+				if (!this.curTeam || this.curTeam.format !== 'hackmons') return 'Illegal';
 			},
 			move: function(move) {
 				if (!this.curSet) return;
@@ -1234,7 +1234,7 @@
 						if (move.isViable) return 'Usable Sketch Moves';
 						else if (move.id !== 'chatter' && move.id !== 'struggle') return 'Sketch Moves';
 					}
-					if (!this.curTeam || this.curTeam.format !== 'balancedhackmons') return 'Illegal';
+					if (!this.curTeam || this.curTeam.format !== 'hackmons') return 'Illegal';
 				}
 				var speciesid = toId(this.curSet.species);
 				if (move.isViable) return 'Usable Moves';
