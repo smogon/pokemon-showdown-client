@@ -638,6 +638,7 @@
 						pokemon.side.active[i].item = pokemon.item || pokemonData.item;
 						pokemon.side.active[i].ability = pokemon.ability || pokemonData.ability;
 						pokemon.side.active[i].baseAbility = pokemon.baseAbility || pokemonData.baseAbility;
+						pokemon.side.active[i].stats = pokemon.stats || pokemonData.stats;
 					}
 				} else {
 					pokemon = this.battle.getPokemon('new: '+pokemonData.ident, pokemonData.details);
