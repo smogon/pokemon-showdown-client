@@ -322,10 +322,10 @@ var Tools = {
 		var options = Tools.prefs('chatformatting') || {};
 
 		// ``code``
-		str = str.replace(/\`\`([^< ]([^<`]*?[^< ])?)\`\`/g,
+		str = str.replace(/\`\`([^< ](?:[^<`]*?[^< ])?)\`\`/g,
 				options.hidemonospace ? '$1' : '<code>$1</code>');
 		// ~~strikethrough~~
-		str = str.replace(/\~\~([^< ]([^<]*?[^< ])?)\~\~/g,
+		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])?)\~\~/g,
 				options.hidestrikethrough ? '$1' : '<s>$1</s>');
 		// linking of URIs
 		if (!options.hidelinks) {
@@ -333,7 +333,7 @@ var Tools = {
 			if (linkclass) {
 				classbit = ' class="message-link-' + toId(linkclass) + '"';
 			}
-			str = str.replace(/(https?\:\/\/[a-z0-9-.]+(\:[0-9]+)?(\/([^\s]*[^\s?.,])?)?|[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}|([a-z0-9]([a-z0-9-\.]*[a-z0-9])?\.(com|org|net|edu|us)(\:[0-9]+)?|qmark\.tk|hisouten\.koumakan\.jp)((\/([^\s]*[^\s?.,])?)?|\b))/ig, function(uri) {
+			str = str.replace(/https?\:\/\/[a-z0-9-.]+(?:\:[0-9]+)?(?:\/(?:[^\s]*[^\s?.,])?)?|[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}|(?:[a-z0-9](?:[a-z0-9-\.]*[a-z0-9])?\.(?:com|org|net|edu|us)(?:\:[0-9]+)?|qmark\.tk|hisouten\.koumakan\.jp)(?:(?:\/(?:[^\s]*[^\s?.,])?)?)/ig, function(uri) {
 				if (/[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}/ig.test(uri)) {
 					return '<a href="mailto:'+uri+'" target="_blank"'+classbit+'>'+uri+'</u>';
 				}
@@ -366,39 +366,39 @@ var Tools = {
 			// google [blah]
 			// google[blah]
 			//   Google search for 'blah'
-			str = str.replace(/(\bgoogle ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
-				p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
-				return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p2 +
-					'" target="_blank"' + classbit + '>' + p1 + '</a>';
+			str = str.replace(/\bgoogle ?\[([^\]<]+)\]/ig, function(p0, p1) {
+				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
+				return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p1 +
+					'" target="_blank"' + classbit + '>' + p0 + '</a>';
 			});
 			// gl [blah]
 			// gl[blah]
 			//   Google search for 'blah' and visit the first result ("I'm feeling lucky")
-			str = str.replace(/(\bgl ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
-				p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
-				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + p2 +
-					'" target="_blank"' + classbit + '>' + p1 + '</a>';
+			str = str.replace(/\bgl ?\[([^\]<]+)\]/ig, function(p0, p1) {
+				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
+				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + p1 +
+					'" target="_blank"' + classbit + '>' + p0 + '</a>';
 			});
 			// wiki [blah]
 			//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
-			str = str.replace(/(\bwiki ?\[([^\]<]+)\])/ig, function(p0, p1, p2) {
-				p2 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p2)));
+			str = str.replace(/\bwiki ?\[([^\]<]+)\]/ig, function(p0, p1) {
+				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
-					p2 + '" target="_blank"' + classbit + '>' + p1 + '</a>';
+					p1 + '" target="_blank"' + classbit + '>' + p0 + '</a>';
 			});
 			// [[blah]]
 			//   Short form of gl[blah]
-			str = str.replace(/\[\[([^< ]([^<`]*?[^< ])?)\]\]/ig, function(p0, p1) {
+			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])?)\]\]/ig, function(p0, p1) {
 				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
 					'" target="_blank"' + classbit + '>' + p1 +'</a>';
 			});
 		}
 		// __italics__
-		str = str.replace(/\_\_([^< ]([^<]*?[^< ])?)\_\_(?![^<]*?<\/a)/g,
+		str = str.replace(/\_\_([^< ](?:[^<]*?[^< ])?)\_\_(?![^<]*?<\/a)/g,
 				options.hideitalics ? '$1' : '<i>$1</i>');
 		// **bold**
-		str = str.replace(/\*\*([^< ]([^<]*?[^< ])?)\*\*/g,
+		str = str.replace(/\*\*([^< ](?:[^<]*?[^< ])?)\*\*/g,
 			options.hidebold ? '$1' : '<b>$1</b>');
 
 		if (!options.hidespoiler) {
