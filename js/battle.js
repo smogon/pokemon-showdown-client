@@ -625,6 +625,7 @@ function Pokemon(species) {
 		if (!copyAll) {
 			selfP.removeVolatile('yawn');
 			selfP.removeVolatile('airballoon');
+			selfP.removeVolatile('typeadd');
 			selfP.removeVolatile('typechange');
 		}
 		selfP.removeVolatile('transform');
@@ -2276,6 +2277,7 @@ function Battle(frame, logFrame, noPreload) {
 				imprison: '<span class="good">Imprisoning&nbsp;foe</span> ',
 				formechange: '',
 				typechange: '',
+				typeadd: '',
 				autotomize: '<span class="neutral">Lightened</span> ',
 				miracleeye: '<span class="bad">Miracle&nbsp;Eye</span> ',
 				foresight: '<span class="bad">Foresight</span> ',
@@ -3827,19 +3829,21 @@ function Battle(frame, logFrame, noPreload) {
 				case 'typechange':
 					args[3] = Tools.escapeHTML(args[3]);
 					poke.volatiles.typechange[2] = args[3];
+					poke.removeVolatile('typeadd');
 					if (fromeffect.id) {
 						if (fromeffect.id === 'reflecttype') {
 							actions += "" + poke.getName() + "'s type changed to match " + ofpoke.getLowerName() + "'s!";
-						} else if (fromeffect.id === 'forestscurse') {
-							actions += "Grass type was added to " + poke.getLowerName();
-						} else if (fromeffect.id === 'trickortreat') {
-							actions += "Ghost type was added to " + poke.getLowerName();
 						} else {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
 						}
 					} else {
 						actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
 					}
+					break;
+				case 'typeadd':
+					args[3] = Tools.escapeHTML(args[3]);
+					poke.volatiles.typeadd[2] = args[3];
+					actions += "" + args[3] + " type was added to " + poke.getLowerName() + "!";
 					break;
 				case 'powertrick':
 					self.resultAnim(poke, 'Power Trick', 'neutral', animDelay);
@@ -5043,6 +5047,7 @@ function Battle(frame, logFrame, noPreload) {
 			if (self.waitForResult()) return;
 			var poke = self.getPokemon(args[1]);
 			poke.removeVolatile('formechange');
+			poke.removeVolatile('typeadd');
 			poke.removeVolatile('typechange');
 
 			var newSpecies;

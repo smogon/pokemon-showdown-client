@@ -930,10 +930,18 @@
 					types = template.types;
 					text += '<small>(Forme: '+pokemon.volatiles.formechange[2]+')</small><br />';
 				}
+				var isTypeChanged = false;
 				if (pokemon.volatiles.typechange) {
-					text += '<small>(Type changed)</small><br />';
+					isTypeChanged = true;
 					types = pokemon.volatiles.typechange[2].split('/');
 				}
+				if (pokemon.volatiles.typeadd) {
+					isTypeChanged = true;
+					if (types && types.indexOf(pokemon.volatiles.typeadd[2]) === -1) {
+						types = types.concat(pokemon.volatiles.typeadd[2]);
+					}
+				}
+				if (isTypeChanged) text += '<small>(Type changed)</small><br />';
 				if (types) {
 					text += types.map(Tools.getTypeIcon).join(' ');
 				} else {
