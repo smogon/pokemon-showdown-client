@@ -113,7 +113,7 @@
 			for (var i = 0; i<tells.length; i += 2) {
 				var username = tells[i];
 				var color = hashColor(toId(username));
-				var message = tells[i+1].replace('&#124;', '|') || '';
+				var message = tells[i + 1].replace(/&#124;/g, '|') || '';
 				formattedTells.push('<strong style="' + color + '">' + username + '</strong>' + Tools.escapeHTML(message, true));
 			}
 			formattedTells = '<div class="inner"><div class="chat">' + formattedTells.join('</div><div class="chat">') + '</div></div>';
