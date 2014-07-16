@@ -2093,11 +2093,17 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.active[slot] = pokemon;
 			selfS.active[oslot] = target;
 
+			if (pokemon.hasVolatile('substitute')) pokemon.sprite.animSubFade();
+			if (target && target.hasVolatile('substitute')) target.sprite.animSubFade();
+
 			pokemon.sprite.animUnsummon(true);
 			if (target) target.sprite.animUnsummon(true);
 
 			pokemon.sprite.animSummon(slot, true);
 			if (target) target.sprite.animSummon(oslot, true);
+
+			if (pokemon.hasVolatile('substitute')) pokemon.sprite.animSub();
+			if (target && target.hasVolatile('substitute')) target.sprite.animSub();
 
 			if (pokemon.statbarElem) {
 				pokemon.statbarElem.remove();
