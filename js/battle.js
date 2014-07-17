@@ -2081,7 +2081,7 @@ function Battle(frame, logFrame, noPreload) {
 						self.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
 						break;
 					default:
-						self.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+						self.message('<small>' + pokemon.getName() + ' moved to the center!</small>');
 						break;
 				}
 			}
