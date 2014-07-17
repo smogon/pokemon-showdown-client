@@ -3112,6 +3112,10 @@ function Battle(frame, logFrame, noPreload) {
 					case 'drain':
 						actions += ofpoke.getName() + ' had its energy drained!';
 						break;
+					case 'leftovers':
+					case 'shedbell':
+						actions += "" + poke.getName() + " restored a little HP using its " + effect.name + "!";
+						break;
 					default:
 						if (kwargs.absorb) {
 							actions += "" + poke.getName() + "'s " + effect.name + " absorbs the attack!";
@@ -3549,12 +3553,20 @@ function Battle(frame, logFrame, noPreload) {
 				} else switch (args[2]) {
 				case 'brn':
 					self.resultAnim(poke, 'Burn cured', 'good', animDelay);
+					if (effect.effectType === 'Item') {
+						actions += "" + poke.getName() + "'s " + effect.name + " healed its burn!";
+						break;
+					}
 					if (poke.side.n === 0) actions += "" + poke.getName() + "'s burn was healed.";
 					else actions += "" + poke.getName() + " healed its burn!";
 					break;
 				case 'tox':
 				case 'psn':
 					self.resultAnim(poke, 'Poison cured', 'good', animDelay);
+					if (effect.effectType === 'Item') {
+						actions += "" + poke.getName() + "'s " + effect.name + " cured its poison!";
+						break;
+					}
 					var n = poke.side.n; // hack for eliminating "the opposing"
 					poke.side.n = 0;
 					actions += "" + poke.getName() + " was cured of its poisoning.";
@@ -3562,14 +3574,26 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'slp':
 					self.resultAnim(poke, 'Woke up', 'good', animDelay);
+					if (effect.effectType === 'Item') {
+						actions += "" + poke.getName() + "'s " + effect.name + " woke it up!";
+						break;
+					}
 					actions += "" + poke.getName() + " woke up!";
 					break;
 				case 'par':
 					self.resultAnim(poke, 'Paralysis cured', 'good', animDelay);
+					if (effect.effectType === 'Item') {
+						actions += "" + poke.getName() + "'s " + effect.name + " cured its paralysis!";
+						break;
+					}
 					actions += "" + poke.getName() + " was cured of paralysis.";
 					break;
 				case 'frz':
 					self.resultAnim(poke, 'Thawed', 'good', animDelay);
+					if (effect.effectType === 'Item') {
+						actions += "" + poke.getName() + "'s " + effect.name + " defrosted it!";
+						break;
+					}
 					actions += "" + poke.getName() + " thawed out!";
 					break;
 				default:
@@ -4056,6 +4080,10 @@ function Battle(frame, logFrame, noPreload) {
 				case 'confusion':
 					self.resultAnim(poke, 'Confusion&nbsp;ended', 'good', animDelay);
 					if (!kwargs.silent) {
+						if (fromeffect.effectType === 'Item') {
+							actions += "" + poke.getName() + "'s " + fromeffect.name + " snapped out of its confusion!";
+							break;
+						}
 						if (poke.side.n === 0) actions += "" + poke.getName() + " snapped out of its confusion.";
 						else actions += "" + poke.getName() + " snapped out of confusion!";
 					}
