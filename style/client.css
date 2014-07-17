@@ -1585,6 +1585,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
 }
 
+.switchmenu button .disabled,
 .switchmenu button:disabled,
 .movemenu button:disabled {
 	cursor: default;
