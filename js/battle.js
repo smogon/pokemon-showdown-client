@@ -2074,7 +2074,7 @@ function Battle(frame, logFrame, noPreload) {
 			if (pokemon.slot === slot) return;
 			var target = selfS.active[slot];
 
-			if (target && !kwargs.silent) {
+			if (!kwargs.silent) {
 				var fromeffect = Tools.getEffect(kwargs.from);
 				switch (fromeffect.id) {
 					case 'allyswitch':		
