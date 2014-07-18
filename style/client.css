@@ -1044,10 +1044,10 @@ a.ilink:hover {
 	background-color: rgba(242, 247, 250, 0.85);
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height 0.5s ease-in-out;
-	-o-transition: max-height 0.5s ease-in-out;
-	-moz-transition: max-height 0.5s ease-in-out;
-	-webkit-transition: max-height 0.5s ease-in-out;
+	transition: max-height 0.2s ease-in-out;
+	-o-transition: max-height 0.2s ease-in-out;
+	-moz-transition: max-height 0.2s ease-in-out;
+	-webkit-transition: max-height 0.2s ease-in-out;
 }
 
 .tournament-bracket {
