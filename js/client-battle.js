@@ -304,7 +304,6 @@
 						var myActive = this.battle.mySide.active;
 						var yourActive = this.battle.yourSide.active;
 						var yourSlot = yourActive.length-1-pos;
-						var anyValidTarget = false;
 						for (var i = yourActive.length-1; i >= 0; i--) {
 							var pokemon = yourActive[i];
 
@@ -315,13 +314,11 @@
 								if (Math.abs(yourSlot-i) > 1) disabled = true;
 							}
 
-							if (!pokemon) {
-								controls += '<button disabled></button> ';
-							} else if (disabled || pokemon.zerohp) {
-								controls += '<button disabled' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':''):'') +'</button> ';
+							if (disabled) {
+								controls += '<button disabled="disabled" style="visibility:hidden"></button> ';
+							} else if (!pokemon || pokemon.zerohp) {
+								controls += '<button class="disabled" name="chooseMoveTarget" value="'+(i+1)+'"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon('missingno')+'"></span></button> ';
 							} else {
-								anyValidTarget = true;
-								var posString = '';
 								controls += '<button name="chooseMoveTarget" value="'+(i+1)+'"' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
 							}
 						}
@@ -337,18 +334,13 @@
 							}
 							if (moveTarget !== 'adjacentAllyOrSelf' && pos == i) disabled = true;
 
-							if (!pokemon) {
-								controls += '<button disabled="disabled"></button> ';
-							} else if (disabled || pokemon.zerohp) {
-								controls += '<button disabled="disabled"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':''):'') +'</button> ';
+							if (disabled) {
+								controls += '<button disabled="disabled" style="visibility:hidden"></button> ';
+							} else if (!pokemon || pokemon.zerohp) {
+								controls += '<button class="disabled" name="chooseMoveTarget" value="' + (-(i+1)) + '"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon('missingno')+'"></span></button> ';
 							} else {
-								anyValidTarget = true;
 								controls += '<button name="chooseMoveTarget" value="' + (-(i+1)) + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
 							}
-						}
-						if (!anyValidTarget) {
-							controls += '<div style="clear:both"></div> </div><div class="switchmenu" style="display:block">';
-							controls += '<button name="chooseMoveTarget" value="1">No valid target</button>';
 						}
 						controls += '</div>';
 						controls += '</div>';
@@ -455,7 +447,7 @@
 					var pos = this.choice.choices.length - (type === 'movetarget'?1:0);
 
 					// TODO? hpbar
-					controls += 'Which pokemon will it switch in for?</div>';
+					controls += 'Which Pokémon will it switch in for?</div>';
 					controls += '<div class="switchmenu" style="display:block">';
 
 					var myActive = this.battle.mySide.active;
@@ -468,7 +460,6 @@
 						} else if (!pokemon) {
 							controls += '<button disabled></button> ';
 						} else {
-							var posString = '';
 							controls += '<button name="chooseSwitchTarget" value="'+i+'"' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
 						}
 					}
@@ -478,7 +469,7 @@
 					break;
 				}
 				if (this.choice.freedomDegrees >= 1) {
-					controls += 'Choose a Pokémon to sent to battle!</div>';
+					controls += 'Choose a Pokémon to send to battle!</div>';
 				} else {
 					controls += 'Switch <strong>'+Tools.escapeHTML(switchables[pos].name)+'</strong> to:</div>';
 				}
@@ -527,7 +518,7 @@
 					controls += '</div>';
 				} else {
 					controls += '<button name="clearChoice">Back</button> What about the rest of your team?</div>';
-					controls += '<div class="switchcontrols"><div class="switchselect"><button name="selectSwitch">Choose a pokemon for slot '+(this.choice.done+1)+'</button></div><div class="switchmenu">';
+					controls += '<div class="switchcontrols"><div class="switchselect"><button name="selectSwitch">Choose a Pokémon for slot '+(this.choice.done+1)+'</button></div><div class="switchmenu">';
 					for (var i = 0; i < switchables.length; i++) {
 						var pokemon = switchables[this.choice.teamPreview[i]-1];
 						if (i >= 6) {
