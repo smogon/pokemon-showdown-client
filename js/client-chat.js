@@ -67,6 +67,10 @@
 				}
 				this.tabComplete.reset();
 				this.chatHistory.push(text);
+				if (!this.filterMessage(text)) {
+					this.$chatbox.val('');
+					return;
+				}
 				text = this.parseCommand(text);
 				if (text) {
 					this.send(text);
@@ -382,20 +386,36 @@
 			return true;
 		},
 
+		// spam filtering
+
+		filterMessage: function(text) {
+			// check if all lines in the text are / commands
+			if (!/(?:\n|^)[^\n\/]\N*/.test(text)) return text;
+
+			// check last 3 messages for an exact match and screwing up copypaste
+			var msgHistory = this.chatHistory.lines;
+			var msgHistoryLen = msgHistory.length;
+			if (msgHistoryLen === 1) return text;
+			var prevMsgs = (msgHistoryLen > 3) ? msgHistory.slice(msgHistoryLen - 4) : msgHistory;
+			var i = prevMsgs.length - 1;
+			while (i--) {
+				var lastMsg = prevMsgs[i];
+				if (text === lastMsg || text === lastMsg + 'v') return false;
+			} 
+			return text;
+		},
+
 		// command parsing
 
 		parseCommand: function(text) {
-			var cmd = '';
-			var target = '';
-			if (text.substr(0,2) !== '//' && text.substr(0,1) === '/') {
-				var spaceIndex = text.indexOf(' ');
-				if (spaceIndex > 0) {
-					cmd = text.substr(1, spaceIndex-1);
-					target = text.substr(spaceIndex+1);
-				} else {
-					cmd = text.substr(1);
-					target = '';
-				}
+			if (text.charAt(0) !== '/' || text.substr(0,2) === '//') return text;
+			var spaceIndex = text.indexOf(' ');
+			if (spaceIndex > 0) {
+				var cmd = text.substr(1, spaceIndex-1);
+				var target = text.substr(spaceIndex+1);
+			} else {
+				var cmd = text.substr(1);
+				var target = '';
 			}
 
 			switch (cmd.toLowerCase()) {
