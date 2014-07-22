@@ -3541,7 +3541,7 @@ function Battle(frame, logFrame, noPreload) {
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.status = '';
 
-				if (effect.id && effect.effectType !== 'Item') switch (effect.id) {
+				if (effect.id) switch (effect.id) {
 				case 'psychoshift':
 					actions += '' + poke.getName() + ' moved its status onto ' + ofpoke.getLowerName() + '!';
 					self.resultAnim(poke, 'Cured', 'good', animDelay);
