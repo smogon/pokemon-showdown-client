@@ -1341,6 +1341,11 @@
 			// this is the equivalent of alert(message)
 			app.addPopup(Popup, {message: message});
 		},
+		addPopupPrompt: function(message, buttonOrCallback, callback) {
+			var button = (callback ? buttonOrCallback : 'OK');
+			callback = (!callback ? buttonOrCallback : callback);
+			app.addPopup(PromptPopup, { message: message, button: button, callback: callback });
+		},
 		closePopup: function(id) {
 			if (this.popups.length) {
 				var popup = this.popups.pop();
@@ -1863,6 +1868,26 @@
 
 		close: function() {
 			app.closePopup();
+		}
+	});
+
+	var PromptPopup = this.PromptPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function(data) {
+			if (!data || !data.message || typeof data.callback !== "function") return;
+			this.callback = data.callback;
+
+			var buf = '<form>';
+			buf += '<p><label class="label">' + data.message;
+			buf += '<input class="textbox autofocus" type="text" name="data" /></label></p>';
+			buf += '<p class="buttonbar"><button type="submit"><strong>' + data.button + '</strong></button> <button name="close">Cancel</button></p>';
+			buf += '</form>';
+
+			this.$el.html(buf);
+		},
+		submit: function(data) {
+			this.close();
+			this.callback(data.data);
 		}
 	});
 
