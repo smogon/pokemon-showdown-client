@@ -34,9 +34,10 @@
 			// this.$('button[name=joinRoomPopup]').focus();
 		},
 		joinRoomPopup: function() {
-			var roomName = prompt("Room name?");
-			if (!roomName) return;
-			app.tryJoinRoom(roomName);
+			app.addPopupPrompt("Room name:", "Join room", function(room) {
+				if (!room) return;
+				app.tryJoinRoom(room);
+			});
 		},
 		update: function(rooms) {
 			if (rooms) {
