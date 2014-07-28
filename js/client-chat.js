@@ -542,6 +542,16 @@
 				Tools.prefs('timestamps', timestamps);
 				return false;
 
+			case 'order':
+				if (target !== 'user count' && target !== 'alphabetical') {
+					this.add('Error: Invalid /order command');
+					return '/help order';	// show help
+				}
+				this.add('Room order preference set to: `' + target + '`.');
+				Tools.prefs('order', target);
+				app.trigger('response:rooms');
+				return false;
+				
 			case 'highlight':
 				var highlights = Tools.prefs('highlights') || [];
 				if (target.indexOf(',') > -1) {

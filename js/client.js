@@ -2269,6 +2269,7 @@
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
+			'change select[name=room-order]': 'setRoomOrder',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
 			'click img': 'avatars'
@@ -2293,8 +2294,10 @@
 			}
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
+			var order = this.order = (Tools.prefs('order'));
 			buf += '<p><label class="optlabel">Timestamps in lobby chat: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"'+(timestamps.pms==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.pms==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
+			buf += '<p><label class="optlabel">Room list ordering: <select name="room-order"><option value="userCount">User count</option><option value="alphabetical"'+(order==='alphabetical'?' selected="selected"':'')+'>Alphabetical</option></select></lable></p>';
 			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting">Edit formatting</button></label></p>';
 
 			if (app.curRoom.battle) {
@@ -2380,6 +2383,11 @@
 		setTimestampsPMs: function(e) {
 			this.timestamps.pms = e.currentTarget.value;
 			Tools.prefs('timestamps', this.timestamps);
+		},
+		setRoomOrder: function(e) {
+			this.order = e.currentTarget.value;
+			Tools.prefs('order', this.order);
+			app.trigger('response:rooms');
 		},
 		avatars: function() {
 			app.addPopup(AvatarsPopup);
