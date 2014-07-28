@@ -872,6 +872,16 @@
 				this.addPopupMessage(parts.slice(2).join('|'));
 				break;
 
+			case 'c':
+			case 'chat':
+				if (parts[1] === '~') {
+					if (parts[2].substr(0, 6) === '/warn ') {
+						app.addPopup(RulesPopup, {warning: parts[2].substr(6)});
+						break;
+					}
+				}
+				/* falls through */
+
 			default:
 				// the messagetype wasn't in our list of recognized global
 				// messagetypes; so the message is presumed to be for the
