@@ -107,6 +107,7 @@
 		<script src="js/client-mainmenu.js"></script>
 		<script src="js/client-teambuilder.js"></script>
 		<script src="js/client-ladder.js"></script>
+		<script src="js/client-friendlist.js"></script>
 		<script src="js/client-chat.js"></script>
 		<script src="js/client-chat-tournament.js"></script>
 		<script src="js/client-battle.js"></script>
@@ -117,6 +118,8 @@
 		<script>
 			// HTML5 history throws exceptions when running on file://
 			Backbone.History.prototype.navigate = function() {};
+			// Don't enable friend list on testclient due to a lot of ajax calls...
+			if (Friendlist) Friendlist.keepDisabled = true;
 
 			var app = new App();
 		</script>
