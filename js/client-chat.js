@@ -1083,8 +1083,6 @@
 			} else if (message.substr(0,10) === '/announce ') {
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10), name) + '</span></div>');
 				Storage.logChat(this.id, ''+name+': /announce '+message);
-			} else if (message.substr(0,6) === '/warn ') {
-				app.addPopup(RulesPopup, {warning: message.substr(6)});
 			} else if (message.substr(0,14) === '/data-pokemon ') {
 				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,11) === '/data-item ') {
