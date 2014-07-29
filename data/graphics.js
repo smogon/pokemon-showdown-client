@@ -16,9 +16,13 @@ icicle.png and lightning.png by Clint Bellanger are triple-licensed GPLv2/GPLv3/
 
 rocks.png, rock1.png, rock2.png by PO user "Gilad" is licensed GPLv3.
 
+webs.png by Layell
 
-This license DOES NOT extend to any images in the sprites/ folder, which are property of Nintendo Co., Ltd and used under Fair Use.
+This license DOES NOT extend to any images in the sprites/ folder, which are property of Nintendo Co., Ltd and used under Fair Use. Custom sprites not owned by Nintendo are categorized as follows:
 
+Pokemon images under BW files that were not introduced until after the release of Pokemon Black and White 2 are part of the Smogon XY Sprite Project and are used with Fair Use, contact Layell for acquiring access to these files.
+Sprites under AFD files were crowd-sourced from Smogon University for April Fools Day, they are for parody and Fair Use.
+All images that were a result of the Create-A-Pokemon project within the sprites folder belong to the respective artist. Visit Smogon University Create-A-Pokemon section for more information.
 
 This license DOES NOT extend to any other files of the Pokemon replay viewer.
 
@@ -106,7 +110,7 @@ var BattleEffects = {
 		w: 108, h: 64
 	},
 	web: {
-		url: 'http://i.imgur.com/7qGS2rK.png'
+		url: 'fx/web.png', //Smogon University -  Layell
 		w: 35, h: 35
 	},
 	none: {
