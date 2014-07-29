@@ -16,7 +16,7 @@ icicle.png and lightning.png by Clint Bellanger are triple-licensed GPLv2/GPLv3/
 
 rocks.png, rock1.png, rock2.png by PO user "Gilad" is licensed GPLv3.
 
-webs.png by Layell
+web.png by Layell
 
 This license DOES NOT extend to any images in the sprites/ folder, which are property of Nintendo Co., Ltd and used under Fair Use. Custom sprites not owned by Nintendo are categorized as follows:
 
