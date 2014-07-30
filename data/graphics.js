@@ -105,6 +105,10 @@ var BattleEffects = {
 		url: 'fx/bottombite.png',
 		w: 108, h: 64
 	},
+		web: {
+		url: 'fx/web.png', //Smogon University -  Layell
+		w: 35, h: 35
+	},	
 	none: {
 		// this is for passing to battle.pos() and battle.posT() for CSS effects
 		w: 100, h: 100
@@ -5310,6 +5314,68 @@ var BattleMoveAnims = {
 				time: 200
 			},{
 				x: defender.x-15,
+				y: defender.y-35,
+				z: defender.z,
+				scale: .3,
+				opacity: 1
+			}, 'ballistic');
+		}
+	},
+			sickyweb: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.showEffect('web',{
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5
+			},{
+				x: defender.leftof(-40),
+				y: defender.y-10,
+				z: defender.z,
+				scale: .3,
+				opacity: 1
+			}, 'ballistic');
+			battle.showEffect('web',{
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 75
+			},{
+				x: defender.leftof(-20),
+				y: defender.y-40,
+				z: defender.z,
+				scale: .3,
+				opacity: 1
+			}, 'ballistic');
+			battle.showEffect('web',{
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 150
+			},{
+				x: defender.leftof(30),
+				y: defender.y-20,
+				z: defender.z,
+				scale: .3,
+				opacity: 1
+			}, 'ballistic');
+			battle.showEffect('web',{
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 225
+			},{
+				x: defender.leftof(20),
 				y: defender.y-35,
 				z: defender.z,
 				scale: .3,
