@@ -106,8 +106,8 @@ var BattleEffects = {
 		w: 108, h: 64
 	},
 		web: {
-		url: 'fx/web.png', //Smogon University -  Layell
-		w: 35, h: 35
+		url: 'fx/web.p
+		w: 64, h: 64
 	},	
 	none: {
 		// this is for passing to battle.pos() and battle.posT() for CSS effects
