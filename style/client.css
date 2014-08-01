@@ -1255,6 +1255,18 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	color: #CC2222;
 	text-decoration: underline;
 }
+.message-effect-weak {
+	font-weight: bold;
+	color: #CC2222;
+}
+.message-effect-resist {
+	font-weight: bold;
+	color: #6688AA;
+}
+.message-effect-immune {
+	font-weight: bold;
+	color: #666666;
+}
 .message-learn-list {
 	margin-top: 0;
 	margin-bottom: 0;
