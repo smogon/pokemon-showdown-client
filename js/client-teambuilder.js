@@ -350,6 +350,7 @@
 			buf += '<span class="detailcell"><label>Gender</label>'+GenderChart[template.gender||set.gender||'N']+'</span>';
 			buf += '<span class="detailcell"><label>Happiness</label>'+(typeof set.happiness === 'number'?set.happiness:255)+'</span>';
 			buf += '<span class="detailcell"><label>Shiny</label>'+(set.shiny?'Yes':'No')+'</span>';
+			buf += '<span class="detailcell"><label>Pokeball</label>'+Tools.getPokeball('pokeball', 12, 12)+'</span>';
 
 			buf += '</button></div>';
 			buf += '</div><div class="setrow">';
@@ -1136,6 +1137,8 @@
 			buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
 			buf += '<label><input type="radio" name="shiny" value="yes"'+(set.shiny?' checked':'')+' /> Yes</label> ';
 			buf += '<label><input type="radio" name="shiny" value="no"'+(!set.shiny?' checked':'')+' /> No</label>';
+			buf += '<div class="formrow"><label class="formlabel">Pokeball:</label><div>';
+			buf += '<label> Pokeball</label>'
 			buf += '</div></div>';
 
 			buf += '</form>';
