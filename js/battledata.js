@@ -815,9 +815,9 @@ var Tools = {
 
 		var gen = 'xy';
 
-    if (Tools.prefs('bwgfx')) {
-      gen = 'bw';
-      }
+		if (Tools.prefs('bwgfx')) {
+			gen = 'bw';
+		}
 		if (animationData && animationData[facing]) {
 			var spriteType = '';
 			if (animationData[facing]['anif'] && pokemon.gender === 'F') {
