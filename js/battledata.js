@@ -775,6 +775,15 @@ var Tools = {
 		return type;
 	},
 
+	loadSpriteData: function(gen) {
+		var path = $('script[src*="pokedex-mini.js"]').attr('src');
+		var qs = path.split('?')[1] || '';
+		path = (path.match(/.+?(?=data\/pokedex-mini\.js)/) || [])[0] || '';
+
+		var el = document.createElement('script');
+		el.src = path + 'data/pokedex-mini' + (gen !== 'xy' ? '-' + gen : '') + '.js' + (qs ? '?' + qs : '');
+		document.getElementsByTagName('body')[0].appendChild(el);
+	},
 	getSpriteData: function(pokemon, siden, options) {
 		pokemon = Tools.getTemplate(pokemon);
 		var spriteData = {
@@ -814,6 +823,9 @@ var Tools = {
 		}
 
 		var gen = 'xy';
+		if (Tools.prefs('bwgfx')) {
+			gen = 'bw';
+		}
 
 		if (animationData && animationData[facing]) {
 			var spriteType = '';
