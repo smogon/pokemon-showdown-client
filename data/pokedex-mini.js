@@ -757,7 +757,7 @@ BattlePokemonSprites = {
 	"talonflame": {num:663, front:{ani:{w:152,h:185}}, back:{ani:{w:114,h:185}}},
 	"scatterbug": {num:664, front:{ani:{w:38,h:56}}, back:{ani:{w:41,h:56}}},
 	"spewpa": {num:665, front:{ani:{w:44,h:43}}, back:{ani:{w:42,h:43}}},
-	"vivillon": {num:666, front:{ani:{w:104,h:104}}, back:{ani:{w:96,h:113}}},
+	"vivillon": {num:666, front:{ani:{w:104,h:104}}, back:{ani:{w:101,h:112}}},
 	"litleo": {num:667, front:{ani:{w:51,h:61}}, back:{ani:{w:61,h:59}}},
 	"pyroar": {num:668, front:{ani:{w:79, h:99}, anif:{w:68, h:95}}, back:{ani:{w:127, h:100}, anif:{w:112, h:100}}},
 	"flabebe": {num:669, front:{ani:{w:76,h:78}}, back:{ani:{w:75,h:79}}},
