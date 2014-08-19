@@ -5108,7 +5108,7 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'teampreview':
 			self.teamPreview(true);
-			self.teamPreviewCount = args[1];
+			if (!self.teamPreviewCount) self.teamPreviewCount = args[1];
 			break;
 		case 'switch':
 		case 'drag':
