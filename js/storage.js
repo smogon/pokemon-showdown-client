@@ -23,10 +23,10 @@ function _Storage() {
 _Storage.prototype.teams = null;
 
 _Storage.prototype.loadTeams = function() {
-	this.teams = [];
 	if (window.nodewebkit) {
 		return;
 	}
+	this.teams = [];
 	if (window.localStorage) {
 		var teamString = localStorage.getItem('showdown_teams');
 		if (teamString) this.teams = JSON.parse(teamString);
