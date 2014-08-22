@@ -1301,7 +1301,11 @@
 		chartChange: function(e) {
 			var name = e.currentTarget.name;
 			var type = this.chartTypes[name];
-			this.$chart.html(Chart.chart(e.currentTarget.value, type, false, _.bind(this.arrangeCallback[this.curChartType], this)));
+			var arrange = null;
+			if (this.arrangeCallback[this.curChartType]) {
+				arrange = _.bind(this.arrangeCallback[this.curChartType], this);
+			}
+			this.$chart.html(Chart.chart(e.currentTarget.value, type, false, arrange));
 			var val = Chart.firstResult;
 			var id = toId(e.currentTarget.value);
 			if (toId(val) !== id) {
