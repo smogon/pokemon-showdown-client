@@ -1731,7 +1731,7 @@
 				}
 			}
 
-			this.ignoreEVLimits = (this.curTeam.format === 'modifiedhackmons');
+			this.ignoreEVLimits = (this.curTeam.format === 'hackmons');
 			if (this.curTeam && this.ignoreEVLimits) {
 				evs = {hp:252, atk:252, def:252, spa:252, spd:252, spe:252};
 				if (hasMove['gyroball'] || hasMove['trickroom']) delete evs.spe;
