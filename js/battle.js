@@ -4993,11 +4993,17 @@ function Battle(frame, logFrame, noPreload) {
 			if (window.app && app.ignore && app.ignore[toUserid(name)]) break;
 			args.shift();
 			args.shift();
+			var clickableName;
+			if (!/[A-Za-z0-9 ]/.test(name.charAt(0))) {
+				clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>' + Tools.escapeHTML(name.substr(1));
+			} else {
+				clickableName = Tools.escapeHTML(name);
+			}
 			var message = args.join('|');
 			if (message.substr(0,2) === '//') {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + Tools.parseMessage(message.substr(1), name) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message.substr(1), name) + '</em></div>', preempt);
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + Tools.escapeHTML(name) + ' <i>' + Tools.parseMessage(message.substr(4), name) + '</i></em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4), name) + '</i></em></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
 				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
@@ -5007,7 +5013,7 @@ function Battle(frame, logFrame, noPreload) {
 			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
 				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + Tools.escapeHTML(name) + ':</strong> <em>' + Tools.parseMessage(message, name) + '</em></div>', preempt);
+				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message, name) + '</em></div>', preempt);
 			}
 			break;
 		case 'chatmsg':
