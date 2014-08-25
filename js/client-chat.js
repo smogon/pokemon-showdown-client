@@ -816,6 +816,15 @@
 					this.addChat(row[1], row.slice(2).join('|'));
 					break;
 
+				case ':':
+					this.timeOffset = ~~(Date.now()/1000) - parseInt(row[1], 10);
+					break;
+				case 'c:':
+					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' '+row[2];
+					var deltaTime = ~~(Date.now()/1000) - this.timeOffset - parseInt(row[1], 10);
+					this.addChat(row[2], row.slice(3).join('|'), false, deltaTime);
+					break;
+
 				case 'tc':
 					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' '+row[2];
 					this.addChat(row[2], row.slice(3).join('|'), false, row[1]);
