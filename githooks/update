@@ -1,31 +1,49 @@
-#!/usr/bin/env php
-<?php
+#!/usr/bin/env node
+
 /**
- * This script parses index.php and sets the version query string of each
- * resource to be the MD5 hash of that resource. This script should be executed
- * from the base directory of the repository.
+ * This script parses index.html and sets the version query string of each
+ * resource to be the MD5 hash of that resource.
  *
  * On the live web server, this script is set as the following git hooks:
  *   post-commit, post-checkout, post-merge, post-rewrite
  */
 
-date_default_timezone_set('America/Los_Angeles');
+var path = require('path');
+var fs = require('fs');
+var crypto = require('crypto');
+var exec = require('child_process').exec;
 
-include __DIR__.'/../../pokemonshowdown.com/news/include.php';
+var thisDir = __dirname;
+var rootDir = path.resolve(thisDir, '..');
+var contents = fs.readFileSync(path.resolve(rootDir, 'index.template.html'), { encoding: 'utf8' });
 
-function replaceMatch($m) {
-	$filename = str_replace('/play.pokemonshowdown.com/', '', $m[2]);
-	$hash = substr(md5_file($filename), 0, 8);
-	return "${m[1]}=\"/${m[2]}?${hash}\"";
-}
+// add hashes to js and css files
+contents = contents.replace(/(src|href)="\/(.*?)\?[a-z0-9]*?"/g, function (a, b, c) {
+	var hash = Math.random(); // just in case creating the hash fails
+	try {
+		var filename = c.replace('/play.pokemonshowdown.com/', '');
+		var fstr = fs.readFileSync(path.resolve(rootDir, filename), { encoding: 'utf8' });
+		hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
+	} catch (e) {}
 
-file_put_contents('index.html',
-	str_replace('<!-- newsid -->',
-		getNewsId(),
-		str_replace('<!-- news -->',
-			''.renderNews().'',
-			preg_replace_callback('/(src|href)="\/(.*?)\?[a-z0-9]*?"/',
-				'replaceMatch',
-				file_get_contents('index.template.html'))))
-	);
+	return b + '="' + c + '?' + hash + '"';
+});
 
+// add news
+exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
+	var newsData = [0, '[failed to retrieve news]'];
+	if (!error && !stderr) {
+		try {
+			newsData = JSON.parse(stdout);
+		} catch (e) {
+			console.log("git hook failed to retrieve news (parsing JSON failed):\n" + e.stack);
+		}
+	} else {
+		console.log("git hook failed to retrieve news (exec command failed):\n" + (error || stderr));
+	}
+
+	contents = contents.replace(/<!-- newsid -->/g, newsData[0]);
+	contents = contents.replace(/<!-- news -->/g, newsData[1]);
+
+	fs.writeFileSync(path.resolve(rootDir, 'index.html'), contents);
+});
