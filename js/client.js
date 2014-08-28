@@ -277,9 +277,10 @@
 					}
 				}
 
-				if (Tools.prefs('bwgfx')) {
+				if (Tools.prefs('bwgfx') || Tools.prefs('noanim')) {
 					// since xy data is loaded by default, only call
-					// loadSpriteData if we want bw sprites
+					// loadSpriteData if we want bw sprites or if we need bw
+					// sprite data (if animations are disabled)
 					Tools.loadSpriteData('bw');
 				}
 			});
@@ -2360,11 +2361,12 @@
 		setNoanim: function(e) {
 			var noanim = !!e.currentTarget.checked;
 			Tools.prefs('noanim', noanim);
+			Tools.loadSpriteData(noanim || Tools.prefs('bwgfx') ? 'bw' : 'xy');
 		},
 		setBwgfx: function(e) {
 			var bwgfx = !!e.currentTarget.checked;
 			Tools.prefs('bwgfx', bwgfx);
-			Tools.loadSpriteData(bwgfx ? 'bw' : 'xy');
+			Tools.loadSpriteData(bwgfx || Tools.prefs('noanim') ? 'bw' : 'xy');
 		},
 		setNotournaments: function(e) {
 			var notournaments = !!e.currentTarget.checked;
