@@ -775,7 +775,11 @@ var Tools = {
 		return type;
 	},
 
+	loadedSpriteData: 'xy',
 	loadSpriteData: function(gen) {
+		if (this.loadedSpriteData === gen) return;
+		this.loadedSpriteData = gen;
+
 		var path = $('script[src*="pokedex-mini.js"]').attr('src');
 		var qs = path.split('?')[1] || '';
 		path = (path.match(/.+?(?=data\/pokedex-mini\.js)/) || [])[0] || '';
