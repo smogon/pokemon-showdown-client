@@ -2247,6 +2247,22 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6), 0px 2px 2px rgba(0,0,0,.15);
 }
 
+.teambuilder-pokemon-import {
+	display: none;
+	position: absolute;
+	top: 206px;
+	left: 10px;
+	padding: 2px;
+	overflow: hidden;
+}
+
+.pokemonedit {
+	width: 626px;
+	text-align: left;
+	font-size: inherit;
+	font-family: inherit;
+}
+
 .statform {
 	padding: 3px 13px 10px 13px;
 	font-size: 10pt;
