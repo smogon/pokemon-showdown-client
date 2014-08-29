@@ -323,7 +323,7 @@
 				buf += '</li>';
 				return buf;
 			}
-			buf += '<div class="setmenu"><button name="copySet"><i class="icon-copy"></i>Copy</button> <button name="moveSet"><i class="icon-move"></i>Move</button> <button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>';
+			buf += '<div class="setmenu"><button name="copySet"><i class="icon-copy"></i>Copy</button> <button name="importSet"><i class="icon-upload-alt"></i>Import/Export</button> <button name="moveSet"><i class="icon-move"></i>Move</button> <button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" value="'+Tools.escapeHTML(set.name||set.species)+'" name="nickname" />';
 			buf += '</div>';
@@ -569,11 +569,47 @@
 			});
 		},
 
-		// copy/move/delete
+		// copy/import/export/move/delete
 		copySet: function(i, button) {
 			i = +($(button).closest('li').attr('value'));
 			this.clipboardAdd($.extend(true, {}, this.curTeam.team[i]));
 			button.blur();
+		},
+		wasViewingPokemon: false,
+		importSet: function(i, button) {
+			i = +($(button).closest('li').attr('value'));
+
+			this.wasViewingPokemon = true;
+			if (!this.curSet) {
+				this.wasViewingPokemon = false;
+				this.selectPokemon(i);
+			}
+
+			this.$('li').find('input, button').prop('disabled', true);
+			this.$chart.hide();
+			this.$('.teambuilder-pokemon-import')
+				.show()
+				.find('textarea')
+				.val(TeambuilderRoom.toText([this.curSet]).trim())
+				.focus();
+		},
+		closePokemonImport: function(force) {
+			if (!this.wasViewingPokemon) return this.back();
+
+			var $li = this.$('li');
+			var i = +($li.attr('value'));
+			this.$('.teambuilder-pokemon-import').hide();
+			this.$chart.show();
+
+			if (force === true) return this.selectPokemon(i);
+			$li.find('input, button').prop('disabled', false);
+		},
+		savePokemonImport: function(i) {
+			i = +(this.$('li').attr('value'));
+			this.curSet = TeambuilderRoom.parseText(this.$('.pokemonedit').val())[0];
+			// since we just destroyed the reference...
+			this.curTeam.team[i] = this.curSet;
+			this.closePokemonImport(true);
 		},
 		moveSet: function(i, button) {
 			i = +($(button).closest('li').attr('value'));
@@ -635,6 +671,12 @@
 			// results
 			this.chartPrevSearch = '[init]';
 			buf += '<div class="teambuilder-results"></div>';
+
+			// import/export
+			buf += '<div class="teambuilder-pokemon-import">';
+			buf += '<div class="pokemonedit-buttons"><button name="closePokemonImport"><i class="icon-chevron-left"></i> Back</button> <button name="savePokemonImport"><i class="icon-save"></i> Save</button></div>';
+			buf += '<textarea class="pokemonedit textbox" rows="14"></textarea>';
+			buf += '</div>';
 
 			this.$el.html(buf);
 			this.$chart = this.$('.teambuilder-results');
@@ -792,7 +834,7 @@
 			if (set) {
 				this.curSet = set;
 				this.curSetLoc = i;
-				var name = this.curChartName;
+				var name = this.curChartName || 'details';
 				if (name === 'details' || name === 'stats') {
 					this.update();
 					this.updateChart();
