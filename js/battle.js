@@ -1549,17 +1549,9 @@ function Battle(frame, logFrame, noPreload) {
 		this.setName = function (name, spriteid) {
 			selfS.name = (name||'');
 			selfS.id = toId(selfS.name);
-			if (spriteid) selfS.spriteid = spriteid;
-			else if (selfS.id === "Serei") selfS.spriteid = 172;
-			else if (selfS.id === "Hob'sGoblin") selfS.spriteid = 52;
-			else if (selfS.id === "EtherealSol") selfS.spriteid = 1001;
-			else if (selfS.id === "Morty(GymLeader)") selfS.spriteid = 144;
-			else if (selfS.id === "aeo") selfS.spriteid = 167;
-			else if (selfS.id === "aeo1") selfS.spriteid = 167;
-			else if (selfS.id === "aeo2") selfS.spriteid = 166;
-			else if (selfS.id === "sharktamer") selfS.spriteid = 7;
-			else if (selfS.id === "bmelts") selfS.spriteid = 226;
-			else {
+			if (spriteid) {
+				selfS.spriteid = spriteid;
+			} else {
 				selfS.rollSprites();
 				if (selfS.foe && selfS.spriteid === selfS.foe.spriteid) selfS.rollSprites();
 			}
