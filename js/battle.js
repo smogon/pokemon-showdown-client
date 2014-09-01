@@ -1547,7 +1547,7 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.updateSidebar();
 		};
 		this.setName = function (name, spriteid) {
-			selfS.name = (name||'');
+			if (name) selfS.name = (name||'');
 			selfS.id = toId(selfS.name);
 			if (spriteid) {
 				selfS.spriteid = spriteid;
