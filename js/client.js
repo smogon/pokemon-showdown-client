@@ -266,6 +266,13 @@
 				var musicVolume = Tools.prefs('musicvolume');
 				if (musicVolume !== undefined) BattleSound.setBgmVolume(musicVolume);
 
+				var autojoins = Tools.prefs('autojoins');
+				if (autojoins !== undefined) {
+					for (var i = 0, len = autojoins.length; i < len; i++) {
+						self.addRoom(autojoins[i]);
+					}
+				}
+
 				if (Tools.prefs('logchat')) Storage.startLoggingChat();
 				if (Tools.prefs('showdebug')) {
 					var debugStyle = $('#debugstyle').get(0);
