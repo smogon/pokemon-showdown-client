@@ -974,7 +974,18 @@
 					text += '<p>Item: ' + Tools.getItem(pokemon.item).name + '</p>';
 				}
 				if (pokemon.stats) {
-					text += '<p>' + pokemon.stats['atk'] + ' Atk /&nbsp;' + pokemon.stats['def'] + ' Def /&nbsp;' + pokemon.stats['spa'] + ' SpA /&nbsp;' + pokemon.stats['spd'] + ' SpD /&nbsp;' + pokemon.stats['spe'] + ' Spe</p>';
+					text += '<p>' + pokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + pokemon.stats['def'] + '&nbsp;Def /&nbsp;' + pokemon.stats['spa'] + '&nbsp;SpA /&nbsp;' + pokemon.stats['spd'] + '&nbsp;SpD /&nbsp;' + pokemon.stats['spe'] + '&nbsp;Spe</p>';
+				} else {
+					var minSpe;
+					var maxSpe;
+					if (this.battle.tier === 'Random Battle') {
+						minSpe = Math.floor(Math.floor(2*template.baseStats['spe']+(0)+Math.floor((0)/4))*pokemon.level / 100 + 5);
+						maxSpe = Math.floor(Math.floor(2*template.baseStats['spe']+(31)+Math.floor((85)/4))*pokemon.level / 100 + 5);
+					} else {
+						minSpe = Math.floor(Math.floor(Math.floor(2*template.baseStats['spe']+(0)+Math.floor((0)/4))*pokemon.level / 100 + 5) * 0.9);
+						maxSpe = Math.floor(Math.floor(Math.floor(2*template.baseStats['spe']+(31)+Math.floor((252)/4))*pokemon.level / 100 + 5) * 1.1);
+					}
+					text += '<p>' + minSpe + ' to ' + maxSpe + ' Spe (before items/abilities/modifiers)</p>';
 				}
 				if (pokemon.moves && pokemon.moves.length && (!isActive || isActive === 'foe')) {
 					text += '<p class="section">';
