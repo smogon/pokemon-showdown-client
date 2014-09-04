@@ -3107,7 +3107,7 @@ function Battle(frame, logFrame, noPreload) {
 						actions += ofpoke.getName() + ' had its energy drained!';
 						break;
 					case 'leftovers':
-					case 'shedbell':
+					case 'shellbell':
 						actions += "" + poke.getName() + " restored a little HP using its " + effect.name + "!";
 						break;
 					default:
