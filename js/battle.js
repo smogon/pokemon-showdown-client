@@ -478,7 +478,7 @@ function Pokemon(species) {
 		return !!selfP.turnstatuses[volatile];
 	};
 	this.clearTurnstatuses = function () {
-		for (i in selfP.turnstatuses) {
+		for (var i in selfP.turnstatuses) {
 			selfP.removeTurnstatus(i);
 		}
 		selfP.turnstatuses = {};
@@ -500,13 +500,13 @@ function Pokemon(species) {
 		return !!selfP.movestatuses[volatile];
 	};
 	this.clearMovestatuses = function () {
-		for (i in selfP.movestatuses) {
+		for (var i in selfP.movestatuses) {
 			selfP.removeMovestatus(i);
 		}
 		selfP.movestatuses = {};
 	};
 	this.clearVolatiles = function () {
-		for (i in selfP.volatiles) {
+		for (var i in selfP.volatiles) {
 			selfP.removeVolatile(i);
 		}
 		selfP.volatiles = {};
@@ -528,7 +528,7 @@ function Pokemon(species) {
 		}
 	};
 	this.getTitle = function () {
-		titlestring = '(' + selfP.ability + ') ';
+		var titlestring = '(' + selfP.ability + ') ';
 
 		for (var i = 0; i < selfP.moves.length; i++) {
 			if (i != 0) titlestring += ' / ';
@@ -563,7 +563,7 @@ function Pokemon(species) {
 			}
 		}
 		return name;
-	}
+	};
 	this.getBoost = function (boostStat) {
 		var boostStatTable = {
 			atk: 'Atk',
@@ -597,7 +597,7 @@ function Pokemon(species) {
 		var badBoostTable = ['1&times;', '0.67&times;', '0.5&times;', '0.4&times;', '0.33&times;', '0.29&times;', '0.25&times;'];
 		//var badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
 		return '' + badBoostTable[-selfP.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
-	}
+	};
 	this.getBoostType = function (boostStat) {
 		if (!selfP.boosts[boostStat]) {
 			return 'neutral';
@@ -605,7 +605,7 @@ function Pokemon(species) {
 			return 'good';
 		}
 		return 'bad';
-	}
+	};
 
 	this.clearVolatile = function () {
 		selfP.atk = selfP.atkStat;
@@ -687,7 +687,7 @@ function Pokemon(species) {
 		var range = selfP.getPixelRange(selfP.hp, selfP.hpcolor);
 		return selfP.getFormattedRange(range, precision, '–');
 	};
-};
+}
 
 function Battle(frame, logFrame, noPreload) {
 	var self = this;
@@ -1018,10 +1018,10 @@ function Battle(frame, logFrame, noPreload) {
 		this.duringMove = false;
 		this.behindx = function (offset) {
 			return selfS.x + (selfS.isBackSprite ? -1 : 1) * offset;
-		}
+		};
 		this.behindy = function (offset) {
 			return selfS.y + (selfS.isBackSprite ? 1 : -1) * offset;
-		}
+		};
 		this.leftof = function (offset) {
 			return (selfS.isBackSprite ? -1 : 1) * offset;
 		};
@@ -1366,7 +1366,7 @@ function Battle(frame, logFrame, noPreload) {
 			selfS.elem.delay(time);
 			if (selfS.subElem) {
 				selfS.subElem.delay(time);
-			};
+			}
 			return selfS;
 		};
 		this.selfAnim = function (end, transition) {
@@ -1424,7 +1424,7 @@ function Battle(frame, logFrame, noPreload) {
 		elem.animate({
 			opacity: 0
 		}, 250);
-	}
+	};
 	this.showEffect = function (img, start, end, transition, after) {
 		var effect = img;
 		if (img && img.length) effect = BattleEffects[img];
@@ -1493,10 +1493,10 @@ function Battle(frame, logFrame, noPreload) {
 
 		this.behindx = function (offset) {
 			return selfS.x + (!selfS.n ? -1 : 1) * offset;
-		}
+		};
 		this.behindy = function (offset) {
 			return selfS.y + (!selfS.n ? 1 : -1) * offset;
-		}
+		};
 		this.leftof = function (offset) {
 			return (!selfS.n ? -1 : 1) * offset;
 		};
@@ -1537,7 +1537,7 @@ function Battle(frame, logFrame, noPreload) {
 				sprite: new self.Sprite(null, selfS.leftof(-100), selfS.y, selfS.z, selfS.n)
 			};
 			for (var i = 0; i < selfS.pokemon.length; i++) {
-				poke = selfS.pokemon[i];
+				var poke = selfS.pokemon[i];
 				poke.sprite.destroy();
 				poke.sprite = new self.Sprite(Tools.getSpriteData(poke, selfS.n, {afd: self.tier === "[Seasonal] Fools Festival"}), selfS.x, selfS.y, selfS.z, selfS.n);
 			}
@@ -1573,7 +1573,7 @@ function Battle(frame, logFrame, noPreload) {
 		this.updateSidebar = function () {
 			var pokemonhtml = '';
 			for (var i = 0; i < 6; i++) {
-				poke = selfS.pokemon[i];
+				var poke = selfS.pokemon[i];
 				if (i >= selfS.totalPokemon) {
 					pokemonhtml += '<span class="pokemonicon" style="'+Tools.getIcon('pokeball-none')+'"></span>';
 				} else if (!poke) {
@@ -1597,6 +1597,7 @@ function Battle(frame, logFrame, noPreload) {
 			}
 		};
 		this.addSideCondition = function (condition) {
+			var elem, curelem;
 			condition = toId(condition);
 			if (selfS.sideConditions[condition]) {
 				if (condition === 'spikes' || condition === 'toxicspikes') {
@@ -1638,7 +1639,6 @@ function Battle(frame, logFrame, noPreload) {
 				}
 				return;
 			}
-			var elem, curelem;
 			switch (condition) {
 			case 'reflect':
 				self.spriteElemsFront[selfS.n].append('<div class="sidecondition-reflect" style="display:none;position:absolute" />');
@@ -2262,7 +2262,7 @@ function Battle(frame, logFrame, noPreload) {
 			} else if (pokemon.status === 'frz') {
 				status += '<span class="frz">FRZ</span> ';
 			}
-			for (x in pokemon.boosts) {
+			for (var x in pokemon.boosts) {
 				if (pokemon.boosts[x]) {
 					status += '<span class="' + pokemon.getBoostType(x) + '">' + pokemon.getBoost(x) + '</span> ';
 				}
@@ -2329,21 +2329,21 @@ function Battle(frame, logFrame, noPreload) {
 				ragepowder: '<span class="good">Rage Powder</span>',
 				followme: '<span class="good">Follow Me</span>'
 			};
-			for (i in pokemon.volatiles) {
+			for (var i in pokemon.volatiles) {
 				if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
 				else status += statusTable[i];
 			}
-			for (i in pokemon.turnstatuses) {
+			for (var i in pokemon.turnstatuses) {
 				if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
 				else status += statusTable[i];
 			}
-			for (i in pokemon.movestatuses) {
+			for (var i in pokemon.movestatuses) {
 				if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
 				else status += statusTable[i];
 			}
 			var statusbar = pokemon.statbarElem.find('.status');
 			statusbar.html(status);
-		}
+		};
 	};
 	this.sidesSwitched = false;
 	this.switchSides = function () {
@@ -2365,7 +2365,7 @@ function Battle(frame, logFrame, noPreload) {
 		self.yourSide.updateSidebar();
 		self.yourSide.updateSprites();
 		// nothing else should need updating - don't call this function after sending out pokemon
-	}
+	};
 
 	this.messageActive = false;
 	this.message = function (message, hiddenmessage) {
@@ -2405,7 +2405,7 @@ function Battle(frame, logFrame, noPreload) {
 		}
 		self.messageActive = true;
 		self.log('<div>' + message + (hiddenmessage ? hiddenmessage : '') + '</div>');
-	}
+	};
 	this.endAction = function () {
 		if (self.messageActive) {
 			self.messageActive = false;
@@ -2417,7 +2417,7 @@ function Battle(frame, logFrame, noPreload) {
 				self.activityWait(self.messagebarElem);
 			}
 		}
-	}
+	};
 
 	//
 	// activities
@@ -2425,23 +2425,23 @@ function Battle(frame, logFrame, noPreload) {
 	this.start = function () {
 		self.log('<div>Battle between ' + Tools.escapeHTML(self.p1.name) + ' and ' + Tools.escapeHTML(self.p2.name) + ' started!</div>');
 		if (self.startCallback) self.startCallback(self);
-	}
+	};
 	this.winner = function (winner) {
 		if (winner) self.message('' + Tools.escapeHTML(winner) + ' won the battle!');
 		else self.message('Tie between ' + Tools.escapeHTML(self.p1.name) + ' and ' + Tools.escapeHTML(self.p2.name) + '!');
 		self.done = 1;
-	}
+	};
 	this.prematureEnd = function () {
 		self.message('This replay ends here.');
 		self.done = 1;
-	}
+	};
 	this.endLastTurn = function() {
 		if (self.endLastTurnPending) {
 			self.endLastTurnPending = false;
 			self.mySide.updateStatbar(null, true);
 			self.yourSide.updateStatbar(null, true);
 		}
-	}
+	};
 	this.setTurn = function (turnnum) {
 		turnnum = parseInt(turnnum);
 		if (turnnum == self.turn+1) {
@@ -2490,7 +2490,7 @@ function Battle(frame, logFrame, noPreload) {
 		});
 		self.activityWait(500);
 		if (self.turnCallback) self.turnCallback(self);
-	}
+	};
 	this.changeWeather = function (weather, poke, isUpkeep) {
 		weather = toId(weather);
 		var weatherTable = {
@@ -2557,7 +2557,7 @@ function Battle(frame, logFrame, noPreload) {
 			self.message(weatherTable[self.weather].endMessage);
 		}
 		self.updateWeather(weather);
-	}
+	};
 	this.updateWeatherLeft = function () {
 		for (var i = 0; i < self.pseudoWeather.length; i++) {
 			if (self.pseudoWeather[i][1] > 0) self.pseudoWeather[i][1]--;
@@ -2587,7 +2587,7 @@ function Battle(frame, logFrame, noPreload) {
 			return ' <small>(' + self.weatherTimeLeft + ' turn' + (self.weatherTimeLeft == 1 ? '' : 's') + ' left)</small>';
 		}
 		return '';
-	}
+	};
 	this.updateWeather = function (weather) {
 		var weatherNameTable = {
 			sunnyday: 'Sun',
@@ -2654,7 +2654,7 @@ function Battle(frame, logFrame, noPreload) {
 				opacity: .4
 			}, 400);
 		}
-	}
+	};
 	this.resultAnim = function (pokemon, result, type, i) {
 		if (self.fastForward) {
 			pokemon.side.updateStatbar(pokemon, false, true);
@@ -2664,7 +2664,7 @@ function Battle(frame, logFrame, noPreload) {
 			i = 0;
 		}
 		self.fxElem.append('<div class="result ' + type + 'result"><strong>' + result + '</strong></div>');
-		effectElem = self.fxElem.children().last();
+		var effectElem = self.fxElem.children().last();
 		effectElem.delay(i * 350 + self.animationDelay).css({
 			display: 'block',
 			opacity: 0,
@@ -2679,7 +2679,7 @@ function Battle(frame, logFrame, noPreload) {
 		}, 1000, 'swing');
 		pokemon.side.updateStatbar(pokemon);
 		self.activityWait(effectElem);
-	}
+	};
 	this.damageAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) i = 0;
@@ -3448,7 +3448,6 @@ function Battle(frame, logFrame, noPreload) {
 					self.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s " + (args[3] ? args[3] + " was" : "stats were") + " not lowered!";
 					break;
-				case '':
 				default:
 					actions += "But it failed!";
 					break;
@@ -4593,12 +4592,12 @@ function Battle(frame, logFrame, noPreload) {
 				switch (effect.id) {
 				case 'perishsong':
 					actions += 'All Pok&#xE9;mon hearing the song will faint in three turns!';
-					if (self.mySide.active[0] && !self.mySide.active[0].volatiles['perish0']
-					&& !self.mySide.active[0].volatiles['perish1'] && !self.mySide.active[0].volatiles['perish2']) {
+					if (self.mySide.active[0] && !self.mySide.active[0].volatiles['perish0'] &&
+						!self.mySide.active[0].volatiles['perish1'] && !self.mySide.active[0].volatiles['perish2']) {
 						self.mySide.active[0].addVolatile('perish3');
 					}
-					if (self.yourSide.active[0] && !self.yourSide.active[0].volatiles['perish0']
-					 && !self.yourSide.active[0].volatiles['perish1'] && !self.yourSide.active[0].volatiles['perish2']) {
+					if (self.yourSide.active[0] && !self.yourSide.active[0].volatiles['perish0'] &&
+						!self.yourSide.active[0].volatiles['perish1'] && !self.yourSide.active[0].volatiles['perish2']) {
 						self.yourSide.active[0].addVolatile('perish3');
 					}
 					self.mySide.updateStatbar();
@@ -4646,7 +4645,7 @@ function Battle(frame, logFrame, noPreload) {
 		} else if (hiddenactions) {
 			self.message('', '<small>' + hiddenactions + '</small>');
 		}
-	}
+	};
 
 	/* this.parseSpriteData = function (name) {
 		var siden = 0,
@@ -4744,23 +4743,19 @@ function Battle(frame, logFrame, noPreload) {
 		if (name.substr(0, 4) === 'p2: ' || name === 'p2') {
 			siden = self.p2.n;
 			name = name.substr(4);
-			species = name;
 		} else if (name.substr(0, 4) === 'p1: ' || name === 'p1') {
 			siden = self.p1.n;
 			name = name.substr(4);
-			species = name;
 		} else if (name.substr(0, 2) === 'p2' && name.substr(3, 2) === ': ') {
 			slot = slotChart[name.substr(2,1)];
 			siden = self.p2.n;
 			name = name.substr(5);
 			pokemonid = 'p2: '+name;
-			species = name;
 		} else if (name.substr(0, 2) === 'p1' && name.substr(3, 2) === ': ') {
 			slot = slotChart[name.substr(2,1)];
 			siden = self.p1.n;
 			name = name.substr(5);
 			pokemonid = 'p1: '+name;
-			species = name;
 		}
 
 		if (!slot) slot = 0;
@@ -4865,7 +4860,7 @@ function Battle(frame, logFrame, noPreload) {
 			slot: slot
 		});
 		return pokemon;
-	}
+	};
 	this.getSide = function (sidename) {
 		if (sidename === 'p1' || sidename.substr(0,3)==='p1:') return self.p1;
 		if (sidename === 'p2' || sidename.substr(0,3)==='p2:') return self.p2;
@@ -4877,7 +4872,7 @@ function Battle(frame, logFrame, noPreload) {
 			name: sidename,
 			id: sidename.replace(/ /g, '')
 		};
-	}
+	};
 
 	this.add = function (command, fastForward) {
 		if (self.playbackState === 0) {
@@ -4897,12 +4892,12 @@ function Battle(frame, logFrame, noPreload) {
 		} else {
 			self.activityQueue.push(command);
 		}
-	}
+	};
 	this.instantAdd = function (command) {
 		self.run(command, true);
 		self.preemptActivityQueue.push(command);
 		self.add(command);
-	}
+	};
 	this.teamPreview = function (start) {
 		for (var k = 0; k < 2; k++) {
 			var teamText = '';
@@ -5010,15 +5005,13 @@ function Battle(frame, logFrame, noPreload) {
 			break;
 		case 'chatmsg':
 			args.shift();
-			list = args.join('|');
-			self.log('<div class="chat">' + Tools.escapeHTML(list) + '</div>', preempt);
+			self.log('<div class="chat">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'chatmsg-raw':
 		case 'raw':
 		case 'html':
 			args.shift();
-			list = args.join('|');
-			self.log('<div class="chat">' + Tools.sanitizeHTML(list) + '</div>', preempt);
+			self.log('<div class="chat">' + Tools.sanitizeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'pm':
 			self.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + Tools.parseMessage(args[4], args[1]) + '</span>');
@@ -5029,14 +5022,12 @@ function Battle(frame, logFrame, noPreload) {
 		case 'inactive':
 			self.kickingInactive = true;
 			args.shift();
-			list = args.join('|');
-			self.log('<div class="chat timer">' + Tools.escapeHTML(list) + '</div>', preempt);
+			self.log('<div class="chat timer">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'inactiveoff':
 			self.kickingInactive = false;
 			args.shift();
-			list = args.join('|');
-			self.log('<div class="chat timer">' + Tools.escapeHTML(list) + '</div>', preempt);
+			self.log('<div class="chat timer">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'join':
 		case 'j':
@@ -5149,7 +5140,7 @@ function Battle(frame, logFrame, noPreload) {
 			var poke = self.getPokemon(args[1]);
 			var move = Tools.getMove(args[2]);
 			if (self.checkActive(poke)) return;
-			poke2 = self.getPokemon(args[3]);
+			var poke2 = self.getPokemon(args[3]);
 			poke.sprite.beforeMove();
 			self.useMove(poke, move, poke2, kwargs);
 			poke.sprite.afterMove();
@@ -5267,7 +5258,7 @@ function Battle(frame, logFrame, noPreload) {
 				if (self.errorCallback) self.errorCallback(self);
 			}
 		}
-	}
+	};
 	this.endPrevAction = function () {
 		if (self.minorQueue.length) {
 			self.runMinor();
@@ -5282,29 +5273,29 @@ function Battle(frame, logFrame, noPreload) {
 			return true;
 		}
 		return false;
-	}
+	};
 	this.checkActive = function (poke) {
 		if (!poke.side.active[poke.slot]) {
 			// SOMEONE jumped in in the middle of a replay. <_<
 			poke.side.replace(poke);
 		}
 		return false;
-	}
+	};
 	this.waitForResult = function () {
 		if (self.endPrevAction()) return true;
 		self.resultWaiting = true;
 		return false;
-	}
+	};
 	this.doBeforeThis = function (act) {
 		if (act()) {
 			self.activityStep--;
 			return true;
 		}
 		return false;
-	}
+	};
 	this.doAfterThis = function (act) {
 		this.activityAfter = act;
-	}
+	};
 
 	// activity queue
 	this.animationDelay = 0;
@@ -5340,7 +5331,7 @@ function Battle(frame, logFrame, noPreload) {
 			self.frameElem.find('div.playbutton button').click(self.resumeButton);
 		}
 		self.soundPause();
-	}
+	};
 	this.play = function () {
 		if (self.fastForward) {
 			self.paused = false;
@@ -5357,7 +5348,7 @@ function Battle(frame, logFrame, noPreload) {
 			self.nextActivity();
 		}
 		self.frameElem.find('div.playbutton').remove();
-	}
+	};
 	this.skipTurn = function () {
 		self.fastForwardTo(self.turn + 1);
 	};
@@ -5442,19 +5433,19 @@ function Battle(frame, logFrame, noPreload) {
 			if (self.activityAnimations.length) break;
 		}
 		self.activityAnimations.promise().done(self.activeQueue);
-	}
+	};
 	this.activityWait = function (elem) {
 		if (typeof elem === 'number' && elem > self.activityDelay) {
 			self.activityDelay = elem;
 			return;
 		}
 		self.activityAnimations = self.activityAnimations.add(elem);
-	}
+	};
 
 	this.newBattle = function () {
 		self.reset();
 		self.activityQueue = [];
-	}
+	};
 	this.setQueue = function (queue) {
 		self.reset();
 		self.activityQueue = queue;
@@ -5473,7 +5464,7 @@ function Battle(frame, logFrame, noPreload) {
 			}
 		} */
 		self.playbackState = 1;
-	}
+	};
 
 	// callback
 	this.faintCallback = null;
@@ -5513,7 +5504,7 @@ function Battle(frame, logFrame, noPreload) {
 	this.preloadCallback = function () {};
 	this.preloadEffects = function () {
 		if (noPreload) return;
-		for (i in BattleEffects) {
+		for (var i in BattleEffects) {
 			if (BattleEffects[i].url) self.preloadImage(BattleEffects[i].url);
 		}
 		self.preloadImage(Tools.resourcePrefix + 'fx/weather-raindance.jpg'); // rain is used often enough to precache
@@ -5591,7 +5582,6 @@ function Battle(frame, logFrame, noPreload) {
 			BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469);
 			self.bgm = 'audio/xy-trainer.mp3';
 			break;
-		case 10:
 		default:
 			BattleSound.loadBgm('audio/xy-rival.mp3', 7802, 58634);
 			self.bgm = 'audio/xy-rival.mp3';

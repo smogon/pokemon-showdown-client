@@ -72,7 +72,7 @@ if (!Array.prototype.indexOf) {
 			}
 		}
 		return -1;
-	}
+	};
 }
 
 // MD5 minified
@@ -307,7 +307,7 @@ var Tools = {
 
 	escapeFormat: function(formatid) {
 		if (window.BattleFormats && BattleFormats[formatid]) {
-			return Tools.escapeHTML(BattleFormats[formatid].name)
+			return Tools.escapeHTML(BattleFormats[formatid].name);
 		}
 		return Tools.escapeHTML(formatid);
 	},

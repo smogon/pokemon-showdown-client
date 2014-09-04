@@ -887,8 +887,8 @@
 						break;
 					}
 				}
-				/* falls through */
 
+			/* fall through */
 			default:
 				// the messagetype wasn't in our list of recognized global
 				// messagetypes; so the message is presumed to be for the
@@ -939,7 +939,7 @@
 					}
 					var id = toId(name);
 					var isTeambuilderFormat = searchShow && !team;
-					var teambuilderFormat = undefined;
+					var teambuilderFormat;
 					if (isTeambuilderFormat) {
 						var parenPos = name.indexOf('(');
 						if (parenPos > 0 && name.charAt(name.length-1) === ')') {
@@ -1337,7 +1337,7 @@
 			if (popup.type === 'normal') {
 				$('body').append(popup.el);
 			} else {
-				$overlay = $('<div class="ps-overlay"></div>').appendTo('body').append(popup.el)
+				$overlay = $('<div class="ps-overlay"></div>').appendTo('body').append(popup.el);
 				if (popup.type === 'semimodal') {
 					$overlay.on('click', function(e) {
 						if (e.currentTarget === e.target) {
@@ -2018,7 +2018,7 @@
 				buf += '<p class="error">Couldn\'t connect to server!</p>';
 				buf += '<p class="buttonbar"><button type="submit">Retry</button> <button name="close">Close</button></p>';
 			} else {
-				buf += '<p>You have been disconnected &ndash; possibly because the server was restarted.</p>'
+				buf += '<p>You have been disconnected &ndash; possibly because the server was restarted.</p>';
 				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button name="close">Close</button></p>';
 			}
 
@@ -2215,7 +2215,7 @@
 			var buf = '';
 			var muted = !!Tools.prefs('mute');
 			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>'+(muted?'<em>(muted)</em>':'<input type="slider" name="effectvolume" value="'+(Tools.prefs('effectvolume')||50)+'" />')+'</p>';
-			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>'+(muted?'<em>(muted)</em>':'<input type="slider" name="musicvolume" value="'+(Tools.prefs('musicvolume')||50)+'" />')+'</p>'
+			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>'+(muted?'<em>(muted)</em>':'<input type="slider" name="musicvolume" value="'+(Tools.prefs('musicvolume')||50)+'" />')+'</p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="muted"'+(muted?' checked':'')+' /> Mute sounds</label></p>';
 			this.$el.html(buf).css('min-width', 160);
 		},
@@ -2460,7 +2460,7 @@
 
 			buf += '<div class="avatarlist">';
 			for (var i=1; i<=293; i++) {
-				var offset = '-'+(((i-1)%16)*80)+'px -'+(Math.floor((i-1)/16)*80)+'px'
+				var offset = '-'+(((i-1)%16)*80)+'px -'+(Math.floor((i-1)/16)*80)+'px';
 				buf += '<button name="setAvatar" value="'+i+'" style="background-position:'+offset+'"'+(i===cur?' class="cur"':'')+'></button>';
 			}
 			buf += '</div><div style="clear:left"></div>';
