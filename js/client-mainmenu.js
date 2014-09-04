@@ -129,6 +129,7 @@
 
 			var $chatFrame = $pmWindow.find('.pm-log');
 			var $chat = $pmWindow.find('.inner');
+			var autoscroll = false;
 			if ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height()) {
 				autoscroll = true;
 			}
@@ -174,7 +175,7 @@
 			var userid = toId(name);
 			var $pmWindow = this.$pmBox.find('.pm-window-'+userid);
 			if (!$pmWindow.length) {
-				group = name.charAt(0);
+				var group = name.charAt(0);
 				if (group === ' ') {
 					group = '';
 				} else {
@@ -222,7 +223,7 @@
 				$pmWindow.remove();
 				return;
 			}
-			$pmWindow = this.$pmBox.find('.pm-window-'+userid)
+			$pmWindow = this.$pmBox.find('.pm-window-'+userid);
 			$pmWindow.hide();
 
 			var $rejectButton = $pmWindow.find('button[name=rejectChallenge]');
@@ -503,9 +504,9 @@
 			}
 
 			if (format) format = toId(format);
-			var teamIndex = undefined;
+			var teamIndex;
 			if (Storage.teams && team) {
-				var team = toId(team);
+				team = toId(team);
 				for (var i = 0; i < Storage.teams.length; i++) {
 					if (team === toId(Storage.teams[i].name || '')) {
 						teamIndex = i;
@@ -591,7 +592,7 @@
 				return '<button class="select formatselect" name="format" disabled value="'+Tools.escapeHTML(formatid)+'"><em>Loading...</em></button>';
 			}
 			if (_.isEmpty(BattleFormats)) {
-				return '<button class="select formatselect" name="format" disabled><em>No formats available</em></button>'
+				return '<button class="select formatselect" name="format" disabled><em>No formats available</em></button>';
 			}
 			if (!noChoice) {
 				this.curFormat = formatid;
@@ -623,7 +624,7 @@
 			}
 			var teams = Storage.teams;
 			if (!teams.length) {
-				return '<button class="select teamselect" name="team" disabled>You have no teams</button>'
+				return '<button class="select teamselect" name="team" disabled>You have no teams</button>';
 			}
 			if (teamIndex === undefined) {
 				teamIndex = 0;
@@ -682,9 +683,6 @@
 			app.send('/cancelsearch');
 			this.searching = false;
 			this.updateSearch();
-		},
-		joinRoom: function(room) {
-			app.joinRoom(room);
 		},
 		credits: function() {
 			app.addPopup(CreditsPopup);
@@ -763,10 +761,10 @@
 				bufBoundary = Math.ceil(teams.length/2);
 			}
 
+			var format = BattleFormats[data.format];
 			if (!teams.length) {
 				bufs[curBuf] = '<li><em>You have no teams</em></li>';
 			} else {
-				var format = BattleFormats[data.format];
 				var curTeam = +data.team;
 				var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
 				var count = 0;

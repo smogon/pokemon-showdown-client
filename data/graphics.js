@@ -6107,7 +6107,7 @@ var BattleMoveAnims = {
 			}, 'decel', 'explode');
 		}
 	}
-}
+};
 
 // placeholder animations
 BattleMoveAnims['vcreate'] = {anim:BattleMoveAnims['flareblitz'].anim};
