@@ -442,9 +442,9 @@
 						break;
 
 					case 'error':
-						var appendError = (function(message) {
+						var appendError = function(message) {
 							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + message + "</div>");
-						}).bind(this);
+						}.bind(this);
 
 						switch (data[0]) {
 							case 'BracketFrozen':

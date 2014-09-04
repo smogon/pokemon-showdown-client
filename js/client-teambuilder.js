@@ -121,7 +121,7 @@
 			}
 
 			if (!teams) {
-				buf = '<div class="pad"><p>lol zarel this is a horrible teambuilder</p>'
+				buf = '<div class="pad"><p>lol zarel this is a horrible teambuilder</p>';
 				buf += '<p>that\'s because we\'re not done loading it...</p></div>';
 				this.$el.html(buf);
 				return;

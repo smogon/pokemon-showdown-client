@@ -512,10 +512,8 @@
 
 			case 'timestamps':
 				var targets = target.split(',');
-				if ((['all', 'lobby', 'pms'].indexOf(targets[0]) === -1)
-						|| (targets.length < 2)
-						|| (['off', 'minutes', 'seconds'].indexOf(
-							targets[1] = targets[1].trim()) === -1)) {
+				if ((['all', 'lobby', 'pms'].indexOf(targets[0]) === -1) || targets.length < 2 ||
+					(['off', 'minutes', 'seconds'].indexOf(targets[1] = targets[1].trim()) === -1)) {
 					this.add('Error: Invalid /timestamps command');
 					return '/help timestamps';	// show help
 				}
@@ -1112,11 +1110,7 @@
 			var pref = Tools.prefs('timestamps') || {};
 			var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
 			if ((sectionPref === 'off') || (sectionPref === undefined)) return '';
-			if (!deltatime || isNaN(deltatime)) {
-				var date = new Date();
-			} else {
-				var date = new Date(Date.now() - deltatime * 1000);
-			}
+			var date = new Date(deltatime && !isNaN(deltatime) ? Date.now() - deltatime * 1000 : undefined);
 			var components = [ date.getHours(), date.getMinutes() ];
 			if (sectionPref === 'seconds') {
 				components.push(date.getSeconds());
@@ -1189,10 +1183,6 @@
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
 			$('#' + this.room.id + '-usercount-users').html('' + users);
 		},
-		updateCurrentUser: function() {
-			$('.userlist > .cur').attr('class', ''); // this doesn't need to be namespaced
-			$('#' + this.room.id + '-userlist-user-' + me.userForm).attr('class', 'cur');
-		},
 		add: function(userid) {
 			$('#' + this.room.id + '-userlist-user-' + userid).remove();
 			var users = this.$el.children();
@@ -1215,12 +1205,6 @@
 		},
 		remove: function(userid) {
 			$('#' + this.room.id + '-userlist-user-' + userid).remove();
-		},
-		buttonOnClick: function(userid) {
-			if (app.user.get('named')) {
-				return selfR.formChallenge(userid);
-			}
-			return selfR.formRename();
 		},
 		constructItem: function(userid) {
 			var name = this.room.users[userid];

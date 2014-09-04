@@ -82,7 +82,7 @@
 				buf += '<div><a href="' + app.root+id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + escapedDesc + '</small></a></div>';
 			}
 
-			buf += '<p><button name="joinRoomPopup">Join other room</button></p>'
+			buf += '<p><button name="joinRoomPopup">Join other room</button></p>';
 
 			buf += '</div></div>';
 			this.$el.html(buf);
