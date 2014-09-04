@@ -263,7 +263,7 @@
 							choices: [],
 							switchFlags: {},
 							switchOutFlags: {}
-						}
+						};
 						while (switchables[this.choice.choices.length] && switchables[this.choice.choices.length].fainted && this.choice.choices.length + 1 < this.battle.mySide.active.length) {
 							this.choice.choices.push('pass');
 						}
@@ -391,7 +391,7 @@
 						controls += movebuttons;
 					}
 					if (switchables[pos].canMegaEvo) {
-						controls += '<br /><label><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;evolution</label>'
+						controls += '<br /><label><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;evolution</label>';
 					}
 					controls += '<div style="clear:left"></div>';
 					controls += '</div></div>';
@@ -500,7 +500,7 @@
 						teamPreview: [1,2,3,4,5,6].slice(0,switchables.length),
 						done: 0,
 						count: 0
-					}
+					};
 					if (this.battle.gameType === 'doubles') {
 						this.choice.count = 2;
 					}
@@ -606,7 +606,6 @@
 			if (!sideData.id) return;
 			this.side = sideData.id;
 			if (this.battle.sidesSwitched !== !!(this.side === 'p2')) {
-				sidesSwitched = true;
 				this.battle.reset(true);
 				this.battle.switchSides();
 				if (midBattle) {
@@ -916,7 +915,7 @@
 			case 'pokemon':
 				var pokemon = this.battle.getPokemon(thing);
 				if (!pokemon) return;
-				//fallthrough
+				/* falls through */
 			case 'sidepokemon':
 				if (!pokemon) pokemon = this.battle.mySide.pokemon[parseInt(thing)];
 				var gender = '';

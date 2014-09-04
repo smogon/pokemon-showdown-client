@@ -118,7 +118,7 @@ _Storage.prototype.packTeam = function(team) {
 		if (set.gender && set.gender !== template.gender) {
 			buf += '|'+set.gender;
 		} else {
-			buf += '|'
+			buf += '|';
 		}
 
 		// ivs
@@ -136,14 +136,14 @@ _Storage.prototype.packTeam = function(team) {
 		if (set.shiny) {
 			buf += '|S';
 		} else {
-			buf += '|'
+			buf += '|';
 		}
 
 		// level
 		if (set.level && set.level != 100) {
 			buf += '|'+set.level;
 		} else {
-			buf += '|'
+			buf += '|';
 		}
 
 		// happiness

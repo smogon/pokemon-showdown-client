@@ -55,16 +55,12 @@ function BattleChart()
 		{
 		case 'pokemon':
 			return self.pokemonRow(thing, attrs, match, isFirst);
-			break;
 		case 'item':
 			return self.itemRow(thing, attrs, match, isFirst);
-			break;
 		case 'ability':
 			return self.abilityRow(thing, attrs, match, isFirst);
-			break;
 		case 'move':
 			return self.moveRow(thing, attrs, match, isFirst);
-			break;
 		}
 	};
 	this.pokemonRow = function(pokemon, attrs, match, isFirst) {
