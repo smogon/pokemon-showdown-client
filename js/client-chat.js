@@ -493,12 +493,20 @@
 				return false;
 
 			case 'showjoins':
-				this.add('Join/leave messages: ON');
-				Tools.prefs('showjoins', true);
+				if (this.type !== 'chat') return this.add('Join/leave messages can only be changed for chat rooms');
+				this.add('Join/leave messages: ON for ' + this.title + '');
+				var showjoins = Tools.prefs('showjoins') || [];
+				showjoins.push(this.id);
+				Tools.prefs('showjoins', showjoins);
 				return false;
 			case 'hidejoins':
-				this.add('Join/leave messages: HIDDEN');
-				Tools.prefs('showjoins', false);
+				if (this.type !== 'chat') return this.add('Join/leave messages can only be changed for chat rooms');
+				this.add('Join/leave messages: HIDDEN for ' + this.title + '');
+				var showjoins = Tools.prefs('showjoins');
+				if (showjoins.indexOf(this.id) >= 0) {
+					showjoins.splice(showjoins.indexOf(this.id), 1);
+					Tools.prefs('showjoins', showjoins);
+				}
 				return false;
 
 			case 'showbattles':
@@ -969,7 +977,7 @@
 				this.userList.add(userid);
 				return;
 			}
-			if (silent && !Tools.prefs('showjoins')) return;
+			if (silent && (!Tools.prefs('showjoins') || Tools.prefs('showjoins').indexOf(this.id) === -1)) return;
 			if (!this.$joinLeave) {
 				this.$chat.append('<div class="message"><small>Loading...</small></div>');
 				this.$joinLeave = this.$chat.children().last();
