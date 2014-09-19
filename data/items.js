@@ -1454,7 +1454,7 @@ exports.BattleItems = {
 		spritenum: 153,
 		num: 497,
 		gen: 2,
-		desc: "A Poké Ball that makes caught Pokémon more friendly."
+		desc: "A Poke Ball that makes caught Pokemon more friendly."
 	},
 	"fullincense": {
 		id: "fullincense",
@@ -1918,7 +1918,7 @@ exports.BattleItems = {
 		onAfterMoveSecondary: function (target, source, move) {
 			if (source && source !== target && move && move.category === 'Physical') {
 				if (target.eatItem()) {
-					this.damage(source.maxhp / 8, source, target);
+					this.damage(source.maxhp / 8, source, target, null, true);
 				}
 			}
 		},
@@ -3484,7 +3484,7 @@ exports.BattleItems = {
 		onAfterDamageOrder: 2,
 		onAfterDamage: function (damage, target, source, move) {
 			if (source && source !== target && move && move.isContact) {
-				this.damage(source.maxhp / 6, source, target);
+				this.damage(source.maxhp / 6, source, target, null, true);
 			}
 		},
 		num: 540,
@@ -3553,7 +3553,7 @@ exports.BattleItems = {
 		onAfterMoveSecondary: function (target, source, move) {
 			if (source && source !== target && move && move.category === 'Special') {
 				if (target.eatItem()) {
-					this.damage(source.maxhp / 8, source, target);
+					this.damage(source.maxhp / 8, source, target, null, true);
 				}
 			}
 		},
@@ -3686,7 +3686,8 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30
 		},
-		onAfterMoveSelf: function (source, target) {
+		onAfterMoveSecondarySelfPriority: -1,
+		onAfterMoveSecondarySelf: function (source, target) {
 			if (source.lastDamage > 0) {
 				this.heal(source.lastDamage / 8, source);
 			}
@@ -4467,6 +4468,6 @@ exports.BattleItems = {
 		},
 		num: 276,
 		gen: 4,
-		desc: "The accuracy of attacks by the holder is 1.2x if it moves after the target."
+		desc: "The accuracy of attacks by the holder is 1.2x if it is the last to move in a turn."
 	}
 };
