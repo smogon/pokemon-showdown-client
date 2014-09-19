@@ -485,6 +485,10 @@
 								appendError("You must have a name in order to join the tournament.");
 								break;
 
+							case 'Full':
+								appendError("The tournament is already at maximum capacity for users.");
+								break;
+
 							default:
 								appendError("Unknown error: " + data[0]);
 								break;
