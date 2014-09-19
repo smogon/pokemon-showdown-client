@@ -426,7 +426,7 @@
 					app.addPopup(UserPopup, {name: target});
 				};
 				if (!target) {
-					app.addPopupPrompt("Whose user window would you like to open?", "Open", function(target) {
+					app.addPopupPrompt("Username", "Open", function(target) {
 						if (!target) return;
 						open(target);
 					});
