@@ -1110,7 +1110,12 @@
 			var pref = Tools.prefs('timestamps') || {};
 			var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
 			if ((sectionPref === 'off') || (sectionPref === undefined)) return '';
-			var date = new Date(deltatime && !isNaN(deltatime) ? Date.now() - deltatime * 1000 : undefined);
+			var date;
+			if (deltatime && !isNaN(deltatime)) {
+				date = new Date(Date.now() - deltatime * 1000);
+			} else {
+				date = new Date();
+			}
 			var components = [ date.getHours(), date.getMinutes() ];
 			if (sectionPref === 'seconds') {
 				components.push(date.getSeconds());
