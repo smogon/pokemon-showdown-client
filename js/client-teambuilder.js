@@ -1244,6 +1244,7 @@
 						if (this.curTeam.format === 'uu') return ['UU','BL2','RU','BL3','NU','PU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'ru') return ['RU','BL3','NU','PU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'nu') return ['NU','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'pu') return ['PU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'lc') return ['LC'];
 					}
 					return ['OU','Uber','BL','UU','BL2','RU','BL3','NU','PU','NFE','LC Uber','LC','Unreleased','CAP'];
