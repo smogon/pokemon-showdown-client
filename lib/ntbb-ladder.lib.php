@@ -115,20 +115,22 @@ class NTBBLadder {
 	var $serverid;
 	var $formatid;
 	var $rplen;
+	var $rpoffset;
 
 	function __construct($serverid, $formatid) {
 		$this->formatid = preg_replace('/[^a-z0-9]+/', '', strtolower($formatid));
 		$this->serverid = preg_replace('/[^a-z0-9]+/', '', strtolower($serverid));
 		$this->rplen = 24*60*60;
+		$this->rpoffset = 9*60*60;
 	}
 
 	function getrp() {
-		$rpnum = intval(time() / $this->rplen);
-		return $rpnum * $this->rplen;
+		$rpnum = intval((time() - $this->rpoffset) / $this->rplen) + 1;
+		return $rpnum * $this->rplen + $this->rpoffset;
 	}
 	function nextrp($rp) {
 		$rpnum = intval($rp / $this->rplen);
-		return ($rpnum+1) * $this->rplen;
+		return ($rpnum+1) * $this->rplen + $this->rpoffset;
 	}
 
 	function getRating(&$user, $create=false) {
