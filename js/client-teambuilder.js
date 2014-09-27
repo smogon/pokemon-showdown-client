@@ -147,6 +147,17 @@
 
 					var team = teams[i];
 
+					if (team && !team.team) {
+						team = null;
+					}
+					if (team) {
+						for (var j=0; j<team.team.length; j++) {
+							if (!team.team[j]) {
+								team = null;
+								break;
+							}
+						}
+					}
 					if (!team) {
 						buf += '<li>Error: A corrupted team was dropped</li>';
 						teams.splice(i,1);
