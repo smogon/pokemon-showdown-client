@@ -48,6 +48,7 @@ body {
 
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
+	color: black;
 }
 .textbox:hover {
 	border-color: #474747;
@@ -431,6 +432,7 @@ p.or:after {
 	border: 0;
 	border-radius: 2px;
 	background: transparent;
+	color: black;
 	width: 204px;
 	height: 19px;
 	text-align: left;
@@ -1750,6 +1752,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 .teambar button {
 	display: block;
 	background: #F3F3F3;
+	color: black;
 	border: 1px solid #AAAAAA;
 	padding: 0;
 	margin: -1px 2px 0 0;
@@ -1934,6 +1937,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
+	color: black;
 }
 .setdetails label, .setstats label {
 	cursor: pointer;
