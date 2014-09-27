@@ -1120,9 +1120,9 @@
 			if (sectionPref === 'seconds') {
 				components.push(date.getSeconds());
 			}
-			return '[' + components.map(
+			return '<small>[' + components.map(
 					function(x) { return (x < 10) ? '0' + x : x; }
-				).join(':') + '] ';
+				).join(':') + '] </small>';
 		},
 		parseBattleID: function(id) {
 			if (id.lastIndexOf('-') > 6) {
