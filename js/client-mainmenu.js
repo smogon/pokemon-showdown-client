@@ -149,14 +149,6 @@
 				$chat.append('<div class="notice"><button name="joinRoom" value="'+roomid+'">Join '+roomid+'</button></div>');
 			} else if (message.substr(0,10) === '/announce ') {
 				$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10), name) + '</span></div>');
-			} else if (message.substr(0,14) === '/data-pokemon ') {
-				$chat.append('<div class="message"><ul class="utilichart">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,11) === '/data-item ') {
-				$chat.append('<div class="message"><ul class="utilichart">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,14) === '/data-ability ') {
-				$chat.append('<div class="message"><ul class="utilichart">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,11) === '/data-move ') {
-				$chat.append('<div class="message"><ul class="utilichart">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 			} else {
 				// Normal chat message.
 				if (message.substr(0,2) === '//') message = message.substr(1);
