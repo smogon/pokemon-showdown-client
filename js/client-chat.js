@@ -596,17 +596,24 @@
 			case 'rating':
 			case 'ladder':
 				if (!target) target = app.user.get('userid');
+				var targets = target.split(', ');
+				var formats = [];
+				for (var j=1; j<targets.length; j++) {
+					formats.push(toId(targets[j]));
+				}
+
 				var self = this;
-				$.get(app.user.getActionPHP() + '?act=ladderget&user='+encodeURIComponent(target), Tools.safeJSON(function(data) {
+				$.get(app.user.getActionPHP() + '?act=ladderget&user='+encodeURIComponent(targets[0]), Tools.safeJSON(function(data) {
 					try {
 						var buffer = '<div class="ladder"><table>';
-						buffer += '<tr><td colspan="8">User: <strong>'+target+'</strong></td></tr>';
+						buffer += '<tr><td colspan="8">User: <strong>'+targets[0]+'</strong></td></tr>';
 						if (!data.length) {
 							buffer += '<tr><td colspan="8"><em>This user has not played any ladder games yet.</em></td></tr>';
 						} else {
 							buffer += '<tr><th>Format</th><th>Elo</th><th>GXE</th><th>Glicko-1</th><th>COIL</th><th>W</th><th>L</th><th>T</th></tr>';
 							for (var i=0; i<data.length; i++) {
 								var row = data[i];
+								if (formats.length > 0 && formats.indexOf(row.formatid) === -1) continue;
 								buffer += '<tr><td>'+row.formatid+'</td><td><strong>'+Math.round(row.acre)+'</strong></td><td>'+Math.round(row.gxe,1)+'</td><td>';
 								if (row.rprd > 100) {
 									buffer += '<span><em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em> <small>(provisional)</small></span>';
