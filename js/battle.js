@@ -3792,6 +3792,10 @@ function Battle(frame, logFrame, noPreload) {
 				case 'darkaura':
 					actions += "" + poke.getName() + " is radiating a dark aura!";
 					break;
+				case 'airlock':
+				case 'cloudnine':
+					actions += "The effects of weather disappeared.";
+					break;
 				default:
 					actions += "" + poke.getName() + " has " + ability.name + "!";
 					break;
