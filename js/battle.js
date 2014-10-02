@@ -3812,7 +3812,7 @@ function Battle(frame, logFrame, noPreload) {
 					// do nothing
 				} else switch (effect.id) {
 				case 'mummy':
-					actions += "" + poke.getName() + "\'s Ability " + ability.name + " was suppressed!";
+					actions += "(" + poke.getName() + "\'s Ability was previously " + ability.name + ")";
 					break;
 				default:
 					actions += "" + poke.getName() + "\'s Ability was suppressed!";
