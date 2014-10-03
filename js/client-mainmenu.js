@@ -609,6 +609,7 @@
 			}
 			return '<button class="select formatselect'+(noChoice?' preselected':'')+'" name="format" value="'+formatid+'"'+(noChoice?' disabled':'')+'>'+Tools.escapeFormat(formatid)+'</button>';
 		},
+		curFolder: '',
 		curTeamFormat: '',
 		curTeamIndex: -1,
 		renderTeams: function(formatid, teamIndex) {
@@ -641,6 +642,23 @@
 				}
 			} else {
 				teamIndex = +teamIndex;
+			}
+			if (this.curFolder && teams[teamIndex].folder !== this.curFolder) {
+				for (var i=0; i<teams.length; i++) {
+					if (teams[i].format === formatid && teams[i].folder === this.curFolder) {
+						teamIndex = i;
+						var matched = true;
+						break;
+					}
+				}
+				if (!matched) {
+					for (var i=0; i<teams.length; i++) {
+						if (teams[i].folder === this.curFolder) {
+							teamIndex = i;
+							break;
+						}
+					}
+				}
 			}
 			return '<button class="select teamselect" name="team" value="'+teamIndex+'">'+TeamPopup.renderTeam(teamIndex)+'</button>';
 		},
@@ -748,7 +766,14 @@
 		initialize: function(data) {
 			var bufs = ['','','','',''];
 			var curBuf = 0;
+			this.data = data;
 			var teams = Storage.teams;
+			var folders = [];
+			for (var i = 0; i < teams.length; i++) {
+				if (teams[i].folder) {
+					if (folders.indexOf(teams[i].folder) < 0) folders.push(teams[i].folder);
+				}
+			}
 
 			var bufBoundary = 128;
 			if (teams.length > 128 && $(window).width() > 1080) {
@@ -766,11 +791,26 @@
 				bufs[curBuf] = '<li><em>You have no teams</em></li>';
 			} else {
 				var curTeam = +data.team;
+				var curFolder = app.rooms[''].curFolder;
 				var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
 				var count = 0;
+				bufs[curBuf] = "";
+				if (folders.length) {
+					bufs[curBuf] += '<li><h3>Folders</h3></li>';
+					for (var i = 0; i < folders.length; i++) {
+						var selected = (folders[i] === curFolder);
+						bufs[curBuf] += '<li><button name="selectFolder" value="'+folders[i]+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(folders[i])+'</button></li>';
+						count++;
+						if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+					}
+					if (curFolder) bufs[curBuf] += '<li><button name="selectFolder" value="-1"><i class="icon-chevron-left"></i> Show all teams</button></li>';
+				}
 				if (teamFormat) {
-					bufs[curBuf] = '<li><h3>'+Tools.escapeFormat(teamFormat)+' teams</h3></li>';
+					bufs[curBuf] += '<li><h3>'+Tools.escapeFormat(teamFormat)+' teams</h3></li>';
 					for (var i = 0; i < teams.length; i++) {
+						if (curFolder) {
+							if (teams[i].folder !== curFolder) continue;
+						}
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
 							bufs[curBuf] += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
@@ -778,12 +818,15 @@
 							if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 						}
 					}
-					if (!count) bufs[curBuf] += '<li><em>You have no '+Tools.escapeFormat(teamFormat)+' teams</em></li>';
+					if (count - folders.length <= 0) bufs[curBuf] += '<li><em>You have no '+Tools.escapeFormat(teamFormat)+' teams '+(curFolder ? 'in this folder' : '') +'</em></li>';
 					bufs[curBuf] += '<li><h3>Other teams</h3></li>';
 				} else {
 					bufs[curBuf] = '<li><h3>All teams</h3></li>';
 				}
 				for (var i = 0; i < teams.length; i++) {
+					if (curFolder) {
+						if (teams[i].folder !== curFolder) continue;
+					}
 					if (teamFormat && teams[i].format === teamFormat) continue;
 					var selected = (i === curTeam);
 					bufs[curBuf] += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
@@ -809,6 +852,16 @@
 			app.rooms[''].curTeamIndex = i;
 			app.rooms[''].curTeamFormat = formatid;
 			this.close();
+		},
+		selectFolder: function(i) {
+			if (i === "-1") {
+				app.rooms[''].curFolder = "";
+			} else { 
+				app.rooms[''].curFolder = i;
+			}
+			app.rooms[''].curTeamIndex = -1;
+			app.rooms[''].curTeamFormat = "";
+			this.initialize(this.data);
 		}
 	}, {
 		renderTeam: function(i) {
