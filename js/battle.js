@@ -5093,6 +5093,7 @@ function Battle(frame, logFrame, noPreload) {
 
 			poke.species = newSpecies;
 			poke.ability = poke.baseAbility = (template.abilities ? template.abilities['0'] : '');
+			poke.baseStats = template.baseStats;
 			poke.types = template.types && template.types.slice(0);
 
 			poke.details = args[2];
