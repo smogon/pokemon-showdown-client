@@ -612,6 +612,10 @@
 		 */
 		connect: function() {
 			if (this.down) return;
+			if (Config.server.banned) {
+				this.addPopupMessage("This server has been deleted for breaking US laws or impersonating PS global staff.");
+				return;
+			}
 
 			var self = this;
 			var constructSocket = function() {
