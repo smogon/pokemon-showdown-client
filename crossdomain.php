@@ -29,19 +29,23 @@ if ($hyphenpos) {
 $config['id'] = $config['host'];
 if (isset($PokemonServers[$config['host']])) {
 	$server =& $PokemonServers[$config['host']];
-	$config['host'] = $server['server'];
-	if (!isset($config['port'])) {
-		$config['port'] = $server['port'];
-	} else if ($config['port'] !== $server['port']) {
-		$config['id'] .= ':' . $config['port'];
-	}
-	if (isset($server['altport'])) $config['altport'] = $server['altport'];
-	$config['registered'] = true;
+	if (@$server['banned']) {
+		$config['banned'] = true;
+	} else {
+		$config['host'] = $server['server'];
+		if (!isset($config['port'])) {
+			$config['port'] = $server['port'];
+		} else if ($config['port'] !== $server['port']) {
+			$config['id'] .= ':' . $config['port'];
+		}
+		if (isset($server['altport'])) $config['altport'] = $server['altport'];
+		$config['registered'] = true;
 
-	// $yourip = $_SERVER['REMOTE_ADDR'];
-	$yourip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
-	if (substr($config['host'].':', 0, strlen($yourip)+1) === $yourip.':') {
-		$config['host'] = 'localhost'.substr($config['host'],strlen($yourip));
+		// $yourip = $_SERVER['REMOTE_ADDR'];
+		$yourip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
+		if (substr($config['host'].':', 0, strlen($yourip)+1) === $yourip.':') {
+			$config['host'] = 'localhost'.substr($config['host'],strlen($yourip));
+		}
 	}
 } else {
 	if (isset($config['port'])) {
