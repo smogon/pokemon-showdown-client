@@ -302,6 +302,17 @@
 				self.addPopup(ReconnectPopup, {cantconnect: true});
 			});
 
+			this.once('init:choosename', function() {
+				var autojoins = Tools.prefs('autojoins');
+				if (autojoins) {
+					for (var i = 0, len = autojoins.length; i < len; i++) {
+						(function(throttle) {
+							setTimeout(function () { self.addRoom(autojoins.shift()); }, throttle * 750);
+						})(i);
+					}
+				}
+			});
+
 			this.user.on('login:invalidname', function(name, reason) {
 				self.addPopup(LoginPopup, {name: name, reason: reason});
 			});
