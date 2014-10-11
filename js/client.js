@@ -373,6 +373,13 @@
 				self.addPopup(ReconnectPopup, {cantconnect: true});
 			});
 
+			this.once('init:choosename', function() {
+				var autojoins = Tools.prefs('autojoins');
+				if (autojoins && autojoins.length) {
+					self.send('/autojoin ' + autojoins.join(','));
+				}
+			});
+
 			this.user.on('login:invalidname', function(name, reason) {
 				self.addPopup(LoginPopup, {name: name, reason: reason});
 			});
@@ -824,6 +831,14 @@
 				} else {
 					this.joinRoom(roomid, roomType, true);
 				}
+
+				if (roomType === 'chat' && roomid !== 'staff') {
+					var autojoins = Tools.prefs('autojoins') || [];
+					if (autojoins.indexOf(roomid) < 0 && autojoins.length < 6) {
+						autojoins = this.sliceAutojoins();
+						Tools.prefs('autojoins', autojoins);
+					}
+				}
 			} else if ((data+'|').substr(0,8) === '|expire|') {
 				var room = this.rooms[roomid];
 				if (room) {
@@ -858,6 +873,13 @@
 				} else {
 					if (isdeinit) { // deinit
 						this.removeRoom(roomid, true);
+						var autojoins = Tools.prefs('autojoins');
+						if (!autojoins) {
+							Tools.prefs('autojoins', []);
+						} else if (autojoins.indexOf(roomid) >= 0) {
+							autojoins = this.sliceAutojoins();
+							Tools.prefs('autojoins', autojoins);
+						}
 					} else { // noinit
 						this.unjoinRoom(roomid);
 						if (roomid === 'lobby') this.joinRoom('rooms');
@@ -1385,6 +1407,19 @@
 				gui.Shell.openExternal(e.target.href);
 				return false;
 			}
+		},
+
+		// returns the first 6 valid sideRooms from app.rooms
+		sliceAutojoins: function() {
+			var autojoins = [];
+			for (var i in this.rooms) {
+				if (this.rooms[i].type !== 'chat' || i === 'staff') {
+					continue;
+				}
+				autojoins.push(i);
+				if (autojoins.length >= 6) break;
+			}
+			return autojoins;
 		},
 
 		/*********************************************************
