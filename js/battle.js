@@ -4076,6 +4076,10 @@ function Battle(frame, logFrame, noPreload) {
 					self.resultAnim(poke, 'Telekinesis&nbsp;ended', 'neutral', animDelay);
 					actions += "" + poke.getName() + " was freed from the telekinesis!";
 					break;
+				case 'skydrop':
+					poke.sprite.anim({time:100});
+					actions += "" + poke.getName() + " was freed from the Sky Drop!";
+					break;
 				case 'confusion':
 					self.resultAnim(poke, 'Confusion&nbsp;ended', 'good', animDelay);
 					if (!kwargs.silent) {
