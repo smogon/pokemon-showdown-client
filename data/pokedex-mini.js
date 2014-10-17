@@ -819,5 +819,7 @@ BattlePokemonSprites = {
 	"xerneas": {num:716, front:{ani:{w:106,h:127}}, back:{ani:{w:94,h:128}}},
 	"yveltal": {num:717, front:{ani:{w:201,h:188}}, back:{ani:{w:186,h:194}}},
 	"zygarde": {num:718, front:{ani:{w:96,h:107}}, back:{ani:{w:113,h:123}}},
-	"diancie": {num:719, front:{ani:{w:50,h:90}}, back:{ani:{w:50,h:90}}}
+	"diancie": {num:719, front:{ani:{w:50,h:90}}, back:{ani:{w:50,h:90}}},
+	"hoopa": {num:720, front:{ani:{w:73,h:68}}, back:{ani:{w:67,h:71}}},
+	"volcanion": {num:721, front:{ani:{w:96,h:91}}, back:{ani:{w:92,h:96}}}
 };
