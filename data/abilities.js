@@ -90,7 +90,7 @@ exports.BattleAbilities = {
 		desc: "While this Pokemon is active, all weather conditions and their effects are disabled.",
 		shortDesc: "While this Pokemon is active, all weather conditions and their effects are disabled.",
 		onStart: function (pokemon) {
-			this.add('-message', 'The effects of weather disappeared. (placeholder)');
+			this.add('-ability', pokemon, 'Air Lock');
 		},
 		onAnyModifyPokemon: function (pokemon) {
 			pokemon.ignore['WeatherTarget'] = true;
@@ -155,12 +155,13 @@ exports.BattleAbilities = {
 		desc: "When this Pokemon enters the field, its opponents cannot switch or flee the battle unless they are part Flying-type, have the Levitate ability, are holding Shed Shell, or they use the moves Baton Pass or U-Turn. Flying-type and Levitate Pokemon cannot escape if they are holding Iron Ball or Gravity is in effect. Levitate Pokemon also cannot escape if their ability is disabled through other means, such as Skill Swap or Gastro Acid.",
 		shortDesc: "Prevents foes from switching out normally unless they have immunity to Ground.",
 		onFoeModifyPokemon: function (pokemon) {
-			if (pokemon.runImmunity('Ground', false)) {
+			if (pokemon.runImmunity('Ground', false) && this.isAdjacent(pokemon, this.effectData.target)) {
 				pokemon.tryTrap();
 			}
 		},
-		onFoeMaybeTrapPokemon: function (pokemon) {
-			if (pokemon.runImmunity('Ground', false)) {
+		onFoeMaybeTrapPokemon: function (pokemon, source) {
+			if (!source) source = this.effectData.target;
+			if (pokemon.runImmunity('Ground', false) && this.isAdjacent(pokemon, source)) {
 				pokemon.maybeTrapped = true;
 			}
 		},
@@ -327,7 +328,7 @@ exports.BattleAbilities = {
 		desc: "While this Pokemon is active, all weather conditions and their effects are disabled.",
 		shortDesc: "While this Pokemon is active, all weather conditions and their effects are disabled.",
 		onStart: function (pokemon) {
-			this.add('-message', 'The effects of weather disappeared. (placeholder)');
+			this.add('-ability', pokemon, 'Cloud Nine');
 		},
 		onAnyModifyPokemon: function (pokemon) {
 			pokemon.ignore['WeatherTarget'] = true;
@@ -639,7 +640,7 @@ exports.BattleAbilities = {
 		onSourceModifyDamage: function (damage, source, target, move) {
 			if (this.getEffectiveness(move, target) > 0) {
 				this.debug('Filter neutralize');
-					return this.chainModify(0.75);
+				return this.chainModify(0.75);
 			}
 		},
 		id: "filter",
@@ -1340,7 +1341,7 @@ exports.BattleAbilities = {
 			}
 		},
 		id: "lightningrod",
-		name: "Lightningrod",
+		name: "Lightning Rod",
 		rating: 3.5,
 		num: 32
 	},
@@ -1468,12 +1469,13 @@ exports.BattleAbilities = {
 		desc: "When this Pokemon enters the field, Steel-type opponents cannot switch out nor flee the battle unless they are holding Shed Shell or use attacks like U-Turn or Baton Pass.",
 		shortDesc: "Prevents Steel-type foes from switching out normally.",
 		onFoeModifyPokemon: function (pokemon) {
-			if (pokemon.hasType('Steel')) {
+			if (pokemon.hasType('Steel') && this.isAdjacent(pokemon, this.effectData.target)) {
 				pokemon.tryTrap();
 			}
 		},
-		onFoeMaybeTrapPokemon: function (pokemon) {
-			if (pokemon.hasType('Steel')) {
+		onFoeMaybeTrapPokemon: function (pokemon, source) {
+			if (!source) source = this.effectData.target;
+			if (pokemon.hasType('Steel') && this.isAdjacent(pokemon, source)) {
 				pokemon.maybeTrapped = true;
 			}
 		},
@@ -2247,12 +2249,13 @@ exports.BattleAbilities = {
 		desc: "When this Pokemon enters the field, its non-Ghost-type opponents cannot switch or flee the battle unless they have the same ability, are holding Shed Shell, or they use the moves Baton Pass or U-Turn.",
 		shortDesc: "Prevents foes from switching out normally unless they also have this Ability.",
 		onFoeModifyPokemon: function (pokemon) {
-			if (!pokemon.hasAbility('shadowtag')) {
+			if (!pokemon.hasAbility('shadowtag') && this.isAdjacent(pokemon, this.effectData.target)) {
 				pokemon.tryTrap();
 			}
 		},
-		onFoeMaybeTrapPokemon: function (pokemon) {
-			if (!pokemon.hasAbility('shadowtag')) {
+		onFoeMaybeTrapPokemon: function (pokemon, source) {
+			if (!source) source = this.effectData.target;
+			if (!pokemon.hasAbility('shadowtag') && this.isAdjacent(pokemon, source)) {
 				pokemon.maybeTrapped = true;
 			}
 		},
@@ -3125,7 +3128,7 @@ exports.BattleAbilities = {
 		desc: "This Pokemon only receives damage from attacks belonging to types that cause Super Effective to this Pokemon. Wonder Guard does not protect a Pokemon from status ailments (burn, freeze, paralysis, poison, sleep, Toxic or any of their side effects or damage), recoil damage nor the moves Beat Up, Bide, Doom Desire, Fire Fang, Future Sight, Hail, Leech Seed, Sandstorm, Spikes, Stealth Rock and Struggle. Wonder Guard cannot be Skill Swapped nor Role Played. Trace, however, does copy Wonder Guard.",
 		shortDesc: "This Pokemon can only be damaged by super effective moves and indirect damage.",
 		onTryHit: function (target, source, move) {
-			if (target === source || move.category === 'Status' || move.type === '???' || move.id === 'struggle') return;
+			if (target === source || move.category === 'Status' || move.type === '???' || move.id === 'struggle' || move.isFutureMove) return;
 			this.debug('Wonder Guard immunity: ' + move.id);
 			if (this.getEffectiveness(move, target) <= 0) {
 				this.add('-activate', target, 'ability: Wonder Guard');
@@ -3160,7 +3163,7 @@ exports.BattleAbilities = {
 			if (pokemon.baseTemplate.species !== 'Darmanitan') {
 				return;
 			}
-			if (pokemon.hp <= pokemon.maxhp / 2 && pokemon.template.speciesid === 'darmanitan'){
+			if (pokemon.hp <= pokemon.maxhp / 2 && pokemon.template.speciesid === 'darmanitan') {
 				pokemon.addVolatile('zenmode');
 			} else if (pokemon.hp > pokemon.maxhp / 2 && pokemon.template.speciesid === 'darmanitanzen') {
 				pokemon.removeVolatile('zenmode');
