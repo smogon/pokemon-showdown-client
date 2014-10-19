@@ -333,7 +333,7 @@ var Tools = {
 			if (linkclass) {
 				classbit = ' class="message-link-' + toId(linkclass) + '"';
 			}
-			str = str.replace(/https?\:\/\/[a-z0-9-.]+(?:\:[0-9]+)?(?:\/(?:[^\s]*[^\s?.,])?)?|[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}|(?:[a-z0-9](?:[a-z0-9-\.]*[a-z0-9])?\.(?:com|org|net|edu|us|jp)(?:\:[0-9]+)?|qmark\.tk)(?:(?:\/(?:[^\s]*[^\s?.,])?)?)/ig, function(uri) {
+			str = str.replace(/https?\:\/\/[a-z0-9-.]+(?:\:[0-9]+)?(?:\/(?:[^\s]*[^\s?.,])?)?|[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}|(?:[a-z0-9](?:[a-z0-9-\.]*[a-z0-9])?\.(?:com|org|net|edu|us|jp)(?:\:[0-9]+)?|qmark\.tk)(?:(?:\/(?:[^\s]*[^\s?.,])?)?)\b/ig, function(uri) {
 				if (/[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}/ig.test(uri)) {
 					return '<a href="mailto:'+uri+'" target="_blank"'+classbit+'>'+uri+'</a>';
 				}
