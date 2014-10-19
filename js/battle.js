@@ -4077,7 +4077,9 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " was freed from the telekinesis!";
 					break;
 				case 'skydrop':
-					poke.sprite.anim({time:100});
+					if (kwargs.interrupt) {
+						poke.sprite.anim({time:100});
+					}
 					actions += "" + poke.getName() + " was freed from the Sky Drop!";
 					break;
 				case 'confusion':
