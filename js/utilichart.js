@@ -108,7 +108,7 @@ function BattleChart()
 		}
 
 		text += '<span class="col typecol">';
-		for (var i=0; i<pokemon.types.length; i++)
+		if (pokemon.types) for (var i=0; i<pokemon.types.length; i++)
 		{
 			text += Tools.getTypeIcon(pokemon.types[i], (match.type&&match.type[i]));
 		}
