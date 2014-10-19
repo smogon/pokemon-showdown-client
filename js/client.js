@@ -946,7 +946,7 @@
 					}
 					var id = toId(name);
 					var isTeambuilderFormat = searchShow && !team;
-					var teambuilderFormat;
+					var teambuilderFormat = '';
 					if (isTeambuilderFormat) {
 						var parenPos = name.indexOf('(');
 						if (parenPos > 0 && name.charAt(name.length-1) === ')') {
