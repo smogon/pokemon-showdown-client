@@ -363,7 +363,6 @@ function Pokemon(species) {
 		return false;
 	};
 	this.getIdent = function() {
-		if (selfP.side.active.length === 1) return selfP.ident;
 		var slots = ['a','b','c','d','e','f'];
 		return selfP.ident.substr(0,2) + slots[selfP.slot] + selfP.ident.substr(2);
 	};
@@ -2197,12 +2196,14 @@ function Battle(frame, logFrame, noPreload) {
 			pokemon.side.updateSidebar();
 
 			pokemon.sprite.animFaint();
-			pokemon.statbarElem.animate({
-				opacity: 0
-			}, 300, function () {
-				pokemon.statbarElem.remove();
-				pokemon.statbarElem = null;
-			});
+			if (pokemon.statbarElem) {
+				pokemon.statbarElem.animate({
+					opacity: 0
+				}, 300, function () {
+					pokemon.statbarElem.remove();
+					pokemon.statbarElem = null;
+				});
+			}
 			if (self.faintCallback) self.faintCallback(self, selfS);
 		};
 		this.updateHPText = function (pokemon) {
@@ -4721,7 +4722,7 @@ function Battle(frame, logFrame, noPreload) {
 		var name = pokemonid;
 		var isNew = false; // if yes, don't match any pokemon that already exists (for Team Preview)
 		var isOld = false; // if yes, match only pokemon that have been revealed, and can match fainted pokemon (now default)
-		var isOther = false; // if yes, don't match an active pokemon (for switching)
+		var isOther = false; // if yes, match an inactive pokemon; if false, match an active pokemon
 		//var position = 0; // todo: use for position in doubles/triples
 		var getfoe = false;
 		var slot; // if there is an explicit slot for this pokemon
@@ -4751,9 +4752,11 @@ function Battle(frame, logFrame, noPreload) {
 		if (name.substr(0, 4) === 'p2: ' || name === 'p2') {
 			siden = self.p2.n;
 			name = name.substr(4);
+			isOther = true;
 		} else if (name.substr(0, 4) === 'p1: ' || name === 'p1') {
 			siden = self.p1.n;
 			name = name.substr(4);
+			isOther = true;
 		} else if (name.substr(0, 2) === 'p2' && name.substr(3, 2) === ': ') {
 			slot = slotChart[name.substr(2,1)];
 			siden = self.p2.n;
@@ -4770,7 +4773,7 @@ function Battle(frame, logFrame, noPreload) {
 
 		if (!details) {
 			if (siden < 0) return null;
-			if (self.sides[siden].active[slot]) return self.sides[siden].active[slot];
+			if (!isOther && self.sides[siden].active[slot]) return self.sides[siden].active[slot];
 		}
 
 		var species = name;
