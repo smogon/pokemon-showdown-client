@@ -849,7 +849,7 @@
 				break;
 
 			case 'nametaken':
-				app.addPopup(LoginPopup, {name: parts[1] || '', reason: parts[2] || ''});
+				app.addPopup(LoginPopup, {name: parts[1] || '', error: parts[2] || ''});
 				break;
 
 			case 'queryresponse':
@@ -2044,7 +2044,7 @@
 
 			if (data.error) {
 				buf += '<p class="error">' + Tools.escapeHTML(data.error) + '</p>';
-				if (data.error.indexOf(' forced you to change ') >= 0) {
+				if (data.error.indexOf('inappropriate') >= 0) {
 					buf += '<p>Keep in mind these rules:</p>';
 					buf += '<ol>';
 					buf += '<li>Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</li>';
