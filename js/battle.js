@@ -3837,6 +3837,9 @@ function Battle(frame, logFrame, noPreload) {
 				var poke = this.getPokemon(args[1]);
 				var template = Tools.getTemplate(args[2]);
 				var spriteData = {'shiny': poke.sprite.sp.shiny};
+				if (kwargs.msg) {
+					actions += "" + poke.getName() + " transformed!";
+				}
 				poke.sprite.animTransform($.extend(spriteData, template));
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
 				poke.volatiles.formechange[2] = template.species;
@@ -4422,6 +4425,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'leppaberry':
 					actions += '' + poke.getName() + " restored " + Tools.escapeHTML(args[3]) + "'s PP using its Leppa Berry!";
+					break;
+				case 'focusband':
+					actions += '' + poke.getName() + " held on using its Focus Band!";
 					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " activated!";
