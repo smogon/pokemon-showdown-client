@@ -641,6 +641,23 @@ function Pokemon(species) {
 		pokemon.sprite.removeTransform();
 		pokemon.statusStage = 0;
 	};
+	this.copyTypesFrom = function (pokemon) {
+		this.addVolatile('typechange');
+		if (pokemon.volatiles.typechange) {
+			this.volatiles.typechange[2] = pokemon.volatiles.typechange[2];
+		} else if (pokemon.volatiles.formechange) {
+			var template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
+			this.volatiles.typechange[2] = template.types ? template.types.join('/') : '';
+		} else {
+			this.volatiles.typechange[2] = pokemon.types ? pokemon.types.join('/') : '';
+		}
+		if (pokemon.volatiles.typeadd) {
+			this.addVolatile('typeadd');
+			this.volatiles.typeadd[2] = pokemon.volatiles.typeadd[2];
+		} else {
+			this.removeVolatile('typeadd');
+		}
+	};
 	this.reset = function () {
 		selfP.clearVolatile();
 		selfP.hp = selfP.maxhp;
@@ -3828,7 +3845,7 @@ function Battle(frame, logFrame, noPreload) {
 				poke.boosts = $.extend({}, tpoke.boosts);
 				poke.addVolatile('transform');
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
-				//poke.removeVolatile('typechange'); // does this happen??
+				poke.copyTypesFrom(tpoke);
 				poke.ability = tpoke.ability;
 				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
 				self.resultAnim(poke, 'Transformed', 'good', animDelay);
@@ -3857,6 +3874,7 @@ function Battle(frame, logFrame, noPreload) {
 					poke.removeVolatile('typeadd');
 					if (fromeffect.id) {
 						if (fromeffect.id === 'reflecttype') {
+							poke.copyTypesFrom(ofpoke);
 							actions += "" + poke.getName() + "'s type changed to match " + ofpoke.getLowerName() + "'s!";
 						} else {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
