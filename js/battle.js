@@ -2501,6 +2501,11 @@ function Battle(frame, logFrame, noPreload) {
 				//upkeepMessage: 'The sunlight is strong!',
 				endMessage: "The sunlight faded."
 			},
+			desolateland: {
+				name: "Intense Sun",
+				startMessage: "The sunlight turned extremely harsh!",
+				endMessage: "The harsh sunlight faded."
+			},
 			raindance: {
 				name: 'Rain',
 				startMessage: 'It started to rain!',
@@ -2508,19 +2513,29 @@ function Battle(frame, logFrame, noPreload) {
 				//upkeepMessage: 'Rain continues to fall!',
 				endMessage: 'The rain stopped.'
 			},
+			primordialsea: {
+				name: "Heavy Rain",
+				startMessage: "A heavy rain began to fall!",
+				endMessage: "The heavy rain has lifted!"
+			},
 			sandstorm: {
 				name: 'Sandstorm',
 				startMessage: 'A sandstorm kicked up!',
 				abilityMessage: "'s Sand Stream whipped up a sandstorm!",
-				upkeepMessage: 'The sandstorm rages.',
+				upkeepMessage: 'The sandstorm is raging.',
 				endMessage: 'The sandstorm subsided.'
 			},
 			hail: {
 				name: 'Hail',
 				startMessage: 'It started to hail!',
 				abilityMessage: "'s Snow Warning whipped up a hailstorm!",
-				upkeepMessage: 'The hail crashes down.',
+				upkeepMessage: 'The hail is crashing down.',
 				endMessage: 'The hail stopped.'
+			},
+			deltastream: {
+				name: 'Strong Winds',
+				startMessage: 'A mysterious air current is protecting Flying-type Pokemon!',
+				endMessage: 'The mysterious air current has dissipated!'
 			}
 		};
 		if (!weather || weather === 'none') {
