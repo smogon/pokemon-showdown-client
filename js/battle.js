@@ -2606,9 +2606,12 @@ function Battle(frame, logFrame, noPreload) {
 	this.updateWeather = function (weather) {
 		var weatherNameTable = {
 			sunnyday: 'Sun',
+			desolateland: 'Intense Sun',
 			raindance: 'Rain',
+			primordialsea: 'Heavy Rain',
 			sandstorm: 'Sandstorm',
-			hail: 'Hail'
+			hail: 'Hail',
+			deltastream: 'Strong Winds'
 		};
 
 		if (typeof weather === 'undefined') {
@@ -3459,12 +3462,39 @@ function Battle(frame, logFrame, noPreload) {
 						actions += "But it failed!";
 					}
 					break;
+				case 'sunnyday':
+				case 'raindance':
+				case 'sandstorm':
+				case 'hail':
+					switch (fromeffect.id) {
+					case 'desolateland':
+						actions += "The extremely harsh sunlight was not lessened at all!";
+						break;
+					case 'primordialsea':
+						actions += "There's no relief from this heavy rain!";
+						break;
+					case 'deltastream':
+						actions += "The mysterious air current blows on regardless!";
+						break;
+					default:
+						actions += "But it failed!";
+					}
+					break;
 				case 'unboost':
 					self.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s " + (args[3] ? args[3] + " was" : "stats were") + " not lowered!";
 					break;
 				default:
-					actions += "But it failed!";
+					switch (fromeffect.id) {
+					case 'desolateland':
+						actions += "The Water-type attack evaporated in the harsh sunlight!";
+						break;
+					case 'primordialsea':
+						actions += "The Fire-type attack fizzled out in the heavy rain!";
+						break;
+					default:
+						actions += "But it failed!";
+					}
 					break;
 				}
 				break;
@@ -3775,6 +3805,21 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'mummy':
 					actions += "" + poke.getName() + "'s Ability became Mummy!";
+					break;
+				case 'desolateland':
+					if (kwargs.fail) {
+						actions += "[" + poke.getName() + "'s " + ability.name + "] The extremely harsh sunlight was not lessened at all!";
+					}
+					break;
+				case 'primordialsea':
+					if (kwargs.fail) {
+						actions += "[" + poke.getName() + "'s " + ability.name + "] There's no relief from this heavy rain!";
+					}
+					break;
+				case 'deltastream':
+					if (kwargs.fail) {
+						actions += "[" + poke.getName() + "'s " + ability.name + "] The mysterious air current blows on regardless!";
+					}
 					break;
 				default:
 					actions += "" + poke.getName() + " acquired " + ability.name + "!";
@@ -4430,6 +4475,10 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'symbiosis':
 					actions += '' + ofpoke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + poke.getLowerName();
+					break;
+
+				case 'deltastream':
+					actions += "The mysterious air current weakened the attack!";
 					break;
 
 				// item activations
