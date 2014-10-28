@@ -3821,7 +3821,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + ' copied ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
 					break;
 				case 'mummy':
-					actions += "" + poke.getName() + "'s Ability became Mummy!";
+					// actions += "" + poke.getName() + "'s Ability became Mummy!";
 					break;
 				case 'desolateland':
 					if (kwargs.fail) {
@@ -3889,7 +3889,7 @@ function Battle(frame, logFrame, noPreload) {
 					// do nothing
 				} else switch (effect.id) {
 				case 'mummy':
-					actions += "(" + poke.getName() + "\'s Ability was previously " + ability.name + ")";
+					actions += "[" + poke.getName() + "\'s " + ability.name + "] " + poke.name + "'s Ability became Mummy!";
 					break;
 				default:
 					actions += "" + poke.getName() + "\'s Ability was suppressed!";
