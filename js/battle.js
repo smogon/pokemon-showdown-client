@@ -369,7 +369,6 @@ var Pokemon = (function () {
 		return (details === this.details.replace(/-[A-Za-z0-9*]+(, |$)/, '$1'));
 	};
 	Pokemon.prototype.getIdent = function () {
-		if (this.side.active.length === 1) return this.ident;
 		var slots = ['a','b','c','d','e','f'];
 		return this.ident.substr(0,2) + slots[this.slot] + this.ident.substr(2);	
 	};
