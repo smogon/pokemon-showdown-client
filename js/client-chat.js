@@ -540,6 +540,7 @@
 				Tools.prefs('timestamps', timestamps);
 				return false;
 
+			case 'hl':
 			case 'highlight':
 				var highlights = Tools.prefs('highlights') || [];
 				if (target.indexOf(',') > -1) {
