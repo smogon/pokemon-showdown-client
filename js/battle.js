@@ -1796,6 +1796,20 @@ function Battle(frame, logFrame, noPreload) {
 				elem = curelem;
 				selfS.sideConditions[condition] = [condition, elem, 1];
 				break;
+			case 'stickyweb':
+				self.spriteElemsFront[selfS.n].append('<img src="' + BattleEffects.web.url + '" style="display:none;position:absolute" />');
+				curelem = self.spriteElemsFront[selfS.n].children().last();
+				curelem.css(self.pos({
+					display: 'block',
+					x: selfS.x,
+					y: selfS.y-15,
+					z: selfS.z,
+					opacity: 0.5,
+					scale: 0.7
+				}, BattleEffects.web));
+				elem = curelem;
+				selfS.sideConditions[condition] = [condition, elem, 1];
+				break;
 			default:
 				selfS.sideConditions[condition] = [condition, null, 1];
 			}
