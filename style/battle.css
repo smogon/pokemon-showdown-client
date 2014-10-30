@@ -500,14 +500,16 @@ License: GPLv2
 	font-style: normal;
 }
 .sunweather,
-.sunnydayweather
+.sunnydayweather,
+.desolatelandweather
 {
 	background: #FFEEBB url(//play.pokemonshowdown.com/fx/weather-sunnyday.jpg) no-repeat scroll left top;
 	color: #664411;
 	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
 }
 .rainweather,
-.raindanceweather
+.raindanceweather,
+.primordialseaweather
 {
 	background: #99BBFF url(//play.pokemonshowdown.com/fx/weather-raindance.jpg) no-repeat scroll left top;
 	color: #0044BB;
@@ -523,6 +525,12 @@ License: GPLv2
 {
 	background: #AADDEE url(//play.pokemonshowdown.com/fx/weather-hail.png) no-repeat scroll left top;
 	color: #114455;
+	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
+}
+.deltastreamweather
+{
+	background: #AAAAAA url(//play.pokemonshowdown.com/fx/weather-strongwind.png) no-repeat scroll left top;
+	color: #666666;
 	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
 }
 .pseudoweather
