@@ -663,7 +663,12 @@
 				return false;
 
 			case 'join':
-				var room = toId(target);
+				var room = toRoomid(target);
+				if (app.rooms[target]) {
+					app.focusRoom(target);
+					return false;
+				}
+				room = toId(target);
 				if (app.rooms[room]) {
 					app.focusRoom(room);
 					return false;
