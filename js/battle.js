@@ -4523,7 +4523,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + " restored " + Tools.escapeHTML(args[3]) + "'s PP using its Leppa Berry!";
 					break;
 				case 'focusband':
-					actions += '' + poke.getName() + " held on using its Focus Band!";
+					actions += '' + poke.getName() + " hung on using its Focus Band!";
 					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " activated!";
