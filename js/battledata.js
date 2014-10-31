@@ -703,6 +703,9 @@ var Tools = {
 				if (id !== 'yanmega' && id.substr(id.length-4) === 'mega') {
 					template.baseSpecies = id.substr(0, id.length-4);
 					template.forme = id.substr(id.length-4);
+				} else if (id.substr(id.length-6) === 'primal') {
+					template.baseSpecies = id.substr(0, id.length-6);
+					template.forme = id.substr(id.length-6);
 				}
 				template.exists = false;
 			}
