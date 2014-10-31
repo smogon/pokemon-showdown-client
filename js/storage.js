@@ -266,7 +266,7 @@ _Storage.prototype.fastUnpackTeam = function(buf) {
 _Storage.prototype.initDirectory = function() {
 	var self = this;
 
-	var dir = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+	var dir = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH;
 	if (!(dir.charAt(dir.length-1) in {'/':1, '\\':1})) dir += '/';
 	fs.stat(dir+'Documents', function(err, stats) {
 		if (err || !stats.isDirectory()) {
