@@ -1120,6 +1120,7 @@
 				'ladder': LadderRoom,
 				'lobby': ChatRoom,
 				'staff': ChatRoom,
+				'constructor': ChatRoom
 			};
 			var typeTable = {
 				'battle': BattleRoom,
