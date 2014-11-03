@@ -14,9 +14,7 @@
 			this.update();
 		},
 		focus: function() {
-			if (!Tools.movelists) {
-				this.buildMovelists();
-			}
+			this.buildMovelists();
 		},
 		blur: function() {
 			if (this.saveFlag) {
@@ -813,7 +811,7 @@
 			// cache movelist ref
 			var speciesid = toId(this.curSet.species);
 			var g6 = (this.curTeam.format && this.curTeam.format.substr(0,7) === 'vgc2014');
-			this.movelist = (g6 ? Tools.g6movelists[speciesid] : Tools.movelists[speciesid]);
+			this.applyMovelist(g6, speciesid);
 
 			this.$chart.html('<em>Loading '+this.curChartType+'...</em>');
 			var self = this;
@@ -829,7 +827,7 @@
 			// cache movelist ref
 			var speciesid = toId(this.curSet.species);
 			var g6 = (this.curTeam.format && this.curTeam.format.substr(0,7) === 'vgc2014');
-			this.movelist = (g6 ? Tools.g6movelists[speciesid] : Tools.movelists[speciesid]);
+			this.applyMovelist(g6, speciesid);
 
 			var self = this;
 			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
@@ -1911,6 +1909,7 @@
 		// initialization
 
 		buildMovelists: function() {
+			if (Tools.movelists) return;
 			if (!window.BattlePokedex) return;
 			Tools.movelists = {};
 			Tools.g6movelists = {};
@@ -1937,6 +1936,16 @@
 				} while (template && template.species && !alreadyChecked[template.speciesid]);
 				Tools.movelists[pokemon] = moves;
 				Tools.g6movelists[pokemon] = g6moves;
+			}
+		},
+		applyMovelist: function(g6only, speciesid) {
+			this.buildMovelists();
+			if (!Tools.movelists) {
+				this.movelist = false;
+			} else if (g6only) {
+				this.movelist = Tools.g6movelists[speciesid];
+			} else {
+				this.movelist = Tools.movelists[speciesid];
 			}
 		},
 		destroy: function() {

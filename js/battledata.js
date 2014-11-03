@@ -333,9 +333,9 @@ var Tools = {
 			if (linkclass) {
 				classbit = ' class="message-link-' + toId(linkclass) + '"';
 			}
-			str = str.replace(/https?\:\/\/[a-z0-9-.]+(?:\:[0-9]+)?(?:\/(?:[^\s]*[^\s?.,])?)?|[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}|(?:[a-z0-9](?:[a-z0-9-\.]*[a-z0-9])?\.(?:com|org|net|edu|us)(?:\:[0-9]+)?|qmark\.tk|hisouten\.koumakan\.jp)(?:(?:\/(?:[^\s]*[^\s?.,])?)?)/ig, function(uri) {
+			str = str.replace(/https?\:\/\/[a-z0-9-.]+(?:\:[0-9]+)?(?:\/(?:[^\s]*[^\s?.,])?)?|[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}|(?:[a-z0-9](?:[a-z0-9-\.]*[a-z0-9])?\.(?:com|org|net|edu|us|jp)(?:\:[0-9]+)?|qmark\.tk)(?:(?:\/(?:[^\s]*[^\s?.,])?)?)\b/ig, function(uri) {
 				if (/[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}/ig.test(uri)) {
-					return '<a href="mailto:'+uri+'" target="_blank"'+classbit+'>'+uri+'</u>';
+					return '<a href="mailto:'+uri+'" target="_blank"'+classbit+'>'+uri+'</a>';
 				}
 				// Insert http:// before URIs without a URI scheme specified.
 				var fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
@@ -703,6 +703,9 @@ var Tools = {
 				if (id !== 'yanmega' && id.substr(id.length-4) === 'mega') {
 					template.baseSpecies = id.substr(0, id.length-4);
 					template.forme = id.substr(id.length-4);
+				} else if (id.substr(id.length-6) === 'primal') {
+					template.baseSpecies = id.substr(0, id.length-6);
+					template.forme = id.substr(id.length-6);
 				}
 				template.exists = false;
 			}
@@ -932,6 +935,22 @@ var Tools = {
 			"abomasnowmega": 891,
 			"latiasmega": 892,
 			"latiosmega": 893,
+			"beedrillmega": 896,
+			"pidgeotmega": 897,
+			"slowbromega": 898,
+			"steelixmega": 899,
+			"sceptilemega": 900,
+			"swampertmega": 901,
+			"sableyemega": 902,
+			"sharpedomega": 903,
+			"camperuptmega": 904,
+			"altariamega": 905,
+			"glaliemega": 906,
+			"salamencemega": 907,
+			"metagrossmega": 908,
+			"kyogreprimal": 909,
+			"groudonprimal": 910,
+			"rayquazamega": 911,
 			"syclant": 832+0,
 			"revenankh": 832+1,
 			"pyroak": 832+2,

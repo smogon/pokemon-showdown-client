@@ -641,6 +641,23 @@ function Pokemon(species) {
 		pokemon.sprite.removeTransform();
 		pokemon.statusStage = 0;
 	};
+	this.copyTypesFrom = function (pokemon) {
+		this.addVolatile('typechange');
+		if (pokemon.volatiles.typechange) {
+			this.volatiles.typechange[2] = pokemon.volatiles.typechange[2];
+		} else if (pokemon.volatiles.formechange) {
+			var template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
+			this.volatiles.typechange[2] = template.types ? template.types.join('/') : '';
+		} else {
+			this.volatiles.typechange[2] = pokemon.types ? pokemon.types.join('/') : '';
+		}
+		if (pokemon.volatiles.typeadd) {
+			this.addVolatile('typeadd');
+			this.volatiles.typeadd[2] = pokemon.volatiles.typeadd[2];
+		} else {
+			this.removeVolatile('typeadd');
+		}
+	};
 	this.reset = function () {
 		selfP.clearVolatile();
 		selfP.hp = selfP.maxhp;
@@ -1779,6 +1796,20 @@ function Battle(frame, logFrame, noPreload) {
 				elem = curelem;
 				selfS.sideConditions[condition] = [condition, elem, 1];
 				break;
+			case 'stickyweb':
+				self.spriteElemsFront[selfS.n].append('<img src="' + BattleEffects.web.url + '" style="display:none;position:absolute" />');
+				curelem = self.spriteElemsFront[selfS.n].children().last();
+				curelem.css(self.pos({
+					display: 'block',
+					x: selfS.x,
+					y: selfS.y-15,
+					z: selfS.z,
+					opacity: 0.5,
+					scale: 0.7
+				}, BattleEffects.web));
+				elem = curelem;
+				selfS.sideConditions[condition] = [condition, elem, 1];
+				break;
 			default:
 				selfS.sideConditions[condition] = [condition, null, 1];
 			}
@@ -2501,6 +2532,11 @@ function Battle(frame, logFrame, noPreload) {
 				//upkeepMessage: 'The sunlight is strong!',
 				endMessage: "The sunlight faded."
 			},
+			desolateland: {
+				name: "Intense Sun",
+				startMessage: "The sunlight turned extremely harsh!",
+				endMessage: "The harsh sunlight faded."
+			},
 			raindance: {
 				name: 'Rain',
 				startMessage: 'It started to rain!',
@@ -2508,19 +2544,29 @@ function Battle(frame, logFrame, noPreload) {
 				//upkeepMessage: 'Rain continues to fall!',
 				endMessage: 'The rain stopped.'
 			},
+			primordialsea: {
+				name: "Heavy Rain",
+				startMessage: "A heavy rain began to fall!",
+				endMessage: "The heavy rain has lifted!"
+			},
 			sandstorm: {
 				name: 'Sandstorm',
 				startMessage: 'A sandstorm kicked up!',
 				abilityMessage: "'s Sand Stream whipped up a sandstorm!",
-				upkeepMessage: 'The sandstorm rages.',
+				upkeepMessage: 'The sandstorm is raging.',
 				endMessage: 'The sandstorm subsided.'
 			},
 			hail: {
 				name: 'Hail',
 				startMessage: 'It started to hail!',
 				abilityMessage: "'s Snow Warning whipped up a hailstorm!",
-				upkeepMessage: 'The hail crashes down.',
+				upkeepMessage: 'The hail is crashing down.',
 				endMessage: 'The hail stopped.'
+			},
+			deltastream: {
+				name: 'Strong Winds',
+				startMessage: 'A mysterious air current is protecting Flying-type Pokemon!',
+				endMessage: 'The mysterious air current has dissipated!'
 			}
 		};
 		if (!weather || weather === 'none') {
@@ -2591,9 +2637,12 @@ function Battle(frame, logFrame, noPreload) {
 	this.updateWeather = function (weather) {
 		var weatherNameTable = {
 			sunnyday: 'Sun',
+			desolateland: 'Intense Sun',
 			raindance: 'Rain',
+			primordialsea: 'Heavy Rain',
 			sandstorm: 'Sandstorm',
-			hail: 'Hail'
+			hail: 'Hail',
+			deltastream: 'Strong Winds'
 		};
 
 		if (typeof weather === 'undefined') {
@@ -3444,12 +3493,39 @@ function Battle(frame, logFrame, noPreload) {
 						actions += "But it failed!";
 					}
 					break;
+				case 'sunnyday':
+				case 'raindance':
+				case 'sandstorm':
+				case 'hail':
+					switch (fromeffect.id) {
+					case 'desolateland':
+						actions += "The extremely harsh sunlight was not lessened at all!";
+						break;
+					case 'primordialsea':
+						actions += "There's no relief from this heavy rain!";
+						break;
+					case 'deltastream':
+						actions += "The mysterious air current blows on regardless!";
+						break;
+					default:
+						actions += "But it failed!";
+					}
+					break;
 				case 'unboost':
 					self.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s " + (args[3] ? args[3] + " was" : "stats were") + " not lowered!";
 					break;
 				default:
-					actions += "But it failed!";
+					switch (fromeffect.id) {
+					case 'desolateland':
+						actions += "The Water-type attack evaporated in the harsh sunlight!";
+						break;
+					case 'primordialsea':
+						actions += "The Fire-type attack fizzled out in the heavy rain!";
+						break;
+					default:
+						actions += "But it failed!";
+					}
 					break;
 				}
 				break;
@@ -3759,7 +3835,22 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + ' copied ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
 					break;
 				case 'mummy':
-					actions += "" + poke.getName() + "'s Ability became Mummy!";
+					// actions += "" + poke.getName() + "'s Ability became Mummy!";
+					break;
+				case 'desolateland':
+					if (kwargs.fail) {
+						actions += "[" + poke.getName() + "'s " + ability.name + "] The extremely harsh sunlight was not lessened at all!";
+					}
+					break;
+				case 'primordialsea':
+					if (kwargs.fail) {
+						actions += "[" + poke.getName() + "'s " + ability.name + "] There's no relief from this heavy rain!";
+					}
+					break;
+				case 'deltastream':
+					if (kwargs.fail) {
+						actions += "[" + poke.getName() + "'s " + ability.name + "] The mysterious air current blows on regardless!";
+					}
 					break;
 				default:
 					actions += "" + poke.getName() + " acquired " + ability.name + "!";
@@ -3812,7 +3903,7 @@ function Battle(frame, logFrame, noPreload) {
 					// do nothing
 				} else switch (effect.id) {
 				case 'mummy':
-					actions += "(" + poke.getName() + "\'s Ability was previously " + ability.name + ")";
+					actions += "[" + poke.getName() + "\'s " + ability.name + "] " + poke.name + "'s Ability became Mummy!";
 					break;
 				default:
 					actions += "" + poke.getName() + "\'s Ability was suppressed!";
@@ -3828,7 +3919,7 @@ function Battle(frame, logFrame, noPreload) {
 				poke.boosts = $.extend({}, tpoke.boosts);
 				poke.addVolatile('transform');
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
-				//poke.removeVolatile('typechange'); // does this happen??
+				poke.copyTypesFrom(tpoke);
 				poke.ability = tpoke.ability;
 				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
 				self.resultAnim(poke, 'Transformed', 'good', animDelay);
@@ -3837,6 +3928,9 @@ function Battle(frame, logFrame, noPreload) {
 				var poke = this.getPokemon(args[1]);
 				var template = Tools.getTemplate(args[2]);
 				var spriteData = {'shiny': poke.sprite.sp.shiny};
+				if (kwargs.msg) {
+					actions += "" + poke.getName() + " transformed!";
+				}
 				poke.sprite.animTransform($.extend(spriteData, template));
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
 				poke.volatiles.formechange[2] = template.species;
@@ -3857,6 +3951,7 @@ function Battle(frame, logFrame, noPreload) {
 					poke.removeVolatile('typeadd');
 					if (fromeffect.id) {
 						if (fromeffect.id === 'reflecttype') {
+							poke.copyTypesFrom(ofpoke);
 							actions += "" + poke.getName() + "'s type changed to match " + ofpoke.getLowerName() + "'s!";
 						} else {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
@@ -4075,6 +4170,12 @@ function Battle(frame, logFrame, noPreload) {
 				case 'telekinesis':
 					self.resultAnim(poke, 'Telekinesis&nbsp;ended', 'neutral', animDelay);
 					actions += "" + poke.getName() + " was freed from the telekinesis!";
+					break;
+				case 'skydrop':
+					if (kwargs.interrupt) {
+						poke.sprite.anim({time:100});
+					}
+					actions += "" + poke.getName() + " was freed from the Sky Drop!";
 					break;
 				case 'confusion':
 					self.resultAnim(poke, 'Confusion&nbsp;ended', 'good', animDelay);
@@ -4408,6 +4509,10 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + ofpoke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + poke.getLowerName();
 					break;
 
+				case 'deltastream':
+					actions += "The mysterious air current weakened the attack!";
+					break;
+
 				// item activations
 				case 'custapberry':
 				case 'quickclaw':
@@ -4416,6 +4521,9 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'leppaberry':
 					actions += '' + poke.getName() + " restored " + Tools.escapeHTML(args[3]) + "'s PP using its Leppa Berry!";
+					break;
+				case 'focusband':
+					actions += '' + poke.getName() + " hung on using its Focus Band!";
 					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " activated!";
