@@ -592,6 +592,62 @@
 				}
 				return false;
 
+			case 'autojoin':
+				if (!target) return text; // join the server's own list of autojoin rooms
+				var autojoins = Tools.prefs('autojoins') || [];
+				var args = target.split(',');
+				switch (toId(args.shift())) {
+				case 'add':
+					if (!args.length) return '/help autojoin';
+					var curRooms = Object.keys(app.rooms);
+					if (toId(args[0]) === 'all' && args.length === 1) {
+						for (var i = 0, len = curRooms.length; i < len; i++) {
+							var tarRoom = curRooms[i];
+							if (!tarRoom || tarRoom === 'rooms' || tarRoom === 'staff') continue;
+							if (autojoins.indexOf(tarRoom) < 0) autojoins.push(tarRoom);
+						}
+						this.add('Now autojoining rooms: ' + autojoins.join(', '));
+					} else {
+						var illegalRooms = [];
+						for (var i = 0, len = args.length; i < len; i++) {
+							var tarRoom = toId(args[i]);
+							if (!tarRoom) return this.add('The global room cannot be added to the autojoins list.');
+							if (tarRoom === 'staff') return this.add('The staff room cannot be added to the autojoins list.');
+							if (tarRoom === 'rooms') return this.add('The chatroom list cannot be added to the autojoins list.');
+							if (curRooms.indexOf(tarRoom) < 0) {
+								illegalRooms.push(tarRoom);
+								continue;
+							}
+							if (autojoins.indexOf(tarRoom) < 0) autojoins.push(tarRoom);
+						}
+						this.add('Now autojoining rooms: ' + autojoins.join(', '));
+						if (illegalRooms.length) this.add('Rooms not added (join them first?): ' + illegalRooms.join(', '));
+					}
+					break;
+				case 'delete':
+					if (!args.length) {
+						Tools.prefs('autojoins', false);
+						return this.add('All autojoins cleared.');
+					} else {
+						for (var i = 0, len = args.length; i < len; i++) {
+							var tarRoom = toId(args[i]);
+							var tarIndex = autojoins.indexOf(tarRoom);
+							if (tarIndex < 0) continue;
+							autojoins.splice(tarIndex, 1);
+						}
+						this.add('Now autojoining rooms: ' + autojoins.join(', '));
+					}
+					break;
+				case 'list':
+					if (!autojoins.length) return this.add('Your autojoin list is empty.');
+					return this.add('Current autojoin list: ' + autojoins.join(', '));
+				default:
+					this.add('Error: Invalid /autojoin command.');
+					return '/help autojoin';
+				}
+				Tools.prefs('autojoins', autojoins);
+				return false;
+
 			case 'rank':
 			case 'ranking':
 			case 'rating':
