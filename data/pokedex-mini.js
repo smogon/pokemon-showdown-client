@@ -565,7 +565,7 @@ BattlePokemonSprites = {
 	"heatran": {num:485, front:{ani:{w:124,h:64}}, back:{ani:{w:123,h:59}}},
 	"regigigas": {num:486, front:{ani:{w:166,h:96}}, back:{ani:{w:137,h:96}}},
 	"giratina": {num:487, front:{ani:{w:140,h:114}}, back:{ani:{w:131,h:111}}},
-	"giratinaorigin": {num:487, front:{ani:{w:156,h:154}}, back:{ani:{w:174,h:173}}},
+	"giratinaorigin": {num:487, front:{ani:{w:156,h:154}}, back:{ani:{w:174,h:191}}},
 	"cresselia": {num:488, front:{ani:{w:113,h:96}}, back:{ani:{w:109,h:97}}},
 	"phione": {num:489, front:{ani:{w:65,h:56}}, back:{ani:{w:83,h:63}}},
 	"manaphy": {num:490, front:{ani:{w:65,h:55}}, back:{ani:{w:77,h:56}}},
