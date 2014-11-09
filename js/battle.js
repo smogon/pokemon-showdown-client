@@ -2970,6 +2970,12 @@ function Battle(frame, logFrame, noPreload) {
 			self.resultAnim(pokemon, 'Immobilized', 'neutral');
 			self.message(pokemon.getName() + ' is immobilized by love!');
 			break;
+		case 'hoopa':
+			self.message('But ' + pokemon.getLowerName() + ' can\'t use it the way it is now!');
+			break;
+		case 'nothoopa':
+			self.message('But ' + pokemon.getLowerName() + ' can\'t use the move!');
+			break;
 		case 'nopp':
 			self.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 			self.message('But there was no PP left for the move!');
