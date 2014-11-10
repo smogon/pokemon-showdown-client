@@ -35,7 +35,7 @@
 		},
 		leave: function() {
 			app.send('/leave '+this.id);
-			if (this.battle) this.battle.dealloc();
+			if (this.battle) this.battle.destroy();
 		},
 		requestLeave: function() {
 			if (this.side && this.battle && this.battle.rated && !this.battle.done) {
