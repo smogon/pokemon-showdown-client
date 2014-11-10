@@ -2970,12 +2970,6 @@ function Battle(frame, logFrame, noPreload) {
 			self.resultAnim(pokemon, 'Immobilized', 'neutral');
 			self.message(pokemon.getName() + ' is immobilized by love!');
 			break;
-		case 'hoopa':
-			self.message('But ' + pokemon.getLowerName() + ' can\'t use it the way it is now!');
-			break;
-		case 'nothoopa':
-			self.message('But ' + pokemon.getLowerName() + ' can\'t use the move!');
-			break;
 		case 'nopp':
 			self.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 			self.message('But there was no PP left for the move!');
@@ -3484,6 +3478,13 @@ function Battle(frame, logFrame, noPreload) {
 				case 'frz':
 					self.resultAnim(poke, 'Already frozen', 'neutral', animDelay);
 					actions += "" + poke.getName() + " is already frozen.";
+					break;
+				case 'hyperspacefury':
+					if (toId(poke.baseSpecies) === 'hoopa') {
+						actions += 'But ' + poke.getLowerName() + ' can\'t use it the way it is now!';
+					} else {
+						actions += 'But ' + poke.getLowerName() + ' can\'t use the move!';
+					}
 					break;
 				case 'substitute':
 					if (kwargs.weak) {
