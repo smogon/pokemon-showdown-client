@@ -29,15 +29,31 @@ $.extend($.easing, {
 	}
 });
 
-function BattleSoundLibrary() {
-	// options
-	this.effectVolume = 50;
-	this.bgmVolume = 50;
-	this.muted = false;
+var BattleSoundLibrary = (function () {
+	function BattleSoundLibrary () {
+		// effects
+		this.effectCache = {};
 
-	// effects
-	this.effectCache = {};
-	this.loadEffect = function(url) {
+		// bgm
+		this.bgmCache = {};
+		this.bgm = null;
+
+		// misc
+		this.soundPlaceholder = {
+			play: function () { return this; },
+			pause: function () { return this; },
+			stop: function () { return this; },
+			resume: function () { return this; },
+			setVolume: function () { return this; }
+		};
+	}
+
+	// options
+	BattleSoundLibrary.prototype.effectVolume = 50;
+	BattleSoundLibrary.prototype.bgmVolume = 50;
+	BattleSoundLibrary.prototype.muted = false;
+
+	BattleSoundLibrary.prototype.loadEffect = function (url) {
 		if (this.effectCache[url] && this.effectCache[url] !== this.soundPlaceholder) {
 			return this.effectCache[url];
 		}
@@ -53,14 +69,11 @@ function BattleSoundLibrary() {
 		}
 		return this.effectCache[url];
 	};
-	this.playEffect = function(url) {
+	BattleSoundLibrary.prototype.playEffect = function (url) {
 		if (!this.muted) this.loadEffect(url).setVolume(this.effectVolume).play();
 	};
 
-	// bgm
-	this.bgmCache = {};
-	this.bgm = null;
-	this.loadBgm = function(url, loopstart, loopend) {
+	BattleSoundLibrary.prototype.loadBgm = function (url, loopstart, loopend) {
 		if (this.bgmCache[url]) {
 			if (this.bgmCache[url] !== this.soundPlaceholder || loopstart === undefined) {
 				return this.bgmCache[url];
@@ -78,12 +91,12 @@ function BattleSoundLibrary() {
 			// suppress crash
 			return this.bgmCache[url] = this.soundPlaceholder;
 		}
-		this.bgmCache[url].onposition(loopend, function() {
+		this.bgmCache[url].onposition(loopend, function () {
 			this.setPosition(loopstart);
 		});
 		return this.bgmCache[url];
 	};
-	this.playBgm = function(url, loopstart, loopstop) {
+	BattleSoundLibrary.prototype.playBgm = function (url, loopstart, loopstop) {
 		if (this.bgm === this.loadBgm(url, loopstart, loopstop)) {
 			if (!this.bgm.paused && this.bgm.playState) {
 				return;
@@ -102,12 +115,12 @@ function BattleSoundLibrary() {
 			}
 		} catch(e) {}
 	};
-	this.pauseBgm = function() {
+	BattleSoundLibrary.prototype.pauseBgm = function () {
 		if (this.bgm) {
 			this.bgm.pause();
 		}
 	};
-	this.stopBgm = function() {
+	BattleSoundLibrary.prototype.stopBgm = function () {
 		if (this.bgm) {
 			this.bgm.stop();
 			this.bgm = null;
@@ -115,7 +128,7 @@ function BattleSoundLibrary() {
 	};
 
 	// setting
-	this.setMute = function(muted) {
+	BattleSoundLibrary.prototype.setMute = function (muted) {
 		muted = !!muted;
 		if (this.muted == muted) return;
 		this.muted = muted;
@@ -125,7 +138,7 @@ function BattleSoundLibrary() {
 			if (this.bgm) this.bgm.play();
 		}
 	};
-	this.setBgmVolume = function(bgmVolume) {
+	BattleSoundLibrary.prototype.setBgmVolume = function (bgmVolume) {
 		this.bgmVolume = bgmVolume;
 		if (this.bgm) {
 			try {
@@ -133,100 +146,94 @@ function BattleSoundLibrary() {
 			} catch (e) {}
 		}
 	};
-	this.setEffectVolume = function(effectVolume) {
+	BattleSoundLibrary.prototype.setEffectVolume = function (effectVolume) {
 		this.effectVolume = effectVolume;
 	};
 
-	// misc
-	this.soundPlaceholder = {
-		play: function(){ return this; },
-		pause: function(){ return this; },
-		stop: function(){ return this; },
-		resume: function(){ return this; },
-		setVolume: function(){ return this; }
-	};
-}
+	return BattleSoundLibrary;
+})();
+
 var BattleSound = new BattleSoundLibrary();
 
-function Pokemon(species) {
-	var selfP = this;
+var Pokemon = (function () {
+	function Pokemon (species, side) {
+		this.side = side;
 
-	this.atk = 0;
-	this.def = 0;
-	this.spa = 0;
-	this.spd = 0;
-	this.spe = 0;
+		this.atk = 0;
+		this.def = 0;
+		this.spa = 0;
+		this.spd = 0;
+		this.spe = 0;
 
-	this.atkStat = 0;
-	this.defStat = 0;
-	this.spaStat = 0;
-	this.spdStat = 0;
-	this.speStat = 0;
+		this.atkStat = 0;
+		this.defStat = 0;
+		this.spaStat = 0;
+		this.spdStat = 0;
+		this.speStat = 0;
 
-	this.boosts = {};
+		this.boosts = {};
 
-	this.hp = 0;
-	this.maxhp = 0;
-	this.hpcolor = '';
-	this.moves = [];
-	this.ability = '';
-	this.item = '';
-	this.species = species;
-	this.side = null;
-	this.fainted = false;
-	this.zerohp = false;
+		this.hp = 0;
+		this.maxhp = 0;
+		this.hpcolor = '';
+		this.moves = [];
+		this.ability = '';
+		this.item = '';
+		this.species = species;
+		this.fainted = false;
+		this.zerohp = false;
 
-	this.status = '';
-	this.statusStage = 0;
-	this.volatiles = {};
-	this.turnstatuses = {};
-	this.movestatuses = {};
-	this.lastmove = '';
+		this.status = '';
+		this.statusStage = 0;
+		this.volatiles = {};
+		this.turnstatuses = {};
+		this.movestatuses = {};
+		this.lastmove = '';
 
-	this.name = '';
-	this.species = '';
-	this.id = '';
-	this.statbarElem = null;
+		this.name = '';
+		this.species = '';
+		this.id = '';
+		this.statbarElem = null;	
+	}
 
-	this.getHPColor = function () {
-		if (selfP.hpcolor) return selfP.hpcolor;
-		var ratio = selfP.hp / selfP.maxhp;
+	Pokemon.prototype.getHPColor = function () {
+		if (this.hpcolor) return this.hpcolor;
+		var ratio = this.hp / this.maxhp;
 		if (ratio > 0.5) return 'g';
 		if (ratio > 0.2) return 'y';
 		return 'r';
 	};
-	this.getHPColorClass = function () {
-		switch (selfP.getHPColor()) {
-			case 'y': return ' hpbar-yellow';
-			case 'r': return ' hpbar-red';
+	Pokemon.prototype.getHPColorClass = function () {
+		switch (this.getHPColor()) {
+		case 'y': return ' hpbar-yellow';
+		case 'r': return ' hpbar-red';
 		}
 		return '';
 	};
-	var epsilon = 0.5/714;
-	this.getPixelRange = function (pixels, color) {
-		if (pixels === 0) {
-			return [0, 0];
-		} else if (pixels === 1) {
-			return [0 + epsilon, 2/48 - epsilon];
-		} else if (pixels === 9) {
+	Pokemon.prototype.getPixelRange = function (pixels, color) {
+		var epsilon = 0.5/714;
+
+		if (pixels === 0) return [0, 0];
+		if (pixels === 1) return [0 + epsilon, 2/48 - epsilon];
+		if (pixels === 9) {
 			if (color === 'y') { // ratio is > 0.2
 				return [0.2 + epsilon, 10/48 - epsilon];
 			} else { // ratio is <= 0.2
 				return [9/48, 0.2];
 			}
-		} else if (pixels === 24) {
+		}
+		if (pixels === 24) {
 			if (color === 'g') { // ratio is > 0.5
 				return [0.5 + epsilon, 25/48 - epsilon];
 			} else { // ratio is exactly 0.5
 				return [0.5, 0.5];
 			}
-		} else if (pixels === 48) {
-			return [1, 1];
-		} else {
-			return [pixels/48, (pixels + 1)/48 - epsilon];
 		}
+		if (pixels === 48) 	return [1, 1];
+
+		return [pixels/48, (pixels + 1)/48 - epsilon];
 	};
-	this.getFormattedRange = function (range, precision, separator) {
+	Pokemon.prototype.getFormattedRange = function (range, precision, separator) {
 		if (range[0] === range[1]) {
 			var percentage = Math.abs(range[0] * 100);
 			if (Math.floor(percentage) === percentage) {
@@ -244,7 +251,7 @@ function Pokemon(species) {
 		}
 		return lower + separator + upper + '%';
 	};
-	this.getDamageRange = function (damage) {
+	Pokemon.prototype.getDamageRange = function (damage) {
 		if (damage[1] !== 48) {
 			var ratio = damage[0] / damage[1];
 			return [ratio, ratio];
@@ -254,8 +261,8 @@ function Pokemon(species) {
 			return [damage[2] / 100, damage[2] / 100];
 		}
 		// pixel damage
-		var oldrange = selfP.getPixelRange(damage[3], damage[4]);
-		var newrange = selfP.getPixelRange(damage[3] + damage[0], selfP.hpcolor);
+		var oldrange = this.getPixelRange(damage[3], damage[4]);
+		var newrange = this.getPixelRange(damage[3] + damage[0], this.hpcolor);
 		if (damage[0] === 0) {
 			// no change in displayed pixel width
 			return [0, newrange[1] - newrange[0]];
@@ -267,8 +274,8 @@ function Pokemon(species) {
 		}
 		return [oldrange[0] - newrange[1], oldrange[1] - newrange[0]];
 	};
-	// returns [delta, denominator, percent(, oldnum, oldcolor)] or false
-	this.healthParse = function (hpstring, parsedamage, heal) {
+	Pokemon.prototype.healthParse = function (hpstring, parsedamage, heal) {
+		// returns [delta, denominator, percent(, oldnum, oldcolor)] or false
 		if (!hpstring || !hpstring.length) return false;
 		var parenIndex = hpstring.lastIndexOf('(');
 		if (parenIndex >= 0) {
@@ -278,10 +285,10 @@ function Pokemon(species) {
 				// unusual check preseved for backward compatbility
 				if (isNaN(damage)) damage = 50;
 				if (heal) {
-					selfP.hp += selfP.maxhp * damage / 100;
-					if (selfP.hp > selfP.maxhp) selfP.hp = selfP.maxhp;
+					this.hp += this.maxhp * damage / 100;
+					if (this.hp > this.maxhp) this.hp = this.maxhp;
 				} else {
-					selfP.hp -= selfP.maxhp * damage / 100;
+					this.hp -= this.maxhp * damage / 100;
 				}
 				// parse the absolute health information
 				var ret = this.healthParse(hpstring);
@@ -303,145 +310,144 @@ function Pokemon(species) {
 		var hp = hpstring.split(' ');
 		var status = hp[1];
 		hp = hp[0];
-		var oldhp = (selfP.zerohp || selfP.fainted) ? 0 : (selfP.hp || 1);
-		var oldmaxhp = selfP.maxhp;
-		var oldwidth = selfP.hpWidth(100);
-		var oldcolor = selfP.hpcolor;
+		var oldhp = (this.zerohp || this.fainted) ? 0 : (this.hp || 1);
+		var oldmaxhp = this.maxhp;
+		var oldwidth = this.hpWidth(100);
+		var oldcolor = this.hpcolor;
 
 		// hp parse
-		selfP.hpcolor = '';
+		this.hpcolor = '';
 		if (hp === '0' || hp === '0.0') {
-			selfP.hp = 0;
-			selfP.zerohp = true;
+			this.hp = 0;
+			this.zerohp = true;
 		} else if (hp.indexOf('/') > 0) {
 			var hp = hp.split('/');
 			if (isNaN(parseFloat(hp[0])) || isNaN(parseFloat(hp[1]))) {
 				return false;
 			}
-			selfP.hp = parseFloat(hp[0]);
-			selfP.maxhp = parseFloat(hp[1]);
+			this.hp = parseFloat(hp[0]);
+			this.maxhp = parseFloat(hp[1]);
 			if (oldmaxhp === 0) { // max hp not known before parsing this message
-				oldmaxhp = oldhp = selfP.maxhp;
+				oldmaxhp = oldhp = this.maxhp;
 			}
-			if (selfP.hp > selfP.maxhp) selfP.hp = selfP.maxhp;
+			if (this.hp > this.maxhp) this.hp = this.maxhp;
 			var colorchar = hp[1].substr(hp[1].length - 1);
 			if ((colorchar === 'y') || (colorchar === 'g')) {
-				selfP.hpcolor = colorchar;
+				this.hpcolor = colorchar;
 			}
-			if (!selfP.hp) {
-				selfP.zerohp = true;
+			if (!this.hp) {
+				this.zerohp = true;
 			}
 		} else if (!isNaN(parseFloat(hp))) {
-			selfP.hp = selfP.maxhp * parseFloat(hp) / 100;
+			this.hp = this.maxhp * parseFloat(hp) / 100;
 		}
 
 		// status parse
 		if (!status) {
-			selfP.status = '';
+			this.status = '';
 		} else if (status === 'par' || status === 'brn' || status === 'slp' || status === 'frz' || status === 'tox') {
-			selfP.status = status;
-		} else if (status === 'psn' && selfP.status !== 'tox') {
-			selfP.status = status;
+			this.status = status;
+		} else if (status === 'psn' && this.status !== 'tox') {
+			this.status = status;
 		} else if (status === 'fnt') {
-			selfP.hp = 0;
-			selfP.zerohp = true;
-			selfP.fainted = true;
+			this.hp = 0;
+			this.zerohp = true;
+			this.fainted = true;
 		}
 
-		var oldnum = oldhp ? (Math.floor(oldhp / oldmaxhp * selfP.maxhp) || 1) : 0;
-		var delta = selfP.hp - oldnum;
-		var deltawidth = selfP.hpWidth(100) - oldwidth;
-		return [delta, selfP.maxhp, deltawidth, oldnum, oldcolor];
+		var oldnum = oldhp ? (Math.floor(oldhp / oldmaxhp * this.maxhp) || 1) : 0;
+		var delta = this.hp - oldnum;
+		var deltawidth = this.hpWidth(100) - oldwidth;
+		return [delta, this.maxhp, deltawidth, oldnum, oldcolor];
 	};
-	this.checkDetails = function(details, ident) {
-		if (details === selfP.details) return true;
-		if (selfP.details.indexOf('-*') >= 0) {
-			selfP.needsReplace = true;
-			details = details.replace(/-[A-Za-z0-9]+(, |$)/, '$1');
-			return (details === selfP.details.replace(/-[A-Za-z0-9*]+(, |$)/, '$1'));
-		}
-		return false;
+	Pokemon.prototype.checkDetails = function (details, ident) {
+		if (details === this.details) return true;
+		if (this.details.indexOf('-*') < 0) return false;
+		// the actual forme was hidden on Team Preview
+		this.needsReplace = true;
+		details = details.replace(/-[A-Za-z0-9]+(, |$)/, '$1');
+		return (details === this.details.replace(/-[A-Za-z0-9*]+(, |$)/, '$1'));
 	};
-	this.getIdent = function() {
-		if (selfP.side.active.length === 1) return selfP.ident;
+	Pokemon.prototype.getIdent = function () {
+		if (this.side.active.length === 1) return this.ident;
 		var slots = ['a','b','c','d','e','f'];
-		return selfP.ident.substr(0,2) + slots[selfP.slot] + selfP.ident.substr(2);
+		return this.ident.substr(0,2) + slots[this.slot] + this.ident.substr(2);	
 	};
-	this.removeVolatile = function (volatile) {
-		if (!selfP.hasVolatile(volatile)) return;
+	Pokemon.prototype.removeVolatile = function (volatile) {
+		if (!this.hasVolatile(volatile)) return;
 		if (volatile === 'formechange') {
-			selfP.sprite.removeTransform();
+			this.sprite.removeTransform();
 		}
-		if (selfP.volatiles[volatile][1]) selfP.volatiles[volatile][1].remove();
-		delete selfP.volatiles[volatile];
+		if (this.volatiles[volatile][1]) this.volatiles[volatile][1].remove();
+		delete this.volatiles[volatile];
 	};
-	this.addVolatile = function (volatile) {
-		var self = selfP.side.battle;
-		if (selfP.hasVolatile(volatile)) return;
-		selfP.volatiles[volatile] = [volatile, null];
+	Pokemon.prototype.addVolatile = function (volatile) {
+		var battle = this.side.battle;
+		if (this.hasVolatile(volatile)) return;
+		this.volatiles[volatile] = [volatile, null];
 		if (volatile === 'leechseed') {
-			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
-			var curelem = selfP.side.battle.spriteElemsFront[selfP.side.n].children().last();
-			curelem.css(self.pos({
+			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
+			var curelem = this.side.battle.spriteElemsFront[this.side.n].children().last();
+			curelem.css(battle.pos({
 				display: 'block',
-				x: selfP.sprite.x - 30,
-				y: selfP.sprite.y - 40,
-				z: selfP.sprite.z,
+				x: this.sprite.x - 30,
+				y: this.sprite.y - 40,
+				z: this.sprite.z,
 				scale: .2,
 				opacity: .6
 			}, BattleEffects.energyball));
 			var elem = curelem;
 
-			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
-			curelem = selfP.side.battle.spriteElemsFront[selfP.side.n].children().last();
-			curelem.css(self.pos({
+			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
+			curelem = this.side.battle.spriteElemsFront[this.side.n].children().last();
+			curelem.css(battle.pos({
 				display: 'block',
-				x: selfP.sprite.x + 40,
-				y: selfP.sprite.y - 35,
-				z: selfP.sprite.z,
+				x: this.sprite.x + 40,
+				y: this.sprite.y - 35,
+				z: this.sprite.z,
 				scale: .2,
 				opacity: .6
 			}, BattleEffects.energyball));
 			elem = elem.add(curelem);
 
-			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
-			curelem = selfP.side.battle.spriteElemsFront[selfP.side.n].children().last();
-			curelem.css(self.pos({
+			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
+			curelem = this.side.battle.spriteElemsFront[this.side.n].children().last();
+			curelem.css(battle.pos({
 				display: 'block',
-				x: selfP.sprite.x + 20,
-				y: selfP.sprite.y - 25,
-				z: selfP.sprite.z,
+				x: this.sprite.x + 20,
+				y: this.sprite.y - 25,
+				z: this.sprite.z,
 				scale: .2,
 				opacity: .6
 			}, BattleEffects.energyball));
 			elem = elem.add(curelem);
-			selfP.volatiles[volatile][1] = elem;
+			this.volatiles[volatile][1] = elem;
 		}
 	};
-	this.hasVolatile = function (volatile) {
-		return !!selfP.volatiles[volatile];
+	Pokemon.prototype.hasVolatile = function (volatile) {
+		return !!this.volatiles[volatile];
 	};
-	this.removeTurnstatus = function (volatile) {
-		if (!selfP.hasTurnstatus(volatile)) return;
-		if (selfP.turnstatuses[volatile][1]) selfP.turnstatuses[volatile][1].remove();
-		delete selfP.turnstatuses[volatile];
+	Pokemon.prototype.removeTurnstatus = function (volatile) {
+		if (!this.hasTurnstatus(volatile)) return;
+		if (this.turnstatuses[volatile][1]) this.turnstatuses[volatile][1].remove();
+		delete this.turnstatuses[volatile];
 	};
-	this.addTurnstatus = function (volatile) {
+	Pokemon.prototype.addTurnstatus = function (volatile) {
 		volatile = toId(volatile);
-		var self = selfP.side.battle;
-		if (selfP.hasTurnstatus(volatile)) {
+		var battle = this.side.battle;
+		if (this.hasTurnstatus(volatile)) {
 			if (volatile === 'protect' || volatile === 'magiccoat') {
-				selfP.turnstatuses[volatile][1].css(self.pos({
-					x: selfP.sprite.x,
-					y: selfP.sprite.y,
-					z: selfP.sprite.behind(-15),
+				this.turnstatuses[volatile][1].css(battle.pos({
+					x: this.sprite.x,
+					y: this.sprite.y,
+					z: this.sprite.behind(-15),
 					xscale: 1 * 1.2,
 					yscale: .7 * 1.2,
 					opacity: 1
-				}, BattleEffects.none), 300).animate(self.pos({
-					x: selfP.sprite.x,
-					y: selfP.sprite.y,
-					z: selfP.sprite.behind(-15),
+				}, BattleEffects.none), 300).animate(battle.pos({
+					x: this.sprite.x,
+					y: this.sprite.y,
+					z: this.sprite.behind(-15),
 					xscale: 1,
 					yscale: .7,
 					opacity: .4
@@ -449,113 +455,112 @@ function Pokemon(species) {
 			}
 			return;
 		}
-		selfP.turnstatuses[volatile] = [volatile, null];
+		this.turnstatuses[volatile] = [volatile, null];
 		if (volatile === 'protect' || volatile === 'magiccoat') {
-			selfP.side.battle.spriteElemsFront[selfP.side.n].append('<div class="turnstatus-protect" style="display:none;position:absolute" />');
-			var elem = selfP.side.battle.spriteElemsFront[selfP.side.n].children().last();
-			elem.css(self.pos({
+			this.side.battle.spriteElemsFront[this.side.n].append('<div class="turnstatus-protect" style="display:none;position:absolute" />');
+			var elem = this.side.battle.spriteElemsFront[this.side.n].children().last();
+			elem.css(battle.pos({
 				display: 'block',
-				x: selfP.sprite.x,
-				y: selfP.sprite.y,
-				z: selfP.sprite.behind(-15),
+				x: this.sprite.x,
+				y: this.sprite.y,
+				z: this.sprite.behind(-15),
 				xscale: 1,
 				yscale: 0,
 				opacity: .1
-			}, BattleEffects.none)).animate(self.pos({
-				x: selfP.sprite.x,
-				y: selfP.sprite.y,
-				z: selfP.sprite.behind(-15),
+			}, BattleEffects.none)).animate(battle.pos({
+				x: this.sprite.x,
+				y: this.sprite.y,
+				z: this.sprite.behind(-15),
 				xscale: 1,
 				yscale: .7,
 				opacity: .9
 			}, BattleEffects.none), 300).animate({
 				opacity: .4
 			}, 300);
-			selfP.turnstatuses[volatile][1] = elem;
+			this.turnstatuses[volatile][1] = elem;
 		}
 	};
-	this.hasTurnstatus = function (volatile) {
-		return !!selfP.turnstatuses[volatile];
+	Pokemon.prototype.hasTurnstatus = function (volatile) {
+		return !!this.turnstatuses[volatile];
 	};
-	this.clearTurnstatuses = function () {
-		for (var i in selfP.turnstatuses) {
-			selfP.removeTurnstatus(i);
+	Pokemon.prototype.clearTurnstatuses = function () {
+		for (var i in this.turnstatuses) {
+			this.removeTurnstatus(i);
 		}
-		selfP.turnstatuses = {};
+		this.turnstatuses = {};
 	};
-	this.removeMovestatus = function (volatile) {
-		if (!selfP.hasMovestatus(volatile)) return;
-		if (selfP.movestatuses[volatile][1]) selfP.movestatuses[volatile][1].remove();
-		delete selfP.movestatuses[volatile];
+	Pokemon.prototype.removeMovestatus = function (volatile) {
+		if (!this.hasMovestatus(volatile)) return;
+		if (this.movestatuses[volatile][1]) this.movestatuses[volatile][1].remove();
+		delete this.movestatuses[volatile];
 	};
-	this.addMovestatus = function (volatile) {
+	Pokemon.prototype.addMovestatus = function (volatile) {
 		volatile = toId(volatile);
-		var self = selfP.side.battle;
-		if (selfP.hasMovestatus(volatile)) {
-			return;
+		if (this.hasMovestatus(volatile)) return;
+		this.movestatuses[volatile] = [volatile, null];
+	};
+	Pokemon.prototype.hasMovestatus = function (volatile) {
+		return !!this.movestatuses[volatile];
+	};
+	Pokemon.prototype.clearMovestatuses = function () {
+		for (var i in this.movestatuses) {
+			this.removeMovestatus(i);
 		}
-		selfP.movestatuses[volatile] = [volatile, null];
+		this.movestatuses = {};
 	};
-	this.hasMovestatus = function (volatile) {
-		return !!selfP.movestatuses[volatile];
-	};
-	this.clearMovestatuses = function () {
-		for (var i in selfP.movestatuses) {
-			selfP.removeMovestatus(i);
+	Pokemon.prototype.clearVolatiles = function () {
+		for (var i in this.volatiles) {
+			this.removeVolatile(i);
 		}
-		selfP.movestatuses = {};
+		this.volatiles = {};
+		this.clearTurnstatuses();
+		this.clearMovestatuses();
 	};
-	this.clearVolatiles = function () {
-		for (var i in selfP.volatiles) {
-			selfP.removeVolatile(i);
-		}
-		selfP.volatiles = {};
-		selfP.clearTurnstatuses();
-		selfP.clearMovestatuses();
-	};
-	this.getName = function () {
-		if (selfP.side.n === 0) {
-			return Tools.escapeHTML(selfP.name);
+	Pokemon.prototype.getName = function () {
+		if (this.side.n === 0) {
+			return Tools.escapeHTML(this.name);
 		} else {
-			return "The opposing " + Tools.escapeHTML(selfP.name);
+			return "The opposing " + Tools.escapeHTML(this.name);
 		}
 	};
-	this.getLowerName = function () {
-		if (selfP.side.n === 0) {
-			return Tools.escapeHTML(selfP.name);
+	Pokemon.prototype.getLowerName = function () {
+		if (this.side.n === 0) {
+			return Tools.escapeHTML(this.name);
 		} else {
-			return "the opposing " + Tools.escapeHTML(selfP.name);
+			return "the opposing " + Tools.escapeHTML(this.name);
 		}
 	};
-	this.getTitle = function () {
-		var titlestring = '(' + selfP.ability + ') ';
+	Pokemon.prototype.getTitle = function () {
+		var titlestring = '(' + this.ability + ') ';
 
-		for (var i = 0; i < selfP.moves.length; i++) {
+		for (var i = 0; i < this.moves.length; i++) {
 			if (i != 0) titlestring += ' / ';
-			titlestring += Tools.getMove(selfP.moves[i]).name;
+			titlestring += Tools.getMove(this.moves[i]).name;
 		}
 		return titlestring;
 	};
-	this.getFullName = function (plaintext) {
-		var name = Tools.escapeHTML(selfP.name);
-		if (selfP.name !== selfP.species) {
+	Pokemon.prototype.getFullName = function (plaintext) {
+		var name = Tools.escapeHTML(this.name);
+		if (this.name !== this.species) {
 			if (plaintext) {
-				name += ' (' + selfP.species + ')';
-			} else name += ' <small>(' + selfP.species + ')</small>';
+				name += ' (' + this.species + ')';
+			} else {
+				name += ' <small>(' + this.species + ')</small>';
+			}
 		}
 		if (plaintext) {
-			if (selfP === selfP.side.active[0]) {
+			if (this === this.side.active[0]) {
 				name += ' (active)';
-			} else if (selfP.fainted) {
+			} else if (this.fainted) {
 				name += ' (fainted)';
 			} else {
 				var statustext = '';
-				if (selfP.hp !== selfP.maxhp) {
-					statustext += selfP.hpDisplay();
+				if (this.hp !== this.maxhp) {
+					statustext += this.hpDisplay();
 				}
-				if (selfP.status) {
+				if (this.status) {
 					if (statustext) statustext += '|';
-					statustext += selfP.status;
+					statustext += this.status;
 				}
 				if (statustext) {
 					name += ' (' + statustext + ')';
@@ -564,7 +569,7 @@ function Pokemon(species) {
 		}
 		return name;
 	};
-	this.getBoost = function (boostStat) {
+	Pokemon.prototype.getBoost = function (boostStat) {
 		var boostStatTable = {
 			atk: 'Atk',
 			def: 'Def',
@@ -574,62 +579,58 @@ function Pokemon(species) {
 			accuracy: 'Accuracy',
 			evasion: 'Evasion'
 		};
-		if (!selfP.boosts[boostStat]) {
+		if (!this.boosts[boostStat]) {
 			return '1&times;&nbsp;' + boostStatTable[boostStat];
 		}
-		if (selfP.boosts[boostStat] > 6) selfP.boosts[boostStat] = 6;
-		if (selfP.boosts[boostStat] < -6) selfP.boosts[boostStat] = -6;
+		if (this.boosts[boostStat] > 6) this.boosts[boostStat] = 6;
+		if (this.boosts[boostStat] < -6) this.boosts[boostStat] = -6;
 		if (boostStat === 'accuracy' || boostStat === 'evasion') {
-			if (selfP.boosts[boostStat] > 0) {
+			if (this.boosts[boostStat] > 0) {
 				var goodBoostTable = ['1&times;', '1.33&times;', '1.67&times;', '2&times;', '2.33&times;', '2.67&times;', '3&times;'];
 				//var goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
-				return '' + goodBoostTable[selfP.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
+				return '' + goodBoostTable[this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 			}
 			var badBoostTable = ['1&times;', '0.75&times;', '0.6&times;', '0.5&times;', '0.43&times;', '0.38&times;', '0.33&times;'];
 			//var badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
-			return '' + badBoostTable[-selfP.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
+			return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 		}
-		if (selfP.boosts[boostStat] > 0) {
+		if (this.boosts[boostStat] > 0) {
 			var goodBoostTable = ['1&times;', '1.5&times;', '2&times;', '2.5&times;', '3&times;', '3.5&times;', '4&times;'];
 			//var goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
-			return '' + goodBoostTable[selfP.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
+			return '' + goodBoostTable[this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 		}
 		var badBoostTable = ['1&times;', '0.67&times;', '0.5&times;', '0.4&times;', '0.33&times;', '0.29&times;', '0.25&times;'];
 		//var badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
-		return '' + badBoostTable[-selfP.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
+		return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 	};
-	this.getBoostType = function (boostStat) {
-		if (!selfP.boosts[boostStat]) {
-			return 'neutral';
-		} else if (selfP.boosts[boostStat] > 0) {
-			return 'good';
-		}
+	Pokemon.prototype.getBoostType = function (boostStat) {
+		if (!this.boosts[boostStat]) return 'neutral';
+		if (this.boosts[boostStat] > 0) return 'good';
 		return 'bad';
 	};
-
-	this.clearVolatile = function () {
-		selfP.atk = selfP.atkStat;
-		selfP.def = selfP.defStat;
-		selfP.spa = selfP.spaStat;
-		selfP.spd = selfP.spdStat;
-		selfP.spe = selfP.speStat;
-		selfP.boosts = {};
-		selfP.clearVolatiles();
-		//selfP.lastmove = '';
-		selfP.statusStage = 0;
+	Pokemon.prototype.clearVolatile = function () {
+		this.atk = this.atkStat;
+		this.def = this.defStat;
+		this.spa = this.spaStat;
+		this.spd = this.spdStat;
+		this.spe = this.speStat;
+		this.boosts = {};
+		this.clearVolatiles();
+		//this.lastmove = '';
+		this.statusStage = 0;
 	};
-	this.copyVolatileFrom = function (pokemon, copyAll) {
-		selfP.boosts = pokemon.boosts;
-		selfP.volatiles = pokemon.volatiles;
-		//selfP.lastmove = pokemon.lastmove; // I think
+	Pokemon.prototype.copyVolatileFrom = function (pokemon, copyAll) {
+		this.boosts = pokemon.boosts;
+		this.volatiles = pokemon.volatiles;
+		//this.lastmove = pokemon.lastmove; // I think
 		if (!copyAll) {
-			selfP.removeVolatile('yawn');
-			selfP.removeVolatile('airballoon');
-			selfP.removeVolatile('typeadd');
-			selfP.removeVolatile('typechange');
+			this.removeVolatile('yawn');
+			this.removeVolatile('airballoon');
+			this.removeVolatile('typeadd');
+			this.removeVolatile('typechange');
 		}
-		selfP.removeVolatile('transform');
-		selfP.removeVolatile('formechange');
+		this.removeVolatile('transform');
+		this.removeVolatile('formechange');
 
 		pokemon.atk = pokemon.atkStat;
 		pokemon.def = pokemon.defStat;
@@ -641,7 +642,7 @@ function Pokemon(species) {
 		pokemon.sprite.removeTransform();
 		pokemon.statusStage = 0;
 	};
-	this.copyTypesFrom = function (pokemon) {
+	Pokemon.prototype.copyTypesFrom = function (pokemon) {
 		this.addVolatile('typechange');
 		if (pokemon.volatiles.typechange) {
 			this.volatiles.typechange[2] = pokemon.volatiles.typechange[2];
@@ -658,15 +659,13 @@ function Pokemon(species) {
 			this.removeVolatile('typeadd');
 		}
 	};
-	this.reset = function () {
-		selfP.clearVolatile();
-		selfP.hp = selfP.maxhp;
-		selfP.zerohp = false;
-		selfP.fainted = false;
-		selfP.status = '';
-		if (!selfP.name) {
-			selfP.name = selfP.species;
-		}
+	Pokemon.prototype.reset = function () {
+		this.clearVolatile();
+		this.hp = this.maxhp;
+		this.zerohp = false;
+		this.fainted = false;
+		this.status = '';
+		this.name = this.name || this.species;
 	};
 	// This function is used for two things:
 	//   1) The percentage to display beside the HP bar.
@@ -674,238 +673,1651 @@ function Pokemon(species) {
 	//
 	// This function is NOT used in the calculation of any other displayed
 	// percentages or ranges, which have their own, more complex, formulae.
-	this.hpWidth = function (maxWidth) {
-		if (selfP.fainted || selfP.zerohp) {
-			return 0;
-		}
+	Pokemon.prototype.hpWidth = function (maxWidth) {
+		if (this.fainted || this.zerohp) return 0;
+
 		// special case for low health...
-		if (selfP.hp == 1 && selfP.maxhp > 10) return 1;
-		if (selfP.maxhp === 48) {
+		if (this.hp == 1 && this.maxhp > 10) return 1;
+
+		if (this.maxhp === 48) {
 			// Draw the health bar to the middle of the range.
 			// This affects the width of the visual health bar *only*; it
 			// does not affect the ranges displayed in any way.
-			var range = selfP.getPixelRange(selfP.hp, selfP.hpcolor);
+			var range = this.getPixelRange(this.hp, this.hpcolor);
 			var ratio = (range[0] + range[1]) / 2;
 			return Math.round(maxWidth * ratio) || 1;
 		}
-		var percentage = Math.ceil(selfP.hp / selfP.maxhp * 100);
-		if ((percentage === 100) && (selfP.hp < selfP.maxhp)) {
+		var percentage = Math.ceil(this.hp / this.maxhp * 100);
+		if ((percentage === 100) && (this.hp < this.maxhp)) {
 			percentage = 99;
 		}
 		return percentage * maxWidth / 100;
 	};
-	this.hpDisplay = function (precision) {
+	Pokemon.prototype.hpDisplay = function (precision) {
 		if (precision === undefined) precision = 1;
-		if (selfP.maxhp === 100) {
-			return selfP.hp + '%';
-		} else if (selfP.maxhp !== 48) {
-			return (selfP.hp / selfP.maxhp * 100).toFixed(precision) + '%';
-		}
-		var range = selfP.getPixelRange(selfP.hp, selfP.hpcolor);
-		return selfP.getFormattedRange(range, precision, '–');
+		if (this.maxhp === 100) return this.hp + '%';
+		if (this.maxhp !== 48) return (this.hp / this.maxhp * 100).toFixed(precision) + '%';
+		var range = this.getPixelRange(this.hp, this.hpcolor);
+		return this.getFormattedRange(range, precision, '–');
 	};
-}
+	Pokemon.prototype.destroy = function () {
+		if (this.sprite) this.sprite.destroy();
+		delete this.side;
+	};
 
-function Battle(frame, logFrame, noPreload) {
-	var self = this;
+	return Pokemon;
+})();
 
-	frame.addClass('battle');
+var Sprite = (function () {
+	function Sprite (spriteData, x, y, z, battle, siden) {
+		this.battle = battle;
+		this.siden = siden;
+		this.forme = '';
+		this.elem = null;
+		this.cryurl = '';
+		var sp = null;
+		if (spriteData) {
+			sp = spriteData;
+			battle.spriteElems[siden].append('<img src="' + sp.url + '" style="display:none;position:absolute" />');
+			this.elem = battle.spriteElems[siden].children().last();
+			this.cryurl = spriteData.cryurl;
+		} else {
+			sp = {
+				w: 0,
+				h: 0,
+				url: ''
+			};
+		}
+		this.sp = sp;
+		this.subsp = null;
+		this.oldsp = null;
+		this.subElem = null;
+		this.iw = sp.w;
+		this.ih = sp.h;
+		this.w = 0;
+		this.h = 0;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.statbarOffset = 0;
+		var pos = battle.pos({
+			x: x,
+			y: y,
+			z: z
+		}, {
+			w: 0,
+			h: 96
+		});
+		this.top = parseInt(pos.top + 40);
+		this.left = parseInt(pos.left);
+		this.isBackSprite = !siden;
+		this.duringMove = false;
 
-	this.turn = 0;
-	this.done = 0;
-	this.weather = '';
-	this.pseudoWeather = [];
-	this.weatherTimeLeft = 0;
-	this.weatherMinTimeLeft = 0;
-	this.mySide = null;
-	this.yourSide = null;
-	this.p1 = null;
-	this.p2 = null;
-	this.sides = [];
-	this.lastMove = '';
-	this.gen = 6;
+		if (!spriteData) {
+			this.delay = function () {};
+			this.anim = function () {};
+		}
+	}
 
-	this.frameElem = frame;
-	this.logFrameElem = logFrame;
-	this.logElem = null;
-	this.weatherElem = null;
-	this.bgEffectElem = null;
-	this.bgElem = null;
-	this.spriteElem = null;
-	this.spriteElems = [null, null];
-	this.spriteElemsFront = [null, null];
-	this.statElem = null;
-	this.fxElem = null;
-	this.leftbarElem = null;
-	this.rightbarElem = null;
-	this.turnElem = null;
-	this.messagebarElem = null;
-	this.delayElem = null;
-	this.hiddenMessageElem = null;
+	Sprite.prototype.behindx = function (offset) {
+		return this.x + (this.isBackSprite ? -1 : 1) * offset;
+	};
+	Sprite.prototype.behindy = function (offset) {
+		return this.y + (this.isBackSprite ? 1 : -1) * offset;
+	};
+	Sprite.prototype.leftof = function (offset) {
+		return (this.isBackSprite ? -1 : 1) * offset;
+	};
+	Sprite.prototype.behind = function (offset) {
+		return this.z + (this.isBackSprite ? -1 : 1) * offset;
+	};
+	Sprite.prototype.animTransform = function (species) {
+		if (!this.oldsp) this.oldsp = this.sp;
+		if (species.volatiles && species.volatiles.formechange) species = species.volatiles.formechange[2];
+		sp = Tools.getSpriteData(species, this.isBackSprite ? 0 : 1, {afd: this.battle.tier === "[Seasonal] Fools Festival"});
+		this.sp = sp;
+		var self = this;
+		var battle = this.battle;
+		this.elem.animate(this.battle.pos({
+			x: this.x,
+			y: this.y,
+			z: this.z,
+			yscale: 0,
+			xcale: 1,
+			opacity: .3
+		}, this.oldsp), 300, function () {
+			self.elem.attr('src', sp.url);
+			self.elem.animate(battle.pos({
+				x: self.x,
+				y: self.y,
+				z: self.z,
+				opacity: 1
+			}, sp), 300);
+		});
+		this.battle.activityWait(500);
+	};
+	Sprite.prototype.destroy = function () {
+		if (this.elem) this.elem.remove();
+		if (this.subElem) this.subElem.remove();
+		delete this.battle;
+	};
+	Sprite.prototype.removeTransform = function (species) {
+		if (this.oldsp) {
+			sp = this.oldsp;
+			this.sp = sp;
+			this.oldsp = null;
+			this.elem.attr('src', sp.url);
+			this.elem.css(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: (this.subElem ? this.behind(30) : this.z),
+				opacity: (this.subElem ? .3 : 1)
+			}, sp));
+		}
+	};
+	Sprite.prototype.animSub = function () {
+		var subsp = Tools.getSpriteData('substitute', this.siden, {afd: this.battle.tier === "[Seasonal] Fools Festival"});
+		this.subsp = subsp;
+		this.iw = subsp.w;
+		this.ih = subsp.h;
+		this.battle.spriteElemsFront[this.siden].append('<img src="' + subsp.url + '" style="display:none;position:absolute" />');
+		this.subElem = this.battle.spriteElemsFront[this.siden].children().last();
 
-	this.paused = true;
-	this.playbackState = 0;
+		//temp//this.subElem.css({position: 'absolute', display: 'block'});
+		this.selfAnim({}, 500);
+		this.subElem.css({
+			position: 'absolute',
+			opacity: 0,
+			display: 'block'
+		});
+		this.subElem.css(this.battle.pos({
+			x: this.x,
+			y: this.y + 50,
+			z: this.z,
+			opacity: 0
+		}, subsp));
+		this.subElem.animate(this.battle.pos({
+			x: this.x,
+			y: this.y,
+			z: this.z
+		}, subsp), 500);
+		this.battle.activityWait(this.subElem);
+	};
+	Sprite.prototype.animSubFade = function () {
+		if (!this.subElem) return;
+		if (this.battle.activityDelay) {
+			this.elem.delay(this.battle.activityDelay);
+			this.subElem.delay(this.battle.activityDelay);
+		}
+		this.subElem.animate(this.battle.pos({
+			x: this.x,
+			y: this.y - 50,
+			z: this.z,
+			opacity: 0
+		}, this.subsp), 500);
 
-	self.backdropImage = BattleBackdrops[0];
+		this.subElem = null;
+		this.selfAnim({}, 500);
+		this.iw = this.sp.w;
+		this.ih = this.sp.h;
+		this.battle.activityWait(this.elem);
+	};
+	Sprite.prototype.beforeMove = function () {
+		if (this.subElem && !this.duringMove) {
+			this.duringMove = true;
+			this.selfAnim({}, 300);
+			this.subElem.animate(this.battle.pos({
+				x: this.leftof(-50),
+				y: this.y,
+				z: this.z,
+				opacity: 0.5
+			}, this.subsp), 300);
+			if (this.battle.sides[this.isBackSprite ? 1 : 0].active[0]) {
+				this.battle.sides[this.isBackSprite ? 1 : 0].active[0].sprite.delay(300);
+			}
+			this.battle.animationDelay = 300;
+			this.battle.activityWait(this.elem);
 
-	self.backdropImage = BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
+			return true;
+		}
+		return false;
+	};
+	Sprite.prototype.afterMove = function () {
+		if (this.subElem && this.duringMove) {
+			this.subElem.delay(300);
+			this.duringMove = false;
+			var self = this;
+			this.elem.add(this.subElem).promise().done(function () {
+				if (!self.subElem || !self.elem) return;
+				self.selfAnim({}, 300);
+				self.subElem.animate(self.battle.pos({
+					x: self.x,
+					y: self.y,
+					z: self.z,
+					opacity: 1
+				}, self.subsp), 300);
+			});
+			return true;
+		}
+		this.duringMove = false;
+		return false;
+	};
+	Sprite.prototype.removeSub = function () {
+		if (this.subElem) {
+			var temp = this.subElem;
+			this.subElem.animate({
+				opacity: 0
+			}, function () {
+				temp.remove();
+			});
+			this.subElem = null;
+		}
+	};
+	Sprite.prototype.animReset = function () {
+		if (this.subElem) {
+			this.elem.stop(true, false);
+			this.subElem.stop(true, false);
+			this.elem.css(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.behind(30),
+				opacity: .3
+			}, this.sp));
+			this.subElem.css(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.z
+			}, this.subsp));
+		} else {
+			this.elem.stop(true, false);
+			this.elem.css(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.z
+			}, this.sp));
+		}
+	};
+	Sprite.prototype.animSummon = function (slot, instant) {
+		this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
+		this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
+		this.statbarOffset = 0;
+		if (!this.isBackSprite) this.statbarOffset = 17 * slot;
+		if (this.isBackSprite) this.statbarOffset = -7 * slot;
 
-	// 0 = uninitialized
-	// 1 = ready
-	// 2 = playing
-	// 3 = paused
-	// 4 = finished
-	// 5 = seeking
-	this.removePseudoWeather = function (weather) {
-		for (var i = 0; i < self.pseudoWeather.length; i++) {
-			if (self.pseudoWeather[i][0] === weather) {
-				self.pseudoWeather.splice(i, 1);
-				self.updateWeather();
+		// make sure element is in the right z-order
+		if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
+			this.elem.prependTo(this.elem.parent());
+		} else {
+			this.elem.appendTo(this.elem.parent());
+		}
+
+		var pos = this.battle.pos(this, {
+			w: 0,
+			h: 96
+		});
+		this.top = parseInt(pos.top + 40);
+		this.left = parseInt(pos.left);
+
+		this.anim();
+		this.w = this.sp.w;
+		this.h = this.sp.h;
+		this.elem.css({
+			// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
+			position: 'absolute',
+			display: 'block'
+		});
+		if (this.battle.fastForward || instant) {
+			this.elem.css(this.battle.pos({
+				opacity: 1,
+				x: this.x,
+				y: this.y,
+				z: this.z
+			}, this.sp));
+			return;
+		}
+		if (this.cryurl) {
+			//this.battle.logConsole('cry: '+this.cryurl);
+			BattleSound.playEffect(this.cryurl);
+		}
+		this.elem.css(this.battle.pos({
+			x: this.x,
+			y: this.y - 10,
+			z: this.z,
+			scale: 0,
+			opacity: 0
+		}, this.sp));
+		this.battle.showEffect('pokeball', {
+			opacity: 0,
+			x: this.x,
+			y: this.y + 30,
+			z: this.behind(50),
+			scale: .7
+		}, {
+			opacity: 1,
+			x: this.x,
+			y: this.y - 10,
+			z: this.z,
+			time: 300
+		}, 'ballistic2', 'fade');
+		this.elem.delay(300).animate(this.battle.pos({
+			x: this.x,
+			y: this.y + 30,
+			z: this.z
+		}, this.sp), 400).animate(this.battle.posT({
+			x: this.x,
+			y: this.y,
+			z: this.z
+		}, this.sp, 'accel'), 300);
+		this.battle.activityWait(this.elem);
+	};
+	Sprite.prototype.animDragIn = function (slot) {
+		if (this.battle.fastForward) return this.animSummon(slot, true);
+
+		this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
+		this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
+		this.statbarOffset = 0;
+		if (!this.isBackSprite) this.statbarOffset = 17 * slot;
+		if (this.isBackSprite) this.statbarOffset = -7 * slot;
+
+		// make sure element is in the right z-order
+		if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
+			this.elem.prependTo(this.elem.parent());
+		} else {
+			this.elem.appendTo(this.elem.parent());
+		}
+
+		var pos = this.battle.pos(this, {
+			w: 0,
+			h: 96
+		});
+		this.top = parseInt(pos.top + 40);
+		this.left = parseInt(pos.left);
+
+		this.anim();
+		this.elem.css({
+			// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
+			position: 'absolute',
+			opacity: 0,
+			display: 'block'
+		});
+		this.elem.css(this.battle.pos({
+			x: this.leftof(-50),
+			y: this.y,
+			z: this.z,
+			opacity: 0
+		}, this.sp));
+		this.elem.delay(300).animate(this.battle.posT({
+			x: this.x,
+			y: this.y,
+			z: this.z
+		}, this.sp, 'decel'), 400);
+		this.w = this.sp.w;
+		this.h = this.sp.h;
+		this.battle.activityWait(this.elem);
+		this.battle.animationDelay = 700;
+	};
+	Sprite.prototype.animDragOut = function () {
+		this.removeSub();
+		if (this.battle.fastForward) return this.animUnsummon(true);
+		this.elem.animate(this.battle.posT({
+			x: this.leftof(50),
+			y: this.y,
+			z: this.z,
+			opacity: 0
+		}, this.sp, 'accel'), 400);
+	};
+	Sprite.prototype.animUnsummon = function (instant) {
+		this.removeSub();
+		if (this.battle.fastForward || instant) {
+			this.elem.css('display', 'none');
+			return;
+		}
+		this.anim({
+			x: this.x,
+			y: this.y - 40,
+			z: this.z,
+			scale: 0,
+			opacity: 0,
+			time: 400
+		});
+		this.battle.showEffect('pokeball', {
+			opacity: 1,
+			x: this.x,
+			y: this.y - 40,
+			z: this.z,
+			scale: .7,
+			time: 300
+		}, {
+			opacity: 0,
+			x: this.x,
+			y: this.y,
+			z: this.behind(50),
+			time: 700
+		}, 'ballistic2');
+		this.battle.activityWait(this.elem);
+	};
+	Sprite.prototype.animFaint = function () {
+		this.removeSub();
+		if (this.battle.fastForward) {
+			this.elem.remove();
+			this.elem = null;
+			return;
+		}
+		this.anim({
+			y: this.y - 80,
+			opacity: 0
+		}, 'accel');
+		this.battle.activityWait(this.elem);
+	};
+	Sprite.prototype.delay = function (time) {
+		this.elem.delay(time);
+		if (this.subElem) {
+			this.subElem.delay(time);
+		}
+		return this;
+	};
+	Sprite.prototype.selfAnim = function (end, transition) {
+		if (!end) return;
+		end = $.extend({
+			x: this.x,
+			y: this.y,
+			z: this.z,
+			scale: 1,
+			opacity: 1,
+			time: 500
+		}, end);
+		if (this.subElem && !this.duringMove) {
+			end.z += (this.isBackSprite ? -1 : 1) * 30;
+			end.opacity *= .3;
+		}
+		this.elem.animate(this.battle.posT(end, this.sp, transition, this), end.time);
+	};
+	Sprite.prototype.anim = function (end, transition) {
+		if (!end) return;
+		end = $.extend({
+			x: this.x,
+			y: this.y,
+			z: this.z,
+			scale: 1,
+			opacity: 1,
+			time: 500
+		}, end);
+		if (this.subElem && !this.duringMove) {
+			this.subElem.animate(this.battle.posT(end, this.subsp, transition, this), end.time);
+		} else {
+			this.elem.animate(this.battle.posT(end, this.sp, transition, this), end.time);
+		}
+	};
+
+	return Sprite;
+})();
+
+var Side = (function () {
+	function Side (battle, n) {
+		this.battle = battle;
+		this.name = '';
+		this.id = '';
+		this.initialized = false;
+		this.n = n;
+		this.foe = null;
+		this.spriteid = 262;
+		this.totalPokemon = 6;
+
+		if (n == 0) {
+			this.x = 0;
+			this.y = 0;
+			this.z = 0;
+		} else {
+			this.x = 0;
+			this.y = 0;
+			this.z = 200;
+		}
+		this.missedPokemon = {
+			sprite: new Sprite(null, this.leftof(-100), this.y, this.z, this.battle, this.n)
+		};
+
+		this.sideConditions = {};
+		this.wisher = null;
+
+		this.active = [null];
+		this.lastPokemon = null;
+		this.pokemon = [];
+	}
+
+	Side.prototype.rollSprites = function () {
+		var sprites = [1, 2, 101, 102, 169, 170];
+		this.spriteid = sprites[parseInt(Math.random() * sprites.length)];
+	};
+
+	Side.prototype.behindx = function (offset) {
+		return this.x + (!this.n ? -1 : 1) * offset;
+	};
+	Side.prototype.behindy = function (offset) {
+		return this.y + (!this.n ? 1 : -1) * offset;
+	};
+	Side.prototype.leftof = function (offset) {
+		return (!this.n ? -1 : 1) * offset;
+	};
+	Side.prototype.behind = function (offset) {
+		return this.z + (!this.n ? -1 : 1) * offset;
+	};
+
+	Side.prototype.reset = function () {
+		this.updateSprites();
+		this.sideConditions = {};
+		for (var i = 0; i < this.pokemon.length; i++) {
+			this.pokemon[i].reset();
+		}
+	};
+	Side.prototype.updateSprites = function () {
+		this.z = (this.n ? 200 : 0);
+		this.missedPokemon.sprite.destroy();
+		this.missedPokemon = {
+			sprite: new Sprite(null, this.leftof(-100), this.y, this.z, this.battle, this.n)
+		};
+		for (var i = 0; i < this.pokemon.length; i++) {
+			var poke = this.pokemon[i];
+			poke.sprite.destroy();
+			poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {afd: this.battle.tier === "[Seasonal] Fools Festival"}), this.x, this.y, this.z, this.battle, this.n);
+		}
+	};
+	Side.prototype.setSprite = function (spriteid) {
+		this.spriteid = spriteid;
+		this.updateSidebar();
+	};
+	Side.prototype.setName = function (name, spriteid) {
+		if (name) this.name = (name||'');
+		this.id = toId(this.name);
+		if (spriteid) {
+			this.spriteid = spriteid;
+		} else {
+			this.rollSprites();
+			if (this.foe && this.spriteid === this.foe.spriteid) this.rollSprites();
+		}
+		this.initialized = true;
+		if (!name) {
+			this.initialized = false;
+		}
+		this.updateSidebar();
+		if (this.battle.stagnateCallback) this.battle.stagnateCallback(this.battle);
+	};
+	Side.prototype.getTeamName = function () {
+		if (this === this.battle.mySide) return "Your team";
+		return "The opposing team";
+	};
+	Side.prototype.getLowerTeamName = function () {
+		if (this === this.battle.mySide) return "your team";
+		return "the opposing team";
+	};
+	Side.prototype.updateSidebar = function () {
+		var pokemonhtml = '';
+		for (var i = 0; i < 6; i++) {
+			var poke = this.pokemon[i];
+			if (i >= this.totalPokemon) {
+				pokemonhtml += '<span class="pokemonicon" style="'+Tools.getIcon('pokeball-none')+'"></span>';
+			} else if (!poke) {
+				//pokemonhtml += '<img src="/fx/pokeball.png" title="Not revealed" />';
+				pokemonhtml += '<span class="pokemonicon" style="'+Tools.getIcon('pokeball')+'" title="Not revealed"></span>';
+			//} else if (poke.fainted) {
+				//pokemonhtml += '<img src="/fx/pokeball.png" style="opacity:0.3;filter:alpha(opacity=30)" title="' + poke.getFullName(true) + '" />';
+			} else {
+				//pokemonhtml += '<img src="/fx/pokeball.png" title="' + poke.getFullName(true) + '" />';
+				pokemonhtml += '<span class="pokemonicon" style="'+Tools.getIcon(poke)+'" title="' + poke.getFullName(true) + '"></span>';
+			}
+			if (i % 3 === 2) pokemonhtml += '</div><div class="teamicons">';
+		}
+		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
+		if (this.n === 1) {
+			if (this.initialized) {
+				this.battle.rightbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(this.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(this.spriteid) + ')"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
+			} else {
+				this.battle.rightbarElem.find('.trainer').css('opacity',0.4);
+			}
+		} else {
+			if (this.initialized) {
+				this.battle.leftbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(this.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(this.spriteid) + ')"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
+			} else {
+				this.battle.leftbarElem.find('.trainer').css('opacity',0.4);
+			}
+		}
+	};
+	Side.prototype.addSideCondition = function (condition) {
+		var elem, curelem;
+		condition = toId(condition);
+		if (this.sideConditions[condition]) {
+			if (condition === 'spikes' || condition === 'toxicspikes') {
+				this.sideConditions[condition][2]++;
+				if (condition === 'spikes' && this.sideConditions[condition][2] == 2) {
+					this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
+					curelem = this.battle.spriteElemsFront[this.n].children().last();
+					curelem.css(this.battle.pos({
+						display: 'block',
+						x: this.x + 50,
+						y: this.y - 40,
+						z: this.z,
+						scale: .3
+					}, BattleEffects.caltrop));
+					this.sideConditions['spikes'][1] = this.sideConditions['spikes'][1].add(curelem);
+				} else if (condition === 'spikes') {
+					this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
+					curelem = this.battle.spriteElemsFront[this.n].children().last();
+					curelem.css(this.battle.pos({
+						display: 'block',
+						x: this.x + 30,
+						y: this.y - 45,
+						z: this.z,
+						scale: .3
+					}, BattleEffects.caltrop));
+					this.sideConditions['spikes'][1] = this.sideConditions['spikes'][1].add(curelem);
+				} else if (condition === 'toxicspikes') {
+					this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.poisoncaltrop.url + '" style="display:none;position:absolute" />');
+					curelem = this.battle.spriteElemsFront[this.n].children().last();
+					curelem.css(this.battle.pos({
+						display: 'block',
+						x: this.x - 15,
+						y: this.y - 35,
+						z: this.z,
+						scale: .3
+					}, BattleEffects.poisoncaltrop));
+					this.sideConditions['toxicspikes'][1] = this.sideConditions['toxicspikes'][1].add(curelem);
+				}
+			}
+			return;
+		}
+		switch (condition) {
+		case 'reflect':
+			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-reflect" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.x,
+				y: this.y,
+				z: this.behind(-17),
+				xscale: 1,
+				yscale: 0,
+				opacity: .1
+			}, BattleEffects.none)).animate(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.behind(-17),
+				xscale: 1,
+				yscale: .5,
+				opacity: .7
+			}, BattleEffects.none)).animate({
+				opacity: .3
+			}, 300);
+			elem = curelem;
+			this.sideConditions[condition] = [condition, elem, 5];
+			break;
+		case 'safeguard':
+			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-safeguard" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.x,
+				y: this.y,
+				z: this.behind(-20),
+				xscale: 1,
+				yscale: 0,
+				opacity: .1
+			}, BattleEffects.none)).animate(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.behind(-20),
+				xscale: 1,
+				yscale: .5,
+				opacity: .7
+			}, BattleEffects.none)).animate({
+				opacity: .2
+			}, 300);
+			elem = curelem;
+			this.sideConditions[condition] = [condition, elem, 5];
+			break;
+		case 'lightscreen':
+			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-lightscreen" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.x,
+				y: this.y,
+				z: this.behind(-23),
+				xscale: 1,
+				yscale: 0,
+				opacity: .1
+			}, BattleEffects.none)).animate(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.behind(-23),
+				xscale: 1,
+				yscale: .5,
+				opacity: .7
+			}, BattleEffects.none)).animate({
+				opacity: .3
+			}, 300);
+			elem = curelem;
+			this.sideConditions[condition] = [condition, elem, 5];
+			break;
+		case 'mist':
+			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-mist" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.x,
+				y: this.y,
+				z: this.behind(-27),
+				xscale: 1,
+				yscale: 0,
+				opacity: .1
+			}, BattleEffects.none)).animate(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.behind(-27),
+				xscale: 1,
+				yscale: .5,
+				opacity: .7
+			}, BattleEffects.none)).animate({
+				opacity: .2
+			}, 300);
+			elem = curelem;
+			this.sideConditions[condition] = [condition, elem, 5];
+			break;
+		case 'tailwind':
+			this.sideConditions[condition] = [condition, null, 5];
+			break;
+		case 'stealthrock':
+			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock1.url + '" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.leftof(-40),
+				y: this.y - 10,
+				z: this.z,
+				opacity: .5,
+				scale: .3
+			}, BattleEffects.rock1));
+			elem = curelem;
+			this.sideConditions[condition] = [condition, elem, 1];
+			break;
+		case 'spikes':
+			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.x - 25,
+				y: this.y - 40,
+				z: this.z,
+				scale: .3
+			}, BattleEffects.caltrop));
+			elem = curelem;
+			this.sideConditions[condition] = [condition, elem, 1];
+			break;
+		case 'toxicspikes':
+			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.poisoncaltrop.url + '" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.x + 5,
+				y: this.y - 40,
+				z: this.z,
+				scale: .3
+			}, BattleEffects.poisoncaltrop));
+			elem = curelem;
+			this.sideConditions[condition] = [condition, elem, 1];
+			break;
+		case 'stickyweb':
+			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.web.url + '" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.x,
+				y: this.y-15,
+				z: this.z,
+				opacity: 0.5,
+				scale: 0.7
+			}, BattleEffects.web));
+			elem = curelem;
+			this.sideConditions[condition] = [condition, elem, 1];
+			break;
+		default:
+			this.sideConditions[condition] = [condition, null, 1];
+		}
+	};
+	Side.prototype.removeSideCondition = function (condition) {
+		condition = toId(condition);
+		if (!this.sideConditions[condition]) return;
+		if (this.sideConditions[condition][1]) this.sideConditions[condition][1].remove();
+		delete this.sideConditions[condition];
+	};
+	Side.prototype.newPokemon = function (species, replaceSlot) {
+		var id;
+		var pokeobj;
+		if (species.species) {
+			pokeobj = species;
+			species = pokeobj.species;
+			id = pokeobj.id;
+		}
+		var poke = Tools.getTemplate(species);
+		poke = $.extend(new Pokemon(species, this), poke);
+		poke.atkStat = 10;
+		poke.defStat = 10;
+		poke.spaStat = 10;
+		poke.spdStat = 10;
+		poke.maxhp = 1000;
+		if (pokeobj) poke = $.extend(poke, pokeobj);
+		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
+		poke.id = id;
+		poke.reset();
+		poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {afd: this.battle.tier === "[Seasonal] Fools Festival"}), this.x, this.y, this.z, this.battle, this.n);
+
+		if (typeof replaceSlot !== 'undefined') {
+			this.pokemon[replaceSlot] = poke;
+		} else {
+			this.pokemon.push(poke);
+		}
+		if (this.pokemon.length == 7) {
+			// something's wrong
+			this.battle.logConsole('corruption');
+
+			// the other possibility is Illusion, which we'll assume
+			var existingTable = {};
+			for (var i=0; i<6; i++) {
+				var poke1 = this.pokemon[i];
+				if (existingTable[poke1.searchid]) {
+					var j = existingTable[poke1.searchid];
+					var poke2 = this.pokemon[j];
+					if (this.active.indexOf(poke1) >= 0) {
+						this.pokemon.splice(j,1);
+					} else if (this.active.indexOf(poke2) >= 0) {
+						this.pokemon.splice(i,1);
+					} else if (poke1.fainted && !poke2.fainted) {
+						this.pokemon.splice(j,1);
+					} else {
+						this.pokemon.splice(i,1);
+					}
+					break;
+				}
+				existingTable[poke1.searchid] = i;
+			}
+		}
+		this.updateSidebar();
+
+		return poke;
+	};
+
+	Side.prototype.getStatbarHTML = function (pokemon) {
+		var gender = '';
+		if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
+		if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
+		return '<div class="statbar' + (this.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + Tools.escapeHTML(pokemon.name) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
+	};
+	Side.prototype.switchIn = function (pokemon, slot) {
+		if (slot === undefined) slot = pokemon.slot;
+		this.active[slot] = pokemon;
+		pokemon.slot = slot;
+		pokemon.clearVolatile();
+		pokemon.lastmove = '';
+		this.battle.lastmove = 'switch-in';
+		if (this.lastPokemon && this.lastPokemon.lastmove === 'batonpass') {
+			pokemon.copyVolatileFrom(this.lastPokemon);
+		}
+
+		if (pokemon.side.n === 0) {
+			this.battle.message('Go! ' + pokemon.getFullName() + '!');
+		} else {
+			this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
+		}
+
+		pokemon.sprite.animSummon(slot);
+		if (pokemon.hasVolatile('substitute')) {
+			pokemon.sprite.animSub();
+		}
+		if (pokemon.statbarElem) {
+			pokemon.statbarElem.remove();
+		}
+		this.battle.statElem.append(this.getStatbarHTML(pokemon));
+		pokemon.statbarElem = this.battle.statElem.children().last();
+		this.updateStatbar(pokemon, true);
+		pokemon.side.updateSidebar();
+		if (this.battle.fastForward) {
+			pokemon.statbarElem.css({
+				display: 'block',
+				left: pokemon.sprite.left - 80,
+				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+				opacity: 1
+			});
+			if (this.battle.switchCallback) this.battle.switchCallback(this.battle, this);
+			return;
+		}
+		pokemon.statbarElem.css({
+			display: 'block',
+			left: pokemon.sprite.left - 80,
+			top: pokemon.sprite.top - 53 - pokemon.sprite.statbarOffset,
+			opacity: 0
+		});
+		pokemon.statbarElem.delay(300).animate({
+			top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+			opacity: 1
+		}, 400);
+
+		this.battle.dogarsCheck(pokemon);
+
+		if (this.battle.switchCallback) this.battle.switchCallback(this.battle, this);
+	};
+	Side.prototype.dragIn = function (pokemon, slot) {
+		if (slot === undefined) slot = pokemon.slot;
+		this.battle.message('' + pokemon.getFullName() + ' was dragged out!');
+		if (pokemon === this.active[slot]) return;
+		var oldpokemon = this.active[slot];
+		this.lastPokemon = oldpokemon;
+		if (oldpokemon) oldpokemon.clearVolatile();
+		pokemon.clearVolatile();
+		pokemon.lastmove = '';
+		this.battle.lastmove = 'switch-in';
+		this.active[slot] = pokemon;
+
+		if (oldpokemon === pokemon) return;
+
+		if (oldpokemon) {
+			oldpokemon.sprite.animDragOut();
+		}
+		pokemon.sprite.animDragIn(slot);
+		if (pokemon.statbarElem) {
+			pokemon.statbarElem.remove();
+		}
+		this.battle.statElem.append(this.getStatbarHTML(pokemon));
+		pokemon.statbarElem = this.battle.statElem.children().last();
+		this.updateStatbar(pokemon, true);
+		if (this.battle.fastForward) {
+			if (oldpokemon) {
+				oldpokemon.statbarElem.remove();
+				oldpokemon.statbarElem = null;
+			}
+			pokemon.statbarElem.css({
+				display: 'block',
+				left: (this.n == 0 ? 100 : 340),
+				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+				opacity: 1
+			});
+			if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
+			return;
+		}
+		if (this.n == 0) {
+			if (oldpokemon) {
+				oldpokemon.statbarElem.animate({
+					left: pokemon.sprite.left - 130,
+					opacity: 0
+				}, 400, function () {
+					oldpokemon.statbarElem.remove();
+					oldpokemon.statbarElem = null;
+				});
+			}
+			pokemon.statbarElem.css({
+				display: 'block',
+				left: pokemon.sprite.left - 30,
+				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+				opacity: 0
+			});
+			pokemon.statbarElem.delay(300).animate({
+				left: pokemon.sprite.left - 80,
+				opacity: 1
+			}, 400);
+		} else {
+			if (oldpokemon) {
+				oldpokemon.statbarElem.animate({
+					left: pokemon.sprite.left - 30,
+					opacity: 0
+				}, 400, function () {
+					oldpokemon.statbarElem.remove();
+					oldpokemon.statbarElem = null;
+				});
+			}
+			pokemon.statbarElem.css({
+				display: 'block',
+				left: pokemon.sprite.left - 130,
+				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+				opacity: 0
+			});
+			pokemon.statbarElem.delay(300).animate({
+				left: pokemon.sprite.left - 80,
+				opacity: 1
+			}, 400);
+		}
+
+		this.battle.dogarsCheck(pokemon);
+
+		if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
+	};
+	Side.prototype.replace = function (pokemon, slot) {
+		if (slot === undefined) slot = pokemon.slot;
+		var oldpokemon = this.active[slot];
+		if (pokemon === oldpokemon) return;
+		this.lastPokemon = oldpokemon;
+		pokemon.clearVolatile();
+		if (oldpokemon) {
+			pokemon.lastmove = oldpokemon.lastmove;
+			pokemon.hp = oldpokemon.hp;
+			pokemon.maxhp = oldpokemon.maxhp;
+			pokemon.status = oldpokemon.status;
+			pokemon.copyVolatileFrom(oldpokemon, true);
+		}
+		this.active[slot] = pokemon;
+
+		if (oldpokemon) {
+			oldpokemon.sprite.animUnsummon(true);
+		}
+		pokemon.sprite.animSummon(slot, true);
+		if (oldpokemon) {
+			oldpokemon.statbarElem.remove();
+			oldpokemon.statbarElem = null;
+		}
+		if (pokemon.statbarElem) {
+			pokemon.statbarElem.remove();
+		}
+		this.battle.statElem.append(this.getStatbarHTML(pokemon));
+		pokemon.statbarElem = this.battle.statElem.children().last();
+		this.updateStatbar(pokemon, true);
+		pokemon.statbarElem.css({
+			display: 'block',
+			left: pokemon.sprite.left - 80,
+			top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+			opacity: 1
+		});
+		// not sure if we want a different callback
+		if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
+	};
+	Side.prototype.switchOut = function (pokemon, slot) {
+		if (slot === undefined) slot = pokemon.slot;
+		if (pokemon.lastmove !== 'batonpass') {
+			pokemon.clearVolatile();
+		} else {
+			pokemon.removeVolatile('transform');
+			pokemon.removeVolatile('formechange');
+		}
+		if (pokemon.lastmove === 'uturn' || pokemon.lastmove === 'voltswitch') {
+			this.battle.message('' + pokemon.getName() + ' went back to ' + Tools.escapeHTML(pokemon.side.name) + '!');
+		} else if (pokemon.lastmove !== 'batonpass') {
+			if (pokemon.side.n === 0) {
+				this.battle.message('' + pokemon.getName() + ', come back!');
+			} else {
+				this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
+			}
+		}
+		this.lastPokemon = pokemon;
+		this.active[slot] = null;
+
+		this.updateStatbar(pokemon, true);
+		pokemon.sprite.animUnsummon();
+		if (this.battle.fastForward) {
+			pokemon.statbarElem.remove();
+			pokemon.statbarElem = null;
+			return;
+		}
+		pokemon.statbarElem.animate({
+			top: pokemon.sprite.top - 43 - pokemon.sprite.statbarOffset,
+			opacity: 0
+		}, 300, function () {
+			pokemon.statbarElem.remove();
+			pokemon.statbarElem = null;
+		});
+		//pokemon.statbarElem.done(pokemon.statbarElem.remove());
+	};
+	Side.prototype.swapTo = function (pokemon, slot, kwargs) {
+		if (pokemon.slot === slot) return;
+		var target = this.active[slot];
+
+		if (!kwargs.silent) {
+			var fromeffect = Tools.getEffect(kwargs.from);
+			switch (fromeffect.id) {
+				case 'allyswitch':		
+					this.battle.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+					break;
+				default:
+					this.battle.message('<small>' + pokemon.getName() + ' moved to the center!</small>');
+					break;
+			}
+		}
+
+		var oslot = pokemon.slot;
+
+		if (target) target.slot = pokemon.slot;
+		pokemon.slot = slot;
+		this.active[slot] = pokemon;
+		this.active[oslot] = target;
+
+		if (pokemon.hasVolatile('substitute')) pokemon.sprite.animSubFade();
+		if (target && target.hasVolatile('substitute')) target.sprite.animSubFade();
+
+		pokemon.sprite.animUnsummon(true);
+		if (target) target.sprite.animUnsummon(true);
+
+		pokemon.sprite.animSummon(slot, true);
+		if (target) target.sprite.animSummon(oslot, true);
+
+		if (pokemon.hasVolatile('substitute')) pokemon.sprite.animSub();
+		if (target && target.hasVolatile('substitute')) target.sprite.animSub();
+
+		if (pokemon.statbarElem) {
+			pokemon.statbarElem.remove();
+		}
+		if (target && target.statbarElem) {
+			target.statbarElem.remove();
+		}
+
+		this.battle.statElem.append(this.getStatbarHTML(pokemon));
+		pokemon.statbarElem = this.battle.statElem.children().last();
+		if (target) {
+			this.battle.statElem.append(this.getStatbarHTML(target));
+			target.statbarElem = this.battle.statElem.children().last();
+		}
+
+		this.updateStatbar(pokemon, true);
+		if (target) this.updateStatbar(target, true);
+
+		pokemon.statbarElem.css({
+			display: 'block',
+			left: pokemon.sprite.left - 80,
+			top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+			opacity: 1
+		});
+		if (target) target.statbarElem.css({
+			display: 'block',
+			left: target.sprite.left - 80,
+			top: target.sprite.top - 73 - target.sprite.statbarOffset,
+			opacity: 1
+		});
+	};
+	Side.prototype.swapWith = function (pokemon, target, kwargs) {
+		// method provided for backwards compatibility only
+		if (pokemon === target) return;
+
+		if (!kwargs.silent) {
+			var fromeffect = Tools.getEffect(kwargs.from);
+			switch (fromeffect.id) {
+				case 'allyswitch':
+					this.battle.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+					break;
+			}
+		}
+
+		var oslot = pokemon.slot;
+		var nslot = target.slot;
+
+		pokemon.slot = nslot;
+		target.slot = oslot;
+		this.active[nslot] = pokemon;
+		this.active[oslot] = target;
+
+		pokemon.sprite.animUnsummon(true);
+		target.sprite.animUnsummon(true);
+
+		pokemon.sprite.animSummon(nslot, true);
+		target.sprite.animSummon(oslot, true);
+
+		if (pokemon.statbarElem) {
+			pokemon.statbarElem.remove();
+		}
+		if (target.statbarElem) {
+			target.statbarElem.remove();
+		}
+
+		this.battle.statElem.append(this.getStatbarHTML(pokemon));
+		pokemon.statbarElem = this.battle.statElem.children().last();
+		this.battle.statElem.append(this.getStatbarHTML(target));
+		target.statbarElem = this.battle.statElem.children().last();
+
+		this.updateStatbar(pokemon, true);
+		this.updateStatbar(target, true);
+
+		pokemon.statbarElem.css({
+			display: 'block',
+			left: pokemon.sprite.left - 80,
+			top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+			opacity: 1
+		});
+		target.statbarElem.css({
+			display: 'block',
+			left: target.sprite.left - 80,
+			top: target.sprite.top - 73 - target.sprite.statbarOffset,
+			opacity: 1
+		});
+	};
+	Side.prototype.faint = function (pokemon, slot) {
+		if (slot === undefined) slot = pokemon.slot;
+		pokemon.clearVolatile();
+		this.lastPokemon = pokemon;
+		this.active[slot] = null;
+
+		this.battle.message('' + pokemon.getName() + ' fainted!');
+
+		pokemon.fainted = true;
+		pokemon.zerohp = true;
+		pokemon.hp = 0;
+		pokemon.side.updateStatbar(pokemon, false, true);
+		pokemon.side.updateSidebar();
+
+		pokemon.sprite.animFaint();
+		pokemon.statbarElem.animate({
+			opacity: 0
+		}, 300, function () {
+			pokemon.statbarElem.remove();
+			pokemon.statbarElem = null;
+		});
+		if (this.battle.faintCallback) this.battle.faintCallback(this.battle, this);
+	};
+	Side.prototype.updateHPText = function (pokemon) {
+		var $hptext = pokemon.statbarElem.find('.hptext');
+		var $hptextborder = pokemon.statbarElem.find('.hptextborder');
+		if (pokemon.maxhp === 48) {
+			$hptext.hide();
+			$hptextborder.hide();
+		} else {
+			$hptext.html(pokemon.hpWidth(100) + '%');
+			$hptext.show();
+			$hptextborder.show();
+		}
+	};
+	Side.prototype.updateStatbar = function (pokemon, updatePrevhp, updateHp) {
+		if (!pokemon) {
+			if (this.active[0]) this.updateStatbar(this.active[0], updatePrevhp, updateHp);
+			if (this.active[1]) this.updateStatbar(this.active[1], updatePrevhp, updateHp);
+			if (this.active[2]) this.updateStatbar(this.active[2], updatePrevhp, updateHp);
+			return;
+		}
+		if (!pokemon || !pokemon.statbarElem) {
+			return;
+		}
+		var hpcolor;
+		if (updatePrevhp || updateHp) {
+			hpcolor = pokemon.getHPColor();
+			var w = pokemon.hpWidth(150);
+			var $hp = pokemon.statbarElem.find('.hp');
+			$hp.css({
+				width: w,
+				'border-right-width': (w ? 1 : 0)
+			});
+			if (hpcolor === 'g') $hp.removeClass('hp-yellow hp-red');
+			else if (hpcolor === 'y') $hp.removeClass('hp-red').addClass('hp-yellow');
+			else $hp.addClass('hp-red');
+			this.updateHPText(pokemon);
+		}
+		if (updatePrevhp) {
+			var $prevhp = pokemon.statbarElem.find('.prevhp');
+			$prevhp.css('width', pokemon.hpWidth(150) + 1);
+			if (hpcolor === 'g') $prevhp.removeClass('prevhp-yellow prevhp-red');
+			else if (hpcolor ==='y' ) $prevhp.removeClass('prevhp-red').addClass('prevhp-yellow');
+			else $prevhp.addClass('prevhp-red');
+		}
+		var status = '';
+		if (pokemon.status === 'brn') {
+			status += '<span class="brn">BRN</span> ';
+		} else if (pokemon.status === 'psn') {
+			status += '<span class="psn">PSN</span> ';
+		} else if (pokemon.status === 'tox') {
+			status += '<span class="psn">TOX</span> ';
+		} else if (pokemon.status === 'slp') {
+			status += '<span class="slp">SLP</span> ';
+		} else if (pokemon.status === 'par') {
+			status += '<span class="par">PAR</span> ';
+		} else if (pokemon.status === 'frz') {
+			status += '<span class="frz">FRZ</span> ';
+		}
+		for (var x in pokemon.boosts) {
+			if (pokemon.boosts[x]) {
+				status += '<span class="' + pokemon.getBoostType(x) + '">' + pokemon.getBoost(x) + '</span> ';
+			}
+		}
+		var statusTable = {
+			confusion: '<span class="bad">Confused</span> ',
+			healblock: '<span class="bad">Heal&nbsp;Block</span> ',
+			yawn: '<span class="bad">Drowsy</span> ',
+			flashfire: '<span class="good">Flash&nbsp;Fire</span> ',
+			imprison: '<span class="good">Imprisoning&nbsp;foe</span> ',
+			formechange: '',
+			typechange: '',
+			typeadd: '',
+			autotomize: '<span class="neutral">Lightened</span> ',
+			miracleeye: '<span class="bad">Miracle&nbsp;Eye</span> ',
+			foresight: '<span class="bad">Foresight</span> ',
+			telekinesis: '<span class="neutral">Telekinesis</span> ',
+			transform: '<span class="neutral">Transformed</span> ',
+			powertrick: '<span class="neutral">Power&nbsp;Trick</span> ',
+			curse: '<span class="bad">Curse</span> ',
+			nightmare: '<span class="bad">Nightmare</span> ',
+			attract: '<span class="bad">Attract</span> ',
+			torment: '<span class="bad">Torment</span> ',
+			taunt: '<span class="bad">Taunt</span> ',
+			disable: '<span class="bad">Disable</span> ',
+			embargo: '<span class="bad">Embargo</span> ',
+			ingrain: '<span class="good">Ingrain</span> ',
+			aquaring: '<span class="good">Aqua&nbsp;Ring</span> ',
+			stockpile1: '<span class="good">Stockpile</span> ',
+			stockpile2: '<span class="good">Stockpile&times;2</span> ',
+			stockpile3: '<span class="good">Stockpile&times;3</span> ',
+			perish1: '<span class="bad">Perish&nbsp;next&nbsp;turn</span> ',
+			perish2: '<span class="bad">Perish&nbsp;in&nbsp;2</span> ',
+			perish3: '<span class="bad">Perish&nbsp;in&nbsp;3</span> ',
+			airballoon: '<span class="good">Balloon</span> ',
+			leechseed: '<span class="bad">Leech&nbsp;Seed</span> ',
+			encore: '<span class="bad">Encore</span> ',
+			mustrecharge: '<span class="bad">Must&nbsp;recharge</span> ',
+			bide: '<span class="good">Bide</span> ',
+			magnetrise: '<span class="good">Magnet&nbsp;Rise</span> ',
+			smackdown: '<span class="bad">Smack&nbsp;Down</span> ',
+			focusenergy: '<span class="good">Focus&nbsp;Energy</span> ',
+			slowstart: '<span class="bad">Slow&nbsp;Start</span> ',
+			doomdesire: '',
+			futuresight: '',
+			mimic: '<span class="good">Mimic</span> ',
+			watersport: '<span class="good">Water&nbsp;Sport</span> ',
+			mudsport: '<span class="good">Mud&nbsp;Sport</span> ',
+			substitute: '',
+			// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
+			uproar: '<span class="neutral">Uproar</span>',
+			roost: '<span class="neutral">Landed</span>',
+			protect: '<span class="good">Protect</span>',
+			quickguard: '<span class="good">Quick&nbsp;Guard</span>',
+			wideguard: '<span class="good">Wide&nbsp;Guard</span>',
+			helpinghand: '<span class="good">Helping&nbsp;Hand</span>',
+			magiccoat: '<span class="good">Magic&nbsp;Coat</span>',
+			destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
+			snatch: '<span class="good">Snatch</span>',
+			grudge: '<span class="good">Grudge</span>',
+			endure: '<span class="good">Endure</span>',
+			focuspunch: '<span class="neutral">Focusing</span>',
+			powder: '<span class="bad">Powder</span>',
+			ragepowder: '<span class="good">Rage Powder</span>',
+			followme: '<span class="good">Follow Me</span>'
+		};
+		for (var i in pokemon.volatiles) {
+			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
+			else status += statusTable[i];
+		}
+		for (var i in pokemon.turnstatuses) {
+			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
+			else status += statusTable[i];
+		}
+		for (var i in pokemon.movestatuses) {
+			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
+			else status += statusTable[i];
+		}
+		var statusbar = pokemon.statbarElem.find('.status');
+		statusbar.html(status);
+	};
+	Side.prototype.destroy = function () {
+		for (var i = 0; i < this.pokemon.length; i++) {
+			if (this.pokemon[i]) this.pokemon[i].destroy();
+			this.pokemon[i] = null;
+		}
+		for (var i = 0; i < this.active.length; i++) {
+			if (this.active[i]) this.active[i].destroy();
+			this.active[i] = null;
+		}
+		delete this.battle;
+		delete this.foe;
+	};
+
+	return Side;
+})();
+
+var Battle = (function () {
+	function Battle (frame, logFrame, noPreload) {
+		frame.addClass('battle');
+
+		this.turn = 0;
+		this.done = 0;
+		this.weather = '';
+		this.pseudoWeather = [];
+		this.weatherTimeLeft = 0;
+		this.weatherMinTimeLeft = 0;
+		this.mySide = null;
+		this.yourSide = null;
+		this.p1 = null;
+		this.p2 = null;
+		this.sides = [];
+		this.lastMove = '';
+		this.gen = 6;
+
+		this.frameElem = frame;
+		this.logFrameElem = logFrame;
+		this.noPreload = !!noPreload;
+		this.logElem = null;
+		this.weatherElem = null;
+		this.bgEffectElem = null;
+		this.bgElem = null;
+		this.spriteElem = null;
+		this.spriteElems = [null, null];
+		this.spriteElemsFront = [null, null];
+		this.statElem = null;
+		this.fxElem = null;
+		this.leftbarElem = null;
+		this.rightbarElem = null;
+		this.turnElem = null;
+		this.messagebarElem = null;
+		this.delayElem = null;
+		this.hiddenMessageElem = null;
+
+		this.paused = true;
+		// 0 = uninitialized
+		// 1 = ready
+		// 2 = playing
+		// 3 = paused
+		// 4 = finished
+		// 5 = seeking
+		this.playbackState = 0;
+
+		this.backdropImage = BattleBackdrops[0];
+		this.backdropImage = BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
+
+		this.bgm = null;
+		this.activeQueue = this.queue1;
+
+		this.activityQueue = [];
+		this.preemptActivityQueue = [];
+		this.activityAnimations = $();
+		this.minorQueue = [];
+
+		// external
+		this.resumeButton = this.play;
+
+		this.preloadCache = {};
+
+		this.preloadEffects();
+		this.init();
+	}
+
+	Battle.prototype.sidesSwitched = false;
+	Battle.prototype.messageActive = false;
+
+	// activity queue
+	Battle.prototype.animationDelay = 0;
+	Battle.prototype.activityStep = 0;
+	Battle.prototype.activityDelay = 0;
+	Battle.prototype.activityAfter = null;
+	Battle.prototype.activityQueueActive = false;
+	Battle.prototype.fastForward = false;
+
+	Battle.prototype.resultWaiting = false;
+	Battle.prototype.multiHitMove = null;
+
+	// callback
+	Battle.prototype.faintCallback = null;
+	Battle.prototype.switchCallback = null;
+	Battle.prototype.dragCallback = null;
+	Battle.prototype.turnCallback = null;
+	Battle.prototype.startCallback = null;
+	Battle.prototype.stagnateCallback = null;
+	Battle.prototype.endCallback = null;
+	Battle.prototype.customCallback = null;
+	Battle.prototype.errorCallback = null;
+
+	Battle.prototype.preloadDone = 0;
+	Battle.prototype.preloadNeeded = 0;
+	Battle.prototype.bgm = null;
+
+	Battle.prototype.mute = false;
+	Battle.prototype.messageDelay = 8;
+
+
+	Battle.prototype.removePseudoWeather = function (weather) {
+		for (var i = 0; i < this.pseudoWeather.length; i++) {
+			if (this.pseudoWeather[i][0] === weather) {
+				this.pseudoWeather.splice(i, 1);
+				this.updateWeather();
 				return;
 			}
 		}
 	};
-	this.addPseudoWeather = function (weather, poke) {
-		self.pseudoWeather.push([weather, 5]);
-		self.updateWeather();
+	Battle.prototype.addPseudoWeather = function (weather, poke) {
+		this.pseudoWeather.push([weather, 5]);
+		this.updateWeather();
 	};
-	this.hasPseudoWeather = function (weather) {
-		for (var i = 0; i < self.pseudoWeather.length; i++) {
-			if (self.pseudoWeather[i][0] === weather) {
+	Battle.prototype.hasPseudoWeather = function (weather) {
+		for (var i = 0; i < this.pseudoWeather.length; i++) {
+			if (this.pseudoWeather[i][0] === weather) {
 				return true;
 			}
 		}
 		return false;
 	};
-	this.init = function () {
-		self.reset();
-		self.mySide = new self.Side(0);
-		self.yourSide = new self.Side(1);
-		self.mySide.foe = self.yourSide;
-		self.yourSide.foe = self.mySide;
-		self.sides = [self.mySide, self.yourSide];
-		self.p1 = self.mySide;
-		self.p2 = self.yourSide;
-		self.gen = 6;
+	Battle.prototype.init = function () {
+		this.reset();
+		this.mySide = new Side(this, 0);
+		this.yourSide = new Side(this, 1);
+		this.mySide.foe = this.yourSide;
+		this.yourSide.foe = this.mySide;
+		this.sides = [this.mySide, this.yourSide];
+		this.p1 = this.mySide;
+		this.p2 = this.yourSide;
+		this.gen = 6;
 	};
-	this.updateGen = function () {
-		if (this.gen < 4) self.backdropImage = '';
-		else if (this.gen < 6) self.backdropImage = 'bg.jpg';
-		if (self.bgElem) self.bgElem.css('background-image','url(' + Tools.resourcePrefix + 'fx/' + self.backdropImage + ')');
+	Battle.prototype.updateGen = function () {
+		if (this.gen < 4) this.backdropImage = '';
+		else if (this.gen < 6) this.backdropImage = 'bg.jpg';
+		if (this.bgElem) this.bgElem.css('background-image','url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ')');
 	};
-	this.reset = function (dontResetSound) {
+	Battle.prototype.reset = function (dontResetSound) {
 		// battle state
-		self.turn = 0;
-		self.done = 0;
-		self.weather = '';
-		self.weatherTimeLeft = 0;
-		self.weatherMinTimeLeft = 0;
-		self.pseudoWeather = [];
-		self.lastMove = '';
+		this.turn = 0;
+		this.done = 0;
+		this.weather = '';
+		this.weatherTimeLeft = 0;
+		this.weatherMinTimeLeft = 0;
+		this.pseudoWeather = [];
+		this.lastMove = '';
 
 		// DOM state
-		self.frameElem.empty();
-		self.frameElem.html('<div class="innerbattle"></div>');
-		self.elem = self.frameElem.children();
-		logFrame.html('<div class="inner"></div>');
-		self.logElem = logFrame.children();
-		logFrame.append('<div class="inner-preempt"></div>');
-		self.logPreemptElem = logFrame.children().last();
-		logFrame.append('<div class="inner-after"></div>');
+		this.frameElem.empty();
+		this.frameElem.html('<div class="innerbattle"></div>');
+		this.elem = this.frameElem.children();
+		this.logFrameElem.html('<div class="inner"></div>');
+		this.logElem = this.logFrameElem.children();
+		this.logFrameElem.append('<div class="inner-preempt"></div>');
+		this.logPreemptElem = this.logFrameElem.children().last();
+		this.logFrameElem.append('<div class="inner-after"></div>');
 
 		this.updateGen();
-		self.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + 'fx/' + self.backdropImage + ');display:block;opacity:0"></div>');
-		self.bgElem = self.elem.children().last();
-		self.bgElem.animate({
+		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ');display:block;opacity:0"></div>');
+		this.bgElem = this.elem.children().last();
+		this.bgElem.animate({
 			opacity: 0.6
 		});
 
-		self.elem.append('<div class="weather"></div>');
-		self.weatherElem = self.elem.children().last();
+		this.elem.append('<div class="weather"></div>');
+		this.weatherElem = this.elem.children().last();
 
-		self.elem.append('<div></div>');
-		self.bgEffectElem = self.elem.children().last();
+		this.elem.append('<div></div>');
+		this.bgEffectElem = this.elem.children().last();
 
-		self.elem.append('<div></div>');
-		self.spriteElem = self.elem.children().last();
+		this.elem.append('<div></div>');
+		this.spriteElem = this.elem.children().last();
 
-		self.spriteElem.append('<div></div>');
-		self.spriteElems[1] = self.spriteElem.children().last();
-		self.spriteElem.append('<div></div>');
-		self.spriteElemsFront[1] = self.spriteElem.children().last();
-		self.spriteElem.append('<div></div>');
-		self.spriteElemsFront[0] = self.spriteElem.children().last();
-		self.spriteElem.append('<div></div>');
-		self.spriteElems[0] = self.spriteElem.children().last();
+		this.spriteElem.append('<div></div>');
+		this.spriteElems[1] = this.spriteElem.children().last();
+		this.spriteElem.append('<div></div>');
+		this.spriteElemsFront[1] = this.spriteElem.children().last();
+		this.spriteElem.append('<div></div>');
+		this.spriteElemsFront[0] = this.spriteElem.children().last();
+		this.spriteElem.append('<div></div>');
+		this.spriteElems[0] = this.spriteElem.children().last();
 
-		self.elem.append('<div></div>');
-		self.statElem = self.elem.children().last();
+		this.elem.append('<div></div>');
+		this.statElem = this.elem.children().last();
 
-		self.elem.append('<div></div>');
-		self.fxElem = self.elem.children().last();
+		this.elem.append('<div></div>');
+		this.fxElem = this.elem.children().last();
 
-		self.elem.append('<div class="leftbar"></div>');
-		self.leftbarElem = self.elem.children().last();
+		this.elem.append('<div class="leftbar"></div>');
+		this.leftbarElem = this.elem.children().last();
 
-		self.elem.append('<div class="rightbar"></div>');
-		self.rightbarElem = self.elem.children().last();
+		this.elem.append('<div class="rightbar"></div>');
+		this.rightbarElem = this.elem.children().last();
 
-		self.elem.append('<div></div>');
-		self.turnElem = self.elem.children().last();
+		this.elem.append('<div></div>');
+		this.turnElem = this.elem.children().last();
 
-		self.elem.append('<div class="messagebar message"></div>');
-		self.messagebarElem = self.elem.children().last();
+		this.elem.append('<div class="messagebar message"></div>');
+		this.messagebarElem = this.elem.children().last();
 
-		self.elem.append('<div></div>');
-		self.delayElem = self.elem.children().last();
+		this.elem.append('<div></div>');
+		this.delayElem = this.elem.children().last();
 
-		self.elem.append('<div class="message" style="position:absolute;display:block;visibility:hidden"></div>');
-		self.hiddenMessageElem = self.elem.children().last();
+		this.elem.append('<div class="message" style="position:absolute;display:block;visibility:hidden"></div>');
+		this.hiddenMessageElem = this.elem.children().last();
 
-		if (self.mySide) self.mySide.reset();
-		if (self.yourSide) self.yourSide.reset();
+		if (this.mySide) this.mySide.reset();
+		if (this.yourSide) this.yourSide.reset();
 
 		// activity queue state
-		self.animationDelay = 0;
-		self.multiHitMove = null;
-		self.activityStep = 0;
-		self.activityDelay = 0;
-		self.activityAfter = null;
-		self.activityAnimations = $();
-		self.activityQueueActive = false;
-		self.fastForwardOff();
+		this.animationDelay = 0;
+		this.multiHitMove = null;
+		this.activityStep = 0;
+		this.activityDelay = 0;
+		this.activityAfter = null;
+		this.activityAnimations = $();
+		this.activityQueueActive = false;
+		this.fastForwardOff();
 		$.fx.off = false;
-		self.minorQueue = [];
-		self.resultWaiting = false;
-		self.paused = true;
-		if (self.playbackState !== 5) {
-			self.playbackState = (self.activityQueue.length ? 1 : 0);
-			if (!dontResetSound) self.soundStop();
+		this.minorQueue = [];
+		this.resultWaiting = false;
+		this.paused = true;
+		if (this.playbackState !== 5) {
+			this.playbackState = (this.activityQueue.length ? 1 : 0);
+			if (!dontResetSound) this.soundStop();
 		}
 	};
-	this.dealloc = function () {
-		self.soundStop();
+	Battle.prototype.destroy = function () {
+		if (this.logFrameElem) this.logFrameElem.remove();
+
+		this.soundStop();
+		for (var i = 0; i < this.sides.length; i++) {
+			if (this.sides[i]) this.sides[i].destroy();
+			this.sides[i] = null;
+		}
+		delete this.mySide;
+		delete this.yourSide;
+		delete this.p1;
+		delete this.p2;
 	};
 
-	this.logConsole = function (text) {
+	Battle.prototype.logConsole = function (text) {
 		if (window.console && console.log) console.log(text);
 	};
-	this.log = function (html, preempt) {
-		var willScroll = (self.logFrameElem.scrollTop() + 60 >= self.logElem.height() + self.logPreemptElem.height() - self.logFrameElem.height());
+	Battle.prototype.log = function (html, preempt) {
+		var willScroll = (this.logFrameElem.scrollTop() + 60 >= this.logElem.height() + this.logPreemptElem.height() - this.logFrameElem.height());
 		if (preempt) {
-			self.logPreemptElem.append(html);
+			this.logPreemptElem.append(html);
 		} else {
-			self.logElem.append(html);
+			this.logElem.append(html);
 		}
 		if (willScroll) {
-			self.logFrameElem.scrollTop(self.logElem.height() + self.logPreemptElem.height());
+			this.logFrameElem.scrollTop(this.logElem.height() + this.logPreemptElem.height());
 		}
 	};
-	this.preemptCatchup = function () {
-		self.logElem.append(self.logPreemptElem.children().first());
+	Battle.prototype.preemptCatchup = function () {
+		this.logElem.append(this.logPreemptElem.children().first());
 	};
 
-	this.pos = function (loc, obj) {
+	Battle.prototype.pos = function (loc, obj) {
 		var left, top, scale, width, height;
 
 		if (!loc.scale && loc.scale !== 0) loc.scale = 1;
@@ -941,10 +2353,10 @@ function Battle(frame, logFrame, noPreload) {
 		if (loc.display) pos.display = loc.display;
 		return pos;
 	};
-	this.posT = function (loc, obj, transition, oldloc) {
-		var pos = self.pos(loc, obj);
+	Battle.prototype.posT = function (loc, obj, transition, oldloc) {
+		var pos = this.pos(loc, obj);
 		var oldpos = null;
-		if (oldloc) oldpos = self.pos(oldloc, obj);
+		if (oldloc) oldpos = this.pos(oldloc, obj);
 		var transitionMap = {
 			left: 'linear',
 			top: 'linear',
@@ -990,446 +2402,13 @@ function Battle(frame, logFrame, noPreload) {
 			opacity: [pos.opacity, transitionMap.opacity]
 		};
 	};
-	this.Sprite = function (spriteData, x, y, z, siden) {
-		var selfS = this;
-		var sp = null;
-		var subsp = null;
-		this.forme = '';
-		this.elem = null;
-		this.cryurl = '';
-		if (spriteData) {
-			sp = spriteData;
-			self.spriteElems[siden].append('<img src="' + sp.url + '" style="display:none;position:absolute" />');
-			this.elem = self.spriteElems[siden].children().last();
-			this.cryurl = spriteData.cryurl;
-		} else {
-			sp = {
-				w: 0,
-				h: 0,
-				url: ''
-			};
-		}
-		this.sp = sp;
-		this.subsp = null;
-		this.oldsp = null;
-		this.subElem = null;
-		this.iw = sp.w;
-		this.ih = sp.h;
-		this.w = 0;
-		this.h = 0;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.statbarOffset = 0;
-		var pos = self.pos({
-			x: x,
-			y: y,
-			z: z
-		}, {
-			w: 0,
-			h: 96
-		});
-		this.top = parseInt(pos.top + 40);
-		this.left = parseInt(pos.left);
-		this.isBackSprite = !siden;
-		this.duringMove = false;
-		this.behindx = function (offset) {
-			return selfS.x + (selfS.isBackSprite ? -1 : 1) * offset;
-		};
-		this.behindy = function (offset) {
-			return selfS.y + (selfS.isBackSprite ? 1 : -1) * offset;
-		};
-		this.leftof = function (offset) {
-			return (selfS.isBackSprite ? -1 : 1) * offset;
-		};
-		this.behind = function (offset) {
-			return selfS.z + (selfS.isBackSprite ? -1 : 1) * offset;
-		};
-		this.animTransform = function (species) {
-			if (!selfS.oldsp) selfS.oldsp = selfS.sp;
-			if (species.volatiles && species.volatiles.formechange) species = species.volatiles.formechange[2];
-			sp = Tools.getSpriteData(species, selfS.isBackSprite ? 0 : 1, {afd: self.tier === "[Seasonal] Fools Festival"});
-			selfS.sp = sp;
-			selfS.elem.animate(self.pos({
-				x: selfS.x,
-				y: selfS.y,
-				z: selfS.z,
-				yscale: 0,
-				xcale: 1,
-				opacity: .3
-			}, selfS.oldsp), 300, function () {
-				selfS.elem.attr('src', sp.url);
-				selfS.elem.animate(self.pos({
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.z,
-					opacity: 1
-				}, sp), 300);
-			});
-			self.activityWait(500);
-		};
-		this.destroy = function () {
-			if (selfS.elem) selfS.elem.remove();
-			if (selfS.subElem) selfS.subElem.remove();
-		};
-		this.removeTransform = function (species) {
-			if (selfS.oldsp) {
-				sp = selfS.oldsp;
-				selfS.sp = sp;
-				selfS.oldsp = null;
-				selfS.elem.attr('src', sp.url);
-				selfS.elem.css(self.pos({
-					x: selfS.x,
-					y: selfS.y,
-					z: (selfS.subElem ? selfS.behind(30) : selfS.z),
-					opacity: (selfS.subElem ? .3 : 1)
-				}, sp));
-			}
-		};
-		this.animSub = function () {
-			subsp = Tools.getSpriteData('substitute', siden, {afd: self.tier === "[Seasonal] Fools Festival"});
-			selfS.subsp = subsp;
-			selfS.iw = subsp.w;
-			selfS.ih = subsp.h;
-			self.spriteElemsFront[siden].append('<img src="' + subsp.url + '" style="display:none;position:absolute" />');
-			selfS.subElem = self.spriteElemsFront[siden].children().last();
-
-			//temp//selfS.subElem.css({position: 'absolute', display: 'block'});
-			selfS.selfAnim({}, 500);
-			selfS.subElem.css({
-				position: 'absolute',
-				opacity: 0,
-				display: 'block'
-			});
-			selfS.subElem.css(self.pos({
-				x: selfS.x,
-				y: selfS.y + 50,
-				z: selfS.z,
-				opacity: 0
-			}, subsp));
-			selfS.subElem.animate(self.pos({
-				x: selfS.x,
-				y: selfS.y,
-				z: selfS.z
-			}, subsp), 500);
-			self.activityWait(selfS.subElem);
-		};
-		this.animSubFade = function () {
-			if (!selfS.subElem) return;
-			if (self.activityDelay) {
-				selfS.elem.delay(self.activityDelay);
-				selfS.subElem.delay(self.activityDelay);
-			}
-			selfS.subElem.animate(self.pos({
-				x: selfS.x,
-				y: selfS.y - 50,
-				z: selfS.z,
-				opacity: 0
-			}, selfS.subsp), 500);
-
-			selfS.subElem = null;
-			selfS.selfAnim({}, 500);
-			selfS.iw = selfS.sp.w;
-			selfS.ih = selfS.sp.h;
-			self.activityWait(selfS.elem);
-		};
-		this.beforeMove = function () {
-			if (selfS.subElem && !selfS.duringMove) {
-				selfS.duringMove = true;
-				selfS.selfAnim({}, 300);
-				selfS.subElem.animate(self.pos({
-					x: selfS.leftof(-50),
-					y: selfS.y,
-					z: selfS.z,
-					opacity: 0.5
-				}, selfS.subsp), 300);
-				if (self.sides[selfS.isBackSprite ? 1 : 0].active[0]) {
-					self.sides[selfS.isBackSprite ? 1 : 0].active[0].sprite.delay(300);
-				}
-				self.animationDelay = 300;
-				self.activityWait(selfS.elem);
-
-				return true;
-			}
-			return false;
-		};
-		this.afterMove = function () {
-			if (selfS.subElem && selfS.duringMove) {
-				selfS.subElem.delay(300);
-				selfS.duringMove = false;
-				selfS.elem.add(selfS.subElem).promise().done(function () {
-					if (!selfS.subElem || !selfS.elem) return;
-					selfS.selfAnim({}, 300);
-					selfS.subElem.animate(self.pos({
-						x: selfS.x,
-						y: selfS.y,
-						z: selfS.z,
-						opacity: 1
-					}, selfS.subsp), 300);
-				});
-				return true;
-			}
-			selfS.duringMove = false;
-			return false;
-		};
-		this.removeSub = function () {
-			if (selfS.subElem) {
-				var temp = selfS.subElem;
-				selfS.subElem.animate({
-					opacity: 0
-				}, function () {
-					temp.remove();
-				});
-				selfS.subElem = null;
-			}
-		};
-		this.animReset = function () {
-			if (selfS.subElem) {
-				selfS.elem.stop(true, false);
-				selfS.subElem.stop(true, false);
-				selfS.elem.css(self.pos({
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.behind(30),
-					opacity: .3
-				}, selfS.sp));
-				selfS.subElem.css(self.pos({
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.z
-				}, selfS.subsp));
-			} else {
-				selfS.elem.stop(true, false);
-				selfS.elem.css(self.pos({
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.z
-				}, selfS.sp));
-			}
-		};
-		this.animSummon = function (slot, instant) {
-			selfS.x = slot * (selfS.isBackSprite ? -1 : 1) * -50;
-			selfS.y = slot * (selfS.isBackSprite ? -1 : 1) * 10;
-			selfS.statbarOffset = 0;
-			if (!selfS.isBackSprite) selfS.statbarOffset = 17 * slot;
-			if (selfS.isBackSprite) selfS.statbarOffset = -7 * slot;
-
-			// make sure element is in the right z-order
-			if (!slot && selfS.isBackSprite || slot && !selfS.isBackSprite) {
-				selfS.elem.prependTo(selfS.elem.parent());
-			} else {
-				selfS.elem.appendTo(selfS.elem.parent());
-			}
-
-			var pos = self.pos(selfS, {
-				w: 0,
-				h: 96
-			});
-			selfS.top = parseInt(pos.top + 40);
-			selfS.left = parseInt(pos.left);
-
-			selfS.anim();
-			selfS.w = sp.w;
-			selfS.h = sp.h;
-			selfS.elem.css({
-				// 'z-index': (selfS.isBackSprite ? 1+slot : 4-slot),
-				position: 'absolute',
-				display: 'block'
-			});
-			if (self.fastForward || instant) {
-				selfS.elem.css(self.pos({
-					opacity: 1,
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.z
-				}, selfS.sp));
-				return;
-			}
-			if (selfS.cryurl) {
-				//self.logConsole('cry: '+selfS.cryurl);
-				BattleSound.playEffect(selfS.cryurl);
-			}
-			selfS.elem.css(self.pos({
-				x: selfS.x,
-				y: selfS.y - 10,
-				z: selfS.z,
-				scale: 0,
-				opacity: 0
-			}, selfS.sp));
-			self.showEffect('pokeball', {
-				opacity: 0,
-				x: selfS.x,
-				y: selfS.y + 30,
-				z: selfS.behind(50),
-				scale: .7
-			}, {
-				opacity: 1,
-				x: selfS.x,
-				y: selfS.y - 10,
-				z: selfS.z,
-				time: 300
-			}, 'ballistic2', 'fade');
-			selfS.elem.delay(300).animate(self.pos({
-				x: selfS.x,
-				y: selfS.y + 30,
-				z: selfS.z
-			}, selfS.sp), 400).animate(self.posT({
-				x: selfS.x,
-				y: selfS.y,
-				z: selfS.z
-			}, selfS.sp, 'accel'), 300);
-			self.activityWait(selfS.elem);
-		};
-		this.animDragIn = function (slot) {
-			if (self.fastForward) return selfS.animSummon(slot, true);
-
-			selfS.x = slot * (selfS.isBackSprite ? -1 : 1) * -50;
-			selfS.y = slot * (selfS.isBackSprite ? -1 : 1) * 10;
-			selfS.statbarOffset = 0;
-			if (!selfS.isBackSprite) selfS.statbarOffset = 17 * slot;
-			if (selfS.isBackSprite) selfS.statbarOffset = -7 * slot;
-
-			// make sure element is in the right z-order
-			if (!slot && selfS.isBackSprite || slot && !selfS.isBackSprite) {
-				selfS.elem.prependTo(selfS.elem.parent());
-			} else {
-				selfS.elem.appendTo(selfS.elem.parent());
-			}
-
-			var pos = self.pos(selfS, {
-				w: 0,
-				h: 96
-			});
-			selfS.top = parseInt(pos.top + 40);
-			selfS.left = parseInt(pos.left);
-
-			selfS.anim();
-			selfS.elem.css({
-				// 'z-index': (selfS.isBackSprite ? 1+slot : 4-slot),
-				position: 'absolute',
-				opacity: 0,
-				display: 'block'
-			});
-			selfS.elem.css(self.pos({
-				x: selfS.leftof(-50),
-				y: selfS.y,
-				z: selfS.z,
-				opacity: 0
-			}, selfS.sp));
-			selfS.elem.delay(300).animate(self.posT({
-				x: selfS.x,
-				y: selfS.y,
-				z: selfS.z
-			}, selfS.sp, 'decel'), 400);
-			selfS.w = sp.w;
-			selfS.h = sp.h;
-			self.activityWait(selfS.elem);
-			self.animationDelay = 700;
-		};
-		this.animDragOut = function () {
-			selfS.removeSub();
-			if (self.fastForward) return selfS.animUnsummon(true);
-			selfS.elem.animate(self.posT({
-				x: selfS.leftof(50),
-				y: selfS.y,
-				z: selfS.z,
-				opacity: 0
-			}, selfS.sp, 'accel'), 400);
-		};
-		this.animUnsummon = function (instant) {
-			selfS.removeSub();
-			if (self.fastForward || instant) {
-				selfS.elem.css('display', 'none');
-				return;
-			}
-			selfS.anim({
-				x: selfS.x,
-				y: selfS.y - 40,
-				z: selfS.z,
-				scale: 0,
-				opacity: 0,
-				time: 400
-			});
-			self.showEffect('pokeball', {
-				opacity: 1,
-				x: selfS.x,
-				y: selfS.y - 40,
-				z: selfS.z,
-				scale: .7,
-				time: 300
-			}, {
-				opacity: 0,
-				x: selfS.x,
-				y: selfS.y,
-				z: selfS.behind(50),
-				time: 700
-			}, 'ballistic2');
-			self.activityWait(selfS.elem);
-		};
-		this.animFaint = function () {
-			selfS.removeSub();
-			if (self.fastForward) {
-				selfS.elem.remove();
-				selfS.elem = null;
-				return;
-			}
-			selfS.anim({
-				y: selfS.y - 80,
-				opacity: 0
-			}, 'accel');
-			self.activityWait(selfS.elem);
-		};
-		this.delay = function (time) {
-			selfS.elem.delay(time);
-			if (selfS.subElem) {
-				selfS.subElem.delay(time);
-			}
-			return selfS;
-		};
-		this.selfAnim = function (end, transition) {
-			if (!end) return;
-			end = $.extend({
-				x: selfS.x,
-				y: selfS.y,
-				z: selfS.z,
-				scale: 1,
-				opacity: 1,
-				time: 500
-			}, end);
-			if (selfS.subElem && !selfS.duringMove) {
-				end.z += (selfS.isBackSprite ? -1 : 1) * 30;
-				end.opacity *= .3;
-			}
-			selfS.elem.animate(self.posT(end, selfS.sp, transition, selfS), end.time);
-		};
-		this.anim = function (end, transition) {
-			if (!end) return;
-			end = $.extend({
-				x: selfS.x,
-				y: selfS.y,
-				z: selfS.z,
-				scale: 1,
-				opacity: 1,
-				time: 500
-			}, end);
-			if (selfS.subElem && !selfS.duringMove) {
-				selfS.subElem.animate(self.posT(end, selfS.subsp, transition, selfS), end.time);
-			} else {
-				selfS.elem.animate(self.posT(end, selfS.sp, transition, selfS), end.time);
-			}
-		};
-		if (!spriteData) {
-			this.delay = function () {};
-			this.anim = function () {};
-		}
-	};
-	this.backgroundEffect = function (bg, duration, opacity, delay) {
+	Battle.prototype.backgroundEffect = function (bg, duration, opacity, delay) {
 		if (!opacity) {
 			opacity = 1;
 		}
 		if (!delay) delay = 0;
-		self.bgEffectElem.append('<div class="background"></div>');
-		var elem = self.bgEffectElem.children().last();
+		this.bgEffectElem.append('<div class="background"></div>');
+		var elem = this.bgEffectElem.children().last();
 		elem.css({
 			background: bg,
 			display: 'block',
@@ -1442,23 +2421,23 @@ function Battle(frame, logFrame, noPreload) {
 			opacity: 0
 		}, 250);
 	};
-	this.showEffect = function (img, start, end, transition, after) {
+	Battle.prototype.showEffect = function (img, start, end, transition, after) {
 		var effect = img;
 		if (img && img.length) effect = BattleEffects[img];
 		if (!start.time) start.time = 0;
 		if (!end.time) end.time = start.time + 500;
-		start.time += self.animationDelay;
-		end.time += self.animationDelay;
+		start.time += this.animationDelay;
+		end.time += this.animationDelay;
 		if (!end.scale && end.scale !== 0) end.scale = start.scale;
 		if (!end.xscale && end.xscale !== 0) end.xscale = start.xscale;
 		if (!end.yscale && end.yscale !== 0) end.yscale = start.yscale;
 		end = $.extend({}, start, end);
 
-		var startpos = self.pos(start, effect);
-		var endpos = self.posT(end, effect, transition, start);
+		var startpos = this.pos(start, effect);
+		var endpos = this.posT(end, effect, transition, start);
 
-		self.fxElem.append('<img src="' + effect.url + '" style="display:none;position:absolute" />');
-		var effectElem = self.fxElem.children().last();
+		this.fxElem.append('<img src="' + effect.url + '" style="display:none;position:absolute" />');
+		var effectElem = this.fxElem.children().last();
 		effectElem.css({
 			display: 'block',
 			opacity: 0
@@ -1486,942 +2465,55 @@ function Battle(frame, logFrame, noPreload) {
 			if (end.xscale) end.xscale *= 3;
 			if (end.yscale) end.yscale *= 3;
 			end.opacity = 0;
-			var endendpos = self.pos(end, effect);
+			var endendpos = this.pos(end, effect);
 			effectElem.animate(endendpos, 200);
 		}
-		self.activityWait(effectElem);
+		this.activityWait(effectElem);
 	};
-
-	this.Side = function (n) {
-		var selfS = this;
-		this.battle = self;
-
-		this.name = '';
-		this.id = '';
-		this.initialized = false;
-		this.n = n;
-		this.foe = null;
-		this.spriteid = 262;
-		this.totalPokemon = 6;
-		this.rollSprites = function () {
-			var sprites = [1, 2, 101, 102, 169, 170];
-			selfS.spriteid = sprites[parseInt(Math.random() * sprites.length)];
-		};
-
-		this.behindx = function (offset) {
-			return selfS.x + (!selfS.n ? -1 : 1) * offset;
-		};
-		this.behindy = function (offset) {
-			return selfS.y + (!selfS.n ? 1 : -1) * offset;
-		};
-		this.leftof = function (offset) {
-			return (!selfS.n ? -1 : 1) * offset;
-		};
-		this.behind = function (offset) {
-			return selfS.z + (!selfS.n ? -1 : 1) * offset;
-		};
-		if (n == 0) {
-			this.x = 0;
-			this.y = 0;
-			this.z = 0;
+	Battle.prototype.switchSides = function () {
+		this.sidesSwitched = !this.sidesSwitched;
+		if (this.sidesSwitched) {
+			this.mySide = this.p2;
+			this.yourSide = this.p1;
 		} else {
-			this.x = 0;
-			this.y = 0;
-			this.z = 200;
+			this.mySide = this.p1;
+			this.yourSide = this.p2;
 		}
-		this.missedPokemon = {
-			sprite: new self.Sprite(null, selfS.leftof(-100), selfS.y, selfS.z, selfS.n)
-		};
+		this.mySide.n = 0;
+		this.yourSide.n = 1;
+		this.sides[0] = this.mySide;
+		this.sides[1] = this.yourSide;
 
-		this.sideConditions = {};
-		this.wisher = null;
-
-		this.active = [null];
-		this.lastPokemon = null;
-		this.pokemon = [];
-
-		this.reset = function () {
-			selfS.updateSprites();
-			selfS.sideConditions = {};
-			for (var i = 0; i < selfS.pokemon.length; i++) {
-				selfS.pokemon[i].reset();
-			}
-		};
-		this.updateSprites = function () {
-			selfS.z = (selfS.n ? 200 : 0);
-			selfS.missedPokemon.sprite.destroy();
-			selfS.missedPokemon = {
-				sprite: new self.Sprite(null, selfS.leftof(-100), selfS.y, selfS.z, selfS.n)
-			};
-			for (var i = 0; i < selfS.pokemon.length; i++) {
-				var poke = selfS.pokemon[i];
-				poke.sprite.destroy();
-				poke.sprite = new self.Sprite(Tools.getSpriteData(poke, selfS.n, {afd: self.tier === "[Seasonal] Fools Festival"}), selfS.x, selfS.y, selfS.z, selfS.n);
-			}
-		};
-		this.setSprite = function (spriteid) {
-			selfS.spriteid = spriteid;
-			selfS.updateSidebar();
-		};
-		this.setName = function (name, spriteid) {
-			if (name) selfS.name = (name||'');
-			selfS.id = toId(selfS.name);
-			if (spriteid) {
-				selfS.spriteid = spriteid;
-			} else {
-				selfS.rollSprites();
-				if (selfS.foe && selfS.spriteid === selfS.foe.spriteid) selfS.rollSprites();
-			}
-			selfS.initialized = true;
-			if (!name) {
-				selfS.initialized = false;
-			}
-			selfS.updateSidebar();
-			if (self.stagnateCallback) self.stagnateCallback(self);
-		};
-		this.getTeamName = function () {
-			if (selfS === self.mySide) return "Your team";
-			return "The opposing team";
-		};
-		this.getLowerTeamName = function () {
-			if (selfS === self.mySide) return "your team";
-			return "the opposing team";
-		};
-		this.updateSidebar = function () {
-			var pokemonhtml = '';
-			for (var i = 0; i < 6; i++) {
-				var poke = selfS.pokemon[i];
-				if (i >= selfS.totalPokemon) {
-					pokemonhtml += '<span class="pokemonicon" style="'+Tools.getIcon('pokeball-none')+'"></span>';
-				} else if (!poke) {
-					//pokemonhtml += '<img src="/fx/pokeball.png" title="Not revealed" />';
-					pokemonhtml += '<span class="pokemonicon" style="'+Tools.getIcon('pokeball')+'" title="Not revealed"></span>';
-				//} else if (poke.fainted) {
-					//pokemonhtml += '<img src="/fx/pokeball.png" style="opacity:0.3;filter:alpha(opacity=30)" title="' + poke.getFullName(true) + '" />';
-				} else {
-					//pokemonhtml += '<img src="/fx/pokeball.png" title="' + poke.getFullName(true) + '" />';
-					pokemonhtml += '<span class="pokemonicon" style="'+Tools.getIcon(poke)+'" title="' + poke.getFullName(true) + '"></span>';
-				}
-				if (i % 3 === 2) pokemonhtml += '</div><div class="teamicons">';
-			}
-			pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
-			if (selfS.n === 1) {
-				if (selfS.initialized) self.rightbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(selfS.spriteid) + ')"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
-				else self.rightbarElem.find('.trainer').css('opacity',0.4);
-			} else {
-				if (selfS.initialized) self.leftbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(selfS.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(selfS.spriteid) + ')"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity',1);
-				else self.leftbarElem.find('.trainer').css('opacity',0.4);
-			}
-		};
-		this.addSideCondition = function (condition) {
-			var elem, curelem;
-			condition = toId(condition);
-			if (selfS.sideConditions[condition]) {
-				if (condition === 'spikes' || condition === 'toxicspikes') {
-					selfS.sideConditions[condition][2]++;
-					if (condition === 'spikes' && selfS.sideConditions[condition][2] == 2) {
-						self.spriteElemsFront[selfS.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
-						curelem = self.spriteElemsFront[selfS.n].children().last();
-						curelem.css(self.pos({
-							display: 'block',
-							x: selfS.x + 50,
-							y: selfS.y - 40,
-							z: selfS.z,
-							scale: .3
-						}, BattleEffects.caltrop));
-						selfS.sideConditions['spikes'][1] = selfS.sideConditions['spikes'][1].add(curelem);
-					} else if (condition === 'spikes') {
-						self.spriteElemsFront[selfS.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
-						curelem = self.spriteElemsFront[selfS.n].children().last();
-						curelem.css(self.pos({
-							display: 'block',
-							x: selfS.x + 30,
-							y: selfS.y - 45,
-							z: selfS.z,
-							scale: .3
-						}, BattleEffects.caltrop));
-						selfS.sideConditions['spikes'][1] = selfS.sideConditions['spikes'][1].add(curelem);
-					} else if (condition === 'toxicspikes') {
-						self.spriteElemsFront[selfS.n].append('<img src="' + BattleEffects.poisoncaltrop.url + '" style="display:none;position:absolute" />');
-						curelem = self.spriteElemsFront[selfS.n].children().last();
-						curelem.css(self.pos({
-							display: 'block',
-							x: selfS.x - 15,
-							y: selfS.y - 35,
-							z: selfS.z,
-							scale: .3
-						}, BattleEffects.poisoncaltrop));
-						selfS.sideConditions['toxicspikes'][1] = selfS.sideConditions['toxicspikes'][1].add(curelem);
-					}
-				}
-				return;
-			}
-			switch (condition) {
-			case 'reflect':
-				self.spriteElemsFront[selfS.n].append('<div class="sidecondition-reflect" style="display:none;position:absolute" />');
-				curelem = self.spriteElemsFront[selfS.n].children().last();
-				curelem.css(self.pos({
-					display: 'block',
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.behind(-17),
-					xscale: 1,
-					yscale: 0,
-					opacity: .1
-				}, BattleEffects.none)).animate(self.pos({
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.behind(-17),
-					xscale: 1,
-					yscale: .5,
-					opacity: .7
-				}, BattleEffects.none)).animate({
-					opacity: .3
-				}, 300);
-				elem = curelem;
-				selfS.sideConditions[condition] = [condition, elem, 5];
-				break;
-			case 'safeguard':
-				self.spriteElemsFront[selfS.n].append('<div class="sidecondition-safeguard" style="display:none;position:absolute" />');
-				curelem = self.spriteElemsFront[selfS.n].children().last();
-				curelem.css(self.pos({
-					display: 'block',
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.behind(-20),
-					xscale: 1,
-					yscale: 0,
-					opacity: .1
-				}, BattleEffects.none)).animate(self.pos({
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.behind(-20),
-					xscale: 1,
-					yscale: .5,
-					opacity: .7
-				}, BattleEffects.none)).animate({
-					opacity: .2
-				}, 300);
-				elem = curelem;
-				selfS.sideConditions[condition] = [condition, elem, 5];
-				break;
-			case 'lightscreen':
-				self.spriteElemsFront[selfS.n].append('<div class="sidecondition-lightscreen" style="display:none;position:absolute" />');
-				curelem = self.spriteElemsFront[selfS.n].children().last();
-				curelem.css(self.pos({
-					display: 'block',
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.behind(-23),
-					xscale: 1,
-					yscale: 0,
-					opacity: .1
-				}, BattleEffects.none)).animate(self.pos({
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.behind(-23),
-					xscale: 1,
-					yscale: .5,
-					opacity: .7
-				}, BattleEffects.none)).animate({
-					opacity: .3
-				}, 300);
-				elem = curelem;
-				selfS.sideConditions[condition] = [condition, elem, 5];
-				break;
-			case 'mist':
-				self.spriteElemsFront[selfS.n].append('<div class="sidecondition-mist" style="display:none;position:absolute" />');
-				curelem = self.spriteElemsFront[selfS.n].children().last();
-				curelem.css(self.pos({
-					display: 'block',
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.behind(-27),
-					xscale: 1,
-					yscale: 0,
-					opacity: .1
-				}, BattleEffects.none)).animate(self.pos({
-					x: selfS.x,
-					y: selfS.y,
-					z: selfS.behind(-27),
-					xscale: 1,
-					yscale: .5,
-					opacity: .7
-				}, BattleEffects.none)).animate({
-					opacity: .2
-				}, 300);
-				elem = curelem;
-				selfS.sideConditions[condition] = [condition, elem, 5];
-				break;
-			case 'tailwind':
-				selfS.sideConditions[condition] = [condition, null, 5];
-				break;
-			case 'stealthrock':
-				self.spriteElemsFront[selfS.n].append('<img src="' + BattleEffects.rock1.url + '" style="display:none;position:absolute" />');
-				curelem = self.spriteElemsFront[selfS.n].children().last();
-				curelem.css(self.pos({
-					display: 'block',
-					x: selfS.leftof(-40),
-					y: selfS.y - 10,
-					z: selfS.z,
-					opacity: .5,
-					scale: .3
-				}, BattleEffects.rock1));
-				elem = curelem;
-				selfS.sideConditions[condition] = [condition, elem, 1];
-				break;
-			case 'spikes':
-				self.spriteElemsFront[selfS.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
-				curelem = self.spriteElemsFront[selfS.n].children().last();
-				curelem.css(self.pos({
-					display: 'block',
-					x: selfS.x - 25,
-					y: selfS.y - 40,
-					z: selfS.z,
-					scale: .3
-				}, BattleEffects.caltrop));
-				elem = curelem;
-				selfS.sideConditions[condition] = [condition, elem, 1];
-				break;
-			case 'toxicspikes':
-				self.spriteElemsFront[selfS.n].append('<img src="' + BattleEffects.poisoncaltrop.url + '" style="display:none;position:absolute" />');
-				curelem = self.spriteElemsFront[selfS.n].children().last();
-				curelem.css(self.pos({
-					display: 'block',
-					x: selfS.x + 5,
-					y: selfS.y - 40,
-					z: selfS.z,
-					scale: .3
-				}, BattleEffects.poisoncaltrop));
-				elem = curelem;
-				selfS.sideConditions[condition] = [condition, elem, 1];
-				break;
-			case 'stickyweb':
-				self.spriteElemsFront[selfS.n].append('<img src="' + BattleEffects.web.url + '" style="display:none;position:absolute" />');
-				curelem = self.spriteElemsFront[selfS.n].children().last();
-				curelem.css(self.pos({
-					display: 'block',
-					x: selfS.x,
-					y: selfS.y-15,
-					z: selfS.z,
-					opacity: 0.5,
-					scale: 0.7
-				}, BattleEffects.web));
-				elem = curelem;
-				selfS.sideConditions[condition] = [condition, elem, 1];
-				break;
-			default:
-				selfS.sideConditions[condition] = [condition, null, 1];
-			}
-		};
-		this.removeSideCondition = function (condition) {
-			condition = toId(condition);
-			if (!selfS.sideConditions[condition]) return;
-			if (selfS.sideConditions[condition][1]) selfS.sideConditions[condition][1].remove();
-			delete selfS.sideConditions[condition];
-		};
-		this.newPokemon = function (species, replaceSlot) {
-			var id;
-			var pokeobj;
-			if (species.species) {
-				pokeobj = species;
-				species = pokeobj.species;
-				id = pokeobj.id;
-			}
-			var poke = Tools.getTemplate(species);
-			poke = $.extend(new Pokemon(species), poke);
-			poke.side = selfS;
-			poke.atkStat = 10;
-			poke.defStat = 10;
-			poke.spaStat = 10;
-			poke.spdStat = 10;
-			poke.maxhp = 1000;
-			if (pokeobj) poke = $.extend(poke, pokeobj);
-			if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
-			poke.id = id;
-			poke.reset();
-			poke.sprite = new self.Sprite(Tools.getSpriteData(poke, selfS.n, {afd: self.tier === "[Seasonal] Fools Festival"}), selfS.x, selfS.y, selfS.z, selfS.n);
-
-			if (typeof replaceSlot !== 'undefined') {
-				selfS.pokemon[replaceSlot] = poke;
-			} else {
-				selfS.pokemon.push(poke);
-			}
-			if (selfS.pokemon.length == 7) {
-				// something's wrong
-				self.logConsole('corruption');
-
-				// the other possibility is Illusion, which we'll assume
-				var existingTable = {};
-				for (var i=0; i<6; i++) {
-					var poke1 = selfS.pokemon[i];
-					if (existingTable[poke1.searchid]) {
-						var j = existingTable[poke1.searchid];
-						var poke2 = selfS.pokemon[j];
-						if (selfS.active.indexOf(poke1) >= 0) {
-							selfS.pokemon.splice(j,1);
-						} else if (selfS.active.indexOf(poke2) >= 0) {
-							selfS.pokemon.splice(i,1);
-						} else if (poke1.fainted && !poke2.fainted) {
-							selfS.pokemon.splice(j,1);
-						} else {
-							selfS.pokemon.splice(i,1);
-						}
-						break;
-					}
-					existingTable[poke1.searchid] = i;
-				}
-			}
-			selfS.updateSidebar();
-
-			return poke;
-		};
-
-		this.getStatbarHTML = function (pokemon) {
-			var gender = '';
-			if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
-			if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
-			return '<div class="statbar' + (selfS.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + Tools.escapeHTML(pokemon.name) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
-		};
-		this.switchIn = function (pokemon, slot) {
-			if (slot === undefined) slot = pokemon.slot;
-			selfS.active[slot] = pokemon;
-			pokemon.slot = slot;
-			pokemon.clearVolatile();
-			pokemon.lastmove = '';
-			self.lastmove = 'switch-in';
-			if (selfS.lastPokemon && selfS.lastPokemon.lastmove === 'batonpass') {
-				pokemon.copyVolatileFrom(selfS.lastPokemon);
-			}
-
-			if (pokemon.side.n === 0) {
-				self.message('Go! ' + pokemon.getFullName() + '!');
-			} else {
-				self.message('' + Tools.escapeHTML(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
-			}
-
-			pokemon.sprite.animSummon(slot);
-			if (pokemon.hasVolatile('substitute')) {
-				pokemon.sprite.animSub();
-			}
-			if (pokemon.statbarElem) {
-				pokemon.statbarElem.remove();
-			}
-			self.statElem.append(selfS.getStatbarHTML(pokemon));
-			pokemon.statbarElem = self.statElem.children().last();
-			selfS.updateStatbar(pokemon, true);
-			pokemon.side.updateSidebar();
-			if (self.fastForward) {
-				pokemon.statbarElem.css({
-					display: 'block',
-					left: pokemon.sprite.left - 80,
-					top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-					opacity: 1
-				});
-				if (self.switchCallback) self.switchCallback(self, selfS);
-				return;
-			}
-			pokemon.statbarElem.css({
-				display: 'block',
-				left: pokemon.sprite.left - 80,
-				top: pokemon.sprite.top - 53 - pokemon.sprite.statbarOffset,
-				opacity: 0
-			});
-			pokemon.statbarElem.delay(300).animate({
-				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-				opacity: 1
-			}, 400);
-
-			self.dogarsCheck(pokemon);
-
-			if (self.switchCallback) self.switchCallback(self, selfS);
-		};
-		this.dragIn = function (pokemon, slot) {
-			if (slot === undefined) slot = pokemon.slot;
-			self.message('' + pokemon.getFullName() + ' was dragged out!');
-			if (pokemon === selfS.active[slot]) return;
-			var oldpokemon = selfS.active[slot];
-			selfS.lastPokemon = oldpokemon;
-			if (oldpokemon) oldpokemon.clearVolatile();
-			pokemon.clearVolatile();
-			pokemon.lastmove = '';
-			self.lastmove = 'switch-in';
-			selfS.active[slot] = pokemon;
-
-			if (oldpokemon === pokemon) return;
-
-			if (oldpokemon) {
-				oldpokemon.sprite.animDragOut();
-			}
-			pokemon.sprite.animDragIn(slot);
-			if (pokemon.statbarElem) {
-				pokemon.statbarElem.remove();
-			}
-			self.statElem.append(selfS.getStatbarHTML(pokemon));
-			pokemon.statbarElem = self.statElem.children().last();
-			selfS.updateStatbar(pokemon, true);
-			if (self.fastForward) {
-				if (oldpokemon) {
-					oldpokemon.statbarElem.remove();
-					oldpokemon.statbarElem = null;
-				}
-				pokemon.statbarElem.css({
-					display: 'block',
-					left: (selfS.n == 0 ? 100 : 340),
-					top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-					opacity: 1
-				});
-				if (self.dragCallback) self.dragCallback(self, selfS);
-				return;
-			}
-			if (selfS.n == 0) {
-				if (oldpokemon) {
-					oldpokemon.statbarElem.animate({
-						left: pokemon.sprite.left - 130,
-						opacity: 0
-					}, 400, function () {
-						oldpokemon.statbarElem.remove();
-						oldpokemon.statbarElem = null;
-					});
-				}
-				pokemon.statbarElem.css({
-					display: 'block',
-					left: pokemon.sprite.left - 30,
-					top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-					opacity: 0
-				});
-				pokemon.statbarElem.delay(300).animate({
-					left: pokemon.sprite.left - 80,
-					opacity: 1
-				}, 400);
-			} else {
-				if (oldpokemon) {
-					oldpokemon.statbarElem.animate({
-						left: pokemon.sprite.left - 30,
-						opacity: 0
-					}, 400, function () {
-						oldpokemon.statbarElem.remove();
-						oldpokemon.statbarElem = null;
-					});
-				}
-				pokemon.statbarElem.css({
-					display: 'block',
-					left: pokemon.sprite.left - 130,
-					top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-					opacity: 0
-				});
-				pokemon.statbarElem.delay(300).animate({
-					left: pokemon.sprite.left - 80,
-					opacity: 1
-				}, 400);
-			}
-
-			self.dogarsCheck(pokemon);
-
-			if (self.dragCallback) self.dragCallback(self, selfS);
-		};
-		this.replace = function (pokemon, slot) {
-			if (slot === undefined) slot = pokemon.slot;
-			var oldpokemon = selfS.active[slot];
-			if (pokemon === oldpokemon) return;
-			selfS.lastPokemon = oldpokemon;
-			pokemon.clearVolatile();
-			if (oldpokemon) {
-				pokemon.lastmove = oldpokemon.lastmove;
-				pokemon.hp = oldpokemon.hp;
-				pokemon.maxhp = oldpokemon.maxhp;
-				pokemon.status = oldpokemon.status;
-				pokemon.copyVolatileFrom(oldpokemon, true);
-			}
-			selfS.active[slot] = pokemon;
-
-			if (oldpokemon) {
-				oldpokemon.sprite.animUnsummon(true);
-			}
-			pokemon.sprite.animSummon(slot, true);
-			if (oldpokemon) {
-				oldpokemon.statbarElem.remove();
-				oldpokemon.statbarElem = null;
-			}
-			if (pokemon.statbarElem) {
-				pokemon.statbarElem.remove();
-			}
-			self.statElem.append(selfS.getStatbarHTML(pokemon));
-			pokemon.statbarElem = self.statElem.children().last();
-			selfS.updateStatbar(pokemon, true);
-			pokemon.statbarElem.css({
-				display: 'block',
-				left: pokemon.sprite.left - 80,
-				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-				opacity: 1
-			});
-			// not sure if we want a different callback
-			if (self.dragCallback) self.dragCallback(self, selfS);
-		};
-		this.switchOut = function (pokemon, slot) {
-			if (slot === undefined) slot = pokemon.slot;
-			if (pokemon.lastmove !== 'batonpass') {
-				pokemon.clearVolatile();
-			} else {
-				pokemon.removeVolatile('transform');
-				pokemon.removeVolatile('formechange');
-			}
-			if (pokemon.lastmove === 'uturn' || pokemon.lastmove === 'voltswitch') {
-				self.message('' + pokemon.getName() + ' went back to ' + Tools.escapeHTML(pokemon.side.name) + '!');
-			} else if (pokemon.lastmove !== 'batonpass') {
-				if (pokemon.side.n === 0) {
-					self.message('' + pokemon.getName() + ', come back!');
-				} else {
-					self.message('' + Tools.escapeHTML(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
-				}
-			}
-			selfS.lastPokemon = pokemon;
-			selfS.active[slot] = null;
-
-			selfS.updateStatbar(pokemon, true);
-			pokemon.sprite.animUnsummon();
-			if (self.fastForward) {
-				pokemon.statbarElem.remove();
-				pokemon.statbarElem = null;
-				return;
-			}
-			pokemon.statbarElem.animate({
-				top: pokemon.sprite.top - 43 - pokemon.sprite.statbarOffset,
-				opacity: 0
-			}, 300, function () {
-				pokemon.statbarElem.remove();
-				pokemon.statbarElem = null;
-			});
-			//pokemon.statbarElem.done(pokemon.statbarElem.remove());
-		};
-		this.swapTo = function (pokemon, slot, kwargs) {
-			if (pokemon.slot === slot) return;
-			var target = selfS.active[slot];
-
-			if (!kwargs.silent) {
-				var fromeffect = Tools.getEffect(kwargs.from);
-				switch (fromeffect.id) {
-					case 'allyswitch':		
-						self.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
-						break;
-					default:
-						self.message('<small>' + pokemon.getName() + ' moved to the center!</small>');
-						break;
-				}
-			}
-
-			var oslot = pokemon.slot;
-
-			if (target) target.slot = pokemon.slot;
-			pokemon.slot = slot;
-			selfS.active[slot] = pokemon;
-			selfS.active[oslot] = target;
-
-			if (pokemon.hasVolatile('substitute')) pokemon.sprite.animSubFade();
-			if (target && target.hasVolatile('substitute')) target.sprite.animSubFade();
-
-			pokemon.sprite.animUnsummon(true);
-			if (target) target.sprite.animUnsummon(true);
-
-			pokemon.sprite.animSummon(slot, true);
-			if (target) target.sprite.animSummon(oslot, true);
-
-			if (pokemon.hasVolatile('substitute')) pokemon.sprite.animSub();
-			if (target && target.hasVolatile('substitute')) target.sprite.animSub();
-
-			if (pokemon.statbarElem) {
-				pokemon.statbarElem.remove();
-			}
-			if (target && target.statbarElem) {
-				target.statbarElem.remove();
-			}
-
-			self.statElem.append(selfS.getStatbarHTML(pokemon));
-			pokemon.statbarElem = self.statElem.children().last();
-			if (target) {
-				self.statElem.append(selfS.getStatbarHTML(target));
-				target.statbarElem = self.statElem.children().last();
-			}
-
-			selfS.updateStatbar(pokemon, true);
-			if (target) selfS.updateStatbar(target, true);
-
-			pokemon.statbarElem.css({
-				display: 'block',
-				left: pokemon.sprite.left - 80,
-				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-				opacity: 1
-			});
-			if (target) target.statbarElem.css({
-				display: 'block',
-				left: target.sprite.left - 80,
-				top: target.sprite.top - 73 - target.sprite.statbarOffset,
-				opacity: 1
-			});
-		};
-		this.swapWith = function (pokemon, target, kwargs) {
-			if (pokemon === target) return;
-
-			if (!kwargs.silent) {
-				var fromeffect = Tools.getEffect(kwargs.from);
-				switch (fromeffect.id) {
-					case 'allyswitch':
-						self.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
-						break;
-				}
-			}
-
-			var oslot = pokemon.slot;
-			var nslot = target.slot;
-
-			pokemon.slot = nslot;
-			target.slot = oslot;
-			selfS.active[nslot] = pokemon;
-			selfS.active[oslot] = target;
-
-			pokemon.sprite.animUnsummon(true);
-			target.sprite.animUnsummon(true);
-
-			pokemon.sprite.animSummon(nslot, true);
-			target.sprite.animSummon(oslot, true);
-
-			if (pokemon.statbarElem) {
-				pokemon.statbarElem.remove();
-			}
-			if (target.statbarElem) {
-				target.statbarElem.remove();
-			}
-
-			self.statElem.append(selfS.getStatbarHTML(pokemon));
-			pokemon.statbarElem = self.statElem.children().last();
-			self.statElem.append(selfS.getStatbarHTML(target));
-			target.statbarElem = self.statElem.children().last();
-
-			selfS.updateStatbar(pokemon, true);
-			selfS.updateStatbar(target, true);
-
-			pokemon.statbarElem.css({
-				display: 'block',
-				left: pokemon.sprite.left - 80,
-				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-				opacity: 1
-			});
-			target.statbarElem.css({
-				display: 'block',
-				left: target.sprite.left - 80,
-				top: target.sprite.top - 73 - target.sprite.statbarOffset,
-				opacity: 1
-			});
-		};
-		this.faint = function (pokemon, slot) {
-			if (slot === undefined) slot = pokemon.slot;
-			pokemon.clearVolatile();
-			selfS.lastPokemon = pokemon;
-			selfS.active[slot] = null;
-
-			self.message('' + pokemon.getName() + ' fainted!');
-
-			pokemon.fainted = true;
-			pokemon.zerohp = true;
-			pokemon.hp = 0;
-			pokemon.side.updateStatbar(pokemon, false, true);
-			pokemon.side.updateSidebar();
-
-			pokemon.sprite.animFaint();
-			pokemon.statbarElem.animate({
-				opacity: 0
-			}, 300, function () {
-				pokemon.statbarElem.remove();
-				pokemon.statbarElem = null;
-			});
-			if (self.faintCallback) self.faintCallback(self, selfS);
-		};
-		this.updateHPText = function (pokemon) {
-			var $hptext = pokemon.statbarElem.find('.hptext');
-			var $hptextborder = pokemon.statbarElem.find('.hptextborder');
-			if (pokemon.maxhp === 48) {
-				$hptext.hide();
-				$hptextborder.hide();
-			} else {
-				$hptext.html(pokemon.hpWidth(100) + '%');
-				$hptext.show();
-				$hptextborder.show();
-			}
-		};
-		this.updateStatbar = function (pokemon, updatePrevhp, updateHp) {
-			if (!pokemon) {
-				if (selfS.active[0]) selfS.updateStatbar(selfS.active[0], updatePrevhp, updateHp);
-				if (selfS.active[1]) selfS.updateStatbar(selfS.active[1], updatePrevhp, updateHp);
-				if (selfS.active[2]) selfS.updateStatbar(selfS.active[2], updatePrevhp, updateHp);
-				return;
-			}
-			if (!pokemon || !pokemon.statbarElem) {
-				return;
-			}
-			var hpcolor;
-			if (updatePrevhp || updateHp) {
-				hpcolor = pokemon.getHPColor();
-				var w = pokemon.hpWidth(150);
-				var $hp = pokemon.statbarElem.find('.hp');
-				$hp.css({
-					width: w,
-					'border-right-width': (w ? 1 : 0)
-				});
-				if (hpcolor === 'g') $hp.removeClass('hp-yellow hp-red');
-				else if (hpcolor === 'y') $hp.removeClass('hp-red').addClass('hp-yellow');
-				else $hp.addClass('hp-red');
-				selfS.updateHPText(pokemon);
-			}
-			if (updatePrevhp) {
-				var $prevhp = pokemon.statbarElem.find('.prevhp');
-				$prevhp.css('width', pokemon.hpWidth(150) + 1);
-				if (hpcolor === 'g') $prevhp.removeClass('prevhp-yellow prevhp-red');
-				else if (hpcolor ==='y' ) $prevhp.removeClass('prevhp-red').addClass('prevhp-yellow');
-				else $prevhp.addClass('prevhp-red');
-			}
-			var status = '';
-			if (pokemon.status === 'brn') {
-				status += '<span class="brn">BRN</span> ';
-			} else if (pokemon.status === 'psn') {
-				status += '<span class="psn">PSN</span> ';
-			} else if (pokemon.status === 'tox') {
-				status += '<span class="psn">TOX</span> ';
-			} else if (pokemon.status === 'slp') {
-				status += '<span class="slp">SLP</span> ';
-			} else if (pokemon.status === 'par') {
-				status += '<span class="par">PAR</span> ';
-			} else if (pokemon.status === 'frz') {
-				status += '<span class="frz">FRZ</span> ';
-			}
-			for (var x in pokemon.boosts) {
-				if (pokemon.boosts[x]) {
-					status += '<span class="' + pokemon.getBoostType(x) + '">' + pokemon.getBoost(x) + '</span> ';
-				}
-			}
-			var statusTable = {
-				confusion: '<span class="bad">Confused</span> ',
-				healblock: '<span class="bad">Heal&nbsp;Block</span> ',
-				yawn: '<span class="bad">Drowsy</span> ',
-				flashfire: '<span class="good">Flash&nbsp;Fire</span> ',
-				imprison: '<span class="good">Imprisoning&nbsp;foe</span> ',
-				formechange: '',
-				typechange: '',
-				typeadd: '',
-				autotomize: '<span class="neutral">Lightened</span> ',
-				miracleeye: '<span class="bad">Miracle&nbsp;Eye</span> ',
-				foresight: '<span class="bad">Foresight</span> ',
-				telekinesis: '<span class="neutral">Telekinesis</span> ',
-				transform: '<span class="neutral">Transformed</span> ',
-				powertrick: '<span class="neutral">Power&nbsp;Trick</span> ',
-				curse: '<span class="bad">Curse</span> ',
-				nightmare: '<span class="bad">Nightmare</span> ',
-				attract: '<span class="bad">Attract</span> ',
-				torment: '<span class="bad">Torment</span> ',
-				taunt: '<span class="bad">Taunt</span> ',
-				disable: '<span class="bad">Disable</span> ',
-				embargo: '<span class="bad">Embargo</span> ',
-				ingrain: '<span class="good">Ingrain</span> ',
-				aquaring: '<span class="good">Aqua&nbsp;Ring</span> ',
-				stockpile1: '<span class="good">Stockpile</span> ',
-				stockpile2: '<span class="good">Stockpile&times;2</span> ',
-				stockpile3: '<span class="good">Stockpile&times;3</span> ',
-				perish1: '<span class="bad">Perish&nbsp;next&nbsp;turn</span> ',
-				perish2: '<span class="bad">Perish&nbsp;in&nbsp;2</span> ',
-				perish3: '<span class="bad">Perish&nbsp;in&nbsp;3</span> ',
-				airballoon: '<span class="good">Balloon</span> ',
-				leechseed: '<span class="bad">Leech&nbsp;Seed</span> ',
-				encore: '<span class="bad">Encore</span> ',
-				mustrecharge: '<span class="bad">Must&nbsp;recharge</span> ',
-				bide: '<span class="good">Bide</span> ',
-				magnetrise: '<span class="good">Magnet&nbsp;Rise</span> ',
-				smackdown: '<span class="bad">Smack&nbsp;Down</span> ',
-				focusenergy: '<span class="good">Focus&nbsp;Energy</span> ',
-				slowstart: '<span class="bad">Slow&nbsp;Start</span> ',
-				doomdesire: '',
-				futuresight: '',
-				mimic: '<span class="good">Mimic</span> ',
-				watersport: '<span class="good">Water&nbsp;Sport</span> ',
-				mudsport: '<span class="good">Mud&nbsp;Sport</span> ',
-				substitute: '',
-				// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
-				uproar: '<span class="neutral">Uproar</span>',
-				roost: '<span class="neutral">Landed</span>',
-				protect: '<span class="good">Protect</span>',
-				quickguard: '<span class="good">Quick&nbsp;Guard</span>',
-				wideguard: '<span class="good">Wide&nbsp;Guard</span>',
-				helpinghand: '<span class="good">Helping&nbsp;Hand</span>',
-				magiccoat: '<span class="good">Magic&nbsp;Coat</span>',
-				destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
-				snatch: '<span class="good">Snatch</span>',
-				grudge: '<span class="good">Grudge</span>',
-				endure: '<span class="good">Endure</span>',
-				focuspunch: '<span class="neutral">Focusing</span>',
-				powder: '<span class="bad">Powder</span>',
-				ragepowder: '<span class="good">Rage Powder</span>',
-				followme: '<span class="good">Follow Me</span>'
-			};
-			for (var i in pokemon.volatiles) {
-				if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
-				else status += statusTable[i];
-			}
-			for (var i in pokemon.turnstatuses) {
-				if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
-				else status += statusTable[i];
-			}
-			for (var i in pokemon.movestatuses) {
-				if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
-				else status += statusTable[i];
-			}
-			var statusbar = pokemon.statbarElem.find('.status');
-			statusbar.html(status);
-		};
-	};
-	this.sidesSwitched = false;
-	this.switchSides = function () {
-		self.sidesSwitched = !self.sidesSwitched;
-		if (self.sidesSwitched) {
-			self.mySide = self.p2;
-			self.yourSide = self.p1;
-		} else {
-			self.mySide = self.p1;
-			self.yourSide = self.p2;
-		}
-		self.mySide.n = 0;
-		self.yourSide.n = 1;
-		self.sides[0] = self.mySide;
-		self.sides[1] = self.yourSide;
-
-		self.mySide.updateSidebar();
-		self.mySide.updateSprites();
-		self.yourSide.updateSidebar();
-		self.yourSide.updateSprites();
+		this.mySide.updateSidebar();
+		this.mySide.updateSprites();
+		this.yourSide.updateSidebar();
+		this.yourSide.updateSprites();
 		// nothing else should need updating - don't call this function after sending out pokemon
 	};
-
-	this.messageActive = false;
-	this.message = function (message, hiddenmessage) {
-		if (message && !self.messageActive) {
-			self.log('<div class="spacer"></div>');
+	Battle.prototype.message = function (message, hiddenmessage) {
+		if (message && !this.messageActive) {
+			this.log('<div class="spacer"></div>');
 		}
-		if (message && !self.fastForward) {
-			if (!self.messageActive) {
-				self.messagebarElem.empty();
-				self.messagebarElem.css({
+		if (message && !this.fastForward) {
+			if (!this.messageActive) {
+				this.messagebarElem.empty();
+				this.messagebarElem.css({
 					display: 'block',
 					opacity: 0,
 					height: 'auto'
 				});
-				self.messagebarElem.animate({
+				this.messagebarElem.animate({
 					opacity: 1
 				}, 300);
 			}
-			self.hiddenMessageElem.append('<p></p>');
-			var messageElem = self.hiddenMessageElem.children().last();
+			this.hiddenMessageElem.append('<p></p>');
+			var messageElem = this.hiddenMessageElem.children().last();
 			messageElem.html(message);
 			messageElem.css({
 				display: 'block',
 				opacity: 0
 			});
+			var self = this;
 			messageElem.animate({
 				height: 'hide'
 			}, 1, function () {
@@ -2432,20 +2524,20 @@ function Battle(frame, logFrame, noPreload) {
 					opacity: 1
 				}, 300);
 			});
-			self.activityWait(messageElem);
+			this.activityWait(messageElem);
 		}
-		self.messageActive = true;
-		self.log('<div>' + message + (hiddenmessage ? hiddenmessage : '') + '</div>');
+		this.messageActive = true;
+		this.log('<div>' + message + (hiddenmessage ? hiddenmessage : '') + '</div>');
 	};
-	this.endAction = function () {
-		if (self.messageActive) {
-			self.messageActive = false;
-			if (!self.fastForward) {
-				self.messagebarElem.delay(self.messageDelay).animate({
+	Battle.prototype.endAction = function () {
+		if (this.messageActive) {
+			this.messageActive = false;
+			if (!this.fastForward) {
+				this.messagebarElem.delay(this.messageDelay).animate({
 					height: 'toggle',
 					opacity: 0
 				}, 300);
-				self.activityWait(self.messagebarElem);
+				this.activityWait(this.messagebarElem);
 			}
 		}
 	};
@@ -2453,55 +2545,55 @@ function Battle(frame, logFrame, noPreload) {
 	//
 	// activities
 	//
-	this.start = function () {
-		self.log('<div>Battle between ' + Tools.escapeHTML(self.p1.name) + ' and ' + Tools.escapeHTML(self.p2.name) + ' started!</div>');
-		if (self.startCallback) self.startCallback(self);
+	Battle.prototype.start = function () {
+		this.log('<div>Battle between ' + Tools.escapeHTML(this.p1.name) + ' and ' + Tools.escapeHTML(this.p2.name) + ' started!</div>');
+		if (this.startCallback) this.startCallback(this);
 	};
-	this.winner = function (winner) {
-		if (winner) self.message('' + Tools.escapeHTML(winner) + ' won the battle!');
-		else self.message('Tie between ' + Tools.escapeHTML(self.p1.name) + ' and ' + Tools.escapeHTML(self.p2.name) + '!');
-		self.done = 1;
+	Battle.prototype.winner = function (winner) {
+		if (winner) this.message('' + Tools.escapeHTML(winner) + ' won the battle!');
+		else this.message('Tie between ' + Tools.escapeHTML(this.p1.name) + ' and ' + Tools.escapeHTML(this.p2.name) + '!');
+		this.done = 1;
 	};
-	this.prematureEnd = function () {
-		self.message('This replay ends here.');
-		self.done = 1;
+	Battle.prototype.prematureEnd = function () {
+		this.message('This replay ends here.');
+		this.done = 1;
 	};
-	this.endLastTurn = function() {
-		if (self.endLastTurnPending) {
-			self.endLastTurnPending = false;
-			self.mySide.updateStatbar(null, true);
-			self.yourSide.updateStatbar(null, true);
+	Battle.prototype.endLastTurn = function () {
+		if (this.endLastTurnPending) {
+			this.endLastTurnPending = false;
+			this.mySide.updateStatbar(null, true);
+			this.yourSide.updateStatbar(null, true);
 		}
 	};
-	this.setTurn = function (turnnum) {
+	Battle.prototype.setTurn = function (turnnum) {
 		turnnum = parseInt(turnnum);
-		if (turnnum == self.turn+1) {
-			self.endLastTurnPending = true;
+		if (turnnum == this.turn+1) {
+			this.endLastTurnPending = true;
 		}
-		self.turn = turnnum;
-		self.updateWeatherLeft();
+		this.turn = turnnum;
+		this.updateWeatherLeft();
 
-		if (self.mySide.active[0]) self.mySide.active[0].clearTurnstatuses();
-		if (self.mySide.active[1]) self.mySide.active[1].clearTurnstatuses();
-		if (self.mySide.active[2]) self.mySide.active[2].clearTurnstatuses();
-		if (self.yourSide.active[0]) self.yourSide.active[0].clearTurnstatuses();
-		if (self.yourSide.active[1]) self.yourSide.active[1].clearTurnstatuses();
-		if (self.yourSide.active[2]) self.yourSide.active[2].clearTurnstatuses();
+		if (this.mySide.active[0]) this.mySide.active[0].clearTurnstatuses();
+		if (this.mySide.active[1]) this.mySide.active[1].clearTurnstatuses();
+		if (this.mySide.active[2]) this.mySide.active[2].clearTurnstatuses();
+		if (this.yourSide.active[0]) this.yourSide.active[0].clearTurnstatuses();
+		if (this.yourSide.active[1]) this.yourSide.active[1].clearTurnstatuses();
+		if (this.yourSide.active[2]) this.yourSide.active[2].clearTurnstatuses();
 
-		self.log('<h2>Turn ' + turnnum + '</h2>');
+		this.log('<h2>Turn ' + turnnum + '</h2>');
 
-		var prevTurnElem = self.turnElem.children();
-		if (self.fastForward) {
+		var prevTurnElem = this.turnElem.children();
+		if (this.fastForward) {
 			if (prevTurnElem.length) prevTurnElem.html('Turn ' + turnnum);
-			else self.turnElem.append('<div class="turn" style="display:block;opacity:1;left:110px;">Turn ' + turnnum + '</div>');
-			if (self.turnCallback) self.turnCallback(self);
-			if (self.fastForward > -1 && turnnum >= self.fastForward) {
-				self.fastForwardOff();
+			else this.turnElem.append('<div class="turn" style="display:block;opacity:1;left:110px;">Turn ' + turnnum + '</div>');
+			if (this.turnCallback) this.turnCallback(this);
+			if (this.fastForward > -1 && turnnum >= this.fastForward) {
+				this.fastForwardOff();
 			}
 			return;
 		}
-		self.turnElem.append('<div class="turn">Turn ' + turnnum + '</div>');
-		var newTurnElem = self.turnElem.children().last();
+		this.turnElem.append('<div class="turn">Turn ' + turnnum + '</div>');
+		var newTurnElem = this.turnElem.children().last();
 		newTurnElem.css({
 			display: 'block',
 			opacity: 0,
@@ -2519,10 +2611,10 @@ function Battle(frame, logFrame, noPreload) {
 		}, 500, function () {
 			prevTurnElem.remove();
 		});
-		self.activityWait(500);
-		if (self.turnCallback) self.turnCallback(self);
+		this.activityWait(500);
+		if (this.turnCallback) this.turnCallback(this);
 	};
-	this.changeWeather = function (weather, poke, isUpkeep) {
+	Battle.prototype.changeWeather = function (weather, poke, isUpkeep) {
 		weather = toId(weather);
 		var weatherTable = {
 			sunnyday: {
@@ -2574,67 +2666,67 @@ function Battle(frame, logFrame, noPreload) {
 		}
 		var newWeather = weatherTable[weather];
 		if (isUpkeep) {
-			if (!self.fastForward) {
-				self.weatherElem.animate({
+			if (!this.fastForward) {
+				this.weatherElem.animate({
 					opacity: 1.0
 				}, 400).animate({
 					opacity: .4
 				}, 400);
 			}
-			if (newWeather && newWeather.upkeepMessage) self.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
+			if (newWeather && newWeather.upkeepMessage) this.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
 			return;
 		}
 		if (newWeather) {
 			if (poke) {
-				self.message('<small>' + poke.getName() + newWeather.abilityMessage + '</small>');
-				self.weatherTimeLeft = 0;
-				self.weatherMinTimeLeft = 0;
+				this.message('<small>' + poke.getName() + newWeather.abilityMessage + '</small>');
+				this.weatherTimeLeft = 0;
+				this.weatherMinTimeLeft = 0;
 			} else if (isUpkeep) {
-				self.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
-				self.weatherTimeLeft = 0;
-				self.weatherMinTimeLeft = 0;
+				this.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
+				this.weatherTimeLeft = 0;
+				this.weatherMinTimeLeft = 0;
 			} else {
-				self.message('<small>' + newWeather.startMessage + '</small>');
-				self.weatherTimeLeft = 8;
-				self.weatherMinTimeLeft = 5;
+				this.message('<small>' + newWeather.startMessage + '</small>');
+				this.weatherTimeLeft = 8;
+				this.weatherMinTimeLeft = 5;
 			}
 		}
-		if (self.weather && !newWeather) {
-			self.message(weatherTable[self.weather].endMessage);
+		if (this.weather && !newWeather) {
+			this.message(weatherTable[this.weather].endMessage);
 		}
-		self.updateWeather(weather);
+		this.updateWeather(weather);
 	};
-	this.updateWeatherLeft = function () {
-		for (var i = 0; i < self.pseudoWeather.length; i++) {
-			if (self.pseudoWeather[i][1] > 0) self.pseudoWeather[i][1]--;
+	Battle.prototype.updateWeatherLeft = function () {
+		for (var i = 0; i < this.pseudoWeather.length; i++) {
+			if (this.pseudoWeather[i][1] > 0) this.pseudoWeather[i][1]--;
 		}
-		if (self.weather && self.weatherTimeLeft) {
-			self.weatherTimeLeft--;
-			if (self.weatherMinTimeLeft != 0) self.weatherMinTimeLeft--;
+		if (this.weather && this.weatherTimeLeft) {
+			this.weatherTimeLeft--;
+			if (this.weatherMinTimeLeft != 0) this.weatherMinTimeLeft--;
 		}
-		self.updateWeather();
+		this.updateWeather();
 	};
-	this.weatherLeft = function (weather) {
+	Battle.prototype.weatherLeft = function (weather) {
 		if (weather) {
-			for (var i = 0; i < self.pseudoWeather.length; i++) {
-				if (self.pseudoWeather[i][0] === weather) {
-					if (self.pseudoWeather[i][1]) {
-						return ' <small>(' + self.pseudoWeather[i][1] + ' turn' + (self.pseudoWeather[i][1] == 1 ? '' : 's') + ' left)</small>';
+			for (var i = 0; i < this.pseudoWeather.length; i++) {
+				if (this.pseudoWeather[i][0] === weather) {
+					if (this.pseudoWeather[i][1]) {
+						return ' <small>(' + this.pseudoWeather[i][1] + ' turn' + (this.pseudoWeather[i][1] == 1 ? '' : 's') + ' left)</small>';
 					}
 					return '';
 				}
 			}
 			return ''; // weather doesn't exist
 		}
-		if (self.weatherMinTimeLeft != 0) {
-			return ' <small>(' + self.weatherMinTimeLeft + ' to ' + self.weatherTimeLeft + ' turns left)</small>';
+		if (this.weatherMinTimeLeft != 0) {
+			return ' <small>(' + this.weatherMinTimeLeft + ' to ' + this.weatherTimeLeft + ' turns left)</small>';
 		}
-		if (self.weatherTimeLeft != 0) {
-			return ' <small>(' + self.weatherTimeLeft + ' turn' + (self.weatherTimeLeft == 1 ? '' : 's') + ' left)</small>';
+		if (this.weatherTimeLeft != 0) {
+			return ' <small>(' + this.weatherTimeLeft + ' turn' + (this.weatherTimeLeft == 1 ? '' : 's') + ' left)</small>';
 		}
 		return '';
 	};
-	this.updateWeather = function (weather) {
+	Battle.prototype.updateWeather = function (weather) {
 		var weatherNameTable = {
 			sunnyday: 'Sun',
 			desolateland: 'Intense Sun',
@@ -2646,31 +2738,32 @@ function Battle(frame, logFrame, noPreload) {
 		};
 
 		if (typeof weather === 'undefined') {
-			weather = self.weather;
+			weather = this.weather;
 		}
 		if (weather === '' || weather === 'none' || weather === 'pseudo') {
-			weather = (self.pseudoWeather.length ? 'pseudo' : '');
+			weather = (this.pseudoWeather.length ? 'pseudo' : '');
 		}
 
-		var oldweather = self.weather;
-		self.weather = weather;
+		var oldweather = this.weather;
+		this.weather = weather;
 
 		var weatherhtml = '';
 		if (weather) {
 			if (weather !== 'pseudo') {
-				weatherhtml += weatherNameTable[weather] + self.weatherLeft();
+				weatherhtml += weatherNameTable[weather] + this.weatherLeft();
 			}
-			for (var i = 0; i < self.pseudoWeather.length; i++) {
-				weatherhtml += '<br />' + Tools.getMove(self.pseudoWeather[i][0]).name + self.weatherLeft(self.pseudoWeather[i][0]);
+			for (var i = 0; i < this.pseudoWeather.length; i++) {
+				weatherhtml += '<br />' + Tools.getMove(this.pseudoWeather[i][0]).name + this.weatherLeft(this.pseudoWeather[i][0]);
 			}
 		}
 		if (weather === oldweather) {
-			if (weather) self.weatherElem.html('<em>' + weatherhtml + '</em>');
+			if (weather) this.weatherElem.html('<em>' + weatherhtml + '</em>');
 			return;
 		}
 		if (oldweather) {
 			if (weather) {
-				self.weatherElem.animate({
+				var self = this;
+				this.weatherElem.animate({
 					opacity: 0
 				}, 300, function () {
 					self.weatherElem.css({
@@ -2680,41 +2773,41 @@ function Battle(frame, logFrame, noPreload) {
 					self.weatherElem.html('<em>' + weatherhtml + '</em>');
 				});
 			} else {
-				self.weatherElem.animate({
+				this.weatherElem.animate({
 					opacity: 0
 				}, 500);
 			}
 		} else if (weather) {
-			self.weatherElem.css({
+			this.weatherElem.css({
 				display: 'block',
 				opacity: 0
 			});
-			self.weatherElem.attr('class', 'weather ' + weather + 'weather');
-			self.weatherElem.html('<em>' + weatherhtml + '</em>');
+			this.weatherElem.attr('class', 'weather ' + weather + 'weather');
+			this.weatherElem.html('<em>' + weatherhtml + '</em>');
 		}
 		if (weather) {
-			if (self.fastForward) {
-				self.weatherElem.css({opacity:.4});
+			if (this.fastForward) {
+				this.weatherElem.css({opacity:.4});
 				return;
 			}
-			self.weatherElem.animate({
+			this.weatherElem.animate({
 				opacity: 1.0
 			}, 400).animate({
 				opacity: .4
 			}, 400);
 		}
 	};
-	this.resultAnim = function (pokemon, result, type, i) {
-		if (self.fastForward) {
+	Battle.prototype.resultAnim = function (pokemon, result, type, i) {
+		if (this.fastForward) {
 			pokemon.side.updateStatbar(pokemon, false, true);
 			return;
 		}
 		if (!i) {
 			i = 0;
 		}
-		self.fxElem.append('<div class="result ' + type + 'result"><strong>' + result + '</strong></div>');
-		var effectElem = self.fxElem.children().last();
-		effectElem.delay(i * 350 + self.animationDelay).css({
+		this.fxElem.append('<div class="result ' + type + 'result"><strong>' + result + '</strong></div>');
+		var effectElem = this.fxElem.children().last();
+		effectElem.delay(i * 350 + this.animationDelay).css({
 			display: 'block',
 			opacity: 0,
 			top: pokemon.sprite.top - 5,
@@ -2727,28 +2820,28 @@ function Battle(frame, logFrame, noPreload) {
 			top: pokemon.sprite.top - 65
 		}, 1000, 'swing');
 		pokemon.side.updateStatbar(pokemon);
-		self.activityWait(effectElem);
+		this.activityWait(effectElem);
 	};
-	this.damageAnim = function (pokemon, damage, i) {
+	Battle.prototype.damageAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) i = 0;
 		pokemon.side.updateHPText(pokemon);
 
-		self.resultAnim(pokemon, '&minus;' + damage, 'bad', i);
+		this.resultAnim(pokemon, '&minus;' + damage, 'bad', i);
 
-		var $hp = pokemon.statbarElem.find('div.hp').delay(self.animationDelay);
+		var $hp = pokemon.statbarElem.find('div.hp').delay(this.animationDelay);
 		var w = pokemon.hpWidth(150);
 		var hpcolor = pokemon.getHPColor();
 		var callback;
-		if (hpcolor === 'y') callback = function() {
+		if (hpcolor === 'y') callback = function () {
 			$hp.addClass('hp-yellow');
 		};
-		if (hpcolor === 'r') callback = function() {
+		if (hpcolor === 'r') callback = function () {
 			$hp.addClass('hp-yellow');
 			$hp.addClass('hp-red');
 		};
 
-		if (self.fastForward) {
+		if (this.fastForward) {
 			$hp.css({
 				width: w,
 				'border-right-width': w ? 1 : 0
@@ -2761,26 +2854,26 @@ function Battle(frame, logFrame, noPreload) {
 			}, 350, callback);
 		}
 	};
-	this.healAnim = function (pokemon, damage, i) {
+	Battle.prototype.healAnim = function (pokemon, damage, i) {
 		if (!pokemon.statbarElem) return;
 		if (!i) i = 0;
 		pokemon.side.updateHPText(pokemon);
 
-		self.resultAnim(pokemon, '+' + damage, 'good', i);
+		this.resultAnim(pokemon, '+' + damage, 'good', i);
 
-		var $hp = pokemon.statbarElem.find('div.hp').delay(self.animationDelay);
+		var $hp = pokemon.statbarElem.find('div.hp').delay(this.animationDelay);
 		var w = pokemon.hpWidth(150);
 		var hpcolor = pokemon.getHPColor();
 		var callback;
-		if (hpcolor === 'g') callback = function() {
+		if (hpcolor === 'g') callback = function () {
 			$hp.removeClass('hp-yellow');
 			$hp.removeClass('hp-red');
 		};
-		if (hpcolor === 'y') callback = function() {
+		if (hpcolor === 'y') callback = function () {
 			$hp.removeClass('hp-red');
 		};
 
-		if (self.fastForward) {
+		if (this.fastForward) {
 			$hp.css({
 				width: w,
 				'border-right-width': w ? 1 : 0
@@ -2793,7 +2886,7 @@ function Battle(frame, logFrame, noPreload) {
 			}, 350, callback);
 		}
 	};
-	this.useMove = function (pokemon, move, target, kwargs) {
+	Battle.prototype.useMove = function (pokemon, move, target, kwargs) {
 		var fromeffect = Tools.getEffect(kwargs.from);
 		pokemon.clearMovestatuses();
 		if (move.id === 'focuspunch') {
@@ -2813,23 +2906,23 @@ function Battle(frame, logFrame, noPreload) {
 			case 'magicbounce':
 			case 'magiccoat':
 			case 'rebound':
-				self.resultAnim(pokemon, "Bounced", 'good');
+				this.resultAnim(pokemon, "Bounced", 'good');
 				if (fromeffect.id === 'magiccoat') {
 					pokemon.addTurnstatus('magiccoat');
 				}
-				self.message(target.getName() + "'s " + move.name + " was bounced back by " +  fromeffect.name + "!");
+				this.message(target.getName() + "'s " + move.name + " was bounced back by " +  fromeffect.name + "!");
 				break;
 			case 'metronome':
-				self.message('Waggling a finger let it use <strong>' + move.name + '</strong>!');
+				this.message('Waggling a finger let it use <strong>' + move.name + '</strong>!');
 				break;
 			case 'naturepower':
-				self.message('Nature Power turned into <strong>' + move.name + '</strong>!');
+				this.message('Nature Power turned into <strong>' + move.name + '</strong>!');
 				break;
 			case 'sleeptalk':
 			default:
 				// April Fool's 2014
 				if (window.Config && Config.server && Config.server.afd && move.id === 'earthquake') {
-					if (!self.fastForward) {
+					if (!this.fastForward) {
 						$('body').css({
 							position: 'absolute',
 							left: 0,
@@ -2851,29 +2944,29 @@ function Battle(frame, logFrame, noPreload) {
 						}, 100).animate({
 							left: 0,
 							right: 0
-						}, 100, function() {
+						}, 100, function () {
 							$(this).css({
 								position: 'static'
 							});
 						});
 					}
-					self.message(pokemon.getName() + ' used <strong>Fissure</strong>!');
-					self.message('Just kidding! It was <strong>Earthquake</strong>!');
+					this.message(pokemon.getName() + ' used <strong>Fissure</strong>!');
+					this.message('Just kidding! It was <strong>Earthquake</strong>!');
 				} else if (window.Config && Config.server && Config.server.afd && (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist')) {
-					self.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 					var buttons = ["A", "B", "START", "SELECT", "UP", "DOWN", "LEFT", "RIGHT", "DEMOCRACY", "ANARCHY"];
 					var people = ["Zarel", "The Immortal", "Diatom", "Nani Man", "shaymin", "apt-get", "sirDonovan", "Arcticblast", "Goddess Briyella"];
 					var button;
 					for (var i=0; i<10; i++) {
 						var name = people[Math.floor(Math.random()*people.length)];
 						if (!button) button = buttons[Math.floor(Math.random()*buttons.length)];
-						self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + Tools.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
+						this.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + Tools.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
 						button = (name === 'Diatom' ? "thanks diatom" : null);
 					}
 				} else if (window.Config && Config.server && Config.server.afd && (move.id === 'taunt')) {
-					self.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				} else {
-					self.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				}
 				break;
 			}
@@ -2884,11 +2977,11 @@ function Battle(frame, logFrame, noPreload) {
 					"Yo mama so dumb, she lowers her Special Attack when she uses Nasty Plot!",
 					"Yo mama so dumb, she thought Sylveon would be Light Type!"
 				];
-				var quote = quotes[(self.p1.name.charCodeAt(2) + self.p2.name.charCodeAt(2) + self.turn) % quotes.length];
-				self.message(pokemon.getName() + " said, \"" + quote + "\"");
+				var quote = quotes[(this.p1.name.charCodeAt(2) + this.p2.name.charCodeAt(2) + this.turn) % quotes.length];
+				this.message(pokemon.getName() + " said, \"" + quote + "\"");
 			}
 		}
-		if (!self.fastForward && !kwargs.still) {
+		if (!this.fastForward && !kwargs.still) {
 			// skip
 			if (kwargs.miss && target.side) {
 				target = target.side.missedPokemon;
@@ -2897,13 +2990,13 @@ function Battle(frame, logFrame, noPreload) {
 				target = pokemon.side.foe.missedPokemon;
 			}
 			if (kwargs.prepare || kwargs.anim === 'prepare') {
-				self.prepareMove(pokemon, move, target);
+				this.prepareMove(pokemon, move, target);
 			} else if (!kwargs.notarget) {
-				move.anim(self, [pokemon.sprite, target.sprite]);
+				move.anim(this, [pokemon.sprite, target.sprite]);
 			}
 		}
 		pokemon.lastmove = move.id;
-		self.lastmove = move.id;
+		this.lastmove = move.id;
 		if (move.id === 'wish' || move.id === 'healingwish') {
 			pokemon.side.wisher = pokemon;
 		}
@@ -2911,76 +3004,76 @@ function Battle(frame, logFrame, noPreload) {
 			if (!kwargs.miss && !kwargs.notarget) {
 				pokemon.addMovestatus('mustrecharge');
 				pokemon.side.updateStatbar();
-				self.animationDelay += 500;
+				this.animationDelay += 500;
 			}
 		}
 	};
-	this.cantUseMove = function (pokemon, effect, move, kwargs) {
+	Battle.prototype.cantUseMove = function (pokemon, effect, move, kwargs) {
 		pokemon.clearMovestatuses();
 		pokemon.side.updateStatbar(pokemon);
 		switch (effect.id) {
 		case 'taunt':
-			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' after the taunt!');
+			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' after the taunt!');
 			break;
 		case 'gravity':
-			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of gravity!');
+			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of gravity!');
 			break;
 		case 'healblock':
-			self.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of Heal Block!');
+			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of Heal Block!');
 			break;
 		case 'imprison':
-			self.message('' + pokemon.getName() + ' can\'t use the sealed ' + move.name + '!');
+			this.message('' + pokemon.getName() + ' can\'t use the sealed ' + move.name + '!');
 			break;
 		case 'par':
-			self.resultAnim(pokemon, 'Paralyzed', 'par');
-			BattleOtherAnims['fullparalysis'].anim(self, [pokemon.sprite]);
-			self.message('' + pokemon.getName() + ' is paralyzed! It can\'t move!');
+			this.resultAnim(pokemon, 'Paralyzed', 'par');
+			BattleOtherAnims['fullparalysis'].anim(this, [pokemon.sprite]);
+			this.message('' + pokemon.getName() + ' is paralyzed! It can\'t move!');
 			break;
 		case 'frz':
-			self.resultAnim(pokemon, 'Frozen', 'frz');
-			self.message('' + pokemon.getName() + ' is frozen solid!');
+			this.resultAnim(pokemon, 'Frozen', 'frz');
+			this.message('' + pokemon.getName() + ' is frozen solid!');
 			break;
 		case 'slp':
-			self.resultAnim(pokemon, 'Asleep', 'slp');
-			self.message('' + pokemon.getName() + ' is fast asleep.');
+			this.resultAnim(pokemon, 'Asleep', 'slp');
+			this.message('' + pokemon.getName() + ' is fast asleep.');
 			break;
 		case 'skydrop':
-			self.message('Sky Drop won\'t let ' + pokemon.getLowerName() + ' go!');
+			this.message('Sky Drop won\'t let ' + pokemon.getLowerName() + ' go!');
 			break;
 		case 'truant':
-			self.resultAnim(pokemon, 'Truant', 'neutral');
-			self.message('' + pokemon.getName() + ' is loafing around!');
+			this.resultAnim(pokemon, 'Truant', 'neutral');
+			this.message('' + pokemon.getName() + ' is loafing around!');
 			break;
 		case 'recharge':
-			BattleOtherAnims['selfstatus'].anim(self, [pokemon.sprite]);
-			self.resultAnim(pokemon, 'Must recharge', 'neutral');
-			self.message('<small>' + pokemon.getName() + ' must recharge!</small>');
+			BattleOtherAnims['selfstatus'].anim(this, [pokemon.sprite]);
+			this.resultAnim(pokemon, 'Must recharge', 'neutral');
+			this.message('<small>' + pokemon.getName() + ' must recharge!</small>');
 			break;
 		case 'focuspunch':
-			self.resultAnim(pokemon, 'Lost focus', 'neutral');
-			self.message(pokemon.getName() + ' lost its focus and couldn\'t move!');
+			this.resultAnim(pokemon, 'Lost focus', 'neutral');
+			this.message(pokemon.getName() + ' lost its focus and couldn\'t move!');
 			pokemon.removeTurnstatus('focuspunch');
 			break;
 		case 'flinch':
-			self.resultAnim(pokemon, 'Flinched', 'neutral');
-			self.message(pokemon.getName() + ' flinched and couldn\'t move!');
+			this.resultAnim(pokemon, 'Flinched', 'neutral');
+			this.message(pokemon.getName() + ' flinched and couldn\'t move!');
 			pokemon.removeTurnstatus('focuspunch');
 			break;
 		case 'attract':
-			self.resultAnim(pokemon, 'Immobilized', 'neutral');
-			self.message(pokemon.getName() + ' is immobilized by love!');
+			this.resultAnim(pokemon, 'Immobilized', 'neutral');
+			this.message(pokemon.getName() + ' is immobilized by love!');
 			break;
 		case 'nopp':
-			self.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
-			self.message('But there was no PP left for the move!');
+			this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+			this.message('But there was no PP left for the move!');
 			break;
 		default:
-			self.message('<small>' + pokemon.getName() + (move.name ? ' can\'t use ' + move.name + '' : ' can\'t move') + '!</small>');
+			this.message('<small>' + pokemon.getName() + (move.name ? ' can\'t use ' + move.name + '' : ' can\'t move') + '!</small>');
 			break;
 		}
 		pokemon.sprite.anim({time:1});
 	};
-	this.prepareMove = function (pokemon, move, target) {
+	Battle.prototype.prepareMove = function (pokemon, move, target) {
 		if (!move.prepareAnim) return;
 		if (!target) {
 			target = pokemon.side.foe.active[0];
@@ -2988,23 +3081,23 @@ function Battle(frame, logFrame, noPreload) {
 		if (!target) {
 			target = pokemon;
 		}
-		if (!self.fastForward) move.prepareAnim(self, [pokemon.sprite, target.sprite]);
-		self.message('<small>'+move.prepareMessage(pokemon, target)+'</small>');
+		if (!this.fastForward) move.prepareAnim(this, [pokemon.sprite, target.sprite]);
+		this.message('<small>'+move.prepareMessage(pokemon, target)+'</small>');
 	};
-	this.animMultiHitMove = function () {
-		if (self.multiHitMove && !self.fastForward) {
-			self.multiHitMove[0].anim(self, [self.multiHitMove[1], self.multiHitMove[2]]);
-			self.multiHitMove[3]++;
-			self.animationDelay += 500;
+	Battle.prototype.animMultiHitMove = function () {
+		if (this.multiHitMove && !this.fastForward) {
+			this.multiHitMove[0].anim(this, [this.multiHitMove[1], this.multiHitMove[2]]);
+			this.multiHitMove[3]++;
+			this.animationDelay += 500;
 		}
 	};
-	this.runMinor = function (args, kwargs, preempt, nextArgs, nextKwargs) {
+	Battle.prototype.runMinor = function (args, kwargs, preempt, nextArgs, nextKwargs) {
 		var actions = '';
 		var hiddenactions = '';
-		var minors = self.minorQueue;
-		if (self.multiHitMove && minors.length) {
+		var minors = this.minorQueue;
+		if (this.multiHitMove && minors.length) {
 			var lastMinor = minors[minors.length - 1];
-			//if (lastMinor[0][0] === '-damage' || lastMinor[0][1]['subdamage']) self.animMultiHitMove();
+			//if (lastMinor[0][0] === '-damage' || lastMinor[0][1]['subdamage']) this.animMultiHitMove();
 		}
 		if (args) {
 			if (args[0] === '-crit' || args[0] === '-supereffective' || args[0] === '-resisted') args.then = '.';
@@ -3028,9 +3121,9 @@ function Battle(frame, logFrame, noPreload) {
 				var poke = this.getPokemon(args[1]);
 				var damage = poke.healthParse(args[2], true);
 				if (damage === false) break;
-				self.lastDamage = (damage[2] || 1); // not sure if this is used for anything
+				this.lastDamage = (damage[2] || 1); // not sure if this is used for anything
 				var range = poke.getDamageRange(damage);
-				self.damageAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
+				this.damageAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
 
 				if (kwargs.silent) {
 					// do nothing
@@ -3072,9 +3165,9 @@ function Battle(frame, logFrame, noPreload) {
 						actions += "It hurt itself in its confusion! ";
 						break;
 					case 'leechseed':
-						if (!self.fastForward) {
-							BattleOtherAnims.leech.anim(self, [ofpoke.sprite, poke.sprite]);
-							self.activityWait(500);
+						if (!this.fastForward) {
+							BattleOtherAnims.leech.anim(this, [ofpoke.sprite, poke.sprite]);
+							this.activityWait(500);
 						}
 						actions += "" + poke.getName() + "'s health is sapped by Leech Seed!";
 						break;
@@ -3118,7 +3211,7 @@ function Battle(frame, logFrame, noPreload) {
 				var damage = poke.healthParse(args[2], true, true);
 				if (damage === false) break;
 				var range = poke.getDamageRange(damage);
-				self.healAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
+				this.healAnim(poke, poke.getFormattedRange(range, 0, ' to '), animDelay);
 
 				if (kwargs.silent) {
 					// do nothing
@@ -3137,20 +3230,20 @@ function Battle(frame, logFrame, noPreload) {
 						break;
 					case 'healingwish':
 						actions += "The healing wish came true for "+poke.getLowerName()+"!";
-						self.lastmove = 'healing-wish';
-						Tools.getMove('healingwish').residualAnim(self, [poke.sprite]);
+						this.lastmove = 'healing-wish';
+						Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
 						poke.side.wisher = null;
 						break;
 					case 'lunardance':
 						actions += ""+poke.getName()+" became cloaked in mystical moonlight!";
-						self.lastmove = 'healing-wish';
-						Tools.getMove('healingwish').residualAnim(self, [poke.sprite]);
+						this.lastmove = 'healing-wish';
+						Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
 						poke.side.wisher = null;
 						break;
 					case 'wish':
 						actions += "" + kwargs.wisher + "'s wish came true!";
-						Tools.getMove('wish').residualAnim(self, [poke.sprite]);
-						self.animationDelay += 500;
+						Tools.getMove('wish').residualAnim(this, [poke.sprite]);
+						this.animationDelay += 500;
 						break;
 					case 'drain':
 						actions += ofpoke.getName() + ' had its energy drained!';
@@ -3178,7 +3271,7 @@ function Battle(frame, logFrame, noPreload) {
 				var poke, ofpoke;
 				for (var k=0; k<2; k++)
 				{
-					var cpoke = self.getPokemon(args[1+2*k]);
+					var cpoke = this.getPokemon(args[1+2*k]);
 					if (cpoke) {
 						var oldhp = cpoke.hp;
 						cpoke.healthParse(args[2+2*k]);
@@ -3187,9 +3280,9 @@ function Battle(frame, logFrame, noPreload) {
 							diff = cpoke.hp - oldhp;
 						}
 						if (diff > 0) {
-							self.healAnim(cpoke, diff, animDelay);
+							this.healAnim(cpoke, diff, animDelay);
 						} else {
-							self.damageAnim(cpoke, -diff, animDelay);
+							this.damageAnim(cpoke, -diff, animDelay);
 						}
 					}
 					if (k==0) poke = cpoke;
@@ -3211,7 +3304,7 @@ function Battle(frame, logFrame, noPreload) {
 					poke.boosts[stat] = 0;
 				}
 				poke.boosts[stat] += amount;
-				self.resultAnim(poke, poke.getBoost(stat), 'good', animDelay);
+				this.resultAnim(poke, poke.getBoost(stat), 'good', animDelay);
 
 				var amountString = '';
 				if (amount === 2) amountString = ' sharply';
@@ -3242,7 +3335,7 @@ function Battle(frame, logFrame, noPreload) {
 					poke.boosts[stat] = 0;
 				}
 				poke.boosts[stat] -= amount;
-				self.resultAnim(poke, poke.getBoost(stat), 'bad', animDelay);
+				this.resultAnim(poke, poke.getBoost(stat), 'bad', animDelay);
 
 				var amountString = '';
 				if (amount === 2) amountString = ' harshly';
@@ -3272,7 +3365,7 @@ function Battle(frame, logFrame, noPreload) {
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.boosts[stat] = amount;
-				self.resultAnim(poke, poke.getBoost(stat), (amount>0?'good':'bad'), animDelay);
+				this.resultAnim(poke, poke.getBoost(stat), (amount>0?'good':'bad'), animDelay);
 
 				if (kwargs.silent) {
 					// do nothing
@@ -3300,8 +3393,8 @@ function Battle(frame, logFrame, noPreload) {
 					poke2.boosts[stats[i]] = tmp;
 					if (!poke2.boosts[stats[i]]) delete poke2.boosts[stats[i]];
 				}
-				self.resultAnim(poke, 'Stats swapped', 'neutral', animDelay);
-				self.resultAnim(poke2, 'Stats swapped', 'neutral', animDelay);
+				this.resultAnim(poke, 'Stats swapped', 'neutral', animDelay);
+				this.resultAnim(poke2, 'Stats swapped', 'neutral', animDelay);
 
 				if (kwargs.silent) {
 					// do nothing
@@ -3324,7 +3417,7 @@ function Battle(frame, logFrame, noPreload) {
 				for (i in poke.boosts) {
 					if (poke.boosts[i] < 0) delete poke.boosts[i];
 				}
-				self.resultAnim(poke, 'Restored', 'good', animDelay);
+				this.resultAnim(poke, 'Restored', 'good', animDelay);
 
 				if (kwargs.silent) {
 					// do nothing
@@ -3345,14 +3438,14 @@ function Battle(frame, logFrame, noPreload) {
 				if (kwargs.silent) {
 					// do nothing
 				} else {
-					self.resultAnim(poke, 'Stats copied', 'neutral', animDelay);
+					this.resultAnim(poke, 'Stats copied', 'neutral', animDelay);
 					actions += "" + poke.getName() + " copied " + frompoke.getLowerName() + "'s stat changes!";
 				}
 				break;
 			case '-clearboost':
 				var poke = this.getPokemon(args[1]);
 				poke.boosts = {};
-				self.resultAnim(poke, 'Stats reset', 'neutral', animDelay);
+				this.resultAnim(poke, 'Stats reset', 'neutral', animDelay);
 
 				if (kwargs.silent) {
 					// do nothing
@@ -3365,7 +3458,7 @@ function Battle(frame, logFrame, noPreload) {
 				for (i in poke.boosts) {
 					poke.boosts[i] = -poke.boosts[i];
 				}
-				self.resultAnim(poke, 'Stats inverted', 'neutral', animDelay);
+				this.resultAnim(poke, 'Stats inverted', 'neutral', animDelay);
 
 				if (kwargs.silent) {
 					// do nothing
@@ -3374,14 +3467,14 @@ function Battle(frame, logFrame, noPreload) {
 				}
 				break;
 			case '-clearallboost':
-				for (var slot=0; slot<self.mySide.active.length; slot++) {
-					if (self.mySide.active[slot]) {
-						self.mySide.active[slot].boosts = {};
-						self.resultAnim(self.mySide.active[slot], 'Stats reset', 'neutral', animDelay);
+				for (var slot=0; slot<this.mySide.active.length; slot++) {
+					if (this.mySide.active[slot]) {
+						this.mySide.active[slot].boosts = {};
+						this.resultAnim(this.mySide.active[slot], 'Stats reset', 'neutral', animDelay);
 					}
-					if (self.yourSide.active[slot]) {
-						self.yourSide.active[slot].boosts = {};
-						self.resultAnim(self.yourSide.active[slot], 'Stats reset', 'neutral', animDelay);
+					if (this.yourSide.active[slot]) {
+						this.yourSide.active[slot].boosts = {};
+						this.resultAnim(this.yourSide.active[slot], 'Stats reset', 'neutral', animDelay);
 					}
 				}
 
@@ -3395,28 +3488,28 @@ function Battle(frame, logFrame, noPreload) {
 			case '-crit':
 				var poke = this.getPokemon(args[1]);
 				for (var j=1; !poke && j<10; j++) poke = this.getPokemon(minors[i+j][0][1]);
-				if (poke) self.resultAnim(poke, 'Critical hit', 'bad', animDelay);
+				if (poke) this.resultAnim(poke, 'Critical hit', 'bad', animDelay);
 				actions += "A critical hit! ";
 				break;
 
 			case '-supereffective':
 				var poke = this.getPokemon(args[1]);
 				for (var j=1; !poke && j<10; j++) poke = this.getPokemon(minors[i+j][0][1]);
-				if (poke) self.resultAnim(poke, 'Super-effective', 'bad', animDelay);
+				if (poke) this.resultAnim(poke, 'Super-effective', 'bad', animDelay);
 				actions += "It's super effective! ";
 				break;
 
 			case '-resisted':
 				var poke = this.getPokemon(args[1]);
 				for (var j=1; !poke && j<10; j++) poke = this.getPokemon(minors[i+j][0][1]);
-				if (poke) self.resultAnim(poke, 'Resisted', 'neutral', animDelay);
+				if (poke) this.resultAnim(poke, 'Resisted', 'neutral', animDelay);
 				actions += "It's not very effective... ";
 				break;
 
 			case '-immune':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
-				self.resultAnim(poke, 'Immune', 'neutral', animDelay);
+				this.resultAnim(poke, 'Immune', 'neutral', animDelay);
 				switch (effect.id) {
 				case 'confusion':
 					actions += "" + poke.getName() + " doesn't become confused! ";
@@ -3446,37 +3539,37 @@ function Battle(frame, logFrame, noPreload) {
 				var effect = Tools.getEffect(args[2]);
 				var fromeffect = Tools.getEffect(kwargs.from);
 				if (poke) {
-					self.resultAnim(poke, 'Failed', 'neutral', animDelay);
+					this.resultAnim(poke, 'Failed', 'neutral', animDelay);
 				}
 				switch (effect.id) {
 				case 'brn':
-					self.resultAnim(poke, 'Already burned', 'neutral', animDelay);
+					this.resultAnim(poke, 'Already burned', 'neutral', animDelay);
 					actions += "" + poke.getName() + " is already burned.";
 					break;
 				case 'tox':
 				case 'psn':
-					self.resultAnim(poke, 'Already poisoned', 'neutral', animDelay);
+					this.resultAnim(poke, 'Already poisoned', 'neutral', animDelay);
 					actions += "" + poke.getName() + " is already poisoned.";
 					break;
 				case 'slp':
 					if (fromeffect.id === 'uproar') {
-						self.resultAnim(poke, 'Failed', 'neutral', animDelay);
+						this.resultAnim(poke, 'Failed', 'neutral', animDelay);
 						if (kwargs.msg) {
 							actions += "But " + poke.getLowerName() + " can't sleep in an uproar!";
 						} else {
 							actions += "But the uproar kept " + poke.getLowerName() + " awake!";
 						}
 					} else {
-						self.resultAnim(poke, 'Already asleep', 'neutral', animDelay);
+						this.resultAnim(poke, 'Already asleep', 'neutral', animDelay);
 						actions += "" + poke.getName() + " is already asleep.";
 					}
 					break;
 				case 'par':
-					self.resultAnim(poke, 'Already paralyzed', 'neutral', animDelay);
+					this.resultAnim(poke, 'Already paralyzed', 'neutral', animDelay);
 					actions += "" + poke.getName() + " is already paralyzed.";
 					break;
 				case 'frz':
-					self.resultAnim(poke, 'Already frozen', 'neutral', animDelay);
+					this.resultAnim(poke, 'Already frozen', 'neutral', animDelay);
 					actions += "" + poke.getName() + " is already frozen.";
 					break;
 				case 'substitute':
@@ -3512,7 +3605,7 @@ function Battle(frame, logFrame, noPreload) {
 					}
 					break;
 				case 'unboost':
-					self.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
+					this.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s " + (args[3] ? args[3] + " was" : "stats were") + " not lowered!";
 					break;
 				default:
@@ -3540,7 +3633,7 @@ function Battle(frame, logFrame, noPreload) {
 
 			case '-hitcount':
 				var hits = parseInt(args[2]);
-				if (self.multiHitMove && self.multiHitMove[3] === 0 && hits > 0) self.animMultiHitMove();
+				if (this.multiHitMove && this.multiHitMove[3] === 0 && hits > 0) this.animMultiHitMove();
 				actions += 'Hit ' + hits + (hits > 1 ? ' times!' : ' time!');
 				break;
 
@@ -3562,7 +3655,7 @@ function Battle(frame, logFrame, noPreload) {
 				var poke = this.getPokemon(args[1]);
 				var move = Tools.getMove(args[2]);
 				var target = this.getPokemon(args[3]);
-				self.prepareMove(poke, move, target);
+				this.prepareMove(poke, move, target);
 				break;
 
 			case '-status':
@@ -3573,32 +3666,32 @@ function Battle(frame, logFrame, noPreload) {
 
 				switch (args[2]) {
 				case 'brn':
-					self.resultAnim(poke, 'Burned', 'brn', animDelay);
+					this.resultAnim(poke, 'Burned', 'brn', animDelay);
 					actions += "" + poke.getName() + " was burned" + (effect.exists ? " by the " + effect.name : "") + "!";
 					break;
 				case 'tox':
-					self.resultAnim(poke, 'Toxic poison', 'psn', animDelay);
+					this.resultAnim(poke, 'Toxic poison', 'psn', animDelay);
 					actions += "" + poke.getName() + " was badly poisoned" + (effect.exists ? " by the " + effect.name : "") + "!";
 					break;
 				case 'psn':
-					self.resultAnim(poke, 'Poisoned', 'psn', animDelay);
+					this.resultAnim(poke, 'Poisoned', 'psn', animDelay);
 					actions += "" + poke.getName() + " was poisoned!";
 					break;
 				case 'slp':
 					if (effect.id === 'rest') {
-						self.resultAnim(poke, 'Asleep', 'slp', animDelay);
+						this.resultAnim(poke, 'Asleep', 'slp', animDelay);
 						actions += '' + poke.getName() + ' slept and became healthy!';
 					} else {
-						self.resultAnim(poke, 'Asleep', 'slp', animDelay);
+						this.resultAnim(poke, 'Asleep', 'slp', animDelay);
 						actions += "" + poke.getName() + " fell asleep!";
 					}
 					break;
 				case 'par':
-					self.resultAnim(poke, 'Paralyzed', 'par', animDelay);
+					this.resultAnim(poke, 'Paralyzed', 'par', animDelay);
 					actions += "" + poke.getName() + " is paralyzed! It may be unable to move!";
 					break;
 				case 'frz':
-					self.resultAnim(poke, 'Frozen', 'frz', animDelay);
+					this.resultAnim(poke, 'Frozen', 'frz', animDelay);
 					actions += "" + poke.getName() + " was frozen solid!";
 					break;
 				}
@@ -3613,15 +3706,15 @@ function Battle(frame, logFrame, noPreload) {
 				if (effect.id) switch (effect.id) {
 				case 'psychoshift':
 					actions += '' + poke.getName() + ' moved its status onto ' + ofpoke.getLowerName() + '!';
-					self.resultAnim(poke, 'Cured', 'good', animDelay);
+					this.resultAnim(poke, 'Cured', 'good', animDelay);
 					break;
 				default:
-					self.resultAnim(poke, 'Cured', 'good', animDelay);
+					this.resultAnim(poke, 'Cured', 'good', animDelay);
 					actions += "" + poke.getName() + "'s "+effect.name+" heals its status!";
 					break;
 				} else switch (args[2]) {
 				case 'brn':
-					self.resultAnim(poke, 'Burn cured', 'good', animDelay);
+					this.resultAnim(poke, 'Burn cured', 'good', animDelay);
 					if (effect.effectType === 'Item') {
 						actions += "" + poke.getName() + "'s " + effect.name + " healed its burn!";
 						break;
@@ -3631,7 +3724,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'tox':
 				case 'psn':
-					self.resultAnim(poke, 'Poison cured', 'good', animDelay);
+					this.resultAnim(poke, 'Poison cured', 'good', animDelay);
 					if (effect.effectType === 'Item') {
 						actions += "" + poke.getName() + "'s " + effect.name + " cured its poison!";
 						break;
@@ -3642,7 +3735,7 @@ function Battle(frame, logFrame, noPreload) {
 					poke.side.n = n;
 					break;
 				case 'slp':
-					self.resultAnim(poke, 'Woke up', 'good', animDelay);
+					this.resultAnim(poke, 'Woke up', 'good', animDelay);
 					if (effect.effectType === 'Item') {
 						actions += "" + poke.getName() + "'s " + effect.name + " woke it up!";
 						break;
@@ -3650,7 +3743,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " woke up!";
 					break;
 				case 'par':
-					self.resultAnim(poke, 'Paralysis cured', 'good', animDelay);
+					this.resultAnim(poke, 'Paralysis cured', 'good', animDelay);
 					if (effect.effectType === 'Item') {
 						actions += "" + poke.getName() + "'s " + effect.name + " cured its paralysis!";
 						break;
@@ -3658,7 +3751,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " was cured of paralysis.";
 					break;
 				case 'frz':
-					self.resultAnim(poke, 'Thawed', 'good', animDelay);
+					this.resultAnim(poke, 'Thawed', 'good', animDelay);
 					if (effect.effectType === 'Item') {
 						actions += "" + poke.getName() + "'s " + effect.name + " defrosted it!";
 						break;
@@ -3667,7 +3760,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				default:
 					poke.removeVolatile('confusion');
-					self.resultAnim(poke, 'Cured', 'good', animDelay);
+					this.resultAnim(poke, 'Cured', 'good', animDelay);
 					actions += "" + poke.getName() + "'s status cleared!";
 				}
 				break;
@@ -3679,7 +3772,7 @@ function Battle(frame, logFrame, noPreload) {
 					poke.side.updateStatbar(poke.side.pokemon[k]);
 				}
 
-				self.resultAnim(poke, 'Team Cured', 'good', animDelay);
+				this.resultAnim(poke, 'Team Cured', 'good', animDelay);
 				var effect = Tools.getEffect(kwargs.from);
 				switch (effect.id) {
 				case 'aromatherapy':
@@ -3707,12 +3800,12 @@ function Battle(frame, logFrame, noPreload) {
 				case 'recycle':
 				case 'pickup':
 					actions += '' + poke.getName() + ' found one ' + item.name + '!';
-					self.resultAnim(poke, item.name, 'neutral', animDelay);
+					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				case 'frisk':
 					if (kwargs.identify) { // used for gen 6
 						actions += '' + ofpoke.getName() + ' frisked ' + poke.getLowerName() + ' and found its ' + item.name + '!';
-						self.resultAnim(poke, item.name, 'neutral', animDelay);
+						this.resultAnim(poke, item.name, 'neutral', animDelay);
 					} else {
 						actions += '' + ofpoke.getName() + ' frisked its target and found one ' + item.name + '!';
 					}
@@ -3720,24 +3813,24 @@ function Battle(frame, logFrame, noPreload) {
 				case 'thief':
 				case 'covet':
 					actions += '' + poke.getName() + ' stole ' + ofpoke.getLowerName() + "'s " + item.name + "!";
-					self.resultAnim(poke, item.name, 'neutral', animDelay);
-					self.resultAnim(ofpoke, 'Item Stolen', 'bad', animDelay);
+					this.resultAnim(poke, item.name, 'neutral', animDelay);
+					this.resultAnim(ofpoke, 'Item Stolen', 'bad', animDelay);
 					break;
 				case 'harvest':
 					actions += '' + poke.getName() + ' harvested one ' + item.name + '!';
-					self.resultAnim(poke, item.name, 'neutral', animDelay);
+					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				case 'bestow':
 					actions += '' + poke.getName() + ' received ' + item.name + ' from ' + ofpoke.getLowerName() + '!';
-					self.resultAnim(poke, item.name, 'neutral', animDelay);
+					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				default:
 					actions += '' + poke.getName() + ' obtained one ' + item.name + '.';
-					self.resultAnim(poke, item.name, 'neutral', animDelay);
+					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				} else switch (item.id) {
 				case 'airballoon':
-					self.resultAnim(poke, 'Balloon', 'good', animDelay);
+					this.resultAnim(poke, 'Balloon', 'good', animDelay);
 					actions += "" + poke.getName() + " floats in the air with its Air Balloon!";
 					break;
 				default:
@@ -3758,17 +3851,17 @@ function Battle(frame, logFrame, noPreload) {
 					// do nothing
 				} else if (kwargs.eat) {
 					actions += '' + poke.getName() + ' ate its ' + item.name + '!';
-					self.lastmove = item.id;
+					this.lastmove = item.id;
 				} else if (kwargs.weaken) {
 					actions += 'The ' + item.name + ' weakened the damage to '+poke.getLowerName();
-					self.lastmove = item.id;
+					this.lastmove = item.id;
 				} else if (effect.id) switch (effect.id) {
 				case 'fling':
 					actions += "" + poke.getName() + ' flung its ' + item.name + '!';
 					break;
 				case 'knockoff':
 					actions += '' + ofpoke.getName() + ' knocked off ' + poke.getLowerName() + '\'s ' + item.name + '!';
-					self.resultAnim(poke, 'Item knocked off', 'neutral', animDelay);
+					this.resultAnim(poke, 'Item knocked off', 'neutral', animDelay);
 					break;
 				case 'stealeat':
 					actions += '' + ofpoke.getName() + ' stole and ate its target\'s ' + item.name + '!';
@@ -3785,22 +3878,22 @@ function Battle(frame, logFrame, noPreload) {
 				} else switch (item.id) {
 				case 'airballoon':
 					poke.removeVolatile('airballoon');
-					self.resultAnim(poke, 'Balloon popped', 'neutral', animDelay);
+					this.resultAnim(poke, 'Balloon popped', 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s Air Balloon popped!";
 					break;
 				case 'focussash':
-					self.resultAnim(poke, 'Sash', 'neutral', animDelay);
+					this.resultAnim(poke, 'Sash', 'neutral', animDelay);
 					actions += "" + poke.getName() + ' hung on using its Focus Sash!';
 					break;
 				case 'focusband':
-					self.resultAnim(poke, 'Focus Band', 'neutral', animDelay);
+					this.resultAnim(poke, 'Focus Band', 'neutral', animDelay);
 					actions += "" + poke.getName() + ' hung on using its Focus Band!';
 					break;
 				case 'mentalherb':
 					poke.removeVolatile('taunt');
 					poke.removeVolatile('encore');
 					poke.removeVolatile('torment');
-					self.resultAnim(poke, 'Cured', 'good', animDelay);
+					this.resultAnim(poke, 'Cured', 'good', animDelay);
 					actions += "" + poke.getName() + " used its " + item.name + " to come back to its senses!";
 					break;
 				case 'whiteherb':
@@ -3922,7 +4015,7 @@ function Battle(frame, logFrame, noPreload) {
 				poke.copyTypesFrom(tpoke);
 				poke.ability = tpoke.ability;
 				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
-				self.resultAnim(poke, 'Transformed', 'good', animDelay);
+				this.resultAnim(poke, 'Transformed', 'good', animDelay);
 				break;
 			case '-formechange':
 				var poke = this.getPokemon(args[1]);
@@ -3966,23 +4059,23 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + args[3] + " type was added to " + poke.getLowerName() + "!";
 					break;
 				case 'powertrick':
-					self.resultAnim(poke, 'Power Trick', 'neutral', animDelay);
+					this.resultAnim(poke, 'Power Trick', 'neutral', animDelay);
 					actions += "" + poke.getName() + " switched its Attack and Defense!";
 					break;
 				case 'foresight':
 				case 'miracleeye':
-					self.resultAnim(poke, 'Identified', 'bad', animDelay);
+					this.resultAnim(poke, 'Identified', 'bad', animDelay);
 					actions += "" + poke.getName() + " was identified!";
 					break;
 				case 'telekinesis':
-					self.resultAnim(poke, 'Telekinesis', 'neutral', animDelay);
+					this.resultAnim(poke, 'Telekinesis', 'neutral', animDelay);
 					actions += "" + poke.getName() + " was hurled into the air!";
 					break;
 				case 'confusion':
 					if (kwargs.already) {
 						actions += "" + poke.getName() + " is already confused!";
 					} else {
-						self.resultAnim(poke, 'Confused', 'bad', animDelay);
+						this.resultAnim(poke, 'Confused', 'bad', animDelay);
 						actions += "" + poke.getName() + " became confused!";
 					}
 					break;
@@ -3991,65 +4084,65 @@ function Battle(frame, logFrame, noPreload) {
 					actions += '' + poke.getName() + ' was seeded!';
 					break;
 				case 'healblock':
-					self.resultAnim(poke, 'Heal Block', 'bad', animDelay);
+					this.resultAnim(poke, 'Heal Block', 'bad', animDelay);
 					actions += "" + poke.getName() + " was prevented from healing!";
 					break;
 				case 'mudsport':
-					self.resultAnim(poke, 'Mud Sport', 'neutral', animDelay);
+					this.resultAnim(poke, 'Mud Sport', 'neutral', animDelay);
 					actions += "Electricity's power was weakened!";
 					break;
 				case 'watersport':
-					self.resultAnim(poke, 'Water Sport', 'neutral', animDelay);
+					this.resultAnim(poke, 'Water Sport', 'neutral', animDelay);
 					actions += "Fire's power was weakened!";
 					break;
 				case 'yawn':
-					self.resultAnim(poke, 'Drowsy', 'slp', animDelay);
+					this.resultAnim(poke, 'Drowsy', 'slp', animDelay);
 					actions += "" + poke.getName() + ' grew drowsy!';
 					break;
 				case 'flashfire':
-					self.resultAnim(poke, 'Flash Fire', 'good', animDelay);
+					this.resultAnim(poke, 'Flash Fire', 'good', animDelay);
 					actions += 'The power of ' + poke.getLowerName() + '\'s Fire-type moves rose!';
 					break;
 				case 'taunt':
-					self.resultAnim(poke, 'Taunted', 'bad', animDelay);
+					this.resultAnim(poke, 'Taunted', 'bad', animDelay);
 					actions += '' + poke.getName() + ' fell for the taunt!';
 					break;
 				case 'imprison':
-					self.resultAnim(poke, 'Imprisoning', 'good', animDelay);
+					this.resultAnim(poke, 'Imprisoning', 'good', animDelay);
 					actions += "" + poke.getName() + " sealed the opponent's move(s)!";
 					break;
 				case 'disable':
-					self.resultAnim(poke, 'Disabled', 'bad', animDelay);
+					this.resultAnim(poke, 'Disabled', 'bad', animDelay);
 					actions += "" + poke.getName() + "'s " + Tools.escapeHTML(args[3]) + " was disabled!";
 					break;
 				case 'embargo':
-					self.resultAnim(poke, 'Embargo', 'bad', animDelay);
+					this.resultAnim(poke, 'Embargo', 'bad', animDelay);
 					actions += "" + poke.getName() + " can't use items anymore!";
 					break;
 				case 'torment':
-					self.resultAnim(poke, 'Tormented', 'bad', animDelay);
+					this.resultAnim(poke, 'Tormented', 'bad', animDelay);
 					actions += '' + poke.getName() + ' was subjected to torment!';
 					break;
 				case 'ingrain':
-					self.resultAnim(poke, 'Ingrained', 'good', animDelay);
+					this.resultAnim(poke, 'Ingrained', 'good', animDelay);
 					actions += '' + poke.getName() + ' planted its roots!';
 					break;
 				case 'aquaring':
-					self.resultAnim(poke, 'Aqua Ring', 'good', animDelay);
+					this.resultAnim(poke, 'Aqua Ring', 'good', animDelay);
 					actions += '' + poke.getName() + ' surrounded itself with a veil of water!';
 					break;
 				case 'stockpile1':
-					self.resultAnim(poke, 'Stockpile', 'good', animDelay);
+					this.resultAnim(poke, 'Stockpile', 'good', animDelay);
 					actions += '' + poke.getName() + ' stockpiled 1!';
 					break;
 				case 'stockpile2':
 					poke.removeVolatile('stockpile1');
-					self.resultAnim(poke, 'Stockpile&times;2', 'good', animDelay);
+					this.resultAnim(poke, 'Stockpile&times;2', 'good', animDelay);
 					actions += '' + poke.getName() + ' stockpiled 2!';
 					break;
 				case 'stockpile3':
 					poke.removeVolatile('stockpile2');
-					self.resultAnim(poke, 'Stockpile&times;3', 'good', animDelay);
+					this.resultAnim(poke, 'Stockpile&times;3', 'good', animDelay);
 					actions += '' + poke.getName() + ' stockpiled 3!';
 					break;
 				case 'perish0':
@@ -4058,32 +4151,32 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'perish1':
 					poke.removeVolatile('perish2');
-					self.resultAnim(poke, 'Perish next turn', 'bad', animDelay);
+					this.resultAnim(poke, 'Perish next turn', 'bad', animDelay);
 					actions += '' + poke.getName() + "'s perish count fell to 1.";
 					break;
 				case 'perish2':
 					poke.removeVolatile('perish3');
-					self.resultAnim(poke, 'Perish in 2', 'bad', animDelay);
+					this.resultAnim(poke, 'Perish in 2', 'bad', animDelay);
 					actions += '' + poke.getName() + "'s perish count fell to 2.";
 					break;
 				case 'perish3':
-					self.resultAnim(poke, 'Perish in 3', 'bad', animDelay);
+					this.resultAnim(poke, 'Perish in 3', 'bad', animDelay);
 					actions += '' + poke.getName() + "'s perish count fell to 3.";
 					break;
 				case 'encore':
-					self.resultAnim(poke, 'Encored', 'bad', animDelay);
+					this.resultAnim(poke, 'Encored', 'bad', animDelay);
 					actions += '' + poke.getName() + ' received an encore!';
 					break;
 				case 'bide':
-					self.resultAnim(poke, 'Bide', 'good', animDelay);
+					this.resultAnim(poke, 'Bide', 'good', animDelay);
 					actions += "" + poke.getName() + " is storing energy!";
 					break;
 				case 'slowstart':
-					self.resultAnim(poke, 'Slow Start', 'bad', animDelay);
+					this.resultAnim(poke, 'Slow Start', 'bad', animDelay);
 					actions += "" + poke.getName() + " can't get it going because of its Slow Start!";
 					break;
 				case 'attract':
-					self.resultAnim(poke, 'Attracted', 'bad', animDelay);
+					this.resultAnim(poke, 'Attracted', 'bad', animDelay);
 					if (fromeffect.id) {
 						actions += "" + poke.getName() + " fell in love from the " + fromeffect.name + "!";
 					} else {
@@ -4091,37 +4184,37 @@ function Battle(frame, logFrame, noPreload) {
 					}
 					break;
 				case 'autotomize':
-					self.resultAnim(poke, 'Lightened', 'good', animDelay);
+					this.resultAnim(poke, 'Lightened', 'good', animDelay);
 					actions += "" + poke.getName() + " became nimble!";
 					break;
 				case 'focusenergy':
-					self.resultAnim(poke, '+Crit rate', 'good', animDelay);
+					this.resultAnim(poke, '+Crit rate', 'good', animDelay);
 					actions += "" + poke.getName() + " is getting pumped!";
 					break;
 				case 'curse':
-					self.resultAnim(poke, 'Cursed', 'bad', animDelay);
+					this.resultAnim(poke, 'Cursed', 'bad', animDelay);
 					actions += "" + ofpoke.getName() + " cut its own HP and laid a curse on " + poke.getLowerName() + "!";
 					break;
 				case 'nightmare':
-					self.resultAnim(poke, 'Nightmare', 'bad', animDelay);
+					this.resultAnim(poke, 'Nightmare', 'bad', animDelay);
 					actions += "" + poke.getName() + " began having a nightmare!";
 					break;
 				case 'magnetrise':
-					self.resultAnim(poke, 'Magnet Rise', 'good', animDelay);
+					this.resultAnim(poke, 'Magnet Rise', 'good', animDelay);
 					actions += "" + poke.getName() + " levitated with electromagnetism!";
 					break;
 				case 'smackdown':
-					self.resultAnim(poke, 'Smacked Down', 'bad', animDelay);
+					this.resultAnim(poke, 'Smacked Down', 'bad', animDelay);
 					actions += "" + poke.getName() + " fell straight down!";
 					poke.removeVolatile('magnetrise');
 					poke.removeVolatile('telekinesis');
 					break;
 				case 'substitute':
 					if (kwargs.damage) {
-						self.resultAnim(poke, 'Damage', 'bad', animDelay);
+						this.resultAnim(poke, 'Damage', 'bad', animDelay);
 						actions += "The substitute took damage for "+poke.getLowerName()+"!";
 					} else if (kwargs.block) {
-						self.resultAnim(poke, 'Blocked', 'neutral', animDelay);
+						this.resultAnim(poke, 'Blocked', 'neutral', animDelay);
 						actions += 'But it failed!';
 					} else if (kwargs.already) {
 						actions += '' + poke.getName() + ' already has a substitute!';
@@ -4164,11 +4257,11 @@ function Battle(frame, logFrame, noPreload) {
 				poke.removeVolatile(effect.id);
 				switch (effect.id) {
 				case 'powertrick':
-					self.resultAnim(poke, 'Power Trick', 'neutral', animDelay);
+					this.resultAnim(poke, 'Power Trick', 'neutral', animDelay);
 					actions += "" + poke.getName() + " switched its Attack and Defense!";
 					break;
 				case 'telekinesis':
-					self.resultAnim(poke, 'Telekinesis&nbsp;ended', 'neutral', animDelay);
+					this.resultAnim(poke, 'Telekinesis&nbsp;ended', 'neutral', animDelay);
 					actions += "" + poke.getName() + " was freed from the telekinesis!";
 					break;
 				case 'skydrop':
@@ -4178,7 +4271,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " was freed from the Sky Drop!";
 					break;
 				case 'confusion':
-					self.resultAnim(poke, 'Confusion&nbsp;ended', 'good', animDelay);
+					this.resultAnim(poke, 'Confusion&nbsp;ended', 'good', animDelay);
 					if (!kwargs.silent) {
 						if (fromeffect.effectType === 'Item') {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " snapped out of its confusion!";
@@ -4190,32 +4283,32 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'leechseed':
 					if (fromeffect.id === 'rapidspin') {
-						self.resultAnim(poke, 'De-seeded', 'good', animDelay);
+						this.resultAnim(poke, 'De-seeded', 'good', animDelay);
 						actions += "" + poke.getName() + " was freed from Leech Seed!";
 					}
 					break;
 				case 'healblock':
-					self.resultAnim(poke, 'Heal Block ended', 'good', animDelay);
+					this.resultAnim(poke, 'Heal Block ended', 'good', animDelay);
 					actions += "" + poke.getName() + "'s Heal Block wore off!";
 					break;
 				case 'taunt':
-					self.resultAnim(poke, 'Taunt&nbsp;ended', 'good', animDelay);
+					this.resultAnim(poke, 'Taunt&nbsp;ended', 'good', animDelay);
 					actions += '' + poke.getName() + "'s taunt wore off!";
 					break;
 				case 'disable':
-					self.resultAnim(poke, 'Disable&nbsp;ended', 'good', animDelay);
+					this.resultAnim(poke, 'Disable&nbsp;ended', 'good', animDelay);
 					actions += '' + poke.getName() + " is no longer disabled!";
 					break;
 				case 'embargo':
-					self.resultAnim(poke, 'Embargo ended', 'good', animDelay);
+					this.resultAnim(poke, 'Embargo ended', 'good', animDelay);
 					actions += "" + poke.getName() + " can use items again!";
 					break;
 				case 'torment':
-					self.resultAnim(poke, 'Torment&nbsp;ended', 'good', animDelay);
+					this.resultAnim(poke, 'Torment&nbsp;ended', 'good', animDelay);
 					actions += '' + poke.getName() + "'s torment wore off!";
 					break;
 				case 'encore':
-					self.resultAnim(poke, 'Encore&nbsp;ended', 'good', animDelay);
+					this.resultAnim(poke, 'Encore&nbsp;ended', 'good', animDelay);
 					actions += '' + poke.getName() + "'s encore ended!";
 					break;
 				case 'bide':
@@ -4230,7 +4323,7 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'substitute':
 					poke.sprite.animSubFade();
-					self.resultAnim(poke, 'Faded', 'bad', animDelay);
+					this.resultAnim(poke, 'Faded', 'bad', animDelay);
 					actions += '' + poke.getName() + "'s substitute faded!";
 					break;
 				case 'uproar':
@@ -4262,31 +4355,31 @@ function Battle(frame, logFrame, noPreload) {
 
 				switch (effect.id) {
 				case 'roost':
-					self.resultAnim(poke, 'Landed', 'neutral', animDelay);
+					this.resultAnim(poke, 'Landed', 'neutral', animDelay);
 					//actions += '' + poke.getName() + ' landed on the ground!';
 					break;
 				case 'quickguard':
-					self.resultAnim(poke, 'Quick Guard', 'good', animDelay);
+					this.resultAnim(poke, 'Quick Guard', 'good', animDelay);
 					actions += "Quick Guard protected " + poke.side.getLowerTeamName() + "!";
 					break;
 				case 'wideguard':
-					self.resultAnim(poke, 'Wide Guard', 'good', animDelay);
+					this.resultAnim(poke, 'Wide Guard', 'good', animDelay);
 					actions += "Wide Guard protected " + poke.side.getLowerTeamName() + "!";
 					break;
 				case 'protect':
-					self.resultAnim(poke, 'Protected', 'good', animDelay);
+					this.resultAnim(poke, 'Protected', 'good', animDelay);
 					actions += '' + poke.getName() + ' protected itself!';
 					break;
 				case 'endure':
-					self.resultAnim(poke, 'Enduring', 'good', animDelay);
+					this.resultAnim(poke, 'Enduring', 'good', animDelay);
 					actions += '' + poke.getName() + ' braced itself!';
 					break;
 				case 'helpinghand':
-					self.resultAnim(poke, 'Helping Hand', 'good', animDelay);
+					this.resultAnim(poke, 'Helping Hand', 'good', animDelay);
 					actions += '' + ofpoke.getName() + " is ready to help " + poke.getLowerName() + "!";
 					break;
 				case 'focuspunch':
-					self.resultAnim(poke, 'Focusing', 'neutral', animDelay);
+					this.resultAnim(poke, 'Focusing', 'neutral', animDelay);
 					actions += '' + poke.getName() + ' is tightening its focus!';
 					break;
 				case 'snatch':
@@ -4339,25 +4432,25 @@ function Battle(frame, logFrame, noPreload) {
 					break;
 				case 'quickguard':
 					poke.addTurnstatus('quickguard');
-					self.resultAnim(poke, 'Quick Guard', 'good', animDelay);
+					this.resultAnim(poke, 'Quick Guard', 'good', animDelay);
 					actions += "Quick Guard protected " + poke.getLowerName() + "!";
 					break;
 				case 'wideguard':
 					poke.addTurnstatus('wideguard');
-					self.resultAnim(poke, 'Wide Guard', 'good', animDelay);
+					this.resultAnim(poke, 'Wide Guard', 'good', animDelay);
 					actions += "Wide Guard protected " + poke.getLowerName() + "!";
 					break;
 				case 'protect':
 					poke.addTurnstatus('protect');
-					self.resultAnim(poke, 'Protected', 'good', animDelay);
+					this.resultAnim(poke, 'Protected', 'good', animDelay);
 					actions += '' + poke.getName() + ' protected itself!';
 					break;
 				case 'substitute':
 					if (kwargs.damage) {
-						self.resultAnim(poke, 'Damage', 'bad', animDelay);
+						this.resultAnim(poke, 'Damage', 'bad', animDelay);
 						actions += 'The substitute took damage for ' + poke.getLowerName() + '!';
 					} else if (kwargs.block) {
-						self.resultAnim(poke, 'Blocked', 'neutral', animDelay);
+						this.resultAnim(poke, 'Blocked', 'neutral', animDelay);
 						actions += '' + poke.getName() + "'s Substitute blocked " + Tools.getMove(kwargs.block || args[3]).name + '!';
 					}
 					break;
@@ -4417,8 +4510,8 @@ function Battle(frame, logFrame, noPreload) {
 				case 'skillswap':
 					actions += "" + poke.getName() + " swapped Abilities with its target!";
 					if (ofpoke && poke.side !== ofpoke.side) {
-						self.resultAnim(poke, Tools.escapeHTML(args[3]), 'neutral', 1);
-						self.resultAnim(ofpoke, Tools.escapeHTML(args[4]), 'neutral', 4);
+						this.resultAnim(poke, Tools.escapeHTML(args[3]), 'neutral', 1);
+						this.resultAnim(ofpoke, Tools.escapeHTML(args[4]), 'neutral', 4);
 						actions += "<br />" + poke.getName() + " acquired " + Tools.escapeHTML(args[3]) + "!";
 						actions += "<br />" + ofpoke.getName() + " acquired " + Tools.escapeHTML(args[4]) + "!";
 					}
@@ -4487,7 +4580,7 @@ function Battle(frame, logFrame, noPreload) {
 				case 'rebound':
 					break;
 				case 'wonderguard':
-					self.resultAnim(poke, 'Immune', 'neutral', animDelay);
+					this.resultAnim(poke, 'Immune', 'neutral', animDelay);
 					actions += '' + poke.getName() + '\'s Wonder Guard evades the attack!';
 					break;
 				case 'speedboost':
@@ -4636,13 +4729,13 @@ function Battle(frame, logFrame, noPreload) {
 			case '-weather':
 				var effect = Tools.getEffect(args[1]);
 				var poke = this.getPokemon(kwargs.of);
-				self.changeWeather(effect.name, poke, kwargs.upkeep);
+				this.changeWeather(effect.name, poke, kwargs.upkeep);
 				break;
 
 			case '-fieldstart':
 				var effect = Tools.getEffect(args[1]);
 				var poke = this.getPokemon(kwargs.of);
-				self.addPseudoWeather(effect.name, poke);
+				this.addPseudoWeather(effect.name, poke);
 
 				switch (effect.id) {
 				case 'trickroom':
@@ -4672,7 +4765,7 @@ function Battle(frame, logFrame, noPreload) {
 			case '-fieldend':
 				var effect = Tools.getEffect(args[1]);
 				var poke = this.getPokemon(kwargs.of);
-				self.removePseudoWeather(effect.name, poke);
+				this.removePseudoWeather(effect.name, poke);
 
 				switch (effect.id) {
 				case 'trickroom':
@@ -4704,16 +4797,16 @@ function Battle(frame, logFrame, noPreload) {
 				switch (effect.id) {
 				case 'perishsong':
 					actions += 'All Pok&#xE9;mon hearing the song will faint in three turns!';
-					if (self.mySide.active[0] && !self.mySide.active[0].volatiles['perish0'] &&
-						!self.mySide.active[0].volatiles['perish1'] && !self.mySide.active[0].volatiles['perish2']) {
-						self.mySide.active[0].addVolatile('perish3');
+					if (this.mySide.active[0] && !this.mySide.active[0].volatiles['perish0'] &&
+						!this.mySide.active[0].volatiles['perish1'] && !this.mySide.active[0].volatiles['perish2']) {
+						this.mySide.active[0].addVolatile('perish3');
 					}
-					if (self.yourSide.active[0] && !self.yourSide.active[0].volatiles['perish0'] &&
-						!self.yourSide.active[0].volatiles['perish1'] && !self.yourSide.active[0].volatiles['perish2']) {
-						self.yourSide.active[0].addVolatile('perish3');
+					if (this.yourSide.active[0] && !this.yourSide.active[0].volatiles['perish0'] &&
+						!this.yourSide.active[0].volatiles['perish1'] && !this.yourSide.active[0].volatiles['perish2']) {
+						this.yourSide.active[0].addVolatile('perish3');
 					}
-					self.mySide.updateStatbar();
-					self.yourSide.updateStatbar();
+					this.mySide.updateStatbar();
+					this.yourSide.updateStatbar();
 					break;
 				case 'payday':
 					actions += 'Coins were scattered everywhere!';
@@ -4732,13 +4825,13 @@ function Battle(frame, logFrame, noPreload) {
 				break;
 
 			case '-anim':
-				var poke = self.getPokemon(args[1]);
+				var poke = this.getPokemon(args[1]);
 				var move = Tools.getMove(args[2]);
-				if (self.checkActive(poke)) return;
-				poke2 = self.getPokemon(args[3]);
+				if (this.checkActive(poke)) return;
+				poke2 = this.getPokemon(args[3]);
 				poke.sprite.beforeMove();
 				kwargs.silent = true;
-				self.useMove(poke, move, poke2, kwargs);
+				this.useMove(poke, move, poke2, kwargs);
 				poke.sprite.afterMove();
 				break;
 
@@ -4747,19 +4840,19 @@ function Battle(frame, logFrame, noPreload) {
 				break;
 
 			default:
-				self.logConsole('Unknown minor: ' + args[0]);
-				if (self.errorCallback) self.errorCallback(self);
+				this.logConsole('Unknown minor: ' + args[0]);
+				if (this.errorCallback) this.errorCallback(this);
 				break;
 			}
 		}
 		if (actions) {
-			self.message('<small>' + actions + '</small>', hiddenactions ? '<small>' + hiddenactions + '</small>' : '');
+			this.message('<small>' + actions + '</small>', hiddenactions ? '<small>' + hiddenactions + '</small>' : '');
 		} else if (hiddenactions) {
-			self.message('', '<small>' + hiddenactions + '</small>');
+			this.message('', '<small>' + hiddenactions + '</small>');
 		}
 	};
-
-	/* this.parseSpriteData = function (name) {
+	/*
+	Battle.prototype.parseSpriteData = function (name) {
 		var siden = 0,
 			foe = false;
 		while (true) {
@@ -4769,10 +4862,10 @@ function Battle(frame, logFrame, noPreload) {
 			} else if (name.substr(0, 9) === 'switched-') name = name.substr(9);
 			else if (name.substr(0, 9) === 'existing-') name = name.substr(9);
 			else if (name.substr(0, 4) === 'foe-') {
-				siden = self.p2.n;
+				siden = this.p2.n;
 				name = name.substr(4);
 			} else if (name.substr(0, 5) === 'ally-') {
-				siden = self.p1.n;
+				siden = this.p1.n;
 				name = name.substr(5);
 			} else break;
 		}
@@ -4787,8 +4880,9 @@ function Battle(frame, logFrame, noPreload) {
 
 		var data = Tools.getTemplate(name);
 		return data.spriteData[siden];
-	} */
-	this.parseDetails = function (name, pokemonid, details, output) {
+	};
+	*/
+	Battle.prototype.parseDetails = function (name, pokemonid, details, output) {
 		if (!output) output = {};
 		if (!details) details = "";
 		output.details = details;
@@ -4820,7 +4914,7 @@ function Battle(frame, logFrame, noPreload) {
 		}
 		return output;
 	};
-	this.getPokemon = function (pokemonid, details) {
+	Battle.prototype.getPokemon = function (pokemonid, details) {
 		var siden = -1;
 		var name = pokemonid;
 		var isNew = false; // if yes, don't match any pokemon that already exists (for Team Preview)
@@ -4853,19 +4947,19 @@ function Battle(frame, logFrame, noPreload) {
 			isOld = true;
 		}
 		if (name.substr(0, 4) === 'p2: ' || name === 'p2') {
-			siden = self.p2.n;
+			siden = this.p2.n;
 			name = name.substr(4);
 		} else if (name.substr(0, 4) === 'p1: ' || name === 'p1') {
-			siden = self.p1.n;
+			siden = this.p1.n;
 			name = name.substr(4);
 		} else if (name.substr(0, 2) === 'p2' && name.substr(3, 2) === ': ') {
 			slot = slotChart[name.substr(2,1)];
-			siden = self.p2.n;
+			siden = this.p2.n;
 			name = name.substr(5);
 			pokemonid = 'p2: '+name;
 		} else if (name.substr(0, 2) === 'p1' && name.substr(3, 2) === ': ') {
 			slot = slotChart[name.substr(2,1)];
-			siden = self.p1.n;
+			siden = this.p1.n;
 			name = name.substr(5);
 			pokemonid = 'p1: '+name;
 		}
@@ -4874,7 +4968,7 @@ function Battle(frame, logFrame, noPreload) {
 
 		if (!details) {
 			if (siden < 0) return null;
-			if (self.sides[siden].active[slot]) return self.sides[siden].active[slot];
+			if (this.sides[siden].active[slot]) return this.sides[siden].active[slot];
 		}
 
 		var species = name;
@@ -4885,17 +4979,17 @@ function Battle(frame, logFrame, noPreload) {
 		if (details) searchid = pokemonid+'|'+details;
 
 		var bestMatchName = null;
-		if (siden !== self.p2.n && !isNew) {
-			if (self.p1.active[slot] && self.p1.active[slot].searchid === searchid && !isOther) {
-				self.p1.active[slot].slot = slot;
-				return self.p1.active[slot];
+		if (siden !== this.p2.n && !isNew) {
+			if (this.p1.active[slot] && this.p1.active[slot].searchid === searchid && !isOther) {
+				this.p1.active[slot].slot = slot;
+				return this.p1.active[slot];
 			}
-			for (var i = 0; i < self.p1.pokemon.length; i++) {
-				var pokemon = self.p1.pokemon[i];
+			for (var i = 0; i < this.p1.pokemon.length; i++) {
+				var pokemon = this.p1.pokemon[i];
 				if (pokemon.fainted && (isNew || isOther)) continue;
 				if (isOther) {
-					if (self.p1.active.indexOf(pokemon) >= 0) continue;
-					if (pokemon == self.p1.lastPokemon && !self.p1.active[slot]) continue;
+					if (this.p1.active.indexOf(pokemon) >= 0) continue;
+					if (pokemon == this.p1.lastPokemon && !this.p1.active[slot]) continue;
 				}
 				if (pokemon.searchid === searchid || (!pokemon.searchid && pokemon.checkDetails(details)) || (!searchid && pokemon.ident === pokemonid)) {
 					if (!pokemon.searchid)
@@ -4904,7 +4998,7 @@ function Battle(frame, logFrame, noPreload) {
 						pokemon.searchid = searchid;
 						pokemon.ident = pokemonid;
 						if (pokemon.needsReplace) {
-							pokemon = self.p1.newPokemon(self.parseDetails(name, pokemonid, details), i);
+							pokemon = this.p1.newPokemon(this.parseDetails(name, pokemonid, details), i);
 						}
 					}
 					pokemon.slot = slot;
@@ -4912,17 +5006,17 @@ function Battle(frame, logFrame, noPreload) {
 				}
 			}
 		}
-		if (siden !== self.p1.n && !isNew) {
-			if (self.p2.active[slot] && self.p2.active[slot].searchid === searchid && !isOther) {
-				self.p2.active[slot].slot = slot;
-				return self.p2.active[slot];
+		if (siden !== this.p1.n && !isNew) {
+			if (this.p2.active[slot] && this.p2.active[slot].searchid === searchid && !isOther) {
+				this.p2.active[slot].slot = slot;
+				return this.p2.active[slot];
 			}
-			for (var i = 0; i < self.p2.pokemon.length; i++) {
-				var pokemon = self.p2.pokemon[i];
+			for (var i = 0; i < this.p2.pokemon.length; i++) {
+				var pokemon = this.p2.pokemon[i];
 				if (pokemon.fainted && (isNew || isOther)) continue;
 				if (isOther) {
-					if (self.p2.active.indexOf(pokemon) >= 0) continue;
-					if (pokemon == self.p2.lastPokemon && !self.p2.active[slot]) continue;
+					if (this.p2.active.indexOf(pokemon) >= 0) continue;
+					if (pokemon == this.p2.lastPokemon && !this.p2.active[slot]) continue;
 				}
 				if (pokemon.searchid === searchid || (!pokemon.searchid && pokemon.checkDetails(details)) || (!searchid && pokemon.ident === pokemonid)) {
 					if (!pokemon.searchid)
@@ -4931,7 +5025,7 @@ function Battle(frame, logFrame, noPreload) {
 						pokemon.searchid = searchid;
 						pokemon.ident = pokemonid;
 						if (pokemon.needsReplace) {
-							pokemon = self.p2.newPokemon(self.parseDetails(name, pokemonid, details), i);
+							pokemon = this.p2.newPokemon(this.parseDetails(name, pokemonid, details), i);
 						}
 					}
 					pokemon.slot = slot;
@@ -4942,7 +5036,7 @@ function Battle(frame, logFrame, noPreload) {
 		if (!isNew && !isOther && !details) {
 			return false;
 		}
-		if (siden < 0) siden = self.p1.n;
+		if (siden < 0) siden = this.p1.n;
 		if (details) {
 			var splitDetails = details.split(', ');
 			if (splitDetails[splitDetails.length-1] === 'shiny') {
@@ -4960,7 +5054,7 @@ function Battle(frame, logFrame, noPreload) {
 				species = splitDetails[0];
 			}
 		}
-		var pokemon = self.sides[siden].newPokemon({
+		var pokemon = this.sides[siden].newPokemon({
 			species: species,
 			details: details,
 			name: name,
@@ -4973,61 +5067,61 @@ function Battle(frame, logFrame, noPreload) {
 		});
 		return pokemon;
 	};
-	this.getSide = function (sidename) {
-		if (sidename === 'p1' || sidename.substr(0,3)==='p1:') return self.p1;
-		if (sidename === 'p2' || sidename.substr(0,3)==='p2:') return self.p2;
-		if (self.mySide.id == sidename) return self.mySide;
-		if (self.yourSide.id == sidename) return self.yourSide;
-		if (self.mySide.name == sidename) return self.mySide;
-		if (self.yourSide.name == sidename) return self.yourSide;
+	Battle.prototype.getSide = function (sidename) {
+		if (sidename === 'p1' || sidename.substr(0,3)==='p1:') return this.p1;
+		if (sidename === 'p2' || sidename.substr(0,3)==='p2:') return this.p2;
+		if (this.mySide.id == sidename) return this.mySide;
+		if (this.yourSide.id == sidename) return this.yourSide;
+		if (this.mySide.name == sidename) return this.mySide;
+		if (this.yourSide.name == sidename) return this.yourSide;
 		return {
 			name: sidename,
 			id: sidename.replace(/ /g, '')
 		};
 	};
 
-	this.add = function (command, fastForward) {
-		if (self.playbackState === 0) {
-			self.playbackState = 1;
-			self.activityQueue.push(command);
-		} else if (self.playbackState === 4) {
-			self.playbackState = 2;
-			self.paused = false;
-			self.activityQueue.push(command);
-			self.activityQueueActive = true;
-			self.soundStart();
+	Battle.prototype.add = function (command, fastForward) {
+		if (this.playbackState === 0) {
+			this.playbackState = 1;
+			this.activityQueue.push(command);
+		} else if (this.playbackState === 4) {
+			this.playbackState = 2;
+			this.paused = false;
+			this.activityQueue.push(command);
+			this.activityQueueActive = true;
+			this.soundStart();
 			if (fastForward) {
-				self.fastForwardTo(-1);
+				this.fastForwardTo(-1);
 			} else {
-				self.nextActivity();
+				this.nextActivity();
 			}
 		} else {
-			self.activityQueue.push(command);
+			this.activityQueue.push(command);
 		}
 	};
-	this.instantAdd = function (command) {
-		self.run(command, true);
-		self.preemptActivityQueue.push(command);
-		self.add(command);
+	Battle.prototype.instantAdd = function (command) {
+		this.run(command, true);
+		this.preemptActivityQueue.push(command);
+		this.add(command);
 	};
-	this.teamPreview = function (start) {
+	Battle.prototype.teamPreview = function (start) {
 		for (var k = 0; k < 2; k++) {
 			var teamText = '';
 			var text = '';
-			self.spriteElems[k].empty();
+			this.spriteElems[k].empty();
 			if (!start) {
-				self.sides[k].updateSprites();
+				this.sides[k].updateSprites();
 				continue;
 			}
-			for (var i = 0; i < self.sides[k].pokemon.length; i++) {
-				var pokemon = self.sides[k].pokemon[i];
+			for (var i = 0; i < this.sides[k].pokemon.length; i++) {
+				var pokemon = this.sides[k].pokemon[i];
 
-				var spriteData = Tools.getSpriteData(pokemon, k, {afd: self.tier === "[Seasonal] Fools Festival"});
+				var spriteData = Tools.getSpriteData(pokemon, k, {afd: this.tier === "[Seasonal] Fools Festival"});
 				var y = 0;
 				var x = 0;
 				if (k) {
-					y = Math.floor(96-spriteData.h)/2 + 50 + 3 * (i + 6 - self.sides[k].pokemon.length);
-					x = Math.floor(96-spriteData.w)/2 + 180 + 50 * (i + 6 - self.sides[k].pokemon.length);
+					y = Math.floor(96-spriteData.h)/2 + 50 + 3 * (i + 6 - this.sides[k].pokemon.length);
+					x = Math.floor(96-spriteData.w)/2 + 180 + 50 * (i + 6 - this.sides[k].pokemon.length);
 				} else {
 					y = Math.floor(96-spriteData.h)/2 + 200 + 3 * i;
 					x = Math.floor(96-spriteData.w)/2 + 100 + 50 * i;
@@ -5036,59 +5130,59 @@ function Battle(frame, logFrame, noPreload) {
 				teamText += pokemon.species;
 				text += '<img src="' + spriteData.url + '" width="'+spriteData.w+'" height="'+spriteData.h+'" style="position:absolute;top:' + y + 'px;left:' + x + 'px" />';
 			}
-			self.sides[k].totalPokemon = i;
-			self.sides[k].updateSidebar();
+			this.sides[k].totalPokemon = i;
+			this.sides[k].updateSidebar();
 			if (teamText) {
-				self.log('<div class="chat"><strong>' + Tools.escapeHTML(self.sides[k].name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + Tools.escapeHTML(teamText) + '</em></div>');
+				this.log('<div class="chat"><strong>' + Tools.escapeHTML(this.sides[k].name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + Tools.escapeHTML(teamText) + '</em></div>');
 			}
-			self.spriteElems[k].html(text);
+			this.spriteElems[k].html(text);
 		}
 	};
-	this.runMajor = function(args, kwargs, preempt) {
+	Battle.prototype.runMajor = function (args, kwargs, preempt) {
 		switch (args[0]) {
 		case 'start':
-			self.teamPreview(false);
-			self.mySide.active[0] = null;
-			self.yourSide.active[0] = null;
-			if (self.waitForResult()) return;
-			self.start();
+			this.teamPreview(false);
+			this.mySide.active[0] = null;
+			this.yourSide.active[0] = null;
+			if (this.waitForResult()) return;
+			this.start();
 			break;
 		case 'turn':
-			if (self.endPrevAction()) return;
-			self.setTurn(args[1]);
+			if (this.endPrevAction()) return;
+			this.setTurn(args[1]);
 			break;
 		case 'tier':
 			if (!args[1]) args[1] = '';
 			for (var i in kwargs) args[1] += '['+i+'] '+kwargs[i];
-			self.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
-			self.tier = args[1];
+			this.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
+			this.tier = args[1];
 			break;
 		case 'gametype':
-			self.gameType = args[1];
+			this.gameType = args[1];
 			if (args[1] === 'doubles') {
-				if (self.mySide.active.length < 2) self.mySide.active.push(null);
-				if (self.yourSide.active.length < 2) self.yourSide.active.push(null);
+				if (this.mySide.active.length < 2) this.mySide.active.push(null);
+				if (this.yourSide.active.length < 2) this.yourSide.active.push(null);
 			}
 			if (args[1] === 'triples' || args[1] === 'rotation') {
-				if (self.mySide.active.length < 3) self.mySide.active.push(null);
-				if (self.yourSide.active.length < 3) self.yourSide.active.push(null);
+				if (this.mySide.active.length < 3) this.mySide.active.push(null);
+				if (this.yourSide.active.length < 3) this.yourSide.active.push(null);
 			}
 			break;
 		case 'variation':
-			self.log('<div><small>Variation: <em>' + Tools.escapeHTML(args[1]) + '</em></small></div>');
+			this.log('<div><small>Variation: <em>' + Tools.escapeHTML(args[1]) + '</em></small></div>');
 			break;
 		case 'rule':
 			var ruleArgs = args[1].split(': ');
-			self.log('<div><small><em>' + Tools.escapeHTML(ruleArgs[0]) + (ruleArgs[1]?':':'') + '</em> ' + Tools.escapeHTML(ruleArgs[1]||'') + '</div>');
+			this.log('<div><small><em>' + Tools.escapeHTML(ruleArgs[0]) + (ruleArgs[1]?':':'') + '</em> ' + Tools.escapeHTML(ruleArgs[1]||'') + '</div>');
 			break;
 		case 'rated':
-			self.rated = true;
-			self.log('<div class="rated"><strong>Rated battle</strong></div>');
+			this.rated = true;
+			this.log('<div class="rated"><strong>Rated battle</strong></div>');
 			break;
 		case 'chat':
 		case 'c':
 			name = args[1];
-			if (self.ignoreSpects && !self.getSide(name).battle) break;
+			if (this.ignoreSpects && !this.getSide(name).battle) break;
 			if (window.app && app.ignore && app.ignore[toUserid(name)]) break;
 			args.shift();
 			args.shift();
@@ -5100,87 +5194,87 @@ function Battle(frame, logFrame, noPreload) {
 			}
 			var message = args.join('|');
 			if (message.substr(0,2) === '//') {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message.substr(1), name) + '</em></div>', preempt);
+				this.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message.substr(1), name) + '</em></div>', preempt);
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4), name) + '</i></em></div>', preempt);
+				this.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4), name) + '</i></em></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
-				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
-				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-ability ') {
-				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
-				if (window.Chart) self.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else {
-				self.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message, name) + '</em></div>', preempt);
+				this.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message, name) + '</em></div>', preempt);
 			}
 			break;
 		case 'chatmsg':
 			args.shift();
-			self.log('<div class="chat">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'chatmsg-raw':
 		case 'raw':
 		case 'html':
 			args.shift();
-			self.log('<div class="chat">' + Tools.sanitizeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat">' + Tools.sanitizeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'pm':
-			self.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + Tools.parseMessage(args[4], args[1]) + '</span>');
+			this.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + Tools.parseMessage(args[4], args[1]) + '</span>');
 			break;
 		case 'askreg':
-			self.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="'+Tools.escapeHTML(args[1])+'"><b>Register</b></button></div>');
+			this.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="'+Tools.escapeHTML(args[1])+'"><b>Register</b></button></div>');
 			break;
 		case 'inactive':
-			self.kickingInactive = true;
+			this.kickingInactive = true;
 			args.shift();
-			self.log('<div class="chat timer">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat timer">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'inactiveoff':
-			self.kickingInactive = false;
+			this.kickingInactive = false;
 			args.shift();
-			self.log('<div class="chat timer">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat timer">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'join':
 		case 'j':
 		case 'J':
-			self.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
+			this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
 			break;
 		case 'leave':
 		case 'l':
 		case 'L':
-			self.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
+			this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
 			break;
 		case 'spectator':
 		case 'spectatorleave':
 			break;
 		case 'player':
-			self.getSide(args[1]).setName(args[2]);
-			self.getSide(args[1]).setSprite(args[3]);
+			this.getSide(args[1]).setName(args[2]);
+			this.getSide(args[1]).setSprite(args[3]);
 			break;
 		case 'win':
-			self.winner(args[1]);
+			this.winner(args[1]);
 			break;
 		case 'tie':
-			self.winner();
+			this.winner();
 			break;
 		case 'prematureend':
-			self.prematureEnd();
+			this.prematureEnd();
 			break;
 		case 'clearpoke':
-			self.p1.pokemon = [];
-			self.p2.pokemon = [];
-			for (var i=0; i<self.p1.active.length; i++) {
-				self.p1.active[i] = null;
-				self.p2.active[i] = null;
+			this.p1.pokemon = [];
+			this.p2.pokemon = [];
+			for (var i=0; i<this.p1.active.length; i++) {
+				this.p1.active[i] = null;
+				this.p2.active[i] = null;
 			}
 			break;
 		case 'poke':
-			self.getPokemon('new: '+args[1], args[2]);
+			var pokemon = this.getPokemon('new: '+args[1], args[2]);
 			break;
 		case 'detailschange':
-			if (self.waitForResult()) return;
-			var poke = self.getPokemon(args[1]);
+			if (this.waitForResult()) return;
+			var poke = this.getPokemon(args[1]);
 			poke.removeVolatile('formechange');
 			poke.removeVolatile('typeadd');
 			poke.removeVolatile('typechange');
@@ -5209,22 +5303,22 @@ function Battle(frame, logFrame, noPreload) {
 			poke.side.updateSidebar();
 			break;
 		case 'teampreview':
-			self.teamPreview(true);
-			self.teamPreviewCount = args[1];
+			this.teamPreview(true);
+			this.teamPreviewCount = args[1];
 			break;
 		case 'switch':
 		case 'drag':
 		case 'replace':
-			self.endLastTurn();
-			if (self.waitForResult()) return;
-			var poke = self.getPokemon('other: '+args[1], args[2]);
+			this.endLastTurn();
+			if (this.waitForResult()) return;
+			var poke = this.getPokemon('other: '+args[1], args[2]);
 			var slot = poke.slot;
 			poke.healthParse(args[3]);
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot])
 				{
 					poke.side.switchOut(poke.side.active[slot]);
-					if (self.waitForResult()) return;
+					if (this.waitForResult()) return;
 				}
 				poke.side.switchIn(poke);
 			} else if (args[0] === 'replace') {
@@ -5234,89 +5328,89 @@ function Battle(frame, logFrame, noPreload) {
 			}
 			break;
 		case 'faint':
-			if (self.waitForResult()) return;
-			var poke = self.getPokemon(args[1]);
+			if (this.waitForResult()) return;
+			var poke = this.getPokemon(args[1]);
 			poke.side.faint(poke);
 			break;
 		case 'swap':
 			if (isNaN(Number(args[2]))) {
-				var poke = self.getPokemon('other: ' + args[1]);
-				poke.side.swapWith(poke, self.getPokemon('other: ' + args[2]), kwargs);
+				var poke = this.getPokemon('other: ' + args[1]);
+				poke.side.swapWith(poke, this.getPokemon('other: ' + args[2]), kwargs);
 			} else {
-				var poke = self.getPokemon(args[1]);
+				var poke = this.getPokemon(args[1]);
 				poke.side.swapTo(poke, args[2], kwargs);
 			}
 			break;
 		case 'move':
-			self.endLastTurn();
-			if (!kwargs.from && self.waitForResult()) return;
-			var poke = self.getPokemon(args[1]);
+			this.endLastTurn();
+			if (!kwargs.from && this.waitForResult()) return;
+			var poke = this.getPokemon(args[1]);
 			var move = Tools.getMove(args[2]);
-			if (self.checkActive(poke)) return;
-			var poke2 = self.getPokemon(args[3]);
+			if (this.checkActive(poke)) return;
+			var poke2 = this.getPokemon(args[3]);
 			poke.sprite.beforeMove();
-			self.useMove(poke, move, poke2, kwargs);
+			this.useMove(poke, move, poke2, kwargs);
 			poke.sprite.afterMove();
 			break;
 		case 'cant':
-			self.endLastTurn();
-			if (self.waitForResult()) return;
-			var poke = self.getPokemon(args[1]);
+			this.endLastTurn();
+			if (this.waitForResult()) return;
+			var poke = this.getPokemon(args[1]);
 			var effect = Tools.getEffect(args[2]);
 			var move = Tools.getMove(args[3]);
-			self.cantUseMove(poke, effect, move, kwargs);
+			this.cantUseMove(poke, effect, move, kwargs);
 			break;
 		case 'message':
-			self.message(Tools.escapeHTML(args[1]));
+			this.message(Tools.escapeHTML(args[1]));
 			break;
 		case 'done':
 		case '':
-			if (self.done || self.endPrevAction()) return;
+			if (this.done || this.endPrevAction()) return;
 			break;
 		case 'error':
 			args.shift();
-			self.message('<strong>Error:</strong> ' + Tools.escapeHTML(args.join('|')));
-			self.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
+			this.message('<strong>Error:</strong> ' + Tools.escapeHTML(args.join('|')));
+			this.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
 			break;
 		case 'warning':
 			args.shift();
-			self.message('<strong>Warning:</strong> ' + Tools.escapeHTML(args.join('|')));
-			self.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
-			self.activityWait(1000);
+			this.message('<strong>Warning:</strong> ' + Tools.escapeHTML(args.join('|')));
+			this.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
+			this.activityWait(1000);
 			break;
 		case 'gen':
-			self.gen = parseInt(args[1]);
-			self.updateGen();
+			this.gen = parseInt(args[1]);
+			this.updateGen();
 			break;
 		case 'callback':
 			args.shift();
-			if (self.customCallback) self.customCallback(self, args[0], args, kwargs);
+			if (this.customCallback) this.customCallback(this, args[0], args, kwargs);
 			break;
 		case 'debug':
 			args.shift();
 			name = args.join(' ');
-			self.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div></div>', preempt);
+			this.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div></div>', preempt);
 			break;
 		case 'unlink':
 			break;
 		default:
-			self.logConsole('unknown command: ' + args[0]);
-			self.log('<div>Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
-			if (self.errorCallback) self.errorCallback(self);
+			this.logConsole('unknown command: ' + args[0]);
+			this.log('<div>Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
+			if (this.errorCallback) this.errorCallback(this);
 			break;
 		}
 	};
-	this.run = function (str, preempt) {
-		if (self.preemptActivityQueue.length && str === self.preemptActivityQueue[0]) {
-			self.preemptActivityQueue.shift();
-			self.preemptCatchup();
+	Battle.prototype.run = function (str, preempt) {
+		if (this.preemptActivityQueue.length && str === this.preemptActivityQueue[0]) {
+			this.preemptActivityQueue.shift();
+			this.preemptCatchup();
 			return;
 		}
 		str = $.trim(str);
 		if (!str) return;
 		if (str.charAt(0) !== '|' || str.substr(0,2) === '||') {
 			if (str.charAt(0) === '|') str = str.substr(2);
-			self.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
+			this.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
 		} else {
 			var args = ['done'], kwargs = {};
 			str = $.trim(str.substr(1));
@@ -5334,7 +5428,7 @@ function Battle(frame, logFrame, noPreload) {
 
 			// parse the next line if it's a minor: runMinor needs it parsed to determine when to merge minors
 			var nextLine = '', nextArgs = [''], nextKwargs = {};
-			nextLine = self.activityQueue[self.activityStep+1];
+			nextLine = this.activityQueue[this.activityStep+1];
 			if (nextLine && nextLine.substr(0,2) === '|-') {
 				nextLine = $.trim(nextLine.substr(1));
 				nextArgs = nextLine.split('|');
@@ -5347,305 +5441,270 @@ function Battle(frame, logFrame, noPreload) {
 				}
 			}
 
-			if (self.debug) {
+			if (this.debug) {
 				if (args[0].substr(0,1) === '-') {
-					self.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
+					this.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
 				} else {
-					self.runMajor(args, kwargs, preempt);
+					this.runMajor(args, kwargs, preempt);
 				}
 			} else try {
 				if (args[0].substr(0,1) === '-') {
-					self.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
+					this.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
 				} else {
-					self.runMajor(args, kwargs, preempt);
+					this.runMajor(args, kwargs, preempt);
 				}
 			} catch (e) {
-				self.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + '</div>', preempt);
+				this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + '</div>', preempt);
 				if (e.stack) {
 					var stack = ''+e.stack;
 					stack = stack.split("\n").slice(0,2).join("\n");
-					self.log('<div class="chat" style="white-space:pre-wrap">' + Tools.escapeHTML(stack) + '</div>', preempt);
+					this.log('<div class="chat" style="white-space:pre-wrap">' + Tools.escapeHTML(stack) + '</div>', preempt);
 				} else {
-					self.log('<div class="chat">Error: ' + Tools.escapeHTML(''+e) + '</div>', preempt);
+					this.log('<div class="chat">Error: ' + Tools.escapeHTML(''+e) + '</div>', preempt);
 				}
-				if (self.errorCallback) self.errorCallback(self);
+				if (this.errorCallback) this.errorCallback(this);
 			}
 		}
 	};
-	this.endPrevAction = function () {
-		if (self.minorQueue.length) {
-			self.runMinor();
-			self.activityStep--;
+	Battle.prototype.endPrevAction = function () {
+		if (this.minorQueue.length) {
+			this.runMinor();
+			this.activityStep--;
 			return true;
 		}
-		if (self.resultWaiting || self.messageActive) {
-			self.endAction();
-			self.activityStep--;
-			self.resultWaiting = false;
-			self.multiHitMove = null;
+		if (this.resultWaiting || this.messageActive) {
+			this.endAction();
+			this.activityStep--;
+			this.resultWaiting = false;
+			this.multiHitMove = null;
 			return true;
 		}
 		return false;
 	};
-	this.checkActive = function (poke) {
+	Battle.prototype.checkActive = function (poke) {
 		if (!poke.side.active[poke.slot]) {
 			// SOMEONE jumped in in the middle of a replay. <_<
 			poke.side.replace(poke);
 		}
 		return false;
 	};
-	this.waitForResult = function () {
-		if (self.endPrevAction()) return true;
-		self.resultWaiting = true;
+	Battle.prototype.waitForResult = function () {
+		if (this.endPrevAction()) return true;
+		this.resultWaiting = true;
 		return false;
 	};
-	this.doBeforeThis = function (act) {
+	Battle.prototype.doBeforeThis = function (act) {
 		if (act()) {
-			self.activityStep--;
+			this.activityStep--;
 			return true;
 		}
 		return false;
 	};
-	this.doAfterThis = function (act) {
+	Battle.prototype.doAfterThis = function (act) {
 		this.activityAfter = act;
 	};
 
-	// activity queue
-	this.animationDelay = 0;
-	this.activityStep = 0;
-	this.activityDelay = 0;
-	this.activityQueue = [];
-	this.preemptActivityQueue = [];
-	this.activityAfter = null;
-	this.activityAnimations = $();
-	this.activityQueueActive = false;
-	this.fastForward = false;
-	this.minorQueue = [];
-	this.resultWaiting = false;
-	this.multiHitMove = null;
+	Battle.prototype.queue1 = function () {
+		if (this.activeQueue === this.queue1) this.nextActivity();
+	};
+	Battle.prototype.queue2 = function () {
+		if (this.activeQueue === this.queue2) this.nextActivity();
+	};
+	Battle.prototype.swapQueues = function () {
+		if (this.activeQueue === this.queue1) this.activeQueue = this.queue2;
+		else this.activeQueue = this.queue2;
+	};
 
-	this.queue1 = function () {
-		if (self.activeQueue === self.queue1) self.nextActivity();
-	};
-	this.queue2 = function () {
-		if (self.activeQueue === self.queue2) self.nextActivity();
-	};
-	this.swapQueues = function () {
-		if (self.activeQueue === self.queue1) self.activeQueue = self.queue2;
-		else self.activeQueue = self.queue2;
-	};
-	this.activeQueue = this.queue1;
-
-	this.pause = function () {
-		self.paused = true;
-		self.playbackState = 3;
-		if (self.resumeButton) {
-			self.frameElem.append('<div class="playbutton"><button data-action="resume"><i class="icon-play"></i> Resume</button></div>');
-			self.frameElem.find('div.playbutton button').click(self.resumeButton);
+	Battle.prototype.pause = function () {
+		this.paused = true;
+		this.playbackState = 3;
+		if (this.resumeButton) {
+			this.frameElem.append('<div class="playbutton"><button data-action="resume"><i class="icon-play"></i> Resume</button></div>');
+			this.frameElem.find('div.playbutton button').click(this.resumeButton);
 		}
-		self.soundPause();
+		this.soundPause();
 	};
-	this.play = function () {
-		if (self.fastForward) {
-			self.paused = false;
-			self.playbackState = 5;
-		} else if (self.paused) {
-			self.paused = false;
-			if (self.playbackState === 1) {
-				self.soundStop();
+	Battle.prototype.play = function () {
+		if (this.fastForward) {
+			this.paused = false;
+			this.playbackState = 5;
+		} else if (this.paused) {
+			this.paused = false;
+			if (this.playbackState === 1) {
+				this.soundStop();
 			}
-			self.playbackState = 2;
-			if (!self.done) {
-				self.soundStart();
+			this.playbackState = 2;
+			if (!this.done) {
+				this.soundStart();
 			}
-			self.nextActivity();
+			this.nextActivity();
 		}
-		self.frameElem.find('div.playbutton').remove();
+		this.frameElem.find('div.playbutton').remove();
 	};
-	this.skipTurn = function () {
-		self.fastForwardTo(self.turn + 1);
+	Battle.prototype.skipTurn = function () {
+		this.fastForwardTo(this.turn + 1);
 	};
-	this.fastForwardTo = function (time) {
-		self.playbackState = 5;
-		if (self.fastForward) return;
+	Battle.prototype.fastForwardTo = function (time) {
+		this.playbackState = 5;
+		if (this.fastForward) return;
 		time = parseInt(time);
 		if (isNaN(time)) return;
-		if (self.activityStep >= self.activityQueue.length - 1 && time >= self.turn + 1 && !self.activityQueueActive) return;
-		if (self.done && time >= self.turn + 1) return;
-		self.messagebarElem.empty().css({
+		if (this.activityStep >= this.activityQueue.length - 1 && time >= this.turn + 1 && !this.activityQueueActive) return;
+		if (this.done && time >= this.turn + 1) return;
+		this.messagebarElem.empty().css({
 			opacity: 0,
 			height: 0
 		});
-		if (time <= self.turn && time !== -1) {
-			var paused = self.paused;
-			self.reset();
-			self.activityQueueActive = true;
-			if (paused) self.pause();
-			else self.paused = false;
-			self.fastForward = time;
-			self.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
+		if (time <= this.turn && time !== -1) {
+			var paused = this.paused;
+			this.reset();
+			this.activityQueueActive = true;
+			if (paused) this.pause();
+			else this.paused = false;
+			this.fastForward = time;
+			this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
 			$.fx.off = true;
-			self.swapQueues();
-			self.nextActivity();
+			this.swapQueues();
+			this.nextActivity();
 			return;
 		}
-		self.fxElem.empty();
-		self.fastForward = time;
-		self.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
+		this.fxElem.empty();
+		this.fastForward = time;
+		this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
 		$.fx.off = true;
-		if (self.yourSide.active[0] && self.yourSide.active[0].sprite) {
-			self.yourSide.active[0].sprite.animReset();
+		if (this.yourSide.active[0] && this.yourSide.active[0].sprite) {
+			this.yourSide.active[0].sprite.animReset();
 		}
-		if (self.mySide.active[0] && self.mySide.active[0].sprite) {
-			self.mySide.active[0].sprite.animReset();
+		if (this.mySide.active[0] && this.mySide.active[0].sprite) {
+			this.mySide.active[0].sprite.animReset();
 		}
-		self.swapQueues();
-		self.nextActivity();
+		this.swapQueues();
+		this.nextActivity();
 	};
-	this.fastForwardOff = function () {
-		self.fastForward = false;
-		self.elem.find('.seeking').remove();
+	Battle.prototype.fastForwardOff = function () {
+		this.fastForward = false;
+		this.elem.find('.seeking').remove();
 		$.fx.off = false;
-		self.playbackState = 2;
+		this.playbackState = 2;
 	};
-	this.nextActivity = function () {
-		if (self.paused && !self.fastForward) {
+	Battle.prototype.nextActivity = function () {
+		if (this.paused && !this.fastForward) {
 			return;
 		}
-		self.activityQueueActive = true;
-		self.fxElem.empty();
-		self.animationDelay = 0;
+		this.activityQueueActive = true;
+		this.fxElem.empty();
+		this.animationDelay = 0;
 		while (true) {
-			self.activityAnimations = $();
-			if (self.activityStep >= self.activityQueue.length) {
-				self.activityQueueActive = false;
-				self.paused = true;
-				self.fastForwardOff();
-				if (self.done) {
-					self.soundStop();
+			this.activityAnimations = $();
+			if (this.activityStep >= this.activityQueue.length) {
+				this.activityQueueActive = false;
+				this.paused = true;
+				this.fastForwardOff();
+				if (this.done) {
+					this.soundStop();
 				}
-				self.playbackState = 4;
-				if (self.endCallback) self.endCallback(self);
+				this.playbackState = 4;
+				if (this.endCallback) this.endCallback(this);
 				return;
 			}
 			var ret;
-			if (self.activityAfter) {
-				ret = self.activityAfter();
-				self.activityAfter = null;
+			if (this.activityAfter) {
+				ret = this.activityAfter();
+				this.activityAfter = null;
 			}
-			if (self.paused && !self.fastForward) return;
+			if (this.paused && !this.fastForward) return;
 			if (!ret) {
-				self.run(self.activityQueue[self.activityStep]);
-				self.activityStep++;
+				this.run(this.activityQueue[this.activityStep]);
+				this.activityStep++;
 			}
-			if (self.activityDelay) {
-				self.delayElem.delay(self.activityDelay);
-				self.activityWait(self.delayElem);
-				self.activityDelay = 0;
+			if (this.activityDelay) {
+				this.delayElem.delay(this.activityDelay);
+				this.activityWait(this.delayElem);
+				this.activityDelay = 0;
 			}
-			if (self.activityAnimations.length) break;
+			if (this.activityAnimations.length) break;
 		}
-		self.activityAnimations.promise().done(self.activeQueue);
+		var self = this;
+		this.activityAnimations.promise().done(this.activeQueue.bind(this));
 	};
-	this.activityWait = function (elem) {
-		if (typeof elem === 'number' && elem > self.activityDelay) {
-			self.activityDelay = elem;
+	Battle.prototype.activityWait = function (elem) {
+		if (typeof elem === 'number' && elem > this.activityDelay) {
+			this.activityDelay = elem;
 			return;
 		}
-		self.activityAnimations = self.activityAnimations.add(elem);
+		this.activityAnimations = this.activityAnimations.add(elem);
 	};
 
-	this.newBattle = function () {
-		self.reset();
-		self.activityQueue = [];
+	Battle.prototype.newBattle = function () {
+		this.reset();
+		this.activityQueue = [];
 	};
-	this.setQueue = function (queue) {
-		self.reset();
-		self.activityQueue = queue;
+	Battle.prototype.setQueue = function (queue) {
+		this.reset();
+		this.activityQueue = queue;
 
 		/* for (var i = 0; i < queue.length && i < 20; i++) {
 			if (queue[i].substr(0, 8) === 'pokemon ') {
-				var sp = self.parseSpriteData(queue[i].substr(8));
+				var sp = this.parseSpriteData(queue[i].substr(8));
 				BattleSound.loadEffect(sp.cryurl);
-				self.preloadImage(sp.url);
+				this.preloadImage(sp.url);
 				if (sp.url === '/sprites/bwani/meloetta.gif') {
-					self.preloadImage('/sprites/bwani/meloetta-pirouette.gif');
+					this.preloadImage('/sprites/bwani/meloetta-pirouette.gif');
 				}
 				if (sp.url === '/sprites/bwani-back/meloetta.gif') {
-					self.preloadImage('/sprites/bwani-back/meloetta-pirouette.gif');
+					this.preloadImage('/sprites/bwani-back/meloetta-pirouette.gif');
 				}
 			}
 		} */
-		self.playbackState = 1;
+		this.playbackState = 1;
 	};
 
-	// callback
-	this.faintCallback = null;
-	this.switchCallback = null;
-	this.dragCallback = null;
-	this.turnCallback = null;
-	this.startCallback = null;
-	this.stagnateCallback = null;
-	this.endCallback = null;
-	this.customCallback = null;
-	this.errorCallback = null;
-
-	// external
-	this.resumeButton = this.play;
-
-	this.preloadCache = {};
-	this.preloadDone = 0;
-	this.preloadNeeded = 0;
-	this.bgm = null;
-
-	this.mute = false;
-
-	this.preloadImage = function (url) {
-		if (noPreload) return;
+	Battle.prototype.preloadImage = function (url) {
+		if (this.noPreload) return;
 		var token = url.replace(/\.(gif|png)$/, '').replace(/\//g, '-');
-		if (self.preloadCache[token]) {
+		if (this.preloadCache[token]) {
 			return;
 		}
-		self.preloadNeeded++;
-		self.preloadCache[token] = new Image();
-		self.preloadCache[token].onload = function () {
+		this.preloadNeeded++;
+		this.preloadCache[token] = new Image();
+		var self = this;
+		this.preloadCache[token].onload = function () {
 			self.preloadDone++;
 			self.preloadCallback(self.preloadNeeded === self.preloadDone, self.preloadDone, self.preloadNeeded);
 		};
-		self.preloadCache[token].src = url;
+		this.preloadCache[token].src = url;
 	};
-	this.preloadCallback = function () {};
-	this.preloadEffects = function () {
-		if (noPreload) return;
+	Battle.prototype.preloadCallback = function () {};
+	Battle.prototype.preloadEffects = function () {
+		if (this.noPreload) return;
 		for (var i in BattleEffects) {
-			if (BattleEffects[i].url) self.preloadImage(BattleEffects[i].url);
+			if (BattleEffects[i].url) this.preloadImage(BattleEffects[i].url);
 		}
-		self.preloadImage(Tools.resourcePrefix + 'fx/weather-raindance.jpg'); // rain is used often enough to precache
-		self.preloadImage(Tools.resourcePrefix + 'sprites/bw/substitute.png');
-		self.preloadImage(Tools.resourcePrefix + 'sprites/bw-back/substitute.png');
-		//self.preloadImage(Tools.resourcePrefix + 'fx/bg.jpg');
+		this.preloadImage(Tools.resourcePrefix + 'fx/weather-raindance.jpg'); // rain is used often enough to precache
+		this.preloadImage(Tools.resourcePrefix + 'sprites/bw/substitute.png');
+		this.preloadImage(Tools.resourcePrefix + 'sprites/bw-back/substitute.png');
+		//this.preloadImage(Tools.resourcePrefix + 'fx/bg.jpg');
 	};
-	self.bgm = null;
-	this.dogarsCheck = function(pokemon) {
+	Battle.prototype.dogarsCheck = function (pokemon) {
 		if (pokemon.side.n === 1) return;
 
 		if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) {
 			if (window.forceBgm !== -1) {
 				window.originalBgm = window.bgmNum;
 				window.forceBgm = -1;
-				self.preloadBgm();
-				self.soundStart();
+				this.preloadBgm();
+				this.soundStart();
 			}
 		} else if (window.forceBgm === -1) {
 			window.forceBgm = null;
 			if (window.originalBgm || window.originalBgm === 0) {
 				window.forceBgm = window.originalBgm;
 			}
-			self.preloadBgm();
-			self.soundStart();
+			this.preloadBgm();
+			this.soundStart();
 		}
 	};
-	this.preloadBgm = function() {
+	Battle.prototype.preloadBgm = function () {
 		var bgmNum = Math.floor(Math.random() * 11);
 
 		if (window.forceBgm || window.forceBgm === 0) bgmNum = window.forceBgm;
@@ -5653,79 +5712,67 @@ function Battle(frame, logFrame, noPreload) {
 		switch (bgmNum) {
 		case -1:
 			BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 1661, 68131);
-			self.bgm = 'audio/bw2-homika-dogars.mp3';
+			this.bgm = 'audio/bw2-homika-dogars.mp3';
 			break;
 		case 0:
 			BattleSound.loadBgm('audio/hgss-kanto-trainer.mp3', 13003, 94656);
-			self.bgm = 'audio/hgss-kanto-trainer.mp3';
+			this.bgm = 'audio/hgss-kanto-trainer.mp3';
 			break;
 		case 1:
 			BattleSound.loadBgm('audio/bw-subway-trainer.mp3', 15503, 110984);
-			self.bgm = 'audio/bw-subway-trainer.mp3';
+			this.bgm = 'audio/bw-subway-trainer.mp3';
 			break;
 		case 2:
 			BattleSound.loadBgm('audio/bw-trainer.mp3', 14629, 110109);
-			self.bgm = 'audio/bw-trainer.mp3';
+			this.bgm = 'audio/bw-trainer.mp3';
 			break;
 		case 3:
 			BattleSound.loadBgm('audio/bw-rival.mp3', 19180, 57373);
-			self.bgm = 'audio/bw-rival.mp3';
+			this.bgm = 'audio/bw-rival.mp3';
 			break;
 		case 4:
 			BattleSound.loadBgm('audio/dpp-trainer.mp3', 13440, 96959);
-			self.bgm = 'audio/dpp-trainer.mp3';
+			this.bgm = 'audio/dpp-trainer.mp3';
 			break;
 		case 5:
 			BattleSound.loadBgm('audio/hgss-johto-trainer.mp3', 23731, 125086);
-			self.bgm = 'audio/hgss-johto-trainer.mp3';
+			this.bgm = 'audio/hgss-johto-trainer.mp3';
 			break;
 		case 6:
 			BattleSound.loadBgm('audio/dpp-rival.mp3', 13888, 66352);
-			self.bgm = 'audio/dpp-rival.mp3';
+			this.bgm = 'audio/dpp-rival.mp3';
 			break;
 		case 7:
 			BattleSound.loadBgm('audio/bw2-kanto-gym-leader.mp3', 14626, 58986);
-			self.bgm = 'audio/bw2-kanto-gym-leader.mp3';
+			this.bgm = 'audio/bw2-kanto-gym-leader.mp3';
 			break;
 		case 8:
 			BattleSound.loadBgm('audio/bw2-rival.mp3', 7152, 68708);
-			self.bgm = 'audio/bw2-rival.mp3';
+			this.bgm = 'audio/bw2-rival.mp3';
 			break;
 		case 9:
 			BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469);
-			self.bgm = 'audio/xy-trainer.mp3';
+			this.bgm = 'audio/xy-trainer.mp3';
 			break;
 		default:
 			BattleSound.loadBgm('audio/xy-rival.mp3', 7802, 58634);
-			self.bgm = 'audio/xy-rival.mp3';
+			this.bgm = 'audio/xy-rival.mp3';
 			break;
 		}
 	};
-	this.setMute = function (mute) {
+	Battle.prototype.setMute = function (mute) {
 		BattleSound.setMute(mute);
 	};
-	this.soundStart = function () {
+	Battle.prototype.soundStart = function () {
 		if (!this.bgm) this.preloadBgm();
 		BattleSound.playBgm(this.bgm);
 	};
-	this.soundStop = function () {
+	Battle.prototype.soundStop = function () {
 		BattleSound.stopBgm();
 	};
-	this.soundPause = function () {
+	Battle.prototype.soundPause = function () {
 		BattleSound.pauseBgm();
 	};
 
-	this.messageDelay = 8;
-
-	this.preloadEffects();
-
-	self.init();
-}
-
-/*
-
-			self.lastmove = 'healing-wish';
-				Tools.getMove('HealingWish').residualAnim(self, [pokemon.sprite]);
-				pokemon.side.wisher = null;
-
-*/
+	return Battle;
+})();
