@@ -3480,7 +3480,7 @@ function Battle(frame, logFrame, noPreload) {
 					actions += "" + poke.getName() + " is already frozen.";
 					break;
 				case 'hyperspacefury':
-					if (toId(poke.baseSpecies) === 'hoopa') {
+					if (kwargs.forme) {
 						actions += 'But ' + poke.getLowerName() + ' can\'t use it the way it is now!';
 					} else {
 						actions += 'But ' + poke.getLowerName() + ' can\'t use the move!';
