@@ -976,7 +976,7 @@
 				}
 				if (pokemon.stats) {
 					text += '<p>' + pokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + pokemon.stats['def'] + '&nbsp;Def /&nbsp;' + pokemon.stats['spa'] + '&nbsp;SpA /&nbsp;' + pokemon.stats['spd'] + '&nbsp;SpD /&nbsp;' + pokemon.stats['spe'] + '&nbsp;Spe</p>';
-				} else {
+				} else if (template.baseStats) {
 					var minSpe;
 					var maxSpe;
 					if (this.battle.tier === 'Random Battle') {
