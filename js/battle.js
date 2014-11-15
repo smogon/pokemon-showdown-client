@@ -3541,6 +3541,11 @@ var Battle = (function () {
 				if (poke) {
 					this.resultAnim(poke, 'Failed', 'neutral', animDelay);
 				}
+				// Sky Drop blocking moves takes priority over all other moves
+				if (fromeffect.id === 'skydrop') {
+					actions += "Sky Drop won't let " + poke.getLowerName() + " go!";
+					break;
+				}
 				switch (effect.id) {
 				case 'brn':
 					this.resultAnim(poke, 'Already burned', 'neutral', animDelay);
@@ -3578,6 +3583,9 @@ var Battle = (function () {
 					} else {
 						actions += 'But ' + poke.getLowerName() + ' can\'t use the move!';
 					}
+					break;
+				case 'magikarpsrevenge':
+					actions += 'But ' + poke.getLowerName() + ' can\'t use the move!';
 					break;
 				case 'substitute':
 					if (kwargs.weak) {
@@ -4030,6 +4038,10 @@ var Battle = (function () {
 				var spriteData = {'shiny': poke.sprite.sp.shiny};
 				if (kwargs.msg) {
 					actions += "" + poke.getName() + " transformed!";
+				} else if (toId(template.species) === 'darmanitanzen') {
+					actions += "Zen Mode triggered!";
+				} else if (toId(template.species) === 'darmanitan') {
+					actions += "Zen Mode ended!"
 				}
 				poke.sprite.animTransform($.extend(spriteData, template));
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
@@ -4298,6 +4310,10 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Heal Block ended', 'good', animDelay);
 					actions += "" + poke.getName() + "'s Heal Block wore off!";
 					break;
+				case 'attract':
+					this.resultAnim(poke, 'Attract&nbsp;ended', 'good', animDelay);
+					actions += '' + poke.getName() + " got over its infatuation.";
+					break;
 				case 'taunt':
 					this.resultAnim(poke, 'Taunt&nbsp;ended', 'good', animDelay);
 					actions += '' + poke.getName() + "'s taunt wore off!";
@@ -4493,6 +4509,9 @@ var Battle = (function () {
 					ofpoke.removeSideCondition('Reflect');
 					ofpoke.removeSideCondition('LightScreen');
 					break;
+				case 'beatup':
+					actions += "" + Tools.escapeHTML(kwargs.of) + "'s attack!";
+					break;
 				case 'pursuit':
 					actions += "" + poke.getName() + " is being sent back!";
 					break;
@@ -4620,7 +4639,7 @@ var Battle = (function () {
 					actions += '' + poke.getName() + '\'s ' + effect.name + ' let it move first!';
 					break;
 				case 'leppaberry':
-					actions += '' + poke.getName() + " restored " + Tools.escapeHTML(args[3]) + "'s PP using its Leppa Berry!";
+					actions += '' + poke.getName() + " restored PP to its " + Tools.escapeHTML(args[3]) + " move using its Leppa Berry!";
 					break;
 				case 'focusband':
 					actions += '' + poke.getName() + " hung on using its Focus Band!";
