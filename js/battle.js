@@ -3543,7 +3543,7 @@ var Battle = (function () {
 				}
 				// Sky Drop blocking moves takes priority over all other moves
 				if (fromeffect.id === 'skydrop') {
-					actions += "Sky Drop won't let " + poke.getLowerName() + " go!";
+					actions += '(Sky Drop prevented ' + pokemon.getLowerName() + ' from moving.)';
 					break;
 				}
 				switch (effect.id) {
