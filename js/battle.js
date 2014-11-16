@@ -1469,10 +1469,10 @@ var Side = (function () {
 			curelem = this.battle.spriteElemsFront[this.n].children().last();
 			curelem.css(this.battle.pos({
 				display: 'block',
-				x: this.x,
-				y: this.y-15,
+				x: this.x + 15,
+				y: this.y - 35,
 				z: this.z,
-				opacity: 0.5,
+				opacity: 0.4,
 				scale: 0.7
 			}, BattleEffects.web));
 			elem = curelem;
@@ -3529,6 +3529,7 @@ var Battle = (function () {
 				var target = this.getPokemon(args[2]);
 				if (target) {
 					actions += "" + target.getName() + " avoided the attack!";
+					this.resultAnim(target, 'Missed', 'neutral', animDelay);
 				} else {
 					actions += "" + user.getName() + "'s attack missed!";
 				}
