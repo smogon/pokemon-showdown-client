@@ -841,6 +841,6 @@ BattlePokemonSprites = {
 	"diancie": {num:719, front:{ani:{w:50,h:90}}, back:{ani:{w:50,h:90}}},
 	"dianciemega": {num:719, front:{ani:{w:120,h:120}}, back:{ani:{w:120,h:120}}},	
 	"hoopa": {num:720, front:{ani:{w:50,h:90}}, back:{ani:{w:67,h:71}}},
-	"hoopamega": {num:720, front:{ani:{w:73,h:68}}, back:{ani:{w:120,h:120}}},
+	"hoopaunbound": {num:720, front:{ani:{w:73,h:68}}, back:{ani:{w:120,h:120}}},
 	"volcanion": {num:719, front:{ani:{w:96,h:91}}, back:{ani:{w:92,h:96}}}	
 };
