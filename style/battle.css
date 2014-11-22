@@ -392,7 +392,7 @@ License: GPLv2
 .trainer
 {
 	text-align: center;
-	margin-top: 180px;
+	margin-top: 160px;
 }
 .rightbar .trainer
 {
@@ -405,7 +405,7 @@ License: GPLv2
 	margin-bottom: 2px;
 	overflow: hidden;
 }
-.trainer div
+.trainer .trainersprite
 {
 	width: 86px;
 	height: 90px;
@@ -413,17 +413,20 @@ License: GPLv2
 	margin: 0 auto;
 	background: transparent none no-repeat scroll center top;
 }
+
 .trainer div.teamicons
 {
 	width: 100px;
-	height: 26px;
+	height: 32px;
+	display: table-row !important;
 }
-.teamicons span
+.teamicons div
 {
 	float: left;
+	display: block;
 }
 .leftbar .trainer div.trainersprite,
-.leftbar .teamicons span
+.leftbar .teampreview
 {
 	-moz-transform: scaleX(-1);
 	-webkit-transform: scaleX(-1);
@@ -818,36 +821,43 @@ License: GPLv2
 	width: 24px;
 	height: 24px;
 }
+
+.pokemonpreview
+{
+	width: 48px;
+	height: 32px;
+	display: block;
+}
+
 .pokemonicon
 {
 	display: block;
-	width: 42px;
-	height: 26px;
+	width: 40px;
+	height: 32px;
 }
 
 .pokemondata
 {
-	display: block;
 	width: 8px;
-	height: 26px;
-	position: relative;
-	left: 1px;
+	height: 32px;
+	display: block;
+	bottom: 32px;
 }
 
 .pokemongender
 {
-    display: block;
-    width: 8px;
-    height: 13px;
 	position: relative;
 	top: 4px;
+	width: 8px;
+	height: 16px;
+	display: block;
 }
 
 .pokemonitem
 {
-    display: block;
-    width: 8px;
-    height: 20px;
 	position: relative;
-	top: 4px;
+	bottom: 0px;
+	width: 8px;
+	height: 16px;
+	display: block;
 }
