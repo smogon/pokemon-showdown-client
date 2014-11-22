@@ -425,7 +425,7 @@
 			} else if (Config.testclient) {
 				this.initializeTestClient();
 			} else if (document.location.protocol === 'https:') {
-				if (!$.cookie('showdown_ssl')) {
+				/* if (!$.cookie('showdown_ssl')) {
 					// Never used HTTPS before, so we have to copy over the
 					// HTTP origin localStorage. We have to redirect to the
 					// HTTP site in order to do this. We set a cookie
@@ -434,7 +434,7 @@
 					$.cookie('showdown_ssl_convert', 1);
 					return document.location.replace('http://' + document.location.hostname +
 						document.location.pathname);
-				}
+				} */
 				// Renew the `showdown_ssl` cookie.
 				$.cookie('showdown_ssl', 1, {expires: 365*3});
 			} else if (!$.cookie('showdown_ssl')) {
@@ -673,8 +673,10 @@
 				if (!socketopened) {
 					if (Config.server.altport && !altport) {
 						if (document.location.protocol === 'https:') {
-							return document.location.replace('http://' +
-								document.location.host + document.location.pathname);
+							if (confirm("Could not connect with HTTPS. Try HTTP?")) {
+								return document.location.replace('http://' +
+									document.location.host + document.location.pathname);
+							}
 						}
 						altport = true;
 						Config.server.port = Config.server.altport;
