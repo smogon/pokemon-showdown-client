@@ -867,6 +867,14 @@ var Tools = {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-pokeball-sheet.png) no-repeat scroll -32px -8px';
 		} else if (pokemon === 'pokeball-none') {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-pokeball-sheet.png) no-repeat scroll -64px -8px';
+		} else if (pokemon === 'item') {
+			return 'background:transparent url(' + Tools.resourcePrefix + 'fx/item.png) no-repeat scroll -0px -0px';
+		} else if (pokemon === 'M') {
+			return 'background:transparent url(' + Tools.resourcePrefix + 'fx/gender-m.png) no-repeat scroll -0px -0px';
+		} else if (pokemon === 'F') {
+			return 'background:transparent url(' + Tools.resourcePrefix + 'fx/gender-f.png) no-repeat scroll -0px -0px';
+		} else if (pokemon === 'N') {
+			return '';
 		}
 		var id = toId(pokemon);
 		if (pokemon && pokemon.species) id = toId(pokemon.species);

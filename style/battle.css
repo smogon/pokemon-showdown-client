@@ -415,8 +415,8 @@ License: GPLv2
 }
 .trainer div.teamicons
 {
-	width: 97px;
-	height: 24px;
+	width: 100px;
+	height: 26px;
 }
 .teamicons span
 {
@@ -821,6 +821,33 @@ License: GPLv2
 .pokemonicon
 {
 	display: block;
-	width: 32px;
-	height: 24px;
+	width: 42px;
+	height: 26px;
+}
+
+.pokemondata
+{
+	display: block;
+	width: 8px;
+	height: 26px;
+	position: relative;
+	left: 1px;
+}
+
+.pokemongender
+{
+    display: block;
+    width: 8px;
+    height: 13px;
+	position: relative;
+	top: 4px;
+}
+
+.pokemonitem
+{
+    display: block;
+    width: 8px;
+    height: 20px;
+	position: relative;
+	top: 4px;
 }
