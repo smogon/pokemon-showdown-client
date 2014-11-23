@@ -4049,6 +4049,16 @@ var Battle = (function () {
 				poke.volatiles.formechange[2] = template.species;
 				poke.side.updateStatbar();
 				break;
+			case '-mega':
+				var poke = this.getPokemon(args[1]);
+				var item = Tools.getItem(args[2]);
+				if (poke.baseSpecies === 'Rayquaza') {
+					actions += "" + Tools.escapeHTML(poke.side.name) + "'s fervent wish has reached " + poke.getLowerName() + "!";
+				} else {
+					actions += "" + poke.getName() + "'s " + item.name + " is reacting to " + Tools.escapeHTML(poke.side.name) + "'s Mega Bracelet!";
+				}
+				actions += "<br />" + poke.getName() + " has Mega Evolved into Mega " + poke.baseSpecies + "!";
+				break;
 
 			case '-start':
 				var poke = this.getPokemon(args[1]);
