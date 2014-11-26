@@ -5601,6 +5601,7 @@ var Battle = (function () {
 			this.fastForward = time;
 			this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
 			$.fx.off = true;
+			this.elem.find(':animated').finish();
 			this.swapQueues();
 			this.nextActivity();
 			return;
@@ -5609,6 +5610,7 @@ var Battle = (function () {
 		this.fastForward = time;
 		this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
 		$.fx.off = true;
+		this.elem.find(':animated').finish();
 		if (this.yourSide.active[0] && this.yourSide.active[0].sprite) {
 			this.yourSide.active[0].sprite.animReset();
 		}
