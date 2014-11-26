@@ -711,7 +711,7 @@
 
 				if (format.section && format.section !== curSection) {
 					curSection = format.section;
-					if (!BattleFormats._supportsColumns) {
+					if (!app.supports['formatColumns']) {
 						curBuf = (curSection === 'Doubles' || curSection === 'Past Generations') ? 2 : 1;
 					} else {
 						curBuf = format.column || 1;
