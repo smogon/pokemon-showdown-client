@@ -222,11 +222,12 @@
 
 			this.user = new User();
 			this.ignore = {};
+			this.supports = {};
 
 			// down
 			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = 'dos';
 			if (document.location.hostname === 'play.pokemonshowdown.com') {
-				app.supportsRooms = true;
+				app.supports['rooms'] = true;
 			}
 
 			this.topbar = new Topbar({el: $('#header')});
@@ -987,7 +988,7 @@
 					};
 				}
 			}
-			BattleFormats._supportsColumns = columnChanged;
+			if (columnChanged) app.supports['formatColumns'] = true;
 			this.trigger('init:formats');
 		},
 		uploadReplay: function(data) {
@@ -1015,7 +1016,7 @@
 			});
 		},
 		roomsResponse: function(data) {
-			this.supportsRooms = true;
+			app.supports['rooms'] = true;
 			if (data) {
 				this.roomsData = data;
 			}
@@ -1519,7 +1520,7 @@
 					this.curSideRoomLeft = id;
 				}
 			}
-			if (app.supportsRooms) {
+			if (app.supports['rooms']) {
 				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
@@ -2574,7 +2575,7 @@
 				}
 				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 			}
-			if (app.supportsRooms) {
+			if (app.supports['rooms']) {
 				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
