@@ -53,7 +53,33 @@
 				this.$el.html(buf);
 				return;
 			}
+			var $roomlistElem = this.$('.roomlist');
+			if ($roomlistElem.length) {
+				$roomlistElem.html(this.renderRoomList());
+				return;
+			}
+			if (!app.roomsFirstOpen && window.location.host !== 'demo.psim.us') {
+				if (Config.roomsFirstOpenBuffer) {
+					buf += Config.roomsFirstOpenBuffer();
+				}
+				app.roomsFirstOpen = 1;
+			}
 			buf += '<div class="roomlist" style="max-width:480px">';
+
+			buf += this.renderRoomList();
+
+			buf += '</div></div>';
+			this.$el.html(buf);
+			if (app.roomsFirstOpen === 1) {
+				if (Config.roomsFirstOpenScript) {
+					buf += Config.roomsFirstOpenScript();
+				}
+				app.roomsFirstOpen = 2;
+			}
+		},
+		renderRoomList: function() {
+			var rooms = app.roomsData;
+			var buf = '';
 
 			if (rooms.userCount) {
 				var userCount = Number(rooms.userCount);
@@ -84,8 +110,7 @@
 
 			buf += '<p><button name="joinRoomPopup">Join other room</button></p>';
 
-			buf += '</div></div>';
-			this.$el.html(buf);
+			return buf;
 		}
 	});
 
