@@ -436,6 +436,7 @@
 				return false;
 
 			case 'ignore':
+				if (!target) return '/help ignore';
 				if (app.ignore[toUserid(target)]) {
 					this.add('User ' + target + ' is already on your ignore list. (Moderator messages will not be ignored.)');
 				} else {
@@ -445,6 +446,7 @@
 				return false;
 
 			case 'unignore':
+				if (!target) return '/help unignore';
 				if (!app.ignore[toUserid(target)]) {
 					this.add('User ' + target + ' isn\'t on your ignore list.');
 				} else {
