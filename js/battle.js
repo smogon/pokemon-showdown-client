@@ -178,6 +178,7 @@ var Pokemon = (function () {
 		this.hpcolor = '';
 		this.moves = [];
 		this.ability = '';
+		this.baseAbility = '';
 		this.item = '';
 		this.species = species;
 		this.fainted = false;
@@ -609,6 +610,7 @@ var Pokemon = (function () {
 		return 'bad';
 	};
 	Pokemon.prototype.clearVolatile = function () {
+		this.ability = this.baseAbility;
 		this.atk = this.atkStat;
 		this.def = this.defStat;
 		this.spa = this.spaStat;
@@ -3933,6 +3935,9 @@ var Battle = (function () {
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.ability = ability.name;
+				if (!effect.id || kwargs.fail) {
+					if (!poke.baseAbility) poke.baseAbility = ability.name;
+				}
 
 				if (kwargs.silent) {
 					// do nothing
@@ -4013,6 +4018,8 @@ var Battle = (function () {
 				} else switch (effect.id) {
 				case 'mummy':
 					actions += "[" + poke.getName() + "\'s " + ability.name + "] " + poke.name + "'s Ability became Mummy!";
+					if (!poke.baseAbility) poke.baseAbility = ability.name;
+					poke.ability = 'Mummy';
 					break;
 				default:
 					actions += "" + poke.getName() + "\'s Ability was suppressed!";
@@ -4546,11 +4553,21 @@ var Battle = (function () {
 					break;
 				case 'skillswap':
 					actions += "" + poke.getName() + " swapped Abilities with its target!";
-					if (ofpoke && poke.side !== ofpoke.side) {
-						this.resultAnim(poke, Tools.escapeHTML(args[3]), 'neutral', 1);
-						this.resultAnim(ofpoke, Tools.escapeHTML(args[4]), 'neutral', 4);
-						actions += "<br />" + poke.getName() + " acquired " + Tools.escapeHTML(args[3]) + "!";
-						actions += "<br />" + ofpoke.getName() + " acquired " + Tools.escapeHTML(args[4]) + "!";
+					var pokeability = Tools.escapeHTML(args[3]) || ofpoke.ability;
+					var ofpokeability = Tools.escapeHTML(args[4]) || poke.ability;
+					if (pokeability) {
+						poke.ability = pokeability;
+						if (!ofpoke.baseAbility) ofpoke.baseAbility = pokeability;
+					}
+					if (ofpokeability) {
+						ofpoke.ability = ofpokeability;
+						if (!poke.baseAbility) poke.baseAbility = ofpokeability;
+					}
+					if (poke.side !== ofpoke.side) {
+						this.resultAnim(poke, pokeability, 'neutral', 1);
+						this.resultAnim(ofpoke, ofpokeability, 'neutral', 4);
+						actions += "<br />" + poke.getName() + " acquired " + pokeability + "!";
+						actions += "<br />" + ofpoke.getName() + " acquired " + ofpokeability + "!";
 					}
 					break;
 				case 'charge':
