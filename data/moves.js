@@ -2515,6 +2515,7 @@ exports.BattleMovedex = {
 		desc: "Deals damage to all adjacent foes with a 50% chance to raise the user's Defense by 1 stage.",
 		shortDesc: "Hits all adjacent foes. 50% chance to boost Def by 1.",
 		id: "diamondstorm",
+		isViable: true,
 		name: "Diamond Storm",
 		pp: 5,
 		priority: 0,
@@ -2899,6 +2900,7 @@ exports.BattleMovedex = {
 		desc: "Deals damage to one adjacent or non-adjacent target and lowers the user's Defense and Special Defense by 1 stage. Makes contact.",
 		shortDesc: "Lowers the user's Defense and Sp. Def by 1.",
 		id: "dragonascent",
+		isViable: true,
 		name: "Dragon Ascent",
 		pp: 5,
 		priority: 0,
@@ -4955,7 +4957,7 @@ exports.BattleMovedex = {
 		effect: {
 			onStart: function (pokemon) {
 				this.add('-endability', pokemon);
-				this.runEvent('EndAbility', pokemon, pokemon.ability);
+				this.singleEvent('End', this.getAbility(pokemon.ability), pokemon.abilityData, pokemon, pokemon, 'gastroacid');
 			},
 			onModifyPokemonPriority: 2,
 			onModifyPokemon: function (pokemon) {
@@ -5835,7 +5837,7 @@ exports.BattleMovedex = {
 		priority: 0,
 		isSnatchable: true,
 		onTryHit: function (pokemon, target, move) {
-			if (pokemon.side.pokemonLeft <= 1) {
+			if (!this.canSwitch(pokemon.side)) {
 				delete move.selfdestruct;
 				return false;
 			}
@@ -5844,19 +5846,29 @@ exports.BattleMovedex = {
 		sideCondition: 'healingwish',
 		effect: {
 			duration: 2,
-			onStart: function (side) {
+			onStart: function (side, source) {
 				this.debug('Healing Wish started on ' + side.name);
+				this.effectData.positions = [];
+				for (var i = 0; i < side.active.length; i++) {
+					this.effectData.positions[i] = false;
+				}
+				this.effectData.positions[source.position] = true;
+			},
+			onRestart: function (side, source) {
+				this.effectData.positions[source.position] = true;
 			},
 			onSwitchInPriority: 1,
 			onSwitchIn: function (target) {
-				if (target.position !== this.effectData.sourcePosition) {
+				if (!this.effectData.positions[target.position]) {
 					return;
 				}
 				if (!target.fainted) {
-					var source = this.effectData.source;
-					var damage = target.heal(target.maxhp);
+					target.heal(target.maxhp);
 					target.setStatus('');
 					this.add('-heal', target, target.getHealth, '[from] move: Healing Wish');
+					this.effectData.positions[target.position] = false;
+				}
+				if (!this.effectData.positions.any(true)) {
 					target.side.removeSideCondition('healingwish');
 				}
 			}
@@ -6547,7 +6559,7 @@ exports.BattleMovedex = {
 		num: 621,
 		accuracy: true,
 		basePower: 100,
-		category: "Special",
+		category: "Physical",
 		desc: "Deals damage to one adjacent target and breaks through Protect and Detect for this turn, allowing other Pokemon to attack the target normally. Lowers the user's Defense by 1 stage. Makes contact.",
 		shortDesc: "Breaks protect and lowers user's Def. by 1.",
 		id: "hyperspacefury",
@@ -7649,7 +7661,7 @@ exports.BattleMovedex = {
 		priority: 0,
 		isSnatchable: true,
 		onTryHit: function (pokemon, target, move) {
-			if (pokemon.side.pokemonLeft <= 1) {
+			if (!this.canSwitch(pokemon.side)) {
 				delete move.selfdestruct;
 				return false;
 			}
@@ -7658,8 +7670,16 @@ exports.BattleMovedex = {
 		sideCondition: 'lunardance',
 		effect: {
 			duration: 2,
-			onStart: function (side) {
+			onStart: function (side, source) {
 				this.debug('Lunar Dance started on ' + side.name);
+				this.effectData.positions = [];
+				for (var i = 0; i < side.active.length; i++) {
+					this.effectData.positions[i] = false;
+				}
+				this.effectData.positions[source.position] = true;
+			},
+			onRestart: function (side, source) {
+				this.effectData.positions[source.position] = true;
 			},
 			onSwitchInPriority: 1,
 			onSwitchIn: function (target) {
@@ -7667,13 +7687,15 @@ exports.BattleMovedex = {
 					return;
 				}
 				if (!target.fainted) {
-					var source = this.effectData.source;
-					var damage = target.heal(target.maxhp);
+					target.heal(target.maxhp);
 					target.setStatus('');
 					for (var m in target.moveset) {
 						target.moveset[m].pp = target.moveset[m].maxpp;
 					}
 					this.add('-heal', target, target.getHealth, '[from] move: Lunar Dance');
+					this.effectData.positions[target.position] = false;
+				}
+				if (!this.effectData.positions.any(true)) {
 					target.side.removeSideCondition('lunardance');
 				}
 			}
@@ -9177,6 +9199,7 @@ exports.BattleMovedex = {
 		desc: "Deals damage to all adjacent foes.",
 		shortDesc: "Deals damage to all adjacent foes.",
 		id: "originpulse",
+		isViable: true,
 		name: "Origin Pulse",
 		pp: 10,
 		priority: 0,
@@ -9896,6 +9919,7 @@ exports.BattleMovedex = {
 		desc: "Deals damage to all adjacent foes.",
 		shortDesc: "Deals damage to all adjacent foes.",
 		id: "precipiceblades",
+		isViable: true,
 		name: "Precipice Blades",
 		pp: 10,
 		priority: 0,
@@ -11949,26 +11973,19 @@ exports.BattleMovedex = {
 			}
 		},
 		onHit: function (target, source, move) {
-			var targetAbility = target.ability;
-			var sourceAbility = source.ability;
-			if (!target.setAbility(sourceAbility, source, move, true) || !source.setAbility(targetAbility, source, move, true)) {
-				target.ability = targetAbility;
-				source.ability = sourceAbility;
-				return false;
+			var targetAbility = this.getAbility(target.ability);
+			var sourceAbility = this.getAbility(source.ability);
+			this.add('-activate', source, 'move: Skill Swap', targetAbility, sourceAbility, '[of] ' + target);
+			if (targetAbility.id !== sourceAbility.id) {
+				source.battle.singleEvent('End', sourceAbility, source.abilityData, source);
+				target.battle.singleEvent('End', targetAbility, target.abilityData, target);
+				source.ability = targetAbility.id;
+				target.ability = sourceAbility.id;
+				source.abilityData = {id: source.ability.id, target: source};
+				target.abilityData = {id: target.ability.id, target: target};
 			}
-			this.add('-activate', source, 'move: Skill Swap', this.getAbility(targetAbility), this.getAbility(sourceAbility), '[of] ' + target);
-
-			// Change the source of an ORAS weather (will this really happen in-game?)
-			var weather = this.getWeather();
-			if (weather.id in {desolateland:1, primordialsea:1, deltastream:1}) {
-				var weatherSource = this.weatherData.source;
-				if (weatherSource === source) {
-					this.weatherData.source = target;
-				} else if (weatherSource === target) {
-					this.weatherData.source = source;
-				}
-				this.debug(this.weatherData.source);
-			}
+			source.battle.singleEvent('Start', targetAbility, source.abilityData, source);
+			target.battle.singleEvent('Start', sourceAbility, target.abilityData, target);
 		},
 		secondary: false,
 		target: "normal",
