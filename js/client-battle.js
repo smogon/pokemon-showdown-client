@@ -689,9 +689,9 @@
 		},
 		closeAndRematch: function() {
 			app.rooms[''].requestNotifications();
+			app.rooms[''].challenge(this.battle.yourSide.name);
 			this.close();
 			app.focusRoom('');
-			app.rooms[''].challenge(this.battle.yourSide.name);
 		},
 
 		// choice buttons
