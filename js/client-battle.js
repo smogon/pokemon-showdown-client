@@ -98,15 +98,30 @@
 					this.$controls.html('');
 				}
 
-				if (logLine.substr(0, 18) === '|callback|trapped|') {
-					var idx = logLine.substr(18);
-					this.request.active[idx].trapped = true;
+				if (logLine.substr(0, 10) === '|callback|') {
 					// TODO: Maybe a more sophisticated UI for this.
-					// In singles, this isn't really necessary because the switch UI will be
-					// immediately disabled. However, in doubles it might not be obvious why
-					// the player is being asked to make a new decision without this message.
+					// In singles, this isn't really necessary because some elements of the UI will be
+					// immediately disabled. However, in doubles/triples it might not be obvious why
+					// the player is being asked to make a new decision without the following messages.
+					var args = logLine.substr(10).split('|');
+					var pokemon = isNaN(Number(args[1])) ? this.battle.getPokemon(args[1]) : this.battle.mySide.active[args[1]];
+					var requestData = this.request.active[pokemon.slot];
 					delete this.choice;
-					this.battle.activityQueue.push('|message|'+this.battle.mySide.active[idx].getName() + ' is trapped and cannot switch!');
+					switch (args[0]) {
+					case 'trapped':
+						requestData.trapped = true;
+						this.battle.activityQueue.push('|message|'+pokemon.getName() + ' is trapped and cannot switch!');
+						break;
+					case 'cant':
+						for (var i = 0; i < requestData.moves.length; i++) {
+							if (requestData.moves[i].id === args[3]) {
+								requestData.moves[i].disabled = true;
+							}
+						}
+						args.splice(1, 1, pokemon.getIdent());
+						this.battle.activityQueue.push('|'+args.join('|'));
+						break;
+					}
 				} else if (logLine.substr(0, 7) === '|title|') {
 					this.title = logLine.substr(7);
 				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
@@ -285,13 +300,13 @@
 					if (active.active) active = active.active[pos];
 					var moves = active.moves;
 					var trapped = active.trapped;
-					this.finalDecision = active.maybeTrapped || false;
-					if (this.finalDecision) {
-						for (var i = pos + 1; i < this.battle.mySide.active.length; ++i) {
-							var p = this.battle.mySide.active[i];
-							if (p && !p.fainted) {
-								this.finalDecision = false;
-							}
+					this.finalDecisionMove = active.maybeDisabled || false;
+					this.finalDecisionSwitch = active.maybeTrapped || false;
+					for (var i = pos + 1; i < this.battle.mySide.active.length; ++i) {
+						var p = this.battle.mySide.active[i];
+						if (p && !p.fainted) {
+							this.finalDecisionMove = this.finalDecisionSwitch = false;
+							break;
 						}
 					}
 
@@ -393,6 +408,9 @@
 					if (switchables[pos].canMegaEvo) {
 						controls += '<br /><label><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;evolution</label>';
 					}
+					if (this.finalDecisionMove) {
+						controls += '<em style="display:block;clear:both">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em><br/>';
+					}
 					controls += '<div style="clear:left"></div>';
 					controls += '</div></div>';
 					if (this.battle.gameType === 'triples' && pos !== 1) {
@@ -412,7 +430,7 @@
 								controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
 							}
 						}
-						if (this.finalDecision && this.battle.gen > 2) {
+						if (this.finalDecisionSwitch && this.battle.gen > 2) {
 							controls += '<em style="display:block;clear:both">You <strong>might</strong> be trapped, so you won\'t be able to cancel a switch!</em><br/>';
 						}
 					}
@@ -422,7 +440,7 @@
 				break;
 
 			case 'switch':
-				this.finalDecision = false;
+				this.finalDecisionMove = this.finalDecisionSwitch = false;
 				if (!this.choice) {
 					this.choice = {
 						choices: [],
@@ -544,7 +562,7 @@
 
 			default:
 				var buf = '<div class="controls"><p><em>Waiting for opponent...</em> ';
-				if (this.choice && this.choice.waiting && !this.finalDecision) {
+				if (this.choice && this.choice.waiting && !this.finalDecisionMove && !this.finalDecisionSwitch) {
 					buf += '<button name="undoChoice">Cancel</button>';
 				}
 				buf += '</p>';
@@ -722,7 +740,7 @@
 			this.sendDecision('/choose '+this.choice.choices.join(','));
 			this.closeNotification('choice');
 
-			this.finalDecision = false;
+			this.finalDecisionSwitch = false;
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
@@ -747,7 +765,7 @@
 			this.sendDecision('/choose '+this.choice.choices.join(','));
 			this.closeNotification('choice');
 
-			this.finalDecision = false;
+			this.finalDecisionMove = this.finalDecisionSwitch = false;
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
@@ -801,6 +819,7 @@
 			this.sendDecision('/choose '+this.choice.choices.join(','));
 			this.closeNotification('choice');
 
+			this.finalDecisionMove = false;
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
