@@ -1,8 +1,8 @@
 User-agent: Mediapartners-Google
 Disallow:
 
-User-agent: *
+User-agent: ~
 Disallow: /
 
-User-agent: bingbot
+User-agent: The Breakfast Bot
 Allow: /
