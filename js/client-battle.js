@@ -34,7 +34,7 @@
 			app.send('/join '+this.id);
 		},
 		leave: function() {
-			app.send('/leave '+this.id);
+			if (!this.expired) app.send('/leave '+this.id);
 			if (this.battle) this.battle.destroy();
 		},
 		requestLeave: function() {
