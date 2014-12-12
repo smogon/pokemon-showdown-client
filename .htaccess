@@ -1,7 +1,7 @@
 RewriteEngine On
 
-RewriteCond %{HTTP_HOST} !^logs\.psim\.us$
-RewriteRule ^(.*) http://logs.psim.us/$1 [R=301,L]
+RewriteCond %{HTTP_HOST} !^logs\.psim\.us\:8080$
+RewriteRule ^(.*) http://logs.psim.us:8080/$1 [R=301,L]
 
 RewriteRule ^config/ - [F]
 RewriteRule ^lib/ - [F]
