@@ -82,7 +82,7 @@ function getAuthorization(&$userid, &$authenticated, &$group) {
 	// Unregistered users are not authorised.
 	if (!$authenticated) return AUTH_NOPERMISSION;
 	$group = getGroup($userid);
-	if (!in_array($group, array('@', '&', '~'))) return AUTH_NOPERMISSION;
+	if (!in_array($group, array('%', '@', '&', '~'))) return AUTH_NOPERMISSION;
 	return AUTH_VALID;
 }
 
