@@ -26,22 +26,24 @@ if (isset($_REQUEST['file']) && $month && $roomid) {
 		die('Invalid file specified.');
 	}
 	// record this log access in the database
-	$db = new mysqli(
-		$config['db_server'],
-		$config['db_username'],
-		$config['db_password'],
-		$config['db_database']
-	);
-	$db->query(
-		'INSERT INTO `' .
-		$config['db_prefix'] .
-		'logviewerlog` (userid, filename) VALUES (\'' .
-		$db->real_escape_string($user['userid']) .
-		'\', \'' .
-		$db->real_escape_string($roomid . '/' . $month . '/' . $file) .
-		'\')'
-	);
-	$db->close();
+	if ($config['db_server']) {
+		$db = new mysqli(
+			$config['db_server'],
+			$config['db_username'],
+			$config['db_password'],
+			$config['db_database']
+		);
+		$db->query(
+			'INSERT INTO `' .
+			$config['db_prefix'] .
+			'logviewerlog` (userid, filename) VALUES (\'' .
+			$db->real_escape_string($user['userid']) .
+			'\', \'' .
+			$db->real_escape_string($roomid . '/' . $month . '/' . $file) .
+			'\')'
+		);
+		$db->close();
+	}
 	// output the log file
 	header('Content-Type: text/plain;charset=utf-8');
 	if (!isset($_REQUEST['onlychat'])) {
