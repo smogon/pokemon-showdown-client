@@ -4474,7 +4474,7 @@ exports.BattleMovedex = {
 	},
 	"focusblast": {
 		num: 411,
-		accuracy: 70,
+		accuracy: 100,
 		basePower: 120,
 		category: "Special",
 		desc: "Deals damage to one adjacent target with a 10% chance to lower its Special Defense by 1 stage.",
@@ -4483,7 +4483,7 @@ exports.BattleMovedex = {
 		isViable: true,
 		name: "Focus Blast",
 		pp: 5,
-		priority: 0,
+		priority: 5,
 		isBullet: true,
 		secondary: {
 			chance: 10,
