@@ -1064,6 +1064,10 @@
 					var notifyTitle = "Mentioned by "+name+(this.id === 'lobby' ? '' : " in "+this.title);
 					this.notifyOnce(notifyTitle, "\""+message+"\"", 'highlight');
 				}
+				if (Tools.prefs('roomhighlight') && this !== app.curRoom && this !== app.curSideRoom) {
+					this.activity = true;
+					app.topbar.updateTabbar();
+				}
 			}
 			var highlight = isHighlighted ? ' highlighted' : '';
 			var chatDiv = '<div class="chat' + highlight + '">';
