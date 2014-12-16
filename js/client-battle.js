@@ -222,7 +222,7 @@
 					}
 				} else {
 					this.controlsShown = true;
-					if (!controlsShown || !this.choice || this.choice.waiting) {
+					if (!controlsShown || (this.choice && this.choice.waiting)) {
 						this.updateControlsForPlayer();
 					}
 				}
