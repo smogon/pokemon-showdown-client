@@ -443,7 +443,7 @@ BattlePokemonSprites = {
 	"kyogre": {num:382, front:{ani:{w:234,h:55}}, back:{ani:{w:228,h:54}}},
 	"kyogreprimal": {num:382, front:{ani:{w:230,h:64}}, back:{ani:{w:262,h:58}}},
 	"groudon": {num:383, front:{ani:{w:107,h:94}}, back:{ani:{w:141,h:89}}},
-	"groudonprimal": {num:383, front:{ani:{w:117,h:89}}, back:{ani:{w:120,h:120}}},
+	"groudonprimal": {num:383, front:{ani:{w:117,h:89}}, back:{ani:{w:157,h:96}}},
 	"rayquaza": {num:384, front:{ani:{w:142,h:153}}, back:{ani:{w:162,h:165}}},
 	"rayquazamega": {num:384, front:{ani:{w:137,h:146}}, back:{ani:{w:244,h:173}}},
 	"jirachi": {num:385, front:{ani:{w:92,h:68}}, back:{ani:{w:78,h:66}}},
