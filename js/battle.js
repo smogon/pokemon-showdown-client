@@ -5290,14 +5290,14 @@ var Battle = (function () {
 			break;
 		case 'join':
 		case 'j':
-		case 'J':
 			this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
 			break;
 		case 'leave':
 		case 'l':
-		case 'L':
 			this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
 			break;
+		case 'J':
+		case 'L':
 		case 'spectator':
 		case 'spectatorleave':
 			break;
