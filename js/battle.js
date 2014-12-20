@@ -4057,13 +4057,13 @@ var Battle = (function () {
 				break;
 			case '-mega':
 				var poke = this.getPokemon(args[1]);
-				var item = Tools.getItem(args[2]);
-				if (poke.baseSpecies === 'Rayquaza') {
+				var item = Tools.getItem(args[3]);
+				if (args[2] === 'Rayquaza') {
 					actions += "" + Tools.escapeHTML(poke.side.name) + "'s fervent wish has reached " + poke.getLowerName() + "!";
 				} else {
 					actions += "" + poke.getName() + "'s " + item.name + " is reacting to " + Tools.escapeHTML(poke.side.name) + "'s Mega Bracelet!";
 				}
-				actions += "<br />" + poke.getName() + " has Mega Evolved into Mega " + poke.baseSpecies + "!";
+				actions += "<br />" + poke.getName() + " has Mega Evolved into Mega " + args[2] + "!";
 				break;
 
 			case '-start':
