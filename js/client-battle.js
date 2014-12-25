@@ -925,8 +925,44 @@
 				text += '<h2>' + move.name + '<br />'+Tools.getTypeIcon(move.type)+' <img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
 				text += '<p>Base power: ' + basePower + '</p>';
 				text += '<p>Accuracy: ' + accuracy + '</p>';
+				var flags = {
+					"authentic": "Ignores a target's substitute.",
+					"bite": "Power is multiplied by 1.5 when used by a Pokemon with the Ability Strong Jaw.",
+					"bullet": "Has no effect on Pokemon with the Ability Bulletproof.",
+					"charge": "The user is unable to make a move between turns.",
+					"contact": "Makes contact.",
+					"defrost": "Thaws the user if executed successfully while the user is frozen.",
+					"distance": "Can target a Pokemon positioned anywhere in a Triple Battle.",
+					"gravity": "Prevented from being executed or selected during Gravity's effect.",
+					"heal": "Prevented from being executed or selected during Heal Block's effect.",
+					"mirror": "Can be copied by Mirror Move.",
+					"nonsky": "Prevented from being executed or selected in a Sky Battle.",
+					"powder": "Has no effect on Grass-type Pokemon, Pokemon with the Ability Overcoat, and Pokemon holding Safety Goggles.",
+					"protect": "Blocked by Detect, Protect, ",
+					"pulse": "Power is multiplied by 1.5 when used by a Pokemon with the Ability Mega Launcher.",
+					"punch": "Power is multiplied by 1.2 when used by a Pokemon with the Ability Iron Fist.",
+					"recharge": "If this move is successful, the user must recharge on the following turn and cannot make a move.",
+					"reflectable": "Bounced back to the original user by Magic Coat or the Ability Magic Bounce.",
+					"snatch": "Can be stolen from the original user and instead used by another Pokemon using Snatch.",
+					"sound": "Has no effect on Pokemon with the Ability Soundproof."
+				};
 				if (move.desc) {
-					text += '<p class="section">' + move.desc + '</p>';
+					text += '<p class="section">' + move.desc;
+					for (var i in move.flags) {
+						if (i === 'distance' && move.target !== 'any') continue;
+						text += " " + flags[i];
+						if (i === 'protect') {
+							if (move.category !== 'Status') text += "King's Shield, ";
+							text += "and Spiky Shield.";
+						}
+					}
+					var priority = move.priority;
+					if (priority) {
+						text += " Priority ";
+						if (priority > 0) text += "+";
+						text += priority + ".";
+					}
+					text += '</p>';
 				}
 				text += '</div></div>';
 				break;
