@@ -646,6 +646,7 @@ var Tools = {
 			if (!move.baseType) move.baseType = move.type;
 			if (!move.effectType) move.effectType = 'Move';
 			if (!move.secondaries && move.secondary) move.secondaries = [move.secondary];
+			if (!move.flags) move.flags = {};
 
 			if (window.BattleMoveAnims) {
 				if (!move.anim) move.anim = BattleOtherAnims.attack.anim;
