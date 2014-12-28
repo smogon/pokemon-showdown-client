@@ -775,7 +775,7 @@ var Sprite = (function () {
 	Sprite.prototype.animTransform = function (species) {
 		if (!this.oldsp) this.oldsp = this.sp;
 		if (species.volatiles && species.volatiles.formechange) species = species.volatiles.formechange[2];
-		sp = Tools.getSpriteData(species, this.isBackSprite ? 0 : 1, {afd: this.battle.tier === "[Seasonal] Fools Festival"});
+		sp = Tools.getSpriteData(species, this.isBackSprite ? 0 : 1, {afd: this.battle.tier === "[Seasonal] Fools Festival", gen: this.battle.gen});
 		this.sp = sp;
 		var self = this;
 		var battle = this.battle;
@@ -1219,7 +1219,7 @@ var Side = (function () {
 		for (var i = 0; i < this.pokemon.length; i++) {
 			var poke = this.pokemon[i];
 			poke.sprite.destroy();
-			poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {afd: this.battle.tier === "[Seasonal] Fools Festival"}), this.x, this.y, this.z, this.battle, this.n);
+			poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {afd: this.battle.tier === "[Seasonal] Fools Festival", gen: this.battle.gen}), this.x, this.y, this.z, this.battle, this.n);
 		}
 	};
 	Side.prototype.setSprite = function (spriteid) {
@@ -1508,7 +1508,7 @@ var Side = (function () {
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
 		poke.id = id;
 		poke.reset();
-		poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {afd: this.battle.tier === "[Seasonal] Fools Festival"}), this.x, this.y, this.z, this.battle, this.n);
+		poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {afd: this.battle.tier === "[Seasonal] Fools Festival", gen: this.battle.gen}), this.x, this.y, this.z, this.battle, this.n);
 
 		if (typeof replaceSlot !== 'undefined') {
 			this.pokemon[replaceSlot] = poke;
@@ -5169,7 +5169,7 @@ var Battle = (function () {
 			for (var i = 0; i < this.sides[k].pokemon.length; i++) {
 				var pokemon = this.sides[k].pokemon[i];
 
-				var spriteData = Tools.getSpriteData(pokemon, k, {afd: this.tier === "[Seasonal] Fools Festival"});
+				var spriteData = Tools.getSpriteData(pokemon, k, {afd: this.tier === "[Seasonal] Fools Festival", gen: this.gen});
 				var y = 0;
 				var x = 0;
 				if (k) {
