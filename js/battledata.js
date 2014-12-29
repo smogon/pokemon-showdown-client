@@ -793,6 +793,8 @@ var Tools = {
 		document.getElementsByTagName('body')[0].appendChild(el);
 	},
 	getSpriteData: function(pokemon, siden, options) {
+		if (!options) options = {gen: 6};
+		if (!options.gen) options.gen = 6;
 		pokemon = Tools.getTemplate(pokemon);
 		var spriteData = {
 			w: 96,
@@ -821,19 +823,19 @@ var Tools = {
 			spriteData.cryurl = 'audio/cries/' + num + '.wav';
 		}
 
-		if (pokemon.shiny) dir += '-shiny';
+		if (pokemon.shiny && options.gen > 1) dir += '-shiny';
 
 		// April Fool's 2014
-		if (window.Config && Config.server && Config.server.afd || options && options.afd) {
+		if (window.Config && Config.server && Config.server.afd || options.afd) {
 			dir = 'afd' + dir;
 			spriteData.url += dir + '/' + name + '.png';
 			return spriteData;
 		}
 
-		var gen = 'xy';
-		if (Tools.prefs('bwgfx')) {
-			gen = 'bw';
-		}
+		// Decide what gen sprites to use.
+		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[options.gen];
+		if (Tools.prefs('nopastgens')) gen = 'xy';
+		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
 
 		if (animationData && animationData[facing]) {
 			var spriteType = '';
@@ -841,7 +843,7 @@ var Tools = {
 				name += '-f';
 				spriteType += 'f';
 			}
-			if (!Tools.prefs('noanim')) {
+			if (!Tools.prefs('noanim') && gen in {'bw':1, 'xy':1}) {
 				spriteType = 'ani' + spriteType;
 				dir = gen + 'ani' + dir;
 
@@ -851,8 +853,8 @@ var Tools = {
 				return spriteData;
 			}
 		}
-		// if there is no entry or enough data in pokedex-mini.js or the animations are disabled, use BW static sprites
-		gen = 'bw';
+		// if there is no entry or enough data in pokedex-mini.js or the animations are disabled or past gen, use the proper sprites
+		gen = (gen === 'xy')? 'bw' : gen;
 		dir = gen + dir;
 
 		spriteData.url += dir+'/' + name + '.png';
