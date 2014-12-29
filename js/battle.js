@@ -577,7 +577,8 @@ var Pokemon = (function () {
 			spd: 'SpD',
 			spe: 'Spe',
 			accuracy: 'Accuracy',
-			evasion: 'Evasion'
+			evasion: 'Evasion',
+			spc: 'Spc'
 		};
 		if (!this.boosts[boostStat]) {
 			return '1&times;&nbsp;' + boostStatTable[boostStat];
@@ -3300,6 +3301,8 @@ var Battle = (function () {
 			case '-boost':
 				var poke = this.getPokemon(args[1]);
 				var stat = args[2];
+				if (this.gen === 1 && stat === 'spd') break;
+				if (this.gen === 1 && stat === 'spa') stat = 'spc';
 				var amount = parseInt(args[3]);
 				if (!poke.boosts[stat]) {
 					poke.boosts[stat] = 0;
@@ -3331,6 +3334,8 @@ var Battle = (function () {
 			case '-unboost':
 				var poke = this.getPokemon(args[1]);
 				var stat = args[2];
+				if (this.gen === 1 && stat === 'spd') break;
+				if (this.gen === 1 && stat === 'spa') stat = 'spc';
 				var amount = parseInt(args[3]);
 				if (!poke.boosts[stat]) {
 					poke.boosts[stat] = 0;
