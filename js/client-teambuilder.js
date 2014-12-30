@@ -1248,15 +1248,15 @@
 			pokemon: function(pokemon) {
 				if (!pokemon) {
 					if (this.curTeam) {
-						if (this.curTeam.format === 'ou') return ['OU','BL','UU','BL2','RU','BL3','NU','PU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','UU','BL2','RU','BL3','NU','PU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'uu') return ['UU','BL2','RU','BL3','NU','PU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'ru') return ['RU','BL3','NU','PU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'nu') return ['NU','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'ou') return ['OU','BL','UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'uu') return ['UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'ru') return ['RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'nu') return ['NU','BL4','PU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'pu') return ['PU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'lc') return ['LC'];
 					}
-					return ['OU','Uber','BL','UU','BL2','RU','BL3','NU','PU','NFE','LC Uber','LC','Unreleased','CAP'];
+					return ['OU','Uber','BL','UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC','Unreleased','CAP'];
 				}
 				var tierData = exports.BattleFormatsData[toId(pokemon.species)];
 				if (!tierData) return 'Illegal';
