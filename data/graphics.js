@@ -1839,7 +1839,7 @@ var BattleMoveAnims = {
 				time: 600
 			}, 'accel');
 			battle.showEffect('energyball', {
-				x: attacker.x0,
+				x: attacker.x,
 				y: attacker.y-40,
 				z: attacker.z,
 				scale: 0.5,
