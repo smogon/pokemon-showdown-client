@@ -3013,6 +3013,9 @@ var Battle = (function () {
 	Battle.prototype.cantUseMove = function (pokemon, effect, move, kwargs) {
 		pokemon.clearMovestatuses();
 		pokemon.side.updateStatbar(pokemon);
+		if (window.BattleStatusAnims && effect.id in BattleStatusAnims && !this.fastForward) {
+			BattleStatusAnims[effect.id].anim(this, [pokemon.sprite]);
+		}
 		switch (effect.id) {
 		case 'taunt':
 			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' after the taunt!');
@@ -3028,7 +3031,6 @@ var Battle = (function () {
 			break;
 		case 'par':
 			this.resultAnim(pokemon, 'Paralyzed', 'par');
-			BattleOtherAnims['fullparalysis'].anim(this, [pokemon.sprite]);
 			this.message('' + pokemon.getName() + ' is paralyzed! It can\'t move!');
 			break;
 		case 'frz':
@@ -3140,9 +3142,11 @@ var Battle = (function () {
 						actions += "" + poke.getName() + " is hurt by the spikes!";
 						break;
 					case 'brn':
+						BattleStatusAnims['brn'].anim(this, [poke.sprite]);
 						actions += "" + poke.getName() + " was hurt by its burn!";
 						break;
 					case 'psn':
+						BattleStatusAnims['psn'].anim(this, [poke.sprite]);
 						actions += "" + poke.getName() + " was hurt by poison!";
 						break;
 					case 'lifeorb':
