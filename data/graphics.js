@@ -779,22 +779,6 @@ var BattleOtherAnims = {
 			}, 'ballistic2Under', 'fade');
 		}
 	},
-	fullparalysis: {
-		anim: function(battle, args) {
-			var attacker = args[0];
-			battle.showEffect('electroball', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1,
-				opacity: 0.2
-			}, {
-				scale: 3,
-				opacity: .1,
-				time: 300
-			}, 'linear', 'fade');
-		}
-	},
 	drain: {
 		anim: function(battle, args) {
 			var attacker = args[0];
@@ -889,6 +873,171 @@ var BattleOtherAnims = {
 		}
 	}
 };
+var BattleStatusAnims = {
+	brn: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			battle.showEffect('fireball', {
+				x: attacker.x-20,
+				y: attacker.y-15,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 0.3
+			}, {
+				x: attacker.x+40,
+				y: attacker.y+15,
+				z: attacker.z,
+				scale: 1,
+				opacity: 1,
+				time: 300
+			}, 'swing', 'fade');
+		}
+	},
+	psn: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			battle.showEffect('poisonwisp', {
+				x: attacker.x+30,
+				y: attacker.y-40,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 0
+			}, {
+				y: attacker.y,
+				scale: 1,
+				opacity: 0.5,
+				time: 300
+			}, 'decel', 'fade');
+			battle.showEffect('poisonwisp', {
+				x: attacker.x-30,
+				y: attacker.y-40,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 100
+			}, {
+				y: attacker.y,
+				scale: 1,
+				opacity: 0.5,
+				time: 400
+			}, 'decel', 'fade');
+			battle.showEffect('poisonwisp', {
+				x: attacker.x,
+				y: attacker.y-40,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 200
+			}, {
+				y: attacker.y,
+				scale: 1,
+				opacity: 0.5,
+				time: 500
+			}, 'decel', 'fade');
+		}
+	},
+	slp: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			battle.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y+20,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.1
+			}, {
+				x: attacker.x,
+				y: attacker.y+20,
+				z: attacker.behind(-50),
+				scale: 1.5,
+				opacity: 1,
+				time: 400
+			}, 'ballistic2Under', 'fade');
+			battle.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y+20,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.1,
+				time: 200
+			}, {
+				x: attacker.x,
+				y: attacker.y+20,
+				z: attacker.behind(-50),
+				scale: 1.5,
+				opacity: 1,
+				time: 600
+			}, 'ballistic2Under', 'fade');
+		}
+	},
+	par: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			battle.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0.2
+			}, {
+				scale: 3,
+				opacity: .1,
+				time: 300
+			}, 'linear', 'fade');
+		}
+	},
+	frz: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 1
+			}, {
+				scale: 3,
+				opacity: .1,
+				time: 300
+			}, 'linear', 'fade');
+		}
+	},
+	flinch: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			battle.showEffect('shadowball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0.2
+			}, {
+				scale: 3,
+				opacity: .1,
+				time: 300
+			}, 'linear', 'fade');
+		}
+	},
+	attract: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			battle.showEffect('mistball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0.2
+			}, {
+				scale: 3,
+				opacity: .1,
+				time: 300
+			}, 'linear', 'fade');
+		}
+	},
+};
+BattleStatusAnims['focuspunch'] = {anim:BattleStatusAnims['flinch'].anim};
+
 var BattleMoveAnims = {
 	taunt: {
 		anim: BattleOtherAnims.shake.anim
