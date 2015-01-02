@@ -2572,7 +2572,7 @@ var Battle = (function () {
 			this.endLastTurnPending = true;
 		}
 		this.turn = turnnum;
-		this.updateWeatherLeft();
+		this.updatePseudoWeatherLeft();
 
 		if (this.mySide.active[0]) this.mySide.active[0].clearTurnstatuses();
 		if (this.mySide.active[1]) this.mySide.active[1].clearTurnstatuses();
@@ -2667,6 +2667,10 @@ var Battle = (function () {
 		}
 		var newWeather = weatherTable[weather];
 		if (isUpkeep) {
+			if (this.weather && this.weatherTimeLeft) {
+				this.weatherTimeLeft--;
+				if (this.weatherMinTimeLeft != 0) this.weatherMinTimeLeft--;
+			}
 			if (!this.fastForward) {
 				this.weatherElem.animate({
 					opacity: 1.0
@@ -2697,13 +2701,9 @@ var Battle = (function () {
 		}
 		this.updateWeather(weather);
 	};
-	Battle.prototype.updateWeatherLeft = function () {
+	Battle.prototype.updatePseudoWeatherLeft = function () {
 		for (var i = 0; i < this.pseudoWeather.length; i++) {
 			if (this.pseudoWeather[i][1] > 0) this.pseudoWeather[i][1]--;
-		}
-		if (this.weather && this.weatherTimeLeft) {
-			this.weatherTimeLeft--;
-			if (this.weatherMinTimeLeft != 0) this.weatherMinTimeLeft--;
 		}
 		this.updateWeather();
 	};
