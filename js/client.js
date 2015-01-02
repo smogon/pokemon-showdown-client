@@ -1461,11 +1461,12 @@
 			this.curSideRoomRight = '';
 			var passedCurRoom = false;
 			var passedCurSideRoom = false;
+			var sideRooms = [];
 
 			for (var id in app.rooms) {
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
-				var name = '<i class="icon-comment-alt"></i> <span>'+(Tools.escapeHTML(room.title)||(id==='lobby'?'Lobby':id))+'</span>';
+				var name = '';
 				if (id.substr(0,7) === 'battle-') {
 					name = Tools.escapeHTML(room.title);
 					var formatid = id.substr(7).split('-')[0];
@@ -1483,8 +1484,9 @@
 					name = '<i class="text">'+formatid+'</i><span>'+name+'</span>';
 				}
 				if (room.isSideRoom) {
+					sideRooms.push(id);
+
 					if (id !== 'rooms') {
-						sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 						if (curSideId) {
 							// get left/right for side rooms
 							if (curSideId === id) {
@@ -1524,8 +1526,34 @@
 					this.curSideRoomLeft = id;
 				}
 			}
+
+			if (this.sideRoomOrder) {
+				var self = this;
+				sideRooms.sort(function (a, b) {
+					if (a === 'rooms') return 1;
+					if (b === 'rooms') return -1;
+
+					var index_a = self.sideRoomOrder.indexOf(a);
+					var index_b = self.sideRoomOrder.indexOf(b);
+					if (index_a < 0 && index_b < 0) return 0; // IE fix
+					if (index_a < 0) return 1;
+					if (index_b < 0) return -1;
+
+					return index_a - index_b;
+				});
+			}
+
+			for (var i = 0, len = sideRooms.length; i < len; i++) {
+				var id = sideRooms[i];
+				if (id === 'rooms') continue;
+				var room = app.rooms[id];
+
+				var name = '<i class="icon-comment-alt"></i> <span>'+(Tools.escapeHTML(room.title)||(id==='lobby'?'Lobby':id))+'</span>';
+				sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+			}
+
 			if (app.supports['rooms']) {
-				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
+				sideBuf += '<li class="no-reorder"><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (sideBuf) {
@@ -1542,6 +1570,11 @@
 			if (offset.top >= 37 || offset.left + width > $(window).width() - 165) {
 				this.$tabbar.append('<div class="overflow"><button name="tablist"><i class="icon-caret-down"></i></button></div>');
 			}
+
+			this.$tabbar
+				.find('.siderooms li:not(.no-reorder)')
+				.on('mousedown touchstart', $.proxy(this, 'startReorder'))
+				.on('dragstart', function (e) { e.preventDefault(); }); // Firefox fix
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
 		},
@@ -1567,12 +1600,100 @@
 			}
 			if ($target.hasClass('closebutton')) {
 				app.leaveRoom(id);
+
+				var orderIndex = this.sideRoomOrder.indexOf(id);
+				if (orderIndex >= 0) this.sideRoomOrder.splice(orderIndex, 1);
 			} else {
 				app.joinRoom(id);
 			}
 		},
 		tablist: function() {
 			app.addPopup(TabListPopup);
+		},
+		startReorder: function (e) {
+			var $target = $(e.currentTarget);
+			if (!$target.is('li')) return; // just in case
+			if ($target.data('reordering')) return;
+
+			$target.data('reordering', true);
+			$target.css({ position: 'relative', zIndex: 15 });
+
+			var data = {
+				$target: $target,
+				downXdiff: e.pageX - $target.offset().left
+			};
+			$(window).on('mousemove touchmove', data, $.proxy(this, 'moveReorder'));
+			// we attach mouseup to document in case mouseup is fired outside
+			// the element
+			$(document).on('mouseup touchend touchcancel', data, $.proxy(this, 'endReorder'));
+		},
+		moveReorder: function (e) {
+			e.preventDefault();
+			var $target = e.data.$target;
+
+			var calcX = function () {
+				return e.pageX - ($target.offset().left - (parseInt($target.css('left')) || 0)) - e.data.downXdiff;
+			};
+			var newX = calcX();
+
+			// only move it around when the difference between the new position
+			// and the original is at least 10 pixels
+			if (!$target.data('reordering-moving')) {
+				if (Math.abs(newX) >= 10) {
+					$target.data('reordering-moving', true);
+				} else {
+					return;
+				}
+			}
+
+			// move elements around if needed
+			var $prev = $target.prev();
+			if ($prev.length && !$prev.is('.no-reorder') && newX <= -($prev.width() / 2)) {
+				$prev.detach();
+				$target.after($prev);
+				newX = calcX();
+			}
+
+			var $next = $target.next();
+			if ($next.length && !$next.is('.no-reorder') && newX >= ($next.width() / 2)) {
+				$next.detach();
+				$target.before($next);
+				newX = calcX();
+			}
+
+			// set left
+			$target.css('left', newX + 'px');
+		},
+		endReorder: function (e) {
+			// turn off events
+			$(window).off('mousemove touchmove', this.moveReorder);
+			$(document).off('mouseup touchend touchcancel', this.endReorder);
+
+			var $target = e.data.$target;
+
+			// reset CSS
+			$target.css({
+				position: 'static',
+				left: 0,
+				zIndex: 'auto'
+			});
+
+			// only set new room order if the user actually moved something
+			if ($target.data('reordering-moving')) {
+				this.sideRoomOrder = [];
+				var self = this;
+				$target.closest('ul').children(':not(.no-reorder)').each(function (i, el) {
+					var id = $(el).find('a').attr('href');
+					if (id.substr(0, app.root.length) === app.root) {
+						id = id.substr(app.root.length);
+					}
+					self.sideRoomOrder.push(id);
+				});
+			}
+
+			// set the data back to their defaults
+			$target.data('reordering', false);
+			$target.data('reordering-moving', false);
 		}
 	});
 
