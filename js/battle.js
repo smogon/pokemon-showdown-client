@@ -2690,6 +2690,10 @@ var Battle = (function () {
 				this.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
 				this.weatherTimeLeft = 0;
 				this.weatherMinTimeLeft = 0;
+			} else if (weather === 'deltastream' || weather === 'desolateland' || weather === 'primordialsea'){
+				this.message('<small>' + newWeather.startMessage + '</small>');
+				this.weatherTimeLeft = 0;
+				this.weatherMinTimeLeft = 0;
 			} else {
 				this.message('<small>' + newWeather.startMessage + '</small>');
 				this.weatherTimeLeft = 8;
@@ -2720,7 +2724,7 @@ var Battle = (function () {
 			return ''; // weather doesn't exist
 		}
 		if (this.weatherMinTimeLeft != 0) {
-			return ' <small>(' + this.weatherMinTimeLeft + ' to ' + this.weatherTimeLeft + ' turns left)</small>';
+			return ' <small>(' + this.weatherMinTimeLeft + ' or ' + this.weatherTimeLeft + ' turns left)</small>';
 		}
 		if (this.weatherTimeLeft != 0) {
 			return ' <small>(' + this.weatherTimeLeft + ' turn' + (this.weatherTimeLeft == 1 ? '' : 's') + ' left)</small>';
