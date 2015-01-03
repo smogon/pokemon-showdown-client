@@ -2107,8 +2107,9 @@ var Battle = (function () {
 		// 5 = seeking
 		this.playbackState = 0;
 
-		this.backdropImage = BattleBackdrops[0];
-		this.backdropImage = BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
+		this.backdropImage = BattleBackdrops.gen6[0];
+		var gentext = (Tools.prefs('nopastgens'))? 'gen6' : 'gen' + this.gen;
+		this.backdropImage = BattleBackdrops[gentext][Math.floor(Math.random() * BattleBackdrops[gentext].length)];
 
 		this.bgm = null;
 		this.activeQueue = this.queue1;
