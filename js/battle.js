@@ -2573,7 +2573,7 @@ var Battle = (function () {
 			this.endLastTurnPending = true;
 		}
 		this.turn = turnnum;
-		this.updateWeatherLeft();
+		this.updatePseudoWeatherLeft();
 
 		if (this.mySide.active[0]) this.mySide.active[0].clearTurnstatuses();
 		if (this.mySide.active[1]) this.mySide.active[1].clearTurnstatuses();
@@ -2668,6 +2668,10 @@ var Battle = (function () {
 		}
 		var newWeather = weatherTable[weather];
 		if (isUpkeep) {
+			if (this.weather && this.weatherTimeLeft) {
+				this.weatherTimeLeft--;
+				if (this.weatherMinTimeLeft != 0) this.weatherMinTimeLeft--;
+			}
 			if (!this.fastForward) {
 				this.weatherElem.animate({
 					opacity: 1.0
@@ -2687,6 +2691,10 @@ var Battle = (function () {
 				this.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
 				this.weatherTimeLeft = 0;
 				this.weatherMinTimeLeft = 0;
+			} else if (weather === 'deltastream' || weather === 'desolateland' || weather === 'primordialsea'){
+				this.message('<small>' + newWeather.startMessage + '</small>');
+				this.weatherTimeLeft = 0;
+				this.weatherMinTimeLeft = 0;
 			} else {
 				this.message('<small>' + newWeather.startMessage + '</small>');
 				this.weatherTimeLeft = 8;
@@ -2698,13 +2706,9 @@ var Battle = (function () {
 		}
 		this.updateWeather(weather);
 	};
-	Battle.prototype.updateWeatherLeft = function () {
+	Battle.prototype.updatePseudoWeatherLeft = function () {
 		for (var i = 0; i < this.pseudoWeather.length; i++) {
 			if (this.pseudoWeather[i][1] > 0) this.pseudoWeather[i][1]--;
-		}
-		if (this.weather && this.weatherTimeLeft) {
-			this.weatherTimeLeft--;
-			if (this.weatherMinTimeLeft != 0) this.weatherMinTimeLeft--;
 		}
 		this.updateWeather();
 	};
@@ -2721,7 +2725,7 @@ var Battle = (function () {
 			return ''; // weather doesn't exist
 		}
 		if (this.weatherMinTimeLeft != 0) {
-			return ' <small>(' + this.weatherMinTimeLeft + ' to ' + this.weatherTimeLeft + ' turns left)</small>';
+			return ' <small>(' + this.weatherMinTimeLeft + ' or ' + this.weatherTimeLeft + ' turns left)</small>';
 		}
 		if (this.weatherTimeLeft != 0) {
 			return ' <small>(' + this.weatherTimeLeft + ' turn' + (this.weatherTimeLeft == 1 ? '' : 's') + ' left)</small>';
