@@ -828,6 +828,10 @@ p.or:after {
 	color: gray;
 }
 
+.hidden {
+	display: none;
+}
+
 .roomlist {
 	text-align: left;
 }
