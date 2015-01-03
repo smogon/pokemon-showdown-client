@@ -436,7 +436,10 @@
 				return false;
 
 			case 'ignore':
-				if (!target) return '/help ignore';
+				if (!target) {
+					this.parseCommand('/help ignore');
+					return false;
+				}
 				if (app.ignore[toUserid(target)]) {
 					this.add('User ' + target + ' is already on your ignore list. (Moderator messages will not be ignored.)');
 				} else {
@@ -446,7 +449,10 @@
 				return false;
 
 			case 'unignore':
-				if (!target) return '/help unignore';
+				if (!target) {
+					this.parseCommand('/help unignore');
+					return false;
+				}
 				if (!app.ignore[toUserid(target)]) {
 					this.add('User ' + target + ' isn\'t on your ignore list.');
 				} else {
@@ -517,7 +523,8 @@
 				if ((['all', 'lobby', 'pms'].indexOf(targets[0]) === -1) || targets.length < 2 ||
 					(['off', 'minutes', 'seconds'].indexOf(targets[1] = targets[1].trim()) === -1)) {
 					this.add('Error: Invalid /timestamps command');
-					return '/help timestamps';	// show help
+					this.parseCommand('/help timestamps'); // show help
+					return false;
 				}
 				var timestamps = Tools.prefs('timestamps') || {};
 				if (typeof timestamps === 'string') {
@@ -589,7 +596,8 @@
 					} else {
 						// Wrong command
 						this.add('Error: Invalid /highlight command.');
-						return '/help highlight';	// show help
+						this.parseCommand('/help highlight'); // show help
+						return false;
 					}
 				}
 				return false;
@@ -684,6 +692,45 @@
 					Tools.prefs('avatar', avatar);
 				}
 				return text; // Send the /avatar command through to the server.
+				
+			// documentation of client commands
+			case 'help':
+				switch ((target || '').toLowerCase()) {
+				case 'ignore':
+					this.add('/ignore [user] - Ignores all messages from the user [user].');
+					this.add('Note that staff messages cannot be ignored.');
+					return false;
+				case 'unignore':
+					this.add('/unignore [user] - Removes user [user] from your ignore list.');
+					return false;
+				case 'timestamps':
+					this.add('Set your timestamps preference:');
+					this.add('/timestamps [all|lobby|pms], [minutes|seconds|off]');
+					this.add('all - change all timestamps preferences, lobby - change only lobby chat preferences, pms - change only PM preferences');
+					this.add('off - set timestamps off, minutes - show timestamps of the form [hh:mm], seconds - show timestamps of the form [hh:mm:ss]');
+					return false;
+				case 'highlight':
+				case 'hl':
+					this.add('Set up highlights:');
+					this.add('/highlight add, [word] - add a new word to the highlight list.');
+					this.add('/highlight list - list all words that currently highlight you.');
+					this.add('/highlight delete, [word] - delete a word from the highlight list.');
+					this.add('/highlight delete - clear the highlight list.');
+					return false;
+				case 'nick':
+					this.add('/nick [new username] - Change your username.');
+					return false;
+				case 'rank':
+				case 'ranking':
+				case 'rating':
+				case 'ladder':
+					this.add('/rating - Get your own rating.');
+					this.add('/rating [username] - Get user\'s rating.');
+					return false;
+				case 'join':
+					this.add('/join [roomname] - Attempts to join the room [roomname].');
+					return false;
+				}
 
 			}
 
