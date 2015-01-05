@@ -1618,8 +1618,8 @@
 				}
 			}
 			if (itemid === 'lifeorb') {
-				physicalBulk *= 0.9;
-				specialBulk *= 0.9;
+				physicalBulk *= 0.7;
+				specialBulk *= 0.7;
 			}
 			if (abilityid === 'multiscale' || abilityid === 'magicguard' || abilityid === 'regenerator') {
 				physicalBulk *= 1.4;
@@ -1675,7 +1675,7 @@
 			if (moveCount['PhysicalStall'] && moveCount['Restoration']) {
 				return 'Specially Defensive';
 			}
-			if (moveCount['SpecialStall'] && moveCount['Restoration']) {
+			if (moveCount['SpecialStall'] && moveCount['Restoration'] && itemid !== 'lifeorb') {
 				return 'Physically Defensive';
 			}
 
@@ -1686,7 +1686,7 @@
 			else offenseBias = 'Physical';
 			var offenseStat = stats[offenseBias === 'Special'?'spa':'atk'];
 
-			if (moveCount['Stall'] + moveCount['Support'] <= 2 && bulk < 135000 && moveCount[offenseBias] >= 2) {
+			if (moveCount['Stall'] + moveCount['Support']/2 <= 2 && bulk < 135000 && moveCount[offenseBias] >= 1.5) {
 				if (isFast) {
 					if (bulk > 80000 && !moveCount['Ultrafast']) return 'Bulky '+offenseBias+' Sweeper';
 					return 'Fast '+offenseBias+' Sweeper';
@@ -1805,8 +1805,25 @@
 				var ev = 252;
 				if (i === 'hp' && (hasMove['substitute'] || hasMove['transform']) && stat == Math.floor(stat/4)*4) stat -= 1;
 				while (stat <= this.getStat(i, null, ev-4, plusStat===i?1.1:1.0)) ev -= 4;
+				if (ev < 0) ev = 0;
 				evs[i] = ev;
 				evTotal += ev;
+
+				if (set.item !== 'Leftovers' && set.item !== 'Black Sludge') {
+					var hpParity = 1; // 1 = should be odd, 0 = should be even
+					if ((hasMove['substitute'] || hasMove['bellydrum']) && (set.item||'').slice(-5) === 'Berry') {
+						hpParity = 0;
+					}
+					if (this.getStat('hp', null, evs['hp'] || 0, 1) % 2 != hpParity) {
+						if (evs['hp']) {
+							evs['hp'] -= 4;
+							evTotal -= 4;
+						} else {
+							evs['hp'] = 4;
+							evTotal += 4;
+						}
+					}
+				}
 
 				if (template.id === 'tentacruel') evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
 				if (template.id === 'skarmory') evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
@@ -1827,8 +1844,6 @@
 						evs['def'] = remaining;
 					} else if (stats.def === stats.spd && !evs['spd']) {
 						evs['spd'] = remaining;
-					} else if (!evs['hp'] && !(set.level && set.level < 20)) {
-						evs['hp'] = remaining;
 					} else if (!evs['spd']) {
 						evs['spd'] = remaining;
 					} else if (!evs['def']) {
