@@ -270,6 +270,7 @@ var baseSpeciesChart = {
 	'gourgeist': 1,
 	'pumpkaboo': 1,
 	'meowstic': 1,
+	'hoopa': 1,
 
 	// mega evolutions
 	'charizard': 1,
