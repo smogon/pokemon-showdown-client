@@ -138,23 +138,28 @@ var BattleEffects = {
 		BattleEffects[i].url = Tools.resourcePrefix + BattleEffects[i].url;
 	}
 })();
-var BattleBackdrops = [
-	'bg-beach.png',
-	'bg-beachshore.png',
-	'bg-desert.png',
-	'bg-meadow.png',
-	'bg-thunderplains.png',
-	'bg-city.png',
-	'bg-earthycave.png',
-	'bg-mountain.png',
-	'bg-volcanocave.png',
-	'bg-dampcave.png',
-	'bg-forest.png',
-	'bg-river.png',
-	'bg-deepsea.png',
-	'bg-icecave.png',
-	'bg-route.png'
-];
+var BattleBackdrops = {
+	gen1: ['bg-gen1.png'],
+	gen6: ['bg-beach.png',
+		'bg-beachshore.png',
+		'bg-desert.png',
+		'bg-meadow.png',
+		'bg-thunderplains.png',
+		'bg-city.png',
+		'bg-earthycave.png',
+		'bg-mountain.png',
+		'bg-volcanocave.png',
+		'bg-dampcave.png',
+		'bg-forest.png',
+		'bg-river.png',
+		'bg-deepsea.png',
+		'bg-icecave.png',
+		'bg-route.png'
+	]
+};
+// Share backgrounds for now until we get bgs for each gen.
+BattleBackdrops.gen2 = BattleBackdrops.gen1;
+BattleBackdrops.gen3 = BattleBackdrops.gen4 = BattleBackdrops.gen5 = BattleBackdrops.gen6;
 var BattleStats = {
 	atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed', accuracy: 'accuracy', evasion: 'evasiveness', spc: 'Special'
 };
