@@ -697,11 +697,10 @@
 			case 'help':
 				switch ((target || '').toLowerCase()) {
 				case 'ignore':
-					this.add('/ignore [user] - Ignores all messages from the user [user].');
-					this.add('Note that staff messages cannot be ignored.');
-					return false;
 				case 'unignore':
+					this.add('/ignore [user] - Ignores all messages from the user [user].');
 					this.add('/unignore [user] - Removes user [user] from your ignore list.');
+					this.add('Note that staff messages cannot be ignored.');
 					return false;
 				case 'timestamps':
 					this.add('Set your timestamps preference:');
