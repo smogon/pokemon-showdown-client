@@ -2107,7 +2107,6 @@ var Battle = (function () {
 		// 5 = seeking
 		this.playbackState = 0;
 
-		this.backdropImage = BattleBackdrops[0];
 		this.backdropImage = BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
 
 		this.bgm = null;
@@ -2193,7 +2192,7 @@ var Battle = (function () {
 		this.gen = 6;
 	};
 	Battle.prototype.updateGen = function () {
-		if (this.gen < 4) this.backdropImage = '';
+		if (this.gen < 3) this.backdropImage = 'bg-gen1.png';
 		else if (this.gen < 6) this.backdropImage = 'bg.jpg';
 		if (this.bgElem) this.bgElem.css('background-image','url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ')');
 	};
