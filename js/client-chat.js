@@ -657,17 +657,19 @@
 								}
 								buffer += '</td><td>'+row.w+'</td><td>'+row.l+'</td><td>'+row.t+'</td></tr>';
 							}
-						}
-						if (hiddenFormats.length) {
-							if (hiddenFormats.length === formatLength) {
-								buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match the format targeting.</em></td></tr>';
-							}
+							if (hiddenFormats.length) {
+								if (hiddenFormats.length === formatLength) {
+									buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match the format targeting.</em></td></tr>';
+								}
 
-							buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
+								buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
+							}
 						}
 						buffer += '</table></div>';
 						self.add('|raw|'+buffer);
-					} catch(e) {}
+					} catch(e) {
+						self.add('|raw|Error: corrupted ranking data');
+					}
 				}), 'text');
 				return false;
 
