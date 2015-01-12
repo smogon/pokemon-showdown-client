@@ -133,6 +133,11 @@
 			this.battle.add('', Tools.prefs('noanim'));
 			this.updateControls();
 		},
+		revealMessages: function(user) {
+			var $messages = $('.chatmessage-' + user);
+			$messages.show();
+			$messages.find('button').parent().remove();
+		},
 
 		/*********************************************************
 		 * Battle stuff

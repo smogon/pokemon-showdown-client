@@ -313,7 +313,7 @@ var Tools = {
 		return Tools.escapeHTML(formatid);
 	},
 
-	parseMessage: function(str, linkclass) {
+	parseMessage: function(str) {
 		str = Tools.escapeHTML(str);
 		// Don't format console commands (>>).
 		if (str.substr(0, 8) === '&gt;&gt;') return str;
@@ -330,13 +330,9 @@ var Tools = {
 				options.hidestrikethrough ? '$1' : '<s>$1</s>');
 		// linking of URIs
 		if (!options.hidelinks) {
-			var classbit = '';
-			if (linkclass) {
-				classbit = ' class="message-link-' + toId(linkclass) + '"';
-			}
 			str = str.replace(/https?\:\/\/[a-z0-9-.]+(?:\:[0-9]+)?(?:\/(?:[^\s]*[^\s?.,])?)?|[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}|(?:[a-z0-9](?:[a-z0-9-\.]*[a-z0-9])?\.(?:com|org|net|edu|us|jp)(?:\:[0-9]+)?|qmark\.tk)(?:(?:\/(?:[^\s]*[^\s?.,])?)?)\b/ig, function(uri) {
 				if (/[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}/ig.test(uri)) {
-					return '<a href="mailto:'+uri+'" target="_blank"'+classbit+'>'+uri+'</a>';
+					return '<a href="mailto:'+uri+'" target="_blank">'+uri+'</a>';
 				}
 				// Insert http:// before URIs without a URI scheme specified.
 				var fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
@@ -361,8 +357,7 @@ var Tools = {
 							event + '\', \'' + Tools.escapeQuotes(fulluri) + '\');';
 				}
 				return '<a href="' + fulluri +
-					'" target="_blank" onclick="' + onclick + '"' + classbit +
-						'>' + uri + '</a>';
+					'" target="_blank" onclick="' + onclick + '">' + uri + '</a>';
 			});
 			// google [blah]
 			// google[blah]
@@ -370,7 +365,7 @@ var Tools = {
 			str = str.replace(/\bgoogle ?\[([^\]<]+)\]/ig, function(p0, p1) {
 				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p1 +
-					'" target="_blank"' + classbit + '>' + p0 + '</a>';
+					'" target="_blank">' + p0 + '</a>';
 			});
 			// gl [blah]
 			// gl[blah]
@@ -378,21 +373,21 @@ var Tools = {
 			str = str.replace(/\bgl ?\[([^\]<]+)\]/ig, function(p0, p1) {
 				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + p1 +
-					'" target="_blank"' + classbit + '>' + p0 + '</a>';
+					'" target="_blank">' + p0 + '</a>';
 			});
 			// wiki [blah]
 			//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
 			str = str.replace(/\bwiki ?\[([^\]<]+)\]/ig, function(p0, p1) {
 				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
-					p1 + '" target="_blank"' + classbit + '>' + p0 + '</a>';
+					p1 + '" target="_blank">' + p0 + '</a>';
 			});
 			// [[blah]]
 			//   Short form of gl[blah]
 			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])?)\]\]/ig, function(p0, p1) {
 				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
-					'" target="_blank"' + classbit + '>' + p1 +'</a>';
+					'" target="_blank">' + p1 +'</a>';
 			});
 		}
 		// __italics__

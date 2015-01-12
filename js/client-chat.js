@@ -993,9 +993,13 @@
 				case 'unlink':
 					// note: this message has global effects, but it's handled here
 					// so that it can be included in the scrollback buffer.
-					$('.message-link-' + toId(row[1])).each(function() {
-						$(this).replaceWith($(this).html());
-					});
+					var user = toId(row[2]) || toId(row[1]);
+					var $messages = $('.chatmessage-' + user);
+					$messages.find('a').contents().unwrap();
+					if (row[2]) {
+						$messages.hide();
+						this.$chat.append('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>Some messages were hidden, click here to restore them.</small></button></div>');
+					}
 					break;
 
 				case 'tournament':
@@ -1014,6 +1018,11 @@
 					break;
 				}
 			}
+		},
+		revealMessages: function(user) {
+			var $messages = $('.chatmessage-' + user);
+			$messages.show();
+			$messages.find('button').parent().remove();
 		},
 		tournamentButton: function(val, button) {
 			if (this.tournamentBox) this.tournamentBox[$(button).data('type')](val, button);
@@ -1152,23 +1161,23 @@
 				}
 			}
 			var highlight = isHighlighted ? ' highlighted' : '';
-			var chatDiv = '<div class="chat' + highlight + '">';
+			var chatDiv = '<div class="chat chatmessage-' + toId(name) + highlight + '">';
 			var timestamp = ChatRoom.getTimestamp('lobby', deltatime);
 			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
 			var self = this;
 			var outputChat = function() {
-				self.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message, name) + '</em></div>');
+				self.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
 			};
 			var showme = !((Tools.prefs('chatformatting') || {}).hideme);
 			if (pm) {
 				var pmuserid = toUserid(pm);
 				var oName = pm;
 				if (pmuserid === app.user.get('userid')) oName = name;
-				this.$chat.append('<div class="chat">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message, name) + '</span></div>');
+				this.$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span></div>');
 			} else if (message.substr(0,4) === '/me ') {
 				message = message.substr(4);
 				if (showme) {
-					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message, name) + '</i></em></div>');
+					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message) + '</i></em></div>');
 				} else {
 					outputChat();
 				}
@@ -1176,13 +1185,13 @@
 			} else if (message.substr(0,5) === '/mee ') {
 				message = message.substr(5);
 				if (showme) {
-					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message, name) + '</i></em></div>');
+					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message) + '</i></em></div>');
 				} else {
 					outputChat();
 				}
 				Storage.logChat(this.id, '* '+name+message);
 			} else if (message.substr(0,10) === '/announce ') {
-				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10), name) + '</span></div>');
+				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
 				Storage.logChat(this.id, ''+name+': /announce '+message);
 			} else if (message.substr(0,14) === '/data-pokemon ') {
 				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
