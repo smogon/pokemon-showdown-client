@@ -652,6 +652,7 @@
 						pokemon.side.active[i].ability = pokemon.ability || pokemonData.ability;
 						pokemon.side.active[i].baseAbility = pokemon.baseAbility || pokemonData.baseAbility;
 						pokemon.side.active[i].stats = pokemon.stats || pokemonData.stats;
+						pokemon.side.active[i].pokeball = pokemon.pokeball || pokemonData.pokeball;
 					}
 				} else {
 					pokemon = this.battle.getPokemon('new: '+pokemonData.ident, pokemonData.details);
@@ -665,6 +666,7 @@
 				pokemon.moves = pokemonData.moves;
 				pokemon.canMegaEvo = pokemonData.canMegaEvo;
 				pokemon.stats = pokemonData.stats;
+				pokemon.pokeball = pokemonData.pokeball;
 			}
 			this.battle.mySide.updateSidebar();
 		},
