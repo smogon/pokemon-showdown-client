@@ -1035,7 +1035,13 @@
 					text += '<p>Item: ' + Tools.getItem(pokemon.item).name + '</p>';
 				}
 				if (pokemon.stats) {
-					text += '<p>' + pokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + pokemon.stats['def'] + '&nbsp;Def /&nbsp;' + pokemon.stats['spa'] + '&nbsp;SpA /&nbsp;' + pokemon.stats['spd'] + '&nbsp;SpD /&nbsp;' + pokemon.stats['spe'] + '&nbsp;Spe</p>';
+					text += '<p>' + pokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + pokemon.stats['def'] + '&nbsp;Def /&nbsp;' + pokemon.stats['spa'];
+					if (this.battle.gen === 1) {
+						text += '&nbsp;Spc /&nbsp;';
+					} else {
+						text += '&nbsp;SpA /&nbsp;' + pokemon.stats['spd'] + '&nbsp;SpD /&nbsp;';
+					}
+					text += pokemon.stats['spe'] + '&nbsp;Spe</p>';
 				} else if (template.baseStats) {
 					var minSpe;
 					var maxSpe;
