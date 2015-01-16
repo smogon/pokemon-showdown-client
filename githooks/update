@@ -3,6 +3,7 @@
 /**
  * This script parses index.html and sets the version query string of each
  * resource to be the MD5 hash of that resource.
+ * It also updates news and the learnsets-g6.js file.
  *
  * On the live web server, this script is set as the following git hooks:
  *   post-commit, post-checkout, post-merge, post-rewrite
@@ -12,38 +13,162 @@ var path = require('path');
 var fs = require('fs');
 var crypto = require('crypto');
 var exec = require('child_process').exec;
+var sugar = require('sugar');
 
 var thisDir = __dirname;
 var rootDir = path.resolve(thisDir, '..');
-var contents = fs.readFileSync(path.resolve(rootDir, 'index.template.html'), { encoding: 'utf8' });
 
-// add hashes to js and css files
-contents = contents.replace(/(src|href)="\/(.*?)\?[a-z0-9]*?"/g, function (a, b, c) {
-	var hash = Math.random(); // just in case creating the hash fails
-	try {
-		var filename = c.replace('/play.pokemonshowdown.com/', '');
-		var fstr = fs.readFileSync(path.resolve(rootDir, filename), { encoding: 'utf8' });
-		hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-	} catch (e) {}
+function toId (text) {
+	if (text && text.id) text = text.id;
+	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
 
-	return b + '="/' + c + '?' + hash + '"';
-});
+function updateIndex () {
+	var indexContents = fs.readFileSync(path.resolve(rootDir, 'index.template.html'), { encoding: 'utf8' });
 
-// add news
-exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
-	var newsData = [0, '[failed to retrieve news]'];
-	if (!error && !stderr) {
+	// add hashes to js and css files
+	console.log('Updating hashes...');
+	indexContents = indexContents.replace(/(src|href)="\/(.*?)\?[a-z0-9]*?"/g, function (a, b, c) {
+		var hash = Math.random(); // just in case creating the hash fails
 		try {
-			newsData = JSON.parse(stdout);
-		} catch (e) {
-			console.log("git hook failed to retrieve news (parsing JSON failed):\n" + e.stack);
+			var filename = c.replace('/play.pokemonshowdown.com/', '');
+			var fstr = fs.readFileSync(path.resolve(rootDir, filename), { encoding: 'utf8' });
+			hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
+		} catch (e) {}
+
+		return b + '="/' + c + '?' + hash + '"';
+	});
+	console.log('Hashes updated.');
+
+	// add news
+	console.log('Updating news...');
+	exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
+		var newsData = [0, '[failed to retrieve news]'];
+		if (!error && !stderr) {
+			try {
+				newsData = JSON.parse(stdout);
+			} catch (e) {
+				console.log("git hook failed to retrieve news (parsing JSON failed):\n" + e.stack);
+			}
+		} else {
+			console.log("git hook failed to retrieve news (exec command failed):\n" + (error || stderr));
 		}
-	} else {
-		console.log("git hook failed to retrieve news (exec command failed):\n" + (error || stderr));
+
+		indexContents = indexContents.replace(/<!-- newsid -->/g, newsData[0]);
+		indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
+
+		fs.writeFileSync(path.resolve(rootDir, 'index.html'), indexContents);
+		console.log('News updated.');
+	});
+}
+
+var pendingFiles = 0;
+
+// update learnsets-g6
+pendingFiles++;
+console.log('Updating file `data/learnsets-g6`...');
+var reservedKeywords = ['return']; // `return` is the only ES3+ reserved keyword that (currently) raises conflicts
+var numberRegExp = new RegExp('^[0-9]*');
+var reservedRegExp = new RegExp('^(' + reservedKeywords.join('|') + ')$', 'g');
+var alphabetize = function (a, b) {return a.localeCompare(b)};
+var getLsetGen = function (lset) {return lset.charAt(0)};
+
+var padNumString = function (str) {
+	switch (str.length) {
+	case 1: return '00' + str;
+	case 2: return '0' + str;
+	case 3: return '' + str;
+	}
+};
+var inLearnset = function (lset, learnset) {
+	var secondChar = lset.charAt(1);
+	if (secondChar !== 'L') return learnset.indexOf(lset) >= 0;
+
+	var firstFragment = lset.substr(0, 2);
+	var levelFragment = lset.substr(2);
+	var paddedLevel = padNumString(levelFragment);
+	for (var i = 0, len = learnset.length; i < len; i++) {
+		if (learnset[i].substring(0, 2) !== firstFragment) continue;
+		// ignore PSdex starter moves sorting data
+		if (learnset[i].substring(2, 5) === paddedLevel) return true;
+	}
+	return false;
+};
+var formatLset = function (lset) {
+	var secondChar = lset.charAt(1);
+	if (secondChar !== 'L') return lset;
+	var firstFragment = lset.substr(0, 2);
+	var levelFragment = lset.substr(2).match(numberRegExp)[0];
+	var sortFragment = lset.substr(2 + levelFragment.length);
+	return firstFragment + padNumString(levelFragment) + sortFragment;
+};
+
+var Learnsets = require(path.join(rootDir, 'data', 'learnsets.js')).BattleLearnsets;
+var oldLearnsetsG6 = require(path.join(rootDir, 'data', 'learnsets-g6.js')).BattleLearnsets;
+var Pokedex = require(path.join(rootDir, 'data', 'pokedex.js')).BattlePokedex;
+var newLearnsetsG6 = {};
+
+for (var speciesid in Learnsets) {
+	if (!oldLearnsetsG6[speciesid] || !oldLearnsetsG6[speciesid].learnset) {
+		console.log("NEW: " + Pokedex[speciesid].species + ".");
+		oldLearnsetsG6[speciesid] = {learnset: {}};
+	}
+}
+for (var speciesid in oldLearnsetsG6) {
+	if (!Learnsets[speciesid] || !Learnsets[speciesid].learnset) throw new Error("Missing learnsets.js entry for " + speciesid + ".");
+	if (!oldLearnsetsG6[speciesid] || !oldLearnsetsG6[speciesid].learnset) throw new Error("Invalid learnsets-g6.js entry for " + speciesid + ".");
+
+	var fullLearnset = Learnsets[speciesid].learnset;
+	var oldLearnset = oldLearnsetsG6[speciesid].learnset;
+	var newLearnset = {};
+
+	// clone
+	for (var moveid in oldLearnset) {
+		if (!Array.isArray(oldLearnset[moveid])) throw new TypeError("Invalid data at learnsets-g6.js for " + speciesid + ":" + moveid + ".");
+		newLearnset[moveid] = oldLearnset[moveid].slice();
 	}
 
-	contents = contents.replace(/<!-- newsid -->/g, newsData[0]);
-	contents = contents.replace(/<!-- news -->/g, newsData[1]);
+	for (var moveid in fullLearnset) {
+		if (!Array.isArray(fullLearnset[moveid])) throw new TypeError("Invalid data at learnsets.js for " + speciesid + ":" + moveid + ".");
 
-	fs.writeFileSync(path.resolve(rootDir, 'index.html'), contents);
+		if (!newLearnset[moveid]) newLearnset[moveid] = [];
+		newLearnset[moveid] = newLearnset[moveid].map(formatLset);
+		for (var i = 0, len = fullLearnset[moveid].length; i < len; i++) {
+			if (getLsetGen(fullLearnset[moveid][i]) !== '6') continue;
+			if (inLearnset(fullLearnset[moveid][i], newLearnset[moveid])) continue;
+			newLearnset[moveid].push(formatLset(fullLearnset[moveid][i]));
+		}
+		newLearnset[moveid].sort(alphabetize);
+	}
+
+	newLearnsetsG6[speciesid] = {learnset: newLearnset};
+}
+
+var buf = [];
+var pokemonList = Object.values(Pokedex).sort(function (a, b) {
+	// Missingno. goes first (zeroth); afterwards, CAP in descending dex order (increasingly negative)
+	// Finally, standard Pokémon in ascending dex order
+	if (a.num <= 0 && b.num > 0) return -1;
+	if (b.num <= 0 && a.num > 0) return 1;
+	if (a.num <= 0 && b.num <= 0) return b.num - a.num;
+	return a.num - b.num;
+}).map('species').map(toId);
+
+for (var i = 0, len = pokemonList.length; i < len; i++) {
+	var entry = newLearnsetsG6[pokemonList[i]];
+	if (!entry || !entry.learnset) continue;
+	var lsetSerialized = '{' + Object.keys(entry.learnset).sort(alphabetize).map(function (moveid) {
+		return moveid.replace(reservedRegExp, '"$1"') + ':' + JSON.stringify(entry.learnset[moveid]);
+	}).join(',') + '}';
+	buf.push(pokemonList[i] + ':{learnset:' + lsetSerialized + '}');
+}
+
+var writeStream = fs.createWriteStream(path.join(rootDir, 'data', 'learnsets-g6.js')).on('error', function (err) {
+	console.error(err.stack || err);
+});
+writeStream.write('exports.BattleLearnsets = {\n\t' + buf.join(',\n\t') + '\n};\n');
+writeStream.end(function () {
+	console.log('File `data/learnsets-g6` updated.');
+	pendingFiles--;
+	if (!pendingFiles) updateIndex();
 });
