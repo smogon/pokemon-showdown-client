@@ -430,7 +430,7 @@
 							var pokemon = switchables[i];
 							pokemon.name = pokemon.ident.substr(4);
 							if (pokemon.zerohp || i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
-								controls += '<button disabled' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':''):'') +'</button> ';
+								controls += '<button class="disabled" name="chooseDisabled" value="' + pokemon.name + (pokemon.zerohp ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':''):'') +'</button> ';
 							} else {
 								controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
 							}
@@ -505,7 +505,7 @@
 				for (var i = 0; i < switchables.length; i++) {
 					var pokemon = switchables[i];
 					if (pokemon.zerohp || i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
-						controls += '<button disabled' + this.tooltipAttrs(i, 'sidepokemon') + '>';
+						controls += '<button class="disabled" name="chooseDisabled" value="' + pokemon.name + (pokemon.zerohp ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '"' + this.tooltipAttrs(i, 'sidepokemon') + '>';
 					} else {
 						controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '>';
 					}
@@ -865,6 +865,17 @@
 
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
+		},
+		chooseDisabled: function(data) {
+			this.hideTooltip();
+			data = data.split(',');
+			if (data[1] === 'fainted') {
+				app.addPopupMessage(data[0] + " has no energy left to battle!");
+			} else if (data[1] === 'active') {
+				app.addPopupMessage(data[0] + " is already in battle!");
+			} else {
+				app.addPopupMessage(data[0] + " is already selected!");
+			}
 		},
 		undoChoice: function(pos) {
 			this.send('/undo');
