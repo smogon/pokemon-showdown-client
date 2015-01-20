@@ -68,10 +68,11 @@ exports.BattleAbilities = {
 	"aerilate": {
 		desc: "Turns all of this Pokemon's Normal-typed attacks into Flying-type and deal 1.3x damage. Does not affect Hidden Power.",
 		shortDesc: "This Pokemon's Normal moves become Flying-type and do 1.3x damage.",
+		onModifyMovePriority: -1,
 		onModifyMove: function (move, pokemon) {
-			if (move.type === 'Normal' && move.id !== 'hiddenpower') {
+			if (move.type === 'Normal' && move.id !== 'naturalgift') {
 				move.type = 'Flying';
-				pokemon.addVolatile('aerilate');
+				if (move.category !== 'Status') pokemon.addVolatile('aerilate');
 			}
 		},
 		effect: {
@@ -669,9 +670,13 @@ exports.BattleAbilities = {
 		onAfterDamage: function (damage, target, source, move) {
 			if (move && move.isContact && !source.status && source.runImmunity('powder')) {
 				var r = this.random(100);
-				if (r < 11) source.setStatus('slp', target);
-				else if (r < 21) source.setStatus('par', target);
-				else if (r < 30) source.setStatus('psn', target);
+				if (r < 11) {
+					source.setStatus('slp', target);
+				} else if (r < 21) {
+					source.setStatus('par', target);
+				} else if (r < 30) {
+					source.setStatus('psn', target);
+				}
 			}
 		},
 		id: "effectspore",
@@ -933,11 +938,11 @@ exports.BattleAbilities = {
 		num: 119
 	},
 	"furcoat": {
-		desc: "Halves the damage done to this Pokemon by physical attacks.",
-		shortDesc: "Halves physical damage done to this Pokemon.",
-		onModifyAtkPriority: 6,
-		onSourceModifyAtk: function (atk, attacker, defender, move) {
-			return this.chainModify(0.5);
+		desc: "This Pokemon's Defense is doubled.",
+		shortDesc: "This Pokemon's Defense is doubled.",
+		onModifyDefPriority: 6,
+		onModifyDef: function (def) {
+			return this.chainModify(2);
 		},
 		id: "furcoat",
 		name: "Fur Coat",
@@ -1748,6 +1753,7 @@ exports.BattleAbilities = {
 	"normalize": {
 		desc: "Makes all of this Pokemon's attacks Normal-typed.",
 		shortDesc: "This Pokemon's moves all become Normal-typed.",
+		onModifyMovePriority: 1,
 		onModifyMove: function (move) {
 			if (move.id !== 'struggle') {
 				move.type = 'Normal';
@@ -1913,10 +1919,11 @@ exports.BattleAbilities = {
 	"pixilate": {
 		desc: "Turns all of this Pokemon's Normal-typed attacks into Fairy-type and deal 1.3x damage. Does not affect Hidden Power.",
 		shortDesc: "This Pokemon's Normal moves become Fairy-type and do 1.3x damage.",
+		onModifyMovePriority: -1,
 		onModifyMove: function (move, pokemon) {
-			if (move.type === 'Normal' && move.id !== 'hiddenpower') {
+			if (move.type === 'Normal' && move.id !== 'naturalgift') {
 				move.type = 'Fairy';
-				pokemon.addVolatile('pixilate');
+				if (move.category !== 'Status') pokemon.addVolatile('pixilate');
 			}
 		},
 		effect: {
@@ -2136,10 +2143,11 @@ exports.BattleAbilities = {
 	"refrigerate": {
 		desc: "Turns all of this Pokemon's Normal-typed attacks into Ice-typed and deal 1.3x damage. Does not affect Hidden Power.",
 		shortDesc: "This Pokemon's Normal moves become Ice-type and do 1.3x damage.",
+		onModifyMovePriority: -1,
 		onModifyMove: function (move, pokemon) {
-			if (move.type === 'Normal' && move.id !== 'hiddenpower') {
+			if (move.type === 'Normal' && move.id !== 'naturalgift') {
 				move.type = 'Ice';
-				pokemon.addVolatile('refrigerate');
+				if (move.category !== 'Status') pokemon.addVolatile('refrigerate');
 			}
 		},
 		effect: {
@@ -2603,7 +2611,7 @@ exports.BattleAbilities = {
 	"stancechange": {
 		desc: "Only affects Aegislash. If this Pokemon uses a Physical or Special move, it changes to Blade forme. If this Pokemon uses King's Shield, it changes to Shield forme.",
 		shortDesc: "The Pokemon changes form depending on how it battles.",
-		onBeforeMovePriority: 10,
+		onBeforeMovePriority: 11,
 		onBeforeMove: function (attacker, defender, move) {
 			if (attacker.template.baseSpecies !== 'Aegislash') return;
 			if (move.category === 'Status' && move.id !== 'kingsshield') return;
@@ -3028,6 +3036,7 @@ exports.BattleAbilities = {
 	"truant": {
 		desc: "After this Pokemon is switched into battle, it skips every other turn.",
 		shortDesc: "This Pokemon skips every other turn instead of using a move.",
+		onBeforeMovePriority: 9,
 		onBeforeMove: function (pokemon, target, move) {
 			if (pokemon.removeVolatile('truant')) {
 				this.add('cant', pokemon, 'ability: Truant', move);
@@ -3035,7 +3044,6 @@ exports.BattleAbilities = {
 			}
 			pokemon.addVolatile('truant');
 		},
-		onBeforeMovePriority: 99,
 		effect: {
 			duration: 2
 		},
