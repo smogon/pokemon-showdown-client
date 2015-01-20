@@ -612,6 +612,7 @@ exports.BattleMovedex = {
 					this.add('-start', pokemon, 'Attract');
 				}
 			},
+			onBeforeMovePriority: 2,
 			onBeforeMove: function (pokemon, target, move) {
 				if (this.effectData.source && !this.effectData.source.isActive && pokemon.volatiles['attract']) {
 					this.debug('Removing Attract volatile on ' + pokemon);
@@ -699,7 +700,7 @@ exports.BattleMovedex = {
 					this.add('-start', pokemon, 'Autotomize');
 				}
 			},
-			onRestart: function (pokemon)		 {
+			onRestart: function (pokemon) {
 				if (pokemon.weightkg !== 0.1) {
 					this.effectData.multiplier++;
 					this.add('-start', pokemon, 'Autotomize');
@@ -1584,9 +1585,13 @@ exports.BattleMovedex = {
 		isSnatchable: true,
 		onHit: function (target) {
 			var newType = 'Normal';
-			if (this.isTerrain('electricterrain')) newType = 'Electric';
-			else if (this.isTerrain('grassyterrain')) newType = 'Grass';
-			else if (this.isTerrain('mistyterrain')) newType = 'Fairy';
+			if (this.isTerrain('electricterrain')) {
+				newType = 'Electric';
+			} else if (this.isTerrain('grassyterrain')) {
+				newType = 'Grass';
+			} else if (this.isTerrain('mistyterrain')) {
+				newType = 'Fairy';
+			}
 
 			if (!target.setType(newType)) return false;
 			this.add('-start', target, 'typechange', newType);
@@ -2567,7 +2572,7 @@ exports.BattleMovedex = {
 			},
 			onFaint: function (target, source, effect) {
 				if (!source || !effect) return;
-				if (effect.effectType === 'Move' && !effect.isFutureMove && target.lastMove === 'destinybond') {
+				if (effect.effectType === 'Move' && !effect.isFutureMove) {
 					this.add('-activate', target, 'Destiny Bond');
 					source.faint();
 				}
@@ -2726,6 +2731,7 @@ exports.BattleMovedex = {
 			onEnd: function (pokemon) {
 				this.add('-end', pokemon, 'Disable');
 			},
+			onBeforeMovePriority: 7,
 			onBeforeMove: function (attacker, defender, move) {
 				if (move.id === this.effectData.move) {
 					this.add('cant', attacker, 'Disable', move);
@@ -3472,6 +3478,7 @@ exports.BattleMovedex = {
 			onStart: function (target) {
 				this.add('-singleturn', target, 'move: Electrify');
 			},
+			onModifyMovePriority: -2,
 			onModifyMove: function (move) {
 				this.debug('Electrify making move type electric');
 				move.type = 'Electric';
@@ -4520,7 +4527,7 @@ exports.BattleMovedex = {
 			onStart: function (pokemon) {
 				this.effectData.item = pokemon.item;
 			},
-			onModifyMovePriority: -1,
+			onModifyMovePriority: -3,
 			onModifyMove: function (move) {
 				var item = this.getItem(this.effectData.item);
 				move.basePower = item.fling.basePower;
@@ -5529,6 +5536,7 @@ exports.BattleMovedex = {
 				}
 				if (applies) this.add('-activate', pokemon, 'Gravity');
 			},
+			onBeforeMovePriority: 6,
 			onBeforeMove: function (pokemon, target, move) {
 				var disabledMoves = {bounce:1, fly:1, highjumpkick:1, jumpkick:1, magnetrise:1, skydrop:1, splash:1, telekinesis:1};
 				if (disabledMoves[move.id]) {
@@ -5608,9 +5616,8 @@ exports.BattleMovedex = {
 				this.add('-singlemove', pokemon, 'Grudge');
 			},
 			onFaint: function (target, source, effect) {
-				this.debug('Grudge detected fainted pokemon');
 				if (!source || !effect) return;
-				if (effect.effectType === 'Move' && target.lastMove === 'grudge') {
+				if (effect.effectType === 'Move' && !effect.isFutureMove) {
 					for (var i in source.moveset) {
 						if (source.moveset[i].id === source.lastMove) {
 							source.moveset[i].pp = 0;
@@ -5619,7 +5626,7 @@ exports.BattleMovedex = {
 					}
 				}
 			},
-			onBeforeMovePriority: -10,
+			onBeforeMovePriority: 100,
 			onBeforeMove: function (pokemon) {
 				this.debug('removing Grudge before attack');
 				pokemon.removeVolatile('grudge');
@@ -5991,6 +5998,7 @@ exports.BattleMovedex = {
 					}
 				}
 			},
+			onBeforeMovePriority: 6,
 			onBeforeMove: function (pokemon, target, move) {
 				var disabledMoves = {healingwish:1, lunardance:1, rest:1, swallow:1, wish:1};
 				if (disabledMoves[move.id] || move.heal || move.drain) {
@@ -6041,8 +6049,11 @@ exports.BattleMovedex = {
 		flags: {protect: 1, pulse: 1, reflectable: 1, distance: 1, heal: 1},
 		isBounceable: true,
 		onHit: function (target, source) {
-			if (source.hasAbility('megalauncher')) this.heal(this.modify(target.maxhp, 0.75));
-			else this.heal(Math.ceil(target.maxhp * 0.5));
+			if (source.hasAbility('megalauncher')) {
+				this.heal(this.modify(target.maxhp, 0.75));
+			} else {
+				this.heal(Math.ceil(target.maxhp * 0.5));
+			}
 		},
 		secondary: false,
 		target: "any",
@@ -6732,8 +6743,11 @@ exports.BattleMovedex = {
 		priority: 0,
 		flags: {protect: 1, mirror: 1, distance: 1},
 		onModifyMove: function (move) {
-			if (this.isWeather(['raindance', 'primordialsea'])) move.accuracy = true;
-			else if (this.isWeather(['sunnyday', 'desolateland'])) move.accuracy = 50;
+			if (this.isWeather(['raindance', 'primordialsea'])) {
+				move.accuracy = true;
+			} else if (this.isWeather(['sunnyday', 'desolateland'])) {
+				move.accuracy = 50;
+			}
 		},
 		secondary: {
 			chance: 30,
@@ -7158,6 +7172,7 @@ exports.BattleMovedex = {
 				}
 				pokemon.maybeDisabled = true;
 			},
+			onFoeBeforeMovePriority: 4,
 			onFoeBeforeMove: function (attacker, defender, move) {
 				if (attacker.disabledMoves[move.id]) {
 					this.add('cant', attacker, 'move: Imprison', move);
@@ -7283,6 +7298,7 @@ exports.BattleMovedex = {
 			onStart: function (target) {
 				this.add('-fieldactivate', 'move: Ion Deluge');
 			},
+			onModifyMovePriority: -2,
 			onModifyMove: function (move) {
 				if (move.type === 'Normal') {
 					move.type = 'Electric';
@@ -8218,7 +8234,7 @@ exports.BattleMovedex = {
 				}
 			}
 			if (!targets.length) return false;
-			for (var i = 0;i < targets.length;i++) this.boost({spd: 1, def: 1}, targets[i], source, 'move: Magnetic Flux');
+			for (var i = 0; i < targets.length; i++) this.boost({spd: 1, def: 1}, targets[i], source, 'move: Magnetic Flux');
 		},
 		secondary: false,
 		target: "allySide",
@@ -8767,12 +8783,12 @@ exports.BattleMovedex = {
 		effect: {
 			noCopy: true,
 			onSourceModifyDamage: function (damage, source, target, move) {
-				if (move.id in {'stomp':1, 'steamroller':1, 'bodyslam':1, 'flyingpress':1, 'dragonrush':1, 'phantomforce':1}) {
+				if (move.id in {'stomp':1, 'steamroller':1, 'bodyslam':1, 'flyingpress':1, 'dragonrush':1, 'phantomforce':1, 'heatcrash':1, 'shadowforce':1}) {
 					return this.chainModify(2);
 				}
 			},
 			onAccuracy: function (accuracy, target, source, move) {
-				if (move.id in {'stomp':1, 'steamroller':1, 'bodyslam':1, 'flyingpress':1, 'dragonrush':1, 'phantomforce':1}) {
+				if (move.id in {'stomp':1, 'steamroller':1, 'bodyslam':1, 'flyingpress':1, 'dragonrush':1, 'phantomforce':1, 'heatcrash':1, 'shadowforce':1}) {
 					return true;
 				}
 				return accuracy;
@@ -9052,9 +9068,13 @@ exports.BattleMovedex = {
 		flags: {snatch: 1, heal: 1},
 		isSnatchable: true,
 		onHit: function (pokemon) {
-			if (this.isWeather(['sunnyday', 'desolateland'])) this.heal(this.modify(pokemon.maxhp, 0.667));
-			else if (this.isWeather(['raindance', 'primordialsea', 'sandstorm', 'hail'])) this.heal(this.modify(pokemon.maxhp, 0.25));
-			else this.heal(this.modify(pokemon.maxhp, 0.5));
+			if (this.isWeather(['sunnyday', 'desolateland'])) {
+				this.heal(this.modify(pokemon.maxhp, 0.667));
+			} else if (this.isWeather(['raindance', 'primordialsea', 'sandstorm', 'hail'])) {
+				this.heal(this.modify(pokemon.maxhp, 0.25));
+			} else {
+				this.heal(this.modify(pokemon.maxhp, 0.5));
+			}
 		},
 		secondary: false,
 		target: "self",
@@ -9075,9 +9095,13 @@ exports.BattleMovedex = {
 		flags: {snatch: 1, heal: 1},
 		isSnatchable: true,
 		onHit: function (pokemon) {
-			if (this.isWeather(['sunnyday', 'desolateland'])) this.heal(this.modify(pokemon.maxhp, 0.667));
-			else if (this.isWeather(['raindance', 'primordialsea', 'sandstorm', 'hail'])) this.heal(this.modify(pokemon.maxhp, 0.25));
-			else this.heal(this.modify(pokemon.maxhp, 0.5));
+			if (this.isWeather(['sunnyday', 'desolateland'])) {
+				this.heal(this.modify(pokemon.maxhp, 0.667));
+			} else if (this.isWeather(['raindance', 'primordialsea', 'sandstorm', 'hail'])) {
+				this.heal(this.modify(pokemon.maxhp, 0.25));
+			} else {
+				this.heal(this.modify(pokemon.maxhp, 0.5));
+			}
 		},
 		secondary: false,
 		target: "self",
@@ -9306,9 +9330,13 @@ exports.BattleMovedex = {
 		flags: {},
 		onHit: function (target, source) {
 			var moveToUse = 'triattack';
-			if (this.isTerrain('electricterrain')) moveToUse = 'thunderbolt';
-			else if (this.isTerrain('grassyterrain')) moveToUse = 'energyball';
-			else if (this.isTerrain('mistyterrain')) moveToUse = 'moonblast';
+			if (this.isTerrain('electricterrain')) {
+				moveToUse = 'thunderbolt';
+			} else if (this.isTerrain('grassyterrain')) {
+				moveToUse = 'energyball';
+			} else if (this.isTerrain('mistyterrain')) {
+				moveToUse = 'moonblast';
+			}
 
 			this.useMove(moveToUse, source, target);
 		},
@@ -12577,7 +12605,7 @@ exports.BattleMovedex = {
 				if (defender !== this.effectData.source) return;
 				defender.trapped = true;
 			},
-			onFoeBeforeMovePriority: 11,
+			onFoeBeforeMovePriority: 12,
 			onFoeBeforeMove: function (attacker, defender, move) {
 				if (attacker === this.effectData.source) {
 					this.debug('Sky drop nullifying.');
@@ -14132,9 +14160,13 @@ exports.BattleMovedex = {
 		flags: {snatch: 1, heal: 1},
 		isSnatchable: true,
 		onHit: function (pokemon) {
-			if (this.isWeather(['sunnyday', 'desolateland'])) this.heal(this.modify(pokemon.maxhp, 0.667));
-			else if (this.isWeather(['raindance', 'primordialsea', 'sandstorm', 'hail'])) this.heal(this.modify(pokemon.maxhp, 0.25));
-			else this.heal(this.modify(pokemon.maxhp, 0.5));
+			if (this.isWeather(['sunnyday', 'desolateland'])) {
+				this.heal(this.modify(pokemon.maxhp, 0.667));
+			} else if (this.isWeather(['raindance', 'primordialsea', 'sandstorm', 'hail'])) {
+				this.heal(this.modify(pokemon.maxhp, 0.25));
+			} else {
+				this.heal(this.modify(pokemon.maxhp, 0.5));
+			}
 		},
 		secondary: false,
 		target: "self",
@@ -14308,6 +14340,7 @@ exports.BattleMovedex = {
 					}
 				}
 			},
+			onBeforeMovePriority: 5,
 			onBeforeMove: function (attacker, defender, move) {
 				if (move.category === 'Status') {
 					this.add('cant', attacker, 'move: Taunt', move);
@@ -14519,8 +14552,11 @@ exports.BattleMovedex = {
 		priority: 0,
 		flags: {protect: 1, mirror: 1},
 		onModifyMove: function (move) {
-			if (this.isWeather(['raindance', 'primordialsea'])) move.accuracy = true;
-			else if (this.isWeather(['sunnyday', 'desolateland'])) move.accuracy = 50;
+			if (this.isWeather(['raindance', 'primordialsea'])) {
+				move.accuracy = true;
+			} else if (this.isWeather(['sunnyday', 'desolateland'])) {
+				move.accuracy = 50;
+			}
 		},
 		secondary: {
 			chance: 30,
@@ -14980,16 +15016,16 @@ exports.BattleMovedex = {
 		basePowerCallback: function (pokemon) {
 			var move = pokemon.getMoveData(pokemon.lastMove); // Account for calling Trump Card via other moves
 			switch (move.pp) {
-				case 0:
-					return 200;
-				case 1:
-					return 80;
-				case 2:
-					return 60;
-				case 3:
-					return 50;
-				default:
-					return 40;
+			case 0:
+				return 200;
+			case 1:
+				return 80;
+			case 2:
+				return 60;
+			case 3:
+				return 50;
+			default:
+				return 40;
 			}
 		},
 		category: "Special",
