@@ -4387,8 +4387,15 @@ var Battle = (function () {
 					poke.removeVolatile('stockpile3');
 					actions += "" + poke.getName() + "'s stockpiled effect wore off!";
 					break;
+				case 'bind':
+				case 'wrap':
+				case 'clamp':
+				case 'whirlpool':
+				case 'firespin':
+				case 'magmastorm':
+				case 'sandtomb':
 				case 'infestation':
-					actions += '' + poke.getName() + ' was freed from Infestation!';
+					actions += '' + poke.getName() + ' was freed from ' + effect.name + '!';
 					break;
 				default:
 					if (effect.effectType === 'Move') {
