@@ -1116,6 +1116,11 @@
 					// don't allow dragging beyond 508 EVs
 					val = val - total + 508;
 
+					// make sure val is a legal value
+					val = +val;
+					if (!val || val <= 0) val = 0;
+					if (val > 252) val = 252;
+
 					// Don't try this at home.
 					// I am a trained professional.
 					slider.o.pointers[0].set(val);
