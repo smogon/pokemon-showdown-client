@@ -1523,7 +1523,9 @@
 			var passedCurRoom = false;
 			var passedCurSideRoom = false;
 
+			var notificationCount = 0;
 			for (var id in app.rooms) {
+				if (app.rooms[id].notifications) notificationCount++;
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
 				var name = '<i class="icon-comment-alt"></i> <span>'+(Tools.escapeHTML(room.title)||(id==='lobby'?'Lobby':id))+'</span>';
@@ -1584,6 +1586,9 @@
 				if (curSideId && $('body').width() < room.minWidth + app.curSideRoom.minWidth) {
 					this.curSideRoomLeft = id;
 				}
+			}
+			if (window.nodewebkit) {
+				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount || '');
 			}
 			if (app.supports['rooms']) {
 				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
@@ -1734,7 +1739,9 @@
 			if (!this.notifications) this.notifications = {};
 			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) {
 				this.notifications[tag] = {};
-			} else if (window.nodewebkit) {
+			} else if (window.nodewebkit && !nwWindow.setBadgeLabel) {
+				// old desktop client
+				// note: window.Notification exists but does nothing
 				nwWindow.requestAttention(true);
 			} else if (window.Notification) {
 				// old one doesn't need to be closed; sending the tag should
