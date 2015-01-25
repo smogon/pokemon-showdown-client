@@ -2,16 +2,31 @@
 
 	if (window.nodewebkit) {
 		window.gui = require('nw.gui');
-		$('body').on('click', 'a', function(e) {
-			if (this.target === '_blank') {
-				gui.Shell.openExternal(this.href);
+		window.nwWindow = gui.Window.get();
+	}
+	$(document).on('click', 'a', function(e) {
+		if (this.href && this.className !== 'closebutton' && (this.href.substr(0, 32) === 'http://play.pokemonshowdown.com/' || this.href.substr(0, 33) === 'https://play.pokemonshowdown.com/')) {
+			var target;
+			if (this.href.charAt(4) === ':') {
+				target = this.href.substr(32);
+			} else {
+				target = this.href.substr(33);
+			}
+			if (target.indexOf('/') < 0 && target.indexOf('.') < 0) {
+				window.app.tryJoinRoom(target);
 				e.preventDefault();
 				e.stopPropagation();
 				e.stopImmediatePropagation();
+				return;
 			}
-		});
-		window.nwWindow = gui.Window.get();
-	}
+		}
+		if (window.nodewebkit && this.target === '_blank') {
+			gui.Shell.openExternal(this.href);
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+		}
+	});
 
 	Config.version = '0.9.2';
 	Config.origindomain = 'play.pokemonshowdown.com';
