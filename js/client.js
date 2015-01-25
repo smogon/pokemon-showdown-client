@@ -1111,6 +1111,9 @@
 					this.fixedWidth = true;
 				}
 			}
+			if (!app.roomsFirstOpen && !this.down && $(window).width() >= 916 && document.location.hostname === 'play.pokemonshowdown.com') {
+				this.addRoom('rooms');
+			}
 			this.updateLayout();
 		},
 		// the currently active room
