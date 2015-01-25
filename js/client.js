@@ -27,6 +27,49 @@
 			e.stopImmediatePropagation();
 		}
 	});
+	if (window.nodewebkit) {
+		$(document).on("contextmenu", function(e) {
+			e.preventDefault();
+			var target = e.target;
+			var isEditable = (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT');
+			var menu = new gui.Menu();
+
+			if (isEditable) menu.append(new gui.MenuItem({
+				label: "Cut",
+				click: function() {
+					document.execCommand("cut");
+				}
+			}));
+			var link = $(target).closest('a')[0];
+			if (link) menu.append(new gui.MenuItem({
+				label: "Copy Link URL",
+				click: function() {
+					gui.Clipboard.get().set(link.href);
+				}
+			}));
+			if (target.tagName === 'IMG') menu.append(new gui.MenuItem({
+				label: "Copy Image URL",
+				click: function() {
+					gui.Clipboard.get().set(target.src);
+				}
+			}));
+			menu.append(new gui.MenuItem({
+				label: "Copy",
+				click: function() {
+					document.execCommand("copy");
+				}
+			}));
+			if (isEditable) menu.append(new gui.MenuItem({
+				label: "Paste",
+				enabled: !!gui.Clipboard.get().get(),
+				click: function() {
+					document.execCommand("paste");
+				}
+			}));
+
+			menu.popup(e.originalEvent.x, e.originalEvent.y);
+		});
+	}
 
 	Config.version = '0.9.2';
 	Config.origindomain = 'play.pokemonshowdown.com';
