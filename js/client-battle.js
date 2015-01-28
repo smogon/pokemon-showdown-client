@@ -261,6 +261,7 @@
 				if (this.request.side) {
 					switchables = this.battle.mySide.pokemon;
 				}
+				if (!this.finalDecision) this.finalDecision = !!this.request.noCancel;
 			}
 
 			var type = '';
@@ -445,7 +446,6 @@
 				break;
 
 			case 'switch':
-				this.finalDecisionMove = this.finalDecisionSwitch = false;
 				if (!this.choice) {
 					this.choice = {
 						choices: [],
@@ -567,7 +567,7 @@
 
 			default:
 				var buf = '<div class="controls"><p><em>Waiting for opponent...</em> ';
-				if (this.choice && this.choice.waiting && !this.finalDecisionMove && !this.finalDecisionSwitch) {
+				if (this.choice && this.choice.waiting && !this.finalDecision) {
 					buf += '<button name="undoChoice">Cancel</button>';
 				}
 				buf += '</p>';
@@ -745,7 +745,7 @@
 			this.sendDecision('/choose '+this.choice.choices.join(','));
 			this.closeNotification('choice');
 
-			this.finalDecisionSwitch = false;
+			if (!this.finalDecision) this.finalDecision = !!this.finalDecisionMove;
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
@@ -770,7 +770,6 @@
 			this.sendDecision('/choose '+this.choice.choices.join(','));
 			this.closeNotification('choice');
 
-			this.finalDecisionMove = this.finalDecisionSwitch = false;
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
@@ -805,6 +804,7 @@
 				this.sendDecision('/choose '+this.choice.choices.join(','));
 				this.closeNotification('choice');
 
+				if (!this.finalDecision) this.finalDecision = !!this.finalDecisionSwitch;
 				this.choice = {waiting: true};
 				this.updateControlsForPlayer();
 				return false;
@@ -824,7 +824,7 @@
 			this.sendDecision('/choose '+this.choice.choices.join(','));
 			this.closeNotification('choice');
 
-			this.finalDecisionMove = false;
+			if (!this.finalDecision) this.finalDecision = !!this.finalDecisionSwitch;
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
