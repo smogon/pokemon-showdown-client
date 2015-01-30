@@ -5466,6 +5466,7 @@ var Battle = (function () {
 		case 'unlink':
 			var user = toId(args[2]) || toId(args[1]);
 			var $messages = $('.chatmessage-' + user);
+			if (!$messages.length) break;
 			$messages.find('a').contents().unwrap();
 			if (args[2]) {
 				$messages.hide();
