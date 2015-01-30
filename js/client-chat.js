@@ -995,10 +995,11 @@
 					// so that it can be included in the scrollback buffer.
 					var user = toId(row[2]) || toId(row[1]);
 					var $messages = $('.chatmessage-' + user);
+					if (!$messages.length) break;
 					$messages.find('a').contents().unwrap();
 					if (row[2]) {
 						$messages.hide();
-						if (this.$chat.find('.chatmessage-' + user).length) this.$chat.append('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>Some messages were hidden, click here to restore them.</small></button></div>');
+						this.$chat.append('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>Some messages were hidden, click here to restore them.</small></button></div>');
 					}
 					break;
 
