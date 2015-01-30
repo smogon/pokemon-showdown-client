@@ -700,11 +700,11 @@
 
 			case 'join':
 				var room = toRoomid(target);
-				if (app.rooms[target]) {
-					app.focusRoom(target);
+				if (app.rooms[room]) {
+					app.focusRoom(room);
 					return false;
 				}
-				room = toId(target);
+				room = app.resolveRoomAlias(toId(room));
 				if (app.rooms[room]) {
 					app.focusRoom(room);
 					return false;
