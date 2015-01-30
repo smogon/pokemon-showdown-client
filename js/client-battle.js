@@ -603,6 +603,7 @@
 			}
 
 			this.choice = null;
+			this.finalDecision = false;
 			this.request = request;
 			if (request.side) {
 				this.updateSideLocation(request.side, true);
