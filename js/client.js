@@ -1060,6 +1060,7 @@
 		curSideRoom: null,
 		sideRoom: null,
 		joinRoom: function(id, type, nojoin) {
+			id = this.resolveRoomAlias(id);
 			if (this.rooms[id]) {
 				this.focusRoom(id);
 				return this.rooms[id];
@@ -1278,6 +1279,7 @@
 			}
 		},
 		leaveRoom: function(id) {
+			id = this.resolveRoomAlias(id);
 			var room = this.rooms[id];
 			if (!room) return false;
 			if (room.requestLeave && !room.requestLeave()) return false;
@@ -1311,6 +1313,17 @@
 				gui.Shell.openExternal(e.target.href);
 				return false;
 			}
+		},
+		resolveRoomAlias: function(id) {
+			if (!this.roomsData) {
+				// load rooms data in the background
+				if (this.supports['rooms']) {
+					this.addRoom('rooms');
+				}
+				return id;
+			}
+			if (!this.roomsData.aliases) return id;
+			return this.roomsData.aliases[id] || id;
 		},
 
 		/*********************************************************
