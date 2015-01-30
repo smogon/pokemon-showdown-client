@@ -5464,6 +5464,7 @@ var Battle = (function () {
 			this.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div></div>', preempt);
 			break;
 		case 'unlink':
+			if (Tools.prefs('nounlink')) return;
 			var user = toId(args[2]) || toId(args[1]);
 			var $messages = $('.chatmessage-' + user);
 			$messages.find('a').contents().unwrap();
