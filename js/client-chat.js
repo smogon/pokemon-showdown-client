@@ -518,6 +518,15 @@
 				Tools.prefs('showbattles', false);
 				return false;
 
+			case 'unpackhidden':
+				this.add('Locked/banned users\' chat messages: ON');
+				Tools.prefs('nounlink', true);
+				return false;
+			case 'packhidden':
+				this.add('Locked/banned users\' chat messages: HIDDEN');
+				Tools.prefs('nounlink', false);
+				return false;
+
 			case 'timestamps':
 				var targets = target.split(',');
 				if ((['all', 'lobby', 'pms'].indexOf(targets[0]) === -1) || targets.length < 2 ||
@@ -721,42 +730,73 @@
 				
 			// documentation of client commands
 			case 'help':
-				switch ((target || '').toLowerCase()) {
+				switch (toId(target)) {
+				case 'challenge':
+					this.add('/challenge - Open a prompt to challenge a user to a battle.');
+					this.add('/challenge [user] - Challenge the user [user] to a battle.');
+					return false;
+				case 'user':
+				case 'open':
+					this.add('/user [user] - Open a popup containing the user [user]\'s avatar, name, rank, and chatroom list.');
+					return false;
 				case 'ignore':
 				case 'unignore':
-					this.add('/ignore [user] - Ignores all messages from the user [user].');
-					this.add('/unignore [user] - Removes user [user] from your ignore list.');
+					this.add('/ignore [user] - Ignore all messages from the user [user].');
+					this.add('/unignore [user] - Remove the user [user] from your ignore list.');
 					this.add('Note that staff messages cannot be ignored.');
+					return false;
+				case 'nick':
+					this.add('/nick [new username] - Change your username.');
+					return false;
+				case 'clear':
+					this.add('/clear - Clear the room\'s chat log.');
+					return false;
+				case 'showdebug':
+				case 'hidedebug':
+					this.add('/showdebug - Receive debug messages from battle events.');
+					this.add('/hidedebug - Ignore debug messages from battle events.');
+					return false;
+				case 'showjoins':
+				case 'hidejoins':
+					this.add('/showjoins - Receive users\' join/leave messages.');
+					this.add('/hidejoins - Ignore users\' join/leave messages.');
+					return false;
+				case 'showbattles':
+				case 'hidebattles':
+					this.add('/showbattles - Receive links to new battles in Lobby.');
+					this.add('/hidebattles - Ignore links to new battles in Lobby.');
+					return false;
+				case 'unpackhidden':
+				case 'packhidden':
+					this.add('/unpackhidden - Suppress hiding locked or banned users\' chat messages after the fact.');
+					this.add('/packhidden - Hide locked or banned users\' chat messages after the fact.');
+					this.add('Hidden messages from a user can be restored by clicking the button underneath their lock/ban reason.');
 					return false;
 				case 'timestamps':
 					this.add('Set your timestamps preference:');
 					this.add('/timestamps [all|lobby|pms], [minutes|seconds|off]');
-					this.add('all - change all timestamps preferences, lobby - change only lobby chat preferences, pms - change only PM preferences');
-					this.add('off - set timestamps off, minutes - show timestamps of the form [hh:mm], seconds - show timestamps of the form [hh:mm:ss]');
+					this.add('all - Change all timestamps preferences, lobby - Change only lobby chat preferences, pms - Change only PM preferences.');
+					this.add('off - Set timestamps off, minutes - Show timestamps of the form [hh:mm], seconds - Show timestamps of the form [hh:mm:ss].');
 					return false;
 				case 'highlight':
 				case 'hl':
 					this.add('Set up highlights:');
-					this.add('/highlight add, [word] - add a new word to the highlight list.');
-					this.add('/highlight list - list all words that currently highlight you.');
-					this.add('/highlight delete, [word] - delete a word from the highlight list.');
-					this.add('/highlight delete - clear the highlight list.');
-					return false;
-				case 'nick':
-					this.add('/nick [new username] - Change your username.');
+					this.add('/highlight add, [word] - Add the word [word] to the highlight list.');
+					this.add('/highlight list - List all words that currently highlight you.');
+					this.add('/highlight delete, [word] - Delete the word [word] from the highlight list.');
+					this.add('/highlight delete - Clear the highlight list.');
 					return false;
 				case 'rank':
 				case 'ranking':
 				case 'rating':
 				case 'ladder':
 					this.add('/rating - Get your own rating.');
-					this.add('/rating [username] - Get user\'s rating.');
+					this.add('/rating [username] - Get user [username]\'s rating.');
 					return false;
 				case 'join':
-					this.add('/join [roomname] - Attempts to join the room [roomname].');
+					this.add('/join [roomname] - Attempt to join the room [roomname].');
 					return false;
 				}
-
 			}
 
 			return text;
@@ -993,6 +1033,7 @@
 				case 'unlink':
 					// note: this message has global effects, but it's handled here
 					// so that it can be included in the scrollback buffer.
+					if (Tools.prefs('nounlink')) return;
 					var user = toId(row[2]) || toId(row[1]);
 					var $messages = $('.chatmessage-' + user);
 					if (!$messages.length) break;
