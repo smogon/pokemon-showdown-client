@@ -498,7 +498,7 @@ _Storage.prototype.nwLogChat = function(roomid, line) {
 	var now = new Date();
 	var hours = ''+now.getHours();
 	if (hours.length < 2) hours = '0'+hours;
-	var minutes = ''+now.getHours();
+	var minutes = ''+now.getMinutes();
 	if (minutes.length < 2) minutes = '0'+minutes;
 	var timestamp = '['+hours+':'+minutes+'] ';
 
