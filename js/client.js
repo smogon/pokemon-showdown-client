@@ -1812,7 +1812,7 @@
 					if (this.notifications[tag].close) this.notifications[tag].close();
 					delete this.notifications[tag];
 				}
-				if (_.isEmpty(this.notifications)) {
+				if (!this.notifications || _.isEmpty(this.notifications)) {
 					this.notifications = null;
 					app.topbar.updateTabbar();
 				}
@@ -1820,9 +1820,10 @@
 			}
 			if (!this.notifications[tag]) return;
 			if (this.notifications[tag].close) this.notifications[tag].close();
+			if (!this.notifications || this.notifications[tag]) return; // avoid infinite recursion
 			if (this.notifications[tag].psAutoclose) {
 				delete this.notifications[tag];
-				if (_.isEmpty(this.notifications)) {
+				if (!this.notifications || _.isEmpty(this.notifications)) {
 					this.notifications = null;
 					app.topbar.updateTabbar();
 				}
