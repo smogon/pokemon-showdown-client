@@ -9765,6 +9765,7 @@ var BattleMoveAnims = {
 	},
 	precipiceblades: {
 		anim: function(battle, args) {
+			var attacker = args[0];
 			var defender = args[1];
 
 			battle.backgroundEffect('#B84038',700,.4);
