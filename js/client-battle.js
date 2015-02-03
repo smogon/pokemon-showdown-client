@@ -603,7 +603,7 @@
 			}
 
 			this.choice = null;
-			this.finalDecision = false;
+			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = false;
 			this.request = request;
 			if (request.side) {
 				this.updateSideLocation(request.side, true);
