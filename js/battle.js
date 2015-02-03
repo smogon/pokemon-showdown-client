@@ -4988,7 +4988,7 @@ var Battle = (function () {
 	};
 	Battle.prototype.getPokemon = function (pokemonid, details) {
 		var siden = -1;
-		var name = pokemonid;
+		var name = pokemonid.replace(/>>>? /g, '');
 		var isNew = false; // if yes, don't match any pokemon that already exists (for Team Preview)
 		var isOld = false; // if yes, match only pokemon that have been revealed, and can match fainted pokemon (now default)
 		var isOther = false; // if yes, don't match an active pokemon (for switching)
