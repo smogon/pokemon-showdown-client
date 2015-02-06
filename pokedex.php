@@ -8,7 +8,7 @@
 		<link rel="stylesheet" href="/style/sim-types.css" />
 		<link rel="stylesheet" href="/style/battle.css" />
 		<link rel="stylesheet" href="/style/replay.css" />
-		<script src="/js/lib/jquery-2.1.0.min.js"></script>
+		<script src="/js/lib/jquery-2.1.3.min.js"></script>
 		<script src="/js/lib/autoresize.jquery.min.js"></script>
 		<script src="/js/lib/jquery-cookie.js"></script>
 		<script src="/js/lib/jquery.json-2.3.min.js"></script>
