@@ -655,6 +655,8 @@
 									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-17.0/N),0)+'</td>';
 								} else if (row.formatid === 'uberssuspecttest') {
 									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-29.0/N),0)+'</td>';
+								} else if (row.formatid === 'uususpecttest') {
+									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-20.0/N),0)+'</td>';
 								} else if (row.formatid === 'rususpecttest') {
 									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-20.0/N),0)+'</td>';
 								} else if (row.formatid === 'lcsuspecttest') {
