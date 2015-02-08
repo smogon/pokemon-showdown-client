@@ -4690,6 +4690,9 @@ var Battle = (function () {
 				case 'focusband':
 					actions += '' + poke.getName() + " hung on using its Focus Band!";
 					break;
+				case 'safetygoggles':
+					actions += '' + poke.getName() + " is not affected by " + Tools.escapeHTML(args[3]) + " thanks to its Safety Goggles!";
+					break;
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " activated!";
 				}
