@@ -135,7 +135,7 @@
 		},
 		revealMessages: function(user) {
 			var $messages = $('.chatmessage-' + user);
-			$messages.show();
+			$messages.addClass('revealed').show();
 			$messages.find('button').parent().remove();
 		},
 

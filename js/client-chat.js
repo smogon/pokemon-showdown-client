@@ -1042,7 +1042,7 @@
 					$messages.find('a').contents().unwrap();
 					if (row[2]) {
 						$messages.hide();
-						this.$chat.append('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>' + $messages.length + ' message' + ($messages.length > 1 ? 's were' : ' was') + ' hidden, click here to restore.</small></button></div>');
+						this.$chat.append('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + '</small></button></div>');
 					}
 					break;
 
@@ -1065,7 +1065,7 @@
 		},
 		revealMessages: function(user) {
 			var $messages = $('.chatmessage-' + user);
-			$messages.show();
+			$messages.addClass('revealed').show();
 			$messages.find('button').parent().remove();
 		},
 		tournamentButton: function(val, button) {

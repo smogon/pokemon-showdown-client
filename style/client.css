@@ -942,6 +942,9 @@ p.or:after {
 .highlighted {
 	background-color: #FFDDAA;
 }
+.revealed {
+	background-color: #C8FDEA;
+}
 .message-pm {
 	color: #007100;
 }
