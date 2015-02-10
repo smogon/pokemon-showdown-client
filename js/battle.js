@@ -2019,6 +2019,7 @@ var Side = (function () {
 			protect: '<span class="good">Protect</span>',
 			quickguard: '<span class="good">Quick&nbsp;Guard</span>',
 			wideguard: '<span class="good">Wide&nbsp;Guard</span>',
+			craftyshield: '<span class="good">Crafty&nbsp;Shield</span>',
 			helpinghand: '<span class="good">Helping&nbsp;Hand</span>',
 			magiccoat: '<span class="good">Magic&nbsp;Coat</span>',
 			destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
@@ -4425,6 +4426,10 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Wide Guard', 'good', animDelay);
 					actions += "Wide Guard protected " + poke.side.getLowerTeamName() + "!";
 					break;
+				case 'craftyshield':
+					this.resultAnim(poke, 'Crafty Shield', 'good', animDelay);
+					actions += "Crafty Shield protected " + poke.side.getLowerTeamName() + "!";
+					break;
 				case 'protect':
 					this.resultAnim(poke, 'Protected', 'good', animDelay);
 					actions += '' + poke.getName() + ' protected itself!';
@@ -4498,6 +4503,11 @@ var Battle = (function () {
 					poke.addTurnstatus('wideguard');
 					this.resultAnim(poke, 'Wide Guard', 'good', animDelay);
 					actions += "Wide Guard protected " + poke.getLowerName() + "!";
+					break;
+				case 'craftyshield':
+					poke.addTurnstatus('craftyshield');
+					this.resultAnim(poke, 'Crafty Shield', 'good', animDelay);
+					actions += "Crafty Shield protected " + poke.getLowerName() + "!";
 					break;
 				case 'protect':
 					poke.addTurnstatus('protect');
