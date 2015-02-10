@@ -5472,9 +5472,9 @@ var Battle = (function () {
 			var $messages = $('.chatmessage-' + user);
 			if (!$messages.length) break;
 			$messages.find('a').contents().unwrap();
-			if (args[2]) {
+			if (window.BattleRoom && args[2]) {
 				$messages.hide();
-				this.log('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>' + $messages.length + ' message' + ($messages.length > 1 ? 's were' : ' was') + ' hidden, click here to restore.</small></button></div>');
+				this.log('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + '</small></button></div>');
 			}
 			break;
 		default:
