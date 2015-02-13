@@ -50,6 +50,7 @@ foreach ($toplist as $row)
 			elseif ($row['formatid'] == 'uberssuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-29.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'uususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-20.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'rususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-20.0/$N) : 0,1,'.','');
+			elseif ($row['formatid'] == 'nususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-20.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'lcsuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-43.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'smogondoublescurrent' || $row['formatid'] == 'smogondoublessuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-16.0/$N) : 0,1,'.','');
 			else echo '--';	?></td>
