@@ -4841,6 +4841,15 @@ var Battle = (function () {
 				case 'watersport':
 					actions += "Fire's power was weakened!";
 					break;
+				case 'grassyterrain':
+					actions += "Grass grew to cover the battlefield!";
+					break;
+				case 'mistyterrain':
+					actions += "Mist swirled about the battlefield!";
+					break;
+				case 'electricterrain':
+					actions += "An electric current runs across the battlefield!";
+					break;
 				default:
 					actions += effect.name+" started!";
 					break;
@@ -4870,6 +4879,15 @@ var Battle = (function () {
 					break;
 				case 'watersport':
 					actions += 'The effects of Water Sport have faded.';
+					break;
+				case 'grassyterrain':
+					actions += "The grass disappeared from the battlefield.";
+					break;
+				case 'mistyterrain':
+					actions += "The mist disappeared from the battlefield.";
+					break;
+				case 'electricterrain':
+					actions += "The electricity disappeared from the battlefield.";
 					break;
 				default:
 					actions += effect.name+" ended!";
