@@ -720,11 +720,6 @@
 		updatePokemonSprite: function() {
 			var set = this.curSet;
 			if (!set) return;
-			var shiny = (set.shiny ? '-shiny' : '');
-			var sprite = Tools.getTemplate(set.species).spriteid;
-			if (BattlePokemonSprites && BattlePokemonSprites[sprite] && BattlePokemonSprites[sprite].front && BattlePokemonSprites[sprite].front.anif && set.gender === 'F') {
-				sprite += '-f';
-			}
 
 			this.$('.setcol-icon').css('background-image', Tools.getTeambuilderSprite(set).substr(17));
 
