@@ -4061,11 +4061,11 @@ var Battle = (function () {
 				} else if (toId(template.species) === 'darmanitanzen') {
 					actions += "Zen Mode triggered!";
 				} else if (toId(template.species) === 'darmanitan') {
-					actions += "Zen Mode ended!"
+					actions += "Zen Mode ended!";
 				} else if (toId(template.species) === 'aegislashblade') {
 					actions += "Changed to Blade Forme!";
 				} else if (toId(template.species) === 'aegislash') {
-					actions += "Changed to Shield Forme!"
+					actions += "Changed to Shield Forme!";
 				}
 				poke.sprite.animTransform($.extend(spriteData, template));
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
