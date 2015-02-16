@@ -404,7 +404,7 @@
 							movebuttons += '<button class="type-' + move.type + '" name="chooseMove" value="' + Tools.escapeHTML(moveData.move) + '"' + this.tooltipAttrs(moveData.move, 'move') + '>';
 							hasMoves = true;
 						}
-						movebuttons += name + '<br /><small class="type">' + move.type + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
+						movebuttons += name + '<br /><small class="type">' + (move.type || "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 					}
 					if (!hasMoves) {
 						controls += '<button class="movebutton" name="chooseMove" value="Struggle">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
