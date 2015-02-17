@@ -278,6 +278,42 @@ var baseSpeciesChart = {
 	// others are hardcoded by ending with 'mega'
 };
 
+// Precompile often used regular expression for links.
+var domainRegex = '[a-z0-9\\-]+(?:[.][a-z0-9\\-]+)*';
+var parenthesisRegex = '[(][^\\s()<>]*[)]';
+var linkRegex = new RegExp(
+	'\\b' +
+	'(?:' +
+		'(?:' +
+			// When using www. or http://, allow any-length TLD (like .museum)
+			'(?:https?://|www[.])' + domainRegex +
+			'|' + domainRegex + '[.]' +
+				// Allow a common TLD, or any 2-3 letter TLD followed by : or /
+				'(?:com?|org|net|edu|info|us|jp|[a-z]{2,3}(?=[:/]))' +
+		')' +
+		'(?:[:][0-9]+)?' +
+		'\\b' +
+		'(?:' +
+			'/' +
+			'(?:' +
+				'(?:' +
+					'[^\\s()<>]' +
+					'|' + parenthesisRegex +
+				')*' +
+				// URLs usually don't end with punctuation, so don't allow
+				// punctuation symbols that probably aren't related to URL.
+				'(?:' +
+					'[^\\s`()<>\\[\\]{}\'".,!?;:]' +
+					'|' + parenthesisRegex +
+				')' +
+			')?' +
+		')?' +
+		'|[a-z0-9.]+\\b@' + domainRegex + '[.][a-z]{2,3}' +
+	')'
+,
+	'ig'
+);
+
 var Tools = {
 
 	resourcePrefix: (function() {
@@ -330,8 +366,8 @@ var Tools = {
 				options.hidestrikethrough ? '$1' : '<s>$1</s>');
 		// linking of URIs
 		if (!options.hidelinks) {
-			str = str.replace(/https?\:\/\/[a-z0-9-.]+(?:\:[0-9]+)?(?:\/(?:[^\s]*[^\s?.,])?)?|[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}|(?:[a-z0-9](?:[a-z0-9-\.]*[a-z0-9])?\.(?:com|org|net|edu|us|jp)(?:\:[0-9]+)?|qmark\.tk)(?:(?:\/(?:[^\s]*[^\s?.,])?)?)\b/ig, function(uri) {
-				if (/[a-z0-9.]+\@[a-z0-9.]+\.[a-z0-9]{2,3}/ig.test(uri)) {
+			str = str.replace(linkRegex, function(uri) {
+				if (/^[a-z0-9.]+\@/ig.test(uri)) {
 					return '<a href="mailto:'+uri+'" target="_blank">'+uri+'</a>';
 				}
 				// Insert http:// before URIs without a URI scheme specified.
