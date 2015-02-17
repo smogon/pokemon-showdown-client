@@ -71,7 +71,7 @@
 		});
 	}
 
-	Config.version = '0.9.2';
+	Config.version = '0.9.3';
 	Config.origindomain = 'play.pokemonshowdown.com';
 
 	// `defaultserver` specifies the server to use when the domain name in the
