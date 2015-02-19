@@ -924,7 +924,6 @@ exports.BattleItems = {
 	"custapberry": {
 		id: "custapberry",
 		name: "Custap Berry",
-		isUnreleased: true,
 		spritenum: 86,
 		isBerry: true,
 		naturalGift: {
@@ -2704,7 +2703,7 @@ exports.BattleItems = {
 		fling: {
 			basePower: 10,
 			effect: function (pokemon) {
-				var conditions = ['attract', 'taunt', 'encore', 'torment', 'disable'];
+				var conditions = ['attract', 'taunt', 'encore', 'torment', 'disable', 'healblock'];
 				for (var i = 0; i < conditions.length; i++) {
 					if (pokemon.volatiles[conditions[i]]) {
 						for (var j = 0; j < conditions.length; j++) {
@@ -2716,7 +2715,7 @@ exports.BattleItems = {
 			}
 		},
 		onUpdate: function (pokemon) {
-			var conditions = ['attract', 'taunt', 'encore', 'torment', 'disable'];
+			var conditions = ['attract', 'taunt', 'encore', 'torment', 'disable', 'healblock'];
 			for (var i = 0; i < conditions.length; i++) {
 				if (pokemon.volatiles[conditions[i]]) {
 					if (!pokemon.useItem()) return;
@@ -2729,7 +2728,7 @@ exports.BattleItems = {
 		},
 		num: 219,
 		gen: 3,
-		desc: "Cures holder if affected by Attract, Disable, Encore, Taunt, Torment. Single use."
+		desc: "Cures holder of Attract, Disable, Encore, Heal Block, Taunt, Torment. Single use."
 	},
 	"metagrossite": {
 		id: "metagrossite",
@@ -3805,6 +3804,12 @@ exports.BattleItems = {
 		},
 		onImmunity: function (type, pokemon) {
 			if (type === 'sandstorm' || type === 'hail' || type === 'powder') return false;
+		},
+		onTryHit: function (pokemon, source, move) {
+			if (move.flags && move.flags['powder']) {
+				this.add('-activate', pokemon, 'Safety Goggles', move.name);
+				return null;
+			}
 		},
 		num: -6,
 		gen: 6,

@@ -35,7 +35,7 @@ Ratings and how they work:
 
  5: Essential
 	  The sort of ability that defines metagames.
-	ex. Drizzle, Shadow Tag
+	ex. Desolate Land, Shadow Tag
 
 */
 
@@ -62,7 +62,7 @@ exports.BattleAbilities = {
 				this.damage(source.maxhp / 4, source, target, null, true);
 			}
 		},
-		rating: 3,
+		rating: 2.5,
 		num: 106
 	},
 	"aerilate": {
@@ -84,7 +84,7 @@ exports.BattleAbilities = {
 		},
 		id: "aerilate",
 		name: "Aerilate",
-		rating: 3,
+		rating: 4,
 		num: 185
 	},
 	"airlock": {
@@ -114,14 +114,15 @@ exports.BattleAbilities = {
 		},
 		id: "analytic",
 		name: "Analytic",
-		rating: 1,
+		rating: 2,
 		num: 148
 	},
 	"angerpoint": {
 		desc: "If this Pokemon, and not its Substitute, is struck by a Critical Hit, its Attack is boosted to six stages.",
 		shortDesc: "If this Pokemon is hit by a critical hit, its Attack is boosted by 12.",
-		onCriticalHit: function (target) {
-			if (!target.volatiles['substitute']) {
+		onAfterDamage: function (damage, target, source, move) {
+			if (!target.hp) return;
+			if (move && move.effectType === 'Move' && move.crit) {
 				target.setBoost({atk: 6});
 				this.add('-setboost', target, 'atk', 12, '[from] ability: Anger Point');
 			}
@@ -172,7 +173,7 @@ exports.BattleAbilities = {
 		},
 		id: "arenatrap",
 		name: "Arena Trap",
-		rating: 5,
+		rating: 4.5,
 		num: 71
 	},
 	"aromaveil": {
@@ -185,7 +186,7 @@ exports.BattleAbilities = {
 		},
 		id: "aromaveil",
 		name: "Aroma Veil",
-		rating: 3,
+		rating: 2.5,
 		num: 165
 	},
 	"aurabreak": {
@@ -358,7 +359,7 @@ exports.BattleAbilities = {
 		},
 		id: "colorchange",
 		name: "Color Change",
-		rating: 2,
+		rating: 1.5,
 		num: 16
 	},
 	"competitive": {
@@ -380,7 +381,7 @@ exports.BattleAbilities = {
 		},
 		id: "competitive",
 		name: "Competitive",
-		rating: 2,
+		rating: 2.5,
 		num: 172
 	},
 	"compoundeyes": {
@@ -457,7 +458,7 @@ exports.BattleAbilities = {
 			}
 		},
 		name: "Damp",
-		rating: 0.5,
+		rating: 1,
 		num: 6
 	},
 	"darkaura": {
@@ -519,7 +520,7 @@ exports.BattleAbilities = {
 		},
 		id: "defiant",
 		name: "Defiant",
-		rating: 2,
+		rating: 2.5,
 		num: 128
 	},
 	"deltastream": {
@@ -599,30 +600,22 @@ exports.BattleAbilities = {
 		desc: "When this Pokemon enters the battlefield, the weather becomes Rain Dance (for 5 turns normally, or 8 turns while holding Damp Rock).",
 		shortDesc: "On switch-in, the weather becomes Rain Dance.",
 		onStart: function (source) {
-			if (this.isWeather(['desolateland', 'primordialsea', 'deltastream'])) {
-				this.add('-ability', source, 'Drizzle', '[from] ' + this.effectiveWeather(), '[fail]');
-				return null;
-			}
 			this.setWeather('raindance');
 		},
 		id: "drizzle",
 		name: "Drizzle",
-		rating: 5,
+		rating: 4,
 		num: 2
 	},
 	"drought": {
 		desc: "When this Pokemon enters the battlefield, the weather becomes Sunny Day (for 5 turns normally, or 8 turns while holding Heat Rock).",
 		shortDesc: "On switch-in, the weather becomes Sunny Day.",
 		onStart: function (source) {
-			if (this.isWeather(['desolateland', 'primordialsea', 'deltastream'])) {
-				this.add('-ability', source, 'Drought', '[from] ' + this.effectiveWeather(), '[fail]');
-				return null;
-			}
 			this.setWeather('sunnyday');
 		},
 		id: "drought",
 		name: "Drought",
-		rating: 5,
+		rating: 4,
 		num: 70
 	},
 	"dryskin": {
@@ -741,7 +734,7 @@ exports.BattleAbilities = {
 		},
 		id: "flareboost",
 		name: "Flare Boost",
-		rating: 3,
+		rating: 2.5,
 		num: 138
 	},
 	"flashfire": {
@@ -871,7 +864,7 @@ exports.BattleAbilities = {
 		},
 		id: "forecast",
 		name: "Forecast",
-		rating: 4,
+		rating: 3,
 		num: 59
 	},
 	"forewarn": {
@@ -976,7 +969,7 @@ exports.BattleAbilities = {
 		},
 		id: "gooey",
 		name: "Gooey",
-		rating: 3,
+		rating: 2.5,
 		num: 183
 	},
 	"grasspelt": {
@@ -988,7 +981,7 @@ exports.BattleAbilities = {
 		},
 		id: "grasspelt",
 		name: "Grass Pelt",
-		rating: 2,
+		rating: 1,
 		num: 179
 	},
 	"guts": {
@@ -1020,7 +1013,7 @@ exports.BattleAbilities = {
 				}
 			}
 		},
-		rating: 2,
+		rating: 2.5,
 		num: 139
 	},
 	"healer": {
@@ -1156,7 +1149,7 @@ exports.BattleAbilities = {
 		},
 		id: "icebody",
 		name: "Ice Body",
-		rating: 3,
+		rating: 2,
 		num: 115
 	},
 	"illuminate": {
@@ -1200,7 +1193,7 @@ exports.BattleAbilities = {
 		},
 		id: "immunity",
 		name: "Immunity",
-		rating: 1,
+		rating: 1.5,
 		num: 17
 	},
 	"imposter": {
@@ -1226,7 +1219,7 @@ exports.BattleAbilities = {
 		},
 		id: "infiltrator",
 		name: "Infiltrator",
-		rating: 2.5,
+		rating: 3,
 		num: 151
 	},
 	"innerfocus": {
@@ -1440,7 +1433,7 @@ exports.BattleAbilities = {
 			}
 		},
 		name: "Liquid Ooze",
-		rating: 1,
+		rating: 1.5,
 		num: 64
 	},
 	"magicbounce": {
@@ -1512,7 +1505,7 @@ exports.BattleAbilities = {
 		},
 		id: "magician",
 		name: "Magician",
-		rating: 2,
+		rating: 1.5,
 		num: 170
 	},
 	"magmaarmor": {
@@ -1561,7 +1554,7 @@ exports.BattleAbilities = {
 		},
 		id: "marvelscale",
 		name: "Marvel Scale",
-		rating: 3,
+		rating: 2.5,
 		num: 63
 	},
 	"megalauncher": {
@@ -1575,7 +1568,7 @@ exports.BattleAbilities = {
 		},
 		id: "megalauncher",
 		name: "Mega Launcher",
-		rating: 3,
+		rating: 3.5,
 		num: 178
 	},
 	"minus": {
@@ -1618,7 +1611,7 @@ exports.BattleAbilities = {
 		},
 		id: "moldbreaker",
 		name: "Mold Breaker",
-		rating: 3,
+		rating: 3.5,
 		num: 104
 	},
 	"moody": {
@@ -1681,7 +1674,7 @@ exports.BattleAbilities = {
 		},
 		id: "moxie",
 		name: "Moxie",
-		rating: 4,
+		rating: 3.5,
 		num: 153
 	},
 	"multiscale": {
@@ -1722,7 +1715,7 @@ exports.BattleAbilities = {
 				}
 			}
 		},
-		rating: 1,
+		rating: 1.5,
 		num: 152
 	},
 	"naturalcure": {
@@ -1733,7 +1726,7 @@ exports.BattleAbilities = {
 		},
 		id: "naturalcure",
 		name: "Natural Cure",
-		rating: 4,
+		rating: 3.5,
 		num: 30
 	},
 	"noguard": {
@@ -1802,7 +1795,7 @@ exports.BattleAbilities = {
 		},
 		id: "overcoat",
 		name: "Overcoat",
-		rating: 2,
+		rating: 2.5,
 		num: 142
 	},
 	"overgrow": {
@@ -1935,7 +1928,7 @@ exports.BattleAbilities = {
 		},
 		id: "pixilate",
 		name: "Pixilate",
-		rating: 3,
+		rating: 4,
 		num: 182
 	},
 	"plus": {
@@ -2096,7 +2089,7 @@ exports.BattleAbilities = {
 		},
 		id: "quickfeet",
 		name: "Quick Feet",
-		rating: 3,
+		rating: 2.5,
 		num: 95
 	},
 	"raindish": {
@@ -2159,7 +2152,7 @@ exports.BattleAbilities = {
 		},
 		id: "refrigerate",
 		name: "Refrigerate",
-		rating: 3,
+		rating: 4,
 		num: 174
 	},
 	"regenerator": {
@@ -2266,15 +2259,11 @@ exports.BattleAbilities = {
 		desc: "When this Pokemon enters the battlefield, the weather becomes Sandstorm (for 5 turns normally, or 8 turns while holding Smooth Rock).",
 		shortDesc: "On switch-in, the weather becomes Sandstorm.",
 		onStart: function (source) {
-			if (this.isWeather(['desolateland', 'primordialsea', 'deltastream'])) {
-				this.add('-ability', source, 'Sand Stream', '[from] ' + this.effectiveWeather(), '[fail]');
-				return null;
-			}
 			this.setWeather('sandstorm');
 		},
 		id: "sandstream",
 		name: "Sand Stream",
-		rating: 4.5,
+		rating: 4,
 		num: 45
 	},
 	"sandveil": {
@@ -2381,7 +2370,7 @@ exports.BattleAbilities = {
 		},
 		id: "shedskin",
 		name: "Shed Skin",
-		rating: 4,
+		rating: 3.5,
 		num: 61
 	},
 	"sheerforce": {
@@ -2524,15 +2513,11 @@ exports.BattleAbilities = {
 		desc: "When this Pokemon enters the battlefield, the weather becomes Hail (for 5 turns normally, or 8 turns while holding Icy Rock).",
 		shortDesc: "On switch-in, the weather becomes Hail.",
 		onStart: function (source) {
-			if (this.isWeather(['desolateland', 'primordialsea', 'deltastream'])) {
-				this.add('-ability', source, 'Snow Warning', '[from] ' + this.effectiveWeather(), '[fail]');
-				return null;
-			}
 			this.setWeather('hail');
 		},
 		id: "snowwarning",
 		name: "Snow Warning",
-		rating: 4,
+		rating: 3.5,
 		num: 117
 	},
 	"solarpower": {
@@ -2622,7 +2607,7 @@ exports.BattleAbilities = {
 		},
 		id: "stancechange",
 		name: "Stance Change",
-		rating: 4.5,
+		rating: 5,
 		num: 176
 	},
 	"static": {
@@ -2669,7 +2654,7 @@ exports.BattleAbilities = {
 		},
 		id: "stench",
 		name: "Stench",
-		rating: 0,
+		rating: 0.5,
 		num: 1
 	},
 	"stickyhold": {
@@ -2680,7 +2665,7 @@ exports.BattleAbilities = {
 		},
 		id: "stickyhold",
 		name: "Sticky Hold",
-		rating: 1,
+		rating: 2,
 		num: 60
 	},
 	"stormdrain": {
@@ -2750,7 +2735,7 @@ exports.BattleAbilities = {
 		},
 		id: "suctioncups",
 		name: "Suction Cups",
-		rating: 2.5,
+		rating: 2,
 		num: 21
 	},
 	"superluck": {
@@ -2761,7 +2746,7 @@ exports.BattleAbilities = {
 		},
 		id: "superluck",
 		name: "Super Luck",
-		rating: 1,
+		rating: 1.5,
 		num: 105
 	},
 	"swarm": {
@@ -2851,7 +2836,7 @@ exports.BattleAbilities = {
 		},
 		id: "synchronize",
 		name: "Synchronize",
-		rating: 3,
+		rating: 2.5,
 		num: 28
 	},
 	"tangledfeet": {
@@ -2916,7 +2901,7 @@ exports.BattleAbilities = {
 		},
 		id: "teravolt",
 		name: "Teravolt",
-		rating: 3,
+		rating: 3.5,
 		num: 164
 	},
 	"thickfat": {
@@ -2938,7 +2923,7 @@ exports.BattleAbilities = {
 		},
 		id: "thickfat",
 		name: "Thick Fat",
-		rating: 3,
+		rating: 3.5,
 		num: 47
 	},
 	"tintedlens": {
@@ -2952,7 +2937,7 @@ exports.BattleAbilities = {
 		},
 		id: "tintedlens",
 		name: "Tinted Lens",
-		rating: 4,
+		rating: 3.5,
 		num: 110
 	},
 	"torrent": {
@@ -3002,7 +2987,7 @@ exports.BattleAbilities = {
 		},
 		id: "toughclaws",
 		name: "Tough Claws",
-		rating: 3,
+		rating: 3.5,
 		num: 181
 	},
 	"trace": {
@@ -3030,7 +3015,7 @@ exports.BattleAbilities = {
 		},
 		id: "trace",
 		name: "Trace",
-		rating: 3.5,
+		rating: 3,
 		num: 36
 	},
 	"truant": {
@@ -3070,7 +3055,7 @@ exports.BattleAbilities = {
 		},
 		id: "turboblaze",
 		name: "Turboblaze",
-		rating: 3,
+		rating: 3.5,
 		num: 163
 	},
 	"unaware": {
@@ -3078,15 +3063,10 @@ exports.BattleAbilities = {
 		shortDesc: "This Pokemon ignores other Pokemon's stat changes when taking or doing damage.",
 		id: "unaware",
 		name: "Unaware",
-		onModifyMove: function (move, user, target) {
-			move.ignoreEvasion = true;
-			move.ignoreDefensive = true;
-		},
-		onSourceModifyMove: function (move, user, target) {
-			if (user.hasAbility(['moldbreaker', 'turboblaze', 'teravolt'])) return;
-			move.ignoreAccuracy = true;
-			move.ignoreOffensive = true;
-		},
+		ignoreEvasion: true,
+		ignoreDefensive: true,
+		ignoreAccuracy: true,
+		ignoreOffensive: true,
 		rating: 3,
 		num: 109
 	},
@@ -3264,7 +3244,7 @@ exports.BattleAbilities = {
 		},
 		id: "wonderskin",
 		name: "Wonder Skin",
-		rating: 3,
+		rating: 2.5,
 		num: 147
 	},
 	"zenmode": {
@@ -3369,7 +3349,7 @@ exports.BattleAbilities = {
 		effect: {
 			duration: 1
 		},
-		rating: 4,
+		rating: 3.5,
 		num: -3
 	},
 	"persistent": {
