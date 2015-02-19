@@ -227,7 +227,8 @@
 					}
 				} else {
 					this.controlsShown = true;
-					if (!controlsShown || (this.choice && this.choice.waiting)) {
+					if (!controlsShown || typeof this.choice === 'undefined' || this.choice && this.choice.waiting) {
+						// don't update controls (and, therefore, side) if `this.choice === null`: causes damage miscalculations
 						this.updateControlsForPlayer();
 					}
 				}
