@@ -570,8 +570,16 @@
 					switch (targets[0]) {
 					case 'add':
 						for (var i=1, len=targets.length; i<len; i++) {
-							highlights.push(targets[i].trim());
+							if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
+								// Catch any errors thrown by newly added regular expressions so they don't break the entire highlight list
+								try {
+									new RegExp(targets[i]);
+								} catch (e) {
+									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);
+								}
+							}
 						}
+						highlights = highlights.concat(targets.slice(1));
 						this.add("Now highlighting on: " + highlights.join(', '));
 						// We update the regex
 						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
