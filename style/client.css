@@ -1221,6 +1221,8 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 }
 
 /* Messages */
+/* deprecated: moved to battle.css */
+/* TODO: delete this section in like two months */
 
 .message-announce {
 	background: #6688AA;
@@ -1247,6 +1249,10 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 .infobox {
 	border: 1px solid #6688AA;
 	padding: 2px 4px;
+}
+.infobox-limited {
+	max-height: 200px;
+	overflow: hidden;
 }
 .broadcast-red {
 	background-color: #AA5544;

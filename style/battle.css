@@ -824,3 +824,72 @@ License: GPLv2
 	width: 32px;
 	height: 24px;
 }
+
+/*********************************************************
+ * Message log styling
+ *********************************************************/
+
+.message-announce {
+	background: #6688AA;
+	color: white;
+	padding: 1px 4px 2px;
+}
+.message-announce a,
+.broadcast-green a,
+.broadcast-blue a,
+.broadcast-red a {
+	/* Readable link colour */
+	color: #DDEEFF;
+}
+.broadcast-green {
+	background-color: #559955;
+	color: white;
+	padding: 2px 4px;
+}
+.broadcast-blue {
+	background-color: #6688AA;
+	color: white;
+	padding: 2px 4px;
+}
+.infobox {
+	border: 1px solid #6688AA;
+	padding: 2px 4px;
+}
+.infobox-limited {
+	max-height: 200px;
+	overflow: hidden;
+}
+.broadcast-red {
+	background-color: #AA5544;
+	color: white;
+	padding: 2px 4px;
+}
+.message-learn-canlearn {
+	font-weight: bold;
+	color: #228822;
+	text-decoration: underline;
+}
+.message-learn-cannotlearn {
+	font-weight: bold;
+	color: #CC2222;
+	text-decoration: underline;
+}
+.message-effect-weak {
+	font-weight: bold;
+	color: #CC2222;
+}
+.message-effect-resist {
+	font-weight: bold;
+	color: #6688AA;
+}
+.message-effect-immune {
+	font-weight: bold;
+	color: #666666;
+}
+.message-learn-list {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+.message-throttle-notice {
+	color: red;
+}
