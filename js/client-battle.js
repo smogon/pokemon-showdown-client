@@ -1057,16 +1057,26 @@
 					}
 					text += pokemon.stats['spe'] + '&nbsp;Spe</p>';
 				} else if (template.baseStats) {
-					var minSpe;
-					var maxSpe;
-					if (this.battle.tier === 'Random Battle') {
-						minSpe = Math.floor(Math.floor(2*template.baseStats['spe']+(0)+Math.floor((0)/4))*pokemon.level / 100 + 5);
-						maxSpe = Math.floor(Math.floor(2*template.baseStats['spe']+(31)+Math.floor((85)/4))*pokemon.level / 100 + 5);
+					// On gen 1, all stats are always maxed. And DVs are 15, so +30 for the IV part.
+					if (this.battle.gen === 1) {
+						text += '<p>' + Math.floor(Math.floor(2*template.baseStats['atk']+93)*pokemon.level / 100 + 5)
+						+ '&nbsp;Atk /&nbsp;' + Math.floor(Math.floor(2*template.baseStats['def']+93)*pokemon.level / 100 + 5)
+						+ '&nbsp;Def /&nbsp;' + Math.floor(Math.floor(2*template.baseStats['spa']+93)*pokemon.level / 100 + 5)
+						+ '&nbsp;Spc /&nbsp;' + Math.floor(Math.floor(2*template.baseStats['spe']+93)*pokemon.level / 100 + 5)
+						+ '&nbsp;Spe</p>';
 					} else {
-						minSpe = Math.floor(Math.floor(Math.floor(2*template.baseStats['spe']+(0)+Math.floor((0)/4))*pokemon.level / 100 + 5) * 0.9);
-						maxSpe = Math.floor(Math.floor(Math.floor(2*template.baseStats['spe']+(31)+Math.floor((252)/4))*pokemon.level / 100 + 5) * 1.1);
+						var minSpe;
+						var maxSpe;
+						var maxIvs = (this.battle.gen === 2) ? 30 : 31;
+						if (this.battle.tier === 'Random Battle') {
+							minSpe = Math.floor(Math.floor(2*template.baseStats['spe'])*pokemon.level / 100 + 5);
+							maxSpe = Math.floor(Math.floor(2*template.baseStats['spe']+(maxIvs)+Math.floor((85)/4))*pokemon.level / 100 + 5);
+						} else {
+							minSpe = Math.floor(Math.floor(Math.floor(2*template.baseStats['spe'])*pokemon.level / 100 + 5) * 0.9);
+							maxSpe = Math.floor(Math.floor(Math.floor(2*template.baseStats['spe']+maxIvs+63)*pokemon.level / 100 + 5) * 1.1);
+						}
+						text += '<p>' + minSpe + ' to ' + maxSpe + ' Spe (before items/abilities/modifiers)</p>';
 					}
-					text += '<p>' + minSpe + ' to ' + maxSpe + ' Spe (before items/abilities/modifiers)</p>';
 				}
 				if (pokemon.moves && pokemon.moves.length && (!isActive || isActive === 'foe')) {
 					text += '<p class="section">';
