@@ -484,7 +484,7 @@ p.or:after {
 	background: #EEEEEE;
 	box-shadow: inset 0 1px 0 #FFFFFF;
 	background: -webkit-gradient(linear, left top, left bottom, from(#edf2f8), to(#d7e3ec));
-	background: linear-gradient(top,  #edf2f8,  #d7e3ec);
+	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
 	color: black;
 }
 .select.teamselect {
@@ -494,23 +494,22 @@ p.or:after {
 	border-color: #555555;
 	background: #FFFFFF;
 	background: -webkit-gradient(linear, left top, left bottom, from(#dce4ec), to(#c6d3e0));
-	background: linear-gradient(top,  #dce4ec,  #c6d3e0);
+	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
 }
 .select:active {
 	border-color: #777777;
 	background: #DDDDDD;
 	box-shadow: none;
 	background: -webkit-gradient(linear, left top, left bottom, from(#d1dce6), to(#e7edf2));
-	background: linear-gradient(top,  #d1dce6,  #e7edf2);
+	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
 }
 .select:after {
 	float: right;
-	margin-top: 1px;
 	font-size: 14px;
 	content: "\f0d7";
-  font-family: FontAwesome;
-  -webkit-font-smoothing: antialiased;
-  color: #777777;
+	font-family: FontAwesome;
+	-webkit-font-smoothing: antialiased;
+	color: #777777;
 }
 .select:disabled {
 	border-color: #999999;
