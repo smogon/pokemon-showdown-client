@@ -22,6 +22,8 @@
 
 			this.$chat = this.$chatFrame.find('.inner');
 
+			this.$options = this.battle.optionsElem.html('<button name="toggleIgnoreSpects">' + (this.battle.ignoreSpects ? 'Unignore' : 'Ignore') + ' Spectators</button>');
+
 			this.battle.customCallback = _.bind(this.updateControls, this);
 			this.battle.endCallback = _.bind(this.updateControls, this);
 			this.battle.startCallback = _.bind(this.updateControls, this);
@@ -682,6 +684,10 @@
 		},
 		setTimer: function(setting) {
 			this.send('/timer '+setting);
+		},
+		toggleIgnoreSpects: function() {
+			this.battle.ignoreSpects = !this.battle.ignoreSpects;
+			this.$options.html('<button name="toggleIgnoreSpects">' + (this.battle.ignoreSpects ? 'Unignore' : 'Ignore') + ' Spectators</button>');
 		},
 		forfeit: function() {
 			this.send('/forfeit');

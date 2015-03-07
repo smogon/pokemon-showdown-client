@@ -2215,6 +2215,8 @@ var Battle = (function () {
 		this.logElem = this.logFrameElem.children();
 		this.logFrameElem.append('<div class="inner-preempt"></div>');
 		this.logPreemptElem = this.logFrameElem.children().last();
+		this.logFrameElem.append('<div class="battle-options"></div>');
+		this.optionsElem = this.logFrameElem.children().last();
 		this.logFrameElem.append('<div class="inner-after"></div>');
 
 		this.updateGen();
@@ -2305,7 +2307,7 @@ var Battle = (function () {
 		if (window.console && console.log) console.log(text);
 	};
 	Battle.prototype.log = function (html, preempt) {
-		var willScroll = (this.logFrameElem.scrollTop() + 60 >= this.logElem.height() + this.logPreemptElem.height() - this.logFrameElem.height());
+		var willScroll = (this.logFrameElem.scrollTop() + 60 >= this.logElem.height() + this.logPreemptElem.height() - this.optionsElem.height() - this.logFrameElem.height());
 		if (preempt) {
 			this.logPreemptElem.append(html);
 		} else {
