@@ -420,6 +420,58 @@
 				challenge(targets);
 				return false;
 
+			case 'accept':
+				var userid = toId(target);
+				if (userid) {
+					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="acceptChallenge"]');
+					if (!$challenge.length) {
+						this.add('You do not have any pending challenge from ' + target + ' to accept.');
+						return false;
+					}
+					$challenge[0].click();
+					return false;
+				}
+
+				var $challenges = $('.challenge').find('button[name=acceptChallenge]');
+				if (!$challenges.length) {
+					this.add('You do not have any pending challenges to accept.');
+					return false;
+				}
+				if ($challenges.length > 1) {
+					this.add('You need to specify a user if you have more than one pending challenge to accept.');
+					this.parseCommand('/help accept');
+					return false;
+				}
+
+				$challenges[0].click();
+				return false;
+			case 'reject':
+				var userid = toId(target);
+				if (userid) {
+					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="rejectChallenge"]');
+					if (!$challenge.length) {
+						this.add('You do not have any pending challenge from ' + target + ' to reject.');
+						return false;
+					}
+					$challenge[0].click();
+					return false;
+				}
+
+				var $challenges = $('.challenge').find('button[name="rejectChallenge"]');
+				if (!$challenges.length) {
+					this.add('You do not have any pending challenges to reject.');
+					this.parseCommand('/help reject');
+					return false;
+				}
+				if ($challenges.length > 1) {
+					this.add('You need to specify a user if you have more than one pending challenge to reject.');
+					this.parseCommand('/help reject');
+					return false;
+				}
+
+				$challenges[0].click();
+				return false;
+
 			case 'user':
 			case 'open':
 				var open = function(target) {
@@ -746,6 +798,14 @@
 				case 'challenge':
 					this.add('/challenge - Open a prompt to challenge a user to a battle.');
 					this.add('/challenge [user] - Challenge the user [user] to a battle.');
+					return false;
+				case 'accept':
+					this.add('/accept - Accept a challenge if only one is pending.');
+					this.add('/accept [user] - Accept a challenge from the specified user.');
+					return false;
+				case 'reject':
+					this.add('/reject - Reject a challenge if only one is pending.');
+					this.add('/reject [user] - Reject a challenge from the specified user.');
 					return false;
 				case 'user':
 				case 'open':
