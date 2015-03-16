@@ -3351,6 +3351,9 @@ var BattleMoveAnims = {
 	vicegrip: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
+	headbutt: {
+		anim: BattleOtherAnims.contactattack.anim
+	},
 	xscissor: {
 		anim: BattleOtherAnims.xattack.anim
 	},
