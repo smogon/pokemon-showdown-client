@@ -280,17 +280,17 @@
 						break;
 
 					case 'disqualify':
-						this.room.$chat.append("<div class=\"notice tournament-message-disqualify\">" + Tools.escapeHTML(data[0]) + " has been disqualified from the tournament</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-disqualify\">" + Tools.escapeHTML(data[0]) + " has been disqualified from the tournament.</div>");
 						break;
 
 					case 'autodq':
 						if (data[0] === 'off') {
-							this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been turned off</div>");
+							this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been turned off.</div>");
 						} else if (data[0] === 'on') {
-							this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been set to " + (data[1] / 1000 / 60) + " minutes</div>");
+							this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been set to " + (data[1] / 1000 / 60) + " minutes.</div>");
 						} else {
 							var seconds = Math.floor(data[1] / 1000);
-							app.addPopupMessage("Please respond to the tournament within " + seconds + " seconds or you may be automatically disqualified");
+							app.addPopupMessage("Please respond to the tournament within " + seconds + " seconds or you may be automatically disqualified.");
 							this.room.notifyOnce("Tournament Automatic Disqualification Warning", "Room: " + this.room.title + "\nSeconds: " + seconds, 'tournament-autodq-warning');
 						}
 						break;
