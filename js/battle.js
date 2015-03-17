@@ -2028,8 +2028,11 @@ var Side = (function () {
 			endure: '<span class="good">Endure</span>',
 			focuspunch: '<span class="neutral">Focusing</span>',
 			powder: '<span class="bad">Powder</span>',
-			ragepowder: '<span class="good">Rage Powder</span>',
-			followme: '<span class="good">Follow Me</span>'
+			ragepowder: '<span class="good">Rage&nbsp;Powder</span>',
+			followme: '<span class="good">Follow&nbsp;Me</span>',
+			// Gen 1
+			lightscreen: '<span class="good">Light&nbsp;Screen</span>',
+			reflect: '<span class="good">Reflect</span>'
 		};
 		for (var i in pokemon.volatiles) {
 			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[['+i+']]</span>';
@@ -4296,6 +4299,17 @@ var Battle = (function () {
 				case 'powder':
 					actions += '' + poke.getName() + ' is covered in powder!';
 					break;
+
+				// Gen 1
+				case 'lightscreen':
+					this.resultAnim(poke, 'Light Screen', 'good', animDelay);
+					actions += '' + poke.getName() + '\'s protected against special attacks!';
+					break;
+				case 'reflect':
+					this.resultAnim(poke, 'Reflect', 'good', animDelay);
+					actions += '' + poke.getName() + ' gained armor!';
+					break;
+
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " started!";
 				}
