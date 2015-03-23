@@ -4319,7 +4319,10 @@ var Battle = (function () {
 				var effect = Tools.getEffect(args[2]);
 				var fromeffect = Tools.getEffect(kwargs.from);
 				poke.removeVolatile(effect.id);
-				switch (effect.id) {
+
+				if (kwargs.silent) {
+					// do nothing
+				} else switch (effect.id) {
 				case 'powertrick':
 					this.resultAnim(poke, 'Power Trick', 'neutral', animDelay);
 					actions += "" + poke.getName() + " switched its Attack and Defense!";
