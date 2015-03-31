@@ -4226,7 +4226,7 @@ var Battle = (function () {
 					break;
 				case 'slowstart':
 					this.resultAnim(poke, 'Slow Start', 'bad', animDelay);
-					actions += "" + poke.getName() + " can't get it going because of its Slow Start!";
+					actions += "" + poke.getName() + " can't get it going!";
 					break;
 				case 'attract':
 					this.resultAnim(poke, 'Attracted', 'bad', animDelay);
@@ -4384,6 +4384,10 @@ var Battle = (function () {
 					break;
 				case 'bide':
 					actions += "" + poke.getName() + " unleashed its energy!";
+					break;
+				case 'slowstart':
+					this.resultAnim(poke, 'Slow Start ended', 'good', animDelay);
+					actions += "" + poke.getName() + " finally got its act together!";
 					break;
 				case 'magnetrise':
 					if (poke.side.n === 0) actions += "" + poke.getName() + "'s electromagnetism wore off!";
