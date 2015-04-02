@@ -3741,6 +3741,15 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' moved its status onto ' + ofpoke.getLowerName() + '!';
 					this.resultAnim(poke, 'Cured', 'good', animDelay);
 					break;
+				case 'flamewheel':
+				case 'flareblitz':
+				case 'fusionflare':
+				case 'sacredfire':
+				case 'scald':
+				case 'steameruption':
+					this.resultAnim(poke, 'Thawed', 'good', animDelay);
+					actions += "" + poke.getName() + "'s " + effect.name + " melted the ice!";
+					break;
 				default:
 					this.resultAnim(poke, 'Cured', 'good', animDelay);
 					actions += "" + poke.getName() + "'s "+effect.name+" heals its status!";
