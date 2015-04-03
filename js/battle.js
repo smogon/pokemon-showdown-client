@@ -5362,12 +5362,12 @@ var Battle = (function () {
 		case 'inactive':
 			this.kickingInactive = true;
 			args.shift();
-			this.log('<div class="chat timer">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat message-error">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'inactiveoff':
 			this.kickingInactive = false;
 			args.shift();
-			this.log('<div class="chat timer">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat message-error">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'join':
 		case 'j':

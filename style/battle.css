@@ -890,6 +890,7 @@ License: GPLv2
 	margin-top: 0;
 	margin-bottom: 0;
 }
-.message-throttle-notice {
-	color: red;
+.message-throttle-notice,
+.message-error {
+	color: #992222;
 }
