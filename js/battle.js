@@ -3851,6 +3851,7 @@ var Battle = (function () {
 					break;
 				case 'thief':
 				case 'covet':
+				case 'pickpocket':
 					actions += '' + poke.getName() + ' stole ' + ofpoke.getLowerName() + "'s " + item.name + "!";
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					this.resultAnim(ofpoke, 'Item Stolen', 'bad', animDelay);
