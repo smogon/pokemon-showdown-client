@@ -2040,9 +2040,11 @@
 					if (i === 'global') continue;
 					var roomid = toRoomid(i);
 					if (roomid.substr(0,7) === 'battle-') {
+						var p1 = data.rooms[i].p1.substr(1);
+						var p2 = data.rooms[i].p2.substr(1);
 						if (!battlebuf) battlebuf = '<br /><em>Battles:</em> ';
 						else battlebuf += ', ';
-						battlebuf += '<a href="'+app.root+roomid+'" class="ilink">'+roomid.substr(7)+'</a>';
+						battlebuf += '<span title="'+(Tools.escapeHTML(p1) || '?')+' v. '+(Tools.escapeHTML(p2) || '?')+'"><a href="'+app.root+roomid+'" class="ilink">'+roomid.substr(7)+'</a></span>';
 					} else {
 						if (!chatbuf) chatbuf = '<br /><em>Chatrooms:</em> ';
 						else chatbuf += ', ';
