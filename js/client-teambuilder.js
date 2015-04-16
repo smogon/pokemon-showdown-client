@@ -1289,9 +1289,9 @@
 				var movelist = this.movelist;
 				if (!movelist) return 'Illegal';
 				if (!movelist[move.id]) {
-					if (movelist['sketch']) {
+					if (movelist['sketch'] && move.id !== 'chatter' && move.id !== 'struggle') {
 						if (move.isViable) return 'Usable Sketch Moves';
-						else if (move.id !== 'chatter' && move.id !== 'struggle') return 'Sketch Moves';
+						return 'Sketch Moves';
 					}
 					if (!this.curTeam || this.curTeam.format !== 'balancedhackmons') return 'Illegal';
 				}
