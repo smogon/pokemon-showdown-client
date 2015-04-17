@@ -1102,6 +1102,11 @@
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
+
+				case 'roomintro':
+					this.addRoomIntro(row[1], row[2], row.slice(3).join('|'));
+					break;
+
 				case 'unlink':
 					// note: this message has global effects, but it's handled here
 					// so that it can be included in the scrollback buffer.
@@ -1321,6 +1326,34 @@
 				outputChat();
 				Storage.logChat(this.id, ''+name+': '+message);
 			}
+		},
+		addRoomIntro: function(modchat, official, intro) {
+			var safeIntro;
+			if (intro) {
+				var limiter = official ? '' : ' class="infobox-limited"';
+				safeIntro = '<div' + limiter + '>' + Tools.sanitizeHTML(intro) + '</div>';
+			}
+
+			var modchatMessage;
+			if (modchat) {
+				modchatMessage = '<div class="broadcast-red">' +
+					'Must be rank ' + Tools.escapeHTML(modchat) + ' or higher to talk right now.' +
+					'</div>';
+			}
+
+			var result = '';
+
+			if (modchat && intro) {
+				result = safeIntro + '<br />' + modchatMessage;
+			} else if (modchat) {
+				result = modchatMessage;
+			} else if (intro) {
+				result = safeIntro;
+			} else {
+				return;
+			}
+
+			this.$chat.append('<div class="infobox">' + result + '</div>');
 		}
 	}, {
 		getTimestamp: function(section, deltatime) {
