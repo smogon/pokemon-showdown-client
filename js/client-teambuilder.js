@@ -42,6 +42,8 @@
 			'keyup .chartinput': 'chartKeyup',
 			'focus .chartinput': 'chartFocus',
 			'change .chartinput': 'chartChange',
+			'change select[name=pokemonsort]': 'sortChart',
+			'change select[name=movesort]': 'sortChart',
 
 			// clipboard
 			'click .teambuilder-clipboard-data .result': 'clipboardResultSelect',
@@ -677,6 +679,12 @@
 			buf += '</ol>';
 			buf += '</div>';
 
+			//sort results
+			buf += '<div class="teambuilder-results-sort">'
+			buf += 'Sort Pokemon by <select name="pokemonsort"><option>Name</option><option>HP</option><option>Attack</option><option>Defense</option><option>Special Attack</option><option>Special Defense</option><option>Speed</option><option>BST</option></select> ';
+			buf += 'Moves by <select name="movesort"><option>Name</option><option>Type</option><option>Category</option><option>Base Power</option></select>';
+			buf += '</div>';
+
 			// results
 			this.chartPrevSearch = '[init]';
 			buf += '<div class="teambuilder-results"></div>';
@@ -793,6 +801,12 @@
 				this.$chart.find('.totalev').html('<b>'+(510-totalev)+'</b>');
 			}
 			this.$chart.find('select[name=nature]').val(set.nature||'Serious');
+		},
+		sortChart: function(e) {
+			var toSort = e.currentTarget.name;
+			Chart.sortBy[toSort.substr(0, toSort.length - 4)] = e.currentTarget.value;
+			if ( (this.curChartType + 'sort') !== toSort) return;
+			this.updateChart();
 		},
 		curChartType: '',
 		curChartName: '',
