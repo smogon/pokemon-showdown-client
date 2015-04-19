@@ -727,6 +727,7 @@
 			if (pos !== undefined) {
 				var move = e.getAttribute('data-move');
 				var target = Tools.getMove(move).target;
+				if (move === 'Curse' && myActive[this.choice.choices.length].types.indexOf("Ghost") < 0) target = 'self';
 				var choosableTargets = {normal:1, any:1, adjacentAlly:1, adjacentAllyOrSelf:1, adjacentFoe:1};
 				this.choice.choices.push('move '+pos+(isMega?' mega':''));
 				if (myActive.length > 1 && target in choosableTargets) {
