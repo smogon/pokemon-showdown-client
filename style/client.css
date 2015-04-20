@@ -28,6 +28,11 @@ body {
 	font-weight: bold;
 	display: block;
 }
+
+.battleform label {
+	margin-left: 15px;
+}
+
 .optlabel {
 	font-size: 9pt;
 	display: block;
@@ -470,16 +475,18 @@ p.or:after {
 	background: #D5D5D5;
 }
 .select {
+	margin-left: 15px;
+	margin-top: 5px;
 	cursor: pointer;
 	box-sizing: border-box;
-	width: 230px;
+	width: 200px;
 	height: 32px;
-	padding: 0 5px;
+	padding: 0 15px;
 	font-size: 9pt;
 	text-align: left;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 
-	border-radius: 4px;
+	border-radius: 8px;
 	border: 1px solid #888888;
 	background: #EEEEEE;
 	box-shadow: inset 0 1px 0 #FFFFFF;
@@ -488,7 +495,11 @@ p.or:after {
 	color: black;
 }
 .select.teamselect {
-	height: 43px;
+	height: 100px;
+	padding-left: 15px;
+	padding-top: 2px;
+	margin-bottom: 3px;
+	display: table-row-group;
 }
 .select:hover {
 	border-color: #555555;
@@ -751,9 +762,10 @@ p.or:after {
 	border-color: hsl(210,40%,40%);
 }
 .menugroup button.big {
-	width: 230px;
+	width: 200px;
 	padding: 6px 7px 6px 7px;
 	font-size: 14pt;
+	margin-left: 15px;
 }
 .menugroup .button:hover {
 	background: #5485B6;
@@ -1768,7 +1780,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	border: 1px solid #AAAAAA;
 	padding: 0;
 	margin: -1px 2px 0 0;
-	height: 42px;
+	height: 48px;
 	float: left;
 	width: 88px;
 	cursor: pointer;
@@ -2218,7 +2230,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 }
 .teamchartbox {
 	position: absolute;
-	top: 40px;
+	top: 46px;
 	left: 0;
 	bottom: 0;
 	right: 0;

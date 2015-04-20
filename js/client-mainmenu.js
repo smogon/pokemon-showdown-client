@@ -817,18 +817,28 @@
 	}, {
 		renderTeam: function(i) {
 			if (i === 'random') {
-				var buf = 'Random team<br />';
+				var buf = 'Random team<br /><div class="teampreview"><div class="teamicons">';
 				for (var i=0; i<6; i++) {
-					buf += '<span class="pokemonicon" style="float:left;'+Tools.getIcon()+'"></span>';
+					buf += '<div class="pokemonpreview"><div class="pokemonicon" style="float:left;'+Tools.getIcon()+'"></div></div>';
+					if (i === 2) buf += '</div><div class="teamicons">';
 				}
+				buf += '</div></div>';
 				return buf;
 			}
 			var team = Storage.teams[i];
 			if (!team) return 'Error: Corrupted team';
 			var buf = ''+Tools.escapeHTML(team.name)+'<br />';
-			for (var i=0; i<team.team.length; i++) {
-				buf += '<span class="pokemonicon" style="float:left;'+Tools.getIcon(team.team[i])+'"></span>';
+			buf += '<div class="teampreview"><div class="teamicons">';
+			for (var i=0; i<6; i++) {
+				var pokemon = team.team[i];
+				buf += '<div class="pokemonpreview">';
+				buf += '<div class="pokemonicon" style="float:left;'+(pokemon ? Tools.getIcon(pokemon) : '')+'"></div>';
+				buf += '<div class="pokemondata"><div class="pokemongender" style="'+ (pokemon && pokemon.gender ? Tools.getIcon(pokemon.gender) : '')+'"></div>';
+				buf += '<div class="pokemonitem" style="' + (pokemon && pokemon.item ? Tools.getIcon('item') : '') + '"></div></div>'
+				buf += '</div>';
+				if (i === 2) buf += '</div><div class="teamicons">';
 			}
+			buf += '</div></div>';
 			return buf;
 		}
 	});
