@@ -398,14 +398,15 @@
 						if (move.id === 'Struggle' || move.id === 'Recharge') pp = '&ndash;';
 						if (move.id === 'Recharge') move.type = '&ndash;';
 						if (name.substr(0, 12) === 'Hidden Power') name = 'Hidden Power';
+						var moveType = this.getMoveType(move, switchables[pos]);
 						if (moveData.disabled) {
 							movebuttons += '<button disabled="disabled"' + this.tooltipAttrs(moveData.move, 'move') + '>';
 							hasDisabled = true;
 						} else {
-							movebuttons += '<button class="type-' + move.type + '" name="chooseMove" value="' + (i+1) + '" data-move="' + Tools.escapeHTML(moveData.move) + '"' + this.tooltipAttrs(moveData.move, 'move') + '>';
+							movebuttons += '<button class="type-' + moveType + '" name="chooseMove" value="' + Tools.escapeHTML(moveData.move) + '"' + this.tooltipAttrs(moveData.move, 'move') + '>';
 							hasMoves = true;
 						}
-						movebuttons += name + '<br /><small class="type">' + (move.type || "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
+						movebuttons += name + '<br /><small class="type">' + (moveType || "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 					}
 					if (!hasMoves) {
 						controls += '<button class="movebutton" name="chooseMove" value="0" data-move="Struggle">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
@@ -935,14 +936,40 @@
 			case 'move':
 				var move = Tools.getMove(thing);
 				if (!move) return;
-				var basePower = move.basePower;
-				if (!basePower) basePower = '&mdash;';
+				var basePowerText = '';
+				// Is it doubles or triples?
+				if (this.battle.yourSide.active.length > 1) {
+					// We check if there is a difference in base powers to note it.
+					// Otherwise, it is just shown as in singles.
+					// The trick is that we need to calculate it first for each Pokémon to see if it changes.
+					var previousBasepower = false;
+					var difference = false;
+					var basePowers = [];
+					for (var i = 0; i < this.battle.yourSide.active.length; i++) {
+						basePower = this.getMoveBasePower(move, this.battle.mySide.active[this.choice.choices.length], this.battle.yourSide.active[i]);
+						if (previousBasepower === false) previousBasepower = basePower;
+						if (previousBasepower !== basePower) difference = true;
+						if (!basePower) basePower = '&mdash;';
+						basePowers.push('Base power for ' + this.battle.yourSide.active[i].name + ': ' + basePower);
+					}
+					if (difference) {
+						basePowerText = '<p>' + basePowers.join('<br />') + '</p>';
+					}
+					// Falls through to not to repeat code on showing the base power.
+				}
+				if (!basePowerText) {
+					basePower = this.getMoveBasePower(move, this.battle.mySide.pokemon[this.choice.choices.length], this.battle.yourSide.pokemon[0]);
+					if (!basePower) basePower = '&mdash;';
+					basePowerText = '<p>Base power: ' + basePower + '</p>'
+				}
 				var accuracy = move.accuracy;
 				if (!accuracy || accuracy === true) accuracy = '&mdash;';
 				else accuracy = '' + accuracy + '%';
+				// Handle move type for judgment.
+				var moveType = this.getMoveType(move, this.battle.mySide.pokemon[this.choice.choices.length]);
 				text = '<div class="tooltipinner"><div class="tooltip">';
-				text += '<h2>' + move.name + '<br />'+Tools.getTypeIcon(move.type)+' <img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
-				text += '<p>Base power: ' + basePower + '</p>';
+				text += '<h2>' + move.name + '<br />'+Tools.getTypeIcon(moveType)+' <img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
+				text += basePowerText;
 				text += '<p>Accuracy: ' + accuracy + '</p>';
 				var flags = {
 					"authentic": "Ignores a target's substitute.",
@@ -1083,6 +1110,121 @@
 		},
 		hideTooltip: function() {
 			$('#tooltipwrapper').html('');
+		},
+		// Gets the proper current type for moves with a variable type.
+		getMoveType: function(move, pokemon) {
+			var moveType = move.type;
+			if (!this.battle.hasPseudoWeather('Magic Room') && !pokemon.volatiles['embargo']) {
+				if (move.id === 'judgment') {
+					var item = Tools.getItem(pokemon.item);
+					if (item.onPlate) moveType = item.onPlate;
+				}
+				if (move.id === 'technoblast') {
+					var item = Tools.getItem(pokemon.item);
+					if (item.onDrive) moveType = item.onDrive;
+				}
+				if (move.id === 'naturalgift' && pokemon.item) {
+					var item = Tools.getItem(pokemon.item);
+					if (item.naturalGift) moveType = item.naturalGift.type;
+				}
+			}
+			return moveType;
+		},
+		// Gets the proper current base power for moves which have a variable base power.
+		// Takes into account the target for some moves.
+		getMoveBasePower: function(move, pokemon, target) {
+			var basePower = move.basePower;
+			if (move.id === 'acrobatics') {
+				if (!pokemon.item) basePower *= 2;
+			}
+			if (move.id === 'crushgrip' || move.id === 'wringout') {
+				basePower = Math.floor(Math.floor((120 * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100) || 1;
+			}
+			if (move.id === 'eruption' || move.id === 'waterspout') {
+				basePower = Math.floor(150 * pokemon.hp / pokemon.maxhp) || 1;
+			}
+			if (move.id === 'flail') {
+				basePower = 20;
+				var ratio = pokemon.hp * 48 / pokemon.maxhp;
+				if (ratio < 2) basePower = 200;
+				else if (ratio < 5) basePower = 150;
+				else if (ratio < 10) basePower = 100;
+				else if (ratio < 17) basePower = 80;
+				else if (ratio < 33) basePower = 40;
+			}
+			if (move.id === 'hex') {
+				if (target.status) basePower = 130;
+				basePower = 65;
+			}
+			if (move.id === 'punishment') {
+				var boosts = Object.keys(target.boosts);
+				var multiply = 0;
+				for (var i = 0; i < boosts.length; i++) {
+					if (target.boosts[boosts[i]] && target.boosts[boosts[i]] > 0) multiply++;
+				}
+				basePower = 60 + 20 * multiply;
+			}
+			if (move.id === 'smellingsalts') {
+				if (target.status === 'par') basePower *= 2;
+			}
+			if (move.id === 'storedpower') {
+				var boosts = Object.keys(pokemon.boosts);
+				var multiply = 0;
+				for (var i = 0; i < boosts.length; i++) {
+					if (pokemon.boosts[boosts[i]] && pokemon.boosts[boosts[i]] > 0) multiply++;
+				}
+				basePower = 20 + 20 * multiply;
+			}
+			if (move.id === 'trumpcard') {
+				basePower = 40;
+				if (move.pp === 1) basePower = 200;
+				else if (move.pp === 2) basePower = 80;
+				else if (move.pp === 3) basePower = 60;
+				else if (move.pp === 4) basePower = 50;
+			}
+			if (move.id === 'venoshock') {
+				if (target.status === 'psn' || target.status === 'tox') basePower *= 2;
+			}
+			if (move.id === 'wakeupslap') {
+				if (target.status === 'slp') basePower *= 2;
+			}
+			// Movements which have base power changed due to items.
+			if (pokemon.item && !this.battle.hasPseudoWeather('Magic Room') && !pokemon.volatiles['embargo']) {
+				if (move.id === 'fling') {
+					var item = Tools.getItem(pokemon.item);
+					if (item.fling) basePower = item.fling.basePower;
+				}
+				if (move.id === 'naturalgift') {
+					var item = Tools.getItem(pokemon.item);
+					if (item.naturalGift) basePower = item.naturalGift.basePower;
+				}
+			}
+			// Movements which have base power changed according to weight.
+			if (target.weightkg) {
+				var targetWeight = target.weightkg;
+				// Autotomize cannot be really known on client, so we calculate it's one charge.
+				if (target.volatiles.autotomize) targetWeight -= 100;
+				if (targetWeight < 0.1) targetWeight = 0.1;
+				if (move.id === 'lowkick' || move.id === 'grassknot') {
+					basePower = 20;
+					if (targetWeight >= 200) basePower = 120;
+					else if (targetWeight >= 100) basePower = 100;
+					else if (targetWeight >= 50) basePower = 80;
+					else if (targetWeight >= 25) basePower = 60;
+					else if (targetWeight >= 10) basePower = 40;
+				}
+				if (move.id === 'heavyslam' || move.id === 'heatcrash') {
+					basePower = 40;
+					if (pokemonWeight > targetWeight * 5) basePower = 120;
+					else if (pokemonWeight > targetWeight * 4) basePower = 100;
+					else if (pokemonWeight > targetWeight * 3) basePower = 80;
+					else if (pokemonWeight > targetWeight * 2) basePower = 60;
+				}
+			}
+			if (pokemon.ability === 'technician' && basePower <= 60) {
+				basePower *= 1.5;
+			}
+			return basePower;
 		}
 	});
 
