@@ -2385,7 +2385,7 @@
 			buf += '<p><button name="avatars">Change avatar</button></p>';
 
 			buf += '<hr />';
-			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Charizards</option><option value="#344b6c url(/fx/client-bg-horizon.jpg) no-repeat left center fixed">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c">Solid blue</option>'+(Tools.prefs('bg')?'<option value="" selected></option>':'')+'</select></label></p>';
+			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Charizards</option><option value="#344b6c url(/fx/client-bg-horizon.jpg) no-repeat left center fixed">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c">Solid blue</option><option value="custom">Custom</option>'+(Tools.prefs('bg')?'<option value="" selected></option>':'')+'</select></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"'+(Tools.prefs('bwgfx')?' checked':'')+' /> Enable BW sprites for XY</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"'+(Tools.prefs('nopastgens')?' checked':'')+' /> Use modern sprites for past generations</label></p>';
@@ -2481,6 +2481,10 @@
 		},
 		setBg: function(e) {
 			var bg = e.currentTarget.value;
+			if (bg === 'custom') {
+				app.addPopup(CustomBackgroundPopup);
+				return;
+			}
 			Tools.prefs('bg', bg);
 			if (!bg) bg = '#344b6c url(/fx/client-bg-charizards.jpg) no-repeat left center fixed';
 			$(document.body).css({
@@ -2683,6 +2687,44 @@
 				this.close();
 				app.focusRoom(id);
 			}
+		}
+	});
+
+	var CustomBackgroundPopup = this.CustomBackgroundPopup = Popup.extend({
+		type: 'semimodal',
+		events: {
+			'change input[name=bgfile]': 'setBg'
+		},
+		initialize: function() {
+			var buf = '';
+			buf += '<p>Choose a custom background</p>';
+			buf += '<input type="file" accept="image/*" name="bgfile">';
+			buf += '<p class="bgstatus"></p>';
+
+			buf += '<p><button name="close">Cancel</button></p>';
+			this.$el.html(buf);
+		},
+		setBg: function(e) {
+			$('.bgstatus').text('Changing background image.');
+			var file = e.currentTarget.files[0];
+			var reader = new FileReader();
+			var self = this;
+			reader.onload = function(e) {
+				var bg = '#344b6c url(' + e.target.result + ') no-repeat left center fixed';
+				try {
+					Tools.prefs('bg', bg);
+				}
+				catch (e) {
+					$('.bgstatus').text("Image too large, upload a background whose size is 3.5MB or less.");
+					return;
+				}
+				$(document.body).css({
+					background: bg,
+					'background-size': 'cover'
+				});
+				self.close();
+			};
+			reader.readAsDataURL(file);
 		}
 	});
 
