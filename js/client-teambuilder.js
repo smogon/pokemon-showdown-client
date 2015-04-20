@@ -1535,7 +1535,7 @@
 						if (move.id === 'toxic' || move.id === 'leechseed' || move.id === 'willowisp') moveCount['Stall']++;
 						moveCount['Support']++;
 					}
-				} else if (move.id === 'rapidspin' || move.id === 'counter' || move.id === 'mirrorcoat' || move.id === 'metalburst') {
+				} else if (move.id === 'counter' || move.id === 'endeavor' || move.id === 'metalburst' || move.id === 'mirrorcoat' || move.id === 'rapidspin') {
 					moveCount['Support']++;
 				} else if (move.id === 'nightshade' || move.id === 'seismictoss' || move.id === 'foulplay' || move.id === 'finalgambit') {
 					moveCount['Offense']++;
