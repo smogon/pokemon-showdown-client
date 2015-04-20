@@ -821,7 +821,7 @@ var Tools = {
 		path = (path.match(/.+?(?=data\/pokedex-mini\.js)/) || [])[0] || '';
 
 		var el = document.createElement('script');
-		el.src = path + 'data/pokedex-mini' + (gen !== 'xy' ? '-' + gen : '') + '.js' + (qs ? '?' + qs : '');
+		el.src = path + 'data/pokedex-mini.js' + (qs ? '?' + qs : '');
 		document.getElementsByTagName('body')[0].appendChild(el);
 	},
 	getSpriteData: function(pokemon, siden, options) {
@@ -840,11 +840,11 @@ var Tools = {
 		var dir, isBack, facing;
 		if (siden) {
 			dir = '';
-			facing = 'front';
+			facing = 'f';
 		} else {
 			spriteData.isBackSprite = true;
 			dir = '-back';
-			facing = 'back';
+			facing = 'b';
 		}
 
 		var animationData = window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid];
@@ -867,20 +867,22 @@ var Tools = {
 		// Decide what gen sprites to use.
 		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[options.gen];
 		if (Tools.prefs('nopastgens')) gen = 'xy';
-		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
+		if ((Tools.prefs('bwgfx') || Tools.prefs('noanim')) && gen === 'xy') gen = 'bw';
 
-		if (animationData && animationData[facing]) {
-			var spriteType = '';
-			if (animationData[facing]['anif'] && pokemon.gender === 'F') {
+		// Check if there's animation data for the gen.
+		if (animationData && animationData[gen] && animationData[gen][facing]) {
+			var dataPos = 0;
+			// Check if the Pokémon is female and has a specific female sprite.
+			if (pokemon.gender === 'F' && animationData[gen][facing][1]) {
 				name += '-f';
-				spriteType += 'f';
+				dataPos = 1;
 			}
+			// If animations are enabled and generation is either BW or XY, use their gifs.
 			if (!Tools.prefs('noanim') && gen in {'bw':1, 'xy':1}) {
-				spriteType = 'ani' + spriteType;
 				dir = gen + 'ani' + dir;
 
-				spriteData.w = animationData[facing][spriteType].w;
-				spriteData.h = animationData[facing][spriteType].h;
+				spriteData.w = animationData[gen][facing][dataPos].w;
+				spriteData.h = animationData[gen][facing][dataPos].h;
 				spriteData.url += dir + '/' + name + '.gif';
 				return spriteData;
 			}
@@ -888,7 +890,6 @@ var Tools = {
 		// if there is no entry or enough data in pokedex-mini.js or the animations are disabled or past gen, use the proper sprites
 		gen = (gen === 'xy')? 'bw' : gen;
 		dir = gen + dir;
-
 		spriteData.url += dir+'/' + name + '.png';
 
 		return spriteData;
@@ -1034,7 +1035,9 @@ var Tools = {
 			}
 		}
 		var shiny = (pokemon.shiny?'-shiny':'');
-		if (BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].front && BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
+		if (pokemon.gender === 'F' && BattlePokemonSprites && BattlePokemonSprites[id] &&
+			((BattlePokemonSprites[id].xy && BattlePokemonSprites[id].xy.f && BattlePokemonSprites[id].xy.f[1]) || 
+			(BattlePokemonSprites[id].bw && BattlePokemonSprites[id].bw.f && BattlePokemonSprites[id].bw.f[1]))) { 
 			id+='-f';
 		}
 		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw'+shiny+'/'+id+'.png)';
