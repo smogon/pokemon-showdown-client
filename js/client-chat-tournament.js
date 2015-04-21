@@ -274,8 +274,11 @@
 						break;
 
 					case 'start':
-						if (!this.info.isJoined)
+						if (!this.info.isJoined) {
 							this.toggleBoxVisibility(false);
+						} else if (this.info.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']){
+							Tools.loadSpriteData('bw');
+						}
 						this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
 						break;
 
