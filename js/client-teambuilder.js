@@ -450,6 +450,7 @@
 		formatChange: function(e) {
 			this.curTeam.format = e.currentTarget.value;
 			this.save();
+			if (this.curTeam.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
 		},
 		nicknameChange: function(e) {
 			var i = +$(e.currentTarget).closest('li').attr('value');
