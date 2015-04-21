@@ -169,12 +169,15 @@
 						formatText = '['+team.format+'] ';
 					}
 
-					buf += '<li><button name="edit" value="'+i+'" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+					buf += '<li><button name="edit" value="'+i+'" style="width:355px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 					for (var j=0; j<team.team.length; j++) {
 						if (j!=0) buf += ' / ';
 						buf += ''+Tools.escapeHTML(team.team[j].name);
 					}
-					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
+					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button>';
+					buf += (i > 0) ?' <button name="moveup" style="width:28px;" value="'+i+'"><i class="icon-sort-up"></i></button>' : ' ';
+					if (i < teams.length-1) buf += '<button name="movedown" style="width:28px;" value="'+i+'"><i class="icon-sort-down"></i></button>';
+					buf += '</li>';
 				}
 			}
 			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
@@ -264,6 +267,24 @@
 		backup: function() {
 			this.curTeam = null;
 			this.exportMode = true;
+			this.update();
+		},
+		moveup: function(i) {
+			i = parseInt(i);
+			if (i === 0 || !Storage.teams[i] || !Storage.teams[i-1]) return;
+			var copy = Storage.teams[i-1];
+			Storage.teams[i-1] = Storage.teams[i];
+			Storage.teams[i] = copy;
+			Storage.saveAllTeams();
+			this.update();
+		},
+		movedown: function(i) {
+			i = parseInt(i);
+			if (i === Storage.teams.length || !Storage.teams[i] || !Storage.teams[i+1]) return;
+			var copy = Storage.teams[i+1];
+			Storage.teams[i+1] = Storage.teams[i];
+			Storage.teams[i] = copy;
+			Storage.saveAllTeams();
 			this.update();
 		},
 
