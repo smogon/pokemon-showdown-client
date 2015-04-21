@@ -1004,6 +1004,7 @@ var Tools = {
 			"malaconda": 832+15,
 			"cawmodore": 832+16,
 			"volkraken": 832+17,
+			"plasmanta": 832+18
 		};
 		if (altNums[id]) {
 			num = altNums[id];
