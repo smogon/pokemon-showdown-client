@@ -521,6 +521,19 @@
 				}
 				return false;
 
+			case 'clearpms':
+				var $pms = $('.pm-window');
+				if (!$pms.length) {
+					this.add('You do not have any PM windows open.');
+					return false;
+				}
+				$pms.each(function () {
+					app.rooms[''].closePM($(this).data('userid'));
+					$(this).find('.inner').empty();
+				});
+				this.add("All PM windows cleared and closed.");
+				return false;
+
 			case 'nick':
 				if (target) {
 					app.user.rename(target);
