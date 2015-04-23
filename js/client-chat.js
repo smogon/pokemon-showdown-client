@@ -528,7 +528,16 @@
 					return false;
 				}
 				$pms.each(function () {
-					app.rooms[''].closePM($(this).data('userid'));
+					var userid = $(this).data('userid');
+					if (!userid) {
+						var newsId = $(this).data('newsid');
+						if (newsId) {
+							$.cookie('showdown_readnews', ''+newsId, {expires: 365});
+						}
+						$(this).remove();
+						return;
+					}
+					app.rooms[''].closePM(userid);
 					$(this).find('.inner').empty();
 				});
 				this.add("All PM windows cleared and closed.");
