@@ -818,7 +818,7 @@
 			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
 			this.updateChartTimeout = setTimeout(function() {
 				self.updateChartTimeout = null;
-				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
+				if (self.curChartType === 'stats' || self.curChartType === 'details' || !self.curChartName) return;
 				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self)));
 			}, 10);
 		},
