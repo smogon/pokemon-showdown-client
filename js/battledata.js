@@ -1034,6 +1034,9 @@ var Tools = {
 				id = toId(pokemon.species);
 			}
 		}
+		if (Tools.getTemplate(pokemon.species).exists === false) {
+			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png)';
+		}
 		var shiny = (pokemon.shiny?'-shiny':'');
 		if (BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].front && BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
 			id+='-f';
