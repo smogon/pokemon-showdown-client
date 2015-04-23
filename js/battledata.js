@@ -359,10 +359,10 @@ var Tools = {
 		var options = Tools.prefs('chatformatting') || {};
 
 		// ``code``
-		str = str.replace(/\`\`([^< ](?:[^<`]*?[^< ])?)\`\`/g,
+		str = str.replace(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g,
 				options.hidemonospace ? '$1' : '<code>$1</code>');
 		// ~~strikethrough~~
-		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])?)\~\~/g,
+		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])??)\~\~/g,
 				options.hidestrikethrough ? '$1' : '<s>$1</s>');
 		// linking of URIs
 		if (!options.hidelinks) {
@@ -420,17 +420,17 @@ var Tools = {
 			});
 			// [[blah]]
 			//   Short form of gl[blah]
-			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])?)\]\]/ig, function(p0, p1) {
+			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/ig, function(p0, p1) {
 				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
 					'" target="_blank">' + p1 +'</a>';
 			});
 		}
 		// __italics__
-		str = str.replace(/\_\_([^< ](?:[^<]*?[^< ])?)\_\_(?![^<]*?<\/a)/g,
+		str = str.replace(/\_\_([^< ](?:[^<]*?[^< ])??)\_\_(?![^<]*?<\/a)/g,
 				options.hideitalics ? '$1' : '<i>$1</i>');
 		// **bold**
-		str = str.replace(/\*\*([^< ](?:[^<]*?[^< ])?)\*\*/g,
+		str = str.replace(/\*\*([^< ](?:[^<]*?[^< ])??)\*\*/g,
 			options.hidebold ? '$1' : '<b>$1</b>');
 
 		if (!options.hidespoiler) {
