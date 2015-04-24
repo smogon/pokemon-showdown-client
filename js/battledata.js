@@ -867,14 +867,25 @@ var Tools = {
 		// Decide what gen sprites to use.
 		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[options.gen];
 		if (Tools.prefs('nopastgens')) gen = 'xy';
-		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
+		if (Tools.prefs('noanim') && gen === 'xy') gen = 'bw';
+		// We load here BW data if the generation is lower than XY.
+		// We do this here in case it's animated BW sprites, will deal with no animations and XY below.
+		if (gen !== 'xy') {
+			Tools.loadSpriteData('bw');
+		} else {
+			// In case BW was loaded earlier, we re-load XY sprite data.
+			Tools.loadSpriteData('xy');
+		}
 
+		// Check if there's animation data.
 		if (animationData && animationData[facing]) {
 			var spriteType = '';
+			// Check if the Pokémon is female and it has a specific female sprite.
 			if (animationData[facing]['anif'] && pokemon.gender === 'F') {
 				name += '-f';
 				spriteType += 'f';
 			}
+			// If animations are enabled and generation is either BW or XY, use their gifs.
 			if (!Tools.prefs('noanim') && gen in {'bw':1, 'xy':1}) {
 				spriteType = 'ani' + spriteType;
 				dir = gen + 'ani' + dir;
@@ -887,8 +898,9 @@ var Tools = {
 		}
 		// if there is no entry or enough data in pokedex-mini.js or the animations are disabled or past gen, use the proper sprites
 		gen = (gen === 'xy')? 'bw' : gen;
+		// Do this here in case gen was XY but animations were disabled.
+		Tools.loadSpriteData('bw');
 		dir = gen + dir;
-
 		spriteData.url += dir+'/' + name + '.png';
 
 		return spriteData;
