@@ -1843,9 +1843,9 @@
 				if (evTotal < 508) {
 					var remaining = 508 - evTotal;
 					if (remaining > 252) remaining = 252;
-					if (!evs['atk'] && moveCount['PhysicalAttack']) {
+					if (!evs['atk'] && moveCount['PhysicalAttack'] >= 1) {
 						evs['atk'] = remaining;
-					} else if (!evs['spa'] && moveCount['SpecialAttack']) {
+					} else if (!evs['spa'] && moveCount['SpecialAttack'] >= 1) {
 						evs['spa'] = remaining;
 					} else if (stats.hp == 1 && !evs['def']) {
 						evs['def'] = remaining;
@@ -1864,8 +1864,10 @@
 				minusStat = 'spe';
 			} else if (!moveCount['PhysicalAttack']) {
 				minusStat = 'atk';
-			} else if (!moveCount['SpecialAttack']) {
+			} else if (moveCount['SpecialAttack'] < 1) {
 				minusStat = 'spa';
+			} else if (moveCount['PhysicalAttack'] < 1) {
+				minusStat = 'atk';
 			} else if (stats.def > stats.spd) {
 				minusStat = 'spd';
 			} else {
