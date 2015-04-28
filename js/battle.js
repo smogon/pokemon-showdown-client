@@ -4684,6 +4684,10 @@ var Battle = (function () {
 				case 'fairylock':
 					actions += 'No one will be able to run away during the next turn!';
 					break;
+				case 'lockon':
+				case 'mindreader':
+					actions += '' + poke.getName() + ' took aim at ' + ofpoke.getLowerName() + '!';
+					break;
 
 				// ability activations
 				case 'sturdy':
