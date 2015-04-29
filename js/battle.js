@@ -4713,6 +4713,9 @@ var Battle = (function () {
 				case 'telepathy':
 					actions += "" + poke.getName() + " avoids attacks by its ally Pok&#xE9;mon!";
 					break;
+				case 'stickyhold':
+					actions += "" + poke.getName() + "'s item cannot be stolen!";
+					break;
 				case 'suctioncups':
 					actions += '' + poke.getName() + ' anchors itself!';
 					break;
