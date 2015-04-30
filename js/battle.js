@@ -4068,6 +4068,7 @@ var Battle = (function () {
 				var spriteData = {'shiny': poke.sprite.sp.shiny};
 				if (kwargs.msg) {
 					actions += "" + poke.getName() + " transformed!";
+					if (toId(template.species) === 'shaymin') break;
 				} else if (toId(template.species) === 'darmanitanzen') {
 					actions += "Zen Mode triggered!";
 				} else if (toId(template.species) === 'darmanitan') {
