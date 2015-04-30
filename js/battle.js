@@ -3534,6 +3534,8 @@ var Battle = (function () {
 				default:
 					if (kwargs.msg) {
 						actions += "It doesn't affect " + poke.getLowerName() + "... ";
+					} else if (kwargs.ohko) {
+						actions += "" + poke.getName() + " is unaffected! ";
 					} else {
 						actions += "It had no effect! ";
 					}
