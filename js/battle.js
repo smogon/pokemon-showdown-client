@@ -3009,13 +3009,6 @@ var Battle = (function () {
 		if (move.id === 'wish' || move.id === 'healingwish') {
 			pokemon.side.wisher = pokemon;
 		}
-		if (move.id === 'hyperbeam' || move.id === 'gigaimpact' || move.id === 'rockwrecker' || move.id === 'roaroftime' || move.id === 'blastburn' || move.id === 'frenzyplant' || move.id === 'hydrocannon') {
-			if (!kwargs.miss && !kwargs.notarget) {
-				pokemon.addMovestatus('mustrecharge');
-				pokemon.side.updateStatbar();
-				this.animationDelay += 500;
-			}
-		}
 	};
 	Battle.prototype.cantUseMove = function (pokemon, effect, move, kwargs) {
 		pokemon.clearMovestatuses();
@@ -3691,6 +3684,12 @@ var Battle = (function () {
 				var move = Tools.getMove(args[2]);
 				var target = this.getPokemon(args[3]);
 				this.prepareMove(poke, move, target);
+				break;
+
+			case '-mustrecharge':
+				var poke = this.getPokemon(args[1]);
+				poke.addMovestatus('mustrecharge');
+				poke.side.updateStatbar(poke);
 				break;
 
 			case '-status':
