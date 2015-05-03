@@ -857,7 +857,8 @@ License: GPLv2
 }
 .infobox-limited {
 	max-height: 200px;
-	overflow: hidden;
+	overflow: auto;
+	overflow-x: hidden;
 }
 .broadcast-red {
 	background-color: #AA5544;
