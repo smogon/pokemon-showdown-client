@@ -182,9 +182,17 @@
 		 * See `finishRename` above for a list of events this can emit.
 		 */
 		rename: function(name) {
-			if (this.get('userid') !== toUserid(name)) {
+			// | , ; are not valid characters in names
+			name = name.replace(/[\|,;]+/g, '');
+			var userid = toUserid(name);
+			if (!userid) {
+				app.addPopupMessage("Usernames must contain at least one letter or number.");
+				return;
+			}
+
+			if (this.get('userid') !== userid) {
 				var query = this.getActionPHP() + '?act=getassertion&userid=' +
-						encodeURIComponent(toUserid(name)) +
+						encodeURIComponent(userid) +
 						'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
 						'&challenge=' + encodeURIComponent(this.challenge);
 				var self = this;
@@ -238,6 +246,10 @@
 				var self = this;
 				$.get(query, Tools.safeJSON(function(data) {
 					if (!data.username) return;
+
+					// | , ; are not valid characters in names
+					data.username = data.username.replace(/[\|,;]+/g, '');
+
 					if (data.loggedin) {
 						self.set('registered', {
 							username: data.username,
@@ -2144,6 +2156,7 @@
 		},
 		submit: function(data) {
 			this.close();
+			if (!$.trim(data.username)) return;
 			app.user.rename(data.username);
 		}
 	});
