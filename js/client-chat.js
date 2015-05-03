@@ -544,7 +544,7 @@
 				return false;
 
 			case 'nick':
-				if (target) {
+				if ($.trim(target)) {
 					app.user.rename(target);
 				} else {
 					app.addPopup(LoginPopup);
