@@ -648,6 +648,11 @@
 						// We update the regex
 						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 						break;
+					default:
+						// Wrong command
+						this.add('Error: Invalid /highlight command.');
+						this.parseCommand('/help highlight'); // show help
+						return false;
 					}
 					Tools.prefs('highlights', highlights);
 				} else {
