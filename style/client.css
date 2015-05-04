@@ -258,6 +258,13 @@ a.subtle:hover {
 	border-color: #604020;
 	background: #cfaf8f;
 }
+.tabbar a.button.subtle-notifying {
+	color: #AA6600;
+}
+.tabbar a.button.subtle-notifying .icon-comment-alt:before,
+.tabbar a.button.notifying .icon-comment-alt:before {
+	content: "\f0e6";
+}
 .tabbar a.button.cur,
 .tabbar a.button.cur:hover {
 	color: #777777;
