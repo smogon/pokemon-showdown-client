@@ -1522,7 +1522,7 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notifications?' notifying':'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
+			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notificationClass||'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
 			if (app.rooms['teambuilder']) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
 			if (app.rooms['ladder']) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
 			buf += '</ul>';
@@ -1560,7 +1560,7 @@
 				}
 				if (room.isSideRoom) {
 					if (id !== 'rooms') {
-						sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+						sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+room.notificationClass+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 						if (curSideId) {
 							// get left/right for side rooms
 							if (curSideId === id) {
@@ -1587,7 +1587,7 @@
 					buf += '<ul>';
 					atLeastOne = true;
 				}
-				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+				buf += '<li><a class="button'+(curId===id?' cur':'')+room.notificationClass+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 				// get left/right
 				if (curId === id) {
 					passedCurRoom = true;
@@ -1718,7 +1718,7 @@
 				break;
 			}
 			this.$el.show();
-			this.dismissNotification();
+			this.dismissAllNotifications(true);
 		},
 		hide: function() {
 			this.blur();
@@ -1745,11 +1745,17 @@
 				}
 			} catch (e) {}
 		},
+		notificationClass: '',
 		notifications: null,
+		subtleNotification: false,
 		notify: function(title, body, tag, once) {
 			if (once && app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
 			if (!tag) tag = 'message';
-			if (!this.notifications) this.notifications = {};
+			var needsTabbarUpdate = false;
+			if (!this.notifications) {
+				this.notifications = {};
+				needsTabbarUpdate = true;
+			}
 			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) {
 				this.notifications[tag] = {};
 			} else if (window.nodewebkit && !nwWindow.setBadgeLabel) {
@@ -1792,34 +1798,73 @@
 				this.notifications[tag] = notification;
 				if (once) notification.psAutoclose = true;
 			}
+			if (needsTabbarUpdate) {
+				this.notificationClass = ' notifying';
+				app.topbar.updateTabbar();
+			}
+		},
+		subtleNotifyOnce: function() {
+			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (this.notifications || this.subtleNotification) return;
+			this.subtleNotification = true;
+			this.notificationClass = ' subtle-notifying';
 			app.topbar.updateTabbar();
 		},
 		notifyOnce: function(title, body, tag) {
 			return this.notify(title, body, tag, true);
 		},
 		closeNotification: function(tag, alreadyClosed) {
+			if (!tag) return this.closeAllNotifications();
 			if (window.nodewebkit) nwWindow.requestAttention(false);
-			if (!this.notifications) return;
-			if (!tag) {
-				for (tag in this.notifications) {
-					if (this.notifications[tag].close) this.notifications[tag].close();
-				}
-				this.notifications = null;
-				app.topbar.updateTabbar();
-				return;
-			}
-			if (!this.notifications[tag]) return;
+			if (!this.notifications || !this.notifications[tag]) return;
 			if (!alreadyClosed && this.notifications[tag].close) this.notifications[tag].close();
 			delete this.notifications[tag];
 			if (_.isEmpty(this.notifications)) {
 				this.notifications = null;
+				this.notificationClass = (this.subtleNotification ? ' subtle-notifying' : '');
 				app.topbar.updateTabbar();
 			}
 		},
-		dismissNotification: function(tag) {
+		closeAllNotifications: function(skipUpdate) {
+			if (!this.notifications && !this.subtleNotification) {
+				return;
+			}
 			if (window.nodewebkit) nwWindow.requestAttention(false);
-			if (!this.notifications) return;
-			if (!tag) {
+			this.subtleNotification = false;
+			if (this.notifications) {
+				for (tag in this.notifications) {
+					if (this.notifications[tag].close) this.notifications[tag].close();
+				}
+				this.notifications = null;
+			}
+			this.notificationClass = '';
+			if (skipUpdate) return;
+			app.topbar.updateTabbar();
+		},
+		dismissNotification: function(tag) {
+			if (!tag) return this.dismissAllNotifications();
+			if (window.nodewebkit) nwWindow.requestAttention(false);
+			if (!this.notifications || !this.notifications[tag]) return;
+			if (this.notifications[tag].close) this.notifications[tag].close();
+			if (!this.notifications || this.notifications[tag]) return; // avoid infinite recursion
+			if (this.notifications[tag].psAutoclose) {
+				delete this.notifications[tag];
+				if (!this.notifications || _.isEmpty(this.notifications)) {
+					this.notifications = null;
+					this.notificationClass = (this.subtleNotification ? ' subtle-notifying' : '');
+					app.topbar.updateTabbar();
+				}
+			} else {
+				this.notifications[tag] = {};
+			}
+		},
+		dismissAllNotifications: function(skipUpdate) {
+			if (!this.notifications && !this.subtleNotification) {
+				return;
+			}
+			if (window.nodewebkit) nwWindow.requestAttention(false);
+			this.subtleNotification = false;
+			if (this.notifications) {
 				for (tag in this.notifications) {
 					if (!this.notifications[tag].psAutoclose) continue;
 					if (this.notifications[tag].close) this.notifications[tag].close();
@@ -1827,21 +1872,12 @@
 				}
 				if (!this.notifications || _.isEmpty(this.notifications)) {
 					this.notifications = null;
-					app.topbar.updateTabbar();
 				}
-				return;
 			}
-			if (!this.notifications[tag]) return;
-			if (this.notifications[tag].close) this.notifications[tag].close();
-			if (!this.notifications || this.notifications[tag]) return; // avoid infinite recursion
-			if (this.notifications[tag].psAutoclose) {
-				delete this.notifications[tag];
-				if (!this.notifications || _.isEmpty(this.notifications)) {
-					this.notifications = null;
-					app.topbar.updateTabbar();
-				}
-			} else {
-				this.notifications[tag] = {};
+			if (!this.notifications) {
+				this.notificationClass = '';
+				if (skipUpdate) return;
+				app.topbar.updateTabbar();
 			}
 		},
 		clickNotification: function(tag) {
@@ -1855,7 +1891,7 @@
 		// allocation
 
 		destroy: function(alreadyLeft) {
-			this.closeNotification();
+			this.closeAllNotifications(true);
 			if (!alreadyLeft) this.leave();
 			this.remove();
 			delete this.app;
@@ -2640,7 +2676,7 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notifications?' notifying':'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
+			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notificationClass||'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
 			if (app.rooms['teambuilder']) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
 			if (app.rooms['ladder']) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
 			buf += '</ul>';
@@ -2665,14 +2701,14 @@
 					name = '<i class="text">'+parts[0]+'</i><span>'+name+'</span>';
 				}
 				if (room.isSideRoom) {
-					if (room.id !== 'rooms') sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+					if (room.id !== 'rooms') sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+room.notificationClass+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 					continue;
 				}
 				if (!atLeastOne) {
 					buf += '<ul>';
 					atLeastOne = true;
 				}
-				buf += '<li><a class="button'+(curId===id?' cur':'')+(room.notifications?' notifying':'')+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+				buf += '<li><a class="button'+(curId===id?' cur':'')+room.notificationClass+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
 			}
 			if (app.supports['rooms']) {
 				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus"></i> <span>&nbsp;</span></a></li>';

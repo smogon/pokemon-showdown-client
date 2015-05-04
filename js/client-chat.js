@@ -1299,6 +1299,8 @@
 				if (isHighlighted) {
 					var notifyTitle = "Mentioned by "+name+(this.id === 'lobby' ? '' : " in "+this.title);
 					this.notifyOnce(notifyTitle, "\""+message+"\"", 'highlight');
+				} else {
+					this.subtleNotifyOnce();
 				}
 			}
 			var highlight = isHighlighted ? ' highlighted' : '';
