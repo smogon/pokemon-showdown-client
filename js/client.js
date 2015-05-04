@@ -1236,6 +1236,7 @@
 		focusRoom: function(id) {
 			var room = this.rooms[id];
 			if (!room) return false;
+			if (room.activity) room.activity = false;
 			if (this.curRoom === room || this.curSideRoom === room) {
 				room.focus();
 				return true;
@@ -1541,7 +1542,7 @@
 				if (app.rooms[id].notifications) notificationCount++;
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
-				var name = '<i class="icon-comment-alt"></i> <span>'+(Tools.escapeHTML(room.title)||(id==='lobby'?'Lobby':id))+'</span>';
+				var name = '<i class="'+(room.activity&&!room.notifications?'icon-comment" style="color:#e3c3a3':'icon-comment-alt')+'"></i> <span>'+(Tools.escapeHTML(room.title)||(id==='lobby'?'Lobby':id))+'</span>';
 				if (id.substr(0,7) === 'battle-') {
 					name = Tools.escapeHTML(room.title);
 					var formatid = id.substr(7).split('-')[0];
@@ -2424,6 +2425,7 @@
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
+			'change input[name=roomhighlight]': 'setRoomHighlight',
 			'click img': 'avatars'
 		},
 		update: function() {
@@ -2442,6 +2444,7 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"'+(Tools.prefs('notournaments')?' checked':'')+' /> Ignore tournaments</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in chat rooms</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"'+(!Tools.prefs('noselfhighlight')?' checked':'')+'> Highlight when your name is said in chat</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="roomhighlight"'+(Tools.prefs('roomhighlight')?' checked':'')+'> Highlight room tabs on chat activity</label></p>';
 
 			if (window.Notification) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"'+(Tools.prefs('temporarynotifications')?' checked':'')+' /> Temporary notifications</label></p>';
@@ -2515,6 +2518,10 @@
 		setSelfHighlight: function(e) {
 			var noselfhighlight = !e.currentTarget.checked;
 			Tools.prefs('noselfhighlight', noselfhighlight);
+		},
+		setRoomHighlight: function (e) {
+			var roomhighlight = !!e.currentTarget.checked;
+			Tools.prefs('roomhighlight', roomhighlight);
 		},
 		setNolobbypm: function(e) {
 			var nolobbypm = !!e.currentTarget.checked;
