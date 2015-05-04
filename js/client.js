@@ -857,7 +857,7 @@
 					});
 				} else {
 					if (isdeinit) { // deinit
-						this.removeRoom(roomid);
+						this.removeRoom(roomid, true);
 					} else { // noinit
 						this.unjoinRoom(roomid);
 						if (roomid === 'lobby') this.joinRoom('rooms');
@@ -1145,7 +1145,7 @@
 		/**
 		 * We tried to join a room but it didn't exist
 		 */
-		unjoinRoom: function(id, noinit) {
+		unjoinRoom: function(id) {
 			if (Config.server.id && this.rooms[id] && this.rooms[id].type === 'battle') {
 				if (id === this.initialFragment) {
 					// you were direct-linked to this nonexistent room
@@ -1155,7 +1155,7 @@
 					return;
 				}
 			}
-			this.removeRoom(id);
+			this.removeRoom(id, true);
 			if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
 		},
 		tryJoinRoom: function(id) {
@@ -1356,12 +1356,12 @@
 			if (room.requestLeave && !room.requestLeave()) return false;
 			return this.removeRoom(id);
 		},
-		removeRoom: function(id) {
+		removeRoom: function(id, alreadyLeft) {
 			var room = this.rooms[id];
 			if (room) {
 				if (room === this.curRoom) this.focusRoom('');
 				delete this.rooms[id];
-				room.destroy();
+				room.destroy(alreadyLeft);
 				if (room === this.sideRoom) {
 					this.sideRoom = null;
 					this.curSideRoom = null;
@@ -1853,9 +1853,9 @@
 
 		// allocation
 
-		destroy: function() {
+		destroy: function(alreadyLeft) {
 			this.closeNotification();
-			this.leave();
+			if (!alreadyLeft) this.leave();
 			this.remove();
 			delete this.app;
 		}
