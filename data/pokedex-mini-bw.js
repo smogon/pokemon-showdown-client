@@ -1,4 +1,4 @@
-BattlePokemonSprites = {
+BattlePokemonSpritesBW = {
 	"syclant": {num:-1},
 	"revenankh": {num:-2},
 	"pyroak": {num:-3},

@@ -1137,6 +1137,7 @@
 				this.focusRoom(id);
 				return this.rooms[id];
 			}
+			if (id.substr(0, 11) === 'battle-gen5' && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
 
 			var room = this._addRoom(id, type, nojoin);
 			this.focusRoom(id);

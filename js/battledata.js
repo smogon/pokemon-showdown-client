@@ -811,17 +811,17 @@ var Tools = {
 		return type;
 	},
 
-	loadedSpriteData: 'xy',
+	loadedSpriteData: {'xy':1, 'bw':0},
 	loadSpriteData: function(gen) {
-		if (this.loadedSpriteData === gen) return;
-		this.loadedSpriteData = gen;
+		if (this.loadedSpriteData[gen]) return;
+		this.loadedSpriteData[gen] = 1;
 
 		var path = $('script[src*="pokedex-mini.js"]').attr('src');
-		var qs = path.split('?')[1] || '';
+		var qs = '?' + (path.split('?')[1] || '');
 		path = (path.match(/.+?(?=data\/pokedex-mini\.js)/) || [])[0] || '';
 
 		var el = document.createElement('script');
-		el.src = path + 'data/pokedex-mini' + (gen !== 'xy' ? '-' + gen : '') + '.js' + (qs ? '?' + qs : '');
+		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
 	},
 	getSpriteData: function(pokemon, siden, options) {
@@ -847,7 +847,12 @@ var Tools = {
 			facing = 'back';
 		}
 
-		var animationData = window.BattlePokemonSprites && BattlePokemonSprites[pokemon.speciesid];
+		var animationData = {};
+		if (options.gen === 5 && window.BattlePokemonSpritesBW) {
+			animationData = BattlePokemonSpritesBW && window.BattlePokemonSpritesBW[pokemon.speciesid];
+		} else {
+			animationData = BattlePokemonSprites && window.BattlePokemonSprites[pokemon.speciesid];
+		}
 		if (animationData) {
 			var num = '' + animationData.num;
 			if (num.length < 3) num = '0' + num;
