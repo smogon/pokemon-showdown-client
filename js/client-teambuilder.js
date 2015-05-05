@@ -2010,6 +2010,7 @@
 					var atIndex = line.lastIndexOf(' @ ');
 					if (atIndex !== -1) {
 						curSet.item = line.substr(atIndex+3);
+						if (toId(curSet.item) === 'noitem') curSet.item = '';
 						line = line.substr(0, atIndex);
 					}
 					if (line.substr(line.length-4) === ' (M)') {
