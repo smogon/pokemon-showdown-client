@@ -2417,8 +2417,10 @@
 			'change input[name=nopastgens]': 'setNopastgens',
 			'change input[name=notournaments]': 'setNotournaments',
 			'change input[name=nolobbypm]': 'setNolobbypm',
+			'change input[name=ignorespectsforever]': 'setIgnoreSpectsForever',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=ignorespects]': 'setIgnoreSpects',
+			'change input[name=ignoreopponent]': 'setIgnoreOpponent',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
@@ -2441,6 +2443,7 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"'+(Tools.prefs('nopastgens')?' checked':'')+' /> Use modern sprites for past generations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"'+(Tools.prefs('notournaments')?' checked':'')+' /> Ignore tournaments</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in chat rooms</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespectsforever"'+(Tools.prefs('ignorespectsforever')?' checked':'')+' /> Ignore spectators in battles</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"'+(!Tools.prefs('noselfhighlight')?' checked':'')+'> Highlight when your name is said in chat</label></p>';
 
 			if (window.Notification) {
@@ -2456,6 +2459,7 @@
 				buf += '<hr />';
 				buf += '<h3>Current room</h3>';
 				buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"'+(app.curRoom.battle.ignoreSpects?' checked':'')+'> Ignore spectators</label></p>';
+				if (app.curRoom.battle.getSide(app.user.get('userid')).battle) buf += '<p><label class="optlabel"><input type="checkbox" name="ignoreopponent"'+(app.curRoom.battle.ignoreOpponent?' checked':'')+'> Ignore opponent</label></p>';
 			}
 
 			if (window.nodewebkit) {
@@ -2528,6 +2532,15 @@
 			if (app.curRoom.battle) {
 				app.curRoom.battle.ignoreSpects = !!e.currentTarget.checked;
 			}
+		},
+		setIgnoreOpponent: function(e) {
+			if (app.curRoom.battle) {
+				app.curRoom.battle.ignoreOpponent = !!e.currentTarget.checked;
+			}
+		},
+		setIgnoreSpectsForever: function(e) {
+			var ignoreSpects = !!e.currentTarget.checked;
+			Tools.prefs('ignorespectsforever', ignoreSpects);
 		},
 		setBg: function(e) {
 			var bg = e.currentTarget.value;

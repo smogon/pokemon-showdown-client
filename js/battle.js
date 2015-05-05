@@ -2194,6 +2194,7 @@ var Battle = (function () {
 		this.p1 = this.mySide;
 		this.p2 = this.yourSide;
 		this.gen = 6;
+		this.ignoreSpects = Tools.prefs('ignorespectsforever');
 	};
 	Battle.prototype.updateGen = function () {
 		if (this.gen < 3) this.backdropImage = 'bg-gen1.png';
@@ -5328,7 +5329,8 @@ var Battle = (function () {
 		case 'chat':
 		case 'c':
 			name = args[1];
-			if (this.ignoreSpects && !this.getSide(name).battle) break;
+			if (this.ignoreSpects && !this.getSide(toId(name)).battle) break;
+			if (this.ignoreOpponent && window.app && app.user && toId(name) !== app.user.get('userid') && this.getSide(toId(name)).battle) break;
 			if (window.app && app.ignore && app.ignore[toUserid(name)]) break;
 			args.shift();
 			args.shift();
