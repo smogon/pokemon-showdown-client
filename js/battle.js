@@ -5561,17 +5561,14 @@ var Battle = (function () {
 			this.preemptCatchup();
 			return;
 		}
-		str = $.trim(str);
 		if (!str) return;
 		if (str.charAt(0) !== '|' || str.substr(0,2) === '||') {
 			if (str.charAt(0) === '|') str = str.substr(2);
 			this.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
 		} else {
 			var args = ['done'], kwargs = {};
-			str = $.trim(str.substr(1));
-			if (str !== '') {
-				args = str.split('|');
-				for (var i=0,len=args.length; i<len; i++) args[i] = $.trim(args[i]);
+			if (str !== '|') {
+				args = str.substr(1).split('|');
 			}
 			while (args[args.length-1] && args[args.length-1].substr(0,1) === '[') {
 				var bracketPos = args[args.length-1].indexOf(']');
