@@ -5328,7 +5328,7 @@ var Battle = (function () {
 		case 'chat':
 		case 'c':
 			name = args[1];
-			if (this.ignoreSpects && !this.getSide(name).battle) break;
+			if (this.ignoreSpects && (name.charAt(0) === ' ' || name.charAt(0) === '+')) break;
 			if (window.app && app.ignore && app.ignore[toUserid(name)]) break;
 			args.shift();
 			args.shift();
