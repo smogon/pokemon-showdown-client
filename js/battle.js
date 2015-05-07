@@ -2214,13 +2214,18 @@ var Battle = (function () {
 		this.frameElem.empty();
 		this.frameElem.html('<div class="innerbattle"></div>');
 		this.elem = this.frameElem.children();
-		this.logFrameElem.html('<div class="inner"></div>');
-		this.logElem = this.logFrameElem.children();
-		this.logFrameElem.append('<div class="inner-preempt"></div>');
-		this.logPreemptElem = this.logFrameElem.children().last();
-		this.logFrameElem.append('<div class="battle-options"></div>');
-		this.optionsElem = this.logFrameElem.children().last();
-		this.logFrameElem.append('<div class="inner-after"></div>');
+		if (this.optionsElem) {
+			this.logElem.empty();
+			this.logPreemptElem.empty();
+		} else {
+			this.logFrameElem.html('<div class="battle-options"></div>');
+			this.optionsElem = this.logFrameElem.children().last();
+			this.logFrameElem.append('<div class="inner"></div>');
+			this.logElem = this.logFrameElem.children().last();
+			this.logFrameElem.append('<div class="inner-preempt"></div>');
+			this.logPreemptElem = this.logFrameElem.children().last();
+			this.logFrameElem.append('<div class="inner-after"></div>');
+		}
 
 		this.updateGen();
 		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ');display:block;opacity:0"></div>');
