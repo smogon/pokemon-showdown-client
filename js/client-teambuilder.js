@@ -28,6 +28,13 @@
 			'change select[name=format]': 'formatChange',
 			'change input[name=nickname]': 'nicknameChange',
 
+			// team reordering
+			'mousedown button.movable-btn': 'mouseDown',
+			'mousemove button.movable-btn': 'mouseMoved',
+			'mouseup button.movable-btn': 'mouseUp',
+			'mousemove ul.sortable-list': 'testExit',
+			'mouseleave ul.sortable-list': 'mouseLeft',
+
 			// details
 			'change .detailsform input': 'detailsChange',
 
@@ -127,7 +134,7 @@
 			buf = '<div class="pad"><p>y\'know zarel this is a pretty good teambuilder</p>';
 			buf += '<p>aww thanks I\'m glad you like it :)</p>';
 			buf += this.clipboardHTML();
-			buf += '<ul>';
+			buf += '<ul class="sortable-list">';
 			if (!window.localStorage && !window.nodewebkit) buf += '<li>== CAN\'T SAVE ==<br /><small>Your browser doesn\'t support <code>localStorage</code> and can\'t save teams! Update to a newer browser.</small></li>';
 			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
 			if (!teams.length) {
@@ -169,7 +176,7 @@
 						formatText = '['+team.format+'] ';
 					}
 
-					buf += '<li><button name="edit" value="'+i+'" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+					buf += '<li><button name="edit" id="team'+i+'" value="'+i+'" class="movable-btn" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 					for (var j=0; j<team.team.length; j++) {
 						if (j!=0) buf += ' / ';
 						buf += ''+Tools.escapeHTML(team.team[j].name);
@@ -265,6 +272,47 @@
 			this.curTeam = null;
 			this.exportMode = true;
 			this.update();
+		},
+
+		// team reordering
+		mouseDown: function(e) {
+			TeambuilderRoom.curMoving = true;
+			TeambuilderRoom.movingTeam = parseInt(e.currentTarget.value);
+			TeambuilderRoom.listBoundary = e.currentTarget.offsetLeft + e.currentTarget.offsetWidth + 20;
+		},
+		mouseMoved: function(e) {
+			if (!TeambuilderRoom.curMoving) return;
+
+			var newLocation = parseInt(e.target.value);
+			var oldLocation = TeambuilderRoom.movingTeam;
+			if (oldLocation >= 0  && newLocation >= 0 && oldLocation !== newLocation) {
+				// Moving team up or down the list
+				var copy = Storage.teams[newLocation];
+				Storage.teams[newLocation] = Storage.teams[oldLocation];
+				Storage.teams[oldLocation] = copy;
+				Storage.saveAllTeams();
+				this.update();
+
+				TeambuilderRoom.movingTeam = newLocation;
+				document.getElementById('team' + newLocation).parentElement.style.margin = "-5px -10px 5px 10px";
+			}
+		},
+		mouseUp: function(e) {
+			TeambuilderRoom.curMoving = false;
+			TeambuilderRoom.movingTeam = 0;
+			e.currentTarget.style.backgroundColor = '';
+			e.currentTarget.parentElement.style.margin = "";
+		},
+		testExit: function(e) {
+			if (!TeambuilderRoom.curMoving) return;
+			if (e.clientX > TeambuilderRoom.listBoundary) this.mouseLeft(e);
+		},
+		mouseLeft: function(e) {
+			if (TeambuilderRoom.curMoving) {
+				document.getElementById('team' + TeambuilderRoom.movingTeam).parentElement.style.margin = "";
+				TeambuilderRoom.curMoving = false;
+				TeambuilderRoom.movingTeam = 0;
+			}
 		},
 
 		/*********************************************************
