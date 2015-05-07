@@ -22,7 +22,7 @@
 
 			this.$chat = this.$chatFrame.find('.inner');
 
-			this.$options = this.battle.optionsElem.html('<label style="font-size: 8pt; padding-left: 5px"><input type="checkbox" name="ignorespects" /> Ignore Spectators</label>');
+			this.$options = this.battle.optionsElem.html('<div style="padding-top: 3px; text-align: right"><label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignorespects" /> Ignore Spectators</label></div>');
 
 			this.battle.customCallback = _.bind(this.updateControls, this);
 			this.battle.endCallback = _.bind(this.updateControls, this);
