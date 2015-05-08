@@ -847,8 +847,13 @@ var Tools = {
 			facing = 'back';
 		}
 
+		// Decide what gen sprites to use.
+		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[options.gen];
+		if (Tools.prefs('nopastgens')) gen = 'xy';
+		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
+
 		var animationData = {};
-		if (options.gen === 5 && window.BattlePokemonSpritesBW) {
+		if (gen === 'bw' && window.BattlePokemonSpritesBW) {
 			animationData = BattlePokemonSpritesBW && window.BattlePokemonSpritesBW[pokemon.speciesid];
 		} else {
 			animationData = BattlePokemonSprites && window.BattlePokemonSprites[pokemon.speciesid];
@@ -868,11 +873,6 @@ var Tools = {
 			spriteData.url += dir + '/' + name + '.png';
 			return spriteData;
 		}
-
-		// Decide what gen sprites to use.
-		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[options.gen];
-		if (Tools.prefs('nopastgens')) gen = 'xy';
-		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
 
 		if (animationData && animationData[facing]) {
 			var spriteType = '';
