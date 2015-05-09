@@ -172,7 +172,7 @@
 					buf += '<li><button name="edit" value="'+i+'" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 					for (var j=0; j<team.team.length; j++) {
 						if (j!=0) buf += ' / ';
-						buf += ''+Tools.escapeHTML(team.team[j].name);
+						buf += ''+Tools.escapeHTML(team.team[j].name || team.team[j].species);
 					}
 					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 				}
@@ -455,8 +455,13 @@
 		nicknameChange: function(e) {
 			var i = +$(e.currentTarget).closest('li').attr('value');
 			var team = this.curTeam.team[i];
-			var name = $.trim(e.currentTarget.value) || team.species;
-			e.currentTarget.value = team.name = name;
+			var name = $.trim(e.currentTarget.value);
+			if (name && name !== team.species) {
+				team.name = name;
+			} else {
+				delete team.name;
+			}
+			e.currentTarget.value = name || team.species;
 			this.save();
 		},
 
@@ -698,19 +703,19 @@
 		renderTeambar: function() {
 			var buf = '';
 			var isAdd = false;
-			if (this.curTeam.team.length && !this.curTeam.team[this.curTeam.team.length-1].name && this.curSetLoc !== this.curTeam.team.length-1) {
+			if (this.curTeam.team.length && !this.curTeam.team[this.curTeam.team.length-1].name && !this.curTeam.team[this.curTeam.team.length-1].species && this.curSetLoc !== this.curTeam.team.length-1) {
 				this.curTeam.team.splice(this.curTeam.team.length-1, 1);
 			}
 			for (var i=0; i<this.curTeam.team.length; i++) {
 				var set = this.curTeam.team[i];
 				var pokemonicon = '<span class="pokemonicon pokemonicon-'+i+'" style="'+Tools.getIcon(set)+'"></span>';
-				if (!set.name) {
+				if (!set.name && !set.species) {
 					buf += '<button disabled="disabled" class="addpokemon"><i class="icon-plus"></i></button> ';
 					isAdd = true;
 				} else if (i == this.curSetLoc) {
-					buf += '<button disabled="disabled" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name || '<i class="icon-plus"></i>')+'</button> ';
+					buf += '<button disabled="disabled" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name || set.species || '<i class="icon-plus"></i>')+'</button> ';
 				} else {
-					buf += '<button name="selectPokemon" value="'+i+'" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name)+'</button> ';
+					buf += '<button name="selectPokemon" value="'+i+'" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name || set.species)+'</button> ';
 				}
 			}
 			if (this.curTeam.team.length < 6 && !isAdd) {
@@ -2116,7 +2121,7 @@
 			var text = '';
 			for (var i=0; i<team.length; i++) {
 				var curSet = team[i];
-				if (curSet.name !== curSet.species) {
+				if (curSet.name && curSet.name !== curSet.species) {
 					text += ''+curSet.name+' ('+curSet.species+')';
 				} else {
 					text += ''+curSet.species;
@@ -2225,7 +2230,7 @@
 				if (i !== data.i && i !== data.i+1) {
 					buf += '<li><button name="moveHere" value="'+i+'"><i class="icon-arrow-right"></i> Move here</button></li>';
 				}
-				buf += '<li'+(i===data.i?' style="opacity:.3"':' style="opacity:.6"')+'><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(set)+'"></span> '+Tools.escapeHTML(set.name)+'</li>';
+				buf += '<li'+(i===data.i?' style="opacity:.3"':' style="opacity:.6"')+'><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(set)+'"></span> '+Tools.escapeHTML(set.name || set.species)+'</li>';
 			}
 			if (i !== data.i && i !== data.i+1) {
 				buf += '<li><button name="moveHere" value="'+i+'"><i class="icon-arrow-right"></i> Move here</button></li>';
