@@ -469,6 +469,8 @@ p.or:after {
 .popupmenu button.sel {
 	padding: 0 3px;
 	border: 1px solid #AAAAAA;
+	white-space: nowrap;
+	overflow: hidden;
 }
 .popupmenu button:hover,
 .popupmenu button.sel:hover {
@@ -496,6 +498,8 @@ p.or:after {
 }
 .select.teamselect {
 	height: 43px;
+	white-space: nowrap;
+	overflow: hidden;
 }
 .select:hover {
 	border-color: #555555;
