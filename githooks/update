@@ -84,12 +84,12 @@ function updateLearnsets (callback) {
 		if (secondChar !== 'L') return learnset.indexOf(lset) >= 0;
 
 		var firstFragment = lset.substr(0, 2);
-		var levelFragment = lset.substr(2);
+		var levelFragment = lset.substring(2, 5);
 		var paddedLevel = padNumString(levelFragment);
 		for (var i = 0, len = learnset.length; i < len; i++) {
 			if (learnset[i].substring(0, 2) !== firstFragment) continue;
 			// ignore PSdex starter moves sorting data
-			if (learnset[i].substring(2, 5) === paddedLevel) return true;
+			if (paddedLevel === padNumString(learnset[i].substring(2, 5))) return true;
 		}
 		return false;
 	};
@@ -134,10 +134,15 @@ function updateLearnsets (callback) {
 		var fullLearnset = Learnsets[speciesid].learnset;
 		if (!fullLearnset) return callback(new TypeError("Invalid data at `learnsets.js` for " + speciesid + "."));
 
-		// clone
+		// copy, but ignore moves removed in main file
 		for (var moveid in oldLearnset) {
 			if (!Array.isArray(oldLearnset[moveid])) return callback(new TypeError("Invalid data at `learnsets-g6.js` for " + speciesid + ":" + moveid + "."));
-			newLearnset[moveid] = oldLearnset[moveid].slice();
+			if (!fullLearnset[moveid]) continue;
+			newLearnset[moveid] = [];
+			for (var i = 0, len = oldLearnset[moveid].length; i < len; i++) {
+				if (!inLearnset(oldLearnset[moveid][i], fullLearnset[moveid])) continue;
+				newLearnset[moveid].push(oldLearnset[moveid][i]);
+			}
 		}
 
 		for (var moveid in fullLearnset) {
@@ -192,7 +197,7 @@ try {
 }
 try {
 	updateStats = fs.statSync(thisFile);
-	updateMTime = indexStats.mtime.getTime();
+	updateMTime = indexStats ? indexStats.mtime.getTime() : -Infinity;
 } catch (err) {
 	throw err; // !!
 }
