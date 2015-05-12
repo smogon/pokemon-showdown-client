@@ -319,7 +319,7 @@
 				if (bg) {
 					$(document.body).css({
 						background: bg,
-						'background-size': 'cover'
+						'background-size': Tools.prefs('coverType') ? Tools.prefs('coverType') : 'cover'
 					});
 				} else if (Config.server.id === 'smogtours') {
 					$(document.body).css({
@@ -2539,7 +2539,7 @@
 			if (!bg) bg = '#344b6c url(/fx/client-bg-charizards.jpg) no-repeat left center fixed';
 			$(document.body).css({
 				background: bg,
-				'background-size': 'cover'
+				'background-size': coverType
 			});
 		},
 		setTimestampsLobby: function(e) {
@@ -2748,7 +2748,8 @@
 		initialize: function() {
 			var buf = '';
 			buf += '<p>Choose a custom background</p>';
-			buf += '<input type="file" accept="image/*" name="bgfile">';
+      			buf += '<p><select id="fill"><option value="no-repeat">Fit to Screen</option><option value="repeat">Tile Image</option></select></p>';
+      			buf += '<input type="file" accept="image/*" name="bgfile">';
 			buf += '<p class="bgstatus"></p>';
 
 			buf += '<p><button name="close">Cancel</button></p>';
@@ -2758,19 +2759,22 @@
 			$('.bgstatus').text('Changing background image.');
 			var file = e.currentTarget.files[0];
 			var reader = new FileReader();
+			var fitType = $('#fill').val();
+			var coverType = fitType === 'no-repeat' ? 'cover' : 'repeat';
 			var self = this;
 			reader.onload = function(e) {
-				var bg = '#344b6c url(' + e.target.result + ') no-repeat left center fixed';
+				var bg = '#344b6c url(' + e.target.result + ') ' + fitType + ' left center fixed';
 				try {
 					Tools.prefs('bg', bg);
+					Tools.prefs('coverType', coverType);
 				}
 				catch (e) {
-					$('.bgstatus').text("Image too large, upload a background whose size is 3.5MB or less.");
+					$('.bgstatus').text("Image too large, upload a background with a size of 3.5MB or less.");
 					return;
 				}
 				$(document.body).css({
 					background: bg,
-					'background-size': 'cover'
+					'background-size': coverType
 				});
 				self.close();
 			};
