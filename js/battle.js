@@ -4373,8 +4373,10 @@ var Battle = (function () {
 					actions += "" + poke.getName() + "'s Heal Block wore off!";
 					break;
 				case 'attract':
-					this.resultAnim(poke, 'Attract&nbsp;ended', 'good', animDelay);
-					actions += '' + poke.getName() + " got over its infatuation.";
+					if (!kwargs.silent) {
+						this.resultAnim(poke, 'Attract&nbsp;ended', 'good', animDelay);
+						actions += '' + poke.getName() + " got over its infatuation.";
+					}
 					break;
 				case 'taunt':
 					this.resultAnim(poke, 'Taunt&nbsp;ended', 'good', animDelay);
