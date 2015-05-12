@@ -28,8 +28,30 @@ _Storage.prototype.loadTeams = function() {
 	}
 	this.teams = [];
 	if (window.localStorage) {
+		
+		//load in the teamString
 		var teamString = localStorage.getItem('showdown_teams');
-		if (teamString) this.teams = JSON.parse(teamString);
+		
+		if(teamString){
+		    //check if the team is stored as JSON
+		    //could also try to use JSON.parse and catch errors? (not sure which is faster)
+		    var isJSON = teamString.substring(0,2)>"[{"?-1:0;
+
+		    //if JSON, parse the JSON, convert to packed format, update localStorage to packed format
+		    if (isJSON==0){
+		        var jsonTeams = JSON.parse(teamString);
+		        var team = '';
+		        for (var i=0; i<jsonTeams.length; i++){
+		            team = this.packTeam(jsonTeams[i])
+		            this.teams.push(team)
+		        }
+		        localStorage.setItem('showdown_teams', this.savePackedTeams());
+		    } else {
+		    //if not JSON, bring in all teams and continue normally
+		    //eventually all users will transition over and only use the else path.
+		        this.loadPackedTeams(teamString)
+		    }
+		}
 		app.trigger('init:loadteams');
 	}
 };
@@ -38,7 +60,7 @@ _Storage.prototype.saveTeams = function() {
 	if (window.localStorage) {
 		Storage.cantSave = false;
 		try {
-			localStorage.setItem('showdown_teams', JSON.stringify(this.teams));
+			localStorage.setItem('showdown_teams', this.savePackedTeams());
 		} catch (e) {
 			if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
 				Storage.cantSave = true;
@@ -61,13 +83,40 @@ _Storage.prototype.saveAllTeams = function() {
 	this.saveTeams();
 };
 
+_Storage.prototype.savePackedTeams = function() {
+    // use } to separate teams
+    var buf = '';
+    if (!this.teams) return '';
+    for(var i=0; i<this.teams.length; i++) {
+        buf += this.teams[i]+'}';
+    }
+    return buf;
+};
+
+_Storage.prototype.loadPackedTeams = function(teamString) {
+    // use } to separate teams
+	var i = 0, j = 0;
+    while(true){
+        j = teamString.indexOf('}', i);
+        if(j<0) break;
+        this.teams.push(teamString.substring(i, j));
+        i = j+1;
+	}
+};
+
 _Storage.prototype.packTeam = function(team) {
 	var buf = '';
 	if (!team) return '';
-
-	for (var i=0; i<team.length; i++) {
-		var set = team[i];
-		if (buf) buf += ']';
+    
+    // format
+    buf += (team.format || '');
+    
+    // name
+    buf += '|' + team.name + '|';
+    
+	for (var i=0; i<team.team.length; i++) {
+		var set = team.team[i];
+		if (buf && i>0) buf += ']';
 
 		// name
 		buf += (set.name || set.species);
@@ -160,12 +209,23 @@ _Storage.prototype.packTeam = function(team) {
 _Storage.prototype.fastUnpackTeam = function(buf) {
 	if (!buf) return null;
 
-	var team = [];
+	var team = {};
 	var i = 0, j = 0;
-
+    
+    //format
+    j = buf.indexOf('|', i);
+    team.format = buf.substring(i, j);
+	i = j+1;
+	
+	//name
+	j = buf.indexOf('|', i);
+    team.name = buf.substring(i, j);
+	i = j+1;
+	
+	team.team = [];
 	while (true) {
 		var set = {};
-		team.push(set);
+		team.team.push(set);
 
 		// name
 		j = buf.indexOf('|', i);
@@ -179,19 +239,21 @@ _Storage.prototype.fastUnpackTeam = function(buf) {
 
 		// item
 		j = buf.indexOf('|', i);
-		set.item = buf.substring(i, j);
+		set.item = Tools.getItem(buf.substring(i, j)).name;
 		i = j+1;
 
 		// ability
 		j = buf.indexOf('|', i);
-		var ability = buf.substring(i, j);
-		var template = Tools.getTemplate(set.species);
-		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability||'0'] : ability);
+		set.ability = Tools.getAbility(buf.substring(i, j)).name;
 		i = j+1;
 
 		// moves
 		j = buf.indexOf('|', i);
-		set.moves = buf.substring(i, j).split(',');
+		var moveIDs = buf.substring(i, j).split(',');
+		set.moves=[];
+		for(var k=0;k<moveIDs.length;k++){
+		    set.moves[k]=Tools.getMove(moveIDs[k]).name    
+		}
 		i = j+1;
 
 		// nature

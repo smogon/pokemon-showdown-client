@@ -65,10 +65,12 @@
 				Storage.saveTeams();
 			} else if (this.curSet) {
 				app.clearGlobalListeners();
-				this.curSet = null;
+				Storage.teams[this.curTeamLoc]=Storage.packTeam(this.curTeam);
 				Storage.saveTeams();
+				this.curSet = null;
 			} else if (this.curTeam) {
-				Storage.saveTeam(this.curTeam);
+			    Storage.teams[this.curTeamLoc]=Storage.packTeam(this.curTeam);
+				Storage.saveTeams();
 				this.curTeam = null;
 			} else {
 				return;
@@ -143,7 +145,7 @@
 					}
 					if (i >= teams.length) break;
 
-					var team = teams[i];
+					var team = Storage.fastUnpackTeam(teams[i]);
 
 					if (team && !team.team) {
 						team = null;
@@ -201,7 +203,7 @@
 		},
 		edit: function(i) {
 			var i = +i;
-			this.curTeam = teams[i];
+			this.curTeam = Storage.fastUnpackTeam(teams[i]);
 			this.curTeamIndex = i;
 			this.update();
 		},
@@ -232,7 +234,7 @@
 				name: 'Untitled '+(teams.length+1),
 				team: []
 			};
-			teams.push(newTeam);
+			teams.push(Storage.packTeam(newTeam));
 			this.curTeam = newTeam;
 			this.curTeamLoc = teams.length-1;
 			this.update();
@@ -242,7 +244,7 @@
 				name: 'Untitled '+(teams.length+1),
 				team: []
 			};
-			teams.unshift(newTeam);
+			teams.unshift(Storage.packTeam(newTeam));
 			this.curTeam = newTeam;
 			this.curTeamLoc = 0;
 			this.update();
@@ -254,7 +256,7 @@
 					name: 'Untitled '+(teams.length+1),
 					team: []
 				};
-				teams.push(newTeam);
+				teams.push(Storage.packTeam(newTeam));
 				this.curTeam = newTeam;
 				this.curTeamLoc = teams.length-1;
 			}
@@ -440,6 +442,7 @@
 		saveFlag: false,
 		save: function() {
 			this.saveFlag = true;
+			Storage.teams[this.curTeamLoc]=Storage.packTeam(this.curTeam);
 			Storage.saveTeams();
 		},
 		teamNameChange: function(e) {
@@ -1984,7 +1987,7 @@
 			var curSet = null;
 			if (teams === true) {
 				Storage.teams = [];
-				teams = Storage.teams;
+				var jsonTeams = [];
 			}
 			for (var i=0; i<text.length; i++) {
 				var line = $.trim(text[i]);
@@ -1999,11 +2002,12 @@
 						format = line.substr(1, bracketIndex-1);
 						line = $.trim(line.substr(bracketIndex+1));
 					}
-					teams.push({
+					jsonTeams.push({
 						name: line,
 						format: format,
 						team: team
 					});
+					
 				} else if (!curSet) {
 					curSet = {name: '', species: '', gender: ''};
 					team.push(curSet);
@@ -2100,12 +2104,17 @@
 					curSet.moves.push(line);
 				}
 			}
+			if (jsonTeams){
+			    for (var i=0;i<jsonTeams.length;i++){
+			        Storage.teams[i]=Storage.packTeam(jsonTeams[i]);
+			    }
+			}
 			return team;
 		},
 		teamsToText: function() {
 			var buf = '';
 			for (var i=0,len=teams.length; i<len; i++) {
-				var team = teams[i];
+				var team = Storage.fastUnpackTeam(teams[i]);
 				buf += '=== '+(team.format?'['+team.format+'] ':'')+team.name+' ===\n\n';
 				buf += TeambuilderRoom.toText(team.team);
 				buf += '\n';
