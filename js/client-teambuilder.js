@@ -65,11 +65,11 @@
 				Storage.saveTeams();
 			} else if (this.curSet) {
 				app.clearGlobalListeners();
-				Storage.teams[this.curTeamLoc]=Storage.packTeam(this.curTeam);
+				Storage.teams[this.curTeamLoc] = Storage.packTeam(this.curTeam);
 				Storage.saveTeams();
 				this.curSet = null;
 			} else if (this.curTeam) {
-			    Storage.teams[this.curTeamLoc]=Storage.packTeam(this.curTeam);
+                Storage.teams[this.curTeamLoc] = Storage.packTeam(this.curTeam);
 				Storage.saveTeams();
 				this.curTeam = null;
 			} else {
@@ -2104,9 +2104,9 @@
 					curSet.moves.push(line);
 				}
 			}
-			if (jsonTeams){
-			    for (var i=0;i<jsonTeams.length;i++){
-			        Storage.teams[i]=Storage.packTeam(jsonTeams[i]);
+			if (jsonTeams) {
+			    for (var i=0; i<jsonTeams.length; i++) {
+			        Storage.teams[i] = Storage.packTeam(jsonTeams[i]);
 			    }
 			}
 			return team;

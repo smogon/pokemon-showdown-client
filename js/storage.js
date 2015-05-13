@@ -28,27 +28,25 @@ _Storage.prototype.loadTeams = function() {
 	}
 	this.teams = [];
 	if (window.localStorage) {
-		
-		//load in the teamString
 		var teamString = localStorage.getItem('showdown_teams');
 		
-		if(teamString){
-		    //check if the team is stored as JSON
-		    //could also try to use JSON.parse and catch errors? (not sure which is faster)
-		    var isJSON = teamString.substring(0,2)>"[{"?-1:0;
+		if (teamString) {
+		    // check if the teams are stored as JSON
+		    // could also try to use JSON.parse and catch errors? (not sure which is faster)
+		    var isJSON = teamString.substring(0,2)>"[{" ? -1 : 0;
 
-		    //if JSON, parse the JSON, convert to packed format, update localStorage to packed format
-		    if (isJSON==0){
+		    // if JSON, parse the JSON, convert to packed format, update localStorage to packed format
+		    if (isJSON === 0) {
 		        var jsonTeams = JSON.parse(teamString);
 		        var team = '';
-		        for (var i=0; i<jsonTeams.length; i++){
+		        for (var i=0; i<jsonTeams.length; i++) {
 		            team = this.packTeam(jsonTeams[i])
 		            this.teams.push(team)
 		        }
 		        localStorage.setItem('showdown_teams', this.savePackedTeams());
 		    } else {
-		    //if not JSON, bring in all teams and continue normally
-		    //eventually all users will transition over and only use the else path.
+		        // if not JSON, bring in all teams and continue normally
+		        // eventually all users will transition over and only use the else path.
 		        this.loadPackedTeams(teamString)
 		    }
 		}
@@ -96,7 +94,7 @@ _Storage.prototype.savePackedTeams = function() {
 _Storage.prototype.loadPackedTeams = function(teamString) {
     // use } to separate teams
 	var i = 0, j = 0;
-    while(true){
+    while(true) {
         j = teamString.indexOf('}', i);
         if(j<0) break;
         this.teams.push(teamString.substring(i, j));
