@@ -4227,8 +4227,10 @@ var Battle = (function () {
 					actions += '' + poke.getName() + "'s perish count fell to 2.";
 					break;
 				case 'perish3':
-					this.resultAnim(poke, 'Perish in 3', 'bad', animDelay);
-					actions += '' + poke.getName() + "'s perish count fell to 3.";
+					if (!kwargs.silent) {
+						this.resultAnim(poke, 'Perish in 3', 'bad', animDelay);
+						actions += '' + poke.getName() + "'s perish count fell to 3.";
+					}
 					break;
 				case 'encore':
 					this.resultAnim(poke, 'Encored', 'bad', animDelay);
@@ -4409,7 +4411,7 @@ var Battle = (function () {
 					if (poke.side.n === 0) actions += "" + poke.getName() + "'s electromagnetism wore off!";
 					else actions += "The electromagnetism of "+poke.getLowerName()+" wore off!";
 					break;
-				case 'perishsong':
+				case 'perishsong': // for backwards compatibility
 					poke.removeVolatile('perish3');
 					break;
 				case 'substitute':
@@ -4945,14 +4947,6 @@ var Battle = (function () {
 				switch (effect.id) {
 				case 'perishsong':
 					actions += 'All Pok&#xE9;mon that hear the song will faint in three turns!';
-					if (this.mySide.active[0] && !this.mySide.active[0].volatiles['perish0'] &&
-						!this.mySide.active[0].volatiles['perish1'] && !this.mySide.active[0].volatiles['perish2']) {
-						this.mySide.active[0].addVolatile('perish3');
-					}
-					if (this.yourSide.active[0] && !this.yourSide.active[0].volatiles['perish0'] &&
-						!this.yourSide.active[0].volatiles['perish1'] && !this.yourSide.active[0].volatiles['perish2']) {
-						this.yourSide.active[0].addVolatile('perish3');
-					}
 					this.mySide.updateStatbar();
 					this.yourSide.updateStatbar();
 					break;
