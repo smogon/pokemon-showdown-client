@@ -5,6 +5,7 @@ AddType application/x-web-app-manifest+json .webapp
 
 <filesMatch "^index\.html$">
   FileETag None
+  AddCharset UTF-8 .html
   <ifModule mod_headers.c>
      Header unset ETag
      Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
