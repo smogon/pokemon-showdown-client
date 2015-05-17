@@ -4699,7 +4699,8 @@ var Battle = (function () {
 
 				// ability activations
 				case 'sturdy':
-					actions += '' + poke.getName() + ' held on thanks to Sturdy!';
+				case 'endure':
+					actions += '' + poke.getName() + ' endured the hit!';
 					break;
 				case 'magicbounce':
 				case 'magiccoat':
