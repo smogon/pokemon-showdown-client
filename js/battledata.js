@@ -418,6 +418,20 @@ var Tools = {
 				return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
 					p1 + '" target="_blank">' + p0 + '</a>';
 			});
+			// server issue #pullreq
+			//   Links to github Pokemon Showdown server pullreq number
+			str = str.replace(/\bserver issue ?#(\d+)/ig, function(p0, p1) {
+				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
+				return '<a href="https://github.com/Zarel/Pokemon-Showdown/pull/' +
+					p1 + '" target="_blank">' + p0 + '</a>';
+			});
+			// client issue #pullreq
+			//   Links to github Pokemon Showdown client pullreq number
+			str = str.replace(/\bclient issue ?#(\d+)/ig, function(p0, p1) {
+				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
+				return '<a href="https://github.com/Zarel/Pokemon-Showdown-Client/pull/' +
+					p1 + '" target="_blank">' + p0 + '</a>';
+			});
 			// [[blah]]
 			//   Short form of gl[blah]
 			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/ig, function(p0, p1) {
