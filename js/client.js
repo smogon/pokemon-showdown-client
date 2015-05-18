@@ -2418,7 +2418,6 @@
 			'change input[name=notournaments]': 'setNotournaments',
 			'change input[name=nolobbypm]': 'setNolobbypm',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
-			'change input[name=ignorespects]': 'setIgnoreSpects',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
@@ -2451,12 +2450,6 @@
 			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"'+(timestamps.pms==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.pms==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting">Edit formatting</button></label></p>';
-
-			if (app.curRoom.battle) {
-				buf += '<hr />';
-				buf += '<h3>Current room</h3>';
-				buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"'+(app.curRoom.battle.ignoreSpects?' checked':'')+'> Ignore spectators</label></p>';
-			}
 
 			if (window.nodewebkit) {
 				buf += '<hr />';
@@ -2523,11 +2516,6 @@
 		setTemporaryNotifications: function (e) {
 			var temporarynotifications = !!e.currentTarget.checked;
 			Tools.prefs('temporarynotifications', temporarynotifications);
-		},
-		setIgnoreSpects: function(e) {
-			if (app.curRoom.battle) {
-				app.curRoom.battle.ignoreSpects = !!e.currentTarget.checked;
-			}
 		},
 		setBg: function(e) {
 			var bg = e.currentTarget.value;
