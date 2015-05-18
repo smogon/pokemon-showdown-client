@@ -396,19 +396,10 @@ var Tools = {
 					'" target="_blank" onclick="' + onclick + '">' + uri + '</a>';
 			});
 			// google [blah]
-			// google[blah]
 			//   Google search for 'blah'
 			str = str.replace(/\bgoogle ?\[([^\]<]+)\]/ig, function(p0, p1) {
 				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p1 +
-					'" target="_blank">' + p0 + '</a>';
-			});
-			// gl [blah]
-			// gl[blah]
-			//   Google search for 'blah' and visit the first result ("I'm feeling lucky")
-			str = str.replace(/\bgl ?\[([^\]<]+)\]/ig, function(p0, p1) {
-				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
-				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + p1 +
 					'" target="_blank">' + p0 + '</a>';
 			});
 			// wiki [blah]
