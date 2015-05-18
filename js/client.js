@@ -1152,7 +1152,7 @@
 					// you were direct-linked to this nonexistent room
 					var replayid = id.substr(7);
 					if (Config.server.id !== 'showdown') replayid = Config.server.id+'-'+replayid;
-					document.location.replace('http://pokemonshowdown.com/replay/'+replayid);
+					document.location.replace('http://replay.pokemonshowdown.com/'+replayid);
 					return;
 				}
 			}
@@ -2624,7 +2624,7 @@
 			this.close();
 		},
 		submit: function(i) {
-			app.openInNewWindow('http://pokemonshowdown.com/replay/battle-'+this.id);
+			app.openInNewWindow('http://replay.pokemonshowdown.com/'+this.id);
 			this.close();
 		}
 	});
