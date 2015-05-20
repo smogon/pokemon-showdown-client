@@ -3128,6 +3128,9 @@ var Battle = (function () {
 			if (!kwargs.simult) nextAnimDelay++;
 
 			switch (args[0]) {
+			case '-center':
+				actions += "Automatic center!";
+				break;
 			case '-damage':
 				var poke = this.getPokemon(args[1]);
 				var damage = poke.healthParse(args[2], true);
