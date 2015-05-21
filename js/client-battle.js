@@ -691,6 +691,7 @@
 		},
 		toggleIgnoreSpects: function(e) {
 			this.battle.ignoreSpects = !!e.currentTarget.checked;
+			this.battle.add('Spectators ' + (this.battle.ignoreSpects ? '' : 'no longer ') + 'ignored.');
 		},
 		toggleIgnoreOpponent: function(e) {
 			this.battle.ignoreOpponent = !!e.currentTarget.checked;
