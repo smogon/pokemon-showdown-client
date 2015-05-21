@@ -4151,7 +4151,11 @@ var Battle = (function () {
 						actions += "" + poke.getName() + " is already confused!";
 					} else {
 						this.resultAnim(poke, 'Confused', 'bad', animDelay);
-						actions += "" + poke.getName() + " became confused!";
+						if (kwargs.fatigue) {
+							actions += "" + poke.getName() + " became confused due to fatigue!";
+						} else {
+							actions += "" + poke.getName() + " became confused!";
+						}
 					}
 					break;
 				case 'leechseed':
