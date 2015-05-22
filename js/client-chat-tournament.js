@@ -297,6 +297,14 @@
 							this.room.notifyOnce("Tournament Automatic Disqualification Warning", "Room: " + this.room.title + "\nSeconds: " + seconds, 'tournament-autodq-warning');
 						}
 						break;
+						
+					case 'autostart':
+						if (data[0] === 'off') {
+							this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament's automatic start timeout has been turned off.</div>");
+						} else if (data[0] === 'on') {
+							this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament will automatically start in " + (data[1] / 1000 / 60) + " minutes.</div>");
+						}
+						break;
 
 					case 'update':
 						$.extend(this.updates, JSON.parse(data.join('|')));
@@ -477,6 +485,7 @@
 								break;
 
 							case 'InvalidAutoDisqualifyTimeout':
+							case 'InvalidAutoStartTimeout':
 								appendError("That isn't a valid timeout value.");
 								break;
 
