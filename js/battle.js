@@ -520,14 +520,14 @@ var Pokemon = (function () {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
 		} else {
-			return "The opposing " + Tools.escapeHTML(this.name);
+			return "The opposing " + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
 		}
 	};
 	Pokemon.prototype.getLowerName = function () {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
 		} else {
-			return "the opposing " + Tools.escapeHTML(this.name);
+			return "the opposing " + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
 		}
 	};
 	Pokemon.prototype.getTitle = function () {
@@ -540,8 +540,8 @@ var Pokemon = (function () {
 		return titlestring;
 	};
 	Pokemon.prototype.getFullName = function (plaintext) {
-		var name = Tools.escapeHTML(this.name);
-		if (this.name !== this.species) {
+		var name = this.side.n && this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name);
+		if (name !== this.species) {
 			if (plaintext) {
 				name += ' (' + this.species + ')';
 			} else {
@@ -1550,7 +1550,7 @@ var Side = (function () {
 		var gender = '';
 		if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
 		if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
-		return '<div class="statbar' + (this.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + Tools.escapeHTML(pokemon.name) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
+		return '<div class="statbar' + (this.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + (this.n && this.battle.ignoreOpponent ? pokemon.species : Tools.escapeHTML(pokemon.name)) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
 	};
 	Side.prototype.switchIn = function (pokemon, slot) {
 		if (slot === undefined) slot = pokemon.slot;
@@ -5338,6 +5338,7 @@ var Battle = (function () {
 		case 'c':
 			name = args[1];
 			if (this.ignoreSpects && (name.charAt(0) === ' ' || name.charAt(0) === '+')) break;
+			if (this.ignoreOpponent && name.charAt(0) === '\u2605' && toUserid(name) !== app.user.get('userid')) break;
 			if (window.app && app.ignore && app.ignore[toUserid(name)]) break;
 			args.shift();
 			args.shift();
