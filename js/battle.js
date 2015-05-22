@@ -4112,7 +4112,9 @@ var Battle = (function () {
 				var fromeffect = Tools.getEffect(kwargs.from);
 				poke.addVolatile(effect.id);
 
-				switch (effect.id) {
+				if (kwargs.silent) {
+					// do nothing
+				} else switch (effect.id) {
 				case 'typechange':
 					args[3] = Tools.escapeHTML(args[3]);
 					poke.volatiles.typechange[2] = args[3];
@@ -4239,10 +4241,8 @@ var Battle = (function () {
 					actions += '' + poke.getName() + "'s perish count fell to 2.";
 					break;
 				case 'perish3':
-					if (!kwargs.silent) {
-						this.resultAnim(poke, 'Perish in 3', 'bad', animDelay);
-						actions += '' + poke.getName() + "'s perish count fell to 3.";
-					}
+					this.resultAnim(poke, 'Perish in 3', 'bad', animDelay);
+					actions += '' + poke.getName() + "'s perish count fell to 3.";
 					break;
 				case 'encore':
 					this.resultAnim(poke, 'Encored', 'bad', animDelay);
