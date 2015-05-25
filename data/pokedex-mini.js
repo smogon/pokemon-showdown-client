@@ -13,7 +13,7 @@ BattlePokemonSprites = {
 	"tomohawk": {num:-12},
 	"necturna": {num:-13},
 	"mollux": {num:-14},
-	"aurumoth": {num:-15},
+	"aurumoth": {num:-15, front:{ani:{w:112,h:102}}, back:{ani:{w:113,h:104}}},
 	"malaconda": {num:-16},
 	"cawmodore": {num:-17},
 	"volkraken": {num:-18},
