@@ -174,6 +174,12 @@
 						if (j!=0) buf += ' / ';
 						buf += ''+Tools.escapeHTML(team.team[j].name);
 					}
+					if (team.team.length) {
+						buf += '<br />';
+						for (var j=0; j<team.team.length; j++) {
+							buf += '<span class="pokemonicon" style="float:inherit;display:inline-block;'+Tools.getIcon(team.team[j])+'"></span>';
+						}
+					}
 					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 				}
 			}
