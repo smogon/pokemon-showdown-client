@@ -2162,7 +2162,6 @@ var Battle = (function () {
 	Battle.prototype.mute = false;
 	Battle.prototype.messageDelay = 8;
 
-
 	Battle.prototype.removePseudoWeather = function (weather) {
 		for (var i = 0; i < this.pseudoWeather.length; i++) {
 			if (this.pseudoWeather[i][0] === weather) {
@@ -5307,8 +5306,6 @@ var Battle = (function () {
 			this.setTurn(args[1]);
 			break;
 		case 'tier':
-			if (!args[1]) args[1] = '';
-			for (var i in kwargs) args[1] += '['+i+'] '+kwargs[i];
 			this.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
 			this.tier = args[1];
 			break;
@@ -5566,6 +5563,7 @@ var Battle = (function () {
 		}
 	};
 	Battle.prototype.run = function (str, preempt) {
+		var takesKwargs = {swap:1, move:1, cant:1, callback:1};
 		if (this.preemptActivityQueue.length && str === this.preemptActivityQueue[0]) {
 			this.preemptActivityQueue.shift();
 			this.preemptCatchup();
@@ -5580,12 +5578,16 @@ var Battle = (function () {
 			if (str !== '|') {
 				args = str.substr(1).split('|');
 			}
-			while (args[args.length-1] && args[args.length-1].substr(0,1) === '[') {
-				var bracketPos = args[args.length-1].indexOf(']');
-				if (bracketPos <= 0) break;
-				var argstr = args.pop();
-				// default to '.' so it evaluates to boolean true
-				kwargs[argstr.substr(1,bracketPos-1)] = ($.trim(argstr.substr(bracketPos+1)) || '.');
+			// only some chat commands can have kwargs, other commands have unexpected
+			// bugs caused by these
+			if (takesKwargs[args[0]] || args[0].charAt(0) === '-') {
+				while (args[args.length-1] && args[args.length-1].substr(0,1) === '[') {
+					var bracketPos = args[args.length-1].indexOf(']');
+					if (bracketPos <= 0) break;
+					var argstr = args.pop();
+					// default to '.' so it evaluates to boolean true
+					kwargs[argstr.substr(1,bracketPos-1)] = ($.trim(argstr.substr(bracketPos+1)) || '.');
+				}
 			}
 
 			// parse the next line if it's a minor: runMinor needs it parsed to determine when to merge minors
