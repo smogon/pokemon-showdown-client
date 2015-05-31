@@ -358,6 +358,10 @@ var Tools = {
 
 		var options = Tools.prefs('chatformatting') || {};
 
+		// >greentext
+		if (!options.hidegreentext && str.substr(0, 4) === '&gt;' && str.substr(4, 8) !== '&gt;') {
+			str = '<font color=#789922>' + str + '</font>';
+		}
 		// ``code``
 		str = str.replace(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g,
 				options.hidemonospace ? '$1' : '<code>$1</code>');
