@@ -197,7 +197,7 @@ try {
 }
 try {
 	updateStats = fs.statSync(thisFile);
-	updateMTime = indexStats ? indexStats.mtime.getTime() : -Infinity;
+	updateMTime = updateStats.mtime.getTime();
 } catch (err) {
 	throw err; // !!
 }
