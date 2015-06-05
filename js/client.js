@@ -849,7 +849,7 @@
 				}
 				// handle error codes here
 				// data is the error code
-				if (data === 'namerequired') {
+				if (data === 'namerequired' || (!isdeinit && !this.user.named)) {
 					this.removeRoom(roomid);
 					var self = this;
 					this.once('init:choosename', function() {
