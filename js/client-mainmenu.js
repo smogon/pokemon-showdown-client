@@ -379,12 +379,7 @@
 			var $searchForm = $('.mainmenu button.big').closest('form');
 			var $formatButton = $searchForm.find('button[name=format]');
 			var $teamButton = $searchForm.find('button[name=team]');
-			if (this.searching) {
-				$formatButton.addClass('preselected')[0].disabled = true;
-				$teamButton.addClass('preselected')[0].disabled = true;
-				$searchForm.find('button.big').html('<strong><i class="icon-refresh icon-spin"></i> Searching...</strong>').addClass('disabled');
-				if ($formatButton.val().substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
-			} else {
+			if (!this.searching || $.isArray(this.searching) && !this.searching.length) {
 				var format = $formatButton.val();
 				var teamIndex = $teamButton.val();
 				$formatButton.replaceWith(this.renderFormats(format));
@@ -393,6 +388,18 @@
 				$searchForm.find('button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
 				$searchForm.find('button.cancelSearch').html('<strong>Look for a battle</strong>').removeClass('disabled');
 				$searchForm.find('p.cancel').remove();
+			} else {
+				$formatButton.addClass('preselected')[0].disabled = true;
+				$teamButton.addClass('preselected')[0].disabled = true;
+				$searchForm.find('button.big').html('<strong><i class="icon-refresh icon-spin"></i> Searching...</strong>').addClass('disabled');
+				var searchEntries = $.isArray(this.searching) ? this.searching : [this.searching];
+				for (var i = 0; i < searchEntries.length; i++) {
+					var format = searchEntries[i].format || searchEntries[i];
+					if (format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) {
+						Tools.loadSpriteData('bw');
+						break;
+					}
+				}
 			}
 		},
 		updateChallenges: function(data) {
