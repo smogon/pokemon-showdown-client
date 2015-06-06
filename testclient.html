@@ -22,7 +22,7 @@
 						Config.server = {
 							id: m[1],
 							host: m[2],
-							port: (m[3] && m[3].substr(1)) || 8000
+							port: (m[3] && parseInt(m[3].substr(1))) || 8000
 						};
 					} else {
 						alert('Unrecognised query string syntax: ' + location.search);
