@@ -98,7 +98,7 @@ function hashColor(name) {
 		hash = MD5(name);
 	}
 	var H = parseInt(hash.substr(4, 4), 16) % 360;
-	var S = parseInt(hash.substr(0, 4), 16) % 50 + 50;
+	var S = parseInt(hash.substr(0, 4), 16) % 50 + 51;
 	var L = parseInt(hash.substr(8, 4), 16) % 20 + 25;
 	colorCache[name] = "color:hsl(" + H + "," + S + "%," + L + "%);";
 	return colorCache[name];
