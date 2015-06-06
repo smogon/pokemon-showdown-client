@@ -1629,6 +1629,7 @@ var Side = (function () {
 		this.battle.statElem.append(this.getStatbarHTML(pokemon));
 		pokemon.statbarElem = this.battle.statElem.children().last();
 		this.updateStatbar(pokemon, true);
+		pokemon.side.updateSidebar();
 		if (this.battle.fastForward) {
 			if (oldpokemon) {
 				oldpokemon.statbarElem.remove();
