@@ -105,7 +105,10 @@
 							'<button class="button tournament-challenge-challenge">Challenge</button>' +
 						'</div>' +
 						'<div class="tournament-challengeby"></div>' +
-						'<div class="tournament-challenging"></div>' +
+						'<div class="tournament-challenging">' +
+							'<div class="tournament-challenging-message"></div>' +
+							'<button class="button tournament-challenge-cancel">Cancel</button>' +
+						'</div>' +
 						'<div class="tournament-challenged">' +
 							'<div class="tournament-challenged-message"></div>' +
 							'<span class="tournament-team"></span>' +
@@ -130,9 +133,11 @@
 			this.$challengeChallenge = $wrapper.find('.tournament-challenge-challenge');
 			this.$challengeBy = $wrapper.find('.tournament-challengeby');
 			this.$challenging = $wrapper.find('.tournament-challenging');
+			this.$challengingMessage = $wrapper.find('.tournament-challenging-message');
 			this.$challenged = $wrapper.find('.tournament-challenged');
 			this.$challengedMessage = $wrapper.find('.tournament-challenged-message');
 			this.$challengeAccept = $wrapper.find('.tournament-challenge-accept');
+			this.$challengeCancel = $wrapper.find('.tournament-challenge-cancel');
 
 			this.info = {};
 			this.updates = {};
@@ -171,6 +176,9 @@
 				var team = Storage.teams[self.$challenged.find('.tournament-team').children().val()];
 				self.room.send('/utm ' + Storage.packTeam(team ? team.team : null));
 				self.room.send('/tournament acceptchallenge');
+			});
+			this.$challengeCancel.on('click', function() {
+				self.room.send('/tournament cancelchallenge');
 			});
 
 			app.user.on('saveteams', this.updateTeams, this);
@@ -372,8 +380,7 @@
 							if ('challenging' in this.updates) {
 								this.$challenging.toggleClass('active', !!this.info.challenging);
 								if (this.info.challenging) {
-									this.$challenging.text("Challenging " + this.info.challenging + "...");
-									// TODO: Add cancel button
+									this.$challengingMessage.text("Challenging " + this.info.challenging + "...");
 								}
 							}
 
