@@ -5394,11 +5394,15 @@ var Battle = (function () {
 			break;
 		case 'join':
 		case 'j':
-			this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
+			if (!this.ignoreSpects) {
+				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
+			}
 			break;
 		case 'leave':
 		case 'l':
-			this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
+			if (!this.ignoreSpects) {
+				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
+			}
 			break;
 		case 'J':
 		case 'L':
