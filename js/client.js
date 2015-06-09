@@ -143,7 +143,7 @@
 		getActionPHP: function() {
 			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
-				ret = 'http://' + Config.origindomain + ret;
+				ret = 'https://' + Config.origindomain + ret;
 			}
 			return (this.getActionPHP = function() {
 				return ret;
