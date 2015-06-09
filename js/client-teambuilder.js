@@ -7,6 +7,14 @@
 		type: 'teambuilder',
 		initialize: function() {
 			teams = Storage.teams;
+			folders = {};
+			for (var i = 0; i < teams.length; i++) {
+				if (teams[i].folder) {
+					if (!folders[teams[i].folder]) folders[teams[i].folder] = [];
+					folders[teams[i].folder].push(teams[i]);
+				}
+			}
+			folderNum = Object.keys(folders).length;
 
 			// left menu
 			this.$el.addClass('ps-room-light').addClass('scrollable');
@@ -27,6 +35,7 @@
 			'change input.teamnameedit': 'teamNameChange',
 			'change select[name=format]': 'formatChange',
 			'change input[name=nickname]': 'nicknameChange',
+			'change input.foldernameedit': 'folderNameChange',
 
 			// details
 			'change .detailsform input': 'detailsChange',
@@ -70,6 +79,8 @@
 			} else if (this.curTeam) {
 				Storage.saveTeam(this.curTeam);
 				this.curTeam = null;
+			} else if (this.curFolder) {
+				this.curFolder = null;
 			} else {
 				return;
 			}
@@ -86,6 +97,7 @@
 		curTeamLoc: 0,
 		curSet: null,
 		curSetLoc: 0,
+		curFolder: null,
 		exportMode: false,
 		update: function() {
 			teams = Storage.teams;
@@ -95,6 +107,7 @@
 				}
 				return this.updateTeamView();
 			}
+			if (this.curFolder) return this.updateFolderView();
 			return this.updateTeamList();
 		},
 
@@ -135,8 +148,14 @@
 					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
 				}
 				buf += '<li><em>you don\'t have any teams lol</em></li>';
+				for (var i in folders) {
+					buf += '<li><button name="clickFolder" value="'+i+'"><i class="icon-folder-open"></i>'+Tools.escapeHTML(i)+'</button> <button name="deleteFolder" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
+				}
 			} else {
-				buf += '<li><button name="newTop"><i class="icon-plus-sign"></i> New team</button></li>';
+				buf += '<li><button name="newTop"><i class="icon-plus-sign"></i> New team</button> <button name="newFolder"><i class="icon-folder-open-alt"></i> New Folder</button></li>';
+				for (var i in folders) {
+					buf += '<li><button name="clickFolder" value="'+i+'"><i class="icon-folder-open"></i>'+Tools.escapeHTML(i)+'</button> <button name="deleteFolder" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
+				}
 				for (var i=0; i<teams.length+1; i++) {
 					if (i === this.deletedTeamLoc) {
 						buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
@@ -164,6 +183,7 @@
 						continue;
 					}
 
+					if (team.folder) continue;
 					var formatText = '';
 					if (team.format) {
 						formatText = '['+team.format+'] ';
@@ -177,7 +197,7 @@
 					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 				}
 			}
-			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
+			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button> <button name="newFolder"><i class="icon-folder-open-alt"></i> New Folder</button></li>';
 			buf += '</ul>';
 
 			if (window.nodewebkit) {
@@ -225,14 +245,17 @@
 		saveBackup: function() {
 			TeambuilderRoom.parseText(this.$('.teamedit').val(), true);
 			Storage.saveAllTeams();
+			this.updateFolders();
 			this.back();
 		},
 		"new": function() {
 			var newTeam = {
 				name: 'Untitled '+(teams.length+1),
-				team: []
+				team: [],
+				folder: (this.curFolder ? this.curFolder : '')
 			};
 			teams.push(newTeam);
+			if (this.curFolder) folders[this.curFolder].push(newTeam);
 			this.curTeam = newTeam;
 			this.curTeamLoc = teams.length-1;
 			this.update();
@@ -240,9 +263,11 @@
 		newTop: function() {
 			var newTeam = {
 				name: 'Untitled '+(teams.length+1),
-				team: []
+				team: [],
+				folder: (this.curFolder ? this.curFolder : '')
 			};
 			teams.unshift(newTeam);
+			if (this.curFolder) folders[this.curFolder].unshift(newTeam);
 			this.curTeam = newTeam;
 			this.curTeamLoc = 0;
 			this.update();
@@ -252,9 +277,11 @@
 			if (!this.curTeam) {
 				var newTeam = {
 					name: 'Untitled '+(teams.length+1),
-					team: []
+					team: [],
+					folder: (this.curFolder ? this.curFolder : '')
 				};
 				teams.push(newTeam);
+				if (this.curFolder) folders[this.curFolder].push(newTeam);
 				this.curTeam = newTeam;
 				this.curTeamLoc = teams.length-1;
 			}
@@ -268,6 +295,149 @@
 		},
 
 		/*********************************************************
+		 * Folder view
+		 *********************************************************/
+
+		deletedTeam: null,
+		deletedTeamLoc: -1,
+		updateFolderView: function() {
+			var teams = Storage.teams;
+			var buf = '';
+
+			this.deletedSet = null;
+			this.deletedSetLoc = -1;
+
+			if (this.exportMode) {
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Folder</button> <button name="saveBackupFolder" class="savebutton"><i class="icon-save"></i> Save</button></div>';
+				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(TeambuilderRoom.teamsToText(this.curFolder))+'</textarea>';
+				this.$el.html(buf);
+				return;
+			}
+
+			buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team/Folder List</button><input class="textbox foldernameedit" type="text" class="foldernameedit" size="30" value="'+Tools.escapeHTML(this.curFolder)+'" /> <button name="deleteFolder" value="'+this.curFolder+'"><i class="icon-trash"></i> Delete Folder</button></div>';
+			buf += this.clipboardHTML();
+			buf += '<ul>';
+			if (!window.localStorage && !window.nodewebkit) buf += '<li>== CAN\'T SAVE ==<br /><small>Your browser doesn\'t support <code>localStorage</code> and can\'t save teams! Update to a newer browser.</small></li>';
+			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
+			if (!folders[this.curFolder].length) {
+				if (this.deletedTeamLoc >= 0) {
+					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
+				}
+				buf += '<p>This folder is empty</p>';
+			} else {
+				buf += '<li><button name="newTop"><i class="icon-plus-sign"></i> New team</button></li>';
+				for (var i=0; i<teams.length+1; i++) {
+					if (i === this.deletedTeamLoc) {
+						buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
+					}
+					if (i >= teams.length) break;
+					if (teams[i].folder !== this.curFolder) continue;
+
+					var team = teams[i];
+					var formatText = '';
+					if (team.format) {
+						formatText = '['+team.format+'] ';
+					}
+
+					buf += '<li><button name="edit" value="'+i+'" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+					for (var j=0; j<team.team.length; j++) {
+						if (j!=0) buf += ' / ';
+						buf += ''+Tools.escapeHTML(team.team[j].name);
+					}
+					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
+				}
+			}
+			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
+			buf += '</ul>';
+
+			if (window.nodewebkit) {
+				buf += '<button name="revealFolder"><i class="icon-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder"><i class="icon-refresh"></i> Reload teams files</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
+			} else {
+				buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore folder</button>';
+				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
+			}
+
+			buf += '</div>';
+
+			this.$el.html(buf);
+		},
+		newFolder: function() {
+			var newFolder = "Untitled " + (folderNum + 1);
+			folders[newFolder] = [];
+			folderNum++;
+			this.curFolder = newFolder;
+			this.update();
+			return newFolder;
+		},
+		clickFolder: function(name) {
+			this.curFolder = name;
+			this.update();
+		},
+		closeFolder: function() {
+			this.curFolder = null;
+			this.update();
+		},
+		deleteFolder: function(name) {
+			delete folders[name];
+			for (var i = 0; i < teams.length; i++) {
+				if (teams[i].folder === name) {
+					teams[i].folder = '';
+				}
+			}
+			folderNum--;
+			if (this.curFolder) this.curFolder = null;
+			this.saveTeams();
+		},
+		updateFolders: function() {
+			var teams = Storage.teams;
+			for (var i = 0; i < teams.length; i++) {
+				if (teams[i].folder) {
+					if (!folders[teams[i].folder]) folders[teams[i].folder] = [];
+					if (folders[teams[i].folder].indexOf(teams[i]) < 0) folders[teams[i].folder].push(teams[i]);
+				}
+			}
+			app.rooms[''].curFolder = '';
+		},
+		folderNameChange: function(e) {
+			var oldName = this.curFolder;
+			this.curFolder = ($.trim(e.currentTarget.value) || 'Untitled '+(folderNum+1));
+			var newName = this.curFolder;
+			delete folders[oldName];
+			folders[newName] = [];
+			for (var i = 0; i < teams.length; i++) {
+				if (teams[i].folder === oldName) {
+					teams[i].folder = newName;
+					folders[newName].push(teams[i]);
+				}
+			}
+			e.currentTarget.value = this.curFolder;
+			this.save();
+		},
+		saveBackupFolder: function() {
+			TeambuilderRoom.parseText(this.$('.teamedit').val(), 'folder');
+			Storage.saveAllTeams();
+			this.updateFolders();
+			if (this.curFolder) this.curFolder = null;
+			this.back();
+		},
+		moveTeamTo: function(team, folderName) {
+			if (team.folder) folders[team.folder].splice(folders[team.folder].indexOf(team), 1);
+			if (folderName === '-2') {
+				team.folder = '';
+			} else if (folderName === '-1') {
+				var newFolder = this.newFolder();
+				team.folder = newFolder;
+				this.curFolder = newFolder;
+			} else {
+				team.folder = folderName;
+			}
+			this.save()
+			this.updateFolders();
+			this.curTeam = null;
+			this.update();
+		},
+
+		/*********************************************************
 		 * Team view
 		 *********************************************************/
 
@@ -277,10 +447,10 @@
 
 			var buf = '';
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button><input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
 				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(TeambuilderRoom.toText(this.curTeam.team))+'</textarea>';
 			} else {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i>' + (this.curFolder ? ' Folder' : ' Team List') + '</button><input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button> <button name="moveTeam"><i class="icon-move"></i> Move Team</button></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
@@ -657,6 +827,12 @@
 					this.update();
 				}
 			}
+		},
+		moveTeam: function() {
+			app.addPopup(FolderPopup, {
+				team: this.curTeam,
+				folders: folders
+			});
 		},
 
 		/*********************************************************
@@ -1978,11 +2154,11 @@
 	}, {
 		// text import/export
 
-		parseText: function(text, teams) {
+		parseText: function(text, teamlist) {
 			var text = text.split("\n");
 			var team = [];
 			var curSet = null;
-			if (teams === true) {
+			if (teamlist === true && teamlist !== 'folder') {
 				Storage.teams = [];
 				teams = Storage.teams;
 			}
@@ -1990,10 +2166,16 @@
 				var line = $.trim(text[i]);
 				if (line === '' || line === '---') {
 					curSet = null;
-				} else if (line.substr(0, 3) === '===' && teams) {
+				} else if (line.substr(0, 3) === '===' && teamlist) {
 					team = [];
 					line = $.trim(line.substr(3, line.length-6));
 					var format = '';
+					var folder = '';
+					var braceIndex = line.indexOf('}');
+					if (braceIndex >= 0) {
+						folder = line.substr(1, braceIndex-1);
+						line = $.trim(line.substr(braceIndex+1));
+					}
 					var bracketIndex = line.indexOf(']');
 					if (bracketIndex >= 0) {
 						format = line.substr(1, bracketIndex-1);
@@ -2002,6 +2184,7 @@
 					teams.push({
 						name: line,
 						format: format,
+						folder: folder,
 						team: team
 					});
 				} else if (!curSet) {
@@ -2102,11 +2285,12 @@
 			}
 			return team;
 		},
-		teamsToText: function() {
+		teamsToText: function(folder) {
 			var buf = '';
 			for (var i=0,len=teams.length; i<len; i++) {
 				var team = teams[i];
-				buf += '=== '+(team.format?'['+team.format+'] ':'')+team.name+' ===\n\n';
+				if (folder && team.folder !== folder) continue;
+				buf += '=== '+(team.folder?'{'+team.folder+'} ':'')+(team.format?'['+team.format+'] ':'')+team.name+' ===\n\n';
 				buf += TeambuilderRoom.toText(team.team);
 				buf += '\n';
 			}
@@ -2250,6 +2434,27 @@
 			} else {
 				app.rooms['teambuilder'].update();
 			}
+		}
+	});
+
+	var FolderPopup = exports.FolderPopup = Popup.extend({
+		initialize: function(data) {
+			var buf = '<ul class="popupmenu">';
+			this.team = data.team;
+			buf += 'Move to folder: <br>';
+			for (var i in data.folders) {
+				if (data.team.folder !== i) {
+					buf += '<li><button name="selectFolder" value="'+i+'"><i class="icon-arrow-right"></i>'+Tools.escapeHTML(i)+'</button></li>';
+				}
+			}
+			buf += '<li><button name="selectFolder" value="-1"><i class="icon-arrow-left"></i> Create new folder</button></li>';
+			if (data.team.folder) buf += '<li><button name="selectFolder" value="-2"><i class="icon-arrow-left"></i> Move to Team List</button></li>';
+			buf += '</ul>';
+			this.$el.html(buf);
+		},
+		selectFolder: function(i) {
+			this.close();
+			app.rooms['teambuilder'].moveTeamTo(this.team, i);
 		}
 	});
 
