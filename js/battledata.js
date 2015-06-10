@@ -610,7 +610,9 @@ var Tools = {
 		} catch (e) {}
 		prefs.save = function() {
 			if (!window.localStorage) return;
-			localStorage.setItem(localStorageEntry, $.toJSON(this.data));
+			try {
+				localStorage.setItem(localStorageEntry, $.toJSON(this.data));
+			} catch (e) {}
 		};
 		return prefs;
 	})(),
