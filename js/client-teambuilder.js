@@ -1705,7 +1705,7 @@
 				}
 			}
 
-			if (isFast) {
+			if (isFast && abilityid !== 'prankster') {
 				if (stats.spe > 100 || bulk < 55000 || moveCount['Ultrafast']) {
 					return 'Fast Bulky Support';
 				}
