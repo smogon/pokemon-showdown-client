@@ -514,6 +514,12 @@
 				open(target);
 				return false;
 
+			case 'autojoin':
+			case 'cmd':
+			case 'query':
+				this.add('This is a PS system command; do not use it.');
+				return false;
+
 			case 'ignore':
 				if (!target) {
 					this.parseCommand('/help ignore');
