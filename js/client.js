@@ -303,6 +303,9 @@
 			this.topbar = new Topbar({el: $('#header')});
 			this.addRoom('');
 			if (!this.down && $(window).width() >= 916) {
+				// make sure staff and upperstaff are first in room list
+				this.rooms.staff = undefined;
+				this.rooms.upperstaff = undefined;
 				if (document.location.hostname === 'play.pokemonshowdown.com') {
 					this.addRoom('rooms', null, true);
 					var autojoin = (Tools.prefs('autojoin') || '');
@@ -1372,7 +1375,7 @@
 				// no room for this room
 			} else if (!this.sideRoom) {
 				for (var i in this.rooms) {
-					if (this.rooms[i].isSideRoom) {
+					if (this.rooms[i] && this.rooms[i].isSideRoom) {
 						this.sideRoom = this.rooms[i];
 					}
 				}
@@ -1581,6 +1584,7 @@
 
 			var notificationCount = 0;
 			for (var id in app.rooms) {
+				if (!app.rooms[id]) continue;
 				if (app.rooms[id].notifications) notificationCount++;
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
@@ -2717,6 +2721,7 @@
 			for (var id in app.rooms) {
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
+				if (!room) continue;
 				var name = '<i class="icon-comment-alt"></i> <span>'+id+'</span>';
 				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> <span>Lobby</span>';
 				if (id.substr(0,7) === 'battle-') {
