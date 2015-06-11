@@ -1162,12 +1162,12 @@
 		tryJoinRoom: function(id) {
 			this.joinRoom(id);
 		},
-		addRoom: function(id, type, nojoin) {
-			this._addRoom(id, type, nojoin);
+		addRoom: function(id, type, nojoin, title) {
+			this._addRoom(id, type, nojoin, title);
 			this.updateSideRoom();
 			this.updateLayout();
 		},
-		_addRoom: function(id, type, nojoin) {
+		_addRoom: function(id, type, nojoin, title) {
 			var oldRoom;
 			if (this.rooms[id]) {
 				if (type && this.rooms[id].type !== type) {
@@ -1224,7 +1224,8 @@
 			var room = this.rooms[id] = new type({
 				id: id,
 				el: el,
-				nojoin: nojoin
+				nojoin: nojoin,
+				title: title
 			});
 			if (oldRoom) {
 				if (this.curRoom === oldRoom) this.curRoom = room;
@@ -1665,6 +1666,7 @@
 			Backbone.View.apply(this, arguments);
 
 			if (!(options && options.nojoin)) this.join();
+			if (options && options.title) this.title = options.title;
 		},
 		dispatchClickButton: function(e) {
 			var target = e.currentTarget;
