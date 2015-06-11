@@ -1181,7 +1181,9 @@
 					// you were direct-linked to this nonexistent room
 					var replayid = id.substr(7);
 					if (Config.server.id !== 'showdown') replayid = Config.server.id+'-'+replayid;
-					document.location.replace('http://replay.pokemonshowdown.com/'+replayid);
+					// document.location.replace('http://replay.pokemonshowdown.com/'+replayid);
+					var replayLink = 'http://replay.pokemonshowdown.com/'+replayid;
+					app.addPopupMessage('This room does not exist. You might want to try the replay: <a href="' + replayLink + '">' + replayLink + '</a>');
 					return;
 				}
 			}
