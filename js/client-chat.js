@@ -9,6 +9,8 @@
 			if (!this.events['click .username']) this.events['click .username'] = 'clickUsername';
 			if (!this.events['submit form']) this.events['submit form'] = 'submit';
 			if (!this.events['keydown textarea']) this.events['keydown textarea'] = 'keyPress';
+			if (!this.events['focus textarea']) this.events['focus textarea'] = 'focusText';
+			if (!this.events['blur textarea']) this.events['blur textarea'] = 'blurText';
 			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
 
 			this.initializeTabComplete();
@@ -50,6 +52,31 @@
 				this.$chatbox.focus();
 			} else {
 				this.$('button[name=login]').focus();
+			}
+		},
+
+		focusText: function() {
+			if (this.$chatbox) {
+				var roomLeft, roomRight;
+				if (this === app.curSideRoom) {
+					roomLeft = app.topbar.curSideRoomLeft;
+					roomRight = app.topbar.curSideRoomRight;
+				} else {
+					roomLeft = app.topbar.curRoomLeft;
+					roomRight = app.topbar.curRoomRight;
+				}
+				if (roomLeft) roomLeft = "\u2190 " + roomLeft;
+				if (roomRight) roomRight = roomRight + " \u2192";
+				if (roomLeft || roomRight) {
+					this.$chatbox.attr('placeholder', "  " + roomLeft + " (use arrow keys) " + roomRight);
+				} else {
+					this.$chatbox.attr('placeholder', "");
+				}
+			}
+		},
+		blurText: function() {
+			if (this.$chatbox) {
+				this.$chatbox.attr('placeholder', "");
 			}
 		},
 
