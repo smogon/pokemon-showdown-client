@@ -1016,6 +1016,7 @@
 		},
 		leave: function() {
 			app.send('/leave '+this.id);
+			app.updateAutojoin();
 		},
 		receive: function(data) {
 			this.add(data);
