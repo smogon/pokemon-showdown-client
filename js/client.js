@@ -90,7 +90,7 @@
 	// sanitize a room ID
 	// shouldn't actually do anything except against a malicious server
 	var toRoomid = this.toRoomid = function(roomid) {
-		return roomid.replace(/[^a-zA-Z0-9-]+/g, '');
+		return roomid.replace(/[^a-zA-Z0-9-]+/g, '').toLowerCase();
 	};
 
 	// support Safari 6 notifications
@@ -304,9 +304,22 @@
 			this.addRoom('');
 			if (!this.down && $(window).width() >= 916) {
 				if (document.location.hostname === 'play.pokemonshowdown.com') {
-					this.addRoom('rooms');
+					this.addRoom('rooms', null, true);
+					var autojoin = (Tools.prefs('autojoin') || '');
+					var autojoinIds = [];
+					if (autojoin) {
+						var autojoins = autojoin.split(',');
+						var roomid;
+						for (var i = 0; i < autojoins.length; i++) {
+							roomid = toRoomid(autojoins[i]);
+							this.addRoom(roomid, null, true, autojoins[i]);
+							if (roomid !== 'staff' && roomid !== 'upperstaff') autojoinIds.push(roomid);
+						}
+					}
+					this.send('/autojoin ' + autojoinIds.join(','));
 				} else {
-					this.addRoom('lobby');
+					this.addRoom('lobby', null, true);
+					this.send('/autojoin');
 				}
 			}
 
@@ -693,10 +706,16 @@
 			var self = this;
 			var constructSocket = function() {
 				var protocol = (Config.server.port === 443) ? 'https' : 'http';
+				Config.server.host = $.trim(Config.server.host);
 				return new SockJS(protocol + '://' + Config.server.host + ':' +
 					Config.server.port + Config.sockjsprefix);
 			};
 			this.socket = constructSocket();
+			setInterval(function () {
+				if (Config.server.host !== $.trim(Config.server.host)) {
+					app.socket.close();
+				}
+			}, 500);
 
 			var socketopened = false;
 			var altport = (Config.server.port === Config.server.altport);
@@ -806,6 +825,7 @@
 		 */
 		receive: function(data) {
 			var roomid = '';
+			var autojoined = false;
 			if (data.substr(0,1) === '>') {
 				var nlIndex = data.indexOf('\n');
 				if (nlIndex < 0) return;
@@ -818,12 +838,13 @@
 				var roomTypeLFIndex = roomType.indexOf('\n');
 				if (roomTypeLFIndex >= 0) roomType = roomType.substr(0, roomTypeLFIndex);
 				roomType = toId(roomType);
-				if (this.rooms[roomid] || roomid === 'staff') {
-					// staff is always joined in background
+				if (this.rooms[roomid] || roomid === 'staff' || roomid === 'upperstaff') {
+					// autojoin rooms are joined in background
 					this.addRoom(roomid, roomType, true);
 				} else {
 					this.joinRoom(roomid, roomType, true);
 				}
+				if (roomType === 'chat') autojoined = true;
 			} else if ((data+'|').substr(0,8) === '|expire|') {
 				var room = this.rooms[roomid];
 				if (room) {
@@ -850,14 +871,18 @@
 				// handle error codes here
 				// data is the error code
 				if (data === 'namerequired') {
-					this.removeRoom(roomid);
 					var self = this;
 					this.once('init:choosename', function() {
-						self.joinRoom(roomid);
+						self.send('/join '+roomid);
 					});
-				} else {
+				} else if (data !== 'namepending') {
 					if (isdeinit) { // deinit
-						this.removeRoom(roomid, true);
+						if (this.rooms[roomid] && this.rooms[roomid].type === 'chat') {
+							this.removeRoom(roomid, true);
+							this.updateAutojoin();
+						} else {
+							this.removeRoom(roomid, true);
+						}
 					} else { // noinit
 						this.unjoinRoom(roomid);
 						if (roomid === 'lobby') this.joinRoom('rooms');
@@ -872,6 +897,7 @@
 				if (this.rooms[roomid]) {
 					this.rooms[roomid].receive(data);
 				}
+				if (autojoined) this.updateAutojoin();
 				return;
 			}
 
@@ -1386,6 +1412,22 @@
 				gui.Shell.openExternal(e.target.href);
 				return false;
 			}
+		},
+		updateAutojoin: function() {
+			if (Config.server.id !== 'showdown') return;
+			var autojoins = [];
+			var autojoinCount = 0;
+			for (var i in this.rooms) {
+				if (!this.rooms[i]) continue;
+				if (this.rooms[i].type !== 'chat' || i === 'lobby') {
+					continue;
+				}
+				autojoins.push(this.rooms[i].title || this.rooms[i].id);
+				if (i === 'staff' || i === 'upperstaff') continue;
+				autojoinCount++;
+				if (autojoinCount >= 8) break;
+			}
+			Tools.prefs('autojoin', autojoins.join(','));
 		},
 
 		/*********************************************************
