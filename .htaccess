@@ -33,9 +33,9 @@ Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
 
 # Redirect old battles to their corresponding replay
 # RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
-# RewriteRule ^battle-([a-z0-9]+-3[0-3][0-9]{6})$ http%{ENV:P_SUFFIX}://replay.pokemonshowdown.com/$1 [R=302,L]
+# RewriteRule ^battle-([a-z0-9]+-1[0-9]{8})$ http%{ENV:P_SUFFIX}://replay.pokemonshowdown.com/$1 [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
-RewriteRule ^battle-([a-z0-9]+-?[1-7][0-9]{7})$ http%{ENV:P_SUFFIX}://replay.pokemonshowdown.com/$1 [R=302,L]
+RewriteRule ^battle-([a-z0-9]+-?[1-9][0-9]{7})$ http%{ENV:P_SUFFIX}://replay.pokemonshowdown.com/$1 [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^battle-([a-z]+[0-9]{1,7})$ http%{ENV:P_SUFFIX}://replay.pokemonshowdown.com/$1 [R=302,L]
 
