@@ -68,7 +68,7 @@
 				if (roomLeft) roomLeft = "\u2190 " + roomLeft;
 				if (roomRight) roomRight = roomRight + " \u2192";
 				if (roomLeft || roomRight) {
-					this.$chatbox.attr('placeholder', "  " + roomLeft + " (use arrow keys) " + roomRight);
+					this.$chatbox.attr('placeholder', "  " + roomLeft + (app.arrowKeysUsed ? " | " : " (use arrow keys) ") + roomRight);
 				} else {
 					this.$chatbox.attr('placeholder', "");
 				}

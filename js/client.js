@@ -436,6 +436,7 @@
 						if (app.topbar.curSideRoomLeft) {
 							e.preventDefault();
 							e.stopImmediatePropagation();
+							app.arrowKeysUsed = true;
 							app.focusRoom(app.topbar.curSideRoomLeft);
 						}
 					} else if (e.keyCode === 39 && safeLocation || window.nodewebkit && e.ctrlKey && e.keyCode === 9) {
@@ -443,6 +444,7 @@
 						if (app.topbar.curSideRoomRight) {
 							e.preventDefault();
 							e.stopImmediatePropagation();
+							app.arrowKeysUsed = true;
 							app.focusRoom(app.topbar.curSideRoomRight);
 						}
 					}
@@ -454,6 +456,7 @@
 					if (app.topbar.curRoomLeft) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
+						app.arrowKeysUsed = true;
 						app.focusRoom(app.topbar.curRoomLeft);
 					}
 				} else if (e.keyCode === 39 && safeLocation || window.nodewebkit && e.ctrlKey && e.keyCode === 9) {
@@ -461,6 +464,7 @@
 					if (app.topbar.curRoomRight) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
+						app.arrowKeysUsed = true;
 						app.focusRoom(app.topbar.curRoomRight);
 					}
 				}
