@@ -313,7 +313,6 @@
 				var handlerRoom = app.curSideRoom;
 				if (!handlerRoom) {
 					for (var roomid in app.rooms) {
-						if (!app.rooms[roomid]) continue;
 						if (!app.rooms[roomid].handleTabComplete) continue;
 						handlerRoom = app.rooms[roomid];
 						break;
