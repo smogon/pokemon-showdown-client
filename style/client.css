@@ -1347,6 +1347,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 .userlist li button {
 	box-sizing: border-box;
 	display: block;
+	overflow: hidden;
 	height: auto;
 	background: transparent;
 	border: 0;
