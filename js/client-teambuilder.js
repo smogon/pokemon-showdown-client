@@ -113,7 +113,7 @@
 
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <button name="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
-				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(TeambuilderRoom.teamsToText())+'</textarea>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">'+Tools.escapeHTML(TeambuilderRoom.teamsToText())+'</textarea></div>';
 				this.$el.html(buf);
 				return;
 			}
@@ -223,7 +223,7 @@
 			}
 		},
 		saveBackup: function() {
-			TeambuilderRoom.parseText(this.$('.teamedit').val(), true);
+			TeambuilderRoom.parseText(this.$('.teamedit textarea').val(), true);
 			Storage.saveAllTeams();
 			this.back();
 		},
@@ -278,7 +278,7 @@
 			var buf = '';
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
-				buf += '<textarea class="teamedit textbox" rows="17">'+Tools.escapeHTML(TeambuilderRoom.toText(this.curTeam.team))+'</textarea>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">'+Tools.escapeHTML(TeambuilderRoom.toText(this.curTeam.team))+'</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
@@ -401,7 +401,7 @@
 		},
 
 		saveImport: function() {
-			this.curTeam.team = TeambuilderRoom.parseText(this.$('.teamedit').val());
+			this.curTeam.team = TeambuilderRoom.parseText(this.$('.teamedit textarea').val());
 			this.back();
 		},
 		addPokemon: function() {
