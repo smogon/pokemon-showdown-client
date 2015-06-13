@@ -2113,6 +2113,10 @@
 			return buf;
 		},
 		toText: function(team) {
+			if (typeof team === 'string') {
+				if (team.indexOf('\n') >= 0) return team;
+				team = Storage.fastUnpackTeam(team);
+			}
 			var text = '';
 			for (var i=0; i<team.length; i++) {
 				var curSet = team[i];
