@@ -1645,9 +1645,6 @@
 				} else if (!this.curRoomRight) {
 					this.curRoomRight = id;
 				}
-				if (curSideId && $('body').width() < room.minWidth + app.curSideRoom.minWidth) {
-					this.curSideRoomLeft = id;
-				}
 			}
 			if (window.nodewebkit) {
 				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount || '');
