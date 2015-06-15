@@ -600,13 +600,19 @@ var Tools = {
 				return prefs.data[prop];
 			}
 			// set preference
-			prefs.data[prop] = value;
+			if (value === null) {
+				delete prefs.data[prop];
+			} else {
+				prefs.data[prop] = value;
+			}
 			if (save !== false) prefs.save();
 		};
 		prefs.data = {};
 		try {
 			prefs.data = (window.localStorage &&
 				$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
+			// outdated prefs
+			delete prefs.data.nolobbypm;
 		} catch (e) {}
 		prefs.save = function() {
 			if (!window.localStorage) return;
