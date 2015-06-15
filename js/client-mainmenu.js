@@ -112,7 +112,7 @@
 			var userid = toUserid(name);
 			if (app.ignore[userid] && name.substr(0, 1) in {' ':1, '!':1, '‽':1}) return;
 
-			if (app.curSideRoom && app.curSideRoom.addPM && !Tools.prefs('nolobbypm')) {
+			if (app.curSideRoom && app.curSideRoom.addPM && Tools.prefs('inchatpm')) {
 				app.curSideRoom.addPM(name, message, target);
 			}
 

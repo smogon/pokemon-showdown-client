@@ -2465,7 +2465,7 @@
 			'change input[name=bwgfx]': 'setBwgfx',
 			'change input[name=nopastgens]': 'setNopastgens',
 			'change input[name=notournaments]': 'setNotournaments',
-			'change input[name=nolobbypm]': 'setNolobbypm',
+			'change input[name=inchatpm]': 'setInchatpm',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
@@ -2488,7 +2488,7 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"'+(Tools.prefs('bwgfx')?' checked':'')+' /> Enable BW sprites for XY</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"'+(Tools.prefs('nopastgens')?' checked':'')+' /> Use modern sprites for past generations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"'+(Tools.prefs('notournaments')?' checked':'')+' /> Ignore tournaments</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="nolobbypm"'+(Tools.prefs('nolobbypm')?' checked':'')+' /> Don\'t show PMs in chat rooms</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="inchatpm"'+(Tools.prefs('inchatpm')?' checked':'')+' /> Show PMs in chat rooms</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"'+(!Tools.prefs('noselfhighlight')?' checked':'')+'> Highlight when your name is said in chat</label></p>';
 
 			if (window.Notification) {
@@ -2558,9 +2558,9 @@
 			var noselfhighlight = !e.currentTarget.checked;
 			Tools.prefs('noselfhighlight', noselfhighlight);
 		},
-		setNolobbypm: function(e) {
-			var nolobbypm = !!e.currentTarget.checked;
-			Tools.prefs('nolobbypm', nolobbypm);
+		setInchatpm: function(e) {
+			var inchatpm = !!e.currentTarget.checked;
+			Tools.prefs('inchatpm', inchatpm);
 		},
 		setTemporaryNotifications: function (e) {
 			var temporarynotifications = !!e.currentTarget.checked;
