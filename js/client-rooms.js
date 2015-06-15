@@ -11,6 +11,8 @@
 		},
 		initialize: function() {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
+			var buf = '<div class="pad"><button style="float:right" name="close">Close</button><div class="roomlisttop"></div><div class="roomlist" style="max-width:480px"><p><em style="font-size:20pt">Loading...</em></p></div><p><button name="joinRoomPopup">Join other room</button></p></div>';
+			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
 			app.send('/cmd rooms');
 			app.user.on('change:named', this.updateUser, this);
@@ -31,7 +33,9 @@
 				app.send('/cmd rooms');
 				this.lastUpdate = new Date().getTime();
 			}
-			// this.$('button[name=joinRoomPopup]').focus();
+			var prevPos = this.$el.scrollTop();
+			this.$('button[name=joinRoomPopup]').focus();
+			this.$el.scrollTop(prevPos);
 		},
 		joinRoomPopup: function() {
 			app.addPopupPrompt("Room name:", "Join room", function(room) {
@@ -41,38 +45,22 @@
 			});
 		},
 		update: function(rooms) {
+			var firstOpen = !app.roomsData;
 			if (rooms) {
 				this.lastUpdate = new Date().getTime();
 				app.roomsData = rooms;
 			} else {
 				rooms = app.roomsData;
 			}
-			var buf = '<div class="pad"><button style="float:right" name="close">Close</button>';
-			if (!rooms) {
-				buf += '<p>Loading...</p></div>';
-				this.$el.html(buf);
-				return;
-			}
-			var $roomlistElem = this.$('.roomlist');
-			if ($roomlistElem.length) {
-				$roomlistElem.html(this.renderRoomList());
-				return;
-			}
+			if (!rooms) return;
+			this.$('.roomlist').html(this.renderRoomList());
 			if (!app.roomsFirstOpen && window.location.host !== 'demo.psim.us') {
+				var buf = '';
 				if (Config.roomsFirstOpenBuffer) {
-					buf += Config.roomsFirstOpenBuffer();
+					this.$('.roomlisttop').html(Config.roomsFirstOpenBuffer());
 				}
-				app.roomsFirstOpen = 1;
-			}
-			buf += '<div class="roomlist" style="max-width:480px">';
-
-			buf += this.renderRoomList();
-
-			buf += '</div></div>';
-			this.$el.html(buf);
-			if (app.roomsFirstOpen === 1) {
 				if (Config.roomsFirstOpenScript) {
-					buf += Config.roomsFirstOpenScript();
+					Config.roomsFirstOpenScript();
 				}
 				app.roomsFirstOpen = 2;
 			}
@@ -107,8 +95,6 @@
 				var escapedDesc = Tools.escapeHTML(roomData.desc||'');
 				buf += '<div><a href="' + app.root+id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + escapedDesc + '</small></a></div>';
 			}
-
-			buf += '<p><button name="joinRoomPopup">Join other room</button></p>';
 
 			return buf;
 		}
