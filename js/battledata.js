@@ -280,7 +280,7 @@ var baseSpeciesChart = {
 
 // Precompile often used regular expression for links.
 var domainRegex = '[a-z0-9\\-]+(?:[.][a-z0-9\\-]+)*';
-var parenthesisRegex = '[(][^\\s()<>]*[)]';
+var parenthesisRegex = '[(](?:[^\\s()<>&]|&amp;)*[)]';
 var linkRegex = new RegExp(
 	'\\b' +
 	'(?:' +
@@ -297,13 +297,13 @@ var linkRegex = new RegExp(
 			'/' +
 			'(?:' +
 				'(?:' +
-					'[^\\s()<>]' +
+					'[^\\s()&]|&amp;|&quot;' +
 					'|' + parenthesisRegex +
 				')*' +
 				// URLs usually don't end with punctuation, so don't allow
 				// punctuation symbols that probably aren't related to URL.
 				'(?:' +
-					'[^\\s`()<>\\[\\]{}\'".,!?;:]' +
+					'[^\\s`()\\[\\]{}\'".,!?;:&]' +
 					'|' + parenthesisRegex +
 				')' +
 			')?' +
