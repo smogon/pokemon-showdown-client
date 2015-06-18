@@ -2016,6 +2016,7 @@ var Side = (function () {
 			substitute: '',
 			// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
 			uproar: '<span class="neutral">Uproar</span>',
+			rage: '<span class="neutral">Rage</span>',
 			roost: '<span class="neutral">Landed</span>',
 			protect: '<span class="good">Protect</span>',
 			quickguard: '<span class="good">Quick&nbsp;Guard</span>',
