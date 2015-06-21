@@ -978,7 +978,7 @@
 			var totalev = 0;
 			if (!set.ivs) set.ivs = {};
 			for (var i in stats) {
-				if (typeof set.ivs[i] === 'undefined') set.ivs[i] = 31;
+				if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = 31;
 				var val = ''+(set.ivs[i]);
 				buf += '<div><input type="number" name="iv-'+i+'" value="'+val+'" class="inputform numform" min="0" max="31" step="1" /></div>';
 			}
@@ -1091,7 +1091,7 @@
 				// IV
 				var stat = inputName.substr(3);
 
-				if (val > 31) val = 31;
+				if (val > 31 || isNaN(val)) val = 31;
 				if (val < 0) val = 0;
 
 				if (!set.ivs) set.ivs = {};
@@ -2072,6 +2072,7 @@
 						var statid = BattleStatIDs[ivLine.substr(spaceIndex+1)];
 						var statval = parseInt(ivLine.substr(0, spaceIndex));
 						if (!statid) continue;
+						if (isNaN(statval)) statval = 31;
 						curSet.ivs[statid] = statval;
 					}
 				} else if (line.match(/^[A-Za-z]+ (N|n)ature/)) {
@@ -2192,7 +2193,7 @@
 					}
 					if (!defaultIvs) {
 						for (var stat in BattleStatNames) {
-							if (typeof curSet.ivs[stat] === 'undefined' || curSet.ivs[stat] == 31) continue;
+							if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] == 31) continue;
 							if (first) {
 								text += 'IVs: ';
 								first = false;
