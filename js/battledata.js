@@ -439,13 +439,37 @@ var Tools = {
 			options.hidebold ? '$1' : '<b>$1</b>');
 
 		if (!options.hidespoiler) {
-			var spoilerIndex = str.toLowerCase().indexOf('spoiler:');
-			if (spoilerIndex < 0) spoilerIndex = str.toLowerCase().indexOf('spoilers:');
-			if (spoilerIndex >= 0) {
-				var offset = spoilerIndex+8;
-				if (str.charAt(offset) === ':') offset++;
-				if (str.charAt(offset) === ' ') offset++;
-				str = str.substr(0, offset)+'<span class="spoiler">'+str.substr(offset)+'</span>';
+			var untilIndex = 0;
+			while (untilIndex < str.length) {
+				var spoilerIndex = str.toLowerCase().indexOf('spoiler:', untilIndex);
+				if (spoilerIndex < 0) spoilerIndex = str.toLowerCase().indexOf('spoilers:', untilIndex);
+				if (spoilerIndex >= 0) {
+					untilIndex = str.indexOf("\n", spoilerIndex);
+					if (untilIndex < 0) untilIndex = str.length;
+
+					if (str.charAt(spoilerIndex - 1) === '(') {
+						var nextLParenIndex = str.indexOf('(', spoilerIndex);
+						var nextRParenIndex = str.indexOf(')', spoilerIndex);
+						if (nextRParenIndex < 0 || nextRParenIndex >= untilIndex) {
+							// no `)`, keep spoilering until next newline
+						} else if (nextLParenIndex < 0 || nextLParenIndex > nextRParenIndex) {
+							// no `(` before next `)` - spoiler until next `)`
+							untilIndex = nextRParenIndex;
+						} else {
+							// `(` before next `)` - just spoiler until the last `)`
+							untilIndex = str.lastIndexOf(')', untilIndex);
+							if (untilIndex < 0) untilIndex = str.length; // should never happen
+						}
+					}
+
+					var offset = spoilerIndex + 8;
+					if (str.charAt(offset) === ':') offset++;
+					if (str.charAt(offset) === ' ') offset++;
+					str = str.slice(0, offset)+'<span class="spoiler">'+str.slice(offset, untilIndex)+'</span>'+str.slice(untilIndex);
+					untilIndex += 29;
+				} else {
+					break;
+				}
 			}
 		}
 
