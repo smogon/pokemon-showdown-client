@@ -846,7 +846,7 @@
 	});
 
 	var BattleListPopup = this.BattleListPopup = Popup.extend({
-		type: 'semimodal',
+		type: 'modal',
 		initialize: function() {
 			var buf = '<div class="roomlist"><p><button name="refresh"><i class="icon-refresh"></i> Refresh</button> <button name="close"><i class="icon-remove"></i> Close</button></p>';
 

@@ -1972,10 +1972,12 @@
 			// if we have no source, we can't attach to anything
 			if (this.type === 'normal' && !this.sourceEl) this.type = 'semimodal';
 
-			if (this.type === 'normal') {
+			if ((this.type === 'normal' || this.type === 'semimodal') && this.sourceEl) {
 				// nonmodal popup: should be positioned near source element
 				var $el = this.$el;
 				var $measurer = $('<div style="position:relative;height:0;overflow:hidden"></div>').appendTo('body').append($el);
+				$el.css('position', 'absolute');
+				$el.css('margin', '0');
 				$el.css('width', this.width - 22);
 
 				var offset = this.sourceEl.offset();
