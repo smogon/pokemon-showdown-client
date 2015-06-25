@@ -802,6 +802,9 @@
 				// Just open the main menu.
 				fragment = '';
 			}
+			if (location.search && window.history) {
+				history.replaceState(null, null, '/');
+			}
 			fragment = toRoomid(fragment || '');
 			if (this.initialFragment === undefined) this.initialFragment = fragment;
 			this.tryJoinRoom(fragment);
