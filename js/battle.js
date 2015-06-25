@@ -3977,7 +3977,7 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' copied ' + ofpoke.getLowerName() + '\'s ' + ability.name + ' Ability!';
 					break;
 				case 'mummy':
-					// actions += "" + poke.getName() + "'s Ability became Mummy!";
+					actions += "" + poke.getName() + "'s Ability became Mummy!";
 					break;
 				case 'desolateland':
 					if (kwargs.fail) {
@@ -4043,15 +4043,12 @@ var Battle = (function () {
 
 				if (kwargs.silent) {
 					// do nothing
-				} else switch (effect.id) {
-				case 'mummy':
-					actions += "[" + poke.getName() + "\'s " + ability.name + "] " + poke.name + "'s Ability became Mummy!";
+				} else if (ability.exists) {
+					actions += "(" + poke.getName() + "'s " + ability.name + " was removed.)";
+					this.resultAnim(poke, ability.name + ' removed', 'bad', animDelay);
 					if (!poke.baseAbility) poke.baseAbility = ability.name;
-					poke.ability = 'Mummy';
-					break;
-				default:
+				} else {
 					actions += "" + poke.getName() + "\'s Ability was suppressed!";
-					break;
 				}
 				break;
 
