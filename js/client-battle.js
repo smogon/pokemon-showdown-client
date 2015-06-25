@@ -43,9 +43,9 @@
 			if (!this.expired) app.send('/leave '+this.id);
 			if (this.battle) this.battle.destroy();
 		},
-		requestLeave: function() {
+		requestLeave: function(e) {
 			if (this.side && this.battle && !this.battle.done) {
-				app.addPopup(ForfeitPopup, {room: this});
+				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget});
 				return false;
 			}
 			return true;
