@@ -848,7 +848,7 @@
 	var BattleListPopup = this.BattleListPopup = Popup.extend({
 		type: 'modal',
 		initialize: function() {
-			var buf = '<div class="roomlist"><p><button name="refresh"><i class="icon-refresh"></i> Refresh</button> <button name="close"><i class="icon-remove"></i> Close</button></p>';
+			var buf = '<div class="roomlist"><p><button name="refresh"><i class="icon-refresh"></i> Refresh</button> <button name="close" style="float:right"><i class="icon-remove"></i> Close</button></p>';
 
 			buf += '<p><label>Format:</label><select name="format"><option value="">(All formats)</option>';
 			if (window.BattleFormats) {
