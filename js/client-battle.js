@@ -908,6 +908,7 @@
 		leaveBattle: function() {
 			this.hideTooltip();
 			this.send('/leavebattle');
+			this.side = '';
 			this.closeNotification('choice');
 		},
 		selectSwitch: function() {
