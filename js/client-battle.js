@@ -1125,7 +1125,8 @@
 		},
 		submit: function(data) {
 			this.room.send('/forfeit');
-			this.battle.forfeitPending = true;
+			this.room.battle.forfeitPending = true;
+			this.close();
 		}
 	});
 
