@@ -422,6 +422,13 @@
 				});
 			}
 
+			$(window).on('beforeunload', function (e) {
+				for (var id in self.rooms) {
+					var room = self.rooms[id];
+					if (room.requestLeave && !room.requestLeave()) return "You have active battles.";
+				}
+			});
+
 			$(window).on('keydown', function(e) {
 				var el = e.target;
 				var tagName = el.tagName.toUpperCase();
