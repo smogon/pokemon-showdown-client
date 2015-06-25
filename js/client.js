@@ -1394,10 +1394,10 @@
 				}
 			}
 		},
-		leaveRoom: function(id) {
+		leaveRoom: function(id, e) {
 			var room = this.rooms[id];
 			if (!room) return false;
-			if (room.requestLeave && !room.requestLeave()) return false;
+			if (room.requestLeave && !room.requestLeave(e)) return false;
 			return this.removeRoom(id);
 		},
 		removeRoom: function(id, alreadyLeft) {
@@ -1701,7 +1701,7 @@
 				id = id.substr(app.root.length);
 			}
 			if ($target.hasClass('closebutton')) {
-				app.leaveRoom(id);
+				app.leaveRoom(id, e);
 			} else {
 				app.joinRoom(id);
 			}
