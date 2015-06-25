@@ -3942,13 +3942,6 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Focus Band', 'neutral', animDelay);
 					actions += "" + poke.getName() + ' hung on using its Focus Band!';
 					break;
-				case 'mentalherb':
-					poke.removeVolatile('taunt');
-					poke.removeVolatile('encore');
-					poke.removeVolatile('torment');
-					this.resultAnim(poke, 'Cured', 'good', animDelay);
-					actions += "" + poke.getName() + " used its " + item.name + " to come back to its senses!";
-					break;
 				case 'whiteherb':
 					actions += "" + poke.getName() + " returned its status to normal using its White Herb!";
 					break;
@@ -4389,9 +4382,12 @@ var Battle = (function () {
 					actions += "" + poke.getName() + "'s Heal Block wore off!";
 					break;
 				case 'attract':
-					if (!kwargs.silent) {
-						this.resultAnim(poke, 'Attract&nbsp;ended', 'good', animDelay);
+					this.resultAnim(poke, 'Attract&nbsp;ended', 'good', animDelay);
+					if (fromeffect.id === 'oblivious') {
 						actions += '' + poke.getName() + " got over its infatuation.";
+					}
+					if (fromeffect.id === 'mentalherb') {
+						actions += "" + poke.getName() + " cured its infatuation status using its " + fromeffect.name + "!";
 					}
 					break;
 				case 'taunt':
