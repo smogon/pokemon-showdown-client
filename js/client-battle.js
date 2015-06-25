@@ -44,7 +44,7 @@
 			if (this.battle) this.battle.destroy();
 		},
 		requestLeave: function() {
-			if (this.side && this.battle && this.battle.rated && !this.battle.done) {
+			if (this.side && this.battle && !this.battle.done) {
 				app.addPopup(ForfeitPopup, {room: this});
 				return false;
 			}
