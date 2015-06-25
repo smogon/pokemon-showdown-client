@@ -844,6 +844,11 @@
 				}
 				return text; // Send the /join command through to the server.
 
+			case 'part':
+			case 'leave':
+				if (this.requestLeave && !this.requestLeave()) return false;
+				return text;
+
 			case 'avatar':
 				var parts = target.split(',');
 				var avatar = parseInt(parts[0], 10);
