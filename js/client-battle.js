@@ -1105,9 +1105,23 @@
 		type: 'semimodal',
 		initialize: function(data) {
 			this.room = data.room;
-			var buf = '<form><p>Are you sure you want to forfeit?</p>';
-			buf += '<p><button type="submit"><strong>Forfeit</strong></button> <button name="close" class="autofocus">Cancel</button></p></form>';
+			var buf = '<form><p>Forfeiting makes you lose the battle. Are you sure?</p>';
+			if (this.room.battle && this.room.battle.rated) {
+				buf += '<p><button type="submit"><strong>Forfeit</strong></button> <button name="close" class="autofocus">Cancel</button></p></form>';
+			} else {
+				buf += '<p><button type="submit"><strong>Forfeit</strong></button> <button name="replacePlayer">Replace player</button> <button name="close" class="autofocus">Cancel</button></p></form>';
+			}
 			this.$el.html(buf);
+		},
+		replacePlayer: function(data) {
+			var room = this.room;
+			var self = this;
+			app.addPopupPrompt("Replacement player's username", "Replace player", function(target) {
+				if (!target) return;
+				room.leaveBattle();
+				room.send('/addplayer ' + target);
+				self.close();
+			});
 		},
 		submit: function(data) {
 			this.room.send('/forfeit');
