@@ -48,7 +48,10 @@
 			}
 			buf += '<p><button class="button" name="credits">Credits</button></p></div></div>';
 
-			if (!app.down) buf += '<div class="menugroup"><p><button class="button" name="roomlist">Watch a battle</button></p></div>';
+			if (!app.down) {
+				buf += '<div class="menugroup"><p><button class="button" name="roomlist">Watch a battle</button></p>';
+				buf += '<p><button class="button" name="finduser">Find a user</button></p></div>';
+			}
 
 			this.$('.mainmenu').html(buf);
 
@@ -705,6 +708,12 @@
 		},
 		roomlist: function() {
 			app.addPopup(BattleListPopup);
+		},
+		finduser: function() {
+			app.addPopupPrompt("Username", "Open", function(target) {
+				if (!target) return;
+				app.addPopup(UserPopup, {name: target});
+			});
 		}
 	});
 
