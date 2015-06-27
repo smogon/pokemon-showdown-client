@@ -452,7 +452,7 @@
 				if (userid) {
 					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="acceptChallenge"]');
 					if (!$challenge.length) {
-						this.add('You do not have any pending challenge from ' + target + ' to accept.');
+						this.add("You do not have any pending challenge from '" + toName(target) + "' to accept.");
 						return false;
 					}
 					$challenge[0].click();
@@ -477,7 +477,7 @@
 				if (userid) {
 					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="rejectChallenge"]');
 					if (!$challenge.length) {
-						this.add('You do not have any pending challenge from ' + target + ' to reject.');
+						this.add("You do not have any pending challenge from '" + toName(target) + "' to reject.");
 						return false;
 					}
 					$challenge[0].click();
@@ -504,6 +504,7 @@
 				var openUser = function(target) {
 					app.addPopup(UserPopup, {name: target});
 				};
+				target = toName(target);
 				if (!target) {
 					app.addPopupPrompt("Username", "Open", function(target) {
 						if (!target) return;
@@ -526,10 +527,10 @@
 					return false;
 				}
 				if (app.ignore[toUserid(target)]) {
-					this.add('User ' + target + ' is already on your ignore list. (Moderator messages will not be ignored.)');
+					this.add("User '" + toName(target) + "' is already on your ignore list. (Moderator messages will not be ignored.)");
 				} else {
 					app.ignore[toUserid(target)] = 1;
-					this.add('User ' + target + ' ignored. (Moderator messages will not be ignored.)');
+					this.add("User '" + toName(target) + "' ignored. (Moderator messages will not be ignored.)");
 				}
 				return false;
 
@@ -539,10 +540,10 @@
 					return false;
 				}
 				if (!app.ignore[toUserid(target)]) {
-					this.add('User ' + target + ' isn\'t on your ignore list.');
+					this.add("User '" + toName(target) + "' isn't on your ignore list.");
 				} else {
 					delete app.ignore[toUserid(target)];
-					this.add('User ' + target + ' no longer ignored.');
+					this.add("User '" + toName(target) + "' no longer ignored.");
 				}
 				return false;
 
@@ -661,7 +662,7 @@
 					timestamps.pms = targets[1];
 					break;
 				}
-				this.add('Timestamps preference set to: `' + targets[1] + '` for `' + targets[0] + '`.');
+				this.add("Timestamps preference set to: '" + targets[1] + "' for '" + targets[0] + "'.");
 				Tools.prefs('timestamps', timestamps);
 				return false;
 
@@ -687,7 +688,7 @@
 							}
 						}
 						highlights = highlights.concat(targets.slice(1));
-						this.add("Now highlighting on: " + highlights.join(', '));
+						this.add("Now highlighting on: " + highlights.map(toName).join(', '));
 						// We update the regex
 						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 						break;
@@ -699,7 +700,7 @@
 							}
 						}
 						highlights = newHls;
-						this.add("Now highlighting on: " + highlights.join(', '));
+						this.add("Now highlighting on: " + highlights.map(toName).join(', '));
 						// We update the regex
 						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 						break;
@@ -717,8 +718,7 @@
 					} else if (target === 'show' || target === 'list') {
 						// Shows a list of the current highlighting words
 						if (highlights.length > 0) {
-							var hls = highlights.join(', ');
-							this.add('Current highlight list: ' + hls);
+							this.add("Current highlight list: " + highlights.map(toName).join(", "));
 						} else {
 							this.add('Your highlight list is empty.');
 						}
@@ -749,7 +749,7 @@
 				$.get(app.user.getActionPHP() + '?act=ladderget&user='+encodeURIComponent(targets[0]), Tools.safeJSON(function(data) {
 					try {
 						var buffer = '<div class="ladder"><table>';
-						buffer += '<tr><td colspan="8">User: <strong>'+targets[0]+'</strong></td></tr>';
+						buffer += '<tr><td colspan="8">User: <strong>'+toName(targets[0])+'</strong></td></tr>';
 						if (!data.length) {
 							buffer += '<tr><td colspan="8"><em>This user has not played any ladder games yet.</em></td></tr>';
 						} else {
@@ -809,14 +809,14 @@
 			case 'buttonban':
 				var self = this;
 				app.addPopupPrompt("Why do you wish to ban this user?", "Ban user", function(reason) {
-					self.send('/ban ' + target + ', ' + (reason || ''));
+					self.send('/ban ' + toName(target) + ', ' + (reason || ''));
 				});
 				return false;
 
 			case 'buttonmute':
 				var self = this;
 				app.addPopupPrompt("Why do you wish to mute this user?", "Mute user", function(reason) {
-					self.send('/mute ' + target + ', ' + (reason || ''));
+					self.send('/mute ' + toName(target) + ', ' + (reason || ''));
 				});
 				return false;
 
@@ -827,7 +827,7 @@
 			case 'buttonkick':
 				var self = this;
 				app.addPopupPrompt("Why do you wish to kick this user?", "Kick user", function(reason) {
-					self.send('/kick ' + target + ', ' + (reason || ''));
+					self.send('/kick ' + toName(target) + ', ' + (reason || ''));
 				});
 				return false;
 

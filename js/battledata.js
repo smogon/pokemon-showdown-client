@@ -118,6 +118,14 @@ function toUserid(text) {
 	return text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
+function toName (name) {
+	if (typeof name === 'number') return ''+name;
+	if (typeof name !== 'string') return '';
+	name = name.replace(/[\|\s\[\]\,]+/g, ' ').trim();
+	if (name.length > 18) name = name.substr(0, 18).trim();
+	return name;
+}
+
 // miscellaneous things too minor to deserve their own resource file
 var BattleNatures = {
 	Adamant: {
