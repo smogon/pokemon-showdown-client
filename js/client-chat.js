@@ -501,17 +501,17 @@
 
 			case 'user':
 			case 'open':
-				var open = function(target) {
+				var openUser = function(target) {
 					app.addPopup(UserPopup, {name: target});
 				};
 				if (!target) {
 					app.addPopupPrompt("Username", "Open", function(target) {
 						if (!target) return;
-						open(target);
+						openUser(target);
 					});
 					return false;
 				}
-				open(target);
+				openUser(target);
 				return false;
 
 			case 'autojoin':
