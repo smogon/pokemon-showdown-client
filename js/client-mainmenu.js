@@ -162,6 +162,8 @@
 				$chat.append('<div class="message"><ul class="utilichart">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,6) === '/text ') {
 				$chat.append('<div class="chat">'+Tools.escapeHTML(message.substr(6))+'</div>');
+			} else if (message.substr(0,7) === '/error ') {
+				$chat.append('<div class="chat message-error">'+Tools.escapeHTML(message.substr(7))+'</div>');
 			} else if (message.substr(0,6) === '/html ') {
 				$chat.append('<div class="chat">'+Tools.sanitizeHTML(message.substr(6))+'</div>');
 			} else {
