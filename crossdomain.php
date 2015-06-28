@@ -141,9 +141,9 @@ header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 			$.cookie('showdown_username', data.username, {expires: 14});
 		}
 		if (data.get) {
-			$.get(data.get[0], function(ajaxdata) {
-				postMessage({ajax: [data.get[1], ajaxdata]});
-			}, data.get[2]);
+			$.get(data.get[0], data.get[1], function(ajaxdata) {
+				postMessage({ajax: [data.get[2], ajaxdata]});
+			}, data.get[3]);
 		}
 		if (data.post) {
 			$.post(data.post[0], data.post[1], function(ajaxdata) {
