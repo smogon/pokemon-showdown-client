@@ -202,9 +202,7 @@ a.subtle:hover {
 	text-shadow: 0 1px 0 white;
 	border: solid 1px #AAAAAA;
 	background: #e3e3e3;
-	background: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e3e3e3));
-	background: -moz-linear-gradient(top,  #f6f6f6,  #e3e3e3);
-	background: linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
 
 	position: relative;
 	padding: 3px 2px 3px 2px;
@@ -238,17 +236,13 @@ a.subtle:hover {
 }
 .tabbar a.button:hover {
 	background: #cfcfcf;
-	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#cfcfcf));
-	background: -moz-linear-gradient(top,  #f2f2f2,  #cfcfcf);
-	background: linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
 	border-color: #606060;
 
 	z-index: 10;
 }
 .tabbar a.button:active {
-	background: -webkit-gradient(linear, left top, left bottom, from(#cfcfcf), to(#f2f2f2));
-	background: -moz-linear-gradient(top,  #cfcfcf,  #f2f2f2);
-	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 .tabbar a.button.notifying {
 	border-color: #AA8866;
@@ -492,7 +486,6 @@ p.or:after {
 	border: 1px solid #888888;
 	background: #EEEEEE;
 	box-shadow: inset 0 1px 0 #FFFFFF;
-	background: -webkit-gradient(linear, left top, left bottom, from(#edf2f8), to(#d7e3ec));
 	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
 	color: black;
 }
@@ -504,14 +497,12 @@ p.or:after {
 .select:hover {
 	border-color: #555555;
 	background: #FFFFFF;
-	background: -webkit-gradient(linear, left top, left bottom, from(#dce4ec), to(#c6d3e0));
 	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
 }
 .select:active {
 	border-color: #777777;
 	background: #DDDDDD;
 	box-shadow: none;
-	background: -webkit-gradient(linear, left top, left bottom, from(#d1dce6), to(#e7edf2));
 	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
 }
 .select:after {
@@ -747,8 +738,6 @@ p.or:after {
 	text-decoration: none;
 	text-shadow: 0 -1px 0 hsl(210,40%,10%);
 	border-radius: 5px;
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 1px 1px rgba(255,255,255,.8);
-	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 1px 1px rgba(255,255,255,.8);
 	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 1px 1px rgba(255,255,255,.8);
 
 	/* default colors */
@@ -756,9 +745,7 @@ p.or:after {
 	border: solid 1px #AAAAAA;
 	background: #779EC5;
 	background: hsl(210,40%,62%);
-	background: -webkit-gradient(linear, left top, left bottom, from(hsl(210,40%,72%)), to(hsl(210,40%,52%)));
-	background: -moz-linear-gradient(top,  hsl(210,40%,72%),  hsl(210,40%,52%));
-	background: linear-gradient(top,  hsl(210,40%,72%),  hsl(210,40%,52%));
+	background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%));
 	border-color: hsl(210,40%,40%);
 }
 .menugroup button.big {
@@ -769,18 +756,14 @@ p.or:after {
 .menugroup .button:hover {
 	background: #5485B6;
 	background: hsl(210,40%,52%);
-	background: -webkit-gradient(linear, left top, left bottom, from(hsl(210,40%,62%)), to(hsl(210,40%,42%)));
-	background: -moz-linear-gradient(top,  hsl(210,40%,62%),  hsl(210,40%,42%));
-	background: linear-gradient(top,  hsl(210,40%,62%),  hsl(210,40%,42%));
+	background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%));
 	border-color: hsl(210,40%,21%);
 }
 .menugroup .button:active {
 	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 1px rgba(255,255,255,.3), inset 0 1px 1px rgba(0,0,0,.4);
 	background: #406B96;
 	background: hsl(210,40%,42%);
-	background: -webkit-gradient(linear, left top, left bottom, from(hsl(210,40%,42%)), to(hsl(210,40%,58%)));
-	background: -moz-linear-gradient(top,  hsl(210,40%,42%),  hsl(210,40%,58%));
-	background: linear-gradient(top,  hsl(210,40%,42%),  hsl(210,40%,58%));
+	background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%));
 	border-color: hsl(210,40%,21%);
 }
 .menugroup .button.disabled,
@@ -1596,31 +1579,23 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	text-shadow: 0 1px 0 rgba(255,255,255,.4);
 	border-radius: 5px;
 	margin-top: 2px;
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
 	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
 
 	/* default colors */
 	color: #111111;
 	border: solid 1px #AAAAAA;
 	background: #e3e3e3;
-	background: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e3e3e3));
-	background: -moz-linear-gradient(top,  #f6f6f6,  #e3e3e3);
-	background: linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
 }
 .switchmenu button:hover,
 .movemenu button:hover {
 	background: #cfcfcf;
-	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#cfcfcf));
-	background: -moz-linear-gradient(top,  #f2f2f2,  #cfcfcf);
-	background: linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
 	border-color: #606060;
 }
 .switchmenu button:active,
 .movemenu button:active {
-	background: -webkit-gradient(linear, left top, left bottom, from(#cfcfcf), to(#f2f2f2));
-	background: -moz-linear-gradient(top,  #cfcfcf,  #f2f2f2);
-	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
 .switchmenu button.disabled,
