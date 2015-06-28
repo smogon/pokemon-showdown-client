@@ -1105,7 +1105,7 @@
 		type: 'semimodal',
 		initialize: function(data) {
 			this.room = data.room;
-			var buf = '<form><p>Forfeiting makes you lose the battle. Are you sure?</p>';
+			var buf = '<form><p>Forfeiting makes you lose the battle. Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close after forfeiting</label></p>';
 			if (this.room.battle && this.room.battle.rated) {
 				buf += '<p><button type="submit"><strong>Forfeit</strong></button> <button name="close" class="autofocus">Cancel</button></p></form>';
 			} else {
@@ -1126,6 +1126,9 @@
 		submit: function(data) {
 			this.room.send('/forfeit');
 			this.room.battle.forfeitPending = true;
+			if (this.$('input[name=closeroom]')[0].checked) {
+				app.removeRoom(this.room.id);
+			}
 			this.close();
 		}
 	});
