@@ -191,12 +191,12 @@
 			}
 
 			if (this.get('userid') !== userid) {
-				var query = this.getActionPHP() + '?act=getassertion&userid=' +
-						encodeURIComponent(userid) +
-						'&challengekeyid=' + encodeURIComponent(this.challengekeyid) +
-						'&challenge=' + encodeURIComponent(this.challenge);
 				var self = this;
-				$.get(query, function(data) {
+				$.get(this.getActionPHP(), {
+					act: 'getassertion',
+					userid: userid,
+					challstr: this.challstr
+				}, function(data) {
 					self.finishRename(name, data);
 				});
 			} else {
@@ -209,8 +209,7 @@
 				act: 'login',
 				name: name,
 				pass: password,
-				challengekeyid: this.challengekeyid,
-				challenge: this.challenge
+				challstr: this.challstr
 			}, Tools.safeJSON(function(data) {
 				if (data && data.curuser && data.curuser.loggedin) {
 					// success!
@@ -225,10 +224,9 @@
 				}
 			}), 'text');
 		},
-		challengekeyid: -1,
-		challenge: '',
-		receiveChallenge: function(attrs) {
-			if (attrs.challenge) {
+		challstr: '',
+		receiveChallstr: function(challstr) {
+			if (challstr) {
 				/**
 				 * Rename the user based on the `sid` and `showdown_username` cookies.
 				 * Specifically, if the user has a valid session, the user will be
@@ -240,11 +238,12 @@
 				 *
 				 * See `finishRename` above for a list of events this can emit.
 				 */
-				var query = this.getActionPHP() + '?act=upkeep' +
-						'&challengekeyid=' + encodeURIComponent(attrs.challengekeyid) +
-						'&challenge=' + encodeURIComponent(attrs.challenge);
+				this.challstr = challstr;
 				var self = this;
-				$.get(query, Tools.safeJSON(function(data) {
+				$.get(this.getActionPHP(), {
+					act: 'upkeep',
+					challstr: this.challstr
+				}, Tools.safeJSON(function(data) {
 					if (!data.username) return;
 
 					// | , ; are not valid characters in names
@@ -259,8 +258,6 @@
 					self.finishRename(data.username, data.assertion);
 				}), 'text');
 			}
-			this.challengekeyid = attrs.challengekeyid;
-			this.challenge = attrs.challenge;
 		},
 		/**
 		 * Log out from the server (but remain connected as a guest).
@@ -590,9 +587,15 @@
 			var showUnsupported = function() {
 				self.addPopupMessage('The requested action is not supported by testclient.html. Please complete this action in the official client instead.');
 			};
-			$.get = function(uri, callback, type) {
+			$.get = function(uri, data, callback, type) {
 				if (type === 'html') {
 					uri += '&testclient';
+				}
+				if (data) {
+					uri += '?testclient';
+					for (var i in data) {
+						uri += '' + i + '=' + encodeURIComponent(data[i]);
+					}
 				}
 				if (uri[0] === '/') { // relative URI
 					uri = Tools.resourcePrefix + uri.substr(1);
@@ -650,10 +653,10 @@
 							});
 						};
 						// ajax requests
-						$.get = function(uri, callback, type) {
+						$.get = function(uri, data, callback, type) {
 							var idx = callbackIdx++;
 							callbacks[idx] = callback;
-							postCrossDomainMessage({get: [uri, idx, type]});
+							postCrossDomainMessage({get: [uri, data, idx, type]});
 						};
 						$.post = function(uri, data, callback, type) {
 							var idx = callbackIdx++;
@@ -931,12 +934,12 @@
 			}
 
 			switch (parts[0]) {
-			case 'challenge-string':
 			case 'challstr':
-				this.user.receiveChallenge({
-					challengekeyid: parseInt(parts[1], 10),
-					challenge: parts[2]
-				});
+				if (parts[2]) {
+					this.user.receiveChallstr(parts[1] + '|' + parts[2]);
+				} else {
+					this.user.receiveChallstr(parts[1]);
+				}
 				break;
 
 			case 'formats':
@@ -2320,8 +2323,7 @@
 				password: data.password,
 				cpassword: data.cpassword,
 				captcha: captcha,
-				challengekeyid: app.user.challengekeyid,
-				challenge: app.user.challenge
+				challstr: app.user.challstr
 			}, Tools.safeJSON(function (data) {
 				if (!data) data = {};
 				var token = data.assertion;

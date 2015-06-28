@@ -746,7 +746,10 @@
 				}
 
 				var self = this;
-				$.get(app.user.getActionPHP() + '?act=ladderget&user='+encodeURIComponent(targets[0]), Tools.safeJSON(function(data) {
+				$.get(app.user.getActionPHP(), {
+					act: 'ladderget',
+					user: targets[0]
+				}, Tools.safeJSON(function(data) {
 					try {
 						var buffer = '<div class="ladder"><table>';
 						buffer += '<tr><td colspan="8">User: <strong>'+toName(targets[0])+'</strong></td></tr>';

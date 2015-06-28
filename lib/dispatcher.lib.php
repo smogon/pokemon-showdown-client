@@ -135,6 +135,9 @@ class DefaultActionHandler {
 		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+		if (!$challenge) {
+			$challenge = !isset($reqData['challstr']) ? '' : $reqData['challstr'];
+		}
 		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
 		$out['assertion'] = $users->getAssertion($curuser['userid'], $serverhostname, null,
 			$challengekeyid, $challenge, $challengeprefix);
@@ -166,6 +169,9 @@ class DefaultActionHandler {
 		} else if ($user = $users->addUser($user, $_POST['password'])) {
 			$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 			$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+			if (!$challenge) {
+				$challenge = !isset($reqData['challstr']) ? '' : $reqData['challstr'];
+			}
 			$challengeprefix = $dispatcher->verifyCrossDomainRequest();
 			$out['curuser'] = $user;
 			$out['assertion'] = $users->getAssertion($user['userid'],
@@ -220,6 +226,9 @@ class DefaultActionHandler {
 		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+		if (!$challenge) {
+			$challenge = !isset($reqData['challstr']) ? '' : $reqData['challstr'];
+		}
 		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
 		header('Content-Type: text/plain; charset=utf-8');
 		if (empty($reqData['userid'])) {
@@ -251,6 +260,9 @@ class DefaultActionHandler {
 			$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
 			$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 			$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];
+			if (!$challenge) {
+				$challenge = !isset($reqData['challstr']) ? '' : $reqData['challstr'];
+			}
 			$challengeprefix = $dispatcher->verifyCrossDomainRequest();
 			$out['assertion'] = $users->getAssertion($userid, $serverhostname, null, $challengekeyid, $challenge, $challengeprefix);
 		}

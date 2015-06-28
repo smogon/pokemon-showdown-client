@@ -34,7 +34,11 @@
 			} else {
 				var format = this.curFormat;
 				this.$el.html('<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p></div>');
-				$.get('/ladder.php?format='+encodeURIComponent(format)+'&server='+encodeURIComponent(Config.server.id.split(':')[0])+'&output=html', _.bind(function(data){
+				$.get('/ladder.php', {
+					format: format,
+					server: Config.server.id.split(':')[0],
+					output: 'html'
+				}, _.bind(function(data){
 					if (this.curFormat !== format) return;
 					var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p>';
 					buf += '<h3>'+format+' Top 500</h3>';
