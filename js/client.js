@@ -989,7 +989,22 @@
 				break;
 
 			case 'popup':
-				this.addPopupMessage(data.substr(7).replace(/\|\|/g, '\n'));
+				var maxWidth = undefined;
+				var type = 'semimodal';
+				data = data.substr(7);
+				if (data.substr(0, 6) === '|wide|') {
+					data = data.substr(6);
+					maxWidth = 960;
+				}
+				if (data.substr(0, 7) === '|modal|') {
+					data = data.substr(7);
+					type = 'modal';
+				}
+				app.addPopup(Popup, {
+					type: type,
+					message: data.replace(/\|\|/g, '\n'),
+					maxWidth: maxWidth
+				});
 				if (this.rooms['']) this.rooms[''].resetPending();
 				break;
 
@@ -2038,8 +2053,8 @@
 			}
 		},
 		initialize: function(data) {
-			this.type = 'semimodal';
-			this.$el.html('<p style="white-space:pre-wrap">'+Tools.parseMessage(data.message)+'</p><p class="buttonbar"><button name="close" class="autofocus"><strong>OK</strong></button></p>').css('max-width', 480);
+			if (!this.type) this.type = 'semimodal';
+			this.$el.html('<p style="white-space:pre-wrap;word-wrap:break-word">'+(data.htmlMessage||Tools.parseMessage(data.message))+'</p><p class="buttonbar"><button name="close" class="autofocus"><strong>OK</strong></button></p>').css('max-width', data.maxWidth || 480);
 		},
 
 		dispatchClickButton: function(e) {
