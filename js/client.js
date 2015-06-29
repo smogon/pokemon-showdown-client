@@ -1000,11 +1000,20 @@
 					data = data.substr(7);
 					type = 'modal';
 				}
-				app.addPopup(Popup, {
-					type: type,
-					message: data.replace(/\|\|/g, '\n'),
-					maxWidth: maxWidth
-				});
+				if (data.substr(0, 6) === '|html|') {
+					data = data.substr(6);
+					app.addPopup(Popup, {
+						type: type,
+						maxWidth: maxWidth,
+						htmlMessage: Tools.sanitizeHTML(data)
+					});
+				} else {
+					app.addPopup(Popup, {
+						type: type,
+						maxWidth: maxWidth,
+						message: data.replace(/\|\|/g, '\n')
+					});
+				}
 				if (this.rooms['']) this.rooms[''].resetPending();
 				break;
 
