@@ -1,5 +1,7 @@
 
-function _Storage() {
+function Storage() {}
+
+Storage.initialize = function() {
 	if (window.nodewebkit) {
 		window.fs = require('fs');
 
@@ -8,7 +10,7 @@ function _Storage() {
 		this.stopLoggingChat = this.nwStopLoggingChat;
 		this.logChat = this.nwLogChat;
 	}
-}
+};
 
 /*********************************************************
  * Teams
@@ -20,9 +22,9 @@ function _Storage() {
  * teams are received from `crossdomain.php` instead.
  */
 
-_Storage.prototype.teams = null;
+Storage.teams = null;
 
-_Storage.prototype.loadTeams = function() {
+Storage.loadTeams = function() {
 	if (window.nodewebkit) {
 		return;
 	}
@@ -34,7 +36,7 @@ _Storage.prototype.loadTeams = function() {
 	}
 };
 
-_Storage.prototype.saveTeams = function() {
+Storage.saveTeams = function() {
 	if (window.localStorage) {
 		Storage.cantSave = false;
 		try {
@@ -49,19 +51,23 @@ _Storage.prototype.saveTeams = function() {
 	}
 };
 
-_Storage.prototype.saveTeam = function() {
+Storage.saveTeam = function() {
 	this.saveTeams();
 };
 
-_Storage.prototype.deleteTeam = function() {
+Storage.deleteTeam = function() {
 	this.saveTeams();
 };
 
-_Storage.prototype.saveAllTeams = function() {
+Storage.saveAllTeams = function() {
 	this.saveTeams();
 };
 
-_Storage.prototype.packTeam = function(team) {
+/*********************************************************
+ * Team importing and exporting
+ *********************************************************/
+
+Storage.packTeam = function(team) {
 	var buf = '';
 	if (!team) return '';
 
@@ -157,7 +163,7 @@ _Storage.prototype.packTeam = function(team) {
 	return buf;
 };
 
-_Storage.prototype.fastUnpackTeam = function(buf) {
+Storage.fastUnpackTeam = function(buf) {
 	if (!buf) return null;
 
 	var team = [];
@@ -259,7 +265,7 @@ _Storage.prototype.fastUnpackTeam = function(buf) {
 	return team;
 };
 
-_Storage.prototype.importTeam = function(text, teams) {
+Storage.importTeam = function(text, teams) {
 	var text = text.split("\n");
 	var team = [];
 	var curSet = null;
@@ -384,7 +390,7 @@ _Storage.prototype.importTeam = function(text, teams) {
 	}
 	return team;
 };
-_Storage.prototype.exportAllTeams = function() {
+Storage.exportAllTeams = function() {
 	var buf = '';
 	for (var i=0,len=teams.length; i<len; i++) {
 		var team = teams[i];
@@ -394,7 +400,7 @@ _Storage.prototype.exportAllTeams = function() {
 	}
 	return buf;
 };
-_Storage.prototype.exportTeam = function(team) {
+Storage.exportTeam = function(team) {
 	if (typeof team === 'string') {
 		if (team.indexOf('\n') >= 0) return team;
 		team = Storage.fastUnpackTeam(team);
@@ -504,7 +510,7 @@ _Storage.prototype.exportTeam = function(team) {
  * Node-webkit
  *********************************************************/
 
-_Storage.prototype.initDirectory = function() {
+Storage.initDirectory = function() {
 	var self = this;
 
 	var dir = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH;
@@ -526,7 +532,7 @@ _Storage.prototype.initDirectory = function() {
 	});
 };
 
-_Storage.prototype.initDirectory2 = function() {
+Storage.initDirectory2 = function() {
 	var self = this;
 	fs.mkdir(self.documentsDir+'My Games', function() {
 		fs.mkdir(self.documentsDir+'My Games/Pokemon Showdown', function() {
@@ -551,13 +557,13 @@ _Storage.prototype.initDirectory2 = function() {
 	});
 };
 
-_Storage.prototype.revealFolder = function() {
+Storage.revealFolder = function() {
 	gui.Shell.openItem(this.dir);
 };
 
 // teams
 
-_Storage.prototype.nwLoadTeams = function() {
+Storage.nwLoadTeams = function() {
 	var self = this;
 	var localApp = window.app;
 	fs.readdir(this.dir+'Teams', function(err, files) {
@@ -570,7 +576,7 @@ _Storage.prototype.nwLoadTeams = function() {
 	});
 };
 
-_Storage.prototype.nwLoadTeamFile = function(filename, localApp) {
+Storage.nwLoadTeamFile = function(filename, localApp) {
 	var self = this;
 	var line = filename;
 	if (line.substr(line.length-4).toLowerCase() === '.txt') {
@@ -605,19 +611,19 @@ _Storage.prototype.nwLoadTeamFile = function(filename, localApp) {
 	});
 };
 
-_Storage.prototype.nwFinishedLoadingTeams = function(app) {
+Storage.nwFinishedLoadingTeams = function(app) {
 	this.teams.sort(this.teamCompare);
 	if (!app) app = window.app;
 	if (app) app.trigger('init:loadteams');
 };
 
-_Storage.prototype.teamCompare = function(a, b) {
+Storage.teamCompare = function(a, b) {
 	if (a.name > b.name) return 1;
 	if (a.name < b.name) return -1;
 	return 0;
 };
 
-_Storage.prototype.nwDeleteAllTeams = function(callback) {
+Storage.nwDeleteAllTeams = function(callback) {
 	var self = this;
 	fs.readdir(this.dir+'Teams', function(err, files) {
 		if (err) return;
@@ -632,7 +638,7 @@ _Storage.prototype.nwDeleteAllTeams = function(callback) {
 	});
 };
 
-_Storage.prototype.nwDeleteTeamFile = function(filename, callback) {
+Storage.nwDeleteTeamFile = function(filename, callback) {
 	var self = this;
 	var line = filename;
 	if (line.substr(line.length-4).toLowerCase() === '.txt') {
@@ -649,7 +655,7 @@ _Storage.prototype.nwDeleteTeamFile = function(filename, callback) {
 	});
 };
 
-_Storage.prototype.nwSaveTeam = function(team) {
+Storage.nwSaveTeam = function(team) {
 	var filename = team.name+'.txt';
 	if (team.format) filename = '['+team.format+'] '+filename;
 	filename = $.trim(filename).replace(/[\\\/]+/g, '');
@@ -661,21 +667,21 @@ _Storage.prototype.nwSaveTeam = function(team) {
 	fs.writeFile(this.dir+'Teams/'+filename, Storage.exportTeam(team.team).replace(/\n/g,'\r\n'));
 };
 
-_Storage.prototype.nwDeleteTeam = function(team) {
+Storage.nwDeleteTeam = function(team) {
 	if (team.filename) {
 		fs.unlink(this.dir+'Teams/'+team.filename, function() {});
 		delete team.filename;
 	}
 };
 
-_Storage.prototype.nwSaveAllTeams = function() {
+Storage.nwSaveAllTeams = function() {
 	var self = this;
 	this.nwDeleteAllTeams(function() {
 		self.nwDoSaveAllTeams();
 	});
 };
 
-_Storage.prototype.nwDoSaveAllTeams = function() {
+Storage.nwDoSaveAllTeams = function() {
 	for (var i=0; i<this.teams.length; i++) {
 		var team = this.teams[i];
 		var filename = team.name+'.txt';
@@ -689,13 +695,13 @@ _Storage.prototype.nwDoSaveAllTeams = function() {
 
 // logs
 
-_Storage.prototype.getLogMonth = function() {
+Storage.getLogMonth = function() {
 	var now = new Date();
 	var month = ''+(now.getMonth()+1);
 	if (month.length < 2) month = '0'+month;
 	return ''+now.getFullYear()+'-'+month;
 };
-_Storage.prototype.nwStartLoggingChat = function() {
+Storage.nwStartLoggingChat = function() {
 	var self = this;
 	if (!self.documentsDir) return; // too early; initDirectory2 will call us when it's time
 	if (self.loggingChat) return;
@@ -713,7 +719,7 @@ _Storage.prototype.nwStartLoggingChat = function() {
 		});
 	});
 };
-_Storage.prototype.nwStopLoggingChat = function() {
+Storage.nwStopLoggingChat = function() {
 	if (!this.loggingChat) return;
 	this.loggingChat = false;
 	var streams = this.chatLogStreams;
@@ -722,7 +728,7 @@ _Storage.prototype.nwStopLoggingChat = function() {
 		streams[i].end();
 	}
 };
-_Storage.prototype.nwLogChat = function(roomid, line) {
+Storage.nwLogChat = function(roomid, line) {
 	roomid = toRoomid(roomid);
 	var self = this;
 	if (!this.loggingChat) return;
@@ -752,8 +758,8 @@ _Storage.prototype.nwLogChat = function(roomid, line) {
 
 // saving
 
-_Storage.prototype.startLoggingChat = function() {};
-_Storage.prototype.stopLoggingChat = function() {};
-_Storage.prototype.logChat = function() {};
+Storage.startLoggingChat = function() {};
+Storage.stopLoggingChat = function() {};
+Storage.logChat = function() {};
 
-window.Storage = new _Storage();
+Storage.initialize();
