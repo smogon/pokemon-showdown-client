@@ -362,7 +362,7 @@ var Tools = {
 		// Don't format console commands (>>).
 		if (str.substr(0, 8) === '&gt;&gt;') return str;
 		// Don't format console results (<<).
-		if (str.substr(0, 8) === '&lt;&lt;') return str;
+		if (str.substr(0, 9) === '&lt;&lt; ') return str;
 
 		var options = Tools.prefs('chatformatting') || {};
 
@@ -372,6 +372,9 @@ var Tools = {
 		// ~~strikethrough~~
 		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])??)\~\~/g,
 				options.hidestrikethrough ? '$1' : '<s>$1</s>');
+		// <<roomid>>
+		str = str.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g,
+				options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1">$1</a>&raquo;');
 		// linking of URIs
 		if (!options.hidelinks) {
 			str = str.replace(linkRegex, function(uri) {
