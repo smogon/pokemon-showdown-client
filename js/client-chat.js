@@ -1351,7 +1351,8 @@
 			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
 			var self = this;
 			var outputChat = function() {
-				self.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
+				var coloredName = (name.substr(1) ? '<strong style="' + color + '">' + clickableName + ':</strong>' : '');
+				self.$chat.append(chatDiv + timestamp + coloredName + ' <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
 			};
 			var showme = !((Tools.prefs('chatformatting') || {}).hideme);
 			if (pm) {
