@@ -31,7 +31,16 @@ Storage.loadTeams = function() {
 	this.teams = [];
 	if (window.localStorage) {
 		var teamString = localStorage.getItem('showdown_teams');
-		if (teamString) this.teams = JSON.parse(teamString);
+		if (teamString) {
+			try {
+				this.teams = JSON.parse(teamString);
+			} catch (e) {
+				app.addPopup(Popup, {
+					type: 'modal',
+					htmlMessage: "Your teams are corrupt and could not be loaded. :( We may be able to recover a team from this data:<br /><textarea rows=\"10\" cols=\"60\">" + Tools.escapeHTML(teamString) + "</textarea>"
+				});
+			}
+		}
 		app.trigger('init:loadteams');
 	}
 };
