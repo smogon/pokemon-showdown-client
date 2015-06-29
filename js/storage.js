@@ -259,6 +259,247 @@ _Storage.prototype.fastUnpackTeam = function(buf) {
 	return team;
 };
 
+_Storage.prototype.importTeam = function(text, teams) {
+	var text = text.split("\n");
+	var team = [];
+	var curSet = null;
+	if (teams === true) {
+		Storage.teams = [];
+		teams = Storage.teams;
+	}
+	for (var i=0; i<text.length; i++) {
+		var line = $.trim(text[i]);
+		if (line === '' || line === '---') {
+			curSet = null;
+		} else if (line.substr(0, 3) === '===' && teams) {
+			team = [];
+			line = $.trim(line.substr(3, line.length-6));
+			var format = '';
+			var bracketIndex = line.indexOf(']');
+			if (bracketIndex >= 0) {
+				format = line.substr(1, bracketIndex-1);
+				line = $.trim(line.substr(bracketIndex+1));
+			}
+			teams.push({
+				name: line,
+				format: format,
+				team: team
+			});
+		} else if (!curSet) {
+			curSet = {name: '', species: '', gender: ''};
+			team.push(curSet);
+			var atIndex = line.lastIndexOf(' @ ');
+			if (atIndex !== -1) {
+				curSet.item = line.substr(atIndex+3);
+				if (toId(curSet.item) === 'noitem') curSet.item = '';
+				line = line.substr(0, atIndex);
+			}
+			if (line.substr(line.length-4) === ' (M)') {
+				curSet.gender = 'M';
+				line = line.substr(0, line.length-4);
+			}
+			if (line.substr(line.length-4) === ' (F)') {
+				curSet.gender = 'F';
+				line = line.substr(0, line.length-4);
+			}
+			var parenIndex = line.lastIndexOf(' (');
+			if (line.substr(line.length-1) === ')' && parenIndex !== -1) {
+				line = line.substr(0, line.length-1);
+				curSet.species = Tools.getTemplate(line.substr(parenIndex+2)).name;
+				line = line.substr(0, parenIndex);
+				curSet.name = line;
+			} else {
+				curSet.species = Tools.getTemplate(line).name;
+				curSet.name = curSet.species;
+			}
+		} else if (line.substr(0, 7) === 'Trait: ') {
+			line = line.substr(7);
+			curSet.ability = line;
+		} else if (line.substr(0, 9) === 'Ability: ') {
+			line = line.substr(9);
+			curSet.ability = line;
+		} else if (line === 'Shiny: Yes') {
+			curSet.shiny = true;
+		} else if (line.substr(0, 7) === 'Level: ') {
+			line = line.substr(7);
+			curSet.level = +line;
+		} else if (line.substr(0, 11) === 'Happiness: ') {
+			line = line.substr(11);
+			curSet.happiness = +line;
+		} else if (line.substr(0, 9) === 'Ability: ') {
+			line = line.substr(9);
+			curSet.ability = line;
+		} else if (line.substr(0, 5) === 'EVs: ') {
+			line = line.substr(5);
+			var evLines = line.split('/');
+			curSet.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+			for (var j=0; j<evLines.length; j++) {
+				var evLine = $.trim(evLines[j]);
+				var spaceIndex = evLine.indexOf(' ');
+				if (spaceIndex === -1) continue;
+				var statid = BattleStatIDs[evLine.substr(spaceIndex+1)];
+				var statval = parseInt(evLine.substr(0, spaceIndex));
+				if (!statid) continue;
+				curSet.evs[statid] = statval;
+			}
+		} else if (line.substr(0, 5) === 'IVs: ') {
+			line = line.substr(5);
+			var ivLines = line.split(' / ');
+			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+			for (var j=0; j<ivLines.length; j++) {
+				var ivLine = ivLines[j];
+				var spaceIndex = ivLine.indexOf(' ');
+				if (spaceIndex === -1) continue;
+				var statid = BattleStatIDs[ivLine.substr(spaceIndex+1)];
+				var statval = parseInt(ivLine.substr(0, spaceIndex));
+				if (!statid) continue;
+				if (isNaN(statval)) statval = 31;
+				curSet.ivs[statid] = statval;
+			}
+		} else if (line.match(/^[A-Za-z]+ (N|n)ature/)) {
+			var natureIndex = line.indexOf(' Nature');
+			if (natureIndex === -1) natureIndex = line.indexOf(' nature');
+			if (natureIndex === -1) continue;
+			line = line.substr(0, natureIndex);
+			curSet.nature = line;
+		} else if (line.substr(0,1) === '-' || line.substr(0,1) === '~') {
+			line = line.substr(1);
+			if (line.substr(0,1) === ' ') line = line.substr(1);
+			if (!curSet.moves) curSet.moves = [];
+			if (line.substr(0,14) === 'Hidden Power [') {
+				var hptype = line.substr(14, line.length-15);
+				line = 'Hidden Power ' + hptype;
+				if (!curSet.ivs && window.BattleTypeChart) {
+					curSet.ivs = {};
+					for (var stat in window.BattleTypeChart[hptype].HPivs) {
+						curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
+					}
+				}
+			}
+			if (line === 'Frustration') {
+				curSet.happiness = 0;
+			}
+			curSet.moves.push(line);
+		}
+	}
+	return team;
+};
+_Storage.prototype.exportAllTeams = function() {
+	var buf = '';
+	for (var i=0,len=teams.length; i<len; i++) {
+		var team = teams[i];
+		buf += '=== '+(team.format?'['+team.format+'] ':'')+team.name+' ===\n\n';
+		buf += Storage.exportTeam(team.team);
+		buf += '\n';
+	}
+	return buf;
+};
+_Storage.prototype.exportTeam = function(team) {
+	if (typeof team === 'string') {
+		if (team.indexOf('\n') >= 0) return team;
+		team = Storage.fastUnpackTeam(team);
+	}
+	var text = '';
+	for (var i=0; i<team.length; i++) {
+		var curSet = team[i];
+		if (curSet.name !== curSet.species) {
+			text += ''+curSet.name+' ('+curSet.species+')';
+		} else {
+			text += ''+curSet.species;
+		}
+		if (curSet.gender === 'M') text += ' (M)';
+		if (curSet.gender === 'F') text += ' (F)';
+		if (curSet.item) {
+			text += ' @ '+curSet.item;
+		}
+		text += "\n";
+		if (curSet.ability) {
+			text += 'Ability: '+curSet.ability+"\n";
+		}
+		if (curSet.level && curSet.level != 100) {
+			text += 'Level: '+curSet.level+"\n";
+		}
+		if (curSet.shiny) {
+			text += 'Shiny: Yes\n';
+		}
+		if (typeof curSet.happiness === 'number' && curSet.happiness !== 255) {
+			text += 'Happiness: '+curSet.happiness+"\n";
+		}
+		var first = true;
+		if (curSet.evs) {
+			for (var j in BattleStatNames) {
+				if (!curSet.evs[j]) continue;
+				if (first) {
+					text += 'EVs: ';
+					first = false;
+				} else {
+					text += ' / ';
+				}
+				text += ''+curSet.evs[j]+' '+BattleStatNames[j];
+			}
+		}
+		if (!first) {
+			text += "\n";
+		}
+		if (curSet.nature) {
+			text += ''+curSet.nature+' Nature'+"\n";
+		}
+		var first = true;
+		if (curSet.ivs) {
+			var defaultIvs = true;
+			var hpType = false;
+			for (var j=0; j<curSet.moves.length; j++) {
+				var move = curSet.moves[j];
+				if (move.substr(0,13) === 'Hidden Power ' && move.substr(0,14) !== 'Hidden Power [') {
+					hpType = move.substr(13);
+					if (!exports.BattleTypeChart[hpType].HPivs) {
+						alert("That is not a valid Hidden Power type.");
+						continue;
+					}
+					for (var stat in BattleStatNames) {
+						if ((curSet.ivs[stat]===undefined?31:curSet.ivs[stat]) !== (exports.BattleTypeChart[hpType].HPivs[stat]||31)) {
+							defaultIvs = false;
+							break;
+						}
+					}
+				}
+			}
+			if (defaultIvs && !hpType) {
+				for (var stat in BattleStatNames) {
+					if (curSet.ivs[stat] !== 31 && typeof curSet.ivs[stat] !== undefined) {
+						defaultIvs = false;
+						break;
+					}
+				}
+			}
+			if (!defaultIvs) {
+				for (var stat in BattleStatNames) {
+					if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] == 31) continue;
+					if (first) {
+						text += 'IVs: ';
+						first = false;
+					} else {
+						text += ' / ';
+					}
+					text += ''+curSet.ivs[stat]+' '+BattleStatNames[stat];
+				}
+			}
+		}
+		if (!first) {
+			text += "\n";
+		}
+		if (curSet.moves) for (var j=0; j<curSet.moves.length; j++) {
+			var move = curSet.moves[j];
+			if (move.substr(0,13) === 'Hidden Power ') {
+				move = move.substr(0,13) + '[' + move.substr(13) + ']';
+			}
+			text += '- '+move+"\n";
+		}
+		text += "\n";
+	}
+	return text;
+};
+
 /*********************************************************
  * Node-webkit
  *********************************************************/
@@ -354,7 +595,7 @@ _Storage.prototype.nwLoadTeamFile = function(filename, localApp) {
 				filename: filename,
 				name: line,
 				format: format,
-				team: TeambuilderRoom.parseText(''+data)
+				team: Storage.importTeam(''+data)
 			});
 			self.nwTeamsLeft--;
 			if (!self.nwTeamsLeft) {
@@ -417,7 +658,7 @@ _Storage.prototype.nwSaveTeam = function(team) {
 		fs.unlink(this.dir+'Teams/'+team.filename, function() {});
 	}
 	team.filename = filename;
-	fs.writeFile(this.dir+'Teams/'+filename, TeambuilderRoom.toText(team.team).replace(/\n/g,'\r\n'));
+	fs.writeFile(this.dir+'Teams/'+filename, Storage.exportTeam(team.team).replace(/\n/g,'\r\n'));
 };
 
 _Storage.prototype.nwDeleteTeam = function(team) {
@@ -442,7 +683,7 @@ _Storage.prototype.nwDoSaveAllTeams = function() {
 		filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 		team.filename = filename;
-		fs.writeFile(this.dir+'Teams/'+filename, TeambuilderRoom.toText(team.team).replace(/\n/g,'\r\n'));
+		fs.writeFile(this.dir+'Teams/'+filename, Storage.exportTeam(team.team).replace(/\n/g,'\r\n'));
 	}
 };
 
