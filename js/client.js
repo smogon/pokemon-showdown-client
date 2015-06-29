@@ -594,7 +594,7 @@
 				if (data) {
 					uri += '?testclient';
 					for (var i in data) {
-						uri += '' + i + '=' + encodeURIComponent(data[i]);
+						uri += '&' + i + '=' + encodeURIComponent(data[i]);
 					}
 				}
 				if (uri[0] === '/') { // relative URI
