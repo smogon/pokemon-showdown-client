@@ -221,7 +221,7 @@ Storage.packTeam = function(team) {
 };
 
 Storage.fastUnpackTeam = function(buf) {
-	if (!buf) return null;
+	if (!buf) return [];
 
 	var team = [];
 	var i = 0, j = 0;
@@ -323,7 +323,7 @@ Storage.fastUnpackTeam = function(buf) {
 };
 
 Storage.unpackTeam = function(buf) {
-	if (!buf) return null;
+	if (!buf) return [];
 
 	var team = [];
 	var i = 0, j = 0;
