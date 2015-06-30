@@ -456,7 +456,7 @@ Storage.packedTeamIcons = function(buf) {
 
 Storage.getTeamIcons = function(team) {
 	if (team.iconCache === '!') {
-		// an icon cache of '!' means that not only is the icon not cached,
+		// an icon cache of '!' means that not only are the icons not cached,
 		// but the packed team isn't guaranteed to be updated to the latest
 		// changes from the teambuilder, either.
 
