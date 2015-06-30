@@ -15,6 +15,10 @@
 		},
 		focus: function() {
 			this.buildMovelists();
+			if (this.curTeam) {
+				this.curTeam.iconCache = '!';
+				Storage.activeSetList = this.curSetList;
+			}
 		},
 		blur: function() {
 			if (this.saveFlag) {
@@ -68,13 +72,21 @@
 				this.curSet = null;
 				Storage.saveTeams();
 			} else if (this.curTeam) {
+				this.curTeam.team = Storage.packTeam(this.curSetList);
+				this.curTeam.iconCache = '';
 				Storage.saveTeam(this.curTeam);
 				this.curTeam = null;
+				Storage.activeSetList = this.curSetList = null;
 			} else {
 				return;
 			}
 			app.user.trigger('saveteams');
 			this.update();
+		},
+		saveTeams: function() {
+			if (this.curTeam) {
+				this.curTeam.team = Storage.packTeam(this.curSetList);
+			}
 		},
 
 		// the teambuilder has three views:
@@ -148,14 +160,6 @@
 					if (team && !team.team) {
 						team = null;
 					}
-					if (team) {
-						for (var j=0; j<team.team.length; j++) {
-							if (!team.team[j]) {
-								team = null;
-								break;
-							}
-						}
-					}
 					if (!team) {
 						buf += '<li>Error: A corrupted team was dropped</li>';
 						teams.splice(i,1);
@@ -170,10 +174,7 @@
 					}
 
 					buf += '<li><button name="edit" value="'+i+'" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
-					for (var j=0; j<team.team.length; j++) {
-						if (j!=0) buf += ' / ';
-						buf += ''+Tools.escapeHTML(team.team[j].name);
-					}
+					buf += Storage.getTeamIcons(team);
 					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 				}
 			}
@@ -200,13 +201,15 @@
 			Storage.nwLoadTeams();
 		},
 		edit: function(i) {
-			var i = +i;
+			i = +i;
 			this.curTeam = teams[i];
+			this.curTeam.iconCache = '!';
+			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
 		},
 		"delete": function(i) {
-			var i = +i;
+			i = +i;
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
 			Storage.deleteTeam(this.deletedTeam);
@@ -224,45 +227,42 @@
 		},
 		saveBackup: function() {
 			Storage.importTeam(this.$('.teamedit textarea').val(), true);
+			teams = Storage.teams;
 			Storage.saveAllTeams();
 			this.back();
 		},
 		"new": function() {
 			var newTeam = {
 				name: 'Untitled '+(teams.length+1),
-				team: []
+				format: '',
+				team: '',
+				iconCache: ''
 			};
 			teams.push(newTeam);
-			this.curTeam = newTeam;
-			this.curTeamLoc = teams.length-1;
-			this.update();
+			this.edit(teams.length-1);
 		},
 		newTop: function() {
 			var newTeam = {
 				name: 'Untitled '+(teams.length+1),
-				team: []
+				format: '',
+				team: '',
+				iconCache: ''
 			};
 			teams.unshift(newTeam);
-			this.curTeam = newTeam;
-			this.curTeamLoc = 0;
-			this.update();
+			this.edit(0);
 		},
 		"import": function() {
 			if (this.exportMode) return this.back();
-			if (!this.curTeam) {
-				var newTeam = {
-					name: 'Untitled '+(teams.length+1),
-					team: []
-				};
-				teams.push(newTeam);
-				this.curTeam = newTeam;
-				this.curTeamLoc = teams.length-1;
-			}
 			this.exportMode = true;
-			this.update();
+			if (!this.curTeam) {
+				this['new']();
+			} else {
+				this.update();
+			}
 		},
 		backup: function() {
 			this.curTeam = null;
+			this.curSetList = null;
 			this.exportMode = true;
 			this.update();
 		},
@@ -278,15 +278,15 @@
 			var buf = '';
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">'+Tools.escapeHTML(Storage.exportTeam(this.curTeam.team))+'</textarea></div>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">'+Tools.escapeHTML(Storage.exportTeam(this.curSetList))+'</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
 				var i=0;
-				if (this.curTeam.team.length && !this.curTeam.team[this.curTeam.team.length-1].species) {
-					this.curTeam.team.splice(this.curTeam.team.length-1, 1);
+				if (this.curSetList.length && !this.curSetList[this.curSetList.length-1].species) {
+					this.curSetList.splice(this.curSetList.length-1, 1);
 				}
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select"><label>Format:</label><select name="format"><option value="">(None)</option>';
@@ -298,14 +298,14 @@
 					}
 					buf += '</select></li>';
 				}
-				if (!this.curTeam.team.length) {
+				if (!this.curSetList.length) {
 					buf += '<li><em>you have no pokemon lol</em></li>';
 				}
-				for (i=0; i<this.curTeam.team.length; i++) {
-					if (this.curTeam.team.length < 6 && this.deletedSet && i === this.deletedSetLoc) {
+				for (i=0; i<this.curSetList.length; i++) {
+					if (this.curSetList.length < 6 && this.deletedSet && i === this.deletedSetLoc) {
 						buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
 					}
-					buf += this.renderSet(this.curTeam.team[i], i);
+					buf += this.renderSet(this.curSetList[i], i);
 				}
 				if (this.deletedSet && i === this.deletedSetLoc) {
 					buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
@@ -401,12 +401,12 @@
 		},
 
 		saveImport: function() {
-			this.curTeam.team = Storage.importTeam(this.$('.teamedit textarea').val());
+			this.curSetList = Storage.importTeam(this.$('.teamedit textarea').val());
 			this.back();
 		},
 		addPokemon: function() {
 			if (!this.curTeam) return;
-			var team = this.curTeam.team;
+			var team = this.curSetList;
 			if (!team.length || team[team.length-1].species) {
 				var newPokemon = {
 					name: '',
@@ -427,7 +427,7 @@
 		},
 		pastePokemon: function(i, btn) {
 			if (!this.curTeam) return;
-			var team = this.curTeam.team;
+			var team = this.curSetList;
 			if (team.length >= 6) return;
 			if (!this.clipboardCount()) return;
 
@@ -454,7 +454,7 @@
 		},
 		nicknameChange: function(e) {
 			var i = +$(e.currentTarget).closest('li').attr('value');
-			var team = this.curTeam.team[i];
+			var team = this.curSetList[i];
 			var name = $.trim(e.currentTarget.value) || team.species;
 			e.currentTarget.value = team.name = name;
 			this.save();
@@ -474,7 +474,7 @@
 			buf += '<div class="teambuilder-clipboard-title">Clipboard:</div>';
 			buf += '<div class="teambuilder-clipboard-data" tabindex="-1">' + this.clipboardInnerHTML() + '</div>';
 			buf += '<div class="teambuilder-clipboard-buttons">';
-			if (this.curTeam && this.curTeam.team.length < 6) {
+			if (this.curTeam && this.curSetList.length < 6) {
 				buf += '<button name="pastePokemon" class="teambuilder-clipboard-button-left"><i class="icon-paste"></i> Paste!</button>';
 			}
 			buf += '<button name="clipboardRemoveAll" class="teambuilder-clipboard-button-right"><i class="icon-trash"></i> Clear clipboard</button>';
@@ -582,7 +582,7 @@
 		// copy/import/export/move/delete
 		copySet: function(i, button) {
 			i = +($(button).closest('li').attr('value'));
-			this.clipboardAdd($.extend(true, {}, this.curTeam.team[i]));
+			this.clipboardAdd($.extend(true, {}, this.curSetList[i]));
 			button.blur();
 		},
 		wasViewingPokemon: false,
@@ -618,20 +618,20 @@
 			i = +(this.$('li').attr('value'));
 			this.curSet = Storage.importTeam(this.$('.pokemonedit').val())[0];
 			// since we just destroyed the reference...
-			this.curTeam.team[i] = this.curSet;
+			this.curSetList[i] = this.curSet;
 			this.closePokemonImport(true);
 		},
 		moveSet: function(i, button) {
 			i = +($(button).closest('li').attr('value'));
 			app.addPopup(MovePopup, {
 				i: i,
-				team: this.curTeam.team
+				team: this.curSetList
 			});
 		},
 		deleteSet: function(i, button) {
 			i = +($(button).closest('li').attr('value'));
 			this.deletedSetLoc = i;
-			this.deletedSet = this.curTeam.team.splice(i, 1)[0];
+			this.deletedSet = this.curSetList.splice(i, 1)[0];
 			if (this.curSet) {
 				this.addPokemon();
 			} else {
@@ -642,14 +642,14 @@
 		undeleteSet: function() {
 			if (this.deletedSet) {
 				var loc = this.deletedSetLoc;
-				this.curTeam.team.splice(loc, 0, this.deletedSet);
+				this.curSetList.splice(loc, 0, this.deletedSet);
 				this.deletedSet = null;
 				this.deletedSetLoc = -1;
 				this.save();
 
 				if (this.curSet) {
 					this.curSetLoc = loc;
-					this.curSet = this.curTeam.team[loc];
+					this.curSet = this.curSetList[loc];
 					this.curChartName = '';
 					this.update();
 					this.updateChart();
@@ -698,11 +698,11 @@
 		renderTeambar: function() {
 			var buf = '';
 			var isAdd = false;
-			if (this.curTeam.team.length && !this.curTeam.team[this.curTeam.team.length-1].name && this.curSetLoc !== this.curTeam.team.length-1) {
-				this.curTeam.team.splice(this.curTeam.team.length-1, 1);
+			if (this.curSetList.length && !this.curSetList[this.curSetList.length-1].name && this.curSetLoc !== this.curSetList.length-1) {
+				this.curSetList.splice(this.curSetList.length-1, 1);
 			}
-			for (var i=0; i<this.curTeam.team.length; i++) {
-				var set = this.curTeam.team[i];
+			for (var i=0; i<this.curSetList.length; i++) {
+				var set = this.curSetList[i];
 				var pokemonicon = '<span class="pokemonicon pokemonicon-'+i+'" style="'+Tools.getIcon(set)+'"></span>';
 				if (!set.name) {
 					buf += '<button disabled="disabled" class="addpokemon"><i class="icon-plus"></i></button> ';
@@ -713,7 +713,7 @@
 					buf += '<button name="selectPokemon" value="'+i+'" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name)+'</button> ';
 				}
 			}
-			if (this.curTeam.team.length < 6 && !isAdd) {
+			if (this.curSetList.length < 6 && !isAdd) {
 				buf += '<button name="addPokemon"><i class="icon-plus"></i></button> ';
 			}
 			return buf;
@@ -840,7 +840,7 @@
 		},
 		selectPokemon: function(i) {
 			i = +i;
-			var set = this.curTeam.team[i];
+			var set = this.curSetList[i];
 			if (set) {
 				this.curSet = set;
 				this.curSetLoc = i;
@@ -1343,7 +1343,7 @@
 
 			if (!this.curSet) {
 				var i = +$target.closest('li').prop('value');
-				this.curSet = this.curTeam.team[i];
+				this.curSet = this.curSetList[i];
 				this.curSetLoc = i;
 				this.update();
 				if (type === 'stats' || type === 'details') {

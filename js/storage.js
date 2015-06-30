@@ -30,18 +30,19 @@ Storage.loadTeams = function() {
 	}
 	this.teams = [];
 	if (window.localStorage) {
-		var teamString = localStorage.getItem('showdown_teams');
-		if (teamString) {
-			try {
-				this.teams = JSON.parse(teamString);
-			} catch (e) {
-				app.addPopup(Popup, {
-					type: 'modal',
-					htmlMessage: "Your teams are corrupt and could not be loaded. :( We may be able to recover a team from this data:<br /><textarea rows=\"10\" cols=\"60\">" + Tools.escapeHTML(teamString) + "</textarea>"
-				});
-			}
-		}
+		Storage.loadPackedTeams(localStorage.getItem('showdown_teams'));
 		app.trigger('init:loadteams');
+	}
+};
+
+Storage.loadPackedTeams = function(buffer) {
+	try {
+		this.teams = Storage.unpackAllTeams(buffer);
+	} catch (e) {
+		app.addPopup(Popup, {
+			type: 'modal',
+			htmlMessage: "Your teams are corrupt and could not be loaded. :( We may be able to recover a team from this data:<br /><textarea rows=\"10\" cols=\"60\">" + Tools.escapeHTML(buffer) + "</textarea>"
+		});
 	}
 };
 
@@ -49,7 +50,7 @@ Storage.saveTeams = function() {
 	if (window.localStorage) {
 		Storage.cantSave = false;
 		try {
-			localStorage.setItem('showdown_teams', JSON.stringify(this.teams));
+			localStorage.setItem('showdown_teams', Storage.packAllTeams(this.teams));
 		} catch (e) {
 			if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
 				Storage.cantSave = true;
@@ -58,6 +59,15 @@ Storage.saveTeams = function() {
 			}
 		}
 	}
+};
+
+Storage.getPackedTeams = function() {
+	var packedTeams = '';
+	try {
+		packedTeams = localStorage.getItem('showdown_teams');
+	} catch (e) {}
+	if (packedTeams) return packedTeams;
+	return Storage.packAllTeams(this.teams);
 };
 
 Storage.saveTeam = function() {
@@ -75,6 +85,40 @@ Storage.saveAllTeams = function() {
 /*********************************************************
  * Team importing and exporting
  *********************************************************/
+
+Storage.unpackAllTeams = function(buffer) {
+	if (buffer.charAt(0) === '[') {
+		// old format
+		return JSON.parse(buffer).map(function (oldTeam) {
+			return {
+				name: oldTeam.name || '',
+				format: oldTeam.format || '',
+				team: Storage.packTeam(oldTeam.team),
+				iconCache: ''
+			};
+		});
+		return;
+	}
+
+	return buffer.split('\n').map(function (line) {
+		var pipeIndex = line.indexOf('|');
+		if (pipeIndex < 0) return;
+		var bracketIndex = line.indexOf(']');
+		if (bracketIndex > pipeIndex) bracketIndex = -1;
+		return {
+			name: line.slice(bracketIndex + 1, pipeIndex),
+			format: bracketIndex > 0 ? line.slice(0, bracketIndex) : '',
+			team: line.slice(pipeIndex + 1),
+			iconCache: ''
+		};
+	}).filter(function (v) { return v; });
+};
+
+Storage.packAllTeams = function(teams) {
+	return teams.map(function (team) {
+		return (team.format ? ''+team.format+']' : '') + team.name + '|' + team.team;
+	}).join('\n');
+};
 
 Storage.packTeam = function(team) {
 	var buf = '';
@@ -274,6 +318,171 @@ Storage.fastUnpackTeam = function(buf) {
 	return team;
 };
 
+Storage.unpackTeam = function(buf) {
+	if (!buf) return null;
+
+	var team = [];
+	var i = 0, j = 0;
+
+	while (true) {
+		var set = {};
+		team.push(set);
+
+		// name
+		j = buf.indexOf('|', i);
+		set.name = buf.substring(i, j);
+		i = j+1;
+
+		// species
+		j = buf.indexOf('|', i);
+		set.species = Tools.getTemplate(buf.substring(i, j)).name || set.name;
+		i = j+1;
+
+		// item
+		j = buf.indexOf('|', i);
+		set.item = Tools.getItem(buf.substring(i, j)).name;
+		i = j+1;
+
+		// ability
+		j = buf.indexOf('|', i);
+		var ability = Tools.getAbility(buf.substring(i, j)).name;
+		var template = Tools.getTemplate(set.species);
+		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability||'0'] : ability);
+		i = j+1;
+
+		// moves
+		j = buf.indexOf('|', i);
+		set.moves = buf.substring(i, j).split(',').map(function(moveid) {
+			return Tools.getMove(moveid).name
+		});
+		i = j+1;
+
+		// nature
+		j = buf.indexOf('|', i);
+		set.nature = buf.substring(i, j);
+		i = j+1;
+
+		// evs
+		j = buf.indexOf('|', i);
+		if (j !== i) {
+			var evs = buf.substring(i, j).split(',');
+			set.evs = {
+				hp: Number(evs[0])||0,
+				atk: Number(evs[1])||0,
+				def: Number(evs[2])||0,
+				spa: Number(evs[3])||0,
+				spd: Number(evs[4])||0,
+				spe: Number(evs[5])||0
+			};
+		}
+		i = j+1;
+
+		// gender
+		j = buf.indexOf('|', i);
+		if (i !== j) set.gender = buf.substring(i, j);
+		i = j+1;
+
+		// ivs
+		j = buf.indexOf('|', i);
+		if (j !== i) {
+			var ivs = buf.substring(i, j).split(',');
+			set.ivs = {
+				hp: ivs[0]==='' ? 31 : Number(ivs[0]),
+				atk: ivs[1]==='' ? 31 : Number(ivs[1]),
+				def: ivs[2]==='' ? 31 : Number(ivs[2]),
+				spa: ivs[3]==='' ? 31 : Number(ivs[3]),
+				spd: ivs[4]==='' ? 31 : Number(ivs[4]),
+				spe: ivs[5]==='' ? 31 : Number(ivs[5])
+			};
+		}
+		i = j+1;
+
+		// shiny
+		j = buf.indexOf('|', i);
+		if (i !== j) set.shiny = true;
+		i = j+1;
+
+		// level
+		j = buf.indexOf('|', i);
+		if (i !== j) set.level = parseInt(buf.substring(i, j), 10);
+		i = j+1;
+
+		// happiness
+		j = buf.indexOf(']', i);
+		if (j < 0) {
+			if (buf.substring(i)) {
+				set.happiness = Number(buf.substring(i));
+			}
+			break;
+		}
+		if (i !== j) set.happiness = Number(buf.substring(i, j));
+		i = j+1;
+	}
+
+	return team;
+};
+
+Storage.packedTeamNames = function(buf) {
+	if (!buf) return null;
+
+	var team = [];
+	var i = 0;
+
+	while (true) {
+		var name = buf.substring(i, buf.indexOf('|', i));
+		i = buf.indexOf('|', i) + 1;
+
+		team.push(buf.substring(i, buf.indexOf('|', i)) || name);
+
+		for (var k=0; k<9; k++) {
+			i = buf.indexOf('|', i) + 1;
+		}
+
+		i = buf.indexOf(']', i) + 1;
+
+		if (i < 1) break;
+	}
+
+	return team;
+};
+
+Storage.packedTeamIcons = function(buf) {
+	if (!buf) return null;
+
+	return this.packedTeamNames(buf).map(function (species) {
+		return '<span class="pokemonicon" style="display:inline-block;' + Tools.getIcon(species) + '"></span>';
+	}).join('');
+};
+
+Storage.getTeamIcons = function(team) {
+	if (team.iconCache === '!') {
+		// an icon cache of '!' means that not only is the icon not cached,
+		// but the packed team isn't guaranteed to be updated to the latest
+		// changes from the teambuilder, either.
+
+		// we use Storage.activeSetList instead of reading from
+		// app.rooms.teambuilder.curSetList because the teambuilder
+		// room may have been closed by the time we need to get
+		// a packed team.
+		team.team = Storage.packTeam(Storage.activeSetList);
+		Storage.activeSetList = null;
+		team.iconCache = Storage.packedTeamIcons(team.team);
+	} else if (!team.iconCache) {
+		team.iconCache = Storage.packedTeamIcons(team.team);
+	}
+	return team.iconCache;
+};
+
+Storage.getPackedTeam = function(team) {
+	if (team.iconCache === '!') {
+		// see the same case in Storage.getTeamIcons
+		team.team = Storage.packTeam(Storage.activeSetList);
+		Storage.activeSetList = null;
+		team.iconCache = '';
+	}
+	return team.team;
+};
+
 Storage.importTeam = function(text, teams) {
 	var text = text.split("\n");
 	var team = [];
@@ -295,10 +504,14 @@ Storage.importTeam = function(text, teams) {
 				format = line.substr(1, bracketIndex-1);
 				line = $.trim(line.substr(bracketIndex+1));
 			}
+			if (teams.length) {
+				teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
+			}
 			teams.push({
 				name: line,
 				format: format,
-				team: team
+				team: team,
+				iconCache: ''
 			});
 		} else if (!curSet) {
 			curSet = {name: '', species: '', gender: ''};
@@ -397,12 +610,15 @@ Storage.importTeam = function(text, teams) {
 			curSet.moves.push(line);
 		}
 	}
+	if (teams && teams.length) {
+		teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
+	}
 	return team;
 };
 Storage.exportAllTeams = function() {
 	var buf = '';
-	for (var i=0,len=teams.length; i<len; i++) {
-		var team = teams[i];
+	for (var i=0,len=Storage.teams.length; i<len; i++) {
+		var team = Storage.teams[i];
 		buf += '=== '+(team.format?'['+team.format+'] ':'')+team.name+' ===\n\n';
 		buf += Storage.exportTeam(team.team);
 		buf += '\n';
