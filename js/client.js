@@ -2041,7 +2041,7 @@
 						(offset.top + sourceHeight < room * 2/3 || offset.top + sourceHeight + 200 < room)) {
 						$el.css('top', offset.top + sourceHeight);
 					} else if (height + 5 <= offset.top) {
-						$el.css('bottom', room - offset.top);
+						$el.css('bottom', Math.max(room - offset.top, 0));
 					} else if (height + 10 < room) {
 						$el.css('bottom', 5);
 					} else {
