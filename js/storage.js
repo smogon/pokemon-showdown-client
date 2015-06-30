@@ -427,7 +427,7 @@ Storage.unpackTeam = function(buf) {
 };
 
 Storage.packedTeamNames = function(buf) {
-	if (!buf) return null;
+	if (!buf) return '';
 
 	var team = [];
 	var i = 0;
@@ -451,7 +451,7 @@ Storage.packedTeamNames = function(buf) {
 };
 
 Storage.packedTeamIcons = function(buf) {
-	if (!buf) return null;
+	if (!buf) return '<em>(empty team)</em>';
 
 	return this.packedTeamNames(buf).map(function (species) {
 		return '<span class="pokemonicon" style="display:inline-block;' + Tools.getIcon(species) + '"></span>';
