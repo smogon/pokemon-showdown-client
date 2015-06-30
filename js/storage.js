@@ -827,10 +827,11 @@ Storage.nwLoadTeamFile = function(filename, localApp) {
 	fs.readFile(this.dir+'Teams/'+filename, function(err, data) {
 		if (!err) {
 			self.teams.push({
-				filename: filename,
 				name: line,
 				format: format,
-				team: Storage.importTeam(''+data)
+				team: Storage.packTeam(Storage.importTeam(''+data)),
+				iconCache: '',
+				filename: filename
 			});
 			self.nwTeamsLeft--;
 			if (!self.nwTeamsLeft) {
