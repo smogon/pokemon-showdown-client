@@ -116,7 +116,7 @@ Storage.unpackAllTeams = function(buffer) {
 
 Storage.packAllTeams = function(teams) {
 	return teams.map(function (team) {
-		return (team.format ? ''+team.format+']' : '') + team.name + '|' + team.team;
+		return (team.format ? ''+team.format+']' : '') + team.name + '|' + Storage.getPackedTeam(team);
 	}).join('\n');
 };
 
