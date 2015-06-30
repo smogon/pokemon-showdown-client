@@ -157,7 +157,11 @@ Storage.packTeam = function(team) {
 		}
 
 		// moves
-		buf += '|' + set.moves.map(toId).join(',');
+		if (set.moves) {
+			buf += '|' + set.moves.map(toId).join(',');
+		} else {
+			buf += '|';
+		}
 
 		// nature
 		buf += '|' + set.nature;
