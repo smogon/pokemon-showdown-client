@@ -83,11 +83,6 @@
 			app.user.trigger('saveteams');
 			this.update();
 		},
-		saveTeams: function() {
-			if (this.curTeam) {
-				this.curTeam.team = Storage.packTeam(this.curSetList);
-			}
-		},
 
 		// the teambuilder has three views:
 		// - team list (curTeam falsy)
