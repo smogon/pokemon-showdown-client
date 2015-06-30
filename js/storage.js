@@ -630,6 +630,7 @@ Storage.exportAllTeams = function() {
 	return buf;
 };
 Storage.exportTeam = function(team) {
+	if (!team) return "";
 	if (typeof team === 'string') {
 		if (team.indexOf('\n') >= 0) return team;
 		team = Storage.fastUnpackTeam(team);
