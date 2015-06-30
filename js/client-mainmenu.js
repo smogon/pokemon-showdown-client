@@ -551,7 +551,7 @@
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
-			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex].team;
+			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
 			if (!window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 				return;
@@ -575,7 +575,7 @@
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
-			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex].team;
+			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
 			if (!window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 				return;
@@ -686,7 +686,7 @@
 			var format = $formatButton.val();
 			var teamIndex = $teamButton.val();
 			var team = null;
-			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex].team;
+			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
 			if (!window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 				return;
@@ -853,9 +853,7 @@
 			var team = Storage.teams[i];
 			if (!team) return 'Error: Corrupted team';
 			var buf = ''+Tools.escapeHTML(team.name)+'<br />';
-			for (var i=0; i<team.team.length; i++) {
-				buf += '<span class="pokemonicon" style="float:left;'+Tools.getIcon(team.team[i])+'"></span>';
-			}
+			buf += Storage.getTeamIcons(team);
 			return buf;
 		}
 	});

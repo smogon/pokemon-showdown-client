@@ -547,7 +547,7 @@
 						if (e.data === 'init') {
 							Storage.loadTeams();
 							e.source.postMessage($.toJSON({
-								teams: $.toJSON(Storage.teams),
+								teams: Storage.getPackedTeams(),
 								prefs: $.toJSON(Tools.prefs.data)
 							}), origin);
 						} else if (e.data === 'done') {
@@ -665,13 +665,13 @@
 						};
 						// teams
 						if (data.teams) {
-							Storage.teams = $.parseJSON(data.teams) || [];
+							Storage.loadPackedTeams(data.teams);
 						} else {
 							Storage.teams = [];
 						}
 						self.trigger('init:loadteams');
 						Storage.saveTeams = function() {
-							postCrossDomainMessage({teams: $.toJSON(Storage.teams)});
+							postCrossDomainMessage({teams: Storage.packAllTeams(Storage.teams)});
 						};
 						// prefs
 						if (data.prefs) {
@@ -836,7 +836,7 @@
 		 * Send team to sim server
 		 */
 		sendTeam: function(team) {
-			this.send('/utm '+Storage.packTeam(team));
+			this.send('/utm '+Storage.getPackedTeam(team));
 		},
 		/**
 		 * Receive from sim server
