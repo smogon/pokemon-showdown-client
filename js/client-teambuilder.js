@@ -152,7 +152,7 @@
 
 					var team = teams[i];
 
-					if (team && !team.team) {
+					if (team && !team.team && team.team !== '') {
 						team = null;
 					}
 					if (!team) {
