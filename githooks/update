@@ -28,7 +28,7 @@ function updateIndex () {
 	var indexContents = fs.readFileSync(path.resolve(rootDir, 'index.template.html'), { encoding: 'utf8' });
 
 	// add hashes to js and css files
-	console.log("Updating hashes...");
+	process.stdout.write("Updating hashes... ");
 	indexContents = indexContents.replace(/(src|href)="\/(.*?)\?[a-z0-9]*?"/g, function (a, b, c) {
 		var hash = Math.random(); // just in case creating the hash fails
 		try {
@@ -39,10 +39,10 @@ function updateIndex () {
 
 		return b + '="/' + c + '?' + hash + '"';
 	});
-	console.log("Hashes updated.");
+	console.log("DONE");
 
 	// add news
-	console.log("Updating news...");
+	process.stdout.write("Updating news... ");
 	exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
 		var newsData = [0, '[failed to retrieve news]'];
 		if (!error && !stderr) {
@@ -57,11 +57,11 @@ function updateIndex () {
 
 		indexContents = indexContents.replace(/<!-- newsid -->/g, newsData[0]);
 		indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
-		console.log("News updated.");
+		console.log("DONE");
 
-		console.log("Writing new `index.html` file...");
+		process.stdout.write("Writing new `index.html` file... ");
 		fs.writeFileSync(path.resolve(rootDir, 'index.html'), indexContents);
-		console.log("File `index.html` successfully updated.");
+		console.log("DONE");
 	});
 }
 
@@ -203,7 +203,7 @@ try {
 }
 
 // update learnsets-g6
-console.log("Updating file `data/learnsets-g6`...");
+process.stdout.write("Updating file `data/learnsets-g6`... ");
 
 pendingFiles++;
 var learnsetsStats;
@@ -242,11 +242,11 @@ if (learnsetsG6ToUpdate && (!indexStats || !learnsetsG6Stats || indexMTime < upd
 			stack = "File `data/learnsets-g6` failed to update.\n" + stack;
 			console.error(stack);
 		} else {
-			console.log("File `data/learnsets-g6` updated.");
+			console.log("DONE");
 		}
 		if (!--pendingFiles) updateIndex();
 	});
 } else {
-	console.log("Input files not modified. Task aborted.");
+	console.log("CACHED");
 	if (!--pendingFiles) updateIndex();
 }
