@@ -3,5 +3,6 @@
 /js/config.js
 /index.php
 /index.html
+node_modules/
 .DS_Store
 Thumbs.db
