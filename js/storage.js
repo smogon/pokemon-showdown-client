@@ -87,6 +87,8 @@ Storage.saveAllTeams = function() {
  *********************************************************/
 
 Storage.unpackAllTeams = function(buffer) {
+	if (!buffer) return [];
+
 	if (buffer.charAt(0) === '[') {
 		// old format
 		return JSON.parse(buffer).map(function (oldTeam) {
@@ -478,6 +480,7 @@ Storage.getTeamIcons = function(team) {
 };
 
 Storage.getPackedTeam = function(team) {
+	if (!team) return null;
 	if (team.iconCache === '!') {
 		// see the same case in Storage.getTeamIcons
 		team.team = Storage.packTeam(Storage.activeSetList);
