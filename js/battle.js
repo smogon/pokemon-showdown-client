@@ -4104,7 +4104,7 @@ var Battle = (function () {
 				var fromeffect = Tools.getEffect(kwargs.from);
 				poke.addVolatile(effect.id);
 
-				if (kwargs.silent) {
+				if (kwargs.silent && effect.id !== 'typechange' && effect.id !== 'typeadd') {
 					// do nothing
 				} else switch (effect.id) {
 				case 'typechange':
@@ -4114,17 +4114,18 @@ var Battle = (function () {
 					if (fromeffect.id) {
 						if (fromeffect.id === 'reflecttype') {
 							poke.copyTypesFrom(ofpoke);
-							actions += "" + poke.getName() + "'s type became the same as " + ofpoke.getLowerName() + "'s type!";
-						} else {
+							if (!kwargs.silent) actions += "" + poke.getName() + "'s type became the same as " + ofpoke.getLowerName() + "'s type!";
+						} else if (!kwargs.silent) {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
 						}
-					} else {
+					} else if (!kwargs.silent) {
 						actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
 					}
 					break;
 				case 'typeadd':
 					args[3] = Tools.escapeHTML(args[3]);
 					poke.volatiles.typeadd[2] = args[3];
+					if (kwargs.silent) break;
 					actions += "" + args[3] + " type was added to " + poke.getLowerName() + "!";
 					break;
 				case 'powertrick':
