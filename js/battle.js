@@ -3740,6 +3740,9 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Frozen', 'frz', animDelay);
 					actions += "" + poke.getName() + " was frozen solid!";
 					break;
+				default:
+					poke.side.updateStatbar(poke);
+					break;
 				}
 				break;
 
