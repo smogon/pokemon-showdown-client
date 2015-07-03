@@ -65,6 +65,7 @@
 		},
 		back: function() {
 			if (this.exportMode) {
+				this.curTeam.team = Storage.packTeam(this.curSetList);
 				this.exportMode = false;
 				Storage.saveTeams();
 			} else if (this.curSet) {
@@ -396,7 +397,7 @@
 		},
 
 		saveImport: function() {
-			this.curSetList = Storage.importTeam(this.$('.teamedit textarea').val());
+			Storage.activeSetList = this.curSetList = Storage.importTeam(this.$('.teamedit textarea').val());
 			this.back();
 		},
 		addPokemon: function() {
