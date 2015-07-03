@@ -3624,7 +3624,6 @@ var BattleMoveAnims = {
 		}
 	},
 	dynamicpunch: {
-		name: 'DynamicPunch',
 		anim: BattleOtherAnims.punchattack.anim
 	},
 	cometpunch: {
@@ -3760,7 +3759,6 @@ var BattleMoveAnims = {
 		anim: BattleOtherAnims.drain.anim
 	},
 	extremespeed: {
-		name: 'ExtremeSpeed',
 		anim: BattleOtherAnims.fastattack.anim
 	},
 	quickattack: {
@@ -4060,7 +4058,6 @@ var BattleMoveAnims = {
 		}
 	},
 	thunderpunch: {
-		name: 'ThunderPunch',
 		anim: function(battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
@@ -8996,7 +8993,6 @@ var BattleMoveAnims = {
 		}
 	},
 	solarbeam: { // todo: better solarbeam anim
-		name: 'SolarBeam',
 		anim: function(battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
