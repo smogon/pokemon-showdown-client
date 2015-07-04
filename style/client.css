@@ -492,12 +492,17 @@ p.or:after {
 	color: black;
 	box-sizing: border-box;
 }
+.team:focus {
+	outline: 0 none;
+	border: 1px solid #004488;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
+}
 .select.teamselect {
 	height: 43px;
 	white-space: nowrap;
 	overflow: hidden;
 }
-.select:hover, .team:hover {
+.select:hover, .team.team-hover {
 	border-color: #555555;
 	background: #FFFFFF;
 	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
@@ -1774,6 +1779,19 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	font-size: 8pt;
 	vertical-align: middle;
 	text-align: center;
+}
+.teamlist .dragging button {
+	visibility: hidden;
+}
+.teamlist .dragging button.team {
+	visibility: visible;
+	background: #DDDDDD;
+	border-color: #DDDDDD;
+	color: #DDDDDD;
+	box-shadow: none;
+}
+.teamlist .dragging .team small {
+	display: none;
 }
 .teamlist .team small {
 	display: block;

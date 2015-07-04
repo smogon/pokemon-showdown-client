@@ -47,6 +47,13 @@
 			'focus .chartinput': 'chartFocus',
 			'change .chartinput': 'chartChange',
 
+			// drag/drop
+			'mouseover .team': 'mouseOverTeam',
+			'mouseout .team': 'mouseOutTeam',
+			'dragstart .team': 'dragStartTeam',
+			'dragend .team': 'dragEndTeam',
+			'dragover .team': 'dragOverTeam',
+
 			// clipboard
 			'click .teambuilder-clipboard-data .result': 'clipboardResultSelect',
 			'click .teambuilder-clipboard-data': 'clipboardExpand',
@@ -170,7 +177,7 @@
 						formatText = '['+team.format+'] ';
 					}
 
-					buf += '<li><button name="edit" value="'+i+'" class="team">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+					buf += '<li><button name="edit" value="'+i+'" class="team" draggable="true">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
 					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 				}
@@ -262,6 +269,57 @@
 			this.curSetList = null;
 			this.exportMode = true;
 			this.update();
+		},
+
+		// drag and drop
+		
+		// because of a bug in Chrome and Webkit:
+		//   https://code.google.com/p/chromium/issues/detail?id=410328
+		// we can't use CSS :hover
+		mouseOverTeam: function(e) {
+			e.currentTarget.className = 'team team-hover';
+		},
+		mouseOutTeam: function(e) {
+			e.currentTarget.className = 'team';
+		},
+		dragStartTeam: function(e) {
+			var target = e.currentTarget;
+			var dataTransfer = e.originalEvent.dataTransfer;
+			dataTransfer.effectAllowed = 'move';
+			app.dragging = e.currentTarget;
+			app.draggingLoc = parseInt(e.currentTarget.value);
+			setTimeout(function() {
+				$(e.currentTarget).parent().addClass('dragging');
+			}, 0);
+		},
+		dragEndTeam: function(e) {
+			app.dragging = null;
+			var originalLoc = parseInt(e.currentTarget.value);
+			if (app.draggingLoc !== originalLoc) {
+				var team = Storage.teams[originalLoc];
+				var newLoc = Math.floor(app.draggingLoc);
+				if (app.draggingLoc < originalLoc) newLoc += 1;
+				Storage.teams.splice(originalLoc, 1);
+				Storage.teams.splice(newLoc, 0, team);
+			}
+			this.$('.teamlist').css('pointer-events', 'none');
+			$(e.currentTarget).parent().removeClass('dragging');
+			this.updateTeamList();
+		},
+		dragOverTeam: function(e) {
+			if (app.dragging) {
+				if (e.currentTarget === app.dragging) {
+					e.preventDefault();
+					return;
+				}
+				if (app.draggingLoc > parseInt(e.currentTarget.value)) {
+					$(e.currentTarget).parent().before($(app.dragging).parent());
+					app.draggingLoc = parseInt(e.currentTarget.value) - 0.5;
+				} else {
+					$(e.currentTarget).parent().after($(app.dragging).parent());
+					app.draggingLoc = parseInt(e.currentTarget.value) + 0.5;
+				}
+			}
 		},
 
 		/*********************************************************
