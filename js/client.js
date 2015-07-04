@@ -4,8 +4,10 @@
 		window.gui = require('nw.gui');
 		window.nwWindow = gui.Window.get();
 	}
-	$(document).on('click', 'a', function(e) {
-		if (this.href && this.className !== 'closebutton' && (this.href.substr(0, 32) === 'http://play.pokemonshowdown.com/' || this.href.substr(0, 33) === 'https://play.pokemonshowdown.com/')) {
+	$(window).on('click', 'a', function(e) {
+		if (this.className === 'closebutton') return; // handled elsewhere
+		if (!this.href) return; // should never happen
+		if (this.href.substr(0, 32) === 'http://play.pokemonshowdown.com/' || this.href.substr(0, 33) === 'https://play.pokemonshowdown.com/') {
 			var target;
 			if (this.href.charAt(4) === ':') {
 				target = this.href.substr(32);
