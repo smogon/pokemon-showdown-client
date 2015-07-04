@@ -48,11 +48,12 @@
 			'change .chartinput': 'chartChange',
 
 			// drag/drop
+			'click .team': 'edit',
 			'mouseover .team': 'mouseOverTeam',
 			'mouseout .team': 'mouseOutTeam',
 			'dragstart .team': 'dragStartTeam',
 			'dragend .team': 'dragEndTeam',
-			'dragover .team': 'dragOverTeam',
+			'dragenter .team': 'dragEnterTeam',
 
 			// clipboard
 			'click .teambuilder-clipboard-data .result': 'clipboardResultSelect',
@@ -177,9 +178,9 @@
 						formatText = '['+team.format+'] ';
 					}
 
-					buf += '<li><button name="edit" value="'+i+'" class="team" draggable="true">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+					buf += '<li><div name="edit" data-value="'+i+'" class="team" draggable="true">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
+					buf += '</small></div> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 				}
 			}
 			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
@@ -205,6 +206,9 @@
 			Storage.nwLoadTeams();
 		},
 		edit: function(i) {
+			if (i && i.currentTarget) {
+				i = $(i.currentTarget).data('value');
+			}
 			i = +i;
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
@@ -286,15 +290,20 @@
 			var target = e.currentTarget;
 			var dataTransfer = e.originalEvent.dataTransfer;
 			dataTransfer.effectAllowed = 'move';
+			dataTransfer.setData("text/plain", "Team " + e.currentTarget.dataset.value);
 			app.dragging = e.currentTarget;
-			app.draggingLoc = parseInt(e.currentTarget.value);
+			app.draggingLoc = parseInt(e.currentTarget.dataset.value);
 			setTimeout(function() {
 				$(e.currentTarget).parent().addClass('dragging');
 			}, 0);
 		},
 		dragEndTeam: function(e) {
 			app.dragging = null;
-			var originalLoc = parseInt(e.currentTarget.value);
+			var originalLoc = parseInt(e.currentTarget.dataset.value);
+			if (isNaN(originalLoc)) {
+				throw new Error("drag failed");
+				return;
+			}
 			if (app.draggingLoc !== originalLoc) {
 				var team = Storage.teams[originalLoc];
 				var newLoc = Math.floor(app.draggingLoc);
@@ -306,18 +315,21 @@
 			$(e.currentTarget).parent().removeClass('dragging');
 			this.updateTeamList();
 		},
-		dragOverTeam: function(e) {
+		dragEnterTeam: function(e) {
 			if (app.dragging) {
 				if (e.currentTarget === app.dragging) {
 					e.preventDefault();
 					return;
 				}
-				if (app.draggingLoc > parseInt(e.currentTarget.value)) {
+				var hoverLoc = parseInt(e.currentTarget.dataset.value);
+				if (app.draggingLoc > hoverLoc) {
+					// dragging up
 					$(e.currentTarget).parent().before($(app.dragging).parent());
-					app.draggingLoc = parseInt(e.currentTarget.value) - 0.5;
+					app.draggingLoc = parseInt(e.currentTarget.dataset.value) - 0.5;
 				} else {
+					// dragging down
 					$(e.currentTarget).parent().after($(app.dragging).parent());
-					app.draggingLoc = parseInt(e.currentTarget.value) + 0.5;
+					app.draggingLoc = parseInt(e.currentTarget.dataset.value) + 0.5;
 				}
 			}
 		},
