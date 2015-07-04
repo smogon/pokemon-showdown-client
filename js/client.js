@@ -27,6 +27,11 @@
 			e.stopImmediatePropagation();
 		}
 	});
+	$(window).on('dragover', function (e) {
+		e.preventDefault();
+		// dropEffect !== 'none' prevents animation
+		e.dataTransfer.dropEffect = 'move';
+	});
 	if (window.nodewebkit) {
 		$(document).on("contextmenu", function(e) {
 			e.preventDefault();
