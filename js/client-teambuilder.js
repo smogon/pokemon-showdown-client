@@ -132,10 +132,11 @@
 				this.$el.html(buf);
 				return;
 			}
-			buf = '<div class="pad"><p>y\'know zarel this is a pretty good teambuilder</p>';
-			buf += '<p>aww thanks I\'m glad you like it :)</p>';
+			buf = '<div class="pad"><p>y\'know strawberries have more potassium than bananas</p>';
+			buf += '<p>that doesn\'t have anything to do with teambuilding!</p>';
+			buf += '<p><i>fiiiiiiine</i> press Ctrl+F to find teams by pokemon name</p>';
 			buf += this.clipboardHTML();
-			buf += '<ul>';
+			buf += '<ul class="teamlist">';
 			if (!window.localStorage && !window.nodewebkit) buf += '<li>== CAN\'T SAVE ==<br /><small>Your browser doesn\'t support <code>localStorage</code> and can\'t save teams! Update to a newer browser.</small></li>';
 			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
 			if (!teams.length) {
@@ -169,7 +170,7 @@
 						formatText = '['+team.format+'] ';
 					}
 
-					buf += '<li><button name="edit" value="'+i+'" style="width:400px;vertical-align:middle">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+					buf += '<li><button name="edit" value="'+i+'" class="team">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
 					buf += '</small></button> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
 				}
