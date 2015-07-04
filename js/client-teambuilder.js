@@ -118,6 +118,7 @@
 		 * Team list view
 		 *********************************************************/
 
+		currentMoving: -1,
 		deletedTeam: null,
 		deletedTeamLoc: -1,
 		updateTeamList: function() {
@@ -180,7 +181,14 @@
 
 					buf += '<li><div name="edit" data-value="'+i+'" class="team" draggable="true">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></div> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
+					if (this.currentMoving >= 0) {
+						buf += '</small></div> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> ';
+						if (this.currentMoving === i) buf += '<button name="moveHere" value="'+i+'"><i class="icon-move"></i>Keep here</button></li>';
+						else if (this.currentMoving < i) buf += '<button name="moveHere" value="'+i+'"><i class="icon-arrow-down"></i>Move below</button></li>';
+						else if (this.currentMoving > i) buf += '<button name="moveHere" value="'+i+' "><i class="icon-arrow-up"></i>Move above</button></li>';
+					} else {
+						buf += '</small></div> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="move" value="'+i+'"><i class="icon-move"></i>Move</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
+					}
 				}
 			}
 			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
@@ -214,9 +222,29 @@
 			this.curTeam.iconCache = '!';
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
+			this.currentMoving = -1;
+			this.update();
+		},
+		move: function(i) {
+			this.currentMoving = parseInt(i);
+			this.update();
+		},
+		moveHere: function(i) {
+			i = parseInt(i);
+			if (this.currentMoving < 0) return;
+			if (this.currentMoving === i) {
+				this.currentMoving = -1;
+				this.update();
+				return;
+			}
+			if (!Storage.teams[this.currentMoving]) return;
+			var teamMoving = Storage.teams.splice(this.currentMoving, 1)[0];
+			Storage.teams.splice(i, 0, teamMoving);
+			this.currentMoving = -1;
 			this.update();
 		},
 		"delete": function(i) {
+			if (this.currentMoving >= 0) return;
 			i = +i;
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
@@ -224,6 +252,7 @@
 			this.update();
 		},
 		undoDelete: function() {
+			if (this.currentMoving >= 0) return;
 			if (this.deletedTeamLoc >= 0) {
 				teams.splice(this.deletedTeamLoc, 0, this.deletedTeam);
 				var undeletedTeam = this.deletedTeam;
@@ -240,6 +269,7 @@
 			this.back();
 		},
 		"new": function() {
+			if (this.currentMoving >= 0) return;
 			var newTeam = {
 				name: 'Untitled '+(teams.length+1),
 				format: '',
@@ -250,6 +280,7 @@
 			this.edit(teams.length-1);
 		},
 		newTop: function() {
+			if (this.currentMoving >= 0) return;
 			var newTeam = {
 				name: 'Untitled '+(teams.length+1),
 				format: '',
@@ -270,6 +301,7 @@
 		},
 		backup: function() {
 			this.curTeam = null;
+			this.currentMoving = -1;
 			this.curSetList = null;
 			this.exportMode = true;
 			this.update();
