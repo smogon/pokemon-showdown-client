@@ -39,7 +39,7 @@
 		},
 		joinRoomPopup: function() {
 			app.addPopupPrompt("Room name:", "Join room", function(room) {
-				room = toId(room);
+				room = toRoomId(room);
 				if (!room) return;
 				app.tryJoinRoom(room);
 			});
