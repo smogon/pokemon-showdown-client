@@ -23,6 +23,9 @@ body {
 	margin: 0;
 	padding: 5px 15px;
 }
+.pad p {
+	margin: 9px 0;
+}
 .label {
 	font-size: 9pt;
 	font-weight: bold;
@@ -472,9 +475,8 @@ p.or:after {
 	border: 1px solid #888888;
 	background: #D5D5D5;
 }
-.select {
+.select, .team {
 	cursor: pointer;
-	box-sizing: border-box;
 	width: 230px;
 	height: 32px;
 	padding: 0 5px;
@@ -488,18 +490,19 @@ p.or:after {
 	box-shadow: inset 0 1px 0 #FFFFFF;
 	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
 	color: black;
+	box-sizing: border-box;
 }
 .select.teamselect {
 	height: 43px;
 	white-space: nowrap;
 	overflow: hidden;
 }
-.select:hover {
+.select:hover, .team:hover {
 	border-color: #555555;
 	background: #FFFFFF;
 	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
 }
-.select:active {
+.select:active, .team:active {
 	border-color: #777777;
 	background: #DDDDDD;
 	box-shadow: none;
@@ -1752,6 +1755,39 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 /*********************************************************
  * Teambuilder
  *********************************************************/
+
+.teamlist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.teamlist li {
+	margin: 3px 16px;
+	padding: 0;
+}
+
+.teamlist .team {
+	white-space: nowrap;
+	width: 360px;
+	height: 49px;
+	padding: 1px 6px 1px 6px;
+	font-size: 8pt;
+	vertical-align: middle;
+	text-align: center;
+}
+.teamlist .team small {
+	display: block;
+	padding: 3px 74px 0 74px;
+}
+.teamlist .team .pokemonicon span {
+	font-size: 9px !important;
+	display: block;
+	overflow: visible;
+	position: relative;
+	width: 32px;
+	top: 22px;
+	color: transparent;
+}
 
 .teamedit {
 	position: absolute;

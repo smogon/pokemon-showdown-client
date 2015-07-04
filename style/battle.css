@@ -895,3 +895,11 @@ License: GPLv2
 .message-error {
 	color: #992222;
 }
+.message-overflow,
+.chat small.message-overflow {
+	font-size: 0pt;
+}
+.message-overflow::before {
+	font-size:9pt;
+	content: '...';
+}
