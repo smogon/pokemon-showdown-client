@@ -29,8 +29,16 @@
 	});
 	$(window).on('dragover', function (e) {
 		e.preventDefault();
-		// dropEffect !== 'none' prevents animation
-		e.dataTransfer.dropEffect = 'move';
+		// dropEffect !== 'none' prevents buggy bounce-back animation in
+		// Chrome/Safari/Opera
+		e.originalEvent.dataTransfer.dropEffect = 'move';
+	});
+	$(window).on('drop', function (e) {
+		// The default team drop action for Firefox is to open the team as a
+		// URL, which needs to be prevented.
+		// The default file drop action for most browsers is to open the file
+		// in the tab, which is generally undesirable anyway.
+		e.preventDefault();
 	});
 	if (window.nodewebkit) {
 		$(document).on("contextmenu", function(e) {
