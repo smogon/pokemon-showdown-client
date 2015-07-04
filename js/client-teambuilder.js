@@ -65,7 +65,7 @@
 		},
 		back: function() {
 			if (this.exportMode) {
-				this.curTeam.team = Storage.packTeam(this.curSetList);
+				if (this.curTeam) this.curTeam.team = Storage.packTeam(this.curSetList);
 				this.exportMode = false;
 				Storage.saveTeams();
 			} else if (this.curSet) {
