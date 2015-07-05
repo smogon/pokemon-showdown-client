@@ -374,7 +374,7 @@ var Tools = {
 				options.hidestrikethrough ? '$1' : '<s>$1</s>');
 		// <<roomid>>
 		str = str.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g,
-				options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1">$1</a>&raquo;');
+				options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1" target="_blank" onclick="return selectTab(\'$1\');">$1</a>&raquo;');
 		// linking of URIs
 		if (!options.hidelinks) {
 			str = str.replace(linkRegex, function(uri) {
