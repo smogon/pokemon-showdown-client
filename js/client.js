@@ -4,16 +4,11 @@
 		window.gui = require('nw.gui');
 		window.nwWindow = gui.Window.get();
 	}
-	$(window).on('click', 'a', function(e) {
+	$(document).on('click', 'a', function(e) {
 		if (this.className === 'closebutton') return; // handled elsewhere
 		if (!this.href) return; // should never happen
-		if (this.href.substr(0, 32) === 'http://play.pokemonshowdown.com/' || this.href.substr(0, 33) === 'https://play.pokemonshowdown.com/') {
-			var target;
-			if (this.href.charAt(4) === ':') {
-				target = this.href.substr(32);
-			} else {
-				target = this.href.substr(33);
-			}
+		if (this.host === 'play.pokemonshowdown.com' || this.host === location.host) {
+			var target = this.pathname.substr(1);
 			if (target.indexOf('/') < 0 && target.indexOf('.') < 0) {
 				window.app.tryJoinRoom(target);
 				e.preventDefault();
