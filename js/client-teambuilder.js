@@ -296,6 +296,8 @@
 			elOffset = $(e.currentTarget).offset();
 			app.draggingOffsetX = e.originalEvent.pageX - elOffset.left;
 			app.draggingOffsetY = e.originalEvent.pageY - elOffset.top;
+			app.draggingRoom = this.id;
+			this.finalOffset = null;
 			setTimeout(function() {
 				$(e.currentTarget).parent().addClass('dragging');
 			}, 0);
@@ -319,50 +321,42 @@
 			this.$('.teamlist').css('pointer-events', 'none');
 			$(e.currentTarget).parent().removeClass('dragging');
 
+			this.updateTeamList();
+
 			// We're going to try to animate the team settling into its new position
-			// This would be really straightforward if not for the confluence of several
-			// different browser bugs:
-			// http://stackoverflow.com/questions/20482233/x-and-y-values-in-html5-drag-events-are-inconsistent-across-browsers
 
-			if (e.originalEvent.dataTransfer.dropEffect === 'move' &&
-				(e.originalEvent.pageX || e.originalEvent.pageY)) {
-				// We have a pageX and a pageY to work with
-				var finalPos = $(e.currentTarget).offset();
-				this.updateTeamList();
-				var $newTeamEl = this.$('.team[data-value=' + newLoc + ']');
+			if (this.finalOffset) {
+				// event.pageY and event.pageX are buggy on literally every browser:
 
+				//   in Chrome:
+				// event.pageX|pageY is the position of the bottom left corner of the draggable, instead
+				// of the mouse position
+
+				//   in Safari:
+				// window.innerHeight * 2 - window.outerHeight - event.pageY is the mouse position
+				// No, I don't understand what's going on, either, but unsurprisingly this fails utterly
+				// if the page is zoomed.
+
+				//   in Firefox:
+				// event.pageX|pageY are straight-up unsupported
+
+				// if you don't believe me, uncomment and see for yourself:
 				// console.log('x,y = ' + [e.originalEvent.x, e.originalEvent.y]);
 				// console.log('screenX,screenY = ' + [e.originalEvent.screenX, e.originalEvent.screenY]);
 				// console.log('clientX,clientY = ' + [e.originalEvent.clientX, e.originalEvent.clientY]);
 				// console.log('pageX,pageY = ' + [e.originalEvent.pageX, e.originalEvent.pageY]);
-				var finalOffset;
-				if (navigator.userAgent.indexOf("Chrome/") >= 0) {
-					// Hopefully Chrome
-					// event.pageX|pageY are relative to the bottom left corner of the draggable in Chrome ??
-					// (x-0, y-50) gives the top left corner
-					// Let's just hope this is the standard and we won't have to redo it for IE or something
-					finalOffset = [e.originalEvent.pageX - 0 - finalPos.left, e.originalEvent.pageY - 50 - finalPos.top];
-				} else if (navigator.userAgent.indexOf("Safari/") >= 0) {
-					// Hopefully Safari
-					// Safari is even weirder; it appears to be the mouse position relative to
-					// window.innerHeight * 2 - window.outerHeight
-					// This makes zero sense
-					finalOffset = [e.originalEvent.pageX - app.draggingOffsetX - finalPos.left, window.innerHeight * 2 - window.outerHeight - e.originalEvent.pageY - app.draggingOffsetY - finalPos.top];
-				}
 
-				if (finalOffset) {
-					$newTeamEl.css('transform', 'translate(' + finalOffset[0] + 'px, ' + finalOffset[1] + 'px)');
-					setTimeout(function() {
-						$newTeamEl.css('transition', 'transform 0.15s');
-						// it's 2015 and Safari doesn't support unprefixed transition!!!
-						$newTeamEl.css('-webkit-transition', '-webkit-transform 0.15s');
-						$newTeamEl.css('transform', 'translate(0px, 0px)');
-					});
-				}
-			} else {
-				// browser doesn't support event.pageX|pageY for dragend
-				// (namely, Firefox)
-				this.updateTeamList();
+				// Because of this, we're just going to steal the values from the drop event, where
+				// everything is sane.
+
+				var $newTeamEl = this.$('.team[data-value=' + newLoc + ']');
+				$newTeamEl.css('transform', 'translate(' + this.finalOffset[0] + 'px, ' + this.finalOffset[1] + 'px)');
+				setTimeout(function() {
+					$newTeamEl.css('transition', 'transform 0.15s');
+					// it's 2015 and Safari doesn't support unprefixed transition!!!
+					$newTeamEl.css('-webkit-transition', '-webkit-transform 0.15s');
+					$newTeamEl.css('transform', 'translate(0px, 0px)');
+				});
 			}
 		},
 		dragEnterTeam: function(e) {
@@ -382,6 +376,10 @@
 					app.draggingLoc = parseInt(e.currentTarget.dataset.value) + 0.5;
 				}
 			}
+		},
+		defaultDropTeam: function (e) {
+			var finalPos = $(app.dragging).offset();
+			this.finalOffset = [e.originalEvent.pageX - app.draggingOffsetX - finalPos.left, e.originalEvent.pageY - app.draggingOffsetY - finalPos.top];
 		},
 
 		/*********************************************************

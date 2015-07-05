@@ -36,6 +36,9 @@
 		// The default file drop action for most browsers is to open the file
 		// in the tab, which is generally undesirable anyway.
 		e.preventDefault();
+		if (app.dragging) {
+			app.rooms[app.draggingRoom].defaultDropTeam(e);
+		}
 	});
 	if (window.nodewebkit) {
 		$(document).on("contextmenu", function(e) {
