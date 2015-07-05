@@ -636,7 +636,7 @@ Storage.exportTeam = function(team) {
 	if (!team) return "";
 	if (typeof team === 'string') {
 		if (team.indexOf('\n') >= 0) return team;
-		team = Storage.fastUnpackTeam(team);
+		team = Storage.unpackTeam(team);
 	}
 	var text = '';
 	for (var i=0; i<team.length; i++) {
