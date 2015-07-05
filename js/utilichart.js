@@ -67,7 +67,7 @@ function BattleChart()
 		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
 
 		var tier = pokemon.tier;
-		if (!tier) tier = Tools.getTemplate(pokemon.baseSpecies).tier || 'Illegal';
+		if (!tier) tier = Tools.getTemplate(pokemon.baseSpecies || pokemon.species).tier || 'Illegal';
 
 		text += '<span class="col numcol">'+tier+'</span> ';
 
