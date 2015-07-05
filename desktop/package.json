@@ -6,7 +6,7 @@
   "node-remote": "play.pokemonshowdown.com",
   "no-edit-menu": false,
   "window": {
-	  "icon": "data/pokemonshowdown.ico",
+	  "icon": "icons/icon_32x32.png",
     "title": "Loading...",
     "toolbar": false,
     "show": false
