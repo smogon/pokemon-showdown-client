@@ -344,10 +344,10 @@
 					finalOffset = [e.originalEvent.pageX - 0 - finalPos.left, e.originalEvent.pageY - 50 - finalPos.top];
 				} else if (navigator.userAgent.indexOf("Safari/") >= 0) {
 					// Hopefully Safari
-					// Safari is even weirder, it appears to be the mouse position relative to a spot exactly
-					// 63 pixels above the bottom of the viewport... I have no clue where the 63 comes from so
-					// I'm hoping it's the same on other computers
-					finalOffset = [e.originalEvent.pageX - app.draggingOffsetX - finalPos.left, $('body').height() - 63 - e.originalEvent.pageY - app.draggingOffsetY - finalPos.top];
+					// Safari is even weirder; it appears to be the mouse position relative to
+					// window.innerHeight * 2 - window.outerHeight
+					// This makes zero sense
+					finalOffset = [e.originalEvent.pageX - app.draggingOffsetX - finalPos.left, window.innerHeight * 2 - window.outerHeight - e.originalEvent.pageY - app.draggingOffsetY - finalPos.top];
 				}
 
 				if (finalOffset) {
