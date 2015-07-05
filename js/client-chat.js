@@ -828,9 +828,10 @@
 				return false;
 
 			case 'buttonkick':
+			case 'buttonwarn':
 				var self = this;
-				app.addPopupPrompt("Why do you wish to kick this user?", "Kick user", function(reason) {
-					self.send('/kick ' + toName(target) + ', ' + (reason || ''));
+				app.addPopupPrompt("Why do you wish to warn this user?", "Warn user", function(reason) {
+					self.send('/warn ' + toName(target) + ', ' + (reason || ''));
 				});
 				return false;
 
