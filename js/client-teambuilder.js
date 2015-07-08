@@ -140,7 +140,7 @@
 				this.$el.html(buf);
 				return;
 			}
-			buf = '<div class="pad"><p>y\'know strawberries have more potassium than bananas</p>';
+			buf = '<div class="pad"><p>y\'know <s>strawberries</s> avocados have more potassium than bananas</p>';
 			buf += '<p>that doesn\'t have anything to do with teambuilding!</p>';
 			buf += '<p><i>fiiiiiiine</i> press Ctrl+F to find teams by pokemon name</p>';
 			buf += this.clipboardHTML();
