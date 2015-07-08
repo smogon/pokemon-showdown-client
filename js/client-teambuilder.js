@@ -289,8 +289,19 @@
 		dragStartTeam: function(e) {
 			var target = e.currentTarget;
 			var dataTransfer = e.originalEvent.dataTransfer;
+
 			dataTransfer.effectAllowed = 'move';
+
 			dataTransfer.setData("text/plain", "Team " + e.currentTarget.dataset.value);
+
+			var team = Storage.teams[e.currentTarget.dataset.value];
+			var filename = team.name;
+			if (team.format) filename = '['+team.format+'] '+filename;
+			filename = $.trim(filename).replace(/[\\\/]+/g, '')+'.txt';
+			var downloadurl = "text/plain:"+filename+":data:text/plain;base64,"+encodeURIComponent(window.btoa(Storage.exportTeam(team.team).replace(/\n/g,'\r\n')));
+			console.log(downloadurl);
+			dataTransfer.setData("DownloadURL", downloadurl);
+
 			app.dragging = e.currentTarget;
 			app.draggingLoc = parseInt(e.currentTarget.dataset.value);
 			elOffset = $(e.currentTarget).offset();
