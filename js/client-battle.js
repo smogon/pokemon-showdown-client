@@ -1118,8 +1118,8 @@
 			var self = this;
 			app.addPopupPrompt("Replacement player's username", "Replace player", function(target) {
 				if (!target) return;
-				room.leaveBattle();
 				room.send('/addplayer ' + target);
+				room.leaveBattle();
 				self.close();
 			});
 		},
