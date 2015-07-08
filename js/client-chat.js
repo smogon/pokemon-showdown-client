@@ -432,6 +432,7 @@
 				var self = this;
 				var challenge = function(targets) {
 					target = toId(targets[0]);
+					if (toId(targets[0]) === app.user.get('userid')) return;
 					self.challengeData = { userid: target, format: targets[1] || '', team: targets[2] || '' };
 					app.on('response:userdetails', self.challengeUserdetails, self);
 					app.send('/cmd userdetails '+target);
