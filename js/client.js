@@ -50,6 +50,15 @@
 		e.preventDefault();
 		if (app.dragging) {
 			app.rooms[app.draggingRoom].defaultDropTeam(e);
+		} else if (e.originalEvent.dataTransfer.files && e.originalEvent.dataTransfer.files[0]) {
+			var file = e.originalEvent.dataTransfer.files[0];
+			if (file.name.slice(-4) === '.txt' && app.curRoom.id === 'teambuilder') {
+				// Someone dragged in a .txt file, hand it to the teambuilder
+				app.curRoom.defaultDragEnterTeam(e);
+			} else if (file.type && file.type.substr(0, 6) === 'image/') {
+				// It's an image file, try to set it as a background
+				CustomBackgroundPopup.readFile(file);
+			}
 		}
 	});
 	if (window.nodewebkit) {
@@ -2855,25 +2864,31 @@
 		setBg: function(e) {
 			$('.bgstatus').text('Changing background image.');
 			var file = e.currentTarget.files[0];
-			var reader = new FileReader();
-			var self = this;
-			reader.onload = function(e) {
-				var bg = '#344b6c url(' + e.target.result + ') no-repeat left center fixed';
-				try {
-					Tools.prefs('bg', bg);
-				}
-				catch (e) {
-					$('.bgstatus').text("Image too large, upload a background whose size is 3.5MB or less.");
-					return;
-				}
-				$(document.body).css({
-					background: bg,
-					'background-size': 'cover'
-				});
-				self.close();
-			};
-			reader.readAsDataURL(file);
+			CustomBackgroundPopup.readFile(file, this);
 		}
 	});
+	CustomBackgroundPopup.readFile = function (file, popup) {
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			var bg = '#344b6c url(' + e.target.result + ') no-repeat left center fixed';
+			try {
+				Tools.prefs('bg', bg);
+			}
+			catch (e) {
+				if (popup) {
+					$('.bgstatus').text("Image too large, upload a background whose size is 3.5MB or less.");
+				} else {
+					app.addPopupMessage("Image too large, upload a background whose size is 3.5MB or less.");
+				}
+				return;
+			}
+			$(document.body).css({
+				background: bg,
+				'background-size': 'cover'
+			});
+			if (popup) popup.close();
+		};
+		reader.readAsDataURL(file);
+	};
 
 }).call(this, jQuery);
