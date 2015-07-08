@@ -314,8 +314,12 @@
 			}, 0);
 		},
 		dragEndTeam: function(e) {
+			this.finishDrop();
+		},
+		finishDrop: function() {
+			var teamEl = app.dragging;
 			app.dragging = null;
-			var originalLoc = parseInt(e.currentTarget.dataset.value);
+			var originalLoc = parseInt(teamEl.dataset.value);
 			if (isNaN(originalLoc)) {
 				throw new Error("drag failed");
 				return;
@@ -330,7 +334,7 @@
 
 			// possibly half-works-around a hover issue in
 			this.$('.teamlist').css('pointer-events', 'none');
-			$(e.currentTarget).parent().removeClass('dragging');
+			$(teamEl).parent().removeClass('dragging');
 
 			this.updateTeamList();
 
@@ -371,24 +375,70 @@
 			}
 		},
 		dragEnterTeam: function(e) {
-			if (app.dragging) {
-				if (e.currentTarget === app.dragging) {
-					e.preventDefault();
-					return;
-				}
-				var hoverLoc = parseInt(e.currentTarget.dataset.value);
-				if (app.draggingLoc > hoverLoc) {
-					// dragging up
-					$(e.currentTarget).parent().before($(app.dragging).parent());
-					app.draggingLoc = parseInt(e.currentTarget.dataset.value) - 0.5;
-				} else {
-					// dragging down
-					$(e.currentTarget).parent().after($(app.dragging).parent());
-					app.draggingLoc = parseInt(e.currentTarget.dataset.value) + 0.5;
-				}
+			if (!app.dragging) return;
+			if (e.currentTarget === app.dragging) {
+				e.preventDefault();
+				return;
+			}
+			var hoverLoc = parseInt(e.currentTarget.dataset.value);
+			if (app.draggingLoc > hoverLoc) {
+				// dragging up
+				$(e.currentTarget).parent().before($(app.dragging).parent());
+				app.draggingLoc = parseInt(e.currentTarget.dataset.value) - 0.5;
+			} else {
+				// dragging down
+				$(e.currentTarget).parent().after($(app.dragging).parent());
+				app.draggingLoc = parseInt(e.currentTarget.dataset.value) + 0.5;
 			}
 		},
+		defaultDragEnterTeam: function(e) {
+			// Drag originated outside teambuilder
+			if (!e.originalEvent.dataTransfer) return;
+			if (!e.originalEvent.dataTransfer.files) return;
+			if (!e.originalEvent.dataTransfer.files[0]) return;
+			if (e.originalEvent.dataTransfer.files[0].name.slice(-4) !== '.txt') return;
+			// We're dragging a .txt file! It might be a team!
+			this.$('.teamlist').append('<li class="dragging"><div class="team" data-value="' + Storage.teams.length + '"></div></li>');
+			app.dragging = this.$('.dragging .team')[0];
+			app.draggingLoc = Storage.teams.length;
+			app.draggingOffsetX = 180;
+			app.draggingOffsetY = 25;
+			app.draggingRoom = this.id;
+		},
 		defaultDropTeam: function (e) {
+			if (e.originalEvent.dataTransfer.files && e.originalEvent.dataTransfer.files[0]) {
+				var file = e.originalEvent.dataTransfer.files[0];
+				var reader = new FileReader();
+				var self = this;
+				reader.onload = function(e) {
+					var team;
+					try {
+						team = Storage.packTeam(Storage.importTeam(e.target.result));
+					} catch (err) {
+						alert("Not a valid team.");
+						self.updateTeamList();
+						return;
+					}
+					var name = file.name;
+					if (name.substr(name.length-4).toLowerCase() === '.txt') {
+						name = name.substr(0, name.length-4);
+					}
+					var format = '';
+					var bracketIndex = name.indexOf(']');
+					if (bracketIndex >= 0) {
+						format = name.substr(1, bracketIndex-1);
+						name = $.trim(name.substr(bracketIndex+1));
+					}
+					Storage.teams.push({
+						name: name,
+						format: format,
+						team: team,
+						iconCache: ''
+					});
+					self.finishDrop();
+				};
+				reader.readAsText(file);
+			}
 			var finalPos = $(app.dragging).offset();
 			this.finalOffset = [e.originalEvent.pageX - app.draggingOffsetX - finalPos.left, e.originalEvent.pageY - app.draggingOffsetY - finalPos.top];
 		},

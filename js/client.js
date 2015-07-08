@@ -26,6 +26,18 @@
 	});
 	$(window).on('dragover', function (e) {
 		e.preventDefault();
+	});
+	$(document).on('dragenter', function (e) {
+		e.preventDefault();
+
+		if (!app.dragging && e.originalEvent.dataTransfer.files && e.originalEvent.dataTransfer.files[0]) {
+			var file = e.originalEvent.dataTransfer.files[0];
+			if (file.name.slice(-4) === '.txt' && app.curRoom.id === 'teambuilder') {
+				// Someone dragged in a .txt file, hand it to the teambuilder
+				app.curRoom.defaultDragEnterTeam(e);
+			}
+		}
+
 		// dropEffect !== 'none' prevents buggy bounce-back animation in
 		// Chrome/Safari/Opera
 		e.originalEvent.dataTransfer.dropEffect = 'move';
