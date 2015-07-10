@@ -457,7 +457,7 @@
 				if (Config.server && Config.server.host === 'localhost') return;
 				for (var id in self.rooms) {
 					var room = self.rooms[id];
-					if (room.requestLeave && !room.requestLeave()) return "You have active battles.";
+					if (room && room.requestLeave && !room.requestLeave()) return "You have active battles.";
 				}
 			});
 
