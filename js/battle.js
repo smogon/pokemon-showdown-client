@@ -5353,13 +5353,13 @@ var Battle = (function () {
 			} else if (message.substr(0,4).toLowerCase() === '/me ') {
 				this.log('<div class="chat chatmessage-' + toId(name) + '"><strong style="' + hashColor(toUserid(name)) + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4)) + '</i></em></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-pokemon ') {
-				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-item ') {
-				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,14).toLowerCase() === '/data-ability ') {
-				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else if (message.substr(0,11).toLowerCase() === '/data-move ') {
-				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{})+'<li style=\"clear:both\"></li></ul></div>', preempt);
+				if (window.Chart) this.log('<div class="chat"><ul class=\"utilichart\">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>', preempt);
 			} else {
 				this.log('<div class="chat chatmessage-' + toId(name) + '"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="'+Tools.escapeHTML(name)+'">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message) + '</em></div>', preempt);
 			}
