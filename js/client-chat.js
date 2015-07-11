@@ -673,7 +673,7 @@
 					var targets = target.match(/[^,]+(,\d*}[^,]*)?/g);
 					// trim the targets to be safe
 					for (var i=0, len=targets.length; i<len; i++) {
-						targets[i] = targets[i].trim();
+						targets[i] = targets[i].replace(/\n/g, '').trim();
 					}
 					switch (targets[0]) {
 					case 'add':
@@ -688,7 +688,7 @@
 							}
 						}
 						highlights = highlights.concat(targets.slice(1));
-						this.add("Now highlighting on: " + highlights.map(toName).join(', '));
+						this.add("Now highlighting on: " + highlights.join(', '));
 						// We update the regex
 						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 						break;
@@ -700,7 +700,7 @@
 							}
 						}
 						highlights = newHls;
-						this.add("Now highlighting on: " + highlights.map(toName).join(', '));
+						this.add("Now highlighting on: " + highlights.join(', '));
 						// We update the regex
 						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
 						break;
@@ -718,7 +718,7 @@
 					} else if (target === 'show' || target === 'list') {
 						// Shows a list of the current highlighting words
 						if (highlights.length > 0) {
-							this.add("Current highlight list: " + highlights.map(toName).join(", "));
+							this.add("Current highlight list: " + highlights.join(", "));
 						} else {
 							this.add('Your highlight list is empty.');
 						}
