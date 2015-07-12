@@ -12,7 +12,7 @@
 	padding-top: 1px;
 }
 
-.utilichart li a
+.utilichart li > a, .utilitychart li > div
 {
 	display: block;
 	height: 28px;

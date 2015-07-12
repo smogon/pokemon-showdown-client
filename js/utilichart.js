@@ -45,7 +45,7 @@ function BattleChart()
 		if (self.selectCallback) self.selectCallback(x);
 	};
 
-	this.row = function(thing, attrs, match, isFirst) {
+	this.row = function(thing, attrs, match, isFirst, dataCommand) {
 		if (isFirst)
 		{
 			self.firstResult = thing.name;
@@ -54,17 +54,18 @@ function BattleChart()
 		switch (match.thingType)
 		{
 		case 'pokemon':
-			return self.pokemonRow(thing, attrs, match, isFirst);
+			return self.pokemonRow(thing, attrs, match, isFirst, dataCommand);
 		case 'item':
-			return self.itemRow(thing, attrs, match, isFirst);
+			return self.itemRow(thing, attrs, match, isFirst, dataCommand);
 		case 'ability':
-			return self.abilityRow(thing, attrs, match, isFirst);
+			return self.abilityRow(thing, attrs, match, isFirst, dataCommand);
 		case 'move':
-			return self.moveRow(thing, attrs, match, isFirst);
+			return self.moveRow(thing, attrs, match, isFirst, dataCommand);
 		}
 	};
-	this.pokemonRow = function(pokemon, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
+	this.pokemonRow = function(pokemon, attrs, match, isFirst, dataCommand) {
+		var tag = dataCommand ? 'div' : 'a';
+		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><'+tag+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
 
 		var tier = pokemon.tier;
 		if (!tier) tier = Tools.getTemplate(pokemon.baseSpecies || pokemon.species).tier || 'Illegal';
@@ -89,6 +90,9 @@ function BattleChart()
 			{
 				name += '<small>-'+pokemon.forme+'</small>';
 			}
+		}
+		if (dataCommand) {
+			name = '<a href="https://pokemonshowdown.com/dex/pokemon/' + pokemon.id + '" target="_blank">' + name + '</a>';
 		}
 
 		/* if (match.name)
@@ -154,7 +158,7 @@ function BattleChart()
 		text += '<span class="col bstcol"><em>BST<br />'+bst+'</em></span> ';
 		text += '</span>';
 
-		text += '</a></li>';
+		text += '</'+tag+'></li>';
 
 		return text;
 	};
