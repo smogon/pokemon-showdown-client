@@ -2128,6 +2128,9 @@
 			}
 			this.submit(data);
 		},
+		send: function (data) {
+			app.send(data);
+		},
 
 		remove: function() {
 			var $parent = this.$el.parent();
