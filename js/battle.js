@@ -4337,6 +4337,7 @@ var Battle = (function () {
 				default:
 					actions += "" + poke.getName() + "'s " + effect.name + " started!";
 				}
+				poke.side.updateStatbar();
 				break;
 			case '-end':
 				var poke = this.getPokemon(args[1]);
@@ -4456,6 +4457,7 @@ var Battle = (function () {
 						actions += "" + poke.getName() + "'s " + effect.name + " ended!";
 					}
 				}
+				poke.side.updateStatbar();
 				break;
 			case '-singleturn':
 				var poke = this.getPokemon(args[1]);
