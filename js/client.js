@@ -1,10 +1,10 @@
-(function($) {
+(function ($) {
 
 	if (window.nodewebkit) {
 		window.gui = require('nw.gui');
 		window.nwWindow = gui.Window.get();
 	}
-	$(document).on('click', 'a', function(e) {
+	$(document).on('click', 'a', function (e) {
 		if (this.className === 'closebutton') return; // handled elsewhere
 		if (!this.href) return; // should never happen
 		if (this.host === 'play.pokemonshowdown.com' || this.host === location.host) {
@@ -69,7 +69,7 @@
 		}
 	});
 	if (window.nodewebkit) {
-		$(document).on("contextmenu", function(e) {
+		$(document).on("contextmenu", function (e) {
 			e.preventDefault();
 			var target = e.target;
 			var isEditable = (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT');
@@ -77,33 +77,33 @@
 
 			if (isEditable) menu.append(new gui.MenuItem({
 				label: "Cut",
-				click: function() {
+				click: function () {
 					document.execCommand("cut");
 				}
 			}));
 			var link = $(target).closest('a')[0];
 			if (link) menu.append(new gui.MenuItem({
 				label: "Copy Link URL",
-				click: function() {
+				click: function () {
 					gui.Clipboard.get().set(link.href);
 				}
 			}));
 			if (target.tagName === 'IMG') menu.append(new gui.MenuItem({
 				label: "Copy Image URL",
-				click: function() {
+				click: function () {
 					gui.Clipboard.get().set(target.src);
 				}
 			}));
 			menu.append(new gui.MenuItem({
 				label: "Copy",
-				click: function() {
+				click: function () {
 					document.execCommand("copy");
 				}
 			}));
 			if (isEditable) menu.append(new gui.MenuItem({
 				label: "Paste",
 				enabled: !!gui.Clipboard.get().get(),
-				click: function() {
+				click: function () {
 					document.execCommand("paste");
 				}
 			}));
@@ -130,7 +130,7 @@
 
 	// sanitize a room ID
 	// shouldn't actually do anything except against a malicious server
-	var toRoomid = this.toRoomid = function(roomid) {
+	var toRoomid = this.toRoomid = function (roomid) {
 		return roomid.replace(/[^a-zA-Z0-9-]+/g, '').toLowerCase();
 	};
 
@@ -140,17 +140,17 @@
 	}
 
 	// this is called being lazy
-	window.selectTab = function(tab) {
+	window.selectTab = function (tab) {
 		app.tryJoinRoom(tab);
 		return false;
 	};
 
 	// placeholder until the real chart loads
 	window.Chart = {
-		pokemonRow: function() {},
-		itemRow: function() {},
-		abilityRow: function() {},
-		moveRow: function() {}
+		pokemonRow: function () {},
+		itemRow: function () {},
+		abilityRow: function () {},
+		moveRow: function () {}
 	};
 
 	var User = this.User = Backbone.Model.extend({
@@ -161,14 +161,14 @@
 			named: false,
 			avatar: 0
 		},
-		initialize: function() {
-			app.on('response:userdetails', function(data) {
+		initialize: function () {
+			app.on('response:userdetails', function (data) {
 				if (data.userid === this.get('userid')) {
 					this.set('avatar', data.avatar);
 				}
 			}, this);
 			var self = this;
-			this.on('change:name', function() {
+			this.on('change:name', function () {
 				if (!self.get('named')) {
 					self.nameRegExp = null;
 				} else {
@@ -181,12 +181,12 @@
 		 * to this file will always be made on the `play.pokemonshowdown.com`
 		 * domain in order to have access to the correct cookies.
 		 */
-		getActionPHP: function() {
+		getActionPHP: function () {
 			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
 				ret = 'https://' + Config.origindomain + ret;
 			}
-			return (this.getActionPHP = function() {
+			return (this.getActionPHP = function () {
 				return ret;
 			})();
 		},
@@ -203,7 +203,7 @@
 		 *   `login:noresponse`
 		 *     triggered if the login server did not return a response
 		 */
-		finishRename: function(name, assertion) {
+		finishRename: function (name, assertion) {
 			if (assertion === ';') {
 				this.trigger('login:authrequired', name);
 			} else if (assertion.substr(0, 2) === ';;') {
@@ -222,7 +222,7 @@
 		 *
 		 * See `finishRename` above for a list of events this can emit.
 		 */
-		rename: function(name) {
+		rename: function (name) {
 			// | , ; are not valid characters in names
 			name = name.replace(/[\|,;]+/g, '');
 			var userid = toUserid(name);
@@ -237,21 +237,21 @@
 					act: 'getassertion',
 					userid: userid,
 					challstr: this.challstr
-				}, function(data) {
+				}, function (data) {
 					self.finishRename(name, data);
 				});
 			} else {
 				app.send('/trn ' + name);
 			}
 		},
-		passwordRename: function(name, password) {
+		passwordRename: function (name, password) {
 			var self = this;
 			$.post(this.getActionPHP(), {
 				act: 'login',
 				name: name,
 				pass: password,
 				challstr: this.challstr
-			}, Tools.safeJSON(function(data) {
+			}, Tools.safeJSON(function (data) {
 				if (data && data.curuser && data.curuser.loggedin) {
 					// success!
 					self.set('registered', data.curuser);
@@ -266,7 +266,7 @@
 			}), 'text');
 		},
 		challstr: '',
-		receiveChallstr: function(challstr) {
+		receiveChallstr: function (challstr) {
 			if (challstr) {
 				/**
 				 * Rename the user based on the `sid` and `showdown_username` cookies.
@@ -284,7 +284,7 @@
 				$.get(this.getActionPHP(), {
 					act: 'upkeep',
 					challstr: this.challstr
-				}, Tools.safeJSON(function(data) {
+				}, Tools.safeJSON(function (data) {
 					if (!data.username) return;
 
 					// | , ; are not valid characters in names
@@ -303,14 +303,14 @@
 		/**
 		 * Log out from the server (but remain connected as a guest).
 		 */
-		logout: function() {
+		logout: function () {
 			$.post(this.getActionPHP(), {
 				act: 'logout',
 				userid: this.get('userid')
 			});
 			app.send('/logout');
 		},
-		setPersistentName: function(name) {
+		setPersistentName: function (name) {
 			$.cookie('showdown_username', (name !== undefined) ? name : this.get('name'), {
 				expires: 14
 			});
@@ -323,7 +323,7 @@
 			'*path': 'dispatchFragment'
 		},
 		focused: true,
-		initialize: function() {
+		initialize: function () {
 			window.app = this;
 			this.initializeRooms();
 			this.initializePopups();
@@ -364,7 +364,7 @@
 			var self = this;
 
 			this.prefsLoaded = false;
-			this.on('init:loadprefs', function() {
+			this.on('init:loadprefs', function () {
 				self.prefsLoaded = true;
 				var bg = Tools.prefs('bg');
 				if (bg) {
@@ -407,28 +407,28 @@
 				}
 			});
 
-			this.on('init:unsupported', function() {
+			this.on('init:unsupported', function () {
 				self.addPopupMessage('Your browser is unsupported.');
 			});
 
-			this.on('init:nothirdparty', function() {
+			this.on('init:nothirdparty', function () {
 				self.addPopupMessage('You have third-party cookies disabled in your browser, which is likely to cause problems. You should enable them and then refresh this page.');
 			});
 
-			this.on('init:socketclosed', function() {
+			this.on('init:socketclosed', function () {
 				self.reconnectPending = true;
 				if (!self.popups.length) self.addPopup(ReconnectPopup);
 			});
 
-			this.on('init:connectionerror', function() {
+			this.on('init:connectionerror', function () {
 				self.addPopup(ReconnectPopup, {cantconnect: true});
 			});
 
-			this.user.on('login:invalidname', function(name, reason) {
+			this.user.on('login:invalidname', function (name, reason) {
 				self.addPopup(LoginPopup, {name: name, reason: reason});
 			});
 
-			this.user.on('login:authrequired', function(name) {
+			this.user.on('login:authrequired', function (name) {
 				self.addPopup(LoginPasswordPopup, {username: name});
 			});
 
@@ -437,25 +437,25 @@
 			this.on('response:rooms', this.roomsResponse, this);
 
 			if (window.nodewebkit) {
-				nwWindow.on('focus', function() {
+				nwWindow.on('focus', function () {
 					if (!self.focused) {
 						self.focused = true;
 						if (self.curRoom) self.curRoom.dismissNotification();
 						if (self.curSideRoom) self.curSideRoom.dismissNotification();
 					}
 				});
-				nwWindow.on('blur', function() {
+				nwWindow.on('blur', function () {
 					self.focused = false;
 				});
 			} else {
-				$(window).on('focus click', function() {
+				$(window).on('focus click', function () {
 					if (!self.focused) {
 						self.focused = true;
 						if (self.curRoom) self.curRoom.dismissNotification();
 						if (self.curSideRoom) self.curSideRoom.dismissNotification();
 					}
 				});
-				$(window).on('blur', function() {
+				$(window).on('blur', function () {
 					self.focused = false;
 				});
 			}
@@ -468,7 +468,7 @@
 				}
 			});
 
-			$(window).on('keydown', function(e) {
+			$(window).on('keydown', function (e) {
 				var el = e.target;
 				var tagName = el.tagName.toUpperCase();
 
@@ -551,7 +551,7 @@
 		 *   `init:socketclosed`
 		 *     triggered if the SockJS socket closes
 		 */
-		initializeConnection: function() {
+		initializeConnection: function () {
 			if ((document.location.hostname !== Config.origindomain) && !Config.testclient) {
 				// Handle *.psim.us.
 				return this.initializeCrossDomainConnection();
@@ -581,7 +581,7 @@
 				} else {
 					// First time using HTTPS: copy the existing HTTP storage
 					// over to the HTTPS origin.
-					$(window).on('message', function($e) {
+					$(window).on('message', function ($e) {
 						var e = $e.originalEvent;
 						var origin = 'https://' + Config.origindomain;
 						if (e.origin !== origin) return;
@@ -623,12 +623,12 @@
 		/**
 		 * Initialise the client when running on the file:// filesystem.
 		 */
-		initializeTestClient: function() {
+		initializeTestClient: function () {
 			var self = this;
-			var showUnsupported = function() {
+			var showUnsupported = function () {
 				self.addPopupMessage('The requested action is not supported by testclient.html. Please complete this action in the official client instead.');
 			};
-			$.get = function(uri, data, callback, type) {
+			$.get = function (uri, data, callback, type) {
 				if (type === 'html') {
 					uri += '&testclient';
 				}
@@ -643,7 +643,7 @@
 				}
 				self.addPopup(ProxyPopup, {uri: uri, callback: callback});
 			};
-			$.post = function(/*uri, data, callback, type*/) {
+			$.post = function (/*uri, data, callback, type*/) {
 				showUnsupported();
 			};
 		},
@@ -652,7 +652,7 @@
 		 * client is loaded from a different domain from the one where the
 		 * user's localStorage is located.
 		 */
-		initializeCrossDomainConnection: function() {
+		initializeCrossDomainConnection: function () {
 			if (!('postMessage' in window)) {
 				// browser does not support cross-document messaging
 				return this.trigger('init:unsupported');
@@ -661,11 +661,11 @@
 			// we receive teams, prefs, and server connection information from
 			// crossdomain.php on play.pokemonshowdown.com.
 			var self = this;
-			$(window).on('message', (function() {
+			$(window).on('message', (function () {
 				var origin;
 				var callbacks = {};
 				var callbackIdx = 0;
-				return function($e) {
+				return function ($e) {
 					var e = $e.originalEvent;
 					if ((e.origin === 'http://' + Config.origindomain) ||
 							(e.origin === 'https://' + Config.origindomain)) {
@@ -675,7 +675,7 @@
 					}
 					var data = $.parseJSON(e.data);
 					if (data.server) {
-						var postCrossDomainMessage = function(data) {
+						var postCrossDomainMessage = function (data) {
 							return e.source.postMessage($.toJSON(data), origin);
 						};
 						// server config information
@@ -688,18 +688,18 @@
 							$('head').append($link);
 						}
 						// persistent username
-						self.user.setPersistentName = function(name) {
+						self.user.setPersistentName = function (name) {
 							postCrossDomainMessage({
 								username: ((name !== undefined) ? name : this.get('name'))
 							});
 						};
 						// ajax requests
-						$.get = function(uri, data, callback, type) {
+						$.get = function (uri, data, callback, type) {
 							var idx = callbackIdx++;
 							callbacks[idx] = callback;
 							postCrossDomainMessage({get: [uri, data, idx, type]});
 						};
-						$.post = function(uri, data, callback, type) {
+						$.post = function (uri, data, callback, type) {
 							var idx = callbackIdx++;
 							callbacks[idx] = callback;
 							postCrossDomainMessage({post: [uri, data, idx, type]});
@@ -711,7 +711,7 @@
 							Storage.teams = [];
 						}
 						self.trigger('init:loadteams');
-						Storage.saveTeams = function() {
+						Storage.saveTeams = function () {
 							postCrossDomainMessage({teams: Storage.packAllTeams(Storage.teams)});
 						};
 						// prefs
@@ -719,7 +719,7 @@
 							Tools.prefs.data = $.parseJSON(data.prefs);
 						}
 						self.trigger('init:loadprefs');
-						Tools.prefs.save = function() {
+						Tools.prefs.save = function () {
 							postCrossDomainMessage({prefs: $.toJSON(this.data)});
 						};
 						// check for third-party cookies being disabled
@@ -750,7 +750,7 @@
 		 * This is intended to be called only by `initializeConnection` above.
 		 * Don't call this function directly.
 		 */
-		connect: function() {
+		connect: function () {
 			if (this.down) return;
 
 			var bannedHosts = ['cool.jit.su'];
@@ -760,7 +760,7 @@
 			}
 
 			var self = this;
-			var constructSocket = function() {
+			var constructSocket = function () {
 				var protocol = (Config.server.port === 443) ? 'https' : 'http';
 				Config.server.host = $.trim(Config.server.host);
 				return new SockJS(protocol + '://' + Config.server.host + ':' +
@@ -777,7 +777,7 @@
 			var altport = (Config.server.port === Config.server.altport);
 			var altprefix = false;
 
-			this.socket.onopen = function() {
+			this.socket.onopen = function () {
 				socketopened = true;
 				if (altport && window.ga) {
 					ga('send', 'event', 'Alt port connection', Config.server.id);
@@ -799,7 +799,7 @@
 					}
 				}
 			};
-			this.socket.onmessage = function(msg) {
+			this.socket.onmessage = function (msg) {
 				if (window.console && console.log) {
 					console.log('<< '+msg.data);
 				}
@@ -809,14 +809,14 @@
 				}
 				alert("This server is using an outdated version of Pokémon Showdown and needs to be updated.");
 			};
-			var reconstructSocket = function(socket) {
+			var reconstructSocket = function (socket) {
 				var s = constructSocket();
 				s.onopen = socket.onopen;
 				s.onmessage = socket.onmessage;
 				s.onclose = socket.onclose;
 				return s;
 			};
-			this.socket.onclose = function() {
+			this.socket.onclose = function () {
 				if (!socketopened) {
 					if (Config.server.altport && !altport) {
 						if (document.location.protocol === 'https:') {
@@ -841,7 +841,7 @@
 				self.trigger('init:socketclosed');
 			};
 		},
-		dispatchFragment: function(fragment) {
+		dispatchFragment: function (fragment) {
 			if (Config.testclient) {
 				// Fragment dispatching doesn't work in testclient.html.
 				// Just open the main menu.
@@ -857,7 +857,7 @@
 		/**
 		 * Send to sim server
 		 */
-		send: function(data, room) {
+		send: function (data, room) {
 			if (room && room !== 'lobby' && room !== true) {
 				data = room+'|'+data;
 			} else if (room !== true) {
@@ -876,13 +876,13 @@
 		/**
 		 * Send team to sim server
 		 */
-		sendTeam: function(team) {
+		sendTeam: function (team) {
 			this.send('/utm '+Storage.getPackedTeam(team));
 		},
 		/**
 		 * Receive from sim server
 		 */
-		receive: function(data) {
+		receive: function (data) {
 			var roomid = '';
 			var autojoined = false;
 			if (data.substr(0,1) === '>') {
@@ -931,7 +931,7 @@
 				// data is the error code
 				if (data === 'namerequired') {
 					var self = this;
-					this.once('init:choosename', function() {
+					this.once('init:choosename', function () {
 						self.send('/join '+roomid);
 					});
 				} else if (data !== 'namepending') {
@@ -1090,7 +1090,7 @@
 				break;
 			}
 		},
-		parseFormats: function(formatsList) {
+		parseFormats: function (formatsList) {
 			var isSection = false;
 			var section = '';
 
@@ -1174,14 +1174,14 @@
 			if (columnChanged) app.supports['formatColumns'] = true;
 			this.trigger('init:formats');
 		},
-		uploadReplay: function(data) {
+		uploadReplay: function (data) {
 			var id = data.id;
 			var serverid = Config.server.id && toId(Config.server.id.split(':')[0]);
 			if (serverid && serverid !== 'showdown') id = serverid+'-'+id;
 			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
 				id: id
-			}, function(data) {
+			}, function (data) {
 				if ((serverid === 'showdown') && (data === 'invalid id')) {
 					data = 'not found';
 				}
@@ -1198,13 +1198,13 @@
 				}
 			});
 		},
-		roomsResponse: function(data) {
+		roomsResponse: function (data) {
 			app.supports['rooms'] = true;
 			if (data) {
 				this.roomsData = data;
 			}
 		},
-		clearGlobalListeners: function() {
+		clearGlobalListeners: function () {
 			// jslider doesn't clear these when it should,
 			// so we have to do it for them :/
 			$(document).off('click touchstart mousedown touchmove mousemove touchend mouseup');
@@ -1214,13 +1214,13 @@
 		 * Rooms
 		 *********************************************************/
 
-		initializeRooms: function() {
+		initializeRooms: function () {
 			this.rooms = Object.create(null); // {}
 
 			$(window).on('resize', _.bind(this.resize, this));
 		},
 		fixedWidth: true,
-		resize: function() {
+		resize: function () {
 			if (window.screen && screen.width && screen.width >= 640) {
 				if (this.fixedWidth) {
 					document.getElementById('viewport').setAttribute('content','width=device-width');
@@ -1241,7 +1241,7 @@
 		curRoom: null,
 		curSideRoom: null,
 		sideRoom: null,
-		joinRoom: function(id, type, nojoin) {
+		joinRoom: function (id, type, nojoin) {
 			if (this.rooms[id]) {
 				this.focusRoom(id);
 				return this.rooms[id];
@@ -1255,7 +1255,7 @@
 		/**
 		 * We tried to join a room but it didn't exist
 		 */
-		unjoinRoom: function(id) {
+		unjoinRoom: function (id) {
 			if (Config.server.id && this.rooms[id] && this.rooms[id].type === 'battle') {
 				if (id === this.initialFragment) {
 					// you were direct-linked to this nonexistent room
@@ -1270,15 +1270,15 @@
 			this.removeRoom(id, true);
 			if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
 		},
-		tryJoinRoom: function(id) {
+		tryJoinRoom: function (id) {
 			this.joinRoom(id);
 		},
-		addRoom: function(id, type, nojoin, title) {
+		addRoom: function (id, type, nojoin, title) {
 			this._addRoom(id, type, nojoin, title);
 			this.updateSideRoom();
 			this.updateLayout();
 		},
-		_addRoom: function(id, type, nojoin, title) {
+		_addRoom: function (id, type, nojoin, title) {
 			var oldRoom;
 			if (this.rooms[id]) {
 				if (type && this.rooms[id].type !== type) {
@@ -1345,7 +1345,7 @@
 			}
 			return room;
 		},
-		focusRoom: function(id) {
+		focusRoom: function (id) {
 			var room = this.rooms[id];
 			if (!room) return false;
 			if (this.curRoom === room || this.curSideRoom === room) {
@@ -1368,7 +1368,7 @@
 			room.focus();
 			return;
 		},
-		updateLayout: function() {
+		updateLayout: function () {
 			if (!this.curRoom) return; // can happen during initialization
 			this.dismissPopups();
 			if (!this.sideRoom) {
@@ -1446,7 +1446,7 @@
 			this.curSideRoom.show('right', leftWidth);
 			this.topbar.updateTabbar();
 		},
-		updateSideRoom: function(id) {
+		updateSideRoom: function (id) {
 			if (id && this.rooms[id].isSideRoom) {
 				this.sideRoom = this.rooms[id];
 				if (this.curSideRoom && this.curSideRoom !== this.sideRoom) {
@@ -1463,13 +1463,13 @@
 				}
 			}
 		},
-		leaveRoom: function(id, e) {
+		leaveRoom: function (id, e) {
 			var room = this.rooms[id];
 			if (!room) return false;
 			if (room.requestLeave && !room.requestLeave(e)) return false;
 			return this.removeRoom(id);
 		},
-		removeRoom: function(id, alreadyLeft) {
+		removeRoom: function (id, alreadyLeft) {
 			var room = this.rooms[id];
 			if (room) {
 				if (room === this.curRoom) this.focusRoom('');
@@ -1485,20 +1485,20 @@
 			}
 			return false;
 		},
-		openInNewWindow: function(url) {
+		openInNewWindow: function (url) {
 			if (window.nodewebkit) {
 				gui.Shell.openExternal(url);
 			} else {
 				window.open(url, '_blank');
 			}
 		},
-		clickLink: function(e) {
+		clickLink: function (e) {
 			if (window.nodewebkit) {
 				gui.Shell.openExternal(e.target.href);
 				return false;
 			}
 		},
-		updateAutojoin: function() {
+		updateAutojoin: function () {
 			if (Config.server.id !== 'showdown') return;
 			var autojoins = [];
 			var autojoinCount = 0;
@@ -1520,11 +1520,11 @@
 		 *********************************************************/
 
 		popups: null,
-		initializePopups: function() {
+		initializePopups: function () {
 			this.popups = [];
 		},
 
-		addPopup: function(type, data) {
+		addPopup: function (type, data) {
 			if (!data) data = {};
 
 			if (data.sourceEl === undefined && app.dispatchingButton) {
@@ -1554,7 +1554,7 @@
 			} else {
 				$overlay = $('<div class="ps-overlay"></div>').appendTo('body').append(popup.el);
 				if (popup.type === 'semimodal') {
-					$overlay.on('click', function(e) {
+					$overlay.on('click', function (e) {
 						if (e.currentTarget === e.target) {
 							popup.close();
 						}
@@ -1568,17 +1568,17 @@
 			this.popups.push(popup);
 			return popup;
 		},
-		addPopupMessage: function(message) {
+		addPopupMessage: function (message) {
 			// shorthand for adding a popup message
 			// this is the equivalent of alert(message)
 			app.addPopup(Popup, {message: message});
 		},
-		addPopupPrompt: function(message, buttonOrCallback, callback) {
+		addPopupPrompt: function (message, buttonOrCallback, callback) {
 			var button = (callback ? buttonOrCallback : 'OK');
 			callback = (!callback ? buttonOrCallback : callback);
 			app.addPopup(PromptPopup, { message: message, button: button, callback: callback });
 		},
-		closePopup: function(id) {
+		closePopup: function (id) {
 			if (this.popups.length) {
 				var popup = this.popups.pop();
 				popup.remove();
@@ -1587,7 +1587,7 @@
 			}
 			return false;
 		},
-		dismissPopups: function() {
+		dismissPopups: function () {
 			var source = false;
 			while (this.popups.length) {
 				var popup = this.popups[this.popups.length-1];
@@ -1607,7 +1607,7 @@
 			'click .username': 'clickUsername',
 			'click button': 'dispatchClickButton'
 		},
-		initialize: function() {
+		initialize: function () {
 			this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar .inner');
 			// this.$sidetabbar = this.$('.sidetabbar');
@@ -1619,7 +1619,7 @@
 		},
 
 		// userbar
-		updateUserbar: function() {
+		updateUserbar: function () {
 			var buf = '';
 			var name = ' '+app.user.get('name');
 			var color = hashColor(app.user.get('userid'));
@@ -1630,23 +1630,23 @@
 			}
 			this.$userbar.html(buf);
 		},
-		login: function() {
+		login: function () {
 			app.addPopup(LoginPopup);
 		},
-		openSounds: function() {
+		openSounds: function () {
 			app.addPopup(SoundsPopup);
 		},
-		openOptions: function() {
+		openOptions: function () {
 			app.addPopup(OptionsPopup);
 		},
-		clickUsername: function(e) {
+		clickUsername: function (e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 
 		// tabbar
-		updateTabbar: function() {
+		updateTabbar: function () {
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
@@ -1749,7 +1749,7 @@
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
 		},
-		dispatchClickButton: function(e) {
+		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
 			if (target.name) {
 				app.dismissingSource = app.dismissPopups();
@@ -1761,7 +1761,7 @@
 				delete app.dispatchingButton;
 			}
 		},
-		click: function(e) {
+		click: function (e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			var $target = $(e.currentTarget);
@@ -1775,14 +1775,14 @@
 				app.joinRoom(id);
 			}
 		},
-		tablist: function() {
+		tablist: function () {
 			app.addPopup(TabListPopup);
 		}
 	});
 
 	var Room = this.Room = Backbone.View.extend({
 		className: 'ps-room',
-		constructor: function(options) {
+		constructor: function (options) {
 			if (!this.events) this.events = {};
 			if (!this.events['click button']) this.events['click button'] = 'dispatchClickButton';
 			if (!this.events['click']) this.events['click'] = 'dispatchClickBackground';
@@ -1792,7 +1792,7 @@
 			if (!(options && options.nojoin)) this.join();
 			if (options && options.title) this.title = options.title;
 		},
-		dispatchClickButton: function(e) {
+		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
 			if (target.name) {
 				app.dismissingSource = app.dismissPopups();
@@ -1804,7 +1804,7 @@
 				delete app.dispatchingButton;
 			}
 		},
-		dispatchClickBackground: function(e) {
+		dispatchClickBackground: function (e) {
 			app.dismissPopups();
 			if (e.shiftKey || (window.getSelection && !window.getSelection().isCollapsed)) {
 				return;
@@ -1817,20 +1817,20 @@
 		/**
 		 * Send to sim server
 		 */
-		send: function(data) {
+		send: function (data) {
 			app.send(data, this.id);
 		},
 		/**
 		 * Receive from sim server
 		 */
-		receive: function(data) {
+		receive: function (data) {
 			//
 		},
 
 		// layout
 
 		bestWidth: 659,
-		show: function(position, leftWidth) {
+		show: function (position, leftWidth) {
 			switch (position) {
 			case 'left':
 				this.$el.css({left: 0, width: leftWidth, right: 'auto'});
@@ -1846,18 +1846,18 @@
 			this.$el.show();
 			this.dismissAllNotifications(true);
 		},
-		hide: function() {
+		hide: function () {
 			this.blur();
 			this.$el.hide();
 		},
-		focus: function() {},
-		blur: function() {},
-		join: function() {},
-		leave: function() {},
+		focus: function () {},
+		blur: function () {},
+		join: function () {},
+		leave: function () {},
 
 		// notifications
 
-		requestNotifications: function() {
+		requestNotifications: function () {
 			try {
 				if (window.webkitNotifications && webkitNotifications.requestPermission) {
 					// Notification.requestPermission crashes Chrome 23:
@@ -1867,14 +1867,14 @@
 					// the new Notification spec anyway.
 					webkitNotifications.requestPermission();
 				} else if (window.Notification && Notification.requestPermission) {
-					Notification.requestPermission(function(permission) {});
+					Notification.requestPermission(function (permission) {});
 				}
 			} catch (e) {}
 		},
 		notificationClass: '',
 		notifications: null,
 		subtleNotification: false,
-		notify: function(title, body, tag, once) {
+		notify: function (title, body, tag, once) {
 			if (once && app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
 			if (!tag) tag = 'message';
 			var needsTabbarUpdate = false;
@@ -1897,17 +1897,17 @@
 					tag: this.id+':'+tag,
 				});
 				var self = this;
-				notification.onclose = function() {
+				notification.onclose = function () {
 					self.dismissNotification(tag);
 				};
-				notification.onclick = function() {
+				notification.onclick = function () {
 					self.clickNotification(tag);
 				};
 				if (Tools.prefs('temporarynotifications')) {
 					if (notification.cancel) {
-						setTimeout(function() {notification.cancel();}, 5000);
+						setTimeout(function () {notification.cancel();}, 5000);
 					} else if (notification.close) {
-						setTimeout(function() {notification.close();}, 5000);
+						setTimeout(function () {notification.close();}, 5000);
 					}
 				}
 				if (once) notification.psAutoclose = true;
@@ -1929,17 +1929,17 @@
 				app.topbar.updateTabbar();
 			}
 		},
-		subtleNotifyOnce: function() {
+		subtleNotifyOnce: function () {
 			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
 			if (this.notifications || this.subtleNotification) return;
 			this.subtleNotification = true;
 			this.notificationClass = ' subtle-notifying';
 			app.topbar.updateTabbar();
 		},
-		notifyOnce: function(title, body, tag) {
+		notifyOnce: function (title, body, tag) {
 			return this.notify(title, body, tag, true);
 		},
-		closeNotification: function(tag, alreadyClosed) {
+		closeNotification: function (tag, alreadyClosed) {
 			if (!tag) return this.closeAllNotifications();
 			if (window.nodewebkit) nwWindow.requestAttention(false);
 			if (!this.notifications || !this.notifications[tag]) return;
@@ -1951,7 +1951,7 @@
 				app.topbar.updateTabbar();
 			}
 		},
-		closeAllNotifications: function(skipUpdate) {
+		closeAllNotifications: function (skipUpdate) {
 			if (!this.notifications && !this.subtleNotification) {
 				return;
 			}
@@ -1967,7 +1967,7 @@
 			if (skipUpdate) return;
 			app.topbar.updateTabbar();
 		},
-		dismissNotification: function(tag) {
+		dismissNotification: function (tag) {
 			if (!tag) return this.dismissAllNotifications();
 			if (window.nodewebkit) nwWindow.requestAttention(false);
 			if (!this.notifications || !this.notifications[tag]) return;
@@ -1984,7 +1984,7 @@
 				this.notifications[tag] = {};
 			}
 		},
-		dismissAllNotifications: function(skipUpdate) {
+		dismissAllNotifications: function (skipUpdate) {
 			if (!this.notifications && !this.subtleNotification) {
 				return;
 			}
@@ -2006,17 +2006,17 @@
 				app.topbar.updateTabbar();
 			}
 		},
-		clickNotification: function(tag) {
+		clickNotification: function (tag) {
 			this.dismissNotification(tag);
 			app.focusRoom(this.id);
 		},
-		close: function() {
+		close: function () {
 			app.leaveRoom(this.id);
 		},
 
 		// allocation
 
-		destroy: function(alreadyLeft) {
+		destroy: function (alreadyLeft) {
 			this.closeAllNotifications(true);
 			if (!alreadyLeft) this.leave();
 			this.remove();
@@ -2036,7 +2036,7 @@
 		type: 'normal',
 
 		className: 'ps-popup',
-		constructor: function(data) {
+		constructor: function (data) {
 			if (!this.events) this.events = {};
 			if (!this.events['click button']) this.events['click button'] = 'dispatchClickButton';
 			if (!this.events['submit form']) this.events['submit form'] = 'dispatchSubmit';
@@ -2102,12 +2102,12 @@
 				$measurer.remove();
 			}
 		},
-		initialize: function(data) {
+		initialize: function (data) {
 			if (!this.type) this.type = 'semimodal';
 			this.$el.html('<p style="white-space:pre-wrap;word-wrap:break-word">'+(data.htmlMessage||Tools.parseMessage(data.message))+'</p><p class="buttonbar"><button name="close" class="autofocus"><strong>OK</strong></button></p>').css('max-width', data.maxWidth || 480);
 		},
 
-		dispatchClickButton: function(e) {
+		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
 			if (target.name) {
 				app.dispatchingButton = target;
@@ -2119,7 +2119,7 @@
 				delete app.dispatchingPopup;
 			}
 		},
-		dispatchSubmit: function(e) {
+		dispatchSubmit: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 			var dataArray = $(e.currentTarget).serializeArray();
@@ -2139,20 +2139,20 @@
 			app.send(data);
 		},
 
-		remove: function() {
+		remove: function () {
 			var $parent = this.$el.parent();
 			Backbone.View.prototype.remove.apply(this, arguments);
 			if ($parent.hasClass('ps-overlay')) $parent.remove();
 		},
 
-		close: function() {
+		close: function () {
 			app.closePopup();
 		}
 	});
 
 	var PromptPopup = this.PromptPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function(data) {
+		initialize: function (data) {
 			if (!data || !data.message || typeof data.callback !== "function") return;
 			this.callback = data.callback;
 
@@ -2164,14 +2164,14 @@
 
 			this.$el.html(buf);
 		},
-		submit: function(data) {
+		submit: function (data) {
 			this.close();
 			this.callback(data.data);
 		}
 	});
 
 	var UserPopup = this.UserPopup = Popup.extend({
-		initialize: function(data) {
+		initialize: function (data) {
 			data.userid = toId(data.name);
 			var name = data.name;
 			if (/[a-zA-Z0-9]/.test(name.charAt(0))) name = ' '+name;
@@ -2185,7 +2185,7 @@
 			'click .ilink': 'clickLink',
 			'click .yours': 'avatars'
 		},
-		update: function(data) {
+		update: function (data) {
 			if (data && data.userid === this.data.userid) {
 				data = _.extend(this.data, data);
 				UserPopup.dataCache[data.userid] = data;
@@ -2245,7 +2245,7 @@
 
 			this.$el.html(buf);
 		},
-		clickLink: function(e) {
+		clickLink: function (e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			e.stopPropagation();
@@ -2253,16 +2253,16 @@
 			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
 			app.tryJoinRoom(roomid);
 		},
-		avatars: function() {
+		avatars: function () {
 			app.addPopup(AvatarsPopup);
 		},
-		challenge: function() {
+		challenge: function () {
 			app.rooms[''].requestNotifications();
 			this.close();
 			app.focusRoom('');
 			app.rooms[''].challenge(this.data.name);
 		},
-		pm: function() {
+		pm: function () {
 			app.rooms[''].requestNotifications();
 			this.close();
 			app.focusRoom('');
@@ -2274,7 +2274,7 @@
 
 	var ReconnectPopup = this.ReconnectPopup = Popup.extend({
 		type: 'modal',
-		initialize: function(data) {
+		initialize: function (data) {
 			app.reconnectPending = false;
 			var buf = '<form>';
 
@@ -2289,14 +2289,14 @@
 			buf += '</form>';
 			this.$el.html(buf);
 		},
-		submit: function(data) {
+		submit: function (data) {
 			document.location.reload();
 		}
 	});
 
 	var LoginPopup = this.LoginPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function(data) {
+		initialize: function (data) {
 			var buf = '<form>';
 
 			if (data.error) {
@@ -2321,7 +2321,7 @@
 			buf += '</form>';
 			this.$el.html(buf);
 		},
-		submit: function(data) {
+		submit: function (data) {
 			this.close();
 			if (!$.trim(data.username)) return;
 			app.user.rename(data.username);
@@ -2330,7 +2330,7 @@
 
 	var ChangePasswordPopup = this.ChangePasswordPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function(data) {
+		initialize: function (data) {
 			var buf = '<form>';
 			if (data.error) {
 				buf += '<p class="error">' + data.error + '</p>';
@@ -2344,13 +2344,13 @@
 			buf += '<p class="buttonbar"><button type="submit"><strong>Change password</strong></button> <button name="close">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
-		submit: function(data) {
+		submit: function (data) {
 			$.post(app.user.getActionPHP(), {
 				act: 'changepassword',
 				oldpassword: data.oldpassword,
 				password: data.password,
 				cpassword: data.cpassword
-			}, Tools.safeJSON(function(data) {
+			}, Tools.safeJSON(function (data) {
 				if (!data) data = {};
 				if (data.actionsuccess) {
 					app.addPopupMessage("Your password was successfully changed.");
@@ -2365,7 +2365,7 @@
 
 	var RegisterPopup = this.RegisterPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function(data) {
+		initialize: function (data) {
 			var buf = '<form>';
 			if (data.error) {
 				buf += '<p class="error">' + data.error + '</p>';
@@ -2382,7 +2382,7 @@
 			buf += '<p class="buttonbar"><button type="submit"><strong>Register</strong></button> <button name="close">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
-		submit: function(data) {
+		submit: function (data) {
 			var name = data.name;
 			var captcha = data.captcha;
 			$.post(app.user.getActionPHP(), {
@@ -2413,7 +2413,7 @@
 
 	var LoginPasswordPopup = this.LoginPasswordPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function(data) {
+		initialize: function (data) {
 			var buf = '<form>';
 
 			if (data.error) {
@@ -2443,11 +2443,11 @@
 			buf += '</form>';
 			this.$el.html(buf);
 		},
-		login: function() {
+		login: function () {
 			this.close();
 			app.addPopup(LoginPopup);
 		},
-		submit: function(data) {
+		submit: function (data) {
 			this.close();
 			app.user.passwordRename(data.username, data.password);
 		}
@@ -2455,7 +2455,7 @@
 
 	var ProxyPopup = this.ProxyPopup = Popup.extend({
 		type: 'modal',
-		initialize: function(data) {
+		initialize: function (data) {
 			this.callback = data.callback;
 
 			var buf = '<form>';
@@ -2467,14 +2467,14 @@
 			buf += '</form>';
 			this.$el.html(buf).css('min-width', 500);
 		},
-		submit: function(data) {
+		submit: function (data) {
 			this.close();
 			this.callback(data.result);
 		}
 	});
 
 	var SoundsPopup = this.SoundsPopup = Popup.extend({
-		initialize: function(data) {
+		initialize: function (data) {
 			var buf = '';
 			var muted = !!Tools.prefs('mute');
 			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>'+(muted?'<em>(muted)</em>':'<input type="slider" name="effectvolume" value="'+(Tools.prefs('effectvolume')||50)+'" />')+'</p>';
@@ -2485,7 +2485,7 @@
 		events: {
 			'change input[name=muted]': 'setMute'
 		},
-		domInitialize: function() {
+		domInitialize: function () {
 			var self = this;
 			this.$('.effect-volume input').slider({
 				from: 0,
@@ -2493,7 +2493,7 @@
 				step: 1,
 				dimension: '%',
 				skin: 'round_plastic',
-				onstatechange: function(val) {
+				onstatechange: function (val) {
 					self.setEffectVolume(val);
 				}
 			});
@@ -2503,12 +2503,12 @@
 				step: 1,
 				dimension: '%',
 				skin: 'round_plastic',
-				onstatechange: function(val) {
+				onstatechange: function (val) {
 					self.setMusicVolume(val);
 				}
 			});
 		},
-		setMute: function(e) {
+		setMute: function (e) {
 			var muted = !!e.currentTarget.checked;
 			Tools.prefs('mute', muted);
 			BattleSound.setMute(muted);
@@ -2524,18 +2524,18 @@
 
 			app.topbar.$('button[name=openSounds]').html('<i class="'+(muted?'icon-volume-off':'icon-volume-up')+'"></i>');
 		},
-		setEffectVolume: function(volume) {
+		setEffectVolume: function (volume) {
 			BattleSound.setEffectVolume(volume);
 			Tools.prefs('effectvolume', volume);
 		},
-		setMusicVolume: function(volume) {
+		setMusicVolume: function (volume) {
 			BattleSound.setBgmVolume(volume);
 			Tools.prefs('musicvolume', volume);
 		}
 	});
 
 	var OptionsPopup = this.OptionsPopup = Popup.extend({
-		initialize: function(data) {
+		initialize: function (data) {
 			app.user.on('change', this.update, this);
 			app.send('/cmd userdetails '+app.user.get('userid'));
 			this.update();
@@ -2554,7 +2554,7 @@
 			'change input[name=selfhighlight]': 'setSelfHighlight',
 			'click img': 'avatars'
 		},
-		update: function() {
+		update: function () {
 			var name = app.user.get('name');
 			var avatar = app.user.get('avatar');
 
@@ -2603,10 +2603,10 @@
 			}
 			this.$el.html(buf).css('min-width', 160);
 		},
-		openLogFolder: function() {
+		openLogFolder: function () {
 			Storage.revealFolder();
 		},
-		setLogChat: function(e) {
+		setLogChat: function (e) {
 			var logchat = !!e.currentTarget.checked;
 			if (logchat) {
 				Storage.startLoggingChat();
@@ -2616,29 +2616,29 @@
 			}
 			Tools.prefs('logchat', logchat);
 		},
-		setNoanim: function(e) {
+		setNoanim: function (e) {
 			var noanim = !!e.currentTarget.checked;
 			Tools.prefs('noanim', noanim);
 			Tools.loadSpriteData(noanim || Tools.prefs('bwgfx') ? 'bw' : 'xy');
 		},
-		setBwgfx: function(e) {
+		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;
 			Tools.prefs('bwgfx', bwgfx);
 			Tools.loadSpriteData(bwgfx || Tools.prefs('noanim') ? 'bw' : 'xy');
 		},
-		setNopastgens: function(e) {
+		setNopastgens: function (e) {
 			var nopastgens = !!e.currentTarget.checked;
 			Tools.prefs('nopastgens', nopastgens);
 		},
-		setNotournaments: function(e) {
+		setNotournaments: function (e) {
 			var notournaments = !!e.currentTarget.checked;
 			Tools.prefs('notournaments', notournaments);
 		},
-		setSelfHighlight: function(e) {
+		setSelfHighlight: function (e) {
 			var noselfhighlight = !e.currentTarget.checked;
 			Tools.prefs('noselfhighlight', noselfhighlight);
 		},
-		setInchatpm: function(e) {
+		setInchatpm: function (e) {
 			var inchatpm = !!e.currentTarget.checked;
 			Tools.prefs('inchatpm', inchatpm);
 		},
@@ -2646,7 +2646,7 @@
 			var temporarynotifications = !!e.currentTarget.checked;
 			Tools.prefs('temporarynotifications', temporarynotifications);
 		},
-		setBg: function(e) {
+		setBg: function (e) {
 			var bg = e.currentTarget.value;
 			if (bg === 'custom') {
 				app.addPopup(CustomBackgroundPopup);
@@ -2659,30 +2659,30 @@
 				'background-size': 'cover'
 			});
 		},
-		setTimestampsLobby: function(e) {
+		setTimestampsLobby: function (e) {
 			this.timestamps.lobby = e.currentTarget.value;
 			Tools.prefs('timestamps', this.timestamps);
 		},
-		setTimestampsPMs: function(e) {
+		setTimestampsPMs: function (e) {
 			this.timestamps.pms = e.currentTarget.value;
 			Tools.prefs('timestamps', this.timestamps);
 		},
-		avatars: function() {
+		avatars: function () {
 			app.addPopup(AvatarsPopup);
 		},
-		formatting: function() {
+		formatting: function () {
 			app.addPopup(FormattingPopup);
 		},
-		login: function() {
+		login: function () {
 			app.addPopup(LoginPopup);
 		},
-		register: function() {
+		register: function () {
 			app.addPopup(RegisterPopup);
 		},
-		changepassword: function() {
+		changepassword: function () {
 			app.addPopup(ChangePasswordPopup);
 		},
-		logout: function() {
+		logout: function () {
 			app.user.logout();
 			this.close();
 		}
@@ -2692,7 +2692,7 @@
 		events: {
 			'change input': 'setOption'
 		},
-		initialize: function() {
+		initialize: function () {
 			var cur = this.chatformatting = Tools.prefs('chatformatting') || {};
 			var buf = '<p class="optlabel">You can choose to display formatted text as normal text.</p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bold" ' + (cur.hidebold ? 'checked' : '') + ' /> Suppress **<strong>bold</strong>**</label></p>';
@@ -2705,7 +2705,7 @@
 			buf += '<p><button name="close">Close</button></p>';
 			this.$el.html(buf);
 		},
-		setOption: function(e) {
+		setOption: function (e) {
 			var name = $(e.currentTarget).prop('name');
 			this.chatformatting['hide' + name] = !!e.currentTarget.checked;
 			Tools.prefs('chatformatting', this.chatformatting);
@@ -2714,7 +2714,7 @@
 
 	var AvatarsPopup = this.AvatarsPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function() {
+		initialize: function () {
 			var cur = +app.user.get('avatar');
 			var buf = '';
 			buf += '<p>Choose an avatar or <button name="close">Cancel</button></p>';
@@ -2729,7 +2729,7 @@
 			buf += '<p><button name="close">Cancel</button></p>';
 			this.$el.html(buf).css('max-width', 780);
 		},
-		setAvatar: function(i) {
+		setAvatar: function (i) {
 			app.send('/avatar '+i);
 			app.send('/cmd userdetails '+app.user.get('userid'));
 			Tools.prefs('avatar', i);
@@ -2742,17 +2742,17 @@
 		events: {
 			'click a': 'clickClose'
 		},
-		initialize: function(data) {
+		initialize: function (data) {
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
 			buf += '<p><a href="http://replay.pokemonshowdown.com/'+data.id+'" target="_blank">http://replay.pokemonshowdown.com/'+data.id+'</a></p>';
 			buf += '<p><button type="submit" class="autofocus"><strong>Open</strong></button> <button name="close">Cancel</button></p>';
 			this.$el.html(buf).css('max-width', 620);
 		},
-		clickClose: function() {
+		clickClose: function () {
 			this.close();
 		},
-		submit: function(i) {
+		submit: function (i) {
 			app.openInNewWindow('http://replay.pokemonshowdown.com/'+this.id);
 			this.close();
 		}
@@ -2760,7 +2760,7 @@
 
 	var RulesPopup = this.RulesPopup = Popup.extend({
 		type: 'modal',
-		initialize: function(data) {
+		initialize: function (data) {
 			var warning = ('warning' in data);
 			var buf = '';
 			if (warning) {
@@ -2781,7 +2781,7 @@
 			}
 			this.$el.css('max-width', 760).html(buf);
 		},
-		rulesTimeout: function() {
+		rulesTimeout: function () {
 			this.$('button')[0].disabled = false;
 			this.$('.overlay-warn').remove();
 		}
@@ -2789,7 +2789,7 @@
 
 	var TabListPopup = this.TabListPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function() {
+		initialize: function () {
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
@@ -2839,7 +2839,7 @@
 		events: {
 			'click a': 'click'
 		},
-		click: function(e) {
+		click: function (e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			var $target = $(e.currentTarget);
@@ -2862,7 +2862,7 @@
 		events: {
 			'change input[name=bgfile]': 'setBg'
 		},
-		initialize: function() {
+		initialize: function () {
 			var buf = '';
 			buf += '<p>Choose a custom background</p>';
 			buf += '<input type="file" accept="image/*" name="bgfile">';
@@ -2871,7 +2871,7 @@
 			buf += '<p><button name="close">Cancel</button></p>';
 			this.$el.html(buf);
 		},
-		setBg: function(e) {
+		setBg: function (e) {
 			$('.bgstatus').text('Changing background image.');
 			var file = e.currentTarget.files[0];
 			CustomBackgroundPopup.readFile(file, this);
@@ -2879,7 +2879,7 @@
 	});
 	CustomBackgroundPopup.readFile = function (file, popup) {
 		var reader = new FileReader();
-		reader.onload = function(e) {
+		reader.onload = function (e) {
 			var bg = '#344b6c url(' + e.target.result + ') no-repeat left center fixed';
 			try {
 				Tools.prefs('bg', bg);

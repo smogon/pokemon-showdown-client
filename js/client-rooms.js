@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
 
 	var RoomsRoom = this.RoomsRoom = Room.extend({
 		minWidth: 320,
@@ -9,7 +9,7 @@
 		events: {
 			'click .ilink': 'clickLink'
 		},
-		initialize: function() {
+		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			var buf = '<div class="pad"><button style="float:right" name="close">Close</button><div class="roomlisttop"></div><div class="roomlist" style="max-width:480px"><p><em style="font-size:20pt">Loading...</em></p></div><p><button name="joinRoomPopup">Join other room</button></p></div>';
 			this.$el.html(buf);
@@ -18,17 +18,17 @@
 			app.user.on('change:named', this.updateUser, this);
 			this.update();
 		},
-		clickLink: function(e) {
+		clickLink: function (e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			e.stopPropagation();
 			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
 			app.tryJoinRoom(roomid);
 		},
-		updateUser: function() {
+		updateUser: function () {
 			this.update();
 		},
-		focus: function() {
+		focus: function () {
 			if (new Date().getTime() - this.lastUpdate > 60*1000) {
 				app.send('/cmd rooms');
 				this.lastUpdate = new Date().getTime();
@@ -37,14 +37,14 @@
 			this.$('button[name=joinRoomPopup]').focus();
 			this.$el.scrollTop(prevPos);
 		},
-		joinRoomPopup: function() {
-			app.addPopupPrompt("Room name:", "Join room", function(room) {
+		joinRoomPopup: function () {
+			app.addPopupPrompt("Room name:", "Join room", function (room) {
 				room = toRoomid(room);
 				if (!room) return;
 				app.tryJoinRoom(room);
 			});
 		},
-		update: function(rooms) {
+		update: function (rooms) {
 			var firstOpen = !app.roomsData;
 			if (rooms) {
 				this.lastUpdate = new Date().getTime();
@@ -65,7 +65,7 @@
 				app.roomsFirstOpen = 2;
 			}
 		},
-		renderRoomList: function() {
+		renderRoomList: function () {
 			var rooms = app.roomsData;
 			var buf = '';
 
@@ -86,7 +86,7 @@
 			}
 
 			buf += '<h2>Chat rooms</h2>';
-			rooms.chat.sort(function(a, b) {
+			rooms.chat.sort(function (a, b) {
 				return b.userCount - a.userCount;
 			});
 			for (var i=0; i<rooms.chat.length; i++) {

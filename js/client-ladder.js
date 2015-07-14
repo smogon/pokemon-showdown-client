@@ -1,15 +1,15 @@
-(function($) {
+(function ($) {
 
 	var LadderRoom = this.LadderRoom = this.Room.extend({
 		type: 'ladder',
 		title: 'Ladder',
-		initialize: function() {
+		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			app.on('init:formats', this.update, this);
 			this.update();
 		},
 		curFormat: '',
-		update: function() {
+		update: function () {
 			if (!this.curFormat) {
 				var ladderButtons = '';
 				if (!window.BattleFormats) {
@@ -38,7 +38,7 @@
 					format: format,
 					server: Config.server.id.split(':')[0],
 					output: 'html'
-				}, _.bind(function(data){
+				}, _.bind(function (data){
 					if (this.curFormat !== format) return;
 					var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p>';
 					buf += '<h3>'+format+' Top 500</h3>';
@@ -47,7 +47,7 @@
 				}, this), 'html');
 			}
 		},
-		selectFormat: function(format) {
+		selectFormat: function (format) {
 			this.curFormat = format;
 			this.update();
 		}

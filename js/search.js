@@ -9,14 +9,14 @@
  * @author  Guangcong Luo <Zarel>
  */
 
-(function(exports, $){
+(function (exports, $){
 	'use strict';
 
 	function Search(elem) {
 		this.$el = $(elem);
 		this.el = this.$el[0];
 	}
-	Search.prototype.$ = function(query) {
+	Search.prototype.$ = function (query) {
 		return this.$el.find(query);
 	};
 
@@ -43,7 +43,7 @@
 		egggroup: 'Egg group',
 		category: 'Category'
 	};
-	Search.prototype.find = function(query) {
+	Search.prototype.find = function (query) {
 		query = toId(query);
 
 		if (query === this.q) {
@@ -96,7 +96,7 @@
 		return true;
 	};
 
-	Search.getClosest = function(query) {
+	Search.getClosest = function (query) {
 		// binary search through the index!
 		var left = 0;
 		var right = BattleSearchIndex.length - 1;
@@ -122,7 +122,7 @@
 
 	Search.urlRoot = '';
 
-	Search.renderRow = function(id, type, matchStart, matchLength, errorMessage) {
+	Search.renderRow = function (id, type, matchStart, matchLength, errorMessage) {
 		switch (type) {
 		case 'pokemon':
 			var pokemon = BattlePokedex[id];
@@ -148,7 +148,7 @@
 		}
 		return 'Error: not found';
 	};
-	Search.renderPokemonRow = function(pokemon, matchStart, matchLength, errorMessage) {
+	Search.renderPokemonRow = function (pokemon, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'pokemon/'+toId(pokemon.species)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
@@ -231,7 +231,7 @@
 
 		return buf;
 	};
-	Search.renderTaggedPokemonRowInner = function(pokemon, tag, errorMessage) {
+	Search.renderTaggedPokemonRowInner = function (pokemon, tag, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'pokemon/'+toId(pokemon.species)+'" data-target="push"';
 		var buf = '<a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
@@ -301,7 +301,7 @@
 		return buf;
 	};
 
-	Search.renderItemRow = function(item, matchStart, matchLength, errorMessage) {
+	Search.renderItemRow = function (item, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'items/'+toId(item.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(item.name)+'">';
@@ -332,7 +332,7 @@
 
 		return buf;
 	};
-	Search.renderAbilityRow = function(ability, matchStart, matchLength, errorMessage) {
+	Search.renderAbilityRow = function (ability, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'abilities/'+toId(ability.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(ability.name)+'">';
@@ -357,7 +357,7 @@
 
 		return buf;
 	};
-	Search.renderMoveRow = function(move, matchStart, matchLength, errorMessage) {
+	Search.renderMoveRow = function (move, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'moves/'+toId(move.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
@@ -407,7 +407,7 @@
 
 		return buf;
 	};
-	Search.renderMoveRowInner = function(move, errorMessage) {
+	Search.renderMoveRowInner = function (move, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'moves/'+toId(move.name)+'" data-target="push"';
 		var buf = '<a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
@@ -443,7 +443,7 @@
 
 		return buf;
 	};
-	Search.renderTaggedMoveRow = function(move, tag, errorMessage) {
+	Search.renderTaggedMoveRow = function (move, tag, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'moves/'+toId(move.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
@@ -482,7 +482,7 @@
 		return buf;
 	};
 
-	Search.renderTypeRow = function(type, matchStart, matchLength, errorMessage) {
+	Search.renderTypeRow = function (type, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'types/'+toId(type.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(type.name)+'">';
@@ -510,7 +510,7 @@
 
 		return buf;
 	};
-	Search.renderCategoryRow = function(category, matchStart, matchLength, errorMessage) {
+	Search.renderCategoryRow = function (category, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'categories/'+toId(category.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(category.name)+'">';
@@ -538,7 +538,7 @@
 
 		return buf;
 	};
-	Search.renderEggGroupRow = function(egggroup, matchStart, matchLength, errorMessage) {
+	Search.renderEggGroupRow = function (egggroup, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'egggroups/'+toId(egggroup.name)+'" data-target="push"';
 		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(egggroup.name)+'">';

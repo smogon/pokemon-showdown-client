@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
 
 	function arrayToPhrase(array, finalSeparator) {
 		if (array.length <= 1)
@@ -151,31 +151,31 @@
 			this.savedPopoutBracketPosition = {};
 
 			var self = this;
-			this.$title.on('click', function() {
+			this.$title.on('click', function () {
 				self.toggleBoxVisibility();
 			});
-			this.$box.on('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
+			this.$box.on('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function () {
 				if (self.isBoxVisible())
 					self.$box.css('transition', 'none');
 				if (!self.info.isActive)
 					self.$wrapper.find('.active').andSelf().removeClass('active');
 			});
 
-			this.$join.on('click', function() {
+			this.$join.on('click', function () {
 				self.room.send('/tournament join');
 			});
-			this.$leave.on('click', function() {
+			this.$leave.on('click', function () {
 				self.room.send('/tournament leave');
 			});
-			this.$challengeChallenge.on('click', function() {
+			this.$challengeChallenge.on('click', function () {
 				app.sendTeam(Storage.teams[self.$challenge.find('.tournament-team').children().val()]);
 				self.room.send('/tournament challenge ' + self.$challengeUser.children().val());
 			});
-			this.$challengeAccept.on('click', function() {
+			this.$challengeAccept.on('click', function () {
 				app.sendTeam(Storage.teams[self.$challenged.find('.tournament-team').children().val()]);
 				self.room.send('/tournament acceptchallenge');
 			});
-			this.$challengeCancel.on('click', function() {
+			this.$challengeCancel.on('click', function () {
 				self.room.send('/tournament cancelchallenge');
 			});
 
@@ -458,7 +458,7 @@
 						break;
 
 					case 'error':
-						var appendError = function(message) {
+						var appendError = function (message) {
 							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + message + "</div>");
 						}.bind(this);
 

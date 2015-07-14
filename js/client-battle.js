@@ -1,11 +1,11 @@
-(function($) {
+(function ($) {
 
 	var BattleRoom = this.BattleRoom = ConsoleRoom.extend({
 		type: 'battle',
 		title: '',
 		minWidth: 955,
 		maxWidth: 1180,
-		initialize: function(data) {
+		initialize: function (data) {
 			this.me = {};
 
 			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log"></div><div class="battle-log-add">Connecting...</div><div class="battle-controls"></div>');
@@ -36,21 +36,21 @@
 			'change input[name=ignoreopp]': 'toggleIgnoreOpponent'
 		},
 		battleEnded: false,
-		join: function() {
+		join: function () {
 			app.send('/join '+this.id);
 		},
-		leave: function() {
+		leave: function () {
 			if (!this.expired) app.send('/leave '+this.id);
 			if (this.battle) this.battle.destroy();
 		},
-		requestLeave: function(e) {
+		requestLeave: function (e) {
 			if (this.side && this.battle && !this.battle.done && !this.battle.forfeitPending) {
 				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget});
 				return false;
 			}
 			return true;
 		},
-		updateLayout: function() {
+		updateLayout: function () {
 			if (this.$el.width() < 950) {
 				this.battle.messageDelay = 800;
 			} else {
@@ -58,21 +58,21 @@
 			}
 			if (this.$chat) this.$chatFrame.scrollTop(this.$chat.height());
 		},
-		show: function() {
+		show: function () {
 			Room.prototype.show.apply(this, arguments);
 			this.updateLayout();
 		},
-		receive: function(data) {
+		receive: function (data) {
 			this.add(data);
 		},
-		focus: function() {
+		focus: function () {
 			if (this.battle.playbackState === 3) this.battle.play();
 			ConsoleRoom.prototype.focus.call(this);
 		},
-		blur: function() {
+		blur: function () {
 			this.battle.pause();
 		},
-		init: function(data) {
+		init: function (data) {
 			var log = data.split('\n');
 			if (data.substr(0,6) === '|init|') log.shift();
 			if (log.length && log[0].substr(0, 7) === '|title|') {
@@ -85,7 +85,7 @@
 			this.updateLayout();
 			this.updateControls();
 		},
-		add: function(data) {
+		add: function (data) {
 			if (!data) return;
 			if (data.substr(0,6) === '|init|') {
 				return this.init(data);
@@ -139,7 +139,7 @@
 			this.battle.add('', Tools.prefs('noanim'));
 			this.updateControls();
 		},
-		revealMessages: function(user) {
+		revealMessages: function (user) {
 			var $messages = $('.chatmessage-' + user);
 			$messages.addClass('revealed').show();
 			$messages.find('button').parent().remove();
@@ -149,7 +149,7 @@
 		 * Battle stuff
 		 *********************************************************/
 
-		updateControls: function() {
+		updateControls: function () {
 			if (this.$join) {
 				this.$join.remove();
 				this.$join = null;
@@ -251,7 +251,7 @@
 			app.topbar.updateTabbar();
 		},
 		controlsShown: false,
-		updateControlsForPlayer: function() {
+		updateControlsForPlayer: function () {
 			var battle = this.battle;
 
 			this.callbackWaiting = true;
@@ -463,7 +463,7 @@
 					};
 				}
 				if (this.request.forceSwitch !== true) {
-					var faintedLength = this.request.forceSwitch.filter(function(fainted) {return fainted;}).length;
+					var faintedLength = this.request.forceSwitch.filter(function (fainted) {return fainted;}).length;
 					this.choice.freedomDegrees = faintedLength - this.battle.mySide.pokemon.slice(this.battle.mySide.active.length).filter(function (mon) {return !mon.zerohp;}).length; 
 					if (this.choice.freedomDegrees < 0) this.choice.freedomDegrees = 0;
 					this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
@@ -590,11 +590,11 @@
 		},
 		// Same as send, but appends the rqid to the message so that the server
 		// can verify that the decision is sent in response to the correct request.
-		sendDecision: function(message) {
+		sendDecision: function (message) {
 			this.send(message + '|' + this.request.rqid);
 		},
 		request: null,
-		receiveRequest: function(request) {
+		receiveRequest: function (request) {
 			if (!request) {
 				this.side = '';
 				return;
@@ -618,7 +618,7 @@
 			this.notifyRequest();
 			this.updateControls();
 		},
-		notifyRequest: function() {
+		notifyRequest: function () {
 			var oName = this.battle.yourSide.name;
 			if (oName) oName = " against "+oName;
 			switch (this.request.requestType) {
@@ -633,7 +633,7 @@
 				break;
 			}
 		},
-		updateSideLocation: function(sideData, midBattle) {
+		updateSideLocation: function (sideData, midBattle) {
 			if (!sideData.id) return;
 			this.side = sideData.id;
 			if (this.battle.sidesSwitched !== !!(this.side === 'p2')) {
@@ -647,7 +647,7 @@
 				this.$chat = this.$chatFrame.find('.inner');
 			}
 		},
-		updateSide: function(sideData) {
+		updateSide: function (sideData) {
 			for (var i = 0; i < sideData.pokemon.length; i++) {
 				var pokemonData = sideData.pokemon[i];
 				var pokemon;
@@ -683,50 +683,50 @@
 		},
 
 		// buttons
-		joinBattle: function() {
+		joinBattle: function () {
 			this.send('/joinbattle');
 		},
-		setTimer: function(setting) {
+		setTimer: function (setting) {
 			this.send('/timer '+setting);
 		},
-		toggleIgnoreSpects: function(e) {
+		toggleIgnoreSpects: function (e) {
 			this.battle.ignoreSpects = !!e.currentTarget.checked;
 			this.battle.add('Spectators ' + (this.battle.ignoreSpects ? '' : 'no longer ') + 'ignored.');
 		},
-		toggleIgnoreOpponent: function(e) {
+		toggleIgnoreOpponent: function (e) {
 			this.battle.ignoreOpponent = !!e.currentTarget.checked;
 			this.battle.add('Opponent ' + (this.battle.ignoreOpponent ? '' : 'no longer ') + 'ignored.');
 		},
-		forfeit: function() {
+		forfeit: function () {
 			this.send('/forfeit');
 		},
-		saveReplay: function() {
+		saveReplay: function () {
 			this.send('/savereplay');
 		},
-		instantReplay: function() {
+		instantReplay: function () {
 			this.hideTooltip();
 			this.request = null;
 			this.battle.reset();
 			this.battle.play();
 		},
-		skipTurn: function() {
+		skipTurn: function () {
 			this.battle.skipTurn();
 		},
-		goToEnd: function() {
+		goToEnd: function () {
 			this.battle.fastForwardTo(-1);
 		},
-		register: function(userid) {
+		register: function (userid) {
 			var registered = app.user.get('registered');
 			if (registered && registered.userid !== userid) registered = false;
 			if (!registered && userid === app.user.get('userid')) {
 				app.addPopup(RegisterPopup);
 			}
 		},
-		closeAndMainMenu: function() {
+		closeAndMainMenu: function () {
 			this.close();
 			app.focusRoom('');
 		},
-		closeAndRematch: function() {
+		closeAndRematch: function () {
 			app.rooms[''].requestNotifications();
 			app.rooms[''].challenge(this.battle.yourSide.name);
 			this.close();
@@ -734,7 +734,7 @@
 		},
 
 		// choice buttons
-		chooseMove: function(pos, e) {
+		chooseMove: function (pos, e) {
 			var myActive = this.battle.mySide.active;
 			this.hideTooltip();
 			var isMega = !!(this.$('input[name=megaevo]')[0]||'').checked;
@@ -766,11 +766,11 @@
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
-		chooseMoveTarget: function(posString) {
+		chooseMoveTarget: function (posString) {
 			this.choice.choices[this.choice.choices.length-1] += ' '+posString;
 			this.chooseMove();
 		},
-		chooseShift: function() {
+		chooseShift: function () {
 			var myActive = this.battle.mySide.active;
 			this.hideTooltip();
 			this.choice.choices.push('shift');
@@ -790,7 +790,7 @@
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
-		chooseSwitch: function(pos) {
+		chooseSwitch: function (pos) {
 			this.hideTooltip();
 			if (pos !== undefined) {
 				this.choice.switchFlags[pos] = true;
@@ -828,7 +828,7 @@
 			}
 			// After choosing the position to which a pokemon will switch in (Triples).
 			if (!this.request || this.request.requestType !== 'switch') return false; //??
-			if (this.choice.canSwitch > this.choice.choices.filter(function(choice) {return choice;}).length) {
+			if (this.choice.canSwitch > this.choice.choices.filter(function (choice) {return choice;}).length) {
 				// More switches are pending.
 				this.choice.type = 'switch2';
 				this.updateControlsForPlayer();
@@ -845,7 +845,7 @@
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
-		chooseSwitchTarget: function(posString) {
+		chooseSwitchTarget: function (posString) {
 			var indexSwitchIn = -1;
 			for (var i in this.choice.switchFlags) {
 				if (this.choice.choices.indexOf('switch '+(parseInt(i,10)+1)) === -1) {
@@ -857,7 +857,7 @@
 			this.choice.switchOutFlags[posString] = true;
 			this.chooseSwitch();
 		},
-		chooseTeamPreview: function(pos) {
+		chooseTeamPreview: function (pos) {
 			pos = parseInt(pos,10);
 			this.hideTooltip();
 			if (this.choice.count) {
@@ -883,7 +883,7 @@
 			this.choice = {waiting: true};
 			this.updateControlsForPlayer();
 		},
-		chooseDisabled: function(data) {
+		chooseDisabled: function (data) {
 			this.hideTooltip();
 			data = data.split(',');
 			if (data[1] === 'fainted') {
@@ -894,37 +894,37 @@
 				app.addPopupMessage(data[0] + " is already selected!");
 			}
 		},
-		undoChoice: function(pos) {
+		undoChoice: function (pos) {
 			this.send('/undo');
 			this.notifyRequest();
 
 			this.choice = null;
 			this.updateControlsForPlayer();
 		},
-		clearChoice: function() {
+		clearChoice: function () {
 			this.choice = null;
 			this.updateControlsForPlayer();
 		},
-		leaveBattle: function() {
+		leaveBattle: function () {
 			this.hideTooltip();
 			this.send('/leavebattle');
 			this.side = '';
 			this.closeNotification('choice');
 		},
-		selectSwitch: function() {
+		selectSwitch: function () {
 			this.hideTooltip();
 			this.$controls.find('.controls').attr('class', 'controls switch-controls');
 		},
-		selectMove: function() {
+		selectMove: function () {
 			this.hideTooltip();
 			this.$controls.find('.controls').attr('class', 'controls move-controls');
 		},
 
 		// tooltips
-		tooltipAttrs: function(thing, type, ownHeight, isActive) {
+		tooltipAttrs: function (thing, type, ownHeight, isActive) {
 			return ' onmouseover="room.showTooltip(\'' + Tools.escapeHTML(''+thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ', ' + (isActive ? 'true' : 'false') + ')" onmouseout="room.hideTooltip()" onmouseup="room.hideTooltip()"';
 		},
-		showTooltip: function(thing, type, elem, ownHeight, isActive) {
+		showTooltip: function (thing, type, elem, ownHeight, isActive) {
 			var offset = {
 				left: 150,
 				top: 500
@@ -1096,14 +1096,14 @@
 			}
 			$('#tooltipwrapper').html(text).appendTo(document.body);
 		},
-		hideTooltip: function() {
+		hideTooltip: function () {
 			$('#tooltipwrapper').html('');
 		}
 	});
 
 	var ForfeitPopup = this.ForfeitPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function(data) {
+		initialize: function (data) {
 			this.room = data.room;
 			var buf = '<form><p>Forfeiting makes you lose the battle. Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close after forfeiting</label></p>';
 			if (this.room.battle && this.room.battle.rated) {
@@ -1113,17 +1113,17 @@
 			}
 			this.$el.html(buf);
 		},
-		replacePlayer: function(data) {
+		replacePlayer: function (data) {
 			var room = this.room;
 			var self = this;
-			app.addPopupPrompt("Replacement player's username", "Replace player", function(target) {
+			app.addPopupPrompt("Replacement player's username", "Replace player", function (target) {
 				if (!target) return;
 				room.send('/addplayer ' + target);
 				room.leaveBattle();
 				self.close();
 			});
 		},
-		submit: function(data) {
+		submit: function (data) {
 			this.room.send('/forfeit');
 			this.room.battle.forfeitPending = true;
 			if (this.$('input[name=closeroom]')[0].checked) {

@@ -41,11 +41,11 @@ function BattleChart()
 	};
 
 	this.selectCallback = null;
-	this.select = function(x) {
+	this.select = function (x) {
 		if (self.selectCallback) self.selectCallback(x);
 	};
 
-	this.row = function(thing, attrs, match, isFirst, dataCommand) {
+	this.row = function (thing, attrs, match, isFirst, dataCommand) {
 		if (isFirst)
 		{
 			self.firstResult = thing.name;
@@ -63,7 +63,7 @@ function BattleChart()
 			return self.moveRow(thing, attrs, match, isFirst, dataCommand);
 		}
 	};
-	this.pokemonRow = function(pokemon, attrs, match, isFirst, dataCommand) {
+	this.pokemonRow = function (pokemon, attrs, match, isFirst, dataCommand) {
 		var tag = dataCommand ? 'div' : 'a';
 		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><'+tag+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
 
@@ -162,7 +162,7 @@ function BattleChart()
 
 		return text;
 	};
-	this.itemRow = function(item, attrs, match, isFirst) {
+	this.itemRow = function (item, attrs, match, isFirst) {
 		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(item.name)+'">';
 
 		var url = item.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z-]+/g, '');
@@ -193,7 +193,7 @@ function BattleChart()
 
 		return text;
 	};
-	this.abilityRow = function(ability, attrs, match, isFirst) {
+	this.abilityRow = function (ability, attrs, match, isFirst) {
 		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(ability.name)+'">';
 
 		var name = Tools.escapeHTML(ability.name);
@@ -216,7 +216,7 @@ function BattleChart()
 
 		return text;
 	};
-	this.moveRow = function(move, attrs, match, isFirst) {
+	this.moveRow = function (move, attrs, match, isFirst) {
 		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
 
 		var name = Tools.escapeHTML(move.name);
@@ -262,7 +262,7 @@ function BattleChart()
 
 		return text;
 	};
-	this.chart = function(searchTerm, type, init, thisArrange, thisSort) {
+	this.chart = function (searchTerm, type, init, thisArrange, thisSort) {
 		if (!searchTerm) searchTerm = '';
 		else searchTerm = searchTerm.toLowerCase();
 		if (!init && searchTerm === self.lastSearch) return;
@@ -550,7 +550,7 @@ function BattleChart()
 		return text;
 	};
 
-	this.defaultArrange = function(thing) {
+	this.defaultArrange = function (thing) {
 		if (!thing)
 		{
 			// we want the list of buckets
@@ -558,7 +558,7 @@ function BattleChart()
 		}
 		return 'All';
 	};
-	this.defaultSort = function(a,b) {
+	this.defaultSort = function (a,b) {
 		/* if (!a.num) a.num = 1000;
 		if (!b.num) b.num = 1000;
 		if (a.num != b.num)

@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
 
 	var MainMenuRoom = this.MainMenuRoom = this.Room.extend({
 		type: 'mainmenu',
@@ -15,7 +15,7 @@
 			'click button.formatselect': 'selectFormat',
 			'click button.teamselect': 'selectTeam'
 		},
-		initialize: function() {
+		initialize: function () {
 			this.$el.addClass('scrollable');
 
 			// left menu 2 (high-res: right, low-res: top)
@@ -76,7 +76,7 @@
 			app.user.on('saveteams', this.updateTeams, this);
 		},
 
-		addPseudoPM: function(options) {
+		addPseudoPM: function (options) {
 			if (!options) return;
 			options.title = options.title || '';
 			options.html = options.html || '';
@@ -94,7 +94,7 @@
 
 		// news
 
-		addNews: function() {
+		addNews: function () {
 			var newsId = '1990';
 			if (newsId === ''+Tools.prefs('readnews')) return;
 			this.addPseudoPM({
@@ -111,7 +111,7 @@
 		 * PMs
 		 *********************************************************/
 
-		addPM: function(name, message, target) {
+		addPM: function (name, message, target) {
 			var userid = toUserid(name);
 			if (app.ignore[userid] && name.substr(0, 1) in {' ':1, '!':1, '‽':1}) return;
 
@@ -180,7 +180,7 @@
 				$pmWindow.find('h3').addClass('pm-notifying');
 			}
 		},
-		openPM: function(name, dontFocus) {
+		openPM: function (name, dontFocus) {
 			var userid = toId(name);
 			var $pmWindow = this.$pmBox.find('.pm-window-'+userid);
 			if (!$pmWindow.length) {
@@ -212,7 +212,7 @@
 			if (!dontFocus) this.$el.scrollTop(0);
 			return $pmWindow;
 		},
-		closePM: function(e) {
+		closePM: function (e) {
 			var userid;
 			if (e.currentTarget) {
 				e.preventDefault();
@@ -264,7 +264,7 @@
 
 			if (app.curSideRoom) app.curSideRoom.focus();
 		},
-		minimizePM: function(e) {
+		minimizePM: function (e) {
 			var $pmWindow;
 			if (e.currentTarget) {
 				e.preventDefault();
@@ -289,16 +289,16 @@
 
 			$pmWindow.find('h3').removeClass('pm-notifying');
 		},
-		focusPM: function(name) {
+		focusPM: function (name) {
 			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
 		},
-		onFocusPM: function(e) {
+		onFocusPM: function (e) {
 			$(e.currentTarget).closest('.pm-window').addClass('focused');
 		},
-		onBlurPM: function(e) {
+		onBlurPM: function (e) {
 			$(e.currentTarget).closest('.pm-window').removeClass('focused');
 		},
-		keyPress: function(e) {
+		keyPress: function (e) {
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter
 				var $target = $(e.currentTarget);
 				e.preventDefault();
@@ -329,12 +329,12 @@
 				}
 			}
 		},
-		clickUsername: function(e) {
+		clickUsername: function (e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
-		clickPMBackground: function(e) {
+		clickPMBackground: function (e) {
 			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
 				if (window.getSelection && !window.getSelection().isCollapsed) {
 					return;
@@ -350,16 +350,16 @@
 
 		// support for buttons that can be sent by the server:
 
-		joinRoom: function(room) {
+		joinRoom: function (room) {
 			app.joinRoom(room);
 		},
-		avatars: function() {
+		avatars: function () {
 			app.addPopup(AvatarsPopup);
 		},
-		openSounds: function() {
+		openSounds: function () {
 			app.addPopup(SoundsPopup, {type:'semimodal'});
 		},
-		openOptions: function() {
+		openOptions: function () {
 			app.addPopup(OptionsPopup, {type:'semimodal'});
 		},
 
@@ -367,19 +367,19 @@
 
 		challengesFrom: null,
 		challengeTo: null,
-		resetPending: function() {
+		resetPending: function () {
 			this.updateSearch();
 			var self = this;
-			this.$('form.pending').closest('.pm-window').each(function(i, el) {
+			this.$('form.pending').closest('.pm-window').each(function (i, el) {
 				$(el).find('.challenge').remove();
 				self.challenge($(el).data('userid'));
 			});
-			this.$('button[name=acceptChallenge]').each(function(i, el) {
+			this.$('button[name=acceptChallenge]').each(function (i, el) {
 				el.disabled = false;
 			});
 		},
 		searching: false,
-		updateSearch: function(data) {
+		updateSearch: function (data) {
 			if (data) this.searching = data.searching;
 			var $searchForm = $('.mainmenu button.big').closest('form');
 			var $formatButton = $searchForm.find('button[name=format]');
@@ -407,7 +407,7 @@
 				}
 			}
 		},
-		updateChallenges: function(data) {
+		updateChallenges: function (data) {
 			this.challengesFrom = data.challengesFrom;
 			this.challengeTo = data.challengeTo;
 			for (var i in data.challengesFrom) {
@@ -419,7 +419,7 @@
 			}
 			var self = this;
 			var atLeastOneGen5 = false;
-			this.$('.pm-window').each(function(i, el) {
+			this.$('.pm-window').each(function (i, el) {
 				var $pmWindow = $(el);
 				var userid = $pmWindow.data('userid');
 				var name = $pmWindow.data('name');
@@ -472,7 +472,7 @@
 			}
 			if (atLeastOneGen5 && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
 		},
-		openChallenge: function(name, $pmWindow) {
+		openChallenge: function (name, $pmWindow) {
 			var userid = toId(name);
 			if (!$pmWindow) $pmWindow = this.openPM(name, true);
 			var $challenge = $pmWindow.find('.challenge');
@@ -481,7 +481,7 @@
 			}
 			return $challenge;
 		},
-		updateFormats: function() {
+		updateFormats: function () {
 			if (!window.BattleFormats) {
 				this.$('.mainmenu button.big').html('<em>Connecting...</em>').addClass('disabled');
 				return;
@@ -489,26 +489,26 @@
 
 			if (!this.searching) this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
 			var self = this;
-			this.$('button[name=format]').each(function(i, el) {
+			this.$('button[name=format]').each(function (i, el) {
 				var val = el.value;
 				var $teamButton = $(el).closest('form').find('button[name=team]');
 				$(el).replaceWith(self.renderFormats(val));
 				$teamButton.replaceWith(self.renderTeams(val));
 			});
 		},
-		updateTeams: function() {
+		updateTeams: function () {
 			if (!window.BattleFormats) return;
 			var teams = Storage.teams;
 			var self = this;
 
-			this.$('button[name=team]').each(function(i, el) {
+			this.$('button[name=team]').each(function (i, el) {
 				var val = el.value;
 				if (val === 'random') return;
 				var format = $(el).closest('form').find('button[name=format]').val();
 				$(el).replaceWith(self.renderTeams(format, val));
 			});
 		},
-		updateRightMenu: function() {
+		updateRightMenu: function () {
 			if (app.sideRoom) {
 				this.$('.rightmenu').hide();
 			} else {
@@ -517,7 +517,7 @@
 		},
 
 		// challenge buttons
-		challenge: function(name, format, team) {
+		challenge: function (name, format, team) {
 			var userid = toId(name);
 			var $challenge = this.$('.pm-window-'+userid+' .challenge');
 			if ($challenge.length && !$challenge.find('button[name=dismissChallenge]').length) {
@@ -543,7 +543,7 @@
 			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
-		acceptChallenge: function(i, target) {
+		acceptChallenge: function (i, target) {
 			this.requestNotifications();
 			var $pmWindow = $(target).closest('.pm-window');
 			var userid = $pmWindow.data('userid');
@@ -561,12 +561,12 @@
 			app.sendTeam(team);
 			app.send('/accept '+userid);
 		},
-		rejectChallenge: function(i, target) {
+		rejectChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
 			$(target).closest('.challenge').remove();
 			app.send('/reject '+userid);
 		},
-		makeChallenge: function(i, target) {
+		makeChallenge: function (i, target) {
 			this.requestNotifications();
 			var $pmWindow = $(target).closest('.pm-window');
 			var userid = $pmWindow.data('userid');
@@ -589,18 +589,18 @@
 			app.sendTeam(team);
 			app.send('/challenge '+userid+', '+format);
 		},
-		cancelChallenge: function(i, target) {
+		cancelChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
 			$(target).closest('.challenge').remove();
 			app.send('/cancelchallenge '+userid);
 		},
-		dismissChallenge: function(i, target) {
+		dismissChallenge: function (i, target) {
 			$(target).closest('.challenge').remove();
 		},
-		format: function(format, button) {
+		format: function (format, button) {
 			if (window.BattleFormats) app.addPopup(FormatPopup, {format: format, sourceEl: button});
 		},
-		team: function(team, button) {
+		team: function (team, button) {
 			var format = $(button).closest('form').find('button[name=format]').val();
 			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: button});
 		},
@@ -608,7 +608,7 @@
 		// format/team selection
 
 		curFormat: '',
-		renderFormats: function(formatid, noChoice) {
+		renderFormats: function (formatid, noChoice) {
 			if (!window.BattleFormats) {
 				return '<button class="select formatselect" name="format" disabled value="'+Tools.escapeHTML(formatid)+'"><em>Loading...</em></button>';
 			}
@@ -632,7 +632,7 @@
 		},
 		curTeamFormat: '',
 		curTeamIndex: -1,
-		renderTeams: function(formatid, teamIndex) {
+		renderTeams: function (formatid, teamIndex) {
 			if (!Storage.teams || !window.BattleFormats) {
 				return '<button class="select teamselect" name="team" disabled><em>Loading...</em></button>';
 			}
@@ -667,7 +667,7 @@
 		},
 
 		// buttons
-		search: function(i, button) {
+		search: function (i, button) {
 			if (!window.BattleFormats) return;
 			this.requestNotifications();
 			var $searchForm = $(button).closest('form');
@@ -700,19 +700,19 @@
 			app.sendTeam(team);
 			app.send('/search '+format);
 		},
-		cancelSearch: function() {
+		cancelSearch: function () {
 			app.send('/cancelsearch');
 			this.searching = false;
 			this.updateSearch();
 		},
-		credits: function() {
+		credits: function () {
 			app.addPopup(CreditsPopup);
 		},
-		roomlist: function() {
+		roomlist: function () {
 			app.addPopup(BattleListPopup);
 		},
-		finduser: function() {
-			app.addPopupPrompt("Username", "Open", function(target) {
+		finduser: function () {
+			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
 				if (toId(target) === 'zarel') {
 					app.addPopup(Popup, {htmlMessage:"Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
@@ -724,7 +724,7 @@
 	});
 
 	var FormatPopup = this.FormatPopup = this.Popup.extend({
-		initialize: function(data) {
+		initialize: function (data) {
 			var curFormat = data.format;
 			var selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
 			var bufs = [];
@@ -766,7 +766,7 @@
 			html += '<div style="clear:left"></div>';
 			this.$el.html(html);
 		},
-		selectFormat: function(format) {
+		selectFormat: function (format) {
 			var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
 			this.sourceEl.val(format).html(Tools.escapeFormat(format));
 			$teamButton.replaceWith(app.rooms[''].renderTeams(format));
@@ -776,7 +776,7 @@
 	});
 
 	var TeamPopup = this.TeamPopup = this.Popup.extend({
-		initialize: function(data) {
+		initialize: function (data) {
 			var bufs = ['','','','',''];
 			var curBuf = 0;
 			var teams = Storage.teams;
@@ -833,7 +833,7 @@
 				this.$el.html('<ul class="popupmenu">'+bufs[0]+'</ul>');
 			}
 		},
-		selectTeam: function(i) {
+		selectTeam: function (i) {
 			var formatid = this.sourceEl.closest('form').find('button[name=format]').val();
 			i = +i;
 			this.sourceEl.val(i).html(TeamPopup.renderTeam(i));
@@ -842,7 +842,7 @@
 			this.close();
 		}
 	}, {
-		renderTeam: function(i) {
+		renderTeam: function (i) {
 			if (i === 'random') {
 				var buf = 'Random team<br />';
 				for (var i=0; i<6; i++) {
@@ -860,7 +860,7 @@
 
 	var BattleListPopup = this.BattleListPopup = Popup.extend({
 		type: 'modal',
-		initialize: function() {
+		initialize: function () {
 			var buf = '<div class="roomlist"><p><button name="refresh"><i class="icon-refresh"></i> Refresh</button> <button name="close" style="float:right"><i class="icon-remove"></i> Close</button></p>';
 
 			buf += '<p><label>Format:</label><select name="format"><option value="">(All formats)</option>';
@@ -888,11 +888,11 @@
 			'change select': 'changeFormat'
 		},
 		format: '',
-		changeFormat: function(e) {
+		changeFormat: function (e) {
 			this.format = e.currentTarget.value;
 			this.update();
 		},
-		update: function(data) {
+		update: function (data) {
 			if (!data && !this.data) {
 				this.$list.html('<p>Loading...</p>');
 				return;
@@ -934,7 +934,7 @@
 
 			this.$list.html(buf);
 		},
-		clickLink: function(e) {
+		clickLink: function (e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			e.stopPropagation();
@@ -942,7 +942,7 @@
 			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
 			app.tryJoinRoom(roomid);
 		},
-		refresh: function(i, button) {
+		refresh: function (i, button) {
 			button.disabled = true;
 			app.send('/cmd roomlist');
 		}
@@ -950,7 +950,7 @@
 
 	var CreditsPopup = this.CreditsPopup = Popup.extend({
 		type: 'semimodal',
-		initialize: function() {
+		initialize: function () {
 			var buf = '';
 			buf += '<p style="text-align:center"><img src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown (beta)" /></p>';
 			if (Config.version) buf += '<p style="text-align:center;color:#555555"><small>Version <strong>'+Config.version+'</strong></small></p>';

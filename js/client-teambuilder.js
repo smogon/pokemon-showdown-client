@@ -1,11 +1,11 @@
-(function(exports, $) {
+(function (exports, $) {
 
 	// this is a useful global
 	var teams;
 
 	var TeambuilderRoom = exports.TeambuilderRoom = exports.Room.extend({
 		type: 'teambuilder',
-		initialize: function() {
+		initialize: function () {
 			teams = Storage.teams;
 
 			// left menu
@@ -13,14 +13,14 @@
 			app.on('init:loadteams', this.update, this);
 			this.update();
 		},
-		focus: function() {
+		focus: function () {
 			this.buildMovelists();
 			if (this.curTeam) {
 				this.curTeam.iconCache = '!';
 				Storage.activeSetList = this.curSetList;
 			}
 		},
-		blur: function() {
+		blur: function () {
 			if (this.saveFlag) {
 				this.saveFlag = false;
 				app.user.trigger('saveteams');
@@ -60,18 +60,18 @@
 			'click .teambuilder-clipboard-data': 'clipboardExpand',
 			'blur .teambuilder-clipboard-data': 'clipboardShrink'
 		},
-		dispatchClick: function(e) {
+		dispatchClick: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 			if (this[e.currentTarget.value]) this[e.currentTarget.value].call(this, e);
 		},
-		saveTeams: function() {
+		saveTeams: function () {
 			// save and return
 			Storage.saveTeams();
 			app.user.trigger('saveteams');
 			this.update();
 		},
-		back: function() {
+		back: function () {
 			if (this.exportMode) {
 				if (this.curTeam) this.curTeam.team = Storage.packTeam(this.curSetList);
 				this.exportMode = false;
@@ -103,7 +103,7 @@
 		curSet: null,
 		curSetLoc: 0,
 		exportMode: false,
-		update: function() {
+		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
 				if (this.curSet) {
@@ -120,7 +120,7 @@
 
 		deletedTeam: null,
 		deletedTeamLoc: -1,
-		updateTeamList: function() {
+		updateTeamList: function () {
 			var teams = Storage.teams;
 			var buf = '';
 
@@ -199,13 +199,13 @@
 			this.$el.html(buf);
 		},
 		// button actions
-		revealFolder: function() {
+		revealFolder: function () {
 			Storage.revealFolder();
 		},
-		reloadTeamsFolder: function() {
+		reloadTeamsFolder: function () {
 			Storage.nwLoadTeams();
 		},
-		edit: function(i) {
+		edit: function (i) {
 			if (i && i.currentTarget) {
 				i = $(i.currentTarget).data('value');
 			}
@@ -216,14 +216,14 @@
 			this.curTeamIndex = i;
 			this.update();
 		},
-		"delete": function(i) {
+		"delete": function (i) {
 			i = +i;
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
 			Storage.deleteTeam(this.deletedTeam);
 			this.update();
 		},
-		undoDelete: function() {
+		undoDelete: function () {
 			if (this.deletedTeamLoc >= 0) {
 				teams.splice(this.deletedTeamLoc, 0, this.deletedTeam);
 				var undeletedTeam = this.deletedTeam;
@@ -233,13 +233,13 @@
 				this.update();
 			}
 		},
-		saveBackup: function() {
+		saveBackup: function () {
 			Storage.importTeam(this.$('.teamedit textarea').val(), true);
 			teams = Storage.teams;
 			Storage.saveAllTeams();
 			this.back();
 		},
-		"new": function() {
+		"new": function () {
 			var newTeam = {
 				name: 'Untitled '+(teams.length+1),
 				format: '',
@@ -249,7 +249,7 @@
 			teams.push(newTeam);
 			this.edit(teams.length-1);
 		},
-		newTop: function() {
+		newTop: function () {
 			var newTeam = {
 				name: 'Untitled '+(teams.length+1),
 				format: '',
@@ -259,7 +259,7 @@
 			teams.unshift(newTeam);
 			this.edit(0);
 		},
-		"import": function() {
+		"import": function () {
 			if (this.exportMode) return this.back();
 			this.exportMode = true;
 			if (!this.curTeam) {
@@ -268,7 +268,7 @@
 				this.update();
 			}
 		},
-		backup: function() {
+		backup: function () {
 			this.curTeam = null;
 			this.curSetList = null;
 			this.exportMode = true;
@@ -280,13 +280,13 @@
 		// because of a bug in Chrome and Webkit:
 		//   https://code.google.com/p/chromium/issues/detail?id=410328
 		// we can't use CSS :hover
-		mouseOverTeam: function(e) {
+		mouseOverTeam: function (e) {
 			e.currentTarget.className = 'team team-hover';
 		},
-		mouseOutTeam: function(e) {
+		mouseOutTeam: function (e) {
 			e.currentTarget.className = 'team';
 		},
-		dragStartTeam: function(e) {
+		dragStartTeam: function (e) {
 			var target = e.currentTarget;
 			var dataTransfer = e.originalEvent.dataTransfer;
 
@@ -315,14 +315,14 @@
 			app.draggingOffsetY = e.originalEvent.pageY - elOffset.top;
 			app.draggingRoom = this.id;
 			this.finalOffset = null;
-			setTimeout(function() {
+			setTimeout(function () {
 				$(e.currentTarget).parent().addClass('dragging');
 			}, 0);
 		},
-		dragEndTeam: function(e) {
+		dragEndTeam: function (e) {
 			this.finishDrop();
 		},
-		finishDrop: function() {
+		finishDrop: function () {
 			var teamEl = app.dragging;
 			app.dragging = null;
 			var originalLoc = parseInt(teamEl.dataset.value);
@@ -372,7 +372,7 @@
 
 				var $newTeamEl = this.$('.team[data-value=' + newLoc + ']');
 				$newTeamEl.css('transform', 'translate(' + this.finalOffset[0] + 'px, ' + this.finalOffset[1] + 'px)');
-				setTimeout(function() {
+				setTimeout(function () {
 					$newTeamEl.css('transition', 'transform 0.15s');
 					// it's 2015 and Safari doesn't support unprefixed transition!!!
 					$newTeamEl.css('-webkit-transition', '-webkit-transform 0.15s');
@@ -380,7 +380,7 @@
 				});
 			}
 		},
-		dragEnterTeam: function(e) {
+		dragEnterTeam: function (e) {
 			if (!app.dragging) return;
 			if (e.currentTarget === app.dragging) {
 				e.preventDefault();
@@ -397,7 +397,7 @@
 				app.draggingLoc = parseInt(e.currentTarget.dataset.value) + 0.5;
 			}
 		},
-		defaultDragEnterTeam: function(e) {
+		defaultDragEnterTeam: function (e) {
 			// Drag originated outside teambuilder
 			if (!e.originalEvent.dataTransfer) return;
 			if (!e.originalEvent.dataTransfer.files) return;
@@ -422,7 +422,7 @@
 				}
 				var reader = new FileReader();
 				var self = this;
-				reader.onload = function(e) {
+				reader.onload = function (e) {
 					var team;
 					try {
 						team = Storage.packTeam(Storage.importTeam(e.target.result));
@@ -459,7 +459,7 @@
 		 * Team view
 		 *********************************************************/
 
-		updateTeamView: function() {
+		updateTeamView: function () {
 			this.curChartName = '';
 			this.curChartType = '';
 
@@ -509,7 +509,7 @@
 			}
 			this.$el.html(buf);
 		},
-		renderSet: function(set, i) {
+		renderSet: function (set, i) {
 			var template = Tools.getTemplate(set.species);
 			var buf = '<li value="'+i+'">';
 			if (!set.species) {
@@ -588,11 +588,11 @@
 			return buf;
 		},
 
-		saveImport: function() {
+		saveImport: function () {
 			Storage.activeSetList = this.curSetList = Storage.importTeam(this.$('.teamedit textarea').val());
 			this.back();
 		},
-		addPokemon: function() {
+		addPokemon: function () {
 			if (!this.curTeam) return;
 			var team = this.curSetList;
 			if (!team.length || team[team.length-1].species) {
@@ -613,7 +613,7 @@
 			this.update();
 			this.$('input[name=pokemon]').select();
 		},
-		pastePokemon: function(i, btn) {
+		pastePokemon: function (i, btn) {
 			if (!this.curTeam) return;
 			var team = this.curSetList;
 			if (team.length >= 6) return;
@@ -626,21 +626,21 @@
 			this.save();
 		},
 		saveFlag: false,
-		save: function() {
+		save: function () {
 			this.saveFlag = true;
 			Storage.saveTeams();
 		},
-		teamNameChange: function(e) {
+		teamNameChange: function (e) {
 			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled '+(this.curTeamLoc+1));
 			e.currentTarget.value = this.curTeam.name;
 			this.save();
 		},
-		formatChange: function(e) {
+		formatChange: function (e) {
 			this.curTeam.format = e.currentTarget.value;
 			this.save();
 			if (this.curTeam.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
 		},
-		nicknameChange: function(e) {
+		nicknameChange: function (e) {
 			var i = +$(e.currentTarget).closest('li').attr('value');
 			var team = this.curSetList[i];
 			var name = $.trim(e.currentTarget.value) || team.species;
@@ -650,13 +650,13 @@
 
 		// clipboard
 		clipboard: [],
-		clipboardCount: function() {
+		clipboardCount: function () {
 			return this.clipboard.length;
 		},
-		clipboardVisible: function() {
+		clipboardVisible: function () {
 			return !!this.clipboardCount();
 		},
-		clipboardHTML: function() {
+		clipboardHTML: function () {
 			var buf = '';
 			buf += '<div class="teambuilder-clipboard-container" style="display: ' + (this.clipboardVisible() ? 'block' : 'none') + ';">';
 			buf += '<div class="teambuilder-clipboard-title">Clipboard:</div>';
@@ -672,7 +672,7 @@
 			return buf;
 		},
 		clipboardInnerHTMLCache: '',
-		clipboardInnerHTML: function() {
+		clipboardInnerHTML: function () {
 			if (this.clipboardInnerHTMLCache) {
 				return this.clipboardInnerHTMLCache;
 			}
@@ -703,30 +703,30 @@
 			this.clipboardInnerHTMLCache = buf;
 			return buf;
 		},
-		clipboardUpdate: function() {
+		clipboardUpdate: function () {
 			this.clipboardInnerHTMLCache = '';
 			$('.teambuilder-clipboard-data').html(this.clipboardInnerHTML());
 		},
 		clipboardExpanded: false,
-		clipboardExpand: function() {
+		clipboardExpand: function () {
 			var $clipboard = $('.teambuilder-clipboard-data');
-			$clipboard.animate({ height: this.clipboardCount() * 28 }, 500, function() {
-				setTimeout(function() { $clipboard.focus(); }, 100);
+			$clipboard.animate({ height: this.clipboardCount() * 28 }, 500, function () {
+				setTimeout(function () { $clipboard.focus(); }, 100);
 			});
 
-			setTimeout(function() {
+			setTimeout(function () {
 				this.clipboardExpanded = true;
 			}.bind(this), 10);
 		},
-		clipboardShrink: function() {
+		clipboardShrink: function () {
 			var $clipboard = $('.teambuilder-clipboard-data');
 			$clipboard.animate({ height: 26 }, 500);
 
-			setTimeout(function() {
+			setTimeout(function () {
 				this.clipboardExpanded = false;
 			}.bind(this), 10);
 		},
-		clipboardResultSelect: function(e) {
+		clipboardResultSelect: function (e) {
 			if (!this.clipboardExpanded) return;
 
 			e.stopPropagation();
@@ -741,7 +741,7 @@
 			this.clipboardUpdate();
 			this.clipboardShrink();
 		},
-		clipboardAdd: function(set) {
+		clipboardAdd: function (set) {
 			if (this.clipboard.unshift(set) > 6) {
 				// we don't want the clipboard so big that it lags the teambuilder
 				this.clipboard.pop();
@@ -755,26 +755,26 @@
 				});
 			}
 		},
-		clipboardRemoveAll: function() {
+		clipboardRemoveAll: function () {
 			this.clipboard = [];
 
 			var self = this;
 			var $clipboard = $('.teambuilder-clipboard-container');
 			$clipboard.animate({ opacity: 0 }, 250, function () {
-				$clipboard.slideUp(250, function() {
+				$clipboard.slideUp(250, function () {
 					self.clipboardUpdate();
 				});
 			});
 		},
 
 		// copy/import/export/move/delete
-		copySet: function(i, button) {
+		copySet: function (i, button) {
 			i = +($(button).closest('li').attr('value'));
 			this.clipboardAdd($.extend(true, {}, this.curSetList[i]));
 			button.blur();
 		},
 		wasViewingPokemon: false,
-		importSet: function(i, button) {
+		importSet: function (i, button) {
 			i = +($(button).closest('li').attr('value'));
 
 			this.wasViewingPokemon = true;
@@ -791,7 +791,7 @@
 				.val(Storage.exportTeam([this.curSet]).trim())
 				.focus();
 		},
-		closePokemonImport: function(force) {
+		closePokemonImport: function (force) {
 			if (!this.wasViewingPokemon) return this.back();
 
 			var $li = this.$('li');
@@ -802,7 +802,7 @@
 			if (force === true) return this.selectPokemon(i);
 			$li.find('input, button').prop('disabled', false);
 		},
-		savePokemonImport: function(i) {
+		savePokemonImport: function (i) {
 			i = +(this.$('li').attr('value'));
 			var curSet = Storage.importTeam(this.$('.pokemonedit').val())[0];
 			if (curSet) {
@@ -811,14 +811,14 @@
 			}
 			this.closePokemonImport(true);
 		},
-		moveSet: function(i, button) {
+		moveSet: function (i, button) {
 			i = +($(button).closest('li').attr('value'));
 			app.addPopup(MovePopup, {
 				i: i,
 				team: this.curSetList
 			});
 		},
-		deleteSet: function(i, button) {
+		deleteSet: function (i, button) {
 			i = +($(button).closest('li').attr('value'));
 			this.deletedSetLoc = i;
 			this.deletedSet = this.curSetList.splice(i, 1)[0];
@@ -829,7 +829,7 @@
 			}
 			this.save();
 		},
-		undeleteSet: function() {
+		undeleteSet: function () {
 			if (this.deletedSet) {
 				var loc = this.deletedSetLoc;
 				this.curSetList.splice(loc, 0, this.deletedSet);
@@ -853,7 +853,7 @@
 		 * Set view
 		 *********************************************************/
 
-		updateSetView: function() {
+		updateSetView: function () {
 			// pokemon
 			var buf = '<div class="pad">';
 			buf += '<button name="back"><i class="icon-chevron-left"></i> Team</button></div>';
@@ -881,11 +881,11 @@
 			this.$el.html(buf);
 			this.$chart = this.$('.teambuilder-results');
 		},
-		updateSetTop: function() {
+		updateSetTop: function () {
 			this.$('.teambar').html(this.renderTeambar());
 			this.$('.teamchart').first().html(this.renderSet(this.curSet, this.curSetLoc));
 		},
-		renderTeambar: function() {
+		renderTeambar: function () {
 			var buf = '';
 			var isAdd = false;
 			if (this.curSetList.length && !this.curSetList[this.curSetList.length-1].name && this.curSetLoc !== this.curSetList.length-1) {
@@ -908,7 +908,7 @@
 			}
 			return buf;
 		},
-		updatePokemonSprite: function() {
+		updatePokemonSprite: function () {
 			var set = this.curSet;
 			if (!set) return;
 			var shiny = (set.shiny ? '-shiny' : '');
@@ -930,7 +930,7 @@
 
 			this.updateStatGraph();
 		},
-		updateStatGraph: function() {
+		updateStatGraph: function () {
 			var set = this.curSet;
 			if (!set) return;
 
@@ -987,7 +987,7 @@
 		},
 		curChartType: '',
 		curChartName: '',
-		updateChart: function() {
+		updateChart: function () {
 			var type = this.curChartType;
 			app.clearGlobalListeners();
 			if (type === 'stats') {
@@ -1007,14 +1007,14 @@
 			this.$chart.html('<em>Loading '+this.curChartType+'...</em>');
 			var self = this;
 			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
-			this.updateChartTimeout = setTimeout(function() {
+			this.updateChartTimeout = setTimeout(function () {
 				self.updateChartTimeout = null;
 				if (self.curChartType === 'stats' || self.curChartType === 'details' || !self.curChartName) return;
 				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self)));
 			}, 10);
 		},
 		updateChartTimeout: null,
-		updateChartDelayed: function() {
+		updateChartDelayed: function () {
 			// cache movelist ref
 			var speciesid = toId(this.curSet.species);
 			var g6 = (this.curTeam.format && (this.curTeam.format === 'vgc2014' || this.curTeam.format === 'vgc2015'));
@@ -1022,13 +1022,13 @@
 
 			var self = this;
 			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
-			this.updateChartTimeout = setTimeout(function() {
+			this.updateChartTimeout = setTimeout(function () {
 				self.updateChartTimeout = null;
 				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
 				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, false, _.bind(self.arrangeCallback[self.curChartType], self)));
 			}, 200);
 		},
-		selectPokemon: function(i) {
+		selectPokemon: function (i) {
 			i = +i;
 			var set = this.curSetList[i];
 			if (set) {
@@ -1045,13 +1045,13 @@
 				}
 			}
 		},
-		stats: function(i, button) {
+		stats: function (i, button) {
 			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
 			this.curChartName = 'stats';
 			this.curChartType = 'stats';
 			this.updateStatForm();
 		},
-		details: function(i, button) {
+		details: function (i, button) {
 			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
 			this.curChartName = 'details';
 			this.curChartType = 'details';
@@ -1064,7 +1064,7 @@
 
 		plus: '',
 		minus: '',
-		updateStatForm: function(setGuessed) {
+		updateStatForm: function (setGuessed) {
 			var buf = '';
 			var set = this.curSet;
 			var baseStats = Tools.getTemplate(this.curSet.species).baseStats;
@@ -1203,24 +1203,24 @@
 				to: 252,
 				step: 4,
 				skin: 'round_plastic',
-				onstatechange: function(val) {
+				onstatechange: function (val) {
 					if (!self.suppressSliderCallback) self.statSlide(val, this);
 				},
-				callback: function() {
+				callback: function () {
 					self.save();
 				}
 			});
 			this.suppressSliderCallback = false;
 		},
-		setStatFormGuesses: function() {
+		setStatFormGuesses: function () {
 			this.updateStatForm(true);
 		},
-		setSlider: function(stat, val) {
+		setSlider: function (stat, val) {
 			this.suppressSliderCallback = true;
 			this.$chart.find('input[name=evslider-'+stat+']').slider('value', val||0);
 			this.suppressSliderCallback = false;
 		},
-		updateNature: function() {
+		updateNature: function () {
 			var set = this.curSet;
 			if (!set) return;
 
@@ -1235,7 +1235,7 @@
 				}
 			}
 		},
-		statChange: function(e) {
+		statChange: function (e) {
 			var inputName = '';
 			inputName = e.currentTarget.name;
 			var val = Math.abs(parseInt(e.currentTarget.value, 10));
@@ -1292,7 +1292,7 @@
 			}
 			this.save();
 		},
-		statSlide: function(val, slider) {
+		statSlide: function (val, slider) {
 			var stat = slider.inputNode[0].name.substr(9);
 			var set = this.curSet;
 			if (!set) return;
@@ -1326,7 +1326,7 @@
 
 			this.updateStatGraph();
 		},
-		natureChange: function(e) {
+		natureChange: function (e) {
 			var set = this.curSet;
 			if (!set) return;
 
@@ -1358,7 +1358,7 @@
 		 * Set details form
 		 *********************************************************/
 
-		updateDetailsForm: function() {
+		updateDetailsForm: function () {
 			var buf = '';
 			var set = this.curSet;
 			var template = Tools.getTemplate(set.species);
@@ -1389,7 +1389,7 @@
 			buf += '</form>';
 			this.$chart.html(buf);
 		},
-		detailsChange: function() {
+		detailsChange: function () {
 			var set = this.curSet;
 			if (!set) return;
 
@@ -1442,7 +1442,7 @@
 		 *********************************************************/
 
 		arrangeCallback: {
-			pokemon: function(pokemon) {
+			pokemon: function (pokemon) {
 				if (!pokemon) {
 					if (this.curTeam) {
 						if (this.curTeam.format === 'ubers' || this.curTeam.format === 'anythinggoes') return ['Uber','OU','BL','UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
@@ -1460,11 +1460,11 @@
 				if (!tierData) return 'Illegal';
 				return tierData.tier;
 			},
-			item: function(item) {
+			item: function (item) {
 				if (!item) return ['Items'];
 				return 'Items';
 			},
-			ability: function(ability) {
+			ability: function (ability) {
 				if (!this.curSet) return;
 				if (!ability) return ['Abilities', 'Hidden Ability'];
 				var template = Tools.getTemplate(this.curSet.species);
@@ -1474,7 +1474,7 @@
 				if (ability.name === template.abilities['H']) return 'Hidden Ability';
 				if (!this.curTeam || this.curTeam.format !== 'balancedhackmons') return 'Illegal';
 			},
-			move: function(move) {
+			move: function (move) {
 				if (!this.curSet) return;
 				if (!move) return ['Usable Moves', 'Moves', 'Usable Sketch Moves', 'Sketch Moves'];
 				var movelist = this.movelist;
@@ -1503,10 +1503,10 @@
 			stats: 'stats',
 			details: 'details'
 		},
-		chartClick: function(e) {
+		chartClick: function (e) {
 			this.chartSet($(e.currentTarget).data('name'), true);
 		},
-		chartKeydown: function(e) {
+		chartKeydown: function (e) {
 			var modifier = (e.shiftKey || e.ctrlKey || e.altKey || e.metaKey || e.cmdKey);
 			if (e.keyCode === 13 || (e.keyCode === 9 && !modifier)) {
 				if (!this.arrangeCallback[this.curChartType]) return;
@@ -1520,10 +1520,10 @@
 				return;
 			}
 		},
-		chartKeyup: function() {
+		chartKeyup: function () {
 			this.updateChartDelayed();
 		},
-		chartFocus: function(e) {
+		chartFocus: function (e) {
 			var $target = $(e.currentTarget);
 			var name = e.currentTarget.name;
 			var type = this.chartTypes[name];
@@ -1548,7 +1548,7 @@
 			this.curChartType = type;
 			this.updateChart();
 		},
-		chartChange: function(e) {
+		chartChange: function (e) {
 			var name = e.currentTarget.name;
 			var type = this.chartTypes[name];
 			var arrange = null;
@@ -1564,7 +1564,7 @@
 			}
 			this.chartSet(val);
 		},
-		chartSet: function(val, selectNext) {
+		chartSet: function (val, selectNext) {
 			var inputName = this.curChartName;
 			var id = toId(val);
 			this.$('input[name='+inputName+']').val(val).removeClass('incomplete');
@@ -1610,7 +1610,7 @@
 			}
 			this.save();
 		},
-		chooseMove: function(move) {
+		chooseMove: function (move) {
 			var set = this.curSet;
 			if (!set) return;
 			if (move.substr(0,13) === 'Hidden Power ') {
@@ -1635,7 +1635,7 @@
 				this.curSet.happiness = 0;
 			}
 		},
-		setPokemon: function(val, selectNext) {
+		setPokemon: function (val, selectNext) {
 			var set = this.curSet;
 			var template = Tools.getTemplate(val);
 			var newPokemon = !set.species;
@@ -1665,7 +1665,7 @@
 
 		// EV guesser
 
-		guessRole: function() {
+		guessRole: function () {
 			var set = this.curSet;
 			if (!set) return '?';
 			if (!set.moves) return '?';
@@ -1906,7 +1906,7 @@
 			if (specialBulk >= physicalBulk) return 'Specially Defensive';
 			return 'Physically Defensive';
 		},
-		ensureMinEVs: function(evs, stat, min, evTotal) {
+		ensureMinEVs: function (evs, stat, min, evTotal) {
 			if (!evs[stat]) evs[stat] = 0;
 			var diff = min - evs[stat];
 			if (diff <= 0) return evTotal;
@@ -1928,7 +1928,7 @@
 			}
 			return evTotal; // can't do it :(
 		},
-		ensureMaxEVs: function(evs, stat, min, evTotal) {
+		ensureMaxEVs: function (evs, stat, min, evTotal) {
 			if (!evs[stat]) evs[stat] = 0;
 			var diff = evs[stat] - min;
 			if (diff <= 0) return evTotal;
@@ -1936,7 +1936,7 @@
 			evTotal -= diff;
 			return evTotal; // can't do it :(
 		},
-		guessEVs: function(role) {
+		guessEVs: function (role) {
 			var set = this.curSet;
 			if (!set) return {};
 			var template = Tools.getTemplate(set.species || set.name);
@@ -2077,7 +2077,7 @@
 
 		// Stat calculator
 
-		getStat: function(stat, set, evOverride, natureOverride) {
+		getStat: function (stat, set, evOverride, natureOverride) {
 			if (!set) set = this.curSet;
 			if (!set) return 0;
 
@@ -2123,7 +2123,7 @@
 
 		// initialization
 
-		buildMovelists: function() {
+		buildMovelists: function () {
 			if (Tools.movelists) return;
 			if (!window.BattlePokedex) return;
 			Tools.movelists = {};
@@ -2153,7 +2153,7 @@
 				Tools.g6movelists[pokemon] = g6moves;
 			}
 		},
-		applyMovelist: function(g6only, speciesid) {
+		applyMovelist: function (g6only, speciesid) {
 			this.buildMovelists();
 			if (!Tools.movelists) {
 				this.movelist = false;
@@ -2163,14 +2163,14 @@
 				this.movelist = Tools.movelists[speciesid];
 			}
 		},
-		destroy: function() {
+		destroy: function () {
 			app.clearGlobalListeners();
 			Room.prototype.destroy.call(this);
 		}
 	});
 
 	var MovePopup = exports.MovePopup = Popup.extend({
-		initialize: function(data) {
+		initialize: function (data) {
 			var buf = '<ul class="popupmenu">';
 			this.i = data.i;
 			this.team = data.team;
@@ -2187,7 +2187,7 @@
 			buf += '</ul>';
 			this.$el.html(buf);
 		},
-		moveHere: function(i) {
+		moveHere: function (i) {
 			this.close();
 			i = +i;
 

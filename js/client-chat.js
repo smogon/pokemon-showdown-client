@@ -1,9 +1,9 @@
-(function($) {
+(function ($) {
 
 	var ConsoleRoom = this.ConsoleRoom = Room.extend({
 		type: 'chat',
 		title: '',
-		constructor: function() {
+		constructor: function () {
 			if (!this.events) this.events = {};
 			if (!this.events['click .ilink']) this.events['click .ilink'] = 'clickLink';
 			if (!this.events['click .username']) this.events['click .username'] = 'clickUsername';
@@ -22,7 +22,7 @@
 			app.user.on('change', this.updateUser, this);
 			this.updateUser();
 		},
-		updateUser: function() {
+		updateUser: function () {
 			var name = app.user.get('name');
 			var userid = app.user.get('userid');
 			if (this.expired) {
@@ -47,7 +47,7 @@
 			}
 		},
 
-		focus: function() {
+		focus: function () {
 			if (this.$chatbox) {
 				this.$chatbox.focus();
 			} else {
@@ -55,7 +55,7 @@
 			}
 		},
 
-		focusText: function() {
+		focusText: function () {
 			if (this.$chatbox) {
 				var roomLeft, roomRight;
 				if (this === app.curSideRoom) {
@@ -74,16 +74,16 @@
 				}
 			}
 		},
-		blurText: function() {
+		blurText: function () {
 			if (this.$chatbox) {
 				this.$chatbox.attr('placeholder', "");
 			}
 		},
 
-		login: function() {
+		login: function () {
 			app.addPopup(LoginPopup);
 		},
-		submit: function(e) {
+		submit: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 			var text;
@@ -101,7 +101,7 @@
 				this.$chatbox.val('');
 			}
 		},
-		keyPress: function(e) {
+		keyPress: function (e) {
 			var cmdKey = (((e.cmdKey || e.metaKey)?1:0) + (e.ctrlKey?1:0) + (e.altKey?1:0) === 1);
 			var textbox = e.currentTarget;
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
@@ -201,7 +201,7 @@
 				}
 			}
 		},
-		clickUsername: function(e) {
+		clickUsername: function (e) {
 			e.stopPropagation();
 			e.preventDefault();
 			var position;
@@ -211,41 +211,41 @@
 			var name = $(e.currentTarget).data('name');
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget, position: position});
 		},
-		clickLink: function(e) {
+		clickLink: function (e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			e.stopPropagation();
 			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
 			app.tryJoinRoom(roomid);
 		},
-		openPM: function(e) {
+		openPM: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 			app.focusRoom('');
 			app.rooms[''].focusPM($(e.currentTarget).data('name'));
 		},
-		clear: function() {
+		clear: function () {
 			if (this.$chat) this.$chat.html('');
 		},
 
 		// support for buttons that can be sent by the server:
 
-		joinRoom: function(room) {
+		joinRoom: function (room) {
 			app.joinRoom(room);
 		},
-		avatars: function() {
+		avatars: function () {
 			app.addPopup(AvatarsPopup);
 		},
-		openSounds: function() {
+		openSounds: function () {
 			app.addPopup(SoundsPopup, {type:'semimodal'});
 		},
-		openOptions: function() {
+		openOptions: function () {
 			app.addPopup(OptionsPopup, {type:'semimodal'});
 		},
 
 		// highlight
 
-		getHighlight: function(message) {
+		getHighlight: function (message) {
 			var highlights = Tools.prefs('highlights') || [];
 			if (!app.highlightRegExp) {
 				try {
@@ -267,11 +267,11 @@
 		// chat history
 
 		chatHistory: null,
-		initializeChatHistory: function() {
+		initializeChatHistory: function () {
 			var chatHistory = {
 				lines: [],
 				index: 0,
-				push: function(line) {
+				push: function (line) {
 					if (chatHistory.lines.length > 100) {
 						chatHistory.lines.splice(0, 20);
 					}
@@ -281,7 +281,7 @@
 			};
 			this.chatHistory = chatHistory;
 		},
-		chatHistoryUp: function($textbox, e) {
+		chatHistoryUp: function ($textbox, e) {
 			var idx = +$textbox.prop('selectionStart');
 			var line = $textbox.val();
 			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
@@ -299,7 +299,7 @@
 			}
 			return false;
 		},
-		chatHistoryDown: function($textbox, e) {
+		chatHistoryDown: function ($textbox, e) {
 			var idx = +$textbox.prop('selectionStart');
 			var line = $textbox.val();
 			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
@@ -322,19 +322,19 @@
 
 		// tab completion
 
-		initializeTabComplete: function() {
+		initializeTabComplete: function () {
 			this.tabComplete = {
 				candidates: null,
 				index: 0,
 				prefix: null,
 				cursor: -1,
-				reset: function() {
+				reset: function () {
 					this.cursor = -1;
 				}
 			};
 			this.userActivity = [];
 		},
-		markUserActive: function(userid) {
+		markUserActive: function (userid) {
 			var idx = this.userActivity.indexOf(userid);
 			if (idx !== -1) {
 				this.userActivity.splice(idx, 1);
@@ -347,7 +347,7 @@
 		},
 		tabComplete: null,
 		userActivity: null,
-		handleTabComplete: function($textbox) {
+		handleTabComplete: function ($textbox) {
 			// Don't tab complete at the start of the text box.
 			var idx = $textbox.prop('selectionStart');
 			if (idx === 0) return false;
@@ -381,7 +381,7 @@
 				// Sort by most recent to speak in the chat, or, in the case of a tie,
 				// in alphabetical order.
 				var self = this;
-				candidates.sort(function(a, b) {
+				candidates.sort(function (a, b) {
 					var aidx = self.userActivity.indexOf(a);
 					var bidx = self.userActivity.indexOf(b);
 					if (aidx !== -1) {
@@ -411,7 +411,7 @@
 
 		// command parsing
 
-		parseCommand: function(text) {
+		parseCommand: function (text) {
 			var cmd = '';
 			var target = '';
 			if (text.substr(0,2) !== '//' && text.substr(0,1) === '/') {
@@ -431,7 +431,7 @@
 				var targets = target.split(',').map($.trim);
 
 				var self = this;
-				var challenge = function(targets) {
+				var challenge = function (targets) {
 					target = toId(targets[0]);
 					self.challengeData = { userid: target, format: targets[1] || '', team: targets[2] || '' };
 					app.on('response:userdetails', self.challengeUserdetails, self);
@@ -439,7 +439,7 @@
 				};
 
 				if (!targets[0]) {
-					app.addPopupPrompt("Who would you like to challenge?", "Challenge user", function(target) {
+					app.addPopupPrompt("Who would you like to challenge?", "Challenge user", function (target) {
 						if (!target) return;
 						challenge([target]);
 					});
@@ -502,12 +502,12 @@
 
 			case 'user':
 			case 'open':
-				var openUser = function(target) {
+				var openUser = function (target) {
 					app.addPopup(UserPopup, {name: target});
 				};
 				target = toName(target);
 				if (!target) {
-					app.addPopupPrompt("Username", "Open", function(target) {
+					app.addPopupPrompt("Username", "Open", function (target) {
 						if (!target) return;
 						openUser(target);
 					});
@@ -750,7 +750,7 @@
 				$.get(app.user.getActionPHP(), {
 					act: 'ladderget',
 					user: targets[0]
-				}, Tools.safeJSON(function(data) {
+				}, Tools.safeJSON(function (data) {
 					try {
 						var buffer = '<div class="ladder"><table>';
 						buffer += '<tr><td colspan="8">User: <strong>'+toName(targets[0])+'</strong></td></tr>';
@@ -812,14 +812,14 @@
 
 			case 'buttonban':
 				var self = this;
-				app.addPopupPrompt("Why do you wish to ban this user?", "Ban user", function(reason) {
+				app.addPopupPrompt("Why do you wish to ban this user?", "Ban user", function (reason) {
 					self.send('/ban ' + toName(target) + ', ' + (reason || ''));
 				});
 				return false;
 
 			case 'buttonmute':
 				var self = this;
-				app.addPopupPrompt("Why do you wish to mute this user?", "Mute user", function(reason) {
+				app.addPopupPrompt("Why do you wish to mute this user?", "Mute user", function (reason) {
 					self.send('/mute ' + toName(target) + ', ' + (reason || ''));
 				});
 				return false;
@@ -831,7 +831,7 @@
 			case 'buttonkick':
 			case 'buttonwarn':
 				var self = this;
-				app.addPopupPrompt("Why do you wish to warn this user?", "Warn user", function(reason) {
+				app.addPopupPrompt("Why do you wish to warn this user?", "Warn user", function (reason) {
 					self.send('/warn ' + toName(target) + ', ' + (reason || ''));
 				});
 				return false;
@@ -982,7 +982,7 @@
 		minMainWidth: 580,
 		maxWidth: 1024,
 		isSideRoom: true,
-		initialize: function() {
+		initialize: function () {
 			var buf = '<div class="tournament-wrapper"></div><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div><ul class="userlist"></ul>';
 			this.$el.addClass('ps-room-light').html(buf);
 
@@ -1009,7 +1009,7 @@
 				room: this
 			});
 		},
-		updateLayout: function() {
+		updateLayout: function () {
 			if (this.$el.width() >= 570) {
 				this.userList.show();
 				this.$chatFrame.addClass('hasuserlist');
@@ -1024,21 +1024,21 @@
 			this.$chatFrame.scrollTop(this.$chat.height());
 			if (this.tournamentBox) this.tournamentBox.updateLayout();
 		},
-		show: function() {
+		show: function () {
 			Room.prototype.show.apply(this, arguments);
 			this.updateLayout();
 		},
-		join: function() {
+		join: function () {
 			app.send('/join '+this.id);
 		},
-		leave: function() {
+		leave: function () {
 			app.send('/leave '+this.id);
 			app.updateAutojoin();
 		},
-		receive: function(data) {
+		receive: function (data) {
 			this.add(data);
 		},
-		add: function(log) {
+		add: function (log) {
 			if (typeof log === 'string') log = log.split('\n');
 			var autoscroll = false;
 			if (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height()) {
@@ -1061,7 +1061,7 @@
 				$children.slice(0,100).remove();
 			}
 		},
-		addPM: function(user, message, pm) {
+		addPM: function (user, message, pm) {
 			var autoscroll = false;
 			if (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height()) {
 				autoscroll = true;
@@ -1071,7 +1071,7 @@
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
 		},
-		addRow: function(line) {
+		addRow: function (line) {
 			var name, name2, room, action, silent, oldid;
 			if (line && typeof line === 'string') {
 				if (line.substr(0,1) !== '|') line = '||'+line;
@@ -1205,15 +1205,15 @@
 				}
 			}
 		},
-		revealMessages: function(user) {
+		revealMessages: function (user) {
 			var $messages = $('.chatmessage-' + user);
 			$messages.addClass('revealed').show();
 			$messages.find('button').parent().remove();
 		},
-		tournamentButton: function(val, button) {
+		tournamentButton: function (val, button) {
 			if (this.tournamentBox) this.tournamentBox[$(button).data('type')](val, button);
 		},
-		parseUserList: function(userList) {
+		parseUserList: function (userList) {
 			this.userCount = {};
 			this.users = {};
 			var commaIndex = userList.indexOf(',');
@@ -1229,7 +1229,7 @@
 			}
 			this.userList.construct();
 		},
-		addJoinLeave: function(action, name, oldid, silent) {
+		addJoinLeave: function (action, name, oldid, silent) {
 			var userid = toUserid(name);
 			if (!action) {
 				this.$joinLeave = null;
@@ -1322,7 +1322,7 @@
 			}
 			this.$joinLeave.html('<small style="color: #555555">' + message + '</small>');
 		},
-		addChat: function(name, message, pm, deltatime) {
+		addChat: function (name, message, pm, deltatime) {
 			var userid = toUserid(name);
 			var color = hashColor(userid);
 
@@ -1353,7 +1353,7 @@
 			var timestamp = ChatRoom.getTimestamp('lobby', deltatime);
 			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
 			var self = this;
-			var outputChat = function() {
+			var outputChat = function () {
 				var coloredName = (name.substr(1) ? '<strong style="' + color + '">' + clickableName + ':</strong>' : '');
 				self.$chat.append(chatDiv + timestamp + coloredName + ' <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
 			};
@@ -1398,7 +1398,7 @@
 			}
 		}
 	}, {
-		getTimestamp: function(section, deltatime) {
+		getTimestamp: function (section, deltatime) {
 			var pref = Tools.prefs('timestamps') || {};
 			var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
 			if ((sectionPref === 'off') || (sectionPref === undefined)) return '';
@@ -1413,10 +1413,10 @@
 				components.push(date.getSeconds());
 			}
 			return '<small>[' + components.map(
-					function(x) { return (x < 10) ? '0' + x : x; }
+					function (x) { return (x < 10) ? '0' + x : x; }
 				).join(':') + '] </small>';
 		},
-		parseBattleID: function(id) {
+		parseBattleID: function (id) {
 			if (id.lastIndexOf('-') > 6) {
 				return id.match(/^battle\-([a-z0-9]*)\-?[0-9]*$/);
 			}
@@ -1427,19 +1427,19 @@
 	// user list
 
 	var UserList = this.UserList = Backbone.View.extend({
-		initialize: function(options) {
+		initialize: function (options) {
 			this.room = options.room;
 		},
 		events: {
 			'click .userlist-count': 'toggleUserlist'
 		},
-		construct: function() {
+		construct: function () {
 			var buf = '';
 			buf += '<li class="userlist-count" id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0"><small><span id="' + this.room.id + '-usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
 			var users = [];
 			if (this.room.users) {
 				var self = this;
-				users = Object.keys(this.room.users).sort(function(a, b) {
+				users = Object.keys(this.room.users).sort(function (a, b) {
 					return self.comparator(a, b);
 				});
 			}
@@ -1495,11 +1495,11 @@
 		hide: function() {
 			this.$el.addClass('userlist-minimized');
 		},
-		updateUserCount: function() {
+		updateUserCount: function () {
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
 			$('#' + this.room.id + '-usercount-users').html('' + users);
 		},
-		add: function(userid) {
+		add: function (userid) {
 			$('#' + this.room.id + '-userlist-user-' + userid).remove();
 			var users = this.$el.children();
 			// Determine where to insert the user using a binary search.
@@ -1519,10 +1519,10 @@
 			}
 			$(this.constructItem(userid)).insertAfter($(users[right]));
 		},
-		remove: function(userid) {
+		remove: function (userid) {
 			$('#' + this.room.id + '-userlist-user-' + userid).remove();
 		},
-		constructItem: function(userid) {
+		constructItem: function (userid) {
 			var name = this.room.users[userid];
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
@@ -1542,7 +1542,7 @@
 			text += '</li>';
 			return text;
 		},
-		elemComparator: function(elem, userid) {
+		elemComparator: function (elem, userid) {
 			// look at the part of the `id` after the roomid
 			var id = elem.id.substr(this.room.id.length + 1);
 			switch (id) {
@@ -1557,17 +1557,17 @@
 			var elemuserid = id.substr(14);
 			return this.comparator(elemuserid, userid);
 		},
-		comparator: function(a, b) {
+		comparator: function (a, b) {
 			if (a === b) return 0;
 			var aRank = (this.rankOrder[this.room.users[a] ? this.room.users[a].substr(0, 1) : ' '] || 5);
 			var bRank = (this.rankOrder[this.room.users[b] ? this.room.users[b].substr(0, 1) : ' '] || 5);
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
-		getNoNamedUsersOnline: function() {
+		getNoNamedUsersOnline: function () {
 			return '<li id="' + this.room.id + '-userlist-empty">Only guests</li>';
 		},
-		updateNoUsersOnline: function() {
+		updateNoUsersOnline: function () {
 			var elem = $('#' + this.room.id + '-userlist-empty');
 			if ($("[id^=" + this.room.id + "-userlist-user-]").length === 0) {
 				if (elem.length === 0) {
