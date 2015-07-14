@@ -37,10 +37,10 @@
 		},
 		battleEnded: false,
 		join: function () {
-			app.send('/join '+this.id);
+			app.send('/join ' + this.id);
 		},
 		leave: function () {
-			if (!this.expired) app.send('/leave '+this.id);
+			if (!this.expired) app.send('/leave ' + this.id);
 			if (this.battle) this.battle.destroy();
 		},
 		requestLeave: function (e) {
@@ -116,7 +116,7 @@
 					switch (args[0]) {
 					case 'trapped':
 						requestData.trapped = true;
-						this.battle.activityQueue.push('|message|'+pokemon.getName() + ' is trapped and cannot switch!');
+						this.battle.activityQueue.push('|message|' + pokemon.getName() + ' is trapped and cannot switch!');
 						break;
 					case 'cant':
 						for (var i = 0; i < requestData.moves.length; i++) {
@@ -125,7 +125,7 @@
 							}
 						}
 						args.splice(1, 1, pokemon.getIdent());
-						this.battle.activityQueue.push('|'+args.join('|'));
+						this.battle.activityQueue.push('|' + args.join('|'));
 						break;
 					}
 				} else if (logLine.substr(0, 7) === '|title|') {
@@ -307,7 +307,7 @@
 					} else {
 						hpbar = '<small class="healthy">';
 					}
-					hpbar += ''+switchables[pos].hp+'/'+switchables[pos].maxhp+'</small>';
+					hpbar += '' + switchables[pos].hp + '/' + switchables[pos].maxhp + '</small>';
 
 					var active = this.request;
 					if (active.active) active = active.active[pos];
@@ -331,7 +331,7 @@
 					// Target selector
 
 					if (type === 'movetarget') {
-						controls += 'At who? '+hpbar+'</div>';
+						controls += 'At who? ' + hpbar + '</div>';
 						controls += '<div class="switchmenu" style="display:block">';
 
 						var myActive = this.battle.mySide.active;
@@ -350,9 +350,9 @@
 							if (disabled) {
 								controls += '<button disabled="disabled" style="visibility:hidden"></button> ';
 							} else if (!pokemon || pokemon.zerohp) {
-								controls += '<button class="disabled" name="chooseMoveTarget" value="'+(i+1)+'"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon('missingno')+'"></span></button> ';
+								controls += '<button class="disabled" name="chooseMoveTarget" value="' + (i+1) + '"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon('missingno') + '"></span></button> ';
 							} else {
-								controls += '<button name="chooseMoveTarget" value="'+(i+1)+'"' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
+								controls += '<button name="chooseMoveTarget" value="' + (i+1) + '"' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp*92/pokemon.maxhp)||1) + 'px"></span></span>' + (pokemon.status?'<span class="status ' + pokemon.status + '"></span>':'') + '</button> ';
 							}
 						}
 						controls += '<div style="clear:both"></div> </div><div class="switchmenu" style="display:block">';
@@ -370,9 +370,9 @@
 							if (disabled) {
 								controls += '<button disabled="disabled" style="visibility:hidden"></button> ';
 							} else if (!pokemon || pokemon.zerohp) {
-								controls += '<button class="disabled" name="chooseMoveTarget" value="' + (-(i+1)) + '"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon('missingno')+'"></span></button> ';
+								controls += '<button class="disabled" name="chooseMoveTarget" value="' + (-(i+1)) + '"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon('missingno') + '"></span></button> ';
 							} else {
-								controls += '<button name="chooseMoveTarget" value="' + (-(i+1)) + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
+								controls += '<button name="chooseMoveTarget" value="' + (-(i+1)) + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) +'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp*92/pokemon.maxhp)||1) + 'px"></span></span>' + (pokemon.status?'<span class="status ' + pokemon.status + '"></span>':'') + '</button> ';
 							}
 						}
 						controls += '</div>';
@@ -383,7 +383,7 @@
 
 					// Move chooser
 
-					controls += 'What will <strong>' + Tools.escapeHTML(switchables[pos].name) + '</strong> do? '+hpbar+'</div>';
+					controls += 'What will <strong>' + Tools.escapeHTML(switchables[pos].name) + '</strong> do? ' + hpbar + '</div>';
 					var hasMoves = false;
 					var hasDisabled = false;
 					controls += '<div class="movecontrols"><div class="moveselect"><button name="selectMove">Attack</button></div><div class="movemenu">';
@@ -438,9 +438,9 @@
 							var pokemon = switchables[i];
 							pokemon.name = pokemon.ident.substr(4);
 							if (pokemon.zerohp || i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
-								controls += '<button class="disabled" name="chooseDisabled" value="' + pokemon.name + (pokemon.zerohp ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':''):'') +'</button> ';
+								controls += '<button class="disabled" name="chooseDisabled" value="' + pokemon.name + (pokemon.zerohp ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp*92/pokemon.maxhp)||1) + 'px"></span></span>' + (pokemon.status?'<span class="status ' + pokemon.status + '"></span>':''):'') +'</button> ';
 							} else {
-								controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
+								controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp*92/pokemon.maxhp)||1) + 'px"></span></span>' + (pokemon.status?'<span class="status ' + pokemon.status + '"></span>':'') +'</button> ';
 							}
 						}
 						if (this.finalDecisionSwitch && this.battle.gen > 2) {
@@ -491,11 +491,11 @@
 						pokemon = this.battle.mySide.pokemon[i];
 
 						if (pokemon && !pokemon.zerohp || this.choice.switchOutFlags[i]) {
-							controls += '<button disabled' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':''):'') +'</button> ';
+							controls += '<button disabled' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp*92/pokemon.maxhp)||1) + 'px"></span></span>' + (pokemon.status?'<span class="status ' + pokemon.status + '"></span>':''):'') + '</button> ';
 						} else if (!pokemon) {
 							controls += '<button disabled></button> ';
 						} else {
-							controls += '<button name="chooseSwitchTarget" value="'+i+'"' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':'')+'</button> ';
+							controls += '<button name="chooseSwitchTarget" value="' + i + '"' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) +'"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp*92/pokemon.maxhp)||1) + 'px"></span></span>' + (pokemon.status?'<span class="status ' + pokemon.status + '"></span>':'') + '</button> ';
 						}
 					}
 					controls += '</div>';
@@ -506,7 +506,7 @@
 				if (this.choice.freedomDegrees >= 1) {
 					controls += 'Choose a Pokémon to send to battle!</div>';
 				} else {
-					controls += 'Switch <strong>'+Tools.escapeHTML(switchables[pos].name)+'</strong> to:</div>';
+					controls += 'Switch <strong>' + Tools.escapeHTML(switchables[pos].name) + '</strong> to:</div>';
 				}
 				controls += '<div class="switchcontrols"><div class="switchselect"><button name="selectSwitch">Switch</button></div><div class="switchmenu">';
 				for (var i = 0; i < switchables.length; i++) {
@@ -516,7 +516,7 @@
 					} else {
 						controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '>';
 					}
-					controls += '<span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:'+(Math.round(pokemon.hp*92/pokemon.maxhp)||1)+'px"></span></span>'+(pokemon.status?'<span class="status '+pokemon.status+'"></span>':''):'') +'</button> ';
+					controls += '<span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp?'<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp*92/pokemon.maxhp)||1) + 'px"></span></span>' + (pokemon.status?'<span class="status ' + pokemon.status + '"></span>':''):'') + '</button> ';
 				}
 				controls += '</div></div></div>';
 				this.$controls.html(controls);
@@ -547,22 +547,22 @@
 						if (toId(pokemon.baseAbility) === 'illusion') {
 							this.choice.count = 6;
 						}
-						controls += '<button name="chooseTeamPreview" value="'+i+'"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
+						controls += '<button name="chooseTeamPreview" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
 					}
 					if (this.battle.teamPreviewCount) this.choice.count = parseInt(this.battle.teamPreviewCount,10);
 					controls += '</div>';
 				} else {
 					controls += '<button name="clearChoice">Back</button> What about the rest of your team?</div>';
-					controls += '<div class="switchcontrols"><div class="switchselect"><button name="selectSwitch">Choose a Pokémon for slot '+(this.choice.done+1)+'</button></div><div class="switchmenu">';
+					controls += '<div class="switchcontrols"><div class="switchselect"><button name="selectSwitch">Choose a Pokémon for slot ' + (this.choice.done+1) +'</button></div><div class="switchmenu">';
 					for (var i = 0; i < switchables.length; i++) {
 						var pokemon = switchables[this.choice.teamPreview[i]-1];
 						if (i >= 6) {
 							break;
 						}
 						if (i < this.choice.done) {
-							controls += '<button disabled="disabled"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
+							controls += '<button disabled="disabled"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) +'"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
 						} else {
-							controls += '<button name="chooseTeamPreview" value="'+i+'"' + this.tooltipAttrs(this.choice.teamPreview[i]-1, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(pokemon)+'"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
+							controls += '<button name="chooseTeamPreview" value="' + i + '"' + this.tooltipAttrs(this.choice.teamPreview[i]-1, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) +'"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
 						}
 					}
 					controls += '</div>';
@@ -620,16 +620,16 @@
 		},
 		notifyRequest: function () {
 			var oName = this.battle.yourSide.name;
-			if (oName) oName = " against "+oName;
+			if (oName) oName = " against " + oName;
 			switch (this.request.requestType) {
 			case 'move':
-				this.notify("Your move!", "Move in your battle"+oName, 'choice');
+				this.notify("Your move!", "Move in your battle" + oName, 'choice');
 				break;
 			case 'switch':
-				this.notify("Your switch!", "Switch in your battle"+oName, 'choice');
+				this.notify("Your switch!", "Switch in your battle" + oName, 'choice');
 				break;
 			case 'team':
-				this.notify("Team preview!", "Choose your team order in your battle"+oName, 'choice');
+				this.notify("Team preview!", "Choose your team order in your battle" + oName, 'choice');
 				break;
 			}
 		},
@@ -652,12 +652,12 @@
 				var pokemonData = sideData.pokemon[i];
 				var pokemon;
 				if (i == 0) {
-					pokemon = this.battle.getPokemon(''+pokemonData.ident, pokemonData.details);
+					pokemon = this.battle.getPokemon('' + pokemonData.ident, pokemonData.details);
 					pokemon.slot = 0;
 					pokemon.side.pokemon = [pokemon];
 					// if (pokemon.side.active[0] && pokemon.side.active[0].ident == pokemon.ident) pokemon.side.active[0] = pokemon;
 				} else if (i < this.battle.mySide.active.length) {
-					pokemon = this.battle.getPokemon('new: '+pokemonData.ident, pokemonData.details);
+					pokemon = this.battle.getPokemon('new: ' + pokemonData.ident, pokemonData.details);
 					pokemon.slot = i;
 					// if (pokemon.side.active[i] && pokemon.side.active[i].ident == pokemon.ident) pokemon.side.active[i] = pokemon;
 					if (pokemon.side.active[i] && pokemon.side.active[i].ident == pokemon.ident) {
@@ -667,7 +667,7 @@
 						pokemon.side.active[i].stats = pokemon.stats || pokemonData.stats;
 					}
 				} else {
-					pokemon = this.battle.getPokemon('new: '+pokemonData.ident, pokemonData.details);
+					pokemon = this.battle.getPokemon('new: ' + pokemonData.ident, pokemonData.details);
 				}
 				pokemon.healthParse(pokemonData.condition);
 				if (pokemonData.baseAbility) {
@@ -687,7 +687,7 @@
 			this.send('/joinbattle');
 		},
 		setTimer: function (setting) {
-			this.send('/timer '+setting);
+			this.send('/timer ' + setting);
 		},
 		toggleIgnoreSpects: function (e) {
 			this.battle.ignoreSpects = !!e.currentTarget.checked;
@@ -742,7 +742,7 @@
 				var move = e.getAttribute('data-move');
 				var target = Tools.getMove(move).target;
 				var choosableTargets = {normal:1, any:1, adjacentAlly:1, adjacentAllyOrSelf:1, adjacentFoe:1};
-				this.choice.choices.push('move '+pos+(isMega?' mega':''));
+				this.choice.choices.push('move ' + pos + (isMega?' mega':''));
 				if (myActive.length > 1 && target in choosableTargets) {
 					this.choice.type = 'movetarget';
 					this.choice.moveTarget = target;
@@ -759,7 +759,7 @@
 				return false;
 			}
 
-			this.sendDecision('/choose '+this.choice.choices.join(','));
+			this.sendDecision('/choose ' + this.choice.choices.join(','));
 			this.closeNotification('choice');
 
 			if (!this.finalDecision) this.finalDecision = !!this.finalDecisionMove;
@@ -767,7 +767,7 @@
 			this.updateControlsForPlayer();
 		},
 		chooseMoveTarget: function (posString) {
-			this.choice.choices[this.choice.choices.length-1] += ' '+posString;
+			this.choice.choices[this.choice.choices.length-1] += ' ' + posString;
 			this.chooseMove();
 		},
 		chooseShift: function () {
@@ -784,7 +784,7 @@
 				return false;
 			}
 
-			this.sendDecision('/choose '+this.choice.choices.join(','));
+			this.sendDecision('/choose ' + this.choice.choices.join(','));
 			this.closeNotification('choice');
 
 			this.choice = {waiting: true};
@@ -802,7 +802,7 @@
 				}
 				// Default: left to right.
 				this.choice.switchOutFlags[this.choice.choices.length] = true;
-				this.choice.choices.push('switch '+(parseInt(pos,10)+1));
+				this.choice.choices.push('switch ' + (parseInt(pos,10)+1));
 				if (this.request && this.request.requestType === 'move' && this.battle.mySide.active.length > this.choice.choices.length) {
 					this.choice.type = 'move2';
 					this.updateControlsForPlayer();
@@ -818,7 +818,7 @@
 						return false;
 					}
 				}
-				this.sendDecision('/choose '+this.choice.choices.join(','));
+				this.sendDecision('/choose ' + this.choice.choices.join(','));
 				this.closeNotification('choice');
 
 				if (!this.finalDecision) this.finalDecision = !!this.finalDecisionSwitch;
@@ -838,7 +838,7 @@
 				if (!this.choice.choices[i]) this.choice.choices[i] = 'pass';
 			}
 
-			this.sendDecision('/choose '+this.choice.choices.join(','));
+			this.sendDecision('/choose ' + this.choice.choices.join(','));
 			this.closeNotification('choice');
 
 			if (!this.finalDecision) this.finalDecision = !!this.finalDecisionSwitch;
@@ -848,12 +848,12 @@
 		chooseSwitchTarget: function (posString) {
 			var indexSwitchIn = -1;
 			for (var i in this.choice.switchFlags) {
-				if (this.choice.choices.indexOf('switch '+(parseInt(i,10)+1)) === -1) {
+				if (this.choice.choices.indexOf('switch ' + (parseInt(i,10)+1)) === -1) {
 					indexSwitchIn = i;
 					break;
 				}
 			}
-			this.choice.choices[posString] = 'switch '+(parseInt(indexSwitchIn,10)+1);
+			this.choice.choices[posString] = 'switch ' + (parseInt(indexSwitchIn,10)+1);
 			this.choice.switchOutFlags[posString] = true;
 			this.chooseSwitch();
 		},
@@ -877,7 +877,7 @@
 				pos = pos+1;
 			}
 
-			this.sendDecision('/team '+(pos));
+			this.sendDecision('/team ' + (pos));
 			this.closeNotification('choice');
 
 			this.choice = {waiting: true};
@@ -922,7 +922,7 @@
 
 		// tooltips
 		tooltipAttrs: function (thing, type, ownHeight, isActive) {
-			return ' onmouseover="room.showTooltip(\'' + Tools.escapeHTML(''+thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ', ' + (isActive ? 'true' : 'false') + ')" onmouseout="room.hideTooltip()" onmouseup="room.hideTooltip()"';
+			return ' onmouseover="room.showTooltip(\'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ', ' + (isActive ? 'true' : 'false') + ')" onmouseout="room.hideTooltip()" onmouseup="room.hideTooltip()"';
 		},
 		showTooltip: function (thing, type, elem, ownHeight, isActive) {
 			var offset = {
@@ -956,7 +956,7 @@
 				if (!accuracy || accuracy === true) accuracy = '&mdash;';
 				else accuracy = '' + accuracy + '%';
 				text = '<div class="tooltipinner"><div class="tooltip">';
-				text += '<h2>' + move.name + '<br />'+Tools.getTypeIcon(move.type)+' <img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
+				text += '<h2>' + move.name + '<br />' + Tools.getTypeIcon(move.type) + ' <img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
 				text += '<p>Base power: ' + basePower + '</p>';
 				text += '<p>Accuracy: ' + accuracy + '</p>';
 				var flags = {
@@ -993,7 +993,7 @@
 					var priority = move.priority;
 					if (priority) {
 						text += " Priority ";
-						if (priority > 0) text += "+";
+						if (priority > 0) text += " + ";
 						text += priority + ".";
 					}
 					text += '</p>';
@@ -1018,11 +1018,11 @@
 				if (pokemon.volatiles.transform && pokemon.volatiles.formechange) {
 					template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
 					types = template.types;
-					text += '<small>(Transformed into '+pokemon.volatiles.formechange[2]+')</small><br />';
+					text += '<small>(Transformed into ' + pokemon.volatiles.formechange[2] + ')</small><br />';
 				} else if (pokemon.volatiles.formechange) {
 					template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
 					types = template.types;
-					text += '<small>(Forme: '+pokemon.volatiles.formechange[2]+')</small><br />';
+					text += '<small>(Forme: ' + pokemon.volatiles.formechange[2] + ')</small><br />';
 				}
 				var isTypeChanged = false;
 				if (pokemon.volatiles.typechange) {
@@ -1043,9 +1043,9 @@
 				}
 				text += '</h2>';
 				var exacthp = '';
-				if (pokemon.maxhp != 100 && pokemon.maxhp != 1000 && pokemon.maxhp != 48) exacthp = ' ('+pokemon.hp+'/'+pokemon.maxhp+')';
-				if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>('+pokemon.hp+'/'+pokemon.maxhp+' pixels)</small>';
-				text += '<p>HP: ' + pokemon.hpDisplay() +exacthp+(pokemon.status?' <span class="status '+pokemon.status+'">'+pokemon.status.toUpperCase()+'</span>':'')+'</p>';
+				if (pokemon.maxhp != 100 && pokemon.maxhp != 1000 && pokemon.maxhp != 48) exacthp = ' (' + pokemon.hp + '/' + pokemon.maxhp + ')';
+				if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
+				text += '<p>HP: ' + pokemon.hpDisplay() +exacthp+(pokemon.status?' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>':'') +'</p>';
 				if (this.battle.gen > 2) {
 					if (!pokemon.baseAbility && !pokemon.ability) {
 						if (template.abilities) {

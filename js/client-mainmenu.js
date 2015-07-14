@@ -35,8 +35,8 @@
 				buf += '</div>';
 			} else {
 				buf += '<div class="menugroup"><form class="battleform" data-search="1">';
-				buf += '<p><label class="label">Format:</label>'+this.renderFormats()+'</p>';
-				buf += '<p><label class="label">Team:</label>'+this.renderTeams()+'</p>';
+				buf += '<p><label class="label">Format:</label>' + this.renderFormats() + '</p>';
+				buf += '<p><label class="label">Team:</label>' + this.renderTeams() + '</p>';
 				buf += '<p><button class="button big" name="search"><strong>Look for a battle</strong></button></p></form></div>';
 			}
 
@@ -96,11 +96,11 @@
 
 		addNews: function () {
 			var newsId = '1990';
-			if (newsId === ''+Tools.prefs('readnews')) return;
+			if (newsId === '' + Tools.prefs('readnews')) return;
 			this.addPseudoPM({
 				title: 'Latest News',
-				html: '<iframe src="/news-embed.php?news'+(window.nodewebkit || document.location.protocol === 'https:'?'&amp;https':'')+'" width="270" height="400" border="0" style="border:0;width:100%;height:400px"></iframe>',
-				attributes: 'data-newsid="'+newsId+'"',
+				html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:'?'&amp;https':'') + '" width="270" height="400" border="0" style="border:0;width:100%;height:400px"></iframe>',
+				attributes: 'data-newsid="' + newsId + '"',
 				cssClass: 'news-embed',
 				height: 400,
 				noMinimize: true
@@ -123,10 +123,10 @@
 			if (toId(name) === app.user.get('userid')) {
 				oName = target;
 			} else {
-				this.notifyOnce("PM from "+oName, "\""+message+"\"", 'pm');
+				this.notifyOnce("PM from " + oName, "\"" + message + "\"", 'pm');
 			}
 
-			Storage.logChat('pm-'+toId(oName), ''+name+': '+message);
+			Storage.logChat('pm-' + toId(oName), '' + name + ': ' + message);
 
 			var $pmWindow = this.openPM(oName, true);
 
@@ -140,7 +140,7 @@
 			var timestamp = ChatRoom.getTimestamp('pms');
 			var color = hashColor(toId(name));
 			var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
-			if (name.substr(0, 1) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>'+clickableName;
+			if (name.substr(0, 1) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>' + clickableName;
 
 			if (message.substr(0,4) === '/me ') {
 				$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4)) + '</i></em></div>');
@@ -148,24 +148,24 @@
 				$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message.substr(5)) + '</i></em></div>');
 			} else if (message.substr(0,8) === '/invite ') {
 				var roomid = toRoomid(message.substr(8));
-				$chat.append('<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "'+roomid+'"</em></div>');
-				$chat.append('<div class="notice"><button name="joinRoom" value="'+roomid+'">Join '+roomid+'</button></div>');
+				$chat.append('<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em></div>');
+				$chat.append('<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>');
 			} else if (message.substr(0,10) === '/announce ') {
 				$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
 			} else if (message.substr(0,14) === '/data-pokemon ') {
-				$chat.append('<div class="message"><ul class="utilichart">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>');
+				$chat.append('<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,11) === '/data-item ') {
-				$chat.append('<div class="message"><ul class="utilichart">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>');
+				$chat.append('<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(message.substr(11)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,14) === '/data-ability ') {
-				$chat.append('<div class="message"><ul class="utilichart">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>');
+				$chat.append('<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,11) === '/data-move ') {
-				$chat.append('<div class="message"><ul class="utilichart">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>');
+				$chat.append('<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(message.substr(11)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,6) === '/text ') {
-				$chat.append('<div class="chat">'+Tools.escapeHTML(message.substr(6))+'</div>');
+				$chat.append('<div class="chat">' + Tools.escapeHTML(message.substr(6)) + '</div>');
 			} else if (message.substr(0,7) === '/error ') {
-				$chat.append('<div class="chat message-error">'+Tools.escapeHTML(message.substr(7))+'</div>');
+				$chat.append('<div class="chat message-error">' + Tools.escapeHTML(message.substr(7)) + '</div>');
 			} else if (message.substr(0,6) === '/html ') {
-				$chat.append('<div class="chat">'+Tools.sanitizeHTML(message.substr(6))+'</div>');
+				$chat.append('<div class="chat">' + Tools.sanitizeHTML(message.substr(6)) + '</div>');
 			} else {
 				// Normal chat message.
 				if (message.substr(0,2) === '//') message = message.substr(1);
@@ -182,18 +182,18 @@
 		},
 		openPM: function (name, dontFocus) {
 			var userid = toId(name);
-			var $pmWindow = this.$pmBox.find('.pm-window-'+userid);
+			var $pmWindow = this.$pmBox.find('.pm-window-' + userid);
 			if (!$pmWindow.length) {
 				var group = name.charAt(0);
 				if (group === ' ') {
 					group = '';
 				} else {
-					group = '<small>'+Tools.escapeHTML(group)+'</small>';
+					group = '<small>' + Tools.escapeHTML(group) + '</small>';
 				}
-				var buf = '<div class="pm-window pm-window-'+userid+'" data-userid="'+userid+'" data-name="'+name+'">';
-				buf += '<h3><button class="closebutton" href="'+app.root+'teambuilder" tabindex="-1"><i class="icon-remove-sign"></i></button>';
-				buf += '<button class="minimizebutton" href="'+app.root+'teambuilder" tabindex="-1"><i class="icon-minus-sign"></i></button>';
-				buf += group+Tools.escapeHTML(name.substr(1))+'</h3>';
+				var buf = '<div class="pm-window pm-window-' + userid + '" data-userid="' + userid + '" data-name="' + name + '">';
+				buf += '<h3><button class="closebutton" href="' + app.root + 'teambuilder" tabindex="-1"><i class="icon-remove-sign"></i></button>';
+				buf += '<button class="minimizebutton" href="' + app.root + 'teambuilder" tabindex="-1"><i class="icon-minus-sign"></i></button>';
+				buf += group + Tools.escapeHTML(name.substr(1)) + '</h3>';
 				buf += '<div class="pm-log"><div class="inner"></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
@@ -227,12 +227,12 @@
 				$pmWindow = $(e.currentTarget).closest('.pm-window');
 				var newsId = $pmWindow.data('newsid');
 				if (newsId) {
-					$.cookie('showdown_readnews', ''+newsId, {expires: 365});
+					$.cookie('showdown_readnews', '' + newsId, {expires: 365});
 				}
 				$pmWindow.remove();
 				return;
 			}
-			$pmWindow = this.$pmBox.find('.pm-window-'+userid);
+			$pmWindow = this.$pmBox.find('.pm-window-' + userid);
 			$pmWindow.hide();
 
 			var $rejectButton = $pmWindow.find('button[name=rejectChallenge]');
@@ -308,7 +308,7 @@
 					// this.tabComplete.reset();
 					// this.chatHistory.push(text);
 					var userid = $target.closest('.pm-window').data('userid');
-					text = ('\n'+text).replace(/\n/g, '\n/pm '+userid+', ').substr(1);
+					text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
 					this.send(text);
 					$(e.currentTarget).val('');
 				}
@@ -415,7 +415,7 @@
 					delete data.challengesFrom[i];
 					continue;
 				}
-				this.openPM(' '+i, true);
+				this.openPM(' ' + i, true);
 			}
 			var self = this;
 			var atLeastOneGen5 = false;
@@ -426,12 +426,12 @@
 				if (data.challengesFrom[userid]) {
 					var format = data.challengesFrom[userid];
 					if (!$pmWindow.find('.challenge').length) {
-						self.notifyOnce("Challenge from "+name, "Format: "+Tools.escapeFormat(format), 'challenge:'+userid);
+						self.notifyOnce("Challenge from " + name, "Format: " + Tools.escapeFormat(format), 'challenge:' + userid);
 					}
 					var $challenge = self.openChallenge(name, $pmWindow);
-					var buf = '<form class="battleform"><p>'+Tools.escapeHTML(name)+' wants to battle!</p>';
-					buf += '<p><label class="label">Format:</label>'+self.renderFormats(format, true)+'</p>';
-					buf += '<p><label class="label">Team:</label>'+self.renderTeams(format)+'</p>';
+					var buf = '<form class="battleform"><p>' + Tools.escapeHTML(name) + ' wants to battle!</p>';
+					buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
+					buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
 					buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
 					$challenge.html(buf);
 					if (format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
@@ -452,7 +452,7 @@
 							// or rejected it
 							$challenge.remove();
 						}
-						self.closeNotification('challenge:'+userid);
+						self.closeNotification('challenge:' + userid);
 					}
 				}
 			});
@@ -463,8 +463,8 @@
 				var userid = toId(name);
 				var $challenge = this.openChallenge(name);
 
-				var buf = '<form class="battleform"><p>Waiting for '+Tools.escapeHTML(name)+'...</p>';
-				buf += '<p><label class="label">Format:</label>'+this.renderFormats(challenge.format, true)+'</p>';
+				var buf = '<form class="battleform"><p>Waiting for ' + Tools.escapeHTML(name) + '...</p>';
+				buf += '<p><label class="label">Format:</label>' + this.renderFormats(challenge.format, true) + '</p>';
 				buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 				$challenge.html(buf);
@@ -519,7 +519,7 @@
 		// challenge buttons
 		challenge: function (name, format, team) {
 			var userid = toId(name);
-			var $challenge = this.$('.pm-window-'+userid+' .challenge');
+			var $challenge = this.$('.pm-window-' + userid + ' .challenge');
 			if ($challenge.length && !$challenge.find('button[name=dismissChallenge]').length) {
 				return;
 			}
@@ -537,9 +537,9 @@
 			}
 
 			$challenge = this.openChallenge(name);
-			var buf = '<form class="battleform"><p>Challenge '+Tools.escapeHTML(name)+'?</p>';
-			buf += '<p><label class="label">Format:</label>'+this.renderFormats(format)+'</p>';
-			buf += '<p><label class="label">Team:</label>'+this.renderTeams(format, teamIndex)+'</p>';
+			var buf = '<form class="battleform"><p>Challenge ' + Tools.escapeHTML(name) + '?</p>';
+			buf += '<p><label class="label">Format:</label>' + this.renderFormats(format) + '</p>';
+			buf += '<p><label class="label">Team:</label>' + this.renderTeams(format, teamIndex) + '</p>';
 			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
@@ -559,12 +559,12 @@
 
 			target.disabled = true;
 			app.sendTeam(team);
-			app.send('/accept '+userid);
+			app.send('/accept ' + userid);
 		},
 		rejectChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
 			$(target).closest('.challenge').remove();
-			app.send('/reject '+userid);
+			app.send('/reject ' + userid);
 		},
 		makeChallenge: function (i, target) {
 			this.requestNotifications();
@@ -581,18 +581,18 @@
 				return;
 			}
 
-			var buf = '<form class="battleform pending"><p>Challenging '+Tools.escapeHTML(name)+'...</p>';
-			buf += '<p><label class="label">Format:</label>'+this.renderFormats(format, true)+'</p>';
+			var buf = '<form class="battleform pending"><p>Challenging ' + Tools.escapeHTML(name) + '...</p>';
+			buf += '<p><label class="label">Format:</label>' + this.renderFormats(format, true) + '</p>';
 			buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 			$(target).closest('.challenge').html(buf);
 			app.sendTeam(team);
-			app.send('/challenge '+userid+', '+format);
+			app.send('/challenge ' + userid + ', ' + format);
 		},
 		cancelChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
 			$(target).closest('.challenge').remove();
-			app.send('/cancelchallenge '+userid);
+			app.send('/cancelchallenge ' + userid);
 		},
 		dismissChallenge: function (i, target) {
 			$(target).closest('.challenge').remove();
@@ -610,7 +610,7 @@
 		curFormat: '',
 		renderFormats: function (formatid, noChoice) {
 			if (!window.BattleFormats) {
-				return '<button class="select formatselect" name="format" disabled value="'+Tools.escapeHTML(formatid)+'"><em>Loading...</em></button>';
+				return '<button class="select formatselect" name="format" disabled value="' + Tools.escapeHTML(formatid) + '"><em>Loading...</em></button>';
 			}
 			if (_.isEmpty(BattleFormats)) {
 				return '<button class="select formatselect" name="format" disabled><em>No formats available</em></button>';
@@ -628,7 +628,7 @@
 				}
 				formatid = this.curFormat;
 			}
-			return '<button class="select formatselect'+(noChoice?' preselected':'')+'" name="format" value="'+formatid+'"'+(noChoice?' disabled':'')+'>'+Tools.escapeFormat(formatid)+'</button>';
+			return '<button class="select formatselect' + (noChoice?' preselected':'') + '" name="format" value="' + formatid + '"' + (noChoice?' disabled':'') + '>' + Tools.escapeFormat(formatid) + '</button>';
 		},
 		curTeamFormat: '',
 		curTeamIndex: -1,
@@ -641,7 +641,7 @@
 				return '<button class="select teamselect" name="team" disabled></button>';
 			}
 			if (window.BattleFormats[formatid].team) {
-				return '<button class="select teamselect preselected" name="team" value="random" disabled>'+TeamPopup.renderTeam('random')+'</button>';
+				return '<button class="select teamselect preselected" name="team" value="random" disabled>' + TeamPopup.renderTeam('random') + '</button>';
 			}
 			var teams = Storage.teams;
 			if (!teams.length) {
@@ -663,7 +663,7 @@
 			} else {
 				teamIndex = +teamIndex;
 			}
-			return '<button class="select teamselect" name="team" value="'+teamIndex+'">'+TeamPopup.renderTeam(teamIndex)+'</button>';
+			return '<button class="select teamselect" name="team" value="' + teamIndex + '">' + TeamPopup.renderTeam(teamIndex) + '</button>';
 		},
 
 		// buttons
@@ -698,7 +698,7 @@
 			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
 
 			app.sendTeam(team);
-			app.send('/search '+format);
+			app.send('/search ' + format);
 		},
 		cancelSearch: function () {
 			app.send('/cancelsearch');
@@ -746,7 +746,7 @@
 					if (!bufs[curBuf]) {
 						bufs[curBuf] = '';
 					}
-					bufs[curBuf] += '<li><h3>'+Tools.escapeHTML(curSection)+'</li>';
+					bufs[curBuf] += '<li><h3>' + Tools.escapeHTML(curSection) + '</li>';
 				}
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + Tools.escapeHTML(format.name) + '</button></li>';
 			}
@@ -800,16 +800,16 @@
 				var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
 				var count = 0;
 				if (teamFormat) {
-					bufs[curBuf] = '<li><h3>'+Tools.escapeFormat(teamFormat)+' teams</h3></li>';
+					bufs[curBuf] = '<li><h3>' + Tools.escapeFormat(teamFormat) + ' teams</h3></li>';
 					for (var i = 0; i < teams.length; i++) {
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
-							bufs[curBuf] += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
+							bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected?' class="sel"':'') + '>' + Tools.escapeHTML(teams[i].name) + '</button></li>';
 							count++;
 							if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 						}
 					}
-					if (!count) bufs[curBuf] += '<li><em>You have no '+Tools.escapeFormat(teamFormat)+' teams</em></li>';
+					if (!count) bufs[curBuf] += '<li><em>You have no ' + Tools.escapeFormat(teamFormat) + ' teams</em></li>';
 					bufs[curBuf] += '<li><h3>Other teams</h3></li>';
 				} else {
 					bufs[curBuf] = '<li><h3>All teams</h3></li>';
@@ -817,7 +817,7 @@
 				for (var i = 0; i < teams.length; i++) {
 					if (teamFormat && teams[i].format === teamFormat) continue;
 					var selected = (i === curTeam);
-					bufs[curBuf] += '<li><button name="selectTeam" value="'+i+'"'+(selected?' class="sel"':'')+'>'+Tools.escapeHTML(teams[i].name)+'</button></li>';
+					bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected?' class="sel"':'') + '>' + Tools.escapeHTML(teams[i].name) + '</button></li>';
 					count++;
 					if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 				}
@@ -828,9 +828,9 @@
 
 			if (bufs[1]) {
 				while (!bufs[bufs.length-1]) bufs.pop();
-				this.$el.html('<ul class="popupmenu" style="float:left">'+bufs.join('</ul><ul class="popupmenu" style="float:left;padding-left:5px">')+'</ul><div style="clear:left"></div>');
+				this.$el.html('<ul class="popupmenu" style="float:left">' + bufs.join('</ul><ul class="popupmenu" style="float:left;padding-left:5px">') + '</ul><div style="clear:left"></div>');
 			} else {
-				this.$el.html('<ul class="popupmenu">'+bufs[0]+'</ul>');
+				this.$el.html('<ul class="popupmenu">' + bufs[0] + '</ul>');
 			}
 		},
 		selectTeam: function (i) {
@@ -846,13 +846,13 @@
 			if (i === 'random') {
 				var buf = 'Random team<br />';
 				for (var i=0; i<6; i++) {
-					buf += '<span class="pokemonicon" style="float:left;'+Tools.getIcon()+'"></span>';
+					buf += '<span class="pokemonicon" style="float:left;' + Tools.getIcon() + '"></span>';
 				}
 				return buf;
 			}
 			var team = Storage.teams[i];
 			if (!team) return 'Error: Corrupted team';
-			var buf = ''+Tools.escapeHTML(team.name)+'<br />';
+			var buf = '' + Tools.escapeHTML(team.name) + '<br />';
 			buf += Storage.getTeamIcons(team);
 			return buf;
 		}
@@ -868,7 +868,7 @@
 				for (var i in BattleFormats) {
 					if (BattleFormats[i].searchShow) {
 						var activeFormat = (this.format === i?' selected=':'');
-						buf += '<option value="'+i+'"'+activeFormat+'>'+BattleFormats[i].name+'</option>';
+						buf += '<option value="' + i + '"' + activeFormat + '>' + BattleFormats[i].name + '</option>';
 					}
 				}
 			}
@@ -922,14 +922,14 @@
 				} else if (!roomData.p2) {
 					roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
 				}
-				buf += '<div><a href="' + app.root+id + '" class="ilink">' + roomDesc + '</a></div>';
+				buf += '<div><a href="' + app.root + id + '" class="ilink">' + roomDesc + '</a></div>';
 				i++;
 			}
 
 			if (!i) {
-				buf = '<p>No '+Tools.escapeFormat(this.format)+' battles are going on right now.</p>';
+				buf = '<p>No ' + Tools.escapeFormat(this.format) + ' battles are going on right now.</p>';
 			} else {
-				buf = '<p>'+i+' '+Tools.escapeFormat(this.format)+' '+(i === 1 ? 'battle' : 'battles')+'</p>' + buf;
+				buf = '<p>' + i + ' ' + Tools.escapeFormat(this.format) + ' ' + (i === 1 ? 'battle' : 'battles') + '</p>' + buf;
 			}
 
 			this.$list.html(buf);
@@ -953,7 +953,7 @@
 		initialize: function () {
 			var buf = '';
 			buf += '<p style="text-align:center"><img src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown (beta)" /></p>';
-			if (Config.version) buf += '<p style="text-align:center;color:#555555"><small>Version <strong>'+Config.version+'</strong></small></p>';
+			if (Config.version) buf += '<p style="text-align:center;color:#555555"><small>Version <strong>' + Config.version + '</strong></small></p>';
 			buf += '<h2>Owner</h2>';
 			buf += '<ul><li><p><a href="http://guangcongluo.com/" target="_blank" class="subtle"><strong>Guangcong Luo</strong> [Zarel]</a> <small>&ndash; Development, Design</small></p></li></ul>';
 			buf += '<h2>Staff</h2>';

@@ -80,7 +80,7 @@
 				topbufIndex = typeTable[type];
 			}
 
-			if (!bufs[typeTable[type]]) bufs[typeTable[type]] = '<li><h3>'+typeName[type]+'</h3></li>';
+			if (!bufs[typeTable[type]]) bufs[typeTable[type]] = '<li><h3>' + typeName[type] + '</h3></li>';
 			bufs[typeTable[type]] += Search.renderRow(id, type, 0, matchLength + (BattleSearchIndexOffset[i+j][matchLength-1]||'0').charCodeAt(0)-48);
 		}
 
@@ -90,9 +90,9 @@
 			bufs[topbufIndex] = '';
 		}
 
-		if (nearMatch) topbuf = '<li class="notfound"><em>No exact match found. The closest matches alphabetically are:</em></li>'+topbuf;
+		if (nearMatch) topbuf = '<li class="notfound"><em>No exact match found. The closest matches alphabetically are:</em></li>' + topbuf;
 
-		this.el.innerHTML = '<ul class="utilichart">'+topbuf+bufs.join('')+'</ul>';
+		this.el.innerHTML = '<ul class="utilichart">' + topbuf + bufs.join('') + '</ul>';
 		return true;
 	};
 
@@ -150,15 +150,15 @@
 	};
 	Search.renderPokemonRow = function (pokemon, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'pokemon/'+toId(pokemon.species)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toId(pokemon.species) + '" data-target="push"';
+		var buf = '<li class="result"><a' + attrs + ' data-name="' + Tools.escapeHTML(pokemon.species) + '">';
 
 		// number
-		buf += '<span class="col numcol">'+(pokemon.num>=0 ? pokemon.num : 'CAP')+'</span> ';
+		buf += '<span class="col numcol">' + (pokemon.num>=0 ? pokemon.num : 'CAP') + '</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="'+Tools.getIcon(pokemon)+'"></span>';
+		buf += '<span style="' + Tools.getIcon(pokemon) + '"></span>';
 		buf += '</span> ';
 
 		// name
@@ -166,7 +166,7 @@
 		var tagStart = (pokemon.forme ? name.length-pokemon.forme.length-1 : 0);
 		if (tagStart) name = name.substr(0, tagStart);
 		if (matchLength) {
-			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
 		}
 		if (tagStart) {
 			if (matchLength && matchStart+matchLength > tagStart) {
@@ -174,16 +174,16 @@
 					matchLength -= tagStart - matchStart;
 					matchStart = tagStart;
 				}
-				name += '<small>'+pokemon.species.substr(tagStart, matchStart-tagStart)+'<b>'+pokemon.species.substr(matchStart, matchLength)+'</b>'+pokemon.species.substr(matchStart+matchLength)+'</small>';
+				name += '<small>' + pokemon.species.substr(tagStart, matchStart-tagStart) + '<b>' + pokemon.species.substr(matchStart, matchLength) + '</b>' + pokemon.species.substr(matchStart + matchLength) + '</small>';
 			} else {
-				name += '<small>'+pokemon.species.substr(tagStart)+'</small>';
+				name += '<small>' + pokemon.species.substr(tagStart) + '</small>';
 			}
 		}
-		buf += '<span class="col pokemonnamecol" style="white-space:nowrap">'+name+'</span> ';
+		buf += '<span class="col pokemonnamecol" style="white-space:nowrap">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}
@@ -207,7 +207,7 @@
 			if (!ability) continue;
 
 			if (i === '1') buf += '<br />';
-			if (i === 'H') ability = '</span><span class="col abilitycol"><em>'+pokemon.abilities[i]+'</em>';
+			if (i === 'H') ability = '</span><span class="col abilitycol"><em>' + pokemon.abilities[i] + '</em>';
 			buf += ability;
 		}
 		if (!pokemon.abilities['H']) buf += '</span><span class="col abilitycol">';
@@ -216,15 +216,15 @@
 
 		// base stats
 		buf += '<span style="float:left;min-height:26px">';
-		buf += '<span class="col statcol"><em>HP</em><br />'+pokemon.baseStats.hp+'</span> ';
-		buf += '<span class="col statcol"><em>Atk</em><br />'+pokemon.baseStats.atk+'</span> ';
-		buf += '<span class="col statcol"><em>Def</em><br />'+pokemon.baseStats.def+'</span> ';
-		buf += '<span class="col statcol"><em>SpA</em><br />'+pokemon.baseStats.spa+'</span> ';
-		buf += '<span class="col statcol"><em>SpD</em><br />'+pokemon.baseStats.spd+'</span> ';
-		buf += '<span class="col statcol"><em>Spe</em><br />'+pokemon.baseStats.spe+'</span> ';
+		buf += '<span class="col statcol"><em>HP</em><br />' + pokemon.baseStats.hp + '</span> ';
+		buf += '<span class="col statcol"><em>Atk</em><br />' + pokemon.baseStats.atk + '</span> ';
+		buf += '<span class="col statcol"><em>Def</em><br />' + pokemon.baseStats.def + '</span> ';
+		buf += '<span class="col statcol"><em>SpA</em><br />' + pokemon.baseStats.spa + '</span> ';
+		buf += '<span class="col statcol"><em>SpD</em><br />' + pokemon.baseStats.spd + '</span> ';
+		buf += '<span class="col statcol"><em>Spe</em><br />' + pokemon.baseStats.spe + '</span> ';
 		var bst = 0;
 		for (i in pokemon.baseStats) bst += pokemon.baseStats[i];
-		buf += '<span class="col bstcol"><em>BST<br />'+bst+'</em></span> ';
+		buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
 		buf += '</span>';
 
 		buf += '</a></li>';
@@ -233,26 +233,26 @@
 	};
 	Search.renderTaggedPokemonRowInner = function (pokemon, tag, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'pokemon/'+toId(pokemon.species)+'" data-target="push"';
-		var buf = '<a'+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toId(pokemon.species) + '" data-target="push"';
+		var buf = '<a' + attrs + ' data-name="' + Tools.escapeHTML(pokemon.species) + '">';
 
 		// tag
-		buf += '<span class="col tagcol shorttagcol">'+tag+'</span> ';
+		buf += '<span class="col tagcol shorttagcol">' + tag + '</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="'+Tools.getIcon(pokemon)+'"></span>';
+		buf += '<span style="' + Tools.getIcon(pokemon) + '"></span>';
 		buf += '</span> ';
 
 		// name
 		var name = pokemon.species;
 		var tagStart = (pokemon.forme ? name.length-pokemon.forme.length-1 : 0);
-		if (tagStart) name = name.substr(0, tagStart) + '<small>'+pokemon.species.substr(tagStart)+'</small>';
-		buf += '<span class="col shortpokemonnamecol" style="white-space:nowrap">'+name+'</span> ';
+		if (tagStart) name = name.substr(0, tagStart) + '<small>' + pokemon.species.substr(tagStart) + '</small>';
+		buf += '<span class="col shortpokemonnamecol" style="white-space:nowrap">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}
@@ -276,7 +276,7 @@
 			if (!ability) continue;
 
 			if (i === '1') buf += '<br />';
-			if (i === 'H') ability = '</span><span class="col abilitycol"><em>'+pokemon.abilities[i]+'</em>';
+			if (i === 'H') ability = '</span><span class="col abilitycol"><em>' + pokemon.abilities[i] + '</em>';
 			buf += ability;
 		}
 		if (!pokemon.abilities['H']) buf += '</span><span class="col abilitycol">';
@@ -285,15 +285,15 @@
 
 		// base stats
 		buf += '<span style="float:left;min-height:26px">';
-		buf += '<span class="col statcol"><em>HP</em><br />'+pokemon.baseStats.hp+'</span> ';
-		buf += '<span class="col statcol"><em>Atk</em><br />'+pokemon.baseStats.atk+'</span> ';
-		buf += '<span class="col statcol"><em>Def</em><br />'+pokemon.baseStats.def+'</span> ';
-		buf += '<span class="col statcol"><em>SpA</em><br />'+pokemon.baseStats.spa+'</span> ';
-		buf += '<span class="col statcol"><em>SpD</em><br />'+pokemon.baseStats.spd+'</span> ';
-		buf += '<span class="col statcol"><em>Spe</em><br />'+pokemon.baseStats.spe+'</span> ';
+		buf += '<span class="col statcol"><em>HP</em><br />' + pokemon.baseStats.hp + '</span> ';
+		buf += '<span class="col statcol"><em>Atk</em><br />' + pokemon.baseStats.atk + '</span> ';
+		buf += '<span class="col statcol"><em>Def</em><br />' + pokemon.baseStats.def + '</span> ';
+		buf += '<span class="col statcol"><em>SpA</em><br />' + pokemon.baseStats.spa + '</span> ';
+		buf += '<span class="col statcol"><em>SpD</em><br />' + pokemon.baseStats.spd + '</span> ';
+		buf += '<span class="col statcol"><em>Spe</em><br />' + pokemon.baseStats.spe + '</span> ';
 		var bst = 0;
 		for (i in pokemon.baseStats) bst += pokemon.baseStats[i];
-		buf += '<span class="col bstcol"><em>BST<br />'+bst+'</em></span> ';
+		buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
 		buf += '</span>';
 
 		buf += '</a>';
@@ -303,30 +303,30 @@
 
 	Search.renderItemRow = function (item, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'items/'+toId(item.name)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(item.name)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'items/' + toId(item.name) + '" data-target="push"';
+		var buf = '<li class="result"><a' + attrs + ' data-name="' + Tools.escapeHTML(item.name) + '">';
 
 		// icon
 		buf += '<span class="col itemiconcol">';
-		buf += '<span style="'+Tools.getItemIcon(item)+'"></span>';
+		buf += '<span style="' + Tools.getItemIcon(item) + '"></span>';
 		buf += '</span> ';
 
 		// name
 		var name = item.name;
 		if (matchLength) {
-			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
 		}
-		buf += '<span class="col namecol">'+name+'</span> ';
+		buf += '<span class="col namecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}
 
 		// desc
-		buf += '<span class="col itemdesccol">'+Tools.escapeHTML(item.shortDesc || item.desc)+'</span> ';
+		buf += '<span class="col itemdesccol">' + Tools.escapeHTML(item.shortDesc || item.desc) + '</span> ';
 
 		buf += '</a></li>';
 
@@ -334,24 +334,24 @@
 	};
 	Search.renderAbilityRow = function (ability, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'abilities/'+toId(ability.name)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(ability.name)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'abilities/' + toId(ability.name) + '" data-target="push"';
+		var buf = '<li class="result"><a' + attrs + ' data-name="' + Tools.escapeHTML(ability.name) + '">';
 
 		// name
 		var name = ability.name;
 		if (matchLength) {
-			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
 		}
-		buf += '<span class="col namecol">'+name+'</span> ';
+		buf += '<span class="col namecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}
 
-		buf += '<span class="col abilitydesccol">'+Tools.escapeHTML(ability.shortDesc || ability.desc)+'</span> ';
+		buf += '<span class="col abilitydesccol">' + Tools.escapeHTML(ability.shortDesc || ability.desc) + '</span> ';
 
 		buf += '</a></li>';
 
@@ -359,32 +359,32 @@
 	};
 	Search.renderMoveRow = function (move, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'moves/'+toId(move.name)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
+		var buf = '<li class="result"><a' + attrs + ' data-name="' + Tools.escapeHTML(move.name) + '">';
 
 		// name
 		var name = move.name;
 		var tagStart = (name.substr(0, 12) === 'Hidden Power' ? 12 : 0);
 		if (tagStart) name = name.substr(0, tagStart);
 		if (matchLength) {
-			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
 		}
 		if (tagStart) {
-			if (matchLength && matchStart+matchLength > tagStart) {
+			if (matchLength && matchStart + matchLength > tagStart) {
 				if (matchStart < tagStart) {
 					matchLength -= tagStart - matchStart;
 					matchStart = tagStart;
 				}
-				name += '<small>'+move.name.substr(tagStart, matchStart-tagStart)+'<b>'+move.name.substr(matchStart, matchLength)+'</b>'+move.name.substr(matchStart+matchLength)+'</small>';
+				name += '<small>' + move.name.substr(tagStart, matchStart-tagStart) + '<b>' + move.name.substr(matchStart, matchLength) + '</b>' + move.name.substr(matchStart + matchLength) + '</small>';
 			} else {
-				name += '<small>'+move.name.substr(tagStart)+'</small>';
+				name += '<small>' + move.name.substr(tagStart) + '</small>';
 			}
 		}
-		buf += '<span class="col movenamecol">'+name+'</span> ';
+		buf += '<span class="col movenamecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}
@@ -392,16 +392,16 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Tools.getTypeIcon(move.type);
-		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32" />';
+		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// power, accuracy, pp
-		buf += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
-		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />'+(move.pp!==1?move.pp*8/5:move.pp)+'</span> ';
+		buf += '<span class="col labelcol">' + (move.category!=='Status'?('<em>Power</em><br />' + (move.basePower||'&mdash;')):'') + '</span> ';
+		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy!==true?move.accuracy + '%':'&mdash;') + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp!==1?move.pp*8/5:move.pp) + '</span> ';
 
 		// desc
-		buf += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
+		buf += '<span class="col movedesccol">' + Tools.escapeHTML(move.shortDesc || move.desc) + '</span> ';
 
 		buf += '</a></li>';
 
@@ -409,18 +409,18 @@
 	};
 	Search.renderMoveRowInner = function (move, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'moves/'+toId(move.name)+'" data-target="push"';
-		var buf = '<a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
+		var buf = '<a' + attrs + ' data-name="' + Tools.escapeHTML(move.name) + '">';
 
 		// name
 		var name = move.name;
 		var tagStart = (name.substr(0, 12) === 'Hidden Power' ? 12 : 0);
-		if (tagStart) name = name.substr(0, tagStart) + '<small>'+move.name.substr(tagStart)+'</small>';
-		buf += '<span class="col movenamecol">'+name+'</span> ';
+		if (tagStart) name = name.substr(0, tagStart) + '<small>' + move.name.substr(tagStart) + '</small>';
+		buf += '<span class="col movenamecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}
@@ -428,16 +428,16 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Tools.getTypeIcon(move.type);
-		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32" />';
+		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// power, accuracy, pp
-		buf += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
-		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />'+(move.pp!==1?move.pp*8/5:move.pp)+'</span> ';
+		buf += '<span class="col labelcol">' + (move.category!=='Status'?('<em>Power</em><br />' + (move.basePower||'&mdash;')):'') + '</span> ';
+		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy!==true?move.accuracy + '%':'&mdash;') + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp!==1?move.pp*8/5:move.pp) + '</span> ';
 
 		// desc
-		buf += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
+		buf += '<span class="col movedesccol">' + Tools.escapeHTML(move.shortDesc || move.desc) + '</span> ';
 
 		buf += '</a>';
 
@@ -445,20 +445,20 @@
 	};
 	Search.renderTaggedMoveRow = function (move, tag, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'moves/'+toId(move.name)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
+		var buf = '<li class="result"><a' + attrs + ' data-name="' + Tools.escapeHTML(move.name) + '">';
 
 		// tag
-		buf += '<span class="col tagcol">'+tag+'</span> ';
+		buf += '<span class="col tagcol">' + tag + '</span> ';
 
 		// name
 		var name = move.name;
 		if (name.substr(0, 12) === 'Hidden Power') name = 'Hidden Power';
-		buf += '<span class="col shortmovenamecol">'+name+'</span> ';
+		buf += '<span class="col shortmovenamecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}
@@ -466,16 +466,16 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Tools.getTypeIcon(move.type);
-		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32" />';
+		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// power, accuracy, pp
-		buf += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
-		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />'+(move.pp!==1?move.pp*8/5:move.pp)+'</span> ';
+		buf += '<span class="col labelcol">' + (move.category!=='Status'?('<em>Power</em><br />' + (move.basePower||'&mdash;')):'') + '</span> ';
+		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy!==true?move.accuracy + '%':'&mdash;') + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp!==1?move.pp*8/5:move.pp) + '</span> ';
 
 		// desc
-		buf += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
+		buf += '<span class="col movedesccol">' + Tools.escapeHTML(move.shortDesc || move.desc) + '</span> ';
 
 		buf += '</a></li>';
 
@@ -484,19 +484,19 @@
 
 	Search.renderTypeRow = function (type, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'types/'+toId(type.name)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(type.name)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'types/' + toId(type.name) + '" data-target="push"';
+		var buf = '<li class="result"><a' + attrs + ' data-name="' + Tools.escapeHTML(type.name) + '">';
 
 		// name
 		var name = type.name;
 		if (matchLength) {
-			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart+matchLength);
 		}
-		buf += '<span class="col namecol">'+name+'</span> ';
+		buf += '<span class="col namecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}
@@ -512,26 +512,26 @@
 	};
 	Search.renderCategoryRow = function (category, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'categories/'+toId(category.name)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(category.name)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'categories/' + toId(category.name) + '" data-target="push"';
+		var buf = '<li class="result"><a' + attrs + ' data-name="' + Tools.escapeHTML(category.name) + '">';
 
 		// name
 		var name = category.name;
 		if (matchLength) {
-			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart+matchLength);
 		}
-		buf += '<span class="col namecol">'+name+'</span> ';
+		buf += '<span class="col namecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}
 
 		// category
 		buf += '<span class="col typecol">';
-		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+category.name+'.png" alt="'+category.name+'" height="14" width="32" />';
+		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category.name + '.png" alt="' + category.name + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		buf += '</a></li>';
@@ -540,19 +540,19 @@
 	};
 	Search.renderEggGroupRow = function (egggroup, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="'+Search.urlRoot+'egggroups/'+toId(egggroup.name)+'" data-target="push"';
-		var buf = '<li class="result"><a'+attrs+' data-name="'+Tools.escapeHTML(egggroup.name)+'">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'egggroups/' + toId(egggroup.name) + '" data-target="push"';
+		var buf = '<li class="result"><a' + attrs + ' data-name="' + Tools.escapeHTML(egggroup.name) + '">';
 
 		// name
 		var name = egggroup.name;
 		if (matchLength) {
-			name = name.substr(0, matchStart)+'<b>'+name.substr(matchStart, matchLength)+'</b>'+name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart+matchLength);
 		}
-		buf += '<span class="col namecol">'+name+'</span> ';
+		buf += '<span class="col namecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
-			buf += '<span class="col illegalcol"><em>'+errorMessage+'</em></span> ';
+			buf += '<span class="col illegalcol"><em>' + errorMessage + '</em></span> ';
 			buf += '</a></li>';
 			return buf;
 		}

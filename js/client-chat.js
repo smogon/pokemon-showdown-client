@@ -106,7 +106,7 @@
 			var textbox = e.currentTarget;
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
-			} else if (e.keyCode === 73 && cmdKey && !e.shiftKey) { // Ctrl+I key
+			} else if (e.keyCode === 73 && cmdKey && !e.shiftKey) { // Ctrl + I key
 				if (!textbox.setSelectionRange) return;
 				var value = textbox.value;
 				var start = textbox.selectionStart;
@@ -123,7 +123,7 @@
 				}
 
 				// wrap in __
-				value = value.substr(0,start)+'__'+value.substr(start,end-start)+'__'+value.substr(end);
+				value = value.substr(0,start) + '__' + value.substr(start,end-start) + '__' + value.substr(end);
 				start += 2, end += 2;
 
 				// prevent nesting
@@ -143,7 +143,7 @@
 
 				textbox.value = value;
 				textbox.setSelectionRange(start, end);
-			} else if (e.keyCode === 66 && cmdKey && !e.shiftKey) { // Ctrl+B key
+			} else if (e.keyCode === 66 && cmdKey && !e.shiftKey) { // Ctrl + B key
 				if (!textbox.setSelectionRange) return;
 				var value = textbox.value;
 				var start = textbox.selectionStart;
@@ -160,7 +160,7 @@
 				}
 
 				// wrap in **
-				value = value.substr(0,start)+'**'+value.substr(start,end-start)+'**'+value.substr(end);
+				value = value.substr(0,start) + '**' + value.substr(start,end-start) + '**' + value.substr(end);
 				start += 2, end += 2;
 
 				// prevent nesting
@@ -249,7 +249,7 @@
 			var highlights = Tools.prefs('highlights') || [];
 			if (!app.highlightRegExp) {
 				try {
-					app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
+					app.highlightRegExp = new RegExp('\\b(' + highlights.join('|') + ')\\b', 'i');
 				} catch (e) {
 					// If the expression above is not a regexp, we'll get here.
 					// Don't throw an exception because that would prevent the chat
@@ -435,7 +435,7 @@
 					target = toId(targets[0]);
 					self.challengeData = { userid: target, format: targets[1] || '', team: targets[2] || '' };
 					app.on('response:userdetails', self.challengeUserdetails, self);
-					app.send('/cmd userdetails '+target);
+					app.send('/cmd userdetails ' + target);
 				};
 
 				if (!targets[0]) {
@@ -567,7 +567,7 @@
 					if (!userid) {
 						var newsId = $(this).data('newsid');
 						if (newsId) {
-							$.cookie('showdown_readnews', ''+newsId, {expires: 365});
+							$.cookie('showdown_readnews', '' + newsId, {expires: 365});
 						}
 						$(this).remove();
 						return;
@@ -592,7 +592,7 @@
 				var debugStyle = $('#debugstyle').get(0);
 				var onCSS = '.debug {display: block;}';
 				if (!debugStyle) {
-					$('head').append('<style id="debugstyle">'+onCSS+'</style>');
+					$('head').append('<style id="debugstyle">' + onCSS + '</style>');
 				} else {
 					debugStyle.innerHTML = onCSS;
 				}
@@ -603,7 +603,7 @@
 				var debugStyle = $('#debugstyle').get(0);
 				var offCSS = '.debug {display: none;}';
 				if (!debugStyle) {
-					$('head').append('<style id="debugstyle">'+offCSS+'</style>');
+					$('head').append('<style id="debugstyle">' + offCSS + '</style>');
 				} else {
 					debugStyle.innerHTML = offCSS;
 				}
@@ -691,7 +691,7 @@
 						highlights = highlights.concat(targets.slice(1));
 						this.add("Now highlighting on: " + highlights.join(', '));
 						// We update the regex
-						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
+						app.highlightRegExp = new RegExp('\\b(' + highlights.join('|') + ')\\b', 'i');
 						break;
 					case 'delete':
 						var newHls = [];
@@ -703,7 +703,7 @@
 						highlights = newHls;
 						this.add("Now highlighting on: " + highlights.join(', '));
 						// We update the regex
-						app.highlightRegExp = new RegExp('\\b('+highlights.join('|')+')\\b', 'i');
+						app.highlightRegExp = new RegExp('\\b(' + highlights.join('|') + ')\\b', 'i');
 						break;
 					default:
 						// Wrong command
@@ -753,7 +753,7 @@
 				}, Tools.safeJSON(function (data) {
 					try {
 						var buffer = '<div class="ladder"><table>';
-						buffer += '<tr><td colspan="8">User: <strong>'+toName(targets[0])+'</strong></td></tr>';
+						buffer += '<tr><td colspan="8">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
 						if (!data.length) {
 							buffer += '<tr><td colspan="8"><em>This user has not played any ladder games yet.</em></td></tr>';
 						} else {
@@ -768,31 +768,31 @@
 									buffer += '<tr class="hidden">';
 									hiddenFormats.push(row.formatid);
 								}
-								buffer += '<td>'+row.formatid+'</td><td><strong>'+Math.round(row.acre)+'</strong></td><td>'+Math.round(row.gxe,1)+'</td><td>';
+								buffer += '<td>' + row.formatid + '</td><td><strong>' + Math.round(row.acre) + '</strong></td><td>' + Math.round(row.gxe,1) + '</td><td>';
 								if (row.rprd > 100) {
-									buffer += '<span><em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em> <small>(provisional)</small></span>';
+									buffer += '<span><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em> <small>(provisional)</small></span>';
 								} else {
-									buffer += '<em>'+Math.round(row.rpr)+'<small> &#177; '+Math.round(row.rprd)+'</small></em>';
+									buffer += '<em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em>';
 								}
 								var N=parseInt(row.w)+parseInt(row.l)+parseInt(row.t);
 								if (row.formatid === 'oususpecttest') {
-									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-17.0/N),0)+'</td>';
+									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-17.0/N),0) + '</td>';
 								} else if (row.formatid === 'uberssuspecttest') {
-									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-29.0/N),0)+'</td>';
+									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-29.0/N),0) + '</td>';
 								} else if (row.formatid === 'uususpecttest') {
-									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-20.0/N),0)+'</td>';
+									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-20.0/N),0) + '</td>';
 								} else if (row.formatid === 'rususpecttest') {
-									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-9.0/N),0)+'</td>';
+									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-9.0/N),0) + '</td>';
 								} else if (row.formatid === 'nususpecttest') {
-									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-20.0/N),0)+'</td>';
+									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-20.0/N),0) + '</td>';
 								} else if (row.formatid === 'lcsuspecttest') {
-									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-43.0/N),0)+'</td>';
+									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-43.0/N),0) + '</td>';
 								} else if (row.formatid === 'doublesoucurrent' || row.formatid === 'doublesoususpecttest') {
-									buffer += '<td>'+Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-16.0/N),0)+'</td>';
+									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-16.0/N),0) + '</td>';
 								} else {
 									buffer += '<td>--</td>';
 								}
-								buffer += '</td><td>'+row.w+'</td><td>'+row.l+'</td><td>'+row.t+'</td></tr>';
+								buffer += '</td><td>' + row.w + '</td><td>' + row.l + '</td><td>' + row.t + '</td></tr>';
 							}
 							if (hiddenFormats.length) {
 								if (hiddenFormats.length === formatLength) {
@@ -803,7 +803,7 @@
 							}
 						}
 						buffer += '</table></div>';
-						self.add('|raw|'+buffer);
+						self.add('|raw|' + buffer);
 					} catch(e) {
 						self.add('|raw|Error: corrupted ranking data');
 					}
@@ -1029,10 +1029,10 @@
 			this.updateLayout();
 		},
 		join: function () {
-			app.send('/join '+this.id);
+			app.send('/join ' + this.id);
 		},
 		leave: function () {
-			app.send('/leave '+this.id);
+			app.send('/leave ' + this.id);
 			app.updateAutojoin();
 		},
 		receive: function (data) {
@@ -1074,7 +1074,7 @@
 		addRow: function (line) {
 			var name, name2, room, action, silent, oldid;
 			if (line && typeof line === 'string') {
-				if (line.substr(0,1) !== '|') line = '||'+line;
+				if (line.substr(0,1) !== '|') line = '||' + line;
 				var row = line.substr(1).split('|');
 				switch (row[0]) {
 				case 'init':
@@ -1088,7 +1088,7 @@
 
 				case 'c':
 				case 'chat':
-					if (/[a-zA-Z0-9]/.test(row[1].charAt(0))) row[1] = ' '+row[1];
+					if (/[a-zA-Z0-9]/.test(row[1].charAt(0))) row[1] = ' ' + row[1];
 					this.addChat(row[1], row.slice(2).join('|'));
 					break;
 
@@ -1096,13 +1096,13 @@
 					this.timeOffset = ~~(Date.now()/1000) - parseInt(row[1], 10);
 					break;
 				case 'c:':
-					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' '+row[2];
+					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
 					var deltaTime = ~~(Date.now()/1000) - this.timeOffset - parseInt(row[1], 10);
 					this.addChat(row[2], row.slice(3).join('|'), false, deltaTime);
 					break;
 
 				case 'tc':
-					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' '+row[2];
+					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
 					this.addChat(row[2], row.slice(3).join('|'), false, row[1]);
 					break;
 
@@ -1127,7 +1127,7 @@
 						battletype = format + ' battle';
 						if (format === 'Random Battle') battletype = 'Random Battle';
 					}
-					this.$chat.append('<div class="notice"><a href="' + app.root+id + '" class="ilink">' + battletype + ' started between <strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + '</strong> and <strong style="' + hashColor(toUserid(name2)) + '">' + Tools.escapeHTML(name2) + '</strong>.</a></div>');
+					this.$chat.append('<div class="notice"><a href="' + app.root + id + '" class="ilink">' + battletype + ' started between <strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + '</strong> and <strong style="' + hashColor(toUserid(name2)) + '">' + Tools.escapeHTML(name2) + '</strong>.</a></div>');
 					break;
 
 				case 'j':
@@ -1342,8 +1342,8 @@
 				// PMs already notify in the main menu; no need to make them notify again
 				isHighlighted = this.getHighlight(message);
 				if (isHighlighted) {
-					var notifyTitle = "Mentioned by "+name+(this.id === 'lobby' ? '' : " in "+this.title);
-					this.notifyOnce(notifyTitle, "\""+message+"\"", 'highlight');
+					var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
+					this.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
 				} else {
 					this.subtleNotifyOnce();
 				}
@@ -1351,7 +1351,7 @@
 			var highlight = isHighlighted ? ' highlighted' : '';
 			var chatDiv = '<div class="chat chatmessage-' + toId(name) + highlight + '">';
 			var timestamp = ChatRoom.getTimestamp('lobby', deltatime);
-			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>'+clickableName;
+			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>' + clickableName;
 			var self = this;
 			var outputChat = function () {
 				var coloredName = (name.substr(1) ? '<strong style="' + color + '">' + clickableName + ':</strong>' : '');
@@ -1370,7 +1370,7 @@
 				} else {
 					outputChat();
 				}
-				Storage.logChat(this.id, '* '+name+' '+message);
+				Storage.logChat(this.id, '* ' + name + ' ' + message);
 			} else if (message.substr(0,5) === '/mee ') {
 				message = message.substr(5);
 				if (showme) {
@@ -1378,23 +1378,23 @@
 				} else {
 					outputChat();
 				}
-				Storage.logChat(this.id, '* '+name+message);
+				Storage.logChat(this.id, '* ' + name + message);
 			} else if (message.substr(0,10) === '/announce ') {
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
-				Storage.logChat(this.id, ''+name+': /announce '+message);
+				Storage.logChat(this.id, '' + name + ': /announce ' + message);
 			} else if (message.substr(0,14) === '/data-pokemon ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>');
+				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,11) === '/data-item ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.itemRow(Tools.getItem(message.substr(11)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>');
+				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(message.substr(11)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,14) === '/data-ability ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>');
+				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
 			} else if (message.substr(0,11) === '/data-move ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">'+Chart.moveRow(Tools.getMove(message.substr(11)),'',{},false,true)+'<li style=\"clear:both\"></li></ul></div>');
+				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(message.substr(11)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
 			} else {
 				// Normal chat message.
 				if (message.substr(0,2) === '//') message = message.substr(1);
 				outputChat();
-				Storage.logChat(this.id, ''+name+': '+message);
+				Storage.logChat(this.id, '' + name + ': ' + message);
 			}
 		}
 	}, {

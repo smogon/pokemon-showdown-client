@@ -172,7 +172,7 @@
 				if (!self.get('named')) {
 					self.nameRegExp = null;
 				} else {
-					self.nameRegExp = new RegExp('\\b'+Tools.escapeRegExp(self.get('name'))+'\\b', 'i');
+					self.nameRegExp = new RegExp('\\b' + Tools.escapeRegExp(self.get('name')) + '\\b', 'i');
 				}
 			});
 		},
@@ -393,7 +393,7 @@
 					var debugStyle = $('#debugstyle').get(0);
 					var onCSS = '.debug {display: block;}';
 					if (!debugStyle) {
-						$('head').append('<style id="debugstyle">'+onCSS+'</style>');
+						$('head').append('<style id="debugstyle">' + onCSS + '</style>');
 					} else {
 						debugStyle.innerHTML = onCSS;
 					}
@@ -801,7 +801,7 @@
 			};
 			this.socket.onmessage = function (msg) {
 				if (window.console && console.log) {
-					console.log('<< '+msg.data);
+					console.log('<< ' + msg.data);
 				}
 				if (msg.data.charAt(0) !== '{') {
 					self.receive(msg.data);
@@ -859,9 +859,9 @@
 		 */
 		send: function (data, room) {
 			if (room && room !== 'lobby' && room !== true) {
-				data = room+'|'+data;
+				data = room + '|' + data;
 			} else if (room !== true) {
-				data = '|'+data;
+				data = '|' + data;
 			}
 			if (!this.socket || (this.socket.readyState !== SockJS.OPEN)) {
 				if (!this.sendQueue) this.sendQueue = [];
@@ -869,7 +869,7 @@
 				return;
 			}
 			if (window.console && console.log) {
-				console.log('>> '+data);
+				console.log('>> ' + data);
 			}
 			this.socket.send(data);
 		},
@@ -877,7 +877,7 @@
 		 * Send team to sim server
 		 */
 		sendTeam: function (team) {
-			this.send('/utm '+Storage.getPackedTeam(team));
+			this.send('/utm ' + Storage.getPackedTeam(team));
 		},
 		/**
 		 * Receive from sim server
@@ -904,14 +904,14 @@
 					this.joinRoom(roomid, roomType, true);
 				}
 				if (roomType === 'chat') autojoined = true;
-			} else if ((data+'|').substr(0,8) === '|expire|') {
+			} else if ((data + '|').substr(0,8) === '|expire|') {
 				var room = this.rooms[roomid];
 				if (room) {
 					room.expired = true;
 					if (room.updateUser) room.updateUser();
 				}
 				return;
-			} else if ((data+'|').substr(0,8) === '|deinit|' || (data+'|').substr(0,8) === '|noinit|') {
+			} else if ((data + '|').substr(0,8) === '|deinit|' || (data + '|').substr(0,8) === '|noinit|') {
 				if (!roomid) roomid = 'lobby';
 
 				if (this.rooms[roomid] && this.rooms[roomid].expired) {
@@ -932,7 +932,7 @@
 				if (data === 'namerequired') {
 					var self = this;
 					this.once('init:choosename', function () {
-						self.send('/join '+roomid);
+						self.send('/join ' + roomid);
 					});
 				} else if (data !== 'namepending') {
 					if (isdeinit) { // deinit
@@ -1014,7 +1014,7 @@
 
 			case 'queryresponse':
 				var responseData = JSON.parse(data.substr(16+parts[1].length));
-				app.trigger('response:'+parts[1], responseData);
+				app.trigger('response:' + parts[1], responseData);
 				break;
 
 			case 'updatechallenges':
@@ -1177,7 +1177,7 @@
 		uploadReplay: function (data) {
 			var id = data.id;
 			var serverid = Config.server.id && toId(Config.server.id.split(':')[0]);
-			if (serverid && serverid !== 'showdown') id = serverid+'-'+id;
+			if (serverid && serverid !== 'showdown') id = serverid + '-' + id;
 			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
 				id: id
@@ -1194,7 +1194,7 @@
 				} else if (data === 'invalid id') {
 					app.addPopupMessage("This server is using invalid battle IDs, so this replay can't be uploaded.");
 				} else {
-					app.addPopupMessage("Error while uploading replay: "+data);
+					app.addPopupMessage("Error while uploading replay: " + data);
 				}
 			});
 		},
@@ -1260,9 +1260,9 @@
 				if (id === this.initialFragment) {
 					// you were direct-linked to this nonexistent room
 					var replayid = id.substr(7);
-					if (Config.server.id !== 'showdown') replayid = Config.server.id+'-'+replayid;
-					// document.location.replace('http://replay.pokemonshowdown.com/'+replayid);
-					var replayLink = 'http://replay.pokemonshowdown.com/'+replayid;
+					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
+					// document.location.replace('http://replay.pokemonshowdown.com/' + replayid);
+					var replayLink = 'http://replay.pokemonshowdown.com/' + replayid;
 					app.addPopupMessage('This room does not exist. You might want to try the replay: <a href="' + replayLink + '">' + replayLink + '</a>');
 					return;
 				}
@@ -1621,12 +1621,12 @@
 		// userbar
 		updateUserbar: function () {
 			var buf = '';
-			var name = ' '+app.user.get('name');
+			var name = ' ' + app.user.get('name');
 			var color = hashColor(app.user.get('userid'));
 			if (app.user.get('named')) {
-				buf = '<span class="username" data-name="'+Tools.escapeHTML(name)+'" style="'+color+'"><i class="icon-user" style="color:#779EC5"></i> '+Tools.escapeHTML(name)+'</span> <button class="icon" name="openSounds"><i class="'+(Tools.prefs('mute')?'icon-volume-off':'icon-volume-up')+'"></i></button> <button class="icon" name="openOptions"><i class="icon-cog"></i></button>';
+				buf = '<span class="username" data-name="' + Tools.escapeHTML(name) + '" style="' + color + '"><i class="icon-user" style="color:#779EC5"></i> ' + Tools.escapeHTML(name) + '</span> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute')?'icon-volume-off':'icon-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="icon-cog"></i></button>';
 			} else {
-				buf = '<button name="login">Choose name</button> <button class="icon" name="openSounds"><i class="'+(Tools.prefs('mute')?'icon-volume-off':'icon-volume-up')+'"></i></button> <button class="icon" name="openOptions"><i class="icon-cog"></i></button>';
+				buf = '<button name="login">Choose name</button> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute')?'icon-volume-off':'icon-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="icon-cog"></i></button>';
 			}
 			this.$userbar.html(buf);
 		},
@@ -1650,9 +1650,9 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notificationClass||'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
-			if (app.rooms['teambuilder']) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
-			if (app.rooms['ladder']) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
+			var buf = '<ul><li><a class="button' + (curId===''?' cur':'') + (app.rooms['']&&app.rooms[''].notificationClass||'') + '" href="' + app.root + '"><i class="icon-home"></i> <span>Home</span></a></li>';
+			if (app.rooms['teambuilder']) buf += '<li><a class="button' + (curId==='teambuilder'?' cur':'') + ' closable" href="' + app.root + 'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="icon-remove-sign"></i></a></li>';
+			if (app.rooms['ladder']) buf += '<li><a class="button' + (curId==='ladder'?' cur':'') + ' closable" href="' + app.root + 'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="icon-remove-sign"></i></a></li>';
 			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
@@ -1669,7 +1669,7 @@
 				if (app.rooms[id].notifications) notificationCount++;
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
-				var name = '<i class="icon-comment-alt"></i> <span>'+(Tools.escapeHTML(room.title)||(id==='lobby'?'Lobby':id))+'</span>';
+				var name = '<i class="icon-comment-alt"></i> <span>' + (Tools.escapeHTML(room.title)||(id==='lobby'?'Lobby':id)) + '</span>';
 				if (id.substr(0,7) === 'battle-') {
 					name = Tools.escapeHTML(room.title);
 					var formatid = id.substr(7).split('-')[0];
@@ -1677,18 +1677,18 @@
 						var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
 						var p2 = (room && room.battle && room.battle.p2 && room.battle.p2.name) || '';
 						if (p1 && p2) {
-							name = ''+Tools.escapeHTML(p1)+' v. '+Tools.escapeHTML(p2);
+							name = '' + Tools.escapeHTML(p1) + ' v. ' + Tools.escapeHTML(p2);
 						} else if (p1 || p2) {
-							name = ''+Tools.escapeHTML(p1)+Tools.escapeHTML(p2);
+							name = '' + Tools.escapeHTML(p1) + Tools.escapeHTML(p2);
 						} else {
 							name = '(empty room)';
 						}
 					}
-					name = '<i class="text">'+formatid+'</i><span>'+name+'</span>';
+					name = '<i class="text">' + formatid + '</i><span>' + name + '</span>';
 				}
 				if (room.isSideRoom) {
 					if (id !== 'rooms') {
-						sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+room.notificationClass+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+						sideBuf += '<li><a class="button' + (curId===id||curSideId===id?' cur':'') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
 						if (curSideId) {
 							// get left/right for side rooms
 							if (curSideId === id) {
@@ -1715,7 +1715,7 @@
 					buf += '<ul>';
 					atLeastOne = true;
 				}
-				buf += '<li><a class="button'+(curId===id?' cur':'')+room.notificationClass+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+				buf += '<li><a class="button' + (curId===id?' cur':'') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
 				// get left/right
 				if (curId === id) {
 					passedCurRoom = true;
@@ -1729,14 +1729,14 @@
 				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount || '');
 			}
 			if (app.supports['rooms']) {
-				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
+				sideBuf += '<li><a class="button' + (curId==='rooms'||curSideId==='rooms'?' cur':'') + '" href="' + app.root + 'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (sideBuf) {
 				if (app.curSideRoom) {
-					buf += '<ul class="siderooms" style="float:none;margin-left:'+(app.curSideRoom.leftWidth-144)+'px">'+sideBuf+'</ul>';
+					buf += '<ul class="siderooms" style="float:none;margin-left:' + (app.curSideRoom.leftWidth-144) + 'px">' + sideBuf + '</ul>';
 				} else {
-					buf += '<ul>'+sideBuf+'</ul>';
+					buf += '<ul>' + sideBuf + '</ul>';
 				}
 			}
 			this.$tabbar.html(buf);
@@ -1894,7 +1894,7 @@
 				var notification = this.notifications[tag] = new Notification(title, {
 					lang: 'en',
 					body: body,
-					tag: this.id+':'+tag,
+					tag: this.id + ':' + tag,
 				});
 				var self = this;
 				notification.onclose = function () {
@@ -2104,7 +2104,7 @@
 		},
 		initialize: function (data) {
 			if (!this.type) this.type = 'semimodal';
-			this.$el.html('<p style="white-space:pre-wrap;word-wrap:break-word">'+(data.htmlMessage||Tools.parseMessage(data.message))+'</p><p class="buttonbar"><button name="close" class="autofocus"><strong>OK</strong></button></p>').css('max-width', data.maxWidth || 480);
+			this.$el.html('<p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage||Tools.parseMessage(data.message)) + '</p><p class="buttonbar"><button name="close" class="autofocus"><strong>OK</strong></button></p>').css('max-width', data.maxWidth || 480);
 		},
 
 		dispatchClickButton: function (e) {
@@ -2174,11 +2174,11 @@
 		initialize: function (data) {
 			data.userid = toId(data.name);
 			var name = data.name;
-			if (/[a-zA-Z0-9]/.test(name.charAt(0))) name = ' '+name;
+			if (/[a-zA-Z0-9]/.test(name.charAt(0))) name = ' ' + name;
 			this.data = data = _.extend(data, UserPopup.dataCache[data.userid]);
 			data.name = name;
 			app.on('response:userdetails', this.update, this);
-			app.send('/cmd userdetails '+data.userid);
+			app.send('/cmd userdetails ' + data.userid);
 			this.update();
 		},
 		events: {
@@ -2210,8 +2210,8 @@
 			if (group || name.charAt(0) === ' ') name = name.substr(1);
 
 			var buf = '<div class="userdetails">';
-			if (avatar) buf += '<img class="trainersprite'+(userid===app.user.get('userid')?' yours':'')+'" src="'+Tools.resolveAvatar(avatar)+'" />';
-			buf += '<strong><a href="//pokemonshowdown.com/users/'+userid+'" target="_blank">' + Tools.escapeHTML(name) + '</a></strong><br />';
+			if (avatar) buf += '<img class="trainersprite' + (userid===app.user.get('userid')?' yours':'') + '" src="' + Tools.resolveAvatar(avatar) + '" />';
+			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + Tools.escapeHTML(name) + '</a></strong><br />';
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (data.rooms) {
 				var battlebuf = '';
@@ -2224,14 +2224,14 @@
 						var p2 = data.rooms[i].p2.substr(1);
 						if (!battlebuf) battlebuf = '<br /><em>Battles:</em> ';
 						else battlebuf += ', ';
-						battlebuf += '<span title="'+(Tools.escapeHTML(p1) || '?')+' v. '+(Tools.escapeHTML(p2) || '?')+'"><a href="'+app.root+roomid+'" class="ilink">'+roomid.substr(7)+'</a></span>';
+						battlebuf += '<span title="' + (Tools.escapeHTML(p1) || '?') + ' v. ' + (Tools.escapeHTML(p2) || '?') + '"><a href="' + app.root + roomid + '" class="ilink">' + roomid.substr(7) + '</a></span>';
 					} else {
 						if (!chatbuf) chatbuf = '<br /><em>Chatrooms:</em> ';
 						else chatbuf += ', ';
-						chatbuf += '<a href="'+app.root+roomid+'" class="ilink">'+roomid+'</a>';
+						chatbuf += '<a href="' + app.root + roomid + '" class="ilink">' + roomid + '</a>';
 					}
 				}
-				buf += '<small class="rooms">'+battlebuf+chatbuf+'</small>';
+				buf += '<small class="rooms">' + battlebuf + chatbuf + '</small>';
 			} else if (data.rooms === false) {
 				buf += '<strong class="offline">OFFLINE</strong>';
 			}
@@ -2315,7 +2315,7 @@
 
 			var name = (data.name || '');
 			if (!name && app.user.get('named')) name = app.user.get('name');
-			buf += '<p><label class="label">Username: <input class="textbox autofocus" type="text" name="username" value="'+Tools.escapeHTML(name)+'"></label></p>';
+			buf += '<p><label class="label">Username: <input class="textbox autofocus" type="text" name="username" value="' + Tools.escapeHTML(name) + '"></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Choose name</strong></button> <button name="close">Cancel</button></p>';
 
 			buf += '</form>';
@@ -2398,7 +2398,7 @@
 				if (data.curuser && data.curuser.loggedin) {
 					app.user.set('registered', data.curuser);
 					var name = data.curuser.username;
-					app.send('/trn '+name+',1,'+token);
+					app.send('/trn ' + name + ',1,' + token);
 					app.addPopupMessage("You have been successfully registered.");
 				} else {
 					app.addPopup(RegisterPopup, {
@@ -2433,7 +2433,7 @@
 			}
 
 			buf += '<p>Log in:</p>';
-			buf += '<p><label class="label">Username: <strong>'+Tools.escapeHTML(data.username)+'<input type="hidden" name="username" value="'+Tools.escapeHTML(data.username)+'" /></strong></label></p>';
+			buf += '<p><label class="label">Username: <strong>' + Tools.escapeHTML(data.username) + '<input type="hidden" name="username" value="' + Tools.escapeHTML(data.username) + '" /></strong></label></p>';
 			buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password"></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
 
@@ -2477,9 +2477,9 @@
 		initialize: function (data) {
 			var buf = '';
 			var muted = !!Tools.prefs('mute');
-			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>'+(muted?'<em>(muted)</em>':'<input type="slider" name="effectvolume" value="'+(Tools.prefs('effectvolume')||50)+'" />')+'</p>';
-			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>'+(muted?'<em>(muted)</em>':'<input type="slider" name="musicvolume" value="'+(Tools.prefs('musicvolume')||50)+'" />')+'</p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="muted"'+(muted?' checked':'')+' /> Mute sounds</label></p>';
+			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>' + (muted?'<em>(muted)</em>':'<input type="slider" name="effectvolume" value="' + (Tools.prefs('effectvolume')||50) + '" />') + '</p>';
+			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>' + (muted?'<em>(muted)</em>':'<input type="slider" name="musicvolume" value="' + (Tools.prefs('musicvolume')||50) + '" />') + '</p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="muted"' + (muted?' checked':'') + ' /> Mute sounds</label></p>';
 			this.$el.html(buf).css('min-width', 160);
 		},
 		events: {
@@ -2514,15 +2514,15 @@
 			BattleSound.setMute(muted);
 
 			if (!muted) {
-				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><input type="slider" name="effectvolume" value="'+(Tools.prefs('effectvolume')||50)+'" />');
-				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><input type="slider" name="musicvolume" value="'+(Tools.prefs('musicvolume')||50)+'" />');
+				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><input type="slider" name="effectvolume" value="' + (Tools.prefs('effectvolume')||50) + '" />');
+				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><input type="slider" name="musicvolume" value="' + (Tools.prefs('musicvolume')||50) + '" />');
 				this.domInitialize();
 			} else {
 				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><em>(muted)</em>');
 				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><em>(muted)</em>');
 			}
 
-			app.topbar.$('button[name=openSounds]').html('<i class="'+(muted?'icon-volume-off':'icon-volume-up')+'"></i>');
+			app.topbar.$('button[name=openSounds]').html('<i class="' + (muted?'icon-volume-off':'icon-volume-up') + '"></i>');
 		},
 		setEffectVolume: function (volume) {
 			BattleSound.setEffectVolume(volume);
@@ -2537,7 +2537,7 @@
 	var OptionsPopup = this.OptionsPopup = Popup.extend({
 		initialize: function (data) {
 			app.user.on('change', this.update, this);
-			app.send('/cmd userdetails '+app.user.get('userid'));
+			app.send('/cmd userdetails ' + app.user.get('userid'));
 			this.update();
 		},
 		events: {
@@ -2559,32 +2559,32 @@
 			var avatar = app.user.get('avatar');
 
 			var buf = '';
-			buf += '<p>'+(avatar?'<img class="trainersprite" src="'+Tools.resolveAvatar(avatar)+'" width="40" height="40" style="vertical-align:middle" />':'')+'<strong>'+Tools.escapeHTML(name)+'</strong></p>';
+			buf += '<p>' + (avatar?'<img class="trainersprite" src="' + Tools.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle" />':'') + '<strong>' + Tools.escapeHTML(name) + '</strong></p>';
 			buf += '<p><button name="avatars">Change avatar</button></p>';
 
 			buf += '<hr />';
-			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Charizards</option><option value="#344b6c url(/fx/client-bg-horizon.jpg) no-repeat left center fixed">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c">Solid blue</option><option value="custom">Custom</option>'+(Tools.prefs('bg')?'<option value="" selected></option>':'')+'</select></label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"'+(Tools.prefs('noanim')?' checked':'')+' /> Disable animations</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"'+(Tools.prefs('bwgfx')?' checked':'')+' /> Enable BW sprites for XY</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"'+(Tools.prefs('nopastgens')?' checked':'')+' /> Use modern sprites for past generations</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"'+(Tools.prefs('notournaments')?' checked':'')+' /> Ignore tournaments</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="inchatpm"'+(Tools.prefs('inchatpm')?' checked':'')+' /> Show PMs in chat rooms</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"'+(!Tools.prefs('noselfhighlight')?' checked':'')+'> Highlight when your name is said in chat</label></p>';
+			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Charizards</option><option value="#344b6c url(/fx/client-bg-horizon.jpg) no-repeat left center fixed">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c">Solid blue</option><option value="custom">Custom</option>' + (Tools.prefs('bg')?'<option value="" selected></option>':'') + '</select></label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Tools.prefs('noanim')?' checked':'') + ' /> Disable animations</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Tools.prefs('bwgfx')?' checked':'') + ' /> Enable BW sprites for XY</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Tools.prefs('nopastgens')?' checked':'') + ' /> Use modern sprites for past generations</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"' + (Tools.prefs('notournaments')?' checked':'') + ' /> Ignore tournaments</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="inchatpm"' + (Tools.prefs('inchatpm')?' checked':'') + ' /> Show PMs in chat rooms</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"' + (!Tools.prefs('noselfhighlight')?' checked':'') + '> Highlight when your name is said in chat</label></p>';
 
 			if (window.Notification) {
-				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"'+(Tools.prefs('temporarynotifications')?' checked':'')+' /> Temporary notifications</label></p>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Tools.prefs('temporarynotifications')?' checked':'') + ' /> Temporary notifications</label></p>';
 			}
 
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
-			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"'+(timestamps.lobby==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.lobby==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
-			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"'+(timestamps.pms==='minutes'?' selected="selected"':'')+'>[HH:MM]</option><option value="seconds"'+(timestamps.pms==='seconds'?' selected="selected"':'')+'>[HH:MM:SS]</option></select></label></p>';
+			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby==='minutes'?' selected="selected"':'') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby==='seconds'?' selected="selected"':'') + '>[HH:MM:SS]</option></select></label></p>';
+			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"' + (timestamps.pms==='minutes'?' selected="selected"':'') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms==='seconds'?' selected="selected"':'') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting">Edit formatting</button></label></p>';
 
 			if (window.nodewebkit) {
 				buf += '<hr />';
 				buf += '<h3>Desktop app</h3>';
-				buf += '<p><label class="optlabel"><input type="checkbox" name="logchat"'+(Tools.prefs('logchat')?' checked':'')+'> Log chat</label></p>';
-				buf += '<p id="openLogFolderButton"'+(Storage.dir?'':' style="display:none"')+'><button name="openLogFolder">Open log folder</button></p>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="logchat"' + (Tools.prefs('logchat')?' checked':'') + '> Log chat</label></p>';
+				buf += '<p id="openLogFolderButton"' + (Storage.dir?'':' style="display:none"') + '><button name="openLogFolder">Open log folder</button></p>';
 			}
 
 			buf += '<hr />';
@@ -2721,8 +2721,8 @@
 
 			buf += '<div class="avatarlist">';
 			for (var i=1; i<=293; i++) {
-				var offset = '-'+(((i-1)%16)*80)+'px -'+(Math.floor((i-1)/16)*80)+'px';
-				buf += '<button name="setAvatar" value="'+i+'" style="background-position:'+offset+'"'+(i===cur?' class="cur"':'')+'></button>';
+				var offset = '-' + (((i-1)%16)*80) + 'px -' + (Math.floor((i-1)/16)*80) + 'px';
+				buf += '<button name="setAvatar" value="' + i + '" style="background-position:' + offset + '"' + (i===cur?' class="cur"':'') + '></button>';
 			}
 			buf += '</div><div style="clear:left"></div>';
 
@@ -2730,8 +2730,8 @@
 			this.$el.html(buf).css('max-width', 780);
 		},
 		setAvatar: function (i) {
-			app.send('/avatar '+i);
-			app.send('/cmd userdetails '+app.user.get('userid'));
+			app.send('/avatar ' + i);
+			app.send('/cmd userdetails ' + app.user.get('userid'));
 			Tools.prefs('avatar', i);
 			this.close();
 		}
@@ -2745,7 +2745,7 @@
 		initialize: function (data) {
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
-			buf += '<p><a href="http://replay.pokemonshowdown.com/'+data.id+'" target="_blank">http://replay.pokemonshowdown.com/'+data.id+'</a></p>';
+			buf += '<p><a href="http://replay.pokemonshowdown.com/' + data.id + '" target="_blank">http://replay.pokemonshowdown.com/' + data.id + '</a></p>';
 			buf += '<p><button type="submit" class="autofocus"><strong>Open</strong></button> <button name="close">Cancel</button></p>';
 			this.$el.html(buf).css('max-width', 620);
 		},
@@ -2753,7 +2753,7 @@
 			this.close();
 		},
 		submit: function (i) {
-			app.openInNewWindow('http://replay.pokemonshowdown.com/'+this.id);
+			app.openInNewWindow('http://replay.pokemonshowdown.com/' + this.id);
 			this.close();
 		}
 	});
@@ -2764,7 +2764,7 @@
 			var warning = ('warning' in data);
 			var buf = '';
 			if (warning) {
-				buf += '<p><strong style="color:red">'+(Tools.escapeHTML(data.warning)||'You have been warned for breaking the rules.')+'</strong></p>';
+				buf += '<p><strong style="color:red">' + (Tools.escapeHTML(data.warning)||'You have been warned for breaking the rules.') + '</strong></p>';
 			}
 			buf += '<h2>Pok&eacute;mon Showdown Rules</h2>';
 			buf += '<b>Global</b><br /><br /><b>1.</b> Be nice to people. Respect people. Don\'t be rude to people.<br /><br /><b>2.</b> PS is based in the US. Follow US laws. Don\'t distribute pirated material, and don\'t slander others. PS is available to users younger than 18, so porn is strictly forbidden.<br /><br /><b>3.</b>&nbsp;No cheating. Don\'t exploit bugs to gain an unfair advantage. Don\'t game the system (by intentionally losing against yourself or a friend in a ladder match, by timerstalling, etc).<br /><b></b><br /><b>4.</b>&nbsp;English only.<br /><br /><b>5.</b> The First Amendment does not apply to PS, since PS is not a government organization.<br /><br /><b>6.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to a leader (a user with &amp; next to their name) or Discipline Appeals.<br /><br />';
@@ -2793,46 +2793,46 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button'+(curId===''?' cur':'')+(app.rooms['']&&app.rooms[''].notificationClass||'')+'" href="'+app.root+'"><i class="icon-home"></i> <span>Home</span></a></li>';
-			if (app.rooms['teambuilder']) buf += '<li><a class="button'+(curId==='teambuilder'?' cur':'')+' closable" href="'+app.root+'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="'+app.root+'teambuilder"><i class="icon-remove-sign"></i></a></li>';
-			if (app.rooms['ladder']) buf += '<li><a class="button'+(curId==='ladder'?' cur':'')+' closable" href="'+app.root+'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="'+app.root+'ladder"><i class="icon-remove-sign"></i></a></li>';
+			var buf = '<ul><li><a class="button' + (curId===''?' cur':'') + (app.rooms['']&&app.rooms[''].notificationClass||'') + '" href="' + app.root + '"><i class="icon-home"></i> <span>Home</span></a></li>';
+			if (app.rooms['teambuilder']) buf += '<li><a class="button' + (curId==='teambuilder'?' cur':'') + ' closable" href="' + app.root + 'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="icon-remove-sign"></i></a></li>';
+			if (app.rooms['ladder']) buf += '<li><a class="button' + (curId==='ladder'?' cur':'') + ' closable" href="' + app.root + 'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="icon-remove-sign"></i></a></li>';
 			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
 			for (var id in app.rooms) {
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
-				var name = '<i class="icon-comment-alt"></i> <span>'+id+'</span>';
+				var name = '<i class="icon-comment-alt"></i> <span>' + id + '</span>';
 				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> <span>Lobby</span>';
 				if (id.substr(0,7) === 'battle-') {
 					var parts = id.substr(7).split('-');
 					var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
 					var p2 = (room && room.battle && room.battle.p2 && room.battle.p2.name) || '';
 					if (p1 && p2) {
-						name = ''+Tools.escapeHTML(p1)+' v. '+Tools.escapeHTML(p2);
+						name = '' + Tools.escapeHTML(p1) + ' v. ' + Tools.escapeHTML(p2);
 					} else if (p1 || p2) {
-						name = ''+Tools.escapeHTML(p1)+Tools.escapeHTML(p2);
+						name = '' + Tools.escapeHTML(p1) + Tools.escapeHTML(p2);
 					} else {
 						name = '(empty room)';
 					}
-					name = '<i class="text">'+parts[0]+'</i><span>'+name+'</span>';
+					name = '<i class="text">' + parts[0] + '</i><span>' + name + '</span>';
 				}
 				if (room.isSideRoom) {
-					if (room.id !== 'rooms') sideBuf += '<li><a class="button'+(curId===id||curSideId===id?' cur':'')+room.notificationClass+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+					if (room.id !== 'rooms') sideBuf += '<li><a class="button' + (curId===id||curSideId===id?' cur':'') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
 					continue;
 				}
 				if (!atLeastOne) {
 					buf += '<ul>';
 					atLeastOne = true;
 				}
-				buf += '<li><a class="button'+(curId===id?' cur':'')+room.notificationClass+' closable" href="'+app.root+id+'">'+name+'</a><a class="closebutton" href="'+app.root+id+'"><i class="icon-remove-sign"></i></a></li>';
+				buf += '<li><a class="button' + (curId===id?' cur':'') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
 			}
 			if (app.supports['rooms']) {
-				sideBuf += '<li><a class="button'+(curId==='rooms'||curSideId==='rooms'?' cur':'')+'" href="'+app.root+'rooms"><i class="icon-plus"></i> <span>&nbsp;</span></a></li>';
+				sideBuf += '<li><a class="button' + (curId==='rooms'||curSideId==='rooms'?' cur':'') + '" href="' + app.root + 'rooms"><i class="icon-plus"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (sideBuf) {
-				buf += '<ul>'+sideBuf+'</ul>';
+				buf += '<ul>' + sideBuf + '</ul>';
 			}
 			this.$el.addClass('tablist').html(buf);
 		},
