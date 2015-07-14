@@ -285,7 +285,6 @@
 
 			switch (act) {
 			case 'move':
-				{
 					if (!this.choice) {
 						this.choice = {
 							choices: [],
@@ -449,7 +448,6 @@
 					}
 					controls += '</div></div></div>';
 					this.$controls.html(controls);
-				}
 				break;
 
 			case 'switch':
