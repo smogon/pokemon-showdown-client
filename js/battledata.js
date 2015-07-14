@@ -324,13 +324,13 @@ var linkRegex = new RegExp(
 
 var Tools = {
 
-	resourcePrefix: (function() {
+	resourcePrefix: (function () {
 		var prefix = '';
 		if (document.location.protocol === 'file:') prefix = 'http:';
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
-	resolveAvatar: function(avatar) {
+	resolveAvatar: function (avatar) {
 		var avatarnum = Number(avatar);
 		if (!isNaN(avatarnum)) {
 			// default avatars
@@ -350,14 +350,14 @@ var Tools = {
 		return Tools.resolveAvatar(sprites[Math.floor(Math.random() * sprites.length)]);
 	},
 
-	escapeFormat: function(formatid) {
+	escapeFormat: function (formatid) {
 		if (window.BattleFormats && BattleFormats[formatid]) {
 			return Tools.escapeHTML(BattleFormats[formatid].name);
 		}
 		return Tools.escapeHTML(formatid);
 	},
 
-	parseMessage: function(str) {
+	parseMessage: function (str) {
 		str = Tools.escapeHTML(str);
 		// Don't format console commands (>>).
 		if (str.substr(0, 8) === '&gt;&gt;') return str;
@@ -377,7 +377,7 @@ var Tools = {
 				options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1">$1</a>&raquo;');
 		// linking of URIs
 		if (!options.hidelinks) {
-			str = str.replace(linkRegex, function(uri) {
+			str = str.replace(linkRegex, function (uri) {
 				if (/^[a-z0-9.]+\@/ig.test(uri)) {
 					return '<a href="mailto:'+uri+'" target="_blank">'+uri+'</a>';
 				}
@@ -416,35 +416,35 @@ var Tools = {
 			});
 			// google [blah]
 			//   Google search for 'blah'
-			str = str.replace(/\bgoogle ?\[([^\]<]+)\]/ig, function(p0, p1) {
+			str = str.replace(/\bgoogle ?\[([^\]<]+)\]/ig, function (p0, p1) {
 				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p1 +
 					'" target="_blank">' + p0 + '</a>';
 			});
 			// wiki [blah]
 			//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
-			str = str.replace(/\bwiki ?\[([^\]<]+)\]/ig, function(p0, p1) {
+			str = str.replace(/\bwiki ?\[([^\]<]+)\]/ig, function (p0, p1) {
 				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
 					p1 + '" target="_blank">' + p0 + '</a>';
 			});
 			// server issue #pullreq
 			//   Links to github Pokemon Showdown server pullreq number
-			str = str.replace(/\bserver issue ?#(\d+)/ig, function(p0, p1) {
+			str = str.replace(/\bserver issue ?#(\d+)/ig, function (p0, p1) {
 				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="https://github.com/Zarel/Pokemon-Showdown/pull/' +
 					p1 + '" target="_blank">' + p0 + '</a>';
 			});
 			// client issue #pullreq
 			//   Links to github Pokemon Showdown client pullreq number
-			str = str.replace(/\bclient issue ?#(\d+)/ig, function(p0, p1) {
+			str = str.replace(/\bclient issue ?#(\d+)/ig, function (p0, p1) {
 				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="https://github.com/Zarel/Pokemon-Showdown-Client/pull/' +
 					p1 + '" target="_blank">' + p0 + '</a>';
 			});
 			// [[blah]]
 			//   Short form of gl[blah]
-			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/ig, function(p0, p1) {
+			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/ig, function (p0, p1) {
 				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
 					'" target="_blank">' + p1 +'</a>';
@@ -495,32 +495,32 @@ var Tools = {
 		return str;
 	},
 
-	escapeHTML: function(str, jsEscapeToo) {
+	escapeHTML: function (str, jsEscapeToo) {
 		str = (str?''+str:'');
 		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
 		return str;
 	},
 
-	unescapeHTML: function(str) {
+	unescapeHTML: function (str) {
 		str = (str?''+str:'');
 		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').
 			replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	},
 
-	escapeRegExp: function(str) {
+	escapeRegExp: function (str) {
 		return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 	},
 
-	escapeQuotes: function(str) {
+	escapeQuotes: function (str) {
 		str = (str?''+str:'');
 		str = str.replace(/'/g, '\\\'');
 		return str;
 	},
 
-	sanitizeHTML: (function() {
+	sanitizeHTML: (function () {
 		if (!('html4' in window)) {
-			return function() {
+			return function () {
 				throw new Error('sanitizeHTML requires caja');
 			};
 		}
@@ -545,10 +545,10 @@ var Tools = {
 			'marquee::width': 0
 		});
 
-		var uriRewriter = function(uri) {
+		var uriRewriter = function (uri) {
 			return uri;
 		};
-		var tagPolicy = function(tagName, attribs) {
+		var tagPolicy = function (tagName, attribs) {
 			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
 				return;
 			}
@@ -593,13 +593,13 @@ var Tools = {
 			}
 			return {attribs: attribs};
 		};
-		return function(input) {
+		return function (input) {
 			return html.sanitizeWithPolicy(input, tagPolicy);
 		};
 	})(),
 
-	interstice: (function() {
-		var patterns = (function(whitelist) {
+	interstice: (function () {
+		var patterns = (function (whitelist) {
 			var patterns = [];
 			for (var i = 0; i < whitelist.length; ++i) {
 				patterns.push(new RegExp('https?://([A-Za-z0-9-]*\\.)?' +
@@ -609,7 +609,7 @@ var Tools = {
 			return patterns;
 		})((window.Config && Config.whitelist) ? Config.whitelist : []);
 		return {
-			isWhitelisted: function(uri) {
+			isWhitelisted: function (uri) {
 				if ((uri[0] === '/') && (uri[1] !== '/')) {
 					// domain-relative URIs are safe
 					return true;
@@ -621,23 +621,23 @@ var Tools = {
 				}
 				return false;
 			},
-			getURI: function(uri) {
+			getURI: function (uri) {
 				return 'http://pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
 			}
 		};
 	})(),
 
-	safeJSON: function(f) {
-		return function(data) {
+	safeJSON: function (f) {
+		return function (data) {
 			if (data.length < 1) return;
 			if (data[0] == ']') data = data.substr(1);
 			return f.call(this, $.parseJSON(data));
 		};
 	},
 
-	prefs: (function() {
+	prefs: (function () {
 		var localStorageEntry = 'showdown_prefs';
-		var prefs = function(prop, value, save) {
+		var prefs = function (prop, value, save) {
 			if (value === undefined) {
 				// get preference
 				return prefs.data[prop];
@@ -657,7 +657,7 @@ var Tools = {
 			// outdated prefs
 			delete prefs.data.nolobbypm;
 		} catch (e) {}
-		prefs.save = function() {
+		prefs.save = function () {
 			if (!window.localStorage) return;
 			try {
 				localStorage.setItem(localStorageEntry, $.toJSON(this.data));
@@ -666,7 +666,7 @@ var Tools = {
 		return prefs;
 	})(),
 
-	getEffect: function(effect) {
+	getEffect: function (effect) {
 		if (!effect || typeof effect === 'string') {
 			var name = $.trim(effect||'');
 			if (name.substr(0,5) === 'item:') {
@@ -713,7 +713,7 @@ var Tools = {
 		return effect;
 	},
 
-	getMove: function(move) {
+	getMove: function (move) {
 		if (!move || typeof move === 'string') {
 			var name = $.trim(move||'');
 			var id = toId(name);
@@ -744,7 +744,7 @@ var Tools = {
 		return move;
 	},
 
-	getItem: function(item) {
+	getItem: function (item) {
 		if (!item || typeof item === 'string') {
 			var name = $.trim(item||'');
 			var id = toId(name);
@@ -758,7 +758,7 @@ var Tools = {
 		return item;
 	},
 
-	getAbility: function(ability) {
+	getAbility: function (ability) {
 		if (!ability || typeof ability === 'string') {
 			var name = $.trim(ability||'');
 			var id = toId(name);
@@ -772,7 +772,7 @@ var Tools = {
 		return ability;
 	},
 
-	getTemplate: function(template) {
+	getTemplate: function (template) {
 		if (!template || typeof template === 'string') {
 			var name = template;
 			var id = toId(name);
@@ -830,7 +830,7 @@ var Tools = {
 		return template;
 	},
 
-	getLearnset: function(template) {
+	getLearnset: function (template) {
 		template = Tools.getTemplate(template);
 		var alreadyChecked = {};
 		var learnset = {};
@@ -852,7 +852,7 @@ var Tools = {
 		return learnset;
 	},
 
-	getType: function(type) {
+	getType: function (type) {
 		if (!type || typeof type === 'string') {
 			var id = toId(type);
 			id = id.substr(0,1).toUpperCase() + id.substr(1);
@@ -868,7 +868,7 @@ var Tools = {
 	},
 
 	loadedSpriteData: {'xy':1, 'bw':0},
-	loadSpriteData: function(gen) {
+	loadSpriteData: function (gen) {
 		if (this.loadedSpriteData[gen]) return;
 		this.loadedSpriteData[gen] = 1;
 
@@ -880,7 +880,7 @@ var Tools = {
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
 	},
-	getSpriteData: function(pokemon, siden, options) {
+	getSpriteData: function (pokemon, siden, options) {
 		if (!options) options = {gen: 6};
 		if (!options.gen) options.gen = 6;
 		pokemon = Tools.getTemplate(pokemon);
@@ -955,7 +955,7 @@ var Tools = {
 		return spriteData;
 	},
 
-	getIcon: function(pokemon) {
+	getIcon: function (pokemon) {
 		var num = 0;
 		if (pokemon === 'pokeball') {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-pokeball-sheet.png) no-repeat scroll -0px -8px';
@@ -1084,7 +1084,7 @@ var Tools = {
 		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-sheet.png?g6) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
-	getTeambuilderSprite: function(pokemon) {
+	getTeambuilderSprite: function (pokemon) {
 		if (!pokemon) return '';
 		var id = toId(pokemon);
 		if (pokemon.spriteid) id = pokemon.spriteid;
@@ -1106,7 +1106,7 @@ var Tools = {
 		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw'+shiny+'/'+id+'.png)';
 	},
 
-	getItemIcon: function(item) {
+	getItemIcon: function (item) {
 		var num = 0;
 		if (typeof item === 'string' && exports.BattleItems) item = exports.BattleItems[toId(item)];
 		if (item && item.spritenum) num = item.spritenum;
@@ -1116,7 +1116,7 @@ var Tools = {
 		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/itemicons-sheet.png) no-repeat scroll -' + left + 'px -' + top + 'px';
 	},
 
-	getTypeIcon: function(type, b) { // b is just for utilichart.js
+	getTypeIcon: function (type, b) { // b is just for utilichart.js
 		if (!type) return '';
 		var sanitizedType = type.replace(/\?/g,'%3f');
 		return '<img src="' + Tools.resourcePrefix + 'sprites/types/'+sanitizedType+'.png" alt="'+type+'" height="14" width="32"'+(b?' class="b"':'')+' />';
