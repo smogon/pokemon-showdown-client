@@ -51,10 +51,21 @@
 			return true;
 		},
 		updateLayout: function () {
-			if (this.$el.width() < 950) {
+			var width = this.$el.width();
+			if (width < 950) {
 				this.battle.messageDelay = 800;
 			} else {
 				this.battle.messageDelay = 8;
+			}
+			if (width < 640) {
+				var scale = (width/640);
+				this.$battle.css('transform', 'scale(' + scale + ')');
+				this.$foeHint.css('transform', 'scale(' + scale + ')');
+				this.$controls.css('top', 360 * scale + 10);
+			} else {
+				this.$battle.css('transform', 'none');
+				this.$foeHint.css('transform', 'none');
+				this.$controls.css('top', 370);
 			}
 			if (this.$chat) this.$chatFrame.scrollTop(this.$chat.height());
 		},
@@ -937,6 +948,7 @@
 
 			if (x > 335) x = 335;
 			if (y < 140) y = 140;
+			if (x > $(window).width() - 303) x = Math.max($(window).width() - 303, 0);
 			if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper"></div>');
 			$('#tooltipwrapper').css({
 				left: x,
