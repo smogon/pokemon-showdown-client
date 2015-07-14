@@ -862,7 +862,7 @@
 					Tools.prefs('avatar', avatar);
 				}
 				return text; // Send the /avatar command through to the server.
-				
+
 			// documentation of client commands
 			case 'help':
 				switch (toId(target)) {

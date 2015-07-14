@@ -194,7 +194,7 @@ var Pokemon = (function () {
 		this.name = '';
 		this.species = '';
 		this.id = '';
-		this.statbarElem = null;	
+		this.statbarElem = null;
 	}
 
 	Pokemon.prototype.getHPColor = function () {
@@ -371,7 +371,7 @@ var Pokemon = (function () {
 	};
 	Pokemon.prototype.getIdent = function () {
 		var slots = ['a','b','c','d','e','f'];
-		return this.ident.substr(0,2) + slots[this.slot] + this.ident.substr(2);	
+		return this.ident.substr(0,2) + slots[this.slot] + this.ident.substr(2);
 	};
 	Pokemon.prototype.removeVolatile = function (volatile) {
 		if (!this.hasVolatile(volatile)) return;
@@ -1771,7 +1771,7 @@ var Side = (function () {
 		if (!kwargs.silent) {
 			var fromeffect = Tools.getEffect(kwargs.from);
 			switch (fromeffect.id) {
-				case 'allyswitch':		
+				case 'allyswitch':
 					this.battle.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
 					break;
 				default:

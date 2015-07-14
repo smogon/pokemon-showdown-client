@@ -464,7 +464,7 @@
 				}
 				if (this.request.forceSwitch !== true) {
 					var faintedLength = this.request.forceSwitch.filter(function (fainted) {return fainted;}).length;
-					this.choice.freedomDegrees = faintedLength - this.battle.mySide.pokemon.slice(this.battle.mySide.active.length).filter(function (mon) {return !mon.zerohp;}).length; 
+					this.choice.freedomDegrees = faintedLength - this.battle.mySide.pokemon.slice(this.battle.mySide.active.length).filter(function (mon) {return !mon.zerohp;}).length;
 					if (this.choice.freedomDegrees < 0) this.choice.freedomDegrees = 0;
 					this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
 

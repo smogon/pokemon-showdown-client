@@ -276,7 +276,7 @@
 		},
 
 		// drag and drop
-		
+
 		// because of a bug in Chrome and Webkit:
 		//   https://code.google.com/p/chromium/issues/detail?id=410328
 		// we can't use CSS :hover
