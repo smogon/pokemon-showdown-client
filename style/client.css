@@ -1424,12 +1424,28 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	border-right: 0;
 	top: 0;
 	left: 0;
+	transform-origin: top left;
+}
+.ps-room .foehint {
+	transform-origin: top left;
 }
 .ps-room .battle-controls {
 	position: absolute;
 	top: 370px;
 	left: 0;
 	width: 640px;
+	background: #EEF2F5;
+}
+@media (max-width:639px) {
+	.ps-room .battle-controls {
+		left: 0;
+		right: 0;
+		width: auto;
+	}
+	.movecontrols, .switchcontrols {
+		max-width: 330px;
+		margin: 0 auto;
+	}
 }
 
 .battle-controls p {
@@ -1638,12 +1654,17 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	color: #777777 !important;
 }
 
-@media (max-height:571px) {
+@media (max-height:570px) and (min-width: 440px) {
+	/*
+	 * This is the black move/switch menu for low-res screens
+	 */
+
 	.controls {
 		position: absolute;
 		bottom: 10px;
 		left: 0;
 		right: 0;
+		width: auto;
 		background: #444444;
 		background: rgba(40,40,40,.85);
 		color: #FFFFFF;
@@ -1660,13 +1681,18 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 		color: #FF7766;
 		border-color: #FF7766;
 	}
+	.battle-controls .movecontrols, .battle-controls .switchcontrols {
+		max-width: 640px;
+	}
 	.movemenu {
 		display: none;
-		padding: 0 100px 0 90px;
+		padding: 0 75px 0 85px;
 	}
 	.switchmenu {
 		display: none;
-		padding: 0 70px 0 210px;
+		max-width: 325px;
+		padding: 0 75px 0 85px;
+		margin: 0 0 0 auto;
 	}
 	.moveselect {
 		position: absolute;
