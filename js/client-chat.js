@@ -102,7 +102,7 @@
 			}
 		},
 		keyPress: function (e) {
-			var cmdKey = (((e.cmdKey || e.metaKey)?1:0) + (e.ctrlKey?1:0) + (e.altKey?1:0) === 1);
+			var cmdKey = (((e.cmdKey || e.metaKey) ? 1 : 0) + (e.ctrlKey ? 1 : 0) + (e.altKey ? 1 : 0) === 1);
 			var textbox = e.currentTarget;
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
@@ -113,31 +113,31 @@
 				var end = textbox.selectionEnd;
 
 				// make sure start and end aren't midway through the syntax
-				if (value.charAt(start) === '_' && value.charAt(start-1) === '_' &&
-						value.charAt(start-2) !== '_') {
+				if (value.charAt(start) === '_' && value.charAt(start - 1) === '_' &&
+					value.charAt(start - 2) !== '_') {
 					start++;
 				}
-				if (value.charAt(end) === '_' && value.charAt(end-1) === '_' &&
-						value.charAt(end-2) !== '_') {
+				if (value.charAt(end) === '_' && value.charAt(end - 1) === '_' &&
+					value.charAt(end - 2) !== '_') {
 					end--;
 				}
 
 				// wrap in __
-				value = value.substr(0,start) + '__' + value.substr(start,end-start) + '__' + value.substr(end);
+				value = value.substr(0, start) + '__' + value.substr(start, end - start) + '__' + value.substr(end);
 				start += 2, end += 2;
 
 				// prevent nesting
-				if (value.substr(start-4, 4) === '____') {
-					value = value.substr(0, start-4) + value.substr(start);
+				if (value.substr(start - 4, 4) === '____') {
+					value = value.substr(0, start - 4) + value.substr(start);
 					start -= 4, end -= 4;
-				} else if (start !== end && value.substr(start-2, 4) === '____') {
-					value = value.substr(0, start-2) + value.substr(start+2);
+				} else if (start !== end && value.substr(start - 2, 4) === '____') {
+					value = value.substr(0, start - 2) + value.substr(start + 2);
 					start -= 2, end -= 4;
 				}
 				if (value.substr(end, 4) === '____') {
-					value = value.substr(0, end) + value.substr(end+4);
-				} else if (start !== end && value.substr(end-2, 4) === '____') {
-					value = value.substr(0, end-2) + value.substr(end+2);
+					value = value.substr(0, end) + value.substr(end + 4);
+				} else if (start !== end && value.substr(end - 2, 4) === '____') {
+					value = value.substr(0, end - 2) + value.substr(end + 2);
 					end -= 2;
 				}
 
@@ -150,31 +150,31 @@
 				var end = textbox.selectionEnd;
 
 				// make sure start and end aren't midway through the syntax
-				if (value.charAt(start) === '*' && value.charAt(start-1) === '*' &&
-						value.charAt(start-2) !== '*') {
+				if (value.charAt(start) === '*' && value.charAt(start - 1) === '*' &&
+					value.charAt(start - 2) !== '*') {
 					start++;
 				}
-				if (value.charAt(end) === '*' && value.charAt(end-1) === '*' &&
-						value.charAt(end-2) !== '*') {
+				if (value.charAt(end) === '*' && value.charAt(end - 1) === '*' &&
+					value.charAt(end - 2) !== '*') {
 					end--;
 				}
 
 				// wrap in **
-				value = value.substr(0,start) + '**' + value.substr(start,end-start) + '**' + value.substr(end);
+				value = value.substr(0, start) + '**' + value.substr(start, end - start) + '**' + value.substr(end);
 				start += 2, end += 2;
 
 				// prevent nesting
-				if (value.substr(start-4, 4) === '****') {
-					value = value.substr(0, start-4) + value.substr(start);
+				if (value.substr(start - 4, 4) === '****') {
+					value = value.substr(0, start - 4) + value.substr(start);
 					start -= 4, end -= 4;
-				} else if (start !== end && value.substr(start-2, 4) === '****') {
-					value = value.substr(0, start-2) + value.substr(start+2);
+				} else if (start !== end && value.substr(start - 2, 4) === '****') {
+					value = value.substr(0, start - 2) + value.substr(start + 2);
 					start -= 2, end -= 4;
 				}
 				if (value.substr(end, 4) === '****') {
-					value = value.substr(0, end) + value.substr(end+4);
-				} else if (start !== end && value.substr(end-2, 4) === '****') {
-					value = value.substr(0, end-2) + value.substr(end+2);
+					value = value.substr(0, end) + value.substr(end + 4);
+				} else if (start !== end && value.substr(end - 2, 4) === '****') {
+					value = value.substr(0, end - 2) + value.substr(end + 2);
 					end -= 2;
 				}
 
@@ -237,10 +237,10 @@
 			app.addPopup(AvatarsPopup);
 		},
 		openSounds: function () {
-			app.addPopup(SoundsPopup, {type:'semimodal'});
+			app.addPopup(SoundsPopup, {type: 'semimodal'});
 		},
 		openOptions: function () {
-			app.addPopup(OptionsPopup, {type:'semimodal'});
+			app.addPopup(OptionsPopup, {type: 'semimodal'});
 		},
 
 		// highlight
@@ -352,7 +352,7 @@
 			var idx = $textbox.prop('selectionStart');
 			if (idx === 0) return false;
 
-			var users = this.users || (app.rooms['lobby']?app.rooms['lobby'].users:{});
+			var users = this.users || (app.rooms['lobby'] ? app.rooms['lobby'].users : {});
 
 			var text = $textbox.val();
 
@@ -414,11 +414,11 @@
 		parseCommand: function (text) {
 			var cmd = '';
 			var target = '';
-			if (text.substr(0,2) !== '//' && text.substr(0,1) === '/') {
+			if (text.substr(0, 2) !== '//' && text.substr(0, 1) === '/') {
 				var spaceIndex = text.indexOf(' ');
 				if (spaceIndex > 0) {
-					cmd = text.substr(1, spaceIndex-1);
-					target = text.substr(spaceIndex+1);
+					cmd = text.substr(1, spaceIndex - 1);
+					target = text.substr(spaceIndex + 1);
 				} else {
 					cmd = text.substr(1);
 					target = '';
@@ -433,7 +433,7 @@
 				var self = this;
 				var challenge = function (targets) {
 					target = toId(targets[0]);
-					self.challengeData = { userid: target, format: targets[1] || '', team: targets[2] || '' };
+					self.challengeData = {userid: target, format: targets[1] || '', team: targets[2] || ''};
 					app.on('response:userdetails', self.challengeUserdetails, self);
 					app.send('/cmd userdetails ' + target);
 				};
@@ -673,12 +673,12 @@
 				if (target.indexOf(',') > -1) {
 					var targets = target.match(/[^,]+(,\d*}[^,]*)?/g);
 					// trim the targets to be safe
-					for (var i=0, len=targets.length; i<len; i++) {
+					for (var i = 0, len = targets.length; i < len; i++) {
 						targets[i] = targets[i].replace(/\n/g, '').trim();
 					}
 					switch (targets[0]) {
 					case 'add':
-						for (var i=1, len=targets.length; i<len; i++) {
+						for (var i = 1, len = targets.length; i < len; i++) {
 							if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
 								// Catch any errors thrown by newly added regular expressions so they don't break the entire highlight list
 								try {
@@ -695,7 +695,7 @@
 						break;
 					case 'delete':
 						var newHls = [];
-						for (var i=0, len=highlights.length; i<len; i++) {
+						for (var i = 0, len = highlights.length; i < len; i++) {
 							if (targets.indexOf(highlights[i]) === -1) {
 								newHls.push(highlights[i]);
 							}
@@ -760,7 +760,7 @@
 							buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>T</th></tr>';
 							var hiddenFormats = [];
 							var formatLength = data.length;
-							for (var i=0; i<formatLength; i++) {
+							for (var i = 0; i < formatLength; i++) {
 								var row = data[i];
 								if (!formatTargeting || formats[row.formatid]) {
 									buffer += '<tr>';
@@ -768,27 +768,27 @@
 									buffer += '<tr class="hidden">';
 									hiddenFormats.push(row.formatid);
 								}
-								buffer += '<td>' + row.formatid + '</td><td><strong>' + Math.round(row.acre) + '</strong></td><td>' + Math.round(row.gxe,1) + '</td><td>';
+								buffer += '<td>' + row.formatid + '</td><td><strong>' + Math.round(row.acre) + '</strong></td><td>' + Math.round(row.gxe, 1) + '</td><td>';
 								if (row.rprd > 100) {
 									buffer += '<span><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em> <small>(provisional)</small></span>';
 								} else {
 									buffer += '<em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em>';
 								}
-								var N=parseInt(row.w)+parseInt(row.l)+parseInt(row.t);
+								var N = parseInt(row.w) + parseInt(row.l) + parseInt(row.t);
 								if (row.formatid === 'oususpecttest') {
-									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-17.0/N),0) + '</td>';
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -17.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'uberssuspecttest') {
-									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-29.0/N),0) + '</td>';
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -29.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'uususpecttest') {
-									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-20.0/N),0) + '</td>';
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -20.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'rususpecttest') {
-									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-9.0/N),0) + '</td>';
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -9.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'nususpecttest') {
-									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-20.0/N),0) + '</td>';
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -20.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'lcsuspecttest') {
-									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-43.0/N),0) + '</td>';
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -43.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'doublesoucurrent' || row.formatid === 'doublesoususpecttest') {
-									buffer += '<td>' + Math.round(40.0*parseFloat(row.gxe)*Math.pow(2.0,-16.0/N),0) + '</td>';
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -16.0 / N), 0) + '</td>';
 								} else {
 									buffer += '<td>--</td>';
 								}
@@ -804,7 +804,7 @@
 						}
 						buffer += '</table></div>';
 						self.add('|raw|' + buffer);
-					} catch(e) {
+					} catch (e) {
 						self.add('|raw|Error: corrupted ranking data');
 					}
 				}), 'text');
@@ -1046,7 +1046,7 @@
 			}
 			var userlist = '';
 			for (var i = 0; i < log.length; i++) {
-				if (log[i].substr(0,7) === '|users|') {
+				if (log[i].substr(0, 7) === '|users|') {
 					userlist = log[i];
 				} else {
 					this.addRow(log[i]);
@@ -1058,7 +1058,7 @@
 			}
 			var $children = this.$chat.children();
 			if ($children.length > 900) {
-				$children.slice(0,100).remove();
+				$children.slice(0, 100).remove();
 			}
 		},
 		addPM: function (user, message, pm) {
@@ -1074,7 +1074,7 @@
 		addRow: function (line) {
 			var name, name2, room, action, silent, oldid;
 			if (line && typeof line === 'string') {
-				if (line.substr(0,1) !== '|') line = '||' + line;
+				if (line.substr(0, 1) !== '|') line = '||' + line;
 				var row = line.substr(1).split('|');
 				switch (row[0]) {
 				case 'init':
@@ -1093,11 +1093,11 @@
 					break;
 
 				case ':':
-					this.timeOffset = ~~(Date.now()/1000) - parseInt(row[1], 10);
+					this.timeOffset = ~~(Date.now() / 1000) - parseInt(row[1], 10);
 					break;
 				case 'c:':
 					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
-					var deltaTime = ~~(Date.now()/1000) - this.timeOffset - parseInt(row[1], 10);
+					var deltaTime = ~~(Date.now() / 1000) - this.timeOffset - parseInt(row[1], 10);
 					this.addChat(row[2], row.slice(3).join('|'), false, deltaTime);
 					break;
 
@@ -1218,9 +1218,9 @@
 			this.users = {};
 			var commaIndex = userList.indexOf(',');
 			if (commaIndex >= 0) {
-				this.userCount.users = parseInt(userList.substr(0,commaIndex),10);
-				var users = userList.substr(commaIndex+1).split(',');
-				for (var i=0,len=users.length; i<len; i++) {
+				this.userCount.users = parseInt(userList.substr(0, commaIndex), 10);
+				var users = userList.substr(commaIndex + 1).split(',');
+				for (var i = 0, len = users.length; i < len; i++) {
 					if (users[i]) this.users[toId(users[i])] = users[i];
 				}
 			} else {
@@ -1363,7 +1363,7 @@
 				var oName = pm;
 				if (pmuserid === app.user.get('userid')) oName = name;
 				this.$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span></div>');
-			} else if (message.substr(0,4) === '/me ') {
+			} else if (message.substr(0, 4) === '/me ') {
 				message = message.substr(4);
 				if (showme) {
 					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message) + '</i></em></div>');
@@ -1371,7 +1371,7 @@
 					outputChat();
 				}
 				Storage.logChat(this.id, '* ' + name + ' ' + message);
-			} else if (message.substr(0,5) === '/mee ') {
+			} else if (message.substr(0, 5) === '/mee ') {
 				message = message.substr(5);
 				if (showme) {
 					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message) + '</i></em></div>');
@@ -1379,20 +1379,20 @@
 					outputChat();
 				}
 				Storage.logChat(this.id, '* ' + name + message);
-			} else if (message.substr(0,10) === '/announce ') {
+			} else if (message.substr(0, 10) === '/announce ') {
 				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
 				Storage.logChat(this.id, '' + name + ': /announce ' + message);
-			} else if (message.substr(0,14) === '/data-pokemon ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,11) === '/data-item ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(message.substr(11)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,14) === '/data-ability ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,11) === '/data-move ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(message.substr(11)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
+			} else if (message.substr(0, 14) === '/data-pokemon ') {
+				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
+			} else if (message.substr(0, 11) === '/data-item ') {
+				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
+			} else if (message.substr(0, 14) === '/data-ability ') {
+				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
+			} else if (message.substr(0, 11) === '/data-move ') {
+				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
 			} else {
 				// Normal chat message.
-				if (message.substr(0,2) === '//') message = message.substr(1);
+				if (message.substr(0, 2) === '//') message = message.substr(1);
 				outputChat();
 				Storage.logChat(this.id, '' + name + ': ' + message);
 			}
@@ -1408,7 +1408,7 @@
 			} else {
 				date = new Date();
 			}
-			var components = [ date.getHours(), date.getMinutes() ];
+			var components = [date.getHours(), date.getMinutes()];
 			if (sectionPref === 'seconds') {
 				components.push(date.getSeconds());
 			}
@@ -1443,7 +1443,7 @@
 					return self.comparator(a, b);
 				});
 			}
-			for (var i=0, len=users.length; i<users.length; i++) {
+			for (var i = 0, len = users.length; i < users.length; i++) {
 				var userid = users[i];
 				buf += this.constructItem(userid);
 			}
@@ -1527,10 +1527,10 @@
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
-			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id +'-userlist-user-' + Tools.escapeHTML(userid) + '">';
+			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + Tools.escapeHTML(userid) + '">';
 			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
 			var group = name.charAt(0);
-			text += '<em class="group' + (this.ranks[group]===2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
+			text += '<em class="group' + (this.ranks[group] === 2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
 			if (group === '~' || group === '&' || group === '#') {
 				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</em></strong>';
 			} else if (group === '%' || group === '@') {

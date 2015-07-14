@@ -1,4 +1,3 @@
-
 function Storage() {}
 
 Storage.initialize = function () {
@@ -126,7 +125,7 @@ Storage.packTeam = function (team) {
 	var buf = '';
 	if (!team) return '';
 
-	for (var i=0; i<team.length; i++) {
+	for (var i = 0; i < team.length; i++) {
 		var set = team[i];
 		if (buf) buf += ']';
 
@@ -166,12 +165,12 @@ Storage.packTeam = function (team) {
 		}
 
 		// nature
-		buf += '|' + (set.nature||'');
+		buf += '|' + (set.nature || '');
 
 		// evs
 		var evs = '|';
 		if (set.evs) {
-			evs = '|' + (set.evs['hp']||'') + ',' + (set.evs['atk']||'') + ',' + (set.evs['def']||'') + ',' + (set.evs['spa']||'') + ',' + (set.evs['spd']||'') + ',' + (set.evs['spe']||'');
+			evs = '|' + (set.evs['hp'] || '') + ',' + (set.evs['atk'] || '') + ',' + (set.evs['def'] || '') + ',' + (set.evs['spa'] || '') + ',' + (set.evs['spd'] || '') + ',' + (set.evs['spe'] || '');
 		}
 		if (evs === '|,,,,,') {
 			buf += '|';
@@ -189,7 +188,7 @@ Storage.packTeam = function (team) {
 		// ivs
 		var ivs = '|';
 		if (set.ivs) {
-			ivs = '|' + (set.ivs['hp']===31||set.ivs['hp']===undefined ? '' : set.ivs['hp']) + ',' + (set.ivs['atk']===31||set.ivs['atk']===undefined ? '' : set.ivs['atk']) + ',' + (set.ivs['def']===31||set.ivs['def']===undefined ? '' : set.ivs['def']) + ',' + (set.ivs['spa']===31||set.ivs['spa']===undefined ? '' : set.ivs['spa']) + ',' + (set.ivs['spd']===31||set.ivs['spd']===undefined ? '' : set.ivs['spd']) + ',' + (set.ivs['spe']===31||set.ivs['spe']===undefined ? '' : set.ivs['spe']);
+			ivs = '|' + (set.ivs['hp'] === 31 || set.ivs['hp'] === undefined ? '' : set.ivs['hp']) + ',' + (set.ivs['atk'] === 31 || set.ivs['atk'] === undefined ? '' : set.ivs['atk']) + ',' + (set.ivs['def'] === 31 || set.ivs['def'] === undefined ? '' : set.ivs['def']) + ',' + (set.ivs['spa'] === 31 || set.ivs['spa'] === undefined ? '' : set.ivs['spa']) + ',' + (set.ivs['spd'] === 31 || set.ivs['spd'] === undefined ? '' : set.ivs['spd']) + ',' + (set.ivs['spe'] === 31 || set.ivs['spe'] === undefined ? '' : set.ivs['spe']);
 		}
 		if (ivs === '|,,,,,') {
 			buf += '|';
@@ -235,80 +234,80 @@ Storage.fastUnpackTeam = function (buf) {
 		// name
 		j = buf.indexOf('|', i);
 		set.name = buf.substring(i, j);
-		i = j+1;
+		i = j + 1;
 
 		// species
 		j = buf.indexOf('|', i);
 		set.species = buf.substring(i, j) || set.name;
-		i = j+1;
+		i = j + 1;
 
 		// item
 		j = buf.indexOf('|', i);
 		set.item = buf.substring(i, j);
-		i = j+1;
+		i = j + 1;
 
 		// ability
 		j = buf.indexOf('|', i);
 		var ability = buf.substring(i, j);
 		var template = Tools.getTemplate(set.species);
 		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability||'0'] : ability);
-		i = j+1;
+		i = j + 1;
 
 		// moves
 		j = buf.indexOf('|', i);
 		set.moves = buf.substring(i, j).split(',');
-		i = j+1;
+		i = j + 1;
 
 		// nature
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
 		if (set.nature === 'undefined') set.nature = undefined;
-		i = j+1;
+		i = j + 1;
 
 		// evs
 		j = buf.indexOf('|', i);
 		if (j !== i) {
 			var evs = buf.substring(i, j).split(',');
 			set.evs = {
-				hp: Number(evs[0])||0,
-				atk: Number(evs[1])||0,
-				def: Number(evs[2])||0,
-				spa: Number(evs[3])||0,
-				spd: Number(evs[4])||0,
-				spe: Number(evs[5])||0
+				hp: Number(evs[0]) || 0,
+				atk: Number(evs[1]) || 0,
+				def: Number(evs[2]) || 0,
+				spa: Number(evs[3]) || 0,
+				spd: Number(evs[4]) || 0,
+				spe: Number(evs[5]) || 0
 			};
 		}
-		i = j+1;
+		i = j + 1;
 
 		// gender
 		j = buf.indexOf('|', i);
 		if (i !== j) set.gender = buf.substring(i, j);
-		i = j+1;
+		i = j + 1;
 
 		// ivs
 		j = buf.indexOf('|', i);
 		if (j !== i) {
 			var ivs = buf.substring(i, j).split(',');
 			set.ivs = {
-				hp: ivs[0]==='' ? 31 : Number(ivs[0]),
-				atk: ivs[1]==='' ? 31 : Number(ivs[1]),
-				def: ivs[2]==='' ? 31 : Number(ivs[2]),
-				spa: ivs[3]==='' ? 31 : Number(ivs[3]),
-				spd: ivs[4]==='' ? 31 : Number(ivs[4]),
-				spe: ivs[5]==='' ? 31 : Number(ivs[5])
+				hp: ivs[0] === '' ? 31 : Number(ivs[0]),
+				atk: ivs[1] === '' ? 31 : Number(ivs[1]),
+				def: ivs[2] === '' ? 31 : Number(ivs[2]),
+				spa: ivs[3] === '' ? 31 : Number(ivs[3]),
+				spd: ivs[4] === '' ? 31 : Number(ivs[4]),
+				spe: ivs[5] === '' ? 31 : Number(ivs[5])
 			};
 		}
-		i = j+1;
+		i = j + 1;
 
 		// shiny
 		j = buf.indexOf('|', i);
 		if (i !== j) set.shiny = true;
-		i = j+1;
+		i = j + 1;
 
 		// level
 		j = buf.indexOf('|', i);
 		if (i !== j) set.level = parseInt(buf.substring(i, j), 10);
-		i = j+1;
+		i = j + 1;
 
 		// happiness
 		j = buf.indexOf(']', i);
@@ -319,7 +318,7 @@ Storage.fastUnpackTeam = function (buf) {
 			break;
 		}
 		if (i !== j) set.happiness = Number(buf.substring(i, j));
-		i = j+1;
+		i = j + 1;
 	}
 
 	return team;
@@ -338,82 +337,82 @@ Storage.unpackTeam = function (buf) {
 		// name
 		j = buf.indexOf('|', i);
 		set.name = buf.substring(i, j);
-		i = j+1;
+		i = j + 1;
 
 		// species
 		j = buf.indexOf('|', i);
 		set.species = Tools.getTemplate(buf.substring(i, j)).name || set.name;
-		i = j+1;
+		i = j + 1;
 
 		// item
 		j = buf.indexOf('|', i);
 		set.item = Tools.getItem(buf.substring(i, j)).name;
-		i = j+1;
+		i = j + 1;
 
 		// ability
 		j = buf.indexOf('|', i);
 		var ability = Tools.getAbility(buf.substring(i, j)).name;
 		var template = Tools.getTemplate(set.species);
 		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability||'0'] : ability);
-		i = j+1;
+		i = j + 1;
 
 		// moves
 		j = buf.indexOf('|', i);
 		set.moves = buf.substring(i, j).split(',').map(function (moveid) {
 			return Tools.getMove(moveid).name
 		});
-		i = j+1;
+		i = j + 1;
 
 		// nature
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
 		if (set.nature === 'undefined') set.nature = undefined;
-		i = j+1;
+		i = j + 1;
 
 		// evs
 		j = buf.indexOf('|', i);
 		if (j !== i) {
 			var evs = buf.substring(i, j).split(',');
 			set.evs = {
-				hp: Number(evs[0])||0,
-				atk: Number(evs[1])||0,
-				def: Number(evs[2])||0,
-				spa: Number(evs[3])||0,
-				spd: Number(evs[4])||0,
-				spe: Number(evs[5])||0
+				hp: Number(evs[0]) || 0,
+				atk: Number(evs[1]) || 0,
+				def: Number(evs[2]) || 0,
+				spa: Number(evs[3]) || 0,
+				spd: Number(evs[4]) || 0,
+				spe: Number(evs[5]) || 0
 			};
 		}
-		i = j+1;
+		i = j + 1;
 
 		// gender
 		j = buf.indexOf('|', i);
 		if (i !== j) set.gender = buf.substring(i, j);
-		i = j+1;
+		i = j + 1;
 
 		// ivs
 		j = buf.indexOf('|', i);
 		if (j !== i) {
 			var ivs = buf.substring(i, j).split(',');
 			set.ivs = {
-				hp: ivs[0]==='' ? 31 : Number(ivs[0]),
-				atk: ivs[1]==='' ? 31 : Number(ivs[1]),
-				def: ivs[2]==='' ? 31 : Number(ivs[2]),
-				spa: ivs[3]==='' ? 31 : Number(ivs[3]),
-				spd: ivs[4]==='' ? 31 : Number(ivs[4]),
-				spe: ivs[5]==='' ? 31 : Number(ivs[5])
+				hp: ivs[0] === '' ? 31 : Number(ivs[0]),
+				atk: ivs[1] === '' ? 31 : Number(ivs[1]),
+				def: ivs[2] === '' ? 31 : Number(ivs[2]),
+				spa: ivs[3] === '' ? 31 : Number(ivs[3]),
+				spd: ivs[4] === '' ? 31 : Number(ivs[4]),
+				spe: ivs[5] === '' ? 31 : Number(ivs[5])
 			};
 		}
-		i = j+1;
+		i = j + 1;
 
 		// shiny
 		j = buf.indexOf('|', i);
 		if (i !== j) set.shiny = true;
-		i = j+1;
+		i = j + 1;
 
 		// level
 		j = buf.indexOf('|', i);
 		if (i !== j) set.level = parseInt(buf.substring(i, j), 10);
-		i = j+1;
+		i = j + 1;
 
 		// happiness
 		j = buf.indexOf(']', i);
@@ -424,7 +423,7 @@ Storage.unpackTeam = function (buf) {
 			break;
 		}
 		if (i !== j) set.happiness = Number(buf.substring(i, j));
-		i = j+1;
+		i = j + 1;
 	}
 
 	return team;
@@ -442,7 +441,7 @@ Storage.packedTeamNames = function (buf) {
 
 		team.push(buf.substring(i, buf.indexOf('|', i)) || name);
 
-		for (var k=0; k<9; k++) {
+		for (var k = 0; k < 9; k++) {
 			i = buf.indexOf('|', i) + 1;
 		}
 
@@ -500,18 +499,18 @@ Storage.importTeam = function (text, teams) {
 		Storage.teams = [];
 		teams = Storage.teams;
 	}
-	for (var i=0; i<text.length; i++) {
+	for (var i = 0; i < text.length; i++) {
 		var line = $.trim(text[i]);
 		if (line === '' || line === '---') {
 			curSet = null;
 		} else if (line.substr(0, 3) === '===' && teams) {
 			team = [];
-			line = $.trim(line.substr(3, line.length-6));
+			line = $.trim(line.substr(3, line.length - 6));
 			var format = '';
 			var bracketIndex = line.indexOf(']');
 			if (bracketIndex >= 0) {
-				format = line.substr(1, bracketIndex-1);
-				line = $.trim(line.substr(bracketIndex+1));
+				format = line.substr(1, bracketIndex - 1);
+				line = $.trim(line.substr(bracketIndex + 1));
 			}
 			if (teams.length) {
 				teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
@@ -527,22 +526,22 @@ Storage.importTeam = function (text, teams) {
 			team.push(curSet);
 			var atIndex = line.lastIndexOf(' @ ');
 			if (atIndex !== -1) {
-				curSet.item = line.substr(atIndex+3);
+				curSet.item = line.substr(atIndex + 3);
 				if (toId(curSet.item) === 'noitem') curSet.item = '';
 				line = line.substr(0, atIndex);
 			}
-			if (line.substr(line.length-4) === ' (M)') {
+			if (line.substr(line.length - 4) === ' (M)') {
 				curSet.gender = 'M';
-				line = line.substr(0, line.length-4);
+				line = line.substr(0, line.length - 4);
 			}
-			if (line.substr(line.length-4) === ' (F)') {
+			if (line.substr(line.length - 4) === ' (F)') {
 				curSet.gender = 'F';
-				line = line.substr(0, line.length-4);
+				line = line.substr(0, line.length - 4);
 			}
 			var parenIndex = line.lastIndexOf(' (');
-			if (line.substr(line.length-1) === ')' && parenIndex !== -1) {
-				line = line.substr(0, line.length-1);
-				curSet.species = Tools.getTemplate(line.substr(parenIndex+2)).name;
+			if (line.substr(line.length - 1) === ')' && parenIndex !== -1) {
+				line = line.substr(0, line.length - 1);
+				curSet.species = Tools.getTemplate(line.substr(parenIndex + 2)).name;
 				line = line.substr(0, parenIndex);
 				curSet.name = line;
 			} else {
@@ -570,11 +569,11 @@ Storage.importTeam = function (text, teams) {
 			line = line.substr(5);
 			var evLines = line.split('/');
 			curSet.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
-			for (var j=0; j<evLines.length; j++) {
+			for (var j = 0; j < evLines.length; j++) {
 				var evLine = $.trim(evLines[j]);
 				var spaceIndex = evLine.indexOf(' ');
 				if (spaceIndex === -1) continue;
-				var statid = BattleStatIDs[evLine.substr(spaceIndex+1)];
+				var statid = BattleStatIDs[evLine.substr(spaceIndex + 1)];
 				var statval = parseInt(evLine.substr(0, spaceIndex));
 				if (!statid) continue;
 				curSet.evs[statid] = statval;
@@ -583,11 +582,11 @@ Storage.importTeam = function (text, teams) {
 			line = line.substr(5);
 			var ivLines = line.split(' / ');
 			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
-			for (var j=0; j<ivLines.length; j++) {
+			for (var j = 0; j < ivLines.length; j++) {
 				var ivLine = ivLines[j];
 				var spaceIndex = ivLine.indexOf(' ');
 				if (spaceIndex === -1) continue;
-				var statid = BattleStatIDs[ivLine.substr(spaceIndex+1)];
+				var statid = BattleStatIDs[ivLine.substr(spaceIndex + 1)];
 				var statval = parseInt(ivLine.substr(0, spaceIndex));
 				if (!statid) continue;
 				if (isNaN(statval)) statval = 31;
@@ -599,12 +598,12 @@ Storage.importTeam = function (text, teams) {
 			if (natureIndex === -1) continue;
 			line = line.substr(0, natureIndex);
 			if (line !== 'undefined') curSet.nature = line;
-		} else if (line.substr(0,1) === '-' || line.substr(0,1) === '~') {
+		} else if (line.substr(0, 1) === '-' || line.substr(0, 1) === '~') {
 			line = line.substr(1);
-			if (line.substr(0,1) === ' ') line = line.substr(1);
+			if (line.substr(0, 1) === ' ') line = line.substr(1);
 			if (!curSet.moves) curSet.moves = [];
-			if (line.substr(0,14) === 'Hidden Power [') {
-				var hptype = line.substr(14, line.length-15);
+			if (line.substr(0, 14) === 'Hidden Power [') {
+				var hptype = line.substr(14, line.length - 15);
 				line = 'Hidden Power ' + hptype;
 				if (!curSet.ivs && window.BattleTypeChart) {
 					curSet.ivs = {};
@@ -626,9 +625,9 @@ Storage.importTeam = function (text, teams) {
 };
 Storage.exportAllTeams = function () {
 	var buf = '';
-	for (var i=0,len=Storage.teams.length; i<len; i++) {
+	for (var i = 0, len = Storage.teams.length; i < len; i++) {
 		var team = Storage.teams[i];
-		buf += '=== ' + (team.format?'[' + team.format + '] ':'') + team.name + ' ===\n\n';
+		buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + team.name + ' ===\n\n';
 		buf += Storage.exportTeam(team.team);
 		buf += '\n';
 	}
@@ -641,7 +640,7 @@ Storage.exportTeam = function (team) {
 		team = Storage.unpackTeam(team);
 	}
 	var text = '';
-	for (var i=0; i<team.length; i++) {
+	for (var i = 0; i < team.length; i++) {
 		var curSet = team[i];
 		if (curSet.name !== curSet.species) {
 			text += '' + curSet.name + ' (' + curSet.species + ')';
@@ -689,16 +688,16 @@ Storage.exportTeam = function (team) {
 		if (curSet.ivs) {
 			var defaultIvs = true;
 			var hpType = false;
-			for (var j=0; j<curSet.moves.length; j++) {
+			for (var j = 0; j < curSet.moves.length; j++) {
 				var move = curSet.moves[j];
-				if (move.substr(0,13) === 'Hidden Power ' && move.substr(0,14) !== 'Hidden Power [') {
+				if (move.substr(0, 13) === 'Hidden Power ' && move.substr(0, 14) !== 'Hidden Power [') {
 					hpType = move.substr(13);
 					if (!exports.BattleTypeChart[hpType].HPivs) {
 						alert("That is not a valid Hidden Power type.");
 						continue;
 					}
 					for (var stat in BattleStatNames) {
-						if ((curSet.ivs[stat]===undefined?31:curSet.ivs[stat]) !== (exports.BattleTypeChart[hpType].HPivs[stat]||31)) {
+						if ((curSet.ivs[stat] === undefined ? 31 : curSet.ivs[stat]) !== (exports.BattleTypeChart[hpType].HPivs[stat] || 31)) {
 							defaultIvs = false;
 							break;
 						}
@@ -729,10 +728,10 @@ Storage.exportTeam = function (team) {
 		if (!first) {
 			text += "\n";
 		}
-		if (curSet.moves && curSet.moves) for (var j=0; j<curSet.moves.length; j++) {
+		if (curSet.moves && curSet.moves) for (var j = 0; j < curSet.moves.length; j++) {
 			var move = curSet.moves[j];
-			if (move.substr(0,13) === 'Hidden Power ') {
-				move = move.substr(0,13) + '[' + move.substr(13) + ']';
+			if (move.substr(0, 13) === 'Hidden Power ') {
+				move = move.substr(0, 13) + '[' + move.substr(13) + ']';
 			}
 			text += '- ' + move + "\n";
 		}
@@ -749,7 +748,7 @@ Storage.initDirectory = function () {
 	var self = this;
 
 	var dir = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH;
-	if (!(dir.charAt(dir.length-1) in {'/':1, '\\':1})) dir += '/';
+	if (!(dir.charAt(dir.length - 1) in {'/': 1, '\\': 1})) dir += '/';
 	fs.stat(dir + 'Documents', function (err, stats) {
 		if (err || !stats.isDirectory()) {
 			fs.stat(dir + 'My Documents', function (err, stats) {
@@ -805,7 +804,7 @@ Storage.nwLoadTeams = function () {
 		if (err) return;
 		self.teams = [];
 		self.nwTeamsLeft = files.length;
-		for (var i=0; i<files.length; i++) {
+		for (var i = 0; i < files.length; i++) {
 			self.nwLoadTeamFile(files[i], localApp);
 		}
 	});
@@ -814,8 +813,8 @@ Storage.nwLoadTeams = function () {
 Storage.nwLoadTeamFile = function (filename, localApp) {
 	var self = this;
 	var line = filename;
-	if (line.substr(line.length-4).toLowerCase() === '.txt') {
-		line = line.substr(0, line.length-4);
+	if (line.substr(line.length - 4).toLowerCase() === '.txt') {
+		line = line.substr(0, line.length - 4);
 	} else {
 		// not a team file
 		self.nwTeamsLeft--;
@@ -827,8 +826,8 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 	var format = '';
 	var bracketIndex = line.indexOf(']');
 	if (bracketIndex >= 0) {
-		format = line.substr(1, bracketIndex-1);
-		line = $.trim(line.substr(bracketIndex+1));
+		format = line.substr(1, bracketIndex - 1);
+		line = $.trim(line.substr(bracketIndex + 1));
 	}
 	fs.readFile(this.dir + 'Teams/' + filename, function (err, data) {
 		if (!err) {
@@ -868,7 +867,7 @@ Storage.nwDeleteAllTeams = function (callback) {
 			callback();
 			return;
 		}
-		for (var i=0; i<files.length; i++) {
+		for (var i = 0; i < files.length; i++) {
 			self.nwDeleteTeamFile(files[i], callback);
 		}
 	});
@@ -877,8 +876,8 @@ Storage.nwDeleteAllTeams = function (callback) {
 Storage.nwDeleteTeamFile = function (filename, callback) {
 	var self = this;
 	var line = filename;
-	if (line.substr(line.length-4).toLowerCase() === '.txt') {
-		line = line.substr(0, line.length-4);
+	if (line.substr(line.length - 4).toLowerCase() === '.txt') {
+		line = line.substr(0, line.length - 4);
 	} else {
 		// not a team file
 		self.nwTeamsLeft--;
@@ -900,7 +899,7 @@ Storage.nwSaveTeam = function (team) {
 		fs.unlink(this.dir + 'Teams/' + team.filename, function () {});
 	}
 	team.filename = filename;
-	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g,'\r\n'));
+	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'));
 };
 
 Storage.nwDeleteTeam = function (team) {
@@ -918,14 +917,14 @@ Storage.nwSaveAllTeams = function () {
 };
 
 Storage.nwDoSaveAllTeams = function () {
-	for (var i=0; i<this.teams.length; i++) {
+	for (var i = 0; i < this.teams.length; i++) {
 		var team = this.teams[i];
 		var filename = team.name + '.txt';
 		if (team.format) filename = '[' + team.format + '] ' + filename;
 		filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 		team.filename = filename;
-		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g,'\r\n'));
+		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'));
 	}
 };
 
@@ -933,7 +932,7 @@ Storage.nwDoSaveAllTeams = function () {
 
 Storage.getLogMonth = function () {
 	var now = new Date();
-	var month = '' + (now.getMonth()+1);
+	var month = '' + (now.getMonth() + 1);
 	if (month.length < 2) month = '0' + month;
 	return '' + now.getFullYear() + '-' + month;
 };
@@ -986,7 +985,7 @@ Storage.nwLogChat = function (roomid, line) {
 	var timestamp = '[' + hours + ':' + minutes + '] ';
 
 	if (!this.chatLogStreams[roomid]) {
-		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir + 'Logs/' + chatLogFdMonth + '/' + roomid + '.txt', {flags:'a'});
+		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir + 'Logs/' + chatLogFdMonth + '/' + roomid + '.txt', {flags: 'a'});
 		this.chatLogStreams[roomid].write('\n\n\nLog starting ' + now + '\n\n');
 	}
 	this.chatLogStreams[roomid].write(timestamp + line + '\n');

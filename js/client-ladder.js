@@ -38,7 +38,7 @@
 					format: format,
 					server: Config.server.id.split(':')[0],
 					output: 'html'
-				}, _.bind(function (data){
+				}, _.bind(function (data) {
 					if (this.curFormat !== format) return;
 					var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p>';
 					buf += '<h3>' + format + ' Top 500</h3>';

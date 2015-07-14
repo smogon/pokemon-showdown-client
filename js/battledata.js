@@ -43,7 +43,7 @@ for (var i=0; i<text.length; i++)
 
 // ES5 indexOf
 if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+	Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
 		"use strict";
 		if (this == null) {
 			throw new TypeError();
@@ -118,7 +118,7 @@ function toUserid(text) {
 	return text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
-function toName (name) {
+function toName(name) {
 	if (typeof name === 'number') return '' + name;
 	if (typeof name !== 'string') return '';
 	name = name.replace(/[\|\s\[\]\,]+/g, ' ').trim();
@@ -317,8 +317,7 @@ var linkRegex = new RegExp(
 			')?' +
 		')?' +
 		'|[a-z0-9.]+\\b@' + domainRegex + '[.][a-z]{2,3}' +
-	')'
-,
+	')',
 	'ig'
 );
 
@@ -368,13 +367,13 @@ var Tools = {
 
 		// ``code``
 		str = str.replace(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g,
-				options.hidemonospace ? '$1' : '<code>$1</code>');
+			options.hidemonospace ? '$1' : '<code>$1</code>');
 		// ~~strikethrough~~
 		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])??)\~\~/g,
-				options.hidestrikethrough ? '$1' : '<s>$1</s>');
+			options.hidestrikethrough ? '$1' : '<s>$1</s>');
 		// <<roomid>>
 		str = str.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g,
-				options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1">$1</a>&raquo;');
+			options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1">$1</a>&raquo;');
 		// linking of URIs
 		if (!options.hidelinks) {
 			str = str.replace(linkRegex, function (uri) {
@@ -397,11 +396,11 @@ var Tools = {
 					} else {
 						event = 'Interstice link';
 						fulluri = Tools.escapeHTML(Tools.interstice.getURI(
-								Tools.unescapeHTML(fulluri)
+							Tools.unescapeHTML(fulluri)
 						));
 					}
 					onclick = 'if (window.ga) ga(\'send\', \'event\', \'' +
-							event + '\', \'' + Tools.escapeQuotes(fulluri) + '\');';
+						event + '\', \'' + Tools.escapeQuotes(fulluri) + '\');';
 				}
 				if (uri.substr(0, 24) === 'https://docs.google.com/' || uri.substr(0, 16) === 'docs.google.com/') {
 					if (uri.slice(0, 5) === 'https') uri = uri.slice(8);
@@ -447,12 +446,12 @@ var Tools = {
 			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/ig, function (p0, p1) {
 				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
-					'" target="_blank">' + p1 +'</a>';
+					'" target="_blank">' + p1 + '</a>';
 			});
 		}
 		// __italics__
 		str = str.replace(/\_\_([^< ](?:[^<]*?[^< ])??)\_\_(?![^<]*?<\/a)/g,
-				options.hideitalics ? '$1' : '<i>$1</i>');
+			options.hideitalics ? '$1' : '<i>$1</i>');
 		// **bold**
 		str = str.replace(/\*\*([^< ](?:[^<]*?[^< ])??)\*\*/g,
 			options.hidebold ? '$1' : '<b>$1</b>');
@@ -496,14 +495,14 @@ var Tools = {
 	},
 
 	escapeHTML: function (str, jsEscapeToo) {
-		str = (str?'' + str:'');
+		str = (str ? '' + str : '');
 		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
 		return str;
 	},
 
 	unescapeHTML: function (str) {
-		str = (str?'' + str:'');
+		str = (str ? '' + str : '');
 		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').
 			replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	},
@@ -513,7 +512,7 @@ var Tools = {
 	},
 
 	escapeQuotes: function (str) {
-		str = (str?'' + str:'');
+		str = (str ? '' + str : '');
 		str = str.replace(/'/g, '\\\'');
 		return str;
 	},
@@ -668,12 +667,12 @@ var Tools = {
 
 	getEffect: function (effect) {
 		if (!effect || typeof effect === 'string') {
-			var name = $.trim(effect||'');
-			if (name.substr(0,5) === 'item:') {
+			var name = $.trim(effect || '');
+			if (name.substr(0, 5) === 'item:') {
 				return Tools.getItem(name.substr(5));
-			} else if (name.substr(0,8) === 'ability:') {
+			} else if (name.substr(0, 8) === 'ability:') {
 				return Tools.getAbility(name.substr(8));
-			} else if (name.substr(0,5) === 'move:') {
+			} else if (name.substr(0, 5) === 'move:') {
 				return Tools.getMove(name.substr(5));
 			}
 			var id = toId(name);
@@ -715,12 +714,12 @@ var Tools = {
 
 	getMove: function (move) {
 		if (!move || typeof move === 'string') {
-			var name = $.trim(move||'');
+			var name = $.trim(move || '');
 			var id = toId(name);
 			move = (window.BattleMovedex && window.BattleMovedex[id]) || {};
 			if (move.name) move.exists = true;
 
-			if (!move.exists && id.substr(0,11) === 'hiddenpower' && id.length > 11) {
+			if (!move.exists && id.substr(0, 11) === 'hiddenpower' && id.length > 11) {
 				var matches = /([a-z]*)([0-9]*)/.exec(id);
 				move = (window.BattleMovedex && window.BattleMovedex[matches[1]]) || {};
 				move = $.extend({}, move);
@@ -746,7 +745,7 @@ var Tools = {
 
 	getItem: function (item) {
 		if (!item || typeof item === 'string') {
-			var name = $.trim(item||'');
+			var name = $.trim(item || '');
 			var id = toId(name);
 			item = (window.BattleItems && window.BattleItems[id]) || {};
 			if (item.name) item.exists = true;
@@ -760,7 +759,7 @@ var Tools = {
 
 	getAbility: function (ability) {
 		if (!ability || typeof ability === 'string') {
-			var name = $.trim(ability||'');
+			var name = $.trim(ability || '');
 			var id = toId(name);
 			ability = (window.BattleAbilities && window.BattleAbilities[id]) || {};
 			if (ability.name) ability.exists = true;
@@ -789,12 +788,12 @@ var Tools = {
 						template.forme = id.substr(k.length);
 					}
 				}
-				if (id !== 'yanmega' && id.substr(id.length-4) === 'mega') {
-					template.baseSpecies = id.substr(0, id.length-4);
-					template.forme = id.substr(id.length-4);
-				} else if (id.substr(id.length-6) === 'primal') {
-					template.baseSpecies = id.substr(0, id.length-6);
-					template.forme = id.substr(id.length-6);
+				if (id !== 'yanmega' && id.substr(id.length - 4) === 'mega') {
+					template.baseSpecies = id.substr(0, id.length - 4);
+					template.forme = id.substr(id.length - 4);
+				} else if (id.substr(id.length - 6) === 'primal') {
+					template.baseSpecies = id.substr(0, id.length - 6);
+					template.forme = id.substr(id.length - 6);
 				}
 				template.exists = false;
 			}
@@ -855,7 +854,7 @@ var Tools = {
 	getType: function (type) {
 		if (!type || typeof type === 'string') {
 			var id = toId(type);
-			id = id.substr(0,1).toUpperCase() + id.substr(1);
+			id = id.substr(0, 1).toUpperCase() + id.substr(1);
 			type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
 			if (type.damageTaken) type.exists = true;
 			if (!type.id) type.id = id;
@@ -936,7 +935,7 @@ var Tools = {
 				name += '-f';
 				spriteType += 'f';
 			}
-			if (!Tools.prefs('noanim') && gen in {'bw':1, 'xy':1}) {
+			if (!Tools.prefs('noanim') && gen in {'bw': 1, 'xy': 1}) {
 				spriteType = 'ani' + spriteType;
 				dir = gen + 'ani' + dir;
 
@@ -947,7 +946,7 @@ var Tools = {
 			}
 		}
 		// if there is no entry or enough data in pokedex-mini.js or the animations are disabled or past gen, use the proper sprites
-		gen = (gen === 'xy')? 'bw' : gen;
+		gen = (gen === 'xy') ? 'bw' : gen;
 		dir = gen + dir;
 
 		spriteData.url += dir + '/' + name + '.png';
@@ -1047,26 +1046,26 @@ var Tools = {
 			"kyogreprimal": 909,
 			"groudonprimal": 910,
 			"rayquazamega": 911,
-			"syclant": 832+0,
-			"revenankh": 832+1,
-			"pyroak": 832+2,
-			"fidgit": 832+3,
-			"stratagem": 832+4,
-			"arghonaut": 832+5,
-			"kitsunoh": 832+6,
-			"cyclohm": 832+7,
-			"colossoil": 832+8,
-			"krilowatt": 832+9,
-			"voodoom": 832+10,
-			"tomohawk": 832+11,
-			"necturna": 832+12,
-			"mollux": 832+13,
-			"aurumoth": 832+14,
-			"malaconda": 832+15,
-			"cawmodore": 832+16,
-			"volkraken": 832+17,
-			"plasmanta": 832+18,
-			"naviathan": 832+19
+			"syclant": 832 + 0,
+			"revenankh": 832 + 1,
+			"pyroak": 832 + 2,
+			"fidgit": 832 + 3,
+			"stratagem": 832 + 4,
+			"arghonaut": 832 + 5,
+			"kitsunoh": 832 + 6,
+			"cyclohm": 832 + 7,
+			"colossoil": 832 + 8,
+			"krilowatt": 832 + 9,
+			"voodoom": 832 + 10,
+			"tomohawk": 832 + 11,
+			"necturna": 832 + 12,
+			"mollux": 832 + 13,
+			"aurumoth": 832 + 14,
+			"malaconda": 832 + 15,
+			"cawmodore": 832 + 16,
+			"volkraken": 832 + 17,
+			"plasmanta": 832 + 18,
+			"naviathan": 832 + 19
 		};
 		if (altNums[id]) {
 			num = altNums[id];
@@ -1080,7 +1079,7 @@ var Tools = {
 
 		var top = 8 + Math.floor(num / 16) * 32;
 		var left = (num % 16) * 32;
-		var fainted = (pokemon && pokemon.fainted?';opacity:.4':'');
+		var fainted = (pokemon && pokemon.fainted ? ';opacity:.4' : '');
 		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-sheet.png?g6) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
@@ -1099,9 +1098,9 @@ var Tools = {
 		if (Tools.getTemplate(pokemon.species).exists === false) {
 			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png)';
 		}
-		var shiny = (pokemon.shiny?'-shiny':'');
+		var shiny = (pokemon.shiny ? '-shiny' : '');
 		if (BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].front && BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
-			id+='-f';
+			id += '-f';
 		}
 		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + id + '.png)';
 	},
@@ -1118,7 +1117,7 @@ var Tools = {
 
 	getTypeIcon: function (type, b) { // b is just for utilichart.js
 		if (!type) return '';
-		var sanitizedType = type.replace(/\?/g,'%3f');
-		return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b?' class="b"':'') + ' />';
+		var sanitizedType = type.replace(/\?/g, '%3f');
+		return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
 	}
 };
