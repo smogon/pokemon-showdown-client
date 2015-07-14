@@ -327,14 +327,34 @@ a.subtle:hover {
 	padding: 0;
 }
 .tablist li {
-	padding: 3px 0;
+	margin: 0 -6px;
+	padding: 4px 0;
 }
 .tablist a {
-	font-size: 12pt;
+	font-size: 11pt;
 	text-decoration: none;
-	padding: 3px 3px;
+	padding: 4px 6px;
 }
-.tablist a:hover {
+.tablist i.text {
+	font-size: 9pt;
+	font-weight: normal;
+	font-style: normal;
+	margin-right: 3px;
+}
+.tablist i.text::before {
+	content: '[';
+}
+.tablist i.text::after {
+	content: ']';
+}
+.tablist a.notifying {
+	font-weight: bold;
+}
+.tablist a.cur {
+	font-weight: normal;
+	color: #999999;
+}
+.tablist a:hover span {
 	text-decoration: underline;
 }
 
