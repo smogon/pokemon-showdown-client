@@ -792,9 +792,11 @@
 		},
 		savePokemonImport: function(i) {
 			i = +(this.$('li').attr('value'));
-			this.curSet = Storage.importTeam(this.$('.pokemonedit').val())[0];
-			// since we just destroyed the reference...
-			this.curSetList[i] = this.curSet;
+			var curSet = Storage.importTeam(this.$('.pokemonedit').val())[0];
+			if (curSet) {
+				this.curSet = curSet;
+				this.curSetList[i] = curSet;
+			}
 			this.closePokemonImport(true);
 		},
 		moveSet: function(i, button) {
