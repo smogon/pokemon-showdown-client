@@ -175,6 +175,8 @@ a.subtle:hover {
 }
 .maintabbar .overflow button {
 	height: 36px;
+	width: 29px;
+	font-size: 12pt;
 	margin: 0;
 }
 
@@ -317,6 +319,23 @@ a.subtle:hover {
 .closebutton:active,
 .minimizebutton:active {
 	color: #661111;
+}
+
+.tablist li, .tablist ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.tablist li {
+	padding: 3px 0;
+}
+.tablist a {
+	font-size: 12pt;
+	text-decoration: none;
+	padding: 3px 3px;
+}
+.tablist a:hover {
+	text-decoration: underline;
 }
 
 /*********************************************************
