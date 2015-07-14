@@ -89,7 +89,7 @@ Storage.saveAllTeams = function() {
 Storage.unpackAllTeams = function(buffer) {
 	if (!buffer) return [];
 
-	if (buffer.charAt(0) === '[') {
+	if (buffer.charAt(0) === '[' && buffer.indexOf('\n') < 0) {
 		// old format
 		return JSON.parse(buffer).map(function (oldTeam) {
 			return {
@@ -166,7 +166,7 @@ Storage.packTeam = function(team) {
 		}
 
 		// nature
-		buf += '|' + set.nature;
+		buf += '|' + (set.nature||'');
 
 		// evs
 		var evs = '|';
@@ -262,6 +262,7 @@ Storage.fastUnpackTeam = function(buf) {
 		// nature
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
+		if (set.nature === 'undefined') set.nature = undefined;
 		i = j+1;
 
 		// evs
@@ -366,6 +367,7 @@ Storage.unpackTeam = function(buf) {
 		// nature
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
+		if (set.nature === 'undefined') set.nature = undefined;
 		i = j+1;
 
 		// evs
@@ -596,7 +598,7 @@ Storage.importTeam = function(text, teams) {
 			if (natureIndex === -1) natureIndex = line.indexOf(' nature');
 			if (natureIndex === -1) continue;
 			line = line.substr(0, natureIndex);
-			curSet.nature = line;
+			if (line !== 'undefined') curSet.nature = line;
 		} else if (line.substr(0,1) === '-' || line.substr(0,1) === '~') {
 			line = line.substr(1);
 			if (line.substr(0,1) === ' ') line = line.substr(1);
@@ -661,7 +663,7 @@ Storage.exportTeam = function(team) {
 		if (curSet.shiny) {
 			text += 'Shiny: Yes\n';
 		}
-		if (typeof curSet.happiness === 'number' && curSet.happiness !== 255) {
+		if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
 			text += 'Happiness: '+curSet.happiness+"\n";
 		}
 		var first = true;
@@ -727,7 +729,7 @@ Storage.exportTeam = function(team) {
 		if (!first) {
 			text += "\n";
 		}
-		if (curSet.moves) for (var j=0; j<curSet.moves.length; j++) {
+		if (curSet.moves && curSet.moves) for (var j=0; j<curSet.moves.length; j++) {
 			var move = curSet.moves[j];
 			if (move.substr(0,13) === 'Hidden Power ') {
 				move = move.substr(0,13) + '[' + move.substr(13) + ']';
