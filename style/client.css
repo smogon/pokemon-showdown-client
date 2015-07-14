@@ -840,7 +840,7 @@ p.or:after {
 	.mainmenu {
 		padding-bottom: 1px;
 	}
-	.rightmenu {
+	.rightmenu, .tiny-layout .rightmenu {
 		position: static;
 		top: 0;
 		right: 0;
