@@ -30,10 +30,16 @@
 	$(document).on('dragenter', function (e) {
 		e.preventDefault();
 
-		if (!app.dragging && e.originalEvent.dataTransfer.files && e.originalEvent.dataTransfer.files[0]) {
-			var file = e.originalEvent.dataTransfer.files[0];
-			if (file.name.slice(-4) === '.txt' && app.curRoom.id === 'teambuilder') {
-				// Someone dragged in a .txt file, hand it to the teambuilder
+		if (!app.dragging && app.curRoom.id === 'teambuilder') {
+			if (e.originalEvent.dataTransfer.files && e.originalEvent.dataTransfer.files[0]) {
+				var file = e.originalEvent.dataTransfer.files[0];
+				if (file.name.slice(-4) === '.txt') {
+					// Someone dragged in a .txt file, hand it to the teambuilder
+					app.curRoom.defaultDragEnterTeam(e);
+				}
+			} else {
+				// security doesn't let us read the filename :(
+				// we'll just have to assume it's a team
 				app.curRoom.defaultDragEnterTeam(e);
 			}
 		}
@@ -55,6 +61,7 @@
 			if (file.name.slice(-4) === '.txt' && app.curRoom.id === 'teambuilder') {
 				// Someone dragged in a .txt file, hand it to the teambuilder
 				app.curRoom.defaultDragEnterTeam(e);
+				app.curRoom.defaultDropTeam(e);
 			} else if (file.type && file.type.substr(0, 6) === 'image/') {
 				// It's an image file, try to set it as a background
 				CustomBackgroundPopup.readFile(file);
