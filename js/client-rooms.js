@@ -73,8 +73,8 @@
 				var userCount = Number(rooms.userCount);
 				var battleCount = Number(rooms.battleCount);
 				buf += '<p style="height:60px">';
-				buf += '<span style="float:left;width:200px;height:50px;padding:3px 8px;text-align:center"><strong style="display:block;font-size:18pt;font-weight:normal">'+userCount+'</strong> '+(userCount==1?'user':'users')+' online</span> ';
-				buf += '<span style="float:left;width:200px;height:50px;padding:3px 8px;text-align:center"><strong style="display:block;font-size:18pt;font-weight:normal">'+battleCount+'</strong> active '+(battleCount==1?'battle':'battles')+'</span>';
+				buf += '<span style="float:left;width:200px;height:50px;padding:3px 8px;text-align:center"><strong style="display:block;font-size:18pt;font-weight:normal">' + userCount + '</strong> ' + (userCount==1?'user':'users') + ' online</span> ';
+				buf += '<span style="float:left;width:200px;height:50px;padding:3px 8px;text-align:center"><strong style="display:block;font-size:18pt;font-weight:normal">' + battleCount + '</strong> active ' + (battleCount==1?'battle':'battles') + '</span>';
 				buf += '</p>';
 			}
 
@@ -82,7 +82,7 @@
 			for (var i=0; i<rooms.official.length; i++) {
 				var roomData = rooms.official[i];
 				var id = toId(roomData.title);
-				buf += '<div><a href="' + app.root+id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc||'')+ '</small></a></div>';
+				buf += '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc||'') + '</small></a></div>';
 			}
 
 			buf += '<h2>Chat rooms</h2>';
@@ -93,7 +93,7 @@
 				var roomData = rooms.chat[i];
 				var id = toId(roomData.title);
 				var escapedDesc = Tools.escapeHTML(roomData.desc||'');
-				buf += '<div><a href="' + app.root+id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + escapedDesc + '</small></a></div>';
+				buf += '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + escapedDesc + '</small></a></div>';
 			}
 
 			return buf;

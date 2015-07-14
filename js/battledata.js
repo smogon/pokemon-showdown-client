@@ -106,20 +106,20 @@ function hashColor(name) {
 
 function toId(text) {
 	text = text || '';
-	if (typeof text === 'number') text = ''+text;
+	if (typeof text === 'number') text = '' + text;
 	if (typeof text !== 'string') return toId(text && text.id);
 	return text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
 function toUserid(text) {
 	text = text || '';
-	if (typeof text === 'number') text = ''+text;
+	if (typeof text === 'number') text = '' + text;
 	if (typeof text !== 'string') return ''; //???
 	return text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
 function toName (name) {
-	if (typeof name === 'number') return ''+name;
+	if (typeof name === 'number') return '' + name;
 	if (typeof name !== 'string') return '';
 	name = name.replace(/[\|\s\[\]\,]+/g, ' ').trim();
 	if (name.length > 18) name = name.substr(0, 18).trim();
@@ -379,7 +379,7 @@ var Tools = {
 		if (!options.hidelinks) {
 			str = str.replace(linkRegex, function (uri) {
 				if (/^[a-z0-9.]+\@/ig.test(uri)) {
-					return '<a href="mailto:'+uri+'" target="_blank">'+uri+'</a>';
+					return '<a href="mailto:' + uri + '" target="_blank">' + uri + '</a>';
 				}
 				// Insert http:// before URIs without a URI scheme specified.
 				var fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
@@ -484,7 +484,7 @@ var Tools = {
 					var offset = spoilerIndex + 8;
 					if (str.charAt(offset) === ':') offset++;
 					if (str.charAt(offset) === ' ') offset++;
-					str = str.slice(0, offset)+'<span class="spoiler">'+str.slice(offset, untilIndex)+'</span>'+str.slice(untilIndex);
+					str = str.slice(0, offset) + '<span class="spoiler">' + str.slice(offset, untilIndex) + '</span>' + str.slice(untilIndex);
 					untilIndex += 29;
 				} else {
 					break;
@@ -496,14 +496,14 @@ var Tools = {
 	},
 
 	escapeHTML: function (str, jsEscapeToo) {
-		str = (str?''+str:'');
+		str = (str?'' + str:'');
 		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
 		return str;
 	},
 
 	unescapeHTML: function (str) {
-		str = (str?''+str:'');
+		str = (str?'' + str:'');
 		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').
 			replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	},
@@ -513,7 +513,7 @@ var Tools = {
 	},
 
 	escapeQuotes: function (str) {
-		str = (str?''+str:'');
+		str = (str?'' + str:'');
 		str = str.replace(/'/g, '\\\'');
 		return str;
 	},
@@ -819,11 +819,11 @@ var Tools = {
 			if (!template.spriteid) {
 				var formeid = '';
 				if (template.baseSpecies !== name) {
-					formeid = '-'+toId(template.forme);
+					formeid = '-' + toId(template.forme);
 					if (formeid === '-megax') formeid = '-mega-x';
 					if (formeid === '-megay') formeid = '-mega-y';
 				}
-				template.spriteid = toId(template.baseSpecies)+formeid;
+				template.spriteid = toId(template.baseSpecies) + formeid;
 			}
 			if (!template.effectType) template.effectType = 'Template';
 		}
@@ -950,7 +950,7 @@ var Tools = {
 		gen = (gen === 'xy')? 'bw' : gen;
 		dir = gen + dir;
 
-		spriteData.url += dir+'/' + name + '.png';
+		spriteData.url += dir + '/' + name + '.png';
 
 		return spriteData;
 	},
@@ -1103,7 +1103,7 @@ var Tools = {
 		if (BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].front && BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
 			id+='-f';
 		}
-		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw'+shiny+'/'+id+'.png)';
+		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + id + '.png)';
 	},
 
 	getItemIcon: function (item) {
@@ -1119,6 +1119,6 @@ var Tools = {
 	getTypeIcon: function (type, b) { // b is just for utilichart.js
 		if (!type) return '';
 		var sanitizedType = type.replace(/\?/g,'%3f');
-		return '<img src="' + Tools.resourcePrefix + 'sprites/types/'+sanitizedType+'.png" alt="'+type+'" height="14" width="32"'+(b?' class="b"':'')+' />';
+		return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b?' class="b"':'') + ' />';
 	}
 };

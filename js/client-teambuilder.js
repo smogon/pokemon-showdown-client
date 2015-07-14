@@ -129,7 +129,7 @@
 
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <button name="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">'+Tools.escapeHTML(Storage.exportAllTeams())+'</textarea></div>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportAllTeams()) + '</textarea></div>';
 				this.$el.html(buf);
 				return;
 			}
@@ -142,7 +142,7 @@
 			}
 			buf = '<div class="pad"><p>y\'know <s>strawberries</s> avocados have more potassium than bananas</p>';
 			buf += '<p>that doesn\'t have anything to do with teambuilding!</p>';
-			buf += '<p><i>fiiiiiiine</i> press Ctrl+F to find teams by pokemon name</p>';
+			buf += '<p><i>fiiiiiiine</i> press Ctrl + F to find teams by pokemon name</p>';
 			buf += this.clipboardHTML();
 			buf += '<ul class="teamlist">';
 			if (!window.localStorage && !window.nodewebkit) buf += '<li>== CAN\'T SAVE ==<br /><small>Your browser doesn\'t support <code>localStorage</code> and can\'t save teams! Update to a newer browser.</small></li>';
@@ -175,12 +175,12 @@
 
 					var formatText = '';
 					if (team.format) {
-						formatText = '['+team.format+'] ';
+						formatText = '[' + team.format + '] ';
 					}
 
-					buf += '<li><div name="edit" data-value="'+i+'" class="team" draggable="true">'+formatText+'<strong>'+Tools.escapeHTML(team.name)+'</strong><br /><small>';
+					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + Tools.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></div> <button name="edit" value="'+i+'"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="'+i+'"><i class="icon-trash"></i>Delete</button></li>';
+					buf += '</small></div> <button name="edit" value="' + i + '"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="' + i + '"><i class="icon-trash"></i>Delete</button></li>';
 				}
 			}
 			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
@@ -241,7 +241,7 @@
 		},
 		"new": function () {
 			var newTeam = {
-				name: 'Untitled '+(teams.length+1),
+				name: 'Untitled ' + (teams.length+1),
 				format: '',
 				team: '',
 				iconCache: ''
@@ -251,7 +251,7 @@
 		},
 		newTop: function () {
 			var newTeam = {
-				name: 'Untitled '+(teams.length+1),
+				name: 'Untitled ' + (teams.length+1),
 				format: '',
 				team: '',
 				iconCache: ''
@@ -296,15 +296,15 @@
 
 			var team = Storage.teams[e.currentTarget.dataset.value];
 			var filename = team.name;
-			if (team.format) filename = '['+team.format+'] '+filename;
-			filename = $.trim(filename).replace(/[\\\/]+/g, '')+'.txt';
+			if (team.format) filename = '['+team.format+'] ' + filename;
+			filename = $.trim(filename).replace(/[\\\/]+/g, '') + '.txt';
 			var urlprefix = "data:text/plain;base64,";
 			if (document.location.protocol === 'https:') {
 				// Chrome is dumb and doesn't support data URLs in HTTPS
 				urlprefix = "https://play.pokemonshowdown.com/action.php?act=dlteam&team=";
 			}
 			var contents = Storage.exportTeam(team.team).replace(/\n/g,'\r\n');
-			var downloadurl = "text/plain:"+filename+":"+urlprefix+encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
+			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
 			dataTransfer.setData("DownloadURL", downloadurl);
 
@@ -465,10 +465,10 @@
 
 			var buf = '';
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">'+Tools.escapeHTML(Storage.exportTeam(this.curSetList))+'</textarea></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
 			} else {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="'+Tools.escapeHTML(this.curTeam.name)+'" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
@@ -481,7 +481,7 @@
 					for (var i in BattleFormats) {
 						if (BattleFormats[i].isTeambuilderFormat) {
 							var activeFormat = (this.curTeam.format === i?' selected="selected"':'');
-							buf += '<option value="'+i+'"'+activeFormat+'>'+BattleFormats[i].name+'</option>';
+							buf += '<option value="' + i + '"' + activeFormat + '>' + BattleFormats[i].name + '</option>';
 						}
 					}
 					buf += '</select></li>';
@@ -511,7 +511,7 @@
 		},
 		renderSet: function (set, i) {
 			var template = Tools.getTemplate(set.species);
-			var buf = '<li value="'+i+'">';
+			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></div>';
@@ -522,7 +522,7 @@
 			}
 			buf += '<div class="setmenu"><button name="copySet"><i class="icon-copy"></i>Copy</button> <button name="importSet"><i class="icon-upload-alt"></i>Import/Export</button> <button name="moveSet"><i class="icon-move"></i>Move</button> <button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
-			buf += '<label>Nickname</label><input type="text" value="'+Tools.escapeHTML(set.name||set.species)+'" name="nickname" />';
+			buf += '<label>Nickname</label><input type="text" value="' + Tools.escapeHTML(set.name||set.species) + '" name="nickname" />';
 			buf += '</div>';
 			buf += '<div class="setchart">';
 
@@ -530,9 +530,9 @@
 			var itemicon = '<span class="itemicon"></span>';
 			if (set.item) {
 				var item = Tools.getItem(set.item);
-				itemicon = '<span class="itemicon" style="'+Tools.getItemIcon(item)+'"></span>';
+				itemicon = '<span class="itemicon" style="' + Tools.getItemIcon(item) + '"></span>';
 			}
-			buf += '<div class="setcol setcol-icon" style="'+Tools.getTeambuilderSprite(set)+';">'+itemicon+'<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="'+Tools.escapeHTML(set.species)+'" /></div></div>';
+			buf += '<div class="setcol setcol-icon" style="' + Tools.getTeambuilderSprite(set) + ';">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
 
 			// details
 			buf += '<div class="setcol setcol-details"><div class="setrow">';
@@ -543,24 +543,24 @@
 				'F': 'Female',
 				'N': '&mdash;'
 			};
-			buf += '<span class="detailcell detailcell-first"><label>Level</label>'+(set.level||100)+'</span>';
-			buf += '<span class="detailcell"><label>Gender</label>'+GenderChart[template.gender||set.gender||'N']+'</span>';
-			buf += '<span class="detailcell"><label>Happiness</label>'+(typeof set.happiness === 'number'?set.happiness:255)+'</span>';
-			buf += '<span class="detailcell"><label>Shiny</label>'+(set.shiny?'Yes':'No')+'</span>';
+			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level||100) + '</span>';
+			buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[template.gender||set.gender||'N'] + '</span>';
+			buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number'?set.happiness:255) + '</span>';
+			buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny?'Yes':'No') + '</span>';
 
 			buf += '</button></div>';
 			buf += '</div><div class="setrow">';
-			buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="chartinput" value="'+Tools.escapeHTML(set.item)+'" /></div>';
-			buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="chartinput" value="'+Tools.escapeHTML(set.ability)+'" /></div>';
+			buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="chartinput" value="' + Tools.escapeHTML(set.item) + '" /></div>';
+			buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="chartinput" value="' + Tools.escapeHTML(set.ability) + '" /></div>';
 			buf += '</div></div>';
 
 			// moves
 			if (!set.moves) set.moves = [];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
-			buf += '<input type="text" name="move1" class="chartinput" value="'+Tools.escapeHTML(set.moves[0])+'" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move2" class="chartinput" value="'+Tools.escapeHTML(set.moves[1])+'" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move3" class="chartinput" value="'+Tools.escapeHTML(set.moves[2])+'" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move4" class="chartinput" value="'+Tools.escapeHTML(set.moves[3])+'" /></div>';
+			buf += '<input type="text" name="move1" class="chartinput" value="' + Tools.escapeHTML(set.moves[0]) + '" /></div>';
+			buf += '<div class="setcell"><input type="text" name="move2" class="chartinput" value="' + Tools.escapeHTML(set.moves[1]) + '" /></div>';
+			buf += '<div class="setcell"><input type="text" name="move3" class="chartinput" value="' + Tools.escapeHTML(set.moves[2]) + '" /></div>';
+			buf += '<div class="setcell"><input type="text" name="move4" class="chartinput" value="' + Tools.escapeHTML(set.moves[3]) + '" /></div>';
 			buf += '</div>';
 
 			// stats
@@ -569,7 +569,7 @@
 			var stats = {};
 			for (var j in BattleStatNames) {
 				stats[j] = this.getStat(j, set);
-				var ev = '<em>'+(set.evs[j] || '')+'</em>';
+				var ev = '<em>' + (set.evs[j] || '') + '</em>';
 				if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === j) {
 					ev += '<small>+</small>';
 				} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === j) {
@@ -580,7 +580,7 @@
 				if (width>75) width = 75;
 				var color = Math.floor(stats[j]*180/714);
 				if (color>360) color = 360;
-				buf += '<span class="statrow"><label>'+BattleStatNames[j]+'</label> <span class="statgraph"><span style="width:'+width+'px;background:hsl('+color+',40%,75%);"></span></span> '+ev+'</span>';
+				buf += '<span class="statrow"><label>' + BattleStatNames[j]+'</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
 			}
 			buf += '</button></div></div>';
 
@@ -631,7 +631,7 @@
 			Storage.saveTeams();
 		},
 		teamNameChange: function (e) {
-			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled '+(this.curTeamLoc+1));
+			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled ' + (this.curTeamLoc+1));
 			e.currentTarget.value = this.curTeam.name;
 			this.save();
 		},
@@ -893,14 +893,14 @@
 			}
 			for (var i=0; i<this.curSetList.length; i++) {
 				var set = this.curSetList[i];
-				var pokemonicon = '<span class="pokemonicon pokemonicon-'+i+'" style="'+Tools.getIcon(set)+'"></span>';
+				var pokemonicon = '<span class="pokemonicon pokemonicon-' + i + '" style="' + Tools.getIcon(set) + '"></span>';
 				if (!set.name) {
 					buf += '<button disabled="disabled" class="addpokemon"><i class="icon-plus"></i></button> ';
 					isAdd = true;
 				} else if (i == this.curSetLoc) {
-					buf += '<button disabled="disabled" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name || '<i class="icon-plus"></i>')+'</button> ';
+					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name || '<i class="icon-plus"></i>') + '</button> ';
 				} else {
-					buf += '<button name="selectPokemon" value="'+i+'" class="pokemon">'+pokemonicon+Tools.escapeHTML(set.name)+'</button> ';
+					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name) + '</button> ';
 				}
 			}
 			if (this.curSetList.length < 6 && !isAdd) {
@@ -919,7 +919,7 @@
 
 			this.$('.setcol-icon').css('background-image', Tools.getTeambuilderSprite(set).substr(17));
 
-			this.$('.pokemonicon-'+this.curSetLoc).css('background', Tools.getIcon(set).substr(11));
+			this.$('.pokemonicon-' + this.curSetLoc).css('background', Tools.getIcon(set).substr(11));
 
 			var item = Tools.getItem(set.item);
 			if (item.id) {
@@ -940,7 +940,7 @@
 			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
 			for (var stat in stats) {
 				stats[stat] = this.getStat(stat, set);
-				var ev = '<em>'+(set.evs[stat] || '')+'</em>';
+				var ev = '<em>' + (set.evs[stat] || '') + '</em>';
 				if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
 					ev += '<small>+</small>';
 				}
@@ -952,7 +952,7 @@
 				if (width > 75) width = 75;
 				var color = Math.floor(stats[stat]*180/714);
 				if (color > 360) color = 360;
-				buf += '<span class="statrow"><label>'+BattleStatNames[stat]+'</label> <span class="statgraph"><span style="width:'+width+'px;background:hsl('+color+',40%,75%);"></span></span> '+ev+'</span>';
+				buf += '<span class="statrow"><label>' + BattleStatNames[stat]+'</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
 			}
 			this.$('button[name=stats]').html(buf);
 
@@ -960,7 +960,7 @@
 
 			buf = '<div></div>';
 			for (var stat in stats) {
-				buf += '<div><b>'+stats[stat]+'</b></div>';
+				buf += '<div><b>' + stats[stat] + '</b></div>';
 			}
 			this.$chart.find('.statscol').html(buf);
 
@@ -972,16 +972,16 @@
 				if (width > 179) width = 179;
 				var color = Math.floor(stats[stat]*180/714);
 				if (color > 360) color = 360;
-				buf += '<div><em><span style="width:'+Math.floor(width)+'px;background:hsl('+color+',85%,45%);border-color:hsl('+color+',85%,35%)"></span></em></div>';
+				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 				totalev += (set.evs[stat]||0);
 			}
 			buf += '<div><em>Remaining:</em></div>';
 			this.$chart.find('.graphcol').html(buf);
 
 			if (totalev <= 510) {
-				this.$chart.find('.totalev').html('<em>'+(totalev>508?0:508-totalev)+'</em>');
+				this.$chart.find('.totalev').html('<em>' + (totalev>508?0:508-totalev) + '</em>');
 			} else {
-				this.$chart.find('.totalev').html('<b>'+(510-totalev)+'</b>');
+				this.$chart.find('.totalev').html('<b>' + (510-totalev) + '</b>');
 			}
 			this.$chart.find('select[name=nature]').val(set.nature||'Serious');
 		},
@@ -1004,13 +1004,13 @@
 			var g6 = (this.curTeam.format && (this.curTeam.format === 'vgc2014' || this.curTeam.format === 'vgc2015'));
 			this.applyMovelist(g6, speciesid);
 
-			this.$chart.html('<em>Loading '+this.curChartType+'...</em>');
+			this.$chart.html('<em>Loading ' + this.curChartType + '...</em>');
 			var self = this;
 			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
 			this.updateChartTimeout = setTimeout(function () {
 				self.updateChartTimeout = null;
 				if (self.curChartType === 'stats' || self.curChartType === 'details' || !self.curChartName) return;
-				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self)));
+				self.$chart.html(Chart.chart(self.$('input[name=' + self.curChartName + ']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self)));
 			}, 10);
 		},
 		updateChartTimeout: null,
@@ -1025,7 +1025,7 @@
 			this.updateChartTimeout = setTimeout(function () {
 				self.updateChartTimeout = null;
 				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
-				self.$chart.html(Chart.chart(self.$('input[name='+self.curChartName+']').val(), self.curChartType, false, _.bind(self.arrangeCallback[self.curChartType], self)));
+				self.$chart.html(Chart.chart(self.$('input[name=' + self.curChartName + ']').val(), self.curChartType, false, _.bind(self.arrangeCallback[self.curChartType], self)));
 			}, 200);
 		},
 		selectPokemon: function (i) {
@@ -1041,7 +1041,7 @@
 				} else {
 					this.curChartName = '';
 					this.update();
-					this.$('input[name='+name+']').select();
+					this.$('input[name=' + name + ']').select();
 				}
 			}
 		},
@@ -1082,12 +1082,12 @@
 				guessedEVs = this.guessEVs(role);
 				guessedPlus = guessedEVs.plusStat; delete guessedEVs.plusStat;
 				guessedMinus = guessedEVs.minusStat; delete guessedEVs.minusStat;
-				buf += ' </small><button name="setStatFormGuesses">'+role+': ';
+				buf += ' </small><button name="setStatFormGuesses">' + role + ': ';
 				for (var i in guessedEVs) {
-					if (guessedEVs[i]) buf += ''+guessedEVs[i]+' '+BattleStatNames[i]+' / ';
+					if (guessedEVs[i]) buf += '' + guessedEVs[i]+' ' + BattleStatNames[i] + ' / ';
 				}
-				buf += ' (+'+BattleStatNames[guessedPlus]+', -'+BattleStatNames[guessedMinus]+')</button></p>';
-				//buf += ' <small>('+role+' | bulk: phys '+Math.round(this.moveCount.physicalBulk/1000)+' + spec '+Math.round(this.moveCount.specialBulk/1000)+' = '+Math.round(this.moveCount.bulk/1000)+')</small>';
+				buf += ' (+' + BattleStatNames[guessedPlus] + ', -' + BattleStatNames[guessedMinus] + ')</button></p>';
+				//buf += ' <small>(' + role + ' | bulk: phys ' + Math.round(this.moveCount.physicalBulk/1000) + ' + spec ' + Math.round(this.moveCount.specialBulk/1000) + ' = ' + Math.round(this.moveCount.bulk/1000) + ')</small>';
 			}
 
 			if (setGuessed) {
@@ -1114,7 +1114,7 @@
 
 			buf += '<div class="col basestatscol"><div><em>Base</em></div>';
 			for (var i in stats) {
-				buf += '<div><b>'+baseStats[i]+'</b></div>';
+				buf += '<div><b>' + baseStats[i] + '</b></div>';
 			}
 			buf += '</div>';
 
@@ -1126,7 +1126,7 @@
 				if (width > 179) width = 179;
 				var color = Math.floor(stats[i]*180/714);
 				if (color>360) color = 360;
-				buf += '<div><em><span style="width:'+Math.floor(width)+'px;background:hsl('+color+',85%,45%);border-color:hsl('+color+',85%,35%)"></span></em></div>';
+				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 			}
 			buf += '<div><em>Remaining:</em></div>';
 			buf += '</div>';
@@ -1139,7 +1139,7 @@
 				var width = stats[i]*200/504;
 				if (i=='hp') width = stats[i]*200/704;
 				if (width > 200) width = 200;
-				var val = ''+(set.evs[i]||'');
+				var val = '' + (set.evs[i]||'');
 				if (nature.plus === i) {
 					val += '+';
 					this.plus = i;
@@ -1148,19 +1148,19 @@
 					val += '-';
 					this.minus = i;
 				}
-				buf += '<div><input type="text" name="stat-'+i+'" value="'+val+'" class="inputform numform" /></div>';
+				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="inputform numform" /></div>';
 				totalev += (set.evs[i]||0);
 			}
 			if (totalev <= 510) {
-				buf += '<div class="totalev"><em>'+(totalev>508?0:508-totalev)+'</em></div>';
+				buf += '<div class="totalev"><em>' + (totalev>508?0:508-totalev) + '</em></div>';
 			} else {
-				buf += '<div class="totalev"><b>'+(510-totalev)+'</b></div>';
+				buf += '<div class="totalev"><b>' + (510-totalev) + '</b></div>';
 			}
 			buf += '</div>';
 
 			buf += '<div class="col evslidercol"><div></div>';
 			for (var i in stats) {
-				buf += '<div><input type="slider" name="evslider-'+i+'" value="'+(set.evs[i]||'0')+'" min="0" max="252" step="4" class="evslider" /></div>';
+				buf += '<div><input type="slider" name="evslider-' + i + '" value="' + (set.evs[i]||'0') + '" min="0" max="252" step="4" class="evslider" /></div>';
 			}
 			buf += '</div>';
 
@@ -1169,23 +1169,23 @@
 			if (!set.ivs) set.ivs = {};
 			for (var i in stats) {
 				if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = 31;
-				var val = ''+(set.ivs[i]);
-				buf += '<div><input type="number" name="iv-'+i+'" value="'+val+'" class="inputform numform" min="0" max="31" step="1" /></div>';
+				var val = '' + (set.ivs[i]);
+				buf += '<div><input type="number" name="iv-' + i + '" value="' + val + '" class="inputform numform" min="0" max="31" step="1" /></div>';
 			}
 			buf += '</div>';
 
 			buf += '<div class="col statscol"><div></div>';
 			for (var i in stats) {
-				buf += '<div><b>'+stats[i]+'</b></div>';
+				buf += '<div><b>' + stats[i] + '</b></div>';
 			}
 			buf += '</div>';
 
 			buf += '<p style="clear:both">Nature: <select name="nature">';
 			for (var i in BattleNatures) {
 				var curNature = BattleNatures[i];
-				buf += '<option value="'+i+'"'+(curNature===nature?'selected="selected"':'')+'>'+i;
+				buf += '<option value="' + i + '"' + (curNature===nature?'selected="selected"':'') + '>' + i;
 				if (curNature.plus) {
-					buf += ' (+'+BattleStatNames[curNature.plus]+', -'+BattleStatNames[curNature.minus]+')';
+					buf += ' (+' + BattleStatNames[curNature.plus]+', -' + BattleStatNames[curNature.minus] + ')';
 				}
 				buf += '</option>';
 			}
@@ -1217,7 +1217,7 @@
 		},
 		setSlider: function (stat, val) {
 			this.suppressSliderCallback = true;
-			this.$chart.find('input[name=evslider-'+stat+']').slider('value', val||0);
+			this.$chart.find('input[name=evslider-' + stat + ']').slider('value', val||0);
 			this.suppressSliderCallback = false;
 		},
 		updateNature: function () {
@@ -1252,10 +1252,10 @@
 				var firstchar = e.currentTarget.value.charAt(0);
 				var natureChange = true;
 				if ((lastchar === '+' || firstchar === '+') && stat !== 'hp') {
-					if (this.plus && this.plus !== stat) this.$chart.find('input[name=stat-'+this.plus+']').val(set.evs[this.plus]||'');
+					if (this.plus && this.plus !== stat) this.$chart.find('input[name=stat-' + this.plus + ']').val(set.evs[this.plus]||'');
 					this.plus = stat;
 				} else if ((lastchar === '-' || lastchar === "\u2212" || firstchar === '-' || firstchar === "\u2212") && stat !== 'hp') {
-					if (this.minus && this.minus !== stat) this.$chart.find('input[name=stat-'+this.minus+']').val(set.evs[this.minus]||'');
+					if (this.minus && this.minus !== stat) this.$chart.find('input[name=stat-' + this.minus + ']').val(set.evs[this.minus]||'');
 					this.minus = stat;
 				} else if (this.plus === stat) {
 					this.plus = '';
@@ -1321,8 +1321,8 @@
 			if (!set.evs) set.evs = {};
 			set.evs[stat] = val;
 
-			val = ''+(val||'')+(this.plus===stat?'+':'')+(this.minus===stat?'-':'');
-			this.$('input[name=stat-'+stat+']').val(val);
+			val = '' + (val||'') + (this.plus===stat?'+':'')+(this.minus===stat?'-':'');
+			this.$('input[name=stat-' + stat + ']').val(val);
 
 			this.updateStatGraph();
 		},
@@ -1337,7 +1337,7 @@
 			this.minus = '';
 			var nature = BattleNatures[set.nature||'Serious'];
 			for (var i in BattleStatNames) {
-				var val = ''+(set.evs[i]||'');
+				var val = '' + (set.evs[i]||'');
 				if (nature.plus === i) {
 					this.plus = i;
 					val += '+';
@@ -1346,7 +1346,7 @@
 					this.minus = i;
 					val += '-';
 				}
-				this.$chart.find('input[name=stat-'+i+']').val(val);
+				this.$chart.find('input[name=stat-' + i + ']').val(val);
 				if (!e) this.setSlider(i, set.evs[i]);
 			}
 
@@ -1366,24 +1366,24 @@
 			buf += '<h3>Details</h3>';
 			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="'+(set.level||100)+'" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (set.level||100) + '" class="textbox inputform numform" /></div></div>';
 
 			buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
 			if (template.gender) {
 				var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
 				buf += genderTable[template.gender];
 			} else {
-				buf += '<label><input type="radio" name="gender" value="M"'+(set.gender==='M'?' checked':'')+' /> Male</label> ';
-				buf += '<label><input type="radio" name="gender" value="F"'+(set.gender==='F'?' checked':'')+' /> Female</label> ';
-				buf += '<label><input type="radio" name="gender" value="N"'+(!set.gender?' checked':'')+' /> Random</label>';
+				buf += '<label><input type="radio" name="gender" value="M"' + (set.gender==='M'?' checked':'') + ' /> Male</label> ';
+				buf += '<label><input type="radio" name="gender" value="F"' + (set.gender==='F'?' checked':'') + ' /> Female</label> ';
+				buf += '<label><input type="radio" name="gender" value="N"' + (!set.gender?' checked':'') + ' /> Random</label>';
 			}
 			buf += '</div></div>';
 
-			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="'+(typeof set.happiness==='number'?set.happiness:255)+'" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness==='number'?set.happiness:255) + '" class="textbox inputform numform" /></div></div>';
 
 			buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
-			buf += '<label><input type="radio" name="shiny" value="yes"'+(set.shiny?' checked':'')+' /> Yes</label> ';
-			buf += '<label><input type="radio" name="shiny" value="no"'+(!set.shiny?' checked':'')+' /> No</label>';
+			buf += '<label><input type="radio" name="shiny" value="yes"' + (set.shiny?' checked':'') + ' /> Yes</label> ';
+			buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny?' checked':'') + ' /> No</label>';
 			buf += '</div></div>';
 
 			buf += '</form>';
@@ -1427,10 +1427,10 @@
 				'F': 'Female',
 				'N': '&mdash;'
 			};
-			buf += '<span class="detailcell detailcell-first"><label>Level</label>'+(set.level||100)+'</span>';
-			buf += '<span class="detailcell"><label>Gender</label>'+GenderChart[set.gender||'N']+'</span>';
-			buf += '<span class="detailcell"><label>Happiness</label>'+(typeof set.happiness==='number'?set.happiness:255)+'</span>';
-			buf += '<span class="detailcell"><label>Shiny</label>'+(set.shiny?'Yes':'No')+'</span>';
+			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level||100) + '</span>';
+			buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender||'N'] + '</span>';
+			buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness==='number'?set.happiness:255) + '</span>';
+			buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny?'Yes':'No') + '</span>';
 			this.$('button[name=details]').html(buf);
 
 			this.save();
@@ -1537,9 +1537,9 @@
 				this.curSetLoc = i;
 				this.update();
 				if (type === 'stats' || type === 'details') {
-					this.$('button[name='+name+']').click();
+					this.$('button[name=' + name + ']').click();
 				} else {
-					this.$('input[name='+name+']').select();
+					this.$('input[name=' + name + ']').select();
 				}
 				return;
 			}
@@ -1567,7 +1567,7 @@
 		chartSet: function (val, selectNext) {
 			var inputName = this.curChartName;
 			var id = toId(val);
-			this.$('input[name='+inputName+']').val(val).removeClass('incomplete');
+			this.$('input[name=' + inputName + ']').val(val).removeClass('incomplete');
 			switch (inputName) {
 			case 'pokemon':
 				this.setPokemon(val, selectNext);
@@ -1886,11 +1886,11 @@
 
 			if (moveCount['Stall'] + moveCount['Support']/2 <= 2 && bulk < 135000 && moveCount[offenseBias] >= 1.5) {
 				if (isFast) {
-					if (bulk > 80000 && !moveCount['Ultrafast']) return 'Bulky '+offenseBias+' Sweeper';
-					return 'Fast '+offenseBias+' Sweeper';
+					if (bulk > 80000 && !moveCount['Ultrafast']) return 'Bulky ' + offenseBias + ' Sweeper';
+					return 'Fast ' + offenseBias + ' Sweeper';
 				} else {
 					if (moveCount[offenseBias] >= 3 || moveCount['Stall'] <= 0) {
-						return 'Bulky '+offenseBias+' Sweeper';
+						return 'Bulky ' + offenseBias + ' Sweeper';
 					}
 				}
 			}
@@ -2177,12 +2177,12 @@
 			for (var i=0; i<data.team.length; i++) {
 				var set = data.team[i];
 				if (i !== data.i && i !== data.i+1) {
-					buf += '<li><button name="moveHere" value="'+i+'"><i class="icon-arrow-right"></i> Move here</button></li>';
+					buf += '<li><button name="moveHere" value="' + i + '"><i class="icon-arrow-right"></i> Move here</button></li>';
 				}
-				buf += '<li'+(i===data.i?' style="opacity:.3"':' style="opacity:.6"')+'><span class="pokemonicon" style="display:inline-block;vertical-align:middle;'+Tools.getIcon(set)+'"></span> '+Tools.escapeHTML(set.name)+'</li>';
+				buf += '<li' + (i===data.i?' style="opacity:.3"':' style="opacity:.6"') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(set) + '"></span> ' + Tools.escapeHTML(set.name) + '</li>';
 			}
 			if (i !== data.i && i !== data.i+1) {
-				buf += '<li><button name="moveHere" value="'+i+'"><i class="icon-arrow-right"></i> Move here</button></li>';
+				buf += '<li><button name="moveHere" value="' + i + '"><i class="icon-arrow-right"></i> Move here</button></li>';
 			}
 			buf += '</ul>';
 			this.$el.html(buf);

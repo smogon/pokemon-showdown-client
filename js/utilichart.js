@@ -65,30 +65,30 @@ function BattleChart()
 	};
 	this.pokemonRow = function (pokemon, attrs, match, isFirst, dataCommand) {
 		var tag = dataCommand ? 'div' : 'a';
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><'+tag+attrs+' data-name="'+Tools.escapeHTML(pokemon.species)+'">';
+		var text = '<li class="result' + (isFirst?' firstresult':'') + '"><' + tag + attrs + ' data-name="' + Tools.escapeHTML(pokemon.species) + '">';
 
 		var tier = pokemon.tier;
 		if (!tier) tier = Tools.getTemplate(pokemon.baseSpecies || pokemon.species).tier || 'Illegal';
 
-		text += '<span class="col numcol">'+tier+'</span> ';
+		text += '<span class="col numcol">' + tier + '</span> ';
 
 		var name = Tools.escapeHTML(pokemon.name);
 
 		if (pokemon.forme && pokemon.baseSpecies) name = pokemon.baseSpecies;
 		if (match.name)
 		{
-			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
+			name = name.substr(0, match.name.start) + '<b>' + name.substr(match.name.start, match.name.end-match.name.start) + '</b>' + name.substr(match.name.end);
 		}
 		if (pokemon.forme && pokemon.baseSpecies)
 		{
 			if (match.name && match.name.end > pokemon.baseSpecies.length)
 			{
 				if (match.name.start < pokemon.baseSpecies.length+1) match.name.start = pokemon.baseSpecies.length+1;
-				name += '<small>-'+pokemon.forme.substr(0, match.name.start-(pokemon.baseSpecies.length+1))+'<b>'+pokemon.name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+pokemon.name.substr(match.name.end)+'</small>';
+				name += '<small>-' + pokemon.forme.substr(0, match.name.start-(pokemon.baseSpecies.length+1)) + '<b>' + pokemon.name.substr(match.name.start, match.name.end-match.name.start) + '</b>' + pokemon.name.substr(match.name.end) + '</small>';
 			}
 			else
 			{
-				name += '<small>-'+pokemon.forme+'</small>';
+				name += '<small>-' + pokemon.forme + '</small>';
 			}
 		}
 		if (dataCommand) {
@@ -97,16 +97,16 @@ function BattleChart()
 
 		/* if (match.name)
 		{
-			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
+			name = name.substr(0, match.name.start) + '<b>' + name.substr(match.name.start, match.name.end-match.name.start) + '</b>' + name.substr(match.name.end);
 		} */
 		text += '<span class="col iconcol">';
-		text += '<span style="'+Tools.getIcon(pokemon)+'"></span>';
+		text += '<span style="' + Tools.getIcon(pokemon) + '"></span>';
 		text += '</span> ';
-		text += '<span class="col pokemonnamecol" style="white-space:nowrap">'+name+'</span> ';
+		text += '<span class="col pokemonnamecol" style="white-space:nowrap">' + name + '</span> ';
 
 		if (self.illegalBuckets[match.bucket])
 		{
-			text += '<span class="col illegalcol"><em>'+self.illegalBuckets[match.bucket]+'</em></span> ';
+			text += '<span class="col illegalcol"><em>' + self.illegalBuckets[match.bucket] + '</em></span> ';
 			text += '</a></li>';
 			return text;
 		}
@@ -135,10 +135,10 @@ function BattleChart()
 			if (i === '1') text += '<br />';
 			if (match.ability && match.ability[i])
 			{
-				ability = ability.substr(0, match.ability[i].start)+'<b>'+ability.substr(match.ability[i].start, match.ability[i].end-match.ability[i].start)+'</b>'+ability.substr(match.ability[i].end);
+				ability = ability.substr(0, match.ability[i].start) + '<b>' + ability.substr(match.ability[i].start, match.ability[i].end-match.ability[i].start) + '</b>' + ability.substr(match.ability[i].end);
 			}
 			if (i == 'H') {
-				ability = '</span><span class="col abilitycol"><em>' + (pokemon.unreleasedHidden ? '<s>'+ability+'</s>' : ability) + '</em>';
+				ability = '</span><span class="col abilitycol"><em>' + (pokemon.unreleasedHidden ? '<s>' + ability + '</s>' : ability) + '</em>';
 			}
 			text += ability;
 		}
@@ -147,116 +147,116 @@ function BattleChart()
 		text += '</span>';
 
 		text += '<span style="float:left;min-height:26px">';
-		text += '<span class="col statcol"><em>HP</em><br />'+pokemon.baseStats.hp+'</span> ';
-		text += '<span class="col statcol"><em>Atk</em><br />'+pokemon.baseStats.atk+'</span> ';
-		text += '<span class="col statcol"><em>Def</em><br />'+pokemon.baseStats.def+'</span> ';
-		text += '<span class="col statcol"><em>SpA</em><br />'+pokemon.baseStats.spa+'</span> ';
-		text += '<span class="col statcol"><em>SpD</em><br />'+pokemon.baseStats.spd+'</span> ';
-		text += '<span class="col statcol"><em>Spe</em><br />'+pokemon.baseStats.spe+'</span> ';
+		text += '<span class="col statcol"><em>HP</em><br />' + pokemon.baseStats.hp + '</span> ';
+		text += '<span class="col statcol"><em>Atk</em><br />' + pokemon.baseStats.atk + '</span> ';
+		text += '<span class="col statcol"><em>Def</em><br />' + pokemon.baseStats.def + '</span> ';
+		text += '<span class="col statcol"><em>SpA</em><br />' + pokemon.baseStats.spa + '</span> ';
+		text += '<span class="col statcol"><em>SpD</em><br />' + pokemon.baseStats.spd + '</span> ';
+		text += '<span class="col statcol"><em>Spe</em><br />' + pokemon.baseStats.spe + '</span> ';
 		var bst = 0;
 		for (i in pokemon.baseStats) bst += pokemon.baseStats[i];
-		text += '<span class="col bstcol"><em>BST<br />'+bst+'</em></span> ';
+		text += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
 		text += '</span>';
 
-		text += '</'+tag+'></li>';
+		text += '</' + tag + '></li>';
 
 		return text;
 	};
 	this.itemRow = function (item, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(item.name)+'">';
+		var text = '<li class="result' + (isFirst?' firstresult':'') + '"><a' + attrs + ' data-name="' + Tools.escapeHTML(item.name) + '">';
 
 		var url = item.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z-]+/g, '');
-		url = '/sprites/itemicons/'+url+'.png';
+		url = '/sprites/itemicons/' + url + '.png';
 
 		text += '<span class="col itemiconcol">';
-		text += '<span style="'+Tools.getItemIcon(item)+'"></span>';
+		text += '<span style="' + Tools.getItemIcon(item) + '"></span>';
 		text += '</span> ';
 
 		var name = Tools.escapeHTML(item.name);
 
 		if (match.name)
 		{
-			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
+			name = name.substr(0, match.name.start) + '<b>' + name.substr(match.name.start, match.name.end-match.name.start) + '</b>' + name.substr(match.name.end);
 		}
-		text += '<span class="col namecol">'+name+'</span> ';
+		text += '<span class="col namecol">' + name + '</span> ';
 
 		if (self.illegalBuckets[match.bucket])
 		{
-			text += '<span class="col illegalcol"><em>'+self.illegalBuckets[match.bucket]+'</em></span> ';
+			text += '<span class="col illegalcol"><em>' + self.illegalBuckets[match.bucket] + '</em></span> ';
 			text += '</a></li>';
 			return text;
 		}
 
-		text += '<span class="col itemdesccol">'+Tools.escapeHTML(item.shortDesc || item.desc)+'</span> ';
+		text += '<span class="col itemdesccol">' + Tools.escapeHTML(item.shortDesc || item.desc) + '</span> ';
 
 		text += '</a></li>';
 
 		return text;
 	};
 	this.abilityRow = function (ability, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(ability.name)+'">';
+		var text = '<li class="result' + (isFirst?' firstresult':'') + '"><a' + attrs + ' data-name="' + Tools.escapeHTML(ability.name) + '">';
 
 		var name = Tools.escapeHTML(ability.name);
 		if (match.name)
 		{
-			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
+			name = name.substr(0, match.name.start) + '<b>' + name.substr(match.name.start, match.name.end-match.name.start) + '</b>' + name.substr(match.name.end);
 		}
-		text += '<span class="col namecol">'+name+'</span> ';
+		text += '<span class="col namecol">' + name + '</span> ';
 
 		if (self.illegalBuckets[match.bucket])
 		{
-			text += '<span class="col illegalcol"><em>'+self.illegalBuckets[match.bucket]+'</em></span> ';
+			text += '<span class="col illegalcol"><em>' + self.illegalBuckets[match.bucket] + '</em></span> ';
 			text += '</a></li>';
 			return text;
 		}
 
-		text += '<span class="col abilitydesccol">'+Tools.escapeHTML(ability.shortDesc || ability.desc)+'</span> ';
+		text += '<span class="col abilitydesccol">' + Tools.escapeHTML(ability.shortDesc || ability.desc) + '</span> ';
 
 		text += '</a></li>';
 
 		return text;
 	};
 	this.moveRow = function (move, attrs, match, isFirst) {
-		var text = '<li class="result'+(isFirst?' firstresult':'')+'"><a'+attrs+' data-name="'+Tools.escapeHTML(move.name)+'">';
+		var text = '<li class="result' + (isFirst?' firstresult':'') + '"><a' + attrs + ' data-name="' + Tools.escapeHTML(move.name) + '">';
 
 		var name = Tools.escapeHTML(move.name);
 		var hplen = 'Hidden Power'.length;
 		if (name.substr(0, hplen) === 'Hidden Power') name = 'Hidden Power';
 		if (match.name)
 		{
-			name = name.substr(0, match.name.start)+'<b>'+name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+name.substr(match.name.end);
+			name = name.substr(0, match.name.start) + '<b>' + name.substr(match.name.start, match.name.end-match.name.start) + '</b>' + name.substr(match.name.end);
 		}
 		if (move.name.substr(0, hplen) === 'Hidden Power')
 		{
 			if (match.name && match.name.end > hplen)
 			{
 				if (match.name.start < hplen+1) match.name.start = hplen+1;
-				name += '<small> '+move.name.substr(hplen+1, match.name.start-(hplen+1))+'<b>'+move.name.substr(match.name.start, match.name.end-match.name.start)+'</b>'+move.name.substr(match.name.end)+'</small>';
+				name += '<small> ' + move.name.substr(hplen+1, match.name.start-(hplen+1)) + '<b>' + move.name.substr(match.name.start, match.name.end-match.name.start) + '</b>' + move.name.substr(match.name.end) + '</small>';
 			}
 			else
 			{
-				name += '<small> '+move.name.substr(hplen+1)+'</small>';
+				name += '<small> ' + move.name.substr(hplen+1) +'</small>';
 			}
 		}
-		text += '<span class="col movenamecol">'+name+'</span> ';
+		text += '<span class="col movenamecol">' + name + '</span> ';
 
 		if (self.illegalBuckets[match.bucket])
 		{
-			text += '<span class="col illegalcol"><em>'+self.illegalBuckets[match.bucket]+'</em></span> ';
+			text += '<span class="col illegalcol"><em>' + self.illegalBuckets[match.bucket] + '</em></span> ';
 			text += '</a></li>';
 			return text;
 		}
 
 		text += '<span class="col typecol">';
 		text += Tools.getTypeIcon(move.type, match.type);
-		text += '<img src="' + Tools.resourcePrefix + 'sprites/categories/'+move.category+'.png" alt="'+move.category+'" height="14" width="32"'+(match.category?' class="b"':'')+' />';
+		text += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32"' + (match.category?' class="b"':'') + ' />';
 		text += '</span> ';
 
-		text += '<span class="col labelcol">'+(move.category!=='Status'?('<em>Power</em><br />'+(move.basePower||'&mdash;')):'')+'</span> ';
-		text += '<span class="col widelabelcol"><em>Accuracy</em><br />'+(move.accuracy && move.accuracy!==true?move.accuracy+'%':'&mdash;')+'</span> ';
-		text += '<span class="col pplabelcol"><em>PP</em><br />'+((move.pp!==1 && !move.noPPBoosts)?move.pp*8/5:move.pp)+'</span> ';
+		text += '<span class="col labelcol">' + (move.category!=='Status'?('<em>Power</em><br />' + (move.basePower||'&mdash;')):'') + '</span> ';
+		text += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy!==true?move.accuracy + '%':'&mdash;') + '</span> ';
+		text += '<span class="col pplabelcol"><em>PP</em><br />' + ((move.pp!==1 && !move.noPPBoosts)?move.pp*8/5:move.pp) + '</span> ';
 
-		text += '<span class="col movedesccol">'+Tools.escapeHTML(move.shortDesc || move.desc)+'</span> ';
+		text += '<span class="col movedesccol">' + Tools.escapeHTML(move.shortDesc || move.desc) + '</span> ';
 
 		text += '</a></li>';
 
@@ -453,7 +453,7 @@ function BattleChart()
 			{
 				if (matchType === 'start' || matchType === 'contains' || matchType === 'fullstart')
 				{
-					matchType = 'illegal'+matchType;
+					matchType = 'illegal' + matchType;
 				}
 			}
 
@@ -538,7 +538,7 @@ function BattleChart()
 					var match = chartData.other[ib][j];
 					if (firstMatch)
 					{
-						text += '<li><h3>'+buckets[i]+'</h3></li>';
+						text += '<li><h3>' + buckets[i] + '</h3></li>';
 						firstMatch = false;
 					}
 					text += self.row(match.thing, '', match);

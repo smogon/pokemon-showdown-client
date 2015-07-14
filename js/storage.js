@@ -118,7 +118,7 @@ Storage.unpackAllTeams = function (buffer) {
 
 Storage.packAllTeams = function (teams) {
 	return teams.map(function (team) {
-		return (team.format ? ''+team.format+']' : '') + team.name + '|' + Storage.getPackedTeam(team);
+		return (team.format ? '' + team.format + ']' : '') + team.name + '|' + Storage.getPackedTeam(team);
 	}).join('\n');
 };
 
@@ -181,7 +181,7 @@ Storage.packTeam = function (team) {
 
 		// gender
 		if (set.gender && set.gender !== template.gender) {
-			buf += '|'+set.gender;
+			buf += '|' + set.gender;
 		} else {
 			buf += '|';
 		}
@@ -206,14 +206,14 @@ Storage.packTeam = function (team) {
 
 		// level
 		if (set.level && set.level != 100) {
-			buf += '|'+set.level;
+			buf += '|' + set.level;
 		} else {
 			buf += '|';
 		}
 
 		// happiness
 		if (set.happiness !== undefined && set.happiness !== 255) {
-			buf += '|'+set.happiness;
+			buf += '|' + set.happiness;
 		} else {
 			buf += '|';
 		}
@@ -628,7 +628,7 @@ Storage.exportAllTeams = function () {
 	var buf = '';
 	for (var i=0,len=Storage.teams.length; i<len; i++) {
 		var team = Storage.teams[i];
-		buf += '=== '+(team.format?'['+team.format+'] ':'')+team.name+' ===\n\n';
+		buf += '=== ' + (team.format?'[' + team.format + '] ':'') + team.name + ' ===\n\n';
 		buf += Storage.exportTeam(team.team);
 		buf += '\n';
 	}
@@ -644,27 +644,27 @@ Storage.exportTeam = function (team) {
 	for (var i=0; i<team.length; i++) {
 		var curSet = team[i];
 		if (curSet.name !== curSet.species) {
-			text += ''+curSet.name+' ('+curSet.species+')';
+			text += '' + curSet.name + ' (' + curSet.species + ')';
 		} else {
-			text += ''+curSet.species;
+			text += '' + curSet.species;
 		}
 		if (curSet.gender === 'M') text += ' (M)';
 		if (curSet.gender === 'F') text += ' (F)';
 		if (curSet.item) {
-			text += ' @ '+curSet.item;
+			text += ' @ ' + curSet.item;
 		}
 		text += "\n";
 		if (curSet.ability) {
-			text += 'Ability: '+curSet.ability+"\n";
+			text += 'Ability: ' + curSet.ability + "\n";
 		}
 		if (curSet.level && curSet.level != 100) {
-			text += 'Level: '+curSet.level+"\n";
+			text += 'Level: ' + curSet.level + "\n";
 		}
 		if (curSet.shiny) {
 			text += 'Shiny: Yes\n';
 		}
 		if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
-			text += 'Happiness: '+curSet.happiness+"\n";
+			text += 'Happiness: ' + curSet.happiness + "\n";
 		}
 		var first = true;
 		if (curSet.evs) {
@@ -676,14 +676,14 @@ Storage.exportTeam = function (team) {
 				} else {
 					text += ' / ';
 				}
-				text += ''+curSet.evs[j]+' '+BattleStatNames[j];
+				text += '' + curSet.evs[j] + ' ' + BattleStatNames[j];
 			}
 		}
 		if (!first) {
 			text += "\n";
 		}
 		if (curSet.nature) {
-			text += ''+curSet.nature+' Nature'+"\n";
+			text += '' + curSet.nature + ' Nature' + "\n";
 		}
 		var first = true;
 		if (curSet.ivs) {
@@ -722,7 +722,7 @@ Storage.exportTeam = function (team) {
 					} else {
 						text += ' / ';
 					}
-					text += ''+curSet.ivs[stat]+' '+BattleStatNames[stat];
+					text += '' + curSet.ivs[stat] + ' ' + BattleStatNames[stat];
 				}
 			}
 		}
@@ -734,7 +734,7 @@ Storage.exportTeam = function (team) {
 			if (move.substr(0,13) === 'Hidden Power ') {
 				move = move.substr(0,13) + '[' + move.substr(13) + ']';
 			}
-			text += '- '+move+"\n";
+			text += '- ' + move + "\n";
 		}
 		text += "\n";
 	}
@@ -750,18 +750,18 @@ Storage.initDirectory = function () {
 
 	var dir = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH;
 	if (!(dir.charAt(dir.length-1) in {'/':1, '\\':1})) dir += '/';
-	fs.stat(dir+'Documents', function (err, stats) {
+	fs.stat(dir + 'Documents', function (err, stats) {
 		if (err || !stats.isDirectory()) {
-			fs.stat(dir+'My Documents', function (err, stats) {
+			fs.stat(dir + 'My Documents', function (err, stats) {
 				if (err || !stats.isDirectory()) {
 					self.documentsDir = dir;
 				} else {
-					self.documentsDir = dir+'My Documents/';
+					self.documentsDir = dir + 'My Documents/';
 				}
 				self.initDirectory2();
 			});
 		} else {
-			self.documentsDir = dir+'Documents/';
+			self.documentsDir = dir + 'Documents/';
 			self.initDirectory2();
 		}
 	});
@@ -769,14 +769,14 @@ Storage.initDirectory = function () {
 
 Storage.initDirectory2 = function () {
 	var self = this;
-	fs.mkdir(self.documentsDir+'My Games', function () {
-		fs.mkdir(self.documentsDir+'My Games/Pokemon Showdown', function () {
-			fs.stat(self.documentsDir+'My Games/Pokemon Showdown', function (err, stats) {
+	fs.mkdir(self.documentsDir + 'My Games', function () {
+		fs.mkdir(self.documentsDir + 'My Games/Pokemon Showdown', function () {
+			fs.stat(self.documentsDir + 'My Games/Pokemon Showdown', function (err, stats) {
 				if (err) return;
 				if (stats.isDirectory()) {
-					self.dir = self.documentsDir+'My Games/Pokemon Showdown/';
-					fs.mkdir(self.dir+'Logs', function () {});
-					fs.mkdir(self.dir+'Teams', function () {});
+					self.dir = self.documentsDir + 'My Games/Pokemon Showdown/';
+					fs.mkdir(self.dir + 'Logs', function () {});
+					fs.mkdir(self.dir + 'Teams', function () {});
 
 					// load teams
 					self.nwLoadTeams();
@@ -801,7 +801,7 @@ Storage.revealFolder = function () {
 Storage.nwLoadTeams = function () {
 	var self = this;
 	var localApp = window.app;
-	fs.readdir(this.dir+'Teams', function (err, files) {
+	fs.readdir(this.dir + 'Teams', function (err, files) {
 		if (err) return;
 		self.teams = [];
 		self.nwTeamsLeft = files.length;
@@ -830,12 +830,12 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 		format = line.substr(1, bracketIndex-1);
 		line = $.trim(line.substr(bracketIndex+1));
 	}
-	fs.readFile(this.dir+'Teams/'+filename, function (err, data) {
+	fs.readFile(this.dir + 'Teams/' + filename, function (err, data) {
 		if (!err) {
 			self.teams.push({
 				name: line,
 				format: format,
-				team: Storage.packTeam(Storage.importTeam(''+data)),
+				team: Storage.packTeam(Storage.importTeam('' + data)),
 				iconCache: '',
 				filename: filename
 			});
@@ -861,7 +861,7 @@ Storage.teamCompare = function (a, b) {
 
 Storage.nwDeleteAllTeams = function (callback) {
 	var self = this;
-	fs.readdir(this.dir+'Teams', function (err, files) {
+	fs.readdir(this.dir + 'Teams', function (err, files) {
 		if (err) return;
 		self.nwTeamsLeft = files.length;
 		if (!self.nwTeamsLeft) {
@@ -885,27 +885,27 @@ Storage.nwDeleteTeamFile = function (filename, callback) {
 		if (!self.nwTeamsLeft) callback();
 		return;
 	}
-	fs.unlink(this.dir+'Teams/'+filename, function (err) {
+	fs.unlink(this.dir + 'Teams/' + filename, function (err) {
 		self.nwTeamsLeft--;
 		if (!self.nwTeamsLeft) callback();
 	});
 };
 
 Storage.nwSaveTeam = function (team) {
-	var filename = team.name+'.txt';
-	if (team.format) filename = '['+team.format+'] '+filename;
+	var filename = team.name + '.txt';
+	if (team.format) filename = '[' + team.format + '] ' + filename;
 	filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 	if (team.filename && filename !== team.filename) {
-		fs.unlink(this.dir+'Teams/'+team.filename, function () {});
+		fs.unlink(this.dir + 'Teams/' + team.filename, function () {});
 	}
 	team.filename = filename;
-	fs.writeFile(this.dir+'Teams/'+filename, Storage.exportTeam(team.team).replace(/\n/g,'\r\n'));
+	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g,'\r\n'));
 };
 
 Storage.nwDeleteTeam = function (team) {
 	if (team.filename) {
-		fs.unlink(this.dir+'Teams/'+team.filename, function () {});
+		fs.unlink(this.dir + 'Teams/' + team.filename, function () {});
 		delete team.filename;
 	}
 };
@@ -920,12 +920,12 @@ Storage.nwSaveAllTeams = function () {
 Storage.nwDoSaveAllTeams = function () {
 	for (var i=0; i<this.teams.length; i++) {
 		var team = this.teams[i];
-		var filename = team.name+'.txt';
-		if (team.format) filename = '['+team.format+'] '+filename;
+		var filename = team.name + '.txt';
+		if (team.format) filename = '[' + team.format + '] ' + filename;
 		filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 		team.filename = filename;
-		fs.writeFile(this.dir+'Teams/'+filename, Storage.exportTeam(team.team).replace(/\n/g,'\r\n'));
+		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g,'\r\n'));
 	}
 };
 
@@ -933,19 +933,19 @@ Storage.nwDoSaveAllTeams = function () {
 
 Storage.getLogMonth = function () {
 	var now = new Date();
-	var month = ''+(now.getMonth()+1);
-	if (month.length < 2) month = '0'+month;
-	return ''+now.getFullYear()+'-'+month;
+	var month = '' + (now.getMonth()+1);
+	if (month.length < 2) month = '0' + month;
+	return '' + now.getFullYear() + '-' + month;
 };
 Storage.nwStartLoggingChat = function () {
 	var self = this;
 	if (!self.documentsDir) return; // too early; initDirectory2 will call us when it's time
 	if (self.loggingChat) return;
 	// callback hell! ^_^
-	fs.mkdir(self.dir+'Logs', function () {
+	fs.mkdir(self.dir + 'Logs', function () {
 		self.chatLogFdMonth = self.getLogMonth();
-		fs.mkdir(self.dir+'Logs/'+self.chatLogFdMonth, function () {
-			fs.stat(self.dir+'Logs/'+self.chatLogFdMonth, function (err, stats) {
+		fs.mkdir(self.dir + 'Logs/' + self.chatLogFdMonth, function () {
+			fs.stat(self.dir + 'Logs/' + self.chatLogFdMonth, function (err, stats) {
 				if (err) return;
 				if (stats.isDirectory()) {
 					self.loggingChat = true;
@@ -979,17 +979,17 @@ Storage.nwLogChat = function (roomid, line) {
 	}
 
 	var now = new Date();
-	var hours = ''+now.getHours();
-	if (hours.length < 2) hours = '0'+hours;
-	var minutes = ''+now.getMinutes();
-	if (minutes.length < 2) minutes = '0'+minutes;
-	var timestamp = '['+hours+':'+minutes+'] ';
+	var hours = '' + now.getHours();
+	if (hours.length < 2) hours = '0' + hours;
+	var minutes = '' + now.getMinutes();
+	if (minutes.length < 2) minutes = '0' + minutes;
+	var timestamp = '[' + hours + ':' + minutes + '] ';
 
 	if (!this.chatLogStreams[roomid]) {
-		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir+'Logs/'+chatLogFdMonth+'/'+roomid+'.txt', {flags:'a'});
-		this.chatLogStreams[roomid].write('\n\n\nLog starting '+now+'\n\n');
+		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir + 'Logs/' + chatLogFdMonth + '/' + roomid + '.txt', {flags:'a'});
+		this.chatLogStreams[roomid].write('\n\n\nLog starting ' + now + '\n\n');
 	}
-	this.chatLogStreams[roomid].write(timestamp+line+'\n');
+	this.chatLogStreams[roomid].write(timestamp + line + '\n');
 };
 
 // saving
