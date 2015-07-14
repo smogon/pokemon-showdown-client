@@ -426,6 +426,7 @@
 			}
 
 			switch (cmd.toLowerCase()) {
+			case 'chall':
 			case 'challenge':
 				var targets = target.split(',').map($.trim);
 
@@ -835,6 +836,7 @@
 				});
 				return false;
 
+			case 'joim':
 			case 'join':
 				var room = toRoomid(target);
 				if (app.rooms[target]) {
