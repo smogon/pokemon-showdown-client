@@ -626,7 +626,7 @@ p.or:after {
 	background: rgba(248,248,248,.8);
 	color: #777777;
 	margin: 0;
-	padding: 2px 5px;
+	padding: 2px 2px 2px 5px;
 	font-size: 11pt;
 	border: 1px solid #AAAAAA;
 	border-top-left-radius: 5px;
@@ -650,7 +650,9 @@ p.or:after {
 .pm-window h3 .closebutton,
 .pm-window h3 .minimizebutton {
 	float: right;
-	padding-right: 1px;
+	margin: -3px -3px;
+	width: 22px;
+	height: 22px;
 }
 .pm-window h3 small {
 	color: #888888;
