@@ -2156,7 +2156,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 
 .teambuilder-clipboard-container {
 	height: 52px;
-	max-width: 640px;
+	max-width: 560px;
 	font-size: 8pt;
 	padding: 4px;
 	position: relative;
@@ -2175,7 +2175,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 }
 .teambuilder-clipboard-data {
 	display: block;
-	width: 520px;
+	width: 447px;
 	height: 26px;
 	overflow: hidden;
 	cursor: pointer;
@@ -2210,9 +2210,9 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	width: 32px;
 }
 .teambuilder-clipboard-data .species {
-	width: 118px;
+	width: 100px;
 	padding-top: 6px;
-	margin-left: 4px;
+	margin-left: 1px;
 }
 .teambuilder-clipboard-data .ability-item {
 	width: 98px;
@@ -2220,7 +2220,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	margin-top: -1px;
 }
 .teambuilder-clipboard-data .moves {
-	width: 126px;
+	width: 100px;
 	padding-left: 2px;
 	margin-top: -1px;
 }
