@@ -3019,7 +3019,7 @@ var Battle = (function () {
 			if (kwargs.prepare || kwargs.anim === 'prepare') {
 				this.prepareMove(pokemon, move, target);
 			} else if (!kwargs.notarget) {
-				move.anim(this, [pokemon.sprite, target.sprite]);
+				(kwargs.anim ? Tools.getMove(kwargs.anim) : move).anim(this, [pokemon.sprite, target.sprite]);
 			}
 		}
 		pokemon.lastmove = move.id;
