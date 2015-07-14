@@ -282,7 +282,7 @@
 				case 'start':
 					if (!this.info.isJoined) {
 						this.toggleBoxVisibility(false);
-					} else if (this.info.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']){
+					} else if (this.info.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) {
 						Tools.loadSpriteData('bw');
 					}
 					this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
@@ -392,8 +392,7 @@
 						}
 
 						this.$noMatches.toggleClass('active',
-							this.info.challenges.length === 0 && this.info.challengeBys.length === 0 &&
-							!this.info.challenging && !this.info.challenged);
+							this.info.challenges.length === 0 && this.info.challengeBys.length === 0 && !this.info.challenging && !this.info.challenged);
 					}
 
 					this.updates = {};
@@ -435,7 +434,7 @@
 					var type = endData.generator;
 					this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament!</div>");
 					if (endData.results[1])
-						this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") + ": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
 
 					// Fallthrough
 

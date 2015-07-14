@@ -154,7 +154,7 @@
 				buf += '<li><em>you don\'t have any teams lol</em></li>';
 			} else {
 				buf += '<li><button name="newTop"><i class="icon-plus-sign"></i> New team</button></li>';
-				for (var i=0; i<teams.length+1; i++) {
+				for (var i = 0; i < teams.length + 1; i++) {
 					if (i === this.deletedTeamLoc) {
 						buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
 					}
@@ -167,7 +167,7 @@
 					}
 					if (!team) {
 						buf += '<li>Error: A corrupted team was dropped</li>';
-						teams.splice(i,1);
+						teams.splice(i, 1);
 						i--;
 						if (this.deletedTeamLoc && this.deletedTeamLoc > i) this.deletedTeamLoc--;
 						continue;
@@ -241,17 +241,17 @@
 		},
 		"new": function () {
 			var newTeam = {
-				name: 'Untitled ' + (teams.length+1),
+				name: 'Untitled ' + (teams.length + 1),
 				format: '',
 				team: '',
 				iconCache: ''
 			};
 			teams.push(newTeam);
-			this.edit(teams.length-1);
+			this.edit(teams.length - 1);
 		},
 		newTop: function () {
 			var newTeam = {
-				name: 'Untitled ' + (teams.length+1),
+				name: 'Untitled ' + (teams.length + 1),
 				format: '',
 				team: '',
 				iconCache: ''
@@ -432,14 +432,14 @@
 						return;
 					}
 					var name = file.name;
-					if (name.slice(name.length-4).toLowerCase() === '.txt') {
-						name = name.substr(0, name.length-4);
+					if (name.slice(name.length - 4).toLowerCase() === '.txt') {
+						name = name.substr(0, name.length - 4);
 					}
 					var format = '';
 					var bracketIndex = name.indexOf(']');
 					if (bracketIndex >= 0) {
-						format = name.substr(1, bracketIndex-1);
-						name = $.trim(name.substr(bracketIndex+1));
+						format = name.substr(1, bracketIndex - 1);
+						name = $.trim(name.substr(bracketIndex + 1));
 					}
 					Storage.teams.push({
 						name: name,
@@ -472,15 +472,15 @@
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
-				var i=0;
-				if (this.curSetList.length && !this.curSetList[this.curSetList.length-1].species) {
-					this.curSetList.splice(this.curSetList.length-1, 1);
+				var i = 0;
+				if (this.curSetList.length && !this.curSetList[this.curSetList.length - 1].species) {
+					this.curSetList.splice(this.curSetList.length - 1, 1);
 				}
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select"><label>Format:</label><select name="format"><option value="">(None)</option>';
 					for (var i in BattleFormats) {
 						if (BattleFormats[i].isTeambuilderFormat) {
-							var activeFormat = (this.curTeam.format === i?' selected="selected"':'');
+							var activeFormat = (this.curTeam.format === i ? ' selected="selected"' : '');
 							buf += '<option value="' + i + '"' + activeFormat + '>' + BattleFormats[i].name + '</option>';
 						}
 					}
@@ -489,7 +489,7 @@
 				if (!this.curSetList.length) {
 					buf += '<li><em>you have no pokemon lol</em></li>';
 				}
-				for (i=0; i<this.curSetList.length; i++) {
+				for (i = 0; i < this.curSetList.length; i++) {
 					if (this.curSetList.length < 6 && this.deletedSet && i === this.deletedSetLoc) {
 						buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
 					}
@@ -522,7 +522,7 @@
 			}
 			buf += '<div class="setmenu"><button name="copySet"><i class="icon-copy"></i>Copy</button> <button name="importSet"><i class="icon-upload-alt"></i>Import/Export</button> <button name="moveSet"><i class="icon-move"></i>Move</button> <button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
-			buf += '<label>Nickname</label><input type="text" value="' + Tools.escapeHTML(set.name||set.species) + '" name="nickname" />';
+			buf += '<label>Nickname</label><input type="text" value="' + Tools.escapeHTML(set.name || set.species) + '" name="nickname" />';
 			buf += '</div>';
 			buf += '<div class="setchart">';
 
@@ -543,10 +543,10 @@
 				'F': 'Female',
 				'N': '&mdash;'
 			};
-			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level||100) + '</span>';
-			buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[template.gender||set.gender||'N'] + '</span>';
-			buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number'?set.happiness:255) + '</span>';
-			buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny?'Yes':'No') + '</span>';
+			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level || 100) + '</span>';
+			buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[template.gender || set.gender || 'N'] + '</span>';
+			buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
+			buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 
 			buf += '</button></div>';
 			buf += '</div><div class="setrow">';
@@ -575,12 +575,12 @@
 				} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === j) {
 					ev += '<small>&minus;</small>';
 				}
-				var width = stats[j]*75/504;
-				if (j=='hp') width = stats[j]*75/704;
-				if (width>75) width = 75;
-				var color = Math.floor(stats[j]*180/714);
-				if (color>360) color = 360;
-				buf += '<span class="statrow"><label>' + BattleStatNames[j]+'</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
+				var width = stats[j] * 75 / 504;
+				if (j == 'hp') width = stats[j] * 75 / 704;
+				if (width > 75) width = 75;
+				var color = Math.floor(stats[j] * 180 / 714);
+				if (color > 360) color = 360;
+				buf += '<span class="statrow"><label>' + BattleStatNames[j] + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
 			}
 			buf += '</button></div></div>';
 
@@ -595,7 +595,7 @@
 		addPokemon: function () {
 			if (!this.curTeam) return;
 			var team = this.curSetList;
-			if (!team.length || team[team.length-1].species) {
+			if (!team.length || team[team.length - 1].species) {
 				var newPokemon = {
 					name: '',
 					species: '',
@@ -607,8 +607,8 @@
 				};
 				team.push(newPokemon);
 			}
-			this.curSet = team[team.length-1];
-			this.curSetLoc = team.length-1;
+			this.curSet = team[team.length - 1];
+			this.curSetLoc = team.length - 1;
 			this.curChartName = '';
 			this.update();
 			this.$('input[name=pokemon]').select();
@@ -631,7 +631,7 @@
 			Storage.saveTeams();
 		},
 		teamNameChange: function (e) {
-			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled ' + (this.curTeamLoc+1));
+			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled ' + (this.curTeamLoc + 1));
 			e.currentTarget.value = this.curTeam.name;
 			this.save();
 		},
@@ -710,7 +710,7 @@
 		clipboardExpanded: false,
 		clipboardExpand: function () {
 			var $clipboard = $('.teambuilder-clipboard-data');
-			$clipboard.animate({ height: this.clipboardCount() * 28 }, 500, function () {
+			$clipboard.animate({height: this.clipboardCount() * 28}, 500, function () {
 				setTimeout(function () { $clipboard.focus(); }, 100);
 			});
 
@@ -720,7 +720,7 @@
 		},
 		clipboardShrink: function () {
 			var $clipboard = $('.teambuilder-clipboard-data');
-			$clipboard.animate({ height: 26 }, 500);
+			$clipboard.animate({height: 26}, 500);
 
 			setTimeout(function () {
 				this.clipboardExpanded = false;
@@ -751,7 +751,7 @@
 			if (this.clipboardCount() === 1) {
 				var $clipboard = $('.teambuilder-clipboard-container').css('opacity', 0);
 				$clipboard.slideDown(250, function () {
-					$clipboard.animate({ opacity: 1 }, 250);
+					$clipboard.animate({opacity: 1}, 250);
 				});
 			}
 		},
@@ -760,7 +760,7 @@
 
 			var self = this;
 			var $clipboard = $('.teambuilder-clipboard-container');
-			$clipboard.animate({ opacity: 0 }, 250, function () {
+			$clipboard.animate({opacity: 0}, 250, function () {
 				$clipboard.slideUp(250, function () {
 					self.clipboardUpdate();
 				});
@@ -888,10 +888,10 @@
 		renderTeambar: function () {
 			var buf = '';
 			var isAdd = false;
-			if (this.curSetList.length && !this.curSetList[this.curSetList.length-1].name && this.curSetLoc !== this.curSetList.length-1) {
-				this.curSetList.splice(this.curSetList.length-1, 1);
+			if (this.curSetList.length && !this.curSetList[this.curSetList.length - 1].name && this.curSetLoc !== this.curSetList.length - 1) {
+				this.curSetList.splice(this.curSetList.length - 1, 1);
 			}
-			for (var i=0; i<this.curSetList.length; i++) {
+			for (var i = 0; i < this.curSetList.length; i++) {
 				var set = this.curSetList[i];
 				var pokemonicon = '<span class="pokemonicon pokemonicon-' + i + '" style="' + Tools.getIcon(set) + '"></span>';
 				if (!set.name) {
@@ -947,12 +947,12 @@
 				else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
 					ev += '<small>&minus;</small>';
 				}
-				var width = stats[stat]*75/504;
-				if (stat == 'hp') width = stats[stat]*75/704;
+				var width = stats[stat] * 75 / 504;
+				if (stat == 'hp') width = stats[stat] * 75 / 704;
 				if (width > 75) width = 75;
-				var color = Math.floor(stats[stat]*180/714);
+				var color = Math.floor(stats[stat] * 180 / 714);
 				if (color > 360) color = 360;
-				buf += '<span class="statrow"><label>' + BattleStatNames[stat]+'</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
+				buf += '<span class="statrow"><label>' + BattleStatNames[stat] + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
 			}
 			this.$('button[name=stats]').html(buf);
 
@@ -967,23 +967,23 @@
 			buf = '<div></div>';
 			var totalev = 0;
 			for (var stat in stats) {
-				var width = stats[stat]*180/504;
-				if (stat == 'hp') width = stats[stat]*180/704;
+				var width = stats[stat] * 180 / 504;
+				if (stat == 'hp') width = stats[stat] * 180 / 704;
 				if (width > 179) width = 179;
-				var color = Math.floor(stats[stat]*180/714);
+				var color = Math.floor(stats[stat] * 180 / 714);
 				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
-				totalev += (set.evs[stat]||0);
+				totalev += (set.evs[stat] || 0);
 			}
 			buf += '<div><em>Remaining:</em></div>';
 			this.$chart.find('.graphcol').html(buf);
 
 			if (totalev <= 510) {
-				this.$chart.find('.totalev').html('<em>' + (totalev>508?0:508-totalev) + '</em>');
+				this.$chart.find('.totalev').html('<em>' + (totalev > 508 ? 0 : 508 - totalev) + '</em>');
 			} else {
-				this.$chart.find('.totalev').html('<b>' + (510-totalev) + '</b>');
+				this.$chart.find('.totalev').html('<b>' + (510 - totalev) + '</b>');
 			}
-			this.$chart.find('select[name=nature]').val(set.nature||'Serious');
+			this.$chart.find('select[name=nature]').val(set.nature || 'Serious');
 		},
 		curChartType: '',
 		curChartName: '',
@@ -1080,11 +1080,13 @@
 				buf += ' (Please choose 4 moves to get a suggested spread)</small></p>';
 			} else {
 				guessedEVs = this.guessEVs(role);
-				guessedPlus = guessedEVs.plusStat; delete guessedEVs.plusStat;
-				guessedMinus = guessedEVs.minusStat; delete guessedEVs.minusStat;
+				guessedPlus = guessedEVs.plusStat;
+				delete guessedEVs.plusStat;
+				guessedMinus = guessedEVs.minusStat;
+				delete guessedEVs.minusStat;
 				buf += ' </small><button name="setStatFormGuesses">' + role + ': ';
 				for (var i in guessedEVs) {
-					if (guessedEVs[i]) buf += '' + guessedEVs[i]+' ' + BattleStatNames[i] + ' / ';
+					if (guessedEVs[i]) buf += '' + guessedEVs[i] + ' ' + BattleStatNames[i] + ' / ';
 				}
 				buf += ' (+' + BattleStatNames[guessedPlus] + ', -' + BattleStatNames[guessedMinus] + ')</button></p>';
 				//buf += ' <small>(' + role + ' | bulk: phys ' + Math.round(this.moveCount.physicalBulk/1000) + ' + spec ' + Math.round(this.moveCount.specialBulk/1000) + ' = ' + Math.round(this.moveCount.bulk/1000) + ')</small>';
@@ -1121,11 +1123,11 @@
 			buf += '<div class="col graphcol"><div></div>';
 			for (var i in stats) {
 				stats[i] = this.getStat(i);
-				var width = stats[i]*180/504;
-				if (i=='hp') width = Math.floor(stats[i]*180/704);
+				var width = stats[i] * 180 / 504;
+				if (i == 'hp') width = Math.floor(stats[i] * 180 / 704);
 				if (width > 179) width = 179;
-				var color = Math.floor(stats[i]*180/714);
-				if (color>360) color = 360;
+				var color = Math.floor(stats[i] * 180 / 714);
+				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 			}
 			buf += '<div><em>Remaining:</em></div>';
@@ -1136,10 +1138,10 @@
 			this.plus = '';
 			this.minus = '';
 			for (var i in stats) {
-				var width = stats[i]*200/504;
-				if (i=='hp') width = stats[i]*200/704;
+				var width = stats[i] * 200 / 504;
+				if (i == 'hp') width = stats[i] * 200 / 704;
 				if (width > 200) width = 200;
-				var val = '' + (set.evs[i]||'');
+				var val = '' + (set.evs[i] || '');
 				if (nature.plus === i) {
 					val += '+';
 					this.plus = i;
@@ -1149,18 +1151,18 @@
 					this.minus = i;
 				}
 				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="inputform numform" /></div>';
-				totalev += (set.evs[i]||0);
+				totalev += (set.evs[i] || 0);
 			}
 			if (totalev <= 510) {
-				buf += '<div class="totalev"><em>' + (totalev>508?0:508-totalev) + '</em></div>';
+				buf += '<div class="totalev"><em>' + (totalev > 508 ? 0 : 508 - totalev) + '</em></div>';
 			} else {
-				buf += '<div class="totalev"><b>' + (510-totalev) + '</b></div>';
+				buf += '<div class="totalev"><b>' + (510 - totalev) + '</b></div>';
 			}
 			buf += '</div>';
 
 			buf += '<div class="col evslidercol"><div></div>';
 			for (var i in stats) {
-				buf += '<div><input type="slider" name="evslider-' + i + '" value="' + (set.evs[i]||'0') + '" min="0" max="252" step="4" class="evslider" /></div>';
+				buf += '<div><input type="slider" name="evslider-' + i + '" value="' + (set.evs[i] || '0') + '" min="0" max="252" step="4" class="evslider" /></div>';
 			}
 			buf += '</div>';
 
@@ -1183,9 +1185,9 @@
 			buf += '<p style="clear:both">Nature: <select name="nature">';
 			for (var i in BattleNatures) {
 				var curNature = BattleNatures[i];
-				buf += '<option value="' + i + '"' + (curNature===nature?'selected="selected"':'') + '>' + i;
+				buf += '<option value="' + i + '"' + (curNature === nature ? 'selected="selected"' : '') + '>' + i;
 				if (curNature.plus) {
-					buf += ' (+' + BattleStatNames[curNature.plus]+', -' + BattleStatNames[curNature.minus] + ')';
+					buf += ' (+' + BattleStatNames[curNature.plus] + ', -' + BattleStatNames[curNature.minus] + ')';
 				}
 				buf += '</option>';
 			}
@@ -1217,7 +1219,7 @@
 		},
 		setSlider: function (stat, val) {
 			this.suppressSliderCallback = true;
-			this.$chart.find('input[name=evslider-' + stat + ']').slider('value', val||0);
+			this.$chart.find('input[name=evslider-' + stat + ']').slider('value', val || 0);
 			this.suppressSliderCallback = false;
 		},
 		updateNature: function () {
@@ -1242,20 +1244,20 @@
 			var set = this.curSet;
 			if (!set) return;
 
-			if (inputName.substr(0,5) === 'stat-') {
+			if (inputName.substr(0, 5) === 'stat-') {
 				// EV
 				// Handle + and -
 				var stat = inputName.substr(5);
 				if (!set.evs) set.evs = {};
 
-				var lastchar = e.currentTarget.value.charAt(e.target.value.length-1);
+				var lastchar = e.currentTarget.value.charAt(e.target.value.length - 1);
 				var firstchar = e.currentTarget.value.charAt(0);
 				var natureChange = true;
 				if ((lastchar === '+' || firstchar === '+') && stat !== 'hp') {
-					if (this.plus && this.plus !== stat) this.$chart.find('input[name=stat-' + this.plus + ']').val(set.evs[this.plus]||'');
+					if (this.plus && this.plus !== stat) this.$chart.find('input[name=stat-' + this.plus + ']').val(set.evs[this.plus] || '');
 					this.plus = stat;
 				} else if ((lastchar === '-' || lastchar === "\u2212" || firstchar === '-' || firstchar === "\u2212") && stat !== 'hp') {
-					if (this.minus && this.minus !== stat) this.$chart.find('input[name=stat-' + this.minus + ']').val(set.evs[this.minus]||'');
+					if (this.minus && this.minus !== stat) this.$chart.find('input[name=stat-' + this.minus + ']').val(set.evs[this.minus] || '');
 					this.minus = stat;
 				} else if (this.plus === stat) {
 					this.plus = '';
@@ -1301,7 +1303,7 @@
 			if (!this.ignoreEVLimits && set.evs) {
 				var total = 0;
 				for (var i in set.evs) {
-					total += (i===stat?val:set.evs[i]);
+					total += (i === stat ? val : set.evs[i]);
 				}
 				if (total > 508 && val - total + 508 >= 0) {
 					// don't allow dragging beyond 508 EVs
@@ -1321,7 +1323,7 @@
 			if (!set.evs) set.evs = {};
 			set.evs[stat] = val;
 
-			val = '' + (val||'') + (this.plus===stat?'+':'')+(this.minus===stat?'-':'');
+			val = '' + (val || '') + (this.plus === stat ? '+' : '') + (this.minus === stat ? '-' : '');
 			this.$('input[name=stat-' + stat + ']').val(val);
 
 			this.updateStatGraph();
@@ -1335,9 +1337,9 @@
 			}
 			this.plus = '';
 			this.minus = '';
-			var nature = BattleNatures[set.nature||'Serious'];
+			var nature = BattleNatures[set.nature || 'Serious'];
 			for (var i in BattleStatNames) {
-				var val = '' + (set.evs[i]||'');
+				var val = '' + (set.evs[i] || '');
 				if (nature.plus === i) {
 					this.plus = i;
 					val += '+';
@@ -1366,24 +1368,24 @@
 			buf += '<h3>Details</h3>';
 			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (set.level||100) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (set.level || 100) + '" class="textbox inputform numform" /></div></div>';
 
 			buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
 			if (template.gender) {
 				var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
 				buf += genderTable[template.gender];
 			} else {
-				buf += '<label><input type="radio" name="gender" value="M"' + (set.gender==='M'?' checked':'') + ' /> Male</label> ';
-				buf += '<label><input type="radio" name="gender" value="F"' + (set.gender==='F'?' checked':'') + ' /> Female</label> ';
-				buf += '<label><input type="radio" name="gender" value="N"' + (!set.gender?' checked':'') + ' /> Random</label>';
+				buf += '<label><input type="radio" name="gender" value="M"' + (set.gender === 'M' ? ' checked' : '') + ' /> Male</label> ';
+				buf += '<label><input type="radio" name="gender" value="F"' + (set.gender === 'F' ? ' checked' : '') + ' /> Female</label> ';
+				buf += '<label><input type="radio" name="gender" value="N"' + (!set.gender ? ' checked' : '') + ' /> Random</label>';
 			}
 			buf += '</div></div>';
 
-			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness==='number'?set.happiness:255) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
 
 			buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
-			buf += '<label><input type="radio" name="shiny" value="yes"' + (set.shiny?' checked':'') + ' /> Yes</label> ';
-			buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny?' checked':'') + ' /> No</label>';
+			buf += '<label><input type="radio" name="shiny" value="yes"' + (set.shiny ? ' checked' : '') + ' /> Yes</label> ';
+			buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
 			buf += '</div></div>';
 
 			buf += '</form>';
@@ -1394,12 +1396,12 @@
 			if (!set) return;
 
 			// level
-			var level = parseInt(this.$chart.find('input[name=level]').val(),10);
+			var level = parseInt(this.$chart.find('input[name=level]').val(), 10);
 			if (!level || level > 100 || level < 1) level = 100;
 			if (level !== 100 || set.level) set.level = level;
 
 			// happiness
-			var happiness = parseInt(this.$chart.find('input[name=happiness]').val(),10);
+			var happiness = parseInt(this.$chart.find('input[name=happiness]').val(), 10);
 			if (happiness > 255) happiness = 255;
 			if (happiness < 0) happiness = 255;
 			set.happiness = happiness;
@@ -1427,10 +1429,10 @@
 				'F': 'Female',
 				'N': '&mdash;'
 			};
-			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level||100) + '</span>';
-			buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender||'N'] + '</span>';
-			buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness==='number'?set.happiness:255) + '</span>';
-			buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny?'Yes':'No') + '</span>';
+			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level || 100) + '</span>';
+			buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender || 'N'] + '</span>';
+			buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
+			buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 			this.$('button[name=details]').html(buf);
 
 			this.save();
@@ -1613,7 +1615,7 @@
 		chooseMove: function (move) {
 			var set = this.curSet;
 			if (!set) return;
-			if (move.substr(0,13) === 'Hidden Power ') {
+			if (move.substr(0, 13) === 'Hidden Power ') {
 				set.ivs = {};
 				for (var i in exports.BattleTypeChart[move.substr(13)].HPivs) {
 					set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPivs[i];
@@ -1626,7 +1628,7 @@
 				var hasHiddenPower = false;
 				var moves = this.curSet.moves;
 				for (var i = 0; i < moves.length; ++i) {
-					if (moves[i].substr(0,13) === 'Hidden Power ') hasHiddenPower = true;
+					if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
 				}
 				set.ivs['spe'] = hasHiddenPower ? set.ivs['spe'] % 4 : 0;
 			} else if (move === 'Return') {
@@ -1694,7 +1696,7 @@
 
 			if (set.moves.length < 4 && template.id !== 'unown' && template.id !== 'ditto') return '?';
 
-			for (var i=0,len=set.moves.length; i<len; i++) {
+			for (var i = 0, len = set.moves.length; i < len; i++) {
 				var move = Tools.getMove(set.moves[i]);
 				hasMove[move.id] = 1;
 				if (move.category === 'Status') {
@@ -1749,8 +1751,8 @@
 			if (hasMove['dragondance'] || hasMove['quiverdance']) moveCount['Ultrafast'] = 1;
 
 			var isFast = (stats.spe > 95);
-			var physicalBulk = (stats.hp+75)*(stats.def+87);
-			var specialBulk = (stats.hp+75)*(stats.spd+87);
+			var physicalBulk = (stats.hp + 75) * (stats.def + 87);
+			var specialBulk = (stats.hp + 75) * (stats.spd + 87);
 
 			if (hasMove['willowisp'] || hasMove['acidarmor'] || hasMove['irondefense'] || hasMove['cottonguard']) {
 				physicalBulk *= 1.6;
@@ -1799,17 +1801,17 @@
 				specialBulk *= 1.15;
 			}
 			if (itemid === 'leftovers' || itemid === 'blacksludge') {
-				physicalBulk *= 1 + 0.1*(1+moveCount['Stall']/1.5);
-				specialBulk *= 1 + 0.1*(1+moveCount['Stall']/1.5);
+				physicalBulk *= 1 + 0.1 * (1 + moveCount['Stall'] / 1.5);
+				specialBulk *= 1 + 0.1 * (1 + moveCount['Stall'] / 1.5);
 			}
 			if (hasMove['leechseed']) {
-				physicalBulk *= 1 + 0.1*(1+moveCount['Stall']/1.5);
-				specialBulk *= 1 + 0.1*(1+moveCount['Stall']/1.5);
+				physicalBulk *= 1 + 0.1 * (1 + moveCount['Stall'] / 1.5);
+				specialBulk *= 1 + 0.1 * (1 + moveCount['Stall'] / 1.5);
 			}
 			if ((itemid === 'flameorb' || itemid === 'toxicorb') && abilityid !== 'magicguard') {
 				if (itemid === 'toxicorb' && abilityid === 'poisonheal') {
-					physicalBulk *= 1 + 0.1*(2+moveCount['Stall']);
-					specialBulk *= 1 + 0.1*(2+moveCount['Stall']);
+					physicalBulk *= 1 + 0.1 * (2 + moveCount['Stall']);
+					specialBulk *= 1 + 0.1 * (2 + moveCount['Stall']);
 				} else {
 					physicalBulk *= 0.8;
 					specialBulk *= 0.8;
@@ -1845,12 +1847,12 @@
 				moveCount['Ultrafast'] = 2;
 			}
 			if (hasMove['agility'] || hasMove['shellsmash'] || hasMove['autotomize'] || hasMove['shiftgear'] || hasMove['rockpolish']) moveCount['Ultrafast'] = 2;
-			moveCount['Fast'] = isFast?1:0;
+			moveCount['Fast'] = isFast ? 1 : 0;
 
 			this.moveCount = moveCount;
 			this.hasMove = hasMove;
 
-			if (template.id === 'ditto') return abilityid==='imposter'?'Physically Defensive':'Fast Bulky Support';
+			if (template.id === 'ditto') return abilityid === 'imposter' ? 'Physically Defensive' : 'Fast Bulky Support';
 			if (template.id === 'shedinja') return 'Fast Physical Sweeper';
 
 			if (itemid === 'choiceband' && moveCount['PhysicalAttack'] >= 2) {
@@ -1882,9 +1884,9 @@
 			else if (stats.spa > stats.atk && moveCount['Special'] > 1) offenseBias = 'Special';
 			else if (moveCount['Special'] > moveCount['Physical']) offenseBias = 'Special';
 			else offenseBias = 'Physical';
-			var offenseStat = stats[offenseBias === 'Special'?'spa':'atk'];
+			var offenseStat = stats[offenseBias === 'Special' ? 'spa' : 'atk'];
 
-			if (moveCount['Stall'] + moveCount['Support']/2 <= 2 && bulk < 135000 && moveCount[offenseBias] >= 1.5) {
+			if (moveCount['Stall'] + moveCount['Support'] / 2 <= 2 && bulk < 135000 && moveCount[offenseBias] >= 1.5) {
 				if (isFast) {
 					if (bulk > 80000 && !moveCount['Ultrafast']) return 'Bulky ' + offenseBias + ' Sweeper';
 					return 'Fast ' + offenseBias + ' Sweeper';
@@ -1917,7 +1919,7 @@
 				diff -= change;
 			}
 			if (diff <= 0) return evTotal;
-			var evPriority = {def:1, spd:1, hp:1, atk:1, spa:1, spe:1};
+			var evPriority = {def: 1, spd: 1, hp: 1, atk: 1, spa: 1, spe: 1};
 			for (var i in evPriority) {
 				if (i === stat) continue;
 				if (evs[i] && evs[i] > 128) {
@@ -1991,25 +1993,25 @@
 				var evTotal = 0;
 
 				var i = statChart[role][0];
-				var stat = this.getStat(i, null, 252, plusStat===i?1.1:1.0);
+				var stat = this.getStat(i, null, 252, plusStat === i ? 1.1 : 1.0);
 				var ev = 252;
-				while (stat <= this.getStat(i, null, ev-4, plusStat===i?1.1:1.0)) ev -= 4;
+				while (stat <= this.getStat(i, null, ev - 4, plusStat === i ? 1.1 : 1.0)) ev -= 4;
 				evs[i] = ev;
 				evTotal += ev;
 
 				var i = statChart[role][1];
 				if (i === 'hp' && set.level && set.level < 20) i = 'spd';
-				var stat = this.getStat(i, null, 252, plusStat===i?1.1:1.0);
+				var stat = this.getStat(i, null, 252, plusStat === i ? 1.1 : 1.0);
 				var ev = 252;
-				if (i === 'hp' && (hasMove['substitute'] || hasMove['transform']) && stat == Math.floor(stat/4)*4) stat -= 1;
-				while (stat <= this.getStat(i, null, ev-4, plusStat===i?1.1:1.0)) ev -= 4;
+				if (i === 'hp' && (hasMove['substitute'] || hasMove['transform']) && stat == Math.floor(stat / 4) * 4) stat -= 1;
+				while (stat <= this.getStat(i, null, ev - 4, plusStat === i ? 1.1 : 1.0)) ev -= 4;
 				if (ev < 0) ev = 0;
 				evs[i] = ev;
 				evTotal += ev;
 
 				if (set.item !== 'Leftovers' && set.item !== 'Black Sludge') {
 					var hpParity = 1; // 1 = should be odd, 0 = should be even
-					if ((hasMove['substitute'] || hasMove['bellydrum']) && (set.item||'').slice(-5) === 'Berry') {
+					if ((hasMove['substitute'] || hasMove['bellydrum']) && (set.item || '').slice(-5) === 'Berry') {
 						hpParity = 0;
 					}
 					if (this.getStat('hp', null, evs['hp'] || 0, 1) % 2 != hpParity) {
@@ -2066,7 +2068,7 @@
 			}
 
 			if (plusStat === minusStat) {
-				minusStat = (plusStat==='spe' ? 'spd' : 'spe');
+				minusStat = (plusStat === 'spe' ? 'spd' : 'spe');
 			}
 
 			evs.plusStat = plusStat;
@@ -2108,9 +2110,9 @@
 
 			if (stat === 'hp') {
 				if (template.baseStats['hp'] === 1) return 1;
-				return Math.floor(Math.floor(2*template.baseStats['hp']+(set.ivs['hp']||0)+Math.floor((evOverride||set.evs['hp']||0)/4)+100)*set.level / 100 + 10);
+				return Math.floor(Math.floor(2 * template.baseStats['hp'] + (set.ivs['hp'] || 0) + Math.floor((evOverride || set.evs['hp'] || 0) / 4) + 100) * set.level / 100 + 10);
 			}
-			var val = Math.floor(Math.floor(2*template.baseStats[stat]+(set.ivs[stat]||0)+Math.floor((evOverride||set.evs[stat]||0)/4))*set.level / 100 + 5);
+			var val = Math.floor(Math.floor(2 * template.baseStats[stat] + (set.ivs[stat] || 0) + Math.floor((evOverride || set.evs[stat] || 0) / 4)) * set.level / 100 + 5);
 			if (natureOverride) {
 				val *= natureOverride;
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
@@ -2174,14 +2176,14 @@
 			var buf = '<ul class="popupmenu">';
 			this.i = data.i;
 			this.team = data.team;
-			for (var i=0; i<data.team.length; i++) {
+			for (var i = 0; i < data.team.length; i++) {
 				var set = data.team[i];
-				if (i !== data.i && i !== data.i+1) {
+				if (i !== data.i && i !== data.i + 1) {
 					buf += '<li><button name="moveHere" value="' + i + '"><i class="icon-arrow-right"></i> Move here</button></li>';
 				}
-				buf += '<li' + (i===data.i?' style="opacity:.3"':' style="opacity:.6"') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(set) + '"></span> ' + Tools.escapeHTML(set.name) + '</li>';
+				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(set) + '"></span> ' + Tools.escapeHTML(set.name) + '</li>';
 			}
-			if (i !== data.i && i !== data.i+1) {
+			if (i !== data.i && i !== data.i + 1) {
 				buf += '<li><button name="moveHere" value="' + i + '"><i class="icon-arrow-right"></i> Move here</button></li>';
 			}
 			buf += '</ul>';

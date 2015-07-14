@@ -99,7 +99,7 @@
 			if (newsId === '' + Tools.prefs('readnews')) return;
 			this.addPseudoPM({
 				title: 'Latest News',
-				html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:'?'&amp;https':'') + '" width="270" height="400" border="0" style="border:0;width:100%;height:400px"></iframe>',
+				html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:' ? '&amp;https' : '') + '" width="270" height="400" border="0" style="border:0;width:100%;height:400px"></iframe>',
 				attributes: 'data-newsid="' + newsId + '"',
 				cssClass: 'news-embed',
 				height: 400,
@@ -113,7 +113,7 @@
 
 		addPM: function (name, message, target) {
 			var userid = toUserid(name);
-			if (app.ignore[userid] && name.substr(0, 1) in {' ':1, '!':1, '‽':1}) return;
+			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '!': 1, '‽': 1}) return;
 
 			if (app.curSideRoom && app.curSideRoom.addPM && Tools.prefs('inchatpm')) {
 				app.curSideRoom.addPM(name, message, target);
@@ -142,33 +142,33 @@
 			var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 			if (name.substr(0, 1) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>' + clickableName;
 
-			if (message.substr(0,4) === '/me ') {
+			if (message.substr(0, 4) === '/me ') {
 				$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4)) + '</i></em></div>');
-			} else if (message.substr(0,5) === '/mee ') {
+			} else if (message.substr(0, 5) === '/mee ') {
 				$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message.substr(5)) + '</i></em></div>');
-			} else if (message.substr(0,8) === '/invite ') {
+			} else if (message.substr(0, 8) === '/invite ') {
 				var roomid = toRoomid(message.substr(8));
 				$chat.append('<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em></div>');
 				$chat.append('<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>');
-			} else if (message.substr(0,10) === '/announce ') {
+			} else if (message.substr(0, 10) === '/announce ') {
 				$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
-			} else if (message.substr(0,14) === '/data-pokemon ') {
-				$chat.append('<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(message.substr(14)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,11) === '/data-item ') {
-				$chat.append('<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(message.substr(11)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,14) === '/data-ability ') {
-				$chat.append('<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(message.substr(14)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,11) === '/data-move ') {
-				$chat.append('<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(message.substr(11)),'',{},false,true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0,6) === '/text ') {
+			} else if (message.substr(0, 14) === '/data-pokemon ') {
+				$chat.append('<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
+			} else if (message.substr(0, 11) === '/data-item ') {
+				$chat.append('<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
+			} else if (message.substr(0, 14) === '/data-ability ') {
+				$chat.append('<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
+			} else if (message.substr(0, 11) === '/data-move ') {
+				$chat.append('<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
+			} else if (message.substr(0, 6) === '/text ') {
 				$chat.append('<div class="chat">' + Tools.escapeHTML(message.substr(6)) + '</div>');
-			} else if (message.substr(0,7) === '/error ') {
+			} else if (message.substr(0, 7) === '/error ') {
 				$chat.append('<div class="chat message-error">' + Tools.escapeHTML(message.substr(7)) + '</div>');
-			} else if (message.substr(0,6) === '/html ') {
+			} else if (message.substr(0, 6) === '/html ') {
 				$chat.append('<div class="chat">' + Tools.sanitizeHTML(message.substr(6)) + '</div>');
 			} else {
 				// Normal chat message.
-				if (message.substr(0,2) === '//') message = message.substr(1);
+				if (message.substr(0, 2) === '//') message = message.substr(1);
 				$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em' + (target === oName ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
 			}
 
@@ -357,10 +357,10 @@
 			app.addPopup(AvatarsPopup);
 		},
 		openSounds: function () {
-			app.addPopup(SoundsPopup, {type:'semimodal'});
+			app.addPopup(SoundsPopup, {type: 'semimodal'});
 		},
 		openOptions: function () {
-			app.addPopup(OptionsPopup, {type:'semimodal'});
+			app.addPopup(OptionsPopup, {type: 'semimodal'});
 		},
 
 		// challenges and searching
@@ -628,7 +628,7 @@
 				}
 				formatid = this.curFormat;
 			}
-			return '<button class="select formatselect' + (noChoice?' preselected':'') + '" name="format" value="' + formatid + '"' + (noChoice?' disabled':'') + '>' + Tools.escapeFormat(formatid) + '</button>';
+			return '<button class="select formatselect' + (noChoice ? ' preselected' : '') + '" name="format" value="' + formatid + '"' + (noChoice ? ' disabled' : '') + '>' + Tools.escapeFormat(formatid) + '</button>';
 		},
 		curTeamFormat: '',
 		curTeamIndex: -1,
@@ -653,7 +653,7 @@
 					teamIndex = this.curTeamIndex;
 				}
 				if (this.curTeamFormat !== formatid) {
-					for (var i=0; i<teams.length; i++) {
+					for (var i = 0; i < teams.length; i++) {
 						if (teams[i].format === formatid) {
 							teamIndex = i;
 							break;
@@ -715,7 +715,7 @@
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
 				if (toId(target) === 'zarel') {
-					app.addPopup(Popup, {htmlMessage:"Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
+					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
 					return;
 				}
 				app.addPopup(UserPopup, {name: target});
@@ -777,19 +777,19 @@
 
 	var TeamPopup = this.TeamPopup = this.Popup.extend({
 		initialize: function (data) {
-			var bufs = ['','','','',''];
+			var bufs = ['', '', '', '', ''];
 			var curBuf = 0;
 			var teams = Storage.teams;
 
 			var bufBoundary = 128;
 			if (teams.length > 128 && $(window).width() > 1080) {
-				bufBoundary = Math.ceil(teams.length/5);
+				bufBoundary = Math.ceil(teams.length / 5);
 			} else if (teams.length > 81) {
-				bufBoundary = Math.ceil(teams.length/4);
+				bufBoundary = Math.ceil(teams.length / 4);
 			} else if (teams.length > 54) {
-				bufBoundary = Math.ceil(teams.length/3);
+				bufBoundary = Math.ceil(teams.length / 3);
 			} else if (teams.length > 27) {
-				bufBoundary = Math.ceil(teams.length/2);
+				bufBoundary = Math.ceil(teams.length / 2);
 			}
 
 			var format = BattleFormats[data.format];
@@ -804,7 +804,7 @@
 					for (var i = 0; i < teams.length; i++) {
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
-							bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected?' class="sel"':'') + '>' + Tools.escapeHTML(teams[i].name) + '</button></li>';
+							bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + Tools.escapeHTML(teams[i].name) + '</button></li>';
 							count++;
 							if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 						}
@@ -817,7 +817,7 @@
 				for (var i = 0; i < teams.length; i++) {
 					if (teamFormat && teams[i].format === teamFormat) continue;
 					var selected = (i === curTeam);
-					bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected?' class="sel"':'') + '>' + Tools.escapeHTML(teams[i].name) + '</button></li>';
+					bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + Tools.escapeHTML(teams[i].name) + '</button></li>';
 					count++;
 					if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 				}
@@ -827,7 +827,7 @@
 			}
 
 			if (bufs[1]) {
-				while (!bufs[bufs.length-1]) bufs.pop();
+				while (!bufs[bufs.length - 1]) bufs.pop();
 				this.$el.html('<ul class="popupmenu" style="float:left">' + bufs.join('</ul><ul class="popupmenu" style="float:left;padding-left:5px">') + '</ul><div style="clear:left"></div>');
 			} else {
 				this.$el.html('<ul class="popupmenu">' + bufs[0] + '</ul>');
@@ -845,7 +845,7 @@
 		renderTeam: function (i) {
 			if (i === 'random') {
 				var buf = 'Random team<br />';
-				for (var i=0; i<6; i++) {
+				for (var i = 0; i < 6; i++) {
 					buf += '<span class="pokemonicon" style="float:left;' + Tools.getIcon() + '"></span>';
 				}
 				return buf;
@@ -867,7 +867,7 @@
 			if (window.BattleFormats) {
 				for (var i in BattleFormats) {
 					if (BattleFormats[i].searchShow) {
-						var activeFormat = (this.format === i?' selected=':'');
+						var activeFormat = (this.format === i ? ' selected=' : '');
 						buf += '<option value="' + i + '"' + activeFormat + '>' + BattleFormats[i].name + '</option>';
 					}
 				}
@@ -912,7 +912,7 @@
 				if (!matches) {
 					continue; // bogus room ID could be used to inject JavaScript
 				}
-				var format = (matches[1]||'');
+				var format = (matches[1] || '');
 				if (this.format && format !== this.format) continue;
 				var formatBuf = (format ? '<small>[' + Tools.escapeFormat(format) + ']</small><br />' : '');
 				var roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';

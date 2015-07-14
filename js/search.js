@@ -9,13 +9,14 @@
  * @author  Guangcong Luo <Zarel>
  */
 
-(function (exports, $){
+(function (exports, $) {
 	'use strict';
 
 	function Search(elem) {
 		this.$el = $(elem);
 		this.el = this.$el[0];
 	}
+
 	Search.prototype.$ = function (query) {
 		return this.$el.find(query);
 	};
@@ -58,22 +59,22 @@
 
 		var i = Search.getClosest(query);
 		if (!BattleSearchIndex[i]) i--;
-		if (BattleSearchIndex[i-1] && BattleSearchIndex[i-1] === query) i--;
+		if (BattleSearchIndex[i - 1] && BattleSearchIndex[i - 1] === query) i--;
 		this.exactMatch = (query === BattleSearchIndex[i]);
 
-		var bufs = ['','','',''];
+		var bufs = ['', '', '', ''];
 		var topbufIndex = -1;
 
-		var nearMatch = (BattleSearchIndex[i].substr(0,query.length) !== query);
+		var nearMatch = (BattleSearchIndex[i].substr(0, query.length) !== query);
 		if (nearMatch && i) i--;
-		for (var j=0; j<15; j++) {
-			var id = BattleSearchIndex[i+j];
-			var type = BattleSearchIndexType[i+j];
+		for (var j = 0; j < 15; j++) {
+			var id = BattleSearchIndex[i + j];
+			var type = BattleSearchIndexType[i + j];
 			var matchLength = query.length;
 
 			if (!id) break;
-			if (id.substr(0,query.length) !== query) {
-				if (!(nearMatch && j<=1)) break;
+			if (id.substr(0, query.length) !== query) {
+				if (!(nearMatch && j <= 1)) break;
 				matchLength = 0;
 			}
 			if (j === 0 && this.exactMatch) {
@@ -81,7 +82,7 @@
 			}
 
 			if (!bufs[typeTable[type]]) bufs[typeTable[type]] = '<li><h3>' + typeName[type] + '</h3></li>';
-			bufs[typeTable[type]] += Search.renderRow(id, type, 0, matchLength + (BattleSearchIndexOffset[i+j][matchLength-1]||'0').charCodeAt(0)-48);
+			bufs[typeTable[type]] += Search.renderRow(id, type, 0, matchLength + (BattleSearchIndexOffset[i + j][matchLength - 1] || '0').charCodeAt(0) - 48);
 		}
 
 		var topbuf = '';
@@ -137,13 +138,13 @@
 			var ability = BattleAbilities[id];
 			return Search.renderAbilityRow(ability, matchStart, matchLength, errorMessage);
 		case 'type':
-			var type = {name: id[0].toUpperCase()+id.substr(1)};
+			var type = {name: id[0].toUpperCase() + id.substr(1)};
 			return Search.renderTypeRow(type, matchStart, matchLength, errorMessage);
 		case 'egggroup':
-			var egggroup = {name: id[0].toUpperCase()+id.substr(1)};
+			var egggroup = {name: id[0].toUpperCase() + id.substr(1)};
 			return Search.renderEggGroupRow(egggroup, matchStart, matchLength, errorMessage);
 		case 'category':
-			var category = {name: id[0].toUpperCase()+id.substr(1)};
+			var category = {name: id[0].toUpperCase() + id.substr(1)};
 			return Search.renderCategoryRow(category, matchStart, matchLength, errorMessage);
 		}
 		return 'Error: not found';
@@ -154,7 +155,7 @@
 		var buf = '<li class="result"><a' + attrs + ' data-name="' + Tools.escapeHTML(pokemon.species) + '">';
 
 		// number
-		buf += '<span class="col numcol">' + (pokemon.num>=0 ? pokemon.num : 'CAP') + '</span> ';
+		buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
@@ -163,18 +164,18 @@
 
 		// name
 		var name = pokemon.species;
-		var tagStart = (pokemon.forme ? name.length-pokemon.forme.length-1 : 0);
+		var tagStart = (pokemon.forme ? name.length - pokemon.forme.length - 1 : 0);
 		if (tagStart) name = name.substr(0, tagStart);
 		if (matchLength) {
 			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
 		}
 		if (tagStart) {
-			if (matchLength && matchStart+matchLength > tagStart) {
+			if (matchLength && matchStart + matchLength > tagStart) {
 				if (matchStart < tagStart) {
 					matchLength -= tagStart - matchStart;
 					matchStart = tagStart;
 				}
-				name += '<small>' + pokemon.species.substr(tagStart, matchStart-tagStart) + '<b>' + pokemon.species.substr(matchStart, matchLength) + '</b>' + pokemon.species.substr(matchStart + matchLength) + '</small>';
+				name += '<small>' + pokemon.species.substr(tagStart, matchStart - tagStart) + '<b>' + pokemon.species.substr(matchStart, matchLength) + '</b>' + pokemon.species.substr(matchStart + matchLength) + '</small>';
 			} else {
 				name += '<small>' + pokemon.species.substr(tagStart) + '</small>';
 			}
@@ -190,7 +191,7 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		for (var i=0; i<pokemon.types.length; i++) {
+		for (var i = 0; i < pokemon.types.length; i++) {
 			buf += Tools.getTypeIcon(pokemon.types[i]);
 		}
 		buf += '</span> ';
@@ -246,7 +247,7 @@
 
 		// name
 		var name = pokemon.species;
-		var tagStart = (pokemon.forme ? name.length-pokemon.forme.length-1 : 0);
+		var tagStart = (pokemon.forme ? name.length - pokemon.forme.length - 1 : 0);
 		if (tagStart) name = name.substr(0, tagStart) + '<small>' + pokemon.species.substr(tagStart) + '</small>';
 		buf += '<span class="col shortpokemonnamecol" style="white-space:nowrap">' + name + '</span> ';
 
@@ -259,7 +260,7 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		for (var i=0; i<pokemon.types.length; i++) {
+		for (var i = 0; i < pokemon.types.length; i++) {
 			buf += Tools.getTypeIcon(pokemon.types[i]);
 		}
 		buf += '</span> ';
@@ -375,7 +376,7 @@
 					matchLength -= tagStart - matchStart;
 					matchStart = tagStart;
 				}
-				name += '<small>' + move.name.substr(tagStart, matchStart-tagStart) + '<b>' + move.name.substr(matchStart, matchLength) + '</b>' + move.name.substr(matchStart + matchLength) + '</small>';
+				name += '<small>' + move.name.substr(tagStart, matchStart - tagStart) + '<b>' + move.name.substr(matchStart, matchLength) + '</b>' + move.name.substr(matchStart + matchLength) + '</small>';
 			} else {
 				name += '<small>' + move.name.substr(tagStart) + '</small>';
 			}
@@ -396,9 +397,9 @@
 		buf += '</span> ';
 
 		// power, accuracy, pp
-		buf += '<span class="col labelcol">' + (move.category!=='Status'?('<em>Power</em><br />' + (move.basePower||'&mdash;')):'') + '</span> ';
-		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy!==true?move.accuracy + '%':'&mdash;') + '</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp!==1?move.pp*8/5:move.pp) + '</span> ';
+		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
+		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp !== 1 ? move.pp * 8 / 5 : move.pp) + '</span> ';
 
 		// desc
 		buf += '<span class="col movedesccol">' + Tools.escapeHTML(move.shortDesc || move.desc) + '</span> ';
@@ -432,9 +433,9 @@
 		buf += '</span> ';
 
 		// power, accuracy, pp
-		buf += '<span class="col labelcol">' + (move.category!=='Status'?('<em>Power</em><br />' + (move.basePower||'&mdash;')):'') + '</span> ';
-		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy!==true?move.accuracy + '%':'&mdash;') + '</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp!==1?move.pp*8/5:move.pp) + '</span> ';
+		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
+		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp !== 1 ? move.pp * 8 / 5 : move.pp) + '</span> ';
 
 		// desc
 		buf += '<span class="col movedesccol">' + Tools.escapeHTML(move.shortDesc || move.desc) + '</span> ';
@@ -470,9 +471,9 @@
 		buf += '</span> ';
 
 		// power, accuracy, pp
-		buf += '<span class="col labelcol">' + (move.category!=='Status'?('<em>Power</em><br />' + (move.basePower||'&mdash;')):'') + '</span> ';
-		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy!==true?move.accuracy + '%':'&mdash;') + '</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp!==1?move.pp*8/5:move.pp) + '</span> ';
+		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
+		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp !== 1 ? move.pp * 8 / 5 : move.pp) + '</span> ';
 
 		// desc
 		buf += '<span class="col movedesccol">' + Tools.escapeHTML(move.shortDesc || move.desc) + '</span> ';
@@ -490,7 +491,7 @@
 		// name
 		var name = type.name;
 		if (matchLength) {
-			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
 		}
 		buf += '<span class="col namecol">' + name + '</span> ';
 
@@ -518,7 +519,7 @@
 		// name
 		var name = category.name;
 		if (matchLength) {
-			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
 		}
 		buf += '<span class="col namecol">' + name + '</span> ';
 
@@ -546,7 +547,7 @@
 		// name
 		var name = egggroup.name;
 		if (matchLength) {
-			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart+matchLength);
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
 		}
 		buf += '<span class="col namecol">' + name + '</span> ';
 
