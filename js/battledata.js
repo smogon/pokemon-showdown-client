@@ -559,25 +559,25 @@ var Tools = {
 
 				for (var i = 0; i < attribs.length - 1; i += 2) {
 					switch (attribs[i]) {
-						case 'href':
-							if (!Tools.interstice.isWhitelisted(attribs[i + 1])) {
-								attribs[i + 1] = Tools.interstice.getURI(attribs[i + 1]);
-							}
+					case 'href':
+						if (!Tools.interstice.isWhitelisted(attribs[i + 1])) {
+							attribs[i + 1] = Tools.interstice.getURI(attribs[i + 1]);
+						}
+						break;
+					case 'target':
+						targetIdx = i + 1;
+						break;
+					case 'room':
+						// Special custom attribute for linking to a room.
+						// This attribute will be stripped by `sanitizeAttribs`
+						// below, and is only used to signal to add an `onclick`
+						// handler here.
+						if (!(/^[a-z0-9\-]*$/.test(attribs[i + 1]))) {
+							// Bogus roomid - could be used to inject JavaScript.
 							break;
-						case 'target':
-							targetIdx = i + 1;
-							break;
-						case 'room':
-							// Special custom attribute for linking to a room.
-							// This attribute will be stripped by `sanitizeAttribs`
-							// below, and is only used to signal to add an `onclick`
-							// handler here.
-							if (!(/^[a-z0-9\-]*$/.test(attribs[i + 1]))) {
-								// Bogus roomid - could be used to inject JavaScript.
-								break;
-							}
-							extra['onclick'] = 'return selectTab(\'' + attribs[i + 1] + '\');';
-							break;
+						}
+						extra['onclick'] = 'return selectTab(\'' + attribs[i + 1] + '\');';
+						break;
 					}
 				}
 			}
