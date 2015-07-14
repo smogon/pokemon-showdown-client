@@ -5,6 +5,7 @@ function BattleChart()
 	this.firstResult = '';
 	this.exactResult = false;
 	this.lastSearch = '[init]';
+	this.sortBy = { 'pokemon':'Name', 'move':'Name' };
 
 	// I know, I know, lots of memory
 	// but these are arrays of pointers, so it's not _horrible_
@@ -279,6 +280,11 @@ function BattleChart()
 			other: {}
 		};
 		thisArrange = thisArrange || self.defaultArrange;
+		if (type === 'pokemon') {
+			thisSort = this.pokemonSort[this.sortBy[type]];
+		} else if (type === 'move') {
+			thisSort = this.moveSort[this.sortBy[type]];
+		}
 		thisSort = thisSort || self.defaultSort;
 
 		self.firstResult = '';
@@ -557,6 +563,82 @@ function BattleChart()
 			return ['All'];
 		}
 		return 'All';
+	};
+	this.pokemonSort = {
+		"HP": function(a,b) {
+			if (a.baseStats.hp === b.baseStats.hp) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else {
+				return (a.baseStats.hp > b.baseStats.hp) ? -1 : 1;
+			}
+		},
+		"Attack": function(a,b) {
+			if (a.baseStats.atk === b.baseStats.atk) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else {
+				return (a.baseStats.atk > b.baseStats.atk) ? -1 : 1;
+			}
+		},
+		"Defense": function(a,b) {
+			if (a.baseStats.def === b.baseStats.def) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else {
+				return (a.baseStats.def > b.baseStats.def) ? -1 : 1;
+			}
+		},
+		"Special Attack": function(a,b) {
+			if (a.baseStats.spa === b.baseStats.spa) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else {
+				return (a.baseStats.spa > b.baseStats.spa) ? -1 : 1;
+			}
+		},
+		"Special Defense": function(a,b) {
+			if (a.baseStats.spd === b.baseStats.spd) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else {
+				return (a.baseStats.spd > b.baseStats.spd) ? -1 : 1;
+			}
+		},
+		"Speed": function(a,b) {
+			if (a.baseStats.spe === b.baseStats.spe) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else {
+				return (a.baseStats.spe > b.baseStats.spe) ? -1 : 1;
+			}
+		},
+		"BST": function(a,b) {
+			var bstA = 0, bstB = 0;
+			for (i in a.baseStats) { bstA += a.baseStats[i]; bstB += b.baseStats[i]; }
+			if (bstA === bstB) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else { 
+				return (bstA > bstB) ? -1 : 1;
+			}
+		}
+	};
+	this.moveSort = {
+		"Type": function(a,b) {
+			if (a.type === b.type) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else {
+				return (a.type > b.type) ? 1 : -1;
+			}
+		},
+		"Category": function(a,b) {
+			if (a.category === b.category) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else {
+				return (a.category > b.category) ? 1 : -1;
+			}
+		},
+		"Base Power": function(a,b) {
+			if (a.basePower === b.basePower) {
+				return (a.name === b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+			} else {
+				return ( (a.basePower > b.basePower) ? -1 : 1);
+			}
+		}
 	};
 	this.defaultSort = function(a,b) {
 		/* if (!a.num) a.num = 1000;

@@ -2210,7 +2210,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 }
 .teambuilder-results {
 	position: absolute;
-	top: 200px;
+	top: 223px;
 	left: 0;
 	bottom: 0;
 	right: 0;
@@ -2226,6 +2226,21 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	bottom: 0;
 	right: 0;
 	border-top: 1px solid #AAAAAA;
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
+}
+.teambuilder-results-sort {
+	position: absolute;
+	top: 202px;
+	left: 0px;
+	bottom: 0;
+	right: 0;
+	font-size: 13px;
+	height: 20px;
+	padding-left: 10px;
+	border-bottom: 1px solid #AAAAAA;
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
