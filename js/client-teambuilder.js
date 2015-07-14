@@ -290,7 +290,7 @@
 			var target = e.currentTarget;
 			var dataTransfer = e.originalEvent.dataTransfer;
 
-			dataTransfer.effectAllowed = 'move';
+			dataTransfer.effectAllowed = 'copyMove';
 
 			dataTransfer.setData("text/plain", "Team " + e.currentTarget.dataset.value);
 
@@ -395,8 +395,7 @@
 			// Drag originated outside teambuilder
 			if (!e.originalEvent.dataTransfer) return;
 			if (!e.originalEvent.dataTransfer.files) return;
-			if (!e.originalEvent.dataTransfer.files[0]) return;
-			if (e.originalEvent.dataTransfer.files[0].name.slice(-4) !== '.txt') return;
+			if (e.originalEvent.dataTransfer.files[0] && e.originalEvent.dataTransfer.files[0].name.slice(-4) !== '.txt') return;
 			// We're dragging a .txt file! It might be a team!
 			this.$('.teamlist').append('<li class="dragging"><div class="team" data-value="' + Storage.teams.length + '"></div></li>');
 			app.dragging = this.$('.dragging .team')[0];
@@ -408,6 +407,13 @@
 		defaultDropTeam: function (e) {
 			if (e.originalEvent.dataTransfer.files && e.originalEvent.dataTransfer.files[0]) {
 				var file = e.originalEvent.dataTransfer.files[0];
+				var name = file.name;
+				if (name.slice(-4) !== '.txt') {
+					app.dragging = null;
+					this.updateTeamList();
+					app.addPopupMessage("Your file is not a valid team. Team files are .txt files.");
+					return;
+				}
 				var reader = new FileReader();
 				var self = this;
 				reader.onload = function(e) {
@@ -415,12 +421,12 @@
 					try {
 						team = Storage.packTeam(Storage.importTeam(e.target.result));
 					} catch (err) {
-						alert("Not a valid team.");
+						app.addPopupMessage("Your file is not a valid team.");
 						self.updateTeamList();
 						return;
 					}
 					var name = file.name;
-					if (name.substr(name.length-4).toLowerCase() === '.txt') {
+					if (name.slice(name.length-4).toLowerCase() === '.txt') {
 						name = name.substr(0, name.length-4);
 					}
 					var format = '';
