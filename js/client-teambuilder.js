@@ -298,7 +298,13 @@
 			var filename = team.name;
 			if (team.format) filename = '['+team.format+'] '+filename;
 			filename = $.trim(filename).replace(/[\\\/]+/g, '')+'.txt';
-			var downloadurl = "text/plain:"+filename+":data:text/plain;base64,"+encodeURIComponent(window.btoa(Storage.exportTeam(team.team).replace(/\n/g,'\r\n')));
+			var urlprefix = "data:text/plain;base64,";
+			if (document.location.protocol === 'https:') {
+				// Chrome is dumb and doesn't support data URLs in HTTPS
+				urlprefix = "https://play.pokemonshowdown.com/action.php?act=dlteam&team=";
+			}
+			var contents = Storage.exportTeam(team.team).replace(/\n/g,'\r\n');
+			var downloadurl = "text/plain:"+filename+":"+urlprefix+encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
 			dataTransfer.setData("DownloadURL", downloadurl);
 
