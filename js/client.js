@@ -1374,7 +1374,7 @@
 			if (!this.sideRoom) {
 				this.curRoom.show('full');
 				if (this.curRoom.id === '') {
-					if ($('body').width() < this.curRoom.bestWidth) {
+					if ($(window).width() < this.curRoom.bestWidth) {
 						this.curRoom.$el.addClass('tiny-layout');
 					} else {
 						this.curRoom.$el.removeClass('tiny-layout');
