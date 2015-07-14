@@ -1771,12 +1771,12 @@ var Side = (function () {
 		if (!kwargs.silent) {
 			var fromeffect = Tools.getEffect(kwargs.from);
 			switch (fromeffect.id) {
-				case 'allyswitch':
-					this.battle.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
-					break;
-				default:
-					this.battle.message('<small>' + pokemon.getName() + ' moved to the center!</small>');
-					break;
+			case 'allyswitch':
+				this.battle.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+				break;
+			default:
+				this.battle.message('<small>' + pokemon.getName() + ' moved to the center!</small>');
+				break;
 			}
 		}
 
@@ -1836,9 +1836,9 @@ var Side = (function () {
 		if (!kwargs.silent) {
 			var fromeffect = Tools.getEffect(kwargs.from);
 			switch (fromeffect.id) {
-				case 'allyswitch':
-					this.battle.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
-					break;
+			case 'allyswitch':
+				this.battle.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+				break;
 			}
 		}
 

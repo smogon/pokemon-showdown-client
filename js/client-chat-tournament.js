@@ -228,292 +228,292 @@
 			var cmd = data.shift().toLowerCase();
 			if (isBroadcast) {
 				switch (cmd) {
-					case 'info':
-						var tournaments = JSON.parse(data.join('|'));
-						var $infoList = "No tournaments are currently running.";
-						if (tournaments.length > 0) {
-							$infoList = $('<ul></ul>');
-							tournaments.forEach(function (tournament) {
-								var $info = $('<li></li>');
-								$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
-								$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
-								$infoList.append($info);
-							});
-						}
-						this.room.$chat.append($('<div class="notice">').append($('<div class="infobox tournaments-info"></div></div>').append($infoList)));
-						break;
+				case 'info':
+					var tournaments = JSON.parse(data.join('|'));
+					var $infoList = "No tournaments are currently running.";
+					if (tournaments.length > 0) {
+						$infoList = $('<ul></ul>');
+						tournaments.forEach(function (tournament) {
+							var $info = $('<li></li>');
+							$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
+							$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
+							$infoList.append($info);
+						});
+					}
+					this.room.$chat.append($('<div class="notice">').append($('<div class="infobox tournaments-info"></div></div>').append($infoList)));
+					break;
 
-					default:
-						return true;
+				default:
+					return true;
 				}
 			} else {
 				switch (cmd) {
-					case 'create':
-						var format = Tools.getEffect(data[0]).name;
-						var type = data[1];
-						this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament has been created.</div>");
-						this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + format + "\nType: " + type, 'tournament-create');
-						break;
+				case 'create':
+					var format = Tools.getEffect(data[0]).name;
+					var type = data[1];
+					this.room.$chat.append("<div class=\"notice tournament-message-create\">A " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament has been created.</div>");
+					this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + format + "\nType: " + type, 'tournament-create');
+					break;
 
-					case 'join':
-					case 'leave':
-						if (this.$lastJoinLeaveMessage && !this.$lastJoinLeaveMessage.is(this.room.$chat.children().last())) {
-							this.$lastJoinLeaveMessage = null;
-							this.batchedJoins = [];
-							this.batchedLeaves = [];
-						}
-						if (!this.$lastJoinLeaveMessage) {
-							this.$lastJoinLeaveMessage = $('<div class="notice tournament-message-joinleave"></div>');
-							this.room.$chat.append(this.$lastJoinLeaveMessage);
-						}
+				case 'join':
+				case 'leave':
+					if (this.$lastJoinLeaveMessage && !this.$lastJoinLeaveMessage.is(this.room.$chat.children().last())) {
+						this.$lastJoinLeaveMessage = null;
+						this.batchedJoins = [];
+						this.batchedLeaves = [];
+					}
+					if (!this.$lastJoinLeaveMessage) {
+						this.$lastJoinLeaveMessage = $('<div class="notice tournament-message-joinleave"></div>');
+						this.room.$chat.append(this.$lastJoinLeaveMessage);
+					}
 
-						(cmd === 'join' ? this.batchedJoins : this.batchedLeaves).push(data[0]);
+					(cmd === 'join' ? this.batchedJoins : this.batchedLeaves).push(data[0]);
 
-						var message = [];
-						var joins = this.batchedJoins.slice(0, 5);
-						var leaves = this.batchedLeaves.slice(0, 5);
-						if (this.batchedJoins.length > 5) joins.push((this.batchedJoins.length - 5) + " others");
-						if (this.batchedLeaves.length > 5) leaves.push((this.batchedLeaves.length - 5) + " others");
-						if (joins.length > 0) message.push(arrayToPhrase(joins) + " joined the tournament");
-						if (leaves.length > 0) message.push(arrayToPhrase(leaves) + " left the tournament");
-						this.$lastJoinLeaveMessage.text(message.join("; ") + ".");
-						break;
+					var message = [];
+					var joins = this.batchedJoins.slice(0, 5);
+					var leaves = this.batchedLeaves.slice(0, 5);
+					if (this.batchedJoins.length > 5) joins.push((this.batchedJoins.length - 5) + " others");
+					if (this.batchedLeaves.length > 5) leaves.push((this.batchedLeaves.length - 5) + " others");
+					if (joins.length > 0) message.push(arrayToPhrase(joins) + " joined the tournament");
+					if (leaves.length > 0) message.push(arrayToPhrase(leaves) + " left the tournament");
+					this.$lastJoinLeaveMessage.text(message.join("; ") + ".");
+					break;
 
-					case 'start':
-						if (!this.info.isJoined) {
-							this.toggleBoxVisibility(false);
-						} else if (this.info.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']){
-							Tools.loadSpriteData('bw');
-						}
-						this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
-						break;
+				case 'start':
+					if (!this.info.isJoined) {
+						this.toggleBoxVisibility(false);
+					} else if (this.info.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']){
+						Tools.loadSpriteData('bw');
+					}
+					this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
+					break;
 
-					case 'disqualify':
-						this.room.$chat.append("<div class=\"notice tournament-message-disqualify\">" + Tools.escapeHTML(data[0]) + " has been disqualified from the tournament.</div>");
-						break;
+				case 'disqualify':
+					this.room.$chat.append("<div class=\"notice tournament-message-disqualify\">" + Tools.escapeHTML(data[0]) + " has been disqualified from the tournament.</div>");
+					break;
 
-					case 'autodq':
-						if (data[0] === 'off') {
-							this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been turned off.</div>");
-						} else if (data[0] === 'on') {
-							this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been set to " + (data[1] / 1000 / 60) + " minutes.</div>");
-						} else {
-							var seconds = Math.floor(data[1] / 1000);
-							app.addPopupMessage("Please respond to the tournament within " + seconds + " seconds or you may be automatically disqualified.");
-							this.room.notifyOnce("Tournament Automatic Disqualification Warning", "Room: " + this.room.title + "\nSeconds: " + seconds, 'tournament-autodq-warning');
-						}
-						break;
+				case 'autodq':
+					if (data[0] === 'off') {
+						this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been turned off.</div>");
+					} else if (data[0] === 'on') {
+						this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been set to " + (data[1] / 1000 / 60) + " minutes.</div>");
+					} else {
+						var seconds = Math.floor(data[1] / 1000);
+						app.addPopupMessage("Please respond to the tournament within " + seconds + " seconds or you may be automatically disqualified.");
+						this.room.notifyOnce("Tournament Automatic Disqualification Warning", "Room: " + this.room.title + "\nSeconds: " + seconds, 'tournament-autodq-warning');
+					}
+					break;
 
-					case 'autostart':
-						if (data[0] === 'off') {
-							this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament's automatic start timeout has been turned off.</div>");
-						} else if (data[0] === 'on') {
-							this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament will automatically start in " + (data[1] / 1000 / 60) + " minutes.</div>");
-						}
-						break;
+				case 'autostart':
+					if (data[0] === 'off') {
+						this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament's automatic start timeout has been turned off.</div>");
+					} else if (data[0] === 'on') {
+						this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament will automatically start in " + (data[1] / 1000 / 60) + " minutes.</div>");
+					}
+					break;
 
-					case 'update':
-						$.extend(this.updates, JSON.parse(data.join('|')));
-						break;
+				case 'update':
+					$.extend(this.updates, JSON.parse(data.join('|')));
+					break;
 
-					case 'updateend':
-						$.extend(this.info, this.updates);
-						if (!this.info.isActive) {
-							this.$wrapper.addClass("active");
-							if (!this.info.isStarted || this.info.isJoined)
-								this.toggleBoxVisibility(true);
-							this.info.isActive = true;
-						}
+				case 'updateend':
+					$.extend(this.info, this.updates);
+					if (!this.info.isActive) {
+						this.$wrapper.addClass("active");
+						if (!this.info.isStarted || this.info.isJoined)
+							this.toggleBoxVisibility(true);
+						this.info.isActive = true;
+					}
 
-						if ('format' in this.updates) {
-							this.$format.text(Tools.getEffect(this.info.format).name);
+					if ('format' in this.updates) {
+						this.$format.text(Tools.getEffect(this.info.format).name);
+						this.updateTeams();
+					}
+					if ('generator' in this.updates)
+						this.$generator.text(this.info.generator);
+					if ('isStarted' in this.updates) {
+						this.$status.text(this.info.isStarted ? "In Progress" : "Signups");
+						if (this.info.isStarted)
 							this.updateTeams();
-						}
-						if ('generator' in this.updates)
-							this.$generator.text(this.info.generator);
-						if ('isStarted' in this.updates) {
-							this.$status.text(this.info.isStarted ? "In Progress" : "Signups");
-							if (this.info.isStarted)
-								this.updateTeams();
-						}
+					}
 
-						// Update the toolbox
-						if ('isStarted' in this.updates || 'isJoined' in this.updates) {
-							this.$join.toggleClass('active', !this.info.isStarted && !this.info.isJoined);
-							this.$leave.toggleClass('active', !this.info.isStarted && this.info.isJoined);
-							this.$tools.toggleClass('active', !this.info.isStarted || this.info.isJoined);
-						}
+					// Update the toolbox
+					if ('isStarted' in this.updates || 'isJoined' in this.updates) {
+						this.$join.toggleClass('active', !this.info.isStarted && !this.info.isJoined);
+						this.$leave.toggleClass('active', !this.info.isStarted && this.info.isJoined);
+						this.$tools.toggleClass('active', !this.info.isStarted || this.info.isJoined);
+					}
 
-						// Update the bracket
-						if ('bracketData' in this.updates) {
-							var $bracket = this.generateBracket(this.info.bracketData);
-							this.$bracket.empty();
-							this.$bracket.removeClass('tournament-bracket-overflowing');
-							if ($bracket) {
-								this.$bracket.append($bracket);
-								this.updateLayout();
-
-								if (this.bracketPopup)
-									this.bracketPopup.updateBracket(this.generateBracket(this.info.bracketData));
-							}
-						}
-
-						if (this.info.isStarted && this.info.isJoined) {
-							// Update the challenges
-							if ('challenges' in this.updates) {
-								this.$challenge.toggleClass('active', this.info.challenges.length > 0);
-								if (this.info.challenges.length > 0) {
-									this.$challengeUser.html(this.renderChallengeUsers());
-									this.toggleBoxVisibility(true);
-									this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
-								}
-							}
-
-							if ('challengeBys' in this.updates) {
-								this.$challengeBy.toggleClass('active', this.info.challengeBys.length > 0);
-								if (this.info.challengeBys.length > 0)
-									this.$challengeBy.text((this.info.challenges.length > 0 ? "Or" : "Please") + " wait for " + arrayToPhrase(this.info.challengeBys, "or") + " to challenge you.");
-							}
-
-							if ('challenging' in this.updates) {
-								this.$challenging.toggleClass('active', !!this.info.challenging);
-								if (this.info.challenging) {
-									this.$challengingMessage.text("Challenging " + this.info.challenging + "...");
-								}
-							}
-
-							if ('challenged' in this.updates) {
-								this.$challenged.toggleClass('active', !!this.info.challenged);
-								if (this.info.challenged) {
-									this.$challengedMessage.text(this.info.challenged + " has challenged you.");
-									this.toggleBoxVisibility(true);
-									this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
-								}
-							}
-
-							this.$noMatches.toggleClass('active',
-								this.info.challenges.length === 0 && this.info.challengeBys.length === 0 &&
-								!this.info.challenging && !this.info.challenged);
-						}
-
-						this.updates = {};
-						break;
-
-					case 'battlestart':
-						this.room.$chat.append('<div class="notice tournament-message-battlestart"><a href="' + app.root + toRoomid(data[2]).toLowerCase() + '" class="ilink">' +
-							"A tournament battle between " + Tools.escapeHTML(data[0]) + " and " + Tools.escapeHTML(data[1]) + " has started." +
-							'</a></div>');
-						break;
-
-					case 'battleend':
-						var result = "drawn";
-						if (data[2] === 'win')
-							result = "won";
-						else if (data[2] === 'loss')
-							result = "lost";
-						this.room.$chat.append('<div class="notice tournament-message-battleend">' +
-							Tools.escapeHTML(data[0]) + " has " + result + " the match " + Tools.escapeHTML(data[3].split(',').join(' - ')) + " against " + Tools.escapeHTML(data[1]) +
-							(data[4] ? " but the tournament does not support drawing, so it did not count" : "") +
-							'</div>');
-						break;
-
-					case 'end':
-						var endData = JSON.parse(data[0]);
-
-						var $bracket = this.generateBracket(endData.bracketData);
+					// Update the bracket
+					if ('bracketData' in this.updates) {
+						var $bracket = this.generateBracket(this.info.bracketData);
+						this.$bracket.empty();
+						this.$bracket.removeClass('tournament-bracket-overflowing');
 						if ($bracket) {
-							var $bracketMessage = $('<div class="notice tournament-message-end-bracket"></div>').append($bracket);
-							this.room.$chat.append($bracketMessage);
-							if ($bracketMessage[0].offsetHeight < $bracketMessage[0].scrollHeight ||
-								$bracketMessage[0].offsetWidth < $bracketMessage[0].scrollWidth) {
-								$bracketMessage.addClass('tournament-message-end-bracket-overflowing');
-								makeDraggable($bracket, this.showBracketPopup.bind(this, endData.bracketData, true));
+							this.$bracket.append($bracket);
+							this.updateLayout();
+
+							if (this.bracketPopup)
+								this.bracketPopup.updateBracket(this.generateBracket(this.info.bracketData));
+						}
+					}
+
+					if (this.info.isStarted && this.info.isJoined) {
+						// Update the challenges
+						if ('challenges' in this.updates) {
+							this.$challenge.toggleClass('active', this.info.challenges.length > 0);
+							if (this.info.challenges.length > 0) {
+								this.$challengeUser.html(this.renderChallengeUsers());
+								this.toggleBoxVisibility(true);
+								this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
 							}
 						}
 
-						var format = Tools.getEffect(endData.format).name;
-						var type = endData.generator;
-						this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament!</div>");
-						if (endData.results[1])
-							this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
+						if ('challengeBys' in this.updates) {
+							this.$challengeBy.toggleClass('active', this.info.challengeBys.length > 0);
+							if (this.info.challengeBys.length > 0)
+								this.$challengeBy.text((this.info.challenges.length > 0 ? "Or" : "Please") + " wait for " + arrayToPhrase(this.info.challengeBys, "or") + " to challenge you.");
+						}
 
-						// Fallthrough
+						if ('challenging' in this.updates) {
+							this.$challenging.toggleClass('active', !!this.info.challenging);
+							if (this.info.challenging) {
+								this.$challengingMessage.text("Challenging " + this.info.challenging + "...");
+							}
+						}
 
-					case 'forceend':
-						this.info = {};
-						this.updates = {};
-						this.savedBracketPosition = {};
+						if ('challenged' in this.updates) {
+							this.$challenged.toggleClass('active', !!this.info.challenged);
+							if (this.info.challenged) {
+								this.$challengedMessage.text(this.info.challenged + " has challenged you.");
+								this.toggleBoxVisibility(true);
+								this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
+							}
+						}
 
-						if (this.bracketPopup)
-							this.bracketPopup.close();
-						this.savedPopoutBracketPosition = {};
+						this.$noMatches.toggleClass('active',
+							this.info.challenges.length === 0 && this.info.challengeBys.length === 0 &&
+							!this.info.challenging && !this.info.challenged);
+					}
 
-						if (!this.isBoxVisible() || app.curSideRoom !== this.room)
-							this.$wrapper.find('.active').andSelf().removeClass('active');
-						else
-							this.toggleBoxVisibility(false);
+					this.updates = {};
+					break;
 
-						if (cmd === 'forceend')
-							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">The tournament was forcibly ended.</div>");
+				case 'battlestart':
+					this.room.$chat.append('<div class="notice tournament-message-battlestart"><a href="' + app.root + toRoomid(data[2]).toLowerCase() + '" class="ilink">' +
+						"A tournament battle between " + Tools.escapeHTML(data[0]) + " and " + Tools.escapeHTML(data[1]) + " has started." +
+						'</a></div>');
+					break;
+
+				case 'battleend':
+					var result = "drawn";
+					if (data[2] === 'win')
+						result = "won";
+					else if (data[2] === 'loss')
+						result = "lost";
+					this.room.$chat.append('<div class="notice tournament-message-battleend">' +
+						Tools.escapeHTML(data[0]) + " has " + result + " the match " + Tools.escapeHTML(data[3].split(',').join(' - ')) + " against " + Tools.escapeHTML(data[1]) +
+						(data[4] ? " but the tournament does not support drawing, so it did not count" : "") +
+						'</div>');
+					break;
+
+				case 'end':
+					var endData = JSON.parse(data[0]);
+
+					var $bracket = this.generateBracket(endData.bracketData);
+					if ($bracket) {
+						var $bracketMessage = $('<div class="notice tournament-message-end-bracket"></div>').append($bracket);
+						this.room.$chat.append($bracketMessage);
+						if ($bracketMessage[0].offsetHeight < $bracketMessage[0].scrollHeight ||
+							$bracketMessage[0].offsetWidth < $bracketMessage[0].scrollWidth) {
+							$bracketMessage.addClass('tournament-message-end-bracket-overflowing');
+							makeDraggable($bracket, this.showBracketPopup.bind(this, endData.bracketData, true));
+						}
+					}
+
+					var format = Tools.getEffect(endData.format).name;
+					var type = endData.generator;
+					this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament!</div>");
+					if (endData.results[1])
+						this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") +": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
+
+					// Fallthrough
+
+				case 'forceend':
+					this.info = {};
+					this.updates = {};
+					this.savedBracketPosition = {};
+
+					if (this.bracketPopup)
+						this.bracketPopup.close();
+					this.savedPopoutBracketPosition = {};
+
+					if (!this.isBoxVisible() || app.curSideRoom !== this.room)
+						this.$wrapper.find('.active').andSelf().removeClass('active');
+					else
+						this.toggleBoxVisibility(false);
+
+					if (cmd === 'forceend')
+						this.room.$chat.append("<div class=\"notice tournament-message-forceend\">The tournament was forcibly ended.</div>");
+					break;
+
+				case 'error':
+					var appendError = function (message) {
+						this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + message + "</div>");
+					}.bind(this);
+
+					switch (data[0]) {
+					case 'BracketFrozen':
+					case 'AlreadyStarted':
+						appendError("The tournament has already started.");
 						break;
 
-					case 'error':
-						var appendError = function (message) {
-							this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + message + "</div>");
-						}.bind(this);
+					case 'BracketNotFrozen':
+					case 'NotStarted':
+						appendError("The tournament hasn't started yet.");
+						break;
 
-						switch (data[0]) {
-							case 'BracketFrozen':
-							case 'AlreadyStarted':
-								appendError("The tournament has already started.");
-								break;
+					case 'UserAlreadyAdded':
+						appendError("You are already in the tournament.");
+						break;
 
-							case 'BracketNotFrozen':
-							case 'NotStarted':
-								appendError("The tournament hasn't started yet.");
-								break;
+					case 'AltUserAlreadyAdded':
+						appendError("One of your alts is already in the tournament.");
+						break;
 
-							case 'UserAlreadyAdded':
-								appendError("You are already in the tournament.");
-								break;
+					case 'UserNotAdded':
+						appendError("You aren't in the tournament.");
+						break;
 
-							case 'AltUserAlreadyAdded':
-								appendError("One of your alts is already in the tournament.");
-								break;
+					case 'NotEnoughUsers':
+						appendError("There aren't enough users.");
+						break;
 
-							case 'UserNotAdded':
-								appendError("You aren't in the tournament.");
-								break;
+					case 'InvalidAutoDisqualifyTimeout':
+					case 'InvalidAutoStartTimeout':
+						appendError("That isn't a valid timeout value.");
+						break;
 
-							case 'NotEnoughUsers':
-								appendError("There aren't enough users.");
-								break;
+					case 'InvalidMatch':
+						appendError("That isn't a valid tournament matchup.");
+						break;
 
-							case 'InvalidAutoDisqualifyTimeout':
-							case 'InvalidAutoStartTimeout':
-								appendError("That isn't a valid timeout value.");
-								break;
+					case 'UserNotNamed':
+						appendError("You must have a name in order to join the tournament.");
+						break;
 
-							case 'InvalidMatch':
-								appendError("That isn't a valid tournament matchup.");
-								break;
-
-							case 'UserNotNamed':
-								appendError("You must have a name in order to join the tournament.");
-								break;
-
-							case 'Full':
-								appendError("The tournament is already at maximum capacity for users.");
-								break;
-
-							default:
-								appendError("Unknown error: " + data[0]);
-								break;
-						}
+					case 'Full':
+						appendError("The tournament is already at maximum capacity for users.");
 						break;
 
 					default:
-						return true;
+						appendError("Unknown error: " + data[0]);
+						break;
+					}
+					break;
+
+				default:
+					return true;
 				}
 
 				this.$box.css('max-height', this.isBoxVisible() ? this.$box[0].scrollHeight : '');

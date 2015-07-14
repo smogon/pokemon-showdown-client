@@ -1546,12 +1546,12 @@
 			// look at the part of the `id` after the roomid
 			var id = elem.id.substr(this.room.id.length + 1);
 			switch (id) {
-				case 'userlist-users':
-					return -1; // `elem` comes first
-				case 'userlist-empty':
-				case 'userlist-unregistered':
-				case 'userlist-guests':
-					return 1; // `userid` comes first
+			case 'userlist-users':
+				return -1; // `elem` comes first
+			case 'userlist-empty':
+			case 'userlist-unregistered':
+			case 'userlist-guests':
+				return 1; // `userid` comes first
 			}
 			// extract the portion of the `id` after 'userlist-user-'
 			var elemuserid = id.substr(14);
