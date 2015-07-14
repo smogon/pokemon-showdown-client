@@ -303,7 +303,7 @@
 							this.room.notifyOnce("Tournament Automatic Disqualification Warning", "Room: " + this.room.title + "\nSeconds: " + seconds, 'tournament-autodq-warning');
 						}
 						break;
-						
+
 					case 'autostart':
 						if (data[0] === 'off') {
 							this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament's automatic start timeout has been turned off.</div>");
