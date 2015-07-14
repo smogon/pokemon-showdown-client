@@ -983,7 +983,7 @@
 		maxWidth: 1024,
 		isSideRoom: true,
 		initialize: function() {
-			var buf = '<ul class="userlist" style="display:none"></ul><div class="tournament-wrapper"></div><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div>';
+			var buf = '<div class="tournament-wrapper"></div><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div><ul class="userlist"></ul>';
 			this.$el.addClass('ps-room-light').html(buf);
 
 			this.$chatAdd = this.$('.chat-log-add');
@@ -1011,12 +1011,12 @@
 		},
 		updateLayout: function() {
 			if (this.$el.width() >= 570) {
-				this.$userList.show();
+				this.userList.show();
 				this.$chatFrame.addClass('hasuserlist');
 				this.$chatAdd.addClass('hasuserlist');
 				this.$tournamentWrapper.addClass('hasuserlist');
 			} else {
-				this.$userList.hide();
+				this.userList.hide();
 				this.$chatFrame.removeClass('hasuserlist');
 				this.$chatAdd.removeClass('hasuserlist');
 				this.$tournamentWrapper.removeClass('hasuserlist');
@@ -1430,9 +1430,12 @@
 		initialize: function(options) {
 			this.room = options.room;
 		},
+		events: {
+			'click .userlist-count': 'toggleUserlist'
+		},
 		construct: function() {
 			var buf = '';
-			buf += '<li id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0"><small><span id="' + this.room.id + '-usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
+			buf += '<li class="userlist-count" id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0"><small><span id="' + this.room.id + '-usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
 			var users = [];
 			if (this.room.users) {
 				var self = this;
@@ -1475,6 +1478,22 @@
 			' ': 8,
 			'!': 9,
 			'‽': 10
+		},
+		toggleUserlist: function() {
+			if (this.$el.hasClass('userlist-minimized')) {
+				this.$el.removeClass('userlist-minimized');
+				this.$el.addClass('userlist-maximized');
+			} else if (this.$el.hasClass('userlist-maximized')) {
+				this.$el.removeClass('userlist-maximized');
+				this.$el.addClass('userlist-minimized');
+			}
+		},
+		show: function() {
+			this.$el.removeClass('userlist-minimized');
+			this.$el.removeClass('userlist-maximized');
+		},
+		hide: function() {
+			this.$el.addClass('userlist-minimized');
 		},
 		updateUserCount: function() {
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);

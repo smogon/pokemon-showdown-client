@@ -1257,11 +1257,33 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	left: 0;
 	bottom: 0;
 	width: 145px;
+	height: auto;
 	border-right: 1px solid #AAAAAA;
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+}
+.userlist-minimized {
+	height: 21px;
+	bottom: auto;
+	overflow: hidden;
+	background: #EEF2F5;
+	border-bottom: 1px solid #AAAAAA;
+}
+.userlist-maximized {
+	height: auto;
+	bottom: auto;
+	background: #EEF2F5;
+	border-bottom: 1px solid #AAAAAA;
+}
+.userlist-minimized .userlist-count,
+.userlist-maximized .userlist-count {
+	cursor: pointer;
+}
+.userlist-minimized .userlist-count:hover,
+.userlist-maximized .userlist-count:hover {
+	background: #DEE4EA;
 }
 .chat-log.hasuserlist,
 .chat-log-add.hasuserlist,
