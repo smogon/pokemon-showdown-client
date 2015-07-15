@@ -1612,7 +1612,8 @@
 		events: {
 			'click a': 'click',
 			'click .username': 'clickUsername',
-			'click button': 'dispatchClickButton'
+			'click button': 'dispatchClickButton',
+			'touchstart .logo': 'tablist'
 		},
 		initialize: function () {
 			this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
@@ -1782,8 +1783,13 @@
 				app.joinRoom(id);
 			}
 		},
-		tablist: function () {
-			app.addPopup(TabListPopup);
+		tablist: function (e) {
+			if (e && e.preventDefault) {
+				e.preventDefault();
+				app.addPopup(TabListPopup, {sourceEl: e.currentTarget});
+			} else {
+				app.addPopup(TabListPopup);
+			}
 		}
 	});
 
