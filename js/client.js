@@ -1359,6 +1359,8 @@
 				if (this.curRoom) {
 					this.curRoom.hide();
 					this.curRoom = null;
+				} else if (this.rooms['']) {
+					this.rooms[''].hide();
 				}
 				this.curRoom = window.room = room;
 				this.updateLayout();
