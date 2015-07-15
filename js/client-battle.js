@@ -77,6 +77,7 @@
 			this.add(data);
 		},
 		focus: function () {
+			this.hideTooltip();
 			if (this.battle.playbackState === 3) this.battle.play();
 			ConsoleRoom.prototype.focus.call(this);
 		},
@@ -931,7 +932,7 @@
 
 		// tooltips
 		tooltipAttrs: function (thing, type, ownHeight, isActive) {
-			return ' onmouseover="room.showTooltip(\'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ', ' + (isActive ? 'true' : 'false') + ')" onmouseout="room.hideTooltip()" onmouseup="room.hideTooltip()"';
+			return ' onmouseover="room.showTooltip(\'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ', ' + (isActive ? 'true' : 'false') + ')" ontouchstart="room.showTooltip(\'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ', ' + (isActive ? 'true' : 'false') + ')" onmouseout="room.hideTooltip()" onmouseup="room.hideTooltip()"';
 		},
 		showTooltip: function (thing, type, elem, ownHeight, isActive) {
 			var offset = {
@@ -949,7 +950,7 @@
 			if (x > 335) x = 335;
 			if (y < 140) y = 140;
 			if (x > $(window).width() - 303) x = Math.max($(window).width() - 303, 0);
-			if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper"></div>');
+			if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper" onclick="$(\'#tooltipwrapper\').html(\'\');"></div>');
 			$('#tooltipwrapper').css({
 				left: x,
 				top: y
