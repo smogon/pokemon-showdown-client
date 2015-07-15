@@ -1425,9 +1425,11 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	top: 0;
 	left: 0;
 	transform-origin: top left;
+	-webkit-transform-origin: top left;
 }
 .ps-room .foehint {
 	transform-origin: top left;
+	-webkit-transform-origin: top left;
 }
 .ps-room .battle-controls {
 	position: absolute;
