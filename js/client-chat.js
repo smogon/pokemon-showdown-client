@@ -1343,7 +1343,7 @@
 				isHighlighted = this.getHighlight(message);
 				if (isHighlighted) {
 					var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
-					this.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+					this.notifyOnce(notifyTitle, "\"" + (message.indexOf('spoiler') < 0 ? message : '(spoiler)') + "\"", 'highlight');
 				} else {
 					this.subtleNotifyOnce();
 				}
