@@ -134,14 +134,22 @@ License: GPLv2
 	padding: 0px 3px;
 }
 .spoiler a {
-	color: #E2E2E2;
+	color: #CCCCCC;
 }
 .spoiler:hover a,
 .spoiler:active a,
 .spoiler-shown a {
 	color: #2288CC;
 }
-.chat code {
+.chat .spoiler code {
+	border-color: transparent;
+	background: none;
+	color: #CCCCCC;
+}
+.chat code,
+.chat .spoiler:hover code,
+.chat .spoiler:active code,
+.chat .spoiler-shown code {
 	border: 1px solid #C0C0C0;
 	background: #EEEEEE;
 	color: black;
