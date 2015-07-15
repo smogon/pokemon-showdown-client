@@ -1221,14 +1221,14 @@
 		},
 		fixedWidth: true,
 		resize: function () {
-			if (window.screen && screen.width && screen.width >= 640) {
+			if (window.screen && screen.width && screen.width >= 320) {
 				if (this.fixedWidth) {
 					document.getElementById('viewport').setAttribute('content', 'width=device-width');
 					this.fixedWidth = false;
 				}
 			} else {
 				if (!this.fixedWidth) {
-					document.getElementById('viewport').setAttribute('content', 'width=640');
+					document.getElementById('viewport').setAttribute('content', 'width=320');
 					this.fixedWidth = true;
 				}
 			}
