@@ -1008,7 +1008,7 @@ p.or:after {
 	display: none;
 }
 .highlighted {
-	background-color: #FFDDAA;
+	background-color: rgba(255,180,100,0.33);
 }
 .revealed {
 	background-color: #C8FDEA;
