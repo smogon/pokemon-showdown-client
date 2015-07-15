@@ -1852,6 +1852,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	position: absolute;
 	top: 0;
 	left: 92px;
+	min-width: 540px;
 }
 .teambar button {
 	display: block;
@@ -1896,7 +1897,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	padding: 0;
 }
 .teamchart {
-	padding: 0 10px 10px 10px;
+	padding: 0 10px 10px 7px;
 }
 .teamchart li {
 	padding-top: 20px;
@@ -1946,7 +1947,7 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 }
 .setchart-nickname {
 	position: absolute;
-	left: -5px;
+	left: -4px;
 	top: 5px;
 	border: 1px solid #999999;
 	background: #CBD6E1;
@@ -2303,11 +2304,27 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	left: 0;
 	bottom: 0;
 	right: 0;
+	min-width: 640px;
 
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
 }
+@media (max-height:410px) {
+	.teambuilder-results {
+		bottom: auto;
+		overflow-y: visible;
+		background: #EEF2F5;
+	}
+}
+@media (max-width:639px) {
+	.teambuilder-results {
+		bottom: auto;
+		overflow-y: visible;
+		background: #EEF2F5;
+	}
+}
+
 .teamchartbox {
 	position: absolute;
 	top: 40px;
@@ -2319,6 +2336,9 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+}
+.teamchartbox.individual {
+	overflow: visible;
 }
 .teambuilder-results .result a {
 	border-radius: 4px;
