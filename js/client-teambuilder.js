@@ -128,7 +128,7 @@
 			this.deletedSetLoc = -1;
 
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <button name="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportAllTeams()) + '</textarea></div>';
 				this.$el.html(buf);
 				return;
@@ -465,10 +465,10 @@
 
 			var buf = '';
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
 			} else {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> Team List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
