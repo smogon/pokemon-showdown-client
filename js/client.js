@@ -1415,6 +1415,11 @@
 					this.curSideRoom.hide();
 					this.curSideRoom = null;
 				}
+				if ($(window).width() < this.curRoom.bestWidth) {
+					this.curRoom.$el.addClass('tiny-layout');
+				} else {
+					this.curRoom.$el.removeClass('tiny-layout');
+				}
 				this.curRoom.show('full');
 				this.topbar.updateTabbar();
 				return;
