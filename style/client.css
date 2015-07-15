@@ -989,7 +989,7 @@ p.or:after {
 .chat-log .notice,
 .chat-log .chat,
 .pm-log .chat {
-	padding: 4px 0 2px 0;
+	padding: 3px 0 3px 0;
 	font-size: 9pt;
 }
 .chat em {
@@ -1008,7 +1008,13 @@ p.or:after {
 	display: none;
 }
 .highlighted {
-	background-color: rgba(255,180,100,0.33);
+	background: rgba(255,200,80,0.33);
+}
+.chat.highlighted {
+	margin-left: -8px;
+	margin-right: -8px;
+	padding-left: 8px;
+	padding-right: 8px;
 }
 .revealed {
 	background-color: #C8FDEA;
