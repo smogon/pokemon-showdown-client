@@ -122,9 +122,8 @@ License: GPLv2
 	color: #555555;
 }
 .spoiler {
-	color: #E2E2E2;
-	background: #E2E2E2;
-	border: 1px solid #777777;
+	color: #CCCCCC;
+	background: #CCCCCC;
 	padding: 0px 3px;
 }
 .spoiler:hover,
@@ -132,8 +131,7 @@ License: GPLv2
 .spoiler-shown {
 	color: #000000;
 	background: #E2E2E2;
-	border: 0px solid #AAAAAA;
-	padding: 1px 4px;
+	padding: 0px 3px;
 }
 .spoiler a {
 	color: #E2E2E2;
@@ -142,6 +140,12 @@ License: GPLv2
 .spoiler:active a,
 .spoiler-shown a {
 	color: #2288CC;
+}
+.chat code {
+	border: 1px solid #C0C0C0;
+	background: #EEEEEE;
+	color: black;
+	padding: 0 2px;
 }
 .battle-log .rated
 {
