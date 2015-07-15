@@ -1314,9 +1314,9 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 }
 .userlist-maximized {
 	height: auto;
-	bottom: auto;
+	bottom: 0;
+	overflow: auto;
 	background: #EEF2F5;
-	border-bottom: 1px solid #AAAAAA;
 }
 .userlist-minimized .userlist-count,
 .userlist-maximized .userlist-count {

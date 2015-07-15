@@ -1479,7 +1479,8 @@
 			'!': 9,
 			'‽': 10
 		},
-		toggleUserlist: function() {
+		toggleUserlist: function(e) {
+			e.stopPropagation();
 			if (this.$el.hasClass('userlist-minimized')) {
 				this.$el.removeClass('userlist-minimized');
 				this.$el.addClass('userlist-maximized');
@@ -1493,6 +1494,7 @@
 			this.$el.removeClass('userlist-maximized');
 		},
 		hide: function() {
+			this.$el.scrollTop(0);
 			this.$el.addClass('userlist-minimized');
 		},
 		updateUserCount: function () {
