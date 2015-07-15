@@ -862,7 +862,7 @@
 			buf += '</div>';
 
 			// pokemon
-			buf += '<div class="teamchartbox">';
+			buf += '<div class="teamchartbox individual">';
 			buf += '<ol class="teamchart">';
 			buf += this.renderSet(this.curSet, this.curSetLoc);
 			buf += '</ol>';
