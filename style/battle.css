@@ -117,9 +117,12 @@ License: GPLv2
 	color: #000000;
 	font-style: normal;
 }
-.battle-log .chat em.mine
-{
-	color: #555555;
+.chat.mine {
+	background: rgba(0,0,0,0.05);
+	margin-left: -8px;
+	margin-right: -8px;
+	padding-left: 8px;
+	padding-right: 8px;
 }
 .spoiler {
 	color: #CCCCCC;

@@ -1349,13 +1349,13 @@
 				}
 			}
 			var highlight = isHighlighted ? ' highlighted' : '';
-			var chatDiv = '<div class="chat chatmessage-' + toId(name) + highlight + '">';
+			var chatDiv = '<div class="chat chatmessage-' + toId(name) + highlight + (name.substr(1) === app.user.get('name') ? ' mine' : '') + '">';
 			var timestamp = ChatRoom.getTimestamp('lobby', deltatime);
 			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>' + clickableName;
 			var self = this;
 			var outputChat = function () {
 				var coloredName = (name.substr(1) ? '<strong style="' + color + '">' + clickableName + ':</strong>' : '');
-				self.$chat.append(chatDiv + timestamp + coloredName + ' <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + Tools.parseMessage(message) + '</em></div>');
+				self.$chat.append(chatDiv + timestamp + coloredName + ' <em>' + Tools.parseMessage(message) + '</em></div>');
 			};
 			var showme = !((Tools.prefs('chatformatting') || {}).hideme);
 			if (pm) {
@@ -1366,7 +1366,7 @@
 			} else if (message.substr(0, 4) === '/me ') {
 				message = message.substr(4);
 				if (showme) {
-					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + ' <i>' + Tools.parseMessage(message) + '</i></em></div>');
+					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(message) + '</i></em></div>');
 				} else {
 					outputChat();
 				}
@@ -1374,7 +1374,7 @@
 			} else if (message.substr(0, 5) === '/mee ') {
 				message = message.substr(5);
 				if (showme) {
-					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em' + (name.substr(1) === app.user.get('name') ? ' class="mine"' : '') + '>' + clickableName + '<i>' + Tools.parseMessage(message) + '</i></em></div>');
+					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + Tools.parseMessage(message) + '</i></em></div>');
 				} else {
 					outputChat();
 				}
