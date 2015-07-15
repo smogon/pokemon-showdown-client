@@ -2081,7 +2081,12 @@
 					} else {
 						$el.css('bottom', Math.max(room - offset.top - sourceHeight, 0));
 					}
-					$el.css('left', offset.left + this.sourceEl.outerWidth());
+					var offsetLeft = offset.left + this.sourceEl.outerWidth();
+					if (offsetLeft + width > $(window).width()) {
+						$el.css('right', 1);
+					} else {
+						$el.css('left', offsetLeft);
+					}
 
 				} else {
 
