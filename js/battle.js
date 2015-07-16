@@ -5876,7 +5876,7 @@ var Battle = (function () {
 		}
 	};
 	Battle.prototype.preloadBgm = function () {
-		var bgmNum = Math.floor(Math.random() * 11);
+		var bgmNum = Math.floor(Math.random() * 13);
 
 		if (window.forceBgm || window.forceBgm === 0) bgmNum = window.forceBgm;
 		window.bgmNum = bgmNum;
@@ -5925,9 +5925,17 @@ var Battle = (function () {
 			BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469);
 			this.bgm = 'audio/xy-trainer.mp3';
 			break;
-		default:
+		case 10:
 			BattleSound.loadBgm('audio/xy-rival.mp3', 7802, 58634);
 			this.bgm = 'audio/xy-rival.mp3';
+			break;
+		case 11:
+			BattleSound.loadBgm('audio/oras-trainer.mp3', 13579, 91548);
+			this.bgm = 'audio/oras-trainer.mp3';
+			break;
+		default:
+			BattleSound.loadBgm('audio/oras-rival.mp3', 14303, 69149);
+			this.bgm = 'audio/oras-rival.mp3';
 			break;
 		}
 	};
