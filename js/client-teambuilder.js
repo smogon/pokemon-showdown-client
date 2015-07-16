@@ -1647,6 +1647,7 @@
 			set.species = val;
 			if (set.level) delete set.level;
 			if (this.curTeam && (this.curTeam.format === 'lc' || this.curTeam.format === 'gen5lc')) set.level = 5;
+			if (this.curTeam && this.curTeam.format.substr(0, 10) === 'battlespot') set.level = 50;
 			if (set.gender) delete set.gender;
 			if (template.gender && template.gender !== 'N') set.gender = template.gender;
 			if (set.happiness) delete set.happiness;
