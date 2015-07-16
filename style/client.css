@@ -243,7 +243,7 @@ a.subtle:hover {
 }
 .tabbar a.button:hover {
 	background: #cfcfcf;
-	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
+	background: linear-gradient(to bottom,  #f2f2f2,  #c2c2c2);
 	border-color: #606060;
 
 	z-index: 10;
