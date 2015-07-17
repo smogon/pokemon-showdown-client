@@ -1881,6 +1881,11 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	height: 100%;
 }
 
+.teamwrapper {
+	transform-origin: top left;
+	-webkit-transform-origin: top left;
+}
+
 .teambar {
 	position: absolute;
 	top: 0;
@@ -2369,6 +2374,12 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+}
+.teamwrapper.scaled {
+	width: 640px;
+}
+.teamwrapper.scaled .teamchartbox {
+	bottom: auto;
 }
 .teamchartbox.individual {
 	overflow: visible;
