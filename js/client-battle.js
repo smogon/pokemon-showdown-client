@@ -59,13 +59,13 @@
 			return true;
 		},
 		updateLayout: function () {
-			var width = this.$el.width();
+			var width = $(window).width();
 			if (width < 950) {
 				this.battle.messageDelay = 800;
 			} else {
 				this.battle.messageDelay = 8;
 			}
-			if (width < 640) {
+			if (width && width < 640) {
 				var scale = (width/640);
 				this.$battle.css('transform', 'scale(' + scale + ')');
 				this.$foeHint.css('transform', 'scale(' + scale + ')');
