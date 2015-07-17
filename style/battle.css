@@ -608,6 +608,11 @@ License: GPLv2
 	color: #FFFFFF;
 	background: #009AA4;
 }
+.battle .abilityresult strong
+{
+	color: #FFFFFF;
+	background: #00AACC;
+}
 
 .sidecondition-reflect
 {
