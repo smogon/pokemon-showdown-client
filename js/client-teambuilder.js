@@ -1085,6 +1085,10 @@
 			var smogdexid = toId(template.baseSpecies);
 			if (smogdexid === 'porygonz') {
 				smogdexid = 'porygon-z';
+			} else if (smogdexid === 'mrmime') {
+				smogdexid = 'mr_mime';
+			} else if (smogdexid === 'mimejr') {
+				smogdexid = 'mime_jr';
 			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys') {
 				if (template.forme) smogdexid += '-' + toId(template.forme);
 			}
