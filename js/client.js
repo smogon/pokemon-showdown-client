@@ -1790,7 +1790,7 @@
 			var offset = $lastLi.offset();
 			var width = $lastLi.outerWidth();
 			if (offset.top >= 37 || offset.left + width > $(window).width() - 165) {
-				this.$tabbar.append('<div class="overflow"><button name="tablist"><i class="icon-caret-down"></i></button></div>');
+				this.$tabbar.append('<div class="overflow"><button name="tablist" class="button"><i class="icon-caret-down"></i></button></div>');
 			}
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();

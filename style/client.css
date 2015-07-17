@@ -176,11 +176,12 @@ a.subtle:hover {
 	right: 0;
 	z-index: 12;
 }
-.maintabbar .overflow button {
-	height: 36px;
-	width: 29px;
+.maintabbar .overflow .button {
+	height: 37px;
+	width: 32px;
 	font-size: 12pt;
 	margin: 0;
+	border-radius: 0;
 }
 
 .button {
