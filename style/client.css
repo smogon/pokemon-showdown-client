@@ -164,8 +164,11 @@ a.subtle:hover {
 	margin-right: 165px;
 	overflow: hidden;
 }
+.tabbar.maintabbar.minitabbar {
+	margin-left: 0;
+}
 .maintabbar .inner {
-	width: 400%;
+	width: 400%; /* make sure overflows go right and not down */
 }
 .maintabbar .overflow {
 	position: absolute;

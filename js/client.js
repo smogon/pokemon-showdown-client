@@ -6,6 +6,7 @@
 	}
 	$(document).on('click', 'a', function (e) {
 		if (this.className === 'closebutton') return; // handled elsewhere
+		if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
 		if (!this.href) return; // should never happen
 		if (this.host === 'play.pokemonshowdown.com' || this.host === location.host) {
 			var target = this.pathname.substr(1);
@@ -1612,8 +1613,7 @@
 		events: {
 			'click a': 'click',
 			'click .username': 'clickUsername',
-			'click button': 'dispatchClickButton',
-			'touchstart .logo': 'tablist'
+			'click button': 'dispatchClickButton'
 		},
 		initialize: function () {
 			this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
@@ -1654,7 +1654,45 @@
 		},
 
 		// tabbar
+		renderRoomTab: function (room) {
+			if (!room) return '';
+			var id = room.id;
+			var buf = '<li><a class="button' + (app.curRoom === room || app.curSideRoom === room ? ' cur' : '') + (room.notificationClass || '') + (id === '' || id === 'rooms' ? '' : ' closable') + '" href="' + app.root + id + '">';
+			switch (id) {
+			case '':
+				return buf + '<i class="icon-home"></i> <span>Home</span></a></li>';
+			case 'teambuilder':
+				return buf + '<i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="icon-remove-sign"></i></a></li>';
+			case 'ladder':
+				return buf + '<i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="icon-remove-sign"></i></a></li>';
+			case 'rooms':
+				return buf + '<i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
+			default:
+				if (id.substr(0, 7) === 'battle-') {
+					var name = Tools.escapeHTML(room.title);
+					var formatid = id.substr(7).split('-')[0];
+					if (!name) {
+						var p1 = (room.battle && room.battle.p1 && room.battle.p1.name) || '';
+						var p2 = (room.battle && room.battle.p2 && room.battle.p2.name) || '';
+						if (p1 && p2) {
+							name = '' + Tools.escapeHTML(p1) + ' v. ' + Tools.escapeHTML(p2);
+						} else if (p1 || p2) {
+							name = '' + Tools.escapeHTML(p1) + Tools.escapeHTML(p2);
+						} else {
+							name = '(empty room)';
+						}
+					}
+					return buf + '<i class="text">' + formatid + '</i><span>' + name + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
+				} else {
+					return buf + '<i class="icon-comment-alt"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
+				}
+			}
+		},
 		updateTabbar: function () {
+			if ($(window).width() < 420) return this.updateTabbarMini();
+			this.$('.logo').show();
+			this.$('.maintabbar').removeClass('minitabbar');
+
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
@@ -1757,6 +1795,21 @@
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
 		},
+		updateTabbarMini: function () {
+			this.$('.logo').hide();
+			this.$('.maintabbar').addClass('minitabbar');
+			var notificationClass = '';
+			for (var i in app.rooms) {
+				if (app.rooms[i].notificationClass === ' notifying') notificationClass = ' notifying';
+			}
+			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="//play.pokemonshowdown.com/favicon-128.png" width="32" height="32" alt="PS!" /><i class="icon-caret-down" style="display:inline-block"></i></a></li></ul>';
+
+			buf += '<ul>' + this.renderRoomTab(app.curRoom) + '</ul>';
+
+			this.$tabbar.html(buf);
+
+			if (app.rooms['']) app.rooms[''].updateRightMenu();
+		},
 		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
 			if (target.name) {
@@ -1773,6 +1826,10 @@
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
 			var $target = $(e.currentTarget);
+			if ($target.hasClass('minilogo')) {
+				app.addPopup(TabListPopup, {sourceEl: e.currentTarget});
+				return;
+			}
 			var id = $target.attr('href');
 			if (id.substr(0, app.root.length) === app.root) {
 				id = id.substr(app.root.length);
@@ -1783,13 +1840,8 @@
 				app.joinRoom(id);
 			}
 		},
-		tablist: function (e) {
-			if (e && e.preventDefault) {
-				e.preventDefault();
-				app.addPopup(TabListPopup, {sourceEl: e.currentTarget});
-			} else {
-				app.addPopup(TabListPopup);
-			}
+		tablist: function () {
+			app.addPopup(TabListPopup);
 		}
 	});
 
