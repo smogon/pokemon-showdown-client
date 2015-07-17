@@ -3980,12 +3980,16 @@ var Battle = (function () {
 					// do nothing
 				} else if (effect.id) switch (effect.id) {
 				case 'trace':
+					this.resultAnim(poke, "Traced " + ability.name, 'good', animDelay);
+					actions += "[" + poke.getName() "'s Trace!]<br />";
 					actions += '' + poke.getName() + ' traced ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
 					break;
 				case 'roleplay':
+					this.resultAnim(poke, "Copied " + ability.name, 'good', animDelay);
 					actions += '' + poke.getName() + ' copied ' + ofpoke.getLowerName() + '\'s ' + ability.name + ' Ability!';
 					break;
 				case 'mummy':
+					this.resultAnim(poke, "Acquired Mummy", 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s Ability became Mummy!";
 					break;
 				case 'desolateland':
@@ -4004,43 +4008,47 @@ var Battle = (function () {
 					}
 					break;
 				default:
+					this.resultAnim(poke, "Acquired " + ability.name, 'ability', animDelay);
 					actions += "" + poke.getName() + " acquired " + ability.name + "!";
 					break;
-				} else switch (ability.id) {
-				case 'pressure':
-					actions += "" + poke.getName() + " is exerting its pressure!";
-					break;
-				case 'moldbreaker':
-					actions += "" + poke.getName() + " breaks the mold!";
-					break;
-				case 'turboblaze':
-					actions += "" + poke.getName() + " is radiating a blazing aura!";
-					break;
-				case 'teravolt':
-					actions += "" + poke.getName() + " is radiating a bursting aura!";
-					break;
-				case 'intimidate':
-					actions += '' + poke.getName() + ' intimidates ' + ofpoke.getLowerName() + '!';
-					break;
-				case 'unnerve':
-					actions += "" + poke.getName() + "'s Unnerve makes " + this.getSide(args[3]).getLowerTeamName() + " too nervous to eat Berries!";
-					break;
-				case 'aurabreak':
-					actions += "" + poke.getName() + " reversed all other Pokémon's auras!";
-					break;
-				case 'fairyaura':
-					actions += "" + poke.getName() + " is radiating a fairy aura!";
-					break;
-				case 'darkaura':
-					actions += "" + poke.getName() + " is radiating a dark aura!";
-					break;
-				case 'airlock':
-				case 'cloudnine':
-					actions += "The effects of the weather disappeared.";
-					break;
-				default:
-					actions += "" + poke.getName() + " has " + ability.name + "!";
-					break;
+				} else {
+					actions += "[" + poke.getName() "'s " + ability.name + "!]";
+					this.resultAnim(poke, ability.name, 'ability', animDelay);
+					switch (ability.id) {
+					case 'pressure':
+						actions += "<br />" + poke.getName() + " is exerting its pressure!";
+						break;
+					case 'moldbreaker':
+						actions += "<br />" + poke.getName() + " breaks the mold!";
+						break;
+					case 'turboblaze':
+						actions += "<br />" + poke.getName() + " is radiating a blazing aura!";
+						break;
+					case 'teravolt':
+						actions += "<br />" + poke.getName() + " is radiating a bursting aura!";
+						break;
+					case 'intimidate':
+						actions += '<br />' + poke.getName() + ' intimidates ' + ofpoke.getLowerName() + '!';
+						break;
+					case 'unnerve':
+						actions += "<br />" + poke.getName() + "'s Unnerve makes " + this.getSide(args[3]).getLowerTeamName() + " too nervous to eat Berries!";
+						break;
+					case 'aurabreak':
+						actions += "<br />" + poke.getName() + " reversed all other Pokémon's auras!";
+						break;
+					case 'fairyaura':
+						actions += "<br />" + poke.getName() + " is radiating a fairy aura!";
+						break;
+					case 'darkaura':
+						actions += "<br />" + poke.getName() + " is radiating a dark aura!";
+						break;
+					case 'airlock':
+					case 'cloudnine':
+						actions += "<br />The effects of the weather disappeared.";
+						break;
+					default:
+						// Do nothing
+					}
 				}
 				break;
 
