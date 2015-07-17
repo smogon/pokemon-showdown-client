@@ -1469,6 +1469,9 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	width: 640px;
 	background: #EEF2F5;
 }
+.battle-chat-toggle {
+	display: none;
+}
 @media (max-width:639px) {
 	.ps-room .battle-controls {
 		left: 0;
@@ -1509,6 +1512,25 @@ div[class^='tournament-message-'], div[class*=' tournament-message-'] {
 	.battle-log,
 	.battle-log-add {
 		display: none;
+	}
+}
+@media (max-width:830px) {
+	.battle-chat-toggle {
+		display: block;
+		position: absolute;
+		top: 5px;
+		left: 6px;
+		font-size: 14px;
+		padding: 2px 5px;
+	}
+	.showing-chat .battle,
+	.showing-chat .battle-controls {
+		display: none;
+	}
+	.showing-chat .battle-log,
+	.showing-chat .battle-log-add {
+		left: 0;
+		display: block;
 	}
 }
 .shiftselect button,
