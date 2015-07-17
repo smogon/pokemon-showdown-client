@@ -1064,10 +1064,21 @@
 
 		plus: '',
 		minus: '',
+		smogdexLink: function (template) {
+			var template = Tools.getTemplate(template);
+			var smogdexid = toId(template.baseSpecies);
+			if (smogdexid === 'porygonz') {
+				smogdexid = 'porygon-z';
+			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys') {
+				if (template.forme) smogdexid += '-' + toId(template.forme);
+			}
+			return 'http://smogon.com/dex/xy/pokemon/' + smogdexid + '/';
+		},
 		updateStatForm: function (setGuessed) {
 			var buf = '';
 			var set = this.curSet;
-			var baseStats = Tools.getTemplate(this.curSet.species).baseStats;
+			var template = Tools.getTemplate(this.curSet.species);
+			var baseStats = template.baseStats;
 			buf += '<h3>EVs</h3>';
 			buf += '<div class="statform">';
 			var role = this.guessRole();
@@ -1077,7 +1088,7 @@
 			var guessedMinus = '';
 			buf += '<p class="suggested"><small>Suggested spread:';
 			if (role === '?') {
-				buf += ' (Please choose 4 moves to get a suggested spread)</small></p>';
+				buf += ' (Please choose 4 moves to get a suggested spread) (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
 			} else {
 				guessedEVs = this.guessEVs(role);
 				guessedPlus = guessedEVs.plusStat;
@@ -1088,7 +1099,7 @@
 				for (var i in guessedEVs) {
 					if (guessedEVs[i]) buf += '' + guessedEVs[i] + ' ' + BattleStatNames[i] + ' / ';
 				}
-				buf += ' (+' + BattleStatNames[guessedPlus] + ', -' + BattleStatNames[guessedMinus] + ')</button></p>';
+				buf += ' (+' + BattleStatNames[guessedPlus] + ', -' + BattleStatNames[guessedMinus] + ')</button><small> (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
 				//buf += ' <small>(' + role + ' | bulk: phys ' + Math.round(this.moveCount.physicalBulk/1000) + ' + spec ' + Math.round(this.moveCount.specialBulk/1000) + ' = ' + Math.round(this.moveCount.bulk/1000) + ')</small>';
 			}
 
