@@ -1800,7 +1800,7 @@
 			this.$('.maintabbar').addClass('minitabbar');
 			var notificationClass = '';
 			for (var i in app.rooms) {
-				if (app.rooms[i].notificationClass === ' notifying') notificationClass = ' notifying';
+				if (app.rooms[i] !== app.curRoom && app.rooms[i].notificationClass === ' notifying') notificationClass = ' notifying';
 			}
 			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="//play.pokemonshowdown.com/favicon-128.png" width="32" height="32" alt="PS!" /><i class="icon-caret-down" style="display:inline-block"></i></a></li></ul>';
 
