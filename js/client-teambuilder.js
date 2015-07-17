@@ -198,6 +198,20 @@
 
 			this.$el.html(buf);
 		},
+		show: function () {
+			Room.prototype.show.apply(this, arguments);
+			var $teamwrapper = this.$('.teamwrapper');
+			var width = $(window).width();
+			if (!$teamwrapper.length) return;
+			if (width < 640) {
+				var scale = (width/640);
+				$teamwrapper.css('transform', 'scale(' + scale + ')');
+				$teamwrapper.addClass('scaled');
+			} else {
+				$teamwrapper.css('transform', 'none');
+				$teamwrapper.removeClass('scaled');
+			}
+		},
 		// button actions
 		revealFolder: function () {
 			Storage.revealFolder();
@@ -507,7 +521,8 @@
 				buf += '</ol>';
 				buf += '</div>';
 			}
-			this.$el.html(buf);
+			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
+			if ($(window).width() < 640) this.show();
 		},
 		renderSet: function (set, i) {
 			var template = Tools.getTemplate(set.species);
@@ -878,7 +893,8 @@
 			buf += '<textarea class="pokemonedit textbox" rows="14"></textarea>';
 			buf += '</div>';
 
-			this.$el.html(buf);
+			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
+			if ($(window).width() < 640) this.show();
 			this.$chart = this.$('.teambuilder-results');
 		},
 		updateSetTop: function () {
