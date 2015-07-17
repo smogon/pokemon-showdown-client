@@ -5361,7 +5361,7 @@ var Battle = (function () {
 				clickableName = Tools.escapeHTML(name);
 			}
 			var message = args.join('|');
-			var mine = (toUserid(name) === app.user.get('userid') ? ' mine' : '');
+			var mine = (toUserid(name) === (app && app.user && app.user.get('userid')) ? ' mine' : '');
 			if (message.substr(0, 2) === '//') {
 				this.log('<div class="chat chatmessage-' + toId(name) + mine + '"><strong style="' + hashColor(toUserid(name)) + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message.substr(1)) + '</em></div>', preempt);
 			} else if (message.substr(0, 4).toLowerCase() === '/me ') {
