@@ -280,7 +280,8 @@ a.subtle:hover {
 .tabbar a.button i.text + span {
 	margin-right: -6px;
 }
-.tabbar a.button:hover {
+.tabbar a.button:hover,
+.tablist a.button:hover {
 	z-index: 10;
 }
 .tabbar a.button.cur,
@@ -304,10 +305,10 @@ a.subtle:hover {
 	display: inline-block;
 	margin: 0 0 0 -18px;
 	width: 18px;
-	position: relative;
-	z-index: 11;
 	top: 5px;
 	vertical-align: top;
+	position: relative;
+	z-index: 11;
 }
 .tabbar a.cur + .closebutton {
 	top: 4px;
@@ -363,9 +364,6 @@ a.subtle:hover {
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
 }
-.tablist a.button:hover {
-	z-index: 20;
-}
 .tablist .closebutton {
 	display: block;
 	float: right;
@@ -375,6 +373,9 @@ a.subtle:hover {
 	font-size: 14px;
 	width: 28px;
 	text-align: center;
+
+	position: relative;
+	z-index: 11;
 }
 .tablist i.text {
 	font-size: 9pt;
