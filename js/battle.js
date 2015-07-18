@@ -5563,6 +5563,8 @@ var Battle = (function () {
 			name = args.join(' ');
 			this.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div></div>', preempt);
 			break;
+		case 'choice':
+			break;
 		case 'unlink':
 			if (Tools.prefs('nounlink')) return;
 			var user = toId(args[2]) || toId(args[1]);
