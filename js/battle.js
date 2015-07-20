@@ -4027,9 +4027,6 @@ var Battle = (function () {
 					case 'teravolt':
 						actions += "<br />" + poke.getName() + " is radiating a bursting aura!";
 						break;
-					case 'intimidate':
-						actions += '<br />' + poke.getName() + ' intimidates ' + ofpoke.getLowerName() + '!';
-						break;
 					case 'unnerve':
 						actions += "<br />" + poke.getName() + "'s Unnerve makes " + this.getSide(args[3]).getLowerTeamName() + " too nervous to eat Berries!";
 						break;
