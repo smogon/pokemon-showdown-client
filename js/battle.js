@@ -5563,6 +5563,7 @@ var Battle = (function () {
 			name = args.join(' ');
 			this.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div></div>', preempt);
 			break;
+		case 'seed':
 		case 'choice':
 			break;
 		case 'unlink':
