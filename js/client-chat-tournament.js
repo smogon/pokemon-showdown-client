@@ -417,7 +417,7 @@
 
 				case 'battlestart':
 					this.room.$chat.append('<div class="notice tournament-message-battlestart"><a href="' + app.root + toRoomid(data[2]).toLowerCase() + '" class="ilink">' +
-						"A tournament battle between " + Tools.escapeHTML(data[0]) + " and " + Tools.escapeHTML(data[1]) + " has started." +
+						"Tournament battle between " + Tools.escapeHTML(data[0]) + " and " + Tools.escapeHTML(data[1]) + " started." +
 						'</a></div>');
 					break;
 
