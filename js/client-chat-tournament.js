@@ -97,12 +97,12 @@
 				'<div class="tournament-box">' +
 					'<div class="tournament-bracket"></div>' +
 					'<div class="tournament-tools">' +
+						'<div class="tournament-team"></div>' +
 						'<button class="button tournament-join">Join</button><button class="button tournament-leave">Leave</button>' +
-						'<div class="tournament-nomatches">There are currently no new matches available for you. Please wait for some other battles to end.</div>' +
+						'<div class="tournament-nomatches">Waiting for more battles to be available...</div>' +
 						'<div class="tournament-challenge">' +
-							'<span class="tournament-challenge-user"></span>' +
-							'<span class="tournament-team"></span>' +
-							'<button class="button tournament-challenge-challenge">Challenge</button>' +
+							'<div class="tournament-challenge-user"></div>' +
+							'<button class="button tournament-challenge-challenge"><strong>Ready!</strong></button><span class="tournament-challenge-user-menu"></span>' +
 						'</div>' +
 						'<div class="tournament-challengeby"></div>' +
 						'<div class="tournament-challenging">' +
@@ -111,8 +111,7 @@
 						'</div>' +
 						'<div class="tournament-challenged">' +
 							'<div class="tournament-challenged-message"></div>' +
-							'<span class="tournament-team"></span>' +
-							'<button class="button tournament-challenge-accept">Accept</button>' +
+							'<button class="button tournament-challenge-accept"><strong>Ready!</strong></button>' +
 						'</div>' +
 					'</div>' +
 				'</div>');
@@ -130,6 +129,7 @@
 			this.$teamSelect = $wrapper.find('.tournament-team');
 			this.$challenge = $wrapper.find('.tournament-challenge');
 			this.$challengeUser = $wrapper.find('.tournament-challenge-user');
+			this.$challengeUserMenu = $wrapper.find('.tournament-challenge-user-menu');
 			this.$challengeChallenge = $wrapper.find('.tournament-challenge-challenge');
 			this.$challengeBy = $wrapper.find('.tournament-challengeby');
 			this.$challenging = $wrapper.find('.tournament-challenging');
@@ -168,11 +168,11 @@
 				self.room.send('/tournament leave');
 			});
 			this.$challengeChallenge.on('click', function () {
-				app.sendTeam(Storage.teams[self.$challenge.find('.tournament-team').children().val()]);
-				self.room.send('/tournament challenge ' + self.$challengeUser.children().val());
+				app.sendTeam(Storage.teams[self.$teamSelect.children().val()]);
+				self.room.send('/tournament challenge ' + self.$challengeUserMenu.children().val());
 			});
 			this.$challengeAccept.on('click', function () {
-				app.sendTeam(Storage.teams[self.$challenged.find('.tournament-team').children().val()]);
+				app.sendTeam(Storage.teams[self.$teamSelect.children().val()]);
 				self.room.send('/tournament acceptchallenge');
 			});
 			this.$challengeCancel.on('click', function () {
@@ -199,12 +199,25 @@
 			}
 		};
 		TournamentBox.prototype.updateTeams = function () {
-			if (!this.info.isJoined || !this.info.isStarted)
-				return;
+			var forceFormatChange = (this.info.format !== this.teamSelectFormat);
+			this.teamSelectFormat = this.info.format;
 
-			this.$teamSelect.html(app.rooms[''].renderTeams(this.info.format));
+			if (!this.info.isJoined) {
+				this.$teamSelect.hide();
+				if (forceFormatChange) this.$teamSelect.html('');
+				return;
+			}
+
+			var teamIndex = undefined;
+			if (!forceFormatChange && this.$teamSelect.children().val()) {
+				teamIndex = parseInt(this.$teamSelect.children().val());
+				if (isNaN(teamIndex)) teamIndex = undefined;
+			}
+
+			this.$teamSelect.html(app.rooms[''].renderTeams(this.info.format, teamIndex));
 			this.$teamSelect.children().data('type', 'teamSelect');
 			this.$teamSelect.children().attr('name', 'tournamentButton');
+			this.$teamSelect.show();
 		};
 
 		TournamentBox.prototype.isBoxVisible = function () {
@@ -253,6 +266,7 @@
 					var type = data[1];
 					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament created.</div>");
 					this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + format + "\nType: " + type, 'tournament-create');
+					this.updateTeams();
 					break;
 
 				case 'join':
@@ -277,6 +291,7 @@
 					if (joins.length > 0) message.push(arrayToPhrase(joins) + " joined the tournament");
 					if (leaves.length > 0) message.push(arrayToPhrase(leaves) + " left the tournament");
 					this.$lastJoinLeaveMessage.text(message.join("; ") + ".");
+					this.updateTeams();
 					break;
 
 				case 'start':
@@ -363,7 +378,9 @@
 						if ('challenges' in this.updates) {
 							this.$challenge.toggleClass('active', this.info.challenges.length > 0);
 							if (this.info.challenges.length > 0) {
-								this.$challengeUser.html(this.renderChallengeUsers());
+								this.$challengeUser.text("vs. " + this.info.challenges[0]);
+								this.$challengeUserMenu.toggle(this.info.challenges.length > 1);
+								this.$challengeUserMenu.html(this.renderChallengeUsers());
 								this.toggleBoxVisibility(true);
 								this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
 							}
@@ -372,20 +389,20 @@
 						if ('challengeBys' in this.updates) {
 							this.$challengeBy.toggleClass('active', this.info.challengeBys.length > 0);
 							if (this.info.challengeBys.length > 0)
-								this.$challengeBy.text((this.info.challenges.length > 0 ? "Or" : "Please") + " wait for " + arrayToPhrase(this.info.challengeBys, "or") + " to challenge you.");
+								this.$challengeBy.text((this.info.challenges.length > 0 ? "Or wait" : "Waiting") + " for " + arrayToPhrase(this.info.challengeBys, "or") + " to challenge you.");
 						}
 
 						if ('challenging' in this.updates) {
 							this.$challenging.toggleClass('active', !!this.info.challenging);
 							if (this.info.challenging) {
-								this.$challengingMessage.text("Challenging " + this.info.challenging + "...");
+								this.$challengingMessage.text("Waiting for " + this.info.challenging + "...");
 							}
 						}
 
 						if ('challenged' in this.updates) {
 							this.$challenged.toggleClass('active', !!this.info.challenged);
 							if (this.info.challenged) {
-								this.$challengedMessage.text(this.info.challenged + " has challenged you.");
+								this.$challengedMessage.text("vs. " + this.info.challenged);
 								this.toggleBoxVisibility(true);
 								this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
 							}
@@ -721,7 +738,7 @@
 		};
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
-			return '<button class="select" value="' + toId(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">' + Tools.escapeHTML(this.info.challenges[0]) + '</button>';
+			return ' <button class="button" value="' + toId(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">Change opponent</button>';
 		};
 		TournamentBox.prototype.challengeUser = function (user, button) {
 			app.addPopup(UserPopup, {user: user, users: this.info.challenges, sourceEl: button});
@@ -742,7 +759,8 @@
 			}).join('') + '</ul>');
 		},
 		selectUser: function (user) {
-			this.sourceEl.val(toId(user)).text(user);
+			this.sourceEl.val(toId(user));
+			this.sourceEl.parent().parent().find('.tournament-challenge-user').text('vs. ' + user);
 			this.close();
 		}
 	});
