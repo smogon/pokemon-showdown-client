@@ -1279,6 +1279,19 @@ a.ilink:hover {
 .tournament-tools.active {
 	display: block;
 }
+.tournament-team {
+	padding-bottom: 5px;
+}
+.tournament-challenge-user,
+.tournament-challenged-message,
+.tournament-challenging-message,
+.tournament-challengeby {
+	font-size: 9pt;
+	padding-bottom: 5px;
+}
+.tournament-tools .button {
+	font-size: 9pt;
+}
 
 .tournament-join,
 .tournament-leave {
@@ -1304,7 +1317,10 @@ a.ilink:hover {
 	display: block;
 }
 
-div[class^='tournament-message-'], div[class*=' tournament-message-'] {
+.tournament-message-create,
+.tournament-message-start,
+.tournament-message-forceend,
+.tournament-message-end-winner {
 	font-weight: bold;
 }
 .tournament-message-end-bracket {
