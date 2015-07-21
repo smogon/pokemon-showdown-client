@@ -304,12 +304,30 @@
 				e.preventDefault();
 				e.stopPropagation();
 				var text;
-				if ((text = $target.val())) {
+				if ((text = $.trim($target.val()))) {
+					var $pmWindow = $target.closest('.pm-window');
+					var userid = $pmWindow.data('userid');
+					var $chat = $pmWindow.find('.inner');
 					// this.tabComplete.reset();
 					// this.chatHistory.push(text);
-					var userid = $target.closest('.pm-window').data('userid');
-					text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
-					this.send(text);
+					if (text.toLowerCase() === '/ignore') {
+						if (app.ignore[userid]) {
+							$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
+						} else {
+							app.ignore[userid] = 1;
+							$chat.append('<div class="chat">User ' + userid + ' ignored. (Moderator messages will not be ignored.)</div>');
+						}
+					} else if (text.toLowerCase() === '/unignore') {
+						if (!app.ignore[userid]) {
+							$chat.append('<div class="chat">User ' + userid + ' isn\'t on your ignore list.</div>');
+						} else {
+							delete app.ignore[userid];
+							$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
+						}
+					} else {
+						text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
+						this.send(text);
+					}
 					$(e.currentTarget).val('');
 				}
 			} else if (e.keyCode === 27) { // Esc
