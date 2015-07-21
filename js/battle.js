@@ -4748,7 +4748,7 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' anchors itself!';
 					break;
 				case 'symbiosis':
-					actions += '' + ofpoke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + poke.getLowerName();
+					actions += '' + ofpoke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + poke.getLowerName() + '!';
 					break;
 
 				case 'deltastream':
