@@ -3,6 +3,7 @@
 include '../pokemonshowdown.com/config/servers.inc.php';
 
 $server = @$_REQUEST['server'];
+if ($server === 'showdown') die();
 if (empty($PokemonServers[$server])) {
 	header('Content-Type: text/plain; charset=utf-8');
 	die('server not found');
@@ -38,7 +39,14 @@ if (!$invalidate && $lastmodified && (($timenow - $lastmodified) < 3600)) {
 $curl = curl_init($customcssuri);
 if ($lastmodified && !$invalidate) {
 	curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-		'If-Modified-Since: ' . gmdate('D, d M Y H:i:s T', $lastmodified)
+		'If-Modified-Since: ' . gmdate('D, d M Y H:i:s T', $lastmodified),
+		'User-Agent: PSCustomCSS/0.1 (server=' . $server . ($invalidate ? '; invalidate=1' : '') . ')',
+		// 'X-Forwarded-For: ' . @$_SERVER['HTTP_X_FORWARDED_FOR'],
+	));
+} else {
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+		'User-Agent: PSCustomCSS/0.1 (server=' . $server . ($invalidate ? '; invalidate=1' : '') . ')',
+		// 'X-Forwarded-For: ' . @$_SERVER['HTTP_X_FORWARDED_FOR'],
 	));
 }
 curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
