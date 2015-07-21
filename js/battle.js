@@ -4750,7 +4750,6 @@ var Battle = (function () {
 				case 'symbiosis':
 					actions += '' + ofpoke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + poke.getLowerName() + '!';
 					break;
-
 				case 'deltastream':
 					actions += "The mysterious air current weakened the attack!";
 					break;
