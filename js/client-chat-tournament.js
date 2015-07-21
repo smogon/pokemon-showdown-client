@@ -99,7 +99,7 @@
 					'<div class="tournament-tools">' +
 						'<div class="tournament-team"></div>' +
 						'<button class="button tournament-join">Join</button><button class="button tournament-leave">Leave</button>' +
-						'<div class="tournament-nomatches">Waiting for more battles to be available...</div>' +
+						'<div class="tournament-nomatches">Waiting for battles to become available...</div>' +
 						'<div class="tournament-challenge">' +
 							'<div class="tournament-challenge-user"></div>' +
 							'<button class="button tournament-challenge-challenge"><strong>Ready!</strong></button><span class="tournament-challenge-user-menu"></span>' +
