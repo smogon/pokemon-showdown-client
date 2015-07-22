@@ -917,7 +917,11 @@ var Tools = {
 			var num = '' + animationData.num;
 			if (num.length < 3) num = '0' + num;
 			if (num.length < 3) num = '0' + num;
-			spriteData.cryurl = 'audio/cries/' + num + '.wav';
+			spriteData.cryurl = 'audio/cries/' + num;
+			if (pokemon.forme && (pokemon.forme.substr(0, 4) === 'Mega' || pokemon.forme === 'Sky' || pokemon.forme === 'Therian' || pokemon.forme === 'Black' || pokemon.forme === 'White' || pokemon.forme === 'Super')) {
+				spriteData.cryurl += '-' + toId(pokemon.forme);
+			}
+			spriteData.cryurl += '.wav';
 		}
 
 		if (pokemon.shiny && options.gen > 1) dir += '-shiny';
