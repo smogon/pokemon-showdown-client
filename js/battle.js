@@ -516,18 +516,18 @@ var Pokemon = (function () {
 		this.clearTurnstatuses();
 		this.clearMovestatuses();
 	};
-	Pokemon.prototype.getName = function () {
+	Pokemon.prototype.getName = function (shortName) {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
 		} else {
-			return "The opposing " + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
+			return (shortName ? "Opposing" : "The opposing ") + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
 		}
 	};
-	Pokemon.prototype.getLowerName = function () {
+	Pokemon.prototype.getLowerName = function (shortName) {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
 		} else {
-			return "the opposing " + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
+			return (shortName ? "opposing" : "the opposing ") + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
 		}
 	};
 	Pokemon.prototype.getTitle = function () {
@@ -3981,7 +3981,7 @@ var Battle = (function () {
 				} else if (effect.id) switch (effect.id) {
 				case 'trace':
 					this.resultAnim(poke, "Traced " + ability.name, 'good', animDelay);
-					actions += "[" + poke.getName() + "'s Trace!]<br />";
+					this.message('', poke.getName(true) + "'s Trace!]";
 					actions += '' + poke.getName() + ' traced ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
 					break;
 				case 'roleplay':
@@ -4012,36 +4012,36 @@ var Battle = (function () {
 					actions += "" + poke.getName() + " acquired " + ability.name + "!";
 					break;
 				} else {
-					actions += "[" + poke.getName() + "'s " + ability.name + "!]";
+					this.message('', "[" + poke.getName(true) + "'s " + ability.name + "!]";
 					this.resultAnim(poke, ability.name, 'ability', animDelay);
 					switch (ability.id) {
 					case 'pressure':
-						actions += "<br />" + poke.getName() + " is exerting its pressure!";
+						actions += "" + poke.getName() + " is exerting its pressure!";
 						break;
 					case 'moldbreaker':
-						actions += "<br />" + poke.getName() + " breaks the mold!";
+						actions += "" + poke.getName() + " breaks the mold!";
 						break;
 					case 'turboblaze':
-						actions += "<br />" + poke.getName() + " is radiating a blazing aura!";
+						actions += "" + poke.getName() + " is radiating a blazing aura!";
 						break;
 					case 'teravolt':
-						actions += "<br />" + poke.getName() + " is radiating a bursting aura!";
+						actions += "" + poke.getName() + " is radiating a bursting aura!";
 						break;
 					case 'unnerve':
-						actions += "<br />" + poke.getName() + "'s Unnerve makes " + this.getSide(args[3]).getLowerTeamName() + " too nervous to eat Berries!";
+						actions += "" + poke.getName() + "'s Unnerve makes " + this.getSide(args[3]).getLowerTeamName() + " too nervous to eat Berries!";
 						break;
 					case 'aurabreak':
-						actions += "<br />" + poke.getName() + " reversed all other Pokémon's auras!";
+						actions += "" + poke.getName() + " reversed all other Pokémon's auras!";
 						break;
 					case 'fairyaura':
-						actions += "<br />" + poke.getName() + " is radiating a fairy aura!";
+						actions += "" + poke.getName() + " is radiating a fairy aura!";
 						break;
 					case 'darkaura':
-						actions += "<br />" + poke.getName() + " is radiating a dark aura!";
+						actions += "" + poke.getName() + " is radiating a dark aura!";
 						break;
 					case 'airlock':
 					case 'cloudnine':
-						actions += "<br />The effects of the weather disappeared.";
+						actions += "The effects of the weather disappeared.";
 						break;
 					default:
 						// Do nothing
