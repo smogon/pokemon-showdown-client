@@ -682,7 +682,7 @@
 						// server config information
 						Config.server = data.server;
 						// Config.server.afd = true;
-						if (Config.server.registered && Config.server.id !== 'showdown') {
+						if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
 							var $link = $('<link rel="stylesheet" ' +
 								'href="//play.pokemonshowdown.com/customcss.php?server=' +
 								encodeURIComponent(Config.server.id) + '" />');
