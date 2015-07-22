@@ -3,7 +3,7 @@
 include '../pokemonshowdown.com/config/servers.inc.php';
 
 $server = @$_REQUEST['server'];
-if ($server === 'showdown') die();
+if ($server === 'showdown' || $server === 'smogtours') die();
 if (empty($PokemonServers[$server])) {
 	header('Content-Type: text/plain; charset=utf-8');
 	die('server not found');
