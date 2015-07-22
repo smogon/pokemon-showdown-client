@@ -3981,7 +3981,7 @@ var Battle = (function () {
 				} else if (effect.id) switch (effect.id) {
 				case 'trace':
 					this.resultAnim(poke, "Traced " + ability.name, 'good', animDelay);
-					this.message('', poke.getName(true) + "'s Trace!]";
+					this.message('', poke.getName(true) + "'s Trace!]");
 					actions += '' + poke.getName() + ' traced ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
 					break;
 				case 'roleplay':
@@ -4012,7 +4012,7 @@ var Battle = (function () {
 					actions += "" + poke.getName() + " acquired " + ability.name + "!";
 					break;
 				} else {
-					this.message('', "[" + poke.getName(true) + "'s " + ability.name + "!]";
+					this.message('', "[" + poke.getName(true) + "'s " + ability.name + "!]");
 					this.resultAnim(poke, ability.name, 'ability', animDelay);
 					switch (ability.id) {
 					case 'pressure':
