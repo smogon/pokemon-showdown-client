@@ -815,15 +815,16 @@ var Tools = {
 			if (!template.baseSpecies) template.baseSpecies = name;
 			if (!template.forme) template.forme = '';
 			if (!template.formeLetter) template.formeLetter = '';
-			if (!template.spriteid) {
+			if (!template.formeid) {
 				var formeid = '';
 				if (template.baseSpecies !== name) {
 					formeid = '-' + toId(template.forme);
 					if (formeid === '-megax') formeid = '-mega-x';
 					if (formeid === '-megay') formeid = '-mega-y';
 				}
-				template.spriteid = toId(template.baseSpecies) + formeid;
+				template.formeid = formeid;
 			}
+			if (!template.spriteid) template.spriteid = toId(template.baseSpecies) + template.formeid;
 			if (!template.effectType) template.effectType = 'Template';
 		}
 		return template;
@@ -919,7 +920,7 @@ var Tools = {
 			if (num.length < 3) num = '0' + num;
 			spriteData.cryurl = 'audio/cries/' + num;
 			if (pokemon.forme && (pokemon.forme.substr(0, 4) === 'Mega' || pokemon.forme === 'Sky' || pokemon.forme === 'Therian' || pokemon.forme === 'Black' || pokemon.forme === 'White' || pokemon.forme === 'Super')) {
-				spriteData.cryurl += '-' + toId(pokemon.forme);
+				spriteData.cryurl += pokemon.formeid;
 			}
 			spriteData.cryurl += '.wav';
 		}
