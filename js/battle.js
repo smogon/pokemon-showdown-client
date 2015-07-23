@@ -783,6 +783,16 @@ var Sprite = (function () {
 		this.sp = sp;
 		var self = this;
 		var battle = this.battle;
+		if (battle.fastForward) {
+			this.elem.attr('src', sp.url);
+			this.elem.css(battle.pos({
+				x: self.x,
+				y: self.y,
+				z: self.z,
+				opacity: 1
+			}, sp));
+			return;
+		}
 		this.elem.animate(this.battle.pos({
 			x: this.x,
 			y: this.y,
@@ -909,12 +919,16 @@ var Sprite = (function () {
 	};
 	Sprite.prototype.removeSub = function () {
 		if (this.subElem) {
-			var temp = this.subElem;
-			this.subElem.animate({
-				opacity: 0
-			}, function () {
-				temp.remove();
-			});
+			if (this.battle.fastForward) {
+				this.subElem.remove();
+			} else {
+				var temp = this.subElem;
+				this.subElem.animate({
+					opacity: 0
+				}, function () {
+					temp.remove();
+				});
+			}
 			this.subElem = null;
 		}
 	};
@@ -1646,7 +1660,7 @@ var Side = (function () {
 			}
 			pokemon.statbarElem.css({
 				display: 'block',
-				left: (this.n == 0 ? 100 : 340),
+				left: pokemon.sprite.left - 80,
 				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
 				opacity: 1
 			});
@@ -3093,7 +3107,7 @@ var Battle = (function () {
 			this.message('<small>' + pokemon.getName() + (move.name ? ' can\'t use ' + move.name + '' : ' can\'t move') + '!</small>');
 			break;
 		}
-		pokemon.sprite.anim({time: 1});
+		pokemon.sprite.animReset();
 	};
 	Battle.prototype.prepareMove = function (pokemon, move, target) {
 		if (!move.prepareAnim) return;
