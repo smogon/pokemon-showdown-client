@@ -3981,7 +3981,7 @@ var Battle = (function () {
 				} else if (effect.id) switch (effect.id) {
 				case 'trace':
 					this.resultAnim(poke, "Traced " + ability.name, 'good', animDelay);
-					this.message('', poke.getName(true) + "'s Trace!]");
+					this.message('', "[" + poke.getName(true) + "'s Trace!]");
 					actions += '' + poke.getName() + ' traced ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
 					break;
 				case 'roleplay':
