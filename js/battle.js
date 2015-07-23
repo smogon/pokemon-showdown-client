@@ -626,10 +626,19 @@ var Pokemon = (function () {
 		this.volatiles = pokemon.volatiles;
 		//this.lastmove = pokemon.lastmove; // I think
 		if (!copyAll) {
-			this.removeVolatile('yawn');
 			this.removeVolatile('airballoon');
+			this.removeVolatile('attract');
+			this.removeVolatile('autotomize');
+			this.removeVolatile('disable');
+			this.removeVolatile('foresight');
+			this.removeVolatile('imprison');
+			this.removeVolatile('mimic');
+			this.removeVolatile('miracleeye');
+			this.removeVolatile('smackdown');
+			this.removeVolatile('torment');
 			this.removeVolatile('typeadd');
 			this.removeVolatile('typechange');
+			this.removeVolatile('yawn');
 		}
 		this.removeVolatile('transform');
 		this.removeVolatile('formechange');
