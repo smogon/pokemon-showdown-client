@@ -516,6 +516,15 @@
 				openUser(target);
 				return false;
 
+			case 'debug':
+				if (target === 'extractteams') {
+					app.addPopup(Popup, {
+						type: 'modal',
+						htmlMessage: "Extracted team data:<br /><textarea rows=\"10\" cols=\"60\">" + Tools.escapeHTML(JSON.stringify(Storage.teams)) + "</textarea>"
+					});
+				}
+				return false;
+
 			case 'autojoin':
 			case 'cmd':
 			case 'query':
