@@ -520,14 +520,14 @@ var Pokemon = (function () {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
 		} else {
-			return (shortName ? "Opposing" : "The opposing ") + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
+			return (shortName ? "Opposing " : "The opposing ") + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
 		}
 	};
 	Pokemon.prototype.getLowerName = function (shortName) {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
 		} else {
-			return (shortName ? "opposing" : "the opposing ") + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
+			return (shortName ? "opposing " : "the opposing ") + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
 		}
 	};
 	Pokemon.prototype.getTitle = function () {
