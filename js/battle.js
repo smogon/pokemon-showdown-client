@@ -180,6 +180,7 @@ var Pokemon = (function () {
 		this.ability = '';
 		this.baseAbility = '';
 		this.item = '';
+		this.pokeball = '';
 		this.species = species;
 		this.fainted = false;
 		this.zerohp = false;
@@ -1534,6 +1535,7 @@ var Side = (function () {
 		poke.spaStat = 10;
 		poke.spdStat = 10;
 		poke.maxhp = 1000;
+		poke.pokeball = 'pokeball';
 		if (pokeobj) poke = $.extend(poke, pokeobj);
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
 		poke.id = id;
@@ -1595,10 +1597,11 @@ var Side = (function () {
 			pokemon.copyVolatileFrom(this.lastPokemon);
 		}
 
+		var ballName = Tools.getItem(pokemon.pokeball).name || 'Poke Ball';
 		if (pokemon.side.n === 0) {
-			this.battle.message('Go! ' + pokemon.getFullName() + '!');
+			this.battle.message('Go! ' + pokemon.getFullName() + '! (In a ' + ballName + ')');
 		} else {
-			this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
+			this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '! (In a ' + ballName + ')');
 		}
 
 		pokemon.sprite.animSummon(slot);
