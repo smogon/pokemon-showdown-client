@@ -11,7 +11,7 @@
 		},
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
-			var buf = '<div class="pad"><button style="float:right" name="close">Close</button><div class="roomlisttop"></div><div class="roomlist" style="max-width:480px"><p><em style="font-size:20pt">Loading...</em></p></div><p><button name="joinRoomPopup">Join other room</button></p></div>';
+			var buf = '<div class="pad"><button style="float:right" name="close">Close</button><div class="roomlisttop"></div><div class="roomlist" style="max-width:480px"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist" style="max-width:480px"></div><p><button name="joinRoomPopup">Join other room</button></p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
 			app.send('/cmd rooms');
@@ -53,39 +53,39 @@
 				rooms = app.roomsData;
 			}
 			if (!rooms) return;
-			this.$('.roomlist').html(this.renderRoomList());
+			this.updateRoomList();
 			if (!app.roomsFirstOpen && window.location.host !== 'demo.psim.us') {
-				var buf = '';
-				if (Config.roomsFirstOpenBuffer) {
-					this.$('.roomlisttop').html(Config.roomsFirstOpenBuffer());
-				}
 				if (Config.roomsFirstOpenScript) {
 					Config.roomsFirstOpenScript();
 				}
 				app.roomsFirstOpen = 2;
 			}
 		},
-		renderRoomList: function () {
+		updateRoomList: function () {
 			var rooms = app.roomsData;
 			var buf = '';
 
 			if (rooms.userCount) {
 				var userCount = Number(rooms.userCount);
 				var battleCount = Number(rooms.battleCount);
-				buf += '<p style="height:60px">';
-				buf += '<span style="float:left;width:200px;height:50px;padding:3px 8px;text-align:center"><strong style="display:block;font-size:18pt;font-weight:normal">' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</span> ';
-				buf += '<span style="float:left;width:200px;height:50px;padding:3px 8px;text-align:center"><strong style="display:block;font-size:18pt;font-weight:normal">' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</span>';
-				buf += '</p>';
+				buf += '<table class="roomcounters" border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td>';
+				buf += '<button class="button" name="finduser"><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button></td><td>';
+				buf += '<button class="button" name="roomlist"><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button>';
+				buf += '</td></tr></table>';
+				this.$('.roomlisttop').html(buf);
 			}
 
-			buf += '<h2 style="clear:left">Official chat rooms</h2>';
+			buf = '';
+			buf += '<h2 class="rooms-officialchatrooms">Official chat rooms</h2>';
 			for (var i = 0; i < rooms.official.length; i++) {
 				var roomData = rooms.official[i];
 				var id = toId(roomData.title);
 				buf += '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc || '') + '</small></a></div>';
 			}
+			this.$('.roomlist').first().html(buf);
 
-			buf += '<h2>Chat rooms</h2>';
+			buf = '';
+			buf += '<h2 class="rooms-chatrooms">Chat rooms</h2>';
 			rooms.chat.sort(function (a, b) {
 				return b.userCount - a.userCount;
 			});
@@ -95,8 +95,20 @@
 				var escapedDesc = Tools.escapeHTML(roomData.desc || '');
 				buf += '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + escapedDesc + '</small></a></div>';
 			}
-
-			return buf;
+			this.$('.roomlist').last().html(buf);
+		},
+		roomlist: function () {
+			app.addPopup(BattleListPopup);
+		},
+		finduser: function () {
+			app.addPopupPrompt("Username", "Open", function (target) {
+				if (!target) return;
+				if (toId(target) === 'zarel') {
+					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
+					return;
+				}
+				app.addPopup(UserPopup, {name: target});
+			});
 		}
 	});
 
