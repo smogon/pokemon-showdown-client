@@ -5,6 +5,7 @@
 
 	var TeambuilderRoom = exports.TeambuilderRoom = exports.Room.extend({
 		type: 'teambuilder',
+		title: 'Teambuilder',
 		initialize: function () {
 			teams = Storage.teams;
 
