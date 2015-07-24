@@ -4040,33 +4040,36 @@ var Battle = (function () {
 					this.resultAnim(poke, ability.name, 'ability', animDelay);
 					this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
 					switch (ability.id) {
-					case 'pressure':
-						actions += "" + poke.getName() + " is exerting its pressure!";
-						break;
-					case 'moldbreaker':
-						actions += "" + poke.getName() + " breaks the mold!";
-						break;
-					case 'turboblaze':
-						actions += "" + poke.getName() + " is radiating a blazing aura!";
-						break;
-					case 'teravolt':
-						actions += "" + poke.getName() + " is radiating a bursting aura!";
-						break;
-					case 'unnerve':
-						actions += "" + poke.getName() + "'s Unnerve makes " + this.getSide(args[3]).getLowerTeamName() + " too nervous to eat Berries!";
+					case 'airlock':
+					case 'cloudnine':
+						actions += "The effects of the weather disappeared.";
 						break;
 					case 'aurabreak':
 						actions += "" + poke.getName() + " reversed all other Pokémon's auras!";
 						break;
-					case 'fairyaura':
-						actions += "" + poke.getName() + " is radiating a fairy aura!";
-						break;
 					case 'darkaura':
 						actions += "" + poke.getName() + " is radiating a dark aura!";
 						break;
-					case 'airlock':
-					case 'cloudnine':
-						actions += "The effects of the weather disappeared.";
+					case 'fairyaura':
+						actions += "" + poke.getName() + " is radiating a fairy aura!";
+						break;
+					case 'moldbreaker':
+						actions += "" + poke.getName() + " breaks the mold!";
+						break;
+					case 'pressure':
+						actions += "" + poke.getName() + " is exerting its pressure!";
+						break;
+					case 'sturdy':
+						actions += "" + poke.getName() + " endured the hit!";
+						break;
+					case 'teravolt':
+						actions += "" + poke.getName() + " is radiating a bursting aura!";
+						break;
+					case 'turboblaze':
+						actions += "" + poke.getName() + " is radiating a blazing aura!";
+						break;
+					case 'unnerve':
+						actions += "" + this.getSide(args[3]).getTeamName() + " is too nervous to eat Berries!";
 						break;
 					default:
 						// Do nothing
@@ -4755,7 +4758,6 @@ var Battle = (function () {
 					break;
 
 				// ability activations
-				case 'sturdy':
 				case 'endure':
 					actions += '' + poke.getName() + ' endured the hit!';
 					break;
