@@ -11,6 +11,7 @@
 			if (!this.events['keydown textarea']) this.events['keydown textarea'] = 'keyPress';
 			if (!this.events['focus textarea']) this.events['focus textarea'] = 'focusText';
 			if (!this.events['blur textarea']) this.events['blur textarea'] = 'blurText';
+			if (!this.events['click .spoiler']) this.events['click .spoiler'] = 'clickSpoiler';
 			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
 
 			this.initializeTabComplete();
@@ -78,6 +79,9 @@
 			if (this.$chatbox) {
 				this.$chatbox.attr('placeholder', "");
 			}
+		},
+		clickSpoiler: function (e) {
+			$(e.currentTarget).toggleClass('spoiler-shown');
 		},
 
 		login: function () {
