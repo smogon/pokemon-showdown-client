@@ -1355,6 +1355,7 @@ var Side = (function () {
 			}
 			return;
 		}
+		// Side conditions work as: [condition, elem, levels, minDuration, maxDuration]
 		switch (condition) {
 		case 'reflect':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-reflect" style="display:none;position:absolute" />');
@@ -1378,7 +1379,7 @@ var Side = (function () {
 				opacity: .3
 			}, 300);
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 5];
+			this.sideConditions[condition] = [condition, elem, 1, 5, this.battle.gen >= 4 ? 8 : 0];
 			break;
 		case 'safeguard':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-safeguard" style="display:none;position:absolute" />');
@@ -1402,7 +1403,7 @@ var Side = (function () {
 				opacity: .2
 			}, 300);
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 5];
+			this.sideConditions[condition] = [condition, elem, 1, 5, 5, 0];
 			break;
 		case 'lightscreen':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-lightscreen" style="display:none;position:absolute" />');
@@ -1426,7 +1427,7 @@ var Side = (function () {
 				opacity: .3
 			}, 300);
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 5];
+			this.sideConditions[condition] = [condition, elem, 1, 5, this.battle.gen >= 4 ? 8 : 0];
 			break;
 		case 'mist':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-mist" style="display:none;position:absolute" />');
@@ -1450,10 +1451,10 @@ var Side = (function () {
 				opacity: .2
 			}, 300);
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 5];
+			this.sideConditions[condition] = [condition, elem, 1, 5, 5];
 			break;
 		case 'tailwind':
-			this.sideConditions[condition] = [condition, null, 5];
+			this.sideConditions[condition] = [condition, null, 1, this.battle.gen >= 5 ? 4 : 3, 0];
 			break;
 		case 'stealthrock':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock1.url + '" style="display:none;position:absolute" />');
@@ -1467,7 +1468,7 @@ var Side = (function () {
 				scale: .3
 			}, BattleEffects.rock1));
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1];
+			this.sideConditions[condition] = [condition, elem, 1, 0, 0];
 			break;
 		case 'spikes':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
@@ -1480,7 +1481,7 @@ var Side = (function () {
 				scale: .3
 			}, BattleEffects.caltrop));
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1];
+			this.sideConditions[condition] = [condition, elem, 1, 0, 0];
 			break;
 		case 'toxicspikes':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.poisoncaltrop.url + '" style="display:none;position:absolute" />');
@@ -1493,7 +1494,7 @@ var Side = (function () {
 				scale: .3
 			}, BattleEffects.poisoncaltrop));
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1];
+			this.sideConditions[condition] = [condition, elem, 1, 0, 0];
 			break;
 		case 'stickyweb':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.web.url + '" style="display:none;position:absolute" />');
@@ -1507,10 +1508,10 @@ var Side = (function () {
 				scale: 0.7
 			}, BattleEffects.web));
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1];
+			this.sideConditions[condition] = [condition, elem, 1, 0, 0];
 			break;
 		default:
-			this.sideConditions[condition] = [condition, null, 1];
+			this.sideConditions[condition] = [condition, null, 1, 0, 0];
 		}
 	};
 	Side.prototype.removeSideCondition = function (condition) {
@@ -2754,25 +2755,40 @@ var Battle = (function () {
 		for (var i = 0; i < this.pseudoWeather.length; i++) {
 			if (this.pseudoWeather[i][1] > 0) this.pseudoWeather[i][1]--;
 		}
+		for (var i = 0; i < this.sides.length; i++) {
+			for (var id in this.sides[i].sideConditions) {
+				var cond = this.sides[i].sideConditions[id];
+				if (cond[3]) cond[3]--;
+				if (cond[4]) cond[4]--;
+			}
+		}
 		this.updateWeather();
 	};
-	Battle.prototype.weatherLeft = function (weather) {
-		if (weather) {
-			for (var i = 0; i < this.pseudoWeather.length; i++) {
-				if (this.pseudoWeather[i][0] === weather) {
-					if (this.pseudoWeather[i][1]) {
-						return ' <small>(' + this.pseudoWeather[i][1] + ' turn' + (this.pseudoWeather[i][1] == 1 ? '' : 's') + ' left)</small>';
-					}
-					return '';
-				}
-			}
-			return ''; // weather doesn't exist
+	Battle.prototype.pseudoWeatherLeft = function (pWeather) {
+		var buf = '<br />' + Tools.getMove(pWeather[0]).name;
+		if (pWeather[1]) {
+			return buf + ' <small>(' + pWeather[1] + ' turn' + (pWeather[1] == 1 ? '' : 's') + ')</small>';
 		}
+		return buf; // weather not found
+	};
+	Battle.prototype.sideConditionLeft = function (cond, siden) {
+		if (!cond[3] && !cond[4]) return '';
+		var buf = '<br />' + (siden ? "Foe's " : "") + Tools.getMove(cond[0]).name;
+		if (!cond[3] && cond[4]) {
+			cond[3] = cond[4];
+			cond[4] = 0;
+		}
+		if (!cond[4]) {
+			return buf + ' <small>(' + cond[3] + ' turn' + (cond[3] == 1 ? '' : 's') + ')</small>';
+		}
+		return buf + ' <small>(' + cond[3] + ' or ' + cond[4] + ' turns)</small>';
+	};
+	Battle.prototype.weatherLeft = function () {
 		if (this.weatherMinTimeLeft != 0) {
-			return ' <small>(' + this.weatherMinTimeLeft + ' or ' + this.weatherTimeLeft + ' turns left)</small>';
+			return ' <small>(' + this.weatherMinTimeLeft + ' or ' + this.weatherTimeLeft + ' turns)</small>';
 		}
 		if (this.weatherTimeLeft != 0) {
-			return ' <small>(' + this.weatherTimeLeft + ' turn' + (this.weatherTimeLeft == 1 ? '' : 's') + ' left)</small>';
+			return ' <small>(' + this.weatherTimeLeft + ' turn' + (this.weatherTimeLeft == 1 ? '' : 's') + ')</small>';
 		}
 		return '';
 	};
@@ -2800,14 +2816,25 @@ var Battle = (function () {
 		var weatherhtml = '';
 		if (weather) {
 			if (weather !== 'pseudo') {
-				weatherhtml += weatherNameTable[weather] + this.weatherLeft();
+				weatherhtml += '<br />' + weatherNameTable[weather] + this.weatherLeft();
 			}
 			for (var i = 0; i < this.pseudoWeather.length; i++) {
-				weatherhtml += '<br />' + Tools.getMove(this.pseudoWeather[i][0]).name + this.weatherLeft(this.pseudoWeather[i][0]);
+				weatherhtml += this.pseudoWeatherLeft(this.pseudoWeather[i]);
+			}
+		}
+		for (var i = 0; i < this.sides.length; i++) {
+			for (var id in this.sides[i].sideConditions) {
+				weatherhtml += this.sideConditionLeft(this.sides[i].sideConditions[id], i);
 			}
 		}
 		if (weather === oldweather) {
-			if (weather) this.weatherElem.html('<em>' + weatherhtml + '</em>');
+			if (weather) {
+				this.weatherElem.html('<em>' + weatherhtml + '</em>');
+			} else {
+				this.weatherElem.html('<em>' + weatherhtml + '</em>');
+				this.weatherElem.attr('class', 'weather');
+				this.weatherElem.css({display: 'block', opacity: .4});
+			}
 			return;
 		}
 		if (oldweather) {
