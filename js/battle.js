@@ -4116,8 +4116,12 @@ var Battle = (function () {
 				} else if (toId(template.species) === 'darmanitan') {
 					actions += "Zen Mode ended!";
 				} else if (toId(template.species) === 'aegislashblade') {
+					this.resultAnim(poke, 'Stance Change', 'ability', animDelay);
+					this.message('', "<small>[" + poke.getName(true) + "'s Stance Change!]</small>");
 					actions += "Changed to Blade Forme!";
 				} else if (toId(template.species) === 'aegislash') {
+					this.resultAnim(poke, 'Stance Change', 'ability', animDelay);
+					this.message('', "<small>[" + poke.getName(true) + "'s Stance Change!]</small>");
 					actions += "Changed to Shield Forme!";
 				}
 				poke.sprite.animTransform($.extend(spriteData, template));
