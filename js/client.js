@@ -113,7 +113,7 @@
 		});
 	}
 
-	Config.version = '0.10.0';
+	Config.version = '0.10.1';
 	Config.origindomain = 'play.pokemonshowdown.com';
 
 	// `defaultserver` specifies the server to use when the domain name in the
@@ -1114,20 +1114,31 @@
 						}
 					}
 				} else {
+					var name = formatsList[j];
 					var searchShow = true;
 					var challengeShow = true;
 					var team = null;
-					var name = formatsList[j];
-					if (name.substr(name.length - 2) === ',#') { // preset teams
-						team = 'preset';
-						name = name.substr(0, name.length - 2);
-					}
-					if (name.substr(name.length - 2) === ',,') { // search-only
-						challengeShow = false;
-						name = name.substr(0, name.length - 2);
-					} else if (name.substr(name.length - 1) === ',') { // challenge-only
-						searchShow = false;
-						name = name.substr(0, name.length - 1);
+					var lastCommaIndex = name.lastIndexOf(',');
+					var code = lastCommaIndex >= 0 ? parseInt(name.substr(lastCommaIndex + 1), 16) : NaN;
+					if (!isNaN(code)) {
+						name = name.substr(0, lastCommaIndex);
+						if (code & 1) team = 'preset';
+						if (!(code & 2)) searchShow = false;
+						if (!(code & 4)) challengeShow = false;
+						if (!(code & 8)) tournamentShow = false;
+					} else {
+						// Backwards compatibility: late 0.9.0 -> 0.10.0
+						if (name.substr(name.length - 2) === ',#') { // preset teams
+							team = 'preset';
+							name = name.substr(0, name.length - 2);
+						}
+						if (name.substr(name.length - 2) === ',,') { // search-only
+							challengeShow = false;
+							name = name.substr(0, name.length - 2);
+						} else if (name.substr(name.length - 1) === ',') { // challenge-only
+							searchShow = false;
+							name = name.substr(0, name.length - 1);
+						}
 					}
 					var id = toId(name);
 					var isTeambuilderFormat = searchShow && !team;
