@@ -3428,6 +3428,8 @@ var Battle = (function () {
 						actions += '' + poke.getName() + ' cut its own HP and maximized its Attack!';
 						break;
 					case 'angerpoint':
+						this.resultAnim(poke, 'Anger Point', 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s Anger Point!]</small>");
 						actions += '' + poke.getName() + ' maxed its Attack!';
 						break;
 					}
