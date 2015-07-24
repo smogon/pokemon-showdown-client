@@ -927,6 +927,30 @@ p.or:after {
 	display: none;
 }
 
+/*********************************************************
+ * Room list
+ *********************************************************/
+
+.roomlisttop {
+	max-width: 480px;
+	margin-bottom: 10px;
+}
+.roomcounters td {
+	text-align: center;
+}
+.roomcounters button {
+	margin: 0 auto;
+	width: 140px;
+	height: 60px;
+	padding: 3px 8px;
+	text-align: center;
+	font-size: 10pt;
+}
+.roomcounters button strong {
+	display: block;
+	font-size: 18pt;
+	font-weight: normal;
+}
 .roomlist {
 	text-align: left;
 }
@@ -957,6 +981,10 @@ p.or:after {
 	color: #224466;
 	text-decoration: none;
 }
+
+/*********************************************************
+ * Credits
+ *********************************************************/
 
 .ps-popup.credits {
 	max-width: 380px;
