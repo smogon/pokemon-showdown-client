@@ -2833,7 +2833,7 @@ var Battle = (function () {
 			} else {
 				this.weatherElem.html('<em>' + weatherhtml + '</em>');
 				this.weatherElem.attr('class', 'weather');
-				this.weatherElem.css({display: 'block', opacity: .4});
+				this.weatherElem.css({display: 'block', opacity: .5});
 			}
 			return;
 		}
@@ -2864,13 +2864,13 @@ var Battle = (function () {
 		}
 		if (weather) {
 			if (this.fastForward) {
-				this.weatherElem.css({opacity: .4});
+				this.weatherElem.css({opacity: .5});
 				return;
 			}
 			this.weatherElem.animate({
 				opacity: 1.0
 			}, 400).animate({
-				opacity: .4
+				opacity: .5
 			}, 400);
 		}
 	};
