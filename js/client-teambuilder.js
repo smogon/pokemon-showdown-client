@@ -1100,7 +1100,7 @@
 				smogdexid += '/vgc15';
 			} else if (format === 'doublesou' || format === 'doublesuu') {
 				smogdexid += '/doubles';
-			} else if (format === 'ou' || format === 'uu' || format === 'ru' || format === 'nu' || format === 'lc') {
+			} else if (format === 'ou' || format === 'uu' || format === 'ru' || format === 'nu' || format === 'pu' || format === 'lc') {
 				smogdexid += '/' + format;
 			}
 			return 'http://smogon.com/dex/xy/pokemon/' + smogdexid + '/';
