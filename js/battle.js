@@ -4155,7 +4155,11 @@ var Battle = (function () {
 					poke.volatiles.typechange[2] = args[3];
 					poke.removeVolatile('typeadd');
 					if (fromeffect.id) {
-						if (fromeffect.id === 'reflecttype') {
+						if (fromeffect.id === 'colorchange') {
+							this.resultAnim(poke, 'Color Change', 'ability', animDelay);
+							this.message('', "<small>[" + poke.getName(true) + "'s Color Change!]</small>");
+							actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
+						} else if (fromeffect.id === 'reflecttype') {
 							poke.copyTypesFrom(ofpoke);
 							if (!kwargs.silent) actions += "" + poke.getName() + "'s type became the same as " + ofpoke.getLowerName() + "'s type!";
 						} else if (!kwargs.silent) {
