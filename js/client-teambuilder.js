@@ -1082,15 +1082,25 @@
 		minus: '',
 		smogdexLink: function (template) {
 			var template = Tools.getTemplate(template);
+			var format = this.curTeam && this.curTeam.format;
 			var smogdexid = toId(template.baseSpecies);
-			if (smogdexid === 'porygonz') {
-				smogdexid = 'porygon-z';
-			} else if (smogdexid === 'mrmime') {
-				smogdexid = 'mr_mime';
-			} else if (smogdexid === 'mimejr') {
-				smogdexid = 'mime_jr';
-			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys') {
+			if (template.isNonstandard) {
+				return 'http://www.smogon.com/cap/pokemon/strategies/' + smogdexid;
+			}
+
+			if (template.speciesid === 'meowstic') {
+				smogdexid = 'meowstic-m';
+			} else if (template.speciesid === 'hoopaunbound') {
+				smogdexid = 'hoopa-alt';
+			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys' || smogdexid === 'kyurem' || smogdexid === 'giratina' || smogdexid === 'shaymin' || smogdexid === 'tornadus' || smogdexid === 'thundurus' || smogdexid === 'landorus' || smogdexid === 'pumpkaboo' || smogdexid === 'gourgeist' || smogdexid === 'arceus' || smogdexid === 'meowstic') {
 				if (template.forme) smogdexid += '-' + toId(template.forme);
+			}
+			if (format === 'battlespotdoubles') {
+				smogdexid += '/vgc15';
+			} else if (format === 'doublesou' || format === 'doublesuu') {
+				smogdexid += '/doubles';
+			} else if (format === 'ou' || format === 'uu' || format === 'ru' || format === 'nu' || format === 'lc') {
+				smogdexid += '/' + format;
 			}
 			return 'http://smogon.com/dex/xy/pokemon/' + smogdexid + '/';
 		},
