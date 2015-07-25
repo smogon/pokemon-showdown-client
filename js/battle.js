@@ -190,6 +190,7 @@ var Pokemon = (function () {
 		this.turnstatuses = {};
 		this.movestatuses = {};
 		this.lastmove = '';
+		this.moveTrack = [];
 
 		this.name = '';
 		this.species = '';
@@ -516,6 +517,17 @@ var Pokemon = (function () {
 		this.clearTurnstatuses();
 		this.clearMovestatuses();
 	};
+	Pokemon.prototype.markMove = function(moveName, noPP) {
+	moveName = Tools.getMove(moveName).name;
+		if (this.volatiles.transform) moveName = '*' + moveName;
+		for (var i = 0; i < this.moveTrack.length; i++) {
+			if (moveName === this.moveTrack[i][0]) {
+				if (!noPP) this.moveTrack[i][1]++;
+				return;
+			}
+		}
+		this.moveTrack.push([moveName, noPP ? 0 : 1]);
+	};
 	Pokemon.prototype.getName = function (shortName) {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
@@ -618,6 +630,12 @@ var Pokemon = (function () {
 		this.spe = this.speStat;
 		this.boosts = {};
 		this.clearVolatiles();
+		for (var i = 0; i < this.moveTrack.length; i++) {
+			if (this.moveTrack[i][0].charAt(0) === '*') {
+				this.moveTrack.splice(i, 1);
+				i--;
+			}
+		}
 		//this.lastmove = '';
 		this.statusStage = 0;
 	};
@@ -3032,7 +3050,7 @@ var Battle = (function () {
 				} else if (window.Config && Config.server && Config.server.afd && (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist')) {
 					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 					var buttons = ["A", "B", "START", "SELECT", "UP", "DOWN", "LEFT", "RIGHT", "DEMOCRACY", "ANARCHY"];
-					var people = ["Zarel", "The Immortal", "Diatom", "Nani Man", "shaymin", "apt-get", "sirDonovan", "Arcticblast", "Goddess Briyella"];
+					var people = ["Zarel", "The Immortal", "Diatom", "Nani Man", "shaymin", "apt-get", "sirDonovan", "Arcticblast", "Trickster"];
 					var button;
 					for (var i = 0; i < 10; i++) {
 						var name = people[Math.floor(Math.random() * people.length)];
@@ -3040,10 +3058,11 @@ var Battle = (function () {
 						this.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
 						button = (name === 'Diatom' ? "thanks diatom" : null);
 					}
-				} else if (window.Config && Config.server && Config.server.afd && (move.id === 'taunt')) {
-					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				} else {
 					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+				}
+				if (!fromeffect.id) {
+					pokemon.markMove(move.name);
 				}
 				break;
 			}
@@ -4801,6 +4820,9 @@ var Battle = (function () {
 					break;
 				case 'forewarn':
 					actions += "" + poke.getName() + "'s Forewarn alerted it to " + Tools.escapeHTML(args[3]) + "!";
+					if (poke.side.foe.active.length === 1) {
+						poke.side.foe.active[0].markMove(args[3], true);
+					}
 					break;
 				case 'anticipation':
 					actions += "" + poke.getName() + " shuddered!";
