@@ -1109,6 +1109,23 @@
 						text += '&#8901; ' + name + '<br />';
 					}
 					text += '</p>';
+				} else if (pokemon.moveTrack && pokemon.moveTrack.length) {
+					text += '<p class="section">';
+					for (var i = 0; i < pokemon.moveTrack.length; i++) {
+						var moveName = pokemon.moveTrack[i][0];
+						var move, maxpp;
+						if (moveName.charAt(0) === '*') {
+							moveName = moveName.substr(1);
+							move = Tools.getMove(moveName);
+							maxpp = 5;
+						} else {
+							move = Tools.getMove(moveName);
+							maxpp = Math.floor(move.pp * 8 / 5);
+						}
+						var pp = maxpp - pokemon.moveTrack[i][1];
+						text += '&#8901; ' + move.name + ' <small>(' + pp + '/' + maxpp + ')</small><br />';
+					}
+					text += '</p>';
 				}
 				text += '</div></div>';
 				break;
