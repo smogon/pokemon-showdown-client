@@ -1859,6 +1859,7 @@ a.ilink:hover {
 	background: #EEEEEE;
 	background: rgba(240,240,240,.9);
 	border-radius: 5px;
+	z-index: 50;
 }
 #tooltipwrapper .tooltip h2 {
 	padding: 2px 4px;
