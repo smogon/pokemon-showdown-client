@@ -309,52 +309,14 @@ var Pokemon = (function () {
 			hpstring = hpstring.substr(parenIndex + 1, hpstring.length - parenIndex - 2);
 		}
 
-		var hp = hpstring.split(' ');
-		var status = hp[1];
-		hp = hp[0];
 		var oldhp = (this.zerohp || this.fainted) ? 0 : (this.hp || 1);
 		var oldmaxhp = this.maxhp;
 		var oldwidth = this.hpWidth(100);
 		var oldcolor = this.hpcolor;
 
-		// hp parse
-		this.hpcolor = '';
-		if (hp === '0' || hp === '0.0') {
-			this.hp = 0;
-			this.zerohp = true;
-		} else if (hp.indexOf('/') > 0) {
-			var hp = hp.split('/');
-			if (isNaN(parseFloat(hp[0])) || isNaN(parseFloat(hp[1]))) {
-				return false;
-			}
-			this.hp = parseFloat(hp[0]);
-			this.maxhp = parseFloat(hp[1]);
-			if (oldmaxhp === 0) { // max hp not known before parsing this message
-				oldmaxhp = oldhp = this.maxhp;
-			}
-			if (this.hp > this.maxhp) this.hp = this.maxhp;
-			var colorchar = hp[1].substr(hp[1].length - 1);
-			if ((colorchar === 'y') || (colorchar === 'g')) {
-				this.hpcolor = colorchar;
-			}
-			if (!this.hp) {
-				this.zerohp = true;
-			}
-		} else if (!isNaN(parseFloat(hp))) {
-			this.hp = this.maxhp * parseFloat(hp) / 100;
-		}
-
-		// status parse
-		if (!status) {
-			this.status = '';
-		} else if (status === 'par' || status === 'brn' || status === 'slp' || status === 'frz' || status === 'tox') {
-			this.status = status;
-		} else if (status === 'psn' && this.status !== 'tox') {
-			this.status = status;
-		} else if (status === 'fnt') {
-			this.hp = 0;
-			this.zerohp = true;
-			this.fainted = true;
+		this.side.battle.parseHealth(hpstring, this);
+		if (oldmaxhp === 0) { // max hp not known before parsing this message
+			oldmaxhp = oldhp = this.maxhp;
 		}
 
 		var oldnum = oldhp ? (Math.floor(oldhp / oldmaxhp * this.maxhp) || 1) : 0;
@@ -518,7 +480,8 @@ var Pokemon = (function () {
 		this.clearMovestatuses();
 	};
 	Pokemon.prototype.markMove = function(moveName, noPP) {
-	moveName = Tools.getMove(moveName).name;
+		moveName = Tools.getMove(moveName).name;
+		if (moveName === 'Struggle') return;
 		if (this.volatiles.transform) moveName = '*' + moveName;
 		for (var i = 0; i < this.moveTrack.length; i++) {
 			if (moveName === this.moveTrack[i][0]) {
@@ -552,7 +515,7 @@ var Pokemon = (function () {
 		return titlestring;
 	};
 	Pokemon.prototype.getFullName = function (plaintext) {
-		var name = this.side.n && this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name);
+		var name = this.side && this.side.n && this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name);
 		if (name !== this.species) {
 			if (plaintext) {
 				name += ' (' + this.species + ')';
@@ -5160,6 +5123,50 @@ var Battle = (function () {
 		}
 		return output;
 	};
+	Battle.prototype.parseHealth = function (hpstring, output) {
+		if (!output) output = {};
+		var hp = hpstring.split(' ');
+		var status = hp[1];
+		hp = hp[0];
+
+		// hp parse
+		output.hpcolor = '';
+		if (hp === '0' || hp === '0.0') {
+			output.hp = 0;
+			output.zerohp = true;
+		} else if (hp.indexOf('/') > 0) {
+			var hp = hp.split('/');
+			if (isNaN(parseFloat(hp[0])) || isNaN(parseFloat(hp[1]))) {
+				return false;
+			}
+			output.hp = parseFloat(hp[0]);
+			output.maxhp = parseFloat(hp[1]);
+			if (output.hp > output.maxhp) output.hp = output.maxhp;
+			var colorchar = hp[1].substr(hp[1].length - 1);
+			if ((colorchar === 'y') || (colorchar === 'g')) {
+				output.hpcolor = colorchar;
+			}
+			if (!output.hp) {
+				output.zerohp = true;
+			}
+		} else if (!isNaN(parseFloat(hp))) {
+			output.hp = output.maxhp * parseFloat(hp) / 100;
+		}
+
+		// status parse
+		if (!status) {
+			output.status = '';
+		} else if (status === 'par' || status === 'brn' || status === 'slp' || status === 'frz' || status === 'tox') {
+			output.status = status;
+		} else if (status === 'psn' && output.status !== 'tox') {
+			output.status = status;
+		} else if (status === 'fnt') {
+			output.hp = 0;
+			output.zerohp = true;
+			output.fainted = true;
+		}
+		return output;
+	};
 	Battle.prototype.getPokemon = function (pokemonid, details) {
 		var siden = -1;
 		var name = pokemonid;
@@ -5280,6 +5287,7 @@ var Battle = (function () {
 		if (!isNew && !isOther && !details) {
 			return false;
 		}
+		if (isOld) return false;
 		if (siden < 0) siden = this.p1.n;
 		if (details) {
 			var splitDetails = details.split(', ');

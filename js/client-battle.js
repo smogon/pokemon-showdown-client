@@ -286,7 +286,7 @@
 
 				act = this.request.requestType;
 				if (this.request.side) {
-					switchables = this.battle.mySide.pokemon;
+					switchables = this.myPokemon;
 				}
 				if (!this.finalDecision) this.finalDecision = !!this.request.noCancel;
 			}
@@ -482,7 +482,7 @@
 				}
 				if (this.request.forceSwitch !== true) {
 					var faintedLength = this.request.forceSwitch.filter(function (fainted) {return fainted;}).length;
-					this.choice.freedomDegrees = faintedLength - this.battle.mySide.pokemon.slice(this.battle.mySide.active.length).filter(function (mon) {return !mon.zerohp;}).length;
+					this.choice.freedomDegrees = faintedLength - switchables.slice(this.battle.mySide.active.length).filter(function (mon) {return !mon.zerohp;}).length;
 					if (this.choice.freedomDegrees < 0) this.choice.freedomDegrees = 0;
 					this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
 
@@ -666,38 +666,18 @@
 			}
 		},
 		updateSide: function (sideData) {
+			this.myPokemon = sideData.pokemon;
 			for (var i = 0; i < sideData.pokemon.length; i++) {
 				var pokemonData = sideData.pokemon[i];
-				var pokemon;
-				if (i == 0) {
-					pokemon = this.battle.getPokemon('' + pokemonData.ident, pokemonData.details);
-					pokemon.slot = 0;
-					pokemon.side.pokemon = [pokemon];
-					// if (pokemon.side.active[0] && pokemon.side.active[0].ident == pokemon.ident) pokemon.side.active[0] = pokemon;
-				} else if (i < this.battle.mySide.active.length) {
-					pokemon = this.battle.getPokemon('new: ' + pokemonData.ident, pokemonData.details);
-					pokemon.slot = i;
-					// if (pokemon.side.active[i] && pokemon.side.active[i].ident == pokemon.ident) pokemon.side.active[i] = pokemon;
-					if (pokemon.side.active[i] && pokemon.side.active[i].ident == pokemon.ident) {
-						pokemon.side.active[i].item = pokemon.item || pokemonData.item;
-						pokemon.side.active[i].ability = pokemon.ability || pokemonData.ability;
-						pokemon.side.active[i].baseAbility = pokemon.baseAbility || pokemonData.baseAbility;
-						pokemon.side.active[i].stats = pokemon.stats || pokemonData.stats;
-					}
-				} else {
-					pokemon = this.battle.getPokemon('new: ' + pokemonData.ident, pokemonData.details);
-				}
-				pokemon.healthParse(pokemonData.condition);
-				if (pokemonData.baseAbility) {
-					pokemon.baseAbility = pokemonData.baseAbility;
-					if (!pokemon.ability) pokemon.ability = pokemon.baseAbility;
-				}
-				pokemon.item = pokemonData.item;
-				pokemon.moves = pokemonData.moves;
-				pokemon.canMegaEvo = pokemonData.canMegaEvo;
-				pokemon.stats = pokemonData.stats;
+				this.battle.parseDetails(pokemonData.ident.substr(4), pokemonData.ident, pokemonData.details, pokemonData);
+				this.battle.parseHealth(pokemonData.condition, pokemonData);
+				pokemonData.hpDisplay = Pokemon.prototype.hpDisplay;
+				pokemonData.getPixelRange = Pokemon.prototype.getPixelRange;
+				pokemonData.getFormattedRange = Pokemon.prototype.getFormattedRange;
+				pokemonData.getHPColorClass = Pokemon.prototype.getHPColorClass;
+				pokemonData.getHPColor = Pokemon.prototype.getHPColor;
+				pokemonData.getFullName = Pokemon.prototype.getFullName;
 			}
-			this.battle.mySide.updateSidebar();
 		},
 
 		// buttons
@@ -1025,30 +1005,38 @@
 				if (!pokemon) return;
 				/* falls through */
 			case 'sidepokemon':
-				if (!pokemon) pokemon = this.battle.mySide.pokemon[parseInt(thing)];
+				var battlePokemon;
+				var myPokemon;
+				if (this.myPokemon) {
+					if (!pokemon) {
+						pokemon = this.myPokemon[parseInt(thing)];
+						battlePokemon = this.battle.getPokemon('other: old: ' + pokemon.ident, pokemon.details);
+					} else if (pokemon.side === this.battle.mySide) {
+						myPokemon = this.myPokemon[pokemon.slot];
+					}
+				}
 				var gender = '';
 				if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
 				if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
 				text = '<div class="tooltipinner"><div class="tooltip">';
 				text += '<h2>' + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
 
-				var types = pokemon.types;
 				var template = pokemon;
-				if (pokemon.volatiles.transform && pokemon.volatiles.formechange) {
+				if (!pokemon.types) template = Tools.getTemplate(pokemon.species);
+				if (pokemon.volatiles && pokemon.volatiles.transform && pokemon.volatiles.formechange) {
 					template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
-					types = template.types;
 					text += '<small>(Transformed into ' + pokemon.volatiles.formechange[2] + ')</small><br />';
-				} else if (pokemon.volatiles.formechange) {
+				} else if (pokemon.volatiles && pokemon.volatiles.formechange) {
 					template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
-					types = template.types;
 					text += '<small>(Forme: ' + pokemon.volatiles.formechange[2] + ')</small><br />';
 				}
+				var types = template.types;
 				var isTypeChanged = false;
-				if (pokemon.volatiles.typechange) {
+				if (pokemon.volatiles && pokemon.volatiles.typechange) {
 					isTypeChanged = true;
 					types = pokemon.volatiles.typechange[2].split('/');
 				}
-				if (pokemon.volatiles.typeadd) {
+				if (pokemon.volatiles && pokemon.volatiles.typeadd) {
 					isTypeChanged = true;
 					if (types && types.indexOf(pokemon.volatiles.typeadd[2]) === -1) {
 						types = types.concat(pokemon.volatiles.typeadd[2]);
@@ -1065,6 +1053,21 @@
 				if (pokemon.maxhp != 100 && pokemon.maxhp != 1000 && pokemon.maxhp != 48) exacthp = ' (' + pokemon.hp + '/' + pokemon.maxhp + ')';
 				if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
 				text += '<p>HP: ' + pokemon.hpDisplay() + exacthp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
+				if (myPokemon) {
+					text += '<p>';
+					if (this.battle.gen > 2) {
+						text += 'Ability: ' + Tools.getAbility(pokemon.ability || myPokemon.baseAbility).name + ' / ';
+					}
+					text += 'Item: ' + Tools.getItem(myPokemon.item).name + '</p>';
+					text += '<p>' + myPokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + myPokemon.stats['def'] + '&nbsp;Def /&nbsp;' + myPokemon.stats['spa'];
+					if (this.battle.gen === 1) {
+						text += '&nbsp;Spc /&nbsp;';
+					} else {
+						text += '&nbsp;SpA /&nbsp;' + myPokemon.stats['spd'] + '&nbsp;SpD /&nbsp;';
+					}
+					text += myPokemon.stats['spe'] + '&nbsp;Spe</p>';
+					text += '<p class="section">Opponent sees:</p>'
+				}
 				if (this.battle.gen > 2) {
 					if (!pokemon.baseAbility && !pokemon.ability) {
 						if (template.abilities) {
@@ -1105,8 +1108,19 @@
 				if (pokemon.moves && pokemon.moves.length && (!isActive || isActive === 'foe')) {
 					text += '<p class="section">';
 					for (var i = 0; i < pokemon.moves.length; i++) {
-						var name = Tools.getMove(pokemon.moves[i]).name;
-						text += '&#8901; ' + name + '<br />';
+						var move = Tools.getMove(pokemon.moves[i]);
+						var name = move.name;
+						var pp = 0, maxpp = 0;
+						if (battlePokemon) {
+							for (var j = 0; j < battlePokemon.moveTrack.length; j++) {
+								if (name === battlePokemon.moveTrack[j][0]) {
+									maxpp = Math.floor(move.pp * 8 / 5);
+									pp = maxpp - battlePokemon.moveTrack[j][1];
+									break;
+								}
+							}
+						}
+						text += '&#8901; ' + name + (maxpp ? ' <small>(' + pp + '/' + maxpp + ')</small>' : '') + '<br />';
 					}
 					text += '</p>';
 				} else if (pokemon.moveTrack && pokemon.moveTrack.length) {
