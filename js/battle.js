@@ -3685,7 +3685,12 @@ var Battle = (function () {
 					}
 					break;
 				case 'unboost':
-					this.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
+					if (fromeffect.effectType === 'Ability') {
+						this.resultAnim(poke, fromeffect.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+					} else {
+						this.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
+					}
 					actions += "" + poke.getName() + "'s " + (args[3] ? args[3] + " was" : "stats were") + " not lowered!";
 					break;
 				default:
