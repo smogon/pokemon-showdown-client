@@ -4058,6 +4058,9 @@ var Battle = (function () {
 					case 'cloudnine':
 						actions += "The effects of the weather disappeared.";
 						break;
+					case 'anticipation':
+						actions += "" + poke.getName() + " shuddered!";
+						break;
 					case 'aurabreak':
 						actions += "" + poke.getName() + " reversed all other Pokémon's auras!";
 						break;
@@ -4787,12 +4790,19 @@ var Battle = (function () {
 					actions += "" + poke.getName() + "'s' Speed Boost increases its speed!";
 					break;
 				case 'forewarn':
-					actions += "" + poke.getName() + "'s Forewarn alerted it to " + Tools.escapeHTML(args[3]) + "!";
-					if (poke.side.foe.active.length === 1) {
-						poke.side.foe.active[0].markMove(args[3], true);
+					this.resultAnim(poke, 'Forewarn', 'ability', animDelay);
+					this.message('', "<small>[" + poke.getName(true) + "'s Forewarn!]</small>");
+					if (this.gen >= 5) {
+						actions += "It was alerted to " + ofpoke.getLowerName() + "'s " + Tools.escapeHTML(args[3]) + "!";
+						ofpoke.markMove(args[3], true);
+					} else {
+						actions += "" + poke.getName() + "'s Forewarn alerted it to " + Tools.escapeHTML(args[3]) + "!";
+						if (poke.side.foe.active.length === 1) {
+							poke.side.foe.active[0].markMove(args[3], true);
+						}
 					}
 					break;
-				case 'anticipation':
+				case 'anticipation': // Deprecated, now uses -ability. This is for replay compatability
 					actions += "" + poke.getName() + " shuddered!";
 					break;
 				case 'telepathy':
