@@ -1161,10 +1161,6 @@
 					this.addJoinLeave('rename', row[1], row[2], true);
 					break;
 
-				case 'refresh':
-					// refresh the page
-					document.location.reload(true);
-					break;
 
 				case 'users':
 					this.parseUserList(row[1]);

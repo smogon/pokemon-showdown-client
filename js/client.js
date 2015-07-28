@@ -1080,6 +1080,11 @@
 					}
 				}
 
+			case 'refresh':
+				// refresh the page
+				document.location.reload(true);
+				break;
+
 			/* fall through */
 			default:
 				// the messagetype wasn't in our list of recognized global
