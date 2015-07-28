@@ -1071,6 +1071,11 @@
 				this.addPopupMessage(parts.slice(2).join('|'));
 				break;
 
+			case 'refresh':
+				// refresh the page
+				document.location.reload(true);
+				break;
+
 			case 'c':
 			case 'chat':
 				if (parts[1] === '~') {
@@ -1079,11 +1084,6 @@
 						break;
 					}
 				}
-
-			case 'refresh':
-				// refresh the page
-				document.location.reload(true);
-				break;
 
 			/* fall through */
 			default:
