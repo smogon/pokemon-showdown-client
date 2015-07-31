@@ -281,7 +281,12 @@
 						this.room.$chat.append(this.$lastJoinLeaveMessage);
 					}
 
-					(cmd === 'join' ? this.batchedJoins : this.batchedLeaves).push(data[0]);
+					if (cmd === 'join' && this.batchedJoins.indexOf(data[0]) < 0) {
+						this.batchedJoins.push(data[0]);
+					}
+					if (cmd === 'leave' && this.batchedLeaves.indexOf(data[0]) < 0) {
+						this.batchedLeaves.push(data[0]);
+					}
 
 					var message = [];
 					var joins = this.batchedJoins.slice(0, 5);
