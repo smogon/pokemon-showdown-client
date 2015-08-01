@@ -212,7 +212,7 @@
 			if (e.currentTarget.className === 'userbutton username') {
 				position = 'right';
 			}
-			var name = $(e.currentTarget).data('name');
+			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget, position: position});
 		},
 		clickLink: function (e) {
