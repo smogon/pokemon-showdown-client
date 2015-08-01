@@ -5608,7 +5608,7 @@ var Battle = (function () {
 			break;
 		case 'move':
 			this.endLastTurn();
-			if (!kwargs.from && this.waitForResult()) return;
+			if ((!kwargs.from || kwargs.from === 'lockedmove') && this.waitForResult()) return;
 			var poke = this.getPokemon(args[1]);
 			var move = Tools.getMove(args[2]);
 			if (this.checkActive(poke)) return;
