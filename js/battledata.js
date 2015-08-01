@@ -838,6 +838,7 @@ var Tools = {
 				name = BattleAliases[id];
 				id = toId(name);
 			}
+			if (!id) name = '';
 			if (!window.BattlePokedex) window.BattlePokedex = {};
 			if (!window.BattlePokedex[id]) {
 				template = window.BattlePokedex[id] = {};
