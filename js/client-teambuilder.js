@@ -84,9 +84,9 @@
 			} else if (this.curTeam) {
 				this.curTeam.team = Storage.packTeam(this.curSetList);
 				this.curTeam.iconCache = '';
-				Storage.saveTeam(this.curTeam);
 				this.curTeam = null;
 				Storage.activeSetList = this.curSetList = null;
+				Storage.saveTeam(this.curTeam);
 			} else {
 				return;
 			}
