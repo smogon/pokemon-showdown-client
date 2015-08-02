@@ -479,17 +479,18 @@ var Pokemon = (function () {
 		this.clearTurnstatuses();
 		this.clearMovestatuses();
 	};
-	Pokemon.prototype.markMove = function(moveName, noPP) {
+	Pokemon.prototype.markMove = function(moveName, pp) {
+		if (pp === undefined) pp = 1;
 		moveName = Tools.getMove(moveName).name;
 		if (moveName === 'Struggle') return;
 		if (this.volatiles.transform) moveName = '*' + moveName;
 		for (var i = 0; i < this.moveTrack.length; i++) {
 			if (moveName === this.moveTrack[i][0]) {
-				if (!noPP) this.moveTrack[i][1]++;
+				this.moveTrack[i][1] += pp;
 				return;
 			}
 		}
-		this.moveTrack.push([moveName, noPP ? 0 : 1]);
+		this.moveTrack.push([moveName, pp]);
 	};
 	Pokemon.prototype.getName = function (shortName) {
 		if (this.side.n === 0) {
@@ -3025,7 +3026,8 @@ var Battle = (function () {
 					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				}
 				if (!fromeffect.id) {
-					pokemon.markMove(move.name);
+					var pp = (target && target.side !== pokemon.side && toId(target.ability) === 'pressure' ? 2 : 1);
+					pokemon.markMove(move.name, pp);
 				}
 				break;
 			}
@@ -4794,11 +4796,11 @@ var Battle = (function () {
 					this.message('', "<small>[" + poke.getName(true) + "'s Forewarn!]</small>");
 					if (this.gen >= 5) {
 						actions += "It was alerted to " + ofpoke.getLowerName() + "'s " + Tools.escapeHTML(args[3]) + "!";
-						ofpoke.markMove(args[3], true);
+						ofpoke.markMove(args[3], 0);
 					} else {
 						actions += "" + poke.getName() + "'s Forewarn alerted it to " + Tools.escapeHTML(args[3]) + "!";
 						if (poke.side.foe.active.length === 1) {
-							poke.side.foe.active[0].markMove(args[3], true);
+							poke.side.foe.active[0].markMove(args[3], 0);
 						}
 					}
 					break;
