@@ -599,6 +599,13 @@
 				}
 				return false;
 
+			case 'logout':
+				$.post(app.user.getActionPHP(), {
+					act: 'logout',
+					userid: app.user.get('userid')
+				});
+				return text;
+
 			case 'showdebug':
 				this.add('Debug battle messages: ON');
 				Tools.prefs('showdebug', true);
