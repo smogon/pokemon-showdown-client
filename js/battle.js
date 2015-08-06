@@ -5458,7 +5458,7 @@ var Battle = (function () {
 			args.shift();
 			args.shift();
 			var message = args.join('|');
-			var parsedMessage = Tools.parseChatMessage(message, name, '', false);
+			var parsedMessage = Tools.parseChatMessage(message, name, '');
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
