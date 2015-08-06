@@ -1340,7 +1340,6 @@
 		},
 		addChat: function (name, message, pm, deltatime) {
 			var userid = toUserid(name);
-			var color = hashColor(userid);
 
 			if (app.ignore[userid] && (name.charAt(0) === ' ' || name.charAt(0) === '+')) return;
 
@@ -1352,64 +1351,40 @@
 				'join': [],
 				'leave': []
 			};
-			var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
-			var isHighlighted = false;
-			if (!pm && userid !== app.user.get('userid')) {
-				// PMs already notify in the main menu; no need to make them notify again
-				isHighlighted = this.getHighlight(message);
-				if (isHighlighted) {
-					var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
-					this.notifyOnce(notifyTitle, "\"" + (message.indexOf('spoiler') < 0 ? message : '(spoiler)') + "\"", 'highlight');
-				} else {
-					this.subtleNotifyOnce();
-				}
-			}
-			var highlight = isHighlighted ? ' highlighted' : '';
-			var chatDiv = '<div class="chat chatmessage-' + toId(name) + highlight + (name.substr(1) === app.user.get('name') ? ' mine' : '') + '">';
-			var timestamp = ChatRoom.getTimestamp('lobby', deltatime);
-			if (name.charAt(0) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.charAt(0)) + '</small>' + clickableName;
-			var self = this;
-			var outputChat = function () {
-				var coloredName = (name.substr(1) ? '<strong style="' + color + '">' + clickableName + ':</strong>' : '');
-				self.$chat.append(chatDiv + timestamp + coloredName + ' <em>' + Tools.parseMessage(message) + '</em></div>');
-			};
-			var showme = !((Tools.prefs('chatformatting') || {}).hideme);
+
 			if (pm) {
 				var pmuserid = toUserid(pm);
-				var oName = pm;
-				if (pmuserid === app.user.get('userid')) oName = name;
-				this.$chat.append('<div class="chat chatmessage-' + toId(name) + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span></div>');
-			} else if (message.substr(0, 4) === '/me ') {
-				message = message.substr(4);
-				if (showme) {
-					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(message) + '</i></em></div>');
-				} else {
-					outputChat();
-				}
-				Storage.logChat(this.id, '* ' + name + ' ' + message);
-			} else if (message.substr(0, 5) === '/mee ') {
-				message = message.substr(5);
-				if (showme) {
-					this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + Tools.parseMessage(message) + '</i></em></div>');
-				} else {
-					outputChat();
-				}
-				Storage.logChat(this.id, '* ' + name + message);
-			} else if (message.substr(0, 10) === '/announce ') {
-				this.$chat.append(chatDiv + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
-				Storage.logChat(this.id, '' + name + ': /announce ' + message);
-			} else if (message.substr(0, 14) === '/data-pokemon ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0, 11) === '/data-item ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0, 14) === '/data-ability ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0, 11) === '/data-move ') {
-				this.$chat.append('<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
+				var oName = pmuserid === app.user.get('userid') ? name : pm;
+				var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
+				this.$chat.append(
+					'<div class="chat chatmessage-' + toId(name) + '">' + ChatRoom.getTimestamp('lobby', deltatime) + 
+					'<strong style="' + hashColor(userid) + '">' + clickableName + ':</strong>' +
+					'<span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span>' +
+					'</div>'
+				);
+				return; // PMs independently notify in the man menu; no need to make them notify again with `inchatpm`.
+			}
+
+			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
+			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', deltatime), isHighlighted);
+			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
+			for (var i = 0; i < parsedMessage.length; i++) {
+				if (!parsedMessage[i]) continue;
+				this.$chat.append(parsedMessage[i]);
+			}
+
+			if (isHighlighted) {
+				var $lastMessage = this.$chat.children().last();
+				var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
+				var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
+				this.notifyOnce(notifyTitle, "\"" + notifyText + "\"", 'highlight');
 			} else {
-				// Normal chat message.
-				if (message.substr(0, 2) === '//') message = message.substr(1);
-				outputChat();
+				this.subtleNotifyOnce();
+			}
+
+			if (message.substr(0, 4) === '/me ' || message.substr(0, 5) === '/mee') {
+				Storage.logChat(this.id, '* ' + name + (message.substr(0, 4) === '/me ' ? ' ' : '') + message);
+			} else if (message.substr(0, 10) === '/announce ' || message.substr(0, 1) !== '/') {
 				Storage.logChat(this.id, '' + name + ': ' + message);
 			}
 		}
