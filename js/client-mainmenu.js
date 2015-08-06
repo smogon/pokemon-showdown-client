@@ -119,58 +119,23 @@
 				app.curSideRoom.addPM(name, message, target);
 			}
 
-			var oName = name;
-			if (toId(name) === app.user.get('userid')) {
-				oName = target;
-			} else {
-				this.notifyOnce("PM from " + oName, "\"" + message + "\"", 'pm');
-			}
-
+			var isSelf = (toId(name) === app.user.get('userid'));
+			var oName = isSelf ? target : name;
 			Storage.logChat('pm-' + toId(oName), '' + name + ': ' + message);
 
 			var $pmWindow = this.openPM(oName, true);
-
 			var $chatFrame = $pmWindow.find('.pm-log');
 			var $chat = $pmWindow.find('.inner');
-			var autoscroll = false;
-			if ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height()) {
-				autoscroll = true;
-			}
 
-			var timestamp = ChatRoom.getTimestamp('pms');
-			var color = hashColor(toId(name));
-			var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
-			if (name.substr(0, 1) !== ' ') clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>' + clickableName;
+			var autoscroll = ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height());
 
-			if (message.substr(0, 4) === '/me ') {
-				$chat.append('<div class="chat chatmessage-' + toId(name) + (name.substr(1) === app.user.get('name') ? ' mine' : '') + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4)) + '</i></em></div>');
-			} else if (message.substr(0, 5) === '/mee ') {
-				$chat.append('<div class="chat chatmessage-' + toId(name) + (name.substr(1) === app.user.get('name') ? ' mine' : '') + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + Tools.parseMessage(message.substr(5)) + '</i></em></div>');
-			} else if (message.substr(0, 8) === '/invite ') {
-				var roomid = toRoomid(message.substr(8));
-				$chat.append('<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em></div>');
-				$chat.append('<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>');
-			} else if (message.substr(0, 10) === '/announce ') {
-				$chat.append('<div class="chat chatmessage-' + toId(name) + (name.substr(1) === app.user.get('name') ? ' mine' : '') + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>');
-			} else if (message.substr(0, 14) === '/data-pokemon ') {
-				$chat.append('<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0, 11) === '/data-item ') {
-				$chat.append('<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0, 14) === '/data-ability ') {
-				$chat.append('<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0, 11) === '/data-move ') {
-				$chat.append('<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>');
-			} else if (message.substr(0, 6) === '/text ') {
-				$chat.append('<div class="chat">' + Tools.escapeHTML(message.substr(6)) + '</div>');
-			} else if (message.substr(0, 7) === '/error ') {
-				$chat.append('<div class="chat message-error">' + Tools.escapeHTML(message.substr(7)) + '</div>');
-			} else if (message.substr(0, 6) === '/html ') {
-				$chat.append('<div class="chat">' + Tools.sanitizeHTML(message.substr(6)) + '</div>');
-			} else {
-				// Normal chat message.
-				if (message.substr(0, 2) === '//') message = message.substr(1);
-				$chat.append('<div class="chat chatmessage-' + toId(name) + (name.substr(1) === app.user.get('name') ? ' mine' : '') + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message) + '</em></div>');
+			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'));
+			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
+			for (var i = 0; i < parsedMessage.length; i++) {
+				if (!parsedMessage[i]) continue;
+				$chat.append(parsedMessage[i]);
 			}
+			if (!isSelf) this.notifyOnce("PM from " + name, "\"" + message + "\"", 'pm');
 
 			if (autoscroll) {
 				$chatFrame.scrollTop($chat.height());
