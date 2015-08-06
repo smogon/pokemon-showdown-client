@@ -33,6 +33,11 @@ body {
 	font-weight: bold;
 	display: block;
 }
+
+.battleform label {
+	margin-left: 15px;
+}
+
 .optlabel {
 	font-size: 9pt;
 	display: block;
@@ -549,11 +554,13 @@ p.or:after {
 	border: 1px solid #888888;
 	background: #D5D5D5;
 }
-.select, .team {
+
+.select, .team{
+	margin-top: 5px;
 	cursor: pointer;
-	width: 230px;
+	width: 254px;
+
 	height: 32px;
-	padding: 0 5px;
 	font-size: 9pt;
 	text-align: left;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
@@ -572,9 +579,10 @@ p.or:after {
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
 }
 .select.teamselect {
-	height: 43px;
-	white-space: nowrap;
-	overflow: hidden;
+	height: 54px;
+
+	padding-top: 2px;
+	margin-bottom: 3px;
 }
 .select:hover, .team.team-hover {
 	border-color: #555555;
@@ -615,7 +623,7 @@ p.or:after {
 
 .leftmenu {
 	padding: 40px 0 0 0;
-	width: 324px;
+	width: 334px;
 }
 .rightmenu {
 	position: absolute;
@@ -624,7 +632,7 @@ p.or:after {
 }
 .activitymenu {
 	position: absolute;
-	left: 325px;
+	left: 335px;
 	top: 40px;
 }
 .mainmenu {
@@ -632,7 +640,7 @@ p.or:after {
 }
 
 .battleform {
-	width: 230px;
+	width: 254px;
 	text-align: left;
 	margin: 0 auto;
 }
@@ -790,7 +798,7 @@ p.or:after {
 	display: block;
 	padding: 10px 0;
 	margin: 0 27px 30px 27px;
-	max-width: 400px;
+	max-width: 420px;
 	border-radius: 20px;
 
 	background: rgba(201, 207, 219, .6);
@@ -827,9 +835,10 @@ p.or:after {
 	border-color: hsl(210,40%,40%);
 }
 .menugroup button.big {
-	width: 230px;
+	width: 254px;
 	padding: 6px 7px 6px 7px;
 	font-size: 14pt;
+
 }
 .menugroup .button:hover {
 	background: #5485B6;
@@ -1609,6 +1618,7 @@ a.ilink:hover {
 	width: 100px;
 	margin-right: 6px;
 	font: 9pt Verdana, sans-serif;
+	line-height: 28px;
 	padding: 5px 5px 5px 0;
 	white-space: pre;
 	overflow: hidden;
@@ -1897,7 +1907,7 @@ a.ilink:hover {
 	display: inline-block;
 	white-space: nowrap;
 	width: 360px;
-	height: 49px;
+	height: 55px;
 	padding: 1px 6px 1px 6px;
 	font-size: 8pt;
 	vertical-align: middle;
@@ -1918,15 +1928,15 @@ a.ilink:hover {
 }
 .teamlist .team small {
 	display: block;
-	padding: 3px 74px 0 74px;
+	padding: 5px 53px 0 53px;
 }
 .teamlist .team .pokemonicon span {
 	font-size: 9px !important;
 	display: block;
 	overflow: visible;
-	position: relative;
-	width: 32px;
-	top: 22px;
+	width: 40px;
+	height: 30px;
+	padding: 0;
 	color: transparent;
 }
 
@@ -1966,7 +1976,7 @@ a.ilink:hover {
 	border: 1px solid #AAAAAA;
 	padding: 0;
 	margin: -1px 2px 0 0;
-	height: 42px;
+	height: 52px;
 	float: left;
 	width: 88px;
 	cursor: pointer;
@@ -2405,7 +2415,7 @@ a.ilink:hover {
 }
 .teambuilder-results {
 	position: absolute;
-	top: 200px;
+	top: 208px;
 	left: 0;
 	bottom: 0;
 	right: 0;
@@ -2418,6 +2428,7 @@ a.ilink:hover {
 @media (max-height:410px) {
 	.teambuilder-results {
 		bottom: auto;
+		margin-top:8px;
 		overflow-y: visible;
 		background: #EEF2F5;
 	}
@@ -2425,6 +2436,7 @@ a.ilink:hover {
 @media (max-width:639px) {
 	.teambuilder-results {
 		bottom: auto;
+		margin-top:8px;
 		overflow-y: visible;
 		background: #EEF2F5;
 	}
@@ -2432,7 +2444,7 @@ a.ilink:hover {
 
 .teamchartbox {
 	position: absolute;
-	top: 40px;
+	top: 50px;
 	left: 0;
 	bottom: 0;
 	right: 0;

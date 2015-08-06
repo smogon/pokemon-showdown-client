@@ -40,21 +40,21 @@
 .utilichart .col
 {
 	float: left;
-	padding-top: 6px;
-	height: 22px;
+	height: 32px;
 	font-size: 9pt;
 	color: #444444;
+	line-height:32px;
 }
 .utilichart .iconcol,
 .utilichart .itemiconcol
 {
-	padding-top: 2px;
+
 }
 .utilichart .iconcol span
 {
 	display: block;
-	width: 32px;
-	height: 24px;
+	width: 40px;
+	height: 32px;
 	background: transparent none no-repeat scroll 0px -8px;
 }
 .utilichart .itemiconcol span
@@ -70,8 +70,8 @@
 	padding-right: 5px;
 	text-align: right;
 	color: #999999;
-	padding-top: 7px;
 	font-size: 8pt;
+	line-height:32px;
 }
 .utilichart .statcol,
 .utilichart .bstcol,
@@ -84,6 +84,7 @@
 	width: 24px;
 	text-align: right;
 	font-size: 8pt;
+	line-height: 16px;
 }
 .utilichart .labelcol
 {
@@ -112,6 +113,7 @@
 .utilichart .statcol em,
 .utilichart .bstcol em
 {
+	line-height: 16px;
 	color: #999999;
 	font-size: 7pt;
 	font-style: normal;
@@ -134,11 +136,10 @@
 }
 .utilichart .pokemonnamecol
 {
-	padding-top: 5px;
-	height: 23px;
 	width: 127px;
 	color: #000000;
 	font-size: 10pt;
+	line-height: 32px;
 }
 .utilichart .shortpokemonnamecol
 {
@@ -181,20 +182,21 @@
 }
 .utilichart .typecol
 {
+	padding-top:5px;
 	width: 70px;
+	height: 27px;
 }
 .utilichart .abilitycol
 {
-	padding-top: 7px;
-	height: 21px;
 	font-size: 8pt;
 	width: 90px;
 }
 .utilichart .twoabilitycol
 {
-	padding-top: 0;
-	height: 28px;
+	padding-top:3px;
 	font-size: 8pt;
+	height: 29px;
+	line-height: 16px;
 	width: 90px;
 }
 .utilichart b

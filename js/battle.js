@@ -1265,20 +1265,22 @@ var Side = (function () {
 		var pokemonhtml = '';
 		for (var i = 0; i < 6; i++) {
 			var poke = this.pokemon[i];
+			pokemonhtml += '<div class="pokemonpreview">';
 			if (i >= this.totalPokemon) {
-				pokemonhtml += '<span class="pokemonicon" style="' + Tools.getIcon('pokeball-none') + '"></span>';
+				pokemonhtml += '<div class="pokemonicon" style="'+Tools.getIcon('pokeball-none')+'"></div>';
 			} else if (!poke) {
-				//pokemonhtml += '<img src="/fx/pokeball.png" title="Not revealed" />';
-				pokemonhtml += '<span class="pokemonicon" style="' + Tools.getIcon('pokeball') + '" title="Not revealed"></span>';
-			//} else if (poke.fainted) {
-				//pokemonhtml += '<img src="/fx/pokeball.png" style="opacity:0.3;filter:alpha(opacity=30)" title="' + poke.getFullName(true) + '" />';
+				pokemonhtml += '<div class="pokemonicon" style="'+Tools.getIcon('pokeball')+'" title="Not revealed"></div>';
 			} else {
-				//pokemonhtml += '<img src="/fx/pokeball.png" title="' + poke.getFullName(true) + '" />';
-				pokemonhtml += '<span class="pokemonicon" style="' + Tools.getIcon(poke) + '" title="' + poke.getFullName(true) + '"></span>';
+				pokemonhtml += '<div class="pokemonicon" style="'+Tools.getIcon(poke, this.n)+'" title="' + poke.getFullName(true) + '"></div>';
+				pokemonhtml += '<div class="pokemondata">';
+				pokemonhtml += '<div class="pokemongender" style="'+Tools.getIcon(poke.gender || 'N')+'" title="' + (poke.gender === 'F' ? 'Female' : poke.gender === 'M' ? 'Male' : '') + '"></div>';
+				//pokemonhtml += '<div class="pokemonitem" style="' + (this.pokemon[i].baseItem ? Tools.getIcon('item') : '') + '" title="' + poke.getFullName(true) + '"></div>';
+				pokemonhtml += '</div>';
 			}
-			if (i % 3 === 2) pokemonhtml += '</div><div class="teamicons">';
+			pokemonhtml += '</div>';
+			if (i % 2 === 1 && i !== 5) pokemonhtml += '</div><div class="teamicons">';
 		}
-		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
+		pokemonhtml = '<div class="teampreview"><div class="teamicons">' + pokemonhtml + '</div></div>';
 		if (this.n === 1) {
 			if (this.initialized) {
 				this.battle.rightbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(this.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(this.spriteid) + ')"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity', 1);
@@ -5530,7 +5532,8 @@ var Battle = (function () {
 			}
 			break;
 		case 'poke':
-			var pokemon = this.getPokemon('new: ' + args[1], args[2]);
+			var pokemon = this.getPokemon('new: '+args[1], args[2]);
+			if (args.slice(3).indexOf('item') > -1) pokemon.baseItem = true;
 			break;
 		case 'detailschange':
 			if (this.waitForResult()) return;

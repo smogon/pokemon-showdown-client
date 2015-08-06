@@ -832,16 +832,25 @@
 	}, {
 		renderTeam: function (i) {
 			if (i === 'random') {
-				var buf = 'Random team<br />';
-				for (var i = 0; i < 6; i++) {
-					buf += '<span class="pokemonicon" style="float:left;' + Tools.getIcon() + '"></span>';
+				var buf = 'Random team<br /><div class="teampreview"><div class="teamicons">';
+				for (var i=0; i<6; i++) {
+					buf += '<div class="pokemonicon" style="float:left;'+Tools.getIcon()+'"></div>';
+					if (i === 2) buf += '</div><div class="teamicons">';
 				}
+				buf += '</div></div>';
 				return buf;
 			}
 			var team = Storage.teams[i];
 			if (!team) return 'Error: Corrupted team';
 			var buf = '' + Tools.escapeHTML(team.name) + '<br />';
 			buf += Storage.getTeamIcons(team);
+			var buf = ''+Tools.escapeHTML(team.name)+'<br />';
+			buf += '<div class="teampreview"><div class="teamicons">';
+			for (var i=0; i<6; i++) {
+				var pokemon = team.team.split(']')[i];
+				buf += '<div class="pokemonicon" style="float:left;'+(pokemon ? Tools.getIcon(pokemon.split('|')[0]) : '')+'"></div>';
+			}
+			buf += '</div></div>';
 			return buf;
 		}
 	});
