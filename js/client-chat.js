@@ -1352,18 +1352,6 @@
 				'leave': []
 			};
 
-			var isHighlighted = false;
-			if (!pm && userid !== app.user.get('userid')) {
-				// PMs already notify in the main menu; no need to make them notify again
-				isHighlighted = this.getHighlight(message);
-				if (isHighlighted) {
-					var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
-					this.notifyOnce(notifyTitle, "\"" + (message.indexOf('spoiler') < 0 ? message : '(spoiler)') + "\"", 'highlight');
-				} else {
-					this.subtleNotifyOnce();
-				}
-			}
-
 			if (pm) {
 				var pmuserid = toUserid(pm);
 				var oName = pmuserid === app.user.get('userid') ? name : pm;
@@ -1374,14 +1362,24 @@
 					'<span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span>' +
 					'</div>'
 				);
-				return;
+				return; // PMs independently notify in the man menu; no need to make them notify again with `inchatpm`.
 			}
 
-			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('lobby', deltatime), isHighlighted);
+			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
+			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', deltatime), isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
 				this.$chat.append(parsedMessage[i]);
+			}
+
+			if (isHighlighted) {
+				var $lastMessage = this.$chat.children().last();
+				var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
+				var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
+				this.notifyOnce(notifyTitle, "\"" + notifyText + "\"", 'highlight');
+			} else {
+				this.subtleNotifyOnce();
 			}
 
 			if (message.substr(0, 4) === '/me ' || message.substr(0, 5) === '/mee') {

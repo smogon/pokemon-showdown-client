@@ -115,10 +115,6 @@
 			var userid = toUserid(name);
 			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '!': 1, '‽': 1}) return;
 
-			if (app.curSideRoom && app.curSideRoom.addPM && Tools.prefs('inchatpm')) {
-				app.curSideRoom.addPM(name, message, target);
-			}
-
 			var isSelf = (toId(name) === app.user.get('userid'));
 			var oName = isSelf ? target : name;
 			Storage.logChat('pm-' + toId(oName), '' + name + ': ' + message);
@@ -135,7 +131,16 @@
 				if (!parsedMessage[i]) continue;
 				$chat.append(parsedMessage[i]);
 			}
-			if (!isSelf) this.notifyOnce("PM from " + name, "\"" + message + "\"", 'pm');
+
+			var $lastMessage = $chat.children().last();
+			var textContent = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
+			if (textContent && app.curSideRoom && app.curSideRoom.addPM && Tools.prefs('inchatpm')) {
+				app.curSideRoom.addPM(name, textContent, target);
+			}
+
+			if (!isSelf && textContent) {
+				this.notifyOnce("PM from " + name, "\"" + textContent + "\"", 'pm');
+			}
 
 			if (autoscroll) {
 				$chatFrame.scrollTop($chat.height());
