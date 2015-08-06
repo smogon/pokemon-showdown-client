@@ -364,41 +364,53 @@ var Tools = {
 		var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 		if (!/[A-Za-z0-9 ]/.test(name.charAt(0))) clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>' + clickableName;
 
-		if (message.substr(0, 4) === '/me ') {
-			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message.substr(4)) + '</em></div>';
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(message.substr(4)) + '</i></em></div>';
-		} else if (message.substr(0, 5) === '/mee ') {
-			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message.substr(5)) + '</em></div>';
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + Tools.parseMessage(message.substr(5)) + '</i></em></div>';
-		} else if (message.substr(0, 8) === '/invite ') {
-			var roomid = toRoomid(message.substr(8));
+		var cmd = '';
+		var target = '';
+		if (message.charAt(0) === '/') {
+			if (message.charAt(1) === '/') {
+				message = message.slice(1);
+			} else {
+				var spaceIndex = message.indexOf(' ');
+				cmd = (spaceIndex >= 0 ? message.slice(1, spaceIndex) : message.slice(1));
+				if (spaceIndex >= 0) target = message.slice(spaceIndex + 1);
+			}
+		}
+
+		switch (cmd) {
+		case 'me':
+			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(target) + '</em></div>';
+			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(target) + '</i></em></div>';
+		case 'mee':
+			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(target) + '</em></div>';
+			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + Tools.parseMessage(target) + '</i></em></div>';
+		case 'invite':
+			var roomid = toRoomid(target);
 			return [
 				'<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em></div>',
 				'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>'
 			];
-		} else if (message.substr(0, 10) === '/announce ') {
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(message.substr(10)) + '</span></div>';
-		} else if (message.substr(0, 14) === '/data-pokemon ') {
+		case 'announce':
+			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(target) + '</span></div>';
+		case 'data-pokemon':
 			if (!window.Chart) return '';
-			return '<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
-		} else if (message.substr(0, 11) === '/data-item ') {
+			return '<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(target), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
+		case 'data-item':
 			if (!window.Chart) return '';
-			return '<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
-		} else if (message.substr(0, 14) === '/data-ability ') {
+			return '<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(target), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
+		case 'data-ability':
 			if (!window.Chart) return '';
-			return '<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(message.substr(14)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
-		} else if (message.substr(0, 11) === '/data-move ') {
+			return '<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(target), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
+		case 'data-move':
 			if (!window.Chart) return '';
-			return '<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(message.substr(11)), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
-		} else if (message.substr(0, 6) === '/text ') {
-			return '<div class="chat">' + Tools.escapeHTML(message.substr(6)) + '</div>';
-		} else if (message.substr(0, 7) === '/error ') {
-			return '<div class="chat message-error">' + Tools.escapeHTML(message.substr(7)) + '</div>';
-		} else if (message.substr(0, 6) === '/html ') {
-			return '<div class="chat">' + Tools.sanitizeHTML(message.substr(6)) + '</div>';
-		} else {
-			// Normal chat message.
-			if (message.substr(0, 2) === '//') message = message.substr(1);
+			return '<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(target), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
+		case 'text':
+			return '<div class="chat">' + Tools.escapeHTML(target) + '</div>';
+		case 'error':
+			return '<div class="chat message-error">' + Tools.escapeHTML(target) + '</div>';
+		case 'html':
+			return '<div class="chat">' + Tools.sanitizeHTML(target) + '</div>';
+		default:
+			// Not a command or unsupported. Parsed as a normal chat message.
 			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message) + '</em></div>';
 		}
 	},
