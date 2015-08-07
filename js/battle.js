@@ -3377,6 +3377,12 @@ var Battle = (function () {
 					var effect = Tools.getEffect(kwargs.from);
 					var ofpoke = this.getPokemon(kwargs.of);
 					switch (effect.id) {
+					case 'competitive':
+					case 'defiant':
+						this.resultAnim(poke, effect.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
+						actions += "" + poke.getName() + "'s " + BattleStats[stat] + " rose " + amountString + "!";
+						break;
 					default:
 						if (effect.effectType === 'Item') {
 							actions += "The " + effect.name + amountString + " raised " + poke.getLowerName() + "'s " + BattleStats[stat] + "!";
