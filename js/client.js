@@ -69,6 +69,12 @@
 			}
 		}
 	});
+	if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
+		// Android mobile-web-app-capable doesn't support it very well, but iOS
+		// does it fine, so we're only going to show this to iOS for now
+		$('head').append('<meta name="apple-mobile-web-app-capable" content="yes" />');
+	}
+
 	if (window.nodewebkit) {
 		$(document).on("contextmenu", function (e) {
 			e.preventDefault();
