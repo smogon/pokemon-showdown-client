@@ -359,7 +359,7 @@ var Tools = {
 		var showMe = !((Tools.prefs('chatformatting') || {}).hideme);
 
 		var hlClass =  isHighlighted ? ' highlighted' : '';
-		var mineClass = (name.substr(1) === app.user.get('name') ? ' mine' : '');
+		var mineClass = (window.app && name.substr(1) === app.user.get('name') ? ' mine' : '');
 		var color = hashColor(toId(name));
 		var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 		if (!/[A-Za-z0-9 ]/.test(name.charAt(0))) clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>' + clickableName;
