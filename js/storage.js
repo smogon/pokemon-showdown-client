@@ -900,6 +900,7 @@ Storage.nwDeleteTeamFile = function (filename, callback) {
 };
 
 Storage.nwSaveTeam = function (team) {
+	if (!team) return;
 	var filename = team.name + '.txt';
 	if (team.format) filename = '[' + team.format + '] ' + filename;
 	filename = $.trim(filename).replace(/[\\\/]+/g, '');
