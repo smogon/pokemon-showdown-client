@@ -2037,6 +2037,7 @@ var Side = (function () {
 			quickguard: '<span class="good">Quick&nbsp;Guard</span>',
 			wideguard: '<span class="good">Wide&nbsp;Guard</span>',
 			craftyshield: '<span class="good">Crafty&nbsp;Shield</span>',
+			matblock: '<span class="good">Mat&nbsp;Block</span>',
 			helpinghand: '<span class="good">Helping&nbsp;Hand</span>',
 			magiccoat: '<span class="good">Magic&nbsp;Coat</span>',
 			destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
@@ -4552,6 +4553,10 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Crafty Shield', 'good', animDelay);
 					actions += "Crafty Shield protected " + poke.side.getLowerTeamName() + "!";
 					break;
+				case 'matblock':
+					this.resultAnim(poke, 'Mat Block', 'good', animDelay);
+					actions += '' + poke.getName() + ' intends to flip up a mat and block incoming attacks!';
+					break;
 				case 'protect':
 					this.resultAnim(poke, 'Protected', 'good', animDelay);
 					actions += '' + poke.getName() + ' protected itself!';
@@ -4573,9 +4578,6 @@ var Battle = (function () {
 					break;
 				case 'magiccoat':
 					actions += '' + poke.getName() + ' shrouded itself with Magic Coat!';
-					break;
-				case 'matblock':
-					actions += '' + poke.getName() + ' intends to flip up a mat and block incoming attacks!';
 					break;
 				case 'electrify':
 					actions += '' + poke.getName() + '\'s moves have been electrified!';
@@ -4683,8 +4685,25 @@ var Battle = (function () {
 				case 'pursuit':
 					actions += "" + poke.getName() + " is being sent back!";
 					break;
+				case 'hyperspacefury':
+				case 'hyperspacehole':
+				case 'phantomforce':
+				case 'shadowforce':
 				case 'feint':
-					actions += "" + poke.getName() + " fell for the feint!";
+					this.resultAnim(poke, 'Protection broken', 'bad', animDelay);
+					if (kwargs.broken) {
+						actions += "It broke through " + poke.getLowerName() + "'s protection!";
+					} else {
+						actions += "" + poke.getName() + " fell for the feint!";
+					}
+					poke.removeTurnstatus('protect');
+					for (var k = 0; k < poke.side.pokemon.length; k++) {
+						poke.side.pokemon[k].removeTurnstatus('wideguard');
+						poke.side.pokemon[k].removeTurnstatus('quickguard');
+						poke.side.pokemon[k].removeTurnstatus('craftyshield');
+						poke.side.pokemon[k].removeTurnstatus('matblock');
+						poke.side.updateStatbar(poke.side.pokemon[k]);
+					}
 					break;
 				case 'spite':
 					actions += "It reduced the PP of " + poke.getLowerName() + "'s " + Tools.getMove(args[3]).name + " by " + Tools.escapeHTML(args[4]) + "!";
@@ -4842,7 +4861,12 @@ var Battle = (function () {
 					actions += '' + poke.getName() + " is not affected by " + Tools.escapeHTML(args[3]) + " thanks to its Safety Goggles!";
 					break;
 				default:
-					actions += "" + poke.getName() + "'s " + effect.name + " activated!";
+					if (kwargs.broken) { // for custom moves that break protection
+						this.resultAnim(poke, 'Protection broken', 'bad', animDelay);
+						actions += "It broke through " + poke.getLowerName() + "'s protection!";
+					} else {
+						actions += "" + poke.getName() + "'s " + effect.name + " activated!";
+					}
 				}
 				break;
 
