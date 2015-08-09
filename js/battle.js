@@ -3367,7 +3367,7 @@ var Battle = (function () {
 					poke.boosts[stat] = 0;
 				}
 				poke.boosts[stat] += amount;
-				this.resultAnim(poke, poke.getBoost(stat), 'good', animDelay);
+				this.resultAnim(poke, poke.getBoost(stat), 'good', 2);
 
 				var amountString = '';
 				if (amount === 2) amountString = ' sharply';
