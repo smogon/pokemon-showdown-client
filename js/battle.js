@@ -3924,8 +3924,10 @@ var Battle = (function () {
 					this.resultAnim(ofpoke, 'Item Stolen', 'bad', animDelay);
 					break;
 				case 'harvest':
+					this.resultAnim(poke, 'Harvest', 'ability', animDelay);
+					this.message('', "<small>[" + poke.getName(true) + "'s Harvest!]</small>");
 					actions += '' + poke.getName() + ' harvested one ' + item.name + '!';
-					this.resultAnim(poke, item.name, 'neutral', animDelay);
+					this.resultAnim(poke, item.name, 'neutral', 2);
 					break;
 				case 'bestow':
 					actions += '' + poke.getName() + ' received ' + item.name + ' from ' + ofpoke.getLowerName() + '!';
