@@ -4033,10 +4033,6 @@ var Battle = (function () {
 					this.resultAnim(poke, "Copied " + ability.name, 'good', animDelay);
 					actions += '' + poke.getName() + ' copied ' + ofpoke.getLowerName() + '\'s ' + ability.name + ' Ability!';
 					break;
-				case 'mummy':
-					this.resultAnim(poke, "Acquired Mummy", 'neutral', animDelay);
-					actions += "" + poke.getName() + "'s Ability became Mummy!";
-					break;
 				case 'desolateland':
 					if (kwargs.fail) {
 						actions += "[" + poke.getName() + "'s " + ability.name + "] The extremely harsh sunlight was not lessened at all!";
@@ -4797,11 +4793,11 @@ var Battle = (function () {
 				case 'mindreader':
 					actions += '' + poke.getName() + ' took aim at ' + ofpoke.getLowerName() + '!';
 					break;
-
-				// ability activations
 				case 'endure':
 					actions += '' + poke.getName() + ' endured the hit!';
 					break;
+
+				// ability activations
 				case 'magicbounce':
 				case 'magiccoat':
 				case 'rebound':
@@ -4825,6 +4821,16 @@ var Battle = (function () {
 							poke.side.foe.active[0].markMove(args[3], 0);
 						}
 					}
+					break;
+				case 'mummy':
+					this.resultAnim(poke, 'Mummy', 'ability', animDelay);
+					this.message('', "<small>[" + poke.getName(true) + "'s Mummy!]</small>");
+					var ability = Tools.getAbility(args[3]);
+					this.resultAnim(ofpoke, ability.name, 'ability', 3);
+					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + ability.name + "!]</small>");
+					this.resultAnim(ofpoke, 'Mummy', 'ability', 6);
+					this.message('', "<small>[" + ofpoke.getName(true) + "'s Mummy!]</small>");
+					actions += "" + ofpoke.getName() + "'s Ability became Mummy!";
 					break;
 				case 'anticipation': // Deprecated, now uses -ability. This is for replay compatability
 					actions += "" + poke.getName() + " shuddered!";
