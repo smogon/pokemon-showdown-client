@@ -1697,14 +1697,15 @@
 			if (template.gender && template.gender !== 'N') set.gender = template.gender;
 			if (set.happiness) delete set.happiness;
 			if (set.shiny) delete set.shiny;
-			set.item = '';
+			var formatsData = window.BattleFormatsData && BattleFormatsData[template.speciesid];
+			set.item = (formatsData.requiredItem || '');
 			set.ability = template.abilities['0'];
 			set.moves = [];
 			set.evs = {};
 			set.ivs = {};
 			set.nature = '';
 			this.updateSetTop();
-			if (selectNext) this.$('input[name=item]').select();
+			if (selectNext) this.$(set.item ? 'input[name=ability]' : 'input[name=item]').select();
 		},
 
 		/*********************************************************
