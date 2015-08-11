@@ -357,12 +357,16 @@ var Tools = {
 	},
 	parseChatMessage: function (message, name, timestamp, isHighlighted) {
 		var showMe = !((Tools.prefs('chatformatting') || {}).hideme);
-
-		var hlClass =  isHighlighted ? ' highlighted' : '';
-		var mineClass = (window.app && app.user && name.substr(1) === app.user.get('name') ? ' mine' : '');
+		var group = ' ';
+		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
+			// Backwards compatibility
+			group = name.charAt(0);
+			name = name.substr(1);
+		}
 		var color = hashColor(toId(name));
-		var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
-		if (!/[A-Za-z0-9 ]/.test(name.charAt(0))) clickableName = '<small>' + Tools.escapeHTML(name.substr(0, 1)) + '</small>' + clickableName;
+		var clickableName = '<small>' + Tools.escapeHTML(group) + '</small> <span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + '</span>';
+		var hlClass = isHighlighted ? ' highlighted' : '';
+		var mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
 
 		var cmd = '';
 		var target = '';
