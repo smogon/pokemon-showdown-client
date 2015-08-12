@@ -767,7 +767,7 @@ var Sprite = (function () {
 	Sprite.prototype.animTransform = function (species) {
 		if (!this.oldsp) this.oldsp = this.sp;
 		if (species.volatiles && species.volatiles.formechange) species = species.volatiles.formechange[2];
-		sp = Tools.getSpriteData(species, this.isBackSprite ? 0 : 1, {
+		var sp = Tools.getSpriteData(species, this.isBackSprite ? 0 : 1, {
 			afd: this.battle.tier === "[Seasonal] Fools Festival",
 			gen: this.battle.gen
 		});
@@ -809,7 +809,7 @@ var Sprite = (function () {
 	};
 	Sprite.prototype.removeTransform = function (species) {
 		if (this.oldsp) {
-			sp = this.oldsp;
+			var sp = this.oldsp;
 			this.sp = sp;
 			this.oldsp = null;
 			this.elem.attr('src', sp.url);
