@@ -332,6 +332,10 @@ class DefaultActionHandler {
 			$reqData['id'] = $server['id'].'-'.$reqData['id'];
 		}
 
+		if (isset($server['version']) {
+			$reqData['version'] = $server['version'];
+		}
+
 		include_once __DIR__.'/../../replay.pokemonshowdown.com/replays.lib.php';
 		$out = $GLOBALS['Replays']->prepUpload($reqData);
 
@@ -356,6 +360,20 @@ class DefaultActionHandler {
 		// No need to sanitise $server['id'] because it should be safe already.
 		$cssfile = dirname(__FILE__) . '/../../pokemonshowdown.com/config/customcss/' . $server['id'] . '.css';
 		@unlink($cssfile);
+	}
+
+	public function updateversion($dispatcher, &$reqData, &$out) {
+		$server =& $dispatcher->findServer();
+		if (!$server) {
+			$out['errorip'] = $dispatcher->getIp();
+			return;
+		}
+		if (!isset($reqData['version']) || mb_strlen($reqData['version']) > 8 || !preg_match('/^[0-9]+\.[0-9]+\.[0-9]+]+$/', $reqData['version'])) {
+			$out = 0;
+			return;
+		}
+
+		$server['version'] = $reqData['version'];
 	}
 
 	/**

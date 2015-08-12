@@ -5447,6 +5447,9 @@ var Battle = (function () {
 	};
 	Battle.prototype.runMajor = function (args, kwargs, preempt) {
 		switch (args[0]) {
+		case 'version':
+			this.version = args[1];
+			break;
 		case 'start':
 			this.teamPreview(false);
 			this.mySide.active[0] = null;
