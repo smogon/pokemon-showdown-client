@@ -1511,12 +1511,18 @@
 			},
 			ability: function (ability) {
 				if (!this.curSet) return;
-				if (!ability) return ['Abilities', 'Hidden Ability'];
 				var template = Tools.getTemplate(this.curSet.species);
+				var isMega = false;
+				if (template.forme.substr(0, 4) === 'Mega' && this.curTeam.format !== 'balancedhackmons') {
+					if (!ability) return ['Pre-Mega Abilities', 'Pre-Mega Hidden Ability'];
+					isMega = true;
+					template = Tools.getTemplate(template.baseSpecies);
+				}
+				if (!ability) return ['Abilities', 'Hidden Ability'];
 				if (!template.abilities) return 'Abilities';
-				if (ability.name === template.abilities['0']) return 'Abilities';
-				if (ability.name === template.abilities['1']) return 'Abilities';
-				if (ability.name === template.abilities['H']) return 'Hidden Ability';
+				if (ability.name === template.abilities['0']) return isMega ? 'Pre-Mega Abilities' : 'Abilities';
+				if (ability.name === template.abilities['1']) return isMega ? 'Pre-Mega Abilities' : 'Abilities';
+				if (ability.name === template.abilities['H']) return isMega ? 'Pre-Mega Hidden Ability' : 'Hidden Ability';
 				if (!this.curTeam || this.curTeam.format !== 'balancedhackmons') return 'Illegal';
 			},
 			move: function (move) {
