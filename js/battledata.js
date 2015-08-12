@@ -364,7 +364,7 @@ var Tools = {
 			name = name.substr(1);
 		}
 		var color = hashColor(toId(name));
-		var clickableName = '<small>' + Tools.escapeHTML(group) + '</small> <span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + '</span>';
+		var clickableName = '<small>' + Tools.escapeHTML(group) + '</small><span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + '</span>';
 		var hlClass = isHighlighted ? ' highlighted' : '';
 		var mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
 
