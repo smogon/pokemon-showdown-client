@@ -3363,11 +3363,11 @@ var Battle = (function () {
 				if (this.gen === 1 && stat === 'spd') break;
 				if (this.gen === 1 && stat === 'spa') stat = 'spc';
 				var amount = parseInt(args[3]);
+				var fromAbility = false;
 				if (!poke.boosts[stat]) {
 					poke.boosts[stat] = 0;
 				}
 				poke.boosts[stat] += amount;
-				this.resultAnim(poke, poke.getBoost(stat), 'good', 2);
 
 				var amountString = '';
 				if (amount === 2) amountString = ' sharply';
@@ -3380,6 +3380,7 @@ var Battle = (function () {
 					switch (effect.id) {
 					default:
 						if (effect.effectType === 'Ability') {
+							fromAbility = true;
 							this.resultAnim(poke, effect.name, 'ability', animDelay);
 							this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
 							actions += "" + poke.getName() + "'s " + BattleStats[stat] + " rose" + amountString + "!";
@@ -3392,6 +3393,7 @@ var Battle = (function () {
 				} else {
 					actions += "" + poke.getName() + "'s " + BattleStats[stat] + amountString + " rose" + "!";
 				}
+				this.resultAnim(poke, poke.getBoost(stat), 'good', fromAbility ? 2 : animDelay);
 				break;
 			case '-unboost':
 				var poke = this.getPokemon(args[1]);
