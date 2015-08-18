@@ -491,6 +491,13 @@ var Pokemon = (function () {
 		}
 		this.moveTrack.push([moveName, noPP ? 0 : 1]);
 	};
+	Pokemon.prototype.markAbility = function (ability, isNotBase) {
+		ability = Tools.getAbility(ability).name;
+		this.ability = ability;
+		if (!this.baseAbility && !isNotBase) {
+			this.baseAbility = ability;
+		}
+	};
 	Pokemon.prototype.getName = function (shortName) {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
@@ -3439,6 +3446,7 @@ var Battle = (function () {
 					case 'angerpoint':
 						this.resultAnim(poke, 'Anger Point', 'ability', animDelay);
 						this.message('', "<small>[" + poke.getName(true) + "'s Anger Point!]</small>");
+						poke.markAbility('Anger Point');
 						actions += '' + poke.getName() + ' maxed its Attack!';
 						break;
 					}
@@ -3688,6 +3696,7 @@ var Battle = (function () {
 					if (fromeffect.effectType === 'Ability') {
 						this.resultAnim(poke, fromeffect.name, 'ability', animDelay);
 						this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+						poke.markAbility(fromeffect);
 					} else {
 						this.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
 					}
@@ -4010,10 +4019,7 @@ var Battle = (function () {
 				var ability = Tools.getAbility(args[2]);
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
-				poke.ability = ability.name;
-				if (!effect.id || kwargs.fail) {
-					if (!poke.baseAbility) poke.baseAbility = ability.name;
-				}
+				poke.markAbility(ability, effect.id && !kwargs.fail);
 
 				if (kwargs.silent) {
 					// do nothing
@@ -4124,22 +4130,29 @@ var Battle = (function () {
 			case '-formechange':
 				var poke = this.getPokemon(args[1]);
 				var template = Tools.getTemplate(args[2]);
+				var fromeffect = Tools.getEffect(kwargs.from);
 				var spriteData = {'shiny': poke.sprite.sp.shiny};
-				if (kwargs.msg) {
-					actions += "" + poke.getName() + " transformed!";
-					if (toId(template.species) === 'shaymin') break;
-				} else if (toId(template.species) === 'darmanitanzen') {
-					actions += "Zen Mode triggered!";
-				} else if (toId(template.species) === 'darmanitan') {
-					actions += "Zen Mode ended!";
-				} else if (toId(template.species) === 'aegislashblade') {
-					this.resultAnim(poke, 'Stance Change', 'ability', animDelay);
-					this.message('', "<small>[" + poke.getName(true) + "'s Stance Change!]</small>");
-					actions += "Changed to Blade Forme!";
-				} else if (toId(template.species) === 'aegislash') {
-					this.resultAnim(poke, 'Stance Change', 'ability', animDelay);
-					this.message('', "<small>[" + poke.getName(true) + "'s Stance Change!]</small>");
-					actions += "Changed to Shield Forme!";
+
+				if (kwargs.silent) {
+					// do nothing
+				} else {
+					if (fromeffect.effectType === 'Ability') {
+						this.resultAnim(poke, fromeffect.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+						poke.markAbility(fromeffect.name);
+					}
+					if (kwargs.msg) {
+						actions += "" + poke.getName() + " transformed!";
+						if (toId(template.species) === 'shaymin') break;
+					} else if (toId(template.species) === 'darmanitanzen') {
+						actions += "Zen Mode triggered!";
+					} else if (toId(template.species) === 'darmanitan') {
+						actions += "Zen Mode ended!";
+					} else if (toId(template.species) === 'aegislashblade') {
+						actions += "Changed to Blade Forme!";
+					} else if (toId(template.species) === 'aegislash') {
+						actions += "Changed to Shield Forme!";
+					}
 				}
 				poke.sprite.animTransform($.extend(spriteData, template));
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
@@ -4175,6 +4188,7 @@ var Battle = (function () {
 						if (fromeffect.id === 'colorchange') {
 							this.resultAnim(poke, 'Color Change', 'ability', animDelay);
 							this.message('', "<small>[" + poke.getName(true) + "'s Color Change!]</small>");
+							poke.markAbility('Color Change');
 							actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
 						} else if (fromeffect.id === 'reflecttype') {
 							poke.copyTypesFrom(ofpoke);
