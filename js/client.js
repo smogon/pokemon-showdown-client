@@ -525,7 +525,8 @@
 
 			this.initializeConnection();
 
-			Backbone.history.start({pushState: true});
+			// HTML5 history throws exceptions when running on file://
+			Backbone.history.start({pushState: !Config.testclient});
 		},
 		/**
 		 * Start up the client, including loading teams and preferences,
@@ -849,11 +850,6 @@
 			};
 		},
 		dispatchFragment: function (fragment) {
-			if (Config.testclient) {
-				// Fragment dispatching doesn't work in testclient.html.
-				// Just open the main menu.
-				fragment = '';
-			}
 			if (location.search && window.history) {
 				history.replaceState(null, null, '/');
 			}
