@@ -1119,6 +1119,7 @@ var Tools = {
 			"gallademega": 913,
 			"audinomega": 914,
 			"dianciemega": 915,
+			"hoopaunbound": 916,
 			"syclant": 832 + 0,
 			"revenankh": 832 + 1,
 			"pyroak": 832 + 2,
