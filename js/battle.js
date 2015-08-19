@@ -1962,7 +1962,7 @@ var Side = (function () {
 			});
 			if (hpcolor === 'g') $hp.removeClass('hp-yellow hp-red');
 			else if (hpcolor === 'y') $hp.removeClass('hp-red').addClass('hp-yellow');
-			else $hp.addClass('hp-red');
+			else $hp.addClass('hp-yellow hp-red');
 			this.updateHPText(pokemon);
 		}
 		if (updatePrevhp) {
@@ -1970,7 +1970,7 @@ var Side = (function () {
 			$prevhp.css('width', pokemon.hpWidth(150) + 1);
 			if (hpcolor === 'g') $prevhp.removeClass('prevhp-yellow prevhp-red');
 			else if (hpcolor === 'y') $prevhp.removeClass('prevhp-red').addClass('prevhp-yellow');
-			else $prevhp.addClass('prevhp-red');
+			else $prevhp.addClass('prevhp-yellow prevhp-red');
 		}
 		var status = '';
 		if (pokemon.status === 'brn') {
@@ -2904,8 +2904,7 @@ var Battle = (function () {
 			$hp.addClass('hp-yellow');
 		};
 		if (hpcolor === 'r') callback = function () {
-			$hp.addClass('hp-yellow');
-			$hp.addClass('hp-red');
+			$hp.addClass('hp-yellow hp-red');
 		};
 
 		if (this.fastForward) {
@@ -2933,8 +2932,7 @@ var Battle = (function () {
 		var hpcolor = pokemon.getHPColor();
 		var callback;
 		if (hpcolor === 'g') callback = function () {
-			$hp.removeClass('hp-yellow');
-			$hp.removeClass('hp-red');
+			$hp.removeClass('hp-yellow hp-red');
 		};
 		if (hpcolor === 'y') callback = function () {
 			$hp.removeClass('hp-red');
