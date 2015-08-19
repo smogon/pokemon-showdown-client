@@ -26,9 +26,13 @@
 		}
 	});
 	$(window).on('dragover', function (e) {
+		if (/^text/.test(e.target.type)) return; // Ignore text fields
+
 		e.preventDefault();
 	});
 	$(document).on('dragenter', function (e) {
+		if (/^text/.test(e.target.type)) return; // Ignore text fields
+
 		e.preventDefault();
 
 		if (!app.dragging && app.curRoom.id === 'teambuilder') {
@@ -50,6 +54,8 @@
 		e.originalEvent.dataTransfer.dropEffect = 'move';
 	});
 	$(window).on('drop', function (e) {
+		if (/^text/.test(e.target.type)) return; // Ignore text fields
+
 		// The default team drop action for Firefox is to open the team as a
 		// URL, which needs to be prevented.
 		// The default file drop action for most browsers is to open the file
