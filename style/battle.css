@@ -407,18 +407,21 @@ License: GPLv2
 .trainer
 {
 	text-align: center;
-	margin-top: 180px;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 102px;
 }
 .rightbar .trainer
 {
-	margin-top: 50px;
+	bottom: 232px;
 }
 .trainer strong
 {
 	display: block;
 	font-size: 8pt;
 	margin-bottom: 2px;
-	overflow: hidden;
+	word-wrap: break-word;
 }
 .trainer div
 {
