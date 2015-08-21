@@ -2096,6 +2096,9 @@ a.ilink:hover {
 .setcell-details {
 	float: none;
 }
+.setcell-ability {
+	float: right;
+}
 .setcol-icon .itemicon {
 	display: block;
 	margin-left: 88px;
@@ -2303,6 +2306,7 @@ a.ilink:hover {
 }
 .setchart .setcell-item input {
 	width: 114px;
+	margin-right: 1px;
 }
 .setchart .setcol-moves input {
 	width: 129px;
