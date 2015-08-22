@@ -4716,7 +4716,10 @@ var Battle = (function () {
 					}
 					break;
 				case 'spite':
-					actions += "It reduced the PP of " + poke.getLowerName() + "'s " + Tools.getMove(args[3]).name + " by " + Tools.escapeHTML(args[4]) + "!";
+					var move = Tools.getMove(args[3]).name;
+					var pp = Tools.escapeHTML(args[4]);
+					actions += "It reduced the PP of " + poke.getLowerName() + "'s " + move + " by " + pp + "!";
+					poke.markMove(move, Number(pp));
 					break;
 				case 'gravity':
 					actions += "" + poke.getName() + " couldn't stay airborne because of gravity!";
