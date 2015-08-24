@@ -368,6 +368,18 @@
 						}
 					}
 					this.send('/autojoin ' + autojoinIds.join(','));
+
+					var battleAutojoin = (Tools.prefs('battleautojoin') || '').split(',');
+					for (var i = 0; i < battleAutojoin.length; i++) {
+						var battleTimeLimit = 1000 * 60 * 15;
+						var pair = battleAutojoin[i].split(':');
+						var roomid = pair[0];
+						var time = pair[1];
+						var maxBattleTime = new Date().getTime() + battleTimeLimit;
+						if (time < maxBattleTime) {
+							this.send('/join ' + roomid);
+						}
+					}
 				} else {
 					this.addRoom('lobby', null, true);
 					this.send('/autojoin');
@@ -945,7 +957,7 @@
 					});
 				} else if (data !== 'namepending') {
 					if (isdeinit) { // deinit
-						if (this.rooms[roomid] && this.rooms[roomid].type === 'chat') {
+						if (this.rooms[roomid] && (this.rooms[roomid].type === 'chat' || this.rooms[roomid].type === 'battle')) {
 							this.removeRoom(roomid, true);
 							this.updateAutojoin();
 						} else {
@@ -1533,18 +1545,23 @@
 		updateAutojoin: function () {
 			if (Config.server.id !== 'showdown') return;
 			var autojoins = [];
+			var battleAutojoins = [];
 			var autojoinCount = 0;
 			for (var i in this.rooms) {
-				if (!this.rooms[i]) continue;
-				if (this.rooms[i].type !== 'chat' || i === 'lobby') {
-					continue;
+				var room = this.rooms[i];
+				if (!room) continue;
+				if (room.type === 'chat' && i !== 'lobby') {
+					autojoins.push(this.rooms[i].title || this.rooms[i].id);
+					if (i === 'staff' || i === 'upperstaff') continue;
+					autojoinCount++;
+					if (autojoinCount >= 8) break;
 				}
-				autojoins.push(this.rooms[i].title || this.rooms[i].id);
-				if (i === 'staff' || i === 'upperstaff') continue;
-				autojoinCount++;
-				if (autojoinCount >= 8) break;
+				else if (room.type === 'battle' && room.side && !room.battle.done) {
+					battleAutojoins.push(this.rooms[i].id + ':' + new Date().getTime())
+				}
 			}
-			Tools.prefs('autojoin', autojoins.join(','));
+			Tools.prefs('autojoin', autojoins.join(','), false);
+			Tools.prefs('battleautojoin', battleAutojoins.join(','))
 		},
 
 		/*********************************************************
