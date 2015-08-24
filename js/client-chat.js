@@ -806,7 +806,7 @@
 								} else if (row.formatid === 'nususpecttest') {
 									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -20.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'lcsuspecttest') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -43.0 / N), 0) + '</td>';
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -9.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'doublesoucurrent' || row.formatid === 'doublesoususpecttest') {
 									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -12.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'pu') {
