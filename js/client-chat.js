@@ -1105,6 +1105,7 @@
 
 				case 'title':
 					this.title = row[1];
+					app.roomTitleChanged(this);
 					app.topbar.updateTabbar();
 					break;
 
