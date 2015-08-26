@@ -859,9 +859,10 @@
 			if (location.search && window.history) {
 				history.replaceState(null, null, '/');
 			}
-			fragment = toRoomid(fragment || '');
+			this.fragment = fragment = toRoomid(fragment || '');
 			if (this.initialFragment === undefined) this.initialFragment = fragment;
 			this.tryJoinRoom(fragment);
+			this.updateTitle(this.rooms[fragment]);
 		},
 		/**
 		 * Send to sim server
@@ -1389,7 +1390,11 @@
 				}
 				this.curRoom = window.room = room;
 				this.updateLayout();
-				if (this.curRoom.id === id) this.navigate(id);
+				if (this.curRoom.id === id) {
+					this.fragment = id;
+					this.navigate(id);
+					this.updateTitle(this.curRoom);
+				}
 			}
 
 			room.focus();
@@ -1529,6 +1534,12 @@
 				gui.Shell.openExternal(e.target.href);
 				return false;
 			}
+		},
+		roomTitleChanged: function (room) {
+			if (room.id === this.fragment) updateTitle(room);
+		},
+		updateTitle: function (room) {
+			document.title = room.title ? room.title + " - Showdown!" : "Showdown!";
 		},
 		updateAutojoin: function () {
 			if (Config.server.id !== 'showdown') return;

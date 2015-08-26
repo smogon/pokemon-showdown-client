@@ -98,6 +98,7 @@
 			if (log.length && log[0].substr(0, 7) === '|title|') {
 				this.title = log[0].substr(7);
 				log.shift();
+				app.roomTitleChanged(this);
 			}
 			if (this.battle.activityQueue.length) return;
 			this.battle.activityQueue = log;
@@ -150,6 +151,7 @@
 					}
 				} else if (logLine.substr(0, 7) === '|title|') {
 					this.title = logLine.substr(7);
+					app.roomTitleChanged(this);
 				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
 					this.battle.instantAdd(logLine);
 				} else {
