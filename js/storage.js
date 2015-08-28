@@ -661,18 +661,18 @@ Storage.exportTeam = function (team) {
 		if (curSet.item) {
 			text += ' @ ' + curSet.item;
 		}
-		text += "\n";
+		text += "  \n";
 		if (curSet.ability) {
-			text += 'Ability: ' + curSet.ability + "\n";
+			text += 'Ability: ' + curSet.ability + "  \n";
 		}
 		if (curSet.level && curSet.level != 100) {
-			text += 'Level: ' + curSet.level + "\n";
+			text += 'Level: ' + curSet.level + "  \n";
 		}
 		if (curSet.shiny) {
-			text += 'Shiny: Yes\n';
+			text += 'Shiny: Yes  \n';
 		}
 		if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
-			text += 'Happiness: ' + curSet.happiness + "\n";
+			text += 'Happiness: ' + curSet.happiness + "  \n";
 		}
 		var first = true;
 		if (curSet.evs) {
@@ -688,10 +688,10 @@ Storage.exportTeam = function (team) {
 			}
 		}
 		if (!first) {
-			text += "\n";
+			text += "  \n";
 		}
 		if (curSet.nature) {
-			text += '' + curSet.nature + ' Nature' + "\n";
+			text += '' + curSet.nature + ' Nature' + "  \n";
 		}
 		var first = true;
 		if (curSet.ivs) {
@@ -735,14 +735,14 @@ Storage.exportTeam = function (team) {
 			}
 		}
 		if (!first) {
-			text += "\n";
+			text += "  \n";
 		}
 		if (curSet.moves && curSet.moves) for (var j = 0; j < curSet.moves.length; j++) {
 			var move = curSet.moves[j];
 			if (move.substr(0, 13) === 'Hidden Power ') {
 				move = move.substr(0, 13) + '[' + move.substr(13) + ']';
 			}
-			text += '- ' + move + "\n";
+			text += '- ' + move + "  \n";
 		}
 		text += "\n";
 	}
