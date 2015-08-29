@@ -415,6 +415,9 @@ var Tools = {
 			return '<div class="chat">' + Tools.sanitizeHTML(target) + '</div>';
 		default:
 			// Not a command or unsupported. Parsed as a normal chat message.
+			if (!name) {
+				return '<div class="chat' + hlClass + '">' + timestamp + '<em>' + Tools.parseMessage(message) + '</em></div>';
+			}
 			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(message) + '</em></div>';
 		}
 	},
