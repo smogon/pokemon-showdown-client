@@ -853,12 +853,20 @@
 
 			buf += '<p><label>Format:</label><select name="format"><option value="">(All formats)</option>';
 			if (window.BattleFormats) {
+				var curSection = '';
 				for (var i in BattleFormats) {
-					if (BattleFormats[i].searchShow) {
+					var format = BattleFormats[i];
+					if (format.searchShow) {
+						if (format.section !== curSection) {
+							if (curSection) buf += '</optgroup>';
+							curSection = format.section;
+							if (curSection) buf += '<optgroup label="' + Tools.escapeHTML(curSection) + '">';
+						}
 						var activeFormat = (this.format === i ? ' selected=' : '');
-						buf += '<option value="' + i + '"' + activeFormat + '>' + BattleFormats[i].name + '</option>';
+						buf += '<option value="' + i + '"' + activeFormat + '>' + format.name + '</option>';
 					}
 				}
+				if (curSection) buf += '</optgroup>';
 			}
 			buf += '</select></p>';
 			buf += '<div class="list"><p>Loading...</p></div>';

@@ -494,12 +494,20 @@
 				}
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select"><label>Format:</label><select name="format"><option value="">(None)</option>';
+					var curSection = '';
 					for (var i in BattleFormats) {
-						if (BattleFormats[i].isTeambuilderFormat) {
+						var format = BattleFormats[i];
+						if (format.isTeambuilderFormat) {
+							if (format.section !== curSection) {
+								if (curSection) buf += '</optgroup>';
+								curSection = format.section;
+								if (curSection) buf += '<optgroup label="' + Tools.escapeHTML(curSection) + '">';
+							}
 							var activeFormat = (this.curTeam.format === i ? ' selected="selected"' : '');
-							buf += '<option value="' + i + '"' + activeFormat + '>' + BattleFormats[i].name + '</option>';
+							buf += '<option value="' + i + '"' + activeFormat + '>' + format.name + '</option>';
 						}
 					}
+					if (curSection) buf += '</optgroup>';
 					buf += '</select></li>';
 				}
 				if (!this.curSetList.length) {
