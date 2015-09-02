@@ -332,6 +332,14 @@
 					}
 					break;
 
+				case 'scouting':
+					if (data[0] === 'allow') {
+						this.room.$chat.append("<div class=\"notice tournament-message-scouting\">Scouting is now allowed (Tournament players can watch other tournament battles)</div>");
+					} else if (data[0] === 'disallow') {
+						this.room.$chat.append("<div class=\"notice tournament-message-scouting\">Scouting is now banned (Tournament players can't watch other tournament battles)</div>");
+					}
+					break;
+
 				case 'update':
 					$.extend(this.updates, JSON.parse(data.join('|')));
 					break;
