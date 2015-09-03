@@ -2226,8 +2226,7 @@ var Battle = (function () {
 			else if (this.gen <= 3) this.backdropImage = 'bg-gen3.png';
 			else if (this.gen <= 4) this.backdropImage = 'bg-gen4.png';
 			};
-		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ')');
-
+		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ')')
 	};
 	Battle.prototype.reset = function (dontResetSound) {
 		// battle state
