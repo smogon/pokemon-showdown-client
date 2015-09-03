@@ -3340,16 +3340,14 @@ var Battle = (function () {
 				for (var k = 0; k < 2; k++) {
 					var cpoke = this.getPokemon(args[1 + 2 * k]);
 					if (cpoke) {
-						var oldhp = cpoke.hp;
-						cpoke.healthParse(args[2 + 2 * k]);
-						var diff = parseFloat(args[2 + 2 * k]);
-						if (isNaN(diff)) {
-							diff = cpoke.hp - oldhp;
-						}
+						var damage = cpoke.healthParse(args[2 + 2 * k]);
+						var range = cpoke.getDamageRange(damage);
+						var formattedRange = cpoke.getFormattedRange(range, 0, ' to ');
+						var diff = damage[0];
 						if (diff > 0) {
-							this.healAnim(cpoke, diff, animDelay);
+							this.healAnim(cpoke, formattedRange, animDelay);
 						} else {
-							this.damageAnim(cpoke, -diff, animDelay);
+							this.damageAnim(cpoke, formattedRange, animDelay);
 						}
 					}
 					if (k == 0) poke = cpoke;
