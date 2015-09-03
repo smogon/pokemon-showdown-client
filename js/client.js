@@ -185,7 +185,7 @@
 				if (!self.get('named')) {
 					self.nameRegExp = null;
 				} else {
-					self.nameRegExp = new RegExp('\\b' + Tools.escapeRegExp(self.get('name')) + '\\b', 'i');
+					self.nameRegExp = new RegExp('(?:\\b|(?!\\w))' + Tools.escapeRegExp(self.get('name')) + '(?:\\b|\\B(?!\\w))', 'i');
 				}
 			});
 		},

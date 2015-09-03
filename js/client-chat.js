@@ -253,7 +253,7 @@
 			var highlights = Tools.prefs('highlights') || [];
 			if (!app.highlightRegExp) {
 				try {
-					app.highlightRegExp = new RegExp('\\b(' + highlights.join('|') + ')\\b', 'i');
+					this.updateHighlightRegExp(highlights);
 				} catch (e) {
 					// If the expression above is not a regexp, we'll get here.
 					// Don't throw an exception because that would prevent the chat
@@ -266,6 +266,13 @@
 				if (app.user.nameRegExp.test(message)) return true;
 			}
 			return ((highlights.length > 0) && app.highlightRegExp.test(message));
+		},
+		updateHighlightRegExp: function (highlights) {
+			// Enforce boundary for match sides, if a letter on match side is
+			// a word character. For example, regular expression "a" matches
+			// "a", but not "abc", while regular expression "!" matches
+			// "!" and "!abc".
+			app.highlightRegExp = new RegExp('(?:\\b|(?!\\w))(?:' + highlights.join('|') + ')(?:\\b|\\B(?!\\w))', 'i');
 		},
 
 		// chat history
@@ -711,7 +718,7 @@
 						highlights = highlights.concat(targets.slice(1));
 						this.add("Now highlighting on: " + highlights.join(', '));
 						// We update the regex
-						app.highlightRegExp = new RegExp('\\b(' + highlights.join('|') + ')\\b', 'i');
+						this.updateHighlightRegExp(highlights);
 						break;
 					case 'delete':
 						var newHls = [];
@@ -723,7 +730,7 @@
 						highlights = newHls;
 						this.add("Now highlighting on: " + highlights.join(', '));
 						// We update the regex
-						app.highlightRegExp = new RegExp('\\b(' + highlights.join('|') + ')\\b', 'i');
+						this.updateHighlightRegExp(highlights);
 						break;
 					default:
 						// Wrong command
