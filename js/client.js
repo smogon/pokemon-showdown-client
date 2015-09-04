@@ -429,6 +429,11 @@
 			});
 
 			this.on('init:socketclosed', function () {
+				// Display a desktop notification if the user won't immediately see the popup.
+				if ((self.popups.length || !self.focused) && window.Notification) {
+					self.rooms[''].requestNotifications();
+					new Notification("Reconnect to Showdown!", {lang: 'en', body: "You have been disconnected \u2014 possibly because the server was restarted."});
+				}
 				self.reconnectPending = true;
 				if (!self.popups.length) self.addPopup(ReconnectPopup);
 			});
