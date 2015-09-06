@@ -4734,6 +4734,7 @@ var Battle = (function () {
 					break;
 				case 'skillswap':
 					actions += "" + poke.getName() + " swapped Abilities with its target!";
+					if (this.gen <= 4) break;
 					var pokeability = Tools.escapeHTML(args[3]) || ofpoke.ability;
 					var ofpokeability = Tools.escapeHTML(args[4]) || poke.ability;
 					if (pokeability) {
