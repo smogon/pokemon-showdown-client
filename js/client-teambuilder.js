@@ -1716,8 +1716,12 @@
 			if (template.gender && template.gender !== 'N') set.gender = template.gender;
 			if (set.happiness) delete set.happiness;
 			if (set.shiny) delete set.shiny;
-			var formatsData = window.BattleFormatsData && BattleFormatsData[template.speciesid];
-			set.item = (formatsData.requiredItem || '');
+			if (this.curTeam.format !== 'balancedhackmons') {
+				var formatsData = window.BattleFormatsData && BattleFormatsData[template.speciesid];
+				set.item = (formatsData.requiredItem || '');
+			} else {
+				set.item = '';
+			}
 			set.ability = template.abilities['0'];
 			set.moves = [];
 			set.evs = {};
