@@ -1498,19 +1498,24 @@
 			pokemon: function (pokemon) {
 				if (!pokemon) {
 					if (this.curTeam) {
-						if (this.curTeam.format === 'ubers' || this.curTeam.format === 'anythinggoes') return ['Uber','OU','BL','UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'ou') return ['OU','BL','UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'uu') return ['UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'ru') return ['RU','BL3','NU','BL4','PU','NFE','LC Uber','LC'];
-						if (this.curTeam.format === 'nu') return ['NU','BL4','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'ubers' || this.curTeam.format === 'anythinggoes') return ['Uber','OU','BL','OU only when combining mega and non-mega usage','UU','BL2','UU only when combining mega and non-mega usage','RU','BL3','RU only when combining mega and non-mega usage','NU','BL4','NU only when combining mega and non-mega usage','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'ou') return ['OU','BL','OU only when combining mega and non-mega usage','UU','BL2','UU only when combining mega and non-mega usage','RU','BL3','RU only when combining mega and non-mega usage','NU','BL4','NU only when combining mega and non-mega usage','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'cap') return ['CAP','OU','BL','OU only when combining mega and non-mega usage','UU','BL2','UU only when combining mega and non-mega usage','RU','BL3','RU only when combining mega and non-mega usage','NU','BL4','NU only when combining mega and non-mega usage','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'uu') return ['UU','BL2','UU only when combining mega and non-mega usage','RU','BL3','RU only when combining mega and non-mega usage','NU','BL4','NU only when combining mega and non-mega usage','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'ru') return ['RU','BL3','RU only when combining mega and non-mega usage','NU','BL4','NU only when combining mega and non-mega usage','PU','NFE','LC Uber','LC'];
+						if (this.curTeam.format === 'nu') return ['NU','BL4','NU only when combining mega and non-mega usage','PU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'pu') return ['PU','NFE','LC Uber','LC'];
 						if (this.curTeam.format === 'lc') return ['LC'];
 					}
-					return ['OU','Uber','BL','UU','BL2','RU','BL3','NU','BL4','PU','NFE','LC Uber','LC','Unreleased','CAP'];
+					return ['OU','Uber','BL','OU only when combining mega and non-mega usage','UU','BL2','UU only when combining mega and non-mega usage','RU','BL3','RU only when combining mega and non-mega usage','NU','BL4','NU only when combining mega and non-mega usage','PU','NFE','LC Uber','LC','Unreleased','CAP'];
 				}
-				var tierData = exports.BattleFormatsData[toId(pokemon.species)];
+				var speciesid = toId(pokemon.species);
+				var tierData = exports.BattleFormatsData[speciesid];
 				if (!tierData) return 'Illegal';
+				var displayTier = {"(OU)": "OU only when combining mega and non-mega usage", "(UU)": "UU only when combining mega and non-mega usage", "(RU)": "RU only when combining mega and non-mega usage", "(NU)": "NU only when combining mega and non-mega usage"};
+				if (tierData.tier in displayTier) {
+					return displayTier[tierData.tier];
+				}
 				return tierData.tier;
 			},
 			item: function (item) {
