@@ -2221,9 +2221,10 @@ var Battle = (function () {
 		this.gen = 6;
 	};
 	Battle.prototype.updateGen = function () {
-		if (this.gen < 3) this.backdropImage = 'bg-gen1.png';
-		else if (this.gen == 3) this.backdropImage = 'bg-gen3.png';
-		else if (this.gen < 5) this.backdropImage = 'bg.jpg';
+		if (this.gen <= 2) this.backdropImage = 'bg-gen1.png';
+		else if (this.gen <= 3) this.backdropImage = 'bg-gen3.png';
+		else if (this.gen <= 4) this.backdropImage = 'bg-gen4.png';
+		else if (this.gen <= 5) this.backdropImage = 'bg.jpg';
 		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ')');
 	};
 	Battle.prototype.reset = function (dontResetSound) {
