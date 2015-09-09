@@ -4,6 +4,14 @@
 		window.gui = require('nw.gui');
 		window.nwWindow = gui.Window.get();
 	}
+	$(document).on('keydown', function (e) {
+		if (e.keyCode == 27) {
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			app.closePopup();
+		}
+	});
 	$(document).on('click', 'a', function (e) {
 		if (this.className === 'closebutton') return; // handled elsewhere
 		if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
