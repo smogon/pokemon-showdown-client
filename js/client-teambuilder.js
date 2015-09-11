@@ -133,6 +133,7 @@
 				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportAllTeams()) + '</textarea></div>';
 				this.$el.html(buf);
+				this.$('.teamedit textarea').focus().select();
 				return;
 			}
 
@@ -532,6 +533,7 @@
 				buf += '</div>';
 			}
 			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
+			this.$(".teamedit textarea").focus().select();
 			if ($(window).width() < 640) this.show();
 		},
 		renderSet: function (set, i) {
@@ -814,7 +816,8 @@
 				.show()
 				.find('textarea')
 				.val(Storage.exportTeam([this.curSet]).trim())
-				.focus();
+				.focus()
+				.select();
 		},
 		closePokemonImport: function (force) {
 			if (!this.wasViewingPokemon) return this.back();
