@@ -728,7 +728,7 @@
 		},
 		closeAndRematch: function () {
 			app.rooms[''].requestNotifications();
-			app.rooms[''].challenge(this.battle.yourSide.name);
+			app.rooms[''].challenge(this.battle.yourSide.name, this.battle.tier);
 			this.close();
 			app.focusRoom('');
 		},
