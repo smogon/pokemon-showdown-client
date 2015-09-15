@@ -4122,6 +4122,14 @@ var Battle = (function () {
 			case '-transform':
 				var poke = this.getPokemon(args[1]);
 				var tpoke = this.getPokemon(args[2]);
+				var effect = Tools.getEffect(kwargs.from);
+
+				if (!kwargs.silent && effect.effectType === 'Ability') {
+					this.resultAnim(poke, effect.name, 'ability', animDelay);
+					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
+					poke.markAbility(effect.name);
+				}
+
 				actions += '' + poke.getName() + ' transformed into ' + tpoke.species + '!';
 				poke.sprite.animTransform(tpoke);
 				poke.boosts = $.extend({}, tpoke.boosts);
