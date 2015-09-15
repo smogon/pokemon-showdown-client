@@ -5482,13 +5482,20 @@ var Battle = (function () {
 			break;
 		case 'gametype':
 			this.gameType = args[1];
-			if (args[1] === 'doubles') {
-				if (this.mySide.active.length < 2) this.mySide.active.push(null);
-				if (this.yourSide.active.length < 2) this.yourSide.active.push(null);
-			}
-			if (args[1] === 'triples' || args[1] === 'rotation') {
-				if (this.mySide.active.length < 3) this.mySide.active.push(null);
-				if (this.yourSide.active.length < 3) this.yourSide.active.push(null);
+			switch (args[1]) {
+			default:
+				this.mySide.active = [null];
+				this.yourSide.active = [null];
+				break;
+			case 'doubles':
+				this.mySide.active = [null, null];
+				this.yourSide.active = [null, null];
+				break;
+			case 'triples':
+			case 'rotation':
+				this.mySide.active = [null, null, null];
+				this.yourSide.active = [null, null, null];
+				break;
 			}
 			break;
 		case 'variation':
