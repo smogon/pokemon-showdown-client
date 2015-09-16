@@ -15,7 +15,26 @@
 			this.$chatFrame = this.$el.find('.battle-log');
 			this.$chatAdd = this.$el.find('.battle-log-add');
 			this.$join = null;
+
+			// tooltips
+			var buf = '';
+			var tooltips = {
+				your2: { top: 70, left: 250, width: 80, height: 100 },
+				your1: { top: 85, left: 320, width: 90, height: 100 },
+				your0: { top: 90, left: 390, width: 100, height: 100 },
+				my2: { top: 210, left: 410, width: 140, height: 160 },
+				my1: { top: 210, left: 270, width: 160, height: 160 },
+				my0: { top: 210, left: 130, width: 180, height: 160 }
+			};
+			for (var active in tooltips) {
+				buf += '<div style="position:absolute;';
+				for (var css in tooltips[active]) {
+					buf += css + ':' + tooltips[active][css] + 'px;';
+				}
+				buf += '"' + this.tooltipAttrs(active, 'pokemon', true, true) + '></div>';
+			}
 			this.$foeHint = this.$el.find('.foehint');
+			this.$foeHint.html(buf);
 
 			BattleSound.setMute(Tools.prefs('mute'));
 			this.battle = new Battle(this.$battle, this.$chatFrame);
@@ -194,30 +213,6 @@
 
 			}
 
-			// tooltips
-			var myActive = this.battle.mySide.active;
-			var yourActive = this.battle.yourSide.active;
-			var buf = '';
-			if (yourActive[2]) {
-				buf += '<div style="position:absolute;top:70px;left:250px;width:80px;height:100px;"' + this.tooltipAttrs(yourActive[2].getIdent(), 'pokemon', true, 'foe') + '></div>';
-			}
-			if (yourActive[1]) {
-				buf += '<div style="position:absolute;top:85px;left:320px;width:90px;height:100px;"' + this.tooltipAttrs(yourActive[1].getIdent(), 'pokemon', true, 'foe') + '></div>';
-			}
-			if (yourActive[0]) {
-				buf += '<div style="position:absolute;top:90px;left:390px;width:100px;height:100px;"' + this.tooltipAttrs(yourActive[0].getIdent(), 'pokemon', true, 'foe') + '></div>';
-			}
-			if (myActive[0]) {
-				buf += '<div style="position:absolute;top:210px;left:130px;width:180px;height:160px;"' + this.tooltipAttrs(myActive[0].getIdent(), 'pokemon', true, true) + '></div>';
-			}
-			if (myActive[1]) {
-				buf += '<div style="position:absolute;top:210px;left:270px;width:160px;height:160px;"' + this.tooltipAttrs(myActive[1].getIdent(), 'pokemon', true, true) + '></div>';
-			}
-			if (myActive[2]) {
-				buf += '<div style="position:absolute;top:210px;left:410px;width:140px;height:160px;"' + this.tooltipAttrs(myActive[2].getIdent(), 'pokemon', true, true) + '></div>';
-			}
-			this.$foeHint.html(buf);
-
 			if (this.battle.done) {
 
 				// battle has ended
@@ -373,7 +368,7 @@
 						} else if (!pokemon || pokemon.zerohp) {
 							controls += '<button class="disabled" name="chooseMoveTarget" value="' + (i + 1) + '"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon('missingno') + '"></span></button> ';
 						} else {
-							controls += '<button name="chooseMoveTarget" value="' + (i + 1) + '"' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
+							controls += '<button name="chooseMoveTarget" value="' + (i + 1) + '"' + this.tooltipAttrs("your" + i, 'pokemon', true, true) + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 						}
 					}
 					controls += '<div style="clear:both"></div> </div><div class="switchmenu" style="display:block">';
@@ -1003,7 +998,8 @@
 				break;
 
 			case 'pokemon':
-				var pokemon = this.battle.getPokemon(thing);
+				var side = this.battle[thing.slice(0, -1) + "Side"];
+				var pokemon = side.active[thing.slice(-1)];
 				if (!pokemon) return;
 				/* falls through */
 			case 'sidepokemon':
