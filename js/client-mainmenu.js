@@ -86,8 +86,9 @@
 			options.attributes = options.attributes || '';
 			options.append = options.append || false;
 			options.noMinimize = options.noMinimize || false;
+			options.overflow = options.overflow || 'visible';
 
-			this.$pmBox[options.append ? 'append' : 'prepend']('<div class="pm-window ' + options.cssClass + '" ' + options.attributes + '><h3><button class="closebutton" tabindex="-1"><i class="icon-remove-sign"></i></button>' + (!options.noMinimize ? '<button class="minimizebutton" tabindex="-1"><i class="icon-minus-sign"></i></button>' : '') + options.title + '</h3><div class="pm-log" style="overflow:visible;height:' + (typeof options.height === 'number' ? options.height + 'px' : options.height) + ';' + (parseInt(options.height) ? 'max-height:none' : (options.maxHeight ? 'max-height:' + (typeof options.maxHeight === 'number' ? options.maxHeight + 'px' : options.maxHeight) : '')) + '">' +
+			this.$pmBox[options.append ? 'append' : 'prepend']('<div class="pm-window ' + options.cssClass + '" ' + options.attributes + '><h3><button class="closebutton" tabindex="-1"><i class="icon-remove-sign"></i></button>' + (!options.noMinimize ? '<button class="minimizebutton" tabindex="-1"><i class="icon-minus-sign"></i></button>' : '') + options.title + '</h3><div class="pm-log" style="overflow:' + options.overflow + ';margin-left:20;height:' + (typeof options.height === 'number' ? options.height + 'px' : options.height) + ';' + (parseInt(options.height) ? 'max-height:none' : '') + '">' +
 				options.html +
 				'</div></div>');
 		},
@@ -103,6 +104,27 @@
 				attributes: 'data-newsid="' + newsId + '"',
 				cssClass: 'news-embed',
 				height: 400
+			});
+		},
+
+		// tells
+
+		addTells: function(tells) {
+			tells = tells.split('|');
+			var formattedTells = [];
+			for (var i = 0; i<tells.length; i += 2) {
+				var username = tells[i];
+				var color = hashColor(toId(username));
+				var message = tells[i + 1].replace(/&#124;/g, '|') || '';
+				formattedTells.push('<strong style="' + color + '">' + username + '</strong>' + Tools.escapeHTML(message, true));
+			}
+			formattedTells = '<div class="inner"><div class="chat">' + formattedTells.join('</div><div class="chat">') + '</div></div>';
+
+			this.addPseudoPM({
+				title: 'Offline Messages',
+				html: formattedTells,
+				maxHeight: 400,
+				overflow: 'auto'
 			});
 		},
 

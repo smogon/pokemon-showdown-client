@@ -1087,6 +1087,12 @@
 				this.rooms[''].addPM(parts[1], message, parts[2]);
 				break;
 
+			case 'tells':
+				var messages = parts.slice(1).join('|');
+
+				this.rooms[''].addTells(messages);
+				break;
+
 			case 'roomerror':
 				// deprecated; use |deinit| or |noinit|
 				this.unjoinRoom(parts[1]);
