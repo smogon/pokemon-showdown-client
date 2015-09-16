@@ -2018,7 +2018,7 @@ a.ilink:hover {
 }
 .teamchart li.format-select select,
 .teamchart li.format-select option {
-	font: 12pt Verdana, sans-serif;
+	margin-right: 5px;
 }
 
 .majorbutton {

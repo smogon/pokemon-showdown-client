@@ -509,7 +509,7 @@
 						}
 					}
 					if (curSection) buf += '</optgroup>';
-					buf += '</select></li>';
+					buf += '</select><button name="validate"><i class="icon-check"></i> Validate</button></li>';
 				}
 				if (!this.curSetList.length) {
 					buf += '<li><em>you have no pokemon lol</em></li>';
@@ -656,6 +656,14 @@
 		save: function () {
 			this.saveFlag = true;
 			Storage.saveTeams();
+		},
+		validate: function () {
+			if (!this.curTeam.format) {
+				app.addPopupMessage('You need to pick a format to validate your team.');
+				return;
+			}
+			app.sendTeam(this.curTeam);
+			app.send('/vtm ' + this.curTeam.format);
 		},
 		teamNameChange: function (e) {
 			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled ' + (this.curTeamLoc + 1));
