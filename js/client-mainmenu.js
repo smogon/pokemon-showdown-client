@@ -268,6 +268,7 @@
 			$(e.currentTarget).closest('.pm-window').removeClass('focused');
 		},
 		keyPress: function (e) {
+			var cmdKey = (((e.cmdKey || e.metaKey) ? 1 : 0) + (e.ctrlKey ? 1 : 0) + (e.altKey ? 1 : 0) === 1);
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter
 				var $target = $(e.currentTarget);
 				e.preventDefault();
@@ -301,6 +302,26 @@
 				}
 			} else if (e.keyCode === 27) { // Esc
 				this.closePM(e);
+			} else if (e.keyCode === 73 && cmdKey && !e.shiftKey) { // Ctrl + I key
+				if (Tools.toggleFormatChar(e.currentTarget, '_')) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			} else if (e.keyCode === 66 && cmdKey && !e.shiftKey) { // Ctrl + B key
+				if (Tools.toggleFormatChar(e.currentTarget, '*')) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			} else if (e.keyCode === 33) { // Pg Up key
+				var $target = $(e.currentTarget);
+				var $pmWindow = $target.closest('.pm-window');
+				var $chat = $pmWindow.find('.pm-log');
+				$chat.scrollTop($chat.scrollTop() - $chat.height() + 60);
+			} else if (e.keyCode === 34) { // Pg Dn key
+				var $target = $(e.currentTarget);
+				var $pmWindow = $target.closest('.pm-window');
+				var $chat = $pmWindow.find('.pm-log');
+				$chat.scrollTop($chat.scrollTop() + $chat.height() - 60);
 			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab key
 				var handlerRoom = app.curSideRoom;
 				if (!handlerRoom) {
