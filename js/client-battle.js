@@ -425,14 +425,15 @@
 					if (move.id === 'Struggle' || move.id === 'Recharge') pp = '&ndash;';
 					if (move.id === 'Recharge') move.type = '&ndash;';
 					if (name.substr(0, 12) === 'Hidden Power') name = 'Hidden Power';
+					var moveType = this.getMoveType(move, switchables[pos]);
 					if (moveData.disabled) {
 						movebuttons += '<button disabled="disabled"' + this.tooltipAttrs(moveData.move, 'move') + '>';
 						hasDisabled = true;
 					} else {
-						movebuttons += '<button class="type-' + move.type + '" name="chooseMove" value="' + (i + 1) + '" data-move="' + Tools.escapeHTML(moveData.move) + '"' + this.tooltipAttrs(moveData.move, 'move') + '>';
+						movebuttons += '<button class="type-' + moveType + '" name="chooseMove" value="' + (i + 1) + '" data-move="' + Tools.escapeHTML(moveData.move) + '"' + this.tooltipAttrs(moveData.move, 'move') + '>';
 						hasMoves = true;
 					}
-					movebuttons += name + '<br /><small class="type">' + (move.type || "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
+					movebuttons += name + '<br /><small class="type">' + (moveType || "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 				}
 				if (!hasMoves) {
 					controls += '<button class="movebutton" name="chooseMove" value="0" data-move="Struggle">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
@@ -952,13 +953,70 @@
 				var move = Tools.getMove(thing);
 				if (!move) return;
 				var basePower = move.basePower;
-				if (!basePower) basePower = '&mdash;';
+				var basePowerText = '';
+				var additionalInfo = '';
+				var yourActive = this.battle.yourSide.active;
+				var myPokemon = this.battle.mySide.pokemon;
+
+				// Check if there are more than one active Pokémon to check for multiple possible BPs.
+				if (yourActive.length > 1) {
+					// We check if there is a difference in base powers to note it.
+					// Otherwise, it is just shown as in singles.
+					// The trick is that we need to calculate it first for each Pokémon to see if it changes.
+					var previousBasepower = false;
+					var difference = false;
+					var basePowers = [];
+					for (var i = 0; i < yourActive.length; i++) {
+						basePower = this.getMoveBasePower(move, this.battle.mySide.active[this.choice.choices.length], yourActive[i]);
+						if (previousBasepower === false) previousBasepower = basePower;
+						if (previousBasepower !== basePower) difference = true;
+						if (!basePower) basePower = '&mdash;';
+						basePowers.push('Base power for ' + yourActive[i].name + ': ' + basePower);
+					}
+					if (difference) {
+						basePowerText = '<p>' + basePowers.join('<br />') + '</p>';
+					}
+					// Falls through to not to repeat code on showing the base power.
+				}
+				if (!basePowerText) {
+					basePower = basePower || this.getMoveBasePower(move, myPokemon[this.choice.choices.length], yourActive[0]);
+					if (!basePower) basePower = '&mdash;';
+					basePowerText = '<p>Base power: ' + basePower + '</p>'
+				}
 				var accuracy = move.accuracy;
 				if (!accuracy || accuracy === true) accuracy = '&mdash;';
 				else accuracy = '' + accuracy + '%';
+
+				// Handle move type for moves that vary their type.
+				var moveType = this.getMoveType(move, myPokemon[this.choice.choices.length]);
+
+				// Deal with Nature Power special case, indicating which move it calls.
+				if (move.id === 'naturepower') {
+					if (this.battle.gen === 6) {
+						additionalInfo = 'Calls ';
+						if (this.battle.hasPseudoWeather('Electric Terrain')) {
+							additionalInfo += Tools.getTypeIcon('Electric') + 'Thunderbolt';
+						} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
+							additionalInfo += Tools.getTypeIcon('Grass') + 'Energy Ball';
+						} else if (this.battle.hasPseudoWeather('Misty Terrain')) {
+							additionalInfo += Tools.getTypeIcon('Fairy') + 'Moonblast';
+						} else {
+							additionalInfo += Tools.getTypeIcon('Normal') + 'Tri Attack';
+						}
+					} else if (this.battle.gen > 3) {
+						// In gens 4 and 5 it calls Earthquake.
+						additionalInfo = 'Calls ' + Tools.getTypeIcon('Ground') + 'Earthquake';
+					} else {
+						// In gen 3 it calls Swift, so it retains its normal typing.
+						additionalInfo = 'Calls ' + Tools.getTypeIcon('Normal') + 'Swift';
+					}
+				}
+
 				text = '<div class="tooltipinner"><div class="tooltip">';
-				text += '<h2>' + move.name + '<br />' + Tools.getTypeIcon(move.type) + ' <img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
-				text += '<p>Base power: ' + basePower + '</p>';
+				text += '<h2>' + move.name + '<br />' + Tools.getTypeIcon(moveType) + ' <img src="' + Tools.resourcePrefix;
+				text += 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
+				text += basePowerText;
+				text += additionalInfo;
 				text += '<p>Accuracy: ' + accuracy + '</p>';
 				var flags = {
 					"authentic": "Ignores a target's substitute.",
@@ -1096,16 +1154,7 @@
 					}
 					text += pokemon.stats['spe'] + '&nbsp;Spe</p>';
 				} else if (template.baseStats) {
-					var minSpe;
-					var maxSpe;
-					if (this.battle.tier === 'Random Battle') {
-						minSpe = Math.floor(Math.floor(2 * template.baseStats['spe'] + (0) + Math.floor((0) / 4)) * pokemon.level / 100 + 5);
-						maxSpe = Math.floor(Math.floor(2 * template.baseStats['spe'] + (31) + Math.floor((85) / 4)) * pokemon.level / 100 + 5);
-					} else {
-						minSpe = Math.floor(Math.floor(Math.floor(2 * template.baseStats['spe'] + (0) + Math.floor((0) / 4)) * pokemon.level / 100 + 5) * 0.9);
-						maxSpe = Math.floor(Math.floor(Math.floor(2 * template.baseStats['spe'] + (31) + Math.floor((252) / 4)) * pokemon.level / 100 + 5) * 1.1);
-					}
-					text += '<p>' + minSpe + ' to ' + maxSpe + ' Spe (before items/abilities/modifiers)</p>';
+					text += '<p>' + this.getTemplateMinSpeed(template, pokemon.level) + ' to ' + this.getTemplateMaxSpeed(template, pokemon.level) + ' Spe (before items/abilities/modifiers)</p>';
 				}
 				if (pokemon.moves && pokemon.moves.length && (!isActive || isActive === 'foe')) {
 					text += '<p class="section">';
@@ -1150,6 +1199,246 @@
 		},
 		hideTooltip: function () {
 			$('#tooltipwrapper').html('');
+		},
+		// Functions to calculate speed ranges of an opponent.
+		getTemplateMinSpeed: function (template, level) {
+			var nature = (this.battle.gen < 3 || this.battle.tier === 'Random Battle') ? 1 : 0.9;
+			return Math.floor(Math.floor(2 * template.baseStats['spe'] * level / 100 + 5) * nature);
+		},
+		getTemplateMaxSpeed: function (template, level) {
+			var nature = (this.battle.gen < 3 || this.battle.tier === 'Random Battle') ? 1 : 1.1;
+			var maxIvs = (this.battle.gen > 2) ? 31 : 30;
+			return Math.floor(Math.floor(Math.floor(2 * template.baseStats['spe'] + maxIvs + 63) * level / 100 + 5) * nature);
+		},
+		// Gets the proper current type for moves with a variable type.
+		getMoveType: function(move, pokemon) {
+			var moveType = move.type;
+			// Normalize is the first move type changing effect.
+			if (pokemon.ability === 'Normalize') {
+				moveType = 'Normal';
+			}
+			// Moves that require an item to change their type.
+			if (!this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+				if (move.id === 'judgment') {
+					var item = Tools.getItem(pokemon.item);
+					if (item.onPlate) moveType = item.onPlate;
+				}
+				if (move.id === 'technoblast') {
+					var item = Tools.getItem(pokemon.item);
+					if (item.onDrive) moveType = item.onDrive;
+				}
+				if (move.id === 'naturalgift') {
+					var item = Tools.getItem(pokemon.item);
+					if (item.naturalGift) moveType = item.naturalGift.type;
+				}
+			}
+			// Weather and pseudo-weather type changes.
+			if (move.id === 'weatherball' && this.battle.weather) {
+				// Check if you have an anti weather ability to skip this.
+				var noWeatherAbility = !!(pokemon.ability in {'Air Lock': 1, 'Cloud Nine': 1});
+				// If you don't, check if the opponent has it afterwards.
+				if (!noWeatherAbility) {
+					for (var i = 0; i < this.battle.yourSide.active.length; i++) {
+						if (this.battle.yourSide.active[i].ability && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+							noWeatherAbility = true;
+							break;
+						}
+					}
+				}
+
+				// If the weather is indeed active, check it to see what move type weatherball gets.
+				if (!noWeatherAbility) {
+					if (this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland') moveType = 'Fire';
+					if (this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea') moveType = 'Water';
+					if (this.battle.weather === 'sandstorm') moveType = 'Rock';
+					if (this.battle.weather === 'hail') moveType = 'Ice';
+				}
+			}
+			// Other abilities that change the move type.
+			if (moveType === 'Normal' && move.id !== 'naturalgift') {
+				if (pokemon.ability === 'Aerilate') moveType = 'Flying';
+				if (pokemon.ability === 'Pixilate') moveType = 'Fairy';
+				if (pokemon.ability === 'Refrigerate') moveType = 'Ice';
+			}
+			return moveType;
+		},
+		// Gets the proper current base power for moves which have a variable base power.
+		// Takes into account the target for some moves.
+		// If it is unsure of the actual base power, it gives an estimate.
+		getMoveBasePower: function(move, pokemon, target) {
+			var basePower = move.basePower;
+			var basePowerComment = '';
+			var thereIsWeather = (this.battle.weather in {'sunnyday': 1, 'desolateland': 1, 'raindance': 1, 'primordialsea': 1, 'sandstorm': 1, 'hail':1});
+			if (move.id === 'acrobatics') {
+				if (!pokemon.item) {
+					basePower *= 2;
+					basePowerComment = ' (Boosted by lack of item)';
+				}
+			}
+			if (move.id === 'crushgrip' || move.id === 'wringout') {
+				basePower = Math.floor(Math.floor((120 * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100) || 1;
+				basePowerComment = ' (Approximation)';
+			}
+			if (move.id === 'eruption' || move.id === 'waterspout') {
+				basePower = Math.floor(150 * pokemon.hp / pokemon.maxhp) || 1;
+			}
+			if (move.id === 'flail' || move.id === 'reversal') {
+				if (this.battle.gen > 4) {
+					var multiplier = 48;
+					var ratios = [2, 5, 10, 17, 33];
+				} else {
+					var multiplier = 64;
+					var ratios = [2, 6, 13, 22, 43];
+				}
+				var ratio = pokemon.hp * multiplier / pokemon.maxhp;
+				if (ratio < ratios[0]) basePower = 200;
+				else if (ratio < ratios[1]) basePower = 150;
+				else if (ratio < ratios[2]) basePower = 100;
+				else if (ratio < ratios[3]) basePower = 80;
+				else if (ratio < ratios[4]) basePower = 40;
+				else basePower = 20;
+			}
+			if (move.id === 'hex' && target.status) {
+				basePower *= 2;
+				basePowerComment = ' (Boosted by status)';
+			}
+			if (move.id === 'punishment') {
+				var boosts = Object.keys(target.boosts);
+				var multiply = 0;
+				for (var i = 0; i < boosts.length; i++) {
+					if (target.boosts[boosts[i]] && target.boosts[boosts[i]] > 0) multiply++;
+				}
+				basePower = 60 + 20 * multiply;
+			}
+			if (move.id === 'smellingsalts') {
+				if (target.status === 'par') {
+					basePower *= 2;
+					basePowerComment = ' (Boosted by status)';
+				}
+			}
+			if (move.id === 'storedpower') {
+				var boosts = Object.keys(pokemon.boosts);
+				var multiply = 0;
+				for (var i = 0; i < boosts.length; i++) {
+					if (pokemon.boosts[boosts[i]] && pokemon.boosts[boosts[i]] > 0) multiply++;
+				}
+				basePower = 20 + 20 * multiply;
+			}
+			if (move.id === 'trumpcard') {
+				basePower = 40;
+				if (move.pp === 1) basePower = 200;
+				else if (move.pp === 2) basePower = 80;
+				else if (move.pp === 3) basePower = 60;
+				else if (move.pp === 4) basePower = 50;
+			}
+			if (move.id === 'venoshock') {
+				if (target.status === 'psn' || target.status === 'tox') {
+					basePower *= 2;
+					basePowerComment =' (Boosted by status)';
+				}
+			}
+			if (move.id === 'wakeupslap') {
+				if (target.status === 'slp') {
+					basePower *= 2;
+					basePowerComment = ' (Boosted by status)';
+				}
+			}
+			if (move.id === 'weatherball' && thereIsWeather) {
+				basePower = 100;
+			}
+			// Moves that check opponent speed.
+			if (move.id === 'electroball') {
+				var template = target;
+				var min = 0;
+				var max = 0;
+				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
+				var minRatio = (pokemon.stats.spe / this.getTemplateMinSpeed(template, target.level));
+				var maxRatio = (pokemon.stats.spe / this.getTemplateMaxSpeed(template, target.level));
+				if (minRatio >= 4) min = 150;
+				else if (minRatio >= 3) min = 120;
+				else if (minRatio >= 2) min = 80;
+				else if (minRatio >= 1) min = 60;
+				else min = 40;
+				if (maxRatio >= 4) max = 150;
+				else if (maxRatio >= 3) max = 120;
+				else if (maxRatio >= 2) max = 80;
+				else if (maxRatio >= 1) max = 60;
+				else max = 40;
+				// Special case due to being a range. Other moves are checked by technician below.
+				basePower = 0;
+				if (pokemon.ability === 'technician') {
+					if (min <= 60) min *= 1.5;
+					if (max <= 60) max *= 1.5;
+					basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
+				} else {
+					basePowerComment = (min === max) ? max : min + ' to ' + max;
+				}
+			}
+			if (move.id === 'gyroball') {
+				var template = target;
+				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
+				var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / pokemon.stats.spe) || 1);
+				var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / pokemon.stats.spe) || 1);
+				if (min > 150) min = 150;
+				if (max > 150) max = 150;
+				// Special case due to range as well.
+				basePower = 0;
+				if (pokemon.ability === 'technician') {
+					if (min <= 60) min *= 1.5;
+					if (max <= 60) max = Math.max(max * 1.5, 90);
+					basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
+				} else {
+					basePowerComment = (min === max) ? max : min + ' to ' + max;
+				}
+			}
+			// Movements which have base power changed due to items.
+			if (pokemon.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+				if (move.id === 'fling') {
+					var item = Tools.getItem(pokemon.item);
+					if (item.fling) basePower = item.fling.basePower;
+				}
+				if (move.id === 'naturalgift') {
+					var item = Tools.getItem(pokemon.item);
+					if (item.naturalGift) basePower = item.naturalGift.basePower;
+				}
+			}
+			// Movements which have base power changed according to weight.
+			if (target.weightkg) {
+				var targetWeight = target.weightkg;
+				var pokemonWeight = pokemon.weightkg;
+				// Autotomize cannot be really known on client, so we calculate it's one charge.
+				if (target.volatiles && target.volatiles.autotomize) targetWeight -= 100;
+				if (targetWeight < 0.1) targetWeight = 0.1;
+				if (move.id === 'lowkick' || move.id === 'grassknot') {
+					basePower = 20;
+					if (targetWeight >= 200) basePower = 120;
+					else if (targetWeight >= 100) basePower = 100;
+					else if (targetWeight >= 50) basePower = 80;
+					else if (targetWeight >= 25) basePower = 60;
+					else if (targetWeight >= 10) basePower = 40;
+					if (target.volatiles && target.volatiles.autotomize) basePowerComment = ' (Approximation)';
+				}
+				if (move.id === 'heavyslam' || move.id === 'heatcrash') {
+					basePower = 40;
+					if (pokemonWeight > targetWeight * 5) basePower = 120;
+					else if (pokemonWeight > targetWeight * 4) basePower = 100;
+					else if (pokemonWeight > targetWeight * 3) basePower = 80;
+					else if (pokemonWeight > targetWeight * 2) basePower = 60;
+					if (target.volatiles && target.volatiles.autotomize) basePowerComment = ' (Approximation)';
+				}
+			}
+			// Other ability boosts.
+			if (pokemon.ability === 'technician' && basePower <= 60) {
+				basePower *= 1.5;
+				basePowerComment = ' (Technician boosted)';
+			}
+			if (move.type === 'Normal' && move.id !== 'naturalgift' && (!thereIsWeather || thereIsWeather && move.id !== 'weatherball')) {
+				if (pokemon.ability in {'Aerilate': 1, 'Pixilate': 1, 'Refrigerate': 1}) {
+					basePower = Math.floor(basePower * 1.3);
+					basePowerComment = ' (' + pokemon.ability + ' boosted)';
+				}
+			}
+			return (basePower > 0) ? basePower + basePowerComment : basePowerComment;
 		}
 	});
 
