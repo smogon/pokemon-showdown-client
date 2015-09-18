@@ -1009,7 +1009,7 @@
 					if (!pokemon) {
 						pokemon = this.myPokemon[parseInt(thing)];
 						battlePokemon = this.battle.getPokemon('other: old: ' + pokemon.ident, pokemon.details);
-					} else if (pokemon.side === this.battle.mySide) {
+					} else if (this.controlsShown && pokemon.side === this.battle.mySide) {
 						myPokemon = this.myPokemon[pokemon.slot];
 					}
 				}
@@ -1052,11 +1052,15 @@
 				if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
 				text += '<p>HP: ' + pokemon.hpDisplay() + exacthp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
 				if (myPokemon) {
-					text += '<p>';
 					if (this.battle.gen > 2) {
-						text += 'Ability: ' + Tools.getAbility(pokemon.ability || myPokemon.baseAbility).name + ' / ';
+						text += '<p>Ability: ' + Tools.getAbility(myPokemon.baseAbility).name;
+						if (myPokemon.item) {
+							text += ' / Item: ' + Tools.getItem(myPokemon.item).name;
+						}
+						text += '</p>';
+					} else if (myPokemon.item) {
+						text += '<p> / Item: ' + Tools.getItem(myPokemon.item).name + '</p>';
 					}
-					text += 'Item: ' + Tools.getItem(myPokemon.item).name + '</p>';
 					text += '<p>' + myPokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + myPokemon.stats['def'] + '&nbsp;Def /&nbsp;' + myPokemon.stats['spa'];
 					if (this.battle.gen === 1) {
 						text += '&nbsp;Spc /&nbsp;';
