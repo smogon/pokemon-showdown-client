@@ -955,11 +955,19 @@ var Sprite = (function () {
 		}
 	};
 	Sprite.prototype.animSummon = function (slot, instant) {
-		this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
-		this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
-		this.statbarOffset = 0;
-		if (!this.isBackSprite) this.statbarOffset = 17 * slot;
-		if (this.isBackSprite) this.statbarOffset = -7 * slot;
+		if (!Tools.prefs('nopastgens') && this.battle.gen <= 4 && this.battle.gameType === 'doubles') {
+			this.x = (slot - 0.52) * (this.isBackSprite ? -1 : 1) * -55;
+			this.y = (this.isBackSprite ? -1 : 1) + 1;
+			this.statbarOffset = 0;
+			if (!this.isBackSprite) this.statbarOffset = 30 * slot;
+			if (this.isBackSprite) this.statbarOffset = -28 * slot;		
+		} else {
+			this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
+			this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
+			this.statbarOffset = 0;
+			if (!this.isBackSprite) this.statbarOffset = 17 * slot;
+			if (this.isBackSprite) this.statbarOffset = -7 * slot;
+		}
 
 		// make sure element is in the right z-order
 		if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
@@ -1030,11 +1038,19 @@ var Sprite = (function () {
 	Sprite.prototype.animDragIn = function (slot) {
 		if (this.battle.fastForward) return this.animSummon(slot, true);
 
-		this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
-		this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
-		this.statbarOffset = 0;
-		if (!this.isBackSprite) this.statbarOffset = 17 * slot;
-		if (this.isBackSprite) this.statbarOffset = -7 * slot;
+		if (!Tools.prefs('nopastgens') && this.battle.gen <= 4 && this.battle.gameType === 'doubles') {
+			this.x = (slot - 0.52) * (this.isBackSprite ? -1 : 1) * -55;
+			this.y = (this.isBackSprite ? -1 : 1) + 1;
+			this.statbarOffset = 0;
+			if (!this.isBackSprite) this.statbarOffset = 30 * slot;
+			if (this.isBackSprite) this.statbarOffset = -28 * slot;		
+		} else {
+			this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
+			this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
+			this.statbarOffset = 0;
+			if (!this.isBackSprite) this.statbarOffset = 17 * slot;
+			if (this.isBackSprite) this.statbarOffset = -7 * slot;
+		}
 
 		// make sure element is in the right z-order
 		if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
@@ -2221,10 +2237,11 @@ var Battle = (function () {
 		this.gen = 6;
 	};
 	Battle.prototype.updateGen = function () {
-		if (this.gen <= 2) this.backdropImage = 'bg-gen1.png';
-		else if (this.gen <= 3) this.backdropImage = 'bg-gen3.png';
-		else if (this.gen <= 4) this.backdropImage = 'bg-gen4.png';
-		else if (this.gen <= 5) this.backdropImage = 'bg.jpg';
+		if (!Tools.prefs('nopastgens')) {
+			if (this.gen <= 2) this.backdropImage = 'bg-gen1.png';
+			else if (this.gen <= 3) this.backdropImage = 'bg-gen3.png';
+			else if (this.gen <= 4) this.backdropImage = 'bg-gen4.png';
+		}
 		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ')');
 	};
 	Battle.prototype.reset = function (dontResetSound) {
