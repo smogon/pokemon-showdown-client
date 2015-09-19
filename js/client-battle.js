@@ -1202,13 +1202,14 @@
 		},
 		// Functions to calculate speed ranges of an opponent.
 		getTemplateMinSpeed: function (template, level) {
-			var nature = (this.battle.gen < 3 || this.battle.tier === 'Random Battle') ? 1 : 0.9;
+			var nature = (this.battle.tier === 'Random Battle' || this.battle.gen < 3) ? 1 : 0.9;
 			return Math.floor(Math.floor(2 * template.baseStats['spe'] * level / 100 + 5) * nature);
 		},
 		getTemplateMaxSpeed: function (template, level) {
-			var nature = (this.battle.gen < 3 || this.battle.tier === 'Random Battle') ? 1 : 1.1;
-			var maxIvs = (this.battle.gen > 2) ? 31 : 30;
-			return Math.floor(Math.floor(Math.floor(2 * template.baseStats['spe'] + maxIvs + 63) * level / 100 + 5) * nature);
+			var iv = (this.battle.gen < 3) ? 30 : 31;
+			var value = iv + (this.battle.tier === 'Random Battle' ? 21 : 63);
+			var nature = (this.battle.tier === 'Random Battle' || this.battle.gen < 3) ? 1 : 1.1;
+			return maxSpe = Math.floor(Math.floor(Math.floor(2 * template.baseStats['spe'] + value) * level / 100 + 5) * nature);
 		},
 		// Gets the proper current type for moves with a variable type.
 		getMoveType: function(move, pokemon) {
