@@ -2433,11 +2433,20 @@
 
 			var name = (data.name || '');
 			if (!name && app.user.get('named')) name = app.user.get('name');
-			buf += '<p><label class="label">Username: <input class="textbox autofocus" type="text" name="username" value="' + Tools.escapeHTML(name) + '"></label></p>';
+			buf += '<p><label class="label">Username: <small class="preview" style="' + hashColor(toUserid(name)) + '">(color)</small><input class="textbox autofocus" type="text" name="username" value="' + Tools.escapeHTML(name) + '"></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Choose name</strong></button> <button name="close">Cancel</button></p>';
 
 			buf += '</form>';
 			this.$el.html(buf);
+		},
+		events: {
+			'input .textbox': 'updateColor'
+		},
+		updateColor: function (e) {
+			var name = e.currentTarget.value;
+			var preview = this.$('.preview');
+			var css = hashColor(toUserid(name)).slice(6, -1);
+			preview.css('color', css);
 		},
 		submit: function (data) {
 			this.close();
