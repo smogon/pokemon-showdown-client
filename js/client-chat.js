@@ -699,6 +699,7 @@
 			case 'ranking':
 			case 'rating':
 			case 'ladder':
+				if (app.localLadder) return text;
 				if (!target) target = app.user.get('userid');
 
 				var targets = target.split(',');

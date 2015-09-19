@@ -7,6 +7,16 @@
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			app.on('init:formats', this.update, this);
 			this.update();
+			app.on('response:laddertop', function (data) {
+				var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p>';
+				if (!data) {
+					this.$el.html(buf + '<p>error</p></div>');
+					return;
+				}
+				if (this.curFormat !== data[0]) return;
+				buf += Tools.sanitizeHTML(data[1]) + '</div>';
+				this.$el.html(buf);
+			}, this);
 		},
 		curFormat: '',
 		update: function () {
@@ -33,18 +43,23 @@
 					'</ul></div>');
 			} else {
 				var format = this.curFormat;
+				var self = this;
 				this.$el.html('<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p></div>');
-				$.get('/ladder.php', {
-					format: format,
-					server: Config.server.id.split(':')[0],
-					output: 'html'
-				}, _.bind(function (data) {
-					if (this.curFormat !== format) return;
-					var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p>';
-					buf += '<h3>' + format + ' Top 500</h3>';
-					buf += data + '</div>';
-					this.$el.html(buf);
-				}, this), 'html');
+				if (app.localLadder) {
+					app.send('/cmd laddertop ' + format);
+				} else {
+					$.get('/ladder.php', {
+						format: format,
+						server: Config.server.id.split(':')[0],
+						output: 'html'
+					}, function (data) {
+						if (self.curFormat !== format) return;
+						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p>';
+						buf += '<h3>' + Tools.escapeFormat(format) + ' Top 500</h3>';
+						buf += data + '</div>';
+						self.$el.html(buf);
+					}, 'html');
+				}
 			}
 		},
 		selectFormat: function (format) {
