@@ -1,5 +1,21 @@
 (function ($) {
 
+	Config.version = '0.10.1';
+
+	Config.origindomain = 'play.pokemonshowdown.com';
+	// `defaultserver` specifies the server to use when the domain name in the
+	// address bar is `Config.origindomain`.
+	Config.defaultserver = {
+		id: 'showdown',
+		host: 'sim.smogon.com',
+		port: 443,
+		httpport: 8000,
+		altport: 80,
+		registered: true
+	};
+	Config.sockjsprefix = '/showdown';
+	Config.root = '/';
+
 	if (window.nodewebkit) {
 		window.gui = require('nw.gui');
 		window.nwWindow = gui.Window.get();
@@ -132,22 +148,6 @@
 			menu.popup(e.originalEvent.x, e.originalEvent.y);
 		});
 	}
-
-	Config.version = '0.10.1';
-	Config.origindomain = 'play.pokemonshowdown.com';
-
-	// `defaultserver` specifies the server to use when the domain name in the
-	// address bar is `Config.origindomain`.
-	Config.defaultserver = {
-		id: 'showdown',
-		host: 'sim.smogon.com',
-		port: 443,
-		httpport: 8000,
-		altport: 80,
-		registered: true
-	};
-	Config.sockjsprefix = '/showdown';
-	Config.root = '/';
 
 	// sanitize a room ID
 	// shouldn't actually do anything except against a malicious server
