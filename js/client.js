@@ -1,6 +1,6 @@
 (function ($) {
 
-	Config.version = '0.10.1';
+	Config.version = '0.10.2';
 
 	Config.origindomain = 'play.pokemonshowdown.com';
 	// `defaultserver` specifies the server to use when the domain name in the
@@ -1130,7 +1130,9 @@
 				if (isSection) {
 					section = formatsList[j];
 					isSection = false;
-				} else if (formatsList[j] === '' || (formatsList[j].substr(0, 1) === ',' && !isNaN(formatsList[j].substr(1)))) {
+				} else if (formatsList[j] === ',LL') {
+					app.localLadder = true;
+				} else if (formatsList[j] === '' || (formatsList[j].charAt(0) === ',' && !isNaN(formatsList[j].substr(1)))) {
 					isSection = true;
 
 					if (formatsList[j]) {
