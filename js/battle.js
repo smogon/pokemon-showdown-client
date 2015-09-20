@@ -665,6 +665,7 @@ var Pokemon = (function () {
 		this.zerohp = false;
 		this.fainted = false;
 		this.status = '';
+		this.moveTrack = [];
 		this.name = this.name || this.species;
 	};
 	// This function is used for two things:
