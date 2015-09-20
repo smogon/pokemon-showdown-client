@@ -53,7 +53,6 @@ foreach ($toplist as $row)
 			elseif ($row['formatid'] == 'nususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-20.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'lcsuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-9.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'doublesoucurrent' || $row['formatid'] == 'doublesoususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-12.0/$N) : 0,1,'.','');
-			elseif ($row['formatid'] == 'pu') echo number_format($N ? 40*$row['gxe']*pow(2.0,-17.0/$N) : 0,1,'.','');
 			else echo '--';	?></td>
 		</tr>
 <?php
