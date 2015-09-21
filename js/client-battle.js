@@ -995,20 +995,20 @@
 					if (this.battle.gen === 6) {
 						additionalInfo = 'Calls ';
 						if (this.battle.hasPseudoWeather('Electric Terrain')) {
-							additionalInfo += Tools.getTypeIcon('Electric') + 'Thunderbolt';
+							additionalInfo += Tools.getTypeIcon('Electric') + ' Thunderbolt';
 						} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
-							additionalInfo += Tools.getTypeIcon('Grass') + 'Energy Ball';
+							additionalInfo += Tools.getTypeIcon('Grass') + ' Energy Ball';
 						} else if (this.battle.hasPseudoWeather('Misty Terrain')) {
-							additionalInfo += Tools.getTypeIcon('Fairy') + 'Moonblast';
+							additionalInfo += Tools.getTypeIcon('Fairy') + ' Moonblast';
 						} else {
-							additionalInfo += Tools.getTypeIcon('Normal') + 'Tri Attack';
+							additionalInfo += Tools.getTypeIcon('Normal') + ' Tri Attack';
 						}
 					} else if (this.battle.gen > 3) {
 						// In gens 4 and 5 it calls Earthquake.
-						additionalInfo = 'Calls ' + Tools.getTypeIcon('Ground') + 'Earthquake';
+						additionalInfo = 'Calls ' + Tools.getTypeIcon('Ground') + ' Earthquake';
 					} else {
 						// In gen 3 it calls Swift, so it retains its normal typing.
-						additionalInfo = 'Calls ' + Tools.getTypeIcon('Normal') + 'Swift';
+						additionalInfo = 'Calls ' + Tools.getTypeIcon('Normal') + ' Swift';
 					}
 				}
 
@@ -1016,7 +1016,7 @@
 				text += '<h2>' + move.name + '<br />' + Tools.getTypeIcon(moveType) + ' <img src="' + Tools.resourcePrefix;
 				text += 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
 				text += basePowerText;
-				text += additionalInfo;
+				text += '<p>' + additionalInfo + '</p>';
 				text += '<p>Accuracy: ' + accuracy + '</p>';
 				var flags = {
 					"authentic": "Ignores a target's substitute.",
@@ -1404,7 +1404,7 @@
 				}
 			}
 			// Movements which have base power changed according to weight.
-			if (target.weightkg) {
+			if (target && target.weightkg) {
 				var targetWeight = target.weightkg;
 				var pokemonWeight = pokemon.weightkg;
 				// Autotomize cannot be really known on client, so we calculate it's one charge.
