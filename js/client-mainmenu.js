@@ -975,13 +975,13 @@
 			buf += '<h2>Staff</h2>';
 			buf += '<ul><li><p><strong>Chris Monsanto</strong> [chaos] <small>&ndash; Sysadmin</small></p></li>';
 			buf += '<li><p><strong>Hugh Gordon</strong> [V4] <small>&ndash; Research (game mechanics), Development</small></p></li>';
+			buf += '<li><p><a href="http://www.juanmaserrano.com/" target="_blank" class="subtle"><strong>Juanma Serrano</strong> [Joim]</a> <small>&ndash; Development, Sysadmin</small></p></li>';
 			buf += '<li><p><strong>Leonardo Julca</strong> [Slayer95] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Mathieu Dias-Martins</strong> [Marty-D] <small>&ndash; Research (game mechanics), Development</small></p></li>';
 			buf += '<li><p>[<strong>The Immortal</strong>] <small>&ndash; Development</small></p></li></ul>';
 			buf += '<h2>Retired Staff</h2>';
 			buf += '<ul><li><p><a href="http://meltsner.com/" target="_blank" class="subtle"><strong>Bill Meltsner</strong> [bmelts]</a> <small>&ndash; Development</small></p></li>';
-			buf += '<li><p><a href="https://cathyjf.com/" target="_blank" class="subtle"><strong>Cathy J. Fitzpatrick</strong> [cathyjf]</a> <small>&ndash; Development, Sysadmin</small></p></li>';
-			buf += '<li><p><strong>Juanma Serrano</strong> [Joim] <small>&ndash; Development, Sysadmin</small></p></li></ul>';
+			buf += '<li><p><a href="https://cathyjf.com/" target="_blank" class="subtle"><strong>Cathy J. Fitzpatrick</strong> [cathyjf]</a> <small>&ndash; Development, Sysadmin</small></p></li></ul>';
 			buf += '<h2>Major Contributors</h2>';
 			buf += '<ul><li><p><strong>Kevin Lau</strong> [Ascriptmaster] <small>&ndash; Development, Art (battle animations)</small></p></li>';
 			buf += '<li><p><strong>Konrad Borowski</strong> [xfix] <small>&ndash; Development</small></p></li>';
