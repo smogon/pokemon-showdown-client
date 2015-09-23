@@ -2647,6 +2647,7 @@ var Battle = (function () {
 			if (this.turnCallback) this.turnCallback(this);
 			if (this.fastForward > -1 && turnnum >= this.fastForward) {
 				this.fastForwardOff();
+				if (this.endCallback) this.endCallback(this);
 			}
 			return;
 		}
