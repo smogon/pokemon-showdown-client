@@ -145,7 +145,7 @@
 				$chatFrame.scrollTop($chat.height());
 			}
 
-			if ($pmWindow.data('minimized') && name.substr(1) !== app.user.get('name')) {
+			if (!$pmWindow.hasClass('focused') && name.substr(1) !== app.user.get('name')) {
 				$pmWindow.find('h3').addClass('pm-notifying');
 			}
 		},
@@ -262,7 +262,7 @@
 			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
 		},
 		onFocusPM: function (e) {
-			$(e.currentTarget).closest('.pm-window').addClass('focused');
+			$(e.currentTarget).closest('.pm-window').addClass('focused').find('h3').removeClass('pm-notifying');
 		},
 		onBlurPM: function (e) {
 			$(e.currentTarget).closest('.pm-window').removeClass('focused');
