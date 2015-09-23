@@ -15,7 +15,8 @@
 			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
 
 			this.initializeTabComplete();
-			this.initializeChatHistory();
+			// create up/down history for this room
+			this.chatHistory = new ChatHistory();
 
 			// this MUST set up this.$chatAdd
 			Room.apply(this, arguments);
@@ -214,56 +215,19 @@
 		// chat history
 
 		chatHistory: null,
-		initializeChatHistory: function () {
-			var chatHistory = {
-				lines: [],
-				index: 0,
-				push: function (line) {
-					if (chatHistory.lines.length > 100) {
-						chatHistory.lines.splice(0, 20);
-					}
-					chatHistory.lines.push(line);
-					chatHistory.index = chatHistory.lines.length;
-				}
-			};
-			this.chatHistory = chatHistory;
-		},
 		chatHistoryUp: function ($textbox, e) {
 			var idx = +$textbox.prop('selectionStart');
 			var line = $textbox.val();
 			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
-			if (this.chatHistory.index > 0) {
-				if (this.chatHistory.index === this.chatHistory.lines.length) {
-					if (line !== '') {
-						this.chatHistory.push(line);
-						--this.chatHistory.index;
-					}
-				} else {
-					this.chatHistory.lines[this.chatHistory.index] = line;
-				}
-				$textbox.val(this.chatHistory.lines[--this.chatHistory.index]);
-				return true;
-			}
-			return false;
+			if (this.chatHistory.index === 0) return false;
+			$textbox.val(this.chatHistory.up(line));
+			return true;
 		},
 		chatHistoryDown: function ($textbox, e) {
 			var idx = +$textbox.prop('selectionStart');
 			var line = $textbox.val();
 			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
-			if (this.chatHistory.index === this.chatHistory.lines.length) {
-				if (line !== '') {
-					this.chatHistory.push(line);
-					$textbox.val('');
-				}
-			} else if (this.chatHistory.index === this.chatHistory.lines.length - 1) {
-				this.chatHistory.lines[this.chatHistory.index] = $textbox.val();
-				$textbox.val('');
-				++this.chatHistory.index;
-			} else {
-				this.chatHistory.lines[this.chatHistory.index] = $textbox.val();
-				line = this.chatHistory.lines[++this.chatHistory.index];
-				$textbox.val(line);
-			}
+			$textbox.val(this.chatHistory.down(line));
 			return true;
 		},
 
@@ -1523,3 +1487,28 @@
 	});
 
 }).call(this, jQuery);
+
+function ChatHistory () {
+	this.lines = [];
+	this.index = 0;
+}
+
+ChatHistory.prototype.push = function (line) {
+	var duplicate = this.lines.indexOf(line);
+	if (duplicate >= 0) this.lines.splice(duplicate, 1);
+	if (this.lines.length > 100) this.lines.splice(0, 20);
+	this.lines.push(line);
+	this.index = this.lines.length;
+};
+
+ChatHistory.prototype.up = function (line) { // Ensure index !== 0 first!
+	if (line !== '') this.lines[this.index] = line;
+	return this.lines[--this.index];
+};
+
+ChatHistory.prototype.down = function (line) {
+	if (line !== '') this.lines[this.index] = line;
+	if (this.index === this.lines.length) return '';
+	if (++this.index === this.lines.length) return '';
+	return this.lines[this.index];
+};
