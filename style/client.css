@@ -1454,6 +1454,10 @@ a.ilink:hover {
 	text-align: left;
 	cursor: pointer;
 }
+/* Remove Firefox's magic padding */
+.userlist li button::-moz-focus-inner {
+	padding: 0;
+}
 .userlist li button:hover {
 	background: #dce4ec;
 }
