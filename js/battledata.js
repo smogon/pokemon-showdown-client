@@ -1015,8 +1015,28 @@ var Tools = {
 
 		// Decide what gen sprites to use.
 		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[options.gen];
+		var genback = gen
+		var genaltsprites = Tools.prefs('altsprites')
 		if (Tools.prefs('nopastgens')) gen = 'xy';
 		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
+		if (genaltsprites.one === 'redblue' && gen === 'rby') gen = 'rby-orig';
+		else if (genaltsprites.one === 'green' && gen === 'rby') gen = 'rby-gr';
+		else if (genaltsprites.two === 'gold' && gen === 'gsc') {
+			gen = 'gsc-g'
+			genback ='gsc-g';
+			} else if (genaltsprites.two === 'silver' && gen === 'gsc') {
+			gen = 'gsc-s'
+			genback = 'gsc-g';
+			} else if (genaltsprites.three === 'frlg' && gen === 'rse') {
+			gen = 'rse-frlg'
+			genback = gen;
+			} else if (genaltsprites.four === 'plat' && gen === 'dpp') {
+			gen = 'dpp-plat'
+			genback = gen;
+			} else if (genaltsprites.four === 'dp' && gen === 'dpp') {
+			gen = 'dpp-orig'
+			genback = gen
+			}
 
 		var animationData = {};
 		if (gen === 'bw' && window.BattlePokemonSpritesBW) {
@@ -1062,7 +1082,8 @@ var Tools = {
 		}
 		// if there is no entry or enough data in pokedex-mini.js or the animations are disabled or past gen, use the proper sprites
 		gen = (gen === 'xy') ? 'bw' : gen;
-		dir = gen + dir;
+		if (facing === 'back') dir = genback + dir;
+		else dir = gen + dir;
 
 		spriteData.url += dir + '/' + name + '.png';
 
