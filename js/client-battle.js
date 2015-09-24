@@ -979,7 +979,7 @@
 					// Falls through to not to repeat code on showing the base power.
 				}
 				if (!basePowerText) {
-					basePower = basePower || this.getMoveBasePower(move, myPokemon[this.choice.choices.length], yourActive[0]);
+					basePower = this.getMoveBasePower(move, myPokemon[this.choice.choices.length], yourActive[0]) || basePower;
 					if (!basePower) basePower = '&mdash;';
 					basePowerText = '<p>Base power: ' + basePower + '</p>'
 				}
