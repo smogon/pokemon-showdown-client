@@ -1116,6 +1116,16 @@
 			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys' || smogdexid === 'kyurem' || smogdexid === 'giratina' || smogdexid === 'shaymin' || smogdexid === 'tornadus' || smogdexid === 'thundurus' || smogdexid === 'landorus' || smogdexid === 'pumpkaboo' || smogdexid === 'gourgeist' || smogdexid === 'arceus' || smogdexid === 'meowstic') {
 				if (template.forme) smogdexid += '-' + toId(template.forme);
 			}
+
+			var generationNumber = 6;
+			if (format.substr(0, 3) === 'gen') {
+				var number = format.charAt(3);
+				if ('1' <= number && number <= '5') {
+					generationNumber = +number;
+					format = format.substr(4);
+				}
+			}
+			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy'][generationNumber - 1];
 			if (format === 'battlespotdoubles') {
 				smogdexid += '/vgc15';
 			} else if (format === 'doublesou' || format === 'doublesuu') {
@@ -1123,7 +1133,7 @@
 			} else if (format === 'ou' || format === 'uu' || format === 'ru' || format === 'nu' || format === 'pu' || format === 'lc') {
 				smogdexid += '/' + format;
 			}
-			return 'http://smogon.com/dex/xy/pokemon/' + smogdexid + '/';
+			return 'http://smogon.com/dex/' + generation + '/pokemon/' + smogdexid + '/';
 		},
 		updateStatForm: function (setGuessed) {
 			var buf = '';
