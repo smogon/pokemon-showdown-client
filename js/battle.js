@@ -44,7 +44,8 @@ var BattleSoundLibrary = (function () {
 			pause: function () { return this; },
 			stop: function () { return this; },
 			resume: function () { return this; },
-			setVolume: function () { return this; }
+			setVolume: function () { return this; },
+			onposition: function () { return this; }
 		};
 	}
 
