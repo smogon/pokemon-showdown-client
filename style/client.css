@@ -326,13 +326,22 @@ a.subtle:hover {
 	background: transparent;
 	cursor: pointer;
 }
-.closebutton:hover,
-.minimizebutton:hover {
+.closebutton:hover {
 	color: #BB2222;
+}
+.minimizebutton:hover,
+.pm-window h3:hover .minimizebutton {
+	color: #333333;
+}
+.pm-window h3 .closebutton:hover + .minimizebutton {
+	color: #999999 !important;
 }
 .closebutton:active,
 .minimizebutton:active {
 	color: #661111;
+}
+.pm-minimized .minimizebutton .icon-minus-sign:before {
+	content: "\f055";
 }
 
 .tablist li, .tablist ul {
@@ -745,7 +754,6 @@ p.or:after {
 .pm-window.focused h3:hover {
 	background: #f8f8f8;
 	color: #222222;
-	cursor: default;
 }
 .challenge {
 	margin-top: -1px;

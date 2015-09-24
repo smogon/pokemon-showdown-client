@@ -10,6 +10,7 @@
 			'click .closebutton': 'closePM',
 			'click .minimizebutton': 'minimizePM',
 			'click .pm-window': 'clickPMBackground',
+			'dblclick .pm-window h3': 'dblClickPMHeader',
 			'focus textarea': 'onFocusPM',
 			'blur textarea': 'onBlurPM',
 			'click button.formatselect': 'selectFormat',
@@ -351,8 +352,24 @@
 				var $target = $(e.currentTarget);
 				if ($target.data('minimized')) {
 					this.minimizePM(e);
+				} else if ($(e.target).closest('h3').length) {
+					// only preventDefault here, so clicking links/buttons in PMs
+					// still works
+					e.preventDefault();
+					e.stopPropagation();
+					this.minimizePM(e);
+					return;
 				}
 				$target.find('textarea[name=message]').focus();
+			}
+		},
+		dblClickPMHeader: function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			if (window.getSelection) {
+				window.getSelection().removeAllRanges();
+			} else if (document.selection) {
+				document.selection.empty();
 			}
 		},
 
