@@ -1354,8 +1354,8 @@
 				var min = 0;
 				var max = 0;
 				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
-				var minRatio = (pokemon.stats.spe / this.getTemplateMinSpeed(template, target.level));
-				var maxRatio = (pokemon.stats.spe / this.getTemplateMaxSpeed(template, target.level));
+				var minRatio = (this.myPokemon[pokemon.slot].stats['spe'] / this.getTemplateMinSpeed(template, target.level));
+				var maxRatio = (this.myPokemon[pokemon.slot].stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
 				if (minRatio >= 4) min = 150;
 				else if (minRatio >= 3) min = 120;
 				else if (minRatio >= 2) min = 80;
@@ -1379,8 +1379,8 @@
 			if (move.id === 'gyroball') {
 				var template = target;
 				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
-				var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / pokemon.stats.spe) || 1);
-				var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / pokemon.stats.spe) || 1);
+				var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / this.myPokemon[pokemon.slot].stats['spe']) || 1);
+				var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / this.myPokemon[pokemon.slot].stats['spe']) || 1);
 				if (min > 150) min = 150;
 				if (max > 150) max = 150;
 				// Special case due to range as well.
