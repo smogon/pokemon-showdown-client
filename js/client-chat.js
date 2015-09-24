@@ -1099,6 +1099,16 @@
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
+				case 'uhtml':
+					this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + Tools.sanitizeHTML(row.slice(2).join('|')) + '</div>');
+					break;
+
+				case 'uhtmlchange':
+					var $elements = $(this.$chat.find('div.uhtml-' + toId(row[1]) + '"'));
+					if (!$elements.length) break;
+					$elements.html(Tools.sanitizeHTML(row.slice(2).join('|')));
+					break;
+
 				case 'unlink':
 					// note: this message has global effects, but it's handled here
 					// so that it can be included in the scrollback buffer.
@@ -1266,7 +1276,7 @@
 				var oName = pmuserid === app.user.get('userid') ? name : pm;
 				var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 				this.$chat.append(
-					'<div class="chat chatmessage-' + toId(name) + '">' + ChatRoom.getTimestamp('lobby', deltatime) + 
+					'<div class="chat chatmessage-' + toId(name) + '">' + ChatRoom.getTimestamp('lobby', deltatime) +
 					'<strong style="' + hashColor(userid) + '">' + clickableName + ':</strong>' +
 					'<span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span>' +
 					'</div>'
