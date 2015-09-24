@@ -171,6 +171,8 @@
 					animate: false,
 					extraSpace: 0
 				});
+				// create up/down history for this PM
+				this.chatHistories[userid] = new ChatHistory();
 			} else {
 				$pmWindow.show();
 				if (!dontFocus) {
@@ -280,7 +282,7 @@
 					var userid = $pmWindow.data('userid');
 					var $chat = $pmWindow.find('.inner');
 					// this.tabComplete.reset();
-					// this.chatHistory.push(text);
+					this.chatHistories[userid].push(text);
 					if (text.toLowerCase() === '/ignore') {
 						if (app.ignore[userid]) {
 							$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
@@ -336,8 +338,40 @@
 					e.preventDefault();
 					e.stopPropagation();
 				}
+			} else if (e.keyCode === 38 && !e.shiftKey && !e.altKey) { // Up key
+				if (this.chatHistoryUp(e)) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			} else if (e.keyCode === 40 && !e.shiftKey && !e.altKey) { // Down key
+				if (this.chatHistoryDown(e)) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
 			}
 		},
+		chatHistoryUp: function (e) {
+			var $textbox = $(e.currentTarget);
+			var idx = +$textbox.prop('selectionStart');
+			var line = $textbox.val();
+			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
+			var userid = $textbox.closest('.pm-window').data('userid');
+			var chatHistory = this.chatHistories[userid];
+			if (chatHistory.index === 0) return false;
+			$textbox.val(chatHistory.up(line));
+			return true;
+		},
+		chatHistoryDown: function (e) {
+			var $textbox = $(e.currentTarget);
+			var idx = +$textbox.prop('selectionStart');
+			var line = $textbox.val();
+			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
+			var userid = $textbox.closest('.pm-window').data('userid');
+			var chatHistory = this.chatHistories[userid];
+			$textbox.val(chatHistory.down(line));
+			return true;
+		},
+		chatHistories: {},
 		clickUsername: function (e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
