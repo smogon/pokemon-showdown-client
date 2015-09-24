@@ -32,7 +32,7 @@
 		if (this.className === 'closebutton') return; // handled elsewhere
 		if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
 		if (!this.href) return; // should never happen
-		if (this.host === 'play.pokemonshowdown.com' || this.host === location.host) {
+		if (this.host === 'play.pokemonshowdown.com' || this.host === 'psim.us' || this.host === location.host) {
 			var target = this.pathname.substr(1);
 			if (target.indexOf('/') < 0 && target.indexOf('.') < 0) {
 				window.app.tryJoinRoom(target);
