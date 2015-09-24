@@ -2324,7 +2324,7 @@
 				'%': "Driver (%)",
 				'\u2605': "Player (\u2605)",
 				'+': "Voiced (+)",
-				'‽': "<span style='color:#777777'>Locked (‽)</span>",
+				'?': "<span style='color:#777777'>Locked (?)</span>",
 				'!': "<span style='color:#777777'>Muted (!)</span>"
 			};
 			var group = (groupDetails[name.substr(0, 1)] || '');
@@ -2680,6 +2680,10 @@
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
+			'change select[name=gensprites-one]' : 'setSpriteOne',
+			'change select[name=gensprites-two]' : 'setSpriteTwo',
+			'change select[name=gensprites-three]' : 'setSpriteThree',
+			'change select[name=gensprites-four]' : 'setSpriteFour',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
 			'click img': 'avatars'
@@ -2694,6 +2698,12 @@
 
 			buf += '<hr />';
 			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Charizards</option><option value="#344b6c url(/fx/client-bg-horizon.jpg) no-repeat left center fixed">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c">Solid blue</option><option value="custom">Custom</option>' + (Tools.prefs('bg') ? '<option value="" selected></option>' : '') + '</select></label></p>';
+	
+			var altsprites = this.altsprites = (Tools.prefs('altsprites') || {});		
+			buf += '<p><label class="optlabel">Gen 1 Sprites: <select name="gensprites-one"><option value="off">Yellow</option><option value="redblue"' + (altsprites.one === 'redblue' ? ' selected="selected"' : '') + '>Red & Blue</option><option value="green"' + (altsprites.one === 'green' ? ' selected="selected"' : '') + '>Green</option></select></label></p>';
+			buf += '<p><label class="optlabel">Gen 2 Sprites: <select name="gensprites-two"><option value="off">Crystal</option><option value="gold"' + (altsprites.two === 'gold' ? ' selected="selected"' : '') + '>Gold</option><option value="silver"' + (altsprites.two === 'silver' ? ' selected="selected"' : '') + '>Silver</option></select></label></p>';
+			buf += '<p><label class="optlabel">Gen 3 Sprites: <select name="gensprites-three"><option value="off">RSE</option><option value="frlg"' + (altsprites.three === 'frlg' ? ' selected="selected"' : '') + '>FRLG</option></select></label></p>';
+			buf += '<p><label class="optlabel">Gen 4 Sprites: <select name="gensprites-four"><option value="off">HGSS</option><option value="plat"' + (altsprites.four === 'plat' ? ' selected="selected"' : '') + '>Platinum</option><option value="dp"' + (altsprites.four === 'dp' ? ' selected="selected"' : '') + '>DP</option></select></label></p>';			
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Tools.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Tools.prefs('bwgfx') ? ' checked' : '') + ' /> Enable BW sprites for XY</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Tools.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
@@ -2797,6 +2807,26 @@
 			this.timestamps.pms = e.currentTarget.value;
 			Tools.prefs('timestamps', this.timestamps);
 		},
+		setSpriteOne: function (e){
+			this.altsprites.one = e.currentTarget.value;
+			Tools.prefs('altsprites', this.altsprites);
+		},
+		setSpriteOne: function (e){
+			this.altsprites.one = e.currentTarget.value;
+			Tools.prefs('altsprites', this.altsprites);
+		},
+		setSpriteTwo: function (e){
+			this.altsprites.two = e.currentTarget.value;
+			Tools.prefs('altsprites', this.altsprites);
+		},
+		setSpriteThree: function (e){
+			this.altsprites.three = e.currentTarget.value;
+			Tools.prefs('altsprites', this.altsprites);
+		},
+		setSpriteFour: function (e){
+			this.altsprites.four = e.currentTarget.value;
+			Tools.prefs('altsprites', this.altsprites);
+		},		
 		avatars: function () {
 			app.addPopup(AvatarsPopup);
 		},
