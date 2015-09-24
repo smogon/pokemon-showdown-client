@@ -967,6 +967,7 @@
 					var difference = false;
 					var basePowers = [];
 					for (var i = 0; i < yourActive.length; i++) {
+						if (!yourActive[i]) continue;
 						basePower = this.getMoveBasePower(move, this.battle.mySide.active[this.choice.choices.length], yourActive[i]);
 						if (previousBasepower === false) previousBasepower = basePower;
 						if (previousBasepower !== basePower) difference = true;
