@@ -2016,6 +2016,7 @@
 					self.dismissNotification(tag);
 				};
 				notification.onclick = function () {
+					window.focus();
 					self.clickNotification(tag);
 				};
 				if (Tools.prefs('temporarynotifications')) {
