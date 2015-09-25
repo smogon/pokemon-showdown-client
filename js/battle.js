@@ -5874,7 +5874,7 @@ var Battle = (function () {
 		this.paused = true;
 		this.playbackState = 3;
 		if (this.resumeButton) {
-			this.frameElem.append('<div class="playbutton"><button data-action="resume"><i class="icon-play"></i> Resume</button></div>');
+			this.frameElem.append('<div class="playbutton"><button data-action="resume"><i class="fa fa-play icon-play"></i> Resume</button></div>');
 			this.frameElem.find('div.playbutton button').click(this.resumeButton);
 		}
 		this.soundPause();

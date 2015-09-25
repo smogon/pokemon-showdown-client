@@ -1682,9 +1682,9 @@
 			var name = ' ' + app.user.get('name');
 			var color = hashColor(app.user.get('userid'));
 			if (app.user.get('named')) {
-				buf = '<span class="username" data-name="' + Tools.escapeHTML(name) + '" style="' + color + '"><i class="icon-user" style="color:#779EC5"></i> ' + Tools.escapeHTML(name) + '</span> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'icon-volume-off' : 'icon-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="icon-cog"></i></button>';
+				buf = '<span class="username" data-name="' + Tools.escapeHTML(name) + '" style="' + color + '"><i class="fa fa-user" style="color:#779EC5"></i> ' + Tools.escapeHTML(name) + '</span> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="fa fa-cog"></i></button>';
 			} else {
-				buf = '<button name="login">Choose name</button> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'icon-volume-off' : 'icon-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="icon-cog"></i></button>';
+				buf = '<button name="login">Choose name</button> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="fa fa-cog"></i></button>';
 			}
 			this.$userbar.html(buf);
 		},
@@ -1710,13 +1710,13 @@
 			var buf = '<li><a class="button' + (app.curRoom === room || app.curSideRoom === room ? ' cur' : '') + (room.notificationClass || '') + (id === '' || id === 'rooms' ? '' : ' closable') + '" href="' + app.root + id + '">';
 			switch (id) {
 			case '':
-				return buf + '<i class="icon-home"></i> <span>Home</span></a></li>';
+				return buf + '<i class="fa fa-home"></i> <span>Home</span></a></li>';
 			case 'teambuilder':
-				return buf + '<i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="icon-remove-sign"></i></a></li>';
+				return buf + '<i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
 			case 'ladder':
-				return buf + '<i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="icon-remove-sign"></i></a></li>';
+				return buf + '<i class="fa fa-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
 			case 'rooms':
-				return buf + '<i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
+				return buf + '<i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			default:
 				if (id.substr(0, 7) === 'battle-') {
 					var name = Tools.escapeHTML(room.title);
@@ -1732,9 +1732,9 @@
 							name = '(empty room)';
 						}
 					}
-					return buf + '<i class="text">' + formatid + '</i><span>' + name + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
+					return buf + '<i class="text">' + formatid + '</i><span>' + name + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 				} else {
-					return buf + '<i class="icon-comment-alt"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
+					return buf + '<i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 				}
 			}
 		},
@@ -1746,9 +1746,9 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button' + (curId === '' ? ' cur' : '') + (app.rooms[''] && app.rooms[''].notificationClass || '') + '" href="' + app.root + '"><i class="icon-home"></i> <span>Home</span></a></li>';
-			if (app.rooms['teambuilder']) buf += '<li><a class="button' + (curId === 'teambuilder' ? ' cur' : '') + ' closable" href="' + app.root + 'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="icon-remove-sign"></i></a></li>';
-			if (app.rooms['ladder']) buf += '<li><a class="button' + (curId === 'ladder' ? ' cur' : '') + ' closable" href="' + app.root + 'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="icon-remove-sign"></i></a></li>';
+			var buf = '<ul><li><a class="button' + (curId === '' ? ' cur' : '') + (app.rooms[''] && app.rooms[''].notificationClass || '') + '" href="' + app.root + '"><i class="fa fa-home"></i> <span>Home</span></a></li>';
+			if (app.rooms['teambuilder']) buf += '<li><a class="button' + (curId === 'teambuilder' ? ' cur' : '') + ' closable" href="' + app.root + 'teambuilder"><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
+			if (app.rooms['ladder']) buf += '<li><a class="button' + (curId === 'ladder' ? ' cur' : '') + ' closable" href="' + app.root + 'ladder"><i class="fa fa-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
 			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
@@ -1765,7 +1765,7 @@
 				if (app.rooms[id].notifications) notificationCount++;
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
-				var name = '<i class="icon-comment-alt"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span>';
+				var name = '<i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span>';
 				if (id.substr(0, 7) === 'battle-') {
 					name = Tools.escapeHTML(room.title);
 					var formatid = id.substr(7).split('-')[0];
@@ -1784,7 +1784,7 @@
 				}
 				if (room.isSideRoom) {
 					if (id !== 'rooms') {
-						sideBuf += '<li><a class="button' + (curId === id || curSideId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
+						sideBuf += '<li><a class="button' + (curId === id || curSideId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 						if (curSideId) {
 							// get left/right for side rooms
 							if (curSideId === id) {
@@ -1811,7 +1811,7 @@
 					buf += '<ul>';
 					atLeastOne = true;
 				}
-				buf += '<li><a class="button' + (curId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
+				buf += '<li><a class="button' + (curId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 				// get left/right
 				if (curId === id) {
 					passedCurRoom = true;
@@ -1825,7 +1825,7 @@
 				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount || '');
 			}
 			if (app.supports['rooms']) {
-				sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="icon-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
+				sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (sideBuf) {
@@ -1840,7 +1840,7 @@
 			var offset = $lastLi.offset();
 			var width = $lastLi.outerWidth();
 			if (offset.top >= 37 || offset.left + width > $(window).width() - 165) {
-				this.$tabbar.append('<div class="overflow"><button name="tablist" class="button"><i class="icon-caret-down"></i></button></div>');
+				this.$tabbar.append('<div class="overflow"><button name="tablist" class="button"><i class="fa fa-caret-down"></i></button></div>');
 			}
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
@@ -1852,7 +1852,7 @@
 			for (var i in app.rooms) {
 				if (app.rooms[i] !== app.curRoom && app.rooms[i].notificationClass === ' notifying') notificationClass = ' notifying';
 			}
-			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="//play.pokemonshowdown.com/favicon-128.png" width="32" height="32" alt="PS!" /><i class="icon-caret-down" style="display:inline-block"></i></a></li></ul>';
+			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="//play.pokemonshowdown.com/favicon-128.png" width="32" height="32" alt="PS!" /><i class="fa fa-caret-down" style="display:inline-block"></i></a></li></ul>';
 
 			buf += '<ul>' + this.renderRoomTab(app.curRoom) + '</ul>';
 
@@ -2652,7 +2652,7 @@
 				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><em>(muted)</em>');
 			}
 
-			app.topbar.$('button[name=openSounds]').html('<i class="' + (muted ? 'icon-volume-off' : 'icon-volume-up') + '"></i>');
+			app.topbar.$('button[name=openSounds]').html('<i class="' + (muted ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i>');
 		},
 		setEffectVolume: function (volume) {
 			BattleSound.setEffectVolume(volume);
@@ -2923,17 +2923,17 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button' + (curId === '' ? ' cur' : '') + (app.rooms[''] && app.rooms[''].notificationClass || '') + '" href="' + app.root + '"><i class="icon-home"></i> <span>Home</span></a></li>';
-			if (app.rooms['teambuilder']) buf += '<li><a class="button' + (curId === 'teambuilder' ? ' cur' : '') + ' closable" href="' + app.root + 'teambuilder"><i class="icon-edit"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="icon-remove-sign"></i></a></li>';
-			if (app.rooms['ladder']) buf += '<li><a class="button' + (curId === 'ladder' ? ' cur' : '') + ' closable" href="' + app.root + 'ladder"><i class="icon-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="icon-remove-sign"></i></a></li>';
+			var buf = '<ul><li><a class="button' + (curId === '' ? ' cur' : '') + (app.rooms[''] && app.rooms[''].notificationClass || '') + '" href="' + app.root + '"><i class="fa fa-home"></i> <span>Home</span></a></li>';
+			if (app.rooms['teambuilder']) buf += '<li><a class="button' + (curId === 'teambuilder' ? ' cur' : '') + ' closable" href="' + app.root + 'teambuilder"><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
+			if (app.rooms['ladder']) buf += '<li><a class="button' + (curId === 'ladder' ? ' cur' : '') + ' closable" href="' + app.root + 'ladder"><i class="fa fa-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
 			buf += '</ul>';
 			var atLeastOne = false;
 			var sideBuf = '';
 			for (var id in app.rooms) {
 				if (!id || id === 'teambuilder' || id === 'ladder') continue;
 				var room = app.rooms[id];
-				var name = '<i class="icon-comment-alt"></i> <span>' + id + '</span>';
-				if (id === 'lobby') name = '<i class="icon-comments-alt"></i> <span>Lobby</span>';
+				var name = '<i class="fa fa-comment-o"></i> <span>' + id + '</span>';
+				if (id === 'lobby') name = '<i class="fa fa-comments-o"></i> <span>Lobby</span>';
 				if (id.substr(0, 7) === 'battle-') {
 					var parts = id.substr(7).split('-');
 					var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
@@ -2948,17 +2948,17 @@
 					name = '<i class="text">' + parts[0] + '</i><span>' + name + '</span>';
 				}
 				if (room.isSideRoom) {
-					if (room.id !== 'rooms') sideBuf += '<li><a class="button' + (curId === id || curSideId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
+					if (room.id !== 'rooms') sideBuf += '<li><a class="button' + (curId === id || curSideId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 					continue;
 				}
 				if (!atLeastOne) {
 					buf += '<ul>';
 					atLeastOne = true;
 				}
-				buf += '<li><a class="button' + (curId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="icon-remove-sign"></i></a></li>';
+				buf += '<li><a class="button' + (curId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 			}
 			if (app.supports['rooms']) {
-				sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="icon-plus"></i> <span>&nbsp;</span></a></li>';
+				sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
 			if (sideBuf) {

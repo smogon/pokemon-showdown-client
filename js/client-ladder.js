@@ -8,7 +8,7 @@
 			app.on('init:formats', this.update, this);
 			this.update();
 			app.on('response:laddertop', function (data) {
-				var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p>';
+				var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p>';
 				if (!data) {
 					this.$el.html(buf + '<p>error</p></div>');
 					return;
@@ -44,7 +44,7 @@
 			} else {
 				var format = this.curFormat;
 				var self = this;
-				this.$el.html('<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p></div>');
+				this.$el.html('<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p></div>');
 				if (app.localLadder) {
 					app.send('/cmd laddertop ' + format);
 				} else {
@@ -54,7 +54,7 @@
 						output: 'html'
 					}, function (data) {
 						if (self.curFormat !== format) return;
-						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="icon-chevron-left"></i> Format List</button></p>';
+						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p>';
 						buf += '<h3>' + Tools.escapeFormat(format) + ' Top 500</h3>';
 						buf += data + '</div>';
 						self.$el.html(buf);
