@@ -231,8 +231,8 @@ a.subtle:hover {
 .button.subtle-notifying {
 	color: #AA6600;
 }
-.button.subtle-notifying .icon-comment-alt:before,
-.button.notifying .icon-comment-alt:before {
+.button.subtle-notifying .fa-comment-o:before,
+.button.notifying .fa-comment-o:before {
 	content: "\f0e6";
 }
 
@@ -340,7 +340,7 @@ a.subtle:hover {
 .minimizebutton:active {
 	color: #661111;
 }
-.pm-minimized .minimizebutton .icon-minus-sign:before {
+.pm-minimized .minimizebutton .fa-minus-circle:before {
 	content: "\f055";
 }
 
