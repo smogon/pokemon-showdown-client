@@ -1104,7 +1104,7 @@
 					break;
 
 				case 'uhtmlchange':
-					var $elements = $(this.$chat.find('div.uhtml-' + toId(row[1]) + '"'));
+					var $elements = this.$chat.find('div.uhtml-' + toId(row[1]));
 					if (!$elements.length) break;
 					$elements.html(Tools.sanitizeHTML(row.slice(2).join('|')));
 					break;
