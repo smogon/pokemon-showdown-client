@@ -1565,7 +1565,7 @@
 				if (this.rooms[i].type !== 'chat' || i === 'lobby') {
 					continue;
 				}
-				autojoins.push(this.rooms[i].title || this.rooms[i].id);
+				autojoins.push(this.rooms[i].id.indexOf('-') >= 0 ? this.rooms[i].id : (this.rooms[i].title || this.rooms[i].id));
 				if (i === 'staff' || i === 'upperstaff') continue;
 				autojoinCount++;
 				if (autojoinCount >= 8) break;
