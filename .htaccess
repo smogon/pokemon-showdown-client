@@ -28,7 +28,7 @@ Header unset Vary env=BINGBOT
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) http%{ENV:P_SUFFIX}://play.pokemonshowdown.com/$1 [R=301,L]
 
-RewriteRule ^style/font/.*?\.(eot|svg|ttf|woff)$ - [E=SAFE_RESOURCE:1]
+RewriteRule ^style/fonts?/.*?\.(eot|svg|ttf|woff|woff2)$ - [E=SAFE_RESOURCE:1]
 Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
 
 # Redirect old battles to their corresponding replay
