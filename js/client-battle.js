@@ -22,9 +22,9 @@
 				your2: { top: 70, left: 250, width: 80, height: 100 },
 				your1: { top: 85, left: 320, width: 90, height: 100 },
 				your0: { top: 90, left: 390, width: 100, height: 100 },
-				my2: { top: 210, left: 410, width: 140, height: 160 },
-				my1: { top: 210, left: 270, width: 160, height: 160 },
-				my0: { top: 210, left: 130, width: 180, height: 160 }
+				my0: { top: 200, left: 130, width: 120, height: 160 },
+				my1: { top: 200, left: 250, width: 150, height: 160 },
+				my2: { top: 200, left: 350, width: 150, height: 160 }
 			};
 			for (var active in tooltips) {
 				buf += '<div style="position:absolute;';
