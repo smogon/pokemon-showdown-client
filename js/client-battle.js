@@ -1338,7 +1338,7 @@
 				}
 			}
 			if (move.id === 'storedpower') {
-				var boosts = Object.keys(target.boosts);
+				var boosts = Object.keys(pokemon.boosts);
 				var multiply = 0;
 				for (var i = 0; i < boosts.length; i++) {
 					if (pokemon.boosts[boosts[i]] > 0) multiply += pokemon.boosts[boosts[i]];
