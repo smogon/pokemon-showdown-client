@@ -1326,9 +1326,10 @@
 				var boosts = Object.keys(target.boosts);
 				var multiply = 0;
 				for (var i = 0; i < boosts.length; i++) {
-					if (target.boosts[boosts[i]] && target.boosts[boosts[i]] > 0) multiply++;
+					if (target.boosts[boosts[i]] > 0) multiply += target.boosts[boosts[i]];
 				}
 				basePower = 60 + 20 * multiply;
+				if (basePower > 200) basePower = 200;
 			}
 			if (move.id === 'smellingsalts') {
 				if (target.status === 'par') {
@@ -1337,10 +1338,10 @@
 				}
 			}
 			if (move.id === 'storedpower') {
-				var boosts = Object.keys(pokemon.boosts);
+				var boosts = Object.keys(target.boosts);
 				var multiply = 0;
 				for (var i = 0; i < boosts.length; i++) {
-					if (pokemon.boosts[boosts[i]] && pokemon.boosts[boosts[i]] > 0) multiply++;
+					if (pokemon.boosts[boosts[i]] > 0) multiply += pokemon.boosts[boosts[i]];
 				}
 				basePower = 20 + 20 * multiply;
 			}
