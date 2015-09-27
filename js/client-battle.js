@@ -425,7 +425,7 @@
 					if (move.id === 'Struggle' || move.id === 'Recharge') pp = '&ndash;';
 					if (move.id === 'Recharge') move.type = '&ndash;';
 					if (name.substr(0, 12) === 'Hidden Power') name = 'Hidden Power';
-					var moveType = this.getMoveType(move, switchables[pos]);
+					var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
 					if (moveData.disabled) {
 						movebuttons += '<button disabled="disabled"' + this.tooltipAttrs(moveData.move, 'move') + '>';
 						hasDisabled = true;
@@ -969,7 +969,7 @@
 				var basePowerText = '';
 				var additionalInfo = '';
 				var yourActive = this.battle.yourSide.active;
-				var myPokemon = this.battle.mySide.pokemon;
+				var pokemon = this.battle.mySide.active[this.choice.choices.length];
 
 				// Check if there are more than one active Pokémon to check for multiple possible BPs.
 				if (yourActive.length > 1) {
@@ -981,7 +981,7 @@
 					var basePowers = [];
 					for (var i = 0; i < yourActive.length; i++) {
 						if (!yourActive[i]) continue;
-						basePower = this.getMoveBasePower(move, this.battle.mySide.active[this.choice.choices.length], yourActive[i]);
+						basePower = this.getMoveBasePower(move, pokemon, yourActive[i]);
 						if (previousBasepower === false) previousBasepower = basePower;
 						if (previousBasepower !== basePower) difference = true;
 						if (!basePower) basePower = '&mdash;';
@@ -993,7 +993,7 @@
 					// Falls through to not to repeat code on showing the base power.
 				}
 				if (!basePowerText) {
-					basePower = this.getMoveBasePower(move, myPokemon[this.choice.choices.length], yourActive[0]) || basePower;
+					basePower = this.getMoveBasePower(move, pokemon, yourActive[0]) || basePower;
 					if (!basePower) basePower = '&mdash;';
 					basePowerText = '<p>Base power: ' + basePower + '</p>'
 				}
@@ -1002,7 +1002,7 @@
 				else accuracy = '' + accuracy + '%';
 
 				// Handle move type for moves that vary their type.
-				var moveType = this.getMoveType(move, myPokemon[this.choice.choices.length]);
+				var moveType = this.getMoveType(move, pokemon);
 
 				// Deal with Nature Power special case, indicating which move it calls.
 				if (move.id === 'naturepower') {
@@ -1232,6 +1232,7 @@
 		},
 		// Gets the proper current type for moves with a variable type.
 		getMoveType: function(move, pokemon) {
+			var myPokemon = this.myPokemon[pokemon.slot];
 			var moveType = move.type;
 			// Normalize is the first move type changing effect.
 			if (pokemon.ability === 'Normalize') {
@@ -1240,15 +1241,15 @@
 			// Moves that require an item to change their type.
 			if (!this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 				if (move.id === 'judgment') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.onPlate) moveType = item.onPlate;
 				}
 				if (move.id === 'technoblast') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.onDrive) moveType = item.onDrive;
 				}
 				if (move.id === 'naturalgift') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.naturalGift) moveType = item.naturalGift.type;
 				}
 			}
@@ -1286,11 +1287,12 @@
 		// Takes into account the target for some moves.
 		// If it is unsure of the actual base power, it gives an estimate.
 		getMoveBasePower: function(move, pokemon, target) {
+			var myPokemon = this.myPokemon[pokemon.slot];
 			var basePower = move.basePower;
 			var basePowerComment = '';
 			var thereIsWeather = (this.battle.weather in {'sunnyday': 1, 'desolateland': 1, 'raindance': 1, 'primordialsea': 1, 'sandstorm': 1, 'hail':1});
 			if (move.id === 'acrobatics') {
-				if (!pokemon.item) {
+				if (!myPokemon.item) {
 					basePower *= 2;
 					basePowerComment = ' (Boosted by lack of item)';
 				}
@@ -1372,8 +1374,8 @@
 				var min = 0;
 				var max = 0;
 				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
-				var minRatio = (this.myPokemon[pokemon.slot].stats['spe'] / this.getTemplateMinSpeed(template, target.level));
-				var maxRatio = (this.myPokemon[pokemon.slot].stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
+				var minRatio = (myPokemon.stats['spe'] / this.getTemplateMinSpeed(template, target.level));
+				var maxRatio = (myPokemon.stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
 				if (minRatio >= 4) min = 150;
 				else if (minRatio >= 3) min = 120;
 				else if (minRatio >= 2) min = 80;
@@ -1397,8 +1399,8 @@
 			if (move.id === 'gyroball') {
 				var template = target;
 				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
-				var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / this.myPokemon[pokemon.slot].stats['spe']) || 1);
-				var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / this.myPokemon[pokemon.slot].stats['spe']) || 1);
+				var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / myPokemon.stats['spe']) || 1);
+				var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / myPokemon.stats['spe']) || 1);
 				if (min > 150) min = 150;
 				if (max > 150) max = 150;
 				// Special case due to range as well.
@@ -1412,13 +1414,13 @@
 				}
 			}
 			// Movements which have base power changed due to items.
-			if (pokemon.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+			if (myPokemon.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 				if (move.id === 'fling') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.fling) basePower = item.fling.basePower;
 				}
 				if (move.id === 'naturalgift') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.naturalGift) basePower = item.naturalGift.basePower;
 				}
 			}
