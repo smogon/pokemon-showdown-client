@@ -1238,11 +1238,9 @@ var Side = (function () {
 	};
 
 	Side.prototype.reset = function () {
+		this.pokemon = [];
 		this.updateSprites();
 		this.sideConditions = {};
-		for (var i = 0; i < this.pokemon.length; i++) {
-			this.pokemon[i].reset();
-		}
 	};
 	Side.prototype.updateSprites = function () {
 		this.z = (this.n ? 200 : 0);
