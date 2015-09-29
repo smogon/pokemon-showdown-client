@@ -5878,7 +5878,7 @@ var Battle = (function () {
 		}
 		this.soundPause();
 	};
-	Battle.prototype.play = function () {
+	Battle.prototype.play = function (dontResetSound) {
 		if (this.fastForward) {
 			this.paused = false;
 			this.playbackState = 5;
@@ -5888,7 +5888,7 @@ var Battle = (function () {
 				this.soundStop();
 			}
 			this.playbackState = 2;
-			if (!this.done) {
+			if (!dontResetSound && !this.done) {
 				this.soundStart();
 			}
 			this.nextActivity();
