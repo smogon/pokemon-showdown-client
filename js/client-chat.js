@@ -1118,6 +1118,10 @@
 					if (!$messages.length) break;
 					$messages.find('a').contents().unwrap();
 					if (row[2]) {
+						if (row[1] === 'roomhide') {
+							$messages = this.$chat.find('.chatmessage-' + user);
+							if (!$messages.length) break;
+						}
 						$messages.hide();
 						this.$chat.append('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + '</small></button></div>');
 					}
