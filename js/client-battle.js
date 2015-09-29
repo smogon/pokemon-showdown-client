@@ -711,10 +711,10 @@
 				this.battle.fastForwardTo(-1);
 			} else {
 				var turn = this.battle.turn;
-				this.battle.reset();
+				this.battle.reset(true);
 				this.battle.switchSides();
 				if (turn) this.battle.fastForwardTo(turn);
-				this.battle.play();
+				this.battle.play(true);
 			}
 		},
 		instantReplay: function () {
