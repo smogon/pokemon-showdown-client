@@ -506,7 +506,19 @@
 
 				if (app.curSideRoom && $(e.target).closest(app.curSideRoom.$el).length) {
 					// keypress happened in sideroom
-					if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
+					if (e.shiftKey && e.keyCode === 37 && safeLocation) {
+						// Shift+Left on desktop client
+						if (app.moveRoomLeft(app.curSideRoom)) {
+							e.preventDefault();
+							e.stopImmediatePropagation();
+						}
+					} else if (e.shiftKey && e.keyCode === 39 && safeLocation) {
+						// Shift+Right on desktop client
+						if (app.moveRoomRight(app.curSideRoom)) {
+							e.preventDefault();
+							e.stopImmediatePropagation();
+						}
+					} else if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
 						// Left or Ctrl+Shift+Tab on desktop client
 						if (app.topbar.curSideRoomLeft) {
 							e.preventDefault();
@@ -526,7 +538,19 @@
 					return;
 				}
 				// keypress happened outside of sideroom
-				if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
+				if (e.shiftKey && e.keyCode === 37 && app.curRoom) {
+					// Shift+Left on desktop client
+					if (app.moveRoomLeft(app.curRoom)) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+					}
+				} else if (e.shiftKey && e.keyCode === 39 && app.curRoom) {
+					// Shift+Right on desktop client
+					if (app.moveRoomRight(app.curRoom)) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+					}
+				} else if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
 					// Left or Ctrl+Shift+Tab on desktop client
 					if (app.topbar.curRoomLeft) {
 						e.preventDefault();
@@ -1537,6 +1561,41 @@
 				}
 				this.updateLayout();
 				return true;
+			}
+			return false;
+		},
+		swapRooms: function (first, second) {
+			var rooms = Object.create(null);
+			for (var i in this.rooms) {
+				if (i === first) i = second;
+				else if (i === second) i = first;
+				rooms[i] = this.rooms[i];
+			}
+			this.rooms = rooms;
+			this.updateTabbar();
+		},
+		moveRoomLeft: function (room) {
+			var id = room.id;
+			var type = room.type;
+			var other = '';
+			for (var i in this.rooms) {
+				if (i === id) break;
+				if (this.rooms[i].type === type) other = i;
+			}
+			if (!other) return false; // room was already leftmost
+			this.swapRooms(id, other);
+			return true;
+		},
+		moveRoomRight: function (room) {
+			var id = room.id;
+			var type = room.type;
+			var found = false;
+			for (var i in this.rooms) {
+				if (found && this.rooms[i].type === type) {
+					this.swapRooms(id, i);
+					return true;
+				}
+				if (i === id) found = true;
 			}
 			return false;
 		},
