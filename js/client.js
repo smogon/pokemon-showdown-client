@@ -1831,18 +1831,29 @@
 				sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			}
 			if (atLeastOne) buf += '</ul>';
+			var margin = 0;
 			if (sideBuf) {
 				if (app.curSideRoom) {
-					buf += '<ul class="siderooms" style="float:none;margin-left:' + (app.curSideRoom.leftWidth - 144) + 'px">' + sideBuf + '</ul>';
+					margin = app.curSideRoom.leftWidth - 144;
+					buf += '<ul class="siderooms" style="float:none;margin-left:' + margin + 'px">' + sideBuf + '</ul>';
 				} else {
 					buf += '<ul>' + sideBuf + '</ul>';
 				}
 			}
 			this.$tabbar.html(buf);
-			var $lastLi = this.$tabbar.children().last().children().last();
+			var $lastUl = this.$tabbar.children().last();
+			var $lastLi = $lastUl.children().last();
 			var offset = $lastLi.offset();
 			var width = $lastLi.outerWidth();
-			if (offset.top >= 37 || offset.left + width > $(window).width() - 165) {
+			// 166 here is the difference between the .maintabbar's right margin and the a.button's right margin.
+			var overflow = offset.left + width + 166 - $(window).width();
+			if (app.curSideRoom && overflow > 0) {
+				margin -= overflow;
+				$lastUl.css('margin-left', margin + 'px');
+				offset = $lastLi.offset();
+				overflow = offset.left + width + 166 - $(window).width();
+			}
+			if (offset.top >= 37 || overflow > 0) {
 				this.$tabbar.append('<div class="overflow"><button name="tablist" class="button"><i class="fa fa-caret-down"></i></button></div>');
 			}
 
