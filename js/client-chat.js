@@ -1022,17 +1022,18 @@
 					break;
 
 				case ':':
-					this.timeOffset = ~~(Date.now() / 1000) - parseInt(row[1], 10);
+					this.timeOffset = ~~(Date.now() / 1000) - (parseInt(row[1], 10) || 0);
 					break;
 				case 'c:':
 					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
-					var deltaTime = ~~(Date.now() / 1000) - this.timeOffset - parseInt(row[1], 10);
-					this.addChat(row[2], row.slice(3).join('|'), false, deltaTime);
+					var msgTime = this.timeOffset + (parseInt(row[1], 10) || 0);
+					this.addChat(row[2], row.slice(3).join('|'), false, msgTime);
 					break;
 
 				case 'tc':
 					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
-					this.addChat(row[2], row.slice(3).join('|'), false, row[1]);
+					var msgTime = row[1] ? ~~(Date.now() / 1000) - (parseInt(row[1], 10) || 0) : 0;
+					this.addChat(row[2], row.slice(3).join('|'), false, msgTime);
 					break;
 
 				case 'b':
@@ -1261,7 +1262,7 @@
 			}
 			this.$joinLeave.html('<small style="color: #555555">' + message + '</small>');
 		},
-		addChat: function (name, message, pm, deltatime) {
+		addChat: function (name, message, pm, msgTime) {
 			var userid = toUserid(name);
 
 			if (app.ignore[userid] && (name.charAt(0) === ' ' || name.charAt(0) === '+')) return;
@@ -1280,7 +1281,7 @@
 				var oName = pmuserid === app.user.get('userid') ? name : pm;
 				var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 				this.$chat.append(
-					'<div class="chat chatmessage-' + toId(name) + '">' + ChatRoom.getTimestamp('lobby', deltatime) +
+					'<div class="chat chatmessage-' + toId(name) + '">' + ChatRoom.getTimestamp('lobby', msgTime) +
 					'<strong style="' + hashColor(userid) + '">' + clickableName + ':</strong>' +
 					'<span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span>' +
 					'</div>'
@@ -1289,7 +1290,7 @@
 			}
 
 			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
-			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', deltatime), isHighlighted);
+			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
@@ -1312,16 +1313,12 @@
 			}
 		}
 	}, {
-		getTimestamp: function (section, deltatime) {
+		getTimestamp: function (section, msgTime) {
 			var pref = Tools.prefs('timestamps') || {};
 			var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
 			if ((sectionPref === 'off') || (sectionPref === undefined)) return '';
-			var date;
-			if (deltatime && !isNaN(deltatime)) {
-				date = new Date(Date.now() - deltatime * 1000);
-			} else {
-				date = new Date();
-			}
+
+			var date = (msgTime && !isNaN(msgTime) ? new Date(msgTime * 1000) : new Date());
 			var components = [date.getHours(), date.getMinutes()];
 			if (sectionPref === 'seconds') {
 				components.push(date.getSeconds());
