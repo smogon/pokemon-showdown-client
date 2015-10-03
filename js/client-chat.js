@@ -1302,7 +1302,7 @@
 				var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
 				var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
 				this.notifyOnce(notifyTitle, "\"" + notifyText + "\"", 'highlight');
-			} else {
+			} else if (name !== '~') { // |c:|~| prefixes a system message
 				this.subtleNotifyOnce();
 			}
 
