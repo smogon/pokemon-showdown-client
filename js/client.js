@@ -355,9 +355,6 @@
 
 			// down
 			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = 'dos';
-			if (document.location.hostname === 'play.pokemonshowdown.com') {
-				app.supports['rooms'] = true;
-			}
 
 			this.topbar = new Topbar({el: $('#header')});
 			this.addRoom('');
@@ -1247,6 +1244,7 @@
 			if (data) {
 				this.roomsData = data;
 			}
+			app.topbar.updateTabbar();
 		},
 		clearGlobalListeners: function () {
 			// jslider doesn't clear these when it should,
