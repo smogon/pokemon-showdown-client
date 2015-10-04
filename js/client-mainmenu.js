@@ -10,6 +10,7 @@
 			'click .closebutton': 'closePM',
 			'click .minimizebutton': 'minimizePM',
 			'click .pm-window': 'clickPMBackground',
+			'dblclick .pm-window h3': 'dblClickPMHeader',
 			'focus textarea': 'onFocusPM',
 			'blur textarea': 'onBlurPM',
 			'click button.formatselect': 'selectFormat',
@@ -87,7 +88,7 @@
 			options.append = options.append || false;
 			options.noMinimize = options.noMinimize || false;
 
-			this.$pmBox[options.append ? 'append' : 'prepend']('<div class="pm-window ' + options.cssClass + '" ' + options.attributes + '><h3><button class="closebutton" tabindex="-1"><i class="icon-remove-sign"></i></button>' + (!options.noMinimize ? '<button class="minimizebutton" tabindex="-1"><i class="icon-minus-sign"></i></button>' : '') + options.title + '</h3><div class="pm-log" style="overflow:visible;height:' + (typeof options.height === 'number' ? options.height + 'px' : options.height) + ';' + (parseInt(options.height) ? 'max-height:none' : (options.maxHeight ? 'max-height:' + (typeof options.maxHeight === 'number' ? options.maxHeight + 'px' : options.maxHeight) : '')) + '">' +
+			this.$pmBox[options.append ? 'append' : 'prepend']('<div class="pm-window ' + options.cssClass + '" ' + options.attributes + '><h3><button class="closebutton" tabindex="-1"><i class="fa fa-times-circle"></i></button>' + (!options.noMinimize ? '<button class="minimizebutton" tabindex="-1"><i class="fa fa-minus-circle"></i></button>' : '') + options.title + '</h3><div class="pm-log" style="overflow:visible;height:' + (typeof options.height === 'number' ? options.height + 'px' : options.height) + ';' + (parseInt(options.height) ? 'max-height:none' : (options.maxHeight ? 'max-height:' + (typeof options.maxHeight === 'number' ? options.maxHeight + 'px' : options.maxHeight) : '')) + '">' +
 				options.html +
 				'</div></div>');
 		},
@@ -160,8 +161,8 @@
 					group = '<small>' + Tools.escapeHTML(group) + '</small>';
 				}
 				var buf = '<div class="pm-window pm-window-' + userid + '" data-userid="' + userid + '" data-name="' + name + '">';
-				buf += '<h3><button class="closebutton" href="' + app.root + 'teambuilder" tabindex="-1"><i class="icon-remove-sign"></i></button>';
-				buf += '<button class="minimizebutton" href="' + app.root + 'teambuilder" tabindex="-1"><i class="icon-minus-sign"></i></button>';
+				buf += '<h3><button class="closebutton" href="' + app.root + 'teambuilder" tabindex="-1"><i class="fa fa-times-circle"></i></button>';
+				buf += '<button class="minimizebutton" href="' + app.root + 'teambuilder" tabindex="-1"><i class="fa fa-minus-circle"></i></button>';
 				buf += group + Tools.escapeHTML(name.substr(1)) + '</h3>';
 				buf += '<div class="pm-log"><div class="inner"></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
@@ -170,6 +171,8 @@
 					animate: false,
 					extraSpace: 0
 				});
+				// create up/down history for this PM
+				this.chatHistories[userid] = new ChatHistory();
 			} else {
 				$pmWindow.show();
 				if (!dontFocus) {
@@ -279,7 +282,7 @@
 					var userid = $pmWindow.data('userid');
 					var $chat = $pmWindow.find('.inner');
 					// this.tabComplete.reset();
-					// this.chatHistory.push(text);
+					this.chatHistories[userid].push(text);
 					if (text.toLowerCase() === '/ignore') {
 						if (app.ignore[userid]) {
 							$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
@@ -335,8 +338,40 @@
 					e.preventDefault();
 					e.stopPropagation();
 				}
+			} else if (e.keyCode === 38 && !e.shiftKey && !e.altKey) { // Up key
+				if (this.chatHistoryUp(e)) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			} else if (e.keyCode === 40 && !e.shiftKey && !e.altKey) { // Down key
+				if (this.chatHistoryDown(e)) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
 			}
 		},
+		chatHistoryUp: function (e) {
+			var $textbox = $(e.currentTarget);
+			var idx = +$textbox.prop('selectionStart');
+			var line = $textbox.val();
+			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
+			var userid = $textbox.closest('.pm-window').data('userid');
+			var chatHistory = this.chatHistories[userid];
+			if (chatHistory.index === 0) return false;
+			$textbox.val(chatHistory.up(line));
+			return true;
+		},
+		chatHistoryDown: function (e) {
+			var $textbox = $(e.currentTarget);
+			var idx = +$textbox.prop('selectionStart');
+			var line = $textbox.val();
+			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
+			var userid = $textbox.closest('.pm-window').data('userid');
+			var chatHistory = this.chatHistories[userid];
+			$textbox.val(chatHistory.down(line));
+			return true;
+		},
+		chatHistories: {},
 		clickUsername: function (e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
@@ -351,8 +386,24 @@
 				var $target = $(e.currentTarget);
 				if ($target.data('minimized')) {
 					this.minimizePM(e);
+				} else if ($(e.target).closest('h3').length) {
+					// only preventDefault here, so clicking links/buttons in PMs
+					// still works
+					e.preventDefault();
+					e.stopPropagation();
+					this.minimizePM(e);
+					return;
 				}
 				$target.find('textarea[name=message]').focus();
+			}
+		},
+		dblClickPMHeader: function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			if (window.getSelection) {
+				window.getSelection().removeAllRanges();
+			} else if (document.selection) {
+				document.selection.empty();
 			}
 		},
 
@@ -404,7 +455,7 @@
 			} else {
 				$formatButton.addClass('preselected')[0].disabled = true;
 				$teamButton.addClass('preselected')[0].disabled = true;
-				$searchForm.find('button.big').html('<strong><i class="icon-refresh icon-spin"></i> Searching...</strong>').addClass('disabled');
+				$searchForm.find('button.big').html('<strong><i class="fa fa-refresh fa-spin"></i> Searching...</strong>').addClass('disabled');
 				var searchEntries = $.isArray(this.searching) ? this.searching : [this.searching];
 				for (var i = 0; i < searchEntries.length; i++) {
 					var format = searchEntries[i].format || searchEntries[i];
@@ -702,7 +753,7 @@
 
 			$formatButton.addClass('preselected')[0].disabled = true;
 			$teamButton.addClass('preselected')[0].disabled = true;
-			$searchForm.find('button.big').html('<strong><i class="icon-refresh icon-spin"></i> Connecting...</strong>').addClass('disabled');
+			$searchForm.find('button.big').html('<strong><i class="fa fa-refresh fa-spin"></i> Connecting...</strong>').addClass('disabled');
 			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
 
 			app.sendTeam(team);
@@ -869,7 +920,7 @@
 	var BattleListPopup = this.BattleListPopup = Popup.extend({
 		type: 'modal',
 		initialize: function () {
-			var buf = '<div class="roomlist"><p><button name="refresh"><i class="icon-refresh"></i> Refresh</button> <button name="close" style="float:right"><i class="icon-remove"></i> Close</button></p>';
+			var buf = '<div class="roomlist"><p><button name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <button name="close" style="float:right"><i class="fa fa-times"></i> Close</button></p>';
 
 			buf += '<p><label>Format:</label><select name="format"><option value="">(All formats)</option>';
 			if (window.BattleFormats) {

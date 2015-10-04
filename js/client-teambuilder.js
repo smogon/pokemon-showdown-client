@@ -130,7 +130,7 @@
 			this.deletedSetLoc = -1;
 
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="icon-save"></i> Save</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportAllTeams()) + '</textarea></div>';
 				this.$el.html(buf);
 				this.$('.teamedit textarea').focus().select();
@@ -152,14 +152,14 @@
 			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
 			if (!teams.length) {
 				if (this.deletedTeamLoc >= 0) {
-					buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
+					buf += '<li><button name="undoDelete"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 				}
 				buf += '<li><em>you don\'t have any teams lol</em></li>';
 			} else {
-				buf += '<li><button name="newTop"><i class="icon-plus-sign"></i> New team</button></li>';
+				buf += '<li><button name="newTop"><i class="fa fa-plus-circle"></i> New team</button></li>';
 				for (var i = 0; i < teams.length + 1; i++) {
 					if (i === this.deletedTeamLoc) {
-						buf += '<li><button name="undoDelete"><i class="icon-undo"></i> Undo Delete</button></li>';
+						buf += '<li><button name="undoDelete"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 					}
 					if (i >= teams.length) break;
 
@@ -183,16 +183,16 @@
 
 					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + Tools.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></div> <button name="edit" value="' + i + '"><i class="icon-pencil"></i>Edit</button> <button name="delete" value="' + i + '"><i class="icon-trash"></i>Delete</button></li>';
+					buf += '</small></div> <button name="edit" value="' + i + '"><i class="fa fa-pencil"></i>Edit</button> <button name="delete" value="' + i + '"><i class="fa fa-trash"></i>Delete</button></li>';
 				}
 			}
-			buf += '<li><button name="new"><i class="icon-plus-sign"></i> New team</button></li>';
+			buf += '<li><button name="new"><i class="fa fa-plus-circle"></i> New team</button></li>';
 			buf += '</ul>';
 
 			if (window.nodewebkit) {
-				buf += '<button name="revealFolder"><i class="icon-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder"><i class="icon-refresh"></i> Reload teams files</button> <button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
+				buf += '<button name="revealFolder"><i class="fa fa-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder"><i class="fa fa-refresh"></i> Reload teams files</button> <button name="backup"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
 			} else {
-				buf += '<button name="backup"><i class="icon-upload-alt"></i> Backup/Restore all teams</button>';
+				buf += '<button name="backup"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
 
 				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 			}
@@ -482,10 +482,10 @@
 
 			var buf = '';
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="icon-upload-alt"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="icon-save"></i> Save</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
 			} else {
-				buf = '<div class="pad"><button name="back"><i class="icon-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="icon-upload-alt"></i> Import/Export</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="fa fa-upload"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
@@ -509,25 +509,25 @@
 						}
 					}
 					if (curSection) buf += '</optgroup>';
-					buf += '</select><button name="validate"><i class="icon-check"></i> Validate</button></li>';
+					buf += '</select><button name="validate"><i class="fa fa-check"></i> Validate</button></li>';
 				}
 				if (!this.curSetList.length) {
 					buf += '<li><em>you have no pokemon lol</em></li>';
 				}
 				for (i = 0; i < this.curSetList.length; i++) {
 					if (this.curSetList.length < 6 && this.deletedSet && i === this.deletedSetLoc) {
-						buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
+						buf += '<li><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 					}
 					buf += this.renderSet(this.curSetList[i], i);
 				}
 				if (this.deletedSet && i === this.deletedSetLoc) {
-					buf += '<li><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></li>';
+					buf += '<li><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 				}
 				if (i === 0) {
-					buf += '<li><button name="import" class="majorbutton"><i class="icon-upload-alt"></i> Import from text</button></li>';
+					buf += '<li><button name="import" class="majorbutton"><i class="fa fa-upload"></i> Import from text</button></li>';
 				}
 				if (i < 6) {
-					buf += '<li><button name="addPokemon" class="majorbutton"><i class="icon-plus"></i> Add Pokemon</button></li>';
+					buf += '<li><button name="addPokemon" class="majorbutton"><i class="fa fa-plus"></i> Add Pokemon</button></li>';
 				}
 				buf += '</ol>';
 				buf += '</div>';
@@ -541,13 +541,13 @@
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
-					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="icon-undo"></i> Undo Delete</button></div>';
+					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setchart"><div class="setcol setcol-icon" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
-			buf += '<div class="setmenu"><button name="copySet"><i class="icon-copy"></i>Copy</button> <button name="importSet"><i class="icon-upload-alt"></i>Import/Export</button> <button name="moveSet"><i class="icon-move"></i>Move</button> <button name="deleteSet"><i class="icon-trash"></i>Delete</button></div>';
+			buf += '<div class="setmenu"><button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" value="' + Tools.escapeHTML(set.name || set.species) + '" name="nickname" />';
 			buf += '</div>';
@@ -698,9 +698,9 @@
 			buf += '<div class="teambuilder-clipboard-data" tabindex="-1">' + this.clipboardInnerHTML() + '</div>';
 			buf += '<div class="teambuilder-clipboard-buttons">';
 			if (this.curTeam && this.curSetList.length < 6) {
-				buf += '<button name="pastePokemon" class="teambuilder-clipboard-button-left"><i class="icon-paste"></i> Paste!</button>';
+				buf += '<button name="pastePokemon" class="teambuilder-clipboard-button-left"><i class="fa fa-clipboard"></i> Paste!</button>';
 			}
-			buf += '<button name="clipboardRemoveAll" class="teambuilder-clipboard-button-right"><i class="icon-trash"></i> Clear clipboard</button>';
+			buf += '<button name="clipboardRemoveAll" class="teambuilder-clipboard-button-right"><i class="fa fa-trash"></i> Clear clipboard</button>';
 			buf += '</div>';
 			buf += '</div>';
 
@@ -892,7 +892,7 @@
 		updateSetView: function () {
 			// pokemon
 			var buf = '<div class="pad">';
-			buf += '<button name="back"><i class="icon-chevron-left"></i> Team</button></div>';
+			buf += '<button name="back"><i class="fa fa-chevron-left"></i> Team</button></div>';
 			buf += '<div class="teambar">';
 			buf += this.renderTeambar();
 			buf += '</div>';
@@ -910,7 +910,7 @@
 
 			// import/export
 			buf += '<div class="teambuilder-pokemon-import">';
-			buf += '<div class="pokemonedit-buttons"><button name="closePokemonImport"><i class="icon-chevron-left"></i> Back</button> <button name="savePokemonImport"><i class="icon-save"></i> Save</button></div>';
+			buf += '<div class="pokemonedit-buttons"><button name="closePokemonImport"><i class="fa fa-chevron-left"></i> Back</button> <button name="savePokemonImport"><i class="fa fa-floppy-o"></i> Save</button></div>';
 			buf += '<textarea class="pokemonedit textbox" rows="14"></textarea>';
 			buf += '</div>';
 
@@ -932,16 +932,16 @@
 				var set = this.curSetList[i];
 				var pokemonicon = '<span class="pokemonicon pokemonicon-' + i + '" style="' + Tools.getIcon(set) + '"></span>';
 				if (!set.name) {
-					buf += '<button disabled="disabled" class="addpokemon"><i class="icon-plus"></i></button> ';
+					buf += '<button disabled="disabled" class="addpokemon"><i class="fa fa-plus"></i></button> ';
 					isAdd = true;
 				} else if (i == this.curSetLoc) {
-					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name || '<i class="icon-plus"></i>') + '</button> ';
+					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name || '<i class="fa fa-plus"></i>') + '</button> ';
 				} else {
 					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name) + '</button> ';
 				}
 			}
 			if (this.curSetList.length < 6 && !isAdd) {
-				buf += '<button name="addPokemon"><i class="icon-plus"></i></button> ';
+				buf += '<button name="addPokemon"><i class="fa fa-plus"></i></button> ';
 			}
 			return buf;
 		},
@@ -1116,6 +1116,16 @@
 			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys' || smogdexid === 'kyurem' || smogdexid === 'giratina' || smogdexid === 'shaymin' || smogdexid === 'tornadus' || smogdexid === 'thundurus' || smogdexid === 'landorus' || smogdexid === 'pumpkaboo' || smogdexid === 'gourgeist' || smogdexid === 'arceus' || smogdexid === 'meowstic') {
 				if (template.forme) smogdexid += '-' + toId(template.forme);
 			}
+
+			var generationNumber = 6;
+			if (format.substr(0, 3) === 'gen') {
+				var number = format.charAt(3);
+				if ('1' <= number && number <= '5') {
+					generationNumber = +number;
+					format = format.substr(4);
+				}
+			}
+			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy'][generationNumber - 1];
 			if (format === 'battlespotdoubles') {
 				smogdexid += '/vgc15';
 			} else if (format === 'doublesou' || format === 'doublesuu') {
@@ -1123,7 +1133,7 @@
 			} else if (format === 'ou' || format === 'uu' || format === 'ru' || format === 'nu' || format === 'pu' || format === 'lc') {
 				smogdexid += '/' + format;
 			}
-			return 'http://smogon.com/dex/xy/pokemon/' + smogdexid + '/';
+			return 'http://smogon.com/dex/' + generation + '/pokemon/' + smogdexid + '/';
 		},
 		updateStatForm: function (setGuessed) {
 			var buf = '';
@@ -2260,12 +2270,12 @@
 			for (var i = 0; i < data.team.length; i++) {
 				var set = data.team[i];
 				if (i !== data.i && i !== data.i + 1) {
-					buf += '<li><button name="moveHere" value="' + i + '"><i class="icon-arrow-right"></i> Move here</button></li>';
+					buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
 				}
 				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(set) + '"></span> ' + Tools.escapeHTML(set.name) + '</li>';
 			}
 			if (i !== data.i && i !== data.i + 1) {
-				buf += '<li><button name="moveHere" value="' + i + '"><i class="icon-arrow-right"></i> Move here</button></li>';
+				buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
 			}
 			buf += '</ul>';
 			this.$el.html(buf);

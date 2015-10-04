@@ -15,7 +15,26 @@
 			this.$chatFrame = this.$el.find('.battle-log');
 			this.$chatAdd = this.$el.find('.battle-log-add');
 			this.$join = null;
+
+			// tooltips
+			var buf = '';
+			var tooltips = {
+				your2: { top: 70, left: 250, width: 80, height: 100 },
+				your1: { top: 85, left: 320, width: 90, height: 100 },
+				your0: { top: 90, left: 390, width: 100, height: 100 },
+				my0: { top: 200, left: 130, width: 120, height: 160 },
+				my1: { top: 200, left: 250, width: 150, height: 160 },
+				my2: { top: 200, left: 350, width: 150, height: 160 }
+			};
+			for (var active in tooltips) {
+				buf += '<div style="position:absolute;';
+				for (var css in tooltips[active]) {
+					buf += css + ':' + tooltips[active][css] + 'px;';
+				}
+				buf += '"' + this.tooltipAttrs(active, 'pokemon', true, true) + '></div>';
+			}
 			this.$foeHint = this.$el.find('.foehint');
+			this.$foeHint.html(buf);
 
 			BattleSound.setMute(Tools.prefs('mute'));
 			this.battle = new Battle(this.$battle, this.$chatFrame);
@@ -189,43 +208,24 @@
 			} else if (this.battle.playbackState === 2 || this.battle.playbackState === 3) {
 
 				// battle is playing or paused
-				this.$controls.html('<p><button name="skipTurn">Skip turn <i class="icon-step-forward"></i></button><button name="goToEnd">Go to last turn <i class="icon-fast-forward"></i></button></p>');
+				if (this.side) {
+					// is a player
+					this.$controls.html('<p><button name="skipTurn">Skip turn <i class="fa fa-step-forward"></i></button><button name="goToEnd">Go to last turn <i class="fa fa-fast-forward"></i></button></p>');
+				} else {
+					this.$controls.html('<p><button name="switchSides">Switch sides <i class="fa fa-random"></i></button> <button name="skipTurn">Skip turn <i class="fa fa-step-forward"></i></button> <button name="goToEnd">Go to last turn <i class="fa fa-fast-forward"></i></button></p>');
+				}
 				return;
 
 			}
-
-			// tooltips
-			var myActive = this.battle.mySide.active;
-			var yourActive = this.battle.yourSide.active;
-			var buf = '';
-			if (yourActive[2]) {
-				buf += '<div style="position:absolute;top:70px;left:250px;width:80px;height:100px;"' + this.tooltipAttrs(yourActive[2].getIdent(), 'pokemon', true, 'foe') + '></div>';
-			}
-			if (yourActive[1]) {
-				buf += '<div style="position:absolute;top:85px;left:320px;width:90px;height:100px;"' + this.tooltipAttrs(yourActive[1].getIdent(), 'pokemon', true, 'foe') + '></div>';
-			}
-			if (yourActive[0]) {
-				buf += '<div style="position:absolute;top:90px;left:390px;width:100px;height:100px;"' + this.tooltipAttrs(yourActive[0].getIdent(), 'pokemon', true, 'foe') + '></div>';
-			}
-			if (myActive[0]) {
-				buf += '<div style="position:absolute;top:210px;left:130px;width:180px;height:160px;"' + this.tooltipAttrs(myActive[0].getIdent(), 'pokemon', true, true) + '></div>';
-			}
-			if (myActive[1]) {
-				buf += '<div style="position:absolute;top:210px;left:270px;width:160px;height:160px;"' + this.tooltipAttrs(myActive[1].getIdent(), 'pokemon', true, true) + '></div>';
-			}
-			if (myActive[2]) {
-				buf += '<div style="position:absolute;top:210px;left:410px;width:140px;height:160px;"' + this.tooltipAttrs(myActive[2].getIdent(), 'pokemon', true, true) + '></div>';
-			}
-			this.$foeHint.html(buf);
 
 			if (this.battle.done) {
 
 				// battle has ended
 				if (this.side) {
 					// was a player
-					this.$controls.html('<div class="controls"><p><em><button name="instantReplay"><i class="icon-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="icon-upload"></i> Share replay</button></p><p><button name="closeAndMainMenu"><strong>Main menu</strong><br /><small>(closes this battle)</small></button> <button name="closeAndRematch"><strong>Rematch</strong><br /><small>(closes this battle)</small></button></p></div>');
+					this.$controls.html('<div class="controls"><p><em><button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="fa fa-upload"></i> Share replay</button></p><p><button name="closeAndMainMenu"><strong>Main menu</strong><br /><small>(closes this battle)</small></button> <button name="closeAndRematch"><strong>Rematch</strong><br /><small>(closes this battle)</small></button></p></div>');
 				} else {
-					this.$controls.html('<div class="controls"><p><em><button name="instantReplay"><i class="icon-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="icon-upload"></i> Share replay</button></p></div>');
+					this.$controls.html('<div class="controls"><p><em><button name="switchSides">Switch sides <i class="fa fa-random"></i></button> <button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="fa fa-upload"></i> Share replay</button></p></div>');
 				}
 
 			} else if (!this.battle.mySide.initialized || !this.battle.yourSide.initialized) {
@@ -264,7 +264,7 @@
 			} else {
 
 				// full battle
-				this.$controls.html('<p><em>Waiting for players...</em></p>');
+				this.$controls.html('<p><em><button name="switchSides">Switch sides <i class="fa fa-random"></i></button> Waiting for players...</em></p>');
 
 			}
 
@@ -373,7 +373,7 @@
 						} else if (!pokemon || pokemon.zerohp) {
 							controls += '<button class="disabled" name="chooseMoveTarget" value="' + (i + 1) + '"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon('missingno') + '"></span></button> ';
 						} else {
-							controls += '<button name="chooseMoveTarget" value="' + (i + 1) + '"' + this.tooltipAttrs(pokemon.getIdent(), 'pokemon', true, 'foe') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
+							controls += '<button name="chooseMoveTarget" value="' + (i + 1) + '"' + this.tooltipAttrs("your" + i, 'pokemon', true, true) + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 						}
 					}
 					controls += '<div style="clear:both"></div> </div><div class="switchmenu" style="display:block">';
@@ -425,7 +425,7 @@
 					if (move.id === 'Struggle' || move.id === 'Recharge') pp = '&ndash;';
 					if (move.id === 'Recharge') move.type = '&ndash;';
 					if (name.substr(0, 12) === 'Hidden Power') name = 'Hidden Power';
-					var moveType = this.getMoveType(move, switchables[pos]);
+					var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
 					if (moveData.disabled) {
 						movebuttons += '<button disabled="disabled"' + this.tooltipAttrs(moveData.move, 'move') + '>';
 						hasDisabled = true;
@@ -704,6 +704,19 @@
 		saveReplay: function () {
 			this.send('/savereplay');
 		},
+		switchSides: function () {
+			if (this.battle.done) {
+				this.battle.reset(true);
+				this.battle.switchSides();
+				this.battle.fastForwardTo(-1);
+			} else {
+				var turn = this.battle.turn;
+				this.battle.reset(true);
+				this.battle.switchSides();
+				if (turn) this.battle.fastForwardTo(turn);
+				this.battle.play(true);
+			}
+		},
 		instantReplay: function () {
 			this.hideTooltip();
 			this.request = null;
@@ -956,7 +969,7 @@
 				var basePowerText = '';
 				var additionalInfo = '';
 				var yourActive = this.battle.yourSide.active;
-				var myPokemon = this.battle.mySide.pokemon;
+				var pokemon = this.battle.mySide.active[this.choice.choices.length];
 
 				// Check if there are more than one active Pokémon to check for multiple possible BPs.
 				if (yourActive.length > 1) {
@@ -967,7 +980,8 @@
 					var difference = false;
 					var basePowers = [];
 					for (var i = 0; i < yourActive.length; i++) {
-						basePower = this.getMoveBasePower(move, this.battle.mySide.active[this.choice.choices.length], yourActive[i]);
+						if (!yourActive[i]) continue;
+						basePower = this.getMoveBasePower(move, pokemon, yourActive[i]);
 						if (previousBasepower === false) previousBasepower = basePower;
 						if (previousBasepower !== basePower) difference = true;
 						if (!basePower) basePower = '&mdash;';
@@ -979,7 +993,7 @@
 					// Falls through to not to repeat code on showing the base power.
 				}
 				if (!basePowerText) {
-					basePower = basePower || this.getMoveBasePower(move, myPokemon[this.choice.choices.length], yourActive[0]);
+					basePower = this.getMoveBasePower(move, pokemon, yourActive[0]) || basePower;
 					if (!basePower) basePower = '&mdash;';
 					basePowerText = '<p>Base power: ' + basePower + '</p>'
 				}
@@ -988,7 +1002,7 @@
 				else accuracy = '' + accuracy + '%';
 
 				// Handle move type for moves that vary their type.
-				var moveType = this.getMoveType(move, myPokemon[this.choice.choices.length]);
+				var moveType = this.getMoveType(move, pokemon);
 
 				// Deal with Nature Power special case, indicating which move it calls.
 				if (move.id === 'naturepower') {
@@ -1061,7 +1075,8 @@
 				break;
 
 			case 'pokemon':
-				var pokemon = this.battle.getPokemon(thing);
+				var side = this.battle[thing.slice(0, -1) + "Side"];
+				var pokemon = side.active[thing.slice(-1)];
 				if (!pokemon) return;
 				/* falls through */
 			case 'sidepokemon':
@@ -1071,7 +1086,7 @@
 					if (!pokemon) {
 						pokemon = this.myPokemon[parseInt(thing)];
 						battlePokemon = this.battle.getPokemon('other: old: ' + pokemon.ident, pokemon.details);
-					} else if (pokemon.side === this.battle.mySide) {
+					} else if (this.controlsShown && pokemon.side === this.battle.mySide) {
 						myPokemon = this.myPokemon[pokemon.slot];
 					}
 				}
@@ -1114,11 +1129,15 @@
 				if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
 				text += '<p>HP: ' + pokemon.hpDisplay() + exacthp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
 				if (myPokemon) {
-					text += '<p>';
 					if (this.battle.gen > 2) {
-						text += 'Ability: ' + Tools.getAbility(pokemon.ability || myPokemon.baseAbility).name + ' / ';
+						text += '<p>Ability: ' + Tools.getAbility(myPokemon.baseAbility).name;
+						if (myPokemon.item) {
+							text += ' / Item: ' + Tools.getItem(myPokemon.item).name;
+						}
+						text += '</p>';
+					} else if (myPokemon.item) {
+						text += '<p> / Item: ' + Tools.getItem(myPokemon.item).name + '</p>';
 					}
-					text += 'Item: ' + Tools.getItem(myPokemon.item).name + '</p>';
 					text += '<p>' + myPokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + myPokemon.stats['def'] + '&nbsp;Def /&nbsp;' + myPokemon.stats['spa'];
 					if (this.battle.gen === 1) {
 						text += '&nbsp;Spc /&nbsp;';
@@ -1213,6 +1232,7 @@
 		},
 		// Gets the proper current type for moves with a variable type.
 		getMoveType: function(move, pokemon) {
+			var myPokemon = this.myPokemon[pokemon.slot];
 			var moveType = move.type;
 			// Normalize is the first move type changing effect.
 			if (pokemon.ability === 'Normalize') {
@@ -1221,15 +1241,15 @@
 			// Moves that require an item to change their type.
 			if (!this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 				if (move.id === 'judgment') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.onPlate) moveType = item.onPlate;
 				}
 				if (move.id === 'technoblast') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.onDrive) moveType = item.onDrive;
 				}
 				if (move.id === 'naturalgift') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.naturalGift) moveType = item.naturalGift.type;
 				}
 			}
@@ -1267,11 +1287,12 @@
 		// Takes into account the target for some moves.
 		// If it is unsure of the actual base power, it gives an estimate.
 		getMoveBasePower: function(move, pokemon, target) {
+			var myPokemon = this.myPokemon[pokemon.slot];
 			var basePower = move.basePower;
 			var basePowerComment = '';
 			var thereIsWeather = (this.battle.weather in {'sunnyday': 1, 'desolateland': 1, 'raindance': 1, 'primordialsea': 1, 'sandstorm': 1, 'hail':1});
 			if (move.id === 'acrobatics') {
-				if (!pokemon.item) {
+				if (!myPokemon.item) {
 					basePower *= 2;
 					basePowerComment = ' (Boosted by lack of item)';
 				}
@@ -1307,9 +1328,10 @@
 				var boosts = Object.keys(target.boosts);
 				var multiply = 0;
 				for (var i = 0; i < boosts.length; i++) {
-					if (target.boosts[boosts[i]] && target.boosts[boosts[i]] > 0) multiply++;
+					if (target.boosts[boosts[i]] > 0) multiply += target.boosts[boosts[i]];
 				}
 				basePower = 60 + 20 * multiply;
+				if (basePower > 200) basePower = 200;
 			}
 			if (move.id === 'smellingsalts') {
 				if (target.status === 'par') {
@@ -1321,7 +1343,7 @@
 				var boosts = Object.keys(pokemon.boosts);
 				var multiply = 0;
 				for (var i = 0; i < boosts.length; i++) {
-					if (pokemon.boosts[boosts[i]] && pokemon.boosts[boosts[i]] > 0) multiply++;
+					if (pokemon.boosts[boosts[i]] > 0) multiply += pokemon.boosts[boosts[i]];
 				}
 				basePower = 20 + 20 * multiply;
 			}
@@ -1353,8 +1375,8 @@
 				var min = 0;
 				var max = 0;
 				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
-				var minRatio = (pokemon.stats.spe / this.getTemplateMinSpeed(template, target.level));
-				var maxRatio = (pokemon.stats.spe / this.getTemplateMaxSpeed(template, target.level));
+				var minRatio = (myPokemon.stats['spe'] / this.getTemplateMinSpeed(template, target.level));
+				var maxRatio = (myPokemon.stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
 				if (minRatio >= 4) min = 150;
 				else if (minRatio >= 3) min = 120;
 				else if (minRatio >= 2) min = 80;
@@ -1378,8 +1400,8 @@
 			if (move.id === 'gyroball') {
 				var template = target;
 				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
-				var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / pokemon.stats.spe) || 1);
-				var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / pokemon.stats.spe) || 1);
+				var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / myPokemon.stats['spe']) || 1);
+				var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / myPokemon.stats['spe']) || 1);
 				if (min > 150) min = 150;
 				if (max > 150) max = 150;
 				// Special case due to range as well.
@@ -1393,13 +1415,13 @@
 				}
 			}
 			// Movements which have base power changed due to items.
-			if (pokemon.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+			if (myPokemon.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 				if (move.id === 'fling') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.fling) basePower = item.fling.basePower;
 				}
 				if (move.id === 'naturalgift') {
-					var item = Tools.getItem(pokemon.item);
+					var item = Tools.getItem(myPokemon.item);
 					if (item.naturalGift) basePower = item.naturalGift.basePower;
 				}
 			}

@@ -231,8 +231,8 @@ a.subtle:hover {
 .button.subtle-notifying {
 	color: #AA6600;
 }
-.button.subtle-notifying .icon-comment-alt:before,
-.button.notifying .icon-comment-alt:before {
+.button.subtle-notifying .fa-comment-o:before,
+.button.notifying .fa-comment-o:before {
 	content: "\f0e6";
 }
 
@@ -326,13 +326,22 @@ a.subtle:hover {
 	background: transparent;
 	cursor: pointer;
 }
-.closebutton:hover,
-.minimizebutton:hover {
+.closebutton:hover {
 	color: #BB2222;
+}
+.minimizebutton:hover,
+.pm-window h3:hover .minimizebutton {
+	color: #333333;
+}
+.pm-window h3 .closebutton:hover + .minimizebutton {
+	color: #999999 !important;
 }
 .closebutton:active,
 .minimizebutton:active {
 	color: #661111;
+}
+.pm-minimized .minimizebutton .fa-minus-circle:before {
+	content: "\f055";
 }
 
 .tablist li, .tablist ul {
@@ -745,7 +754,6 @@ p.or:after {
 .pm-window.focused h3:hover {
 	background: #f8f8f8;
 	color: #222222;
-	cursor: default;
 }
 .challenge {
 	margin-top: -1px;
@@ -1445,6 +1453,10 @@ a.ilink:hover {
 	font: 9pt Verdana, sans-serif;
 	text-align: left;
 	cursor: pointer;
+}
+/* Remove Firefox's magic padding */
+.userlist li button::-moz-focus-inner {
+	padding: 0;
 }
 .userlist li button:hover {
 	background: #dce4ec;

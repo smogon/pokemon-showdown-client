@@ -15,7 +15,8 @@
 			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
 
 			this.initializeTabComplete();
-			this.initializeChatHistory();
+			// create up/down history for this room
+			this.chatHistory = new ChatHistory();
 
 			// this MUST set up this.$chatAdd
 			Room.apply(this, arguments);
@@ -214,56 +215,19 @@
 		// chat history
 
 		chatHistory: null,
-		initializeChatHistory: function () {
-			var chatHistory = {
-				lines: [],
-				index: 0,
-				push: function (line) {
-					if (chatHistory.lines.length > 100) {
-						chatHistory.lines.splice(0, 20);
-					}
-					chatHistory.lines.push(line);
-					chatHistory.index = chatHistory.lines.length;
-				}
-			};
-			this.chatHistory = chatHistory;
-		},
 		chatHistoryUp: function ($textbox, e) {
 			var idx = +$textbox.prop('selectionStart');
 			var line = $textbox.val();
 			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
-			if (this.chatHistory.index > 0) {
-				if (this.chatHistory.index === this.chatHistory.lines.length) {
-					if (line !== '') {
-						this.chatHistory.push(line);
-						--this.chatHistory.index;
-					}
-				} else {
-					this.chatHistory.lines[this.chatHistory.index] = line;
-				}
-				$textbox.val(this.chatHistory.lines[--this.chatHistory.index]);
-				return true;
-			}
-			return false;
+			if (this.chatHistory.index === 0) return false;
+			$textbox.val(this.chatHistory.up(line));
+			return true;
 		},
 		chatHistoryDown: function ($textbox, e) {
 			var idx = +$textbox.prop('selectionStart');
 			var line = $textbox.val();
 			if (e && !e.ctrlKey && idx !== 0 && idx !== line.length) return false;
-			if (this.chatHistory.index === this.chatHistory.lines.length) {
-				if (line !== '') {
-					this.chatHistory.push(line);
-					$textbox.val('');
-				}
-			} else if (this.chatHistory.index === this.chatHistory.lines.length - 1) {
-				this.chatHistory.lines[this.chatHistory.index] = $textbox.val();
-				$textbox.val('');
-				++this.chatHistory.index;
-			} else {
-				this.chatHistory.lines[this.chatHistory.index] = $textbox.val();
-				line = this.chatHistory.lines[++this.chatHistory.index];
-				$textbox.val(line);
-			}
+			$textbox.val(this.chatHistory.down(line));
 			return true;
 		},
 
@@ -1058,17 +1022,18 @@
 					break;
 
 				case ':':
-					this.timeOffset = ~~(Date.now() / 1000) - parseInt(row[1], 10);
+					this.timeOffset = ~~(Date.now() / 1000) - (parseInt(row[1], 10) || 0);
 					break;
 				case 'c:':
 					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
-					var deltaTime = ~~(Date.now() / 1000) - this.timeOffset - parseInt(row[1], 10);
-					this.addChat(row[2], row.slice(3).join('|'), false, deltaTime);
+					var msgTime = this.timeOffset + (parseInt(row[1], 10) || 0);
+					this.addChat(row[2], row.slice(3).join('|'), false, msgTime);
 					break;
 
 				case 'tc':
 					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
-					this.addChat(row[2], row.slice(3).join('|'), false, row[1]);
+					var msgTime = row[1] ? ~~(Date.now() / 1000) - (parseInt(row[1], 10) || 0) : 0;
+					this.addChat(row[2], row.slice(3).join('|'), false, msgTime);
 					break;
 
 				case 'b':
@@ -1135,6 +1100,16 @@
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
+				case 'uhtml':
+					this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + Tools.sanitizeHTML(row.slice(2).join('|')) + '</div>');
+					break;
+
+				case 'uhtmlchange':
+					var $elements = this.$chat.find('div.uhtml-' + toId(row[1]));
+					if (!$elements.length) break;
+					$elements.html(Tools.sanitizeHTML(row.slice(2).join('|')));
+					break;
+
 				case 'unlink':
 					// note: this message has global effects, but it's handled here
 					// so that it can be included in the scrollback buffer.
@@ -1144,6 +1119,10 @@
 					if (!$messages.length) break;
 					$messages.find('a').contents().unwrap();
 					if (row[2]) {
+						if (row[1] === 'roomhide') {
+							$messages = this.$chat.find('.chatmessage-' + user);
+							if (!$messages.length) break;
+						}
 						$messages.hide();
 						this.$chat.append('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + '</small></button></div>');
 					}
@@ -1283,7 +1262,7 @@
 			}
 			this.$joinLeave.html('<small style="color: #555555">' + message + '</small>');
 		},
-		addChat: function (name, message, pm, deltatime) {
+		addChat: function (name, message, pm, msgTime) {
 			var userid = toUserid(name);
 
 			if (app.ignore[userid] && (name.charAt(0) === ' ' || name.charAt(0) === '+')) return;
@@ -1302,7 +1281,7 @@
 				var oName = pmuserid === app.user.get('userid') ? name : pm;
 				var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
 				this.$chat.append(
-					'<div class="chat chatmessage-' + toId(name) + '">' + ChatRoom.getTimestamp('lobby', deltatime) + 
+					'<div class="chat chatmessage-' + toId(name) + '">' + ChatRoom.getTimestamp('lobby', msgTime) +
 					'<strong style="' + hashColor(userid) + '">' + clickableName + ':</strong>' +
 					'<span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span>' +
 					'</div>'
@@ -1311,7 +1290,7 @@
 			}
 
 			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
-			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', deltatime), isHighlighted);
+			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
@@ -1334,16 +1313,12 @@
 			}
 		}
 	}, {
-		getTimestamp: function (section, deltatime) {
+		getTimestamp: function (section, msgTime) {
 			var pref = Tools.prefs('timestamps') || {};
 			var sectionPref = ((section === 'pms') ? pref.pms : pref.lobby) || 'off';
 			if ((sectionPref === 'off') || (sectionPref === undefined)) return '';
-			var date;
-			if (deltatime && !isNaN(deltatime)) {
-				date = new Date(Date.now() - deltatime * 1000);
-			} else {
-				date = new Date();
-			}
+
+			var date = (msgTime && !isNaN(msgTime) ? new Date(msgTime * 1000) : new Date());
 			var components = [date.getHours(), date.getMinutes()];
 			if (sectionPref === 'seconds') {
 				components.push(date.getSeconds());
@@ -1523,3 +1498,28 @@
 	});
 
 }).call(this, jQuery);
+
+function ChatHistory () {
+	this.lines = [];
+	this.index = 0;
+}
+
+ChatHistory.prototype.push = function (line) {
+	var duplicate = this.lines.indexOf(line);
+	if (duplicate >= 0) this.lines.splice(duplicate, 1);
+	if (this.lines.length > 100) this.lines.splice(0, 20);
+	this.lines.push(line);
+	this.index = this.lines.length;
+};
+
+ChatHistory.prototype.up = function (line) { // Ensure index !== 0 first!
+	if (line !== '') this.lines[this.index] = line;
+	return this.lines[--this.index];
+};
+
+ChatHistory.prototype.down = function (line) {
+	if (line !== '') this.lines[this.index] = line;
+	if (this.index === this.lines.length) return '';
+	if (++this.index === this.lines.length) return '';
+	return this.lines[this.index];
+};

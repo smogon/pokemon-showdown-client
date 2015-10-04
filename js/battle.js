@@ -44,7 +44,8 @@ var BattleSoundLibrary = (function () {
 			pause: function () { return this; },
 			stop: function () { return this; },
 			resume: function () { return this; },
-			setVolume: function () { return this; }
+			setVolume: function () { return this; },
+			onposition: function () { return this; }
 		};
 	}
 
@@ -1237,11 +1238,9 @@ var Side = (function () {
 	};
 
 	Side.prototype.reset = function () {
+		this.pokemon = [];
 		this.updateSprites();
 		this.sideConditions = {};
-		for (var i = 0; i < this.pokemon.length; i++) {
-			this.pokemon[i].reset();
-		}
 	};
 	Side.prototype.updateSprites = function () {
 		this.z = (this.n ? 200 : 0);
@@ -2035,6 +2034,7 @@ var Side = (function () {
 			stockpile1: '<span class="good">Stockpile</span> ',
 			stockpile2: '<span class="good">Stockpile&times;2</span> ',
 			stockpile3: '<span class="good">Stockpile&times;3</span> ',
+			perish0: '<span class="bad">Perish&nbsp;now</span>',
 			perish1: '<span class="bad">Perish&nbsp;next&nbsp;turn</span> ',
 			perish2: '<span class="bad">Perish&nbsp;in&nbsp;2</span> ',
 			perish3: '<span class="bad">Perish&nbsp;in&nbsp;3</span> ',
@@ -2646,6 +2646,7 @@ var Battle = (function () {
 			if (this.turnCallback) this.turnCallback(this);
 			if (this.fastForward > -1 && turnnum >= this.fastForward) {
 				this.fastForwardOff();
+				if (this.endCallback) this.endCallback(this);
 			}
 			return;
 		}
@@ -5873,12 +5874,12 @@ var Battle = (function () {
 		this.paused = true;
 		this.playbackState = 3;
 		if (this.resumeButton) {
-			this.frameElem.append('<div class="playbutton"><button data-action="resume"><i class="icon-play"></i> Resume</button></div>');
+			this.frameElem.append('<div class="playbutton"><button data-action="resume"><i class="fa fa-play icon-play"></i> Resume</button></div>');
 			this.frameElem.find('div.playbutton button').click(this.resumeButton);
 		}
 		this.soundPause();
 	};
-	Battle.prototype.play = function () {
+	Battle.prototype.play = function (dontResetSound) {
 		if (this.fastForward) {
 			this.paused = false;
 			this.playbackState = 5;
@@ -5888,7 +5889,7 @@ var Battle = (function () {
 				this.soundStop();
 			}
 			this.playbackState = 2;
-			if (!this.done) {
+			if (!dontResetSound && !this.done) {
 				this.soundStart();
 			}
 			this.nextActivity();

@@ -80,7 +80,7 @@
 			for (var i = 0; i < rooms.official.length; i++) {
 				var roomData = rooms.official[i];
 				var id = toId(roomData.title);
-				buf += '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc || '') + '</small></a></div>';
+				buf += '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc || '') + '</small></a></div>';
 			}
 			this.$('.roomlist').first().html(buf);
 
@@ -93,7 +93,7 @@
 				var roomData = rooms.chat[i];
 				var id = toId(roomData.title);
 				var escapedDesc = Tools.escapeHTML(roomData.desc || '');
-				buf += '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="icon-comment-alt"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + escapedDesc + '</small></a></div>';
+				buf += '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + escapedDesc + '</small></a></div>';
 			}
 			this.$('.roomlist').last().html(buf);
 		},
