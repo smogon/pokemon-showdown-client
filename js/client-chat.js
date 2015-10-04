@@ -59,18 +59,14 @@
 
 		focusText: function () {
 			if (this.$chatbox) {
-				var roomLeft, roomRight;
-				if (this === app.curSideRoom) {
-					roomLeft = app.topbar.curSideRoomLeft;
-					roomRight = app.topbar.curSideRoomRight;
-				} else {
-					roomLeft = app.topbar.curRoomLeft;
-					roomRight = app.topbar.curRoomRight;
-				}
-				if (roomLeft) roomLeft = "\u2190 " + roomLeft;
-				if (roomRight) roomRight = roomRight + " \u2192";
+				var rooms = app.roomList;
+				if (this === app.curSideRoom) rooms = app.sideRoomList;
+				else if (!app.curSideRoom) rooms = rooms.concat(app.sideRoomList);
+				var roomIndex = rooms.indexOf(this);
+				var roomLeft = rooms[roomIndex - 1];
+				var roomRight = rooms[roomIndex + 1];
 				if (roomLeft || roomRight) {
-					this.$chatbox.attr('placeholder', "  " + roomLeft + (app.arrowKeysUsed ? " | " : " (use arrow keys) ") + roomRight);
+					this.$chatbox.attr('placeholder', "  " + (roomLeft ? "\u2190 " + roomLeft.title : '') + (app.arrowKeysUsed ? " | " : " (use arrow keys) ") + (roomRight ? roomRight.title + " \u2192" : ''));
 				} else {
 					this.$chatbox.attr('placeholder', "");
 				}
