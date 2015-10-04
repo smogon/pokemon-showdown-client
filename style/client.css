@@ -365,6 +365,9 @@ a.subtle:hover {
 	text-align: left;
 	border-radius: 0;
 	display: block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .tablist li:first-child .button {
 	border-top-left-radius: 5px;
