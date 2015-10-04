@@ -2034,6 +2034,7 @@ var Side = (function () {
 			stockpile1: '<span class="good">Stockpile</span> ',
 			stockpile2: '<span class="good">Stockpile&times;2</span> ',
 			stockpile3: '<span class="good">Stockpile&times;3</span> ',
+			perish0: '<span class="bad">Perish&nbsp;now</span>',
 			perish1: '<span class="bad">Perish&nbsp;next&nbsp;turn</span> ',
 			perish2: '<span class="bad">Perish&nbsp;in&nbsp;2</span> ',
 			perish3: '<span class="bad">Perish&nbsp;in&nbsp;3</span> ',
