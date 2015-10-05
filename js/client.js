@@ -1272,7 +1272,6 @@
 			});
 		},
 		roomsResponse: function (data) {
-			app.supports['rooms'] = true;
 			if (data) {
 				this.roomsData = data;
 			}
@@ -1820,9 +1819,7 @@
 			if (window.nodewebkit) {
 				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount || '');
 			}
-			if (app.supports['rooms']) {
-				sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
-			}
+			sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			var margin = 0;
 			if (sideBuf) {
 				if (app.curSideRoom) {
@@ -2937,9 +2934,7 @@
 			var buf = '<ul>' + this.renderRooms([app.rooms[''], app.rooms['teambuilder'], app.rooms['ladder']]) + '</ul>';
 			if (app.roomList.length) buf += this.renderRooms(app.roomList);
 			var sideBuf = this.renderRooms(app.sideRoomList);
-			if (app.supports['rooms']) {
-				sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus"></i> <span>&nbsp;</span></a></li>';
-			}
+			sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus"></i> <span>&nbsp;</span></a></li>';
 			if (sideBuf) {
 				buf += '<ul>' + sideBuf + '</ul>';
 			}
