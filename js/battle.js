@@ -3098,15 +3098,19 @@ var Battle = (function () {
 		switch (effect.id) {
 		case 'taunt':
 			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' after the taunt!');
+			pokemon.markMove(move.name, 0);
 			break;
 		case 'gravity':
 			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of gravity!');
+			pokemon.markMove(move.name, 0);
 			break;
 		case 'healblock':
 			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of Heal Block!');
+			pokemon.markMove(move.name, 0);
 			break;
 		case 'imprison':
 			this.message('' + pokemon.getName() + ' can\'t use its sealed ' + move.name + '!');
+			pokemon.markMove(move.name, 0);
 			break;
 		case 'par':
 			this.resultAnim(pokemon, 'Paralyzed', 'par');
