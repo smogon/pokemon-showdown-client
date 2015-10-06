@@ -517,21 +517,15 @@
 						}
 					} else if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
 						// Left or Ctrl+Shift+Tab on desktop client
-						var left = app.sideRoomList[app.sideRoomList.indexOf(app.curSideRoom) - 1];
-						if (left) {
+						if (app.focusRoomBy(app.curSideRoom, -1)) {
 							e.preventDefault();
 							e.stopImmediatePropagation();
-							app.arrowKeysUsed = true;
-							app.focusRoom(left.id);
 						}
 					} else if (e.keyCode === 39 && safeLocation || window.nodewebkit && e.ctrlKey && e.keyCode === 9) {
 						// Right or Ctrl+Tab on desktop client
-						var right = app.sideRoomList[app.sideRoomList.indexOf(app.curSideRoom) + 1];
-						if (right) {
+						if (app.focusRoomBy(app.curSideRoom, 1)) {
 							e.preventDefault();
 							e.stopImmediatePropagation();
-							app.arrowKeysUsed = true;
-							app.focusRoom(right.id);
 						}
 					}
 					return;
@@ -551,25 +545,15 @@
 					}
 				} else if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
 					// Left or Ctrl+Shift+Tab on desktop client
-					var rooms = app.roomList;
-					if (!app.curSideRoom) rooms = rooms.concat(app.sideRoomList);
-					var left = rooms[rooms.indexOf(app.curRoom) - 1];
-					if (left) {
+					if (app.focusRoomBy(app.curRoom, -1)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
-						app.arrowKeysUsed = true;
-						app.focusRoom(left.id);
 					}
 				} else if (e.keyCode === 39 && safeLocation || window.nodewebkit && e.ctrlKey && e.keyCode === 9) {
 					// Right or Ctrl+Tab on desktop client
-					var rooms = app.roomList;
-					if (!app.curSideRoom) rooms = rooms.concat(app.sideRoomList);
-					var right = rooms[rooms.indexOf(app.curRoom) + 1];
-					if (right) {
+					if (app.focusRoomBy(app.curRoom, 1)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
-						app.arrowKeysUsed = true;
-						app.focusRoom(right.id);
 					}
 				}
 			});
@@ -1662,6 +1646,53 @@
 					this.topbar.updateTabbar();
 				}
 				room.focusText();
+				return true;
+			}
+			return false;
+		},
+		focusRoomBy: function (room, amount) {
+			this.arrowKeysUsed = true;
+			if (room && room.id === 'rooms') {
+				if (amount > 0) return false;
+				if (this.sideRoomList.length) {
+					this.focusRoom(this.sideRoomList[this.sideRoomList.length - 1].id);
+					return true;
+				}
+				if (this.roomList.length) {
+					this.focusRoom(this.roomList[this.roomList.length - 1].id);
+					return true;
+				}
+				return false;
+			}
+			var index = this.roomList.indexOf(room);
+			if (index >= 0) {
+				var newIndex = index + amount;
+				if (newIndex < 0) return false;
+				if (newIndex >= this.roomList.length) {
+					if (!this.sideRoomList.length) {
+						this.joinRoom('rooms');
+						return true;
+					}
+					this.focusRoom(this.sideRoomList[0].id);
+					return true;
+				}
+				if (!this.roomList[newIndex]) return false;
+				this.focusRoom(this.roomList[newIndex].id);
+				return true;
+			}
+			index = this.sideRoomList.indexOf(room);
+			if (index >= 0) {
+				var newIndex = index + amount;
+				if (newIndex >= this.sideRoomList.length) {
+					this.joinRoom('rooms');
+					return true;
+				}
+				if (newIndex < 0) {
+					if (!this.roomList.length) return false;
+					this.focusRoom(this.roomList[this.roomList.length - 1].id);
+				}
+				if (!this.sideRoomList[newIndex]) return false;
+				this.focusRoom(this.sideRoomList[newIndex].id);
 				return true;
 			}
 			return false;
