@@ -505,13 +505,13 @@
 					// keypress happened in sideroom
 					if (e.shiftKey && e.keyCode === 37 && safeLocation) {
 						// Shift+Left on desktop client
-						if (app.moveRoomBy(app.sideRoomList, app.curSideRoom, -1)) {
+						if (app.moveRoomBy(app.curSideRoom, -1)) {
 							e.preventDefault();
 							e.stopImmediatePropagation();
 						}
 					} else if (e.shiftKey && e.keyCode === 39 && safeLocation) {
 						// Shift+Right on desktop client
-						if (app.moveRoomBy(app.sideRoomList, app.curSideRoom, 1)) {
+						if (app.moveRoomBy(app.curSideRoom, 1)) {
 							e.preventDefault();
 							e.stopImmediatePropagation();
 						}
@@ -539,13 +539,13 @@
 				// keypress happened outside of sideroom
 				if (e.shiftKey && e.keyCode === 37 && safeLocation) {
 					// Shift+Left on desktop client
-					if (app.moveRoomBy(app.roomList, app.curRoom, -1) || app.moveRoomBy(app.sideRoomList, app.curRoom, -1)) {
+					if (app.moveRoomBy(app.curRoom, -1)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
 					}
 				} else if (e.shiftKey && e.keyCode === 39 && safeLocation) {
 					// Shift+Right on desktop client
-					if (app.moveRoomBy(app.roomList, app.curRoom, 1) || app.moveRoomBy(app.sideRoomList, app.curRoom, 1)) {
+					if (app.moveRoomBy(app.curRoom, 1)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
 					}
@@ -1455,6 +1455,56 @@
 			room.focus();
 			return;
 		},
+		focusRoomLeft: function (id) {
+			var room = this.rooms[id];
+			if (!room) return false;
+			if (this.curRoom === room) {
+				room.focus();
+				return true;
+			}
+
+			if (this.curSideRoom === room) {
+				this.sideRoom = this.curSideRoom = this.sideRoomList[0] || null;
+			}
+
+			room.isSideRoom = false;
+			if (this.curRoom) {
+				this.curRoom.hide();
+				this.curRoom = null;
+			} else if (this.rooms['']) {
+				this.rooms[''].hide();
+			}
+			this.curRoom = room;
+			this.updateLayout();
+			if (this.curRoom.id === id) this.navigate(id);
+
+			room.focus();
+			return;
+		},
+		focusRoomRight: function (id) {
+			var room = this.rooms[id];
+			if (!room) return false;
+			if (this.curSideRoom === room) {
+				room.focus();
+				return true;
+			}
+
+			if (this.curRoom === room) {
+				this.curRoom = this.roomList[this.roomList.length - 1] || this.rooms[''];
+			}
+
+			room.isSideRoom = true;
+			if (this.curSideRoom) {
+				this.curSideRoom.hide();
+				this.curSideRoom = null;
+			}
+			this.curSideRoom = this.sideRoom = room;
+			this.updateLayout();
+			// if (this.curRoom.id === id) this.navigate(id);
+
+			room.focus();
+			return;
+		},
 		updateLayout: function () {
 			if (!this.curRoom) return; // can happen during initialization
 			this.dismissPopups();
@@ -1581,15 +1631,40 @@
 			}
 			return false;
 		},
-		moveRoomBy: function (list, room, amount) {
-			var index = list.indexOf(room);
-			var newIndex = index + amount;
-			if (newIndex < 0 || newIndex >= list.length) return false;
-			list.splice(index, 1);
-			list.splice(newIndex, 0, room);
-			this.topbar.updateTabbar();
-			room.focusText();
-			return true;
+		moveRoomBy: function (room, amount) {
+			var index = this.roomList.indexOf(room);
+			if (index >= 0) {
+				var newIndex = index + amount;
+				if (newIndex < 0) return false;
+				if (newIndex >= this.roomList.length) {
+					this.roomList.splice(index, 1);
+					this.sideRoomList.unshift(room);
+					this.focusRoomRight(room.id);
+				} else {
+					this.roomList.splice(index, 1);
+					this.roomList.splice(newIndex, 0, room);
+					this.topbar.updateTabbar();
+				}
+				room.focusText();
+				return true;
+			}
+			index = this.sideRoomList.indexOf(room);
+			if (index >= 0) {
+				var newIndex = index + amount;
+				if (newIndex >= this.sideRoomList.length) return false;
+				if (newIndex < 0) {
+					this.sideRoomList.splice(index, 1);
+					this.roomList.push(room);
+					this.focusRoomLeft(room.id);
+				} else {
+					this.sideRoomList.splice(index, 1);
+					this.sideRoomList.splice(newIndex, 0, room);
+					this.topbar.updateTabbar();
+				}
+				room.focusText();
+				return true;
+			}
+			return false;
 		},
 		openInNewWindow: function (url) {
 			if (window.nodewebkit) {
