@@ -503,11 +503,8 @@
 				return false;
 
 			case 'logout':
-				$.post(app.user.getActionPHP(), {
-					act: 'logout',
-					userid: app.user.get('userid')
-				});
-				return text;
+				app.user.logout();
+				return false;
 
 			case 'showdebug':
 				this.add('Debug battle messages: ON');
