@@ -1234,7 +1234,7 @@
 
 			buf += '<div class="col evslidercol"><div></div>';
 			for (var i in stats) {
-				buf += '<div><input type="slider" name="evslider-' + i + '" value="' + (set.evs[i] || '0') + '" min="0" max="252" step="4" class="evslider" /></div>';
+				buf += '<div><input type="slider" name="evslider-' + i + '" value="' + Tools.escapeHTML(set.evs[i] || '0') + '" min="0" max="252" step="4" class="evslider" /></div>';
 			}
 			buf += '</div>';
 
@@ -1244,7 +1244,7 @@
 			for (var i in stats) {
 				if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = 31;
 				var val = '' + (set.ivs[i]);
-				buf += '<div><input type="number" name="iv-' + i + '" value="' + val + '" class="inputform numform" min="0" max="31" step="1" /></div>';
+				buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="31" step="1" /></div>';
 			}
 			buf += '</div>';
 
@@ -1440,7 +1440,7 @@
 			buf += '<h3>Details</h3>';
 			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (set.level || 100) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + Tools.escapeHTML(set.level || 100) + '" class="textbox inputform numform" /></div></div>';
 
 			buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
 			if (template.gender) {
