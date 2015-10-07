@@ -1630,6 +1630,7 @@
 					this.topbar.updateTabbar();
 				}
 				room.focusText();
+				if (room.type === 'chat') this.updateAutojoin();
 				return true;
 			}
 			index = this.sideRoomList.indexOf(room);
@@ -1646,6 +1647,7 @@
 					this.topbar.updateTabbar();
 				}
 				room.focusText();
+				if (room.type === 'chat') this.updateAutojoin();
 				return true;
 			}
 			return false;
