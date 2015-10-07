@@ -798,10 +798,6 @@ var Tools = {
 			} else if (id && window.BattleItems && BattleItems[id] && BattleItems[id].effect) {
 				effect = BattleItems[id].effect;
 				effect.exists = true;
-			} else if (id && window.BattleFormats && BattleFormats[id]) {
-				effect = BattleFormats[id];
-				effect.exists = true;
-				if (!effect.effectType) effect.effectType = 'Format';
 			} else if (id === 'recoil') {
 				effect = {
 					effectType: 'Recoil'

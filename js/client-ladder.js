@@ -34,7 +34,7 @@
 						ladderButtons += '</ul><h3>' + Tools.escapeHTML(curSection) + '</h3><ul style="list-style:none;margin:0;padding:0">';
 					}
 					if (!format.searchShow || !format.rated) continue;
-					ladderButtons += '<li style="margin:5px"><button name="selectFormat" value="' + i + '" class="button" style="width:320px;height:30px;text-align:left;font:12pt Verdana">' + format.name + '</button></li>';
+					ladderButtons += '<li style="margin:5px"><button name="selectFormat" value="' + i + '" class="button" style="width:320px;height:30px;text-align:left;font:12pt Verdana">' + Tools.escapeFormat(format.id) + '</button></li>';
 				}
 				this.$el.html('<div class="ladder pad"><p>See a user\'s ranking with <code>/ranking <em>username</em></code></p>' +
 					//'<p><strong style="color:red">I\'m really really sorry, but as a warning: we\'re going to reset the ladder again soon to fix some more ladder bugs.</strong></p>' +
