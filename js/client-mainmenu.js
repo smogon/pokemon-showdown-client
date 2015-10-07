@@ -807,7 +807,7 @@
 					}
 					bufs[curBuf] += '<li><h3>' + Tools.escapeHTML(curSection) + '</li>';
 				}
-				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + Tools.escapeHTML(format.name) + '</button></li>';
+				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + Tools.escapeFormat(format.id) + '</button></li>';
 			}
 
 			var html = '';
@@ -934,7 +934,7 @@
 							if (curSection) buf += '<optgroup label="' + Tools.escapeHTML(curSection) + '">';
 						}
 						var activeFormat = (this.format === i ? ' selected=' : '');
-						buf += '<option value="' + i + '"' + activeFormat + '>' + format.name + '</option>';
+						buf += '<option value="' + i + '"' + activeFormat + '>' + Tools.escapeFormat(format.id) + '</option>';
 					}
 				}
 				if (curSection) buf += '</optgroup>';

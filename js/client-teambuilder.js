@@ -505,7 +505,7 @@
 								if (curSection) buf += '<optgroup label="' + Tools.escapeHTML(curSection) + '">';
 							}
 							var activeFormat = (this.curTeam.format === i ? ' selected="selected"' : '');
-							buf += '<option value="' + i + '"' + activeFormat + '>' + format.name + '</option>';
+							buf += '<option value="' + i + '"' + activeFormat + '>' + Tools.escapeFormat(format.id) + '</option>';
 						}
 					}
 					if (curSection) buf += '</optgroup>';
