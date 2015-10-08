@@ -180,10 +180,19 @@
 			this.battle.add('', Tools.prefs('noanim'));
 			this.updateControls();
 		},
-		revealMessages: function (user) {
+		toggleMessages: function (user) {
 			var $messages = $('.chatmessage-' + user);
-			$messages.addClass('revealed').show();
-			$messages.find('button').parent().remove();
+			var $button = $messages.find('button');
+			if ($messages.hasClass('revealed')) {
+				$messages.removeClass('revealed').hide();
+				$button.html('<small>View ' + ($messages.length - 1) + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.parent().show();
+			} else {
+				$messages.addClass('revealed');
+				$button.html('<small>Hide ' + ($messages.length - 1) + ' revealed message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.parent().removeClass('revealed');
+				$messages.show();
+			}
 		},
 
 		/*********************************************************
