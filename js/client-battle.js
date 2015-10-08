@@ -1242,9 +1242,10 @@
 		// Gets the proper current type for moves with a variable type.
 		getMoveType: function(move, pokemon) {
 			var myPokemon = this.myPokemon[pokemon.slot];
+			var ability = Tools.getAbility(myPokemon.baseAbility).name;
 			var moveType = move.type;
 			// Normalize is the first move type changing effect.
-			if (pokemon.ability === 'Normalize') {
+			if (ability === 'Normalize') {
 				moveType = 'Normal';
 			}
 			// Moves that require an item to change their type.
@@ -1265,11 +1266,11 @@
 			// Weather and pseudo-weather type changes.
 			if (move.id === 'weatherball' && this.battle.weather) {
 				// Check if you have an anti weather ability to skip this.
-				var noWeatherAbility = !!(pokemon.ability in {'Air Lock': 1, 'Cloud Nine': 1});
+				var noWeatherAbility = !!(ability in {'Air Lock': 1, 'Cloud Nine': 1});
 				// If you don't, check if the opponent has it afterwards.
 				if (!noWeatherAbility) {
 					for (var i = 0; i < this.battle.yourSide.active.length; i++) {
-						if (this.battle.yourSide.active[i].ability && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+						if (this.battle.yourSide.active[i] && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
 							noWeatherAbility = true;
 							break;
 						}
@@ -1286,9 +1287,9 @@
 			}
 			// Other abilities that change the move type.
 			if (moveType === 'Normal' && move.id !== 'naturalgift') {
-				if (pokemon.ability === 'Aerilate') moveType = 'Flying';
-				if (pokemon.ability === 'Pixilate') moveType = 'Fairy';
-				if (pokemon.ability === 'Refrigerate') moveType = 'Ice';
+				if (ability === 'Aerilate') moveType = 'Flying';
+				if (ability === 'Pixilate') moveType = 'Fairy';
+				if (ability === 'Refrigerate') moveType = 'Ice';
 			}
 			return moveType;
 		},
@@ -1297,6 +1298,7 @@
 		// If it is unsure of the actual base power, it gives an estimate.
 		getMoveBasePower: function(move, pokemon, target) {
 			var myPokemon = this.myPokemon[pokemon.slot];
+			var ability = Tools.getAbility(myPokemon.baseAbility).name;
 			var basePower = move.basePower;
 			var basePowerComment = '';
 			var thereIsWeather = (this.battle.weather in {'sunnyday': 1, 'desolateland': 1, 'raindance': 1, 'primordialsea': 1, 'sandstorm': 1, 'hail':1});
@@ -1398,7 +1400,7 @@
 				else max = 40;
 				// Special case due to being a range. Other moves are checked by technician below.
 				basePower = 0;
-				if (pokemon.ability === 'technician') {
+				if (ability === 'Technician') {
 					if (min <= 60) min *= 1.5;
 					if (max <= 60) max *= 1.5;
 					basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
@@ -1415,7 +1417,7 @@
 				if (max > 150) max = 150;
 				// Special case due to range as well.
 				basePower = 0;
-				if (pokemon.ability === 'technician') {
+				if (ability === 'Technician') {
 					if (min <= 60) min *= 1.5;
 					if (max <= 60) max = Math.max(max * 1.5, 90);
 					basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
@@ -1459,18 +1461,20 @@
 					if (target.volatiles && target.volatiles.autotomize) basePowerComment = ' (Approximation)';
 				}
 			}
+			if (!basePower) return basePowerComment;
+
 			// Other ability boosts.
-			if (pokemon.ability === 'technician' && basePower <= 60) {
+			if (ability === 'Technician' && basePower <= 60) {
 				basePower *= 1.5;
 				basePowerComment = ' (Technician boosted)';
 			}
-			if (move.type === 'Normal' && move.id !== 'naturalgift' && (!thereIsWeather || thereIsWeather && move.id !== 'weatherball')) {
-				if (pokemon.ability in {'Aerilate': 1, 'Pixilate': 1, 'Refrigerate': 1}) {
+			if (move.type === 'Normal' && move.category !== 'Status' && move.id !== 'naturalgift' && (!thereIsWeather || thereIsWeather && move.id !== 'weatherball')) {
+				if (ability in {'Aerilate': 1, 'Pixilate': 1, 'Refrigerate': 1}) {
 					basePower = Math.floor(basePower * 1.3);
-					basePowerComment = ' (' + pokemon.ability + ' boosted)';
+					basePowerComment = ' (' + ability + ' boosted)';
 				}
 			}
-			return (basePower > 0) ? basePower + basePowerComment : basePowerComment;
+			return basePower + basePowerComment;
 		}
 	});
 
