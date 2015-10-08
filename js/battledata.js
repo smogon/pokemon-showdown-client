@@ -589,12 +589,13 @@ var Tools = {
 				throw new Error('sanitizeHTML requires caja');
 			};
 		}
-		// Add <marquee> and <blink> to the whitelist.
+		// Add <marquee>, <style>, and <blink> to the whitelist.
 		// See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee
 		// for the list of attributes.
 		$.extend(html4.ELEMENTS, {
 			'marquee': 0,
-			'blink': 0
+			'blink': 0,
+			'style': 0
 		});
 		$.extend(html4.ATTRIBS, {
 			'marquee::behavior': 0,
