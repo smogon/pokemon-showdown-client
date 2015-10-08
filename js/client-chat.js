@@ -1116,8 +1116,8 @@
 							$messages = this.$chat.find('.chatmessage-' + user);
 							if (!$messages.length) break;
 						}
-						$messages.hide();
-						this.$chat.append('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + '</small></button></div>');
+						$messages.hide().find('button').parent().remove();
+						this.$chat.append('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small></button></div>');
 					}
 					break;
 
@@ -1138,10 +1138,19 @@
 				}
 			}
 		},
-		revealMessages: function (user) {
+		toggleMessages: function (user) {
 			var $messages = $('.chatmessage-' + user);
-			$messages.addClass('revealed').show();
-			$messages.find('button').parent().remove();
+			var $button = $messages.find('button');
+			if ($messages.hasClass('revealed')) {
+				$messages.removeClass('revealed').hide();
+				$button.html('<small>View ' + ($messages.length - 1) + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.parent().show();
+			} else {
+				$messages.addClass('revealed');
+				$button.html('<small>Hide ' + ($messages.length - 1) + ' revealed message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.parent().removeClass('revealed');
+				$messages.show();
+			}
 		},
 		tournamentButton: function (val, button) {
 			if (this.tournamentBox) this.tournamentBox[$(button).data('type')](val, button);
