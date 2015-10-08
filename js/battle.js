@@ -5751,8 +5751,8 @@ var Battle = (function () {
 			if (!$messages.length) break;
 			$messages.find('a').contents().unwrap();
 			if (window.BattleRoom && args[2]) {
-				$messages.hide();
-				this.log('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + '</small></button></div>');
+				$messages.hide().find('button').parent().remove();
+				this.log('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small></button></div>');
 			}
 			break;
 		default:
