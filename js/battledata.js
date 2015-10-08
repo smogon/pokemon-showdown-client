@@ -595,7 +595,7 @@ var Tools = {
 		$.extend(html4.ELEMENTS, {
 			'marquee': 0,
 			'blink': 0,
-			'style': 0
+			'style': 3
 		});
 		$.extend(html4.ATTRIBS, {
 			'marquee::behavior': 0,
