@@ -59,9 +59,7 @@
 
 		focusText: function () {
 			if (this.$chatbox) {
-				var rooms = app.roomList;
-				if (this === app.curSideRoom) rooms = app.sideRoomList;
-				else if (!app.curSideRoom) rooms = rooms.concat(app.sideRoomList);
+				var rooms = app.roomList.concat(app.sideRoomList);
 				var roomIndex = rooms.indexOf(this);
 				var roomLeft = rooms[roomIndex - 1];
 				var roomRight = rooms[roomIndex + 1];
