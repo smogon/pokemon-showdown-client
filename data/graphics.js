@@ -142,6 +142,11 @@ var BattleEffects = {
 		BattleEffects[i].url = Tools.resourcePrefix + BattleEffects[i].url;
 	}
 })();
+var BattleBackdropsFour = [
+	'bg-gen4.png',
+	'bg-gen4-cave.png',
+	'bg-gen4-snow.png'
+];
 var BattleBackdrops = [
 	'bg-beach.png',
 	'bg-beachshore.png',
