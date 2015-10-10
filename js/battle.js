@@ -3052,7 +3052,7 @@ var Battle = (function () {
 				} else {
 					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				}
-				if (!fromeffect.id) {
+				if (!fromeffect.id || fromeffect.id === 'pursuit') {
 					var pp = (target && target.side !== pokemon.side && toId(target.ability) === 'pressure' ? 2 : 1);
 					pokemon.markMove(move.name, pp);
 				}
