@@ -1002,7 +1002,8 @@
 					// Falls through to not to repeat code on showing the base power.
 				}
 				if (!basePowerText) {
-					basePower = this.getMoveBasePower(move, pokemon, yourActive[0]) || basePower;
+					var activeTarget = yourActive[0] || yourActive[1] || yourActive[2];
+					basePower = this.getMoveBasePower(move, pokemon, activeTarget) || basePower;
 					if (!basePower) basePower = '&mdash;';
 					basePowerText = '<p>Base power: ' + basePower + '</p>'
 				}
