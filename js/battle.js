@@ -2240,7 +2240,7 @@ var Battle = (function () {
 	Battle.prototype.updateGen = function () {
 		if (!Tools.prefs('nopastgens')) {
 			if (this.gen <= 2) this.backdropImage = 'bg-gen1.png';
-			else if (this.gen <= 3) this.backdropImage = 'bg-gen3.png';
+			else if (this.gen <= 3) this.backdropImage = BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
 			else if (this.gen <= 4) this.backdropImage = BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
 		}
 		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ')');
