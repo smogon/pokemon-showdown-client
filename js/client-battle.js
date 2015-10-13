@@ -1287,7 +1287,7 @@
 				}
 			}
 			// Other abilities that change the move type.
-			if (moveType === 'Normal' && move.id !== 'naturalgift') {
+			if (moveType === 'Normal' && move.category && move.category !== 'Status' && move.id !== 'naturalgift') {
 				if (ability === 'Aerilate') moveType = 'Flying';
 				if (ability === 'Pixilate') moveType = 'Fairy';
 				if (ability === 'Refrigerate') moveType = 'Ice';
