@@ -248,7 +248,7 @@
 						$infoList = $('<ul></ul>');
 						tournaments.forEach(function (tournament) {
 							var $info = $('<li></li>');
-							$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
+							$info.text(": " + Tools.escapeFormat(tournament.format) + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
 							$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
 							$infoList.append($info);
 						});
@@ -262,9 +262,9 @@
 			} else {
 				switch (cmd) {
 				case 'create':
-					var format = Tools.getEffect(data[0]).name;
+					var format = Tools.escapeFormat(data[0]);
 					var type = data[1];
-					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament created.</div>");
+					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + format + " " + Tools.escapeHTML(type) + " Tournament created.</div>");
 					this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + format + "\nType: " + type, 'tournament-create');
 					this.updateTeams();
 					break;
@@ -354,7 +354,7 @@
 					}
 
 					if ('format' in this.updates) {
-						this.$format.text(Tools.getEffect(this.info.format).name);
+						this.$format.text(Tools.escapeFormat(this.info.format));
 						this.updateTeams();
 					}
 					if ('generator' in this.updates)
@@ -460,9 +460,9 @@
 						}
 					}
 
-					var format = Tools.getEffect(endData.format).name;
+					var format = Tools.escapeFormat(endData.format);
 					var type = endData.generator;
-					this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament!</div>");
+					this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + format + " " + Tools.escapeHTML(type) + " Tournament!</div>");
 					if (endData.results[1])
 						this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") + ": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
 
