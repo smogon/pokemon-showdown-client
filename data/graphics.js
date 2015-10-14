@@ -143,18 +143,18 @@ var BattleEffects = {
 	}
 })();
 var BattleBackdropsThree = [
-	'bg-gen3.png'
-	'bg-gen3-cave.png'
-	'bg-gen3-ocean.png'
-	'bg-gen3-sand.png'
-	'bg-gen3-forest.png'
+	'bg-gen3.png',
+	'bg-gen3-cave.png',
+	'bg-gen3-ocean.png',
+	'bg-gen3-sand.png',
+	'bg-gen3-forest.png',
 	'bg-gen3-arena.png'
 ];
 var BattleBackdropsFour = [
 	'bg-gen4.png',
 	'bg-gen4-cave.png',
-	'bg-gen4-snow.png'
-	'bg-gen4-indoors.png'
+	'bg-gen4-snow.png',
+	'bg-gen4-indoors.png',
 	'bg-gen4-water.png'
 ];
 var BattleBackdrops = [
