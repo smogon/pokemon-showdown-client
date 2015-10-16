@@ -1103,6 +1103,9 @@ a.ilink:hover {
 	text-decoration: underline;
 	color: #6688CC;
 }
+a.ilink.yours {
+	color: #55388B;
+}
 
 .chatbox {
 	margin: 0 10px 0 80px;
