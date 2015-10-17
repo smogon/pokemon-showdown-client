@@ -672,7 +672,7 @@ BattlePokemonSprites = {
 	"archeops": {num:567, front:{ani:{w:144,h:127}}, back:{ani:{w:182,h:142}}},
 	"trubbish": {num:568, front:{ani:{w:75,h:57}}, back:{ani:{w:65,h:59}}},
 	"garbodor": {num:569, front:{ani:{w:118,h:88}}, back:{ani:{w:129,h:95}}},
-	"zorua": {num:570, front:{ani:{w:47,h:63}}, back:{ani:{w:53,h:62}}},
+	"zorua": {num:570, front:{ani:{w:49,h:69}}, back:{ani:{w:53,h:62}}},
 	"zoroark": {num:571, front:{ani:{w:86,h:94}}, back:{ani:{w:141,h:97}}},
 	"minccino": {num:572, front:{ani:{w:72,h:61}}, back:{ani:{w:69,h:61}}},
 	"cinccino": {num:573, front:{ani:{w:80,h:63}}, back:{ani:{w:74,h:65}}},
