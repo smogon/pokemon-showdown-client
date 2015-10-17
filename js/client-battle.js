@@ -71,7 +71,7 @@
 			if (this.battle) this.battle.destroy();
 		},
 		requestLeave: function (e) {
-			if (this.side && this.battle && !this.battle.done && !this.battle.forfeitPending) {
+			if (this.side && this.battle && !this.battle.done && !this.battle.forfeitPending && !this.battle.replay) {
 				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget});
 				return false;
 			}
