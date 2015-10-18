@@ -2105,15 +2105,20 @@
 					if ((hasMove['substitute'] || hasMove['bellydrum']) && (set.item || '').slice(-5) === 'Berry') {
 						hpParity = 0;
 					}
-					if (this.getStat('hp', null, evs['hp'] || 0, 1) % 2 != hpParity) {
-						if (evs['hp']) {
-							evs['hp'] -= 4;
-							evTotal -= 4;
-						} else {
-							evs['hp'] = 4;
-							evTotal += 4;
-						}
+					var hp = evs['hp'] || 0;
+					while (hp < 252 && evTotal < 508 && this.getStat('hp', null, hp, 1) % 2 !== hpParity) {
+						hp += 4;
+						evTotal += 4;
 					}
+					while (hp && this.getStat('hp', null, hp, 1) % 2 !== hpParity) {
+						hp -= 4;
+						evTotal -= 4;
+					}
+					while (hp && this.getStat('hp', null, hp - 4, 1) % 2 === hpParity) {
+						hp -= 4;
+						evTotal -= 4;
+					}
+					if (hp || evs['hp']) evs['hp'] = hp;
 				}
 
 				if (template.id === 'tentacruel') evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
@@ -2127,18 +2132,32 @@
 				if (evTotal < 508) {
 					var remaining = 508 - evTotal;
 					if (remaining > 252) remaining = 252;
+					i = null;
 					if (!evs['atk'] && moveCount['PhysicalAttack'] >= 1) {
-						evs['atk'] = remaining;
+						i = 'atk';
 					} else if (!evs['spa'] && moveCount['SpecialAttack'] >= 1) {
-						evs['spa'] = remaining;
+						i = 'spa';
 					} else if (stats.hp == 1 && !evs['def']) {
-						evs['def'] = remaining;
+						i = 'def';
 					} else if (stats.def === stats.spd && !evs['spd']) {
-						evs['spd'] = remaining;
+						i = 'spd';
 					} else if (!evs['spd']) {
-						evs['spd'] = remaining;
+						i = 'spd';
 					} else if (!evs['def']) {
-						evs['def'] = remaining;
+						i = 'def';
+					}
+					if (i) {
+						ev = remaining;
+						stat = this.getStat(i, null, ev);
+						while (ev > 0 && stat === this.getStat(i, null, ev - 4)) ev -= 4;
+						if (ev) evs[i] = ev;
+						remaining -= ev;
+					}
+					if (remaining && !evs['spe']) {
+						ev = remaining;
+						stat = this.getStat('spe', null, ev);
+						while (ev > 0 && stat === this.getStat('spe', null, ev - 4)) ev -= 4;
+						if (ev) evs['spe'] = ev;
 					}
 				}
 
@@ -2199,6 +2218,7 @@
 			if (!set.level) set.level = 100;
 			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
 
+			if (evOverride === 0) evOverride = 1;
 			if (stat === 'hp') {
 				if (template.baseStats['hp'] === 1) return 1;
 				return Math.floor(Math.floor(2 * template.baseStats['hp'] + (set.ivs['hp'] || 0) + Math.floor((evOverride || set.evs['hp'] || 0) / 4) + 100) * set.level / 100 + 10);
