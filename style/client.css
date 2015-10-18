@@ -1280,20 +1280,20 @@ a.ilink.yours {
 }
 .tournament-bracket-tree-node > rect {
 	/* Note: Due to SVG limitations, dimensions and border radii are in client-chat-tournament.js (nodeSize) */
-	fill: rgba(225, 232, 242, 0.7);
-	stroke: rgba(178, 183, 191, 0.7);
+	fill: rgba(74, 77, 80, 0.2);
+	stroke: rgba(74, 77, 80, 0.7);
 }
 .tournament-bracket-tree-node-win > rect {
-	fill: rgba(0, 255, 0, 0.2);
-	stroke: rgba(0, 255, 0, 0.5);
+	fill: rgba(0, 128, 0, 0.2);
+	stroke: rgba(0, 128, 0, 0.7);
 }
 .tournament-bracket-tree-node-draw > rect {
-	fill: rgba(255, 255, 0, 0.2);
-	stroke: rgba(255, 255, 0, 0.5);
+	fill: rgba(255, 128, 0, 0.2);
+	stroke: rgba(255, 128, 0, 0.7);
 }
 .tournament-bracket-tree-node-loss > rect {
 	fill: rgba(255, 0, 0, 0.2);
-	stroke: rgba(255, 0, 0, 0.5);
+	stroke: rgba(255, 0, 0, 0.7);
 }
 .tournament-bracket-tree-node > text {
 	font-size: 0.8em;
@@ -1310,7 +1310,7 @@ a.ilink.yours {
 	font-weight: bold;
 }
 .tournament-bracket-tree-node-match-team-draw, .tournament-bracket-tree-node-match-team-loss {
-	fill: #aaa;
+	fill: #555;
 }
 
 .tournament-tools {
