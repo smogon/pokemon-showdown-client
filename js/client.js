@@ -2388,7 +2388,7 @@
 		},
 		events: {
 			'click .ilink': 'clickLink',
-			'click .yours': 'avatars'
+			'click .trainersprite.yours': 'avatars'
 		},
 		update: function (data) {
 			if (data && data.userid === this.data.userid) {
