@@ -1146,7 +1146,7 @@
 						}
 						text += '</p>';
 					} else if (myPokemon.item) {
-						text += '<p> / Item: ' + Tools.getItem(myPokemon.item).name + '</p>';
+						text += '<p>Item: ' + Tools.getItem(myPokemon.item).name + '</p>';
 					}
 					text += '<p>' + myPokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + myPokemon.stats['def'] + '&nbsp;Def /&nbsp;' + myPokemon.stats['spa'];
 					if (this.battle.gen === 1) {
