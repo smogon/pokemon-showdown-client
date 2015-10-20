@@ -2898,14 +2898,14 @@ var Battle = (function () {
 		effectElem.delay(i * 350 + this.animationDelay).css({
 			display: 'block',
 			opacity: 0,
-			top: pokemon.sprite.top - 5,
+			top: pokemon.sprite.top - (type === 'ability' ? 25 : 5),
 			left: pokemon.sprite.left - 75
 		}).animate({
 			opacity: 1
 		}, 1);
 		effectElem.animate({
 			opacity: 0,
-			top: pokemon.sprite.top - 65
+			top: pokemon.sprite.top - (type === 'ability' ? 85 : 65)
 		}, 1000, 'swing');
 		pokemon.side.updateStatbar(pokemon);
 		this.activityWait(effectElem);
@@ -3220,6 +3220,11 @@ var Battle = (function () {
 				} else if (kwargs.from) {
 					var effect = Tools.getEffect(kwargs.from);
 					var ofpoke = this.getPokemon(kwargs.of);
+					if (effect.effectType === 'Ability') {
+						this.resultAnim(ofpoke, effect.name, 'ability', animDelay);
+						this.message('', "<small>[" + ofpoke.getName(true) + "'s " + effect.name + "!]</small>");
+						ofpoke.markAbility(effect.name);
+					}
 					switch (effect.id) {
 					case 'stealthrock':
 						actions += "Pointed stones dug into " + poke.getLowerName() + "!";
@@ -3252,6 +3257,16 @@ var Battle = (function () {
 						break;
 					case 'nightmare':
 						actions += "" + poke.getName() + " is locked in a nightmare!";
+						break;
+					case 'roughskin':
+					case 'ironbarbs':
+						actions += "" + poke.getName() + " was hurt!";
+						break;
+					case 'aftermath':
+						actions += "" + poke.getName() + " is hurt!";
+						break;
+					case 'liquidooze':
+						actions += "" + poke.getName() + " sucked up the liquid ooze!";
 						break;
 					case 'confusion':
 						actions += "It hurt itself in its confusion! ";
@@ -3310,6 +3325,11 @@ var Battle = (function () {
 				} else if (kwargs.from) {
 					var effect = Tools.getEffect(kwargs.from);
 					var ofpoke = this.getPokemon(kwargs.of);
+					if (effect.effectType === 'Ability') {
+						this.resultAnim(poke, effect.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
+						poke.markAbility(effect.name);
+					}
 					switch (effect.id) {
 					case 'ingrain':
 						actions += "" + poke.getName() + " absorbed nutrients with its roots!";
@@ -3395,7 +3415,7 @@ var Battle = (function () {
 					poke.boosts[stat] = 0;
 				}
 				poke.boosts[stat] += amount;
-				this.resultAnim(poke, poke.getBoost(stat), 'good', 2);
+				this.resultAnim(poke, poke.getBoost(stat), 'good', animDelay);
 
 				var amountString = '';
 				if (amount === 2) amountString = ' sharply';
@@ -3408,8 +3428,6 @@ var Battle = (function () {
 					switch (effect.id) {
 					default:
 						if (effect.effectType === 'Ability') {
-							this.resultAnim(poke, effect.name, 'ability', animDelay);
-							this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
 							actions += "" + poke.getName() + "'s " + BattleStats[stat] + " rose" + amountString + "!";
 						}
 						if (effect.effectType === 'Item') {
@@ -3443,10 +3461,11 @@ var Battle = (function () {
 					var ofpoke = this.getPokemon(kwargs.of);
 					switch (effect.id) {
 					default:
+						if (effect.effectType === 'Ability') {
+							actions += "" + poke.getName() + "'s " + BattleStats[stat] + " fell" + amountString + "!";
+						}
 						if (effect.effectType === 'Item') {
 							actions += "The " + effect.name + amountString + " lowered " + poke.getLowerName() + "'s " + BattleStats[stat] + "!";
-						} else {
-							actions += "" + poke.getName() + "'s " + effect.name + amountString + " lowered its " + BattleStats[stat] + "!";
 						}
 						break;
 					}
@@ -3606,12 +3625,18 @@ var Battle = (function () {
 			case '-immune':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
+				var fromeffect = Tools.getEffect(kwargs.from);
 				this.resultAnim(poke, 'Immune', 'neutral', animDelay);
 				switch (effect.id) {
 				case 'confusion':
 					actions += "" + poke.getName() + " doesn't become confused! ";
 					break;
 				default:
+					if (fromeffect && fromeffect.effectType === 'Ability') {
+						this.resultAnim(poke, fromeffect.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+						poke.markAbility(fromeffect.name);
+					}
 					if (kwargs.msg) {
 						actions += "It doesn't affect " + poke.getLowerName() + "... ";
 					} else if (kwargs.ohko) {
@@ -4646,6 +4671,11 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
 				var ofpoke = this.getPokemon(kwargs.of);
+				if (effect.effectType === 'Ability') {
+					this.resultAnim(poke, effect.name, 'ability', animDelay);
+					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
+					poke.markAbility(effect.name);
+				}
 				switch (effect.id) {
 				case 'confusion':
 					actions += "" + poke.getName() + " is confused!";
@@ -4872,12 +4902,10 @@ var Battle = (function () {
 					}
 					break;
 				case 'mummy':
-					this.resultAnim(poke, 'Mummy', 'ability', animDelay);
-					this.message('', "<small>[" + poke.getName(true) + "'s Mummy!]</small>");
 					var ability = Tools.getAbility(args[3]);
-					this.resultAnim(ofpoke, ability.name, 'ability', 3);
+					this.resultAnim(ofpoke, ability.name, 'ability', 2);
 					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + ability.name + "!]</small>");
-					this.resultAnim(ofpoke, 'Mummy', 'ability', 6);
+					this.resultAnim(ofpoke, 'Mummy', 'ability', 4);
 					this.message('', "<small>[" + ofpoke.getName(true) + "'s Mummy!]</small>");
 					actions += "" + ofpoke.getName() + "'s Ability became Mummy!";
 					break;
@@ -4894,7 +4922,16 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' anchors itself!';
 					break;
 				case 'symbiosis':
-					actions += '' + ofpoke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + poke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + ofpoke.getLowerName() + '!';
+					break;
+				case 'aromaveil':
+					actions += '' + ofpoke.getName() + ' is protected by Aroma Veil!';
+					break;
+				case 'flowerveil':
+					actions += '' + ofpoke.getName() + ' surrounded itself with a veil of petals!';
+					break;
+				case 'sweetveil':
+					actions += '' + ofpoke.getName() + ' surrounded itself with a veil of sweetness!';
 					break;
 				case 'deltastream':
 					actions += "The mysterious air current weakened the attack!";
@@ -4919,7 +4956,7 @@ var Battle = (function () {
 					if (kwargs.broken) { // for custom moves that break protection
 						this.resultAnim(poke, 'Protection broken', 'bad', animDelay);
 						actions += "It broke through " + poke.getLowerName() + "'s protection!";
-					} else {
+					} else if (effect.effectType !== 'Ability') {
 						actions += "" + poke.getName() + "'s " + effect.name + " activated!";
 					}
 				}
