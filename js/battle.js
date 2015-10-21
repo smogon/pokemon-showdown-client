@@ -3758,7 +3758,8 @@ var Battle = (function () {
 						actions += '' + ofpoke.getName() + ' surrounded itself with a veil of petals!';
 						break;
 					default:
-						actions += "" + poke.getName() + "'s " + (args[3] ? args[3] + " was" : "stats were") + " not lowered!";
+						var stat = Tools.escapeHTML(args[3]);
+						actions += "" + poke.getName() + "'s " + (stat ? stat + " was" : "stats were") + " not lowered!";
 					}
 					break;
 				default:
