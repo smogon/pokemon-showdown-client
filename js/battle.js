@@ -3268,6 +3268,9 @@ var Battle = (function () {
 					case 'liquidooze':
 						actions += "" + poke.getName() + " sucked up the liquid ooze!";
 						break;
+					case 'dryskin':
+					case 'solarpower':
+						break;
 					case 'confusion':
 						actions += "It hurt itself in its confusion! ";
 						break;
