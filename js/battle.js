@@ -2672,7 +2672,7 @@ var Battle = (function () {
 		this.activityWait(500);
 		if (this.turnCallback) this.turnCallback(this);
 	};
-	Battle.prototype.changeWeather = function (weather, poke, isUpkeep) {
+	Battle.prototype.changeWeather = function (weather, poke, isUpkeep, ability) {
 		weather = toId(weather);
 		var weatherTable = {
 			sunnyday: {
@@ -2739,15 +2739,23 @@ var Battle = (function () {
 			return;
 		}
 		if (newWeather) {
+			var isExtremeWeather = (weather === 'deltastream' || weather === 'desolateland' || weather === 'primordialsea');
 			if (poke) {
-				this.message('<small>' + poke.getName() + newWeather.abilityMessage + '</small>');
-				this.weatherTimeLeft = 0;
-				this.weatherMinTimeLeft = 0;
+				if (ability) {
+					this.resultAnim(poke, ability.name, 'ability', 0);
+					this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
+					poke.markAbility(ability.name);
+					this.message('<small>' + newWeather.startMessage + '</small>');
+				} else {
+					this.message('<small>' + poke.getName() + newWeather.abilityMessage + '</small>'); // for backwards compatibility
+				}
+				this.weatherTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 8;
+				this.weatherMinTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 5;
 			} else if (isUpkeep) {
 				this.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
 				this.weatherTimeLeft = 0;
 				this.weatherMinTimeLeft = 0;
-			} else if (weather === 'deltastream' || weather === 'desolateland' || weather === 'primordialsea') {
+			} else if (isExtremeWeather) {
 				this.message('<small>' + newWeather.startMessage + '</small>');
 				this.weatherTimeLeft = 0;
 				this.weatherMinTimeLeft = 0;
@@ -4100,17 +4108,23 @@ var Battle = (function () {
 					break;
 				case 'desolateland':
 					if (kwargs.fail) {
-						actions += "[" + poke.getName() + "'s " + ability.name + "] The extremely harsh sunlight was not lessened at all!";
+						this.resultAnim(poke, ability.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
+						actions += "The extremely harsh sunlight was not lessened at all!";
 					}
 					break;
 				case 'primordialsea':
 					if (kwargs.fail) {
-						actions += "[" + poke.getName() + "'s " + ability.name + "] There's no relief from this heavy rain!";
+						this.resultAnim(poke, ability.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
+						actions += "There's no relief from this heavy rain!";
 					}
 					break;
 				case 'deltastream':
 					if (kwargs.fail) {
-						actions += "[" + poke.getName() + "'s " + ability.name + "] The mysterious air current blows on regardless!";
+						this.resultAnim(poke, ability.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
+						actions += "The mysterious air current blows on regardless!";
 					}
 					break;
 				default:
@@ -5076,7 +5090,8 @@ var Battle = (function () {
 			case '-weather':
 				var effect = Tools.getEffect(args[1]);
 				var poke = this.getPokemon(kwargs.of);
-				this.changeWeather(effect.name, poke, kwargs.upkeep);
+				var ability = Tools.getEffect(kwargs.from);
+				this.changeWeather(effect.name, poke, kwargs.upkeep, ability);
 				break;
 
 			case '-fieldstart':
