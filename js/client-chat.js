@@ -874,6 +874,14 @@
 				this.add('This player does not exist or is not online.');
 				return;
 			}
+			if (this.challengeData.userid === app.user.get('userid')) {
+				this.add('You can\'t battle your own account.');
+				return;
+			}
+			if (this.challengeData.format && !BattleFormats[this.challengeData.format]) {
+				this.add(this.challengeData.format + ' is not a valid format.');
+				return;
+			}
 
 			app.focusRoom('');
 			var name = data.name || this.challengeData.userid;
