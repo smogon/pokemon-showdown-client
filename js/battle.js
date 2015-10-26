@@ -5949,7 +5949,7 @@ var Battle = (function () {
 			this.playbackState = 5;
 		} else if (this.paused) {
 			this.paused = false;
-			if (this.playbackState === 1) {
+			if (!dontResetSound && this.playbackState === 1) {
 				this.soundStop();
 			}
 			this.playbackState = 2;
