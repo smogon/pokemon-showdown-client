@@ -4072,6 +4072,9 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Focus Band', 'neutral', animDelay);
 					actions += "" + poke.getName() + ' hung on using its Focus Band!';
 					break;
+				case 'powerherb':
+					actions += "" + poke.getName() + " became fully charged due to its Power Herb!";
+					break;
 				case 'whiteherb':
 					actions += "" + poke.getName() + " returned its status to normal using its White Herb!";
 					break;
