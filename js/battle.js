@@ -4913,9 +4913,6 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Immune', 'neutral', animDelay);
 					actions += '' + poke.getName() + '\'s Wonder Guard evades the attack!';
 					break;
-				case 'speedboost':
-					actions += "" + poke.getName() + "'s' Speed Boost increases its speed!";
-					break;
 				case 'forewarn':
 					this.resultAnim(poke, 'Forewarn', 'ability', animDelay);
 					this.message('', "<small>[" + poke.getName(true) + "'s Forewarn!]</small>");
