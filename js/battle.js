@@ -5132,7 +5132,7 @@ var Battle = (function () {
 					actions += "Gravity intensified!";
 					break;
 				case 'mudsport':
-					actions += "Electric's power was weakened!";
+					actions += "Electricity's power was weakened!";
 					break;
 				case 'watersport':
 					actions += "Fire's power was weakened!";
