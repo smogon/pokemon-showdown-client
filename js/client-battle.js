@@ -1172,7 +1172,9 @@
 					}
 				}
 				if (pokemon.item) {
-					text += '<p>Item: ' + Tools.getItem(pokemon.item).name + '</p>';
+					var name = Tools.getItem(pokemon.item).name;
+					if (pokemon.itemEffect) name = '[' + name + '] (' + pokemon.itemEffect + ')';
+					text += '<p>Item: ' + name + '</p>';
 				}
 				if (pokemon.stats) {
 					text += '<p>' + pokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + pokemon.stats['def'] + '&nbsp;Def /&nbsp;' + pokemon.stats['spa'];

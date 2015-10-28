@@ -181,6 +181,7 @@ var Pokemon = (function () {
 		this.ability = '';
 		this.baseAbility = '';
 		this.item = '';
+		this.itemEffect = '';
 		this.species = species;
 		this.fainted = false;
 		this.zerohp = false;
@@ -3302,7 +3303,10 @@ var Battle = (function () {
 					default:
 						if (ofpoke) {
 							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "!";
-						} else if (effect.effectType === 'Item' || effect.effectType === 'Ability') {
+						} else if (effect.effectType === 'Item') {
+							poke.item = effect.name;
+							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
+						} else if (effect.effectType === 'Ability') {
 							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
 						} else if (kwargs.partiallytrapped) {
 							actions += "" + poke.getName() + ' is hurt by ' + effect.name + '!';
@@ -3373,12 +3377,15 @@ var Battle = (function () {
 						break;
 					case 'leftovers':
 					case 'shellbell':
+					case 'blacksludge':
+						poke.item = effect.name;
 						actions += "" + poke.getName() + " restored a little HP using its " + effect.name + "!";
 						break;
 					default:
 						if (kwargs.absorb) {
 							actions += "" + poke.getName() + "'s " + effect.name + " absorbs the attack!";
 						} else if (effect.id) {
+							if (effect.effectType === 'Item') poke.item = effect.name;
 							actions += "" + poke.getName() + " restored HP using its " + effect.name + "!";
 						} else {
 							actions += poke.getName() + ' regained health!';
@@ -3973,6 +3980,7 @@ var Battle = (function () {
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.item = item.name;
+				poke.itemEffect = '';
 				poke.removeVolatile('airballoon');
 				if (item.id === 'airballoon') poke.addVolatile('airballoon');
 
@@ -4027,12 +4035,14 @@ var Battle = (function () {
 				var item = Tools.getItem(args[2]);
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
-				poke.item = '';
+				poke.item = item.name;
+				poke.itemEffect = 'consumed';
 				poke.removeVolatile('airballoon');
 
 				if (kwargs.silent) {
 					// do nothing
 				} else if (kwargs.eat) {
+					poke.itemEffect = 'eaten';
 					actions += '' + poke.getName() + ' ate its ' + item.name + '!';
 					this.lastmove = item.id;
 				} else if (kwargs.weaken) {
@@ -4040,19 +4050,23 @@ var Battle = (function () {
 					this.lastmove = item.id;
 				} else if (effect.id) switch (effect.id) {
 				case 'fling':
+					poke.itemEffect = 'flung';
 					actions += "" + poke.getName() + ' flung its ' + item.name + '!';
 					break;
 				case 'knockoff':
+					poke.itemEffect = 'knocked off';
 					actions += '' + ofpoke.getName() + ' knocked off ' + poke.getLowerName() + '\'s ' + item.name + '!';
 					this.resultAnim(poke, 'Item knocked off', 'neutral', animDelay);
 					break;
 				case 'stealeat':
+					poke.itemEffect = 'stolen';
 					actions += '' + ofpoke.getName() + ' stole and ate its target\'s ' + item.name + '!';
 					break;
 				case 'gem':
 					actions += 'The ' + item.name + ' strengthened ' + Tools.getMove(kwargs.move).name + '\'s power!';
 					break;
 				case 'incinerate':
+					poke.itemEffect = 'incinerated';
 					actions += "" + poke.getName() + "'s " + item.name + " was burned up!";
 					break;
 				default:
@@ -4060,6 +4074,7 @@ var Battle = (function () {
 					break;
 				} else switch (item.id) {
 				case 'airballoon':
+					poke.itemEffect = 'popped';
 					poke.removeVolatile('airballoon');
 					this.resultAnim(poke, 'Balloon popped', 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s Air Balloon popped!";
@@ -4082,6 +4097,7 @@ var Battle = (function () {
 					actions += "" + poke.getName() + " is switched out with the Eject Button!";
 					break;
 				case 'redcard':
+					poke.itemEffect = 'held up';
 					actions += "" + poke.getName() + " held up its Red Card against " + ofpoke.getLowerName() + "!";
 					break;
 				default:
@@ -4254,6 +4270,7 @@ var Battle = (function () {
 				if (args[2] === 'Rayquaza') {
 					actions += "" + Tools.escapeHTML(poke.side.name) + "'s fervent wish has reached " + poke.getLowerName() + "!";
 				} else {
+					poke.item = item.name;
 					actions += "" + poke.getName() + "'s " + item.name + " is reacting to " + Tools.escapeHTML(poke.side.name) + "'s Mega Bracelet!";
 				}
 				actions += "<br />" + poke.getName() + " has Mega Evolved into Mega " + args[2] + "!";
@@ -4969,9 +4986,11 @@ var Battle = (function () {
 					actions += '' + poke.getName() + " restored PP to its " + Tools.escapeHTML(args[3]) + " move using Leppa Berry!";
 					break;
 				case 'focusband':
+					poke.item = 'Focus Band';
 					actions += '' + poke.getName() + " hung on using its Focus Band!";
 					break;
 				case 'safetygoggles':
+					poke.item = 'Safety Goggles';
 					actions += '' + poke.getName() + " is not affected by " + Tools.escapeHTML(args[3]) + " thanks to its Safety Goggles!";
 					break;
 				default:
