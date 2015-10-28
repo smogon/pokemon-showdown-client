@@ -182,6 +182,8 @@ var Pokemon = (function () {
 		this.baseAbility = '';
 		this.item = '';
 		this.itemEffect = '';
+		this.prevItem = '';
+		this.prevItemEffect = '';
 		this.species = species;
 		this.fainted = false;
 		this.zerohp = false;
@@ -3385,7 +3387,6 @@ var Battle = (function () {
 						if (kwargs.absorb) {
 							actions += "" + poke.getName() + "'s " + effect.name + " absorbs the attack!";
 						} else if (effect.id) {
-							if (effect.effectType === 'Item') poke.item = effect.name;
 							actions += "" + poke.getName() + " restored HP using its " + effect.name + "!";
 						} else {
 							actions += poke.getName() + ' regained health!';
@@ -3987,11 +3988,13 @@ var Battle = (function () {
 				if (effect.id) switch (effect.id) {
 				case 'recycle':
 				case 'pickup':
+					poke.itemEffect = 'found';
 					actions += '' + poke.getName() + ' found one ' + item.name + '!';
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				case 'frisk':
 					if (kwargs.identify) { // used for gen 6
+						poke.itemEffect = 'frisked';
 						actions += '' + ofpoke.getName() + ' frisked ' + poke.getLowerName() + ' and found its ' + item.name + '!';
 						this.resultAnim(poke, item.name, 'neutral', animDelay);
 					} else {
@@ -4001,20 +4004,25 @@ var Battle = (function () {
 				case 'thief':
 				case 'covet':
 				case 'pickpocket':
+					poke.itemEffect = 'stolen';
 					actions += '' + poke.getName() + ' stole ' + ofpoke.getLowerName() + "'s " + item.name + "!";
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					this.resultAnim(ofpoke, 'Item Stolen', 'bad', animDelay);
 					break;
 				case 'harvest':
+					poke.itemEffect = 'harvested';
 					this.resultAnim(poke, 'Harvest', 'ability', animDelay);
 					this.message('', "<small>[" + poke.getName(true) + "'s Harvest!]</small>");
 					actions += '' + poke.getName() + ' harvested one ' + item.name + '!';
 					this.resultAnim(poke, item.name, 'neutral', 2);
 					break;
 				case 'bestow':
+					poke.itemEffect = 'bestowed';
 					actions += '' + poke.getName() + ' received ' + item.name + ' from ' + ofpoke.getLowerName() + '!';
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
+				case 'trick':
+					poke.itemEffect = 'tricked';
 				default:
 					actions += '' + poke.getName() + ' obtained one ' + item.name + '.';
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
@@ -4035,14 +4043,16 @@ var Battle = (function () {
 				var item = Tools.getItem(args[2]);
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
-				poke.item = item.name;
-				poke.itemEffect = 'consumed';
+				poke.item = '';
+				poke.itemEffect = '';
+				poke.prevItem = item.name;
+				poke.prevItemEffect = '';
 				poke.removeVolatile('airballoon');
 
 				if (kwargs.silent) {
 					// do nothing
 				} else if (kwargs.eat) {
-					poke.itemEffect = 'eaten';
+					poke.prevItemEffect = 'eaten';
 					actions += '' + poke.getName() + ' ate its ' + item.name + '!';
 					this.lastmove = item.id;
 				} else if (kwargs.weaken) {
@@ -4050,23 +4060,24 @@ var Battle = (function () {
 					this.lastmove = item.id;
 				} else if (effect.id) switch (effect.id) {
 				case 'fling':
-					poke.itemEffect = 'flung';
+					poke.prevItemEffect = 'flung';
 					actions += "" + poke.getName() + ' flung its ' + item.name + '!';
 					break;
 				case 'knockoff':
-					poke.itemEffect = 'knocked off';
+					poke.prevItemEffect = 'knocked off';
 					actions += '' + ofpoke.getName() + ' knocked off ' + poke.getLowerName() + '\'s ' + item.name + '!';
 					this.resultAnim(poke, 'Item knocked off', 'neutral', animDelay);
 					break;
 				case 'stealeat':
-					poke.itemEffect = 'stolen';
+					poke.prevItemEffect = 'stolen';
 					actions += '' + ofpoke.getName() + ' stole and ate its target\'s ' + item.name + '!';
 					break;
 				case 'gem':
+					poke.prevItemEffect = 'consumed';
 					actions += 'The ' + item.name + ' strengthened ' + Tools.getMove(kwargs.move).name + '\'s power!';
 					break;
 				case 'incinerate':
-					poke.itemEffect = 'incinerated';
+					poke.prevItemEffect = 'incinerated';
 					actions += "" + poke.getName() + "'s " + item.name + " was burned up!";
 					break;
 				default:
@@ -4074,12 +4085,13 @@ var Battle = (function () {
 					break;
 				} else switch (item.id) {
 				case 'airballoon':
-					poke.itemEffect = 'popped';
+					poke.prevItemEffect = 'popped';
 					poke.removeVolatile('airballoon');
 					this.resultAnim(poke, 'Balloon popped', 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s Air Balloon popped!";
 					break;
 				case 'focussash':
+					poke.prevItemEffect = 'consumed';
 					this.resultAnim(poke, 'Sash', 'neutral', animDelay);
 					actions += "" + poke.getName() + ' hung on using its Focus Sash!';
 					break;
@@ -4088,19 +4100,23 @@ var Battle = (function () {
 					actions += "" + poke.getName() + ' hung on using its Focus Band!';
 					break;
 				case 'powerherb':
+					poke.prevItemEffect = 'consumed';
 					actions += "" + poke.getName() + " became fully charged due to its Power Herb!";
 					break;
 				case 'whiteherb':
+					poke.prevItemEffect = 'consumed';
 					actions += "" + poke.getName() + " returned its status to normal using its White Herb!";
 					break;
 				case 'ejectbutton':
+					poke.prevItemEffect = 'consumed';
 					actions += "" + poke.getName() + " is switched out with the Eject Button!";
 					break;
 				case 'redcard':
-					poke.itemEffect = 'held up';
+					poke.prevItemEffect = 'held up';
 					actions += "" + poke.getName() + " held up its Red Card against " + ofpoke.getLowerName() + "!";
 					break;
 				default:
+					poke.prevItemEffect = 'consumed';
 					actions += "" + poke.getName() + "'s " + item.name + " activated!";
 					break;
 				}
