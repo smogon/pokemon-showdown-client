@@ -2469,6 +2469,7 @@ a.ilink.yours {
 }
 .teamwrapper.scaled {
 	width: 640px;
+	height: 100%;
 }
 .teamwrapper.scaled .teamchartbox {
 	bottom: auto;
