@@ -554,6 +554,7 @@
 				if (!data.rootNode)
 					return;
 
+				var name = app.user.get('name');
 				var nodeSize = {
 					width: 150, height: 20,
 					radius: 5,
@@ -635,6 +636,7 @@
 							elem.attr('y', -nodeSize.smallRealHeight / 2).attr('height', nodeSize.smallRealHeight);
 						else
 							elem.attr('y', -nodeSize.realHeight / 2).attr('height', nodeSize.realHeight);
+						if (node.team === name) elem.attr('stroke-dasharray', '5,5');
 					});
 				nodeGroup.each(function (node) {
 					var elem = d3.select(this);
