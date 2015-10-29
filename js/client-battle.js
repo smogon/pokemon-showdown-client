@@ -1171,11 +1171,17 @@
 						text += '<p>Ability: ' + Tools.getAbility(pokemon.baseAbility).name + '</p>';
 					}
 				}
-				if (pokemon.item) {
-					var name = Tools.getItem(pokemon.item).name;
-					if (pokemon.itemEffect) name = '[' + name + '] (' + pokemon.itemEffect + ')';
-					text += '<p>Item: ' + name + '</p>';
+				var item = '';
+				var itemEffect = pokemon.itemEffect;
+				if (pokemon.prevItem) {
+					item = 'None';
+					if (itemEffect) itemEffect += '; ';
+					var prevItem = Tools.getItem(pokemon.prevItem).name;
+					itemEffect += pokemon.prevItemEffect ? prevItem + ' was ' + pokemon.prevItemEffect : 'was ' + prevItem;
 				}
+				if (pokemon.item) item = Tools.getItem(pokemon.item).name;
+				if (itemEffect) itemEffect = ' (' + itemEffect + ')';
+				if (item) text += '<p>Item: ' + item + itemEffect + '</p>';
 				if (pokemon.stats) {
 					text += '<p>' + pokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + pokemon.stats['def'] + '&nbsp;Def /&nbsp;' + pokemon.stats['spa'];
 					if (this.battle.gen === 1) {
