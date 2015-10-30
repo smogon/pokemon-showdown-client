@@ -551,8 +551,14 @@
 
 		TournamentBox.prototype.generateBracket = function (data) {
 			if (data.type === 'tree') {
-				if (!data.rootNode)
-					return;
+				var $div = $('<div class="tournament-bracket-tree"></div>');
+
+				if (!data.rootNode) {
+					if (!('users' in data)) return;
+					var users = data.users.length;
+					if (users) $div.html('<b>' + users + '</b> user' + (users !== 1 ? 's' : '') + ':<br />' + data.users.join(", "));
+					return $div;
+				}
 
 				var name = app.user.get('name');
 				var nodeSize = {
@@ -560,8 +566,6 @@
 					radius: 5,
 					separationX: 30, separationY: 15
 				};
-
-				var $div = $('<div class="tournament-bracket-tree"></div>');
 
 				var nodesByDepth = [];
 				var stack = [{node: data.rootNode, depth: 0}];
