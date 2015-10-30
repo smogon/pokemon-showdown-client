@@ -438,8 +438,10 @@ var Tools = {
 		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])??)\~\~/g,
 			options.hidestrikethrough ? '$1' : '<s>$1</s>');
 		// <<roomid>>
-		str = str.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g,
-			options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1">$1</a>&raquo;');
+		str = str.replace(/&lt;&lt;([a-zA-Z0-9-]+)&gt;&gt;/g,
+			options.hidelinks ? '&laquo;$1&raquo;' : function (p0, p1) {
+				return '&laquo;<a href="/' + p1.toLowerCase() + '">' + p1 + '</a>&raquo;';
+			});
 		// linking of URIs
 		if (!options.hidelinks) {
 			str = str.replace(linkRegex, function (uri) {
