@@ -238,6 +238,7 @@
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
 			Storage.deleteTeam(this.deletedTeam);
+			app.user.trigger('saveteams');
 			this.update();
 		},
 		undoDelete: function () {
@@ -247,6 +248,7 @@
 				this.deletedTeam = null;
 				this.deletedTeamLoc = -1;
 				Storage.saveTeam(undeletedTeam);
+				app.user.trigger('saveteams');
 				this.update();
 			}
 		},
@@ -353,6 +355,8 @@
 				var team = Storage.teams[originalLoc];
 				Storage.teams.splice(originalLoc, 1);
 				Storage.teams.splice(newLoc, 0, team);
+				Storage.saveTeams();
+				app.user.trigger('saveteams');
 			}
 
 			// possibly half-works-around a hover issue in
