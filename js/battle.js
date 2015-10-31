@@ -2169,6 +2169,7 @@ var Battle = (function () {
 		// external
 		this.resumeButton = this.play;
 
+		this.users = {};
 		this.preloadCache = {};
 
 		this.preloadEffects();
@@ -5679,12 +5680,14 @@ var Battle = (function () {
 			break;
 		case 'join':
 		case 'j':
+			this.users[toUserid(args[1])] = ' ' + args[1];
 			if (!this.ignoreSpects) {
 				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
 			}
 			break;
 		case 'leave':
 		case 'l':
+			delete this.users[toUserid(args[1])];
 			if (!this.ignoreSpects) {
 				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
 			}
