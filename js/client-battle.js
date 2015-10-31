@@ -1173,7 +1173,7 @@
 					}
 				}
 				var item = '';
-				var itemEffect = pokemon.itemEffect;
+				var itemEffect = pokemon.itemEffect || '';
 				if (pokemon.prevItem) {
 					item = 'None';
 					if (itemEffect) itemEffect += '; ';
