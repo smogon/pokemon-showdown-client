@@ -1146,6 +1146,11 @@ var Sprite = (function () {
 			opacity: 0
 		}, 'accel');
 		this.battle.activityWait(this.elem);
+		var self = this;
+		this.elem.promise().done(function() {
+			self.elem.remove();
+			self.elem = null;
+		});
 	};
 	Sprite.prototype.delay = function (time) {
 		this.elem.delay(time);
