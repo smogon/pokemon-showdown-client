@@ -77,12 +77,11 @@
 			app.user.on('saveteams', function(){
         this.updateTeams;
         var $searchForm = $('.mainmenu button.big').closest('form');
-			  var $formatButton = $searchForm.find('button[name=format]');
+		    var $formatButton = $searchForm.find('button[name=format]');
 		  	var $teamButton = $searchForm.find('button[name=team]');
         var teamId = $teamButton.val();
         var format = $formatButton.val();
         $teamButton.replaceWith(this.renderTeams($formatButton.val(), $teamButton.val())); //just calling updateTeams doesn't work for some reason, but manually doing this works. 
-        console.log("reRendered");
       }, this) //When teams are saved, forcibly rerender current team.
 
 		},
