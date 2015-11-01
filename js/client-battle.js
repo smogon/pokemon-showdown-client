@@ -1234,8 +1234,6 @@
 				break;
 			}
 			$('#tooltipwrapper').html(text).appendTo(document.body);
-			var height = $('#tooltipwrapper .tooltip').height();
-			if (height > y) $('#tooltipwrapper').css('top', height);
 		},
 		hideTooltip: function () {
 			$('#tooltipwrapper').html('');
