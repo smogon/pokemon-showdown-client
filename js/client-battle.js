@@ -1065,7 +1065,12 @@
 					"sound": "Has no effect on Pokemon with the Ability Soundproof."
 				};
 				if (move.desc) {
-					text += '<p class="section">' + move.desc;
+					text += '<p class="section">';
+					if (move.shortDesc && ($(window).width() < 640 || $(window).height() < 580)) {
+						text += move.shortDesc;
+					} else {
+						text += move.desc;
+					}
 					for (var i in move.flags) {
 						if (i === 'distance' && move.target !== 'any') continue;
 						text += " " + flags[i];
