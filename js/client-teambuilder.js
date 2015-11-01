@@ -237,16 +237,38 @@
 			i = +i;
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
+			for (var room in app.rooms) {
+				var selection = app.rooms[room].$('button.teamselect').val();
+				if (!selection || selection === 'random') continue;
+				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
+				if (i < obj.curTeamIndex) {
+					obj.curTeamIndex--;
+				} else if (i === obj.curTeamIndex) {
+					obj.curTeamIndex = -1;
+				}
+			}
 			Storage.deleteTeam(this.deletedTeam);
+			app.user.trigger('saveteams');
 			this.update();
 		},
 		undoDelete: function () {
 			if (this.deletedTeamLoc >= 0) {
 				teams.splice(this.deletedTeamLoc, 0, this.deletedTeam);
+				for (var room in app.rooms) {
+					var selection = app.rooms[room].$('button.teamselect').val();
+					if (!selection || selection === 'random') continue;
+					var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
+					if (this.deletedTeamLoc < obj.curTeamIndex + 1) {
+						obj.curTeamIndex++;
+					} else if (obj.curTeamIndex === -1) {
+						obj.curTeamIndex = this.deletedTeamLoc;
+					}
+				}
 				var undeletedTeam = this.deletedTeam;
 				this.deletedTeam = null;
 				this.deletedTeamLoc = -1;
 				Storage.saveTeam(undeletedTeam);
+				app.user.trigger('saveteams');
 				this.update();
 			}
 		},
@@ -254,6 +276,12 @@
 			Storage.importTeam(this.$('.teamedit textarea').val(), true);
 			teams = Storage.teams;
 			Storage.saveAllTeams();
+			for (var room in app.rooms) {
+				var selection = app.rooms[room].$('button.teamselect').val();
+				if (!selection || selection === 'random') continue;
+				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
+				obj.curTeamIndex = 0;
+			}
 			this.back();
 		},
 		"new": function () {
@@ -274,6 +302,12 @@
 				iconCache: ''
 			};
 			teams.unshift(newTeam);
+			for (var room in app.rooms) {
+				var selection = app.rooms[room].$('button.teamselect').val();
+				if (!selection || selection === 'random') continue;
+				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
+				obj.curTeamIndex++;
+			}
 			this.edit(0);
 		},
 		"import": function () {
@@ -353,6 +387,20 @@
 				var team = Storage.teams[originalLoc];
 				Storage.teams.splice(originalLoc, 1);
 				Storage.teams.splice(newLoc, 0, team);
+				for (var room in app.rooms) {
+					var selection = app.rooms[room].$('button.teamselect').val();
+					if (!selection || selection === 'random') continue;
+					var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
+					if (originalLoc === obj.curTeamIndex) {
+						obj.curTeamIndex = newLoc;
+					} else if (originalLoc > obj.curTeamIndex && newLoc <= obj.curTeamIndex) {
+						obj.curTeamIndex++;
+					} else if (originalLoc < obj.curTeamIndex && newLoc >= obj.curTeamIndex) {
+						obj.curTeamIndex--;
+					}
+				}
+				Storage.saveTeams();
+				app.user.trigger('saveteams');
 			}
 
 			// possibly half-works-around a hover issue in
