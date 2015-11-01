@@ -208,13 +208,7 @@
 				return;
 			}
 
-			var teamIndex = undefined;
-			if (!forceFormatChange && this.$teamSelect.children().val()) {
-				teamIndex = parseInt(this.$teamSelect.children().val());
-				if (isNaN(teamIndex)) teamIndex = undefined;
-			}
-
-			this.$teamSelect.html(app.rooms[''].renderTeams(this.info.format, teamIndex));
+			this.$teamSelect.html(app.rooms[''].renderTeams.call(this, this.info.format));
 			this.$teamSelect.children().data('type', 'teamSelect');
 			this.$teamSelect.children().attr('name', 'tournamentButton');
 			this.$teamSelect.show();
@@ -266,6 +260,7 @@
 					var type = data[1];
 					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + format + " " + Tools.escapeHTML(type) + " Tournament created.</div>");
 					this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + format + "\nType: " + type, 'tournament-create');
+					this.curTeamIndex = 0;
 					this.updateTeams();
 					break;
 
