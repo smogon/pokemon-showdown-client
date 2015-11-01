@@ -74,7 +74,16 @@
 			app.on('init:formats', this.updateFormats, this);
 			this.updateFormats();
 
-			app.user.on('saveteams', this.updateTeams, this);
+			app.user.on('saveteams', function(){
+        this.updateTeams;
+        var $searchForm = $('.mainmenu button.big').closest('form');
+		    var $formatButton = $searchForm.find('button[name=format]');
+		  	var $teamButton = $searchForm.find('button[name=team]');
+        var teamId = $teamButton.val();
+        var format = $formatButton.val();
+        $teamButton.replaceWith(this.renderTeams($formatButton.val(), $teamButton.val())); //just calling updateTeams doesn't work for some reason, but manually doing this works. 
+      }, this) //When teams are saved, forcibly rerender current team.
+
 		},
 
 		addPseudoPM: function (options) {
@@ -913,6 +922,7 @@
 				return buf;
 			}
 			var team = Storage.teams[i];
+      if((i+1) > Storage.teams.length) return 'Please select a new team'; //Quick workaround to make sure deleting the last team won't return the corrupted team message.
 			if (!team) return 'Error: Corrupted team';
 			var buf = '' + Tools.escapeHTML(team.name) + '<br />';
 			buf += Storage.getTeamIcons(team);

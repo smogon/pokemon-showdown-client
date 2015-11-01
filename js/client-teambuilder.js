@@ -200,6 +200,9 @@
 			buf += '</div>';
 
 			this.$el.html(buf);
+      app.user.trigger("saveteams"); //Make sure if we update something on this end it updates on the main menu end. This includes deletes which were not calling saveteams.
+      //One side effect is that reordering your teams will change which team will be currently selected.
+      //This can be worked around by only triggering saveteams when deleting something, but I will leave this here for now.
 		},
 		show: function () {
 			Room.prototype.show.apply(this, arguments);
