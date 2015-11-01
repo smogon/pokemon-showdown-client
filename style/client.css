@@ -1864,6 +1864,7 @@ a.ilink.yours {
 	left: 100px;
 	text-align: left;
 	color: black;
+	pointer-events: none;
 }
 #tooltipwrapper .tooltipinner {
 	position: relative;
