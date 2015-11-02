@@ -38,7 +38,8 @@
 
 			BattleSound.setMute(Tools.prefs('mute'));
 			this.battle = new Battle(this.$battle, this.$chatFrame);
-			this.users = this.battle.users;
+			this.battle.roomid = this.id;
+			this.users = {};
 
 			this.$chat = this.$chatFrame.find('.inner');
 
