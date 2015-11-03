@@ -962,7 +962,7 @@
 			}
 			var y = offset.top - 5;
 
-			if (x > 335) x = 335;
+			if (x > this.leftWidth + 335) x = this.leftWidth + 335;
 			if (y < 140) y = 140;
 			if (x > $(window).width() - 303) x = Math.max($(window).width() - 303, 0);
 			if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper" onclick="$(\'#tooltipwrapper\').html(\'\');"></div>');
