@@ -605,6 +605,9 @@
 									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);
 								}
 							}
+							if (highlights.indexOf(targets[i]) > -1) {
+								return this.add(targets[i] + ' is already on your highlights list.')
+							}
 						}
 						highlights = highlights.concat(targets.slice(1));
 						this.add("Now highlighting on: " + highlights.join(', '));
