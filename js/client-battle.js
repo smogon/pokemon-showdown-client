@@ -1235,6 +1235,15 @@
 				break;
 			}
 			$('#tooltipwrapper').html(text).appendTo(document.body);
+			if (elem) {
+				var height = $('#tooltipwrapper .tooltip').height();
+				if (height > y) {
+					y += height + 10;
+					if (ownHeight) y += $(elem).height();
+					else y += $(elem).parent().height();
+					$('#tooltipwrapper').css('top', y);
+				}
+			}
 		},
 		hideTooltip: function () {
 			$('#tooltipwrapper').html('');
