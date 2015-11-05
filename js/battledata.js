@@ -587,7 +587,6 @@ var Tools = {
 				return;
 			}
 			var targetIdx;
-			var extra = {};
 			if (tagName === 'a') {
 				// Special handling of <a> tags.
 
@@ -605,14 +604,13 @@ var Tools = {
 				}
 			}
 			attribs = html.sanitizeAttribs(tagName, attribs, uriRewriter);
-			if (targetIdx !== undefined) {
-				attribs[targetIdx] = '_blank';
-			} else {
-				extra['target'] = '_blank';
-			}
-			for (var i in extra) {
-				attribs.push(i);
-				attribs.push(extra[i]);
+			if (tagName === 'a' || tagName === 'form') {
+				if (targetIdx !== undefined) {
+					attribs[targetIdx] = '_blank';
+				} else {
+					attribs.push('target');
+					attribs.push('_blank');
+				}
 			}
 			return {attribs: attribs};
 		};
