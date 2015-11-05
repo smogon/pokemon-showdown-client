@@ -2132,6 +2132,7 @@ var Battle = (function () {
 		this.sides = [];
 		this.lastMove = '';
 		this.gen = 6;
+		this.replay = 0;
 
 		this.frameElem = frame;
 		this.logFrameElem = logFrame;
@@ -2263,6 +2264,7 @@ var Battle = (function () {
 		this.weatherMinTimeLeft = 0;
 		this.pseudoWeather = [];
 		this.lastMove = '';
+		this.replay = 1;
 
 		// DOM state
 		this.frameElem.empty();
