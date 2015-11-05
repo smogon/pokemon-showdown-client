@@ -601,17 +601,6 @@ var Tools = {
 					case 'target':
 						targetIdx = i + 1;
 						break;
-					case 'room':
-						// Special custom attribute for linking to a room.
-						// This attribute will be stripped by `sanitizeAttribs`
-						// below, and is only used to signal to add an `onclick`
-						// handler here.
-						if (!(/^[a-z0-9\-]*$/.test(attribs[i + 1]))) {
-							// Bogus roomid - could be used to inject JavaScript.
-							break;
-						}
-						extra['onclick'] = 'return selectTab(\'' + attribs[i + 1] + '\');';
-						break;
 					}
 				}
 			}
