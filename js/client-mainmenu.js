@@ -306,12 +306,12 @@
 			} else if (e.keyCode === 27) { // Esc
 				this.closePM(e);
 			} else if (e.keyCode === 73 && cmdKey && !e.shiftKey) { // Ctrl + I key
-				if (Tools.toggleFormatChar(e.currentTarget, '_')) {
+				if (ConsoleRoom.toggleFormatChar(e.currentTarget, '_')) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
 			} else if (e.keyCode === 66 && cmdKey && !e.shiftKey) { // Ctrl + B key
-				if (Tools.toggleFormatChar(e.currentTarget, '*')) {
+				if (ConsoleRoom.toggleFormatChar(e.currentTarget, '*')) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
