@@ -869,6 +869,7 @@ p.or:after {
 .mainmenu .menugroup:nth-child(1) .button { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
 .mainmenu .menugroup:nth-child(1) .button:hover { background: linear-gradient(to bottom,  hsl(5,40%,62%),  hsl(5,40%,42%)); }
 .mainmenu .menugroup:nth-child(1) .button:active { background: linear-gradient(to bottom,  hsl(5,40%,42%),  hsl(5,40%,58%)); }
+.mainmenu .menugroup:nth-child(1) .button.disabled, .mainmenu .menugroup:nth-child(1) .button.disabled:hover, .mainmenu .menugroup:nth-child(1) .button.disabled:active { color: #5A3D39; }
 
 .mainmenu .menugroup:nth-child(2) p:nth-child(1) .button { background: linear-gradient(to bottom,  hsl(30,40%,72%),  hsl(30,40%,52%)); border-color: hsl(30,40%,40%); }
 .mainmenu .menugroup:nth-child(2) p:nth-child(1) .button:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
