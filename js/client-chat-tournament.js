@@ -763,7 +763,7 @@
 		};
 
 		TournamentBox.prototype.teamSelect = function (team, button) {
-			app.addPopup(TeamPopup, {team: team, format: this.info.format, sourceEl: button});
+			app.addPopup(TeamPopup, {team: team, format: this.info.format, sourceEl: button, room: this.room.id});
 		};
 
 		return TournamentBox;

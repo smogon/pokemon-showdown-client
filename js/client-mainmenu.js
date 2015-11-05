@@ -892,14 +892,15 @@
 			}
 		},
 		selectTeam: function (i) {
-			var formatid = this.sourceEl.closest('form').find('button[name=format]').val();
 			i = +i;
 			this.sourceEl.val(i).html(TeamPopup.renderTeam(i));
 			if (this.sourceEl[0].offsetParent.className === 'mainmenuwrapper') {
+				var formatid = this.sourceEl.closest('form').find('button[name=format]').val();
 				app.rooms[''].curTeamIndex = i;
 				app.rooms[''].curTeamFormat = formatid;
 			} else if (this.sourceEl[0].offsetParent.className === 'tournament-box active') {
-				app.curSideRoom.tournamentBox.curTeamIndex = i;
+				var room = app.dispatchingPopup.options.room;
+				app.rooms[room].tournamentBox.curTeamIndex = i;
 			}
 			this.close();
 		}
