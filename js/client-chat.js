@@ -106,12 +106,12 @@
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
 			} else if (e.keyCode === 73 && cmdKey && !e.shiftKey) { // Ctrl + I key
-				if (Tools.toggleFormatChar(textbox, '_')) {
+				if (ConsoleRoom.toggleFormatChar(textbox, '_')) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
 			} else if (e.keyCode === 66 && cmdKey && !e.shiftKey) { // Ctrl + B key
-				if (Tools.toggleFormatChar(textbox, '*')) {
+				if (ConsoleRoom.toggleFormatChar(textbox, '*')) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
@@ -896,6 +896,49 @@
 			if (autoscroll) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
+		}
+	}, {
+		toggleFormatChar: function (textbox, formatChar) {
+			if (!textbox.setSelectionRange) return false;
+
+			var value = textbox.value;
+			var start = textbox.selectionStart;
+			var end = textbox.selectionEnd;
+
+			// make sure start and end aren't midway through the syntax
+			if (value.charAt(start) === formatChar && value.charAt(start - 1) === formatChar &&
+				value.charAt(start - 2) !== formatChar) {
+				start++;
+			}
+			if (value.charAt(end) === formatChar && value.charAt(end - 1) === formatChar &&
+				value.charAt(end - 2) !== formatChar) {
+				end--;
+			}
+
+			// wrap in doubled format char
+			var wrap = formatChar + formatChar;
+			value = value.substr(0, start) + wrap + value.substr(start, end - start) + wrap + value.substr(end);
+			start += 2, end += 2;
+
+			// prevent nesting
+			var nesting = wrap + wrap;
+			if (value.substr(start - 4, 4) === nesting) {
+				value = value.substr(0, start - 4) + value.substr(start);
+				start -= 4, end -= 4;
+			} else if (start !== end && value.substr(start - 2, 4) === nesting) {
+				value = value.substr(0, start - 2) + value.substr(start + 2);
+				start -= 2, end -= 4;
+			}
+			if (value.substr(end, 4) === nesting) {
+				value = value.substr(0, end) + value.substr(end + 4);
+			} else if (start !== end && value.substr(end - 2, 4) === nesting) {
+				value = value.substr(0, end - 2) + value.substr(end + 2);
+				end -= 2;
+			}
+
+			textbox.value = value;
+			textbox.setSelectionRange(start, end);
+			return true;
 		}
 	});
 
