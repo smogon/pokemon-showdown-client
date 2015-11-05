@@ -507,6 +507,8 @@ Storage.importTeam = function (text, teams) {
 	if (teams === true) {
 		Storage.teams = [];
 		teams = Storage.teams;
+	} else if (text.length === 1 || (text.length === 2 && !text[1])) {
+		return Storage.unpackTeam(text[0]);
 	}
 	for (var i = 0; i < text.length; i++) {
 		var line = $.trim(text[i]);
