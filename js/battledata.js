@@ -10,37 +10,6 @@ if (!window.exports) window.exports = window;
 window.nodewebkit = false;
 if (typeof process !== 'undefined' && process.versions && process.versions['node-webkit']) window.nodewebkit = true;
 
-// todo: http://www.youtube.com/watch?v=eEwAPnIev38
-// 32.930 - 1:13.032
-// 32930 to 73032
-// subway
-// 1:33.120 - 3:08.614
-/*
-
-// PO importer
-
-text = $('textarea')[1].value
-text = text.split("\n");
-
-for (var i=0; i<text.length; i++)
-{
-	var line = text[i].split(' ');
-	if (!text[i].length) continue;
-	if (!exports.BattleLearnsets[POPokemon[line[0]].replace(/ /g,'')])
-	{
-		exports.BattleLearnsets[POPokemon[line[0]].replace(/ /g,'')] = {};
-	}
-	var poke = exports.BattleLearnsets[POPokemon[line[0]].replace(/ /g,'')];
-	for (var j=1; j<line.length; j++)
-	{
-		if (!poke.learnset) poke.learnset = {};
-		var move = POMoves[line[j]].replace(/ /g,'');
-		poke.learnset[move] = '4M';
-	}
-}
-
-*/
-
 // ES5 indexOf
 if (!Array.prototype.indexOf) {
 	Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
