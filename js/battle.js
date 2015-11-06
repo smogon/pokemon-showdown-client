@@ -2536,8 +2536,25 @@ var Battle = (function () {
 		}
 		this.activityWait(effectElem);
 	};
-	Battle.prototype.switchSides = function () {
-		this.sidesSwitched = !this.sidesSwitched;
+	Battle.prototype.switchSides = function (replay) {
+		if (replay) {
+			this.reset(true);
+			this.setSidesSwitched(!this.sidesSwitched);
+			this.play();
+		} else if (this.done) {
+			this.reset(true);
+			this.setSidesSwitched(!this.sidesSwitched);
+			this.fastForwardTo(-1);
+		} else {
+			var turn = this.turn;
+			this.reset(true);
+			this.setSidesSwitched(!this.sidesSwitched);
+			if (turn) this.fastForwardTo(turn);
+			this.play(true);
+		}
+	};
+	Battle.prototype.setSidesSwitched = function (sidesSwitched) {
+		this.sidesSwitched = sidesSwitched;
 		if (this.sidesSwitched) {
 			this.mySide = this.p2;
 			this.yourSide = this.p1;
