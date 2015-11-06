@@ -669,13 +669,7 @@
 			if (!sideData.id) return;
 			this.side = sideData.id;
 			if (this.battle.sidesSwitched !== !!(this.side === 'p2')) {
-				this.battle.reset(true);
-				this.battle.switchSides();
-				if (midBattle) {
-					this.battle.fastForwardTo(-1);
-				} else {
-					this.battle.play();
-				}
+				this.battle.switchSides(!midBattle);
 				this.$chat = this.$chatFrame.find('.inner');
 			}
 		},
@@ -716,17 +710,7 @@
 			this.send('/savereplay');
 		},
 		switchSides: function () {
-			if (this.battle.done) {
-				this.battle.reset(true);
-				this.battle.switchSides();
-				this.battle.fastForwardTo(-1);
-			} else {
-				var turn = this.battle.turn;
-				this.battle.reset(true);
-				this.battle.switchSides();
-				if (turn) this.battle.fastForwardTo(turn);
-				this.battle.play(true);
-			}
+			this.battle.switchSides();
 		},
 		instantReplay: function () {
 			this.hideTooltip();
