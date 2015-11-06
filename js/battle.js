@@ -5978,6 +5978,7 @@ var Battle = (function () {
 	};
 
 	Battle.prototype.pause = function () {
+		this.elem.find(':animated').finish();
 		this.paused = true;
 		this.playbackState = 3;
 		if (this.resumeButton) {
