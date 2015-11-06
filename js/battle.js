@@ -6024,9 +6024,11 @@ var Battle = (function () {
 			this.activityQueueActive = true;
 			if (paused) this.pause();
 			else this.paused = false;
-			this.fastForward = time;
-			this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
-			$.fx.off = true;
+			if (time) {
+				this.fastForward = time;
+				this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
+				$.fx.off = true;
+			}
 			this.elem.find(':animated').finish();
 			this.swapQueues();
 			this.nextActivity();
