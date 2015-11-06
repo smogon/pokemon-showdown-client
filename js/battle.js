@@ -6020,7 +6020,7 @@ var Battle = (function () {
 		});
 		if (time <= this.turn && time !== -1) {
 			var paused = this.paused;
-			this.reset();
+			this.reset(true);
 			this.activityQueueActive = true;
 			if (paused) this.pause();
 			else this.paused = false;
@@ -6050,6 +6050,7 @@ var Battle = (function () {
 		this.fastForward = false;
 		this.elem.find('.seeking').remove();
 		$.fx.off = false;
+		if (!this.paused) this.soundStart();
 		this.playbackState = 2;
 	};
 	Battle.prototype.nextActivity = function () {
