@@ -7195,6 +7195,7 @@ var BattleMoveAnims = {
 				opacity: .7,
 				time: 500
 			}, 'decel', 'fade');
+			if (defender.isMissedPokemon) return;
 			battle.showEffect('mistball', {
 				x: defender.leftof(40),
 				y: defender.y+15,
