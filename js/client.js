@@ -2445,11 +2445,13 @@
 			}
 			buf += '</div>';
 
+			buf += '<p class="buttonbar">';
 			if (userid === app.user.get('userid') || !app.user.get('named')) {
-				buf += '<p class="buttonbar"><button disabled>Challenge</button> <button disabled>Chat</button></p>';
+				buf += '<button disabled>Challenge</button> <button disabled>Chat</button>';
 			} else {
-				buf += '<p class="buttonbar"><button name="challenge">Challenge</button> <button name="pm">Chat</button></p>';
+				buf += '<button name="challenge">Challenge</button> <button name="pm">Chat</button> <button name="userOptions">\u2026</button>';
 			}
+			buf += '</p>';
 
 			this.$el.html(buf);
 		},
@@ -2475,9 +2477,45 @@
 			this.close();
 			app.focusRoom('');
 			app.rooms[''].focusPM(this.data.name);
+		},
+		userOptions: function () {
+			app.addPopup(UserOptionsPopup, {name: this.data.name, userid: this.data.userid});
 		}
 	}, {
 		dataCache: {}
+	});
+	
+	var UserOptionsPopup = this.UserOptions = Popup.extend({
+		initialize: function (data) {
+			this.name = data.name.substr(1);
+			this.userid = data.userid;
+			this.update();
+		},
+		update: function () {
+			this.$el.html('<p><button name="toggleIgnoreUser">' + (app.ignore[this.userid] ? 'Unignore' : 'Ignore') + '</button></p>');
+		},
+		toggleIgnoreUser: function () {
+			var buf = "User '" + this.name + "'";
+			if (app.ignore[this.userid]) {
+				delete app.ignore[this.userid];
+				buf += " no longer ignored.";
+			} else {
+				app.ignore[this.userid] = 1;
+				buf += " ignored. (Moderator messages will not be ignored.)";
+			}
+			var $pm = $('.pm-window-' + this.userid);
+			if ($pm.length && $pm.css('display') !== 'none') {
+				$pm.find('.inner').append('<div class="chat">' + buf + '</div>');
+			} else {
+				var room = (app.curRoom && app.curRoom.add ? app.curRoom : app.curSideRoom);
+				if (!room || !room.add) {
+					app.addPopupMessage(buf);
+					return this.update();
+				}
+				room.add(buf);
+			}
+			app.dismissPopups();
+		}
 	});
 
 	var ReconnectPopup = this.ReconnectPopup = Popup.extend({
