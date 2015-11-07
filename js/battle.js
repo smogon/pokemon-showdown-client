@@ -2550,10 +2550,15 @@ var Battle = (function () {
 			this.fastForwardTo(-1);
 		} else {
 			var turn = this.turn;
+			var paused = this.paused;
 			this.reset(true);
 			this.setSidesSwitched(!this.sidesSwitched);
 			if (turn) this.fastForwardTo(turn);
-			this.play(true);
+			if (!paused) {
+				this.play();
+			} else {
+				this.pause();
+			}
 		}
 	};
 	Battle.prototype.setSidesSwitched = function (sidesSwitched) {
