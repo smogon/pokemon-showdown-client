@@ -37,7 +37,7 @@
 	position:absolute;top:373px;left:5px;right:0px;text-align:left;
 }
 .replay-controls-2 {
-	position:absolute;top:405px;left:5px;right:0px;text-align:left;
+	position:absolute;top:415px;left:5px;right:0px;text-align:left;
 }
 .replay-wrapper {
 	position: relative;
@@ -46,6 +46,9 @@
 .replay-controls button {
 	font-family: Verdana, sans-serif;
 	font-size: 10pt;
+}
+.replay-controls button i {
+	display: block;
 }
 
 .linklist {
