@@ -73,7 +73,7 @@
 			if (this.battle) this.battle.destroy();
 		},
 		requestLeave: function (e) {
-			if (this.side && this.battle && !this.battle.done && !this.battle.forfeitPending) {
+			if (this.side && this.battle && !this.battleEnded && !this.battle.forfeitPending) {
 				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget});
 				return false;
 			}
@@ -124,6 +124,7 @@
 			if (this.battle.activityQueue.length) return;
 			this.battle.activityQueue = log;
 			this.battle.fastForwardTo(-1);
+			if (this.battle.ended) this.battleEnded = true;
 			this.updateLayout();
 			this.updateControls();
 		},
@@ -171,8 +172,8 @@
 						break;
 					}
 				} else if (logLine.substr(0, 7) === '|title|') {
-					this.title = logLine.substr(7);
-					app.roomTitleChanged(this);
+				} else if (logLine.substr(0, 5) === '|win|') {
+					this.battleEnded = true;
 				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
 					this.battle.instantAdd(logLine);
 				} else {
