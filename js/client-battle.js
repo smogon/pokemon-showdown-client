@@ -174,6 +174,7 @@
 				} else if (logLine.substr(0, 7) === '|title|') {
 				} else if (logLine.substr(0, 5) === '|win|') {
 					this.battleEnded = true;
+					this.battle.activityQueue.push(logLine);
 				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
 					this.battle.instantAdd(logLine);
 				} else {
