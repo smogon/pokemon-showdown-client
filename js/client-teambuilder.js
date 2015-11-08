@@ -589,10 +589,11 @@
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
-					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
+					buf += '<div class="setmenu"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
+				} else {
+					buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
 				}
 				buf += '<div class="setchart"><div class="setcol setcol-icon" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
-				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
 				buf += '</li>';
 				return buf;
 			}
