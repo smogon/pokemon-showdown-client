@@ -2550,11 +2550,11 @@ var Battle = (function () {
 			this.fastForwardTo(-1);
 		} else {
 			var turn = this.turn;
-			var paused = this.paused;
+			var playbackState = this.playbackState;
 			this.reset(true);
 			this.setSidesSwitched(!this.sidesSwitched);
 			if (turn) this.fastForwardTo(turn);
-			if (!paused) {
+			if (this.playbackState !== 3) {
 				this.play();
 			} else {
 				this.pause();
