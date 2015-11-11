@@ -273,28 +273,74 @@ function BattleChart() {
 				self.pokemon.sort(thisSort);
 				self.lastPokemonSort = thisSort;
 			}
-			things = self.pokemon;
+			if (gen > 0) {
+				things = self.pokemon.filter(function (mon) {
+					if (gen < 6 && mon.forme.substr(0, 4) === 'Mega') return false;
+					if (gen === 1 && mon.num > 151) return false;
+					if (gen === 2 && mon.num > 251) return false;
+					if (gen === 3 && mon.num > 386) return false;
+					if (gen === 4 && mon.num > 493) return false;
+					if (gen === 5 && mon.num > 649) return false;
+					if (gen === 6 && mon.num > 721) return false;
+					return true;
+				});
+			} else {
+				things = self.pokemon;
+			}
 			break;
 		case 'item':
 			if (thisSort !== self.lastItemSort) {
 				self.items.sort(thisSort);
 				self.lastItemSort = thisSort;
 			}
-			things = self.items;
+			if (gen > 0) {
+				things = self.items.filter(function (item) {
+					if (gen === 1) return false;
+					if (gen === 2 && item.gen > 2) return false;
+					if (gen === 3 && item.gen > 3) return false;
+					if (gen === 4 && item.gen > 4) return false;
+					if (gen === 5 && item.gen > 5) return false;
+					return true;
+				});
+			} else {
+				things = self.items;
+			}
 			break;
 		case 'ability':
 			if (thisSort !== self.lastAbilitySort) {
 				self.abilities.sort(thisSort);
 				self.lastAbilitySort = thisSort;
 			}
-			things = self.abilities;
+			if (gen > 0) {
+				things = self.abilities.filter(function (ability) {
+					console.log(ability);
+					if (gen < 3) return false;
+					if (gen === 3 && ability.num > 76) return false;
+					if (gen === 4 && ability.num > 123) return false;
+					if (gen === 5 && ability.num > 164) return false;
+					return true;
+				});
+			} else {
+				things = self.abilities;
+			}
 			break;
 		case 'move':
 			if (thisSort !== self.lastMoveSort) {
 				self.moves.sort(thisSort);
 				self.lastMoveSort = thisSort;
 			}
-			things = self.moves;
+			if (gen > 0) {
+				things = self.moves.filter(function (move) {
+					if (gen === 1 && (move.num > 165 || move.id === 'hiddenpower')) return false;
+					if (gen === 2 && move.num > 251) return false;
+					if (gen === 3 && move.num > 354) return false;
+					if (gen === 4 && move.num > 467) return false;
+					if (gen === 5 && move.num > 559) return false;
+					return true;
+				});
+			} else {
+				things = self.moves;
+			}
 			break;
 		}
 

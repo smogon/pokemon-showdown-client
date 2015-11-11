@@ -230,6 +230,7 @@
 			i = +i;
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
+			this.curTeam.gen = this.getGen(this.curTeam.format);
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -1507,12 +1508,12 @@
 			var set = this.curSet;
 			var template = Tools.getTemplate(set.species);
 			if (!set) return;
-				buf += '<h3>Details</h3>';
-				buf += '<form class="detailsform">';
+			buf += '<h3>Details</h3>';
+			buf += '<form class="detailsform">';
 
-				buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + Tools.escapeHTML(set.level || 100) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + Tools.escapeHTML(set.level || 100) + '" class="textbox inputform numform" /></div></div>';
 
-				if (this.curTeam.gen > 1) {
+			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
 				if (template.gender) {
 					var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
