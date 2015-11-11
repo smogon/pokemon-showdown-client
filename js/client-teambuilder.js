@@ -18,6 +18,7 @@
 			this.buildMovelists();
 			if (this.curTeam) {
 				this.curTeam.iconCache = '!';
+				this.curTeam.gen = this.getGen(this.curTeam.format);
 				Storage.activeSetList = this.curSetList;
 			}
 		},
@@ -721,8 +722,9 @@
 		},
 		formatChange: function (e) {
 			this.curTeam.format = e.currentTarget.value;
+			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.save();
-			if (this.curTeam.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
+			if (this.curTeam.gen === 5 && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
 		},
 		nicknameChange: function (e) {
 			var i = +$(e.currentTarget).closest('li').attr('value');
@@ -2324,6 +2326,11 @@
 			} else {
 				this.movelist = Tools.movelists[speciesid];
 			}
+		},
+		getGen: function (format) {
+			format = '' + format;
+			if (format.substr(0, 3) !== 'gen') return 6;
+			return parseInt(format.substr(3, 1)) || 6;
 		},
 		destroy: function () {
 			app.clearGlobalListeners();
