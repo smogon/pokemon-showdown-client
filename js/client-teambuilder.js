@@ -18,6 +18,7 @@
 			this.buildMovelists();
 			if (this.curTeam) {
 				this.curTeam.iconCache = '!';
+				this.curTeam.gen = this.getGen(this.curTeam.format);
 				Storage.activeSetList = this.curSetList;
 			}
 		},
@@ -229,6 +230,7 @@
 			i = +i;
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
+			this.curTeam.gen = this.getGen(this.curTeam.format);
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -620,14 +622,16 @@
 				'N': '&mdash;'
 			};
 			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level || 100) + '</span>';
-			buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[template.gender || set.gender || 'N'] + '</span>';
-			buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
-			buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
+			if (this.curTeam.gen > 1) {
+				buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[template.gender || set.gender || 'N'] + '</span>';
+				buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
+				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
+			}
 
 			buf += '</button></div>';
 			buf += '</div><div class="setrow">';
-			buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="chartinput" value="' + Tools.escapeHTML(set.item) + '" /></div>';
-			buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="chartinput" value="' + Tools.escapeHTML(set.ability) + '" /></div>';
+			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="chartinput" value="' + Tools.escapeHTML(set.item) + '" /></div>';
+			if (this.curTeam.gen > 2) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="chartinput" value="' + Tools.escapeHTML(set.ability) + '" /></div>';
 			buf += '</div></div>';
 
 			// moves
@@ -644,6 +648,7 @@
 			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
 			var stats = {};
 			for (var j in BattleStatNames) {
+				if (j === 'spd' && this.curTeam.gen === 1) continue;
 				stats[j] = this.getStat(j, set);
 				var ev = '<em>' + (set.evs[j] || '') + '</em>';
 				if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === j) {
@@ -656,7 +661,8 @@
 				if (width > 75) width = 75;
 				var color = Math.floor(stats[j] * 180 / 714);
 				if (color > 360) color = 360;
-				buf += '<span class="statrow"><label>' + BattleStatNames[j] + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
+				var statName = this.curTeam.gen === 1 && j === 'spa' ? 'Spc' : BattleStatNames[j];
+				buf += '<span class="statrow"><label>' + statName + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
 			}
 			buf += '</button></div></div>';
 
@@ -721,8 +727,10 @@
 		},
 		formatChange: function (e) {
 			this.curTeam.format = e.currentTarget.value;
+			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.save();
-			if (this.curTeam.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
+			if (this.curTeam.gen === 5 && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
+			this.update();
 		},
 		nicknameChange: function (e) {
 			var i = +$(e.currentTarget).closest('li').attr('value');
@@ -1025,6 +1033,7 @@
 			// stat cell
 			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
 			for (var stat in stats) {
+				if (stat === 'spd' && this.curTeam.gen === 1) continue;
 				stats[stat] = this.getStat(stat, set);
 				var ev = '<em>' + (set.evs[stat] || '') + '</em>';
 				if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
@@ -1053,6 +1062,7 @@
 			buf = '<div></div>';
 			var totalev = 0;
 			for (var stat in stats) {
+				if (stat === 'spd' && this.curTeam.gen === 1) continue;
 				var width = stats[stat] * 180 / 504;
 				if (stat == 'hp') width = stats[stat] * 180 / 704;
 				if (width > 179) width = 179;
@@ -1064,10 +1074,11 @@
 			buf += '<div><em>Remaining:</em></div>';
 			this.$chart.find('.graphcol').html(buf);
 
-			if (totalev <= 510) {
-				this.$chart.find('.totalev').html('<em>' + (totalev > 508 ? 0 : 508 - totalev) + '</em>');
+			var maxEv = this.curTeam.gen > 2 ? 510 : this.curTeam.gen === 1 ? 1275 : 1530;
+			if (totalev <= maxEv) {
+				this.$chart.find('.totalev').html('<em>' + (totalev > (maxEv-2) ? 0 : (maxEv-2) - totalev) + '</em>');
 			} else {
-				this.$chart.find('.totalev').html('<b>' + (510 - totalev) + '</b>');
+				this.$chart.find('.totalev').html('<b>' + (maxEv - totalev) + '</b>');
 			}
 			this.$chart.find('select[name=nature]').val(set.nature || 'Serious');
 		},
@@ -1096,7 +1107,7 @@
 			this.updateChartTimeout = setTimeout(function () {
 				self.updateChartTimeout = null;
 				if (self.curChartType === 'stats' || self.curChartType === 'details' || !self.curChartName) return;
-				self.$chart.html(Chart.chart(self.$('input[name=' + self.curChartName + ']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self)));
+				self.$chart.html(Chart.chart(self.$('input[name=' + self.curChartName + ']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self), null, self.curTeam.gen));
 			}, 10);
 		},
 		updateChartTimeout: null,
@@ -1111,7 +1122,7 @@
 			this.updateChartTimeout = setTimeout(function () {
 				self.updateChartTimeout = null;
 				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
-				self.$chart.html(Chart.chart(self.$('input[name=' + self.curChartName + ']').val(), self.curChartType, false, _.bind(self.arrangeCallback[self.curChartType], self)));
+				self.$chart.html(Chart.chart(self.$('input[name=' + self.curChartName + ']').val(), self.curChartType, false, _.bind(self.arrangeCallback[self.curChartType], self), null, self.curTeam.gen));
 			}, 200);
 		},
 		selectPokemon: function (i) {
@@ -1226,14 +1237,21 @@
 			}
 
 			var stats = {hp:'',atk:'',def:'',spa:'',spd:'',spe:''};
+			if (this.curTeam.gen === 1) delete stats.spd;
 			if (!set) return;
 			var nature = BattleNatures[set.nature || 'Serious'];
 			if (!nature) nature = {};
 
 			// label column
 			buf += '<div class="col labelcol"><div></div>';
-			buf += '<div><label>HP</label></div><div><label>Attack</label></div><div><label>Defense</label></div><div><label>Sp. Atk.</label></div><div><label>Sp. Def.</label></div><div><label>Speed</label></div>';
-			buf += '</div>';
+			buf += '<div><label>HP</label></div><div><label>Attack</label></div><div><label>Defense</label></div><div>';
+			if (this.curTeam.gen === 1) {
+				buf += '<label>Special</label></div>';
+			} else {
+				buf += '<label>Sp. Atk.</label></div><div><label>Sp. Def.</label></div>';
+			}
+			
+			buf += '<div><label>Speed</label></div></div>';
 
 			buf += '<div class="col basestatscol"><div><em>Base</em></div>';
 			for (var i in stats) {
@@ -1274,15 +1292,17 @@
 				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="inputform numform" /></div>';
 				totalev += (set.evs[i] || 0);
 			}
-			if (totalev <= 510) {
-				buf += '<div class="totalev"><em>' + (totalev > 508 ? 0 : 508 - totalev) + '</em></div>';
+			var maxEv = this.curTeam.gen > 2 ? 510 : this.curTeam.gen === 1 ? 1275 : 1530;
+			if (totalev <= maxEv) {
+				buf += '<div class="totalev"><em>' + (totalev > (maxEv-2) ? 0 : (maxEv-2) - totalev) + '</em></div>';
 			} else {
-				buf += '<div class="totalev"><b>' + (510 - totalev) + '</b></div>';
+				buf += '<div class="totalev"><b>' + (maxEv - totalev) + '</b></div>';
 			}
 			buf += '</div>';
 
 			buf += '<div class="col evslidercol"><div></div>';
 			for (var i in stats) {
+				if (i === 'spd' && this.curTeam.gen === 1) continue;
 				buf += '<div><input type="slider" name="evslider-' + i + '" value="' + Tools.escapeHTML(set.evs[i] || '0') + '" min="0" max="252" step="4" class="evslider" /></div>';
 			}
 			buf += '</div>';
@@ -1303,18 +1323,20 @@
 			}
 			buf += '</div>';
 
-			buf += '<p style="clear:both">Nature: <select name="nature">';
-			for (var i in BattleNatures) {
-				var curNature = BattleNatures[i];
-				buf += '<option value="' + i + '"' + (curNature === nature ? 'selected="selected"' : '') + '>' + i;
-				if (curNature.plus) {
-					buf += ' (+' + BattleStatNames[curNature.plus] + ', -' + BattleStatNames[curNature.minus] + ')';
+			if (this.curTeam.gen > 2) {
+				buf += '<p style="clear:both">Nature: <select name="nature">';
+				for (var i in BattleNatures) {
+					var curNature = BattleNatures[i];
+					buf += '<option value="' + i + '"' + (curNature === nature ? 'selected="selected"' : '') + '>' + i;
+					if (curNature.plus) {
+						buf += ' (+' + BattleStatNames[curNature.plus] + ', -' + BattleStatNames[curNature.minus] + ')';
+					}
+					buf += '</option>';
 				}
-				buf += '</option>';
-			}
-			buf += '</select></p>';
+				buf += '</select></p>';
 
-			buf += '<p><em>Protip:</em> You can also set natures by typing "+" and "-" next to a stat.</p>';
+				buf += '<p><em>Protip:</em> You can also set natures by typing "+" and "-" next to a stat.</p>';
+			}
 
 			buf += '</div>';
 			this.$chart.html(buf);
@@ -1491,23 +1513,25 @@
 
 			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + Tools.escapeHTML(set.level || 100) + '" class="textbox inputform numform" /></div></div>';
 
-			buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
-			if (template.gender) {
-				var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
-				buf += genderTable[template.gender];
-			} else {
-				buf += '<label><input type="radio" name="gender" value="M"' + (set.gender === 'M' ? ' checked' : '') + ' /> Male</label> ';
-				buf += '<label><input type="radio" name="gender" value="F"' + (set.gender === 'F' ? ' checked' : '') + ' /> Female</label> ';
-				buf += '<label><input type="radio" name="gender" value="N"' + (!set.gender ? ' checked' : '') + ' /> Random</label>';
+			if (this.curTeam.gen > 1) {
+				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
+				if (template.gender) {
+					var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
+					buf += genderTable[template.gender];
+				} else {
+					buf += '<label><input type="radio" name="gender" value="M"' + (set.gender === 'M' ? ' checked' : '') + ' /> Male</label> ';
+					buf += '<label><input type="radio" name="gender" value="F"' + (set.gender === 'F' ? ' checked' : '') + ' /> Female</label> ';
+					buf += '<label><input type="radio" name="gender" value="N"' + (!set.gender ? ' checked' : '') + ' /> Random</label>';
+				}
+				buf += '</div></div>';
+
+				buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
+
+				buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
+				buf += '<label><input type="radio" name="shiny" value="yes"' + (set.shiny ? ' checked' : '') + ' /> Yes</label> ';
+				buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
+				buf += '</div></div>';
 			}
-			buf += '</div></div>';
-
-			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
-
-			buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
-			buf += '<label><input type="radio" name="shiny" value="yes"' + (set.shiny ? ' checked' : '') + ' /> Yes</label> ';
-			buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
-			buf += '</div></div>';
 
 			buf += '</form>';
 			this.$chart.html(buf);
@@ -1551,9 +1575,11 @@
 				'N': '&mdash;'
 			};
 			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level || 100) + '</span>';
-			buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender || 'N'] + '</span>';
-			buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
-			buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
+			if (this.curTeam.gen > 1) {
+				buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender || 'N'] + '</span>';
+				buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
+				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
+			}
 			this.$('button[name=details]').html(buf);
 
 			this.save();
@@ -1648,7 +1674,7 @@
 				e.preventDefault();
 
 				var name = e.currentTarget.name;
-				this.$chart.html(Chart.chart(e.currentTarget.value, this.curChartType, false, _.bind(this.arrangeCallback[this.curChartType], this)));
+				this.$chart.html(Chart.chart(e.currentTarget.value, this.curChartType, false, _.bind(this.arrangeCallback[this.curChartType], this), null, this.curTeam.gen));
 				var val = Chart.firstResult;
 				this.chartSet(val, true);
 				return;
@@ -1689,7 +1715,7 @@
 			if (this.arrangeCallback[this.curChartType]) {
 				arrange = _.bind(this.arrangeCallback[this.curChartType], this);
 			}
-			this.$chart.html(Chart.chart(e.currentTarget.value, type, false, arrange));
+			this.$chart.html(Chart.chart(e.currentTarget.value, type, false, arrange, null, this.curTeam.gen));
 			var val = Chart.firstResult;
 			var id = toId(e.currentTarget.value);
 			if (toId(val) !== id) {
@@ -2324,6 +2350,11 @@
 			} else {
 				this.movelist = Tools.movelists[speciesid];
 			}
+		},
+		getGen: function (format) {
+			format = '' + format;
+			if (format.substr(0, 3) !== 'gen') return 6;
+			return parseInt(format.substr(3, 1)) || 6;
 		},
 		destroy: function () {
 			app.clearGlobalListeners();
