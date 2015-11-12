@@ -1442,6 +1442,9 @@
 			var set = this.curSet;
 			if (!set) return;
 			val = +val;
+			var originalVal = val;
+			var result = this.getStat(stat, set, val);
+			while (val && this.getStat(stat, set, val - 4) == result) val -= 4;
 
 			if (!this.ignoreEVLimits && set.evs) {
 				var total = 0;
@@ -1456,12 +1459,12 @@
 					val = +val;
 					if (!val || val <= 0) val = 0;
 					if (val > 252) val = 252;
-
-					// Don't try this at home.
-					// I am a trained professional.
-					slider.o.pointers[0].set(val);
 				}
 			}
+
+			// Don't try this at home.
+			// I am a trained professional.
+			if (val !== originalVal) slider.o.pointers[0].set(val);
 
 			if (!set.evs) set.evs = {};
 			set.evs[stat] = val;
