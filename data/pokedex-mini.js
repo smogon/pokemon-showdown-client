@@ -3,7 +3,7 @@ BattlePokemonSprites = {
 	"revenankh": {num:-2},
 	"pyroak": {num:-3},
 	"fidgit": {num:-4},
-	"stratagem": {num:-5, front:{ani:{w:85,h:88}}, back:{ani:{w:84,h:85}}},
+	"stratagem": {num:-5, front:{ani:{w:86,h:92}}, back:{ani:{w:84,h:89}}},
 	"arghonaut": {num:-6},
 	"kitsunoh": {num:-7},
 	"cyclohm": {num:-8},
