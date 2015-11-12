@@ -109,6 +109,7 @@
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
+				this.ignoreEVLimits = (this.curTeam.gen < 3);
 				if (this.curSet) {
 					return this.updateSetView();
 				}
@@ -1415,7 +1416,7 @@
 
 				// cap
 				if (val > 252) val = 252;
-				if (val < 0) val = 0;
+				if (val < 0 || isNaN(val)) val = 0;
 
 				if (set.evs[stat] !== val || natureChange) {
 					set.evs[stat] = val;
@@ -2149,7 +2150,6 @@
 				}
 			}
 
-			this.ignoreEVLimits = (this.curTeam.format === 'classichackmons');
 			if (this.curTeam && this.ignoreEVLimits) {
 				evs = {hp:252, atk:252, def:252, spa:252, spd:252, spe:252};
 				if (hasMove['gyroball'] || hasMove['trickroom']) delete evs.spe;
