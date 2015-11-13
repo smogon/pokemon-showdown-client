@@ -1738,7 +1738,7 @@
 			case 'item':
 				this.curSet.item = val;
 				this.updatePokemonSprite();
-				if (selectNext) this.$('input[name=ability]').select();
+				if (selectNext) this.$(this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]').select();
 				break;
 			case 'ability':
 				this.curSet.ability = val;
@@ -1827,7 +1827,7 @@
 			set.ivs = {};
 			set.nature = '';
 			this.updateSetTop();
-			if (selectNext) this.$(set.item ? 'input[name=ability]' : 'input[name=item]').select();
+			if (selectNext) this.$(set.item || !this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
 		},
 
 		/*********************************************************
