@@ -2184,6 +2184,14 @@
 			} else {
 				this.notifications[tag] = {};
 			}
+
+			if (this.lastMessageDate) {
+				// Mark chat messages as read to avoid double-notifying on reload
+				var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
+				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
+				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
+				Tools.prefs.save();
+			}
 		},
 		dismissAllNotifications: function (skipUpdate) {
 			if (!this.notifications && !this.subtleNotification) {
@@ -2205,6 +2213,14 @@
 				this.notificationClass = '';
 				if (skipUpdate) return;
 				app.topbar.updateTabbar();
+			}
+
+			if (this.lastMessageDate) {
+				// Mark chat messages as read to avoid double-notifying on reload
+				var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
+				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
+				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
+				Tools.prefs.save();
 			}
 		},
 		clickNotification: function (tag) {

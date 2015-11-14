@@ -1337,7 +1337,21 @@
 				return; // PMs independently notify in the man menu; no need to make them notify again with `inchatpm`.
 			}
 
-			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
+			var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
+			if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
+			var lastMessageDate = lastMessageDates[Config.server.id][this.id] || 0;
+			var mayNotify = msgTime > lastMessageDate;
+
+			if (app.focused && (this === app.curSideRoom || this === app.curRoom)) {
+				this.lastMessageDate = 0;
+				lastMessageDates[Config.server.id][this.id] = msgTime;
+				Tools.prefs.save();
+			} else {
+				// To be saved on focus
+				this.lastMessageDate = Math.max(this.lastMessageDate || 0, msgTime);
+			}
+
+			var isHighlighted = mayNotify && userid !== app.user.get('userid') && this.getHighlight(message);
 			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
@@ -1350,7 +1364,7 @@
 				var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
 				var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
 				this.notifyOnce(notifyTitle, "\"" + notifyText + "\"", 'highlight');
-			} else {
+			} else if (mayNotify && name !== '~') { // |c:|~| prefixes a system message
 				this.subtleNotifyOnce();
 			}
 
