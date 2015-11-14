@@ -38,6 +38,8 @@
 
 			BattleSound.setMute(Tools.prefs('mute'));
 			this.battle = new Battle(this.$battle, this.$chatFrame);
+			this.battle.roomid = this.id;
+			this.users = {};
 
 			this.$chat = this.$chatFrame.find('.inner');
 
@@ -71,7 +73,7 @@
 			if (this.battle) this.battle.destroy();
 		},
 		requestLeave: function (e) {
-			if (this.side && this.battle && !this.battle.done && !this.battle.forfeitPending) {
+			if (this.side && this.battle && !this.battleEnded && !this.battle.forfeitPending) {
 				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget});
 				return false;
 			}
@@ -122,6 +124,7 @@
 			if (this.battle.activityQueue.length) return;
 			this.battle.activityQueue = log;
 			this.battle.fastForwardTo(-1);
+			if (this.battle.ended) this.battleEnded = true;
 			this.updateLayout();
 			this.updateControls();
 		},
@@ -169,8 +172,9 @@
 						break;
 					}
 				} else if (logLine.substr(0, 7) === '|title|') {
-					this.title = logLine.substr(7);
-					app.roomTitleChanged(this);
+				} else if (logLine.substr(0, 5) === '|win|') {
+					this.battleEnded = true;
+					this.battle.activityQueue.push(logLine);
 				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
 					this.battle.instantAdd(logLine);
 				} else {
@@ -180,10 +184,19 @@
 			this.battle.add('', Tools.prefs('noanim'));
 			this.updateControls();
 		},
-		revealMessages: function (user) {
+		toggleMessages: function (user) {
 			var $messages = $('.chatmessage-' + user);
-			$messages.addClass('revealed').show();
-			$messages.find('button').parent().remove();
+			var $button = $messages.find('button');
+			if ($messages.hasClass('revealed')) {
+				$messages.removeClass('revealed').hide();
+				$button.html('<small>View ' + ($messages.length - 1) + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.parent().show();
+			} else {
+				$messages.addClass('revealed');
+				$button.html('<small>Hide ' + ($messages.length - 1) + ' revealed message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.parent().removeClass('revealed');
+				$messages.show();
+			}
 		},
 
 		/*********************************************************
@@ -212,7 +225,7 @@
 					// is a player
 					this.$controls.html('<p><button name="skipTurn">Skip turn <i class="fa fa-step-forward"></i></button><button name="goToEnd">Go to last turn <i class="fa fa-fast-forward"></i></button></p>');
 				} else {
-					this.$controls.html('<p><button name="switchSides">Switch sides <i class="fa fa-random"></i></button> <button name="skipTurn">Skip turn <i class="fa fa-step-forward"></i></button> <button name="goToEnd">Go to last turn <i class="fa fa-fast-forward"></i></button></p>');
+					this.$controls.html('<p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button> <button name="skipTurn">Skip turn <i class="fa fa-step-forward"></i></button> <button name="goToEnd">Go to last turn <i class="fa fa-fast-forward"></i></button></p>');
 				}
 				return;
 
@@ -225,7 +238,7 @@
 					// was a player
 					this.$controls.html('<div class="controls"><p><em><button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="fa fa-upload"></i> Share replay</button></p><p><button name="closeAndMainMenu"><strong>Main menu</strong><br /><small>(closes this battle)</small></button> <button name="closeAndRematch"><strong>Rematch</strong><br /><small>(closes this battle)</small></button></p></div>');
 				} else {
-					this.$controls.html('<div class="controls"><p><em><button name="switchSides">Switch sides <i class="fa fa-random"></i></button> <button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="fa fa-upload"></i> Share replay</button></p></div>');
+					this.$controls.html('<div class="controls"><p><em><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button> <button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="fa fa-upload"></i> Share replay</button></p></div>');
 				}
 
 			} else if (!this.battle.mySide.initialized || !this.battle.yourSide.initialized) {
@@ -264,7 +277,7 @@
 			} else {
 
 				// full battle
-				this.$controls.html('<p><em><button name="switchSides">Switch sides <i class="fa fa-random"></i></button> Waiting for players...</em></p>');
+				this.$controls.html('<p><em><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button> Waiting for players...</em></p>');
 
 			}
 
@@ -430,18 +443,18 @@
 						movebuttons += '<button disabled="disabled"' + this.tooltipAttrs(moveData.move, 'move') + '>';
 						hasDisabled = true;
 					} else {
-						movebuttons += '<button class="type-' + moveType + '" name="chooseMove" value="' + (i + 1) + '" data-move="' + Tools.escapeHTML(moveData.move) + '"' + this.tooltipAttrs(moveData.move, 'move') + '>';
+						movebuttons += '<button class="type-' + moveType + '" name="chooseMove" value="' + (i + 1) + '" data-move="' + Tools.escapeHTML(moveData.move) + '" data-target="' + Tools.escapeHTML(moveData.target) + '"' + this.tooltipAttrs(moveData.move, 'move') + '>';
 						hasMoves = true;
 					}
 					movebuttons += name + '<br /><small class="type">' + (moveType || "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 				}
 				if (!hasMoves) {
-					controls += '<button class="movebutton" name="chooseMove" value="0" data-move="Struggle">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
+					controls += '<button class="movebutton" name="chooseMove" value="0" data-move="Struggle" data-target="randomNormal">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
 				} else {
 					controls += movebuttons;
 				}
 				if (switchables[pos].canMegaEvo) {
-					controls += '<br /><label><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;evolution</label>';
+					controls += '<br /><label><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
 				}
 				if (this.finalDecisionMove) {
 					controls += '<em style="display:block;clear:both">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em><br/>';
@@ -658,13 +671,7 @@
 			if (!sideData.id) return;
 			this.side = sideData.id;
 			if (this.battle.sidesSwitched !== !!(this.side === 'p2')) {
-				this.battle.reset(true);
-				this.battle.switchSides();
-				if (midBattle) {
-					this.battle.fastForwardTo(-1);
-				} else {
-					this.battle.play();
-				}
+				this.battle.switchSides(!midBattle);
 				this.$chat = this.$chatFrame.find('.inner');
 			}
 		},
@@ -705,17 +712,7 @@
 			this.send('/savereplay');
 		},
 		switchSides: function () {
-			if (this.battle.done) {
-				this.battle.reset(true);
-				this.battle.switchSides();
-				this.battle.fastForwardTo(-1);
-			} else {
-				var turn = this.battle.turn;
-				this.battle.reset(true);
-				this.battle.switchSides();
-				if (turn) this.battle.fastForwardTo(turn);
-				this.battle.play(true);
-			}
+			this.battle.switchSides();
 		},
 		instantReplay: function () {
 			this.hideTooltip();
@@ -754,7 +751,7 @@
 			var isMega = !!(this.$('input[name=megaevo]')[0] || '').checked;
 			if (pos !== undefined) {
 				var move = e.getAttribute('data-move');
-				var target = Tools.getMove(move).target;
+				var target = e.getAttribute('data-target');
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
 				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : ''));
 				if (myActive.length > 1 && target in choosableTargets) {
@@ -951,7 +948,7 @@
 			}
 			var y = offset.top - 5;
 
-			if (x > 335) x = 335;
+			if (x > this.leftWidth + 335) x = this.leftWidth + 335;
 			if (y < 140) y = 140;
 			if (x > $(window).width() - 303) x = Math.max($(window).width() - 303, 0);
 			if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper" onclick="$(\'#tooltipwrapper\').html(\'\');"></div>');
@@ -993,7 +990,8 @@
 					// Falls through to not to repeat code on showing the base power.
 				}
 				if (!basePowerText) {
-					basePower = this.getMoveBasePower(move, pokemon, yourActive[0]) || basePower;
+					var activeTarget = yourActive[0] || yourActive[1] || yourActive[2];
+					basePower = this.getMoveBasePower(move, pokemon, activeTarget) || basePower;
 					if (!basePower) basePower = '&mdash;';
 					basePowerText = '<p>Base power: ' + basePower + '</p>'
 				}
@@ -1124,10 +1122,14 @@
 					text += 'Types unknown';
 				}
 				text += '</h2>';
-				var exacthp = '';
-				if (pokemon.maxhp != 100 && pokemon.maxhp != 1000 && pokemon.maxhp != 48) exacthp = ' (' + pokemon.hp + '/' + pokemon.maxhp + ')';
-				if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
-				text += '<p>HP: ' + pokemon.hpDisplay() + exacthp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
+				if (pokemon.fainted) {
+					text += '<p>HP: (fainted)</p>';
+				} else {
+					var exacthp = '';
+					if (pokemon.maxhp != 100 && pokemon.maxhp != 1000 && pokemon.maxhp != 48) exacthp = ' (' + pokemon.hp + '/' + pokemon.maxhp + ')';
+					if (pokemon.maxhp == 48 && isActive) exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
+					text += '<p>HP: ' + pokemon.hpDisplay() + exacthp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
+				}
 				if (myPokemon) {
 					if (this.battle.gen > 2) {
 						text += '<p>Ability: ' + Tools.getAbility(myPokemon.baseAbility).name;
@@ -1136,7 +1138,7 @@
 						}
 						text += '</p>';
 					} else if (myPokemon.item) {
-						text += '<p> / Item: ' + Tools.getItem(myPokemon.item).name + '</p>';
+						text += '<p>Item: ' + Tools.getItem(myPokemon.item).name + '</p>';
 					}
 					text += '<p>' + myPokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + myPokemon.stats['def'] + '&nbsp;Def /&nbsp;' + myPokemon.stats['spa'];
 					if (this.battle.gen === 1) {
@@ -1161,9 +1163,17 @@
 						text += '<p>Ability: ' + Tools.getAbility(pokemon.baseAbility).name + '</p>';
 					}
 				}
-				if (pokemon.item) {
-					text += '<p>Item: ' + Tools.getItem(pokemon.item).name + '</p>';
+				var item = '';
+				var itemEffect = pokemon.itemEffect || '';
+				if (pokemon.prevItem) {
+					item = 'None';
+					if (itemEffect) itemEffect += '; ';
+					var prevItem = Tools.getItem(pokemon.prevItem).name;
+					itemEffect += pokemon.prevItemEffect ? prevItem + ' was ' + pokemon.prevItemEffect : 'was ' + prevItem;
 				}
+				if (pokemon.item) item = Tools.getItem(pokemon.item).name;
+				if (itemEffect) itemEffect = ' (' + itemEffect + ')';
+				if (item) text += '<p>Item: ' + item + itemEffect + '</p>';
 				if (pokemon.stats) {
 					text += '<p>' + pokemon.stats['atk'] + '&nbsp;Atk /&nbsp;' + pokemon.stats['def'] + '&nbsp;Def /&nbsp;' + pokemon.stats['spa'];
 					if (this.battle.gen === 1) {
@@ -1215,6 +1225,15 @@
 				break;
 			}
 			$('#tooltipwrapper').html(text).appendTo(document.body);
+			if (elem) {
+				var height = $('#tooltipwrapper .tooltip').height();
+				if (height > y) {
+					y += height + 10;
+					if (ownHeight) y += $(elem).height();
+					else y += $(elem).parent().height();
+					$('#tooltipwrapper').css('top', y);
+				}
+			}
 		},
 		hideTooltip: function () {
 			$('#tooltipwrapper').html('');
@@ -1233,9 +1252,10 @@
 		// Gets the proper current type for moves with a variable type.
 		getMoveType: function(move, pokemon) {
 			var myPokemon = this.myPokemon[pokemon.slot];
+			var ability = Tools.getAbility(myPokemon.baseAbility).name;
 			var moveType = move.type;
 			// Normalize is the first move type changing effect.
-			if (pokemon.ability === 'Normalize') {
+			if (ability === 'Normalize') {
 				moveType = 'Normal';
 			}
 			// Moves that require an item to change their type.
@@ -1256,11 +1276,11 @@
 			// Weather and pseudo-weather type changes.
 			if (move.id === 'weatherball' && this.battle.weather) {
 				// Check if you have an anti weather ability to skip this.
-				var noWeatherAbility = !!(pokemon.ability in {'Air Lock': 1, 'Cloud Nine': 1});
+				var noWeatherAbility = !!(ability in {'Air Lock': 1, 'Cloud Nine': 1});
 				// If you don't, check if the opponent has it afterwards.
 				if (!noWeatherAbility) {
 					for (var i = 0; i < this.battle.yourSide.active.length; i++) {
-						if (this.battle.yourSide.active[i].ability && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+						if (this.battle.yourSide.active[i] && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
 							noWeatherAbility = true;
 							break;
 						}
@@ -1276,10 +1296,10 @@
 				}
 			}
 			// Other abilities that change the move type.
-			if (moveType === 'Normal' && move.id !== 'naturalgift') {
-				if (pokemon.ability === 'Aerilate') moveType = 'Flying';
-				if (pokemon.ability === 'Pixilate') moveType = 'Fairy';
-				if (pokemon.ability === 'Refrigerate') moveType = 'Ice';
+			if (moveType === 'Normal' && move.category && move.category !== 'Status' && move.id !== 'naturalgift') {
+				if (ability === 'Aerilate') moveType = 'Flying';
+				if (ability === 'Pixilate') moveType = 'Fairy';
+				if (ability === 'Refrigerate') moveType = 'Ice';
 			}
 			return moveType;
 		},
@@ -1288,6 +1308,7 @@
 		// If it is unsure of the actual base power, it gives an estimate.
 		getMoveBasePower: function(move, pokemon, target) {
 			var myPokemon = this.myPokemon[pokemon.slot];
+			var ability = Tools.getAbility(myPokemon.baseAbility).name;
 			var basePower = move.basePower;
 			var basePowerComment = '';
 			var thereIsWeather = (this.battle.weather in {'sunnyday': 1, 'desolateland': 1, 'raindance': 1, 'primordialsea': 1, 'sandstorm': 1, 'hail':1});
@@ -1389,7 +1410,7 @@
 				else max = 40;
 				// Special case due to being a range. Other moves are checked by technician below.
 				basePower = 0;
-				if (pokemon.ability === 'technician') {
+				if (ability === 'Technician') {
 					if (min <= 60) min *= 1.5;
 					if (max <= 60) max *= 1.5;
 					basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
@@ -1406,7 +1427,7 @@
 				if (max > 150) max = 150;
 				// Special case due to range as well.
 				basePower = 0;
-				if (pokemon.ability === 'technician') {
+				if (ability === 'Technician') {
 					if (min <= 60) min *= 1.5;
 					if (max <= 60) max = Math.max(max * 1.5, 90);
 					basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
@@ -1450,18 +1471,20 @@
 					if (target.volatiles && target.volatiles.autotomize) basePowerComment = ' (Approximation)';
 				}
 			}
+			if (!basePower) return basePowerComment;
+
 			// Other ability boosts.
-			if (pokemon.ability === 'technician' && basePower <= 60) {
+			if (ability === 'Technician' && basePower <= 60) {
 				basePower *= 1.5;
 				basePowerComment = ' (Technician boosted)';
 			}
-			if (move.type === 'Normal' && move.id !== 'naturalgift' && (!thereIsWeather || thereIsWeather && move.id !== 'weatherball')) {
-				if (pokemon.ability in {'Aerilate': 1, 'Pixilate': 1, 'Refrigerate': 1}) {
+			if (move.type === 'Normal' && move.category !== 'Status' && move.id !== 'naturalgift' && (!thereIsWeather || thereIsWeather && move.id !== 'weatherball')) {
+				if (ability in {'Aerilate': 1, 'Pixilate': 1, 'Refrigerate': 1}) {
 					basePower = Math.floor(basePower * 1.3);
-					basePowerComment = ' (' + pokemon.ability + ' boosted)';
+					basePowerComment = ' (' + ability + ' boosted)';
 				}
 			}
-			return (basePower > 0) ? basePower + basePowerComment : basePowerComment;
+			return basePower + basePowerComment;
 		}
 	});
 

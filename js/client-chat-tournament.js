@@ -208,13 +208,7 @@
 				return;
 			}
 
-			var teamIndex = undefined;
-			if (!forceFormatChange && this.$teamSelect.children().val()) {
-				teamIndex = parseInt(this.$teamSelect.children().val());
-				if (isNaN(teamIndex)) teamIndex = undefined;
-			}
-
-			this.$teamSelect.html(app.rooms[''].renderTeams(this.info.format, teamIndex));
+			this.$teamSelect.html(app.rooms[''].renderTeams.call(this, this.info.format));
 			this.$teamSelect.children().data('type', 'teamSelect');
 			this.$teamSelect.children().attr('name', 'tournamentButton');
 			this.$teamSelect.show();
@@ -248,7 +242,7 @@
 						$infoList = $('<ul></ul>');
 						tournaments.forEach(function (tournament) {
 							var $info = $('<li></li>');
-							$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
+							$info.text(": " + Tools.escapeFormat(tournament.format) + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
 							$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
 							$infoList.append($info);
 						});
@@ -262,10 +256,11 @@
 			} else {
 				switch (cmd) {
 				case 'create':
-					var format = Tools.getEffect(data[0]).name;
+					var format = Tools.escapeFormat(data[0]);
 					var type = data[1];
-					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament created.</div>");
+					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + format + " " + Tools.escapeHTML(type) + " Tournament created.</div>");
 					this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + format + "\nType: " + type, 'tournament-create');
+					this.curTeamIndex = 0;
 					this.updateTeams();
 					break;
 
@@ -354,7 +349,7 @@
 					}
 
 					if ('format' in this.updates) {
-						this.$format.text(Tools.getEffect(this.info.format).name);
+						this.$format.text(Tools.escapeFormat(this.info.format));
 						this.updateTeams();
 					}
 					if ('generator' in this.updates)
@@ -389,14 +384,16 @@
 					if (this.info.isStarted && this.info.isJoined) {
 						// Update the challenges
 						if ('challenges' in this.updates) {
-							this.$challenge.toggleClass('active', this.info.challenges.length > 0);
 							if (this.info.challenges.length > 0) {
 								this.$challengeUser.text("vs. " + this.info.challenges[0]);
 								this.$challengeUserMenu.toggle(this.info.challenges.length > 1);
 								this.$challengeUserMenu.html(this.renderChallengeUsers());
 								this.toggleBoxVisibility(true);
-								this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
+								if (!this.$challenge.hasClass('active')) {
+									this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
+								}
 							}
+							this.$challenge.toggleClass('active', this.info.challenges.length > 0);
 						}
 
 						if ('challengeBys' in this.updates) {
@@ -413,12 +410,14 @@
 						}
 
 						if ('challenged' in this.updates) {
-							this.$challenged.toggleClass('active', !!this.info.challenged);
 							if (this.info.challenged) {
 								this.$challengedMessage.text("vs. " + this.info.challenged);
 								this.toggleBoxVisibility(true);
-								this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
+								if (!this.$challenged.hasClass('active')) {
+									this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
+								}
 							}
+							this.$challenged.toggleClass('active', !!this.info.challenged);
 						}
 
 						this.$noMatches.toggleClass('active',
@@ -460,9 +459,9 @@
 						}
 					}
 
-					var format = Tools.getEffect(endData.format).name;
+					var format = Tools.escapeFormat(endData.format);
 					var type = endData.generator;
-					this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + Tools.escapeHTML(format) + " " + Tools.escapeHTML(type) + " Tournament!</div>");
+					this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + format + " " + Tools.escapeHTML(type) + " Tournament!</div>");
 					if (endData.results[1])
 						this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") + ": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
 
@@ -551,16 +550,21 @@
 
 		TournamentBox.prototype.generateBracket = function (data) {
 			if (data.type === 'tree') {
-				if (!data.rootNode)
-					return;
+				var $div = $('<div class="tournament-bracket-tree"></div>');
 
+				if (!data.rootNode) {
+					if (!('users' in data)) return;
+					var users = data.users.length;
+					if (users) $div.html('<b>' + users + '</b> user' + (users !== 1 ? 's' : '') + ':<br />' + data.users.join(", "));
+					return $div;
+				}
+
+				var name = app.user.get('name');
 				var nodeSize = {
 					width: 150, height: 20,
 					radius: 5,
 					separationX: 30, separationY: 15
 				};
-
-				var $div = $('<div class="tournament-bracket-tree"></div>');
 
 				var nodesByDepth = [];
 				var stack = [{node: data.rootNode, depth: 0}];
@@ -635,6 +639,7 @@
 							elem.attr('y', -nodeSize.smallRealHeight / 2).attr('height', nodeSize.smallRealHeight);
 						else
 							elem.attr('y', -nodeSize.realHeight / 2).attr('height', nodeSize.realHeight);
+						if (node.team === name) elem.attr('stroke-dasharray', '5,5');
 					});
 				nodeGroup.each(function (node) {
 					var elem = d3.select(this);
@@ -758,7 +763,7 @@
 		};
 
 		TournamentBox.prototype.teamSelect = function (team, button) {
-			app.addPopup(TeamPopup, {team: team, format: this.info.format, sourceEl: button});
+			app.addPopup(TeamPopup, {team: team, format: this.info.format, sourceEl: button, room: this.room.id});
 		};
 
 		return TournamentBox;

@@ -142,6 +142,21 @@ var BattleEffects = {
 		BattleEffects[i].url = Tools.resourcePrefix + BattleEffects[i].url;
 	}
 })();
+var BattleBackdropsThree = [
+	'bg-gen3.png',
+	'bg-gen3-cave.png',
+	'bg-gen3-ocean.png',
+	'bg-gen3-sand.png',
+	'bg-gen3-forest.png',
+	'bg-gen3-arena.png'
+];
+var BattleBackdropsFour = [
+	'bg-gen4.png',
+	'bg-gen4-cave.png',
+	'bg-gen4-snow.png',
+	'bg-gen4-indoors.png',
+	'bg-gen4-water.png'
+];
 var BattleBackdrops = [
 	'bg-beach.png',
 	'bg-beachshore.png',
@@ -7077,6 +7092,7 @@ var BattleMoveAnims = {
 				opacity: .7,
 				time: 500
 			}, 'decel', 'fade');
+			if (defender.isMissedPokemon) return;
 			battle.showEffect('fireball', {
 				x: defender.leftof(40),
 				y: defender.y+15,
@@ -7179,6 +7195,7 @@ var BattleMoveAnims = {
 				opacity: .7,
 				time: 500
 			}, 'decel', 'fade');
+			if (defender.isMissedPokemon) return;
 			battle.showEffect('mistball', {
 				x: defender.leftof(40),
 				y: defender.y+15,

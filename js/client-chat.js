@@ -59,18 +59,12 @@
 
 		focusText: function () {
 			if (this.$chatbox) {
-				var roomLeft, roomRight;
-				if (this === app.curSideRoom) {
-					roomLeft = app.topbar.curSideRoomLeft;
-					roomRight = app.topbar.curSideRoomRight;
-				} else {
-					roomLeft = app.topbar.curRoomLeft;
-					roomRight = app.topbar.curRoomRight;
-				}
-				if (roomLeft) roomLeft = "\u2190 " + roomLeft;
-				if (roomRight) roomRight = roomRight + " \u2192";
+				var rooms = app.roomList.concat(app.sideRoomList);
+				var roomIndex = rooms.indexOf(this);
+				var roomLeft = rooms[roomIndex - 1];
+				var roomRight = rooms[roomIndex + 1];
 				if (roomLeft || roomRight) {
-					this.$chatbox.attr('placeholder', "  " + roomLeft + (app.arrowKeysUsed ? " | " : " (use arrow keys) ") + roomRight);
+					this.$chatbox.attr('placeholder', "  " + (roomLeft ? "\u2190 " + roomLeft.title : '') + (app.arrowKeysUsed ? " | " : " (use arrow keys) ") + (roomRight ? roomRight.title + " \u2192" : ''));
 				} else {
 					this.$chatbox.attr('placeholder', "");
 				}
@@ -112,12 +106,12 @@
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
 			} else if (e.keyCode === 73 && cmdKey && !e.shiftKey) { // Ctrl + I key
-				if (Tools.toggleFormatChar(textbox, '_')) {
+				if (ConsoleRoom.toggleFormatChar(textbox, '_')) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
 			} else if (e.keyCode === 66 && cmdKey && !e.shiftKey) { // Ctrl + B key
-				if (Tools.toggleFormatChar(textbox, '*')) {
+				if (ConsoleRoom.toggleFormatChar(textbox, '*')) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
@@ -507,11 +501,8 @@
 				return false;
 
 			case 'logout':
-				$.post(app.user.getActionPHP(), {
-					act: 'logout',
-					userid: app.user.get('userid')
-				});
-				return text;
+				app.user.logout();
+				return false;
 
 			case 'showdebug':
 				this.add('Debug battle messages: ON');
@@ -614,6 +605,9 @@
 									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);
 								}
 							}
+							if (highlights.indexOf(targets[i]) > -1) {
+								return this.add(targets[i] + ' is already on your highlights list.')
+							}
 						}
 						highlights = highlights.concat(targets.slice(1));
 						this.add("Now highlighting on: " + highlights.join(', '));
@@ -713,10 +707,14 @@
 									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -9.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'nususpecttest') {
 									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -20.0 / N), 0) + '</td>';
+								} else if (row.formatid === 'pususpecttest') {
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -9.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'lcsuspecttest') {
 									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -9.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'doublesoucurrent' || row.formatid === 'doublesoususpecttest') {
 									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -12.0 / N), 0) + '</td>';
+								} else if (row.formatid === 'monotype') {
+									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -16.0 / N), 0) + '</td>';
 								} else {
 									buffer += '<td>--</td>';
 								}
@@ -902,6 +900,49 @@
 			if (autoscroll) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
+		}
+	}, {
+		toggleFormatChar: function (textbox, formatChar) {
+			if (!textbox.setSelectionRange) return false;
+
+			var value = textbox.value;
+			var start = textbox.selectionStart;
+			var end = textbox.selectionEnd;
+
+			// make sure start and end aren't midway through the syntax
+			if (value.charAt(start) === formatChar && value.charAt(start - 1) === formatChar &&
+				value.charAt(start - 2) !== formatChar) {
+				start++;
+			}
+			if (value.charAt(end) === formatChar && value.charAt(end - 1) === formatChar &&
+				value.charAt(end - 2) !== formatChar) {
+				end--;
+			}
+
+			// wrap in doubled format char
+			var wrap = formatChar + formatChar;
+			value = value.substr(0, start) + wrap + value.substr(start, end - start) + wrap + value.substr(end);
+			start += 2, end += 2;
+
+			// prevent nesting
+			var nesting = wrap + wrap;
+			if (value.substr(start - 4, 4) === nesting) {
+				value = value.substr(0, start - 4) + value.substr(start);
+				start -= 4, end -= 4;
+			} else if (start !== end && value.substr(start - 2, 4) === nesting) {
+				value = value.substr(0, start - 2) + value.substr(start + 2);
+				start -= 2, end -= 4;
+			}
+			if (value.substr(end, 4) === nesting) {
+				value = value.substr(0, end) + value.substr(end + 4);
+			} else if (start !== end && value.substr(end - 2, 4) === nesting) {
+				value = value.substr(0, end - 2) + value.substr(end + 2);
+				end -= 2;
+			}
+
+			textbox.value = value;
+			textbox.setSelectionRange(start, end);
+			return true;
 		}
 	});
 
@@ -1123,8 +1164,8 @@
 							$messages = this.$chat.find('.chatmessage-' + user);
 							if (!$messages.length) break;
 						}
-						$messages.hide();
-						this.$chat.append('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + '</small></button></div>');
+						$messages.hide().find('button').parent().remove();
+						this.$chat.append('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small></button></div>');
 					}
 					break;
 
@@ -1145,10 +1186,19 @@
 				}
 			}
 		},
-		revealMessages: function (user) {
+		toggleMessages: function (user) {
 			var $messages = $('.chatmessage-' + user);
-			$messages.addClass('revealed').show();
-			$messages.find('button').parent().remove();
+			var $button = $messages.find('button');
+			if ($messages.hasClass('revealed')) {
+				$messages.removeClass('revealed').hide();
+				$button.html('<small>View ' + ($messages.length - 1) + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.parent().show();
+			} else {
+				$messages.addClass('revealed');
+				$button.html('<small>Hide ' + ($messages.length - 1) + ' revealed message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.parent().removeClass('revealed');
+				$messages.show();
+			}
 		},
 		tournamentButton: function (val, button) {
 			if (this.tournamentBox) this.tournamentBox[$(button).data('type')](val, button);
@@ -1289,7 +1339,21 @@
 				return; // PMs independently notify in the man menu; no need to make them notify again with `inchatpm`.
 			}
 
-			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
+			var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
+			if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
+			var lastMessageDate = lastMessageDates[Config.server.id][this.id] || 0;
+			var mayNotify = msgTime > lastMessageDate;
+
+			if (app.focused && (this === app.curSideRoom || this === app.curRoom)) {
+				this.lastMessageDate = 0;
+				lastMessageDates[Config.server.id][this.id] = msgTime;
+				Tools.prefs.save();
+			} else {
+				// To be saved on focus
+				this.lastMessageDate = Math.max(this.lastMessageDate || 0, msgTime);
+			}
+
+			var isHighlighted = mayNotify && userid !== app.user.get('userid') && this.getHighlight(message);
 			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
@@ -1302,7 +1366,7 @@
 				var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
 				var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
 				this.notifyOnce(notifyTitle, "\"" + notifyText + "\"", 'highlight');
-			} else {
+			} else if (mayNotify && name !== '~') { // |c:|~| prefixes a system message
 				this.subtleNotifyOnce();
 			}
 

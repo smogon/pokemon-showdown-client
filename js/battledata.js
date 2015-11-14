@@ -10,37 +10,6 @@ if (!window.exports) window.exports = window;
 window.nodewebkit = false;
 if (typeof process !== 'undefined' && process.versions && process.versions['node-webkit']) window.nodewebkit = true;
 
-// todo: http://www.youtube.com/watch?v=eEwAPnIev38
-// 32.930 - 1:13.032
-// 32930 to 73032
-// subway
-// 1:33.120 - 3:08.614
-/*
-
-// PO importer
-
-text = $('textarea')[1].value
-text = text.split("\n");
-
-for (var i=0; i<text.length; i++)
-{
-	var line = text[i].split(' ');
-	if (!text[i].length) continue;
-	if (!exports.BattleLearnsets[POPokemon[line[0]].replace(/ /g,'')])
-	{
-		exports.BattleLearnsets[POPokemon[line[0]].replace(/ /g,'')] = {};
-	}
-	var poke = exports.BattleLearnsets[POPokemon[line[0]].replace(/ /g,'')];
-	for (var j=1; j<line.length; j++)
-	{
-		if (!poke.learnset) poke.learnset = {};
-		var move = POMoves[line[j]].replace(/ /g,'');
-		poke.learnset[move] = '4M';
-	}
-}
-
-*/
-
 // ES5 indexOf
 if (!Array.prototype.indexOf) {
 	Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
@@ -618,7 +587,6 @@ var Tools = {
 				return;
 			}
 			var targetIdx;
-			var extra = {};
 			if (tagName === 'a') {
 				// Special handling of <a> tags.
 
@@ -632,29 +600,17 @@ var Tools = {
 					case 'target':
 						targetIdx = i + 1;
 						break;
-					case 'room':
-						// Special custom attribute for linking to a room.
-						// This attribute will be stripped by `sanitizeAttribs`
-						// below, and is only used to signal to add an `onclick`
-						// handler here.
-						if (!(/^[a-z0-9\-]*$/.test(attribs[i + 1]))) {
-							// Bogus roomid - could be used to inject JavaScript.
-							break;
-						}
-						extra['onclick'] = 'return selectTab(\'' + attribs[i + 1] + '\');';
-						break;
 					}
 				}
 			}
 			attribs = html.sanitizeAttribs(tagName, attribs, uriRewriter);
-			if (targetIdx !== undefined) {
-				attribs[targetIdx] = '_blank';
-			} else {
-				extra['target'] = '_blank';
-			}
-			for (var i in extra) {
-				attribs.push(i);
-				attribs.push(extra[i]);
+			if (tagName === 'a' || tagName === 'form') {
+				if (targetIdx !== undefined) {
+					attribs[targetIdx] = '_blank';
+				} else {
+					attribs.push('target');
+					attribs.push('_blank');
+				}
 			}
 			return {attribs: attribs};
 		};
@@ -662,49 +618,6 @@ var Tools = {
 			return html.sanitizeWithPolicy(input, tagPolicy);
 		};
 	})(),
-
-	toggleFormatChar: function (textbox, formatChar) {
-		if (!textbox.setSelectionRange) return false;
-
-		var value = textbox.value;
-		var start = textbox.selectionStart;
-		var end = textbox.selectionEnd;
-
-		// make sure start and end aren't midway through the syntax
-		if (value.charAt(start) === formatChar && value.charAt(start - 1) === formatChar &&
-			value.charAt(start - 2) !== formatChar) {
-			start++;
-		}
-		if (value.charAt(end) === formatChar && value.charAt(end - 1) === formatChar &&
-			value.charAt(end - 2) !== formatChar) {
-			end--;
-		}
-
-		// wrap in doubled format char
-		var wrap = formatChar + formatChar;
-		value = value.substr(0, start) + wrap + value.substr(start, end - start) + wrap + value.substr(end);
-		start += 2, end += 2;
-
-		// prevent nesting
-		var nesting = wrap + wrap;
-		if (value.substr(start - 4, 4) === nesting) {
-			value = value.substr(0, start - 4) + value.substr(start);
-			start -= 4, end -= 4;
-		} else if (start !== end && value.substr(start - 2, 4) === nesting) {
-			value = value.substr(0, start - 2) + value.substr(start + 2);
-			start -= 2, end -= 4;
-		}
-		if (value.substr(end, 4) === nesting) {
-			value = value.substr(0, end) + value.substr(end + 4);
-		} else if (start !== end && value.substr(end - 2, 4) === nesting) {
-			value = value.substr(0, end - 2) + value.substr(end + 2);
-			end -= 2;
-		}
-
-		textbox.value = value;
-		textbox.setSelectionRange(start, end);
-		return true;
-	},
 
 	interstice: (function () {
 		var patterns = (function (whitelist) {
@@ -798,10 +711,6 @@ var Tools = {
 			} else if (id && window.BattleItems && BattleItems[id] && BattleItems[id].effect) {
 				effect = BattleItems[id].effect;
 				effect.exists = true;
-			} else if (id && window.BattleFormats && BattleFormats[id]) {
-				effect = BattleFormats[id];
-				effect.exists = true;
-				if (!effect.effectType) effect.effectType = 'Format';
 			} else if (id === 'recoil') {
 				effect = {
 					effectType: 'Recoil'

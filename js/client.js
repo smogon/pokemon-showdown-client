@@ -355,12 +355,9 @@
 
 			// down
 			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = 'dos';
-			if (document.location.hostname === 'play.pokemonshowdown.com') {
-				app.supports['rooms'] = true;
-			}
 
-			this.topbar = new Topbar({el: $('#header')});
 			this.addRoom('');
+			this.topbar = new Topbar({el: $('#header')});
 			if (!this.down && $(window).width() >= 916) {
 				if (document.location.hostname === 'play.pokemonshowdown.com') {
 					this.addRoom('rooms', null, true);
@@ -506,41 +503,57 @@
 
 				if (app.curSideRoom && $(e.target).closest(app.curSideRoom.$el).length) {
 					// keypress happened in sideroom
-					if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
-						// Left or Ctrl+Shift+Tab on desktop client
-						if (app.topbar.curSideRoomLeft) {
+					if (e.shiftKey && e.keyCode === 37 && safeLocation) {
+						// Shift+Left on desktop client
+						if (app.moveRoomBy(app.curSideRoom, -1)) {
 							e.preventDefault();
 							e.stopImmediatePropagation();
-							app.arrowKeysUsed = true;
-							app.focusRoom(app.topbar.curSideRoomLeft);
+						}
+					} else if (e.shiftKey && e.keyCode === 39 && safeLocation) {
+						// Shift+Right on desktop client
+						if (app.moveRoomBy(app.curSideRoom, 1)) {
+							e.preventDefault();
+							e.stopImmediatePropagation();
+						}
+					} else if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
+						// Left or Ctrl+Shift+Tab on desktop client
+						if (app.focusRoomBy(app.curSideRoom, -1)) {
+							e.preventDefault();
+							e.stopImmediatePropagation();
 						}
 					} else if (e.keyCode === 39 && safeLocation || window.nodewebkit && e.ctrlKey && e.keyCode === 9) {
 						// Right or Ctrl+Tab on desktop client
-						if (app.topbar.curSideRoomRight) {
+						if (app.focusRoomBy(app.curSideRoom, 1)) {
 							e.preventDefault();
 							e.stopImmediatePropagation();
-							app.arrowKeysUsed = true;
-							app.focusRoom(app.topbar.curSideRoomRight);
 						}
 					}
 					return;
 				}
 				// keypress happened outside of sideroom
-				if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
-					// Left or Ctrl+Shift+Tab on desktop client
-					if (app.topbar.curRoomLeft) {
+				if (e.shiftKey && e.keyCode === 37 && safeLocation) {
+					// Shift+Left on desktop client
+					if (app.moveRoomBy(app.curRoom, -1)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
-						app.arrowKeysUsed = true;
-						app.focusRoom(app.topbar.curRoomLeft);
+					}
+				} else if (e.shiftKey && e.keyCode === 39 && safeLocation) {
+					// Shift+Right on desktop client
+					if (app.moveRoomBy(app.curRoom, 1)) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+					}
+				} else if (e.keyCode === 37 && safeLocation || window.nodewebkit && e.ctrlKey && e.shiftKey && e.keyCode === 9) {
+					// Left or Ctrl+Shift+Tab on desktop client
+					if (app.focusRoomBy(app.curRoom, -1)) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
 					}
 				} else if (e.keyCode === 39 && safeLocation || window.nodewebkit && e.ctrlKey && e.keyCode === 9) {
 					// Right or Ctrl+Tab on desktop client
-					if (app.topbar.curRoomRight) {
+					if (app.focusRoomBy(app.curRoom, 1)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
-						app.arrowKeysUsed = true;
-						app.focusRoom(app.topbar.curRoomRight);
 					}
 				}
 			});
@@ -1243,10 +1256,10 @@
 			});
 		},
 		roomsResponse: function (data) {
-			app.supports['rooms'] = true;
 			if (data) {
 				this.roomsData = data;
 			}
+			app.topbar.updateTabbar();
 		},
 		clearGlobalListeners: function () {
 			// jslider doesn't clear these when it should,
@@ -1260,6 +1273,8 @@
 
 		initializeRooms: function () {
 			this.rooms = Object.create(null); // {}
+			this.roomList = [];
+			this.sideRoomList = [];
 
 			$(window).on('resize', _.bind(this.resize, this));
 		},
@@ -1329,6 +1344,10 @@
 					// this room changed type
 					// (or the type we guessed it would be was wrong)
 					var oldRoom = this.rooms[id];
+					var index = this.roomList.indexOf(oldRoom);
+					if (index >= 0) this.roomList.splice(index, 1);
+					index = this.sideRoomList.indexOf(oldRoom);
+					if (index >= 0) this.sideRoomList.splice(index, 1);
 					oldRoom.destroy();
 					delete this.rooms[id];
 				} else {
@@ -1387,6 +1406,8 @@
 				if (this.curSideRoom === oldRoom) this.curSideRoom = room;
 				if (this.sideRoom === oldRoom) this.sideRoom = room;
 			}
+			if (type === BattleRoom) this.roomList.push(room);
+			if (type === ChatRoom) this.sideRoomList.push(room);
 			return room;
 		},
 		focusRoom: function (id) {
@@ -1414,6 +1435,56 @@
 					this.updateTitle(this.curRoom);
 				}
 			}
+
+			room.focus();
+			return;
+		},
+		focusRoomLeft: function (id) {
+			var room = this.rooms[id];
+			if (!room) return false;
+			if (this.curRoom === room) {
+				room.focus();
+				return true;
+			}
+
+			if (this.curSideRoom === room) {
+				this.sideRoom = this.curSideRoom = this.sideRoomList[0] || null;
+			}
+
+			room.isSideRoom = false;
+			if (this.curRoom) {
+				this.curRoom.hide();
+				this.curRoom = null;
+			} else if (this.rooms['']) {
+				this.rooms[''].hide();
+			}
+			this.curRoom = room;
+			this.updateLayout();
+			if (this.curRoom.id === id) this.navigate(id);
+
+			room.focus();
+			return;
+		},
+		focusRoomRight: function (id) {
+			var room = this.rooms[id];
+			if (!room) return false;
+			if (this.curSideRoom === room) {
+				room.focus();
+				return true;
+			}
+
+			if (this.curRoom === room) {
+				this.curRoom = this.roomList[this.roomList.length - 1] || this.rooms[''];
+			}
+
+			room.isSideRoom = true;
+			if (this.curSideRoom) {
+				this.curSideRoom.hide();
+				this.curSideRoom = null;
+			}
+			this.curSideRoom = this.sideRoom = room;
+			this.updateLayout();
+			// if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus();
 			return;
@@ -1529,6 +1600,10 @@
 			if (room) {
 				if (room === this.curRoom) this.focusRoom('');
 				delete this.rooms[id];
+				var index = this.roomList.indexOf(room);
+				if (index >= 0) this.roomList.splice(index, 1);
+				index = this.sideRoomList.indexOf(room);
+				if (index >= 0) this.sideRoomList.splice(index, 1);
 				room.destroy(alreadyLeft);
 				if (room === this.sideRoom) {
 					this.sideRoom = null;
@@ -1536,6 +1611,63 @@
 					this.updateSideRoom();
 				}
 				this.updateLayout();
+				return true;
+			}
+			return false;
+		},
+		moveRoomBy: function (room, amount) {
+			var index = this.roomList.indexOf(room);
+			if (index >= 0) {
+				var newIndex = index + amount;
+				if (newIndex < 0) return false;
+				if (newIndex >= this.roomList.length) {
+					this.roomList.splice(index, 1);
+					this.sideRoomList.unshift(room);
+					this.focusRoomRight(room.id);
+				} else {
+					this.roomList.splice(index, 1);
+					this.roomList.splice(newIndex, 0, room);
+					this.topbar.updateTabbar();
+				}
+				room.focusText();
+				if (room.type === 'chat') this.updateAutojoin();
+				return true;
+			}
+			index = this.sideRoomList.indexOf(room);
+			if (index >= 0) {
+				var newIndex = index + amount;
+				if (newIndex >= this.sideRoomList.length) return false;
+				if (newIndex < 0) {
+					this.sideRoomList.splice(index, 1);
+					this.roomList.push(room);
+					this.focusRoomLeft(room.id);
+				} else {
+					this.sideRoomList.splice(index, 1);
+					this.sideRoomList.splice(newIndex, 0, room);
+					this.topbar.updateTabbar();
+				}
+				room.focusText();
+				if (room.type === 'chat') this.updateAutojoin();
+				return true;
+			}
+			return false;
+		},
+		focusRoomBy: function (room, amount) {
+			this.arrowKeysUsed = true;
+			var rooms = this.roomList.concat(this.sideRoomList);
+			if (room && room.id === 'rooms') {
+				if (!rooms.length) return false;
+				this.focusRoom(rooms[amount < 0 ? rooms.length - 1 : 0].id);
+				return true;
+			}
+			var index = rooms.indexOf(room);
+			if (index >= 0) {
+				var newIndex = index + amount;
+				if (!rooms[newIndex]) {
+					this.joinRoom('rooms');
+					return true;
+				}
+				this.focusRoom(rooms[newIndex].id);
 				return true;
 			}
 			return false;
@@ -1563,13 +1695,12 @@
 			if (Config.server.id !== 'showdown') return;
 			var autojoins = [];
 			var autojoinCount = 0;
-			for (var i in this.rooms) {
-				if (!this.rooms[i]) continue;
-				if (this.rooms[i].type !== 'chat' || i === 'lobby') {
-					continue;
-				}
-				autojoins.push(this.rooms[i].id.indexOf('-') >= 0 ? this.rooms[i].id : (this.rooms[i].title || this.rooms[i].id));
-				if (i === 'staff' || i === 'upperstaff') continue;
+			var rooms = this.roomList.concat(this.sideRoomList);
+			for (var i = 0; i < rooms.length; i++) {
+				var room = rooms[i];
+				if (room.type !== 'chat' || room.id === 'lobby') continue;
+				autojoins.push(room.id.indexOf('-') >= 0 ? room.id : (room.title || room.id));
+				if (room.id === 'staff' || room.id === 'upperstaff') continue;
 				autojoinCount++;
 				if (autojoinCount >= 8) break;
 			}
@@ -1735,7 +1866,7 @@
 							name = '(empty room)';
 						}
 					}
-					return buf + '<i class="text">' + formatid + '</i><span>' + name + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
+					return buf + '<i class="text">' + Tools.escapeFormat(formatid) + '</i><span>' + name + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 				} else {
 					return buf + '<i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 				}
@@ -1749,88 +1880,27 @@
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button' + (curId === '' ? ' cur' : '') + (app.rooms[''] && app.rooms[''].notificationClass || '') + '" href="' + app.root + '"><i class="fa fa-home"></i> <span>Home</span></a></li>';
-			if (app.rooms['teambuilder']) buf += '<li><a class="button' + (curId === 'teambuilder' ? ' cur' : '') + ' closable" href="' + app.root + 'teambuilder"><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
-			if (app.rooms['ladder']) buf += '<li><a class="button' + (curId === 'ladder' ? ' cur' : '') + ' closable" href="' + app.root + 'ladder"><i class="fa fa-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
-			buf += '</ul>';
-			var atLeastOne = false;
+			var buf = '<ul>' + this.renderRoomTab(app.rooms['']) + this.renderRoomTab(app.rooms['teambuilder']) + this.renderRoomTab(app.rooms['ladder']) + '</ul>';
 			var sideBuf = '';
 
-			this.curRoomLeft = '';
-			this.curRoomRight = '';
-			this.curSideRoomLeft = '';
-			this.curSideRoomRight = '';
-			var passedCurRoom = false;
-			var passedCurSideRoom = false;
+			var notificationCount = app.rooms[''].notifications ? 1 : 0;
+			if (app.roomList.length) buf += '<ul>';
+			for (var i = 0; i < app.roomList.length; i++) {
+				var room = app.roomList[i];
+				if (room.notifications) notificationCount++;
+				buf += this.renderRoomTab(room);
+			}
+			if (app.roomList.length) buf += '</ul>';
 
-			var notificationCount = 0;
-			for (var id in app.rooms) {
-				if (app.rooms[id].notifications) notificationCount++;
-				if (!id || id === 'teambuilder' || id === 'ladder') continue;
-				var room = app.rooms[id];
-				var name = '<i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span>';
-				if (id.substr(0, 7) === 'battle-') {
-					name = Tools.escapeHTML(room.title);
-					var formatid = id.substr(7).split('-')[0];
-					if (!name) {
-						var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
-						var p2 = (room && room.battle && room.battle.p2 && room.battle.p2.name) || '';
-						if (p1 && p2) {
-							name = '' + Tools.escapeHTML(p1) + ' v. ' + Tools.escapeHTML(p2);
-						} else if (p1 || p2) {
-							name = '' + Tools.escapeHTML(p1) + Tools.escapeHTML(p2);
-						} else {
-							name = '(empty room)';
-						}
-					}
-					name = '<i class="text">' + formatid + '</i><span>' + name + '</span>';
-				}
-				if (room.isSideRoom) {
-					if (id !== 'rooms') {
-						sideBuf += '<li><a class="button' + (curId === id || curSideId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
-						if (curSideId) {
-							// get left/right for side rooms
-							if (curSideId === id) {
-								passedCurSideRoom = true;
-							} else if (!passedCurSideRoom) {
-								this.curSideRoomLeft = id;
-							} else if (!this.curSideRoomRight) {
-								this.curSideRoomRight = id;
-							}
-						} else {
-							// get left/right
-							if (curId === id) {
-								passedCurRoom = true;
-							} else if (!passedCurRoom) {
-								this.curRoomLeft = id;
-							} else if (!this.curRoomRight) {
-								this.curRoomRight = id;
-							}
-						}
-					}
-					continue;
-				}
-				if (!atLeastOne) {
-					buf += '<ul>';
-					atLeastOne = true;
-				}
-				buf += '<li><a class="button' + (curId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
-				// get left/right
-				if (curId === id) {
-					passedCurRoom = true;
-				} else if (!passedCurRoom) {
-					this.curRoomLeft = id;
-				} else if (!this.curRoomRight) {
-					this.curRoomRight = id;
-				}
+			for (var i = 0; i < app.sideRoomList.length; i++) {
+				var room = app.sideRoomList[i];
+				if (room.notifications) notificationCount++;
+				sideBuf += this.renderRoomTab(room);
 			}
 			if (window.nodewebkit) {
 				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount || '');
 			}
-			if (app.supports['rooms']) {
-				sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
-			}
-			if (atLeastOne) buf += '</ul>';
+			sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			var margin = 0;
 			if (sideBuf) {
 				if (app.curSideRoom) {
@@ -1960,6 +2030,7 @@
 
 		bestWidth: 659,
 		show: function (position, leftWidth) {
+			this.leftWidth = 0;
 			switch (position) {
 			case 'left':
 				this.$el.css({left: 0, width: leftWidth, right: 'auto'});
@@ -2113,6 +2184,14 @@
 			} else {
 				this.notifications[tag] = {};
 			}
+
+			if (this.lastMessageDate) {
+				// Mark chat messages as read to avoid double-notifying on reload
+				var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
+				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
+				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
+				Tools.prefs.save();
+			}
 		},
 		dismissAllNotifications: function (skipUpdate) {
 			if (!this.notifications && !this.subtleNotification) {
@@ -2134,6 +2213,14 @@
 				this.notificationClass = '';
 				if (skipUpdate) return;
 				app.topbar.updateTabbar();
+			}
+
+			if (this.lastMessageDate) {
+				// Mark chat messages as read to avoid double-notifying on reload
+				var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
+				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
+				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
+				Tools.prefs.save();
 			}
 		},
 		clickNotification: function (tag) {
@@ -2318,7 +2405,7 @@
 		},
 		events: {
 			'click .ilink': 'clickLink',
-			'click .yours': 'avatars'
+			'click .trainersprite.yours': 'avatars'
 		},
 		update: function (data) {
 			if (data && data.userid === this.data.userid) {
@@ -2343,9 +2430,10 @@
 			};
 			var group = (groupDetails[name.substr(0, 1)] || '');
 			if (group || name.charAt(0) === ' ') name = name.substr(1);
+			var ownUserid = app.user.get('userid');
 
 			var buf = '<div class="userdetails">';
-			if (avatar) buf += '<img class="trainersprite' + (userid === app.user.get('userid') ? ' yours' : '') + '" src="' + Tools.resolveAvatar(avatar) + '" />';
+			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Tools.resolveAvatar(avatar) + '" />';
 			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + Tools.escapeHTML(name) + '</a></strong><br />';
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (data.rooms) {
@@ -2359,11 +2447,12 @@
 						var p2 = data.rooms[i].p2.substr(1);
 						if (!battlebuf) battlebuf = '<br /><em>Battles:</em> ';
 						else battlebuf += ', ';
-						battlebuf += '<span title="' + (Tools.escapeHTML(p1) || '?') + ' v. ' + (Tools.escapeHTML(p2) || '?') + '"><a href="' + app.root + roomid + '" class="ilink">' + roomid.substr(7) + '</a></span>';
+						var ownBattle = (ownUserid === toUserid(p1) || ownUserid === toUserid(p2));
+						battlebuf += '<span title="' + (Tools.escapeHTML(p1) || '?') + ' v. ' + (Tools.escapeHTML(p2) || '?') + '"><a href="' + app.root + roomid + '" class="ilink' + ((ownBattle || app.rooms[i]) ? ' yours' : '') + '">' + roomid.substr(7) + '</a></span>';
 					} else {
 						if (!chatbuf) chatbuf = '<br /><em>Chatrooms:</em> ';
 						else chatbuf += ', ';
-						chatbuf += '<a href="' + app.root + roomid + '" class="ilink">' + roomid + '</a>';
+						chatbuf += '<a href="' + app.root + roomid + '" class="ilink' + (app.rooms[i] ? ' yours' : '') + '">' + roomid + '</a>';
 					}
 				}
 				buf += '<small class="rooms">' + battlebuf + chatbuf + '</small>';
@@ -2372,11 +2461,13 @@
 			}
 			buf += '</div>';
 
+			buf += '<p class="buttonbar">';
 			if (userid === app.user.get('userid') || !app.user.get('named')) {
-				buf += '<p class="buttonbar"><button disabled>Challenge</button> <button disabled>Chat</button></p>';
+				buf += '<button disabled>Challenge</button> <button disabled>Chat</button>';
 			} else {
-				buf += '<p class="buttonbar"><button name="challenge">Challenge</button> <button name="pm">Chat</button></p>';
+				buf += '<button name="challenge">Challenge</button> <button name="pm">Chat</button> <button name="userOptions">\u2026</button>';
 			}
+			buf += '</p>';
 
 			this.$el.html(buf);
 		},
@@ -2402,9 +2493,45 @@
 			this.close();
 			app.focusRoom('');
 			app.rooms[''].focusPM(this.data.name);
+		},
+		userOptions: function () {
+			app.addPopup(UserOptionsPopup, {name: this.data.name, userid: this.data.userid});
 		}
 	}, {
 		dataCache: {}
+	});
+	
+	var UserOptionsPopup = this.UserOptions = Popup.extend({
+		initialize: function (data) {
+			this.name = data.name.substr(1);
+			this.userid = data.userid;
+			this.update();
+		},
+		update: function () {
+			this.$el.html('<p><button name="toggleIgnoreUser">' + (app.ignore[this.userid] ? 'Unignore' : 'Ignore') + '</button></p>');
+		},
+		toggleIgnoreUser: function () {
+			var buf = "User '" + this.name + "'";
+			if (app.ignore[this.userid]) {
+				delete app.ignore[this.userid];
+				buf += " no longer ignored.";
+			} else {
+				app.ignore[this.userid] = 1;
+				buf += " ignored. (Moderator messages will not be ignored.)";
+			}
+			var $pm = $('.pm-window-' + this.userid);
+			if ($pm.length && $pm.css('display') !== 'none') {
+				$pm.find('.inner').append('<div class="chat">' + buf + '</div>');
+			} else {
+				var room = (app.curRoom && app.curRoom.add ? app.curRoom : app.curSideRoom);
+				if (!room || !room.add) {
+					app.addPopupMessage(buf);
+					return this.update();
+				}
+				room.add(buf);
+			}
+			app.dismissPopups();
+		}
 	});
 
 	var ReconnectPopup = this.ReconnectPopup = Popup.extend({
@@ -2933,48 +3060,19 @@
 
 	var TabListPopup = this.TabListPopup = Popup.extend({
 		type: 'semimodal',
+		renderRooms: function (rooms) {
+			var buf = '';
+			for (var i = 0; i < rooms.length; i++) buf += app.topbar.renderRoomTab(rooms[i]);
+			return buf;
+		},
 		initialize: function () {
 			var curId = (app.curRoom ? app.curRoom.id : '');
 			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
 
-			var buf = '<ul><li><a class="button' + (curId === '' ? ' cur' : '') + (app.rooms[''] && app.rooms[''].notificationClass || '') + '" href="' + app.root + '"><i class="fa fa-home"></i> <span>Home</span></a></li>';
-			if (app.rooms['teambuilder']) buf += '<li><a class="button' + (curId === 'teambuilder' ? ' cur' : '') + ' closable" href="' + app.root + 'teambuilder"><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
-			if (app.rooms['ladder']) buf += '<li><a class="button' + (curId === 'ladder' ? ' cur' : '') + ' closable" href="' + app.root + 'ladder"><i class="fa fa-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
-			buf += '</ul>';
-			var atLeastOne = false;
-			var sideBuf = '';
-			for (var id in app.rooms) {
-				if (!id || id === 'teambuilder' || id === 'ladder') continue;
-				var room = app.rooms[id];
-				var name = '<i class="fa fa-comment-o"></i> <span>' + id + '</span>';
-				if (id === 'lobby') name = '<i class="fa fa-comments-o"></i> <span>Lobby</span>';
-				if (id.substr(0, 7) === 'battle-') {
-					var parts = id.substr(7).split('-');
-					var p1 = (room && room.battle && room.battle.p1 && room.battle.p1.name) || '';
-					var p2 = (room && room.battle && room.battle.p2 && room.battle.p2.name) || '';
-					if (p1 && p2) {
-						name = '' + Tools.escapeHTML(p1) + ' v. ' + Tools.escapeHTML(p2);
-					} else if (p1 || p2) {
-						name = '' + Tools.escapeHTML(p1) + Tools.escapeHTML(p2);
-					} else {
-						name = '(empty room)';
-					}
-					name = '<i class="text">' + parts[0] + '</i><span>' + name + '</span>';
-				}
-				if (room.isSideRoom) {
-					if (room.id !== 'rooms') sideBuf += '<li><a class="button' + (curId === id || curSideId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
-					continue;
-				}
-				if (!atLeastOne) {
-					buf += '<ul>';
-					atLeastOne = true;
-				}
-				buf += '<li><a class="button' + (curId === id ? ' cur' : '') + room.notificationClass + ' closable" href="' + app.root + id + '">' + name + '</a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
-			}
-			if (app.supports['rooms']) {
-				sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus"></i> <span>&nbsp;</span></a></li>';
-			}
-			if (atLeastOne) buf += '</ul>';
+			var buf = '<ul>' + this.renderRooms([app.rooms[''], app.rooms['teambuilder'], app.rooms['ladder']]) + '</ul>';
+			if (app.roomList.length) buf += this.renderRooms(app.roomList);
+			var sideBuf = this.renderRooms(app.sideRoomList);
+			sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus"></i> <span>&nbsp;</span></a></li>';
 			if (sideBuf) {
 				buf += '<ul>' + sideBuf + '</ul>';
 			}

@@ -1,4 +1,4 @@
-/*
+﻿/*
 
 License: GPLv2
   <http://www.gnu.org/licenses/gpl-2.0.html>
@@ -181,6 +181,9 @@ var Pokemon = (function () {
 		this.ability = '';
 		this.baseAbility = '';
 		this.item = '';
+		this.itemEffect = '';
+		this.prevItem = '';
+		this.prevItemEffect = '';
 		this.species = species;
 		this.fainted = false;
 		this.zerohp = false;
@@ -754,6 +757,7 @@ var Sprite = (function () {
 		this.left = parseInt(pos.left);
 		this.isBackSprite = !siden;
 		this.duringMove = false;
+		this.isMissedPokemon = false;
 
 		if (!spriteData) {
 			this.delay = function () {};
@@ -1143,6 +1147,11 @@ var Sprite = (function () {
 			opacity: 0
 		}, 'accel');
 		this.battle.activityWait(this.elem);
+		var self = this;
+		this.elem.promise().done(function() {
+			self.elem.remove();
+			self.elem = null;
+		});
 	};
 	Sprite.prototype.delay = function (time) {
 		this.elem.delay(time);
@@ -1210,6 +1219,7 @@ var Side = (function () {
 		this.missedPokemon = {
 			sprite: new Sprite(null, this.leftof(-100), this.y, this.z, this.battle, this.n)
 		};
+		this.missedPokemon.sprite.isMissedPokemon = true;
 
 		this.sideConditions = {};
 		this.wisher = null;
@@ -1248,6 +1258,7 @@ var Side = (function () {
 		this.missedPokemon = {
 			sprite: new Sprite(null, this.leftof(-100), this.y, this.z, this.battle, this.n)
 		};
+		this.missedPokemon.sprite.isMissedPokemon = true;
 		for (var i = 0; i < this.pokemon.length; i++) {
 			var poke = this.pokemon[i];
 			poke.sprite.destroy();
@@ -2239,9 +2250,10 @@ var Battle = (function () {
 	};
 	Battle.prototype.updateGen = function () {
 		if (!Tools.prefs('nopastgens')) {
-			if (this.gen <= 2) this.backdropImage = 'bg-gen1.png';
-			else if (this.gen <= 3) this.backdropImage = 'bg-gen3.png';
-			else if (this.gen <= 4) this.backdropImage = 'bg-gen4.png';
+			if (this.gen <= 1) this.backdropImage = 'bg-gen1.png';
+			else if (this.gen <= 2) this.backdropImage = 'bg-gen2.png';			
+			else if (this.gen <= 3) this.backdropImage = BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
+			else if (this.gen <= 4) this.backdropImage = BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
 		}
 		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ')');
 	};
@@ -2527,8 +2539,30 @@ var Battle = (function () {
 		}
 		this.activityWait(effectElem);
 	};
-	Battle.prototype.switchSides = function () {
-		this.sidesSwitched = !this.sidesSwitched;
+	Battle.prototype.switchSides = function (replay) {
+		if (replay) {
+			this.reset(true);
+			this.setSidesSwitched(!this.sidesSwitched);
+			this.play();
+		} else if (this.done) {
+			this.reset(true);
+			this.setSidesSwitched(!this.sidesSwitched);
+			this.fastForwardTo(-1);
+		} else {
+			var turn = this.turn;
+			var playbackState = this.playbackState;
+			this.reset(true);
+			this.setSidesSwitched(!this.sidesSwitched);
+			if (turn) this.fastForwardTo(turn);
+			if (this.playbackState !== 3) {
+				this.play();
+			} else {
+				this.pause();
+			}
+		}
+	};
+	Battle.prototype.setSidesSwitched = function (sidesSwitched) {
+		this.sidesSwitched = sidesSwitched;
 		if (this.sidesSwitched) {
 			this.mySide = this.p2;
 			this.yourSide = this.p1;
@@ -2672,7 +2706,7 @@ var Battle = (function () {
 		this.activityWait(500);
 		if (this.turnCallback) this.turnCallback(this);
 	};
-	Battle.prototype.changeWeather = function (weather, poke, isUpkeep) {
+	Battle.prototype.changeWeather = function (weather, poke, isUpkeep, ability) {
 		weather = toId(weather);
 		var weatherTable = {
 			sunnyday: {
@@ -2739,15 +2773,23 @@ var Battle = (function () {
 			return;
 		}
 		if (newWeather) {
+			var isExtremeWeather = (weather === 'deltastream' || weather === 'desolateland' || weather === 'primordialsea');
 			if (poke) {
-				this.message('<small>' + poke.getName() + newWeather.abilityMessage + '</small>');
-				this.weatherTimeLeft = 0;
-				this.weatherMinTimeLeft = 0;
+				if (ability) {
+					this.resultAnim(poke, ability.name, 'ability', 0);
+					this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
+					poke.markAbility(ability.name);
+					this.message('<small>' + newWeather.startMessage + '</small>');
+				} else {
+					this.message('<small>' + poke.getName() + newWeather.abilityMessage + '</small>'); // for backwards compatibility
+				}
+				this.weatherTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 8;
+				this.weatherMinTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 5;
 			} else if (isUpkeep) {
 				this.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
 				this.weatherTimeLeft = 0;
 				this.weatherMinTimeLeft = 0;
-			} else if (weather === 'deltastream' || weather === 'desolateland' || weather === 'primordialsea') {
+			} else if (isExtremeWeather) {
 				this.message('<small>' + newWeather.startMessage + '</small>');
 				this.weatherTimeLeft = 0;
 				this.weatherMinTimeLeft = 0;
@@ -2898,14 +2940,14 @@ var Battle = (function () {
 		effectElem.delay(i * 350 + this.animationDelay).css({
 			display: 'block',
 			opacity: 0,
-			top: pokemon.sprite.top - 5,
+			top: pokemon.sprite.top - (type === 'ability' ? 25 : 5),
 			left: pokemon.sprite.left - 75
 		}).animate({
 			opacity: 1
 		}, 1);
 		effectElem.animate({
 			opacity: 0,
-			top: pokemon.sprite.top - 65
+			top: pokemon.sprite.top - (type === 'ability' ? 85 : 65)
 		}, 1000, 'swing');
 		pokemon.side.updateStatbar(pokemon);
 		this.activityWait(effectElem);
@@ -3052,7 +3094,7 @@ var Battle = (function () {
 				} else {
 					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				}
-				if (!fromeffect.id) {
+				if (!fromeffect.id || fromeffect.id === 'pursuit') {
 					var pp = (target && target.side !== pokemon.side && toId(target.ability) === 'pressure' ? 2 : 1);
 					pokemon.markMove(move.name, pp);
 				}
@@ -3098,15 +3140,19 @@ var Battle = (function () {
 		switch (effect.id) {
 		case 'taunt':
 			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' after the taunt!');
+			pokemon.markMove(move.name, 0);
 			break;
 		case 'gravity':
 			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of gravity!');
+			pokemon.markMove(move.name, 0);
 			break;
 		case 'healblock':
 			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' because of Heal Block!');
+			pokemon.markMove(move.name, 0);
 			break;
 		case 'imprison':
 			this.message('' + pokemon.getName() + ' can\'t use its sealed ' + move.name + '!');
+			pokemon.markMove(move.name, 0);
 			break;
 		case 'par':
 			this.resultAnim(pokemon, 'Paralyzed', 'par');
@@ -3216,6 +3262,11 @@ var Battle = (function () {
 				} else if (kwargs.from) {
 					var effect = Tools.getEffect(kwargs.from);
 					var ofpoke = this.getPokemon(kwargs.of);
+					if (effect.effectType === 'Ability') {
+						this.resultAnim(ofpoke, effect.name, 'ability', animDelay);
+						this.message('', "<small>[" + ofpoke.getName(true) + "'s " + effect.name + "!]</small>");
+						ofpoke.markAbility(effect.name);
+					}
 					switch (effect.id) {
 					case 'stealthrock':
 						actions += "Pointed stones dug into " + poke.getLowerName() + "!";
@@ -3249,6 +3300,19 @@ var Battle = (function () {
 					case 'nightmare':
 						actions += "" + poke.getName() + " is locked in a nightmare!";
 						break;
+					case 'roughskin':
+					case 'ironbarbs':
+						actions += "" + poke.getName() + " was hurt!";
+						break;
+					case 'aftermath':
+						actions += "" + poke.getName() + " is hurt!";
+						break;
+					case 'liquidooze':
+						actions += "" + poke.getName() + " sucked up the liquid ooze!";
+						break;
+					case 'dryskin':
+					case 'solarpower':
+						break;
 					case 'confusion':
 						actions += "It hurt itself in its confusion! ";
 						break;
@@ -3272,7 +3336,10 @@ var Battle = (function () {
 					default:
 						if (ofpoke) {
 							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "!";
-						} else if (effect.effectType === 'Item' || effect.effectType === 'Ability') {
+						} else if (effect.effectType === 'Item') {
+							poke.item = effect.name;
+							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
+						} else if (effect.effectType === 'Ability') {
 							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
 						} else if (kwargs.partiallytrapped) {
 							actions += "" + poke.getName() + ' is hurt by ' + effect.name + '!';
@@ -3306,6 +3373,11 @@ var Battle = (function () {
 				} else if (kwargs.from) {
 					var effect = Tools.getEffect(kwargs.from);
 					var ofpoke = this.getPokemon(kwargs.of);
+					if (effect.effectType === 'Ability') {
+						this.resultAnim(poke, effect.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
+						poke.markAbility(effect.name);
+					}
 					switch (effect.id) {
 					case 'ingrain':
 						actions += "" + poke.getName() + " absorbed nutrients with its roots!";
@@ -3338,6 +3410,8 @@ var Battle = (function () {
 						break;
 					case 'leftovers':
 					case 'shellbell':
+					case 'blacksludge':
+						poke.item = effect.name;
 						actions += "" + poke.getName() + " restored a little HP using its " + effect.name + "!";
 						break;
 					default:
@@ -3391,7 +3465,7 @@ var Battle = (function () {
 					poke.boosts[stat] = 0;
 				}
 				poke.boosts[stat] += amount;
-				this.resultAnim(poke, poke.getBoost(stat), 'good', 2);
+				this.resultAnim(poke, poke.getBoost(stat), 'good', animDelay);
 
 				var amountString = '';
 				if (amount === 2) amountString = ' sharply';
@@ -3404,8 +3478,6 @@ var Battle = (function () {
 					switch (effect.id) {
 					default:
 						if (effect.effectType === 'Ability') {
-							this.resultAnim(poke, effect.name, 'ability', animDelay);
-							this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
 							actions += "" + poke.getName() + "'s " + BattleStats[stat] + " rose" + amountString + "!";
 						}
 						if (effect.effectType === 'Item') {
@@ -3439,10 +3511,11 @@ var Battle = (function () {
 					var ofpoke = this.getPokemon(kwargs.of);
 					switch (effect.id) {
 					default:
+						if (effect.effectType === 'Ability') {
+							actions += "" + poke.getName() + "'s " + BattleStats[stat] + " fell" + amountString + "!";
+						}
 						if (effect.effectType === 'Item') {
 							actions += "The " + effect.name + amountString + " lowered " + poke.getLowerName() + "'s " + BattleStats[stat] + "!";
-						} else {
-							actions += "" + poke.getName() + "'s " + effect.name + amountString + " lowered its " + BattleStats[stat] + "!";
 						}
 						break;
 					}
@@ -3602,12 +3675,18 @@ var Battle = (function () {
 			case '-immune':
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
+				var fromeffect = Tools.getEffect(kwargs.from);
 				this.resultAnim(poke, 'Immune', 'neutral', animDelay);
 				switch (effect.id) {
 				case 'confusion':
 					actions += "" + poke.getName() + " doesn't become confused! ";
 					break;
 				default:
+					if (fromeffect && fromeffect.effectType === 'Ability') {
+						this.resultAnim(poke, fromeffect.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+						poke.markAbility(fromeffect.name);
+					}
 					if (kwargs.msg) {
 						actions += "It doesn't affect " + poke.getLowerName() + "... ";
 					} else if (kwargs.ohko) {
@@ -3634,6 +3713,7 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
 				var fromeffect = Tools.getEffect(kwargs.from);
+				var ofpoke = this.getPokemon(kwargs.of);
 				if (poke) {
 					this.resultAnim(poke, 'Failed', 'neutral', animDelay);
 				}
@@ -3723,7 +3803,14 @@ var Battle = (function () {
 					} else {
 						this.resultAnim(poke, 'Stat drop blocked', 'neutral', animDelay);
 					}
-					actions += "" + poke.getName() + "'s " + (args[3] ? args[3] + " was" : "stats were") + " not lowered!";
+					switch (fromeffect.id) {
+					case 'flowerveil':
+						actions += '' + ofpoke.getName() + ' surrounded itself with a veil of petals!';
+						break;
+					default:
+						var stat = Tools.escapeHTML(args[3]);
+						actions += "" + poke.getName() + "'s " + (stat ? stat + " was" : "stats were") + " not lowered!";
+					}
 					break;
 				default:
 					switch (fromeffect.id) {
@@ -3925,17 +4012,20 @@ var Battle = (function () {
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.item = item.name;
+				poke.itemEffect = '';
 				poke.removeVolatile('airballoon');
 				if (item.id === 'airballoon') poke.addVolatile('airballoon');
 
 				if (effect.id) switch (effect.id) {
 				case 'recycle':
 				case 'pickup':
+					poke.itemEffect = 'found';
 					actions += '' + poke.getName() + ' found one ' + item.name + '!';
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
 				case 'frisk':
 					if (kwargs.identify) { // used for gen 6
+						poke.itemEffect = 'frisked';
 						actions += '' + ofpoke.getName() + ' frisked ' + poke.getLowerName() + ' and found its ' + item.name + '!';
 						this.resultAnim(poke, item.name, 'neutral', animDelay);
 					} else {
@@ -3945,20 +4035,25 @@ var Battle = (function () {
 				case 'thief':
 				case 'covet':
 				case 'pickpocket':
+					poke.itemEffect = 'stolen';
 					actions += '' + poke.getName() + ' stole ' + ofpoke.getLowerName() + "'s " + item.name + "!";
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					this.resultAnim(ofpoke, 'Item Stolen', 'bad', animDelay);
 					break;
 				case 'harvest':
+					poke.itemEffect = 'harvested';
 					this.resultAnim(poke, 'Harvest', 'ability', animDelay);
 					this.message('', "<small>[" + poke.getName(true) + "'s Harvest!]</small>");
 					actions += '' + poke.getName() + ' harvested one ' + item.name + '!';
 					this.resultAnim(poke, item.name, 'neutral', 2);
 					break;
 				case 'bestow':
+					poke.itemEffect = 'bestowed';
 					actions += '' + poke.getName() + ' received ' + item.name + ' from ' + ofpoke.getLowerName() + '!';
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
 					break;
+				case 'trick':
+					poke.itemEffect = 'tricked';
 				default:
 					actions += '' + poke.getName() + ' obtained one ' + item.name + '.';
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
@@ -3980,11 +4075,15 @@ var Battle = (function () {
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.item = '';
+				poke.itemEffect = '';
+				poke.prevItem = item.name;
+				poke.prevItemEffect = '';
 				poke.removeVolatile('airballoon');
 
 				if (kwargs.silent) {
 					// do nothing
 				} else if (kwargs.eat) {
+					poke.prevItemEffect = 'eaten';
 					actions += '' + poke.getName() + ' ate its ' + item.name + '!';
 					this.lastmove = item.id;
 				} else if (kwargs.weaken) {
@@ -3992,19 +4091,24 @@ var Battle = (function () {
 					this.lastmove = item.id;
 				} else if (effect.id) switch (effect.id) {
 				case 'fling':
+					poke.prevItemEffect = 'flung';
 					actions += "" + poke.getName() + ' flung its ' + item.name + '!';
 					break;
 				case 'knockoff':
+					poke.prevItemEffect = 'knocked off';
 					actions += '' + ofpoke.getName() + ' knocked off ' + poke.getLowerName() + '\'s ' + item.name + '!';
 					this.resultAnim(poke, 'Item knocked off', 'neutral', animDelay);
 					break;
 				case 'stealeat':
+					poke.prevItemEffect = 'stolen';
 					actions += '' + ofpoke.getName() + ' stole and ate its target\'s ' + item.name + '!';
 					break;
 				case 'gem':
+					poke.prevItemEffect = 'consumed';
 					actions += 'The ' + item.name + ' strengthened ' + Tools.getMove(kwargs.move).name + '\'s power!';
 					break;
 				case 'incinerate':
+					poke.prevItemEffect = 'incinerated';
 					actions += "" + poke.getName() + "'s " + item.name + " was burned up!";
 					break;
 				default:
@@ -4012,11 +4116,13 @@ var Battle = (function () {
 					break;
 				} else switch (item.id) {
 				case 'airballoon':
+					poke.prevItemEffect = 'popped';
 					poke.removeVolatile('airballoon');
 					this.resultAnim(poke, 'Balloon popped', 'neutral', animDelay);
 					actions += "" + poke.getName() + "'s Air Balloon popped!";
 					break;
 				case 'focussash':
+					poke.prevItemEffect = 'consumed';
 					this.resultAnim(poke, 'Sash', 'neutral', animDelay);
 					actions += "" + poke.getName() + ' hung on using its Focus Sash!';
 					break;
@@ -4024,16 +4130,24 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Focus Band', 'neutral', animDelay);
 					actions += "" + poke.getName() + ' hung on using its Focus Band!';
 					break;
+				case 'powerherb':
+					poke.prevItemEffect = 'consumed';
+					actions += "" + poke.getName() + " became fully charged due to its Power Herb!";
+					break;
 				case 'whiteherb':
+					poke.prevItemEffect = 'consumed';
 					actions += "" + poke.getName() + " returned its status to normal using its White Herb!";
 					break;
 				case 'ejectbutton':
+					poke.prevItemEffect = 'consumed';
 					actions += "" + poke.getName() + " is switched out with the Eject Button!";
 					break;
 				case 'redcard':
+					poke.prevItemEffect = 'held up';
 					actions += "" + poke.getName() + " held up its Red Card against " + ofpoke.getLowerName() + "!";
 					break;
 				default:
+					poke.prevItemEffect = 'consumed';
 					actions += "" + poke.getName() + "'s " + item.name + " activated!";
 					break;
 				}
@@ -4060,17 +4174,23 @@ var Battle = (function () {
 					break;
 				case 'desolateland':
 					if (kwargs.fail) {
-						actions += "[" + poke.getName() + "'s " + ability.name + "] The extremely harsh sunlight was not lessened at all!";
+						this.resultAnim(poke, ability.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
+						actions += "The extremely harsh sunlight was not lessened at all!";
 					}
 					break;
 				case 'primordialsea':
 					if (kwargs.fail) {
-						actions += "[" + poke.getName() + "'s " + ability.name + "] There's no relief from this heavy rain!";
+						this.resultAnim(poke, ability.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
+						actions += "There's no relief from this heavy rain!";
 					}
 					break;
 				case 'deltastream':
 					if (kwargs.fail) {
-						actions += "[" + poke.getName() + "'s " + ability.name + "] The mysterious air current blows on regardless!";
+						this.resultAnim(poke, ability.name, 'ability', animDelay);
+						this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
+						actions += "The mysterious air current blows on regardless!";
 					}
 					break;
 				default:
@@ -4197,6 +4317,7 @@ var Battle = (function () {
 				if (args[2] === 'Rayquaza') {
 					actions += "" + Tools.escapeHTML(poke.side.name) + "'s fervent wish has reached " + poke.getLowerName() + "!";
 				} else {
+					poke.item = item.name;
 					actions += "" + poke.getName() + "'s " + item.name + " is reacting to " + Tools.escapeHTML(poke.side.name) + "'s Mega Bracelet!";
 				}
 				actions += "<br />" + poke.getName() + " has Mega Evolved into Mega " + args[2] + "!";
@@ -4642,6 +4763,11 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
 				var ofpoke = this.getPokemon(kwargs.of);
+				if (effect.effectType === 'Ability') {
+					this.resultAnim(poke, effect.name, 'ability', animDelay);
+					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
+					poke.markAbility(effect.name);
+				}
 				switch (effect.id) {
 				case 'confusion':
 					actions += "" + poke.getName() + " is confused!";
@@ -4851,9 +4977,6 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Immune', 'neutral', animDelay);
 					actions += '' + poke.getName() + '\'s Wonder Guard evades the attack!';
 					break;
-				case 'speedboost':
-					actions += "" + poke.getName() + "'s' Speed Boost increases its speed!";
-					break;
 				case 'forewarn':
 					this.resultAnim(poke, 'Forewarn', 'ability', animDelay);
 					this.message('', "<small>[" + poke.getName(true) + "'s Forewarn!]</small>");
@@ -4868,12 +4991,10 @@ var Battle = (function () {
 					}
 					break;
 				case 'mummy':
-					this.resultAnim(poke, 'Mummy', 'ability', animDelay);
-					this.message('', "<small>[" + poke.getName(true) + "'s Mummy!]</small>");
 					var ability = Tools.getAbility(args[3]);
-					this.resultAnim(ofpoke, ability.name, 'ability', 3);
+					this.resultAnim(ofpoke, ability.name, 'ability', 2);
 					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + ability.name + "!]</small>");
-					this.resultAnim(ofpoke, 'Mummy', 'ability', 6);
+					this.resultAnim(ofpoke, 'Mummy', 'ability', 4);
 					this.message('', "<small>[" + ofpoke.getName(true) + "'s Mummy!]</small>");
 					actions += "" + ofpoke.getName() + "'s Ability became Mummy!";
 					break;
@@ -4890,7 +5011,13 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' anchors itself!';
 					break;
 				case 'symbiosis':
-					actions += '' + ofpoke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + poke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + ofpoke.getLowerName() + '!';
+					break;
+				case 'aromaveil':
+					actions += '' + ofpoke.getName() + ' is protected by Aroma Veil!';
+					break;
+				case 'sweetveil':
+					actions += '' + ofpoke.getName() + ' surrounded itself with a veil of sweetness!';
 					break;
 				case 'deltastream':
 					actions += "The mysterious air current weakened the attack!";
@@ -4906,16 +5033,18 @@ var Battle = (function () {
 					actions += '' + poke.getName() + " restored PP to its " + Tools.escapeHTML(args[3]) + " move using Leppa Berry!";
 					break;
 				case 'focusband':
+					poke.item = 'Focus Band';
 					actions += '' + poke.getName() + " hung on using its Focus Band!";
 					break;
 				case 'safetygoggles':
+					poke.item = 'Safety Goggles';
 					actions += '' + poke.getName() + " is not affected by " + Tools.escapeHTML(args[3]) + " thanks to its Safety Goggles!";
 					break;
 				default:
 					if (kwargs.broken) { // for custom moves that break protection
 						this.resultAnim(poke, 'Protection broken', 'bad', animDelay);
 						actions += "It broke through " + poke.getLowerName() + "'s protection!";
-					} else {
+					} else if (effect.effectType !== 'Ability') {
 						actions += "" + poke.getName() + "'s " + effect.name + " activated!";
 					}
 				}
@@ -5027,7 +5156,8 @@ var Battle = (function () {
 			case '-weather':
 				var effect = Tools.getEffect(args[1]);
 				var poke = this.getPokemon(kwargs.of);
-				this.changeWeather(effect.name, poke, kwargs.upkeep);
+				var ability = Tools.getEffect(kwargs.from);
+				this.changeWeather(effect.name, poke, kwargs.upkeep, ability);
 				break;
 
 			case '-fieldstart':
@@ -5049,7 +5179,7 @@ var Battle = (function () {
 					actions += "Gravity intensified!";
 					break;
 				case 'mudsport':
-					actions += "Electric's power was weakened!";
+					actions += "Electricity's power was weakened!";
 					break;
 				case 'watersport':
 					actions += "Fire's power was weakened!";
@@ -5580,12 +5710,14 @@ var Battle = (function () {
 			break;
 		case 'join':
 		case 'j':
+			if (this.roomid) app.rooms[this.roomid].users[toUserid(args[1])] = ' ' + args[1];
 			if (!this.ignoreSpects) {
 				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
 			}
 			break;
 		case 'leave':
 		case 'l':
+			if (this.roomid) delete app.rooms[this.roomid].users[toUserid(args[1])];
 			if (!this.ignoreSpects) {
 				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
 			}
@@ -5747,8 +5879,8 @@ var Battle = (function () {
 			if (!$messages.length) break;
 			$messages.find('a').contents().unwrap();
 			if (window.BattleRoom && args[2]) {
-				$messages.hide();
-				this.log('<div class="chatmessage-' + user + '"><button name="revealMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + '</small></button></div>');
+				$messages.hide().find('button').parent().remove();
+				this.log('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small></button></div>');
 			}
 			break;
 		default:
@@ -5871,6 +6003,7 @@ var Battle = (function () {
 	};
 
 	Battle.prototype.pause = function () {
+		this.elem.find(':animated').finish();
 		this.paused = true;
 		this.playbackState = 3;
 		if (this.resumeButton) {
@@ -5885,7 +6018,7 @@ var Battle = (function () {
 			this.playbackState = 5;
 		} else if (this.paused) {
 			this.paused = false;
-			if (this.playbackState === 1) {
+			if (!dontResetSound && this.playbackState === 1) {
 				this.soundStop();
 			}
 			this.playbackState = 2;
@@ -5912,13 +6045,15 @@ var Battle = (function () {
 		});
 		if (time <= this.turn && time !== -1) {
 			var paused = this.paused;
-			this.reset();
+			this.reset(true);
 			this.activityQueueActive = true;
 			if (paused) this.pause();
 			else this.paused = false;
-			this.fastForward = time;
-			this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
-			$.fx.off = true;
+			if (time) {
+				this.fastForward = time;
+				this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
+				$.fx.off = true;
+			}
 			this.elem.find(':animated').finish();
 			this.swapQueues();
 			this.nextActivity();
@@ -5942,6 +6077,7 @@ var Battle = (function () {
 		this.fastForward = false;
 		this.elem.find('.seeking').remove();
 		$.fx.off = false;
+		if (!this.paused) this.soundStart();
 		this.playbackState = 2;
 	};
 	Battle.prototype.nextActivity = function () {

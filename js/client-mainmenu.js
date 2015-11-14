@@ -306,12 +306,12 @@
 			} else if (e.keyCode === 27) { // Esc
 				this.closePM(e);
 			} else if (e.keyCode === 73 && cmdKey && !e.shiftKey) { // Ctrl + I key
-				if (Tools.toggleFormatChar(e.currentTarget, '_')) {
+				if (ConsoleRoom.toggleFormatChar(e.currentTarget, '_')) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
 			} else if (e.keyCode === 66 && cmdKey && !e.shiftKey) { // Ctrl + B key
-				if (Tools.toggleFormatChar(e.currentTarget, '*')) {
+				if (ConsoleRoom.toggleFormatChar(e.currentTarget, '*')) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
@@ -561,10 +561,9 @@
 			var self = this;
 
 			this.$('button[name=team]').each(function (i, el) {
-				var val = el.value;
-				if (val === 'random') return;
+				if (el.value === 'random') return;
 				var format = $(el).closest('form').find('button[name=format]').val();
-				$(el).replaceWith(self.renderTeams(format, val));
+				$(el).replaceWith(self.renderTeams(format));
 			});
 		},
 		updateRightMenu: function () {
@@ -690,7 +689,7 @@
 			return '<button class="select formatselect' + (noChoice ? ' preselected' : '') + '" name="format" value="' + formatid + '"' + (noChoice ? ' disabled' : '') + '>' + Tools.escapeFormat(formatid) + '</button>';
 		},
 		curTeamFormat: '',
-		curTeamIndex: -1,
+		curTeamIndex: 0,
 		renderTeams: function (formatid, teamIndex) {
 			if (!Storage.teams || !window.BattleFormats) {
 				return '<button class="select teamselect" name="team" disabled><em>Loading...</em></button>';
@@ -807,7 +806,7 @@
 					}
 					bufs[curBuf] += '<li><h3>' + Tools.escapeHTML(curSection) + '</li>';
 				}
-				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + Tools.escapeHTML(format.name) + '</button></li>';
+				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + Tools.escapeFormat(format.id) + '</button></li>';
 			}
 
 			var html = '';
@@ -893,11 +892,16 @@
 			}
 		},
 		selectTeam: function (i) {
-			var formatid = this.sourceEl.closest('form').find('button[name=format]').val();
 			i = +i;
 			this.sourceEl.val(i).html(TeamPopup.renderTeam(i));
-			app.rooms[''].curTeamIndex = i;
-			app.rooms[''].curTeamFormat = formatid;
+			if (this.sourceEl[0].offsetParent.className === 'mainmenuwrapper') {
+				var formatid = this.sourceEl.closest('form').find('button[name=format]').val();
+				app.rooms[''].curTeamIndex = i;
+				app.rooms[''].curTeamFormat = formatid;
+			} else if (this.sourceEl[0].offsetParent.className === 'tournament-box active') {
+				var room = app.dispatchingPopup.options.room;
+				app.rooms[room].tournamentBox.curTeamIndex = i;
+			}
 			this.close();
 		}
 	}, {
@@ -934,7 +938,7 @@
 							if (curSection) buf += '<optgroup label="' + Tools.escapeHTML(curSection) + '">';
 						}
 						var activeFormat = (this.format === i ? ' selected=' : '');
-						buf += '<option value="' + i + '"' + activeFormat + '>' + format.name + '</option>';
+						buf += '<option value="' + i + '"' + activeFormat + '>' + Tools.escapeFormat(format.id) + '</option>';
 					}
 				}
 				if (curSection) buf += '</optgroup>';

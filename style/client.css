@@ -365,6 +365,9 @@ a.subtle:hover {
 	text-align: left;
 	border-radius: 0;
 	display: block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .tablist li:first-child .button {
 	border-top-left-radius: 5px;
@@ -866,6 +869,7 @@ p.or:after {
 .mainmenu .menugroup:nth-child(1) .button { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
 .mainmenu .menugroup:nth-child(1) .button:hover { background: linear-gradient(to bottom,  hsl(5,40%,62%),  hsl(5,40%,42%)); }
 .mainmenu .menugroup:nth-child(1) .button:active { background: linear-gradient(to bottom,  hsl(5,40%,42%),  hsl(5,40%,58%)); }
+.mainmenu .menugroup:nth-child(1) .button.disabled, .mainmenu .menugroup:nth-child(1) .button.disabled:hover, .mainmenu .menugroup:nth-child(1) .button.disabled:active { color: #5A3D39; }
 
 .mainmenu .menugroup:nth-child(2) p:nth-child(1) .button { background: linear-gradient(to bottom,  hsl(30,40%,72%),  hsl(30,40%,52%)); border-color: hsl(30,40%,40%); }
 .mainmenu .menugroup:nth-child(2) p:nth-child(1) .button:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
@@ -1100,6 +1104,9 @@ a.ilink:hover {
 	text-decoration: underline;
 	color: #6688CC;
 }
+a.ilink.yours {
+	color: #55388B;
+}
 
 .chatbox {
 	margin: 0 10px 0 80px;
@@ -1274,20 +1281,20 @@ a.ilink:hover {
 }
 .tournament-bracket-tree-node > rect {
 	/* Note: Due to SVG limitations, dimensions and border radii are in client-chat-tournament.js (nodeSize) */
-	fill: rgba(225, 232, 242, 0.7);
-	stroke: rgba(178, 183, 191, 0.7);
+	fill: rgba(74, 77, 80, 0.2);
+	stroke: rgba(74, 77, 80, 0.7);
 }
 .tournament-bracket-tree-node-win > rect {
-	fill: rgba(0, 255, 0, 0.2);
-	stroke: rgba(0, 255, 0, 0.5);
+	fill: rgba(0, 128, 0, 0.2);
+	stroke: rgba(0, 128, 0, 0.7);
 }
 .tournament-bracket-tree-node-draw > rect {
-	fill: rgba(255, 255, 0, 0.2);
-	stroke: rgba(255, 255, 0, 0.5);
+	fill: rgba(255, 128, 0, 0.2);
+	stroke: rgba(255, 128, 0, 0.7);
 }
 .tournament-bracket-tree-node-loss > rect {
 	fill: rgba(255, 0, 0, 0.2);
-	stroke: rgba(255, 0, 0, 0.5);
+	stroke: rgba(255, 0, 0, 0.7);
 }
 .tournament-bracket-tree-node > text {
 	font-size: 0.8em;
@@ -1304,7 +1311,7 @@ a.ilink:hover {
 	font-weight: bold;
 }
 .tournament-bracket-tree-node-match-team-draw, .tournament-bracket-tree-node-match-team-loss {
-	fill: #aaa;
+	fill: #555;
 }
 
 .tournament-tools {
@@ -2463,6 +2470,7 @@ a.ilink:hover {
 }
 .teamwrapper.scaled {
 	width: 640px;
+	height: 100%;
 }
 .teamwrapper.scaled .teamchartbox {
 	bottom: auto;

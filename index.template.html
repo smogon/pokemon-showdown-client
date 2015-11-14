@@ -1,36 +1,20 @@
 <!DOCTYPE html>
 <!--
-                              ............
-                          ...................,
-                      ,..........................
-                    ,.............................
-                   ..........................,,,.,,,,,,,
-                 ,...........................,===========+
-                ........~~===###########==++~+===========
-               ,.....~~=#######################=========+
-              ,....~=#########################==========+
-              ....=###########################==========..
-             ....+#########++++++++++++######~=========+..
-             ...==########+.....,      .++###==========,...
-            ....=########+,...,   ,,,    ...=========+.....,
-            ....########## ..,  .......,   +========~,......
-            ...,#############~  ,.......  ~=========+.......
-                 ################~~,....  ~=========
-            ......####################+   ~========+........
-            ........#####################~ ========........,
-            ..........+#################### ======+........
-             ..............+################======.........
-             ..................+############,====+........
-               ,..................##########,====........,
-             ++? ..................#########+===+........
-             ?####~.,.............+########+ ...........
-            =########+,.........=+#########+...........
-            ##############################+~.........,
-            ############################+,=======...
-            ##########################+ =========+
-               +###################+ ~==========+
-                 ++++++++++++++++++ ~==========+
-                                ,.. ++++++++++++
+               .............
+           ,...................
+         ,..................========
+        ....~=##############=======+
+       ...##################=======.
+      ..=######+...,    +##=======,..
+      ..=###### ., .....  +=====+,....
+         ###########~,..  ======
+      .....##############~=====+.....,
+      ..........###########====......
+        ............#######,==......
+      =###.,........+#####+ .......
+      ####################~......,
+      #################+======,
+         ++++++++++++ =======+
 
 Pokemon Showdown - http://pokemonshowdown.com/
 MIT license
@@ -47,8 +31,10 @@ http://play.pokemonshowdown.com/development
 -->
 <html>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<meta charset="utf-8" />
+		<meta id="viewport" name="viewport" content="width=device-width" />
 		<title>Showdown!</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 		<link rel="shortcut icon" href="//play.pokemonshowdown.com/favicon.ico" id="dynamic-favicon" />
 		<link rel="icon" sizes="128x128" href="//play.pokemonshowdown.com/favicon-128.png" />
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/client.css?" />
@@ -59,9 +45,7 @@ http://play.pokemonshowdown.com/development
 		<link rel="stylesheet" href="//play.pokemonshowdown.com/style/jquery.slider.min.css?" />
 		<!-- meta name="mobile-web-app-capable" content="yes" / -->
 		<!-- meta name="apple-mobile-web-app-capable" content="yes" / -->
-		<meta id="viewport" name="viewport" content="width=device-width" />
 		<meta name="robots" content="noindex" />
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 		<script>
 			var Config = {};
 		</script>
@@ -168,9 +152,6 @@ ga('send', 'pageview');
 
 		<script>
 			var app = new App();
-			// $(function() {
-			// 	if (document.getElementById('test').innerHTML !== 'test') alert("Warning: You have a virus.");
-			// });
 		</script>
 
 		<script src="//play.pokemonshowdown.com/data/learnsets-g6.js?"></script>
@@ -182,9 +163,7 @@ ga('send', 'pageview');
 		<script src="//play.pokemonshowdown.com/data/items.js?"></script>
 		<script src="//play.pokemonshowdown.com/data/abilities.js?"></script>
 
-		<!-- some virus screws with data, so we're giving it some unused data to screw with -->
-
-		<script id="test" type="text/template">test</script><script src="//play.pokemonshowdown.com/js/utilichart.js?"></script>
+		<script src="//play.pokemonshowdown.com/js/utilichart.js?"></script>
 
 		<script src="//play.pokemonshowdown.com/data/aliases.js?" async="async"></script>
 

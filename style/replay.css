@@ -1,5 +1,4 @@
-.replay a
-{
+.replay a {
 	display: block;
 	padding: 3px 5px;
 	border: 1px solid #ACC3D0;
@@ -8,55 +7,48 @@
 	text-decoration: none;
 	font-size: 8pt;
 }
-.replay a strong
-{
+.replay a strong {
 	display: block;
 	font-size: 11pt;
 	color: #214065;
 }
-.replay a em
-{
+.replay a em {
 	color: #808185;
 }
-.replay a.replay-link
-{
+.replay a.replay-link {
 	float: right;
 	margin: -15px 15px 0 0;
 }
-.replay a:visited strong
-{
+.replay a:visited strong {
 	color: #808185;
 }
 .replay a:hover,
-.replay a:visited:hover
-{
+.replay a:visited:hover {
 	border: 1px solid #7CA0B0;
 	background: #DEE4EA;
 	color: #102025;
 }
 .replay a:hover strong,
-.replay a:visited:hover strong
-{
+.replay a:visited:hover strong {
 	color: #102025;
 }
 
-.replay-controls
-{
+.replay-controls {
 	position:absolute;top:373px;left:5px;right:0px;text-align:left;
 }
-.replay-controls-2
-{
-	position:absolute;top:405px;left:5px;right:0px;text-align:left;
+.replay-controls-2 {
+	position:absolute;top:415px;left:5px;right:0px;text-align:left;
 }
-.replay-wrapper
-{
+.replay-wrapper {
 	position: relative;
 	padding-top: 460px !important;
 }
-.replay-controls button
-{
+.replay-controls button {
 	font-family: Verdana, sans-serif;
 	font-size: 10pt;
+}
+.replay-controls button i {
+	display: block;
 }
 
 .linklist {
@@ -96,23 +88,20 @@
 	border: 1px solid #6A80A6;
 }
 
-.error
-{
+.error {
 	padding: 6px 12px;
 	margin: 1em 0;
 	border: 2px solid #DD4422;
 	background: #FFF8F2;
 	color: #000000;
 }
-.error strong
-{
+.error strong {
 	color: #802010;
 }
 
 .urlbox,
 input.urlbox,
-input[disabled=disabled].urlbox
-{
+input[disabled=disabled].urlbox {
 	cursor: text;
 	display: block;
 	padding: 3px 4px 2px 4px;
@@ -124,37 +113,31 @@ input[disabled=disabled].urlbox
 	font-size: 10pt;
 }
 
-body.dark
-{
+body.dark {
 	background: #444444;
 	color: #CCCCCC;
 }
 
-.dark .urlbox
-{
+.dark .urlbox {
 	border: 1px solid #AAAAAA;
 	background: #555555 !important;
 	color: #CCCCCC !important;
 }
 
-.dark a
-{
+.dark a {
 	color: #4488EE;
 }
 
-.dark .pfx-panel
-{
+.dark .pfx-panel {
 	background: #444444;
 	color: #CCCCCC;
 	box-shadow: none;
 }
 .dark .pfx-topbar,
-.dark .footer
-{
+.dark .footer {
 	display: none;
 }
 
-.pfx-body-padded
-{
+.pfx-body-padded {
 	padding: 0 10px;
 }

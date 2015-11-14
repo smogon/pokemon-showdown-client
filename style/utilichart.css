@@ -1,5 +1,4 @@
-.utilichart, .utilichart li
-{
+.utilichart, .utilichart li {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
@@ -7,21 +6,18 @@
 	clear: both;
 	word-wrap: normal;
 }
-.utilichart li
-{
+.utilichart li {
 	padding-top: 1px;
 }
 
-.utilichart li > a, .utilitychart li > div
-{
+.utilichart li > a, .utilitychart li > div {
 	display: block;
 	height: 28px;
 	padding: 1px 1px 1px 5px;
 	margin: 0 5px 1px 5px;
 	text-decoration: none;
 }
-.utilichart h3
-{
+.utilichart h3 {
 	background: #EEF2F5;
 	border: 1px solid #CCCCCC;
 	border-left: 0;
@@ -31,14 +27,12 @@
 	font-family: Verdana, sans-serif;
 	font-size: 9pt;
 }
-.utilichart li > em
-{
+.utilichart li > em {
 	display: block;
 	padding: 0 8px;
 	font-size: 10pt;
 }
-.utilichart .col
-{
+.utilichart .col {
 	float: left;
 	padding-top: 6px;
 	height: 22px;
@@ -46,26 +40,22 @@
 	color: #444444;
 }
 .utilichart .iconcol,
-.utilichart .itemiconcol
-{
+.utilichart .itemiconcol {
 	padding-top: 2px;
 }
-.utilichart .iconcol span
-{
+.utilichart .iconcol span {
 	display: block;
 	width: 32px;
 	height: 24px;
 	background: transparent none no-repeat scroll 0px -8px;
 }
-.utilichart .itemiconcol span
-{
+.utilichart .itemiconcol span {
 	display: block;
 	width: 24px;
 	height: 24px;
 	background: transparent none no-repeat scroll 0px 0px;
 }
-.utilichart .numcol
-{
+.utilichart .numcol {
 	width: 24px;
 	padding-right: 5px;
 	text-align: right;
@@ -77,95 +67,82 @@
 .utilichart .bstcol,
 .utilichart .labelcol,
 .utilichart .widelabelcol,
-.utilichart .pplabelcol
-{
+.utilichart .pplabelcol {
 	padding-top: 0;
 	height: 28px;
 	width: 24px;
 	text-align: right;
 	font-size: 8pt;
 }
-.utilichart .labelcol
-{
+.utilichart .labelcol {
 	text-align: center;
 	width: 30px;
 	margin-left: -2px;
 }
-.utilichart .widelabelcol
-{
+.utilichart .widelabelcol {
 	text-align: center;
 	width: 50px;
 }
-.utilichart .pplabelcol
-{
+.utilichart .pplabelcol {
 	text-align: center;
 	width: 18px;
 	padding-right: 5px;
 }
-.utilichart .bstcol
-{
+.utilichart .bstcol {
 	padding-left: 2px;
 }
 .utilichart .labelcol em,
 .utilichart .widelabelcol em,
 .utilichart .pplabelcol em,
 .utilichart .statcol em,
-.utilichart .bstcol em
-{
+.utilichart .bstcol em {
 	color: #999999;
 	font-size: 7pt;
 	font-style: normal;
 }
-.utilichart .stattitlecol
-{
+.utilichart .stattitlecol {
 	padding-top: 1px;
 	width: 20px;
 	text-align: right;
 	font-size: 7pt;
 	color: #999999;
 }
-.utilichart .namecol
-{
+.utilichart .namecol {
 	padding-top: 5px;
 	height: 23px;
 	width: 120px;
 	color: #000000;
 	font-size: 10pt;
 }
-.utilichart .pokemonnamecol
-{
+.utilichart .pokemonnamecol {
 	padding-top: 5px;
 	height: 23px;
 	width: 127px;
 	color: #000000;
 	font-size: 10pt;
 }
-.utilichart .shortpokemonnamecol
-{
+.utilichart .shortpokemonnamecol {
 	padding-top: 5px;
 	height: 23px;
 	width: 118px;
 	color: #000000;
 	font-size: 10pt;
 }
-.utilichart .movenamecol
-{
+.utilichart .movenamecol {
 	padding-top: 5px;
 	height: 23px;
 	width: 152px;
 	color: #000000;
 	font-size: 10pt;
 }
-.utilichart .shortmovenamecol
-{
+.utilichart .shortmovenamecol {
 	padding-top: 5px;
 	height: 23px;
 	width: 112px;
 	color: #000000;
 	font-size: 10pt;
 }
-.utilichart .tagcol
-{
+.utilichart .tagcol {
 	padding-top: 5px;
 	height: 23px;
 	width: 34px;
@@ -175,56 +152,46 @@
 	color: #000000;
 	font-size: 10pt;
 }
-.utilichart .tagcol.shorttagcol
-{
+.utilichart .tagcol.shorttagcol {
 	margin-right: 1px;
 }
-.utilichart .typecol
-{
+.utilichart .typecol {
 	width: 70px;
 }
-.utilichart .abilitycol
-{
+.utilichart .abilitycol {
 	padding-top: 7px;
 	height: 21px;
 	font-size: 8pt;
 	width: 90px;
 }
-.utilichart .twoabilitycol
-{
+.utilichart .twoabilitycol {
 	padding-top: 0;
 	height: 28px;
 	font-size: 8pt;
 	width: 90px;
 }
-.utilichart b
-{
+.utilichart b {
 	color: #4488CC;
 	text-decoration: underline;
 }
-.utilichart small
-{
+.utilichart small {
 	font-size: 8pt;
 }
-.utilichart small b
-{
+.utilichart small b {
 	font-weight: normal;
 }
-.utilichart .illegalcol em
-{
+.utilichart .illegalcol em {
 	padding: 1px 4px;
 	height: auto;
 	border: 1px solid #AA2222;
 	color: #AA2222;
 	border-radius: 4px;
 }
-.utilichart .typecol img
-{
+.utilichart .typecol img {
 	opacity: 0.5;
 	margin-right: 1px;
 }
-.utilichart .typecol img.b
-{
+.utilichart .typecol img.b {
 	opacity: 1;
 	outline: #4488CC solid 1px;
 	outline-offset: 0;
@@ -232,8 +199,7 @@
 }
 .utilichart .itemdesccol,
 .utilichart .abilitydesccol,
-.utilichart .movedesccol
-{
+.utilichart .movedesccol {
 	white-space: nowrap;
 	padding-top: 7px;
 	font-size: 8pt;
@@ -242,11 +208,9 @@
 	overflow: hidden;
 	color: #777777;
 }
-.utilichart .movedesccol
-{
+.utilichart .movedesccol {
 	width: 284px;
 }
-.utilichart .itemdesccol
-{
+.utilichart .itemdesccol {
 	width: 464px;
 }
