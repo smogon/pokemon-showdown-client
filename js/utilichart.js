@@ -53,7 +53,7 @@ function BattleChart() {
 		case 'ability':
 			return self.abilityRow(thing, attrs, match, isFirst, dataCommand);
 		case 'move':
-			return self.moveRow(thing, attrs, match, isFirst, dataCommand, gen);
+			return self.moveRow(thing, attrs, match, isFirst, gen, dataCommand);
 		}
 	};
 	this.pokemonRow = function (pokemon, attrs, match, isFirst, dataCommand, gen) {
@@ -229,10 +229,11 @@ function BattleChart() {
 
 		text += '<span class="col typecol">';
 		text += Tools.getTypeIcon(move.type, match.type);
-		text += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32"' + (match.category ? ' class="b"' : '') + ' />';
+		var category = (gen && gen <= 3 && move.category !== 'Status') ? exports.BattleTypeChart[move.type].Category : move.category;
+		text += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32"' + (match.category ? ' class="b"' : '') + ' />';
 		text += '</span> ';
 
-		text += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
+		text += '<span class="col labelcol">' + (category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
 		text += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
 		text += '<span class="col pplabelcol"><em>PP</em><br />' + ((move.pp !== 1 && !move.noPPBoosts) ? move.pp * 8 / 5 : move.pp) + '</span> ';
 

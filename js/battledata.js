@@ -1112,8 +1112,29 @@ var Tools = {
 		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-sheet.png?g6) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
-	getTeambuilderSprite: function (pokemon) {
+	getTeambuilderSprite: function (pokemon, generation) {
 		if (!pokemon) return '';
+		if (!generation) var generation = 6;
+		switch (generation) {
+			default:
+				var gen = 'bw';
+				break;
+			case 1:
+				var gen = 'rby';
+				break;
+			case 2:
+				var gen = 'gsc';
+				break;
+			case 3:
+				var gen = 'rse';
+				break;
+			case 4:
+				var gen = 'dpp';
+				break;
+			case 5:
+				var gen = 'bw';
+				break;
+		}
 		var id = toId(pokemon);
 		if (pokemon.spriteid) id = pokemon.spriteid;
 		if (pokemon.species && !id) {
@@ -1131,7 +1152,7 @@ var Tools = {
 		if (BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].front && BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
 			id += '-f';
 		}
-		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + id + '.png)';
+		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/' + gen + shiny + '/' + id + '.png)';
 	},
 
 	getItemIcon: function (item) {
