@@ -53,7 +53,7 @@ function BattleChart() {
 		case 'ability':
 			return self.abilityRow(thing, attrs, match, isFirst, dataCommand);
 		case 'move':
-			return self.moveRow(thing, attrs, match, isFirst, dataCommand, gen);
+			return self.moveRow(thing, attrs, match, isFirst, gen, dataCommand);
 		}
 	};
 	this.pokemonRow = function (pokemon, attrs, match, isFirst, dataCommand, gen) {
@@ -229,7 +229,7 @@ function BattleChart() {
 
 		text += '<span class="col typecol">';
 		text += Tools.getTypeIcon(move.type, match.type);
-		var category = (gen <= 3 && move.category !== 'Status') ? exports.BattleTypeChart[move.type].Category : move.category;
+		var category = (gen && gen <= 3 && move.category !== 'Status') ? exports.BattleTypeChart[move.type].Category : move.category;
 		text += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32"' + (match.category ? ' class="b"' : '') + ' />';
 		text += '</span> ';
 
