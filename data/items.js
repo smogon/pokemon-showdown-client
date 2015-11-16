@@ -118,6 +118,7 @@ exports.BattleItems = {
 	"airballoon": {
 		id: "airballoon",
 		name: "Air Balloon",
+		isViable: true,
 		spritenum: 6,
 		fling: {
 			basePower: 10
@@ -250,6 +251,7 @@ exports.BattleItems = {
 	"assaultvest": {
 		id: "assaultvest",
 		name: "Assault Vest",
+		isViable: true,
 		spritenum: 581,
 		fling: {
 			basePower: 80
@@ -398,6 +400,7 @@ exports.BattleItems = {
 	"blackbelt": {
 		id: "blackbelt",
 		name: "Black Belt",
+		isViable: true,
 		spritenum: 32,
 		fling: {
 			basePower: 30
@@ -415,6 +418,7 @@ exports.BattleItems = {
 	"blacksludge": {
 		id: "blacksludge",
 		name: "Black Sludge",
+		isViable: true,
 		spritenum: 34,
 		fling: {
 			basePower: 30
@@ -435,6 +439,7 @@ exports.BattleItems = {
 	"blackglasses": {
 		id: "blackglasses",
 		name: "Black Glasses",
+		isViable: true,
 		spritenum: 35,
 		fling: {
 			basePower: 30
@@ -599,6 +604,7 @@ exports.BattleItems = {
 	"charcoal": {
 		id: "charcoal",
 		name: "Charcoal",
+		isViable: true,
 		spritenum: 61,
 		fling: {
 			basePower: 30
@@ -697,6 +703,7 @@ exports.BattleItems = {
 	"chestoberry": {
 		id: "chestoberry",
 		name: "Chesto Berry",
+		isViable: true,
 		spritenum: 65,
 		isBerry: true,
 		naturalGift: {
@@ -758,6 +765,7 @@ exports.BattleItems = {
 	"choiceband": {
 		id: "choiceband",
 		name: "Choice Band",
+		isViable: true,
 		spritenum: 68,
 		fling: {
 			basePower: 10
@@ -783,6 +791,7 @@ exports.BattleItems = {
 	"choicescarf": {
 		id: "choicescarf",
 		name: "Choice Scarf",
+		isViable: true,
 		spritenum: 69,
 		fling: {
 			basePower: 10
@@ -807,6 +816,7 @@ exports.BattleItems = {
 	"choicespecs": {
 		id: "choicespecs",
 		name: "Choice Specs",
+		isViable: true,
 		spritenum: 70,
 		fling: {
 			basePower: 10
@@ -933,6 +943,7 @@ exports.BattleItems = {
 	"custapberry": {
 		id: "custapberry",
 		name: "Custap Berry",
+		isViable: true,
 		spritenum: 86,
 		isBerry: true,
 		naturalGift: {
@@ -955,6 +966,7 @@ exports.BattleItems = {
 	"damprock": {
 		id: "damprock",
 		name: "Damp Rock",
+		isViable: true,
 		spritenum: 88,
 		fling: {
 			basePower: 60
@@ -1085,6 +1097,7 @@ exports.BattleItems = {
 	"dracoplate": {
 		id: "dracoplate",
 		name: "Draco Plate",
+		isViable: true,
 		spritenum: 105,
 		onPlate: 'Dragon',
 		onBasePowerPriority: 6,
@@ -1107,6 +1120,7 @@ exports.BattleItems = {
 	"dragonfang": {
 		id: "dragonfang",
 		name: "Dragon Fang",
+		isViable: true,
 		spritenum: 106,
 		fling: {
 			basePower: 70
@@ -1143,6 +1157,7 @@ exports.BattleItems = {
 	"dreadplate": {
 		id: "dreadplate",
 		name: "Dread Plate",
+		isViable: true,
 		spritenum: 110,
 		onPlate: 'Dark',
 		onBasePowerPriority: 6,
@@ -1194,6 +1209,7 @@ exports.BattleItems = {
 	"earthplate": {
 		id: "earthplate",
 		name: "Earth Plate",
+		isViable: true,
 		spritenum: 117,
 		onPlate: 'Ground',
 		onBasePowerPriority: 6,
@@ -1324,6 +1340,7 @@ exports.BattleItems = {
 	"expertbelt": {
 		id: "expertbelt",
 		name: "Expert Belt",
+		isViable: true,
 		spritenum: 132,
 		fling: {
 			basePower: 10
@@ -1432,6 +1449,7 @@ exports.BattleItems = {
 	"fistplate": {
 		id: "fistplate",
 		name: "Fist Plate",
+		isViable: true,
 		spritenum: 143,
 		onPlate: 'Fighting',
 		onBasePowerPriority: 6,
@@ -1471,6 +1489,7 @@ exports.BattleItems = {
 	"flameplate": {
 		id: "flameplate",
 		name: "Flame Plate",
+		isViable: true,
 		spritenum: 146,
 		onPlate: 'Fire',
 		onBasePowerPriority: 6,
@@ -1543,6 +1562,7 @@ exports.BattleItems = {
 	"focussash": {
 		id: "focussash",
 		name: "Focus Sash",
+		isViable: true,
 		spritenum: 151,
 		fling: {
 			basePower: 10
@@ -1826,6 +1846,7 @@ exports.BattleItems = {
 	"hardstone": {
 		id: "hardstone",
 		name: "Hard Stone",
+		isViable: true,
 		spritenum: 187,
 		fling: {
 			basePower: 100
@@ -1851,6 +1872,7 @@ exports.BattleItems = {
 	"heatrock": {
 		id: "heatrock",
 		name: "Heat Rock",
+		isViable: true,
 		spritenum: 193,
 		fling: {
 			basePower: 60
@@ -1968,6 +1990,7 @@ exports.BattleItems = {
 	"icicleplate": {
 		id: "icicleplate",
 		name: "Icicle Plate",
+		isViable: true,
 		spritenum: 220,
 		onPlate: 'Ice',
 		onBasePowerPriority: 6,
@@ -1990,6 +2013,7 @@ exports.BattleItems = {
 	"icyrock": {
 		id: "icyrock",
 		name: "Icy Rock",
+		isViable: true,
 		spritenum: 221,
 		fling: {
 			basePower: 40
@@ -2001,6 +2025,7 @@ exports.BattleItems = {
 	"insectplate": {
 		id: "insectplate",
 		name: "Insect Plate",
+		isViable: true,
 		spritenum: 223,
 		onPlate: 'Bug',
 		onBasePowerPriority: 6,
@@ -2044,6 +2069,7 @@ exports.BattleItems = {
 	"ironplate": {
 		id: "ironplate",
 		name: "Iron Plate",
+		isViable: true,
 		spritenum: 225,
 		onPlate: 'Steel',
 		onBasePowerPriority: 6,
@@ -2285,6 +2311,7 @@ exports.BattleItems = {
 	"leftovers": {
 		id: "leftovers",
 		name: "Leftovers",
+		isViable: true,
 		spritenum: 242,
 		fling: {
 			basePower: 10
@@ -2361,6 +2388,7 @@ exports.BattleItems = {
 	"liechiberry": {
 		id: "liechiberry",
 		name: "Liechi Berry",
+		isViable: true,
 		spritenum: 248,
 		isBerry: true,
 		naturalGift: {
@@ -2382,6 +2410,7 @@ exports.BattleItems = {
 	"lifeorb": {
 		id: "lifeorb",
 		name: "Life Orb",
+		isViable: true,
 		spritenum: 249,
 		fling: {
 			basePower: 30
@@ -2425,6 +2454,7 @@ exports.BattleItems = {
 	"lightclay": {
 		id: "lightclay",
 		name: "Light Clay",
+		isViable: true,
 		spritenum: 252,
 		fling: {
 			basePower: 30
@@ -2489,6 +2519,7 @@ exports.BattleItems = {
 	"lumberry": {
 		id: "lumberry",
 		name: "Lum Berry",
+		isViable: true,
 		spritenum: 262,
 		isBerry: true,
 		naturalGift: {
@@ -2574,6 +2605,7 @@ exports.BattleItems = {
 	"magnet": {
 		id: "magnet",
 		name: "Magnet",
+		isViable: true,
 		spritenum: 273,
 		fling: {
 			basePower: 30
@@ -2700,6 +2732,7 @@ exports.BattleItems = {
 	"meadowplate": {
 		id: "meadowplate",
 		name: "Meadow Plate",
+		isViable: true,
 		spritenum: 282,
 		onPlate: 'Grass',
 		onBasePowerPriority: 6,
@@ -2736,6 +2769,7 @@ exports.BattleItems = {
 	"mentalherb": {
 		id: "mentalherb",
 		name: "Mental Herb",
+		isViable: true,
 		spritenum: 285,
 		fling: {
 			basePower: 10,
@@ -2790,6 +2824,7 @@ exports.BattleItems = {
 	"metalcoat": {
 		id: "metalcoat",
 		name: "Metal Coat",
+		isViable: true,
 		spritenum: 286,
 		fling: {
 			basePower: 30
@@ -2920,6 +2955,7 @@ exports.BattleItems = {
 	"mindplate": {
 		id: "mindplate",
 		name: "Mind Plate",
+		isViable: true,
 		spritenum: 291,
 		onPlate: 'Psychic',
 		onBasePowerPriority: 6,
@@ -2942,6 +2978,7 @@ exports.BattleItems = {
 	"miracleseed": {
 		id: "miracleseed",
 		name: "Miracle Seed",
+		isViable: true,
 		fling: {
 			basePower: 30
 		},
@@ -2984,6 +3021,7 @@ exports.BattleItems = {
 	"mysticwater": {
 		id: "mysticwater",
 		name: "Mystic Water",
+		isViable: true,
 		spritenum: 300,
 		fling: {
 			basePower: 30
@@ -3030,6 +3068,7 @@ exports.BattleItems = {
 	"nevermeltice": {
 		id: "nevermeltice",
 		name: "Never-Melt Ice",
+		isViable: true,
 		spritenum: 305,
 		fling: {
 			basePower: 30
@@ -3060,6 +3099,7 @@ exports.BattleItems = {
 	"normalgem": {
 		id: "normalgem",
 		name: "Normal Gem",
+		isViable: true,
 		spritenum: 307,
 		isGem: true,
 		onSourceTryPrimaryHit: function (target, source, move) {
@@ -3261,6 +3301,7 @@ exports.BattleItems = {
 	"petayaberry": {
 		id: "petayaberry",
 		name: "Petaya Berry",
+		isViable: true,
 		spritenum: 335,
 		isBerry: true,
 		naturalGift: {
@@ -3323,6 +3364,7 @@ exports.BattleItems = {
 	"pixieplate": {
 		id: "pixieplate",
 		name: "Pixie Plate",
+		isViable: true,
 		spritenum: 610,
 		onPlate: 'Fairy',
 		onBasePowerPriority: 6,
@@ -3356,6 +3398,7 @@ exports.BattleItems = {
 	"poisonbarb": {
 		id: "poisonbarb",
 		name: "Poison Barb",
+		isViable: true,
 		spritenum: 343,
 		fling: {
 			basePower: 70,
@@ -3720,6 +3763,7 @@ exports.BattleItems = {
 	"rockincense": {
 		id: "rockincense",
 		name: "Rock Incense",
+		isViable: true,
 		spritenum: 416,
 		fling: {
 			basePower: 10
@@ -3737,6 +3781,7 @@ exports.BattleItems = {
 	"rockyhelmet": {
 		id: "rockyhelmet",
 		name: "Rocky Helmet",
+		isViable: true,
 		spritenum: 417,
 		fling: {
 			basePower: 60
@@ -3765,6 +3810,7 @@ exports.BattleItems = {
 	"roseincense": {
 		id: "roseincense",
 		name: "Rose Incense",
+		isViable: true,
 		spritenum: 419,
 		fling: {
 			basePower: 10
@@ -3847,6 +3893,7 @@ exports.BattleItems = {
 	"safetygoggles": {
 		id: "safetygoggles",
 		name: "Safety Goggles",
+		isViable: true,
 		spritenum: 604,
 		fling: {
 			basePower: 80
@@ -3867,6 +3914,7 @@ exports.BattleItems = {
 	"salacberry": {
 		id: "salacberry",
 		name: "Salac Berry",
+		isViable: true,
 		spritenum: 426,
 		isBerry: true,
 		naturalGift: {
@@ -3944,6 +3992,7 @@ exports.BattleItems = {
 	"seaincense": {
 		id: "seaincense",
 		name: "Sea Incense",
+		isViable: true,
 		spritenum: 430,
 		fling: {
 			basePower: 10
@@ -3961,6 +4010,7 @@ exports.BattleItems = {
 	"sharpbeak": {
 		id: "sharpbeak",
 		name: "Sharp Beak",
+		isViable: true,
 		spritenum: 436,
 		fling: {
 			basePower: 50
@@ -3992,6 +4042,7 @@ exports.BattleItems = {
 	"shedshell": {
 		id: "shedshell",
 		name: "Shed Shell",
+		isViable: true,
 		spritenum: 437,
 		fling: {
 			basePower: 10
@@ -4062,6 +4113,7 @@ exports.BattleItems = {
 	"silkscarf": {
 		id: "silkscarf",
 		name: "Silk Scarf",
+		isViable: true,
 		spritenum: 444,
 		fling: {
 			basePower: 10
@@ -4079,6 +4131,7 @@ exports.BattleItems = {
 	"silverpowder": {
 		id: "silverpowder",
 		name: "SilverPowder",
+		isViable: true,
 		spritenum: 447,
 		fling: {
 			basePower: 10
@@ -4096,6 +4149,7 @@ exports.BattleItems = {
 	"sitrusberry": {
 		id: "sitrusberry",
 		name: "Sitrus Berry",
+		isViable: true,
 		spritenum: 448,
 		isBerry: true,
 		naturalGift: {
@@ -4131,6 +4185,7 @@ exports.BattleItems = {
 	"skyplate": {
 		id: "skyplate",
 		name: "Sky Plate",
+		isViable: true,
 		spritenum: 450,
 		onPlate: 'Flying',
 		onBasePowerPriority: 6,
@@ -4167,6 +4222,7 @@ exports.BattleItems = {
 	"smoothrock": {
 		id: "smoothrock",
 		name: "Smooth Rock",
+		isViable: true,
 		spritenum: 453,
 		fling: {
 			basePower: 10
@@ -4194,6 +4250,7 @@ exports.BattleItems = {
 	"softsand": {
 		id: "softsand",
 		name: "Soft Sand",
+		isViable: true,
 		spritenum: 456,
 		fling: {
 			basePower: 10
@@ -4234,6 +4291,7 @@ exports.BattleItems = {
 	"spelltag": {
 		id: "spelltag",
 		name: "Spell Tag",
+		isViable: true,
 		spritenum: 461,
 		fling: {
 			basePower: 30
@@ -4264,6 +4322,7 @@ exports.BattleItems = {
 	"splashplate": {
 		id: "splashplate",
 		name: "Splash Plate",
+		isViable: true,
 		spritenum: 463,
 		onPlate: 'Water',
 		onBasePowerPriority: 6,
@@ -4286,6 +4345,7 @@ exports.BattleItems = {
 	"spookyplate": {
 		id: "spookyplate",
 		name: "Spooky Plate",
+		isViable: true,
 		spritenum: 464,
 		onPlate: 'Ghost',
 		onBasePowerPriority: 6,
@@ -4420,6 +4480,7 @@ exports.BattleItems = {
 	"stoneplate": {
 		id: "stoneplate",
 		name: "Stone Plate",
+		isViable: true,
 		spritenum: 477,
 		onPlate: 'Rock',
 		onBasePowerPriority: 6,
@@ -4533,6 +4594,7 @@ exports.BattleItems = {
 	"toxicplate": {
 		id: "toxicplate",
 		name: "Toxic Plate",
+		isViable: true,
 		spritenum: 516,
 		onPlate: 'Poison',
 		onBasePowerPriority: 6,
@@ -4555,6 +4617,7 @@ exports.BattleItems = {
 	"twistedspoon": {
 		id: "twistedspoon",
 		name: "TwistedSpoon",
+		isViable: true,
 		spritenum: 520,
 		fling: {
 			basePower: 30
@@ -4662,6 +4725,7 @@ exports.BattleItems = {
 	"waveincense": {
 		id: "waveincense",
 		name: "Wave Incense",
+		isViable: true,
 		spritenum: 531,
 		fling: {
 			basePower: 10
@@ -4679,6 +4743,7 @@ exports.BattleItems = {
 	"weaknesspolicy": {
 		id: "weaknesspolicy",
 		name: "Weakness Policy",
+		isViable: true,
 		spritenum: 609,
 		fling: {
 			basePower: 80
@@ -4708,6 +4773,7 @@ exports.BattleItems = {
 	"whiteherb": {
 		id: "whiteherb",
 		name: "White Herb",
+		isViable: true,
 		spritenum: 535,
 		fling: {
 			basePower: 10,
@@ -4828,6 +4894,7 @@ exports.BattleItems = {
 	"zapplate": {
 		id: "zapplate",
 		name: "Zap Plate",
+		isViable: true,
 		spritenum: 572,
 		onPlate: 'Electric',
 		onBasePowerPriority: 6,
