@@ -4643,6 +4643,10 @@ var Battle = (function () {
 				case 'bide':
 					actions += "" + poke.getName() + " unleashed its energy!";
 					break;
+				case 'illusion':
+					this.resultAnim(poke, 'Illusion ended', 'bad', animDelay);
+					actions += "" + poke.getName() + "'s illusion wore off!";
+					break;
 				case 'slowstart':
 					this.resultAnim(poke, 'Slow Start ended', 'good', animDelay);
 					actions += "" + poke.getName() + " finally got its act together!";
