@@ -1353,7 +1353,7 @@
 				this.lastMessageDate = Math.max(this.lastMessageDate || 0, msgTime);
 			}
 
-			var isHighlighted = mayNotify && userid !== app.user.get('userid') && this.getHighlight(message);
+			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
 			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
@@ -1361,7 +1361,7 @@
 				this.$chat.append(parsedMessage[i]);
 			}
 
-			if (isHighlighted) {
+			if (mayNotify && isHighlighted) {
 				var $lastMessage = this.$chat.children().last();
 				var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
 				var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
