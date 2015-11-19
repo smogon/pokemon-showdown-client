@@ -1724,6 +1724,30 @@ a.ilink.yours {
 	float: right;
 	font-size: 7pt;
 }
+.megaevo {
+    clear: both;
+    display: block;
+    width: 220px;
+    margin: 0 auto 10px;
+    position: relative;
+    top: 7px;
+    left: -7px;
+    padding: 2px;
+    text-align: center;
+
+    cursor: pointer;
+    border: 1px solid #BBB;
+    border-radius: 3px;
+    color: #333;
+    background: #EEF2F5;
+    font-size: 11pt;
+    font-weight: bold;
+}
+.megaevo:hover {
+    border: 1px solid #888;
+    background: #E5E5E5;
+    color: black;
+}
 
 .switchmenu,
 .movemenu {
@@ -1832,6 +1856,9 @@ a.ilink.yours {
 		padding: 4px 8px;
 		border-radius: 6px;
 		background: #E5E5E5;
+	}
+	.megaevo {
+		margin: 0 auto 8px 50px;
 	}
 
 	.battle-controls .whatdo {

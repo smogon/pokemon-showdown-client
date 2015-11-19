@@ -454,7 +454,7 @@
 					controls += movebuttons;
 				}
 				if (switchables[pos].canMegaEvo) {
-					controls += '<br /><label><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
+					controls += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
 				}
 				if (this.finalDecisionMove) {
 					controls += '<em style="display:block;clear:both">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em><br/>';
