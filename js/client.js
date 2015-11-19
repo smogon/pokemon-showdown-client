@@ -2863,11 +2863,11 @@
 				buf += '<p class="buttonbar" style="text-align:right">';
 				var registered = app.user.get('registered');
 				if (registered && (registered.userid === app.user.get('userid'))) {
-					buf += '<button name="changepassword">Change password</button> ';
+					buf += '<p><button name="changepassword">Password</button></p>';
 				} else {
-					buf += '<button name="register">Register</button> ';
+					buf += '<p><button name="register">Register</button></p>';
 				}
-				buf += '<button name="logout"><strong>Log out</strong></button>';
+				buf += '<p class="buttonbar" style="text-align:right"><button name="logout"><strong>Log out</strong></button>';
 				buf += '</p>';
 			} else {
 				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Choose name</button></p>';
