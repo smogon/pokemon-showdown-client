@@ -586,7 +586,7 @@ var Tools = {
 			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
 				return;
 			}
-			var targetIdx;
+			var targetIdx, srcIdx;
 			if (tagName === 'a') {
 				// Special handling of <a> tags.
 
@@ -603,7 +603,19 @@ var Tools = {
 					}
 				}
 			}
+			var dataUri = '';
+			if (tagName === 'img') {
+				for (var i = 0; i < attribs.length - 1; i += 2) {
+					if (attribs[i] === 'src' && attribs[i + 1].substr(0, 11) === 'data:image/') {
+						srcIdx = i;
+						dataUri = attribs[i + 1];
+					}
+				}
+			}
 			attribs = html.sanitizeAttribs(tagName, attribs, uriRewriter);
+			if (dataUri && tagName === 'img') {
+				attribs[srcIdx + 1] = dataUri;
+			}
 			if (tagName === 'a' || tagName === 'form') {
 				if (targetIdx !== undefined) {
 					attribs[targetIdx] = '_blank';
