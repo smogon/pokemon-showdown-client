@@ -2075,14 +2075,14 @@
 		notifications: null,
 		subtleNotification: false,
 		notify: function (title, body, tag, once) {
-			if (once && app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (once && app.focused && (this === app.curRoom || this == app.curSideRoom) && (!this.getAutoScroll || this.getAutoScroll())) return;
 			if (!tag) tag = 'message';
 			var needsTabbarUpdate = false;
 			if (!this.notifications) {
 				this.notifications = {};
 				needsTabbarUpdate = true;
 			}
-			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) {
+			if (app.focused && (this === app.curRoom || this == app.curSideRoom) && (!this.getAutoScroll || this.getAutoScroll())) {
 				this.notifications[tag] = {};
 			} else if (window.nodewebkit && !nwWindow.setBadgeLabel) {
 				// old desktop client
@@ -2131,7 +2131,7 @@
 			}
 		},
 		subtleNotifyOnce: function () {
-			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (app.focused && (this === app.curRoom || this == app.curSideRoom) && (!this.getAutoScroll || this.getAutoScroll())) return;
 			if (this.notifications || this.subtleNotification) return;
 			this.subtleNotification = true;
 			this.notificationClass = ' subtle-notifying';

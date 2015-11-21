@@ -168,7 +168,9 @@
 			this.noAutoScroll = true;
 		},
 		getAutoScroll: function () {
-			if (this.noAutoScroll) return false;
+			return !this.noAutoScroll && this.getBottomScrolled();
+		},
+		getBottomScrolled: function () {
 			return (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height());
 		},
 		clear: function () {
@@ -953,6 +955,12 @@
 			textbox.value = value;
 			textbox.setSelectionRange(start, end);
 			return true;
+		},
+		scrollHandler: function () {
+			if (!app.focused || this !== app.curRoom && this !== app.curSideRoom || !this.getBottomScrolled()) return;
+			this.dismissNotification()
+			this.$chatFrame.off('scroll', this.scrollHandler);
+			this.scrollHandler = null;
 		}
 	});
 
@@ -1030,6 +1038,9 @@
 			if (userlist) this.addRow(userlist);
 			if (this.getAutoScroll()) {
 				this.$chatFrame.scrollTop(this.$chat.height());
+			} else if (!this.scrollHandler) {
+				this.scrollHandler = _.bind(ConsoleRoom.scrollHandler, this);
+				this.$chatFrame.on('scroll', this.scrollHandler);
 			}
 			var $children = this.$chat.children();
 			if ($children.length > 900) {
@@ -1040,6 +1051,8 @@
 			this.addChat(user, message, pm);
 			if (this.getAutoScroll()) {
 				this.$chatFrame.scrollTop(this.$chat.height());
+			} else {
+				this.$chatFrame.on('scroll', _.bind(ConsoleRoom.scrollHandler, this));
 			}
 		},
 		addRow: function (line) {
@@ -1346,12 +1359,12 @@
 			var lastMessageDate = lastMessageDates[Config.server.id][this.id] || 0;
 			var mayNotify = msgTime > lastMessageDate;
 
-			if (app.focused && (this === app.curSideRoom || this === app.curRoom)) {
+			if (app.focused && (this === app.curSideRoom || this === app.curRoom) && (!this.getAutoScroll || this.getAutoScroll())) {
 				this.lastMessageDate = 0;
 				lastMessageDates[Config.server.id][this.id] = msgTime;
 				Tools.prefs.save();
 			} else {
-				// To be saved on focus
+				// To be saved on focus + scroll to the bottom
 				this.lastMessageDate = Math.max(this.lastMessageDate || 0, msgTime);
 			}
 

@@ -142,12 +142,19 @@
 				this.notifyOnce("PM from " + name, "\"" + textContent + "\"", 'pm');
 			}
 
+			var pmNotifying = (name.substr(1) !== app.user.get('name') && (!autoscroll || !$pmWindow.hasClass('focused')));
+			if (pmNotifying) {
+				$pmWindow.find('h3').addClass('pm-notifying');
+			}
 			if (autoscroll) {
 				$chatFrame.scrollTop($chat.height());
-			}
-
-			if (!$pmWindow.hasClass('focused') && name.substr(1) !== app.user.get('name')) {
-				$pmWindow.find('h3').addClass('pm-notifying');
+			} else if (pmNotifying) {
+				$chatFrame.get(0).onscroll = function (e) {
+					if ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height()) {
+						$pmWindow.find('h3').removeClass('pm-notifying');
+						$chatFrame.get(0).onscroll = null;
+					}
+				};
 			}
 		},
 		openPM: function (name, dontFocus) {
@@ -265,7 +272,13 @@
 			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
 		},
 		onFocusPM: function (e) {
-			$(e.currentTarget).closest('.pm-window').addClass('focused').find('h3').removeClass('pm-notifying');
+			var $pmWindow = $(e.currentTarget).closest('.pm-window').addClass('focused');
+
+			var $chatFrame = $pmWindow.find('.pm-log');
+			var $chat = $pmWindow.find('.inner');
+			if ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height()) {
+				$pmWindow.find('h3').removeClass('pm-notifying');
+			}
 		},
 		onBlurPM: function (e) {
 			$(e.currentTarget).closest('.pm-window').removeClass('focused');
