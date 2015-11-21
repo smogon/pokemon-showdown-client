@@ -2795,8 +2795,8 @@ var Battle = (function () {
 				this.weatherMinTimeLeft = 0;
 			} else {
 				this.message('<small>' + newWeather.startMessage + '</small>');
-				this.weatherTimeLeft = 8;
-				this.weatherMinTimeLeft = 5;
+				this.weatherTimeLeft = (this.gen <= 3 ? 5 : 8);
+				this.weatherMinTimeLeft = (this.gen <= 3 ? 0 : 5);
 			}
 		}
 		if (this.weather && !newWeather) {
