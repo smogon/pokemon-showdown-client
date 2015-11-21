@@ -13,6 +13,8 @@
 			if (!this.events['blur textarea']) this.events['blur textarea'] = 'blurText';
 			if (!this.events['click .spoiler']) this.events['click .spoiler'] = 'clickSpoiler';
 			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
+			if (!this.events['mouseover .autoscroll-disable']) this.events['mouseover .autoscroll-disable'] = 'disableAutoScroll';
+			if (!this.events['mouseout .autoscroll-disable']) this.events['mouseout .autoscroll-disable'] = 'enableAutoScroll';
 
 			this.initializeTabComplete();
 			// create up/down history for this room
@@ -158,6 +160,16 @@
 			e.stopPropagation();
 			app.focusRoom('');
 			app.rooms[''].focusPM($(e.currentTarget).data('name'));
+		},
+		enableAutoScroll: function (e) {
+			this.noAutoScroll = false;
+		},
+		disableAutoScroll: function (e) {
+			this.noAutoScroll = true;
+		},
+		getAutoScroll: function () {
+			if (this.noAutoScroll) return false;
+			return (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height());
 		},
 		clear: function () {
 			if (this.$chat) this.$chat.html('');
@@ -889,15 +901,13 @@
 		},
 
 		showOtherFormats: function (d, target) {
-			var autoscroll = (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height());
-
 			var $target = $(target);
 			var $table = $target.closest('table');
 			$table.find('tr.hidden').show();
 			$table.find('tr.no-matches').remove();
 			$target.closest('tr').remove();
 
-			if (autoscroll) {
+			if (this.getAutoScroll()) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
 		}
@@ -1009,10 +1019,6 @@
 		},
 		add: function (log) {
 			if (typeof log === 'string') log = log.split('\n');
-			var autoscroll = false;
-			if (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height()) {
-				autoscroll = true;
-			}
 			var userlist = '';
 			for (var i = 0; i < log.length; i++) {
 				if (log[i].substr(0, 7) === '|users|') {
@@ -1022,7 +1028,7 @@
 				}
 			}
 			if (userlist) this.addRow(userlist);
-			if (autoscroll) {
+			if (this.getAutoScroll()) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
 			var $children = this.$chat.children();
@@ -1031,12 +1037,8 @@
 			}
 		},
 		addPM: function (user, message, pm) {
-			var autoscroll = false;
-			if (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height()) {
-				autoscroll = true;
-			}
 			this.addChat(user, message, pm);
-			if (autoscroll) {
+			if (this.getAutoScroll()) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
 		},
