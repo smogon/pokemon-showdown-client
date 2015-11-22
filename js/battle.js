@@ -3385,9 +3385,6 @@ var Battle = (function () {
 					case 'aquaring':
 						actions += "Aqua Ring restored " + poke.getLowerName() + "'s HP!";
 						break;
-					case 'raindish': case 'dryskin': case 'icebody':
-						actions += "" + poke.getName() + "'s " + effect.name + " heals it!";
-						break;
 					case 'healingwish':
 						actions += "The healing wish came true for " + poke.getLowerName() + "!";
 						this.lastmove = 'healing-wish';
@@ -3417,15 +3414,15 @@ var Battle = (function () {
 					default:
 						if (kwargs.absorb) {
 							actions += "" + poke.getName() + "'s " + effect.name + " absorbs the attack!";
-						} else if (effect.id) {
+						} else if (effect.id && effect.effectType !== 'Ability') {
 							actions += "" + poke.getName() + " restored HP using its " + effect.name + "!";
 						} else {
-							actions += poke.getName() + ' regained health!';
+							actions += poke.getName() + ' restored its HP.';
 						}
 						break;
 					}
 				} else {
-					actions += poke.getName() + ' regained health!';
+					actions += poke.getName() + ' restored its HP.';
 				}
 				break;
 			case '-sethp':
