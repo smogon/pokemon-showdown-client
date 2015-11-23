@@ -561,9 +561,10 @@
 			var self = this;
 
 			this.$('button[name=team]').each(function (i, el) {
-				if (el.value === 'random') return;
+				var val = el.value;
+				if (val === 'random') return;
 				var format = $(el).closest('form').find('button[name=format]').val();
-				$(el).replaceWith(self.renderTeams(format));
+				$(el).replaceWith(self.renderTeams(format, val));
 			});
 		},
 		updateRightMenu: function () {
@@ -689,7 +690,6 @@
 			return '<button class="select formatselect' + (noChoice ? ' preselected' : '') + '" name="format" value="' + formatid + '"' + (noChoice ? ' disabled' : '') + '>' + Tools.escapeFormat(formatid) + '</button>';
 		},
 		curTeamFormat: '',
-		curTeamIndex: 0,
 		renderTeams: function (formatid, teamIndex) {
 			if (!Storage.teams || !window.BattleFormats) {
 				return '<button class="select teamselect" name="team" disabled><em>Loading...</em></button>';
@@ -707,9 +707,6 @@
 			}
 			if (teamIndex === undefined) {
 				teamIndex = 0;
-				if (this.curTeamIndex >= 0) {
-					teamIndex = this.curTeamIndex;
-				}
 				if (this.curTeamFormat !== formatid) {
 					for (var i = 0; i < teams.length; i++) {
 						if (teams[i].format === formatid) {
@@ -896,11 +893,7 @@
 			this.sourceEl.val(i).html(TeamPopup.renderTeam(i));
 			if (this.sourceEl[0].offsetParent.className === 'mainmenuwrapper') {
 				var formatid = this.sourceEl.closest('form').find('button[name=format]').val();
-				app.rooms[''].curTeamIndex = i;
 				app.rooms[''].curTeamFormat = formatid;
-			} else if (this.sourceEl[0].offsetParent.className === 'tournament-box active') {
-				var room = app.dispatchingPopup.options.room;
-				app.rooms[room].tournamentBox.curTeamIndex = i;
 			}
 			this.close();
 		}

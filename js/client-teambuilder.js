@@ -240,16 +240,15 @@
 			i = +i;
 			this.deletedTeamLoc = i;
 			this.deletedTeam = teams.splice(i, 1)[0];
-			for (var room in app.rooms) {
-				var selection = app.rooms[room].$('button.teamselect').val();
-				if (!selection || selection === 'random') continue;
-				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
-				if (i < obj.curTeamIndex) {
-					obj.curTeamIndex--;
-				} else if (i === obj.curTeamIndex) {
-					obj.curTeamIndex = -1;
+			$('button.teamselect').each(function () {
+				if (this.value === 'random') return;
+				var selection = +this.value;
+				if (i < selection) {
+					this.value = selection - 1;
+				} else if (i === selection) {
+					this.value = 0;
 				}
-			}
+			});
 			Storage.deleteTeam(this.deletedTeam);
 			app.user.trigger('saveteams');
 			this.update();
@@ -257,16 +256,14 @@
 		undoDelete: function () {
 			if (this.deletedTeamLoc >= 0) {
 				teams.splice(this.deletedTeamLoc, 0, this.deletedTeam);
-				for (var room in app.rooms) {
-					var selection = app.rooms[room].$('button.teamselect').val();
-					if (!selection || selection === 'random') continue;
-					var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
-					if (this.deletedTeamLoc < obj.curTeamIndex + 1) {
-						obj.curTeamIndex++;
-					} else if (obj.curTeamIndex === -1) {
-						obj.curTeamIndex = this.deletedTeamLoc;
+				var deletedTeamLoc = this.deletedTeamLoc;
+				$('button.teamselect').each(function () {
+					if (!this.value || this.value === 'random') return;
+					var selection = +this.value;
+					if (deletedTeamLoc < selection + 1) {
+						this.value = selection + 1;
 					}
-				}
+				});
 				var undeletedTeam = this.deletedTeam;
 				this.deletedTeam = null;
 				this.deletedTeamLoc = -1;
@@ -279,12 +276,10 @@
 			Storage.importTeam(this.$('.teamedit textarea').val(), true);
 			teams = Storage.teams;
 			Storage.saveAllTeams();
-			for (var room in app.rooms) {
-				var selection = app.rooms[room].$('button.teamselect').val();
-				if (!selection || selection === 'random') continue;
-				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
-				obj.curTeamIndex = 0;
-			}
+			$('button.teamselect').each(function () {
+				if (this.value === 'random') return;
+				this.value = 0;
+			});
 			this.back();
 		},
 		"new": function () {
@@ -305,12 +300,11 @@
 				iconCache: ''
 			};
 			teams.unshift(newTeam);
-			for (var room in app.rooms) {
-				var selection = app.rooms[room].$('button.teamselect').val();
-				if (!selection || selection === 'random') continue;
-				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
-				obj.curTeamIndex++;
-			}
+			$('button.teamselect').each(function () {
+				if (this.value === 'random') return;
+				var selection = +this.value;
+				this.value = selection + 1;
+			});
 			this.edit(0);
 		},
 		"import": function () {
@@ -390,18 +384,17 @@
 				var team = Storage.teams[originalLoc];
 				Storage.teams.splice(originalLoc, 1);
 				Storage.teams.splice(newLoc, 0, team);
-				for (var room in app.rooms) {
-					var selection = app.rooms[room].$('button.teamselect').val();
-					if (!selection || selection === 'random') continue;
-					var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
-					if (originalLoc === obj.curTeamIndex) {
-						obj.curTeamIndex = newLoc;
-					} else if (originalLoc > obj.curTeamIndex && newLoc <= obj.curTeamIndex) {
-						obj.curTeamIndex++;
-					} else if (originalLoc < obj.curTeamIndex && newLoc >= obj.curTeamIndex) {
-						obj.curTeamIndex--;
+				$('button.teamselect').each(function () {
+					if (this.value === 'random') return;
+					var selection = +this.value;
+					if (originalLoc === selection) {
+						this.value = newLoc;
+					} else if (originalLoc > selection && newLoc <= selection) {
+						this.value = selection + 1;
+					} else if (originalLoc < selection && newLoc >= selection) {
+						this.value = selection - 1;
 					}
-				}
+				});
 				Storage.saveTeams();
 				app.user.trigger('saveteams');
 			}
