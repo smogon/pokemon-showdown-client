@@ -1162,6 +1162,7 @@
 					var name = formatsList[j];
 					var searchShow = true;
 					var challengeShow = true;
+					var tournamentShow = true;
 					var team = null;
 					var lastCommaIndex = name.lastIndexOf(',');
 					var code = lastCommaIndex >= 0 ? parseInt(name.substr(lastCommaIndex + 1), 16) : NaN;
@@ -1221,11 +1222,30 @@
 						column: column,
 						searchShow: searchShow,
 						challengeShow: challengeShow,
+						tournamentShow: tournamentShow,
 						rated: searchShow && id.substr(0, 7) !== 'unrated',
 						teambuilderFormat: teambuilderFormat,
 						isTeambuilderFormat: isTeambuilderFormat,
 						effectType: 'Format'
 					};
+				}
+			}
+
+			// Match base formats to their variants, if they are unavailable in the server.
+			var multivariantFormats = {};
+			for (var id in BattleFormats) {
+				var teambuilderFormat = BattleFormats[BattleFormats[id].teambuilderFormat];
+				if (!teambuilderFormat || multivariantFormats[teambuilderFormat.id]) continue;
+				if (!teambuilderFormat.searchShow && !teambuilderFormat.challengeShow && !teambuilderFormat.tournamentShow) {
+					// The base format is not available.
+					if (teambuilderFormat.battleFormat) {
+						multivariantFormats[teambuilderFormat.id] = 1;
+						teambuilderFormat.hasBattleFormat = false;
+						teambuilderFormat.battleFormat = '';
+					} else {
+						teambuilderFormat.hasBattleFormat = true;
+						teambuilderFormat.battleFormat = id;
+					}
 				}
 			}
 			if (columnChanged) app.supports['formatColumns'] = true;
