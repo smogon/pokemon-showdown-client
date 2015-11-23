@@ -714,12 +714,16 @@
 			Storage.saveTeams();
 		},
 		validate: function () {
-			if (!this.curTeam.format) {
+			var format = this.curTeam.format;
+			if (!format) {
 				app.addPopupMessage('You need to pick a format to validate your team.');
 				return;
 			}
+			if (window.BattleFormats && BattleFormats[this.curTeam.format] && BattleFormats[this.curTeam.format].hasBattleFormat) {
+				format = BattleFormats[this.curTeam.format].battleFormat;
+			}
 			app.sendTeam(this.curTeam);
-			app.send('/vtm ' + this.curTeam.format);
+			app.send('/vtm ' + format);
 		},
 		teamNameChange: function (e) {
 			this.curTeam.name = ($.trim(e.currentTarget.value) || 'Untitled ' + (this.curTeamLoc + 1));
