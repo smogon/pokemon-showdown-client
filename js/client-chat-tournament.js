@@ -554,7 +554,7 @@
 				if (!data.rootNode) {
 					if (!('users' in data)) return;
 					var users = data.users.length;
-					if (users) $div.html('<b>' + users + '</b> user' + (users !== 1 ? 's' : '') + ':<br />' + data.users.join(", "));
+					if (users) $div.html('<b>' + users + '</b> user' + (users !== 1 ? 's' : '') + ':<br />' + Tools.escapeHTML(data.users.join(", ")));
 					return $div;
 				}
 

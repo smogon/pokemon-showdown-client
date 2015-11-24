@@ -2541,7 +2541,7 @@
 			}
 			var $pm = $('.pm-window-' + this.userid);
 			if ($pm.length && $pm.css('display') !== 'none') {
-				$pm.find('.inner').append('<div class="chat">' + buf + '</div>');
+				$pm.find('.inner').append('<div class="chat">' + Tools.escapeHTML(buf) + '</div>');
 			} else {
 				var room = (app.curRoom && app.curRoom.add ? app.curRoom : app.curSideRoom);
 				if (!room || !room.add) {
