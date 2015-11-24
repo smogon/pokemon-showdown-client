@@ -241,8 +241,9 @@
 					if (tournaments.length > 0) {
 						$infoList = $('<ul></ul>');
 						tournaments.forEach(function (tournament) {
+							var formatName = window.BattleFormats && BattleFormats[tournament.format] ? BattleFormats[tournament.format].name : tournament.format;
 							var $info = $('<li></li>');
-							$info.text(": " + Tools.getEffect(tournament.format).name + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
+							$info.text(": " + formatName + " " + tournament.generator + (tournament.isStarted ? " (Started)" : ""));
 							$info.prepend($('<a class="ilink"></a>').attr('href', app.root + toRoomid(tournament.room).toLowerCase()).text(tournament.room));
 							$infoList.append($info);
 						});
