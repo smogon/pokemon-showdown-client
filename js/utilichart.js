@@ -313,7 +313,6 @@ function BattleChart() {
 			}
 			if (gen > 0) {
 				things = self.abilities.filter(function (ability) {
-					console.log(ability);
 					if (gen < 3) return false;
 					if (gen === 3 && ability.num > 76) return false;
 					if (gen === 4 && ability.num > 123) return false;
