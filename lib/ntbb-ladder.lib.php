@@ -112,14 +112,13 @@ class GlickoPlayer {
 }
 
 class NTBBLadder {
-	var $serverid;
 	var $formatid;
 	var $rplen;
 	var $rpoffset;
 
 	function __construct($serverid, $formatid) {
+		// serverid is no longer used
 		$this->formatid = preg_replace('/[^a-z0-9]+/', '', strtolower($formatid));
-		$this->serverid = preg_replace('/[^a-z0-9]+/', '', strtolower($serverid));
 		$this->rplen = 24*60*60;
 		$this->rpoffset = 9*60*60;
 	}
@@ -136,7 +135,7 @@ class NTBBLadder {
 	function getRating(&$user, $create=false) {
 		global $ladderdb;
 		if (!@$user['rating']) {
-			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `serverid` = '{$this->serverid}' AND `formatid` = '{$this->formatid}' AND `userid` = '".$ladderdb->escape($user['userid'])."' LIMIT 1");
+			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `userid` = '".$ladderdb->escape($user['userid'])."' AND `formatid` = '{$this->formatid}' LIMIT 1");
 			if (!$res) {
 				return false;
 			}
@@ -148,7 +147,7 @@ class NTBBLadder {
 				}
 				//echo "INSERT INTO `{$ladderdb->prefix}ladder` (`formatid`,`userid`,`username`) VALUES ('{$this->formatid}','".$ladderdb->escape($user['userid'])."','".$ladderdb->escape($user['username'])."')";
 				$rp = $this->getrp();
-				$ladderdb->query("INSERT INTO `{$ladderdb->prefix}ladder` (`formatid`,`serverid`,`userid`,`username`,`rptime`) VALUES ('{$this->formatid}','{$this->serverid}','".$ladderdb->escape($user['userid'])."','".$ladderdb->escape($user['username'])."',".$rp.")");
+				$ladderdb->query("INSERT INTO `{$ladderdb->prefix}ladder` (`formatid`,`userid`,`username`,`rptime`) VALUES ('{$this->formatid}','".$ladderdb->escape($user['userid'])."','".$ladderdb->escape($user['username'])."',".$rp.")");
 				$user['rating'] = array(
 					'entryid' => $ladderdb->insert_id(),
 					'formatid' => $this->formatid,
@@ -166,8 +165,8 @@ class NTBBLadder {
 					'l' => 0,
 					't' => 0,
 					'gxe' => 50,
-					'acre' => 1000,
-					'lacre' => 1000,
+					'elo' => 1000,
+					'col1' => 1000,
 				);
 				return true;
 			}
@@ -180,7 +179,7 @@ class NTBBLadder {
 	function getAllRatings(&$user) {
 		global $ladderdb;
 		if (!@$user['ratings']) {
-			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `serverid` = '{$this->serverid}' AND `userid` = '".$ladderdb->escape($user['userid'])."'");
+			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `userid` = '".$ladderdb->escape($user['userid'])."'");
 			if (!$res) {
 				return false;
 			}
@@ -212,12 +211,12 @@ class NTBBLadder {
 			// 	$limit = 1000;
 			// }
 
-			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' AND `serverid` = '{$this->serverid}' ORDER BY `lacre` DESC LIMIT $limit");
+			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' ORDER BY `elo` DESC LIMIT $limit");
 
 			$j = 0;
 			while ($row = $ladderdb->fetch_assoc($res)) {
 				$j++;
-				// if ($row['lacre'] < 0 && $j > 50) break;
+				// if ($row['col1'] < 0 && $j > 50) break;
 				$user = array(
 					'username' => $row['username'],
 					'userid' => $row['userid'],
@@ -239,14 +238,14 @@ class NTBBLadder {
 
 	function clearAllRatings() {
 		global $ladderdb;
-		$res = $ladderdb->query("DELETE FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' AND `serverid` = '{$this->serverid}'");
+		$res = $ladderdb->query("DELETE FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}'");
 	}
 
 	function saveRating($user) {
 		global $ladderdb;
 		if (!$user['rating']) return false;
 
-		return !!$ladderdb->query("UPDATE `{$ladderdb->prefix}ladder` SET `w`={$user['rating']['w']}, `l`={$user['rating']['l']}, `t`={$user['rating']['t']}, `r`={$user['rating']['r']}, `rd`={$user['rating']['rd']}, `sigma`={$user['rating']['sigma']}, `rptime`={$user['rating']['rptime']}, `rpr`={$user['rating']['rpr']}, `rprd`={$user['rating']['rprd']}, `rpsigma`={$user['rating']['rpsigma']}, `rpdata`='".$ladderdb->escape($user['rating']['rpdata'])."', `gxe`={$user['rating']['gxe']}, `acre`={$user['rating']['acre']}, `lacre`={$user['rating']['lacre']} WHERE `entryid` = {$user['rating']['entryid']} LIMIT 1");
+		return !!$ladderdb->query("UPDATE `{$ladderdb->prefix}ladder` SET `w`={$user['rating']['w']}, `l`={$user['rating']['l']}, `t`={$user['rating']['t']}, `r`={$user['rating']['r']}, `rd`={$user['rating']['rd']}, `sigma`={$user['rating']['sigma']}, `rptime`={$user['rating']['rptime']}, `rpr`={$user['rating']['rpr']}, `rprd`={$user['rating']['rprd']}, `rpsigma`={$user['rating']['rpsigma']}, `rpdata`='".$ladderdb->escape($user['rating']['rpdata'])."', `gxe`={$user['rating']['gxe']}, `elo`={$user['rating']['elo']} WHERE `entryid` = {$user['rating']['entryid']} LIMIT 1");
 	}
 
 	function update(&$user, $newM = false, $newMelo = 1000, $force = false) {
@@ -257,7 +256,7 @@ class NTBBLadder {
 			return false;
 		}
 
-		$elo = $user['rating']['acre'];
+		$elo = $user['rating']['elo'];
 
 		$rating = new GlickoPlayer($user['rating']['r'], $user['rating']['rd']);
 		if ($user['rating']['rpdata']) {
@@ -294,7 +293,7 @@ class NTBBLadder {
 			}
 			$user['rating']['r'] = $rating->rating;
 			$user['rating']['rd'] = $rating->rd;
-			$user['rating']['lacre'] = $user['rating']['acre'] = $elo;
+			$$user['rating']['elo'] = $elo;
 		}
 
 		if ($newM) {
@@ -324,25 +323,25 @@ class NTBBLadder {
 		// $user['rating']['gxe'] = round(100 / (1 + pow(10,((1500 - $rating->rating) * pi() / sqrt(3 * log(10)*log(10) * $rating->rd*$rating->rd + 2500 * (64 * pi()*pi() + 147 * log(10)*log(10)))))), 1);
 		$user['rating']['gxe'] = round(100 / (1 + pow(10,((1500 - $rating->rating) / 400 / sqrt(1 + 0.0000100724 * ($rating->rd*$rating->rd + 130*130))))), 1);
 
-		if ($newM) {
-			// compensate for Glicko2 bug: don't lose rating on win, don't gain rating on lose
-			// if ($newM['score'] > .9 && $rating->rating < $oldrpr) {
-			// 	$delta = $oldrpr - $rating->rating;
-			// 	$offset += $delta;
-			// 	$user['rating']['rpr'] += $delta;
-			// }
-			// if ($newM['score'] < .1 && $rating->rating > $oldrpr) {
-			// 	$delta = $oldrpr - $rating->rating;
-			// 	$offset += $delta;
-			// 	$user['rating']['rpr'] += $delta;
-			// }
-		}
+		// if ($newM) {
+		// 	// compensate for Glicko2 bug: don't lose rating on win, don't gain rating on lose
+		// 	if ($newM['score'] > .9 && $rating->rating < $oldrpr) {
+		// 		$delta = $oldrpr - $rating->rating;
+		// 		$offset += $delta;
+		// 		$user['rating']['rpr'] += $delta;
+		// 	}
+		// 	if ($newM['score'] < .1 && $rating->rating > $oldrpr) {
+		// 		$delta = $oldrpr - $rating->rating;
+		// 		$offset += $delta;
+		// 		$user['rating']['rpr'] += $delta;
+		// 	}
+		// }
 		if ($offset) {
 			$user['rating']['rpdata'] .= '##'.$offset;
 		}
 
 		if ($newM) {
-			$user['rating']['oldacre'] = $elo;
+			$user['rating']['oldelo'] = $elo;
 
 			$K = 50;
 			if ($elo < 1100) {
@@ -362,7 +361,7 @@ class NTBBLadder {
 
 			if ($elo < 1000) $elo = 1000;
 
-			$user['rating']['lacre'] = $user['rating']['acre'] = $elo;
+			$user['rating']['elo'] = $elo;
 		}
 
 		return true;
@@ -381,11 +380,11 @@ class NTBBLadder {
 		}
 		$p1M['score'] = $p1score;
 		$p2M['score'] = 1 - $p1score;
-		$p1Macre = $p2['rating']['acre'];
-		$p2Macre = $p1['rating']['acre'];
+		$p1Melo = $p2['rating']['elo'];
+		$p2Melo = $p1['rating']['elo'];
 
-		$this->update($p1, $p1M, $p1Macre);
-		$this->update($p2, $p2M, $p2Macre);
+		$this->update($p1, $p1M, $p1Melo);
+		$this->update($p2, $p2M, $p2Melo);
 
 		$this->saveRating($p1);
 		$this->saveRating($p2);
