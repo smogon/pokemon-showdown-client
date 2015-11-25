@@ -498,8 +498,8 @@ class LadderActionHandler {
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
 
 		$server = $dispatcher->findServer();
-		if (!$server) {
-			$out['errorip'] = $dispatcher->getIp();
+		if (!$server || $server['id'] !== 'showdown') {
+			$out['errorip'] = "Your version of PS is too old for this ladder system. Please update.";
 			return;
 		}
 
@@ -526,7 +526,9 @@ class LadderActionHandler {
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
 
 		$server = @$PokemonServers[@$reqData['serverid']];
-		if (!$server) die;
+		if (!$server || $server['id'] !== 'showdown') {
+			die;
+		}
 
 		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
 		$user = $this->getUserData(@$reqData['user']);
@@ -540,8 +542,8 @@ class LadderActionHandler {
 		include_once dirname(__FILE__) . '/ntbb-ladder.lib.php';
 
 		$server = $dispatcher->findServer();
-		if (!$server) {
-			$out['errorip'] = $dispatcher->getIp();
+		if (!$server || $server['id'] !== 'showdown') {
+			$out['errorip'] = "Your version of PS is too old for this ladder system. Please update.";
 			return;
 		}
 
@@ -551,7 +553,7 @@ class LadderActionHandler {
 		if ($user) {
 			$ladder->getRating($user);
 			if (@$user['rating']) {
-				$out = intval($user['rating']['acre']);
+				$out = intval($user['rating']['elo']);
 			}
 		}
 	}

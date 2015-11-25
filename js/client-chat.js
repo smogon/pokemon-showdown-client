@@ -690,7 +690,7 @@
 									buffer += '<tr class="hidden">';
 									hiddenFormats.push(row.formatid);
 								}
-								buffer += '<td>' + row.formatid + '</td><td><strong>' + Math.round(row.acre) + '</strong></td><td>' + Math.round(row.gxe, 1) + '</td><td>';
+								buffer += '<td>' + row.formatid + '</td><td><strong>' + Math.round(row.elo) + '</strong></td><td>' + Math.round(row.gxe, 1) + '</td><td>';
 								if (row.rprd > 100) {
 									buffer += '<span><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em> <small>(provisional)</small></span>';
 								} else {
