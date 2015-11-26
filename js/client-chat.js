@@ -5,7 +5,6 @@
 		title: '',
 		constructor: function () {
 			if (!this.events) this.events = {};
-			if (!this.events['click .ilink']) this.events['click .ilink'] = 'clickLink';
 			if (!this.events['click .username']) this.events['click .username'] = 'clickUsername';
 			if (!this.events['submit form']) this.events['submit form'] = 'submit';
 			if (!this.events['keydown textarea']) this.events['keydown textarea'] = 'keyPress';
@@ -145,13 +144,6 @@
 			}
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget, position: position});
-		},
-		clickLink: function (e) {
-			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
-			e.preventDefault();
-			e.stopPropagation();
-			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
-			app.tryJoinRoom(roomid);
 		},
 		openPM: function (e) {
 			e.preventDefault();
@@ -1455,6 +1447,7 @@
 			'‽': 10
 		},
 		toggleUserlist: function(e) {
+			e.preventDefault();
 			e.stopPropagation();
 			if (this.$el.hasClass('userlist-minimized')) {
 				this.$el.removeClass('userlist-minimized');
