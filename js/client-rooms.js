@@ -6,9 +6,6 @@
 		type: 'rooms',
 		title: 'Rooms',
 		isSideRoom: true,
-		events: {
-			'click .ilink': 'clickLink'
-		},
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			var buf = '<div class="pad"><button style="float:right" name="close">Close</button><div class="roomlisttop"></div><div class="roomlist" style="max-width:480px"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist" style="max-width:480px"></div><p><button name="joinRoomPopup">Join other room</button></p></div>';
@@ -17,13 +14,6 @@
 			app.send('/cmd rooms');
 			app.user.on('change:named', this.updateUser, this);
 			this.update();
-		},
-		clickLink: function (e) {
-			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
-			e.preventDefault();
-			e.stopPropagation();
-			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
-			app.tryJoinRoom(roomid);
 		},
 		updateUser: function () {
 			this.update();

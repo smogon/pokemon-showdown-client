@@ -20,33 +20,18 @@
 		window.gui = require('nw.gui');
 		window.nwWindow = gui.Window.get();
 	}
+	if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
+		// Android mobile-web-app-capable doesn't support it very well, but iOS
+		// does it fine, so we're only going to show this to iOS for now
+		$('head').append('<meta name="apple-mobile-web-app-capable" content="yes" />');
+	}
+
 	$(document).on('keydown', function (e) {
 		if (e.keyCode == 27) {
 			e.preventDefault();
 			e.stopPropagation();
 			e.stopImmediatePropagation();
 			app.closePopup();
-		}
-	});
-	$(document).on('click', 'a', function (e) {
-		if (this.className === 'closebutton') return; // handled elsewhere
-		if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
-		if (!this.href) return; // should never happen
-		if (this.host === 'play.pokemonshowdown.com' || this.host === 'psim.us' || this.host === location.host) {
-			var target = this.pathname.substr(1);
-			if (target.indexOf('/') < 0 && target.indexOf('.') < 0) {
-				window.app.tryJoinRoom(target);
-				e.preventDefault();
-				e.stopPropagation();
-				e.stopImmediatePropagation();
-				return;
-			}
-		}
-		if (window.nodewebkit && this.target === '_blank') {
-			gui.Shell.openExternal(this.href);
-			e.preventDefault();
-			e.stopPropagation();
-			e.stopImmediatePropagation();
 		}
 	});
 	$(window).on('dragover', function (e) {
@@ -99,12 +84,6 @@
 			}
 		}
 	});
-	if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
-		// Android mobile-web-app-capable doesn't support it very well, but iOS
-		// does it fine, so we're only going to show this to iOS for now
-		$('head').append('<meta name="apple-mobile-web-app-capable" content="yes" />');
-	}
-
 	if (window.nodewebkit) {
 		$(document).on("contextmenu", function (e) {
 			e.preventDefault();
@@ -183,6 +162,7 @@
 			avatar: 0
 		},
 		initialize: function () {
+			app.clearGlobalListeners();
 			app.on('response:userdetails', function (data) {
 				if (data.userid === this.get('userid')) {
 					this.set('avatar', data.avatar);
@@ -1285,6 +1265,29 @@
 			// jslider doesn't clear these when it should,
 			// so we have to do it for them :/
 			$(document).off('click touchstart mousedown touchmove mousemove touchend mouseup');
+			$(document).on('click', 'a', function (e) {
+				if (this.className === 'closebutton') return; // handled elsewhere
+				if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
+				if (!this.href) return; // should never happen
+				if (this.host === 'play.pokemonshowdown.com' || this.host === 'psim.us' || this.host === location.host) {
+					if (!e.cmdKey && !e.metaKey && !e.ctrlKey) {
+						var target = this.pathname.substr(1);
+						if (target.indexOf('/') < 0 && target.indexOf('.') < 0) {
+							window.app.tryJoinRoom(target);
+							e.preventDefault();
+							e.stopPropagation();
+							e.stopImmediatePropagation();
+							return;
+						}
+					}
+				}
+				if (window.nodewebkit && this.target === '_blank') {
+					gui.Shell.openExternal(this.href);
+					e.preventDefault();
+					e.stopPropagation();
+					e.stopImmediatePropagation();
+				}
+			});
 		},
 
 		/*********************************************************
@@ -1852,6 +1855,7 @@
 			app.addPopup(OptionsPopup);
 		},
 		clickUsername: function (e) {
+			e.preventDefault();
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});

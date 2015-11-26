@@ -826,6 +826,7 @@
 		clipboardResultSelect: function (e) {
 			if (!this.clipboardExpanded) return;
 
+			e.preventDefault();
 			e.stopPropagation();
 			var target = +($(e.target).closest('.result').data('id'));
 			if (target === -1) {
