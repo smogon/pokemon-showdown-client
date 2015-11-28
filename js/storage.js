@@ -152,7 +152,7 @@ Storage.onMessage = function ($e) {
 		Storage.loadPackedTeams(data.substr(1));
 		Storage.saveTeams = function () {
 			var packedTeams = Storage.packAllTeams(Storage.teams);
-			Storage.postCrossOriginMessage('T' + packedteams);
+			Storage.postCrossOriginMessage('T' + packedTeams);
 
 			// in Safari, cross-origin local storage is apparently treated as session
 			// storage, so mirror the storage in the current origin just in case
