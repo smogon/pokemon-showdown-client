@@ -947,12 +947,16 @@ p.or:after {
 	max-width: 480px;
 	margin-bottom: 10px;
 }
+.roomcounters {
+	margin: 4px auto;
+	max-width: 400px;
+}
 .roomcounters td {
 	text-align: center;
 }
 .roomcounters button {
 	margin: 0 auto;
-	width: 140px;
+	width: 120px;
 	height: 60px;
 	padding: 3px 8px;
 	text-align: center;
