@@ -1272,7 +1272,8 @@
 				if (this.host === 'play.pokemonshowdown.com' || this.host === 'psim.us' || this.host === location.host) {
 					if (!e.cmdKey && !e.metaKey && !e.ctrlKey) {
 						var target = this.pathname.substr(1);
-						if (target.indexOf('/') < 0 && target.indexOf('.') < 0) {
+						var shortLinks = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?)$/;
+						if (target.indexOf('/') < 0 && target.indexOf('.') < 0 && !shortLinks.test(target)) {
 							window.app.tryJoinRoom(target);
 							e.preventDefault();
 							e.stopPropagation();
