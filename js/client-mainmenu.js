@@ -450,7 +450,6 @@
 				$teamButton.replaceWith(this.renderTeams(format, teamIndex));
 
 				$searchForm.find('button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
-				$searchForm.find('button.cancelSearch').html('<strong>Look for a battle</strong>').removeClass('disabled');
 				$searchForm.find('p.cancel').remove();
 			} else {
 				$formatButton.addClass('preselected')[0].disabled = true;
