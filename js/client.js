@@ -2,17 +2,6 @@
 
 	Config.version = '0.10.2';
 
-	Config.origindomain = 'play.pokemonshowdown.com';
-	// `defaultserver` specifies the server to use when the domain name in the
-	// address bar is `Config.origindomain`.
-	Config.defaultserver = {
-		id: 'showdown',
-		host: 'sim.smogon.com',
-		port: 443,
-		httpport: 8000,
-		altport: 80,
-		registered: true
-	};
 	Config.sockjsprefix = '/showdown';
 	Config.root = '/';
 
@@ -312,6 +301,7 @@
 			app.send('/logout');
 		},
 		setPersistentName: function (name) {
+			if (location.host !== 'play.pokemonshowdown.com') return;
 			$.cookie('showdown_username', (name !== undefined) ? name : this.get('name'), {
 				expires: 14
 			});
@@ -341,18 +331,20 @@
 			if (!this.down && $(window).width() >= 916) {
 				if (document.location.hostname === 'play.pokemonshowdown.com') {
 					this.addRoom('rooms', null, true);
-					var autojoin = (Tools.prefs('autojoin') || '');
-					var autojoinIds = [];
-					if (autojoin) {
-						var autojoins = autojoin.split(',');
-						var roomid;
-						for (var i = 0; i < autojoins.length; i++) {
-							roomid = toRoomid(autojoins[i]);
-							this.addRoom(roomid, null, true, autojoins[i]);
-							if (roomid !== 'staff' && roomid !== 'upperstaff') autojoinIds.push(roomid);
+					Storage.whenPrefsLoaded(function () {
+						var autojoin = (Tools.prefs('autojoin') || '');
+						var autojoinIds = [];
+						if (autojoin) {
+							var autojoins = autojoin.split(',');
+							var roomid;
+							for (var i = 0; i < autojoins.length; i++) {
+								roomid = toRoomid(autojoins[i]);
+								app.addRoom(roomid, null, true, autojoins[i]);
+								if (roomid !== 'staff' && roomid !== 'upperstaff') autojoinIds.push(roomid);
+							}
 						}
-					}
-					this.send('/autojoin ' + autojoinIds.join(','));
+						app.send('/autojoin ' + autojoinIds.join(','));
+					});
 				} else {
 					this.addRoom('lobby', null, true);
 					this.send('/autojoin');
@@ -361,9 +353,7 @@
 
 			var self = this;
 
-			this.prefsLoaded = false;
-			this.on('init:loadprefs', function () {
-				self.prefsLoaded = true;
+			Storage.whenPrefsLoaded(function () {
 				var bg = Tools.prefs('bg');
 				if (bg) {
 					$(document.body).css({
@@ -538,6 +528,8 @@
 				}
 			});
 
+			Storage.whenAppLoaded.load(this);
+
 			this.initializeConnection();
 
 			// HTML5 history throws exceptions when running on file://
@@ -551,10 +543,6 @@
 		 * Triggers the following events (arguments in brackets):
 		 *   `init:unsupported`
 		 * 	   triggered if the user's browser is unsupported
-		 *
-		 *   `init:loadprefs`
-		 *     triggered when preferences/teams are finished loading and are
-		 *     safe to read
 		 *
 		 *   `init:nothirdparty`
 		 *     triggered if the user has third-party cookies disabled and
@@ -575,198 +563,10 @@
 		 *     triggered if the SockJS socket closes
 		 */
 		initializeConnection: function () {
-			if ((document.location.hostname !== Config.origindomain) && !Config.testclient) {
-				// Handle *.psim.us.
-				return this.initializeCrossDomainConnection();
-			} else if (Config.testclient) {
-				this.initializeTestClient();
-			} else if (document.location.protocol === 'https:') {
-				/* if (!$.cookie('showdown_ssl')) {
-					// Never used HTTPS before, so we have to copy over the
-					// HTTP origin localStorage. We have to redirect to the
-					// HTTP site in order to do this. We set a cookie
-					// indicating that we redirected for the purpose of copying
-					// over the localStorage.
-					$.cookie('showdown_ssl_convert', 1);
-					return document.location.replace('http://' + document.location.hostname +
-						document.location.pathname);
-				} */
-				// Renew the `showdown_ssl` cookie.
-				$.cookie('showdown_ssl', 1, {expires: 365 * 3});
-			} else if (!$.cookie('showdown_ssl')) {
-				// localStorage is currently located on the HTTP origin.
-
-				if (!$.cookie('showdown_ssl_convert') || !('postMessage' in window)) {
-					// This user is not using HTTPS now and has never used
-					// HTTPS before, so her localStorage is still under the
-					// HTTP origin domain: connect on port 8000, not 443.
-					Config.defaultserver.port = Config.defaultserver.httpport;
-				} else {
-					// First time using HTTPS: copy the existing HTTP storage
-					// over to the HTTPS origin.
-					$(window).on('message', function ($e) {
-						var e = $e.originalEvent;
-						var origin = 'https://' + Config.origindomain;
-						if (e.origin !== origin) return;
-						if (e.data === 'init') {
-							Storage.loadTeams();
-							e.source.postMessage($.toJSON({
-								teams: Storage.getPackedTeams(),
-								prefs: $.toJSON(Tools.prefs.data)
-							}), origin);
-						} else if (e.data === 'done') {
-							// Set a cookie to indicate that localStorage is now under
-							// the HTTPS origin.
-							$.cookie('showdown_ssl', 1, {expires: 365 * 3});
-							localStorage.clear();
-							return document.location.replace('https://' + document.location.hostname +
-								document.location.pathname);
-						}
-					});
-					var $iframe = $('<iframe src="https://play.pokemonshowdown.com/crossprotocol.html" style="display: none;"></iframe>');
-					$('body').append($iframe);
-					return;
-				}
-			} else {
-				// The user is using HTTP right now, but has used HTTPS in the
-				// past, so her localStorage is located on the HTTPS origin:
-				// hence we need to use the cross-domain code to load the
-				// localStorage because the HTTPS origin is considered a
-				// different domain for the purpose of localStorage.
-				return this.initializeCrossDomainConnection();
-			}
-
-			// Simple connection: no cross-domain logic needed.
-			Config.server = Config.server || Config.defaultserver;
-			// Config.server.afd = true;
-			Storage.loadTeams();
-			this.trigger('init:loadprefs');
-			return this.connect();
-		},
-		/**
-		 * Initialise the client when running on the file:// filesystem.
-		 */
-		initializeTestClient: function () {
-			var self = this;
-			var showUnsupported = function () {
-				self.addPopupMessage('The requested action is not supported by testclient.html. Please complete this action in the official client instead.');
-			};
-			$.get = function (uri, data, callback, type) {
-				if (type === 'html') {
-					uri += '&testclient';
-				}
-				if (data) {
-					uri += '?testclient';
-					for (var i in data) {
-						uri += '&' + i + '=' + encodeURIComponent(data[i]);
-					}
-				}
-				if (uri[0] === '/') { // relative URI
-					uri = Tools.resourcePrefix + uri.substr(1);
-				}
-				self.addPopup(ProxyPopup, {uri: uri, callback: callback});
-			};
-			$.post = function (/*uri, data, callback, type*/) {
-				showUnsupported();
-			};
-		},
-		/**
-		 * Handle a cross-domain connection: that is, a connection where the
-		 * client is loaded from a different domain from the one where the
-		 * user's localStorage is located.
-		 */
-		initializeCrossDomainConnection: function () {
-			if (!('postMessage' in window)) {
-				// browser does not support cross-document messaging
-				return this.trigger('init:unsupported');
-			}
-			// If the URI in the address bar is not `play.pokemonshowdown.com`,
-			// we receive teams, prefs, and server connection information from
-			// crossdomain.php on play.pokemonshowdown.com.
-			var self = this;
-			$(window).on('message', (function () {
-				var origin;
-				var callbacks = {};
-				var callbackIdx = 0;
-				return function ($e) {
-					var e = $e.originalEvent;
-					if ((e.origin === 'http://' + Config.origindomain) ||
-						(e.origin === 'https://' + Config.origindomain)) {
-						origin = e.origin;
-					} else {
-						return; // unauthorised source origin
-					}
-					var data = $.parseJSON(e.data);
-					if (data.server) {
-						var postCrossDomainMessage = function (data) {
-							return e.source.postMessage($.toJSON(data), origin);
-						};
-						// server config information
-						Config.server = data.server;
-						// Config.server.afd = true;
-						if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
-							var $link = $('<link rel="stylesheet" ' +
-								'href="//play.pokemonshowdown.com/customcss.php?server=' +
-								encodeURIComponent(Config.server.id) + '" />');
-							$('head').append($link);
-						}
-						// persistent username
-						self.user.setPersistentName = function (name) {
-							postCrossDomainMessage({
-								username: ((name !== undefined) ? name : this.get('name'))
-							});
-						};
-						// ajax requests
-						$.get = function (uri, data, callback, type) {
-							var idx = callbackIdx++;
-							callbacks[idx] = callback;
-							postCrossDomainMessage({get: [uri, data, idx, type]});
-						};
-						$.post = function (uri, data, callback, type) {
-							var idx = callbackIdx++;
-							callbacks[idx] = callback;
-							postCrossDomainMessage({post: [uri, data, idx, type]});
-						};
-						// teams
-						if (data.teams) {
-							Storage.loadPackedTeams(data.teams);
-						} else {
-							Storage.teams = [];
-						}
-						self.trigger('init:loadteams');
-						Storage.saveTeams = function () {
-							postCrossDomainMessage({teams: Storage.packAllTeams(Storage.teams)});
-						};
-						// prefs
-						if (data.prefs) {
-							Tools.prefs.data = $.parseJSON(data.prefs);
-						}
-						self.trigger('init:loadprefs');
-						Tools.prefs.save = function () {
-							postCrossDomainMessage({prefs: $.toJSON(this.data)});
-						};
-						// check for third-party cookies being disabled
-						if (data.nothirdparty) {
-							self.trigger('init:nothirdparty');
-						}
-						// connect
-						self.connect();
-					} else if (data.ajax) {
-						var idx = data.ajax[0];
-						if (callbacks[idx]) {
-							callbacks[idx](data.ajax[1]);
-							delete callbacks[idx];
-						}
-					}
-				};
-			})());
-			var $iframe = $(
-				'<iframe src="//play.pokemonshowdown.com/crossdomain.php?host=' +
-				encodeURIComponent(document.location.hostname) +
-				'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
-				'" style="display: none;"></iframe>'
-			);
-			$('body').append($iframe);
+			Storage.whenPrefsLoaded(function() {
+				// Config.server.afd = true;
+				app.connect();
+			});
 		},
 		/**
 		 * This function establishes the actual connection to the sim server.
@@ -2215,7 +2015,7 @@
 				var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
 				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
 				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
-				Tools.prefs.save();
+				Storage.prefs.save();
 			}
 		},
 		dismissAllNotifications: function (skipUpdate) {
@@ -2245,7 +2045,7 @@
 				var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
 				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
 				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
-				Tools.prefs.save();
+				Storage.prefs.save();
 			}
 		},
 		clickNotification: function (tag) {
