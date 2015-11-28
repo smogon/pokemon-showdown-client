@@ -298,6 +298,38 @@ var Tools = {
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
+
+	/*
+	 * Load trackers are loosely based on Promises, but very simplified.
+	 * Trackers are made with: var tracker = Tools.makeLoadTracker();
+	 * Pass callbacks like so: tracker(callback)
+	 * When tracker.load() is called, all callbacks are run.
+	 * If tracker.load() has already been called, tracker(callback) will
+	 * call the callback instantly.
+	 */
+	makeLoadTracker: function () {
+		var tracker = function (callback, context) {
+			if (tracker.isLoaded) {
+				callback.call(context, tracker.value);
+			} else {
+				tracker.callbacks.push([callback, context]);
+			}
+			return tracker;
+		}
+		tracker.callbacks = [];
+		tracker.value = undefined;
+		tracker.isLoaded = false;
+		tracker.load = function (value) {
+			if (tracker.isLoaded) return;
+			tracker.isLoaded = true;
+			tracker.value = value;
+			for (var i = 0; i < tracker.callbacks.length; i++) {
+				tracker.callbacks[i][0].call(tracker.callbacks[i][1], value);
+			}
+		};
+		return tracker;
+	},
+
 	resolveAvatar: function (avatar) {
 		var avatarnum = Number(avatar);
 		if (!isNaN(avatarnum)) {
@@ -668,36 +700,10 @@ var Tools = {
 		};
 	},
 
-	prefs: (function () {
-		var localStorageEntry = 'showdown_prefs';
-		var prefs = function (prop, value, save) {
-			if (value === undefined) {
-				// get preference
-				return prefs.data[prop];
-			}
-			// set preference
-			if (value === null) {
-				delete prefs.data[prop];
-			} else {
-				prefs.data[prop] = value;
-			}
-			if (save !== false) prefs.save();
-		};
-		prefs.data = {};
-		try {
-			prefs.data = (window.localStorage &&
-				$.parseJSON(localStorage.getItem(localStorageEntry))) || {};
-			// outdated prefs
-			delete prefs.data.nolobbypm;
-		} catch (e) {}
-		prefs.save = function () {
-			if (!window.localStorage) return;
-			try {
-				localStorage.setItem(localStorageEntry, $.toJSON(this.data));
-			} catch (e) {}
-		};
-		return prefs;
-	})(),
+	prefs: function(prop, value, save) {
+		if (window.Storage && Storage.prefs) return Storage.prefs(prop, value, save);
+		return undefined;
+	},
 
 	getEffect: function (effect) {
 		if (!effect || typeof effect === 'string') {

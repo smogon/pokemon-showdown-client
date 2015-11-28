@@ -69,6 +69,17 @@ if (isset($PokemonServers[$config['host']])) {
 	}
 }
 
+if (@$config['redirect']) {
+?>
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<script>
+parent.location.replace(<?= json_encode($config['redirect']) ?>);
+</script>
+<?php
+	die();
+}
+
 // For Internet Explorer.
 // See http://www.p3pwriter.com/LRN_111.asp
 // See also http://stackoverflow.com/questions/389456/cookie-blocked-not-saved-in-iframe-in-internet-explorer
@@ -77,86 +88,67 @@ if (isset($PokemonServers[$config['host']])) {
 header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 ?>
 <!DOCTYPE html>
+<meta charset="utf-8" />
 <script src="/js/lib/jquery-2.1.4.min.js"></script>
-<script src="/js/lib/jquery-cookie.js"></script>
-<script src="/js/lib/jquery.json-2.3.min.js"></script>
 <body>
 <script>
-(function() {
-	var config = <?php echo json_encode($config) ?>;
-	if (config.redirect) {
-		return parent.location.replace(config.redirect);
-	}
-	var message = {server: config};
-	try {
-		if (window.localStorage) {
-			message.teams = localStorage.getItem('showdown_teams');
-			message.prefs = localStorage.getItem('showdown_prefs');
-		}
-		$.cookie('testcookie', 1);
-		if (!$.cookie('testcookie')) {
-			message.nothirdparty = true;
-		}
-		$.cookie('testcookie', null);
-	} catch (e) {
-		message.nothirdparty = true;
-	}
-	if (!message.nothirdparty && (document.location.protocol === 'http:')) {
-		var executeRedirect = function() {
-			document.location = 'https://' + document.location.hostname +
-				document.location.pathname + document.location.search;
-			return;
-		};
-		if (/**(!message.teams && !message.prefs) ||**/ $.cookie('showdown_ssl')) {
-			// use the https origin storage
-			$.cookie('showdown_ssl', 1, {expires: 365*3});
-			return executeRedirect();
-		}
-		// copy the existing http storage over to the https origin
-		/**$(window).on('message', function($e) {
-			var e = $e.originalEvent;
-			var origin = 'https://play.pokemonshowdown.com';
-			if (e.origin !== origin) return;
-			if (e.data === 'init') {
-				e.source.postMessage($.toJSON(message), origin);
-			} else if (e.data === 'done') {
-				$.cookie('showdown_ssl', 1, {expires: 365*3});
-				localStorage.clear();
-				return executeRedirect();
-			}
+
+var config = <?php echo json_encode(json_encode($config)) ?>;
+var yourOrigin = <?php echo json_encode('http://' . $host) ?>;
+var myOrigin = 'https://play.pokemonshowdown.com';
+
+function postMessage (message) {
+	return window.parent.postMessage(message, yourOrigin);
+}
+function messageHandler(e) {
+	if (e.origin !== yourOrigin) return;
+	var data = e.data;
+
+	// data's first char:
+	// T: store teams
+	// P: store prefs
+	// R: GET request
+	// S: POST request
+
+	switch (data.charAt(0)) {
+	case 'T':
+		localStorage.setItem('showdown_teams', data.substr(1));
+		break;
+	case 'P':
+		localStorage.setItem('showdown_prefs', data.substr(1));
+		break;
+	case 'R':
+	case 'S':
+		var rq = JSON.parse(data.substr(1));
+		$.ajax({
+			type: (data.charAt(0) === 'R' ? 'GET' : 'POST'),
+			url: rq[0],
+			data: rq[1],
+			success: function(ajaxdata) {
+				postMessage('r' + JSON.stringify([rq[2], ajaxdata]));
+			},
+			dataType: rq[3]
 		});
-		var $iframe = $('<iframe src="https://play.pokemonshowdown.com/crossprotocol.html" style="display: none;"></iframe>');
-		$('body').append($iframe);
-		return;**/
+		break;
 	}
-	var origin = <?php echo json_encode('http://' . $host) ?>;
-	var postMessage = function(message) {
-		return window.parent.postMessage($.toJSON(message), origin);
-	};
-	$(window).on('message', function($e) {
-		var e = $e.originalEvent;
-		if (e.origin !== origin) return;
-		var data = $.parseJSON(e.data);
-		if (data.username !== undefined) {
-			$.cookie('showdown_username', data.username, {expires: 14});
-		}
-		if (data.get) {
-			$.get(data.get[0], data.get[1], function(ajaxdata) {
-				postMessage({ajax: [data.get[2], ajaxdata]});
-			}, data.get[3]);
-		}
-		if (data.post) {
-			$.post(data.post[0], data.post[1], function(ajaxdata) {
-				postMessage({ajax: [data.post[2], ajaxdata]});
-			}, data.post[3]);
-		}
-		if (data.teams) {
-			localStorage.setItem('showdown_teams', data.teams);
-		}
-		if (data.prefs) {
-			localStorage.setItem('showdown_prefs', data.prefs);
-		}
-	});
-	postMessage(message);
-})();
+}
+
+window.addEventListener('message', messageHandler);
+postMessage('c' + config);
+var testVal = '' + Date.now();
+try {
+	localStorage.setItem('showdown_allow3p', testVal);
+} catch (err) {}
+if (localStorage.getItem('showdown_allow3p') === testVal) {
+	postMessage('a1');
+	postMessage('p' + localStorage.getItem('showdown_prefs'));
+	postMessage('t' + localStorage.getItem('showdown_teams'));
+} else {
+	postMessage('a0');
+}
+
+if (location.origin !== myOrigin) {
+	// This happens sometimes, but we'll pretend it doesn't
+}
+
 </script>

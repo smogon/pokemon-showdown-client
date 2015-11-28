@@ -1,23 +1,62 @@
 <!DOCTYPE html>
+<meta charset="utf-8" />
 <script src="/js/lib/jquery-2.1.4.min.js"></script>
 <script>
-(function() {
-	var origin = 'http://play.pokemonshowdown.com';
-	var postMessage = function(message) {
-		return window.parent.postMessage(message, origin);
-	};
-	$(window).on('message', function($e) {
-		var e = $e.originalEvent;
-		if (e.origin !== origin) return;
-		var data = $.parseJSON(e.data);
-		if (data.teams) {
-			localStorage.setItem('showdown_teams', data.teams);
-		}
-		data.prefs = data.prefs || {};
-		data.prefs.portedstorage = true;
-		localStorage.setItem('showdown_prefs', data.prefs);
-		postMessage('done');
-	});
-	postMessage('init');
-})();
+
+var yourOrigin = 'http://play.pokemonshowdown.com';
+var myOrigin = 'https://play.pokemonshowdown.com';
+
+function postMessage(message) {
+	return window.parent.postMessage(message, yourOrigin);
+}
+function messageHandler(e) {
+	if (e.origin !== yourOrigin) return;
+	var data = e.data;
+
+	// data's first char:
+	// T: store teams
+	// P: store prefs
+	// R: GET request
+	// S: POST request
+
+	switch (data.charAt(0)) {
+	case 'T':
+		localStorage.setItem('showdown_teams', data.substr(1));
+		break;
+	case 'P':
+		localStorage.setItem('showdown_prefs', data.substr(1));
+		break;
+	case 'R':
+	case 'S':
+		var rq = JSON.parse(data.substr(1));
+		$.ajax({
+			type: (data.charAt(0) === 'R' ? 'GET' : 'POST'),
+			url: rq[0],
+			data: rq[1],
+			success: function(ajaxdata) {
+				postMessage('r' + JSON.stringify([rq[2], ajaxdata]));
+			},
+			dataType: rq[3]
+		});
+		break;
+	}
+}
+
+window.addEventListener('message', messageHandler);
+var testVal = '' + Date.now();
+try {
+	localStorage.setItem('showdown_allow3p', testVal);
+} catch (err) {}
+if (localStorage.getItem('showdown_allow3p') === testVal) {
+	postMessage('a1');
+	postMessage('p' + localStorage.getItem('showdown_prefs'));
+	postMessage('t' + localStorage.getItem('showdown_teams'));
+} else {
+	postMessage('a0');
+}
+
+if (location.origin !== myOrigin) {
+	// This happens sometimes, but we'll pretend it doesn't
+}
+
 </script>

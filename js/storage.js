@@ -1,3 +1,15 @@
+Config.origindomain = 'play.pokemonshowdown.com';
+// `defaultserver` specifies the server to use when the domain name in the
+// address bar is `Config.origindomain`.
+Config.defaultserver = {
+	id: 'showdown',
+	host: 'sim.smogon.com',
+	port: 443,
+	httpport: 8000,
+	altport: 80,
+	registered: true
+};
+
 function Storage() {}
 
 Storage.initialize = function () {
@@ -9,7 +21,218 @@ Storage.initialize = function () {
 		this.stopLoggingChat = this.nwStopLoggingChat;
 		this.logChat = this.nwLogChat;
 	}
+	Storage.initPrefs();
 };
+
+/*********************************************************
+ * Prefs
+ *********************************************************/
+
+// Prefs are canonically stored in showdown_prefs in localStorage
+// in the origin https://play.pokemonshowdown.com
+
+// We try loading things from the origin, anyway, in case third-party
+// localStorage is banned, and since prefs are cached in other
+// places in certain cases.
+
+Storage.origin = 'https://play.pokemonshowdown.com';
+
+Storage.prefs = function (prop, value, save) {
+	if (value === undefined) {
+		// get preference
+		return this.prefs.data[prop];
+	}
+	// set preference
+	if (value === null) {
+		delete this.prefs.data[prop];
+	} else {
+		this.prefs.data[prop] = value;
+	}
+	if (save !== false) this.prefs.save();
+};
+
+Storage.prefs.data = {};
+try {
+	if (window.localStorage) {
+		Storage.prefs.data = $.parseJSON(localStorage.getItem('showdown_prefs')) || {};
+	}
+} catch (e) {}
+
+Storage.prefs.save = function () {
+	if (!window.localStorage) return;
+	try {
+		localStorage.setItem('showdown_prefs', $.toJSON(this.data));
+	} catch (e) {}
+};
+
+Storage.whenPrefsLoaded = Tools.makeLoadTracker();
+Storage.whenTeamsLoaded = Tools.makeLoadTracker();
+Storage.whenAppLoaded = Tools.makeLoadTracker();
+
+Storage.initPrefs = function () {
+	Storage.loadTeams();
+	if (Config.testclient) {
+		return this.initTestClient();
+	} else if (document.location.origin === Storage.origin) {
+		// Same origin, everything can be kept as default
+		Config.server = Config.server || Config.defaultserver;
+		this.whenPrefsLoaded.load();
+		if (!window.nodewebkit) this.whenTeamsLoaded.load();
+		return;
+	}
+
+	// Cross-origin
+
+	if (!('postMessage' in window)) {
+		// browser does not support cross-document messaging
+		return Storage.whenAppLoaded(function (app) {
+			app.trigger('init:unsupported');
+		});
+	}
+
+	$(window).on('message', Storage.onMessage);
+
+	if (document.location.hostname !== Config.origindomain) {
+		$(
+			'<iframe src="https://play.pokemonshowdown.com/crossdomain.php?host=' +
+			encodeURIComponent(document.location.hostname) +
+			'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
+			'" style="display: none;"></iframe>'
+		).appendTo('body');
+	} else {
+		Config.server = Config.server || Config.defaultserver;
+		$(
+			'<iframe src="https://play.pokemonshowdown.com/crossprotocol.html?v1" style="display: none;"></iframe>'
+		).appendTo('body');
+	}
+};
+
+Storage.crossOriginFrame = null;
+Storage.crossOriginRequests = {};
+Storage.crossOriginRequestCount = 0;
+Storage.onMessage = function ($e) {
+	var e = $e.originalEvent;
+	if (e.origin !== Storage.origin) return;
+
+	Storage.crossOriginFrame = e.source;
+	var data = e.data;
+	switch (data.charAt(0)) {
+	case 'c':
+		Config.server = $.parseJSON(data.substr(1));
+		if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
+			var $link = $('<link rel="stylesheet" ' +
+				'href="//play.pokemonshowdown.com/customcss.php?server=' +
+				encodeURIComponent(Config.server.id) + '" />');
+			$('head').append($link);
+		}
+		break;
+	case 'p':
+		var newData = $.parseJSON(data.substr(1));
+		if (newData) Storage.prefs.data = newData;
+		Storage.prefs.save = function () {
+			var prefData = $.toJSON(this.data);
+			Storage.postCrossOriginMessage('P' + prefData);
+
+			// in Safari, cross-origin local storage is apparently treated as session
+			// storage, so mirror the storage in the current origin just in case
+			try {
+				localStorage.setItem('showdown_prefs', prefData);
+			} catch (e) {}
+		};
+		Storage.whenPrefsLoaded.load();
+		break;
+	case 't':
+		if (window.nodewebkit) return;
+		var oldTeams;
+		if (Storage.teams && Storage.teams.length) {
+			// Teams are still stored in the old location; merge them with the
+			// new teams.
+			oldTeams = Storage.teams;
+		}
+		Storage.loadPackedTeams(data.substr(1));
+		Storage.saveTeams = function () {
+			var packedTeams = Storage.packAllTeams(Storage.teams);
+			Storage.postCrossOriginMessage('T' + packedteams);
+
+			// in Safari, cross-origin local storage is apparently treated as session
+			// storage, so mirror the storage in the current origin just in case
+			if (document.location.hostname === Config.origindomain) {
+				try {
+					localStorage.setItem('showdown_teams_local', packedTeams);
+				} catch (e) {}
+			}
+		};
+		if (oldTeams) {
+			Storage.teams = Storage.teams.concat(oldTeams);
+			Storage.saveTeams();
+			localStorage.removeItem('showdown_teams');
+		}
+		if (data === 'tnull' && !Storage.teams.length) {
+			Storage.loadPackedTeams(localStorage.getItem('showdown_teams_local'));
+		}
+		Storage.whenTeamsLoaded.load();
+		break;
+	case 'a':
+		if (data === 'a0') {
+			Storage.noThirdParty = true;
+		}
+		if (!window.nodewebkit) {
+			// for whatever reason, Node-Webkit doesn't let us make remote
+			// Ajax requests or something. Oh well, making them direct
+			// isn't a problem, either.
+			$.get = function (uri, data, callback, type) {
+				var idx = Storage.crossOriginRequestCount++;
+				Storage.crossOriginRequests[idx] = callback;
+				Storage.postCrossOriginMessage('R' + JSON.stringify([uri, data, idx, type]));
+			};
+			$.post = function (uri, data, callback, type) {
+				var idx = Storage.crossOriginRequestCount++;
+				Storage.crossOriginRequests[idx] = callback;
+				Storage.postCrossOriginMessage('S' + JSON.stringify([uri, data, idx, type]));
+			};
+		}
+		break;
+	case 'r':
+		var reqData = JSON.parse(data.slice(1));
+		var idx = reqData[0];
+		if (Storage.crossOriginRequests[idx]) {
+			Storage.crossOriginRequests[idx](reqData[1]);
+			delete Storage.crossOriginRequests[idx];
+		}
+		break;
+	}
+};
+Storage.postCrossOriginMessage = function (data) {
+	return Storage.crossOriginFrame.postMessage(data, Storage.origin);
+};
+
+// Test client
+
+Storage.initTestClient = function () {
+	Config.server = Config.server || Config.defaultserver;
+	Storage.whenTeamsLoaded.load();
+	Storage.whenAppLoaded(function (app) {
+		$.get = function (uri, data, callback, type) {
+			if (type === 'html') {
+				uri += '&testclient';
+			}
+			if (data) {
+				uri += '?testclient';
+				for (var i in data) {
+					uri += '&' + i + '=' + encodeURIComponent(data[i]);
+				}
+			}
+			if (uri[0] === '/') { // relative URI
+				uri = Tools.resourcePrefix + uri.substr(1);
+			}
+			app.addPopup(ProxyPopup, {uri: uri, callback: callback});
+		};
+		$.post = function (/*uri, data, callback, type*/) {
+			app.addPopupMessage('The requested action is not supported by testclient.html. Please complete this action in the official client instead.');
+		};
+		Storage.whenPrefsLoaded.load();
+	});
+}
 
 /*********************************************************
  * Teams
@@ -30,7 +253,6 @@ Storage.loadTeams = function () {
 	this.teams = [];
 	if (window.localStorage) {
 		Storage.loadPackedTeams(localStorage.getItem('showdown_teams'));
-		app.trigger('init:loadteams');
 	}
 };
 
@@ -38,9 +260,11 @@ Storage.loadPackedTeams = function (buffer) {
 	try {
 		this.teams = Storage.unpackAllTeams(buffer);
 	} catch (e) {
-		app.addPopup(Popup, {
-			type: 'modal',
-			htmlMessage: "Your teams are corrupt and could not be loaded. :( We may be able to recover a team from this data:<br /><textarea rows=\"10\" cols=\"60\">" + Tools.escapeHTML(buffer) + "</textarea>"
+		Storage.whenAppLoaded(function (app) {
+			app.addPopup(Popup, {
+				type: 'modal',
+				htmlMessage: "Your teams are corrupt and could not be loaded. :( We may be able to recover a team from this data:<br /><textarea rows=\"10\" cols=\"60\">" + Tools.escapeHTML(buffer) + "</textarea>"
+			});
 		});
 	}
 };
@@ -815,6 +1039,9 @@ Storage.nwLoadTeams = function () {
 		if (err) return;
 		self.teams = [];
 		self.nwTeamsLeft = files.length;
+		if (!self.nwTeamsLeft) {
+			self.nwFinishedLoadingTeams(localApp);
+		}
 		for (var i = 0; i < files.length; i++) {
 			self.nwLoadTeamFile(files[i], localApp);
 		}
@@ -859,8 +1086,7 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 
 Storage.nwFinishedLoadingTeams = function (app) {
 	this.teams.sort(this.teamCompare);
-	if (!app) app = window.app;
-	if (app) app.trigger('init:loadteams');
+	Storage.whenTeamsLoaded.load();
 };
 
 Storage.teamCompare = function (a, b) {

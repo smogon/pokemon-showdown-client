@@ -1339,7 +1339,7 @@
 			if (app.focused && (this === app.curSideRoom || this === app.curRoom)) {
 				this.lastMessageDate = 0;
 				lastMessageDates[Config.server.id][this.id] = msgTime;
-				Tools.prefs.save();
+				Storage.prefs.save();
 			} else {
 				// To be saved on focus
 				this.lastMessageDate = Math.max(this.lastMessageDate || 0, msgTime);
