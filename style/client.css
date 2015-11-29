@@ -79,6 +79,13 @@ a.subtle:hover {
 	text-align: center;
 }
 
+hr {
+	border-top: 1px solid #999999;
+	border-bottom: 0;
+	border-left: 0;
+	border-right: 0;
+}
+
 /*********************************************************
  * Header
  *********************************************************/
