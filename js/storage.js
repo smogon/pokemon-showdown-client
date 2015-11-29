@@ -175,6 +175,8 @@ Storage.onMessage = function ($e) {
 	case 'a':
 		if (data === 'a0') {
 			Storage.noThirdParty = true;
+			Storage.whenTeamsLoaded.load();
+			Storage.whenPrefsLoaded.load();
 		}
 		if (!window.nodewebkit) {
 			// for whatever reason, Node-Webkit doesn't let us make remote
