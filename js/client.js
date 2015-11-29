@@ -2289,6 +2289,8 @@
 			buf += '<p class="buttonbar">';
 			if (userid === app.user.get('userid') || !app.user.get('named')) {
 				buf += '<button disabled>Challenge</button> <button disabled>Chat</button>';
+				buf += '</p><hr /><p class="buttonbar" style="text-align: right">';
+				buf += '<button name="login">Change name</button> <button name="logout">Log out</button>';
 			} else {
 				buf += '<button name="challenge">Challenge</button> <button name="pm">Chat</button> <button name="userOptions">\u2026</button>';
 			}
@@ -2318,6 +2320,13 @@
 			this.close();
 			app.focusRoom('');
 			app.rooms[''].focusPM(this.data.name);
+		},
+		login: function () {
+			app.addPopup(LoginPopup);
+		},
+		logout: function () {
+			app.user.logout();
+			this.close();
 		},
 		userOptions: function () {
 			app.addPopup(UserOptionsPopup, {name: this.data.name, userid: this.data.userid});
