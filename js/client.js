@@ -2666,6 +2666,14 @@
 			var buf = '';
 			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Tools.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle" />' : '') + '<strong>' + Tools.escapeHTML(name) + '</strong></p>';
 			buf += '<p><button name="avatars">Change avatar</button></p>';
+			if (app.user.get('named')) {
+				var registered = app.user.get('registered');
+				if (registered && (registered.userid === app.user.get('userid'))) {
+					buf += '<p><button name="changepassword">Password change</button></p>';
+				} else {
+					buf += '<p><button name="register">Register</button></p>';
+				}
+			}
 
 			buf += '<hr />';
 			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Charizards</option><option value="#344b6c url(/fx/client-bg-horizon.jpg) no-repeat left center fixed">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c">Solid blue</option><option value="custom">Custom</option>' + (Tools.prefs('bg') ? '<option value="" selected></option>' : '') + '</select></label></p>';
@@ -2694,14 +2702,7 @@
 
 			buf += '<hr />';
 			if (app.user.get('named')) {
-				buf += '<p class="buttonbar" style="text-align:right">';
-				var registered = app.user.get('registered');
-				if (registered && (registered.userid === app.user.get('userid'))) {
-					buf += '<p><button name="changepassword">Password</button></p>';
-				} else {
-					buf += '<p><button name="register">Register</button></p>';
-				}
-				buf += '<p class="buttonbar" style="text-align:right"><button name="logout"><strong>Log out</strong></button>';
+				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Change name</button> <button name="logout">Log out</button>';
 				buf += '</p>';
 			} else {
 				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Choose name</button></p>';
