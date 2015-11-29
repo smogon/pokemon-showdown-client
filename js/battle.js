@@ -3825,7 +3825,11 @@ var Battle = (function () {
 				break;
 
 			case '-notarget':
-				actions += "But there was no target...";
+				if (this.gen >= 5) {
+					actions += "But it failed!";
+				} else {
+					actions += "But there was no target...";
+				}
 				break;
 
 			case '-ohko':
