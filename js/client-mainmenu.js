@@ -38,31 +38,23 @@
 				buf += '<div class="menugroup"><form class="battleform" data-search="1">';
 				buf += '<p><label class="label">Format:</label>' + this.renderFormats() + '</p>';
 				buf += '<p><label class="label">Team:</label>' + this.renderTeams() + '</p>';
-				buf += '<p><button class="button big" name="search"><strong>Look for a battle</strong></button></p></form></div>';
+				buf += '<p><button class="button mainmenu1 big" name="search"><strong>Look for a battle</strong></button></p></form></div>';
 			}
 
-			buf += '<div class="menugroup"><p><button class="button" name="joinRoom" value="teambuilder">Teambuilder</button></p>';
-			if (app.down) {
-				buf += '<p><button class="button disabled" name="joinRoom" value="ladder" disabled>Ladder</button></p>';
-			} else {
-				buf += '<p><button class="button" name="joinRoom" value="ladder">Ladder</button></p>';
-			}
-			buf += '<p><button class="button" name="credits">Credits</button></p></div></div>';
+			buf += '<div class="menugroup"><p><button class="button mainmenu2" name="joinRoom" value="teambuilder">Teambuilder</button></p>';
+			buf += '<p><button class="button mainmenu3" name="joinRoom" value="ladder">Ladder</button></p>';
+			buf += '<p><button class="button mainmenu4" name="credits">Credits</button></p></div></div>';
 
-			if (!app.down) {
-				buf += '<div class="menugroup"><p><button class="button" name="roomlist">Watch a battle</button></p>';
-				buf += '<p><button class="button" name="finduser">Find a user</button></p></div>';
-			}
+			buf += '<div class="menugroup"><p><button class="button mainmenu5 onlineonly disabled" name="roomlist">Watch a battle</button></p>';
+			buf += '<p><button class="button mainmenu6 onlineonly disabled" name="finduser">Find a user</button></p></div>';
 
 			this.$('.mainmenu').html(buf);
 
 			// right menu
-			if (!app.down) {
-				if (document.location.hostname === 'play.pokemonshowdown.com') {
-					this.$('.rightmenu').html('<div class="menugroup"><p><button class="button" name="joinRoom" value="rooms">Join chat</button></p></div>');
-				} else {
-					this.$('.rightmenu').html('<div class="menugroup"><p><button class="button" name="joinRoom" value="lobby">Join lobby chat</button></p></div>');
-				}
+			if (document.location.hostname === 'play.pokemonshowdown.com') {
+				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button onlineonly disabled" name="joinRoom" value="rooms">Join chat</button></p></div>');
+			} else {
+				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button onlineonly disabled" name="joinRoom" value="lobby">Join lobby chat</button></p></div>');
 			}
 
 			// footer
@@ -543,7 +535,15 @@
 			if (!window.BattleFormats) {
 				this.$('.mainmenu button.big').html('<em>Connecting...</em>').addClass('disabled');
 				return;
+			} else if (app.isDisconnected) {
+				var $searchForm = $('.mainmenu button.big').closest('form');
+				$searchForm.find('button.big').html('<em>Disconnected</em>').addClass('disabled');
+				$searchForm.find('.mainmenu p.cancel').remove();
+				$searchForm.append('<p class="cancel buttonbar"><button name="reconnect">Reconnect</button></p>');
+				this.$('button.onlineonly').addClass('disabled');
+				return;
 			}
+			this.$('button.onlineonly').removeClass('disabled');
 
 			if (!this.searching) this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
 			var self = this;
@@ -553,6 +553,9 @@
 				$(el).replaceWith(self.renderFormats(val));
 				$teamButton.replaceWith(self.renderTeams(val));
 			});
+		},
+		reconnect: function () {
+			document.location.reload();
 		},
 		updateTeams: function () {
 			if (!window.BattleFormats) return;

@@ -345,7 +345,9 @@
 
 			this.addRoom('');
 			this.topbar = new Topbar({el: $('#header')});
-			if (!this.down && $(window).width() >= 916) {
+			if (this.down) {
+				this.isDisconnected = true;
+			} else if ($(window).width() >= 916) {
 				if (document.location.hostname === 'play.pokemonshowdown.com') {
 					this.addRoom('rooms', null, true);
 					Storage.whenPrefsLoaded(function () {
@@ -422,6 +424,7 @@
 
 			this.on('init:socketclosed', function () {
 				// Display a desktop notification if the user won't immediately see the popup.
+				self.isDisconnected = true;
 				if ((self.popups.length || !self.focused) && window.Notification) {
 					self.rooms[''].requestNotifications();
 					var disconnect = new Notification("Reconnect to Showdown!", {lang: 'en', body: "You have been disconnected \u2014 possibly because the server was restarted."});
@@ -429,6 +432,9 @@
 						window.focus();
 					};
 				}
+				self.rooms[''].updateFormats();
+				$('.pm-log-add form').html('<small>You are disconnected and cannot chat.</small>');
+				$('.chat-log-add').html('<small>You are disconnected and cannot chat.</small>');
 				self.reconnectPending = true;
 				if (!self.popups.length) self.addPopup(ReconnectPopup);
 			});
@@ -2396,7 +2402,7 @@
 				buf += '<p class="buttonbar"><button type="submit">Retry</button> <button name="close">Close</button></p>';
 			} else {
 				buf += '<p>You have been disconnected &ndash; possibly because the server was restarted.</p>';
-				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button name="close">Close</button></p>';
+				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button name="close">Work offline</button></p>';
 			}
 
 			buf += '</form>';
