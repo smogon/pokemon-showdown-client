@@ -739,6 +739,7 @@ p.or:after {
 	overflow-scrolling: touch;
 }
 .pm-log-add {
+	color: black;
 	border: 1px solid #AAAAAA;
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
@@ -855,6 +856,31 @@ p.or:after {
 	background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%));
 	border-color: hsl(210,40%,21%);
 }
+
+.button.mainmenu1 { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
+.button.mainmenu1:hover { background: linear-gradient(to bottom,  hsl(5,40%,62%),  hsl(5,40%,42%)); }
+.button.mainmenu1:active { background: linear-gradient(to bottom,  hsl(5,40%,42%),  hsl(5,40%,58%)); }
+
+.button.mainmenu2 { background: linear-gradient(to bottom,  hsl(30,40%,72%),  hsl(30,40%,52%)); border-color: hsl(30,40%,40%); }
+.button.mainmenu2:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
+.button.mainmenu2:active { background: linear-gradient(to bottom,  hsl(30,40%,42%),  hsl(30,40%,58%)); }
+
+.button.mainmenu3 { background: linear-gradient(to bottom,  hsl(60,40%,72%),  hsl(60,40%,52%)); border-color: hsl(60,40%,40%); }
+.button.mainmenu3:hover { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); }
+.button.mainmenu3:active { background: linear-gradient(to bottom,  hsl(60,40%,42%),  hsl(60,40%,58%)); }
+
+.button.mainmenu4 { background: linear-gradient(to bottom,  hsl(130,40%,72%),  hsl(130,40%,52%)); border-color: hsl(130,40%,40%); }
+.button.mainmenu4:hover { background: linear-gradient(to bottom,  hsl(130,40%,62%),  hsl(130,40%,42%)); }
+.button.mainmenu4:active { background: linear-gradient(to bottom,  hsl(130,40%,42%),  hsl(130,40%,58%)); }
+
+.button.mainmenu5 { background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%)); border-color: hsl(210,40%,40%); }
+.button.mainmenu5:hover { background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%)); }
+.button.mainmenu5:active { background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%)); }
+
+.button.mainmenu6 { background: linear-gradient(to bottom,  hsl(270,40%,72%),  hsl(270,40%,52%)); border-color: hsl(270,40%,40%); }
+.button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
+.button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
+
 .menugroup .button.disabled,
 .menugroup .button.disabled:hover,
 .menugroup .button.disabled:active {
@@ -865,31 +891,6 @@ p.or:after {
 	text-shadow: none;
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
-
-.mainmenu .menugroup:nth-child(1) .button { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
-.mainmenu .menugroup:nth-child(1) .button:hover { background: linear-gradient(to bottom,  hsl(5,40%,62%),  hsl(5,40%,42%)); }
-.mainmenu .menugroup:nth-child(1) .button:active { background: linear-gradient(to bottom,  hsl(5,40%,42%),  hsl(5,40%,58%)); }
-.mainmenu .menugroup:nth-child(1) .button.disabled, .mainmenu .menugroup:nth-child(1) .button.disabled:hover, .mainmenu .menugroup:nth-child(1) .button.disabled:active { color: #5A3D39; }
-
-.mainmenu .menugroup:nth-child(2) p:nth-child(1) .button { background: linear-gradient(to bottom,  hsl(30,40%,72%),  hsl(30,40%,52%)); border-color: hsl(30,40%,40%); }
-.mainmenu .menugroup:nth-child(2) p:nth-child(1) .button:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
-.mainmenu .menugroup:nth-child(2) p:nth-child(1) .button:active { background: linear-gradient(to bottom,  hsl(30,40%,42%),  hsl(30,40%,58%)); }
-
-.mainmenu .menugroup:nth-child(2) p:nth-child(2) .button { background: linear-gradient(to bottom,  hsl(60,40%,72%),  hsl(60,40%,52%)); border-color: hsl(60,40%,40%); }
-.mainmenu .menugroup:nth-child(2) p:nth-child(2) .button:hover { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); }
-.mainmenu .menugroup:nth-child(2) p:nth-child(2) .button:active { background: linear-gradient(to bottom,  hsl(60,40%,42%),  hsl(60,40%,58%)); }
-
-.mainmenu .menugroup:nth-child(2) p:nth-child(3) .button { background: linear-gradient(to bottom,  hsl(130,40%,72%),  hsl(130,40%,52%)); border-color: hsl(130,40%,40%); }
-.mainmenu .menugroup:nth-child(2) p:nth-child(3) .button:hover { background: linear-gradient(to bottom,  hsl(130,40%,62%),  hsl(130,40%,42%)); }
-.mainmenu .menugroup:nth-child(2) p:nth-child(3) .button:active { background: linear-gradient(to bottom,  hsl(130,40%,42%),  hsl(130,40%,58%)); }
-
-.mainmenu .menugroup:nth-child(3) p:nth-child(1) .button { background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%)); border-color: hsl(210,40%,40%); }
-.mainmenu .menugroup:nth-child(3) p:nth-child(1) .button:hover { background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%)); }
-.mainmenu .menugroup:nth-child(3) p:nth-child(1) .button:active { background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%)); }
-
-.mainmenu .menugroup:nth-child(3) p:nth-child(2) .button { background: linear-gradient(to bottom,  hsl(270,40%,72%),  hsl(270,40%,52%)); border-color: hsl(270,40%,40%); }
-.mainmenu .menugroup:nth-child(3) p:nth-child(2) .button:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
-.mainmenu .menugroup:nth-child(3) p:nth-child(2) .button:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
 
 .rightmenu {
 	width: 294px;
