@@ -3483,7 +3483,7 @@ var Battle = (function () {
 						break;
 					}
 				} else {
-					actions += "" + poke.getName() + "'s " + BattleStats[stat] + amountString + " rose" + "!";
+					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " rose" + amountString + "!";
 				}
 				break;
 			case '-unboost':
@@ -3517,7 +3517,7 @@ var Battle = (function () {
 						break;
 					}
 				} else {
-					actions += "" + poke.getName() + "'s " + BattleStats[stat] + amountString + " fell!";
+					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " fell" + amountString + "!";
 				}
 				break;
 			case '-setboost':
