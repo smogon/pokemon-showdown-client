@@ -2312,8 +2312,10 @@
 			buf += '<p class="buttonbar">';
 			if (userid === app.user.get('userid') || !app.user.get('named')) {
 				buf += '<button disabled>Challenge</button> <button disabled>Chat</button>';
-				buf += '</p><hr /><p class="buttonbar" style="text-align: right">';
-				buf += '<button name="login">Change name</button> <button name="logout">Log out</button>';
+				if (userid === app.user.get('userid')) {
+					buf += '</p><hr /><p class="buttonbar" style="text-align: right">';
+					buf += '<button name="login">Change name</button> <button name="logout">Log out</button>';
+				}
 			} else {
 				buf += '<button name="challenge">Challenge</button> <button name="pm">Chat</button> <button name="userOptions">\u2026</button>';
 			}
