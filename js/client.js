@@ -316,6 +316,8 @@
 				userid: this.get('userid')
 			});
 			app.send('/logout');
+			app.trigger('init:socketclosed', "You have been logged out and disconnected.<br /><br />If you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.", false);
+			app.socket.close();
 		},
 		setPersistentName: function (name) {
 			if (location.host !== 'play.pokemonshowdown.com') return;
@@ -422,12 +424,13 @@
 				self.addPopupMessage('You have third-party cookies disabled in your browser, which is likely to cause problems. You should enable them and then refresh this page.');
 			});
 
-			this.on('init:socketclosed', function () {
+			this.on('init:socketclosed', function (message, showNotification) {
 				// Display a desktop notification if the user won't immediately see the popup.
+				if (self.isDisconnected) return;
 				self.isDisconnected = true;
-				if ((self.popups.length || !self.focused) && window.Notification) {
+				if (showNotification !== false && (self.popups.length || !self.focused) && window.Notification) {
 					self.rooms[''].requestNotifications();
-					var disconnect = new Notification("Reconnect to Showdown!", {lang: 'en', body: "You have been disconnected \u2014 possibly because the server was restarted."});
+					var disconnect = new Notification("Disconnected!", {lang: 'en', body: "You have been disconnected from Pokémon Showdown."});
 					disconnect.onclick = function (e) {
 						window.focus();
 					};
@@ -435,11 +438,13 @@
 				self.rooms[''].updateFormats();
 				$('.pm-log-add form').html('<small>You are disconnected and cannot chat.</small>');
 				$('.chat-log-add').html('<small>You are disconnected and cannot chat.</small>');
-				self.reconnectPending = true;
-				if (!self.popups.length) self.addPopup(ReconnectPopup);
+				self.reconnectPending = (message || true);
+				if (!self.popups.length) self.addPopup(ReconnectPopup, {message: message});
 			});
 
 			this.on('init:connectionerror', function () {
+				self.isDisconnected = true;
+				self.rooms[''].updateFormats();
 				self.addPopup(ReconnectPopup, {cantconnect: true});
 			});
 
@@ -1621,7 +1626,7 @@
 			if (this.popups.length) {
 				var popup = this.popups.pop();
 				popup.remove();
-				if (this.reconnectPending) this.addPopup(ReconnectPopup);
+				if (this.reconnectPending) this.addPopup(ReconnectPopup, {message: this.reconnectPending});
 				return true;
 			}
 			return false;
@@ -2401,7 +2406,10 @@
 
 			if (data.cantconnect) {
 				buf += '<p class="error">Couldn\'t connect to server!</p>';
-				buf += '<p class="buttonbar"><button type="submit">Retry</button> <button name="close">Close</button></p>';
+				buf += '<p class="buttonbar"><button type="submit">Retry</button> <button name="close">Work offline</button></p>';
+			} else if (data.message && data.message !== true) {
+				buf += '<p>' + data.message + '</p>';
+				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button name="close">Work offline</button></p>';
 			} else {
 				buf += '<p>You have been disconnected &ndash; possibly because the server was restarted.</p>';
 				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button name="close">Work offline</button></p>';
