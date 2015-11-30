@@ -224,9 +224,9 @@
 				candidates: null,
 				index: 0,
 				prefix: null,
-				cursor: -1,
+				cursor: null,
 				reset: function () {
-					this.cursor = -1;
+					this.cursor = null;
 				}
 			};
 			this.userActivity = [];
@@ -253,7 +253,7 @@
 
 			var text = $textbox.val();
 
-			if (idx === this.tabComplete.cursor) {
+			if (this.tabComplete.cursor !== null && text.substr(0, idx) === this.tabComplete.cursor) {
 				// The user is cycling through the candidate names.
 				if (++this.tabComplete.index >= this.tabComplete.candidates.length) {
 					this.tabComplete.index = 0;
@@ -262,16 +262,23 @@
 				// This is a new tab completion.
 
 				// There needs to be non-whitespace to the left of the cursor.
-				var m = /^(.*?)([^ ]*)$/.exec(text.substr(0, idx));
-				if (!m) return true;
+				var m1 = /^(.*?)([A-Za-z0-9][^, ]*)$/.exec(text.substr(0, idx));
+				var m2 = /^(.*?)([A-Za-z0-9][^, ]* [^, ]*)$/.exec(text.substr(0, idx));
+				if (!m1 && !m2) return true;
 
-				this.tabComplete.prefix = m[1];
-				var idprefix = toId(m[2]);
-				var candidates = [];
+				this.tabComplete.prefix = text;
+				var idprefix = (m1 ? toId(m1[2]) : '');
+				var spaceprefix = (m2 ? m2[2].replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase() : '');
+				var candidates = []; // array of [candidate userid, prefix length]
+
+				// don't include command names in autocomplete
+				if (m2 && (m2[0] === '/' || m2[0] === '!')) spaceprefix = '';
 
 				for (var i in users) {
-					if (i.substr(0, idprefix.length) === idprefix) {
-						candidates.push(i);
+					if (spaceprefix && users[i].substr(1).replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase().substr(0, spaceprefix.length) === spaceprefix) {
+						candidates.push([i, m2[1].length]);
+					} else if (idprefix && i.substr(0, idprefix.length) === idprefix) {
+						candidates.push([i, m1[1].length]);
 					}
 				}
 
@@ -279,8 +286,12 @@
 				// in alphabetical order.
 				var self = this;
 				candidates.sort(function (a, b) {
-					var aidx = self.userActivity.indexOf(a);
-					var bidx = self.userActivity.indexOf(b);
+					if (a[1] !== b[1]) {
+						// shorter prefix length comes first
+						return a[1] - b[1];
+					}
+					var aidx = self.userActivity.indexOf(a[0]);
+					var bidx = self.userActivity.indexOf(b[0]);
 					if (aidx !== -1) {
 						if (bidx !== -1) {
 							return bidx - aidx;
@@ -289,20 +300,26 @@
 					} else if (bidx != -1) {
 						return 1;  // b comes first
 					}
-					return (a < b) ? -1 : 1;  // alphabetical order
+					return (a[0] < b[0]) ? -1 : 1;  // alphabetical order
 				});
 				this.tabComplete.candidates = candidates;
 				this.tabComplete.index = 0;
+				if (!candidates.length) {
+					this.tabComplete.cursor = null;
+					return true;
+				}
 			}
 
 			// Substitute in the tab-completed name.
-			var substituteUserId = this.tabComplete.candidates[this.tabComplete.index];
+			var candidate = this.tabComplete.candidates[this.tabComplete.index];
+			var substituteUserId = candidate[0];
 			if (!users[substituteUserId]) return true;
 			var name = users[substituteUserId].substr(1);
-			$textbox.val(this.tabComplete.prefix + name + text.substr(idx));
-			var pos = this.tabComplete.prefix.length + name.length;
+			var fullPrefix = this.tabComplete.prefix.substr(0, candidate[1]) + name;
+			$textbox.val(fullPrefix + text.substr(idx));
+			var pos = fullPrefix.length;
 			$textbox[0].setSelectionRange(pos, pos);
-			this.tabComplete.cursor = pos;
+			this.tabComplete.cursor = fullPrefix;
 			return true;
 		},
 
