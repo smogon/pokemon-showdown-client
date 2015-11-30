@@ -45,10 +45,13 @@ Storage.prefs = function (prop, value, save) {
 	// set preference
 	if (value === null) {
 		delete this.prefs.data[prop];
+	} else if (this.prefs.data[prop] === value) {
+		return false; // no need to save
 	} else {
 		this.prefs.data[prop] = value;
 	}
 	if (save !== false) this.prefs.save();
+	return true;
 };
 
 Storage.prefs.data = {};
