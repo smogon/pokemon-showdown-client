@@ -769,6 +769,14 @@ p.or:after {
 .challenge p {
 	margin: 4px 0;
 }
+.newsentry {
+	font-size: 9pt;
+	padding: 1px 10px;
+	border-bottom: 1px solid #AAAAAA;
+}
+.unread {
+	background: rgba(255,240,130,0.33);
+}
 
 .tiny-layout .leftmenu,
 .tiny-layout .rightmenu,

@@ -67,6 +67,25 @@
 			this.updateFormats();
 
 			app.user.on('saveteams', this.updateTeams, this);
+
+			// news
+			// (created during page load)
+
+			var self = this;
+			Storage.whenPrefsLoaded(function () {
+				var newsid = Number(Storage.prefs('newsid'));
+				if (!newsid) return;
+				var $news = this.$('.news-embed');
+				var $newsEntries = $news.find('.newsentry');
+				var hasUnread = false;
+				for (var i = 0; i < $newsEntries.length; i++) {
+					if (Number($newsEntries.eq(i).data('newsid')) > newsid) {
+						hasUnread = true;
+						$newsEntries.eq(i).addClass('unread');
+					}
+				}
+				if (!hasUnread) self.minimizePM($news);
+			});
 		},
 
 		addPseudoPM: function (options) {
@@ -234,6 +253,8 @@
 				e.preventDefault();
 				e.stopPropagation();
 				$pmWindow = $(e.currentTarget).closest('.pm-window');
+			} else {
+				$pmWindow = e;
 			}
 			if (!$pmWindow) {
 				return;
@@ -376,6 +397,7 @@
 				}
 				app.dismissPopups();
 				var $target = $(e.currentTarget);
+				var newsid = $target.data('newsid');
 				if ($target.data('minimized')) {
 					this.minimizePM(e);
 				} else if ($(e.target).closest('h3').length) {
@@ -384,6 +406,11 @@
 					e.preventDefault();
 					e.stopPropagation();
 					this.minimizePM(e);
+					return;
+				} else if (newsid) {
+					if (Storage.prefs('newsid', newsid)) {
+						$target.find('.unread').removeClass('unread');
+					}
 					return;
 				}
 				$target.find('textarea[name=message]').focus();
