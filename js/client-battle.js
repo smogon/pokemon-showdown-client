@@ -231,7 +231,7 @@
 
 			}
 
-			if (this.battle.done) {
+			if (this.battle.ended) {
 
 				// battle has ended
 				if (this.side) {
