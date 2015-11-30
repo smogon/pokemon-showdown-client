@@ -2122,8 +2122,11 @@ var Battle = (function () {
 	function Battle(frame, logFrame, noPreload) {
 		frame.addClass('battle');
 
+		// turn number
 		this.turn = 0;
-		this.done = 0;
+		// has playback gotten to the point where a player has won or tied?
+		// affects whether BGM is playing
+		this.ended = false;
 		this.weather = '';
 		this.pseudoWeather = [];
 		this.weatherTimeLeft = 0;
@@ -2260,7 +2263,7 @@ var Battle = (function () {
 	Battle.prototype.reset = function (dontResetSound) {
 		// battle state
 		this.turn = 0;
-		this.done = 0;
+		this.ended = false;
 		this.weather = '';
 		this.weatherTimeLeft = 0;
 		this.weatherMinTimeLeft = 0;
@@ -2544,7 +2547,7 @@ var Battle = (function () {
 			this.reset(true);
 			this.setSidesSwitched(!this.sidesSwitched);
 			this.play();
-		} else if (this.done) {
+		} else if (this.ended) {
 			this.reset(true);
 			this.setSidesSwitched(!this.sidesSwitched);
 			this.fastForwardTo(-1);
@@ -2643,11 +2646,11 @@ var Battle = (function () {
 	Battle.prototype.winner = function (winner) {
 		if (winner) this.message('' + Tools.escapeHTML(winner) + ' won the battle!');
 		else this.message('Tie between ' + Tools.escapeHTML(this.p1.name) + ' and ' + Tools.escapeHTML(this.p2.name) + '!');
-		this.done = 1;
+		this.ended = true;
 	};
 	Battle.prototype.prematureEnd = function () {
 		this.message('This replay ends here.');
-		this.done = 1;
+		this.ended = true;
 	};
 	Battle.prototype.endLastTurn = function () {
 		if (this.endLastTurnPending) {
@@ -5848,7 +5851,7 @@ var Battle = (function () {
 			break;
 		case 'done':
 		case '':
-			if (this.done || this.endPrevAction()) return;
+			if (this.ended || this.endPrevAction()) return;
 			break;
 		case 'error':
 			args.shift();
@@ -6027,7 +6030,7 @@ var Battle = (function () {
 				this.soundStop();
 			}
 			this.playbackState = 2;
-			if (!dontResetSound && !this.done) {
+			if (!dontResetSound && !this.ended) {
 				this.soundStart();
 			}
 			this.nextActivity();
@@ -6043,7 +6046,7 @@ var Battle = (function () {
 		time = parseInt(time);
 		if (isNaN(time)) return;
 		if (this.activityStep >= this.activityQueue.length - 1 && time >= this.turn + 1 && !this.activityQueueActive) return;
-		if (this.done && time >= this.turn + 1) return;
+		if (this.ended && time >= this.turn + 1) return;
 		this.messagebarElem.empty().css({
 			opacity: 0,
 			height: 0
@@ -6098,7 +6101,7 @@ var Battle = (function () {
 				this.activityQueueActive = false;
 				this.paused = true;
 				this.fastForwardOff();
-				if (this.done) {
+				if (this.ended) {
 					this.soundStop();
 				}
 				this.playbackState = 4;
