@@ -2319,7 +2319,7 @@
 				buf += '<button disabled>Challenge</button> <button disabled>Chat</button>';
 				if (userid === app.user.get('userid')) {
 					buf += '</p><hr /><p class="buttonbar" style="text-align: right">';
-					buf += '<button name="login">Change name</button> <button name="logout">Log out</button>';
+					buf += '<button name="login"><i class="fa fa-pencil"></i> Change name</button> <button name="logout"><i class="fa fa-power-off"></i> Log out</button>';
 				}
 			} else {
 				buf += '<button name="challenge">Challenge</button> <button name="pm">Chat</button> <button name="userOptions">\u2026</button>';
@@ -2735,8 +2735,7 @@
 
 			buf += '<hr />';
 			if (app.user.get('named')) {
-				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Change name</button> <button name="logout">Log out</button>';
-				buf += '</p>';
+				buf += '<p class="buttonbar" style="text-align:right"><button name="login"><i class="fa fa-pencil"></i> Change name</button> <button name="logout"><i class="fa fa-power-off"></i> Log out</button></p>';
 			} else {
 				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Choose name</button></p>';
 			}
