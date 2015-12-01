@@ -1131,7 +1131,10 @@ var BattleMoveAnims = {
 		anim: BattleOtherAnims.dance.anim
 	},
 	allyswitch: {
-		anim: BattleOtherAnims.dance.anim
+		anim: function() {
+			// do not give Ally Switch an animation,
+			// it'll conflict with the animation of the switch itself
+		}
 	},
 	babydolleyes: {
 		anim: BattleOtherAnims.dance.anim
