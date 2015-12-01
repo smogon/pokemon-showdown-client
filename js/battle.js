@@ -835,7 +835,10 @@ var Sprite = (function () {
 		}
 	};
 	Sprite.prototype.animSub = function () {
-		var subsp = Tools.getSpriteData('substitute', this.siden, {afd: this.battle.tier === "[Seasonal] Fools Festival"});
+		var subsp = Tools.getSpriteData('substitute', this.siden, {
+			afd: this.battle.tier === "[Seasonal] Fools Festival",
+			gen: this.battle.gen
+		});
 		this.subsp = subsp;
 		this.iw = subsp.w;
 		this.ih = subsp.h;

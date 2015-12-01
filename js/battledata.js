@@ -966,7 +966,7 @@ var Tools = {
 		}
 
 		// Decide what gen sprites to use.
-		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[options.gen];
+		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[Math.max(options.gen, pokemon.gen)];
 		if (Tools.prefs('nopastgens')) gen = 'xy';
 		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
 
@@ -976,12 +976,12 @@ var Tools = {
 		} else {
 			animationData = BattlePokemonSprites && window.BattlePokemonSprites[pokemon.speciesid];
 		}
-		if (animationData) {
+		if (animationData && typeof animationData.num !== 'undefined') {
 			var num = '' + animationData.num;
 			if (num.length < 3) num = '0' + num;
 			if (num.length < 3) num = '0' + num;
 			spriteData.cryurl = 'audio/cries/' + num;
-			if (pokemon.forme && (pokemon.forme.substr(0, 4) === 'Mega' || pokemon.forme === 'Sky' || pokemon.forme === 'Therian' || pokemon.forme === 'Black' || pokemon.forme === 'White' || pokemon.forme === 'Super')) {
+			if (pokemon.isMega || pokemon.forme && (pokemon.forme === 'Sky' || pokemon.forme === 'Therian' || pokemon.forme === 'Black' || pokemon.forme === 'White' || pokemon.forme === 'Super')) {
 				spriteData.cryurl += pokemon.formeid;
 			}
 			spriteData.cryurl += '.wav';
@@ -1012,8 +1012,13 @@ var Tools = {
 				return spriteData;
 			}
 		}
-		// if there is no entry or enough data in pokedex-mini.js or the animations are disabled or past gen, use the proper sprites
-		gen = (gen === 'xy') ? 'bw' : gen;
+
+		// There is no entry or enough data in pokedex-mini.js
+		// Handle these in case-by-case basis; either using BW sprites or matching the played gen.
+		if (pokemon.speciesid !== 'substitute') {
+			if (pokemon.tier === 'CAP') gen = 'bw';
+			if (gen === 'xy') gen = 'bw';
+		}
 		dir = gen + dir;
 
 		spriteData.url += dir + '/' + name + '.png';
