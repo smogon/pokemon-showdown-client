@@ -315,6 +315,7 @@
 			var substituteUserId = candidate[0];
 			if (!users[substituteUserId]) return true;
 			var name = users[substituteUserId].substr(1);
+			name = name.replace(/[^A-Za-z0-9]+$/, '');
 			var fullPrefix = this.tabComplete.prefix.substr(0, candidate[1]) + name;
 			$textbox.val(fullPrefix + text.substr(idx));
 			var pos = fullPrefix.length;
