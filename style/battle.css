@@ -111,8 +111,8 @@ License: GPLv2
 	padding-right: 8px;
 }
 .spoiler {
-	color: #CCCCCC;
-	background: #CCCCCC;
+	color: #BBBBBB;
+	background: #BBBBBB;
 	padding: 0px 3px;
 }
 .spoiler:hover,
@@ -123,7 +123,7 @@ License: GPLv2
 	padding: 0px 3px;
 }
 .spoiler a {
-	color: #CCCCCC;
+	color: #BBBBBB;
 }
 .spoiler:hover a,
 .spoiler:active a,
