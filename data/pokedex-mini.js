@@ -19,6 +19,7 @@ BattlePokemonSprites = {
 	"volkraken": {num:-18},
 	"plasmanta": {num:-19, front:{ani:{w:143,h:105}}, back:{ani:{w:141,h:140}}},
 	"naviathan": {num:-20, front:{ani:{w:142,h:119}}, back:{ani:{w:147,h:111}}},
+	"substitute": {num:0, front:{ani:{w:34,h:39}}, back:{ani:{w:37,h:38}}},	
 	"bulbasaur": {num:1, front:{ani:{w:45,h:49}}, back:{ani:{w:52,h:50}}},
 	"ivysaur": {num:2, front:{ani:{w:84,h:66}}, back:{ani:{w:76,h:68}}},
 	"venusaur": {num:3, front:{ani:{w:106,h:77}}, back:{ani:{w:95,h:78}}},
