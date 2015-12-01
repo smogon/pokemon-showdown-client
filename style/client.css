@@ -809,8 +809,8 @@ p.or:after {
 .menugroup {
 	display: block;
 	padding: 10px 0;
-	margin: 0 27px 30px 27px;
-	max-width: 400px;
+	margin: 0 auto 30px auto;
+	max-width: 270px;
 	border-radius: 20px;
 
 	background: rgba(201, 207, 219, .6);
