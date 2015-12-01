@@ -1817,6 +1817,7 @@ var Side = (function () {
 		//pokemon.statbarElem.done(pokemon.statbarElem.remove());
 	};
 	Side.prototype.swapTo = function (pokemon, slot, kwargs) {
+		slot = Number(slot);
 		if (pokemon.slot === slot) return;
 		var target = this.active[slot];
 
@@ -1834,8 +1835,9 @@ var Side = (function () {
 
 		var oslot = pokemon.slot;
 
-		if (target) target.slot = pokemon.slot;
 		pokemon.slot = slot;
+		if (target) target.slot = oslot;
+
 		this.active[slot] = pokemon;
 		this.active[oslot] = target;
 
