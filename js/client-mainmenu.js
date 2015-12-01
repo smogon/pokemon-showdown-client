@@ -74,8 +74,14 @@
 			var self = this;
 			Storage.whenPrefsLoaded(function () {
 				var newsid = Number(Storage.prefs('newsid'));
-				if (!newsid) return;
 				var $news = this.$('.news-embed');
+				if (!newsid) {
+					if ($(window).width() < 628) {
+						// News starts minimized in phone layout
+						self.minimizePM($news);
+					}
+					return;
+				}
 				var $newsEntries = $news.find('.newsentry');
 				var hasUnread = false;
 				for (var i = 0; i < $newsEntries.length; i++) {
