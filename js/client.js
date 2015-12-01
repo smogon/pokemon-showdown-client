@@ -915,6 +915,10 @@
 				if (this.rooms['']) this.rooms[''].resetPending();
 				break;
 
+			case 'disconnect':
+				app.trigger('init:socketclosed', Tools.sanitizeHTML(data.substr(12)));
+				break;
+
 			case 'pm':
 				var message = parts.slice(3).join('|');
 
