@@ -162,7 +162,17 @@
 				if (!self.get('named')) {
 					self.nameRegExp = null;
 				} else {
-					self.nameRegExp = new RegExp('(?:\\b|(?!\\w))' + Tools.escapeRegExp(self.get('name')) + '(?:\\b|\\B(?!\\w))', 'i');
+					var escaped = self.get('name').replace(/[^A-Za-z0-9]+$/, '');
+					// we'll use `,` as a sentinel character to mean "any non-alphanumeric char"
+					// unicode characters can be replaced with any non-alphanumeric char
+					for (var i = escaped.length - 1; i > 0; i--) {
+						if (/[^\ -\~]/.test(escaped[i])) {
+							escaped = escaped.slice(0, i) + ',' + escaped.slice(i + 1);
+						}
+					}
+					escaped = escaped.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+					escaped = escaped.replace(/,/g, "[^A-Za-z0-9]?");
+					self.nameRegExp = new RegExp('(?:\\b|(?!\\w))' + escaped + '(?:\\b|\\B(?!\\w))', 'i');
 				}
 			});
 
