@@ -100,7 +100,7 @@
 			}
 		},
 		keyPress: function (e) {
-			var cmdKey = (((e.cmdKey || e.metaKey) ? 1 : 0) + (e.ctrlKey ? 1 : 0) + (e.altKey ? 1 : 0) === 1);
+			var cmdKey = e.cmdKey || e.metaKey || e.ctrlKey;
 			var textbox = e.currentTarget;
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
