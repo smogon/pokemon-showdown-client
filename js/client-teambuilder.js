@@ -613,7 +613,27 @@
 				var item = Tools.getItem(set.item);
 				itemicon = '<span class="itemicon" style="' + Tools.getItemIcon(item) + '"></span>';
 			}
-			buf += '<div class="setcol setcol-icon" style="' + Tools.getTeambuilderSprite(set) + ';">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
+			
+			// pokemon
+			var teambuilder_sprite = Tools.getTeambuilderSprite(set, this.curTeam.gen);
+			buf += '<div class="setcol setcol-icon" style="' + teambuilder_sprite + ';">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
+			
+			var image = new Image;
+			image.value = i;
+			image.onerror = function()
+			{
+				var teambuilder = document.querySelectorAll(".teamchart")[0];
+				for (i = 0; i < teambuilder.children.length; i++) {
+					var child = teambuilder.children[i];
+					var teamchart = child.querySelectorAll(".setchart")[0];
+					if (teamchart && child.value == image.value)
+					{
+						teamchart.querySelectorAll(".setcol-icon")[0].style = 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png)';
+					}
+				}
+			};
+			image.src = teambuilder_sprite.substr(21, teambuilder_sprite.length - 22);
+			//buf += '<div class="setcol setcol-icon" style="' + Tools.getTeambuilderSprite(set) + ';">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
 
 			// details
 			buf += '<div class="setcol setcol-details"><div class="setrow">';
@@ -653,7 +673,10 @@
 			for (var j in BattleStatNames) {
 				if (j === 'spd' && this.curTeam.gen === 1) continue;
 				stats[j] = this.getStat(j, set);
-				var ev = '<em>' + (set.evs[j] || '') + '</em>';
+				
+				if (this.curTeam.gen <= 2) var ev = '<em>' + ((set.evs[j] && set.evs[j] == 252) ? '' : (set.evs[j] || '0')) + '</em>';
+				else var ev = '<em>' + (set.evs[j] || '') + '</em>';
+				
 				if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === j) {
 					ev += '<small>+</small>';
 				} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === j) {
@@ -1019,7 +1042,25 @@
 				sprite += '-f';
 			}
 
-			this.$('.setcol-icon').css('background-image', Tools.getTeambuilderSprite(set).substr(17));
+			// pokemon
+			var teambuilder_sprite = Tools.getTeambuilderSprite(set, this.curTeam.gen);
+			this.$('.setcol-icon').css('background-image', teambuilder_sprite.substr(17));
+			
+			var image = new Image;
+			image.value = i;
+			image.onerror = function()
+			{
+				var teambuilder = document.querySelectorAll(".teamchart")[0];
+				for (i = 0; i < teambuilder.children.length; i++) {
+					var child = teambuilder.children[i];
+					var teamchart = child.querySelectorAll(".setchart")[0];
+					if (teamchart && child.value == image.value)
+					{
+						teamchart.querySelectorAll(".setcol-icon")[0].style = 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png)';
+					}
+				}
+			};
+			image.src = teambuilder_sprite.substr(21, teambuilder_sprite.length - 22);
 
 			this.$('.pokemonicon-' + this.curSetLoc).css('background', Tools.getIcon(set).substr(11));
 
@@ -1043,7 +1084,10 @@
 			for (var stat in stats) {
 				if (stat === 'spd' && this.curTeam.gen === 1) continue;
 				stats[stat] = this.getStat(stat, set);
-				var ev = '<em>' + (set.evs[stat] || '') + '</em>';
+				
+				if (this.curTeam.gen <= 2) var ev = '<em>' + ((set.evs[stat] && set.evs[stat] == 252) ? '' : (set.evs[stat] || '0')) + '</em>';
+				else var ev = '<em>' + (set.evs[stat] || '') + '</em>';
+				
 				if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
 					ev += '<small>+</small>';
 				}
@@ -1055,7 +1099,8 @@
 				if (width > 75) width = 75;
 				var color = Math.floor(stats[stat] * 180 / 714);
 				if (color > 360) color = 360;
-				buf += '<span class="statrow"><label>' + BattleStatNames[stat] + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
+				var statName = this.curTeam.gen === 1 && stat === 'spa' ? 'Spc' : BattleStatNames[stat];
+				buf += '<span class="statrow"><label>' + statName + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
 			}
 			this.$('button[name=stats]').html(buf);
 
@@ -1063,6 +1108,7 @@
 
 			buf = '<div></div>';
 			for (var stat in stats) {
+				if (this.curTeam.gen == 1 && stat == 'spd') continue;
 				buf += '<div><b>' + stats[stat] + '</b></div>';
 			}
 			this.$chart.find('.statscol').html(buf);
@@ -1079,14 +1125,17 @@
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 				totalev += (set.evs[stat] || 0);
 			}
-			buf += '<div><em>Remaining:</em></div>';
-			this.$chart.find('.graphcol').html(buf);
-
-			var maxEv = this.curTeam.gen > 2 ? 510 : this.curTeam.gen === 1 ? 1275 : 1530;
-			if (totalev <= maxEv) {
-				this.$chart.find('.totalev').html('<em>' + (totalev > (maxEv-2) ? 0 : (maxEv-2) - totalev) + '</em>');
-			} else {
-				this.$chart.find('.totalev').html('<b>' + (maxEv - totalev) + '</b>');
+			
+			if (this.curTeam.gen > 2)
+			{
+				buf += '<div><em>Remaining:</em></div>';
+				this.$chart.find('.graphcol').html(buf);
+	
+				if (totalev <= 510) {
+					this.$chart.find('.totalev').html('<em>' + (totalev > (510-2) ? 0 : (510-2) - totalev) + '</em>');
+				} else {
+					this.$chart.find('.totalev').html('<b>' + (510 - totalev) + '</b>');
+				}
 			}
 			this.$chart.find('select[name=nature]').val(set.nature || 'Serious');
 		},
@@ -1210,31 +1259,40 @@
 			var baseStats = template.baseStats;
 			buf += '<h3>EVs</h3>';
 			buf += '<div class="statform">';
-			var role = this.guessRole();
 
 			var guessedEVs = {};
 			var guessedPlus = '';
 			var guessedMinus = '';
 			buf += '<p class="suggested"><small>Suggested spread:';
-			if (role === '?') {
-				buf += ' (Please choose 4 moves to get a suggested spread) (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
-			} else {
-				guessedEVs = this.guessEVs(role);
-				guessedPlus = guessedEVs.plusStat;
-				delete guessedEVs.plusStat;
-				guessedMinus = guessedEVs.minusStat;
-				delete guessedEVs.minusStat;
-				buf += ' </small><button name="setStatFormGuesses">' + role + ': ';
-				for (var i in guessedEVs) {
-					if (guessedEVs[i]) {
-						var statName = this.curTeam.gen === 1 && i === 'spa' ? 'Spc' : BattleStatNames[i];
-						buf += '' + guessedEVs[i] + ' ' + statName + ' / ';
+			if (this.curTeam.gen <= 2)
+			{
+					guessedEVs = { 'hp':252, 'atk':252, 'def':252, 'spa':252, 'spd':252, 'spe':252 }
+					buf += ' </small><button name="setStatFormGuesses">GB Standard: 252 HP / 252 Atk / 252 Def / ' + (this.curTeam.gen == 1 ? '252 Spc / ' : '252 SpA / 252 SpD / ') + '252 Spe';
+					buf += '</button><small> (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
+			}
+			else
+			{
+				var role = this.guessRole();
+				if (role === '?') {
+					buf += ' (Please choose 4 moves to get a suggested spread) (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
+				} else {
+					guessedEVs = this.guessEVs(role);
+					guessedPlus = guessedEVs.plusStat;
+					delete guessedEVs.plusStat;
+					guessedMinus = guessedEVs.minusStat;
+					delete guessedEVs.minusStat;
+					buf += ' </small><button name="setStatFormGuesses">' + role + ': ';
+					for (var i in guessedEVs) {
+						if (guessedEVs[i]) {
+							//var statName = this.curTeam.gen === 1 && i === 'spa' ? 'Spc' : BattleStatNames[i];
+							buf += '' + guessedEVs[i] + ' ' + BattleStatNames[i] + ' / ';
+						}
 					}
+					if (guessedPlus && guessedMinus) buf += ' (+' + BattleStatNames[guessedPlus] + ', -' + BattleStatNames[guessedMinus] + ')';
+					else buf = buf.slice(0, -3);
+					buf += '</button><small> (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
+					//buf += ' <small>(' + role + ' | bulk: phys ' + Math.round(this.moveCount.physicalBulk/1000) + ' + spec ' + Math.round(this.moveCount.specialBulk/1000) + ' = ' + Math.round(this.moveCount.bulk/1000) + ')</small>';
 				}
-				if (guessedPlus && guessedMinus) buf += ' (+' + BattleStatNames[guessedPlus] + ', -' + BattleStatNames[guessedMinus] + ')';
-				else buf = buf.slice(0, -3);
-				buf += '</button><small> (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
-				//buf += ' <small>(' + role + ' | bulk: phys ' + Math.round(this.moveCount.physicalBulk/1000) + ' + spec ' + Math.round(this.moveCount.specialBulk/1000) + ' = ' + Math.round(this.moveCount.bulk/1000) + ')</small>';
 			}
 
 			if (setGuessed) {
@@ -1274,6 +1332,7 @@
 
 			buf += '<div class="col graphcol"><div></div>';
 			for (var i in stats) {
+				if (this.curTeam.gen == 1 && i == 'spd') continue;
 				stats[i] = this.getStat(i);
 				var width = stats[i] * 180 / 504;
 				if (i == 'hp') width = Math.floor(stats[i] * 180 / 704);
@@ -1282,9 +1341,12 @@
 				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 			}
-			buf += '<div><em>Remaining:</em></div>';
+			if (this.curTeam.gen > 2)
+			{
+				buf += '<div><em>Remaining:</em></div>';
+			}
 			buf += '</div>';
-
+	
 			buf += '<div class="col evcol"><div><strong>EVs</strong></div>';
 			var totalev = 0;
 			this.plus = '';
@@ -1305,11 +1367,13 @@
 				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="inputform numform" /></div>';
 				totalev += (set.evs[i] || 0);
 			}
-			var maxEv = this.curTeam.gen > 2 ? 510 : this.curTeam.gen === 1 ? 1275 : 1530;
-			if (totalev <= maxEv) {
-				buf += '<div class="totalev"><em>' + (totalev > (maxEv-2) ? 0 : (maxEv-2) - totalev) + '</em></div>';
-			} else {
-				buf += '<div class="totalev"><b>' + (maxEv - totalev) + '</b></div>';
+			if (this.curTeam.gen > 2)
+			{
+				if (totalev <= 510) {
+					buf += '<div class="totalev"><em>' + (totalev > (510-2) ? 0 : (510-2) - totalev) + '</em></div>';
+				} else {
+					buf += '<div class="totalev"><b>' + (510 - totalev) + '</b></div>';
+				}
 			}
 			buf += '</div>';
 
@@ -1324,9 +1388,9 @@
 			var totalev = 0;
 			if (!set.ivs) set.ivs = {};
 			for (var i in stats) {
-				if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = 31;
+				if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = this.curTeam.gen >= 3 ? 31 : 15;
 				var val = '' + (set.ivs[i]);
-				buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="31" step="1" /></div>';
+				buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="' + (this.curTeam.gen >= 3 ? '31' : '15') + '" step="1" /></div>';
 			}
 			buf += '</div>';
 
@@ -1439,8 +1503,8 @@
 				// IV
 				var stat = inputName.substr(3);
 
-				if (val > 31 || isNaN(val)) val = 31;
-				if (val < 0) val = 0;
+				if (this.curTeam.gen > 2) { if (val > 31 || isNaN(val)) val = 31; }
+				else { if (val > 15 || isNaN(val)) val = 15; }
 
 				if (!set.ivs) set.ivs = {};
 				if (set.ivs[stat] !== val) {
@@ -1631,8 +1695,137 @@
 				return tierData.tier;
 			},
 			item: function (item) {
-				if (!item) return ['Items'];
-				return 'Items';
+				if (!item) return ['Items', 'Other Items'];
+				
+				if (item.isViable)
+				{
+					if (typeof item.isViable === 'boolean') return 'Items';
+					//Smart Item usability check
+					if (this.curSet)
+					{
+						var template = Tools.getTemplate(this.curSet.species);
+						var moves = this.curSet.moves;
+						//Only Mega Stones that evolve this Pokemon are usable
+						if (item.megaEvolves && item.megaEvolves === template.baseSpecies) return 'Items';
+						
+						//Only NFEs can use Eviolite
+						if (item.id === 'eviolite' && template.evos) return 'Items';
+						
+						//These items are usable by specific Pokemon
+						if (item.id === 'redorb' && template.baseSpecies === 'Groudon') return 'Items';
+						if (item.id === 'blueorb' && template.baseSpecies === 'Kyogre') return 'Items';
+						if (item.id === 'griseousorb' && template.baseSpecies === 'Giratina') return 'Items';
+						if (item.id === 'adamantorb' && template.baseSpecies === 'Dialga') return 'Items';
+						if (item.id === 'lustrousorb' && template.baseSpecies === 'Palkia') return 'Items';
+						if (item.id === 'thickclub' && (template.baseSpecies === 'Marowak' || template.baseSpecies === 'Cubone')) return 'Items';
+						if (item.id === 'stick' && template.baseSpecies === 'Farfetch\'d') return 'Items';
+						if (item.id === 'souldew' && (template.baseSpecies === 'Latios' || template.baseSpecies === 'Latias')) return 'Items';
+						if (item.id === 'lightball' && template.baseSpecies === 'Pikachu') return 'Items';
+						if (item.id === 'deepseatooth' && template.baseSpecies === 'Clamperl') return 'Items';
+						
+						//These items are usable depending on whether the user has Sturdy
+						if (this.curSet.ability && this.curSet.ability === 'Sturdy') { if (item.id === 'custapberry') return 'Items'; }
+						else { if (item.id === 'focussash') return 'Items'; }
+						
+						//Weather-extending items only usable on instant weather setters or use the corresponding move to summon weather.
+						if (item.id === 'damprock' && ((this.curSet.ability && this.curSet.ability === 'Drizzle') ||
+						(moves && (moves[0] === 'Rain Dance' || moves[1] === 'Rain Dance' || moves[2] === 'Rain Dance' || moves[3] === 'Rain Dance')))) {
+							return 'Items';
+						}
+						if (item.id === 'heatrock' && ((this.curSet.ability && this.curSet.ability === 'Drought') ||
+						(moves && (moves[0] === 'Sunny Day' || moves[1] === 'Sunny Day' || moves[2] === 'Sunny Day' || moves[3] === 'Sunny Day')))) {
+							return 'Items';
+						}
+						if (item.id === 'icyrock' && ((this.curSet.ability && this.curSet.ability === 'Snow Warning') ||
+						(moves && (moves[0] === 'Hail' || moves[1] === 'Hail' || moves[2] === 'Hail' || moves[3] === 'Hail')))) {
+							return 'Items';
+						}
+						if (item.id === 'smoothrock' && ((this.curSet.ability && this.curSet.ability === 'Sand Stream') ||
+						(moves && (moves[0] === 'Sandstorm' || moves[1] === 'Sandstorm' || moves[2] === 'Sandstorm' || moves[3] === 'Sandstorm')))) {
+							return 'Items';
+						}
+						
+						//Type dependent items
+						if (item.id === 'blacksludge') for (var i = 0; i < template.types.length; i++) if (template.types[i] === 'Poison') return 'Items';
+						if (item.id === 'airballoon' && (!this.curSet.ability || this.curSet.ability !== 'Levitate'))
+						{
+							var weakness = 0; //0 = neutral, negative = resistant or immune, positive = weak
+							for (var i = 0; i < template.types.length; i++) {
+								switch (exports.BattleTypeChart[template.types[i]].damageTaken['Ground']) {
+								case 1:
+									weakness += 1;
+									break;
+								case 2:
+									weakness -= 1;
+									break;
+								case 3:
+									weakness -= 999;
+									break;
+								}
+							}
+							if (weakness > 0) return 'Items';
+						}
+						
+						//Plates
+						if (item.onPlate)
+						{
+							if (template.baseSpecies === 'Arceus') return 'Items';
+							for (var i = 0; i < template.types.length; i++) {
+								if (template.types[i] === item.onPlate) return 'Items';
+							}
+						}
+						
+						//Move dependent items
+						if (moves)
+						{
+							if (item.id === 'whiteherb' && (moves[0] === 'Shell Smash' || moves[1] === 'Shell Smash' || moves[2] === 'Shell Smash' || moves[3] === 'Shell Smash')) return 'Items';
+							
+							if (item.id === 'lightclay' && (moves[0] === 'Reflect' || moves[0] === 'Light Screen' || moves[1] === 'Reflect' || moves[1] === 'Light Screen'
+							|| moves[2] === 'Reflect' || moves[2] === 'Light Screen' || moves[3] === 'Reflect' || moves[3] === 'Light Screen')) {
+								return 'Items';
+							}
+							
+							if (item.id === 'assaultvest' || item.id === 'mentalherb')
+							{
+								for (var i = 0; i < moves.length; i++)
+								{
+									if (!moves[i]) continue;
+									var move = exports.BattleMovedex[toId(moves[i])];
+									var move_category = this.curTeam.gen <= 2 && move.category === 'Status' ? exports.BattleTypeChart[move.type].Category : move.category;
+									if (move_category === 'Status') {
+										var hasStatusMoves = true;
+										break;
+									}
+								}
+								if (item.id === 'mentalherb' && hasStatusMoves) return 'Items';
+								if (item.id === 'assaultvest' && !hasStatusMoves) return 'Items';
+							}
+						}
+						
+						//Only damage reducing berries that reduce super effective damage for this Pokemon are usable
+						if (item.isBerry && item.onSourceModifyDamage)
+						{
+							//Natural Gift type is the same as the attack type that is weakened
+							var berry_type = item.naturalGift.type;
+							var weakness = 0; //0 = neutral, negative = resistant or immune, positive = weak
+							for (var i = 0; i < template.types.length; i++) {
+								switch (exports.BattleTypeChart[template.types[i]].damageTaken[berry_type]) {
+								case 1:
+									weakness += 1;
+									break;
+								case 2:
+									weakness -= 1;
+									break;
+								case 3:
+									weakness -= 999;
+									break;
+								}
+							}
+							if (weakness > 0) return 'Items';
+						}
+					}
+				}
+				return 'Other Items';
 			},
 			ability: function (ability) {
 				if (!this.curSet) return;
@@ -1791,8 +1984,15 @@
 			if (!set) return;
 			if (move.substr(0, 13) === 'Hidden Power ') {
 				set.ivs = {};
-				for (var i in exports.BattleTypeChart[move.substr(13)].HPivs) {
-					set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPivs[i];
+				if (this.curTeam.gen >= 3) {
+					for (var i in exports.BattleTypeChart[move.substr(13)].HPivs) {
+						set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPivs[i];
+					}
+				}
+				else {
+					for (var i in exports.BattleTypeChart[move.substr(13)].HPivsGB) {
+						set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPivsGB[i];
+					}
 				}
 				var moves = this.curSet.moves;
 				for (var i = 0; i < moves.length; ++i) {
@@ -1836,8 +2036,16 @@
 			}
 			set.ability = template.abilities['0'];
 			set.moves = [];
-			set.evs = {};
-			set.ivs = {};
+			if (this.curTeam && this.curTeam.gen <= 2)
+			{
+				set.evs = { hp: 252, atk: 252, def: 252, spa: 252, spd: 252, spe: 252 };
+				set.ivs = { hp: 15, atk: 15, def: 15, spa: 15, spd: 15, spe: 15 };
+			}
+			else
+			{
+				set.evs = {};
+				set.ivs = {};
+			}
 			set.nature = '';
 			this.updateSetTop();
 			if (selectNext) this.$(set.item || !this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
@@ -2285,22 +2493,16 @@
 			if (!set) set = this.curSet;
 			if (!set) return 0;
 
-			if (!set.ivs) set.ivs = {
-				hp: 31,
-				atk: 31,
-				def: 31,
-				spa: 31,
-				spd: 31,
-				spe: 31
-			};
-			if (!set.evs) set.evs = {
-				hp: 0,
-				atk: 0,
-				def: 0,
-				spa: 0,
-				spd: 0,
-				spe: 0
-			};
+			if (!set.ivs)
+			{
+				if (this.curTeam.gen >= 3) set.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
+				else set.ivs = { hp: 15, atk: 15, def: 15, spa: 15, spd: 15, spe: 15 };
+			}
+			if (!set.evs)
+			{
+				if (this.curTeam.gen >= 3) set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
+				else set.evs = { hp: 252, atk: 252, def: 252, spa: 252, spd: 252, spe: 252 };
+			}
 
 			// do this after setting set.evs because it's assumed to exist
 			// after getStat is run
@@ -2308,14 +2510,20 @@
 			if (!template.exists) return 0;
 
 			if (!set.level) set.level = 100;
-			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
+			if (typeof set.ivs[stat] === 'undefined')
+			{
+				if (this.curTeam.gen >= 3) set.ivs[stat] = 31;
+				else set.ivs[stat] = 15;
+			}
+			var statIV_value = set.ivs[stat];
+			if (this.curTeam.gen <= 2) statIV_value *= 2;
 
 			if (evOverride === 0) evOverride = 1;
 			if (stat === 'hp') {
 				if (template.baseStats['hp'] === 1) return 1;
-				return Math.floor(Math.floor(2 * template.baseStats['hp'] + (set.ivs['hp'] || 0) + Math.floor((evOverride || set.evs['hp'] || 0) / 4) + 100) * set.level / 100 + 10);
+				return Math.floor(Math.floor(2 * template.baseStats['hp'] + (statIV_value || 0) + Math.floor((evOverride || set.evs['hp'] || 0) / 4) + 100) * set.level / 100 + 10);
 			}
-			var val = Math.floor(Math.floor(2 * template.baseStats[stat] + (set.ivs[stat] || 0) + Math.floor((evOverride || set.evs[stat] || 0) / 4)) * set.level / 100 + 5);
+			var val = Math.floor(Math.floor(2 * template.baseStats[stat] + (statIV_value || 0) + Math.floor((evOverride || set.evs[stat] || 0) / 4)) * set.level / 100 + 5);
 			if (natureOverride) {
 				val *= natureOverride;
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
