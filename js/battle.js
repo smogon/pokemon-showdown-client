@@ -5738,6 +5738,8 @@ var Battle = (function () {
 			break;
 		case 'J':
 		case 'L':
+		case 'N':
+		case 'n':
 		case 'spectator':
 		case 'spectatorleave':
 			break;
