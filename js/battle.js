@@ -1234,7 +1234,7 @@ var Side = (function () {
 
 	Side.prototype.rollSprites = function () {
 		var sprites = [1, 2, 101, 102, 169, 170];
-		this.spriteid = sprites[Math.random() * sprites.length];
+		this.spriteid = sprites[Math.floor(Math.random() * sprites.length)];
 	};
 
 	Side.prototype.behindx = function (offset) {
