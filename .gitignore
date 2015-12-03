@@ -4,5 +4,6 @@
 /index.php
 /index.html
 node_modules/
+eslint-cache/
 .DS_Store
 Thumbs.db
