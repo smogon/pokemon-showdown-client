@@ -770,6 +770,23 @@ var Tools = {
 			if (!move.effectType) move.effectType = 'Move';
 			if (!move.secondaries && move.secondary) move.secondaries = [move.secondary];
 			if (!move.flags) move.flags = {};
+			if (!move.gen) {
+				if (move.num >= 560) {
+					move.gen = 6;
+				} else if (move.num >= 468) {
+					move.gen = 5;
+				} else if (move.num >= 355) {
+					move.gen = 4;
+				} else if (move.num >= 252) {
+					move.gen = 3;
+				} else if (move.num >= 166) {
+					move.gen = 2;
+				} else if (move.num >= 1) {
+					move.gen = 1;
+				} else {
+					move.gen = 0;
+				}
+			}
 
 			if (window.BattleMoveAnims) {
 				if (!move.anim) move.anim = BattleOtherAnims.attack.anim;
@@ -789,6 +806,17 @@ var Tools = {
 			if (!item.name) item.name = Tools.escapeHTML(name);
 			if (!item.category) item.category = 'Effect';
 			if (!item.effectType) item.effectType = 'Item';
+			if (!item.gen) {
+				if (item.num >= 577) {
+					item.gen = 6;
+				} else if (item.num >= 537) {
+					item.gen = 5;
+				} else if (item.num >= 377) {
+					item.gen = 4;
+				} else {
+					item.gen = 3;
+				}
+			}
 		}
 		return item;
 	},
@@ -803,6 +831,19 @@ var Tools = {
 			if (!ability.name) ability.name = Tools.escapeHTML(name);
 			if (!ability.category) ability.category = 'Effect';
 			if (!ability.effectType) ability.effectType = 'Ability';
+			if (!ability.gen) {
+				if (ability.num >= 165) {
+					ability.gen = 6;
+				} else if (ability.num >= 124) {
+					ability.gen = 5;
+				} else if (ability.num >= 77) {
+					ability.gen = 4;
+				} else if (ability.num >= 1) {
+					ability.gen = 3;
+				} else {
+					ability.gen = 0;
+				}
+			}
 		}
 		return ability;
 	},
