@@ -375,7 +375,7 @@ var Tools = {
 		str = str.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g,
 			options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1">$1</a>&raquo;');
 		// linking of URIs
-		if (!options.hidelinks) {
+		if (!options.hidelinks && !(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g.test(str))) {
 			str = str.replace(linkRegex, function (uri) {
 				if (/^[a-z0-9.]+\@/ig.test(uri)) {
 					return '<a href="mailto:' + uri + '" target="_blank">' + uri + '</a>';
