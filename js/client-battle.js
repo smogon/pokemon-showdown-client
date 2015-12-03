@@ -1247,7 +1247,7 @@
 			var iv = (this.battle.gen < 3) ? 30 : 31;
 			var value = iv + (this.battle.tier === 'Random Battle' ? 21 : 63);
 			var nature = (this.battle.tier === 'Random Battle' || this.battle.gen < 3) ? 1 : 1.1;
-			return maxSpe = Math.floor(Math.floor(Math.floor(2 * template.baseStats['spe'] + value) * level / 100 + 5) * nature);
+			return Math.floor(Math.floor(Math.floor(2 * template.baseStats['spe'] + value) * level / 100 + 5) * nature);
 		},
 		// Gets the proper current type for moves with a variable type.
 		getMoveType: function (move, pokemon) {

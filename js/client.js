@@ -963,7 +963,7 @@
 			var column = 0;
 			var columnChanged = false;
 
-			BattleFormats = {};
+			window.BattleFormats = {};
 			for (var j = 1; j < formatsList.length; j++) {
 				if (isSection) {
 					section = formatsList[j];
@@ -2026,7 +2026,7 @@
 			if (window.nodewebkit) nwWindow.requestAttention(false);
 			this.subtleNotification = false;
 			if (this.notifications) {
-				for (tag in this.notifications) {
+				for (var tag in this.notifications) {
 					if (this.notifications[tag].close) this.notifications[tag].close();
 				}
 				this.notifications = null;
@@ -2067,7 +2067,7 @@
 			if (window.nodewebkit) nwWindow.requestAttention(false);
 			this.subtleNotification = false;
 			if (this.notifications) {
-				for (tag in this.notifications) {
+				for (var tag in this.notifications) {
 					if (!this.notifications[tag].psAutoclose) continue;
 					if (this.notifications[tag].close) this.notifications[tag].close();
 					delete this.notifications[tag];
