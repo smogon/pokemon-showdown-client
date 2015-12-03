@@ -435,7 +435,7 @@ var Tools = {
 		var options = Tools.prefs('chatformatting') || {};
 
 		// ``code``
-		if(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g.test(str)) return str.replace(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g,
+		if (/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g.test(str)) return str.replace(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g,
 			options.hidemonospace ? '$1' : '<code>$1</code>');
 		// ~~strikethrough~~
 		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])??)\~\~/g,
@@ -560,13 +560,6 @@ var Tools = {
 			}
 		}
 
-		return str;
-	},
-
-	escapeHTML: function (str, jsEscapeToo) {
-		str = (str ? '' + str : '');
-		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-		if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
 		return str;
 	},
 
