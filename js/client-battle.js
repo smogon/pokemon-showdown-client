@@ -19,12 +19,12 @@
 			// tooltips
 			var buf = '';
 			var tooltips = {
-				your2: { top: 70, left: 250, width: 80, height: 100 },
-				your1: { top: 85, left: 320, width: 90, height: 100 },
-				your0: { top: 90, left: 390, width: 100, height: 100 },
-				my0: { top: 200, left: 130, width: 120, height: 160 },
-				my1: { top: 200, left: 250, width: 150, height: 160 },
-				my2: { top: 200, left: 350, width: 150, height: 160 }
+				your2: {top: 70, left: 250, width: 80, height: 100},
+				your1: {top: 85, left: 320, width: 90, height: 100},
+				your0: {top: 90, left: 390, width: 100, height: 100},
+				my0: {top: 200, left: 130, width: 120, height: 160},
+				my1: {top: 200, left: 250, width: 150, height: 160},
+				my2: {top: 200, left: 350, width: 150, height: 160}
 			};
 			for (var active in tooltips) {
 				buf += '<div style="position:absolute;';
@@ -60,11 +60,11 @@
 		join: function () {
 			app.send('/join ' + this.id);
 		},
-		showChat: function() {
+		showChat: function () {
 			this.$('.battle-chat-toggle').attr('name', 'hideChat').text('Battle');
 			this.$el.addClass('showing-chat');
 		},
-		hideChat: function() {
+		hideChat: function () {
 			this.$('.battle-chat-toggle').attr('name', 'showChat').text('Chat');
 			this.$el.removeClass('showing-chat');
 		},
@@ -87,7 +87,7 @@
 				this.battle.messageDelay = 8;
 			}
 			if (width && width < 640) {
-				var scale = (width/640);
+				var scale = (width / 640);
 				this.$battle.css('transform', 'scale(' + scale + ')');
 				this.$foeHint.css('transform', 'scale(' + scale + ')');
 				this.$controls.css('top', 360 * scale + 10);
@@ -993,7 +993,7 @@
 					var activeTarget = yourActive[0] || yourActive[1] || yourActive[2];
 					basePower = this.getMoveBasePower(move, pokemon, activeTarget) || basePower;
 					if (!basePower) basePower = '&mdash;';
-					basePowerText = '<p>Base power: ' + basePower + '</p>'
+					basePowerText = '<p>Base power: ' + basePower + '</p>';
 				}
 				var accuracy = move.accuracy;
 				if (!accuracy || accuracy === true) accuracy = '&mdash;';
@@ -1082,7 +1082,7 @@
 				var myPokemon;
 				if (this.myPokemon) {
 					if (!pokemon) {
-						pokemon = this.myPokemon[parseInt(thing)];
+						pokemon = this.myPokemon[parseInt(thing, 10)];
 						battlePokemon = this.battle.getPokemon('other: old: ' + pokemon.ident, pokemon.details);
 					} else if (this.controlsShown && pokemon.side === this.battle.mySide) {
 						myPokemon = this.myPokemon[pokemon.slot];
@@ -1147,7 +1147,7 @@
 						text += '&nbsp;SpA /&nbsp;' + myPokemon.stats['spd'] + '&nbsp;SpD /&nbsp;';
 					}
 					text += myPokemon.stats['spe'] + '&nbsp;Spe</p>';
-					text += '<p class="section">Opponent sees:</p>'
+					text += '<p class="section">Opponent sees:</p>';
 				}
 				if (this.battle.gen > 2) {
 					if (!pokemon.baseAbility && !pokemon.ability) {
@@ -1250,7 +1250,7 @@
 			return maxSpe = Math.floor(Math.floor(Math.floor(2 * template.baseStats['spe'] + value) * level / 100 + 5) * nature);
 		},
 		// Gets the proper current type for moves with a variable type.
-		getMoveType: function(move, pokemon) {
+		getMoveType: function (move, pokemon) {
 			var myPokemon = this.myPokemon[pokemon.slot];
 			var ability = Tools.getAbility(myPokemon.baseAbility).name;
 			var moveType = move.type;
@@ -1306,7 +1306,7 @@
 		// Gets the proper current base power for moves which have a variable base power.
 		// Takes into account the target for some moves.
 		// If it is unsure of the actual base power, it gives an estimate.
-		getMoveBasePower: function(move, pokemon, target) {
+		getMoveBasePower: function (move, pokemon, target) {
 			var myPokemon = this.myPokemon[pokemon.slot];
 			var ability = Tools.getAbility(myPokemon.baseAbility).name;
 			var basePower = move.basePower;
@@ -1378,7 +1378,7 @@
 			if (move.id === 'venoshock') {
 				if (target.status === 'psn' || target.status === 'tox') {
 					basePower *= 2;
-					basePowerComment =' (Boosted by status)';
+					basePowerComment = ' (Boosted by status)';
 				}
 			}
 			if (move.id === 'wakeupslap') {

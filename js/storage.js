@@ -237,7 +237,7 @@ Storage.initTestClient = function () {
 		};
 		Storage.whenPrefsLoaded.load();
 	});
-}
+};
 
 /*********************************************************
  * Teams
@@ -327,7 +327,6 @@ Storage.unpackAllTeams = function (buffer) {
 				iconCache: ''
 			};
 		});
-		return;
 	}
 
 	return buffer.split('\n').map(function (line) {
@@ -479,7 +478,7 @@ Storage.fastUnpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		var ability = buf.substring(i, j);
 		var template = Tools.getTemplate(set.species);
-		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability||'0'] : ability);
+		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability || '0'] : ability);
 		i = j + 1;
 
 		// moves
@@ -582,13 +581,13 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		var ability = Tools.getAbility(buf.substring(i, j)).name;
 		var template = Tools.getTemplate(set.species);
-		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability||'0'] : ability);
+		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability || '0'] : ability);
 		i = j + 1;
 
 		// moves
 		j = buf.indexOf('|', i);
 		set.moves = buf.substring(i, j).split(',').map(function (moveid) {
-			return Tools.getMove(moveid).name
+			return Tools.getMove(moveid).name;
 		});
 		i = j + 1;
 
@@ -814,7 +813,7 @@ Storage.importTeam = function (text, teams) {
 				var spaceIndex = evLine.indexOf(' ');
 				if (spaceIndex === -1) continue;
 				var statid = BattleStatIDs[evLine.substr(spaceIndex + 1)];
-				var statval = parseInt(evLine.substr(0, spaceIndex));
+				var statval = parseInt(evLine.substr(0, spaceIndex), 10);
 				if (!statid) continue;
 				curSet.evs[statid] = statval;
 			}
@@ -827,7 +826,7 @@ Storage.importTeam = function (text, teams) {
 				var spaceIndex = ivLine.indexOf(' ');
 				if (spaceIndex === -1) continue;
 				var statid = BattleStatIDs[ivLine.substr(spaceIndex + 1)];
-				var statval = parseInt(ivLine.substr(0, spaceIndex));
+				var statval = parseInt(ivLine.substr(0, spaceIndex), 10);
 				if (!statid) continue;
 				if (isNaN(statval)) statval = 31;
 				curSet.ivs[statid] = statval;

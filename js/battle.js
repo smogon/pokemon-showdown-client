@@ -1,4 +1,4 @@
-﻿/*
+/*
 
 License: GPLv2
   <http://www.gnu.org/licenses/gpl-2.0.html>
@@ -90,7 +90,7 @@ var BattleSoundLibrary = (function () {
 		if (!this.bgmCache[url]) {
 			// couldn't load
 			// suppress crash
-			return this.bgmCache[url] = this.soundPlaceholder;
+			return (this.bgmCache[url] = this.soundPlaceholder);
 		}
 		this.bgmCache[url].onposition(loopend, function () {
 			this.setPosition(loopstart);
@@ -483,7 +483,7 @@ var Pokemon = (function () {
 		this.clearTurnstatuses();
 		this.clearMovestatuses();
 	};
-	Pokemon.prototype.markMove = function(moveName, pp) {
+	Pokemon.prototype.markMove = function (moveName, pp) {
 		if (pp === undefined) pp = 1;
 		moveName = Tools.getMove(moveName).name;
 		if (moveName === 'Struggle') return;
@@ -753,8 +753,8 @@ var Sprite = (function () {
 			w: 0,
 			h: 96
 		});
-		this.top = parseInt(pos.top + 40);
-		this.left = parseInt(pos.left);
+		this.top = parseInt(pos.top + 40, 10);
+		this.left = parseInt(pos.left, 10);
 		this.isBackSprite = !siden;
 		this.duringMove = false;
 		this.isMissedPokemon = false;
@@ -969,7 +969,7 @@ var Sprite = (function () {
 			this.y = (this.isBackSprite ? -1 : 1) + 1;
 			this.statbarOffset = 0;
 			if (!this.isBackSprite) this.statbarOffset = 30 * slot;
-			if (this.isBackSprite) this.statbarOffset = -28 * slot;		
+			if (this.isBackSprite) this.statbarOffset = -28 * slot;
 		} else {
 			this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
 			this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
@@ -989,8 +989,8 @@ var Sprite = (function () {
 			w: 0,
 			h: 96
 		});
-		this.top = parseInt(pos.top + 40);
-		this.left = parseInt(pos.left);
+		this.top = parseInt(pos.top + 40, 10);
+		this.left = parseInt(pos.left, 10);
 
 		this.anim();
 		this.w = this.sp.w;
@@ -1052,7 +1052,7 @@ var Sprite = (function () {
 			this.y = (this.isBackSprite ? -1 : 1) + 1;
 			this.statbarOffset = 0;
 			if (!this.isBackSprite) this.statbarOffset = 30 * slot;
-			if (this.isBackSprite) this.statbarOffset = -28 * slot;		
+			if (this.isBackSprite) this.statbarOffset = -28 * slot;
 		} else {
 			this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
 			this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
@@ -1072,8 +1072,8 @@ var Sprite = (function () {
 			w: 0,
 			h: 96
 		});
-		this.top = parseInt(pos.top + 40);
-		this.left = parseInt(pos.left);
+		this.top = parseInt(pos.top + 40, 10);
+		this.left = parseInt(pos.left, 10);
 
 		this.anim();
 		this.elem.css({
@@ -1151,7 +1151,7 @@ var Sprite = (function () {
 		}, 'accel');
 		this.battle.activityWait(this.elem);
 		var self = this;
-		this.elem.promise().done(function() {
+		this.elem.promise().done(function () {
 			self.elem.remove();
 			self.elem = null;
 		});
@@ -1234,7 +1234,7 @@ var Side = (function () {
 
 	Side.prototype.rollSprites = function () {
 		var sprites = [1, 2, 101, 102, 169, 170];
-		this.spriteid = sprites[parseInt(Math.random() * sprites.length)];
+		this.spriteid = sprites[Math.random() * sprites.length];
 	};
 
 	Side.prototype.behindx = function (offset) {
@@ -2259,7 +2259,7 @@ var Battle = (function () {
 	Battle.prototype.updateGen = function () {
 		if (!Tools.prefs('nopastgens')) {
 			if (this.gen <= 1) this.backdropImage = 'bg-gen1.png';
-			else if (this.gen <= 2) this.backdropImage = 'bg-gen2.png';			
+			else if (this.gen <= 2) this.backdropImage = 'bg-gen2.png';
 			else if (this.gen <= 3) this.backdropImage = BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
 			else if (this.gen <= 4) this.backdropImage = BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
 		}
@@ -2665,7 +2665,7 @@ var Battle = (function () {
 		}
 	};
 	Battle.prototype.setTurn = function (turnnum) {
-		turnnum = parseInt(turnnum);
+		turnnum = parseInt(turnnum, 10);
 		if (turnnum == this.turn + 1) {
 			this.endLastTurnPending = true;
 		}
@@ -3465,7 +3465,7 @@ var Battle = (function () {
 				var stat = args[2];
 				if (this.gen === 1 && stat === 'spd') break;
 				if (this.gen === 1 && stat === 'spa') stat = 'spc';
-				var amount = parseInt(args[3]);
+				var amount = parseInt(args[3], 10);
 				if (!poke.boosts[stat]) {
 					poke.boosts[stat] = 0;
 				}
@@ -3499,7 +3499,7 @@ var Battle = (function () {
 				var stat = args[2];
 				if (this.gen === 1 && stat === 'spd') break;
 				if (this.gen === 1 && stat === 'spa') stat = 'spc';
-				var amount = parseInt(args[3]);
+				var amount = parseInt(args[3], 10);
 				if (!poke.boosts[stat]) {
 					poke.boosts[stat] = 0;
 				}
@@ -3531,7 +3531,7 @@ var Battle = (function () {
 			case '-setboost':
 				var poke = this.getPokemon(args[1]);
 				var stat = args[2];
-				var amount = parseInt(args[3]);
+				var amount = parseInt(args[3], 10);
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.boosts[stat] = amount;
@@ -3845,7 +3845,7 @@ var Battle = (function () {
 				break;
 
 			case '-hitcount':
-				var hits = parseInt(args[2]);
+				var hits = parseInt(args[2], 10);
 				if (this.multiHitMove && this.multiHitMove[3] === 0 && hits > 0) this.animMultiHitMove();
 				actions += 'Hit ' + hits + (hits > 1 ? ' times!' : ' time!');
 				break;
@@ -4063,6 +4063,7 @@ var Battle = (function () {
 					break;
 				case 'trick':
 					poke.itemEffect = 'tricked';
+					// falls through
 				default:
 					actions += '' + poke.getName() + ' obtained one ' + item.name + '.';
 					this.resultAnim(poke, item.name, 'neutral', animDelay);
@@ -5354,7 +5355,7 @@ var Battle = (function () {
 			splitDetails.pop();
 		}
 		if (splitDetails[1]) {
-			output.level = parseInt(splitDetails[1].substr(1)) || 100;
+			output.level = parseInt(splitDetails[1].substr(1), 10) || 100;
 		}
 		if (splitDetails[0]) {
 			output.species = splitDetails[0];
@@ -5538,7 +5539,7 @@ var Battle = (function () {
 				splitDetails.pop();
 			}
 			if (splitDetails[1]) {
-				level = parseInt(splitDetails[1].substr(1)) || 100;
+				level = parseInt(splitDetails[1].substr(1), 10) || 100;
 			}
 			if (splitDetails[0]) {
 				species = splitDetails[0];
@@ -5870,7 +5871,7 @@ var Battle = (function () {
 			this.activityWait(1000);
 			break;
 		case 'gen':
-			this.gen = parseInt(args[1]);
+			this.gen = parseInt(args[1], 10);
 			this.updateGen();
 			break;
 		case 'callback':
@@ -6048,7 +6049,7 @@ var Battle = (function () {
 	Battle.prototype.fastForwardTo = function (time) {
 		this.playbackState = 5;
 		if (this.fastForward) return;
-		time = parseInt(time);
+		time = parseInt(time, 10);
 		if (isNaN(time)) return;
 		if (this.activityStep >= this.activityQueue.length - 1 && time >= this.turn + 1 && !this.activityQueueActive) return;
 		if (this.ended && time >= this.turn + 1) return;
