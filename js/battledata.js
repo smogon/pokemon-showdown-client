@@ -60,7 +60,7 @@ function hashColor(name) {
 	var hash;
 	if (window.Config && Config.customcolors && Config.customcolors[name]) {
 		if (Config.customcolors[name].color) {
-			return colorCache[name] = 'color:' + Config.customcolors[name].color + ';';
+			return (colorCache[name] = 'color:' + Config.customcolors[name].color + ';');
 		}
 		hash = MD5(Config.customcolors[name]);
 	} else {
@@ -315,7 +315,7 @@ var Tools = {
 				tracker.callbacks.push([callback, context]);
 			}
 			return tracker;
-		}
+		};
 		tracker.callbacks = [];
 		tracker.value = undefined;
 		tracker.isLoaded = false;
@@ -570,8 +570,7 @@ var Tools = {
 
 	unescapeHTML: function (str) {
 		str = (str ? '' + str : '');
-		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').
-			replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	},
 
 	escapeRegExp: function (str) {
@@ -700,7 +699,7 @@ var Tools = {
 		};
 	},
 
-	prefs: function(prop, value, save) {
+	prefs: function (prop, value, save) {
 		if (window.Storage && Storage.prefs) return Storage.prefs(prop, value, save);
 		return undefined;
 	},

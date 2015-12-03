@@ -334,7 +334,7 @@
 			$.cookie('showdown_username', (name !== undefined) ? name : this.get('name'), {
 				expires: 14
 			});
-		},
+		}
 	});
 
 	var App = this.App = Backbone.Router.extend({
@@ -601,7 +601,7 @@
 		 *     triggered if the SockJS socket closes
 		 */
 		initializeConnection: function () {
-			Storage.whenPrefsLoaded(function() {
+			Storage.whenPrefsLoaded(function () {
 				// Config.server.afd = true;
 				app.connect();
 			});
@@ -974,7 +974,7 @@
 					isSection = true;
 
 					if (formatsList[j]) {
-						var newColumn = parseInt(formatsList[j].substr(1)) || 0;
+						var newColumn = parseInt(formatsList[j].substr(1), 10) || 0;
 						if (column !== newColumn) {
 							column = newColumn;
 							columnChanged = true;
@@ -1818,7 +1818,7 @@
 				app.dispatchingButton = target;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				this[target.name].call(this, target.value, target);
+				this[target.name](target.value, target);
 				delete app.dismissingSource;
 				delete app.dispatchingButton;
 			}
@@ -1865,7 +1865,7 @@
 				app.dispatchingButton = target;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				this[target.name].call(this, target.value, target);
+				this[target.name](target.value, target);
 				delete app.dismissingSource;
 				delete app.dispatchingButton;
 			}
@@ -1961,7 +1961,7 @@
 				var notification = this.notifications[tag] = new Notification(title, {
 					lang: 'en',
 					body: body,
-					tag: this.id + ':' + tag,
+					tag: this.id + ':' + tag
 				});
 				var self = this;
 				notification.onclose = function () {
@@ -2203,7 +2203,7 @@
 				app.dispatchingPopup = this;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				this[target.name].call(this, target.value, target);
+				this[target.name](target.value, target);
 				delete app.dispatchingButton;
 				delete app.dispatchingPopup;
 			}
@@ -2378,7 +2378,7 @@
 	}, {
 		dataCache: {}
 	});
-	
+
 	var UserOptionsPopup = this.UserOptions = Popup.extend({
 		initialize: function (data) {
 			this.name = data.name.substr(1);
@@ -3006,8 +3006,7 @@
 			var bg = '#344b6c url(' + e.target.result + ') no-repeat left center fixed';
 			try {
 				Tools.prefs('bg', bg);
-			}
-			catch (e) {
+			} catch (e) {
 				if (popup) {
 					$('.bgstatus').text("Image too large, upload a background whose size is 3.5MB or less.");
 				} else {

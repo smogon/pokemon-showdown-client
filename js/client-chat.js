@@ -616,7 +616,7 @@
 								}
 							}
 							if (highlights.indexOf(targets[i]) > -1) {
-								return this.add(targets[i] + ' is already on your highlights list.')
+								return this.add(targets[i] + ' is already on your highlights list.');
 							}
 						}
 						highlights = highlights.concat(targets.slice(1));
@@ -706,7 +706,7 @@
 								} else {
 									buffer += '<em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em>';
 								}
-								var N = parseInt(row.w) + parseInt(row.l) + parseInt(row.t);
+								var N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
 								if (row.formatid === 'oususpecttest') {
 									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -17.0 / N), 0) + '</td>';
 								} else if (row.formatid === 'uberssuspecttest') {
@@ -932,16 +932,19 @@
 			// wrap in doubled format char
 			var wrap = formatChar + formatChar;
 			value = value.substr(0, start) + wrap + value.substr(start, end - start) + wrap + value.substr(end);
-			start += 2, end += 2;
+			start += 2;
+			end += 2;
 
 			// prevent nesting
 			var nesting = wrap + wrap;
 			if (value.substr(start - 4, 4) === nesting) {
 				value = value.substr(0, start - 4) + value.substr(start);
-				start -= 4, end -= 4;
+				start -= 4;
+				end -= 4;
 			} else if (start !== end && value.substr(start - 2, 4) === nesting) {
 				value = value.substr(0, start - 2) + value.substr(start + 2);
-				start -= 2, end -= 4;
+				start -= 2;
+				end -= 4;
 			}
 			if (value.substr(end, 4) === nesting) {
 				value = value.substr(0, end) + value.substr(end + 4);
@@ -1224,7 +1227,7 @@
 					if (users[i]) this.users[toId(users[i])] = users[i];
 				}
 			} else {
-				this.userCount.users = parseInt(userList);
+				this.userCount.users = parseInt(userList, 10);
 				this.userCount.guests = this.userCount.users;
 			}
 			this.userList.construct();
@@ -1464,7 +1467,7 @@
 			'!': 9,
 			'‽': 10
 		},
-		toggleUserlist: function(e) {
+		toggleUserlist: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 			if (this.$el.hasClass('userlist-minimized')) {
@@ -1475,11 +1478,11 @@
 				this.$el.addClass('userlist-minimized');
 			}
 		},
-		show: function() {
+		show: function () {
 			this.$el.removeClass('userlist-minimized');
 			this.$el.removeClass('userlist-maximized');
 		},
-		hide: function() {
+		hide: function () {
 			this.$el.scrollTop(0);
 			this.$el.addClass('userlist-minimized');
 		},
@@ -1574,7 +1577,7 @@
 
 }).call(this, jQuery);
 
-function ChatHistory () {
+function ChatHistory() {
 	this.lines = [];
 	this.index = 0;
 }

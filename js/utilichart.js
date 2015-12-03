@@ -75,8 +75,7 @@ function BattleChart() {
 			if (match.name && match.name.end > pokemon.baseSpecies.length) {
 				if (match.name.start < pokemon.baseSpecies.length + 1) match.name.start = pokemon.baseSpecies.length + 1;
 				name += '<small>-' + pokemon.forme.substr(0, match.name.start - (pokemon.baseSpecies.length + 1)) + '<b>' + pokemon.name.substr(match.name.start, match.name.end - match.name.start) + '</b>' + pokemon.name.substr(match.name.end) + '</small>';
-			}
-			else {
+			} else {
 				name += '<small>-' + pokemon.forme + '</small>';
 			}
 		}
@@ -109,8 +108,7 @@ function BattleChart() {
 			text += '<span style="float:left;min-height:26px">';
 			if (pokemon.abilities['1']) {
 				text += '<span class="col twoabilitycol">';
-			}
-			else {
+			} else {
 				text += '<span class="col abilitycol">';
 			}
 			for (var i in pokemon.abilities) {
@@ -214,8 +212,7 @@ function BattleChart() {
 			if (match.name && match.name.end > hplen) {
 				if (match.name.start < hplen + 1) match.name.start = hplen + 1;
 				name += '<small> ' + move.name.substr(hplen + 1, match.name.start - (hplen + 1)) + '<b>' + move.name.substr(match.name.start, match.name.end - match.name.start) + '</b>' + move.name.substr(match.name.end) + '</small>';
-			}
-			else {
+			} else {
 				name += '<small> ' + move.name.substr(hplen + 1) + '</small>';
 			}
 		}
@@ -342,15 +339,13 @@ function BattleChart() {
 						self.exactResult = thing.name;
 						matchType = 'exact';
 					}
-				}
-				else if (index >= 0) {
+				} else if (index >= 0) {
 					matchType = 'contains';
 					match.name = {
 						start: index,
 						end: index + searchTerm.length
 					};
-				}
-				else if (type === 'pokemon') {
+				} else if (type === 'pokemon') {
 					index = thing.types[0].toLowerCase().indexOf(searchTerm);
 
 					if (index == 0) {
@@ -403,9 +398,7 @@ function BattleChart() {
 							}};
 						}
 					}
-				}
-				else if (type === 'move')
-				{
+				} else if (type === 'move') {
 					index = thing.type.toLowerCase().indexOf(searchTerm);
 
 					if (index == 0) {
@@ -526,7 +519,8 @@ function BattleChart() {
 		{
 			return a.num - b.num;
 		} */
-		return (a.name == b.name) ? 0 : ( (a.name > b.name) ? 1 : -1 );
+		if (a.name === b.name) return 0;
+		return (a.name > b.name ? 1 : -1);
 	};
 }
 
