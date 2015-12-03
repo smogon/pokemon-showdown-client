@@ -434,134 +434,139 @@ var Tools = {
 
 		var options = Tools.prefs('chatformatting') || {};
 
-		if(!(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g.test(str))) {
-			// ~~strikethrough~~
-			str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])??)\~\~/g,
-				options.hidestrikethrough ? '$1' : '<s>$1</s>');
-			// <<roomid>>
-			str = str.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g,
-				options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1" target="_blank">$1</a>&raquo;');
-			// linking of URIs
-			if (!options.hidelinks) {
-				str = str.replace(linkRegex, function (uri) {
-					if (/^[a-z0-9.]+\@/ig.test(uri)) {
-						return '<a href="mailto:' + uri + '" target="_blank">' + uri + '</a>';
-					}
-					// Insert http:// before URIs without a URI scheme specified.
-					var fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
-					var onclick;
-					var r = new RegExp('^https?://' +
-						document.location.hostname.replace(/\./g, '\\.') +
-						'/([a-zA-Z0-9-]+)$');
-					var m = r.exec(fulluri);
-					if (m) {
-						onclick = "return selectTab('" + m[1] + "');";
+		// ``code``
+		if(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g.test(str)) return str.replace(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g,
+			options.hidemonospace ? '$1' : '<code>$1</code>');
+		// ~~strikethrough~~
+		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])??)\~\~/g,
+			options.hidestrikethrough ? '$1' : '<s>$1</s>');
+		// <<roomid>>
+		str = str.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g,
+			options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1" target="_blank">$1</a>&raquo;');
+		// linking of URIs
+		if (!options.hidelinks) {
+			str = str.replace(linkRegex, function (uri) {
+				if (/^[a-z0-9.]+\@/ig.test(uri)) {
+					return '<a href="mailto:' + uri + '" target="_blank">' + uri + '</a>';
+				}
+				// Insert http:// before URIs without a URI scheme specified.
+				var fulluri = uri.replace(/^([a-z]*[^a-z:])/g, 'http://$1');
+				var onclick;
+				var r = new RegExp('^https?://' +
+					document.location.hostname.replace(/\./g, '\\.') +
+					'/([a-zA-Z0-9-]+)$');
+				var m = r.exec(fulluri);
+				if (m) {
+					onclick = "return selectTab('" + m[1] + "');";
+				} else {
+					var event;
+					if (Tools.interstice.isWhitelisted(fulluri)) {
+						event = 'External link';
 					} else {
-						var event;
-						if (Tools.interstice.isWhitelisted(fulluri)) {
-							event = 'External link';
+						event = 'Interstice link';
+						fulluri = Tools.escapeHTML(Tools.interstice.getURI(
+							Tools.unescapeHTML(fulluri)
+						));
+					}
+					onclick = 'if (window.ga) ga(\'send\', \'event\', \'' +
+						event + '\', \'' + Tools.escapeQuotes(fulluri) + '\');';
+				}
+				if (uri.substr(0, 24) === 'https://docs.google.com/' || uri.substr(0, 16) === 'docs.google.com/') {
+					if (uri.slice(0, 5) === 'https') uri = uri.slice(8);
+					if (uri.substr(-12) === '?usp=sharing' || uri.substr(-12) === '&usp=sharing') uri = uri.slice(0, -12);
+					if (uri.substr(-6) === '#gid=0') uri = uri.slice(0, -6);
+					var slashIndex = uri.lastIndexOf('/');
+					if (uri.length - slashIndex > 18) slashIndex = uri.length;
+					if (slashIndex - 4 > 19 + 3) uri = uri.slice(0, 19) + '<small class="message-overflow">' + uri.slice(19, slashIndex - 4) + '</small>' + uri.slice(slashIndex - 4);
+				}
+				return '<a href="' + fulluri +
+					'" target="_blank" onclick="' + onclick + '">' + uri + '</a>';
+			});
+			// google [blah]
+			//   Google search for 'blah'
+			str = str.replace(/\bgoogle ?\[([^\]<]+)\]/ig, function (p0, p1) {
+				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
+				return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p1 +
+					'" target="_blank">' + p0 + '</a>';
+			});
+			// wiki [blah]
+			//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
+			str = str.replace(/\bwiki ?\[([^\]<]+)\]/ig, function (p0, p1) {
+				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
+				return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
+					p1 + '" target="_blank">' + p0 + '</a>';
+			});
+			// server issue #pullreq
+			//   Links to github Pokemon Showdown server pullreq number
+			str = str.replace(/\bserver issue ?#(\d+)/ig, function (p0, p1) {
+				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
+				return '<a href="https://github.com/Zarel/Pokemon-Showdown/pull/' +
+					p1 + '" target="_blank">' + p0 + '</a>';
+			});
+			// client issue #pullreq
+			//   Links to github Pokemon Showdown client pullreq number
+			str = str.replace(/\bclient issue ?#(\d+)/ig, function (p0, p1) {
+				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
+				return '<a href="https://github.com/Zarel/Pokemon-Showdown-Client/pull/' +
+					p1 + '" target="_blank">' + p0 + '</a>';
+			});
+			// [[blah]]
+			//   Short form of gl[blah]
+			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/ig, function (p0, p1) {
+				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
+				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
+					'" target="_blank">' + p1 + '</a>';
+			});
+		}
+		// __italics__
+		str = str.replace(/\_\_([^< ](?:[^<]*?[^< ])??)\_\_(?![^<]*?<\/a)/g,
+			options.hideitalics ? '$1' : '<i>$1</i>');
+		// **bold**
+		str = str.replace(/\*\*([^< ](?:[^<]*?[^< ])??)\*\*/g,
+			options.hidebold ? '$1' : '<b>$1</b>');
+
+		if (!options.hidespoiler) {
+			var untilIndex = 0;
+			while (untilIndex < str.length) {
+				var spoilerIndex = str.toLowerCase().indexOf('spoiler:', untilIndex);
+				if (spoilerIndex < 0) spoilerIndex = str.toLowerCase().indexOf('spoilers:', untilIndex);
+				if (spoilerIndex >= 0) {
+					untilIndex = str.indexOf("\n", spoilerIndex);
+					if (untilIndex < 0) untilIndex = str.length;
+
+					if (str.charAt(spoilerIndex - 1) === '(') {
+						var nextLParenIndex = str.indexOf('(', spoilerIndex);
+						var nextRParenIndex = str.indexOf(')', spoilerIndex);
+						if (nextRParenIndex < 0 || nextRParenIndex >= untilIndex) {
+							// no `)`, keep spoilering until next newline
+						} else if (nextLParenIndex < 0 || nextLParenIndex > nextRParenIndex) {
+							// no `(` before next `)` - spoiler until next `)`
+							untilIndex = nextRParenIndex;
 						} else {
-							event = 'Interstice link';
-							fulluri = Tools.escapeHTML(Tools.interstice.getURI(
-								Tools.unescapeHTML(fulluri)
-							));
+							// `(` before next `)` - just spoiler until the last `)`
+							untilIndex = str.lastIndexOf(')', untilIndex);
+							if (untilIndex < 0) untilIndex = str.length; // should never happen
 						}
-						onclick = 'if (window.ga) ga(\'send\', \'event\', \'' +
-							event + '\', \'' + Tools.escapeQuotes(fulluri) + '\');';
 					}
-					if (uri.substr(0, 24) === 'https://docs.google.com/' || uri.substr(0, 16) === 'docs.google.com/') {
-						if (uri.slice(0, 5) === 'https') uri = uri.slice(8);
-						if (uri.substr(-12) === '?usp=sharing' || uri.substr(-12) === '&usp=sharing') uri = uri.slice(0, -12);
-						if (uri.substr(-6) === '#gid=0') uri = uri.slice(0, -6);
-						var slashIndex = uri.lastIndexOf('/');
-						if (uri.length - slashIndex > 18) slashIndex = uri.length;
-						if (slashIndex - 4 > 19 + 3) uri = uri.slice(0, 19) + '<small class="message-overflow">' + uri.slice(19, slashIndex - 4) + '</small>' + uri.slice(slashIndex - 4);
-					}
-					return '<a href="' + fulluri +
-						'" target="_blank" onclick="' + onclick + '">' + uri + '</a>';
-				});
-				// google [blah]
-				//   Google search for 'blah'
-				str = str.replace(/\bgoogle ?\[([^\]<]+)\]/ig, function (p0, p1) {
-					p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
-					return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p1 +
-						'" target="_blank">' + p0 + '</a>';
-				});
-				// wiki [blah]
-				//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
-				str = str.replace(/\bwiki ?\[([^\]<]+)\]/ig, function (p0, p1) {
-					p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
-					return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
-						p1 + '" target="_blank">' + p0 + '</a>';
-				});
-				// server issue #pullreq
-				//   Links to github Pokemon Showdown server pullreq number
-				str = str.replace(/\bserver issue ?#(\d+)/ig, function (p0, p1) {
-					p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
-					return '<a href="https://github.com/Zarel/Pokemon-Showdown/pull/' +
-						p1 + '" target="_blank">' + p0 + '</a>';
-				});
-				// client issue #pullreq
-				//   Links to github Pokemon Showdown client pullreq number
-				str = str.replace(/\bclient issue ?#(\d+)/ig, function (p0, p1) {
-					p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
-					return '<a href="https://github.com/Zarel/Pokemon-Showdown-Client/pull/' +
-						p1 + '" target="_blank">' + p0 + '</a>';
-				});
-				// [[blah]]
-				//   Short form of gl[blah]
-				str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/ig, function (p0, p1) {
-					var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
-					return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
-						'" target="_blank">' + p1 + '</a>';
-				});
-			}
-			// __italics__
-			str = str.replace(/\_\_([^< ](?:[^<]*?[^< ])??)\_\_(?![^<]*?<\/a)/g,
-				options.hideitalics ? '$1' : '<i>$1</i>');
-			// **bold**
-			str = str.replace(/\*\*([^< ](?:[^<]*?[^< ])??)\*\*/g,
-				options.hidebold ? '$1' : '<b>$1</b>');
 
-			if (!options.hidespoiler) {
-				var untilIndex = 0;
-				while (untilIndex < str.length) {
-					var spoilerIndex = str.toLowerCase().indexOf('spoiler:', untilIndex);
-					if (spoilerIndex < 0) spoilerIndex = str.toLowerCase().indexOf('spoilers:', untilIndex);
-					if (spoilerIndex >= 0) {
-						untilIndex = str.indexOf("\n", spoilerIndex);
-						if (untilIndex < 0) untilIndex = str.length;
-
-						if (str.charAt(spoilerIndex - 1) === '(') {
-							var nextLParenIndex = str.indexOf('(', spoilerIndex);
-							var nextRParenIndex = str.indexOf(')', spoilerIndex);
-							if (nextRParenIndex < 0 || nextRParenIndex >= untilIndex) {
-								// no `)`, keep spoilering until next newline
-							} else if (nextLParenIndex < 0 || nextLParenIndex > nextRParenIndex) {
-								// no `(` before next `)` - spoiler until next `)`
-								untilIndex = nextRParenIndex;
-							} else {
-								// `(` before next `)` - just spoiler until the last `)`
-								untilIndex = str.lastIndexOf(')', untilIndex);
-								if (untilIndex < 0) untilIndex = str.length; // should never happen
-							}
-						}	
-
-						var offset = spoilerIndex + 8;
-						if (str.charAt(offset) === ':') offset++;
-						if (str.charAt(offset) === ' ') offset++;
-						str = str.slice(0, offset) + '<span class="spoiler">' + str.slice(offset, untilIndex) + '</span>' + str.slice(untilIndex);
-						untilIndex += 29;
-					} else {
-						break;
-					}
+					var offset = spoilerIndex + 8;
+					if (str.charAt(offset) === ':') offset++;
+					if (str.charAt(offset) === ' ') offset++;
+					str = str.slice(0, offset) + '<span class="spoiler">' + str.slice(offset, untilIndex) + '</span>' + str.slice(untilIndex);
+					untilIndex += 29;
+				} else {
+					break;
 				}
 			}
-		} else {
-		// ``code``
-		str = str.replace(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g,
-			options.hidemonospace ? '$1' : '<code>$1</code>');
 		}
+
+		return str;
+	},
+
+	escapeHTML: function (str, jsEscapeToo) {
+		str = (str ? '' + str : '');
+		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
 		return str;
 	},
 
