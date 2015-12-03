@@ -366,7 +366,7 @@
 
 			app.dragging = e.currentTarget;
 			app.draggingLoc = parseInt(e.currentTarget.dataset.value, 10);
-			elOffset = $(e.currentTarget).offset();
+			var elOffset = $(e.currentTarget).offset();
 			app.draggingOffsetX = e.originalEvent.pageX - elOffset.left;
 			app.draggingOffsetY = e.originalEvent.pageY - elOffset.top;
 			app.draggingRoom = this.id;
