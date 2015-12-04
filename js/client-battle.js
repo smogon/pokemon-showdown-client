@@ -1082,7 +1082,7 @@
 				var myPokemon;
 				if (this.myPokemon) {
 					if (!pokemon) {
-						pokemon = this.myPokemon[parseInt(thing, 10)];
+						pokemon = this.myPokemon[parseInt(thing)];
 						battlePokemon = this.battle.getPokemon('other: old: ' + pokemon.ident, pokemon.details);
 					} else if (this.controlsShown && pokemon.side === this.battle.mySide) {
 						myPokemon = this.myPokemon[pokemon.slot];
