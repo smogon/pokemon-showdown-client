@@ -2086,6 +2086,7 @@ var Side = (function () {
 			endure: '<span class="good">Endure</span>',
 			focuspunch: '<span class="neutral">Focusing</span>',
 			powder: '<span class="bad">Powder</span>',
+			electrify: '<span class="bad">Electrify</span>',
 			ragepowder: '<span class="good">Rage&nbsp;Powder</span>',
 			followme: '<span class="good">Follow&nbsp;Me</span>',
 			// Gen 1
