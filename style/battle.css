@@ -187,6 +187,7 @@ License: GPLv2
 	padding: 2px 4px;
 }
 .statbar strong {
+	margin: 0 -15px;
 	display: block;
 	text-align: center;
 	color: #222222;
@@ -527,7 +528,9 @@ License: GPLv2
 }
 .battle .abilityresult strong {
 	color: #FFFFFF;
-	background: #00AACC;
+	background: #0088AA;
+	border-radius: 0;
+	padding: 2px 6px;
 }
 
 .sidecondition-reflect {
