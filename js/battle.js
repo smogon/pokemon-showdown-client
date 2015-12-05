@@ -2975,7 +2975,7 @@ var Battle = (function () {
 			opacity: 1
 		}, 1);
 		effectElem.delay(800).animate({
-			opacity: 0,
+			opacity: 0
 		}, 400, 'swing');
 		this.animationDelay += 100;
 		pokemon.side.updateStatbar(pokemon);
