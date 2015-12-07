@@ -467,11 +467,12 @@
 			}
 		},
 		defaultDragEnterTeam: function (e) {
-			// Drag originated outside teambuilder
-			if (!e.originalEvent.dataTransfer) return;
-			if (!e.originalEvent.dataTransfer.files) return;
-			if (e.originalEvent.dataTransfer.files[0] && e.originalEvent.dataTransfer.files[0].name.slice(-4) !== '.txt') return;
-			// We're dragging a .txt file! It might be a team!
+			var dataTransfer = e.originalEvent.dataTransfer;
+			if (!dataTransfer) return;
+			if (dataTransfer.types.indexOf && dataTransfer.types.indexOf('Files') === -1) return;
+			if (dataTransfer.types.contains && !dataTransfer.types.contains('Files')) return;
+			if (dataTransfer.files[0] && dataTransfer.files[0].name.slice(-4) !== '.txt') return;
+			// We're dragging a file! It might be a team!
 			this.$('.teamlist').append('<li class="dragging"><div class="team" data-value="' + Storage.teams.length + '"></div></li>');
 			app.dragging = this.$('.dragging .team')[0];
 			app.draggingLoc = Storage.teams.length;
