@@ -3076,6 +3076,7 @@ var Battle = (function () {
 				break;
 			case 'sleeptalk':
 				pokemon.markMove(move.name, 0);
+				break;
 			default:
 				// April Fool's 2014
 				if (window.Config && Config.server && Config.server.afd && move.id === 'earthquake') {
