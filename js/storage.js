@@ -105,7 +105,7 @@ Storage.initPrefs = function () {
 	} else {
 		Config.server = Config.server || Config.defaultserver;
 		$(
-			'<iframe src="https://play.pokemonshowdown.com/crossprotocol.html?v1" style="display: none;"></iframe>'
+			'<iframe src="https://play.pokemonshowdown.com/crossprotocol.html?v1.1" style="display: none;"></iframe>'
 		).appendTo('body');
 	}
 };

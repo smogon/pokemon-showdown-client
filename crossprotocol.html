@@ -29,15 +29,14 @@ function messageHandler(e) {
 	case 'R':
 	case 'S':
 		var rq = JSON.parse(data.substr(1));
-		$.ajax({
-			type: (data.charAt(0) === 'R' ? 'GET' : 'POST'),
-			url: rq[0],
-			data: rq[1],
-			success: function(ajaxdata) {
+		$[(data.charAt(0) === 'R' ? 'get' : 'post')](
+			rq[0],
+			rq[1],
+			function(ajaxdata) {
 				postMessage('r' + JSON.stringify([rq[2], ajaxdata]));
 			},
-			dataType: rq[3]
-		});
+			rq[3]
+		);
 		break;
 	}
 }
