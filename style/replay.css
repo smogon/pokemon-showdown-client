@@ -42,10 +42,16 @@
 .replay-wrapper {
 	position: relative;
 	padding-top: 460px !important;
+	font-family: Verdana, sans-serif;
+	font-size: 10pt;
 }
 .replay-controls button {
 	font-family: Verdana, sans-serif;
 	font-size: 10pt;
+	cursor: pointer;
+}
+.replay-controls button:disabled {
+	cursor: default;
 }
 .replay-controls button i {
 	display: block;
