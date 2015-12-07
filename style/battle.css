@@ -71,6 +71,16 @@ License: GPLv2
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
 }
+.battle-log-inline {
+	position: static;
+	top: auto;
+	right: auto;
+	bottom: auto;
+	left: auto;
+	height: auto;
+	width: auto;
+	overflow-y: auto;
+}
 .battle-log .inner {
 	padding: 4px 8px 0px 8px;
 }
@@ -78,82 +88,6 @@ License: GPLv2
 	padding: 0 8px 4px 8px;
 }
 .battle-log .inner-after {
-	margin-top: 0.5em;
-}
-.battle-log h2 {
-	margin: 0.5em -8px;
-	padding: 4px 8px;
-	border: 1px solid #AAAAAA;
-	background: #E0E7EA;
-	border-left: 0; border-right: 0;
-	font-family: Verdana, sans-serif;
-	font-size: 13pt;
-}
-.battle-log .chat {
-	vertical-align: middle;
-	padding: 3px 0 3px 0;
-	font-size: 8pt;
-	/* background: #F6FAFF; */
-}
-.battle-log .chat strong {
-	color: #40576A;
-}
-.battle-log .chat em {
-	padding: 1px 4px 1px 3px;
-	color: #000000;
-	font-style: normal;
-}
-.chat.mine {
-	background: rgba(0,0,0,0.05);
-	margin-left: -8px;
-	margin-right: -8px;
-	padding-left: 8px;
-	padding-right: 8px;
-}
-.spoiler {
-	color: #BBBBBB;
-	background: #BBBBBB;
-	padding: 0px 3px;
-}
-.spoiler:hover,
-.spoiler:active,
-.spoiler-shown {
-	color: #000000;
-	background: #E2E2E2;
-	padding: 0px 3px;
-}
-.spoiler a {
-	color: #BBBBBB;
-}
-.spoiler:hover a,
-.spoiler:active a,
-.spoiler-shown a {
-	color: #2288CC;
-}
-.chat code,
-.chat .spoiler:hover code,
-.chat .spoiler:active code,
-.chat .spoiler-shown code {
-	border: 1px solid #C0C0C0;
-	background: #EEEEEE;
-	color: black;
-	padding: 0 2px;
-}
-.chat .spoiler code {
-	border: 1px solid #CCCCCC;
-	background: #CCCCCC;
-	color: #CCCCCC;
-}
-.battle-log .rated {
-	padding: 3px 4px;
-}
-.battle-log .rated strong {
-	color: white;
-	background: #89A;
-	padding: 1px 4px;
-	border-radius: 4px;
-}
-.spacer {
 	margin-top: 0.5em;
 }
 
@@ -733,6 +667,81 @@ License: GPLv2
  * Message log styling
  *********************************************************/
 
+.battle-log h2 {
+	margin: 0.5em -8px;
+	padding: 4px 8px;
+	border: 1px solid #AAAAAA;
+	background: #E0E7EA;
+	border-left: 0; border-right: 0;
+	font-family: Verdana, sans-serif;
+	font-size: 13pt;
+}
+.battle-log .chat {
+	vertical-align: middle;
+	padding: 3px 0 3px 0;
+	font-size: 8pt;
+}
+.battle-log .chat strong {
+	color: #40576A;
+}
+.battle-log .chat em {
+	padding: 1px 4px 1px 3px;
+	color: #000000;
+	font-style: normal;
+}
+.chat.mine {
+	background: rgba(0,0,0,0.05);
+	margin-left: -8px;
+	margin-right: -8px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+.spoiler {
+	color: #BBBBBB;
+	background: #BBBBBB;
+	padding: 0px 3px;
+}
+.spoiler:hover,
+.spoiler:active,
+.spoiler-shown {
+	color: #000000;
+	background: #E2E2E2;
+	padding: 0px 3px;
+}
+.spoiler a {
+	color: #BBBBBB;
+}
+.spoiler:hover a,
+.spoiler:active a,
+.spoiler-shown a {
+	color: #2288CC;
+}
+.chat code,
+.chat .spoiler:hover code,
+.chat .spoiler:active code,
+.chat .spoiler-shown code {
+	border: 1px solid #C0C0C0;
+	background: #EEEEEE;
+	color: black;
+	padding: 0 2px;
+}
+.chat .spoiler code {
+	border: 1px solid #CCCCCC;
+	background: #CCCCCC;
+	color: #CCCCCC;
+}
+.battle-log .rated {
+	padding: 3px 4px;
+}
+.battle-log .rated strong {
+	color: white;
+	background: #89A;
+	padding: 1px 4px;
+	border-radius: 4px;
+}
+.spacer {
+	margin-top: 0.5em;
+}
 .message-announce {
 	background: #6688AA;
 	color: white;

@@ -54,7 +54,8 @@
 		},
 		events: {
 			'change input[name=ignorespects]': 'toggleIgnoreSpects',
-			'change input[name=ignoreopp]': 'toggleIgnoreOpponent'
+			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
+			'click .replayDownloadButton': 'clickReplayDownloadButton'
 		},
 		battleEnded: false,
 		join: function () {
@@ -233,12 +234,14 @@
 
 			if (this.battle.ended) {
 
+				var replayDownloadButton = '<a href="//replay.pokemonshowdown.com/" class="button replayDownloadButton" style="float:right;padding:2px 6px"><i class="fa fa-download"></i> Download replay</a>';
+
 				// battle has ended
 				if (this.side) {
 					// was a player
-					this.$controls.html('<div class="controls"><p><em><button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="fa fa-upload"></i> Share replay</button></p><p><button name="closeAndMainMenu"><strong>Main menu</strong><br /><small>(closes this battle)</small></button> <button name="closeAndRematch"><strong>Rematch</strong><br /><small>(closes this battle)</small></button></p></div>');
+					this.$controls.html('<div class="controls"><p>' + replayDownloadButton + '<em><button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button></p><p><button name="closeAndMainMenu"><strong>Main menu</strong><br /><small>(closes this battle)</small></button> <button name="closeAndRematch"><strong>Rematch</strong><br /><small>(closes this battle)</small></button></p></div>');
 				} else {
-					this.$controls.html('<div class="controls"><p><em><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button> <button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button> <button name="saveReplay"><i class="fa fa-upload"></i> Share replay</button></p></div>');
+					this.$controls.html('<div class="controls"><p>' + replayDownloadButton + '<em><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button> <button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button></p></div>');
 				}
 
 			} else if (!this.battle.mySide.initialized || !this.battle.yourSide.initialized) {
@@ -710,6 +713,23 @@
 		},
 		saveReplay: function () {
 			this.send('/savereplay');
+		},
+		clickReplayDownloadButton: function (e) {
+			var filename = (this.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
+
+			// ladies and gentlemen, JavaScript dates
+			var date = new Date();
+			filename += '-' + date.getFullYear();
+			filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
+			filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
+
+			filename += '-' + toId(this.battle.p1.name);
+			filename += '-' + toId(this.battle.p2.name);
+
+			e.currentTarget.href = Storage.createReplayFile(this);
+			e.currentTarget.download = filename + '.html';
+
+			e.stopPropagation();
 		},
 		switchSides: function () {
 			this.battle.switchSides();
