@@ -3075,6 +3075,7 @@ var Battle = (function () {
 				this.message('Nature Power turned into <strong>' + move.name + '</strong>!');
 				break;
 			case 'sleeptalk':
+				pokemon.markMove(move.name, 0);
 			default:
 				// April Fool's 2014
 				if (window.Config && Config.server && Config.server.afd && move.id === 'earthquake') {
