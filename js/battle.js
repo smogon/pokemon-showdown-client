@@ -3076,6 +3076,7 @@ var Battle = (function () {
 				break;
 			case 'sleeptalk':
 				pokemon.markMove(move.name, 0);
+				this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				break;
 			default:
 				// April Fool's 2014
