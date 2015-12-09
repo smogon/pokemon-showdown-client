@@ -1105,7 +1105,7 @@
 
 			// cache movelist ref
 			var speciesid = toId(this.curSet.species);
-			var g6 = (this.curTeam.format && (this.curTeam.format === 'vgc2014' || this.curTeam.format === 'vgc2015'));
+			var g6 = (this.curTeam.format && this.curTeam.format === 'vgc2016');
 			this.applyMovelist(g6, speciesid);
 
 			this.$chart.html('<em>Loading ' + this.curChartType + '...</em>');
@@ -1121,7 +1121,7 @@
 		updateChartDelayed: function () {
 			// cache movelist ref
 			var speciesid = toId(this.curSet.species);
-			var g6 = (this.curTeam.format && (this.curTeam.format === 'vgc2014' || this.curTeam.format === 'vgc2015'));
+			var g6 = (this.curTeam.format && this.curTeam.format === 'vgc2016');
 			this.applyMovelist(g6, speciesid);
 
 			var self = this;
