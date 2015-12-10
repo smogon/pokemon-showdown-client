@@ -1332,6 +1332,17 @@
 			var basePower = move.basePower;
 			var basePowerComment = '';
 			var thereIsWeather = (this.battle.weather in {'sunnyday': 1, 'desolateland': 1, 'raindance': 1, 'primordialsea': 1, 'sandstorm': 1, 'hail':1});
+			if (myPokemon.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && basePower && (moveName != 'Struggle' || moveName != 'Water Pledge' || moveName != 'Grass Pledge' || moveName != 'Fire Pledge' || moveName != 'Fling')) {
+					basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					basePowerComment += ' (Boosted by ' + itemName + ')';
+				}
+			}
 			if (move.id === 'acrobatics') {
 				if (!myPokemon.item) {
 					basePower *= 2;
@@ -1340,10 +1351,29 @@
 			}
 			if (move.id === 'crushgrip' || move.id === 'wringout') {
 				basePower = Math.floor(Math.floor((120 * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100) || 1;
-				basePowerComment = ' (Approximation)';
+				// No base power initially
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+					basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					basePowerComment += ' (Boosted by ' + itemName + ')';
+				}
+				basePowerComment += ' (Approximation)';
 			}
 			if (move.id === 'eruption' || move.id === 'waterspout') {
 				basePower = Math.floor(150 * pokemon.hp / pokemon.maxhp) || 1;
+				// No base power initially
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+					basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+				}
 			}
 			if (move.id === 'flail' || move.id === 'reversal') {
 				if (this.battle.gen > 4) {
@@ -1360,10 +1390,20 @@
 				else if (ratio < ratios[3]) basePower = 80;
 				else if (ratio < ratios[4]) basePower = 40;
 				else basePower = 20;
+				// No base power initially
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+					basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					basePowerComment += ' (Boosted by ' + itemName + ')';
+				}
 			}
 			if (move.id === 'hex' && target.status) {
 				basePower *= 2;
-				basePowerComment = ' (Boosted by status)';
+				basePowerComment += ' (Boosted by status)';
 			}
 			if (move.id === 'punishment') {
 				var boosts = Object.keys(target.boosts);
@@ -1372,12 +1412,22 @@
 					if (target.boosts[boosts[i]] > 0) multiply += target.boosts[boosts[i]];
 				}
 				basePower = 60 + 20 * multiply;
+				// No base power initially
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+					basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					basePowerComment += ' (Boosted by ' + itemName + ')';
+				}
 				if (basePower > 200) basePower = 200;
 			}
 			if (move.id === 'smellingsalts') {
 				if (target.status === 'par') {
 					basePower *= 2;
-					basePowerComment = ' (Boosted by status)';
+					basePowerComment += ' (Boosted by status)';
 				}
 			}
 			if (move.id === 'storedpower') {
@@ -1387,6 +1437,16 @@
 					if (pokemon.boosts[boosts[i]] > 0) multiply += pokemon.boosts[boosts[i]];
 				}
 				basePower = 20 + 20 * multiply;
+				// No base power initially
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+					basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					basePowerComment += ' (Boosted by ' + itemName + ')';
+				}
 			}
 			if (move.id === 'trumpcard') {
 				basePower = 40;
@@ -1394,21 +1454,41 @@
 				else if (move.pp === 2) basePower = 80;
 				else if (move.pp === 3) basePower = 60;
 				else if (move.pp === 4) basePower = 50;
+				// No base power initially
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+					basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					basePowerComment += ' (Boosted by ' + itemName + ')';
+				}
 			}
 			if (move.id === 'venoshock') {
 				if (target.status === 'psn' || target.status === 'tox') {
 					basePower *= 2;
-					basePowerComment = ' (Boosted by status)';
+					basePowerComment += ' (Boosted by status)';
 				}
 			}
 			if (move.id === 'wakeupslap') {
 				if (target.status === 'slp') {
 					basePower *= 2;
-					basePowerComment = ' (Boosted by status)';
+					basePowerComment += ' (Boosted by status)';
 				}
 			}
 			if (move.id === 'weatherball' && thereIsWeather) {
 				basePower = 100;
+				// No base power initially
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+					basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					basePowerComment += ' (Boosted by ' + itemName + ')';
+				}
 			}
 			// Moves that check opponent speed.
 			if (move.id === 'electroball') {
@@ -1416,8 +1496,8 @@
 				var min = 0;
 				var max = 0;
 				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
-				var minRatio = (myPokemon.stats['spe'] / this.getTemplateMinSpeed(template, target.level));
-				var maxRatio = (myPokemon.stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
+				var minRatio = (myPokemon.stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
+				var maxRatio = (myPokemon.stats['spe'] / this.getTemplateMinSpeed(template, target.level));
 				if (minRatio >= 4) min = 150;
 				else if (minRatio >= 3) min = 120;
 				else if (minRatio >= 2) min = 80;
@@ -1437,6 +1517,17 @@
 				} else {
 					basePowerComment = (min === max) ? max : min + ' to ' + max;
 				}
+				// No base power initially
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+					min *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					max *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					basePowerComment += ' (Boosted by ' + itemName + ')';
+				}
 			}
 			if (move.id === 'gyroball') {
 				var template = target;
@@ -1446,6 +1537,7 @@
 				if (min > 150) min = 150;
 				if (max > 150) max = 150;
 				// Special case due to range as well.
+
 				basePower = 0;
 				if (ability === 'Technician') {
 					if (min <= 60) min *= 1.5;
@@ -1453,6 +1545,16 @@
 					basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
 				} else {
 					basePowerComment = (min === max) ? max : min + ' to ' + max;
+				}
+				var itemName = Tools.getItem(myPokemon.item).name;
+				var pos = this.choice.choices.length;
+				var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+				var splitItemName = itemName.split(' ');
+				var moveName = move.name;
+				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+					min *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					max *= this.battle.gen >= 6 ? 1.3 : 1.5;
+					basePowerComment += ' (Boosted by ' + itemName + ')';
 				}
 			}
 			// Movements which have base power changed due to items.
@@ -1480,7 +1582,17 @@
 					else if (targetWeight >= 50) basePower = 80;
 					else if (targetWeight >= 25) basePower = 60;
 					else if (targetWeight >= 10) basePower = 40;
-					if (target.volatiles && target.volatiles.autotomize) basePowerComment = ' (Approximation)';
+					// No base power initially
+					var itemName = Tools.getItem(myPokemon.item).name;
+					var pos = this.choice.choices.length;
+					var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+					var splitItemName = itemName.split(' ');
+					var moveName = move.name;
+					if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+						basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+						basePowerComment += ' (Boosted by ' + itemName + ')';
+					}
+					if (target.volatiles && target.volatiles.autotomize) basePowerComment += ' (Approximation)';
 				}
 				if (move.id === 'heavyslam' || move.id === 'heatcrash') {
 					basePower = 40;
@@ -1488,7 +1600,16 @@
 					else if (pokemonWeight > targetWeight * 4) basePower = 100;
 					else if (pokemonWeight > targetWeight * 3) basePower = 80;
 					else if (pokemonWeight > targetWeight * 2) basePower = 60;
-					if (target.volatiles && target.volatiles.autotomize) basePowerComment = ' (Approximation)';
+					var itemName = Tools.getItem(myPokemon.item).name;
+					var pos = this.choice.choices.length;
+					var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+					var splitItemName = itemName.split(' ');
+					var moveName = move.name;
+					if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+						basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+						basePowerComment += ' (Boosted by ' + itemName + ')';
+					}
+					if (target.volatiles && target.volatiles.autotomize) basePowerComment += ' (Approximation)';
 				}
 			}
 			if (!basePower) return basePowerComment;
@@ -1496,12 +1617,21 @@
 			// Other ability boosts.
 			if (ability === 'Technician' && basePower <= 60) {
 				basePower *= 1.5;
-				basePowerComment = ' (Technician boosted)';
+				basePowerComment += ' (Technician boosted)';
 			}
 			if (move.type === 'Normal' && move.category !== 'Status' && !(move.id in {'naturalgift': 1, 'struggle': 1}) && (!thereIsWeather || thereIsWeather && move.id !== 'weatherball')) {
 				if (ability in {'Aerilate': 1, 'Pixilate': 1, 'Refrigerate': 1}) {
 					basePower = Math.floor(basePower * 1.3);
-					basePowerComment = ' (' + ability + ' boosted)';
+					var itemName = Tools.getItem(myPokemon.item).name;
+					var pos = this.choice.choices.length;
+					var moveType = this.getMoveType(move, this.battle.mySide.active[pos]);
+					var splitItemName = itemName.split(' ');
+					var moveName = move.name;
+					if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+						basePower *= this.battle.gen >= 6 ? 1.3 : 1.5;
+						basePowerComment += ' (Boosted by ' + itemName + ')';
+					}
+					basePowerComment += ' (' + ability + ' boosted)';
 				}
 			}
 			return basePower + basePowerComment;
