@@ -234,7 +234,7 @@
 
 			if (this.battle.ended) {
 
-				var replayDownloadButton = '<a href="//replay.pokemonshowdown.com/" class="button replayDownloadButton" style="float:right;padding:2px 6px"><i class="fa fa-download"></i> Download replay</a>';
+				var replayDownloadButton = '<span style="float:right;"><a href="//replay.pokemonshowdown.com/" class="button replayDownloadButton" style="padding:2px 6px"><i class="fa fa-download"></i> Download replay</a><br /><br /><button name="saveReplay"><i class="fa fa-upload"></i> Upload and share replay</button></span>';
 
 				// battle has ended
 				if (this.side) {
