@@ -1036,7 +1036,7 @@ Storage.createReplayFile = function (room) {
 	return buf;
 };
 
-Storage.createReplayFileHref = function(room) {
+Storage.createReplayFileHref = function (room) {
 	return 'data:text/plain;base64,' + encodeURIComponent(window.btoa(unescape(encodeURIComponent(Storage.createReplayFile(room)))));
 };
 
