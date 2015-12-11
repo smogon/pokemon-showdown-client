@@ -24,7 +24,7 @@ module.exports = {
 		// Generic global variables
 		"Config": false, "Chart": false, "soundManager": false, "Storage": false, "Tools": false,
 		"app": false, "toId": false, "toRoomid": false, "toUserid": false, "toName": false, "hashColor": false, "MD5": false,
-		"ChatHistory": false, "Topbar": false, "UserList": false,
+		"ChatHistory": false, "Topbar": false, "UserList": false, "ColorThief": false,
 
 		// Rooms
 		"Room": false, "BattleRoom": false, "ChatRoom": false, "ConsoleRoom": false, "LadderRoom": false, "MainMenuRoom": false, "RoomsRoom": false, "TeambuilderRoom": false,
