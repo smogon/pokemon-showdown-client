@@ -726,7 +726,7 @@
 			filename += '-' + toId(this.battle.p1.name);
 			filename += '-' + toId(this.battle.p2.name);
 
-			e.currentTarget.href = Storage.createReplayFile(this);
+			e.currentTarget.href = Storage.createReplayFileHref(this);
 			e.currentTarget.download = filename + '.html';
 
 			e.stopPropagation();

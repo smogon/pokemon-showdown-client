@@ -1033,7 +1033,11 @@ Storage.createReplayFile = function (room) {
 	buf += '<script>\n';
 	buf += 'var daily = Math.floor(Date.now()/1000/60/60/24);document.write(\'<script src="https://play.pokemonshowdown.com/js/replay-embed.js?version\'+daily+\'"></\'+\'script>\');\n';
 	buf += '</script>\n';
-	return 'data:text/plain;base64,' + encodeURIComponent(window.btoa(unescape(encodeURIComponent(buf))));
+	return buf;
+};
+
+Storage.createReplayFileHref = function(room) {
+	return 'data:text/plain;base64,' + encodeURIComponent(window.btoa(unescape(encodeURIComponent(Storage.createReplayFile(room)))));
 };
 
 /*********************************************************
