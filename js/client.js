@@ -385,18 +385,7 @@
 			var self = this;
 
 			Storage.whenPrefsLoaded(function () {
-				var bg = Tools.prefs('bg');
-				if (bg) {
-					$(document.body).css({
-						background: bg,
-						'background-size': 'cover'
-					});
-				} else if (Config.server.id === 'smogtours') {
-					$(document.body).css({
-						background: '#546bac url(//play.pokemonshowdown.com/fx/client-bg-shaymin.jpg) no-repeat left center fixed',
-						'background-size': 'cover'
-					});
-				}
+				Storage.prefs('bg', null);
 
 				var muted = Tools.prefs('mute');
 				BattleSound.setMute(muted);
@@ -1803,7 +1792,7 @@
 			for (var i in app.rooms) {
 				if (app.rooms[i] !== app.curRoom && app.rooms[i].notificationClass === ' notifying') notificationClass = ' notifying';
 			}
-			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="//play.pokemonshowdown.com/favicon-128.png" width="32" height="32" alt="PS!" /><i class="fa fa-caret-down" style="display:inline-block"></i></a></li></ul>';
+			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="' + Tools.resourcePrefix + 'favicon-128.png" width="32" height="32" alt="PS!" /><i class="fa fa-caret-down" style="display:inline-block"></i></a></li></ul>';
 
 			buf += '<ul>' + this.renderRoomTab(app.curRoom) + '</ul>';
 
@@ -2723,7 +2712,7 @@
 			}
 
 			buf += '<hr />';
-			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Charizards</option><option value="#344b6c url(/fx/client-bg-horizon.jpg) no-repeat left center fixed">Horizon</option><option value="#546bac url(/fx/client-bg-3.jpg) no-repeat left center fixed">Waterfall</option><option value="#546bac url(/fx/client-bg-ocean.jpg) no-repeat left center fixed">Ocean</option><option value="#344b6c">Solid blue</option><option value="custom">Custom</option>' + (Tools.prefs('bg') ? '<option value="" selected></option>' : '') + '</select></label></p>';
+			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Random</option><option value="charizards">Charizards</option><option value="horizon">Horizon</option><option value="waterfall">Waterfall</option><option value="ocean">Ocean</option><option value="solidblue">Solid blue</option><option value="custom">Custom</option>' + (Storage.bg.id ? '<option value="" selected>(already set)</option>' : '') + '</select></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Tools.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Tools.prefs('bwgfx') ? ' checked' : '') + ' /> Enable BW sprites for XY</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Tools.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
@@ -2799,17 +2788,19 @@
 			Tools.prefs('temporarynotifications', temporarynotifications);
 		},
 		setBg: function (e) {
-			var bg = e.currentTarget.value;
-			if (bg === 'custom') {
+			var bgs = {
+				'charizards': Tools.resourcePrefix + 'fx/client-bg-charizards.jpg',
+				'horizon': Tools.resourcePrefix + 'fx/client-bg-horizon.jpg',
+				'waterfall': Tools.resourcePrefix + 'fx/client-bg-waterfall.jpg',
+				'ocean': Tools.resourcePrefix + 'fx/client-bg-ocean.jpg',
+				'solidblue': '#344b6c'
+			};
+			var bgid = e.currentTarget.value;
+			if (bgid === 'custom') {
 				app.addPopup(CustomBackgroundPopup);
 				return;
 			}
-			Tools.prefs('bg', bg);
-			if (!bg) bg = '#344b6c url(/fx/client-bg-charizards.jpg) no-repeat left center fixed';
-			$(document.body).css({
-				background: bg,
-				'background-size': 'cover'
-			});
+			Storage.bg.set(bgs[bgid], bgid);
 		},
 		setTimestampsLobby: function (e) {
 			this.timestamps.lobby = e.currentTarget.value;
@@ -3003,21 +2994,16 @@
 	CustomBackgroundPopup.readFile = function (file, popup) {
 		var reader = new FileReader();
 		reader.onload = function (e) {
-			var bg = '#344b6c url(' + e.target.result + ') no-repeat left center fixed';
-			try {
-				Tools.prefs('bg', bg);
-			} catch (e) {
+			var noSave = false;
+			if (String(e.target.result).length > 4000000000) {
 				if (popup) {
-					$('.bgstatus').text("Image too large, upload a background whose size is 3.5MB or less.");
+					$('.bgstatus').text("Your image is too large, it won't be saved.");
 				} else {
-					app.addPopupMessage("Image too large, upload a background whose size is 3.5MB or less.");
+					app.addPopupMessage("Your image is too large, it won't be saved.");
 				}
-				return;
+				noSave = true;
 			}
-			$(document.body).css({
-				background: bg,
-				'background-size': 'cover'
-			});
+			Storage.bg.set(e.target.result, 'custom', noSave);
 			if (popup) popup.close();
 		};
 		reader.readAsDataURL(file);
