@@ -52,9 +52,9 @@
 
 			// right menu
 			if (document.location.hostname === 'play.pokemonshowdown.com') {
-				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button onlineonly disabled" name="joinRoom" value="rooms">Join chat</button></p></div>');
+				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button mainmenu1 onlineonly disabled" name="joinRoom" value="rooms">Join chat</button></p></div>');
 			} else {
-				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button onlineonly disabled" name="joinRoom" value="lobby">Join lobby chat</button></p></div>');
+				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button mainmenu1 onlineonly disabled" name="joinRoom" value="lobby">Join lobby chat</button></p></div>');
 			}
 
 			// footer
