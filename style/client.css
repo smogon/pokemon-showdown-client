@@ -848,8 +848,13 @@ p.or:after {
 }
 .menugroup button.big {
 	width: 230px;
-	padding: 6px 7px 6px 7px;
+	height: 50px;
+	padding: 0;
 	font-size: 14pt;
+}
+.menugroup button.big small {
+	display: block;
+	font-size: 9pt;
 }
 .menugroup .button:hover {
 	background: #5485B6;
