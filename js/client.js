@@ -2969,7 +2969,7 @@
 			buf += '<p><strong>Default</strong></p>';
 			buf += '<div class="bglist">';
 
-			buf += '<button name="setBg" value=""' + (cur === '' ? ' class="cur"' : '') + '><strong style="background:#888888;color:white;padding:3px 8px;display:block;font-size:10pt">' + (location.host === 'play.pokemonshowdown.com' ? 'Random' : 'Default') + '</strong></button>';
+			buf += '<button name="setBg" value=""' + (!cur ? ' class="cur"' : '') + '><strong style="background:#888888;color:white;padding:3px 8px;display:block;font-size:10pt">' + (location.host === 'play.pokemonshowdown.com' ? 'Random' : 'Default') + '</strong></button>';
 
 			buf += '</div><div style="clear:left"></div>';
 			buf += '<p><strong>Official</strong></p>';
@@ -2981,6 +2981,7 @@
 			buf += '<button name="setBg" value="waterfall"' + (cur === 'waterfall' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 2) + 'px"></span>Waterfall</button>';
 			buf += '<button name="setBg" value="ocean"' + (cur === 'ocean' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 3) + 'px"></span>Ocean</button>';
 			buf += '<button name="setBg" value="shaymin"' + (cur === 'shaymin' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 4) + 'px"></span>Shaymin</button>';
+			buf += '<button name="setBg" value="solidblue"' + (cur === 'solidblue' ? ' class="cur"' : '') + '><span class="bg" style="background: #344b6c"></span>Solid blue</button>';
 
 			buf += '</div><div style="clear:left"></div>';
 			buf += '<p><strong>Custom</strong></p>';
@@ -2993,7 +2994,8 @@
 			this.$el.html(buf);
 		},
 		setBg: function (bgid) {
-			Storage.bg.set(Tools.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg', bgid);
+			var bgUrl = (bgid === 'solidblue' ? '#344b6c' : Tools.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg');
+			Storage.bg.set(bgUrl, bgid);
 			this.$('.cur').removeClass('cur');
 			this.$('button[value="' + bgid + '"]').addClass('cur');
 		},
