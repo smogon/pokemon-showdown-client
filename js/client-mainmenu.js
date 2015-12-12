@@ -38,7 +38,7 @@
 				buf += '<div class="menugroup"><form class="battleform" data-search="1">';
 				buf += '<p><label class="label">Format:</label>' + this.renderFormats() + '</p>';
 				buf += '<p><label class="label">Team:</label>' + this.renderTeams() + '</p>';
-				buf += '<p><button class="button mainmenu1 big" name="search"><strong>Look for a battle</strong></button></p></form></div>';
+				buf += '<p><button class="button mainmenu1 big" name="search"><strong>Battle!</strong><br /><small>Find a random opponent</small></button></p></form></div>';
 			}
 
 			buf += '<div class="menugroup"><p><button class="button mainmenu2" name="joinRoom" value="teambuilder">Teambuilder</button></p>';
@@ -474,7 +474,7 @@
 				$formatButton.replaceWith(this.renderFormats(format));
 				$teamButton.replaceWith(this.renderTeams(format, teamIndex));
 
-				$searchForm.find('button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
+				$searchForm.find('button.big').html('<strong>Battle!</strong><br /><small>Find a random opponent</small>').removeClass('disabled');
 				$searchForm.find('p.cancel').remove();
 			} else {
 				$formatButton.addClass('preselected')[0].disabled = true;
@@ -578,7 +578,7 @@
 			}
 			this.$('button.onlineonly').removeClass('disabled');
 
-			if (!this.searching) this.$('.mainmenu button.big').html('<strong>Look for a battle</strong>').removeClass('disabled');
+			if (!this.searching) this.$('.mainmenu button.big').html('<strong>Battle!</strong><br /><small>Find a random opponent</small>').removeClass('disabled');
 			var self = this;
 			this.$('button[name=format]').each(function (i, el) {
 				var val = el.value;
