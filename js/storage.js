@@ -111,7 +111,7 @@ Storage.bg = {
 				var colorThief = new ColorThief();
 				var colors = colorThief.getPalette(img, 6);
 
-				hues = [];
+				var hues = [];
 				for (var i = 0; i < 6; i++) {
 					var color = colors[i];
 					var hs = Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
