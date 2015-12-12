@@ -2693,24 +2693,41 @@ a.ilink.yours {
 	clear: both;
 }
 
-.avatarlist button {
+.bglist {
+	margin: 0 -7px;
+}
+.avatarlist button,
+.bglist button {
 	display: block;
 	float: left;
 	margin: 2px;
-	width: 80px;
-	height: 80px;
+	padding: 2px;
 
 	border: 1px solid #E1E8E8;
-	background: transparent url(//play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
 	border-radius: 4px;
 	box-shadow: none;
 	cursor: pointer;
+	background: transparent;
 }
-.avatarlist button.cur {
+.avatarlist button {
+	width: 80px;
+	height: 80px;
+	background: transparent url(//play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
+}
+.bglist button span {
+	display: block;
+	width: 144px;
+	height: 90px;
+	background: url(//play.pokemonshowdown.com/fx/client-bgsheet.png) no-repeat scroll 0px 0px;
+}
+.avatarlist button.cur,
+.bglist button.cur {
 	border-color: #999999;
 }
 .avatarlist button:hover,
-.avatarlist button.cur:hover {
+.avatarlist button.cur:hover,
+.bglist button:hover,
+.bglist button.cur:hover {
 	border: 1px solid #8899AA;
 	background-color: #F1F4F9;
 	box-shadow: 1px 1px 1px #D5D5D5;

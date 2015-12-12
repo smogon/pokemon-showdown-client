@@ -2712,7 +2712,7 @@
 			}
 
 			buf += '<hr />';
-			buf += '<p><label class="optlabel">Background: <select name="bg"><option value="">Random</option><option value="charizards">Charizards</option><option value="horizon">Horizon</option><option value="waterfall">Waterfall</option><option value="ocean">Ocean</option><option value="solidblue">Solid blue</option><option value="custom">Custom</option>' + (Storage.bg.id ? '<option value="" selected>(already set)</option>' : '') + '</select></label></p>';
+			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Tools.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Tools.prefs('bwgfx') ? ' checked' : '') + ' /> Enable BW sprites for XY</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Tools.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
@@ -2787,20 +2787,8 @@
 			var temporarynotifications = !!e.currentTarget.checked;
 			Tools.prefs('temporarynotifications', temporarynotifications);
 		},
-		setBg: function (e) {
-			var bgs = {
-				'charizards': Tools.resourcePrefix + 'fx/client-bg-charizards.jpg',
-				'horizon': Tools.resourcePrefix + 'fx/client-bg-horizon.jpg',
-				'waterfall': Tools.resourcePrefix + 'fx/client-bg-waterfall.jpg',
-				'ocean': Tools.resourcePrefix + 'fx/client-bg-ocean.jpg',
-				'solidblue': '#344b6c'
-			};
-			var bgid = e.currentTarget.value;
-			if (bgid === 'custom') {
-				app.addPopup(CustomBackgroundPopup);
-				return;
-			}
-			Storage.bg.set(bgs[bgid], bgid);
+		background: function (e) {
+			app.addPopup(CustomBackgroundPopup);
 		},
 		setTimestampsLobby: function (e) {
 			this.timestamps.lobby = e.currentTarget.value;
@@ -2972,20 +2960,44 @@
 	});
 
 	var CustomBackgroundPopup = this.CustomBackgroundPopup = Popup.extend({
-		type: 'semimodal',
 		events: {
-			'change input[name=bgfile]': 'setBg'
+			'change input[name=bgfile]': 'setBgFile'
 		},
 		initialize: function () {
 			var buf = '';
-			buf += '<p>Choose a custom background</p>';
-			buf += '<input type="file" accept="image/*" name="bgfile">';
+			var cur = Storage.bg.id;
+			buf += '<p><strong>Default</strong></p>';
+			buf += '<div class="bglist">';
+
+			buf += '<button name="setBg" value=""' + (cur === '' ? ' class="cur"' : '') + '><strong style="background:#888888;color:white;padding:3px 8px;display:block;font-size:10pt">' + (location.host === 'play.pokemonshowdown.com' ? 'Random' : 'Default') + '</strong></button>';
+
+			buf += '</div><div style="clear:left"></div>';
+			buf += '<p><strong>Official</strong></p>';
+			buf += '<div class="bglist">';
+			var bgs = ['charizards', 'horizon', 'waterfall', 'ocean', 'shaymin'];
+
+			buf += '<button name="setBg" value="charizards"' + (cur === 'charizards' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 0) + 'px"></span>Charizards</button>';
+			buf += '<button name="setBg" value="horizon"' + (cur === 'horizon' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 1) + 'px"></span>Horizon</button>';
+			buf += '<button name="setBg" value="waterfall"' + (cur === 'waterfall' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 2) + 'px"></span>Waterfall</button>';
+			buf += '<button name="setBg" value="ocean"' + (cur === 'ocean' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 3) + 'px"></span>Ocean</button>';
+			buf += '<button name="setBg" value="shaymin"' + (cur === 'shaymin' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 4) + 'px"></span>Shaymin</button>';
+
+			buf += '</div><div style="clear:left"></div>';
+			buf += '<p><strong>Custom</strong></p>';
+			buf += '<p>Drag and drop an image to PS (the background settings don\'t need to be open), or upload:</p>';
+			buf += '<p><input type="file" accept="image/*" name="bgfile"></p>';
 			buf += '<p class="bgstatus"></p>';
 
-			buf += '<p><button name="close">Cancel</button></p>';
+			buf += '<p><button name="close"><strong>Done</strong></button></p>';
+			this.$el.css('max-width', 448).html(buf);
 			this.$el.html(buf);
 		},
-		setBg: function (e) {
+		setBg: function (bgid) {
+			Storage.bg.set(Tools.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg', bgid);
+			this.$('.cur').removeClass('cur');
+			this.$('button[value="' + bgid + '"]').addClass('cur');
+		},
+		setBgFile: function (e) {
 			$('.bgstatus').text('Changing background image.');
 			var file = e.currentTarget.files[0];
 			CustomBackgroundPopup.readFile(file, this);
@@ -3004,7 +3016,9 @@
 				noSave = true;
 			}
 			Storage.bg.set(e.target.result, 'custom', noSave);
-			if (popup) popup.close();
+			if (popup) {
+				if (!noSave) popup.$('.cur').removeClass('cur');
+			}
 		};
 		reader.readAsDataURL(file);
 	};
