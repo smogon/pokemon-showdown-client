@@ -123,6 +123,47 @@
 		return roomid.replace(/[^a-zA-Z0-9-]+/g, '').toLowerCase();
 	};
 
+	var changeButtonColors = this.changeButtonColors = function () {
+		// Get the background image so we can decide the color of the menu buttons.
+		var bgUrl = ('' + $(document.body).css('background-image')).replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+		if (bgUrl) {
+			// We need the image object to load it on a canvas to detect the main color.
+			var img = new Image();
+			img.src = bgUrl;
+			img.onload = function () {
+				// Try with an empty catch just in case ColorThief throws an Exception from canvas.
+				try {
+					var colorThief = new ColorThief();
+					var colors = colorThief.getColor(img);
+					// Transform the rgb values to hsl.
+					var r = colors[0] /= 255;
+					var g = colors[1] /= 255;
+					var b = colors[2] /= 255;
+					var max = Math.max(r, g, b);
+					var min = Math.min(r, g, b);
+					var h, s, l = (max + min) / 2;
+					if (max === min) {
+						h = s = 0;
+					} else {
+						var d = max - min;
+						s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+						switch (max) {
+						case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+						case g: h = (b - r) / d + 2; break;
+						case b: h = (r - g) / d + 4; break;
+						}
+						h /= 6;
+					}
+					// Now, transform the h value to its proper integer value for linear-gradient.
+					h = Math.round(h * 1000);
+					$('.menugroup .button').css('background', 'rgba(0, 0, 0, 0) linear-gradient(to bottom, hsl(' + h + ', 40%, 72%), hsl(' + h + ', 40%, 52%)) repeat scroll 0 0');
+					$('.menugroup .button').css('border-color', 'hsl(' + h + ', 40%, 40%)');
+					$('head').append('<style>.menugroup .button:hover { background: rgba(0, 0, 0, 0) linear-gradient(to bottom, hsl(' + h + ', 40%, 62%), hsl(' + h + ', 40%, 42%)) repeat scroll 0 0 !important;}</style>');
+				} catch (e) {}
+			};
+		}
+	};
+
 	// support Safari 6 notifications
 	if (!window.Notification && window.webkitNotification) {
 		window.Notification = window.webkitNotification;
@@ -397,6 +438,7 @@
 						'background-size': 'cover'
 					});
 				}
+				changeButtonColors();
 
 				var muted = Tools.prefs('mute');
 				BattleSound.setMute(muted);
@@ -2810,6 +2852,7 @@
 				background: bg,
 				'background-size': 'cover'
 			});
+			changeButtonColors();
 		},
 		setTimestampsLobby: function (e) {
 			this.timestamps.lobby = e.currentTarget.value;
