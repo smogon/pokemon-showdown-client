@@ -2721,7 +2721,7 @@ a.ilink.yours {
 	display: block;
 	width: 144px;
 	height: 90px;
-	background: url(//play.pokemonshowdown.com/fx/client-bgsheet.png) no-repeat scroll 0px 0px;
+	background: url(../fx/client-bgsheet.png) no-repeat scroll 0px 0px;
 }
 .avatarlist button.cur,
 .bglist button.cur {
