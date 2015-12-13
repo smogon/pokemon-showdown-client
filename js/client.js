@@ -2700,7 +2700,7 @@
 			var avatar = app.user.get('avatar');
 
 			var buf = '';
-			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Tools.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle" />' : '') + '<strong>' + Tools.escapeHTML(name) + '</strong></p>';
+			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Tools.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + Tools.escapeHTML(name) + '</strong></p>';
 			buf += '<p><button name="avatars">Change avatar</button></p>';
 			if (app.user.get('named')) {
 				var registered = app.user.get('registered');
