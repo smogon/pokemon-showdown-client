@@ -50,7 +50,18 @@ Storage.bg = {
 	load: function (bgUrl, bgid, hues) {
 		this.id = bgid;
 		if (!bgid) {
-			bgid = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'][Math.floor(Math.random() * 5)];
+			if (location.host === 'smogtours.psim.us') {
+				bgid = 'shaymin';
+			} else if (location.host === 'play.pokemonshowdown.com') {
+				bgid = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'][Math.floor(Math.random() * 5)];
+			} else {
+				$(document.body).css({
+					background: '',
+					'background-size': ''
+				});
+				$('#mainmenubuttoncolors').remove();
+				return true;
+			}
 			bgUrl = Tools.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
 		}
 		$(document.body).css({
@@ -112,10 +123,14 @@ Storage.bg = {
 				var colors = colorThief.getPalette(img, 6);
 
 				var hues = [];
-				for (var i = 0; i < 6; i++) {
-					var color = colors[i];
-					var hs = Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
-					hues.unshift(hs);
+				if (!colors) {
+					hues = ['0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%'];
+				} else {
+					for (var i = 0; i < 6; i++) {
+						var color = colors[i];
+						var hs = Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
+						hues.unshift(hs);
+					}
 				}
 				Storage.bg.loadHues(hues);
 				if (!noSave && Storage.bg.changeCount === changeCount) {
@@ -157,11 +172,7 @@ try {
 } catch (e) {}
 
 if (!Storage.bg.id) {
-	if (location.host === 'smogtours.psim.us') {
-		Storage.bg.load('//play.pokemonshowdown.com/fx/client-bg-shaymin.jpg', 'shaymin');
-	} else if (location.host === 'play.pokemonshowdown.com') {
-		Storage.bg.load();
-	}
+	Storage.bg.load();
 }
 
 /*********************************************************
