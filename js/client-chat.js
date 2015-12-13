@@ -100,16 +100,16 @@
 			}
 		},
 		keyPress: function (e) {
-			var cmdKey = e.cmdKey || e.metaKey || e.ctrlKey;
+			var cmdKey = (((e.cmdKey || e.metaKey) ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
 			var textbox = e.currentTarget;
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
-			} else if (e.keyCode === 73 && cmdKey && !e.shiftKey) { // Ctrl + I key
+			} else if (e.keyCode === 73 && cmdKey) { // Ctrl + I key
 				if (ConsoleRoom.toggleFormatChar(textbox, '_')) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
-			} else if (e.keyCode === 66 && cmdKey && !e.shiftKey) { // Ctrl + B key
+			} else if (e.keyCode === 66 && cmdKey) { // Ctrl + B key
 				if (ConsoleRoom.toggleFormatChar(textbox, '*')) {
 					e.preventDefault();
 					e.stopPropagation();
