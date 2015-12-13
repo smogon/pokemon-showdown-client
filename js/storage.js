@@ -38,9 +38,13 @@ Storage.bg = {
 		if (!this.load(bgUrl, bgid)) {
 			this.extractMenuColors(bgUrl, bgid, noSave);
 		} else if (bgid) {
-			localStorage.setItem('showdown_bg', bgUrl + '\n' + bgid);
+			try {
+				localStorage.setItem('showdown_bg', bgUrl + '\n' + bgid);
+			} catch (e) {}
 		} else {
-			localStorage.removeItem('showdown_bg');
+			try {
+				localStorage.removeItem('showdown_bg');
+			} catch (e) {}
 		}
 	},
 	/**
