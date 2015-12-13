@@ -3000,7 +3000,7 @@
 			this.$('button[value="' + bgid + '"]').addClass('cur');
 		},
 		setBgFile: function (e) {
-			$('.bgstatus').text('Changing background image.');
+			$('.bgstatus').text('Changing background image...');
 			var file = e.currentTarget.files[0];
 			CustomBackgroundPopup.readFile(file, this);
 		}
@@ -3009,18 +3009,18 @@
 		var reader = new FileReader();
 		reader.onload = function (e) {
 			var noSave = false;
-			if (String(e.target.result).length > 4000000000) {
+			if (String(e.target.result).length > 4200000) {
 				if (popup) {
-					$('.bgstatus').text("Your image is too large, it won't be saved.");
+					$('.bgstatus').html('<strong style="background:red;color:white;padding:1px 4px;border-radius:4px;display:block">Image is too large and can\'t be saved. It should be under 3.5MB or so.</strong>');
 				} else {
-					app.addPopupMessage("Your image is too large, it won't be saved.");
+					app.addPopupMessage("Image is too large and can't be saved. It should be under 3.5MB or so.");
 				}
 				noSave = true;
+			} else if (popup) {
+				$('.bgstatus').html('Saved');
+				popup.$('.cur').removeClass('cur');
 			}
 			Storage.bg.set(e.target.result, 'custom', noSave);
-			if (popup) {
-				if (!noSave) popup.$('.cur').removeClass('cur');
-			}
 		};
 		reader.readAsDataURL(file);
 	};
