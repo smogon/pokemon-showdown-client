@@ -645,6 +645,11 @@ var Tools = {
 						srcIdx = i;
 						dataUri = attribs[i + 1];
 					}
+					if (attribs[i] === 'src' && attribs[i + 1].substr(0, 2) === '//') {
+						if (location.protocol !== 'http:' && location.protocol !== 'https:') {
+							attribs[i + 1] = 'http:' + attribs[i + 1];
+						}
+					}
 				}
 			}
 			attribs = html.sanitizeAttribs(tagName, attribs, uriRewriter);
