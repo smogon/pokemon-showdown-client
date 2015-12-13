@@ -661,7 +661,7 @@ p.or:after {
 	bottom: 15px;
 	left: 20px;
 	color: #BBBBBB;
-	text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black;
+	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
 }
 .mainmenufooter blockquote {
 	margin: 0 0 1em 0;
@@ -672,11 +672,11 @@ p.or:after {
 }
 .mainmenufooter a {
 	text-decoration: underline;
-	color: #6688CC;
+	color: #99BBEE;
 }
 .mainmenufooter a:hover {
 	text-decoration: underline;
-	color: #99BBFF;
+	color: #CCDDFF;
 }
 
 .pmbox {
