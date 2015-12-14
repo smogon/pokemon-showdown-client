@@ -1316,7 +1316,7 @@
 				}
 			}
 			// Other abilities that change the move type.
-			if (moveType === 'Normal' && move.category && move.category !== 'Status' && move.id !== 'naturalgift') {
+			if (moveType === 'Normal' && move.category && move.category !== 'Status' && !(move.id in {'naturalgift': 1, 'struggle': 1})) {
 				if (ability === 'Aerilate') moveType = 'Flying';
 				if (ability === 'Pixilate') moveType = 'Fairy';
 				if (ability === 'Refrigerate') moveType = 'Ice';
@@ -1498,7 +1498,7 @@
 				basePower *= 1.5;
 				basePowerComment = ' (Technician boosted)';
 			}
-			if (move.type === 'Normal' && move.category !== 'Status' && move.id !== 'naturalgift' && (!thereIsWeather || thereIsWeather && move.id !== 'weatherball')) {
+			if (move.type === 'Normal' && move.category !== 'Status' && !(move.id in {'naturalgift': 1, 'struggle': 1}) && (!thereIsWeather || thereIsWeather && move.id !== 'weatherball')) {
 				if (ability in {'Aerilate': 1, 'Pixilate': 1, 'Refrigerate': 1}) {
 					basePower = Math.floor(basePower * 1.3);
 					basePowerComment = ' (' + ability + ' boosted)';
