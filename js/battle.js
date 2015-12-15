@@ -2184,7 +2184,7 @@ var Battle = (function () {
 		this.minorQueue = [];
 
 		// external
-		this.resumeButton = this.play;
+		this.resumeButton = null;
 
 		this.preloadCache = {};
 
