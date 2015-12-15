@@ -45,7 +45,7 @@ var Replays = {
 	"$": function (sel) {
 		return this.$el.find(sel);
 	},
-	soundReady: function() {
+	soundReady: function () {
 		if (Replays.isSoundReady) return;
 		Replays.isSoundReady = true;
 		$('.soundchooser, .startsoundchooser').show();
