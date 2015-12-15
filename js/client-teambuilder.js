@@ -107,6 +107,7 @@
 		curTeamLoc: 0,
 		curSet: null,
 		curSetLoc: 0,
+		curFormat: '',
 		exportMode: false,
 		update: function () {
 			teams = Storage.teams;
@@ -117,7 +118,7 @@
 				}
 				return this.updateTeamView();
 			}
-			return this.updateTeamList();
+			return this.updateTeamInterface();
 		},
 
 		/*********************************************************
@@ -126,12 +127,11 @@
 
 		deletedTeam: null,
 		deletedTeamLoc: -1,
-		updateTeamList: function () {
-			var teams = Storage.teams;
-			var buf = '';
-
+		updateTeamInterface: function () {
 			this.deletedSet = null;
 			this.deletedSetLoc = -1;
+
+			var buf = '';
 
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
@@ -147,10 +147,92 @@
 				this.$el.html(buf);
 				return;
 			}
-			buf = '<div class="pad"><p>y\'know <s>strawberries</s> avocados have more potassium than bananas</p>';
-			buf += '<p>that doesn\'t have anything to do with teambuilding!</p>';
-			buf += '<p><i>fiiiiiiine</i> press Ctrl + F to find teams by pokemon name</p>';
+
+			// folderpane
+			buf = '<div class="folderpane">';
+			buf += '</div>';
+
+			// teampane
+			buf += '<div class="teampane">';
+			buf += '</div>';
+
+			this.$el.html(buf);
+
+			this.updateFolderList();
+			this.updateTeamList();
+		},
+		updateFolderList: function () {
+			var buf = '';
+
+			buf += '<div class="folder"><button name="selectFolder" value="all"' + (!this.curFormat ? ' disabled' : '') + '>(all)</button></div>';
+			var folderTable = {};
+			var folders = [];
+			folderTable['gen6'] = 1;
+			folders.push('A~');
+			if (Storage.teams) for (var i = -1; i < Storage.teams.length; i++) {
+				var format;
+				if (i >= 0) {
+					format = Storage.teams[i].format;
+				} else {
+					format = this.curFormat;
+				}
+				if (!format) continue;
+				if (format in folderTable) continue;
+				folderTable[format] = 1;
+				switch (format.slice(0, 4)) {
+				case 'gen1': format = 'Z' + format.slice(4); break;
+				case 'gen2': format = 'X' + format.slice(4); break;
+				case 'gen3': format = 'Y' + format.slice(4); break;
+				case 'gen4': format = 'W' + format.slice(4); break;
+				case 'gen5': format = 'V' + format.slice(4); break;
+				default: format = 'A' + format; break;
+				}
+				folders.push(format);
+			}
+			folders.sort();
+			var gen = '';
+			for (var i = 0; i < folders.length; i++) {
+				var format = folders[i];
+				var newGen;
+				switch (format.charAt(0)) {
+				case 'Z': newGen = '1'; break;
+				case 'X': newGen = '2'; break;
+				case 'Y': newGen = '3'; break;
+				case 'W': newGen = '4'; break;
+				case 'V': newGen = '5'; break;
+				case 'A': newGen = '6'; break;
+				}
+				var formatName = format.slice(1);
+				if (formatName === '~') formatName = '';
+				if (newGen === '6' && formatName) {
+					format = formatName;
+				} else {
+					format = 'gen' + newGen + formatName;
+				}
+				if (!formatName) formatName = '(uncategorized)';
+				if (gen !== newGen) {
+					gen = newGen;
+					buf += '<h3>Gen ' + gen + '</h3>';
+				}
+				buf += '<div class="folder"><button name="selectFolder" value="' + format + '"' + (this.curFormat === format ? ' disabled' : '') + '>' + formatName + '</button></div>';
+			}
+
+			this.$('.folderpane').html(buf);
+		},
+		updateTeamList: function (resetScroll) {
+			var teams = Storage.teams;
+			var buf = '';
+
+			// teampane
 			buf += this.clipboardHTML();
+
+			if (!this.curFormat) {
+				buf += '<h2>All teams</h2>';
+			} else {
+				buf += '<h2>' + this.curFormat + '</h2>';
+			}
+
+			if (teams.length) buf += '<p><button name="newTop"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p>';
 			buf += '<ul class="teamlist">';
 			if (!window.localStorage && !window.nodewebkit) buf += '<li>== CAN\'T SAVE ==<br /><small>Your browser doesn\'t support <code>localStorage</code> and can\'t save teams! Update to a newer browser.</small></li>';
 			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
@@ -160,7 +242,6 @@
 				}
 				buf += '<li><em>you don\'t have any teams lol</em></li>';
 			} else {
-				buf += '<li><button name="newTop"><i class="fa fa-plus-circle"></i> New team</button></li>';
 				for (var i = 0; i < teams.length + 1; i++) {
 					if (i === this.deletedTeamLoc) {
 						buf += '<li><button name="undoDelete"><i class="fa fa-undo"></i> Undo Delete</button></li>';
@@ -180,6 +261,8 @@
 						continue;
 					}
 
+					if (this.curFormat && this.curFormat !== (team.format || 'gen6')) continue;
+
 					var formatText = '';
 					if (team.format) {
 						formatText = '[' + team.format + '] ';
@@ -187,11 +270,11 @@
 
 					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + Tools.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></div> <button name="edit" value="' + i + '"><i class="fa fa-pencil"></i>Edit</button> <button name="delete" value="' + i + '"><i class="fa fa-trash"></i>Delete</button></li>';
+					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil"></i>Edit</button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i>Delete</button></li>';
 				}
 			}
-			buf += '<li><button name="new"><i class="fa fa-plus-circle"></i> New team</button></li>';
 			buf += '</ul>';
+			buf += '<p><button name="new"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p>';
 
 			if (window.nodewebkit) {
 				buf += '<button name="revealFolder"><i class="fa fa-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder"><i class="fa fa-refresh"></i> Reload teams files</button> <button name="backup"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
@@ -201,9 +284,14 @@
 				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 			}
 
-			buf += '</div>';
-
-			this.$el.html(buf);
+			var $pane = this.$('.teampane');
+			$pane.html(buf);
+			if (resetScroll) $pane.scrollTop(0);
+		},
+		selectFolder: function (format) {
+			this.curFormat = (format === 'all' ? '' : format);
+			this.updateFolderList();
+			this.updateTeamList(true);
 		},
 		show: function () {
 			Room.prototype.show.apply(this, arguments);
@@ -254,7 +342,7 @@
 			}
 			Storage.deleteTeam(this.deletedTeam);
 			app.user.trigger('saveteams');
-			this.update();
+			this.updateTeamList();
 		},
 		undoDelete: function () {
 			if (this.deletedTeamLoc >= 0) {
@@ -292,7 +380,7 @@
 		"new": function () {
 			var newTeam = {
 				name: 'Untitled ' + (teams.length + 1),
-				format: '',
+				format: (this.curFormat || ''),
 				team: '',
 				iconCache: ''
 			};
@@ -302,7 +390,7 @@
 		newTop: function () {
 			var newTeam = {
 				name: 'Untitled ' + (teams.length + 1),
-				format: '',
+				format: (this.curFormat || ''),
 				team: '',
 				iconCache: ''
 			};

@@ -1951,20 +1951,70 @@ a.ilink.yours {
  * Teambuilder
  *********************************************************/
 
+.folderpane {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	padding: 10px 0;
+	text-align: center;
+	width: 159px;
+	border-right: 1px solid #CCCCCC;
+	overflow: auto;
+}
+.teampane {
+	position: absolute;
+	left: 160px;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	padding: 5px 0 5px 8px;
+	overflow: auto;
+}
+@media (max-width:649px) {
+	.folderpane {
+		display: none;
+	}
+	.teampane {
+		left: 0;
+	}
+}
+
+.folderpane h3 {
+	margin: 10px 0 0 0;
+	font-size: 9pt;
+}
+.folderpane .folder {
+	padding: 2px 0;
+}
+.folderpane button {
+	width: 140px;
+	height: 28px;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+}
+.folderpane button:disabled {
+	cursor: default;
+}
+
 .teamlist {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 .teamlist li {
-	margin: 3px 16px;
+	margin: 3px 0;
 	padding: 0;
 }
 
 .teamlist .team {
 	display: inline-block;
 	white-space: nowrap;
-	width: 360px;
+	width: 350px;
 	height: 49px;
 	padding: 1px 6px 1px 6px;
 	font-size: 8pt;
@@ -1986,7 +2036,7 @@ a.ilink.yours {
 }
 .teamlist .team small {
 	display: block;
-	padding: 3px 74px 0 74px;
+	padding: 3px 69px 0 69px;
 }
 .teamlist .team .pokemonicon span {
 	font-size: 9px !important;
@@ -2100,17 +2150,25 @@ a.ilink.yours {
 	width: 503px;
 	text-align: right;
 }
-.setmenu button {
+.setmenu button,
+.teamlist button {
 	cursor: pointer;
 	background: transparent;
 	border: 0;
 	border-radius: 4px;
 	padding: 3px 6px;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
 }
-.setmenu button:hover {
+.setmenu button:hover,
+.teamlist button:hover {
 	border: 1px solid #888888;
 	padding: 2px 5px;
 	background: #D5D5D5;
+}
+.setmenu button i,
+.teamlist button i {
+	margin-right: 2px;
 }
 .setmenu-left {
 	position: absolute;
