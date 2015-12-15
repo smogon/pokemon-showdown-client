@@ -68,8 +68,16 @@ Storage.bg = {
 			}
 			bgUrl = Tools.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
 		}
+		var background;
+		if (bgUrl.charAt(0) === '#') {
+			background = bgUrl;
+		} else if (bgid !== 'custom') {
+			background = '#546bac url(' + bgUrl + ') no-repeat left center fixed';
+		} else {
+			background = '#546bac url(' + bgUrl + ') no-repeat center center fixed';
+		}
 		$(document.body).css({
-			background: (bgUrl.charAt(0) === '#' ? bgUrl : '#546bac url(' + bgUrl + ') no-repeat left center fixed'),
+			background: background,
 			'background-size': 'cover'
 		});
 		this.changeCount++;
