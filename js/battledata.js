@@ -7,7 +7,10 @@ License: MIT License
 
 if (!window.exports) window.exports = window;
 
-if (window.soundManager) soundManager.setup({url:'https://play.pokemonshowdown.com/swf/'});
+if (window.soundManager) {
+	soundManager.setup({url:'https://play.pokemonshowdown.com/swf/'});
+	if (window.Replays) soundManager.onready(window.Replays.soundReady);
+}
 
 window.nodewebkit = false;
 if (typeof process !== 'undefined' && process.versions && process.versions['node-webkit']) window.nodewebkit = true;

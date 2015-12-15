@@ -1,16 +1,16 @@
 document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/font-awesome.css?" />');
-document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/battle.css?a2" />');
-document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/replay.css?a2" />');
+document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/battle.css?a3" />');
+document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/replay.css?a3" />');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/jquery-1.11.0.min.js"></script>');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/lodash.compat.js"></script>');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/html-sanitizer-minified.js"></script>');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/soundmanager2-nodebug-jsmin.js"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/js/config.js?a2"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/js/battledata.js?a2"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js?a2"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js?a2"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/data/graphics.js?a2"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/js/battle.js?a2"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/js/config.js?a3"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/js/battledata.js?a3"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js?a3"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js?a3"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/data/graphics.js?a3"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/js/battle.js?a3"></script>');
 
 var Replays = {
 	init: function (log) {
@@ -39,11 +39,16 @@ var Replays = {
 		var rc2 = this.$('.replay-controls-2')[0];
 		if (rc2) rc2.innerHTML = rc2.innerHTML;
 
-		if (window.soundManager && soundManager.ready) this.$('.soundchooser, .startsoundchooser').show();
+		if (window.soundManager && soundManager.ready) this.soundReady();
 		this.reset();
 	},
 	"$": function (sel) {
 		return this.$el.find(sel);
+	},
+	soundReady: function() {
+		if (Replays.isSoundReady) return;
+		Replays.isSoundReady = true;
+		$('.soundchooser, .startsoundchooser').show();
 	},
 	clickChangeSetting: function (e) {
 		e.preventDefault();
@@ -86,6 +91,7 @@ var Replays = {
 				off: true
 			};
 			this.battle.setMute(muteTable[value]);
+			this.$('.startsoundchooser').remove();
 			break;
 
 		case 'speed':
@@ -122,7 +128,7 @@ var Replays = {
 	},
 	reset: function () {
 		this.battle.reset();
-		this.$('.battle').html('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button></div>');
+		this.$('.battle').html('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button><br /><br /><button data-action="startMuted" class="startsoundchooser" style="font-size:10pt;display:none">Play (music off)</button></div>');
 		// this.$('.battle-log').html('');
 		this.$('.replay-controls').html('<button data-action="start"><i class="fa fa-play"></i> Play</button><button data-action="reset" disabled="disabled"><i class="fa fa-undo"></i> Reset</button>');
 	},
