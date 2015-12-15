@@ -741,7 +741,6 @@
 				return '<button class="select teamselect" name="team" disabled>You have no teams</button>';
 			}
 			if (teamIndex === undefined) {
-				teamIndex = 0;
 				if (this.curTeamIndex >= 0) {
 					teamIndex = this.curTeamIndex;
 				}
@@ -756,7 +755,7 @@
 			} else {
 				teamIndex = +teamIndex;
 			}
-			return '<button class="select teamselect" name="team" value="' + teamIndex + '">' + TeamPopup.renderTeam(teamIndex) + '</button>';
+			return '<button class="select teamselect" name="team" value="' + (teamIndex === undefined ? '' : teamIndex) + '">' + TeamPopup.renderTeam(teamIndex) + '</button>';
 		},
 
 		// buttons
@@ -780,8 +779,12 @@
 			var teamIndex = $teamButton.val();
 			var team = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
-			if (!window.BattleFormats[format].team && !team) {
-				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
+			if (!window.BattleFormats[format].team && (teamIndex === '' || !team)) {
+				if (Storage.teams) {
+					app.addPopupMessage("Please select a team.");
+				} else {
+					app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
+				}
 				return;
 			}
 
@@ -860,10 +863,13 @@
 			this.$el.html(html);
 		},
 		selectFormat: function (format) {
-			var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
-			this.sourceEl.val(format).html(Tools.escapeFormat(format));
-			$teamButton.replaceWith(app.rooms[''].renderTeams(format));
-			app.rooms[''].curFormat = format;
+			if (app.rooms[''].curFormat !== format) {
+				app.rooms[''].curFormat = format;
+				app.rooms[''].curTeamIndex = -1;
+				var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
+				this.sourceEl.val(format).html(Tools.escapeFormat(format));
+				$teamButton.replaceWith(app.rooms[''].renderTeams(format));
+			}
 			this.close();
 		}
 	});
@@ -889,7 +895,7 @@
 			if (!teams.length) {
 				bufs[curBuf] = '<li><em>You have no teams</em></li>';
 			} else {
-				var curTeam = +data.team;
+				var curTeam = (data.team === '' ? -1 : +data.team);
 				var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
 				var count = 0;
 				if (teamFormat) {
@@ -941,6 +947,9 @@
 		}
 	}, {
 		renderTeam: function (i) {
+			if (i === undefined) {
+				return '<em>Select a team</em>';
+			}
 			if (i === 'random') {
 				var buf = 'Random team<br />';
 				for (var i = 0; i < 6; i++) {
