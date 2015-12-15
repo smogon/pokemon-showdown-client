@@ -232,18 +232,21 @@
 				buf += '<h2>' + this.curFormat + '</h2>';
 			}
 
-			if (teams.length) buf += '<p><button name="newTop"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p>';
-			buf += '<ul class="teamlist">';
 			if (!window.localStorage && !window.nodewebkit) buf += '<li>== CAN\'T SAVE ==<br /><small>Your browser doesn\'t support <code>localStorage</code> and can\'t save teams! Update to a newer browser.</small></li>';
 			if (Storage.cantSave) buf += '<li>== CAN\'T SAVE ==<br /><small>You hit your browser\'s limit for team storage! Please backup them and delete some of them. Your teams won\'t be saved until you\'re under the limit again.</small></li>';
 			if (!teams.length) {
 				if (this.deletedTeamLoc >= 0) {
-					buf += '<li><button name="undoDelete"><i class="fa fa-undo"></i> Undo Delete</button></li>';
+					buf += '<ul class="teamlist"><li><button name="undoDelete"><i class="fa fa-undo"></i> Undo Delete</button></li></ul>';
 				}
-				buf += '<li><em>you don\'t have any teams lol</em></li>';
+				buf += '<p><em>you don\'t have any teams lol</em></p>';
 			} else {
+				var atLeastOne = false;
 				for (var i = 0; i < teams.length + 1; i++) {
 					if (i === this.deletedTeamLoc) {
+						if (!atLeastOne) {
+							buf += '<p><button name="newTop"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p><ul class="teamlist">';
+							atLeastOne = true;
+						}
 						buf += '<li><button name="undoDelete"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 					}
 					if (i >= teams.length) break;
@@ -263,6 +266,10 @@
 
 					if (this.curFormat && this.curFormat !== (team.format || 'gen6')) continue;
 
+					if (!atLeastOne) {
+						buf += '<p><button name="newTop"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p><ul class="teamlist">';
+						atLeastOne = true;
+					}
 					var formatText = '';
 					if (team.format) {
 						formatText = '[' + team.format + '] ';
@@ -272,16 +279,19 @@
 					buf += Storage.getTeamIcons(team);
 					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil"></i>Edit</button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i>Delete</button></li>';
 				}
+				if (!atLeastOne) {
+					buf += '<ul class="teamlist"><li><em>you don\'t have any ' + this.curFormat + ' teams lol</em></li>';
+				}
+				buf += '</ul>';
 			}
-			buf += '</ul>';
 			buf += '<p><button name="new"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p>';
 
 			if (window.nodewebkit) {
 				buf += '<button name="revealFolder"><i class="fa fa-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder"><i class="fa fa-refresh"></i> Reload teams files</button> <button name="backup"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
 			} else {
+				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p>';
 				buf += '<button name="backup"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
-
-				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p><p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
+				buf += '<p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 			}
 
 			var $pane = this.$('.teampane');
