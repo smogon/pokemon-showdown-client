@@ -65,6 +65,9 @@ RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 RewriteRule ^$ - [E=INDEX_PAGE:1]
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
 
+RewriteRule ^crossprotocol\.html$ - [E=CROSSPROTOCOL:1]
+Header set X-Frame-Options "ALLOW-FROM http://play.pokemonshowdown.com" env=CROSSPROTOCOL
+
 # Headers for the index page.
 Header set Cache-Control "no-cache, no-store, must-revalidate" env=INDEX_PAGE
 Header set Pragma "no-cache" env=INDEX_PAGE
