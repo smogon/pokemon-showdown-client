@@ -12,58 +12,60 @@ if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $host, $m)) {
 	die; // not authorised
 }
 
-include_once '../pokemonshowdown.com/config/servers.inc.php';
+if ($config['host'] !== 'showdown') {
+	include_once '../pokemonshowdown.com/config/servers.inc.php';
 
-$hyphenpos = strrpos($config['host'], '-');
-if ($hyphenpos) {
-	$postfix = substr($config['host'], $hyphenpos + 1);
-	if ($postfix === 'afd') {
-		$config['afd'] = true;
-		$config['host'] = substr($config['host'], 0, $hyphenpos);
-	} else if (ctype_digit($postfix)) {
-		$config['port'] = intval(substr($config['host'], $hyphenpos + 1));
-		$config['host'] = substr($config['host'], 0, $hyphenpos);
+	$hyphenpos = strrpos($config['host'], '-');
+	if ($hyphenpos) {
+		$postfix = substr($config['host'], $hyphenpos + 1);
+		if ($postfix === 'afd') {
+			$config['afd'] = true;
+			$config['host'] = substr($config['host'], 0, $hyphenpos);
+		} else if (ctype_digit($postfix)) {
+			$config['port'] = intval(substr($config['host'], $hyphenpos + 1));
+			$config['host'] = substr($config['host'], 0, $hyphenpos);
+		}
 	}
-}
 
-$config['id'] = $config['host'];
-if (isset($PokemonServers[$config['host']])) {
-	$server =& $PokemonServers[$config['host']];
-	if (@$server['banned']) {
-		$config['banned'] = true;
+	$config['id'] = $config['host'];
+	if (isset($PokemonServers[$config['host']])) {
+		$server =& $PokemonServers[$config['host']];
+		if (@$server['banned']) {
+			$config['banned'] = true;
+		} else {
+			$config['host'] = $server['server'];
+			if (!isset($config['port'])) {
+				$config['port'] = $server['port'];
+			} else if ($config['port'] !== $server['port']) {
+				$config['id'] .= ':' . $config['port'];
+			}
+			if (isset($server['altport'])) $config['altport'] = $server['altport'];
+			$config['registered'] = true;
+
+			// $yourip = $_SERVER['REMOTE_ADDR'];
+			$yourip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
+			if (substr($config['host'].':', 0, strlen($yourip)+1) === $yourip.':') {
+				$config['host'] = 'localhost'.substr($config['host'],strlen($yourip));
+			}
+		}
 	} else {
-		$config['host'] = $server['server'];
-		if (!isset($config['port'])) {
-			$config['port'] = $server['port'];
-		} else if ($config['port'] !== $server['port']) {
+		if (isset($config['port'])) {
 			$config['id'] .= ':' . $config['port'];
+		} else {
+			$config['port'] = 8000; // default port
 		}
-		if (isset($server['altport'])) $config['altport'] = $server['altport'];
-		$config['registered'] = true;
 
-		// $yourip = $_SERVER['REMOTE_ADDR'];
-		$yourip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
-		if (substr($config['host'].':', 0, strlen($yourip)+1) === $yourip.':') {
-			$config['host'] = 'localhost'.substr($config['host'],strlen($yourip));
-		}
-	}
-} else {
-	if (isset($config['port'])) {
-		$config['id'] .= ':' . $config['port'];
-	} else {
-		$config['port'] = 8000; // default port
-	}
-
-	// see if this is actually a registered server
-	if ($config['host'] !== 'localhost') {
-		foreach ($PokemonServers as &$server) {
-			if ($config['host'] === $server['server'] && (
-					$config['port'] === $server['port'] ||
-					(isset($server['altport']) && $config['port'] === $server['altport'])
-				)) {
-				$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
-				$config['redirect'] = 'http://' . $server['id'] . '.psim.us/' . rawurlencode($path);
-				break;
+		// see if this is actually a registered server
+		if ($config['host'] !== 'localhost') {
+			foreach ($PokemonServers as &$server) {
+				if ($config['host'] === $server['server'] && (
+						$config['port'] === $server['port'] ||
+						(isset($server['altport']) && $config['port'] === $server['altport'])
+					)) {
+					$path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
+					$config['redirect'] = 'http://' . $server['id'] . '.psim.us/' . rawurlencode($path);
+					break;
+				}
 			}
 		}
 	}
@@ -98,6 +100,7 @@ var yourOrigin = <?php echo json_encode('http://' . $host) ?>;
 var myOrigin = 'https://play.pokemonshowdown.com';
 
 function postMessage (message) {
+	if (window.parent.postMessage === postMessage) return;
 	return window.parent.postMessage(message, yourOrigin);
 }
 function messageHandler(e) {
@@ -134,7 +137,7 @@ function messageHandler(e) {
 }
 
 window.addEventListener('message', messageHandler);
-postMessage('c' + config);
+if (config.host !== 'showdown') postMessage('c' + config);
 var testVal = '' + Date.now();
 try {
 	localStorage.setItem('showdown_allow3p', testVal);
