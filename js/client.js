@@ -998,7 +998,7 @@
 						}
 					}
 					var id = toId(name);
-					var isTeambuilderFormat = searchShow && !team;
+					var isTeambuilderFormat = !team && name.slice(-11) !== 'Custom Game';
 					var teambuilderFormat = '';
 					if (isTeambuilderFormat) {
 						var parenPos = name.indexOf('(');
