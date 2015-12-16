@@ -1971,6 +1971,7 @@ a.ilink.yours {
 	border-left: 5px solid #d7e3ec;
 	width: 154px;
 	overflow: auto;
+	overflow-x: hidden;
 }
 .teampane {
 	position: absolute;
@@ -1978,7 +1979,7 @@ a.ilink.yours {
 	top: 0;
 	right: 0;
 	bottom: 0;
-	padding: 5px 0 5px 8px;
+	padding: 5px 0 5px 12px;
 	overflow: auto;
 }
 @media (max-width:649px) {
