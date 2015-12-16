@@ -736,6 +736,10 @@
 			if (window.BattleFormats[formatid].team) {
 				return '<button class="select teamselect preselected" name="team" value="random" disabled>' + TeamPopup.renderTeam('random') + '</button>';
 			}
+
+			var format = window.BattleFormats[formatid];
+			var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? formatid : false));
+
 			var teams = Storage.teams;
 			if (!teams.length) {
 				return '<button class="select teamselect" name="team" disabled>You have no teams</button>';
@@ -744,9 +748,9 @@
 				if (this.curTeamIndex >= 0) {
 					teamIndex = this.curTeamIndex;
 				}
-				if (this.curTeamFormat !== formatid) {
+				if (this.curTeamFormat !== teamFormat) {
 					for (var i = 0; i < teams.length; i++) {
-						if (teams[i].format === formatid) {
+						if (teams[i].format === teamFormat) {
 							teamIndex = i;
 							break;
 						}
