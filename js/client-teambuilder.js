@@ -180,16 +180,15 @@
 					format = this.curFormat;
 				} else {
 					format = Storage.teams[i].format;
-					if (!format || format === 'gen6') {
-						if ('gen6' in folderTable) continue;
-						folderTable['gen6'] = 1;
-						folders.push('A~');
-						continue;
-					}
+					if (!format) format = 'gen6';
 				}
 				if (!format) continue;
 				if (format in folderTable) continue;
 				folderTable[format] = 1;
+				if (format === 'gen6') {
+					folders.push('A~');
+					continue;
+				}
 				switch (format.slice(0, 4)) {
 				case 'gen1': format = 'Z' + format.slice(4); break;
 				case 'gen2': format = 'X' + format.slice(4); break;
@@ -207,8 +206,8 @@
 				var newGen;
 				switch (format.charAt(0)) {
 				case 'Z': newGen = '1'; break;
-				case 'X': newGen = '2'; break;
-				case 'Y': newGen = '3'; break;
+				case 'Y': newGen = '2'; break;
+				case 'X': newGen = '3'; break;
 				case 'W': newGen = '4'; break;
 				case 'V': newGen = '5'; break;
 				case 'A': newGen = '6'; break;
@@ -327,7 +326,7 @@
 					e.stopImmediatePropagation();
 					var self = this;
 					app.addPopup(FormatPopup, {format: '', sourceEl: e.currentTarget, selectType: 'teambuilder', onselect: function (newFormat) {
-						self.changeFormat(newFormat);
+						self.selectFolder(newFormat);
 					}});
 					return;
 				}
