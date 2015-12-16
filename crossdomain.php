@@ -150,7 +150,7 @@ if (localStorage.getItem('showdown_allow3p') === testVal) {
 	postMessage('a0');
 }
 
-if (location.origin !== myOrigin) {
+if (location.protocol + '//' + location.hostname !== myOrigin) {
 	// This happens sometimes, but we'll pretend it doesn't
 }
 

@@ -239,7 +239,7 @@ Storage.initPrefs = function () {
 	Storage.loadTeams();
 	if (Config.testclient) {
 		return this.initTestClient();
-	} else if (document.location.origin === Storage.origin) {
+	} else if (location.protocol + '//' + location.hostname === Storage.origin) {
 		// Same origin, everything can be kept as default
 		Config.server = Config.server || Config.defaultserver;
 		this.whenPrefsLoaded.load();
@@ -268,7 +268,7 @@ Storage.initPrefs = function () {
 	} else {
 		Config.server = Config.server || Config.defaultserver;
 		$(
-			'<iframe src="https://play.pokemonshowdown.com/crossprotocol.html?v1.1" style="display: none;"></iframe>'
+			'<iframe src="https://play.pokemonshowdown.com/crossprotocol.html?v1.2" style="display: none;"></iframe>'
 		).appendTo('body');
 	}
 };
