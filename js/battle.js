@@ -4060,13 +4060,20 @@ var Battle = (function () {
 				if (item.id === 'airballoon') poke.addVolatile('airballoon');
 
 				if (effect.id) switch (effect.id) {
-				case 'recycle':
 				case 'pickup':
+					this.resultAnim(poke, 'Pickup', 'ability');
+					this.message('', "<small>[" + poke.getName(true) + "'s Pickup!]</small>");
+					poke.markAbility('Pickup');
+					// falls through
+				case 'recycle':
 					poke.itemEffect = 'found';
 					actions += '' + poke.getName() + ' found one ' + item.name + '!';
 					this.resultAnim(poke, item.name, 'neutral');
 					break;
 				case 'frisk':
+					this.resultAnim(ofpoke, 'Frisk', 'ability');
+					this.message('', "<small>[" + ofpoke.getName(true) + "'s Frisk!]</small>");
+					ofpoke.markAbility('Frisk');
 					if (kwargs.identify) { // used for gen 6
 						poke.itemEffect = 'frisked';
 						actions += '' + ofpoke.getName() + ' frisked ' + poke.getLowerName() + ' and found its ' + item.name + '!';
@@ -4075,9 +4082,14 @@ var Battle = (function () {
 						actions += '' + ofpoke.getName() + ' frisked its target and found one ' + item.name + '!';
 					}
 					break;
+				case 'magician':
+				case 'pickpocket':
+					this.resultAnim(poke, effect.name, 'ability');
+					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
+					poke.markAbility(effect.name);
+					// falls through
 				case 'thief':
 				case 'covet':
-				case 'pickpocket':
 					poke.itemEffect = 'stolen';
 					actions += '' + poke.getName() + ' stole ' + ofpoke.getLowerName() + "'s " + item.name + "!";
 					this.resultAnim(poke, item.name, 'neutral');
@@ -4087,6 +4099,7 @@ var Battle = (function () {
 					poke.itemEffect = 'harvested';
 					this.resultAnim(poke, 'Harvest', 'ability');
 					this.message('', "<small>[" + poke.getName(true) + "'s Harvest!]</small>");
+					poke.markAbility('Harvest');
 					actions += '' + poke.getName() + ' harvested one ' + item.name + '!';
 					this.resultAnim(poke, item.name, 'neutral');
 					break;
