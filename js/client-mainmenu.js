@@ -827,8 +827,8 @@
 		initialize: function (data) {
 			var curFormat = data.format;
 			this.onselect = data.onselect;
-			var selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
-			if (this.sourceEl.hasClass('teambuilderformatselect')) selectType = 'teambuilder';
+			var selectType = data.selectType;
+			if (!selectType) selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
 			var bufs = [];
 			var curBuf = 0;
 			var curSection = '';
@@ -972,8 +972,7 @@
 			app.joinRoom('teambuilder');
 			var teambuilder = app.rooms['teambuilder'];
 			if (!teambuilder.exportMode && !teambuilder.curTeam && teamFormat) {
-				teambuilder.curFormat = teamFormat;
-				teambuilder.update();
+				teambuilder.selectFolder(teamFormat);
 			}
 		},
 		selectTeam: function (i) {
