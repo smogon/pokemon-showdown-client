@@ -53,11 +53,15 @@
 
 			// drag/drop
 			'click .team': 'edit',
+			'click .selectFolder': 'selectFolder',
 			'mouseover .team': 'mouseOverTeam',
 			'mouseout .team': 'mouseOutTeam',
 			'dragstart .team': 'dragStartTeam',
 			'dragend .team': 'dragEndTeam',
 			'dragenter .team': 'dragEnterTeam',
+			'dragenter .folder .selectFolder': 'dragEnterFolder',
+			'dragleave .folder .selectFolder': 'dragLeaveFolder',
+			'dragexit .folder .selectFolder': 'dragExitFolder',
 
 			// clipboard
 			'click .teambuilder-clipboard-data .result': 'clipboardResultSelect',
@@ -164,7 +168,7 @@
 		updateFolderList: function () {
 			var buf = '<div class="folderlist"><div class="folderlistbefore"></div>';
 
-			buf += '<div class="folder' + (this.curFormat === format ? ' cur' : '') + '"><button name="selectFolder" value="all"' + (!this.curFormat ? ' disabled' : '') + '>(all)</button></div>';
+			buf += '<div class="folder' + (!this.curFormat ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="all">(all)</div></div>' + (!this.curFormat ? '</div>' : '');
 			var folderTable = {};
 			var folders = [];
 			if (Storage.teams) for (var i = -1; i < Storage.teams.length; i++) {
@@ -218,11 +222,13 @@
 					format = 'gen' + newGen + formatName;
 				}
 				if (format === 'gen6') formatName = '(uncategorized)';
-				buf += '<div class="folder' + (this.curFormat === format ? ' cur' : '') + '"><button name="selectFolder" value="' + format + '"' + (this.curFormat === format ? ' disabled><i class="fa fa-folder-open-o"></i>' : '><i class="fa fa-folder-o"></i>') + formatName + '</button></div>';
+				// folders are <div>s rather than <button>s because in theory it has
+				// less weird interactions with HTML5 drag-and-drop
+				buf += '<div class="folder' + (this.curFormat === format ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="' + format + '"><i class="fa ' + (this.curFormat === format ? 'fa-folder-open-o' : 'fa-folder-o') + '"></i>' + formatName + '</div></div>' + (this.curFormat === format ? '</div>' : '');
 			}
 
 			buf += '<div class="folder"><h3></h3></div>';
-			buf += '<div class="folder"><button name="format" value="" class="teambuilderformatselect"><i class="fa fa-plus"></i>(New format folder)</button></div>';
+			buf += '<div class="folder"><div class="selectFolder" data-value="+"><i class="fa fa-plus"></i>(New format folder)</div></div>';
 
 			buf += '<div class="folderlistafter"></div></div>';
 
@@ -284,6 +290,8 @@
 						formatText = '[' + team.format + '] ';
 					}
 
+					// teams are <div>s rather than <button>s because Firefox doesn't
+					// support dragging and dropping buttons.
 					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + Tools.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
 					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil"></i>Edit</button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i>Delete</button></li>';
@@ -308,6 +316,16 @@
 			if (resetScroll) $pane.scrollTop(0);
 		},
 		selectFolder: function (format) {
+			if (format && format.currentTarget) {
+				var e = format;
+				format = $(e.currentTarget).data('value');
+				e.preventDefault();
+				if (format === '+') {
+					this.format('', e.currentTarget);
+					e.stopImmediatePropagation();
+					return;
+				}
+			}
 			this.curFormat = (format === 'all' ? '' : format);
 			this.updateFolderList();
 			this.updateTeamList(true);
@@ -494,8 +512,9 @@
 			}
 			var newLoc = Math.floor(app.draggingLoc);
 			if (app.draggingLoc < originalLoc) newLoc += 1;
+			var team = Storage.teams[originalLoc];
+			var edited = false;
 			if (newLoc !== originalLoc) {
-				var team = Storage.teams[originalLoc];
 				Storage.teams.splice(originalLoc, 1);
 				Storage.teams.splice(newLoc, 0, team);
 				for (var room in app.rooms) {
@@ -510,15 +529,27 @@
 						obj.curTeamIndex--;
 					}
 				}
-				Storage.saveTeams();
-				app.user.trigger('saveteams');
+				edited = true;
 			}
 
 			// possibly half-works-around a hover issue in
 			this.$('.teamlist').css('pointer-events', 'none');
 			$(teamEl).parent().removeClass('dragging');
 
-			this.updateTeamList();
+			if (app.draggingFolder) {
+				var format = app.draggingFolder.dataset.value;
+				app.draggingFolder = null;
+				team.format = format;
+				this.selectFolder(format);
+				edited = true;
+			} else {
+				this.updateTeamList();
+			}
+
+			if (edited) {
+				Storage.saveTeams();
+				app.user.trigger('saveteams');
+			}
 
 			// We're going to try to animate the team settling into its new position
 
@@ -547,7 +578,8 @@
 				// everything is sane.
 
 				var $newTeamEl = this.$('.team[data-value=' + newLoc + ']');
-				$newTeamEl.css('transform', 'translate(' + this.finalOffset[0] + 'px, ' + this.finalOffset[1] + 'px)');
+				var finalPos = $newTeamEl.offset();
+				$newTeamEl.css('transform', 'translate(' + (this.finalOffset[0] - finalPos.left) + 'px, ' + (this.finalOffset[1] - finalPos.top) + 'px)');
 				setTimeout(function () {
 					$newTeamEl.css('transition', 'transform 0.15s');
 					// it's 2015 and Safari doesn't support unprefixed transition!!!
@@ -558,6 +590,8 @@
 		},
 		dragEnterTeam: function (e) {
 			if (!app.dragging) return;
+			var $draggingLi = $(app.dragging).parent();
+			this.dragLeaveFolder();
 			if (e.currentTarget === app.dragging) {
 				e.preventDefault();
 				return;
@@ -565,13 +599,40 @@
 			var hoverLoc = parseInt(e.currentTarget.dataset.value, 10);
 			if (app.draggingLoc > hoverLoc) {
 				// dragging up
-				$(e.currentTarget).parent().before($(app.dragging).parent());
+				$(e.currentTarget).parent().before($draggingLi);
 				app.draggingLoc = parseInt(e.currentTarget.dataset.value, 10) - 0.5;
 			} else {
 				// dragging down
-				$(e.currentTarget).parent().after($(app.dragging).parent());
+				$(e.currentTarget).parent().after($draggingLi);
 				app.draggingLoc = parseInt(e.currentTarget.dataset.value, 10) + 0.5;
 			}
+		},
+		dragEnterFolder: function (e) {
+			if (!app.dragging) return;
+			this.dragLeaveFolder();
+			if (e.currentTarget === app.draggingFolder) {
+				return;
+			}
+			var format = e.currentTarget.dataset.value;
+			if (format === '+' || format === 'all' || format === this.curFormat) {
+				return;
+			}
+			if (parseInt(app.dragging.dataset.value, 10) >= Storage.teams.length) {
+				// dragging a team file, already has a known format
+				return;
+			}
+			app.draggingFolder = e.currentTarget;
+			$(app.draggingFolder).addClass('active');
+			// amusing note: using .detach() instead of .hide() will make `dragend` not fire
+			$(app.dragging).parent().hide();
+		},
+		dragLeaveFolder: function (e) {
+			// sometimes there's a race condition and dragEnter happens before dragLeave
+			if (e && e.currentTarget !== app.draggingFolder) return;
+			if (!app.dragging || !app.draggingFolder) return;
+			$(app.draggingFolder).removeClass('active');
+			app.draggingFolder = null;
+			$(app.dragging).parent().show();
 		},
 		defaultDragEnterTeam: function (e) {
 			var dataTransfer = e.originalEvent.dataTransfer;
@@ -580,6 +641,7 @@
 			if (dataTransfer.types.contains && !dataTransfer.types.contains('Files')) return;
 			if (dataTransfer.files[0] && dataTransfer.files[0].name.slice(-4) !== '.txt') return;
 			// We're dragging a file! It might be a team!
+			this.selectFolder('all');
 			this.$('.teamlist').append('<li class="dragging"><div class="team" data-value="' + Storage.teams.length + '"></div></li>');
 			app.dragging = this.$('.dragging .team')[0];
 			app.draggingLoc = Storage.teams.length;
@@ -628,8 +690,7 @@
 				};
 				reader.readAsText(file);
 			}
-			var finalPos = $(app.dragging).offset();
-			this.finalOffset = [e.originalEvent.pageX - app.draggingOffsetX - finalPos.left, e.originalEvent.pageY - app.draggingOffsetY - finalPos.top];
+			this.finalOffset = [e.originalEvent.pageX - app.draggingOffsetX, e.originalEvent.pageY - app.draggingOffsetY];
 		},
 
 		/*********************************************************
