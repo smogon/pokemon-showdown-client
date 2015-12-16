@@ -826,15 +826,21 @@
 	var FormatPopup = this.FormatPopup = this.Popup.extend({
 		initialize: function (data) {
 			var curFormat = data.format;
+			this.onselect = data.onselect;
 			var selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
+			if (this.sourceEl.hasClass('teambuilderformatselect')) selectType = 'teambuilder';
 			var bufs = [];
 			var curBuf = 0;
 			var curSection = '';
 			for (var i in BattleFormats) {
 				var format = BattleFormats[i];
 				var selected = false;
-				if (format.effectType !== 'Format') continue;
-				if (selectType && !format[selectType + 'Show']) continue;
+				if (selectType === 'teambuilder') {
+					if (!format.isTeambuilderFormat) continue;
+				} else {
+					if (format.effectType !== 'Format') continue;
+					if (selectType && !format[selectType + 'Show']) continue;
+				}
 
 				if (format.section && format.section !== curSection) {
 					curSection = format.section;
@@ -867,13 +873,16 @@
 			this.$el.html(html);
 		},
 		selectFormat: function (format) {
-			if (app.rooms[''].curFormat !== format) {
+			if (this.onselect) {
+				this.onselect(format);
+			} else if (app.rooms[''].curFormat !== format) {
 				app.rooms[''].curFormat = format;
 				app.rooms[''].curTeamIndex = -1;
 				var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
-				this.sourceEl.val(format).html(Tools.escapeFormat(format));
-				$teamButton.replaceWith(app.rooms[''].renderTeams(format));
+				if ($teamButton.length) $teamButton.replaceWith(app.rooms[''].renderTeams(format));
 			}
+			this.sourceEl.val(format).html(Tools.escapeFormat(format));
+
 			this.close();
 		}
 	});

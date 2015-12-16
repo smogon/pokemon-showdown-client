@@ -33,7 +33,7 @@
 		events: {
 			// team changes
 			'change input.teamnameedit': 'teamNameChange',
-			'change select[name=format]': 'formatChange',
+			'click button.formatselect': 'selectFormat',
 			'change input[name=nickname]': 'nicknameChange',
 
 			// details
@@ -167,8 +167,6 @@
 			buf += '<div class="folder' + (this.curFormat === format ? ' cur' : '') + '"><button name="selectFolder" value="all"' + (!this.curFormat ? ' disabled' : '') + '>(all)</button></div>';
 			var folderTable = {};
 			var folders = [];
-			folderTable['gen6'] = 1;
-			folders.push('A~');
 			if (Storage.teams) for (var i = -1; i < Storage.teams.length; i++) {
 				var format;
 				if (i >= 0) {
@@ -176,7 +174,13 @@
 				} else {
 					format = this.curFormat;
 				}
-				if (!format) continue;
+				if (!format || format === 'gen6') {
+					if (i < 0 && format) continue;
+					if ('gen6' in folderTable) continue;
+					folderTable['gen6'] = 1;
+					folders.push('A~');
+					continue;
+				}
 				if (format in folderTable) continue;
 				folderTable[format] = 1;
 				switch (format.slice(0, 4)) {
@@ -202,6 +206,10 @@
 				case 'V': newGen = '5'; break;
 				case 'A': newGen = '6'; break;
 				}
+				if (gen !== newGen) {
+					gen = newGen;
+					buf += '<div class="folder"><h3>Gen ' + gen + '</h3></div>';
+				}
 				var formatName = format.slice(1);
 				if (formatName === '~') formatName = '';
 				if (newGen === '6' && formatName) {
@@ -209,13 +217,12 @@
 				} else {
 					format = 'gen' + newGen + formatName;
 				}
-				if (!formatName) formatName = '(uncategorized)';
-				if (gen !== newGen) {
-					gen = newGen;
-					buf += '<div class="folder"><h3>Gen ' + gen + '</h3></div>';
-				}
+				if (format === 'gen6') formatName = '(uncategorized)';
 				buf += '<div class="folder' + (this.curFormat === format ? ' cur' : '') + '"><button name="selectFolder" value="' + format + '"' + (this.curFormat === format ? ' disabled><i class="fa fa-folder-open-o"></i>' : '><i class="fa fa-folder-o"></i>') + formatName + '</button></div>';
 			}
+
+			buf += '<div class="folder"><h3></h3></div>';
+			buf += '<div class="folder"><button name="format" value="" class="teambuilderformatselect"><i class="fa fa-plus"></i>(New format folder)</button></div>';
 
 			buf += '<div class="folderlistafter"></div></div>';
 
@@ -647,22 +654,9 @@
 					this.curSetList.splice(this.curSetList.length - 1, 1);
 				}
 				if (exports.BattleFormats) {
-					buf += '<li class="format-select"><label>Format:</label><select name="format"><option value="">(None)</option>';
-					var curSection = '';
-					for (var i in BattleFormats) {
-						var format = BattleFormats[i];
-						if (format.isTeambuilderFormat) {
-							if (format.section !== curSection) {
-								if (curSection) buf += '</optgroup>';
-								curSection = format.section;
-								if (curSection) buf += '<optgroup label="' + Tools.escapeHTML(curSection) + '">';
-							}
-							var activeFormat = (this.curTeam.format === i ? ' selected="selected"' : '');
-							buf += '<option value="' + i + '"' + activeFormat + '>' + Tools.escapeFormat(format.id) + '</option>';
-						}
-					}
-					if (curSection) buf += '</optgroup>';
-					buf += '</select><button name="validate"><i class="fa fa-check"></i> Validate</button></li>';
+					buf += '<li class="format-select">';
+					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.format + '">' + (Tools.escapeFormat(this.curTeam.format) || '<em>Select a format</em>') + '</button>';
+					buf += ' <button name="validate" class="button"><i class="fa fa-check"></i> Validate</button></li>';
 				}
 				if (!this.curSetList.length) {
 					buf += '<li><em>you have no pokemon lol</em></li>';
@@ -832,8 +826,23 @@
 			e.currentTarget.value = this.curTeam.name;
 			this.save();
 		},
-		formatChange: function (e) {
-			this.curTeam.format = e.currentTarget.value;
+		format: function (format, button) {
+			if (!window.BattleFormats) {
+				return;
+			}
+			var self = this;
+			if (this.curTeam) {
+				app.addPopup(FormatPopup, {format: format, sourceEl: button, onselect: function (newFormat) {
+					self.changeFormat(newFormat);
+				}});
+			} else {
+				app.addPopup(FormatPopup, {format: format, sourceEl: button, onselect: function (newFormat) {
+					self.selectFolder(newFormat);
+				}});
+			}
+		},
+		changeFormat: function (format) {
+			this.curTeam.format = format;
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.save();
 			if (this.curTeam.gen === 5 && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
