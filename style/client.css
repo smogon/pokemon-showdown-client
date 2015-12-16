@@ -1967,15 +1967,14 @@ a.ilink.yours {
 	left: 0;
 	top: 0;
 	bottom: 0;
-	padding: 10px 0;
-	text-align: center;
-	width: 159px;
-	border-right: 1px solid #CCCCCC;
+	padding: 0;
+	border-left: 5px solid #d7e3ec;
+	width: 154px;
 	overflow: auto;
 }
 .teampane {
 	position: absolute;
-	left: 160px;
+	left: 159px;
 	top: 0;
 	right: 0;
 	bottom: 0;
@@ -1991,25 +1990,122 @@ a.ilink.yours {
 	}
 }
 
-.folderpane h3 {
-	margin: 10px 0 0 0;
-	font-size: 9pt;
+.folderlist {
+	height: 100%;
+	width: 100%;
+	display: table;
+	margin: 0;
+	padding: 0;
+	border: 0;
 }
-.folderpane .folder {
-	padding: 2px 0;
+.folderlist .folder {
+	display: table-row;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: 30px;
+}
+.folderlistafter {
+	display: table-row;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: auto;
+}
+.folderlistbefore {
+	display: table-row;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: 12px;
+	content: '';
+}
+.folderlistafter:before,
+.folderlistbefore:before {
+	display: table-cell;
+	background: #d7e3ec;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-right: 1px solid #888888;
+	content: '';
+}
+
+.folderpane i {
+	display: inline-block;
+	width: 16px;
+	color: #777777;
+}
+.folderpane h3 {
+	margin: 0;
+	padding: 13px 0 0 0;
+	height: 17px;
+	font-size: 9pt;
+	background: #d7e3ec;
+	border-right: 1px solid #888888;
 }
 .folderpane button {
-	width: 140px;
-	height: 28px;
+	display: block;
+	position: relative;
+	padding: 0 0 0 7px;
+	border: 0;
+	border-right: 1px solid #888888;
+	background: #d7e3ec;
+	color: black;
+	width: 100%;
+	height: 30px;
 	font-size: 9pt;
 	font-family: Verdana, sans-serif;
-	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
+	text-align: left;
 	cursor: pointer;
 }
-.folderpane button:disabled {
+.folderpane button:hover {
+	background: #c7d3dc;
+}
+.folderpane button:active {
+	background: #b7c3cc;
+}
+.folderpane button:disabled,
+.folderpane button:disabled:hover,
+.folderpane button:disabled:active {
 	cursor: default;
+	background: transparent;
+	color: black;
+	border-top: 1px solid #888888;
+	border-bottom: 1px solid #888888;
+	border-left: 1px solid #888888;
+	border-right: 0;
+	padding-left: 6px;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+.folder.cur:before,
+.folder.cur:after {
+	position: absolute;
+	display: block;
+	left: 0;
+	width: 1px;
+	height: 1px;
+	background: #d7e3ec;
+	content: '';
+}
+.folder.cur:before {
+	top: 0;
+}
+.folder.cur:after {
+	bottom: 0;
+}
+
+.teampane .button.big {
+	font-size: 11pt;
+	padding: 5px 10px;
+}
+.teampane .button {
+	font-size: 9pt;
+	padding: 3px 8px;
 }
 
 .teamlist {

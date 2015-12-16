@@ -162,9 +162,9 @@
 			this.updateTeamList();
 		},
 		updateFolderList: function () {
-			var buf = '';
+			var buf = '<div class="folderlist"><div class="folderlistbefore"></div>';
 
-			buf += '<div class="folder"><button name="selectFolder" value="all"' + (!this.curFormat ? ' disabled' : '') + '>(all)</button></div>';
+			buf += '<div class="folder' + (this.curFormat === format ? ' cur' : '') + '"><button name="selectFolder" value="all"' + (!this.curFormat ? ' disabled' : '') + '>(all)</button></div>';
 			var folderTable = {};
 			var folders = [];
 			folderTable['gen6'] = 1;
@@ -212,10 +212,12 @@
 				if (!formatName) formatName = '(uncategorized)';
 				if (gen !== newGen) {
 					gen = newGen;
-					buf += '<h3>Gen ' + gen + '</h3>';
+					buf += '<div class="folder"><h3>Gen ' + gen + '</h3></div>';
 				}
-				buf += '<div class="folder"><button name="selectFolder" value="' + format + '"' + (this.curFormat === format ? ' disabled' : '') + '>' + formatName + '</button></div>';
+				buf += '<div class="folder' + (this.curFormat === format ? ' cur' : '') + '"><button name="selectFolder" value="' + format + '"' + (this.curFormat === format ? ' disabled><i class="fa fa-folder-open-o"></i>' : '><i class="fa fa-folder-o"></i>') + formatName + '</button></div>';
 			}
+
+			buf += '<div class="folderlistafter"></div></div>';
 
 			this.$('.folderpane').html(buf);
 		},
@@ -244,7 +246,7 @@
 				for (var i = 0; i < teams.length + 1; i++) {
 					if (i === this.deletedTeamLoc) {
 						if (!atLeastOne) {
-							buf += '<p><button name="newTop"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p><ul class="teamlist">';
+							buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p><ul class="teamlist">';
 							atLeastOne = true;
 						}
 						buf += '<li><button name="undoDelete"><i class="fa fa-undo"></i> Undo Delete</button></li>';
@@ -267,7 +269,7 @@
 					if (this.curFormat && this.curFormat !== (team.format || 'gen6')) continue;
 
 					if (!atLeastOne) {
-						buf += '<p><button name="newTop"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p><ul class="teamlist">';
+						buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p><ul class="teamlist">';
 						atLeastOne = true;
 					}
 					var formatText = '';
@@ -284,13 +286,13 @@
 				}
 				buf += '</ul>';
 			}
-			buf += '<p><button name="new"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p>';
+			buf += '<p><button name="new" class="button big"><i class="fa fa-plus-circle"></i> New' + (this.curFormat && this.curFormat !== 'gen6' ? ' ' + this.curFormat : '') + ' team</button></p>';
 
 			if (window.nodewebkit) {
-				buf += '<button name="revealFolder"><i class="fa fa-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder"><i class="fa fa-refresh"></i> Reload teams files</button> <button name="backup"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
+				buf += '<button name="revealFolder" class="button"><i class="fa fa-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder" class="button"><i class="fa fa-refresh"></i> Reload teams files</button> <button name="backup" class="button"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
 			} else {
 				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p>';
-				buf += '<button name="backup"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
+				buf += '<button name="backup" class="button"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
 				buf += '<p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 			}
 
