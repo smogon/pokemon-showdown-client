@@ -2065,7 +2065,8 @@ a.ilink.yours {
 .folderpane button:hover {
 	background: #c7d3dc;
 }
-.folderpane button:active {
+.folderpane button:active,
+.folderpane button.active {
 	background: #b7c3cc;
 }
 .folderpane button:disabled,
@@ -2100,13 +2101,15 @@ a.ilink.yours {
 	bottom: 0;
 }
 
-.teampane .button.big {
-	font-size: 11pt;
-	padding: 5px 10px;
-}
-.teampane .button {
+.teampane .button,
+.teamwrapper .button {
 	font-size: 9pt;
 	padding: 3px 8px;
+}
+.teampane .button.big,
+.teamwrapper .button.big {
+	font-size: 12pt;
+	padding: 5px 10px;
 }
 
 .teamlist {
@@ -2265,6 +2268,7 @@ a.ilink.yours {
 	border: 0;
 	border-radius: 4px;
 	padding: 3px 6px;
+	margin: 0;
 	font-size: 9pt;
 	font-family: Verdana, sans-serif;
 }
