@@ -29,6 +29,7 @@
 				this.saveFlag = false;
 				app.user.trigger('saveteams');
 			}
+			this.curFormatKeep = '';
 		},
 		events: {
 			// team changes
@@ -171,20 +172,22 @@
 			buf += '<div class="folder' + (!this.curFormat ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="all">(all)</div></div>' + (!this.curFormat ? '</div>' : '');
 			var folderTable = {};
 			var folders = [];
-			if (Storage.teams) for (var i = -1; i < Storage.teams.length; i++) {
+			if (Storage.teams) for (var i = -2; i < Storage.teams.length; i++) {
 				var format;
-				if (i >= 0) {
-					format = Storage.teams[i].format;
-				} else {
+				if (i === -2) {
+					format = this.curFormatKeep;
+				} else if (i === -1) {
 					format = this.curFormat;
+				} else {
+					format = Storage.teams[i].format;
+					if (!format || format === 'gen6') {
+						if ('gen6' in folderTable) continue;
+						folderTable['gen6'] = 1;
+						folders.push('A~');
+						continue;
+					}
 				}
-				if (!format || format === 'gen6') {
-					if (i < 0 && format) continue;
-					if ('gen6' in folderTable) continue;
-					folderTable['gen6'] = 1;
-					folders.push('A~');
-					continue;
-				}
+				if (!format) continue;
 				if (format in folderTable) continue;
 				folderTable[format] = 1;
 				switch (format.slice(0, 4)) {
@@ -321,10 +324,15 @@
 				format = $(e.currentTarget).data('value');
 				e.preventDefault();
 				if (format === '+') {
-					this.format('', e.currentTarget);
 					e.stopImmediatePropagation();
+					var self = this;
+					app.addPopup(FormatPopup, {format: '', sourceEl: e.currentTarget, selectType: 'teambuilder', onselect: function (newFormat) {
+						self.changeFormat(newFormat);
+					}});
 					return;
 				}
+			} else {
+				this.curFormatKeep = format;
 			}
 			this.curFormat = (format === 'all' ? '' : format);
 			this.updateFolderList();
@@ -892,15 +900,9 @@
 				return;
 			}
 			var self = this;
-			if (this.curTeam) {
-				app.addPopup(FormatPopup, {format: format, sourceEl: button, onselect: function (newFormat) {
-					self.changeFormat(newFormat);
-				}});
-			} else {
-				app.addPopup(FormatPopup, {format: format, sourceEl: button, onselect: function (newFormat) {
-					self.selectFolder(newFormat);
-				}});
-			}
+			app.addPopup(FormatPopup, {format: format, sourceEl: button, selectType: 'teambuilder', onselect: function (newFormat) {
+				self.changeFormat(newFormat);
+			}});
 		},
 		changeFormat: function (format) {
 			this.curTeam.format = format;
