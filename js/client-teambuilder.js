@@ -713,8 +713,9 @@
 			this.$('.teamlist').css('pointer-events', 'none');
 			$(teamEl).parent().removeClass('dragging');
 
+			var format = this.curFolder;
 			if (app.draggingFolder) {
-				var format = app.draggingFolder.dataset.value;
+				format = app.draggingFolder.dataset.value;
 				app.draggingFolder = null;
 				if (format.slice(-1) === '/') {
 					team.folder = format.slice(0, -1);
@@ -724,6 +725,10 @@
 				this.selectFolder(format);
 				edited = true;
 			} else {
+				if (format.slice(-1) === '/') {
+					team.folder = format.slice(0, -1);
+					edited = true;
+				}
 				this.updateTeamList();
 			}
 
@@ -798,7 +803,7 @@
 			if (format === '+' || format === '++' || format === 'all' || format === this.curFolder) {
 				return;
 			}
-			if (parseInt(app.dragging.dataset.value, 10) >= Storage.teams.length) {
+			if (parseInt(app.dragging.dataset.value, 10) >= Storage.teams.length && format.slice(-1) !== '/') {
 				// dragging a team file, already has a known format
 				return;
 			}
@@ -822,7 +827,9 @@
 			if (dataTransfer.types.contains && !dataTransfer.types.contains('Files')) return;
 			if (dataTransfer.files[0] && dataTransfer.files[0].name.slice(-4) !== '.txt') return;
 			// We're dragging a file! It might be a team!
-			this.selectFolder('all');
+			if (app.curFolder && app.curFolder.slice(-1) !== '/') {
+				this.selectFolder('all');
+			}
 			this.$('.teamlist').append('<li class="dragging"><div class="team" data-value="' + Storage.teams.length + '"></div></li>');
 			app.dragging = this.$('.dragging .team')[0];
 			app.draggingLoc = Storage.teams.length;
