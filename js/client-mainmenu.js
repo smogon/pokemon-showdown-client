@@ -601,7 +601,7 @@
 			});
 		},
 		updateRightMenu: function () {
-			if (app.sideRoom) {
+			if (app.curSideRoom) {
 				this.$('.rightmenu').hide();
 			} else {
 				this.$('.rightmenu').show();
