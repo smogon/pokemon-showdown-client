@@ -334,6 +334,10 @@ var Tools = {
 				tracker.callbacks[i][0].call(tracker.callbacks[i][1], value);
 			}
 		};
+		tracker.unload = function () {
+			if (!tracker.isLoaded) return;
+			tracker.isLoaded = false;
+		};
 		return tracker;
 	},
 

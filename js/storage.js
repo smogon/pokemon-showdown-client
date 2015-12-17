@@ -114,12 +114,12 @@ Storage.bg = {
 	loadHues: function (hues) {
 		$('#mainmenubuttoncolors').remove();
 		var cssBuf = '';
-		for (var i = 0; i < 6; i++) {
+		for (var i = 0; i < 5; i++) {
 			var n = i + 1;
 			var hs = hues[i];
-			cssBuf += '.mainmenuwrapper .button.mainmenu' + n + ' { background: linear-gradient(to bottom,  hsl(' + hs + ',72%),  hsl(' + hs + ',52%)); border-color: hsl(' + hs + ',40%); }\n';
-			cssBuf += '.mainmenuwrapper .button.mainmenu' + n + ':hover { background: linear-gradient(to bottom,  hsl(' + hs + ',62%),  hsl(' + hs + ',42%)); border-color: hsl(' + hs + ',21%); }\n';
-			cssBuf += '.mainmenuwrapper .button.mainmenu' + n + ':active { background: linear-gradient(to bottom,  hsl(' + hs + ',42%),  hsl(' + hs + ',58%)); border-color: hsl(' + hs + ',21%); }\n';
+			cssBuf += 'body .button.mainmenu' + n + ' { background: linear-gradient(to bottom,  hsl(' + hs + ',72%),  hsl(' + hs + ',52%)); border-color: hsl(' + hs + ',40%); }\n';
+			cssBuf += 'body .button.mainmenu' + n + ':hover { background: linear-gradient(to bottom,  hsl(' + hs + ',62%),  hsl(' + hs + ',42%)); border-color: hsl(' + hs + ',21%); }\n';
+			cssBuf += 'body .button.mainmenu' + n + ':active { background: linear-gradient(to bottom,  hsl(' + hs + ',42%),  hsl(' + hs + ',58%)); border-color: hsl(' + hs + ',21%); }\n';
 		}
 		$('head').append('<style id="mainmenubuttoncolors">' + cssBuf + '</style>');
 	},
@@ -132,13 +132,13 @@ Storage.bg = {
 			// or localStorage throws
 			try {
 				var colorThief = new ColorThief();
-				var colors = colorThief.getPalette(img, 6);
+				var colors = colorThief.getPalette(img, 5);
 
 				var hues = [];
 				if (!colors) {
-					hues = ['0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%'];
+					hues = ['0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%'];
 				} else {
-					for (var i = 0; i < 6; i++) {
+					for (var i = 0; i < 5; i++) {
 						var color = colors[i];
 						var hs = Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
 						hues.unshift(hs);
@@ -179,7 +179,7 @@ try {
 	var bg = localStorage.getItem('showdown_bg').split('\n');
 	if (bg.length >= 2) {
 		Storage.bg.load(bg[0], bg[1]);
-		if (bg.length === 8) Storage.bg.loadHues(bg.slice(2));
+		if (bg.length >= 7) Storage.bg.loadHues(bg.slice(2));
 	}
 } catch (e) {}
 
@@ -473,6 +473,8 @@ Storage.saveAllTeams = function () {
 	this.saveTeams();
 };
 
+Storage.deleteAllTeams = function () {};
+
 /*********************************************************
  * Team importing and exporting
  *********************************************************/
@@ -487,6 +489,7 @@ Storage.unpackAllTeams = function (buffer) {
 				name: oldTeam.name || '',
 				format: oldTeam.format || '',
 				team: Storage.packTeam(oldTeam.team),
+				folder: '',
 				iconCache: ''
 			};
 		});
@@ -497,10 +500,13 @@ Storage.unpackAllTeams = function (buffer) {
 		if (pipeIndex < 0) return;
 		var bracketIndex = line.indexOf(']');
 		if (bracketIndex > pipeIndex) bracketIndex = -1;
+		var slashIndex = line.lastIndexOf('/', pipeIndex);
+		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
 		return {
-			name: line.slice(bracketIndex + 1, pipeIndex),
+			name: line.slice(slashIndex + 1, pipeIndex),
 			format: bracketIndex > 0 ? line.slice(0, bracketIndex) : '',
 			team: line.slice(pipeIndex + 1),
+			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
 			iconCache: ''
 		};
 	}).filter(function (v) { return v; });
@@ -508,7 +514,7 @@ Storage.unpackAllTeams = function (buffer) {
 
 Storage.packAllTeams = function (teams) {
 	return teams.map(function (team) {
-		return (team.format ? '' + team.format + ']' : '') + team.name + '|' + Storage.getPackedTeam(team);
+		return (team.format ? '' + team.format + ']' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + '|' + Storage.getPackedTeam(team);
 	}).join('\n');
 };
 
@@ -917,10 +923,17 @@ Storage.importTeam = function (text, teams) {
 			if (teams.length) {
 				teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
 			}
+			var slashIndex = line.lastIndexOf('/');
+			var folder = '';
+			if (slashIndex > 0) {
+				folder = line.slice(0, slashIndex);
+				line = line.slice(slashIndex + 1);
+			}
 			teams.push({
 				name: line,
 				format: format,
 				team: team,
+				folder: folder,
 				iconCache: ''
 			});
 		} else if (!curSet) {
@@ -1029,7 +1042,7 @@ Storage.exportAllTeams = function () {
 	var buf = '';
 	for (var i = 0, len = Storage.teams.length; i < len; i++) {
 		var team = Storage.teams[i];
-		buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + team.name + ' ===\n\n';
+		buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
 		buf += Storage.exportTeam(team.team);
 		buf += '\n';
 	}
@@ -1243,6 +1256,7 @@ Storage.initDirectory2 = function () {
 					// load teams
 					self.nwLoadTeams();
 					self.saveAllTeams = self.nwSaveAllTeams;
+					self.deleteAllTeams = self.nwDeleteAllTeams;
 					self.saveTeam = self.nwSaveTeam;
 					self.deleteTeam = self.nwDeleteTeam;
 
@@ -1258,12 +1272,36 @@ Storage.revealFolder = function () {
 	gui.Shell.openItem(this.dir);
 };
 
+Storage.nwFindTextFilesRecursive = function (dir, done) {
+	var results = [];
+	fs.readdir(dir, function (err, list) {
+		if (err) return done(err);
+		var pending = list.length;
+		if (!pending) return done(null, results);
+		list.forEach(function (file) {
+			file = dir + '/' + file;
+			fs.stat(file, function (err, stat) {
+				if (stat && stat.isDirectory()) {
+					Storage.nwFindTextFilesRecursive(file, function (err, res) {
+						results = results.concat(res);
+						if (!--pending) done(null, results);
+					});
+				} else {
+					if (file.slice(-4).toLowerCase() === '.txt') results.push(file);
+					if (!--pending) done(null, results);
+				}
+			});
+		});
+	});
+};
+
 // teams
 
 Storage.nwLoadTeams = function () {
 	var self = this;
 	var localApp = window.app;
-	fs.readdir(this.dir + 'Teams', function (err, files) {
+	var dirOffset = this.dir.length + 6;
+	Storage.nwFindTextFilesRecursive(this.dir + 'Teams', function (err, files) {
 		if (err) return;
 		self.teams = [];
 		self.nwTeamsLeft = files.length;
@@ -1271,7 +1309,7 @@ Storage.nwLoadTeams = function () {
 			self.nwFinishedLoadingTeams(localApp);
 		}
 		for (var i = 0; i < files.length; i++) {
-			self.nwLoadTeamFile(files[i], localApp);
+			self.nwLoadTeamFile(files[i].slice(dirOffset), localApp);
 		}
 	});
 };
@@ -1279,12 +1317,11 @@ Storage.nwLoadTeams = function () {
 Storage.nwLoadTeamFile = function (filename, localApp) {
 	var self = this;
 	var line = filename;
-	if (line.substr(line.length - 4).toLowerCase() === '.txt') {
-		line = line.substr(0, line.length - 4);
+	if (line.slice(-4).toLowerCase() === '.txt') {
+		line = line.slice(0, -4);
 	} else {
 		// not a team file
-		self.nwTeamsLeft--;
-		if (!self.nwTeamsLeft) {
+		if (!--self.nwTeamsLeft) {
 			self.nwFinishedLoadingTeams(localApp);
 		}
 		return;
@@ -1292,8 +1329,22 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 	var format = '';
 	var bracketIndex = line.indexOf(']');
 	if (bracketIndex >= 0) {
-		format = line.substr(1, bracketIndex - 1);
-		line = $.trim(line.substr(bracketIndex + 1));
+		format = line.slice(1, bracketIndex);
+		line = $.trim(line.slice(bracketIndex + 1));
+	}
+	var slashIndex = line.indexOf('/');
+	var folder = '';
+	if (slashIndex >= 0) {
+		folder = line.slice(0, slashIndex);
+		line = $.trim(line.slice(slashIndex + 1));
+	}
+	slashIndex = line.indexOf('/');
+	if (slashIndex >= 0) {
+		// very nested, not currently supported, skip
+		if (!--self.nwTeamsLeft) {
+			self.nwFinishedLoadingTeams(localApp);
+		}
+		return;
 	}
 	fs.readFile(this.dir + 'Teams/' + filename, function (err, data) {
 		if (!err) {
@@ -1301,11 +1352,11 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 				name: line,
 				format: format,
 				team: Storage.packTeam(Storage.importTeam('' + data)),
+				folder: folder,
 				iconCache: '',
 				filename: filename
 			});
-			self.nwTeamsLeft--;
-			if (!self.nwTeamsLeft) {
+			if (!--self.nwTeamsLeft) {
 				self.nwFinishedLoadingTeams(localApp);
 			}
 		}
@@ -1323,19 +1374,27 @@ Storage.teamCompare = function (a, b) {
 	return 0;
 };
 
+Storage.fsReady = Tools.makeLoadTracker();
+Storage.fsReady.load();
+
 Storage.nwDeleteAllTeams = function (callback) {
-	var self = this;
-	fs.readdir(this.dir + 'Teams', function (err, files) {
-		if (err) return;
-		self.nwTeamsLeft = files.length;
-		if (!self.nwTeamsLeft) {
-			callback();
-			return;
+	// only delete teams we've opened
+	var deleteFilenames = [];
+	for (var i = 0; i < this.teams.length; i++) {
+		if (this.teams[i].filename) {
+			deleteFilenames.push(this.teams[i].filename);
+			delete this.teams[i].filename;
 		}
-		for (var i = 0; i < files.length; i++) {
-			self.nwDeleteTeamFile(files[i], callback);
-		}
-	});
+	}
+	if (!deleteFilenames.length) {
+		if (callback) callback();
+		return;
+	}
+	Storage.fsReady.unload();
+	this.nwTeamsLeft = deleteFilenames.length;
+	for (var i = 0; i < deleteFilenames.length; i++) {
+		this.nwDeleteTeamFile(deleteFilenames[i], callback);
+	}
 };
 
 Storage.nwDeleteTeamFile = function (filename, callback) {
@@ -1346,12 +1405,21 @@ Storage.nwDeleteTeamFile = function (filename, callback) {
 	} else {
 		// not a team file
 		self.nwTeamsLeft--;
-		if (!self.nwTeamsLeft) callback();
+		if (!self.nwTeamsLeft) {
+			if (callback) callback();
+			Storage.fsReady.load();
+		}
 		return;
 	}
 	fs.unlink(this.dir + 'Teams/' + filename, function (err) {
+		var directory = filename.split('/').slice(0, -1).join('/');
+		fs.rmdir(directory, function () {});
+
 		self.nwTeamsLeft--;
-		if (!self.nwTeamsLeft) callback();
+		if (!self.nwTeamsLeft) {
+			if (callback) callback();
+			Storage.fsReady.load();
+		}
 	});
 };
 
@@ -1359,10 +1427,19 @@ Storage.nwSaveTeam = function (team) {
 	if (!team) return;
 	var filename = team.name + '.txt';
 	if (team.format) filename = '[' + team.format + '] ' + filename;
-	filename = $.trim(filename).replace(/[\\\/]+/g, '');
+	filename = filename.trim().replace(/[\\\/]+/g, '');
+	if (team.folder) filename = '' + team.folder.replace(/[\\\/]+/g, '') + '/' + filename;
+
+	// not too hard to support saving to nested directories, but loading is a whole other issue
+	var splitFilename = filename.split('/');
+	var folder = splitFilename.slice(0, -1).join('');
+	var filename = folder + '/' + splitFilename[splitFilename.length - 1];
+	try {
+		fs.mkdirSync(this.dir + 'Teams/' + folder);
+	} catch (e) {}
 
 	if (team.filename && filename !== team.filename) {
-		fs.unlink(this.dir + 'Teams/' + team.filename, function () {});
+		this.nwDeleteTeam();
 	}
 	team.filename = filename;
 	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'));
@@ -1370,14 +1447,18 @@ Storage.nwSaveTeam = function (team) {
 
 Storage.nwDeleteTeam = function (team) {
 	if (team.filename) {
-		fs.unlink(this.dir + 'Teams/' + team.filename, function () {});
-		delete team.filename;
+		var oldFilename = team.filename;
+		var oldDirectory = oldFilename.split('/').slice(0, -1).join('/');
+		if (oldDirectory) oldDirectory = this.dir + 'Teams/' + oldDirectory;
+		fs.unlink(this.dir + 'Teams/' + oldFilename, function () {
+			if (oldDirectory) fs.rmdir(oldDirectory, function () {});
+		});
 	}
 };
 
 Storage.nwSaveAllTeams = function () {
 	var self = this;
-	this.nwDeleteAllTeams(function () {
+	Storage.fsReady(function () {
 		self.nwDoSaveAllTeams();
 	});
 };

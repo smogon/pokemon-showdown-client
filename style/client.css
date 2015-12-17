@@ -837,7 +837,8 @@ p.or:after {
 .menugroup p {
 	margin: 10px 0;
 }
-.menugroup .button {
+.menugroup .button,
+.menugroup button.button {
 	box-sizing: border-box;
 	font-size: 12pt;
 
@@ -1999,12 +2000,23 @@ a.ilink.yours {
 	padding: 0;
 	border: 0;
 }
-.folderlist .folder {
+.folderlist .folder,
+.folderlist .foldersep {
 	display: table-row;
 	margin: 0;
 	padding: 0;
 	border: 0;
 	height: 30px;
+}
+.folderlist .foldersep {
+	height: 15px;
+}
+.folderlist .foldersep:before {
+	display: table-cell;
+	height: 15px;
+	background: #d7e3ec;
+	border-right: 1px solid #888888;
+	content: '';
 }
 .folderlistafter {
 	display: table-row;
@@ -2122,6 +2134,11 @@ a.ilink.yours {
 .teamwrapper .button.big {
 	font-size: 12pt;
 	padding: 5px 10px;
+}
+.teampane .button.small,
+.teamwrapper .button.small {
+	font-size: 8pt;
+	padding: 2px 5px;
 }
 
 .teamlist {
