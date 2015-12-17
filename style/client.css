@@ -211,6 +211,19 @@ hr {
 	border: solid 1px #AAAAAA;
 	background: #e3e3e3;
 	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
+
+	font-size: 9pt;
+	padding: 3px 8px;
+}
+.button.small,
+.button.small {
+	font-size: 8pt;
+	padding: 2px 5px;
+}
+.button.big,
+.button.big {
+	font-size: 12pt;
+	padding: 5px 10px;
 }
 .button:hover,
 .popupmenu button.button:hover {
@@ -837,8 +850,7 @@ p.or:after {
 .menugroup p {
 	margin: 10px 0;
 }
-.menugroup .button,
-.menugroup button.button {
+.menugroup .button {
 	box-sizing: border-box;
 	font-size: 12pt;
 
@@ -858,13 +870,13 @@ p.or:after {
 	background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%));
 	border-color: hsl(210,40%,40%);
 }
-.menugroup button.big {
+.menugroup .button.big {
 	width: 230px;
 	height: 50px;
 	padding: 0;
 	font-size: 14pt;
 }
-.menugroup button.big small {
+.menugroup .button.big small {
 	display: block;
 	font-size: 9pt;
 }
@@ -2065,6 +2077,7 @@ a.ilink.yours {
 	background: #d7e3ec;
 	color: black;
 	width: auto;
+	max-width: 146px; /* I have no idea why this is required and width doesn't work */
 	padding-top: 7px;
 	height: 23px;
 	font-size: 9pt;
@@ -2123,22 +2136,6 @@ a.ilink.yours {
 .folderhack3 {
 	position: relative;
 	height: 30px;
-}
-
-.teampane .button,
-.teamwrapper .button {
-	font-size: 9pt;
-	padding: 3px 8px;
-}
-.teampane .button.big,
-.teamwrapper .button.big {
-	font-size: 12pt;
-	padding: 5px 10px;
-}
-.teampane .button.small,
-.teamwrapper .button.small {
-	font-size: 8pt;
-	padding: 2px 5px;
 }
 
 .teamlist {
