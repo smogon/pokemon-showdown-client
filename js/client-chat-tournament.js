@@ -310,9 +310,9 @@
 
 				case 'autodq':
 					if (data[0] === 'off') {
-						this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been turned off.</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timer has been turned off.</div>");
 					} else if (data[0] === 'on') {
-						this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timeout has been set to " + (data[1] / 1000 / 60) + " minutes.</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timer has been set to " + (data[1] / 1000 / 60) + " minutes.</div>");
 					} else {
 						var seconds = Math.floor(data[1] / 1000);
 						app.addPopupMessage("Please respond to the tournament within " + seconds + " seconds or you may be automatically disqualified.");
@@ -322,7 +322,7 @@
 
 				case 'autostart':
 					if (data[0] === 'off') {
-						this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament's automatic start timeout has been turned off.</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament's automatic start is now off.</div>");
 					} else if (data[0] === 'on') {
 						this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament will automatically start in " + (data[1] / 1000 / 60) + " minutes.</div>");
 					}
