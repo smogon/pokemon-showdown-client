@@ -1033,7 +1033,7 @@ p.or:after {
 	font-size: 8pt;
 }
 .roomlist a.ilink:hover {
-	border: 1px solid #8899AA;
+	border-color: #8899AA;
 	background: #F1F4F9;
 	color: #224466;
 	text-decoration: none;
@@ -1789,7 +1789,7 @@ a.ilink.yours {
     font-weight: bold;
 }
 .megaevo:hover {
-    border: 1px solid #888;
+    border-color: #888;
     background: #E5E5E5;
     color: black;
 }
@@ -2291,17 +2291,16 @@ a.ilink.yours {
 .teamlist button {
 	cursor: pointer;
 	background: transparent;
-	border: 0;
+	border: 1px solid transparent;
 	border-radius: 4px;
-	padding: 3px 6px;
+	padding: 2px 5px;
 	margin: 0;
 	font-size: 9pt;
 	font-family: Verdana, sans-serif;
 }
 .setmenu button:hover,
 .teamlist button:hover {
-	border: 1px solid #888888;
-	padding: 2px 5px;
+	border-color: #888888;
 	background: #D5D5D5;
 }
 .setmenu button i,
@@ -2724,20 +2723,19 @@ a.ilink.yours {
 	overflow: visible;
 }
 .teambuilder-results .result a {
+	border: 1px solid transparent;
 	border-radius: 4px;
-	padding: 1px 1px 1px 5px;
+	padding: 0px 0px 0px 4px;
 	margin: 0 5px 1px 5px;
 	background: transparent;
 	cursor: pointer;
 }
 .teambuilder-results .result a:hover {
-	padding: 0px 0px 0px 4px;
-	border: 1px solid #D8D8D8;
+	border-color: #D8D8D8;
 	background: #F8F8F8;
 }
 .teambuilder-results .firstresult a,
 .teambuilder-results .firstresult a:hover {
-	padding: 0px 0px 0px 4px;
 	border: 1px solid #CCCCCC;
 	background: #F2F2F2;
 }
