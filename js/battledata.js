@@ -1082,7 +1082,10 @@ var Tools = {
 		return spriteData;
 	},
 
-	getIcon: function (pokemon) {
+	getPokemonIcon: function (pokemon) {
+		this.getIcon(pokemon, true)
+	},
+	getIcon: function (pokemon, newSize) {
 		var num = 0;
 		if (pokemon === 'pokeball') {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-pokeball-sheet.png) no-repeat scroll -0px -8px';
@@ -1210,10 +1213,10 @@ var Tools = {
 			else if (id === 'meowstic') num = 809;
 		}
 
-		var top = 8 + Math.floor(num / 16) * 32;
-		var left = (num % 16) * 32;
+		var top = 8 + Math.floor(num / 16) * (newSize ? 30 : 32);
+		var left = (num % 16) * (newSize ? 40 : 32);
 		var fainted = (pokemon && pokemon.fainted ? ';opacity:.4' : '');
-		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-sheet.png?g6) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/' + (newSize ? 'xyicons-sheet.png?a1' : 'bwicons-sheet.png?g6') + ') no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
 	getTeambuilderSprite: function (pokemon) {
