@@ -3253,7 +3253,6 @@ var Battle = (function () {
 	};
 	Battle.prototype.runMinor = function (args, kwargs, preempt, nextArgs, nextKwargs) {
 		var actions = '';
-		var hiddenactions = '';
 		var minors = this.minorQueue;
 		if (this.multiHitMove && minors.length) {
 			var lastMinor = minors[minors.length - 1];
@@ -3315,7 +3314,7 @@ var Battle = (function () {
 						actions += "" + poke.getName() + " was hurt by poison!";
 						break;
 					case 'lifeorb':
-						hiddenactions += "" + poke.getName() + " lost some of its HP!";
+						this.message('', '<small>' + poke.getName() + ' lost some of its HP!</small>');
 						break;
 					case 'recoil':
 						actions += "" + poke.getName() + " is damaged by the recoil!";
@@ -3390,7 +3389,9 @@ var Battle = (function () {
 						}
 						damageinfo = '<abbr title="' + hover + '">' + damageinfo + '</abbr>';
 					}
-					hiddenactions += "" + poke.getName() + " lost " + damageinfo + " of its health!<br />";
+					var hiddenactions = '<small>' + poke.getName() + ' lost ' + damageinfo + ' of its health!</small><br />';
+					this.message(actions ? '<small>' + actions + '</small>' : '', hiddenactions);
+					actions = '';
 				}
 				this.damageAnim(poke, poke.getFormattedRange(range, 0, ' to '));
 				break;
@@ -5340,7 +5341,7 @@ var Battle = (function () {
 				break;
 
 			case '-hint':
-				hiddenactions += '(' + Tools.escapeHTML(args[1]) + ')';
+				this.message('', '<small>(' + Tools.escapeHTML(args[1]) + ')</small>');
 				break;
 
 			default:
@@ -5350,9 +5351,7 @@ var Battle = (function () {
 			}
 		}
 		if (actions) {
-			this.message('<small>' + actions + '</small>', hiddenactions ? '<small>' + hiddenactions + '</small>' : '');
-		} else if (hiddenactions) {
-			this.message('', '<small>' + hiddenactions + '</small>');
+			this.message('<small>' + actions + '</small>', '');
 		}
 	};
 	/*
