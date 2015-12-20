@@ -1083,7 +1083,7 @@ var Tools = {
 	},
 
 	getPokemonIcon: function (pokemon) {
-		this.getIcon(pokemon, true)
+		return this.getIcon(pokemon, true);
 	},
 	getIcon: function (pokemon, newSize) {
 		var num = 0;
