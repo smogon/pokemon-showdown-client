@@ -125,7 +125,7 @@
 		this.el.innerHTML = '<ul class="utilichart">' + topbuf + bufs.join('') + '</ul>' + (this.renderingDone ? '' : '<ul class="utilichart"><li class="more"><button class="utilichart-all">All results</button></li></ul>');
 		return true;
 	};
-	Search.prototype.all = function() {
+	Search.prototype.all = function () {
 		var query = this.q;
 		var bufs = [[], [], [], [], [], [], []];
 		var topbufIndex = -1;
@@ -226,7 +226,7 @@
 	Search.renderRow = function (id, type, matchStart, matchLength, errorMessage) {
 		switch (type) {
 		case 'header':
-			return '<li class="result"><h3>' +id + '</h3></li>';
+			return '<li class="result"><h3>' + id + '</h3></li>';
 		case 'pokemon':
 			var pokemon = BattlePokedex[id];
 			return Search.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage);
