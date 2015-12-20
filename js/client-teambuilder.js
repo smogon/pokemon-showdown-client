@@ -458,7 +458,11 @@
 				} else {
 					buf += '<p>We played the same thing, so it\'s a tie.</p>';
 				}
-				buf += '<p>Score: ' + ['pi', '$3.50', '9.80665 m/s<sup>2</sup>', '28°C', '百万点', '<i class="fa fa-bitcoin"></i>0.0000174', '<s>priceless</s> <i class="fa fa-cc-mastercard"></i> MasterCard', '127.0.0.1', 'C&minus;, see me after class'][Math.floor(Math.random() * 9)];
+				if (!this.rpsScores || !this.rpsScores.length) {
+					this.rpsScores = ['pi', '$3.50', '9.80665 m/s<sup>2</sup>', '28°C', '百万点', '<i class="fa fa-bitcoin"></i>0.0000174', '<s>priceless</s> <i class="fa fa-cc-mastercard"></i> MasterCard', '127.0.0.1', 'C&minus;, see me after class'];
+				}
+				var score = this.rpsScores.splice(Math.floor(Math.random() * this.rpsScores.length), 1)[0];
+				buf += '<p>Score: ' + score + '</p>';
 				buf += '<p><button class="button" name="greeting" value="SP' + answer[2] + '"><i class="fa fa-caret-square-o-right"></i> I demand a rematch!</button></p>';
 			} else if (answer === 'YC') {
 				buf += '<p>Okay, then I play peace sign <i class="fa fa-hand-peace-o"></i>, everyone signs a peace treaty, ending the war and ushering in a new era of prosperity.</p>';
