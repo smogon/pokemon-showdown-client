@@ -1609,7 +1609,7 @@
 			var set = this.curSet;
 			var template = Tools.getTemplate(this.curSet.species);
 			var baseStats = template.baseStats;
-			buf += '<h3>EVs</h3>';
+			buf += '<div class="resultheader"><h3>EVs</h3></div>';
 			buf += '<div class="statform">';
 			var role = this.guessRole();
 
@@ -1925,7 +1925,7 @@
 			var set = this.curSet;
 			var template = Tools.getTemplate(set.species);
 			if (!set) return;
-			buf += '<h3>Details</h3>';
+			buf += '<div class="resultheader"><h3>Details</h3></div>';
 			buf += '<form class="detailsform">';
 
 			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + Tools.escapeHTML(set.level || 100) + '" class="textbox inputform numform" /></div></div>';

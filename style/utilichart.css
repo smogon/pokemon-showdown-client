@@ -6,26 +6,34 @@
 	clear: both;
 	word-wrap: normal;
 }
-.utilichart li {
-	padding-top: 1px;
-}
 
 .utilichart li > a, .utilitychart li > div {
 	display: block;
-	height: 28px;
-	padding: 1px 1px 1px 5px;
+	height: 30px;
+	padding: 0 0 0 4px;
+	border: 1px solid transparent;
 	margin: 0 5px 1px 5px;
 	text-decoration: none;
 }
-.utilichart h3 {
-	background: #EEF2F5;
-	border: 1px solid #CCCCCC;
-	border-left: 0;
-	border-right: 0;
-	margin: 6px 0;
-	padding: 2px 5px;
+.resultheader,
+.utilichart li.resultheader,
+.utilichart .result {
+	height: 32px;
+	padding: 1px 0 0 0;
+}
+.utilichart h3,
+.dexentry h3,
+.resultheader h3 {
+	margin: 5px 0 0 -1px;
+	padding: 3px 8px;
 	font-family: Verdana, sans-serif;
-	font-size: 9pt;
+	font-size: 10pt;
+
+	background: #DAE5F0;
+	border: 1px solid #AAAAAA;
+	text-shadow: 1px 1px 0 rgba(255,255,255,.6);
+	/* box-shadow: inset 1px 1px 0 rgba(255,255,255,.6), 0px 2px 2px rgba(0,0,0,.15); */
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
 }
 .utilichart li > em {
 	display: block;
@@ -34,20 +42,25 @@
 }
 .utilichart .col {
 	float: left;
-	padding-top: 6px;
+	padding-top: 7px;
 	height: 22px;
 	font-size: 9pt;
 	color: #444444;
 }
 .utilichart .iconcol,
-.utilichart .itemiconcol {
-	padding-top: 2px;
+.utilichart .pokemoniconcol {
+	padding-top: 3px;
+	width: 32px;
 }
 .utilichart .iconcol span {
 	display: block;
 	width: 32px;
 	height: 24px;
 	background: transparent none no-repeat scroll 0px -8px;
+}
+.utilichart .itemiconcol {
+	padding-top: 3px;
+	width: 24px;
 }
 .utilichart .itemiconcol span {
 	display: block;
@@ -60,7 +73,7 @@
 	padding-right: 5px;
 	text-align: right;
 	color: #999999;
-	padding-top: 7px;
+	padding-top: 8px;
 	font-size: 8pt;
 }
 .utilichart .statcol,
@@ -68,7 +81,7 @@
 .utilichart .labelcol,
 .utilichart .widelabelcol,
 .utilichart .pplabelcol {
-	padding-top: 0;
+	padding-top: 1px;
 	height: 28px;
 	width: 24px;
 	text-align: right;
@@ -101,50 +114,50 @@
 	font-style: normal;
 }
 .utilichart .stattitlecol {
-	padding-top: 1px;
+	padding-top: 2px;
 	width: 20px;
 	text-align: right;
 	font-size: 7pt;
 	color: #999999;
 }
 .utilichart .namecol {
-	padding-top: 5px;
+	padding-top: 6px;
 	height: 23px;
 	width: 120px;
 	color: #000000;
 	font-size: 10pt;
 }
 .utilichart .pokemonnamecol {
-	padding-top: 5px;
+	padding-top: 6px;
 	height: 23px;
 	width: 127px;
 	color: #000000;
 	font-size: 10pt;
 }
 .utilichart .shortpokemonnamecol {
-	padding-top: 5px;
+	padding-top: 6px;
 	height: 23px;
 	width: 118px;
 	color: #000000;
 	font-size: 10pt;
 }
 .utilichart .movenamecol {
-	padding-top: 5px;
+	padding-top: 6px;
 	height: 23px;
 	width: 152px;
 	color: #000000;
 	font-size: 10pt;
 }
 .utilichart .shortmovenamecol {
-	padding-top: 5px;
+	padding-top: 6px;
 	height: 23px;
 	width: 112px;
 	color: #000000;
 	font-size: 10pt;
 }
 .utilichart .tagcol {
-	padding-top: 5px;
-	height: 23px;
+	padding-top: 6px;
+	height: 24px;
 	width: 34px;
 	border-right: 1px solid #CCCCCC;
 	margin-right: 5px;
@@ -159,16 +172,18 @@
 	width: 70px;
 }
 .utilichart .abilitycol {
-	padding-top: 7px;
+	padding-top: 8px;
 	height: 21px;
 	font-size: 8pt;
 	width: 90px;
+	text-align: center;
 }
 .utilichart .twoabilitycol {
-	padding-top: 0;
+	padding-top: 1px;
 	height: 28px;
 	font-size: 8pt;
 	width: 90px;
+	text-align: center;
 }
 .utilichart b {
 	color: #4488CC;
@@ -181,14 +196,14 @@
 	font-weight: normal;
 }
 .utilichart .illegalcol em {
-	padding: 1px 4px;
+	padding: 2px 4px;
 	height: auto;
 	border: 1px solid #AA2222;
 	color: #AA2222;
 	border-radius: 4px;
 }
 .utilichart .typecol img {
-	opacity: 0.5;
+	opacity: 0.6;
 	margin-right: 1px;
 }
 .utilichart .typecol img.b {
@@ -201,7 +216,7 @@
 .utilichart .abilitydesccol,
 .utilichart .movedesccol {
 	white-space: nowrap;
-	padding-top: 7px;
+	padding-top: 8px;
 	font-size: 8pt;
 	width: 488px;
 	height: 21px;

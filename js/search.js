@@ -12,9 +12,34 @@
 (function (exports, $) {
 	'use strict';
 
-	function Search(elem) {
+	function Search(elem, viewport) {
 		this.$el = $(elem);
 		this.el = this.$el[0];
+		this.$viewport = (viewport ? $(viewport) : $(window));
+
+		this.urlRoot = '';
+		this.q = '';
+		this.qType = '';
+		this.defaultResultSet = null;
+		this.exactMatch = false;
+
+		this.resultSet = null;
+		this.filters = null;
+		this.renderedIndex = 0;
+		this.renderingDone = true;
+
+		var self = this;
+		this.$el.on('mouseover', '.more-autoscroll', function () {
+			self.updateScroll(true);
+		});
+		this.$el.on('click', '.more button', function (e) {
+			e.preventDefault();
+			if (e.currentTarget.className === 'utilichart-all') {
+				self.all();
+			} else {
+				self.updateScroll(true);
+			}
+		});
 	}
 
 	Search.prototype.$ = function (query) {
@@ -25,7 +50,6 @@
 	// Search functions
 	//
 
-	Search.prototype.q = null;
 	var typeTable = {
 		pokemon: 0,
 		type: 1,
@@ -51,6 +75,7 @@
 			return false;
 		}
 		this.q = query;
+		this.resultSet = null;
 		if (!query) {
 			this.el.innerHTML = '';
 			this.exactMatch = false;
@@ -62,10 +87,11 @@
 		if (BattleSearchIndex[i - 1] && BattleSearchIndex[i - 1] === query) i--;
 		this.exactMatch = (query === BattleSearchIndex[i]);
 
-		var bufs = ['', '', '', ''];
+		var bufs = ['', '', '', '', '', '', ''];
 		var topbufIndex = -1;
 
 		var nearMatch = (BattleSearchIndex[i].substr(0, query.length) !== query);
+		this.renderingDone = false;
 		if (nearMatch && i) i--;
 		for (var j = 0; j < 15; j++) {
 			var id = BattleSearchIndex[i + j];
@@ -74,15 +100,18 @@
 
 			if (!id) break;
 			if (id.substr(0, query.length) !== query) {
+				this.renderingDone = true;
 				if (!(nearMatch && j <= 1)) break;
 				matchLength = 0;
+			} else {
+				matchLength += (BattleSearchIndexOffset[i + j][matchLength - 1] || '0').charCodeAt(0) - 48;
 			}
 			if (j === 0 && this.exactMatch) {
 				topbufIndex = typeTable[type];
 			}
 
-			if (!bufs[typeTable[type]]) bufs[typeTable[type]] = '<li><h3>' + typeName[type] + '</h3></li>';
-			bufs[typeTable[type]] += Search.renderRow(id, type, 0, matchLength + (BattleSearchIndexOffset[i + j][matchLength - 1] || '0').charCodeAt(0) - 48);
+			if (!bufs[typeTable[type]]) bufs[typeTable[type]] = '<li class="resultheader"><h3>' + typeName[type] + '</h3></li>';
+			bufs[typeTable[type]] += Search.renderRow(id, type, 0, matchLength);
 		}
 
 		var topbuf = '';
@@ -93,8 +122,81 @@
 
 		if (nearMatch) topbuf = '<li class="notfound"><em>No exact match found. The closest matches alphabetically are:</em></li>' + topbuf;
 
-		this.el.innerHTML = '<ul class="utilichart">' + topbuf + bufs.join('') + '</ul>';
+		this.el.innerHTML = '<ul class="utilichart">' + topbuf + bufs.join('') + '</ul>' + (this.renderingDone ? '' : '<ul class="utilichart"><li class="more"><button class="utilichart-all">All results</button></li></ul>');
 		return true;
+	};
+	Search.prototype.all = function() {
+		var query = this.q;
+		var bufs = [[], [], [], [], [], [], []];
+		var topbufIndex = -1;
+
+		var i = Search.getClosest(query);
+		var resultSet = [];
+		while (true) {
+			var id = BattleSearchIndex[i];
+			var type = BattleSearchIndexType[i];
+			var matchLength = query.length;
+
+			if (!id) break;
+			if (id.substr(0, query.length) !== query) {
+				break;
+			} else {
+				matchLength += (BattleSearchIndexOffset[i][matchLength - 1] || '0').charCodeAt(0) - 48;
+			}
+
+			if (topbufIndex < 0 && this.exactMatch) {
+				topbufIndex = typeTable[type];
+			}
+
+			var typeIndex = typeTable[type];
+			if (!bufs[typeIndex].length) bufs[typeIndex] = [[typeName[type], 'header', 0]];
+			bufs[typeIndex].push([id, type, matchLength]);
+
+			i++;
+		}
+
+		if (topbufIndex >= 0) {
+			var topbuf = bufs[topbufIndex];
+			bufs.splice(topbufIndex, 1);
+			bufs.unshift(topbuf);
+		}
+
+		this.resultSet = Array.prototype.concat.apply([], bufs);
+		this.renderedIndex = 0;
+		this.renderingDone = false;
+		this.updateScroll();
+	};
+	Search.prototype.updateScroll = function (forceAdd) {
+		if (this.renderingDone) return;
+		var top = this.$viewport.scrollTop();
+		var bottom = top + this.$viewport.height();
+		var i = this.renderedIndex;
+		var finalIndex = Math.floor(bottom / 33) + 10;
+		if (forceAdd && finalIndex < i + 20) finalIndex = i + 20;
+		if (finalIndex <= i) return;
+
+		var buf = '';
+		while (i < finalIndex) {
+			if (!this.resultSet[i]) {
+				this.renderingDone = true;
+				break;
+			}
+			var row = this.resultSet[i];
+
+			buf += Search.renderRow(row[0], row[1], 0, row[2]);
+
+			i++;
+		}
+		if (!this.renderedIndex) {
+			this.el.innerHTML = '<ul class="utilichart" style="height:' + (this.resultSet.length * 33) + 'px">' + buf + '</ul>';
+			// (this.renderingDone ? '' : '<ul class="utilichart"><li class="more more-autoscroll"><button>More</button></li></ul>');
+		} else {
+			$(this.el.firstChild).append(buf);
+			// if (this.renderingDone) {
+			// 	this.$el.find('li.more').parent().remove();
+			// }
+		}
+		this.renderedIndex = i;
 	};
 
 	Search.getClosest = function (query) {
@@ -121,10 +223,10 @@
 	// These are all static!
 	//
 
-	Search.urlRoot = '';
-
 	Search.renderRow = function (id, type, matchStart, matchLength, errorMessage) {
 		switch (type) {
+		case 'header':
+			return '<li class="result"><h3>' +id + '</h3></li>';
 		case 'pokemon':
 			var pokemon = BattlePokedex[id];
 			return Search.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage);
