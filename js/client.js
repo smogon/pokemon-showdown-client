@@ -1346,7 +1346,6 @@
 		},
 		updateLayout: function () {
 			if (!this.curRoom) return; // can happen during initialization
-			this.dismissPopups();
 			if (!this.sideRoom) {
 				this.curRoom.show('full');
 				if (this.curRoom.id === '') {
