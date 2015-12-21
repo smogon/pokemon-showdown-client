@@ -202,6 +202,13 @@
 	color: #AA2222;
 	border-radius: 4px;
 }
+.utilichart .filtercol em {
+	padding: 2px 4px;
+	height: auto;
+	border: 1px solid #22AA22;
+	color: #22AA22;
+	border-radius: 4px;
+}
 .utilichart .typecol img {
 	opacity: 0.6;
 	margin-right: 1px;
