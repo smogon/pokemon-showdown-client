@@ -98,6 +98,7 @@ RewriteRule ^~~([^:/]*):([0-9]*)(/.*)?$ http://$1-$2.psim.us$3 [R=301,L]
 
 RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
+RewriteRule ^data/Pokemon-Showdown/ - [F]
 RewriteRule ^lib/ - [F]
 RewriteRule ^githooks/ - [F]
 
