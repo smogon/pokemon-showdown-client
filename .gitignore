@@ -3,6 +3,7 @@
 /js/config.js
 /index.php
 /index.html
+/data/Pokemon-Showdown/
 node_modules/
 eslint-cache/
 .DS_Store
