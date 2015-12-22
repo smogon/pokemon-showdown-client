@@ -2047,6 +2047,21 @@
 				return;
 			}
 			var val = $(e.currentTarget).data('entry').split(':')[1];
+			if (this.curChartType === 'move' && e.currentTarget.className === 'cur') {
+				// clicked a move, remove it if we already have it
+				var $emptyEl;
+				for (var i = 1; i <= 4; i++) {
+					var $inputEl = this.$('input[name=move' + i + ']');
+					var curVal = $inputEl.val();
+					if (!curVal) {
+						$emptyEl = $inputEl;
+					} else if (curVal === val) {
+						$inputEl.val('');
+						($emptyEl || $inputEl).focus();
+						return;
+					}
+				}
+			}
 			this.chartSet(val, true);
 		},
 		chartKeydown: function (e) {
