@@ -305,7 +305,7 @@
 				if (this.curFolder.slice(-1) === '/') {
 					filterFolder = this.curFolder.slice(0, -1);
 					if (filterFolder) {
-						buf += '<h2><i class="fa fa-folder-open"></i> ' + filterFolder + ' <button class="button small" style="margin-left:5px" name="renameFolder"><i class="fa fa-pencil"></i> Rename</button></h2>';
+						buf += '<h2><i class="fa fa-folder-open"></i> ' + filterFolder + ' <button class="button small" style="margin-left:5px" name="renameFolder"><i class="fa fa-pencil"></i> Rename</button> <button class="button small" style="margin-left:5px" name="promptDeleteFolder"><i class="fa fa-times"></i> Remove</button></h2>';
 					} else {
 						buf += '<h2><i class="fa fa-folder-open-o"></i> Teams not in any folders</h2>';
 					}
@@ -531,9 +531,28 @@
 					team.folder = name;
 					if (window.nodewebkit) Storage.saveTeam(team);
 				}
-				if (!window.nodewebkit) Storage.saveTeam(team);
+				if (!window.nodewebkit) Storage.saveTeams();
 				self.selectFolder(name + '/');
 			}});
+		},
+		promptDeleteFolder: function () {
+			app.addPopup(DeleteFolderPopup, {folder: this.curFolder, room: this});
+		},
+		deleteFolder: function (format, addName) {
+			if (format.slice(-1) !== '/') return;
+			var oldFolder = format.slice(0, -1);
+			if (this.curFolderKeep === oldFolder) {
+				this.curFolderKeep = '';
+			}
+			for (var i = 0; i < Storage.teams.length; i++) {
+				var team = Storage.teams[i];
+				if (team.folder !== oldFolder) continue;
+				team.folder = '';
+				if (addName) team.name = oldFolder + ' ' + team.name;
+				if (window.nodewebkit) Storage.saveTeam(team);
+			}
+			if (!window.nodewebkit) Storage.saveTeams();
+			this.selectFolder('/');
 		},
 		show: function () {
 			Room.prototype.show.apply(this, arguments);
@@ -2802,6 +2821,21 @@
 			} else {
 				app.rooms['teambuilder'].update();
 			}
+		}
+	});
+
+	var DeleteFolderPopup = this.DeleteFolderPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function (data) {
+			this.room = data.room;
+			this.folder = data.folder;
+			var buf = '<form><p>Remove "' + data.folder.slice(0, -1) + '"?</p><p><label><input type="checkbox" name="addname" /> Add "' + Tools.escapeHTML(this.folder.slice(0, -1)) + '" before team names</label></p>';
+			buf += '<p><button type="submit"><strong>Remove (keep teams)</strong></button> <!--button name="removeDelete"><strong>Remove (delete teams)</strong></button--> <button name="close" class="autofocus">Cancel</button></p></form>';
+			this.$el.html(buf);
+		},
+		submit: function (data) {
+			this.room.deleteFolder(this.folder, !!this.$('input[name=addname]')[0].checked);
+			this.close();
 		}
 	});
 
