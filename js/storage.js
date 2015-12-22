@@ -1326,14 +1326,9 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 		}
 		return;
 	}
-	var format = '';
-	var bracketIndex = line.indexOf(']');
-	if (bracketIndex >= 0) {
-		format = line.slice(1, bracketIndex);
-		line = $.trim(line.slice(bracketIndex + 1));
-	}
-	var slashIndex = line.indexOf('/');
+
 	var folder = '';
+	var slashIndex = line.indexOf('/');
 	if (slashIndex >= 0) {
 		folder = line.slice(0, slashIndex);
 		line = $.trim(line.slice(slashIndex + 1));
@@ -1345,6 +1340,13 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 			self.nwFinishedLoadingTeams(localApp);
 		}
 		return;
+	}
+
+	var format = '';
+	var bracketIndex = line.indexOf(']');
+	if (bracketIndex >= 0) {
+		format = line.slice(1, bracketIndex);
+		line = $.trim(line.slice(bracketIndex + 1));
 	}
 	fs.readFile(this.dir + 'Teams/' + filename, function (err, data) {
 		if (!err) {
