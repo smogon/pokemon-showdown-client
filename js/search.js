@@ -526,9 +526,10 @@
 
 		case 'move':
 			template = Tools.getTemplate(set.species);
+			if (!(toId(template.species)) in BattleLearnsets) template = Tools.getTemplate(template.baseSpecies);
 			var moves = [];
 			while (true) {
-				var learnsetTemplate = BattleLearnsets[toId(template.baseSpecies)];
+				var learnsetTemplate = BattleLearnsets[toId(template.species)];
 				if (learnsetTemplate) {
 					for (var l in learnsetTemplate.learnset) {
 						if (requirePentagon && !learnsetTemplate.learnset[l].length) continue;
@@ -539,9 +540,8 @@
 						}
 					}
 				}
-				if (template.baseSpecies && !learnsetTemplate) template = BattlePokedex[toId(template.baseSpecies)];
-				else if (template.prevo) template = BattlePokedex[template.prevo];
-				else break;
+				if (!template.prevo) break;
+				template = BattlePokedex[template.prevo];
 			}
 			moves.sort();
 
@@ -549,7 +549,14 @@
 			var uselessMoves = [];
 			for (var i = 0; i < moves.length; i++) {
 				var id = moves[i];
-				if (BattleMovedex[id] && BattleMovedex[id].isViable) {
+				var isViable = BattleMovedex[id] && BattleMovedex[id].isViable;
+				if (id === 'aerialace') isViable = (toId(set.ability) === 'technician');
+				if (id === 'dynamicpunch') isViable = (toId(set.ability) === 'noguard');
+				if (id === 'icywind') isViable = (toId(set.species).substr(0, 6) === 'keldeo');
+				if (id === 'focuspunch') isViable = (toId(set.species) === 'breloom');
+				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
+				if (id === 'counter') isViable = (toId(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1});
+				if (isViable) {
 					if (!usableMoves.length) usableMoves.push(['header', "Moves", 0]);
 					usableMoves.push(['move', id, 0]);
 				} else {
