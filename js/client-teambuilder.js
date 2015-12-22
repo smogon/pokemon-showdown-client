@@ -2146,7 +2146,7 @@
 			var val = '';
 			switch (name) {
 			case 'pokemon':
-				val = (id in BattlePokedex ? BattlePokedex[id].name : '');
+				val = (id in BattlePokedex ? BattlePokedex[id].species : '');
 				break;
 			case 'ability':
 				val = (id in BattleAbilities ? BattleAbilities[id].name : '');

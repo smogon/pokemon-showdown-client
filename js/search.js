@@ -211,6 +211,7 @@
 		if (this.filters) {
 			topbuf = Search.renderRow(this.getFilterText(1), 'html', 0);
 		}
+		if (qTypeIndex === 2 && query === 'psychic') topbufIndex = 2;
 		if (topbufIndex >= 0) {
 			topbuf += bufs[topbufIndex];
 			bufs[topbufIndex] = '';
@@ -514,11 +515,15 @@
 				BattleTeambuilderTable.tiers = null;
 			}
 			var tierSet = BattleTeambuilderTable.tierSet;
-			if (format === 'ou') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.OU);
-			if (format === 'uu') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.UU);
-			if (format === 'ru') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.RU);
-			if (format === 'nu') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.NU);
-			if (format === 'lc') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.LC);
+			if (format === 'uber') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.Uber);
+			else if (format === 'ou') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.OU);
+			else if (format === 'uu') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.UU);
+			else if (format === 'ru') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.RU);
+			else if (format === 'nu') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.NU);
+			else if (format === 'pu') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.PU);
+			else if (format === 'lc') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.LC);
+			else if (format === 'cap') tierSet = tierSet.slice(0, BattleTeambuilderTable.formatSlices.Uber).concat(tierSet.slice(BattleTeambuilderTable.formatSlices.OU));
+			else tierSet = [['header', "AG", 0], ['pokemon', 'rayquazamega', 0]].concat(tierSet.slice(BattleTeambuilderTable.formatSlices.Uber));
 			this.defaultResultSet = tierSet;
 			this.legalityLabel = "Banned";
 			break;
@@ -552,8 +557,9 @@
 
 		case 'move':
 			template = Tools.getTemplate(set.species);
-			if (!(toId(template.species)) in BattleLearnsets) template = Tools.getTemplate(template.baseSpecies);
+			if (!(toId(template.species) in BattleLearnsets)) template = Tools.getTemplate(template.baseSpecies);
 			var moves = [];
+			var sketch = false;
 			while (true) {
 				var learnsetTemplate = BattleLearnsets[toId(template.species)];
 				if (learnsetTemplate) {
@@ -561,6 +567,7 @@
 						if (requirePentagon && !learnsetTemplate.learnset[l].length) continue;
 						if (moves.indexOf(l) >= 0) continue;
 						moves.push(l);
+						if (l === 'sketch') sketch = true;
 						if (l === 'hiddenpower') {
 							moves.push('hiddenpowerbug', 'hiddenpowerdark', 'hiddenpowerdragon', 'hiddenpowerelectric', 'hiddenpowerfighting', 'hiddenpowerfire', 'hiddenpowerflying', 'hiddenpowerghost', 'hiddenpowergrass', 'hiddenpowerground', 'hiddenpowerice', 'hiddenpowerpoison', 'hiddenpowerpsychic', 'hiddenpowerrock', 'hiddenpowersteel', 'hiddenpowerwater');
 						}
@@ -569,6 +576,14 @@
 				if (!template.prevo) break;
 				template = BattlePokedex[template.prevo];
 			}
+			if (sketch) {
+				moves = [];
+				for (var i in BattleMovedex) {
+					if (i === 'chatter' || i === 'magikarpsrevenge' || i === 'paleowave' || i === 'shadowstrike') continue;
+					moves.push(i);
+				}
+			}
+
 			moves.sort();
 
 			var usableMoves = [];
@@ -684,7 +699,8 @@
 		var buf = '<li class="result"><a' + attrs + ' data-entry="pokemon:' + Tools.escapeHTML(pokemon.species) + '">';
 
 		// number
-		buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
+		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
+		buf += '<span class="col numcol">' + (pokemon.tier || Tools.getTemplate(pokemon.baseSpecies).tier) + '</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
