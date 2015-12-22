@@ -131,7 +131,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const tiers = BattleTeambuilderTable.tiers = [];
 	const formatSlices = BattleTeambuilderTable.formatSlices = {};
 
-	const tierOrder = ["Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
+	const tierOrder = ["CAP", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
 
 	for (const tier of tierOrder) {
 		if (tier === "OU" || tier === "Uber" || tier === "UU" || tier === "RU" || tier === "NU" || tier === "PU" || tier === "LC") {
