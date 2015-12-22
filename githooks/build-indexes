@@ -123,6 +123,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		if (!tierTable[tier]) tierTable[tier] = [];
 		tierTable[tier].push(id);
+		if (id in {pawniard:1, vullaby:1, ferroseed:1} && tier !== 'LC') {
+			tierTable['LC'].push(id);
+		}
 	}
 
 	const tiers = BattleTeambuilderTable.tiers = [];
