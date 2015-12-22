@@ -2050,16 +2050,24 @@
 			if (this.curChartType === 'move' && e.currentTarget.className === 'cur') {
 				// clicked a move, remove it if we already have it
 				var $emptyEl;
+				var moves = [];
 				for (var i = 1; i <= 4; i++) {
 					var $inputEl = this.$('input[name=move' + i + ']');
 					var curVal = $inputEl.val();
-					if (!curVal) {
-						$emptyEl = $inputEl;
-					} else if (curVal === val) {
+					if (curVal === val) {
 						$inputEl.val('');
-						($emptyEl || $inputEl).focus();
-						return;
+						delete this.search.cur[toId(val)];
+					} else if (curVal) {
+						moves.push(curVal);
 					}
+				}
+				if (moves.length < 4) {
+					this.$('input[name=move1]').val(moves[0] || '');
+					this.$('input[name=move2]').val(moves[1] || '');
+					this.$('input[name=move3]').val(moves[2] || '');
+					this.$('input[name=move4]').val(moves[3] || '');
+					this.$('input[name=move' + (1 + moves.length) + ']').focus();
+					return;
 				}
 			}
 			this.chartSet(val, true);
