@@ -641,7 +641,7 @@
 			}
 		}
 		if (!BattleSearchIndex[left]) left--;
-		else if (BattleSearchIndex[left + 1] && BattleSearchIndex[left] < query) left++
+		else if (BattleSearchIndex[left + 1] && BattleSearchIndex[left] < query) left++;
 		if (BattleSearchIndex[left - 1] === query) left--;
 		return left;
 	};
