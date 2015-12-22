@@ -1441,7 +1441,7 @@ Storage.nwSaveTeam = function (team) {
 	} catch (e) {}
 
 	if (team.filename && filename !== team.filename) {
-		this.nwDeleteTeam();
+		this.nwDeleteTeam(team);
 	}
 	team.filename = filename;
 	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'));
