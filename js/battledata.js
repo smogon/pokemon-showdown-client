@@ -893,11 +893,6 @@ var Tools = {
 			template = window.BattlePokedex[id];
 			if (template.species) name = template.species;
 			if (template.exists === undefined) template.exists = true;
-			if (window.BattleFormatsData && window.BattleFormatsData[id]) {
-				template.tier = window.BattleFormatsData[id].tier;
-				template.isNonstandard = window.BattleFormatsData[id].isNonstandard;
-				template.unreleasedHidden = window.BattleFormatsData[id].unreleasedHidden;
-			}
 			if (window.BattleLearnsets && window.BattleLearnsets[id]) {
 				template.learnset = window.BattleLearnsets[id].learnset;
 			}
