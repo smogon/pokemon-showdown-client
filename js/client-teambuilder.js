@@ -2277,8 +2277,7 @@
 			if (set.happiness) delete set.happiness;
 			if (set.shiny) delete set.shiny;
 			if (this.curTeam.format !== 'balancedhackmons') {
-				var formatsData = window.BattleFormatsData && BattleFormatsData[template.speciesid];
-				set.item = (formatsData.requiredItem || '');
+				set.item = (template.requiredItem || '');
 			} else {
 				set.item = '';
 			}

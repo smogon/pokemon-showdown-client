@@ -14,6 +14,17 @@ global.toId = function (text) {
 const Tools = require('../data/Pokemon-Showdown/tools').includeData();
 const fs = require("fs");
 
+function es3stringify(obj) {
+	var buf = JSON.stringify(obj);
+	buf = buf.replace(/\"([a-z0-9]+)\"\:/g, '$1:');
+	buf = buf.replace(/return\:/g, '"return":').replace(/new\:/g, '"new":').replace(/delete\:/g, '"delete":');
+	return buf;
+}
+function requireNoCache(pathSpec) {
+	delete require.cache[require.resolve(pathSpec)];
+	return require(pathSpec);
+}
+
 /*********************************************************
  * Build search-index.js
  *********************************************************/
@@ -151,6 +162,45 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
 
 	fs.writeFileSync('data/teambuilder-tables.js', buf);
+}
+
+console.log("DONE");
+
+/*********************************************************
+ * Build pokedex.js
+ *********************************************************/
+
+process.stdout.write("Building `data/pokedex.js`... ");
+
+{
+	const Pokedex = requireNoCache('../data/Pokemon-Showdown/data/pokedex.js').BattlePokedex;
+	for (const id in Pokedex) {
+		const entry = Pokedex[id];
+		if (Tools.data.FormatsData[id]) {
+			// console.log('formatsentry:' + id);
+			const formatsEntry = Tools.data.FormatsData[id];
+			if (formatsEntry.tier) entry.tier = formatsEntry.tier;
+			if (formatsEntry.requiredItem) entry.requiredItem = formatsEntry.requiredItem;
+			if (formatsEntry.isNonstandard) entry.isNonstandard = formatsEntry.isNonstandard;
+			if (formatsEntry.unreleasedHidden) entry.unreleasedHidden = formatsEntry.unreleasedHidden;
+		}
+	}
+	var buf = 'exports.BattlePokedex = ' + es3stringify(Pokedex) + ';';
+	fs.writeFileSync('data/pokedex.js', buf);
+}
+
+console.log("DONE");
+
+/*********************************************************
+ * Build moves.js
+ *********************************************************/
+
+process.stdout.write("Building `data/moves.js`... ");
+
+{
+	const Movedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
+	var buf = 'exports.BattleMovedex = ' + es3stringify(Movedex) + ';';
+	fs.writeFileSync('data/moves.js', buf);
 }
 
 console.log("DONE");
