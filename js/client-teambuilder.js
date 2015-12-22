@@ -1315,7 +1315,7 @@
 		},
 		moveSet: function (i, button) {
 			i = +($(button).closest('li').attr('value'));
-			app.addPopup(MovePopup, {
+			app.addPopup(MoveSetPopup, {
 				i: i,
 				team: this.curSetList
 			});
@@ -2767,7 +2767,7 @@
 		}
 	});
 
-	var MovePopup = exports.MovePopup = Popup.extend({
+	var MoveSetPopup = exports.MoveSetPopup = Popup.extend({
 		initialize: function (data) {
 			var buf = '<ul class="popupmenu">';
 			this.i = data.i;
