@@ -17,7 +17,6 @@
 			this.update();
 		},
 		focus: function () {
-			this.buildMovelists();
 			if (this.curTeam) {
 				this.curTeam.iconCache = '!';
 				this.curTeam.gen = this.getGen(this.curTeam.format);
@@ -49,7 +48,7 @@
 			'keydown .chartinput': 'chartKeydown',
 			'keyup .chartinput': 'chartKeyup',
 			'focus .chartinput': 'chartFocus',
-			'change .chartinput': 'chartChange',
+			'blur .chartinput': 'chartChange',
 
 			// drag/drop
 			'click .team': 'edit',
@@ -1384,6 +1383,15 @@
 			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
 			if ($(window).width() < 640) this.show();
 			this.$chart = this.$('.teambuilder-results');
+			this.search = new BattleSearch(this.$chart, this.$chart);
+			var self = this;
+			// fun fact: Backbone DOM events don't support scroll...
+			// I guess scroll doesn't bubble like other events
+			this.$chart.on('scroll', function () {
+				if (self.curChartType in self.searchChartTypes) {
+					self.search.updateScroll();
+				}
+			});
 		},
 		updateSetTop: function () {
 			this.$('.teambar').html(this.renderTeambar());
@@ -1493,46 +1501,57 @@
 		},
 		curChartType: '',
 		curChartName: '',
-		updateChart: function () {
+		searchChartTypes: {
+			pokemon: 'pokemon',
+			ability: 'abilities',
+			move: 'moves',
+			item: 'items'
+		},
+		updateChart: function (pokemonChanged, wasIncomplete) {
 			var type = this.curChartType;
 			app.clearGlobalListeners();
 			if (type === 'stats') {
+				this.search.qType = null;
+				this.search.qName = null;
 				this.updateStatForm();
 				return;
 			}
 			if (type === 'details') {
+				this.search.qType = null;
+				this.search.qName = null;
 				this.updateDetailsForm();
 				return;
 			}
 
-			// cache movelist ref
-			var speciesid = toId(this.curSet.species);
-			var g6 = (this.curTeam.format && this.curTeam.format === 'vgc2016');
-			this.applyMovelist(g6, speciesid);
+			var $inputEl = this.$('input[name=' + this.curChartName + ']');
+			var q = $inputEl.val();
 
-			this.$chart.html('<em>Loading ' + this.curChartType + '...</em>');
-			var self = this;
-			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
-			this.updateChartTimeout = setTimeout(function () {
-				self.updateChartTimeout = null;
-				if (self.curChartType === 'stats' || self.curChartType === 'details' || !self.curChartName) return;
-				self.$chart.html(Chart.chart(self.$('input[name=' + self.curChartName + ']').val(), self.curChartType, true, _.bind(self.arrangeCallback[self.curChartType], self), null, self.curTeam.gen));
-			}, 10);
-		},
-		updateChartTimeout: null,
-		updateChartDelayed: function () {
-			// cache movelist ref
-			var speciesid = toId(this.curSet.species);
-			var g6 = (this.curTeam.format && this.curTeam.format === 'vgc2016');
-			this.applyMovelist(g6, speciesid);
-
-			var self = this;
-			if (this.updateChartTimeout) clearTimeout(this.updateChartTimeout);
-			this.updateChartTimeout = setTimeout(function () {
-				self.updateChartTimeout = null;
-				if (self.curChartType === 'stats' || self.curChartType === 'details') return;
-				self.$chart.html(Chart.chart(self.$('input[name=' + self.curChartName + ']').val(), self.curChartType, false, _.bind(self.arrangeCallback[self.curChartType], self), null, self.curTeam.gen));
-			}, 200);
+			if (pokemonChanged || this.search.qName !== this.curChartName) {
+				var cur = {};
+				if (type === 'move') {
+					cur[toId(this.$('input[name=move1]').val())] = 1;
+					cur[toId(this.$('input[name=move2]').val())] = 1;
+					cur[toId(this.$('input[name=move3]').val())] = 1;
+					cur[toId(this.$('input[name=move4]').val())] = 1;
+				} else {
+					cur[toId(q)] = 1;
+				}
+				if (type !== this.search.qType) {
+					this.$chart.scrollTop(0);
+				}
+				this.search.$inputEl = $inputEl;
+				this.search.setType(type, this.curTeam.format, this.curSet, cur);
+				this.qInitial = q;
+				this.search.qName = this.curChartName;
+				if (wasIncomplete) {
+					this.search.find(q);
+					if (this.search.q) this.$chart.find('a').first().addClass('hover');
+				}
+			} else if (q !== this.qInitial) {
+				this.qInitial = undefined;
+				this.search.find(q);
+				if (this.search.q) this.$chart.find('a').first().addClass('hover');
+			}
 		},
 		selectPokemon: function (i) {
 			i = +i;
@@ -1540,14 +1559,17 @@
 			if (set) {
 				this.curSet = set;
 				this.curSetLoc = i;
-				var name = this.curChartName || 'details';
-				if (name === 'details' || name === 'stats') {
+				if (!this.curChartName) {
+					this.curChartName = 'details';
+					this.curChartType = 'details';
+				}
+				if (this.curChartType in this.searchChartTypes) {
 					this.update();
-					this.updateChart();
+					this.updateChart(true);
+					this.$('input[name=' + this.curChartName + ']').select();
 				} else {
-					this.curChartName = '';
 					this.update();
-					this.$('input[name=' + name + ']').select();
+					this.updateChart(true);
 				}
 			}
 		},
@@ -1555,13 +1577,13 @@
 			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
 			this.curChartName = 'stats';
 			this.curChartType = 'stats';
-			this.updateStatForm();
+			this.updateChart();
 		},
 		details: function (i, button) {
 			if (!this.curSet) this.selectPokemon($(button).closest('li').val());
 			this.curChartName = 'details';
 			this.curChartType = 'details';
-			this.updateDetailsForm();
+			this.updateChart();
 		},
 
 		/*********************************************************
@@ -2007,68 +2029,6 @@
 		 * Set charts
 		 *********************************************************/
 
-		arrangeCallback: {
-			pokemon: function (pokemon) {
-				if (!pokemon) {
-					if (this.curTeam) {
-						if (this.curTeam.format === 'ubers' || this.curTeam.format === 'anythinggoes') return ['Uber', 'OU', 'BL', 'OU only when combining mega and non-mega usage', 'UU', 'BL2', 'UU only when combining mega and non-mega usage', 'RU', 'BL3', 'RU only when combining mega and non-mega usage', 'NU', 'BL4', 'NU only when combining mega and non-mega usage', 'PU', 'NFE', 'LC Uber', 'LC'];
-						if (this.curTeam.format === 'ou') return ['OU', 'BL', 'OU only when combining mega and non-mega usage', 'UU', 'BL2', 'UU only when combining mega and non-mega usage', 'RU', 'BL3', 'RU only when combining mega and non-mega usage', 'NU', 'BL4', 'NU only when combining mega and non-mega usage', 'PU', 'NFE', 'LC Uber', 'LC'];
-						if (this.curTeam.format === 'cap') return ['CAP', 'OU', 'BL', 'OU only when combining mega and non-mega usage', 'UU', 'BL2', 'UU only when combining mega and non-mega usage', 'RU', 'BL3', 'RU only when combining mega and non-mega usage', 'NU', 'BL4', 'NU only when combining mega and non-mega usage', 'PU', 'NFE', 'LC Uber', 'LC'];
-						if (this.curTeam.format === 'uu') return ['UU', 'BL2', 'UU only when combining mega and non-mega usage', 'RU', 'BL3', 'RU only when combining mega and non-mega usage', 'NU', 'BL4', 'NU only when combining mega and non-mega usage', 'PU', 'NFE', 'LC Uber', 'LC'];
-						if (this.curTeam.format === 'ru') return ['RU', 'BL3', 'RU only when combining mega and non-mega usage', 'NU', 'BL4', 'NU only when combining mega and non-mega usage', 'PU', 'NFE', 'LC Uber', 'LC'];
-						if (this.curTeam.format === 'nu') return ['NU', 'BL4', 'NU only when combining mega and non-mega usage', 'PU', 'NFE', 'LC Uber', 'LC'];
-						if (this.curTeam.format === 'pu') return ['PU', 'NFE', 'LC Uber', 'LC'];
-						if (this.curTeam.format === 'lc') return ['LC'];
-					}
-					return ['OU', 'Uber', 'BL', 'OU only when combining mega and non-mega usage', 'UU', 'BL2', 'UU only when combining mega and non-mega usage', 'RU', 'BL3', 'RU only when combining mega and non-mega usage', 'NU', 'BL4', 'NU only when combining mega and non-mega usage', 'PU', 'NFE', 'LC Uber', 'LC', 'Unreleased', 'CAP'];
-				}
-				var speciesid = toId(pokemon.species);
-				var tierData = exports.BattleFormatsData[speciesid];
-				if (!tierData) return 'Illegal';
-				var displayTier = {"(OU)": "OU only when combining mega and non-mega usage", "(UU)": "UU only when combining mega and non-mega usage", "(RU)": "RU only when combining mega and non-mega usage", "(NU)": "NU only when combining mega and non-mega usage"};
-				if (tierData.tier in displayTier) {
-					return displayTier[tierData.tier];
-				}
-				return tierData.tier;
-			},
-			item: function (item) {
-				if (!item) return ['Items'];
-				return 'Items';
-			},
-			ability: function (ability) {
-				if (!this.curSet) return;
-				var template = Tools.getTemplate(this.curSet.species);
-				var isMega = false;
-				if (template.forme.substr(0, 4) === 'Mega' && this.curTeam.format !== 'balancedhackmons') {
-					if (!ability) return ['Pre-Mega Abilities', 'Pre-Mega Hidden Ability'];
-					isMega = true;
-					template = Tools.getTemplate(template.baseSpecies);
-				}
-				if (!ability) return ['Abilities', 'Hidden Ability'];
-				if (!template.abilities) return 'Abilities';
-				if (ability.name === template.abilities['0']) return isMega ? 'Pre-Mega Abilities' : 'Abilities';
-				if (ability.name === template.abilities['1']) return isMega ? 'Pre-Mega Abilities' : 'Abilities';
-				if (ability.name === template.abilities['H']) return isMega ? 'Pre-Mega Hidden Ability' : 'Hidden Ability';
-				if (!this.curTeam || this.curTeam.format !== 'balancedhackmons') return 'Illegal';
-			},
-			move: function (move) {
-				if (!this.curSet) return;
-				if (!move) return ['Usable Moves', 'Moves', 'Usable Sketch Moves', 'Sketch Moves'];
-				var movelist = this.movelist;
-				if (!movelist) return 'Illegal';
-				if (!movelist[move.id]) {
-					if (movelist['sketch'] && move.id !== 'chatter' && move.id !== 'struggle') {
-						if (move.isViable) return 'Usable Sketch Moves';
-						return 'Sketch Moves';
-					}
-					if (!this.curTeam || this.curTeam.format !== 'balancedhackmons') return 'Illegal';
-				}
-				var speciesid = toId(this.curSet.species);
-				if (move.isViable) return 'Usable Moves';
-				return 'Moves';
-			}
-		},
-
 		chartTypes: {
 			pokemon: 'pokemon',
 			item: 'item',
@@ -2081,30 +2041,61 @@
 			details: 'details'
 		},
 		chartClick: function (e) {
-			this.chartSet($(e.currentTarget).data('name'), true);
+			if (this.search.addFilter(e.currentTarget)) {
+				this.$('input[name=' + this.curChartName + ']').val('').select();
+				this.search.find('');
+				return;
+			}
+			var val = $(e.currentTarget).data('entry').split(':')[1];
+			this.chartSet(val, true);
 		},
 		chartKeydown: function (e) {
 			var modifier = (e.shiftKey || e.ctrlKey || e.altKey || e.metaKey || e.cmdKey);
 			if (e.keyCode === 13 || (e.keyCode === 9 && !modifier)) {
-				if (!this.arrangeCallback[this.curChartType]) return;
+				if (!(this.curChartType in this.searchChartTypes)) return;
 				e.stopPropagation();
 				e.preventDefault();
 
-				var name = e.currentTarget.name;
-				this.$chart.html(Chart.chart(e.currentTarget.value, this.curChartType, false, _.bind(this.arrangeCallback[this.curChartType], this), null, this.curTeam.gen));
-				var val = Chart.firstResult;
+				this.search.find(e.currentTarget.value);
+				if (!this.search.q) return;
+				var $firstResult = this.$chart.find('a').first();
+				if (this.search.addFilter($firstResult[0])) {
+					$(e.currentTarget).val('').select();
+					this.search.find('');
+					return;
+				}
+				var val = $firstResult.data('entry').split(':')[1];
 				this.chartSet(val, true);
 				return;
+			} else if (e.keyCode === 27 || e.keyCode === 8) { // esc, backspace
+				if (!e.currentTarget.value && this.search.removeFilter()) {
+					this.search.find('');
+					return;
+				}
+			} else if (e.keyCode === 188) {
+				var $firstResult = this.$chart.find('a').first();
+				if (!this.search.q) return;
+				if (this.search.addFilter($firstResult[0])) {
+					e.preventDefault();
+					e.stopPropagation();
+					$(e.currentTarget).val('').select();
+					this.search.find('');
+					return;
+				}
 			}
 		},
 		chartKeyup: function () {
-			this.updateChartDelayed();
+			this.updateChart();
 		},
 		chartFocus: function (e) {
 			var $target = $(e.currentTarget);
 			var name = e.currentTarget.name;
 			var type = this.chartTypes[name];
-			$target.removeClass('incomplete');
+			var wasIncomplete = false;
+			if ($target.hasClass('incomplete')) {
+				wasIncomplete = true;
+				$target.removeClass('incomplete');
+			}
 
 			if (this.curChartName === name) return;
 
@@ -2123,21 +2114,32 @@
 
 			this.curChartName = name;
 			this.curChartType = type;
-			this.updateChart();
+			this.updateChart(false, wasIncomplete);
 		},
 		chartChange: function (e) {
 			var name = e.currentTarget.name;
-			var type = this.chartTypes[name];
-			var arrange = null;
-			if (this.arrangeCallback[this.curChartType]) {
-				arrange = _.bind(this.arrangeCallback[this.curChartType], this);
-			}
-			this.$chart.html(Chart.chart(e.currentTarget.value, type, false, arrange, null, this.curTeam.gen));
-			var val = Chart.firstResult;
+			if (this.curChartName !== name) return;
 			var id = toId(e.currentTarget.value);
-			if (toId(val) !== id) {
-				$(e.currentTarget).addClass('incomplete');
-				return;
+			var val = '';
+			switch (name) {
+			case 'pokemon':
+				val = (id in BattlePokedex ? BattlePokedex[id].name : '');
+				break;
+			case 'ability':
+				val = (id in BattleAbilities ? BattleAbilities[id].name : '');
+				break;
+			case 'item':
+				val = (id in BattleItems ? BattleItems[id].name : '');
+				break;
+			case 'move1': case 'move2': case 'move3': case 'move4':
+				val = (id in BattleMovedex ? BattleMovedex[id].name : '');
+				break;
+			}
+			if (!val) {
+				if (name === 'pokemon' || name === 'ability' || id) {
+					$(e.currentTarget).addClass('incomplete');
+					return;
+				}
 			}
 			this.chartSet(val);
 		},
@@ -2167,7 +2169,7 @@
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
 				this.curSet.moves[1] = val;
 				this.chooseMove(val);
-				this.$('input[name=move3]').select();
+				if (selectNext) this.$('input[name=move3]').select();
 				break;
 			case 'move3':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
@@ -2216,7 +2218,10 @@
 			var set = this.curSet;
 			var template = Tools.getTemplate(val);
 			var newPokemon = !set.species;
-			if (!template.exists || set.species === template.species) return;
+			if (!template.exists || set.species === template.species) {
+				if (selectNext) this.$('input[name=item]').select();
+				return;
+			}
 
 			set.name = template.species;
 			set.species = val;
@@ -2728,46 +2733,6 @@
 
 		// initialization
 
-		buildMovelists: function () {
-			if (Tools.movelists) return;
-			if (!window.BattlePokedex) return;
-			Tools.movelists = {};
-			Tools.g6movelists = {};
-			for (var pokemon in window.BattlePokedex) {
-				var template = Tools.getTemplate(pokemon);
-				var moves = {};
-				var g6moves = {};
-				var alreadyChecked = {};
-				do {
-					alreadyChecked[template.speciesid] = true;
-					if (template.learnset) {
-						for (var l in template.learnset) {
-							moves[l] = true;
-							if (template.learnset[l].length) g6moves[l] = true;
-						}
-					}
-					if (template.speciesid === 'shaymin') {
-						template = Tools.getTemplate('shayminsky');
-					} else if (toId(template.baseSpecies) !== toId(template.species) && toId(template.baseSpecies) !== 'pikachu' && toId(template.baseSpecies) !== 'wormadam' && toId(template.baseSpecies) !== 'kyurem') {
-						template = Tools.getTemplate(template.baseSpecies);
-					} else {
-						template = Tools.getTemplate(template.prevo);
-					}
-				} while (template && template.species && !alreadyChecked[template.speciesid]);
-				Tools.movelists[pokemon] = moves;
-				Tools.g6movelists[pokemon] = g6moves;
-			}
-		},
-		applyMovelist: function (g6only, speciesid) {
-			this.buildMovelists();
-			if (!Tools.movelists) {
-				this.movelist = false;
-			} else if (g6only) {
-				this.movelist = Tools.g6movelists[speciesid];
-			} else {
-				this.movelist = Tools.movelists[speciesid];
-			}
-		},
 		getGen: function (format) {
 			format = '' + format;
 			if (format.substr(0, 3) !== 'gen') return 6;

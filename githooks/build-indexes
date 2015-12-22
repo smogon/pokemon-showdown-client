@@ -103,3 +103,51 @@ const fs = require("fs");
 }
 
 console.log("DONE");
+
+/*********************************************************
+ * Build teambuilder-tables.js
+ *********************************************************/
+
+process.stdout.write("Building `data/teambuilder-tables.js`... ");
+
+{
+	const BattleTeambuilderTable = {};
+
+	let buf = '// automatically built with githooks/build-indexes\n\n';
+
+	const pokemon = Object.keys(Tools.data.Pokedex);
+	pokemon.sort();
+	const tierTable = {};
+	for (const id of pokemon) {
+		const tier = Tools.getTemplate(id).tier;
+
+		if (!tierTable[tier]) tierTable[tier] = [];
+		tierTable[tier].push(id);
+	}
+
+	const tiers = BattleTeambuilderTable.tiers = [];
+	const formatSlices = BattleTeambuilderTable.formatSlices = {};
+
+	const tierOrder = ["Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
+
+	for (const tier of tierOrder) {
+		if (tier === "OU" || tier === "Uber" || tier === "UU" || tier === "RU" || tier === "NU" || tier === "PU" || tier === "LC") {
+			formatSlices[tier] = tiers.length;
+		}
+		if (!tierTable[tier]) continue;
+		if (tier.charAt(0) === '(') {
+			tiers.push(['header', tier.slice(1, -1) + " by technicality"]);
+		} else if (tier === "NFE") {
+			tiers.push(['header', "NFEs not in a higher tier"]);
+		} else {
+			tiers.push(['header', tier]);
+		}
+		tiers.push(...tierTable[tier]);
+	}
+
+	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
+
+	fs.writeFileSync('data/teambuilder-tables.js', buf);
+}
+
+console.log("DONE");

@@ -2726,12 +2726,13 @@ a.ilink.yours {
 	border-radius: 4px;
 	cursor: pointer;
 }
-.teambuilder-results .result a:hover {
+.teambuilder-results .result a:hover,
+.teambuilder-results .result a.hover {
 	border-color: #D8D8D8;
 	background: #F8F8F8;
 }
-.teambuilder-results .firstresult a,
-.teambuilder-results .firstresult a:hover {
+.teambuilder-results .result a.cur:hover,
+.teambuilder-results .result a.cur.hover {
 	border-color: #CCCCCC;
 	background: #F2F2F2;
 }

@@ -409,16 +409,16 @@ var Tools = {
 			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(target) + '</span></div>';
 		case 'data-pokemon':
 			if (!window.Chart) return '';
-			return '<div class="message"><ul class="utilichart">' + Chart.pokemonRow(Tools.getTemplate(target), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
+			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderPokemonRow(Tools.getTemplate(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
 		case 'data-item':
 			if (!window.Chart) return '';
-			return '<div class="message"><ul class="utilichart">' + Chart.itemRow(Tools.getItem(target), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
+			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderItemRow(Tools.getItem(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
 		case 'data-ability':
 			if (!window.Chart) return '';
-			return '<div class="message"><ul class="utilichart">' + Chart.abilityRow(Tools.getAbility(target), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
+			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderAbilityRow(Tools.getAbility(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
 		case 'data-move':
 			if (!window.Chart) return '';
-			return '<div class="message"><ul class="utilichart">' + Chart.moveRow(Tools.getMove(target), '', {}, false, true) + '<li style=\"clear:both\"></li></ul></div>';
+			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderMoveRow(Tools.getMove(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
 		case 'text':
 			return '<div class="chat">' + Tools.escapeHTML(target) + '</div>';
 		case 'error':
