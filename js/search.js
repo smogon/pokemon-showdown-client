@@ -515,15 +515,17 @@
 				BattleTeambuilderTable.tiers = null;
 			}
 			var tierSet = BattleTeambuilderTable.tierSet;
-			if (format === 'uber') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.Uber);
-			else if (format === 'ou') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.OU);
-			else if (format === 'uu') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.UU);
-			else if (format === 'ru') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.RU);
-			else if (format === 'nu') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.NU);
-			else if (format === 'pu') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.PU);
-			else if (format === 'lc') tierSet = tierSet.slice(BattleTeambuilderTable.formatSlices.LC);
-			else if (format === 'cap') tierSet = tierSet.slice(0, BattleTeambuilderTable.formatSlices.Uber).concat(tierSet.slice(BattleTeambuilderTable.formatSlices.OU));
-			else tierSet = [['header', "AG", 0], ['pokemon', 'rayquazamega', 0]].concat(tierSet.slice(BattleTeambuilderTable.formatSlices.Uber));
+			var slices = BattleTeambuilderTable.formatSlices;
+			if (format === 'uber') tierSet = tierSet.slice(slices.Uber);
+			else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
+			else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
+			else if (format === 'ru') tierSet = tierSet.slice(slices.RU);
+			else if (format === 'nu') tierSet = tierSet.slice(slices.NU);
+			else if (format === 'pu') tierSet = tierSet.slice(slices.PU);
+			else if (format === 'lc') tierSet = tierSet.slice(slices.LC);
+			else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
+			else if (format === 'ag') tierSet = [['header', "AG", 0], ['pokemon', 'rayquazamega', 0]].concat(tierSet.slice(slices.Uber));
+			else tierSet = tierSet.slice(slices.OU, slices.UU).concat([['header', "AG", 0], ['pokemon', 'rayquazamega', 0]]).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
 			this.defaultResultSet = tierSet;
 			this.legalityLabel = "Banned";
 			break;
