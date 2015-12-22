@@ -19,10 +19,10 @@ module.exports = {
 		"BattleAbilities": false, "BattleAliases": false, "BattleBackdrops": false, "BattleBackdropsFour": false, "BattleBackdropsThree": false, "BattleEffects": false,
 		"BattleFormats": false, "BattleFormatsData": false, "BattleLearnsets": false, "BattleItems": false, "BattleMoveAnims": false, "BattleMovedex": false, "BattleNatures": false, 
 		"BattleOtherAnims": false,  "BattlePokedex": false,"BattlePokemonSprites": false, "BattlePokemonSpritesBW": false, "BattleSearchCountIndex": false, "BattleSearchIndex": false,
-		"BattleSearchIndexOffset": false, "BattleSearchIndexType": false, "BattleStatIDs": false, "BattleStatNames": false, "BattleStats": false, "BattleStatusAnims": false, "BattleStatuses": false,
+		"BattleSearchIndexOffset": false, "BattleSearchIndexType": false, "BattleStatIDs": false, "BattleStatNames": false, "BattleStats": false, "BattleStatusAnims": false, "BattleStatuses": false, "BattleTeambuilderTable": false,
 
 		// Generic global variables
-		"Config": false, "Chart": false, "soundManager": false, "Storage": false, "Tools": false,
+		"Config": false, "BattleSearch": false, "soundManager": false, "Storage": false, "Tools": false,
 		"app": false, "toId": false, "toRoomid": false, "toUserid": false, "toName": false, "hashColor": false, "MD5": false,
 		"ChatHistory": false, "Topbar": false, "UserList": false,
 

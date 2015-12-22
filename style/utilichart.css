@@ -15,11 +15,41 @@
 	margin: 0 5px 1px 5px;
 	text-decoration: none;
 }
+.utilichart li > a.cur {
+	border-color: #CCCCCC;
+	background: #F2F2F2;
+}
+.utilichart .filter {
+	padding:1px 3px;
+	border-radius: 3px;
+	border: 1px solid #777;
+	background: #EEE;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+	font-weight: bold;
+	cursor: pointer;
+}
+.utilichart .filter:hover {
+	color: #777777;
+	text-decoration: line-through;
+}
+.utilichart .filter i {
+	color: #999999;
+}
+.utilichart .filter:hover i {
+	color: #BB2222;
+}
 .resultheader,
 .utilichart li.resultheader,
 .utilichart .result {
 	height: 32px;
 	padding: 1px 0 0 0;
+}
+.result p,
+.resultheader p,
+.utilichart .result p {
+	padding: 7px 0 0 8px;
+	margin: 0;
 }
 .utilichart h3,
 .dexentry h3,
@@ -184,6 +214,13 @@
 	font-size: 8pt;
 	width: 90px;
 	text-align: center;
+}
+.utilichart .hiddenabilitycol {
+	font-style: italic;
+}
+.utilichart .unreleasedhiddenabilitycol {
+	font-style: italic;
+	text-decoration: line-through;
 }
 .utilichart b {
 	color: #4488CC;
