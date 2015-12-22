@@ -132,29 +132,57 @@
 		}
 
 		var i = Search.getClosest(query);
-		if (query in BattleAliases) {
-			query = toId(BattleAliases[query]);
-			i = Search.getClosest(query);
+		var nearMatch = (BattleSearchIndex[i].substr(0, query.length) !== query);
+		if (nearMatch) {
+			var matchLength = query.length - 1;
+			if (!i) i++;
+			while (matchLength &&
+				BattleSearchIndex[i].substr(0, matchLength) !== query.substr(0, matchLength) &&
+				BattleSearchIndex[i - 1].substr(0, matchLength) !== query.substr(0, matchLength)) {
+				matchLength--;
+			}
+			var matchQuery = query.substr(0, matchLength);
+			while (BattleSearchIndex[i - 1] && BattleSearchIndex[i - 1].substr(0, matchLength) === matchQuery) i--;
 		}
-		if (!BattleSearchIndex[i]) i--;
-		if (BattleSearchIndex[i - 1] && BattleSearchIndex[i - 1] === query) i--;
-		this.exactMatch = (query === BattleSearchIndex[i]);
+
+		var queryOriginal = '';
+		var iOriginal = -1;
+		var iAlias = -1;
+		if (query in BattleAliases) {
+			iOriginal = i;
+			queryOriginal = query;
+			query = toId(BattleAliases[query]);
+			i = iAlias = Search.getClosest(query);
+			nearMatch = false;
+		}
+		this.exactMatch = (iAlias >= 0 || query === BattleSearchIndex[i]);
 
 		var bufs = ['', '', '', '', '', '', ''];
+		var topbuf = '';
 		var topbufIndex = -1;
 
-		var nearMatch = (BattleSearchIndex[i].substr(0, query.length) !== query);
 		this.renderingDone = false;
-		if (nearMatch && i) i--;
 		for (var count = 0; count < 15; i++) {
+			if (iOriginal < 0 && i === iAlias) {
+				i++;
+			}
+
 			var id = BattleSearchIndex[i];
 			var type = BattleSearchIndexType[i];
 			var matchLength = query.length;
 
 			if (!id) break;
 			if (id.substr(0, query.length) !== query) {
+				if (!count && !nearMatch) nearMatch = true; // was an alias not matching our qType
+				if (iOriginal >= 0) {
+					// done matching on alias, match on original query now
+					i = iOriginal - 1;
+					query = queryOriginal;
+					iOriginal = -1;
+					continue;
+				}
 				this.renderingDone = true;
-				if (!(nearMatch && count <= 1)) break;
+				if (!(nearMatch && count <= 1)) break; // if a nearMatch, generate two results
 				matchLength = 0;
 			} else {
 				matchLength += (BattleSearchIndexOffset[i][matchLength - 1] || '0').charCodeAt(0) - 48;
@@ -179,7 +207,7 @@
 			count++;
 		}
 
-		var topbuf = '';
+		if (nearMatch) topbuf = '<li class="result notfound"><p><em>No exact match found. The closest matches alphabetically are:</em></p></li>' + topbuf;
 		if (this.filters) {
 			topbuf = Search.renderRow(this.getFilterText(1), 'html', 0);
 		}
@@ -191,8 +219,6 @@
 			topbuf += bufs[5];
 			bufs[5] = '';
 		}
-
-		if (nearMatch && !qType) topbuf = '<li class="notfound"><em>No exact match found. The closest matches alphabetically are:</em></li>' + topbuf;
 
 		this.el.innerHTML = '<ul class="utilichart">' + topbuf + bufs.join('') + '</ul>' + (this.renderingDone || qType ? '' : '<ul class="utilichart"><li class="more"><button class="utilichart-all">All results</button></li></ul>');
 		return true;
@@ -585,10 +611,11 @@
 		// binary search through the index!
 		var left = 0;
 		var right = BattleSearchIndex.length - 1;
-		while (right >= left) {
+		while (right > left) {
 			var mid = Math.floor((right - left) / 2 + left);
 			if (BattleSearchIndex[mid] === query) {
 				// that's us
+				if (BattleSearchIndex[mid - 1] === query) mid--;
 				return mid;
 			} else if (BattleSearchIndex[mid] < query) {
 				left = mid + 1;
@@ -596,6 +623,9 @@
 				right = mid - 1;
 			}
 		}
+		if (!BattleSearchIndex[left]) left--;
+		else if (BattleSearchIndex[left + 1] && BattleSearchIndex[left] < query) left++
+		if (BattleSearchIndex[left - 1] === query) left--;
 		return left;
 	};
 
