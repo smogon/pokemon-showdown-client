@@ -42,6 +42,50 @@ function requireNoCache(pathSpec) {
 	index = index.concat(['physical', 'special', 'status'].map(x => toId(x) + ' category'));
 	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toId(x) + ' egggroup'));
 
+	// generate aliases
+	function generateAlias(id, name, type) {
+		let i = name.lastIndexOf(' ');
+		if (i < 0) i = name.lastIndexOf('-');
+		if (name.endsWith('-Mega-X') || name.endsWith('-Mega-Y')) i = name.lastIndexOf('-', i - 1);
+		if (name === 'Earthquake') i = 5;
+		if (name === 'Thunderbolt') {
+			i = 7;
+			index.push('tb ' + type + ' ' + id + ' 0');
+		}
+		if (i < 0) return;
+		index.push('' + toId(name.slice(i)) + ' ' + type + ' ' + id + ' ' + toId(name.slice(0, i)).length);
+		let acronym;
+		if (name.startsWith('Hidden Power ')) {
+			acronym = 'hp' + toId(name.substr(13));
+			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
+		} else if (name === 'Hidden Power') {
+			index.push('hp ' + type + ' ' + id + ' 0');
+		} else if (name.includes(' ')) {
+			acronym = toId(name.split(' ').map(x => x.charAt(0)).join(''));
+		} else if (name.includes('-') && name.charAt(1) !== '-') {
+			acronym = toId(name.split('-').map(x => x.charAt(0)).join(''));
+		}
+		if (acronym && !(acronym in Tools.data.Aliases) || toId(Tools.data.Aliases[acronym]) !== id) {
+			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
+		}
+	}
+	for (const id in Tools.data.Pokedex) {
+		const name = Tools.data.Pokedex[id].species;
+		generateAlias(id, name, 'pokemon');
+	}
+	for (const id in Tools.data.Movedex) {
+		const name = Tools.data.Movedex[id].name;
+		generateAlias(id, name, 'move');
+	}
+	for (const id in Tools.data.Items) {
+		const name = Tools.data.Items[id].name;
+		generateAlias(id, name, 'item');
+	}
+	for (const id in Tools.data.Abilities) {
+		const name = Tools.data.Abilities[id].name;
+		generateAlias(id, name, 'ability');
+	}
+
 	index.sort();
 
 	// manually rearrange
@@ -67,12 +111,19 @@ function requireNoCache(pathSpec) {
 	index[index.indexOf('ditto egggroup')] = 'ditto pokemon';
 
 
-	let BattleSearchIndex = index.map(x => x.split(' ')[0]);
-	let BattleSearchIndexType = index.map(x => x.split(' ')[1]);
+	let BattleSearchIndex = index.map(x => {
+		x = x.split(' ');
+		if (x.length > 3) {
+			x[3] = Number(x[3]);
+			x[2] = index.indexOf(x[2] + ' ' + x[1]);
+		}
+		return x;
+	});
 
-	let BattleSearchIndexOffset = BattleSearchIndex.map((id, i) => {
+	let BattleSearchIndexOffset = BattleSearchIndex.map((entry, i) => {
+		var id = entry[0];
 		var name = '';
-		switch (BattleSearchIndexType[i]) {
+		switch (entry[1]) {
 		case 'pokemon': name = Tools.getTemplate(id).species; break;
 		case 'move': name = Tools.getMove(id).name; break;
 		case 'item': name = Tools.getItem(id).name; break;
@@ -103,8 +154,6 @@ function requireNoCache(pathSpec) {
 	var buf = '// automatically built with githooks/build-indexes\n\n';
 
 	buf += 'exports.BattleSearchIndex = ' + JSON.stringify(BattleSearchIndex) + ';\n\n';
-
-	buf += 'exports.BattleSearchIndexType = ' + JSON.stringify(BattleSearchIndexType) + ';\n\n';
 
 	buf += 'exports.BattleSearchIndexOffset = ' + JSON.stringify(BattleSearchIndexOffset) + ';\n\n';
 
