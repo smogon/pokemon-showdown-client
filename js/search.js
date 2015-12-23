@@ -33,16 +33,9 @@
 		this.$inputEl = null;
 
 		var self = this;
-		this.$el.on('mouseover', '.more-autoscroll', function () {
-			self.updateScroll(true);
-		});
 		this.$el.on('click', '.more button', function (e) {
 			e.preventDefault();
-			if (e.currentTarget.className === 'utilichart-all') {
-				self.all();
-			} else {
-				self.updateScroll(true);
-			}
+			self.updateScroll(true);
 		});
 		this.$el.on('click', '.filter', function (e) {
 			e.preventDefault();
@@ -576,10 +569,13 @@
 		if (this.renderingDone) return;
 		var top = this.$viewport.scrollTop();
 		var bottom = top + this.$viewport.height();
+		var windowHeight = $(window).height();
 		var i = this.renderedIndex;
 		var finalIndex = Math.floor(bottom / 33) + 1;
 		if (!forceAdd && finalIndex <= i) return;
 		if (finalIndex < i + 20) finalIndex = i + 20;
+		if (bottom - top > windowHeight && !i) finalIndex = 20;
+		if (forceAdd && finalIndex > i + 40) finalIndex = i + 40;
 
 		var resultSet = this.resultSet || this.defaultResultSet;
 		var buf = '';
@@ -608,9 +604,14 @@
 			i++;
 		}
 		if (!this.renderedIndex) {
-			this.el.innerHTML = '<ul class="utilichart" style="height:' + (resultSet.length * 33) + 'px">' + buf + '</ul>';
+			this.el.innerHTML = '<ul class="utilichart" style="height:' + (resultSet.length * 33) + 'px">' + buf + (!this.renderingDone ? '<li class="result more"><p><button class="button big">More</button></p></li>' : '') + '</ul>';
+			this.moreVisible = true;
 		} else {
-			$(this.el.firstChild).append(buf);
+			if (this.moreVisible) {
+				this.$el.find('.more').remove();
+				if (!forceAdd) this.moreVisible = false;
+			}
+			$(this.el.firstChild).append(buf + (forceAdd && !this.renderingDone ? '<li class="result more"><p><button class="button big">More</button></p></li>' : ''));
 		}
 		this.renderedIndex = i;
 	};
