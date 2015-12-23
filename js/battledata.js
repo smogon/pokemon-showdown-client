@@ -408,8 +408,48 @@ var Tools = {
 		case 'announce':
 			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(target) + '</span></div>';
 		case 'data-pokemon':
-			if (!window.Chart) return '';
-			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderPokemonRow(Tools.getTemplate(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
+			var buf = '<li class="result">';
+			var template = Tools.getTemplate(target);
+			buf += '<span class="col numcol">' + (template.tier || Tools.getTemplate(template.baseSpecies).tier) + '</span> ';
+			buf += '<span class="col iconcol"><span style="' + Tools.getIcon(template) + '"></span></span> ';
+			buf += '<span class="col pokemonnamecol" style="white-space:nowrap"><a href="https://pokemonshowdown.com/dex/pokemon/' + template.id + '" target="_blank">' + template.species + '</a></span> ';
+			buf += '<span class="col typecol">';
+			if (template.types) for (var i = 0; i < template.types.length; i++) {
+				buf += Tools.getTypeIcon(template.types[i]);
+			}
+			buf += '</span> ';
+			buf += '<span style="float:left;min-height:26px">';
+			if (template.abilities['1']) {
+				buf += '<span class="col twoabilitycol">';
+			} else {
+				buf += '<span class="col abilitycol">';
+			}
+			for (var i in template.abilities) {
+				var ability = template.abilities[i];
+				if (!ability) continue;
+
+				if (i === '1') buf += '<br />';
+				if (i == 'H') {
+					ability = '</span><span class="col abilitycol"><em>' + (template.unreleasedHidden ? '<s>' + ability + '</s>' : ability) + '</em>';
+				}
+				buf += ability;
+			}
+			if (!template.abilities['H']) buf += '</span><span class="col abilitycol">';
+			buf += '</span>';
+			buf += '</span>';
+			buf += '<span style="float:left;min-height:26px">';
+			buf += '<span class="col statcol"><em>HP</em><br />' + template.baseStats.hp + '</span> ';
+			buf += '<span class="col statcol"><em>Atk</em><br />' + template.baseStats.atk + '</span> ';
+			buf += '<span class="col statcol"><em>Def</em><br />' + template.baseStats.def + '</span> ';
+			buf += '<span class="col statcol"><em>SpA</em><br />' + template.baseStats.spa + '</span> ';
+			buf += '<span class="col statcol"><em>SpD</em><br />' + template.baseStats.spd + '</span> ';
+			buf += '<span class="col statcol"><em>Spe</em><br />' + template.baseStats.spe + '</span> ';
+			var bst = 0;
+			for (i in template.baseStats) bst += template.baseStats[i];
+			buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
+			buf += '</span>';
+			buf += '</li>';
+			return '<div class="message"><ul class="utilichart">' + buf + '<li style=\"clear:both\"></li></ul></div>';
 		case 'data-item':
 			if (!window.Chart) return '';
 			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderItemRow(Tools.getItem(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
