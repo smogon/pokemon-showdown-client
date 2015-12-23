@@ -70,13 +70,13 @@
 	//
 
 	var typeTable = {
-		pokemon: 0,
-		type: 1,
-		move: 2,
-		item: 3,
-		ability: 4,
-		egggroup: 5,
-		category: 6
+		pokemon: 1,
+		type: 2,
+		move: 3,
+		item: 4,
+		ability: 5,
+		egggroup: 6,
+		category: 7
 	};
 	var typeName = {
 		pokemon: 'Pokemon',
@@ -95,8 +95,12 @@
 		}
 		this.q = query;
 		this.resultSet = null;
+		this.exactMatch = false;
 		var qType = this.qType;
+
 		if (!query) {
+			// search field is blank, display default results
+
 			if (!this.filters && this.defaultResultSet) {
 				this.renderedIndex = 0;
 				this.renderingDone = false;
@@ -111,17 +115,13 @@
 				return true;
 			}
 			this.el.innerHTML = '';
-			this.exactMatch = false;
 			return true;
 		}
 
-		var qTypeIndex = -1;
-		switch (qType) {
-		case 'pokemon': qTypeIndex = 0; break;
-		case 'move': qTypeIndex = 2; break;
-		case 'item': qTypeIndex = 3; break;
-		case 'ability': qTypeIndex = 4; break;
-		}
+		// If qType exists, we're searching mainly for results of that type.
+		// We'll still search for results of other types, but those results
+		// will only be used to filter results for that type.
+		var qTypeIndex = (qType ? typeTable[qType] : -1);
 
 		var qFilterType = '';
 		if (query.slice(-4) === 'type') {
@@ -131,98 +131,257 @@
 			}
 		}
 
+		// i represents the location of the search index we're looking
 		var i = Search.getClosest(query);
-		var nearMatch = (BattleSearchIndex[i].substr(0, query.length) !== query);
-		if (nearMatch) {
+		this.exactMatch = (BattleSearchIndex[i][0] === query);
+
+		// Even with output buffer buckets, we make multiple passes through
+		// the search index. searchPasses is a queue of which pass we're on:
+		// [passType, i, query]
+
+		// pass types:
+		// 0 - no pass: time to pop the next pass off the searchPasses queue
+		// 1 - normal pass: start at i and stop when results no longer start with query
+		// 2 - alias pass: like normal, but output aliases instead of non-alias results
+		// 3 - fuzzy match pass: start at i and stop when you have two results
+
+		// By doing an alias pass after the normal pass, we ensure that
+		// mid-word matches only display after start matches.
+		var passType = 0;
+		var searchPasses = [[1, i, query]];
+
+		// For performance reasons, only do an alias pass if query is at
+		// least 2 chars long
+		if (query.length > 1) searchPasses.push([2, i, query]);
+
+		// If the query matches an official alias in BattleAliases: These are
+		// different from the aliases in the search index and are given
+		// higher priority. We'll do a normal pass through the index with
+		// the alias text before any other passes.
+		var iAlias = -1;
+		if (query in BattleAliases) {
+			var queryAlias = toId(BattleAliases[query]);
+			if (queryAlias.slice(0, 11) !== 'hiddenpower') {
+				iAlias = -2;
+				searchPasses.unshift([1, Search.getClosest(queryAlias), queryAlias]);
+			}
+			this.exactMatch = true;
+		}
+
+		// If there are no matches starting with query: Do a fuzzy match pass
+		// Fuzzy matches will still be shown after alias matches
+		if (!this.exactMatch && BattleSearchIndex[i][0].substr(0, query.length) !== query) {
+			// No results start with this. Do a fuzzy match pass.
 			var matchLength = query.length - 1;
 			if (!i) i++;
 			while (matchLength &&
-				BattleSearchIndex[i].substr(0, matchLength) !== query.substr(0, matchLength) &&
-				BattleSearchIndex[i - 1].substr(0, matchLength) !== query.substr(0, matchLength)) {
+				BattleSearchIndex[i][0].substr(0, matchLength) !== query.substr(0, matchLength) &&
+				BattleSearchIndex[i - 1][0].substr(0, matchLength) !== query.substr(0, matchLength)) {
 				matchLength--;
 			}
 			var matchQuery = query.substr(0, matchLength);
-			while (BattleSearchIndex[i - 1] && BattleSearchIndex[i - 1].substr(0, matchLength) === matchQuery) i--;
+			while (i >= 1 && BattleSearchIndex[i - 1][0].substr(0, matchLength) === matchQuery) i--;
+			searchPasses.push([3, i, '']);
 		}
 
-		var queryOriginal = '';
-		var iOriginal = -1;
-		var iAlias = -1;
-		if (query in BattleAliases) {
-			iOriginal = i;
-			queryOriginal = query;
-			query = toId(BattleAliases[query]);
-			i = iAlias = Search.getClosest(query);
-			nearMatch = false;
-		}
-		this.exactMatch = (iAlias >= 0 || query === BattleSearchIndex[i]);
+		// We split the output buffers into 8 buckets.
+		// Bucket 0 is usually unused, and buckets 1-7 represent
+		// pokemon, types, moves, etc (see typeTable).
 
-		var bufs = ['', '', '', '', '', '', ''];
-		var topbuf = '';
+		// When we're done, the buffers are concatenated together to form
+		// our resultSet, with each buffer getting its own header, unlike
+		// multiple-pass results, which have no header.
+
+		// Notes:
+		// - if we have a qType, that qType's buffer will be on top
+		var bufs = [[], [], [], [], [], [], [], []];
 		var topbufIndex = -1;
 
-		this.renderingDone = false;
-		for (var count = 0; count < 15; i++) {
-			if (iOriginal < 0 && i === iAlias) {
-				i++;
+		var count = 0;
+		var nearMatch = false;
+
+		var instafilter = null;
+		var instafilterSort = [0, 1, 2, 5, 4, 3, 6, 7];
+
+		// We aren't actually looping through the entirety of the searchIndex
+		for (i = 0; i < BattleSearchIndex.length; i++) {
+			if (!passType) {
+				var searchPass = searchPasses.shift();
+				if (!searchPass) break;
+				passType = searchPass[0];
+				i = searchPass[1];
+				query = searchPass[2];
 			}
 
-			var id = BattleSearchIndex[i];
-			var type = BattleSearchIndexType[i];
-			var matchLength = query.length;
+			var entry = BattleSearchIndex[i];
+			var id = entry[0];
+			var type = entry[1];
 
 			if (!id) break;
-			if (id.substr(0, query.length) !== query) {
-				if (!count && !nearMatch) nearMatch = true; // was an alias not matching our qType
-				if (iOriginal >= 0) {
-					// done matching on alias, match on original query now
-					i = iOriginal - 1;
-					query = queryOriginal;
-					iOriginal = -1;
+
+			if (passType === 3) {
+				// fuzzy match pass; stop after 2 results
+				if (count >= 2) {
+					passType = 0;
 					continue;
 				}
-				this.renderingDone = true;
-				if (!(nearMatch && count <= 1)) break; // if a nearMatch, generate two results
-				matchLength = 0;
+				nearMatch = true;
+			} else if (id.substr(0, query.length) !== query) {
+				// regular pass, time to move onto our next match
+				passType = 0;
+				continue;
+			}
+
+			if (entry.length > 2) {
+				// alias entry
+				if (passType !== 2) continue;
 			} else {
-				matchLength += (BattleSearchIndexOffset[i][matchLength - 1] || '0').charCodeAt(0) - 48;
+				// normal entry
+				if (passType === 2) continue;
 			}
 
 			var typeIndex = typeTable[type];
-			if (qType === 'pokemon' && (typeIndex === 3 || typeIndex > 5)) continue;
-			if (qType === 'move' && (typeIndex !== 6 && typeIndex > 2)) continue;
+
+			// For performance, with a query length of 1, we only fill the first bucket
+			if (query.length === 1 && typeIndex !== (qType ? qTypeIndex : 1)) continue;
+
+			// For pokemon queries, accept types/abilities/moves/eggroups as filters
+			if (qType === 'pokemon' && (typeIndex === 4 || typeIndex > 6)) continue;
+			// For move queries, accept types/categories/pokemon as filters
+			if (qType === 'move' && (typeIndex !== 7 && typeIndex > 3)) continue;
+			// For move queries in the teambuilder, don't accept pokemon as filters
+			if (qType === 'move' && this.legalityFilter && typeIndex === 1) continue;
+			// For ability/item queries, don't accept anything else as a filter
 			if ((qType === 'ability' || qType === 'item') && typeIndex !== qTypeIndex) continue;
-			if (qFilterType === 'type' && typeIndex !== 1) continue;
+			// Query was a type name followed 'type'; only show types
+			if (qFilterType === 'type' && typeIndex !== 2) continue;
 
-			var errorMessage = '';
-			if (qType && qTypeIndex !== typeIndex) errorMessage = '<span class="col filtercol"><em>Filter</em></span>';
-			else if (this.legalityFilter && !(id in this.legalityFilter)) errorMessage = '<span class="col illegalcol"><em>' + this.legalityLabel + '</em></span>';
+			// some aliases are substrings
+			if (iAlias === -2 && query === id) iAlias = i;
+			else if (iAlias === i) continue;
 
-			if (count === 0 && this.exactMatch) {
-				topbufIndex = typeIndex;
+			var matchStart = 0;
+			var matchLength = 0;
+			if (passType === 2) {
+				// alias entry
+				// [aliasid, type, originalid, matchStart, originalindex]
+				matchStart = entry[3];
+				var originalIndex = entry[2];
+				if (matchStart) {
+					matchLength = matchStart + query.length;
+					matchStart += (BattleSearchIndexOffset[originalIndex][matchStart] || '0').charCodeAt(0) - 48;
+					matchLength += (BattleSearchIndexOffset[originalIndex][matchLength - 1] || '0').charCodeAt(0) - 48 - matchStart;
+				}
+				id = BattleSearchIndex[originalIndex][0];
+			} else {
+				matchLength = query.length;
+				if (matchLength) matchLength += (BattleSearchIndexOffset[i][matchLength - 1] || '0').charCodeAt(0) - 48;
 			}
 
-			if (!bufs[typeIndex]) bufs[typeIndex] = '<li class="resultheader"><h3>' + typeName[type] + '</h3></li>';
-			bufs[typeIndex] += Search.renderRow(id, type, 0, matchLength, errorMessage);
+			if (qType && qTypeIndex !== typeIndex) {
+				// This is a filter, set it as an instafilter candidate
+				if (!instafilter || instafilterSort[typeIndex] < instafilterSort[instafilter[2]]) {
+					instafilter = [type, id, typeIndex];
+				}
+			}
+
+			if (this.legalityFilter && typeIndex === qTypeIndex) {
+				// Always show illegal results under legal results.
+				// This is done by putting legal results (and the type header)
+				// in bucket 0, and illegal results in the qType's bucket.
+				// qType buckets are always on top (but under bucket 0), so
+				// illegal results will be seamlessly right under legal results.
+				if (!bufs[typeIndex].length && !bufs[0].length) bufs[0] = [['header', typeName[type]]];
+				if (id in this.legalityFilter) typeIndex = 0;
+			} else {
+				if (!bufs[typeIndex].length) bufs[typeIndex] = [['header', typeName[type]]];
+			}
+
+			bufs[typeIndex].push([type, id, matchStart, matchLength]);
+
 			count++;
 		}
 
-		if (nearMatch) topbuf = '<li class="result notfound"><p><em>No exact match found. The closest matches alphabetically are:</em></p></li>' + topbuf;
+		var topbuf = [];
+		if (nearMatch) topbuf = [['html', '<p><em>No exact match found. The closest matches alphabetically are:</em></p></li>']];
 		if (this.filters) {
-			topbuf = Search.renderRow(this.getFilterText(1), 'html', 0);
+			topbuf.push(['html', this.getFilterText(1)]);
 		}
-		if (qTypeIndex === 2 && query === 'psychic') topbufIndex = 2;
-		if (topbufIndex >= 0) {
-			topbuf += bufs[topbufIndex];
-			bufs[topbufIndex] = '';
+		if (qTypeIndex >= 0) {
+			topbuf = topbuf.concat(bufs[0]);
+			topbuf = topbuf.concat(bufs[qTypeIndex]);
+			bufs[qTypeIndex] = [];
+			bufs[0] = [];
+		} else if (topbufIndex >= 0) {
+			topbuf = topbuf.concat(bufs[topbufIndex]);
+			bufs[topbufIndex] = [];
 		}
 		if (query === 'grass' || query === 'flying') {
-			topbuf += bufs[5];
-			bufs[5] = '';
+			topbuf = topbuf.concat(bufs[5]);
+			bufs[5] = [];
 		}
 
-		this.el.innerHTML = '<ul class="utilichart">' + topbuf + bufs.join('') + '</ul>' + (this.renderingDone || qType ? '' : '<ul class="utilichart"><li class="more"><button class="utilichart-all">All results</button></li></ul>');
+		if (instafilter && count < 20) {
+			// There's exactly one filter matched and count is less than 20, instafilter
+			bufs.push(this.instafilter(qType, instafilter[0], instafilter[1]));
+		}
+
+		this.resultSet = Array.prototype.concat.apply(topbuf, bufs);
+		this.renderedIndex = 0;
+		this.renderingDone = false;
+		this.updateScroll();
 		return true;
+	};
+	Search.prototype.instafilter = function (qType, fType, fId) {
+		var buf = [];
+		var illegalBuf = [];
+		var legal = this.legalityFilter;
+		if (qType === 'pokemon') {
+			switch (fType) {
+			case 'type':
+				var type = fId.charAt(0).toUpperCase() + fId.slice(1);
+				buf.push(['header', "" + type + "-type Pok&eacute;mon"]);
+				for (var id in BattlePokedex) {
+					if (!BattlePokedex[id].types) continue;
+					if (BattlePokedex[id].types[0] === type || BattlePokedex[id].types[1] === type) {
+						(legal && !(id in legal) ? illegalBuf : buf).push(['pokemon', id]);
+					}
+				}
+				break;
+			case 'ability':
+				var ability = Tools.getAbility(fId).name;
+				buf.push(['header', "" + ability + " Pok&eacute;mon"]);
+				for (var id in BattlePokedex) {
+					if (!BattlePokedex[id].abilities) continue;
+					if (BattlePokedex[id].abilities['0'] === ability || BattlePokedex[id].abilities['1'] === ability || BattlePokedex[id].abilities['H'] === ability) {
+						(legal && !(id in legal) ? illegalBuf : buf).push(['pokemon', id]);
+					}
+				}
+				break;
+			}
+		} else if (qType === 'move') {
+			switch (fType) {
+			case 'type':
+				var type = fId.charAt(0).toUpperCase() + fId.slice(1);
+				buf.push(['header', "" + type + "-type moves"]);
+				for (var id in BattleMovedex) {
+					if (BattleMovedex[id].type === type) {
+						(legal && !(id in legal) ? illegalBuf : buf).push(['move', id]);
+					}
+				}
+				break;
+			case 'category':
+				var category = fId.charAt(0).toUpperCase() + fId.slice(1);
+				buf.push(['header', "" + category + " moves"]);
+				for (var id in BattleMovedex) {
+					if (BattleMovedex[id].category === category) {
+						(legal && !(id in legal) ? illegalBuf : buf).push(['move', id]);
+					}
+				}
+				break;
+			}
+		}
+		return buf.concat(illegalBuf);
 	};
 	Search.prototype.addFilter = function (node) {
 		if (!node.dataset.entry) return;
@@ -255,81 +414,39 @@
 		this.q = undefined;
 		return true;
 	};
-	Search.prototype.all = function () {
-		var query = this.q;
-		var bufs = [[], [], [], [], [], [], []];
-		var topbufIndex = -1;
-
-		var i = Search.getClosest(query);
-		var resultSet = [];
-
-		while (true) {
-			var id = BattleSearchIndex[i];
-			var type = BattleSearchIndexType[i];
-			var matchLength = query.length;
-
-			if (!id) break;
-			if (id.substr(0, query.length) !== query) {
-				break;
-			} else {
-				matchLength += (BattleSearchIndexOffset[i][matchLength - 1] || '0').charCodeAt(0) - 48;
-			}
-
-			var typeIndex = typeTable[type];
-			if (topbufIndex < 0 && this.exactMatch) {
-				topbufIndex = typeIndex;
-			}
-
-			if (!bufs[typeIndex].length) bufs[typeIndex] = [['header', typeName[type], 0]];
-			bufs[typeIndex].push([type, id, matchLength]);
-
-			i++;
-		}
-
-		if (topbufIndex >= 0) {
-			var topbuf = bufs[topbufIndex];
-			bufs.splice(topbufIndex, 1);
-			bufs.unshift(topbuf);
-		}
-
-		this.resultSet = Array.prototype.concat.apply([], bufs);
-		this.renderedIndex = 0;
-		this.renderingDone = false;
-		this.updateScroll();
-	};
 	Search.prototype.allPokemon = function () {
 		if (this.filters) return this.filteredPokemon();
 		var resultSet = [];
 		for (var id in BattlePokedex) {
 			switch (id) {
 			case 'bulbasaur':
-				resultSet.push(['header', "Generation 1", 0]);
+				resultSet.push(['header', "Generation 1"]);
 				break;
 			case 'chikorita':
-				resultSet.push(['header', "Generation 2", 0]);
+				resultSet.push(['header', "Generation 2"]);
 				break;
 			case 'treecko':
-				resultSet.push(['header', "Generation 3", 0]);
+				resultSet.push(['header', "Generation 3"]);
 				break;
 			case 'turtwig':
-				resultSet.push(['header', "Generation 4", 0]);
+				resultSet.push(['header', "Generation 4"]);
 				break;
 			case 'victini':
-				resultSet.push(['header', "Generation 5", 0]);
+				resultSet.push(['header', "Generation 5"]);
 				break;
 			case 'chespin':
-				resultSet.push(['header', "Generation 6", 0]);
+				resultSet.push(['header', "Generation 6"]);
 				break;
 			case 'missingno':
-				resultSet.push(['header', "Glitch", 0]);
+				resultSet.push(['header', "Glitch"]);
 				break;
 			case 'tomohawk':
-				resultSet.push(['header', "CAP", 0]);
+				resultSet.push(['header', "CAP"]);
 				break;
 			case 'pikachucosplay':
 				continue;
 			}
-			resultSet.push(['pokemon', id, 0]);
+			resultSet.push(['pokemon', id]);
 		}
 		this.resultSet = resultSet;
 		this.renderedIndex = 0;
@@ -339,16 +456,16 @@
 	Search.prototype.allMoves = function () {
 		if (this.filters) return this.filteredMoves();
 		var resultSet = [];
-		resultSet.push(['header', "Moves", 0]);
+		resultSet.push(['header', "Moves"]);
 		for (var id in BattleMovedex) {
 			switch (id) {
 			case 'paleowave':
-				resultSet.push(['header', "CAP moves", 0]);
+				resultSet.push(['header', "CAP moves"]);
 				break;
 			case 'magikarpsrevenge':
 				continue;
 			}
-			resultSet.push(['move', id, 0]);
+			resultSet.push(['move', id]);
 		}
 		this.resultSet = resultSet;
 		this.renderedIndex = 0;
@@ -367,8 +484,8 @@
 		return buf + '</p>';
 	};
 	Search.prototype.filteredPokemon = function () {
-		var resultSet = [['html', this.getFilterText(), 0]];
-		resultSet.push(['header', "Filtered results", 0]);
+		var resultSet = [['html', this.getFilterText()]];
+		resultSet.push(['header', "Filtered results"]);
 		var illegalResultSet = [];
 		var filters = this.filters;
 		for (var id in BattlePokedex) {
@@ -403,9 +520,9 @@
 			}
 			if (i < filters.length) continue;
 			if (this.legalityFilter && !(id in this.legalityFilter)) {
-				illegalResultSet.push(['pokemon', id, -1]);
+				illegalResultSet.push(['pokemon', id]);
 			} else {
-				resultSet.push(['pokemon', id, 0]);
+				resultSet.push(['pokemon', id]);
 			}
 		}
 		this.resultSet = resultSet.concat(illegalResultSet);
@@ -414,8 +531,8 @@
 		this.updateScroll();
 	};
 	Search.prototype.filteredMoves = function () {
-		var resultSet = [['html', this.getFilterText(), 0]];
-		resultSet.push(['header', "Filtered results", 0]);
+		var resultSet = [['html', this.getFilterText()]];
+		resultSet.push(['header', "Filtered results"]);
 		var illegalResultSet = [];
 		var filters = this.filters;
 		for (var id in BattleMovedex) {
@@ -445,9 +562,9 @@
 			}
 			if (i < filters.length) continue;
 			if (this.legalityFilter && !(id in this.legalityFilter)) {
-				illegalResultSet.push(['move', id, -1]);
+				illegalResultSet.push(['move', id]);
 			} else {
-				resultSet.push(['move', id, 0]);
+				resultSet.push(['move', id]);
 			}
 		}
 		this.resultSet = resultSet.concat(illegalResultSet);
@@ -474,12 +591,19 @@
 			var row = resultSet[i];
 
 			var errorMessage = '';
-			if (row[2] < 0) {
+			if (this.qType && row[0] !== 'header' && row[0] !== 'html' && this.qType !== row[0]) {
+				errorMessage = '<span class="col filtercol"><em>Filter</em></span>';
+			} else if (this.legalityFilter && !(row[1] in this.legalityFilter)) {
 				errorMessage = '<span class="col illegalcol"><em>' + this.legalityLabel + '</em></span>';
-				row[2] = 0;
 			}
 
-			buf += Search.renderRow(row[1], row[0], 0, row[2], errorMessage, row[1] in this.cur ? ' class="cur"' : '');
+			var mStart = 0;
+			var mEnd = 0;
+			if (row.length > 3) {
+				mStart = row[2];
+				mEnd = row[3];
+			}
+			buf += this.renderRow(row[1], row[0], mStart, mEnd, errorMessage, row[1] in this.cur ? ' class="cur"' : '');
 
 			i++;
 		}
@@ -509,8 +633,8 @@
 		case 'pokemon':
 			if (!BattleTeambuilderTable.tierSet) {
 				BattleTeambuilderTable.tierSet = BattleTeambuilderTable.tiers.map(function (r) {
-					if (typeof r === 'string') return ['pokemon', r, 0];
-					return [r[0], r[1], 0];
+					if (typeof r === 'string') return ['pokemon', r];
+					return [r[0], r[1]];
 				});
 				BattleTeambuilderTable.tiers = null;
 			}
@@ -524,16 +648,16 @@
 			else if (format === 'pu') tierSet = tierSet.slice(slices.PU);
 			else if (format === 'lc') tierSet = tierSet.slice(slices.LC);
 			else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
-			else if (format === 'ag') tierSet = [['header', "AG", 0], ['pokemon', 'rayquazamega', 0]].concat(tierSet.slice(slices.Uber));
-			else tierSet = tierSet.slice(slices.OU, slices.UU).concat([['header', "AG", 0], ['pokemon', 'rayquazamega', 0]]).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
+			else if (format === 'ag') tierSet = [['header', "AG"], ['pokemon', 'rayquazamega']].concat(tierSet.slice(slices.Uber));
+			else tierSet = tierSet.slice(slices.OU, slices.UU).concat([['header', "AG"], ['pokemon', 'rayquazamega']]).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
 			this.defaultResultSet = tierSet;
 			this.legalityLabel = "Banned";
 			break;
 
 		case 'item':
-			var itemSet = [['header', "Items", 0]];
+			var itemSet = [['header', "Items"]];
 			for (var id in BattleItems) {
-				itemSet.push(['item', id, 0]);
+				itemSet.push(['item', id]);
 			}
 			this.defaultResultSet = itemSet;
 			this.legalityFilter = null;
@@ -541,18 +665,18 @@
 
 		case 'ability':
 			template = Tools.getTemplate(set.species);
-			var abilitySet = [['header', "Abilities", 0]];
+			var abilitySet = [['header', "Abilities"]];
 			if (template.isMega) {
 				abilitySet.unshift(['html', '<p>Will be <strong>' + Tools.escapeHTML(template.abilities['0']) + '</strong> after Mega Evolving.</p>']);
 				template = Tools.getTemplate(template.baseSpecies);
 			}
-			abilitySet.push(['ability', toId(template.abilities['0']), 0]);
+			abilitySet.push(['ability', toId(template.abilities['0'])]);
 			if (template.abilities['1']) {
-				abilitySet.push(['ability', toId(template.abilities['1']), 0]);
+				abilitySet.push(['ability', toId(template.abilities['1'])]);
 			}
 			if (template.abilities['H']) {
-				abilitySet.push(['header', "Hidden Ability", 0]);
-				abilitySet.push(['ability', toId(template.abilities['H']), 0]);
+				abilitySet.push(['header', "Hidden Ability"]);
+				abilitySet.push(['ability', toId(template.abilities['H'])]);
 			}
 			this.defaultResultSet = abilitySet;
 			break;
@@ -600,11 +724,11 @@
 				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
 				if (id === 'counter') isViable = (toId(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1});
 				if (isViable) {
-					if (!usableMoves.length) usableMoves.push(['header', "Moves", 0]);
-					usableMoves.push(['move', id, 0]);
+					if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
+					usableMoves.push(['move', id]);
 				} else {
-					if (!uselessMoves.length) uselessMoves.push(['header', "Usually useless moves", 0]);
-					uselessMoves.push(['move', id, 0]);
+					if (!uselessMoves.length) uselessMoves.push(['header', "Usually useless moves"]);
+					uselessMoves.push(['move', id]);
 				}
 			}
 			this.defaultResultSet = usableMoves.concat(uselessMoves);
@@ -630,19 +754,18 @@
 		var right = BattleSearchIndex.length - 1;
 		while (right > left) {
 			var mid = Math.floor((right - left) / 2 + left);
-			if (BattleSearchIndex[mid] === query) {
+			if (BattleSearchIndex[mid][0] === query && (mid === 0 || BattleSearchIndex[mid - 1][0] !== query)) {
 				// that's us
-				if (BattleSearchIndex[mid - 1] === query) mid--;
 				return mid;
-			} else if (BattleSearchIndex[mid] < query) {
+			} else if (BattleSearchIndex[mid][0] < query) {
 				left = mid + 1;
 			} else {
 				right = mid - 1;
 			}
 		}
-		if (!BattleSearchIndex[left]) left--;
-		else if (BattleSearchIndex[left + 1] && BattleSearchIndex[left] < query) left++;
-		if (BattleSearchIndex[left - 1] === query) left--;
+		if (left >= BattleSearchIndex.length - 1) left = BattleSearchIndex.length - 1;
+		else if (BattleSearchIndex[left + 1][0] && BattleSearchIndex[left][0] < query) left++;
+		if (left && BattleSearchIndex[left - 1][0] === query) left--;
 		return left;
 	};
 
