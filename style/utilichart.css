@@ -215,10 +215,10 @@
 	width: 90px;
 	text-align: center;
 }
-.utilichart .hiddenabilitycol {
+.utilichart .hacol {
 	font-style: italic;
 }
-.utilichart .unreleasedhiddenabilitycol {
+.utilichart .unreleasedhacol {
 	font-style: italic;
 	text-decoration: line-through;
 }

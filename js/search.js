@@ -31,6 +31,7 @@
 		this.renderingDone = true;
 		this.cur = {};
 		this.$inputEl = null;
+		this.gen = 6;
 
 		var self = this;
 		this.$el.on('click', '.more button', function (e) {
@@ -623,8 +624,11 @@
 		this.cur = cur || {};
 		this.legalityFilter = {};
 		this.legalityLabel = "Illegal";
-		var gen = 6;
-		if (format.slice(0, 3) === 'gen') gen = (Number(format.charAt(3)) || 6);
+		this.gen = 6;
+		if (format.slice(0, 3) === 'gen') {
+			this.gen = (Number(format.charAt(3)) || 6);
+			format = format.slice(4);
+		}
 		var requirePentagon = (format === 'vgc2016');
 		var template;
 		this.resultSet = null;
@@ -632,16 +636,25 @@
 
 		switch (qType) {
 		case 'pokemon':
-			if (!BattleTeambuilderTable.tierSet) {
-				BattleTeambuilderTable.tierSet = BattleTeambuilderTable.tiers.map(function (r) {
+			var table = BattleTeambuilderTable;
+			var isDoubles = false;
+			if (this.gen < 6) table = table['gen' + this.gen];
+			if (this.gen >= 6 && format.indexOf('doubles') >= 0 || format.indexOf('vgc') >= 0 || format.indexOf('triples') >= 0) {
+				table = table['doubles'];
+				isDoubles = true;
+			}
+			if (!table.tierSet) {
+				table.tierSet = table.tiers.map(function (r) {
 					if (typeof r === 'string') return ['pokemon', r];
 					return [r[0], r[1]];
 				});
-				BattleTeambuilderTable.tiers = null;
+				table.tiers = null;
 			}
-			var tierSet = BattleTeambuilderTable.tierSet;
-			var slices = BattleTeambuilderTable.formatSlices;
-			if (format === 'uber') tierSet = tierSet.slice(slices.Uber);
+			var tierSet = table.tierSet;
+			var slices = table.formatSlices;
+			var agTierSet = [];
+			if (this.gen >= 6) agTierSet = [['header', "AG"], ['pokemon', 'rayquazamega']];
+			if (format === 'uber' || format === 'ubers') tierSet = tierSet.slice(slices.Uber);
 			else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
 			else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
 			else if (format === 'ru') tierSet = tierSet.slice(slices.RU);
@@ -649,8 +662,12 @@
 			else if (format === 'pu') tierSet = tierSet.slice(slices.PU);
 			else if (format === 'lc') tierSet = tierSet.slice(slices.LC);
 			else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
-			else if (format === 'ag') tierSet = [['header', "AG"], ['pokemon', 'rayquazamega']].concat(tierSet.slice(slices.Uber));
-			else tierSet = tierSet.slice(slices.OU, slices.UU).concat([['header', "AG"], ['pokemon', 'rayquazamega']]).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
+			else if (format === 'ag') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
+			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
+			else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
+			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU);
+			else if (isDoubles) tierSet = tierSet;
+			else tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
 			this.defaultResultSet = tierSet;
 			this.legalityLabel = "Banned";
 			break;
@@ -690,12 +707,32 @@
 			while (true) {
 				var learnsetTemplate = BattleLearnsets[toId(template.species)];
 				if (learnsetTemplate) {
-					for (var l in learnsetTemplate.learnset) {
-						if (requirePentagon && !learnsetTemplate.learnset[l].length) continue;
-						if (moves.indexOf(l) >= 0) continue;
-						moves.push(l);
-						if (l === 'sketch') sketch = true;
-						if (l === 'hiddenpower') {
+					for (var moveid in learnsetTemplate.learnset) {
+						var learnset = learnsetTemplate.learnset[moveid];
+						if (requirePentagon && !learnset.length) continue;
+						if (this.gen <= 1) {
+							// we don't have gen 1 learnsets, so just fake it
+							if (BattleMovedex[moveid].num >= 166) continue;
+						} else if (this.gen <= 2) {
+							// we don't have gen 2 learnsets, so just fake it
+							if (BattleMovedex[moveid].num >= 252) continue;
+						} else if (this.gen < 6) {
+							// gen 3-5 learnsets
+							for (var i = 0; i < learnset.length; i++) {
+								if (learnset[i].charCodeAt(0) - 48 <= this.gen) break;
+							}
+							if (i >= learnset.length) continue;
+						} else if (requirePentagon) {
+							// gen 6 with pentagon
+							for (var i = 0; i < learnset.length; i++) {
+								if (learnset[i].charCodeAt(0) - 48 === 6) break;
+							}
+							if (i >= learnset.length) continue;
+						}
+						if (moves.indexOf(moveid) >= 0) continue;
+						moves.push(moveid);
+						if (moveid === 'sketch') sketch = true;
+						if (moveid === 'hiddenpower') {
 							moves.push('hiddenpowerbug', 'hiddenpowerdark', 'hiddenpowerdragon', 'hiddenpowerelectric', 'hiddenpowerfighting', 'hiddenpowerfire', 'hiddenpowerflying', 'hiddenpowerghost', 'hiddenpowergrass', 'hiddenpowerground', 'hiddenpowerice', 'hiddenpowerpoison', 'hiddenpowerpsychic', 'hiddenpowerrock', 'hiddenpowersteel', 'hiddenpowerwater');
 						}
 					}
@@ -774,9 +811,9 @@
  * Rendering functions
  *********************************************************/
 
-	// These are all static!
+	// These all have static versions
 
-	Search.renderRow = function (id, type, matchStart, matchLength, errorMessage, attrs) {
+	Search.prototype.renderRow = function (id, type, matchStart, matchLength, errorMessage, attrs) {
 		// errorMessage = '<span class="col illegalcol"><em>' + errorMessage + '</em></span>';
 		switch (type) {
 		case 'html':
@@ -785,19 +822,19 @@
 			return '<li class="result"><h3>' + id + '</h3></li>';
 		case 'pokemon':
 			var pokemon = BattlePokedex[id];
-			return Search.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage, attrs);
+			return this.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage, attrs);
 		case 'move':
 			var move = BattleMovedex[id];
-			return Search.renderMoveRow(move, matchStart, matchLength, errorMessage, attrs);
+			return this.renderMoveRow(move, matchStart, matchLength, errorMessage, attrs);
 		case 'item':
 			var item = BattleItems[id];
-			return Search.renderItemRow(item, matchStart, matchLength, errorMessage, attrs);
+			return this.renderItemRow(item, matchStart, matchLength, errorMessage, attrs);
 		case 'ability':
 			var ability = BattleAbilities[id];
-			return Search.renderAbilityRow(ability, matchStart, matchLength, errorMessage, attrs);
+			return this.renderAbilityRow(ability, matchStart, matchLength, errorMessage, attrs);
 		case 'type':
 			var type = {name: id[0].toUpperCase() + id.substr(1)};
-			return Search.renderTypeRow(type, matchStart, matchLength, errorMessage);
+			return this.renderTypeRow(type, matchStart, matchLength, errorMessage);
 		case 'egggroup':
 			// very hardcode
 			var egName;
@@ -811,14 +848,14 @@
 				egName = id[0].toUpperCase() + id.substr(1);
 			}
 			var egggroup = {name: egName};
-			return Search.renderEggGroupRow(egggroup, matchStart, matchLength, errorMessage);
+			return this.renderEggGroupRow(egggroup, matchStart, matchLength, errorMessage);
 		case 'category':
 			var category = {name: id[0].toUpperCase() + id.substr(1)};
-			return Search.renderCategoryRow(category, matchStart, matchLength, errorMessage);
+			return this.renderCategoryRow(category, matchStart, matchLength, errorMessage);
 		}
 		return 'Error: not found';
 	};
-	Search.renderPokemonRow = function (pokemon, matchStart, matchLength, errorMessage, attrs) {
+	Search.prototype.renderPokemonRow = function (pokemon, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		var id = toId(pokemon.species);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'pokemon/' + id + '" data-target="push"';
@@ -826,7 +863,7 @@
 
 		// number
 		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
-		buf += '<span class="col numcol">' + (pokemon.tier || Tools.getTemplate(pokemon.baseSpecies).tier) + '</span> ';
+		buf += '<span class="col numcol">' + (this.gen >= 6 ? pokemon.tier || Tools.getTemplate(pokemon.baseSpecies).tier : pokemon.num) + '</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
@@ -861,48 +898,63 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		for (var i = 0; i < pokemon.types.length; i++) {
-			buf += Tools.getTypeIcon(pokemon.types[i]);
+		var types = pokemon.types;
+		var gen = this.gen;
+		if (gen < 5 && pokemon.baseSpecies === 'Rotom') {
+			types = ["Electric", "Ghost"];
+		} else if (gen < 2 && types[1] === 'Steel') {
+			types = [types[0]];
+		} else if (gen < 6 && types[0] === 'Fairy' && types.length > 1) {
+			types = ['Normal', types[1]];
+		} else if (gen < 6 && types[0] === 'Fairy') {
+			types = ['Normal'];
+		} else if (gen < 6 && types[1] === 'Fairy') {
+			types = [types[0]];
+		}
+		for (var i = 0; i < types.length; i++) {
+			buf += Tools.getTypeIcon(types[i]);
 		}
 		buf += '</span> ';
 
 		// abilities
-		buf += '<span style="float:left;min-height:26px">';
-		if (pokemon.abilities['1']) {
-			buf += '<span class="col twoabilitycol">';
-		} else {
-			buf += '<span class="col abilitycol">';
-		}
-		for (var i in pokemon.abilities) {
-			var ability = pokemon.abilities[i];
-			if (!ability) continue;
+		if (gen >= 3) {
+			if (pokemon.abilities['1']) {
+				buf += '<span class="col twoabilitycol">';
+			} else {
+				buf += '<span class="col abilitycol">';
+			}
+			for (var i in pokemon.abilities) {
+				var ability = pokemon.abilities[i];
+				if (!ability) continue;
 
-			if (i === '1') buf += '<br />';
-			if (i === 'H') ability = '</span><span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : ' hacol') + '"><em>' + pokemon.abilities[i] + '</em>';
-			buf += ability;
+				if (i === '1') buf += '<br />';
+				if (i === 'H') ability = '</span><span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : ' hacol') + '">' + pokemon.abilities[i];
+				buf += ability;
+			}
+			if (!pokemon.abilities['H']) buf += '</span><span class="col abilitycol">';
+			buf += '</span>';
 		}
-		if (!pokemon.abilities['H']) buf += '</span><span class="col abilitycol">';
-		buf += '</span>';
-		buf += '</span>';
 
 		// base stats
-		buf += '<span style="float:left;min-height:26px">';
 		buf += '<span class="col statcol"><em>HP</em><br />' + pokemon.baseStats.hp + '</span> ';
 		buf += '<span class="col statcol"><em>Atk</em><br />' + pokemon.baseStats.atk + '</span> ';
 		buf += '<span class="col statcol"><em>Def</em><br />' + pokemon.baseStats.def + '</span> ';
-		buf += '<span class="col statcol"><em>SpA</em><br />' + pokemon.baseStats.spa + '</span> ';
-		buf += '<span class="col statcol"><em>SpD</em><br />' + pokemon.baseStats.spd + '</span> ';
+		if (gen >= 2) {
+			buf += '<span class="col statcol"><em>SpA</em><br />' + pokemon.baseStats.spa + '</span> ';
+			buf += '<span class="col statcol"><em>SpD</em><br />' + pokemon.baseStats.spd + '</span> ';
+		} else {
+			buf += '<span class="col statcol"><em>Spc</em><br />' + pokemon.baseStats.spa + '</span> ';
+		}
 		buf += '<span class="col statcol"><em>Spe</em><br />' + pokemon.baseStats.spe + '</span> ';
 		var bst = 0;
 		for (i in pokemon.baseStats) bst += pokemon.baseStats[i];
 		buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
-		buf += '</span>';
 
 		buf += '</a></li>';
 
 		return buf;
 	};
-	Search.renderTaggedPokemonRowInner = function (pokemon, tag, errorMessage) {
+	Search.prototype.renderTaggedPokemonRowInner = function (pokemon, tag, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toId(pokemon.species) + '" data-target="push"';
 		var buf = '<a' + attrs + ' data-entry="pokemon:' + Tools.escapeHTML(pokemon.species) + '">';
@@ -971,7 +1023,7 @@
 		return buf;
 	};
 
-	Search.renderItemRow = function (item, matchStart, matchLength, errorMessage, attrs) {
+	Search.prototype.renderItemRow = function (item, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		var id = toId(item.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'items/' + id + '" data-target="push"';
@@ -1002,7 +1054,7 @@
 
 		return buf;
 	};
-	Search.renderAbilityRow = function (ability, matchStart, matchLength, errorMessage, attrs) {
+	Search.prototype.renderAbilityRow = function (ability, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		var id = toId(ability.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'abilities/' + id + '" data-target="push"';
@@ -1027,7 +1079,7 @@
 
 		return buf;
 	};
-	Search.renderMoveRow = function (move, matchStart, matchLength, errorMessage, attrs) {
+	Search.prototype.renderMoveRow = function (move, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		var id = toId(move.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'moves/' + id + '" data-target="push"';
@@ -1062,7 +1114,11 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Tools.getTypeIcon(move.type);
-		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
+		var category = move.category;
+		if (this.gen <= 3 && move.category !== 'Status') {
+			category = (move.type in {fire:1, water:1, grass:1, electric:1, ice:1, psychic:1, dark:1, dragon:1} ? 'Special' : 'Physical');
+		}
+		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// power, accuracy, pp
@@ -1077,7 +1133,7 @@
 
 		return buf;
 	};
-	Search.renderMoveRowInner = function (move, errorMessage) {
+	Search.prototype.renderMoveRowInner = function (move, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
 		var buf = '<a' + attrs + ' data-entry="move:' + Tools.escapeHTML(move.name) + '">';
@@ -1112,7 +1168,7 @@
 
 		return buf;
 	};
-	Search.renderTaggedMoveRow = function (move, tag, errorMessage) {
+	Search.prototype.renderTaggedMoveRow = function (move, tag, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="move:' + Tools.escapeHTML(move.name) + '">';
@@ -1150,7 +1206,7 @@
 		return buf;
 	};
 
-	Search.renderTypeRow = function (type, matchStart, matchLength, errorMessage) {
+	Search.prototype.renderTypeRow = function (type, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'types/' + toId(type.name) + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="type:' + Tools.escapeHTML(type.name) + '">';
@@ -1177,7 +1233,7 @@
 
 		return buf;
 	};
-	Search.renderCategoryRow = function (category, matchStart, matchLength, errorMessage) {
+	Search.prototype.renderCategoryRow = function (category, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'categories/' + toId(category.name) + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="category:' + Tools.escapeHTML(category.name) + '">';
@@ -1204,7 +1260,7 @@
 
 		return buf;
 	};
-	Search.renderEggGroupRow = function (egggroup, matchStart, matchLength, errorMessage) {
+	Search.prototype.renderEggGroupRow = function (egggroup, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'egggroups/' + toId(egggroup.name) + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="egggroup:' + Tools.escapeHTML(egggroup.name) + '">';
@@ -1226,6 +1282,19 @@
 
 		return buf;
 	};
+
+	Search.gen = 6;
+	Search.renderRow = Search.prototype.renderRow;
+	Search.renderPokemonRow = Search.prototype.renderPokemonRow;
+	Search.renderTaggedPokemonRowInner = Search.prototype.renderTaggedPokemonRowInner;
+	Search.renderItemRow = Search.prototype.renderItemRow;
+	Search.renderAbilityRow = Search.prototype.renderAbilityRow;
+	Search.renderMoveRow = Search.prototype.renderMoveRow;
+	Search.renderMoveRowInner = Search.prototype.renderMoveRowInner;
+	Search.renderTaggedMoveRow = Search.prototype.renderTaggedMoveRow;
+	Search.renderTypeRow = Search.prototype.renderTypeRow;
+	Search.renderCategoryRow = Search.prototype.renderCategoryRow;
+	Search.renderEggGroupRow = Search.prototype.renderEggGroupRow;
 
 	exports.BattleSearch = Search;
 

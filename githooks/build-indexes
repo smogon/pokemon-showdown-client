@@ -1,17 +1,13 @@
 #!/usr/bin/env node
 'use strict';
 
-require('sugar');
-global.toId = function (text) {
-	if (text && text.id) {
-		text = text.id;
-	} else if (text && text.userid) {
-		text = text.userid;
-	}
-	if (typeof text !== 'string' && typeof text !== 'number') return '';
-	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
-};
-const Tools = require('../data/Pokemon-Showdown/tools').includeData();
+process.stdout.write("Loading gen 6 data... ");
+const Tools = require('../data/Pokemon-Showdown/tools');
+const toId = Tools.getId;
+Tools.includeData();
+process.stdout.write("Loading past gen data... ");
+Tools.includeMods();
+console.log("DONE");
 const fs = require("fs");
 
 function es3stringify(obj) {
@@ -175,37 +171,100 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 	let buf = '// automatically built with githooks/build-indexes\n\n';
 
-	const pokemon = Object.keys(Tools.data.Pokedex);
-	pokemon.sort();
-	const tierTable = {};
-	for (const id of pokemon) {
-		const tier = Tools.getTemplate(id).tier;
+	// process.stdout.write("\n  ");
+	for (var genNum of [6, -6, 5, 4, 3, 2, 1]) {
+		const isDoubles = (genNum < 0);
+		if (isDoubles) genNum = 6;
+		const gen = 'gen' + genNum;
+		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
+		const pokemon = Object.keys(Tools.data.Pokedex);
+		pokemon.sort();
+		const tierTable = {};
+		for (const id of pokemon) {
+			const template = (() => {
+				if (gen === 'gen6') return Tools.getTemplate(id);
+				return Tools.mod(gen + 'ou').getTemplate(id);
+			})();
+			if (template.gen > genNum) continue;
+			const tier = (() => {
+				if (isDoubles) {
+					var banlist = Tools.getFormat('doublesou').banlist;
+					if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
+						return "DUber";
+					}
+					banlist = Tools.getFormat('doublesuu').banlist;
+					if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
+						return "DOU";
+					}
+					banlist = Tools.getFormat('doublesnu').banlist;
+					if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
+						return "DUU";
+					}
+					if (template.tier === 'LC' || template.tier === 'LC Ubers' || template.tier === 'NFE') return 'NFE';
+					return "DNU";
+				}
+				return template.tier;
+			})();
+			if (template.forme) {
+				if (template.baseSpecies in {Aegislash:1, Castform:1, Darmanitan:1, Meloetta:1}) {
+					continue;
+				}
+			}
 
-		if (!tierTable[tier]) tierTable[tier] = [];
-		tierTable[tier].push(id);
-		if (id in {pawniard:1, vullaby:1, ferroseed:1} && tier !== 'LC') {
-			tierTable['LC'].push(id);
+			if (!tierTable[tier]) tierTable[tier] = [];
+			tierTable[tier].push(id);
+			if (gen === 'gen6' && id in {pawniard:1, vullaby:1, ferroseed:1} && tier !== 'LC') {
+				if (!tierTable['LC']) tierTable['LC'] = [];
+				tierTable['LC'].push(id);
+			}
 		}
-	}
 
-	const tiers = BattleTeambuilderTable.tiers = [];
-	const formatSlices = BattleTeambuilderTable.formatSlices = {};
+		const tiers = [];
+		const formatSlices = {};
 
-	const tierOrder = ["CAP", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
-
-	for (const tier of tierOrder) {
-		if (tier === "OU" || tier === "Uber" || tier === "UU" || tier === "RU" || tier === "NU" || tier === "PU" || tier === "LC") {
-			formatSlices[tier] = tiers.length;
-		}
-		if (!tierTable[tier]) continue;
-		if (tier.charAt(0) === '(') {
-			tiers.push(['header', tier.slice(1, -1) + " by technicality"]);
-		} else if (tier === "NFE") {
-			tiers.push(['header', "NFEs not in a higher tier"]);
+		if (isDoubles) {
+			BattleTeambuilderTable['doubles'] = {};
+			BattleTeambuilderTable['doubles'].tiers = tiers;
+			BattleTeambuilderTable['doubles'].formatSlices = formatSlices;
+		} else if (gen === 'gen6') {
+			BattleTeambuilderTable.tiers = tiers;
+			BattleTeambuilderTable.formatSlices = formatSlices;
 		} else {
-			tiers.push(['header', tier]);
+			BattleTeambuilderTable[gen] = {};
+			BattleTeambuilderTable[gen].tiers = tiers;
+			BattleTeambuilderTable[gen].formatSlices = formatSlices;
 		}
-		tiers.push(...tierTable[tier]);
+
+		const tierOrder = (() => {
+			if (gen === 'gen1' || gen === 'gen2' || gen === 'gen3') {
+				return ["Uber", "OU", "BL", "UU", "BL2", "NU", "NFE", "LC Uber", "LC"];
+			}
+			if (gen === 'gen4') {
+				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "NU", "NFE", "LC Uber", "LC"];
+			}
+			if (gen === 'gen5') {
+				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "RU", "BL3", "NU", "NFE", "LC Uber", "LC"];
+			}
+			if (isDoubles) {
+				return ["DUber", "DOU", "DUU", "DNU", "NFE"];
+			}
+			return ["CAP", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
+		})();
+
+		for (const tier of tierOrder) {
+			if (tier === "OU" || tier === "Uber" || tier === "UU" || tier === "RU" || tier === "NU" || tier === "PU" || tier === "LC" || tier === "DOU" || tier === "DUU" || tier === "DNU") {
+				formatSlices[tier] = tiers.length;
+			}
+			if (!tierTable[tier]) continue;
+			if (tier.charAt(0) === '(') {
+				tiers.push(['header', tier.slice(1, -1) + " by technicality"]);
+			} else if (tier === "NFE") {
+				tiers.push(['header', "NFEs not in a higher tier"]);
+			} else {
+				tiers.push(['header', tier]);
+			}
+			tiers.push(...tierTable[tier]);
+		}
 	}
 
 	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
@@ -244,12 +303,32 @@ console.log("DONE");
  * Build moves.js
  *********************************************************/
 
-process.stdout.write("Building `data/moves.js`... ");
+process.stdout.write("Building `data/moves.js`, `data/items.js`, `data/abilities.js`...");
 
 {
 	const Movedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
 	var buf = 'exports.BattleMovedex = ' + es3stringify(Movedex) + ';';
 	fs.writeFileSync('data/moves.js', buf);
+}
+
+/*********************************************************
+ * Build items.js
+ *********************************************************/
+
+{
+	const Items = requireNoCache('../data/Pokemon-Showdown/data/items.js').BattleItems;
+	var buf = 'exports.BattleItems = ' + es3stringify(Items) + ';';
+	fs.writeFileSync('data/items.js', buf);
+}
+
+/*********************************************************
+ * Build abilities.js
+ *********************************************************/
+
+{
+	const Abilities = requireNoCache('../data/Pokemon-Showdown/data/abilities.js').BattleAbilities;
+	var buf = 'exports.BattleAbilities = ' + es3stringify(Abilities) + ';';
+	fs.writeFileSync('data/abilities.js', buf);
 }
 
 console.log("DONE");
