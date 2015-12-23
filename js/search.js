@@ -577,9 +577,9 @@
 		var top = this.$viewport.scrollTop();
 		var bottom = top + this.$viewport.height();
 		var i = this.renderedIndex;
-		var finalIndex = Math.floor(bottom / 33) + 10;
-		if (forceAdd && finalIndex < i + 20) finalIndex = i + 20;
-		if (finalIndex <= i) return;
+		var finalIndex = Math.floor(bottom / 33) + 1;
+		if (!forceAdd && finalIndex <= i) return;
+		if (finalIndex < i + 20) finalIndex = i + 20;
 
 		var resultSet = this.resultSet || this.defaultResultSet;
 		var buf = '';
