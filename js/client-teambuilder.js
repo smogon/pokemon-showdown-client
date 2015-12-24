@@ -1491,6 +1491,7 @@
 
 			buf = '<div></div>';
 			for (var stat in stats) {
+				if (stat === 'spd' && this.curTeam.gen === 1) continue;
 				buf += '<div><b>' + stats[stat] + '</b></div>';
 			}
 			this.$chart.find('.statscol').html(buf);
@@ -1507,10 +1508,11 @@
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 				totalev += (set.evs[stat] || 0);
 			}
-			buf += '<div><em>Remaining:</em></div>';
+			if (this.curTeam.gen > 2) buf += '<div><em>Remaining:</em></div>';
 			this.$chart.find('.graphcol').html(buf);
 
-			var maxEv = this.curTeam.gen > 2 ? 510 : this.curTeam.gen === 1 ? 1275 : 1530;
+			if (this.curTeam.gen > 2) return;
+			var maxEv = 510;
 			if (totalev <= maxEv) {
 				this.$chart.find('.totalev').html('<em>' + (totalev > (maxEv - 2) ? 0 : (maxEv - 2) - totalev) + '</em>');
 			} else {
@@ -1724,7 +1726,7 @@
 				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 			}
-			buf += '<div><em>Remaining:</em></div>';
+			if (this.curTeam.gen > 2) buf += '<div><em>Remaining:</em></div>';
 			buf += '</div>';
 
 			buf += '<div class="col evcol"><div><strong>EVs</strong></div>';
@@ -1747,11 +1749,13 @@
 				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="inputform numform" /></div>';
 				totalev += (set.evs[i] || 0);
 			}
-			var maxEv = this.curTeam.gen > 2 ? 510 : this.curTeam.gen === 1 ? 1275 : 1530;
-			if (totalev <= maxEv) {
-				buf += '<div class="totalev"><em>' + (totalev > (maxEv - 2) ? 0 : (maxEv - 2) - totalev) + '</em></div>';
-			} else {
-				buf += '<div class="totalev"><b>' + (maxEv - totalev) + '</b></div>';
+			if (this.curTeam.gen > 2) {
+				var maxEv = 510;
+				if (totalev <= maxEv) {
+					buf += '<div class="totalev"><em>' + (totalev > (maxEv - 2) ? 0 : (maxEv - 2) - totalev) + '</em></div>';
+				} else {
+					buf += '<div class="totalev"><b>' + (maxEv - totalev) + '</b></div>';
+				}
 			}
 			buf += '</div>';
 
@@ -1762,15 +1766,25 @@
 			}
 			buf += '</div>';
 
-			buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
-			var totalev = 0;
-			if (!set.ivs) set.ivs = {};
-			for (var i in stats) {
-				if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = 31;
-				var val = '' + (set.ivs[i]);
-				buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="31" step="1" /></div>';
+			if (this.curTeam.gen > 2) {
+				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
+				if (!set.ivs) set.ivs = {};
+				for (var i in stats) {
+					if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = 31;
+					var val = '' + (set.ivs[i]);
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="31" step="1" /></div>';
+				}
+				buf += '</div>';
+			} else {
+				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
+				if (!set.ivs) set.ivs = {};
+				for (var i in stats) {
+					if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = 31;
+					var val = '' + Math.floor(set.ivs[i] / 2);
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="15" step="1" /></div>';
+				}
+				buf += '</div>';
 			}
-			buf += '</div>';
 
 			buf += '<div class="col statscol"><div></div>';
 			for (var i in stats) {
@@ -1880,6 +1894,11 @@
 			} else {
 				// IV
 				var stat = inputName.substr(3);
+
+				if (this.curTeam.gen <= 2) {
+					val *= 2;
+					if (val === 30) val = 31;
+				}
 
 				if (val > 31 || isNaN(val)) val = 31;
 				if (val < 0) val = 0;
