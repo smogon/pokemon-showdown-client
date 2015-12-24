@@ -673,12 +673,16 @@
 			break;
 
 		case 'item':
-			var itemSet = [['header', "Items"]];
-			for (var id in BattleItems) {
-				itemSet.push(['item', id]);
+			var table = BattleTeambuilderTable;
+			if (this.gen < 6) table = table['gen' + this.gen];
+			if (!table.itemSet) {
+				table.itemSet = table.items.map(function (r) {
+					if (typeof r === 'string') return ['item', r];
+					return [r[0], r[1]];
+				});
+				table.items = null;
 			}
-			this.defaultResultSet = itemSet;
-			this.legalityFilter = null;
+			this.defaultResultSet = table.itemSet;
 			break;
 
 		case 'ability':
