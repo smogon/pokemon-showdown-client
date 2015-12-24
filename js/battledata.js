@@ -1250,7 +1250,7 @@ var Tools = {
 			floetteeternalflower: 732 + 98,
 			meowsticf: 732 + 115,
 			aegislashblade: 732 + 116,
-			hoopaunbound: 732 + 117,
+			hoopaunbound: 732 + 118,
 
 			venusaurmega: 852 + 0,
 			charizardmegax: 852 + 1,
