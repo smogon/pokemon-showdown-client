@@ -608,9 +608,25 @@ p.or:after {
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
 }
 .select.teamselect {
-	height: 43px;
+	height: 47px;
 	white-space: nowrap;
 	overflow: hidden;
+}
+.teamselect strong {
+	display: block;
+	font-size: 8pt;
+	margin-right: 15px;
+	text-align: center;
+}
+.teamselect:disabled strong {
+	color: #777777;
+}
+.teamselect small {
+	margin: -3px 0 0 -3px;
+	display: block;
+}
+.teamselect small .picon {
+	margin: 0 -3px;
 }
 .select:hover, .team.team-hover {
 	border-color: #555555;
@@ -638,7 +654,10 @@ p.or:after {
 	box-shadow: none;
 }
 .select:disabled:after {
-	content: "";
+	color: #AAAAAA;
+}
+.select:disabled small {
+	opacity: 0.7;
 }
 .select.preselected,
 .select:disabled.preselected {
@@ -2173,9 +2192,12 @@ a.ilink.yours {
 }
 .teamlist .team small {
 	display: block;
-	padding: 3px 69px 0 69px;
+	padding: 0 45px 0 55px;
 }
-.teamlist .team .pokemonicon span {
+.teamlist .team .picon {
+	margin: 0 -2px;
+}
+.teamlist .team .picon span {
 	font-size: 9px !important;
 	display: block;
 	overflow: visible;
