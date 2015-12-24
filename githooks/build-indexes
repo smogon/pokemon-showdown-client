@@ -399,6 +399,37 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		items.push(...badItems);
 	}
 
+	//
+	// Learnset table
+	//
+
+	const learnsets = {};
+	BattleTeambuilderTable.learnsets = learnsets;
+	for (const id in Tools.data.Learnsets) {
+		const learnset = Tools.data.Learnsets[id].learnset;
+		learnsets[id] = {};
+		for (const moveid in learnset) {
+			const gens = learnset[moveid].map(x => Number(x[0]));
+			const minGen = Math.min(...gens);
+			if (minGen === 6) learnsets[id][moveid] = '6';
+			if (minGen === 5) learnsets[id][moveid] = '56';
+			if (minGen === 4) learnsets[id][moveid] = '456';
+			if (minGen === 3) learnsets[id][moveid] = '3456';
+			if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
+		}
+	}
+	const G2Learnsets = Tools.mod('gen2ou').data.Learnsets;
+	for (const id in G2Learnsets) {
+		const learnset = G2Learnsets[id].learnset;
+		for (const moveid in learnset) {
+			const gens = learnset[moveid].map(x => Number(x[0]));
+			const minGen = Math.min(...gens);
+			if (!learnsets[id][moveid]) learnsets[id][moveid] = ''; // should never happen
+			if (minGen === 2) learnsets[id][moveid] = '2' + learnsets[id][moveid];
+			if (minGen === 1) learnsets[id][moveid] = '12' + learnsets[id][moveid];
+		}
+	}
+
 	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
 
 	fs.writeFileSync('data/teambuilder-tables.js', buf);

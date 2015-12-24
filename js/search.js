@@ -498,16 +498,18 @@
 				} else if (filters[i][0] === 'move') {
 					var learned = false;
 					var learnsetid = id;
+					if (!(learnsetid in BattleTeambuilderTable.learnsets)) {
+						learnsetid = toId(learnsetTemplate.baseSpecies);
+					}
 					while (true) {
-						var learnset = BattleLearnsets[learnsetid];
-						if (learnset && (filters[i][1] in learnset.learnset)) {
+						var learnset = BattleTeambuilderTable.learnsets[learnsetid];
+						if (learnset && (filters[i][1] in learnset)) {
 							learned = true;
 							break;
 						}
-						var learnsetTemplate = BattlePokedex[learnsetid];
-						if (learnsetTemplate.baseSpecies && !learnset) learnsetid = toId(learnsetTemplate.baseSpecies);
-						else if (learnsetTemplate.prevo) learnsetid = learnsetTemplate.prevo;
-						else break;
+						var prevo = BattlePokedex[learnsetid].prevo;
+						if (!prevo) break;
+						learnsetid = prevo;
 					}
 					if (!learned) break;
 				}
@@ -540,16 +542,18 @@
 				} else if (filters[i][0] === 'pokemon') {
 					var learned = false;
 					var learnsetid = filters[i][1];
+					if (!(learnsetid in BattleTeambuilderTable.learnsets[learnsetid])) {
+						learnsetid = toId(BattlePokedex[learnsetid].baseSpecies);
+					}
 					while (true) {
-						var learnset = BattleLearnsets[learnsetid];
+						var learnset = BattleTeambuilderTable.learnsets[learnsetid];
 						if (learnset && (id in learnset.learnset)) {
 							learned = true;
 							break;
 						}
-						var learnsetTemplate = BattlePokedex[learnsetid];
-						if (learnsetTemplate.baseSpecies && !learnset) learnsetid = toId(learnsetTemplate.baseSpecies);
-						else if (learnsetTemplate.prevo) learnsetid = learnsetTemplate.prevo;
-						else break;
+						var prevo = BattlePokedex[learnsetid].prevo;
+						if (!prevo) break;
+						learnsetid = prevo;
 					}
 					if (!learned) break;
 				}
@@ -705,33 +709,21 @@
 
 		case 'move':
 			template = Tools.getTemplate(set.species);
-			if (!(toId(template.species) in BattleLearnsets)) template = Tools.getTemplate(template.baseSpecies);
+			if (!(template.id in BattleTeambuilderTable.learnsets)) {
+				template = Tools.getTemplate(template.baseSpecies);
+			}
 			var moves = [];
 			var sketch = false;
+			var gen = '' + this.gen;
 			while (true) {
-				var learnsetTemplate = BattleLearnsets[toId(template.species)];
-				if (learnsetTemplate) {
-					for (var moveid in learnsetTemplate.learnset) {
-						var learnset = learnsetTemplate.learnset[moveid];
-						if (requirePentagon && !learnset.length) continue;
-						if (this.gen <= 1) {
-							// we don't have gen 1 learnsets, so just fake it
-							if (BattleMovedex[moveid].num >= 166) continue;
-						} else if (this.gen <= 2) {
-							// we don't have gen 2 learnsets, so just fake it
-							if (BattleMovedex[moveid].num >= 252) continue;
-						} else if (this.gen < 6) {
-							// gen 3-5 learnsets
-							for (var i = 0; i < learnset.length; i++) {
-								if (learnset[i].charCodeAt(0) - 48 <= this.gen) break;
-							}
-							if (i >= learnset.length) continue;
-						} else if (requirePentagon) {
-							// gen 6 with pentagon
-							for (var i = 0; i < learnset.length; i++) {
-								if (learnset[i].charCodeAt(0) - 48 === 6) break;
-							}
-							if (i >= learnset.length) continue;
+				var learnset = BattleTeambuilderTable.learnsets[toId(template.species)];
+				if (learnset) {
+					for (var moveid in learnset) {
+						var learnsetEntry = learnset[moveid];
+						if (requirePentagon && learnsetEntry.indexOf('p') < 0) {
+							continue;
+						} else if (learnsetEntry.indexOf(gen) < 0) {
+							continue;
 						}
 						if (moves.indexOf(moveid) >= 0) continue;
 						moves.push(moveid);
