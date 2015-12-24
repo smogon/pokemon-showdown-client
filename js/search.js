@@ -757,6 +757,7 @@
 				if (id === 'focuspunch') isViable = (toId(set.species) === 'breloom');
 				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
 				if (id === 'counter') isViable = (toId(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1});
+				if (id === 'hyperbeam') isViable = (this.gen === 1);
 				if (isViable) {
 					if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
 					usableMoves.push(['move', id]);
