@@ -933,9 +933,6 @@ var Tools = {
 			template = window.BattlePokedex[id];
 			if (template.species) name = template.species;
 			if (template.exists === undefined) template.exists = true;
-			if (window.BattleLearnsets && window.BattleLearnsets[id]) {
-				template.learnset = window.BattleLearnsets[id].learnset;
-			}
 			if (!template.id) template.id = id;
 			if (!template.name) template.name = name = Tools.escapeHTML(name);
 			if (!template.speciesid) template.speciesid = id;
@@ -981,28 +978,6 @@ var Tools = {
 			}
 		}
 		return template;
-	},
-
-	getLearnset: function (template) {
-		template = Tools.getTemplate(template);
-		var alreadyChecked = {};
-		var learnset = {};
-		do {
-			alreadyChecked[template.speciesid] = true;
-			if (template.learnset) {
-				for (var l in template.learnset) {
-					learnset[l] = template.learnset[l];
-				}
-			}
-			if (template.speciesid === 'shaymin') {
-				template = Tools.getTemplate('shayminsky');
-			} else if (template.baseSpecies !== template.species) {
-				template = Tools.getTemplate(template.baseSpecies);
-			} else {
-				template = Tools.getTemplate(template.prevo);
-			}
-		} while (template && template.species && !alreadyChecked[template.speciesid]);
-		return learnset;
 	},
 
 	getType: function (type) {
