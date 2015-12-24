@@ -689,10 +689,10 @@
 				template = Tools.getTemplate(template.baseSpecies);
 			}
 			abilitySet.push(['ability', toId(template.abilities['0'])]);
-			if (template.abilities['1']) {
+			if (template.abilities['1'] && Tools.getAbility(template.abilities['1']).gen <= this.gen) {
 				abilitySet.push(['ability', toId(template.abilities['1'])]);
 			}
-			if (template.abilities['H']) {
+			if (template.abilities['H'] && this.gen >= 5) {
 				abilitySet.push(['header', "Hidden Ability"]);
 				abilitySet.push(['ability', toId(template.abilities['H'])]);
 			}
