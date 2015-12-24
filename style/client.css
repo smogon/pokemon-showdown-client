@@ -2221,16 +2221,20 @@ a.ilink.yours {
 	border: 1px solid #AAAAAA;
 	padding: 0;
 	margin: -1px 2px 0 0;
-	height: 42px;
+	height: 44px;
 	float: left;
 	width: 88px;
 	cursor: pointer;
 	white-space: pre;
 	font-size: 8pt;
 	font-family: Verdana, Arial, sans-serif;
+	overflow: hidden;
 }
-.teambar button .pokemonicon {
-	margin: 0 auto;
+.teambar button span {
+	margin: -2px auto;
+	display: block;
+	width: 40px;
+	height: 30px;
 }
 .teambar button:hover {
 	background: #DCDCDC;
@@ -2702,7 +2706,7 @@ a.ilink.yours {
 
 .teamchartbox {
 	position: absolute;
-	top: 40px;
+	top: 42px;
 	left: 0;
 	bottom: 0;
 	right: 0;
@@ -2721,6 +2725,9 @@ a.ilink.yours {
 }
 .teamchartbox.individual {
 	overflow: visible;
+}
+.teamchartbox.individual .teamchart {
+	margin-top: -2px;
 }
 .teambuilder-results .result a {
 	border-radius: 4px;

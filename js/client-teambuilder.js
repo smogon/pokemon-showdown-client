@@ -1424,7 +1424,7 @@
 			}
 			for (var i = 0; i < this.curSetList.length; i++) {
 				var set = this.curSetList[i];
-				var pokemonicon = '<span class="pokemonicon pokemonicon-' + i + '" style="' + Tools.getIcon(set) + '"></span>';
+				var pokemonicon = '<span class="pokemonicon-' + i + '" style="' + Tools.getPokemonIcon(set) + '"></span>';
 				if (!set.name) {
 					buf += '<button disabled="disabled" class="addpokemon"><i class="fa fa-plus"></i></button> ';
 					isAdd = true;
@@ -1450,7 +1450,7 @@
 
 			this.$('.setcol-icon').css('background-image', Tools.getTeambuilderSprite(set).substr(17));
 
-			this.$('.pokemonicon-' + this.curSetLoc).css('background', Tools.getIcon(set).substr(11));
+			this.$('.pokemonicon-' + this.curSetLoc).css('background', Tools.getPokemonIcon(set).substr(11));
 
 			var item = Tools.getItem(set.item);
 			if (item.id) {
