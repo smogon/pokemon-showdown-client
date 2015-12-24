@@ -2624,7 +2624,7 @@
 				var i = statChart[role][0];
 				var stat = this.getStat(i, null, 252, plusStat === i ? 1.1 : 1.0);
 				var ev = 252;
-				while (stat <= this.getStat(i, null, ev - 4, plusStat === i ? 1.1 : 1.0)) ev -= 4;
+				while (ev > 0 && stat <= this.getStat(i, null, ev - 4, plusStat === i ? 1.1 : 1.0)) ev -= 4;
 				evs[i] = ev;
 				evTotal += ev;
 
@@ -2633,8 +2633,7 @@
 				var stat = this.getStat(i, null, 252, plusStat === i ? 1.1 : 1.0);
 				var ev = 252;
 				if (i === 'hp' && (hasMove['substitute'] || hasMove['transform']) && stat == Math.floor(stat / 4) * 4) stat -= 1;
-				while (stat <= this.getStat(i, null, ev - 4, plusStat === i ? 1.1 : 1.0)) ev -= 4;
-				if (ev < 0) ev = 0;
+				while (ev > 0 && stat <= this.getStat(i, null, ev - 4, plusStat === i ? 1.1 : 1.0)) ev -= 4;
 				evs[i] = ev;
 				evTotal += ev;
 
@@ -2648,11 +2647,11 @@
 						hp += 4;
 						evTotal += 4;
 					}
-					while (hp && this.getStat('hp', null, hp, 1) % 2 !== hpParity) {
+					while (hp > 0 && this.getStat('hp', null, hp, 1) % 2 !== hpParity) {
 						hp -= 4;
 						evTotal -= 4;
 					}
-					while (hp && this.getStat('hp', null, hp - 4, 1) % 2 === hpParity) {
+					while (hp > 0 && this.getStat('hp', null, hp - 4, 1) % 2 === hpParity) {
 						hp -= 4;
 						evTotal -= 4;
 					}
