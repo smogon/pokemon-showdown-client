@@ -220,6 +220,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 
 		const tiers = [];
+		const items = [];
 		const formatSlices = {};
 
 		if (isDoubles) {
@@ -228,10 +229,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['doubles'].formatSlices = formatSlices;
 		} else if (gen === 'gen6') {
 			BattleTeambuilderTable.tiers = tiers;
+			BattleTeambuilderTable.items = items;
 			BattleTeambuilderTable.formatSlices = formatSlices;
 		} else {
 			BattleTeambuilderTable[gen] = {};
 			BattleTeambuilderTable[gen].tiers = tiers;
+			BattleTeambuilderTable[gen].items = items;
 			BattleTeambuilderTable[gen].formatSlices = formatSlices;
 		}
 
@@ -265,6 +268,135 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			tiers.push(...tierTable[tier]);
 		}
+
+		if (isDoubles) continue;
+
+		const itemList = Object.keys(Tools.data.Items);
+		itemList.sort();
+
+		const greatItems = [['header', "Popular items"]];
+		const goodItems = [['header', "Items"]];
+		const specificItems = [['header', "Pok&eacute;mon-specific items"]];
+		const poorItems = [['header', "Usually useless items"]];
+		const badItems = [['header', "Useless items"]];
+		for (const id of itemList) {
+			const item = Tools.getItem(id);
+			if (item.gen > genNum) {
+				continue;
+			}
+			if (item.isNonstandard && genNum !== 2) continue;
+			switch (id) {
+			case 'leftovers':
+			case 'lifeorb':
+			case 'choiceband':
+			case 'choicescarf':
+			case 'choicespecs':
+			case 'eviolite':
+			case 'assaultvest':
+			case 'focussash':
+			case 'powerherb':
+				greatItems.push(id);
+				break;
+			case 'lumberry':
+			case 'sitrusberry':
+				if (genNum === 2) goodItems.push(id);
+				else greatItems.push(id);
+				break;
+			case 'berryjuice':
+				if (genNum === 2) poorItems.push(id);
+				else goodItems.push(id);
+				break;
+			// Legendaries
+			case 'adamantorb':
+			case 'griseousorb':
+			case 'lustrousorb':
+			case 'blueorb':
+			case 'redorb':
+			case 'souldew':
+			// Other
+			case 'stick':
+			case 'thickclub':
+			case 'lightball':
+			case 'luckypunch':
+			case 'quickpowder':
+			case 'metalpowder':
+			case 'deepseascale':
+			case 'deepseatooth':
+				specificItems.push(id);
+				break;
+			// Fling-only
+			case 'rarebone':
+			case 'belueberry':
+			case 'blukberry':
+			case 'cornnberry':
+			case 'durinberry':
+			case 'hondewberry':
+			case 'magostberry':
+			case 'nanabberry':
+			case 'nomelberry':
+			case 'pamtreberry':
+			case 'pinapberry':
+			case 'pomegberry':
+			case 'qualotberry':
+			case 'rabutaberry':
+			case 'razzberry':
+			case 'spelonberry':
+			case 'tamatoberry':
+			case 'watmelberry':
+			case 'wepearberry':
+			case 'energypowder':
+			case 'electirizer':
+			case 'oldamber':
+				badItems.push(id);
+				break;
+			// outclassed items
+			case 'aguavberry':
+			case 'aspearberry':
+			case 'bindingband':
+			case 'cheriberry':
+			case 'destinyknot':
+			case 'enigmaberry':
+			case 'figyberry':
+			case 'floatstone':
+			case 'ironball':
+			case 'jabocaberry':
+			case 'oranberry':
+			case 'machobrace':
+			case 'magoberry':
+			case 'pechaberry':
+			case 'persimberry':
+			case 'rawstberry':
+			case 'ringtarget':
+			case 'rowapberry':
+			case 'wikiberry':
+			// gen 2
+			case 'psncureberry':
+			case 'przcureberry':
+			case 'burntberry':
+			case 'bitterberry':
+			case 'iceberry':
+			case 'berry':
+				poorItems.push(id);
+				break;
+			default:
+				if (item.name.endsWith(" Ball")) {
+					badItems.push(id);
+				} else if (item.name.endsWith(" Fossil")) {
+					badItems.push(id);
+				} else if (item.name.endsWith(" Drive")) {
+					specificItems.push(id);
+				} else if (item.megaStone) {
+					specificItems.push(id);
+				} else {
+					goodItems.push(id);
+				}
+			}
+		}
+		items.push(...greatItems);
+		items.push(...goodItems);
+		items.push(...specificItems);
+		items.push(...poorItems);
+		items.push(...badItems);
 	}
 
 	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
