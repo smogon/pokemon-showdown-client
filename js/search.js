@@ -915,35 +915,46 @@
 		// abilities
 		if (gen >= 3) {
 			if (pokemon.abilities['1']) {
-				buf += '<span class="col twoabilitycol">';
+				buf += '<span class="col twoabilitycol">' + pokemon.abilities['0'] + '<br />' +
+					pokemon.abilities['1'] + '</span>';
 			} else {
-				buf += '<span class="col abilitycol">';
+				buf += '<span class="col abilitycol">' + pokemon.abilities['0'] + '</span>';
 			}
-			for (var i in pokemon.abilities) {
-				var ability = pokemon.abilities[i];
-				if (!ability) continue;
-
-				if (i === '1') buf += '<br />';
-				if (i === 'H') ability = '</span><span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : ' hacol') + '">' + pokemon.abilities[i];
-				buf += ability;
+			if (gen >= 5) {
+				if (pokemon.abilities['H']) {
+					buf += '<span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + pokemon.abilities['H'] + '</span>';
+				} else {
+					buf += '<span class="col abilitycol"></span>';
+				}
 			}
-			if (!pokemon.abilities['H']) buf += '</span><span class="col abilitycol">';
-			buf += '</span>';
 		}
 
 		// base stats
-		buf += '<span class="col statcol"><em>HP</em><br />' + pokemon.baseStats.hp + '</span> ';
-		buf += '<span class="col statcol"><em>Atk</em><br />' + pokemon.baseStats.atk + '</span> ';
-		buf += '<span class="col statcol"><em>Def</em><br />' + pokemon.baseStats.def + '</span> ';
-		if (gen >= 2) {
-			buf += '<span class="col statcol"><em>SpA</em><br />' + pokemon.baseStats.spa + '</span> ';
-			buf += '<span class="col statcol"><em>SpD</em><br />' + pokemon.baseStats.spd + '</span> ';
-		} else {
-			buf += '<span class="col statcol"><em>Spc</em><br />' + pokemon.baseStats.spa + '</span> ';
+		var stats = pokemon.baseStats;
+		if (gen < 6) {
+			var overrideStats = BattleTeambuilderTable['gen' + gen].overrideStats[id];
+			if (overrideStats) {
+				if ('hp' in overrideStats) stats.hp = overrideStats.hp;
+				if ('atk' in overrideStats) stats.atk = overrideStats.atk;
+				if ('def' in overrideStats) stats.def = overrideStats.def;
+				if ('spa' in overrideStats) stats.spa = overrideStats.spa;
+				if ('spd' in overrideStats) stats.spd = overrideStats.spd;
+				if ('spe' in overrideStats) stats.spe = overrideStats.spe;
+			}
+			if (gen === 1) stats.spd = 0;
 		}
-		buf += '<span class="col statcol"><em>Spe</em><br />' + pokemon.baseStats.spe + '</span> ';
+		buf += '<span class="col statcol"><em>HP</em><br />' + stats.hp + '</span> ';
+		buf += '<span class="col statcol"><em>Atk</em><br />' + stats.atk + '</span> ';
+		buf += '<span class="col statcol"><em>Def</em><br />' + stats.def + '</span> ';
+		if (gen >= 2) {
+			buf += '<span class="col statcol"><em>SpA</em><br />' + stats.spa + '</span> ';
+			buf += '<span class="col statcol"><em>SpD</em><br />' + stats.spd + '</span> ';
+		} else {
+			buf += '<span class="col statcol"><em>Spc</em><br />' + stats.spa + '</span> ';
+		}
+		buf += '<span class="col statcol"><em>Spe</em><br />' + stats.spe + '</span> ';
 		var bst = 0;
-		for (i in pokemon.baseStats) bst += pokemon.baseStats[i];
+		for (i in stats) bst += stats[i];
 		buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
 
 		buf += '</a></li>';
@@ -1044,7 +1055,16 @@
 		}
 
 		// desc
-		buf += '<span class="col itemdesccol">' + Tools.escapeHTML(item.shortDesc || item.desc) + '</span> ';
+		var desc = (item.shortDesc || item.desc);
+		if (this.gen < 6) {
+			for (var i = this.gen; i < 6; i++) {
+				if (id in BattleTeambuilderTable['gen' + i].overrideItemDesc) {
+					desc = BattleTeambuilderTable['gen' + i].overrideItemDesc[id];
+					break;
+				}
+			}
+		}
+		buf += '<span class="col itemdesccol">' + Tools.escapeHTML(desc) + '</span> ';
 
 		buf += '</a></li>';
 
@@ -1112,18 +1132,36 @@
 		buf += Tools.getTypeIcon(move.type);
 		var category = move.category;
 		if (this.gen <= 3 && move.category !== 'Status') {
-			category = (move.type in {fire:1, water:1, grass:1, electric:1, ice:1, psychic:1, dark:1, dragon:1} ? 'Special' : 'Physical');
+			category = (move.type in {Fire:1, Water:1, Grass:1, Electric:1, Ice:1, Psychic:1, Dark:1, Dragon:1} ? 'Special' : 'Physical');
 		}
 		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// power, accuracy, pp
-		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
-		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp !== 1 ? move.pp * 8 / 5 : move.pp) + '</span> ';
+		var basePower = move.basePower;
+		var accuracy = move.accuracy;
+		var pp = move.pp;
+		if (this.gen < 6) {
+			var table = BattleTeambuilderTable['gen' + this.gen];
+			if (id in table.overrideBP) basePower = table.overrideBP[id];
+			if (id in table.overrideAcc) accuracy = table.overrideAcc[id];
+			if (id in table.overridePP) pp = table.overridePP[id];
+		}
+		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (basePower || '&mdash;')) : '') + '</span> ';
+		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (accuracy && accuracy !== true ? accuracy + '%' : '&mdash;') + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (pp !== 1 ? pp * 8 / 5 : pp) + '</span> ';
 
 		// desc
-		buf += '<span class="col movedesccol">' + Tools.escapeHTML(move.shortDesc || move.desc) + '</span> ';
+		var desc = (move.shortDesc || move.desc);
+		if (this.gen < 6) {
+			for (var i = this.gen; i < 6; i++) {
+				if (id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
+					desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
+					break;
+				}
+			}
+		}
+		buf += '<span class="col movedesccol">' + Tools.escapeHTML(desc) + '</span> ';
 
 		buf += '</a></li>';
 
