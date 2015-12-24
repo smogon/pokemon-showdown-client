@@ -1511,7 +1511,7 @@
 			if (this.curTeam.gen > 2) buf += '<div><em>Remaining:</em></div>';
 			this.$chart.find('.graphcol').html(buf);
 
-			if (this.curTeam.gen > 2) return;
+			if (this.curTeam.gen <= 2) return;
 			var maxEv = 510;
 			if (totalev <= maxEv) {
 				this.$chart.find('.totalev').html('<em>' + (totalev > (maxEv - 2) ? 0 : (maxEv - 2) - totalev) + '</em>');
