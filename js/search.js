@@ -863,7 +863,7 @@
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="' + Tools.getIcon(pokemon) + '"></span>';
+		buf += '<span style="' + Tools.getPokemonIcon(pokemon) + '"></span>';
 		buf += '</span> ';
 
 		// name
@@ -971,7 +971,7 @@
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="' + Tools.getIcon(pokemon) + '"></span>';
+		buf += '<span style="' + Tools.getPokemonIcon(pokemon) + '"></span>';
 		buf += '</span> ';
 
 		// name

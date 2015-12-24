@@ -411,7 +411,7 @@ var Tools = {
 			var buf = '<li class="result">';
 			var template = Tools.getTemplate(target);
 			buf += '<span class="col numcol">' + (template.tier || Tools.getTemplate(template.baseSpecies).tier) + '</span> ';
-			buf += '<span class="col iconcol"><span style="' + Tools.getIcon(template) + '"></span></span> ';
+			buf += '<span class="col iconcol"><span style="' + Tools.getPokemonIcon(template) + '"></span></span> ';
 			buf += '<span class="col pokemonnamecol" style="white-space:nowrap"><a href="https://pokemonshowdown.com/dex/pokemon/' + template.id + '" target="_blank">' + template.species + '</a></span> ';
 			buf += '<span class="col typecol">';
 			if (template.types) for (var i = 0; i < template.types.length; i++) {
@@ -1213,18 +1213,123 @@ var Tools = {
 			"plasmanta": 832 + 18,
 			"naviathan": 832 + 19
 		};
+
 		if (altNums[id]) {
 			num = altNums[id];
 		}
-		if (pokemon && pokemon.gender === 'F') {
-			if (id === 'unfezant') num = 788;
-			else if (id === 'frillish') num = 801;
-			else if (id === 'jellicent') num = 802;
-			else if (id === 'meowstic') num = 809;
+		var newAltNums = {
+			castformrainy: 732 + 35,
+			castformsnowy: 732 + 36,
+			castformsunny: 732 + 37,
+			deoxysattack: 732 + 38,
+			deoxysdefense: 732 + 39,
+			deoxysspeed: 732 + 40,
+			wormadamsandy: 732 + 43,
+			wormadamtrash: 732 + 44,
+			cherrimsunshine: 732 + 45,
+			rotomfan: 732 + 48,
+			rotomfrost: 732 + 49,
+			rotomheat: 732 + 50,
+			rotommow: 732 + 51,
+			rotomwash: 732 + 52,
+			giratinaorigin: 732 + 53,
+			shayminsky: 732 + 54,
+			unfezantf: 732 + 55,
+			basculinbluestriped: 732 + 56,
+			darmanitanzen: 732 + 57,
+			frillishf: 732 + 64,
+			jellicentf: 732 + 65,
+			tornadustherian: 732 + 66,
+			thundurustherian: 732 + 67,
+			landorustherian: 732 + 68,
+			kyuremblack: 732 + 69,
+			kyuremwhite: 732 + 70,
+			keldeoresolute: 732 + 71,
+			meloettapirouette: 732 + 72,
+			pyroarf: 732 + 92,
+			floetteeternalflower: 732 + 98,
+			meowsticf: 732 + 115,
+			aegislashblade: 732 + 116,
+			hoopaunbound: 732 + 117,
+
+			venusaurmega: 852 + 0,
+			charizardmegax: 852 + 1,
+			charizardmegay: 852 + 2,
+			blastoisemega: 852 + 3,
+			beedrillmega: 852 + 4,
+			pidgeotmega: 852 + 5,
+			alakazammega: 852 + 6,
+			slowbromega: 852 + 7,
+			gengarmega: 852 + 8,
+			kangaskhanmega: 852 + 9,
+			pinsirmega: 852 + 10,
+			gyaradosmega: 852 + 11,
+			aerodactylmega: 852 + 12,
+			mewtwomegax: 852 + 13,
+			mewtwomegay: 852 + 14,
+			ampharosmega: 852 + 15,
+			steelixmega: 852 + 16,
+			scizormega: 852 + 17,
+			heracrossmega: 852 + 18,
+			houndoommega: 852 + 19,
+			tyranitarmega: 852 + 20,
+			sceptilemega: 852 + 21,
+			blazikenmega: 852 + 22,
+			swampertmega: 852 + 23,
+			gardevoirmega: 852 + 24,
+			sableyemega: 852 + 25,
+			mawilemega: 852 + 26,
+			aggronmega: 852 + 27,
+			medichammega: 852 + 28,
+			manectricmega: 852 + 29,
+			sharpedomega: 852 + 30,
+			cameruptmega: 852 + 31,
+			altariamega: 852 + 32,
+			banettemega: 852 + 33,
+			absolmega: 852 + 34,
+			glaliemega: 852 + 35,
+			salamencemega: 852 + 36,
+			metagrossmega: 852 + 37,
+			latiasmega: 852 + 38,
+			latiosmega: 852 + 39,
+			kyogremega: 852 + 40,
+			groudonmega: 852 + 41,
+			rayquazamega: 852 + 42,
+			lopunnymega: 852 + 43,
+			garchompmega: 852 + 44,
+			lucariomega: 852 + 45,
+			abomasnowmega: 852 + 46,
+			gallademega: 852 + 47,
+			audinomega: 852 + 48,
+			dianciemega: 852 + 49
+		};
+		if (newSize) {
+			if (newAltNums[id]) num = newAltNums[id];
+			else if (num >= 832 && num < 864) num = num - 832 + 996; // CAP
 		}
 
-		var top = 8 + Math.floor(num / 16) * (newSize ? 30 : 32);
-		var left = (num % 16) * (newSize ? 40 : 32);
+		if (pokemon && pokemon.gender === 'F') {
+			if (newSize) {
+				if (id === 'unfezant' || id === 'frillish' || id === 'jellicent' || id === 'meowstic' || id === 'pyroar') {
+					num = newAltNums[id + 'f'];
+				}
+			} else {
+				if (id === 'unfezant') num = 788;
+				else if (id === 'frillish') num = 801;
+				else if (id === 'jellicent') num = 802;
+				else if (id === 'meowstic') num = 809;
+			}
+		}
+
+		var top;
+		var left;
+		if (newSize) {
+			 top = Math.floor(num / 12) * 30;
+			 left = (num % 12) * 40;
+		} else {
+			 top = 8 + Math.floor(num / 16) * 32;
+			 left = (num % 16) * 32;
+		}
 		var fainted = (pokemon && pokemon.fainted ? ';opacity:.4' : '');
 		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/' + (newSize ? 'xyicons-sheet.png?a1' : 'bwicons-sheet.png?g6') + ') no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
