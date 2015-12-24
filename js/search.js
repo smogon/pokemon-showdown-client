@@ -545,7 +545,7 @@
 					}
 					while (true) {
 						var learnset = BattleTeambuilderTable.learnsets[learnsetid];
-						if (learnset && (id in learnset.learnset)) {
+						if (learnset && (id in learnset)) {
 							learned = true;
 							break;
 						}
