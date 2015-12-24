@@ -1671,7 +1671,7 @@ a.ilink.yours {
 	font-size: 12pt;
 	display: block;
 	margin: 0;
-	padding: 9px 7px 1px 7px;
+	padding: 9px 7px 0 7px;
 }
 .shiftselect button {
 	color: #445588;
@@ -1689,16 +1689,16 @@ a.ilink.yours {
 	position: relative;
 	display: block;
 	float: left;
-	width: 100px;
-	margin-right: 6px;
+	width: 102px;
+	margin-right: 4px;
 	font: 9pt Verdana, sans-serif;
 	padding: 5px 5px 5px 0;
 	white-space: pre;
 	overflow: hidden;
 }
-.switchmenu button .pokemonicon {
+.switchmenu button .picon {
 	float: left;
-	margin: -4px 0;
+	margin: -6px -3px -6px -4px;
 	opacity: 0.8;
 }
 .switchmenu button .hpbar {
@@ -1709,7 +1709,7 @@ a.ilink.yours {
 	height: 2px;
 	bottom: 2px; left: 2px; right: 2px;
 	border-radius: 2px;
-	opacity: .6;
+	opacity: .8;
 }
 
 /* The declaration order of these three hpbar* classes is significant. */
@@ -1768,8 +1768,8 @@ a.ilink.yours {
 .movemenu button {
 	float: left;
 	display: block;
-	width: 153px;
-	margin-right: 6px;
+	width: 155px;
+	margin-right: 4px;
 	height: 40px;
 	font: 10pt/100% Verdana, sans-serif;
 	position: relative;
@@ -1791,10 +1791,10 @@ a.ilink.yours {
 .megaevo {
     clear: both;
     display: block;
-    width: 220px;
-    margin: 0 auto 10px;
+    width: 180px;
+    margin: 0 auto 0;
     position: relative;
-    top: 7px;
+    top: 6px;
     left: -7px;
     padding: 2px;
     text-align: center;
@@ -1804,7 +1804,7 @@ a.ilink.yours {
     border-radius: 3px;
     color: #333;
     background: #EEF2F5;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: bold;
 }
 .megaevo:hover {
@@ -1817,7 +1817,7 @@ a.ilink.yours {
 .movemenu {
 	display: block;
 	margin-right: -10px;
-	padding-left: 5px;
+	padding-left: 4px;
 }
 .switchmenu button,
 .movemenu button {
@@ -1828,11 +1828,11 @@ a.ilink.yours {
 	text-decoration: none;
 	text-shadow: 0 1px 0 rgba(255,255,255,.4);
 	border-radius: 5px;
-	margin-top: 2px;
+	margin-top: 4px;
 	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
 
 	/* default colors */
-	color: #111111;
+	color: #000000;
 	border: solid 1px #AAAAAA;
 	background: #e3e3e3;
 	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);

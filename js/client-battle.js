@@ -387,9 +387,9 @@
 						if (disabled) {
 							controls += '<button disabled="disabled" style="visibility:hidden"></button> ';
 						} else if (!pokemon || pokemon.zerohp) {
-							controls += '<button class="disabled" name="chooseMoveTarget" value="' + (i + 1) + '"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon('missingno') + '"></span></button> ';
+							controls += '<button class="disabled" name="chooseMoveTarget" value="' + (i + 1) + '"><span class="picon" style=""></span></button> ';
 						} else {
-							controls += '<button name="chooseMoveTarget" value="' + (i + 1) + '"' + this.tooltipAttrs("your" + i, 'pokemon', true, true) + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
+							controls += '<button name="chooseMoveTarget" value="' + (i + 1) + '"' + this.tooltipAttrs("your" + i, 'pokemon', true, true) + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 						}
 					}
 					controls += '<div style="clear:both"></div> </div><div class="switchmenu" style="display:block">';
@@ -407,9 +407,9 @@
 						if (disabled) {
 							controls += '<button disabled="disabled" style="visibility:hidden"></button> ';
 						} else if (!pokemon || pokemon.zerohp) {
-							controls += '<button class="disabled" name="chooseMoveTarget" value="' + (-(i + 1)) + '"><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon('missingno') + '"></span></button> ';
+							controls += '<button class="disabled" name="chooseMoveTarget" value="' + (-(i + 1)) + '"><span class="picon" style=""></span></button> ';
 						} else {
-							controls += '<button name="chooseMoveTarget" value="' + (-(i + 1)) + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
+							controls += '<button name="chooseMoveTarget" value="' + (-(i + 1)) + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 						}
 					}
 					controls += '</div>';
@@ -476,9 +476,9 @@
 						var pokemon = switchables[i];
 						pokemon.name = pokemon.ident.substr(4);
 						if (pokemon.zerohp || i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
-							controls += '<button class="disabled" name="chooseDisabled" value="' + pokemon.name + (pokemon.zerohp ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
+							controls += '<button class="disabled" name="chooseDisabled" value="' + pokemon.name + (pokemon.zerohp ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 						} else {
-							controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
+							controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 						}
 					}
 					if (this.finalDecisionSwitch && this.battle.gen > 2) {
@@ -528,11 +528,11 @@
 						pokemon = this.myPokemon[i];
 
 						if (pokemon && !pokemon.zerohp || this.choice.switchOutFlags[i]) {
-							controls += '<button disabled' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
+							controls += '<button disabled' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 						} else if (!pokemon) {
 							controls += '<button disabled></button> ';
 						} else {
-							controls += '<button name="chooseSwitchTarget" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
+							controls += '<button name="chooseSwitchTarget" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 						}
 					}
 					controls += '</div>';
@@ -553,7 +553,7 @@
 					} else {
 						controls += '<button name="chooseSwitch" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '>';
 					}
-					controls += '<span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
+					controls += '<span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + (!pokemon.zerohp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 				}
 				controls += '</div></div></div>';
 				this.$controls.html(controls);
@@ -584,7 +584,7 @@
 						if (toId(pokemon.baseAbility) === 'illusion') {
 							this.choice.count = 6;
 						}
-						controls += '<button name="chooseTeamPreview" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
+						controls += '<button name="chooseTeamPreview" value="' + i + '"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
 					}
 					if (this.battle.teamPreviewCount) this.choice.count = parseInt(this.battle.teamPreviewCount, 10);
 					controls += '</div>';
@@ -597,9 +597,9 @@
 							break;
 						}
 						if (i < this.choice.done) {
-							controls += '<button disabled="disabled"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
+							controls += '<button disabled="disabled"' + this.tooltipAttrs(i, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
 						} else {
-							controls += '<button name="chooseTeamPreview" value="' + i + '"' + this.tooltipAttrs(this.choice.teamPreview[i] - 1, 'sidepokemon') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
+							controls += '<button name="chooseTeamPreview" value="' + i + '"' + this.tooltipAttrs(this.choice.teamPreview[i] - 1, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
 						}
 					}
 					controls += '</div>';
