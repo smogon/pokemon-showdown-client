@@ -2584,10 +2584,11 @@ a.ilink.yours {
 
 .teambuilder-clipboard-container {
 	height: 52px;
-	max-width: 560px;
+	max-width: 455px;
 	font-size: 8pt;
 	padding: 4px;
 	position: relative;
+	margin: auto;
 
 	border: 1px solid #FFAA00;
 	border-radius: 5px;
@@ -2598,7 +2599,7 @@ a.ilink.yours {
 	font-weight: bold;
 
 	position: absolute;
-	top: 4px;
+	bottom: 4px;
 	left: 8px;
 }
 .teambuilder-clipboard-data {
@@ -2663,7 +2664,7 @@ a.ilink.yours {
 }
 .teambuilder-clipboard-buttons {
 	display: block;
-	width: 520px;
+	width: 385px;
 
 	position: absolute;
 	top: 34px;
