@@ -172,9 +172,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// automatically built with githooks/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (var genNum of [6, -6, 5, 4, 3, 2, 1]) {
-		const isDoubles = (genNum < 0);
-		if (isDoubles) genNum = 6;
+	for (const genIdent of [6, -6, 5, 4, 3, 2, 1]) {
+		const isDoubles = (genIdent < 0);
+		const genNum = (isDoubles ? 6 : genIdent);
 		const gen = 'gen' + genNum;
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
 		const pokemon = Object.keys(Tools.data.Pokedex);
@@ -427,6 +427,66 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (!learnsets[id][moveid]) learnsets[id][moveid] = ''; // should never happen
 			if (minGen === 2) learnsets[id][moveid] = '2' + learnsets[id][moveid];
 			if (minGen === 1) learnsets[id][moveid] = '12' + learnsets[id][moveid];
+		}
+	}
+
+	//
+	// Past gen table
+	//
+
+	for (const genNum of [5, 4, 3, 2, 1]) {
+		const gen = 'gen' + genNum;
+		const genData = Tools.mod(gen + 'ou').data;
+		const nextGenData = Tools.mod('gen' + (genNum + 1) + 'ou').data;
+		const overrideStats = {};
+		BattleTeambuilderTable[gen].overrideStats = overrideStats;
+		for (const id in genData.Pokedex) {
+			const pastEntry = genData.Pokedex[id];
+			const nowEntry = Tools.data.Pokedex[id];
+			for (const stat in pastEntry.baseStats) {
+				if (stat === 'spd' && genNum === 1) continue;
+				if (pastEntry.baseStats[stat] !== nowEntry.baseStats[stat]) {
+					if (!overrideStats[id]) overrideStats[id] = {};
+					overrideStats[id][stat] = pastEntry.baseStats[stat];
+				}
+			}
+		}
+
+		const overrideBP = {};
+		BattleTeambuilderTable[gen].overrideBP = overrideBP;
+		const overrideAcc = {};
+		BattleTeambuilderTable[gen].overrideAcc = overrideAcc;
+		const overridePP = {};
+		BattleTeambuilderTable[gen].overridePP = overridePP;
+		const overrideMoveDesc = {};
+		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
+		for (const id in genData.Movedex) {
+			const pastEntry = genData.Movedex[id];
+			const nowEntry = Tools.data.Movedex[id];
+			const nextEntry = nextGenData.Movedex[id];
+			if (pastEntry.basePower !== nowEntry.basePower) {
+				overrideBP[id] = pastEntry.basePower;
+			}
+			if (pastEntry.accuracy !== nowEntry.accuracy) {
+				overrideAcc[id] = pastEntry.accuracy;
+			}
+			if (pastEntry.pp !== nowEntry.pp) {
+				overridePP[id] = pastEntry.pp;
+			}
+			if (pastEntry.shortDesc !== nextEntry.shortDesc) {
+				overrideMoveDesc[id] = pastEntry.shortDesc;
+			}
+		}
+
+		const overrideItemDesc = {};
+		BattleTeambuilderTable[gen].overrideItemDesc = overrideItemDesc;
+		for (const id in genData.Items) {
+			const pastEntry = genData.Items[id];
+			const nextEntry = nextGenData.Items[id];
+			if (!nextEntry) continue; // amulet coin
+			if (pastEntry.desc !== nextEntry.desc) {
+				overrideItemDesc[id] = pastEntry.desc;
+			}
 		}
 	}
 
