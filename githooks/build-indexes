@@ -279,6 +279,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const specificItems = [['header', "Pok&eacute;mon-specific items"]];
 		const poorItems = [['header', "Usually useless items"]];
 		const badItems = [['header', "Useless items"]];
+		const unreleasedItems = [];
+		if (genNum === 6) unreleasedItems.push(['header', "Unreleased"]);
 		for (const id of itemList) {
 			const item = Tools.getItem(id);
 			if (item.gen > genNum) {
@@ -304,6 +306,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				break;
 			case 'berryjuice':
 				if (genNum === 2) poorItems.push(id);
+				else goodItems.push(id);
+				break;
+			case 'dragonfang':
+				if (genNum === 2) badItems.push(id);
+				else goodItems.push(id);
+				break;
+			case 'mail':
+				if (genNum === 6) unreleasedItems.push(id);
 				else goodItems.push(id);
 				break;
 			// Legendaries
@@ -383,6 +393,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					badItems.push(id);
 				} else if (item.name.endsWith(" Fossil")) {
 					badItems.push(id);
+				} else if (item.name.endsWith(" Gem") && item.name !== "Normal Gem") {
+					if (genNum === 6) {
+						unreleasedItems.push(id);
+					} else if (item.name === "Flying Gem") {
+						greatItems.push(id);
+					} else if (item.name === "Flying Gem") {
+						goodItems.push(id);
+					}
 				} else if (item.name.endsWith(" Drive")) {
 					specificItems.push(id);
 				} else if (item.megaStone) {
@@ -397,6 +415,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		items.push(...specificItems);
 		items.push(...poorItems);
 		items.push(...badItems);
+		items.push(...unreleasedItems);
 	}
 
 	//
