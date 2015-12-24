@@ -993,16 +993,17 @@
 				return '<em>Select a team</em>';
 			}
 			if (i === 'random') {
-				var buf = 'Random team<br />';
+				var buf = '<strong>Random team</strong><small>';
 				for (var i = 0; i < 6; i++) {
-					buf += '<span class="pokemonicon" style="float:left;' + Tools.getIcon() + '"></span>';
+					buf += '<span class="picon" style="float:left;' + Tools.getPokemonIcon() + '"></span>';
 				}
+				buf += '</small>';
 				return buf;
 			}
 			var team = Storage.teams[i];
 			if (!team) return 'Error: Corrupted team';
-			var buf = '' + Tools.escapeHTML(team.name) + '<br />';
-			buf += Storage.getTeamIcons(team);
+			var buf = '<strong>' + Tools.escapeHTML(team.name) + '</strong><small>';
+			buf += Storage.getTeamIcons(team) + '</small>';
 			return buf;
 		}
 	});
