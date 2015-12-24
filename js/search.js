@@ -152,11 +152,10 @@
 		// different from the aliases in the search index and are given
 		// higher priority. We'll do a normal pass through the index with
 		// the alias text before any other passes.
-		var iAlias = -1;
+		var queryAlias;
 		if (query in BattleAliases) {
-			var queryAlias = toId(BattleAliases[query]);
+			queryAlias = toId(BattleAliases[query]);
 			if (queryAlias.slice(0, 11) !== 'hiddenpower') {
-				iAlias = -2;
 				searchPasses.unshift([1, Search.getClosest(queryAlias), queryAlias]);
 			}
 			this.exactMatch = true;
@@ -250,10 +249,6 @@
 			// Query was a type name followed 'type'; only show types
 			if (qFilterType === 'type' && typeIndex !== 2) continue;
 
-			// some aliases are substrings
-			if (iAlias === -2 && query === id) iAlias = i;
-			else if (iAlias === i) continue;
-
 			var matchStart = 0;
 			var matchLength = 0;
 			if (passType === 2) {
@@ -271,6 +266,9 @@
 				matchLength = query.length;
 				if (matchLength) matchLength += (BattleSearchIndexOffset[i][matchLength - 1] || '0').charCodeAt(0) - 48;
 			}
+
+			// some aliases are substrings
+			if (queryAlias === id && query !== id) continue;
 
 			if (qType && qTypeIndex !== typeIndex) {
 				// This is a filter, set it as an instafilter candidate
@@ -499,7 +497,7 @@
 					var learned = false;
 					var learnsetid = id;
 					if (!(learnsetid in BattleTeambuilderTable.learnsets)) {
-						learnsetid = toId(learnsetTemplate.baseSpecies);
+						learnsetid = toId(BattlePokedex[learnsetid].baseSpecies);
 					}
 					while (true) {
 						var learnset = BattleTeambuilderTable.learnsets[learnsetid];
