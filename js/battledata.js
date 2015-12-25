@@ -1336,24 +1336,39 @@ var Tools = {
 
 	getTeambuilderSprite: function (pokemon) {
 		if (!pokemon) return '';
-		var id = toId(pokemon);
-		if (pokemon.spriteid) id = pokemon.spriteid;
-		if (pokemon.species && !id) {
+		var id = toId(pokemon.species);
+		var spriteid = pokemon.spriteid;
+		if (pokemon.species && !spriteid) {
 			var template = Tools.getTemplate(pokemon.species);
 			if (template.spriteid) {
-				id = template.spriteid;
+				spriteid = template.spriteid;
 			} else {
-				id = toId(pokemon.species);
+				spriteid = toId(pokemon.species);
 			}
 		}
 		if (Tools.getTemplate(pokemon.species).exists === false) {
 			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png)';
 		}
 		var shiny = (pokemon.shiny ? '-shiny' : '');
-		if (BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].front && BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
-			id += '-f';
+		var sdata;
+		if (BattlePokemonSprites[id] && BattlePokemonSprites[id].front) {
+			if (BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
+				spriteid += '-f';
+				sdata = BattlePokemonSprites[id].front.anif;
+			} else {
+				sdata = BattlePokemonSprites[id].front.ani;
+			}
+		} else {
+			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + spriteid + '.png)';
 		}
-		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + id + '.png)';
+		var w = Math.round(57 - sdata.w / 2), h = Math.round(57 - sdata.h / 2);
+		if (id === 'altariamega' || id === 'dianciemega') h += 15;
+		if (id === 'gliscor' || id === 'gardevoirmega' || id === 'garchomp' || id === 'lugia') h += 8;
+		if (id === 'manectricmega') h -= 8;
+		if (id === 'giratinaorigin' || id === 'steelixmega') h -= 15;
+		if (id === 'lugia') w += 8;
+		if (id === 'rayquazamega' || id === 'giratinaorigin' || id === 'wailord') w += 15;
+		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/xy' + shiny + '/' + spriteid + '.png);background-position:' + w + 'px ' + h + 'px';
 	},
 
 	getItemIcon: function (item) {

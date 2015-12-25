@@ -1003,7 +1003,7 @@
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart"><div class="setcol setcol-icon" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
+				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
@@ -1011,7 +1011,7 @@
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" value="' + Tools.escapeHTML(set.name || set.species) + '" name="nickname" />';
 			buf += '</div>';
-			buf += '<div class="setchart">';
+			buf += '<div class="setchart" style="' + Tools.getTeambuilderSprite(set) + ';">';
 
 			// icon
 			var itemicon = '<span class="itemicon"></span>';
@@ -1019,7 +1019,7 @@
 				var item = Tools.getItem(set.item);
 				itemicon = '<span class="itemicon" style="' + Tools.getItemIcon(item) + '"></span>';
 			}
-			buf += '<div class="setcol setcol-icon" style="' + Tools.getTeambuilderSprite(set) + ';">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
+			buf += '<div class="setcol setcol-icon">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
 
 			// details
 			buf += '<div class="setcol setcol-details"><div class="setrow">';
@@ -1442,13 +1442,8 @@
 		updatePokemonSprite: function () {
 			var set = this.curSet;
 			if (!set) return;
-			var shiny = (set.shiny ? '-shiny' : '');
-			var sprite = Tools.getTemplate(set.species).spriteid;
-			if (BattlePokemonSprites && BattlePokemonSprites[sprite] && BattlePokemonSprites[sprite].front && BattlePokemonSprites[sprite].front.anif && set.gender === 'F') {
-				sprite += '-f';
-			}
 
-			this.$('.setcol-icon').css('background-image', Tools.getTeambuilderSprite(set).substr(17));
+			this.$('.setchart').attr('style', Tools.getTeambuilderSprite(set));
 
 			this.$('.pokemonicon-' + this.curSetLoc).css('background', Tools.getPokemonIcon(set).substr(11));
 
