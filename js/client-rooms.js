@@ -91,14 +91,8 @@
 			app.addPopup(BattleListPopup);
 		},
 		closeHide: function () {
+			app.sideRoom = app.curSideRoom = null;
 			this.close();
-			if (app.curSideRoom) {
-				app.curSideRoom.hide();
-				app.curSideRoom = null;
-			}
-			app.curRoom.show('full');
-			app.topbar.updateTabbar();
-			if (app.rooms['']) app.rooms[''].updateRightMenu();
 		},
 		finduser: function () {
 			app.addPopupPrompt("Username", "Open", function (target) {
