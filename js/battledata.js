@@ -1218,6 +1218,12 @@ var Tools = {
 			num = altNums[id];
 		}
 		var newAltNums = {
+			pikachubelle: 732 + 2,
+			pikachulibre: 732 + 3,
+			pikachuphd: 732 + 4,
+			pikachupopstar: 732 + 5,
+			pikachurockstar: 732 + 6,
+			pikachucosplay: 732 + 7,
 			castformrainy: 732 + 35,
 			castformsnowy: 732 + 36,
 			castformsunny: 732 + 37,
