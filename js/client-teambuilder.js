@@ -1565,13 +1565,15 @@
 				this.qInitial = q;
 				this.search.qName = this.curChartName;
 				if (wasIncomplete) {
-					this.search.find(q);
-					if (this.search.q) this.$chart.find('a').first().addClass('hover');
+					if (this.search.find(q)) {
+						if (this.search.q) this.$chart.find('a').first().addClass('hover');
+					}
 				}
 			} else if (q !== this.qInitial) {
 				this.qInitial = undefined;
-				this.search.find(q);
-				if (this.search.q) this.$chart.find('a').first().addClass('hover');
+				if (this.search.find(q)) {
+					if (this.search.q) this.$chart.find('a').first().addClass('hover');
+				}
 			}
 		},
 		selectPokemon: function (i) {
@@ -2112,14 +2114,13 @@
 		},
 		chartKeydown: function (e) {
 			var modifier = (e.shiftKey || e.ctrlKey || e.altKey || e.metaKey || e.cmdKey);
-			if (e.keyCode === 13 || (e.keyCode === 9 && !modifier)) {
+			if (e.keyCode === 13 || (e.keyCode === 9 && !modifier)) { // enter/tab
 				if (!(this.curChartType in this.searchChartTypes)) return;
+				var $firstResult = this.$chart.find('a.hover');
+				if (!$firstResult.length) return;
 				e.stopPropagation();
 				e.preventDefault();
 
-				this.search.find(e.currentTarget.value);
-				if (!this.search.q) return;
-				var $firstResult = this.$chart.find('a').first();
 				if (this.search.addFilter($firstResult[0])) {
 					$(e.currentTarget).val('').select();
 					this.search.find('');
@@ -2128,6 +2129,30 @@
 				var val = $firstResult.data('entry').split(':')[1];
 				this.chartSet(val, true);
 				return;
+			} else if (e.keyCode === 38) { // up
+				e.preventDefault();
+				e.stopPropagation();
+				var $active = this.$chart.find('a.hover');
+				if (!$active.length) return this.$chart.find('a').first().addClass('hover');
+				var $li = $active.parent().prev();
+				while ($li[0] && $li[0].firstChild.tagName !== 'A') $li = $li.prev();
+				if ($li[0] && $li.children()[0]) {
+					$active.removeClass('hover');
+					$active = $li.children();
+					$active.addClass('hover');
+				}
+			} else if (e.keyCode === 40) { // down
+				e.preventDefault();
+				e.stopPropagation();
+				var $active = this.$chart.find('a.hover');
+				if (!$active.length) return this.$chart.find('a').first().addClass('hover');
+				var $li = $active.parent().next();
+				while ($li[0] && $li[0].firstChild.tagName !== 'A') $li = $li.next();
+				if ($li[0] && $li.children()[0]) {
+					$active.removeClass('hover');
+					$active = $li.children();
+					$active.addClass('hover');
+				}
 			} else if (e.keyCode === 27 || e.keyCode === 8) { // esc, backspace
 				if (!e.currentTarget.value && this.search.removeFilter()) {
 					this.search.find('');

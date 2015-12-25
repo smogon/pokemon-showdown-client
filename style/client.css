@@ -2756,6 +2756,10 @@ a.ilink.yours {
 	border-radius: 4px;
 	cursor: pointer;
 }
+.teambuilder-results .result a.cur {
+	border-color: #555555;
+	background: rgba(248, 248, 248, 0.4);
+}
 .teambuilder-results .result a:hover,
 .teambuilder-results .result a.hover {
 	border-color: #D8D8D8;
@@ -2763,8 +2767,8 @@ a.ilink.yours {
 }
 .teambuilder-results .result a.cur:hover,
 .teambuilder-results .result a.cur.hover {
-	border-color: #CCCCCC;
-	background: #F2F2F2;
+	border-color: #555555;
+	background: #F8F8F8;
 }
 
 .teambuilder-results .resultheader h3 {
