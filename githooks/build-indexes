@@ -1,14 +1,22 @@
 #!/usr/bin/env node
 'use strict';
 
-process.stdout.write("Loading gen 6 data... ");
+const fs = require("fs");
+const child_process = require("child_process");
+
+process.stdout.write("Syncing data from Git repository... ");
+child_process.execSync('git pull', {
+	cwd: './data/Pokemon-Showdown/'
+});
+console.log("DONE");
+
 const Tools = require('../data/Pokemon-Showdown/tools');
 const toId = Tools.getId;
+process.stdout.write("Loading gen 6 data... ");
 Tools.includeData();
 process.stdout.write("Loading past gen data... ");
 Tools.includeMods();
 console.log("DONE");
-const fs = require("fs");
 
 function es3stringify(obj) {
 	var buf = JSON.stringify(obj);
@@ -545,7 +553,7 @@ console.log("DONE");
  * Build moves.js
  *********************************************************/
 
-process.stdout.write("Building `data/moves.js`, `data/items.js`, `data/abilities.js`...");
+process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.js`...");
 
 {
 	const Movedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
@@ -571,6 +579,36 @@ process.stdout.write("Building `data/moves.js`, `data/items.js`, `data/abilities
 	const Abilities = requireNoCache('../data/Pokemon-Showdown/data/abilities.js').BattleAbilities;
 	var buf = 'exports.BattleAbilities = ' + es3stringify(Abilities) + ';';
 	fs.writeFileSync('data/abilities.js', buf);
+}
+
+/*********************************************************
+ * Build typechart.js
+ *********************************************************/
+
+{
+	const TypeChart = requireNoCache('../data/Pokemon-Showdown/data/typechart.js').BattleTypeChart;
+	var buf = 'exports.BattleTypeChart = ' + es3stringify(TypeChart) + ';';
+	fs.writeFileSync('data/typechart.js', buf);
+}
+
+/*********************************************************
+ * Build aliases.js
+ *********************************************************/
+
+{
+	const Aliases = requireNoCache('../data/Pokemon-Showdown/data/aliases.js').BattleAliases;
+	var buf = 'exports.BattleAliases = ' + es3stringify(Aliases) + ';';
+	fs.writeFileSync('data/aliases.js', buf);
+}
+
+/*********************************************************
+ * Build learnsets.js
+ *********************************************************/
+
+{
+	const Learnsets = requireNoCache('../data/Pokemon-Showdown/data/learnsets.js').BattleLearnsets;
+	var buf = 'exports.BattleLearnsets = ' + es3stringify(Learnsets) + ';';
+	fs.writeFileSync('data/learnsets.js', buf);
 }
 
 console.log("DONE");
