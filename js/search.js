@@ -670,6 +670,15 @@
 			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU);
 			else if (isDoubles) tierSet = tierSet;
 			else tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
+
+			if (format === 'vgc2016') {
+				tierSet = tierSet.filter(function (r) {
+					var banned = {deoxys:1, deoxysattack:1, deoxysdefense:1, deoxysspeed:1, mew:1, celebi:1, shaymin:1, shayminsky:1, darkrai:1, victini:1, keldeo:1, keldeoresolute:1, meloetta:1, arceus:1, genesect:1, jirachi:1, manaphy:1, phione:1, hoopa:1, hoopaunbound:1, diancie:1, dianciemega:1};
+					if (r[1] in banned || r[1].substr(0, 6) === 'arceus') return false;
+					return true;
+				});
+			}
+
 			this.defaultResultSet = tierSet;
 			this.legalityLabel = "Banned";
 			break;
