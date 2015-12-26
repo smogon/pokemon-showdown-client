@@ -608,7 +608,7 @@ p.or:after {
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
 }
 .select.teamselect {
-	height: 47px;
+	height: 50px;
 	white-space: nowrap;
 	overflow: hidden;
 }
@@ -622,7 +622,7 @@ p.or:after {
 	color: #777777;
 }
 .teamselect small {
-	margin: -3px 0 0 -3px;
+	margin: -1px 0 0 -3px;
 	display: block;
 }
 .teamselect small .picon {
