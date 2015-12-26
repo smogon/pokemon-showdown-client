@@ -2278,8 +2278,14 @@
 			if (!set) return;
 			if (move.substr(0, 13) === 'Hidden Power ') {
 				set.ivs = {};
-				for (var i in exports.BattleTypeChart[move.substr(13)].HPivs) {
-					set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPivs[i];
+				if (this.curTeam.gen > 2) {
+					for (var i in exports.BattleTypeChart[move.substr(13)].HPivs) {
+						set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPivs[i];
+					}
+				} else {
+					for (var i in exports.BattleTypeChart[move.substr(13)].HPdvs) {
+						set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPdvs[i] * 2;
+					}
 				}
 				var moves = this.curSet.moves;
 				for (var i = 0; i < moves.length; ++i) {
