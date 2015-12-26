@@ -777,15 +777,17 @@
 
 			var format = this.curFolder;
 			if (app.draggingFolder) {
-				format = app.draggingFolder.dataset.value;
+				var $folder = $(app.draggingFolder);
 				app.draggingFolder = null;
+				$folder.removeClass('active').prepend('<strong style="float:right;margin-right:3px;padding:0 2px;border-radius:3px;background:#CC8500;color:white">+1</strong>');
+				format = $folder.data('value');
 				if (format.slice(-1) === '/') {
 					team.folder = format.slice(0, -1);
 				} else {
 					team.format = format;
 				}
-				this.selectFolder(format);
 				edited = true;
+				this.updateTeamList();
 			} else {
 				if (format.slice(-1) === '/') {
 					team.folder = format.slice(0, -1);
@@ -826,6 +828,7 @@
 				// everything is sane.
 
 				var $newTeamEl = this.$('.team[data-value=' + newLoc + ']');
+				if (!$newTeamEl.length) return;
 				var finalPos = $newTeamEl.offset();
 				$newTeamEl.css('transform', 'translate(' + (this.finalOffset[0] - finalPos.left) + 'px, ' + (this.finalOffset[1] - finalPos.top) + 'px)');
 				setTimeout(function () {
