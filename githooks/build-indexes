@@ -20,7 +20,7 @@ console.log("DONE");
 
 function es3stringify(obj) {
 	var buf = JSON.stringify(obj);
-	buf = buf.replace(/\"([a-z0-9]+)\"\:/g, '$1:');
+	buf = buf.replace(/\"([A-Za-z][A-Za-z0-9]*)\"\:/g, '$1:');
 	buf = buf.replace(/return\:/g, '"return":').replace(/new\:/g, '"new":').replace(/delete\:/g, '"delete":');
 	return buf;
 }
