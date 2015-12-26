@@ -1353,11 +1353,11 @@ var Tools = {
 			}
 		}
 		if (Tools.getTemplate(pokemon.species).exists === false) {
-			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png)';
+			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);background-position:10px 5px;background-repeat:no-repeat';
 		}
 		var shiny = (pokemon.shiny ? '-shiny' : '');
 		var sdata;
-		if (BattlePokemonSprites[id] && BattlePokemonSprites[id].front) {
+		if (BattlePokemonSprites[id] && BattlePokemonSprites[id].front && !Tools.prefs('bwgfx')) {
 			if (BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
 				spriteid += '-f';
 				sdata = BattlePokemonSprites[id].front.anif;
@@ -1365,16 +1365,16 @@ var Tools = {
 				sdata = BattlePokemonSprites[id].front.ani;
 			}
 		} else {
-			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + spriteid + '.png)';
+			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
 		}
 		var w = Math.round(57 - sdata.w / 2), h = Math.round(57 - sdata.h / 2);
-		if (id === 'altariamega' || id === 'dianciemega') h += 15;
-		if (id === 'gliscor' || id === 'gardevoirmega' || id === 'garchomp' || id === 'lugia') h += 8;
+		if (id === 'altariamega' || id === 'dianciemega' || id === 'charizardmegay') h += 15;
+		if (id === 'gliscor' || id === 'gardevoirmega' || id === 'garchomp' || id === 'garchompmega' || id === 'lugia' || id === 'golurk') h += 8;
 		if (id === 'manectricmega') h -= 8;
 		if (id === 'giratinaorigin' || id === 'steelixmega') h -= 15;
-		if (id === 'lugia') w += 8;
-		if (id === 'rayquazamega' || id === 'giratinaorigin' || id === 'wailord') w += 15;
-		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/xy' + shiny + '/' + spriteid + '.png);background-position:' + w + 'px ' + h + 'px';
+		if (id === 'lugia' || id === 'latiosmega' || id === 'latias' || id === 'garchompmega' || id === 'kyuremwhite') w += 8;
+		if (id === 'rayquazamega' || id === 'giratinaorigin' || id === 'wailord' || id === 'latiasmega') w += 15;
+		return 'background-image:url(' + Tools.resourcePrefix + 'sprites/xy' + shiny + '/' + spriteid + '.png);background-position:' + w + 'px ' + h + 'px;background-repeat:no-repeat';
 	},
 
 	getItemIcon: function (item) {
