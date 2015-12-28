@@ -1059,14 +1059,16 @@
 			buf += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="setstats" name="stats" class="chartinput">';
 			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
 			var stats = {};
+			var defaultEV = (this.curTeam.gen > 2 ? 0 : 252);
 			for (var j in BattleStatNames) {
 				if (j === 'spd' && this.curTeam.gen === 1) continue;
 				stats[j] = this.getStat(j, set);
-				var ev = '<em>' + (set.evs[j] || '') + '</em>';
+				var ev = (set.evs[j] === undefined ? defaultEV : set.evs[j]);
+				var evBuf = '<em>' + (ev === defaultEV ? '' : ev) + '</em>';
 				if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === j) {
-					ev += '<small>+</small>';
+					evBuf += '<small>+</small>';
 				} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === j) {
-					ev += '<small>&minus;</small>';
+					evBuf += '<small>&minus;</small>';
 				}
 				var width = stats[j] * 75 / 504;
 				if (j == 'hp') width = stats[j] * 75 / 704;
@@ -1074,7 +1076,7 @@
 				var color = Math.floor(stats[j] * 180 / 714);
 				if (color > 360) color = 360;
 				var statName = this.curTeam.gen === 1 && j === 'spa' ? 'Spc' : BattleStatNames[j];
-				buf += '<span class="statrow"><label>' + statName + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
+				buf += '<span class="statrow"><label>' + statName + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + evBuf + '</span>';
 			}
 			buf += '</button></div></div>';
 
@@ -1467,21 +1469,23 @@
 
 			// stat cell
 			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
+			var defaultEV = (this.curTeam.gen > 2 ? 0 : 252);
 			for (var stat in stats) {
 				if (stat === 'spd' && this.curTeam.gen === 1) continue;
 				stats[stat] = this.getStat(stat, set);
-				var ev = '<em>' + (set.evs[stat] || '') + '</em>';
+				var ev = (set.evs[stat] === undefined ? defaultEV : set.evs[stat]);
+				var evBuf = '<em>' + (ev === defaultEV ? '' : ev) + '</em>';
 				if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
-					ev += '<small>+</small>';
+					evBuf += '<small>+</small>';
 				} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
-					ev += '<small>&minus;</small>';
+					evBuf += '<small>&minus;</small>';
 				}
 				var width = stats[stat] * 75 / 504;
 				if (stat == 'hp') width = stats[stat] * 75 / 704;
 				if (width > 75) width = 75;
 				var color = Math.floor(stats[stat] * 180 / 714);
 				if (color > 360) color = 360;
-				buf += '<span class="statrow"><label>' + BattleStatNames[stat] + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + ev + '</span>';
+				buf += '<span class="statrow"><label>' + BattleStatNames[stat] + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + evBuf + '</span>';
 			}
 			this.$('button[name=stats]').html(buf);
 
@@ -1737,7 +1741,12 @@
 				var width = stats[i] * 200 / 504;
 				if (i == 'hp') width = stats[i] * 200 / 704;
 				if (width > 200) width = 200;
-				var val = '' + (set.evs[i] || '');
+				var val;
+				if (this.curTeam.gen > 2) {
+					val = '' + (set.evs[i] || '');
+				} else {
+					val = (set.evs[i] === undefined ? '252' : '' + set.evs[i]);
+				}
 				if (nature.plus === i) {
 					val += '+';
 					this.plus = i;
@@ -1762,7 +1771,7 @@
 			buf += '<div class="col evslidercol"><div></div>';
 			for (var i in stats) {
 				if (i === 'spd' && this.curTeam.gen === 1) continue;
-				buf += '<div><input type="slider" name="evslider-' + i + '" value="' + Tools.escapeHTML(set.evs[i] || '0') + '" min="0" max="252" step="4" class="evslider" /></div>';
+				buf += '<div><input type="slider" name="evslider-' + i + '" value="' + Tools.escapeHTML(set.evs[i] === undefined ? (this.curTeam.gen > 2 ? '0' : '252') : '' + set.evs[i]) + '" min="0" max="252" step="4" class="evslider" /></div>';
 			}
 			buf += '</div>';
 
@@ -1770,7 +1779,7 @@
 				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
 				if (!set.ivs) set.ivs = {};
 				for (var i in stats) {
-					if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = 31;
+					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + (set.ivs[i]);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="31" step="1" /></div>';
 				}
@@ -1779,7 +1788,7 @@
 				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
 				if (!set.ivs) set.ivs = {};
 				for (var i in stats) {
-					if (typeof set.ivs[i] === 'undefined' || isNaN(set.ivs[i])) set.ivs[i] = 31;
+					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + Math.floor(set.ivs[i] / 2);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="15" step="1" /></div>';
 				}
@@ -1860,7 +1869,6 @@
 				// EV
 				// Handle + and -
 				var stat = inputName.substr(5);
-				if (!set.evs) set.evs = {};
 
 				var lastchar = e.currentTarget.value.charAt(e.target.value.length - 1);
 				var firstchar = e.currentTarget.value.charAt(0);
@@ -1888,6 +1896,14 @@
 
 				if (set.evs[stat] !== val || natureChange) {
 					set.evs[stat] = val;
+					if (this.curTeam.gen <= 2) {
+						if (set.evs['hp'] === undefined) set.evs['hp'] = 252;
+						if (set.evs['atk'] === undefined) set.evs['atk'] = 252;
+						if (set.evs['def'] === undefined) set.evs['def'] = 252;
+						if (set.evs['spa'] === undefined) set.evs['spa'] = 252;
+						if (set.evs['spd'] === undefined) set.evs['spd'] = 252;
+						if (set.evs['spe'] === undefined) set.evs['spe'] = 252;
+					}
 					this.setSlider(stat, val);
 					this.updateStatGraph();
 				}
@@ -1941,6 +1957,14 @@
 			if (val !== originalVal) slider.o.pointers[0].set(val);
 
 			if (!set.evs) set.evs = {};
+			if (this.curTeam.gen <= 2) {
+				if (set.evs['hp'] === undefined) set.evs['hp'] = 252;
+				if (set.evs['atk'] === undefined) set.evs['atk'] = 252;
+				if (set.evs['def'] === undefined) set.evs['def'] = 252;
+				if (set.evs['spa'] === undefined) set.evs['spa'] = 252;
+				if (set.evs['spd'] === undefined) set.evs['spd'] = 252;
+				if (set.evs['spe'] === undefined) set.evs['spe'] = 252;
+			}
 			set.evs[stat] = val;
 
 			val = '' + (val || '') + (this.plus === stat ? '+' : '') + (this.minus === stat ? '-' : '');
@@ -2786,14 +2810,7 @@
 				spd: 31,
 				spe: 31
 			};
-			if (!set.evs) set.evs = {
-				hp: 0,
-				atk: 0,
-				def: 0,
-				spa: 0,
-				spd: 0,
-				spe: 0
-			};
+			if (!set.evs) set.evs = {};
 
 			// do this after setting set.evs because it's assumed to exist
 			// after getStat is run
@@ -2803,12 +2820,17 @@
 			if (!set.level) set.level = 100;
 			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
 
-			if (evOverride === 0) evOverride = 1;
+			var baseStat = template.baseStats[stat];
+			var iv = (set.ivs[stat] || 0);
+			var ev = set.evs[stat];
+			if (evOverride !== undefined) ev = evOverride;
+			if (ev === undefined) ev = (this.curTeam.gen > 2 ? 0 : 252);
+
 			if (stat === 'hp') {
-				if (template.baseStats['hp'] === 1) return 1;
-				return Math.floor(Math.floor(2 * template.baseStats['hp'] + (set.ivs['hp'] || 0) + Math.floor((evOverride || set.evs['hp'] || 0) / 4) + 100) * set.level / 100 + 10);
+				if (baseStat === 1) return 1;
+				return Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4) + 100) * set.level / 100 + 10);
 			}
-			var val = Math.floor(Math.floor(2 * template.baseStats[stat] + (set.ivs[stat] || 0) + Math.floor((evOverride || set.evs[stat] || 0) / 4)) * set.level / 100 + 5);
+			var val = Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4)) * set.level / 100 + 5);
 			if (natureOverride) {
 				val *= natureOverride;
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {

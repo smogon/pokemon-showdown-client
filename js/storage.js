@@ -571,6 +571,8 @@ Storage.packTeam = function (team) {
 		}
 		if (evs === '|,,,,,') {
 			buf += '|';
+			// doing it this way means packTeam doesn't need to be past-gen aware
+			if (set.evs['hp'] === 0) buf += '0';
 		} else {
 			buf += evs;
 		}
@@ -664,15 +666,20 @@ Storage.fastUnpackTeam = function (buf) {
 		// evs
 		j = buf.indexOf('|', i);
 		if (j !== i) {
-			var evs = buf.substring(i, j).split(',');
-			set.evs = {
-				hp: Number(evs[0]) || 0,
-				atk: Number(evs[1]) || 0,
-				def: Number(evs[2]) || 0,
-				spa: Number(evs[3]) || 0,
-				spd: Number(evs[4]) || 0,
-				spe: Number(evs[5]) || 0
-			};
+			var evstring = buf.substring(i, j);
+			if (evstring.length > 5) {
+				var evs = evstring.split(',');
+				set.evs = {
+					hp: Number(evs[0]) || 0,
+					atk: Number(evs[1]) || 0,
+					def: Number(evs[2]) || 0,
+					spa: Number(evs[3]) || 0,
+					spd: Number(evs[4]) || 0,
+					spe: Number(evs[5]) || 0
+				};
+			} else if (evstring === '0') {
+				set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+			}
 		}
 		i = j + 1;
 
@@ -769,15 +776,20 @@ Storage.unpackTeam = function (buf) {
 		// evs
 		j = buf.indexOf('|', i);
 		if (j !== i) {
-			var evs = buf.substring(i, j).split(',');
-			set.evs = {
-				hp: Number(evs[0]) || 0,
-				atk: Number(evs[1]) || 0,
-				def: Number(evs[2]) || 0,
-				spa: Number(evs[3]) || 0,
-				spd: Number(evs[4]) || 0,
-				spe: Number(evs[5]) || 0
-			};
+			var evstring = buf.substring(i, j);
+			if (evstring.length > 5) {
+				var evs = evstring.split(',');
+				set.evs = {
+					hp: Number(evs[0]) || 0,
+					atk: Number(evs[1]) || 0,
+					def: Number(evs[2]) || 0,
+					spa: Number(evs[3]) || 0,
+					spd: Number(evs[4]) || 0,
+					spe: Number(evs[5]) || 0
+				};
+			} else if (evstring === '0') {
+				set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+			}
 		}
 		i = j + 1;
 
