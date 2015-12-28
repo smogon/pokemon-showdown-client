@@ -4344,6 +4344,8 @@ var Battle = (function () {
 				var template = Tools.getTemplate(args[2]);
 				var fromeffect = Tools.getEffect(kwargs.from);
 				var spriteData = {'shiny': poke.sprite.sp.shiny};
+				poke.removeVolatile('typeadd');
+				poke.removeVolatile('typechange');
 
 				if (kwargs.silent) {
 					// do nothing
