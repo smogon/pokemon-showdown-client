@@ -1014,7 +1014,7 @@
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" value="' + Tools.escapeHTML(set.name || set.species) + '" name="nickname" />';
 			buf += '</div>';
-			buf += '<div class="setchart" style="' + Tools.getTeambuilderSprite(set) + ';">';
+			buf += '<div class="setchart" style="' + Tools.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
 			// icon
 			var itemicon = '<span class="itemicon"></span>';
@@ -1448,7 +1448,7 @@
 			var set = this.curSet;
 			if (!set) return;
 
-			this.$('.setchart').attr('style', Tools.getTeambuilderSprite(set));
+			this.$('.setchart').attr('style', Tools.getTeambuilderSprite(set, this.curTeam.gen));
 
 			this.$('.pokemonicon-' + this.curSetLoc).css('background', Tools.getPokemonIcon(set).substr(11));
 
