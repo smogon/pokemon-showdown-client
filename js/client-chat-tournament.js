@@ -292,7 +292,6 @@
 					if (joins.length > 0) message.push(arrayToPhrase(joins) + " joined the tournament");
 					if (leaves.length > 0) message.push(arrayToPhrase(leaves) + " left the tournament");
 					this.$lastJoinLeaveMessage.text(message.join("; ") + ".");
-					this.updateTeams();
 					break;
 
 				case 'start':
@@ -349,7 +348,7 @@
 						this.info.isActive = true;
 					}
 
-					if ('format' in this.updates) {
+					if ('format' in this.updates || 'isJoined' in this.updates) {
 						this.$format.text(window.BattleFormats && BattleFormats[this.info.format] ? BattleFormats[this.info.format].name : this.info.format);
 						this.updateTeams();
 					}
@@ -357,8 +356,6 @@
 						this.$generator.text(this.info.generator);
 					if ('isStarted' in this.updates) {
 						this.$status.text(this.info.isStarted ? "In Progress" : "Signups");
-						if (this.info.isStarted)
-							this.updateTeams();
 					}
 
 					// Update the toolbox
