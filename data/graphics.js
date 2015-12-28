@@ -3730,7 +3730,46 @@ var BattleMoveAnims = {
 		}
 	},
 	dynamicpunch: {
-		anim: BattleOtherAnims.punchattack.anim
+		anim: function(battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.backgroundEffect('#000000', 700, 0.3);
+			BattleOtherAnims.punchattack.anim(battle,args);
+			battle.showEffect('fireball', {
+				x: defender.x+40,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.6,
+				time: 350
+			}, {
+				scale: 4,
+				opacity: 0
+			}, 'linear');
+			battle.showEffect('fireball', {
+				x: defender.x-40,
+				y: defender.y-20,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.6,
+				time: 500
+			}, {
+				scale: 4,
+				opacity: 0
+			}, 'linear');
+			battle.showEffect('fireball', {
+				x: defender.x+10,
+				y: defender.y+20,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.6,
+				time: 650
+			}, {
+				scale: 4,
+				opacity: 0
+			}, 'linear');
+		}
 	},
 	cometpunch: {
 		anim: BattleOtherAnims.punchattack.anim,
