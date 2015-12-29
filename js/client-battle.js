@@ -1331,6 +1331,7 @@
 			var ability = Tools.getAbility(myPokemon.baseAbility).name;
 			var basePower = move.basePower;
 			var basePowerComment = '';
+			var Tooltips = new BattleTooltips();
 			var thereIsWeather = (this.battle.weather in {'sunnyday': 1, 'desolateland': 1, 'raindance': 1, 'primordialsea': 1, 'sandstorm': 1, 'hail':1});
 			if (move.id === 'acrobatics') {
 				if (!myPokemon.item) {
@@ -1416,8 +1417,8 @@
 				var min = 0;
 				var max = 0;
 				if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
-				var minRatio = (myPokemon.stats['spe'] / this.getTemplateMinSpeed(template, target.level));
-				var maxRatio = (myPokemon.stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
+				var minRatio = (myPokemon.stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
+				var maxRatio = (myPokemon.stats['spe'] / this.getTemplateMinSpeed(template, target.level));
 				if (minRatio >= 4) min = 150;
 				else if (minRatio >= 3) min = 120;
 				else if (minRatio >= 2) min = 80;
@@ -1430,12 +1431,16 @@
 				else max = 40;
 				// Special case due to being a range. Other moves are checked by technician below.
 				basePower = 0;
-				if (ability === 'Technician') {
-					if (min <= 60) min *= 1.5;
-					if (max <= 60) max *= 1.5;
-					basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
+				if (!myPokemon.item) {
+					if (ability === 'Technician') {
+						if (min <= 60) min *= 1.5;
+						if (max <= 60) max *= 1.5;
+						basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
+					} else {
+						basePowerComment = (min === max) ? max : min + ' to ' + max;
+					}
 				} else {
-					basePowerComment = (min === max) ? max : min + ' to ' + max;
+					return Tooltips.boostBasePower_Ball(this, move, pokemon, target, basePower, basePowerComment, min, max);
 				}
 			}
 			if (move.id === 'gyroball') {
@@ -1447,12 +1452,16 @@
 				if (max > 150) max = 150;
 				// Special case due to range as well.
 				basePower = 0;
-				if (ability === 'Technician') {
-					if (min <= 60) min *= 1.5;
-					if (max <= 60) max = Math.max(max * 1.5, 90);
-					basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
+				if (!myPokemon.item) {
+					if (ability === 'Technician') {
+						if (min <= 60) min *= 1.5;
+						if (max <= 60) max *= 1.5;
+						basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
+					} else {
+						basePowerComment = (min === max) ? max : min + ' to ' + max;
+					}
 				} else {
-					basePowerComment = (min === max) ? max : min + ' to ' + max;
+					return Tooltips.boostBasePower_Ball(this, move, pokemon, target, basePower, basePowerComment, min, max);
 				}
 			}
 			// Movements which have base power changed due to items.
@@ -1504,7 +1513,11 @@
 					basePowerComment = ' (' + ability + ' boosted)';
 				}
 			}
-			return basePower + basePowerComment;
+			if (myPokemon.item) {
+				return Tooltips.boostBasePower(this, move, pokemon, target, basePower, basePowerComment);
+			} else {
+				return basePower == 0 ? basePowerComment : basePower + basePowerComment;
+			}
 		}
 	});
 
