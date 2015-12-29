@@ -35,13 +35,12 @@ var BattleTooltips = (function () {
 	};
 	BattleTooltips.prototype.boostBasePower_Ball = function (BattleRoom, move, pokemon, min, max) {
 		var myPokemon = BattleRoom.myPokemon[pokemon.slot];
-		var ability = Tools.getAbility(myPokemon.baseAbility).name;
+		var technician = Tools.getAbility(myPokemon.baseAbility).name === 'Technician';
 		var item = Tools.getItem(myPokemon.item);
 		var moveType = BattleRoom.getMoveType(move, pokemon);
 		var splitItemName = item.name.split(' ');
 		var moveName = move.name;
 		var itemCheck = false;
-		var basePowerComment = '';
 		if (!BattleRoom.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 			if (splitItemName[1] == 'Gem' && moveType == splitItemName[0]) {
 				min *= BattleRoom.battle.gen >= 6 ? 1.3 : 1.5;
@@ -59,19 +58,14 @@ var BattleTooltips = (function () {
 				itemCheck = true;
 			}
 		}
-		if (ability === 'Technician') {
+		if (technician) {
 			if (min <= 60) min *= 1.5;
 			if (max <= 60) max *= 1.5;
-			basePowerComment += '' + ((min === max) ? Math.floor(max) : Math.floor(min) + ' to ' + Math.floor(max)) + ' (Technician boosted)';
-			if (itemCheck) {
-				basePowerComment += ' (Boosted by ' + item.name + ')';
-			}
-		} else {
-			basePowerComment += (min === max) ? Math.floor(max) : Math.floor(min) + ' to ' + Math.floor(max);
-			if (itemCheck) {
-				basePowerComment += ' (Boosted by ' + item.name + ')';
-			}
 		}
+		var basePowerComment = min === max ? '' : Math.floor(min) + ' to ';
+		basePowerComment += Math.floor(max);
+		if (technician) basePowerComment += ' (Technician boosted)';
+		if (itemCheck) basePowerComment += ' (Boosted by ' + Tools.getItem(myPokemon.item).name + ')';
 		return basePowerComment;
 	};
 	return BattleTooltips;
