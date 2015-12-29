@@ -30,8 +30,8 @@ var BattleTooltips = (function () {
 			}
 
 			basePower = Math.floor(basePower);
-			return basePower == 0 ? basePowerComment : basePower + basePowerComment;
 		}
+		return basePower + basePowerComment;
 	};
 	BattleTooltips.prototype.boostBasePower_Ball = function (BattleRoom, move, pokemon, min, max) {
 		var myPokemon = BattleRoom.myPokemon[pokemon.slot];
@@ -58,18 +58,18 @@ var BattleTooltips = (function () {
 				max *= BattleRoom.battle.gen >= 4 ? 1.2 : 1.1;
 				itemCheck = true;
 			}
-			if (ability === 'Technician') {
-				if (min <= 60) min *= 1.5;
-				if (max <= 60) max *= 1.5;
-				basePowerComment += '' + ((min === max) ? Math.floor(max) : Math.floor(min) + ' to ' + Math.floor(max)) + ' (Technician boosted)';
-				if (itemCheck) {
-					basePowerComment += ' (Boosted by ' + item.name + ')';
-				}
-			} else {
-				basePowerComment += (min === max) ? Math.floor(max) : Math.floor(min) + ' to ' + Math.floor(max);
-				if (itemCheck) {
-					basePowerComment += ' (Boosted by ' + item.name + ')';
-				}
+		}
+		if (ability === 'Technician') {
+			if (min <= 60) min *= 1.5;
+			if (max <= 60) max *= 1.5;
+			basePowerComment += '' + ((min === max) ? Math.floor(max) : Math.floor(min) + ' to ' + Math.floor(max)) + ' (Technician boosted)';
+			if (itemCheck) {
+				basePowerComment += ' (Boosted by ' + item.name + ')';
+			}
+		} else {
+			basePowerComment += (min === max) ? Math.floor(max) : Math.floor(min) + ' to ' + Math.floor(max);
+			if (itemCheck) {
+				basePowerComment += ' (Boosted by ' + item.name + ')';
 			}
 		}
 		return basePowerComment;
