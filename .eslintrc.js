@@ -15,7 +15,7 @@ module.exports = {
 		"fs": false, "gui": false, "ga": false, "macgap": false, "nwWindow": false, "webkitNotifications": false,
 
 		// Battle stuff
-		"Battle": true, "Pokemon": true, "BattleSound": true,
+		"Battle": true, "Pokemon": true, "BattleSound": true, "BattleTooltips": true,
 		"BattleAbilities": false, "BattleAliases": false, "BattleBackdrops": false, "BattleBackdropsFour": false, "BattleBackdropsThree": false, "BattleEffects": false,
 		"BattleFormats": false, "BattleFormatsData": false, "BattleLearnsets": false, "BattleItems": false, "BattleMoveAnims": false, "BattleMovedex": false, "BattleNatures": false, 
 		"BattleOtherAnims": false,  "BattlePokedex": false,"BattlePokemonSprites": false, "BattlePokemonSpritesBW": false, "BattleSearchCountIndex": false, "BattleSearchIndex": false,
