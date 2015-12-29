@@ -541,8 +541,8 @@ p.or:after {
 	font-size: 8pt;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	margin: 0 0 0 6px;
-	padding: 3px 4px;
-	border: 0;
+	padding: 2px 3px;
+	border: 1px solid transparent;
 	border-radius: 2px;
 	background: transparent;
 	color: black;
@@ -566,24 +566,18 @@ p.or:after {
 }
 
 .popupmenu button.sel {
-	padding: 2px 3px;
-	border: 1px solid #AAAAAA;
+	border-color: #AAAAAA;
 	white-space: nowrap;
 	overflow: hidden;
 }
 .popupmenu button:hover,
 .popupmenu button.sel:hover {
-	padding: 2px 3px;
-	border: 1px solid #888888;
+	border-color: #888888;
 	background: #D5D5D5;
 }
 .popupmenu button.button {
 	margin: 2px auto 5px;
 	width: 184px;
-}
-.popupmenu button.button:hover,
-.popupmenu button.button.sel:hover {
-	padding: 3px 4px;
 }
 .select, .team {
 	cursor: pointer;
