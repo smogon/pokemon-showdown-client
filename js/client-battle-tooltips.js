@@ -36,6 +36,10 @@ var BattleTooltips = (function () {
 	BattleTooltips.prototype.boostBasePower_Ball = function (BattleRoom, move, pokemon, min, max) {
 		var myPokemon = BattleRoom.myPokemon[pokemon.slot];
 		var technician = Tools.getAbility(myPokemon.baseAbility).name === 'Technician';
+		if (technician) {
+			if (min <= 60) min *= 1.5;
+			if (max <= 60) max *= 1.5;
+		}
 		var itemCheck = false;
 		if (!BattleRoom.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 			var item = Tools.getItem(myPokemon.item);
@@ -57,10 +61,6 @@ var BattleTooltips = (function () {
 				max *= BattleRoom.battle.gen >= 4 ? 1.2 : 1.1;
 				itemCheck = true;
 			}
-		}
-		if (technician) {
-			if (min <= 60) min *= 1.5;
-			if (max <= 60) max *= 1.5;
 		}
 		var basePowerComment = min === max ? '' : Math.floor(min) + ' to ';
 		basePowerComment += Math.floor(max);
