@@ -7,28 +7,28 @@ var BattleTooltips = (function () {
 			var moveType = BattleRoom.getMoveType(move, pokemon);
 			var splitItemName = item.name.split(' ');
 			var moveName = move.name;
-			if (basePower) {
-				// Gems
-				if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && (moveName != 'Struggle' || moveName != 'Water Pledge' || moveName != 'Grass Pledge' || moveName != 'Fire Pledge' || moveName != 'Fling')) {
-					basePower *= BattleRoom.battle.gen >= 6 ? 1.3 : 1.5;
-					basePowerComment += ' (Boosted by ' + item.name + ')';
-				}
-				// Plates
-				if (splitItemName[1] == 'Plate' && item.onPlate && moveType == item.onPlate) {
-					basePower *= 1.2;
-					basePowerComment += ' (Boosted by ' + item.name + ')';
-				}
-				// Type-enhancing items
-				if (item.name == 'Black Belt' && moveType == 'Fighting' || item.name == 'Black Glasses' && moveType == 'Dark' || item.name == 'Charcoal' && moveType == 'Fire' || item.name == 'Dragon Fang' && moveType == 'Dragon' || item.name == 'Hard Stone' && moveType == 'Rock' || item.name == 'Magnet' && moveType == 'Electric' || item.name == 'Metal Coat' && moveType == 'Steel' || item.name == 'Miracle Seed' && moveType == 'Grass' || item.name == 'Mystic Water' && moveType == 'Water' || item.name == 'Never-Melt Ice' && moveType == 'Ice' || item.name == 'Poison Barb' && moveType == 'Poison' || item.name == 'Sharp Beak' && moveType == 'Flying' || item.name == 'Silk Scarf' && moveType == 'Normal' || item.name == 'SilverPowder' && moveType == 'Bug' || item.name == 'Soft Sand' && moveType == 'Ground' || item.name == 'Spell Tag' && moveType == 'Ghost' || item.name == 'TwistedSpoon' && moveType == 'Psychic') {
-					basePower *= BattleRoom.battle.gen >= 4 ? 1.2 : 1.1;
-					basePowerComment += ' (Boosted by ' + item.name + ')';
-				}
-				// Incenses
-				if ((item.name == 'Wave Incense' || item.name == 'Sea Incense') && moveType == 'Water' || item.name == 'Rose Incense' && moveType == 'Grass' || item.name == 'Rock Incense' && moveType == 'Rock' || item.name == 'Odd Incense' && moveType == 'Psychic') {
-					basePower *= 1.2;
-					basePowerComment += ' (Boosted by ' + item.name + ')';
-				}
+
+			// Gems
+			if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && (moveName != 'Struggle' || moveName != 'Water Pledge' || moveName != 'Grass Pledge' || moveName != 'Fire Pledge' || moveName != 'Fling')) {
+				basePower *= BattleRoom.battle.gen >= 6 ? 1.3 : 1.5;
+				basePowerComment += ' (Boosted by ' + item.name + ')';
 			}
+			// Plates
+			if (splitItemName[1] == 'Plate' && item.onPlate && moveType == item.onPlate) {
+				basePower *= 1.2;
+				basePowerComment += ' (Boosted by ' + item.name + ')';
+			}
+			// Type-enhancing items
+			if (item.name == 'Black Belt' && moveType == 'Fighting' || item.name == 'Black Glasses' && moveType == 'Dark' || item.name == 'Charcoal' && moveType == 'Fire' || item.name == 'Dragon Fang' && moveType == 'Dragon' || item.name == 'Hard Stone' && moveType == 'Rock' || item.name == 'Magnet' && moveType == 'Electric' || item.name == 'Metal Coat' && moveType == 'Steel' || item.name == 'Miracle Seed' && moveType == 'Grass' || item.name == 'Mystic Water' && moveType == 'Water' || item.name == 'Never-Melt Ice' && moveType == 'Ice' || item.name == 'Poison Barb' && moveType == 'Poison' || item.name == 'Sharp Beak' && moveType == 'Flying' || item.name == 'Silk Scarf' && moveType == 'Normal' || item.name == 'SilverPowder' && moveType == 'Bug' || item.name == 'Soft Sand' && moveType == 'Ground' || item.name == 'Spell Tag' && moveType == 'Ghost' || item.name == 'TwistedSpoon' && moveType == 'Psychic') {
+				basePower *= BattleRoom.battle.gen >= 4 ? 1.2 : 1.1;
+				basePowerComment += ' (Boosted by ' + item.name + ')';
+			}
+			// Incenses
+			if ((item.name == 'Wave Incense' || item.name == 'Sea Incense') && moveType == 'Water' || item.name == 'Rose Incense' && moveType == 'Grass' || item.name == 'Rock Incense' && moveType == 'Rock' || item.name == 'Odd Incense' && moveType == 'Psychic') {
+				basePower *= 1.2;
+				basePowerComment += ' (Boosted by ' + item.name + ')';
+			}
+
 			basePower = Math.floor(basePower);
 			return basePower == 0 ? basePowerComment : basePower + basePowerComment;
 		}
