@@ -2117,6 +2117,8 @@
 			}
 			if (data.type) this.type = data.type;
 			if (data.position) this.position = data.position;
+			if (data.buttons) this.buttons = data.buttons;
+			if (data.submit) this.submit = data.submit;
 
 			Backbone.View.apply(this, arguments);
 
@@ -2181,7 +2183,7 @@
 		},
 		initialize: function (data) {
 			if (!this.type) this.type = 'semimodal';
-			this.$el.html('<p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage || Tools.parseMessage(data.message)) + '</p><p class="buttonbar"><button name="close" class="autofocus"><strong>OK</strong></button></p>').css('max-width', data.maxWidth || 480);
+			this.$el.html('<form><p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage || Tools.parseMessage(data.message)) + '</p><p class="buttonbar">' + (data.buttons || '<button name="close" class="autofocus"><strong>OK</strong></button>') + '</p></form>').css('max-width', data.maxWidth || 480);
 		},
 
 		dispatchClickButton: function (e) {
