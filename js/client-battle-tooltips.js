@@ -9,7 +9,7 @@ var BattleTooltips = (function () {
 			var moveName = move.name;
 
 			// Gems
-			if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && (moveName != 'Struggle' || moveName != 'Water Pledge' || moveName != 'Grass Pledge' || moveName != 'Fire Pledge' || moveName != 'Fling')) {
+			if (splitItemName[1] == 'Gem' && moveType == splitItemName[0] && moveName != 'Struggle' && moveName != 'Water Pledge' && moveName != 'Grass Pledge' && moveName != 'Fire Pledge' && moveName != 'Fling') {
 				basePower *= BattleRoom.battle.gen >= 6 ? 1.3 : 1.5;
 				basePowerComment += ' (Boosted by ' + item.name + ')';
 			}
