@@ -480,6 +480,7 @@
 		resultSet.push(['header', "Filtered results"]);
 		var illegalResultSet = [];
 		var filters = this.filters;
+		var genChar = '' + this.gen;
 		for (var id in BattlePokedex) {
 			var template = BattlePokedex[id];
 			if (template.exists === false) continue;
@@ -501,7 +502,7 @@
 					}
 					while (true) {
 						var learnset = BattleTeambuilderTable.learnsets[learnsetid];
-						if (learnset && (filters[i][1] in learnset)) {
+						if (learnset && (filters[i][1] in learnset) && learnset[filters[i][1]].indexOf(genChar) >= 0) {
 							learned = true;
 							break;
 						}
