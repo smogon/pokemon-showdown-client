@@ -1440,7 +1440,7 @@
 						basePowerComment = (min === max) ? max : min + ' to ' + max;
 					}
 				} else {
-					return Tooltips.boostBasePower_Ball(this, move, pokemon, target, basePower, basePowerComment, min, max);
+					return Tooltips.boostBasePower_Ball(this, move, pokemon, min, max);
 				}
 			}
 			if (move.id === 'gyroball') {
@@ -1461,7 +1461,7 @@
 						basePowerComment = (min === max) ? max : min + ' to ' + max;
 					}
 				} else {
-					return Tooltips.boostBasePower_Ball(this, move, pokemon, target, basePower, basePowerComment, min, max);
+					return Tooltips.boostBasePower_Ball(this, move, pokemon, min, max);
 				}
 			}
 			// Movements which have base power changed due to items.
@@ -1514,7 +1514,7 @@
 				}
 			}
 			if (myPokemon.item) {
-				return Tooltips.boostBasePower(this, move, pokemon, target, basePower, basePowerComment);
+				return Tooltips.boostBasePower(this, move, pokemon, basePower, basePowerComment);
 			} else {
 				return basePower == 0 ? basePowerComment : basePower + basePowerComment;
 			}

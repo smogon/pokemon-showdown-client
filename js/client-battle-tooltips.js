@@ -1,9 +1,7 @@
 var BattleTooltips = (function () {
 	function BattleTooltips() {}
-	BattleTooltips.prototype.boostBasePower = function (BattleRoom, move, pokemon, target, basePower, basePowerComment) {
+	BattleTooltips.prototype.boostBasePower = function (BattleRoom, move, pokemon, basePower, basePowerComment) {
 		var myPokemon = BattleRoom.myPokemon[pokemon.slot];
-		var ability = Tools.getAbility(myPokemon.baseAbility).name;
-		var thereIsWeather = (BattleRoom.battle.weather in {'sunnyday': 1, 'desolateland': 1, 'raindance': 1, 'primordialsea': 1, 'sandstorm': 1, 'hail':1});
 		if (!BattleRoom.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 			var item = Tools.getItem(myPokemon.item);
 			var pos = BattleRoom.choice.choices.length;
@@ -36,7 +34,7 @@ var BattleTooltips = (function () {
 			return basePower == 0 ? basePowerComment : basePower + basePowerComment;
 		}
 	};
-	BattleTooltips.prototype.boostBasePower_Ball = function (BattleRoom, move, pokemon, target, basePower, basePowerComment, min, max) {
+	BattleTooltips.prototype.boostBasePower_Ball = function (BattleRoom, move, pokemon, min, max) {
 		var myPokemon = BattleRoom.myPokemon[pokemon.slot];
 		var ability = Tools.getAbility(myPokemon.baseAbility).name;
 		var item = Tools.getItem(myPokemon.item);
@@ -45,6 +43,7 @@ var BattleTooltips = (function () {
 		var splitItemName = item.name.split(' ');
 		var moveName = move.name;
 		var itemCheck = false;
+		var basePowerComment = '';
 		if (!BattleRoom.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 			if (splitItemName[1] == 'Gem' && moveType == splitItemName[0]) {
 				min *= BattleRoom.battle.gen >= 6 ? 1.3 : 1.5;
