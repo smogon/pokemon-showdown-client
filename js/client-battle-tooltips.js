@@ -4,8 +4,7 @@ var BattleTooltips = (function () {
 		var myPokemon = BattleRoom.myPokemon[pokemon.slot];
 		if (!BattleRoom.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 			var item = Tools.getItem(myPokemon.item);
-			var pos = BattleRoom.choice.choices.length;
-			var moveType = BattleRoom.getMoveType(move, BattleRoom.battle.mySide.active[pos]);
+			var moveType = BattleRoom.getMoveType(move, pokemon);
 			var splitItemName = item.name.split(' ');
 			var moveName = move.name;
 			if (basePower) {
@@ -38,8 +37,7 @@ var BattleTooltips = (function () {
 		var myPokemon = BattleRoom.myPokemon[pokemon.slot];
 		var ability = Tools.getAbility(myPokemon.baseAbility).name;
 		var item = Tools.getItem(myPokemon.item);
-		var pos = BattleRoom.choice.choices.length;
-		var moveType = BattleRoom.getMoveType(move, BattleRoom.battle.mySide.active[pos]);
+		var moveType = BattleRoom.getMoveType(move, pokemon);
 		var splitItemName = item.name.split(' ');
 		var moveName = move.name;
 		var itemCheck = false;
