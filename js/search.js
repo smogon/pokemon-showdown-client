@@ -769,6 +769,7 @@
 				if (id === 'hyperbeam' || id === 'wrap' || id === 'clamp') isViable = (this.gen === 1);
 				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
+				if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
 				if (isViable) {
 					if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
 					usableMoves.push(['move', id]);
