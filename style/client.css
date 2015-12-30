@@ -86,6 +86,13 @@ hr {
 	border-right: 0;
 }
 
+button {
+	cursor: pointer;
+}
+button:disabled {
+	cursor: default;
+}
+
 /*********************************************************
  * Header
  *********************************************************/
@@ -115,9 +122,6 @@ hr {
 	text-shadow: 1px 1px 0 #f8f8f8, 1px -1px 0 #f8f8f8, -1px 1px 0 #f8f8f8, -1px -1px 0 #f8f8f8;
 }
 .username {
-	cursor: pointer;
-}
-.userbar button {
 	cursor: pointer;
 }
 .userbar button.icon {
@@ -537,7 +541,6 @@ p.or:after {
 }
 .popupmenu button {
 	display: block;
-	cursor: pointer;
 	font-size: 8pt;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	margin: 0 0 0 6px;
@@ -580,7 +583,6 @@ p.or:after {
 	width: 184px;
 }
 .select, .team {
-	cursor: pointer;
 	width: 230px;
 	height: 32px;
 	padding: 0 5px;
@@ -1517,7 +1519,6 @@ a.ilink.yours {
 	white-space: nowrap;
 	font: 9pt Verdana, sans-serif;
 	text-align: left;
-	cursor: pointer;
 }
 /* Remove Firefox's magic padding */
 .userlist li button::-moz-focus-inner {
@@ -1669,7 +1670,6 @@ a.ilink.yours {
 }
 .shiftselect button {
 	color: #445588;
-	cursor: pointer;
 }
 .moveselect button {
 	color: #884422;
@@ -1817,7 +1817,6 @@ a.ilink.yours {
 .movemenu button {
 	position: relative;
 	outline: none;
-	cursor: pointer;
 	text-align: center;
 	text-decoration: none;
 	text-shadow: 0 1px 0 rgba(255,255,255,.4);
@@ -1910,7 +1909,6 @@ a.ilink.yours {
 		bottom: 20px;
 	}
 	.moveselect button, .switchselect button, .shiftselect button {
-		cursor: pointer;
 		padding: 4px 8px;
 		border-radius: 6px;
 		background: #E5E5E5;
@@ -2240,7 +2238,6 @@ a.ilink.yours {
 	height: 44px;
 	float: left;
 	width: 88px;
-	cursor: pointer;
 	white-space: pre;
 	font-size: 8pt;
 	font-family: Verdana, Arial, sans-serif;
@@ -2309,7 +2306,6 @@ a.ilink.yours {
 }
 .setmenu button,
 .teamlist button {
-	cursor: pointer;
 	background: transparent;
 	border: 1px solid transparent;
 	border-radius: 4px;
@@ -2426,7 +2422,6 @@ a.ilink.yours {
 	padding: 1px;
 	margin: 2px 2px 1px 1px;
 	font-size: 7pt;
-	cursor: pointer;
 
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
@@ -2913,7 +2908,6 @@ a.ilink.yours {
 	border: 1px solid #E1E8E8;
 	border-radius: 4px;
 	box-shadow: none;
-	cursor: pointer;
 	background: transparent;
 }
 .avatarlist button {
