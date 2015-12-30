@@ -2826,6 +2826,7 @@
 
 			var baseStat = template.baseStats[stat];
 			var iv = (set.ivs[stat] || 0);
+			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
 			if (evOverride !== undefined) ev = evOverride;
 			if (ev === undefined) ev = (this.curTeam.gen > 2 ? 0 : 252);
