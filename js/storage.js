@@ -225,7 +225,6 @@ try {
 } catch (e) {}
 
 Storage.prefs.save = function () {
-	if (!window.localStorage) return;
 	try {
 		localStorage.setItem('showdown_prefs', $.toJSON(this.data));
 	} catch (e) {}
@@ -419,9 +418,11 @@ Storage.loadTeams = function () {
 		return;
 	}
 	this.teams = [];
-	if (window.localStorage) {
-		Storage.loadPackedTeams(localStorage.getItem('showdown_teams'));
-	}
+	try {
+		if (window.localStorage) {
+			Storage.loadPackedTeams(localStorage.getItem('showdown_teams'));
+		}
+	} catch (e) {}
 };
 
 Storage.loadPackedTeams = function (buffer) {
@@ -438,16 +439,16 @@ Storage.loadPackedTeams = function (buffer) {
 };
 
 Storage.saveTeams = function () {
-	if (window.localStorage) {
-		Storage.cantSave = false;
-		try {
+	try {
+		if (window.localStorage) {
 			localStorage.setItem('showdown_teams', Storage.packAllTeams(this.teams));
-		} catch (e) {
-			if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
-				Storage.cantSave = true;
-			} else {
-				throw e;
-			}
+			Storage.cantSave = false;
+		}
+	} catch (e) {
+		if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
+			Storage.cantSave = true;
+		} else {
+			throw e;
 		}
 	}
 };
