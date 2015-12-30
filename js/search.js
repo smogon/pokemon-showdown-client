@@ -155,6 +155,7 @@
 		var queryAlias;
 		if (query in BattleAliases) {
 			queryAlias = toId(BattleAliases[query]);
+			if (query === 'pika' || query === 'bee') searchPasses.shift();
 			if (queryAlias.slice(0, 11) !== 'hiddenpower') {
 				searchPasses.unshift([1, Search.getClosest(queryAlias), queryAlias]);
 			}
@@ -765,7 +766,9 @@
 				if (id === 'focuspunch') isViable = (toId(set.species) === 'breloom');
 				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
 				if (id === 'counter') isViable = (toId(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1});
-				if (id === 'hyperbeam') isViable = (this.gen === 1);
+				if (id === 'hyperbeam' || id === 'wrap' || id === 'clamp') isViable = (this.gen === 1);
+				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
+				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
 				if (isViable) {
 					if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
 					usableMoves.push(['move', id]);

@@ -406,7 +406,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						unreleasedItems.push(id);
 					} else if (item.name === "Flying Gem") {
 						greatItems.push(id);
-					} else if (item.name === "Flying Gem") {
+					} else {
 						goodItems.push(id);
 					}
 				} else if (item.name.endsWith(" Drive")) {
