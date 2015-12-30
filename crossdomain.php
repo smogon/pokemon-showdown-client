@@ -115,10 +115,14 @@ function messageHandler(e) {
 
 	switch (data.charAt(0)) {
 	case 'T':
-		localStorage.setItem('showdown_teams', data.substr(1));
+		try {
+			localStorage.setItem('showdown_teams', data.substr(1));
+		} catch (e) {}
 		break;
 	case 'P':
-		localStorage.setItem('showdown_prefs', data.substr(1));
+		try {
+			localStorage.setItem('showdown_prefs', data.substr(1));
+		} catch (e) {}
 		break;
 	case 'R':
 	case 'S':
@@ -138,17 +142,17 @@ function messageHandler(e) {
 
 window.addEventListener('message', messageHandler);
 if (config.host !== 'showdown') postMessage('c' + config);
-var testVal = '' + Date.now();
 try {
+	var testVal = '' + Date.now();
 	localStorage.setItem('showdown_allow3p', testVal);
+	if (localStorage.getItem('showdown_allow3p') === testVal) {
+		postMessage('a1');
+		postMessage('p' + localStorage.getItem('showdown_prefs'));
+		postMessage('t' + localStorage.getItem('showdown_teams'));
+	} else {
+		postMessage('a0');
+	}
 } catch (err) {}
-if (localStorage.getItem('showdown_allow3p') === testVal) {
-	postMessage('a1');
-	postMessage('p' + localStorage.getItem('showdown_prefs'));
-	postMessage('t' + localStorage.getItem('showdown_teams'));
-} else {
-	postMessage('a0');
-}
 
 if (location.protocol + '//' + location.hostname !== myOrigin) {
 	// This happens sometimes, but we'll pretend it doesn't
