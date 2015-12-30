@@ -1429,19 +1429,8 @@
 				else if (maxRatio >= 2) max = 80;
 				else if (maxRatio >= 1) max = 60;
 				else max = 40;
-				// Special case due to being a range. Other moves are checked by technician below.
-				basePower = 0;
-				if (!myPokemon.item) {
-					if (ability === 'Technician') {
-						if (min <= 60) min *= 1.5;
-						if (max <= 60) max *= 1.5;
-						basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
-					} else {
-						basePowerComment = (min === max) ? max : min + ' to ' + max;
-					}
-				} else {
-					return Tooltips.boostBasePower_Ball(this, move, pokemon, target, basePower, basePowerComment, min, max);
-				}
+				// Special case due to being a range.
+				return Tooltips.boostBasePower_Ball(this, move, pokemon, min, max);
 			}
 			if (move.id === 'gyroball') {
 				var template = target;
@@ -1451,18 +1440,7 @@
 				if (min > 150) min = 150;
 				if (max > 150) max = 150;
 				// Special case due to range as well.
-				basePower = 0;
-				if (!myPokemon.item) {
-					if (ability === 'Technician') {
-						if (min <= 60) min *= 1.5;
-						if (max <= 60) max *= 1.5;
-						basePowerComment = '' + ((min === max) ? max : min + ' to ' + max) + ' (Technician boosted)';
-					} else {
-						basePowerComment = (min === max) ? max : min + ' to ' + max;
-					}
-				} else {
-					return Tooltips.boostBasePower_Ball(this, move, pokemon, target, basePower, basePowerComment, min, max);
-				}
+				return Tooltips.boostBasePower_Ball(this, move, pokemon, min, max);
 			}
 			// Movements which have base power changed due to items.
 			if (myPokemon.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
@@ -1513,11 +1491,7 @@
 					basePowerComment = ' (' + ability + ' boosted)';
 				}
 			}
-			if (myPokemon.item) {
-				return Tooltips.boostBasePower(this, move, pokemon, target, basePower, basePowerComment);
-			} else {
-				return basePower == 0 ? basePowerComment : basePower + basePowerComment;
-			}
+			return Tooltips.boostBasePower(this, move, pokemon, basePower, basePowerComment);
 		}
 	});
 
