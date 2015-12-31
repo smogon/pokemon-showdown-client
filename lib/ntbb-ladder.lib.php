@@ -116,7 +116,7 @@ class NTBBLadder {
 	var $rplen;
 	var $rpoffset;
 
-	function __construct($serverid, $formatid) {
+	function __construct($formatid) {
 		// serverid is no longer used
 		$this->formatid = preg_replace('/[^a-z0-9]+/', '', strtolower($formatid));
 		$this->rplen = 24*60*60;
