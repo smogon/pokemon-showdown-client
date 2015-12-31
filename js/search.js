@@ -946,6 +946,16 @@
 		var stats = pokemon.baseStats;
 		if (gen < 6) {
 			var overrideStats = BattleTeambuilderTable['gen' + gen].overrideStats[id];
+			if (overrideStats || gen === 1) {
+				stats = {
+					hp: pokemon.baseStats.hp,
+					atk: pokemon.baseStats.atk,
+					def: pokemon.baseStats.def,
+					spa: pokemon.baseStats.spa,
+					spd: pokemon.baseStats.spd,
+					spe: pokemon.baseStats.spe
+				};
+			}
 			if (overrideStats) {
 				if ('hp' in overrideStats) stats.hp = overrideStats.hp;
 				if ('atk' in overrideStats) stats.atk = overrideStats.atk;
