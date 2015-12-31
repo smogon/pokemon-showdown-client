@@ -503,7 +503,7 @@ class LadderActionHandler {
 			return;
 		}
 
-		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
+		$ladder = new NTBBLadder(@$reqData['format']);
 		$p1 = $this->getUserData(@$reqData['p1']);
 		$p2 = $this->getUserData(@$reqData['p2']);
 		if (!$p1 || !$p2) {
@@ -530,7 +530,7 @@ class LadderActionHandler {
 			die;
 		}
 
-		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
+		$ladder = new NTBBLadder(@$reqData['format']);
 		$user = $this->getUserData(@$reqData['user']);
 		if (!$user) die;
 		$ladder->getAllRatings($user);
@@ -547,7 +547,7 @@ class LadderActionHandler {
 			return;
 		}
 
-		$ladder = new NTBBLadder($server['id'], @$reqData['format']);
+		$ladder = new NTBBLadder(@$reqData['format']);
 		$user = $this->getUserData(@$reqData['user']);
 		$out = 1000;
 		if ($user) {
