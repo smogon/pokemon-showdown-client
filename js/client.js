@@ -753,7 +753,7 @@
 			} else if ((data + '|').substr(0, 8) === '|expire|') {
 				var room = this.rooms[roomid];
 				if (room) {
-					room.expired = true;
+					room.expired = (data.substr(8) || true);
 					if (room.updateUser) room.updateUser();
 				}
 				return;
