@@ -71,8 +71,8 @@
 			buf += '<p><strong>Elo</strong> is the main ladder rating. It\'s a pretty normal ladder rating: goes up when you win and down when you lose.</p>';
 			buf += '<p><strong>GXE</strong> (Glicko X-Act Estimate) is an estimate of your win chance against an average ladder player.</p>';
 			buf += '<p><strong>Glicko-1</strong> is a different rating system. It has rating and deviation values.</p>';
-			buf += '<p><strong>COIL</strong> is mainly used for ladders.</p>';
-			buf += '<p>We do not display win/loss stats because we don\'t want people to keep creating new accounts until they get a good win/loss value, and your win/loss should be 50-50 since you should be playing with other people about as good as you. Please use GXE instead, as it accurately estimates your "real" win/loss ratio.</p>';
+			buf += '<p><strong>COIL</strong> (Converging Order Invariant Ladder) is mainly used for suspect tests. It goes up as you play games, but not too many games.</p>';
+			buf += '<p>Note that win/loss should not be used to estimate skill, since who you play against is much more important than how many times you win or lose. Our other stats like Elo and GXE are much better for estimating skill.</p>';
 			buf += '</div>';
 			this.$el.html(buf);
 		},
