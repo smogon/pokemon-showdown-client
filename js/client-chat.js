@@ -685,11 +685,11 @@
 				}, Tools.safeJSON(function (data) {
 					try {
 						var buffer = '<div class="ladder"><table>';
-						buffer += '<tr><td colspan="6">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
+						buffer += '<tr><td colspan="8">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
 						if (!data.length) {
-							buffer += '<tr><td colspan="6"><em>This user has not played any ladder games yet.</em></td></tr>';
+							buffer += '<tr><td colspan="8"><em>This user has not played any ladder games yet.</em></td></tr>';
 						} else {
-							buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>Games played</th><th class="wlt" style="display:none">W</th><th class="wlt" style="display:none">L</th><th class="wlt" style="display:none">T</th>';
+							buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
 							var hiddenFormats = [];
 							var formatLength = data.length;
 							for (var i = 0; i < formatLength; i++) {
@@ -730,17 +730,20 @@
 								} else {
 									buffer += '<td>--</td>';
 								}
-								buffer += '<td>' + N + '</td></td>';
-								buffer += '<td class="wlt" style="display:none">' + row.w + '</td><td class="wlt" style="display:none">' + row.l + '</td><td class="wlt" style="display:none">' + row.t + '</td></tr>';
+								buffer += '<td>' + row.w + '</td><td>' + row.l + '</td><td>' + N + '</td></tr>';
 							}
 							if (hiddenFormats.length) {
 								if (hiddenFormats.length === formatLength) {
 									buffer += '<tr class="no-matches"><td colspan="6"><em>This user has not played any ladder games that match the format targeting.</em></td></tr>';
 								}
 
-								buffer += '<tr><td colspan="6"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
+								buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
 							}
-							buffer += '<tr><td colspan="6" style="text-align:right"><button name="explainWLGone">W/L</button></tr></td>';
+							var userid = toId(targets[0]);
+							var registered = app.user.get('registered');
+							if (registered && registered.userid === userid) {
+								buffer += '<tr><td colspan="8" style="text-align:right"><a href="//pokemonshowdown.com/users/' + userid + '">Reset W/L</a></tr></td>';
+							}
 						}
 						buffer += '</table></div>';
 						self.add('|raw|' + buffer);
@@ -900,18 +903,6 @@
 			var name = data.name || this.challengeData.userid;
 			if (/^[a-z0-9]/i.test(name)) name = ' ' + name;
 			app.rooms[''].challenge(name, this.challengeData.format, this.challengeData.team);
-		},
-
-		explainWLGone: function (v, el) {
-			app.addPopup(Popup, {
-				message: "**W/L is not a measure of how good you are.** Matchmaking pairs you with people approximately as good as you, so a high W/L doesn't mean you're good and a low W/L doesn't mean you're bad. W/L doesn't mean much.\n\nPlease use GXE instead, as it accurately estimates your \"real\" win/loss ratio.​",
-				buttons: '<button name="close" class="autofocus"><strong>OK</strong></button> <button type="submit">It doesn\'t measure how good you are but I still want to see it</button>',
-				submit: function () {
-					$(el).closest('table').find('.wlt').show();
-					$(el).closest('tr').hide();
-					this.close();
-				}
-			});
 		},
 
 		showOtherFormats: function (d, target) {
