@@ -142,6 +142,7 @@ function messageHandler(e) {
 
 window.addEventListener('message', messageHandler);
 if (config.host !== 'showdown') postMessage('c' + config);
+var storageAvailable = false;
 try {
 	var testVal = '' + Date.now();
 	localStorage.setItem('showdown_allow3p', testVal);
@@ -149,10 +150,13 @@ try {
 		postMessage('a1');
 		postMessage('p' + localStorage.getItem('showdown_prefs'));
 		postMessage('t' + localStorage.getItem('showdown_teams'));
-	} else {
-		postMessage('a0');
+		storageAvailable = true;
 	}
 } catch (err) {}
+
+if (!storageAvailable) {
+	postMessage('a0');
+}
 
 if (location.protocol + '//' + location.hostname !== myOrigin) {
 	// This happens sometimes, but we'll pretend it doesn't
