@@ -1144,6 +1144,8 @@
 				text += '</h2>';
 				if (pokemon.fainted) {
 					text += '<p>HP: (fainted)</p>';
+				} else if (myPokemon) {
+					text += '<p>HP: ' + myPokemon.hpDisplay() + ' (' + myPokemon.hp + '/' + myPokemon.maxhp + ')' + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
 				} else {
 					var exacthp = '';
 					if (pokemon.maxhp != 100 && pokemon.maxhp != 1000 && pokemon.maxhp != 48) exacthp = ' (' + pokemon.hp + '/' + pokemon.maxhp + ')';
