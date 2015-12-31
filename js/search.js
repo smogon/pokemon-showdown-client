@@ -770,6 +770,7 @@
 				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
 				if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
+				if (id === 'toxic') isViable = (this.gen > 1);
 				if (isViable) {
 					if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
 					usableMoves.push(['move', id]);
