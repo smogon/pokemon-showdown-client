@@ -27,7 +27,7 @@
 			var name = app.user.get('name');
 			var userid = app.user.get('userid');
 			if (this.expired) {
-				this.$chatAdd.html(this.expired === true ? 'This room is expired' : this.expired);
+				this.$chatAdd.text(this.expired === true ? 'This room is expired' : this.expired);
 				this.$chatbox = null;
 			} else if (!name) {
 				this.$chatAdd.html('Connecting...');
