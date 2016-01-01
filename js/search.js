@@ -742,8 +742,13 @@
 						}
 					}
 				}
-				if (!template.prevo) break;
-				template = BattlePokedex[template.prevo];
+				if (template.baseSpecies !== template.species && template.baseSpecies in {Rotom:1, Pumpkaboo:1}) {
+					template = BattlePokedex[toId(template.baseSpecies)];
+				} else if (template.prevo) {
+					template = BattlePokedex[template.prevo];
+				} else {
+					break;
+				}
 			}
 			if (sketch) {
 				moves = [];
