@@ -1701,7 +1701,7 @@ a.ilink.yours {
 	border: 1px solid #AAA;
 	background: #EEE;
 	height: 2px;
-	bottom: 2px; left: 2px; right: 2px;
+	bottom: 2px; left: 4px; right: 2px;
 	border-radius: 2px;
 	opacity: .8;
 }
