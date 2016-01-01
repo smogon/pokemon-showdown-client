@@ -2585,7 +2585,6 @@
 
 			var offenseBias = '';
 			if (stats.spa > stats.atk && moveCount['Special'] > 1) offenseBias = 'Special';
-			else if (stats.spa > stats.atk && moveCount['Special'] > 1) offenseBias = 'Special';
 			else if (moveCount['Special'] > moveCount['Physical']) offenseBias = 'Special';
 			else offenseBias = 'Physical';
 			var offenseStat = stats[offenseBias === 'Special' ? 'spa' : 'atk'];
