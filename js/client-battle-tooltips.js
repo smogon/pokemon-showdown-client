@@ -179,7 +179,7 @@ var BattleTooltips = (function () {
 		text += '<h2>' + move.name + '<br />' + Tools.getTypeIcon(moveType) + ' <img src="' + Tools.resourcePrefix;
 		text += 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" /></h2>';
 		text += basePowerText;
-		text += '<p>' + additionalInfo + '</p>';
+		if (additionalInfo) text += '<p>' + additionalInfo + '</p>';
 		text += '<p>Accuracy: ' + accuracy + '</p>';
 		var flags = {
 			"authentic": "Ignores a target's substitute.",
