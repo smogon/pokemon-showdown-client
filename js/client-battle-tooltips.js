@@ -221,7 +221,7 @@ var BattleTooltips = (function () {
 				if ('authentic' in move.flags) {
 					text += '<p class="movetag">Bypasses Substitute <small>(but does not break it)</small></p>';
 				}
-				if (!('protect' in move.flags) && move.target !== 'self' && move.category === 'Status') {
+				if (!('reflectable' in move.flags) && move.target !== 'self' && move.category === 'Status') {
 					text += '<p class="movetag">&#x2713; Nonreflectable <small>(can\'t be bounced by Magic Coat/Bounce)</small></p>';
 				}
 				if (!('mirror' in move.flags) && move.target !== 'self') {
