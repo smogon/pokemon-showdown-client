@@ -215,20 +215,14 @@ var BattleTooltips = (function () {
 				if ('defrost' in move.flags) {
 					text += '<p>The user thaws out if it is frozen.</p>';
 				}
-				if (!('protect' in move.flags) && move.target !== 'self') {
+				if (!('protect' in move.flags) && move.target !== 'self' && move.target !== 'allySide' && move.target !== 'allyTeam') {
 					text += '<p class="movetag">Bypasses Protect <small>(and Detect, King\'s Shield, Spiky Shield)</small></p>';
 				}
 				if ('authentic' in move.flags) {
 					text += '<p class="movetag">Bypasses Substitute <small>(but does not break it)</small></p>';
 				}
-				if (!('reflectable' in move.flags) && move.target !== 'self' && move.category === 'Status') {
-					text += '<p class="movetag">&#x2713; Nonreflectable <small>(can\'t be bounced by Magic Coat/Bounce)</small></p>';
-				}
-				if (!('mirror' in move.flags) && move.target !== 'self') {
-					text += '<p class="movetag">&#x2713; Nonmirror <small>(can\'t be copied by Mirror Move)</small></p>';
-				}
-				if (!('snatch' in move.flags) && (move.target === 'self' || move.target === 'allyTeam' || move.target === 'adjacentAllyOrSelf')) {
-					text += '<p class="movetag">&#x2713; Nonsnatchable <small>(can\'t be copied by Snatch)</small></p>';
+				if (!('reflectable' in move.flags) && move.target !== 'self' && move.target !== 'allySide' && move.target !== 'allyTeam' && move.category === 'Status') {
+					text += '<p class="movetag">&#x2713; Not bounceable <small>(can\'t be bounced by Magic Coat/Bounce)</small></p>';
 				}
 
 				if ('contact' in move.flags) {
