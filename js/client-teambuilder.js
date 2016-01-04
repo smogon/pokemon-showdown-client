@@ -1655,11 +1655,40 @@
 			}
 			return 'http://smogon.com/dex/' + generation + '/pokemon/' + smogdexid + '/';
 		},
+		getBaseStats: function (template) {
+			var baseStats = template.baseStats;
+			var gen = this.curTeam.gen;
+			if (gen < 6) {
+				var overrideStats = BattleTeambuilderTable['gen' + gen].overrideStats[template.id];
+				if (overrideStats || gen === 1) {
+					baseStats = {
+						hp: template.baseStats.hp,
+						atk: template.baseStats.atk,
+						def: template.baseStats.def,
+						spa: template.baseStats.spa,
+						spd: template.baseStats.spd,
+						spe: template.baseStats.spe
+					};
+				}
+				if (overrideStats) {
+					if ('hp' in overrideStats) baseStats.hp = overrideStats.hp;
+					if ('atk' in overrideStats) baseStats.atk = overrideStats.atk;
+					if ('def' in overrideStats) baseStats.def = overrideStats.def;
+					if ('spa' in overrideStats) baseStats.spa = overrideStats.spa;
+					if ('spd' in overrideStats) baseStats.spd = overrideStats.spd;
+					if ('spe' in overrideStats) baseStats.spe = overrideStats.spe;
+				}
+				if (gen === 1) baseStats.spd = 0;
+			}
+			return baseStats;
+		},
 		updateStatForm: function (setGuessed) {
 			var buf = '';
 			var set = this.curSet;
 			var template = Tools.getTemplate(this.curSet.species);
-			var baseStats = template.baseStats;
+
+			var baseStats = this.getBaseStats(template);
+
 			buf += '<div class="resultheader"><h3>EVs</h3></div>';
 			buf += '<div class="statform">';
 			var role = this.guessRole();
@@ -2395,7 +2424,7 @@
 			};
 			var hasMove = {};
 			var template = Tools.getTemplate(set.species || set.name);
-			var stats = template.baseStats;
+			var stats = this.getBaseStats(template);
 			var itemid = toId(set.item);
 			var abilityid = toId(set.ability);
 
@@ -2646,7 +2675,7 @@
 			var set = this.curSet;
 			if (!set) return {};
 			var template = Tools.getTemplate(set.species || set.name);
-			var stats = template.baseStats;
+			var stats = this.getBaseStats(template);
 
 			var hasMove = this.hasMove;
 			var moveCount = this.moveCount;
@@ -2824,7 +2853,7 @@
 			if (!set.level) set.level = 100;
 			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
 
-			var baseStat = template.baseStats[stat];
+			var baseStat = (this.getBaseStats(template))[stat];
 			var iv = (set.ivs[stat] || 0);
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
