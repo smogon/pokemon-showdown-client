@@ -1552,11 +1552,11 @@
 			var rooms = this.roomList.concat(this.sideRoomList);
 			for (var i = 0; i < rooms.length; i++) {
 				var room = rooms[i];
-				if (room.type !== 'chat' || room.id === 'lobby') continue;
+				if (room.type !== 'chat') continue;
 				autojoins.push(room.id.indexOf('-') >= 0 ? room.id : (room.title || room.id));
 				if (room.id === 'staff' || room.id === 'upperstaff') continue;
 				autojoinCount++;
-				if (autojoinCount >= 8) break;
+				if (autojoinCount >= 10) break;
 			}
 			Tools.prefs('autojoin', autojoins.join(','));
 		},
