@@ -302,7 +302,11 @@
 					act: 'upkeep',
 					challstr: this.challstr
 				}, Tools.safeJSON(function (data) {
-					if (!data.username) return;
+					self.loaded = true;
+					if (!data.username) {
+						app.topbar.updateUserbar();
+						return;
+					}
 
 					// | , ; are not valid characters in names
 					data.username = data.username.replace(/[\|,;]+/g, '');
@@ -1669,7 +1673,9 @@
 			var buf = '';
 			var name = ' ' + app.user.get('name');
 			var color = hashColor(app.user.get('userid'));
-			if (app.user.get('named')) {
+			if (!app.user.loaded) {
+				buf = '<button disabled>Loading...</button> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="fa fa-cog"></i></button>';
+			} else if (app.user.get('named')) {
 				buf = '<span class="username" data-name="' + Tools.escapeHTML(name) + '" style="' + color + '"><i class="fa fa-user" style="color:#779EC5"></i> ' + Tools.escapeHTML(name) + '</span> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="fa fa-cog"></i></button>';
 			} else {
 				buf = '<button name="login">Choose name</button> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="fa fa-cog"></i></button>';
