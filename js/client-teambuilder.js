@@ -155,8 +155,16 @@
 			}
 
 			if (!Storage.whenTeamsLoaded.isLoaded) {
-				buf = '<div class="pad"><p>lol zarel this is a horrible teambuilder</p>';
-				buf += '<p>that\'s because we\'re not done loading it...</p></div>';
+				if (!Storage.whenTeamsLoaded.isStalled) {
+					buf = '<div class="pad"><p>lol zarel this is a horrible teambuilder</p>';
+					buf += '<p>that\'s because we\'re not done loading it...</p></div>';
+				} else {
+					buf = '<div class="pad"><p>We\'re having some trouble loading teams securely.</p>';
+					buf += '<p>This is sometimes caused by antiviruses like Avast and BitDefender.</p>';
+					buf += '<p><strong>If you\'re using Firefox and an antivirus:</strong> Your antivirus is trying to scan your teams, and a recent Firefox update doesn\'t let it. Turn off HTTPS scanning in your antivirus or uninstall your antivirus, and your teams will come back.</p>';
+					buf += '<p>You can use the teambuilder insecurely, but any teams you\'ve saved securely won\'t be there.</p>';
+					buf += '<p><button class="button" name="insecureUse">Use teambuilder insecurely</button></p></div>';
+				}
 				this.$el.html(buf);
 				return;
 			}
@@ -173,6 +181,10 @@
 
 			this.updateFolderList();
 			this.updateTeamList();
+		},
+		insecureUse: function () {
+			Storage.whenTeamsLoaded.load();
+			this.updateTeamInterface();
 		},
 		updateFolderList: function () {
 			var buf = '<div class="folderlist"><div class="folderlistbefore"></div>';
