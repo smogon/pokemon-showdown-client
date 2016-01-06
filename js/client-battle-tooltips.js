@@ -448,6 +448,12 @@ var BattleTooltips = (function () {
 		if (ability === 'Normalize') {
 			moveType = 'Normal';
 		}
+		if (move.id === 'bite' && this.battle.gen <= 1) {
+			moveType = 'Normal';
+		}
+		if ((move.id === 'charm' || move.id === 'moonlight' || move.id === 'sweetkiss') && this.battle.gen <= 5) {
+			moveType = 'Normal';
+		}
 		// Moves that require an item to change their type.
 		if (!this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 			if (move.id === 'judgment') {
