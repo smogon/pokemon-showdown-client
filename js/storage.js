@@ -269,6 +269,18 @@ Storage.initPrefs = function () {
 		$(
 			'<iframe src="https://play.pokemonshowdown.com/crossprotocol.html?v1.2" style="display: none;"></iframe>'
 		).appendTo('body');
+		setTimeout(function () {
+			// HTTPS may be blocked
+			// yes, this happens, blame Avast! and BitDefender and other antiviruses
+			// that feel a need to MitM HTTPS poorly
+			Storage.whenPrefsLoaded.load();
+			if (!Storage.whenTeamsLoaded.isLoaded) {
+				Storage.whenTeamsLoaded.isStalled = true;
+				if (window.app && app.rooms['teambuilder']) {
+					app.rooms['teambuilder'].updateTeamInterface();
+				}
+			}
+		}, 2000);
 	}
 };
 
