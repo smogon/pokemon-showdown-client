@@ -451,7 +451,9 @@
 					this.parseCommand('/help ignore');
 					return false;
 				}
-				if (app.ignore[toUserid(target)]) {
+				if (toUserid(target) === app.user.get('userid')) {
+					this.add("You are not able to ignore yourself.");
+				} else if (app.ignore[toUserid(target)]) {
 					this.add("User '" + toName(target) + "' is already on your ignore list. (Moderator messages will not be ignored.)");
 				} else {
 					app.ignore[toUserid(target)] = 1;
