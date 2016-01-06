@@ -1159,10 +1159,13 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		buf += Tools.getTypeIcon(move.type);
+		var type = move.type;
+		if (this.gen <= 1 && id === 'bite') type = 'Normal';
+		if (this.gen <= 5 && (id === 'charm' || id === 'moonlight' || id === 'sweetkiss')) type = 'Normal';
+		buf += Tools.getTypeIcon(type);
 		var category = move.category;
 		if (this.gen <= 3 && move.category !== 'Status') {
-			category = (move.type in {Fire:1, Water:1, Grass:1, Electric:1, Ice:1, Psychic:1, Dark:1, Dragon:1} ? 'Special' : 'Physical');
+			category = (type in {Fire:1, Water:1, Grass:1, Electric:1, Ice:1, Psychic:1, Dark:1, Dragon:1} ? 'Special' : 'Physical');
 		}
 		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32" />';
 		buf += '</span> ';
