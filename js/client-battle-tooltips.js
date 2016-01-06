@@ -411,7 +411,7 @@ var BattleTooltips = (function () {
 			}
 			maxpp = Math.floor(maxpp * 8 / 5);
 		}
-		if (!ppUsed) return '';
+		if (!ppUsed) return move.name;
 		return move.name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
 	};
 
