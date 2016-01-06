@@ -489,6 +489,7 @@
 
 			$(window).on('beforeunload', function (e) {
 				if (Config.server && Config.server.host === 'localhost') return;
+				if (app.isDisconnected) return;
 				for (var id in self.rooms) {
 					var room = self.rooms[id];
 					if (room && room.requestLeave && !room.requestLeave()) return "You have active battles.";
