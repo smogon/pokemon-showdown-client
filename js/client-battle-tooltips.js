@@ -448,7 +448,7 @@ var BattleTooltips = (function () {
 		if (ability === 'Normalize') {
 			moveType = 'Normal';
 		}
-		if (move.id === 'bite' && this.battle.gen <= 1) {
+		if ((move.id === 'bite' || move.id === 'gust' || move.id === 'karatechop' || move.id === 'sandattack') && this.battle.gen <= 1) {
 			moveType = 'Normal';
 		}
 		if ((move.id === 'charm' || move.id === 'moonlight' || move.id === 'sweetkiss') && this.battle.gen <= 5) {
