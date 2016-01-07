@@ -259,6 +259,7 @@ var Pokemon = (function () {
 		}
 		return lower + separator + upper + '%';
 	};
+	// Returns [min, max] damage dealt as a proportion of total HP from 0 to 1
 	Pokemon.prototype.getDamageRange = function (damage) {
 		if (damage[1] !== 48) {
 			var ratio = damage[0] / damage[1];
@@ -3382,7 +3383,7 @@ var Battle = (function () {
 						break;
 					}
 				} else {
-					var damageinfo = '' + poke.getFormattedRange(range, 1, '–');
+					var damageinfo = '' + poke.getFormattedRange(range, damage[1] === 100 ? 0 : 1, '–');
 					if (damage[1] !== 100) {
 						var hover = '' + ((damage[0] < 0) ? '&minus;' : '') +
 							Math.abs(damage[0]) + '/' + damage[1];
