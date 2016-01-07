@@ -6010,7 +6010,6 @@ var Battle = (function () {
 				this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + '</div>', preempt);
 				if (e.stack) {
 					var stack = '' + e.stack;
-					stack = stack.split("\n").slice(0, 2).join("\n");
 					this.log('<div class="chat" style="white-space:pre-wrap">' + Tools.escapeHTML(stack) + '</div>', preempt);
 				} else {
 					this.log('<div class="chat">Error: ' + Tools.escapeHTML('' + e) + '</div>', preempt);
