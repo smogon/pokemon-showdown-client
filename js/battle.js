@@ -334,8 +334,8 @@ var Pokemon = (function () {
 		if (details === this.details) return true;
 		if (!this.needsReplace) return false;
 		// the actual forme was hidden on Team Preview
-		details = details.replace(/-[A-Za-z0-9]+(, |$)/, '-*$1');
-		return (details === this.details);
+		details = details.replace(/-[A-Za-z0-9]+(, |$)/, '$1');
+		return (details === this.details.replace(/-\*(, |$)/, '$1'));
 	};
 	Pokemon.prototype.getIdent = function () {
 		var slots = ['a', 'b', 'c', 'd', 'e', 'f'];
