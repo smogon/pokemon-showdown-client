@@ -364,7 +364,7 @@
 			if (this.down) {
 				this.isDisconnected = true;
 			} else if ($(window).width() >= 916) {
-				if (document.location.hostname === 'play.pokemonshowdown.com') {
+				if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
 					this.addRoom('rooms', null, true);
 					Storage.whenPrefsLoaded(function () {
 						var autojoin = (Tools.prefs('autojoin') || '');
