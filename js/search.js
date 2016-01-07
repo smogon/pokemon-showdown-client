@@ -1160,7 +1160,7 @@
 		// type
 		buf += '<span class="col typecol">';
 		var type = move.type;
-		if (this.gen <= 1 && id === 'bite') type = 'Normal';
+		if (this.gen <= 1 && (id === 'bite' || id === 'gust' || id === 'karatechop' || id === 'sandattack')) type = 'Normal';
 		if (this.gen <= 5 && (id === 'charm' || id === 'moonlight' || id === 'sweetkiss')) type = 'Normal';
 		buf += Tools.getTypeIcon(type);
 		var category = move.category;
