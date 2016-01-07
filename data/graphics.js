@@ -1552,6 +1552,58 @@ var BattleMoveAnims = {
 			}, 'accel', 'explode');
 		}
 	},
+	aurasphere: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.backgroundEffect('#cc9900',700,.6);
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(-30),
+				scale: 3,
+				opacity: .3
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(-30),
+				scale: .6,
+				opacity: 1,
+				time: 300
+			}, 'decel', 'fade');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(-30),
+				scale: 3,
+				opacity: .3,
+				time: 100
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(-30),
+				scale: .8,
+				opacity: .6,
+				time: 400
+			}, 'decel', 'fade');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(-30),
+				scale: .6,
+				opacity: .8,
+				time: 400
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(40),
+				scale: 1,
+				opacity: .8,
+				time: 800
+			}, 'accel', 'explode');
+		}
+	},
 	technoblast: {
 		anim: function(battle, args) {
 			var attacker = args[0];
@@ -11700,8 +11752,6 @@ BattleMoveAnims['horndrill'] = {anim:BattleMoveAnims['gigaimpact'].anim};
 BattleMoveAnims['hornattack'] = {anim:BattleMoveAnims['gigaimpact'].anim};
 BattleMoveAnims['trumpcard'] = {anim:BattleMoveAnims['gigaimpact'].anim};
 BattleMoveAnims['crosspoison'] = {anim:BattleMoveAnims['xscissor'].anim};
-
-BattleMoveAnims['aurasphere'] = {anim:BattleMoveAnims['focusblast'].anim};
 
 BattleMoveAnims['paleowave'] = {anim:BattleMoveAnims['powergem'].anim};
 BattleMoveAnims['ancientpower'] = {anim:BattleMoveAnims['powergem'].anim};
