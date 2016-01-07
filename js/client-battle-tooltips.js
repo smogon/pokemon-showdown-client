@@ -367,7 +367,7 @@ var BattleTooltips = (function () {
 
 		if (myPokemon && !isActive) {
 			text += '<p class="section">';
-			var battlePokemon = this.battle.getPokemon('old: ' + pokemon.ident, pokemon.details);
+			var battlePokemon = this.battle.getPokemon(pokemon.ident, pokemon.details);
 			for (var i = 0; i < myPokemon.moves.length; i++) {
 				var move = Tools.getMove(myPokemon.moves[i]);
 				var name = move.name;
