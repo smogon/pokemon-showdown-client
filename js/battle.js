@@ -328,13 +328,12 @@ var Pokemon = (function () {
 		var deltawidth = this.hpWidth(100) - oldwidth;
 		return [delta, this.maxhp, deltawidth, oldnum, oldcolor];
 	};
-	Pokemon.prototype.checkDetails = function (details, ident) {
+	Pokemon.prototype.checkDetails = function (details) {
 		if (details === this.details) return true;
-		if (this.details.indexOf('-*') < 0) return false;
+		if (!this.needsReplace) return false;
 		// the actual forme was hidden on Team Preview
-		this.needsReplace = true;
-		details = details.replace(/-[A-Za-z0-9]+(, |$)/, '$1');
-		return (details === this.details.replace(/-[A-Za-z0-9*]+(, |$)/, '$1'));
+		details = details.replace(/-[A-Za-z0-9]+(, |$)/, '-*$1');
+		return (details === this.details);
 	};
 	Pokemon.prototype.getIdent = function () {
 		var slots = ['a', 'b', 'c', 'd', 'e', 'f'];
@@ -668,6 +667,7 @@ var Pokemon = (function () {
 		this.hp = this.maxhp;
 		this.zerohp = false;
 		this.fainted = false;
+		this.needsReplace = (this.details.indexOf('-*') >= 0);
 		this.status = '';
 		this.moveTrack = [];
 		this.name = this.name || this.species;
@@ -5460,37 +5460,27 @@ var Battle = (function () {
 		return output;
 	};
 	Battle.prototype.getPokemon = function (pokemonid, details) {
-		var siden = -1;
-		var name = pokemonid;
-		var isNew = false; // if yes, don't match any pokemon that already exists (for Team Preview)
-		var isOld = false; // if yes, match only pokemon that have been revealed, and can match fainted pokemon (now default)
-		var isOther = false; // if yes, don't match an active pokemon (for switching)
-		//var position = 0; // todo: use for position in doubles/triples
-		var getfoe = false;
-		var slot; // if there is an explicit slot for this pokemon
-		var slotChart = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
-		if (typeof pokemonid === 'undefined' || name === '??') return null;
-		if (name.substr(0, 5) === 'foe: ') {
-			name = name.substr(5);
-			pokemonid = name;
-			getfoe = true;
-		}
-		if (name.substr(0, 5) === 'new: ') {
-			name = name.substr(5);
-			pokemonid = name;
+		var isNew = false; // if true, don't match any pokemon that already exists (for Team Preview)
+		var isInactive = false; // if true, don't match an active pokemon (for switching)
+		var createIfNotFound = false; // if true, create the pokemon if a match wasn't found
+
+		if (pokemonid === undefined || pokemonid === '??') return null;
+		if (pokemonid.substr(0, 5) === 'new: ') {
+			pokemonid = pokemonid.substr(5);
 			isNew = true;
-			isOther = true;
+			createIfNotFound = true; // obviously
 		}
-		if (name.substr(0, 7) === 'other: ') {
-			name = name.substr(7);
-			pokemonid = name;
-			isOther = true;
+		if (pokemonid.substr(0, 10) === 'inactive: ') {
+			pokemonid = pokemonid.substr(10);
+			isInactive = true;
+			createIfNotFound = true;
 		}
-		if (name.substr(0, 5) === 'old: ') {
-			name = name.substr(5);
-			pokemonid = name;
-			isOld = true;
-		}
+
+		var name = pokemonid;
+
+		var siden = -1;
+		var slot = -1; // if there is an explicit slot for this pokemon
+		var slotChart = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
 		if (name.substr(0, 4) === 'p2: ' || name === 'p2') {
 			siden = this.p2.n;
 			name = name.substr(4);
@@ -5509,35 +5499,29 @@ var Battle = (function () {
 			pokemonid = 'p1: ' + name;
 		}
 
-		if (!slot) slot = 0;
-
 		if (!details) {
 			if (siden < 0) return null;
 			if (this.sides[siden].active[slot]) return this.sides[siden].active[slot];
 		}
 
-		var species = name;
-		var gender = '';
-		var level = 100;
-		var shiny = false;
 		var searchid = '';
 		if (details) searchid = pokemonid + '|' + details;
 
-		var bestMatchName = null;
+		// search p1's pokemon
 		if (siden !== this.p2.n && !isNew) {
-			if (this.p1.active[slot] && this.p1.active[slot].searchid === searchid && !isOther) {
+			if (this.p1.active[slot] && this.p1.active[slot].searchid === searchid && !isInactive) {
 				this.p1.active[slot].slot = slot;
 				return this.p1.active[slot];
 			}
 			for (var i = 0; i < this.p1.pokemon.length; i++) {
 				var pokemon = this.p1.pokemon[i];
-				if (pokemon.fainted && (isNew || isOther)) continue;
-				if (isOther) {
+				if (pokemon.fainted && (isNew || isInactive)) continue;
+				if (isInactive) {
 					if (this.p1.active.indexOf(pokemon) >= 0) continue;
 					if (pokemon == this.p1.lastPokemon && !this.p1.active[slot]) continue;
 				}
 				if (pokemon.searchid === searchid || (!pokemon.searchid && pokemon.checkDetails(details)) || (!searchid && pokemon.ident === pokemonid)) {
-					if (!pokemon.searchid) {
+					if (!pokemon.searchid && createIfNotFound) {
 						pokemon.name = name;
 						pokemon.searchid = searchid;
 						pokemon.ident = pokemonid;
@@ -5545,25 +5529,27 @@ var Battle = (function () {
 							pokemon = this.p1.newPokemon(this.parseDetails(name, pokemonid, details), i);
 						}
 					}
-					pokemon.slot = slot;
+					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
 				}
 			}
 		}
+
+		// search p2's pokemon
 		if (siden !== this.p1.n && !isNew) {
-			if (this.p2.active[slot] && this.p2.active[slot].searchid === searchid && !isOther) {
-				this.p2.active[slot].slot = slot;
+			if (this.p2.active[slot] && this.p2.active[slot].searchid === searchid && !isInactive) {
+				if (slot >= 0) this.p2.active[slot].slot = slot;
 				return this.p2.active[slot];
 			}
 			for (var i = 0; i < this.p2.pokemon.length; i++) {
 				var pokemon = this.p2.pokemon[i];
-				if (pokemon.fainted && (isNew || isOther)) continue;
-				if (isOther) {
+				if (pokemon.fainted && (isNew || isInactive)) continue;
+				if (isInactive) {
 					if (this.p2.active.indexOf(pokemon) >= 0) continue;
 					if (pokemon == this.p2.lastPokemon && !this.p2.active[slot]) continue;
 				}
 				if (pokemon.searchid === searchid || (!pokemon.searchid && pokemon.checkDetails(details)) || (!searchid && pokemon.ident === pokemonid)) {
-					if (!pokemon.searchid) {
+					if (!pokemon.searchid && createIfNotFound) {
 						pokemon.name = name;
 						pokemon.searchid = searchid;
 						pokemon.ident = pokemonid;
@@ -5571,16 +5557,22 @@ var Battle = (function () {
 							pokemon = this.p2.newPokemon(this.parseDetails(name, pokemonid, details), i);
 						}
 					}
-					pokemon.slot = slot;
+					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
 				}
 			}
 		}
-		if (!isNew && !isOther && !details) {
-			return false;
-		}
-		if (isOld) return false;
-		if (siden < 0) siden = this.p1.n;
+
+		if (!details || !createIfNotFound) return false;
+
+		// pokemon not found, create a new pokemon object for it
+
+		if (siden < 0) throw new Error("Invalid pokemonid passed to getPokemon");
+
+		var species = name;
+		var gender = '';
+		var level = 100;
+		var shiny = false;
 		if (details) {
 			var splitDetails = details.split(', ');
 			if (splitDetails[splitDetails.length - 1] === 'shiny') {
@@ -5859,7 +5851,7 @@ var Battle = (function () {
 		case 'replace':
 			this.endLastTurn();
 			if (this.waitForResult()) return;
-			var poke = this.getPokemon('other: ' + args[1], args[2]);
+			var poke = this.getPokemon('inactive: ' + args[1], args[2]);
 			var slot = poke.slot;
 			poke.healthParse(args[3]);
 			if (args[0] === 'switch') {
@@ -5881,8 +5873,8 @@ var Battle = (function () {
 			break;
 		case 'swap':
 			if (isNaN(Number(args[2]))) {
-				var poke = this.getPokemon('other: ' + args[1]);
-				poke.side.swapWith(poke, this.getPokemon('other: ' + args[2]), kwargs);
+				var poke = this.getPokemon(args[1]);
+				poke.side.swapWith(poke, this.getPokemon(args[2]), kwargs);
 			} else {
 				var poke = this.getPokemon(args[1]);
 				poke.side.swapTo(poke, args[2], kwargs);
