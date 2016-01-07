@@ -194,6 +194,8 @@ var Pokemon = (function () {
 		this.turnstatuses = {};
 		this.movestatuses = {};
 		this.lastmove = '';
+
+		// [[moveName, ppUsed]]
 		this.moveTrack = [];
 
 		this.name = '';
@@ -3422,12 +3424,18 @@ var Battle = (function () {
 						actions += "The healing wish came true for " + poke.getLowerName() + "!";
 						this.lastmove = 'healing-wish';
 						Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
+						for (var i = 0; i < poke.moveTrack.length; i++) {
+							poke.moveTrack[i][1] = 0;
+						}
 						poke.side.wisher = null;
 						break;
 					case 'lunardance':
 						actions += "" + poke.getName() + " became cloaked in mystical moonlight!";
 						this.lastmove = 'healing-wish';
 						Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
+						for (var i = 0; i < poke.moveTrack.length; i++) {
+							poke.moveTrack[i][1] = 0;
+						}
 						poke.side.wisher = null;
 						break;
 					case 'wish':
