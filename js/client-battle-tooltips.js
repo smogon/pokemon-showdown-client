@@ -375,7 +375,7 @@ var BattleTooltips = (function () {
 				if (battlePokemon && battlePokemon.moveTrack) {
 					for (var j = 0; j < battlePokemon.moveTrack.length; j++) {
 						if (name === battlePokemon.moveTrack[j][0]) {
-							name = this.getPPUseText(battlePokemon.moveTrack[j]);
+							name = this.getPPUseText(battlePokemon.moveTrack[j], true);
 							break;
 						}
 					}
@@ -394,7 +394,7 @@ var BattleTooltips = (function () {
 		return text;
 	};
 
-	BattleTooltips.prototype.getPPUseText = function (moveTrackRow) {
+	BattleTooltips.prototype.getPPUseText = function (moveTrackRow, showKnown) {
 		var moveName = moveTrackRow[0];
 		var ppUsed = moveTrackRow[1];
 		var move, maxpp;
@@ -411,7 +411,7 @@ var BattleTooltips = (function () {
 			}
 			maxpp = Math.floor(maxpp * 8 / 5);
 		}
-		if (!ppUsed) return move.name;
+		if (!ppUsed) return move.name + (showKnown ? ' <small>(revealed)</small>' : '');
 		return move.name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
 	};
 
