@@ -333,6 +333,7 @@
 				if (active.active) active = active.active[pos];
 				var moves = active.moves;
 				var trapped = active.trapped;
+				var canMegaEvo = (active.canMegaEvo || switchables[pos].canMegaEvo);
 				this.finalDecisionMove = active.maybeDisabled || false;
 				this.finalDecisionSwitch = active.maybeTrapped || false;
 				for (var i = pos + 1; i < this.battle.mySide.active.length; ++i) {
@@ -439,7 +440,7 @@
 				} else {
 					controls += movebuttons;
 				}
-				if (switchables[pos].canMegaEvo) {
+				if (canMegaEvo) {
 					controls += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
 				}
 				if (this.finalDecisionMove) {
