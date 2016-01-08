@@ -5674,7 +5674,9 @@ var Battle = (function () {
 				}
 				if (teamText) teamText += ' / ';
 				teamText += pokemon.species;
-				text += '<img src="' + spriteData.url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + y + 'px;left:' + x + 'px" />';
+				var url = spriteData.url;
+				// if (this.paused) url.replace('/xyani', '/xy').replace('.gif', '.png');
+				text += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + y + 'px;left:' + x + 'px" />';
 			}
 			this.sides[k].totalPokemon = i;
 			this.sides[k].updateSidebar();
@@ -6018,6 +6020,13 @@ var Battle = (function () {
 				}
 				if (this.errorCallback) this.errorCallback(this);
 			}
+
+			if (this.fastForward > 0 && this.fastForward < 1) {
+				if (nextLine.substr(0, 6) === '|start') {
+					this.fastForwardOff();
+					if (this.endCallback) this.endCallback(this);
+				}
+			}
 		}
 	};
 	Battle.prototype.endPrevAction = function () {
@@ -6102,7 +6111,11 @@ var Battle = (function () {
 	Battle.prototype.fastForwardTo = function (time) {
 		this.playbackState = 5;
 		if (this.fastForward) return;
-		time = parseInt(time, 10);
+		if (time === 0 || time === '0') {
+			time = 0.5;
+		} else {
+			time = Math.floor(Number(time));
+		}
 		if (isNaN(time)) return;
 		if (this.activityStep >= this.activityQueue.length - 1 && time >= this.turn + 1 && !this.activityQueueActive) return;
 		if (this.ended && time >= this.turn + 1) return;
