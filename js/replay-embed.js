@@ -1,16 +1,16 @@
 document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/font-awesome.css?" />');
-document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/battle.css?a3" />');
-document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/replay.css?a3" />');
+document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/battle.css?a4" />');
+document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/replay.css?a4" />');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/jquery-1.11.0.min.js"></script>');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/lodash.compat.js"></script>');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/html-sanitizer-minified.js"></script>');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/soundmanager2-nodebug-jsmin.js"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/js/config.js?a3"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/js/battledata.js?a3"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js?a3"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js?a3"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/data/graphics.js?a3"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/js/battle.js?a3"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/js/config.js?a4"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/js/battledata.js?a4"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js?a4"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js?a4"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/data/graphics.js?a4"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/js/battle.js?a4"></script>');
 
 var Replays = {
 	init: function (log) {
@@ -31,7 +31,9 @@ var Replays = {
 		this.battle.resumeButton = this.resume.bind(this);
 		this.battle.setQueue(log.split('\n'));
 
-		this.$('.battle').html('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button><br /><br /><button data-action="startMuted" class="startsoundchooser" style="font-size:10pt;display:none">Play (music off)</button></div>');
+		this.battle.reset();
+		this.battle.fastForwardTo(0);
+		this.$('.battle').append('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button><br /><br /><button data-action="startMuted" class="startsoundchooser" style="font-size:10pt;display:none">Play (music off)</button></div>');
 
 		this.$('.replay-controls-2').html('<div class="chooser leftchooser speedchooser"> <em>Speed:</em> <div><button class="sel" value="fast">Fast</button><button value="normal">Normal</button><button value="slow">Slow</button><button value="reallyslow">Really Slow</button></div> </div> <div class="chooser colorchooser"> <em>Color&nbsp;scheme:</em> <div><button class="sel" value="light">Light</button><button value="dark">Dark</button></div> </div> <div class="chooser soundchooser" style="display:none"> <em>Music:</em> <div><button class="sel" value="on">On</button><button value="off">Off</button></div> </div>');
 
@@ -128,7 +130,8 @@ var Replays = {
 	},
 	reset: function () {
 		this.battle.reset();
-		this.$('.battle').html('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button><br /><br /><button data-action="startMuted" class="startsoundchooser" style="font-size:10pt;display:none">Play (music off)</button></div>');
+		this.battle.fastForwardTo(0);
+		this.$('.battle').append('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button><br /><br /><button data-action="startMuted" class="startsoundchooser" style="font-size:10pt;display:none">Play (music off)</button></div>');
 		// this.$('.battle-log').html('');
 		this.$('.replay-controls').html('<button data-action="start"><i class="fa fa-play"></i> Play</button><button data-action="reset" disabled="disabled"><i class="fa fa-undo"></i> Reset</button>');
 	},
