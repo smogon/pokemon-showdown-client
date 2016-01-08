@@ -1590,6 +1590,18 @@ var BattleMoveAnims = {
 			battle.showEffect('iceball', {
 				x: attacker.x,
 				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 1,
+				time: 400
+			}, {
+				scale: 3,
+				opacity: 0.1,
+				time: 800
+			}, 'linear', 'fade');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
 				z: attacker.behind(-30),
 				scale: 0.6,
 				opacity: 0.8,
