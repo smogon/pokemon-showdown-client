@@ -259,7 +259,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isDoubles) {
 				return ["DUber", "DOU", "DUU", "DNU", "NFE"];
 			}
-			return ["CAP", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "(PU)", "NFE", "LC Uber", "LC"];
+			return ["CAP", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
 		})();
 
 		for (const tier of tierOrder) {
@@ -268,7 +268,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			if (!tierTable[tier]) continue;
 			if (tier === '(PU)') {
-				tiers.push(['header', "Below PU"]);
+				// tiers.push(['header', "Below PU"]);
 			} else if (tier.charAt(0) === '(') {
 				tiers.push(['header', tier.slice(1, -1) + " by technicality"]);
 			} else if (tier === "NFE") {
