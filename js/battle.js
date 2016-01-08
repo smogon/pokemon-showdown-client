@@ -5596,6 +5596,7 @@ var Battle = (function () {
 				species = splitDetails[0];
 			}
 		}
+		if (slot < 0) slot = 0;
 		var pokemon = this.sides[siden].newPokemon({
 			species: species,
 			details: details,
