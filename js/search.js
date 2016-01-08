@@ -155,7 +155,7 @@
 		var queryAlias;
 		if (query in BattleAliases) {
 			queryAlias = toId(BattleAliases[query]);
-			if (query === 'pika' || query === 'bee') searchPasses.shift();
+			if (query === 'pika' || query === 'bee' || query === 'sab') searchPasses.shift();
 			if (queryAlias.slice(0, 11) !== 'hiddenpower') {
 				searchPasses.unshift([1, Search.getClosest(queryAlias), queryAlias]);
 			}
