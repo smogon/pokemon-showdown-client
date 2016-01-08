@@ -463,7 +463,10 @@
 		},
 		searching: false,
 		updateSearch: function (data) {
-			if (data) this.searching = data.searching;
+			if (data) {
+				this.searching = data.searching;
+				this.games = data.games;
+			}
 			var $searchForm = $('.mainmenu button.big').closest('form');
 			var $formatButton = $searchForm.find('button[name=format]');
 			var $teamButton = $searchForm.find('button[name=team]');
@@ -488,6 +491,39 @@
 					}
 				}
 			}
+
+			var $searchGroup = $searchForm.closest('.menugroup');
+			if (this.games) {
+				var newlyCreated = false;
+				if (!this.$gamesGroup) {
+					this.$gamesGroup = $('<div class="menugroup"></div>');
+					$searchGroup.before(this.$gamesGroup);
+					newlyCreated = true;
+				}
+				if (!this.$gamesGroup.is(':visible') || newlyCreated) {
+					$searchGroup.hide();
+					this.$gamesGroup.show();
+				}
+				var buf = '<form class="battleform"><p><label class="label">Games:</label></p>';
+				buf += '<div class="roomlist">';
+				for (var roomid in this.games) {
+					buf += '<div><a href="/' + toRoomid(roomid) + '" class="ilink" style="text-align: center">' + Tools.escapeHTML(this.games[roomid]) + '</a></div>';
+				}
+				buf += '</div>';
+				if (!$searchGroup.is(':visible')) buf += '<p class="buttonbar"><button name="showSearchGroup">Add game</button></p>';
+				buf += '</form>';
+				this.$gamesGroup.html(buf);
+			} else {
+				if (this.$gamesGroup) {
+					this.$gamesGroup.hide();
+					$searchGroup.show();
+				}
+			}
+		},
+		showSearchGroup: function (v, el) {
+			var $searchGroup = $('.mainmenu button.big').closest('.menugroup');
+			$searchGroup.show();
+			$(el).closest('p').hide();
 		},
 		updateChallenges: function (data) {
 			this.challengesFrom = data.challengesFrom;
