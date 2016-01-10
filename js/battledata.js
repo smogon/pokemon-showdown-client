@@ -354,7 +354,7 @@ var Tools = {
 			// custom avatar served by the server
 			var protocol = (Config.server.port === 443) ? 'https' : 'http';
 			return protocol + '://' + Config.server.host + ':' + Config.server.port +
-				'/avatars/' + encodeURIComponent(avatar);
+				'/avatars/' + _.map(avatar.split('?', 2), encodeURIComponent).join('?');
 		}
 		// just pick a random avatar
 		var sprites = [1, 2, 101, 102, 169, 170];
