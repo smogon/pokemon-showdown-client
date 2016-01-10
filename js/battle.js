@@ -5526,7 +5526,9 @@ var Battle = (function () {
 					if (this.p1.active.indexOf(pokemon) >= 0) continue;
 					if (pokemon == this.p1.lastPokemon && !this.p1.active[slot]) continue;
 				}
-				if (pokemon.searchid === searchid || (!pokemon.searchid && pokemon.checkDetails(details)) || (!searchid && pokemon.ident === pokemonid)) {
+				if ((searchid && pokemon.searchid === searchid) || // exact match
+					(!pokemon.searchid && pokemon.checkDetails(details)) || // switch-in matches Team Preview entry
+					(!searchid && pokemon.ident === pokemonid)) { // name matched, good enough
 					if (!pokemon.searchid && createIfNotFound) {
 						pokemon.name = name;
 						pokemon.searchid = searchid;
@@ -5554,7 +5556,9 @@ var Battle = (function () {
 					if (this.p2.active.indexOf(pokemon) >= 0) continue;
 					if (pokemon == this.p2.lastPokemon && !this.p2.active[slot]) continue;
 				}
-				if (pokemon.searchid === searchid || (!pokemon.searchid && pokemon.checkDetails(details)) || (!searchid && pokemon.ident === pokemonid)) {
+				if ((searchid && pokemon.searchid === searchid) || // exact match
+					(!pokemon.searchid && pokemon.checkDetails(details)) || // switch-in matches Team Preview entry
+					(!searchid && pokemon.ident === pokemonid)) { // name matched, good enough
 					if (!pokemon.searchid && createIfNotFound) {
 						pokemon.name = name;
 						pokemon.searchid = searchid;
