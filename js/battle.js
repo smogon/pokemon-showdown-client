@@ -332,6 +332,7 @@ var Pokemon = (function () {
 		return [delta, this.maxhp, deltawidth, oldnum, oldcolor];
 	};
 	Pokemon.prototype.checkDetails = function (details) {
+		if (!details) return false;
 		if (details === this.details) return true;
 		if (!this.needsReplace) return false;
 		// the actual forme was hidden on Team Preview
