@@ -1211,7 +1211,9 @@ var Tools = {
 			"cawmodore": 832 + 16,
 			"volkraken": 832 + 17,
 			"plasmanta": 832 + 18,
-			"naviathan": 832 + 19
+			"naviathan": 832 + 19,
+			"crucibelle": 832 + 20,
+			"crucibellemega": 832 + 21
 		};
 
 		if (altNums[id]) {
