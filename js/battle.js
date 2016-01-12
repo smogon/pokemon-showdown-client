@@ -356,7 +356,7 @@ var Pokemon = (function () {
 		if (this.hasVolatile(volatile)) return;
 		this.volatiles[volatile] = [volatile, null];
 		if (volatile === 'leechseed') {
-			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
+			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.fxPrefix + 'energyball.png" style="display:none;position:absolute" />');
 			var curelem = this.side.battle.spriteElemsFront[this.side.n].children().last();
 			curelem.css(battle.pos({
 				display: 'block',
@@ -368,7 +368,7 @@ var Pokemon = (function () {
 			}, BattleEffects.energyball));
 			var elem = curelem;
 
-			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
+			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.fxPrefix + 'energyball.png" style="display:none;position:absolute" />');
 			curelem = this.side.battle.spriteElemsFront[this.side.n].children().last();
 			curelem.css(battle.pos({
 				display: 'block',
@@ -380,7 +380,7 @@ var Pokemon = (function () {
 			}, BattleEffects.energyball));
 			elem = elem.add(curelem);
 
-			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.resourcePrefix + 'fx/energyball.png" style="display:none;position:absolute" />');
+			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.fxPrefix + 'energyball.png" style="display:none;position:absolute" />');
 			curelem = this.side.battle.spriteElemsFront[this.side.n].children().last();
 			curelem.css(battle.pos({
 				display: 'block',
@@ -1310,12 +1310,8 @@ var Side = (function () {
 			if (i >= this.totalPokemon) {
 				pokemonhtml += '<span class="pokemonicon" style="' + Tools.getIcon('pokeball-none') + '"></span>';
 			} else if (!poke) {
-				//pokemonhtml += '<img src="/fx/pokeball.png" title="Not revealed" />';
 				pokemonhtml += '<span class="pokemonicon" style="' + Tools.getIcon('pokeball') + '" title="Not revealed"></span>';
-			//} else if (poke.fainted) {
-				//pokemonhtml += '<img src="/fx/pokeball.png" style="opacity:0.3;filter:alpha(opacity=30)" title="' + poke.getFullName(true) + '" />';
 			} else {
-				//pokemonhtml += '<img src="/fx/pokeball.png" title="' + poke.getFullName(true) + '" />';
 				pokemonhtml += '<span class="pokemonicon" style="' + Tools.getIcon(poke) + '" title="' + poke.getFullName(true) + '"></span>';
 			}
 			if (i % 3 === 2) pokemonhtml += '</div><div class="teamicons">';
@@ -2268,7 +2264,7 @@ var Battle = (function () {
 			else if (this.gen <= 3) this.backdropImage = BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
 			else if (this.gen <= 4) this.backdropImage = BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
 		}
-		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ')');
+		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.fxPrefix + '' + this.backdropImage + ')');
 	};
 	Battle.prototype.reset = function (dontResetSound) {
 		// battle state
@@ -2298,7 +2294,7 @@ var Battle = (function () {
 		}
 
 		this.updateGen();
-		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + 'fx/' + this.backdropImage + ');display:block;opacity:0"></div>');
+		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.fxPrefix + '' + this.backdropImage + ');display:block;opacity:0"></div>');
 		this.bgElem = this.elem.children().last();
 		this.bgElem.animate({
 			opacity: 0.6
@@ -6261,10 +6257,10 @@ var Battle = (function () {
 		for (var i in BattleEffects) {
 			if (BattleEffects[i].url) this.preloadImage(BattleEffects[i].url);
 		}
-		this.preloadImage(Tools.resourcePrefix + 'fx/weather-raindance.jpg'); // rain is used often enough to precache
+		this.preloadImage(Tools.fxPrefix + 'weather-raindance.jpg'); // rain is used often enough to precache
 		this.preloadImage(Tools.resourcePrefix + 'sprites/bw/substitute.png');
 		this.preloadImage(Tools.resourcePrefix + 'sprites/bw-back/substitute.png');
-		//this.preloadImage(Tools.resourcePrefix + 'fx/bg.jpg');
+		//this.preloadImage(Tools.fxPrefix + 'bg.jpg');
 	};
 	Battle.prototype.dogarsCheck = function (pokemon) {
 		if (pokemon.side.n === 1) return;
