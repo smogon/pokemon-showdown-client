@@ -305,6 +305,10 @@ var Tools = {
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
+	fxPrefix: (function () {
+		if (document.location.protocol === 'file:') return 'fx/';
+		return '//play.pokemonshowdown.com/fx/';
+	})(),
 
 	/*
 	 * Load trackers are loosely based on Promises, but very simplified.
