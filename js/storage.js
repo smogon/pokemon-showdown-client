@@ -540,11 +540,11 @@ Storage.packTeam = function (team) {
 		if (buf) buf += ']';
 
 		// name
-		buf += (set.name || set.species);
+		buf += set.name;
 
 		// species
-		var id = toId(set.species || set.name);
-		buf += '|' + (toId(set.name || set.species) === id ? '' : id);
+		var id = toId(set.species);
+		buf += '|' + (toId(set.name) === id ? '' : id);
 
 		// item
 		buf += '|' + toId(set.item);
