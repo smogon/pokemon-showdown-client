@@ -2888,6 +2888,11 @@ a.ilink.yours {
 .userdetails .offline {
 	color: red;
 }
+.userdetails .name {
+	font-weight: bold;
+	text-decoration: underline;
+	color: #248;
+}
 .trainersprite.yours {
 	cursor: pointer;
 }
