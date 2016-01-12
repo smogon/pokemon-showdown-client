@@ -1028,7 +1028,7 @@
 			}
 			buf += '<div class="setmenu"><button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
-			buf += '<label>Nickname</label><input type="text" value="' + Tools.escapeHTML(set.name || set.species) + '" name="nickname" />';
+			buf += '<label>Nickname</label><input type="text" value="' + Tools.escapeHTML(set.name || '') + '" placeholder="' + Tools.escapeHTML(template.baseSpecies) + '" name="nickname" />';
 			buf += '</div>';
 			buf += '<div class="setchart" style="' + Tools.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
@@ -1183,7 +1183,7 @@
 		nicknameChange: function (e) {
 			var i = +$(e.currentTarget).closest('li').attr('value');
 			var set = this.curSetList[i];
-			var name = $.trim(e.currentTarget.value) || set.species;
+			var name = $.trim(e.currentTarget.value);
 			e.currentTarget.value = set.name = name;
 			this.save();
 		},
@@ -1440,19 +1440,19 @@
 		renderTeambar: function () {
 			var buf = '';
 			var isAdd = false;
-			if (this.curSetList.length && !this.curSetList[this.curSetList.length - 1].name && this.curSetLoc !== this.curSetList.length - 1) {
+			if (this.curSetList.length && !this.curSetList[this.curSetList.length - 1].species && this.curSetLoc !== this.curSetList.length - 1) {
 				this.curSetList.splice(this.curSetList.length - 1, 1);
 			}
 			for (var i = 0; i < this.curSetList.length; i++) {
 				var set = this.curSetList[i];
 				var pokemonicon = '<span class="pokemonicon-' + i + '" style="' + Tools.getPokemonIcon(set) + '"></span>';
-				if (!set.name) {
+				if (!set.species) {
 					buf += '<button disabled="disabled" class="addpokemon"><i class="fa fa-plus"></i></button> ';
 					isAdd = true;
 				} else if (i == this.curSetLoc) {
-					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name || '<i class="fa fa-plus"></i>') + '</button> ';
+					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name || Tools.getTemplate(set.species).baseSpecies || '<i class="fa fa-plus"></i>') + '</button> ';
 				} else {
-					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name) + '</button> ';
+					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name || Tools.getTemplate(set.species).baseSpecies) + '</button> ';
 				}
 			}
 			if (this.curSetList.length < 6 && !isAdd) {
@@ -2382,7 +2382,7 @@
 				return;
 			}
 
-			set.name = template.species;
+			set.name = "";
 			set.species = val;
 			if (set.level) delete set.level;
 			if (this.curTeam && this.curTeam.format) {
