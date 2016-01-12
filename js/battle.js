@@ -3981,6 +3981,9 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Thawed', 'good');
 					actions += "" + poke.getName() + "'s " + effect.name + " melted the ice!";
 					break;
+				case 'naturalcure':
+					actions += "(" + poke.getName() + "'s Natural Cure activated!)";
+					break;
 				default:
 					this.resultAnim(poke, 'Cured', 'good');
 					actions += "" + poke.getName() + "'s " + effect.name + " heals its status!";
