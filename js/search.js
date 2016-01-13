@@ -492,6 +492,7 @@
 					if (template.types[0] !== type && template.types[1] !== type) break;
 				} else if (filters[i][0] === 'egggroup') {
 					var egggroup = filters[i][1];
+					if (!template.eggGroups) continue;
 					if (template.eggGroups[0] !== egggroup && template.eggGroups[1] !== egggroup) break;
 				} else if (filters[i][0] === 'ability') {
 					var ability = filters[i][1];
