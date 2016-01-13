@@ -5076,6 +5076,10 @@ var Battle = (function () {
 				case 'anticipation': // Deprecated, now uses -ability. This is for replay compatability
 					actions += "" + poke.getName() + " shuddered!";
 					break;
+				case 'lightningrod':
+				case 'stormdrain':
+					actions += '' + poke.getName() + ' took the attack!';
+					break;
 				case 'telepathy':
 					actions += "" + poke.getName() + " avoids attacks by its ally Pok&#xE9;mon!";
 					break;
