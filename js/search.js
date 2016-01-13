@@ -66,15 +66,17 @@
 	var typeTable = {
 		pokemon: 1,
 		type: 2,
-		move: 3,
-		item: 4,
-		ability: 5,
-		egggroup: 6,
-		category: 7
+		tier: 3,
+		move: 4,
+		item: 5,
+		ability: 6,
+		egggroup: 7,
+		category: 8
 	};
 	var typeName = {
 		pokemon: 'Pok&eacute;mon',
 		type: 'Type',
+		tier: 'Tiers',
 		move: 'Moves',
 		item: 'Items',
 		ability: 'Abilities',
@@ -189,14 +191,14 @@
 
 		// Notes:
 		// - if we have a qType, that qType's buffer will be on top
-		var bufs = [[], [], [], [], [], [], [], []];
+		var bufs = [[], [], [], [], [], [], [], [], []];
 		var topbufIndex = -1;
 
 		var count = 0;
 		var nearMatch = false;
 
 		var instafilter = null;
-		var instafilterSort = [0, 1, 2, 5, 4, 3, 6, 7];
+		var instafilterSort = [0, 1, 2, 5, 4, 3, 6, 7, 8];
 
 		// We aren't actually looping through the entirety of the searchIndex
 		for (i = 0; i < BattleSearchIndex.length; i++) {
@@ -240,10 +242,11 @@
 			// For performance, with a query length of 1, we only fill the first bucket
 			if (query.length === 1 && typeIndex !== (qType ? qTypeIndex : 1)) continue;
 
-			// For pokemon queries, accept types/abilities/moves/eggroups as filters
-			if (qType === 'pokemon' && (typeIndex === 4 || typeIndex > 6)) continue;
-			// For move queries, accept types/categories/pokemon as filters
-			if (qType === 'move' && (typeIndex !== 7 && typeIndex > 3)) continue;
+			// For pokemon queries, accept types/tier/abilities/moves/eggroups as filters
+			if (qType === 'pokemon' && (typeIndex === 5 || typeIndex > 7)) continue;
+			if (qType === 'pokemon' && typeIndex === 3 && this.gen < 6) continue;
+			// For move queries, accept types/categories as filters
+			if (qType === 'move' && ((typeIndex !== 8 && typeIndex > 4) || typeIndex === 3)) continue;
 			// For move queries in the teambuilder, don't accept pokemon as filters
 			if (qType === 'move' && this.legalityFilter && typeIndex === 1) continue;
 			// For ability/item queries, don't accept anything else as a filter
@@ -381,7 +384,7 @@
 		if (!node.dataset.entry) return;
 		var entry = node.dataset.entry.split(':');
 		if (this.qType === 'pokemon') {
-			if (entry[0] !== 'type' && entry[0] !== 'move' && entry[0] !== 'ability' && entry[0] !== 'egggroup') return;
+			if (entry[0] !== 'type' && entry[0] !== 'move' && entry[0] !== 'ability' && entry[0] !== 'egggroup' && entry[0] !== 'tier') return;
 			if (entry[0] === 'move') entry[1] = toId(entry[1]);
 			if (!this.filters) this.filters = [];
 			this.q = undefined;
@@ -494,6 +497,9 @@
 					var egggroup = filters[i][1];
 					if (!template.eggGroups) continue;
 					if (template.eggGroups[0] !== egggroup && template.eggGroups[1] !== egggroup) break;
+				} else if (filters[i][0] === 'tier') {
+					var tier = filters[i][1];
+					if (template.tier !== tier) break;
 				} else if (filters[i][0] === 'ability') {
 					var ability = filters[i][1];
 					if (template.abilities['0'] !== ability && template.abilities['1'] !== ability && template.abilities['H'] !== ability) break;
@@ -867,6 +873,26 @@
 			}
 			var egggroup = {name: egName};
 			return this.renderEggGroupRow(egggroup, matchStart, matchLength, errorMessage);
+		case 'tier':
+			// very hardcode
+			var tierTable = {
+				uber: "Uber",
+				ou: "OU",
+				uu: "UU",
+				ru: "RU",
+				nu: "NU",
+				pu: "PU",
+				nfe: "NFE",
+				lcuber: "LC Uber",
+				lc: "LC",
+				cap: "CAP",
+				bl: "BL",
+				bl2: "BL2",
+				bl3: "BL3",
+				bl4: "BL4"
+			};
+			var tier = {name: tierTable[id]};
+			return this.renderTierRow(tier, matchStart, matchLength, errorMessage);
 		case 'category':
 			var category = {name: id[0].toUpperCase() + id.substr(1)};
 			return this.renderCategoryRow(category, matchStart, matchLength, errorMessage);
@@ -1351,6 +1377,28 @@
 
 		return buf;
 	};
+	Search.prototype.renderTierRow = function (tier, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'tiers/' + toId(tier.name) + '" data-target="push"';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="tier:' + Tools.escapeHTML(tier.name) + '">';
+
+		// name
+		var name = tier.name;
+		if (matchLength) {
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
+		}
+		buf += '<span class="col namecol">' + name + '</span> ';
+
+		// error
+		if (errorMessage) {
+			buf += errorMessage + '</a></li>';
+			return buf;
+		}
+
+		buf += '</a></li>';
+
+		return buf;
+	};
 
 	Search.gen = 6;
 	Search.renderRow = Search.prototype.renderRow;
@@ -1364,6 +1412,7 @@
 	Search.renderTypeRow = Search.prototype.renderTypeRow;
 	Search.renderCategoryRow = Search.prototype.renderCategoryRow;
 	Search.renderEggGroupRow = Search.prototype.renderEggGroupRow;
+	Search.renderTierRow = Search.prototype.renderTierRow;
 
 	exports.BattleSearch = Search;
 
