@@ -1183,7 +1183,7 @@
 		nicknameChange: function (e) {
 			var i = +$(e.currentTarget).closest('li').attr('value');
 			var set = this.curSetList[i];
-			var name = $.trim(e.currentTarget.value);
+			var name = $.trim(e.currentTarget.value).replace(/\|/g, '');
 			e.currentTarget.value = set.name = name;
 			this.save();
 		},
