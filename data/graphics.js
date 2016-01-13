@@ -8332,7 +8332,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.showEffect('energyballf', {
+			battle.showEffect('energyball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
