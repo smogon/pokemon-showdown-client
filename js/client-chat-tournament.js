@@ -208,7 +208,13 @@
 				return;
 			}
 
-			this.$teamSelect.html(app.rooms[''].renderTeams.call(this, this.info.format));
+			var teamIndex = undefined;
+			if (!forceFormatChange && this.$teamSelect.children().val()) {
+				teamIndex = parseInt(this.$teamSelect.children().val());
+				if (isNaN(teamIndex)) teamIndex = undefined;
+			}
+
+			this.$teamSelect.html(app.rooms[''].renderTeams.call(this, this.info.format, teamIndex));
 			this.$teamSelect.children().data('type', 'teamSelect');
 			this.$teamSelect.children().attr('name', 'tournamentButton');
 			this.$teamSelect.show();
