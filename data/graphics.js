@@ -4889,8 +4889,32 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect('#000000', 900, 0.3)
-			battle.showEffect('electroball', {
+			battle.backgroundEffect('#00CCCC', 900, 0.3);
+
+			battle.showEffect('waterwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 1
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 300
+			}, 'accel', 'fade');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 1
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 300
+			}, 'accel', 'fade');
+
+			battle.showEffect('iceball', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
@@ -4902,7 +4926,7 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 600
 			}, 'linear');
-			battle.showEffect('electroball', {
+			battle.showEffect('iceball', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
@@ -4924,6 +4948,7 @@ var BattleMoveAnims = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.behind(-5),
+				opacity: 0,
 				time: 350
 			}, 'accel', 'fade');
 			battle.showEffect(attacker.sp, {
@@ -4936,15 +4961,18 @@ var BattleMoveAnims = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.behind(-5),
+				opacity: 0,
 				time: 400
 			}, 'accel', 'fade');
 			attacker.anim({
 				x: defender.x,
 				y: defender.y,
 				z: defender.behind(-5),
+				opacity: 0,
 				time: 300
 			}, 'accel');
 			attacker.anim({
+				opacity: 1,
 				time: 500
 			}, 'ballistic2Back');
 			defender.delay(280);
@@ -5010,22 +5038,61 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.showEffect('electroball', {
+			attacker.anim({
+				x: attacker.leftof(-20),
+				y: attacker.y,
+				z: attacker.behind(-20),
+				opacity: 0,
+				time: 200
+			}, 'accel');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(-120),
+				opacity: 0,
+				time: 1
+			}, 'accel');
+			attacker.anim({
+				opacity: 0,
+				time: 1
+			}, 'linear');
+			attacker.anim({
+				time: 500,
+				opacity: 0
+			}, 'linear');
+			attacker.anim({
+				time: 200,
+				opacity: 1
+			}, 'linear');
+
+			battle.showEffect('waterwisp', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				opacity: 0.8
+				opacity: 1
 			}, {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
 				time: 300
 			}, 'accel', 'fade');
-			battle.showEffect('electroball', {
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 1
+			}, {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				opacity: 0.7,
+				time: 300
+			}, 'accel', 'fade');
+
+			battle.showEffect('iceball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				opacity: 1,
 				scale: 0,
 				time: 300
 			}, {
@@ -5036,11 +5103,11 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 600
 			}, 'linear');
-			battle.showEffect('electroball', {
+			battle.showEffect('iceball', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				opacity: 0.7,
+				opacity: 1,
 				scale: 0,
 				time: 500
 			}, {
@@ -8354,6 +8421,27 @@ var BattleMoveAnims = {
 			var defender = args[1];
 
 			battle.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0.3
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1,
+				opacity: 0.6,
+				time: 500
+			}, 'linear', 'explode');
+		}
+	},
+	moonblast: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.showEffect('mistball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -12571,8 +12659,7 @@ BattleMoveAnims['phantomforce'] = {anim:BattleMoveAnims['shadowforce'].anim,prep
 
 BattleMoveAnims['smackdown'] = {anim:BattleMoveAnims['rockblast'].anim};
 
-BattleMoveAnims['moonblast'] = {anim:BattleMoveAnims['mistball'].anim};
-BattleMoveAnims['fairywind'] = {anim:BattleMoveAnims['mistball'].anim};
+BattleMoveAnims['fairywind'] = {anim:BattleMoveAnims['dazzlinggleam'].anim};
 BattleMoveAnims['lightofruin'] = {anim:BattleMoveAnims['psychoboost'].anim};
 BattleMoveAnims['dreameater'] = {anim:BattleMoveAnims['drainingkiss'].anim};
 BattleMoveAnims['sweetkiss'] = {anim:BattleMoveAnims['lovelykiss'].anim};
