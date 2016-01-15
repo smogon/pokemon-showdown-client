@@ -2758,7 +2758,7 @@ var Battle = (function () {
 			},
 			deltastream: {
 				name: 'Strong Winds',
-				startMessage: 'A mysterious air current is protecting Flying-type Pokemon!',
+				startMessage: 'A mysterious air current is protecting Flying-type Pok&eacute;mon!',
 				endMessage: 'The mysterious air current has dissipated!'
 			}
 		};
