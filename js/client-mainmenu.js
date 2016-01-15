@@ -507,7 +507,9 @@
 				var buf = '<form class="battleform"><p><label class="label">Games:</label></p>';
 				buf += '<div class="roomlist">';
 				for (var roomid in this.games) {
-					buf += '<div><a href="/' + toRoomid(roomid) + '" class="ilink" style="text-align: center">' + Tools.escapeHTML(this.games[roomid]) + '</a></div>';
+					var name = this.games[roomid];
+					if (name.slice(-1) === '*') name = name.slice(0, -1);
+					buf += '<div><a href="/' + toRoomid(roomid) + '" class="ilink" style="text-align: center">' + Tools.escapeHTML(name) + '</a></div>';
 				}
 				buf += '</div>';
 				if (!$searchGroup.is(':visible')) buf += '<p class="buttonbar"><button name="showSearchGroup">Add game</button></p>';

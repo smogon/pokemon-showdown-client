@@ -2450,6 +2450,25 @@
 				}
 			} else if (data.reason) {
 				buf += '<p>' + Tools.parseMessage(data.reason) + '</p>';
+			} else if (!data.force) {
+				var noRenameGames = '';
+				if (app.rooms[''].games) {
+					for (var roomid in app.rooms[''].games) {
+						var title = app.rooms[''].games[roomid];
+						if (title.slice(-1) === '*') {
+							noRenameGames += '<li>' + Tools.escapeHTML(title.slice(0, -1)) + '</li>';
+						}
+					}
+				}
+				if (noRenameGames) {
+					buf += '<p>You can\'t change name in the middle of these games:</p>';
+					buf += '<ul>' + noRenameGames + '</ul>';
+					buf += '<p class="buttonbar"><button name="force"><small style="color:red">Forfeit and change name</small></button></p>';
+					buf += '<p class="buttonbar"><button type="submit" autofocus><strong>Cancel</strong></button></p>';
+					buf += '</form>';
+					this.$el.html(buf);
+					return;
+				}
 			}
 
 			var name = (data.name || '');
@@ -2468,6 +2487,15 @@
 			var preview = this.$('.preview');
 			var css = hashColor(toUserid(name)).slice(6, -1);
 			preview.css('color', css);
+		},
+		force: function () {
+			var sourceEl = this.sourceEl;
+			this.close();
+			app.addPopup(LoginPopup, {
+				force: true,
+				sourceEl: sourceEl,
+				sourcePopup: app.popups[app.popups.length - 1]
+			});
 		},
 		submit: function (data) {
 			this.close();
