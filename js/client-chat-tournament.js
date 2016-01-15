@@ -210,7 +210,7 @@
 
 			var teamIndex = undefined;
 			if (!forceFormatChange && this.$teamSelect.children().val()) {
-				teamIndex = parseInt(this.$teamSelect.children().val());
+				teamIndex = parseInt(this.$teamSelect.children().val(), 10);
 				if (isNaN(teamIndex)) teamIndex = undefined;
 			}
 
