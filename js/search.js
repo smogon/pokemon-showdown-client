@@ -73,7 +73,7 @@
 		category: 7
 	};
 	var typeName = {
-		pokemon: 'Pokemon',
+		pokemon: 'Pok&eacute;mon',
 		type: 'Type',
 		move: 'Moves',
 		item: 'Items',
