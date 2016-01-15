@@ -3328,6 +3328,9 @@ var Battle = (function () {
 					case 'baddreams':
 						actions += "" + poke.getName() + " is tormented!";
 						break;
+					case 'curse':
+						actions += "" + poke.getName() + " is afflicted by the curse!";
+						break;
 					case 'nightmare':
 						actions += "" + poke.getName() + " is locked in a nightmare!";
 						break;
