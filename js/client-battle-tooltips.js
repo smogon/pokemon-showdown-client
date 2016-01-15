@@ -213,7 +213,7 @@ var BattleTooltips = (function () {
 				text += '' + (move.desc || move.shortDesc) + '</p>';
 
 				if ('defrost' in move.flags) {
-					text += '<p>The user thaws out if it is frozen.</p>';
+					text += '<p class="movetag">The user thaws out if it is frozen.</p>';
 				}
 				if (!('protect' in move.flags) && move.target !== 'self' && move.target !== 'allySide' && move.target !== 'allyTeam') {
 					text += '<p class="movetag">Bypasses Protect <small>(and Detect, King\'s Shield, Spiky Shield)</small></p>';
@@ -245,6 +245,22 @@ var BattleTooltips = (function () {
 				}
 				if ('bullet' in move.flags) {
 					text += '<p class="movetag">&#x2713; Ballistic <small>(doesn\'t affect Bulletproof pokemon)</small></p>';
+				}
+
+				if (this.battle.gameType === 'doubles') {
+					if (move.target === 'allAdjacent') {
+						text += '<p class="movetag">&#x25ce; Hits both foes and ally.</p>';
+					} else if (move.target === 'allAdjacentFoes') {
+						text += '<p class="movetag">&#x25ce; Hits both foes.</p>';
+					}
+				} else if (this.battle.gameType === 'triples') {
+					if (move.target === 'allAdjacent') {
+						text += '<p class="movetag">&#x25ce; Hits adjacent foes and allies.</p>';
+					} else if (move.target === 'allAdjacentFoes') {
+						text += '<p class="movetag">&#x25ce; Hits adjacent foes.</p>';
+					} else if (move.target === 'any') {
+						text += '<p class="movetag">&#x25ce; Can target distant Pok&eacute;mon in Triples.</p>';
+					}
 				}
 			}
 		}
