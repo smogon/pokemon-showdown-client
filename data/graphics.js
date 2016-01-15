@@ -299,80 +299,29 @@ var BattleOtherAnims = {
 			var defender = args[1];
 
 			attacker.anim({
-				x: defender.leftof(30),
+				x: defender.leftof(-30),
 				y: defender.y+80,
 				z: defender.behind(-30),
 				time: 400
 			}, 'ballistic');
+			attacker.anim({
+				x: defender.leftof(30),
+				y: defender.y+5,
+				z: defender.z,
+				time: 100
+			});
+			attacker.anim({
+				x: defender.leftof(30),
+				y: defender.y+80,
+				z: defender.behind(-30),
+				time: 200
+			}, 'ballisticUp');
 			attacker.anim({
 				x: defender.leftof(-30),
 				y: defender.y+5,
 				z: defender.z,
 				time: 100
 			});
-
-			battle.showEffect('leftclaw', {
-				x: defender.x-30,
-				y: defender.y+20,
-				z: defender.z,
-				scale: 0,
-				opacity: 1,
-				time: 270
-			}, {
-				x: defender.x-30,
-				y: defender.y+20,
-				z: defender.z,
-				scale: 3,
-				opacity: 0,
-				time: 800
-			}, 'linear', 'fade');
-			battle.showEffect('leftclaw', {
-				x: defender.x-30,
-				y: defender.y-20,
-				z: defender.z,
-				scale: 0,
-				opacity: 1,
-				time: 270
-			}, {
-				x: defender.x-30,
-				y: defender.y-20,
-				z: defender.z,
-				scale: 3,
-				opacity: 0,
-				time: 800
-			}, 'linear', 'fade');
-			battle.showEffect('rightclaw', {
-				x: defender.x+30,
-				y: defender.y+20,
-				z: defender.z,
-				scale: 0,
-				opacity: 1,
-				time: 470
-			}, {
-				x: defender.x+30,
-				y: defender.y+20,
-				z: defender.z,
-				scale: 3,
-				opacity: 0,
-				time: 900
-			}, 'linear', 'fade');
-			battle.showEffect('rightclaw', {
-				x: defender.x+30,
-				y: defender.y-20,
-				z: defender.z,
-				scale: 0,
-				opacity: 1,
-				time: 470
-			}, {
-				x: defender.x+30,
-				y: defender.y-20,
-				z: defender.z,
-				scale: 3,
-				opacity: 0,
-				time: 900
-			}, 'linear', 'fade');
-
-
 			attacker.anim({
 				time: 500
 			}, 'ballistic2Back');
@@ -384,7 +333,75 @@ var BattleOtherAnims = {
 			defender.anim({
 				time: 200
 			}, 'swing');
-			battle.activityWait(500);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
+			battle.activityWait(800);
+
+			battle.showEffect('leftclaw', {
+				x: defender.x-30,
+				y: defender.y+20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 370
+			}, {
+				x: defender.x-30,
+				y: defender.y+20,
+				z: defender.z,
+				scale: 3,
+				opacity: 0,
+				time: 700
+			}, 'linear', 'fade');
+			battle.showEffect('leftclaw', {
+				x: defender.x-30,
+				y: defender.y-20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 370
+			}, {
+				x: defender.x-30,
+				y: defender.y-20,
+				z: defender.z,
+				scale: 3,
+				opacity: 0,
+				time: 700
+			}, 'linear', 'fade');
+			battle.showEffect('rightclaw', {
+				x: defender.x+30,
+				y: defender.y+20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 670
+			}, {
+				x: defender.x+30,
+				y: defender.y+20,
+				z: defender.z,
+				scale: 3,
+				opacity: 0,
+				time: 1000
+			}, 'linear', 'fade');
+			battle.showEffect('rightclaw', {
+				x: defender.x+30,
+				y: defender.y-20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 670
+			}, {
+				x: defender.x+30,
+				y: defender.y-20,
+				z: defender.z,
+				scale: 3,
+				opacity: 0,
+				time: 1000
+			}, 'linear', 'fade');
 		}
 	},
 	punchattack: {
@@ -5112,7 +5129,7 @@ var BattleMoveAnims = {
 				scale: 1,
 				xscale: 3,
 				opacity: 0.5,
-				time: 500
+				time: 550
 			}, {
 				scale: 3,
 				xscale: 8,
@@ -5233,7 +5250,20 @@ var BattleMoveAnims = {
 				opacity: 1,
 				time: 500
 			}, 'accel', 'explode');
-
+			battle.showEffect('iceball', {
+				x: defender.x,
+				y: defender.y-50,
+				z: defender.z,
+				scale: 1,
+				xscale: 3,
+				opacity: 0.5,
+				time: 550
+			}, {
+				scale: 3,
+				xscale: 8,
+				opacity: 0.1,
+				time: 1000
+			}, 'linear', 'fade');
 			battle.showEffect('iceball', {
 				x: defender.x,
 				y: defender.y,
