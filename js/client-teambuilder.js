@@ -1022,7 +1022,7 @@
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
+				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
@@ -1038,7 +1038,7 @@
 				var item = Tools.getItem(set.item);
 				itemicon = '<span class="itemicon" style="' + Tools.getItemIcon(item) + '"></span>';
 			}
-			buf += '<div class="setcol setcol-icon">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pokemon</label><input type="text" name="pokemon" class="chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
+			buf += '<div class="setcol setcol-icon">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
 
 			// details
 			buf += '<div class="setcol setcol-details"><div class="setrow">';
