@@ -3336,6 +3336,7 @@ var Battle = (function () {
 						break;
 					case 'roughskin':
 					case 'ironbarbs':
+					case 'spikyshield':
 						actions += "" + poke.getName() + " was hurt!";
 						break;
 					case 'aftermath':
