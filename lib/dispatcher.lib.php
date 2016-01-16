@@ -97,7 +97,7 @@ class ActionDispatcher {
 		foreach ($this->reqs as $this->reqData) {
 			$this->reqData = array_merge($_REQUEST, $this->reqData);
 			$action = @$this->reqData['act'];
-			if (!ctype_alnum($action)) die;
+			if (!ctype_alnum($action)) die("invalid action");
 			$out = array();
 
 			foreach ($this->handlers as &$i) {
