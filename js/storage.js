@@ -986,7 +986,7 @@ Storage.importTeam = function (text, teams) {
 				curSet.name = line;
 			} else {
 				curSet.species = Tools.getTemplate(line).name;
-				curSet.name = curSet.species;
+				curSet.name = '';
 			}
 		} else if (line.substr(0, 7) === 'Trait: ') {
 			line = line.substr(7);
@@ -1082,7 +1082,7 @@ Storage.exportTeam = function (team) {
 	var text = '';
 	for (var i = 0; i < team.length; i++) {
 		var curSet = team[i];
-		if (curSet.name !== curSet.species) {
+		if (curSet.name && curSet.name !== curSet.species) {
 			text += '' + curSet.name + ' (' + curSet.species + ')';
 		} else {
 			text += '' + curSet.species;
