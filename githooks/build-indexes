@@ -45,7 +45,7 @@ function requireNoCache(pathSpec) {
 	index = index.concat(Object.keys(Tools.data.TypeChart).map(x => toId(x) + ' type'));
 	index = index.concat(['physical', 'special', 'status'].map(x => toId(x) + ' category'));
 	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toId(x) + ' egggroup'));
-	index = index.concat(['ou', 'uu', 'ru', 'nu', 'lc', 'nfe', 'uber', 'bl', 'bl2', 'bl3', 'bl4', 'cap'].map(x => toId(x) + ' tier'));
+	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'lc', 'nfe', 'uber', 'bl', 'bl2', 'bl3', 'bl4', 'cap'].map(x => toId(x) + ' tier'));
 
 	// generate aliases
 	function generateAlias(id, name, type) {
