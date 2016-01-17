@@ -6023,12 +6023,16 @@ var Battle = (function () {
 					this.runMajor(args, kwargs, preempt);
 				}
 			} catch (e) {
-				this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + '</div>', preempt);
+				this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + ' (' + Tools.escapeHTML('' + e) + ')</div>', preempt);
 				if (e.stack) {
-					var stack = '' + e.stack;
-					this.log('<div class="chat" style="white-space:pre-wrap">' + Tools.escapeHTML(stack) + '</div>', preempt);
-				} else {
-					this.log('<div class="chat">Error: ' + Tools.escapeHTML('' + e) + '</div>', preempt);
+					var stack = Tools.escapeHTML('' + e.stack).split('\n');
+					for (var i = 0; i < stack.length; i++) {
+						if (/\brun\b/.test(stack[i])) {
+							stack.length = i;
+							break;
+						}
+					}
+					this.log('<div class="chat">' + stack.join('<br>') + '</div>', preempt);
 				}
 				if (this.errorCallback) this.errorCallback(this);
 			}
