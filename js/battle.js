@@ -1660,16 +1660,15 @@ var Side = (function () {
 	Side.prototype.dragIn = function (pokemon, slot) {
 		if (slot === undefined) slot = pokemon.slot;
 		this.battle.message('' + pokemon.getFullName() + ' was dragged out!');
-		if (pokemon === this.active[slot]) return;
 		var oldpokemon = this.active[slot];
+		if (oldpokemon === pokemon) return;
 		this.lastPokemon = oldpokemon;
 		if (oldpokemon) oldpokemon.clearVolatile();
 		pokemon.clearVolatile();
 		pokemon.lastmove = '';
 		this.battle.lastmove = 'switch-in';
 		this.active[slot] = pokemon;
-
-		if (oldpokemon === pokemon) return;
+		pokemon.slot = slot;
 
 		if (oldpokemon) {
 			oldpokemon.sprite.animDragOut();
@@ -1756,6 +1755,7 @@ var Side = (function () {
 			pokemon.copyVolatileFrom(oldpokemon, true);
 		}
 		this.active[slot] = pokemon;
+		pokemon.slot = slot;
 
 		if (oldpokemon) {
 			oldpokemon.sprite.animUnsummon(true);
