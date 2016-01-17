@@ -2184,9 +2184,12 @@
 			if (e.keyCode === 13 || (e.keyCode === 9 && !modifier)) { // enter/tab
 				if (!(this.curChartType in this.searchChartTypes)) return;
 				var $firstResult = this.$chart.find('a.hover');
-				if (!$firstResult.length) return;
 				e.stopPropagation();
 				e.preventDefault();
+				if (!$firstResult.length) {
+					this.chartChange(e, true);
+					return;
+				}
 
 				if (this.search.addFilter($firstResult[0])) {
 					$(e.currentTarget).val('').select();
@@ -2269,7 +2272,7 @@
 			this.curChartType = type;
 			this.updateChart(false, wasIncomplete);
 		},
-		chartChange: function (e) {
+		chartChange: function (e, selectNext) {
 			var name = e.currentTarget.name;
 			if (this.curChartName !== name) return;
 			var id = toId(e.currentTarget.value);
@@ -2294,7 +2297,7 @@
 					return;
 				}
 			}
-			this.chartSet(val);
+			this.chartSet(val, selectNext);
 		},
 		chartSet: function (val, selectNext) {
 			var inputName = this.curChartName;
@@ -2337,7 +2340,10 @@
 				if (!this.curSet.moves[2]) this.curSet.moves[2] = '';
 				this.curSet.moves[3] = val;
 				this.chooseMove(val);
-				if (selectNext) this.stats();
+				if (selectNext) {
+					this.stats();
+					this.$('button.setstats').focus();
+				}
 				break;
 			}
 			this.save();
