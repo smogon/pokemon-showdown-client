@@ -1273,6 +1273,7 @@
 		focusRoom: function (id) {
 			var room = this.rooms[id];
 			if (!room) return false;
+			BattleTooltips.hideTooltip();
 			if (this.curRoom === room || this.curSideRoom === room) {
 				room.focus();
 				return true;
