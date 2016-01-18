@@ -16,7 +16,7 @@
 	}
 
 	$(document).on('keydown', function (e) {
-		if (e.keyCode == 27) {
+		if (e.keyCode == 27) { // Esc
 			e.preventDefault();
 			e.stopPropagation();
 			e.stopImmediatePropagation();
