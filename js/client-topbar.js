@@ -4,13 +4,18 @@
 		events: {
 			'click a': 'click',
 			'click .username': 'clickUsername',
-			'click button': 'dispatchClickButton'
+			'click button': 'dispatchClickButton',
+
+			'dragstart .roomtab': 'dragStartRoom',
+			'dragend .roomtab': 'dragEndRoom',
+			'dragenter .roomtab': 'dragEnterRoom'
 		},
 		initialize: function () {
 			this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar .inner');
 			// this.$sidetabbar = this.$('.sidetabbar');
 			this.$userbar = this.$('.userbar');
+			this.dragging = false;
 			this.updateTabbar();
 
 			app.user.on('change', this.updateUserbar, this);
@@ -48,19 +53,19 @@
 		},
 
 		// tabbar
-		renderRoomTab: function (room) {
-			if (!room) return '';
-			var id = room.id;
-			var buf = '<li><a class="button' + (app.curRoom === room || app.curSideRoom === room ? ' cur' : '') + (room.notificationClass || '') + (id === '' || id === 'rooms' ? '' : ' closable') + '" href="' + app.root + id + '">';
+		renderRoomTab: function (room, id) {
+			if (!room && id !== 'rooms') return '';
+			if (!id) id = room.id;
+			var buf = '<li><a class="roomtab button' + (app.curRoom === room || app.curSideRoom === room ? ' cur' : '') + (room && room.notificationClass || '') + (id === '' || id === 'rooms' ? '' : ' closable') + '" href="' + app.root + id + '"';
 			switch (id) {
 			case '':
-				return buf + '<i class="fa fa-home"></i> <span>Home</span></a></li>';
+				return buf + '><i class="fa fa-home"></i> <span>Home</span></a></li>';
 			case 'teambuilder':
-				return buf + '<i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + '><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
 			case 'ladder':
-				return buf + '<i class="fa fa-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + '><i class="fa fa-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
 			case 'rooms':
-				return buf + '<i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
+				return buf + '><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			default:
 				if (id.substr(0, 7) === 'battle-') {
 					var name = Tools.escapeHTML(room.title);
@@ -76,9 +81,9 @@
 							name = '(empty room)';
 						}
 					}
-					return buf + '<i class="text">' + Tools.escapeFormat(formatid) + '</i><span>' + name + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
+					return buf + ' draggable="true"><i class="text">' + Tools.escapeFormat(formatid) + '</i><span>' + name + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 				} else {
-					return buf + '<i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
+					return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
 				}
 			}
 		},
@@ -94,13 +99,15 @@
 			var sideBuf = '';
 
 			var notificationCount = app.rooms[''].notifications ? 1 : 0;
-			if (app.roomList.length) buf += '<ul>';
-			for (var i = 0; i < app.roomList.length; i++) {
-				var room = app.roomList[i];
-				if (room.notifications) notificationCount++;
-				buf += this.renderRoomTab(room);
+			if (app.roomList.length) {
+				buf += '<ul>';
+				for (var i = 0; i < app.roomList.length; i++) {
+					var room = app.roomList[i];
+					if (room.notifications) notificationCount++;
+					buf += this.renderRoomTab(room);
+				}
+				buf += '</ul>';
 			}
-			if (app.roomList.length) buf += '</ul>';
 
 			for (var i = 0; i < app.sideRoomList.length; i++) {
 				var room = app.sideRoomList[i];
@@ -110,7 +117,7 @@
 			if (window.nodewebkit) {
 				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount || '');
 			}
-			sideBuf += '<li><a class="button' + (curId === 'rooms' || curSideId === 'rooms' ? ' cur' : '') + '" href="' + app.root + 'rooms"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
+			sideBuf += this.renderRoomTab(app.rooms['rooms'], 'rooms');
 			var margin = 0;
 			if (sideBuf) {
 				if (app.curSideRoom) {
@@ -186,6 +193,120 @@
 		},
 		tablist: function () {
 			app.addPopup(TabListPopup);
+		},
+
+		// drag and drop
+
+		roomidOf: function (room) {
+			return room.id;
+		},
+
+		dragStartRoom: function (e) {
+			var target = e.currentTarget;
+			var dataTransfer = e.originalEvent.dataTransfer;
+
+			var elWidth = $(e.currentTarget).outerWidth();
+
+			dataTransfer.effectAllowed = 'all';
+			// by default, Chrome displays links as a URL when dragging
+			// this uses a hack to force it to drag the tab
+			app.draggingOffsetX = Math.floor(elWidth / 2);
+			app.draggingOffsetY = 18;
+			dataTransfer.setDragImage(target, app.draggingOffsetX, app.draggingOffsetY);
+
+			var roomRef = $(target).attr('href');
+			app.draggingRoomList = app.roomList.map(this.roomidOf).concat('|').concat(app.sideRoomList.map(this.roomidOf));
+			app.draggingLoc = app.draggingRoomList.indexOf(roomRef.slice(1));
+			if (app.draggingLoc < 0) {
+				// can't drag
+				return;
+			}
+
+			app.dragging = roomRef;
+			app.draggingRoom = null;
+			app.$dragging = null;
+
+			var iPipe = app.draggingRoomList.indexOf('|');
+			app.draggingSideRoom = (app.draggingLoc > iPipe);
+
+			setTimeout(function () {
+				$(target).css('opacity', 0.5);
+			}, 0);
+
+			// console.log('dragstart: ' + app.dragging);
+		},
+
+		dragEnterRoom: function (e) {
+			if (!app.dragging || typeof app.dragging !== 'string') return;
+			var roomid = $(e.currentTarget).attr('href').slice(1);
+			if (app.dragging.slice(1) === roomid) return;
+			var i = app.draggingRoomList.indexOf(roomid);
+			var iPipe = app.draggingRoomList.indexOf('|');
+			if (iPipe < 0) return; // bug?
+
+			if (roomid === 'rooms') i = app.draggingRoomList.length;
+			if (i < 0) i = 0;
+
+			var draggingRight = (i > app.draggingLoc);
+
+			// remove tab from old position
+			var room;
+			if (app.draggingLoc < iPipe) {
+				// old position is in left list
+				room = app.roomList.splice(app.draggingLoc, 1)[0];
+				iPipe--;
+			} else {
+				// old position is in right list
+				room = app.sideRoomList.splice(app.draggingLoc - iPipe - 1, 1)[0];
+			}
+			if (app.draggingLoc < i) i--;
+
+			// add tab to new position
+			if (draggingRight) i++; // add after when dragging right
+			if (i <= iPipe) {
+				// insert into left list
+				app.roomList.splice(i, 0, room);
+			} else {
+				// insert into right list
+				app.sideRoomList.splice(i - iPipe - 1, 0, room);
+			}
+
+			app.draggingRoomList = app.roomList.map(this.roomidOf).concat('|').concat(app.sideRoomList.map(this.roomidOf));
+			app.draggingLoc = app.draggingRoomList.indexOf(app.dragging.slice(1));
+
+			if (!app.$dragging) {
+				// the dragging element needs to stay in the DOM, or the dragEnd
+				// event won't fire (at least when I tested in Chrome)
+				app.$dragging = this.$('a.roomtab[href="' + app.dragging + '"]');
+				this.$el.append(app.$dragging);
+				app.$dragging.hide();
+			}
+			this.updateTabbar();
+			this.$('a.roomtab[href="' + app.dragging + '"]').css('opacity', 0.5);
+
+			// console.log('dragenter: /' + roomid);
+		},
+
+		dragEndRoom: function (e) {
+			if (!app.dragging) return;
+			// console.log('dragend: ' + app.dragging);
+
+			var room = app.rooms[app.dragging.slice(1)];
+			var iPipe = app.draggingRoomList.indexOf('|');
+
+			if (app.draggingLoc < iPipe && app.draggingSideRoom) {
+				app.focusRoomLeft(room.id);
+			} else if (app.draggingLoc > iPipe && !app.draggingSideRoom) {
+				app.focusRoomRight(room.id);
+			} else {
+				this.updateTabbar();
+			}
+
+			if (room.type === 'chat') app.updateAutojoin();
+
+			app.dragging = null;
+			if (app.$dragging) app.$dragging.remove();
+			app.draggingRoomList = null;
 		}
 	});
 
