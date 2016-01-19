@@ -785,6 +785,11 @@
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
 				if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
 				if (id === 'toxic') isViable = (this.gen > 1);
+				if (id === 'hiddenpowerice') isViable = (moves.indexOf('icebeam') < 0 && template.id !== 'xerneas');
+				if (id === 'hiddenpowerelectric') isViable = (moves.indexOf('thunderbolt') < 0);
+				if (id === 'hiddenpowerfire') isViable = (moves.indexOf('flamethrower') < 0);
+				if (id === 'hiddenpowergrass') isViable = (moves.indexOf('energyball') < 0);
+				if (id === 'hiddenpowerfighting') isViable = (moves.indexOf('aurasphere') < 0);
 				if (isViable) {
 					if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
 					usableMoves.push(['move', id]);
