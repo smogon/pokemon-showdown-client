@@ -34,16 +34,20 @@
 		e.preventDefault();
 
 		if (!app.dragging && app.curRoom.id === 'teambuilder') {
-			if (e.originalEvent.dataTransfer.files && e.originalEvent.dataTransfer.files[0]) {
-				var file = e.originalEvent.dataTransfer.files[0];
+			var dataTransfer = e.originalEvent.dataTransfer;
+			if (dataTransfer.files && dataTransfer.files[0]) {
+				var file = dataTransfer.files[0];
 				if (file.name.slice(-4) === '.txt') {
 					// Someone dragged in a .txt file, hand it to the teambuilder
 					app.curRoom.defaultDragEnterTeam(e);
 				}
-			} else {
-				// security doesn't let us read the filename :(
-				// we'll just have to assume it's a team
-				app.curRoom.defaultDragEnterTeam(e);
+			} else if (dataTransfer.items && dataTransfer.items[0]) {
+				// no files or no permission to access files
+				var item = dataTransfer.items[0];
+				if (item.kind === 'file' && item.type === 'text/plain') {
+					// Someone dragged in a .txt file, hand it to the teambuilder
+					app.curRoom.defaultDragEnterTeam(e);
+				}
 			}
 		}
 
