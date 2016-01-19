@@ -745,11 +745,11 @@
 			dataTransfer.setData("DownloadURL", downloadurl);
 
 			app.dragging = e.currentTarget;
+			app.draggingRoom = this.id;
 			app.draggingLoc = parseInt(e.currentTarget.dataset.value, 10);
 			var elOffset = $(e.currentTarget).offset();
 			app.draggingOffsetX = e.originalEvent.pageX - elOffset.left;
 			app.draggingOffsetY = e.originalEvent.pageY - elOffset.top;
-			app.draggingRoom = this.id;
 			this.finalOffset = null;
 			setTimeout(function () {
 				$(e.currentTarget).parent().addClass('dragging');
@@ -913,10 +913,10 @@
 			}
 			this.$('.teamlist').append('<li class="dragging"><div class="team" data-value="' + Storage.teams.length + '"></div></li>');
 			app.dragging = this.$('.dragging .team')[0];
+			app.draggingRoom = this.id;
 			app.draggingLoc = Storage.teams.length;
 			app.draggingOffsetX = 180;
 			app.draggingOffsetY = 25;
-			app.draggingRoom = this.id;
 		},
 		defaultDropTeam: function (e) {
 			if (e.originalEvent.dataTransfer.files && e.originalEvent.dataTransfer.files[0]) {

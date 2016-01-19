@@ -63,7 +63,7 @@
 		// The default file drop action for most browsers is to open the file
 		// in the tab, which is generally undesirable anyway.
 		e.preventDefault();
-		if (app.dragging) {
+		if (app.dragging && app.draggingRoom) {
 			app.rooms[app.draggingRoom].defaultDropTeam(e);
 		} else if (e.originalEvent.dataTransfer.files && e.originalEvent.dataTransfer.files[0]) {
 			var file = e.originalEvent.dataTransfer.files[0];
