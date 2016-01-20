@@ -798,6 +798,11 @@
 					}
 				}
 				return;
+			} else if (data.substr(0, 3) === '|N|') {
+				var names = data.substr(1).split('|');
+				if (app.ignore[toUserid(names[2])]) {
+					app.ignore[toUserid(names[1])] = 1;
+				}
 			}
 			if (roomid) {
 				if (this.rooms[roomid]) {
@@ -852,6 +857,9 @@
 				this.user.setPersistentName(named ? name : null);
 				if (named) {
 					this.trigger('init:choosename');
+				}
+				if (app.ignore[toUserid(name)]) {
+					delete app.ignore[toUserid(name)];
 				}
 				break;
 
