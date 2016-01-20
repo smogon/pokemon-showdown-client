@@ -1660,16 +1660,15 @@ var Side = (function () {
 	Side.prototype.dragIn = function (pokemon, slot) {
 		if (slot === undefined) slot = pokemon.slot;
 		this.battle.message('' + pokemon.getFullName() + ' was dragged out!');
-		if (pokemon === this.active[slot]) return;
 		var oldpokemon = this.active[slot];
+		if (oldpokemon === pokemon) return;
 		this.lastPokemon = oldpokemon;
 		if (oldpokemon) oldpokemon.clearVolatile();
 		pokemon.clearVolatile();
 		pokemon.lastmove = '';
 		this.battle.lastmove = 'switch-in';
 		this.active[slot] = pokemon;
-
-		if (oldpokemon === pokemon) return;
+		pokemon.slot = slot;
 
 		if (oldpokemon) {
 			oldpokemon.sprite.animDragOut();
@@ -1756,6 +1755,7 @@ var Side = (function () {
 			pokemon.copyVolatileFrom(oldpokemon, true);
 		}
 		this.active[slot] = pokemon;
+		pokemon.slot = slot;
 
 		if (oldpokemon) {
 			oldpokemon.sprite.animUnsummon(true);
@@ -3336,6 +3336,7 @@ var Battle = (function () {
 						break;
 					case 'roughskin':
 					case 'ironbarbs':
+					case 'spikyshield':
 						actions += "" + poke.getName() + " was hurt!";
 						break;
 					case 'aftermath':
@@ -5152,18 +5153,23 @@ var Battle = (function () {
 					break;
 				case 'tailwind':
 					actions += "The Tailwind blew from behind " + side.getLowerTeamName() + "!";
+					this.updateWeather();
 					break;
 				case 'reflect':
 					actions += "Reflect raised " + side.getLowerTeamName() + "'s Defense!";
+					this.updateWeather();
 					break;
 				case 'lightscreen':
 					actions += "Light Screen raised " + side.getLowerTeamName() + "'s Special Defense!";
+					this.updateWeather();
 					break;
 				case 'safeguard':
 					actions += "" + side.getTeamName() + " became cloaked in a mystical veil!";
+					this.updateWeather();
 					break;
 				case 'mist':
 					actions += "" + side.getTeamName() + " became shrouded in mist!";
+					this.updateWeather();
 					break;
 				case 'luckychant':
 					actions += 'Lucky Chant shielded ' + side.getLowerTeamName() + ' from critical hits!';
@@ -6022,12 +6028,16 @@ var Battle = (function () {
 					this.runMajor(args, kwargs, preempt);
 				}
 			} catch (e) {
-				this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + '</div>', preempt);
+				this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + ' (' + Tools.escapeHTML('' + e) + ')</div>', preempt);
 				if (e.stack) {
-					var stack = '' + e.stack;
-					this.log('<div class="chat" style="white-space:pre-wrap">' + Tools.escapeHTML(stack) + '</div>', preempt);
-				} else {
-					this.log('<div class="chat">Error: ' + Tools.escapeHTML('' + e) + '</div>', preempt);
+					var stack = Tools.escapeHTML('' + e.stack).split('\n');
+					for (var i = 0; i < stack.length; i++) {
+						if (/\brun\b/.test(stack[i])) {
+							stack.length = i;
+							break;
+						}
+					}
+					this.log('<div class="chat">' + stack.join('<br>') + '</div>', preempt);
 				}
 				if (this.errorCallback) this.errorCallback(this);
 			}

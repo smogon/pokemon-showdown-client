@@ -13,7 +13,7 @@ body {
 	font-size: 11pt;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 
-	/* license: CC-BY source: http://commons.wikimedia.org/wiki/File:%22La_piedra%22_(2809466426).jpg */
+	/* see http://pokemonshowdown.com/credits */
 	background: #344b6c url(../fx/client-bg-charizards.jpg) no-repeat left center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -73,6 +73,19 @@ a.subtle {
 a.subtle:hover {
 	text-decoration: underline;
 	color: #6688CC;
+}
+button.subtle {
+	border: 0;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+	color: #224466;
+	outline: 0;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+}
+button.subtle:hover {
+	text-decoration: underline;
 }
 .buttonbar {
 	margin-top: 1em;
@@ -2173,14 +2186,7 @@ a.ilink.yours {
 	visibility: hidden;
 }
 .teamlist .dragging .team {
-	visibility: visible;
-	background: #b7c3cc;
-	border-color: #b7c3cc;
-	color: #b7c3cc;
-	box-shadow: none;
-}
-.teamlist .dragging .team small {
-	display: none;
+	opacity: 0.4;
 }
 .teamlist .team small {
 	display: block;

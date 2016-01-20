@@ -301,6 +301,7 @@
 					break;
 
 				case 'start':
+					this.room.closeNotification('tournament-create');
 					if (!this.info.isJoined) {
 						this.toggleBoxVisibility(false);
 					} else if (this.info.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) {
@@ -471,6 +472,7 @@
 					// Fallthrough
 
 				case 'forceend':
+					this.room.closeNotification('tournament-create');
 					this.info = {};
 					this.updates = {};
 					this.savedBracketPosition = {};
