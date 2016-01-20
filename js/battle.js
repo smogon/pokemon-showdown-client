@@ -5153,18 +5153,23 @@ var Battle = (function () {
 					break;
 				case 'tailwind':
 					actions += "The Tailwind blew from behind " + side.getLowerTeamName() + "!";
+					this.updateWeather();
 					break;
 				case 'reflect':
 					actions += "Reflect raised " + side.getLowerTeamName() + "'s Defense!";
+					this.updateWeather();
 					break;
 				case 'lightscreen':
 					actions += "Light Screen raised " + side.getLowerTeamName() + "'s Special Defense!";
+					this.updateWeather();
 					break;
 				case 'safeguard':
 					actions += "" + side.getTeamName() + " became cloaked in a mystical veil!";
+					this.updateWeather();
 					break;
 				case 'mist':
 					actions += "" + side.getTeamName() + " became shrouded in mist!";
+					this.updateWeather();
 					break;
 				case 'luckychant':
 					actions += 'Lucky Chant shielded ' + side.getLowerTeamName() + ' from critical hits!';
