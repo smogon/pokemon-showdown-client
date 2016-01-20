@@ -8,7 +8,8 @@
 
 			'dragstart .roomtab': 'dragStartRoom',
 			'dragend .roomtab': 'dragEndRoom',
-			'dragenter .roomtab': 'dragEnterRoom'
+			'dragenter .roomtab': 'dragEnterRoom',
+			'dragover .roomtab': 'dragEnterRoom'
 		},
 		initialize: function () {
 			this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
@@ -244,10 +245,29 @@
 			var iPipe = app.draggingRoomList.indexOf('|');
 			if (iPipe < 0) return; // bug?
 
+			if (!app.$dragging) {
+				// the dragging element needs to stay in the DOM, or the dragEnd
+				// event won't fire (at least when I tested in Chrome)
+				app.$dragging = this.$('a.roomtab[href="' + app.dragging + '"]');
+				this.$el.append(app.$dragging);
+				app.$dragging.hide();
+			} else if (app.draggingLastRoom === roomid) {
+				if (app.draggingOffsetX > 0) {
+					// dragged right, don't drag back if we're still going right
+					if (e.originalEvent.pageX - app.draggingOffsetX >= -5) return;
+				} else {
+					// dragged left, don't drag back if we're still going left
+					if (e.originalEvent.pageX + app.draggingOffsetX <= 5) return;
+				}
+			}
+
 			if (roomid === 'rooms') i = app.draggingRoomList.length;
 			if (i < 0) i = 0;
 
 			var draggingRight = (i > app.draggingLoc);
+			if (iPipe > app.draggingLoc && i > iPipe) draggingRight = false;
+			app.draggingOffsetX = e.originalEvent.pageX * (draggingRight ? 1 : -1);
+			app.draggingLastRoom = roomid;
 
 			// remove tab from old position
 			var room;
@@ -274,13 +294,6 @@
 			app.draggingRoomList = app.roomList.map(this.roomidOf).concat('|').concat(app.sideRoomList.map(this.roomidOf));
 			app.draggingLoc = app.draggingRoomList.indexOf(app.dragging.slice(1));
 
-			if (!app.$dragging) {
-				// the dragging element needs to stay in the DOM, or the dragEnd
-				// event won't fire (at least when I tested in Chrome)
-				app.$dragging = this.$('a.roomtab[href="' + app.dragging + '"]');
-				this.$el.append(app.$dragging);
-				app.$dragging.hide();
-			}
 			this.updateTabbar();
 			this.$('a.roomtab[href="' + app.dragging + '"]').css('opacity', 0.5);
 
