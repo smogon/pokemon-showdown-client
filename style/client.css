@@ -2186,14 +2186,7 @@ a.ilink.yours {
 	visibility: hidden;
 }
 .teamlist .dragging .team {
-	visibility: visible;
-	background: #b7c3cc;
-	border-color: #b7c3cc;
-	color: #b7c3cc;
-	box-shadow: none;
-}
-.teamlist .dragging .team small {
-	display: none;
+	opacity: 0.4;
 }
 .teamlist .team small {
 	display: block;
