@@ -399,6 +399,7 @@
 			'change input[name=nopastgens]': 'setNopastgens',
 			'change input[name=notournaments]': 'setNotournaments',
 			'change input[name=inchatpm]': 'setInchatpm',
+			'change input[name=dark]': 'setDark',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
@@ -426,6 +427,7 @@
 			buf += '<hr />';
 			buf += '<p><strong>Graphics</strong></p>';
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Tools.prefs('dark') ? ' checked' : '') + ' /> Dark mode (beta)</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Tools.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Tools.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Tools.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
@@ -477,6 +479,11 @@
 			var noanim = !!e.currentTarget.checked;
 			Tools.prefs('noanim', noanim);
 			Tools.loadSpriteData(noanim || Tools.prefs('bwgfx') ? 'bw' : 'xy');
+		},
+		setDark: function (e) {
+			var dark = !!e.currentTarget.checked;
+			Tools.prefs('dark', dark);
+			$('html').toggleClass('dark', dark);
 		},
 		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;

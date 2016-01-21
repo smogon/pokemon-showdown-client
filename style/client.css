@@ -106,6 +106,40 @@ button:disabled {
 	cursor: default;
 }
 
+.dark a {
+	color: #4488EE;
+}
+.dark a.button {
+	color: #222222;
+}
+.dark a.button.subtle-notifying {
+	color: #AA6600;
+}
+/* .dark button {
+	background: #777777;
+	box-shadow: none;
+	border: 1px solid #EEEEEE;
+	color: #EEEEEE;
+	border-radius: 5px;
+}
+.dark .button {
+	background: #777777;
+	box-shadow: none;
+	border-color: 1px solid #EEEEEE;
+	text-shadow: none;
+	color: #EEEEEE;
+}
+.dark .button:hover {
+	background: #555555;
+}
+
+.dark .closebutton,
+.dark .minimizebutton,
+.dark button.subtle {
+	background: none;
+	border: none;
+} */
+
 /*********************************************************
  * Header
  *********************************************************/
@@ -2092,6 +2126,7 @@ a.ilink.yours {
 	height: 17px;
 	font-size: 9pt;
 	background: #d7e3ec;
+	color: black;
 	border-right: 1px solid #888888;
 }
 .folder .selectFolder {
@@ -2961,6 +2996,114 @@ a.ilink.yours {
 
 .preview {
 	float: right;
+}
+
+/*********************************************************
+ * Dark mode!
+ *********************************************************/
+
+.dark .header {
+	background: rgba(0,0,0,.30);
+}
+
+.dark .ps-room.ps-room-light {
+	background: rgba(0,0,0,.80);
+	color: #DDD;
+}
+
+.dark .pm-log,
+.dark .userlist-maximized {
+	background: #333333;
+	color: #DDD;
+}
+.dark .ps-room.ps-room-opaque,
+.dark .battle-log-add,
+.dark .battle-controls,
+.dark .pm-log-add {
+	background: #444444;
+	color: #DDD;
+}
+.dark .userlist-minimized {
+	background: #444444;
+	color: #4488EE;
+}
+.dark .userlist-minimized .userlist-count:hover,
+.dark .userlist-maximized .userlist-count:hover {
+	background: #666666;
+}
+
+.dark .moveselect button {
+	color: #AA6644;
+}
+.dark .switchselect button {
+	color: #6677AA;
+}
+.dark .whatdo {
+	color: #999999;
+}
+
+.dark .chat-log {
+	background: rgba(0,0,0,.5);
+	color: #DDD;
+}
+
+.dark .menugroup {
+	background: rgba(0,0,0,.2);
+}
+
+.dark .setmenu button,
+.dark .teamlist button,
+.dark .folder.cur .selectFolder,
+.dark .utilichart .namecol,
+.dark .utilichart .pokemonnamecol,
+.dark .utilichart .movenamecol {
+	color: #DDD;
+}
+.dark .utilichart .col {
+	color: #999;
+}
+.dark .setmenu button:hover,
+.dark .teamlist button:hover,
+.dark .utilichart a:hover .namecol,
+.dark .utilichart a:hover .pokemonnamecol,
+.dark .utilichart a:hover .movenamecol {
+	color: #555;
+}
+
+.dark .userlist li button:hover {
+	background: #222222;
+}
+.dark .userlist li button:active {
+	background: black;
+}
+
+.dark .textbox {
+	border: 1px solid #777777;
+	border-radius: 3px;
+	padding: 2px 3px;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 9pt;
+
+	box-shadow: none;
+	background: #282B2D;
+	color: #DDD;
+}
+.dark .textbox:hover {
+	border-color: #AAAAAA;
+	box-shadow: none;
+	background: #111111;
+}
+.dark .textbox:focus {
+	outline: 0 none;
+	border: 1px solid #AAAAAA;
+	box-shadow: 0px 0px 5px #4488CC;
+	background: #111111;
+}
+
+.dark iframe.textbox,
+.dark iframe.textbox:hover,
+.dark iframe.textbox:focus {
+	background: #DDDDDD;
 }
 
 /*********************************************************

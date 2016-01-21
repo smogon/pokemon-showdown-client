@@ -390,6 +390,8 @@
 				var muted = Tools.prefs('mute');
 				BattleSound.setMute(muted);
 
+				$('html').toggleClass('dark', !!Tools.prefs('dark'));
+
 				var effectVolume = Tools.prefs('effectvolume');
 				if (effectVolume !== undefined) BattleSound.setEffectVolume(effectVolume);
 
