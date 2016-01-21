@@ -3464,6 +3464,7 @@ var Battle = (function () {
 				} else {
 					actions += poke.getName() + ' restored its HP.';
 				}
+				BattleOtherAnims.heal.anim(this, [poke.sprite]);
 				this.healAnim(poke, poke.getFormattedRange(range, 0, ' to '));
 				break;
 			case '-sethp':
