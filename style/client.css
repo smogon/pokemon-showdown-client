@@ -346,13 +346,14 @@ button:disabled {
 	display: inline-block;
 	margin: 0 0 0 -18px;
 	width: 18px;
-	top: 5px;
+	text-align: left;
+	top: 3px;
 	vertical-align: top;
 	position: relative;
 	z-index: 11;
 }
 .tabbar a.cur + .closebutton {
-	top: 4px;
+	top: 2px;
 }
 .closebutton,
 .minimizebutton {

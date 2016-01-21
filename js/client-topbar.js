@@ -62,9 +62,9 @@
 			case '':
 				return buf + '><i class="fa fa-home"></i> <span>Home</span></a></li>';
 			case 'teambuilder':
-				return buf + '><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><a class="closebutton" href="' + app.root + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + '><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><button class="closebutton" name="closeRoom" value="' + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
 			case 'ladder':
-				return buf + '><i class="fa fa-list-ol"></i> <span>Ladder</span></a><a class="closebutton" href="' + app.root + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + '><i class="fa fa-list-ol"></i> <span>Ladder</span></a><button class="closebutton" name="closeRoom" value="' + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
 			case 'rooms':
 				return buf + '><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			default:
@@ -82,9 +82,9 @@
 							name = '(empty room)';
 						}
 					}
-					return buf + ' draggable="true"><i class="text">' + Tools.escapeFormat(formatid) + '</i><span>' + name + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
+					return buf + ' draggable="true"><i class="text">' + Tools.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '"><i class="fa fa-times-circle"></i></a></li>';
 				} else {
-					return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><a class="closebutton" href="' + app.root + id + '"><i class="fa fa-times-circle"></i></a></li>';
+					return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '"><i class="fa fa-times-circle"></i></a></li>';
 				}
 			}
 		},
@@ -169,7 +169,7 @@
 				app.dispatchingButton = target;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				this[target.name](target.value, target);
+				this[target.name](target.value, target, e);
 				delete app.dismissingSource;
 				delete app.dispatchingButton;
 			}
@@ -191,6 +191,9 @@
 			} else {
 				app.joinRoom(id);
 			}
+		},
+		closeRoom: function (roomid, button, e) {
+			app.leaveRoom(roomid, e);
 		},
 		tablist: function () {
 			app.addPopup(TabListPopup);
