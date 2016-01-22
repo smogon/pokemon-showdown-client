@@ -4403,6 +4403,11 @@ var Battle = (function () {
 				var fromeffect = Tools.getEffect(kwargs.from);
 				poke.addVolatile(effect.id);
 
+				if (effect.effectType === 'Ability') {
+					this.resultAnim(poke, effect.name, 'ability');
+					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
+					poke.markAbility(effect.name);
+				}
 				if (kwargs.silent && effect.id !== 'typechange' && effect.id !== 'typeadd') {
 					// do nothing
 				} else switch (effect.id) {
@@ -4411,10 +4416,10 @@ var Battle = (function () {
 					poke.volatiles.typechange[2] = args[3];
 					poke.removeVolatile('typeadd');
 					if (fromeffect.id) {
-						if (fromeffect.id === 'colorchange') {
-							this.resultAnim(poke, 'Color Change', 'ability');
-							this.message('', "<small>[" + poke.getName(true) + "'s Color Change!]</small>");
-							poke.markAbility('Color Change');
+						if (fromeffect.id === 'colorchange' || fromeffect.id === 'protean') {
+							this.resultAnim(poke, fromeffect.name, 'ability');
+							this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+							poke.markAbility(fromeffect.name);
 							actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
 						} else if (fromeffect.id === 'reflecttype') {
 							poke.copyTypesFrom(ofpoke);
@@ -4478,7 +4483,6 @@ var Battle = (function () {
 					actions += "" + poke.getName() + ' grew drowsy!';
 					break;
 				case 'flashfire':
-					this.resultAnim(poke, 'Flash Fire', 'good');
 					actions += 'The power of ' + poke.getLowerName() + '\'s Fire-type moves rose!';
 					break;
 				case 'taunt':
@@ -4550,7 +4554,6 @@ var Battle = (function () {
 					actions += "" + poke.getName() + " is storing energy!";
 					break;
 				case 'slowstart':
-					this.resultAnim(poke, 'Slow Start', 'bad');
 					actions += "" + poke.getName() + " can't get it going!";
 					break;
 				case 'attract':
