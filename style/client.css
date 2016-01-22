@@ -117,21 +117,21 @@ button:disabled {
 }
 
 .dark .textbox {
-	border-color: #777777;
+	border-color: #888888;
 
 	box-shadow: none;
 	background: #282B2D;
 	color: #DDD;
 }
 .dark .textbox:hover {
-	border-color: #AAAAAA;
+	border-color: #BBBBBB;
 	box-shadow: none;
-	background: #111111;
+	background: #222222;
 }
 .dark .textbox:focus {
 	outline: 0 none;
-	border-color: #AAAAAA;
-	box-shadow: 0px 0px 4px #77BBFF;
+	border-color: #BBBBBB;
+	box-shadow: 0px 0px 4px #88CCFF, 0px 0px 4px #88CCFF;
 	background: #111111;
 }
 /* .dark button {
@@ -3005,20 +3005,24 @@ a.ilink.yours {
 .dark .ps-room.ps-room-light,
 .dark .tournament-box,
 .dark .tournament-status,
-.dark .tournament-toggle {
+.dark .tournament-toggle,
+.dark .pm-log-add {
 	background: rgba(0,0,0,.65);
 	color: #DDD;
 }
 
-.dark .pm-log,
+.dark .pm-log {
+	background: rgba(0,0,0,.775);
+	color: #DDD;
+}
+
 .dark .userlist-maximized {
 	background: #333333;
 	color: #DDD;
 }
 .dark .ps-room.ps-room-opaque,
 .dark .battle-log-add,
-.dark .battle-controls,
-.dark .pm-log-add {
+.dark .battle-controls {
 	background: #444444;
 	color: #DDD;
 }
