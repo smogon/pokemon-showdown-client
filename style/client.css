@@ -791,7 +791,10 @@ p.or:after {
 	min-height: 2px;
 }
 .pm-window {
-	margin-bottom: 12px;
+	margin: 0 -12px 12px -10px;
+}
+.tiny-layout .pm-window {
+	margin: 0 0 12px 0;
 }
 .pm-window h3 {
 	background: rgba(248,248,248,.8);
