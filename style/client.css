@@ -62,7 +62,7 @@ body {
 }
 .textbox:focus {
 	outline: 0 none;
-	border: 1px solid #004488;
+	border-color: #004488;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
 	background: #FFFFFF;
 }
@@ -114,6 +114,28 @@ button:disabled {
 }
 .dark a.button.subtle-notifying {
 	color: #AA6600;
+}
+
+.dark .textbox {
+	border: 1px solid #777777;
+	border-radius: 3px;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 9pt;
+
+	box-shadow: none;
+	background: #282B2D;
+	color: #DDD;
+}
+.dark .textbox:hover {
+	border-color: #AAAAAA;
+	box-shadow: none;
+	background: #111111;
+}
+.dark .textbox:focus {
+	outline: 0 none;
+	border-color: #AAAAAA;
+	box-shadow: 0px 0px 4px #77BBFF;
+	background: #111111;
 }
 /* .dark button {
 	background: #777777;
@@ -2477,7 +2499,8 @@ a.ilink.yours {
 	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
 	background: #FFFFFF;
 }
-.setdetails:focus, .setstats:focus {
+.setdetails:focus, .setstats:focus,
+.dark .setdetails:focus, .dark .setstats:focus {
 	border: 2px solid #004488;
 	margin: 1px 1px 0 0;
 	outline: 0 none;
@@ -2582,35 +2605,10 @@ a.ilink.yours {
 .setchart-nickname input,
 .statform input.inputform {
 	display: block;
-	border: 1px solid #AAAAAA;
-	border-radius: 3px;
 	padding: 1px;
 	margin: 2px 3px 1px 1px;
-	font-family: Verdana, sans-serif;
-	font-size: 9pt;
 	width: 104px;
 	height: 20px;
-
-	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
-	background: #F8FBFD;
-	color: black;
-}
-.setchart input:hover,
-.setchart-nickname input:hover,
-.statform input.inputform:hover,
-.textbox:hover {
-	border-color: #474747;
-	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
-	background: #FFFFFF;
-}
-.setchart input:focus,
-.setchart-nickname input:focus,
-.statform input.inputform:focus,
-.textbox:focus {
-	outline: 0 none;
-	border: 1px solid #004488;
-	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
-	background: #FFFFFF;
 }
 .setchart input.incomplete {
 	color: #CC3311;
@@ -3075,29 +3073,6 @@ a.ilink.yours {
 }
 .dark .userlist li button:active {
 	background: black;
-}
-
-.dark .textbox {
-	border: 1px solid #777777;
-	border-radius: 3px;
-	padding: 2px 3px;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-	font-size: 9pt;
-
-	box-shadow: none;
-	background: #282B2D;
-	color: #DDD;
-}
-.dark .textbox:hover {
-	border-color: #AAAAAA;
-	box-shadow: none;
-	background: #111111;
-}
-.dark .textbox:focus {
-	outline: 0 none;
-	border: 1px solid #AAAAAA;
-	box-shadow: 0px 0px 5px #4488CC;
-	background: #111111;
 }
 
 .dark iframe.textbox,
