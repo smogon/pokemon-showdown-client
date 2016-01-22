@@ -614,6 +614,10 @@
 		events: {
 			'click a': 'click'
 		},
+		closeRoom: function (roomid, button, e) {
+			app.leaveRoom(roomid);
+			this.initialize();
+		},
 		click: function (e) {
 			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
 			e.preventDefault();
