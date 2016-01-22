@@ -117,10 +117,7 @@ button:disabled {
 }
 
 .dark .textbox {
-	border: 1px solid #777777;
-	border-radius: 3px;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-	font-size: 9pt;
+	border-color: #777777;
 
 	box-shadow: none;
 	background: #282B2D;
@@ -1056,6 +1053,7 @@ p.or:after {
 	text-align: left;
 	font-size: 9pt;
 	background: #EEEEEE;
+	color: #111111;
 }
 .ladder span {
 	color: gray;
@@ -3004,8 +3002,11 @@ a.ilink.yours {
 	background: rgba(0,0,0,.30);
 }
 
-.dark .ps-room.ps-room-light {
-	background: rgba(0,0,0,.80);
+.dark .ps-room.ps-room-light,
+.dark .tournament-box,
+.dark .tournament-status,
+.dark .tournament-toggle {
+	background: rgba(0,0,0,.65);
 	color: #DDD;
 }
 
@@ -3068,6 +3069,13 @@ a.ilink.yours {
 	color: #555;
 }
 
+.dark .userlist strong,
+.dark .userlist span {
+	text-shadow: 1px 1px 0 #222222;
+}
+.dark .userlist li {
+	border-bottom-color: #444;
+}
 .dark .userlist li button:hover {
 	background: #222222;
 }
@@ -3079,6 +3087,52 @@ a.ilink.yours {
 .dark iframe.textbox:hover,
 .dark iframe.textbox:focus {
 	background: #DDDDDD;
+}
+
+.dark .folderpane {
+	border-left-color: #77838c;
+}
+
+.dark .folderlist .foldersep:before,
+.dark .folderlistafter:before,
+.dark .folderlistbefore:before,
+.dark .folderpane h3,
+.dark .folder .selectFolder,
+.dark .folderhack1,
+.dark .folderhack2 {
+	background: #77838c;
+}
+
+.dark .folder .selectFolder:hover {
+	background: #67737c;
+}
+.dark .folder .selectFolder.active,
+.dark .folder .selectFolder:active {
+	background: #27333c;
+	color: white;
+}
+
+.dark .folder.cur .selectFolder {
+	background: transparent;
+}
+
+.dark .setchart,
+.dark .setchart-nickname {
+	background-color: #5A6570;
+	box-shadow: none;
+}
+.dark .setcol-icon label {
+	text-shadow: #5A6570 1px 1px 0,#5A6570 1px -1px 0,#5A6570 -1px 1px 0,#5A6570 -1px -1px 0;
+}
+.dark .setchart label,
+.dark .setchart-nickname label {
+	color: #BBB;
+}
+.dark .highlighted {
+	background: rgba(255,200,0,0.15);
+}
+.dark a.ilink {
+	color: #4488EE;
 }
 
 /*********************************************************
