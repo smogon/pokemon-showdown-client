@@ -3060,9 +3060,9 @@ a.ilink.yours {
 .dark .menugroup {
 	background: rgba(0,0,0,.2);
 }
-.pm-window.focused h3,
-.pm-window.focused .pm-log,
-.pm-window.focused .pm-log-add {
+.dark .pm-window.focused h3,
+.dark .pm-window.focused .pm-log,
+.dark .pm-window.focused .pm-log-add {
 	border-color: #CCC;
 }
 
