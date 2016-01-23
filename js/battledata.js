@@ -73,9 +73,49 @@ function hashColor(name) {
 	} else {
 		hash = MD5(name);
 	}
-	var H = parseInt(hash.substr(4, 4), 16) % 360;
-	var S = parseInt(hash.substr(0, 4), 16) % 50 + 50;
-	var L = Math.floor(parseInt(hash.substr(8, 4), 16) % 20 / 2 + 30);
+	var H = parseInt(hash.substr(4, 4), 16) % 360; // 0 to 360
+	var S = parseInt(hash.substr(0, 4), 16) % 50 + 40; // 40 to 89
+	var L = Math.floor(parseInt(hash.substr(8, 4), 16) % 20 / 2 + 32); // 32 to 41
+
+	// var HLmod = H;
+	// if (HLmod < 60) HLmod = 60 + (60 - HLmod);
+	// if (HLmod > 240) HLmod = 240 - (HLmod - 240);
+	// HLmod -= 150; // -90 (yellow) to 90 (blue)
+	// HLmod *= 6/90; // -6 (yellow) to 6 (blue)
+	// L = Math.round(L + HLmod);
+
+	var Smod = 10 - Math.abs(50 - L);
+	if (H < 30 || H > 330) Smod += 10; // bright reds are bad
+	else if (H < 60 || H > 300) Smod += 5;
+	if (Smod < 0) Smod = 0;
+	S -= Smod;
+
+	var C = S / 100;
+	var X = C * (1 - Math.abs((H / 60) % 2 - 1));
+	var m = 0.5 - C / 2;
+
+	var R1, G1, B1;
+	switch (Math.floor(H / 60)) {
+	case 1: R1 = X; G1 = C; B1 = 0; break;
+	case 2: R1 = 0; G1 = C; B1 = X; break;
+	case 3: R1 = 0; G1 = X; B1 = C; break;
+	case 4: R1 = X; G1 = 0; B1 = C; break;
+	case 5: R1 = C; G1 = 0; B1 = X; break;
+	case 0: default: R1 = C; G1 = X; B1 = 0; break;
+	}
+	var lum = (R1 + m) * 0.3 + (G1 + m) * 0.59 + (B1 + m) * 0.11; // 0.11 (blue) to 0.89 (yellow)
+
+	var HLmod = (lum - 0.5) * -80; // -31.2 (yellow) to 31.2 (blue)
+	if (HLmod > 2) HLmod -= 2;
+	else if (HLmod < -18) HLmod = -8;
+	else if (HLmod < -10) HLmod += 10;
+	else HLmod = 0;
+	// -8 (yellow) to 29.2 (blue)
+
+	L += HLmod; // 24 to 70.2 depending on hue
+	// 24 to 33 (yellow), 61.2 to 70.2 (blue)
+	if (HLmod > 5) S -= (HLmod - 5);
+
 	colorCache[name] = "color:hsl(" + H + "," + S + "%," + L + "%);";
 	return colorCache[name];
 }
