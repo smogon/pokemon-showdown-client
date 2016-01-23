@@ -139,16 +139,22 @@ var BattleSoundLibrary = (function () {
 			if (this.bgm) this.bgm.play();
 		}
 	};
+
+	function loudnessPercentToAmplitudePercent(loudnessPercent) {
+		// 10 dB is perceived as approximately twice as loud
+		var decibels = 10 * Math.log(loudnessPercent / 100) / Math.log(2);
+		return Math.pow(10, decibels / 20) * 100;
+	}
 	BattleSoundLibrary.prototype.setBgmVolume = function (bgmVolume) {
-		this.bgmVolume = bgmVolume;
+		this.bgmVolume = loudnessPercentToAmplitudePercent(bgmVolume);
 		if (this.bgm) {
 			try {
-				this.bgm.setVolume(bgmVolume);
+				this.bgm.setVolume(this.bgmVolume);
 			} catch (e) {}
 		}
 	};
 	BattleSoundLibrary.prototype.setEffectVolume = function (effectVolume) {
-		this.effectVolume = effectVolume;
+		this.effectVolume = loudnessPercentToAmplitudePercent(effectVolume);
 	};
 
 	return BattleSoundLibrary;
