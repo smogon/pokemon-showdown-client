@@ -134,6 +134,7 @@ button:disabled {
 	box-shadow: 0px 0px 4px #88CCFF, 0px 0px 4px #88CCFF;
 	background: #111111;
 }
+
 /* .dark button {
 	background: #777777;
 	box-shadow: none;
@@ -267,7 +268,6 @@ button:disabled {
 	cursor: pointer;
 	text-align: center;
 	text-decoration: none;
-	text-shadow: 0 1px 0 rgba(255,255,255,.4);
 	border-radius: 5px;
 	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
 	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
@@ -1102,13 +1102,12 @@ p.or:after {
 	margin: 2px 7px 4px 7px;
 	padding: 1px 4px 2px 4px;
 	border: 1px solid #BBCCDD;
-	background: #F8FBFD;
+	background: rgba(248, 251, 253, 0.5);
 
 	border-radius: 4px;
 	text-decoration: none;
 	color: #336699;
 	text-shadow: #ffffff 0px -1px 0;
-	box-shadow: 1px 1px 1px #D5D5D5;
 	cursor: pointer;
 	font-size: 10pt;
 
@@ -1119,7 +1118,7 @@ p.or:after {
 	font-size: 8pt;
 }
 .roomlist a.ilink:hover {
-	border-color: #8899AA;
+	border-color: #778899;
 	background: #F1F4F9;
 	color: #224466;
 	text-decoration: none;
@@ -3010,12 +3009,12 @@ a.ilink.yours {
 .dark .tournament-status,
 .dark .tournament-toggle,
 .dark .pm-log-add {
-	background: rgba(0,0,0,.65);
+	background: rgba(0,0,0,.70);
 	color: #DDD;
 }
 
 .dark .pm-log {
-	background: rgba(0,0,0,.775);
+	background: rgba(0,0,0,.85);
 	color: #DDD;
 }
 
@@ -3053,28 +3052,18 @@ a.ilink.yours {
 	color: #DDD;
 }
 
+/* main menu */
+
 .dark .menugroup {
 	background: rgba(0,0,0,.2);
 }
+.pm-window.focused h3,
+.pm-window.focused .pm-log,
+.pm-window.focused .pm-log-add {
+	border-color: #CCC;
+}
 
-.dark .setmenu button,
-.dark .teamlist button,
-.dark .folder.cur .selectFolder,
-.dark .utilichart .namecol,
-.dark .utilichart .pokemonnamecol,
-.dark .utilichart .movenamecol {
-	color: #DDD;
-}
-.dark .utilichart .col {
-	color: #999;
-}
-.dark .setmenu button:hover,
-.dark .teamlist button:hover,
-.dark .utilichart a:hover .namecol,
-.dark .utilichart a:hover .pokemonnamecol,
-.dark .utilichart a:hover .movenamecol {
-	color: #555;
-}
+/* chat */
 
 .dark .userlist strong,
 .dark .userlist span {
@@ -3090,11 +3079,17 @@ a.ilink.yours {
 	background: black;
 }
 
-.dark iframe.textbox,
-.dark iframe.textbox:hover,
-.dark iframe.textbox:focus {
-	background: #DDDDDD;
+.dark .highlighted {
+	background: rgba(255,200,0,0.18);
 }
+.dark .revealed {
+	background: rgba(0,255,200,0.18);
+}
+.dark a.ilink {
+	color: #4488EE;
+}
+
+/* teambuilder */
 
 .dark .folderpane {
 	border-left-color: #77838c;
@@ -3123,6 +3118,27 @@ a.ilink.yours {
 	background: transparent;
 }
 
+/* teambuilder set */
+
+.dark .setmenu button,
+.dark .teamlist button,
+.dark .folder.cur .selectFolder,
+.dark .utilichart .namecol,
+.dark .utilichart .pokemonnamecol,
+.dark .utilichart .movenamecol {
+	color: #DDD;
+}
+.dark .utilichart .col {
+	color: #999;
+}
+.dark .setmenu button:hover,
+.dark .teamlist button:hover,
+.dark .utilichart a:hover .namecol,
+.dark .utilichart a:hover .pokemonnamecol,
+.dark .utilichart a:hover .movenamecol {
+	color: #555;
+}
+
 .dark .setchart,
 .dark .setchart-nickname {
 	background-color: #5A6570;
@@ -3135,11 +3151,32 @@ a.ilink.yours {
 .dark .setchart-nickname label {
 	color: #BBB;
 }
-.dark .highlighted {
-	background: rgba(255,200,0,0.15);
+
+/* rooms */
+.dark .roomlist a.ilink {
+	box-shadow: none;
+	text-shadow: none;
 }
-.dark a.ilink {
-	color: #4488EE;
+
+.dark .roomlist a.ilink {
+	border-color: #7799BB;
+	background: rgba(30, 40, 50, .5);
+	color: #7799BB;
+}
+.dark .ps-popup .roomlist a.ilink {
+	background: rgba(30, 40, 50, 1);
+}
+.dark .roomlist a.ilink:hover {
+	border-color: #AACCEE;
+	background: rgba(30, 40, 50, 1);
+	color: #AACCEE;
+}
+
+/* misc */
+.dark iframe.textbox,
+.dark iframe.textbox:hover,
+.dark iframe.textbox:focus {
+	background: #DDDDDD;
 }
 
 /*********************************************************
