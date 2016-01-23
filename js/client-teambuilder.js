@@ -72,21 +72,17 @@
 			e.stopPropagation();
 			if (this[e.currentTarget.value]) this[e.currentTarget.value](e);
 		},
-		saveTeams: function () {
-			// save and return
-			Storage.saveTeams();
-			app.user.trigger('saveteams');
-			this.update();
-		},
 		back: function () {
 			if (this.exportMode) {
-				if (this.curTeam) this.curTeam.team = Storage.packTeam(this.curSetList);
+				if (this.curTeam) {
+					this.curTeam.team = Storage.packTeam(this.curSetList);
+					Storage.saveTeam(this.curTeam);
+				}
 				this.exportMode = false;
-				Storage.saveTeams();
 			} else if (this.curSet) {
 				app.clearGlobalListeners();
 				this.curSet = null;
-				Storage.saveTeams();
+				Storage.saveTeam(this.curTeam);
 			} else if (this.curTeam) {
 				this.curTeam.team = Storage.packTeam(this.curSetList);
 				this.curTeam.iconCache = '';
@@ -1140,7 +1136,11 @@
 		saveFlag: false,
 		save: function () {
 			this.saveFlag = true;
-			Storage.saveTeams();
+			if (this.curTeam) {
+				Storage.saveTeam(this.curTeam);
+			} else {
+				Storage.saveTeams();
+			}
 		},
 		validate: function () {
 			var format = this.curTeam.format;

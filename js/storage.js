@@ -1222,6 +1222,7 @@ Storage.initDirectory2 = function () {
 					self.saveAllTeams = self.nwSaveAllTeams;
 					self.deleteAllTeams = self.nwDeleteAllTeams;
 					self.saveTeam = self.nwSaveTeam;
+					self.saveTeams = self.nwSaveTeams;
 					self.deleteTeam = self.nwDeleteTeam;
 
 					// logging
@@ -1409,6 +1410,13 @@ Storage.nwSaveTeam = function (team) {
 	}
 	team.filename = filename;
 	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'));
+};
+
+Storage.nwSaveTeams = function () {
+	// should never happen
+	try {
+		console.log("nwSaveTeams called: " + new Error().stack);
+	} catch (e) {}
 };
 
 Storage.nwDeleteTeam = function (team) {
