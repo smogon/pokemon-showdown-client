@@ -3644,9 +3644,6 @@ var BattleMoveAnims = {
 	furycutter: {
 		anim: BattleOtherAnims.clawattack.anim
 	},
-	sacredsword: {
-		anim: BattleOtherAnims.clawattack.anim
-	},
 	scratch: {
 		anim: BattleOtherAnims.clawattack.anim
 	},
@@ -11512,70 +11509,171 @@ var BattleMoveAnims = {
 			}, 'decel');
 		}
 	},
+	sacredsword: {
+		anim: function(battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			BattleOtherAnims.contactattack.anim(battle, args);
+			battle.showEffect('iceball', {
+				x: defender.x+30,
+				y: defender.y+25,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 500
+			}, {
+				x: defender.x+50,
+				y: defender.y+10,
+				opacity: 0.5,
+				time: 800
+			}, 'accel', 'explode');
+			battle.showEffect('iceball', {
+				x: defender.x-30,
+				y: defender.y-20,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 600
+			}, {
+				x: defender.x-50,
+				y: defender.y-20,
+				opacity: 0.5,
+				time: 800
+			}, 'accel', 'explode');
+			battle.showEffect('iceball', {
+				x: defender.x+15,
+				y: defender.y+10,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 700
+			}, {
+				x: defender.x+35,
+				y: defender.y+30,
+				opacity: 0.5,
+				time: 900
+			}, 'accel', 'explode');
+			battle.showEffect('iceball', {
+				x: defender.x-15,
+				y: defender.y-30,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 700
+			}, {
+				x: defender.x-35,
+				y: defender.y-40,
+				opacity: 0.5,
+				time: 900
+			}, 'accel', 'explode');
+			battle.showEffect('iceball', {
+				x: defender.x+10,
+				y: defender.y-10,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 700
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 1000
+			}, 'accel', 'fade');
+			battle.showEffect('rightclaw', {
+				x: defender.x+10,
+				y: defender.y-10,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 600
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 1000
+			}, 'accel', 'fade');
+		}
+	},
 	secretsword: {
 		anim: function(battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.showEffect('mudwisp', {
-				x: defender.x+60,
-				y: defender.y+30,
+			battle.showEffect('flareball', {
+				x: defender.x+30,
+				y: defender.y+25,
 				z: defender.z,
-				scale: .2,
-				opacity: 1
-			}, {
-				x: defender.x-70,
-				y: defender.y-40,
-				z: defender.z,
-				scale: .4,
-				opacity: .4,
-				time: 200
-			}, 'linear', 'fade');
-			battle.showEffect('mudwisp', {
-				x: defender.x+60,
-				y: defender.y+30,
-				z: defender.z,
-				scale: .2,
+				scale: 0.2,
 				opacity: 1,
-				time: 100
+				time: 0
 			}, {
-				x: defender.x-70,
-				y: defender.y-40,
-				z: defender.z,
-				scale: .4,
-				opacity: .4,
-				time: 300
-			}, 'linear', 'fade');
-			battle.showEffect('mudwisp', {
-				x: defender.x+80,
+				x: defender.x+50,
 				y: defender.y+10,
+				opacity: 0.5,
+				time: 300
+			}, 'accel', 'explode');
+			battle.showEffect('flareball', {
+				x: defender.x-30,
+				y: defender.y-20,
 				z: defender.z,
-				scale: .2,
+				scale: 0.2,
 				opacity: 1,
 				time: 100
 			}, {
 				x: defender.x-50,
-				y: defender.y-60,
-				z: defender.z,
-				scale: .4,
-				opacity: .4,
+				y: defender.y-20,
+				opacity: 0.5,
 				time: 300
-			}, 'linear', 'fade');
-			battle.showEffect('wisp', {
-				x: defender.x+80,
+			}, 'accel', 'explode');
+			battle.showEffect('flareball', {
+				x: defender.x+15,
 				y: defender.y+10,
 				z: defender.z,
-				scale: .2,
+				scale: 0.2,
 				opacity: 1,
 				time: 200
 			}, {
-				x: defender.x-50,
-				y: defender.y-60,
-				z: defender.z,
-				scale: .4,
-				opacity: .4,
+				x: defender.x+35,
+				y: defender.y+30,
+				opacity: 0.5,
 				time: 400
-			}, 'linear', 'fade');
+			}, 'accel', 'explode');
+			battle.showEffect('flareball', {
+				x: defender.x-15,
+				y: defender.y-30,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 200
+			}, {
+				x: defender.x-35,
+				y: defender.y-40,
+				opacity: 0.5,
+				time: 400
+			}, 'accel', 'explode');
+			battle.showEffect('flareball', {
+				x: defender.x+10,
+				y: defender.y-10,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 300
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 500
+			}, 'accel', 'fade');
+			battle.showEffect('rightclaw', {
+				x: defender.x+10,
+				y: defender.y-10,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 100
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 500
+			}, 'accel', 'fade');
 		}
 	},
 	psychocut: {
