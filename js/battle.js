@@ -412,7 +412,7 @@ var Pokemon = (function () {
 		volatile = toId(volatile);
 		var battle = this.side.battle;
 		if (this.hasTurnstatus(volatile)) {
-			if (volatile === 'protect' || volatile === 'magiccoat') {
+			if ((volatile === 'protect' || volatile === 'magiccoat') && !battle.fastForward) {
 				this.turnstatuses[volatile][1].css(battle.pos({
 					x: this.sprite.x,
 					y: this.sprite.y,
@@ -435,24 +435,36 @@ var Pokemon = (function () {
 		if (volatile === 'protect' || volatile === 'magiccoat') {
 			this.side.battle.spriteElemsFront[this.side.n].append('<div class="turnstatus-protect" style="display:none;position:absolute" />');
 			var elem = this.side.battle.spriteElemsFront[this.side.n].children().last();
-			elem.css(battle.pos({
-				display: 'block',
-				x: this.sprite.x,
-				y: this.sprite.y,
-				z: this.sprite.behind(-15),
-				xscale: 1,
-				yscale: 0,
-				opacity: .1
-			}, BattleEffects.none)).animate(battle.pos({
-				x: this.sprite.x,
-				y: this.sprite.y,
-				z: this.sprite.behind(-15),
-				xscale: 1,
-				yscale: .7,
-				opacity: .9
-			}, BattleEffects.none), 300).animate({
-				opacity: .4
-			}, 300);
+			if (!battle.fastForward) {
+				elem.css(battle.pos({
+					display: 'block',
+					x: this.sprite.x,
+					y: this.sprite.y,
+					z: this.sprite.behind(-15),
+					xscale: 1,
+					yscale: 0,
+					opacity: .1
+				}, BattleEffects.none)).animate(battle.pos({
+					x: this.sprite.x,
+					y: this.sprite.y,
+					z: this.sprite.behind(-15),
+					xscale: 1,
+					yscale: .7,
+					opacity: .9
+				}, BattleEffects.none), 300).animate({
+					opacity: .4
+				}, 300);
+			} else {
+				elem.css(battle.pos({
+					display: 'block',
+					x: this.sprite.x,
+					y: this.sprite.y,
+					z: this.sprite.behind(-15),
+					xscale: 1,
+					yscale: .7,
+					opacity: .4
+				}, BattleEffects.none));
+			}
 			this.turnstatuses[volatile][1] = elem;
 		}
 	};
@@ -862,6 +874,15 @@ var Sprite = (function () {
 			opacity: 0,
 			display: 'block'
 		});
+		if (this.battle.fastForward) {
+			this.subElem.css(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.z,
+				opacity: 1
+			}, subsp));
+			return;
+		}
 		this.subElem.css(this.battle.pos({
 			x: this.x,
 			y: this.y + 50,
@@ -881,21 +902,25 @@ var Sprite = (function () {
 			this.elem.delay(this.battle.activityDelay);
 			this.subElem.delay(this.battle.activityDelay);
 		}
-		this.subElem.animate(this.battle.pos({
-			x: this.x,
-			y: this.y - 50,
-			z: this.z,
-			opacity: 0
-		}, this.subsp), 500);
+		if (this.battle.fastForward) {
+			this.subElem.remove();
+		} else {
+			this.subElem.animate(this.battle.pos({
+				x: this.x,
+				y: this.y - 50,
+				z: this.z,
+				opacity: 0
+			}, this.subsp), 500);
+		}
 
 		this.subElem = null;
 		this.selfAnim({}, 500);
 		this.iw = this.sp.w;
 		this.ih = this.sp.h;
-		this.battle.activityWait(this.elem);
+		if (!this.battle.fastForward) this.battle.activityWait(this.elem);
 	};
 	Sprite.prototype.beforeMove = function () {
-		if (this.subElem && !this.duringMove) {
+		if (this.subElem && !this.duringMove && !this.battle.fastForward) {
 			this.duringMove = true;
 			this.selfAnim({}, 300);
 			this.subElem.animate(this.battle.pos({
@@ -915,7 +940,7 @@ var Sprite = (function () {
 		return false;
 	};
 	Sprite.prototype.afterMove = function () {
-		if (this.subElem && this.duringMove) {
+		if (this.subElem && this.duringMove && !this.battle.fastForward) {
 			this.subElem.delay(300);
 			this.duringMove = false;
 			var self = this;
@@ -1186,6 +1211,10 @@ var Sprite = (function () {
 		if (this.subElem && !this.duringMove) {
 			end.z += (this.isBackSprite ? -1 : 1) * 30;
 			end.opacity *= .3;
+		}
+		if (this.battle.fastForward) {
+			this.elem.css(this.battle.pos(end, this.sp));
+			return;
 		}
 		this.elem.animate(this.battle.posT(end, this.sp, transition, this), end.time);
 	};
@@ -1959,12 +1988,17 @@ var Side = (function () {
 		pokemon.side.updateSidebar();
 
 		pokemon.sprite.animFaint();
-		pokemon.statbarElem.animate({
-			opacity: 0
-		}, 300, function () {
+		if (this.battle.fastForward) {
 			pokemon.statbarElem.remove();
 			pokemon.statbarElem = null;
-		});
+		} else {
+			pokemon.statbarElem.animate({
+				opacity: 0
+			}, 300, function () {
+				pokemon.statbarElem.remove();
+				pokemon.statbarElem = null;
+			});
+		}
 		if (this.battle.faintCallback) this.battle.faintCallback(this.battle, this);
 	};
 	Side.prototype.updateHPText = function (pokemon) {
@@ -1980,6 +2014,7 @@ var Side = (function () {
 		}
 	};
 	Side.prototype.updateStatbar = function (pokemon, updatePrevhp, updateHp) {
+		if (this.battle.fastForward) return;
 		if (!pokemon) {
 			if (this.active[0]) this.updateStatbar(this.active[0], updatePrevhp, updateHp);
 			if (this.active[1]) this.updateStatbar(this.active[1], updatePrevhp, updateHp);
@@ -2387,7 +2422,8 @@ var Battle = (function () {
 		if (window.console && console.log) console.log(text);
 	};
 	Battle.prototype.log = function (html, preempt) {
-		var willScroll = (this.logFrameElem.scrollTop() + 60 >= this.logElem.height() + this.logPreemptElem.height() - this.optionsElem.height() - this.logFrameElem.height());
+		var willScroll = false;
+		if (!this.fastForward) willScroll = (this.logFrameElem.scrollTop() + 60 >= this.logElem.height() + this.logPreemptElem.height() - this.optionsElem.height() - this.logFrameElem.height());
 		if (preempt) {
 			this.logPreemptElem.append(html);
 		} else {
@@ -2860,17 +2896,7 @@ var Battle = (function () {
 		}
 		return '';
 	};
-	Battle.prototype.updateWeather = function (weather) {
-		var weatherNameTable = {
-			sunnyday: 'Sun',
-			desolateland: 'Intense Sun',
-			raindance: 'Rain',
-			primordialsea: 'Heavy Rain',
-			sandstorm: 'Sandstorm',
-			hail: 'Hail',
-			deltastream: 'Strong Winds'
-		};
-
+	Battle.prototype.updateWeather = function (weather, instant) {
 		if (typeof weather === 'undefined') {
 			weather = this.weather;
 		}
@@ -2880,6 +2906,19 @@ var Battle = (function () {
 
 		var oldweather = this.weather;
 		this.weather = weather;
+
+		if (this.fastForward) return;
+
+		if (instant) oldweather = true;
+		var weatherNameTable = {
+			sunnyday: 'Sun',
+			desolateland: 'Intense Sun',
+			raindance: 'Rain',
+			primordialsea: 'Heavy Rain',
+			sandstorm: 'Sandstorm',
+			hail: 'Hail',
+			deltastream: 'Strong Winds'
+		};
 
 		var weatherhtml = '';
 		if (weather) {
@@ -2918,6 +2957,10 @@ var Battle = (function () {
 					self.weatherElem.html('<em>' + weatherhtml + '</em>');
 				});
 			} else {
+				if (instant) {
+					this.weatherElem.css('opacity', 0);
+					return;
+				}
 				this.weatherElem.animate({
 					opacity: 0
 				}, 500);
@@ -2931,7 +2974,7 @@ var Battle = (function () {
 			this.weatherElem.html('<em>' + weatherhtml + '</em>');
 		}
 		if (weather) {
-			if (this.fastForward) {
+			if (instant) {
 				this.weatherElem.css({opacity: .5});
 				return;
 			}
@@ -2943,10 +2986,7 @@ var Battle = (function () {
 		}
 	};
 	Battle.prototype.resultAnim = function (pokemon, result, type) {
-		if (this.fastForward) {
-			pokemon.side.updateStatbar(pokemon, false, true);
-			return;
-		}
+		if (this.fastForward) return;
 		if (type === 'ability') return this.abilityActivateAnim(pokemon, result);
 		this.fxElem.append('<div class="result ' + type + 'result"><strong>' + result + '</strong></div>');
 		var effectElem = this.fxElem.children().last();
@@ -2967,10 +3007,7 @@ var Battle = (function () {
 		this.activityWait(effectElem);
 	};
 	Battle.prototype.abilityActivateAnim = function (pokemon, result) {
-		if (this.fastForward) {
-			pokemon.side.updateStatbar(pokemon, false, true);
-			return;
-		}
+		if (this.fastForward) return;
 		this.fxElem.append('<div class="result abilityresult"><strong>' + result + '</strong></div>');
 		var effectElem = this.fxElem.children().last();
 		effectElem.delay(this.animationDelay).css({
@@ -2989,6 +3026,7 @@ var Battle = (function () {
 		this.activityWait(effectElem);
 	};
 	Battle.prototype.damageAnim = function (pokemon, damage) {
+		if (this.fastForward) return;
 		if (!pokemon.statbarElem) return;
 		pokemon.side.updateHPText(pokemon);
 
@@ -3005,20 +3043,13 @@ var Battle = (function () {
 
 		this.resultAnim(pokemon, '&minus;' + damage, 'bad');
 
-		if (this.fastForward) {
-			$hp.css({
-				width: w,
-				'border-right-width': w ? 1 : 0
-			});
-			if (callback) callback();
-		} else {
-			$hp.animate({
-				width: w,
-				'border-right-width': w ? 1 : 0
-			}, 350, callback);
-		}
+		$hp.animate({
+			width: w,
+			'border-right-width': w ? 1 : 0
+		}, 350, callback);
 	};
 	Battle.prototype.healAnim = function (pokemon, damage) {
+		if (this.fastForward) return;
 		if (!pokemon.statbarElem) return;
 		pokemon.side.updateHPText(pokemon);
 
@@ -3035,18 +3066,10 @@ var Battle = (function () {
 
 		this.resultAnim(pokemon, '+' + damage, 'good');
 
-		if (this.fastForward) {
-			$hp.css({
-				width: w,
-				'border-right-width': w ? 1 : 0
-			});
-			if (callback) callback();
-		} else {
-			$hp.animate({
-				width: w,
-				'border-right-width': w ? 1 : 0
-			}, 350, callback);
-		}
+		$hp.animate({
+			width: w,
+			'border-right-width': w ? 1 : 0
+		}, 350, callback);
 	};
 	Battle.prototype.useMove = function (pokemon, move, target, kwargs) {
 		var fromeffect = Tools.getEffect(kwargs.from);
@@ -3211,7 +3234,7 @@ var Battle = (function () {
 			this.message('' + pokemon.getName() + ' is loafing around!');
 			break;
 		case 'recharge':
-			BattleOtherAnims['selfstatus'].anim(this, [pokemon.sprite]);
+			if (!this.fastForward) BattleOtherAnims['selfstatus'].anim(this, [pokemon.sprite]);
 			this.resultAnim(pokemon, 'Must recharge', 'neutral');
 			this.message('<small>' + pokemon.getName() + ' must recharge!</small>');
 			break;
@@ -3312,11 +3335,11 @@ var Battle = (function () {
 						actions += "" + poke.getName() + " is hurt by the spikes!";
 						break;
 					case 'brn':
-						BattleStatusAnims['brn'].anim(this, [poke.sprite]);
+						if (!this.fastForward) BattleStatusAnims['brn'].anim(this, [poke.sprite]);
 						actions += "" + poke.getName() + " was hurt by its burn!";
 						break;
 					case 'psn':
-						BattleStatusAnims['psn'].anim(this, [poke.sprite]);
+						if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
 						actions += "" + poke.getName() + " was hurt by poison!";
 						break;
 					case 'lifeorb':
@@ -3470,7 +3493,7 @@ var Battle = (function () {
 				} else {
 					actions += poke.getName() + ' restored its HP.';
 				}
-				BattleOtherAnims.heal.anim(this, [poke.sprite]);
+				if (!this.fastForward) BattleOtherAnims.heal.anim(this, [poke.sprite]);
 				this.healAnim(poke, poke.getFormattedRange(range, 0, ' to '));
 				break;
 			case '-sethp':
@@ -6188,6 +6211,10 @@ var Battle = (function () {
 		this.fastForward = false;
 		this.elem.find('.seeking').remove();
 		$.fx.off = false;
+		if (this.p1) this.p1.updateStatbar(null, true, true);
+		if (this.p2) this.p2.updateStatbar(null, true, true);
+		this.updateWeather(undefined, true);
+		this.logFrameElem.scrollTop(this.logElem.height() + this.logPreemptElem.height());
 		if (!this.paused) this.soundStart();
 		this.playbackState = 2;
 	};
