@@ -400,8 +400,8 @@ button:disabled {
 }
 .tabbar .closebutton {
 	display: inline-block;
-	margin: 0 0 0 -18px;
-	width: 18px;
+	margin: 0 0 0 -17px;
+	width: 17px;
 	text-align: left;
 	top: 3px;
 	vertical-align: top;
