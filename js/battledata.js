@@ -554,7 +554,7 @@ var Tools = {
 					onclick = "return selectTab('" + m[1] + "');";
 				} else {
 					var event;
-					if (Tools.interstice.isWhitelisted(fulluri)) {
+					if (Tools.interstice.isWhitelisted(fulluri) || options.hideinterstice) {
 						event = 'External link';
 					} else {
 						event = 'Interstice link';
