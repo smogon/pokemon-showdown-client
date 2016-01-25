@@ -2940,7 +2940,18 @@ var Battle = (function () {
 			} else {
 				this.weatherElem.html('<em>' + weatherhtml + '</em>');
 				this.weatherElem.attr('class', 'weather');
-				this.weatherElem.css({display: 'block', opacity: .5});
+				this.weatherElem.css({opacity: .5});
+			}
+			return;
+		}
+		if (instant) {
+			if (weather) {
+				this.weatherElem.attr('class', 'weather ' + weather + 'weather');
+				this.weatherElem.html('<em>' + weatherhtml + '</em>');
+				this.weatherElem.css({opacity: .5});
+			} else {
+				this.weatherElem.html('<em>' + weatherhtml + '</em>');
+				this.weatherElem.css({opacity: 0});
 			}
 			return;
 		}
@@ -2950,34 +2961,20 @@ var Battle = (function () {
 				this.weatherElem.animate({
 					opacity: 0
 				}, 300, function () {
-					self.weatherElem.css({
-						display: 'block'
-					});
 					self.weatherElem.attr('class', 'weather ' + weather + 'weather');
 					self.weatherElem.html('<em>' + weatherhtml + '</em>');
 				});
 			} else {
-				if (instant) {
-					this.weatherElem.css('opacity', 0);
-					return;
-				}
 				this.weatherElem.animate({
 					opacity: 0
 				}, 500);
 			}
 		} else if (weather) {
-			this.weatherElem.css({
-				display: 'block',
-				opacity: 0
-			});
+			this.weatherElem.css({opacity: 0});
 			this.weatherElem.attr('class', 'weather ' + weather + 'weather');
 			this.weatherElem.html('<em>' + weatherhtml + '</em>');
 		}
 		if (weather) {
-			if (instant) {
-				this.weatherElem.css({opacity: .5});
-				return;
-			}
 			this.weatherElem.animate({
 				opacity: 1.0
 			}, 400).animate({
@@ -6185,6 +6182,7 @@ var Battle = (function () {
 			else this.paused = false;
 			if (time) {
 				this.fastForward = time;
+				this.fastForwardWillScroll = true;
 				this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
 				$.fx.off = true;
 			}
@@ -6195,6 +6193,7 @@ var Battle = (function () {
 		}
 		this.fxElem.empty();
 		this.fastForward = time;
+		this.fastForwardWillScroll = (this.logFrameElem.scrollTop() + 60 >= this.logElem.height() + this.logPreemptElem.height() - this.optionsElem.height() - this.logFrameElem.height());
 		this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
 		$.fx.off = true;
 		this.elem.find(':animated').finish();
@@ -6214,7 +6213,10 @@ var Battle = (function () {
 		if (this.p1) this.p1.updateStatbar(null, true, true);
 		if (this.p2) this.p2.updateStatbar(null, true, true);
 		this.updateWeather(undefined, true);
-		this.logFrameElem.scrollTop(this.logElem.height() + this.logPreemptElem.height());
+		if (this.fastForwardWillScroll) {
+			this.logFrameElem.scrollTop(this.logElem.height() + this.logPreemptElem.height());
+			this.fastForwardWillScroll = false;
+		}
 		if (!this.paused) this.soundStart();
 		this.playbackState = 2;
 	};
