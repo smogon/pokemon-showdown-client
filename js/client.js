@@ -1792,6 +1792,7 @@
 					}
 				}
 				if (once) notification.psAutoclose = true;
+				needsTabbarUpdate = true;
 			} else if (window.macgap) {
 				macgap.growl.notify({
 					title: title,

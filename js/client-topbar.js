@@ -58,6 +58,14 @@
 			if (!room && id !== 'rooms') return '';
 			if (!id) id = room.id;
 			var buf = '<li><a class="roomtab button' + (app.curRoom === room || app.curSideRoom === room ? ' cur' : '') + (room && room.notificationClass || '') + (id === '' || id === 'rooms' ? '' : ' closable') + '" href="' + app.root + id + '"';
+			if (room && room.notifications) {
+				var title = '';
+				for (var tag in room.notifications) {
+					if (room.notifications[tag].title) title += room.notifications[tag].title + '\n';
+					if (room.notifications[tag].body) title += room.notifications[tag].body + '\n';
+				}
+				if (title) buf += ' title="' + Tools.escapeHTML(title) + '"';
+			}
 			switch (id) {
 			case '':
 				return buf + '><i class="fa fa-home"></i> <span>Home</span></a></li>';
