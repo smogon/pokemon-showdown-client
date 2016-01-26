@@ -1643,9 +1643,7 @@
 
 			if (template.speciesid === 'meowstic') {
 				smogdexid = 'meowstic-m';
-			} else if (template.speciesid === 'hoopaunbound') {
-				smogdexid = 'hoopa-alt';
-			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys' || smogdexid === 'kyurem' || smogdexid === 'giratina' || smogdexid === 'shaymin' || smogdexid === 'tornadus' || smogdexid === 'thundurus' || smogdexid === 'landorus' || smogdexid === 'pumpkaboo' || smogdexid === 'gourgeist' || smogdexid === 'arceus' || smogdexid === 'meowstic') {
+			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys' || smogdexid === 'kyurem' || smogdexid === 'giratina' || smogdexid === 'shaymin' || smogdexid === 'tornadus' || smogdexid === 'thundurus' || smogdexid === 'landorus' || smogdexid === 'pumpkaboo' || smogdexid === 'gourgeist' || smogdexid === 'arceus' || smogdexid === 'meowstic' || smogdexid === 'hoopa') {
 				if (template.forme) smogdexid += '-' + toId(template.forme);
 			}
 
