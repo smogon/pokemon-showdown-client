@@ -3033,7 +3033,7 @@ a.ilink.yours {
 	color: #FFFFFF;
 }
 .dark .tabbar a.button.cur,
-.tabbar a.button.cur:hover {
+.dark .tabbar a.button.cur:hover {
 	border-color: #000000;
 	background: #000000;
 	color: #FFFFFF;
@@ -3143,7 +3143,7 @@ a.ilink.yours {
 	color: #FFFFFF;
 }
 .dark .tournament-status,
-.tournament-toggle {
+.dark .tournament-toggle {
 	background: #000000;
 	border-color: #000000;
 	text-shadow: none;
@@ -3175,7 +3175,7 @@ a.ilink.yours {
 	border-color: #1C1C1C;
 }
 .dark .tournament-wrapper,
-.tournament-box {
+.dark .tournament-box {
 	border-color: #000000;
 }
 .dark .tournament-box {
