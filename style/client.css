@@ -3009,42 +3009,326 @@ a.ilink.yours {
 /*********************************************************
  * Dark mode!
  *********************************************************/
+/*Header*/
 
 .dark .header {
-	background: rgba(0,0,0,.30);
+	background: rgba(0, 0, 0, .30);
 }
+.dark .maintabbarbottom {
+	border-color: rgba(0, 0, 0, 0.7);
+	background: #000000;
+}
+.dark .tabbar a.button.notifying {
+	border-color: #5C5C5C;
+	background: #5C5C5C;
+	color: #FFFFFF;
+	font-style: italic;
+}
+.dark .button.subtle-notifying {
+	color: #FFFFFF;
+}
+.dark .tabbar a.button.notifying:hover {
+	border-color: #5C5C5C;
+	background: #5C5C5C;
+	color: #FFFFFF;
+}
+.dark .tabbar a.button.cur,
+.dark .tabbar a.button.cur:hover {
+	border-color: #000000;
+	background: #000000;
+	color: #FFFFFF;
+}
+.dark .tabbar a.button {
+	border-color: rgba(0, 0, 0, 0.7);
+	;
+	background: #000000;
+	color: #FFFFFF;
+	text-shadow: none;
+}
+.dark .tabbar a.button:hover {
+	background: #1C1C1C;
+	color: #FFFFFF;
+	border-color: #1C1C1C;
+}
+.dark .tabbar .closebutton {
+	color: #FFFFFF;
+}
+.dark .tabbar .closebutton:hover {
+	color: #A3A3A3;
+}
+/*Chat windows*/
+/*-Userlist-*/
 
-.dark .ps-room.ps-room-light,
-.dark .tournament-box,
-.dark .tournament-status,
-.dark .tournament-toggle,
-.dark .pm-log-add {
-	background: rgba(0,0,0,.70);
-	color: #DDD;
+.dark .userlist {
+	background: rgba(0, 0, 0, .5);
+	border-color: #000000;
 }
-
-.dark .pm-log {
-	background: rgba(0,0,0,.85);
-	color: #DDD;
+.dark .userlist li {
+	background: rgba(0, 0, 0, .5);
+	border-color: rgba(0, 0, 0, .5);
 }
-
-.dark .userlist-maximized {
-	background: #333333;
-	color: #DDD;
-}
-.dark .ps-room.ps-room-opaque,
-.dark .battle-log-add,
-.dark .battle-controls {
-	background: #444444;
-	color: #DDD;
+.dark .userlist li em.group {
+	color: #FFFFFF;
 }
 .dark .userlist-minimized {
-	background: #444444;
-	color: #4488EE;
+	background: #000000;
+	color: #A3A3A3;
 }
 .dark .userlist-minimized .userlist-count:hover,
 .dark .userlist-maximized .userlist-count:hover {
-	background: #666666;
+	background: #000000;
+}
+.dark .userlist strong,
+.dark .userlist span {
+	text-shadow: 1px 1px 0 #222222;
+}
+.dark .userlist li {
+	border-bottom-color: #000000;
+}
+.dark .userlist li button:hover {
+	background: #222222;
+}
+.dark .userlist li button:active {
+	background: black;
+	border-color: #000000;
+}
+.dark .userlist-maximized {
+	background: #000000;
+	color: #DDD;
+}
+/*-Chat-*/
+
+.dark .chat-log {
+	background: rgba(0, 0, 0, .5);
+}
+.dark .chat-log .chat small {
+	color: #FFFFFF;
+}
+
+.dark .chat-log .chat.mine.chat small {
+	color: #FFFFFF;
+}
+.dark .chat-log-add {
+	background: rgba(0, 0, 0, .5);
+	border-color: rgba(0, 0, 0, .5);
+	color: #FFF;
+}
+/*-Infobox-*/
+
+.dark .infobox {
+	background: rgba(255, 255, 255, 0.3);
+	;
+	border-color: rgba(255, 255, 255, 0.3);
+	;
+}
+/*-Announce-*/
+
+.message-announce {
+	border: 1px solid #C0C0C0;
+	background: #EEEEEE;
+	color: black;
+	padding: 0 2px;
+}
+/*Highlight*/
+
+.dark .highlighted {
+	background: rgba(255, 255, 255, 0.3);
+}
+/*Tournaments*/
+
+.dark .tournament-title {
+	background: #000000;
+	border-color: #000000;
+	text-shadow: none;
+	color: #FFFFFF;
+}
+.dark .tournament-status,
+.dark .tournament-toggle {
+	background: #000000;
+	border-color: #000000;
+	text-shadow: none;
+	color: #FFFFFF;
+}
+.dark .tournament-tools {
+	border-color: #000000;
+	color: #FFFFFF;
+	background: #000000;
+}
+.dark .tournament-tools .select {
+	border-color: #FFFFFF;
+	background: #000000;
+	color: #FFFFFF;
+	text-shadow: none
+}
+.dark .tournament-tools .select:hover {
+	background: #1C1C1C;
+	border-color: #1C1C1C;
+}
+.dark .tournament-tools button {
+	border-color: #FFFFFF;
+	background: #000000;
+	color: #FFFFFF;
+	text-shadow: none;
+}
+.dark .tournament-tools button:hover {
+	background: #1C1C1C;
+	border-color: #1C1C1C;
+}
+.dark .tournament-wrapper,
+.dark .tournament-box {
+	border-color: #000000;
+}
+.dark .tournament-box {
+	background: rgba(0, 0, 0, .5);
+}
+/*PM*/
+
+.dark .pm-window h3 small {
+	color: #FFFFFF;
+}
+.dark .pm-window h3,
+.dark .pm-window h3:hover {
+	border-color: #000000;
+	color: #FFF;
+	background: #000000;
+}
+.dark .pm-window.focused h3,
+.dark .pm-window.focused h3:hover {
+	background: #000000;
+	border-color: #000000;
+	color: #FFFFFF;
+}
+.dark .pm-window h3:hover .minimizebutton,
+.dark .pm-window h3 .closebutton,
+.dark .pm-window h3 .minimizebutton {
+	color: #FFFFFF;
+}
+.dark .pm-window h3 .closebutton:hover {
+	color: #A3A3A3;
+}
+.dark .pm-window h3 .minimizebutton:hover {
+	color: #A3A3A3;
+}
+.dark .pm-window h3 .closebutton:hover + .minimizebutton {
+	color: #A3A3A3 !important;
+}
+.dark .pm-window h3.pm-notifying {
+	border-color: #A3A3A3;
+	background: #A3A3A3;
+	color: #FFFFFF;
+	text-shadow: none;
+}
+.dark .pm-window h3.pm-notifying:hover {
+	background: #5C5C5C;
+	border-color: #5C5C5C;
+}
+.dark .pm-window h3.pm-notifying small {
+	color: #FFFFFF;
+}
+.dark .pm-window h3.pm-notifying .closebutton,
+.dark .pm-window h3.pm-notifying .minimizebutton {
+	color: #FFFFFF;
+}
+.dark .pm-window h3.pm-notifying .closebutton:hover {
+	color: #A3A3A3;
+}
+.dark .pm-window h3.pm-notifying .minimizebutton:hover {
+	color: #A3A3A3;
+}
+.dark .pm-window h3.pm-notifying .closebutton:hover + .minimizebutton {
+	color: #A3A3A3 !important;
+}
+.dark .pm-log,
+.dark .pm-window.focused .pm-log {
+	border-color: #A3A3A3;
+}
+.dark .challenge {
+	border-color: #A3A3A3;
+	background: #A3A3A3;
+	color: #FFFFFF;
+}
+.dark .pm-log-add,
+.dark .pm-window.focused .pm-log-add {
+	border-color: #000000;
+	background: #000000;
+}
+.dark .pm-log-add .textbox {
+	border-color: #000000;
+}
+.dark .pm-log {
+	background: #000000;
+	color: #FFFFFF;
+}
+
+/*Menu*/
+
+.dark .menugroup {
+	border: 1px solid #000000;
+	background: rgba(0, 0, 0, 0.7);
+	color: #FFFFFF;
+	text-shadow: 0px 0px 2px #803C6F;
+}
+.dark .menugroup .select,
+.dark .menugroup .button {
+	background: #000000 !important;
+	border-color: #000000 !important;
+	color: #FFFFFF !important;
+	text-shadow: none !important;
+	font-style: italic !important;
+}
+.dark .menugroup .select:hover,
+.dark .menugroup .button:hover {
+	background: #595959 !important;
+	border-color: #595959 !important;
+	color: #FFFFFF !important;
+	text-shadow: none !important;
+	font-style: italic !important;
+}
+
+/*Popup*/
+
+.dark .ps-popup {
+	background: #000000;
+	color: #FFFFFF;
+	border-color: #000000;
+}
+.dark .ps-popup a,
+.dark .credits h2,
+.dark .credits ul {
+	color: #FFFFFF;
+	text-shadow: none;
+}
+.dark .ps-popup a:hover {
+	color: #A3A3A3;
+}
+.dark .ps-popup a.ilink.yours {
+	color: #A3A3A3;
+}
+.dark .ps-popup a.ilink.yours:hover {
+	color: #FFFFFF;
+}
+.dark .avatarlist button {
+	border-color: #A3A3A3;
+}
+.dark .avatarlist button:hover {
+	border-color: #A3A3A3;
+	background-color: #A3A3A3;
+}
+.dark .popupmenu button {
+	color: #FFFFFF;
+	text-shadow: none;
+}
+.dark .popupmenu h3 {
+	color: #FFFFFF;
+	text-shadow: none;
+}
+.dark .popupmenu button.sel {
+	border-color: #FFFFFF;
+}
+.dark .popupmenu button:hover,
+.dark .popupmenu button.sel:hover {
+	border-color: #A3A3A3;
+	background: #A3A3A3;
 }
 
 .dark .moveselect button {
@@ -3056,55 +3340,19 @@ a.ilink.yours {
 .dark .whatdo {
 	color: #999999;
 }
-
-.dark .chat-log {
-	background: rgba(0,0,0,.5);
-	color: #DDD;
-}
-
-/* main menu */
-
-.dark .menugroup {
-	background: rgba(0,0,0,.2);
-}
-.dark .pm-window.focused h3,
-.dark .pm-window.focused .pm-log,
-.dark .pm-window.focused .pm-log-add {
-	border-color: #CCC;
-}
-
 /* chat */
 
-.dark .userlist strong,
-.dark .userlist span {
-	text-shadow: 1px 1px 0 #222222;
-}
-.dark .userlist li {
-	border-bottom-color: #444;
-}
-.dark .userlist li button:hover {
-	background: #222222;
-}
-.dark .userlist li button:active {
-	background: black;
-}
-
-.dark .highlighted {
-	background: rgba(255,200,0,0.18);
-}
 .dark .revealed {
-	background: rgba(0,255,200,0.18);
+	background: rgba(0, 255, 200, 0.18);
 }
 .dark a.ilink {
-	color: #4488EE;
+	color: #A3A3A3;
 }
-
 /* teambuilder */
 
 .dark .folderpane {
 	border-left-color: #77838c;
 }
-
 .dark .folderlist .foldersep:before,
 .dark .folderlistafter:before,
 .dark .folderlistbefore:before,
@@ -3114,7 +3362,6 @@ a.ilink.yours {
 .dark .folderhack2 {
 	background: #77838c;
 }
-
 .dark .folder .selectFolder:hover {
 	background: #67737c;
 }
@@ -3123,11 +3370,9 @@ a.ilink.yours {
 	background: #27333c;
 	color: white;
 }
-
 .dark .folder.cur .selectFolder {
 	background: transparent;
 }
-
 /* teambuilder set */
 
 .dark .setmenu button,
@@ -3148,41 +3393,39 @@ a.ilink.yours {
 .dark .utilichart a:hover .movenamecol {
 	color: #555;
 }
-
 .dark .setchart,
 .dark .setchart-nickname {
 	background-color: #5A6570;
 	box-shadow: none;
 }
 .dark .setcol-icon label {
-	text-shadow: #5A6570 1px 1px 0,#5A6570 1px -1px 0,#5A6570 -1px 1px 0,#5A6570 -1px -1px 0;
+	text-shadow: #5A6570 1px 1px 0, #5A6570 1px -1px 0, #5A6570 -1px 1px 0, #5A6570 -1px -1px 0;
 }
 .dark .setchart label,
 .dark .setchart-nickname label {
 	color: #BBB;
 }
-
 /* rooms */
+
 .dark .roomlist a.ilink {
 	box-shadow: none;
 	text-shadow: none;
 }
-
 .dark .roomlist a.ilink {
-	border-color: #7799BB;
-	background: rgba(30, 40, 50, .5);
-	color: #7799BB;
+	border-color: #A3A3A3;
+	background: rgba(0,0,0,0,6);
+	color: #A3A3A3;
 }
 .dark .ps-popup .roomlist a.ilink {
 	background: rgba(30, 40, 50, 1);
 }
 .dark .roomlist a.ilink:hover {
-	border-color: #AACCEE;
+	border-color: #9C9C9C;
 	background: rgba(30, 40, 50, 1);
-	color: #AACCEE;
+	color: #9C9C9C;
 }
-
 /* misc */
+
 .dark iframe.textbox,
 .dark iframe.textbox:hover,
 .dark iframe.textbox:focus {
