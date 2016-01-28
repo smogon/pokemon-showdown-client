@@ -2934,25 +2934,19 @@ var Battle = (function () {
 				weatherhtml += this.sideConditionLeft(this.sides[i].sideConditions[id], i);
 			}
 		}
-		if (weather === oldweather) {
-			if (weather) {
-				this.weatherElem.html('<em>' + weatherhtml + '</em>');
-			} else {
-				this.weatherElem.html('<em>' + weatherhtml + '</em>');
-				this.weatherElem.attr('class', 'weather');
-				this.weatherElem.css({opacity: .5});
-			}
-			return;
-		}
-		if (instant) {
+		if (instant || weather === oldweather) {
 			if (weather) {
 				this.weatherElem.attr('class', 'weather ' + weather + 'weather');
-				this.weatherElem.html('<em>' + weatherhtml + '</em>');
-				this.weatherElem.css({opacity: .5});
 			} else {
-				this.weatherElem.html('<em>' + weatherhtml + '</em>');
-				this.weatherElem.css({opacity: 0});
+				this.weatherElem.attr('class', 'weather');
 			}
+			this.weatherElem.html('<em>' + weatherhtml + '</em>');
+			this.weatherElem.css({opacity: 0.5});
+			if (weather && !instant) this.weatherElem.animate({
+				opacity: 1.0
+			}, 400).animate({
+				opacity: .5
+			}, 400);
 			return;
 		}
 		if (oldweather) {
@@ -2963,18 +2957,21 @@ var Battle = (function () {
 				}, 300, function () {
 					self.weatherElem.attr('class', 'weather ' + weather + 'weather');
 					self.weatherElem.html('<em>' + weatherhtml + '</em>');
+					self.weatherElem.css({opacity: 0.5});
 				});
 			} else {
 				this.weatherElem.animate({
 					opacity: 0
-				}, 500);
+				}, 500, function () {
+					self.weatherElem.attr('class', 'weather');
+					self.weatherElem.html('<em>' + weatherhtml + '</em>');
+					self.weatherElem.css({opacity: 0.5});
+				});
 			}
 		} else if (weather) {
 			this.weatherElem.css({opacity: 0});
 			this.weatherElem.attr('class', 'weather ' + weather + 'weather');
 			this.weatherElem.html('<em>' + weatherhtml + '</em>');
-		}
-		if (weather) {
 			this.weatherElem.animate({
 				opacity: 1.0
 			}, 400).animate({
