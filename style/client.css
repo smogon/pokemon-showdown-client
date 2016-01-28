@@ -93,7 +93,7 @@ button.subtle:hover {
 }
 
 hr {
-	border-top: 1px solid #999999;
+	border-top: 1px solid #0D0E0E;
 	border-bottom: 0;
 	border-left: 0;
 	border-right: 0;
@@ -135,9 +135,8 @@ button:disabled {
 	background: #111111;
 }
 .dark .message-error {
-	color: #FF5333;
+	color: #BBOBOB;
 }
-
 /* .dark button {
 	background: #777777;
 	box-shadow: none;
@@ -549,7 +548,7 @@ button:disabled {
 	text-align: left;
 	background: #E1E8E8;
 	color: black;
-	border: 1px solid #999999;
+	border: 1px solid #0D0E0E;
 	padding: 2px 10px;
 
 	border-radius: 6px;
@@ -3188,6 +3187,21 @@ a.ilink.yours {
 .dark iframe.textbox:focus {
 	background: #DDDDDD;
 }
+
+.dark .ps-popup {
+	position: absolute;
+	top: auto; right: auto; left: auto; bottom: auto;
+	text-align: left;
+	background: #0D0E0E;
+	color: #DDDDDD;
+	border: 1px solid #DDDDDD;
+	padding: 2px 10px;
+
+	border-radius: 6px;
+	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
+	z-index: 20;
+}
+
 
 /*********************************************************
  * <blink>
