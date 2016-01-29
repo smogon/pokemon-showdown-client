@@ -4951,7 +4951,7 @@ var Battle = (function () {
 					actions += "" + Tools.escapeHTML(kwargs.of) + "'s attack!";
 					break;
 				case 'pursuit':
-					actions += "" + poke.getName() + " is being sent back!";
+					actions += "(" + poke.getName() + " is being withdrawn!)";
 					break;
 				case 'hyperspacefury':
 				case 'hyperspacehole':
