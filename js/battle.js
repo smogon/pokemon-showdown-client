@@ -5083,8 +5083,6 @@ var Battle = (function () {
 					actions += '' + poke.getName() + '\'s Wonder Guard evades the attack!';
 					break;
 				case 'forewarn':
-					this.resultAnim(poke, 'Forewarn', 'ability');
-					this.message('', "<small>[" + poke.getName(true) + "'s Forewarn!]</small>");
 					if (this.gen >= 5) {
 						actions += "It was alerted to " + ofpoke.getLowerName() + "'s " + Tools.escapeHTML(args[3]) + "!";
 						ofpoke.markMove(args[3], 0);
