@@ -1798,7 +1798,7 @@
 					val += '-';
 					this.minus = i;
 				}
-				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="inputform numform" /></div>';
+				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="textbox inputform numform" /></div>';
 				totalev += (set.evs[i] || 0);
 			}
 			if (this.curTeam.gen > 2) {
@@ -1824,7 +1824,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + (set.ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="31" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
 				}
 				buf += '</div>';
 			} else {
@@ -1833,7 +1833,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + Math.floor(set.ivs[i] / 2);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="15" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
 				}
 				buf += '</div>';
 			}

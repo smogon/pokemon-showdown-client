@@ -2753,6 +2753,11 @@ a.ilink.yours {
 		bottom: auto;
 		overflow-y: visible;
 		background: #EEF2F5;
+		color: black;
+	}
+	.dark .teambuilder-results {
+		background: #0E1215;
+		color: #DDD;
 	}
 }
 @media (max-width:639px) {
@@ -2760,6 +2765,11 @@ a.ilink.yours {
 		bottom: auto;
 		overflow-y: visible;
 		background: #EEF2F5;
+		color: black;
+	}
+	.dark .teambuilder-results {
+		background: #0E1215;
+		color: #DDD;
 	}
 }
 
