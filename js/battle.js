@@ -5992,7 +5992,7 @@ var Battle = (function () {
 			$messages.find('a').contents().unwrap();
 			if (window.BattleRoom && args[2]) {
 				$messages.hide().find('button').parent().remove();
-				this.log('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '"><small>View ' + $messages.length + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small></button></div>');
+				this.log('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button></div>');
 			}
 			break;
 		default:

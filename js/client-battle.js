@@ -173,11 +173,11 @@
 			var $button = $messages.find('button');
 			if ($messages.hasClass('revealed')) {
 				$messages.removeClass('revealed').hide();
-				$button.html('<small>View ' + ($messages.length - 1) + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.html('<small>(' + ($messages.length) + ' line' + ($messages.length > 1 ? 's' : '') + 'from ' + user + ')</small>');
 				$button.parent().show();
 			} else {
 				$messages.addClass('revealed');
-				$button.html('<small>Hide ' + ($messages.length - 1) + ' revealed message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.html('<small>(Hide ' + ($messages.length) + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ')</small>');
 				$button.parent().removeClass('revealed');
 				$messages.show();
 			}
