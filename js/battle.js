@@ -3170,7 +3170,7 @@ var Battle = (function () {
 			if (kwargs.miss && target.side) {
 				target = target.side.missedPokemon;
 			}
-			if (kwargs.notarget) {
+			if (kwargs.notarget || !target || !target.sprite.elem) {
 				target = pokemon.side.foe.missedPokemon;
 			}
 			if (kwargs.prepare || kwargs.anim === 'prepare') {
