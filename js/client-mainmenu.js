@@ -1069,6 +1069,7 @@
 				if (curSection) buf += '</optgroup>';
 			}
 			buf += '</select></p>';
+			buf += '<p><label>Minimum Elo Ranking:</label><textarea cols="4" rows="1" style = "vertical-align:bottom" class="elo"></textarea><button class="changeelo" name="changeelo">Set</button></p>'
 			buf += '<div class="list"><p>Loading...</p></div>';
 			buf += '</div>';
 			this.$el.html(buf);
@@ -1081,9 +1082,11 @@
 		},
 		events: {
 			'click .ilink': 'clickLink',
-			'change select': 'changeFormat'
+			'change select': 'changeFormat',
+			'click .changeelo': 'setMinElo'
 		},
 		format: '',
+		minElo: 0,
 		changeFormat: function (e) {
 			this.format = e.currentTarget.value;
 			this.update();
@@ -1102,15 +1105,50 @@
 			var buf = '';
 
 			var i = 0;
+			var minElo = this.minElo;
+				
 			for (var id in data.rooms) {
 				var roomData = data.rooms[id];
 				var matches = ChatRoom.parseBattleID(id);
+				var p1elo, p2elo;
+
 				if (!matches) {
 					continue; // bogus room ID could be used to inject JavaScript
 				}
 				var format = (matches[1] || '');
+				
+
+				if (minElo >= 1000) { //eliminate unecessary server calls by making sure we aren't passing a useless minElo
+					$.get(app.user.getActionPHP(), {
+						act: 'ladderget',
+						user: roomData.p1
+					}, Tools.safeJSON(function(data) {
+						for(var i in data) {
+							if (data[i].formatid == format) {
+								p1elo = (data[i].acre);
+							}
+						}	
+					}), "text"); //store p1's elo for the given format
+				
+					$.get(app.user.getActionPHP(), {
+						act: 'ladderget',
+						user: roomData.p2
+					}, Tools.safeJSON(function(data) {
+						for(var i in data) {		
+							if (data[i].formatid == format) {
+								p2elo = (data[i].acre);
+							}
+						}	
+					}), "text"); //store p2's elo for the given format
+				}
+				
 				if (this.format && format !== this.format) continue;
+				
+				
+				if (p1elo < minElo || p2elo < minElo) continue; //Remove matches below the minimum elo.
+							
 				var formatBuf = (format ? '<small>[' + Tools.escapeFormat(format) + ']</small><br />' : '');
+				
 				var roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
 				if (!roomData.p1) {
 					matches = id.match(/[^0-9]([0-9]*)$/);
@@ -1141,6 +1179,13 @@
 		refresh: function (i, button) {
 			button.disabled = true;
 			app.send('/cmd roomlist');
+		},
+		setMinElo: function(e) {
+			var eloText = this.$(".elo");
+			var minElo = parseInt(eloText.val());
+			this.minElo = minElo;
+			eloText.val("");
+			this.update();
 		}
 	});
 
