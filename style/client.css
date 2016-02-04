@@ -62,7 +62,7 @@ body {
 }
 .textbox:focus {
 	outline: 0 none;
-	border: 1px solid #004488;
+	border-color: #004488;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
 	background: #FFFFFF;
 }
@@ -105,6 +105,63 @@ button {
 button:disabled {
 	cursor: default;
 }
+
+.dark a {
+	color: #4488EE;
+}
+.dark a.button {
+	color: #222222;
+}
+.dark a.button.subtle-notifying {
+	color: #AA6600;
+}
+
+.dark .textbox {
+	border-color: #888888;
+
+	box-shadow: none;
+	background: #282B2D;
+	color: #DDD;
+}
+.dark .textbox:hover {
+	border-color: #BBBBBB;
+	box-shadow: none;
+	background: #222222;
+}
+.dark .textbox:focus {
+	outline: 0 none;
+	border-color: #BBBBBB;
+	box-shadow: 0px 0px 4px #88CCFF, 0px 0px 4px #88CCFF;
+	background: #111111;
+}
+.dark .message-error {
+	color: #FF5333;
+}
+
+/* .dark button {
+	background: #777777;
+	box-shadow: none;
+	border: 1px solid #EEEEEE;
+	color: #EEEEEE;
+	border-radius: 5px;
+}
+.dark .button {
+	background: #777777;
+	box-shadow: none;
+	border-color: 1px solid #EEEEEE;
+	text-shadow: none;
+	color: #EEEEEE;
+}
+.dark .button:hover {
+	background: #555555;
+}
+
+.dark .closebutton,
+.dark .minimizebutton,
+.dark button.subtle {
+	background: none;
+	border: none;
+} */
 
 /*********************************************************
  * Header
@@ -214,7 +271,6 @@ button:disabled {
 	cursor: pointer;
 	text-align: center;
 	text-decoration: none;
-	text-shadow: 0 1px 0 rgba(255,255,255,.4);
 	border-radius: 5px;
 	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
 	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
@@ -344,15 +400,16 @@ button:disabled {
 }
 .tabbar .closebutton {
 	display: inline-block;
-	margin: 0 0 0 -18px;
-	width: 18px;
-	top: 5px;
+	margin: 0 0 0 -17px;
+	width: 17px;
+	text-align: left;
+	top: 3px;
 	vertical-align: top;
 	position: relative;
 	z-index: 11;
 }
 .tabbar a.cur + .closebutton {
-	top: 4px;
+	top: 2px;
 }
 .closebutton,
 .minimizebutton {
@@ -737,7 +794,10 @@ p.or:after {
 	min-height: 2px;
 }
 .pm-window {
-	margin-bottom: 12px;
+	margin: 0 -12px 12px -10px;
+}
+.tiny-layout .pm-window {
+	margin: 0 0 12px 0;
 }
 .pm-window h3 {
 	background: rgba(248,248,248,.8);
@@ -999,6 +1059,7 @@ p.or:after {
 	text-align: left;
 	font-size: 9pt;
 	background: #EEEEEE;
+	color: #111111;
 }
 .ladder span {
 	color: gray;
@@ -1044,13 +1105,12 @@ p.or:after {
 	margin: 2px 7px 4px 7px;
 	padding: 1px 4px 2px 4px;
 	border: 1px solid #BBCCDD;
-	background: #F8FBFD;
+	background: rgba(248, 251, 253, 0.5);
 
 	border-radius: 4px;
 	text-decoration: none;
 	color: #336699;
 	text-shadow: #ffffff 0px -1px 0;
-	box-shadow: 1px 1px 1px #D5D5D5;
 	cursor: pointer;
 	font-size: 10pt;
 
@@ -1061,7 +1121,7 @@ p.or:after {
 	font-size: 8pt;
 }
 .roomlist a.ilink:hover {
-	border-color: #8899AA;
+	border-color: #778899;
 	background: #F1F4F9;
 	color: #224466;
 	text-decoration: none;
@@ -1335,13 +1395,16 @@ a.ilink.yours {
 	border-width: 0;
 }
 .tournament-bracket-table-cell-result-win {
-	background-color: rgba(0, 255, 0, 0.2)
+	background-color: rgba(128, 196, 128, 0.7);
+	color: black;
 }
 .tournament-bracket-table-cell-result-draw {
-	background-color: rgba(255, 255, 0, 0.2)
+	background-color: rgba(255, 196, 128, 0.7);
+	color: black;
 }
 .tournament-bracket-table-cell-result-loss {
-	background-color: rgba(255, 0, 0, 0.2)
+	background-color: rgba(255, 128, 128, 0.7);
+	color: black;
 }
 
 .tournament-bracket-tree-link {
@@ -1354,20 +1417,24 @@ a.ilink.yours {
 }
 .tournament-bracket-tree-node > rect {
 	/* Note: Due to SVG limitations, dimensions and border radii are in client-chat-tournament.js (nodeSize) */
-	fill: rgba(74, 77, 80, 0.2);
+	fill: rgba(178, 194, 210, 0.7);
 	stroke: rgba(74, 77, 80, 0.7);
+	color: black;
 }
 .tournament-bracket-tree-node-win > rect {
-	fill: rgba(0, 128, 0, 0.2);
+	fill: rgba(128, 196, 128, 0.7);
 	stroke: rgba(0, 128, 0, 0.7);
+	color: black;
 }
 .tournament-bracket-tree-node-draw > rect {
-	fill: rgba(255, 128, 0, 0.2);
+	fill: rgba(255, 196, 128, 0.7);
 	stroke: rgba(255, 128, 0, 0.7);
+	color: black;
 }
 .tournament-bracket-tree-node-loss > rect {
-	fill: rgba(255, 0, 0, 0.2);
+	fill: rgba(255, 128, 128, 0.7);
 	stroke: rgba(255, 0, 0, 0.7);
+	color: black;
 }
 .tournament-bracket-tree-node > text {
 	font-size: 0.8em;
@@ -2091,6 +2158,7 @@ a.ilink.yours {
 	height: 17px;
 	font-size: 9pt;
 	background: #d7e3ec;
+	color: black;
 	border-right: 1px solid #888888;
 }
 .folder .selectFolder {
@@ -2441,7 +2509,8 @@ a.ilink.yours {
 	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
 	background: #FFFFFF;
 }
-.setdetails:focus, .setstats:focus {
+.setdetails:focus, .setstats:focus,
+.dark .setdetails:focus, .dark .setstats:focus {
 	border: 2px solid #004488;
 	margin: 1px 1px 0 0;
 	outline: 0 none;
@@ -2546,35 +2615,10 @@ a.ilink.yours {
 .setchart-nickname input,
 .statform input.inputform {
 	display: block;
-	border: 1px solid #AAAAAA;
-	border-radius: 3px;
 	padding: 1px;
 	margin: 2px 3px 1px 1px;
-	font-family: Verdana, sans-serif;
-	font-size: 9pt;
 	width: 104px;
 	height: 20px;
-
-	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
-	background: #F8FBFD;
-	color: black;
-}
-.setchart input:hover,
-.setchart-nickname input:hover,
-.statform input.inputform:hover,
-.textbox:hover {
-	border-color: #474747;
-	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
-	background: #FFFFFF;
-}
-.setchart input:focus,
-.setchart-nickname input:focus,
-.statform input.inputform:focus,
-.textbox:focus {
-	outline: 0 none;
-	border: 1px solid #004488;
-	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
-	background: #FFFFFF;
 }
 .setchart input.incomplete {
 	color: #CC3311;
@@ -2709,6 +2753,11 @@ a.ilink.yours {
 		bottom: auto;
 		overflow-y: visible;
 		background: #EEF2F5;
+		color: black;
+	}
+	.dark .teambuilder-results {
+		background: #0E1215;
+		color: #DDD;
 	}
 }
 @media (max-width:639px) {
@@ -2716,6 +2765,11 @@ a.ilink.yours {
 		bottom: auto;
 		overflow-y: visible;
 		background: #EEF2F5;
+		color: black;
+	}
+	.dark .teambuilder-results {
+		background: #0E1215;
+		color: #DDD;
 	}
 }
 
@@ -2960,6 +3014,189 @@ a.ilink.yours {
 
 .preview {
 	float: right;
+}
+
+/*********************************************************
+ * Dark mode!
+ *********************************************************/
+
+.dark .header {
+	background: rgba(0,0,0,.30);
+}
+
+.dark .ps-room.ps-room-light,
+.dark .tournament-box,
+.dark .tournament-status,
+.dark .tournament-toggle,
+.dark .pm-log-add {
+	background: rgba(0,0,0,.70);
+	color: #DDD;
+}
+
+.dark .pm-log {
+	background: rgba(0,0,0,.85);
+	color: #DDD;
+}
+
+.dark .userlist-maximized {
+	background: #333333;
+	color: #DDD;
+}
+.dark .ps-room.ps-room-opaque,
+.dark .battle-log-add,
+.dark .battle-controls {
+	background: #444444;
+	color: #DDD;
+}
+.dark .userlist-minimized {
+	background: #444444;
+	color: #4488EE;
+}
+.dark .userlist-minimized .userlist-count:hover,
+.dark .userlist-maximized .userlist-count:hover {
+	background: #666666;
+}
+
+.dark .moveselect button {
+	color: #AA6644;
+}
+.dark .switchselect button {
+	color: #6677AA;
+}
+.dark .whatdo {
+	color: #999999;
+}
+
+.dark .chat-log {
+	background: rgba(0,0,0,.5);
+	color: #DDD;
+}
+
+/* main menu */
+
+.dark .menugroup {
+	background: rgba(0,0,0,.2);
+}
+.dark .pm-window.focused h3,
+.dark .pm-window.focused .pm-log,
+.dark .pm-window.focused .pm-log-add {
+	border-color: #CCC;
+}
+
+/* chat */
+
+.dark .userlist strong,
+.dark .userlist span {
+	text-shadow: 1px 1px 0 #222222;
+}
+.dark .userlist li {
+	border-bottom-color: #444;
+}
+.dark .userlist li button:hover {
+	background: #222222;
+}
+.dark .userlist li button:active {
+	background: black;
+}
+
+.dark .highlighted {
+	background: rgba(255,200,0,0.18);
+}
+.dark .revealed {
+	background: rgba(0,255,200,0.18);
+}
+.dark a.ilink {
+	color: #4488EE;
+}
+
+/* teambuilder */
+
+.dark .folderpane {
+	border-left-color: #77838c;
+}
+
+.dark .folderlist .foldersep:before,
+.dark .folderlistafter:before,
+.dark .folderlistbefore:before,
+.dark .folderpane h3,
+.dark .folder .selectFolder,
+.dark .folderhack1,
+.dark .folderhack2 {
+	background: #77838c;
+}
+
+.dark .folder .selectFolder:hover {
+	background: #67737c;
+}
+.dark .folder .selectFolder.active,
+.dark .folder .selectFolder:active {
+	background: #27333c;
+	color: white;
+}
+
+.dark .folder.cur .selectFolder {
+	background: transparent;
+}
+
+/* teambuilder set */
+
+.dark .setmenu button,
+.dark .teamlist button,
+.dark .folder.cur .selectFolder,
+.dark .utilichart .namecol,
+.dark .utilichart .pokemonnamecol,
+.dark .utilichart .movenamecol {
+	color: #DDD;
+}
+.dark .utilichart .col {
+	color: #999;
+}
+.dark .setmenu button:hover,
+.dark .teamlist button:hover,
+.dark .utilichart a:hover .namecol,
+.dark .utilichart a:hover .pokemonnamecol,
+.dark .utilichart a:hover .movenamecol {
+	color: #555;
+}
+
+.dark .setchart,
+.dark .setchart-nickname {
+	background-color: #5A6570;
+	box-shadow: none;
+}
+.dark .setcol-icon label {
+	text-shadow: #5A6570 1px 1px 0,#5A6570 1px -1px 0,#5A6570 -1px 1px 0,#5A6570 -1px -1px 0;
+}
+.dark .setchart label,
+.dark .setchart-nickname label {
+	color: #BBB;
+}
+
+/* rooms */
+.dark .roomlist a.ilink {
+	box-shadow: none;
+	text-shadow: none;
+}
+
+.dark .roomlist a.ilink {
+	border-color: #7799BB;
+	background: rgba(30, 40, 50, .5);
+	color: #7799BB;
+}
+.dark .ps-popup .roomlist a.ilink {
+	background: rgba(30, 40, 50, 1);
+}
+.dark .roomlist a.ilink:hover {
+	border-color: #AACCEE;
+	background: rgba(30, 40, 50, 1);
+	color: #AACCEE;
+}
+
+/* misc */
+.dark iframe.textbox,
+.dark iframe.textbox:hover,
+.dark iframe.textbox:focus {
+	background: #DDDDDD;
 }
 
 /*********************************************************

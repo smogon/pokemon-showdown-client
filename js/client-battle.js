@@ -26,7 +26,7 @@
 
 			this.$chat = this.$chatFrame.find('.inner');
 
-			this.$options = this.battle.optionsElem.html('<div style="padding-top: 3px; text-align: right"><label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignorespects" /> Ignore Spectators</label> <label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignoreopp" /> Ignore Opponent</label></div>');
+			this.$options = this.battle.optionsElem.html('<div style="padding-top: 3px; text-align: right"><label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignorespects" /> Ignore Spectators</label> <label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignoreopp" /> Ignore Players</label></div>');
 
 			this.battle.customCallback = _.bind(this.updateControls, this);
 			this.battle.endCallback = _.bind(this.updateControls, this);
@@ -173,11 +173,11 @@
 			var $button = $messages.find('button');
 			if ($messages.hasClass('revealed')) {
 				$messages.removeClass('revealed').hide();
-				$button.html('<small>View ' + ($messages.length - 1) + ' hidden message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.html('<small>(' + ($messages.length) + ' line' + ($messages.length > 1 ? 's' : '') + 'from ' + user + ')</small>');
 				$button.parent().show();
 			} else {
 				$messages.addClass('revealed');
-				$button.html('<small>Hide ' + ($messages.length - 1) + ' revealed message' + ($messages.length > 1 ? 's' : '') + ' (' + user + ')</small>');
+				$button.html('<small>(Hide ' + ($messages.length) + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ')</small>');
 				$button.parent().removeClass('revealed');
 				$messages.show();
 			}

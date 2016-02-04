@@ -390,6 +390,8 @@
 				var muted = Tools.prefs('mute');
 				BattleSound.setMute(muted);
 
+				$('html').toggleClass('dark', !!Tools.prefs('dark'));
+
 				var effectVolume = Tools.prefs('effectvolume');
 				if (effectVolume !== undefined) BattleSound.setEffectVolume(effectVolume);
 
@@ -1790,6 +1792,7 @@
 					}
 				}
 				if (once) notification.psAutoclose = true;
+				needsTabbarUpdate = true;
 			} else if (window.macgap) {
 				macgap.growl.notify({
 					title: title,
@@ -2287,6 +2290,35 @@
 		submit: function (i) {
 			app.openInNewWindow('http://replay.pokemonshowdown.com/' + this.id);
 			this.close();
+		}
+	});
+
+	var RulesPopup = this.RulesPopup = Popup.extend({
+		type: 'modal',
+		initialize: function (data) {
+			var warning = ('warning' in data);
+			var buf = '';
+			if (warning) {
+				buf += '<p><strong style="color:red">' + (Tools.escapeHTML(data.warning) || 'You have been warned for breaking the rules.') + '</strong></p>';
+			}
+			buf += '<h2>Pok&eacute;mon Showdown Rules</h2>';
+			buf += '<b>Global</b><br /><br /><b>1.</b> Be nice to people. Respect people. Don\'t be rude to people.<br /><br /><b>2.</b> PS is based in the US. Follow US laws. Don\'t distribute pirated material, and don\'t slander others. PS is available to users younger than 18, so porn is strictly forbidden.<br /><br /><b>3.</b>&nbsp;No cheating. Don\'t exploit bugs to gain an unfair advantage. Don\'t game the system (by intentionally losing against yourself or a friend in a ladder match, by timerstalling, etc).<br /><b></b><br /><b>4.</b>&nbsp;English only.<br /><br /><b>5.</b> The First Amendment does not apply to PS, since PS is not a government organization.<br /><br /><b>6.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to a leader (a user with &amp; next to their name) or Discipline Appeals.<br /><br />';
+			buf += '<b>Chat</b><br /><br /><b>1.</b> Do not spam, flame, or troll. This includes advertising, asking questions with one-word answers in the lobby, and flooding the chat such as by copy/pasting lots of text in the lobby.<br /><br /><b>2.</b> Don\'t call unnecessary attention to yourself. Don\'t be obnoxious. ALL CAPS, <i><b>formatting</b></i>, and -&gt; ASCII art &lt;- are acceptable to emphasize things, but should be used sparingly, not all the time.<br /><br /><b>3.</b> No minimodding: don\'t mod if it\'s not your job. Don\'t tell people they\'ll be muted, don\'t ask for people to be muted, and don\'t talk about whether or not people should be muted ("inb4 mute", etc). This applies to bans and other punishments, too.<br /><br /><b>4.</b> We reserve the right to tell you to stop discussing moderator decisions if you become unreasonable or belligerent.<br /><br />(Note: Chat rules don\'t apply to battle rooms, but only if both players in the battle are okay with it.)<br /><br />';
+			if (!warning) {
+				buf += '<b>Usernames</b><br /><br />Your username can be chosen and changed at any time. Keep in mind:<br /><br /><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, &amp;, or ~ next to their name).<br /><br /><b>2.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).<br /><br /><b>3.</b> Usernames may not directly reference sexual activity, or be excessively disgusting.<br /><br />This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.';
+			}
+			if (warning) {
+				buf += '<p class="buttonbar"><button name="close" disabled>Close</button><small class="overlay-warn"> You will be able to close this in 5 seconds</small></p>';
+				setTimeout(_.bind(this.rulesTimeout, this), 5000);
+			} else {
+				this.type = 'semimodal';
+				buf += '<p class="buttonbar"><button name="close" class="autofocus">Close</button></p>';
+			}
+			this.$el.css('max-width', 760).html(buf);
+		},
+		rulesTimeout: function () {
+			this.$('button')[0].disabled = false;
+			this.$('.overlay-warn').remove();
 		}
 	});
 

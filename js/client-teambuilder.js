@@ -72,21 +72,17 @@
 			e.stopPropagation();
 			if (this[e.currentTarget.value]) this[e.currentTarget.value](e);
 		},
-		saveTeams: function () {
-			// save and return
-			Storage.saveTeams();
-			app.user.trigger('saveteams');
-			this.update();
-		},
 		back: function () {
 			if (this.exportMode) {
-				if (this.curTeam) this.curTeam.team = Storage.packTeam(this.curSetList);
+				if (this.curTeam) {
+					this.curTeam.team = Storage.packTeam(this.curSetList);
+					Storage.saveTeam(this.curTeam);
+				}
 				this.exportMode = false;
-				Storage.saveTeams();
 			} else if (this.curSet) {
 				app.clearGlobalListeners();
 				this.curSet = null;
-				Storage.saveTeams();
+				Storage.saveTeam(this.curTeam);
 			} else if (this.curTeam) {
 				this.curTeam.team = Storage.packTeam(this.curSetList);
 				this.curTeam.iconCache = '';
@@ -1022,13 +1018,13 @@
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="chartinput" value="" /></div></div></div>';
+				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
 			buf += '<div class="setmenu"><button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
-			buf += '<label>Nickname</label><input type="text" value="' + Tools.escapeHTML(set.name || '') + '" placeholder="' + Tools.escapeHTML(template.baseSpecies) + '" name="nickname" />';
+			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + Tools.escapeHTML(set.name || '') + '" placeholder="' + Tools.escapeHTML(template.baseSpecies) + '" />';
 			buf += '</div>';
 			buf += '<div class="setchart" style="' + Tools.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
@@ -1038,11 +1034,11 @@
 				var item = Tools.getItem(set.item);
 				itemicon = '<span class="itemicon" style="' + Tools.getItemIcon(item) + '"></span>';
 			}
-			buf += '<div class="setcol setcol-icon">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
+			buf += '<div class="setcol setcol-icon">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
 
 			// details
 			buf += '<div class="setcol setcol-details"><div class="setrow">';
-			buf += '<div class="setcell setcell-details"><label>Details</label><button class="setdetails" tabindex="-1" name="details">';
+			buf += '<div class="setcell setcell-details"><label>Details</label><button class="textbox setdetails" tabindex="-1" name="details">';
 
 			var GenderChart = {
 				'M': 'Male',
@@ -1058,21 +1054,21 @@
 
 			buf += '</button></div>';
 			buf += '</div><div class="setrow">';
-			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="chartinput" value="' + Tools.escapeHTML(set.item) + '" /></div>';
-			if (this.curTeam.gen > 2) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="chartinput" value="' + Tools.escapeHTML(set.ability) + '" /></div>';
+			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + Tools.escapeHTML(set.item) + '" /></div>';
+			if (this.curTeam.gen > 2) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="textbox chartinput" value="' + Tools.escapeHTML(set.ability) + '" /></div>';
 			buf += '</div></div>';
 
 			// moves
 			if (!set.moves) set.moves = [];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
-			buf += '<input type="text" name="move1" class="chartinput" value="' + Tools.escapeHTML(set.moves[0]) + '" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move2" class="chartinput" value="' + Tools.escapeHTML(set.moves[1]) + '" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move3" class="chartinput" value="' + Tools.escapeHTML(set.moves[2]) + '" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move4" class="chartinput" value="' + Tools.escapeHTML(set.moves[3]) + '" /></div>';
+			buf += '<input type="text" name="move1" class="textbox chartinput" value="' + Tools.escapeHTML(set.moves[0]) + '" /></div>';
+			buf += '<div class="setcell"><input type="text" name="move2" class="textbox chartinput" value="' + Tools.escapeHTML(set.moves[1]) + '" /></div>';
+			buf += '<div class="setcell"><input type="text" name="move3" class="textbox chartinput" value="' + Tools.escapeHTML(set.moves[2]) + '" /></div>';
+			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + Tools.escapeHTML(set.moves[3]) + '" /></div>';
 			buf += '</div>';
 
 			// stats
-			buf += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="setstats" name="stats" class="chartinput">';
+			buf += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="textbox setstats" name="stats">';
 			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
 			var stats = {};
 			var defaultEV = (this.curTeam.gen > 2 ? 0 : 252);
@@ -1140,7 +1136,11 @@
 		saveFlag: false,
 		save: function () {
 			this.saveFlag = true;
-			Storage.saveTeams();
+			if (this.curTeam) {
+				Storage.saveTeam(this.curTeam);
+			} else {
+				Storage.saveTeams();
+			}
 		},
 		validate: function () {
 			var format = this.curTeam.format;
@@ -1643,9 +1643,7 @@
 
 			if (template.speciesid === 'meowstic') {
 				smogdexid = 'meowstic-m';
-			} else if (template.speciesid === 'hoopaunbound') {
-				smogdexid = 'hoopa-alt';
-			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys' || smogdexid === 'kyurem' || smogdexid === 'giratina' || smogdexid === 'shaymin' || smogdexid === 'tornadus' || smogdexid === 'thundurus' || smogdexid === 'landorus' || smogdexid === 'pumpkaboo' || smogdexid === 'gourgeist' || smogdexid === 'arceus' || smogdexid === 'meowstic') {
+			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys' || smogdexid === 'kyurem' || smogdexid === 'giratina' || smogdexid === 'shaymin' || smogdexid === 'tornadus' || smogdexid === 'thundurus' || smogdexid === 'landorus' || smogdexid === 'pumpkaboo' || smogdexid === 'gourgeist' || smogdexid === 'arceus' || smogdexid === 'meowstic' || smogdexid === 'hoopa') {
 				if (template.forme) smogdexid += '-' + toId(template.forme);
 			}
 
@@ -1800,7 +1798,7 @@
 					val += '-';
 					this.minus = i;
 				}
-				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="inputform numform" /></div>';
+				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="textbox inputform numform" /></div>';
 				totalev += (set.evs[i] || 0);
 			}
 			if (this.curTeam.gen > 2) {
@@ -1826,7 +1824,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + (set.ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="31" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
 				}
 				buf += '</div>';
 			} else {
@@ -1835,7 +1833,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + Math.floor(set.ivs[i] / 2);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="inputform numform" min="0" max="15" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
 				}
 				buf += '</div>';
 			}
