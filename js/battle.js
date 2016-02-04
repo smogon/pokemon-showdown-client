@@ -2950,8 +2950,8 @@ var Battle = (function () {
 			return;
 		}
 		if (oldweather) {
+			var self = this;
 			if (weather) {
-				var self = this;
 				this.weatherElem.animate({
 					opacity: 0
 				}, 300, function () {
