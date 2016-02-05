@@ -73,6 +73,8 @@
 				return buf + '><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><button class="closebutton" name="closeRoom" value="' + 'teambuilder"><i class="fa fa-times-circle"></i></a></li>';
 			case 'ladder':
 				return buf + '><i class="fa fa-list-ol"></i> <span>Ladder</span></a><button class="closebutton" name="closeRoom" value="' + 'ladder"><i class="fa fa-times-circle"></i></a></li>';
+			case 'battles':
+				return buf + '><i class="fa fa-plus"></i> <span>Battles</span></a><button class="closebutton" name="closeRoom" value="' + 'battles"><i class="fa fa-times-circle"></i></a></li>';
 			case 'rooms':
 				return buf + '><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			default:

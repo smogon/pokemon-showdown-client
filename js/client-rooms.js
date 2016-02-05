@@ -8,7 +8,7 @@
 		isSideRoom: true,
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
-			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button><div class="roomlisttop"></div><div class="roomlist" style="max-width:480px"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist" style="max-width:480px"></div><p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
+			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button><div class="roomlisttop"></div><div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div><p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
 			app.send('/cmd rooms');
@@ -88,7 +88,7 @@
 			this.$('.roomlist').last().html(buf);
 		},
 		roomlist: function () {
-			app.addPopup(BattleListPopup);
+			app.joinRoom('battles');
 		},
 		closeHide: function () {
 			app.sideRoom = app.curSideRoom = null;
@@ -103,6 +103,111 @@
 				}
 				app.addPopup(UserPopup, {name: target});
 			});
+		}
+	});
+
+	var BattlesRoom = this.BattlesRoom = Room.extend({
+		minWidth: 320,
+		maxWidth: 1024,
+		type: 'battles',
+		title: 'Battles',
+		isSideRoom: true,
+		initialize: function () {
+			this.$el.addClass('ps-room-light').addClass('scrollable');
+			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button><div class="roomlist"><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <span style="' + Tools.getIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="pokemonicon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span></p>';
+
+			buf += '<p><label>Format:</label><select name="format"><option value="">(All formats)</option>';
+			if (window.BattleFormats) {
+				var curSection = '';
+				for (var i in BattleFormats) {
+					var format = BattleFormats[i];
+					if (format.searchShow) {
+						if (format.section !== curSection) {
+							if (curSection) buf += '</optgroup>';
+							curSection = format.section;
+							if (curSection) buf += '<optgroup label="' + Tools.escapeHTML(curSection) + '">';
+						}
+						var activeFormat = (this.format === i ? ' selected=' : '');
+						buf += '<option value="' + i + '"' + activeFormat + '>' + Tools.escapeFormat(format.id) + '</option>';
+					}
+				}
+				if (curSection) buf += '</optgroup>';
+			}
+			buf += '</select></p>';
+			buf += '<div class="list"><p>Loading...</p></div>';
+			buf += '</div></div>';
+
+			this.$el.html(buf);
+			this.$list = this.$('.list');
+
+			app.on('init:formats', this.initialize, this);
+			app.on('response:roomlist', this.update, this);
+			app.send('/cmd roomlist');
+			this.update();
+		},
+		events: {
+			'change select': 'changeFormat'
+		},
+		format: '',
+		changeFormat: function (e) {
+			this.format = e.currentTarget.value;
+			this.update();
+		},
+		focus: function (e) {
+			if (e && $(e.target).closest('select, a').length) return;
+			if (new Date().getTime() - this.lastUpdate > 60 * 1000) {
+				app.send('/cmd roomlist');
+				this.lastUpdate = new Date().getTime();
+			}
+			var prevPos = this.$el.scrollTop();
+			this.$('button[name=refresh]').focus();
+			this.$el.scrollTop(prevPos);
+		},
+		update: function (data) {
+			if (!data && !this.data) {
+				this.$list.html('<p>Loading...</p>');
+				return;
+			}
+			this.$('button[name=refresh]')[0].disabled = false;
+			if (!data) {
+				data = this.data;
+			} else {
+				this.data = data;
+			}
+			var buf = '';
+
+			var i = 0;
+			for (var id in data.rooms) {
+				var roomData = data.rooms[id];
+				var matches = ChatRoom.parseBattleID(id);
+				if (!matches) {
+					continue; // bogus room ID could be used to inject JavaScript
+				}
+				var format = (matches[1] || '');
+				if (this.format && format !== this.format) continue;
+				var formatBuf = (format ? '<small>[' + Tools.escapeFormat(format) + ']</small><br />' : '');
+				var roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
+				if (!roomData.p1) {
+					matches = id.match(/[^0-9]([0-9]*)$/);
+					roomDesc = formatBuf + 'empty room ' + matches[1];
+				} else if (!roomData.p2) {
+					roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
+				}
+				buf += '<div><a href="' + app.root + id + '" class="ilink">' + roomDesc + '</a></div>';
+				i++;
+			}
+
+			if (!i) {
+				buf = '<p>No ' + Tools.escapeFormat(this.format) + ' battles are going on right now.</p>';
+			} else {
+				buf = '<p>' + i + ' ' + Tools.escapeFormat(this.format) + ' ' + (i === 1 ? 'battle' : 'battles') + '</p>' + buf;
+			}
+
+			this.$list.html(buf);
+		},
+		refresh: function (i, button) {
+			button.disabled = true;
+			app.send('/cmd roomlist');
 		}
 	});
 
