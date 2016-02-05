@@ -721,6 +721,29 @@ License: GPLv2
 .spoiler-shown a {
 	color: #2288CC;
 }
+.dark .spoiler {
+	color: #777;
+	background: #777;
+}
+.dark .spoiler:hover,
+.dark .spoiler:active,
+.dark .spoiler-shown {
+	color: #DDD;
+	background: #444;
+}
+.dark .spoiler a {
+	color: #777;
+}
+.dark .spoiler:hover a,
+.dark .spoiler:active a,
+.dark .spoiler-shown a {
+	color: #4488EE;
+}
+.chat .spoiler code {
+	border-color: #BBBBBB;
+	background: #BBBBBB;
+	color: #BBBBBB;
+}
 .chat code,
 .chat .spoiler:hover code,
 .chat .spoiler:active code,
@@ -730,10 +753,18 @@ License: GPLv2
 	color: black;
 	padding: 0 2px;
 }
-.chat .spoiler code {
-	border: 1px solid #CCCCCC;
-	background: #CCCCCC;
-	color: #CCCCCC;
+.dark .chat .spoiler code {
+	border-color: #777;
+	background: #777;
+	color: #777;
+}
+.dark .chat code,
+.dark .chat .spoiler:hover code,
+.dark .chat .spoiler:active code,
+.dark .chat .spoiler-shown code {
+	border-color: #555;
+	background: #333;
+	color: #DDD;
 }
 .battle-log .rated {
 	padding: 3px 4px;
@@ -812,6 +843,9 @@ License: GPLv2
 .message-throttle-notice,
 .message-error {
 	color: #992222;
+}
+.dark .message-error {
+	color: #EF4333;
 }
 .message-overflow,
 .chat small.message-overflow {

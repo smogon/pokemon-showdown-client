@@ -134,9 +134,6 @@ button:disabled {
 	box-shadow: 0px 0px 4px #88CCFF, 0px 0px 4px #88CCFF;
 	background: #111111;
 }
-.dark .message-error {
-	color: #FF5333;
-}
 
 /* .dark button {
 	background: #777777;
@@ -647,6 +644,7 @@ p.or:after {
 .popupmenu button.sel:hover {
 	border-color: #888888;
 	background: #D5D5D5;
+	color: black;
 }
 .popupmenu button.button {
 	margin: 2px auto 5px;
@@ -659,6 +657,7 @@ p.or:after {
 	font-size: 9pt;
 	text-align: left;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
+	cursor: pointer;
 
 	border-radius: 4px;
 	border: 1px solid #888888;
@@ -2965,7 +2964,7 @@ a.ilink.yours {
 	margin: 2px;
 	padding: 2px;
 
-	border: 1px solid #E1E8E8;
+	border: 1px solid transparent;
 	border-radius: 4px;
 	box-shadow: none;
 	background: transparent;
@@ -3070,6 +3069,66 @@ a.ilink.yours {
 .dark .chat-log {
 	background: rgba(0,0,0,.5);
 	color: #DDD;
+}
+
+.dark .userbar .username {
+	color: #DDD;
+	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000;
+}
+
+/* popups */
+
+.dark .ps-popup {
+	background: #0D151E;
+	color: #DDD;
+	border-color: #888;
+
+	box-shadow: 2px 2px 3px rgba(0,0,0,.2);
+}
+
+.dark .popupmenu button,
+.dark .bglist button,
+.dark .avatarlist button {
+	color: #AAA;
+	box-shadow: none;
+}
+.dark .popupmenu button:hover,
+.dark .popupmenu button.sel:hover,
+.dark .bglist button:hover,
+.dark .avatarlist button:hover {
+	border-color: #AAAAAA;
+	background-color: #AAAAAA;
+	color: black;
+}
+
+.dark .ps-overlay {
+	background: rgba(40, 40, 40, .5);
+}
+
+/* semi-generic */
+
+.dark .select, .dark .team {
+	border-color: #888888;
+	box-shadow: inset 0 1px 0 #FFFFFF;
+	background: linear-gradient(to bottom,  #ccd4dc,  #96a3b0);
+	color: black;
+}
+.dark .select:hover, .dark .team.team-hover {
+	border-color: #555555;
+	background: #FFFFFF;
+	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
+}
+.dark .select:active, .dark .team:active {
+	border-color: #777777;
+	background: #DDDDDD;
+	box-shadow: none;
+	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
+}
+.dark .select:disabled {
+	border-color: #999999;
+	background: rgba(200,200,200,.65);
+	color: #555555;
+	box-shadow: none;
 }
 
 /* main menu */
@@ -3182,9 +3241,6 @@ a.ilink.yours {
 	border-color: #7799BB;
 	background: rgba(30, 40, 50, .5);
 	color: #7799BB;
-}
-.dark .ps-popup .roomlist a.ilink {
-	background: rgba(30, 40, 50, 1);
 }
 .dark .roomlist a.ilink:hover {
 	border-color: #AACCEE;
