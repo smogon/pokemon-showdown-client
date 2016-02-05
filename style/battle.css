@@ -651,6 +651,9 @@ License: GPLv2
 	background: #999999;
 	color: #F3F3F3;
 }
+.dark .message-error {
+	color: #FF5333;
+}
 
 .itemicon {
 	display: block;
