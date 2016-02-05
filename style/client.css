@@ -134,9 +134,6 @@ button:disabled {
 	box-shadow: 0px 0px 4px #88CCFF, 0px 0px 4px #88CCFF;
 	background: #111111;
 }
-.dark .message-error {
-	color: #FF5333;
-}
 
 /* .dark button {
 	background: #777777;
