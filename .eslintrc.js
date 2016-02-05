@@ -28,11 +28,11 @@ module.exports = {
 		"ChatHistory": false, "Topbar": false, "UserList": false,
 
 		// Rooms
-		"Room": false, "BattleRoom": false, "ChatRoom": false, "ConsoleRoom": false, "LadderRoom": false, "MainMenuRoom": false, "RoomsRoom": false, "TeambuilderRoom": false,
+		"Room": false, "BattleRoom": false, "ChatRoom": false, "ConsoleRoom": false, "LadderRoom": false, "MainMenuRoom": false, "RoomsRoom": false, "BattlesRoom": false, "TeambuilderRoom": false,
 
 		// Tons of popups
 		"Popup": false, "ForfeitPopup": false, "BracketPopup": false, "LoginPasswordPopup": false, "UserPopup": false, "TeamPopup": false,
-		"AvatarsPopup": false, "BattleListPopup": false, "CreditsPopup": false, "FormatPopup": false, "FormattingPopup": false, "LoginPopup": false,
+		"AvatarsPopup": false, "CreditsPopup": false, "FormatPopup": false, "FormattingPopup": false, "LoginPopup": false,
 		"MovePopup": false, "SoundsPopup": false, "OptionsPopup": false, "PromptPopup": false, "ProxyPopup": false, "ReconnectPopup": false,
 		"RegisterPopup": false, "ReplayUploadedPopup": false, "RulesPopup": false, "TabListPopup": false, "TournamentBox": false,
 		"CustomBackgroundPopup": false
