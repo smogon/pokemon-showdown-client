@@ -59,8 +59,8 @@
 				var userCount = Number(rooms.userCount);
 				var battleCount = Number(rooms.battleCount);
 				buf += '<table class="roomcounters" border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td>';
-				buf += '<span style="' + Tools.getIcon('meloetta') + ';display:inline-block;vertical-align:middle;transform:scaleX(-1);webkit-transform:scaleX(-1);" class="pokemonicon" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms."></span> <button class="button" name="finduser" title="Find an online user"><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button></td><td>';
-				buf += '<button class="button" name="roomlist" title="Find an active battle"><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button> <span style="' + Tools.getIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="pokemonicon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span>';
+				buf += '<span style="' + Tools.getPokemonIcon('meloetta') + ';display:inline-block;vertical-align:middle;transform:scaleX(-1);webkit-transform:scaleX(-1);" class="picon" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms."></span> <button class="button" name="finduser" title="Find an online user"><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button></td><td>';
+				buf += '<button class="button" name="roomlist" title="Watch an active battle"><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button> <span style="' + Tools.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="picon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span>';
 				buf += '</td></tr></table>';
 				this.$('.roomlisttop').html(buf);
 			}
@@ -114,9 +114,9 @@
 		isSideRoom: true,
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
-			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button><div class="roomlist"><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <span style="' + Tools.getIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="pokemonicon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span></p>';
+			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button><div class="roomlist"><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <span style="' + Tools.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="picon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span></p>';
 
-			buf += '<p><label>Format:</label><select name="format"><option value="">(All formats)</option>';
+			buf += '<p><label>Format:</label><br /><select name="format"><option value="">(All formats)</option>';
 			if (window.BattleFormats) {
 				var curSection = '';
 				for (var i in BattleFormats) {
