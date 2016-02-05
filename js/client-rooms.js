@@ -140,6 +140,7 @@
 			this.$el.html(buf);
 			this.$list = this.$('.list');
 
+			this.format = '';
 			app.on('init:formats', this.initialize, this);
 			app.on('response:roomlist', this.update, this);
 			app.send('/cmd roomlist');
@@ -148,9 +149,9 @@
 		events: {
 			'change select': 'changeFormat'
 		},
-		format: '',
 		changeFormat: function (e) {
 			this.format = e.currentTarget.value;
+			app.send('/cmd roomlist ' + this.format);
 			this.update();
 		},
 		focus: function (e) {
@@ -200,14 +201,14 @@
 			if (!i) {
 				buf = '<p>No ' + Tools.escapeFormat(this.format) + ' battles are going on right now.</p>';
 			} else {
-				buf = '<p>' + i + ' ' + Tools.escapeFormat(this.format) + ' ' + (i === 1 ? 'battle' : 'battles') + '</p>' + buf;
+				buf = '<p>' + i + (i === 100 ? '+' : '') + ' ' + Tools.escapeFormat(this.format) + ' ' + (i === 1 ? 'battle' : 'battles') + '</p>' + buf;
 			}
 
 			this.$list.html(buf);
 		},
 		refresh: function (i, button) {
 			button.disabled = true;
-			app.send('/cmd roomlist');
+			app.send('/cmd roomlist ' + this.format);
 		}
 	});
 
