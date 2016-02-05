@@ -60,10 +60,13 @@ body {
 	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
 	background: #FFFFFF;
 }
-.textbox:focus {
+.textbox:focus,
+.button:focus {
 	outline: 0 none;
 	border-color: #004488;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
+}
+.textbox:focus {
 	background: #FFFFFF;
 }
 a.subtle {
@@ -128,10 +131,13 @@ button:disabled {
 	box-shadow: none;
 	background: #222222;
 }
-.dark .textbox:focus {
+.dark .textbox:focus,
+.dark .button:focus {
 	outline: 0 none;
 	border-color: #BBBBBB;
 	box-shadow: 0px 0px 4px #88CCFF, 0px 0px 4px #88CCFF;
+}
+.dark .textbox:focus {
 	background: #111111;
 }
 
