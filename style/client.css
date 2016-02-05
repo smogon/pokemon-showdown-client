@@ -1097,6 +1097,7 @@ p.or:after {
 	font-weight: normal;
 }
 .roomlist {
+	max-width: 480px;
 	text-align: left;
 }
 .roomlist a.ilink {
