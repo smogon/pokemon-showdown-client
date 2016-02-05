@@ -44,8 +44,8 @@
 			buf += '<div class="menugroup"><p><button class="button mainmenu2" name="joinRoom" value="teambuilder">Teambuilder</button></p>';
 			buf += '<p><button class="button mainmenu3" name="joinRoom" value="ladder">Ladder</button></p></div>';
 
-			buf += '<div class="menugroup"><p><button class="button mainmenu4 onlineonly disabled" name="roomlist">Watch a battle</button></p>';
-			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser">Find a user</button></p></div>';
+			buf += '<div class="menugroup"><p><button class="button mainmenu4 onlineonly disabled" name="roomlist" disabled>Watch a battle</button></p>';
+			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser" disabled>Find a user</button></p></div>';
 
 			this.$('.mainmenu').html(buf);
 
@@ -611,9 +611,16 @@
 				$searchForm.find('.mainmenu p.cancel').remove();
 				$searchForm.append('<p class="cancel buttonbar"><button name="reconnect">Reconnect</button></p>');
 				this.$('button.onlineonly').addClass('disabled');
+				this.$('button.onlineonly').each(function (i, el) {
+					el.disabled = true;
+				});
 				return;
 			}
+
 			this.$('button.onlineonly').removeClass('disabled');
+			this.$('button.onlineonly').each(function (i, el) {
+				el.disabled = false;
+			});
 
 			if (!this.searching) this.$('.mainmenu button.big').html('<strong>Battle!</strong><br /><small>Find a random opponent</small>').removeClass('disabled');
 			var self = this;
