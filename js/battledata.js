@@ -1124,10 +1124,10 @@ var Tools = {
 		return spriteData;
 	},
 
-	getPokemonIcon: function (pokemon) {
-		return this.getIcon(pokemon, true);
+	getPokemonIcon: function (pokemon, facingLeft) {
+		return this.getIcon(pokemon, true, facingLeft);
 	},
-	getIcon: function (pokemon, newSize) {
+	getIcon: function (pokemon, newSize, facingLeft) {
 		var num = 0;
 		if (pokemon === 'pokeball') {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/bwicons-pokeball-sheet.png) no-repeat scroll -0px -8px';
@@ -1358,6 +1358,74 @@ var Tools = {
 				else if (id === 'frillish') num = 801;
 				else if (id === 'jellicent') num = 802;
 				else if (id === 'meowstic') num = 809;
+			}
+		}
+
+		if (facingLeft) {
+			newAltNums = {
+				pikachubelle: 912 + 0,
+				pikachupopstar: 912 + 1,
+				clefairy: 912 + 2,
+				clefable: 912 + 3,
+				jigglypuff: 912 + 4,
+				wigglytuff: 912 + 5,
+				poliwhirl: 912 + 6,
+				poliwrath: 912 + 7,
+				kingler: 912 + 8,
+				croconaw: 912 + 9,
+				cleffa: 912 + 10,
+				igglybuff: 912 + 11,
+				politoed: 912 + 12,
+				// unown gap
+				sneasel: 912 + 33,
+				teddiursa: 912 + 34,
+				roserade: 912 + 35,
+				zangoose: 912 + 36,
+				seviper: 912 + 37,
+				castformrainy: 912 + 38,
+				absolmega: 912 + 39,
+				absol: 912 + 40,
+				regirock: 912 + 41,
+				torterra: 912 + 42,
+				budew: 912 + 43,
+				roselia: 912 + 44,
+				magmortar: 912 + 45,
+				togekiss: 912 + 46,
+				rotomwash: 912 + 47,
+				shayminsky: 912 + 48,
+				emboar: 912 + 49,
+				pansear: 912 + 50,
+				simisear: 912 + 51,
+				drilbur: 912 + 52,
+				excadrill: 912 + 53,
+				sawk: 912 + 54,
+				lilligant: 912 + 55,
+				garbodor: 912 + 56,
+				solosis: 912 + 57,
+				vanilluxe: 912 + 58,
+				amoonguss: 912 + 59,
+				klink: 912 + 60,
+				klang: 912 + 61,
+				klinklang: 912 + 62,
+				litwick: 912 + 63,
+				golett: 912 + 64,
+				golurk: 912 + 65,
+				kyuremblack: 912 + 66,
+				kyuremwhite: 912 + 67,
+				kyurem: 912 + 68,
+				keldeoresolute: 912 + 69,
+				meloetta: 912 + 70,
+				greninja: 912 + 71,
+				// furfroudebutante: 912 + 72,
+				barbaracle: 912 + 73,
+				clauncher: 912 + 74,
+				clawitzer: 912 + 75,
+				sylveon: 912 + 76,
+				klefki: 912 + 77,
+				zygarde: 912 + 78
+			};
+			if (newAltNums[id]) {
+				num = newAltNums[id];
 			}
 		}
 
