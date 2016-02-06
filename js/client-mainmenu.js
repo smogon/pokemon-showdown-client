@@ -44,7 +44,7 @@
 			buf += '<div class="menugroup"><p><button class="button mainmenu2" name="joinRoom" value="teambuilder">Teambuilder</button></p>';
 			buf += '<p><button class="button mainmenu3" name="joinRoom" value="ladder">Ladder</button></p></div>';
 
-			buf += '<div class="menugroup"><p><button class="button mainmenu4 onlineonly disabled" name="roomlist">Watch a battle</button></p>';
+			buf += '<div class="menugroup"><p><button class="button mainmenu4 onlineonly disabled" name="joinRoom" value="battles">Watch a battle</button></p>';
 			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser">Find a user</button></p></div>';
 
 			this.$('.mainmenu').html(buf);
@@ -845,9 +845,6 @@
 		credits: function () {
 			app.addPopup(CreditsPopup);
 		},
-		roomlist: function () {
-			app.addPopup(BattleListPopup);
-		},
 		finduser: function () {
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
@@ -1043,104 +1040,6 @@
 			var buf = '<strong>' + Tools.escapeHTML(team.name) + '</strong><small>';
 			buf += Storage.getTeamIcons(team) + '</small>';
 			return buf;
-		}
-	});
-
-	var BattleListPopup = this.BattleListPopup = Popup.extend({
-		type: 'modal',
-		initialize: function () {
-			var buf = '<div class="roomlist"><p><button name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <button name="close" style="float:right"><i class="fa fa-times"></i> Close</button></p>';
-
-			buf += '<p><label>Format:</label><select name="format"><option value="">(All formats)</option>';
-			if (window.BattleFormats) {
-				var curSection = '';
-				for (var i in BattleFormats) {
-					var format = BattleFormats[i];
-					if (format.searchShow) {
-						if (format.section !== curSection) {
-							if (curSection) buf += '</optgroup>';
-							curSection = format.section;
-							if (curSection) buf += '<optgroup label="' + Tools.escapeHTML(curSection) + '">';
-						}
-						var activeFormat = (this.format === i ? ' selected=' : '');
-						buf += '<option value="' + i + '"' + activeFormat + '>' + Tools.escapeFormat(format.id) + '</option>';
-					}
-				}
-				if (curSection) buf += '</optgroup>';
-			}
-			buf += '</select></p>';
-			buf += '<div class="list"><p>Loading...</p></div>';
-			buf += '</div>';
-			this.$el.html(buf);
-			this.$list = this.$('.list');
-
-			app.on('init:formats', this.initialize, this);
-			app.on('response:roomlist', this.update, this);
-			app.send('/cmd roomlist');
-			this.update();
-		},
-		events: {
-			'click .ilink': 'clickLink',
-			'change select': 'changeFormat'
-		},
-		format: '',
-		changeFormat: function (e) {
-			this.format = e.currentTarget.value;
-			this.update();
-		},
-		update: function (data) {
-			if (!data && !this.data) {
-				this.$list.html('<p>Loading...</p>');
-				return;
-			}
-			this.$('button[name=refresh]')[0].disabled = false;
-			if (!data) {
-				data = this.data;
-			} else {
-				this.data = data;
-			}
-			var buf = '';
-
-			var i = 0;
-			for (var id in data.rooms) {
-				var roomData = data.rooms[id];
-				var matches = ChatRoom.parseBattleID(id);
-				if (!matches) {
-					continue; // bogus room ID could be used to inject JavaScript
-				}
-				var format = (matches[1] || '');
-				if (this.format && format !== this.format) continue;
-				var formatBuf = (format ? '<small>[' + Tools.escapeFormat(format) + ']</small><br />' : '');
-				var roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
-				if (!roomData.p1) {
-					matches = id.match(/[^0-9]([0-9]*)$/);
-					roomDesc = formatBuf + 'empty room ' + matches[1];
-				} else if (!roomData.p2) {
-					roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
-				}
-				buf += '<div><a href="' + app.root + id + '" class="ilink">' + roomDesc + '</a></div>';
-				i++;
-			}
-
-			if (!i) {
-				buf = '<p>No ' + Tools.escapeFormat(this.format) + ' battles are going on right now.</p>';
-			} else {
-				buf = '<p>' + i + ' ' + Tools.escapeFormat(this.format) + ' ' + (i === 1 ? 'battle' : 'battles') + '</p>' + buf;
-			}
-
-			this.$list.html(buf);
-		},
-		clickLink: function (e) {
-			if (e.cmdKey || e.metaKey || e.ctrlKey) return;
-			e.preventDefault();
-			e.stopPropagation();
-			this.close();
-			var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
-			app.tryJoinRoom(roomid);
-		},
-		refresh: function (i, button) {
-			button.disabled = true;
-			app.send('/cmd roomlist');
 		}
 	});
 

@@ -1236,6 +1236,7 @@
 				'': MainMenuRoom,
 				'teambuilder': TeambuilderRoom,
 				'rooms': RoomsRoom,
+				'battles': BattlesRoom,
 				'ladder': LadderRoom,
 				'lobby': ChatRoom,
 				'staff': ChatRoom,
@@ -1273,7 +1274,7 @@
 				if (this.sideRoom === oldRoom) this.sideRoom = room;
 			}
 			if (type === BattleRoom) this.roomList.push(room);
-			if (type === ChatRoom) this.sideRoomList.push(room);
+			if (type === ChatRoom || type === BattlesRoom) this.sideRoomList.push(room);
 			return room;
 		},
 		focusRoom: function (id) {
@@ -1688,7 +1689,7 @@
 			if (e.shiftKey || (window.getSelection && !window.getSelection().isCollapsed)) {
 				return;
 			}
-			this.focus();
+			this.focus(e);
 		},
 
 		// communication
