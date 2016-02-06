@@ -799,7 +799,7 @@ var Sprite = (function () {
 	Sprite.prototype.behind = function (offset) {
 		return this.z + (this.isBackSprite ? -1 : 1) * offset;
 	};
-	Sprite.prototype.animTransform = function (species) {
+	Sprite.prototype.animTransform = function (species, isMega, isPrimal) {
 		if (!this.oldsp) this.oldsp = this.sp;
 		if (species.volatiles && species.volatiles.formechange) species = species.volatiles.formechange[2];
 		var sp = Tools.getSpriteData(species, this.isBackSprite ? 0 : 1, {
@@ -809,6 +809,13 @@ var Sprite = (function () {
 		this.sp = sp;
 		var self = this;
 		var battle = this.battle;
+		if (isMega) {
+			BattleOtherAnims.megaevo.anim(battle, [self]);
+		} else if (isPrimal && species.id === 'kyogreprimal') { // its not species
+			BattleOtherAnims.primalalpha.anim(battle, [self]);
+		} else if (isPrimal && species.id === 'groudonprimal') { //its not species
+			BattleOtherAnims.primalomega.anim(battle, [self]);
+		}
 		if (battle.fastForward) {
 			this.elem.attr('src', sp.url);
 			this.elem.css(battle.pos({
@@ -824,7 +831,7 @@ var Sprite = (function () {
 			y: this.y,
 			z: this.z,
 			yscale: 0,
-			xcale: 1,
+			xscale: 0,
 			opacity: .3
 		}, this.oldsp), 300, function () {
 			self.elem.attr('src', sp.url);
@@ -5879,7 +5886,7 @@ var Battle = (function () {
 			}
 			var template = Tools.getTemplate(newSpecies);
 			var spriteData = {'shiny': poke.sprite.sp.shiny};
-			poke.sprite.animTransform($.extend(spriteData, template));
+			poke.sprite.animTransform($.extend(spriteData, template), template.isMega, template.isPrimal);
 			poke.sprite.oldsp = null;
 			poke.spriteid = template.spriteid;
 			poke.side.updateStatbar();
