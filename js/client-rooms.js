@@ -59,7 +59,7 @@
 				var userCount = Number(rooms.userCount);
 				var battleCount = Number(rooms.battleCount);
 				buf += '<table class="roomcounters" border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td>';
-				buf += '<span style="' + Tools.getPokemonIcon('meloetta') + ';display:inline-block;vertical-align:middle;transform:scaleX(-1);webkit-transform:scaleX(-1);" class="picon" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms."></span> <button class="button" name="finduser" title="Find an online user"><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button></td><td>';
+				buf += '<span style="' + Tools.getPokemonIcon('meloetta', true) + ';display:inline-block;vertical-align:middle;transform:scaleX(-1);webkit-transform:scaleX(-1);" class="picon" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms."></span> <button class="button" name="finduser" title="Find an online user"><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button></td><td>';
 				buf += '<button class="button" name="roomlist" title="Watch an active battle"><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button> <span style="' + Tools.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="picon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span>';
 				buf += '</td></tr></table>';
 				this.$('.roomlisttop').html(buf);
