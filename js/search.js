@@ -675,7 +675,7 @@
 			else if (format === 'fu') tierSet = tierSet.slice(slices.PU);
 			else if (format === 'lc' || format === 'lcuu') tierSet = tierSet.slice(slices.LC);
 			else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
-			else if (format === 'ag') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
+			else if (format === 'ag' || format === 'anythinggoes') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
 			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
 			else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
 			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU);
