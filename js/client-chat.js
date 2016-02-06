@@ -93,7 +93,9 @@
 				this.tabComplete.reset();
 				this.chatHistory.push(text);
 				text = this.parseCommand(text);
-				if (text) {
+				if (this.battle && this.battle.ignoreSpects && app.user.get('userid') !== this.battle.p1.id && app.user.get('userid') !== this.battle.p2.id) {
+					this.add("You can't chat in this battle as you're currently ignoring spectators");
+				} else if (text) {
 					this.send(text);
 				}
 				this.$chatbox.val('');
