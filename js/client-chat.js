@@ -1194,7 +1194,7 @@
 							$messages = this.$chat.find('.chatmessage-' + user);
 							if (!$messages.length) break;
 						}
-						$messages.hide().find('button').parent().remove();
+						$messages.hide().addClass('revealed').find('button').parent().remove();
 						this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
 					}
 					break;
@@ -1217,13 +1217,12 @@
 			}
 		},
 		toggleMessages: function (user, button) {
-			var $messages = $('.chatmessage-' + user);
+			var $messages = $('.chatmessage-' + user + '.revealed');
 			var $button = $(button);
-			if ($messages.hasClass('revealed')) {
-				$messages.removeClass('revealed').hide();
+			if (!$messages.is(':hidden')) {
+				$messages.hide();
 				$button.html('<small>(' + ($messages.length) + ' line' + ($messages.length !== 1 ? 's' : '') + ' from ' + user + ' hidden)</small>');
 			} else {
-				$messages.addClass('revealed');
 				$button.html('<small>(Hide ' + ($messages.length) + ' line' + ($messages.length !== 1 ? 's' : '') + ' from ' + user + ')</small>');
 				$messages.show();
 			}
