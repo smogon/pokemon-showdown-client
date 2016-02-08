@@ -1571,13 +1571,12 @@
 
 			if (pokemonChanged || this.search.qName !== this.curChartName) {
 				var cur = {};
+				cur[toId(q)] = 1; // make sure selected one is first
 				if (type === 'move') {
 					cur[toId(this.$('input[name=move1]').val())] = 1;
 					cur[toId(this.$('input[name=move2]').val())] = 1;
 					cur[toId(this.$('input[name=move3]').val())] = 1;
 					cur[toId(this.$('input[name=move4]').val())] = 1;
-				} else {
-					cur[toId(q)] = 1;
 				}
 				if (type !== this.search.qType) {
 					this.$chart.scrollTop(0);

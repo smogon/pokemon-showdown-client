@@ -802,6 +802,11 @@
 			break;
 		}
 
+		for (var i in cur) {
+			if (i) this.defaultResultSet = [[qType, i]].concat(this.defaultResultSet);
+			break;
+		}
+
 		if (this.legalityFilter) {
 			for (var i = 0; i < this.defaultResultSet.length; i++) {
 				if (this.defaultResultSet[i][0] !== 'header') {
