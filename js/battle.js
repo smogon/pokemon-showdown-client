@@ -809,6 +809,13 @@ var Sprite = (function () {
 		this.sp = sp;
 		var self = this;
 		var battle = this.battle;
+		if (species.isMega) {
+			BattleOtherAnims.megaevo.anim(battle, [self]);
+		} else if (species.id === 'kyogreprimal') {
+			BattleOtherAnims.primalalpha.anim(battle, [self]);
+		} else if (species.id === 'groudonprimal') {
+			BattleOtherAnims.primalomega.anim(battle, [self]);
+		}
 		if (battle.fastForward) {
 			this.elem.attr('src', sp.url);
 			this.elem.css(battle.pos({
@@ -824,8 +831,8 @@ var Sprite = (function () {
 			y: this.y,
 			z: this.z,
 			yscale: 0,
-			xcale: 1,
-			opacity: .3
+			xscale: 0,
+			opacity: 0.3
 		}, this.oldsp), 300, function () {
 			self.elem.attr('src', sp.url);
 			self.elem.animate(battle.pos({
