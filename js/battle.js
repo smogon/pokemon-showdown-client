@@ -4425,6 +4425,10 @@ var Battle = (function () {
 				}
 				actions += "<br />" + poke.getName() + " has Mega Evolved into Mega " + args[2] + "!";
 				break;
+			case '-primal':
+				var poke = this.getPokemon(args[1]);
+				actions += "" + poke.getName() + "'s Primal Reversion! It reverted to its primal form!";
+				break;
 
 			case '-start':
 				var poke = this.getPokemon(args[1]);
