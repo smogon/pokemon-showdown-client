@@ -2164,6 +2164,7 @@
 					var $inputEl = this.$('input[name=move' + i + ']');
 					var curVal = $inputEl.val();
 					if (curVal === val) {
+						this.unChooseMove(curVal);
 						$inputEl.val('');
 						delete this.search.cur[toId(val)];
 					} else if (curVal) {
@@ -2319,12 +2320,14 @@
 				if (selectNext) this.$('input[name=move1]').select();
 				break;
 			case 'move1':
+				this.unChooseMove(this.curSet.moves[0]);
 				this.curSet.moves[0] = val;
 				this.chooseMove(val);
 				if (selectNext) this.$('input[name=move2]').select();
 				break;
 			case 'move2':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
+				this.unChooseMove(this.curSet.moves[1]);
 				this.curSet.moves[1] = val;
 				this.chooseMove(val);
 				if (selectNext) this.$('input[name=move3]').select();
@@ -2332,6 +2335,7 @@
 			case 'move3':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
 				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
+				this.unChooseMove(this.curSet.moves[2]);
 				this.curSet.moves[2] = val;
 				this.chooseMove(val);
 				if (selectNext) this.$('input[name=move4]').select();
@@ -2340,6 +2344,7 @@
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
 				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
 				if (!this.curSet.moves[2]) this.curSet.moves[2] = '';
+				this.unChooseMove(this.curSet.moves[3]);
 				this.curSet.moves[3] = val;
 				this.chooseMove(val);
 				if (selectNext) {
@@ -2349,6 +2354,17 @@
 				break;
 			}
 			this.save();
+		},
+		unChooseMove: function (move) {
+			var set = this.curSet;
+			if (!move || !set) return;
+			if (move.substr(0, 13) === 'Hidden Power ') {
+				if (set.ivs) {
+					for (var i in set.ivs) {
+						if (set.ivs[i] === 30) delete set.ivs[i];
+					}
+				}
+			}
 		},
 		chooseMove: function (move) {
 			var set = this.curSet;
