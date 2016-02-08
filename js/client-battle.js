@@ -169,14 +169,13 @@
 			this.updateControls();
 		},
 		toggleMessages: function (user) {
-			var $messages = $('.chatmessage-' + user);
+			var $messages = $('.chatmessage-' + user + '.revealed');
 			var $button = $messages.find('button');
-			if ($messages.hasClass('revealed')) {
-				$messages.removeClass('revealed').hide();
+			if (!$messages.is(':hidden')) {
+				$messages.hide();
 				$button.html('<small>(' + ($messages.length) + ' line' + ($messages.length > 1 ? 's' : '') + 'from ' + user + ')</small>');
 				$button.parent().show();
 			} else {
-				$messages.addClass('revealed');
 				$button.html('<small>(Hide ' + ($messages.length) + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ')</small>');
 				$button.parent().removeClass('revealed');
 				$messages.show();
