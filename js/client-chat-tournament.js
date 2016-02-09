@@ -539,6 +539,10 @@
 						appendError("The tournament is already at maximum capacity for users.");
 						break;
 
+					case 'AlreadyDisqualified':
+						appendError("This user has already been disqualified.");
+						break;
+
 					default:
 						appendError("Unknown error: " + data[0]);
 						break;
