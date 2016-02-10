@@ -4464,12 +4464,14 @@ var Battle = (function () {
 					} else if (!kwargs.silent) {
 						actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
 					}
+					this.resultAnim(poke, '<img src="' + Tools.resourcePrefix + 'sprites/types/' + args[3] + '.png" alt="' + args[3] + '" />', 'neutral');
 					break;
 				case 'typeadd':
 					args[3] = Tools.escapeHTML(args[3]);
 					poke.volatiles.typeadd[2] = args[3];
 					if (kwargs.silent) break;
 					actions += "" + args[3] + " type was added to " + poke.getLowerName() + "!";
+					this.resultAnim(poke, '<img src="' + Tools.resourcePrefix + 'sprites/types/' + args[3] + '.png" alt="' + args[3] + '" />', 'neutral');
 					break;
 				case 'powertrick':
 					this.resultAnim(poke, 'Power Trick', 'neutral');
