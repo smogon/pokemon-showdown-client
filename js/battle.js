@@ -2066,6 +2066,17 @@ var Side = (function () {
 		} else if (pokemon.status === 'frz') {
 			status += '<span class="frz">FRZ</span> ';
 		}
+		if (pokemon.volatiles.typechange) {
+			var types = pokemon.volatiles.typechange[2].split('/');
+			status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + types[0] + '.png" alt="' + types[0] + '" /> ';
+			if (types[1]) {
+				status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + types[1] + '.png" alt="' + types[1] + '" /> ';
+			}
+		}
+		if (pokemon.volatiles.typeadd) {
+			var type = pokemon.volatiles.typeadd[2];
+			status += '+<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" /> ';
+		}
 		for (var x in pokemon.boosts) {
 			if (pokemon.boosts[x]) {
 				status += '<span class="' + pokemon.getBoostType(x) + '">' + pokemon.getBoost(x) + '</span> ';
@@ -4449,6 +4460,10 @@ var Battle = (function () {
 					args[3] = Tools.escapeHTML(args[3]);
 					poke.volatiles.typechange[2] = args[3];
 					poke.removeVolatile('typeadd');
+					if (kwargs.silent) {
+						poke.side.updateStatbar(poke);
+						break;
+					}
 					if (fromeffect.id) {
 						if (fromeffect.id === 'colorchange' || fromeffect.id === 'protean') {
 							this.resultAnim(poke, fromeffect.name, 'ability');
@@ -4461,7 +4476,7 @@ var Battle = (function () {
 						} else if (!kwargs.silent) {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
 						}
-					} else if (!kwargs.silent) {
+					} else {
 						actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
 					}
 					this.resultAnim(poke, '<img src="' + Tools.resourcePrefix + 'sprites/types/' + args[3] + '.png" alt="' + args[3] + '" />', 'neutral');
