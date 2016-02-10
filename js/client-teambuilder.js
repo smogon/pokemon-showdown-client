@@ -980,10 +980,12 @@
 				if (this.curSetList.length && !this.curSetList[this.curSetList.length - 1].species) {
 					this.curSetList.splice(this.curSetList.length - 1, 1);
 				}
+
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select">';
 					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.format + '">' + (Tools.escapeFormat(this.curTeam.format) || '<em>Select a format</em>') + '</button>';
-					buf += ' <button name="validate" class="button"><i class="fa fa-check"></i> Validate</button></li>';
+					var btnClass = 'button' + (!this.curSetList.length || !this.curTeam.format ? ' disabled' : '');
+					buf += ' <button name="validate" class="' + btnClass + '"><i class="fa fa-check"></i> Validate</button></li>';
 				}
 				if (!this.curSetList.length) {
 					buf += '<li><em>you have no pokemon lol</em></li>';
@@ -1144,10 +1146,20 @@
 		},
 		validate: function () {
 			var format = this.curTeam.format;
+			var prerequisiteErrors = [];
 			if (!format) {
-				app.addPopupMessage('You need to pick a format to validate your team.');
+				prerequisiteErrors.push('- You need to pick a format to validate your team.');
+			}
+
+			if (!this.curSetList.length) {
+				prerequisiteErrors.push('- You must have at least one Pokémon on your team in order to validate.');
+			}
+
+			if (prerequisiteErrors.length) {
+				app.addPopupMessage(prerequisiteErrors.join('\n'));
 				return;
 			}
+
 			if (window.BattleFormats && BattleFormats[this.curTeam.format] && BattleFormats[this.curTeam.format].hasBattleFormat) {
 				format = BattleFormats[this.curTeam.format].battleFormat;
 			}
