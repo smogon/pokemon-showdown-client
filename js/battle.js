@@ -2068,7 +2068,7 @@ var Side = (function () {
 		} else if (pokemon.status === 'frz') {
 			status += '<span class="frz">FRZ</span> ';
 		}
-		if (pokemon.volatiles.typechange) {
+		if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[2]) {
 			var types = pokemon.volatiles.typechange[2].split('/');
 			status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + types[0] + '.png" alt="' + types[0] + '" /> ';
 			if (types[1]) {
