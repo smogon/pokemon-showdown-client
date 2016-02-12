@@ -791,7 +791,14 @@
 			if (app.draggingFolder) {
 				var $folder = $(app.draggingFolder);
 				app.draggingFolder = null;
-				$folder.removeClass('active').prepend('<strong style="float:right;margin-right:3px;padding:0 2px;border-radius:3px;background:#CC8500;color:white">+1</strong>');
+				var $plusOneFolder = $folder.find('.plusonefolder');
+				$folder.removeClass('active');
+				if (!$plusOneFolder.length) {
+					$folder.prepend('<strong style="float:right;margin-right:3px;padding:0 2px;border-radius:3px;background:#CC8500;color:white" class="plusonefolder">+1</strong>');
+				} else {
+					var count = Number($plusOneFolder.text().substr(1)) + 1;
+					$plusOneFolder.text('+' + count);
+				}
 				format = $folder.data('value');
 				if (format.slice(-1) === '/') {
 					team.folder = format.slice(0, -1);
