@@ -219,6 +219,11 @@ License: GPLv2
 	min-height: 10px;
 	font-size: 7pt;
 }
+.statbar .status img {
+	vertical-align: top;
+	top: -2px;
+	position: relative;
+}
 .statbar span {
 	padding: 0px 1px;
 	border: 1px solid #FF4400;
