@@ -29,12 +29,13 @@
 			var name = ' ' + app.user.get('name');
 			var color = hashColor(app.user.get('userid'));
 			if (!app.user.loaded) {
-				buf = '<button disabled>Loading...</button> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="fa fa-cog"></i></button>';
+				buf = '<button disabled>Loading...</button>';
 			} else if (app.user.get('named')) {
-				buf = '<span class="username" data-name="' + Tools.escapeHTML(name) + '" style="' + color + '"><i class="fa fa-user" style="color:#779EC5"></i> ' + Tools.escapeHTML(name) + '</span> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="fa fa-cog"></i></button>';
+				buf = '<span class="username" data-name="' + Tools.escapeHTML(name) + '" style="' + color + '"><i class="fa fa-user" style="color:#779EC5"></i> ' + Tools.escapeHTML(name) + '</span>';
 			} else {
-				buf = '<button name="login">Choose name</button> <button class="icon" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon" name="openOptions"><i class="fa fa-cog"></i></button>';
+				buf = '<button name="login">Choose name</button>';
 			}
+			buf += ' <button class="icon button" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon button" name="openOptions"><i class="fa fa-cog"></i></button>';
 			this.$userbar.html(buf);
 		},
 		login: function () {
