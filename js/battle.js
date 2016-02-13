@@ -5936,6 +5936,7 @@ var Battle = (function () {
 			if (poke.statbarElem) {
 				poke.statbarElem.html(poke.side.getStatbarHTML(poke, true));
 			}
+			poke.side.updateStatbar(poke, true);
 			poke.side.updateSidebar();
 			break;
 		case 'teampreview':
