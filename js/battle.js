@@ -1642,11 +1642,23 @@ var Side = (function () {
 		return poke;
 	};
 
-	Side.prototype.getStatbarHTML = function (pokemon) {
-		var gender = '';
-		if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
-		if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
-		return '<div class="statbar' + (this.n ? ' lstatbar' : ' rstatbar') + '"><strong>' + (this.n && this.battle.ignoreOpponent ? pokemon.species : Tools.escapeHTML(pokemon.name)) + gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>') + '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div></div>';
+	Side.prototype.getStatbarHTML = function (pokemon, inner) {
+		var buf = '';
+		if (!inner) buf += '<div class="statbar' + (this.n ? ' lstatbar' : ' rstatbar') + '">';
+		buf += '<strong>' + (this.n && this.battle.ignoreOpponent ? pokemon.species : Tools.escapeHTML(pokemon.name));
+		if (pokemon.gender === 'F') buf += ' <small style="color:#C57575">&#9792;</small>';
+		if (pokemon.gender === 'M') buf += ' <small style="color:#7575C0">&#9794;</small>';
+		buf += (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>');
+
+		var symbol = '';
+		if (pokemon.species.indexOf('-Mega') >= 0) symbol = 'mega';
+		else if (pokemon.species === 'Kyogre-Primal') symbol = 'alpha';
+		else if (pokemon.species === 'Groudon-Primal') symbol = 'omega';
+		if (symbol) buf += ' <img src="' + Tools.resourcePrefix + 'sprites/misc/' + symbol + '.png" alt="' + symbol + '" style="vertical-align:text-bottom;" />';
+
+		buf += '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div>';
+		if (!inner) buf += '</div>';
+		return buf;
 	};
 	Side.prototype.switchIn = function (pokemon, slot) {
 		if (slot === undefined) slot = pokemon.slot;
@@ -5921,6 +5933,9 @@ var Battle = (function () {
 
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
+			if (poke.statbarElem) {
+				poke.statbarElem.html(poke.side.getStatbarHTML(poke, true));
+			}
 			poke.side.updateSidebar();
 			break;
 		case 'teampreview':
