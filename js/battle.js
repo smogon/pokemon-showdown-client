@@ -3133,6 +3133,13 @@ var Battle = (function () {
 				pokemon.markMove(move.name, 0);
 				this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				break;
+			// Gen 1
+			case 'bind':
+			case 'clamp':
+			case 'firespin':
+			case 'wrap':
+				this.message(pokemon.getName() + "'s attack continues!");
+				break;
 			default:
 				// April Fool's 2014
 				if (window.Config && Config.server && Config.server.afd && move.id === 'earthquake') {
