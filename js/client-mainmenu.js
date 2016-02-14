@@ -865,6 +865,9 @@
 			if (!selectType) selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
 			var bufs = [];
 			var curBuf = 0;
+			if (selectType === 'watch') {
+				bufs[1] = '<li><button name="selectFormat" value=""' + (curFormat === '' ? ' class="sel"' : '') + '>(All formats)</button></li>';
+			}
 			var curSection = '';
 			for (var i in BattleFormats) {
 				var format = BattleFormats[i];
@@ -873,7 +876,7 @@
 					if (!format.isTeambuilderFormat) continue;
 				} else {
 					if (format.effectType !== 'Format') continue;
-					if (selectType && !format[selectType + 'Show']) continue;
+					if (selectType != 'watch' && !format[selectType + 'Show']) continue;
 				}
 
 				if (format.section && format.section !== curSection) {
