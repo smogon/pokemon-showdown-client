@@ -5749,8 +5749,9 @@ var Battle = (function () {
 	};
 	Battle.prototype.teamPreview = function (start) {
 		for (var k = 0; k < 2; k++) {
-			var teamText = '';
-			var text = '';
+			var textBuf = '';
+			var buf = '';
+			var buf2 = '';
 			this.spriteElems[k].empty();
 			if (!start) {
 				this.sides[k].updateSprites();
@@ -5766,24 +5767,37 @@ var Battle = (function () {
 				var y = 0;
 				var x = 0;
 				if (k) {
-					y = Math.floor(96 - spriteData.h) / 2 + 50 + 3 * (i + 6 - this.sides[k].pokemon.length);
-					x = Math.floor(96 - spriteData.w) / 2 + 180 + 50 * (i + 6 - this.sides[k].pokemon.length);
+					y = 48 + 50 + 3 * (i + 6 - this.sides[k].pokemon.length);
+					x = 48 + 180 + 50 * (i + 6 - this.sides[k].pokemon.length);
 				} else {
-					y = Math.floor(96 - spriteData.h) / 2 + 200 + 3 * i;
-					x = Math.floor(96 - spriteData.w) / 2 + 100 + 50 * i;
+					y = 48 + 200 + 3 * i;
+					x = 48 + 100 + 50 * i;
 				}
-				if (teamText) teamText += ' / ';
-				teamText += pokemon.species;
+				if (textBuf) textBuf += ' / ';
+				textBuf += pokemon.species;
 				var url = spriteData.url;
 				// if (this.paused) url.replace('/xyani', '/xy').replace('.gif', '.png');
-				text += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + y + 'px;left:' + x + 'px" />';
+				buf += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + Math.floor(y - spriteData.h / 2) + 'px;left:' + Math.floor(x - spriteData.w / 2) + 'px" />';
+				buf2 += '<div style="position:absolute;top:' + (y + 45) + 'px;left:' + (x - 40) + 'px;width:80px;font-size:10px;text-align:center;color:#FFF;">';
+				if (pokemon.gender === 'F') {
+					buf2 += '<img src="' + Tools.resourcePrefix + 'fx/gender-f.png" width="7" height="10" alt="F" style="margin-bottom:-1px" /> ';
+				} else if (pokemon.gender === 'M') {
+					buf2 += '<img src="' + Tools.resourcePrefix + 'fx/gender-m.png" width="7" height="10" alt="M" style="margin-bottom:-1px" /> ';
+				}
+				if (pokemon.level !== 100) {
+					buf2 += '<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>' + pokemon.level + '</span>';
+				}
+				if (pokemon.item) {
+					buf2 += ' <img src="' + Tools.resourcePrefix + 'fx/item.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />';
+				}
+				buf2 += '</div>';
 			}
 			this.sides[k].totalPokemon = i;
 			this.sides[k].updateSidebar();
-			if (teamText) {
-				this.log('<div class="chat"><strong>' + Tools.escapeHTML(this.sides[k].name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + Tools.escapeHTML(teamText) + '</em></div>');
+			if (textBuf) {
+				this.log('<div class="chat"><strong>' + Tools.escapeHTML(this.sides[k].name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + Tools.escapeHTML(textBuf) + '</em></div>');
 			}
-			this.spriteElems[k].html(text);
+			this.spriteElems[k].html(buf + buf2);
 		}
 	};
 	Battle.prototype.runMajor = function (args, kwargs, preempt) {
@@ -5920,6 +5934,9 @@ var Battle = (function () {
 			break;
 		case 'poke':
 			var pokemon = this.getPokemon('new: ' + args[1], args[2]);
+			if (args[3] === 'item') {
+				pokemon.item = '(exists)';
+			}
 			break;
 		case 'detailschange':
 			if (this.waitForResult()) return;
