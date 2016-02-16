@@ -3988,15 +3988,24 @@ var Battle = (function () {
 				var effect = Tools.getEffect(kwargs.from);
 				poke.status = args[2];
 				poke.removeVolatile('yawn');
+				var effectMessage = "";
+				if (effect.effectType === 'Ability') {
+					var ofpoke = this.getPokemon(kwargs.of) || poke;
+					this.resultAnim(ofpoke, effect.name, 'ability');
+					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + effect.name + "!]</small>");
+					ofpoke.markAbility(effect);
+				} else if (effect.exists) {
+					effectMessage = " by the " + effect.name;
+				}
 
 				switch (args[2]) {
 				case 'brn':
 					this.resultAnim(poke, 'Burned', 'brn');
-					actions += "" + poke.getName() + " was burned" + (effect.exists ? " by the " + effect.name : "") + "!";
+					actions += "" + poke.getName() + " was burned" + effectMessage + "!";
 					break;
 				case 'tox':
 					this.resultAnim(poke, 'Toxic poison', 'psn');
-					actions += "" + poke.getName() + " was badly poisoned" + (effect.exists ? " by the " + effect.name : "") + "!";
+					actions += "" + poke.getName() + " was badly poisoned" + effectMessage + "!";
 					break;
 				case 'psn':
 					this.resultAnim(poke, 'Poisoned', 'psn');
