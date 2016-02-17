@@ -300,7 +300,7 @@ class NTBBLadder {
 			}
 			$user['rating']['r'] = $rating->rating;
 			$user['rating']['rd'] = $rating->rd;
-			$$user['rating']['elo'] = $elo;
+			$user['rating']['elo'] = $elo;
 		}
 
 		if (!$user['rating']['col1']) {
