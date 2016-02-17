@@ -3793,9 +3793,10 @@ var Battle = (function () {
 					break;
 				default:
 					if (fromeffect && fromeffect.effectType === 'Ability') {
-						this.resultAnim(poke, fromeffect.name, 'ability');
-						this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
-						poke.markAbility(fromeffect.name);
+						var ofpoke = this.getPokemon(kwargs.of) || poke;
+						this.resultAnim(ofpoke, fromeffect.name, 'ability');
+						this.message('', "<small>[" + ofpoke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+						ofpoke.markAbility(fromeffect.name);
 					}
 					if (kwargs.msg) {
 						actions += "It doesn't affect " + poke.getLowerName() + "... ";
