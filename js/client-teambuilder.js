@@ -1154,7 +1154,7 @@
 		validate: function () {
 			var format = this.curTeam.format || 'anythinggoes';
 
-			if (this.curSetList.length) {
+			if (!this.curSetList.length) {
 				app.addPopupMessage("You need at least one Pokémon to validate.");
 				return;
 			}
