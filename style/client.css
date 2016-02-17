@@ -311,6 +311,23 @@ button:disabled {
 .popupmenu button.button:active {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
+
+.button.disabled,
+.button.disabled:hover,
+.button.disabled:active,
+.mainmenuwrapper .menugroup .button.disabled,
+.mainmenuwrapper .menugroup .button.disabled:hover,
+.mainmenuwrapper .menugroup .button.disabled:active {
+	cursor: default;
+	background: #EEEEEE;
+	border-color: #CCCCCC;
+	border-style: solid;
+	border-size: 1px;
+	color: #999999;
+	text-shadow: none;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+
 .button.notifying {
 	border-color: #AA8866;
 	background: #e3c3a3;
@@ -1010,20 +1027,6 @@ p.or:after {
 .button.mainmenu6 { background: linear-gradient(to bottom,  hsl(270,40%,72%),  hsl(270,40%,52%)); border-color: hsl(270,40%,40%); }
 .button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
 .button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
-
-.mainmenuwrapper .menugroup .button.disabled,
-.mainmenuwrapper .menugroup .button.disabled:hover,
-.mainmenuwrapper .menugroup .button.disabled:active,
-.mainmenuwrapper .menugroup .button.disabled,
-.mainmenuwrapper .menugroup .button.disabled:hover,
-.mainmenuwrapper .menugroup .button.disabled:active {
-	cursor: default;
-	background: #EEEEEE;
-	border: 1px solid #CCCCCC;
-	color: #999999;
-	text-shadow: none;
-	box-shadow: 0 1px 2px rgba(0,0,0,.1);
-}
 
 .rightmenu {
 	width: 294px;
