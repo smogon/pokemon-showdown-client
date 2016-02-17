@@ -846,6 +846,10 @@
 			app.addPopup(CreditsPopup);
 		},
 		finduser: function () {
+			if (app.isDisconnected) {
+				app.addPopupMessage("You are offline.");
+				return;
+			}
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
 				if (toId(target) === 'zarel') {
