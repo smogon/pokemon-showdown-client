@@ -95,6 +95,10 @@
 			this.close();
 		},
 		finduser: function () {
+			if (app.isDisconnected) {
+				app.addPopupMessage("You are offline.");
+				return;
+			}
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
 				if (toId(target) === 'zarel') {
@@ -155,7 +159,11 @@
 		},
 		update: function (data) {
 			if (!data && !this.data) {
-				this.$list.html('<p>Loading...</p>');
+				if (app.isDisconnected) {
+					this.$list.html('<p>You are offline.</p>');
+				} else {
+					this.$list.html('<p>Loading...</p>');
+				}
 				return;
 			}
 			this.$('button[name=refresh]')[0].disabled = false;
