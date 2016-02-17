@@ -6386,6 +6386,7 @@ var Battle = (function () {
 	Battle.prototype.preloadEffects = function () {
 		if (this.noPreload) return;
 		for (var i in BattleEffects) {
+			if (i === 'alpha' || i === 'omega') continue;
 			if (BattleEffects[i].url) this.preloadImage(BattleEffects[i].url);
 		}
 		this.preloadImage(Tools.fxPrefix + 'weather-raindance.jpg'); // rain is used often enough to precache
