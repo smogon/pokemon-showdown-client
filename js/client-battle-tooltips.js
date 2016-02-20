@@ -270,9 +270,8 @@ var BattleTooltips = (function () {
 
 	BattleTooltips.prototype.showPokemonTooltip = function (pokemon, myPokemon, isActive) {
 		var text = '';
-		var gender = '';
-		if (pokemon.gender === 'F') gender = ' <small style="color:#C57575">&#9792;</small>';
-		if (pokemon.gender === 'M') gender = ' <small style="color:#7575C0">&#9794;</small>';
+		var gender = pokemon.gender;
+		if (gender) gender = ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
 		text = '<div class="tooltipinner"><div class="tooltip">';
 		text += '<h2>' + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
 
