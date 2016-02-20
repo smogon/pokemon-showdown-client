@@ -183,7 +183,9 @@
 				}
 				var format = (matches[1] || '');
 				if (this.format && format !== this.format) continue;
-				var formatBuf = (format ? '<small>[' + Tools.escapeFormat(format) + ']</small><br />' : '');
+				var formatBuf = '';
+				if (roomData.minElo) formatBuf += '<small style="float:right">(' + (typeof roomData.minElo === 'number' ? 'rated: ' : '') + roomData.minElo + ')</small>';
+				formatBuf += (format ? '<small>[' + Tools.escapeFormat(format) + ']</small><br />' : '');
 				var roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
 				if (!roomData.p1) {
 					matches = id.match(/[^0-9]([0-9]*)$/);
