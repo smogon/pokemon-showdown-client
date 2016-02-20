@@ -1646,9 +1646,9 @@ var Side = (function () {
 		var buf = '';
 		if (!inner) buf += '<div class="statbar' + (this.n ? ' lstatbar' : ' rstatbar') + '">';
 		buf += '<strong>' + (this.n && this.battle.ignoreOpponent ? pokemon.species : Tools.escapeHTML(pokemon.name));
-		if (pokemon.gender === 'F') buf += ' <small style="color:#C57575">&#9792;</small>';
-		if (pokemon.gender === 'M') buf += ' <small style="color:#7575C0">&#9794;</small>';
-		buf += (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>');
+		var gender = pokemon.gender;
+		if (gender) gender = ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
+		buf += gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>');
 
 		var symbol = '';
 		if (pokemon.species.indexOf('-Mega') >= 0) symbol = 'mega';
