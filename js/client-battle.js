@@ -411,13 +411,6 @@
 				for (var i = 0; i < moves.length; i++) {
 					var moveData = moves[i];
 					var move = Tools.getMove(moves[i].move);
-					if (!move) {
-						move = {
-							name: moves[i].move,
-							id: moves[i].move,
-							type: ''
-						};
-					}
 					var name = move.name;
 					var pp = moveData.pp + '/' + moveData.maxpp;
 					if (!moveData.maxpp) pp = '&ndash;';
