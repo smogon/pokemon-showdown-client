@@ -120,7 +120,7 @@
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button><div class="roomlist"><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <span style="' + Tools.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="picon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span></p>';
 
-			buf += '<p><label>Format:</label><br /><button class="select formatselect" name="selectFormat">(All formats)</button></p>';
+			buf += '<p><label class="label">Format:</label><button class="select formatselect" name="selectFormat">(All formats)</button></p>';
 			buf += '<div class="list"><p>Loading...</p></div>';
 			buf += '</div></div>';
 
