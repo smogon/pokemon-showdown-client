@@ -809,15 +809,6 @@ var Sprite = (function () {
 		this.sp = sp;
 		var self = this;
 		var battle = this.battle;
-		if (isMega) {
-			if (species.id === 'kyogreprimal') {
-				BattleOtherAnims.primalalpha.anim(battle, [self]);
-			} else if (species.id === 'groudonprimal') {
-				BattleOtherAnims.primalomega.anim(battle, [self]);
-			} else {
-				BattleOtherAnims.megaevo.anim(battle, [self]);
-			}
-		}
 		if (battle.fastForward) {
 			this.elem.attr('src', sp.url);
 			this.elem.css(battle.pos({
@@ -827,6 +818,15 @@ var Sprite = (function () {
 				opacity: 1
 			}, sp));
 			return;
+		}
+		if (isMega) {
+			if (species.id === 'kyogreprimal') {
+				BattleOtherAnims.primalalpha.anim(battle, [self]);
+			} else if (species.id === 'groudonprimal') {
+				BattleOtherAnims.primalomega.anim(battle, [self]);
+			} else {
+				BattleOtherAnims.megaevo.anim(battle, [self]);
+			}
 		}
 		this.elem.animate(this.battle.pos({
 			x: this.x,
