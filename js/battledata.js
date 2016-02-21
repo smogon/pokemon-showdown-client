@@ -107,25 +107,34 @@ function hashColor(name) {
 	return colorCache[name];
 }
 
+function getString(str) {
+	if (typeof str === 'string' || typeof str === 'number') return '' + str;
+	return '';
+}
+
 function toId(text) {
-	text = text || '';
-	if (typeof text === 'number') text = '' + text;
-	if (typeof text !== 'string') return toId(text && text.id);
-	return text.toLowerCase().replace(/[^a-z0-9]+/g, '');
+	if (text && text.id) {
+		text = text.id;
+	} else if (text && text.userid) {
+		text = text.userid;
+	}
+	if (typeof text !== 'string' && typeof text !== 'number') return '';
+	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
 function toUserid(text) {
-	text = text || '';
-	if (typeof text === 'number') text = '' + text;
-	if (typeof text !== 'string') return ''; //???
-	return text.toLowerCase().replace(/[^a-z0-9]+/g, '');
+	return toId(text);
 }
 
 function toName(name) {
-	if (typeof name === 'number') return '' + name;
-	if (typeof name !== 'string') return '';
-	name = name.replace(/[\|\s\[\]\,]+/g, ' ').trim();
+	if (typeof name !== 'string' && typeof name !== 'number') return '';
+	name = ('' + name).replace(/[\|\s\[\]\,\u202e]+/g, ' ').trim();
 	if (name.length > 18) name = name.substr(0, 18).trim();
+
+	// remove zalgo
+	name = name.replace(/[\u0300-\u036f\u0483-\u0489\u0610-\u0615\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06ED\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{3,}/g, '');
+	name = name.replace(/[\u239b-\u23b9]/g, '');
+
 	return name;
 }
 
@@ -645,8 +654,7 @@ var Tools = {
 	},
 
 	escapeHTML: function (str, jsEscapeToo) {
-		str = (str ? '' + str : '');
-		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		str = getString(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
 		return str;
 	},
@@ -746,7 +754,7 @@ var Tools = {
 			return {attribs: attribs};
 		};
 		return function (input) {
-			return html.sanitizeWithPolicy(input, tagPolicy);
+			return html.sanitizeWithPolicy(getString(input), tagPolicy);
 		};
 	})(),
 
