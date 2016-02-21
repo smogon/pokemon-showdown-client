@@ -5936,7 +5936,9 @@ var Battle = (function () {
 		case 'poke':
 			var pokemon = this.getPokemon('new: ' + args[1], args[2]);
 			if (args[3] === 'item') {
-				pokemon.item = '(exists)';
+				pokemon.item = '(previewed)';
+			} else if (args[3] === '') {
+				pokemon.itemEffect = 'previewed';
 			}
 			break;
 		case 'detailschange':
