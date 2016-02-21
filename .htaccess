@@ -33,12 +33,6 @@ RewriteRule ^bugs?(reports?)?\/?$ https://www.smogon.com/forums/threads/bug-repo
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^rules?\/?$ http://pokemonshowdown.com/rules [R=302,L]
 
-# Send bingbot a `noindex` header on every page.
-RewriteCond %{HTTP_USER_AGENT} bingbot
-RewriteRule ^(.*) - [E=BINGBOT:1]
-Header set X-Robots-Tag "noindex" env=BINGBOT
-Header unset Vary env=BINGBOT
-
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) http%{ENV:P_SUFFIX}://play.pokemonshowdown.com/$1 [R=301,L]
 
@@ -72,7 +66,6 @@ RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
 Header set Cache-Control "no-cache, no-store, must-revalidate" env=INDEX_PAGE
 Header set Pragma "no-cache" env=INDEX_PAGE
 Header set Expires "0" env=INDEX_PAGE
-Header set X-Robots-Tag "noindex" env=INDEX_PAGE
 
 # No direct linking to the lobby.
 RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
