@@ -308,6 +308,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'assaultvest':
 			case 'focussash':
 			case 'powerherb':
+			case 'mentalherb':
+			case 'rockyhelmet':
 				greatItems.push(id);
 				break;
 			case 'lumberry':
