@@ -922,7 +922,7 @@
 				var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
 				if ($teamButton.length) $teamButton.replaceWith(app.rooms[''].renderTeams(format));
 			}
-			this.sourceEl.val(format).html(Tools.escapeFormat(format));
+			this.sourceEl.val(format).html(Tools.escapeFormat(format) || '(Select a format)');
 
 			this.close();
 		}
