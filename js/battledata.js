@@ -342,6 +342,7 @@ var Tools = {
 	})(),
 
 	fxPrefix: (function () {
+		if (window.Replays) return 'http://play.pokemonshowdown.com/fx/';
 		if (document.location.protocol === 'file:') return 'fx/';
 		return '//play.pokemonshowdown.com/fx/';
 	})(),
