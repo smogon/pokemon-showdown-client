@@ -7,7 +7,8 @@
 			if (!this.events) this.events = {};
 			if (!this.events['click .username']) this.events['click .username'] = 'clickUsername';
 			if (!this.events['submit form']) this.events['submit form'] = 'submit';
-			if (!this.events['keydown textarea']) this.events['keydown textarea'] = 'keyPress';
+			if (!this.events['keydown textarea']) this.events['keydown textarea'] = 'keyDown';
+			if (!this.events['keyup textarea']) this.events['keyup textarea'] = 'keyUp';
 			if (!this.events['focus textarea']) this.events['focus textarea'] = 'focusText';
 			if (!this.events['blur textarea']) this.events['blur textarea'] = 'blurText';
 			if (!this.events['click .spoiler']) this.events['click .spoiler'] = 'clickSpoiler';
@@ -99,11 +100,29 @@
 					this.send(text);
 				}
 				this.$chatbox.val('');
+				this.$chatbox.trigger('keyup'); // force a resize
 			}
 		},
-		keyPress: function (e) {
+		keyUp: function (e) {
+			// Android Chrome compose keycode
+			// Android Chrome no longer sends keyCode 13 when Enter is pressed on
+			// the soft keyboard, resulting in this annoying hack.
+			// https://bugs.chromium.org/p/chromium/issues/detail?id=118639#c232
+			if (!e.shiftKey && e.keyCode === 229 && this.$chatbox.val().slice(-1) === '\n') {
+				this.submit(e);
+			}
+		},
+		keyDown: function (e) {
 			var cmdKey = (((e.cmdKey || e.metaKey) ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
 			var textbox = e.currentTarget;
+			// if (this.id === 'devtest281') {
+			// 	this.add("keyCode: " + e.keyCode);
+			// 	this.add("which: " + e.which);
+			// 	this.add("o.keyCode: " + e.originalEvent.keyCode);
+			// 	this.add("o.which: " + e.originalEvent.which);
+			// 	this.add("o.key: " + e.originalEvent.key);
+			// 	this.add("o.code: " + JSON.stringify(e.originalEvent.code));
+			// }
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
 			} else if (e.keyCode === 73 && cmdKey) { // Ctrl + I key
