@@ -5,7 +5,8 @@
 		tinyWidth: 340,
 		bestWidth: 628,
 		events: {
-			'keydown textarea': 'keyPress',
+			'keydown textarea': 'keyDown',
+			'keyup textarea': 'keyUp',
 			'click .username': 'clickUsername',
 			'click .closebutton': 'closePM',
 			'click .minimizebutton': 'minimizePM',
@@ -288,7 +289,17 @@
 		onBlurPM: function (e) {
 			$(e.currentTarget).closest('.pm-window').removeClass('focused');
 		},
-		keyPress: function (e) {
+		keyUp: function (e) {
+			var $target = $(e.currentTarget);
+			// Android Chrome compose keycode
+			// Android Chrome no longer sends keyCode 13 when Enter is pressed on
+			// the soft keyboard, resulting in this annoying hack.
+			// https://bugs.chromium.org/p/chromium/issues/detail?id=118639#c232
+			if (!e.shiftKey && e.keyCode === 229 && $target.val().slice(-1) === '\n') {
+				this.submit(e);
+			}
+		},
+		keyDown: function (e) {
 			var cmdKey = (((e.cmdKey || e.metaKey) ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter
 				var $target = $(e.currentTarget);
