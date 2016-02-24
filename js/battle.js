@@ -3117,11 +3117,15 @@ var Battle = (function () {
 			case 'magicbounce':
 			case 'magiccoat':
 			case 'rebound':
-				this.resultAnim(pokemon, "Bounced", 'good');
 				if (fromeffect.id === 'magiccoat') {
+					this.resultAnim(pokemon, "Bounced", 'good');
 					pokemon.addTurnstatus('magiccoat');
+				} else {
+					this.resultAnim(pokemon, fromeffect.name, 'ability');
+					this.message('', "<small>[" + pokemon.getName(true) + "'s " + fromeffect.name + "!]</small>");
+					pokemon.markAbility(fromeffect.name);
 				}
-				this.message(target.getName() + "'s " + move.name + " was bounced back by " + fromeffect.name + "!");
+				this.message(pokemon.getName() + " bounced the " + move.name + " back!");
 				break;
 			case 'metronome':
 				this.message('Waggling a finger let it use <strong>' + move.name + '</strong>!');
