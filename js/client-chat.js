@@ -85,23 +85,22 @@
 		submit: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
-			var text;
-			if ((text = this.$chatbox.val())) {
-				if (!$.trim(text)) {
-					this.$chatbox.val('');
-					return;
-				}
-				this.tabComplete.reset();
-				this.chatHistory.push(text);
-				text = this.parseCommand(text);
-				if (this.battle && this.battle.ignoreSpects && app.user.get('userid') !== this.battle.p1.id && app.user.get('userid') !== this.battle.p2.id) {
-					this.add("You can't chat in this battle as you're currently ignoring spectators");
-				} else if (text) {
-					this.send(text);
-				}
+			var text = this.$chatbox.val();
+			if (!text) return;
+			if (!$.trim(text)) {
 				this.$chatbox.val('');
-				this.$chatbox.trigger('keyup'); // force a resize
+				return;
 			}
+			this.tabComplete.reset();
+			this.chatHistory.push(text);
+			text = this.parseCommand(text);
+			if (this.battle && this.battle.ignoreSpects && app.user.get('userid') !== this.battle.p1.id && app.user.get('userid') !== this.battle.p2.id) {
+				this.add("You can't chat in this battle as you're currently ignoring spectators");
+			} else if (text) {
+				this.send(text);
+			}
+			this.$chatbox.val('');
+			this.$chatbox.trigger('keyup'); // force a resize
 		},
 		keyUp: function (e) {
 			// Android Chrome compose keycode
@@ -115,14 +114,6 @@
 		keyDown: function (e) {
 			var cmdKey = (((e.cmdKey || e.metaKey) ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
 			var textbox = e.currentTarget;
-			// if (this.id === 'devtest281') {
-			// 	this.add("keyCode: " + e.keyCode);
-			// 	this.add("which: " + e.which);
-			// 	this.add("o.keyCode: " + e.originalEvent.keyCode);
-			// 	this.add("o.which: " + e.originalEvent.which);
-			// 	this.add("o.key: " + e.originalEvent.key);
-			// 	this.add("o.code: " + JSON.stringify(e.originalEvent.code));
-			// }
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 				this.submit(e);
 			} else if (e.keyCode === 73 && cmdKey) { // Ctrl + I key
