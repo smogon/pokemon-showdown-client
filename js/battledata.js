@@ -1079,13 +1079,18 @@ var Tools = {
 		if (Tools.prefs('nopastgens')) gen = 'xy';
 		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
 
-		var animationData = {};
-		if (gen === 'bw' && window.BattlePokemonSpritesBW) {
-			animationData = BattlePokemonSpritesBW && window.BattlePokemonSpritesBW[pokemon.speciesid];
-		} else {
-			animationData = BattlePokemonSprites && window.BattlePokemonSprites[pokemon.speciesid];
+		var gen6animationData = null;
+		if (window.BattlePokemonSprites) {
+			gen6animationData = BattlePokemonSprites[pokemon.speciesid];
 		}
-		if (animationData && typeof animationData.num !== 'undefined') {
+		var animationData = gen6animationData;
+		if (gen === 'bw' && window.BattlePokemonSpritesBW) {
+			animationData = BattlePokemonSpritesBW[pokemon.speciesid];
+		}
+		if (!gen6animationData) gen6animationData = {};
+		if (!animationData) animationData = {};
+
+		if (typeof animationData.num !== 'undefined') {
 			var num = '' + animationData.num;
 			if (num.length < 3) num = '0' + num;
 			if (num.length < 3) num = '0' + num;
@@ -1105,7 +1110,7 @@ var Tools = {
 			return spriteData;
 		}
 
-		if (animationData && animationData[facing]) {
+		if (animationData[facing]) {
 			var spriteType = '';
 			if (animationData[facing]['anif'] && pokemon.gender === 'F') {
 				name += '-f';
@@ -1120,6 +1125,9 @@ var Tools = {
 				spriteData.url += dir + '/' + name + '.gif';
 				return spriteData;
 			}
+		} else if (gen6animationData[facing] && gen6animationData[facing]['anif'] && pokemon.gender === 'F') {
+			name += '-f';
+			spriteType += 'f';
 		}
 
 		// There is no entry or enough data in pokedex-mini.js
