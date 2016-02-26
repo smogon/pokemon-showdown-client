@@ -296,42 +296,46 @@
 			// the soft keyboard, resulting in this annoying hack.
 			// https://bugs.chromium.org/p/chromium/issues/detail?id=118639#c232
 			if (!e.shiftKey && e.keyCode === 229 && $target.val().slice(-1) === '\n') {
-				this.submit(e);
+				this.submitPM(e);
 			}
+		},
+		submitPM: function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var $target = $(e.currentTarget);
+
+			var text = $.trim($target.val());
+			if (!text) return;
+			var $pmWindow = $target.closest('.pm-window');
+			var userid = $pmWindow.data('userid');
+			var $chat = $pmWindow.find('.inner');
+			// this.tabComplete.reset();
+			this.chatHistories[userid].push(text);
+			if (text.toLowerCase() === '/ignore') {
+				if (app.ignore[userid]) {
+					$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
+				} else {
+					app.ignore[userid] = 1;
+					$chat.append('<div class="chat">User ' + userid + ' ignored. (Moderator messages will not be ignored.)</div>');
+				}
+			} else if (text.toLowerCase() === '/unignore') {
+				if (!app.ignore[userid]) {
+					$chat.append('<div class="chat">User ' + userid + ' isn\'t on your ignore list.</div>');
+				} else {
+					delete app.ignore[userid];
+					$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
+				}
+			} else {
+				text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
+				this.send(text);
+			}
+			$target.val('');
+			$target.trigger('keyup'); // force a resize
 		},
 		keyDown: function (e) {
 			var cmdKey = (((e.cmdKey || e.metaKey) ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter
-				var $target = $(e.currentTarget);
-				e.preventDefault();
-				e.stopPropagation();
-				var text;
-				if ((text = $.trim($target.val()))) {
-					var $pmWindow = $target.closest('.pm-window');
-					var userid = $pmWindow.data('userid');
-					var $chat = $pmWindow.find('.inner');
-					// this.tabComplete.reset();
-					this.chatHistories[userid].push(text);
-					if (text.toLowerCase() === '/ignore') {
-						if (app.ignore[userid]) {
-							$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
-						} else {
-							app.ignore[userid] = 1;
-							$chat.append('<div class="chat">User ' + userid + ' ignored. (Moderator messages will not be ignored.)</div>');
-						}
-					} else if (text.toLowerCase() === '/unignore') {
-						if (!app.ignore[userid]) {
-							$chat.append('<div class="chat">User ' + userid + ' isn\'t on your ignore list.</div>');
-						} else {
-							delete app.ignore[userid];
-							$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
-						}
-					} else {
-						text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
-						this.send(text);
-					}
-					$(e.currentTarget).val('');
-				}
+				this.submitPM(e);
 			} else if (e.keyCode === 27) { // Esc
 				this.closePM(e);
 			} else if (e.keyCode === 73 && cmdKey) { // Ctrl + I key
