@@ -337,7 +337,7 @@ var Tools = {
 
 	resourcePrefix: (function () {
 		var prefix = '';
-		if (document.location.protocol === 'file:') prefix = 'http:';
+		if (document.location.protocol === 'file:') prefix = 'https:';
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
