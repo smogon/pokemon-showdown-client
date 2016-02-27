@@ -7075,6 +7075,14 @@ var BattleMoveAnims = {
 				time: 100
 			});
 			defender.anim({
+				x: defender.x-30,
+				time: 100
+			});
+			defender.anim({
+				x: defender.x+30,
+				time: 100
+			});
+			defender.anim({
 				x: defender.x,
 				time: 100
 			});
