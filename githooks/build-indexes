@@ -2,11 +2,15 @@
 'use strict';
 
 const fs = require("fs");
+const path = require('path');
 const child_process = require("child_process");
+
+const rootDir = path.resolve(__dirname, '..');
+const dataDir = path.resolve(rootDir, 'data');
 
 process.stdout.write("Syncing data from Git repository... ");
 child_process.execSync('git pull', {
-	cwd: './data/Pokemon-Showdown/'
+	cwd: path.resolve(__dirname, 'Pokemon-Showdown')
 });
 console.log("DONE");
 
@@ -164,7 +168,7 @@ function requireNoCache(pathSpec) {
 
 	buf += 'exports.BattleSearchCountIndex = ' + JSON.stringify(BattleSearchCountIndex) + ';\n\n';
 
-	fs.writeFileSync('data/search-index.js', buf);
+	fs.writeFileSync(path.resolve(dataDir, 'search-index.js'), buf);
 }
 
 console.log("DONE");
@@ -524,7 +528,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
 
-	fs.writeFileSync('data/teambuilder-tables.js', buf);
+	fs.writeFileSync(path.resolve(dataDir, 'teambuilder-tables.js'), buf);
 }
 
 console.log("DONE");
@@ -549,7 +553,7 @@ process.stdout.write("Building `data/pokedex.js`... ");
 		}
 	}
 	var buf = 'exports.BattlePokedex = ' + es3stringify(Pokedex) + ';';
-	fs.writeFileSync('data/pokedex.js', buf);
+	fs.writeFileSync(path.resolve(dataDir, 'pokedex.js'), buf);
 }
 
 console.log("DONE");
@@ -563,7 +567,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const Movedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
 	var buf = 'exports.BattleMovedex = ' + es3stringify(Movedex) + ';';
-	fs.writeFileSync('data/moves.js', buf);
+	fs.writeFileSync(path.resolve(dataDir, 'search-index.js'), buf);
 }
 
 /*********************************************************
@@ -573,7 +577,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const Items = requireNoCache('../data/Pokemon-Showdown/data/items.js').BattleItems;
 	var buf = 'exports.BattleItems = ' + es3stringify(Items) + ';';
-	fs.writeFileSync('data/items.js', buf);
+	fs.writeFileSync(path.resolve(dataDir, 'items.js'), buf);
 }
 
 /*********************************************************
@@ -583,7 +587,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const Abilities = requireNoCache('../data/Pokemon-Showdown/data/abilities.js').BattleAbilities;
 	var buf = 'exports.BattleAbilities = ' + es3stringify(Abilities) + ';';
-	fs.writeFileSync('data/abilities.js', buf);
+	fs.writeFileSync(path.resolve(dataDir, 'abilities.js'), buf);
 }
 
 /*********************************************************
@@ -593,7 +597,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const TypeChart = requireNoCache('../data/Pokemon-Showdown/data/typechart.js').BattleTypeChart;
 	var buf = 'exports.BattleTypeChart = ' + es3stringify(TypeChart) + ';';
-	fs.writeFileSync('data/typechart.js', buf);
+	fs.writeFileSync(path.resolve(dataDir, 'typechart.js'), buf);
 }
 
 /*********************************************************
@@ -603,7 +607,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const Aliases = requireNoCache('../data/Pokemon-Showdown/data/aliases.js').BattleAliases;
 	var buf = 'exports.BattleAliases = ' + es3stringify(Aliases) + ';';
-	fs.writeFileSync('data/aliases.js', buf);
+	fs.writeFileSync(path.resolve(dataDir, 'aliases.js'), buf);
 }
 
 /*********************************************************
@@ -613,7 +617,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const Learnsets = requireNoCache('../data/Pokemon-Showdown/data/learnsets.js').BattleLearnsets;
 	var buf = 'exports.BattleLearnsets = ' + es3stringify(Learnsets) + ';';
-	fs.writeFileSync('data/learnsets.js', buf);
+	fs.writeFileSync(path.resolve(dataDir, 'learnsets.js'), buf);
 }
 
 console.log("DONE");
