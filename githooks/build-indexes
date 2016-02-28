@@ -10,7 +10,7 @@ const dataDir = path.resolve(rootDir, 'data');
 
 process.stdout.write("Syncing data from Git repository... ");
 child_process.execSync('git pull', {
-	cwd: path.resolve(__dirname, 'Pokemon-Showdown')
+	cwd: path.resolve(dataDir, 'Pokemon-Showdown')
 });
 console.log("DONE");
 
