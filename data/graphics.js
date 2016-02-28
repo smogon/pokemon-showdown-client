@@ -7183,57 +7183,6 @@ var BattleMoveAnims = {
 			}, 'linear');
 		}
 	},
-	sandtomb: {
-		anim: function(battle, args) {
-			var defender = args[1];
-
-			battle.showEffect('mudwisp', {
-				x: defender.x+10,
-				y: defender.y-35,
-				z: defender.z,
-				scale: .4,
-				opacity: 1,
-				time: 0
-			}, {
-				x: defender.x+10,
-				y: defender.y+20,
-				z: defender.z,
-				scale: 0.7,
-				opacity: 0,
-				time: 300
-			}, 'linear');
-			battle.showEffect('mudwisp', {
-				x: defender.x-30,
-				y: defender.y-35,
-				z: defender.z,
-				scale: .4,
-				opacity: 1,
-				time: 100
-			}, {
-				x: defender.x-30,
-				y: defender.y+20,
-				z: defender.z,
-				scale: 0.7,
-				opacity: 0,
-				time: 400
-			}, 'linear');
-			battle.showEffect('mudwisp', {
-				x: defender.x+40,
-				y: defender.y-35,
-				z: defender.z,
-				scale: .4,
-				opacity: 1,
-				time: 200
-			}, {
-				x: defender.x+40,
-				y: defender.y+20,
-				z: defender.z,
-				scale: 0.7,
-				opacity: 0,
-				time: 500
-			}, 'linear');
-		}
-	},
 	poisongas: {
 		anim: function(battle, args) {
 			var defender = args[1];
