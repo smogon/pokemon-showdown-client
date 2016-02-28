@@ -281,13 +281,25 @@ class NTBBLadder {
 
 				// decay
 				if ($elo >= 1400) {
-					if (count($rating->M)) {
+					$decay = 0;
+					if (count($rating->M) > 5) {
+						// user was very active
+					} else if (count($rating->M)) {
 						// user was active
-						$elo -= 0 + intval(($elo-1400)/100);
+						$decay = 0 + intval(($elo-1400)/100);
 					} else {
 						// user was inactive
-						$elo -= 1 + intval(($elo-1400)/50);
+						$decay = 1 + intval(($elo-1400)/50);
 					}
+					switch ($this->formatid) {
+					case 'randombattle':
+					case 'ou':
+						break;
+					default:
+						$decay -= 2;
+						break;
+					}
+					if ($decay > 0) $elo -= $decay;
 				}
 
 				$rating->update();
