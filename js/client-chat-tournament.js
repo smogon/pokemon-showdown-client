@@ -318,7 +318,8 @@
 					if (data[0] === 'off') {
 						this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timer has been turned off.</div>");
 					} else if (data[0] === 'on') {
-						this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timer has been set to " + (data[1] / 1000 / 60) + " minutes.</div>");
+						var minutes = (data[1] / 1000 / 60);
+						this.room.$chat.append("<div class=\"notice tournament-message-autodq-off\">The tournament's automatic disqualify timer has been set to " + minutes + " minute" + (minutes === 1 ? "" : "s") + ".</div>");
 					} else {
 						var seconds = Math.floor(data[1] / 1000);
 						app.addPopupMessage("Please respond to the tournament within " + seconds + " seconds or you may be automatically disqualified.");
@@ -330,7 +331,8 @@
 					if (data[0] === 'off') {
 						this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament's automatic start is now off.</div>");
 					} else if (data[0] === 'on') {
-						this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament will automatically start in " + (data[1] / 1000 / 60) + " minutes.</div>");
+						var minutes = (data[1] / 1000 / 60);
+						this.room.$chat.append("<div class=\"notice tournament-message-autostart\">The tournament will automatically start in " + minutes + " minute" + (minutes === 1 ? "" : "s") + ".</div>");
 					}
 					break;
 
