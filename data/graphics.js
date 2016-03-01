@@ -4206,7 +4206,7 @@ var BattleMoveAnims = {
 			}, {
 				x: defender.x,
 				y: defender.y,
-				z: defender.behind(0),
+				z: defender.behind(0)
 			}, 'ballistic', 'fade');
 			battle.showEffect(attacker.sp, {
 				x: defender.leftof(-10),
@@ -4217,7 +4217,7 @@ var BattleMoveAnims = {
 			}, {
 				x: defender.x,
 				y: defender.y,
-				z: defender.behind(0),
+				z: defender.behind(0)
 			}, 'ballistic', 'fade');
 			battle.showEffect('foot', {
 				x: defender.x,
