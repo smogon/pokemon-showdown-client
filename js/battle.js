@@ -4707,7 +4707,7 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' learned ' + Tools.escapeHTML(args[3]) + '!';
 					break;
 				case 'followme':
-				case 'ragepowder':
+				case 'ragepowder': // Deprecated, now uses -singleturn
 					actions += '' + poke.getName() + ' became the center of attention!';
 					break;
 				case 'powder':
@@ -4906,7 +4906,12 @@ var Battle = (function () {
 				case 'electrify':
 					actions += '' + poke.getName() + '\'s moves have been electrified!';
 					break;
+				case 'followme':
+				case 'ragepowder':
+					actions += '' + poke.getName() + ' became the center of attention!';
+					break;
 				}
+				poke.side.updateStatbar();
 				break;
 			case '-singlemove':
 				var poke = this.getPokemon(args[1]);
