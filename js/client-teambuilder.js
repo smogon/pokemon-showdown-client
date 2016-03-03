@@ -408,7 +408,12 @@
 
 			var $pane = this.$('.teampane');
 			$pane.html(buf);
-			if (resetScroll) $pane.scrollTop(0);
+			if (resetScroll) {
+				$pane.scrollTop(0);
+			} else if (this.teamScrollPos) {
+				$pane.scrollTop(this.teamScrollPos);
+				this.teamScrollPos = 0;
+			}
 		},
 		greeting: function (answer, button) {
 			var buf = '<p><strong>' + $(button).html() + '</p></strong>';
@@ -588,6 +593,7 @@
 			Storage.nwLoadTeams();
 		},
 		edit: function (i) {
+			this.teamScrollPos = this.$('.teampane').scrollTop();
 			if (i && i.currentTarget) {
 				i = $(i.currentTarget).data('value');
 			}
