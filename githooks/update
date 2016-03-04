@@ -19,10 +19,8 @@ var thisFile = __filename;
 var thisDir = __dirname;
 var rootDir = path.resolve(thisDir, '..');
 
-function toId (text) {
-	if (text && text.id) text = text.id;
-	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
-}
+const Tools = require('../data/Pokemon-Showdown/tools').includeData();
+const toId = Tools.getId;
 
 function updateIndex () {
 	var indexContents = fs.readFileSync(path.resolve(rootDir, 'index.template.html'), { encoding: 'utf8' });
@@ -102,14 +100,9 @@ function updateLearnsets (callback) {
 		return firstFragment + padNumString(levelFragment) + sortFragment;
 	};
 
-	var Pokedex, Learnsets, oldLearnsetsG6, newLearnsetsG6;
-	newLearnsetsG6 = {};
-	try {
-		Pokedex = require(path.join(rootDir, 'data', 'pokedex.js')).BattlePokedex;
-		Learnsets = require(path.join(rootDir, 'data', 'learnsets.js')).BattleLearnsets;
-	} catch (err) {
-		return callback(err);
-	}
+	const Pokedex = Tools.data.Pokedex;
+	const Learnsets = Tools.data.Learnsets;
+
 	try {
 		oldLearnsetsG6 = require(path.join(rootDir, 'data', 'learnsets-g6.js')).BattleLearnsets;
 	} catch (err) {
