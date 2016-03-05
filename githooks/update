@@ -102,6 +102,8 @@ function updateLearnsets (callback) {
 
 	const Pokedex = Tools.data.Pokedex;
 	const Learnsets = Tools.data.Learnsets;
+	var newLearnsetsG6 = {};
+	var oldLearnsetsG6;
 
 	try {
 		oldLearnsetsG6 = require(path.join(rootDir, 'data', 'learnsets-g6.js')).BattleLearnsets;

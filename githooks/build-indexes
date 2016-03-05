@@ -567,7 +567,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const Movedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
 	var buf = 'exports.BattleMovedex = ' + es3stringify(Movedex) + ';';
-	fs.writeFileSync(path.resolve(dataDir, 'search-index.js'), buf);
+	fs.writeFileSync(path.resolve(dataDir, 'moves.js'), buf);
 }
 
 /*********************************************************
