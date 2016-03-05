@@ -9,8 +9,8 @@
     "url": "https://github.com/Zarel/Pokemon-Showdown-Client.git"
   },
   "scripts": {
-    "test": "eslint --config=.eslintrc.js --cache --cache-file=eslint-cache/base js/*.js",
-    "fix": "eslint --config=.eslintrc.js --fix js/*.js"
+    "test": "eslint --config=.eslintrc.js --cache --cache-file=eslint-cache/base js/*.js data/*.js",
+    "fix": "eslint --config=.eslintrc.js --fix js/*.js data/*.js"
   },
   "dependencies": {},
   "devDependencies": {

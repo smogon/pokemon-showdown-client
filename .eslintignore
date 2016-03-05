@@ -1,0 +1,5 @@
+data/*
+!data/graphics.js
+!data/pokedex-mini.js
+!data/pokedex-mini-bw.js
+node_modules/
