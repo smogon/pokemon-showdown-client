@@ -14,6 +14,11 @@
 		<meta name="robots" content="noindex" />
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 		<script>
+			function loadRemoteData(src) {
+				var elem = document.createElement('script');
+				elem.src = src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/');
+				document.head.appendChild(elem);
+			}
 			var Config = {testclient: true};
 			(function() {
 				if (location.search !== '') {
@@ -82,8 +87,8 @@
 
 		<script src="https://play.pokemonshowdown.com/js/config.js"></script>
 		<script src="js/battledata.js"></script>
-		<script src="data/pokedex-mini.js"></script>
-		<script src="data/typechart.js"></script>
+		<script src="data/pokedex-mini.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/typechart.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="js/battle.js"></script>
 		<script src="js/lib/sockjs-0.3.4.min.js"></script>
 		<script src="js/lib/color-thief.min.js"></script>
@@ -111,16 +116,16 @@
 
 		<script src="js/lib/jquery.slider.min.js"></script>
 
-		<script src="data/pokedex.js"></script>
-		<script src="data/moves.js"></script>
-		<script src="data/items.js"></script>
-		<script src="data/abilities.js"></script>
+		<script src="data/pokedex.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/moves.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/items.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/abilities.js" onerror="loadRemoteData(this.src)"></script>
 
-		<script src="data/search-index.js"></script>
-		<script src="data/teambuilder-tables.js"></script>
+		<script src="data/search-index.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/teambuilder-tables.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="js/search.js"></script>
 
-		<script src="data/aliases.js" async="async"></script>
+		<script src="data/aliases.js" async="async" onerror="loadRemoteData(this.src)"></script>
 
 	</body>
 </html>
