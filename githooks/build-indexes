@@ -219,7 +219,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return template.tier;
 			})();
 			if (template.forme) {
-				if (template.baseSpecies in {Aegislash:1, Castform:1, Darmanitan:1, Meloetta:1}) {
+				if (template.baseSpecies in {Aegislash:1, Castform:1, Cherrim:1, Darmanitan:1, Meloetta:1}) {
 					continue;
 				}
 			}
