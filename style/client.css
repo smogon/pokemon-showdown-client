@@ -112,6 +112,9 @@ button:disabled {
 .dark a {
 	color: #4488EE;
 }
+.dark a:visited {
+	color: #AA81F2;
+}
 .dark a.button {
 	color: #222222;
 }
