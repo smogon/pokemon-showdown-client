@@ -3219,7 +3219,23 @@ var Battle = (function () {
 			if (kwargs.prepare || kwargs.anim === 'prepare') {
 				this.prepareMove(pokemon, move, target);
 			} else if (!kwargs.notarget) {
-				(kwargs.anim ? Tools.getMove(kwargs.anim) : move).anim(this, [pokemon.sprite, target.sprite]);
+				var usedMove = kwargs.anim ? Tools.getMove(kwargs.anim) : move;
+				if (kwargs.spread) {
+					var targets = [pokemon.sprite];
+					var hitPokemon = kwargs.spread.split(',');
+					if (hitPokemon[0] !== '.') {
+						for (var i = 0; i < hitPokemon.length; i++) {
+							targets.push(this.getPokemon(hitPokemon[i] + ': ?').sprite);
+						}
+					} else {
+						// if hitPokemon[0] === '.' then no target was hit by the attack
+						targets.push(target.side.missedPokemon.sprite);
+					}
+
+					usedMove.anim(this, targets);
+				} else {
+					usedMove.anim(this, [pokemon.sprite, target.sprite]);
+				}
 			}
 		}
 		pokemon.lastmove = move.id;
