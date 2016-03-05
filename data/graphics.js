@@ -8575,61 +8575,23 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.showEffect('icicle', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1,
-				opacity: 0.2
-			}, {
-				x: defender.x,
-				y: defender.y,
-				z: defender.behind(20),
-				opacity: 0.6,
-				time: 400
-			}, 'linear', 'explode');
-			battle.showEffect('icicle', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1,
-				opacity: 0.2,
-				time: 100
-			}, {
-				x: defender.x + 10,
-				y: defender.y - 5,
-				z: defender.behind(20),
-				opacity: 0.6,
-				time: 500
-			}, 'linear', 'explode');
-			battle.showEffect('icicle', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1,
-				opacity: 0.2,
-				time: 200
-			}, {
-				x: defender.x - 10,
-				y: defender.y + 5,
-				z: defender.behind(20),
-				opacity: 0.6,
-				time: 600
-			}, 'linear', 'explode');
-			battle.showEffect('icicle', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 0.5,
-				opacity: 0.2,
-				time: 300
-			}, {
-				x: defender.x,
-				y: defender.y - 5,
-				z: defender.behind(20),
-				opacity: 0.6,
-				time: 700
-			}, 'linear', 'explode');
+			var xstep = (defender.x - attacker.x) / 5;
+			var ystep = (defender.y - attacker.y) / 5;
+			var zstep = (defender.z - attacker.z) / 5;
+
+			for (var i = 0; i < 6; i++) {
+				battle.showEffect('icicle', {
+					x: attacker.x + xstep * (i + 1),
+					y: attacker.y + ystep * (i + 1),
+					z: attacker.z + zstep * (i + 1),
+					scale: 1.5,
+					opacity: 0.6,
+					time: 40 * i
+				}, {
+					opacity: 0,
+					time: 40 * i + 600
+				}, 'linear');
+			}
 		}
 	},
 	icywind: {
