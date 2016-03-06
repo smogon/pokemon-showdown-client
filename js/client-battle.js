@@ -3,7 +3,8 @@
 	var BattleRoom = this.BattleRoom = ConsoleRoom.extend({
 		type: 'battle',
 		title: '',
-		minWidth: 955,
+		minWidth: 320,
+		minMainWidth: 956,
 		maxWidth: 1180,
 		initialize: function (data) {
 			this.me = {};
@@ -64,7 +65,7 @@
 			return true;
 		},
 		updateLayout: function () {
-			var width = $(window).width();
+			var width = this.$el.width();
 			if (width < 950) {
 				this.battle.messageDelay = 800;
 			} else {
@@ -80,6 +81,8 @@
 				this.$foeHint.css('transform', 'none');
 				this.$controls.css('top', 370);
 			}
+			this.$el.toggleClass('small-layout', width < 830);
+			this.$el.toggleClass('tiny-layout', width < 640);
 			if (this.$chat) this.$chatFrame.scrollTop(this.$chat.height());
 		},
 		show: function () {

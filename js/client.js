@@ -1395,8 +1395,9 @@
 				}
 			} else if (this.curRoom.id === '') {
 				leftMin = this.curRoom.tinyWidth;
+				leftMinMain = leftMin;
 			}
-			if (available < leftMin + rightMin) {
+			if (available < leftMinMain + rightMin) {
 				if (this.curSideRoom) {
 					this.curSideRoom.hide();
 					this.curSideRoom = null;
@@ -1435,6 +1436,7 @@
 				var wanted = leftMax - leftMin + rightMax - rightMin;
 				if (wanted) leftWidth = Math.floor(leftMin + (leftMax - leftMin) * bufAvailable / wanted);
 			}
+			if (leftWidth < leftMinMain) leftWidth = leftMinMain;
 			this.curRoom.show('left', leftWidth);
 			this.curSideRoom.show('right', leftWidth);
 			this.topbar.updateTabbar();

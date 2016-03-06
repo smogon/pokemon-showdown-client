@@ -1686,16 +1686,14 @@ a.ilink.yours {
 .battle-chat-toggle {
 	display: none;
 }
-@media (max-width:639px) {
-	.ps-room .battle-controls {
-		left: 0;
-		right: 0;
-		width: auto;
-	}
-	.movecontrols, .switchcontrols {
-		max-width: 330px;
-		margin: 0 auto;
-	}
+.tiny-layout.ps-room .battle-controls {
+	left: 0;
+	right: 0;
+	width: auto;
+}
+.tiny-layout .movecontrols, .tiny-layout .switchcontrols {
+	max-width: 330px;
+	margin: 0 auto;
 }
 
 .battle-controls p {
@@ -1722,30 +1720,26 @@ a.ilink.yours {
 	color: #EE4433;
 	border-color: #EE4433;
 }
-@media (max-width:750px) {
-	.battle-log,
-	.battle-log-add {
-		display: none;
-	}
+.small-layout .battle-log,
+.small-layout .battle-log-add {
+	display: none;
 }
-@media (max-width:830px) {
-	.battle-chat-toggle {
-		display: block;
-		position: absolute;
-		top: 5px;
-		left: 6px;
-		font-size: 14px;
-		padding: 2px 5px;
-	}
-	.showing-chat .battle,
-	.showing-chat .battle-controls {
-		display: none;
-	}
-	.showing-chat .battle-log,
-	.showing-chat .battle-log-add {
-		left: 0;
-		display: block;
-	}
+.small-layout .battle-chat-toggle {
+	display: block;
+	position: absolute;
+	top: 5px;
+	left: 6px;
+	font-size: 14px;
+	padding: 2px 5px;
+}
+.small-layout.showing-chat .battle,
+.small-layout.showing-chat .battle-controls {
+	display: none;
+}
+.small-layout.showing-chat .battle-log,
+.small-layout.showing-chat .battle-log-add {
+	left: 0;
+	display: block;
 }
 .shiftselect button,
 .moveselect button,
