@@ -14,8 +14,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "eslint": "~1.10.3",
-    "sugar": "1.4.1"
+    "eslint": "~1.10.3"
   },
   "private": true
 }
