@@ -4726,7 +4726,7 @@ var Battle = (function () {
 				case 'ragepowder': // Deprecated, now uses -singleturn
 					actions += '' + poke.getName() + ' became the center of attention!';
 					break;
-				case 'powder':
+				case 'powder': // Deprecated, now uses -singleturn
 					actions += '' + poke.getName() + ' is covered in powder!';
 					break;
 
@@ -4925,6 +4925,9 @@ var Battle = (function () {
 				case 'followme':
 				case 'ragepowder':
 					actions += '' + poke.getName() + ' became the center of attention!';
+					break;
+				case 'powder':
+					actions += '' + poke.getName() + ' is covered in powder!';
 					break;
 				}
 				poke.side.updateStatbar();
