@@ -16,8 +16,6 @@ const fs = require('fs');
 const crypto = require('crypto');
 const exec = require('child_process').exec;
 
-require('sugar');
-
 const thisFile = __filename;
 const thisDir = __dirname;
 const rootDir = path.resolve(thisDir, '..');
@@ -160,14 +158,14 @@ function updateLearnsets(callback) {
 	}
 
 	const buf = [];
-	const pokemonList = Object.values(Pokedex).sort(function (a, b) {
+	const pokemonList = Object.keys(Pokedex).map(speciesId => Pokedex[speciesId]).sort(function (a, b) {
 		// Missingno. goes first (zeroth); afterwards, CAP in descending dex order (increasingly negative)
 		// Finally, standard Pokémon in ascending dex order
 		if (a.num <= 0 && b.num > 0) return -1;
 		if (b.num <= 0 && a.num > 0) return 1;
 		if (a.num <= 0 && b.num <= 0) return b.num - a.num;
 		return a.num - b.num;
-	}).map('species').map(toId);
+	}).map(template => toId(template.species));
 
 	for (let i = 0, len = pokemonList.length; i < len; i++) {
 		const entry = newLearnsetsG6[pokemonList[i]];
