@@ -27,6 +27,7 @@
 
 		this.resultSet = null;
 		this.filters = null;
+		this.sortCol = null;
 		this.renderedIndex = 0;
 		this.renderingDone = true;
 		this.cur = {};
@@ -52,6 +53,18 @@
 				}
 			}
 			if (self.$inputEl) self.$inputEl.focus();
+		});
+		this.$el.on('click', '.sortcol', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var sortCol = e.currentTarget.dataset.sort;
+			if (self.sortCol === sortCol) {
+				self.sortCol = null;
+			} else {
+				self.sortCol = sortCol;
+			}
+			self.q = undefined;
+			self.find('');
 		});
 	}
 
@@ -97,7 +110,7 @@
 		if (!query) {
 			// search field is blank, display default results
 
-			if (!this.filters && this.defaultResultSet) {
+			if (!this.filters && !this.sortCol && this.defaultResultSet) {
 				this.renderedIndex = 0;
 				this.renderingDone = false;
 				this.updateScroll();
@@ -384,6 +397,7 @@
 		if (!node.dataset.entry) return;
 		var entry = node.dataset.entry.split(':');
 		if (this.qType === 'pokemon') {
+			if (entry[0] === this.sortCol) this.sortCol = null;
 			if (entry[0] !== 'type' && entry[0] !== 'move' && entry[0] !== 'ability' && entry[0] !== 'egggroup' && entry[0] !== 'tier') return;
 			if (entry[0] === 'move') entry[1] = toId(entry[1]);
 			if (!this.filters) this.filters = [];
@@ -412,8 +426,8 @@
 		return true;
 	};
 	Search.prototype.allPokemon = function () {
-		if (this.filters) return this.filteredPokemon();
-		var resultSet = [];
+		if (this.filters || this.sortCol) return this.filteredPokemon();
+		var resultSet = [['sortpokemon', '']];
 		for (var id in BattlePokedex) {
 			switch (id) {
 			case 'bulbasaur':
@@ -469,6 +483,26 @@
 		this.renderingDone = false;
 		this.updateScroll();
 	};
+	Search.prototype.allTypes = function (resultSet) {
+		if (!resultSet) resultSet = [];
+		for (var id in window.BattleTypeChart) {
+			resultSet.push(['type', id]);
+		}
+		this.resultSet = resultSet;
+		this.renderedIndex = 0;
+		this.renderingDone = false;
+		this.updateScroll();
+	};
+	Search.prototype.allAbilities = function (resultSet) {
+		if (!resultSet) resultSet = [];
+		for (var id in BattleAbilities) {
+			resultSet.push(['ability', id]);
+		}
+		this.resultSet = resultSet;
+		this.renderedIndex = 0;
+		this.renderingDone = false;
+		this.updateScroll();
+	};
 	Search.prototype.getFilterText = function (q) {
 		var buf = '<p>Filters: ';
 		for (var i = 0; i < this.filters.length; i++) {
@@ -481,10 +515,19 @@
 		return buf + '</p>';
 	};
 	Search.prototype.filteredPokemon = function () {
-		var resultSet = [['html', this.getFilterText()]];
-		resultSet.push(['header', "Filtered results"]);
+		var resultSet = [];
+		var filters = this.filters || [];
+		var sortCol = this.sortCol;
+
+		this.resultSet = [['sortpokemon', '']];
+		if (filters.length) this.resultSet.push(['html', this.getFilterText()], ['header', "Filtered results"]);
+		if (sortCol === 'type') {
+			return this.allTypes(this.resultSet);
+		} else if (sortCol === 'ability') {
+			return this.allAbilities(this.resultSet);
+		}
+
 		var illegalResultSet = [];
-		var filters = this.filters;
 		var genChar = '' + this.gen;
 		for (var id in BattlePokedex) {
 			var template = BattlePokedex[id];
@@ -524,12 +567,33 @@
 			}
 			if (i < filters.length) continue;
 			if (this.legalityFilter && !(id in this.legalityFilter)) {
-				illegalResultSet.push(['pokemon', id]);
+				if (!sortCol) illegalResultSet.push(['pokemon', id]);
 			} else {
 				resultSet.push(['pokemon', id]);
 			}
 		}
-		this.resultSet = resultSet.concat(illegalResultSet);
+		if (sortCol === 'hp' || sortCol === 'atk' || sortCol === 'def' || sortCol === 'spa' || sortCol === 'spd' || sortCol === 'spe') {
+			resultSet = resultSet.sort(function (row1, row2) {
+				var stat1 = BattlePokedex[row1[1]].baseStats[sortCol];
+				var stat2 = BattlePokedex[row2[1]].baseStats[sortCol];
+				return stat2 - stat1;
+			});
+		} else if (sortCol === 'bst') {
+			resultSet = resultSet.sort(function (row1, row2) {
+				var base1 = BattlePokedex[row1[1]].baseStats;
+				var base2 = BattlePokedex[row2[1]].baseStats;
+				var bst1 = base1.hp + base1.atk + base1.def + base1.spa + base1.spd + base1.spe;
+				var bst2 = base2.hp + base2.atk + base2.def + base2.spa + base2.spd + base2.spe;
+				return bst2 - bst1;
+			});
+		} else if (sortCol === 'name') {
+			resultSet = resultSet.sort(function (row1, row2) {
+				var name1 = row1[1];
+				var name2 = row2[1];
+				return name1 < name2 ? -1 : name1 > name2 ? 1 : 0;
+			});
+		}
+		this.resultSet = this.resultSet.concat(resultSet, illegalResultSet);
 		this.renderedIndex = 0;
 		this.renderingDone = false;
 		this.updateScroll();
@@ -630,7 +694,10 @@
 	};
 	Search.prototype.setType = function (qType, format, set, cur) {
 		if (!format) format = '';
-		if (this.qType !== qType) this.filters = null;
+		if (this.qType !== qType) {
+			this.filters = null;
+			this.sortCol = null;
+		}
 		this.qType = qType;
 		this.q = undefined;
 		this.cur = cur || {};
@@ -806,6 +873,7 @@
 			if (i) this.defaultResultSet = [[qType, i]].concat(this.defaultResultSet);
 			break;
 		}
+		if (qType === 'pokemon') this.defaultResultSet = [['sortpokemon', '']].concat(this.defaultResultSet);
 
 		if (this.legalityFilter) {
 			for (var i = 0; i < this.defaultResultSet.length; i++) {
@@ -854,6 +922,8 @@
 			return '<li class="result">' + id + '</li>';
 		case 'header':
 			return '<li class="result"><h3>' + id + '</h3></li>';
+		case 'sortpokemon':
+			return this.renderPokemonSortRow();
 		case 'pokemon':
 			var pokemon = BattlePokedex[id];
 			return this.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage, attrs);
@@ -908,6 +978,22 @@
 			return this.renderCategoryRow(category, matchStart, matchLength, errorMessage);
 		}
 		return 'Error: not found';
+	};
+	Search.prototype.renderPokemonSortRow = function () {
+		var buf = '<li class="result"><div class="sortrow">';
+		buf += '<button class="sortcol numsortcol">Tier</button>';
+		buf += '<button class="sortcol pnamesortcol' + (this.sortCol === 'name' ? ' cur' : '') + '" data-sort="name">Name</button>';
+		buf += '<button class="sortcol typesortcol' + (this.sortCol === 'type' ? ' cur' : '') + '" data-sort="type">Types</button>';
+		buf += '<button class="sortcol abilitysortcol' + (this.sortCol === 'ability' ? ' cur' : '') + '" data-sort="ability">Abilities</button>';
+		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'hp' ? ' cur' : '') + '" data-sort="hp">HP</button>';
+		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'atk' ? ' cur' : '') + '" data-sort="atk">Atk</button>';
+		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'def' ? ' cur' : '') + '" data-sort="def">Def</button>';
+		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'spa' ? ' cur' : '') + '" data-sort="spa">SpA</button>';
+		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'spd' ? ' cur' : '') + '" data-sort="spd">SpD</button>';
+		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'spe' ? ' cur' : '') + '" data-sort="spe">Spe</button>';
+		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'bst' ? ' cur' : '') + '" data-sort="bst">BST</button>';
+		buf += '</div></li>';
+		return buf;
 	};
 	Search.prototype.renderPokemonRow = function (pokemon, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
