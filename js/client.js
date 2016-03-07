@@ -1169,6 +1169,7 @@
 		joinRoom: function (id, type, nojoin) {
 			if (this.rooms[id]) {
 				this.focusRoom(id);
+				if (this.rooms[id].rejoin) this.rooms[id].rejoin();
 				return this.rooms[id];
 			}
 			if (id.substr(0, 11) === 'battle-gen5' && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
