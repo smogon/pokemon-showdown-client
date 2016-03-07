@@ -3224,7 +3224,7 @@ var Battle = (function () {
 					var targets = [pokemon.sprite];
 					var hitPokemon = kwargs.spread.split(',');
 					if (hitPokemon[0] !== '.') {
-						for (var i = 0; i < hitPokemon.length; i++) {
+						for (var i = hitPokemon.length - 1; i >= 0; i--) {
 							targets.push(this.getPokemon(hitPokemon[i] + ': ?').sprite);
 						}
 					} else {
