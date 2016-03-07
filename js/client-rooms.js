@@ -157,6 +157,10 @@
 			this.$('button[name=refresh]').focus();
 			this.$el.scrollTop(prevPos);
 		},
+		rejoin: function () {
+			app.send('/cmd roomlist');
+			this.lastUpdate = new Date().getTime();
+		},
 		update: function (data) {
 			if (!data && !this.data) {
 				if (app.isDisconnected) {
