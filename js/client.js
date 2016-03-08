@@ -850,9 +850,18 @@
 				}
 				var name = parts[1];
 				var named = !!+parts[2];
+
+				var userid = toUserid(name);
+				if (userid === this.user.get('userid') && name !== this.user.get('name')) {
+					$.post(app.user.getActionPHP(), {
+						act: 'changeusername',
+						username: name
+					}, function () {}, 'text');
+				}
+
 				this.user.set({
 					name: name,
-					userid: toUserid(name),
+					userid: userid,
 					named: named,
 					avatar: parts[3]
 				});

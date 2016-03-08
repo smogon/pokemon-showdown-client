@@ -206,6 +206,22 @@ class DefaultActionHandler {
 		}
 	}
 
+	public function changeusername($dispatcher, &$reqData, &$out) {
+		global $users, $curuser;
+
+		if (!$_POST ||
+				!isset($reqData['username'])) {
+			$out['actionerror'] = 'Invalid request.';
+		} else if (!$curuser['loggedin']) {
+			$out['actionerror'] = 'Your session has expired. Please log in again.';
+		} else if (!$users->modifyUser($curuser['userid'], array(
+				'username' => $reqData['username']))) {
+			$out['actionerror'] = 'A database error occurred. Please try again.';
+		} else {
+			$out['actionsuccess'] = true;
+		}
+	}
+
 	public function logout($dispatcher, &$reqData, &$out) {
 		global $users, $curuser;
 
