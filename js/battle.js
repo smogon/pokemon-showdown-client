@@ -2162,6 +2162,7 @@ var Side = (function () {
 			electrify: '<span class="bad">Electrify</span>',
 			ragepowder: '<span class="good">Rage&nbsp;Powder</span>',
 			followme: '<span class="good">Follow&nbsp;Me</span>',
+			itemremoved: '',
 			// Gen 1
 			lightscreen: '<span class="good">Light&nbsp;Screen</span>',
 			reflect: '<span class="good">Reflect</span>'
@@ -4240,7 +4241,7 @@ var Battle = (function () {
 				poke.prevItem = item.name;
 				poke.prevItemEffect = '';
 				poke.removeVolatile('airballoon');
-
+				poke.addVolatile('itemremoved');
 				if (kwargs.silent) {
 					// do nothing
 				} else if (kwargs.eat) {
@@ -6013,6 +6014,7 @@ var Battle = (function () {
 			var poke = this.getPokemon('inactive: ' + args[1], args[2]);
 			var slot = poke.slot;
 			poke.healthParse(args[3]);
+			poke.removeVolatile('itemremoved');
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot]) {
 					poke.side.switchOut(poke.side.active[slot]);
