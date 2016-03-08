@@ -9,7 +9,7 @@
 		initialize: function (data) {
 			this.me = {};
 
-			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log"></div><div class="battle-log-add">Connecting...</div><div class="battle-controls"></div><button class="battle-chat-toggle button" name="showChat">Chat</button>');
+			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log"></div><div class="battle-log-add">Connecting...</div><div class="battle-controls"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>');
 
 			this.$battle = this.$el.find('.battle');
 			this.$controls = this.$el.find('.battle-controls');
@@ -46,11 +46,11 @@
 			app.send('/join ' + this.id);
 		},
 		showChat: function () {
-			this.$('.battle-chat-toggle').attr('name', 'hideChat').text('Battle');
+			this.$('.battle-chat-toggle').attr('name', 'hideChat').html('Battle <i class="fa fa-caret-right"></i>');
 			this.$el.addClass('showing-chat');
 		},
 		hideChat: function () {
-			this.$('.battle-chat-toggle').attr('name', 'showChat').text('Chat');
+			this.$('.battle-chat-toggle').attr('name', 'showChat').html('<i class="fa fa-caret-left"></i> Chat');
 			this.$el.removeClass('showing-chat');
 		},
 		leave: function () {
