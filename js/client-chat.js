@@ -327,11 +327,7 @@
 			var substituteUserId = candidate[0];
 			if (!users[substituteUserId]) return true;
 			var name = users[substituteUserId].substr(1);
-			var shortName = name.replace(/[^A-Za-z0-9]+$/, '');
-			if (shortName.indexOf('(') >= 0) {
-				shortName += name.slice(shortName.length).replace(/[^\(\)]+/g, '').replace(/\(\)/g, '');
-			}
-			name = shortName;
+			name = Tools.getShortName(name);
 			var fullPrefix = this.tabComplete.prefix.substr(0, candidate[1]) + name;
 			$textbox.val(fullPrefix + text.substr(idx));
 			var pos = fullPrefix.length;

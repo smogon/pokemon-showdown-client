@@ -803,6 +803,14 @@ var Tools = {
 		return undefined;
 	},
 
+	getShortName: function (name) {
+		var shortName = name.replace(/[^A-Za-z0-9]+$/, '');
+		if (shortName.indexOf('(') >= 0) {
+			shortName += name.slice(shortName.length).replace(/[^\(\)]+/g, '').replace(/\(\)/g, '');
+		}
+		return shortName;
+	},
+
 	getEffect: function (effect) {
 		if (!effect || typeof effect === 'string') {
 			var name = $.trim(effect || '');
