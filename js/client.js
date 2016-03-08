@@ -1357,8 +1357,15 @@
 			room.focus();
 			return;
 		},
+		/**
+		 * This is the function for handling the two-panel layout
+		 */
 		updateLayout: function () {
 			if (!this.curRoom) return; // can happen during initialization
+
+			// If we don't have any right rooms at all, just show the left
+			// room in full. Home is a left room, so we'll always have a
+			// left room.
 			if (!this.sideRoom) {
 				this.curRoom.show('full');
 				if (this.curRoom.id === '') {
@@ -1371,9 +1378,13 @@
 				this.topbar.updateTabbar();
 				return;
 			}
+
+			// The rest of this code assumes we have a right room (sideRoom)
+
 			var leftMin = (this.curRoom.minWidth || this.curRoom.bestWidth);
 			var leftMinMain = (this.curRoom.minMainWidth || leftMin);
 			var rightMin = (this.sideRoom.minWidth || this.sideRoom.bestWidth);
+			var rightMinMain = (this.sideRoom.minMainWidth || leftMin);
 			var available = $(window).width();
 			if (this.curRoom.isSideRoom) {
 				// we're trying to focus a side room
@@ -1384,7 +1395,8 @@
 					leftMin = this.curRoom.tinyWidth;
 					rightMin = (this.sideRoom.minWidth || this.sideRoom.bestWidth);
 				} else if (this.sideRoom) {
-					// nooo
+					// nooo, doesn't fit
+					// show the side room in full
 					if (this.curSideRoom) {
 						this.curSideRoom.hide();
 						this.curSideRoom = null;
@@ -1397,7 +1409,13 @@
 				leftMin = this.curRoom.tinyWidth;
 				leftMinMain = leftMin;
 			}
+
+			// curRoom and sideRoom are now set so that curRoom is the left
+			// room and sideRoom is the intended right room
+
 			if (available < leftMinMain + rightMin) {
+				// curRoom and sideRoom don't fit next to each other, so show
+				// only curRoom
 				if (this.curSideRoom) {
 					this.curSideRoom.hide();
 					this.curSideRoom = null;
@@ -1426,6 +1444,15 @@
 				this.curRoom.$el.removeClass('tiny-layout');
 			}
 
+			// Formula for calculating exactly how much width the left and
+			// right rooms should get. We start by giving each room their
+			// minimum, and then increasing the left room's width
+			// proportionally to how much they want to increase.
+
+			// The left room's width is capped by its maxWidth, but the right
+			// room's isn't. All rooms need to handle any width at all;
+			// maxWidth applies only to left rooms.
+
 			var leftMax = (this.curRoom.maxWidth || this.curRoom.bestWidth);
 			var rightMax = (this.sideRoom.maxWidth || this.sideRoom.bestWidth);
 			var leftWidth = leftMin;
@@ -1434,9 +1461,17 @@
 			} else {
 				var bufAvailable = available - leftMin - rightMin;
 				var wanted = leftMax - leftMin + rightMax - rightMin;
-				if (wanted) leftWidth = Math.floor(leftMin + (leftMax - leftMin) * bufAvailable / wanted);
+				if (wanted > 0) leftWidth = Math.floor(leftMin + (leftMax - leftMin) * bufAvailable / wanted);
 			}
-			if (leftWidth < leftMinMain) leftWidth = leftMinMain;
+			if (leftWidth < leftMinMain) {
+				leftWidth = leftMinMain;
+			}
+			if (this.curRoom.type === 'battle' && this.sideRoom.type === 'chat') {
+				// I give up; hardcoding
+				var offset = Math.floor((available - leftMinMain - rightMin) / 2);
+				if (offset > 0) leftWidth += offset;
+				if (leftWidth > leftMax) leftWidth = leftMax;
+			}
 			this.curRoom.show('left', leftWidth);
 			this.curSideRoom.show('right', leftWidth);
 			this.topbar.updateTabbar();
