@@ -3229,7 +3229,7 @@ var Battle = (function () {
 						}
 					} else {
 						// if hitPokemon[0] === '.' then no target was hit by the attack
-						targets.push(target.side.missedPokemon.sprite);
+						targets.push(target.sprite.elem ? target.side.missedPokemon.sprite : target.sprite);
 					}
 
 					usedMove.anim(this, targets);
