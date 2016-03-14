@@ -2279,6 +2279,7 @@ var Battle = (function () {
 
 	Battle.prototype.resultWaiting = false;
 	Battle.prototype.multiHitMove = null;
+	Battle.prototype.activeMoveIsSpread = null;
 
 	// callback
 	Battle.prototype.faintCallback = null;
@@ -2422,6 +2423,7 @@ var Battle = (function () {
 		// activity queue state
 		this.animationDelay = 0;
 		this.multiHitMove = null;
+		this.activeMoveIsSpread = null;
 		this.activityStep = 0;
 		this.activityDelay = 0;
 		this.activityAfter = null;
@@ -3222,6 +3224,7 @@ var Battle = (function () {
 			} else if (!kwargs.notarget) {
 				var usedMove = kwargs.anim ? Tools.getMove(kwargs.anim) : move;
 				if (kwargs.spread) {
+					this.activeMoveIsSpread = kwargs.spread;
 					var targets = [pokemon.sprite];
 					var hitPokemon = kwargs.spread.split(',');
 					if (hitPokemon[0] !== '.') {
@@ -3787,21 +3790,21 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				for (var j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[i + j][0][1]);
 				if (poke) this.resultAnim(poke, 'Critical hit', 'bad');
-				actions += "A critical hit! ";
+				actions += "A critical hit" + (this.activeMoveIsSpread ? " on " + poke.getLowerName() : "") + "! ";
 				break;
 
 			case '-supereffective':
 				var poke = this.getPokemon(args[1]);
 				for (var j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[i + j][0][1]);
 				if (poke) this.resultAnim(poke, 'Super-effective', 'bad');
-				actions += "It's super effective! ";
+				actions += "It's super effective" + (this.activeMoveIsSpread ? " on " + poke.getLowerName() : "") + "! ";
 				break;
 
 			case '-resisted':
 				var poke = this.getPokemon(args[1]);
 				for (var j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[i + j][0][1]);
 				if (poke) this.resultAnim(poke, 'Resisted', 'neutral');
-				actions += "It's not very effective... ";
+				actions += "It's not very effective" + (this.activeMoveIsSpread ? " on " + poke.getLowerName() : "..") + ". ";
 				break;
 
 			case '-immune':
@@ -6196,6 +6199,7 @@ var Battle = (function () {
 			this.activityStep--;
 			this.resultWaiting = false;
 			this.multiHitMove = null;
+			this.activeMoveIsSpread = null;
 			return true;
 		}
 		return false;
