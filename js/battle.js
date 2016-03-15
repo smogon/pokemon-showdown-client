@@ -5377,6 +5377,16 @@ var Battle = (function () {
 					actions += "It created a bizarre area in which Pok&#xE9;mon's held items lose their effects!";
 					break;
 				case 'gravity':
+					if (!this.fastForward) {
+						for (var i = 0; i < this.mySide.active.length; i++) {
+							if (this.mySide.active[i]) {
+								BattleOtherAnims.gravity.anim(this, [this.mySide.active[i].sprite]);
+							}
+							if (this.yourSide.active[i]) {
+								BattleOtherAnims.gravity.anim(this, [this.yourSide.active[i].sprite]);
+							}
+						}
+					}
 					actions += "Gravity intensified!";
 					break;
 				case 'mudsport':
