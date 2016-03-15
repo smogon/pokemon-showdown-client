@@ -513,7 +513,7 @@ var BattleTooltips = (function () {
 		if (ability === 'toxicboost' && (pokemon.status === 'tox' || pokemon.status === 'psn')) {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
-		if (ability === 'purepower' || pokemon.ability === 'hugepower') {
+		if (ability === 'purepower' || ability === 'hugepower') {
 			stats.atk *= 2;
 		}
 		if (ability === 'hustle') {
@@ -541,22 +541,22 @@ var BattleTooltips = (function () {
 			}
 		}
 		if (ability === 'defeatist' && myPokemon.hp <= myPokemon.maxhp / 2) {
-			stats.atk = Math.floor(stats.atk * 1.5);
-			stats.spa = Math.floor(stats.spa * 1.5);
+			stats.atk = Math.floor(stats.atk * 0.5);
+			stats.spa = Math.floor(stats.spa * 0.5);
 		}
 		if (pokemon.volatiles) {
 			if ('slowstart' in pokemon.volatiles && (statName === 'atk' || statName === 'spe')) {
-				stats.atk = Math.floor(stats.atk * 1.5);
-				stats.spa = Math.floor(stats.spa * 1.5);
+				stats.atk = Math.floor(stats.atk * 0.5);
+				stats.spe = Math.floor(stats.spe * 0.5);
 			}
-			if (ability === 'Unburden' && 'itemremoved' in pokemon.volatiles) {
+			if (ability === 'unburden' && 'itemremoved' in pokemon.volatiles) {
 				stats.spe *= 2;
 			}
 		}
 		if (ability === 'marvelscale' && pokemon.status) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		if (item === 'Eviolite' && Tools.getTemplate(pokemon.name).evos) {
+		if (item === 'eviolite' && Tools.getTemplate(pokemon.name).evos) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
@@ -597,7 +597,7 @@ var BattleTooltips = (function () {
 			stats.spd *= 2;
 		}
 		if (item === 'choicescarf') {
-			stats.spd = Math.floor(stats.spd * 1.5);
+			stats.spe = Math.floor(stats.spe * 1.5);
 		}
 		if (item === 'ironball' || item === 'machobrace') {
 			stats.spe = Math.floor(stats.spe * 0.5);
