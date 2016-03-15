@@ -545,7 +545,7 @@ var BattleTooltips = (function () {
 			stats.spa = Math.floor(stats.spa * 0.5);
 		}
 		if (pokemon.volatiles) {
-			if ('slowstart' in pokemon.volatiles && (statName === 'atk' || statName === 'spe')) {
+			if ('slowstart' in pokemon.volatiles) {
 				stats.atk = Math.floor(stats.atk * 0.5);
 				stats.spe = Math.floor(stats.spe * 0.5);
 			}
