@@ -512,7 +512,7 @@ var BattleTooltips = (function () {
 				if (ability === 'Toxic Boost' && (pokemon.status === 'tox' || pokemon.status === 'psn') && statName === 'atk') {
 					modifier = modifier * 1.5;
 				}
-				if (ability === 'Pure Power' || pokemon.ability === 'Huge Power' && statName === 'atk') {
+				if ((ability === 'Pure Power' || pokemon.ability === 'Huge Power') && statName === 'atk') {
 					modifier = modifier * 2;
 				}
 				if (ability === 'Hustle' && statName === 'atk') {
