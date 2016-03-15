@@ -418,231 +418,192 @@ var BattleTooltips = (function () {
 		return text;
 	};
 
-	BattleTooltips.prototype.findModifier = function (pokemon, myPokemon, statName) {
-		var modifier = 1;
-		if (pokemon.boosts) {
-			if (pokemon.boosts[statName]) {
-				if (pokemon.boosts[statName] > 0) {
-					var goodBoostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
-					// var goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
-					modifier = goodBoostTable[pokemon.boosts[statName]];
-				} else {
-					var badBoostTable = [1, 0.67, 0.5, 0.4, 0.33, 0.29, 0.25];
-					// var badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
-					modifier =  badBoostTable[-pokemon.boosts[statName]];
-				}
+	BattleTooltips.prototype.calculateModifiedStats = function (pokemon, myPokemon) {
+		var stats = {};
+		for (var statName in myPokemon.stats) {
+			stats[statName] = myPokemon.stats[statName];
 
+			if (pokemon.boosts && pokemon.boosts[statName]) {
+				var boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
+				if (pokemon.boosts[statName] > 0) {
+					stats[statName] *= boostTable[pokemon.boosts[statName]];
+				} else {
+					stats[statName] /= boostTable[-pokemon.boosts[statName]];
+				}
+				stats[statName] = Math.floor(stats[statName]);
 			}
 		}
 
 		// check for burn, paralysis, guts, quick feet
 		if (pokemon.status) {
-			if (statName === 'atk') {
-				if (this.battle.gen > 2 && pokemon.ability === 'Guts')  {
-					modifier = modifier * 1.5;
-				} else if (pokemon.status === 'brn') {
-					modifier = modifier * 0.5;
-				}
+			if (this.battle.gen > 2 && pokemon.ability === 'Guts')  {
+				stats.atk = Math.floor(stats.atk * 1.5);
+			} else if (pokemon.status === 'brn') {
+				stats.atk = Math.floor(stats.atk * 0.5);
 			}
 
-			if (statName === 'spe') {
-				if (this.battle.gen > 2 && pokemon.ability === 'Quick Feet') {
-					modifier = modifier * 1.5;
-				} else if (pokemon.status === 'par') {
-					modifier = modifier * 0.25;
+			if (this.battle.gen > 2 && pokemon.ability === 'Quick Feet') {
+				stats.spe = Math.floor(stats.spe * 1.5);
+			} else if (pokemon.status === 'par') {
+				stats.spe = Math.floor(stats.spe * 0.25);
+			}
+		}
+
+		// gen 1 doesn't support items
+		if (this.battle.gen <= 1) {
+			for (var statName in stats) {
+				if (stats[statName] > 999) stats[statName] = 999;
+			}
+			return stats;
+		}
+
+		var item = toId(myPokemon.item);
+		var species = pokemon.baseSpecies;
+
+		// check for light ball, thick club, metal/quick powder
+		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
+		if (item === 'lightball' && species === 'Pikachu') {
+			stats.atk *= 2;
+			stats.spa *= 2;
+		}
+
+		if (item === 'thickclub') {
+			if (species === 'Marowak' || species === 'Cubone') {
+				stats.atk *= 2;
+			}
+		}
+
+		if (species === 'Ditto' && !('transform' in pokemon.volatiles)) {
+			if (item === 'quickpowder') {
+				stats.spe *= 2;
+			}
+			if (item === 'metalpowder') {
+				stats.def = Math.floor(stats.def * 1.5);
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+		}
+
+		// check abilities other than Guts and Quick Feet
+		// check items other than light ball, thick club, metal/quick powder
+		if (this.battle.gen <= 2) {
+			return stats;
+		}
+
+		var ability = toId(pokemon.ability || myPokemon.baseAbility);
+		if ('gastroacid' in pokemon.volatiles) ability = '';
+
+		var weather = this.battle.weather;
+		if (weather) {
+			// Check if anyone has an anti-weather ability
+			for (var i = 0; i < this.battle.p1.active.length; i++) {
+				if (this.battle.p1.active[i] && this.battle.p1.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+					weather = '';
+					break;
+				}
+				if (this.battle.p2.active[i] && this.battle.p2.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+					weather = '';
+					break;
 				}
 			}
 		}
 
-		// gen 1 stuff doesn’t work yet
-		if (this.battle.gen > 1) {
-			var item = '';
-			if (myPokemon.item) {
-				item = Tools.getItem(myPokemon.item).name;
+		if (item === 'choiceband') {
+			stats.atk = Math.floor(stats.atk * 1.5);
+		}
+		if (ability === 'toxicboost' && (pokemon.status === 'tox' || pokemon.status === 'psn')) {
+			stats.atk = Math.floor(stats.atk * 1.5);
+		}
+		if (ability === 'purepower' || pokemon.ability === 'hugepower') {
+			stats.atk *= 2;
+		}
+		if (ability === 'hustle') {
+			stats.atk = Math.floor(stats.atk * 1.5);
+		}
+		if (weather) {
+			if (ability === 'flowergift' && (weather === 'sunnyday' || weather === 'desolateland')) {
+				stats.atk = Math.floor(stats.atk * 1.5);
+				stats.spd = Math.floor(stats.spd * 1.5);
 			}
-
-
-			// check for light ball, thick club, metal/quick powder
-			// the only stat modifying items in gen 2 were light ball, thick club, metal powder. gen 1 had none
-			if (item === 'Light Ball') {
-				if (pokemon.baseSpecies === 'Pikachu' && (statName === 'atk' || statName === 'spa')) {
-					modifier = modifier * 2;
-				}
+			if (ability === 'solarpower' && (weather === 'sunnyday' || weather === 'desolateland')) {
+				stats.spa = Math.floor(stats.spa * 1.5);
 			}
-
-			if (item === 'Thick Club') {
-				if ((pokemon.baseSpecies === 'Marowak' || pokemon.baseSpecies === 'Cubone') && statName === 'atk') {
-					modifier = modifier * 2;
-				}
+			if ((pokemon.types[0] === 'Rock' || pokemon.types[1] === 'Rock') && weather === 'sandstorm') {
+				stats.spd = Math.floor(stats.spd * 1.5);
 			}
-
-			if (pokemon.baseSpecies === 'Ditto') {
-				if (!('transform' in pokemon.volatiles)) {
-					if (item === 'Quick Powder' && statName === 'spe') {
-						modifier = modifier * 2;
-					}
-					if (item === 'Metal Powder' && (statName === 'spd' || statName === 'def')) {
-						modifier = modifier * 1.5;
-					}
-
-				}
+			if (ability === 'chlorophyll' && (weather === 'sunnyday' || weather === 'desolateland')) {
+				stats.spe *= 2;
 			}
-
-			// check abilities other than Guts and Quick Feet
-			// check items other than light ball, thick club, metal/quick powder
-			if (this.battle.gen > 2) {
-				var ability = Tools.getAbility(myPokemon.baseAbility).name;
-				if (this.battle.weather) {
-					// Check if you have an anti weather ability
-					var noWeatherAbility = !!(ability in {'Air Lock': 1, 'Cloud Nine': 1});
-					// If you don't, check if the opponent has it afterwards.
-					if (!noWeatherAbility) {
-						for (var i = 0; i < this.battle.yourSide.active.length; i++) {
-							if (this.battle.yourSide.active[i] && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
-								noWeatherAbility = true;
-								break;
-							}
-						}
-					}
-				}
-
-				if (item === 'Choice Band' && statName === 'atk') {
-					modifier = modifier * 1.5;
-				}
-				if (ability === 'Toxic Boost' && (pokemon.status === 'tox' || pokemon.status === 'psn') && statName === 'atk') {
-					modifier = modifier * 1.5;
-				}
-				if ((ability === 'Pure Power' || pokemon.ability === 'Huge Power') && statName === 'atk') {
-					modifier = modifier * 2;
-				}
-				if (ability === 'Hustle' && statName === 'atk') {
-					modifier = modifier * 1.5;
-				}
-				if (this.battle.weather) {
-					if (!noWeatherAbility) {
-						if (ability === 'Flower Gift' && (statName === 'atk' || statName === 'spd') && (this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland')) {
-							modifier = modifier * 1.5;
-						}
-						if (ability === 'Solar Power' && (this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland') && statName === 'spa') {
-							modifier = modifier * 1.5;
-						}
-						if ((pokemon.types[0] === 'Rock' || pokemon.types[1] === 'Rock') && this.battle.weather === 'sandstorm' && statName === 'spd') {
-							modifier = modifier * 1.5;
-						}
-						if (statName === 'spe') {
-							if (ability === 'Chlorophyll' && (this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland')) {
-								modifier = modifier * 2;
-							}
-							if (ability === 'Swift Swim' && (this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea')) {
-								modifier = modifier * 2;
-							}
-							if (ability === 'Sand Rush' && this.battle.weather === 'sandstorm') {
-								modifier = modifier * 2;
-							}
-						}
-					}
-				}
-				if (ability === 'Defeatist' && (statName === 'atk' || statName === 'spa') && myPokemon.hp <= myPokemon.maxhp / 2) {
-					modifier = modifier * 0.5;
-				}
-				if (pokemon.volatiles) {
-					for (var volatile in pokemon.volatiles) {
-						if (volatile === 'slowstart' && (statName === 'atk' || statName === 'spe')) {
-							modifier = modifier * 0.5;
-						}
-						if (ability === 'Unburden' && volatile === 'itemremoved' && statName === 'spe') {
-							modifier = modifier * 2;
-						}
-
-					}
-				}
-				if (ability === 'Marvel Scale' && pokemon.status && statName === 'def') {
-					modifier = modifier * 1.5;
-				}
-				if (item === 'Eviolite' && (statName === 'def' || statName === 'spd')) {
-					if (Tools.getTemplate(pokemon.name).evos) {
-						modifier = modifier * 1.5;
-					}
-				}
-				if (this.battle.hasPseudoWeather('Grassy Terrain') && ability === 'Grass Pelt' && statName === 'def') {
-					modifier = modifier * 1.5;
-				}
-				if (item === 'Choice Specs' && statName === 'spa') {
-					modifier = modifier * 1.5;
-				}
-				if (ability === 'Flare Boost' && pokemon.status === 'brn' && statName === 'spa') {
-					modifier = modifier * 1.5;
-				}
-				if (item === 'DeepSeaTooth' && pokemon.baseSpecies === 'Clamperl' && statName === 'spa') {
-					modifier = modifier * 2;
-				}
-				if (item === 'Soul Dew' && (pokemon.baseSpecies === 'Latios' || pokemon.baseSpecies === 'Latias') && (statName === 'spa' || statName === 'spd')) {
-					modifier = modifier * 1.5;
-				}
-				if ((ability === 'Plus' || ability === 'Minus') && statName === 'spa') {
-					var allyActive = pokemon.side.active;
-					if (allyActive.length > 1) {
-						if (this.battle.gen > 4) {
-							for (var i = 0; i < allyActive.length; i++) {
-								if (allyActive[i] && allyActive[i].searchid !== pokemon.searchid && !allyActive[i].fainted && (allyActive[i].ability === 'Plus' || allyActive[i].ability === 'Minus')) {
-									modifier = modifier * 1.5;
-									break;
-								}
-							}
-						} else {
-							if (ability === 'Plus') {
-								for (var i = 0; i < allyActive.length; i++) {
-									if (allyActive[i] && !allyActive[i].fainted && allyActive[i].ability === 'Minus') {
-										modifier = modifier * 1.5;
-									}
-								}
-							}
-							if (ability === 'Minus') {
-								for (var i = 0; i < allyActive.length; i++) {
-									if (allyActive[i] && !allyActive[i].fainted && allyActive[i].ability === 'Plus') {
-										modifier = modifier * 1.5;
-									}
-								}
-							}
-						}
-					}
-				}
-				if (item === 'Assault Vest' && statName === 'spd') {
-					modifier = modifier * 1.5;
-				}
-				if (item === 'DeepSeaScale' && statName === 'spd') {
-					if (pokemon.baseSpecies === 'Clamperl') {
-						modifier = modifier * 2;
-					}
-				}
-				if (item === 'Choice Scarf' && statName === 'spe') {
-					modifier = modifier * 1.5;
-				}
-				if ((item === 'Iron Ball' || item === 'Macho Brace') && statName === 'spe') {
-					modifier = modifier * 0.5;
+			if (ability === 'swiftswim' && (weather === 'raindance' || weather === 'primordialsea')) {
+				stats.spe *= 2;
+			}
+			if (ability === 'sandrush' && weather === 'sandstorm') {
+				stats.spe *= 2;
+			}
+		}
+		if (ability === 'defeatist' && myPokemon.hp <= myPokemon.maxhp / 2) {
+			stats.atk = Math.floor(stats.atk * 1.5);
+			stats.spa = Math.floor(stats.spa * 1.5);
+		}
+		if (pokemon.volatiles) {
+			if ('slowstart' in pokemon.volatiles && (statName === 'atk' || statName === 'spe')) {
+				stats.atk = Math.floor(stats.atk * 1.5);
+				stats.spa = Math.floor(stats.spa * 1.5);
+			}
+			if (ability === 'Unburden' && 'itemremoved' in pokemon.volatiles) {
+				stats.spe *= 2;
+			}
+		}
+		if (ability === 'marvelscale' && pokemon.status) {
+			stats.def = Math.floor(stats.def * 1.5);
+		}
+		if (item === 'Eviolite' && Tools.getTemplate(pokemon.name).evos) {
+			stats.def = Math.floor(stats.def * 1.5);
+			stats.spd = Math.floor(stats.spd * 1.5);
+		}
+		if (ability === 'grasspelt' && this.battle.hasPseudoWeather('grassyterrain')) {
+			stats.def = Math.floor(stats.def * 1.5);
+		}
+		if (item === 'choicespecs') {
+			stats.spa = Math.floor(stats.spa * 1.5);
+		}
+		if (ability === 'flareboost' && pokemon.status === 'brn') {
+			stats.spa = Math.floor(stats.spa * 1.5);
+		}
+		if (item === 'deepseatooth' && species === 'Clamperl') {
+			stats.spa *= 2;
+		}
+		if (item === 'souldew' && (species === 'Latios' || species === 'Latias')) {
+			stats.spa = Math.floor(stats.spa * 1.5);
+			stats.spd = Math.floor(stats.spd * 1.5);
+		}
+		if (ability === 'plus' || ability === 'minus') {
+			var allyActive = pokemon.side.active;
+			if (allyActive.length > 1) {
+				var abilityName = (ability === 'plus' ? 'Plus' : 'Minus');
+				for (var i = 0; i < allyActive.length; i++) {
+					var ally = allyActive[i];
+					if (!(ally && ally !== pokemon && !ally.fainted)) continue;
+					if (!(ally.ability === 'Plus' || ally.ability === 'Minus')) continue;
+					if (this.battle.gen <= 4 && ally.ability === abilityName) continue;
+					stats.spa = Math.floor(stats.spa * 1.5);
+					break;
 				}
 			}
 		}
-
-		return modifier;
-	};
-
-	BattleTooltips.prototype.calculateModifiedStats = function (pokemon, myPokemon) {
-		var modifiedStats = {};
-		if (this.battle.gen === 1) {
-			modifiedStats = {atk: Math.max(Math.floor(myPokemon.stats['atk'] * this.findModifier(pokemon, myPokemon, 'atk')), 999),
-							 def: Math.max(Math.floor(myPokemon.stats['def'] * this.findModifier(pokemon, myPokemon, 'def')), 999),
-							 spa: Math.max(Math.floor(myPokemon.stats['spa'] * this.findModifier(pokemon, myPokemon, 'spa')), 999),
-							 spe: Math.max(Math.floor(myPokemon.stats['spe'] * this.findModifier(pokemon, myPokemon, 'spe')), 999)};
-
-		} else {
-			modifiedStats = {atk: Math.floor(myPokemon.stats['atk'] * this.findModifier(pokemon, myPokemon, 'atk')),
-							 def: Math.floor(myPokemon.stats['def'] * this.findModifier(pokemon, myPokemon, 'def')),
-							 spa: Math.floor(myPokemon.stats['spa'] * this.findModifier(pokemon, myPokemon, 'spa')),
-							 spd: Math.floor(myPokemon.stats['spd'] * this.findModifier(pokemon, myPokemon, 'spd')),
-							 spe: Math.floor(myPokemon.stats['spe'] * this.findModifier(pokemon, myPokemon, 'spe'))};
+		if (item === 'assaultvest') {
+			stats.spd = Math.floor(stats.spd * 1.5);
 		}
-		return modifiedStats;
+		if (item === 'deepseascale' && species === 'Clamperl') {
+			stats.spd *= 2;
+		}
+		if (item === 'choicescarf') {
+			stats.spd = Math.floor(stats.spd * 1.5);
+		}
+		if (item === 'ironball' || item === 'machobrace') {
+			stats.spe = Math.floor(stats.spe * 0.5);
+		}
+
+		return stats;
 	};
 
 	BattleTooltips.prototype.makeModifiedStatText = function (myPokemon, modifiedStats) {
