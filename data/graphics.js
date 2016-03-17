@@ -11171,7 +11171,7 @@ var BattleMoveAnims = {
 	stealthrock: {
 		anim: function (battle, args) {
 			var attacker = args[0];
-			var defender = args[1];
+			var defender = battle.sides[args[1].siden];
 
 			battle.showEffect('rock1', {
 				x: attacker.x,
@@ -11242,7 +11242,7 @@ var BattleMoveAnims = {
 				scale: 0.1,
 				opacity: 0.5
 			}, {
-				x: defender.x - 25,
+				x: -25,
 				y: defender.y - 40,
 				z: defender.z,
 				scale: .3,
@@ -11256,7 +11256,7 @@ var BattleMoveAnims = {
 				opacity: 0.5,
 				time: 125
 			}, {
-				x: defender.x + 50,
+				x: +50,
 				y: defender.y - 40,
 				z: defender.z,
 				scale: .3,
@@ -11270,7 +11270,7 @@ var BattleMoveAnims = {
 				opacity: 0.5,
 				time: 250
 			}, {
-				x: defender.x + 30,
+				x: +30,
 				y: defender.y - 45,
 				z: defender.z,
 				scale: .3,
@@ -11290,7 +11290,7 @@ var BattleMoveAnims = {
 				scale: 0.1,
 				opacity: 0.5
 			}, {
-				x: defender.x + 5,
+				x: +5,
 				y: defender.y - 40,
 				z: defender.z,
 				scale: .3,
@@ -11304,7 +11304,7 @@ var BattleMoveAnims = {
 				opacity: 0.5,
 				time: 200
 			}, {
-				x: defender.x - 15,
+				x: -15,
 				y: defender.y - 35,
 				z: defender.z,
 				scale: .3,
@@ -11324,7 +11324,7 @@ var BattleMoveAnims = {
 				scale: 0.1,
 				opacity: 0.5
 			}, {
-				x: defender.x,
+				x: 0,
 				y: defender.y,
 				z: defender.z,
 				scale: 0.5,
