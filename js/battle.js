@@ -794,7 +794,7 @@ var Sprite = (function () {
 		return this.y + (this.isBackSprite ? 1 : -1) * offset;
 	};
 	Sprite.prototype.leftof = function (offset) {
-		return (this.isBackSprite ? -1 : 1) * offset;
+		return this.x + (this.isBackSprite ? -1 : 1) * offset;
 	};
 	Sprite.prototype.behind = function (offset) {
 		return this.z + (this.isBackSprite ? -1 : 1) * offset;
