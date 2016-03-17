@@ -661,16 +661,19 @@ License: GPLv2
 	display: block;
 	width: 24px;
 	height: 24px;
+	image-rendering: pixelated;
 }
 .pokemonicon {
 	display: block;
 	width: 32px;
 	height: 24px;
+	image-rendering: pixelated;
 }
 .picon {
 	display: block;
 	width: 40px;
 	height: 30px;
+	image-rendering: pixelated;
 }
 
 /*********************************************************
