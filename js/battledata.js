@@ -573,7 +573,7 @@ var Tools = {
 					if (slashIndex - 4 > 19 + 3) uri = uri.slice(0, 19) + '<small class="message-overflow">' + uri.slice(19, slashIndex - 4) + '</small>' + uri.slice(slashIndex - 4);
 				}
 				return '<a href="' + fulluri +
-					'" target="_blank" onclick="' + onclick + '">' + uri + '</a>';
+					'" target="_blank" onclick="' + onclick + '" rel="noopener">' + uri + '</a>';
 			});
 			// google [blah]
 			//   Google search for 'blah'
