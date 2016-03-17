@@ -1466,7 +1466,7 @@
 			}
 			for (var i = 0; i < this.curSetList.length; i++) {
 				var set = this.curSetList[i];
-				var pokemonicon = '<span class="pokemonicon-' + i + '" style="' + Tools.getPokemonIcon(set) + '"></span>';
+				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + Tools.getPokemonIcon(set) + '"></span>';
 				if (!set.species) {
 					buf += '<button disabled="disabled" class="addpokemon"><i class="fa fa-plus"></i></button> ';
 					isAdd = true;
