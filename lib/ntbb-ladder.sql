@@ -19,9 +19,9 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `ntbb_ladder` (
   `entryid` int(11) NOT NULL AUTO_INCREMENT,
-  `formatid` varchar(63) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
-  `userid` varchar(63) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
-  `username` varchar(63) COLLATE utf8mb4_bin NOT NULL,
+  `formatid` varbinary(63) NOT NULL,
+  `userid` varbinary(63) NOT NULL,
+  `username` varbinary(63) NOT NULL,
   `w` int(11) NOT NULL DEFAULT '0',
   `l` int(11) NOT NULL DEFAULT '0',
   `t` int(11) NOT NULL DEFAULT '0',
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `ntbb_ladder` (
   `rpr` double NOT NULL DEFAULT '1500',
   `rprd` double NOT NULL DEFAULT '350',
   `rpsigma` double NOT NULL DEFAULT '0.06',
-  `rpdata` mediumtext CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  `rpdata` mediumblob NOT NULL,
   `elo` double NOT NULL DEFAULT '1000',
   `col1` double NOT NULL,
   PRIMARY KEY (`entryid`),
