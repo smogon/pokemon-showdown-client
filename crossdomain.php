@@ -99,8 +99,8 @@ var config = <?php echo json_encode(json_encode($config)) ?>;
 var yourOrigin = <?php echo json_encode('http://' . $host) ?>;
 var myOrigin = 'https://play.pokemonshowdown.com';
 
-function postMessage (message) {
-	if (window.parent.postMessage === postMessage) return;
+function postReply (message) {
+	if (window.parent.postMessage === postReply) return;
 	return window.parent.postMessage(message, yourOrigin);
 }
 function messageHandler(e) {
@@ -132,7 +132,7 @@ function messageHandler(e) {
 			url: rq[0],
 			data: rq[1],
 			success: function(ajaxdata) {
-				postMessage('r' + JSON.stringify([rq[2], ajaxdata]));
+				postReply('r' + JSON.stringify([rq[2], ajaxdata]));
 			},
 			dataType: rq[3]
 		});
@@ -141,21 +141,21 @@ function messageHandler(e) {
 }
 
 window.addEventListener('message', messageHandler);
-if (config.host !== 'showdown') postMessage('c' + config);
+if (config.host !== 'showdown') postReply('c' + config);
 var storageAvailable = false;
 try {
 	var testVal = '' + Date.now();
 	localStorage.setItem('showdown_allow3p', testVal);
 	if (localStorage.getItem('showdown_allow3p') === testVal) {
-		postMessage('a1');
-		postMessage('p' + localStorage.getItem('showdown_prefs'));
-		postMessage('t' + localStorage.getItem('showdown_teams'));
+		postReply('a1');
+		postReply('p' + localStorage.getItem('showdown_prefs'));
+		postReply('t' + localStorage.getItem('showdown_teams'));
 		storageAvailable = true;
 	}
 } catch (err) {}
 
 if (!storageAvailable) {
-	postMessage('a0');
+	postReply('a0');
 }
 
 if (location.protocol + '//' + location.hostname !== myOrigin) {
