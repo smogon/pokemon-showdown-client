@@ -463,7 +463,7 @@ var BattleTooltips = (function () {
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
 		if (item === 'lightball' && species === 'Pikachu') {
-			stats.atk *= 2;
+			if (this.battle.gen >= 4) stats.atk *= 2;
 			stats.spa *= 2;
 		}
 
@@ -478,8 +478,12 @@ var BattleTooltips = (function () {
 				stats.spe *= 2;
 			}
 			if (item === 'metalpowder') {
-				stats.def = Math.floor(stats.def * 1.5);
-				stats.spd = Math.floor(stats.spd * 1.5);
+				if (this.battle.gen === 2) {
+					stats.def = Math.floor(stats.def * 1.5);
+					stats.spd = Math.floor(stats.spd * 1.5);
+				} else {
+					stats.def *= 2;
+				}
 			}
 		}
 
@@ -527,7 +531,7 @@ var BattleTooltips = (function () {
 			if (ability === 'solarpower' && (weather === 'sunnyday' || weather === 'desolateland')) {
 				stats.spa = Math.floor(stats.spa * 1.5);
 			}
-			if ((pokemon.types[0] === 'Rock' || pokemon.types[1] === 'Rock') && weather === 'sandstorm') {
+			if (this.battle.gen >= 4 && (pokemon.types[0] === 'Rock' || pokemon.types[1] === 'Rock') && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
 			if (ability === 'chlorophyll' && (weather === 'sunnyday' || weather === 'desolateland')) {
