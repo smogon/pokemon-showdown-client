@@ -3672,6 +3672,7 @@ var Battle = (function () {
 						actions += '' + poke.getName() + ' cut its own HP and maximized its Attack!';
 						break;
 					case 'angerpoint':
+						if (!this.fastForward) BattleOtherAnims.anger.anim(this, [poke.sprite]);
 						this.resultAnim(poke, 'Anger Point', 'ability');
 						this.message('', "<small>[" + poke.getName(true) + "'s Anger Point!]</small>");
 						poke.markAbility('Anger Point');
