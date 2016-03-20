@@ -4914,6 +4914,7 @@ var Battle = (function () {
 				case 'focuspunch':
 					this.resultAnim(poke, 'Focusing', 'neutral');
 					actions += '' + poke.getName() + ' is tightening its focus!';
+					poke.markMove(effect.name, 0);
 					break;
 				case 'snatch':
 					actions += '' + poke.getName() + ' waits for a target to make a move!';
