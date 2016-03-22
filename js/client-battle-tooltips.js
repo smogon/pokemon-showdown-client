@@ -434,15 +434,18 @@ var BattleTooltips = (function () {
 			}
 		}
 
+		var ability = toId(pokemon.ability || myPokemon.baseAbility);
+		if ('gastroacid' in pokemon.volatiles) ability = '';
+
 		// check for burn, paralysis, guts, quick feet
 		if (pokemon.status) {
-			if (this.battle.gen > 2 && pokemon.ability === 'Guts')  {
+			if (this.battle.gen > 2 && ability === 'guts') {
 				stats.atk = Math.floor(stats.atk * 1.5);
 			} else if (pokemon.status === 'brn') {
 				stats.atk = Math.floor(stats.atk * 0.5);
 			}
 
-			if (this.battle.gen > 2 && pokemon.ability === 'Quick Feet') {
+			if (this.battle.gen > 2 && ability === 'quickfeet') {
 				stats.spe = Math.floor(stats.spe * 1.5);
 			} else if (pokemon.status === 'par') {
 				stats.spe = Math.floor(stats.spe * 0.25);
@@ -492,9 +495,6 @@ var BattleTooltips = (function () {
 		if (this.battle.gen <= 2) {
 			return stats;
 		}
-
-		var ability = toId(pokemon.ability || myPokemon.baseAbility);
-		if ('gastroacid' in pokemon.volatiles) ability = '';
 
 		var weather = this.battle.weather;
 		if (weather) {
