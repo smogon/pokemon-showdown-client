@@ -15,7 +15,7 @@ exports.BattlePokemonSprites = {
 	"mollux": {num:-14},
 	"aurumoth": {num:-15, front:{ani:{w:112, h:102}}, back:{ani:{w:113, h:104}}},
 	"malaconda": {num:-16},
-	"cawmodore": {num:-17},
+	"cawmodore": {num:-17, front:{ani:{w:154, h:108}}, back:{ani:{w:144, h:112}}},
 	"volkraken": {num:-18},
 	"plasmanta": {num:-19, front:{ani:{w:143, h:105}}, back:{ani:{w:141, h:140}}},
 	"naviathan": {num:-20, front:{ani:{w:142, h:119}}, back:{ani:{w:147, h:111}}},
