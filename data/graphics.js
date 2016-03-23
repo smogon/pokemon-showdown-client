@@ -4992,6 +4992,34 @@ var BattleMoveAnims = {
 	headbutt: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
+	block: {
+		anim: function (battle, args) {
+			var defender = args[1];
+
+			battle.showEffect('rightslash', {
+				x: defender.x - 10,
+				y: defender.y,
+				z: defender.z,
+				scale: 2,
+				opacity: 0.5
+			}, {
+				scale: 1,
+				opacity: 1,
+				time: 400
+			}, 'linear', 'explode');
+			battle.showEffect('leftslash', {
+				x: defender.x + 10,
+				y: defender.y,
+				z: defender.z,
+				scale: 2,
+				opacity: 0.5
+			}, {
+				scale: 1,
+				opacity: 1,
+				time: 400
+			}, 'linear', 'explode');
+		}
+	},
 	xscissor: {
 		anim: function (battle, args) {
 			var attacker = args[0];
