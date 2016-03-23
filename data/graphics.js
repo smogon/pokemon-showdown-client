@@ -6024,15 +6024,19 @@ var BattleMoveAnims = {
 				opacity: 0.3,
 				time: 50
 			}, {
+				x: defender.x,
+				z: defender.behind(-5),
 				time: 450
 			}, 'ballistic2Under', 'fade');
 			battle.showEffect(attacker.sp, {
-				x: attacker.x,
+				x: attacker.leftof(20),
 				y: attacker.y,
-				z: attacker.behind(-5),
+				z: attacker.behind(-25),
 				opacity: 0.3,
 				time: 100
 			}, {
+				x: defender.x,
+				z: defender.behind(-5),
 				time: 500
 			}, 'ballistic2Under', 'fade');
 
