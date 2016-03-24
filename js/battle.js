@@ -4260,6 +4260,7 @@ var Battle = (function () {
 				case 'knockoff':
 					poke.prevItemEffect = 'knocked off';
 					actions += '' + ofpoke.getName() + ' knocked off ' + poke.getLowerName() + '\'s ' + item.name + '!';
+					if (!this.fastForward) BattleOtherAnims.itemoff.anim(this, [poke.sprite]);
 					this.resultAnim(poke, 'Item knocked off', 'neutral');
 					break;
 				case 'stealeat':
