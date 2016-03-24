@@ -1262,6 +1262,25 @@ var BattleOtherAnims = {
 			});
 		}
 	},
+	itemoff: {
+		anim: function (battle, args) {
+			var defender = args[0];
+
+			battle.showEffect('pokeball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1,
+				opacity: 1
+			}, {
+				x: defender.x,
+				y: defender.y + 40,
+				z: defender.behind(70),
+				opacity: 0,
+				time: 400
+			}, 'ballistic2');
+		}
+	},
 	anger: {
 		anim: function (battle, args) {
 			var attacker = args[0];
