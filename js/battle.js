@@ -4196,6 +4196,12 @@ var Battle = (function () {
 					// falls through
 				case 'thief':
 				case 'covet':
+					// simulate the removal of the item from the ofpoke
+					ofpoke.item = '';
+					ofpoke.itemEffect = '';
+					ofpoke.prevItem = item.name;
+					ofpoke.prevItemEffect = 'stolen';
+					ofpoke.addVolatile('itemremoved');
 					poke.itemEffect = 'stolen';
 					actions += '' + poke.getName() + ' stole ' + ofpoke.getLowerName() + "'s " + item.name + "!";
 					this.resultAnim(poke, item.name, 'neutral');
