@@ -606,6 +606,9 @@ var BattleTooltips = (function () {
 		if (item === 'ironball' || item === 'machobrace') {
 			stats.spe = Math.floor(stats.spe * 0.5);
 		}
+		if (ability === 'furcoat') {
+			stats.def *= 2;
+		}
 
 		return stats;
 	};
