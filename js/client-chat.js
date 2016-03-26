@@ -486,6 +486,15 @@
 				}
 				return false;
 
+			case 'ignorelist':
+				var ignoreList = Object.keys(app.ignore);
+				if (ignoreList.length === 0) {
+					this.add('You are currently not ignoring anyone.');
+				} else {
+					this.add("You are currently ignoring: " + ignoreList.join(', '));
+				}
+				return false;
+
 			case 'clear':
 				if (this.clear) {
 					this.clear();
@@ -845,6 +854,7 @@
 				case 'unignore':
 					this.add('/ignore [user] - Ignore all messages from the user [user].');
 					this.add('/unignore [user] - Remove the user [user] from your ignore list.');
+					this.add('/ignorelist - List all the users that you currently ignore.');
 					this.add('Note that staff messages cannot be ignored.');
 					return false;
 				case 'nick':
