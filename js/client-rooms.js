@@ -128,7 +128,6 @@
 			this.$list = this.$('.list');
 
 			this.format = '';
-			app.on('init:formats', this.initialize, this);
 			app.on('response:roomlist', this.update, this);
 			app.send('/cmd roomlist');
 			this.update();
