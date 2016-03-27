@@ -35,73 +35,81 @@ var BattleTooltips = (function () {
 	BattleTooltips.hideTooltip = function () {
 		$('#tooltipwrapper').html('');
 	};
-
 	// tooltips
-	if (navigator.userAgent.match(/(Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini)/)) {
-		// If user is using a mobile phone or tablet, use touch events
+	// Touch delay, pressing finger more than that time will cause the tooltip to open.
+	// Shorter time will cause teh button to click
+	var touchDelayForTap = 300; // ms
 
-		// Touch delay, pressing finger more than that time will cause the tooltip to open.
-		// Shorter time will cause teh button to click
-		var touchDelayForTap = 300; // ms
+	// Each time a finger presses the button this function will be callled
+	// First finger starts the counter, and when last fingers leaves time is checked
+	BattleTooltips._handleTouchStartFor = function (event, roomid, thing, type, elem, ownHeight) {
+		// Prevent default on touch events to block mouse events when touch is used
+		event.preventDefault();
 
-		// Each time a finger presses the button this function will be callled
-		// First finger starts the counter, and when last fingers leaves time is checked
-		BattleTooltips._onTouchStart = function (roomid, thing, type, elem, ownHeight) {
-			// Saving number of Touch start happends (number of fingers on teh button,
-		  // though most of the time will be 1, don't won't a nasty bug like tooltip stuck open)
-			// Starts by 1 and increases each time this func is called
-			elem._numOfTaps = elem._numOfTaps !== undefined ? (elem._numOfTaps + 1) : 1;
+		// Saving number of Touch start happends (number of fingers on teh button,
+	  // though most of the time will be 1, don't won't a nasty bug like tooltip stuck open)
+		// Starts by 1 and increases each time this func is called
+		elem._numOfTaps = elem._numOfTaps !== undefined ? (elem._numOfTaps + 1) : 1;
 
-			// On first tap start counting
-			if (elem._numOfTaps === 1) {
-				setTimeout(function () {
-					// When tap is undefined means `_onTouchEnd` deleted it by the end of the time, perform the action
-					if (elem._numOfTaps === undefined) {
-						// short tap
-						elem._isCalledFromTocuh = true;
-						elem.click();
-					} else {
-						// When tap is not defined open the tooltip until `_onTouchEnd` will close it
-						elem._toolTipIsOpen = true;
-						BattleTooltips.showTooltipFor(roomid, thing, type, elem, ownHeight);
-					}
-				}, touchDelayForTap);
-			}
-		};
-		BattleTooltips._onTouchEnd = function (elem) {
-			// _numOfTaps always defined by `_onTouchStart` - is 1 or higher
-			elem._numOfTaps--;
-			// Delete variable when last finger left, no need for memory
-			if (elem._numOfTaps === 0) {
-				delete elem._numOfTaps;
-			}
+		// On first tap start counting
+		if (elem._numOfTaps === 1) {
+			setTimeout(function () {
+				// When tap is undefined means `_onTouchEnd` deleted it by the end of the time, perform the action
+				if (elem._numOfTaps === undefined) {
+					// short tap
+					elem._isCalledManually = true;
+					elem.click();
+				} else {
+					// When tap is not defined open the tooltip until `_onTouchEnd` will close it
+					elem._toolTipIsOpen = true;
+					BattleTooltips.showTooltipFor(roomid, thing, type, elem, ownHeight);
+				}
+			}, touchDelayForTap);
+		}
+	};
+	BattleTooltips._handleTouchEndFor = function (event, elem) {
+		// Prevent default on touch events to block mouse events when touch is used
+		event.preventDefault();
 
-			// If tooltip is open and the last finger left, close the tooptip
-			if (elem._toolTipIsOpen && elem._numOfTaps === undefined) {
-				// Delete variable
-				delete elem._toolTipIsOpen;
-				BattleTooltips.hideTooltip();
-			}
-		};
-		// We define
-		BattleTooltips._onClick = function (elem, e) {
-			if (!elem._isCalledFromTocuh) {
-				e.stopPropagation();
-			} else {
-				delete elem._isCalledFromTocuh;
-			}
-		};
-		BattleTooltips.prototype.tooltipAttrs = function (thing, type, ownHeight) {
-			var roomid = this.room.id;
-			return ' onclick="BattleTooltips._onClick(this, event)" ontouchstart="BattleTooltips._onTouchStart(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')" ontouchend="BattleTooltips._onTouchEnd(this)" ontouchleave="BattleTooltips._onTouchEnd(this)"';
-		};
-	} else {
-		// If user is using a desktop, use mouse events
-		BattleTooltips.prototype.tooltipAttrs = function (thing, type, ownHeight) {
-			var roomid = this.room.id;
-			return ' onmouseover="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')" onmouseout="BattleTooltips.hideTooltip()" onmouseup="BattleTooltips.hideTooltip()"';
-		};
-	}
+		// _numOfTaps always defined by `_onTouchStart` - is 1 or higher
+		elem._numOfTaps--;
+		// Delete variable when last finger left, no need for memory
+		if (elem._numOfTaps === 0) {
+			delete elem._numOfTaps;
+		}
+
+		// If tooltip is open and the last finger left, close the tooptip
+		if (elem._toolTipIsOpen && elem._numOfTaps === undefined) {
+			// Delete variable
+			delete elem._toolTipIsOpen;
+			BattleTooltips.hideTooltip();
+		}
+	};
+	// Call click on mouse up, because `_isCalledManually` must be set before the click
+	BattleTooltips._handleMouseUpFor = function (elem) {
+		BattleTooltips.hideTooltip();
+		elem._isCalledManually = true;
+		elem.click();
+	};
+	// Stop click from doing it's action unless `_isCalledManually` was set on the element
+	// (`_handleMouseUpFor` or in `_handleTouchStartFor` timeout)
+	BattleTooltips._handleClickFor = function (elem, e) {
+		if (!elem._isCalledManually) {
+			e.stopPropagation();
+		} else {
+			delete elem._isCalledManually;
+		}
+	};
+	BattleTooltips.prototype.tooltipAttrs = function (thing, type, ownHeight) {
+		var roomid = this.room.id;
+		return ' onclick="BattleTooltips._handleClickFor(this, event)"' +
+		' ontouchstart="BattleTooltips._handleTouchStartFor(event, \'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
+		' ontouchend="BattleTooltips._handleTouchEndFor(event, this)"' +
+		' ontouchleave="BattleTooltips._handleTouchEndFor(event, this)"' +
+		' onmouseover="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
+		' onmouseout="BattleTooltips.hideTooltip()"' +
+		' onmouseup="BattleTooltips._handleMouseUpFor(this)"';
+	};
 	BattleTooltips.prototype.showTooltip = function (thing, type, elem, ownHeight) {
 		var room = this.room;
 
