@@ -53,21 +53,14 @@ var BattleTooltips = (function () {
 
 		// On first tap start counting
 		if (elem._numOfTaps === 1) {
-			setTimeout(function () {
-				// When tap is undefined means `_onTouchEnd` deleted it by the end of the time, perform the action
-				if (elem._numOfTaps === undefined) {
-					// short tap
-					elem._isCalledManually = true;
-					elem.click();
-				} else {
-					// When tap is not defined open the tooltip until `_onTouchEnd` will close it
-					elem._toolTipIsOpen = true;
-					BattleTooltips.showTooltipFor(roomid, thing, type, elem, ownHeight);
-				}
+			// Timeout will be canceled by `_handleTouchEndFor` if a short tap have occurred
+			elem._timeout = setTimeout(function () {
+				elem._toolTipIsOpen = true;
+				BattleTooltips.showTooltipFor(roomid, thing, type, elem, ownHeight);
 			}, touchDelayForTap);
 		}
 	};
-	BattleTooltips._handleTouchEndFor = function (event, elem) {
+	BattleTooltips._handleTouchLeaveFor = function (event, elem) {
 		// Prevent default on touch events to block mouse events when touch is used
 		event.preventDefault();
 
@@ -80,6 +73,34 @@ var BattleTooltips = (function () {
 
 		// If tooltip is open and the last finger left, close the tooptip
 		if (elem._toolTipIsOpen && elem._numOfTaps === undefined) {
+			// Delete variable
+			delete elem._toolTipIsOpen;
+			BattleTooltips.hideTooltip();
+		}
+	};
+	BattleTooltips._handleTouchEndFor = function (event, elem) {
+		// Save bool for firing the action before changing the variables
+		// If tooltip is not opened and the last finger left,
+		// meaning the timeout in `_handleTouchStartFor` wasn't fired, fire the action
+		var shouldFireAction = (elem._toolTipIsOpen === undefined && elem._numOfTaps === 1);
+
+		// Decrease taps and close tooltip when needed
+		BattleTooltips._handleTouchLeaveFor(event, elem);
+
+		// When firing the action also cancel the timeout in `_handleTouchStartFor`
+		if (shouldFireAction) {
+			clearTimeout(elem._timeout);
+			delete elem._timeout;
+
+			elem._isCalledManually = true;
+			elem.click();
+		}
+	};
+	BattleTooltips._handleTouchCancelFor = function (event, elem) {
+		if (elem._numOfTaps !== undefined) {
+			delete elem._numOfTaps;
+		}
+		if (elem._toolTipIsOpen) {
 			// Delete variable
 			delete elem._toolTipIsOpen;
 			BattleTooltips.hideTooltip();
@@ -105,7 +126,8 @@ var BattleTooltips = (function () {
 		return ' onclick="BattleTooltips._handleClickFor(this, event)"' +
 		' ontouchstart="BattleTooltips._handleTouchStartFor(event, \'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
 		' ontouchend="BattleTooltips._handleTouchEndFor(event, this)"' +
-		' ontouchleave="BattleTooltips._handleTouchEndFor(event, this)"' +
+		' ontouchleave="BattleTooltips._handleTouchLeaveFor(event, this)"' +
+		' ontouchcancel="BattleTooltips._handleTouchCancelFor(event, this)"' +
 		' onmouseover="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
 		' onmouseout="BattleTooltips.hideTooltip()"' +
 		' onmouseup="BattleTooltips._handleMouseUpFor(this)"';
