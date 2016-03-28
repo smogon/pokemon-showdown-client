@@ -37,7 +37,7 @@ var BattleTooltips = (function () {
 	};
 	// tooltips
 	// Touch delay, pressing finger more than that time will cause the tooltip to open.
-	// Shorter time will cause teh button to click
+	// Shorter time will cause the button to click
 	var touchDelayForTap = 300; // ms
 
 	// Each time a finger presses the button this function will be callled
@@ -49,10 +49,10 @@ var BattleTooltips = (function () {
 		// Saving number of Touch start happends (number of fingers on teh button,
 	  // though most of the time will be 1, don't won't a nasty bug like tooltip stuck open)
 		// Starts by 1 and increases each time this func is called
-		elem._numOfTaps = elem._numOfTaps !== undefined ? (elem._numOfTaps + 1) : 1;
+		elem._numOfTouches = event.touches.length;
 
 		// On first tap start counting
-		if (elem._numOfTaps === 1) {
+		if (elem._numOfTouches === 1) {
 			// Timeout will be canceled by `_handleTouchEndFor` if a short tap have occurred
 			elem._timeout = setTimeout(function () {
 				elem._toolTipIsOpen = true;
@@ -64,15 +64,14 @@ var BattleTooltips = (function () {
 		// Prevent default on touch events to block mouse events when touch is used
 		event.preventDefault();
 
-		// _numOfTaps always defined by `_onTouchStart` - is 1 or higher
-		elem._numOfTaps--;
+		elem._numOfTouches = event.touches.length;
 		// Delete variable when last finger left, no need for memory
-		if (elem._numOfTaps === 0) {
-			delete elem._numOfTaps;
+		if (elem._numOfTouches === 0) {
+			delete elem._numOfTouches;
 		}
 
 		// If tooltip is open and the last finger left, close the tooptip
-		if (elem._toolTipIsOpen && elem._numOfTaps === undefined) {
+		if (elem._toolTipIsOpen && elem._numOfTouches === undefined) {
 			// Delete variable
 			delete elem._toolTipIsOpen;
 			BattleTooltips.hideTooltip();
@@ -82,7 +81,7 @@ var BattleTooltips = (function () {
 		// Save bool for firing the action before changing the variables
 		// If tooltip is not opened and the last finger left,
 		// meaning the timeout in `_handleTouchStartFor` wasn't fired, fire the action
-		var shouldFireAction = (elem._toolTipIsOpen === undefined && elem._numOfTaps === 1);
+		var shouldFireAction = (elem._toolTipIsOpen === undefined && elem._numOfTouches === 1);
 
 		// Decrease taps and close tooltip when needed
 		BattleTooltips._handleTouchLeaveFor(event, elem);
@@ -94,16 +93,6 @@ var BattleTooltips = (function () {
 
 			elem._isCalledManually = true;
 			elem.click();
-		}
-	};
-	BattleTooltips._handleTouchCancelFor = function (event, elem) {
-		if (elem._numOfTaps !== undefined) {
-			delete elem._numOfTaps;
-		}
-		if (elem._toolTipIsOpen) {
-			// Delete variable
-			delete elem._toolTipIsOpen;
-			BattleTooltips.hideTooltip();
 		}
 	};
 	// Call click on mouse up, because `_isCalledManually` must be set before the click
@@ -127,7 +116,7 @@ var BattleTooltips = (function () {
 		' ontouchstart="BattleTooltips._handleTouchStartFor(event, \'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
 		' ontouchend="BattleTooltips._handleTouchEndFor(event, this)"' +
 		' ontouchleave="BattleTooltips._handleTouchLeaveFor(event, this)"' +
-		' ontouchcancel="BattleTooltips._handleTouchCancelFor(event, this)"' +
+		' ontouchcancel="BattleTooltips._handleTouchLeaveFor(event, this)"' +
 		' onmouseover="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
 		' onmouseout="BattleTooltips.hideTooltip()"' +
 		' onmouseup="BattleTooltips._handleMouseUpFor(this)"';
