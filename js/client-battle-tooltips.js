@@ -61,12 +61,12 @@ var BattleTooltips = (function () {
 		// Prevent default on touch events to block mouse events when touch is used
 		e.preventDefault();
 
-		// If tooltip is open and the last finger left, close the tooptip
+		// If tooltip is open and the last finger just left, close the tooptip
 		if (touchTooltipTimeout === undefined && e.touches.length === 0) {
 			BattleTooltips.hideTooltip();
 		}
 	};
-	BattleTooltips._handleTouchEndFor = function (e) {
+	BattleTooltips._handleTouchEndFor = function (e, elem) {
 		// Close tooptip if needed
 		BattleTooltips._handleTouchLeaveFor(e);
 
@@ -76,6 +76,9 @@ var BattleTooltips = (function () {
 			clearTimeout(touchTooltipTimeout);
 			touchTooltipTimeout = undefined;
 			runClickActionOfButtonWithTooltip = true;
+
+			// Need to call `click` event manually because we prevented default behaviour of `touchend` event
+			elem.click();
 		}
 	};
 	// Call click on mouse up, because `runClickActionOfButtonWithTooltip` must be set before the click
@@ -83,7 +86,6 @@ var BattleTooltips = (function () {
 		BattleTooltips.hideTooltip();
 		runClickActionOfButtonWithTooltip = true;
 	};
-	// `Click` event always occurred last after touch + mouse events
 	// Stop click from doing it's action unless `runClickActionOfButtonWithTooltip` was set to true
 	// (in `_handleMouseUpFor` or in `_handleTouchEndFor`)
 	BattleTooltips._handleClickFor = function (e) {
@@ -98,7 +100,7 @@ var BattleTooltips = (function () {
 		var roomid = this.room.id;
 		return ' onclick="BattleTooltips._handleClickFor(event)"' +
 		' ontouchstart="BattleTooltips._handleTouchStartFor(event, \'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
-		' ontouchend="BattleTooltips._handleTouchEndFor(event)"' +
+		' ontouchend="BattleTooltips._handleTouchEndFor(event, this)"' +
 		' ontouchleave="BattleTooltips._handleTouchLeaveFor(event)"' +
 		' ontouchcancel="BattleTooltips._handleTouchLeaveFor(event)"' +
 		' onmouseover="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
