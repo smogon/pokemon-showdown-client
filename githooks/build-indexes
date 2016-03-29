@@ -56,8 +56,19 @@ function requireNoCache(pathSpec) {
 	function generateAlias(id, name, type) {
 		let i = name.lastIndexOf(' ');
 		if (i < 0) i = name.lastIndexOf('-');
-		if (name.endsWith('-Mega-X') || name.endsWith('-Mega-Y')) i = name.lastIndexOf('-', i - 1);
+		if (name.endsWith('-Mega-X') || name.endsWith('-Mega-Y')) {
+			index.push('mega' + toId(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
+			index.push('m' + toId(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
+			index.push('mega' + toId(name.slice(-1)) + ' ' + type + ' ' + id + ' ' + toId(name.slice(0, -7)).length);
+			return;
+		}
+		if (name.endsWith('-Mega')) {
+			index.push('mega' + toId(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
+			index.push('m' + toId(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
+			return;
+		}
 		if (name === 'Earthquake') i = 5;
+		if (name === 'Hariyama') i = 4;
 		if (name === 'Thunderbolt') {
 			i = 7;
 			index.push('tb ' + type + ' ' + id + ' 0');
@@ -71,9 +82,9 @@ function requireNoCache(pathSpec) {
 		} else if (name === 'Hidden Power') {
 			index.push('hp ' + type + ' ' + id + ' 0');
 		} else if (name.includes(' ')) {
-			acronym = toId(name.split(' ').map(x => x.charAt(0)).join(''));
+			acronym = toId(name.split(' ').map((x, i) => i !== 0 ? x : x.charAt(0)).join(''));
 		} else if (name.includes('-') && name.charAt(1) !== '-') {
-			acronym = toId(name.split('-').map(x => x.charAt(0)).join(''));
+			acronym = toId(name.split('-').map((x, i) => i !== 0 ? x : x.charAt(0)).join(''));
 		}
 		if (acronym && !(acronym in Tools.data.Aliases) || toId(Tools.data.Aliases[acronym]) !== id) {
 			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
