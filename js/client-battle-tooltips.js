@@ -38,88 +38,72 @@ var BattleTooltips = (function () {
 	// tooltips
 	// Touch delay, pressing finger more than that time will cause the tooltip to open.
 	// Shorter time will cause the button to click
-	var touchDelayForTap = 300; // ms
+	var LONG_TAP_DELAY = 350; // ms
+	var touchTooltipTimeout;
+	var runClickActionOfButtonWithTooltip = false;
 
 	// Each time a finger presses the button this function will be callled
-	// First finger starts the counter, and when last fingers leaves time is checked
-	BattleTooltips._handleTouchStartFor = function (event, roomid, thing, type, elem, ownHeight) {
+	// First finger starts the counter, and when last finger leaves time is checked
+	BattleTooltips._handleTouchStartFor = function (e, roomid, thing, type, elem, ownHeight) {
 		// Prevent default on touch events to block mouse events when touch is used
-		event.preventDefault();
-
-		// Saving number of Touch start happends (number of fingers on teh button,
-	  // though most of the time will be 1, don't won't a nasty bug like tooltip stuck open)
-		// Starts by 1 and increases each time this func is called
-		elem._numOfTouches = event.touches.length;
+		e.preventDefault();
 
 		// On first tap start counting
-		if (elem._numOfTouches === 1) {
+		if (e.touches.length === 1) {
 			// Timeout will be canceled by `_handleTouchEndFor` if a short tap have occurred
-			elem._timeout = setTimeout(function () {
-				elem._toolTipIsOpen = true;
+			touchTooltipTimeout = setTimeout(function () {
+				touchTooltipTimeout = undefined;
 				BattleTooltips.showTooltipFor(roomid, thing, type, elem, ownHeight);
-			}, touchDelayForTap);
+			}, LONG_TAP_DELAY);
 		}
 	};
-	BattleTooltips._handleTouchLeaveFor = function (event, elem) {
+	BattleTooltips._handleTouchLeaveFor = function (e) {
 		// Prevent default on touch events to block mouse events when touch is used
-		event.preventDefault();
-
-		elem._numOfTouches = event.touches.length;
-		// Delete variable when last finger left, no need for memory
-		if (elem._numOfTouches === 0) {
-			delete elem._numOfTouches;
-		}
+		e.preventDefault();
 
 		// If tooltip is open and the last finger left, close the tooptip
-		if (elem._toolTipIsOpen && elem._numOfTouches === undefined) {
-			// Delete variable
-			delete elem._toolTipIsOpen;
+		if (touchTooltipTimeout === undefined && e.touches.length === 0) {
 			BattleTooltips.hideTooltip();
 		}
 	};
-	BattleTooltips._handleTouchEndFor = function (event, elem) {
-		// Save bool for firing the action before changing the variables
-		// If tooltip is not opened and the last finger left,
+	BattleTooltips._handleTouchEndFor = function (e) {
+		// Close tooptip if needed
+		BattleTooltips._handleTouchLeaveFor(e);
+
+		// If tooltip is not opened (`touchTooltipTimeout` is still defined) and the last finger left,
 		// meaning the timeout in `_handleTouchStartFor` wasn't fired, fire the action
-		var shouldFireAction = (elem._toolTipIsOpen === undefined && elem._numOfTouches === 1);
-
-		// Decrease taps and close tooltip when needed
-		BattleTooltips._handleTouchLeaveFor(event, elem);
-
-		// When firing the action also cancel the timeout in `_handleTouchStartFor`
-		if (shouldFireAction) {
-			clearTimeout(elem._timeout);
-			delete elem._timeout;
-
-			elem._isCalledManually = true;
-			elem.click();
+		if (touchTooltipTimeout !== undefined && e.touches.length === 0) {
+			clearTimeout(touchTooltipTimeout);
+			touchTooltipTimeout = undefined;
+			runClickActionOfButtonWithTooltip = true;
 		}
 	};
-	// Call click on mouse up, because `_isCalledManually` must be set before the click
-	BattleTooltips._handleMouseUpFor = function (elem) {
+	// Call click on mouse up, because `runClickActionOfButtonWithTooltip` must be set before the click
+	BattleTooltips._handleMouseUpFor = function () {
 		BattleTooltips.hideTooltip();
-		elem._isCalledManually = true;
-		elem.click();
+		runClickActionOfButtonWithTooltip = true;
 	};
-	// Stop click from doing it's action unless `_isCalledManually` was set on the element
-	// (`_handleMouseUpFor` or in `_handleTouchStartFor` timeout)
-	BattleTooltips._handleClickFor = function (elem, e) {
-		if (!elem._isCalledManually) {
+	// `Click` event always occurred last after touch + mouse events
+	// Stop click from doing it's action unless `runClickActionOfButtonWithTooltip` was set to true
+	// (in `_handleMouseUpFor` or in `_handleTouchEndFor`)
+	BattleTooltips._handleClickFor = function (e) {
+		if (!runClickActionOfButtonWithTooltip) {
 			e.stopPropagation();
 		} else {
-			delete elem._isCalledManually;
+			// Reset `runClickActionOfButtonWithTooltip` value to false for next click
+			runClickActionOfButtonWithTooltip = false;
 		}
 	};
 	BattleTooltips.prototype.tooltipAttrs = function (thing, type, ownHeight) {
 		var roomid = this.room.id;
-		return ' onclick="BattleTooltips._handleClickFor(this, event)"' +
+		return ' onclick="BattleTooltips._handleClickFor(event)"' +
 		' ontouchstart="BattleTooltips._handleTouchStartFor(event, \'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
-		' ontouchend="BattleTooltips._handleTouchEndFor(event, this)"' +
-		' ontouchleave="BattleTooltips._handleTouchLeaveFor(event, this)"' +
-		' ontouchcancel="BattleTooltips._handleTouchLeaveFor(event, this)"' +
+		' ontouchend="BattleTooltips._handleTouchEndFor(event)"' +
+		' ontouchleave="BattleTooltips._handleTouchLeaveFor(event)"' +
+		' ontouchcancel="BattleTooltips._handleTouchLeaveFor(event)"' +
 		' onmouseover="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
 		' onmouseout="BattleTooltips.hideTooltip()"' +
-		' onmouseup="BattleTooltips._handleMouseUpFor(this)"';
+		' onmouseup="BattleTooltips._handleMouseUpFor()"';
 	};
 	BattleTooltips.prototype.showTooltip = function (thing, type, elem, ownHeight) {
 		var room = this.room;
