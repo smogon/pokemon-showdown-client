@@ -2559,6 +2559,7 @@ a.ilink.yours {
 .setstats {
 	width: 138px;
 	height: 108px;
+	padding-right: 0;
 }
 .setstats:focus,.setstats:active {
 	width: 140px;
