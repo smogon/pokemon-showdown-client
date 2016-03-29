@@ -345,11 +345,13 @@ var BattleTooltips = (function () {
 			}
 			text += myPokemon.stats['spe'] + '&nbsp;Spe</p>';
 			if (isActive) {
-				var modifiedStats = this.calculateModifiedStats(pokemon, myPokemon);
-				var statsText = this.makeModifiedStatText(myPokemon, modifiedStats);
-				if (statsText.match('<b')) {
-					text += '<p>After Modifiers:</p>';
-					text += statsText;
+				if (this.battle.gen > 1) {
+					var modifiedStats = this.calculateModifiedStats(pokemon, myPokemon);
+					var statsText = this.makeModifiedStatText(myPokemon, modifiedStats);
+					if (statsText.match('<b')) {
+						text += '<p>After Modifiers:</p>';
+						text += statsText;
+					}
 				}
 				text += '<p class="section">Opponent sees:</p>';
 			}
