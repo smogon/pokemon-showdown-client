@@ -2635,9 +2635,6 @@ var BattleMoveAnims = {
 				scale: 3,
 				opacity: .3
 			}, {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.behind(-30),
 				scale: .6,
 				opacity: 1,
 				time: 300
@@ -2650,9 +2647,6 @@ var BattleMoveAnims = {
 				opacity: .3,
 				time: 100
 			}, {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.behind(-30),
 				scale: .8,
 				opacity: .6,
 				time: 400
@@ -2665,13 +2659,20 @@ var BattleMoveAnims = {
 				opacity: .8,
 				time: 400
 			}, {
-				x: defender.x,
-				y: defender.y,
-				z: defender.behind(40),
+				z: defender.behind(20),
 				scale: 1,
 				opacity: .8,
 				time: 800
 			}, 'accel', 'explode');
+
+			defender.delay(800);
+			defender.anim({
+				z: defender.behind(20),
+				time: 200
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
 		}
 	},
 	aurasphere: {
@@ -2687,8 +2688,6 @@ var BattleMoveAnims = {
 				scale: 3,
 				opacity: 0.3
 			}, {
-				x: attacker.x,
-				y: attacker.y,
 				z: attacker.behind(-30),
 				scale: 0.6,
 				opacity: 1,
@@ -2702,8 +2701,6 @@ var BattleMoveAnims = {
 				opacity: 0.3,
 				time: 100
 			}, {
-				x: attacker.x,
-				y: attacker.y,
 				z: attacker.behind(-30),
 				scale: 0.8,
 				opacity: 0.6,
@@ -2729,9 +2726,7 @@ var BattleMoveAnims = {
 				opacity: 0.8,
 				time: 400
 			}, {
-				x: defender.x,
-				y: defender.y,
-				z: defender.behind(40),
+				z: defender.behind(20),
 				scale: 1,
 				opacity: 0.8,
 				time: 800
@@ -2782,7 +2777,7 @@ var BattleMoveAnims = {
 			}, {
 				x: defender.x,
 				y: defender.y,
-				z: defender.behind(40),
+				z: defender.behind(20),
 				scale: 1,
 				opacity: .8,
 				time: 800
@@ -11027,6 +11022,21 @@ var BattleMoveAnims = {
 				opacity: .7,
 				time: 500
 			}, 'decel', 'fade');
+			if (defender.isMissedPokemon) return;
+			battle.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.15,
+				opacity: 0
+			}, {
+				x: defender.leftof(40),
+				y: defender.y + 15,
+				z: defender.z,
+				scale: 0.3,
+				opacity: .7,
+				time: 500
+			}, 'decel', 'fade');
 			battle.showEffect('electroball', {
 				x: defender.leftof(40),
 				y: defender.y + 15,
@@ -11592,7 +11602,7 @@ var BattleMoveAnims = {
 			defender.delay(500);
 			defender.anim({
 				z: defender.behind(20),
-				time: 400
+				time: 200
 			}, 'swing');
 			defender.anim({
 				time: 300
@@ -11717,6 +11727,14 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 950
 			}, 'linear', 'fade');
+			defender.delay(450);
+			defender.anim({
+				z: defender.behind(20),
+				time: 200
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
 		}
 	},
 	psystrike: { // todo: give psystrike a new background
@@ -11837,6 +11855,14 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 950
 			}, 'linear', 'fade');
+			defender.delay(450);
+			defender.anim({
+				z: defender.behind(20),
+				time: 200
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
 		}
 	},
 	shadowball: {
