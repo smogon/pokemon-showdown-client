@@ -2667,7 +2667,7 @@ var BattleMoveAnims = {
 
 			defender.delay(800);
 			defender.anim({
-				z: defender.behind(20),
+				z: defender.behind(10),
 				time: 200
 			}, 'swing');
 			defender.anim({
@@ -2745,8 +2745,6 @@ var BattleMoveAnims = {
 				scale: 3,
 				opacity: .3
 			}, {
-				x: attacker.x,
-				y: attacker.y,
 				z: attacker.behind(-30),
 				scale: .6,
 				opacity: 1,
@@ -2760,8 +2758,6 @@ var BattleMoveAnims = {
 				opacity: .3,
 				time: 100
 			}, {
-				x: attacker.x,
-				y: attacker.y,
 				z: attacker.behind(-30),
 				scale: .8,
 				opacity: .6,
@@ -2782,6 +2778,15 @@ var BattleMoveAnims = {
 				opacity: .8,
 				time: 800
 			}, 'accel', 'explode');
+
+			defender.delay(800);
+			defender.anim({
+				z: defender.behind(10),
+				time: 200
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
 		}
 	},
 	painsplit: {
@@ -11601,7 +11606,7 @@ var BattleMoveAnims = {
 
 			defender.delay(500);
 			defender.anim({
-				z: defender.behind(20),
+				z: defender.behind(10),
 				time: 200
 			}, 'swing');
 			defender.anim({
@@ -11729,7 +11734,7 @@ var BattleMoveAnims = {
 			}, 'linear', 'fade');
 			defender.delay(450);
 			defender.anim({
-				z: defender.behind(20),
+				z: defender.behind(10),
 				time: 200
 			}, 'swing');
 			defender.anim({
@@ -11857,7 +11862,7 @@ var BattleMoveAnims = {
 			}, 'linear', 'fade');
 			defender.delay(450);
 			defender.anim({
-				z: defender.behind(20),
+				z: defender.behind(10),
 				time: 200
 			}, 'swing');
 			defender.anim({
