@@ -2746,6 +2746,8 @@
 			} else if (abilityid === 'chlorophyll' || abilityid === 'swiftswim' || abilityid === 'sandrush') {
 				isFast = true;
 				moveCount['Ultrafast'] = 2;
+			} else if (itemid === 'salacberry') {
+				isFast = true;
 			}
 			if (hasMove['agility'] || hasMove['shellsmash'] || hasMove['autotomize'] || hasMove['shiftgear'] || hasMove['rockpolish']) moveCount['Ultrafast'] = 2;
 			moveCount['Fast'] = isFast ? 1 : 0;
