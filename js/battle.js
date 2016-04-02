@@ -1531,6 +1531,42 @@ var Side = (function () {
 				scale: .3
 			}, BattleEffects.rock1));
 			elem = curelem;
+
+			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock2.url + '" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.leftof(-20),
+				y: this.y - 40,
+				z: this.z,
+				opacity: .5,
+				scale: .3
+			}, BattleEffects.rock2));
+			elem = elem.add(curelem);
+
+			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock1.url + '" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.leftof(30),
+				y: this.y - 20,
+				z: this.z,
+				opacity: .5,
+				scale: .3
+			}, BattleEffects.rock1));
+			elem = elem.add(curelem);
+
+			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock2.url + '" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.leftof(10),
+				y: this.y - 30,
+				z: this.z,
+				opacity: .5,
+				scale: .3
+			}, BattleEffects.rock2));
+			elem = elem.add(curelem);
 			this.sideConditions[condition] = [condition, elem, 1, 0, 0];
 			break;
 		case 'spikes':
