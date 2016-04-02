@@ -521,7 +521,7 @@ var Tools = {
 	parseMessage: function (str) {
 		str = Tools.escapeHTML(str);
 		// Don't format console commands (>>).
-		if (str.substr(0, 8) === '&gt;&gt;') return str;
+		if (str.substr(0, 9) === '&gt;&gt; ' || str.substr(0, 13) === '&gt;&gt;&gt; ') return str;
 		// Don't format console results (<<).
 		if (str.substr(0, 9) === '&lt;&lt; ') return str;
 
