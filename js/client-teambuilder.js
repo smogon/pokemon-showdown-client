@@ -42,6 +42,7 @@
 			'keyup .statform input.numform': 'statChange',
 			'input .statform input[type=number].numform': 'statChange',
 			'change select[name=nature]': 'natureChange',
+			'change select[name=ivspread]': 'ivSpreadChange',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -1846,6 +1847,99 @@
 					var val = '' + (set.ivs[i]);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
 				}
+				var hpType = '';
+				if (set.moves) {
+					for (var i = 0; i < set.moves.length; i++) {
+						var moveid = toId(set.moves[i]);
+						if (moveid.slice(0, 11) === 'hiddenpower') {
+							hpType = moveid.slice(11);
+						}
+					}
+				}
+				if (hpType) {
+					var hpIVs;
+					switch (hpType) {
+					case 'dark':
+						hpIVs = ['111111']; break;
+					case 'dragon':
+						hpIVs = ['011111', '101111', '110111']; break;
+					case 'ice':
+						hpIVs = ['010111', '100111', '111110']; break;
+					case 'psychic':
+						hpIVs = ['011110', '101110', '110110']; break;
+					case 'electric':
+						hpIVs = ['010110', '100110', '111011']; break;
+					case 'grass':
+						hpIVs = ['011011', '101011', '110011']; break;
+					case 'water':
+						hpIVs = ['100011', '111010']; break;
+					case 'fire':
+						hpIVs = ['101010', '110010']; break;
+					case 'steel':
+						hpIVs = ['100010', '111101']; break;
+					case 'ghost':
+						hpIVs = ['101101', '110101']; break;
+					case 'bug':
+						hpIVs = ['100101', '111100', '101100']; break;
+					case 'rock':
+						hpIVs = ['001100', '110100', '100100']; break;
+					case 'ground':
+						hpIVs = ['000100', '111001', '101001']; break;
+					case 'poison':
+						hpIVs = ['001001', '110001', '100001']; break;
+					case 'flying':
+						hpIVs = ['000001', '111000', '101000']; break;
+					case 'fighting':
+						hpIVs = ['001000', '110000', '100000']; break;
+					}
+					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread">';
+					buf += '<option value="" selected>HP ' + hpType.charAt(0).toUpperCase() + hpType.slice(1) + ' IVs</option>';
+
+					var minStat = this.curTeam.gen >= 6 ? 0 : 2;
+
+					buf += '<optgroup label="min Atk">';
+					for (var i = 0; i < hpIVs.length; i++) {
+						var spread = '';
+						for (var j = 0; j < 6; j++) {
+							if (j) spread += '/';
+							spread += (j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+						}
+						buf += '<option value="' + spread + '">' + spread + '</option>';
+					}
+					buf += '</optgroup>';
+					buf += '<optgroup label="min Atk, min Spe">';
+					for (var i = 0; i < hpIVs.length; i++) {
+						var spread = '';
+						for (var j = 0; j < 6; j++) {
+							if (j) spread += '/';
+							spread += (j === 5 || j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+						}
+						buf += '<option value="' + spread + '">' + spread + '</option>';
+					}
+					buf += '</optgroup>';
+					buf += '<optgroup label="max all">';
+					for (var i = 0; i < hpIVs.length; i++) {
+						var spread = '';
+						for (var j = 0; j < 6; j++) {
+							if (j) spread += '/';
+							spread += 30 + parseInt(hpIVs[i].charAt(j), 10);
+						}
+						buf += '<option value="' + spread + '">' + spread + '</option>';
+					}
+					buf += '</optgroup>';
+					buf += '<optgroup label="min Spe">';
+					for (var i = 0; i < hpIVs.length; i++) {
+						var spread = '';
+						for (var j = 0; j < 6; j++) {
+							if (j) spread += '/';
+							spread += (j === 5 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+						}
+						buf += '<option value="' + spread + '">' + spread + '</option>';
+					}
+					buf += '</optgroup>';
+
+					buf += '</select></div>';
+				}
 				buf += '</div>';
 			} else {
 				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
@@ -2058,6 +2152,24 @@
 				this.$chart.find('input[name=stat-' + i + ']').val(val);
 				if (!e) this.setSlider(i, set.evs[i]);
 			}
+
+			this.save();
+			this.updateStatGraph();
+		},
+		ivSpreadChange: function (e) {
+			var set = this.curSet;
+			if (!set) return;
+
+			var spread = e.currentTarget.value.split('/');
+			if (!set.ivs) set.ivs = {};
+			if (spread.length !== 6) return;
+
+			var stats = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+			for (var i = 0; i < 6; i++) {
+				this.$chart.find('input[name=iv-' + stats[i] + ']').val(spread[i]);
+				set.ivs[stats[i]] = parseInt(spread[i], 10);
+			}
+			$(e.currentTarget).val('');
 
 			this.save();
 			this.updateStatGraph();
