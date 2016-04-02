@@ -12,6 +12,8 @@
 			'dragover .roomtab': 'dragEnterRoom'
 		},
 		initialize: function () {
+			// April Fool's 2016 - Digimon Showdown
+			// this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'sprites/afd/digimonshowdown.png" alt="Digimon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar .inner');
 			// this.$sidetabbar = this.$('.sidetabbar');
@@ -679,6 +681,10 @@
 			buf += '<p class="bgstatus"></p>';
 
 			buf += '<p><button name="close"><strong>Done</strong></button></p>';
+
+			// April Fool's 2016 - background change disabling
+			// buf = '<p>Sorry, the background chooser is experiencing technical difficulties. Please try again tomorrow!</p><p><button name="close"><strong>Done</strong></button></p>';
+
 			this.$el.css('max-width', 448).html(buf);
 			this.$el.html(buf);
 		},

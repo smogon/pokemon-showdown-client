@@ -3178,17 +3178,20 @@ var Battle = (function () {
 					}
 					this.message(pokemon.getName() + ' used <strong>Fissure</strong>!');
 					this.message('Just kidding! It was <strong>Earthquake</strong>!');
-				} else if (window.Config && Config.server && Config.server.afd && (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist')) {
-					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
-					var buttons = ["A", "B", "START", "SELECT", "UP", "DOWN", "LEFT", "RIGHT", "DEMOCRACY", "ANARCHY"];
-					var people = ["Zarel", "The Immortal", "Diatom", "Nani Man", "shaymin", "apt-get", "sirDonovan", "Arcticblast", "Trickster"];
-					var button;
-					for (var i = 0; i < 10; i++) {
-						var name = people[Math.floor(Math.random() * people.length)];
-						if (!button) button = buttons[Math.floor(Math.random() * buttons.length)];
-						this.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
-						button = (name === 'Diatom' ? "thanks diatom" : null);
-					}
+				} else if (window.Config && Config.server && Config.server.afd && move.id === 'stealthrock') {
+					var srNames = ['Sneaky Pebbles', 'Sly Rubble', 'Subtle Sediment', 'Buried Bedrock', 'Camouflaged Cinnabar', 'Clandestine Cobblestones', 'Cloaked Clay', 'Concealed Ore', 'Covert Crags', 'Crafty Coal', 'Discreet Bricks', 'Disguised Debris', 'Espionage Pebbles', 'Furtive Fortress', 'Hush-Hush Hardware', 'Incognito Boulders', 'Invisible Quartz', 'Masked Minerals', 'Mischievous Masonry', 'Obscure Ornaments', 'Private Paragon', 'Secret Solitaire', 'Sheltered Sand', 'Surreptitious Sapphire', 'Undercover Ultramarine'];
+					this.message(pokemon.getName() + ' used <strong>' + srNames[Math.floor(Math.random() * srNames.length)] + '</strong>!');
+				// } else if (window.Config && Config.server && Config.server.afd && (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist')) {
+				// 	this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+				// 	var buttons = ["A", "B", "START", "SELECT", "UP", "DOWN", "LEFT", "RIGHT", "DEMOCRACY", "ANARCHY"];
+				// 	var people = ["Zarel", "The Immortal", "Diatom", "Nani Man", "shaymin", "apt-get", "sirDonovan", "Arcticblast", "Trickster"];
+				// 	var button;
+				// 	for (var i = 0; i < 10; i++) {
+				// 		var name = people[Math.floor(Math.random() * people.length)];
+				// 		if (!button) button = buttons[Math.floor(Math.random() * buttons.length)];
+				// 		this.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
+				// 		button = (name === 'Diatom' ? "thanks diatom" : null);
+				// 	}
 				} else {
 					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				}
