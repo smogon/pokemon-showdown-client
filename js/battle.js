@@ -1528,7 +1528,7 @@ var Side = (function () {
 				y: this.y - 10,
 				z: this.z,
 				opacity: .5,
-				scale: .3
+				scale: .2
 			}, BattleEffects.rock1));
 			elem = curelem;
 
@@ -1540,7 +1540,7 @@ var Side = (function () {
 				y: this.y - 40,
 				z: this.z,
 				opacity: .5,
-				scale: .3
+				scale: .2
 			}, BattleEffects.rock2));
 			elem = elem.add(curelem);
 
@@ -1552,7 +1552,7 @@ var Side = (function () {
 				y: this.y - 20,
 				z: this.z,
 				opacity: .5,
-				scale: .3
+				scale: .2
 			}, BattleEffects.rock1));
 			elem = elem.add(curelem);
 
@@ -1564,7 +1564,7 @@ var Side = (function () {
 				y: this.y - 30,
 				z: this.z,
 				opacity: .5,
-				scale: .3
+				scale: .2
 			}, BattleEffects.rock2));
 			elem = elem.add(curelem);
 			this.sideConditions[condition] = [condition, elem, 1, 0, 0];

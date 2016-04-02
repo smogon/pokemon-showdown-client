@@ -12334,7 +12334,7 @@ var BattleMoveAnims = {
 				x: defender.leftof(-40),
 				y: defender.y - 10,
 				z: defender.z,
-				scale: .3,
+				scale: .2,
 				opacity: 1
 			}, 'ballistic');
 			battle.showEffect('rock2', {
@@ -12348,7 +12348,7 @@ var BattleMoveAnims = {
 				x: defender.leftof(-20),
 				y: defender.y - 40,
 				z: defender.z,
-				scale: .3,
+				scale: .2,
 				opacity: 1
 			}, 'ballistic');
 			battle.showEffect('rock1', {
@@ -12362,7 +12362,7 @@ var BattleMoveAnims = {
 				x: defender.leftof(30),
 				y: defender.y - 20,
 				z: defender.z,
-				scale: .3,
+				scale: .2,
 				opacity: 1
 			}, 'ballistic');
 			battle.showEffect('rock2', {
@@ -12376,7 +12376,7 @@ var BattleMoveAnims = {
 				x: defender.leftof(10),
 				y: defender.y - 30,
 				z: defender.z,
-				scale: .3,
+				scale: .2,
 				opacity: 1
 			}, 'ballistic');
 		}
