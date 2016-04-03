@@ -35,13 +35,78 @@ var BattleTooltips = (function () {
 	BattleTooltips.hideTooltip = function () {
 		$('#tooltipwrapper').html('');
 	};
-
 	// tooltips
+	// Touch delay, pressing finger more than that time will cause the tooltip to open.
+	// Shorter time will cause the button to click
+	var LONG_TAP_DELAY = 350; // ms
+	var touchTooltipTimeout;
+	var runClickActionOfButtonWithTooltip = false;
+
+	// Each time a finger presses the button this function will be callled
+	// First finger starts the counter, and when last finger leaves time is checked
+	BattleTooltips._handleTouchStartFor = function (e, roomid, thing, type, elem, ownHeight) {
+		// Prevent default on touch events to block mouse events when touch is used
+		e.preventDefault();
+
+		// On first tap start counting
+		if (e.touches.length === 1) {
+			// Timeout will be canceled by `_handleTouchEndFor` if a short tap have occurred
+			touchTooltipTimeout = setTimeout(function () {
+				touchTooltipTimeout = undefined;
+				BattleTooltips.showTooltipFor(roomid, thing, type, elem, ownHeight);
+			}, LONG_TAP_DELAY);
+		}
+	};
+	BattleTooltips._handleTouchLeaveFor = function (e) {
+		// Prevent default on touch events to block mouse events when touch is used
+		e.preventDefault();
+
+		// If tooltip is open and the last finger just left, close the tooptip
+		if (touchTooltipTimeout === undefined && e.touches.length === 0) {
+			BattleTooltips.hideTooltip();
+		}
+	};
+	BattleTooltips._handleTouchEndFor = function (e, elem) {
+		// Close tooptip if needed
+		BattleTooltips._handleTouchLeaveFor(e);
+
+		// If tooltip is not opened (`touchTooltipTimeout` is still defined) and the last finger left,
+		// meaning the timeout in `_handleTouchStartFor` wasn't fired, fire the action
+		if (touchTooltipTimeout !== undefined && e.touches.length === 0) {
+			clearTimeout(touchTooltipTimeout);
+			touchTooltipTimeout = undefined;
+			runClickActionOfButtonWithTooltip = true;
+
+			// Need to call `click` event manually because we prevented default behaviour of `touchend` event
+			elem.click();
+		}
+	};
+	// Call click on mouse up, because `runClickActionOfButtonWithTooltip` must be set before the click
+	BattleTooltips._handleMouseUpFor = function () {
+		BattleTooltips.hideTooltip();
+		runClickActionOfButtonWithTooltip = true;
+	};
+	// Stop click from doing it's action unless `runClickActionOfButtonWithTooltip` was set to true
+	// (in `_handleMouseUpFor` or in `_handleTouchEndFor`)
+	BattleTooltips._handleClickFor = function (e) {
+		if (!runClickActionOfButtonWithTooltip) {
+			e.stopPropagation();
+		} else {
+			// Reset `runClickActionOfButtonWithTooltip` value to false for next click
+			runClickActionOfButtonWithTooltip = false;
+		}
+	};
 	BattleTooltips.prototype.tooltipAttrs = function (thing, type, ownHeight) {
 		var roomid = this.room.id;
-		return ' onmouseover="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')" ontouchstart="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')" onmouseout="BattleTooltips.hideTooltip()" onmouseup="BattleTooltips.hideTooltip()"';
+		return ' onclick="BattleTooltips._handleClickFor(event)"' +
+		' ontouchstart="BattleTooltips._handleTouchStartFor(event, \'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
+		' ontouchend="BattleTooltips._handleTouchEndFor(event, this)"' +
+		' ontouchleave="BattleTooltips._handleTouchLeaveFor(event)"' +
+		' ontouchcancel="BattleTooltips._handleTouchLeaveFor(event)"' +
+		' onmouseover="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
+		' onmouseout="BattleTooltips.hideTooltip()"' +
+		' onmouseup="BattleTooltips._handleMouseUpFor()"';
 	};
-
 	BattleTooltips.prototype.showTooltip = function (thing, type, elem, ownHeight) {
 		var room = this.room;
 
