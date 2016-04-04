@@ -5237,7 +5237,7 @@ var Battle = (function () {
 					ofpoke.markAbility(ability.name);
 					this.resultAnim(ofpoke, 'Mummy', 'ability');
 					this.message('', "<small>[" + ofpoke.getName(true) + "'s Mummy!]</small>");
-					ofpoke.markAbility('Mummy');
+					ofpoke.markAbility('Mummy', true);
 					actions += "" + ofpoke.getName() + "'s Ability became Mummy!";
 					break;
 				case 'anticipation': // Deprecated, now uses -ability. This is for replay compatability
