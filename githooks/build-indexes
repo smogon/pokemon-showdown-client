@@ -241,6 +241,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (gen === 'gen6' && id in {pawniard:1, vullaby:1, ferroseed:1} && tier !== 'LC') {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
+			} else if (gen === 'gen5' && id in {misdreavus:1} && tier !== 'LC') {
+				if (!tierTable['LC']) tierTable['LC'] = [];
+				tierTable['LC'].push(id);
 			}
 		}
 
