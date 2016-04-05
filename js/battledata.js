@@ -437,11 +437,11 @@ var Tools = {
 
 		switch (cmd) {
 		case 'me':
-			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(target) + '</em></div>';
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(target) + '</i></em></div>';
+			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(' ' + target).slice(1) + '</em></div>';
+			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + ' <i>' + Tools.parseMessage(' ' + target).slice(1) + '</i></em></div>';
 		case 'mee':
-			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(target) + '</em></div>';
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + Tools.parseMessage(target) + '</i></em></div>';
+			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.parseMessage(' ' + target).slice(1) + '</em></div>';
+			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + Tools.parseMessage(' ' + target).slice(1) + '</i></em></div>';
 		case 'invite':
 			var roomid = toRoomid(target);
 			return [
@@ -650,6 +650,13 @@ var Tools = {
 				} else {
 					break;
 				}
+			}
+		}
+
+		if (!options.hidegreentext && str.slice(0, 4) === '&gt;') {
+			// greentext aka meme arrows
+			if (str.charAt(4) !== '.' && str.charAt(4) !== '_' && str.charAt(4) !== '=' && str.charAt(4) !== ':' && str.charAt(4) !== ';' && str.substr(4, 5) !== 'w&lt;') {
+				str = '<span class="greentext">' + str + '</span>';
 			}
 		}
 
