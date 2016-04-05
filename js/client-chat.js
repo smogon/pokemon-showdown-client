@@ -561,12 +561,29 @@
 				return false;
 
 			case 'showjoins':
-				this.add('Join/leave messages: ON');
-				Tools.prefs('showjoins', true);
+				if (target) {
+					var showJoins = Tools.prefs('showroomjoins') || {};
+					var room = toId(target);
+					showJoins[room] = true;
+					this.add('Join/leave messages on room ' + room + ': ON');
+					Tools.prefs('showroomjoins', showJoins);
+				} else {
+					this.add('Join/leave messages: ON');
+					Tools.prefs('showjoins', true);
+				}
 				return false;
 			case 'hidejoins':
-				this.add('Join/leave messages: HIDDEN');
-				Tools.prefs('showjoins', false);
+				if (target) {
+					var showJoins = Tools.prefs('showroomjoins') || {};
+					var room = toId(target);
+					delete showJoins[room];
+					this.add('Join/leave messages on room ' + room + ': HIDDEN');
+					Tools.prefs('showroomjoins', showJoins);
+				} else {
+					this.add('Join/leave messages: HIDDEN');
+					Tools.prefs('showroomjoins', {});
+					Tools.prefs('showjoins', false);
+				}
 				return false;
 
 			case 'showbattles':
@@ -870,8 +887,8 @@
 					return false;
 				case 'showjoins':
 				case 'hidejoins':
-					this.add('/showjoins - Receive users\' join/leave messages.');
-					this.add('/hidejoins - Ignore users\' join/leave messages.');
+					this.add('/showjoins [room] - Receive users\' join/leave messages. Optionally for only specified room.');
+					this.add('/hidejoins [room] - Ignore users\' join/leave messages. Optionally for only specified room.');
 					return false;
 				case 'showbattles':
 				case 'hidebattles':
@@ -1291,7 +1308,7 @@
 				this.userList.add(userid);
 				return;
 			}
-			if (silent && !Tools.prefs('showjoins')) return;
+			if (silent && (!Tools.prefs('showroomjoins') || !Tools.prefs('showroomjoins')[this.id]) && !Tools.prefs('showjoins')) return;
 			if (!this.$joinLeave) {
 				this.$chat.append('<div class="message"><small>Loading...</small></div>');
 				this.$joinLeave = this.$chat.children().last();
