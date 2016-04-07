@@ -13182,7 +13182,7 @@ var BattleMoveAnims = {
 				time: 500
 			}, 'linear', 'fade');
 			battle.showEffect('impact', {
-				x: defender.x - 30,
+				x: defender.x - 25,
 				y: defender.y,
 				z: defender.behind(5),
 				scale: 0.7,
@@ -13191,31 +13191,31 @@ var BattleMoveAnims = {
 			}, {
 				scale: 1,
 				opacity: 0,
-				time: 300
+				time: 375
 			}, 'linear');
 			battle.showEffect('impact', {
-				x: defender.x + 30,
+				x: defender.x + 25,
 				y: defender.y - 5,
 				z: defender.behind(5),
 				scale: 0.7,
 				opacity: 0.2,
-				time: 275
-			}, {
-				scale: 1,
-				opacity: 0,
-				time: 400
-			}, 'linear');
-			battle.showEffect('impact', {
-				x: defender.x - 30,
-				y: defender.y + 10,
-				z: defender.behind(5),
-				scale: 0.7,
-				opacity: 0.2,
-				time: 375
+				time: 300
 			}, {
 				scale: 1,
 				opacity: 0,
 				time: 500
+			}, 'linear');
+			battle.showEffect('impact', {
+				x: defender.x - 25,
+				y: defender.y + 10,
+				z: defender.behind(5),
+				scale: 0.7,
+				opacity: 0.2,
+				time: 400
+			}, {
+				scale: 1,
+				opacity: 0,
+				time: 600
 			}, 'linear');
 			battle.showEffect('impact', {
 				x: defender.x + 2,
@@ -13223,11 +13223,11 @@ var BattleMoveAnims = {
 				z: defender.behind(5),
 				scale: 1,
 				opacity: 0.2,
-				time: 475
+				time: 500
 			}, {
 				scale: 1.25,
 				opacity: 0,
-				time: 600
+				time: 700
 			}, 'linear');
 
 			attacker.anim({
