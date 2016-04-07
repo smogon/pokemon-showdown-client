@@ -3141,7 +3141,83 @@ var BattleMoveAnims = {
 		anim: function () {}
 	},
 	bellydrum: {
-		anim: BattleOtherAnims.selfstatus.anim
+		anim: function (battle, args) {
+			var attacker = args[0];
+
+			battle.showEffect('leftchop', {
+				x: attacker.x - 20,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.75,
+				opacity: 1
+			}, {
+				z: attacker.behind(5),
+				scale: 0.5,
+				opacity: 0,
+				time: 200
+			}, 'linear');
+			battle.showEffect('rightchop', {
+				x: attacker.x + 20,
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.75,
+				opacity: 1,
+				time: 200
+			}, {
+				z: attacker.behind(5),
+				scale: 0.5,
+				opacity: 0,
+				time: 400
+			}, 'linear');
+			battle.showEffect('leftchop', {
+				x: attacker.x - 20,
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.75,
+				opacity: 1,
+				time: 400
+			}, {
+				z: attacker.behind(5),
+				scale: 0.5,
+				opacity: 0,
+				time: 600
+			}, 'linear');
+			battle.showEffect('impact', {
+				x: attacker.x - 20,
+				y: attacker.y - 10,
+				z: attacker.behind(5),
+				scale: 1,
+				opacity: 0.3
+			}, {
+				scale: 1.25,
+				opacity: 0,
+				time: 200
+			}, 'linear');
+			battle.showEffect('impact', {
+				x: attacker.x + 20,
+				y: attacker.y - 10,
+				z: attacker.behind(5),
+				scale: 1,
+				opacity: 0.3,
+				time: 200
+			}, {
+				scale: 1.25,
+				opacity: 0,
+				time: 400
+			}, 'linear');
+			battle.showEffect('impact', {
+				x: attacker.x - 20,
+				y: attacker.y - 10,
+				z: attacker.behind(5),
+				scale: 1,
+				opacity: 0.3,
+				time: 400
+			}, {
+				scale: 1.25,
+				opacity: 0,
+				time: 600
+			}, 'linear');
+		}
 	},
 	aromatherapy: {
 		anim: BattleOtherAnims.selfstatus.anim
