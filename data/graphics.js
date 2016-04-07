@@ -6978,8 +6978,6 @@ var BattleMoveAnims = {
 				opacity: 1,
 				time: 260
 			}, {
-				x: defender.x,
-				y: defender.y,
 				z: defender.behind(20),
 				scale: 2,
 				opacity: 0,
