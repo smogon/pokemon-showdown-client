@@ -1519,6 +1519,9 @@ var Side = (function () {
 		case 'tailwind':
 			this.sideConditions[condition] = [condition, null, 1, this.battle.gen >= 5 ? 4 : 3, 0];
 			break;
+		case 'luckychant':
+			this.sideConditions[condition] = [condition, null, 1, 5, 0];
+			break;
 		case 'stealthrock':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock1.url + '" style="display:none;position:absolute" />');
 			curelem = this.battle.spriteElemsFront[this.n].children().last();
