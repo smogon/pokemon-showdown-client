@@ -528,6 +528,7 @@ var BattleTooltips = (function () {
 		}
 
 		var item = toId(myPokemon.item);
+		if (ability === 'klutz' && item !== 'machobrace') item = '';
 		var species = pokemon.baseSpecies;
 
 		// check for light ball, thick club, metal/quick powder
