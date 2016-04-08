@@ -3202,7 +3202,7 @@ var BattleMoveAnims = {
 				scale: 1,
 				opacity: 0,
 				time: 300
-			}, 'linear')
+			}, 'linear');
 			battle.showEffect('impact', {
 				x: attacker.x + 20,
 				y: attacker.y - 10,
