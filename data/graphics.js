@@ -3152,46 +3152,80 @@ var BattleMoveAnims = {
 				opacity: 1
 			}, {
 				z: attacker.behind(5),
-				scale: 0.3,
-				opacity: 0,
-				time: 200
-			}, 'linear');
+				scale: 0.4,
+				time: 100
+			}, 'linear', 'fade');
 			battle.showEffect('rightchop', {
 				x: attacker.x + 20,
 				y: attacker.y - 10,
 				z: attacker.z,
 				scale: 0.6,
 				opacity: 1,
-				time: 200
+				time: 150
 			}, {
 				z: attacker.behind(5),
-				scale: 0.3,
-				opacity: 0,
-				time: 400
-			}, 'linear');
+				scale: 0.4,
+				time: 250
+			}, 'linear', 'fade');
 			battle.showEffect('leftchop', {
 				x: attacker.x - 20,
 				y: attacker.y - 10,
 				z: attacker.z,
 				scale: 0.6,
 				opacity: 1,
-				time: 400
+				time: 350
 			}, {
 				z: attacker.behind(5),
-				scale: 0.3,
-				opacity: 0,
+				scale: 0.4,
+				time: 450
+			}, 'linear', 'fade');
+			battle.showEffect('rightchop', {
+				x: attacker.x + 20,
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.6,
+				opacity: 1,
+				time: 500
+			}, {
+				z: attacker.behind(5),
+				scale: 0.4,
 				time: 600
+			}, 'linear', 'fade');
+			battle.showEffect('impact', {
+				x: attacker.x - 20,
+				y: attacker.y - 10,
+				z: attacker.behind(5),
+				scale: 0.75,
+				opacity: 0.3,
+				time: 100
+			}, {
+				scale: 1,
+				opacity: 0,
+				time: 300
+			}, 'linear')
+			battle.showEffect('impact', {
+				x: attacker.x + 20,
+				y: attacker.y - 10,
+				z: attacker.behind(5),
+				scale: 0.75,
+				opacity: 0.3,
+				time: 250
+			}, {
+				scale: 1,
+				opacity: 0,
+				time: 550
 			}, 'linear');
 			battle.showEffect('impact', {
 				x: attacker.x - 20,
 				y: attacker.y - 10,
 				z: attacker.behind(5),
 				scale: 0.75,
-				opacity: 0.3
+				opacity: 0.3,
+				time: 400
 			}, {
 				scale: 1,
 				opacity: 0,
-				time: 200
+				time: 700
 			}, 'linear');
 			battle.showEffect('impact', {
 				x: attacker.x + 20,
@@ -3199,23 +3233,11 @@ var BattleMoveAnims = {
 				z: attacker.behind(5),
 				scale: 0.75,
 				opacity: 0.3,
-				time: 200
+				time: 550
 			}, {
 				scale: 1,
 				opacity: 0,
-				time: 400
-			}, 'linear');
-			battle.showEffect('impact', {
-				x: attacker.x - 20,
-				y: attacker.y - 10,
-				z: attacker.behind(5),
-				scale: 0.75,
-				opacity: 0.3,
-				time: 400
-			}, {
-				scale: 1,
-				opacity: 0,
-				time: 600
+				time: 800
 			}, 'linear');
 		}
 	},
