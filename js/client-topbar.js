@@ -130,6 +130,17 @@
 			}
 			if (window.nodewebkit) {
 				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount || '');
+			} else {
+				var $favicon = $('#dynamic-favicon');
+				if (!!$favicon.data('on') !== !!notificationCount) {
+					if (notificationCount) {
+						$favicon.attr('href', Tools.resourcePrefix + '/favicon-notify.ico');
+						$favicon.data('on', '1');
+					} else {
+						$favicon.attr('href', Tools.resourcePrefix + '/favicon.ico');
+						$favicon.data('on', '');
+					}
+				}
 			}
 			sideBuf += this.renderRoomTab(app.rooms['rooms'], 'rooms');
 			var margin = 0;
