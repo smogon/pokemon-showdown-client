@@ -745,7 +745,8 @@
 									buffer += '<td>&ndash;</td>';
 									buffer += '<td><span><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em> <small>(provisional)</small></span></td>';
 								} else {
-									buffer += '<td>' + Math.round(row.gxe, 1) + '<small>%</small></td>';
+									var gxe = Math.round(row.gxe * 10);
+									buffer += '<td>' + Math.floor(gxe / 10) + '<small>.' + (gxe % 10) + '%</small></td>';
 									buffer += '<td><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em></td>';
 								}
 								var N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
