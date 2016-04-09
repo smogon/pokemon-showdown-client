@@ -221,7 +221,7 @@ var BattleBackdropsFour = [
 	'bg-gen4-indoors.png',
 	'bg-gen4-water.png'
 ];
-var BattleBackdrops = [
+var BattleBackdropsFive = [
 	'bg-beach.png',
 	'bg-beachshore.png',
 	'bg-desert.png',
@@ -237,6 +237,27 @@ var BattleBackdrops = [
 	'bg-deepsea.png',
 	'bg-icecave.png',
 	'bg-route.png'
+];
+var BattleBackdrops = [
+	'bg-aquacordetown.jpg',
+	'bg-beach.jpg',
+	'bg-city.jpg',
+	'bg-dampcave.jpg',
+	'bg-darkbeach.jpg',
+	'bg-darkcity.jp',
+	'bg-darkmeadow.jpg',
+	'bg-deepsea.jpg',
+	'bg-desert.jpg',
+	'bg-earthycave.jpg',
+	'bg-elite4drake.jpg',
+	'bg-forest.jpg',
+	'bg-icecave.jpg',
+	'bg-leaderwallace.jpg',
+	'bg-library.jpg',
+	'bg-meadow.jpg',
+	'bg-orasdesert.jpg',
+	'bg-orassea.jpg',
+	'bg-skypillar.jpg'
 ];
 var BattleStats = {
 	atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed', accuracy: 'accuracy', evasion: 'evasiveness', spc: 'Special'
