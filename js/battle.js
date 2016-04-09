@@ -2286,7 +2286,7 @@ var Battle = (function () {
 		// 5 = seeking
 		this.playbackState = 0;
 
-		this.backdropImage = BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
+		this.backdropImage = 'sprites/gen6bgs/' + BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
 
 		this.bgm = null;
 		this.activeQueue = this.queue1;
@@ -2372,12 +2372,13 @@ var Battle = (function () {
 	};
 	Battle.prototype.updateGen = function () {
 		if (!Tools.prefs('nopastgens')) {
-			if (this.gen <= 1) this.backdropImage = 'bg-gen1.png';
-			else if (this.gen <= 2) this.backdropImage = 'bg-gen2.png';
-			else if (this.gen <= 3) this.backdropImage = BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
-			else if (this.gen <= 4) this.backdropImage = BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
+			if (this.gen <= 1) this.backdropImage = 'fx/bg-gen1.png';
+			else if (this.gen <= 2) this.backdropImage = 'fx/bg-gen2.png';
+			else if (this.gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
+			else if (this.gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
+			else if (this.gen <= 5) this.backdropImage = 'fx/' + BattleBackdropsFive[Math.floor(Math.random() * BattleBackdropsFive.length)];
 		}
-		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.fxPrefix + '' + this.backdropImage + ')');
+		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + '' + this.backdropImage + ')');
 	};
 	Battle.prototype.reset = function (dontResetSound) {
 		// battle state
@@ -2407,7 +2408,7 @@ var Battle = (function () {
 		}
 
 		this.updateGen();
-		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.fxPrefix + '' + this.backdropImage + ');display:block;opacity:0"></div>');
+		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + '' + this.backdropImage + ');display:block;opacity:0"></div>');
 		this.bgElem = this.elem.children().last();
 		this.bgElem.animate({
 			opacity: 0.6
