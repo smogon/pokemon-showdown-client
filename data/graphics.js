@@ -244,7 +244,7 @@ var BattleBackdrops = [
 	'bg-city.jpg',
 	'bg-dampcave.jpg',
 	'bg-darkbeach.jpg',
-	'bg-darkcity.jp',
+	'bg-darkcity.jpg',
 	'bg-darkmeadow.jpg',
 	'bg-deepsea.jpg',
 	'bg-desert.jpg',
