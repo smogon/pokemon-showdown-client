@@ -2372,12 +2372,15 @@ var Battle = (function () {
 		this.gen = 6;
 	};
 	Battle.prototype.updateGen = function () {
-		if (!Tools.prefs('nopastgens')) {
-			if (this.gen <= 1) this.backdropImage = 'fx/bg-gen1.png';
-			else if (this.gen <= 2) this.backdropImage = 'fx/bg-gen2.png';
-			else if (this.gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
-			else if (this.gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
-			else if (this.gen <= 5) this.backdropImage = 'fx/' + BattleBackdropsFive[Math.floor(Math.random() * BattleBackdropsFive.length)];
+		var gen = this.gen;
+		if (Tools.prefs('nopastgens')) gen = 6;
+		if (Tools.prefs('bwgfx') && gen > 5) gen = 5;
+		if (gen <= 5) {
+			if (gen <= 1) this.backdropImage = 'fx/bg-gen1.png';
+			else if (gen <= 2) this.backdropImage = 'fx/bg-gen2.png';
+			else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
+			else if (gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
+			else this.backdropImage = 'fx/' + BattleBackdropsFive[Math.floor(Math.random() * BattleBackdropsFive.length)];
 		}
 		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + '' + this.backdropImage + ')');
 	};
