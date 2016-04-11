@@ -3446,6 +3446,7 @@ var Battle = (function () {
 						actions += "" + poke.getName() + " was hurt by poison!";
 						break;
 					case 'lifeorb':
+						poke.item = effect.name;
 						this.message('', '<small>' + poke.getName() + ' lost some of its HP!</small>');
 						break;
 					case 'recoil':
