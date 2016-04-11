@@ -2415,7 +2415,7 @@ var Battle = (function () {
 		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + '' + this.backdropImage + ');display:block;opacity:0"></div>');
 		this.bgElem = this.elem.children().last();
 		this.bgElem.animate({
-			opacity: 0.6
+			opacity: 0.8
 		});
 
 		this.elem.append('<div class="weather"></div>');
