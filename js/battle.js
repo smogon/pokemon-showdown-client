@@ -4067,7 +4067,8 @@ var Battle = (function () {
 					this.resultAnim(ofpoke, effect.name, 'ability');
 					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + effect.name + "!]</small>");
 					ofpoke.markAbility(effect);
-				} else if (effect.exists) {
+				} else if (effect.effectType === 'Item') {
+					(ofpoke || poke).item = effect.name;
 					effectMessage = " by the " + effect.name;
 				}
 
