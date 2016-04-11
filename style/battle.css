@@ -26,7 +26,7 @@ License: GPLv2
 	top: -90px;
 	left: -50px;
 	background: transparent url(../fx/bg-beach.png) no-repeat scroll left top;
-	opacity: 0.6;
+	opacity: 0.8;
 }
 .battle a {
 	color: #2277FF;
@@ -753,6 +753,7 @@ License: GPLv2
 	color: #BBBBBB;
 }
 .chat code,
+.ps-popup code,
 .chat .spoiler:hover code,
 .chat .spoiler:active code,
 .chat .spoiler-shown code {
@@ -761,12 +762,16 @@ License: GPLv2
 	color: black;
 	padding: 0 2px;
 }
+.greentext {
+	color: #488912;
+}
 .dark .chat .spoiler code {
 	border-color: #777;
 	background: #777;
 	color: #777;
 }
 .dark .chat code,
+.dark .ps-popup code,
 .dark .chat .spoiler:hover code,
 .dark .chat .spoiler:active code,
 .dark .chat .spoiler-shown code {

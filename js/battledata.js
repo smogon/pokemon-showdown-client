@@ -655,7 +655,7 @@ var Tools = {
 
 		if (!options.hidegreentext && str.slice(0, 4) === '&gt;') {
 			// greentext aka meme arrows
-			if (str.charAt(4) !== '.' && str.charAt(4) !== '_' && str.charAt(4) !== '=' && str.charAt(4) !== ':' && str.charAt(4) !== ';' && str.substr(4, 5) !== 'w&lt;') {
+			if (str.charAt(4) !== '.' && str.charAt(4) !== '_' && str.charAt(4) !== '/' && str.charAt(4) !== '=' && str.charAt(4) !== ':' && str.charAt(4) !== ';' && str.substr(4, 5) !== 'w&lt;' && str.substr(4, 5) !== 'w&gt;') {
 				str = '<span class="greentext">' + str + '</span>';
 			}
 		}

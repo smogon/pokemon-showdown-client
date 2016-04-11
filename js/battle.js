@@ -1519,6 +1519,9 @@ var Side = (function () {
 		case 'tailwind':
 			this.sideConditions[condition] = [condition, null, 1, this.battle.gen >= 5 ? 4 : 3, 0];
 			break;
+		case 'luckychant':
+			this.sideConditions[condition] = [condition, null, 1, 5, 0];
+			break;
 		case 'stealthrock':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock1.url + '" style="display:none;position:absolute" />');
 			curelem = this.battle.spriteElemsFront[this.n].children().last();
@@ -2283,7 +2286,7 @@ var Battle = (function () {
 		// 5 = seeking
 		this.playbackState = 0;
 
-		this.backdropImage = BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
+		this.backdropImage = 'sprites/gen6bgs/' + BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
 
 		this.bgm = null;
 		this.activeQueue = this.queue1;
@@ -2315,6 +2318,7 @@ var Battle = (function () {
 
 	Battle.prototype.resultWaiting = false;
 	Battle.prototype.multiHitMove = null;
+	Battle.prototype.activeMoveIsSpread = null;
 
 	// callback
 	Battle.prototype.faintCallback = null;
@@ -2368,13 +2372,17 @@ var Battle = (function () {
 		this.gen = 6;
 	};
 	Battle.prototype.updateGen = function () {
-		if (!Tools.prefs('nopastgens')) {
-			if (this.gen <= 1) this.backdropImage = 'bg-gen1.png';
-			else if (this.gen <= 2) this.backdropImage = 'bg-gen2.png';
-			else if (this.gen <= 3) this.backdropImage = BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
-			else if (this.gen <= 4) this.backdropImage = BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
+		var gen = this.gen;
+		if (Tools.prefs('nopastgens')) gen = 6;
+		if (Tools.prefs('bwgfx') && gen > 5) gen = 5;
+		if (gen <= 5) {
+			if (gen <= 1) this.backdropImage = 'fx/bg-gen1.png';
+			else if (gen <= 2) this.backdropImage = 'fx/bg-gen2.png';
+			else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
+			else if (gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
+			else this.backdropImage = 'fx/' + BattleBackdropsFive[Math.floor(Math.random() * BattleBackdropsFive.length)];
 		}
-		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.fxPrefix + '' + this.backdropImage + ')');
+		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + '' + this.backdropImage + ')');
 	};
 	Battle.prototype.reset = function (dontResetSound) {
 		// battle state
@@ -2404,10 +2412,10 @@ var Battle = (function () {
 		}
 
 		this.updateGen();
-		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.fxPrefix + '' + this.backdropImage + ');display:block;opacity:0"></div>');
+		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + '' + this.backdropImage + ');display:block;opacity:0"></div>');
 		this.bgElem = this.elem.children().last();
 		this.bgElem.animate({
-			opacity: 0.6
+			opacity: 0.8
 		});
 
 		this.elem.append('<div class="weather"></div>');
@@ -2458,6 +2466,7 @@ var Battle = (function () {
 		// activity queue state
 		this.animationDelay = 0;
 		this.multiHitMove = null;
+		this.activeMoveIsSpread = null;
 		this.activityStep = 0;
 		this.activityDelay = 0;
 		this.activityAfter = null;
@@ -3261,6 +3270,7 @@ var Battle = (function () {
 			} else if (!kwargs.notarget) {
 				var usedMove = kwargs.anim ? Tools.getMove(kwargs.anim) : move;
 				if (kwargs.spread) {
+					this.activeMoveIsSpread = kwargs.spread;
 					var targets = [pokemon.sprite];
 					var hitPokemon = kwargs.spread.split(',');
 					if (hitPokemon[0] !== '.') {
@@ -3419,6 +3429,8 @@ var Battle = (function () {
 						this.resultAnim(ofpoke, effect.name, 'ability');
 						this.message('', "<small>[" + ofpoke.getName(true) + "'s " + effect.name + "!]</small>");
 						ofpoke.markAbility(effect.name);
+					} else if (effect.effectType === 'Item') {
+						(ofpoke || poke).item = effect.name;
 					}
 					switch (effect.id) {
 					case 'stealthrock':
@@ -3494,7 +3506,6 @@ var Battle = (function () {
 						if (ofpoke) {
 							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "!";
 						} else if (effect.effectType === 'Item') {
-							poke.item = effect.name;
 							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
 						} else if (effect.effectType === 'Ability') {
 							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
@@ -3827,21 +3838,21 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				for (var j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[i + j][0][1]);
 				if (poke) this.resultAnim(poke, 'Critical hit', 'bad');
-				actions += "A critical hit! ";
+				actions += "A critical hit" + (this.activeMoveIsSpread ? " on " + poke.getLowerName() : "") + "! ";
 				break;
 
 			case '-supereffective':
 				var poke = this.getPokemon(args[1]);
 				for (var j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[i + j][0][1]);
 				if (poke) this.resultAnim(poke, 'Super-effective', 'bad');
-				actions += "It's super effective! ";
+				actions += "It's super effective" + (this.activeMoveIsSpread ? " on " + poke.getLowerName() : "") + "! ";
 				break;
 
 			case '-resisted':
 				var poke = this.getPokemon(args[1]);
 				for (var j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[i + j][0][1]);
 				if (poke) this.resultAnim(poke, 'Resisted', 'neutral');
-				actions += "It's not very effective... ";
+				actions += "It's not very effective" + (this.activeMoveIsSpread ? " on " + poke.getLowerName() : "..") + ". ";
 				break;
 
 			case '-immune':
@@ -4056,7 +4067,8 @@ var Battle = (function () {
 					this.resultAnim(ofpoke, effect.name, 'ability');
 					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + effect.name + "!]</small>");
 					ofpoke.markAbility(effect);
-				} else if (effect.exists) {
+				} else if (effect.effectType === 'Item') {
+					(ofpoke || poke).item = effect.name;
 					effectMessage = " by the " + effect.name;
 				}
 
@@ -6257,6 +6269,7 @@ var Battle = (function () {
 			this.activityStep--;
 			this.resultWaiting = false;
 			this.multiHitMove = null;
+			this.activeMoveIsSpread = null;
 			return true;
 		}
 		return false;
