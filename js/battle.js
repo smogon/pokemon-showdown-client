@@ -3429,6 +3429,8 @@ var Battle = (function () {
 						this.resultAnim(ofpoke, effect.name, 'ability');
 						this.message('', "<small>[" + ofpoke.getName(true) + "'s " + effect.name + "!]</small>");
 						ofpoke.markAbility(effect.name);
+					} else if (effect.effectType === 'Item') {
+						(ofpoke || poke).item = effect.name;
 					}
 					switch (effect.id) {
 					case 'stealthrock':
@@ -3504,7 +3506,6 @@ var Battle = (function () {
 						if (ofpoke) {
 							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "!";
 						} else if (effect.effectType === 'Item') {
-							poke.item = effect.name;
 							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
 						} else if (effect.effectType === 'Ability') {
 							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
