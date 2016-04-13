@@ -2154,11 +2154,20 @@
 				'@': "Moderator (@)",
 				'%': "Driver (%)",
 				'\u2605': "Player (\u2605)",
-				'+': "Voiced (+)",
+				'+': "Voice (+)",
 				'‽': "<span style='color:#777777'>Locked (‽)</span>",
 				'!': "<span style='color:#777777'>Muted (!)</span>"
 			};
 			var group = (groupDetails[name.substr(0, 1)] || '');
+			var globalgroup = (groupDetails[(data.group || '').charAt(0)] || '');
+			if (globalgroup) {
+				if (!group || group === globalgroup) {
+					group = "Global " + globalgroup;
+					globalgroup = '';
+				} else {
+					globalgroup = "Global " + globalgroup;
+				}
+			}
 			if (group || name.charAt(0) === ' ') name = name.substr(1);
 			var ownUserid = app.user.get('userid');
 
@@ -2166,6 +2175,7 @@
 			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Tools.resolveAvatar(avatar) + '" />';
 			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + Tools.escapeHTML(name) + '</a></strong><br />';
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
+			if (globalgroup) buf += '<br /><small>' + globalgroup + '</small>';
 			if (data.rooms) {
 				var battlebuf = '';
 				var chatbuf = '';
