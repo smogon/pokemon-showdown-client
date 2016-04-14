@@ -3300,6 +3300,11 @@ var Battle = (function () {
 		if (window.BattleStatusAnims && effect.id in BattleStatusAnims && !this.fastForward) {
 			BattleStatusAnims[effect.id].anim(this, [pokemon.sprite]);
 		}
+		if (effect.effectType === 'Ability') {
+			this.resultAnim(pokemon, effect.name, 'ability');
+			this.message('', "<small>[" + pokemon.getName(true) + "'s " + effect.name + "!]</small>");
+			pokemon.markAbility(effect.name);
+		}
 		switch (effect.id) {
 		case 'taunt':
 			this.message('' + pokemon.getName() + ' can\'t use ' + move.name + ' after the taunt!');
@@ -3333,7 +3338,7 @@ var Battle = (function () {
 			this.message('Sky Drop won\'t let ' + pokemon.getLowerName() + ' go!');
 			break;
 		case 'truant':
-			this.resultAnim(pokemon, 'Truant', 'neutral');
+			this.resultAnim(pokemon, 'Loafing around', 'neutral');
 			this.message('' + pokemon.getName() + ' is loafing around!');
 			break;
 		case 'recharge':
