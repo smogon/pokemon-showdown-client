@@ -3335,6 +3335,7 @@ var Battle = (function () {
 		case 'truant':
 			this.resultAnim(pokemon, 'Truant', 'neutral');
 			this.message('' + pokemon.getName() + ' is loafing around!');
+			pokemon.markAbility('Truant');
 			break;
 		case 'recharge':
 			if (!this.fastForward) BattleOtherAnims['selfstatus'].anim(this, [pokemon.sprite]);
