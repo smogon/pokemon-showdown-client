@@ -799,7 +799,11 @@ License: GPLv2
 .message-announce a,
 .broadcast-green a,
 .broadcast-blue a,
-.broadcast-red a {
+.broadcast-red a,
+.dark .message-announce a,
+.dark .broadcast-green a,
+.dark .broadcast-blue a,
+.dark .broadcast-red a {
 	/* Readable link colour */
 	color: #DDEEFF;
 }
