@@ -763,7 +763,10 @@ License: GPLv2
 	padding: 0 2px;
 }
 .greentext {
-	color: #488912;
+	color: #187902;
+}
+.dark .greentext {
+	color: #C8E9A2;
 }
 .dark .chat .spoiler code {
 	border-color: #777;
