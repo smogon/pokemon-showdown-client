@@ -186,7 +186,7 @@
 		updateFolderList: function () {
 			var buf = '<div class="folderlist"><div class="folderlistbefore"></div>';
 
-			buf += '<div class="folder' + (!this.curFolder ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="all"><em>(all)</em></div></div>' + (!this.curFolder ? '</div>' : '');
+			buf += '<div class="folder' + (!this.curFolder ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="all"><strong><em>All</em></strong></div></div>' + (!this.curFolder ? '</div>' : '');
 			var folderTable = {};
 			var folders = [];
 			if (Storage.teams) for (var i = -2; i < Storage.teams.length; i++) {
