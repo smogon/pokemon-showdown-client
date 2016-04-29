@@ -5070,6 +5070,7 @@ var Battle = (function () {
 					}
 					break;
 				case 'attract':
+					if (!this.fastForward) BattleStatusAnims['attract'].anim(this, [poke.sprite]);
 					actions += '' + poke.getName() + ' is in love with ' + ofpoke.getLowerName() + '!';
 					break;
 				case 'bide':
