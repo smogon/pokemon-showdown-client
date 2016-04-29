@@ -1939,6 +1939,24 @@
 					buf += '</optgroup>';
 
 					buf += '</select></div>';
+				} else {
+					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread">';
+					buf += '<option value="" selected>IV spreads</option>';
+
+					buf += '<optgroup label="min Atk">';
+					buf += '<option value="31/0/31/31/31/31">31/0/31/31/31/31</option>';
+					buf += '</optgroup>';
+					buf += '<optgroup label="min Atk, min Spe">';
+					buf += '<option value="31/0/31/31/31/0">31/0/31/31/31/0</option>';
+					buf += '</optgroup>';
+					buf += '<optgroup label="max all">';
+					buf += '<option value="31/31/31/31/31/31">31/31/31/31/31/31</option>';
+					buf += '</optgroup>';
+					buf += '<optgroup label="min Spe">';
+					buf += '<option value="31/31/31/31/31/0">31/31/31/31/31/0</option>';
+					buf += '</optgroup>';
+
+					buf += '</select></div>';
 				}
 				buf += '</div>';
 			} else {
