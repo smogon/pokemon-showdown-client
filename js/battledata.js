@@ -909,6 +909,13 @@ var Tools = {
 		return move;
 	},
 
+	getCategory: function (move, gen, type) {
+		if (gen <= 3 && move.category !== 'Status') {
+			return ((type || move.type) in {Fire:1, Water:1, Grass:1, Electric:1, Ice:1, Psychic:1, Dark:1, Dragon:1} ? 'Special' : 'Physical');
+		}
+		return move.category;
+	},
+
 	getItem: function (item) {
 		if (!item || typeof item === 'string') {
 			var name = $.trim(item || '');

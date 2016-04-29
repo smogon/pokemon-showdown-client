@@ -2487,46 +2487,77 @@
 			}
 			this.save();
 		},
-		unChooseMove: function (move) {
+		unChooseMove: function (moveName) {
 			var set = this.curSet;
-			if (!move || !set) return;
-			if (move.substr(0, 13) === 'Hidden Power ') {
+			if (!moveName || !set) return;
+			if (moveName.substr(0, 13) === 'Hidden Power ') {
 				if (set.ivs) {
 					for (var i in set.ivs) {
-						if (set.ivs[i] === 30) delete set.ivs[i];
+						if (set.ivs[i] === 30) set.ivs[i] = 31;
+						if (set.ivs[i] <= 3) set.ivs[i] = 0;
 					}
 				}
 			}
+			this.chooseMove('');
 		},
-		chooseMove: function (move) {
+		chooseMove: function (moveName) {
 			var set = this.curSet;
 			if (!set) return;
-			if (move.substr(0, 13) === 'Hidden Power ') {
+			var gen = this.curTeam.gen;
+
+			var minSpe = false;
+			if (moveName.substr(0, 13) === 'Hidden Power ') {
+				var hpType = moveName.substr(13);
+
 				set.ivs = {};
 				if (this.curTeam.gen > 2) {
-					for (var i in exports.BattleTypeChart[move.substr(13)].HPivs) {
-						set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPivs[i];
+					for (var i in exports.BattleTypeChart[hpType].HPivs) {
+						set.ivs[i] = exports.BattleTypeChart[hpType].HPivs[i];
 					}
 				} else {
-					for (var i in exports.BattleTypeChart[move.substr(13)].HPdvs) {
-						set.ivs[i] = exports.BattleTypeChart[move.substr(13)].HPdvs[i] * 2;
+					for (var i in exports.BattleTypeChart[hpType].HPdvs) {
+						set.ivs[i] = exports.BattleTypeChart[hpType].HPdvs[i] * 2;
 					}
 				}
-				var moves = this.curSet.moves;
-				for (var i = 0; i < moves.length; ++i) {
-					if (moves[i] === 'Gyro Ball' || moves[i] === 'Trick Room') set.ivs['spe'] = set.ivs['spe'] % 4;
-				}
-			} else if (move === 'Gyro Ball' || move === 'Trick Room') {
-				var hasHiddenPower = false;
-				var moves = this.curSet.moves;
-				for (var i = 0; i < moves.length; ++i) {
-					if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
-				}
-				set.ivs['spe'] = hasHiddenPower ? set.ivs['spe'] % 4 : 0;
-			} else if (move === 'Return') {
+			} else if (moveName === 'Return') {
 				this.curSet.happiness = 255;
-			} else if (move === 'Frustration') {
+			} else if (moveName === 'Frustration') {
 				this.curSet.happiness = 0;
+			} else if (moveName === 'Gyro Ball' || moveName === 'Trick Room') {
+				minSpe = true;
+			}
+
+			var minAtk = true;
+			var hpModulo = (this.curTeam.gen >= 6 ? 2 : 4);
+			var hasHiddenPower = false;
+			var moves = set.moves;
+			for (var i = 0; i < moves.length; ++i) {
+				if (!moves[i]) continue;
+				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
+				var move = Tools.getMove(moves[i]);
+				if (Tools.getCategory(move, this.curTeam.gen) === 'Physical' &&
+						!move.damage && !move.ohko && move.id !== 'rapidspin') {
+					minAtk = false;
+				}
+			}
+
+			if (!set.ivs) {
+				if (!minSpe && (!minAtk || gen < 3)) return;
+				set.ivs = {};
+			}
+			if (!set.ivs['spe'] && set.ivs['spe'] !== 0) set.ivs['spe'] = 31;
+			if (minSpe) {
+				// min Spe
+				set.ivs['spe'] = (hasHiddenPower ? set.ivs['spe'] % hpModulo : 0);
+			}
+			if (gen < 3) return;
+			if (!set.ivs['atk'] && set.ivs['atk'] !== 0) set.ivs['atk'] = 31;
+			if (minAtk) {
+				// min Atk
+				set.ivs['atk'] = (hasHiddenPower ? set.ivs['atk'] % hpModulo : 0);
+			} else {
+				// max Atk
+				set.ivs['atk'] = (hasHiddenPower ? 30 + (set.ivs['atk'] % 2) : 31);
 			}
 		},
 		setPokemon: function (val, selectNext) {
