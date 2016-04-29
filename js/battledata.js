@@ -874,6 +874,16 @@ var Tools = {
 				move = $.extend({}, move);
 				move.basePower = matches[2];
 			}
+			if (!move.exists && id.substr(0, 6) === 'return' && id.length > 6) {
+				move = (window.BattleMovedex && window.BattleMovedex['return']) || {};
+				move = $.extend({}, move);
+				move.basePower = id.slice(6);
+			}
+			if (!move.exists && id.substr(0, 11) === 'frustration' && id.length > 11) {
+				move = (window.BattleMovedex && window.BattleMovedex['frustration']) || {};
+				move = $.extend({}, move);
+				move.basePower = id.slice(11);
+			}
 
 			if (!move.id) move.id = id;
 			if (!move.name) move.name = Tools.escapeHTML(name);
