@@ -246,10 +246,7 @@ var BattleTooltips = (function () {
 		}
 
 		text = '<div class="tooltipinner"><div class="tooltip">';
-		var category = move.category;
-		if (this.battle.gen <= 3 && move.category !== 'Status') {
-			category = (move.type in {Fire:1, Water:1, Grass:1, Electric:1, Ice:1, Psychic:1, Dark:1, Dragon:1} ? 'Special' : 'Physical');
-		}
+		var category = Tools.getCategory(move, this.battle.gen, moveType);
 		text += '<h2>' + move.name + '<br />' + Tools.getTypeIcon(moveType) + ' <img src="' + Tools.resourcePrefix;
 		text += 'sprites/categories/' + category + '.png" alt="' + category + '" /></h2>';
 		text += basePowerText;

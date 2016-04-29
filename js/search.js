@@ -1288,10 +1288,7 @@
 		if (this.gen <= 1 && (id === 'bite' || id === 'gust' || id === 'karatechop' || id === 'sandattack')) type = 'Normal';
 		if (this.gen <= 5 && (id === 'charm' || id === 'moonlight' || id === 'sweetkiss')) type = 'Normal';
 		buf += Tools.getTypeIcon(type);
-		var category = move.category;
-		if (this.gen <= 3 && move.category !== 'Status') {
-			category = (type in {Fire:1, Water:1, Grass:1, Electric:1, Ice:1, Psychic:1, Dark:1, Dragon:1} ? 'Special' : 'Physical');
-		}
+		var category = Tools.getCategory(move, this.gen, type);
 		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32" />';
 		buf += '</span> ';
 
