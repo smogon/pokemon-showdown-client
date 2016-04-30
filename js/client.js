@@ -2156,6 +2156,7 @@
 				'\u2605': "Player (\u2605)",
 				'+': "Voice (+)",
 				'‽': "<span style='color:#777777'>Locked (‽)</span>",
+				'✖': "<span style='color:#777777'>Namelocked (✖)</span>",
 				'!': "<span style='color:#777777'>Muted (!)</span>"
 			};
 			var group = (groupDetails[name.substr(0, 1)] || '');

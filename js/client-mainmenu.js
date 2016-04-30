@@ -130,7 +130,7 @@
 
 		addPM: function (name, message, target) {
 			var userid = toUserid(name);
-			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '!': 1, '‽': 1}) return;
+			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '!': 1, '✖': 1, '‽': 1}) return;
 
 			var isSelf = (toId(name) === app.user.get('userid'));
 			var oName = isSelf ? target : name;
