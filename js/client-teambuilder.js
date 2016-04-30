@@ -2516,14 +2516,19 @@
 					}
 				}
 			}
-			this.chooseMove('');
+			var resetSpeed = false;
+			if (moveName === 'Gyro Ball' || moveName === 'Trick Room') {
+				resetSpeed = true;
+			}
+			this.chooseMove('', resetSpeed);
 		},
-		chooseMove: function (moveName) {
+		chooseMove: function (moveName, resetSpeed) {
 			var set = this.curSet;
 			if (!set) return;
 			var gen = this.curTeam.gen;
 
-			var minSpe = false;
+			var minSpe = undefined;
+			if (resetSpeed) minSpe = false;
 			if (moveName.substr(0, 13) === 'Hidden Power ') {
 				var hpType = moveName.substr(13);
 
@@ -2554,19 +2559,25 @@
 				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
 				var move = Tools.getMove(moves[i]);
 				if (Tools.getCategory(move, this.curTeam.gen) === 'Physical' &&
-						!move.damage && !move.ohko && move.id !== 'rapidspin') {
+						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay') {
 					minAtk = false;
+				}
+				if (minSpe === false && (moveName === 'Gyro Ball' || moveName === 'Trick Room')) {
+					minSpe = undefined;
 				}
 			}
 
 			if (!set.ivs) {
-				if (!minSpe && (!minAtk || gen < 3)) return;
+				if (minSpe === undefined && (!minAtk || gen < 3)) return;
 				set.ivs = {};
 			}
 			if (!set.ivs['spe'] && set.ivs['spe'] !== 0) set.ivs['spe'] = 31;
 			if (minSpe) {
 				// min Spe
 				set.ivs['spe'] = (hasHiddenPower ? set.ivs['spe'] % hpModulo : 0);
+			} else if (minSpe === false) {
+				// max Spe
+				set.ivs['spe'] = (hasHiddenPower ? 30 + (set.ivs['spe'] % 2) : 31);
 			}
 			if (gen < 3) return;
 			if (!set.ivs['atk'] && set.ivs['atk'] !== 0) set.ivs['atk'] = 31;
