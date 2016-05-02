@@ -12,4 +12,7 @@ RewriteRule ^([0-9-]+)/([0-9-]+\.txt)$ /lobby/$1/$2 [R=301,L]
 
 RewriteRule ^([a-zA-Z0-9-]+)/$ ./?roomid=$1 [QSA]
 RewriteRule ^([a-zA-Z0-9-]+)/([0-9-]+)/$ ./?roomid=$1&month=$2 [QSA]
-RewriteRule ^([a-zA-Z0-9-]+)/([0-9-]+)/([0-9-]+\.txt)$ ./?roomid=$1&month=$2&file=$3 [QSA]
+RewriteRule ^([a-zA-Z0-9-]+)/([0-9-]+)/([0-9-]+)\.txt$ ./viewlog.php?roomid=$1&month=$2&file=$3 [QSA]
+RewriteRule ^([a-zA-Z0-9-]+)/([0-9-]+)/([0-9-]+)\.html$ ./viewlog.php?roomid=$1&month=$2&file=$3&html=1 [QSA]
+RewriteRule ^([a-zA-Z0-9-]+)/([0-9-]+)\.txt$ ./viewlog.php?roomid=$1&file=$2 [QSA]
+RewriteRule ^([a-zA-Z0-9-]+)/([0-9-]+)\.html$ ./viewlog.php?roomid=$1&file=$2&html=1 [QSA]

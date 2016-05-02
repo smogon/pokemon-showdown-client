@@ -18,7 +18,9 @@ $.ajax({
 	date.setTime(+date + 15 * 60 * 1000)
 	$.cookie('assertion', data, {expires: date});
 	if (location.search) {
-		document.location.replace(decodeURIComponent(location.search.substr(1)));
+		var uri = decodeURIComponent(location.search.substr(1)) + location.hash;
+		if (uri.charAt(0) !== '/') uri = '/';
+		document.location.replace(uri);
 	} else {
 		document.location.replace('/');
 	}
