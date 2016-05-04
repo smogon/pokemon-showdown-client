@@ -37,6 +37,8 @@
 
 			// details
 			'change .detailsform input': 'detailsChange',
+			'click .changeform' : 'altForm',
+			'click .altform' : 'altForm',
 
 			// stats
 			'keyup .statform input.numform': 'statChange',
@@ -1050,7 +1052,12 @@
 				var item = Tools.getItem(set.item);
 				itemicon = '<span class="itemicon" style="' + Tools.getItemIcon(item) + '"></span>';
 			}
-			buf += '<div class="setcol setcol-icon">' + itemicon + '<div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
+			if (template.otherForms && template.baseSpecies !== 'Unown') {
+				buf += '<div class="setcol setcol-icon changeform">' + itemicon + '<i class="fa fa-caret-down"></i>';
+			} else {
+				buf += '<div class="setcol setcol-icon">' + itemicon;
+			}
+			buf += '<div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
 
 			// details
 			buf += '<div class="setcol setcol-details"><div class="setrow">';
@@ -2232,6 +2239,10 @@
 			}
 
 			buf += '</form>';
+			if (template.otherForms && template.baseSpecies !== 'Unown') {
+				buf += '<button class="altform">Change sprite</button>';
+			}
+
 			this.$chart.html(buf);
 		},
 		detailsChange: function () {
@@ -2282,6 +2293,15 @@
 
 			this.save();
 			this.updatePokemonSprite();
+		},
+		altForm: function (e) {
+			var set = this.curSet;
+			var i = 0;
+			if (!set) {
+				i = +$(e.currentTarget).closest('li').attr('value');
+				set = this.curSetList[i];
+			}
+			app.addPopup(AltFormPopup, {curSet: set, index: i, room: this});
 		},
 
 		/*********************************************************
@@ -3170,6 +3190,65 @@
 		submit: function (data) {
 			this.room.deleteFolder(this.folder, !!this.$('input[name=addname]')[0].checked);
 			this.close();
+		}
+	});
+	var AltFormPopup = this.AltFormPopup = Popup.extend({
+		type: 'semimodal',
+		initialize: function (data) {
+			this.room = data.room;
+			this.curSet = data.curSet;
+			this.chartIndex = data.index;
+			var template = Tools.getTemplate(this.curSet.species);
+			var baseid = toId(template.baseSpecies);
+			var forms = [baseid].concat(template.otherForms);
+			var spriteDir = Tools.resourcePrefix + 'sprites/';
+			var spriteSize = 96;
+			var spriteDim = 'width: 96px; height: 96px;';
+
+			var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[Math.max(this.room.curTeam.gen, template.gen)];
+			if (Tools.prefs('nopastgens')) gen = 'xy';
+			if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
+			if (gen === 'xy') {
+				spriteDir += 'xydex';
+				spriteSize = 120;
+				spriteDim = 'width: 120px; height: 120px;';
+			} else {
+				spriteDir += gen;
+			}
+
+			var buf = '';
+			buf += '<p>Pick a variant or <button name="close">Cancel</button></p>';
+			buf += '<div class="formlist">';
+
+			var formCount = forms.length;
+			for (var i = 0; i < formCount; i++) {
+				var formid = forms[i].substring(baseid.length);
+				var form = (formid ? formid[0].toUpperCase() + formid.slice(1) : '');
+				var offset = '-' + (((i - 1) % 7) * spriteSize) + 'px -' + (Math.floor((i - 1) / 7) * spriteSize) + 'px';
+				buf += '<button name="setForm" value="' + form + '"  style="';
+				buf += 'background-position:' + offset + '; background: url(' + spriteDir + '/' + baseid + (form ? '-' + formid : '') + '.png) no-repeat; ' + spriteDim + '"';
+				buf += (form === template.form || (form === '' && !template.form) ? ' class="cur"' : '') + '></button>';
+			}
+			buf += '</div>';
+
+			this.$el.html(buf).css({'max-width': (4 + spriteSize) * (formCount < 6 ? formCount : 6), 'height': 42 + (4 + spriteSize) * (formCount < 6 ? 1 : formCount / 6)});
+		},
+		setForm: function (form) {
+			var template = Tools.getTemplate(this.curSet.species);
+			if (form && form !== template.form) {
+				this.curSet.species = Tools.getTemplate(template.baseSpecies + form).species;
+			} else if (!form) {
+				this.curSet.species = template.baseSpecies;
+			}
+			this.close();
+			if (this.room.curSet) {
+				this.room.updatePokemonSprite();
+			} else {
+				this.room.update();
+			}
+			this.room.$('input[name=pokemon]').eq(this.chartIndex).val(this.curSet.species);
+			this.room.curTeam.team = Storage.packTeam(this.room.curSetList);
+			Storage.saveTeam(this.room.curTeam);
 		}
 	});
 

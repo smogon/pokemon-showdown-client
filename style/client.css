@@ -2906,6 +2906,29 @@ a.ilink.yours {
 	width: 95px;
 	text-align: right;
 }
+.changeform {
+	cursor: pointer;
+}
+.changeform i{
+	cursor: pointer;
+	display: block;
+	margin: -12px 0 -6px 0;
+	padding-left: 4px;
+	padding-top: 2px;
+	width: 12px;
+	height: 14px;
+	position: relative;
+	left: 90px;
+	border: 1px solid #569;
+	border-radius: 2px;
+	color: #569;
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.altform {
+	margin-left: 10px;
+	margin-top: 4px;
+}
+
 
 /*********************************************************
  * Popups
@@ -2946,6 +2969,7 @@ a.ilink.yours {
 	margin: 0 -7px;
 }
 .avatarlist button,
+.formlist button,
 .bglist button {
 	display: block;
 	float: left;
@@ -2969,11 +2993,14 @@ a.ilink.yours {
 	background: url(../fx/client-bgsheet.png) no-repeat scroll 0px 0px;
 }
 .avatarlist button.cur,
+.formlist button.cur,
 .bglist button.cur {
 	border-color: #999999;
 }
 .avatarlist button:hover,
 .avatarlist button.cur:hover,
+.formlist button:hover,
+.formlist button.cur:hover,
 .bglist button:hover,
 .bglist button.cur:hover {
 	border: 1px solid #8899AA;
