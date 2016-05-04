@@ -2561,6 +2561,8 @@
 				if (Tools.getCategory(move, this.curTeam.gen) === 'Physical' &&
 						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay') {
 					minAtk = false;
+				} else if (move.id === 'metronome') {
+					minAtk = false;
 				}
 				if (minSpe === false && (moveName === 'Gyro Ball' || moveName === 'Trick Room')) {
 					minSpe = undefined;
