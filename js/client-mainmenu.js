@@ -552,8 +552,25 @@
 				}
 				this.openPM(' ' + i, true);
 			}
-			var self = this;
 			var atLeastOneGen5 = false;
+
+			var challengeToUserid = '';
+			if (data.challengeTo) {
+				var challenge = data.challengeTo;
+				var name = challenge.to;
+				var userid = toId(name);
+				var $challenge = this.openChallenge(name);
+
+				var buf = '<form class="battleform"><p>Waiting for ' + Tools.escapeHTML(name) + '...</p>';
+				buf += '<p><label class="label">Format:</label>' + this.renderFormats(challenge.format, true) + '</p>';
+				buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
+
+				$challenge.html(buf);
+				if (challenge.format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
+				challengeToUserid = userid;
+			}
+
+			var self = this;
 			this.$('.pm-window').each(function (i, el) {
 				var $pmWindow = $(el);
 				var userid = $pmWindow.data('userid');
@@ -582,7 +599,7 @@
 								// Someone was challenging you, but cancelled their challenge
 								$challenge.html('<form class="battleform"><p>The challenge was cancelled.</p><p class="buttonbar"><button name="dismissChallenge">OK</button></p></form>');
 							}
-						} else if ($challenge.find('button[name=cancelChallenge]').length) {
+						} else if ($challenge.find('button[name=cancelChallenge]').length && challengeToUserid !== userid) {
 							// You were challenging someone else, and they either accepted
 							// or rejected it
 							$challenge.remove();
@@ -592,19 +609,6 @@
 				}
 			});
 
-			if (data.challengeTo) {
-				var challenge = data.challengeTo;
-				var name = challenge.to;
-				var userid = toId(name);
-				var $challenge = this.openChallenge(name);
-
-				var buf = '<form class="battleform"><p>Waiting for ' + Tools.escapeHTML(name) + '...</p>';
-				buf += '<p><label class="label">Format:</label>' + this.renderFormats(challenge.format, true) + '</p>';
-				buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
-
-				$challenge.html(buf);
-				if (challenge.format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
-			}
 			if (atLeastOneGen5 && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
 		},
 		openChallenge: function (name, $pmWindow) {
