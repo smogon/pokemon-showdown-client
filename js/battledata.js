@@ -982,6 +982,7 @@ var Tools = {
 		if (!template || typeof template === 'string') {
 			var name = template;
 			var id = toId(name);
+			var speciesid = id;
 			if (window.BattleAliases && BattleAliases[id]) {
 				name = BattleAliases[id];
 				id = toId(name);
@@ -1050,6 +1051,20 @@ var Tools = {
 				} else {
 					template.gen = 0;
 				}
+			}
+			if (template.otherForms && template.otherForms.indexOf(speciesid) >= 0) {
+				if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
+				if (!window.BattlePokedexAltForms[speciesid]) {
+					template = window.BattlePokedexAltForms[speciesid] = $.extend({}, template);
+					var form = speciesid.slice(template.baseSpecies.length);
+					var formid = '-' + form;
+					form = form[0].toUpperCase() + form.slice(1);
+					template.form = form;
+					template.species = template.baseSpecies + (form ? '-' + form : '');
+					template.speciesid = toId(template.species);
+					template.spriteid = toId(template.baseSpecies) + formid;
+				}
+				template = window.BattlePokedexAltForms[speciesid];
 			}
 		}
 		return template;
@@ -1209,9 +1224,17 @@ var Tools = {
 			"deoxysattack": 763,
 			"deoxysdefense": 764,
 			"deoxysspeed": 766,
+			"deerlingautumn": 793,
+			"deerlingsummer": 795,
+			"deerlingwinter": 796,
+			"sawsbuckautumn": 797,
+			"sawsbucksummer": 799,
+			"sawsbuckwinter": 800,
 			"wormadamsandy": 771,
 			"wormadamtrash": 772,
 			"cherrimsunshine": 774,
+			"shelloseast": 775,
+			"gastrodoneast": 777,
 			"castformrainy": 760,
 			"castformsnowy": 761,
 			"castformsunny": 762,
@@ -1318,6 +1341,8 @@ var Tools = {
 			wormadamsandy: 732 + 43,
 			wormadamtrash: 732 + 44,
 			cherrimsunshine: 732 + 45,
+			shelloseast: 732 + 46,
+			gastrodoneast: 732 + 47,
 			rotomfan: 732 + 48,
 			rotomfrost: 732 + 49,
 			rotomheat: 732 + 50,
@@ -1328,6 +1353,12 @@ var Tools = {
 			unfezantf: 732 + 55,
 			basculinbluestriped: 732 + 56,
 			darmanitanzen: 732 + 57,
+			deerlingautumn: 732 + 58,
+			deerlingsummer: 732 + 59,
+			deerlingwinter: 732 + 60,
+			sawsbuckautumn: 732 + 61,
+			sawsbucksummer: 732 + 62,
+			sawsbuckwinter: 732 + 63,
 			frillishf: 732 + 64,
 			jellicentf: 732 + 65,
 			tornadustherian: 732 + 66,
@@ -1337,8 +1368,39 @@ var Tools = {
 			kyuremwhite: 732 + 70,
 			keldeoresolute: 732 + 71,
 			meloettapirouette: 732 + 72,
+			vivillonarchipelago: 732 + 73,
+			vivilloncontinental: 732 + 74,
+			vivillonelegant: 732 + 75,
+			vivillonfancy: 732 + 76,
+			vivillongarden: 732 + 77,
+			vivillonhighplains: 732 + 78,
+			vivillonicysnow: 732 + 79,
+			vivillonjungle: 732 + 80,
+			vivillonmarine: 732 + 81,
+			vivillonmodern: 732 + 82,
+			vivillonmonsoon: 732 + 83,
+			vivillonpokeball: 732 + 84,
+			vivillonocean: 732 + 85,
+			vivillonpolar: 732 + 86,
+			vivillonriver: 732 + 87,
+			vivillonsandstorm: 732 + 88,
+			vivillonsavanna: 732 + 89,
+			vivillonsun: 732 + 90,
+			vivillontundra: 732 + 91,
 			pyroarf: 732 + 92,
+			flabebeblue: 732 + 93,
+			flabebeorange: 732 + 94,
+			flabebewhite: 732 + 95,
+			flabebeyellow: 732 + 96,
+			floetteblue: 732 + 97,
 			floetteeternal: 732 + 98,
+			floetteorange: 732 + 99,
+			floettewhite: 732 + 100,
+			floetteyellow: 732 + 101,
+			florgesblue: 732 + 102,
+			florgesorange: 732 + 103,
+			florgeswhite: 732 + 104,
+			florgesyellow: 732 + 105,
 			meowsticf: 732 + 115,
 			aegislashblade: 732 + 116,
 			hoopaunbound: 732 + 118,

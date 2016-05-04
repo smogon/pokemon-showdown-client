@@ -765,7 +765,7 @@ Storage.unpackTeam = function (buf) {
 
 		// species
 		j = buf.indexOf('|', i);
-		set.species = Tools.getTemplate(buf.substring(i, j)).name || set.name;
+		set.species = Tools.getTemplate(buf.substring(i, j)).species || set.name;
 		i = j + 1;
 
 		// item
@@ -988,11 +988,11 @@ Storage.importTeam = function (text, teams) {
 			var parenIndex = line.lastIndexOf(' (');
 			if (line.substr(line.length - 1) === ')' && parenIndex !== -1) {
 				line = line.substr(0, line.length - 1);
-				curSet.species = Tools.getTemplate(line.substr(parenIndex + 2)).name;
+				curSet.species = Tools.getTemplate(line.substr(parenIndex + 2)).species;
 				line = line.substr(0, parenIndex);
 				curSet.name = line;
 			} else {
-				curSet.species = Tools.getTemplate(line).name;
+				curSet.species = Tools.getTemplate(line).species;
 				curSet.name = '';
 			}
 		} else if (line.substr(0, 7) === 'Trait: ') {
