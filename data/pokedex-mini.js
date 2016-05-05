@@ -510,7 +510,7 @@ exports.BattlePokemonSprites = {
 	"glameow": {num:431, front:{ani:{w:60, h:86}}, back:{ani:{w:79, h:94}}},
 	"purugly": {num:432, front:{ani:{w:70, h:81}}, back:{ani:{w:70, h:80}}},
 	"chingling": {num:433, front:{ani:{w:50, h:66}}, back:{ani:{w:55, h:72}}},
-	"stunky": {num:434, front:{ani:{w:83, h:65}}, back:{ani:{w:107, h:73}}},
+	"stunky": {num:434, front:{ani:{w:85, h:66}}, back:{ani:{w:107, h:73}}},
 	"skuntank": {num:435, front:{ani:{w:87, h:79}}, back:{ani:{w:88, h:81}}},
 	"bronzor": {num:436, front:{ani:{w:40, h:55}}, back:{ani:{w:36, h:55}}},
 	"bronzong": {num:437, front:{ani:{w:89, h:73}}, back:{ani:{w:72, h:72}}},
