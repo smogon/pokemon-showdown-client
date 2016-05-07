@@ -941,7 +941,7 @@ var Sprite = (function () {
 			if (this.battle.sides[this.isBackSprite ? 1 : 0].active[0]) {
 				this.battle.sides[this.isBackSprite ? 1 : 0].active[0].sprite.delay(300);
 			}
-			this.battle.animationDelay = 300;
+			this.battle.animationDelay = 500;
 			this.battle.activityWait(this.elem);
 
 			return true;
@@ -1087,6 +1087,7 @@ var Sprite = (function () {
 			z: this.z
 		}, this.sp, 'accel'), 300);
 		this.battle.activityWait(this.elem);
+		if (!this.battle.fastForward && this.sp.shiny) BattleOtherAnims.shiny.anim(this.battle, [this]);
 	};
 	Sprite.prototype.animDragIn = function (slot) {
 		if (this.battle.fastForward) return this.animSummon(slot, true);
@@ -4622,6 +4623,7 @@ var Battle = (function () {
 					if (kwargs.already) {
 						actions += "" + poke.getName() + " is already confused!";
 					} else {
+						if (!this.fastForward) BattleStatusAnims['confused'].anim(this, [poke.sprite]);
 						this.resultAnim(poke, 'Confused', 'bad');
 						if (kwargs.fatigue) {
 							actions += "" + poke.getName() + " became confused due to fatigue!";
@@ -5070,7 +5072,7 @@ var Battle = (function () {
 					}
 					break;
 				case 'attract':
-					if (!this.fastForward) BattleStatusAnims['attract'].anim(this, [poke.sprite]);
+					if (!this.fastForward) BattleStatusAnims['attracted'].anim(this, [poke.sprite]);
 					actions += '' + poke.getName() + ' is in love with ' + ofpoke.getLowerName() + '!';
 					break;
 				case 'bide':
