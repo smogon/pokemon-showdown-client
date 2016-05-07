@@ -182,6 +182,14 @@ var BattleEffects = {
 		url: 'impact.png', // by Pokemon Showdown user SailorCosmos
 		w: 127, h: 119
 	},
+	stare: {
+		url: 'stare.png',
+		w: 100, h: 35
+	},
+	shine: {
+		url: 'shine.png', // by Smogon user Jajoken
+		w: 127, h: 119
+	},
 	alpha: {
 		url: 'alpha.png', // Ripped from Pokemon Global Link
 		w: 80, h: 80
@@ -964,7 +972,7 @@ var BattleOtherAnims = {
 				y: attacker.y + 10,
 				opacity: 0,
 				time: 600
-			}, 'accel', 'explode');
+			}, 'accel');
 			battle.showEffect('iceball', {
 				x: attacker.x - 30,
 				y: attacker.y - 10,
@@ -977,7 +985,7 @@ var BattleOtherAnims = {
 				y: attacker.y - 20,
 				opacity: 0,
 				time: 700
-			}, 'accel', 'explode');
+			}, 'accel');
 			battle.showEffect('iceball', {
 				x: attacker.x + 15,
 				y: attacker.y + 10,
@@ -990,7 +998,7 @@ var BattleOtherAnims = {
 				y: attacker.y + 20,
 				opacity: 0,
 				time: 800
-			}, 'accel', 'explode');
+			}, 'accel');
 			battle.showEffect('iceball', {
 				x: attacker.x - 15,
 				y: attacker.y - 30,
@@ -1003,7 +1011,89 @@ var BattleOtherAnims = {
 				y: attacker.y - 40,
 				opacity: 0,
 				time: 900
-			}, 'accel', 'explode');
+			}, 'accel');
+		}
+	},
+	shiny: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			battle.backgroundEffect('#000000', 800, 0.3, 100);
+			battle.showEffect('shine', {
+				x: attacker.x + 5,
+				y: attacker.y + 20,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.7,
+				time: 450
+			}, {
+				y: attacker.y + 35,
+				opacity: 0,
+				time: 675
+			}, 'decel');
+			battle.showEffect('shine', {
+				x: attacker.x + 15,
+				y: attacker.y + 20,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 0.7,
+				time: 475
+			}, {
+				x: attacker.x + 25,
+				y: attacker.y + 30,
+				opacity: 0,
+				time: 700
+			}, 'decel');
+			battle.showEffect('shine', {
+				x: attacker.x - 15,
+				y: attacker.y + 20,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 0.7,
+				time: 500
+			}, {
+				x: attacker.x - 25,
+				y: attacker.y + 30,
+				opacity: 0,
+				time: 725
+			}, 'decel');
+			battle.showEffect('shine', {
+				x: attacker.x - 20,
+				y: attacker.y + 5,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 0.7,
+				time: 550
+			}, {
+				x: attacker.x - 30,
+				y: attacker.y - 5,
+				opacity: 0,
+				time: 775
+			}, 'decel');
+			battle.showEffect('shine', {
+				x: attacker.x + 15,
+				y: attacker.y + 10,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 0.7,
+				time: 650
+			}, {
+				x: attacker.x + 35,
+				y: attacker.y - 5,
+				opacity: 0,
+				time: 875
+			}, 'decel');
+			battle.showEffect('shine', {
+				x: attacker.x + 5,
+				y: attacker.y - 5,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 0.7,
+				time: 675
+			}, {
+				y: attacker.y - 20,
+				opacity: 0,
+				time: 900
+			}, 'decel');
 		}
 	},
 	flight: {
@@ -1704,7 +1794,7 @@ var BattleStatusAnims = {
 			}, 'linear', 'fade');
 		}
 	},
-	attract: {
+	attracted: {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			battle.showEffect('heart', {
@@ -1743,6 +1833,63 @@ var BattleStatusAnims = {
 				opacity: 1,
 				time: 500
 			}, 'ballistic2Under', 'fade');
+		}
+	},
+	confused: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			battle.showEffect('electroball', {
+				x: attacker.x + 50,
+				y: attacker.y + 30,
+				z: attacker.z,
+				scale: .1,
+				opacity: 1,
+				time: 400
+			}, {
+				x: attacker.x - 50,
+				scale: .15,
+				opacity: .4,
+				time: 600
+			}, 'linear', 'fade');
+			battle.showEffect('electroball', {
+				x: attacker.x - 50,
+				y: attacker.y + 30,
+				z: attacker.z,
+				scale: .1,
+				opacity: 1,
+				time: 400
+			}, {
+				x: attacker.x + 50,
+				scale: .15,
+				opacity: .4,
+				time: 600
+			}, 'linear', 'fade');
+			battle.showEffect('electroball', {
+				x: attacker.x + 50,
+				y: attacker.y + 30,
+				z: attacker.z,
+				scale: .1,
+				opacity: 1,
+				time: 600
+			}, {
+				x: attacker.x - 50,
+				scale: .4,
+				opacity: .4,
+				time: 800
+			}, 'linear', 'fade');
+			battle.showEffect('electroball', {
+				x: attacker.x - 50,
+				y: attacker.y + 30,
+				z: attacker.z,
+				scale: .15,
+				opacity: 1,
+				time: 600
+			}, {
+				x: attacker.x + 50,
+				scale: .4,
+				opacity: .4,
+				time: 800
+			}, 'linear', 'fade');
 		}
 	}
 };
@@ -1825,6 +1972,51 @@ var BattleMoveAnims = {
 				opacity: 1,
 				time: 700
 			}, 'ballistic2Under', 'fade');
+		}
+	},
+	quash: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 80,
+				z: defender.behind(-30),
+				time: 400
+			}, 'ballistic');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 5,
+				z: defender.z,
+				time: 100
+			});
+			attacker.anim({
+				time: 500
+			}, 'ballistic2Back');
+			defender.delay(450);
+			defender.anim({
+				y: defender.y - 15,
+				yscale: 0.5,
+				time: 300
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'decel');
+
+			battle.showEffect('rightchop', {
+				x: defender.x,
+				y: defender.y + 10,
+				z: defender.z,
+				scale: 0.5,
+				opacity: 0.1,
+				time: 400
+			}, {
+				y: defender.y,
+				scale: 0.25,
+				opacity: 1,
+				time: 700
+			}, 'decel', 'explode');
 		}
 	},
 	swagger: {
@@ -3305,7 +3497,134 @@ var BattleMoveAnims = {
 		anim: BattleOtherAnims.selfstatus.anim
 	},
 	rockpolish: {
-		anim: BattleOtherAnims.selfstatus.anim
+		anim: function (battle, args) {
+			var attacker = args[0];
+
+			battle.showEffect('leftslash', {
+				x: attacker.x - 10,
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 0.3
+			}, {
+				opacity: 0,
+				time: 300
+			}, 'decel');
+			battle.showEffect('rightslash', {
+				x: attacker.x + 20,
+				y: attacker.y - 15,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 0.3,
+				time: 100
+			}, {
+				opacity: 0,
+				time: 400
+			}, 'decel');
+			battle.showEffect('leftslash', {
+				x: attacker.x - 5,
+				y: attacker.y + 15,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 0.3,
+				time: 200
+			}, {
+				opacity: 0,
+				time: 500
+			}, 'decel');
+			battle.showEffect('rightslash', {
+				x: attacker.x + 5,
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 0.3,
+				time: 200
+			}, {
+				opacity: 0,
+				time: 500
+			}, 'decel');
+
+			battle.showEffect('shine', {
+				x: attacker.x - 10,
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.3,
+				opacity: 0.6
+			}, {
+				opacity: 0,
+				time: 300
+			}, 'decel');
+			battle.showEffect('shine', {
+				x: attacker.x + 20,
+				y: attacker.y - 15,
+				z: attacker.z,
+				scale: 0.3,
+				opacity: 0.6,
+				time: 100
+			}, {
+				opacity: 0,
+				time: 400
+			}, 'decel');
+			battle.showEffect('shine', {
+				x: attacker.x - 5,
+				y: attacker.y + 15,
+				z: attacker.z,
+				scale: 0.3,
+				opacity: 0.6,
+				time: 200
+			}, {
+				opacity: 0,
+				time: 500
+			}, 'decel');
+			battle.showEffect('shine', {
+				x: attacker.x + 5,
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.3,
+				opacity: 0.6,
+				time: 300
+			}, {
+				opacity: 0,
+				time: 600
+			}, 'accel');
+
+			battle.showEffect('shine', {
+				x: attacker.x + 20,
+				y: attacker.y - 30,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 0
+			}, {
+				y: attacker.y + 40,
+				opacity: 0,
+				time: 400
+			}, 'accel');
+			battle.showEffect('shine', {
+				x: attacker.x - 20,
+				y: attacker.y + 40,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 200
+			}, {
+				y: attacker.y + 40,
+				opacity: 0,
+				time: 600
+			}, 'accel');
+			battle.showEffect('shine', {
+				x: attacker.x,
+				y: attacker.y + 30,
+				z: attacker.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 400
+			}, {
+				y: attacker.y + 40,
+				opacity: 0,
+				time: 800
+			}, 'accel');
+		}
 	},
 	harden: {
 		anim: BattleOtherAnims.selfstatus.anim
@@ -3358,7 +3677,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 
 			battle.showEffect('pointer', {
-				x: attacker.x,
+				x: attacker.x - 5,
 				y: attacker.y,
 				z: attacker.z,
 				scale: 0.5,
@@ -3387,9 +3706,6 @@ var BattleMoveAnims = {
 		anim: BattleOtherAnims.selfstatus.anim
 	},
 	shiftgear: {
-		anim: BattleOtherAnims.selfstatus.anim
-	},
-	autotomize: {
 		anim: BattleOtherAnims.selfstatus.anim
 	},
 	bulkup: {
@@ -4040,7 +4356,7 @@ var BattleMoveAnims = {
 	tailglow: {
 		anim: function (battle, args) {
 			var attacker = args[0];
-			battle.showEffect('energyball', {
+			battle.showEffect('electroball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -6628,22 +6944,22 @@ var BattleMoveAnims = {
 				y: attacker.y,
 				z: attacker.behind(-25),
 				opacity: 0.3,
-				time: 50
+				time: 25
 			}, {
 				x: defender.x,
 				z: defender.behind(-5),
-				time: 450
+				time: 425
 			}, 'ballistic2Under', 'fade');
 			battle.showEffect(attacker.sp, {
 				x: attacker.leftof(20),
 				y: attacker.y,
 				z: attacker.behind(-25),
 				opacity: 0.3,
-				time: 100
+				time: 50
 			}, {
 				x: defender.x,
 				z: defender.behind(-5),
-				time: 500
+				time: 450
 			}, 'ballistic2Under', 'fade');
 
 			battle.showEffect('shadowball', {
@@ -8251,7 +8567,7 @@ var BattleMoveAnims = {
 				x: attacker.x,
 				y: attacker.y + 90,
 				z: attacker.z,
-				scale: 0.8,
+				scale: 2,
 				time: 200
 			}, 'accel', 'fade');
 			battle.showEffect('flareball', {
@@ -8274,11 +8590,13 @@ var BattleMoveAnims = {
 				y: attacker.y + 90,
 				z: attacker.z,
 				opacity: 0.8,
+				scale: 2,
 				time: 200
 			}, {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
+				scale: 2.5,
 				time: 500
 			}, 'accel', 'fade');
 
@@ -8443,6 +8761,8 @@ var BattleMoveAnims = {
 
 			attacker.anim({
 				y: defender.y + 120,
+				xscale: 0,
+				yscale: 0,
 				opacity: 0,
 				time: 300
 			}, 'accel');
@@ -8451,6 +8771,8 @@ var BattleMoveAnims = {
 				x: attacker.x,
 				y: attacker.y + 40,
 				z: attacker.behind(40),
+				xscale: 1,
+				yscale: 1,
 				time: 1
 			});
 			attacker.anim({
@@ -10205,7 +10527,17 @@ var BattleMoveAnims = {
 			var defender = args[1];
 			battle.backgroundEffect('#AA0000', 250, 0.3);
 			battle.backgroundEffect('#000000', 250, 0.2, 400);
-			battle.activityWait(700);
+			battle.showEffect('stare', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1,
+				yscale: 0,
+				opacity: 1
+			}, {
+				yscale: 1,
+				time: 700
+			}, 'decel', 'fade');
 		}
 	},
 	nightshade: {
@@ -11668,13 +12000,13 @@ var BattleMoveAnims = {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				scale: 0.15,
+				scale: 0.35,
 				opacity: 0
 			}, {
 				x: defender.leftof(40),
 				y: defender.y + 15,
 				z: defender.z,
-				scale: 0.3,
+				scale: 0.5,
 				opacity: .7,
 				time: 500
 			}, 'decel', 'fade');
@@ -11683,14 +12015,14 @@ var BattleMoveAnims = {
 				x: defender.leftof(40),
 				y: defender.y + 15,
 				z: defender.z,
-				scale: 0.3,
+				scale: 0.5,
 				opacity: .7,
 				time: 500
 			}, {
 				x: defender.leftof(-40),
 				y: defender.y,
 				z: defender.z,
-				scale: 0.2,
+				scale: 0.4,
 				opacity: 1,
 				time: 700
 			}, 'swing', 'fade');
@@ -11698,14 +12030,14 @@ var BattleMoveAnims = {
 				x: defender.leftof(-40),
 				y: defender.y,
 				z: defender.z,
-				scale: 0.1,
+				scale: 0.5,
 				opacity: 0,
 				time: 700
 			}, {
 				x: defender.leftof(10),
 				y: defender.y - 15,
 				z: defender.z,
-				scale: 0.5,
+				scale: 1,
 				opacity: 1,
 				time: 900
 			}, 'swing', 'explode');
@@ -12088,7 +12420,8 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect('#B84038', 1100, 0.4);
+			battle.backgroundEffect('#000000', 500, 0.7);
+			battle.backgroundEffect('#B84038', 600, 0.4, 500);
 			battle.showEffect('fireball', {
 				x: attacker.x,
 				y: attacker.y,
@@ -12646,7 +12979,7 @@ var BattleMoveAnims = {
 			defender.delay(500);
 			defender.anim({
 				z: defender.behind(5),
-				time: 100
+				time: 200
 			}, 'swing');
 			defender.anim({
 				time: 300
@@ -16597,63 +16930,36 @@ var BattleMoveAnims = {
 				scale: 6,
 				opacity: 0
 			}, 'linear', 'fade');
+
 			battle.showEffect('fireball', {
-				x: defender.x + 10,
-				y: defender.y - 35,
-				z: defender.z,
+				x: attacker.x,
+				y: attacker.y - 35,
+				z: attacker.behind(-50),
 				scale: 0,
 				opacity: 0.8
 			}, {
 				scale: 3,
-				opacity: 0
-			}, 'linear');
-			battle.showEffect('rock3', {
-				x: defender.x + 10,
-				y: defender.y - 35,
-				z: defender.z,
-				scale: 0.4,
-				opacity: 0.6,
-				time: 0
-			}, {
-				x: defender.x + 30,
-				y: defender.y + 50,
-				scale: 0.5,
 				opacity: 0,
-				time: 300
-			}, 'linear', 'fade');
-			battle.showEffect('rock3', {
-				x: defender.x + 10,
-				y: defender.y - 35,
-				z: defender.z,
-				scale: 0.4,
-				opacity: 0.6,
-				time: 100
-			}, {
-				x: defender.x - 10,
-				y: defender.y + 50,
-				scale: 0.5,
-				opacity: 0,
-				time: 400
-			}, 'linear', 'fade');
-			battle.showEffect('rock3', {
-				x: defender.x + 40,
-				y: defender.y - 35,
-				z: defender.z,
-				scale: 0.4,
-				opacity: 0.6,
 				time: 200
-			}, {
-				x: defender.x + 35,
-				y: defender.y + 50,
+			}, 'linear');
+			battle.showEffect('rock2', {
+				x: attacker.x,
+				y: attacker.y - 20,
+				z: attacker.behind(-50),
 				scale: 0.5,
-				opacity: 0,
-				time: 500
-			}, 'linear', 'fade');
+				yscale: 1.4,
+				opacity: 0.7,
+				time: 25
+			}, {
+				y: attacker.y,
+				yscale: 1.5,
+				time: 250
+			}, 'decel', 'fade');
 
 			battle.showEffect('fireball', {
-				x: defender.x - 40,
-				y: defender.y - 35,
-				z: defender.z,
+				x: attacker.x,
+				y: attacker.y - 35,
+				z: attacker.behind(-125),
 				scale: 0,
 				opacity: 0.8,
 				time: 150
@@ -16661,103 +16967,72 @@ var BattleMoveAnims = {
 				scale: 3,
 				opacity: 0
 			}, 'linear');
-			battle.showEffect('rock3', {
-				x: defender.x - 40,
-				y: defender.y - 35,
-				z: defender.z,
-				scale: 0.4,
-				opacity: 0.6,
-				time: 150
-			}, {
-				x: defender.x - 60,
-				y: defender.y + 45,
+			battle.showEffect('rock1', {
+				x: attacker.x,
+				y: attacker.y - 20,
+				z: attacker.behind(-125),
 				scale: 0.5,
-				opacity: 0,
-				time: 450
-			}, 'linear', 'fade');
-			battle.showEffect('rock3', {
-				x: defender.x - 40,
-				y: defender.y - 35,
-				z: defender.z,
-				scale: 0.4,
-				opacity: 0.6,
-				time: 250
+				yscale: 1.5,
+				opacity: 0.7,
+				time: 175
 			}, {
-				x: defender.x - 20,
-				y: defender.y + 45,
-				scale: 0.5,
-				opacity: 0,
-				time: 550
-			}, 'linear', 'fade');
-			battle.showEffect('rock3', {
-				x: defender.x - 40,
+				y: attacker.y,
+				yscale: 1.6,
+				time: 400
+			}, 'decel', 'fade');
+
+			battle.showEffect('fireball', {
+				x: defender.x,
 				y: defender.y - 35,
 				z: defender.z,
-				scale: 0.4,
-				opacity: 0.6,
+				scale: 0,
+				opacity: 0.8,
+				time: 300
+			}, {
+				scale: 6,
+				opacity: 0
+			}, 'linear');
+			battle.showEffect('rock2', {
+				x: defender.x - 15,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0.5,
+				yscale: 1.6,
+				opacity: 0.7,
 				time: 350
 			}, {
-				x: defender.x - 35,
-				y: defender.y + 45,
+				y: attacker.y,
+				yscale: 1.7,
+				time: 550
+			}, 'decel', 'fade');
+			battle.showEffect('rock2', {
+				x: defender.x + 15,
+				y: defender.y - 20,
+				z: defender.z,
 				scale: 0.5,
-				opacity: 0,
-				time: 650
-			}, 'linear', 'fade');
-
-			battle.showEffect('fireball', {
-				x: defender.x + 40,
-				y: defender.y - 35,
-				z: defender.z,
-				scale: 0,
-				opacity: 0.8,
-				time: 300
+				yscale: 1.6,
+				opacity: 0.7,
+				time: 375
 			}, {
-				scale: 3,
-				opacity: 0
-			}, 'linear');
-			battle.showEffect('rock3', {
-				x: defender.x + 40,
-				y: defender.y - 35,
+				y: attacker.y,
+				yscale: 1.7,
+				time: 575
+			}, 'decel', 'fade');
+			battle.showEffect('rock1', {
+				x: defender.x,
+				y: defender.y - 20,
 				z: defender.z,
-				scale: 0.4,
-				opacity: 0.6,
-				time: 300
-			}, {
-				x: defender.x + 60,
-				y: defender.y + 65,
 				scale: 0.5,
-				opacity: 0,
-				time: 600
-			}, 'linear', 'fade');
-			battle.showEffect('rock3', {
-				x: defender.x + 40,
-				y: defender.y - 35,
-				z: defender.z,
-				scale: 0.4,
-				opacity: 0.6,
+				yscale: 1.8,
+				opacity: 0.7,
 				time: 400
 			}, {
-				x: defender.x + 20,
-				y: defender.y + 65,
-				scale: 0.5,
-				opacity: 0,
-				time: 700
-			}, 'linear', 'fade');
-			battle.showEffect('rock3', {
-				x: defender.x + 40,
-				y: defender.y - 35,
-				z: defender.z,
-				scale: 0.4,
-				opacity: 0.6,
-				time: 500
-			}, {
-				x: defender.x + 30,
-				y: defender.y + 65,
-				scale: 0.5,
-				opacity: 0,
-				time: 800
-			}, 'linear', 'fade');
+				y: defender.y + 10,
+				yscale: 1.9,
+				time: 600
+			}, 'accel', 'fade');
 
+			defender.delay(325);
 			defender.anim({
 				x: defender.x - 30,
 				time: 75
@@ -16869,7 +17144,7 @@ var BattleMoveAnims = {
 				z: defender.z,
 				scale: 1.5,
 				time: 700
-			}, 'accel', 'fade');
+			}, 'accel', 'explode');
 			battle.showEffect('energyball', {
 				x: defender.leftof(-165),
 				y: defender.y + 175,
@@ -16883,7 +17158,7 @@ var BattleMoveAnims = {
 				z: defender.z,
 				scale: 1.5,
 				time: 700
-			}, 'accel', 'fade');
+			}, 'accel', 'explode');
 
 			battle.showEffect('electroball', {
 				x: defender.x,
@@ -17909,43 +18184,139 @@ var BattleMoveAnims = {
 
 			battle.backgroundEffect('#000000', 700, 0.3);
 			battle.showEffect('mistball', {
-				x: defender.x + 40 - 40,
-				y: defender.y + 80,
-				z: defender.z,
-				scale: 1,
-				opacity: 0
-			}, {
-				x: defender.x + 40,
-				y: defender.y,
-				scale: 1,
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.6,
 				opacity: 0.5
-			}, 'decel', 'explode');
-			battle.showEffect('mistball', {
-				x: defender.x - 40 - 40,
-				y: defender.y + 20 + 80,
-				z: defender.z,
-				scale: 1,
-				opacity: 0,
-				time: 150
 			}, {
-				x: defender.x - 40,
-				y: defender.y + 20,
-				scale: 1,
-				opacity: 0.5
-			}, 'decel', 'explode');
-			battle.showEffect('mistball', {
-				x: defender.x + 10 - 40,
-				y: defender.y - 20 + 80,
-				z: defender.z,
-				scale: 1,
-				opacity: 0,
+				scale: 3,
+				opacity: 0.3,
 				time: 300
+			}, 'decel', 'fade');
+			battle.showEffect('mistball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.8,
+				opacity: 0.6,
+				time: 100
 			}, {
-				x: defender.x - 40,
-				y: defender.y + 20,
-				scale: 1,
-				opacity: 0.5
-			}, 'decel', 'explode');
+				scale: 3,
+				opacity: 0.5,
+				time: 400
+			}, 'decel', 'fade');
+			battle.showEffect('mistball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 2,
+				opacity: 0.8,
+				time: 400
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(20),
+				scale: 1.25,
+				time: 600
+			}, 'accel', 'explode');
+			battle.showEffect('poisonwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.8,
+				opacity: 0.6,
+				time: 100
+			}, {
+				scale: 4,
+				opacity: 0.5,
+				time: 400
+			}, 'decel', 'fade');
+			battle.showEffect('poisonwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 2.5,
+				opacity: .8,
+				time: 400
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(20),
+				scale: 1.5,
+				opacity: .8,
+				time: 600
+			}, 'accel', 'explode');
+
+			battle.showEffect('mistball', {
+				x: defender.x + 30,
+				y: defender.y + 25,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 800
+			}, {
+				x: defender.x + 50,
+				y: defender.y + 10,
+				opacity: 0.5,
+				time: 1000
+			}, 'accel', 'explode');
+			battle.showEffect('mistball', {
+				x: defender.x - 30,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 900
+			}, {
+				x: defender.x - 50,
+				y: defender.y - 20,
+				opacity: 0.5,
+				time: 1100
+			}, 'accel', 'explode');
+			battle.showEffect('mistball', {
+				x: defender.x + 15,
+				y: defender.y + 10,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 900
+			}, {
+				x: defender.x + 35,
+				y: defender.y + 30,
+				opacity: 0.5,
+				time: 1100
+			}, 'accel', 'explode');
+			battle.showEffect('mistball', {
+				x: defender.x - 15,
+				y: defender.y - 30,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 800
+			}, {
+				x: defender.x - 35,
+				y: defender.y - 40,
+				opacity: 0.5,
+				time: 1000
+			}, 'accel', 'explode');
+
+			attacker.delay(400);
+			attacker.anim({
+				z: attacker.behind(20),
+				time: 300
+			}, 'swing');
+			attacker.anim({
+				time: 300
+			}, 'swing');
+			defender.delay(600);
+			defender.anim({
+				z: defender.behind(10),
+				time: 300
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
 		}
 	},
 	bestow: {
@@ -18214,6 +18585,8 @@ var BattleMoveAnims = {
 // placeholder animations
 BattleMoveAnims['torment'] = {anim:BattleMoveAnims['swagger'].anim};
 
+BattleMoveAnims['autotomize'] = {anim:BattleMoveAnims['rockpolish'].anim};
+
 BattleMoveAnims['heatcrash'] = {anim:BattleMoveAnims['flareblitz'].anim};
 BattleMoveAnims['searingshot'] = {anim:BattleMoveAnims['flamethrower'].anim};
 BattleMoveAnims['fierydance'] = {anim:BattleMoveAnims['magmastorm'].anim};
@@ -18373,8 +18746,8 @@ BattleMoveAnims['miracleeye'] = {anim:BattleMoveAnims['mindreader'].anim};
 BattleMoveAnims['glare'] = {anim:BattleMoveAnims['meanlook'].anim};
 BattleMoveAnims['grudge'] = {anim:BattleMoveAnims['meanlook'].anim};
 BattleMoveAnims['scaryface'] = {anim:BattleMoveAnims['meanlook'].anim};
-BattleMoveAnims['disable'] = {anim:BattleMoveAnims['meanlook'].anim};
-BattleMoveAnims['nightmare'] = {anim:BattleMoveAnims['nightshade'].anim};
+BattleMoveAnims['nightmare'] = {anim:BattleMoveAnims['meanlook'].anim};
+BattleMoveAnims['disable'] = {anim:BattleMoveAnims['nightshade'].anim};
 
 BattleMoveAnims['captivate'] = {anim:BattleMoveAnims['attract'].anim};
 BattleMoveAnims['charm'] = {anim:BattleMoveAnims['attract'].anim};
