@@ -18820,8 +18820,8 @@ BattleMoveAnims['miracleeye'] = {anim:BattleMoveAnims['mindreader'].anim};
 BattleMoveAnims['glare'] = {anim:BattleMoveAnims['meanlook'].anim};
 BattleMoveAnims['grudge'] = {anim:BattleMoveAnims['meanlook'].anim};
 BattleMoveAnims['scaryface'] = {anim:BattleMoveAnims['meanlook'].anim};
-BattleMoveAnims['nightmare'] = {anim:BattleMoveAnims['meanlook'].anim};
-BattleMoveAnims['disable'] = {anim:BattleMoveAnims['nightshade'].anim};
+BattleMoveAnims['disable'] = {anim:BattleMoveAnims['meanlook'].anim};
+BattleMoveAnims['nightmare'] = {anim:BattleMoveAnims['nightshade'].anim};
 
 BattleMoveAnims['captivate'] = {anim:BattleMoveAnims['attract'].anim};
 BattleMoveAnims['charm'] = {anim:BattleMoveAnims['attract'].anim};
