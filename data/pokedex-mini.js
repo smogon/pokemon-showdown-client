@@ -53,6 +53,8 @@ exports.BattlePokemonSprites = {
 	"ekans": {num:23, front:{ani:{w:46, h:42}}, back:{ani:{w:54, h:41}}},
 	"arbok": {num:24, front:{ani:{w:87, h:83}}, back:{ani:{w:115, h:82}}},
 	"pikachu": {num:25, front:{ani:{w:60, h:60}}, back:{ani:{w:65, h:61}}},
+	"pikachubelle": {num:25, front:{ani:{w:55, h:69}}, back:{ani:{w:67, h:74}}},
+	"pikachucosplay": {num:25, front:{ani:{w:60, h:61}}, back:{ani:{w:62, h:61}}},
 	"raichu": {num:26, front:{ani:{w:69, h:103}}, back:{ani:{w:91, h:113}}},
 	"sandshrew": {num:27, front:{ani:{w:45, h:47}}, back:{ani:{w:56, h:46}}},
 	"sandslash": {num:28, front:{ani:{w:61, h:68}}, back:{ani:{w:68, h:69}}},
