@@ -3865,25 +3865,20 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
 				var fromeffect = Tools.getEffect(kwargs.from);
-				switch (effect.id) {
-				case 'confusion':
+				if (fromeffect && fromeffect.effectType === 'Ability') {
+					var ofpoke = this.getPokemon(kwargs.of) || poke;
+					this.resultAnim(ofpoke, fromeffect.name, 'ability');
+					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+					ofpoke.markAbility(fromeffect.name);
+				}
+				if (effect.id == 'confusion') {
 					actions += "" + poke.getName() + " doesn't become confused! ";
-					break;
-				default:
-					if (fromeffect && fromeffect.effectType === 'Ability') {
-						var ofpoke = this.getPokemon(kwargs.of) || poke;
-						this.resultAnim(ofpoke, fromeffect.name, 'ability');
-						this.message('', "<small>[" + ofpoke.getName(true) + "'s " + fromeffect.name + "!]</small>");
-						ofpoke.markAbility(fromeffect.name);
-					}
-					if (kwargs.msg) {
-						actions += "It doesn't affect " + poke.getLowerName() + "... ";
-					} else if (kwargs.ohko) {
-						actions += "" + poke.getName() + " is unaffected! ";
-					} else {
-						actions += "It had no effect! ";
-					}
-					break;
+				} else if (kwargs.msg) {
+					actions += "It doesn't affect " + poke.getLowerName() + "... ";
+				} else if (kwargs.ohko) {
+					actions += "" + poke.getName() + " is unaffected! ";
+				} else {
+					actions += "It had no effect! ";
 				}
 				this.resultAnim(poke, 'Immune', 'neutral');
 				break;
