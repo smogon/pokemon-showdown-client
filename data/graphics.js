@@ -12212,63 +12212,63 @@ var BattleMoveAnims = {
 
 			battle.showEffect('rock1', {
 				x: defender.x + 15,
-				y: defender.y + 70,
+				y: defender.y + 100,
 				z: defender.z,
 				opacity: 0,
 				scale: .5
 			}, {
-				y: defender.y - 20,
+				y: defender.y - 30,
 				opacity: 1,
 				time: 300
-			}, 'linear', 'explode');
+			}, 'accel', 'explode');
 			battle.showEffect('rock2', {
 				x: defender.x + 30,
-				y: defender.y + 70,
+				y: defender.y + 100,
 				z: defender.z,
 				opacity: 0,
 				scale: .5,
 				time: 100
 			}, {
-				y: defender.y - 20,
+				y: defender.y - 30,
 				opacity: 1,
 				time: 400
-			}, 'linear', 'explode');
+			}, 'accel', 'explode');
 			battle.showEffect('rock1', {
 				x: defender.x - 30,
-				y: defender.y + 70,
+				y: defender.y + 100,
 				z: defender.z,
 				opacity: 0,
 				scale: .5,
 				time: 200
 			}, {
-				y: defender.y - 20,
+				y: defender.y - 30,
 				opacity: 1,
 				time: 500
-			}, 'linear', 'explode');
+			}, 'accel', 'explode');
 			battle.showEffect('rock2', {
 				x: defender.x,
-				y: defender.y + 70,
+				y: defender.y + 100,
 				z: defender.z,
 				opacity: 0,
 				scale: .5,
 				time: 300
 			}, {
-				y: defender.y - 20,
+				y: defender.y - 30,
 				opacity: 1,
 				time: 600
-			}, 'linear', 'explode');
+			}, 'accel', 'explode');
 			battle.showEffect('rock1', {
 				x: defender.x - 15,
-				y: defender.y + 70,
+				y: defender.y + 100,
 				z: defender.z,
 				opacity: 0,
 				scale: .5,
 				time: 400
 			}, {
-				y: defender.y - 20,
+				y: defender.y - 30,
 				opacity: 1,
 				time: 700
-			}, 'linear', 'explode');
+			}, 'accel', 'explode');
 
 			battle.showEffect('mudwisp', {
 				x: defender.x + 40,
@@ -12293,6 +12293,124 @@ var BattleMoveAnims = {
 				opacity: 0
 			}, 'decel');
 			battle.showEffect('mudwisp', {
+				x: defender.x + 10,
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.4,
+				time: 600
+			}, {
+				scale: 2,
+				opacity: 0
+			}, 'decel');
+		}
+	},
+	avalanche: {
+		anim: function (battle, args) {
+			var defender = args[1];
+
+			defender.delay(200);
+			defender.anim({
+				y: defender.y - 10,
+				yscale: 0.9,
+				time: 100
+			}, 'decel');
+			defender.anim({
+				time: 200
+			});
+			defender.delay(200);
+			defender.anim({
+				y: defender.y - 10,
+				yscale: 0.9,
+				time: 100
+			}, 'decel');
+			defender.anim({
+				time: 200
+			});
+
+			battle.showEffect('wisp', {
+				x: defender.x + 15,
+				y: defender.y + 100,
+				z: defender.z,
+				opacity: 0,
+				scale: 0.8
+			}, {
+				y: defender.y - 30,
+				opacity: 1,
+				time: 300
+			}, 'accel', 'explode');
+			battle.showEffect('wisp', {
+				x: defender.x + 30,
+				y: defender.y + 100,
+				z: defender.z,
+				opacity: 0,
+				scale: 0.8,
+				time: 100
+			}, {
+				y: defender.y - 30,
+				opacity: 1,
+				time: 400
+			}, 'accel', 'explode');
+			battle.showEffect('wisp', {
+				x: defender.x - 30,
+				y: defender.y + 100,
+				z: defender.z,
+				opacity: 0,
+				scale: 0.8,
+				time: 200
+			}, {
+				y: defender.y - 30,
+				opacity: 1,
+				time: 500
+			}, 'accel', 'explode');
+			battle.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y + 100,
+				z: defender.z,
+				opacity: 0,
+				scale: 0.8,
+				time: 300
+			}, {
+				y: defender.y - 30,
+				opacity: 1,
+				time: 600
+			}, 'accel', 'explode');
+			battle.showEffect('wisp', {
+				x: defender.x - 15,
+				y: defender.y + 100,
+				z: defender.z,
+				opacity: 0,
+				scale: 0.8,
+				time: 400
+			}, {
+				y: defender.y - 30,
+				opacity: 1,
+				time: 700
+			}, 'accel', 'explode');
+
+			battle.showEffect('wisp', {
+				x: defender.x + 40,
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.4,
+				time: 300
+			}, {
+				scale: 2,
+				opacity: 0
+			}, 'decel');
+			battle.showEffect('wisp', {
+				x: defender.x - 40,
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.4,
+				time: 450
+			}, {
+				scale: 2,
+				opacity: 0
+			}, 'decel');
+			battle.showEffect('wisp', {
 				x: defender.x + 10,
 				y: defender.y - 40,
 				z: defender.z,
@@ -12376,7 +12494,7 @@ var BattleMoveAnims = {
 			}, 'linear', 'explode');
 		}
 	},
-	avalanche: {
+	iciclecrash: {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
@@ -18828,8 +18946,6 @@ BattleMoveAnims['charm'] = {anim:BattleMoveAnims['attract'].anim};
 BattleMoveAnims['flatter'] = {anim:BattleMoveAnims['attract'].anim};
 
 BattleMoveAnims['armthrust'] = {anim:BattleMoveAnims['smellingsalts'].anim, multhit:true};
-
-BattleMoveAnims['iciclecrash'] = {anim:BattleMoveAnims['avalanche'].anim};
 
 BattleMoveAnims['phantomforce'] = {anim:BattleMoveAnims['shadowforce'].anim, prepareAnim:BattleMoveAnims['shadowforce'].prepareAnim, prepareMessage:BattleMoveAnims['shadowforce'].prepareMessage};
 
