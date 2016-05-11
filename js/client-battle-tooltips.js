@@ -836,6 +836,12 @@ var BattleTooltips = (function () {
 		if (move.id === 'eruption' || move.id === 'waterspout') {
 			basePower = Math.floor(150 * pokemon.hp / pokemon.maxhp) || 1;
 		}
+		if (move.id === 'facade') {
+			if (myPokemon.status === 'psn' || myPokemon.status === 'tox' || myPokemon.status === 'par' || myPokemon.status === 'brn')) {
+				basePower *= 2;
+				basePowerComment = ' (Boosted by status)';
+			}
+		}
 		if (move.id === 'flail' || move.id === 'reversal') {
 			if (this.battle.gen > 4) {
 				var multiplier = 48;
