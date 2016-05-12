@@ -1138,6 +1138,7 @@ var Sprite = (function () {
 			y: this.y,
 			z: this.z
 		}, this.sp, 'decel'), 400);
+		if (!this.battle.fastForward && this.sp.shiny) BattleOtherAnims.shiny.anim(this.battle, [this]);
 		this.w = this.sp.w;
 		this.h = this.sp.h;
 		this.battle.activityWait(this.elem);
