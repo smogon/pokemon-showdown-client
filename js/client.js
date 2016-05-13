@@ -2180,23 +2180,38 @@
 			if (data.rooms) {
 				var battlebuf = '';
 				var chatbuf = '';
+				var privatebuf = '';
 				for (var i in data.rooms) {
 					if (i === 'global') continue;
 					var roomid = toRoomid(i);
 					if (roomid.substr(0, 7) === 'battle-') {
 						var p1 = data.rooms[i].p1.substr(1);
 						var p2 = data.rooms[i].p2.substr(1);
-						if (!battlebuf) battlebuf = '<br /><em>Battles:</em> ';
-						else battlebuf += ', ';
 						var ownBattle = (ownUserid === toUserid(p1) || ownUserid === toUserid(p2));
-						battlebuf += '<span title="' + (Tools.escapeHTML(p1) || '?') + ' v. ' + (Tools.escapeHTML(p2) || '?') + '"><a href="' + app.root + roomid + '" class="ilink' + ((ownBattle || app.rooms[i]) ? ' yours' : '') + '">' + roomid.substr(7) + '</a></span>';
+						var room = '<span title="' + (Tools.escapeHTML(p1) || '?') + ' v. ' + (Tools.escapeHTML(p2) || '?') + '"><a href="' + app.root + roomid + '" class="ilink' + ((ownBattle || app.rooms[i]) ? ' yours' : '') + '">' + roomid.substr(7) + '</a></span>';
+						if (data.rooms[i].isPrivate) {
+							if (!privatebuf) privatebuf = '<br /><em>Private rooms:</em> ';
+							else privatebuf += ', ';
+							privatebuf += room;
+						} else {
+							if (!battlebuf) battlebuf = '<br /><em>Battles:</em> ';
+							else battlebuf += ', ';
+							battlebuf += room;
+						}
 					} else {
-						if (!chatbuf) chatbuf = '<br /><em>Chatrooms:</em> ';
-						else chatbuf += ', ';
-						chatbuf += '<a href="' + app.root + roomid + '" class="ilink' + (app.rooms[i] ? ' yours' : '') + '">' + roomid + '</a>';
+						var room = '<a href="' + app.root + roomid + '" class="ilink' + (app.rooms[i] ? ' yours' : '') + '">' + roomid + '</a>';
+						if (data.rooms[i].isPrivate) {
+							if (!privatebuf) privatebuf = '<br /><em>Private rooms:</em> ';
+							else privatebuf += ', ';
+							privatebuf += room;
+						} else {
+							if (!chatbuf) chatbuf = '<br /><em>Chatrooms:</em> ';
+							else chatbuf += ', ';
+							chatbuf += room;
+						}
 					}
 				}
-				buf += '<small class="rooms">' + battlebuf + chatbuf + '</small>';
+				buf += '<small class="rooms">' + battlebuf + chatbuf + privatebuf + '</small>';
 			} else if (data.rooms === false) {
 				buf += '<strong class="offline">OFFLINE</strong>';
 			}
