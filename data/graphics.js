@@ -4198,6 +4198,72 @@ var BattleMoveAnims = {
 			}, 'ballistic2Under', 'explode');
 		}
 	},
+	skillswap: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+			battle.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y - 30,
+				z: attacker.z,
+				scale: 1,
+				opacity: 1,
+				time: 0
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 400
+			}, 'ballistic2Under');
+			battle.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y - 30,
+				z: attacker.z,
+				scale: 1,
+				opacity: 1,
+				time: 200
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 600
+			}, 'ballistic2Under');
+			battle.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1,
+				opacity: 1,
+				time: 200
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 600
+			}, 'ballistic');
+			battle.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1,
+				opacity: 1,
+				time: 400
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 800
+			}, 'ballistic');
+		}
+	},
 	recover: {
 		anim: BattleOtherAnims.chargestatus.anim
 	},
@@ -5404,7 +5470,73 @@ var BattleMoveAnims = {
 		anim: BattleOtherAnims.contactattack.anim
 	},
 	heavyslam: {
-		anim: BattleOtherAnims.contactattack.anim
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.showEffect('shadowball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.5,
+				time: 450
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 700
+			}, 'linear');
+			battle.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y - 30,
+				z: defender.z,
+				scale: 1,
+				time: 500
+			}, {
+				x: defender.x + 70,
+				scale: 0.8,
+				opacity: 0.3,
+				time: 800
+			}, 'linear', 'fade');
+			battle.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y - 30,
+				z: defender.z,
+				scale: 1,
+				time: 500
+			}, {
+				x: defender.x - 70,
+				scale: 0.8,
+				opacity: 0.3,
+				time: 800
+			}, 'linear', 'fade');
+
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 80,
+				z: defender.behind(-30),
+				time: 400
+			}, 'ballistic');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 5,
+				z: defender.z,
+				time: 100
+			});
+			attacker.anim({
+				time: 600
+			}, 'ballistic2Back');
+			defender.delay(450);
+			defender.anim({
+				y: defender.y - 30,
+				z: defender.behind(20),
+				yscale: 0.5,
+				time: 200
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
+		}
 	},
 	steamroller: {
 		anim: BattleOtherAnims.contactattack.anim
@@ -7599,6 +7731,153 @@ var BattleMoveAnims = {
 			}, 'linear');
 
 			BattleOtherAnims.contactattack.anim(battle, args);
+		}
+	},
+	zapcannon: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.backgroundEffect('#2630A9', 700, 0.6);
+			battle.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: .4,
+				opacity: 0.6
+			}, {
+				x: defender.x + 30,
+				y: defender.y + 30,
+				z: defender.z,
+				scale: .6,
+				opacity: 0.3,
+				time: 200
+			}, 'linear', 'explode');
+			battle.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: .4,
+				opacity: 0.6,
+				time: 75
+			}, {
+				x: defender.x + 20,
+				y: defender.y - 30,
+				z: defender.z,
+				scale: .6,
+				opacity: 0.3,
+				time: 275
+			}, 'linear', 'explode');
+			battle.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: .4,
+				opacity: 0.6,
+				time: 150
+			}, {
+				x: defender.x - 30,
+				y: defender.y,
+				z: defender.z,
+				scale: .6,
+				opacity: 0.3,
+				time: 350
+			}, 'linear', 'explode');
+			battle.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: .4,
+				opacity: 0.6,
+				time: 225
+			}, {
+				x: defender.x - 10,
+				y: defender.y + 10,
+				z: defender.z,
+				scale: .6,
+				opacity: 0.3,
+				time: 425
+			}, 'linear', 'explode');
+			battle.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: .4,
+				opacity: 0.6,
+				time: 300
+			}, {
+				x: defender.x + 10,
+				y: defender.y - 10,
+				z: defender.z,
+				scale: .6,
+				opacity: 0.3,
+				time: 500
+			}, 'linear', 'explode');
+			battle.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: .4,
+				opacity: 0.6,
+				time: 375
+			}, {
+				x: defender.x - 20,
+				y: defender.y,
+				z: defender.z,
+				scale: .6,
+				opacity: 0.3,
+				time: 575
+			}, 'linear', 'explode');
+
+			battle.showEffect('shadowball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.5,
+				time: 550
+			}, {
+				scale: 4,
+				opacity: 0,
+				time: 750
+			}, 'linear');
+			battle.showEffect('shadowball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.5,
+				time: 600
+			}, {
+				scale: 4,
+				opacity: 0,
+				time: 800
+			}, 'linear');
+
+			battle.showEffect('lightning', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.5,
+				time: 550
+			}, {
+				scale: 4,
+				opacity: 0,
+				time: 750
+			}, 'linear');
+			battle.showEffect('lightning', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.5,
+				time: 600
+			}, {
+				scale: 4,
+				opacity: 0,
+				time: 800
+			}, 'linear');
 		}
 	},
 	hyperbeam: {
@@ -18255,7 +18534,6 @@ BattleMoveAnims['thunderwave'] = {anim:BattleMoveAnims['voltswitch'].anim};
 BattleMoveAnims['electrify'] = {anim:BattleMoveAnims['voltswitch'].anim};
 BattleMoveAnims['volttackle'] = {anim:BattleMoveAnims['wildcharge'].anim};
 BattleMoveAnims['nuzzle'] = {anim:BattleMoveAnims['spark'].anim};
-BattleMoveAnims['zapcannon'] = {anim:BattleMoveAnims['chargebeam'].anim};
 BattleMoveAnims['thundershock'] = {anim:BattleMoveAnims['electroball'].anim};
 
 BattleMoveAnims['glaciate'] = {anim:BattleMoveAnims['freezedry'].anim};
@@ -18301,13 +18579,12 @@ BattleMoveAnims['shadowstrike'] = {anim:BattleMoveAnims['shadowclaw'].anim};
 BattleMoveAnims['frenzyplant'] = {anim:BattleMoveAnims['leafstorm'].anim};
 BattleMoveAnims['hydrocannon'] = {anim:BattleMoveAnims['hydropump'].anim};
 
-BattleMoveAnims['guardsplit'] = {anim:BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['powersplit'] = {anim:BattleMoveAnims['painsplit'].anim};
+BattleMoveAnims['guardsplit'] = {anim:BattleMoveAnims['skillswap'].anim};
+BattleMoveAnims['powersplit'] = {anim:BattleMoveAnims['skillswap'].anim};
+BattleMoveAnims['guardswap'] = {anim:BattleMoveAnims['skillswap'].anim};
+BattleMoveAnims['heartswap'] = {anim:BattleMoveAnims['skillswap'].anim};
+BattleMoveAnims['powerswap'] = {anim:BattleMoveAnims['skillswap'].anim};
 BattleMoveAnims['psychoshift'] = {anim:BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['skillswap'] = {anim:BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['guardswap'] = {anim:BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['heartswap'] = {anim:BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['powerswap'] = {anim:BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['helpinghand'] = {anim:BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['entrainment'] = {anim:BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['roleplay'] = {anim:BattleMoveAnims['painsplit'].anim};
