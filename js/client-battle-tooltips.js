@@ -225,24 +225,26 @@ var BattleTooltips = (function () {
 
 		// Deal with Nature Power special case, indicating which move it calls.
 		if (move.id === 'naturepower') {
+			var calls;
 			if (this.battle.gen === 6) {
-				additionalInfo = 'Calls ';
 				if (this.battle.hasPseudoWeather('Electric Terrain')) {
-					additionalInfo += Tools.getTypeIcon('Electric') + ' Thunderbolt';
+					calls = 'Thunderbolt';
 				} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
-					additionalInfo += Tools.getTypeIcon('Grass') + ' Energy Ball';
+					calls = 'Energy Ball';
 				} else if (this.battle.hasPseudoWeather('Misty Terrain')) {
-					additionalInfo += Tools.getTypeIcon('Fairy') + ' Moonblast';
+					calls = 'Moonblast';
 				} else {
-					additionalInfo += Tools.getTypeIcon('Normal') + ' Tri Attack';
+					calls = 'Tri Attack';
 				}
 			} else if (this.battle.gen > 3) {
 				// In gens 4 and 5 it calls Earthquake.
-				additionalInfo = 'Calls ' + Tools.getTypeIcon('Ground') + ' Earthquake';
+				calls = 'Earthquake';
 			} else {
 				// In gen 3 it calls Swift, so it retains its normal typing.
-				additionalInfo = 'Calls ' + Tools.getTypeIcon('Normal') + ' Swift';
+				calls = 'Swift';
 			}
+			calls = Tools.getMove(calls);
+			additionalInfo = 'Calls ' + Tools.getTypeIcon(this.getMoveType(calls, pokemon)) + ' ' + calls.name;
 		}
 
 		text = '<div class="tooltipinner"><div class="tooltip">';
