@@ -379,7 +379,6 @@ exports.BattlePokemonSpritesBW = {
 	"kecleon": {num:352, front:{ani:{w: 65, h: 55}}, back:{ani:{w: 77, h: 58}}},
 	"shuppet": {num:353, front:{ani:{w: 39, h: 58}}, back:{ani:{w: 41, h: 62}}},
 	"banette": {num:354, front:{ani:{w: 55, h: 51}}, back:{ani:{w: 55, h: 52}}},
-	"banettemega": {num:354, front:{ani:{w: 96, h: 96}}, back:{ani:{w: 96, h: 96}}},
 	"duskull": {num:355, front:{ani:{w: 51, h: 45}}, back:{ani:{w: 59, h: 47}}},
 	"dusclops": {num:356, front:{ani:{w: 84, h: 70}}, back:{ani:{w: 76, h: 73}}},
 	"tropius": {num:357, front:{ani:{w: 94, h: 80}}, back:{ani:{w: 82, h: 86}}},
