@@ -4115,7 +4115,7 @@ var BattleMoveAnims = {
 				time: 800
 			}, 'accel');
 		},
-		prepareAnim: BattleOtherAnims.lightstatus.anim,
+		prepareAnim: BattleOtherAnims.chargestatus.anim,
 		prepareMessage: function (pokemon) {
 			return pokemon.getName() + ' is absorbing power!';
 		}
@@ -5311,9 +5311,6 @@ var BattleMoveAnims = {
 	},
 	crushclaw: {
 		anim: BattleOtherAnims.clawattack.anim
-	},
-	crushgrip: {
-		anim: BattleOtherAnims.slashattack.anim
 	},
 	falseswipe: {
 		anim: BattleOtherAnims.slashattack.anim
@@ -19162,6 +19159,7 @@ BattleMoveAnims['wringout'] = {anim:BattleMoveAnims['forcepalm'].anim};
 BattleMoveAnims['stormthrow'] = {anim:BattleMoveAnims['circlethrow'].anim};
 BattleMoveAnims['vitalthrow'] = {anim:BattleMoveAnims['circlethrow'].anim};
 BattleMoveAnims['doubleslap'] = {anim:BattleMoveAnims['wakeupslap'].anim};
+BattleMoveAnims['crushgrip'] = {anim:BattleMoveAnims['quash'].anim};
 
 BattleMoveAnims['counter'] = {anim:BattleMoveAnims['bodyslam'].anim};
 BattleMoveAnims['payback'] = {anim:BattleMoveAnims['bodyslam'].anim};
@@ -19248,12 +19246,14 @@ BattleMoveAnims['hyperfang'] = {anim:BattleMoveAnims['superfang'].anim};
 BattleMoveAnims['barrage'] = {anim:BattleMoveAnims['magnetbomb'].anim, multihit:true};
 BattleMoveAnims['clearsmog'] = {anim:BattleMoveAnims['magnetbomb'].anim};
 BattleMoveAnims['eggbomb'] = {anim:BattleMoveAnims['magnetbomb'].anim};
+BattleMoveAnims['smokescreen'] = {anim:BattleMoveAnims['magnetbomb'].anim};
 BattleMoveAnims['spitup'] = {anim:BattleMoveAnims['magnetbomb'].anim};
 
 BattleMoveAnims['rollingkick'] = {anim:BattleMoveAnims['doublekick'].anim};
 BattleMoveAnims['triplekick'] = {anim:BattleMoveAnims['doublekick'].anim};
 
 BattleMoveAnims['aromaticmist'] = {anim:BattleMoveAnims['mistyterrain'].anim};
+BattleMoveAnims['sweetscent'] = {anim:BattleMoveAnims['mistyterrain'].anim};
 BattleMoveAnims['iondeluge'] = {anim:BattleMoveAnims['electricterrain'].anim};
 BattleMoveAnims['magneticflux'] = {anim:BattleMoveAnims['electricterrain'].anim};
 BattleMoveAnims['rototiller'] = {anim:BattleMoveAnims['electricterrain'].anim};
