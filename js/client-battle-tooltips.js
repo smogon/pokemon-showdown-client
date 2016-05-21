@@ -967,11 +967,11 @@ var BattleTooltips = (function () {
 			basePower = 100;
 		}
 		// Moves that check opponent speed.
+		var template = target;
+		if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
 		if (move.id === 'electroball') {
-			var template = target;
 			var min = 0;
 			var max = 0;
-			if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
 			var minRatio = (myPokemon.stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
 			var maxRatio = (myPokemon.stats['spe'] / this.getTemplateMinSpeed(template, target.level));
 			if (minRatio >= 4) min = 150;
@@ -988,8 +988,6 @@ var BattleTooltips = (function () {
 			return this.boostBasePowerRange(move, pokemon, min, max);
 		}
 		if (move.id === 'gyroball') {
-			var template = target;
-			if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
 			var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / myPokemon.stats['spe']) || 1);
 			var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / myPokemon.stats['spe']) || 1);
 			if (min > 150) min = 150;
