@@ -6070,6 +6070,7 @@ var Battle = (function () {
 			poke.species = newSpecies;
 			poke.ability = poke.baseAbility = (template.abilities ? template.abilities['0'] : '');
 			poke.baseStats = template.baseStats;
+			poke.weightkg = template.weightkg;
 			poke.types = template.types && template.types.slice(0);
 
 			poke.details = args[2];
