@@ -212,13 +212,7 @@ var BattleTooltips = (function () {
 			if (!basePower) basePower = '&mdash;';
 			basePowerText = '<p>Base power: ' + basePower + '</p>';
 		}
-		var accuracy = move.accuracy;
-		if (this.battle.gen < 6) {
-			var table = BattleTeambuilderTable['gen' + this.battle.gen];
-			if (move.id in table.overrideAcc) basePower = table.overrideAcc[move.id];
-		}
-		if (!accuracy || accuracy === true) accuracy = '&mdash;';
-		else accuracy = '' + accuracy + '%';
+		var accuracy = this.getMoveAccuracy(move, pokemon);
 
 		// Handle move type for moves that vary their type.
 		var moveType = this.getMoveType(move, pokemon);
@@ -812,6 +806,57 @@ var BattleTooltips = (function () {
 		}
 		return moveType;
 	};
+
+	// Gets the current accuracy for a move.
+	BattleTooltips.prototype.getMoveAccuracy = function (move, pokemon) {
+		var myPokemon = this.room.myPokemon[pokemon.slot];
+		var ability = Tools.getAbility(myPokemon.baseAbility).name;
+		var accuracy = move.accuracy;
+		if (this.battle.gen < 6) {
+			var table = BattleTeambuilderTable['gen' + this.battle.gen];
+			if (move.id in table.overrideAcc) accuracy = table.overrideAcc[move.id];
+		}
+		var accuracyComment = '%';
+		if (move.id === 'blizzard' && this.battle.weather === 'hail') return '&mdash; (Boosted by Hail)';
+		if (move.id === 'hurricane' || move.id === 'thunder') {
+			if (this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea') return '&mdash; (Boosted by Rain)';
+			if (this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland') {
+				accuracy = 50;
+				accuracyComment += ' (Reduced by Sun)';
+			}
+		}
+		if (!accuracy || accuracy === true) return '&mdash;';
+		if (ability === 'No Guard') return '&mdash; (Boosted by No Guard)';
+		if (pokemon.boosts && pokemon.boosts.accuracy) {
+			if (pokemon.boosts.accuracy > 0) {
+				accuracy *= (pokemon.boosts.accuracy + 3) / 3;
+			} else {
+				accuracy *= 3 / (3 - pokemon.boosts.accuracy);
+			}
+		}
+		if (ability === 'Hustle' && move.category === 'Physical') {
+			accuracy *= 0.8;
+			accuracyComment += ' (Reduced by Hustle)';
+		}
+		if (ability === 'Compound Eyes') {
+			accuracy *= 1.3;
+			accuracyComment += ' (Boosted by Compound Eyes)';
+		}
+		for (var i = 0; i < pokemon.side.active.length; i++) {
+			myPokemon = this.room.myPokemon[pokemon.side.active[i].slot];
+			ability = Tools.getAbility(myPokemon.baseAbility).name;
+			if (ability === 'Victory Star') {
+				accuracy *= 1.1;
+				accuracyComment += ' (Boosted by Victory Star)';
+			}
+		}
+		if (myPokemon.item === 'widelens' && !this.battle.hasPseudoWeather('Magic Room') && !(pokemon.volatiles && pokemon.volatiles['embargo'])) {
+			accuracy *= 1.1;
+			accuracyComment += ' (Boosted by Wide Lens)';
+		}
+		return Math.round(accuracy) + accuracyComment;
+	};
+
 	// Gets the proper current base power for moves which have a variable base power.
 	// Takes into account the target for some moves.
 	// If it is unsure of the actual base power, it gives an estimate.
