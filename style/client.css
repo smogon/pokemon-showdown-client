@@ -168,8 +168,8 @@ button:disabled {
 
 .userbar {
 	position: absolute;
-	top: 14px;
-	right: 14px;
+	top: 12px;
+	right: 12px;
 	font-weight: bold;
 }
 .userbar .username {
@@ -180,9 +180,9 @@ button:disabled {
 	cursor: pointer;
 }
 .userbar button.icon {
-	height: 21px;
-	width: 23px;
-	font-size: 14px;
+	height: 25px;
+	width: 27px;
+	font-size: 16px;
 	text-align: center;
 	padding: 0;
 }
