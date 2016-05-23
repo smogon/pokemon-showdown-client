@@ -386,7 +386,7 @@ var BattleTooltips = (function () {
 		var showOtherSees = isActive;
 		if (myPokemon) {
 			if (this.battle.gen > 2) {
-				text += '<p>Ability: ' + Tools.getAbility(myPokemon.baseAbility).name;
+				text += '<p>Ability: ' + Tools.getAbility(pokemon.ability || myPokemon.baseAbility).name;
 				if (myPokemon.item) {
 					text += ' / Item: ' + Tools.getItem(myPokemon.item).name;
 				}
