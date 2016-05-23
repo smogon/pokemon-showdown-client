@@ -19152,7 +19152,7 @@ BattleMoveAnims['entrainment'] = {anim:BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['roleplay'] = {anim:BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['psychup'] = {anim:BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['holdhands'] = {anim:BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['lunardance'] = {anim:BattleMoveAnims['healingwish'].anim};
+BattleMoveAnims['lunardance'] = {anim:BattleMoveAnims['wish'].anim};
 
 BattleMoveAnims['brickbreak'] = {anim:BattleMoveAnims['karatechop'].anim};
 BattleMoveAnims['wringout'] = {anim:BattleMoveAnims['forcepalm'].anim};
