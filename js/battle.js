@@ -3579,6 +3579,7 @@ var Battle = (function () {
 						break;
 					case 'wish':
 						actions += "" + kwargs.wisher + "'s wish came true!";
+						if (!this.fastForward) this.backgroundEffect("url('fx/bg-space.jpg')", 600, 0.4);
 						Tools.getMove('wish').residualAnim(this, [poke.sprite]);
 						this.animationDelay += 500;
 						break;
