@@ -864,6 +864,10 @@ var BattleTooltips = (function () {
 			accuracy *= 1.1;
 			accuracyComment += ' (Boosted by Wide Lens)';
 		}
+		if (this.battle.hasPseudoWeather('Gravity')) {
+			accuracy *= 5 / 3;
+			accuracyComment += ' (Boosted by Gravity)';
+		}
 		return Math.round(accuracy) + accuracyComment;
 	};
 
