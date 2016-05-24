@@ -386,7 +386,13 @@ var BattleTooltips = (function () {
 		var showOtherSees = isActive;
 		if (myPokemon) {
 			if (this.battle.gen > 2) {
-				text += '<p>Ability: ' + Tools.getAbility(pokemon.ability || myPokemon.baseAbility).name;
+				var abilityText = '';
+				if (pokemon.ability && (pokemon.ability !== pokemon.baseAbility)) {
+					abilityText = Tools.getAbility(pokemon.ability).name + ' (base: ' + Tools.getAbility(pokemon.baseAbility).name + ')';
+				} else {
+					abilityText = Tools.getAbility(myPokemon.baseAbility).name;
+				}
+				text += '<p>Ability: ' + abilityText;
 				if (myPokemon.item) {
 					text += ' / Item: ' + Tools.getItem(myPokemon.item).name;
 				}
@@ -425,7 +431,11 @@ var BattleTooltips = (function () {
 					text += '</p>';
 				}
 			} else if (pokemon.ability) {
-				text += '<p>Ability: ' + Tools.getAbility(pokemon.ability).name + '</p>';
+				if (pokemon.ability === pokemon.baseAbility) {
+					text += '<p>Ability: ' + Tools.getAbility(pokemon.ability).name + '</p>';
+				} else {
+					text += '<p>Ability: ' + Tools.getAbility(pokemon.ability).name + ' (base: ' +  Tools.getAbility(pokemon.baseAbility).name + ')' + '</p>';
+				}
 			} else if (pokemon.baseAbility) {
 				text += '<p>Ability: ' + Tools.getAbility(pokemon.baseAbility).name + '</p>';
 			}
