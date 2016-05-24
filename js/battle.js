@@ -714,7 +714,7 @@ var Pokemon = (function () {
 			var ratio = (range[0] + range[1]) / 2;
 			return Math.round(maxWidth * ratio) || 1;
 		}
-		var percentage = Math.ceil(this.hp / this.maxhp * 100);
+		var percentage = Math.ceil(100 * this.hp / this.maxhp);
 		if ((percentage === 100) && (this.hp < this.maxhp)) {
 			percentage = 99;
 		}
