@@ -810,7 +810,7 @@ var BattleTooltips = (function () {
 	// Gets the current accuracy for a move.
 	BattleTooltips.prototype.getMoveAccuracy = function (move, pokemon) {
 		var myPokemon = this.room.myPokemon[pokemon.slot];
-		var ability = Tools.getAbility(myPokemon.baseAbility).name;
+		var ability = Tools.getAbility(pokemon.ability || myPokemon.baseAbility).name;
 		var accuracy = move.accuracy;
 		if (this.battle.gen < 6) {
 			var table = BattleTeambuilderTable['gen' + this.battle.gen];
