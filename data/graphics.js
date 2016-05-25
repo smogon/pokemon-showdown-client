@@ -9961,6 +9961,58 @@ var BattleMoveAnims = {
 			}, 'linear');
 		}
 	},
+	smog: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.showEffect('poisonwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 0.6,
+				time: 0
+			}, {
+				x: defender.x,
+				y: defender.y + 10,
+				z: defender.behind(10),
+				scale: 1,
+				opacity: 0.3,
+				time: 400
+			}, 'decel', 'explode');
+			battle.showEffect('poisonwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 1,
+				time: 100
+			}, {
+				x: defender.x - 20,
+				y: defender.y + 5,
+				z: defender.behind(10),
+				scale: 1,
+				opacity: 0.3,
+				time: 500
+			}, 'decel', 'explode');
+			battle.showEffect('poisonwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 1,
+				time: 200
+			}, {
+				x: defender.x + 25,
+				y: defender.y,
+				z: defender.behind(10),
+				scale: 1,
+				opacity: 0.3,
+				time: 600
+			}, 'decel', 'explode');
+		}
+	},
 	bonemerang: {
 		anim: function (battle, args) {
 			var attacker = args[0];
