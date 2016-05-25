@@ -853,6 +853,7 @@ var BattleTooltips = (function () {
 			accuracyComment += ' (Boosted by Compound Eyes)';
 		}
 		for (var i = 0; i < pokemon.side.active.length; i++) {
+			if (!pokemon.side.active[i]) continue;
 			myPokemon = this.room.myPokemon[pokemon.side.active[i].slot];
 			ability = Tools.getAbility(myPokemon.baseAbility).name;
 			if (ability === 'Victory Star') {
