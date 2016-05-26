@@ -648,7 +648,11 @@ var Pokemon = (function () {
 			this.removeVolatile('imprison');
 			this.removeVolatile('mimic');
 			this.removeVolatile('miracleeye');
+			this.removeVolatile('nightmare');
 			this.removeVolatile('smackdown');
+			this.removeVolatile('stockpile1');
+			this.removeVolatile('stockpile2');
+			this.removeVolatile('stockpile3');
 			this.removeVolatile('torment');
 			this.removeVolatile('typeadd');
 			this.removeVolatile('typechange');
