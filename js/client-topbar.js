@@ -37,7 +37,7 @@
 			} else {
 				buf = '<button name="login">Choose name</button>';
 			}
-			buf += ' <button class="icon button" name="openSounds"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon button" name="openOptions"><i class="fa fa-cog"></i></button>';
+			buf += ' <button class="icon button" name="openSounds" title="Sound"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon button" name="openOptions" title="Options"><i class="fa fa-cog"></i></button>';
 			this.$userbar.html(buf);
 		},
 		login: function () {
