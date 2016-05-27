@@ -1385,6 +1385,91 @@ var BattleOtherAnims = {
 			});
 		}
 	},
+	futuresighthit: {
+		anim: function (battle, args) {
+			var defender = args[0];
+			battle.backgroundEffect('#AA44BB', 250, 0.6);
+			battle.backgroundEffect('#AA44FF', 250, 0.6, 400);
+			defender.anim({
+				scale: 1.2,
+				time: 100
+			});
+			defender.anim({
+				scale: 1,
+				time: 100
+			});
+			defender.anim({
+				scale: 1.4,
+				time: 150
+			});
+			defender.anim({
+				scale: 1,
+				time: 150
+			});
+			battle.activityWait(700);
+		}
+	},
+	doomdesirehit: {
+		anim: function (battle, args) {
+			var defender = args[0];
+
+			battle.backgroundEffect('#ffffff', 600, 0.6);
+			battle.showEffect('fireball', {
+				x: defender.x + 40,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: .6
+			}, {
+				scale: 6,
+				opacity: 0
+			}, 'linear');
+			battle.showEffect('fireball', {
+				x: defender.x - 40,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0,
+				opacity: .6,
+				time: 150
+			}, {
+				scale: 6,
+				opacity: 0
+			}, 'linear');
+			battle.showEffect('fireball', {
+				x: defender.x + 10,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 0,
+				opacity: .6,
+				time: 300
+			}, {
+				scale: 6,
+				opacity: 0
+			}, 'linear');
+
+			defender.delay(100);
+			defender.anim({
+				x: defender.x - 30,
+				time: 75
+			});
+			defender.anim({
+				x: defender.x + 30,
+				time: 100
+			});
+			defender.anim({
+				x: defender.x - 30,
+				time: 100
+			});
+			defender.anim({
+				x: defender.x + 30,
+				time: 100
+			});
+			defender.anim({
+				x: defender.x,
+				time: 100
+			});
+		}
+	},
 	itemoff: {
 		anim: function (battle, args) {
 			var defender = args[0];
@@ -3805,10 +3890,11 @@ var BattleMoveAnims = {
 		anim: BattleOtherAnims.selfstatus.anim
 	},
 	doomdesire: {
-		anim: BattleOtherAnims.selfstatus.anim
-	},
-	futuresight: {
-		anim: BattleOtherAnims.selfstatus.anim
+		anim: function (battle, args) {
+
+			battle.backgroundEffect('#000000', 300, 0.2);
+			battle.backgroundEffect('#000000', 300, 0.3, 200);
+		}
 	},
 	teleport: {
 		anim: BattleOtherAnims.selfstatus.anim
@@ -5615,9 +5701,6 @@ var BattleMoveAnims = {
 		anim: BattleOtherAnims.contactattack.anim
 	},
 	slam: {
-		anim: BattleOtherAnims.contactattack.anim
-	},
-	bodyslam: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
 	dragontail: {
@@ -19264,15 +19347,16 @@ BattleMoveAnims['vitalthrow'] = {anim:BattleMoveAnims['circlethrow'].anim};
 BattleMoveAnims['doubleslap'] = {anim:BattleMoveAnims['wakeupslap'].anim};
 BattleMoveAnims['crushgrip'] = {anim:BattleMoveAnims['quash'].anim};
 
-BattleMoveAnims['counter'] = {anim:BattleMoveAnims['bodyslam'].anim};
-BattleMoveAnims['payback'] = {anim:BattleMoveAnims['bodyslam'].anim};
-BattleMoveAnims['revenge'] = {anim:BattleMoveAnims['bodyslam'].anim};
-BattleMoveAnims['rockclimb'] = {anim:BattleMoveAnims['bodyslam'].anim};
-BattleMoveAnims['retaliate'] = {anim:BattleMoveAnims['bodyslam'].anim};
+BattleMoveAnims['counter'] = {anim:BattleMoveAnims['slam'].anim};
+BattleMoveAnims['payback'] = {anim:BattleMoveAnims['slam'].anim};
+BattleMoveAnims['revenge'] = {anim:BattleMoveAnims['slam'].anim};
+BattleMoveAnims['rockclimb'] = {anim:BattleMoveAnims['slam'].anim};
+BattleMoveAnims['retaliate'] = {anim:BattleMoveAnims['slam'].anim};
 BattleMoveAnims['superpower'] = {anim:BattleMoveAnims['closecombat'].anim};
 BattleMoveAnims['bonerush'] = {anim:BattleMoveAnims['boneclub'].anim, multihit:true};
-BattleMoveAnims['tackle'] = {anim:BattleMoveAnims['bodyslam'].anim};
-BattleMoveAnims['beatup'] = {anim:BattleMoveAnims['bodyslam'].anim};
+BattleMoveAnims['tackle'] = {anim:BattleMoveAnims['slam'].anim};
+BattleMoveAnims['beatup'] = {anim:BattleMoveAnims['slam'].anim};
+BattleMoveAnims['bodyslam'] = {anim:BattleMoveAnims['heavyslam'].anim};
 BattleMoveAnims['dragonrage'] = {anim:BattleMoveAnims['dragonbreath'].anim};
 
 BattleMoveAnims['silverwind'] = {anim:BattleMoveAnims['whirlwind'].anim};
@@ -19312,6 +19396,7 @@ BattleMoveAnims['psywave'] = {anim:BattleMoveAnims['psyshock'].anim};
 BattleMoveAnims['extrasensory'] = {anim:BattleMoveAnims['psychic'].anim};
 BattleMoveAnims['confusion'] = {anim:BattleMoveAnims['psychic'].anim};
 BattleMoveAnims['miracleeye'] = {anim:BattleMoveAnims['mindreader'].anim};
+BattleMoveAnims['futuresight'] = {anim:BattleMoveAnims['doomdesire'].anim};
 
 BattleMoveAnims['glare'] = {anim:BattleMoveAnims['meanlook'].anim};
 BattleMoveAnims['grudge'] = {anim:BattleMoveAnims['meanlook'].anim};
