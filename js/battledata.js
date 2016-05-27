@@ -624,6 +624,9 @@ var Tools = {
 		// **bold**
 		str = str.replace(/\*\*([^< ](?:[^<]*?[^< ])??)\*\*/g,
 			options.hidebold ? '$1' : '<b>$1</b>');
+		// ^^superscript^^
+		str = str.replace(/\^\^([^< ](?:[^<]*?[^< ])??)\^\^/g,
+			options.hidesuperscript ? '$1' : '<sup>$1</sup>');
 
 		if (!options.hidespoiler) {
 			var untilIndex = 0;
