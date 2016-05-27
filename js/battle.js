@@ -4931,6 +4931,12 @@ var Battle = (function () {
 					break;
 				default:
 					if (effect.effectType === 'Move') {
+						if (effect.name === 'Doom Desire') {
+							BattleOtherAnims.doomdesirehit.anim(this, [poke.sprite]);
+						}
+						if (effect.name === 'Future Sight') {
+							BattleOtherAnims.futuresighthit.anim(this, [poke.sprite]);
+						}
 						actions += '' + poke.getName() + " took the " + effect.name + " attack!";
 					} else {
 						actions += "" + poke.getName() + "'s " + effect.name + " ended!";
