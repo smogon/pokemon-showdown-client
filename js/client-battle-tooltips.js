@@ -837,6 +837,10 @@ var BattleTooltips = (function () {
 		}
 		if (!accuracy || accuracy === true) return '&mdash;';
 		if (ability === 'No Guard') return '&mdash; (Boosted by No Guard)';
+		if (move.ohko) {
+			if (this.battle.gen === 1) return accuracy + '% (Will fail if target\'s speed is higher)';
+			return accuracy + '% (Will fail if target\'s level is higher, increases 1% per each level above target)';
+		}
 		if (pokemon.boosts && pokemon.boosts.accuracy) {
 			if (pokemon.boosts.accuracy > 0) {
 				accuracy *= (pokemon.boosts.accuracy + 3) / 3;
