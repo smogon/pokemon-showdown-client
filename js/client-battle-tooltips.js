@@ -631,7 +631,7 @@ var BattleTooltips = (function () {
 		if (ability === 'marvelscale' && pokemon.status) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		if (item === 'eviolite' && Tools.getTemplate(pokemon.name).evos) {
+		if (item === 'eviolite' && Tools.getTemplate(pokemon.species).evos) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
