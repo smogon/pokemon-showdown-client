@@ -927,6 +927,7 @@
 			return this.renderPokemonSortRow();
 		case 'pokemon':
 			var pokemon = BattlePokedex[id];
+			if (!pokemon) pokemon = BattlePokedex[toId(Tools.getTemplate(id).baseSpecies)];
 			return this.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage, attrs);
 		case 'move':
 			var move = BattleMovedex[id];
