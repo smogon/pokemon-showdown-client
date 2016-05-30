@@ -3115,6 +3115,10 @@ a.ilink.yours {
 	background-color: #AAAAAA;
 	color: black;
 }
+.dark .changeform i {
+	border: 1px solid #bbb;
+	color: #bbb;
+}
 
 .dark .ps-overlay {
 	background: rgba(40, 40, 40, .5);
