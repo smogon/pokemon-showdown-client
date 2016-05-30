@@ -2333,6 +2333,8 @@
 			this.updatePokemonSprite();
 		},
 		altForm: function (e) {
+			var target = $(e.target);
+			if (!(target.is('div') || target.is('i'))) return;
 			var set = this.curSet;
 			var i = 0;
 			if (!set) {

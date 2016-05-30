@@ -794,7 +794,7 @@
 
 		case 'move':
 			template = Tools.getTemplate(set.species);
-			if (!(template.id in BattleTeambuilderTable.learnsets)) {
+			if (!(template.id in BattleTeambuilderTable.learnsets) || template.form) {
 				template = Tools.getTemplate(template.baseSpecies);
 			}
 			var moves = [];
