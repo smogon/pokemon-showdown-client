@@ -2117,8 +2117,8 @@
 			for (var i = 0; i < set.moves.length; i++) {
 				if (toId(set.moves[i]).slice(0, 11) === 'hiddenpower') {
 					hasHiddenPower = true;
+					break;
 				}
-				break;
 			}
 			if (!hasHiddenPower) return;
 			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
