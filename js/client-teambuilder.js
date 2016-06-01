@@ -2567,7 +2567,7 @@
 		},
 		unChooseMove: function (moveName) {
 			var set = this.curSet;
-			if (!moveName || !set) return;
+			if (!moveName || !set || this.curTeam.format === 'hiddentype') return;
 			if (moveName.substr(0, 13) === 'Hidden Power ') {
 				if (set.ivs) {
 					for (var i in set.ivs) {
@@ -2609,6 +2609,8 @@
 			} else if (moveName === 'Gyro Ball' || moveName === 'Trick Room') {
 				minSpe = true;
 			}
+
+			if (this.curTeam.format === 'hiddentype') return;
 
 			var minAtk = true;
 			var hpModulo = (this.curTeam.gen >= 6 ? 2 : 4);
