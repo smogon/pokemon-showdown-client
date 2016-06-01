@@ -858,8 +858,8 @@ var BattleTooltips = (function () {
 		}
 		for (var i = 0; i < pokemon.side.active.length; i++) {
 			if (!pokemon.side.active[i]) continue;
-			myPokemon = this.room.myPokemon[pokemon.side.active[i].slot];
-			ability = Tools.getAbility(myPokemon.baseAbility).name;
+			var sidePokemon = this.room.myPokemon[pokemon.side.active[i].slot];
+			ability = Tools.getAbility(sidePokemon.baseAbility).name;
 			if (ability === 'Victory Star') {
 				accuracy *= 1.1;
 				accuracyComment += ' (Boosted by Victory Star)';
