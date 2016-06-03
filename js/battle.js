@@ -6510,8 +6510,8 @@ var Battle = (function () {
 			if (BattleEffects[i].url) this.preloadImage(BattleEffects[i].url);
 		}
 		this.preloadImage(Tools.fxPrefix + 'weather-raindance.jpg'); // rain is used often enough to precache
-		this.preloadImage(Tools.resourcePrefix + 'sprites/bw/substitute.png');
-		this.preloadImage(Tools.resourcePrefix + 'sprites/bw-back/substitute.png');
+		this.preloadImage(Tools.resourcePrefix + 'sprites/xyani/substitute.gif');
+		this.preloadImage(Tools.resourcePrefix + 'sprites/xyani-back/substitute.gif');
 		//this.preloadImage(Tools.fxPrefix + 'bg.jpg');
 	};
 	Battle.prototype.dogarsCheck = function (pokemon) {
