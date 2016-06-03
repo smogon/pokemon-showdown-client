@@ -5975,11 +5975,20 @@ var Battle = (function () {
 			args.shift();
 			args.shift();
 			var message = args.join('|');
-			var parsedMessage = Tools.parseChatMessage(message, name, '');
+			if(!app.user.nameRegExp){
+				var isHighlighted = toUserid(name) !== app.user.get('userid') && app.highlightRegExp.test(message);
+			} else {
+				var isHighlighted = toUserid(name) !== app.user.get('userid') && (app.highlightRegExp.test(message) || app.user.nameRegExp.test(message));
+			}
+			var parsedMessage = Tools.parseChatMessage(message, name, '', isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
 				this.log(parsedMessage[i], preempt);
+			}
+			if (isHighlighted) {
+				var notifyTitle = "Mentioned by " + name + " in " + this.roomid; 
+				app.rooms[this.roomid].notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight'); 
 			}
 			break;
 		case 'chatmsg':
