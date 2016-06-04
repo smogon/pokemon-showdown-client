@@ -561,29 +561,40 @@
 				return false;
 
 			case 'showjoins':
+				var showjoins = Tools.prefs('showjoins') || {};
+				var serverShowjoins = showjoins[Config.server.id] || {};
 				if (target) {
-					var showJoins = Tools.prefs('showroomjoins') || {};
 					var room = toId(target);
-					showJoins[room] = true;
+					if (serverShowjoins['global']) {
+						delete serverShowjoins[room];
+					} else {
+						serverShowjoins[room] = 1;
+					}
 					this.add('Join/leave messages on room ' + room + ': ON');
-					Tools.prefs('showroomjoins', showJoins);
 				} else {
+					serverShowjoins = {global: 1};
 					this.add('Join/leave messages: ON');
-					Tools.prefs('showjoins', true);
 				}
+				showjoins[Config.server.id] = serverShowjoins;
+				Tools.prefs('showjoins', showjoins);
 				return false;
 			case 'hidejoins':
+				var showjoins = Tools.prefs('showjoins') || {};
+				var serverShowjoins = showjoins[Config.server.id] || {};
 				if (target) {
-					var showJoins = Tools.prefs('showroomjoins') || {};
 					var room = toId(target);
-					delete showJoins[room];
+					if (!serverShowjoins['global']) {
+						delete serverShowjoins[room];
+					} else {
+						serverShowjoins[room] = 0;
+					}
 					this.add('Join/leave messages on room ' + room + ': HIDDEN');
-					Tools.prefs('showroomjoins', showJoins);
 				} else {
+					serverShowjoins = {global: 0};
 					this.add('Join/leave messages: HIDDEN');
-					Tools.prefs('showroomjoins', {});
-					Tools.prefs('showjoins', false);
 				}
+				showjoins[Config.server.id] = serverShowjoins;
+				Tools.prefs('showjoins', showjoins);
 				return false;
 
 			case 'showbattles':
@@ -1298,7 +1309,11 @@
 				this.userList.add(userid);
 				return;
 			}
-			if (silent && (!Tools.prefs('showroomjoins') || !Tools.prefs('showroomjoins')[this.id]) && !Tools.prefs('showjoins')) return;
+			var allShowjoins = Tools.prefs('showjoins') || {};
+			var showjoins = allShowjoins[Config.server.id];
+			if (silent && (!showjoins || (!showjoins['global'] && !showjoins[this.id]) || showjoins[this.id] === 0)) {
+				return;
+			}
 			if (!this.$joinLeave) {
 				this.$chat.append('<div class="message"><small>Loading...</small></div>');
 				this.$joinLeave = this.$chat.children().last();
