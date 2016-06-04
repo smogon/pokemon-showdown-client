@@ -1940,8 +1940,7 @@
 			}
 			if (!this.notifications) {
 				this.notificationClass = '';
-				if (skipUpdate) return;
-				app.topbar.updateTabbar();
+				if (!skipUpdate) app.topbar.updateTabbar();
 			}
 
 			if (this.lastMessageDate) {
