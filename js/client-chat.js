@@ -723,74 +723,65 @@
 					act: 'ladderget',
 					user: targets[0]
 				}, Tools.safeJSON(function (data) {
-					try {
-						var buffer = '<div class="ladder"><table>';
-						buffer += '<tr><td colspan="8">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
-						if (!data.length) {
-							buffer += '<tr><td colspan="8"><em>This user has not played any ladder games yet.</em></td></tr>';
-						} else {
-							buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
-							var hiddenFormats = [];
-							var formatLength = data.length;
-							for (var i = 0; i < formatLength; i++) {
-								var row = data[i];
-								if (!formatTargeting || formats[row.formatid]) {
-									buffer += '<tr>';
-								} else {
-									buffer += '<tr class="hidden">';
-									hiddenFormats.push(row.formatid);
-								}
-								buffer += '<td>' + row.formatid + '</td><td><strong>' + Math.round(row.elo) + '</strong></td>';
-								if (row.rprd > 100) {
-									buffer += '<td>&ndash;</td>';
-									buffer += '<td><span><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em> <small>(provisional)</small></span></td>';
-								} else {
-									var gxe = Math.round(row.gxe * 10);
-									buffer += '<td>' + Math.floor(gxe / 10) + '<small>.' + (gxe % 10) + '%</small></td>';
-									buffer += '<td><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em></td>';
-								}
-								var N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
-								if (row.formatid === 'oususpecttest') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -17.0 / N), 0) + '</td>';
-								} else if (row.formatid === 'uberssuspecttest') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -29.0 / N), 0) + '</td>';
-								} else if (row.formatid === 'uususpecttest') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -20.0 / N), 0) + '</td>';
-								} else if (row.formatid === 'rucurrent' || row.formatid === 'rususpecttest') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -9.0 / N), 0) + '</td>';
-								} else if (row.formatid === 'nucurrent') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -13.0 / N), 0) + '</td>';
-								} else if (row.formatid === 'nususpecttest') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -9.0 / N), 0) + '</td>';
-								} else if (row.formatid === 'pususpecttest') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -9.0 / N), 0) + '</td>';
-								} else if (row.formatid === 'lcsuspecttest') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -9.0 / N), 0) + '</td>';
-								} else if (row.formatid === 'doublesoucurrent' || row.formatid === 'doublesoususpecttest') {
-									buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -12.0 / N), 0) + '</td>';
-								} else {
-									buffer += '<td>--</td>';
-								}
-								buffer += '<td>' + row.w + '</td><td>' + row.l + '</td><td>' + N + '</td></tr>';
-							}
-							if (hiddenFormats.length) {
-								if (hiddenFormats.length === formatLength) {
-									buffer += '<tr class="no-matches"><td colspan="6"><em>This user has not played any ladder games that match the format targeting.</em></td></tr>';
-								}
-
-								buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
-							}
-							var userid = toId(targets[0]);
-							var registered = app.user.get('registered');
-							if (registered && registered.userid === userid) {
-								buffer += '<tr><td colspan="8" style="text-align:right"><a href="//pokemonshowdown.com/users/' + userid + '">Reset W/L</a></tr></td>';
-							}
-						}
+					if (!data || !$.isArray(data)) return self.add('|raw|Error: corrupted ranking data');
+					var buffer = '<div class="ladder"><table><tr><td colspan="8">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
+					if (!data.length) {
+						buffer += '<tr><td colspan="8"><em>This user has not played any ladder games yet.</em></td></tr>';
 						buffer += '</table></div>';
-						self.add('|raw|' + buffer);
-					} catch (e) {
-						self.add('|raw|Error: corrupted ranking data');
+						return self.add('|raw|' + buffer);
 					}
+					buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th></tr>';
+
+					var hiddenFormats = [];
+					for (var i = 0; i < data.length; i++) {
+						var row = data[i];
+						if (!row) return self.add('|raw|Error: corrupted ranking data');
+						var formatId = toId(row.formatid);
+						if (!formatTargeting || formats[formatId]) {
+							buffer += '<tr>';
+						} else {
+							buffer += '<tr class="hidden">';
+							hiddenFormats.push(Tools.escapeFormat(formatId));
+						}
+
+						// Validate all the numerical data
+						var values = [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t];
+						for (var j = 0; j < values.length; j++) {
+							if (typeof values[j] !== 'number' && typeof values[j] !== 'string' || isNaN(values[j])) return self.add('|raw|Error: corrupted ranking data');
+						}
+
+						buffer += '<td>' + Tools.escapeFormat(formatId) + '</td><td><strong>' + Math.round(row.elo) + '</strong></td>';
+						if (row.rprd > 100) {
+							// High rating deviation. Provisional rating.
+							buffer += '<td>&ndash;</td>';
+							buffer += '<td><span><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em> <small>(provisional)</small></span></td>';
+						} else {
+							var gxe = Math.round(row.gxe * 10);
+							buffer += '<td>' + Math.floor(gxe / 10) + '<small>.' + (gxe % 10) + '%</small></td>';
+							buffer += '<td><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em></td>';
+						}
+						var N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
+						var COIL_B = LadderRoom.COIL_B[formatId];
+						if (COIL_B) {
+							buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -COIL_B / N), 0) + '</td>';
+						} else {
+							buffer += '<td>--</td>';
+						}
+						buffer += '<td>' + row.w + '</td><td>' + row.l + '</td><td>' + N + '</td></tr>';
+					}
+					if (hiddenFormats.length) {
+						if (hiddenFormats.length === data.length) {
+							buffer += '<tr class="no-matches"><td colspan="6"><em>This user has not played any ladder games that match the format targeting.</em></td></tr>';
+						}
+						buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
+					}
+					var userid = toId(targets[0]);
+					var registered = app.user.get('registered');
+					if (registered && registered.userid === userid) {
+						buffer += '<tr><td colspan="8" style="text-align:right"><a href="//pokemonshowdown.com/users/' + userid + '">Reset W/L</a></tr></td>';
+					}
+					buffer += '</table></div>';
+					self.add('|raw|' + buffer);
 				}), 'text');
 				return false;
 
