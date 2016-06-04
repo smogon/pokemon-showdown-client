@@ -17786,31 +17786,31 @@ var BattleMoveAnims = {
 
 			battle.backgroundEffect("url('fx/bg-space.jpg')", 1000, 0.7);
 			battle.showEffect('iceball', {
-				x: defender.leftof(-165),
-				y: defender.y + 175,
-				z: defender.z,
-				scale: 1,
+				x: attacker.leftof(-25),
+				y: attacker.y + 250,
+				z: attacker.z,
+				scale: 0.5,
 				opacity: 0.8,
 				time: 400
 			}, {
 				x: defender.x,
 				y: defender.y,
-				z: defender.z,
-				scale: 1.5,
+				z: defender.behind(5),
+				scale: 2,
 				time: 700
 			}, 'accel', 'explode');
 			battle.showEffect('energyball', {
-				x: defender.leftof(-165),
-				y: defender.y + 175,
-				z: defender.z,
-				scale: 1,
+				x: attacker.leftof(-25),
+				y: attacker.y + 250,
+				z: attacker.z,
+				scale: 0.5,
 				opacity: 0.1,
 				time: 400
 			}, {
 				x: defender.x,
 				y: defender.y,
-				z: defender.z,
-				scale: 1.5,
+				z: defender.behind(5),
+				scale: 2,
 				time: 700
 			}, 'accel', 'explode');
 
