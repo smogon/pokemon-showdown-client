@@ -241,6 +241,23 @@ Storage.whenPrefsLoaded = Tools.makeLoadTracker();
 Storage.whenTeamsLoaded = Tools.makeLoadTracker();
 Storage.whenAppLoaded = Tools.makeLoadTracker();
 
+var convertShowjoins = function () {
+	var oldShowjoins = Storage.prefs('showjoins');
+	if (typeof oldShowjoins === 'undefined') return;
+	if (typeof oldShowjoins !== 'object') {
+		var showjoins = {};
+		var serverShowjoins = {global: (oldShowjoins ? 1 : 0)};
+		var showroomjoins = Storage.prefs('showroomjoins');
+		for (var roomid in showroomjoins) {
+			serverShowjoins[roomid] = (showroomjoins[roomid] ? 1 : 0);
+		}
+		Storage.prefs('showroomjoins', null);
+		showjoins[Config.server.id] = serverShowjoins;
+		Storage.prefs('showjoins', showjoins, true);
+	}
+};
+Storage.whenPrefsLoaded(convertShowjoins);
+
 Storage.initPrefs = function () {
 	Storage.loadTeams();
 	if (Config.testclient) {
