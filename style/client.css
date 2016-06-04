@@ -1087,6 +1087,17 @@ p.or:after {
 	font-size: 18pt;
 	font-weight: normal;
 }
+.roomcounters .icon-left {
+	display: inline-block;
+	vertical-align: middle;
+	transform:scaleX(-1);
+	webkit-transform:scaleX(-1);
+}
+.roomcounters .icon-right {
+	display: inline-block;
+	vertical-align: middle;
+}
+
 .roomlist {
 	max-width: 480px;
 	text-align: left;
