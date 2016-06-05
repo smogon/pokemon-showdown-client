@@ -5969,9 +5969,10 @@ var Battle = (function () {
 		case 'chat':
 		case 'c':
 			var name = args[1];
-			if (this.ignoreSpects && (name.charAt(0) === ' ' || name.charAt(0) === '+')) break;
-			if (this.ignoreOpponent && name.charAt(0) === '\u2605' && toUserid(name) !== app.user.get('userid')) break;
-			if (window.app && app.ignore && app.ignore[toUserid(name)]) break;
+			var rank = name.charAt(0);
+			if (this.ignoreSpects && (rank === ' ' || rank === '+')) break;
+			if (this.ignoreOpponent && rank === '\u2605' && toUserid(name) !== app.user.get('userid')) break;
+			if (window.app && app.ignore && app.ignore[toUserid(name)] && (rank === ' ' || rank === '+' || rank === '\u2605')) break;
 			args.shift();
 			args.shift();
 			var message = args.join('|');
