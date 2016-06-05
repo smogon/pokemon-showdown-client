@@ -5975,7 +5975,7 @@ var Battle = (function () {
 			args.shift();
 			args.shift();
 			var message = args.join('|');
-			var isHighlighted = app.rooms[this.roomid].getHighlight(message);
+			var isHighlighted = window.app && app.rooms[this.roomid].getHighlight(message);
 			var parsedMessage = Tools.parseChatMessage(message, name, '', isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
