@@ -4314,7 +4314,7 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' ate its ' + item.name + '!';
 					this.lastmove = item.id;
 				} else if (kwargs.weaken) {
-					actions += 'The ' + item.name + ' weakened the damage to ' + poke.getLowerName();
+					actions += 'The ' + item.name + ' weakened the damage to ' + poke.getLowerName() + '!';
 					this.lastmove = item.id;
 				} else if (effect.id) switch (effect.id) {
 				case 'fling':
