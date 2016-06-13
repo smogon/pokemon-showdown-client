@@ -896,7 +896,7 @@
 				break;
 
 			case 'popup':
-				var maxWidth = undefined;
+				var maxWidth;
 				var type = 'semimodal';
 				data = data.substr(7);
 				if (data.substr(0, 6) === '|wide|') {

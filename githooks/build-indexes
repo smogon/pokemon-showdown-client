@@ -359,6 +359,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'redorb':
 			case 'souldew':
 			// Other
+			// fallsthrough
 			case 'stick':
 			case 'thickclub':
 			case 'lightball':
@@ -415,6 +416,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'rowapberry':
 			case 'wikiberry':
 			// gen 2
+			// fallsthrough
 			case 'psncureberry':
 			case 'przcureberry':
 			case 'burntberry':
