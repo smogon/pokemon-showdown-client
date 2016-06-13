@@ -1224,10 +1224,11 @@
 					if (!$messages.length) break;
 					$messages.find('a').contents().unwrap();
 					if (row[2]) {
-						if (row[1] === 'roomhide') {
-							$messages = this.$chat.find('.chatmessage-' + user);
-							if (!$messages.length) break;
-						}
+						// there used to be a condition for
+						// row[1] === 'roomhide'
+						// but it's now always applied
+						$messages = this.$chat.find('.chatmessage-' + user);
+						if (!$messages.length) break;
 						$messages.hide().addClass('revealed').find('button').parent().remove();
 						this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
 					}
@@ -1251,7 +1252,7 @@
 			}
 		},
 		toggleMessages: function (user, button) {
-			var $messages = $('.chatmessage-' + user + '.revealed');
+			var $messages = this.$('.chatmessage-' + user + '.revealed');
 			var $button = $(button);
 			if (!$messages.is(':hidden')) {
 				$messages.hide();
