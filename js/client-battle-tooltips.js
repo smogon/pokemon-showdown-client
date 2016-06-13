@@ -434,7 +434,7 @@ var BattleTooltips = (function () {
 				if (pokemon.ability === pokemon.baseAbility) {
 					text += '<p>Ability: ' + Tools.getAbility(pokemon.ability).name + '</p>';
 				} else {
-					text += '<p>Ability: ' + Tools.getAbility(pokemon.ability).name + ' (base: ' +  Tools.getAbility(pokemon.baseAbility).name + ')' + '</p>';
+					text += '<p>Ability: ' + Tools.getAbility(pokemon.ability).name + ' (base: ' + Tools.getAbility(pokemon.baseAbility).name + ')' + '</p>';
 				}
 			} else if (pokemon.baseAbility) {
 				text += '<p>Ability: ' + Tools.getAbility(pokemon.baseAbility).name + '</p>';

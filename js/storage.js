@@ -534,7 +534,7 @@ Storage.unpackAllTeams = function (buffer) {
 
 	return buffer.split('\n').map(function (line) {
 		var pipeIndex = line.indexOf('|');
-		if (pipeIndex < 0) return;
+		if (pipeIndex < 0) return '';
 		var bracketIndex = line.indexOf(']');
 		if (bracketIndex > pipeIndex) bracketIndex = -1;
 		var slashIndex = line.lastIndexOf('/', pipeIndex);

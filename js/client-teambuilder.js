@@ -305,7 +305,7 @@
 			buf += this.clipboardHTML();
 
 			var filterFormat = '';
-			var filterFolder = undefined;
+			var filterFolder = '';
 
 			if (!this.curFolder) {
 				buf += '<h2>Hi</h2>';
@@ -2587,7 +2587,7 @@
 			if (!set) return;
 			var gen = this.curTeam.gen;
 
-			var minSpe = undefined;
+			var minSpe;
 			if (resetSpeed) minSpe = false;
 			if (moveName.substr(0, 13) === 'Hidden Power ') {
 				var hpType = moveName.substr(13);

@@ -746,8 +746,8 @@
 			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
 			else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
 			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU);
-			else if (isDoubles) tierSet = tierSet;
-			else tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
+			// else if (isDoubles) tierSet = tierSet;
+			else if (!isDoubles) tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
 
 			if (format === 'vgc2016') {
 				tierSet = tierSet.filter(function (r) {

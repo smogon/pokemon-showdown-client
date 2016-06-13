@@ -208,10 +208,10 @@
 				return;
 			}
 
-			var teamIndex = undefined;
+			var teamIndex = -1;
 			if (!forceFormatChange && this.$teamSelect.children().val()) {
 				teamIndex = parseInt(this.$teamSelect.children().val(), 10);
-				if (isNaN(teamIndex)) teamIndex = undefined;
+				if (isNaN(teamIndex)) teamIndex = -1;
 			}
 
 			this.$teamSelect.html(app.rooms[''].renderTeams.call(this, this.info.format, teamIndex));
