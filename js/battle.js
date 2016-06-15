@@ -5976,11 +5976,20 @@ var Battle = (function () {
 			args.shift();
 			args.shift();
 			var message = args.join('|');
-			var parsedMessage = Tools.parseChatMessage(message, name, '');
+			var isHighlighted = window.app.rooms && app.rooms[this.roomid] && app.rooms[this.roomid].getHighlight(message);
+			var parsedMessage = Tools.parseChatMessage(message, name, '', isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
 				this.log(parsedMessage[i], preempt);
+			}
+			if (isHighlighted) {
+				var $lastMessage = preempt ? this.logPreemptElem.children().last() : this.logElem.children().last();
+				var notifyTitle = "Mentioned by " + name + (this.roomid ? " in " + this.roomid : '');
+				var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
+				app.rooms[this.roomid].notifyOnce(notifyTitle, "\"" + notifyText + "\"", 'highlight');
+			} else if (name !== '~') { // |c|~| prefixes a system message
+				app.rooms[this.roomid].subtleNotifyOnce();
 			}
 			break;
 		case 'chatmsg':
