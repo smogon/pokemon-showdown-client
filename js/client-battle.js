@@ -121,7 +121,13 @@
 				return this.init(data);
 			}
 			if (data.substr(0, 9) === '|request|') {
-				return this.receiveRequest($.parseJSON(data.substr(9)));
+				var choiceOffset = 0;
+				data = data.substr(9);
+				if (!isNaN(data.substr(0, 1)) && data.substr(1, 1) === '|') {
+					choiceOffset = +data.substr(0, 1);
+					data = data.substr(2);
+				}
+				return this.receiveRequest($.parseJSON(data), choiceOffset);
 			}
 
 			var log = data.split('\n');
@@ -611,7 +617,7 @@
 			this.send(message + '|' + this.request.rqid);
 		},
 		request: null,
-		receiveRequest: function (request) {
+		receiveRequest: function (request, choiceOffset) {
 			if (!request) {
 				this.side = '';
 				return;
