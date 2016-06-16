@@ -658,6 +658,7 @@
 					switch (targets[0]) {
 					case 'add':
 						for (var i = 1, len = targets.length; i < len; i++) {
+							if (!targets[i]) continue;
 							if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
 								// Catch any errors thrown by newly added regular expressions so they don't break the entire highlight list
 								try {
