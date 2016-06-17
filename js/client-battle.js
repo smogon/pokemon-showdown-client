@@ -591,6 +591,8 @@
 					}
 					controls += 'How will you start the battle?</div>';
 					controls += '<div class="switchcontrols"><div class="switchselect"><button name="selectSwitch">Choose Lead</button></div><div class="switchmenu">';
+
+					var speciesTable = {};
 					for (var i = 0; i < switchables.length; i++) {
 						var pokemon = switchables[i];
 						if (i >= 6) {
@@ -598,7 +600,13 @@
 						}
 						if (toId(pokemon.baseAbility) === 'illusion') {
 							this.choice.count = 6;
+							break;
 						}
+						if (speciesTable[pokemon.species]) {
+							this.choice.count = 6;
+							break;
+						}
+						speciesTable[pokemon.species] = 1;
 						controls += '<button name="chooseTeamPreview" value="' + i + '"' + this.tooltips.tooltipAttrs(i, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
 					}
 					if (this.battle.teamPreviewCount) this.choice.count = parseInt(this.battle.teamPreviewCount, 10);
