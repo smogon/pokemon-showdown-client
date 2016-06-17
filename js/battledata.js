@@ -515,6 +515,8 @@ var Tools = {
 		case 'error':
 			return '<div class="chat message-error">' + Tools.escapeHTML(target) + '</div>';
 		case 'html':
+			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.sanitizeHTML(target) + '</em></div>';
+		case 'raw':
 			return '<div class="chat">' + Tools.sanitizeHTML(target) + '</div>';
 		default:
 			// Not a command or unsupported. Parsed as a normal chat message.
