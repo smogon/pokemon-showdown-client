@@ -3495,6 +3495,7 @@ var Battle = (function () {
 						break;
 					case 'confusion':
 						actions += "It hurt itself in its confusion! ";
+						poke.sprite.animReset();
 						break;
 					case 'leechseed':
 						if (!this.fastForward) {
