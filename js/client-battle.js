@@ -602,6 +602,7 @@
 						controls += '<button name="chooseTeamPreview" value="' + i + '"' + this.tooltips.tooltipAttrs(i, 'sidepokemon') + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '</button> ';
 					}
 					if (this.battle.teamPreviewCount) this.choice.count = parseInt(this.battle.teamPreviewCount, 10);
+					if (isNaN(this.choice.count) || this.choice.count <= 0) this.choice.count = 1;
 					controls += '</div>';
 				} else {
 					controls += '<button name="clearChoice">Back</button> What about the rest of your team?</div>';
