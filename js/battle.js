@@ -5919,7 +5919,7 @@ var Battle = (function () {
 			this.spriteElems[k].html(buf + buf2);
 		}
 	};
-	Battle.prototype.runMajor = function (args, kwargs, preempt) {
+	Battle.prototype.runMajor = function (args, kwargs, preempt, nextArgs, nextKwargs) {
 		switch (args[0]) {
 		case 'start':
 			this.teamPreview(false);
@@ -6147,6 +6147,10 @@ var Battle = (function () {
 			poke.sprite.beforeMove();
 			this.useMove(poke, move, poke2, kwargs);
 			poke.sprite.afterMove();
+			if (nextArgs[0] === '-start' && nextArgs[2] === 'typechange' && nextKwargs.from === 'Protean') {
+				this.activityStep++;
+				this.runMinor(nextArgs, nextKwargs, preempt);
+			}
 			break;
 		case 'cant':
 			this.endLastTurn();
@@ -6250,13 +6254,13 @@ var Battle = (function () {
 				if (args[0].substr(0, 1) === '-') {
 					this.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
 				} else {
-					this.runMajor(args, kwargs, preempt);
+					this.runMajor(args, kwargs, preempt, nextArgs, nextKwargs);
 				}
 			} else try {
 				if (args[0].substr(0, 1) === '-') {
 					this.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
 				} else {
-					this.runMajor(args, kwargs, preempt);
+					this.runMajor(args, kwargs, preempt, nextArgs, nextKwargs);
 				}
 			} catch (e) {
 				this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + ' (' + Tools.escapeHTML('' + e) + ')</div>', preempt);
