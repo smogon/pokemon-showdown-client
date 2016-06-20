@@ -5089,6 +5089,9 @@ var Battle = (function () {
 				case 'mist':
 					actions += "" + poke.getName() + " is protected by the mist!";
 					break;
+				case 'safeguard':
+					actions += "" + poke.getName() + " is protected by Safeguard!";
+					break;
 				case 'trapped':
 					actions += "" + poke.getName() + " can no longer escape!";
 					break;
