@@ -5247,7 +5247,7 @@ var Battle = (function () {
 				case 'magiccoat':
 				case 'rebound':
 					break;
-				case 'wonderguard':
+				case 'wonderguard': // Deprecated, now uses -immune
 					this.resultAnim(poke, 'Immune', 'neutral');
 					actions += '' + poke.getName() + '\'s Wonder Guard evades the attack!';
 					break;
