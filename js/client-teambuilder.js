@@ -305,7 +305,10 @@
 			buf += this.clipboardHTML();
 
 			var filterFormat = '';
-			var filterFolder = '';
+
+			// filterFolder === undefined: show teams in any folder
+			// filterFolder === '': show only teams that don't have a folder
+			var filterFolder;
 
 			if (!this.curFolder) {
 				buf += '<h2>Hi</h2>';
