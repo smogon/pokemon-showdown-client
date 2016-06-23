@@ -796,6 +796,12 @@
 						if (roomid === 'lobby') this.joinRoom('rooms');
 					}
 					if (errormessage) {
+						if (Config.server.id && roomid.slice(0, 7) === 'battle-') {
+							var replayid = roomid.slice(7);
+							if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
+							var replayLink = 'http://replay.pokemonshowdown.com/' + replayid;
+							errormessage += '\n\nYou might want to try the replay: ' + replayLink;
+						}
 						this.addPopupMessage(errormessage);
 					}
 				}
@@ -1190,18 +1196,7 @@
 		/**
 		 * We tried to join a room but it didn't exist
 		 */
-		unjoinRoom: function (id) {
-			if (Config.server.id && this.rooms[id] && this.rooms[id].type === 'battle') {
-				if (id === this.initialFragment) {
-					// you were direct-linked to this nonexistent room
-					var replayid = id.substr(7);
-					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
-					// document.location.replace('http://replay.pokemonshowdown.com/' + replayid);
-					var replayLink = 'http://replay.pokemonshowdown.com/' + replayid;
-					app.addPopupMessage('This room does not exist. You might want to try the replay: <a href="' + replayLink + '">' + replayLink + '</a>');
-					return;
-				}
-			}
+		unjoinRoom: function (id, reason) {
 			this.removeRoom(id, true);
 			if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
 		},
