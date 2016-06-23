@@ -4761,6 +4761,7 @@ var Battle = (function () {
 					actions += "" + poke.getName() + " fell straight down!";
 					poke.removeVolatile('magnetrise');
 					poke.removeVolatile('telekinesis');
+					if (poke.lastmove === 'fly' || poke.lastmove === 'bounce') poke.sprite.animReset();
 					break;
 				case 'substitute':
 					if (kwargs.damage) {
