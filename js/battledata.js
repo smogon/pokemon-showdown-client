@@ -542,6 +542,15 @@ var Tools = {
 		// ~~strikethrough~~
 		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])??)\~\~/g,
 			options.hidestrikethrough ? '$1' : '<s>$1</s>');
+		// __italics__
+		str = str.replace(/\_\_([^< ](?:[^<]*?[^< ])??)\_\_/g,
+			options.hideitalics ? '$1' : '<i>$1</i>');
+		// **bold**
+		str = str.replace(/\*\*([^< ](?:[^<]*?[^< ])??)\*\*/g,
+			options.hidebold ? '$1' : '<b>$1</b>');
+		// ^^superscript^^
+		str = str.replace(/\^\^([^< ](?:[^<]*?[^< ])??)\^\^/g,
+			options.hidesuperscript ? '$1' : '<sup>$1</sup>');
 		// <<roomid>>
 		str = str.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g,
 			options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1" target="_blank">$1</a>&raquo;');
@@ -614,21 +623,12 @@ var Tools = {
 			});
 			// [[blah]]
 			//   Short form of gl[blah]
-			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/ig, function (p0, p1) {
+			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/g, function (p0, p1) {
 				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
 				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
 					'" target="_blank">' + p1 + '</a>';
 			});
 		}
-		// __italics__
-		str = str.replace(/\_\_([^< ](?:[^<]*?[^< ])??)\_\_(?![^<]*?<\/a)/g,
-			options.hideitalics ? '$1' : '<i>$1</i>');
-		// **bold**
-		str = str.replace(/\*\*([^< ](?:[^<]*?[^< ])??)\*\*/g,
-			options.hidebold ? '$1' : '<b>$1</b>');
-		// ^^superscript^^
-		str = str.replace(/\^\^([^< ](?:[^<]*?[^< ])??)\^\^/g,
-			options.hidesuperscript ? '$1' : '<sup>$1</sup>');
 
 		if (!options.hidespoiler) {
 			var untilIndex = 0;
