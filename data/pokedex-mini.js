@@ -530,7 +530,7 @@ exports.BattlePokemonSprites = {
 	"lucario": {num:448, front:{ani:{w:52, h:96}}, back:{ani:{w:70, h:96}}},
 	"lucariomega": {num:448, front:{ani:{w:58, h:101}}, back:{ani:{w:58, h:100}}},
 	"hippopotas": {num:449, front:{ani:{w:63, h:53}}, back:{ani:{w:62, h:51}}},
-	"hippowdon": {num:450, front:{ani:{w:97, h:58}}, back:{ani:{w:92, h:58}}},
+	"hippowdon": {num:450, front:{ani:{w:97, h:58}, anif:{w:97, h:58}}, back:{ani:{w:92, h:58}, anif:{w:92, h:58}}},
 	"skorupi": {num:451, front:{ani:{w:75, h:64}}, back:{ani:{w:82, h:68}}},
 	"drapion": {num:452, front:{ani:{w:141, h:85}}, back:{ani:{w:167, h:87}}},
 	"croagunk": {num:453, front:{ani:{w:60, h:52}}, back:{ani:{w:60, h:52}}},
