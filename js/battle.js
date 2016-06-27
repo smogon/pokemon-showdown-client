@@ -2935,7 +2935,7 @@ var Battle = (function () {
 			}
 		}
 		if (this.weather && !newWeather) {
-			this.message(weatherTable[this.weather].endMessage);
+			this.message('<small>' + weatherTable[this.weather].endMessage + '</small>');
 		}
 		this.updateWeather(weather);
 	};
