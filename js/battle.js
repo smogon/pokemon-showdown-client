@@ -6237,7 +6237,7 @@ var Battle = (function () {
 
 			// parse the next line if it's a minor: runMinor needs it parsed to determine when to merge minors
 			var nextLine = '', nextArgs = [''], nextKwargs = {};
-			nextLine = this.activityQueue[this.activityStep + 1];
+			nextLine = this.activityQueue[this.activityStep + 1] || '';
 			if (nextLine && nextLine.substr(0, 2) === '|-') {
 				nextLine = $.trim(nextLine.substr(1));
 				nextArgs = nextLine.split('|');
