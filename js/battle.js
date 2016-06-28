@@ -5973,14 +5973,13 @@ var Battle = (function () {
 			break;
 		case 'chat':
 		case 'c':
-			var name = args[1];
+			var pipeIndex = args[1].indexOf('|');
+			var name = args[1].slice(0, pipeIndex);
 			var rank = name.charAt(0);
 			if (this.ignoreSpects && (rank === ' ' || rank === '+')) break;
 			if (this.ignoreOpponent && rank === '\u2605' && toUserid(name) !== app.user.get('userid')) break;
 			if (window.app && app.ignore && app.ignore[toUserid(name)] && (rank === ' ' || rank === '+' || rank === '\u2605')) break;
-			args.shift();
-			args.shift();
-			var message = args.join('|');
+			var message = args[1].slice(pipeIndex + 1);
 			var isHighlighted = window.app && app.rooms && app.rooms[this.roomid].getHighlight(message);
 			var parsedMessage = Tools.parseChatMessage(message, name, '', isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
@@ -6227,7 +6226,10 @@ var Battle = (function () {
 			if (str !== '|') {
 				args = str.substr(1).split('|');
 			}
-			while (args[args.length - 1] && args[args.length - 1].substr(0, 1) === '[') {
+			if (args[0] === 'c' || args[0] === 'chat') {
+				// chat is preserved untouched
+				args = [args[0], str.slice(args[0].length + 2)];
+			} else while (args[args.length - 1] && args[args.length - 1].substr(0, 1) === '[') {
 				var bracketPos = args[args.length - 1].indexOf(']');
 				if (bracketPos <= 0) break;
 				var argstr = args.pop();
