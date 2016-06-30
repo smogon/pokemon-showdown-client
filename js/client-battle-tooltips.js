@@ -882,6 +882,7 @@ var BattleTooltips = (function () {
 	BattleTooltips.prototype.getMoveBasePower = function (move, pokemon, target) {
 		var myPokemon = this.room.myPokemon[pokemon.slot];
 		var ability = Tools.getAbility(myPokemon.baseAbility).name;
+		var item = {};
 		var basePower = move.basePower;
 		if (this.battle.gen < 6) {
 			var table = BattleTeambuilderTable['gen' + this.battle.gen];
@@ -1002,12 +1003,11 @@ var BattleTooltips = (function () {
 		}
 		// Movements which have base power changed due to items.
 		if (myPokemon.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+			item = Tools.getItem(myPokemon.item);
 			if (move.id === 'fling') {
-				var item = Tools.getItem(myPokemon.item);
 				if (item.fling) basePower = item.fling.basePower;
 			}
 			if (move.id === 'naturalgift') {
-				var item = Tools.getItem(myPokemon.item);
 				if (item.naturalGift) basePower = item.naturalGift.basePower;
 			}
 		}
@@ -1043,7 +1043,11 @@ var BattleTooltips = (function () {
 			basePower *= 1.5;
 			basePowerComment = ' (Technician boosted)';
 		}
-		if (move.type === 'Normal' && move.category !== 'Status' && !(move.id in {'naturalgift': 1, 'struggle': 1}) && (!thereIsWeather || thereIsWeather && move.id !== 'weatherball')) {
+		if (move.type === 'Normal' && move.category !== 'Status' &&
+			!(move.id in {'naturalgift': 1, 'struggle': 1} ||
+			  move.id === 'weatherball' && thereIsWeather ||
+			  move.id === 'judgment' && item.onPlate ||
+			  move.id === 'technoblast' && item.onDrive)) {
 			if (ability in {'Aerilate': 1, 'Pixilate': 1, 'Refrigerate': 1}) {
 				basePower = Math.floor(basePower * 1.3);
 				basePowerComment = ' (' + ability + ' boosted)';
