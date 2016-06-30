@@ -6018,6 +6018,8 @@ var Battle = (function () {
 			args.shift();
 			this.log('<div class="chat message-error">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
+		case 'timer':
+			break;
 		case 'join':
 		case 'j':
 			if (this.roomid) app.rooms[this.roomid].users[toUserid(args[1])] = ' ' + args[1];
