@@ -1471,7 +1471,7 @@
 			if (leftWidth < leftMinMain) {
 				leftWidth = leftMinMain;
 			}
-			if (this.curRoom.type === 'battle' && this.sideRoom.type === 'chat') {
+			if (this.curRoom.type === 'battle' && this.sideRoom.type !== 'battle') {
 				// I give up; hardcoding
 				var offset = Math.floor((available - leftMinMain - rightMin) / 2);
 				if (offset > 0) leftWidth += offset;
