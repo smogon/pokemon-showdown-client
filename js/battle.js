@@ -5451,6 +5451,12 @@ var Battle = (function () {
 			case '-fieldstart':
 				var effect = Tools.getEffect(args[1]);
 				var poke = this.getPokemon(kwargs.of);
+				var fromeffect = Tools.getEffect(kwargs.from);
+				if (fromeffect && fromeffect.effectType === 'Ability') {
+					this.resultAnim(poke, fromeffect.name, 'ability');
+					this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+					poke.markAbility(fromeffect.name);
+				}
 				this.addPseudoWeather(effect.name, poke);
 
 				switch (effect.id) {
