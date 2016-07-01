@@ -2244,7 +2244,7 @@ var Side = (function () {
 })();
 
 var Battle = (function () {
-	function Battle(frame, logFrame, noPreload) {
+	function Battle(frame, logFrame) {
 		frame.addClass('battle');
 
 		// turn number
@@ -2266,7 +2266,6 @@ var Battle = (function () {
 
 		this.frameElem = frame;
 		this.logFrameElem = logFrame;
-		this.noPreload = !!noPreload;
 		this.logElem = null;
 		this.weatherElem = null;
 		this.bgEffectElem = null;
@@ -6503,7 +6502,6 @@ var Battle = (function () {
 	};
 
 	Battle.prototype.preloadImage = function (url) {
-		if (this.noPreload) return;
 		var token = url.replace(/\.(gif|png)$/, '').replace(/\//g, '-');
 		if (this.preloadCache[token]) {
 			return;
@@ -6519,7 +6517,6 @@ var Battle = (function () {
 	};
 	Battle.prototype.preloadCallback = function () {};
 	Battle.prototype.preloadEffects = function () {
-		if (this.noPreload) return;
 		for (var i in BattleEffects) {
 			if (i === 'alpha' || i === 'omega') continue;
 			if (BattleEffects[i].url) this.preloadImage(BattleEffects[i].url);
