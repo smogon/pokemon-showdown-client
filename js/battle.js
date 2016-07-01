@@ -3342,6 +3342,11 @@ var Battle = (function () {
 		case 'skydrop':
 			this.message('Sky Drop won\'t let ' + pokemon.getLowerName() + ' go!');
 			break;
+		case 'damp':
+		case 'dazzling':
+			var ofpoke = this.getPokemon(kwargs.of);
+			this.message(ofpoke.getName() + ' cannot use ' + move.name + '!');
+			break;
 		case 'truant':
 			this.resultAnim(pokemon, 'Loafing around', 'neutral');
 			this.message('' + pokemon.getName() + ' is loafing around!');
