@@ -498,6 +498,7 @@ var BattleTooltips = (function () {
 				if (pokemon.boosts[statName] > 0) {
 					stats[statName] *= boostTable[pokemon.boosts[statName]];
 				} else {
+					if (this.battle.gen <= 2) boostTable = [1, 100 / 66, 2, 2.5, 100 / 33, 100 / 28, 4];
 					stats[statName] /= boostTable[-pokemon.boosts[statName]];
 				}
 				stats[statName] = Math.floor(stats[statName]);
