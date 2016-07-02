@@ -5457,6 +5457,11 @@ var Battle = (function () {
 					this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
 					poke.markAbility(fromeffect.name);
 				}
+				if (effect.id in {'electricterrain': 1, 'grassyterrain': 1, 'mistyterrain': 1}) {
+					this.removePseudoWeather('Electric Terrain');
+					this.removePseudoWeather('Grassy Terrain');
+					this.removePseudoWeather('Misty Terrain');
+				}
 				this.addPseudoWeather(effect.name, poke);
 
 				switch (effect.id) {
