@@ -92,8 +92,7 @@
 			'pususpecttest': 9,
 			'lcsuspecttest': 9,
 			'doublesoucurrent': 12,
-			'doublesoususpecttest': 12,
-			'monotype': 4
+			'doublesoususpecttest': 12
 		}
 	});
 
