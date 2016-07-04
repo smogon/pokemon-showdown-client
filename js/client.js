@@ -1199,6 +1199,7 @@
 		unjoinRoom: function (id, reason) {
 			this.removeRoom(id, true);
 			if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
+			this.updateAutojoin();
 		},
 		tryJoinRoom: function (id) {
 			this.joinRoom(id);
