@@ -3650,6 +3650,11 @@ var Battle = (function () {
 				if (this.gen === 1 && stat === 'spd') break;
 				if (this.gen === 1 && stat === 'spa') stat = 'spc';
 				var amount = parseInt(args[3], 10);
+				if (amount === 0) {
+					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " won't go any higher! ";
+					this.resultAnim(poke, 'Highest ' + BattleStats[stat], 'good');
+					break;
+				}
 				if (!poke.boosts[stat]) {
 					poke.boosts[stat] = 0;
 				}
@@ -3689,6 +3694,11 @@ var Battle = (function () {
 				if (this.gen === 1 && stat === 'spd') break;
 				if (this.gen === 1 && stat === 'spa') stat = 'spc';
 				var amount = parseInt(args[3], 10);
+				if (amount === 0) {
+					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " won't go any lower! ";
+					this.resultAnim(poke, 'Lowest ' + BattleStats[stat], 'bad');
+					break;
+				}
 				if (!poke.boosts[stat]) {
 					poke.boosts[stat] = 0;
 				}
