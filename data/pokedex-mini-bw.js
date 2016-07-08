@@ -441,6 +441,8 @@ exports.BattlePokemonSpritesBW = {
 	"shieldon": {num:410, front:{ani:{w: 49, h: 41}}, back:{ani:{w: 51, h: 43}}},
 	"bastiodon": {num:411, front:{ani:{w: 69, h: 64}}, back:{ani:{w: 69, h: 66}}},
 	"burmy": {num:412, front:{ani:{w: 58, h: 48}}, back:{ani:{w: 62, h: 48}}},
+	"burmysandy": {num:412, front:{ani:{w: 55, h: 44}}, back:{ani:{w: 63, h: 44}}},
+	"burmytrash": {num:412, front:{ani:{w: 60, h: 48}}, back:{ani:{w: 61, h: 48}}},
 	"wormadam": {num:413, front:{ani:{w: 55, h: 63}}, back:{ani:{w: 55, h: 64}}},
 	"wormadamsandy": {num:413, front:{ani:{w: 54, h: 63}}, back:{ani:{w: 51, h: 63}}},
 	"wormadamtrash": {num:413, front:{ani:{w: 57, h: 63}}, back:{ani:{w: 52, h: 63}}},
