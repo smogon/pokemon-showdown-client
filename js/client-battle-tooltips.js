@@ -625,7 +625,7 @@ var BattleTooltips = (function () {
 				stats.atk = Math.floor(stats.atk * 0.5);
 				stats.spe = Math.floor(stats.spe * 0.5);
 			}
-			if (ability === 'unburden' && 'itemremoved' in pokemon.volatiles) {
+			if (ability === 'unburden' && 'itemremoved' in pokemon.volatiles && !item) {
 				stats.spe *= 2;
 			}
 		}
