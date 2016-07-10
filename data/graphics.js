@@ -3408,44 +3408,62 @@ var BattleMoveAnims = {
 			battle.showEffect('electroball', {
 				x: attacker.x,
 				y: attacker.y,
-				z: attacker.z,
-				opacity: 0.8
+				z: defender.behind(-130),
+				opacity: 0.8,
+				time: 275
 			}, {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				time: 300
-			}, 'accel', 'fade');
+				time: 500
+			}, 'linear', 'explode');
 			battle.showEffect('electroball', {
 				x: defender.x,
 				y: defender.y,
-				z: defender.z,
-				opacity: 0.7,
-				scale: 0,
-				time: 300
-			}, {
-				x: defender.x,
-				y: defender.y,
-				z: defender.z,
-				scale: 4,
-				opacity: 0,
-				time: 600
-			}, 'linear');
-			battle.showEffect('electroball', {
-				x: defender.x,
-				y: defender.y,
-				z: defender.z,
+				z: defender.behind(10),
 				opacity: 0.7,
 				scale: 0,
 				time: 500
 			}, {
-				x: defender.x,
-				y: defender.y,
-				z: defender.z,
 				scale: 4,
 				opacity: 0,
 				time: 800
 			}, 'linear');
+			battle.showEffect('electroball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				opacity: 0.7,
+				scale: 0,
+				time: 700
+			}, {
+				scale: 4,
+				opacity: 0,
+				time: 1000
+			}, 'linear');
+
+			attacker.anim({
+				z: attacker.behind(15),
+				time: 200
+			}, 'decel');
+			attacker.anim({
+				z: defender.behind(-170),
+				time: 100
+			}, 'accel');
+			attacker.anim({
+				z: attacker.z,
+				time: 300
+			}, 'swing');
+			defender.delay(500);
+			defender.anim({
+				x: defender.leftof(5),
+				y: defender.y,
+				z: defender.behind(15),
+				time: 50
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
 		}
 	},
 	thunderwave: {
