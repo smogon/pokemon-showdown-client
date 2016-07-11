@@ -6026,6 +6026,49 @@ var BattleMoveAnims = {
 			battle.activityWait(500);
 		}
 	},
+	heartstamp: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.showEffect('heart', {
+				x: defender.leftof(-20),
+				y: defender.y + 15,
+				z: defender.z,
+				scale: 1,
+				opacity: 0.5,
+				time: 450
+			}, {
+				scale: 4,
+				opacity: 0,
+				time: 700
+			}, 'linear');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 80,
+				z: defender.behind(-30),
+				time: 400
+			}, 'ballistic');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 5,
+				z: defender.z,
+				time: 100
+			});
+			attacker.anim({
+				time: 500
+			}, 'ballistic2Back');
+			defender.delay(450);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
+			battle.activityWait(500);
+		}
+	},
 	slam: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
@@ -6320,9 +6363,6 @@ var BattleMoveAnims = {
 		}
 	},
 	steamroller: {
-		anim: BattleOtherAnims.contactattack.anim
-	},
-	heartstamp: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
 	pound: {
@@ -12971,13 +13011,13 @@ var BattleMoveAnims = {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				scale: 0.35,
+				scale: 0.6,
 				opacity: 0
 			}, {
 				x: defender.leftof(40),
 				y: defender.y + 15,
 				z: defender.z,
-				scale: 0.5,
+				scale: 0.7,
 				opacity: .7,
 				time: 500
 			}, 'decel', 'fade');
@@ -12986,14 +13026,14 @@ var BattleMoveAnims = {
 				x: defender.leftof(40),
 				y: defender.y + 15,
 				z: defender.z,
-				scale: 0.5,
+				scale: 0.7,
 				opacity: .7,
 				time: 500
 			}, {
 				x: defender.leftof(-40),
 				y: defender.y,
 				z: defender.z,
-				scale: 0.4,
+				scale: 0.6,
 				opacity: 1,
 				time: 700
 			}, 'swing', 'fade');
@@ -13001,7 +13041,7 @@ var BattleMoveAnims = {
 				x: defender.leftof(-40),
 				y: defender.y,
 				z: defender.z,
-				scale: 0.5,
+				scale: 0.7,
 				opacity: 0,
 				time: 700
 			}, {
