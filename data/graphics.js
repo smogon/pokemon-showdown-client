@@ -16062,7 +16062,7 @@ var BattleMoveAnims = {
 	surf: {
 		anim: function (battle, args) {
 			var attacker = args[0];
-			var defender = args[i];
+			var defender;
 
 			for (var i = 1; i < args.length; i++) {
 				defender = args[i];
@@ -16089,6 +16089,8 @@ var BattleMoveAnims = {
 					time: 75
 				}, 'swing');
 			}
+
+			if (args.length > 2) defender = args[2];
 
 			battle.backgroundEffect('#0000DD', 700, 0.2);
 			battle.showEffect('waterwisp', {
@@ -16152,7 +16154,7 @@ var BattleMoveAnims = {
 	muddywater: {
 		anim: function (battle, args) {
 			var attacker = args[0];
-			var defender = args[i];
+			var defender;
 
 			for (var i = 1; i < args.length; i++) {
 				defender = args[i];
@@ -16179,6 +16181,8 @@ var BattleMoveAnims = {
 					time: 75
 				}, 'swing');
 			}
+
+			if (args.length > 2) defender = args[2];
 
 			battle.backgroundEffect('#996600', 700, 0.2);
 			battle.showEffect('mudwisp', {
