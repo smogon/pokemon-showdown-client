@@ -5988,42 +5988,19 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
+			BattleOtherAnims.contactattack.anim(battle, args);
 			battle.showEffect('shadowball', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
 				scale: 0,
-				opacity: 0.3,
+				opacity: 0.2,
 				time: 450
 			}, {
 				scale: 2,
 				opacity: 0,
 				time: 700
 			}, 'linear');
-			attacker.anim({
-				x: defender.x,
-				y: defender.y + 80,
-				z: defender.behind(-30),
-				time: 400
-			}, 'ballistic');
-			attacker.anim({
-				x: defender.x,
-				y: defender.y + 5,
-				z: defender.z,
-				time: 100
-			});
-			attacker.anim({
-				time: 500
-			}, 'ballistic2Back');
-			defender.delay(450);
-			defender.anim({
-				z: defender.behind(20),
-				time: 100
-			}, 'swing');
-			defender.anim({
-				time: 300
-			}, 'swing');
-			battle.activityWait(500);
 		}
 	},
 	heartstamp: {
@@ -6031,6 +6008,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
+			BattleOtherAnims.contactattack.anim(battle, args);
 			battle.showEffect('heart', {
 				x: defender.leftof(-20),
 				y: defender.y + 15,
@@ -6043,30 +6021,6 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 700
 			}, 'linear');
-			attacker.anim({
-				x: defender.x,
-				y: defender.y + 80,
-				z: defender.behind(-30),
-				time: 400
-			}, 'ballistic');
-			attacker.anim({
-				x: defender.x,
-				y: defender.y + 5,
-				z: defender.z,
-				time: 100
-			});
-			attacker.anim({
-				time: 500
-			}, 'ballistic2Back');
-			defender.delay(450);
-			defender.anim({
-				z: defender.behind(20),
-				time: 100
-			}, 'swing');
-			defender.anim({
-				time: 300
-			}, 'swing');
-			battle.activityWait(500);
 		}
 	},
 	slam: {
@@ -9708,6 +9662,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
+			BattleOtherAnims.contactattack.anim(battle, args);
 			battle.showEffect('mistball', {
 				x: defender.x,
 				y: defender.y,
@@ -9720,30 +9675,6 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 700
 			}, 'linear');
-			attacker.anim({
-				x: defender.x,
-				y: defender.y + 80,
-				z: defender.behind(-30),
-				time: 400
-			}, 'ballistic');
-			attacker.anim({
-				x: defender.x,
-				y: defender.y + 5,
-				z: defender.z,
-				time: 100
-			});
-			attacker.anim({
-				time: 500
-			}, 'ballistic2Back');
-			defender.delay(450);
-			defender.anim({
-				z: defender.behind(20),
-				time: 100
-			}, 'swing');
-			defender.anim({
-				time: 300
-			}, 'swing');
-			battle.activityWait(500);
 		}
 	},
 	fakeout: {
