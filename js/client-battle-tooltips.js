@@ -301,6 +301,9 @@ var BattleTooltips = (function () {
 				if ('bite' in move.flags && (myPokemon.baseAbility === 'strongjaw' || pokemon.ability === "Strong Jaw")) {
 					text += '<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>';
 				}
+				if ((move.recoil || move.hasCustomRecoil) && (myPokemon.baseAbility === 'reckless' || pokemon.ability === "Reckless")) {
+					text += '<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>';
+				}
 				if ('bullet' in move.flags) {
 					text += '<p class="movetag">&#x2713; Ballistic <small>(doesn\'t affect Bulletproof pokemon)</small></p>';
 				}
