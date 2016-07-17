@@ -15553,14 +15553,14 @@ var BattleMoveAnims = {
 			}, 'swing');
 			defender.anim({
 				time: 75
-				}, 'swing');
+			}, 'swing');
 			defender.anim({
 				z: defender.behind(5),
 				time: 75
 			}, 'swing');
 			defender.anim({
 				time: 150
-				}, 'swing');
+			}, 'swing');
 		}
 	},
 	airslash: {
