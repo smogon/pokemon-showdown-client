@@ -5255,6 +5255,12 @@ var Battle = (function () {
 				case 'endure':
 					actions += '' + poke.getName() + ' endured the hit!';
 					break;
+				case 'electricterrain':
+					actions += '' + poke.getName() + ' surrounds itself with electrified terrain!';
+					break;
+				case 'mistyterrain':
+					actions += '' + poke.getName() + ' surrounds itself with a protective mist!';
+					break;
 
 				// ability activations
 				case 'magicbounce':
