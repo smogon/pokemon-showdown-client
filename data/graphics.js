@@ -9767,7 +9767,68 @@ var BattleMoveAnims = {
 	earthquake: {
 		anim: function (battle, args) {
 			var attacker = args[0];
-			var defender = args[1];
+			var defender;
+
+			attacker.anim({
+				x: attacker.x - 30,
+				time: 75
+			});
+			attacker.anim({
+				x: attacker.x + 30,
+				time: 100
+			});
+			attacker.anim({
+				x: attacker.x - 30,
+				time: 100
+			});
+			attacker.anim({
+				x: attacker.x + 30,
+				time: 100
+			});
+			attacker.anim({
+				x: attacker.x - 30,
+				time: 100
+			});
+			attacker.anim({
+				x: attacker.x + 30,
+				time: 100
+			});
+			attacker.anim({
+				x: attacker.x,
+				time: 100
+			});
+
+			for (var i = 1; i < args.length; i++) {
+				defender = args[i];
+				defender.anim({
+					x: defender.x - 30,
+					time: 75
+				});
+				defender.anim({
+					x: defender.x + 30,
+					time: 100
+				});
+				defender.anim({
+					x: defender.x - 30,
+					time: 100
+				});
+				defender.anim({
+					x: defender.x + 30,
+					time: 100
+				});
+				defender.anim({
+					x: defender.x - 30,
+					time: 100
+				});
+				defender.anim({
+					x: defender.x + 30,
+					time: 100
+				});
+				defender.anim({
+					x: defender.x,
+					time: 100
+				});
+			}
 
 			battle.showEffect('rock3', {
 				x: defender.x + 30,
@@ -10024,64 +10085,6 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 575
 			}, 'decel', 'fade');
-
-			attacker.anim({
-				x: attacker.x - 30,
-				time: 75
-			});
-			attacker.anim({
-				x: attacker.x + 30,
-				time: 100
-			});
-			attacker.anim({
-				x: attacker.x - 30,
-				time: 100
-			});
-			attacker.anim({
-				x: attacker.x + 30,
-				time: 100
-			});
-			attacker.anim({
-				x: attacker.x - 30,
-				time: 100
-			});
-			attacker.anim({
-				x: attacker.x + 30,
-				time: 100
-			});
-			attacker.anim({
-				x: attacker.x,
-				time: 100
-			});
-
-			defender.anim({
-				x: defender.x - 30,
-				time: 75
-			});
-			defender.anim({
-				x: defender.x + 30,
-				time: 100
-			});
-			defender.anim({
-				x: defender.x - 30,
-				time: 100
-			});
-			defender.anim({
-				x: defender.x + 30,
-				time: 100
-			});
-			defender.anim({
-				x: defender.x - 30,
-				time: 100
-			});
-			defender.anim({
-				x: defender.x + 30,
-				time: 100
-			});
-			defender.anim({
-				x: defender.x,
-				time: 100
-			});
 			battle.activityWait(325);
 		}
 	},
