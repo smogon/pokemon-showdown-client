@@ -1051,9 +1051,6 @@
 		}
 	}, {
 		renderTeam: function (i) {
-			if (i === undefined) {
-				return '<em>Select a team</em>';
-			}
 			if (i === 'random') {
 				var buf = '<strong>Random team</strong><small>';
 				for (var i = 0; i < 6; i++) {
@@ -1061,6 +1058,9 @@
 				}
 				buf += '</small>';
 				return buf;
+			}
+			if (i < 0) {
+				return '<em>Select a team</em>';
 			}
 			var team = Storage.teams[i];
 			if (!team) return 'Error: Corrupted team';
