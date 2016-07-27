@@ -4680,6 +4680,11 @@ var Battle = (function () {
 					actions += "" + poke.getName() + " sealed any moves its target shares with it!";
 					break;
 				case 'disable':
+					if (fromeffect.effectType === 'Ability') {
+						this.resultAnim(ofpoke, fromeffect.name, 'ability');
+						this.message('', "<small>[" + ofpoke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+						ofpoke.markAbility(fromeffect.name);
+					}
 					this.resultAnim(poke, 'Disabled', 'bad');
 					actions += "" + poke.getName() + "'s " + Tools.escapeHTML(args[3]) + " was disabled!";
 					break;
@@ -4743,8 +4748,13 @@ var Battle = (function () {
 					actions += "" + poke.getName() + " can't get it going!";
 					break;
 				case 'attract':
+					if (fromeffect.effectType === 'Ability') {
+						this.resultAnim(ofpoke, fromeffect.name, 'ability');
+						this.message('', "<small>[" + ofpoke.getName(true) + "'s " + fromeffect.name + "!]</small>");
+						ofpoke.markAbility(fromeffect.name);
+					}
 					this.resultAnim(poke, 'Attracted', 'bad');
-					if (fromeffect.id) {
+					if (fromeffect.effectType === 'Item') {
 						actions += "" + poke.getName() + " fell in love from the " + fromeffect.name + "!";
 					} else {
 						actions += "" + poke.getName() + " fell in love!";
