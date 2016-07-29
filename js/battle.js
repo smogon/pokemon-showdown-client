@@ -5325,6 +5325,9 @@ var Battle = (function () {
 				case 'aromaveil':
 					actions += '' + ofpoke.getName() + ' is protected by Aroma Veil!';
 					break;
+				case 'flowerveil':
+					actions += '' + ofpoke.getName() + ' surrounded itself with a veil of petals!';
+					break;
 				case 'sweetveil':
 					actions += '' + ofpoke.getName() + ' surrounded itself with a veil of sweetness!';
 					break;
