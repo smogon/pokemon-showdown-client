@@ -2679,6 +2679,9 @@ a.ilink.yours {
 	right: 8px;
 	z-index: 2;
 }
+.dark .teambuilder-clipboard-data {
+	color: #000000;
+}
 .teambuilder-clipboard-data:hover {
 	border: 1px solid #BBBBBB;
 }
