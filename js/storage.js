@@ -383,6 +383,14 @@ Storage.onMessage = function ($e) {
 			// for whatever reason, Node-Webkit doesn't let us make remote
 			// Ajax requests or something. Oh well, making them direct
 			// isn't a problem, either.
+
+			try {
+				// I really hope this is a Chrome bug that this can fail
+				Storage.crossOriginFrame.postMessage("", Storage.origin);
+			} catch (e) {
+				return;
+			}
+
 			$.get = function (uri, data, callback, type) {
 				var idx = Storage.crossOriginRequestCount++;
 				Storage.crossOriginRequests[idx] = callback;
@@ -406,7 +414,19 @@ Storage.onMessage = function ($e) {
 	}
 };
 Storage.postCrossOriginMessage = function (data) {
-	return Storage.crossOriginFrame.postMessage(data, Storage.origin);
+	try {
+		// I really hope this is a Chrome bug that this can fail
+		return Storage.crossOriginFrame.postMessage(data, Storage.origin);
+	} catch (e) {
+		Storage.whenPrefsLoaded.load();
+		if (!Storage.whenTeamsLoaded.isLoaded) {
+			Storage.whenTeamsLoaded.isStalled = true;
+			if (window.app && app.rooms['teambuilder']) {
+				app.rooms['teambuilder'].updateTeamInterface();
+			}
+		}
+	}
+	return false;
 };
 
 // Test client
