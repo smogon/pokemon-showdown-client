@@ -19,6 +19,11 @@ if (@$_GET['act'] === 'dlteam') {
 	die();
 }
 
+if (preg_match('/^http\\:\\/\\/[a-z0-9]+\\.psim\\.us\\//', @$_SERVER['HTTP_REFERER'])) {
+	header("Access-Control-Allow-Origin: *");
+}
+// header("X-Debug: " . @$_SERVER['HTTP_REFERER']);
+
 include_once '../pokemonshowdown.com/lib/ntbb-session.lib.php';
 include_once '../pokemonshowdown.com/config/servers.inc.php';
 include_once 'lib/dispatcher.lib.php';
