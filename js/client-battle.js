@@ -174,7 +174,7 @@
 						this.battle.activityQueue.push('|' + args.join('|'));
 						break;
 					}
-				} else if (logLine.substr(0, 7) === '|title|') {
+				} else if (logLine.substr(0, 7) === '|title|') { // eslint-disable-line no-empty
 				} else if (logLine.substr(0, 5) === '|win|') {
 					this.battleEnded = true;
 					this.battle.activityQueue.push(logLine);
