@@ -341,6 +341,7 @@
 		parseCommand: function (text) {
 			var cmd = '';
 			var target = '';
+			var noSpace = false;
 			if (text.substr(0, 2) !== '//' && text.substr(0, 1) === '/') {
 				var spaceIndex = text.indexOf(' ');
 				if (spaceIndex > 0) {
@@ -349,6 +350,7 @@
 				} else {
 					cmd = text.substr(1);
 					target = '';
+					noSpace = true;
 				}
 			}
 
@@ -825,6 +827,7 @@
 
 			case 'joim':
 			case 'join':
+				if (noSpace) return this.parseCommand('/help join');
 				var room = toRoomid(target);
 				if (app.rooms[target]) {
 					app.focusRoom(target);
