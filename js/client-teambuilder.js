@@ -1039,7 +1039,7 @@
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><span class="itemicon"></span><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" /></div></div></div>';
+				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
@@ -1050,15 +1050,11 @@
 			buf += '<div class="setchart" style="' + Tools.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
 			// icon
-			var itemicon = '<span class="itemicon"></span>';
-			if (set.item) {
-				var item = Tools.getItem(set.item);
-				itemicon = '<span class="itemicon" style="' + Tools.getItemIcon(item) + '"></span>';
-			}
+			buf += '<div class="setcol setcol-icon">';
 			if (template.otherForms && template.baseSpecies !== 'Unown') {
-				buf += '<div class="setcol setcol-icon changeform">' + itemicon + '<i class="fa fa-caret-down"></i>';
+				buf += '<div class="setcell-sprite changeform"><i class="fa fa-caret-down"></i></div>';
 			} else {
-				buf += '<div class="setcol setcol-icon">' + itemicon;
+				buf += '<div class="setcell-sprite"></div>';
 			}
 			buf += '<div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
 
@@ -1078,7 +1074,14 @@
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 			}
 
-			buf += '</button></div>';
+			buf += '</button>';
+			var itemicon = '<span class="itemicon"></span>';
+			if (set.item) {
+				var item = Tools.getItem(set.item);
+				itemicon = '<span class="itemicon" style="' + Tools.getItemIcon(item) + '"></span>';
+			}
+			buf += itemicon;
+			buf += '</div>';
 			buf += '</div><div class="setrow">';
 			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + Tools.escapeHTML(set.item) + '" /></div>';
 			if (this.curTeam.gen > 2) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="textbox chartinput" value="' + Tools.escapeHTML(set.ability) + '" /></div>';
@@ -1502,9 +1505,9 @@
 
 			var item = Tools.getItem(set.item);
 			if (item.id) {
-				this.$('.setcol-icon .itemicon').css('background', Tools.getItemIcon(item).substr(11));
+				this.$('.setcol-details .itemicon').css('background', Tools.getItemIcon(item).substr(11));
 			} else {
-				this.$('.setcol-icon .itemicon').css('background', 'none');
+				this.$('.setcol-details .itemicon').css('background', 'none');
 			}
 
 			this.updateStatGraph();
@@ -2336,8 +2339,6 @@
 			this.updatePokemonSprite();
 		},
 		altForm: function (e) {
-			var target = $(e.target);
-			if (!(target.is('div') || target.is('i'))) return;
 			var set = this.curSet;
 			var i = 0;
 			if (!set) {

@@ -2443,16 +2443,17 @@ a.ilink.yours {
 .setcell-ability {
 	float: right;
 }
-.setcol-icon .itemicon {
+.setcol-details .itemicon {
 	display: block;
-	margin-left: 88px;
-	margin-top: 60px;
+	margin-top: 10px;
 	width: 24px;
 	height: 24px;
 	background-image: transparent none no-repeat scroll center center;
 	opacity: 0.8;
-	position: relative;
-	left: 28px;
+}
+.setcell-sprite {
+	height: 82px;
+	padding: 1px;
 }
 .setcell-pokemon {
 	margin-top: 0;
@@ -2920,23 +2921,23 @@ a.ilink.yours {
 	width: 95px;
 	text-align: right;
 }
-.changeform {
-	cursor: pointer;
-}
-.changeform i{
+.changeform i {
 	cursor: pointer;
 	display: block;
-	margin: -12px 0 -6px 0;
+	margin: 70px 2px 0 auto;
 	padding-left: 4px;
 	padding-top: 2px;
 	width: 12px;
 	height: 14px;
-	position: relative;
-	left: 90px;
 	border: 1px solid #569;
 	border-radius: 2px;
 	color: #569;
+	background: rgba(255,255,255,.5);
 	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.changeform i:hover {
+	color: #DAE5F0;
+	background: #569;
 }
 .altform {
 	margin-left: 10px;
@@ -3130,8 +3131,13 @@ a.ilink.yours {
 	color: black;
 }
 .dark .changeform i {
-	border: 1px solid #bbb;
+	border-color: #bbb;
 	color: #bbb;
+	background: rgba(0,0,0,.5);
+}
+.dark .changeform i:hover {
+	border-color: #EEE;
+	color: #EEE;
 }
 
 .dark .ps-overlay {
