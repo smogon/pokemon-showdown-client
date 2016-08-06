@@ -31,6 +31,11 @@
 		},
 		joinRoomPopup: function () {
 			app.addPopupPrompt("Room name:", "Join room", function (room) {
+				if (room.startsWith('http://')) room = room.slice(7);
+				if (room.startsWith('https://')) room = room.slice(8);
+				if (room.startsWith('play.pokemonshowdown.com/')) room = room.slice(25);
+				if (room.startsWith('psim.us/')) room = room.slice(8);
+				if (room.startsWith(document.location.hostname + '/')) room = room.slice(document.location.hostname.length + 1);
 				room = toRoomid(room);
 				if (!room) return;
 				app.tryJoinRoom(room);
