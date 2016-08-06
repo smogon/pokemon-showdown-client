@@ -827,6 +827,7 @@
 
 			case 'joim':
 			case 'join':
+			case 'j':
 				if (noSpace) return this.parseCommand('/help join');
 				var room = toRoomid(target);
 				if (app.rooms[target]) {
