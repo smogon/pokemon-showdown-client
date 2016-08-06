@@ -435,7 +435,8 @@
 					break;
 
 				case 'battlestart':
-					this.room.$chat.append('<div class="notice tournament-message-battlestart"><a href="' + app.root + toRoomid(data[2]).toLowerCase() + '" class="ilink">' +
+					var roomid = toRoomid(data[2]).toLowerCase();
+					this.room.$chat.append('<div class="notice tournament-message-battlestart tournament-' + roomid + '"><a href="' + app.root + roomid + '" class="ilink">' +
 						"Tournament battle between " + Tools.escapeHTML(data[0]) + " and " + Tools.escapeHTML(data[1]) + " started." +
 						'</a></div>');
 					break;
@@ -446,10 +447,14 @@
 						result = "won";
 					else if (data[2] === 'loss')
 						result = "lost";
-					this.room.$chat.append('<div class="notice tournament-message-battleend">' +
-						Tools.escapeHTML(data[0]) + " has " + result + " the match " + Tools.escapeHTML(data[3].split(',').join(' - ')) + " against " + Tools.escapeHTML(data[1]) +
-						(data[4] ? " but the tournament does not support drawing, so it did not count" : "") +
-						'</div>');
+					var message = Tools.escapeHTML(data[0]) + " has " + result + " the match " + Tools.escapeHTML(data[3].split(',').join(' - ')) + " against " + Tools.escapeHTML(data[1]) +
+						(data[4] === 'fail' ? " but the tournament does not support drawing, so it did not count" : "") + ".";
+					var $battleMessage = data[5] ? this.room.$chat.find('.tournament-' + toRoomid(data[5]).toLowerCase()) : '';
+					if ($battleMessage && $battleMessage.length) {
+						$battleMessage.removeClass('tournament-message-battlestart').addClass('tournament-message-battleend').find('a').text(message);
+					} else {
+						this.room.$chat.append('<div class="notice tournament-message-battleend">' + message + '</div>');
+					}
 					break;
 
 				case 'end':
