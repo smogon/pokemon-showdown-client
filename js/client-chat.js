@@ -828,7 +828,7 @@
 			case 'joim':
 			case 'join':
 			case 'j':
-				if (noSpace) return this.parseCommand('/help join');
+				if (noSpace) return text;
 				var room = toRoomid(target);
 				if (app.rooms[target]) {
 					app.focusRoom(target);
@@ -927,9 +927,6 @@
 				case 'ladder':
 					this.add('/rating - Get your own rating.');
 					this.add('/rating [username] - Get user [username]\'s rating.');
-					return false;
-				case 'join':
-					this.add('/join [roomname] - Attempt to join the room [roomname].');
 					return false;
 				}
 			}
