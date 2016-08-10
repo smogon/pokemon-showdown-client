@@ -4914,6 +4914,7 @@ var Battle = (function () {
 					actions += '' + poke.getName() + "'s encore ended!";
 					break;
 				case 'bide':
+					if (!this.fastForward) BattleOtherAnims.bideunleash.anim(this, [poke.sprite]);
 					actions += "" + poke.getName() + " unleashed its energy!";
 					break;
 				case 'illusion':
@@ -5109,6 +5110,7 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' is in love with ' + ofpoke.getLowerName() + '!';
 					break;
 				case 'bide':
+					if (!this.fastForward) BattleOtherAnims.bidecharge.anim(this, [poke.sprite]);
 					actions += "" + poke.getName() + " is storing energy!";
 					break;
 				case 'mist':
