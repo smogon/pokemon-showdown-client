@@ -54,7 +54,6 @@
 			top: position.top
 		});
 
-		var isMouseDown = false;
 		// Note: Origin starts from the top right instead of the top left here,
 		// because when a battle room is opened, the left side moves but the right doesn't,
 		// so we have to use the right side to keep the element in the same location.
@@ -64,11 +63,8 @@
 		$element.on('mousedown', function (e) {
 			innerX = e.pageX + ($element.parent().width() - $element.width() - this.offsetLeft);
 			innerY = e.pageY - this.offsetTop;
-			isMouseDown = true;
-		});
 
-		$(document).on('mousemove', function (e) {
-			if (isMouseDown) {
+			function mouseMoveCallback(e) {
 				position.right = innerX - e.pageX;
 				position.top = e.pageY - innerY;
 				delete position.isDefault;
@@ -78,8 +74,10 @@
 					top: position.top
 				});
 			}
-		}).on('mouseup', function () {
-			isMouseDown = false;
+			$(document).on('mousemove', mouseMoveCallback)
+			.on('mouseup', function () {
+				$(document).off('mousemove', mouseMoveCallback);
+			});
 		});
 	}
 
