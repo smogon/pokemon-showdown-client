@@ -963,6 +963,10 @@
 			if (autoscroll) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
+		},
+		destroy: function () {
+			app.user.off('change', this.updateUser, this);
+			Room.prototype.destroy.call(this);
 		}
 	}, {
 		toggleFormatChar: function (textbox, formatChar) {
@@ -1443,6 +1447,12 @@
 			} else if (message.substr(0, 10) === '/announce ' || message.substr(0, 1) !== '/') {
 				Storage.logChat(this.id, '' + name + ': ' + message);
 			}
+		},
+		destroy: function () {
+			if (this.tournamentBox) {
+				app.user.off('saveteams', this.tournamentBox.updateTeams, this.tournamentBox);
+			}
+			ConsoleRoom.prototype.destroy.call(this);
 		}
 	}, {
 		getTimestamp: function (section, msgTime) {
