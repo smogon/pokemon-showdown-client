@@ -1685,7 +1685,7 @@ var BattleOtherAnims = {
 			});
 		}
 	},
-	schooling: {
+	schoolingin: {
 		anim: function (battle, args) {
 			var attacker = args[0];
 
@@ -1728,13 +1728,13 @@ var BattleOtherAnims = {
 				y: attacker.y - 60,
 				z: attacker.z,
 				scale: 0.5,
-				opacity: 0,
+				opacity: 0.5,
 				time: 100
 			}, {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				opacity: 0.5,
+				opacity: 0,
 				time: 300
 			}, 'ballistic2Under', 'fade');
 			battle.showEffect('iceball', {
@@ -1742,13 +1742,13 @@ var BattleOtherAnims = {
 				y: attacker.y + 50,
 				z: attacker.behind(170),
 				scale: 0.5,
-				opacity: 0,
+				opacity: 0.5,
 				time: 200
 			}, {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				opacity: 0.5,
+				opacity: 0,
 				time: 400
 			}, 'ballistic2', 'fade');
 			battle.showEffect('iceball', {
@@ -1756,13 +1756,13 @@ var BattleOtherAnims = {
 				y: attacker.y + 30,
 				z: attacker.behind(-250),
 				scale: 0.5,
-				opacity: 0,
+				opacity: 0.5,
 				time: 200
 			}, {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				opacity: 0.5,
+				opacity: 0,
 				time: 500
 			}, 'ballistic', 'fade');
 			battle.showEffect('iceball', {
@@ -1777,6 +1777,103 @@ var BattleOtherAnims = {
 				y: attacker.y,
 				z: attacker.z,
 				opacity: 0,
+				time: 600
+			}, 'ballistic2Under');
+		}
+	},
+	schoolingout: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+
+			battle.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 3,
+				opacity: 1
+			}, {
+				scale: 2,
+				time: 600
+			}, 'linear', 'explode');
+			battle.showEffect('waterwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 3.25,
+				opacity: 0.3
+			}, {
+				scale: 2.5,
+				time: 600
+			}, 'linear', 'explode');
+
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0
+			}, {
+				x: attacker.leftof(200),
+				y: attacker.y + 40,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.5,
+				time: 200
+			}, 'ballistic', 'fade');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 100
+			}, {
+				x: attacker.leftof(-140),
+				y: attacker.y - 60,
+				z: attacker.z,
+				opacity: 0.5,
+				time: 300
+			}, 'ballistic2Under', 'fade');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 200
+			}, {
+				x: attacker.leftof(-140),
+				y: attacker.y + 50,
+				z: attacker.behind(170),
+				opacity: 0.5,
+				time: 400
+			}, 'ballistic2', 'fade');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 200
+			}, {
+				x: attacker.x,
+				y: attacker.y + 30,
+				z: attacker.behind(-250),
+				opacity: 0.5,
+				time: 500
+			}, 'ballistic', 'fade');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 300
+			}, {
+				x: attacker.leftof(240),
+				y: attacker.y - 80,
+				z: attacker.z,
+				opacity: 0.5,
 				time: 600
 			}, 'ballistic2Under');
 		}
