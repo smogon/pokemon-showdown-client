@@ -75,7 +75,7 @@
 				});
 			}
 			$(document).on('mousemove', mouseMoveCallback)
-			.on('mouseup', function () {
+			.one('mouseup', function () {
 				$(document).off('mousemove', mouseMoveCallback);
 			});
 		});
