@@ -1117,6 +1117,18 @@ Storage.exportAllTeams = function () {
 	}
 	return buf;
 };
+Storage.exportFolder = function (folder) {
+	var buf = '';
+	for (var i = 0, len = Storage.teams.length; i < len; i++) {
+		var team = Storage.teams[i];
+		if (team.folder + "/" === folder || team.format === folder) {
+			buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
+			buf += Storage.exportTeam(team.team);
+			buf += '\n';
+		}
+	}
+	return buf;
+};
 Storage.exportTeam = function (team) {
 	if (!team) return "";
 	if (typeof team === 'string') {

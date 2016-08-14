@@ -146,8 +146,13 @@
 			var buf = '';
 
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportAllTeams()) + '</textarea></div>';
+				if (this.curFolder) {
+					buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button></div>';
+					buf += '<div class="teamedit"><textarea readonly class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportFolder(this.curFolder)) + '</textarea></div>';
+				} else {
+					buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
+					buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportAllTeams()) + '</textarea></div>';
+				}
 				this.$el.html(buf);
 				this.$('.teamedit textarea').focus().select();
 				return;
@@ -404,6 +409,8 @@
 
 			if (window.nodewebkit) {
 				buf += '<button name="revealFolder" class="button"><i class="fa fa-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder" class="button"><i class="fa fa-refresh"></i> Reload teams files</button> <button name="backup" class="button"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
+			} else if (this.curFolder) {
+				buf += '<button name="backup" class="button"><i class="fa fa-upload"></i> Backup all teams from this folder</button>';
 			} else if (atLeastOne) {
 				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p>';
 				buf += '<button name="backup" class="button"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
