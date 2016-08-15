@@ -4206,7 +4206,7 @@ var Battle = (function () {
 				}
 				break;
 
-			case '-cureteam':
+			case '-cureteam': // For old gens when the whole team was always cured
 				var poke = this.getPokemon(args[1]);
 				for (var k = 0; k < poke.side.pokemon.length; k++) {
 					poke.side.pokemon[k].status = '';
@@ -5133,6 +5133,14 @@ var Battle = (function () {
 					break;
 
 				// move activations
+				case 'aromatherapy':
+					this.resultAnim(poke, 'Team Cured', 'good');
+					actions += 'A soothing aroma wafted through the area!';
+					break;
+				case 'healbell':
+					this.resultAnim(poke, 'Team Cured', 'good');
+					actions += 'A bell chimed!';
+					break;
 				case 'trick':
 				case 'switcheroo':
 					actions += '' + poke.getName() + ' switched items with its target!';
