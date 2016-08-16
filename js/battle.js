@@ -4135,7 +4135,9 @@ var Battle = (function () {
 				var ofpoke = this.getPokemon(kwargs.of);
 				poke.status = '';
 
-				if (effect.id) switch (effect.id) {
+				if (kwargs.silent) {
+					// do nothing
+				} else if (effect.id) switch (effect.id) {
 				case 'psychoshift':
 					actions += '' + poke.getName() + ' moved its status onto ' + ofpoke.getLowerName() + '!';
 					this.resultAnim(poke, 'Cured', 'good');
