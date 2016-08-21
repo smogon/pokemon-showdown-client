@@ -211,12 +211,28 @@
 		 *     triggered if the login server did not return a response
 		 */
 		finishRename: function (name, assertion) {
+			if (assertion.slice(0, 15) === '<!DOCTYPE html>') {
+				// some sort of MitM proxy; ignore it
+				assertion = assertion.slice(15);
+			}
+			if (assertion.slice(0, 90) === '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">') {
+				// some sort of MitM proxy; ignore it
+				assertion = assertion.slice(90);
+			}
+			if (assertion.charAt(0) === '\r') assertion = assertion.slice(1);
+			if (assertion.charAt(0) === '\n') assertion = assertion.slice(1);
+			if (assertion.indexOf('<') >= 0) {
+				app.addPopupMessage("Something is interfering with our connection to the login server.");
+				// send to server anyway in case server knows how to deal with it
+				app.send('/trn ' + name + ',0,' + assertion);
+				return;
+			}
 			if (assertion === ';') {
 				this.trigger('login:authrequired', name);
 			} else if (assertion.substr(0, 2) === ';;') {
 				this.trigger('login:invalidname', name, assertion.substr(2));
-			} else if (assertion.indexOf('\n') >= 0) {
-				this.trigger('login:noresponse');
+			} else if (assertion.indexOf('\n') >= 0 || !assertion) {
+				app.addPopupMessage("Something is interfering with our connection to the login server.");
 			} else {
 				app.send('/trn ' + name + ',0,' + assertion);
 			}
