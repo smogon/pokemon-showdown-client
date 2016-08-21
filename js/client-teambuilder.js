@@ -1046,7 +1046,7 @@
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" /></div></div></div>';
+				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
