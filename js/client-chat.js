@@ -964,9 +964,9 @@
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
 		},
-		destroy: function () {
+		destroy: function (alreadyLeft) {
 			app.user.off('change', this.updateUser, this);
-			Room.prototype.destroy.call(this);
+			Room.prototype.destroy.call(this, alreadyLeft);
 		}
 	}, {
 		toggleFormatChar: function (textbox, formatChar) {
@@ -1448,11 +1448,11 @@
 				Storage.logChat(this.id, '' + name + ': ' + message);
 			}
 		},
-		destroy: function () {
+		destroy: function (alreadyLeft) {
 			if (this.tournamentBox) {
 				app.user.off('saveteams', this.tournamentBox.updateTeams, this.tournamentBox);
 			}
-			ConsoleRoom.prototype.destroy.call(this);
+			ConsoleRoom.prototype.destroy.call(this, alreadyLeft);
 		}
 	}, {
 		getTimestamp: function (section, msgTime) {
