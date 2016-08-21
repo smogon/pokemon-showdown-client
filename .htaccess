@@ -33,7 +33,7 @@ RewriteRule ^bugs?(reports?)?\/?$ https://www.smogon.com/forums/threads/bug-repo
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^rules?\/?$ http://pokemonshowdown.com/rules [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
-RewriteRule ^faq\/?$ http://www.smogon.com/forums/threads/pok%C3%A9mon-showdown-rules-resources-read-here-first.3570628/#post-6774128 [R=302,L]
+RewriteRule ^faq\/?$ http://www.smogon.com/forums/posts/6774128/ [R=302,L]
 
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) http%{ENV:P_SUFFIX}://play.pokemonshowdown.com/$1 [R=301,L]
