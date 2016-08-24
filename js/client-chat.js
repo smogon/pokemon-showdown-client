@@ -1141,6 +1141,11 @@
 					this.addChat(row[2], row.slice(3).join('|'), false, msgTime);
 					break;
 
+				case 'm:':
+					var msgTime = this.timeOffset + (parseInt(row[1], 10) || 0);
+					this.$chat.append('<div class="notice">' + ChatRoom.getTimestamp('chat', msgTime) + Tools.escapeHTML(row.slice(2).join('|')) + '</div>');
+					break;
+
 				case 'tc':
 					if (/[a-zA-Z0-9]/.test(row[2].charAt(0))) row[2] = ' ' + row[2];
 					var msgTime = row[1] ? ~~(Date.now() / 1000) - (parseInt(row[1], 10) || 0) : 0;
@@ -1248,6 +1253,7 @@
 					// fallthrough in case of unparsed message
 
 				case '':
+				case 'm':
 					this.$chat.append('<div class="notice">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
