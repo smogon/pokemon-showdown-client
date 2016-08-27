@@ -85,14 +85,11 @@
 			'oususpecttest': 17,
 			'uberssuspecttest': 29,
 			'uususpecttest': 20,
-			'rucurrent': 9,
 			'rususpecttest': 9,
-			'nucurrent': 13,
 			'nususpecttest': 9,
 			'pususpecttest': 9,
 			'lcsuspecttest': 9,
-			'doublesoucurrent': 12,
-			'doublesoususpecttest': 12
+			'doublesoususpecttest': 14.5
 		}
 	});
 
