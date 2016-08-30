@@ -86,6 +86,7 @@
 			'uberssuspecttest': 29,
 			'uususpecttest': 20,
 			'rususpecttest': 9,
+			'rucurrent': 9,
 			'nususpecttest': 9,
 			'pususpecttest': 9,
 			'lcsuspecttest': 9,
