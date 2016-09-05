@@ -326,7 +326,11 @@
 					$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
 				}
 			} else {
-				text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
+				text = ('\n' + text).replace(/\n\n/g, '\n').replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
+				if (text.length > 80000) {
+					app.addPopupMessage("Your message is too long.");
+					return;
+				}
 				this.send(text);
 			}
 			$target.val('');
