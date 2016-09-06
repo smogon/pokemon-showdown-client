@@ -219,7 +219,7 @@
 			if (assertion.charAt(0) === '\r') assertion = assertion.slice(1);
 			if (assertion.charAt(0) === '\n') assertion = assertion.slice(1);
 			if (assertion.indexOf('<') >= 0) {
-				if (assertion.indexof('accessdenied')) {
+				if (assertion.indexOf('accessdenied') >= 0) {
 					app.addPopupMessage("Your internet filter is blocking Pokémon Showdown.");
 					return;
 				}
