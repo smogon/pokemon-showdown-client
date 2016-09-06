@@ -2079,7 +2079,7 @@ var BattleOtherAnims = {
 				y: attacker.y,
 				z: attacker.z,
 				scale: 1.5,
-				opacity: 0.2,
+				opacity: 0.2
 			}, {
 				scale: 2,
 				opacity: .1,
