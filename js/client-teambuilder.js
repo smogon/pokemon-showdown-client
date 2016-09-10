@@ -3042,26 +3042,57 @@
 				if (i === 'hp' && set.level && set.level < 20) i = 'spd';
 				var stat = this.getStat(i, null, 252, plusStat === i ? 1.1 : 1.0);
 				var ev = 252;
-				if (i === 'hp' && (hasMove['substitute'] || hasMove['transform']) && stat == Math.floor(stat / 4) * 4) stat -= 1;
 				while (ev > 0 && stat <= this.getStat(i, null, ev - 4, plusStat === i ? 1.1 : 1.0)) ev -= 4;
 				evs[i] = ev;
 				evTotal += ev;
 
-				if (set.item !== 'Leftovers' && set.item !== 'Black Sludge') {
-					var hpParity = 1; // 1 = should be odd, 0 = should be even
-					if ((hasMove['substitute'] || hasMove['bellydrum']) && (set.item || '').slice(-5) === 'Berry') {
-						hpParity = 0;
-					}
+				var SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
+				var SRresistances = ['Ground', 'Steel', 'Fighting'];
+				var SRweak = 0;
+				if (SRweaknesses.indexOf(template.types[0]) >= 0) {
+					SRweak++;
+				} else if (SRresistances.indexOf(template.types[0]) >= 0) {
+					SRweak--;
+				}
+				if (SRweaknesses.indexOf(template.types[1]) >= 0) {
+					SRweak++;
+				} else if (SRresistances.indexOf(template.types[1]) >= 0) {
+					SRweak--;
+				}
+				var hpDivisibility = 0;
+				var hpShouldBeDivisible = false;
+				stat = this.getStat('hp', null, hp, 1);
+				if ((set.item === 'Leftovers' || set.item === 'Black Sludge') && hasMove['substitute'] && stat !== 404) {
+					hpDivisibility = 4;
+				} else if (set.item === 'Leftovers' || set.item === 'Black Sludge') {
+					hpDivisibility = 0;
+				} else if (hasMove['bellydrum'] && (set.item || '').slice(-5) === 'Berry') {
+					hpDivisibility = 2;
+					hpShouldBeDivisible = true;
+				} else if (hasMove['substitute'] && (set.item || '').slice(-5) === 'Berry') {
+					hpDivisibility = 4;
+					hpShouldBeDivisible = true;
+				} else if (SRweak >= 2 || hasMove['bellydrum']) {
+					hpDivisibility = 2;
+				} else if (SRweak >= 1 || hasMove['substitute'] || hasMove['transform']) {
+					hpDivisibility = 4;
+				} else {
+					hpDivisibility = 8;
+				}
+
+				if (hpDivisibility) {
 					var hp = evs['hp'] || 0;
-					while (hp < 252 && evTotal < 508 && this.getStat('hp', null, hp, 1) % 2 !== hpParity) {
+					while (hp < 252 && evTotal < 508 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
 						hp += 4;
+						stat = this.getStat('hp', null, hp, 1);
 						evTotal += 4;
 					}
-					while (hp > 0 && this.getStat('hp', null, hp, 1) % 2 !== hpParity) {
+					while (hp > 0 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
 						hp -= 4;
+						stat = this.getStat('hp', null, hp, 1);
 						evTotal -= 4;
 					}
-					while (hp > 0 && this.getStat('hp', null, hp - 4, 1) % 2 === hpParity) {
+					while (hp > 0 && stat === this.getStat('hp', null, hp - 4, 1)) {
 						hp -= 4;
 						evTotal -= 4;
 					}
