@@ -1445,9 +1445,11 @@
 				this.subtleNotifyOnce();
 			}
 
-			if (message.substr(0, 4) === '/me ' || message.substr(0, 5) === '/mee') {
-				Storage.logChat(this.id, '* ' + name + (message.substr(0, 4) === '/me ' ? ' ' : '') + message);
-			} else if (message.substr(0, 10) === '/announce ' || message.substr(0, 1) !== '/') {
+			if (message.slice(0, 4) === '/me ' || message.slice(0, 5) === '/mee') {
+				Storage.logChat(this.id, '* ' + name + (message.slice(0, 4) === '/me ' ? ' ' : '') + message);
+			} else if (message.slice(0, 5) === '/log ') {
+				Storage.logChat(this.id, '' + message.slice(5));
+			} else {
 				Storage.logChat(this.id, '' + name + ': ' + message);
 			}
 		},
