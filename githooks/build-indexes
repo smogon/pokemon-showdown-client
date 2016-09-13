@@ -89,6 +89,12 @@ function requireNoCache(pathSpec) {
 		if (acronym && !(acronym in Tools.data.Aliases) || toId(Tools.data.Aliases[acronym]) !== id) {
 			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
 		}
+
+		let i2 = name.lastIndexOf(' ', i - 1);
+		if (i2 < 0) i2 = name.lastIndexOf('-', i - 1);
+		if (i2 >= 0) {
+			index.push('' + toId(name.slice(i2)) + ' ' + type + ' ' + id + ' ' + toId(name.slice(0, i2)).length);
+		}
 	}
 	for (const id in Tools.data.Pokedex) {
 		const name = Tools.data.Pokedex[id].species;
