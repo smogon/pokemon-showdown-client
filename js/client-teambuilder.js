@@ -2869,6 +2869,7 @@
 
 			var bulk = physicalBulk + specialBulk;
 			if (bulk < 46000 && stats.spe >= 70) isFast = true;
+			if (hasMove['trickroom']) isFast = false;
 			moveCount['bulk'] = bulk;
 			moveCount['physicalBulk'] = physicalBulk;
 			moveCount['specialBulk'] = specialBulk;
@@ -3061,6 +3062,7 @@
 				}
 				var hpDivisibility = 0;
 				var hpShouldBeDivisible = false;
+				var hp = evs['hp'] || 0;
 				stat = this.getStat('hp', null, hp, 1);
 				if ((set.item === 'Leftovers' || set.item === 'Black Sludge') && hasMove['substitute'] && stat !== 404) {
 					hpDivisibility = 4;
@@ -3081,7 +3083,6 @@
 				}
 
 				if (hpDivisibility) {
-					var hp = evs['hp'] || 0;
 					while (hp < 252 && evTotal < 508 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
 						hp += 4;
 						stat = this.getStat('hp', null, hp, 1);
