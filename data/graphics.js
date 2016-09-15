@@ -5244,7 +5244,7 @@ var BattleMoveAnims = {
 				time: 600
 			}, 'accel');
 			battle.showEffect('wisp', {
-				x: attacker.x0,
+				x: attacker.x,
 				y: attacker.y - 40,
 				z: attacker.z,
 				scale: 0.2,
@@ -15990,6 +15990,83 @@ var BattleMoveAnims = {
 			}, 'swing');
 		}
 	},
+	hex: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.backgroundEffect('#000000', 700, 0.3);
+			battle.showEffect('poisonwisp', {
+				x: defender.x + 40,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 1
+			}, {
+				scale: 3,
+				opacity: 0
+			}, 'decel');
+			battle.showEffect('poisonwisp', {
+				x: defender.x - 40,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 150
+			}, {
+				scale: 3,
+				opacity: 0
+			}, 'decel');
+			battle.showEffect('poisonwisp', {
+				x: defender.x + 10,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 300
+			}, {
+				scale: 3,
+				opacity: 0
+			}, 'decel');
+
+			battle.showEffect('bluefireball', {
+				x: defender.x + 40,
+				y: defender.y + 30,
+				z: defender.z,
+				scale: 0.8,
+				opacity: 0.5,
+				time: 0
+			}, {
+				y: defender.y + 60,
+				opacity: 0,
+				time: 400
+			}, 'accel');
+			battle.showEffect('bluefireball', {
+				x: defender.x - 40,
+				y: defender.y + 30,
+				z: defender.z,
+				scale: 0.8,
+				opacity: 0.5,
+				time: 200
+			}, {
+				y: defender.y + 60,
+				opacity: 0,
+				time: 600
+			}, 'accel');
+			battle.showEffect('bluefireball', {
+				x: defender.x,
+				y: defender.y + 40,
+				z: defender.z,
+				scale: 0.8,
+				opacity: 0.5,
+				time: 400
+			}, {
+				y: defender.y + 60,
+				opacity: 0,
+				time: 800
+			}, 'accel');
+		}
+	},
 	darkpulse: {
 		anim: function (battle, args) {
 			var attacker = args[0];
@@ -23185,7 +23262,6 @@ BattleMoveAnims['strugglebug'] = {anim:BattleMoveAnims['bulletseed'].anim};
 BattleMoveAnims['infestation'] = {anim:BattleMoveAnims['bulletseed'].anim};
 BattleMoveAnims['leechlife'] = {anim:BattleMoveAnims['bulletseed'].anim};
 
-BattleMoveAnims['hex'] = {anim:BattleMoveAnims['shadowball'].anim};
 BattleMoveAnims['nightdaze'] = {anim:BattleMoveAnims['darkpulse'].anim};
 
 BattleMoveAnims['hornattack'] = {anim:BattleMoveAnims['megahorn'].anim};
