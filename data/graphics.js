@@ -23248,20 +23248,20 @@ var BattleMoveAnims = {
 
 			attacker.anim({
 				x: defender.x,
-				y: defender.y + 40,
-				z: defender.behind(-100),
+				y: defender.y + 50,
+				z: defender.behind(-150),
 				time: 400
 			}, 'ballistic');
 			attacker.anim({
 				x: defender.x,
 				y: defender.y,
-				z: defender.behind(-75),
+				z: defender.behind(-125),
 				time: 200
 			}, 'ballistic2Back');
 			attacker.anim({
 				x: defender.x,
 				y: defender.y - 7,
-				z: defender.behind(-75),
+				z: defender.behind(-125),
 				yscale: 0.7,
 				time: 50
 			}, 'ballistic2Back');
