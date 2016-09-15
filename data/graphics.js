@@ -13977,6 +13977,29 @@ var BattleMoveAnims = {
 				scale: 2,
 				opacity: 0.6
 			}, 'decel', 'explode');
+
+			defender.delay(125);
+			defender.anim({
+				z: defender.behind(5),
+				time: 75
+			}, 'swing');
+			defender.anim({
+				time: 75
+			}, 'swing');
+			defender.anim({
+				z: defender.behind(5),
+				time: 75
+			}, 'swing');
+			defender.anim({
+				time: 75
+			}, 'swing');
+			defender.anim({
+				z: defender.behind(5),
+				time: 75
+			}, 'swing');
+			defender.anim({
+				time: 75
+			}, 'swing');
 		}
 	},
 	sludgebomb: {
