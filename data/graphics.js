@@ -485,7 +485,7 @@ var BattleOtherAnims = {
 				z: defender.z,
 				scale: 0,
 				opacity: 1,
-				time: 370
+				time: 400
 			}, {
 				x: defender.x - 20,
 				y: defender.y + 20,
@@ -500,7 +500,7 @@ var BattleOtherAnims = {
 				z: defender.z,
 				scale: 0,
 				opacity: 1,
-				time: 370
+				time: 400
 			}, {
 				x: defender.x - 20,
 				y: defender.y - 20,
@@ -515,7 +515,7 @@ var BattleOtherAnims = {
 				z: defender.z,
 				scale: 0,
 				opacity: 1,
-				time: 670
+				time: 700
 			}, {
 				x: defender.x + 20,
 				y: defender.y + 20,
@@ -530,7 +530,7 @@ var BattleOtherAnims = {
 				z: defender.z,
 				scale: 0,
 				opacity: 1,
-				time: 670
+				time: 700
 			}, {
 				x: defender.x + 20,
 				y: defender.y - 20,
@@ -12851,7 +12851,72 @@ var BattleMoveAnims = {
 		multihit: true
 	},
 	furyswipes: {
-		anim: BattleOtherAnims.xattack.anim,
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			BattleOtherAnims.xattack.anim(battle, args);
+			battle.showEffect('leftslash', {
+				x: defender.x - 20,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 400
+			}, {
+				x: defender.x - 20,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 3,
+				opacity: 0,
+				time: 700
+			}, 'linear', 'fade');
+			battle.showEffect('leftslash', {
+				x: defender.x - 20,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 400
+			}, {
+				x: defender.x - 20,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 3,
+				opacity: 0,
+				time: 700
+			}, 'linear', 'fade');
+			battle.showEffect('rightslash', {
+				x: defender.x + 20,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 700
+			}, {
+				x: defender.x + 20,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 3,
+				opacity: 0,
+				time: 1000
+			}, 'linear', 'fade');
+			battle.showEffect('rightslash', {
+				x: defender.x + 20,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 700
+			}, {
+				x: defender.x + 20,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 3,
+				opacity: 0,
+				time: 1000
+			}, 'linear', 'fade');
+		},
 		multihit: true
 	},
 	furyattack: {
@@ -18837,6 +18902,10 @@ var BattleMoveAnims = {
 			defender.anim({
 				time: 300
 			}, 'swing');
+		},
+		prepareAnim: BattleOtherAnims.chargestatus.anim,
+		prepareMessage: function (pokemon) {
+			return pokemon.getName() + ' absorbed light!';
 		}
 	},
 	lightofruin: {
