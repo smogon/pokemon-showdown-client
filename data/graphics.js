@@ -15804,7 +15804,7 @@ var BattleMoveAnims = {
 				y: attacker.y,
 				scale: 1,
 				opacity: 0.8,
-				time: 400
+				time: 200
 			}, 'decel', 'fade');
 			battle.showEffect('poisonwisp', {
 				x: attacker.x - 60,
@@ -15818,7 +15818,7 @@ var BattleMoveAnims = {
 				y: attacker.y,
 				scale: 1,
 				opacity: 0.8,
-				time: 500
+				time: 300
 			}, 'decel', 'fade');
 			battle.showEffect('poisonwisp', {
 				x: attacker.x + 60,
@@ -15832,7 +15832,7 @@ var BattleMoveAnims = {
 				y: attacker.y,
 				scale: 1,
 				opacity: 0.8,
-				time: 600
+				time: 400
 			}, 'decel', 'fade');
 			battle.showEffect('poisonwisp', {
 				x: attacker.x - 90,
@@ -15846,7 +15846,7 @@ var BattleMoveAnims = {
 				y: attacker.y,
 				scale: 1,
 				opacity: 0.8,
-				time: 700
+				time: 500
 			}, 'decel', 'fade');
 			battle.showEffect('poisonwisp', {
 				x: attacker.x + 90,
@@ -15860,7 +15860,7 @@ var BattleMoveAnims = {
 				y: attacker.y,
 				scale: 1,
 				opacity: 0.8,
-				time: 800
+				time: 600
 			}, 'decel', 'fade');
 
 			battle.showEffect('shadowball', {
@@ -15868,24 +15868,24 @@ var BattleMoveAnims = {
 				y: attacker.y,
 				z: attacker.behind(-20),
 				scale: 0,
-				opacity: 0.6,
+				opacity: 0,
 				time: 0
 			}, {
 				scale: 0.8,
 				opacity: 0.5,
-				time: 800
+				time: 600
 			}, 'decel', 'fade');
 			battle.showEffect('poisonwisp', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.behind(-20),
 				scale: 0,
-				opacity: 0.6,
+				opacity: 0,
 				time: 0
 			}, {
 				scale: 1.5,
 				opacity: 0.5,
-				time: 800
+				time: 600
 			}, 'decel', 'fade');
 			battle.showEffect('shadowball', {
 				x: attacker.x,
@@ -15893,12 +15893,12 @@ var BattleMoveAnims = {
 				z: attacker.behind(-20),
 				scale: 0.8,
 				opacity: 0.8,
-				time: 800
+				time: 600
 			}, {
 				x: defender.x,
 				y: defender.y,
-				z: defender.behind(20),
-				time: 1100
+				z: defender.z,
+				time: 900
 			}, 'accel', 'explode');
 			battle.showEffect('poisonwisp', {
 				x: attacker.x,
@@ -15906,16 +15906,16 @@ var BattleMoveAnims = {
 				z: attacker.behind(-20),
 				scale: 1.5,
 				opacity: 0.8,
-				time: 800
+				time: 600
 			}, {
 				x: defender.x,
 				y: defender.y,
-				z: defender.behind(20),
+				z: defender.z,
 				scale: 2,
-				time: 1100
+				time: 900
 			}, 'accel', 'explode');
 
-			defender.delay(1100);
+			defender.delay(900);
 			defender.anim({
 				z: defender.behind(10),
 				time: 200
