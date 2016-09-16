@@ -23352,7 +23352,7 @@ BattleMoveAnims['firepledge'] = {anim:BattleMoveAnims['flamethrower'].anim};
 BattleMoveAnims['ember'] = {anim:BattleMoveAnims['flamethrower'].anim};
 BattleMoveAnims['incinerate'] = {anim:BattleMoveAnims['flamethrower'].anim};
 BattleMoveAnims['flameburst'] = {anim:BattleMoveAnims['flamethrower'].anim};
-BattleMoveAnims['flamewheel'] = {anim:BattleMoveAnims['flareblitz'].anim};
+BattleMoveAnims['flamewheel'] = {anim:BattleMoveAnims['flamecharge'].anim};
 
 BattleMoveAnims['petaldance'] = {anim:BattleMoveAnims['leafstorm'].anim};
 BattleMoveAnims['petalblizzard'] = {anim:BattleMoveAnims['leafstorm'].anim};
