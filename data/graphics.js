@@ -15969,7 +15969,7 @@ var BattleMoveAnims = {
 				time: 0
 			}, {
 				scale: 1.5,
-				opacity: 0.5,
+				opacity: 0.8,
 				time: 600
 			}, 'decel', 'fade');
 			battle.showEffect('shadowball', {
