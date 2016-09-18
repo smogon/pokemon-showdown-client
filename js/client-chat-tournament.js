@@ -497,7 +497,7 @@
 
 				case 'error':
 					var appendError = function (message) {
-						this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + message + "</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + Tools.sanitizeHTML(message) + "</div>");
 					}.bind(this);
 
 					switch (data[0]) {
