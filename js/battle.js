@@ -5047,6 +5047,9 @@ var Battle = (function () {
 				case 'powder':
 					actions += '' + poke.getName() + ' is covered in powder!';
 					break;
+				case 'instruct':
+					actions += '' + poke.getName() + ' used the move instructed by ' + ofpoke.getLowerName() + '!';
+					break;
 				}
 				poke.side.updateStatbar();
 				break;
