@@ -6,7 +6,7 @@
 
 			var keys = Object.keys(BattlePokedex);
 
-			for (var i = 0, key, poke; key < keys.length;) {
+			for (var i = 0, key, poke; i < keys.length;) {
 				key = keys[i++];
 				poke = $.extend(true, {}, BattlePokedex[key]);
 
