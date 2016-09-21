@@ -123,7 +123,10 @@
 		exportMode: false,
 		update: function () {
 			teams = Storage.teams;
+
 			if (this.curTeam) {
+				this.checkTierSystem();
+
 				this.ignoreEVLimits = (this.curTeam.gen < 3);
 				if (this.curSet) {
 					return this.updateSetView();
@@ -146,8 +149,13 @@
 			var buf = '';
 
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportAllTeams()) + '</textarea></div>';
+				if (this.curFolder) {
+					buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button></div>';
+					buf += '<div class="teamedit"><textarea readonly class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportFolder(this.curFolder)) + '</textarea></div>';
+				} else {
+					buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
+					buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportAllTeams()) + '</textarea></div>';
+				}
 				this.$el.html(buf);
 				this.$('.teamedit textarea').focus().select();
 				return;
@@ -404,6 +412,8 @@
 
 			if (window.nodewebkit) {
 				buf += '<button name="revealFolder" class="button"><i class="fa fa-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder" class="button"><i class="fa fa-refresh"></i> Reload teams files</button> <button name="backup" class="button"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
+			} else if (this.curFolder) {
+				buf += '<button name="backup" class="button"><i class="fa fa-upload"></i> Backup all teams from this folder</button>';
 			} else if (atLeastOne) {
 				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p>';
 				buf += '<button name="backup" class="button"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
@@ -1039,7 +1049,7 @@
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" /></div></div></div>';
+				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
@@ -2625,7 +2635,7 @@
 				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
 				var move = Tools.getMove(moves[i]);
 				if (Tools.getCategory(move, this.curTeam.gen) === 'Physical' &&
-						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay') {
+						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor') {
 					minAtk = false;
 				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
 					minAtk = false;
@@ -2760,7 +2770,7 @@
 					}
 				} else if (move.id === 'counter' || move.id === 'endeavor' || move.id === 'metalburst' || move.id === 'mirrorcoat' || move.id === 'rapidspin') {
 					moveCount['Support']++;
-				} else if (move.id === 'nightshade' || move.id === 'seismictoss' || move.id === 'superfang' || move.id === 'foulplay' || move.id === 'finalgambit') {
+				} else if (move.id === 'nightshade' || move.id === 'seismictoss' || move.id === 'superfang' || move.id === 'foulplay' || move.id === 'endeavor' || move.id === 'finalgambit') {
 					moveCount['Offense']++;
 				} else if (move.id === 'fellstinger') {
 					moveCount['PhysicalSetup']++;
@@ -2862,6 +2872,7 @@
 
 			var bulk = physicalBulk + specialBulk;
 			if (bulk < 46000 && stats.spe >= 70) isFast = true;
+			if (hasMove['trickroom']) isFast = false;
 			moveCount['bulk'] = bulk;
 			moveCount['physicalBulk'] = physicalBulk;
 			moveCount['specialBulk'] = specialBulk;
@@ -3035,26 +3046,57 @@
 				if (i === 'hp' && set.level && set.level < 20) i = 'spd';
 				var stat = this.getStat(i, null, 252, plusStat === i ? 1.1 : 1.0);
 				var ev = 252;
-				if (i === 'hp' && (hasMove['substitute'] || hasMove['transform']) && stat == Math.floor(stat / 4) * 4) stat -= 1;
 				while (ev > 0 && stat <= this.getStat(i, null, ev - 4, plusStat === i ? 1.1 : 1.0)) ev -= 4;
 				evs[i] = ev;
 				evTotal += ev;
 
-				if (set.item !== 'Leftovers' && set.item !== 'Black Sludge') {
-					var hpParity = 1; // 1 = should be odd, 0 = should be even
-					if ((hasMove['substitute'] || hasMove['bellydrum']) && (set.item || '').slice(-5) === 'Berry') {
-						hpParity = 0;
-					}
-					var hp = evs['hp'] || 0;
-					while (hp < 252 && evTotal < 508 && this.getStat('hp', null, hp, 1) % 2 !== hpParity) {
+				var SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
+				var SRresistances = ['Ground', 'Steel', 'Fighting'];
+				var SRweak = 0;
+				if (SRweaknesses.indexOf(template.types[0]) >= 0) {
+					SRweak++;
+				} else if (SRresistances.indexOf(template.types[0]) >= 0) {
+					SRweak--;
+				}
+				if (SRweaknesses.indexOf(template.types[1]) >= 0) {
+					SRweak++;
+				} else if (SRresistances.indexOf(template.types[1]) >= 0) {
+					SRweak--;
+				}
+				var hpDivisibility = 0;
+				var hpShouldBeDivisible = false;
+				var hp = evs['hp'] || 0;
+				stat = this.getStat('hp', null, hp, 1);
+				if ((set.item === 'Leftovers' || set.item === 'Black Sludge') && hasMove['substitute'] && stat !== 404) {
+					hpDivisibility = 4;
+				} else if (set.item === 'Leftovers' || set.item === 'Black Sludge') {
+					hpDivisibility = 0;
+				} else if (hasMove['bellydrum'] && (set.item || '').slice(-5) === 'Berry') {
+					hpDivisibility = 2;
+					hpShouldBeDivisible = true;
+				} else if (hasMove['substitute'] && (set.item || '').slice(-5) === 'Berry') {
+					hpDivisibility = 4;
+					hpShouldBeDivisible = true;
+				} else if (SRweak >= 2 || hasMove['bellydrum']) {
+					hpDivisibility = 2;
+				} else if (SRweak >= 1 || hasMove['substitute'] || hasMove['transform']) {
+					hpDivisibility = 4;
+				} else {
+					hpDivisibility = 8;
+				}
+
+				if (hpDivisibility) {
+					while (hp < 252 && evTotal < 508 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
 						hp += 4;
+						stat = this.getStat('hp', null, hp, 1);
 						evTotal += 4;
 					}
-					while (hp > 0 && this.getStat('hp', null, hp, 1) % 2 !== hpParity) {
+					while (hp > 0 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
 						hp -= 4;
+						stat = this.getStat('hp', null, hp, 1);
 						evTotal -= 4;
 					}
-					while (hp > 0 && this.getStat('hp', null, hp - 4, 1) % 2 === hpParity) {
+					while (hp > 0 && stat === this.getStat('hp', null, hp - 4, 1)) {
 						hp -= 4;
 						evTotal -= 4;
 					}
@@ -3182,6 +3224,20 @@
 		destroy: function () {
 			app.clearGlobalListeners();
 			Room.prototype.destroy.call(this);
+		},
+		checkTierSystem: function () {
+			if(FormatMods.currentMod && this.curTeam.format && FormatMods.currentMod.format === this.curTeam.format)
+				return;
+
+			var mod = exports.FormatMods[this.curTeam.format] && exports.FormatMods[this.curTeam.format].call(this);
+
+			if(mod !== undefined)
+				FormatMods.currentMod = {
+					format: this.curTeam.format,
+					mod: mod
+				}
+			else
+				delete FormatMods.currentMod;
 		}
 	});
 
