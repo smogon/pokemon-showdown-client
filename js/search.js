@@ -346,6 +346,8 @@
 		var buf = [];
 		var illegalBuf = [];
 		var legal = this.legalityFilter;
+		var BattlePokedex = FormatMods.currentMod.mod || exports.BattlePokedex;
+
 		if (qType === 'pokemon') {
 			switch (fType) {
 			case 'type':
@@ -428,6 +430,9 @@
 	Search.prototype.allPokemon = function () {
 		if (this.filters || this.sortCol) return this.filteredPokemon();
 		var resultSet = [['sortpokemon', '']];
+
+		var BattlePokedex = FormatMods.currentMod.mod || exports.BattlePokedex;
+
 		for (var id in BattlePokedex) {
 			switch (id) {
 			case 'bulbasaur':
@@ -519,6 +524,8 @@
 		var filters = this.filters || [];
 		var sortCol = this.sortCol;
 
+		var BattlePokedex = FormatMods.currentMod.mod || exports.BattlePokedex;
+
 		this.resultSet = [['sortpokemon', '']];
 		if (filters.length) this.resultSet.push(['html', this.getFilterText()], ['header', "Filtered results"]);
 		if (sortCol === 'type') {
@@ -603,6 +610,9 @@
 		resultSet.push(['header', "Filtered results"]);
 		var illegalResultSet = [];
 		var filters = this.filters;
+
+		var BattlePokedex = FormatMods.currentMod.mod || exports.BattlePokedex;
+
 		for (var id in BattleMovedex) {
 			var move = BattleMovedex[id];
 			if (move.exists === false) continue;
@@ -693,6 +703,8 @@
 		this.renderedIndex = i;
 	};
 	Search.prototype.setType = function (qType, format, set, cur) {
+		var BattlePokedex = FormatMods.currentMod.mod || exports.BattlePokedex;
+
 		if (!format) format = '';
 		if (this.qType !== qType) {
 			this.filters = null;
@@ -733,16 +745,16 @@
 			var slices = table.formatSlices;
 			var agTierSet = [];
 			if (this.gen >= 6) agTierSet = [['header', "AG"], ['pokemon', 'rayquazamega']];
-			if (format === 'uber' || format === 'ubers') tierSet = tierSet.slice(slices.Uber);
+			if (format === 'ubers' || format === 'uber') tierSet = tierSet.slice(slices.Uber);
 			else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
 			else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
 			else if (format === 'ru') tierSet = tierSet.slice(slices.RU);
 			else if (format === 'nu') tierSet = tierSet.slice(slices.NU);
 			else if (format === 'pu') tierSet = tierSet.slice(slices.PU);
-			else if (format === 'fu') tierSet = tierSet.slice(slices.PU);
 			else if (format === 'lc' || format === 'lcuu') tierSet = tierSet.slice(slices.LC);
 			else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
-			else if (format === 'ag' || format === 'anythinggoes') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
+			else if (format === 'anythinggoes' || format === 'ag') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
+			else if (format === 'balancedhackmons' || format === 'bh') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
 			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
 			else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
 			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU);
@@ -918,6 +930,8 @@
 	// These all have static versions
 
 	Search.prototype.renderRow = function (id, type, matchStart, matchLength, errorMessage, attrs) {
+		var BattlePokedex = FormatMods.currentMod.mod || exports.BattlePokedex;
+
 		// errorMessage = '<span class="col illegalcol"><em>' + errorMessage + '</em></span>';
 		switch (type) {
 		case 'html':
