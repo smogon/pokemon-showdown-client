@@ -125,7 +125,7 @@
 			teams = Storage.teams;
 
 			if (this.curTeam) {
-				this.checkTierSystem();
+				this.checkFormatMods();
 
 				this.ignoreEVLimits = (this.curTeam.gen < 3);
 				if (this.curSet) {
@@ -3225,7 +3225,7 @@
 			app.clearGlobalListeners();
 			Room.prototype.destroy.call(this);
 		},
-		checkTierSystem: function () {
+		checkFormatMods: function () {
 			if(FormatMods.currentMod && this.curTeam.format && FormatMods.currentMod.format === this.curTeam.format)
 				return;
 
