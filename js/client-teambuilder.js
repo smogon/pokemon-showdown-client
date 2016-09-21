@@ -3226,16 +3226,18 @@
 			Room.prototype.destroy.call(this);
 		},
 		checkFormatMods: function () {
-			if(FormatMods.currentMod && this.curTeam.format && FormatMods.currentMod.format === this.curTeam.format)
+			var FormatMods = exports.FormatMods;
+
+			if (FormatMods.currentMod && this.curTeam.format && FormatMods.currentMod.format === this.curTeam.format)
 				return;
 
 			var mod = exports.FormatMods[this.curTeam.format] && exports.FormatMods[this.curTeam.format].call(this);
 
-			if(mod !== undefined)
+			if (mod !== undefined)
 				FormatMods.currentMod = {
 					format: this.curTeam.format,
 					mod: mod
-				}
+				};
 			else
 				delete FormatMods.currentMod;
 		}
