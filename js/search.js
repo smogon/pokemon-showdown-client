@@ -346,7 +346,7 @@
 		var buf = [];
 		var illegalBuf = [];
 		var legal = this.legalityFilter;
-		var BattlePokedex = exports.FormatMods.currentMod.mod || exports.BattlePokedex;
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
 
 		if (qType === 'pokemon') {
 			switch (fType) {
@@ -431,7 +431,7 @@
 		if (this.filters || this.sortCol) return this.filteredPokemon();
 		var resultSet = [['sortpokemon', '']];
 
-		var BattlePokedex = exports.FormatMods.currentMod.mod || exports.BattlePokedex;
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
 
 		for (var id in BattlePokedex) {
 			switch (id) {
@@ -524,7 +524,7 @@
 		var filters = this.filters || [];
 		var sortCol = this.sortCol;
 
-		var BattlePokedex = exports.FormatMods.currentMod.mod || exports.BattlePokedex;
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
 
 		this.resultSet = [['sortpokemon', '']];
 		if (filters.length) this.resultSet.push(['html', this.getFilterText()], ['header', "Filtered results"]);
@@ -611,7 +611,7 @@
 		var illegalResultSet = [];
 		var filters = this.filters;
 
-		var BattlePokedex = exports.FormatMods.currentMod.mod || exports.BattlePokedex;
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
 
 		for (var id in BattleMovedex) {
 			var move = BattleMovedex[id];
@@ -703,7 +703,7 @@
 		this.renderedIndex = i;
 	};
 	Search.prototype.setType = function (qType, format, set, cur) {
-		var BattlePokedex = exports.FormatMods.currentMod.mod || exports.BattlePokedex;
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
 
 		if (!format) format = '';
 		if (this.qType !== qType) {
@@ -930,7 +930,7 @@
 	// These all have static versions
 
 	Search.prototype.renderRow = function (id, type, matchStart, matchLength, errorMessage, attrs) {
-		var BattlePokedex = exports.FormatMods.currentMod.mod || exports.BattlePokedex;
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
 
 		// errorMessage = '<span class="col illegalcol"><em>' + errorMessage + '</em></span>';
 		switch (type) {
