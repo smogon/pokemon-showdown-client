@@ -2213,6 +2213,7 @@ var Side = (function () {
 			electrify: '<span class="bad">Electrify</span>',
 			ragepowder: '<span class="good">Rage&nbsp;Powder</span>',
 			followme: '<span class="good">Follow&nbsp;Me</span>',
+			instruct: '<span class="neutral">Instruct</span>',
 			itemremoved: '',
 			// Gen 1
 			lightscreen: '<span class="good">Light&nbsp;Screen</span>',
@@ -4421,6 +4422,13 @@ var Battle = (function () {
 					this.message('', "<small>[" + poke.getName(true) + "'s Trace!]</small>");
 					ofpoke.markAbility(ability.name);
 					actions += '' + poke.getName() + ' traced ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
+					break;
+				case 'receiver':
+					this.resultAnim(poke, "Receiver", 'ability');
+					this.animationDelay = 500;
+					this.resultAnim(poke, ability.name, 'ability');
+					this.message('', "<small>[" + poke.getName(true) + "'s Receiver!]</small>");
+					actions += '' + ofpoke.getName() + '\'s ' + ability.name + ' was taken over!';
 					break;
 				case 'roleplay':
 					this.resultAnim(poke, ability.name, 'ability');
