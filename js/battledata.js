@@ -1335,7 +1335,8 @@ var Tools = {
 			"plasmanta": 832 + 18,
 			"naviathan": 832 + 19,
 			"crucibelle": 832 + 20,
-			"crucibellemega": 832 + 21
+			"crucibellemega": 832 + 21,
+			"kerfluffle": 832 + 22
 		};
 
 		if (altNums[id]) {
