@@ -4420,6 +4420,7 @@ var Battle = (function () {
 					this.animationDelay = 500;
 					this.resultAnim(poke, ability.name, 'ability');
 					this.message('', "<small>[" + poke.getName(true) + "'s Trace!]</small>");
+					if (!poke.baseAbility) poke.baseAbility = effect.name;
 					ofpoke.markAbility(ability.name);
 					actions += '' + poke.getName() + ' traced ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
 					break;
@@ -4433,6 +4434,7 @@ var Battle = (function () {
 				case 'roleplay':
 					this.resultAnim(poke, ability.name, 'ability');
 					actions += '' + poke.getName() + ' copied ' + ofpoke.getLowerName() + '\'s ' + ability.name + ' Ability!';
+					ofpoke.markAbility(ability.name);
 					break;
 				case 'desolateland':
 					if (kwargs.fail) {
