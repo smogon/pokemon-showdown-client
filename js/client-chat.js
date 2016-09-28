@@ -1214,6 +1214,10 @@
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
+				case 'error':
+					this.$chat.append('<div class="notice message-error">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
+					break;
+
 				case 'uhtml':
 					this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + Tools.sanitizeHTML(row.slice(2).join('|')) + '</div>');
 					break;
