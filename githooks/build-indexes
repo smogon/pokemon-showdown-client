@@ -69,6 +69,9 @@ function requireNoCache(pathSpec) {
 		}
 		if (name === 'Earthquake') i = 5;
 		if (name === 'Hariyama') i = 4;
+		if (name === 'Bronzong') i = 4;
+		if (name === 'Garchomp') i = 3;
+		if (name === 'Charizard') i = 5;
 		if (name === 'Thunderbolt') {
 			i = 7;
 			index.push('tb ' + type + ' ' + id + ' 0');
