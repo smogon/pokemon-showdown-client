@@ -1564,11 +1564,11 @@ var Tools = {
 		var top;
 		var left;
 		if (newSize) {
-			 top = Math.floor(num / 12) * 30;
-			 left = (num % 12) * 40;
+			top = Math.floor(num / 12) * 30;
+			left = (num % 12) * 40;
 		} else {
-			 top = 8 + Math.floor(num / 16) * 32;
-			 left = (num % 16) * 32;
+			top = 8 + Math.floor(num / 16) * 32;
+			left = (num % 16) * 32;
 		}
 		var fainted = (pokemon && pokemon.fainted ? ';opacity:.4' : '');
 		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/' + (newSize ? 'xyicons-sheet.png?a1' : 'bwicons-sheet.png?g6') + ') no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
