@@ -6086,6 +6086,10 @@ var Battle = (function () {
 			args.shift();
 			this.log('<div class="chat">' + Tools.sanitizeHTML(args.join('|')) + '</div>', preempt);
 			break;
+		case 'error':
+			args.shift();
+			this.log('<div class="chat message-error">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			break;
 		case 'pm':
 			this.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + Tools.parseMessage(args[4], args[1]) + '</span>');
 			break;
@@ -6251,11 +6255,6 @@ var Battle = (function () {
 		case 'done':
 		case '':
 			if (this.ended || this.endPrevAction()) return;
-			break;
-		case 'error':
-			args.shift();
-			this.message('<strong>Error:</strong> ' + Tools.escapeHTML(args.join('|')));
-			this.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
 			break;
 		case 'warning':
 			args.shift();
