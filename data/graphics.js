@@ -22222,13 +22222,29 @@ var BattleMoveAnims = {
 			}, 'swing');
 		}
 	},
-	petaldance: {
+	petaldance: { // Work on this later
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect('#FF99FF', 1300, 0.5);
-			BattleOtherAnims.shake.anim(battle, args);
+			battle.backgroundEffect('#FF99FF', 1400, 0.5);
+			attacker.anim({x: attacker.x - 10, time: 100});
+			attacker.anim({x: attacker.x + 10, time: 200});
+			attacker.anim({x: attacker.x, time: 100});
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 50,
+				z: defender.behind(-150),
+				time: 200
+			}, 'ballistic2');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(-100),
+				time: 100
+			}, 'accel');
+
+			attacker.anim({z: attacker.z, time: 400}, 'swing');
 			battle.showEffect('petal', {
 				x: attacker.x,
 				y: attacker.y,
@@ -22289,92 +22305,92 @@ var BattleMoveAnims = {
 			battle.showEffect('mistball', {
 				x: attacker.x,
 				y: attacker.y,
-				z: attacker.z,
+				z: defender.behind(-100),
 				scale: 0.6,
 				opacity: 1,
-				time: 600
+				time: 700
 			}, {
 				x: defender.x + 30,
 				y: defender.y + 30,
 				z: defender.z,
 				scale: 0.8,
 				opacity: 0.6,
-				time: 800
+				time: 900
 			}, 'ballistic', 'explode');
 			battle.showEffect('petal', {
 				x: attacker.x,
 				y: attacker.y,
-				z: attacker.z,
+				z: defender.behind(-100),
 				scale: 0.7,
 				opacity: 1,
-				time: 675
+				time: 775
 			}, {
 				x: defender.x + 20,
 				y: defender.y - 30,
 				z: defender.z,
 				scale: 0.9,
 				opacity: 0.6,
-				time: 875
+				time: 975
 			}, 'ballistic2Under', 'explode');
 			battle.showEffect('mistball', {
 				x: attacker.x,
 				y: attacker.y,
-				z: attacker.z,
+				z: defender.behind(-100),
 				scale: 0.5,
 				opacity: 0.6,
-				time: 750
+				time: 850
 			}, {
 				x: defender.x - 30,
 				y: defender.y,
 				z: defender.z,
 				scale: 0.8,
 				opacity: 0.3,
-				time: 950
+				time: 1050
 			}, 'ballistic2', 'explode');
 			battle.showEffect('petal', {
 				x: attacker.x,
 				y: attacker.y,
-				z: attacker.z,
+				z: defender.behind(-100),
 				scale: 0.6,
 				opacity: 1,
-				time: 825
+				time: 925
 			}, {
 				x: defender.x - 10,
 				y: defender.y + 10,
 				z: defender.z,
 				scale: 0.9,
 				opacity: 0.6,
-				time: 1025
+				time: 1125
 			}, 'ballistic', 'explode');
 			battle.showEffect('petal', {
 				x: attacker.x,
 				y: attacker.y,
-				z: attacker.z,
+				z: defender.behind(-100),
 				scale: 0.8,
 				opacity: 1,
-				time: 900
+				time: 1000
 			}, {
 				x: defender.x + 10,
 				y: defender.y - 10,
 				z: defender.z,
 				scale: 1,
 				opacity: 0.6,
-				time: 1100
+				time: 1200
 			}, 'linear', 'explode');
 			battle.showEffect('petal', {
 				x: attacker.x,
 				y: attacker.y,
-				z: attacker.z,
+				z: defender.behind(-100),
 				scale: 0.8,
 				opacity: 0.6,
-				time: 975
+				time: 1075
 			}, {
 				x: defender.x - 20,
 				y: defender.y,
 				z: defender.z,
 				scale: 0.9,
 				opacity: 0.3,
-				time: 1075
+				time: 1175
 			}, 'ballistic2', 'explode');
 
 			defender.delay(825);
