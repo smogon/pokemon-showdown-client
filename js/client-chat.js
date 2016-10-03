@@ -148,6 +148,12 @@
 					e.preventDefault();
 					e.stopPropagation();
 				}
+			} else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r') && e.keyCode === 32) { // '/reply ' is being written
+				e.preventDefault();
+				e.stopPropagation();
+				var val = '/pm ' + app.user.lastPM + ', ';
+				textbox.value = val;
+				e.setSelectionRange(val.length, val.length);
 			}
 		},
 		clickUsername: function (e) {
