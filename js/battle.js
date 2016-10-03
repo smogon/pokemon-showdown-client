@@ -4160,6 +4160,7 @@ var Battle = (function () {
 					break;
 				case 'naturalcure':
 					actions += "(" + poke.getName() + "'s Natural Cure activated!)";
+					poke.markAbility('Natural Cure');
 					break;
 				default:
 					this.resultAnim(poke, 'Cured', 'good');
