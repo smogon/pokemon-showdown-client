@@ -346,6 +346,8 @@
 		var buf = [];
 		var illegalBuf = [];
 		var legal = this.legalityFilter;
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
+
 		if (qType === 'pokemon') {
 			switch (fType) {
 			case 'type':
@@ -428,6 +430,9 @@
 	Search.prototype.allPokemon = function () {
 		if (this.filters || this.sortCol) return this.filteredPokemon();
 		var resultSet = [['sortpokemon', '']];
+
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
+
 		for (var id in BattlePokedex) {
 			switch (id) {
 			case 'bulbasaur':
@@ -519,6 +524,8 @@
 		var filters = this.filters || [];
 		var sortCol = this.sortCol;
 
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
+
 		this.resultSet = [['sortpokemon', '']];
 		if (filters.length) this.resultSet.push(['html', this.getFilterText()], ['header', "Filtered results"]);
 		if (sortCol === 'type') {
@@ -603,6 +610,9 @@
 		resultSet.push(['header', "Filtered results"]);
 		var illegalResultSet = [];
 		var filters = this.filters;
+
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
+
 		for (var id in BattleMovedex) {
 			var move = BattleMovedex[id];
 			if (move.exists === false) continue;
@@ -693,6 +703,8 @@
 		this.renderedIndex = i;
 	};
 	Search.prototype.setType = function (qType, format, set, cur) {
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
+
 		if (!format) format = '';
 		if (this.qType !== qType) {
 			this.filters = null;
@@ -918,6 +930,8 @@
 	// These all have static versions
 
 	Search.prototype.renderRow = function (id, type, matchStart, matchLength, errorMessage, attrs) {
+		var BattlePokedex = (exports.FormatMods.currentMod && exports.FormatMods.currentMod.mod) || exports.BattlePokedex;
+
 		// errorMessage = '<span class="col illegalcol"><em>' + errorMessage + '</em></span>';
 		switch (type) {
 		case 'html':

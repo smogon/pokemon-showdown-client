@@ -123,7 +123,10 @@
 		exportMode: false,
 		update: function () {
 			teams = Storage.teams;
+
 			if (this.curTeam) {
+				this.checkFormatMods();
+
 				this.ignoreEVLimits = (this.curTeam.gen < 3);
 				if (this.curSet) {
 					return this.updateSetView();
@@ -3221,6 +3224,22 @@
 		destroy: function () {
 			app.clearGlobalListeners();
 			Room.prototype.destroy.call(this);
+		},
+		checkFormatMods: function () {
+			var FormatMods = exports.FormatMods;
+
+			if (FormatMods.currentMod && this.curTeam.format && FormatMods.currentMod.format === this.curTeam.format)
+				return;
+
+			var mod = exports.FormatMods[this.curTeam.format] && exports.FormatMods[this.curTeam.format].call(this);
+
+			if (mod !== undefined)
+				FormatMods.currentMod = {
+					format: this.curTeam.format,
+					mod: mod
+				};
+			else
+				delete FormatMods.currentMod;
 		}
 	});
 
