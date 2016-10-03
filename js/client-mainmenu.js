@@ -859,9 +859,12 @@
 			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
 
 			app.sendTeam(team);
-			app.send('/search ' + format);
+			this.searchDelay = setTimeout(function () {
+				app.send('/search ' + format);
+			}, 3000);
 		},
 		cancelSearch: function () {
+			clearTimeout(this.searchDelay);
 			app.send('/cancelsearch');
 			this.searching = false;
 			this.updateSearch();
