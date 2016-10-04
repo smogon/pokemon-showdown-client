@@ -295,6 +295,9 @@
 				}
 			}
 
+			// show types above Arceus formes
+			if (topbufIndex < 0 && qTypeIndex < 2 && passType === 2 && !bufs[1].length && bufs[2].length) topbufIndex = 2;
+
 			if (this.legalityFilter && typeIndex === qTypeIndex) {
 				// Always show illegal results under legal results.
 				// This is done by putting legal results (and the type header)
@@ -321,22 +324,19 @@
 		if (this.filters) {
 			topbuf.push(['html', this.getFilterText(1)]);
 		}
+		if (topbufIndex >= 0) {
+			topbuf = topbuf.concat(bufs[topbufIndex]);
+			bufs[topbufIndex] = [];
+		}
 		if (qTypeIndex >= 0) {
 			topbuf = topbuf.concat(bufs[0]);
 			topbuf = topbuf.concat(bufs[qTypeIndex]);
 			bufs[qTypeIndex] = [];
 			bufs[0] = [];
-		} else if (topbufIndex >= 0) {
-			topbuf = topbuf.concat(bufs[topbufIndex]);
-			bufs[topbufIndex] = [];
-		}
-		if (query === 'grass' || query === 'flying') {
-			topbuf = topbuf.concat(bufs[5]);
-			bufs[5] = [];
 		}
 
 		if (instafilter && count < 20) {
-			// There's exactly one filter matched and count is less than 20, instafilter
+			// Result count is less than 20, so we can instafilter
 			bufs.push(this.instafilter(qType, instafilter[0], instafilter[1]));
 		}
 
