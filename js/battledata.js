@@ -10,6 +10,12 @@ if (!window.exports) window.exports = window;
 if (window.soundManager) {
 	soundManager.setup({url:'https://play.pokemonshowdown.com/swf/'});
 	if (window.Replays) soundManager.onready(window.Replays.soundReady);
+	soundManager.onready(function () {
+		soundManager.createSound({
+			id: 'notif',
+			url: 'https://play.pokemonshowdown.com/audio/notification.wav'
+		});
+	});
 }
 
 window.nodewebkit = false;
