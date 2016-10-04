@@ -2640,8 +2640,8 @@ a.ilink.yours {
 }
 
 .teambuilder-clipboard-container {
-	height: 52px;
-	max-width: 455px;
+	height: 58px;
+	max-width: 463px;
 	font-size: 8pt;
 	padding: 4px;
 	position: relative;
@@ -2661,8 +2661,8 @@ a.ilink.yours {
 }
 .teambuilder-clipboard-data {
 	display: block;
-	width: 447px;
-	height: 26px;
+	width: 455px;
+	height: 32px;
 	overflow: hidden;
 	cursor: pointer;
 
@@ -2687,16 +2687,16 @@ a.ilink.yours {
 	border: 1px solid #BBBBBB;
 }
 .teambuilder-clipboard-data .result {
-	height: 26px;
+	height: 32px;
 }
 .teambuilder-clipboard-data span {
 	display: block;
-	height: 24px;
+	height: 30px;
 
 	float: left;
 }
 .teambuilder-clipboard-data .icon {
-	width: 32px;
+	width: 40px;
 }
 .teambuilder-clipboard-data .species {
 	width: 100px;
@@ -2727,7 +2727,7 @@ a.ilink.yours {
 	width: 385px;
 
 	position: absolute;
-	top: 34px;
+	top: 40px;
 	right: 8px;
 }
 .teambuilder-clipboard-button-left {
