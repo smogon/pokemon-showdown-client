@@ -1757,7 +1757,7 @@
 				guessedMinus = guessedEVs.minusStat;
 				delete guessedEVs.minusStat;
 				buf += ' </small><button name="setStatFormGuesses">' + role + ': ';
-				for (var i in guessedEVs) {
+				for (var i in BattleStatNames) {
 					if (guessedEVs[i]) {
 						var statName = this.curTeam.gen === 1 && i === 'spa' ? 'Spc' : BattleStatNames[i];
 						buf += '' + guessedEVs[i] + ' ' + statName + ' / ';
