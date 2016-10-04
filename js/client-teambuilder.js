@@ -3077,15 +3077,17 @@
 				var SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
 				var SRresistances = ['Ground', 'Steel', 'Fighting'];
 				var SRweak = 0;
-				if (SRweaknesses.indexOf(template.types[0]) >= 0) {
-					SRweak++;
-				} else if (SRresistances.indexOf(template.types[0]) >= 0) {
-					SRweak--;
-				}
-				if (SRweaknesses.indexOf(template.types[1]) >= 0) {
-					SRweak++;
-				} else if (SRresistances.indexOf(template.types[1]) >= 0) {
-					SRweak--;
+				if (set.ability !== 'Magic Guard' && set.ability !== 'Mountaineer') {
+					if (SRweaknesses.indexOf(template.types[0]) >= 0) {
+						SRweak++;
+					} else if (SRresistances.indexOf(template.types[0]) >= 0) {
+						SRweak--;
+					}
+					if (SRweaknesses.indexOf(template.types[1]) >= 0) {
+						SRweak++;
+					} else if (SRresistances.indexOf(template.types[1]) >= 0) {
+						SRweak--;
+					}
 				}
 				var hpDivisibility = 0;
 				var hpShouldBeDivisible = false;
@@ -3105,7 +3107,7 @@
 					hpDivisibility = 2;
 				} else if (SRweak >= 1 || hasMove['substitute'] || hasMove['transform']) {
 					hpDivisibility = 4;
-				} else {
+				} else if (set.ability !== 'Magic Guard') {
 					hpDivisibility = 8;
 				}
 
