@@ -2407,6 +2407,7 @@
 			var modifier = (e.shiftKey || e.ctrlKey || e.altKey || e.metaKey || e.cmdKey);
 			if (e.keyCode === 13 || (e.keyCode === 9 && !modifier)) { // enter/tab
 				if (!(this.curChartType in this.searchChartTypes)) return;
+				this.updateChart();
 				var $firstResult = this.$chart.find('a.hover');
 				e.stopPropagation();
 				e.preventDefault();
