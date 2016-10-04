@@ -320,3 +320,18 @@
 	width: 24px;
 	text-align: right;
 }
+.utilichart .movenamesortcol {
+	width: 159px;
+}
+.utilichart .movetypesortcol {
+	width: 35px;
+}
+.utilichart .powersortcol {
+	width: 30px;
+}
+.utilichart .accuracysortcol {
+	width: 49px;
+}
+.utilichart .ppsortcol {
+	width: 23px;
+}
