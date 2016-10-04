@@ -2523,10 +2523,37 @@
 			}
 			this.chartSet(val, selectNext);
 		},
+		chartSetCustom: function (val) {
+			val = toId(val);
+			if (val === 'cathy') {
+				var set = this.curSet;
+				set.name = "Cathy";
+				set.species = 'Trevenant';
+				delete set.level;
+				if (this.curTeam && this.curTeam.format) {
+					if (this.curTeam.format.substr(0, 10) === 'battlespot' || this.curTeam.format.substr(0, 3) === 'vgc') set.level = 50;
+					if (this.curTeam.format.substr(0, 2) === 'lc' || this.curTeam.format === 'gen5lc' || this.curTeam.format === 'gen4lc') set.level = 5;
+				}
+				set.gender = 'F';
+				if (set.happiness) delete set.happiness;
+				if (set.shiny) delete set.shiny;
+				set.item = 'Starf Berry';
+				set.ability = 'Harvest';
+				set.moves = ['Substitute', 'Horn Leech', 'Earthquake', 'Phantom Force'];
+				set.evs = {hp: 36, atk: 252, def: 0, spa: 0, spd: 0, spe: 220};
+				set.ivs = {};
+				set.nature = 'Jolly';
+				this.updateSetTop();
+				this.$(!this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
+				return true;
+			}
+		},
 		chartSet: function (val, selectNext) {
 			var inputName = this.curChartName;
 			var id = toId(val);
-			this.$('input[name=' + inputName + ']').val(val).removeClass('incomplete');
+			var input = this.$('input[name=' + inputName + ']');
+			if (this.chartSetCustom(input.val())) return;
+			input.val(val).removeClass('incomplete');
 			switch (inputName) {
 			case 'pokemon':
 				this.setPokemon(val, selectNext);
