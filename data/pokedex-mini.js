@@ -501,6 +501,7 @@ exports.BattlePokemonSprites = {
 	"cherrimsunshine": {num:421, front:{ani:{w:76, h:67}}, back:{ani:{w:69, h:68}}},
 	"shellos": {num:422, front:{ani:{w:44, h:62}}, back:{ani:{w:50, h:61}}},
 	"gastrodon": {num:423, front:{ani:{w:63, h:77}}, back:{ani:{w:68, h:74}}},
+	"gastrodoneast": {num:423, front:{ani:{w:62, h:77}}},
 	"ambipom": {num:424, front:{ani:{w:104, h:88}}, back:{ani:{w:77, h:93}}},
 	"drifloon": {num:425, front:{ani:{w:32, h:75}}, back:{ani:{w:32, h:75}}},
 	"drifblim": {num:426, front:{ani:{w:47, h:89}}, back:{ani:{w:48, h:90}}},
