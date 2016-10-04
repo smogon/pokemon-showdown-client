@@ -5811,7 +5811,7 @@ var Battle = (function () {
 		if (!details) {
 			if (siden < 0) return null;
 			if (this.sides[siden].active[slot]) return this.sides[siden].active[slot];
-			isInactive = true;
+			if (slot >= 0) isInactive = true;
 		}
 
 		var searchid = '';
