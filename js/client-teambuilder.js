@@ -1265,7 +1265,7 @@
 				var pokemon = Tools.getTemplate(res.species);
 
 				buf += '<div class="result" data-id="' + i + '">';
-				buf += '<div class="section"><span class="icon" style="' + Tools.getIcon(res.species) + '"></span>';
+				buf += '<div class="section"><span class="icon" style="' + Tools.getPokemonIcon(res.species) + '"></span>';
 				buf += '<span class="species">' + (pokemon.species === pokemon.baseSpecies ? pokemon.species : (pokemon.baseSpecies + '-<small>' + pokemon.species.substr(pokemon.baseSpecies.length + 1) + '</small>')) + '</span></div>';
 				buf += '<div class="section"><span class="ability-item">' + (res.ability || '<i>No ability</i>') + '<br />' + (res.item || '<i>No item</i>') + '</span></div>';
 				buf += '<div class="section no-border">';
@@ -1292,7 +1292,7 @@
 		clipboardExpanded: false,
 		clipboardExpand: function () {
 			var $clipboard = $('.teambuilder-clipboard-data');
-			$clipboard.animate({height: this.clipboardCount() * 28}, 500, function () {
+			$clipboard.animate({height: this.clipboardCount() * 34}, 500, function () {
 				setTimeout(function () { $clipboard.focus(); }, 100);
 			});
 
@@ -1302,7 +1302,7 @@
 		},
 		clipboardShrink: function () {
 			var $clipboard = $('.teambuilder-clipboard-data');
-			$clipboard.animate({height: 26}, 500);
+			$clipboard.animate({height: 32}, 500);
 
 			setTimeout(function () {
 				this.clipboardExpanded = false;
@@ -3264,7 +3264,7 @@
 				if (i !== data.i && i !== data.i + 1) {
 					buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
 				}
-				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getIcon(set) + '"></span> ' + Tools.escapeHTML(set.name) + '</li>';
+				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getPokemonIcon(set) + '"></span> ' + Tools.escapeHTML(set.name) + '</li>';
 			}
 			if (i !== data.i && i !== data.i + 1) {
 				buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
