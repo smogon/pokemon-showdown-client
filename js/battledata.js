@@ -1511,7 +1511,7 @@ var Tools = {
 				// unown gap
 				sneasel: 912 + 33,
 				teddiursa: 912 + 34,
-				roserade: 912 + 35,
+				roselia: 912 + 35,
 				zangoose: 912 + 36,
 				seviper: 912 + 37,
 				castformrainy: 912 + 38,
@@ -1520,7 +1520,7 @@ var Tools = {
 				regirock: 912 + 41,
 				torterra: 912 + 42,
 				budew: 912 + 43,
-				roselia: 912 + 44,
+				roserade: 912 + 44,
 				magmortar: 912 + 45,
 				togekiss: 912 + 46,
 				rotomwash: 912 + 47,
