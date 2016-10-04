@@ -307,6 +307,10 @@
 				if (!bufs[typeIndex].length) bufs[typeIndex] = [['header', typeName[type]]];
 			}
 
+			// don't match duplicate aliases
+			var curBufLength = (passType === 2 && bufs[typeIndex].length);
+			if (curBufLength && bufs[typeIndex][curBufLength - 1][1] === id) continue;
+
 			bufs[typeIndex].push([type, id, matchStart, matchLength]);
 
 			count++;

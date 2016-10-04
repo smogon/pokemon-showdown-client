@@ -67,18 +67,54 @@ function requireNoCache(pathSpec) {
 			index.push('m' + toId(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
 			return;
 		}
-		if (name === 'Earthquake') i = 5;
-		if (name === 'Hariyama') i = 4;
+		let oldI = i;
 		if (name === 'Bronzong') i = 4;
-		if (name === 'Garchomp') i = 3;
 		if (name === 'Charizard') i = 5;
-		if (name === 'Thunderbolt') {
-			i = 7;
-			index.push('tb ' + type + ' ' + id + ' 0');
+		if (name === 'Garchomp') i = 3;
+		if (name === 'Hariyama') i = 4;
+
+		if (name === 'Acupressure') i = 3;
+		if (name === 'Aromatherapy') i = 5;
+		if (name === 'Boomburst') i = 4;
+		if (name === 'Crabhammer') i = 4;
+		if (name === 'Discharge') i = 3;
+		if (name === 'Earthquake') i = 5;
+		if (name === 'Extrasensory') i = 5;
+		if (name === 'Flamethrower') i = 5;
+		if (name === 'Headbutt') i = 4;
+		if (name === 'Moonblast') i = 4;
+		if (name === 'Moonlight') i = 4;
+		if (name === 'Overheat') i = 4;
+		if (name === 'Outrage') i = 3;
+		if (name === 'Octazooka') i = 4;
+		if (name === 'Payback') i = 3;
+		if (name === 'Psyshock') i = 3;
+		if (name === 'Psywave') i = 3;
+		if (name === 'Rototiller') i = 4;
+		if (name === 'Rollout') i = 4;
+		if (name === 'Safeguard') i = 4;
+		if (name === 'Sandstorm') i = 4;
+		if (name === 'Smokescreen') i = 5;
+		if (name === 'Stockpile') i = 5;
+		if (name === 'Steamroller') i = 5;
+		if (name === 'Superpower') i = 5;
+		if (name === 'Supersonic') i = 5;
+		if (name === 'Synchronoise') i = 7;
+		if (name === 'Tailwind') i = 4;
+		if (name === 'Telekinesis') i = 4;
+		if (name === 'Teleport') i = 4;
+		if (name === 'Thunderbolt') i = 7;
+		if (name === 'Twineedle') i = 3;
+		if (name === 'Uproar') i = 2;
+		if (name === 'Venoshock') i = 4;
+		if (name === 'Whirlpool') i = 5;
+		if (name === 'Whirlwind') i = 5;
+		let acronym;
+		if (oldI < 0 && i > 0) {
+			acronym = toId(name.charAt(0) + name.slice(i));
 		}
 		if (i < 0) return;
 		index.push('' + toId(name.slice(i)) + ' ' + type + ' ' + id + ' ' + toId(name.slice(0, i)).length);
-		let acronym;
 		if (name.startsWith('Hidden Power ')) {
 			acronym = 'hp' + toId(name.substr(13));
 			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
@@ -89,12 +125,21 @@ function requireNoCache(pathSpec) {
 		} else if (name.includes('-') && name.charAt(1) !== '-') {
 			acronym = toId(name.split('-').map((x, i) => i !== 0 ? x : x.charAt(0)).join(''));
 		}
-		if (acronym && !(acronym in Tools.data.Aliases) || toId(Tools.data.Aliases[acronym]) !== id) {
+		if (acronym) {
 			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
+		}
+		if (name === 'High Jump Kick') {
+			index.push('hjkick ' + type + ' ' + id + ' 0');
+		} else if (name === 'Wake-Up Slap') {
+			index.push('wuslap ' + type + ' ' + id + ' 0');
+			index.push('wupslap ' + type + ' ' + id + ' 0');
+		} else if (name === 'Zen Headbutt') {
+			index.push('zhbutt ' + type + ' ' + id + ' 0');
 		}
 
 		let i2 = name.lastIndexOf(' ', i - 1);
 		if (i2 < 0) i2 = name.lastIndexOf('-', i - 1);
+		if (name === 'Zen Headbutt') i2 = 8;
 		if (i2 >= 0) {
 			index.push('' + toId(name.slice(i2)) + ' ' + type + ' ' + id + ' ' + toId(name.slice(0, i2)).length);
 		}
