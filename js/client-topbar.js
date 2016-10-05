@@ -356,6 +356,7 @@
 			var muted = !!Tools.prefs('mute');
 			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="slider" name="effectvolume" value="' + (Tools.prefs('effectvolume') || 50) + '" />') + '</p>';
 			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="slider" name="musicvolume" value="' + (Tools.prefs('musicvolume') || 50) + '" />') + '</p>';
+			buf += '<p class="notif-volume"><label class="optlabel">Notification volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="slider" name="notifvolume" value="' + (Tools.prefs('notifvolume') || 50) + '" />') + '</p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="muted"' + (muted ? ' checked' : '') + ' /> Mute sounds</label></p>';
 			this.$el.html(buf).css('min-width', 160);
 		},
@@ -384,6 +385,16 @@
 					self.setMusicVolume(val);
 				}
 			});
+			this.$('.notif-volume input').slider({
+				from: 0,
+				to: 100,
+				step: 1,
+				dimension: '%',
+				skin: 'round_plastic',
+				onstatechange: function (val) {
+					self.setNotifVolume(val);
+				}
+			});
 		},
 		setMute: function (e) {
 			var muted = !!e.currentTarget.checked;
@@ -393,10 +404,12 @@
 			if (!muted) {
 				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><input type="slider" name="effectvolume" value="' + (Tools.prefs('effectvolume') || 50) + '" />');
 				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><input type="slider" name="musicvolume" value="' + (Tools.prefs('musicvolume') || 50) + '" />');
+				this.$('.notif-volume').html('<label class="optlabel">Notification volume:</label><input type="slider" name="notifvolume" value="' + (Tools.prefs('notifvolume') || 50) + '" />');
 				this.domInitialize();
 			} else {
 				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><em>(muted)</em>');
 				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><em>(muted)</em>');
+				this.$('.notif-volume').html('<label class="optlabel">Notification volume:</label><em>(muted)</em>');
 			}
 
 			app.topbar.$('button[name=openSounds]').html('<i class="' + (muted ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i>');
@@ -408,6 +421,9 @@
 		setMusicVolume: function (volume) {
 			BattleSound.setBgmVolume(volume);
 			Tools.prefs('musicvolume', volume);
+		},
+		setNotifVolume: function (volume) {
+			Tools.prefs('notifvolume', volume);
 		}
 	});
 
