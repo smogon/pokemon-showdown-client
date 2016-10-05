@@ -1118,6 +1118,9 @@
 			if (autoscroll) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
+			if (!app.focused && !Tools.prefs('muted') && Tools.prefs('notifvolume')) {
+				soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+			}
 		},
 		addRow: function (line) {
 			var name, name2, room, action, silent, oldid;
@@ -1447,6 +1450,9 @@
 			}
 
 			if (mayNotify && isHighlighted) {
+				if (!Tools.prefs('muted') && Tools.prefs('notifvolume')) {
+					soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+				}
 				var $lastMessage = this.$chat.children().last();
 				var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
 				var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
