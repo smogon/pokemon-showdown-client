@@ -10,7 +10,6 @@
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button>';
 			buf += '<div class="roomlisttop"></div><div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
-			buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
 			app.send('/cmd rooms');
@@ -76,7 +75,7 @@
 				this.$('.roomlisttop').html('<table class="roomcounters" border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td>' + leftSide + '</td><td>' + rightSide + '</td></tr></table>');
 			}
 			this.$('.roomlist').first().html('<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.official, this.renderRoomBtn).join(""));
-			this.$('.roomlist').last().html('<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(rooms.chat.sort(this.compareRooms), this.renderRoomBtn).join(""));
+			this.$('.roomlist').last().html('<h2 class="rooms-chatrooms">Chat rooms<button name="joinRoomPopup" class="button privroom"><div class="fa fa-sign-in"></div> Join other room</button></h2>' + _.map(rooms.chat.sort(this.compareRooms), this.renderRoomBtn).join(""));
 		},
 		roomlist: function () {
 			app.joinRoom('battles');
