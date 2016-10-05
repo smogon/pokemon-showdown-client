@@ -1211,9 +1211,6 @@ var Tools = {
 	},
 
 	getPokemonIcon: function (pokemon, facingLeft) {
-		return this.getIcon(pokemon, true, facingLeft);
-	},
-	getIcon: function (pokemon, newSize, facingLeft) {
 		var num = 0;
 		if (pokemon === 'pokeball') {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/xyicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
@@ -1231,124 +1228,7 @@ var Tools = {
 		if (num < 0) num = 0;
 		if (num > 721) num = 0;
 		var altNums = {
-			"egg": 731,
-			"rotomfan": 779,
-			"rotomfrost": 780,
-			"rotomheat": 781,
-			"rotommow": 782,
-			"rotomwash": 783,
-			"giratinaorigin": 785,
-			"shayminsky": 787,
-			"basculinbluestriped": 789,
-			"darmanitanzen": 792,
-			"deoxysattack": 763,
-			"deoxysdefense": 764,
-			"deoxysspeed": 766,
-			"deerlingautumn": 793,
-			"deerlingsummer": 795,
-			"deerlingwinter": 796,
-			"sawsbuckautumn": 797,
-			"sawsbucksummer": 799,
-			"sawsbuckwinter": 800,
-			"burmysandy": 768,
-			"burmytrash": 769,
-			"wormadamsandy": 771,
-			"wormadamtrash": 772,
-			"cherrimsunshine": 774,
-			"shelloseast": 775,
-			"gastrodoneast": 777,
-			"castformrainy": 760,
-			"castformsnowy": 761,
-			"castformsunny": 762,
-			"meloettapirouette": 804,
-			"meowsticf": 809,
-			"floetteeternal": 810,
-			"tornadustherian": 816,
-			"thundurustherian": 817,
-			"landorustherian": 818,
-			"kyuremblack": 819,
-			"kyuremwhite": 820,
-			"keldeoresolute": 821,
-			"venusaurmega": 864,
-			"charizardmegax": 865,
-			"charizardmegay": 866,
-			"blastoisemega": 867,
-			"alakazammega": 868,
-			"gengarmega": 869,
-			"kangaskhanmega": 870,
-			"pinsirmega": 871,
-			"gyaradosmega": 872,
-			"aerodactylmega": 873,
-			"mewtwomegax": 874,
-			"mewtwomegay": 875,
-			"ampharosmega": 876,
-			"scizormega": 877,
-			"heracrossmega": 878,
-			"houndoommega": 879,
-			"tyranitarmega": 880,
-			"blazikenmega": 881,
-			"gardevoirmega": 882,
-			"mawilemega": 883,
-			"aggronmega": 884,
-			"medichammega": 885,
-			"manectricmega": 886,
-			"banettemega": 887,
-			"absolmega": 888,
-			"garchompmega": 889,
-			"lucariomega": 890,
-			"abomasnowmega": 891,
-			"latiasmega": 892,
-			"latiosmega": 893,
-			"beedrillmega": 896,
-			"pidgeotmega": 897,
-			"slowbromega": 898,
-			"steelixmega": 899,
-			"sceptilemega": 900,
-			"swampertmega": 901,
-			"sableyemega": 902,
-			"sharpedomega": 903,
-			"cameruptmega": 904,
-			"altariamega": 905,
-			"glaliemega": 906,
-			"salamencemega": 907,
-			"metagrossmega": 908,
-			"kyogreprimal": 909,
-			"groudonprimal": 910,
-			"rayquazamega": 911,
-			"lopunnymega": 912,
-			"gallademega": 913,
-			"audinomega": 914,
-			"dianciemega": 915,
-			"hoopaunbound": 916,
-			"syclant": 832 + 0,
-			"revenankh": 832 + 1,
-			"pyroak": 832 + 2,
-			"fidgit": 832 + 3,
-			"stratagem": 832 + 4,
-			"arghonaut": 832 + 5,
-			"kitsunoh": 832 + 6,
-			"cyclohm": 832 + 7,
-			"colossoil": 832 + 8,
-			"krilowatt": 832 + 9,
-			"voodoom": 832 + 10,
-			"tomohawk": 832 + 11,
-			"necturna": 832 + 12,
-			"mollux": 832 + 13,
-			"aurumoth": 832 + 14,
-			"malaconda": 832 + 15,
-			"cawmodore": 832 + 16,
-			"volkraken": 832 + 17,
-			"plasmanta": 832 + 18,
-			"naviathan": 832 + 19,
-			"crucibelle": 832 + 20,
-			"crucibellemega": 832 + 21,
-			"kerfluffle": 832 + 22
-		};
-
-		if (altNums[id]) {
-			num = altNums[id];
-		}
-		var newAltNums = {
+			egg: 732 + 1,
 			pikachubelle: 732 + 2,
 			pikachulibre: 732 + 3,
 			pikachuphd: 732 + 4,
@@ -1479,28 +1359,45 @@ var Tools = {
 			abomasnowmega: 852 + 46,
 			gallademega: 852 + 47,
 			audinomega: 852 + 48,
-			dianciemega: 852 + 49
+			dianciemega: 852 + 49,
+
+			syclant: 996 + 0,
+			revenankh: 996 + 1,
+			pyroak: 996 + 2,
+			fidgit: 996 + 3,
+			stratagem: 996 + 4,
+			arghonaut: 996 + 5,
+			kitsunoh: 996 + 6,
+			cyclohm: 996 + 7,
+			colossoil: 996 + 8,
+			krilowatt: 996 + 9,
+			voodoom: 996 + 10,
+			tomohawk: 996 + 11,
+			necturna: 996 + 12,
+			mollux: 996 + 13,
+			aurumoth: 996 + 14,
+			malaconda: 996 + 15,
+			cawmodore: 996 + 16,
+			volkraken: 996 + 17,
+			plasmanta: 996 + 18,
+			naviathan: 996 + 19,
+			crucibelle: 996 + 20,
+			crucibellemega: 996 + 21,
+			kerfluffle: 996 + 22
 		};
-		if (newSize) {
-			if (newAltNums[id]) num = newAltNums[id];
-			else if (num >= 832 && num < 864) num = num - 832 + 996; // CAP
+
+		if (altNums[id]) {
+			num = altNums[id];
 		}
 
 		if (pokemon && pokemon.gender === 'F') {
-			if (newSize) {
-				if (id === 'unfezant' || id === 'frillish' || id === 'jellicent' || id === 'meowstic' || id === 'pyroar') {
-					num = newAltNums[id + 'f'];
-				}
-			} else {
-				if (id === 'unfezant') num = 788;
-				else if (id === 'frillish') num = 801;
-				else if (id === 'jellicent') num = 802;
-				else if (id === 'meowstic') num = 809;
+			if (id === 'unfezant' || id === 'frillish' || id === 'jellicent' || id === 'meowstic' || id === 'pyroar') {
+				num = altNums[id + 'f'];
 			}
 		}
 
 		if (facingLeft) {
-			newAltNums = {
+			altNums = {
 				pikachubelle: 912 + 0,
 				pikachupopstar: 912 + 1,
 				clefairy: 912 + 2,
@@ -1562,22 +1459,15 @@ var Tools = {
 				klefki: 912 + 77,
 				zygarde: 912 + 78
 			};
-			if (newAltNums[id]) {
-				num = newAltNums[id];
+			if (altNums[id]) {
+				num = altNums[id];
 			}
 		}
 
-		var top;
-		var left;
-		if (newSize) {
-			top = Math.floor(num / 12) * 30;
-			left = (num % 12) * 40;
-		} else {
-			top = 8 + Math.floor(num / 16) * 32;
-			left = (num % 16) * 32;
-		}
+		var top = Math.floor(num / 12) * 30;
+		var left = (num % 12) * 40;
 		var fainted = (pokemon && pokemon.fainted ? ';opacity:.4' : '');
-		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/' + (newSize ? 'xyicons-sheet.png?a1' : 'bwicons-sheet.png?g6') + ') no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/xyicons-sheet.png?a1) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
 	getTeambuilderSprite: function (pokemon, gen) {
