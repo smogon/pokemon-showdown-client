@@ -1118,7 +1118,7 @@
 			if (autoscroll) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
-			if (!app.focused && !Tools.prefs('muted') && Tools.prefs('notifvolume')) {
+			if (!app.focused && !Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 				soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
 			}
 		},
@@ -1450,7 +1450,7 @@
 			}
 
 			if (mayNotify && isHighlighted) {
-				if (!Tools.prefs('muted') && Tools.prefs('notifvolume')) {
+				if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 					soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
 				}
 				var $lastMessage = this.$chat.children().last();
