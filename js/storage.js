@@ -1229,7 +1229,9 @@ Storage.exportTeam = function (team) {
 			if (move.substr(0, 13) === 'Hidden Power ') {
 				move = move.substr(0, 13) + '[' + move.substr(13) + ']';
 			}
-			text += '- ' + move + "  \n";
+			if (move) {
+				text += '- ' + move + "  \n";
+			}
 		}
 		text += "\n";
 	}
