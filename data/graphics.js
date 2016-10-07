@@ -9090,7 +9090,7 @@ var BattleMoveAnims = {
 	rollout: {
 		anim: BattleOtherAnims.fastattack.anim
 	},
-	bulletpunch: {
+	accelrock: {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
@@ -9163,7 +9163,7 @@ var BattleMoveAnims = {
 			}, 'linear');
 		}
 	},
-	bulletpun: {
+	bulletpunch: {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
