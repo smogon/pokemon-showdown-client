@@ -7704,46 +7704,46 @@ var BattleMoveAnims = {
 			}, 'linear', 'fade');
 
 			battle.showEffect('poisonwisp', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
 				scale: 0.2,
 				opacity: 1,
-				time: 0
+				time: 450
 			}, {
-				x: attacker.x + 30,
-				y: attacker.y + 10,
+				x: defender.x + 30,
+				y: defender.y + 10,
 				scale: 1,
 				opacity: 0.5,
-				time: 300
+				time: 750
 			}, 'decel', 'fade');
 			battle.showEffect('poisonwisp', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
 				scale: 0.2,
 				opacity: 1,
-				time: 100
+				time: 550
 			}, {
-				x: attacker.x - 30,
-				y: attacker.y - 40,
+				x: defender.x - 30,
+				y: defender.y - 40,
 				scale: 1,
 				opacity: 0.5,
-				time: 400
+				time: 850
 			}, 'decel', 'fade');
 			battle.showEffect('poisonwisp', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
 				scale: 0.2,
 				opacity: 1,
-				time: 200
+				time: 650
 			}, {
-				x: attacker.x - 10,
-				y: attacker.y + 40,
+				x: defender.x - 10,
+				y: defender.y + 40,
 				scale: 1,
 				opacity: 0.5,
-				time: 500
+				time: 950
 			}, 'decel', 'fade');
 		}
 	},
