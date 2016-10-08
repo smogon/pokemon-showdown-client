@@ -1204,7 +1204,7 @@ var BattleOtherAnims = {
 				x: defender.leftof(-25),
 				y: defender.y + 40,
 				z: defender.behind(-20),
-				scale: 0.2,
+				scale: 0.5,
 				opacity: 1
 			}, {
 				x: defender.leftof(-15),
@@ -1212,7 +1212,7 @@ var BattleOtherAnims = {
 				z: defender.z,
 				scale: 0,
 				opacity: 0.2,
-				time: 400
+				time: 500
 			}, 'swing', 'fade');
 
 			defender.delay(400);
@@ -7846,7 +7846,7 @@ var BattleMoveAnims = {
 				time: 200
 			}, 'swing');
 			defender.anim({
-				z: defender.behind(20),
+				z: defender.behind(15),
 				time: 300
 			}, 'decel');
 			defender.anim({
@@ -8090,7 +8090,7 @@ var BattleMoveAnims = {
 				time: 200
 			}, 'swing');
 			defender.anim({
-				z: defender.behind(20),
+				z: defender.behind(15),
 				time: 300
 			}, 'decel');
 			defender.anim({
@@ -9128,7 +9128,7 @@ var BattleMoveAnims = {
 	rollout: {
 		anim: BattleOtherAnims.fastattack.anim
 	},
-	accelrock: {
+	accelerock: {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
@@ -10246,6 +10246,75 @@ var BattleMoveAnims = {
 			defender.anim({
 				time: 300
 			}, 'swing');
+		}
+	},
+	shelltrap: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			var xf = [1, -1, 1, -1];
+			var yf = [1, -1, -1, 1];
+			var xf2 = [1, 0, -1, 0];
+			var yf2 = [0, 1, 0, -1];
+
+			battle.backgroundEffect('#000000', 600, 0.3);
+
+			for (var i = 0; i < 4; i++) {
+				battle.showEffect('flareball', {
+					x: attacker.x,
+					y: attacker.y,
+					z: attacker.behind(-5),
+					scale: 0.5,
+					opacity: 1
+				}, {
+					x: defender.x + 240 * xf[i],
+					y: defender.y,
+					z: defender.z + 137 * yf[i],
+					opacity: 0,
+					time: 600
+				}, 'decel');
+				battle.showEffect('flareball', {
+					x: attacker.x,
+					y: attacker.y,
+					z: attacker.behind(-5),
+					scale: 0.5,
+					opacity: 1
+				}, {
+					x: defender.x + 339 * xf2[i],
+					y: defender.y + 10,
+					z: defender.z + 194 * yf2[i],
+					scale: 1,
+					opacity: 0,
+					time: 600
+				}, 'decel');
+			}
+			battle.showEffect('fireball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0.7
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 300
+			}, 'linear', 'explode');
+			defender.delay(280);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100
+			}, 'swing');
+			defender.anim({
+				time: 300
+			}, 'swing');
+		},
+		prepareAnim: BattleOtherAnims.chargestatus.anim,
+		prepareMessage: function (pokemon) {
+			return pokemon.getName() + ' set a shell trap!';
 		}
 	},
 	flamecharge: {
@@ -13993,7 +14062,7 @@ var BattleMoveAnims = {
 			}, {
 				x: defender.x,
 				y: defender.y,
-				z: defender.behind(0),
+				z: defender.z,
 				opacity: 0.6,
 				time: 400
 			}, 'decel', 'explode');
@@ -16356,6 +16425,52 @@ var BattleMoveAnims = {
 					time: 600
 				}, 'accel', 'fade');
 			}
+		}
+	},
+	naturesmadness: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.backgroundEffect('#000000', 800, 0.1);
+			battle.showEffect('mistball', {
+				x: attacker.x,
+				y: attacker.y - 50,
+				z: attacker.z,
+				scale: 1,
+				xscale: 5,
+				opacity: 0.6,
+				time: 0
+			}, {
+				scale: 2,
+				xscale: 8,
+				opacity: 0.1,
+				time: 300
+			}, 'linear', 'fade');
+			battle.showEffect('iceball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 5,
+				opacity: 0,
+				time: 200
+			}, {
+				scale: 0.5,
+				opacity: 0.6,
+				time: 600
+			}, 'linear', 'fade');
+			battle.showEffect('iceball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 5,
+				opacity: 0,
+				time: 350
+			}, {
+				scale: 0.5,
+				opacity: 0.2,
+				time: 800
+			}, 'linear', 'fade');
 		}
 	},
 	energyball: {
@@ -23896,7 +24011,7 @@ var BattleMoveAnims = {
 			}, 'swing');
 		}
 	},
-	pulverisingpancake: {
+	pulverizingpancake: {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
@@ -24227,15 +24342,14 @@ BattleMoveAnims['honeclaws'] = {anim:BattleMoveAnims['rockpolish'].anim};
 BattleMoveAnims['workup'] = {anim:BattleMoveAnims['bulkup'].anim};
 
 BattleMoveAnims['heatcrash'] = {anim:BattleMoveAnims['flareblitz'].anim};
-BattleMoveAnims['searingshot'] = {anim:BattleMoveAnims['flamethrower'].anim};
+BattleMoveAnims['flameburst'] = {anim:BattleMoveAnims['shelltrap'].anim};
+BattleMoveAnims['searingshot'] = {anim:BattleMoveAnims['shelltrap'].anim};
 BattleMoveAnims['fierydance'] = {anim:BattleMoveAnims['magmastorm'].anim};
 BattleMoveAnims['inferno'] = {anim:BattleMoveAnims['magmastorm'].anim};
 BattleMoveAnims['mysticalfire'] = {anim:BattleMoveAnims['flamethrower'].anim};
 BattleMoveAnims['firepledge'] = {anim:BattleMoveAnims['flamethrower'].anim};
-
 BattleMoveAnims['ember'] = {anim:BattleMoveAnims['flamethrower'].anim};
 BattleMoveAnims['incinerate'] = {anim:BattleMoveAnims['flamethrower'].anim};
-BattleMoveAnims['flameburst'] = {anim:BattleMoveAnims['flamethrower'].anim};
 BattleMoveAnims['flamewheel'] = {anim:BattleMoveAnims['flamecharge'].anim};
 
 BattleMoveAnims['razorleaf'] = {anim:BattleMoveAnims['magicalleaf'].anim};
@@ -24320,16 +24434,21 @@ BattleMoveAnims['vitalthrow'] = {anim:BattleMoveAnims['circlethrow'].anim};
 BattleMoveAnims['doubleslap'] = {anim:BattleMoveAnims['wakeupslap'].anim};
 BattleMoveAnims['crushgrip'] = {anim:BattleMoveAnims['quash'].anim};
 
+BattleMoveAnims['beatup'] = {anim:BattleMoveAnims['slam'].anim};
 BattleMoveAnims['counter'] = {anim:BattleMoveAnims['slam'].anim};
 BattleMoveAnims['payback'] = {anim:BattleMoveAnims['slam'].anim};
 BattleMoveAnims['revenge'] = {anim:BattleMoveAnims['slam'].anim};
 BattleMoveAnims['rockclimb'] = {anim:BattleMoveAnims['slam'].anim};
+BattleMoveAnims['tackle'] = {anim:BattleMoveAnims['slam'].anim};
+BattleMoveAnims['dragonhammer'] = {anim:BattleMoveAnims['heavyslam'].anim};
+
+BattleMoveAnims['highhorsepower'] = {anim:BattleMoveAnims['stomp'].anim};
+
 BattleMoveAnims['retaliate'] = {anim:BattleMoveAnims['closecombat'].anim};
 BattleMoveAnims['superpower'] = {anim:BattleMoveAnims['closecombat'].anim};
 BattleMoveAnims['submission'] = {anim:BattleMoveAnims['closecombat'].anim};
 BattleMoveAnims['bonerush'] = {anim:BattleMoveAnims['boneclub'].anim, multihit:true};
-BattleMoveAnims['tackle'] = {anim:BattleMoveAnims['slam'].anim};
-BattleMoveAnims['beatup'] = {anim:BattleMoveAnims['slam'].anim};
+
 BattleMoveAnims['dragonrage'] = {anim:BattleMoveAnims['dragonbreath'].anim};
 
 BattleMoveAnims['silverwind'] = {anim:BattleMoveAnims['whirlwind'].anim};
