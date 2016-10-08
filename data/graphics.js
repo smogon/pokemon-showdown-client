@@ -1196,6 +1196,44 @@ var BattleOtherAnims = {
 			attacker.anim({x: attacker.x});
 		}
 	},
+	consume: {
+		anim: function (battle, args) {
+			var defender = args[0];
+
+			battle.showEffect('wisp', {
+				x: defender.leftof(-25),
+				y: defender.y + 40,
+				z: defender.behind(-20),
+				scale: 0.2,
+				opacity: 1
+			}, {
+				x: defender.leftof(-15),
+				y: defender.y + 35,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.2,
+				time: 400
+			}, 'swing', 'fade');
+
+			defender.delay(400);
+			defender.anim({
+				y: defender.y + 5,
+				yscale: 1.1,
+				time: 200
+			}, 'swing');
+			defender.anim({
+				time: 200
+			}, 'swing');
+			defender.anim({
+				y: defender.y + 5,
+				yscale: 1.1,
+				time: 200
+			}, 'swing');
+			defender.anim({
+				time: 200
+			}, 'swing');
+		}
+	},
 	leech: {
 		anim: function (battle, args) {
 			var attacker = args[0];

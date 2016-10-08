@@ -4336,6 +4336,7 @@ var Battle = (function () {
 					// do nothing
 				} else if (kwargs.eat) {
 					poke.prevItemEffect = 'eaten';
+					if (!this.fastForward) BattleOtherAnims.consume.anim(this, [poke.sprite]);
 					actions += '' + poke.getName() + ' ate its ' + item.name + '!';
 					this.lastmove = item.id;
 				} else if (kwargs.weaken) {
