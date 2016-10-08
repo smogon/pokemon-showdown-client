@@ -14185,8 +14185,35 @@ var BattleMoveAnims = {
 	sludgewave: {
 		anim: function (battle, args) {
 			var attacker = args[0];
-			var defender = args[1];
+			var defender;
 
+			for (var i = 1; i < args.length; i++) {
+				defender = args[i];
+				defender.delay(125);
+				defender.anim({
+					z: defender.behind(5),
+					time: 75
+				}, 'swing');
+				defender.anim({
+					time: 75
+				}, 'swing');
+				defender.anim({
+					z: defender.behind(5),
+					time: 75
+				}, 'swing');
+				defender.anim({
+					time: 75
+				}, 'swing');
+				defender.anim({
+					z: defender.behind(5),
+					time: 75
+				}, 'swing');
+				defender.anim({
+					time: 75
+				}, 'swing');
+			}
+
+			if (args.length > 2) defender = args[2];
 			battle.backgroundEffect('#AA00AA', 700, 0.2);
 			battle.showEffect('poisonwisp', {
 				x: attacker.x,
@@ -14227,29 +14254,6 @@ var BattleMoveAnims = {
 				scale: 2,
 				opacity: 0.6
 			}, 'decel', 'explode');
-
-			defender.delay(125);
-			defender.anim({
-				z: defender.behind(5),
-				time: 75
-			}, 'swing');
-			defender.anim({
-				time: 75
-			}, 'swing');
-			defender.anim({
-				z: defender.behind(5),
-				time: 75
-			}, 'swing');
-			defender.anim({
-				time: 75
-			}, 'swing');
-			defender.anim({
-				z: defender.behind(5),
-				time: 75
-			}, 'swing');
-			defender.anim({
-				time: 75
-			}, 'swing');
 		}
 	},
 	sludgebomb: {
