@@ -3525,6 +3525,11 @@ var Battle = (function () {
 					case 'highjumpkick':
 						actions += "" + poke.getName() + " kept going and crashed!";
 						break;
+					case 'bind':
+					case 'wrap':
+						if (!this.fastForward) BattleOtherAnims.bound.anim(this, [poke.sprite]);
+						actions += "" + poke.getName() + ' is hurt by ' + effect.name + '!';
+						break;
 					default:
 						if (ofpoke) {
 							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "!";
@@ -4104,14 +4109,17 @@ var Battle = (function () {
 				switch (args[2]) {
 				case 'brn':
 					this.resultAnim(poke, 'Burned', 'brn');
+					if (!this.fastForward) BattleStatusAnims['brn'].anim(this, [poke.sprite]);
 					actions += "" + poke.getName() + " was burned" + effectMessage + "!";
 					break;
 				case 'tox':
 					this.resultAnim(poke, 'Toxic poison', 'psn');
+					if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
 					actions += "" + poke.getName() + " was badly poisoned" + effectMessage + "!";
 					break;
 				case 'psn':
 					this.resultAnim(poke, 'Poisoned', 'psn');
+					if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
 					actions += "" + poke.getName() + " was poisoned!";
 					break;
 				case 'slp':
@@ -4124,10 +4132,12 @@ var Battle = (function () {
 					break;
 				case 'par':
 					this.resultAnim(poke, 'Paralyzed', 'par');
+					if (!this.fastForward) BattleStatusAnims['par'].anim(this, [poke.sprite]);
 					actions += "" + poke.getName() + " is paralyzed! It may be unable to move!";
 					break;
 				case 'frz':
 					this.resultAnim(poke, 'Frozen', 'frz');
+					if (!this.fastForward) BattleStatusAnims['frz'].anim(this, [poke.sprite]);
 					actions += "" + poke.getName() + " was frozen solid!";
 					break;
 				default:
