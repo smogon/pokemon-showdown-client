@@ -463,6 +463,8 @@ var Tools = {
 			];
 		case 'announce':
 			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + Tools.parseMessage(target) + '</span></div>';
+		case 'logstrong':
+			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log" style="font-weight: bold;">' + Tools.parseMessage(target) + '</span></div>';
 		case 'log':
 			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + Tools.parseMessage(target) + '</span></div>';
 		case 'data-pokemon':
