@@ -2493,23 +2493,23 @@ var BattleStatusAnims = {
 
 			attacker.delay(100);
 			attacker.anim({
-				x: attacker.x - 2.5,
+				x: attacker.x - 1,
 				time: 75
 			}, 'swing');
 			attacker.anim({
-				x: attacker.x + 2.5,
+				x: attacker.x + 1,
 				time: 75
 			}, 'swing');
 			attacker.anim({
-				x: attacker.x - 2.5,
+				x: attacker.x - 1,
 				time: 75
 			}, 'swing');
 			attacker.anim({
-				x: attacker.x + 2.5,
+				x: attacker.x + 1,
 				time: 75
 			}, 'swing');
 			attacker.anim({
-				x: attacker.x - 2.5,
+				x: attacker.x - 1,
 				time: 75
 			}, 'swing');
 			attacker.anim({
@@ -7046,6 +7046,122 @@ var BattleMoveAnims = {
 			defender.anim({
 				time: 300
 			}, 'swing');
+		}
+	},
+	tropkick: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			BattleOtherAnims.contactattack.anim(battle, args);
+			BattleOtherAnims.kick.anim(battle, args);
+			battle.backgroundEffect('#9AB440', 300, 0.3, 500);
+			battle.showEffect('energyball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 420
+			}, {
+				x: defender.leftof(-20),
+				y: defender.y,
+				z: defender.behind(20),
+				scale: 3,
+				opacity: 0,
+				time: 700
+			}, 'linear');
+			battle.showEffect('energyball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 520
+			}, {
+				x: defender.leftof(-20),
+				y: defender.y,
+				z: defender.behind(20),
+				scale: 3,
+				opacity: 0,
+				time: 800
+			}, 'linear');
+
+			battle.showEffect('petal', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				opacity: 0.8,
+				time: 550
+			}, {
+				x: defender.x + 60,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 1,
+				opacity: 0.5,
+				time: 825
+			}, 'decel', 'explode');
+			battle.showEffect('petal', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				opacity: 0.8,
+				time: 575
+			}, {
+				x: defender.x - 50,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 1,
+				opacity: 0.5,
+				time: 850
+			}, 'decel', 'explode');
+			battle.showEffect('petal', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				opacity: 0.8,
+				time: 600
+			}, {
+				x: defender.x - 60,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 1,
+				opacity: 0.5,
+				time: 875
+			}, 'decel', 'explode');
+			battle.showEffect('petal', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				opacity: 0.8,
+				time: 625
+			}, {
+				x: defender.x + 50,
+				y: defender.y + 30,
+				z: defender.z,
+				scale: 1,
+				opacity: 0.5,
+				time: 900
+			}, 'decel', 'explode');
+			battle.showEffect('petal', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				opacity: 0.8,
+				time: 650
+			}, {
+				x: defender.x - 10,
+				y: defender.y + 60,
+				z: defender.z,
+				scale: 1,
+				opacity: 0.5,
+				time: 925
+			}, 'decel', 'explode');
 		}
 	},
 	jumpkick: {
@@ -25014,6 +25130,7 @@ BattleMoveAnims['submission'] = {anim:BattleMoveAnims['closecombat'].anim};
 BattleMoveAnims['bonerush'] = {anim:BattleMoveAnims['boneclub'].anim, multihit:true};
 
 BattleMoveAnims['dragonrage'] = {anim:BattleMoveAnims['dragonbreath'].anim};
+BattleMoveAnims['clangingscales'] = {anim:BattleMoveAnims['dragonpulse'].anim};
 
 BattleMoveAnims['silverwind'] = {anim:BattleMoveAnims['whirlwind'].anim};
 BattleMoveAnims['gust'] = {anim:BattleMoveAnims['whirlwind'].anim};
