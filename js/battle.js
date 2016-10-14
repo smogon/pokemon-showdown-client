@@ -528,14 +528,14 @@ var Pokemon = (function () {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
 		} else {
-			return (shortName ? "Opposing " : "The opposing ") + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
+			return (shortName ? "Opposing " : "The opposing ") + (this.side.battle.ignoreOpponent || this.side.battle.ignoreNicks ? this.species : Tools.escapeHTML(this.name));
 		}
 	};
 	Pokemon.prototype.getLowerName = function (shortName) {
 		if (this.side.n === 0) {
 			return Tools.escapeHTML(this.name);
 		} else {
-			return (shortName ? "opposing " : "the opposing ") + (this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name));
+			return (shortName ? "opposing " : "the opposing ") + (this.side.battle.ignoreOpponent || this.side.battle.ignoreNicks ? this.species : Tools.escapeHTML(this.name));
 		}
 	};
 	Pokemon.prototype.getTitle = function () {
@@ -548,7 +548,7 @@ var Pokemon = (function () {
 		return titlestring;
 	};
 	Pokemon.prototype.getFullName = function (plaintext) {
-		var name = this.side && this.side.n && this.side.battle.ignoreOpponent ? this.species : Tools.escapeHTML(this.name);
+		var name = this.side && this.side.n && (this.side.battle.ignoreOpponent || this.side.battle.ignoreNicks) ? this.species : Tools.escapeHTML(this.name);
 		if (name !== this.species) {
 			if (plaintext) {
 				name += ' (' + this.species + ')';
@@ -1696,7 +1696,7 @@ var Side = (function () {
 	Side.prototype.getStatbarHTML = function (pokemon, inner) {
 		var buf = '';
 		if (!inner) buf += '<div class="statbar' + (this.n ? ' lstatbar' : ' rstatbar') + '">';
-		buf += '<strong>' + (this.n && this.battle.ignoreOpponent ? pokemon.species : Tools.escapeHTML(pokemon.name));
+		buf += '<strong>' + (this.n && (this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.species : Tools.escapeHTML(pokemon.name));
 		var gender = pokemon.gender;
 		if (gender) gender = ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
 		buf += gender + (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>');

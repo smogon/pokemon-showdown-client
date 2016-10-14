@@ -27,7 +27,7 @@
 
 			this.$chat = this.$chatFrame.find('.inner');
 
-			this.$options = this.battle.optionsElem.html('<div style="padding-top: 3px; text-align: right"><label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignorespects" /> Ignore Spectators</label> <label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignoreopp" /> Ignore Players</label></div>');
+			this.$options = this.battle.optionsElem.html('<div style="padding-top: 3px; text-align: right"><label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignorespects" /> Ignore Spectators</label> <label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignoreopp" /> Ignore Players</label> <label style="font-size: 8pt; padding: 3px 5px"><input type="checkbox" name="ignorenicks" /> Ignore Nicknames</label></div>');
 
 			this.battle.customCallback = _.bind(this.updateControls, this);
 			this.battle.endCallback = _.bind(this.updateControls, this);
@@ -38,6 +38,7 @@
 		},
 		events: {
 			'change input[name=ignorespects]': 'toggleIgnoreSpects',
+			'change input[name=ignorenicks]': 'toggleIgnoreNicks',
 			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
 			'click .replayDownloadButton': 'clickReplayDownloadButton'
 		},
@@ -806,6 +807,10 @@
 		toggleIgnoreSpects: function (e) {
 			this.battle.ignoreSpects = !!e.currentTarget.checked;
 			this.battle.add('Spectators ' + (this.battle.ignoreSpects ? '' : 'no longer ') + 'ignored.');
+		},
+		toggleIgnoreNicks: function (e) {
+			this.battle.ignoreNicks = !!e.currentTarget.checked;
+			this.battle.add('Nicknames ' + (this.battle.ignoreNicks ? '' : 'no longer ') + 'ignored.');
 		},
 		toggleIgnoreOpponent: function (e) {
 			this.battle.ignoreOpponent = !!e.currentTarget.checked;
