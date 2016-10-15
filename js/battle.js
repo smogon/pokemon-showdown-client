@@ -2288,6 +2288,7 @@ var Battle = (function () {
 		this.messagebarElem = null;
 		this.delayElem = null;
 		this.hiddenMessageElem = null;
+		this.ignoreNicks = Tools.prefs('ignorenicks');
 
 		this.paused = true;
 		// 0 = uninitialized
