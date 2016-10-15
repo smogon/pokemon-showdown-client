@@ -3351,6 +3351,7 @@ var Battle = (function () {
 			break;
 		case 'damp':
 		case 'dazzling':
+		case 'queenlymajesty':
 			var ofpoke = this.getPokemon(kwargs.of);
 			this.message(ofpoke.getName() + ' cannot use ' + move.name + '!');
 			break;
