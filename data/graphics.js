@@ -6781,6 +6781,51 @@ var BattleMoveAnims = {
 			BattleOtherAnims.clawattack.anim(battle, args);
 		}
 	},
+	multiattack: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			attacker.delay(300);
+			defender.delay(300);
+			BattleOtherAnims.contactattack.anim(battle, args);
+			battle.showEffect('flareball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0.5
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 300
+			}, 'decel');
+			battle.showEffect('rightslash', {
+				x: defender.x + 5,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 1,
+				opacity: 1,
+				time: 800
+			}, {
+				scale: 3,
+				opacity: 0,
+				time: 1100
+			}, 'linear', 'fade');
+			battle.showEffect('rightslash', {
+				x: defender.x - 5,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 1,
+				opacity: 1,
+				time: 800
+			}, {
+				scale: 3,
+				opacity: 0,
+				time: 1100
+			}, 'linear', 'fade');
+		}
+	},
 	holdback: {
 		anim: BattleOtherAnims.contactattack.anim
 	},
