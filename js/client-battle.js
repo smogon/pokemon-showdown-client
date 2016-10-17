@@ -1117,6 +1117,13 @@
 		toggleIgnoreSpects: function (e) {
 			this.battle.ignoreSpects = !!e.currentTarget.checked;
 			this.battle.add('Spectators ' + (this.battle.ignoreSpects ? '' : 'no longer ') + 'ignored.');
+			var $messages = $('.battle-log').find('.chat').not('small:contains(\u2605)');
+			if (!$messages.length) return;
+			if (this.battle.ignoreSpects) {
+				$messages.hide();
+			} else {
+				$messages.show();
+			}
 		},
 		toggleIgnoreNicks: function (e) {
 			this.battle.ignoreNicks = !!e.currentTarget.checked;
@@ -1124,13 +1131,32 @@
 			this.battle.add('Nicknames ' + (this.battle.ignoreNicks ? '' : 'no longer ') + 'ignored.');
 			this.toggleNicknames(this.battle.mySide);
 			this.toggleNicknames(this.battle.yourSide);
+
+			var $log = $('.battle-log .inner');
+			if (!$log.length) return;
+			if (this.battle.ignoreNicks) {
+				$log.addClass('hidenicks');
+			} else {
+				$log.removeClass('hidenicks');
+			}
 		},
 		toggleIgnoreOpponent: function (e) {
 			this.battle.ignoreOpponent = !!e.currentTarget.checked;
 			this.battle.add('Opponent ' + (this.battle.ignoreOpponent ? '' : 'no longer ') + 'ignored.');
+			var $log = $('.battle-log .inner');
+			var $messages = $log.find('.chatmessage-' + this.battle.yourSide.id);
+			if (!$messages.length) return;
+			if (this.battle.ignoreOpponent) {
+				$messages.hide();
+				$log.addClass('hidenicks');
+			} else {
+				$messages.show();
+				$log.removeClass('hidenicks');
+			}
 		},
 		toggleNicknames: function (side) {
 			for (var i = 0; i < side.active.length; i++) {
+				if (!side.active[i]) continue;
 				side.active[i].statbarElem.html(side.getStatbarHTML(side.active[i], true));
 				side.updateStatbar(side.active[i], true, true);
 			}
