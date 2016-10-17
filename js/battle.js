@@ -1663,15 +1663,12 @@ var Side = (function () {
 		} else {
 			this.pokemon.push(poke);
 		}
-		if (this.pokemon.length == 7) {
-			// something's wrong
-			this.battle.logConsole('corruption');
-
-			// the other possibility is Illusion, which we'll assume
+		if (this.pokemon.length == 7 || this.battle.speciesClause) {
+			// check for Illusion
 			var existingTable = {};
-			for (var i = 0; i < 6; i++) {
+			for (var i = 0; i < this.pokemon.length; i++) {
 				var poke1 = this.pokemon[i];
-				if (existingTable[poke1.searchid]) {
+				if (poke1.searchid in existingTable) {
 					var j = existingTable[poke1.searchid];
 					var poke2 = this.pokemon[j];
 					if (this.active.indexOf(poke1) >= 0) {
@@ -2270,6 +2267,7 @@ var Battle = (function () {
 		this.sides = [];
 		this.lastMove = '';
 		this.gen = 6;
+		this.speciesClause = false;
 
 		this.frameElem = frame;
 		this.logFrameElem = logFrame;
@@ -6041,6 +6039,9 @@ var Battle = (function () {
 			for (var i in kwargs) args[1] += '[' + i + '] ' + kwargs[i];
 			this.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
 			this.tier = args[1];
+			if (this.tier === 'Random Battle') {
+				this.speciesClause = true;
+			}
 			break;
 		case 'gametype':
 			this.gameType = args[1];
