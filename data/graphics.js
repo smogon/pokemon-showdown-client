@@ -2161,7 +2161,7 @@ var BattleOtherAnims = {
 			}, 'linear', 'fade');
 		}
 	},
-	zmove: {
+	zpower: {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			battle.showEffect('electroball', {
@@ -6786,6 +6786,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
+			battle.backgroundEffect('#000000', 1100, 0.3);
 			attacker.delay(300);
 			defender.delay(300);
 			BattleOtherAnims.contactattack.anim(battle, args);
