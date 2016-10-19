@@ -5118,7 +5118,7 @@ var Battle = (function () {
 					break;
 				case 'grudge':
 					actions += "" + poke.getName() + "'s " + Tools.escapeHTML(args[3]) + " lost all of its PP due to the grudge!";
-					poke.markMove(args[3], 64);
+					poke.markMove(args[3], Infinity);
 					break;
 				case 'quickguard':
 					poke.addTurnstatus('quickguard');
