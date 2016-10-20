@@ -520,7 +520,7 @@
 						break;
 
 					case 'UserNotAdded':
-						appendError("You aren't in the tournament.");
+						appendError((data[1] && data[1] === app.user.get('userid') ? "You aren't" : "This user isn't") + " in the tournament.");
 						break;
 
 					case 'NotEnoughUsers':
@@ -545,7 +545,7 @@
 						break;
 
 					case 'AlreadyDisqualified':
-						appendError("This user has already been disqualified.");
+						appendError((data[1] && data[1] === app.user.get('userid') ? "You have" : "This user has") + " already been disqualified.");
 						break;
 
 					default:
