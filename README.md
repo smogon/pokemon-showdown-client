@@ -42,19 +42,16 @@ Everything else can be tested, though.
 Warning
 ------------------------------------------------------------------------
 
-This repository is not "batteries included". It does NOT include everything
-necessary to run a full Pokémon Showdown client.
-
-In particular, it doesn't include a login/authentication server, nor does it
-include the database abstraction library used by the ladder library (although
-it's similar enough to `mysqli` that you can use that with minimal changes).
+This repository is not "batteries included". It does NOT include instructions
+to run a full Pokémon Showdown client, and we will not provide them. Please
+do not ask for help on this; you will be turned away.
 
 It also doesn't include several resource files (namely, the `/audio/` and
 `/sprites/` directories) for size reasons.
 
 In other words, this repository is incomplete and NOT intended for people
 who wish to serve their own Pokémon Showdown client (you can, but it'll
-require you to rewrite some things). Rather, it's intended for people who
+require you figure it out yourself). Rather, it's intended for people who
 wish to contribute and submit pull requests to Pokémon Showdown's client.
 
 License

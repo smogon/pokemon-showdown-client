@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 
 // An implementation of the Glicko2 rating system.
 
-@include_once dirname(__FILE__).'/../../pokemonshowdown.com/lib/ntbb-database.lib.php';
+@include_once dirname(__FILE__).'/ntbb-database.lib.php';
 
 // connect to the ladder database (if we aren't already connected)
 if (empty($ladderdb)) {
