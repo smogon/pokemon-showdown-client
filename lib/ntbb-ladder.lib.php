@@ -9,16 +9,11 @@ error_reporting(E_ALL);
 // connect to the ladder database (if we aren't already connected)
 if (empty($ladderdb)) {
 	global $ladderdb, $psconfig;
-	if (empty($psconfig['ladder_server'])) {
+	if (empty($psconfig['ladder_database'])) {
 		global $psdb;
 		$ladderdb = $psdb;
 	} else {
-		$ladderdb = new NTBBDatabase($psconfig['ladder_server'],
-				$psconfig['ladder_username'],
-				$psconfig['ladder_password'],
-				$psconfig['ladder_database'],
-				$psconfig['ladder_prefix'],
-				$psconfig['ladder_charset']);
+		$ladderdb = new PSDatabase($psconfig['ladder_database']);
 	}
 }
 
