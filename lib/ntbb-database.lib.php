@@ -2,64 +2,59 @@
 
 include_once dirname(__FILE__).'/../config/config.inc.php';
 
-class NTBBDatabase {
+class PSDatabase {
 	var $db = null;
-	
+
 	var $server = null;
 	var $username = null;
 	var $password = null;
 	var $database = null;
 	var $prefix = null;
 	var $charset = null;
-	//var $queries = array();
-	
-	function NTBBDatabase($server, $username, $password, $database, $prefix, $charset) {
-		$this->server = $server;
-		$this->username = $username;
-		$this->password = $password;
-		$this->database = $database;
-		$this->prefix = $prefix;
-		$this->charset = $charset;
+
+	function __construct($dbconfig) {
+		$this->server = $dbconfig['server'];
+		$this->username = $dbconfig['username'];
+		$this->password = $dbconfig['password'];
+		$this->database = $dbconfig['database'];
+		$this->prefix = $dbconfig['prefix'];
+		$this->charset = $dbconfig['charset'];
 	}
-	
+
 	function connect() {
 		if (!$this->db) {
-			$this->db = mysqli_connect($this->server, $this->username, $this->password, $this->database);
-			if ($this->charset) {
-				mysqli_set_charset($this->db, $this->charset);
-			}
+			$this->db = new PDO(
+				"mysql:dbname={$this->database};host={$this->server}",
+				$this->username,
+				$this->password
+			);
 		}
 	}
 	function query($query) {
 		$this->connect();
-		//$this->queries[] = $query;
-		return mysqli_query($this->db, $query);
+		return $this->db->query($query);
 	}
 	function fetch_assoc($resource) {
-		return mysqli_fetch_assoc($resource);
+		return $resource->fetch(PDO::FETCH_ASSOC);
 	}
 	function fetch($resource) {
-		return mysqli_fetch_assoc($resource);
+		return $resource->fetch();
 	}
 	function escape($data) {
 		$this->connect();
-		return mysqli_real_escape_string($this->db, $data);
+		$data = $this->db->quote($data);
+		return substr($data, 1, -1);
 	}
 	function error() {
 		if ($this->db) {
-			return mysqli_error($this->db);
+			return $this->db->errorInfo()[2];
 		}
 	}
 	function insert_id() {
 		if ($this->db) {
-			return mysqli_insert_id($this->db);
+			return $this->db->lastInsertId();
 		}
 	}
 }
 
-$psdb = new NTBBDatabase($psconfig['server'],
-		$psconfig['username'],
-		$psconfig['password'],
-		$psconfig['database'],
-		$psconfig['prefix'],
-		$psconfig['charset']);
+$psdb = new PSDatabase($psconfig);
