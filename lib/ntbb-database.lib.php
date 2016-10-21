@@ -28,11 +28,18 @@ class PSDatabase {
 				$this->username,
 				$this->password
 			);
+			$this->db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 		}
 	}
-	function query($query) {
+	function query($query, $params=false) {
 		$this->connect();
-		return $this->db->query($query);
+		if ($params) {
+			$stmt = $this->db->prepare($query);
+			$stmt->execute($params);
+			return $stmt;
+		} else {
+			return $this->db->query($query);
+		}
 	}
 	function fetch_assoc($resource) {
 		return $resource->fetch(PDO::FETCH_ASSOC);
