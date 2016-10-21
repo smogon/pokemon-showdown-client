@@ -28,7 +28,7 @@ class NTBBSession {
 	var $sid = '';
 	var $session = 0;
 
-	function NTBBSession() {
+	function __construct() {
 		global $psdb, $curuser;
 		$ctime = time();
 		$curuser = $this->getGuest();
@@ -425,7 +425,7 @@ class NTBBSession {
 		if (($user['userid'] === $userid) && !empty($user['loggedin'])) {
 			// already logged in
 			$usertype = '2';
-			if (in_array($userid, $psconfig->sysops, true)) {
+			if (in_array($userid, $psconfig['sysops'], true)) {
 				$usertype = '3';
 			} else {
 				// check autoconfirmed
@@ -519,7 +519,7 @@ class NTBBSession {
 		}
 
 		if (function_exists('psconfig_validate_assertion')) {
-			psconfig_validate_assertion($data, $serverhostname);
+			psconfig_validate_assertion($data, $serverhostname, $user);
 		}
 
 		$sig = '';
