@@ -30,7 +30,7 @@ class GlickoPlayer {
 	private $RDmax = 130.0;
 	private $RDmin = 25.0;
 	private $c;
-	private $q = 0.00575646273 ;
+	private $q = 0.00575646273;
 
 	var $M = array();
 
