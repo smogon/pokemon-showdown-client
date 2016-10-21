@@ -732,6 +732,7 @@ var BattleTooltips = (function () {
 			}
 			maxpp = Math.floor(maxpp * 8 / 5);
 		}
+		if (ppUsed === Infinity) return move.name + ' <small>(0/' + maxpp + ')</small>';
 		if (!ppUsed) return move.name + (showKnown ? ' <small>(revealed)</small>' : '');
 		return move.name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
 	};
