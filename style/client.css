@@ -122,6 +122,37 @@ button:disabled {
 .dark .textbox:focus {
 	background: #111111;
 }
+.dark .roomtab.button.cur.closable {
+	background: #636363;
+	border-color: #111;
+	color: #F9F9F9;
+	text-shadow: 1px 1px 0 #111;
+}
+.dark .roomtab.button.closable,
+.dark .roomtab.button.cur,
+.dark .roomtab.button {
+	background: #3A3A3A;
+	border-color: #111;
+	border-bottom: thick solid #3A3A3A;
+	color: #F9F9F9;
+	text-shadow: 1px 1px 0 #111;
+}
+.dark .roomtab.button:hover {
+	background: #484848;
+}
+.dark .tabbar a.button.subtle-notifying {
+	color: #6BACC5;
+}
+.dark .tabbar a.button.notifying {
+	background: #6BACC5;
+	border-color: #6BACC5;
+	color: #000;
+	text-shadow: none;
+}
+.dark .maintabbarbottom {
+	background: #636363;
+	border-color: #111;
+}
 
 /* .dark button {
 	background: #777777;
