@@ -89,8 +89,7 @@
 			'nususpecttest': 9,
 			'pususpecttest': 9,
 			'lcsuspecttest': 9,
-			'doublesoususpecttest': 14.5,
-			'returnd': 10
+			'doublesoususpecttest': 14.5
 		}
 	});
 
