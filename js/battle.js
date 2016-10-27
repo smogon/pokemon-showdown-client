@@ -5323,6 +5323,9 @@ var Battle = (function () {
 				case 'mistyterrain':
 					actions += '' + poke.getName() + ' surrounds itself with a protective mist!';
 					break;
+				case 'psychicterrain':
+					actions += '' + poke.getName() + ' surrounds itself with psychic terrain!';
+					break;
 
 				// ability activations
 				case 'magicbounce':
@@ -5538,10 +5541,11 @@ var Battle = (function () {
 					this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
 					poke.markAbility(fromeffect.name);
 				}
-				if (effect.id in {'electricterrain': 1, 'grassyterrain': 1, 'mistyterrain': 1}) {
+				if (effect.id in {'electricterrain': 1, 'grassyterrain': 1, 'mistyterrain': 1, 'psychicterrain': 1}) {
 					this.removePseudoWeather('Electric Terrain');
 					this.removePseudoWeather('Grassy Terrain');
 					this.removePseudoWeather('Misty Terrain');
+					this.removePseudoWeather('Psychic Terrain');
 				}
 				this.addPseudoWeather(effect.name, poke);
 
@@ -5583,6 +5587,9 @@ var Battle = (function () {
 				case 'electricterrain':
 					actions += "An electric current runs across the battlefield!";
 					break;
+				case 'psychicterrain':
+					actions += "The battlefield got weird!";
+					break;
 				default:
 					actions += effect.name + " started!";
 					break;
@@ -5621,6 +5628,9 @@ var Battle = (function () {
 					break;
 				case 'electricterrain':
 					actions += "The electricity disappeared from the battlefield.";
+					break;
+				case 'psychicterrain':
+					actions += "The weirdness disappeared from the battlefield!";
 					break;
 				default:
 					actions += effect.name + " ended!";
