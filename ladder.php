@@ -52,7 +52,6 @@ foreach ($toplist as $row)
 			elseif ($row['formatid'] == 'pususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-9.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'lcsuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-9.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'doublesoususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-14.5/$N) : 0,1,'.','');
-			elseif ($row['formatid'] == 'returnd') echo number_format($N ? 40*$row['gxe']*pow(2.0,-10.0/$N) : 0,1,'.','');
 			else echo '--';	?></td>
 		</tr>
 <?php
