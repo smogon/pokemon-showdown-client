@@ -92,7 +92,10 @@
 		},
 		focus: function () {
 			this.tooltips.hideTooltip();
-			if (this.battle.playbackState === 3) this.battle.play();
+			if (this.battle.playbackState === 3) {
+				this.battle.play();
+				if (Tools.prefs('noanim')) this.battle.fastForwardTo(-1);
+			}
 			ConsoleRoom.prototype.focus.call(this);
 		},
 		blur: function () {
