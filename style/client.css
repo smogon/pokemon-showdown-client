@@ -96,6 +96,18 @@ button:disabled {
 }
 .dark a.button {
 	color: #222222;
+	text-shadow: 0 1px 0 white;
+	border: solid 1px #AAAAAA;
+	background: #e3e3e3;
+	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
+}
+.dark a.button:hover {
+	background: #cfcfcf;
+	background: linear-gradient(to bottom,  #f2f2f2,  #c2c2c2);
+	border-color: #606060;
+}
+.dark a.button:active {
+	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 .dark a.button.subtle-notifying {
 	color: #AA6600;
@@ -161,17 +173,24 @@ button:disabled {
 	color: #EEEEEE;
 	border-radius: 5px;
 }
-.dark .button {
-	background: #777777;
+*/
+.dark .button,
+.dark .tablist a.button {
+	background: #484848;
 	box-shadow: none;
-	border-color: 1px solid #EEEEEE;
+	border-color: 1px solid #F9F9F9;
 	text-shadow: none;
-	color: #EEEEEE;
+	color: #F9F9F9;
 }
-.dark .button:hover {
-	background: #555555;
+.dark .button:hover,
+.dark .tablist a.button:hover {
+	background: #636363;
 }
-
+.dark .button:active,
+.dark .tablist a.button:active {
+	background: #3A3A3A;
+}
+/*
 .dark .closebutton,
 .dark .minimizebutton,
 .dark button.subtle {
