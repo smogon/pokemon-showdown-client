@@ -906,3 +906,12 @@ button.subtle {
 button.subtle:hover {
 	text-decoration: underline;
 }
+.hidenicks span.battle-nickname,
+.hidenicks span.battle-nickname-foe {
+	font-size: 0;
+}
+.hidenicks span.battle-nickname::before,
+.hidenicks span.battle-nickname-foe::before{
+	content: attr(title);
+	font-size: 9pt;
+}

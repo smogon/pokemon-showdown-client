@@ -524,18 +524,21 @@ var Pokemon = (function () {
 			this.baseAbility = ability;
 		}
 	};
+	Pokemon.prototype.htmlName = function () {
+		return '<span class="battle-nickname' + (this.side.n === 0 ? '' : '-foe') + '" title="' + this.species + '">' + Tools.escapeHTML(this.name) + '</span>';
+	};
 	Pokemon.prototype.getName = function (shortName) {
 		if (this.side.n === 0) {
-			return Tools.escapeHTML(this.name);
+			return this.htmlName();
 		} else {
-			return (shortName ? "Opposing " : "The opposing ") + (this.side.battle.ignoreOpponent || this.side.battle.ignoreNicks ? this.species : Tools.escapeHTML(this.name));
+			return (shortName ? "Opposing " : "The opposing ") + this.htmlName();
 		}
 	};
 	Pokemon.prototype.getLowerName = function (shortName) {
 		if (this.side.n === 0) {
-			return Tools.escapeHTML(this.name);
+			return this.htmlName();
 		} else {
-			return (shortName ? "opposing " : "the opposing ") + (this.side.battle.ignoreOpponent || this.side.battle.ignoreNicks ? this.species : Tools.escapeHTML(this.name));
+			return (shortName ? "opposing " : "the opposing ") + this.htmlName();
 		}
 	};
 	Pokemon.prototype.getTitle = function () {
@@ -553,7 +556,7 @@ var Pokemon = (function () {
 			if (plaintext) {
 				name += ' (' + this.species + ')';
 			} else {
-				name += ' <small>(' + this.species + ')</small>';
+				name = '<span class="battle-nickname' + (this.side && this.side.n === 0 ? '' : '-foe') + '" title="' + this.species + '">' + name + ' <small>(' + this.species + ')</small>' + '</span>';
 			}
 		}
 		if (plaintext) {
@@ -2473,6 +2476,11 @@ var Battle = (function () {
 
 		if (this.mySide) this.mySide.reset();
 		if (this.yourSide) this.yourSide.reset();
+
+		if (this.ignoreNicks) {
+			var $log = $('.battle-log .inner');
+			if ($log.length) $log.addClass('hidenicks');
+		}
 
 		// activity queue state
 		this.animationDelay = 0;
