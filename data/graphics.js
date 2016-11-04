@@ -25465,7 +25465,7 @@ var BattleMoveAnims = {
 				time: 250
 			}, 'accel');
 			attacker.delay(1300);
-				attacker.anim({
+			attacker.anim({
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
