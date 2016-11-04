@@ -163,7 +163,8 @@
 					switch (args[0]) {
 					case 'trapped':
 						requestData.trapped = true;
-						this.battle.activityQueue.push('|message|' + pokemon.getName() + ' is trapped and cannot switch!');
+						var pokeName = pokemon.side.n === 0 ? Tools.escapeHTML(pokemon.name) : "The opposing " + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.species : Tools.escapeHTML(pokemon.name));
+						this.battle.activityQueue.push('|message|' + pokeName + ' is trapped and cannot switch!');
 						break;
 					case 'cant':
 						for (var i = 0; i < requestData.moves.length; i++) {
