@@ -4660,7 +4660,7 @@ var Battle = (function () {
 						actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
 					}
 					this.resultAnim(poke, args[3].split('/').map(function (type) {
-						return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />'
+						return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />';
 					}).join(' '), 'neutral');
 					break;
 				case 'typeadd':
