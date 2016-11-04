@@ -2202,12 +2202,16 @@
 				var privatebuf = '';
 				for (var i in data.rooms) {
 					if (i === 'global') continue;
+					var roomrank = '';
+					if (!/[A-Za-z0-9]/.test(i.charAt(0))) {
+						roomrank = '<small style="color: #888">' + i.charAt(0) + '</small>';
+					}
 					var roomid = toRoomid(i);
 					if (roomid.substr(0, 7) === 'battle-') {
 						var p1 = data.rooms[i].p1.substr(1);
 						var p2 = data.rooms[i].p2.substr(1);
 						var ownBattle = (ownUserid === toUserid(p1) || ownUserid === toUserid(p2));
-						var room = '<span title="' + (Tools.escapeHTML(p1) || '?') + ' v. ' + (Tools.escapeHTML(p2) || '?') + '"><a href="' + app.root + roomid + '" class="ilink' + ((ownBattle || app.rooms[i]) ? ' yours' : '') + '">' + roomid.substr(7) + '</a></span>';
+						var room = '<span title="' + (Tools.escapeHTML(p1) || '?') + ' v. ' + (Tools.escapeHTML(p2) || '?') + '">' + '<a href="' + app.root + roomid + '" class="ilink' + ((ownBattle || app.rooms[i]) ? ' yours' : '') + '">' + roomrank + roomid.substr(7) + '</a></span>';
 						if (data.rooms[i].isPrivate) {
 							if (!privatebuf) privatebuf = '<br /><em>Private rooms:</em> ';
 							else privatebuf += ', ';
@@ -2218,7 +2222,7 @@
 							battlebuf += room;
 						}
 					} else {
-						var room = '<a href="' + app.root + roomid + '" class="ilink' + (app.rooms[i] ? ' yours' : '') + '">' + roomid + '</a>';
+						var room = '<a href="' + app.root + roomid + '" class="ilink' + (app.rooms[i] ? ' yours' : '') + '">' + roomrank + roomid + '</a>';
 						if (data.rooms[i].isPrivate) {
 							if (!privatebuf) privatebuf = '<br /><em>Private rooms:</em> ';
 							else privatebuf += ', ';
