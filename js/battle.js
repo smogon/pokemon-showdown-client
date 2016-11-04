@@ -4659,7 +4659,9 @@ var Battle = (function () {
 					} else {
 						actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
 					}
-					this.resultAnim(poke, '<img src="' + Tools.resourcePrefix + 'sprites/types/' + args[3] + '.png" alt="' + args[3] + '" />', 'neutral');
+					this.resultAnim(poke, args[3].split('/').map(function (type) {
+						return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />'
+					}).join(' '), 'neutral');
 					break;
 				case 'typeadd':
 					args[3] = Tools.escapeHTML(args[3]);
