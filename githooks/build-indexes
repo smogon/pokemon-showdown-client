@@ -18,8 +18,6 @@ const Tools = require('../data/Pokemon-Showdown/tools');
 const toId = Tools.getId;
 process.stdout.write("Loading gen 6 data... ");
 Tools.includeData();
-process.stdout.write("Loading past gen data... ");
-Tools.includeMods();
 console.log("DONE");
 
 function es3stringify(obj) {
@@ -262,7 +260,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		for (const id of pokemon) {
 			const template = (() => {
 				if (gen === 'gen6') return Tools.getTemplate(id);
-				return Tools.mod(gen + 'ou').getTemplate(id);
+				return Tools.mod(gen).getTemplate(id);
 			})();
 			if (template.gen > genNum) continue;
 			const tier = (() => {
@@ -531,7 +529,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
 		}
 	}
-	const G2Learnsets = Tools.mod('gen2ou').data.Learnsets;
+	const G2Learnsets = Tools.mod('gen2').data.Learnsets;
 	for (const id in G2Learnsets) {
 		const learnset = G2Learnsets[id].learnset;
 		for (const moveid in learnset) {
@@ -549,8 +547,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 	for (const genNum of [5, 4, 3, 2, 1]) {
 		const gen = 'gen' + genNum;
-		const genData = Tools.mod(gen + 'ou').data;
-		const nextGenData = Tools.mod('gen' + (genNum + 1) + 'ou').data;
+		const genData = Tools.mod(gen).data;
+		const nextGenData = Tools.mod('gen' + (genNum + 1)).data;
 		const overrideStats = {};
 		BattleTeambuilderTable[gen].overrideStats = overrideStats;
 		for (const id in genData.Pokedex) {
