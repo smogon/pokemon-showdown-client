@@ -180,7 +180,7 @@ button:disabled {
 .dark .button,
 .dark .tabbar a.button {
 	background: #484848;
-  box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.25);
+	box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.25);
 	border-color: #A9A9A9;
 	text-shadow: none;
 	color: #F9F9F9;
