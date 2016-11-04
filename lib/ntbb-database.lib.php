@@ -24,7 +24,7 @@ class PSDatabase {
 	function connect() {
 		if (!$this->db) {
 			$this->db = new PDO(
-				"mysql:dbname={$this->database};host={$this->server}",
+				"mysql:dbname={$this->database};host={$this->server};charset={$this->charset}",
 				$this->username,
 				$this->password
 			);
