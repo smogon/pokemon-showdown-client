@@ -280,7 +280,7 @@
 }
 
 .utilichart .sortrow {
-	background: #CCC;
+	background: #D0D0D0;
 	border-bottom: 1px solid #888;
 	height: 20px;
 	color: black;
@@ -299,10 +299,15 @@
 }
 .utilichart .sortcol.cur {
 	font-weight: bold;
-	background: #DDD;
+	background: #E0E0E0;
 }
 .utilichart .sortcol:hover {
-	background: #EEE;
+	background: #F0F0F0;
+}
+.utilichart .sortcol.numsortcol.cur,
+.utilichart .sortcol.numsortcol.cur:hover {
+	background: #D0D0D0;
+	cursor: default;
 }
 .utilichart .numsortcol {
 	width: 80px;
