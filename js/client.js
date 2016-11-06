@@ -2204,7 +2204,7 @@
 					if (i === 'global') continue;
 					var roomrank = '';
 					if (!/[A-Za-z0-9]/.test(i.charAt(0))) {
-						roomrank = '<small style="color: #888">' + i.charAt(0) + '</small>';
+						roomrank = '<small style="color: #888; font-size: 100%">' + i.charAt(0) + '</small>';
 					}
 					var roomid = toRoomid(i);
 					if (roomid.substr(0, 7) === 'battle-') {
