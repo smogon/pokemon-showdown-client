@@ -710,11 +710,65 @@
 			} else {
 				buf += '<p class="timer"><button name="setTimer" value="on"><small>' + "Start timer" + '</small></button></p>';
 			}
+			buf += this.showPlayerChoices();
 			this.$controls.html(
 				'<div class="controls" style="height:130px">' +
 				buf +
 				'</div>'
 			);
+		},
+
+		showPlayerChoices: function () {
+			if (!this.choice || !this.choice.waiting) return '';
+
+			var buf = '<p>';
+			if (this.choice.teamPreview) {
+				var myPokemon = this.battle.mySide.pokemon;
+				var leads = [];
+				for (var i = 0; i < this.choice.count; i++) {
+					leads.push(Tools.getSpecies(myPokemon[this.choice.teamPreview[i] - 1]));
+				}
+				buf += leads.join(', ') + ' will be sent out first.</p>';
+				return buf;
+			}
+			var myActive = this.battle.mySide.active;
+			for (var i = 0; i < this.choice.choices.length; i++) {
+				var parts = this.choice.choices[i].split(' ');
+				switch (parts[0]) {
+				case 'move':
+					var move = this.request.active[i].moves[parts[1] - 1].move;
+					var target = '';
+					buf += Tools.getSpecies(myActive[i]) + ' will ';
+					if (parts.length > 2) {
+						if (parts[2] === 'mega') {
+							buf += 'mega evolve, then ';
+						}
+						var index = parts.length > 3 ? parts[3] : parts[2];
+						var targetActive = this.battle.yourSide.active;
+						// Targeting your own side in doubles / triples
+						if (index < 0) {
+							targetActive = myActive;
+							index = -index;
+							target += 'your ';
+						}
+						target += Tools.getSpecies(targetActive[index - 1]);
+					}
+					buf += 'use ' + move + (target ? ' against ' + target : '') + '.<br />';
+					break;
+				case 'switch':
+					buf += this.battle.mySide.pokemon[parts[1] - 1].species + ' will switch in';
+					if (myActive[i]) {
+						buf += ' over ' + Tools.getSpecies(myActive[i]);
+					}
+					buf += '.<br />';
+					break;
+				case 'shift':
+					buf += Tools.getSpecies(myActive[i]) + ' will shift position.<br />';
+					break;
+				}
+			}
+			buf += '</p>';
+			return buf;
 		},
 
 		decide: function (message) {
@@ -1040,7 +1094,7 @@
 			}
 			this.closeNotification('choice');
 
-			this.choice = {waiting: true};
+			this.choice.waiting = true;
 			this.updateControlsForPlayer();
 		},
 		undoChoice: function (pos) {
