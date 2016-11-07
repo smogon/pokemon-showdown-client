@@ -376,27 +376,23 @@
 			this.topbar = new Topbar({el: $('#header')});
 			if (this.down) {
 				this.isDisconnected = true;
-			} else if ($(window).width() >= 916) {
-				if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
-					this.addRoom('rooms', null, true);
-					Storage.whenPrefsLoaded(function () {
-						var autojoin = (Tools.prefs('autojoin') || '');
-						var autojoinIds = [];
-						if (autojoin) {
-							var autojoins = autojoin.split(',');
-							var roomid;
-							for (var i = 0; i < autojoins.length; i++) {
-								roomid = toRoomid(autojoins[i]);
-								app.addRoom(roomid, null, true, autojoins[i]);
-								if (roomid !== 'staff' && roomid !== 'upperstaff') autojoinIds.push(roomid);
-							}
+			} else if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
+				this.addRoom('rooms', null, true);
+				Storage.whenPrefsLoaded(function () {
+					var autojoin = (Tools.prefs('autojoin') || '');
+					if (autojoin) {
+						var autojoins = autojoin.split(',');
+						for (var i = 0; i < autojoins.length; i++) {
+							var roomid = toRoomid(autojoins[i]);
+							app.addRoom(roomid, null, true, autojoins[i]);
+							if (roomid !== 'staff' && roomid !== 'upperstaff') autojoins[i] = roomid;
 						}
-						app.send('/autojoin ' + autojoinIds.join(','));
-					});
-				} else {
-					this.addRoom('lobby', null, true);
-					this.send('/autojoin');
-				}
+					}
+					app.send('/autojoin ' + autojoins.join(','));
+				});
+			} else {
+				this.addRoom('lobby', null, true);
+				this.send('/autojoin');
 			}
 
 			var self = this;
