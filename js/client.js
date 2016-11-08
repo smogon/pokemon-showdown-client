@@ -380,15 +380,16 @@
 				this.addRoom('rooms', null, true);
 				Storage.whenPrefsLoaded(function () {
 					var autojoin = (Tools.prefs('autojoin') || '');
+					var autojoinIds = [];
 					if (autojoin) {
 						var autojoins = autojoin.split(',');
 						for (var i = 0; i < autojoins.length; i++) {
 							var roomid = toRoomid(autojoins[i]);
 							app.addRoom(roomid, null, true, autojoins[i]);
-							if (roomid !== 'staff' && roomid !== 'upperstaff') autojoins[i] = roomid;
+							if (roomid !== 'staff' && roomid !== 'upperstaff') autojoinIds.push(roomid);
 						}
 					}
-					app.send('/autojoin ' + autojoins.join(','));
+					app.send('/autojoin ' + autojoinIds.join(','));
 				});
 			} else {
 				this.addRoom('lobby', null, true);
