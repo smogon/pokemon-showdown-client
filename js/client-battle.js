@@ -726,7 +726,7 @@
 				var myPokemon = this.battle.mySide.pokemon;
 				var leads = [];
 				for (var i = 0; i < this.choice.count; i++) {
-					leads.push(Tools.getSpecies(myPokemon[this.choice.teamPreview[i] - 1]));
+					leads.push(myPokemon[this.choice.teamPreview[i] - 1].species);
 				}
 				buf += leads.join(', ') + ' will be sent out first.</p>';
 				return buf;
@@ -738,7 +738,7 @@
 				case 'move':
 					var move = this.request.active[i].moves[parts[1] - 1].move;
 					var target = '';
-					buf += Tools.getSpecies(myActive[i]) + ' will ';
+					buf += myActive[i].species + ' will ';
 					if (parts.length > 2) {
 						var targetPos = parts[2];
 						if (targetPos === 'mega') {
@@ -753,20 +753,20 @@
 								targetPos = -targetPos;
 								target += 'your ';
 							}
-							target += Tools.getSpecies(targetActive[targetPos - 1]);
+							target += targetActive[targetPos - 1].species;
 						}
 					}
 					buf += 'use ' + move + (target ? ' against ' + target : '') + '.<br />';
 					break;
 				case 'switch':
-					buf += this.battle.mySide.pokemon[parts[1] - 1].species + ' will switch in';
+					buf += this.myPokemon[parts[1] - 1].species + ' will switch in';
 					if (myActive[i]) {
-						buf += ' over ' + Tools.getSpecies(myActive[i]);
+						buf += ' over ' + myActive[i].species;
 					}
 					buf += '.<br />';
 					break;
 				case 'shift':
-					buf += Tools.getSpecies(myActive[i]) + ' will shift position.<br />';
+					buf += myActive[i].species + ' will shift position.<br />';
 					break;
 				}
 			}
