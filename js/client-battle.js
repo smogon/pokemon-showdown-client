@@ -740,18 +740,21 @@
 					var target = '';
 					buf += Tools.getSpecies(myActive[i]) + ' will ';
 					if (parts.length > 2) {
-						if (parts[2] === 'mega') {
+						var targetPos = parts[2];
+						if (targetPos === 'mega') {
 							buf += 'mega evolve, then ';
+							targetPos = parts[3];
 						}
-						var index = parts.length > 3 ? parts[3] : parts[2];
-						var targetActive = this.battle.yourSide.active;
-						// Targeting your own side in doubles / triples
-						if (index < 0) {
-							targetActive = myActive;
-							index = -index;
-							target += 'your ';
+						if (targetPos) {
+							var targetActive = this.battle.yourSide.active;
+							// Targeting your own side in doubles / triples
+							if (targetPos < 0) {
+								targetActive = myActive;
+								targetPos = -targetPos;
+								target += 'your ';
+							}
+							target += Tools.getSpecies(targetActive[targetPos - 1]);
 						}
-						target += Tools.getSpecies(targetActive[index - 1]);
 					}
 					buf += 'use ' + move + (target ? ' against ' + target : '') + '.<br />';
 					break;
