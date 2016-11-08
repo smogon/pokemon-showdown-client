@@ -1750,6 +1750,25 @@ a.ilink.yours {
 	max-width: 330px;
 	margin: 0 auto;
 }
+.timerbutton {
+	float: right;
+}
+.timerbutton-on,
+.timerbutton-on:hover {
+	color: #992222;
+	border-color: #992222;
+}
+.timerbutton-on:hover {
+	border-color: #661111;
+}
+.timerbutton-critical,
+.timerbutton-critical:hover {
+	color: #ffffff;
+	font-weight: bold;
+	border-color: #BB2222;
+	background: #BB2222;
+	text-shadow: none;
+}
 
 .battle-controls p {
 	margin: 2px 0 8px 0;
@@ -1762,7 +1781,6 @@ a.ilink.yours {
 	color: #555555;
 }
 .battle-controls .whatdo small {
-	float: right;
 	padding: 1px 2px;
 	border: 1px solid #999999;
 	border-radius: 4px;
@@ -1829,6 +1847,7 @@ a.ilink.yours {
 	display: block;
 	float: left;
 	width: 102px;
+	height: 30px;
 	margin-right: 4px;
 	font: 9pt Verdana, sans-serif;
 	padding: 5px 5px 5px 0;
