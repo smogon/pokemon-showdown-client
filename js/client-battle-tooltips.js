@@ -709,8 +709,10 @@ var BattleTooltips = (function () {
 		var statText = '';
 		if (myPokemon.stats[statName] === modifiedStats[statName]) {
 			statText += '' + modifiedStats[statName];
+		} else if (myPokemon.stats[statName] > modifiedStats[statName]) {
+			statText += '<b class="stat-lowered">' + modifiedStats[statName] + '</b>';
 		} else {
-			statText += '<b>' + modifiedStats[statName] + '</b>';
+			statText += '<b class="stat-boosted">' + modifiedStats[statName] + '</b>';
 		}
 		return statText;
 	};

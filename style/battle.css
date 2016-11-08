@@ -789,6 +789,13 @@ License: GPLv2
 	background: #333;
 	color: #DDD;
 }
+.stat-boosted {
+	color: #119911;
+}
+.stat-lowered {
+	color: #991111;
+	font-weight: normal;
+}
 .battle-log .rated {
 	padding: 3px 4px;
 }
