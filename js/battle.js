@@ -6134,8 +6134,20 @@ var Battle = (function () {
 			this.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + Tools.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
 			break;
 		case 'inactive':
-			this.kickingInactive = true;
+			if (!this.kickingInactive) this.kickingInactive = true;
 			args.shift();
+			if (args[0].slice(0, 9) === "You have ") {
+				// this is ugly but parseInt is documented to work this way
+				// so I'm going to be lazy and not chop off the rest of the
+				// sentence
+				this.kickingInactive = parseInt(args[0].slice(9), 10) || true;
+				return;
+			} else if (args[0].slice(-14) === ' seconds left.') {
+				var hasIndex = args[0].indexOf(' has ');
+				if (toId(args[0].slice(0, hasIndex)) === app.user.get('userid')) {
+					this.kickingInactive = parseInt(args[0].slice(hasIndex + 5), 10) || true;
+				}
+			}
 			this.log('<div class="chat message-error">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
 			break;
 		case 'inactiveoff':

@@ -125,10 +125,10 @@
 				var choiceData = {offset: 0};
 				var requestData = null;
 				data = data.slice(9);
-				if (!isNaN(data.substr(0, 1)) && data.substr(1, 1) === '|') {
+				if (!isNaN(data.charAt(0)) && data.charAt(1) === '|') {
 					var nlIndex = data.indexOf('\n');
 					if (nlIndex >= 0) {
-						choiceData.offset = +data.substr(0, 1);
+						choiceData.offset = +data.charAt(0);
 						try {
 							$.extend(choiceData, $.parseJSON(data.slice(2, nlIndex)));
 						} catch (err) {}
@@ -207,7 +207,7 @@
 		 * Battle stuff
 		 *********************************************************/
 
-		updateControls: function () {
+		updateControls: function (force) {
 			if (this.$join) {
 				this.$join.remove();
 				this.$join = null;
@@ -225,11 +225,11 @@
 			} else if (this.battle.playbackState === 2 || this.battle.playbackState === 3) {
 
 				// battle is playing or paused
-				if (this.side) {
+				if (this.side && !this.battleEnded) {
 					// is a player
-					this.$controls.html('<p><button name="skipTurn">Skip turn <i class="fa fa-step-forward"></i></button><button name="goToEnd">Go to last turn <i class="fa fa-fast-forward"></i></button></p>');
+					this.$controls.html('<p>' + this.getTimerHTML() + '<button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>');
 				} else {
-					this.$controls.html('<p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button> <button name="skipTurn">Skip turn <i class="fa fa-step-forward"></i></button> <button name="goToEnd">Go to last turn <i class="fa fa-fast-forward"></i></button></p>');
+					this.$controls.html('<p><button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p>');
 				}
 				return;
 
@@ -243,48 +243,33 @@
 				if (this.side) {
 					// was a player
 					this.closeNotification('choice');
-					this.$controls.html('<div class="controls"><p>' + replayDownloadButton + '<em><button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button></p><p><button name="closeAndMainMenu"><strong>Main menu</strong><br /><small>(closes this battle)</small></button> <button name="closeAndRematch"><strong>Rematch</strong><br /><small>(closes this battle)</small></button></p></div>');
+					this.$controls.html('<div class="controls"><p>' + replayDownloadButton + '<button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />Instant replay</button></p><p><button class="button" name="closeAndMainMenu"><strong>Main menu</strong><br /><small>(closes this battle)</small></button> <button class="button" name="closeAndRematch"><strong>Rematch</strong><br /><small>(closes this battle)</small></button></p></div>');
 				} else {
-					this.$controls.html('<div class="controls"><p>' + replayDownloadButton + '<em><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button> <button name="instantReplay"><i class="fa fa-undo"></i> Instant Replay</button></p></div>');
-				}
-
-			} else if (!this.battle.mySide.initialized || !this.battle.yourSide.initialized) {
-
-				// empty battle
-
-				if (this.side) {
-					if (this.battle.kickingInactive) {
-						this.$controls.html('<div class="controls"><p><button name="setTimer" value="off"><small>Stop timer</small></button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p></div>');
-					} else {
-						this.$controls.html('<div class="controls"><p><button name="setTimer" value="on"><small>Claim victory</small></button> <small>&larr; Your opponent has disconnected. Click this if they don\'t reconnect.</small></p></div>');
-					}
-				} else {
-					this.$controls.html('<p><em>Waiting for players...</em></p>');
-					this.$join = $('<div class="playbutton"><button name="joinBattle">Join Battle</button></div>');
-					this.$battle.append(this.$join);
+					this.$controls.html('<div class="controls"><p>' + replayDownloadButton + '<button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />Instant replay</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p></div>');
 				}
 
 			} else if (this.side) {
 
 				// player
-				if (!this.request) {
-					if (this.battle.kickingInactive) {
-						this.$controls.html('<div class="controls"><p><button name="setTimer" value="off"><small>Stop timer</small></button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p></div>');
-					} else {
-						this.$controls.html('<div class="controls"><p><button name="setTimer" value="on"><small>Claim victory</small></button> <small>&larr; Your opponent has disconnected. Click this if they don\'t reconnect.</small></p></div>');
-					}
+				this.controlsShown = true;
+				if (force || !controlsShown || typeof this.choice === 'undefined' || this.choice && this.choice.waiting) {
+					// don't update controls (and, therefore, side) if `this.choice === null`: causes damage miscalculations
+					this.updateControlsForPlayer();
 				} else {
-					this.controlsShown = true;
-					if (!controlsShown || typeof this.choice === 'undefined' || this.choice && this.choice.waiting) {
-						// don't update controls (and, therefore, side) if `this.choice === null`: causes damage miscalculations
-						this.updateControlsForPlayer();
-					}
+					this.updateTimer();
 				}
+
+			} else if (!this.battle.mySide.initialized || !this.battle.yourSide.initialized) {
+
+				// empty battle
+				this.$controls.html('<p><em>Waiting for players...</em></p>');
+				this.$join = $('<div class="playbutton"><button name="joinBattle">Join Battle</button></div>');
+				this.$battle.append(this.$join);
 
 			} else {
 
 				// full battle
-				this.$controls.html('<p><em><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button> Waiting for players...</em></p>');
+				this.$controls.html('<p><button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button disabled" disabled><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button disabled" disabled><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p><p><em>Waiting for players...</em></p>');
 
 			}
 
@@ -418,6 +403,30 @@
 				break;
 			}
 		},
+		getTimerHTML: function () {
+			var time = 'Timer';
+			var timerTicking = (this.battle.kickingInactive && this.request && !this.request.wait && !(this.choice && this.choice.waiting)) ? ' timerbutton-on' : '';
+			if (this.battle.kickingInactive) {
+				var secondsLeft = this.battle.kickingInactive;
+				if (secondsLeft !== true) {
+					if (secondsLeft <= 10 && timerTicking) {
+						timerTicking = ' timerbutton-critical';
+					}
+					var minutesLeft = Math.floor(secondsLeft / 60);
+					secondsLeft -= minutesLeft * 60;
+					time = '' + minutesLeft + ':' + (secondsLeft < 10 ? '0' : '') + secondsLeft;
+				} else {
+					time = '-:--';
+				}
+			}
+			return '<button name="openTimer" class="button timerbutton' + timerTicking + '"><i class="fa fa-hourglass-start"></i> ' + time + '</button>';
+		},
+		updateTimer: function () {
+			this.$('.timerbutton').replaceWith(this.getTimerHTML());
+		},
+		openTimer: function () {
+			app.addPopup(TimerPopup, {room: this});
+		},
 		updateMoveControls: function (type) {
 			var preDecided = this.choice.preDecided;
 			var switchables = this.request && this.request.side ? this.myPokemon : [];
@@ -432,7 +441,6 @@
 			var pos = this.choice.choices.length - (type === 'movetarget' ? 1 : 0);
 
 			var hpRatio = switchables[pos].hp / switchables[pos].maxhp;
-			var hpBar = '<small class="' + (hpRatio < 0.2 ? 'critical' : hpRatio < 0.5 ? 'weak' : 'healthy') + '">' + switchables[pos].hp + '/' + switchables[pos].maxhp + '</small>';
 
 			var curActive = this.request && this.request.active && this.request.active[pos];
 			if (!curActive) return;
@@ -456,7 +464,7 @@
 
 			// Target selector
 			if (type === 'movetarget') {
-				requestTitle += 'At who? ' + hpBar;
+				requestTitle += 'At who? ' + this.getTimerHTML();
 
 				var targetMenus = ['', ''];
 				var myActive = this.battle.mySide.active;
@@ -474,7 +482,7 @@
 					}
 
 					if (disabled) {
-						targetMenus[0] += '<button disabled="disabled" style="visibility:hidden"></button> ';
+						targetMenus[0] += '<button disabled="disabled"></button> ';
 					} else if (!pokemon || pokemon.zerohp) {
 						targetMenus[0] += '<button class="disabled" name="chooseMoveTarget" value="' + (i + 1) + '"><span class="picon" style="' + Tools.getPokemonIcon('missingno') + '"></span></button> ';
 					} else {
@@ -510,7 +518,8 @@
 				);
 			} else {
 				// Move chooser
-				requestTitle += ' What will <strong>' + Tools.escapeHTML(switchables[pos].name) + '</strong> do? ' + hpBar + '';
+				var hpBar = '<small class="' + (hpRatio < 0.2 ? 'critical' : hpRatio < 0.5 ? 'weak' : 'healthy') + '">HP ' + switchables[pos].hp + '/' + switchables[pos].maxhp + '</small>';
+				requestTitle += ' What will <strong>' + Tools.escapeHTML(switchables[pos].name) + '</strong> do? ' + hpBar + this.getTimerHTML();
 
 				var hasMoves = false;
 				var moveMenu = '';
@@ -700,77 +709,77 @@
 			this.selectSwitch();
 		},
 		updateWaitControls: function () {
-			var buf = '<p><em>' + "Waiting for opponent..." + '</em> ';
-			if (this.choice && this.choice.waiting && !this.finalDecision) {
-				buf += '<button name="undoChoice">' + "Cancel" + '</button>';
+			var buf = '<div class="controls">';
+			buf += this.getPlayerChoicesHTML();
+			if (!this.battle.mySide.initialized || !this.battle.yourSide.initialized || !this.request) {
+				if (this.battle.kickingInactive) {
+					buf += '<p><button class="button" name="setTimer" value="off">Stop timer</button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p>';
+				} else {
+					buf += '<p><button class="button" name="setTimer" value="on">Claim victory</button> <small>&larr; Your opponent has disconnected. Click this if they don\'t reconnect.</small></p>';
+				}
 			}
-			buf += '</p>';
-			if (this.battle.kickingInactive) {
-				buf += '<p class="timer"><button name="setTimer" value="off"><small>' + "Stop timer" + '</small></button></p>';
-			} else {
-				buf += '<p class="timer"><button name="setTimer" value="on"><small>' + "Start timer" + '</small></button></p>';
-			}
-			buf += this.showPlayerChoices();
-			this.$controls.html(
-				'<div class="controls" style="height:130px">' +
-				buf +
-				'</div>'
-			);
+			this.$controls.html(buf + '</div>');
 		},
 
-		showPlayerChoices: function () {
-			if (!this.choice || !this.choice.waiting) return '';
+		getPlayerChoicesHTML: function () {
+			var buf = '<p>' + this.getTimerHTML();
+			if (!this.choice || !this.choice.waiting) {
+				return buf + '<em>Waiting for opponent...</em></p>';
+			}
+			buf += '<small>';
 
-			var buf = '<p>';
 			if (this.choice.teamPreview) {
 				var myPokemon = this.battle.mySide.pokemon;
 				var leads = [];
 				for (var i = 0; i < this.choice.count; i++) {
 					leads.push(myPokemon[this.choice.teamPreview[i] - 1].species);
 				}
-				buf += leads.join(', ') + ' will be sent out first.</p>';
-				return buf;
-			}
-			var myActive = this.battle.mySide.active;
-			for (var i = 0; i < this.choice.choices.length; i++) {
-				var parts = this.choice.choices[i].split(' ');
-				switch (parts[0]) {
-				case 'move':
-					var move = this.request.active[i].moves[parts[1] - 1].move;
-					var target = '';
-					buf += myActive[i].species + ' will ';
-					if (parts.length > 2) {
-						var targetPos = parts[2];
-						if (targetPos === 'mega') {
-							buf += 'mega evolve, then ';
-							targetPos = parts[3];
-						}
-						if (targetPos) {
-							var targetActive = this.battle.yourSide.active;
-							// Targeting your own side in doubles / triples
-							if (targetPos < 0) {
-								targetActive = myActive;
-								targetPos = -targetPos;
-								target += 'your ';
+				buf += leads.join(', ') + ' will be sent out first.<br />';
+			} else if (this.choice.choices) {
+				var myActive = this.battle.mySide.active;
+				for (var i = 0; i < this.choice.choices.length; i++) {
+					var parts = this.choice.choices[i].split(' ');
+					switch (parts[0]) {
+					case 'move':
+						var move = this.request.active[i].moves[parts[1] - 1].move;
+						var target = '';
+						buf += myActive[i].species + ' will ';
+						if (parts.length > 2) {
+							var targetPos = parts[2];
+							if (targetPos === 'mega') {
+								buf += 'mega evolve, then ';
+								targetPos = parts[3];
 							}
-							target += targetActive[targetPos - 1].species;
+							if (targetPos) {
+								var targetActive = this.battle.yourSide.active;
+								// Targeting your own side in doubles / triples
+								if (targetPos < 0) {
+									targetActive = myActive;
+									targetPos = -targetPos;
+									target += 'your ';
+								}
+								target += targetActive[targetPos - 1].species;
+							}
 						}
+						buf += 'use ' + move + (target ? ' against ' + target : '') + '.<br />';
+						break;
+					case 'switch':
+						buf += '' + this.myPokemon[parts[1] - 1].species + ' will switch in';
+						if (myActive[i]) {
+							buf += ', replacing ' + myActive[i].species;
+						}
+						buf += '.<br />';
+						break;
+					case 'shift':
+						buf += myActive[i].species + ' will shift position.<br />';
+						break;
 					}
-					buf += 'use ' + move + (target ? ' against ' + target : '') + '.<br />';
-					break;
-				case 'switch':
-					buf += this.myPokemon[parts[1] - 1].species + ' will switch in';
-					if (myActive[i]) {
-						buf += ' over ' + myActive[i].species;
-					}
-					buf += '.<br />';
-					break;
-				case 'shift':
-					buf += myActive[i].species + ' will shift position.<br />';
-					break;
 				}
 			}
-			buf += '</p>';
+			buf += '</small></p>';
+			if (!this.finalDecision) {
+				buf += '<p><small><em>Waiting for opponent...</em></small> <button class="button" name="undoChoice">Cancel</button></p>';
+			}
 			return buf;
 		},
 
@@ -807,7 +816,7 @@
 				request.requestType = 'wait';
 			}
 
-			this.choice = null;
+			this.choice = (choiceData && choiceData.offset ? {waiting: true} : null);
 			this.choiceData = choiceData;
 			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = false;
 			this.request = request;
@@ -815,7 +824,7 @@
 				this.updateSideLocation(request.side, true);
 			}
 			this.notifyRequest();
-			this.updateControls();
+			this.updateControls(true);
 		},
 		notifyRequest: function () {
 			var oName = this.battle.yourSide.name;
@@ -899,6 +908,12 @@
 		},
 		skipTurn: function () {
 			this.battle.skipTurn();
+		},
+		rewindTurn: function () {
+			if (this.battle.turn) {
+				this.battle.fastForwardTo(this.battle.turn - 1);
+				this.battle.play();
+			}
 		},
 		goToEnd: function () {
 			this.battle.fastForwardTo(-1);
@@ -1104,11 +1119,11 @@
 			this.send('/undo');
 			this.notifyRequest();
 
-			this.choice = null;
-			this.updateControlsForPlayer();
+			this.clearChoice();
 		},
 		clearChoice: function () {
 			this.choice = null;
+			this.choiceData = {offset: 0};
 			this.updateControlsForPlayer();
 		},
 		leaveBattle: function () {
@@ -1223,6 +1238,25 @@
 			}
 			side.updateSidebar();
 		},
+	});
+
+	var TimerPopup = this.TimerPopup = Popup.extend({
+		initialize: function (data) {
+			this.room = data.room;
+			if (this.room.battle.kickingInactive) {
+				this.$el.html('<p><button name="timerOff"><strong>Stop timer</strong></button></p>');
+			} else {
+				this.$el.html('<p><button name="timerOn"><strong>Start timer</strong></button></p>');
+			}
+		},
+		timerOff: function () {
+			this.room.setTimer('off');
+			this.close();
+		},
+		timerOn: function () {
+			this.room.setTimer('on');
+			this.close();
+		}
 	});
 
 }).call(this, jQuery);
