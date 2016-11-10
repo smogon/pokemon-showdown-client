@@ -225,11 +225,14 @@
 			} else if (this.battle.playbackState === 2 || this.battle.playbackState === 3) {
 
 				// battle is playing or paused
-				if (this.side && !this.battleEnded) {
+				if (!this.side) {
+					// spectator
+					this.$controls.html('<p><button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p>');
+				} else if (this.battleEnded) {
+					this.$controls.html('<p><button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>');
+				} else {
 					// is a player
 					this.$controls.html('<p>' + this.getTimerHTML() + '<button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>');
-				} else {
-					this.$controls.html('<p><button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p>');
 				}
 				return;
 
@@ -403,9 +406,27 @@
 				break;
 			}
 		},
-		getTimerHTML: function () {
+		timerInterval: 0,
+		getTimerHTML: function (nextTick) {
 			var time = 'Timer';
 			var timerTicking = (this.battle.kickingInactive && this.request && !this.request.wait && !(this.choice && this.choice.waiting)) ? ' timerbutton-on' : '';
+
+			if (!nextTick) {
+				var self = this;
+				if (this.timerInterval) clearInterval(this.timerInterval);
+				this.timerInterval = timerTicking && setInterval(function () {
+					var $timerButton = self.$('.timerbutton');
+					if ($timerButton.length) {
+						$timerButton.replaceWith(self.getTimerHTML(true));
+					} else {
+						clearInterval(self.timerInterval);
+						self.timerInterval = 0;
+					}
+				}, 1000);
+			} else if (this.battle.kickingInactive > 1) {
+				this.battle.kickingInactive--;
+			}
+
 			if (this.battle.kickingInactive) {
 				var secondsLeft = this.battle.kickingInactive;
 				if (secondsLeft !== true) {
