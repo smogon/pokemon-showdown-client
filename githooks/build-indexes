@@ -50,6 +50,12 @@ function requireNoCache(pathSpec) {
 	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toId(x) + ' egggroup'));
 	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'lc', 'nfe', 'uber', 'bl', 'bl2', 'bl3', 'bl4', 'cap'].map(x => toId(x) + ' tier'));
 
+	for (const file of fs.readdirSync(path.resolve(rootDir, '../dex.pokemonshowdown.com/articles/'))) {
+		if (file.endsWith('.md')) {
+			index.push('' + file.slice(0, -3) + ' article');
+		}
+	}
+
 	// generate aliases
 	function generateAlias(id, name, type) {
 		let i = name.lastIndexOf(' ');
