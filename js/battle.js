@@ -4814,7 +4814,11 @@ var Battle = (function () {
 					break;
 				case 'focusenergy':
 					this.resultAnim(poke, '+Crit rate', 'good');
-					actions += "" + poke.getName() + " is getting pumped!";
+					if (fromeffect.effectType === 'Item') {
+						actions += "" + poke.getName() + " used the " + fromeffect.name + " to get pumped!";
+					} else {
+						actions += "" + poke.getName() + " is getting pumped!";
+					}
 					break;
 				case 'curse':
 					this.resultAnim(poke, 'Cursed', 'bad');
@@ -4915,7 +4919,7 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Confusion&nbsp;ended', 'good');
 					if (!kwargs.silent) {
 						if (fromeffect.effectType === 'Item') {
-							actions += "" + poke.getName() + "'s " + fromeffect.name + " snapped out of its confusion!";
+							actions += "" + poke.getName() + "'s " + fromeffect.name + " snapped it out of its confusion!";
 							break;
 						}
 						if (poke.side.n === 0) actions += "" + poke.getName() + " snapped out of its confusion.";
