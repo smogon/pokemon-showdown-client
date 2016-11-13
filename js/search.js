@@ -30,6 +30,7 @@
 		this.sortCol = null;
 		this.renderedIndex = 0;
 		this.renderingDone = true;
+		this.externalFilter = false;
 		this.cur = {};
 		this.$inputEl = null;
 		this.gen = 6;
@@ -41,17 +42,7 @@
 		});
 		this.$el.on('click', '.filter', function (e) {
 			e.preventDefault();
-			if (!self.filters) return;
-			// delete filter
-			for (var i = 0; i < self.filters.length; i++) {
-				if (e.currentTarget.value === self.filters[i].join(':')) {
-					self.filters.splice(i, 1);
-					if (!self.filters.length) self.filters = null;
-					self.q = undefined;
-					self.find('');
-					break;
-				}
-			}
+			self.removeFilter(e);
 			if (self.$inputEl) self.$inputEl.focus();
 		});
 		this.$el.on('click', '.sortcol', function (e) {
@@ -84,7 +75,8 @@
 		item: 5,
 		ability: 6,
 		egggroup: 7,
-		category: 8
+		category: 8,
+		article: 9
 	};
 	var typeName = {
 		pokemon: 'Pok&eacute;mon',
@@ -94,7 +86,8 @@
 		item: 'Items',
 		ability: 'Abilities',
 		egggroup: 'Egg group',
-		category: 'Category'
+		category: 'Category',
+		article: 'Article'
 	};
 	Search.prototype.find = function (query) {
 		query = toId(query);
@@ -204,7 +197,7 @@
 
 		// Notes:
 		// - if we have a qType, that qType's buffer will be on top
-		var bufs = [[], [], [], [], [], [], [], [], []];
+		var bufs = [[], [], [], [], [], [], [], [], [], []];
 		var topbufIndex = -1;
 
 		var count = 0;
@@ -321,7 +314,7 @@
 
 		var topbuf = [];
 		if (nearMatch) topbuf = [['html', '<p><em>No exact match found. The closest matches alphabetically are:</em></p></li>']];
-		if (this.filters) {
+		if (this.filters && !this.externalFilter) {
 			topbuf.push(['html', this.getFilterText(1)]);
 		}
 		if (topbufIndex >= 0) {
@@ -423,8 +416,21 @@
 			return true;
 		}
 	};
-	Search.prototype.removeFilter = function () {
+	Search.prototype.removeFilter = function (e) {
 		if (!this.filters) return;
+		if (e) {
+			// delete filter
+			for (var i = 0; i < this.filters.length; i++) {
+				if (e.currentTarget.value === this.filters[i].join(':')) {
+					this.filters.splice(i, 1);
+					if (!this.filters.length) this.filters = null;
+					this.q = undefined;
+					this.find('');
+					break;
+				}
+			}
+			return;
+		}
 		this.filters.pop();
 		if (!this.filters.length) this.filters = null;
 		this.q = undefined;
@@ -535,7 +541,10 @@
 		var sortCol = this.sortCol;
 
 		this.resultSet = [['sortpokemon', '']];
-		if (filters.length) this.resultSet.push(['html', this.getFilterText()], ['header', "Filtered results"]);
+		if (filters.length) {
+			if (!this.externalFilter) this.resultSet.push(['html', this.getFilterText()]);
+			this.resultSet.push(['header', "Filtered results"]);
+		}
 		if (sortCol === 'type') {
 			return this.allTypes(this.resultSet);
 		} else if (sortCol === 'ability') {
@@ -619,7 +628,10 @@
 		var sortCol = this.sortCol;
 
 		this.resultSet = [['sortmove', '']];
-		if (filters.length) this.resultSet.push(['html', this.getFilterText()], ['header', "Filtered results"]);
+		if (filters.length) {
+			if (!this.externalFilter) this.resultSet.push(['html', this.getFilterText()]);
+			this.resultSet.push(['header', "Filtered results"]);
+		}
 		if (sortCol === 'type') {
 			return this.allTypes(this.resultSet);
 		} else if (sortCol === 'category') {
@@ -1028,8 +1040,11 @@
 			var tier = {name: tierTable[id]};
 			return this.renderTierRow(tier, matchStart, matchLength, errorMessage);
 		case 'category':
-			var category = {name: id[0].toUpperCase() + id.substr(1)};
+			var category = {name: id[0].toUpperCase() + id.substr(1), id: id};
 			return this.renderCategoryRow(category, matchStart, matchLength, errorMessage);
+		case 'article':
+			var article = {name: id[0].toUpperCase() + id.substr(1), id: id};
+			return this.renderArticleRow(article, matchStart, matchLength, errorMessage);
 		}
 		return 'Error: not found';
 	};
@@ -1101,21 +1116,13 @@
 			return buf;
 		}
 
+		var gen = this.gen;
+		var table = (gen < 6 ? BattleTeambuilderTable['gen' + gen] : null);
+
 		// type
 		buf += '<span class="col typecol">';
 		var types = pokemon.types;
-		var gen = this.gen;
-		if (gen < 5 && pokemon.baseSpecies === 'Rotom') {
-			types = ["Electric", "Ghost"];
-		} else if (gen < 2 && types[1] === 'Steel') {
-			types = [types[0]];
-		} else if (gen < 6 && types[0] === 'Fairy' && types.length > 1) {
-			types = ['Normal', types[1]];
-		} else if (gen < 6 && types[0] === 'Fairy') {
-			types = ['Normal'];
-		} else if (gen < 6 && types[1] === 'Fairy') {
-			types = [types[0]];
-		}
+		if (table && id in table.overrideType) types = table.overrideType[id].split('/');
 		for (var i = 0; i < types.length; i++) {
 			buf += Tools.getTypeIcon(types[i]);
 		}
@@ -1140,8 +1147,8 @@
 
 		// base stats
 		var stats = pokemon.baseStats;
-		if (gen < 6) {
-			var overrideStats = BattleTeambuilderTable['gen' + gen].overrideStats[id];
+		if (table) {
+			var overrideStats = table.overrideStats[id];
 			if (overrideStats || gen === 1) {
 				stats = {
 					hp: pokemon.baseStats.hp,
@@ -1346,11 +1353,12 @@
 			return buf;
 		}
 
+		var table = (this.gen < 6 ? BattleTeambuilderTable['gen' + this.gen] : null);
+
 		// type
 		buf += '<span class="col typecol">';
 		var type = move.type;
-		if (this.gen <= 1 && (id === 'bite' || id === 'gust' || id === 'karatechop' || id === 'sandattack')) type = 'Normal';
-		if (this.gen <= 5 && (id === 'charm' || id === 'moonlight' || id === 'sweetkiss')) type = 'Normal';
+		if (table && id in table.overrideMoveType) type = table.overrideMoveType[id];
 		buf += Tools.getTypeIcon(type);
 		var category = Tools.getCategory(move, this.gen, type);
 		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32" />';
@@ -1360,8 +1368,7 @@
 		var basePower = move.basePower;
 		var accuracy = move.accuracy;
 		var pp = move.pp;
-		if (this.gen < 6) {
-			var table = BattleTeambuilderTable['gen' + this.gen];
+		if (table) {
 			if (id in table.overrideBP) basePower = table.overrideBP[id];
 			if (id in table.overrideAcc) accuracy = table.overrideAcc[id];
 			if (id in table.overridePP) pp = table.overridePP[id];
@@ -1488,7 +1495,7 @@
 	};
 	Search.prototype.renderCategoryRow = function (category, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'categories/' + toId(category.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'categories/' + category.id + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="category:' + Tools.escapeHTML(category.name) + '">';
 
 		// name
@@ -1502,6 +1509,37 @@
 		buf += '<span class="col typecol">';
 		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category.name + '.png" alt="' + category.name + '" height="14" width="32" />';
 		buf += '</span> ';
+
+		// error
+		if (errorMessage) {
+			buf += errorMessage + '</a></li>';
+			return buf;
+		}
+
+		buf += '</a></li>';
+
+		return buf;
+	};
+	Search.prototype.renderArticleRow = function (article, matchStart, matchLength, errorMessage) {
+		var attrs = '';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'articles/' + article.id + '" data-target="push"';
+		var isSearchType = (article.id === 'pokemon' || article.id === 'moves');
+		if (isSearchType) attrs = ' href="' + article.id + '/" data-target="replace"';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="article:' + Tools.escapeHTML(article.name) + '">';
+
+		// name
+		var name = article.name;
+		if (matchLength) {
+			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
+		}
+		buf += '<span class="col namecol">' + name + '</span> ';
+
+		// article
+		if (isSearchType) {
+			buf += '<span class="col movedesccol">(search type)</span> ';
+		} else {
+			buf += '<span class="col movedesccol">(article)</span> ';
+		}
 
 		// error
 		if (errorMessage) {
