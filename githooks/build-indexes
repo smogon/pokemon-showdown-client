@@ -55,6 +55,8 @@ function requireNoCache(pathSpec) {
 			index.push('' + file.slice(0, -3) + ' article');
 		}
 	}
+	index.push('pokemon article');
+	index.push('moves article');
 
 	// generate aliases
 	function generateAlias(id, name, type) {
@@ -557,14 +559,20 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const nextGenData = Tools.mod('gen' + (genNum + 1)).data;
 		const overrideStats = {};
 		BattleTeambuilderTable[gen].overrideStats = overrideStats;
+		const overrideType = {};
+		BattleTeambuilderTable[gen].overrideType = overrideType;
 		for (const id in genData.Pokedex) {
 			const pastEntry = genData.Pokedex[id];
 			const nowEntry = Tools.data.Pokedex[id];
+			const nowType = nowEntry.types.join('/');
 			for (const stat in pastEntry.baseStats) {
 				if (stat === 'spd' && genNum === 1) continue;
 				if (pastEntry.baseStats[stat] !== nowEntry.baseStats[stat]) {
 					if (!overrideStats[id]) overrideStats[id] = {};
 					overrideStats[id][stat] = pastEntry.baseStats[stat];
+				}
+				if (pastEntry.types.join('/') !== nowType) {
+					overrideType[id] = pastEntry.types.join('/');
 				}
 			}
 		}
@@ -577,6 +585,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overridePP = overridePP;
 		const overrideMoveDesc = {};
 		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
+		const overrideMoveType = {};
+		BattleTeambuilderTable[gen].overrideMoveType = overrideMoveType;
 		for (const id in genData.Movedex) {
 			const pastEntry = genData.Movedex[id];
 			const nowEntry = Tools.data.Movedex[id];
@@ -589,6 +599,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			if (pastEntry.pp !== nowEntry.pp) {
 				overridePP[id] = pastEntry.pp;
+			}
+			if (pastEntry.type !== nowEntry.type) {
+				overrideMoveType[id] = pastEntry.type;
 			}
 			if (pastEntry.shortDesc !== nextEntry.shortDesc) {
 				overrideMoveDesc[id] = pastEntry.shortDesc;
@@ -689,6 +702,16 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 	const Aliases = requireNoCache('../data/Pokemon-Showdown/data/aliases.js').BattleAliases;
 	const buf = 'exports.BattleAliases = ' + es3stringify(Aliases) + ';';
 	fs.writeFileSync(path.resolve(dataDir, 'aliases.js'), buf);
+}
+
+/*********************************************************
+ * Build formats-data.js
+ *********************************************************/
+
+{
+	const FormatsData = requireNoCache('../data/Pokemon-Showdown/data/formats-data.js').BattleFormatsData;
+	const buf = 'exports.BattleFormatsData = ' + es3stringify(FormatsData) + ';';
+	fs.writeFileSync(path.resolve(dataDir, 'formats-data.js'), buf);
 }
 
 /*********************************************************
