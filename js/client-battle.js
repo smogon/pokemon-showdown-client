@@ -413,8 +413,11 @@
 
 			if (!nextTick) {
 				var self = this;
-				if (this.timerInterval) clearInterval(this.timerInterval);
-				this.timerInterval = timerTicking && setInterval(function () {
+				if (this.timerInterval) {
+					clearInterval(this.timerInterval);
+					this.timerInterval = 0;
+				}
+				if (timerTicking) this.timerInterval = setInterval(function () {
 					var $timerButton = self.$('.timerbutton');
 					if ($timerButton.length) {
 						$timerButton.replaceWith(self.getTimerHTML(true));
