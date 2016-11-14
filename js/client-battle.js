@@ -29,10 +29,11 @@
 
 			this.$options = this.battle.optionsElem.html('<div style="padding-top: 3px; padding-right: 3px; text-align: right"><button class="icon button" name="openBattleOptions" title="Options">Battle Options</button></div>');
 
-			this.battle.customCallback = _.bind(this.updateControls, this);
-			this.battle.endCallback = _.bind(this.updateControls, this);
-			this.battle.startCallback = _.bind(this.updateControls, this);
-			this.battle.stagnateCallback = _.bind(this.updateControls, this);
+			var self = this;
+			this.battle.customCallback = function () { self.updateControls(); };
+			this.battle.endCallback = function () { self.updateControls(); };
+			this.battle.startCallback = function () { self.updateControls(); };
+			this.battle.stagnateCallback = function () { self.updateControls(); };
 
 			this.battle.play();
 		},
@@ -255,7 +256,7 @@
 
 				// player
 				this.controlsShown = true;
-				if (force || !controlsShown || typeof this.choice === 'undefined' || this.choice && this.choice.waiting) {
+				if (force || !controlsShown || this.choice === undefined || this.choice && this.choice.waiting) {
 					// don't update controls (and, therefore, side) if `this.choice === null`: causes damage miscalculations
 					this.updateControlsForPlayer();
 				} else {
@@ -365,6 +366,11 @@
 				break;
 
 			case 'team':
+				if (this.battle.mySide.pokemon && !this.battle.mySide.pokemon.length) {
+					// too early, we can't determine `this.choice.count` yet
+					// TODO: send teamPreviewCount in the request object
+					return;
+				}
 				if (!this.choice) {
 					this.choice = {
 						preDecided: preDecided,
