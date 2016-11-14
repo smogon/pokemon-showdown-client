@@ -488,7 +488,7 @@
 
 			// Target selector
 			if (type === 'movetarget') {
-				requestTitle += 'At who? ' + this.getTimerHTML();
+				requestTitle += 'At who? ';
 
 				var targetMenus = ['', ''];
 				var myActive = this.battle.mySide.active;
@@ -535,7 +535,7 @@
 
 				this.$controls.html(
 					'<div class="controls">' +
-					'<div class="whatdo">' + requestTitle + '</div>' +
+					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
 					'<div class="switchmenu" style="display:block">' + targetMenus[0] + '<div style="clear:both"></div> </div>' +
 					'<div class="switchmenu" style="display:block">' + targetMenus[1] + '</div>' +
 					'</div>'
@@ -543,7 +543,7 @@
 			} else {
 				// Move chooser
 				var hpBar = '<small class="' + (hpRatio < 0.2 ? 'critical' : hpRatio < 0.5 ? 'weak' : 'healthy') + '">HP ' + switchables[pos].hp + '/' + switchables[pos].maxhp + '</small>';
-				requestTitle += ' What will <strong>' + Tools.escapeHTML(switchables[pos].name) + '</strong> do? ' + hpBar + this.getTimerHTML();
+				requestTitle += ' What will <strong>' + Tools.escapeHTML(switchables[pos].name) + '</strong> do? ' + hpBar;
 
 				var hasMoves = false;
 				var moveMenu = '';
@@ -617,7 +617,7 @@
 
 				this.$controls.html(
 					'<div class="controls">' +
-					'<div class="whatdo">' + requestTitle + '</div>' +
+					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
 					moveControls + shiftControls + switchControls +
 					'</div>'
 				);
@@ -659,7 +659,7 @@
 				controls += '</div>';
 				this.$controls.html(
 					'<div class="controls">' +
-					'<div class="whatdo">' + requestTitle + '</div>' +
+					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
 					controls +
 					'</div>'
 				);
@@ -689,7 +689,7 @@
 				);
 				this.$controls.html(
 					'<div class="controls">' +
-					'<div class="whatdo">' + requestTitle + '</div>' +
+					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
 					controls +
 					'</div>'
 				);
@@ -726,7 +726,7 @@
 			);
 			this.$controls.html(
 				'<div class="controls">' +
-				'<div class="whatdo">' + requestTitle + '</div>' +
+				'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
 				controls +
 				'</div>'
 			);
