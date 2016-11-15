@@ -148,7 +148,7 @@
 					e.preventDefault();
 					e.stopPropagation();
 				}
-			} else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r') && e.keyCode === 32) { // '/reply ' is being written
+			} else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r' || textbox.value === '/R') && e.keyCode === 32) { // '/reply ' is being written
 				e.preventDefault();
 				e.stopPropagation();
 				var val = '/pm ' + app.user.lastPM + ', ';
