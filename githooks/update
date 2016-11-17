@@ -67,7 +67,7 @@ function updateIndex() {
 function updateLearnsets(callback) {
 	const reservedKeywords = ['return']; // `return` is the only ES3+ reserved keyword that (currently) raises conflicts
 	const numberRegExp = new RegExp('^[0-9]*');
-	const reservedRegExp = new RegExp('^(' + reservedKeywords.join('|') + ')$', 'g');
+	const reservedRegExp = new RegExp('^(' + reservedKeywords.join('|') + '|\\d.*)$', 'g');
 	const alphabetize = (a, b) => a.localeCompare(b);
 	const getLsetGen = lset => lset.charAt(0);
 
