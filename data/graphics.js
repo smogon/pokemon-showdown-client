@@ -24311,7 +24311,7 @@ var BattleMoveAnims = {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				opacity: 0,
+				opacity: 0
 			}, {
 				y: attacker.y + 600,
 				yscale: 10,
@@ -25163,7 +25163,7 @@ var BattleMoveAnims = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-		},
+		}
 	},
 	catastropika: {
 		anim: function (battle, args) {

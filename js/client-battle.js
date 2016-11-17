@@ -1218,7 +1218,7 @@
 		events: {
 			'change input[name=ignorespects]': 'toggleIgnoreSpects',
 			'change input[name=ignorenicks]': 'toggleIgnoreNicks',
-			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
+			'change input[name=ignoreopp]': 'toggleIgnoreOpponent'
 		},
 		toggleIgnoreSpects: function (e) {
 			this.battle.ignoreSpects = !!e.currentTarget.checked;
@@ -1267,7 +1267,7 @@
 				side.updateStatbar(side.active[i], true, true);
 			}
 			side.updateSidebar();
-		},
+		}
 	});
 
 	var TimerPopup = this.TimerPopup = Popup.extend({
