@@ -514,7 +514,23 @@
 
 				// keypress happened in an empty textarea or a button
 				var safeLocation = ((tagName === 'TEXTAREA' && !el.value.length) || tagName === 'BUTTON');
+				var isMac = (navigator.userAgent.indexOf("Mac") !== -1);
 
+				if (e.keyCode === 70 && window.nodewebkit && (isMac ? e.metaKey : e.ctrlKey)) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					var query = window.getSelection().toString();
+					query = window.prompt("find?", query);
+					if (query) window.find(query);
+					return;
+				}
+				if (e.keyCode === 71 && window.nodewebkit && (isMac ? e.metaKey : e.ctrlKey)) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					var query = window.getSelection().toString();
+					if (query) window.find(query);
+					return;
+				}
 				if (app.curSideRoom && $(e.target).closest(app.curSideRoom.$el).length) {
 					// keypress happened in sideroom
 					if (e.shiftKey && e.keyCode === 37 && safeLocation) {
