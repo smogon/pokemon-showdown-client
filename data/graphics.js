@@ -25498,53 +25498,6 @@ var BattleMoveAnims = {
 			});
 		}
 	},
-	twinkletackle: {
-		anim: function (battle, args) {
-			var attacker = args[0];
-			var defender = args[1];
-
-			attacker.anim({
-				x: defender.x,
-				y: defender.y,
-				z: defender.behind(-15),
-				time: 500
-			}, 'decel');
-			attacker.anim({
-				x: defender.x - 10,
-				z: defender.behind(-15),
-			});
-			attacker.anim({
-				x: defender.x + 10,
-				z: defender.behind(-15),
-			});
-			attacker.anim({
-				x: defender.x,
-				z: defender.behind(-15),
-			});
-			attacker.anim({
-				z: defender.behind(-15),
-				time: 50
-			}, 'accel');
-			attacker.anim({
-				time: 500
-			});
-			defender.delay(280);
-			defender.anim({
-				y: defender.y + 80,
-				z: defender.behind(150),
-				opacity: 0,
-				time: 100
-			}, 'swing');
-			defender.delay(400);
-			defender.anim({
-				opacity: 1
-				time: 1
-			});
-			defender.anim({
-				time: 300
-			});
-		}
-	},
 	pulverizingpancake: {
 		anim: function (battle, args) {
 			var attacker = args[0];
