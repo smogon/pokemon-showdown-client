@@ -147,7 +147,7 @@ function updateLearnsets(callback) {
 			if (!newLearnset[moveid]) newLearnset[moveid] = [];
 			newLearnset[moveid] = newLearnset[moveid].map(formatLset);
 			for (let i = 0, len = fullLearnset[moveid].length; i < len; i++) {
-				if (getLsetGen(fullLearnset[moveid][i]) !== '6') continue;
+				if (getLsetGen(fullLearnset[moveid][i]) !== '7') continue;
 				if (inLearnset(fullLearnset[moveid][i], newLearnset[moveid])) continue;
 				newLearnset[moveid].push(formatLset(fullLearnset[moveid][i]));
 			}
