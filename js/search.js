@@ -33,7 +33,7 @@
 		this.externalFilter = false;
 		this.cur = {};
 		this.$inputEl = null;
-		this.gen = 6;
+		this.gen = 7;
 
 		var self = this;
 		this.$el.on('click', '.more button', function (e) {
@@ -250,7 +250,7 @@
 
 			// For pokemon queries, accept types/tier/abilities/moves/eggroups as filters
 			if (qType === 'pokemon' && (typeIndex === 5 || typeIndex > 7)) continue;
-			if (qType === 'pokemon' && typeIndex === 3 && this.gen < 6) continue;
+			if (qType === 'pokemon' && typeIndex === 3 && this.gen < 7) continue;
 			// For move queries, accept types/categories as filters
 			if (qType === 'move' && ((typeIndex !== 8 && typeIndex > 4) || typeIndex === 3)) continue;
 			// For move queries in the teambuilder, don't accept pokemon as filters
@@ -777,9 +777,9 @@
 		case 'pokemon':
 			var table = BattleTeambuilderTable;
 			var isDoubles = false;
-			if (this.gen < 6) table = table['gen' + this.gen];
+			if (this.gen < 7) table = table['gen' + this.gen];
 			if (this.gen >= 6 && format.indexOf('doubles') >= 0 || format.indexOf('vgc') >= 0 || format.indexOf('triples') >= 0) {
-				table = table['doubles'];
+				table = table['gen' + this.gen + 'doubles'];
 				isDoubles = true;
 			}
 			if (!table.tierSet) {
@@ -823,7 +823,7 @@
 
 		case 'item':
 			var table = BattleTeambuilderTable;
-			if (this.gen < 6) table = table['gen' + this.gen];
+			if (this.gen < 7) table = table['gen' + this.gen];
 			if (!table.itemSet) {
 				table.itemSet = table.items.map(function (r) {
 					if (typeof r === 'string') return ['item', r];
@@ -1083,7 +1083,7 @@
 
 		// number
 		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
-		buf += '<span class="col numcol">' + (this.gen >= 6 ? pokemon.tier || Tools.getTemplate(pokemon.baseSpecies).tier : pokemon.num) + '</span> ';
+		buf += '<span class="col numcol">' + (this.gen >= 7 ? pokemon.tier || Tools.getTemplate(pokemon.baseSpecies).tier : pokemon.num) + '</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
@@ -1117,7 +1117,7 @@
 		}
 
 		var gen = this.gen;
-		var table = (gen < 6 ? BattleTeambuilderTable['gen' + gen] : null);
+		var table = (gen < 7 ? BattleTeambuilderTable['gen' + gen] : null);
 
 		// type
 		buf += '<span class="col typecol">';
@@ -1282,8 +1282,8 @@
 
 		// desc
 		var desc = (item.shortDesc || item.desc);
-		if (this.gen < 6) {
-			for (var i = this.gen; i < 6; i++) {
+		if (this.gen < 7) {
+			for (var i = this.gen; i < 7; i++) {
 				if (id in BattleTeambuilderTable['gen' + i].overrideItemDesc) {
 					desc = BattleTeambuilderTable['gen' + i].overrideItemDesc[id];
 					break;
@@ -1353,7 +1353,7 @@
 			return buf;
 		}
 
-		var table = (this.gen < 6 ? BattleTeambuilderTable['gen' + this.gen] : null);
+		var table = (this.gen < 7 ? BattleTeambuilderTable['gen' + this.gen] : null);
 
 		// type
 		buf += '<span class="col typecol">';
@@ -1379,8 +1379,8 @@
 
 		// desc
 		var desc = (move.shortDesc || move.desc);
-		if (this.gen < 6) {
-			for (var i = this.gen; i < 6; i++) {
+		if (this.gen < 7) {
+			for (var i = this.gen; i < 7; i++) {
 				if (id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
 					desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
 					break;
@@ -1596,7 +1596,7 @@
 		return buf;
 	};
 
-	Search.gen = 6;
+	Search.gen = 7;
 	Search.renderRow = Search.prototype.renderRow;
 	Search.renderPokemonRow = Search.prototype.renderPokemonRow;
 	Search.renderTaggedPokemonRowInner = Search.prototype.renderTaggedPokemonRowInner;

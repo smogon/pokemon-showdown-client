@@ -50,10 +50,14 @@ function requireNoCache(pathSpec) {
 	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toId(x) + ' egggroup'));
 	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'lc', 'nfe', 'uber', 'bl', 'bl2', 'bl3', 'bl4', 'cap'].map(x => toId(x) + ' tier'));
 
-	for (const file of fs.readdirSync(path.resolve(rootDir, '../dex.pokemonshowdown.com/articles/'))) {
-		if (file.endsWith('.md')) {
-			index.push('' + file.slice(0, -3) + ' article');
+	try {
+		for (const file of fs.readdirSync(path.resolve(rootDir, '../dex.pokemonshowdown.com/articles/'))) {
+			if (file.endsWith('.md')) {
+				index.push('' + file.slice(0, -3) + ' article');
+			}
 		}
+	} catch (e) {
+		console.log('\n(WARNING: NO ARTICLES)')
 	}
 	index.push('pokemon article');
 	index.push('moves article');
@@ -71,6 +75,10 @@ function requireNoCache(pathSpec) {
 		if (name.endsWith('-Mega')) {
 			index.push('mega' + toId(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
 			index.push('m' + toId(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
+			return;
+		}
+		if (name.endsWith('-Alola')) {
+			index.push('alolan' + toId(name.slice(0, -6)) + ' ' + type + ' ' + id + ' 0');
 			return;
 		}
 		let oldI = i;
@@ -257,9 +265,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// automatically built with githooks/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [6, -6, 5, 4, 3, 2, 1]) {
+	for (const genIdent of [7, 6, -6, 5, 4, 3, 2, 1]) {
 		const isDoubles = (genIdent < 0);
-		const genNum = (isDoubles ? 6 : genIdent);
+		const genNum = (isDoubles ? -genIdent : genIdent);
 		const gen = 'gen' + genNum;
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
 		const pokemon = Object.keys(Tools.data.Pokedex);
@@ -267,7 +275,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const tierTable = {};
 		for (const id of pokemon) {
 			const template = (() => {
-				if (gen === 'gen6') return Tools.getTemplate(id);
+				if (gen === 'gen7') return Tools.getTemplate(id);
 				return Tools.mod(gen).getTemplate(id);
 			})();
 			if (template.gen > genNum) continue;
@@ -318,10 +326,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const formatSlices = {};
 
 		if (isDoubles) {
-			BattleTeambuilderTable['doubles'] = {};
-			BattleTeambuilderTable['doubles'].tiers = tiers;
-			BattleTeambuilderTable['doubles'].formatSlices = formatSlices;
-		} else if (gen === 'gen6') {
+			BattleTeambuilderTable[gen + 'doubles'] = {};
+			BattleTeambuilderTable[gen + 'doubles'].tiers = tiers;
+			BattleTeambuilderTable[gen + 'doubles'].formatSlices = formatSlices;
+		} else if (gen === 'gen7') {
 			BattleTeambuilderTable.tiers = tiers;
 			BattleTeambuilderTable.items = items;
 			BattleTeambuilderTable.formatSlices = formatSlices;
@@ -530,10 +538,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		for (const moveid in learnset) {
 			const gens = learnset[moveid].map(x => Number(x[0]));
 			const minGen = Math.min(...gens);
-			if (minGen === 6) learnsets[id][moveid] = '6';
-			if (minGen === 5) learnsets[id][moveid] = '56';
-			if (minGen === 4) learnsets[id][moveid] = '456';
-			if (minGen === 3) learnsets[id][moveid] = '3456';
+			if (minGen === 7) learnsets[id][moveid] = '7';
+			if (minGen === 6) learnsets[id][moveid] = '67';
+			if (minGen === 5) learnsets[id][moveid] = '567';
+			if (minGen === 4) learnsets[id][moveid] = '4567';
+			if (minGen === 3) learnsets[id][moveid] = '34567';
 			if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
 		}
 	}
@@ -553,7 +562,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Past gen table
 	//
 
-	for (const genNum of [5, 4, 3, 2, 1]) {
+	for (const genNum of [6, 5, 4, 3, 2, 1]) {
 		const gen = 'gen' + genNum;
 		const genData = Tools.mod(gen).data;
 		const nextGenData = Tools.mod('gen' + (genNum + 1)).data;
