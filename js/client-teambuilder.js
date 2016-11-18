@@ -1876,7 +1876,7 @@
 						}
 					}
 				}
-				if (hpType) {
+				if (hpType && this.curTeam.gen <= 6) {
 					var hpIVs;
 					switch (hpType) {
 					case 'dark':
@@ -2125,7 +2125,7 @@
 		},
 		updateIVs: function () {
 			var set = this.curSet;
-			if (!set.moves) return;
+			if (!set.moves || this.curTeam.gen > 6) return;
 			var hasHiddenPower = false;
 			for (var i = 0; i < set.moves.length; i++) {
 				if (toId(set.moves[i]).slice(0, 11) === 'hiddenpower') {
