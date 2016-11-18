@@ -57,7 +57,7 @@ function requireNoCache(pathSpec) {
 			}
 		}
 	} catch (e) {
-		console.log('\n(WARNING: NO ARTICLES)')
+		console.log('\n(WARNING: NO ARTICLES)');
 	}
 	index.push('pokemon article');
 	index.push('moves article');
