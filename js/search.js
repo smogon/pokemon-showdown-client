@@ -459,6 +459,9 @@
 			case 'chespin':
 				resultSet.push(['header', "Generation 6"]);
 				break;
+			case 'rowlet':
+				resultSet.push(['header', "Generation 7"]);
+				break;
 			case 'missingno':
 				resultSet.push(['header', "Glitch"]);
 				break;
@@ -1083,7 +1086,7 @@
 
 		// number
 		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
-		buf += '<span class="col numcol">' + (this.gen >= 7 ? pokemon.tier || Tools.getTemplate(pokemon.baseSpecies).tier : pokemon.num) + '</span> ';
+		buf += '<span class="col numcol">' + (this.gen >= 7 ? pokemon.tier || (pokemon.baseSpecies ? Tools.getTemplate(pokemon.baseSpecies).tier : 'Illegal') : pokemon.num) + '</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
