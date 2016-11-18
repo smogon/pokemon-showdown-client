@@ -835,6 +835,7 @@ License: GPLv2
 	padding: 2px 4px;
 }
 .infobox {
+	border-radius: 25px;
 	border: 1px solid #6688AA;
 	padding: 2px 4px;
 }
