@@ -570,6 +570,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideStats = overrideStats;
 		const overrideType = {};
 		BattleTeambuilderTable[gen].overrideType = overrideType;
+		const overrideAbility = {};
+		BattleTeambuilderTable[gen].overrideAbility = overrideAbility;
 		for (const id in genData.Pokedex) {
 			const pastEntry = genData.Pokedex[id];
 			const nowEntry = Tools.data.Pokedex[id];
@@ -582,6 +584,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (pastEntry.types.join('/') !== nowType) {
 					overrideType[id] = pastEntry.types.join('/');
+				}
+				if (pastEntry.abilities['0'] !== nowEntry.abilities['0']) {
+					overrideAbility[id] = pastEntry.abilities['0'];
 				}
 			}
 		}
