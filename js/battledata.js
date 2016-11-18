@@ -1056,6 +1056,10 @@ var Tools = {
 					template.gen = 6;
 					template.isPrimal = true;
 					template.battleOnly = true;
+				} else if (template.forme === 'Alola') {
+					template.gen = 7;
+				} else if (template.num >= 722) {
+					template.gen = 7;
 				} else if (template.num >= 650) {
 					template.gen = 6;
 				} else if (template.num >= 494) {
@@ -1143,7 +1147,7 @@ var Tools = {
 
 		// Decide what gen sprites to use.
 		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy', 7:'xy'}[Math.max(options.gen, pokemon.gen)];
-		if (pokemon.gen === 7) gen = 5;
+		if (pokemon.gen === 7) gen = 'bw';
 		if (Tools.prefs('nopastgens')) gen = 'xy';
 		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
 
