@@ -38,7 +38,8 @@
 			this.battle.play();
 		},
 		events: {
-			'click .replayDownloadButton': 'clickReplayDownloadButton'
+			'click .replayDownloadButton': 'clickReplayDownloadButton',
+			'change input[name=zmove]': 'updateZMove',
 		},
 		battleEnded: false,
 		join: function () {
@@ -451,6 +452,16 @@
 			}
 			return '<button name="openTimer" class="button timerbutton' + timerTicking + '"><i class="fa fa-hourglass-start"></i> ' + time + '</button>';
 		},
+		updateZMove: function () {
+			var zChecked = this.$('input[name=zmove]')[0].checked;
+			if (zChecked) {
+				this.$('.movebuttons-noz').hide();
+				this.$('.movebuttons-z').show();
+			} else {
+				this.$('.movebuttons-noz').show();
+				this.$('.movebuttons-z').hide();
+			}
+		},
 		updateTimer: function () {
 			this.$('.timerbutton').replaceWith(this.getTimerHTML());
 		},
@@ -476,6 +487,7 @@
 			if (!curActive) return;
 			var trapped = curActive.trapped;
 			var canMegaEvo = curActive.canMegaEvo || switchables[pos].canMegaEvo;
+			var canZMove = curActive.canZMove || switchables[pos].canZMove;
 
 			this.finalDecisionMove = curActive.maybeDisabled || false;
 			this.finalDecisionSwitch = curActive.maybeTrapped || false;
@@ -575,10 +587,27 @@
 				if (!hasMoves) {
 					moveMenu += '<button class="movebutton" name="chooseMove" value="0" data-move="Struggle" data-target="randomNormal">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
 				} else {
+					if (canZMove) {
+						movebuttons = '<div class="movebuttons-noz">' + movebuttons + '</div><div class="movebuttons-z" style="display:none">';
+						for (var i = 0; i < curActive.moves.length; i++) {
+							var moveData = curActive.moves[i];
+							var move = Tools.getMove(moveData.move);
+							var moveType = this.tooltips.getMoveType(move, this.battle.mySide.active[pos] || this.myPokemon[pos]);
+							if (canZMove[i]) {
+								movebuttons += '<button class="type-' + moveType + '" name="chooseMove" value="' + (i + 1) + '" data-move="' + Tools.escapeHTML(canZMove[i]) + '" data-target="' + Tools.escapeHTML(moveData.target) + '"' + this.tooltips.tooltipAttrs(canZMove[i], 'move') + '>';
+								movebuttons += canZMove[i] + '<br /><small class="type">' + (moveType ? Tools.getType(moveType).name : "Unknown") + '</small> <small class="pp">1/1</small>&nbsp;</button> ';
+							} else {
+								movebuttons += '<button disabled="disabled">&nbsp;</button>';
+							}
+						}
+						movebuttons += '</div>';
+					}
 					moveMenu += movebuttons;
 				}
 				if (canMegaEvo) {
 					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
+				} else if (canZMove) {
+					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="zmove" />&nbsp;Use Z Move</label>';
 				}
 				if (this.finalDecisionMove) {
 					moveMenu += '<em style="display:block;clear:both">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em><br/>';
@@ -780,6 +809,10 @@
 								buf += 'mega evolve, then ';
 								targetPos = parts[3];
 							}
+							if (targetPos === 'zmove') {
+								move = this.request.active[i].canZMove[parts[1] - 1];
+								targetPos = parts[3];
+							}
 							if (targetPos) {
 								var targetActive = this.battle.yourSide.active;
 								// Targeting your own side in doubles / triples
@@ -974,12 +1007,13 @@
 			if (pos !== undefined) { // pos === undefined if called by chooseMoveTarget()
 				var myActive = this.battle.mySide.active;
 				var isMega = !!(this.$('input[name=megaevo]')[0] || '').checked;
+				var isZMove = !!(this.$('input[name=zmove]')[0] || '').checked;
 
 				var move = e.getAttribute('data-move');
 				var target = e.getAttribute('data-target');
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
 
-				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : ''));
+				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : ''));
 				if (myActive.length > 1 && target in choosableTargets) {
 					this.choice.type = 'movetarget';
 					this.choice.moveTarget = target;
