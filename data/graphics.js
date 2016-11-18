@@ -3311,6 +3311,9 @@ var BattleMoveAnims = {
 	faketears: {
 		anim: BattleOtherAnims.dance.anim
 	},
+	tearfullook: {
+		anim: BattleOtherAnims.dance.anim
+	},
 	featherdance: {
 		anim: function (battle, args) {
 			var attacker = args[0];
@@ -25498,6 +25501,167 @@ var BattleMoveAnims = {
 			});
 		}
 	},
+	neverendingnightmare: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.backgroundEffect('linear-gradient(#440044 30%, #000000', 1500, 0.6);
+			var xstep = (defender.x + 200 - defender.x) / 5;
+			var ystep = (defender.x - 200 - defender.x) / 5;
+			var zstep = (defender.z - defender.z) / 5;
+
+			for (var i = 0; i < 5; i++) {
+				battle.showEffect('poisonwisp', {
+					x: defender.x - 200 + xstep * (i + 1),
+					y: (defender.y + 200) + ystep * (i + 1),
+					z: defender.z + zstep * (i + 1),
+					scale: 0.6,
+					opacity: 0.7,
+					time: 40 * i + 0
+				}, {
+					opacity: 0,
+					time: 50 * i + 1000
+				}, 'linear');
+			}
+			var xstep = (defender.x + 150 - defender.x) / 5;
+			for (var i = 0; i < 5; i++) {
+				battle.showEffect('poisonwisp', {
+					x: defender.x - 150 + xstep * (i + 1),
+					y: (defender.y + 200) + ystep * (i + 1),
+					z: defender.z + zstep * (i + 1),
+					scale: 0.6,
+					opacity: 0.7,
+					time: 40 * i + 100
+				}, {
+					opacity: 0,
+					time: 50 * i + 1000
+				}, 'linear');
+			}
+			var xstep = (defender.x + 100 - defender.x) / 5;
+			for (var i = 0; i < 5; i++) {
+				battle.showEffect('poisonwisp', {
+					x: defender.x - 100 + xstep * (i + 1),
+					y: (defender.y + 200) + ystep * (i + 1),
+					z: defender.z + zstep * (i + 1),
+					scale: 1.2,
+					opacity: 1,
+					time: 40 * i + 200
+				}, {
+					opacity: 0,
+					time: 50 * i + 1000
+				}, 'linear');
+			}
+			var xstep = (defender.x + 50 - defender.x) / 5;
+			for (var i = 0; i < 5; i++) {
+				battle.showEffect('poisonwisp', {
+					x: defender.x - 50 + xstep * (i + 1),
+					y: (defender.y + 200) + ystep * (i + 1),
+					z: defender.z + zstep * (i + 1),
+					scale: 0.6,
+					opacity: 0.7,
+					time: 40 * i + 300
+				}, {
+					opacity: 0,
+					time: 50 * i + 1000
+				}, 'linear');
+			}
+			var xstep = (defender.x - 50 - defender.x) / 5;
+			for (var i = 0; i < 5; i++) {
+				battle.showEffect('poisonwisp', {
+					x: defender.x + 50 + xstep * (i + 1),
+					y: (defender.y + 200) + ystep * (i + 1),
+					z: defender.z + zstep * (i + 1),
+					scale: 1.2,
+					opacity: 1,
+					time: 40 * i + 400
+				}, {
+					opacity: 0,
+					time: 50 * i + 1000
+				}, 'linear');
+			}
+			var xstep = (defender.x - 100 - defender.x) / 5;
+			for (var i = 0; i < 5; i++) {
+				battle.showEffect('poisonwisp', {
+					x: defender.x + 100 + xstep * (i + 1),
+					y: (defender.y + 200) + ystep * (i + 1),
+					z: defender.z + zstep * (i + 1),
+					scale: 0.6,
+					opacity: 0.7,
+					time: 40 * i + 500
+				}, {
+					opacity: 0,
+					time: 50 * i + 1000
+				}, 'linear');
+			}
+			var xstep = (defender.x - 150 - defender.x) / 5;
+			for (var i = 0; i < 5; i++) {
+				battle.showEffect('poisonwisp', {
+					x: defender.x + 150 + xstep * (i + 1),
+					y: (defender.y + 200) + ystep * (i + 1),
+					z: defender.z + zstep * (i + 1),
+					scale: 0.6,
+					opacity: 0.7,
+					time: 40 * i + 600
+				}, {
+					opacity: 0,
+					time: 50 * i + 1000
+				}, 'linear');
+			}
+			var xstep = (defender.x - 200 - defender.x) / 5;
+			for (var i = 0; i < 5; i++) {
+				battle.showEffect('poisonwisp', {
+					x: defender.x + 200 + xstep * (i + 1),
+					y: (defender.y + 200) + ystep * (i + 1),
+					z: defender.z + zstep * (i + 1),
+					scale: 0.6,
+					opacity: 0.7,
+					time: 40 * i + 700
+				}, {
+					opacity: 0,
+					time: 50 * i + 1000
+				}, 'linear');
+			}
+			battle.showEffect('shadowball', {
+				x: defender.x,
+				y: defender.y - 60,
+				z: defender.z,
+				scale: 1,
+				xscale: 3,
+				opacity: 0.5,
+				time: 200
+			}, {
+				scale: 3,
+				xscale: 8,
+				opacity: 0.1,
+				time: 1300
+			}, 'linear', 'fade');
+			battle.showEffect('shadowball', {
+				x: defender.x,
+				y: defender.y - 30,
+				z: defender.z,
+				opacity: 1,
+				scale: 2,
+				time: 200
+			}, {
+				scale: 2.5,
+				opacity: 0,
+				time: 1500
+			}, 'linear', 'fade');
+			battle.showEffect('poisonwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				opacity: 1,
+				scale: 3,
+				time: 200
+			}, {
+				scale: 9,
+				opacity: 0.8,
+				time: 1500
+			}, 'linear', 'fade');
+		}
+	},
 	pulverizingpancake: {
 		anim: function (battle, args) {
 			var attacker = args[0];
@@ -26582,6 +26746,7 @@ BattleMoveAnims['leechlife'] = {anim:BattleMoveAnims['bulletseed'].anim};
 BattleMoveAnims['nightdaze'] = {anim:BattleMoveAnims['darkpulse'].anim};
 
 BattleMoveAnims['hornattack'] = {anim:BattleMoveAnims['megahorn'].anim};
+BattleMoveAnims['lunge'] = {anim:BattleMoveAnims['megahorn'].anim};
 
 BattleMoveAnims['constrict'] = {anim:BattleMoveAnims['bind'].anim};
 BattleMoveAnims['wrap'] = {anim:BattleMoveAnims['bind'].anim};
@@ -26748,5 +26913,14 @@ BattleMoveAnims['naturalgift'] = {anim:BattleMoveAnims['technoblast'].anim};
 
 BattleMoveAnims['fleurcannon'] = {anim:BattleMoveAnims['lightofruin'].anim};
 
+BattleMoveAnims['breakneckblitz'] = {anim:BattleMoveAnims['gigaimpact'].anim};
 BattleMoveAnims['maliciousmoonsault'] = {anim:BattleMoveAnims['pulverizingpancake'].anim};
 BattleMoveAnims['tectonicrage'] = {anim:BattleMoveAnims['earthpower'].anim};
+BattleMoveAnims['continentalcrush'] = {anim:BattleMoveAnims['earthquake'].anim};
+BattleMoveAnims['subzeroslammer'] = {anim:BattleMoveAnims['sheercold'].anim};
+BattleMoveAnims['shatteredpsyche'] = {anim:BattleMoveAnims['psychic'].anim};
+BattleMoveAnims['maximumpsybreaker'] = {anim:BattleMoveAnims['psychic'].anim};
+BattleMoveAnims['alloutpummeling'] = {anim:BattleMoveAnims['closecombat'].anim};
+BattleMoveAnims['twinkletackle'] = {anim:BattleMoveAnims['zenheadbutt'].anim};
+BattleMoveAnims['soulstealing7starstrike'] = {anim:BattleMoveAnims['nightshade'].anim};
+BattleMoveAnims['10000000voltthunderbolt'] = {anim:BattleMoveAnims['triattack'].anim};
