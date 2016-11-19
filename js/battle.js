@@ -3820,7 +3820,7 @@ var Battle = (function () {
 					// do nothing
 				}
 				break;
-			case '-restoreboost':
+			case '-clearnegativeboost':
 				var poke = this.getPokemon(args[1]);
 				for (i in poke.boosts) {
 					if (poke.boosts[i] < 0) delete poke.boosts[i];
