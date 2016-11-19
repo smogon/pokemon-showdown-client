@@ -837,7 +837,7 @@ License: GPLv2
 .infobox {
 	border-radius: 25px;
 	border: 1px solid #6688AA;
-	padding: 2px 4px;
+	padding: 20px;
 }
 .infobox-limited {
 	max-height: 200px;
