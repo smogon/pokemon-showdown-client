@@ -39,7 +39,7 @@
 		},
 		events: {
 			'click .replayDownloadButton': 'clickReplayDownloadButton',
-			'change input[name=zmove]': 'updateZMove',
+			'change input[name=zmove]': 'updateZMove'
 		},
 		battleEnded: false,
 		join: function () {
