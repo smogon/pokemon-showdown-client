@@ -3809,6 +3809,17 @@ var Battle = (function () {
 					}
 				}
 				break;
+			case '-stealboost':
+				var poke = this.getPokemon(args[1]);
+				for (i in poke.boosts) {
+					if (poke.boosts[i] > 0) delete poke.boosts[i];
+				}
+				this.resultAnim(poke, 'Stolen', 'bad');
+
+				if (kwargs.silent) {
+					// do nothing
+				}
+				break;
 			case '-restoreboost':
 				var poke = this.getPokemon(args[1]);
 				for (i in poke.boosts) {
