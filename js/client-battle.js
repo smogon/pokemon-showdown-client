@@ -846,13 +846,6 @@
 			return buf;
 		},
 
-		decide: function (message) {
-			if (this.partialDecisions) return this.sendDecision(message);
-			if (this.choice.choices.length >= (this.choice.count || this.battle.mySide.active.length)) {
-				return this.sendDecision(this.choice.choices);
-			}
-		},
-
 		// Appends the rqid to the message so that the server can
 		// verify that the decision is sent in response to the correct request.
 		sendDecision: function (message) {
@@ -1162,9 +1155,14 @@
 					}
 				}
 
-				for (var i = 0; i < this.choice.choices.length; i++) {
-					this.decide(this.choice.choices[i]);
+				if (this.partialDecisions) {
+					for (var i = 0; i < this.choice.choices.length; i++) {
+						this.sendDecision(this.choice.choices[i]);
+					}
+				} else if (this.choice.choices.length >= (this.choice.count || this.battle.mySide.active.length)) {
+					this.sendDecision(this.choice.choices);
 				}
+
 				if (!this.finalDecision) {
 					var lastChoice = this.choice.choices[this.choice.choices.length - 1];
 					if (lastChoice.substr(0, 5) === 'move ' && this.finalDecisionMove) {
