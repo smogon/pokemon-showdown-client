@@ -3809,12 +3809,12 @@ var Battle = (function () {
 					}
 				}
 				break;
-			case '-stealboost':
+			case '-clearpositiveboost':
 				var poke = this.getPokemon(args[1]);
 				for (i in poke.boosts) {
 					if (poke.boosts[i] > 0) delete poke.boosts[i];
 				}
-				this.resultAnim(poke, 'Stolen', 'bad');
+				this.resultAnim(poke, 'Boosts lost', 'bad');
 
 				if (kwargs.silent) {
 					// do nothing
