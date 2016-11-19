@@ -1106,7 +1106,7 @@ var BattleTooltips = (function () {
 		var moveName = move.name;
 
 		// Plates
-		if (item.onPlate === moveType) return 1.2;
+		if (item.onPlate === moveType && !item.zMove) return 1.2;
 
 		// Incenses
 		if (incenseTypes[item.name] === moveType) return 1.2;
