@@ -825,17 +825,25 @@ License: GPLv2
 	color: #DDEEFF;
 }
 .broadcast-green {
+	border-radius: 8px;
 	background-color: #559955;
 	color: white;
-	padding: 2px 4px;
+	padding: 10px;
 }
 .broadcast-blue {
+	border-radius: 8px;
 	background-color: #6688AA;
 	color: white;
-	padding: 2px 4px;
+	padding: 10px;
+}
+.broadcast-red {
+	border-radius: 8px;
+	background-color: #AA5544;
+	color: white;
+	padding: 10px;
 }
 .infobox {
-	border-radius: 25px;
+	border-radius: 8px;
 	border: 2px solid #6688AA;
 	padding: 10px;
 }
@@ -843,11 +851,6 @@ License: GPLv2
 	max-height: 200px;
 	overflow: auto;
 	overflow-x: hidden;
-}
-.broadcast-red {
-	background-color: #AA5544;
-	color: white;
-	padding: 2px 4px;
 }
 .message-learn-canlearn {
 	font-weight: bold;
