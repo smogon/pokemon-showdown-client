@@ -1,4 +1,4 @@
-![pslogo](http://play.pokemonshowdown.com/pokemonshowdownbeta.png)
+![pslogo](http://play.pokemonshowdown.com/pokemonshowdownbeta.png?style=centerme)
 Pokémon Showdown Client
 ========================================================================
 
