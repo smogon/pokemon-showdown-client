@@ -601,20 +601,6 @@ var Tools = {
 				return '<a href="' + fulluri +
 					'" target="_blank" onclick="' + onclick + '" rel="noopener">' + uri + '</a>';
 			});
-			// google [blah]
-			//   Google search for 'blah'
-			str = str.replace(/\bgoogle ?\[([^\]<]+)\]/ig, function (p0, p1) {
-				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
-				return '<a href="http://www.google.com/search?ie=UTF-8&q=' + p1 +
-					'" target="_blank">' + p0 + '</a>';
-			});
-			// wiki [blah]
-			//   Search Wikipedia for 'blah' (and visit the article for 'blah' if it exists)
-			str = str.replace(/\bwiki ?\[([^\]<]+)\]/ig, function (p0, p1) {
-				p1 = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
-				return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
-					p1 + '" target="_blank">' + p0 + '</a>';
-			});
 			// server issue #pullreq
 			//   Links to github Pokemon Showdown server pullreq number
 			str = str.replace(/\bserver issue ?#(\d+)/ig, function (p0, p1) {
@@ -630,11 +616,19 @@ var Tools = {
 					p1 + '" target="_blank">' + p0 + '</a>';
 			});
 			// [[blah]]
-			//   Short form of gl[blah]
-			str = str.replace(/\[\[([^< ](?:[^<`]*?[^< ])??)\]\]/g, function (p0, p1) {
-				var q = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(p1)));
-				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + q +
-					'" target="_blank">' + p1 + '</a>';
+			str = str.replace(/\[\[(?:(?![< ])(?:(youtube|yt|wiki)\: ?)?([^<`]*?[^< ])?)\]\]/g, function (match, p1, p2) {
+				var query = p2;
+				if (p1 === 'wiki') {
+					query = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(query)));
+					return '<a href="http://en.wikipedia.org/w/index.php?title=Special:Search&search=' +
+						query + '" target="_blank">' + p1 + ": " + p2 + '</a>';
+				} else if (p1) {
+					p2 = "yt: " + p2;
+					query += " site:youtube.com";
+				}
+				query = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(query)));
+				return '<a href="http://www.google.com/search?ie=UTF-8&btnI&q=' + query +
+					'" target="_blank">' + p2 + '</a>';
 			});
 		}
 
