@@ -10249,6 +10249,50 @@ var BattleMoveAnims = {
 			BattleOtherAnims.bite.anim(battle, args);
 		}
 	},
+	psychicfangs: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.backgroundEffect('#AA44BB', 450, 0.6, 450);
+			battle.backgroundEffect('#AA44FF', 250, 0.6, 800);
+			BattleOtherAnims.bite.anim(battle, args);
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 80,
+				z: defender.behind(-30),
+				time: 400
+			}, 'ballistic');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 5,
+				z: defender.z,
+				time: 100
+			});
+			attacker.anim({
+				time: 500
+			}, 'ballistic2Back');
+			defender.delay(450);
+			defender.anim({
+				z: defender.behind(20),
+				scale: 1.2,
+				time: 100
+			}, 'swing');
+			defender.anim({
+				scale: 1.2,
+				time: 300
+			}, 'swing');
+			defender.anim({
+				scale: 1.4,
+				time: 150
+			});
+			defender.anim({
+				scale: 1,
+				time: 150
+			});
+			battle.activityWait(700);
+		}
+	},
 	icefang: {
 		anim: function (battle, args) {
 			var attacker = args[0];
@@ -25652,12 +25696,12 @@ var BattleMoveAnims = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				opacity: 1,
+				opacity: 0.7,
 				scale: 3,
 				time: 200
 			}, {
 				scale: 9,
-				opacity: 0.8,
+				opacity: 1,
 				time: 1500
 			}, 'linear', 'fade');
 		}
