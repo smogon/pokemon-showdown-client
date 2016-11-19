@@ -3829,6 +3829,9 @@ var Battle = (function () {
 
 				if (kwargs.silent) {
 					// do nothing
+				} else if (kwargs.zEffect) {
+					actions += '' + poke.getName() + ' returned its decreased stats to normal using its Z-Power!';
+					break;
 				}
 				break;
 			case '-copyboost':
