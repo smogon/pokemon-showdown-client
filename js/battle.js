@@ -2148,6 +2148,7 @@ var Side = (function () {
 			}
 		}
 		var statusTable = {
+			throatchop: '<span class="bad">Throat&nbsp;Chop</span> ',
 			confusion: '<span class="bad">Confused</span> ',
 			healblock: '<span class="bad">Heal&nbsp;Block</span> ',
 			yawn: '<span class="bad">Drowsy</span> ',
@@ -3340,6 +3341,9 @@ var Battle = (function () {
 		case 'imprison':
 			this.message('' + pokemon.getName() + ' can\'t use its sealed ' + move.name + '!');
 			pokemon.markMove(move.name, 0);
+			break;
+		case 'throatchop':
+			this.message('The effects of Throat Chop prevent ' + pokemon.getName() + ' from using certain moves!');
 			break;
 		case 'par':
 			this.resultAnim(pokemon, 'Paralyzed', 'par');
