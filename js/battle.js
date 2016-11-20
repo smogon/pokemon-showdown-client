@@ -1435,6 +1435,30 @@ var Side = (function () {
 		}
 		// Side conditions work as: [condition, elem, levels, minDuration, maxDuration]
 		switch (condition) {
+		case 'auroraveil':
+			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-auroraveil" style="display:none;position:absolute" />');
+			curelem = this.battle.spriteElemsFront[this.n].children().last();
+			curelem.css(this.battle.pos({
+				display: 'block',
+				x: this.x,
+				y: this.y,
+				z: this.behind(-14),
+				xscale: 1,
+				yscale: 0,
+				opacity: .1
+			}, BattleEffects.none)).animate(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.behind(-14),
+				xscale: 1,
+				yscale: .5,
+				opacity: .7
+			}, BattleEffects.none)).animate({
+				opacity: .3
+			}, 300);
+			elem = curelem;
+			this.sideConditions[condition] = [condition, elem, 1, 5, 8];
+			break;
 		case 'reflect':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-reflect" style="display:none;position:absolute" />');
 			curelem = this.battle.spriteElemsFront[this.n].children().last();
@@ -5471,6 +5495,10 @@ var Battle = (function () {
 					actions += "The Tailwind blew from behind " + side.getLowerTeamName() + "!";
 					this.updateWeather();
 					break;
+				case 'auroraveil':
+					actions += "Aurora Veil made " + side.getLowerTeamName() + " stronger against physical and special moves!";
+					this.updateWeather();
+					break;
 				case 'reflect':
 					actions += "Reflect made " + side.getLowerTeamName() + " stronger against physical moves!";
 					this.updateWeather();
@@ -5526,6 +5554,9 @@ var Battle = (function () {
 					break;
 				case 'tailwind':
 					actions += "" + side.getTeamName() + "'s Tailwind petered out!";
+					break;
+				case 'auroraveil':
+					actions += "" + side.getTeamName() + "'s Aurora Veil wore off!";
 					break;
 				case 'reflect':
 					actions += "" + side.getTeamName() + "'s Reflect wore off!";

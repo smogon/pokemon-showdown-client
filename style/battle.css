@@ -471,7 +471,12 @@ License: GPLv2
 	border-radius: 0;
 	padding: 2px 6px;
 }
-
+.sidecondition-auroraveil {
+	background: #88EEFF;
+	border: 1px solid #55BBCC;
+	display: none;
+	position: absolute;
+}
 .sidecondition-reflect {
 	background: #EEEEEE;
 	border: 1px solid #888888;

@@ -4647,6 +4647,9 @@ var BattleMoveAnims = {
 			}, 'linear');
 		}
 	},
+	auroraveil: {
+		anim: function () {}
+	},
 	reflect: {
 		anim: function () {}
 	},
