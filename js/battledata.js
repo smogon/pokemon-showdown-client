@@ -616,7 +616,7 @@ var Tools = {
 					p1 + '" target="_blank">' + p0 + '</a>';
 			});
 			// [[blah]]
-			str = str.replace(/\[\[(?:(?![< ])(?:(youtube|yt|wiki)\: ?)?([^<`]*?[^< ])?)\]\]/g, function (match, p1, p2) {
+			str = str.replace(/\[\[(?:[^< ](?:(youtube|yt|wiki)\: ?)?([^<`]*?[^< ])?)\]\]/g, function (match, p1, p2) {
 				var query = p2;
 				if (p1 === 'wiki') {
 					query = Tools.escapeHTML(encodeURIComponent(Tools.unescapeHTML(query)));
