@@ -395,7 +395,7 @@
 	};
 	Search.prototype.addFilter = function (node) {
 		if (!node.dataset.entry) return;
-		var entry = node.dataset.entry.split(':');
+		var entry = node.dataset.entry.split('|');
 		if (this.qType === 'pokemon') {
 			if (entry[0] === this.sortCol) this.sortCol = null;
 			if (entry[0] !== 'type' && entry[0] !== 'move' && entry[0] !== 'ability' && entry[0] !== 'egggroup' && entry[0] !== 'tier') return;
@@ -1093,7 +1093,7 @@
 		if (!attrs) attrs = '';
 		var id = toId(pokemon.species);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'pokemon/' + id + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="pokemon:' + Tools.escapeHTML(pokemon.species) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="pokemon|' + Tools.escapeHTML(pokemon.species) + '">';
 
 		// number
 		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
@@ -1206,7 +1206,7 @@
 	Search.prototype.renderTaggedPokemonRowInner = function (pokemon, tag, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toId(pokemon.species) + '" data-target="push"';
-		var buf = '<a' + attrs + ' data-entry="pokemon:' + Tools.escapeHTML(pokemon.species) + '">';
+		var buf = '<a' + attrs + ' data-entry="pokemon|' + Tools.escapeHTML(pokemon.species) + '">';
 
 		// tag
 		buf += '<span class="col tagcol shorttagcol">' + tag + '</span> ';
@@ -1276,7 +1276,7 @@
 		if (!attrs) attrs = '';
 		var id = toId(item.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'items/' + id + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="item:' + Tools.escapeHTML(item.name) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="item|' + Tools.escapeHTML(item.name) + '">';
 
 		// icon
 		buf += '<span class="col itemiconcol">';
@@ -1316,7 +1316,7 @@
 		if (!attrs) attrs = '';
 		var id = toId(ability.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'abilities/' + id + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="ability:' + Tools.escapeHTML(ability.name) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="ability|' + Tools.escapeHTML(ability.name) + '">';
 
 		// name
 		var name = ability.name;
@@ -1341,7 +1341,7 @@
 		if (!attrs) attrs = '';
 		var id = toId(move.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'moves/' + id + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="move:' + Tools.escapeHTML(move.name) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="move|' + Tools.escapeHTML(move.name) + '">';
 
 		// name
 		var name = move.name;
@@ -1412,7 +1412,7 @@
 	Search.prototype.renderMoveRowInner = function (move, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
-		var buf = '<a' + attrs + ' data-entry="move:' + Tools.escapeHTML(move.name) + '">';
+		var buf = '<a' + attrs + ' data-entry="move|' + Tools.escapeHTML(move.name) + '">';
 
 		// name
 		var name = move.name;
@@ -1447,7 +1447,7 @@
 	Search.prototype.renderTaggedMoveRow = function (move, tag, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="move:' + Tools.escapeHTML(move.name) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="move|' + Tools.escapeHTML(move.name) + '">';
 
 		// tag
 		buf += '<span class="col tagcol">' + tag + '</span> ';
@@ -1485,7 +1485,7 @@
 	Search.prototype.renderTypeRow = function (type, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'types/' + toId(type.name) + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="type:' + Tools.escapeHTML(type.name) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="type|' + Tools.escapeHTML(type.name) + '">';
 
 		// name
 		var name = type.name;
@@ -1512,7 +1512,7 @@
 	Search.prototype.renderCategoryRow = function (category, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'categories/' + category.id + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="category:' + Tools.escapeHTML(category.name) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="category|' + Tools.escapeHTML(category.name) + '">';
 
 		// name
 		var name = category.name;
@@ -1541,7 +1541,7 @@
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'articles/' + article.id + '" data-target="push"';
 		var isSearchType = (article.id === 'pokemon' || article.id === 'moves');
 		if (isSearchType) attrs = ' href="' + article.id + '/" data-target="replace"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="article:' + Tools.escapeHTML(article.name) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="article|' + Tools.escapeHTML(article.name) + '">';
 
 		// name
 		var name = article.name;
@@ -1570,7 +1570,7 @@
 	Search.prototype.renderEggGroupRow = function (egggroup, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'egggroups/' + toId(egggroup.name) + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="egggroup:' + Tools.escapeHTML(egggroup.name) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="egggroup|' + Tools.escapeHTML(egggroup.name) + '">';
 
 		// name
 		var name = egggroup.name;
@@ -1592,7 +1592,7 @@
 	Search.prototype.renderTierRow = function (tier, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'tiers/' + toId(tier.name) + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="tier:' + Tools.escapeHTML(tier.name) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="tier|' + Tools.escapeHTML(tier.name) + '">';
 
 		// name
 		var name = tier.name;

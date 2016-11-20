@@ -2376,7 +2376,8 @@
 				this.search.find('');
 				return;
 			}
-			var val = $(e.currentTarget).data('entry').split(':')[1];
+			var entry = $(e.currentTarget).data('entry');
+			var val = entry.slice(entry.indexOf("|") + 1);
 			if (this.curChartType === 'move' && e.currentTarget.className === 'cur') {
 				// clicked a move, remove it if we already have it
 				var $emptyEl;
@@ -2421,7 +2422,8 @@
 					this.search.find('');
 					return;
 				}
-				var val = $firstResult.data('entry').split(':')[1];
+				var entry = $firstResult.data('entry');
+				var val = entry.slice(entry.indexOf("|") + 1);
 				this.chartSet(val, true);
 				return;
 			} else if (e.keyCode === 38) { // up
