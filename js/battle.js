@@ -4488,11 +4488,13 @@ var Battle = (function () {
 					ofpoke.markAbility(ability.name);
 					actions += '' + poke.getName() + ' traced ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
 					break;
+				case 'powerofalchemy':
 				case 'receiver':
-					this.resultAnim(poke, "Receiver", 'ability');
+					this.resultAnim(poke, effect.name, 'ability');
 					this.animationDelay = 500;
 					this.resultAnim(poke, ability.name, 'ability');
-					this.message('', "<small>[" + poke.getName(true) + "'s Receiver!]</small>");
+					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
+					if (!poke.baseAbility) poke.baseAbility = effect.name;
 					actions += '' + ofpoke.getName() + '\'s ' + ability.name + ' was taken over!';
 					break;
 				case 'roleplay':
