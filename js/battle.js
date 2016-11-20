@@ -2239,6 +2239,7 @@ var Side = (function () {
 			ragepowder: '<span class="good">Rage&nbsp;Powder</span>',
 			followme: '<span class="good">Follow&nbsp;Me</span>',
 			instruct: '<span class="neutral">Instruct</span>',
+			beakblast: '<span class="neutral">Beak&nbsp;Blast</span>',
 			itemremoved: '',
 			// Gen 1
 			lightscreen: '<span class="good">Light&nbsp;Screen</span>',
@@ -5128,6 +5129,10 @@ var Battle = (function () {
 					break;
 				case 'instruct':
 					actions += '' + poke.getName() + ' used the move instructed by ' + ofpoke.getLowerName() + '!';
+					break;
+				case 'beakblast':
+					this.resultAnim(poke, 'Beak Blast', 'neutral');
+					actions += '' + poke.getName() + ' started heating up its beak!';
 					break;
 				}
 				poke.side.updateStatbar();
