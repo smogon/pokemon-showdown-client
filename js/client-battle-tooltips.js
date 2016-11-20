@@ -622,6 +622,9 @@ var BattleTooltips = (function () {
 			if (ability === 'sandrush' && weather === 'sandstorm') {
 				stats.spe *= 2;
 			}
+			if (ability === 'slushrush' && weather === 'hail') {
+				stats.spe *= 2;
+			}
 		}
 		if (ability === 'defeatist' && myPokemon.hp <= myPokemon.maxhp / 2) {
 			stats.atk = Math.floor(stats.atk * 0.5);
@@ -645,6 +648,9 @@ var BattleTooltips = (function () {
 		}
 		if (ability === 'grasspelt' && this.battle.hasPseudoWeather('grassyterrain')) {
 			stats.def = Math.floor(stats.def * 1.5);
+		}
+		if (ability === 'surgesurfer' && this.battle.hasPseudoWeather('electricterrain')) {
+			stats.spe *= 2;
 		}
 		if (item === 'choicespecs') {
 			stats.spa = Math.floor(stats.spa * 1.5);
