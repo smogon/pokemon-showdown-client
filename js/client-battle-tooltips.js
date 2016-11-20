@@ -790,6 +790,10 @@ var BattleTooltips = (function () {
 		}
 		// Moves that require an item to change their type.
 		if (!this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+			if (move.id === 'multiattack') {
+				var item = Tools.getItem(myPokemon.item);
+				if (item.onMemory) moveType = item.onMemory;
+			}
 			if (move.id === 'judgment') {
 				var item = Tools.getItem(myPokemon.item);
 				if (item.onPlate) moveType = item.onPlate;
@@ -826,8 +830,10 @@ var BattleTooltips = (function () {
 			}
 		}
 		// Other abilities that change the move type.
+		if ('sound' in move.flags && ability === 'Liquid Voice') moveType = 'Water';
 		if (moveType === 'Normal' && move.category && move.category !== 'Status' && !(move.id in {'naturalgift': 1, 'struggle': 1})) {
 			if (ability === 'Aerilate') moveType = 'Flying';
+			if (ability === 'Galvanize') moveType = 'Electric';
 			if (ability === 'Pixilate') moveType = 'Fairy';
 			if (ability === 'Refrigerate') moveType = 'Ice';
 		}
@@ -1056,6 +1062,14 @@ var BattleTooltips = (function () {
 		if (!basePower) return basePowerComment;
 
 		// Other ability boosts.
+		if (ability === 'Water Bubble' && move.type === 'Water') {
+			basePower *= 2;
+			basePowerComment = ' (Water Bubble boosted)';
+		}
+		if (ability === 'Steelworker' && move.type === 'Steel') {
+			basePower *= 1.5;
+			basePowerComment = ' (Steelworker boosted)';
+		}
 		if (ability === 'Technician' && basePower <= 60) {
 			basePower *= 1.5;
 			basePowerComment = ' (Technician boosted)';
@@ -1063,10 +1077,11 @@ var BattleTooltips = (function () {
 		if (move.type === 'Normal' && move.category !== 'Status' &&
 			!(move.id in {'naturalgift': 1, 'struggle': 1} ||
 			  move.id === 'weatherball' && thereIsWeather ||
+			  move.id === 'multiattack' && item.onMemory ||
 			  move.id === 'judgment' && item.onPlate ||
 			  move.id === 'technoblast' && item.onDrive)) {
-			if (ability in {'Aerilate': 1, 'Pixilate': 1, 'Refrigerate': 1}) {
-				basePower = Math.floor(basePower * 1.3);
+			if (ability in {'Aerilate': 1, 'Galvanize':1, 'Pixilate': 1, 'Refrigerate': 1} || this.battle.gen > 6 && ability == 'Normalize') {
+				basePower = Math.floor(basePower * (this.battle.gen > 6 ? 1.2 : 1.3));
 				basePowerComment = ' (' + ability + ' boosted)';
 			}
 		}
