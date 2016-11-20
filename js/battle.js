@@ -2388,8 +2388,8 @@ var Battle = (function () {
 			}
 		}
 	};
-	Battle.prototype.addPseudoWeather = function (weather, poke) {
-		this.pseudoWeather.push([weather, 5]);
+	Battle.prototype.addPseudoWeather = function (weather, minTimeLeft, timeLeft) {
+		this.pseudoWeather.push([weather, minTimeLeft, timeLeft]);
 		this.updateWeather();
 	};
 	Battle.prototype.hasPseudoWeather = function (weather) {
@@ -2835,8 +2835,8 @@ var Battle = (function () {
 		if (turnnum == this.turn + 1) {
 			this.endLastTurnPending = true;
 		}
+		if (this.turn) this.updatePseudoWeatherLeft();
 		this.turn = turnnum;
-		this.updatePseudoWeatherLeft();
 
 		if (this.mySide.active[0]) this.mySide.active[0].clearTurnstatuses();
 		if (this.mySide.active[1]) this.mySide.active[1].clearTurnstatuses();
@@ -2980,7 +2980,9 @@ var Battle = (function () {
 	};
 	Battle.prototype.updatePseudoWeatherLeft = function () {
 		for (var i = 0; i < this.pseudoWeather.length; i++) {
-			if (this.pseudoWeather[i][1] > 0) this.pseudoWeather[i][1]--;
+			var pWeather = this.pseudoWeather[i];
+			if (pWeather[1]) pWeather[1]--;
+			if (pWeather[2]) pWeather[2]--;
 		}
 		for (var i = 0; i < this.sides.length; i++) {
 			for (var id in this.sides[i].sideConditions) {
@@ -2993,6 +2995,13 @@ var Battle = (function () {
 	};
 	Battle.prototype.pseudoWeatherLeft = function (pWeather) {
 		var buf = '<br />' + Tools.getMove(pWeather[0]).name;
+		if (!pWeather[1] && pWeather[2]) {
+			pWeather[1] = pWeather[2];
+			pWeather[2] = 0;
+		}
+		if (pWeather[2]) {
+			return buf + ' <small>(' + pWeather[1] + ' or ' + pWeather[2] + ' turns)</small>';
+		}
 		if (pWeather[1]) {
 			return buf + ' <small>(' + pWeather[1] + ' turn' + (pWeather[1] == 1 ? '' : 's') + ')</small>';
 		}
@@ -5611,13 +5620,15 @@ var Battle = (function () {
 					this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
 					poke.markAbility(fromeffect.name);
 				}
+				var maxTimeLeft = 0;
 				if (effect.id in {'electricterrain': 1, 'grassyterrain': 1, 'mistyterrain': 1, 'psychicterrain': 1}) {
 					this.removePseudoWeather('Electric Terrain');
 					this.removePseudoWeather('Grassy Terrain');
 					this.removePseudoWeather('Misty Terrain');
 					this.removePseudoWeather('Psychic Terrain');
+					if (this.gen > 6) maxTimeLeft = 8;
 				}
-				this.addPseudoWeather(effect.name, poke);
+				this.addPseudoWeather(effect.name, 5, maxTimeLeft);
 
 				switch (effect.id) {
 				case 'trickroom':
