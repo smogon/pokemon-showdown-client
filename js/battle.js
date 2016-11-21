@@ -3541,6 +3541,7 @@ var Battle = (function () {
 					case 'spikyshield':
 						actions += "" + poke.getName() + " was hurt!";
 						break;
+					case 'innardsout':
 					case 'aftermath':
 						actions += "" + poke.getName() + " is hurt!";
 						break;
