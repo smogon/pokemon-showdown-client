@@ -27896,7 +27896,7 @@ BattleMoveAnims['synthesis'] = {anim:BattleMoveAnims['recover'].anim};
 BattleMoveAnims['floralhealing'] = {anim:BattleMoveAnims['healpulse'].anim};
 BattleMoveAnims['purify'] = {anim:BattleMoveAnims['weatherball'].anim};
 
-BattleMoveAnims['polenpuff'] = {anim:BattleMoveAnims['revelationdance'].anim};
+BattleMoveAnims['pollenpuff'] = {anim:BattleMoveAnims['revelationdance'].anim};
 
 BattleMoveAnims['amnesia'] = {anim:BattleMoveAnims['rest'].anim};
 
