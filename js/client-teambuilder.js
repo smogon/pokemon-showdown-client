@@ -3359,7 +3359,9 @@
 			}
 			buf += '</div>';
 
-			this.$el.html(buf).css({'max-width': (4 + spriteSize) * (formCount < 6 ? formCount : 6), 'height': 42 + (4 + spriteSize) * (formCount < 6 ? 1 : formCount / 6)});
+			var height = Math.ceil(formCount / 7);
+			var width = Math.ceil(formCount / height);
+			this.$el.html(buf).css({'max-width': (4 + spriteSize) * width, 'height': 42 + (4 + spriteSize) * height});
 		},
 		setForm: function (form) {
 			var template = Tools.getTemplate(this.curSet.species);
