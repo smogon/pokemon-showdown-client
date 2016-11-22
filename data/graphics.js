@@ -19412,56 +19412,62 @@ var BattleMoveAnims = {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
-			battle.backgroundEffect('linear-gradient(#000000 20%, #0000DD)', 2700, 0.4);
-			battle.backgroundEffect("url('fx/weather-raindance.jpg')", 700, 0.2, 2000);
+
 			battle.showEffect('iceball', {
 				x: attacker.x,
-				y: attacker.y + 120,
+				y: attacker.y,
 				z: attacker.z,
-				scale: 2.5,
-				opacity: 0
+				scale: 0.5,
+				opacity: 0.7
 			}, {
-				scale: 3,
-				opacity: 1,
-				time: 599
-			}, 'linear', 'fade');
-			battle.showEffect('waterwisp', {
-				x: attacker.x,
-				y: attacker.y + 120,
-				z: attacker.z,
-				scale: 3,
-				opacity: 0
-			}, {
-				scale: 3.25,
-				opacity: 0.7,
-				time: 599
-			}, 'linear', 'fade');
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(0),
+				opacity: 0.6,
+				time: 400
+			}, 'decel', 'explode');
 			battle.showEffect('iceball', {
 				x: attacker.x,
-				y: attacker.y + 120,
+				y: attacker.y,
 				z: attacker.z,
-				scale: 3,
-				opacity: 1,
-				time: 600
-			}, {
-				x: defender.x,
-				y: defender.y + 10,
-				z: defender.z,
-				time: 2000
-			}, 'accel', 'explode');
-			battle.showEffect('waterwisp', {
-				x: attacker.x,
-				y: attacker.y + 120,
-				z: attacker.z,
-				scale: 3.25,
+				scale: 0.5,
 				opacity: 0.7,
+				time: 100
+			}, {
+				x: defender.x + 20,
+				y: defender.y - 10,
+				z: defender.behind(0),
+				opacity: 0.6,
+				time: 500
+			}, 'decel', 'explode');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.7,
+				time: 200
+			}, {
+				x: defender.x - 20,
+				y: defender.y + 10,
+				z: defender.behind(0),
+				opacity: 0.6,
 				time: 600
+			}, 'decel', 'explode');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.7,
+				time: 300
 			}, {
 				x: defender.x,
-				y: defender.y + 10,
-				z: defender.z,
-				time: 2000
-			}, 'accel', 'explode');
+				y: defender.y - 5,
+				z: defender.behind(0),
+				opacity: 0.6,
+				time: 700
+			}, 'decel', 'explode');
 		}
 	},
 	surf: {
@@ -27331,6 +27337,62 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 2125
 			}, 'linear');
+		}
+	},
+	oceanicoperatta: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+			battle.backgroundEffect('linear-gradient(#000000 20%, #0000DD)', 2700, 0.4);
+			battle.backgroundEffect("url('fx/weather-raindance.jpg')", 700, 0.2, 2000);
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y + 120,
+				z: attacker.z,
+				scale: 2.5,
+				opacity: 0
+			}, {
+				scale: 3,
+				opacity: 1,
+				time: 599
+			}, 'linear', 'fade');
+			battle.showEffect('waterwisp', {
+				x: attacker.x,
+				y: attacker.y + 120,
+				z: attacker.z,
+				scale: 3,
+				opacity: 0
+			}, {
+				scale: 3.25,
+				opacity: 0.7,
+				time: 599
+			}, 'linear', 'fade');
+			battle.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y + 120,
+				z: attacker.z,
+				scale: 3,
+				opacity: 1,
+				time: 600
+			}, {
+				x: defender.x,
+				y: defender.y + 10,
+				z: defender.z,
+				time: 2000
+			}, 'accel', 'explode');
+			battle.showEffect('waterwisp', {
+				x: attacker.x,
+				y: attacker.y + 120,
+				z: attacker.z,
+				scale: 3.25,
+				opacity: 0.7,
+				time: 600
+			}, {
+				x: defender.x,
+				y: defender.y + 10,
+				z: defender.z,
+				time: 2000
+			}, 'accel', 'explode');
 		}
 	},
 	extremeevoboost: {
