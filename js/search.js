@@ -786,7 +786,10 @@
 		case 'pokemon':
 			var table = BattleTeambuilderTable;
 			var isDoubles = false;
-			if (this.gen >= 6 && format.indexOf('doubles') >= 0 || format.indexOf('vgc') >= 0 || format.indexOf('triples') >= 0) {
+			if (this.gen === 7 && format.indexOf('vgc') >= 0) {
+				table = table['gen' + this.gen + 'vgc'];
+				isDoubles = true;
+			} else if (this.gen === 6 && format.indexOf('doubles') >= 0 || format.indexOf('vgc') >= 0 || format.indexOf('triples') >= 0) {
 				table = table['gen' + this.gen + 'doubles'];
 				isDoubles = true;
 			} else if (this.gen < 7) {
@@ -803,8 +806,11 @@
 			var tierSet = table.tierSet;
 			var slices = table.formatSlices;
 			var agTierSet = [];
-			if (this.gen >= 6) agTierSet = [['header', "AG"], ['pokemon', 'rayquazamega']];
+			if (this.gen === 6) agTierSet = [['header', "AG"], ['pokemon', 'rayquazamega']];
 			if (format === 'ubers' || format === 'uber') tierSet = tierSet.slice(slices.Uber);
+			else if (this.gen === 7 && format === 'vgc2017') tierSet = tierSet.slice(slices.Legal);
+			else if (this.gen === 7 && (format === 'pokebankubers' || format === 'pokebankanythinggoes')) tierSet = tierSet.slice(slices.Uber);
+			else if (this.gen === 7) tierSet = tierSet.slice(slices.New);
 			else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
 			else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
 			else if (format === 'ru') tierSet = tierSet.slice(slices.RU);
