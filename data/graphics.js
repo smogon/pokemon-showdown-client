@@ -1712,26 +1712,31 @@ var BattleOtherAnims = {
 
 			attacker.anim({
 				x: attacker.x - 5,
+				y: attacker.y - 5,
 				yscale: 0.9,
 				time: 75
 			}, 'swing');
 			attacker.anim({
 				x: attacker.x + 5,
+				y: attacker.y - 5,
 				yscale: 0.9,
 				time: 75
 			}, 'swing');
 			attacker.anim({
 				x: attacker.x - 5,
+				y: attacker.y - 5,
 				yscale: 0.9,
 				time: 75
 			}, 'swing');
 			attacker.anim({
 				x: attacker.x + 5,
+				y: attacker.y - 5,
 				yscale: 0.9,
 				time: 75
 			}, 'swing');
 			attacker.anim({
 				x: attacker.x - 5,
+				y: attacker.y - 5,
 				yscale: 0.9,
 				time: 75
 			}, 'swing');
@@ -11533,70 +11538,6 @@ var BattleMoveAnims = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-		},
-		prepareAnim: function (battle, args) { //TODO: Get this working eventually
-			var attacker = args[0];
-
-			battle.showEffect('electroball', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 2,
-				opacity: 0.2,
-				time: 0
-			}, {
-				scale: 1,
-				opacity: .5,
-				time: 400
-			}, 'linear', 'explode');
-			battle.showEffect('wisp', {
-				x: attacker.x + 30,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1,
-				opacity: 1,
-				time: 300
-			}, {
-				y: attacker.y + 60,
-				opacity: 0.2,
-				time: 700
-			}, 'linear', 'fade');
-			battle.showEffect('wisp', {
-				x: attacker.x - 30,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1,
-				opacity: 1,
-				time: 400
-			}, {
-				y: attacker.y + 60,
-				opacity: 0.2,
-				time: 800
-			}, 'linear', 'fade');
-			battle.showEffect('wisp', {
-				x: attacker.x + 15,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1,
-				opacity: 1,
-				time: 500
-			}, {
-				y: attacker.y + 60,
-				opacity: 0.2,
-				time: 900
-			}, 'linear', 'fade');
-			battle.showEffect('wisp', {
-				x: attacker.x - 15,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1,
-				opacity: 1,
-				time: 600
-			}, {
-				y: attacker.y + 60,
-				opacity: 0.2,
-				time: 1000
-			}, 'linear', 'fade');
 		}
 	},
 	vcreate: {

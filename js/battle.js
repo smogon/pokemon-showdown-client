@@ -5143,6 +5143,7 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' used the move instructed by ' + ofpoke.getLowerName() + '!';
 					break;
 				case 'beakblast':
+					if (!this.fastForward) BattleOtherAnims.bidecharge.anim(this, [poke.sprite]);
 					this.resultAnim(poke, 'Beak Blast', 'neutral');
 					actions += '' + poke.getName() + ' started heating up its beak!';
 					break;
