@@ -265,7 +265,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// automatically built with githooks/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [7, 6, -6, 5, 4, 3, 2, 1]) {
+	for (const genIdent of [7, -7, 6, -6, 5, 4, 3, 2, 1]) {
 		const isDoubles = (genIdent < 0);
 		const genNum = (isDoubles ? -genIdent : genIdent);
 		const gen = 'gen' + genNum;
