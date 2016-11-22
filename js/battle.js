@@ -833,7 +833,7 @@ var Sprite = (function () {
 				BattleOtherAnims.primalomega.anim(battle, [self]);
 			} else if (species.id === 'zygardecomplete') {
 				BattleOtherAnims.powerconstruct.anim(battle, [self]);
-			} else if (species.id === 'wishiwashischool') {
+			} else if (species.id === 'wishiwashischool' || species.id === 'greninjaash') {
 				BattleOtherAnims.schoolingin.anim(battle, [self]);
 			} else if (species.id === 'wishiwashi') {
 				BattleOtherAnims.schoolingout.anim(battle, [self]);
