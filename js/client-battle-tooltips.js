@@ -962,7 +962,7 @@ var BattleTooltips = (function () {
 				basePowerComment = ' (Boosted by status)';
 			}
 		}
-		if (move.id === 'storedpower') {
+		if (move.id === 'storedpower' || move.id == 'powertrip') {
 			var boosts = Object.keys(pokemon.boosts);
 			var multiply = 0;
 			for (var i = 0; i < boosts.length; i++) {
