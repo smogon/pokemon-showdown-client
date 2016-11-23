@@ -1742,7 +1742,7 @@ var Side = (function () {
 		pokemon.clearVolatile();
 		pokemon.lastmove = '';
 		this.battle.lastmove = 'switch-in';
-		if (this.lastPokemon && this.lastPokemon.lastmove === 'batonpass') {
+		if (this.lastPokemon && (this.lastPokemon.lastmove === 'batonpass' || this.lastPokemon.lastmove === 'zbatonpass')) {
 			pokemon.copyVolatileFrom(this.lastPokemon);
 		}
 
