@@ -837,6 +837,8 @@ var Sprite = (function () {
 				BattleOtherAnims.schoolingin.anim(battle, [self]);
 			} else if (species.id === 'wishiwashi') {
 				BattleOtherAnims.schoolingout.anim(battle, [self]);
+			} else if (species.id === 'mimikyubusted') {
+				// standard animation
 			} else {
 				BattleOtherAnims.megaevo.anim(battle, [self]);
 			}
