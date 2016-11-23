@@ -4792,6 +4792,9 @@ var BattleMoveAnims = {
 	spikyshield: {
 		anim: BattleOtherAnims.selfstatus.anim
 	},
+	banefulbunker: {
+		anim: BattleOtherAnims.selfstatus.anim
+	},
 	craftyshield: {
 		anim: BattleOtherAnims.selfstatus.anim
 	},
