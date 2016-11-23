@@ -27735,6 +27735,7 @@ BattleMoveAnims['nightdaze'] = {anim:BattleMoveAnims['darkpulse'].anim};
 
 BattleMoveAnims['spiritshackle'] = {anim:BattleMoveAnims['shadowball'].anim};
 
+BattleMoveAnims['strengthsap'] = {anim:BattleMoveAnims['leechlife'].anim};
 BattleMoveAnims['hornattack'] = {anim:BattleMoveAnims['megahorn'].anim};
 BattleMoveAnims['lunge'] = {anim:BattleMoveAnims['megahorn'].anim};
 
@@ -27831,6 +27832,7 @@ BattleMoveAnims['magnitude'] = {anim:BattleMoveAnims['earthquake'].anim};
 BattleMoveAnims['fissure'] = {anim:BattleMoveAnims['earthquake'].anim};
 BattleMoveAnims['bulldoze'] = {anim:BattleMoveAnims['earthquake'].anim};
 BattleMoveAnims['landswrath'] = {anim:BattleMoveAnims['earthquake'].anim};
+BattleMoveAnims['stompingtantrum'] = {anim:BattleMoveAnims['earthquake'].anim};
 
 BattleMoveAnims['camouflage'] = {anim:BattleMoveAnims['tailglow'].anim};
 BattleMoveAnims['foulplay'] = {anim:BattleMoveAnims['psyshock'].anim};
@@ -27871,6 +27873,7 @@ BattleMoveAnims['mudsport'] = {anim:BattleMoveAnims['mudbomb'].anim};
 
 BattleMoveAnims['spiderweb'] = {anim:BattleMoveAnims['electroweb'].anim};
 BattleMoveAnims['stringshot'] = {anim:BattleMoveAnims['electroweb'].anim};
+BattleMoveAnims['toxicthread'] = {anim:BattleMoveAnims['electroweb'].anim};
 
 BattleMoveAnims['hyperfang'] = {anim:BattleMoveAnims['superfang'].anim};
 
@@ -27881,7 +27884,6 @@ BattleMoveAnims['spitup'] = {anim:BattleMoveAnims['magnetbomb'].anim};
 
 BattleMoveAnims['rollingkick'] = {anim:BattleMoveAnims['doublekick'].anim};
 BattleMoveAnims['triplekick'] = {anim:BattleMoveAnims['doublekick'].anim};
-BattleMoveAnims['stompingtantrum'] = {anim:BattleMoveAnims['doublekick'].anim};
 
 BattleMoveAnims['aromaticmist'] = {anim:BattleMoveAnims['mistyterrain'].anim};
 BattleMoveAnims['sweetscent'] = {anim:BattleMoveAnims['mistyterrain'].anim};
