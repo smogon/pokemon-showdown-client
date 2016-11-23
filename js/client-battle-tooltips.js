@@ -249,9 +249,9 @@ var BattleTooltips = (function () {
 		if (additionalInfo) text += '<p>' + additionalInfo + '</p>';
 		text += '<p>Accuracy: ' + accuracy + '</p>';
 		if (move.desc) {
-			if (this.battle.gen < 6) {
+			if (this.battle.gen < 7) {
 				var desc = move.shortDesc;
-				for (var i = this.battle.gen; i < 6; i++) {
+				for (var i = this.battle.gen; i < 7; i++) {
 					if (move.id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
 						desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[move.id];
 						break;
@@ -347,17 +347,9 @@ var BattleTooltips = (function () {
 		}
 
 		var types = template.types;
-		var gen = this.battle.gen;
-		if (gen < 5 && template.baseSpecies === 'Rotom') {
-			types = ["Electric", "Ghost"];
-		} else if (gen < 2 && types[1] === 'Steel') {
-			types = [types[0]];
-		} else if (gen < 6 && types[0] === 'Fairy' && types.length > 1) {
-			types = ['Normal', types[1]];
-		} else if (gen < 6 && types[0] === 'Fairy') {
-			types = ['Normal'];
-		} else if (gen < 6 && types[1] === 'Fairy') {
-			types = [types[0]];
+		if (this.battle.gen < 7) {
+			var table = BattleTeambuilderTable['gen' + this.battle.gen];
+			if (template.speciesid in table.overrideType) types = table.overrideType[template.speciesid].split('/');
 		}
 
 		var isTypeChanged = false;
@@ -428,7 +420,12 @@ var BattleTooltips = (function () {
 		if (this.battle.gen > 2 && showOtherSees) {
 			if (!pokemon.baseAbility && !pokemon.ability) {
 				if (template.abilities) {
-					text += '<p>Possible abilities: ' + Tools.getAbility(template.abilities['0']).name;
+					var ability0 = template.abilities['0'];
+					if (this.battle.gen < 7) {
+						var table = BattleTeambuilderTable['gen' + this.battle.gen];
+						if (template.speciesid in table.overrideAbility) ability0 = table.overrideAbility[template.speciesid];
+					}
+					text += '<p>Possible abilities: ' + Tools.getAbility(ability0).name;
 					if (template.abilities['1']) text += ', ' + Tools.getAbility(template.abilities['1']).name;
 					if (this.battle.gen > 4 && template.abilities['H']) text += ', ' + Tools.getAbility(template.abilities['H']).name;
 					text += '</p>';
@@ -738,7 +735,7 @@ var BattleTooltips = (function () {
 		} else {
 			move = Tools.getMove(moveName);
 			maxpp = move.pp;
-			if (this.battle.gen < 6) {
+			if (this.battle.gen < 7) {
 				var table = BattleTeambuilderTable['gen' + this.battle.gen];
 				if (move.id in table.overridePP) maxpp = table.overridePP[move.id];
 			}
@@ -752,7 +749,7 @@ var BattleTooltips = (function () {
 	// Functions to calculate speed ranges of an opponent.
 	BattleTooltips.prototype.getTemplateMinSpeed = function (template, level) {
 		var baseSpe = template.baseStats['spe'];
-		if (this.battle.gen < 6) {
+		if (this.battle.gen < 7) {
 			var overrideStats = BattleTeambuilderTable['gen' + this.battle.gen].overrideStats[template.id];
 			if (overrideStats && 'spe' in overrideStats) baseSpe = overrideStats['spe'];
 		}
@@ -762,7 +759,7 @@ var BattleTooltips = (function () {
 	};
 	BattleTooltips.prototype.getTemplateMaxSpeed = function (template, level) {
 		var baseSpe = template.baseStats['spe'];
-		if (this.battle.gen < 6) {
+		if (this.battle.gen < 7) {
 			var overrideStats = BattleTeambuilderTable['gen' + this.battle.gen].overrideStats[template.id];
 			if (overrideStats && 'spe' in overrideStats) baseSpe = overrideStats['spe'];
 		}
@@ -845,7 +842,7 @@ var BattleTooltips = (function () {
 		var myPokemon = this.room.myPokemon[pokemon.slot];
 		var ability = Tools.getAbility(pokemon.ability || myPokemon.baseAbility).name;
 		var accuracy = move.accuracy;
-		if (this.battle.gen < 6) {
+		if (this.battle.gen < 7) {
 			var table = BattleTeambuilderTable['gen' + this.battle.gen];
 			if (move.id in table.overrideAcc) accuracy = table.overrideAcc[move.id];
 		}
@@ -907,7 +904,7 @@ var BattleTooltips = (function () {
 		var ability = Tools.getAbility(myPokemon.baseAbility).name;
 		var item = {};
 		var basePower = move.basePower;
-		if (this.battle.gen < 6) {
+		if (this.battle.gen < 7) {
 			var table = BattleTeambuilderTable['gen' + this.battle.gen];
 			if (move.id in table.overrideBP) basePower = table.overrideBP[move.id];
 		}
