@@ -115,7 +115,7 @@
 		// format
 		// Special values:
 		// '' -     show all
-		// 'gen6' - show teams with no format
+		// 'gen7' - show teams with no format
 		// '/' -    show teams with no folder
 		curFolder: '',
 		curFolderKeep: '',
@@ -216,7 +216,7 @@
 					format = this.curFolder;
 				} else {
 					format = Storage.teams[i].format;
-					if (!format) format = 'gen6';
+					if (!format) format = 'gen7';
 				}
 				if (!format) continue;
 				if (format in folderTable) continue;
@@ -229,17 +229,19 @@
 					}
 					continue;
 				}
-				if (format === 'gen6') {
+				if (format === 'gen7') {
 					folders.push('A~');
 					continue;
 				}
 				switch (format.slice(0, 4)) {
-				case 'gen1': format = 'F' + format.slice(4); break;
-				case 'gen2': format = 'E' + format.slice(4); break;
-				case 'gen3': format = 'D' + format.slice(4); break;
-				case 'gen4': format = 'C' + format.slice(4); break;
-				case 'gen5': format = 'B' + format.slice(4); break;
-				default: format = 'A' + format; break;
+				case 'gen1': format = 'G' + format.slice(4); break;
+				case 'gen2': format = 'F' + format.slice(4); break;
+				case 'gen3': format = 'E' + format.slice(4); break;
+				case 'gen4': format = 'D' + format.slice(4); break;
+				case 'gen5': format = 'C' + format.slice(4); break;
+				case 'gen6': format = 'B' + format.slice(4); break;
+				case 'gen7': format = 'A' + format.slice(4); break;
+				default: format = 'B' + format; break;
 				}
 				folders.push(format);
 			}
@@ -251,12 +253,13 @@
 				var format = folders[i];
 				var newGen;
 				switch (format.charAt(0)) {
-				case 'F': newGen = '1'; break;
-				case 'E': newGen = '2'; break;
-				case 'D': newGen = '3'; break;
-				case 'C': newGen = '4'; break;
-				case 'B': newGen = '5'; break;
-				case 'A': newGen = '6'; break;
+				case 'G': newGen = '1'; break;
+				case 'F': newGen = '2'; break;
+				case 'E': newGen = '3'; break;
+				case 'D': newGen = '4'; break;
+				case 'C': newGen = '5'; break;
+				case 'B': newGen = '6'; break;
+				case 'A': newGen = '7'; break;
 				case 'Z': newGen = '/'; break;
 				}
 				if (gen !== newGen) {
@@ -289,7 +292,7 @@
 				} else {
 					format = 'gen' + newGen + formatName;
 				}
-				if (format === 'gen6') formatName = '(uncategorized)';
+				if (format === 'gen7') formatName = '(uncategorized)';
 				// folders are <div>s rather than <button>s because in theory it has
 				// less weird interactions with HTML5 drag-and-drop
 				buf += '<div class="folder' + (this.curFolder === format ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="' + format + '"><i class="fa ' + (this.curFolder === format ? 'fa-folder-open-o' : 'fa-folder-o') + '"></i>' + formatName + '</div></div>' + (this.curFolder === format ? '</div>' : '');
@@ -336,7 +339,7 @@
 
 			var newButtonText = "New Team";
 			if (filterFolder) newButtonText = "New Team in folder";
-			if (filterFormat && filterFormat !== 'gen6') {
+			if (filterFormat && filterFormat !== 'gen7') {
 				newButtonText = "New " + Tools.escapeFormat(filterFormat) + " Team";
 			}
 			buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> ' + newButtonText + '</button></p>';
@@ -377,7 +380,7 @@
 						continue;
 					}
 
-					if (filterFormat && filterFormat !== (team.format || 'gen6')) continue;
+					if (filterFormat && filterFormat !== (team.format || 'gen7')) continue;
 					if (filterFolder !== undefined && filterFolder !== team.folder) continue;
 
 					if (!atLeastOne) atLeastOne = true;
