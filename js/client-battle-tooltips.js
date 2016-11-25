@@ -220,13 +220,15 @@ var BattleTooltips = (function () {
 		// Deal with Nature Power special case, indicating which move it calls.
 		if (move.id === 'naturepower') {
 			var calls;
-			if (this.battle.gen === 6) {
+			if (this.battle.gen > 5) {
 				if (this.battle.hasPseudoWeather('Electric Terrain')) {
 					calls = 'Thunderbolt';
 				} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
 					calls = 'Energy Ball';
 				} else if (this.battle.hasPseudoWeather('Misty Terrain')) {
 					calls = 'Moonblast';
+				} else if (this.battle.hasPseudoWeather('Psychic Terrain')) {
+					calls = 'Psychic';
 				} else {
 					calls = 'Tri Attack';
 				}
