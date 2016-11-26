@@ -2255,6 +2255,30 @@ var BattleOtherAnims = {
 				opacity: 0.5,
 				time: 600
 			}, 'decel', 'explode');
+			battle.showEffect(attacker.sp, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0.3,
+				time: 600
+			}, {
+				y: attacker.y + 20,
+				scale: 2,
+				opacity: 0,
+				time: 1000
+			}, 'accel');
+			battle.showEffect(attacker.sp, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0.3,
+				time: 800
+			}, {
+				y: attacker.y + 20,
+				scale: 2,
+				opacity: 0,
+				time: 1200
+			}, 'accel');
 		}
 	},
 	powerconstruct: {

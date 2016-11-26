@@ -4155,6 +4155,7 @@ var Battle = (function () {
 
 			case '-zpower':
 				var poke = this.getPokemon(args[1]);
+				if (!this.fastForward) BattleOtherAnims.zpower.anim(this, [poke.sprite]);
 				actions += "" + poke.getName() + " surrounded itself with its Z-Power! ";
 				break;
 
