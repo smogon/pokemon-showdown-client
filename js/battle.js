@@ -4532,7 +4532,7 @@ var Battle = (function () {
 					if (kwargs.fail) {
 						this.resultAnim(poke, ability.name, 'ability');
 						this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
-						actions += "The mysterious air current blows on regardless!";
+						actions += "The mysterious strong winds blow on regardless!";
 					}
 					break;
 				default:
@@ -4653,8 +4653,12 @@ var Battle = (function () {
 						actions += "" + poke.getName() + " formed a school!";
 						isCustomAnim = true;
 					} else if (toId(template.species) === 'wishiwashi') {
-						actions += "" + poke.getName() + "'s school was scattered! (placeholder)";
+						actions += "" + poke.getName() + " stopped schooling!";
 						isCustomAnim = true;
+					} else if (toId(template.species) === 'miniormeteor') {
+						actions += "Shields Down deactivated!";
+					} else if (toId(template.species) === 'minior') {
+						actions += "Shields Down activated!";
 					}
 				}
 				poke.sprite.animTransform($.extend(spriteData, template), isCustomAnim);
