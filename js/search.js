@@ -910,6 +910,27 @@
 				moves = [];
 				for (var i in BattleMovedex) {
 					if (i === 'chatter' || i === 'magikarpsrevenge' || i === 'paleowave' || i === 'shadowstrike') continue;
+					if (!BattleMovedex[i].gen) {
+						if (BattleMovedex[i].num >= 622) {
+							BattleMovedex[i].gen = 7;
+						} else if (BattleMovedex[i].num >= 560) {
+							BattleMovedex[i].gen = 6;
+						} else if (BattleMovedex[i].num >= 468) {
+							BattleMovedex[i].gen = 5;
+						} else if (BattleMovedex[i].num >= 355) {
+							BattleMovedex[i].gen = 4;
+						} else if (BattleMovedex[i].num >= 252) {
+							BattleMovedex[i].gen = 3;
+						} else if (BattleMovedex[i].num >= 166) {
+							BattleMovedex[i].gen = 2;
+						} else if (BattleMovedex[i].num >= 1) {
+							BattleMovedex[i].gen = 1;
+						} else {
+							BattleMovedex[i].gen = 0;
+						}
+					}
+					if (BattleMovedex[i].gen > this.gen) continue;
+					if (BattleMovedex[i].isZ) continue;
 					moves.push(i);
 				}
 			}
