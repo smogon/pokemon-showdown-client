@@ -795,7 +795,7 @@ var BattleTooltips = (function () {
 			}
 			if (move.id === 'judgment') {
 				var item = Tools.getItem(myPokemon.item);
-				if (item.onPlate) moveType = item.onPlate;
+				if (item.onPlate && !item.zMove) moveType = item.onPlate;
 			}
 			if (move.id === 'technoblast') {
 				var item = Tools.getItem(myPokemon.item);
