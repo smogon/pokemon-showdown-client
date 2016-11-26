@@ -3214,6 +3214,9 @@ var Battle = (function () {
 			target = pokemon.side.foe.missedPokemon;
 		}
 		if (!kwargs.silent) {
+			if (kwargs.zeffect) {
+				this.message('<small>' + pokemon.getName() + ' unleashes its full force Z-Move!</small>', '');
+			}
 			switch (fromeffect.id) {
 			case 'snatch':
 				break;
@@ -3678,6 +3681,8 @@ var Battle = (function () {
 						}
 						break;
 					}
+				} else if (kwargs.zeffect) {
+					actions += "" + poke.getName() + " restored its HP using its Z-Power!";
 				} else {
 					actions += poke.getName() + ' restored its HP.';
 				}
@@ -3750,6 +3755,8 @@ var Battle = (function () {
 						}
 						break;
 					}
+				} else if (kwargs.zeffect) {
+					actions += "" + poke.getName() + " boosted its " + BattleStats[stat] + " " + amountString + " using its Z-Power!";
 				} else {
 					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " rose" + amountString + "! ";
 				}
@@ -4144,6 +4151,11 @@ var Battle = (function () {
 
 			case '-combine':
 				actions += "The two moves have become one! It's a combined move!";
+				break;
+
+			case '-zpower':
+				var poke = this.getPokemon(args[1]);
+				actions += "" + poke.getName() + " surrounded itself with its Z-Power! ";
 				break;
 
 			case '-prepare':
@@ -4883,6 +4895,8 @@ var Battle = (function () {
 					this.resultAnim(poke, '+Crit rate', 'good');
 					if (fromeffect.effectType === 'Item') {
 						actions += "" + poke.getName() + " used the " + fromeffect.name + " to get pumped!";
+					} else if (kwargs.zeffect) {
+						actions += "" + poke.getName() + " boosted its critical-hit ratio using its Z-Power!";
 					} else {
 						actions += "" + poke.getName() + " is getting pumped!";
 					}
@@ -5151,7 +5165,11 @@ var Battle = (function () {
 					break;
 				case 'followme':
 				case 'ragepowder':
-					actions += '' + poke.getName() + ' became the center of attention!';
+					if (kwargs.zeffect) {
+						actions += '' + poke.getName() + ' became the center of attention using its Z-Power!';
+					} else {
+						actions += '' + poke.getName() + ' became the center of attention!';
+					}
 					break;
 				case 'powder':
 					actions += '' + poke.getName() + ' is covered in powder!';
