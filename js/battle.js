@@ -2236,6 +2236,7 @@ var Side = (function () {
 			grudge: '<span class="good">Grudge</span>',
 			endure: '<span class="good">Endure</span>',
 			focuspunch: '<span class="neutral">Focusing</span>',
+			shelltrap: '<span class="neutral">Trap&nbsp;set</span>',
 			powder: '<span class="bad">Powder</span>',
 			electrify: '<span class="bad">Electrify</span>',
 			ragepowder: '<span class="good">Rage&nbsp;Powder</span>',
@@ -3415,6 +3416,11 @@ var Battle = (function () {
 			this.resultAnim(pokemon, 'Lost focus', 'neutral');
 			this.message(pokemon.getName() + ' lost its focus and couldn\'t move!');
 			pokemon.removeTurnstatus('focuspunch');
+			break;
+		case 'shelltrap':
+			this.resultAnim(pokemon, 'Trap failed', 'neutral');
+			this.message(pokemon.getName() + '\'s shell trap didn\'t work!');
+			pokemon.removeTurnstatus('shelltrap');
 			break;
 		case 'flinch':
 			this.resultAnim(pokemon, 'Flinched', 'neutral');
@@ -5127,6 +5133,11 @@ var Battle = (function () {
 				case 'focuspunch':
 					this.resultAnim(poke, 'Focusing', 'neutral');
 					actions += '' + poke.getName() + ' is tightening its focus!';
+					poke.markMove(effect.name, 0);
+					break;
+				case 'shelltrap':
+					this.resultAnim(poke, 'Trap set', 'neutral');
+					actions += '' + poke.getName() + ' set a shell trap!';
 					poke.markMove(effect.name, 0);
 					break;
 				case 'snatch':
