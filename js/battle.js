@@ -3756,7 +3756,14 @@ var Battle = (function () {
 						break;
 					}
 				} else if (kwargs.zeffect) {
-					actions += "" + poke.getName() + " boosted its " + BattleStats[stat] + " " + amountString + " using its Z-Power!";
+					if (minors.length) {
+						actions += "" + poke.getName() + " boosted its stats" + amountString + " using its Z-Power! ";
+						for (var i = 0; i < minors.length; i++) {
+							minors[i][1].silent = '.';
+						}
+					} else {
+						actions += "" + poke.getName() + " boosted its " + BattleStats[stat] + amountString + " using its Z-Power! ";
+					}
 				} else {
 					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " rose" + amountString + "! ";
 				}
