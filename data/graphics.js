@@ -25314,7 +25314,7 @@ var BattleMoveAnims = {
 				y: attacker.y + 60,
 				z: attacker.z,
 				scale: 0.5,
-				opacity: 1,
+				opacity: 1
 			}, {
 				scale: 0.25,
 				opacity: 0,
@@ -25327,7 +25327,7 @@ var BattleMoveAnims = {
 				scale: 0.5,
 				xscale: 0.25,
 				yscale: 0.75,
-				opacity: 1,
+				opacity: 1
 			}, {
 				scale: 0.25,
 				opacity: 0,
@@ -25338,7 +25338,7 @@ var BattleMoveAnims = {
 				y: defender.y + 60,
 				z: defender.z,
 				scale: 0.5,
-				opacity: 1,
+				opacity: 1
 			}, {
 				scale: 0.25,
 				opacity: 0,
@@ -25351,7 +25351,7 @@ var BattleMoveAnims = {
 				scale: 0.5,
 				xscale: 0.25,
 				yscale: 0.75,
-				opacity: 1,
+				opacity: 1
 			}, {
 				scale: 0.25,
 				opacity: 0,
