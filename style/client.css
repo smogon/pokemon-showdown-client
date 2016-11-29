@@ -190,6 +190,9 @@ button:disabled {
 	background: #606060;
 	border-color: #EEEEEE;
 }
+.dark .tabbar a.button.notifying:hover {
+	background: #92C2D3;
+}
 .dark .button:active,
 .dark .tabbar a.button:active {
 	background: #3A3A3A;
