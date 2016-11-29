@@ -304,6 +304,8 @@ var baseSpeciesChart = {
 	'gourgeist': 1,
 	'meowstic': 1,
 	'hoopa': 1,
+	'minior': 1,
+	'mimikyu': 1,
 
 	// mega evolutions
 	'charizard': 1,
@@ -1011,12 +1013,15 @@ var Tools = {
 						template.forme = id.substr(k.length);
 					}
 				}
-				if (id !== 'yanmega' && id.substr(id.length - 4) === 'mega') {
-					template.baseSpecies = id.substr(0, id.length - 4);
-					template.forme = id.substr(id.length - 4);
-				} else if (id.substr(id.length - 6) === 'primal') {
-					template.baseSpecies = id.substr(0, id.length - 6);
-					template.forme = id.substr(id.length - 6);
+				if (id !== 'yanmega' && id.slice(-4) === 'mega') {
+					template.baseSpecies = id.slice(0, -4);
+					template.forme = id.slice(-4);
+				} else if (id.slice(-6) === 'primal') {
+					template.baseSpecies = id.slice(0, -6);
+					template.forme = id.slice(-6);
+				} else if (id.slice(-5) === 'alola') {
+					template.baseSpecies = id.slice(0, -5);
+					template.forme = id.slice(-5);
 				}
 				template.exists = false;
 			}
@@ -1558,14 +1563,16 @@ var Tools = {
 		// 	return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
 		// }
 		if (Tools.prefs('nopastgens')) gen = 6;
+		var spriteDir = Tools.resourcePrefix + 'sprites/xydex';
+		if (template.gen >= 7) spriteDir = Tools.resourcePrefix + 'sprites/bw';
 		if ((!gen || gen === 6) && !template.isNonstandard && !Tools.prefs('bwgfx')) {
 			var offset = '-2px -3px';
 			if (id.substr(0, 6) === 'arceus') offset = '-2px 7px';
 			if (id === 'garchomp') offset = '-2px 2px';
 			if (id === 'garchompmega') offset = '-2px 0px';
-			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/xydex' + shiny + '/' + spriteid + '.png);background-position:' + offset + ';background-repeat:no-repeat';
+			return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:' + offset + ';background-repeat:no-repeat';
 		}
-		var spriteDir = Tools.resourcePrefix + 'sprites/bw';
+		spriteDir = Tools.resourcePrefix + 'sprites/bw';
 		if (gen <= 1 && template.gen <= 1) spriteDir = Tools.resourcePrefix + 'sprites/rby';
 		else if (gen <= 2 && template.gen <= 2) spriteDir = Tools.resourcePrefix + 'sprites/gsc';
 		else if (gen <= 3 && template.gen <= 3) spriteDir = Tools.resourcePrefix + 'sprites/rse';
