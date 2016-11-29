@@ -1,7 +1,5 @@
 (function ($) {
 
-	Config.version = '0.10.2';
-
 	Config.sockjsprefix = '/showdown';
 	Config.root = '/';
 
