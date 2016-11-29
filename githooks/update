@@ -23,6 +23,17 @@ const rootDir = path.resolve(thisDir, '..');
 const Tools = require('../data/Pokemon-Showdown/tools').includeData();
 const toId = Tools.getId;
 
+// update version
+process.stdout.write("Updating version... ");
+
+let version = require('../package.json').version;
+
+let configBuf = fs.readFileSync(path.resolve(rootDir, 'config/config.js'), {encoding: 'utf8'});
+configBuf = configBuf.replace(/\/\* version \*\/[^;\n]*;/, `/* version */ Config.version = ${JSON.stringify(version)};`);
+
+fs.writeFileSync(path.resolve(rootDir, 'config/config.js'), configBuf);
+console.log("DONE");
+
 function updateIndex() {
 	let indexContents = fs.readFileSync(path.resolve(rootDir, 'index.template.html'), {encoding: 'utf8'});
 
