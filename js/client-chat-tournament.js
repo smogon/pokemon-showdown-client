@@ -548,6 +548,10 @@
 						appendError((data[1] && data[1] === app.user.get('userid') ? "You have" : "This user has") + " already been disqualified.");
 						break;
 
+					case 'Banned':
+						appendError("You are banned from entering tournaments.");
+						break;
+
 					default:
 						appendError("Unknown error: " + data[0]);
 						break;
