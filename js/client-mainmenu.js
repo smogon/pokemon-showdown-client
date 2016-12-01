@@ -922,7 +922,8 @@
 					}
 					bufs[curBuf] += '<li><h3>' + Tools.escapeHTML(curSection) + '</li>';
 				}
-				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + (curSection.startsWith('ORAS') ? '[Gen 6] ' : '') + Tools.escapeFormat(format.id).replace('[Gen 7] ', '') + '</button></li>';
+				var formatName = (curSection.slice(0, 4) === 'ORAS' ? '[Gen 6] ' : '') + Tools.escapeFormat(format.id).replace('[Gen 7] ', '');
+				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';
 			}
 
 			var html = '';
