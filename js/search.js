@@ -363,7 +363,7 @@
 				if (table) abilityTable = table.overrideAbility;
 				for (var id in BattlePokedex) {
 					if (!BattlePokedex[id].abilities) continue;
-					if ((abilityTable[id] || BattlePokedex[id].abilities['0']) === ability || BattlePokedex[id].abilities['1'] === ability || BattlePokedex[id].abilities['H'] === ability) {
+					if ((abilityTable[id] || BattlePokedex[id].abilities['0']) === ability || BattlePokedex[id].abilities['1'] === ability || BattlePokedex[id].abilities['H'] === ability || BattlePokedex[id].abilities['S'] === ability) {
 						(legal && !(id in legal) ? illegalBuf : buf).push(['pokemon', id]);
 					}
 				}
@@ -578,7 +578,7 @@
 					var ability0 = template.abilities['0'];
 					var table = (this.gen < 7 ? BattleTeambuilderTable['gen' + this.gen] : null);
 					if (table && id in table.overrideAbility) ability0 = table.overrideAbility[id];
-					if (ability0 !== ability && template.abilities['1'] !== ability && template.abilities['H'] !== ability) break;
+					if (ability0 !== ability && template.abilities['1'] !== ability && template.abilities['H'] !== ability && template.abilities['S'] !== ability) break;
 				} else if (filters[i][0] === 'move') {
 					var learned = false;
 					var learnsetid = id;
@@ -868,6 +868,10 @@
 			if (template.abilities['H'] && this.gen >= 5) {
 				abilitySet.push(['header', "Hidden Ability"]);
 				abilitySet.push(['ability', toId(template.abilities['H'])]);
+			}
+			if (template.abilities['S'] && this.gen >= 7) {
+				abilitySet.push(['header', "Special Event Ability"]);
+				abilitySet.push(['ability', toId(template.abilities['S'])]);
 			}
 			this.defaultResultSet = abilitySet;
 			break;
@@ -1159,7 +1163,9 @@
 				buf += '<span class="col abilitycol">' + ability0 + '</span>';
 			}
 			if (gen >= 5) {
-				if (pokemon.abilities['H']) {
+				if (pokemon.abilities['S']) {
+					buf += '<span class="col twoabilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + pokemon.abilities['H'] + '<br />' + pokemon.abilities['S'] + '</span>';
+				} else if (pokemon.abilities['H']) {
 					buf += '<span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + pokemon.abilities['H'] + '</span>';
 				} else {
 					buf += '<span class="col abilitycol"></span>';
