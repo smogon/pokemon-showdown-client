@@ -2288,6 +2288,7 @@ var Battle = (function () {
 		// has playback gotten to the point where a player has won or tied?
 		// affects whether BGM is playing
 		this.ended = false;
+		this.usesUpkeep = false;
 		this.weather = '';
 		this.pseudoWeather = [];
 		this.weatherTimeLeft = 0;
@@ -2838,7 +2839,7 @@ var Battle = (function () {
 		if (turnnum == this.turn + 1) {
 			this.endLastTurnPending = true;
 		}
-		if (this.turn) this.updatePseudoWeatherLeft();
+		if (this.turn && !this.usesUpkeep) this.updatePseudoWeatherLeft(); // for compatibility with old replays
 		this.turn = turnnum;
 
 		if (this.mySide.active[0]) this.mySide.active[0].clearTurnstatuses();
@@ -6165,6 +6166,10 @@ var Battle = (function () {
 			this.yourSide.active[0] = null;
 			if (this.waitForResult()) return;
 			this.start();
+			break;
+		case 'upkeep':
+			this.usesUpkeep = true;
+			this.updatePseudoWeatherLeft();
 			break;
 		case 'turn':
 			if (this.endPrevAction()) return;
