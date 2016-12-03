@@ -756,7 +756,7 @@ var BattleTooltips = (function () {
 			if (overrideStats && 'spe' in overrideStats) baseSpe = overrideStats['spe'];
 		}
 
-		var nature = (this.battle.tier === 'Random Battle' || this.battle.gen < 3) ? 1 : 0.9;
+		var nature = (this.battle.tier.indexOf('Random Battle') >= 0 || this.battle.gen < 3) ? 1 : 0.9;
 		return Math.floor(Math.floor(2 * baseSpe * level / 100 + 5) * nature);
 	};
 	BattleTooltips.prototype.getTemplateMaxSpeed = function (template, level) {
@@ -767,8 +767,8 @@ var BattleTooltips = (function () {
 		}
 
 		var iv = (this.battle.gen < 3) ? 30 : 31;
-		var value = iv + (this.battle.tier === 'Random Battle' ? 21 : 63);
-		var nature = (this.battle.tier === 'Random Battle' || this.battle.gen < 3) ? 1 : 1.1;
+		var value = iv + (this.battle.tier.indexOf('Random Battle') >= 0 ? 21 : 63);
+		var nature = (this.battle.tier.indexOf('Random Battle') >= 0 || this.battle.gen < 3) ? 1 : 1.1;
 		return Math.floor(Math.floor(Math.floor(2 * baseSpe + value) * level / 100 + 5) * nature);
 	};
 
