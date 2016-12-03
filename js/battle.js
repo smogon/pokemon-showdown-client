@@ -1394,7 +1394,6 @@ var Side = (function () {
 	};
 	Side.prototype.addSideCondition = function (condition) {
 		var elem, curelem;
-		condition = toId(condition);
 		if (this.sideConditions[condition]) {
 			if (condition === 'spikes' || condition === 'toxicspikes') {
 				this.sideConditions[condition][2]++;
@@ -1658,7 +1657,6 @@ var Side = (function () {
 		}
 	};
 	Side.prototype.removeSideCondition = function (condition) {
-		condition = toId(condition);
 		if (!this.sideConditions[condition]) return;
 		if (this.sideConditions[condition][1]) this.sideConditions[condition][1].remove();
 		delete this.sideConditions[condition];
@@ -2997,7 +2995,7 @@ var Battle = (function () {
 		this.updateWeather();
 	};
 	Battle.prototype.pseudoWeatherLeft = function (pWeather) {
-		var buf = '<br />' + Tools.getMove(pWeather[0]).name;
+		var buf = '<br />' + pWeather[0];
 		if (!pWeather[1] && pWeather[2]) {
 			pWeather[1] = pWeather[2];
 			pWeather[2] = 0;
@@ -3012,7 +3010,7 @@ var Battle = (function () {
 	};
 	Battle.prototype.sideConditionLeft = function (cond, siden) {
 		if (!cond[3] && !cond[4]) return '';
-		var buf = '<br />' + (siden ? "Foe's " : "") + Tools.getMove(cond[0]).name;
+		var buf = '<br />' + (siden ? "Foe's " : "") + cond[0];
 		if (!cond[3] && cond[4]) {
 			cond[3] = cond[4];
 			cond[4] = 0;
@@ -5307,7 +5305,7 @@ var Battle = (function () {
 				case 'brickbreak':
 					actions += poke.getName() + " shattered " + ofpoke.getTeamName() + " protections!";
 					ofpoke.removeSideCondition('Reflect');
-					ofpoke.removeSideCondition('LightScreen');
+					ofpoke.removeSideCondition('Light Screen');
 					break;
 				case 'beatup':
 					actions += "" + Tools.escapeHTML(kwargs.of) + "'s attack!";
