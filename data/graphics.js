@@ -25907,6 +25907,93 @@ var BattleMoveAnims = {
 			}, 'accel');
 		}
 	},
+	anchorshot: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			var xstep = (defender.x - attacker.x) / 5;
+			var ystep = (defender.y - attacker.y) / 5;
+			var zstep = (defender.z - attacker.z) / 5;
+
+			for (var i = 0; i < 5; i++) {
+				battle.showEffect('energyball', {
+					x: attacker.x + xstep * (i + 1),
+					y: attacker.y + ystep * (i + 1),
+					z: attacker.z + zstep * (i + 1),
+					scale: 0.5,
+					opacity: 1,
+					time: 20 * i
+				}, {
+					opacity: 0,
+					time: 40 * i + 600
+				}, 'linear');
+			}
+			battle.showEffect('energyball', {
+				x: defender.x,
+				y: defender.y + 15,
+				z: defender.z,
+				scale: 0.7,
+				xscale: 2,
+				opacity: 0.3,
+				time: 300
+			}, {
+				scale: 0.4,
+				xscale: 1,
+				opacity: 0.1,
+				time: 900
+			}, 'decel', 'fade');
+			battle.showEffect('energyball', {
+				x: defender.x,
+				y: defender.y - 5,
+				z: defender.z,
+				scale: 0.7,
+				xscale: 2,
+				opacity: 0.3,
+				time: 350
+			}, {
+				scale: 0.4,
+				xscale: 1,
+				opacity: 0.1,
+				time: 950
+			}, 'decel', 'fade');
+			battle.showEffect('energyball', {
+				x: defender.x,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0.7,
+				xscale: 2,
+				opacity: 0.3,
+				time: 400
+			}, {
+				scale: 0.4,
+				xscale: 1,
+				opacity: 0.1,
+				time: 1000
+			}, 'decel', 'fade');
+			defender.delay(300);
+			defender.anim({
+				y: defender.y + 15,
+				z: defender.behind(10),
+				yscale: 1.3,
+				time: 200
+			}, 'swing');
+			defender.anim({
+				time: 200
+			}, 'swing');
+			defender.delay(25);
+			defender.anim({
+				x: defender.leftof(-10),
+				y: defender.y + 15,
+				z: defender.behind(5),
+				yscale: 1.3,
+				time: 200
+			}, 'swing');
+			defender.anim({
+				time: 200
+			}, 'swing');
+		}
+	},
 
 	// z-move animations
 	gigavolthavoc: {
