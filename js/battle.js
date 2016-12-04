@@ -4579,6 +4579,9 @@ var Battle = (function () {
 					case 'aurabreak':
 						actions += "" + poke.getName() + " reversed all other Pokémon's auras!";
 						break;
+					case 'comatose':
+						actions += "" + poke.getName() + " is drowsing!";
+						break;
 					case 'darkaura':
 						actions += "" + poke.getName() + " is radiating a dark aura!";
 						break;
