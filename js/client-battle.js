@@ -824,7 +824,7 @@
 								target += targetActive[targetPos - 1].species;
 							}
 						}
-						buf += 'use ' + move + (target ? ' against ' + target : '') + '.<br />';
+						buf += 'use ' + Tools.getMove(move).name + (target ? ' against ' + target : '') + '.<br />';
 						break;
 					case 'switch':
 						buf += '' + this.myPokemon[parts[1] - 1].species + ' will switch in';
