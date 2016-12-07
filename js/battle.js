@@ -1915,7 +1915,7 @@ var Side = (function () {
 	};
 	Side.prototype.switchOut = function (pokemon, slot) {
 		if (slot === undefined) slot = pokemon.slot;
-		if (pokemon.lastmove !== 'batonpass') {
+		if (pokemon.lastmove !== 'batonpass' && pokemon.lastmove !== 'zbatonpass') {
 			pokemon.clearVolatile();
 		} else {
 			pokemon.removeVolatile('transform');
@@ -1923,7 +1923,7 @@ var Side = (function () {
 		}
 		if (pokemon.lastmove === 'uturn' || pokemon.lastmove === 'voltswitch') {
 			this.battle.message('' + pokemon.getName() + ' went back to ' + Tools.escapeHTML(pokemon.side.name) + '!');
-		} else if (pokemon.lastmove !== 'batonpass') {
+		} else if (pokemon.lastmove !== 'batonpass' && pokemon.lastmove !== 'zbatonpass') {
 			if (pokemon.side.n === 0) {
 				this.battle.message('' + pokemon.getName() + ', come back!');
 			} else {
