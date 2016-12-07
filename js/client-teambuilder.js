@@ -608,10 +608,10 @@
 		reloadTeamsFolder: function () {
 			Storage.nwLoadTeams();
 		},
-		
+
 		clone: function (i) {
 			var newTeam = {
-				name: " Clone of "+teams[i].name,
+				name: " Clone of " + teams[i].name,
 				format: teams[i].format,
 				team: teams[i].team,
 				folder: teams[i].folder,
