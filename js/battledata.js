@@ -1044,8 +1044,6 @@ var Tools = {
 				var formeid = '';
 				if (template.baseSpecies !== name) {
 					formeid = '-' + toId(template.forme);
-					if (formeid === '-megax') formeid = '-mega-x';
-					if (formeid === '-megay') formeid = '-mega-y';
 				}
 				template.formeid = formeid;
 			}
