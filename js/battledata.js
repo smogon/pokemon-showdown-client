@@ -268,50 +268,54 @@ var BattleStatNames = { // proper style
 	spe: 'Spe'
 };
 
-var baseSpeciesChart = {
-	'pikachu': 1,
-	'pichu': 1,
-	'unown': 1,
-	'castform': 1,
-	'deoxys': 1,
-	'burmy': 1,
-	'wormadam': 1,
-	'cherrim': 1,
-	'shellos': 1,
-	'gastrodon': 1,
-	'rotom': 1,
-	'giratina': 1,
-	'shaymin': 1,
-	'arceus': 1,
-	'basculin': 1,
-	'darmanitan': 1,
-	'deerling': 1,
-	'sawsbuck': 1,
-	'tornadus': 1,
-	'thundurus': 1,
-	'landorus': 1,
-	'kyurem': 1,
-	'keldeo': 1,
-	'meloetta': 1,
-	'genesect': 1,
-	'vivillon': 1,
-	'flabebe': 1,
-	'floette': 1,
-	'florges': 1,
-	'furfrou': 1,
-	'aegislash': 1,
-	'pumpkaboo': 1,
-	'gourgeist': 1,
-	'meowstic': 1,
-	'hoopa': 1,
-	'minior': 1,
-	'mimikyu': 1,
+var baseSpeciesChart = [
+	'pikachu',
+	'pichu',
+	'unown',
+	'castform',
+	'deoxys',
+	'burmy',
+	'wormadam',
+	'cherrim',
+	'shellos',
+	'gastrodon',
+	'rotom',
+	'giratina',
+	'shaymin',
+	'arceus',
+	'basculin',
+	'darmanitan',
+	'deerling',
+	'sawsbuck',
+	'tornadus',
+	'thundurus',
+	'landorus',
+	'kyurem',
+	'keldeo',
+	'meloetta',
+	'genesect',
+	'vivillon',
+	'flabebe',
+	'floette',
+	'florges',
+	'furfrou',
+	'aegislash',
+	'pumpkaboo',
+	'gourgeist',
+	'meowstic',
+	'hoopa',
+	'wishiwashi',
+	'minior',
+	'mimikyu',
+	'greninja',
+	'oricorio',
+	'silvally',
 
 	// mega evolutions
-	'charizard': 1,
-	'mewtwo': 1
+	'charizard',
+	'mewtwo'
 	// others are hardcoded by ending with 'mega'
-};
+];
 
 // Precompile often used regular expression for links.
 var domainRegex = '[a-z0-9\\-]+(?:[.][a-z0-9\\-]+)*';
@@ -1007,10 +1011,11 @@ var Tools = {
 			if (!window.BattlePokedex) window.BattlePokedex = {};
 			if (!window.BattlePokedex[id]) {
 				template = window.BattlePokedex[id] = {};
-				for (var k in baseSpeciesChart) {
-					if (id.length > k.length && id.substr(0, k.length) === k) {
-						template.baseSpecies = k;
-						template.forme = id.substr(k.length);
+				for (var i = 0; i < baseSpeciesChart.length; i++) {
+					var baseid = baseSpeciesChart[i];
+					if (id.length > baseid.length && id.substr(0, baseid.length) === baseid) {
+						template.baseSpecies = baseid;
+						template.forme = id.substr(baseid.length);
 					}
 				}
 				if (id !== 'yanmega' && id.slice(-4) === 'mega') {
