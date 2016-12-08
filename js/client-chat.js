@@ -133,10 +133,17 @@
 				this.$chatFrame.scrollTop(this.$chatFrame.scrollTop() - this.$chatFrame.height() + 60);
 			} else if (e.keyCode === 34) { // Pg Dn key
 				this.$chatFrame.scrollTop(this.$chatFrame.scrollTop() + this.$chatFrame.height() - 60);
-			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab key
-				if (this.handleTabComplete(this.$chatbox)) {
-					e.preventDefault();
-					e.stopPropagation();
+			} else if (e.keyCode === 9 && !e.ctrlKey) { // Tab key
+				if (!e.shiftKey) {
+					if (this.handleTabComplete(this.$chatbox, false)) {
+						e.preventDefault();
+						e.stopPropagation();
+					}
+				} else { // Shift + Tab
+					if (this.handleTabComplete(this.$chatbox, true)) {
+						e.preventDefault();
+						e.stopPropagation();
+					}
 				}
 			} else if (e.keyCode === 38 && !e.shiftKey && !e.altKey) { // Up key
 				if (this.chatHistoryUp(this.$chatbox, e)) {
@@ -265,7 +272,7 @@
 		},
 		tabComplete: null,
 		userActivity: null,
-		handleTabComplete: function ($textbox) {
+		handleTabComplete: function ($textbox, reverse) {
 			// Don't tab complete at the start of the text box.
 			var idx = $textbox.prop('selectionStart');
 			if (idx === 0) return false;
@@ -276,9 +283,13 @@
 
 			if (this.tabComplete.cursor !== null && text.substr(0, idx) === this.tabComplete.cursor) {
 				// The user is cycling through the candidate names.
-				if (++this.tabComplete.index >= this.tabComplete.candidates.length) {
-					this.tabComplete.index = 0;
+				if (reverse) {
+					this.tabComplete.index--;
+				} else {
+					this.tabComplete.index++;
 				}
+				if (this.tabComplete.index >= this.tabComplete.candidates.length) this.tabComplete.index = 0;
+				if (this.tabComplete.index < 0) this.tabComplete.index = this.tabComplete.candidates.length - 1;
 			} else {
 				// This is a new tab completion.
 
