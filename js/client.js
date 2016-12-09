@@ -1683,6 +1683,7 @@
 			if (!type) type = Popup;
 
 			var popup = new type(data);
+			popup.lastFocusedEl = document.activeElement;
 
 			var $overlay;
 			if (popup.type === 'normal') {
@@ -1717,6 +1718,7 @@
 		closePopup: function (id) {
 			if (this.popups.length) {
 				var popup = this.popups.pop();
+				if (popup.lastFocusedEl && popup.lastFocusedEl.focus) popup.lastFocusedEl.focus();
 				popup.remove();
 				if (this.reconnectPending) this.addPopup(ReconnectPopup, {message: this.reconnectPending});
 				return true;
