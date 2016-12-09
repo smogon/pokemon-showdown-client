@@ -396,6 +396,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			tiers.push(...tierTable[tier]);
 		}
+		if (!formatSlices['OU'] && !isDoubles) formatSlices['OU'] = formatSlices['New'];
+		if (!formatSlices['UU'] && !isDoubles) formatSlices['UU'] = formatSlices['New'];
 
 		if (isDoubles) continue;
 
