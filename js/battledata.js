@@ -1168,7 +1168,7 @@ var Tools = {
 			if (num.length < 3) num = '0' + num;
 			if (num.length < 3) num = '0' + num;
 			spriteData.cryurl = 'audio/cries/' + num;
-			if (pokemon.isMega || pokemon.forme && (pokemon.forme === 'Sky' || pokemon.forme === 'Therian' || pokemon.forme === 'Black' || pokemon.forme === 'White' || pokemon.forme === 'Super')) {
+			if (pokemon.isMega || pokemon.forme && (pokemon.forme === 'Sky' || pokemon.forme === 'Therian' || pokemon.forme === 'Black' || pokemon.forme === 'White' || pokemon.forme === 'Super' || pokemon.forme === 'Unbound')) {
 				spriteData.cryurl += pokemon.formeid;
 			}
 			spriteData.cryurl += '.wav';
