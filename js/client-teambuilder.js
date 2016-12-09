@@ -3262,6 +3262,7 @@
 
 		getGen: function (format) {
 			format = '' + format;
+			if (!format) return 7;
 			if (format.substr(0, 3) !== 'gen') return 6;
 			return parseInt(format.substr(3, 1), 10) || 6;
 		},
