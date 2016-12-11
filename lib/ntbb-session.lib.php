@@ -49,9 +49,9 @@ class NTBBSession {
 		$res = $psdb->query(
 			"SELECT sid, timeout, `{$psdb->prefix}users`.* " .
 			"FROM `{$psdb->prefix}sessions`, `{$psdb->prefix}users` " .
-			"WHERE `session` = $session " .
+			"WHERE `session` = ? " .
 				"AND `{$psdb->prefix}sessions`.`userid` = `{$psdb->prefix}users`.`userid` " .
-			"LIMIT 1");
+			"LIMIT 1", [$session]);
 		if (!$res) {
 			// query problem?
 			$this->killCookie();
@@ -67,7 +67,7 @@ class NTBBSession {
 			// session expired
 			// delete all sessions that will expire within 30 minutes
 			$ctime += 60 * 30;
-			$psdb->query("DELETE FROM `{$psdb->prefix}sessions` WHERE `timeout` < $ctime");
+			$psdb->query("DELETE FROM `{$psdb->prefix}sessions` WHERE `timeout` < ?", [$ctime]);
 			$this->killCookie();
 			return;
 		}
@@ -184,17 +184,15 @@ class NTBBSession {
 		// throttle
 		$ip = $this->getIp();
 		$res = $psdb->query(
-			"SELECT `count`, `time` " .
-			"FROM `{$psdb->prefix}loginthrottle` " .
-			"WHERE `ip` = '".$ip."' " .
-			"LIMIT 1"
+			"SELECT `count`, `time` FROM `{$psdb->prefix}loginthrottle` WHERE `ip` = ? LIMIT 1",
+			[$ip]
 		);
 		$loginthrottle = null;
 		if ($res) $loginthrottle = $psdb->fetch_assoc($res);
 		if ($loginthrottle) {
 			if ($loginthrottle['count'] > 500) {
 				$loginthrottle['count']++;
-				$psdb->query("UPDATE `{$psdb->prefix}loginthrottle` SET count = {$loginthrottle['count']}, lastuserid = '".$userid."', `time` = '".time()."' WHERE ip = '".$ip."'");
+				$psdb->query("UPDATE `{$psdb->prefix}loginthrottle` SET count = ?, lastuserid = ?, `time` = ? WHERE ip = ?", [$loginthrottle['count'], $userid, time(), $ip]);
 				return false;
 			} else if ($loginthrottle['time'] + 24 * 60 * 60 < time()) {
 				$loginthrottle = [
@@ -211,7 +209,7 @@ class NTBBSession {
 				// wrong password
 				if ($loginthrottle) {
 					$loginthrottle['count']++;
-					$psdb->query("UPDATE `{$psdb->prefix}loginthrottle` SET count = {$loginthrottle['count']}, lastuserid = ?, `time` = ? WHERE ip = ?", [$userid, time(), $ip]);
+					$psdb->query("UPDATE `{$psdb->prefix}loginthrottle` SET count = ?, lastuserid = ?, `time` = ? WHERE ip = ?", [$loginthrottle['count'], $userid, time(), $ip]);
 				} else {
 					$psdb->query("INSERT INTO `{$psdb->prefix}loginthrottle` (ip, count, lastuserid, `time`) VALUES (?, 1, ?, ?)", [$ip, $userid, time()]);
 				}
@@ -266,8 +264,8 @@ class NTBBSession {
 		$nsid = $this->mksid();
 		$nsidhash = $this->sidHash($nsid);
 		$res = $psdb->query(
-			"INSERT INTO `{$psdb->prefix}sessions` (`userid`,`sid`,`time`,`timeout`,`ip`) VALUES (?,?,$ctime,$timeout,?)",
-			[$user['userid'], $nsidhash, $this->getIp()]
+			"INSERT INTO `{$psdb->prefix}sessions` (`userid`,`sid`,`time`,`timeout`,`ip`) VALUES (?,?,?,?,?)",
+			[$user['userid'], $nsidhash, $ctime, $timeout, $this->getIp()]
 		);
 		if (!$res) die;
 
@@ -310,7 +308,7 @@ class NTBBSession {
 		if (!$this->session) return $curuser;
 
 		$curuser = $this->getGuest();
-		$psdb->query("DELETE FROM `{$psdb->prefix}sessions` WHERE `session` = '{$this->session}' LIMIT 1");
+		$psdb->query("DELETE FROM `{$psdb->prefix}sessions` WHERE `session` = ? LIMIT 1", [$this->session]);
 		$this->sid = '';
 		$this->session = 0;
 
