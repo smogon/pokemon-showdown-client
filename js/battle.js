@@ -1392,9 +1392,9 @@ var Side = (function () {
 			}
 		}
 	};
-	Side.prototype.addSideCondition = function (condition) {
+	Side.prototype.addSideCondition = function (effect) {
 		var elem, curelem;
-		condition = toId(condition);
+		var condition = effect.id;
 		if (this.sideConditions[condition]) {
 			if (condition === 'spikes' || condition === 'toxicspikes') {
 				this.sideConditions[condition][2]++;
@@ -1435,7 +1435,7 @@ var Side = (function () {
 			}
 			return;
 		}
-		// Side conditions work as: [condition, elem, levels, minDuration, maxDuration]
+		// Side conditions work as: [effectName, elem, levels, minDuration, maxDuration]
 		switch (condition) {
 		case 'auroraveil':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-auroraveil" style="display:none;position:absolute" />');
@@ -1459,7 +1459,7 @@ var Side = (function () {
 				opacity: .3
 			}, 300);
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1, 5, 8];
+			this.sideConditions[condition] = [effect.name, elem, 1, 5, 8];
 			break;
 		case 'reflect':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-reflect" style="display:none;position:absolute" />');
@@ -1483,7 +1483,7 @@ var Side = (function () {
 				opacity: .3
 			}, 300);
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1, 5, this.battle.gen >= 4 ? 8 : 0];
+			this.sideConditions[condition] = [effect.name, elem, 1, 5, this.battle.gen >= 4 ? 8 : 0];
 			break;
 		case 'safeguard':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-safeguard" style="display:none;position:absolute" />');
@@ -1507,7 +1507,7 @@ var Side = (function () {
 				opacity: .2
 			}, 300);
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1, 5, 0];
+			this.sideConditions[condition] = [effect.name, elem, 1, 5, 0];
 			break;
 		case 'lightscreen':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-lightscreen" style="display:none;position:absolute" />');
@@ -1531,7 +1531,7 @@ var Side = (function () {
 				opacity: .3
 			}, 300);
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1, 5, this.battle.gen >= 4 ? 8 : 0];
+			this.sideConditions[condition] = [effect.name, elem, 1, 5, this.battle.gen >= 4 ? 8 : 0];
 			break;
 		case 'mist':
 			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-mist" style="display:none;position:absolute" />');
@@ -1555,13 +1555,13 @@ var Side = (function () {
 				opacity: .2
 			}, 300);
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1, 5, 0];
+			this.sideConditions[condition] = [effect.name, elem, 1, 5, 0];
 			break;
 		case 'tailwind':
-			this.sideConditions[condition] = [condition, null, 1, this.battle.gen >= 5 ? 4 : 3, 0];
+			this.sideConditions[condition] = [effect.name, null, 1, this.battle.gen >= 5 ? 4 : 3, 0];
 			break;
 		case 'luckychant':
-			this.sideConditions[condition] = [condition, null, 1, 5, 0];
+			this.sideConditions[condition] = [effect.name, null, 1, 5, 0];
 			break;
 		case 'stealthrock':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock1.url + '" style="display:none;position:absolute" />');
@@ -1611,7 +1611,7 @@ var Side = (function () {
 				scale: .2
 			}, BattleEffects.rock2));
 			elem = elem.add(curelem);
-			this.sideConditions[condition] = [condition, elem, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, elem, 1, 0, 0];
 			break;
 		case 'spikes':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
@@ -1624,7 +1624,7 @@ var Side = (function () {
 				scale: .3
 			}, BattleEffects.caltrop));
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, elem, 1, 0, 0];
 			break;
 		case 'toxicspikes':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.poisoncaltrop.url + '" style="display:none;position:absolute" />');
@@ -1637,7 +1637,7 @@ var Side = (function () {
 				scale: .3
 			}, BattleEffects.poisoncaltrop));
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, elem, 1, 0, 0];
 			break;
 		case 'stickyweb':
 			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.web.url + '" style="display:none;position:absolute" />');
@@ -1651,10 +1651,10 @@ var Side = (function () {
 				scale: 0.7
 			}, BattleEffects.web));
 			elem = curelem;
-			this.sideConditions[condition] = [condition, elem, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, elem, 1, 0, 0];
 			break;
 		default:
-			this.sideConditions[condition] = [condition, null, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, null, 1, 0, 0];
 		}
 	};
 	Side.prototype.removeSideCondition = function (condition) {
@@ -5541,7 +5541,7 @@ var Battle = (function () {
 			case '-sidestart':
 				var side = this.getSide(args[1]);
 				var effect = Tools.getEffect(args[2]);
-				side.addSideCondition(effect.name);
+				side.addSideCondition(effect);
 
 				switch (effect.id) {
 				case 'stealthrock':
