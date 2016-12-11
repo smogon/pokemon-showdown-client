@@ -1163,15 +1163,13 @@ var Tools = {
 		if (!gen6animationData) gen6animationData = {};
 		if (!animationData) animationData = {};
 
-		if (typeof animationData.num !== 'undefined') {
-			var num = '' + animationData.num;
-			if (num.length < 3) num = '0' + num;
-			if (num.length < 3) num = '0' + num;
-			spriteData.cryurl = 'audio/cries/' + num;
-			if (pokemon.isMega || pokemon.forme && (pokemon.forme === 'Sky' || pokemon.forme === 'Therian' || pokemon.forme === 'Black' || pokemon.forme === 'White' || pokemon.forme === 'Super' || pokemon.forme === 'Unbound')) {
+		if (animationData.num > 0) {
+			spriteData.cryurl = 'audio/cries/' + toId(pokemon.baseSpecies);
+			var forme = pokemon.forme;
+			if (pokemon.isMega || forme && (forme === 'Sky' || forme === 'Therian' || forme === 'Primal' || forme === 'Eternal' || pokemon.baseSpecies === 'Kyurem' || forme === 'Super' || forme === 'Unbound' || forme === 'Midnight' || forme === 'School' || pokemon.baseSpecies === 'Oricorio' || pokemon.baseSpecies === 'Zygarde')) {
 				spriteData.cryurl += pokemon.formeid;
 			}
-			spriteData.cryurl += '.wav';
+			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 		}
 
 		if (pokemon.shiny && options.gen > 1) dir += '-shiny';
