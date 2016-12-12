@@ -1138,7 +1138,7 @@ var Tools = {
 			shiny: pokemon.shiny
 		};
 		var name = pokemon.spriteid;
-		var dir, isBack, facing;
+		var dir, facing;
 		if (siden) {
 			dir = '';
 			facing = 'front';
