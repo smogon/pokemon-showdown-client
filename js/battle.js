@@ -813,6 +813,8 @@ var Sprite = (function () {
 			afd: this.battle.tier === "[Seasonal] Fools Festival",
 			gen: this.battle.gen
 		});
+		this.cryurl = sp.cryurl;
+		var doCry = false;
 		this.sp = sp;
 		var self = this;
 		var battle = this.battle;
@@ -829,8 +831,10 @@ var Sprite = (function () {
 		if (isCustomAnim) {
 			if (species.id === 'kyogreprimal') {
 				BattleOtherAnims.primalalpha.anim(battle, [self]);
+				doCry = true;
 			} else if (species.id === 'groudonprimal') {
 				BattleOtherAnims.primalomega.anim(battle, [self]);
+				doCry = true;
 			} else if (species.id === 'zygardecomplete') {
 				BattleOtherAnims.powerconstruct.anim(battle, [self]);
 			} else if (species.id === 'wishiwashischool' || species.id === 'greninjaash') {
@@ -841,6 +845,7 @@ var Sprite = (function () {
 				// standard animation
 			} else {
 				BattleOtherAnims.megaevo.anim(battle, [self]);
+				doCry = true;
 			}
 		}
 		this.elem.animate(this.battle.pos({
@@ -851,6 +856,10 @@ var Sprite = (function () {
 			xscale: 0,
 			opacity: 0.3
 		}, this.oldsp), 300, function () {
+			if (self.cryurl && doCry) {
+				//self.battle.logConsole('cry: ' + self.cryurl);
+				BattleSound.playEffect(self.cryurl);
+			}
 			self.elem.attr('src', sp.url);
 			self.elem.animate(battle.pos({
 				x: self.x,
