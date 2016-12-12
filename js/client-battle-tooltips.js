@@ -773,8 +773,7 @@ var BattleTooltips = (function () {
 	};
 
 	// Gets the proper current type for moves with a variable type.
-	BattleTooltips.prototype.getMoveType = function (move, pokemon) {
-		var myPokemon = this.room.myPokemon[pokemon.slot];
+	BattleTooltips.prototype.getMoveType = function (move, myPokemon) {
 		var ability = Tools.getAbility(myPokemon.baseAbility).name;
 		var moveType = move.type;
 		// Normalize is the first move type changing effect.
@@ -788,7 +787,7 @@ var BattleTooltips = (function () {
 			moveType = 'Normal';
 		}
 		// Moves that require an item to change their type.
-		if (!this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+		if (!this.battle.hasPseudoWeather('Magic Room') && (!myPokemon.volatiles || !myPokemon.volatiles['embargo'])) {
 			if (move.id === 'multiattack') {
 				var item = Tools.getItem(myPokemon.item);
 				if (item.onMemory) moveType = item.onMemory;
