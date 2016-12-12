@@ -1083,8 +1083,11 @@
 				buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 			}
+			buf += '</button></div></div>';
 
-			buf += '</button>';
+			// item/type icons
+			buf += '<div class="setrow setrow-icons">';
+			buf += '<div class="setcell">';
 			var itemicon = '<span class="itemicon"></span>';
 			if (set.item) {
 				var item = Tools.getItem(set.item);
@@ -1092,7 +1095,14 @@
 			}
 			buf += itemicon;
 			buf += '</div>';
-			buf += '</div><div class="setrow">';
+			buf += '<div class="setcell setcell-typeicons">';
+			var types = Tools.getTemplate(set.species).types;
+			if (types) {
+				for (var i = 0; i < types.length; i++) buf += Tools.getTypeIcon(types[i]);
+			}
+			buf += '</div></div>';
+
+			buf += '<div class="setrow">';
 			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + Tools.escapeHTML(set.item) + '" /></div>';
 			if (this.curTeam.gen > 2) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="textbox chartinput" value="' + Tools.escapeHTML(set.ability) + '" /></div>';
 			buf += '</div></div>';
