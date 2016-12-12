@@ -840,8 +840,8 @@ var BattleTooltips = (function () {
 
 	// Gets the current accuracy for a move.
 	BattleTooltips.prototype.getMoveAccuracy = function (move, pokemon) {
-		var myPokemon = this.room.myPokemon[pokemon.slot];
-		var ability = Tools.getAbility(pokemon.ability || myPokemon.baseAbility).name;
+		var pokemonData = this.room.myPokemon[pokemon.slot];
+		var ability = Tools.getAbility(pokemon.ability || pokemonData.baseAbility).name;
 		var accuracy = move.accuracy;
 		if (this.battle.gen < 7) {
 			var table = BattleTeambuilderTable['gen' + this.battle.gen];
@@ -878,15 +878,14 @@ var BattleTooltips = (function () {
 			accuracyComment += ' (Boosted by Compound Eyes)';
 		}
 		for (var i = 0; i < pokemon.side.active.length; i++) {
-			if (!pokemon.side.active[i]) continue;
-			var sidePokemon = this.room.myPokemon[pokemon.side.active[i].slot];
-			ability = Tools.getAbility(sidePokemon.baseAbility).name;
+			if (!pokemon.side.active[i] || pokemon.side.active[i].zerohp) continue;
+			ability = Tools.getAbility(pokemon.side.pokemon[i].ability).name;
 			if (ability === 'Victory Star') {
 				accuracy *= 1.1;
 				accuracyComment += ' (Boosted by Victory Star)';
 			}
 		}
-		if (myPokemon.item === 'widelens' && !this.battle.hasPseudoWeather('Magic Room') && !(pokemon.volatiles && pokemon.volatiles['embargo'])) {
+		if (pokemonData.item === 'widelens' && !this.battle.hasPseudoWeather('Magic Room') && !(pokemon.volatiles && pokemon.volatiles['embargo'])) {
 			accuracy *= 1.1;
 			accuracyComment += ' (Boosted by Wide Lens)';
 		}
@@ -901,8 +900,10 @@ var BattleTooltips = (function () {
 	// Takes into account the target for some moves.
 	// If it is unsure of the actual base power, it gives an estimate.
 	BattleTooltips.prototype.getMoveBasePower = function (move, pokemon, target) {
-		var myPokemon = this.room.myPokemon[pokemon.slot];
-		var ability = Tools.getAbility(myPokemon.baseAbility).name;
+		if (!target) target = this.room.myPokemon[0]; // fallback
+		var pokemonData = this.room.myPokemon[pokemon.slot];
+		if (!pokemonData) return '' + move.basePower;
+		var ability = Tools.getAbility(pokemonData.baseAbility).name;
 		var item = {};
 		var basePower = move.basePower;
 		if (this.battle.gen < 7) {
@@ -912,7 +913,7 @@ var BattleTooltips = (function () {
 		var basePowerComment = '';
 		var thereIsWeather = (this.battle.weather in {'sunnyday': 1, 'desolateland': 1, 'raindance': 1, 'primordialsea': 1, 'sandstorm': 1, 'hail':1});
 		if (move.id === 'acrobatics') {
-			if (!myPokemon.item) {
+			if (!pokemonData.item) {
 				basePower *= 2;
 				basePowerComment = ' (Boosted by lack of item)';
 			}
@@ -999,8 +1000,8 @@ var BattleTooltips = (function () {
 		if (move.id === 'electroball') {
 			var min = 0;
 			var max = 0;
-			var minRatio = (myPokemon.stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
-			var maxRatio = (myPokemon.stats['spe'] / this.getTemplateMinSpeed(template, target.level));
+			var minRatio = (pokemonData.stats['spe'] / this.getTemplateMaxSpeed(template, target.level));
+			var maxRatio = (pokemonData.stats['spe'] / this.getTemplateMinSpeed(template, target.level));
 			if (minRatio >= 4) min = 150;
 			else if (minRatio >= 3) min = 120;
 			else if (minRatio >= 2) min = 80;
@@ -1015,16 +1016,16 @@ var BattleTooltips = (function () {
 			return this.boostBasePowerRange(move, pokemon, min, max);
 		}
 		if (move.id === 'gyroball') {
-			var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / myPokemon.stats['spe']) || 1);
-			var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / myPokemon.stats['spe']) || 1);
+			var min = (Math.floor(25 * this.getTemplateMinSpeed(template, target.level) / pokemonData.stats['spe']) || 1);
+			var max = (Math.floor(25 * this.getTemplateMaxSpeed(template, target.level) / pokemonData.stats['spe']) || 1);
 			if (min > 150) min = 150;
 			if (max > 150) max = 150;
 			// Special case due to range as well.
 			return this.boostBasePowerRange(move, pokemon, min, max);
 		}
 		// Movements which have base power changed due to items.
-		if (myPokemon.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
-			item = Tools.getItem(myPokemon.item);
+		if (pokemonData.item && !this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
+			item = Tools.getItem(pokemonData.item);
 			if (move.id === 'fling') {
 				if (item.fling) basePower = item.fling.basePower;
 			}
@@ -1153,8 +1154,8 @@ var BattleTooltips = (function () {
 		return basePower + basePowerComment;
 	};
 	BattleTooltips.prototype.boostBasePowerRange = function (move, pokemon, min, max) {
-		var myPokemon = this.room.myPokemon[pokemon.slot];
-		var technician = Tools.getAbility(myPokemon.baseAbility).name === 'Technician';
+		var pokemonData = this.room.myPokemon[pokemon.slot];
+		var technician = Tools.getAbility(pokemonData.baseAbility).name === 'Technician';
 		if (technician) {
 			if (min <= 60) min *= 1.5;
 			if (max <= 60) max *= 1.5;
@@ -1167,7 +1168,7 @@ var BattleTooltips = (function () {
 		var basePowerComment = min === max ? '' : Math.floor(min) + ' to ';
 		basePowerComment += Math.floor(max);
 		if (technician) basePowerComment += ' (Technician boosted)';
-		if (itemBoost) basePowerComment += ' (Boosted by ' + Tools.getItem(myPokemon.item).name + ')';
+		if (itemBoost) basePowerComment += ' (Boosted by ' + Tools.getItem(pokemonData.item).name + ')';
 		return basePowerComment;
 	};
 	return BattleTooltips;
