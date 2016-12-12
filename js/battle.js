@@ -4976,6 +4976,9 @@ var Battle = (function () {
 				case 'mimic':
 					actions += '' + poke.getName() + ' learned ' + Tools.escapeHTML(args[3]) + '!';
 					break;
+				case 'laserfocus':
+					actions += '' + poke.getName() + ' concentrated intensely!';
+					break;
 				case 'followme':
 				case 'ragepowder': // Deprecated, now uses -singleturn
 					actions += '' + poke.getName() + ' became the center of attention!';
