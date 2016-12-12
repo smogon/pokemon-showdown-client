@@ -1215,6 +1215,10 @@ var Sprite = (function () {
 			this.elem = null;
 			return;
 		}
+		if (this.cryurl) {
+			//this.battle.logConsole('cry: ' + this.cryurl);
+			BattleSound.playEffect(this.cryurl);
+		}
 		this.anim({
 			y: this.y - 80,
 			opacity: 0
