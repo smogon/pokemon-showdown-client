@@ -1,16 +1,16 @@
 document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/font-awesome.css?" />');
-document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/battle.css?a6" />');
-document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/replay.css?a6" />');
+document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/battle.css?a7" />');
+document.write('<link rel="stylesheet" href="https://play.pokemonshowdown.com/style/replay.css?a7" />');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/jquery-1.11.0.min.js"></script>');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/lodash.compat.js"></script>');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/html-sanitizer-minified.js"></script>');
 document.write('<script src="https://play.pokemonshowdown.com/js/lib/soundmanager2-nodebug-jsmin.js"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/js/config.js?a6"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/js/battledata.js?a6"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js?a6"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js?a6"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/data/graphics.js?a6"></script>');
-document.write('<script src="https://play.pokemonshowdown.com/js/battle.js?a6"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/js/config.js?a7"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/js/battledata.js?a7"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js?a7"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js?a7"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/data/graphics.js?a7"></script>');
+document.write('<script src="https://play.pokemonshowdown.com/js/battle.js?a7"></script>');
 
 var Replays = {
 	init: function (log) {
