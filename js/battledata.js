@@ -304,6 +304,7 @@ var baseSpeciesChart = [
 	'gourgeist',
 	'meowstic',
 	'hoopa',
+	'zygarde',
 	'wishiwashi',
 	'minior',
 	'mimikyu',
