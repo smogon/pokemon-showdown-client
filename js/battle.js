@@ -2256,7 +2256,7 @@ var Side = (function () {
 			followme: '<span class="good">Follow&nbsp;Me</span>',
 			instruct: '<span class="neutral">Instruct</span>',
 			beakblast: '<span class="neutral">Beak&nbsp;Blast</span>',
-			lazerfocus: '<span class="good">Lazer&nbsp;Focus</span>',
+			laserfocus: '<span class="good">Laser&nbsp;Focus</span>',
 			itemremoved: '',
 			// Gen 1
 			lightscreen: '<span class="good">Light&nbsp;Screen</span>',
