@@ -773,8 +773,9 @@ var BattleTooltips = (function () {
 	};
 
 	// Gets the proper current type for moves with a variable type.
-	BattleTooltips.prototype.getMoveType = function (move, myPokemon) {
-		var ability = Tools.getAbility(myPokemon.baseAbility).name;
+	BattleTooltips.prototype.getMoveType = function (move, pokemon) {
+		var pokemonData = this.room.myPokemon[pokemon.slot] || pokemon;
+		var ability = Tools.getAbility(pokemonData.baseAbility).name;
 		var moveType = move.type;
 		// Normalize is the first move type changing effect.
 		if (ability === 'Normalize') {
@@ -787,21 +788,21 @@ var BattleTooltips = (function () {
 			moveType = 'Normal';
 		}
 		// Moves that require an item to change their type.
-		if (!this.battle.hasPseudoWeather('Magic Room') && (!myPokemon.volatiles || !myPokemon.volatiles['embargo'])) {
+		if (!this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 			if (move.id === 'multiattack') {
-				var item = Tools.getItem(myPokemon.item);
+				var item = Tools.getItem(pokemonData.item);
 				if (item.onMemory) moveType = item.onMemory;
 			}
 			if (move.id === 'judgment') {
-				var item = Tools.getItem(myPokemon.item);
+				var item = Tools.getItem(pokemonData.item);
 				if (item.onPlate && !item.zMove) moveType = item.onPlate;
 			}
 			if (move.id === 'technoblast') {
-				var item = Tools.getItem(myPokemon.item);
+				var item = Tools.getItem(pokemonData.item);
 				if (item.onDrive) moveType = item.onDrive;
 			}
 			if (move.id === 'naturalgift') {
-				var item = Tools.getItem(myPokemon.item);
+				var item = Tools.getItem(pokemonData.item);
 				if (item.naturalGift) moveType = item.naturalGift.type;
 			}
 		}
