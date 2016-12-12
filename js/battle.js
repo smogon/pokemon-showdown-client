@@ -2257,6 +2257,7 @@ var Side = (function () {
 			instruct: '<span class="neutral">Instruct</span>',
 			beakblast: '<span class="neutral">Beak&nbsp;Blast</span>',
 			laserfocus: '<span class="good">Laser&nbsp;Focus</span>',
+			spotlight: '<span class="neutral">Spotlight</span>',
 			itemremoved: '',
 			// Gen 1
 			lightscreen: '<span class="good">Light&nbsp;Screen</span>',
@@ -5212,6 +5213,9 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' started heating up its beak!';
 					break;
 				}
+				case 'spotlight':
+					actions += '' + poke.getName() + ' became the center of attention!';
+					break;
 				poke.side.updateStatbar();
 				break;
 			case '-singlemove':
