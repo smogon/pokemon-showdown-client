@@ -1149,9 +1149,14 @@ var Tools = {
 		}
 
 		// Decide what gen sprites to use.
-		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy', 7:'xy'}[Math.max(options.gen, pokemon.gen)];
-		if (Tools.prefs('nopastgens')) gen = 'xy';
-		if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
+		var genNum = Math.max(options.gen, pokemon.gen);
+		if (Tools.prefs('nopastgens')) genNum = 6;
+		if (Tools.prefs('bwgfx') && genNum === 6) genNum = 5;
+		if (genNum < 5 && !spriteData.isBackSprite) {
+			spriteData.w *= 1.5;
+			spriteData.h *= 1.5;
+		}
+		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy', 7:'xy'}[genNum];
 
 		var gen6animationData = null;
 		if (window.BattlePokemonSprites) {
