@@ -1050,15 +1050,15 @@ var Tools = {
 			if (!template.spriteid) template.spriteid = toId(template.baseSpecies) + template.formeid;
 			if (!template.effectType) template.effectType = 'Template';
 			if (!template.gen) {
-				if (template.forme && template.forme in {'Mega':1, 'Mega-X':1, 'Mega-Y':1}) {
+				if (template.forme && template.formeid in {'-mega':1, '-megax':1, '-megay':1}) {
 					template.gen = 6;
 					template.isMega = true;
 					template.battleOnly = true;
-				} else if (template.forme === 'Primal') {
+				} else if (template.formeid === '-primal') {
 					template.gen = 6;
 					template.isPrimal = true;
 					template.battleOnly = true;
-				} else if (template.forme === 'Alola') {
+				} else if (template.formeid === '-alola') {
 					template.gen = 7;
 				} else if (template.num >= 722) {
 					template.gen = 7;
@@ -1165,9 +1165,9 @@ var Tools = {
 
 		if (animationData.num > 0) {
 			spriteData.cryurl = 'audio/cries/' + toId(pokemon.baseSpecies);
-			var forme = pokemon.forme;
-			if (pokemon.isMega || forme && (forme === 'Sky' || forme === 'Therian' || forme === 'Primal' || forme === 'Eternal' || pokemon.baseSpecies === 'Kyurem' || forme === 'Super' || forme === 'Unbound' || forme === 'Midnight' || forme === 'School' || pokemon.baseSpecies === 'Oricorio' || pokemon.baseSpecies === 'Zygarde')) {
-				spriteData.cryurl += pokemon.formeid;
+			var formeid = pokemon.formeid;
+			if (pokemon.isMega || formeid && (formeid === '-sky' || formeid === '-therian' || formeid === '-primal' || formeid === '-eternal' || pokemon.baseSpecies === 'Kyurem' || formeid === '-super' || formeid === '-unbound' || formeid === '-midnight' || formeid === '-school' || pokemon.baseSpecies === 'Oricorio' || pokemon.baseSpecies === 'Zygarde')) {
+				spriteData.cryurl += formeid;
 			}
 			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 		}
