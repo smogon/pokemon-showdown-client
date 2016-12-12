@@ -5195,6 +5195,7 @@ var Battle = (function () {
 					break;
 				case 'followme':
 				case 'ragepowder':
+				case 'spotlight':
 					if (kwargs.zeffect) {
 						actions += '' + poke.getName() + ' became the center of attention using its Z-Power!';
 					} else {
@@ -5213,9 +5214,6 @@ var Battle = (function () {
 					actions += '' + poke.getName() + ' started heating up its beak!';
 					break;
 				}
-				case 'spotlight':
-					actions += '' + poke.getName() + ' became the center of attention!';
-					break;
 				poke.side.updateStatbar();
 				break;
 			case '-singlemove':
