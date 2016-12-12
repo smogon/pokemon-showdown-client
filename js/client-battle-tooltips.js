@@ -767,7 +767,7 @@ var BattleTooltips = (function () {
 		}
 
 		var iv = (this.battle.gen < 3) ? 30 : 31;
-		var value = iv + (this.battle.tier.indexOf('Random Battle') >= 0 ? 21 : 63);
+		var value = iv + ((this.battle.tier.indexOf('Random Battle') >= 0 && this.battle.gen >= 3) ? 21 : 63);
 		var nature = (this.battle.tier.indexOf('Random Battle') >= 0 || this.battle.gen < 3) ? 1 : 1.1;
 		return Math.floor(Math.floor(Math.floor(2 * baseSpe + value) * level / 100 + 5) * nature);
 	};
