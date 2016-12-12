@@ -108,7 +108,7 @@
 		title: 'Battles',
 		isSideRoom: true,
 		events: {
-			'change input[name=elofilter]': 'refresh',
+			'change input[name=elofilter]': 'refresh'
 		},
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
