@@ -28259,6 +28259,7 @@ BattleMoveAnims['landswrath'] = {anim:BattleMoveAnims['earthquake'].anim};
 BattleMoveAnims['stompingtantrum'] = {anim:BattleMoveAnims['earthquake'].anim};
 
 BattleMoveAnims['camouflage'] = {anim:BattleMoveAnims['tailglow'].anim};
+BattleMoveAnims['telekinesis'] = {anim:BattleMoveAnims['kinesis'].anim};
 BattleMoveAnims['foulplay'] = {anim:BattleMoveAnims['psyshock'].anim};
 BattleMoveAnims['psywave'] = {anim:BattleMoveAnims['psyshock'].anim};
 BattleMoveAnims['extrasensory'] = {anim:BattleMoveAnims['psychic'].anim};
@@ -28333,8 +28334,10 @@ BattleMoveAnims['amnesia'] = {anim:BattleMoveAnims['rest'].anim};
 BattleMoveAnims['secretpower'] = {anim:BattleMoveAnims['technoblast'].anim};
 BattleMoveAnims['naturalgift'] = {anim:BattleMoveAnims['technoblast'].anim};
 
-BattleMoveAnims['sunsteelstrike'] = {anim:BattleMoveAnims['lightofruin'].anim};
-BattleMoveAnims['moongeistbeam'] = {anim:BattleMoveAnims['lightofruin'].anim};
+BattleMoveAnims['firelash'] = {anim:BattleMoveAnims['multiattack'].anim};
+
+BattleMoveAnims['sunsteelstrike'] = {anim:BattleMoveAnims['hyperbeam'].anim};
+BattleMoveAnims['moongeistbeam'] = {anim:BattleMoveAnims['hyperbeam'].anim};
 BattleMoveAnims['fleurcannon'] = {anim:BattleMoveAnims['lightofruin'].anim};
 
 BattleMoveAnims['bloomdoom'] = {anim:BattleMoveAnims['petaldance'].anim};
