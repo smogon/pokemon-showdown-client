@@ -5526,6 +5526,17 @@ var Battle = (function () {
 				case 'sweetveil':
 					actions += '' + ofpoke.getName() + ' surrounded itself with a veil of sweetness!';
 					break;
+				case 'battlebond':
+					actions += '' + poke.getName() + ' became fully charged due to its bond with its Trainer!';
+					break;
+				case 'disguise':
+					actions += 'Its disguise served it as a decoy!';
+					break;
+				case 'powerconstruct':
+					actions += 'You sense the presence of many!';
+					break;
+
+				// weather activations
 				case 'deltastream':
 					actions += "The mysterious strong winds weakened the attack!";
 					break;
@@ -6382,6 +6393,13 @@ var Battle = (function () {
 			}
 			poke.side.updateStatbar(poke, true);
 			poke.side.updateSidebar();
+			if (toId(newSpecies) === 'greninjaash') {
+				this.message('<small>' + poke.getName() + ' became Ash-Greninja!</small>');
+			} else if (toId(newSpecies) === 'mimikyubusted') {
+				this.message('<small>' + poke.getName() + "'s disguise was busted!</small>");
+			} else if (toId(newSpecies) === 'zygardecomplete') {
+				this.message('<small>' + poke.getName() + ' transformed into its Complete Forme!</small>');
+			}
 			break;
 		case 'teampreview':
 			this.teamPreview(true);
