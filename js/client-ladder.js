@@ -89,7 +89,8 @@
 			'nususpecttest': 9,
 			'pususpecttest': 9,
 			'lcsuspecttest': 9,
-			'doublesoususpecttest': 14.5
+			'doublesoususpecttest': 14.5,
+			'gen7mixandmegasuspecttest': 6
 		}
 	});
 
