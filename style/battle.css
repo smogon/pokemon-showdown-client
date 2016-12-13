@@ -668,18 +668,14 @@ License: GPLv2
 	height: 24px;
 	image-rendering: pixelated;
 }
-.pokemonicon {
-	display: block;
-	width: 40px;
-	height: 30px;
-	margin: 0 -4px;
-	image-rendering: pixelated;
-}
 .picon {
 	display: block;
 	width: 40px;
 	height: 30px;
 	image-rendering: pixelated;
+}
+.trainer .picon {
+	margin: 0 -4px;
 }
 
 /*********************************************************

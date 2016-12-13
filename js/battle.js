@@ -1382,11 +1382,11 @@ var Side = (function () {
 		for (var i = 0; i < 6; i++) {
 			var poke = this.pokemon[i];
 			if (i >= this.totalPokemon) {
-				pokemonhtml += '<span class="pokemonicon" style="' + Tools.getPokemonIcon('pokeball-none') + '"></span>';
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-none') + '"></span>';
 			} else if (!poke) {
-				pokemonhtml += '<span class="pokemonicon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Not revealed"></span>';
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Not revealed"></span>';
 			} else {
-				pokemonhtml += '<span class="pokemonicon" style="' + Tools.getPokemonIcon(poke, !this.n) + '" title="' + poke.getFullName(true) + '"></span>';
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !this.n) + '" title="' + poke.getFullName(true) + '"></span>';
 			}
 			if (i % 3 === 2) pokemonhtml += '</div><div class="teamicons">';
 		}

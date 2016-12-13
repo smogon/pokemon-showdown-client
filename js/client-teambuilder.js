@@ -3292,7 +3292,7 @@
 				if (i !== data.i && i !== data.i + 1) {
 					buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
 				}
-				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="pokemonicon" style="display:inline-block;vertical-align:middle;' + Tools.getPokemonIcon(set) + '"></span> ' + Tools.escapeHTML(set.name) + '</li>';
+				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="picon" style="display:inline-block;vertical-align:middle;' + Tools.getPokemonIcon(set) + '"></span> ' + Tools.escapeHTML(set.name) + '</li>';
 			}
 			if (i !== data.i && i !== data.i + 1) {
 				buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
