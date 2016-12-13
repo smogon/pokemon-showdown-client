@@ -1151,7 +1151,7 @@ var Tools = {
 		// Decide what gen sprites to use.
 		var genNum = Math.max(options.gen, pokemon.gen);
 		if (Tools.prefs('nopastgens')) genNum = 6;
-		if (Tools.prefs('bwgfx') && genNum === 6) genNum = 5;
+		if (Tools.prefs('bwgfx') && genNum >= 6) genNum = 5;
 		if (genNum < 5 && !spriteData.isBackSprite) {
 			spriteData.w *= 1.5;
 			spriteData.h *= 1.5;
