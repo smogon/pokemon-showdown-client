@@ -1889,7 +1889,7 @@
 						}
 					}
 				}
-				if (hpType && this.curTeam.gen <= 6) {
+				if (hpType && !this.canHyperTrain(set)) {
 					var hpIVs;
 					switch (hpType) {
 					case 'dark':
@@ -2138,7 +2138,7 @@
 		},
 		updateIVs: function () {
 			var set = this.curSet;
-			if (!set.moves || this.curTeam.gen > 6) return;
+			if (!set.moves || this.canHyperTrain(set)) return;
 			var hasHiddenPower = false;
 			for (var i = 0; i < set.moves.length; i++) {
 				if (toId(set.moves[i]).slice(0, 11) === 'hiddenpower') {
@@ -2639,6 +2639,15 @@
 			}
 			this.chooseMove('', resetSpeed);
 		},
+		canHyperTrain: function (set) {
+			if (this.curTeam.gen < 7) return false;
+			var format = this.curTeam.format;
+			if (!set.level || set.level === 100) return true;
+			if (format.substr(0, 10) === 'battlespot' || format.substr(0, 3) === 'vgc') {
+				if (set.level === 50) return true;
+			}
+			return false;
+		},
 		chooseMove: function (moveName, resetSpeed) {
 			var set = this.curSet;
 			if (!set) return;
@@ -2647,16 +2656,18 @@
 			var minSpe;
 			if (resetSpeed) minSpe = false;
 			if (moveName.substr(0, 13) === 'Hidden Power ') {
-				var hpType = moveName.substr(13);
+				if (!this.canHyperTrain(set)) {
+					var hpType = moveName.substr(13);
 
-				set.ivs = {};
-				if (this.curTeam.gen > 2) {
-					for (var i in exports.BattleTypeChart[hpType].HPivs) {
-						set.ivs[i] = exports.BattleTypeChart[hpType].HPivs[i];
-					}
-				} else {
-					for (var i in exports.BattleTypeChart[hpType].HPdvs) {
-						set.ivs[i] = exports.BattleTypeChart[hpType].HPdvs[i] * 2;
+					set.ivs = {};
+					if (this.curTeam.gen > 2) {
+						for (var i in exports.BattleTypeChart[hpType].HPivs) {
+							set.ivs[i] = exports.BattleTypeChart[hpType].HPivs[i];
+						}
+					} else {
+						for (var i in exports.BattleTypeChart[hpType].HPdvs) {
+							set.ivs[i] = exports.BattleTypeChart[hpType].HPdvs[i] * 2;
+						}
 					}
 				}
 			} else if (moveName === 'Return') {
