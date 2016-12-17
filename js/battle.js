@@ -3651,6 +3651,10 @@ var Battle = (function () {
 						poke.markAbility(effect.name);
 					}
 					switch (effect.id) {
+					case 'memento':
+					case 'partingshot':
+						actions += "" + poke.getName() + "'s HP was restored by the Z-Power!";
+						break;
 					case 'ingrain':
 						actions += "" + poke.getName() + " absorbed nutrients with its roots!";
 						break;
@@ -5245,6 +5249,9 @@ var Battle = (function () {
 					poke.markAbility(effect.name);
 				}
 				switch (effect.id) {
+				case 'healreplacement':
+					actions += "" + poke.getName() + " will restore its replacement's HP using its Z-Power!";
+					break;
 				case 'confusion':
 					actions += "" + poke.getName() + " is confused!";
 					break;
