@@ -2172,9 +2172,9 @@ var Side = (function () {
 		}
 		if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[2]) {
 			var types = pokemon.volatiles.typechange[2].split('/');
-			status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + types[0] + '.png" alt="' + types[0] + '" /> ';
+			status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[0]) + '.png" alt="' + types[0] + '" /> ';
 			if (types[1]) {
-				status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + types[1] + '.png" alt="' + types[1] + '" /> ';
+				status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[1]) + '.png" alt="' + types[1] + '" /> ';
 			}
 		}
 		if (pokemon.volatiles.typeadd) {
@@ -4763,6 +4763,8 @@ var Battle = (function () {
 						} else if (fromeffect.id === 'reflecttype') {
 							poke.copyTypesFrom(ofpoke);
 							if (!kwargs.silent) actions += "" + poke.getName() + "'s type became the same as " + ofpoke.getLowerName() + "'s type!";
+						} else if (fromeffect.id === 'burnup') {
+							actions += "" + poke.getName() + " burned itself out!";
 						} else if (!kwargs.silent) {
 							actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
 						}
