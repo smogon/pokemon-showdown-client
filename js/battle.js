@@ -4082,6 +4082,7 @@ var Battle = (function () {
 					this.resultAnim(poke, 'Already frozen', 'neutral');
 					actions += "" + poke.getName() + " is already frozen solid!";
 					break;
+				case 'darkvoid':
 				case 'hyperspacefury':
 					if (kwargs.forme) {
 						actions += 'But ' + poke.getLowerName() + ' can\'t use it the way it is now!';
