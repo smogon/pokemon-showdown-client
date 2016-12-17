@@ -3231,7 +3231,7 @@ var Battle = (function () {
 		}
 		if (!kwargs.silent) {
 			if (kwargs.zeffect) {
-				this.message('<small>' + pokemon.getName() + ' unleashes its full force Z-Move!</small>', '');
+				this.message('<small>' + pokemon.getName() + ' unleashes its full-force Z-Move!</small>', '');
 			}
 			switch (fromeffect.id) {
 			case 'snatch':
@@ -3892,6 +3892,8 @@ var Battle = (function () {
 				break;
 			case '-clearpositiveboost':
 				var poke = this.getPokemon(args[1]);
+				var ofpoke = this.getPokemon(args[2]);
+				var effect = Tools.getEffect(args[3]);
 				for (i in poke.boosts) {
 					if (poke.boosts[i] > 0) delete poke.boosts[i];
 				}
@@ -3899,6 +3901,12 @@ var Battle = (function () {
 
 				if (kwargs.silent) {
 					// do nothing
+				} else if (effect.id) {
+					switch (effect.id) {
+					case 'spectralthief':
+						actions += '' + ofpoke.getName() + ' stole the target\'s boosted stats!';
+						break;
+					}
 				}
 				break;
 			case '-clearnegativeboost':
@@ -5446,6 +5454,9 @@ var Battle = (function () {
 					break;
 				case 'guardsplit':
 					actions += '' + poke.getName() + ' shared its guard with the target!';
+					break;
+				case 'speedswap':
+					actions += '' + poke.getName() + ' switched Speed with its target!';
 					break;
 				case 'ingrain':
 					actions += '' + poke.getName() + ' anchored itself with its roots!';
