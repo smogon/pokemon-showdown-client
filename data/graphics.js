@@ -28648,7 +28648,7 @@ BattleMoveAnims['torment'] = {anim:BattleMoveAnims['swagger'].anim};
 
 BattleMoveAnims['mefirst'] = {anim:BattleMoveAnims['mimic'].anim};
 
-BattleMoveAnims['conversion'] = {anim:BattleMoveAnims['conversion2'].anim};
+BattleMoveAnims['conversion2'] = {anim:BattleMoveAnims['conversion'].anim};
 
 BattleMoveAnims['autotomize'] = {anim:BattleMoveAnims['rockpolish'].anim};
 BattleMoveAnims['honeclaws'] = {anim:BattleMoveAnims['rockpolish'].anim};
