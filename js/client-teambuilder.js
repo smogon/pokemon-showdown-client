@@ -3359,7 +3359,7 @@
 			var spriteSize = 96;
 			var spriteDim = 'width: 96px; height: 96px;';
 
-			var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy'}[Math.max(this.room.curTeam.gen, template.gen)];
+			var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy', 7:'xy'}[Math.max(this.room.curTeam.gen, template.gen)];
 			if (Tools.prefs('nopastgens')) gen = 'xy';
 			if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
 			if (gen === 'xy') {
