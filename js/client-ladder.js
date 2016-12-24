@@ -82,8 +82,7 @@
 		}
 	}, {
 		COIL_B: {
-			'oususpecttest': 17,
-			'uberssuspecttest': 29,
+			'gen7pokebankoususpecttest': 17,
 			'uususpecttest': 20,
 			'rususpecttest': 11,
 			'nususpecttest': 9,
