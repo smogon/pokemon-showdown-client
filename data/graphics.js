@@ -1711,33 +1711,23 @@ var BattleOtherAnims = {
 			}, 'linear', 'fade');
 
 			attacker.anim({
-				x: attacker.x - 5,
-				y: attacker.y - 5,
-				yscale: 0.9,
+				x: attacker.x - 2.5,
 				time: 75
 			}, 'swing');
 			attacker.anim({
-				x: attacker.x + 5,
-				y: attacker.y - 5,
-				yscale: 0.9,
+				x: attacker.x + 2.5,
 				time: 75
 			}, 'swing');
 			attacker.anim({
-				x: attacker.x - 5,
-				y: attacker.y - 5,
-				yscale: 0.9,
+				x: attacker.x - 2.5,
 				time: 75
 			}, 'swing');
 			attacker.anim({
-				x: attacker.x + 5,
-				y: attacker.y - 5,
-				yscale: 0.9,
+				x: attacker.x + 2.5,
 				time: 75
 			}, 'swing');
 			attacker.anim({
-				x: attacker.x - 5,
-				y: attacker.y - 5,
-				yscale: 0.9,
+				x: attacker.x - 2.5,
 				time: 75
 			}, 'swing');
 			attacker.anim({
@@ -7262,7 +7252,56 @@ var BattleMoveAnims = {
 		}
 	},
 	pursuit: {
-		anim: BattleOtherAnims.contactattack.anim
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.showEffect('shadowball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(15),
+				scale: 0,
+				opacity: 0.2,
+				time: 600
+			}, {
+				scale: 1.5,
+				opacity: 0,
+				time: 1000
+			}, 'linear');
+
+			attacker.delay(300);
+			attacker.anim({
+				x: defender.leftof(20),
+				y: defender.y,
+				z: defender.behind(-20),
+				time: 300
+			}, 'ballistic2Under');
+			attacker.anim({
+				x: defender.leftof(5),
+				y: defender.y,
+				z: defender.behind(15),
+				time: 50
+			});
+			attacker.anim({
+				time: 500
+			}, 'ballistic2');
+			defender.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(15),
+				time: 600
+			}, 'accel');
+			defender.delay(25);
+			defender.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(30),
+				time: 100
+			}, 'swing');
+			defender.anim({
+				time: 400
+			}, 'swing');
+		}
 	},
 	blazekick: {
 		anim: function (battle, args) {
