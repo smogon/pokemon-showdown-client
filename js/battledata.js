@@ -1152,21 +1152,27 @@ var Tools = {
 		var genNum = Math.max(options.gen, pokemon.gen);
 		if (Tools.prefs('nopastgens')) genNum = 6;
 		if (Tools.prefs('bwgfx') && genNum >= 6) genNum = 5;
-		if (genNum < 5 && !spriteData.isBackSprite) {
-			spriteData.w *= 1.5;
-			spriteData.h *= 1.5;
+		if (genNum < 5) {
+			if (!spriteData.isBackSprite) {
+				spriteData.w *= 2;
+				spriteData.h *= 2;
+				spriteData.y = -16;
+			} else {
+				spriteData.w *= 2 / 1.5;
+				spriteData.h *= 2 / 1.5;
+				spriteData.y = -11;
+			}
+			if (genNum <= 2) spriteData.y += 2;
 		}
 		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy', 7:'xy'}[genNum];
 
-		var gen6animationData = null;
+		var animationData = null;
 		if (window.BattlePokemonSprites) {
-			gen6animationData = BattlePokemonSprites[pokemon.speciesid];
+			animationData = BattlePokemonSprites[pokemon.speciesid];
 		}
-		var animationData = gen6animationData;
 		if (gen === 'bw' && window.BattlePokemonSpritesBW) {
 			animationData = BattlePokemonSpritesBW[pokemon.speciesid];
 		}
-		if (!gen6animationData) gen6animationData = {};
 		if (!animationData) animationData = {};
 
 		if (animationData.num > 0) {
@@ -1188,23 +1194,21 @@ var Tools = {
 		}
 
 		if (animationData[facing]) {
-			var spriteType = '';
-			if (animationData[facing]['anif'] && pokemon.gender === 'F') {
+			if (animationData[facing + 'f'] && pokemon.gender === 'F') {
 				name += '-f';
-				spriteType += 'f';
+				facing += 'f';
 			}
-			if (!Tools.prefs('noanim') && gen in {'bw': 1, 'xy': 1}) {
-				spriteType = 'ani' + spriteType;
+			if (!Tools.prefs('noanim') && genNum >= 5) {
 				dir = gen + 'ani' + dir;
 
-				spriteData.w = animationData[facing][spriteType].w;
-				spriteData.h = animationData[facing][spriteType].h;
+				spriteData.w = animationData[facing].w;
+				spriteData.h = animationData[facing].h;
 				spriteData.url += dir + '/' + name + '.gif';
+				if (genNum >= 6) spriteData.pixelated = false;
 				return spriteData;
 			}
-		} else if (gen6animationData[facing] && gen6animationData[facing]['anif'] && pokemon.gender === 'F') {
+		} else if (animationData['frontf'] && pokemon.gender === 'F') {
 			name += '-f';
-			spriteType += 'f';
 		}
 
 		// There is no entry or enough data in pokedex-mini.js
