@@ -3904,6 +3904,8 @@ var Battle = (function () {
 				} else if (effect.id) {
 					switch (effect.id) {
 					case 'spectralthief':
+						// todo: update StealBoosts so it animates 1st on Spectral Thief
+						if (!this.fastForward) BattleOtherAnims.spectralthiefboost.anim(this, [ofpoke.sprite, poke.sprite]);
 						actions += '' + ofpoke.getName() + ' stole the target\'s boosted stats!';
 						break;
 					}
