@@ -26939,7 +26939,6 @@ var BattleMoveAnims = {
 			});
 		}
 	},
-
 	coreenforcer: {
 		anim: function (battle, args) {
 			var attacker = args[0];
@@ -28429,7 +28428,7 @@ var BattleMoveAnims = {
 				time: 400
 			}, 'swing');
 			defender.delay(500);
-				defender.anim({
+			defender.anim({
 				opacity: 0,
 				time: 1
 			});
