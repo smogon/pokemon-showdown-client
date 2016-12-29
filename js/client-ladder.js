@@ -89,7 +89,7 @@
 			'pususpecttest': 9,
 			'lcsuspecttest': 9,
 			'doublesoususpecttest': 14.5,
-			'gen7balancedhackmonssuspecttest': 7.6
+			'gen7balancedhackmonssuspecttest': 7.6,
 			'gen7mixandmegasuspecttest': 6
 		}
 	});
