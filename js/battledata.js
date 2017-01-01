@@ -566,6 +566,9 @@ var Tools = {
 		// ^^superscript^^
 		str = str.replace(/\^\^([^< ](?:[^<]*?[^< ])??)\^\^/g,
 			options.hidesuperscript ? '$1' : '<sup>$1</sup>');
+		// \\subscript\\
+		str = str.replace(/\\\\([^< ](?:[^<]*?[^< ])??)\\\\/g,
+			options.hidesuperscript ? '$1' : '<sub>$1</sub>');
 		// <<roomid>>
 		str = str.replace(/&lt;&lt;([a-z0-9-]+)&gt;&gt;/g,
 			options.hidelinks ? '&laquo;$1&raquo;' : '&laquo;<a href="/$1" target="_blank">$1</a>&raquo;');
