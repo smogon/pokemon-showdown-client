@@ -593,7 +593,7 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="italics" ' + (cur.hideitalics ? 'checked' : '') + ' /> Suppress __<em>italics</em>__</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="monospace" ' + (cur.hidemonospace ? 'checked' : '') + ' /> Suppress ``<code>code formatting</code>``</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="strikethrough" ' + (cur.hidestrikethrough ? 'checked' : '') + ' /> Suppress ~~<s>strikethrough</s>~~</label></p>';
-		    buf += '<p><label class="optlabel"><input type="checkbox" name="superscript" ' + (cur.hidesuperscript ? 'checked' : '') + ' /> Suppress ^^<sup>superscript</sup>^^</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="superscript" ' + (cur.hidesuperscript ? 'checked' : '') + ' /> Suppress ^^<sup>superscript</sup>^^</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="subscript" ' + (cur.hidesubscript ? 'checked' : '') + ' /> Suppress \\\\<sub>subscript</sub>\\\\</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="me" ' + (cur.hideme ? 'checked' : '') + ' /> Suppress <kbd>/me</kbd> <em>action formatting</em></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="greentext" ' + (cur.hidegreentext ? 'checked' : '') + ' /> Suppress <span class="greentext">&gt;' + ['meme arrows', 'greentext', 'quote formatting'][Math.floor(Math.random() * 3)] + '</span></label></p>';
