@@ -208,6 +208,14 @@ button:disabled {
 	box-shadow: none;
 	color: #F9F9F9;
 }
+.dark .button.disabled,
+.dark .button.disabled:hover,
+.dark .button.disabled:active {
+	background: #555555;
+	border-color: #555555;
+	box-shadow: none;
+	color: #999999;
+}
 /*
 .dark .closebutton,
 .dark .minimizebutton,
