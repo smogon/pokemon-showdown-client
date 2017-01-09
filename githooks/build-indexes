@@ -372,7 +372,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "RU", "BL3", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen7') {
-				return ["CAP", "Uber", "Bank-Uber", "New", "Bank", "Unreleased", "NFE", "Bank-NFE", "LC", "Bank-LC"];
+				return ["CAP", "Uber", "Bank-Uber", "OU", "Bank-OU", "New", "Bank", "Unreleased", "NFE", "Bank-NFE", "LC-Uber", "LC", "Bank-LC"];
 			}
 			if (isDoubles) {
 				return ["DUber", "DOU", "DUU", "DNU", "NFE"];
@@ -398,6 +398,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 		if (!formatSlices['OU'] && !isDoubles) formatSlices['OU'] = formatSlices['New'];
 		if (!formatSlices['UU'] && !isDoubles) formatSlices['UU'] = formatSlices['New'];
+		if (!formatSlices['RU'] && !isDoubles) formatSlices['RU'] = formatSlices['New'];
 
 		if (isDoubles) continue;
 
