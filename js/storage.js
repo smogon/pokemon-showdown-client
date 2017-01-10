@@ -542,9 +542,11 @@ Storage.unpackAllTeams = function (buffer) {
 	if (buffer.charAt(0) === '[' && $.trim(buffer).indexOf('\n') < 0) {
 		// old format
 		return JSON.parse(buffer).map(function (oldTeam) {
+			var format = oldTeam.format || '';
+			if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 			return {
 				name: oldTeam.name || '',
-				format: oldTeam.format || '',
+				format: format,
 				team: Storage.packTeam(oldTeam.team),
 				folder: '',
 				iconCache: ''
@@ -559,9 +561,11 @@ Storage.unpackAllTeams = function (buffer) {
 		if (bracketIndex > pipeIndex) bracketIndex = -1;
 		var slashIndex = line.lastIndexOf('/', pipeIndex);
 		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
+		var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : '';
+		if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 		return {
 			name: line.slice(slashIndex + 1, pipeIndex),
-			format: bracketIndex > 0 ? line.slice(0, bracketIndex) : '',
+			format: format,
 			team: line.slice(pipeIndex + 1),
 			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
 			iconCache: ''
@@ -987,6 +991,7 @@ Storage.importTeam = function (text, teams) {
 			var bracketIndex = line.indexOf(']');
 			if (bracketIndex >= 0) {
 				format = line.substr(1, bracketIndex - 1);
+				if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 				line = $.trim(line.substr(bracketIndex + 1));
 			}
 			if (teams.length) {
@@ -1371,6 +1376,7 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 		format = line.slice(1, bracketIndex);
 		line = $.trim(line.slice(bracketIndex + 1));
 	}
+	if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 	fs.readFile(this.dir + 'Teams/' + filename, function (err, data) {
 		if (!err) {
 			self.teams.push({

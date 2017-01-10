@@ -1056,17 +1056,25 @@
 					var id = toId(name);
 					var isTeambuilderFormat = !team && name.slice(-11) !== 'Custom Game';
 					var teambuilderFormat = '';
+					var teambuilderFormatName = '';
 					if (isTeambuilderFormat) {
-						var parenPos = name.indexOf('(');
-						if (parenPos > 0 && name.charAt(name.length - 1) === ')') {
+						teambuilderFormatName = name;
+						if (id.slice(0, 3) !== 'gen') {
+							teambuilderFormatName = '[Gen 6] ' + name;
+						}
+						var parenPos = teambuilderFormatName.indexOf('(');
+						if (parenPos > 0 && name.slice(-1) === ')') {
 							// variation of existing tier
-							teambuilderFormat = toId(name.substr(0, parenPos));
+							teambuilderFormatName = $.trim(teambuilderFormatName.slice(0, parenPos));
+						}
+						if (teambuilderFormatName !== name) {
+							teambuilderFormat = toId(teambuilderFormatName);
 							if (BattleFormats[teambuilderFormat]) {
 								BattleFormats[teambuilderFormat].isTeambuilderFormat = true;
 							} else {
 								BattleFormats[teambuilderFormat] = {
 									id: teambuilderFormat,
-									name: $.trim(name.substr(0, parenPos)),
+									name: teambuilderFormatName,
 									team: team,
 									section: section,
 									column: column,
