@@ -241,7 +241,7 @@
 				case 'gen5': format = 'C' + format.slice(4); break;
 				case 'gen6': format = 'B' + format.slice(4); break;
 				case 'gen7': format = 'A' + format.slice(4); break;
-				default: format = 'B' + format; break;
+				default: format = 'X' + format; break;
 				}
 				folders.push(format);
 			}
@@ -260,6 +260,7 @@
 				case 'C': newGen = '5'; break;
 				case 'B': newGen = '6'; break;
 				case 'A': newGen = '7'; break;
+				case 'X': newGen = 'X'; break;
 				case 'Z': newGen = '/'; break;
 				}
 				if (gen !== newGen) {
@@ -269,6 +270,8 @@
 						formatFolderBuf = '';
 						buf += '<div class="foldersep"></div>';
 						buf += '<div class="folder"><h3>Folders</h3></div>';
+					} else if (gen === 'X') {
+						buf += '<div class="folder"><h3>???</h3></div>';
 					} else {
 						buf += '<div class="folder"><h3>Gen ' + gen + '</h3></div>';
 					}
@@ -287,12 +290,8 @@
 				}
 				var formatName = format.slice(1);
 				if (formatName === '~') formatName = '';
-				if (newGen === '6' && formatName) {
-					format = formatName;
-				} else {
-					format = 'gen' + newGen + formatName;
-				}
-				if (format === 'gen7') formatName = '(uncategorized)';
+				format = 'gen' + newGen + formatName;
+				if (format.length === 4) formatName = '(uncategorized)';
 				// folders are <div>s rather than <button>s because in theory it has
 				// less weird interactions with HTML5 drag-and-drop
 				buf += '<div class="folder' + (this.curFolder === format ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="' + format + '"><i class="fa ' + (this.curFolder === format ? 'fa-folder-open-o' : 'fa-folder-o') + '"></i>' + formatName + '</div></div>' + (this.curFolder === format ? '</div>' : '');
@@ -831,7 +830,9 @@
 				this.updateTeamList();
 			} else {
 				if (format.slice(-1) === '/') {
-					team.folder = format.slice(0, -1);
+					format = format.slice(0, -1);
+					if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+					team.folder = format;
 					edited = true;
 				}
 				this.updateTeamList();
@@ -972,6 +973,7 @@
 					var bracketIndex = name.indexOf(']');
 					if (bracketIndex >= 0) {
 						format = name.substr(1, bracketIndex - 1);
+						if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 						name = $.trim(name.substr(bracketIndex + 1));
 					}
 					Storage.teams.push({
