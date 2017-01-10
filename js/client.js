@@ -374,24 +374,35 @@
 			this.topbar = new Topbar({el: $('#header')});
 			if (this.down) {
 				this.isDisconnected = true;
-			} else if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
-				this.addRoom('rooms', null, true);
+			} else {
+				if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
+					this.addRoom('rooms', null, true);
+				} else {
+					this.addRoom('lobby', null, true);
+				}
 				Storage.whenPrefsLoaded(function () {
+					if (!Config.server.registered) return;
 					var autojoin = (Tools.prefs('autojoin') || '');
 					var autojoinIds = [];
+					if (typeof autojoin === 'string') {
+						// Use the existing autojoin string for showdown, and an empty string for other servers.
+						if (Config.server.id !== 'showdown') autojoin = '';
+					} else {
+						// If there is not autojoin data for this server, use a empty string.
+						autojoin = autojoin[Config.server.id] || '';
+					}
 					if (autojoin) {
 						var autojoins = autojoin.split(',');
 						for (var i = 0; i < autojoins.length; i++) {
 							var roomid = toRoomid(autojoins[i]);
 							app.addRoom(roomid, null, true, autojoins[i]);
-							if (roomid !== 'staff' && roomid !== 'upperstaff') autojoinIds.push(roomid);
+							if (roomid === 'staff' || roomid === 'upperstaff') continue;
+							if (Config.server.id !== 'showdown' && roomid === 'lobby') continue;
+							autojoinIds.push(roomid);
 						}
 					}
 					app.send('/autojoin ' + autojoinIds.join(','));
 				});
-			} else {
-				this.addRoom('lobby', null, true);
-				this.send('/autojoin');
 			}
 
 			var self = this;
@@ -1636,7 +1647,7 @@
 			document.title = room.title ? room.title + " - Showdown!" : "Showdown!";
 		},
 		updateAutojoin: function () {
-			if (Config.server.id !== 'showdown') return;
+			if (!Config.server.registered) return;
 			var autojoins = [];
 			var autojoinCount = 0;
 			var rooms = this.roomList.concat(this.sideRoomList);
@@ -1644,11 +1655,37 @@
 				var room = rooms[i];
 				if (room.type !== 'chat') continue;
 				autojoins.push(room.id.indexOf('-') >= 0 ? room.id : (room.title || room.id));
-				if (room.id === 'staff' || room.id === 'upperstaff') continue;
+				if (room.id === 'staff' || room.id === 'upperstaff' || (Config.server.id !== 'showdown' && room.id === 'lobby')) continue;
 				autojoinCount++;
 				if (autojoinCount >= 10) break;
 			}
-			Tools.prefs('autojoin', autojoins.join(','));
+			var curAutojoin = (Tools.prefs('autojoin') || '');
+			if (typeof curAutojoin !== 'string') {
+				if (curAutojoin[Config.server.id] === autojoins.join(',')) return;
+				if (!autojoins.length) {
+					delete curAutojoin[Config.server.id];
+					// If the only key left is 'showdown', revert to the string method for storing autojoin.
+					var count = 0;
+					for (var key in curAutojoin) {
+						if (count >= 2) break;
+						count++;
+					}
+					if (count === 1 && curAutojoin.showdown) curAutojoin = curAutojoin.showdown;
+				} else {
+					curAutojoin[Config.server.id] = autojoins.join(',');
+				}
+			} else {
+				if (Config.server.id !== 'showdown') {
+					// Switch to the autojoin object to handle multiple servers
+					curAutojoin = {showdown: curAutojoin};
+					if (!autojoins.length) return;
+					curAutojoin[Config.server.id] = autojoins.join(',');
+				} else {
+					if (curAutojoin === autojoins.join(',')) return;
+					curAutojoin = autojoins.join(',');
+				}
+			}
+			Tools.prefs('autojoin', curAutojoin);
 		},
 
 		/*********************************************************
