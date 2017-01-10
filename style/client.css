@@ -3367,8 +3367,18 @@ a.ilink.yours {
 .dark .utilichart .movenamecol {
 	color: #DDD;
 }
+.dark .utilichart .cur .labelcol em,
+.dark .utilichart .cur .widelabelcol em,
+.dark .utilichart .cur .pplabelcol em,
+.dark .utilichart .cur .statcol em,
+.dark .utilichart .cur .bstcol em {
+	color: #FFF;
+}
 .dark .utilichart .col {
 	color: #999;
+}
+.dark .utilichart .cur .col {
+	color: #FFF;
 }
 .dark .setmenu button:hover,
 .dark .teamlist button:hover,
