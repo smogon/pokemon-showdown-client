@@ -684,11 +684,7 @@
 				if (window.console && console.log) {
 					console.log('<< ' + msg.data);
 				}
-				if (msg.data.charAt(0) !== '{') {
-					self.receive(msg.data);
-					return;
-				}
-				alert("This server is using an outdated version of Pokémon Showdown and needs to be updated.");
+				self.receive(msg.data);
 			};
 			var reconstructSocket = function (socket) {
 				var s = constructSocket();
