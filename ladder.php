@@ -53,6 +53,7 @@ foreach ($toplist as $row)
 			elseif ($row['formatid'] == 'doublesoususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-14.5/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7balancedhackmonssuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-7.6/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7mixandmegasuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-6.0/$N) : 0,1,'.','');
+			elseif ($row['formatid'] == 'gen7sketchmonssuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-6.0/$N) : 0,1,'.','');
 			else echo '--';	?></td>
 		</tr>
 <?php
