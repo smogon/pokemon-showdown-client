@@ -3397,7 +3397,8 @@ a.ilink.yours {
 	text-shadow: #5A6570 1px 1px 0,#5A6570 1px -1px 0,#5A6570 -1px 1px 0,#5A6570 -1px -1px 0;
 }
 .dark .setchart label,
-.dark .setchart-nickname label {
+.dark .setchart-nickname label,
+.dark .setchart .statrow-head em {
 	color: #BBB;
 }
 
