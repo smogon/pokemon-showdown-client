@@ -510,6 +510,7 @@ class NTBBSession {
 			$challengekeyid = intval($splitChallenge[0]);
 			$challenge = $splitChallenge[1];
 			if (@$splitChallenge[2] && !$challengetoken) $challengetoken = $splitChallenge[2];
+			$_REQUEST['challengetoken'] = $challengetoken;
 		}
 
 		if ($challengekeyid < 1) {
