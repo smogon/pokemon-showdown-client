@@ -3419,6 +3419,16 @@ a.ilink.yours {
 	color: #AACCEE;
 }
 
+/* PM highlight */
+.dark .pm-window h3.pm-notifying {
+	border-color: #6688AA;
+	background: #A3C3E3;
+}
+.dark .pm-window h3.pm-notifying:hover {
+	border-color: #204060;
+	background: #8FAFCF;
+}
+
 /* misc */
 .dark iframe.textbox,
 .dark iframe.textbox:hover,
