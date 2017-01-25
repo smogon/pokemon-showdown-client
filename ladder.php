@@ -44,7 +44,7 @@ foreach ($toplist as $row)
 			<td><?php echo $i; ?></td><td><?php echo htmlspecialchars($row['username']); ?></td><td><strong><?php echo round($row['elo']); ?></strong></td><td><?php echo ($row['rprd'] < 100 ? number_format($row['gxe'],1) . '<small>%</small>' : '&ndash;'); ?></td>
 			<td><?php echo '<em>'.round($row['rpr']).'<small> &#177; '.round($row['rprd']).'</small></em>'; /* if (floatval($row['rprd']) > 100) echo ' <small>(provisional)</small>'; */ ?></td>
 			<td>
-			<?php if ($row['formatid'] == 'gen7pokebankoususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-17.0/$N) : 0,1,'.','');
+			<?php if ($row['formatid'] == 'gen7oususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-17.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'uususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-20.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'rususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-11.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'nususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-9.0/$N) : 0,1,'.','');
@@ -53,6 +53,7 @@ foreach ($toplist as $row)
 			elseif ($row['formatid'] == 'doublesoususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-14.5/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7balancedhackmonssuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-7.6/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7mixandmegasuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-6.0/$N) : 0,1,'.','');
+			elseif ($row['formatid'] == 'gen7almostanyabilitysuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-6.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7sketchmonssuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-6.0/$N) : 0,1,'.','');
 			else echo '--';	?></td>
 		</tr>

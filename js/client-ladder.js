@@ -82,7 +82,7 @@
 		}
 	}, {
 		COIL_B: {
-			'gen7pokebankoususpecttest': 17,
+			'gen7oususpecttest': 17,
 			'uususpecttest': 20,
 			'rususpecttest': 11,
 			'nususpecttest': 9,
@@ -91,6 +91,7 @@
 			'doublesoususpecttest': 14.5,
 			'gen7balancedhackmonssuspecttest': 7.6,
 			'gen7mixandmegasuspecttest': 6,
+			'gen7almostanyabilitysuspecttest': 6,
 			'gen7sketchmonssuspecttest': 6
 		}
 	});
