@@ -3419,14 +3419,54 @@ a.ilink.yours {
 	color: #AACCEE;
 }
 
-/* PM highlight */
+/* PM window */
+.dark .pm-window h3 {
+	background: rgba(48,48,48,.8);
+	color: #BBBBBB;
+	margin: 0;
+	padding: 2px 2px 2px 5px;
+	font-size: 11pt;
+	border: 1px solid #111111;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	cursor: pointer;
+}
+.dark .pm-window h3:hover {
+	color: #CCCCCC;
+}
+.dark .pm-window h3.pm-minimized {
+	border-radius: 5px;
+}
 .dark .pm-window h3.pm-notifying {
 	border-color: #6688AA;
 	background: #A3C3E3;
+	color: #666666;
 }
 .dark .pm-window h3.pm-notifying:hover {
 	border-color: #204060;
 	background: #8FAFCF;
+}
+.dark .pm-window h3 small {
+	color: #CCCCCC;
+	font-weight: normal;
+	vertical-align: 1px;
+}
+.dark .pm-log,
+.dark .pm-log-add {
+	border-color: #111111;
+}
+.dark .pm-window.focused h3,
+.dark .pm-window.focused .pm-log,
+.dark .pm-window.focused .pm-log-add {
+	border-color: #555555;
+}
+.dark .pm-window.focused h3,
+.dark .pm-window.focused h3:hover {
+	background: #303030;
+}
+.dark .minimizebutton:hover,
+.dark .pm-window h3:hover .minimizebutton {
+	color: #BBBBBB;
 }
 
 /* misc */
@@ -3434,6 +3474,9 @@ a.ilink.yours {
 .dark iframe.textbox:hover,
 .dark iframe.textbox:focus {
 	background: #DDDDDD;
+}
+.dark .newsentry {
+	border-bottom: 1px solid #111111;
 }
 
 /*********************************************************
