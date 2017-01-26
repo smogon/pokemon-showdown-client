@@ -1665,12 +1665,13 @@
 				if (!autojoins.length) {
 					delete curAutojoin[Config.server.id];
 					// If the only key left is 'showdown', revert to the string method for storing autojoin.
-					var count = 0;
+					var hasSideServer = false;
 					for (var key in curAutojoin) {
-						if (count >= 2) break;
-						count++;
+						if (key === 'showdown') continue;
+						hasSideServer = true;
+						break;
 					}
-					if (count === 1 && curAutojoin.showdown) curAutojoin = curAutojoin.showdown;
+					if (!hasSideServer) curAutojoin = curAutojoin.showdown || '';
 				} else {
 					curAutojoin[Config.server.id] = autojoins.join(',');
 				}
