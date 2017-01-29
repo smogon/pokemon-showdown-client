@@ -907,8 +907,7 @@
 					if (!format.isTeambuilderFormat) continue;
 				} else {
 					if (format.effectType !== 'Format') continue;
-					if (selectType === 'watch' && format.hasBattleFormat) continue;
-					if (selectType != 'watch' && !format[selectType + 'Show']) continue;
+					if ((selectType === 'watch' && format.hasBattleFormat) || (selectType != 'watch' && !format[selectType + 'Show'])) continue;
 				}
 
 				if (format.section && format.section !== curSection) {
