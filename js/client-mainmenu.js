@@ -906,7 +906,7 @@
 				if (selectType === 'teambuilder') {
 					if (!format.isTeambuilderFormat) continue;
 				} else {
-					if (format.effectType !== 'Format') continue;
+					if (format.effectType !== 'Format' || format.battleFormat) continue;
 					if (selectType != 'watch' && !format[selectType + 'Show']) continue;
 				}
 

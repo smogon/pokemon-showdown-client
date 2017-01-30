@@ -1126,10 +1126,8 @@
 					// The base format is not available.
 					if (teambuilderFormat.battleFormat) {
 						multivariantFormats[teambuilderFormat.id] = 1;
-						teambuilderFormat.hasBattleFormat = false;
 						teambuilderFormat.battleFormat = '';
 					} else {
-						teambuilderFormat.hasBattleFormat = true;
 						teambuilderFormat.battleFormat = id;
 					}
 				}

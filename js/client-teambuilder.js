@@ -1201,7 +1201,7 @@
 				return;
 			}
 
-			if (window.BattleFormats && BattleFormats[format] && BattleFormats[format].hasBattleFormat) {
+			if (window.BattleFormats && BattleFormats[format] && BattleFormats[format].battleFormat) {
 				format = BattleFormats[format].battleFormat;
 			}
 			app.sendTeam(this.curTeam);
