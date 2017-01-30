@@ -381,7 +381,7 @@
 					this.addRoom('lobby', null, true);
 				}
 				Storage.whenPrefsLoaded(function () {
-					if (!Config.server.registered) return;
+					if (!Config.server.registered) return app.send('/autojoin');
 					var autojoin = (Tools.prefs('autojoin') || '');
 					var autojoinIds = [];
 					if (typeof autojoin === 'string') {
