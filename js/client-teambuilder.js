@@ -1699,8 +1699,10 @@
 
 			if (template.speciesid === 'meowstic') {
 				smogdexid = 'meowstic-m';
-			} else if (smogdexid === 'rotom' || smogdexid === 'deoxys' || smogdexid === 'kyurem' || smogdexid === 'giratina' || smogdexid === 'shaymin' || smogdexid === 'tornadus' || smogdexid === 'thundurus' || smogdexid === 'landorus' || smogdexid === 'pumpkaboo' || smogdexid === 'gourgeist' || smogdexid === 'arceus' || smogdexid === 'meowstic' || smogdexid === 'hoopa' || smogdexid === 'lycanroc' || smogdexid === 'diglett' || smogdexid === 'dugtrio' || smogdexid === 'exeggutor' || smogdexid === 'geodude' || smogdexid === 'graveler' || smogdexid === 'golem' || smogdexid === 'grimer' || smogdexid === 'muk' || smogdexid === 'marowak' || smogdexid === 'meowth' || smogdexid === 'persian' || smogdexid === 'vulpix' || smogdexid === 'ninetales' || smogdexid === 'sandshrew' || smogdexid === 'sandslash' || smogdexid === 'raichu' || smogdexid === 'rattata' || smogdexid === 'raticate' || smogdexid === 'oricorio' || smogdexid === 'silvally' || smogdexid === 'zygarde') {
-				if (template.forme) smogdexid += '-' + toId(template.forme);
+			} else if (template.forme) {
+				smogdexid += '-' + toId(template.forme);
+			} else if (template.speciesid === 'vivillon-pokeball' || template.speciesid === 'vivillon-fancy') {
+				smogdexid = 'vivillon';
 			}
 
 			var generationNumber = 7;
