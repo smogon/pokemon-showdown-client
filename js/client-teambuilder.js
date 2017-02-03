@@ -1700,9 +1700,8 @@
 			if (template.speciesid === 'meowstic') {
 				smogdexid = 'meowstic-m';
 			} else if (template.forme) {
+				if (template.speciesid === 'vivillon-pokeball' || template.speciesid === 'vivillon-fancy') smogdexid = 'vivillon';
 				smogdexid += '-' + toId(template.forme);
-			} else if (template.speciesid === 'vivillon-pokeball' || template.speciesid === 'vivillon-fancy') {
-				smogdexid = 'vivillon';
 			}
 
 			var generationNumber = 7;
