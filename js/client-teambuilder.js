@@ -1700,7 +1700,6 @@
 			if (template.speciesid === 'meowstic') {
 				smogdexid = 'meowstic-m';
 			} else if (template.forme) {
-				if (template.baseSpecies === 'Vivillon' || template.baseSpecies === 'Basculin' || template.baseSpecies === 'Keldeo' || template.baseSpecies === 'Greninja' || template.baseSpecies === 'Pikachu') smogdexid = 'vivillon';
 				if (template.speciesid === 'vivillon-fancy' || template.speciesid === 'vivillon-pokeball') smogdexid = 'vivillon';
 				if (template.speciesid === 'keldeo-resolute') smogdexid = 'keldeo';
 				if (template.speciesid === 'basculin-blue-striped') smogdexid = 'basculin';
