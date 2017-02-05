@@ -1700,20 +1700,14 @@
 			if (template.speciesid === 'meowstic') {
 				smogdexid = 'meowstic-m';
 			} else if (template.forme) {
-				if (template.speciesid === 'vivillonfancy' || template.speciesid === 'vivillonpokeball') {
-					smogdexid = 'vivillon';
-				} else if (template.speciesid === 'keldeoresolute') {
-					smogdexid = 'keldeo';
-				} else if (template.speciesid === 'basculinbluestriped') {
-					smogdexid = 'basculin';
-				} else if (template.speciesid === 'greninjaash') {
-					smogdexid = 'greninja';
-				} else if (template.speciesid === 'pikachubelle' || template.speciesid === 'pikachuphd' || template.speciesid === 'pikachupopstar' || template.speciesid === 'pikachurockstar' || template.speciesid === 'pikachulibre' || template.speciesid === 'pikachucosplay') {
-					smogdexid = 'pikachu';
-				} else if (template.speciesid === 'castformsunny' || template.speciesid === 'castformsnowy' || template.speciesid === 'castformrainy') {
-					smogdexid = 'castform';
-				} else {
-					smogdexid += '-' + toId(template.forme);
+				switch (template.baseSpecies) {
+				case 'Vivillon': smogdexid = 'vivillon'; break;
+				case 'Keldeo': smogdexid = 'keldeo'; break;
+				case 'Basculin': smogdexid = 'basculin'; break;
+				case 'Greninja': smogdexid = 'greninja'; break;
+				case 'Pikachu': smogdexid = 'pikachu'; break;
+				case 'Castform': smogdexid = 'castform'; break;
+				default: smogdexid += '-' + toId(template.forme); break;
 				}
 			}
 
