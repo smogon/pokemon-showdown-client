@@ -1700,13 +1700,21 @@
 			if (template.speciesid === 'meowstic') {
 				smogdexid = 'meowstic-m';
 			} else if (template.forme) {
-				if (template.speciesid === 'vivillon-fancy' || template.speciesid === 'vivillon-pokeball') smogdexid = 'vivillon';
-				if (template.speciesid === 'keldeo-resolute') smogdexid = 'keldeo';
-				if (template.speciesid === 'basculin-blue-striped') smogdexid = 'basculin';
-				if (template.speciesid === 'greninja-ash') smogdexid = 'greninja';
-				if (template.speciesid === 'pikachu-belle' || template.speciesid === 'pikachu-phd' || template.speciesid === 'pikachu-pop-star' || template.speciesid === 'pikachu-rock-star' || template.speciesid === 'pikachu-libre' || template.speciesid === 'pikachu-cosplay') smogdexid = 'pikachu';
-				if (template.speciesid === 'castform-sunny' || template.speciesid === 'castform-snowy' || template.speciesid === 'castform-rainy') smogdexid = 'castform';
-				smogdexid += '-' + toId(template.forme);
+				if (template.speciesid === 'vivillonfancy' || template.speciesid === 'vivillonpokeball') {
+					smogdexid = 'vivillon';
+				} else if (template.speciesid === 'keldeoresolute') {
+					smogdexid = 'keldeo';
+				} else if (template.speciesid === 'basculinbluestriped') {
+					smogdexid = 'basculin';
+				} else if (template.speciesid === 'greninjaash') {
+					smogdexid = 'greninja';
+				} else if (template.speciesid === 'pikachubelle' || template.speciesid === 'pikachuphd' || template.speciesid === 'pikachupopstar' || template.speciesid === 'pikachurockstar' || template.speciesid === 'pikachulibre' || template.speciesid === 'pikachucosplay') {
+					smogdexid = 'pikachu';
+				} else if (template.speciesid === 'castformsunny' || template.speciesid === 'castformsnowy' || template.speciesid === 'castformrainy') {
+					smogdexid = 'castform';
+				} else {
+					smogdexid += '-' + toId(template.forme);
+				}
 			}
 
 			var generationNumber = 7;
