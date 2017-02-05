@@ -113,9 +113,10 @@ var BattleTooltips = (function () {
 		var text = '';
 		switch (type) {
 		case 'move':
+		case 'zmove':
 			var move = Tools.getMove(thing);
 			if (!move) return;
-			text = this.showMoveTooltip(move);
+			text = this.showMoveTooltip(move, type === 'zmove');
 			break;
 
 		case 'pokemon':
@@ -176,7 +177,28 @@ var BattleTooltips = (function () {
 		BattleTooltips.hideTooltip();
 	};
 
-	BattleTooltips.prototype.showMoveTooltip = function (move) {
+	BattleTooltips.prototype.zMoveTable = {
+		Poison: "Acid Downpour",
+		Fighting: "All-Out Pummeling",
+		Dark: "Black Hole Eclipse",
+		Grass: "Bloom Doom",
+		Normal: "Breakneck Blitz",
+		Rock: "Continental Crush",
+		Steel: "Corkscrew Crash",
+		Dragon: "Devastating Drake",
+		Electric: "Gigavolt Havoc",
+		Water: "Hydro Vortex",
+		Fire: "Inferno Overdrive",
+		Ghost: "Never-Ending Nightmare",
+		Bug: "Savage Spin-Out",
+		Psychic: "Shattered Psyche",
+		Ice: "Subzero Slammer",
+		Flying: "Supersonic Skystrike",
+		Ground: "Tectonic Rage",
+		Fairy: "Twinkle Tackle",
+	};
+
+	BattleTooltips.prototype.showMoveTooltip = function (move, isZ) {
 		var text = '';
 		var basePower = move.basePower;
 		var basePowerText = '';
@@ -184,6 +206,24 @@ var BattleTooltips = (function () {
 		var yourActive = this.battle.yourSide.active;
 		var pokemon = this.battle.mySide.active[this.room.choice.choices.length];
 		var pokemonData = this.room.myPokemon[pokemon.slot];
+
+		if (isZ) {
+			var item = Tools.getItem(pokemonData.item);
+			if (item.zMoveFrom == move.name) {
+				move = Tools.getMove(item.zMove);
+			} else if (move.category === 'Status') {
+				move = JSON.parse(JSON.stringify(move));
+				move.name = 'Z-' + move.name;
+				// TODO: show zMoveBoost/Effect
+			} else {
+				var zmove = Tools.getMove(this.zMoveTable[item.zMoveType]);
+				zmove = JSON.parse(JSON.stringify(zmove));
+				zmove.category = move.category;
+				zmove.basePower = move.zMovePower;
+				move = zmove;
+				// TODO: Weather Ball type-changing shenanigans
+			}
+		}
 
 		// Check if there are more than one active Pokémon to check for multiple possible BPs.
 		if (yourActive.length > 1) {
