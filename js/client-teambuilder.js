@@ -1701,12 +1701,13 @@
 				smogdexid = 'meowstic-m';
 			} else if (template.forme) {
 				switch (template.baseSpecies) {
-				case 'Vivillon': smogdexid = 'vivillon'; break;
-				case 'Keldeo': smogdexid = 'keldeo'; break;
-				case 'Basculin': smogdexid = 'basculin'; break;
-				case 'Greninja': smogdexid = 'greninja'; break;
-				case 'Pikachu': smogdexid = 'pikachu'; break;
-				case 'Castform': smogdexid = 'castform'; break;
+				case 'Vivillon':
+				case 'Keldeo':
+				case 'Basculin':
+				case 'Greninja':
+				case 'Pikachu':
+				case 'Castform':
+					break;
 				default: smogdexid += '-' + toId(template.forme); break;
 				}
 			}
