@@ -812,7 +812,8 @@
 			if (format === 'ubers' || format === 'uber') tierSet = tierSet.slice(slices.Uber);
 			else if (this.gen === 7 && format === 'vgc2017') tierSet = tierSet.slice(slices.Legal);
 			else if (this.gen === 7 && (format === 'pokebankubers' || format === 'pokebankanythinggoes')) tierSet = tierSet.slice(slices.Uber);
-			else if (this.gen === 7 && (format === 'ou' || format === 'pokebankou')) tierSet = tierSet.slice(slices.OU);
+			else if (this.gen === 7 && format === 'ou') tierSet = tierSet.slice(slices.OU);
+			else if (this.gen === 7 && format === 'uu') tierSet = tierSet.slice(slices.UU);
 			else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
 			else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
 			else if (format === 'ru') tierSet = tierSet.slice(slices.RU);
