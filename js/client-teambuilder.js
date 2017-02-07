@@ -1708,7 +1708,9 @@
 				case 'Pikachu':
 				case 'Castform':
 					break;
-				default: smogdexid += '-' + toId(template.forme); break;
+				default:
+					smogdexid += '-' + toId(template.forme);
+					break;
 				}
 			}
 
