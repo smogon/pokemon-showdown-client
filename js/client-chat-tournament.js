@@ -449,7 +449,7 @@
 						(data[4] === 'fail' ? " but the tournament does not support drawing, so it did not count" : "") + ".";
 					var $battleMessage = data[5] ? this.room.$chat.find('.tournament-' + toRoomid(data[5]).toLowerCase()) : '';
 					if ($battleMessage && $battleMessage.length) {
-						$battleMessage.removeClass('tournament-message-battlestart').addClass('tournament-message-battleend').find('a').text(message);
+						$battleMessage.removeClass('tournament-message-battlestart').addClass('tournament-message-battleend').find('a').html(message);
 					} else {
 						this.room.$chat.append('<div class="notice tournament-message-battleend">' + message + '</div>');
 					}
