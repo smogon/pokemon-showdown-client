@@ -751,24 +751,28 @@ var BattleTooltips = (function () {
 	// Functions to calculate speed ranges of an opponent.
 	BattleTooltips.prototype.getTemplateMinSpeed = function (template, level) {
 		var baseSpe = template.baseStats['spe'];
-		if (this.battle.gen < 7) {
-			var overrideStats = BattleTeambuilderTable['gen' + this.battle.gen].overrideStats[template.id];
+		var tier = this.battle.tier;
+		var gen = this.battle.gen;
+		if (gen < 7) {
+			var overrideStats = BattleTeambuilderTable['gen' + gen].overrideStats[template.id];
 			if (overrideStats && 'spe' in overrideStats) baseSpe = overrideStats['spe'];
 		}
 
-		var nature = (this.battle.tier.indexOf('Random Battle') >= 0 || this.battle.gen < 3) ? 1 : 0.9;
+		var nature = (tier.indexOf('Random Battle') >= 0 || (tier.indexOf('Random') >= 0 && tier.indexOf('Battle') >= 0 && gen >= 7) || gen < 3) ? 1 : 0.9;
 		return Math.floor(Math.floor(2 * baseSpe * level / 100 + 5) * nature);
 	};
 	BattleTooltips.prototype.getTemplateMaxSpeed = function (template, level) {
 		var baseSpe = template.baseStats['spe'];
-		if (this.battle.gen < 7) {
-			var overrideStats = BattleTeambuilderTable['gen' + this.battle.gen].overrideStats[template.id];
+		var tier = this.battle.tier;
+		var gen = this.battle.gen;
+		if (gen < 7) {
+			var overrideStats = BattleTeambuilderTable['gen' + gen].overrideStats[template.id];
 			if (overrideStats && 'spe' in overrideStats) baseSpe = overrideStats['spe'];
 		}
 
-		var iv = (this.battle.gen < 3) ? 30 : 31;
-		var value = iv + ((this.battle.tier.indexOf('Random Battle') >= 0 && this.battle.gen >= 3) ? 21 : 63);
-		var nature = (this.battle.tier.indexOf('Random Battle') >= 0 || this.battle.gen < 3) ? 1 : 1.1;
+		var iv = (gen < 3) ? 30 : 31;
+		var value = iv + (((tier.indexOf('Random') >= 0 && tier.indexOf('Battle') >= 0 && gen >= 7) || (tier.indexOf('Random Battle') >= 0 && gen >= 3)) ? 21 : 63);
+		var nature = (this.battle.tier.indexOf('Random Battle') >= 0 || gen < 3) ? 1 : 1.1;
 		return Math.floor(Math.floor(Math.floor(2 * baseSpe + value) * level / 100 + 5) * nature);
 	};
 
