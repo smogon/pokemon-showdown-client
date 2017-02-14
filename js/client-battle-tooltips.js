@@ -430,6 +430,7 @@ var BattleTooltips = (function () {
 					text += '<p>Possible abilities: ' + Tools.getAbility(ability0).name;
 					if (template.abilities['1']) text += ', ' + Tools.getAbility(template.abilities['1']).name;
 					if (this.battle.gen > 4 && template.abilities['H']) text += ', ' + Tools.getAbility(template.abilities['H']).name;
+					if (this.battle.gen > 6 && template.abilities['S']) text += ', ' + Tools.getAbility(template.abilities['S']).name;
 					text += '</p>';
 				}
 			} else if (pokemon.ability) {
