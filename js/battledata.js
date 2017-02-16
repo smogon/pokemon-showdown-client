@@ -486,22 +486,17 @@ var Tools = {
 			buf += '</span> ';
 			buf += '<span style="float:left;min-height:26px">';
 			if (template.abilities['1']) {
-				buf += '<span class="col twoabilitycol">';
+				buf += '<span class="col twoabilitycol">' + template.abilities['0'] + '<br />' + template.abilities['1'] + '</span>';
 			} else {
-				buf += '<span class="col abilitycol">';
+				buf += '<span class="col abilitycol">' + template.abilities['0'] + '</span>';
 			}
-			for (var i in template.abilities) {
-				var ability = template.abilities[i];
-				if (!ability) continue;
-
-				if (i === '1') buf += '<br />';
-				if (i == 'H') {
-					ability = '</span><span class="col abilitycol"><em>' + (template.unreleasedHidden ? '<s>' + ability + '</s>' : ability) + '</em>';
-				}
-				buf += ability;
+			if (template.abilities['S']) {
+				buf += '<span class="col twoabilitycol' + (template.unreleasedHidden ? ' unreleasedhacol' : '') + '"><em>' + template.abilities['H'] + '<br />' + template.abilities['S'] + '</em></span>';
+			} else if (template.abilities['H']) {
+				buf += '<span class="col abilitycol' + (template.unreleasedHidden ? ' unreleasedhacol' : '') + '"><em>' + template.abilities['H'] + '</em></span>';
+			} else {
+				buf += '<span class="col abilitycol"></span>';
 			}
-			if (!template.abilities['H']) buf += '</span><span class="col abilitycol">';
-			buf += '</span>';
 			buf += '</span>';
 			buf += '<span style="float:left;min-height:26px">';
 			buf += '<span class="col statcol"><em>HP</em><br />' + template.baseStats.hp + '</span> ';
