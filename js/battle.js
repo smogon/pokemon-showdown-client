@@ -878,6 +878,7 @@ var Sprite = (function () {
 	Sprite.prototype.removeTransform = function (species) {
 		if (this.oldsp) {
 			var sp = this.oldsp;
+			this.cryurl = sp.cryurl;
 			this.sp = sp;
 			this.oldsp = null;
 			this.elem.attr('src', sp.url);
