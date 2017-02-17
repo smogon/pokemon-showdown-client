@@ -2225,6 +2225,7 @@
 				'@': "Moderator (@)",
 				'%': "Driver (%)",
 				'*': "Bot (*)",
+				'\u2606': "Player (\u2606)",
 				'\u2605': "Player (\u2605)",
 				'+': "Voice (+)",
 				'‽': "<span style='color:#777777'>Locked (‽)</span>",
