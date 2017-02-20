@@ -14,6 +14,7 @@
 			'dblclick .pm-window h3': 'dblClickPMHeader',
 			'focus textarea': 'onFocusPM',
 			'blur textarea': 'onBlurPM',
+			'click .spoiler': 'clickSpoiler',
 			'click button.formatselect': 'selectFormat',
 			'click button.teamselect': 'selectTeam'
 		},
@@ -448,6 +449,9 @@
 			} else if (document.selection) {
 				document.selection.empty();
 			}
+		},
+		clickSpoiler: function (e) {
+			$(e.currentTarget).toggleClass('spoiler-shown');
 		},
 
 		// support for buttons that can be sent by the server:
