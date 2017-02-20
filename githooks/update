@@ -126,6 +126,7 @@ function updateLearnsets(callback) {
 
 	for (const speciesid in Learnsets) {
 		if (!oldLearnsetsG6[speciesid] || !oldLearnsetsG6[speciesid].learnset) {
+			if (!Pokedex[speciesid]) console.log("ERROR: " + speciesid + " not found in Pokedex");
 			console.log("NEW ENTRY at learnsets-g6.js: " + Pokedex[speciesid].species + ".");
 			oldLearnsetsG6[speciesid] = {learnset: {}};
 		}
