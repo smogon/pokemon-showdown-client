@@ -868,7 +868,7 @@
 
 			case 'avatar':
 				var parts = target.split(',');
-				let avatarString = toId(parts[0]);
+				var avatarString = toId(parts[0]);
 				var avatar = parseInt(avatarString, 10);
 				if (avatar) {
 					Tools.prefs('avatar', avatar);
