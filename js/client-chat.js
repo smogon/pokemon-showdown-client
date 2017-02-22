@@ -872,7 +872,7 @@
 				var avatar = parseInt(avatarString, 10);
 				if (avatar) {
 					Tools.prefs('avatar', avatar);
-				} else if (['bw2elesa', 'teamrocket', 'yellow', 'zinnia', 'clemont'].includes(avatarString)) { // custom avatar exceptions
+				} else if (['bw2elesa', 'teamrocket', 'yellow', 'zinnia', 'clemont'].indexOf(avatarString) > -1) { // custom avatar exceptions
 					Tools.prefs('avatar', '#' + avatarString);
 				}
 				return text; // Send the /avatar command through to the server.
