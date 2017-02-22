@@ -328,7 +328,7 @@
 				}
 			} else if (text.toLowerCase() === '/clear') {
 				this.closePM(userid);
-				this.$pmBox.find('.pm-window-' + userid).find('.inner').empty();
+				$chat.empty();
 			} else {
 				text = ('\n' + text).replace(/\n\n/g, '\n').replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
 				if (text.length > 80000) {
