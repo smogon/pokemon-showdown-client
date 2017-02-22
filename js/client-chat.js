@@ -868,9 +868,12 @@
 
 			case 'avatar':
 				var parts = target.split(',');
-				var avatar = parseInt(parts[0], 10);
+				let avatarString = toId(parts[0]);
+				var avatar = parseInt(avatarString, 10);
 				if (avatar) {
 					Tools.prefs('avatar', avatar);
+				} else if (['bw2elesa', 'teamrocket', 'yellow', 'zinnia', 'clemont'].includes(avatarString)) { // custom avatar exceptions
+					Tools.prefs('avatar', '#' + avatarString);
 				}
 				return text; // Send the /avatar command through to the server.
 
