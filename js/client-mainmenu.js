@@ -326,6 +326,8 @@
 					delete app.ignore[userid];
 					$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
 				}
+			} else if (text.toLowerCase() === '/clear') {
+				$chat.empty();
 			} else {
 				text = ('\n' + text).replace(/\n\n/g, '\n').replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
 				if (text.length > 80000) {
