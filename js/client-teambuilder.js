@@ -1704,7 +1704,6 @@
 				case 'Vivillon':
 				case 'Keldeo':
 				case 'Basculin':
-				case 'Greninja':
 				case 'Pikachu':
 				case 'Castform':
 					break;
