@@ -1438,7 +1438,7 @@
 					'<span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span>' +
 					'</div>'
 				);
-				return; // PMs independently notify in the man menu; no need to make them notify again with `inchatpm`.
+				return; // PMs independently notify in the main menu; no need to make them notify again with `inchatpm`.
 			}
 
 			var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
