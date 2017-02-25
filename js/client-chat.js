@@ -1242,7 +1242,7 @@
 					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
 					}
-					if (row[0] !== 'globalhighlight') this.notifyOnce("Highlighted by a declare", "\"" + Tools.escapeHTML(row.slice(1).join('|')) + "\"", 'highlight');
+					if (row[0] !== 'globalhighlight') this.notifyOnce("Highlighted by a declare", "\"" + row.slice(1).join('|') + "\"", 'highlight');
 					break;
 
 				case 'error':
