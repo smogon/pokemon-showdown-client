@@ -1237,6 +1237,19 @@
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
+				case 'highlight':
+					var soundOnly = row[1] === 'global';
+					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice((soundOnly ? 2 : 1)).join('|')) + '</div>');
+					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
+						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+					}
+					if (!soundOnly) {
+						var $lastMessage = this.$chat.children().last();
+						var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
+						this.notifyOnce("Highlighted by a declare", "\"" + notifyText + "\"", 'highlight');
+					}
+					break;
+
 				case 'error':
 					this.$chat.append('<div class="notice message-error">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
 					break;
