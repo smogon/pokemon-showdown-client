@@ -1237,12 +1237,12 @@
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
-				case 'globalhighlight':
-				case 'highlight':
+				case 'globalnotify':
+				case 'notify':
 					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
 					}
-					if (row[0] !== 'globalhighlight') this.notifyOnce("Highlighted by a declare", "\"" + row.slice(1).join('|') + "\"", 'highlight');
+					if (row[0] !== 'globalnotify') this.notifyOnce("You have a notification", "\"" + row.slice(1).join('|') + "\"", 'highlight');
 					break;
 
 				case 'error':
