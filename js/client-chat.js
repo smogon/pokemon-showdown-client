@@ -1417,7 +1417,9 @@
 		addChat: function (name, message, pm, msgTime) {
 			var userid = toUserid(name);
 
-			if (app.ignore[userid] && (name.charAt(0) === ' ' || name.charAt(0) === '+')) return;
+			var speakerHasAuth = " +\u2606".indexOf(name.charAt(0)) < 0;
+			var readerHasAuth = this.users && " +\u2606".indexOf((this.users[app.user.get('userid')] || ' ').charAt(0)) < 0;
+			if (app.ignore[userid] && !speakerHasAuth && !readerHasAuth) return;
 
 			// Add this user to the list of people who have spoken recently.
 			this.markUserActive(userid);
