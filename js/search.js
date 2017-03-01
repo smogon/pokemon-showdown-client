@@ -585,6 +585,7 @@
 					if (!(learnsetid in BattleTeambuilderTable.learnsets)) {
 						learnsetid = toId(BattlePokedex[learnsetid].baseSpecies);
 					}
+					if (!learnsetid) continue; // Pokestar Pokemon
 					while (true) {
 						var learnset = BattleTeambuilderTable.learnsets[learnsetid];
 						if (learnset && (filters[i][1] in learnset) && learnset[filters[i][1]].indexOf(genChar) >= 0) {
