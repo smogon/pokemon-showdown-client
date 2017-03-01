@@ -2162,11 +2162,18 @@
 			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
 			var hpType;
 			if (this.curTeam.gen <= 2) {
+				var hpDV = Math.floor(set.ivs.hp / 2);
 				var atkDV = Math.floor(set.ivs.atk / 2);
 				var defDV = Math.floor(set.ivs.def / 2);
 				var speDV = Math.floor(set.ivs.spe / 2);
 				var spcDV = Math.floor(set.ivs.spa / 2);
 				hpType = hpTypes[4 * (atkDV % 4) + (defDV % 4)];
+				var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
+				if (expectedHpDV !== hpDV) {
+					set.ivs.hp = expectedHpDV * 2;
+					if (set.ivs.hp === 30) set.ivs.hp = 31;
+					this.$chart.find('input[name=iv-hp]').val(expectedHpDV);
+				}
 			} else {
 				var hpTypeX = 0;
 				var i = 1;
@@ -2672,7 +2679,7 @@
 				if (!this.canHyperTrain(set)) {
 					var hpType = moveName.substr(13);
 
-					set.ivs = {};
+					set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
 					if (this.curTeam.gen > 2) {
 						for (var i in exports.BattleTypeChart[hpType].HPivs) {
 							set.ivs[i] = exports.BattleTypeChart[hpType].HPivs[i];
@@ -2681,6 +2688,13 @@
 						for (var i in exports.BattleTypeChart[hpType].HPdvs) {
 							set.ivs[i] = exports.BattleTypeChart[hpType].HPdvs[i] * 2;
 						}
+						var atkDV = Math.floor(set.ivs.atk / 2);
+						var defDV = Math.floor(set.ivs.def / 2);
+						var speDV = Math.floor(set.ivs.spe / 2);
+						var spcDV = Math.floor(set.ivs.spa / 2);
+						var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
+						set.ivs.hp = expectedHpDV * 2;
+						if (set.ivs.hp === 30) set.ivs.hp = 31;
 					}
 				}
 			} else if (moveName === 'Return') {
