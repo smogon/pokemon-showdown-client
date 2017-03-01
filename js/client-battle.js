@@ -1261,7 +1261,7 @@
 		toggleIgnoreSpects: function (e) {
 			this.battle.ignoreSpects = !!e.currentTarget.checked;
 			this.battle.add('Spectators ' + (this.battle.ignoreSpects ? '' : 'no longer ') + 'ignored.');
-			var $messages = $('.battle-log').find('.chat').has('small').not(':contains(\u2606)');
+			var $messages = $('.battle-log').find('.chat').has('small').not(':contains(\u2605), :contains(\u2606)');
 			if (!$messages.length) return;
 			if (this.battle.ignoreSpects) {
 				$messages.hide();
