@@ -761,7 +761,7 @@
 		 * Send team to sim server
 		 */
 		sendTeam: function (team) {
-			this.send('/utm ' + Storage.getPackedTeam(team));
+			this.send('/utm ' + Storage.getPackedTeam(team, true));
 		},
 		/**
 		 * Receive from sim server

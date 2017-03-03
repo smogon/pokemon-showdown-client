@@ -2524,12 +2524,14 @@ a.ilink.yours {
 	border: 1px solid #999999;
 	background: #DAE5F0 no-repeat scroll 10px 5px none;
 	border-radius: 5px;
-	padding: 2px 0 0 3px;
-	height: 127px;
-	width: 626px;
+	width: 629px;
 	margin-top: 8px;
 
 	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
+}
+.setdata {
+	padding: 2px 0 0 3px;
+	height: 127px;
 }
 .setcol {
 	height: 127px;
@@ -2755,6 +2757,17 @@ a.ilink.yours {
 }
 .setchart .setcol-moves input {
 	width: 129px;
+}
+.setnotes {
+	padding: 2px 4px;
+	display: none;
+}
+.setnotes textarea {
+	width: 612px;
+	height: auto;
+	min-height: 25px;
+	margin-top: 2px;
+	overflow: hidden;
 }
 
 .teambuilder-clipboard-container {

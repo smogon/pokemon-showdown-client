@@ -34,6 +34,8 @@
 			'change input.teamnameedit': 'teamNameChange',
 			'click button.formatselect': 'selectFormat',
 			'change input[name=nickname]': 'nicknameChange',
+			'input .setnotes textarea': 'setNotesChange',
+			'blur .setnotes textarea': 'setNotesBlur',
 
 			// details
 			'change .detailsform input': 'detailsChange',
@@ -1025,7 +1027,7 @@
 					if (this.curSetList.length < 6 && this.deletedSet && i === this.deletedSetLoc) {
 						buf += '<li><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 					}
-					buf += this.renderSet(this.curSetList[i], i);
+					buf += this.renderSet(this.curSetList[i], i, true);
 				}
 				if (this.deletedSet && i === this.deletedSetLoc) {
 					buf += '<li><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></li>';
@@ -1040,10 +1042,14 @@
 				buf += '</div>';
 			}
 			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
+			var setNotesTextboxes = $('.setnotes textarea');
+			for (var i = 0; i < setNotesTextboxes.length; i++) {
+				this.autoResizeSetNotes(setNotesTextboxes[i]);
+			}
 			this.$(".teamedit textarea").focus().select();
 			if ($(window).width() < 640) this.show();
 		},
-		renderSet: function (set, i) {
+		renderSet: function (set, i, showNotes) {
 			var template = Tools.getTemplate(set.species);
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
@@ -1055,11 +1061,12 @@
 				buf += '</li>';
 				return buf;
 			}
-			buf += '<div class="setmenu"><button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
+			buf += '<div class="setmenu">' + (showNotes ? '<button name="showSetNotes"><i class="fa fa-plus"></i>Add set notes</button>' : '') + '<button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + Tools.escapeHTML(set.name || '') + '" placeholder="' + Tools.escapeHTML(template.baseSpecies) + '" />';
 			buf += '</div>';
-			buf += '<div class="setchart" style="' + Tools.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
+			buf += '<div class="setchart">';
+			buf += '<div class="setdata" style="' + Tools.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
 			// icon
 			buf += '<div class="setcol setcol-icon">';
@@ -1143,7 +1150,9 @@
 			}
 			buf += '</button></div></div>';
 
-			buf += '</div></li>';
+			buf += '</div>';
+			if (showNotes) buf += '<div class="setnotes"><label>Set notes</label><textarea class="textbox" rows="1">' + (set.notes ? set.notes.join('\n') : '') + '</textarea></div>';
+			buf += '</li>';
 			return buf;
 		},
 
@@ -1242,6 +1251,39 @@
 			var set = this.curSetList[i];
 			var name = $.trim(e.currentTarget.value).replace(/\|/g, '');
 			e.currentTarget.value = set.name = name;
+			this.save();
+		},
+
+		setNotesBlur: function (e) {
+			var textarea = $(e.currentTarget);
+			if (!$.trim(textarea.val())) textarea.parent().hide();
+			if (textarea.val().indexOf('|') >= 0 || textarea.val().indexOf(']') >= 0 || textarea.val().indexOf('\t') >= 0) {
+				app.addPopupMessage("Unfortunately, set notes can't contain tabs or the characters | and ], since they're used for storing teams.");
+				textarea.val(textarea.val().replace(/[\]\|\t]/g, ''));
+				var i = +textarea.closest('li').attr('value');
+				this.curSetList[i].notes = textarea.val().split('\n');
+			}
+		},
+		autoResizeSetNotes: function (textarea) {
+			if (!textarea || !textarea.style) return;
+			if ($.trim(textarea.value)) {
+				textarea.parentElement.style.display = 'block';
+			}
+			// let the browser shrink the textarea if a line got deleted
+			textarea.style.height = 'auto';
+			// subtract top+bottom padding, because scrollHeight includes it and height does not
+			textarea.style.height = (textarea.scrollHeight - 4) + 'px';
+		},
+		setNotesChange: function (e) {
+			var textarea = e.currentTarget;
+			this.autoResizeSetNotes(textarea);
+			var notes = textarea.value;
+			var i = +$(e.currentTarget).closest('li').attr('value');
+			var set = this.curSetList[i];
+			set.notes = notes ? notes.split('\n') : [];
+			set.notes = set.notes.map($.trim).filter(function (element) {
+				return !!element;
+			});
 			this.save();
 		},
 
@@ -1409,6 +1451,12 @@
 				this.curSetList[i] = curSet;
 			}
 			this.closePokemonImport(true);
+		},
+		showSetNotes: function (i, button) {
+			i = +($(button).closest('li').attr('value'));
+			var setNotes = $('.setnotes').eq(i);
+			setNotes.show();
+			setNotes.children().focus();
 		},
 		moveSet: function (i, button) {
 			i = +($(button).closest('li').attr('value'));

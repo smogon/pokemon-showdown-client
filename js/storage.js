@@ -579,7 +579,7 @@ Storage.packAllTeams = function (teams) {
 	}).join('\n');
 };
 
-Storage.packTeam = function (team) {
+Storage.packTeam = function (team, removeSetNotes) {
 	var buf = '';
 	if (!team) return '';
 
@@ -675,6 +675,15 @@ Storage.packTeam = function (team) {
 			buf += '|' + set.happiness;
 		} else {
 			buf += '|';
+		}
+
+		// set notes
+		if (!removeSetNotes) {
+			if (set.notes && set.notes.length > 0) {
+				buf += '|' + set.notes.join('\t');
+			} else {
+				buf += '|';
+			}
 		}
 	}
 
@@ -774,15 +783,40 @@ Storage.fastUnpackTeam = function (buf) {
 		if (i !== j) set.level = parseInt(buf.substring(i, j), 10);
 		i = j + 1;
 
-		// happiness
+		// happiness (as last element)
 		j = buf.indexOf(']', i);
-		if (j < 0) {
-			if (buf.substring(i)) {
-				set.happiness = Number(buf.substring(i));
+		var nextPipeIndex = buf.indexOf('|', i);
+		if (nextPipeIndex < 0) {
+			if (j < 0) {
+				if (buf.substring(i)) set.happiness = Number(buf.substring(i));
+			} else {
+				if (i !== j) set.happiness = Number(buf.substring(i, j));
 			}
 			break;
 		}
+		if (j >= 0 && j < nextPipeIndex) {
+			if (i !== j) set.happiness = Number(buf.substring(i, j));
+			i = j + 1;
+			continue;
+		}
+
+		// happiness (as second to last element)
+		j = buf.indexOf('|', i);
 		if (i !== j) set.happiness = Number(buf.substring(i, j));
+		i = j + 1;
+
+		// set notes
+		j = buf.indexOf(']', i);
+		var notesString;
+		if (j < 0) {
+			notesString = buf.substring(i, buf.length);
+		} else {
+			notesString = buf.substring(i, j);
+		}
+		set.notes = notesString.split('\t').filter(function (element) {
+			return !!element;
+		});
+		if (j < 0) break;
 		i = j + 1;
 	}
 
@@ -884,15 +918,40 @@ Storage.unpackTeam = function (buf) {
 		if (i !== j) set.level = parseInt(buf.substring(i, j), 10);
 		i = j + 1;
 
-		// happiness
+		// happiness (as last element)
 		j = buf.indexOf(']', i);
-		if (j < 0) {
-			if (buf.substring(i)) {
-				set.happiness = Number(buf.substring(i));
+		var nextPipeIndex = buf.indexOf('|', i);
+		if (nextPipeIndex < 0) {
+			if (j < 0) {
+				if (buf.substring(i)) set.happiness = Number(buf.substring(i));
+			} else {
+				if (i !== j) set.happiness = Number(buf.substring(i, j));
 			}
 			break;
 		}
+		if (j >= 0 && j < nextPipeIndex) {
+			if (i !== j) set.happiness = Number(buf.substring(i, j));
+			i = j + 1;
+			continue;
+		}
+
+		// happiness (as second to last element)
+		j = buf.indexOf('|', i);
 		if (i !== j) set.happiness = Number(buf.substring(i, j));
+		i = j + 1;
+
+		// set notes
+		j = buf.indexOf(']', i);
+		var notesString;
+		if (j < 0) {
+			notesString = buf.substring(i, buf.length);
+		} else {
+			notesString = buf.substring(i, j);
+		}
+		set.notes = notesString.split('\t').filter(function (element) {
+			return !!element;
+		});
+		if (j < 0) break;
 		i = j + 1;
 	}
 
@@ -953,11 +1012,11 @@ Storage.getTeamIcons = function (team) {
 	return team.iconCache;
 };
 
-Storage.getPackedTeam = function (team) {
+Storage.getPackedTeam = function (team, removeSetNotes) {
 	if (!team) return null;
 	if (team.iconCache === '!') {
 		// see the same case in Storage.getTeamIcons
-		team.team = Storage.packTeam(Storage.activeSetList);
+		team.team = Storage.packTeam(Storage.activeSetList, removeSetNotes);
 		if (!('teambuilder' in app.rooms)) {
 			Storage.activeSetList = null;
 			team.iconCache = '';
@@ -965,7 +1024,12 @@ Storage.getPackedTeam = function (team) {
 	}
 	if (typeof team.team !== 'string') {
 		// should never happen
-		team.team = Storage.packTeam(team.team);
+		team.team = Storage.packTeam(team.team, removeSetNotes);
+	}
+	if (removeSetNotes)	{
+		return team.team.split(']').map(function (s) {
+			return s.split('|').slice(0, 12).join('|');
+		}).join(']');
 	}
 	return team.team;
 };
@@ -1105,6 +1169,9 @@ Storage.importTeam = function (text, teams) {
 				curSet.happiness = 0;
 			}
 			curSet.moves.push(line);
+		} else if (line.substr(0, 2) === '# ') {
+			if (!curSet.notes) curSet.notes = [];
+			curSet.notes.push(line.substr(2));
 		}
 	}
 	if (teams && teams.length) {
@@ -1229,7 +1296,7 @@ Storage.exportTeam = function (team) {
 		if (!first) {
 			text += "  \n";
 		}
-		if (curSet.moves && curSet.moves) for (var j = 0; j < curSet.moves.length; j++) {
+		if (curSet.moves) for (var j = 0; j < curSet.moves.length; j++) {
 			var move = curSet.moves[j];
 			if (move.substr(0, 13) === 'Hidden Power ') {
 				move = move.substr(0, 13) + '[' + move.substr(13) + ']';
@@ -1237,6 +1304,9 @@ Storage.exportTeam = function (team) {
 			if (move) {
 				text += '- ' + move + "  \n";
 			}
+		}
+		if (curSet.notes) for (var j = 0; j < curSet.notes.length; j++) {
+			text += '# ' + curSet.notes[j] + '\n';
 		}
 		text += "\n";
 	}
