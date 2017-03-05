@@ -178,7 +178,8 @@ button:disabled {
 }
 */
 .dark .button,
-.dark .tabbar a.button {
+.dark .tabbar a.button,
+.dark .popupmenu button.button {
 	background: #484848;
 	box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.25);
 	border-color: #A9A9A9;
@@ -186,9 +187,11 @@ button:disabled {
 	color: #F9F9F9;
 }
 .dark .button:hover,
-.dark .tabbar a.button:hover {
+.dark .tabbar a.button:hover,
+.dark .popupmenu button.button:hover {
 	background: #606060;
 	border-color: #EEEEEE;
+	color: #F9F9F9;
 }
 .dark .tabbar a.button.notifying:hover {
 	background: #92C2D3;
@@ -766,6 +769,9 @@ p.or:after {
 }
 .teamselect:disabled strong {
 	color: #777777;
+}
+.dark .teamselect:disabled strong {
+	color: #505050;
 }
 .teamselect small {
 	margin: -1px 0 0 -3px;

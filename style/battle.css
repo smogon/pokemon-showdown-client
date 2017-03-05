@@ -892,7 +892,7 @@ License: GPLv2
 }
 a.subtle {
 	text-decoration: none;
-	color: black;
+	color: inherit;
 }
 a.subtle:hover {
 	text-decoration: underline;
