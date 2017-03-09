@@ -645,9 +645,8 @@
 		connect: function () {
 			if (this.down) return;
 
-			var bannedHosts = ['cool.jit.su'];
-			if (Config.server.banned || bannedHosts.indexOf(Config.server.host) >= 0) {
-				this.addPopupMessage("This server has been deleted for breaking US laws or impersonating PS global staff.");
+			if (Config.server.banned || Config.bannedHosts.indexOf(Config.server.host) >= 0) {
+				this.addPopupMessage("This server has been deleted for breaking US laws, impersonating PS global staff, or other major rulebreaking.");
 				return;
 			}
 
