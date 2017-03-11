@@ -2822,8 +2822,8 @@
 			var moveCount = {
 				'Physical': 0,
 				'Special': 0,
-				'PhysicalOffense': 0,
-				'SpecialOffense': 0,
+				'PhysicalAttack': 0,
+				'SpecialAttack': 0,
 				'PhysicalSetup': 0,
 				'SpecialSetup': 0,
 				'Support': 0,
@@ -3257,10 +3257,16 @@
 				minusStat = 'spe';
 			} else if (!moveCount['PhysicalAttack']) {
 				minusStat = 'atk';
-			} else if (moveCount['SpecialAttack'] < 1) {
-				minusStat = 'spa';
-			} else if (moveCount['PhysicalAttack'] < 1) {
+			} else if (moveCount['SpecialAttack'] < 1 && !evs['spa']) {
+				if (moveCount['SpecialAttack'] < moveCount['PhysicalAttack']) {
+					minusStat = 'spa';
+				} else if (!evs['atk']) {
+					minusStat = 'atk';
+				}
+			} else if (moveCount['PhysicalAttack'] < 1 && !evs['atk']) {
 				minusStat = 'atk';
+			} else if (stats.def > stats.spe && stats.spd > stats.spe && !evs['spe']) {
+				minusStat = 'spe';
 			} else if (stats.def > stats.spd) {
 				minusStat = 'spd';
 			} else {
