@@ -1191,22 +1191,25 @@ var Tools = {
 			return spriteData;
 		}
 
-		if (animationData[facing]) {
-			if (animationData[facing + 'f'] && pokemon.gender === 'F') {
-				name += '-f';
-				facing += 'f';
-			}
-			if (!Tools.prefs('noanim') && genNum >= 5) {
-				dir = gen + 'ani' + dir;
+		// Gender differences don't exist prior to Gen 4
+		if (genNum >= 4) {
+			if (animationData[facing]) {
+				if (animationData[facing + 'f'] && pokemon.gender === 'F') {
+					name += '-f';
+					facing += 'f';
+				}
+				if (!Tools.prefs('noanim') && genNum >= 5) {
+					dir = gen + 'ani' + dir;
 
-				spriteData.w = animationData[facing].w;
-				spriteData.h = animationData[facing].h;
-				spriteData.url += dir + '/' + name + '.gif';
-				if (genNum >= 6) spriteData.pixelated = false;
-				return spriteData;
+					spriteData.w = animationData[facing].w;
+					spriteData.h = animationData[facing].h;
+					spriteData.url += dir + '/' + name + '.gif';
+					if (genNum >= 6) spriteData.pixelated = false;
+					return spriteData;
+				}
+			} else if (animationData['frontf'] && pokemon.gender === 'F') {
+				name += '-f';
 			}
-		} else if (animationData['frontf'] && pokemon.gender === 'F') {
-			name += '-f';
 		}
 
 		// There is no entry or enough data in pokedex-mini.js
