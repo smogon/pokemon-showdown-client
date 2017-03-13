@@ -636,6 +636,11 @@ class NTBBSession {
 			return false;
 		}
 
+		$res = $psdb->query("SELECT `userid` FROM `{$psdb->prefix}users` WHERE `userid` = ? LIMIT 1", [$user['userid']]);
+		if ($row = $psdb->fetch_assoc($res)) {
+			return false;
+		}
+
 		$psdb->query(
 			"INSERT INTO `{$psdb->prefix}users` (`userid`,`username`,`passwordhash`,`email`,`registertime`,`ip`) VALUES (?, ?, ?, ?, ?, ?)",
 			[$user['userid'], $user['username'], $user['passwordhash'], @$user['email'], $ctime, $this->getIp()]
@@ -646,8 +651,8 @@ class NTBBSession {
 		}
 
 		$user['usernum'] = $psdb->insert_id();
-		$user['loggedin'] = true;
 		$this->login($user['username'], $password);
+		if (!$curuser['loggedin']) return false;
 		return $user;
 	}
 
