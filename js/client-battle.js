@@ -124,23 +124,37 @@
 				return this.init(data);
 			}
 			if (data.substr(0, 9) === '|request|') {
-				var choiceData = {offset: 0};
-				var requestData = null;
 				data = data.slice(9);
-				if (!isNaN(data.charAt(0)) && data.charAt(1) === '|') {
-					var nlIndex = data.indexOf('\n');
-					if (nlIndex >= 0) {
-						choiceData.offset = +data.charAt(0);
-						try {
-							$.extend(choiceData, $.parseJSON(data.slice(2, nlIndex)));
-						} catch (err) {}
-						data = data.slice(nlIndex + 1);
+
+				var requestData = null;
+				var choiceText = null;
+
+				var nlIndex = data.indexOf('\n');
+				if (/[0-9]/.test(data.charAt(0)) && data.charAt(1) === '|') {
+					// message format:
+					//   |request|CHOICEINDEX|CHOICEDATA
+					//   REQUEST
+
+					// This is backwards compatibility with old code that violates the
+					// expectation that server messages can be streamed line-by-line.
+					// Please do NOT EVER push protocol changes without a pull request.
+					// https://github.com/Zarel/Pokemon-Showdown/commit/e3c6cbe4b91740f3edc8c31a1158b506f5786d72#commitcomment-21278523
+					choiceText = '?';
+					data = data.slice(2, nlIndex);
+				} else if (nlIndex >= 0) {
+					// message format:
+					//   |request|REQUEST
+					//   |sentchoice|CHOICE
+					if (data.slice(nlIndex + 1, nlIndex + 13) === '|sentchoice|') {
+						choiceText = data.slice(nlIndex + 13);
 					}
+					data = data.slice(0, nlIndex);
 				}
+
 				try {
 					requestData = $.parseJSON(data);
 				} catch (err) {}
-				return this.receiveRequest(requestData, choiceData);
+				return this.receiveRequest(requestData, choiceText);
 			}
 
 			var log = data.split('\n');
@@ -303,12 +317,6 @@
 				if (!this.finalDecision) this.finalDecision = !!this.request.noCancel;
 			}
 
-			var choiceOffset = this.choiceData.offset && this.choiceData.offset <= 3 ? this.choiceData.offset : 0;
-			var preDecided = _.map(getString(this.choiceData.done).split(''), Number);
-			var preSwitchFlags = _.map(getString(this.choiceData.enter).split(''), Number);
-			var preSwitchOutFlags = _.map(getString(this.choiceData.leave).split(''), Number);
-			var preTeamOrder = _.map(getString(this.choiceData.team).split(''), Number);
-
 			if (this.choice && this.choice.waiting) {
 				act = '';
 			}
@@ -319,51 +327,41 @@
 			// !this.choice = nothing has been chosen
 			// this.choice.choices = array of choice strings
 			// this.choice.switchFlags = dict of pokemon indexes that have a switch pending
+			// this.choice.switchOutFlags = ???
+			// this.choice.freedomDegrees = in a switch request: number of Pokemon that can't switch
+			// this.choice.type = determines what the current choice screen to be displayed is
+			// this.choice.waiting = true if the choice has been sent and we're just waiting for the next turn
 
 			switch (act) {
 			case 'move':
 				if (!this.choice) {
 					this.choice = {
-						preDecided: preDecided,
-						choices: new Array(choiceOffset),
+						choices: [],
 						switchFlags: {},
 						switchOutFlags: {}
 					};
-					for (var i = 0; i < preSwitchFlags.length; i++) this.choice.switchFlags[preSwitchFlags[i]] = 1;
-					for (var i = 0; i < preSwitchOutFlags.length; i++) this.choice.switchOutFlags[preSwitchOutFlags[i]] = 1;
 				}
-				if (choiceOffset < this.battle.mySide.active.length) {
-					this.updateMoveControls(type);
-				} else {
-					this.updateWaitControls();
-				}
+				this.updateMoveControls(type);
 				break;
 
 			case 'switch':
 				if (!this.choice) {
 					this.choice = {
-						preDecided: preDecided,
-						choices: new Array(choiceOffset),
+						choices: [],
 						switchFlags: {},
 						switchOutFlags: {},
-						freedomDegrees: 0, // Fancy term for the amount of Pokémon that won't be able to switch out.
+						freedomDegrees: 0,
 						canSwitch: 0
 					};
-					for (var i = 0; i < preSwitchFlags.length; i++) this.choice.switchFlags[preSwitchFlags[i]] = 1;
-					for (var i = 0; i < preSwitchOutFlags.length; i++) this.choice.switchOutFlags[preSwitchOutFlags[i]] = 1;
 
 					if (this.request.forceSwitch !== true) {
-						var faintedLength = _.filter(this.request.forceSwitch.slice(choiceOffset), function (fainted) {return fainted;}).length;
+						var faintedLength = _.filter(this.request.forceSwitch, function (fainted) {return fainted;}).length;
 						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.active.length), function (mon) {return !mon.zerohp;}).length;
 						this.choice.freedomDegrees = Math.max(freedomDegrees, 0);
 						this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
 					}
 				}
-				if (choiceOffset < this.battle.mySide.active.length) {
-					this.updateSwitchControls(type);
-				} else {
-					this.updateWaitControls();
-				}
+				this.updateSwitchControls(type);
 				break;
 
 			case 'team':
@@ -374,9 +372,7 @@
 				}
 				if (!this.choice) {
 					this.choice = {
-						preDecided: preDecided,
 						choices: null,
-						preTeamOrder: preTeamOrder,
 						teamPreview: [1, 2, 3, 4, 5, 6].slice(0, switchables.length),
 						done: 0,
 						count: 1
@@ -401,11 +397,7 @@
 					}
 					this.choice.choices = new Array(this.choice.count);
 				}
-				if (choiceOffset < this.choice.count) {
-					this.updateTeamControls(type);
-				} else {
-					this.updateWaitControls(type);
-				}
+				this.updateTeamControls(type);
 				break;
 
 			default:
@@ -469,12 +461,11 @@
 			app.addPopup(TimerPopup, {room: this});
 		},
 		updateMoveControls: function (type) {
-			var preDecided = this.choice.preDecided;
 			var switchables = this.request && this.request.side ? this.myPokemon : [];
 
 			if (type !== 'movetarget') {
-				while (preDecided.indexOf(this.choice.choices.length) >= 0 || switchables[this.choice.choices.length] && switchables[this.choice.choices.length].fainted && this.choice.choices.length + 1 < this.battle.mySide.active.length) {
-					this.choice.choices.push(preDecided.indexOf(this.choice.choices.length) >= 0 ? 'skip' : 'pass');
+				while (switchables[this.choice.choices.length] && switchables[this.choice.choices.length].fainted && this.choice.choices.length + 1 < this.battle.mySide.active.length) {
+					this.choice.choices.push('pass');
 				}
 			}
 
@@ -664,12 +655,11 @@
 			}
 		},
 		updateSwitchControls: function (type) {
-			var preDecided = this.choice.preDecided;
 			var pos = this.choice.choices.length;
 
 			if (type !== 'switchposition' && this.request.forceSwitch !== true && !this.choice.freedomDegrees) {
-				while (preDecided.indexOf(pos) >= 0 || !this.request.forceSwitch[pos] && pos < 6) {
-					pos = this.choice.choices.push(preDecided.indexOf(pos) >= 0 ? 'skip' : 'pass');
+				while (!this.request.forceSwitch[pos] && pos < 6) {
+					pos = this.choice.choices.push('pass');
 				}
 			}
 
@@ -851,8 +841,14 @@
 			return buf;
 		},
 
-		// Appends the rqid to the message so that the server can
-		// verify that the decision is sent in response to the correct request.
+		/**
+		 * Sends a decision; pass it an array of choices like ['move 1', 'switch 2']
+		 * and it'll send `/choose move 1,switch 2|3`
+		 * (where 3 is the rqid).
+		 *
+		 * (The rqid helps verify that the decision is sent in response to the
+		 * correct request.)
+		 */
 		sendDecision: function (message) {
 			if (!$.isArray(message)) return this.send('/' + message + '|' + this.request.rqid);
 			var buf = '/choose ';
@@ -862,7 +858,7 @@
 			this.send(buf.substr(0, buf.length - 1) + '|' + this.request.rqid);
 		},
 		request: null,
-		receiveRequest: function (request, choiceData) {
+		receiveRequest: function (request, choiceText) {
 			if (!request) {
 				this.side = '';
 				return;
@@ -877,8 +873,11 @@
 				request.requestType = 'wait';
 			}
 
-			this.choice = (choiceData && choiceData.offset ? {waiting: true} : null);
-			this.choiceData = choiceData;
+			var choice = null;
+			if (choiceText) {
+				choice = {waiting: true};
+			}
+			this.choice = choice;
 			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = false;
 			this.request = request;
 			if (request.side) {
@@ -1120,14 +1119,12 @@
 			}
 		},
 		nextChoice: function () {
-			var preDecided = this.choice.preDecided;
 			var choices = this.choice.choices;
-			var preDecided = this.choice.preDecided;
 			var myActive = this.battle.mySide.active;
 
 			if (this.request.requestType === 'switch' && this.request.forceSwitch !== true) {
-				while (preDecided.indexOf(choices.length) >= 0 || choices.length < myActive.length && !this.request.forceSwitch[choices.length]) {
-					choices.push(preDecided.indexOf(choices.length) >= 0 ? 'skip' : 'pass');
+				while (choices.length < myActive.length && !this.request.forceSwitch[choices.length]) {
+					choices.push('pass');
 				}
 				if (choices.length < myActive.length) {
 					this.choice.type = 'switch2';
@@ -1135,8 +1132,8 @@
 					return true;
 				}
 			} else if (this.request.requestType === 'move') {
-				while (preDecided.indexOf(choices.length) >= 0 || choices.length < myActive.length && !myActive[choices.length]) {
-					choices.push(preDecided.indexOf(choices.length) >= 0 ? 'skip' : 'pass');
+				while (choices.length < myActive.length && !myActive[choices.length]) {
+					choices.push('pass');
 				}
 
 				if (choices.length < myActive.length) {
@@ -1191,7 +1188,6 @@
 		},
 		clearChoice: function () {
 			this.choice = null;
-			this.choiceData = {offset: 0};
 			this.updateControlsForPlayer();
 		},
 		leaveBattle: function () {
