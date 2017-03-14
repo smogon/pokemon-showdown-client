@@ -645,7 +645,7 @@
 		connect: function () {
 			if (this.down) return;
 
-			if (Config.server.banned || Config.bannedHosts.indexOf(Config.server.host) >= 0) {
+			if (Config.server.banned || (Config.bannedHosts && Config.bannedHosts.indexOf(Config.server.host) >= 0)) {
 				this.addPopupMessage("This server has been deleted for breaking US laws, impersonating PS global staff, or other major rulebreaking.");
 				return;
 			}
