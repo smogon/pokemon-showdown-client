@@ -818,7 +818,25 @@
 					self.add('|raw|' + buffer);
 				}), 'text');
 				return false;
-
+				
+			case 'regdate':
+				if (!target) target = app.user.get('userid');
+				target = toId(target);
+				var self = this;
+				$.get("http://pokemonshowdown.com/users/" + target + ".json",
+				{}, Tools.safeJSON(function(data) {
+					var buffer = "";
+					var regTime = Number(data.registertime);
+					if (regTime) {
+						var regDate = new Date(regTime * 1000);
+						buffer += "User: <strong>" + data.username + "</strong> registered since <i>" + regDate.toString() + "</i>";
+					} else {
+						buffer += "User: <strong>" + target + "</strong> is not registered";
+					}
+					self.add('|raw|'+buffer);
+				}), 'text');
+				return false;
+			
 			case 'buttonban':
 				var self = this;
 				app.addPopupPrompt("Why do you wish to ban this user?", "Ban user", function (reason) {
