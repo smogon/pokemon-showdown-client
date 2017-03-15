@@ -869,6 +869,27 @@
 			}
 
 			switch (parts[0]) {
+			case 'version':
+				var nlIndex = data.indexOf('\n');
+				if (nlIndex > 0) {
+					this.receive(data.substr(nlIndex + 1));
+					parts = data.slice(1, nlIndex).split('|');
+				}
+				Config.server.version = parts[1];
+				break;
+
+			case 'config':
+				var config;
+				try {
+					config = JSON.parse(parts[1]);
+					if (!config || typeof config !== 'object') config = {};
+				} catch (e) {
+					config = {};
+				}
+				Config.server.config = config;
+				Tools.loadConfig(config);
+				break;
+
 			case 'challstr':
 				if (parts[2]) {
 					this.user.receiveChallstr(parts[1] + '|' + parts[2]);
@@ -878,6 +899,11 @@
 				break;
 
 			case 'formats':
+				var nlIndex = data.indexOf('\n');
+				if (nlIndex > 0) {
+					this.receive(data.substr(nlIndex + 1));
+					parts = data.slice(1, nlIndex).split('|');
+				}
 				this.parseFormats(parts);
 				break;
 

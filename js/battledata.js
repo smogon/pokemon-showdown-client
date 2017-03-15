@@ -1110,6 +1110,8 @@ var Tools = {
 		return type;
 	},
 
+	loadConfig: function() {},
+
 	loadedSpriteData: {'xy':1, 'bw':0},
 	loadSpriteData: function (gen) {
 		if (this.loadedSpriteData[gen]) return;
