@@ -124,7 +124,7 @@
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
-				this.ignoreEVLimits = (this.curTeam.gen < 3);
+				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format === 'gen7balancedhackmons');
 				if (this.curSet) {
 					return this.updateSetView();
 				}
@@ -2133,7 +2133,7 @@
 
 				if (set.evs[stat] !== val || natureChange) {
 					set.evs[stat] = val;
-					if (this.curTeam.gen <= 2) {
+					if (this.ignoreEVLimits) {
 						if (set.evs['hp'] === undefined) set.evs['hp'] = 252;
 						if (set.evs['atk'] === undefined) set.evs['atk'] = 252;
 						if (set.evs['def'] === undefined) set.evs['def'] = 252;
@@ -2239,7 +2239,7 @@
 			if (val !== originalVal) slider.o.pointers[0].set(val);
 
 			if (!set.evs) set.evs = {};
-			if (this.curTeam.gen <= 2) {
+			if (this.ignoreEVLimits) {
 				if (set.evs['hp'] === undefined) set.evs['hp'] = 252;
 				if (set.evs['atk'] === undefined) set.evs['atk'] = 252;
 				if (set.evs['def'] === undefined) set.evs['def'] = 252;
@@ -2316,13 +2316,13 @@
 
 			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
-				if (template.gender && this.curTeam.format !== 'balancedhackmons') {
+				if (template.gender && this.curTeam.format.indexOf('hackmons') < 0) {
 					var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
 					buf += genderTable[template.gender];
 				} else {
 					buf += '<label><input type="radio" name="gender" value="M"' + (set.gender === 'M' ? ' checked' : '') + ' /> Male</label> ';
 					buf += '<label><input type="radio" name="gender" value="F"' + (set.gender === 'F' ? ' checked' : '') + ' /> Female</label> ';
-					if (this.curTeam.format !== 'balancedhackmons') {
+					if (this.curTeam.format.indexOf('hackmons') < 0) {
 						buf += '<label><input type="radio" name="gender" value="N"' + (!set.gender ? ' checked' : '') + ' /> Random</label>';
 					} else {
 						buf += '<label><input type="radio" name="gender" value="N"' + (set.gender === 'N' ? ' checked' : '') + ' /> Genderless</label>';
@@ -2790,7 +2790,7 @@
 			if (template.gender && template.gender !== 'N') set.gender = template.gender;
 			if (set.happiness) delete set.happiness;
 			if (set.shiny) delete set.shiny;
-			if (this.curTeam.format !== 'balancedhackmons') {
+			if (this.curTeam.format.indexOf('hackmons') < 0) {
 				set.item = (template.requiredItem || '');
 			} else {
 				set.item = '';
