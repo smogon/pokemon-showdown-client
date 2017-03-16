@@ -337,13 +337,13 @@ var linkRegex = new RegExp(
 			'/' +
 			'(?:' +
 				'(?:' +
-					'[^\\s()&]|&amp;|&quot;' +
+					'[^\\s()&<>]|&amp;|&quot;' +
 					'|' + parenthesisRegex +
 				')*' +
 				// URLs usually don't end with punctuation, so don't allow
 				// punctuation symbols that probably aren't related to URL.
 				'(?:' +
-					'[^\\s`()\\[\\]{}\'".,!?;:&]' +
+					'[^\\s`()\\[\\]{}\'".,!?;:&<>]' +
 					'|' + parenthesisRegex +
 				')' +
 			')?' +
