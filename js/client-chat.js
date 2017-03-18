@@ -776,7 +776,7 @@
 						var row = data[i];
 						if (!row) return self.add('|raw|Error: corrupted ranking data');
 						var formatId = toId(row.formatid);
-						if (!formatTargeting || formats[formatId] || gens[formatId].slice(0,4) || (gens['gen6'] && formatId.indexOf('gen') !== 0)) {
+						if (!formatTargeting || formats[formatId] || gens[formatId].slice(0, 4) || (gens['gen6'] && formatId.indexOf('gen') !== 0)) {
 							buffer += '<tr>';
 						} else {
 							buffer += '<tr class="hidden">';
