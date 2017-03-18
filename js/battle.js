@@ -647,6 +647,7 @@ var Pokemon = (function () {
 			this.removeVolatile('attract');
 			this.removeVolatile('autotomize');
 			this.removeVolatile('disable');
+			this.removeVolatile('encore');
 			this.removeVolatile('foresight');
 			this.removeVolatile('imprison');
 			this.removeVolatile('mimic');
