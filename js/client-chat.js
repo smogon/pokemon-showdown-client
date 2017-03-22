@@ -377,7 +377,10 @@
 			switch (cmd.toLowerCase()) {
 			case 'chall':
 			case 'challenge':
-				var targets = target.split(',').map($.trim);
+				var targets = target.split(',');
+				for (var i = 0; i < targets.length; i++) {
+					targets[i] = $.trim(targets[i]);
+				}
 
 				var self = this;
 				var challenge = function (targets) {
@@ -749,6 +752,7 @@
 				var formats = {};
 				var gens = {};
 				for (var i = 1, len = targets.length; i < len; i++) {
+					targets[i] = $.trim(targets[i]);
 					if (targets[i].length === 4 && targets[i].startsWith('gen')) {
 						gens[targets[i]] = 1;
 					} else {
@@ -776,7 +780,7 @@
 						var row = data[i];
 						if (!row) return self.add('|raw|Error: corrupted ranking data');
 						var formatId = toId(row.formatid);
-						if (!formatTargeting || formats[formatId] || gens[formatId].slice(0, 4) || (gens['gen6'] && formatId.startsWith('gen'))) {
+						if (!formatTargeting || formats[formatId] || gens[formatId.slice(0, 4)] || (gens['gen6'] && !formatId.startsWith('gen'))) {
 							buffer += '<tr>';
 						} else {
 							buffer += '<tr class="hidden">';
