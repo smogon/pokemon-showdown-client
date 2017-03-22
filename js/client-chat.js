@@ -204,13 +204,6 @@
 					return false;
 				}
 			}
-			if (!app.roomHighlightRegExp || !app.roomHighlightRegExp[this.id]) {
-				try {
-					this.updateRoomHighlightRegExp(roomHighlights, thisroom);
-				} catch (e) {
-					return false;
-				}
-			}
 			if (!Tools.prefs('noselfhighlight') && app.user.nameRegExp) {
 				if (app.user.nameRegExp.test(message)) return true;
 			}
@@ -222,6 +215,13 @@
 			// "a", but not "abc", while regular expression "!" matches
 			// "!" and "!abc".
 			app.highlightRegExp = new RegExp('(?:\\b|(?!\\w))(?:' + highlights.join('|') + ')(?:\\b|\\B(?!\\w))', 'i');
+		},
+		convertHighlights: function (allHighlights) {
+			var highlights = {};
+			var serverHighlights = {};
+			serverHighlights['globalhls'] = allHighlights;
+			highlights[Config.server.id] = serverHighlights;
+			Tools.prefs('highlights', highlights);
 		},
 
 		// chat history
