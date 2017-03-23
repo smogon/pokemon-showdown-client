@@ -186,7 +186,7 @@
 
 		getHighlight: function (message) {
 			var allHighlights = Tools.prefs('highlights') || {};
-			if (typeof allHighlights !== 'undefined' && typeof allHighlights !== 'object') convertHighlights(allHighlights);
+			if (allHighlights.constructor === 'Array') this.convertHighlights();
 			var thisroom = (this.type === 'battle' ? 'battlehls' : this.id);
 			var serverHighlights = allHighlights[Config.server.id] || {};
 			if (!serverHighlights['globalhls']) serverHighlights['globalhls'] = [];
@@ -216,10 +216,10 @@
 			// "!" and "!abc".
 			app.highlightRegExp = new RegExp('(?:\\b|(?!\\w))(?:' + highlights.join('|') + ')(?:\\b|\\B(?!\\w))', 'i');
 		},
-		convertHighlights: function (allHighlights) {
+		convertHighlights: function () {
 			var highlights = {};
 			var serverHighlights = {};
-			serverHighlights['globalhls'] = allHighlights;
+			serverHighlights['globalhls'] = Tools.prefs('highlights');
 			highlights[Config.server.id] = serverHighlights;
 			Tools.prefs('highlights', highlights);
 		},
@@ -663,7 +663,7 @@
 			case 'hl':
 			case 'highlight':
 				var allHighlights = Tools.prefs('highlights') || {};
-				if (typeof allHighlights !== 'undefined' && typeof allHighlights !== 'object') convertHighlights(allHighlights);
+				if (allHighlights.constructor === 'Array') this.convertHighlights();
 				var thisroom = (this.type === 'battle' ? 'battlehls' : this.id);
 				var serverHighlights = allHighlights[Config.server.id] || {};
 				if (!serverHighlights['globalhls']) serverHighlights['globalhls'] = [];
@@ -766,9 +766,9 @@
 					} else if (target === 'roomshow' || target === 'roomlist') {
 						if (serverHighlights[thisroom].length > 0) {
 							this.add("Current room highlight list: " + serverHighlights[thisroom].join(", "));
- 						} else {
+						} else {
 							this.add('Your highlight list in this room is empty.');
- 						}
+						}
 					} else {
 						// Wrong command
 						this.add('Error: Invalid /highlight command.');
