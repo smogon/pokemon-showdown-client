@@ -664,11 +664,10 @@
 			case 'highlight':
 				var allHighlights = Tools.prefs('highlights') || {};
 				if (allHighlights.constructor === 'Array') this.convertHighlights();
-				var thisroom = (this.type === 'battle' ? 'battlehls' : this.id);
 				var serverHighlights = allHighlights[Config.server.id] || {};
 				if (!serverHighlights['globalhls']) serverHighlights['globalhls'] = [];
-				if (!serverHighlights[thisroom]) serverHighlights[thisroom] = [];
-				var textending = (this.type === 'battle' ? ' in all battles' : ' in ' + this.id);
+				if (!serverHighlights['battlehls']) serverHighlights['battlehls'] = [];
+				if (!serverHighlights[this.id]) serverHighlights[this.id] = [];
 				if (target.indexOf(',') > -1) {
 					var targets = target.match(/([^,]+?({\d*,\d*})?)+/g);
 					// trim the targets to be safe
@@ -677,6 +676,9 @@
 					}
 					switch (targets[0]) {
 					case 'add':
+					case 'roomadd':
+						var thisroom = (targets[0] === 'add' ? 'globalhls' : (this.type === 'battle' ? 'battlehls' : this.id));
+						var textending = (targets[0] === 'add' ? ' everywhere: ' : (this.type === 'battle' ? ' in all battles: ' : ' in ' + this.id + ': '));
 						for (var i = 1, len = targets.length; i < len; i++) {
 							if (!targets[i]) continue;
 							if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
@@ -684,49 +686,22 @@
 								try {
 									new RegExp(targets[i]);
 								} catch (e) {
-									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);
-								}
-							}
-							if (serverHighlights['globalhls'].indexOf(targets[i]) > -1) {
-								return this.add(targets[i] + ' is already on your global highlights list.');
-							}
-						}
-						serverHighlights['globalhls'] = serverHighlights['globalhls'].concat(targets.slice(1));
-						this.add("Now highlighting everywhere: " + serverHighlights['globalhls'].join(', '));
-						// We update the regex
-						this.updateHighlightRegExp(serverHighlights['globalhls'], 'globalhls');
-						break;
-					case 'delete':
-						var newHls = [];
-						for (var i = 0, len = serverHighlights['globalhls'].length; i < len; i++) {
-							if (targets.indexOf(serverHighlights['globalhls'][i]) === -1) {
-								newHls.push(serverHighlights['globalhls'][i]);
-							}
-						}
-						serverHighlights['globalhls'] = newHls;
-						this.add("Now highlighting everywhere: " + serverHighlights['globalhls'].join(', '));
-						// We update the regex
-						this.updateHighlightRegExp(serverHighlights['globalhls']);
-						break;
-					case 'roomadd':
-						for (var i = 1, len = targets.length; i < len; i++) {
-							if (!targets[i]) continue;
-							if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
-								try {
-									new RegExp(targets[i]);
-								} catch (e) {
-									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);
+									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);;
 								}
 							}
 							if (serverHighlights[thisroom].indexOf(targets[i]) > -1) {
-								return this.add(targets[i] + ' is already on your highlights list for this room.');
+								return this.add(targets[i] + ' is already on your' + (targets[0] === 'add' ? ' global highlights list.' : ' highlights list for this room.'));;
 							}
 						}
 						serverHighlights[thisroom] = serverHighlights[thisroom].concat(targets.slice(1));
-						this.add("Now highlighting " + textending + ": " + serverHighlights[thisroom].join(', '));
+						this.add("Now highlighting" + textending + serverHighlights[thisroom].join(', '));
+						// We update the regex
 						this.updateHighlightRegExp(serverHighlights[thisroom], thisroom);
 						break;
+					case 'delete':
 					case 'roomdelete':
+						var thisroom = (targets[0] === 'delete' ? 'globalhls' : (this.type === 'battle' ? 'battlehls' : this.id));
+						var textending = (targets[0] === 'delete' ? ' everywhere: ' : (this.type === 'battle' ? ' in all battles: ' : ' in ' + this.id + ': '));
 						var newHls = [];
 						for (var i = 0, len = serverHighlights[thisroom].length; i < len; i++) {
 							if (targets.indexOf(serverHighlights[thisroom][i]) === -1) {
@@ -734,7 +709,8 @@
 							}
 						}
 						serverHighlights[thisroom] = newHls;
-						this.add("Now highlighting " + textending + ": " + serverHighlights[thisroom].join(', '));
+						this.add("Now highlighting" + textending + serverHighlights[thisroom].join(', '));
+						// We update the regex
 						this.updateHighlightRegExp(serverHighlights[thisroom], thisroom);
 						break;
 					default:
@@ -746,28 +722,20 @@
 					allHighlights[Config.server.id] = serverHighlights;
 					Tools.prefs('highlights', allHighlights);
 				} else {
-					if (target === 'delete') {
-						serverHighlights['globalhls'] = [];
-						allHighlights[Config.server.id] = serverHighlights;
-						Tools.prefs('highlights', allHighlights);
-						this.add("All highlights cleared");
-					} else if (target === 'show' || target === 'list') {
-						// Shows a list of the current highlighting words
-						if (serverHighlights['globalhls'].length > 0) {
-							this.add("Current global highlight list: " + serverHighlights['globalhls'].join(", "));
-						} else {
-							this.add('Your global highlight list is empty.');
-						}
-					} else if (target === 'roomdelete') {
+					if (target === 'delete' || target === 'roomdelete') {
+						var thisroom = (target === 'delete' ? 'globalhls' : (this.type === 'battle' ? 'battlehls' : this.id));
+						var textending = (target === 'delete' ? 'All highlights cleared.' : (this.type === 'battle' ? 'All battle highlights cleared.' : 'All highlights cleared in ' + this.id + '.'));
 						serverHighlights[thisroom] = [];
 						allHighlights[Config.server.id] = serverHighlights;
 						Tools.prefs('highlights', allHighlights);
-						this.add("All room highlights cleared" + textending + ".");
-					} else if (target === 'roomshow' || target === 'roomlist') {
+						this.add(textending);
+					} else if (target === 'show' || target === 'list' || target === 'roomshow' || target === 'roomlist') {
+						var thisroom = (target === 'show' || target === 'list' ? 'globalhls' : (this.type === 'battle' ? 'battlehls' : this.id));
+						var textending = (target === 'show' || target === 'list' ? 'urrent global highlight list' : 'urrent highlight list for this room');
 						if (serverHighlights[thisroom].length > 0) {
-							this.add("Current room highlight list: " + serverHighlights[thisroom].join(", "));
+							this.add('C' + textending + ': ' + serverHighlights['globalhls'].join(", "));
 						} else {
-							this.add('Your highlight list in this room is empty.');
+							this.add('Your c' + textending + 'is empty.');
 						}
 					} else {
 						// Wrong command
