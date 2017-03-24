@@ -686,11 +686,11 @@
 								try {
 									new RegExp(targets[i]);
 								} catch (e) {
-									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);;
+									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);
 								}
 							}
 							if (serverHighlights[thisroom].indexOf(targets[i]) > -1) {
-								return this.add(targets[i] + ' is already on your' + (targets[0] === 'add' ? ' global highlights list.' : ' highlights list for this room.'));;
+								return this.add(targets[i] + ' is already on your' + (targets[0] === 'add' ? ' global highlights list.' : ' highlights list for this room.'));
 							}
 						}
 						serverHighlights[thisroom] = serverHighlights[thisroom].concat(targets.slice(1));
@@ -731,11 +731,11 @@
 						this.add(textending);
 					} else if (target === 'show' || target === 'list' || target === 'roomshow' || target === 'roomlist') {
 						var thisroom = (target === 'show' || target === 'list' ? 'globalhls' : (this.type === 'battle' ? 'battlehls' : this.id));
-						var textending = (target === 'show' || target === 'list' ? 'urrent global highlight list' : 'urrent highlight list for this room');
+						var textending = (target === 'show' || target === 'list' ? ' global highlight list' : ' highlight list for this room');
 						if (serverHighlights[thisroom].length > 0) {
-							this.add('C' + textending + ': ' + serverHighlights['globalhls'].join(", "));
+							this.add('Current' + textending + ': ' + serverHighlights['globalhls'].join(", "));
 						} else {
-							this.add('Your c' + textending + 'is empty.');
+							this.add('Your current' + textending + ' is empty.');
 						}
 					} else {
 						// Wrong command
