@@ -2429,9 +2429,10 @@
 		},
 		initialize: function (data) {
 			var buf = '';
+			var replay_url = "http://replay.pokemonshowdown.com/" + data.id;
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
-			buf += '<p><a href="http://replay.pokemonshowdown.com/' + data.id + '" target="_blank">http://replay.pokemonshowdown.com/' + data.id + '</a></p>';
-			buf += '<p><button type="submit" class="autofocus"><strong>Open</strong></button> <button name="close">Cancel</button></p>';
+			buf += '<p><a href="' + replay_url + '" target="_blank">' + replay_url + '</a></p>';
+			buf += '<p><a href="' + replay_url + '" target="_blank"><button type="submit" class="autofocus"><strong>Open</strong></button></a> <button name="close">Cancel</button></p>';
 			this.$el.html(buf).css('max-width', 620);
 		},
 		clickClose: function () {
