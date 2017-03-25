@@ -2431,14 +2431,13 @@
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
 			buf += '<p><a href="http://replay.pokemonshowdown.com/' + data.id + '" target="_blank">http://replay.pokemonshowdown.com/' + data.id + '</a></p>';
-			buf += '<p><button type="submit" class="autofocus"><strong>Open</strong></button> <button name="close">Cancel</button></p>';
+			buf += '<p><button type="submit" class="autofocus">Close</button></p>';
 			this.$el.html(buf).css('max-width', 620);
 		},
 		clickClose: function () {
 			this.close();
 		},
 		submit: function (i) {
-			app.openInNewWindow('http://replay.pokemonshowdown.com/' + this.id);
 			this.close();
 		}
 	});
