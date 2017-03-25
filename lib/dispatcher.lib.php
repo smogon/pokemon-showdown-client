@@ -148,8 +148,9 @@ class DefaultActionHandler {
 		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
 
 		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
-		$user = array();
-		$user['username'] = @$_POST['username'];
+		$user = [
+			'username' => @$_POST['username'],
+		];
 		$userid = $users->userid($user['username']);
 		if ((mb_strlen($userid) < 1) || ctype_digit($userid)) {
 			$out['actionerror'] = 'Your username must contain at least one letter.';
