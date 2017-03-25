@@ -1131,6 +1131,7 @@ var Tools = {
 			w: 96,
 			h: 96,
 			url: Tools.resourcePrefix + 'sprites/',
+			pixelated: true,
 			isBackSprite: false,
 			cryurl: '',
 			shiny: pokemon.shiny
