@@ -2671,7 +2671,7 @@
 				}
 			}
 			var resetSpeed = false;
-			if (moveName === 'Gyro Ball' || moveName === 'Trick Room') {
+			if (moveName === 'Gyro Ball') {
 				resetSpeed = true;
 			}
 			this.chooseMove('', resetSpeed);
@@ -2719,7 +2719,7 @@
 				this.curSet.happiness = 255;
 			} else if (moveName === 'Frustration') {
 				this.curSet.happiness = 0;
-			} else if (moveName === 'Gyro Ball' || moveName === 'Trick Room') {
+			} else if (moveName === 'Gyro Ball') {
 				minSpe = true;
 			}
 
@@ -2739,7 +2739,7 @@
 				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
 					minAtk = false;
 				}
-				if (minSpe === false && (moveName === 'Gyro Ball' || moveName === 'Trick Room')) {
+				if (minSpe === false && moveName === 'Gyro Ball') {
 					minSpe = undefined;
 				}
 			}
