@@ -1158,11 +1158,7 @@
 					}
 				}
 
-				if (this.partialDecisions) {
-					for (var i = 0; i < this.choice.choices.length; i++) {
-						this.sendDecision(this.choice.choices[i]);
-					}
-				} else if (this.choice.choices.length >= (this.choice.count || this.battle.mySide.active.length)) {
+				if (this.choice.choices.length >= (this.choice.count || this.battle.mySide.active.length)) {
 					this.sendDecision(this.choice.choices);
 				}
 
