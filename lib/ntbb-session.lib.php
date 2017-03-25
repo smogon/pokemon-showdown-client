@@ -645,15 +645,14 @@ class NTBBSession {
 			"INSERT INTO `{$psdb->prefix}users` (`userid`,`username`,`passwordhash`,`email`,`registertime`,`ip`) VALUES (?, ?, ?, ?, ?, ?)",
 			[$user['userid'], $user['username'], $user['passwordhash'], @$user['email'], $ctime, $this->getIp()]
 		);
-		if ($psdb->error())
-		{
+		if ($psdb->error()) {
 			return false;
 		}
 
 		$user['usernum'] = $psdb->insert_id();
 		$this->login($user['username'], $password);
-		if (!$curuser['loggedin']) return false;
-		return $user;
+		if (!$curuser['loggedin'] || $curuser['userid'] !== $user['userid']) return false;
+		return $curuser;
 	}
 
 	function wordfilter($text) {
