@@ -6546,7 +6546,7 @@ var Battle = (function () {
 			if (str !== '|') {
 				args = str.substr(1).split('|');
 			}
-			if (args[0] === 'c' || args[0] === 'chat') {
+			if (args[0] === 'c' || args[0] === 'chat' || args[0] === 'error' || args[0] === 'html') {
 				// chat is preserved untouched
 				args = [args[0], str.slice(args[0].length + 2)];
 			} else while (args[args.length - 1] && args[args.length - 1].substr(0, 1) === '[') {
