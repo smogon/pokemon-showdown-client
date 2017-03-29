@@ -2850,6 +2850,9 @@
 				if (move.category === 'Status') {
 					if (move.id === 'batonpass' || move.id === 'healingwish' || move.id === 'lunardance') {
 						moveCount['Support']++;
+					} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
+						moveCount['Physical'] += 0.5;
+						moveCount['Special'] += 0.5;
 					} else if (move.id === 'naturepower') {
 						moveCount['Special']++;
 					} else if (move.id === 'protect' || move.id === 'detect' || move.id === 'spikyshield' || move.id === 'kingsshield') {
