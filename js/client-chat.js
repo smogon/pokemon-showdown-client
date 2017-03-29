@@ -187,12 +187,12 @@
 		getHighlight: function (message) {
 			var highlights = Tools.prefs('highlights') || {};
 			if (highlights.constructor === 'Array') this.convertHighlights();
-			var thisroom = (this.type === 'battle' ? 'battlehls' : this.id);
-			if (!app.highlightRegExp || !app.highlightRegExp[(Config.server.id + 'globalhls')] || !app.highlightRegExp[(Config.server.id + thisroom)]) {
+			var thisroom = (this.type === 'battle' ? 'battle' : this.id);
+			if (!app.highlightRegExp || !app.highlightRegExp['global'] || !app.highlightRegExp[thisroom]) {
 				try {
 					if (!app.highlightRegExp) app.highlightRegExp = [];
-					if (!app.highlightRegExp['globalhls']) this.updateHighlightRegExp(highlights[(Config.server.id + 'globalhls')], 'globalhls');
-					if (!app.highlightRegExp[thisroom]) this.updateHighlightRegExp(highlights[(Config.server.id + thisroom)], thisroom);
+					if (!app.highlightRegExp['global']) this.updateHighlightRegExp(highlights['global'], 'global');
+					if (!app.highlightRegExp[thisroom]) this.updateHighlightRegExp(highlights[thisroom], thisroom);
 				} catch (e) {
 					// If the expression above is not a regexp, we'll get here.
 					// Don't throw an exception because that would prevent the chat
@@ -204,7 +204,7 @@
 			if (!Tools.prefs('noselfhighlight') && app.user.nameRegExp) {
 				if (app.user.nameRegExp.test(message)) return true;
 			}
-			return ((highlights[(Config.server.id + 'globalhls')].length > 0) && app.highlightRegExp['globalhls'].test(message)) || ((highlights[(Config.server.id + thisroom)].length > 0) && app.highlightRegExp[thisroom].test(message));
+			return ((highlights[(Config.server.id + 'global')].length > 0) && app.highlightRegExp['global'].test(message)) || ((highlights[(Config.server.id + thisroom)].length > 0) && app.highlightRegExp[thisroom].test(message));
 		},
 		updateHighlightRegExp: function (highlights, room) {
 			// Enforce boundary for match sides, if a letter on match side is
@@ -215,7 +215,7 @@
 		},
 		convertHighlights: function () {
 			var highlights = {};
-			highlights[(Config.server.id + 'globalhls')] = Tools.prefs('highlights');
+			highlights[(Config.server.id + 'global')] = Tools.prefs('highlights');
 			Tools.prefs('highlights', highlights);
 		},
 
@@ -668,7 +668,7 @@
 					switch (targets[0]) {
 					case 'add':
 					case 'roomadd':
-						var thisroom = (targets[0] === 'add' ? 'globalhls' : (this.type === 'battle' ? 'battlehls' : this.id));
+						var thisroom = (targets[0] === 'add' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
 						var hlkey = Config.server.id + thisroom;
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (targets[0] === 'add' ? ' everywhere: ' : (this.type === 'battle' ? ' in all battles: ' : ' in ' + this.id + ': '));
@@ -693,7 +693,7 @@
 						break;
 					case 'delete':
 					case 'roomdelete':
-						var thisroom = (targets[0] === 'delete' ? 'globalhls' : (this.type === 'battle' ? 'battlehls' : this.id));
+						var thisroom = (targets[0] === 'delete' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
 						var hlkey = Config.server.id + thisroom;
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (targets[0] === 'delete' ? ' everywhere: ' : (this.type === 'battle' ? ' in all battles: ' : ' in ' + this.id + ': '));
@@ -717,14 +717,14 @@
 					Tools.prefs('highlights', highlights);
 				} else {
 					if (target === 'delete' || target === 'roomdelete') {
-						var hlkey = Config.server.id + (target === 'delete' ? 'globalhls' : (this.type === 'battle' ? 'battlehls' : this.id));
+						var hlkey = Config.server.id + (target === 'delete' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (target === 'delete' ? 'All highlights cleared.' : (this.type === 'battle' ? 'All battle highlights cleared.' : 'All highlights cleared in ' + this.id + '.'));
 						highlights[hlkey] = [];
 						Tools.prefs('highlights', highlights);
 						this.add(textending);
 					} else if (target === 'show' || target === 'list' || target === 'roomshow' || target === 'roomlist') {
-						var hlkey = Config.server.id + (target === 'show' || target === 'list' ? 'globalhls' : (this.type === 'battle' ? 'battlehls' : this.id));
+						var hlkey = Config.server.id + (target === 'show' || target === 'list' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (target === 'show' || target === 'list' ? ' global highlight list' : ' highlight list for this room');
 						if (highlights[hlkey].length > 0) {
