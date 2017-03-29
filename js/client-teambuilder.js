@@ -3135,6 +3135,8 @@
 
 			if (this.curTeam && this.ignoreEVLimits) {
 				evs = {hp:252, atk:252, def:252, spa:252, spd:252, spe:252};
+				if (!moveCount['PhysicalAttack']) delete evs.atk;
+				if (!moveCount['SpecialAttack']) delete evs.spa;
 				if (hasMove['gyroball'] || hasMove['trickroom']) delete evs.spe;
 				if (this.curTeam.gen === 1) delete evs.spd;
 				if (this.curTeam.gen < 3) return evs;
