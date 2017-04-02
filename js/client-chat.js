@@ -1455,15 +1455,17 @@
 			var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
 			if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
 			var lastMessageDate = lastMessageDates[Config.server.id][this.id] || 0;
-			var mayNotify = msgTime > lastMessageDate && userid !== app.user.get('userid');
+			// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
+			var serverMsgTime = msgTime - (this.timeOffset || 0);
+			var mayNotify = serverMsgTime > lastMessageDate && userid !== app.user.get('userid');
 
 			if (app.focused && (this === app.curSideRoom || this === app.curRoom)) {
 				this.lastMessageDate = 0;
-				lastMessageDates[Config.server.id][this.id] = msgTime;
+				lastMessageDates[Config.server.id][this.id] = serverMsgTime;
 				Storage.prefs.save();
 			} else {
 				// To be saved on focus
-				this.lastMessageDate = Math.max(this.lastMessageDate || 0, msgTime);
+				this.lastMessageDate = Math.max(this.lastMessageDate || 0, serverMsgTime);
 			}
 
 			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
