@@ -3257,6 +3257,9 @@ var Battle = (function () {
 			case 'naturepower':
 				this.message('Nature Power turned into <strong>' + move.name + '</strong>!');
 				break;
+			case 'weatherball':
+				this.message('Breakneck Blitz turned into <strong>' + move.name + '</strong> due to the weather!');
+				break;
 			case 'sleeptalk':
 				pokemon.markMove(move.name, 0);
 				this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
