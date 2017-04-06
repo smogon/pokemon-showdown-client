@@ -2850,6 +2850,9 @@
 				if (move.category === 'Status') {
 					if (move.id === 'batonpass' || move.id === 'healingwish' || move.id === 'lunardance') {
 						moveCount['Support']++;
+					} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
+						moveCount['Physical'] += 0.5;
+						moveCount['Special'] += 0.5;
 					} else if (move.id === 'naturepower') {
 						moveCount['Special']++;
 					} else if (move.id === 'protect' || move.id === 'detect' || move.id === 'spikyshield' || move.id === 'kingsshield') {
@@ -3135,6 +3138,8 @@
 
 			if (this.curTeam && this.ignoreEVLimits) {
 				evs = {hp:252, atk:252, def:252, spa:252, spd:252, spe:252};
+				if (!moveCount['PhysicalAttack']) delete evs.atk;
+				if (!moveCount['SpecialAttack']) delete evs.spa;
 				if (hasMove['gyroball'] || hasMove['trickroom']) delete evs.spe;
 				if (this.curTeam.gen === 1) delete evs.spd;
 				if (this.curTeam.gen < 3) return evs;
