@@ -2052,7 +2052,7 @@
 
 				buf += '<p><em>Protip:</em> You can also set natures by typing "+" and "-" next to a stat.</p>';
 			}
-			
+
 			buf += '<p><button name="autoiv">Automatic IVs</button></p>';
 			buf += '</div>';
 			this.$chart.html(buf);
