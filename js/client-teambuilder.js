@@ -2699,7 +2699,7 @@
 				}
 			}
 			var resetSpeed = false;
-			if (moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) {
+			if ((moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) && !ivprefs.neverchange) {
 				resetSpeed = true;
 			}
 			this.chooseMove('', resetSpeed);
@@ -2750,7 +2750,7 @@
 				this.curSet.happiness = 255;
 			} else if (moveName === 'Frustration') {
 				this.curSet.happiness = 0;
-			} else if (moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) {
+			} else if ((moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) && !ivprefs.neverchange) {
 				minSpe = true;
 			}
 
@@ -2770,7 +2770,7 @@
 				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
 					minAtk = false;
 				}
-				if (minSpe === false && (moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom))) {
+				if (minSpe === false && (moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) && !ivprefs.neverchange) {
 					minSpe = undefined;
 				}
 			}
