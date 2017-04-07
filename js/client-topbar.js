@@ -490,7 +490,7 @@
 			buf += '<hr />';
 			buf += '<p><strong>Teambuilder</strong></p>';
 			buf += '<p><label class="optlabel">Preferences: <button name="autoiv">Automatic IVs</button></label></p>';
-			
+
 			if (window.nodewebkit) {
 				buf += '<hr />';
 				buf += '<p><strong>Desktop app</strong></p>';
@@ -616,7 +616,7 @@
 			Tools.prefs('chatformatting', this.chatformatting);
 		}
 	});
-	
+
 	var AutoIVPopup = this.TeambuilderPopup = Popup.extend({
 		events: {
 			'change input': 'setOption'
