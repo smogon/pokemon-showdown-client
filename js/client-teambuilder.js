@@ -2097,8 +2097,6 @@
 			});
 			app.addPopup(this.AutoIVPopup);
 		},
-			app.addPopup(window.AutoIVPopup);
-		},
 		setStatFormGuesses: function () {
 			this.updateStatForm(true);
 		},
