@@ -572,7 +572,7 @@
 			app.addPopup(FormattingPopup);
 		},
 		autoiv: function () {
-			app.addPopup(TeambuilderPopup);
+			app.addPopup(AutoIVPopup);
 		},
 		login: function () {
 			app.addPopup(LoginPopup);
