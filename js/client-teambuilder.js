@@ -2689,7 +2689,6 @@
 			if (!moveName || !set || this.curTeam.format === 'gen7hiddentype') return;
 			var ivprefs = Tools.prefs('autoiv');
 			var trickroom = (this.curTeam.format.indexOf('double') !== -1 || this.curTeam.format.indexOf('vgc') !== -1 ? ivprefs.trdouble : ivprefs.trsingle);
-			if (ivprefs.neverchange) trickroom = false;
 			if (moveName.substr(0, 13) === 'Hidden Power ') {
 				if (set.ivs) {
 					for (var i in set.ivs) {
@@ -2719,7 +2718,6 @@
 			if (!set) return;
 			var ivprefs = Tools.prefs('autoiv');
 			var trickroom = (this.curTeam.format.indexOf('double') !== -1 || this.curTeam.format.indexOf('vgc') !== -1 ? ivprefs.trdouble : ivprefs.trsingle);
-			if (ivprefs.neverchange) trickroom = false;
 			var gen = this.curTeam.gen;
 
 			var minSpe;
