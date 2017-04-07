@@ -197,8 +197,8 @@
 			}
 		};
 		TournamentBox.prototype.updateTeams = function () {
-			var forceFormatChange = (this.info.format !== this.teamSelectFormat);
-			this.teamSelectFormat = this.info.format;
+			var forceFormatChange = (this.info.teambuilderFormat !== this.teamSelectFormat);
+			this.teamSelectFormat = this.info.teambuilderFormat;
 
 			if (!this.info.isJoined) {
 				this.$teamSelect.hide();
@@ -212,7 +212,7 @@
 				if (isNaN(teamIndex)) teamIndex = -1;
 			}
 
-			this.$teamSelect.html(app.rooms[''].renderTeams.call(this, this.info.format, teamIndex));
+			this.$teamSelect.html(app.rooms[''].renderTeams.call(this, this.info.teambuilderFormat, teamIndex));
 			this.$teamSelect.children().data('type', 'teamSelect');
 			this.$teamSelect.children().attr('name', 'tournamentButton');
 			this.$teamSelect.show();
@@ -302,7 +302,7 @@
 					this.room.closeNotification('tournament-create');
 					if (!this.info.isJoined) {
 						this.toggleBoxVisibility(false);
-					} else if (this.info.format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) {
+					} else if (this.info.teambuilderFormat.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) {
 						Tools.loadSpriteData('bw');
 					}
 					this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
@@ -355,8 +355,12 @@
 						this.info.isActive = true;
 					}
 
-					if ('format' in this.updates || 'isJoined' in this.updates) {
+					if ('format' in this.updates || 'teambuilderFormat' in this.updates) {
+						if (!this.info.teambuilderFormat) this.info.teambuilderFormat = this.info.format;
 						this.$format.text(window.BattleFormats && BattleFormats[this.info.format] ? BattleFormats[this.info.format].name : this.info.format);
+						this.updateTeams();
+					}
+					if ('isJoined' in this.updates) {
 						this.updateTeams();
 					}
 					if ('generator' in this.updates)
@@ -781,7 +785,7 @@
 		};
 
 		TournamentBox.prototype.teamSelect = function (team, button) {
-			app.addPopup(TeamPopup, {team: team, format: this.info.format, sourceEl: button, room: this.room.id});
+			app.addPopup(TeamPopup, {team: team, format: this.info.teambuilderFormat, sourceEl: button, room: this.room.id});
 		};
 
 		return TournamentBox;
