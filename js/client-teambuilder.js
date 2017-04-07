@@ -2074,6 +2074,29 @@
 			this.suppressSliderCallback = false;
 		},
 		autoiv: function () {
+			var AutoIVPopup = this.AutoIVPopup = Popup.extend({
+				events: {
+					'change input': 'setOption'
+				},
+				initialize: function () {
+					var cur = this.teambuilderprefs = Tools.prefs('autoiv') || {};
+					var canChange = (cur.neverchange ? 'disabled' : '');
+					var buf = '<p class="optlabel">Change whether the teambuilder will automatically change your IVs.</p>';
+					buf += '<p><label class="optlabel"><input type="checkbox" name="neverchange"' + (cur.neverchange ? ' checked' : '') + ' /> Never automatically change my IVs (except for Hidden Powers).</label></p>';
+					buf += '<p><label class="optlabel"><input type="checkbox" name="trsingle"' + (cur.trsingle && !cur.neverchange ? ' checked' : '') + canChange + ' /> Change my speed IVs to 0 when I have Trick Room (Singles).</label></p>';
+					buf += '<p><label class="optlabel"><input type="checkbox" name="trdouble"' + (cur.trdouble && !cur.neverchange ? ' checked' : '') + canChange + ' /> Change my speed IVs to 0 when I have Trick Room (Doubles).</label></p>';
+					buf += '<p><button name="close">Close</button></p>';
+					this.$el.html(buf);
+				},
+				setOption: function (e) {
+					var name = $(e.currentTarget).prop('name');
+					this.teambuilderprefs[name] = !!e.currentTarget.checked;
+					Tools.prefs('autoiv', this.teambuilderprefs);
+					this.initialize();
+				}
+			});
+			app.addPopup(this.AutoIVPopup);
+		},
 			app.addPopup(window.AutoIVPopup);
 		},
 		setStatFormGuesses: function () {
