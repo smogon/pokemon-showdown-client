@@ -489,7 +489,7 @@
 
 			buf += '<hr />';
 			buf += '<p><strong>Teambuilder</strong></p>';
-			buf += '<p><label class="optlabel">Preferences: <button name="autoivs">Automatic IVs</button></label></p>';
+			buf += '<p><label class="optlabel">Preferences: <button name="autoiv">Automatic IVs</button></label></p>';
 			
 			if (window.nodewebkit) {
 				buf += '<hr />';
@@ -571,7 +571,7 @@
 		formatting: function () {
 			app.addPopup(FormattingPopup);
 		},
-		teambuilder: function () {
+		autoiv: function () {
 			app.addPopup(TeambuilderPopup);
 		},
 		login: function () {
@@ -617,7 +617,7 @@
 		}
 	});
 	
-	var TeambuilderPopup = this.TeambuilderPopup = Popup.extend({
+	var AutoIVPopup = this.TeambuilderPopup = Popup.extend({
 		events: {
 			'change input': 'setOption'
 		},
