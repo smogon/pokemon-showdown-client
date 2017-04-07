@@ -2072,6 +2072,9 @@
 			});
 			this.suppressSliderCallback = false;
 		},
+		autoivpopup: function () {
+			app.addPopup(window.AutoIVPopup);
+		},
 		setStatFormGuesses: function () {
 			this.updateStatForm(true);
 		},
@@ -2661,6 +2664,8 @@
 		},
 		unChooseMove: function (moveName) {
 			var set = this.curSet;
+			var ivprefs = Tools.prefs('autoiv');
+			var trickroom = (this.curTeam.format.indexOf('double') !== -1 || this.curTeam.format.indexOf('vgc') !== -1 ? ivprefs.trdouble : ivprefs.trsingle);
 			if (!moveName || !set || this.curTeam.format === 'gen7hiddentype') return;
 			if (moveName.substr(0, 13) === 'Hidden Power ') {
 				if (set.ivs) {
@@ -2671,7 +2676,7 @@
 				}
 			}
 			var resetSpeed = false;
-			if (moveName === 'Gyro Ball') {
+			if (moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) {
 				resetSpeed = true;
 			}
 			this.chooseMove('', resetSpeed);
@@ -2689,6 +2694,9 @@
 		chooseMove: function (moveName, resetSpeed) {
 			var set = this.curSet;
 			if (!set) return;
+			var ivprefs = Tools.prefs('autoiv');
+			var trickroom = (this.curTeam.format.indexOf('double') !== -1 || this.curTeam.format.indexOf('vgc') !== -1 ? ivprefs.trdouble : ivprefs.trsingle);
+			if (!ivprefs.neverchange) trickroom = false;
 			var gen = this.curTeam.gen;
 
 			var minSpe;
@@ -2719,7 +2727,7 @@
 				this.curSet.happiness = 255;
 			} else if (moveName === 'Frustration') {
 				this.curSet.happiness = 0;
-			} else if (moveName === 'Gyro Ball') {
+			} else if (moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) {
 				minSpe = true;
 			}
 
@@ -2739,7 +2747,7 @@
 				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
 					minAtk = false;
 				}
-				if (minSpe === false && moveName === 'Gyro Ball') {
+				if (minSpe === false && (moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom))) {
 					minSpe = undefined;
 				}
 			}
@@ -2758,7 +2766,7 @@
 			}
 			if (gen < 3) return;
 			if (!set.ivs['atk'] && set.ivs['atk'] !== 0) set.ivs['atk'] = 31;
-			if (minAtk) {
+			if (minAtk && !ivprefs.neverchange) {
 				// min Atk
 				set.ivs['atk'] = (hasHiddenPower ? set.ivs['atk'] % hpModulo : 0);
 			} else {
