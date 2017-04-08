@@ -1239,12 +1239,16 @@
 
 				case 'globalnotify':
 					app.rooms[''].addPM('~', '/html ' + row.slice(1).join('|'), '' + this.room.users[app.user.changed.userid]);
-					// Falls through
+					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
+						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+					}
+					break;
+					
 				case 'notify':
 					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
 					}
-					if (row[0] !== 'globalnotify') this.notifyOnce("You have a notification", "\"" + row.slice(1).join('|') + "\"", 'highlight');
+					this.notifyOnce("You have a notification", "\"" + row.slice(1).join('|') + "\"", 'highlight');
 					break;
 
 				case 'error':
