@@ -1238,6 +1238,8 @@
 					break;
 
 				case 'globalnotify':
+					app.rooms[''].addPM('~', '/html ' + row.slice(1).join('|'), '' + this.room.users[app.user.changed.userid]);
+					// Falls through
 				case 'notify':
 					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
