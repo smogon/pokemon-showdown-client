@@ -1246,7 +1246,7 @@
 						app.user.lastGlobalNotify = row.slice(1).join('|');
 					}
 					break;
-					
+
 				case 'notify':
 					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
