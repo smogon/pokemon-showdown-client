@@ -1238,9 +1238,12 @@
 					break;
 
 				case 'globalnotify':
-					app.rooms[''].addPM('~', '/html ' + row.slice(1).join('|'), '' + this.room.users[app.user.changed.userid]);
-					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
-						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+					if (app.user.lastGlobalNotify !== row.slice(1).join('|')) {
+						app.rooms[''].addPM('~', '/html ' + row.slice(1).join('|'), '' + this.room.users[app.user.changed.userid]);
+						if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
+							soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+						}
+						app.user.lastGlobalNotify = row.slice(1).join('|');
 					}
 					break;
 					
