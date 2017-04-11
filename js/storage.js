@@ -1051,9 +1051,6 @@ Storage.importTeam = function (text, teams) {
 		} else if (line.substr(0, 11) === 'Happiness: ') {
 			line = line.substr(11);
 			curSet.happiness = +line;
-		} else if (line.substr(0, 9) === 'Ability: ') {
-			line = line.substr(9);
-			curSet.ability = line;
 		} else if (line.substr(0, 5) === 'EVs: ') {
 			line = line.substr(5);
 			var evLines = line.split('/');
