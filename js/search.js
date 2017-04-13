@@ -883,6 +883,7 @@
 				template = Tools.getTemplate(template.baseSpecies);
 			}
 			var moves = [];
+			var sMoves = [];
 			var sketch = false;
 			var gen = '' + this.gen;
 			while (true) {
@@ -912,9 +913,8 @@
 				}
 			}
 			if (sketch) {
-				moves = [];
 				for (var i in BattleMovedex) {
-					if (i === 'chatter' || i === 'magikarpsrevenge' || i === 'paleowave' || i === 'shadowstrike') continue;
+					if (i === 'chatter' || i === 'magikarpsrevenge' || (format.substr(0, 3) !== 'cap' && (i === 'paleowave' || i === 'shadowstrike'))) continue;
 					if (!BattleMovedex[i].gen) {
 						if (BattleMovedex[i].num >= 622) {
 							BattleMovedex[i].gen = 7;
@@ -936,14 +936,16 @@
 					}
 					if (BattleMovedex[i].gen > this.gen) continue;
 					if (BattleMovedex[i].isZ) continue;
-					moves.push(i);
+					sMoves.push(i);
 				}
 			}
 
 			moves.sort();
+			sMoves.sort();
 
 			var usableMoves = [];
 			var uselessMoves = [];
+			var sketchedMoves = [];
 			for (var i = 0; i < moves.length; i++) {
 				var id = moves[i];
 				var isViable = BattleMovedex[id] && BattleMovedex[id].isViable;
@@ -973,7 +975,12 @@
 					uselessMoves.push(['move', id]);
 				}
 			}
-			this.defaultResultSet = usableMoves.concat(uselessMoves);
+			for (var i = 0; i < sMoves.length; i++) {
+				var id = sMoves[i];
+				if (!sketchedMoves.length) sketchedMoves.push(['header', "Sketched moves"]);
+				sketchedMoves.push(['move', id]);
+			}
+			this.defaultResultSet = usableMoves.concat(uselessMoves).concat(sketchedMoves);
 			break;
 		}
 
