@@ -364,14 +364,14 @@ License: GPLv2
 	padding: 4px 6px 0 6px;
 	overflow: hidden;
 }
-.message strong {
+.messagebar strong {
 	color: #ffffff;
 	font-size: 12pt;
 }
-.message small {
+.messagebar small {
 	font-size: 8pt;
 }
-.message p {
+.messagebar p {
 	display: none;
 	margin: 0;
 	padding: 0;
