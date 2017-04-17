@@ -778,7 +778,7 @@ p.or:after {
 	display: block;
 }
 .teamselect small .picon {
-	margin: 0 -3px;
+	margin: 4px -3px;
 }
 .select:hover, .team.team-hover {
 	border-color: #555555;
