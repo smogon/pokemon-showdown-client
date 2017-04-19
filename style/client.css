@@ -88,6 +88,9 @@ button:disabled {
 	cursor: default;
 }
 
+.dark button:disabled {
+	color: #C0C0C0;
+}
 .dark a {
 	color: #4488EE;
 }
