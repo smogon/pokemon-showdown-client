@@ -1492,6 +1492,8 @@
 				Storage.logChat(this.id, '* ' + name + (message.slice(0, 4) === '/me ' ? ' ' : '') + message);
 			} else if (message.slice(0, 5) === '/log ') {
 				Storage.logChat(this.id, '' + message.slice(5));
+			} else if (message.slice(0, 11) === '/logstrong ') {
+				Storage.logChat(this.id, '' + message.slice(11));
 			} else {
 				Storage.logChat(this.id, '' + name + ': ' + message);
 			}
