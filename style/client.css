@@ -187,7 +187,10 @@ button:disabled {
 	color: #F9F9F9;
 }
 .dark .button:hover,
-.dark .tabbar a.button:hover,
+.dark .tabbar a.button:hover {
+	background: #606060;
+	border-color: #EEEEEE;
+}
 .dark .popupmenu button.button:hover {
 	background: #606060;
 	border-color: #EEEEEE;

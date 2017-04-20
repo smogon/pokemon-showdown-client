@@ -828,6 +828,13 @@ License: GPLv2
 	/* Readable link colour */
 	color: #DDEEFF;
 }
+.battle-log .inner .chat .broadcast-green strong,
+.battle-log .inner .chat .broadcast-blue strong,
+.battle-log .inner .chat .broadcast-red strong,
+.battle-log .inner .chat .message-announce strong {
+	/* readable bold text in broadcast boxes in battles */
+	color: white;
+}
 .broadcast-green {
 	background-color: #559955;
 	color: white;
