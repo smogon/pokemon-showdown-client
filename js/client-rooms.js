@@ -8,9 +8,8 @@
 		isSideRoom: true,
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
-			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button>';
+			var buf = '<div class="pad"><div style="float:right;font-size:10pt;margin-top:3px"><button name="joinRoomPopup" class="button"><i class="fa fa-sign-in"></i> Join other room</button> <button class="button" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button></div>';
 			buf += '<div class="roomlisttop"></div><div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
-			buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
 			app.send('/cmd rooms');
