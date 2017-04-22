@@ -366,10 +366,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["Uber", "OU", "BL", "UU", "BL2", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen4') {
-				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "NU", "NFE", "LC Uber", "LC"];
+				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "NU", "NFE", "LC Uber", "LC", "NUsed"];
 			}
 			if (gen === 'gen5') {
-				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "RU", "BL3", "NU", "NFE", "LC Uber", "LC"];
+				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "RU", "BL3", "NU", "NFE", "LC Uber", "LC", "NUsed"];
 			}
 			if (gen === 'gen7') {
 				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "New", "Unreleased", "NFE", "LC Uber", "LC"];
@@ -377,7 +377,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isDoubles) {
 				return ["DUber", "DOU", "DUU", "DNU", "NFE"];
 			}
-			return ["CAP", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
+			return ["CAP", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC", "NUsed"];
 		})();
 
 		for (const tier of tierOrder) {
@@ -391,6 +391,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				tiers.push(['header', tier.slice(1, -1) + " by technicality"]);
 			} else if (tier === "NFE") {
 				tiers.push(['header', "NFEs not in a higher tier"]);
+			} else if { (tier === "NUsed")
+				tiers.push(['header', "NUsed (Unused) not in a higher tier")
 			} else {
 				tiers.push(['header', tier]);
 			}
