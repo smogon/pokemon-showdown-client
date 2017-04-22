@@ -520,6 +520,43 @@
 				}
 				return false;
 
+			case 'pmignore':
+				if (!target) {
+					this.parseCommand('/help pmignore');
+					return false;
+				}
+				if (toUserid(target) === app.user.get('userid')) {
+					this.add("You are not able to ignore yourself.");
+				} else if (app.ignorePMs[toUserid(target)]) {
+					this.add("User '" + toName(target) + "' is already on your PM ignore list. (Moderator messages will not be ignored.)");
+				} else {
+					app.ignorePMs[toUserid(target)] = 1;
+					this.add("User '" + toName(target) + "' PMs ignored. (Moderator messages will not be ignored.)");
+				}
+				return false;
+
+			case 'unpmignore':
+				if (!target) {
+					this.parseCommand('/help unpmignore');
+					return false;
+				}
+				if (!app.ignorePMs[toUserid(target)]) {
+					this.add("User '" + toName(target) + "' isn't on your PMs ignore list.");
+				} else {
+					delete app.ignorePMs[toUserid(target)];
+					this.add("User '" + toName(target) + "' PMs no longer ignored.");
+				}
+				return false;
+
+			case 'pmignorelist':
+				var ignoreList = Object.keys(app.ignorePMs);
+				if (ignoreList.length === 0) {
+					this.add('You are currently not ignoring anyone\'s PMs.');
+				} else {
+					this.add("You are currently ignoring PMs from: " + ignoreList.join(', '));
+				}
+				return false;
+
 			case 'clear':
 				if (this.clear) {
 					this.clear();
@@ -907,9 +944,18 @@
 					return false;
 				case 'ignore':
 				case 'unignore':
+				case 'ignorelist':
 					this.add('/ignore [user] - Ignore all messages from the user [user].');
 					this.add('/unignore [user] - Remove the user [user] from your ignore list.');
 					this.add('/ignorelist - List all the users that you currently ignore.');
+					this.add('Note that staff messages cannot be ignored.');
+					return false;
+				case 'pmignore':
+				case 'pmunignore':
+				case 'pmignorelist':
+					this.add('/ignore [user] - Ignore all private messages from the user [user].');
+					this.add('/unignore [user] - Remove the user [user] from your private message ignore list.');
+					this.add('/ignorelist - List all the users that you currently ignore private messages from.');
 					this.add('Note that staff messages cannot be ignored.');
 					return false;
 				case 'nick':

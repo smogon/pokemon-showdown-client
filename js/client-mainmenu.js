@@ -131,7 +131,7 @@
 
 		addPM: function (name, message, target) {
 			var userid = toUserid(name);
-			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '!': 1, '✖': 1, '‽': 1}) return;
+			if ((app.ignore[userid] || app.ignorePMs[userid]) && name.substr(0, 1) in {' ': 1, '!': 1, '✖': 1, '‽': 1}) return;
 
 			var isSelf = (toId(name) === app.user.get('userid'));
 			var oName = isSelf ? target : name;
@@ -325,6 +325,20 @@
 				} else {
 					delete app.ignore[userid];
 					$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
+				}
+			} else if (text.toLowerCase() === '/pmignore') {
+				if (app.ignorePMs[userid]) {
+					$chat.append('<div class="chat">User ' + userid + ' is already on your PM ignore list. (Moderator messages will not be ignored.)</div>');
+				} else {
+					app.ignorePMs[userid] = 1;
+					$chat.append('<div class="chat">User ' + userid + '\'s PMs ignored. (Moderator messages will not be ignored.)</div>');
+				}
+			} else if (text.toLowerCase() === '/unpmignore') {
+				if (!app.ignorePMs[userid]) {
+					$chat.append('<div class="chat">User ' + userid + ' isn\'t on your PM ignore list.</div>');
+				} else {
+					delete app.ignorePMs[userid];
+					$chat.append('<div class="chat">User ' + userid + '\'s PMs no longer ignored.</div>');
 				}
 			} else if (text.toLowerCase() === '/clear') {
 				$chat.empty();
@@ -556,7 +570,7 @@
 			this.challengesFrom = data.challengesFrom;
 			this.challengeTo = data.challengeTo;
 			for (var i in data.challengesFrom) {
-				if (app.ignore[i]) {
+				if (app.ignore[i] || app.ignorePMs[i]) {
 					delete data.challengesFrom[i];
 					continue;
 				}

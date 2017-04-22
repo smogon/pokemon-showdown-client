@@ -365,6 +365,7 @@
 
 			this.user = new User();
 			this.ignore = {};
+			this.ignorePMs = {};
 			this.supports = {};
 
 			// down
@@ -845,6 +846,9 @@
 				if (app.ignore[toUserid(names[2])]) {
 					app.ignore[toUserid(names[1])] = 1;
 				}
+				if (app.ignorePMs[toUserid(names[2])]) {
+					app.ignorePMs[toUserid(names[1])] = 1;
+				}
 			}
 			if (roomid) {
 				if (this.rooms[roomid]) {
@@ -911,6 +915,9 @@
 				}
 				if (app.ignore[toUserid(name)]) {
 					delete app.ignore[toUserid(name)];
+				}
+				if (app.ignorePMs[toUserid(name)]) {
+					delete app.ignorePMs[toUserid(name)];
 				}
 				break;
 
@@ -2351,7 +2358,8 @@
 			this.update();
 		},
 		update: function () {
-			this.$el.html('<p><button name="toggleIgnoreUser">' + (app.ignore[this.userid] ? 'Unignore' : 'Ignore') + '</button></p>');
+			this.$el.html('<p><button name="toggleIgnoreUser">' + (app.ignore[this.userid] ? 'Unignore User' : 'Ignore User') + '</button></p>' +
+				'<p><button name="toggleIgnoreUserPMs">' + (app.ignorePMs[this.userid] ? 'Unignore Messages' : 'Ignore Messages') + '</button></p>');
 		},
 		toggleIgnoreUser: function () {
 			var buf = "User '" + this.name + "'";
@@ -2361,6 +2369,28 @@
 			} else {
 				app.ignore[this.userid] = 1;
 				buf += " ignored. (Moderator messages will not be ignored.)";
+			}
+			var $pm = $('.pm-window-' + this.userid);
+			if ($pm.length && $pm.css('display') !== 'none') {
+				$pm.find('.inner').append('<div class="chat">' + Tools.escapeHTML(buf) + '</div>');
+			} else {
+				var room = (app.curRoom && app.curRoom.add ? app.curRoom : app.curSideRoom);
+				if (!room || !room.add) {
+					app.addPopupMessage(buf);
+					return this.update();
+				}
+				room.add(buf);
+			}
+			app.dismissPopups();
+		},
+		toggleIgnoreUserPMs: function () {
+			var buf = "User '" + this.name + "'";
+			if (app.ignorePMs[this.userid]) {
+				delete app.ignorePMs[this.userid];
+				buf += " PMs no longer ignored.";
+			} else {
+				app.ignorePMs[this.userid] = 1;
+				buf += " PMs ignored. (Moderator messages will not be ignored.)";
 			}
 			var $pm = $('.pm-window-' + this.userid);
 			if ($pm.length && $pm.css('display') !== 'none') {
