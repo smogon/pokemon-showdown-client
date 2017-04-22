@@ -414,7 +414,7 @@
 		chatHistories: {},
 		clickUsername: function (e) {
 			e.stopPropagation();
-			var name = $(e.currentTarget).data('name');
+			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		clickPMBackground: function (e) {
