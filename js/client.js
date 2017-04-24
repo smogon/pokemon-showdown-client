@@ -1325,8 +1325,13 @@
 				if (this.curSideRoom === oldRoom) this.curSideRoom = room;
 				if (this.sideRoom === oldRoom) this.sideRoom = room;
 			}
-			if (type === BattleRoom) this.roomList.push(room);
-			if (type === ChatRoom || type === BattlesRoom) this.sideRoomList.push(room);
+			if (['', 'teambuilder', 'ladder', 'rooms'].indexOf(room.id) < 0) {
+				if (room.isSideRoom) {
+					this.sideRoomList.push(room);
+				} else {
+					this.roomList.push(room);
+				}
+			}
 			return room;
 		},
 		focusRoom: function (id) {
