@@ -9,6 +9,8 @@
 		initialize: function (data) {
 			this.me = {};
 
+			this.isSideRoom = Tools.prefs('rightpanelbattles');
+
 			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log"></div><div class="battle-log-add">Connecting...</div><div class="battle-controls"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>');
 
 			this.$battle = this.$el.find('.battle');
@@ -1237,18 +1239,21 @@
 	var BattleOptionsPopup = this.BattleOptionsPopup = Popup.extend({
 		initialize: function (data) {
 			this.battle = data.battle;
+			var rightPanelBattlesPossible = (MainMenuRoom.prototype.bestWidth + BattleRoom.prototype.minWidth < $(window).width());
 			var buf = '<p><strong>In this battle</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + '/> Ignore Spectators</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + '/> Ignore Opponent</label></p>';
 			buf += '<p><strong>All battles</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorenicks"' + (Tools.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore nicknames</label></p>';
+			if (rightPanelBattlesPossible) buf += '<p><label class="optlabel"><input type="checkbox" name="rightpanelbattles"' + (Tools.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles on the right side</label></p>';
 			buf += '<p><button name="close">Close</button></p>';
 			this.$el.html(buf);
 		},
 		events: {
 			'change input[name=ignorespects]': 'toggleIgnoreSpects',
 			'change input[name=ignorenicks]': 'toggleIgnoreNicks',
-			'change input[name=ignoreopp]': 'toggleIgnoreOpponent'
+			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
+			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles'
 		},
 		toggleIgnoreSpects: function (e) {
 			this.battle.ignoreSpects = !!e.currentTarget.checked;
@@ -1297,6 +1302,9 @@
 				side.updateStatbar(side.active[i], true, true);
 			}
 			side.updateSidebar();
+		},
+		toggleRightPanelBattles: function (e) {
+			Tools.prefs('rightpanelbattles', !!e.currentTarget.checked);
 		}
 	});
 
