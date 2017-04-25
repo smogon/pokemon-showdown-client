@@ -1107,7 +1107,7 @@ var BattleTooltips = (function () {
 		if (!basePower) return basePowerComment;
 
 		// Other ability boosts.
-		let abilityBoost = 0;
+		var abilityBoosted = 0;
 		if (ability === 'Water Bubble' && move.type === 'Water') {
 			abilityBoost = 2;
 		} else if (ability === 'Flare Boost' && pokemon.status === 'brn') ||
