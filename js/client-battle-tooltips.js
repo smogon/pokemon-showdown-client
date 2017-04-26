@@ -1110,12 +1110,12 @@ var BattleTooltips = (function () {
 		var abilityBoost = 0;
 		if (ability === 'Water Bubble' && move.type === 'Water') {
 			abilityBoost = 2;
-		} else if ((ability === 'Flare Boost' && pokemon.status === 'brn') ||
+		} else if ((ability === 'Flare Boost' && pokemon.status === 'brn' && move.category === 'Special') ||
 			(ability === 'Mega Launcher' && move.flags['pulse']) ||
 			(ability === 'Steelworker' && move.type === 'Steel') ||
 			(ability === 'Strong Jaw' && move.flags['bite']) ||
 			(ability === 'Technician' && basePower <= 60) ||
-			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox'))) {
+			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical')) {
 			abilityBoost = 1.5;
 		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel')) ||
 			(ability === 'Sheer Force' && move.secondaries) ||
