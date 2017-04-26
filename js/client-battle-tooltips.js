@@ -1107,19 +1107,19 @@ var BattleTooltips = (function () {
 		if (!basePower) return basePowerComment;
 
 		// Other ability boosts.
-		var abilityBoosted = 0;
+		var abilityBoost = 0;
 		if (ability === 'Water Bubble' && move.type === 'Water') {
 			abilityBoost = 2;
-		} else if (ability === 'Flare Boost' && pokemon.status === 'brn') ||
+		} else if ((ability === 'Flare Boost' && pokemon.status === 'brn') ||
 			(ability === 'Mega Launcher' && move.flags['pulse']) ||
 			(ability === 'Steelworker' && move.type === 'Steel') ||
 			(ability === 'Strong Jaw' && move.flags['bite']) ||
 			(ability === 'Technician' && basePower <= 60) ||
-			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox')) {
+			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox'))) {
 			abilityBoost = 1.5;
-		} else if (ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel') ||
+		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel')) ||
 			(ability === 'Sheer Force' && move.secondaries) ||
-			(ability === 'Tough Claws' && move.flags['contact']) {
+			(ability === 'Tough Claws' && move.flags['contact'])) {
 			abilityBoost = 1.3;
 		} else if (ability === 'Rivalry' && pokemon.gender && target.gender) {
 			if (pokemon.gender === target.gender) {
@@ -1136,9 +1136,9 @@ var BattleTooltips = (function () {
 			if (ability in {'Aerilate': 1, 'Galvanize':1, 'Pixilate': 1, 'Refrigerate': 1}) {
 				abilityBoost = (this.battle.gen > 6 ? 1.2 : 1.3);
 			}
-		} else if (ability === 'Iron Fist' && move.flags['punch']) ||
+		} else if ((ability === 'Iron Fist' && move.flags['punch']) ||
 			(ability === 'Reckless' && (move.recoil || move.hasCustomRecoil)) ||
-			(ability === 'Normalize' && this.battle.gen > 6) {
+			(ability === 'Normalize' && this.battle.gen > 6)) {
 			abilityBoost = 1.2;
 		}
 		if (abilityBoost) {
