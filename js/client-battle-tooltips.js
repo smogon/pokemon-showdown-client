@@ -1107,28 +1107,43 @@ var BattleTooltips = (function () {
 		if (!basePower) return basePowerComment;
 
 		// Other ability boosts.
+		var abilityBoost = 0;
 		if (ability === 'Water Bubble' && move.type === 'Water') {
-			basePower *= 2;
-			basePowerComment = ' (Water Bubble boosted)';
-		}
-		if (ability === 'Steelworker' && move.type === 'Steel') {
-			basePower *= 1.5;
-			basePowerComment = ' (Steelworker boosted)';
-		}
-		if (ability === 'Technician' && basePower <= 60) {
-			basePower *= 1.5;
-			basePowerComment = ' (Technician boosted)';
-		}
-		if (move.type === 'Normal' && move.category !== 'Status' &&
+			abilityBoost = 2;
+		} else if ((ability === 'Flare Boost' && pokemon.status === 'brn' && move.category === 'Special') ||
+			(ability === 'Mega Launcher' && move.flags['pulse']) ||
+			(ability === 'Steelworker' && move.type === 'Steel') ||
+			(ability === 'Strong Jaw' && move.flags['bite']) ||
+			(ability === 'Technician' && basePower <= 60) ||
+			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical')) {
+			abilityBoost = 1.5;
+		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel')) ||
+			(ability === 'Sheer Force' && move.secondaries) ||
+			(ability === 'Tough Claws' && move.flags['contact'])) {
+			abilityBoost = 1.3;
+		} else if (ability === 'Rivalry' && pokemon.gender && target.gender) {
+			if (pokemon.gender === target.gender) {
+				abilityBoost = 1.25;
+			} else {
+				abilityBoost = 0.75;
+			}
+		} else if (move.type === 'Normal' && move.category !== 'Status' &&
 			!(move.id in {'naturalgift': 1, 'struggle': 1} ||
 			  move.id === 'weatherball' && thereIsWeather ||
 			  move.id === 'multiattack' && item.onMemory ||
 			  move.id === 'judgment' && item.onPlate ||
 			  move.id === 'technoblast' && item.onDrive)) {
-			if (ability in {'Aerilate': 1, 'Galvanize':1, 'Pixilate': 1, 'Refrigerate': 1} || this.battle.gen > 6 && ability == 'Normalize') {
-				basePower = Math.floor(basePower * (this.battle.gen > 6 ? 1.2 : 1.3));
-				basePowerComment = ' (' + ability + ' boosted)';
+			if (ability in {'Aerilate': 1, 'Galvanize':1, 'Pixilate': 1, 'Refrigerate': 1}) {
+				abilityBoost = (this.battle.gen > 6 ? 1.2 : 1.3);
 			}
+		} else if ((ability === 'Iron Fist' && move.flags['punch']) ||
+			(ability === 'Reckless' && (move.recoil || move.hasCustomRecoil)) ||
+			(ability === 'Normalize' && this.battle.gen > 6)) {
+			abilityBoost = 1.2;
+		}
+		if (abilityBoost) {
+			basePower = Math.floor(basePower * abilityBoost);
+			basePowerComment = ' (' + ability + ' boosted)';
 		}
 		return this.boostBasePower(move, pokemon, basePower, basePowerComment);
 	};
