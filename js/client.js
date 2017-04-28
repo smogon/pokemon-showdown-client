@@ -1099,6 +1099,8 @@
 					if (BattleFormats[id] && BattleFormats[id].isTeambuilderFormat) {
 						isTeambuilderFormat = true;
 					}
+					// make sure formats aren't out-of-order
+					if (BattleFormats[id]) delete BattleFormats[id];
 					BattleFormats[id] = {
 						id: id,
 						name: name,
