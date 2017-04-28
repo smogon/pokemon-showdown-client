@@ -134,16 +134,10 @@
 			} else if (e.keyCode === 34) { // Pg Dn key
 				this.$chatFrame.scrollTop(this.$chatFrame.scrollTop() + this.$chatFrame.height() - 60);
 			} else if (e.keyCode === 9 && !e.ctrlKey) { // Tab key
-				if (!e.shiftKey) {
-					if (this.handleTabComplete(this.$chatbox, false)) {
-						e.preventDefault();
-						e.stopPropagation();
-					}
-				} else { // Shift + Tab
-					if (this.handleTabComplete(this.$chatbox, true)) {
-						e.preventDefault();
-						e.stopPropagation();
-					}
+				var reverse = !!e.shiftKey; // Shift+Tab reverses direction
+				if (this.handleTabComplete(this.$chatbox, reverse)) {
+					e.preventDefault();
+					e.stopPropagation();
 				}
 			} else if (e.keyCode === 38 && !e.shiftKey && !e.altKey) { // Up key
 				if (this.chatHistoryUp(this.$chatbox, e)) {
@@ -152,6 +146,11 @@
 				}
 			} else if (e.keyCode === 40 && !e.shiftKey && !e.altKey) { // Down key
 				if (this.chatHistoryDown(this.$chatbox, e)) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			} else if (e.keyCode === 27 && !e.shiftKey && !e.altKey) { // Esc key
+				if (this.undoTabComplete(this.$chatbox)) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
@@ -280,8 +279,9 @@
 			var users = this.users || (app.rooms['lobby'] ? app.rooms['lobby'].users : {});
 
 			var text = $textbox.val();
+			var prefix = text.substr(0, idx);
 
-			if (this.tabComplete.cursor !== null && text.substr(0, idx) === this.tabComplete.cursor) {
+			if (this.tabComplete.cursor !== null && prefix === this.tabComplete.cursor) {
 				// The user is cycling through the candidate names.
 				if (reverse) {
 					this.tabComplete.index--;
@@ -294,11 +294,11 @@
 				// This is a new tab completion.
 
 				// There needs to be non-whitespace to the left of the cursor.
-				var m1 = /^(.*?)([A-Za-z0-9][^, ]*)$/.exec(text.substr(0, idx));
-				var m2 = /^(.*?)([A-Za-z0-9][^, ]* [^, ]*)$/.exec(text.substr(0, idx));
+				var m1 = /^([\s\S]*?)([A-Za-z0-9][^, \n]*)$/.exec(prefix);
+				var m2 = /^([\s\S]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
 				if (!m1 && !m2) return true;
 
-				this.tabComplete.prefix = text;
+				this.tabComplete.prefix = prefix;
 				var idprefix = (m1 ? toId(m1[2]) : '');
 				var spaceprefix = (m2 ? m2[2].replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase() : '');
 				var candidates = []; // array of [candidate userid, prefix length]
@@ -353,6 +353,13 @@
 			var pos = fullPrefix.length;
 			$textbox[0].setSelectionRange(pos, pos);
 			this.tabComplete.cursor = fullPrefix;
+			return true;
+		},
+		undoTabComplete: function ($textbox) {
+			var cursorPosition = $textbox.prop('selectionEnd');
+			if (!this.tabComplete.cursor || $textbox.val().substr(0, cursorPosition) !== this.tabComplete.cursor) return false;
+			$textbox.val(this.tabComplete.prefix + $textbox.val().substr(cursorPosition));
+			$textbox.prop('selectionEnd', this.tabComplete.prefix.length);
 			return true;
 		},
 

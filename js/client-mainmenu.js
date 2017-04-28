@@ -344,7 +344,12 @@
 			if (e.keyCode === 13 && !e.shiftKey) { // Enter
 				this.submitPM(e);
 			} else if (e.keyCode === 27) { // Esc
-				this.closePM(e);
+				if (app.curSideRoom && app.curSideRoom.undoTabComplete && app.curSideRoom.undoTabComplete($(e.currentTarget))) {
+					e.preventDefault();
+					e.stopPropagation();
+				} else {
+					this.closePM(e);
+				}
 			} else if (e.keyCode === 73 && cmdKey) { // Ctrl + I key
 				if (ConsoleRoom.toggleFormatChar(e.currentTarget, '_')) {
 					e.preventDefault();
@@ -365,7 +370,8 @@
 				var $pmWindow = $target.closest('.pm-window');
 				var $chat = $pmWindow.find('.pm-log');
 				$chat.scrollTop($chat.scrollTop() + $chat.height() - 60);
-			} else if (e.keyCode === 9 && !e.shiftKey && !e.ctrlKey) { // Tab key
+			} else if (e.keyCode === 9 && !e.ctrlKey) { // Tab key
+				var reverse = !!e.shiftKey; // Shift+Tab reverses direction
 				var handlerRoom = app.curSideRoom;
 				if (!handlerRoom) {
 					for (var roomid in app.rooms) {
@@ -374,7 +380,7 @@
 						break;
 					}
 				}
-				if (handlerRoom && handlerRoom.handleTabComplete && handlerRoom.handleTabComplete($(e.currentTarget))) {
+				if (handlerRoom && handlerRoom.handleTabComplete && handlerRoom.handleTabComplete($(e.currentTarget), reverse)) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
