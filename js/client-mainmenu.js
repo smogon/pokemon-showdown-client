@@ -153,7 +153,7 @@
 			var $lastMessage = $chat.children().last();
 			var textContent = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
 			if (textContent && app.curSideRoom && app.curSideRoom.addPM && Tools.prefs('inchatpm')) {
-				app.curSideRoom.addPM(name, textContent, target);
+				app.curSideRoom.addPM(name, message, target);
 			}
 
 			if (!isSelf && textContent) {
