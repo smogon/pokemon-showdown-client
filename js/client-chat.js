@@ -1162,6 +1162,10 @@
 					// ignore (handled elsewhere)
 					break;
 
+				case 'privacy':
+					// ignore (for bots parsing only)
+					break;
+
 				case 'title':
 					this.title = row[1];
 					app.roomTitleChanged(this);
