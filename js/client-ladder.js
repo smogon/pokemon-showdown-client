@@ -89,6 +89,7 @@
 			'gen7lcsuspecttest': 13,
 			'gen7doublesoususpecttest': 14.5,
 			'gen7balancedhackmonssuspecttest': 11,
+			'gen71v1suspecttest': 20,
 			'gen7monotypesuspecttest': 14,
 			'gen7mixandmegasuspecttest': 10.5,
 			'gen7almostanyabilitysuspecttest': 6,
