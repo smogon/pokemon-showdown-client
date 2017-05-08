@@ -5105,6 +5105,7 @@ var Battle = (function () {
 				case 'illusion':
 					this.resultAnim(poke, 'Illusion ended', 'bad');
 					actions += "" + poke.getName() + "'s illusion wore off!";
+					poke.markAbility('Illusion');
 					break;
 				case 'slowstart':
 					this.resultAnim(poke, 'Slow Start ended', 'good');
