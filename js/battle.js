@@ -6365,6 +6365,10 @@ var Battle = (function () {
 			this.getSide(args[1]).setName(args[2]);
 			this.getSide(args[1]).setSprite(args[3]);
 			break;
+		case 'teamsize':
+			this.getSide(args[1]).totalPokemon = parseInt(args[2], 10);
+			this.getSide(args[1]).updateSidebar();
+			break;
 		case 'win':
 			this.winner(args[1]);
 			break;
