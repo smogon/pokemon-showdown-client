@@ -1237,13 +1237,6 @@
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
-				case 'globalnotify':
-					app.rooms[''].addPM('~', '/raw ' + row.slice(1).join('|'), '' + this.users[app.user.changed.userid]);
-					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
-						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
-					}
-					break;
-
 				case 'notify':
 					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
