@@ -1241,7 +1241,7 @@
 					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
 					}
-					this.notifyOnce(row[1], "\"" + row.slice(2).join('|') + "\"", 'highlight');
+					this.notifyOnce(row[1], row.slice(2).join('|'), 'highlight');
 					break;
 
 				case 'error':
