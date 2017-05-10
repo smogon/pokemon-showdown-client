@@ -526,7 +526,7 @@
 					} else if (!pokemon || pokemon.zerohp) {
 						targetMenus[0] += '<button class="disabled" name="chooseMoveTarget" value="' + (i + 1) + '"><span class="picon" style="' + Tools.getPokemonIcon('missingno') + '"></span></button> ';
 					} else {
-						targetMenus[0] += '<button name="chooseMoveTarget" value="' + (i + 1) + '"' + this.tooltips.tooltipAttrs("your" + i, 'pokemon', true) + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + Tools.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
+						targetMenus[0] += '<button name="chooseMoveTarget" value="' + (i + 1) + '"' + this.tooltips.tooltipAttrs("your" + i, 'pokemon', true) + '><span class="picon" style="' + Tools.getPokemonIcon(pokemon) + '"></span>' + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.species : Tools.escapeHTML(pokemon.name)) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 					}
 				}
 				for (var i = 0; i < myActive.length; i++) {
