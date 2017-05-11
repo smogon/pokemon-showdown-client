@@ -1253,6 +1253,13 @@
 					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
+				case 'notify':
+					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
+						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+					}
+					this.notifyOnce(row[1], row.slice(2).join('|'), 'highlight');
+					break;
+
 				case 'error':
 					this.$chat.append('<div class="notice message-error">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
 					break;
