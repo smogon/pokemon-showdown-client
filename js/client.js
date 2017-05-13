@@ -869,6 +869,24 @@
 			}
 
 			switch (parts[0]) {
+			case 'authconfig':
+				var nlIndex = data.indexOf('\n');
+				if (nlIndex > 0) {
+					this.receive(data.substr(nlIndex + 1));
+				}
+
+				var tarRow = data.slice(12, nlIndex).split(/(?:\b|\B)\|(?:\B)/);
+				for (var i = 0; i < tarRow.length; i++) {
+					var entry = tarRow[i];
+					if (!entry) continue;
+
+					var symbol = entry.charAt(0);
+					var rank = entry.slice(1);
+
+					groupDetails[symbol] = rank + ' (' + symbol + ')'; // override the default symbol.
+				}
+				break;
+
 			case 'challstr':
 				if (parts[2]) {
 					this.user.receiveChallstr(parts[1] + '|' + parts[2]);
@@ -2199,6 +2217,21 @@
 		}
 	});
 
+	var groupDetails = this.groupDetails = {
+		'#': "Room Owner (#)",
+		'~': "Administrator (~)",
+		'&': "Leader (&amp;)",
+		'@': "Moderator (@)",
+		'%': "Driver (%)",
+		'*': "Bot (*)",
+		'\u2606': "Player (\u2606)",
+		'\u2605': "Player (\u2605)",
+		'+': "Voice (+)",
+		'‽': "<span style='color:#777777'>Locked (‽)</span>",
+		'✖': "<span style='color:#777777'>Namelocked (✖)</span>",
+		'!': "<span style='color:#777777'>Muted (!)</span>"
+	};
+
 	var UserPopup = this.UserPopup = Popup.extend({
 		initialize: function (data) {
 			data.userid = toId(data.name);
@@ -2224,20 +2257,6 @@
 			var userid = data.userid;
 			var name = data.name;
 			var avatar = data.avatar || '';
-			var groupDetails = {
-				'#': "Room Owner (#)",
-				'~': "Administrator (~)",
-				'&': "Leader (&amp;)",
-				'@': "Moderator (@)",
-				'%': "Driver (%)",
-				'*': "Bot (*)",
-				'\u2606': "Player (\u2606)",
-				'\u2605': "Player (\u2605)",
-				'+': "Voice (+)",
-				'‽': "<span style='color:#777777'>Locked (‽)</span>",
-				'✖': "<span style='color:#777777'>Namelocked (✖)</span>",
-				'!': "<span style='color:#777777'>Muted (!)</span>"
-			};
 			var group = (groupDetails[name.substr(0, 1)] || '');
 			var globalgroup = (groupDetails[(data.group || '').charAt(0)] || '');
 			if (globalgroup) {
