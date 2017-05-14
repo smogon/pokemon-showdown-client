@@ -1034,15 +1034,15 @@
 				// use slice instead of simple [0], [1], [2] in case someone finds it fun to put a comma in the name of the rank.
 				var symbol = entry[0];
 				var groupName = entry.slice(1, entry.length - 1).join(",").trim();
-				var groupRank = parseInt(entry[entry.length - 1], 10) || 0;
+				var groupType = parseInt(entry[entry.length - 1], 10) || 0;
 
 				if (!groupName) this.defaultGroup = symbol;
 
-				authTiers[groupRank].push({
+				authTiers[groupType].push({
 					symbol: symbol,
 					data: {
 						name: groupName ? Tools.escapeHTML(groupName + ' (' + symbol + ')') : null,
-						group: groupRank,
+						type: groupType,
 					},
 				});
 			}
@@ -1053,34 +1053,34 @@
 					symbol: '!',
 					data: {
 						name: "<span style='color:#777777'>Muted (!)</span>",
-						group: 0,
+						type: 0,
 					},
 				},
 				{
 					symbol: '✖',
 					data: {
 						name: "<span style='color:#777777'>Namelocked (✖)</span>",
-						group: 0,
+						type: 0,
 					},
 				},
 				{
 					symbol: '‽',
 					data: {
 						name: "<span style='color:#777777'>Locked (‽)</span>",
-						group: 0,
+						type: 0,
 					},
 				}
 			]);
 
 			// now determine the order for sorting of the auth
-			window.GroupDetails = GroupDetails = {};
+			Config.groups = {};
 			var index = 0;
 			for (var t = 2; t >= 0; t--) {
 				var tier = authTiers[t];
 				for (var g = 0; g < tier.length; g++) {
 					var tarGroup = tier[g];
-					GroupDetails[tarGroup.symbol] = tarGroup.data;
-					GroupDetails[tarGroup.symbol].order = ++index;
+					Config.groups[tarGroup.symbol] = tarGroup.data;
+					Config.groups[tarGroup.symbol].order = ++index;
 				}
 			}
 		},
@@ -2272,69 +2272,69 @@
 		}
 	});
 
-	var GroupDetails = window.GroupDetails = window.GroupDetails || {
+	Config.groups = Config.groups || {
 		'~': {
 			name: "Administrator (~)",
-			group: 2,
+			type: 2,
 			order: 1,
 		},
 		'#': {
 			name: "Room Owner (#)",
-			group: 2,
+			type: 2,
 			order: 2,
 		},
 		'&': {
 			name: "Leader (&amp;)",
-			group: 2,
+			type: 2,
 			order: 3,
 		},
 		'@': {
 			name: "Moderator (@)",
-			group: 1,
+			type: 1,
 			order: 4,
 		},
 		'%': {
 			name: "Driver (%)",
-			group: 1,
+			type: 1,
 			order: 5,
 		},
 		'*': {
 			name: "Bot (*)",
-			group: 0,
+			type: 0,
 			order: 6,
 		},
 		'\u2606': {
 			name: "Player (\u2606)",
-			group: 0,
+			type: 0,
 			order: 7,
 		},
 		'\u2605': {
 			name: "Player (\u2605)",
-			group: 0,
+			type: 0,
 			order: 8,
 		},
 		'+': {
 			name: "Voice (+)",
-			group: 0,
+			type: 0,
 			order: 9,
 		},
 		' ': {
-			group: 0,
+			type: 0,
 			order: 10,
 		},
 		'!': {
 			name: "<span style='color:#777777'>Muted (!)</span>",
-			group: 0,
+			type: 0,
 			order: 11,
 		},
 		'✖': {
 			name: "<span style='color:#777777'>Namelocked (✖)</span>",
-			group: 0,
+			type: 0,
 			order: 12,
 		},
 		'‽': {
 			name: "<span style='color:#777777'>Locked (‽)</span>",
-			group: 0,
+			type: 0,
 			order: 13,
 		}
 	};
@@ -2364,8 +2364,8 @@
 			var userid = data.userid;
 			var name = data.name;
 			var avatar = data.avatar || '';
-			var group = ((GroupDetails[name.substr(0, 1)] || {}).name || '');
-			var globalgroup = ((GroupDetails[(data.group || app.defaultGroup || ' ')] || {}).name || '');
+			var group = ((Config.groups[name.substr(0, 1)] || {}).name || '');
+			var globalgroup = ((Config.groups[(data.group || Config.defaultGroup || ' ')] || {}).name || '');
 			if (globalgroup) {
 				if (!group || group === globalgroup) {
 					group = "Global " + globalgroup;
