@@ -20,7 +20,7 @@ const thisFile = __filename;
 const thisDir = __dirname;
 const rootDir = path.resolve(thisDir, '..');
 
-const Tools = require('../data/Pokemon-Showdown/tools').includeData();
+const Tools = require('../data/Pokemon-Showdown/sim/dex').includeData();
 const toId = Tools.getId;
 
 // update version
