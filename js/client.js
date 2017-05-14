@@ -1,5 +1,4 @@
 (function ($) {
-	let timer = 0;
 
 	Config.sockjsprefix = '/showdown';
 	Config.root = '/';
