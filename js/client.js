@@ -1021,7 +1021,7 @@
 				break;
 			}
 		},
-		parseGroups: function(groupsList) {
+		parseGroups: function (groupsList) {
 			var tarRow = groupsList.split(/(?:\b|\B)\|(?:\B)/);
 
 			var authTiers = [[], [], []]; // we will be splitting them into three tiers, before compiling them back into the main tree
@@ -1034,7 +1034,7 @@
 				// use slice instead of simple [0], [1], [2] in case someone finds it fun to put a comma in the name of the rank.
 				var symbol = entry[0];
 				var groupName = entry.slice(1, entry.length - 1).join(",").trim();
-				var groupRank = parseInt(entry[entry.length - 1]) || 0;
+				var groupRank = parseInt(entry[entry.length - 1], 10) || 0;
 
 				if (!groupName) this.defaultGroup = symbol;
 

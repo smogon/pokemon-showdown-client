@@ -1624,7 +1624,7 @@
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + Tools.escapeHTML(userid) + '">';
 			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
 			var group = name.charAt(0);
-			var details = GroupDetails[group] || {rank: 0};
+			var details = window.GroupDetails[group] || {rank: 0};
 			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
 			if (details.group === 2) {
 				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</em></strong>';
@@ -1654,8 +1654,8 @@
 		},
 		comparator: function (a, b) {
 			if (a === b) return 0;
-			var aRank = (GroupDetails[this.room.users[a] ? this.room.users[a].substr(0, 1) : app.defaultGroup || ' '] || {order: 6}).order;
-			var bRank = (GroupDetails[this.room.users[b] ? this.room.users[b].substr(0, 1) : app.defaultGroup || ' '] || {order: 6}).order;
+			var aRank = (window.GroupDetails[this.room.users[a] ? this.room.users[a].substr(0, 1) : app.defaultGroup || ' '] || {order: 6}).order;
+			var bRank = (window.GroupDetails[this.room.users[b] ? this.room.users[b].substr(0, 1) : app.defaultGroup || ' '] || {order: 6}).order;
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
