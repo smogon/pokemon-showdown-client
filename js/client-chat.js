@@ -1570,36 +1570,6 @@
 			}
 			this.$el.html(buf);
 		},
-		ranks: {
-			'~': 2,
-			'#': 2,
-			'&': 2,
-			'@': 1,
-			'%': 1,
-			'*': 1,
-			'\u2606': 1,
-			'\u2605': 1,
-			'+': 1,
-			' ': 0,
-			'!': 0,
-			'✖': 0,
-			'‽': 0
-		},
-		rankOrder: {
-			'~': 1,
-			'#': 2,
-			'&': 3,
-			'@': 4,
-			'%': 5,
-			'*': 6,
-			'\u2606': 7,
-			'\u2605': 8,
-			'+': 9,
-			' ': 10,
-			'!': 11,
-			'✖': 12,
-			'‽': 13
-		},
 		toggleUserlist: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -1654,10 +1624,11 @@
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + Tools.escapeHTML(userid) + '">';
 			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
 			var group = name.charAt(0);
-			text += '<em class="group' + (this.ranks[group] === 2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
-			if (group === '~' || group === '&' || group === '#') {
+			var details = GroupDetails[group] || {rank: 0};
+			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
+			if (details.group === 2) {
 				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</em></strong>';
-			} else if (group === '%' || group === '@') {
+			} else if (details.group === 1) {
 				text += '<strong style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</strong>';
 			} else {
 				text += '<span style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
@@ -1683,8 +1654,8 @@
 		},
 		comparator: function (a, b) {
 			if (a === b) return 0;
-			var aRank = (this.rankOrder[this.room.users[a] ? this.room.users[a].substr(0, 1) : ' '] || 6);
-			var bRank = (this.rankOrder[this.room.users[b] ? this.room.users[b].substr(0, 1) : ' '] || 6);
+			var aRank = (GroupDetails[this.room.users[a] ? this.room.users[a].substr(0, 1) : app.defaultGroup || ' '] || {order: 6}).order;
+			var bRank = (GroupDetails[this.room.users[b] ? this.room.users[b].substr(0, 1) : app.defaultGroup || ' '] || {order: 6}).order;
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
