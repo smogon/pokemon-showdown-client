@@ -1022,19 +1022,22 @@
 			}
 		},
 		parseGroups: function (groupsList) {
-			var tarRow = groupsList.split(/(?:\b|\B)\|(?:\B)/);
+			var data = null;
+			try {
+				data = JSON.parse(groupsList);
+			} catch (e) {}
+			if (!data) return; // broken JSON - keep default ranks
 
 			var authTiers = [[], [], []]; // we will be splitting them into three tiers, before compiling them back into the main tree
 
 			// process the data and sort into the three auth tiers, 0, 1, and 2
-			for (var i = 0; i < tarRow.length; i++) {
-				var entry = tarRow[i].split(/(?:\b|\B)(?!\,{2,})\,/);
-				if (!entry || entry.length < 3) continue;
+			for (var i = 0; i < data.length; i++) {
+				var entry = data[i];
+				if (!entry) continue;
 
-				// use slice instead of simple [0], [1], [2] in case someone finds it fun to put a comma in the name of the rank.
-				var symbol = entry[0];
-				var groupName = entry.slice(1, entry.length - 1).join(",").trim();
-				var groupType = parseInt(entry[entry.length - 1], 10) || 0;
+				var symbol = entry.symbol || ' ';
+				var groupName = entry.name;
+				var groupType = entry.type || 0;
 
 				if (!groupName) this.defaultGroup = symbol;
 
