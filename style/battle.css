@@ -630,8 +630,9 @@ License: GPLv2
 	background: #333333;
 	color: #CCCCCC;
 }
-.dark .battle-log .chat strong,
-.dark .battle-log .chat em {
+.dark .battle-log .chat > strong, /* username, changed rating */
+.dark .battle-log .chat > em, /* user's chat message */
+.dark .battle-log .chat > q {
 	color: #8097BA;
 }
 .dark .battle-log h2 {
@@ -705,13 +706,18 @@ License: GPLv2
 	padding-left: 8px;
 	padding-right: 8px;
 }
-.battle-log .chat strong {
+.battle-log .chat > strong { /* username, changed rating */
 	color: #40576A;
 }
-.battle-log .chat em {
+.battle-log .chat > em,
+.battle-log .chat > q { /* user's chat message */
 	padding: 1px 4px 1px 3px;
 	color: #000000;
 	font-style: normal;
+}
+.battle-log .chat > q:before,
+.battle-log .chat > q:after {
+	content: '';
 }
 .chat.mine {
 	background: rgba(0,0,0,0.05);
@@ -827,13 +833,6 @@ License: GPLv2
 .dark .broadcast-red a {
 	/* Readable link colour */
 	color: #DDEEFF;
-}
-.battle-log .inner .chat .broadcast-green strong,
-.battle-log .inner .chat .broadcast-blue strong,
-.battle-log .inner .chat .broadcast-red strong,
-.battle-log .inner .chat .message-announce strong {
-	/* readable bold text in broadcast boxes in battles */
-	color: white;
 }
 .broadcast-green {
 	background-color: #559955;
