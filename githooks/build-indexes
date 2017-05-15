@@ -14,7 +14,7 @@ child_process.execSync('git pull', {
 });
 console.log("DONE");
 
-const Tools = require('../data/Pokemon-Showdown/tools');
+const Tools = require('../data/Pokemon-Showdown/sim/dex');
 const toId = Tools.getId;
 process.stdout.write("Loading gen 6 data... ");
 Tools.includeData();
