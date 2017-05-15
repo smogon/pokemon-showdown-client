@@ -5,7 +5,7 @@ const fs = require("fs");
 process.chdir(__dirname);
 const imageSize = require('image-size');
 
-const Tools = require('./../data/Pokemon-Showdown/tools').includeData();
+const Tools = require('./../data/Pokemon-Showdown/sim/dex');
 const toId = Tools.getId;
 
 let buf = `/*
