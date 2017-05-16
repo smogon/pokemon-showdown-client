@@ -989,6 +989,7 @@
 
 			this.team = data.team;
 			this.format = data.format;
+			this.room = data.room;
 
 			var format = BattleFormats[data.format];
 
@@ -1046,8 +1047,9 @@
 			var sourceEl = this.sourceEl;
 			var team = this.team;
 			var format = this.format;
+			var room = this.room;
 			this.close();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, moreTeams: true});
+			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeams: true});
 		},
 		teambuilder: function () {
 			var teamFormat = this.teamFormat;
@@ -1066,8 +1068,7 @@
 				app.rooms[''].curTeamIndex = i;
 				app.rooms[''].curTeamFormat = formatid;
 			} else if (this.sourceEl[0].offsetParent.className === 'tournament-box active') {
-				var room = app.dispatchingPopup.options.room;
-				app.rooms[room].tournamentBox.curTeamIndex = i;
+				app.rooms[this.room].tournamentBox.curTeamIndex = i;
 			}
 			this.close();
 		}
