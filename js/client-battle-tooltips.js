@@ -1128,14 +1128,13 @@ var BattleTooltips = (function () {
 				abilityBoost = 0.75;
 			}
 		} else if (move.type === 'Normal' && move.category !== 'Status' &&
+			ability in {'Aerilate': 1, 'Galvanize':1, 'Pixilate': 1, 'Refrigerate': 1} &&
 			!(move.id in {'naturalgift': 1, 'struggle': 1} ||
 			  move.id === 'weatherball' && thereIsWeather ||
 			  move.id === 'multiattack' && item.onMemory ||
 			  move.id === 'judgment' && item.onPlate ||
 			  move.id === 'technoblast' && item.onDrive)) {
-			if (ability in {'Aerilate': 1, 'Galvanize':1, 'Pixilate': 1, 'Refrigerate': 1}) {
-				abilityBoost = (this.battle.gen > 6 ? 1.2 : 1.3);
-			}
+			abilityBoost = (this.battle.gen > 6 ? 1.2 : 1.3);
 		} else if ((ability === 'Iron Fist' && move.flags['punch']) ||
 			(ability === 'Reckless' && (move.recoil || move.hasCustomRecoil)) ||
 			(ability === 'Normalize' && this.battle.gen > 6)) {
