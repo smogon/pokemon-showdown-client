@@ -116,7 +116,7 @@
 			if (this.battle.activityQueue.length) return;
 			this.battle.activityQueue = log;
 			this.battle.fastForwardTo(-1);
-			if (this.battle.ended) this.battleEnded = true;
+			if (this.battle.done) this.battleEnded = true;
 			this.updateLayout();
 			this.updateControls();
 		},
