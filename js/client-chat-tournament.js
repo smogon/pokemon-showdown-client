@@ -571,6 +571,7 @@
 		};
 
 		TournamentBox.prototype.generateBracket = function (data) {
+			var user = app.user.get('name');
 			if (data.type === 'tree') {
 				var $div = $('<div class="tournament-bracket-tree"></div>');
 
@@ -667,6 +668,7 @@
 					var elem = d3.select(this);
 					if (node.children.length === 0) {
 						elem.classed('tournament-bracket-tree-node-team', true);
+						if (node.team && node.team === user) elem.classed('tournament-bracket-tree-node-user', true);
 						elem.append('svg:text').text(node.team || "Unavailable");
 					} else {
 						elem.classed('tournament-bracket-tree-node-match', true);
@@ -678,6 +680,7 @@
 							var teamA = teams.append('svg:tspan').classed('tournament-bracket-tree-node-match-team', true).text(node.children[0].team);
 							teams.append('svg:tspan').text(" vs ");
 							var teamB = teams.append('svg:tspan').classed('tournament-bracket-tree-node-match-team', true).text(node.children[1].team);
+							if (node.children[0].team === user || node.children[1].team === user) elem.classed('tournament-bracket-tree-node-user', true);
 
 							var score = elem.append('svg:text').attr('y', nodeSize.realHeight / 5);
 							if (node.state === 'available')
@@ -730,13 +733,17 @@
 				var $colHeaders = $('<tr><td class="empty"></td></tr>');
 				$table.append($colHeaders);
 				data.tableHeaders.cols.forEach(function (name) {
-					$colHeaders.append($('<th></th>').text(name));
+					var $nameHeader = $('<th></th>').text(name);
+					if (name === user) $nameHeader.addClass('tournament-bracket-table-user');
+					$colHeaders.append($nameHeader);
 				});
 
 				data.tableHeaders.rows.forEach(function (name, r) {
 					var $row = $('<tr></tr>');
 					$table.append($row);
-					$row.append($('<th></th>').text(name));
+					var $nameHeader = $('<th></th>').text(name);
+					if (name === user) $nameHeader.addClass('tournament-bracket-table-user');
+					$row.append($nameHeader);
 					data.tableContents[r].forEach(function (cell) {
 						var $cell = $('<td></td>');
 						$row.append($cell);

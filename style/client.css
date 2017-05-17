@@ -1481,6 +1481,9 @@ a.ilink.yours {
 .tournament-bracket-table .tournament-bracket-table-cell-null {
 	border-width: 0;
 }
+.tournament-bracket-table-user {
+	background-color: rgba(135, 206, 250, 0.2)
+}
 .tournament-bracket-table-cell-result-win {
 	background-color: rgba(128, 196, 128, 0.7);
 	color: black;
@@ -1522,6 +1525,10 @@ a.ilink.yours {
 	fill: rgba(255, 128, 128, 0.7);
 	stroke: rgba(255, 0, 0, 0.7);
 	color: black;
+}
+.tournament-bracket-tree-node-user > rect {
+	fill: rgba(135, 206, 250, 0.2);
+	stroke: rgba(135, 206, 250, 0.5);
 }
 .tournament-bracket-tree-node > text {
 	font-size: 0.8em;
