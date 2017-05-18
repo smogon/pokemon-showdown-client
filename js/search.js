@@ -792,7 +792,7 @@
 			if (this.gen === 7 && format.indexOf('vgc') >= 0) {
 				table = table['gen' + this.gen + 'vgc'];
 				isDoubles = true;
-			} else if (this.gen === 6 && format.indexOf('doubles') >= 0 || format.indexOf('vgc') >= 0 || format.indexOf('triples') >= 0) {
+			} else if (table['gen' + this.gen + 'doubles'] && format.indexOf('doubles') >= 0 || format.indexOf('vgc') >= 0 || format.indexOf('triples') >= 0) {
 				table = table['gen' + this.gen + 'doubles'];
 				isDoubles = true;
 			} else if (this.gen < 7) {
