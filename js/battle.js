@@ -508,7 +508,10 @@ var Pokemon = (function () {
 		if (pp === undefined) pp = 1;
 		moveName = Tools.getMove(moveName).name;
 		if (moveName === 'Struggle') return;
-		if (this.volatiles.transform) moveName = '*' + moveName;
+		if (this.volatiles.transform) {
+			this.volatiles.transform[2].markMove(moveName, 0);
+			moveName = '*' + moveName;
+		}
 		for (var i = 0; i < this.moveTrack.length; i++) {
 			if (moveName === this.moveTrack[i][0]) {
 				this.moveTrack[i][1] += pp;
@@ -4684,6 +4687,10 @@ var Battle = (function () {
 				poke.copyTypesFrom(tpoke);
 				poke.ability = tpoke.ability;
 				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
+				poke.volatiles.transform[2] = tpoke;
+				for (var i = 0; i < tpoke.moveTrack.length; i++) {
+					poke.moveTrack.push(['*' + tpoke.moveTrack[i][0], 0]);
+				}
 				this.resultAnim(poke, 'Transformed', 'good');
 				break;
 			case '-formechange':
