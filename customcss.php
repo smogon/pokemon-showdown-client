@@ -2,9 +2,9 @@
 
 include '../pokemonshowdown.com/config/servers.inc.php';
 
-function __autoload($class_name) {
-    require_once('lib/css-sanitizer/'.$class_name.'.php');
-}
+spl_autoload_register(function ($class) {
+	require_once('lib/css-sanitizer/'.$class.'.php');
+})
 
 use Wikimedia\CSS\Parser\Parser;
 use Wikimedia\CSS\Sanitizer\StylesheetSanitizer;
