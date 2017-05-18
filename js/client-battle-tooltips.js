@@ -772,8 +772,7 @@ var BattleTooltips = (function () {
 		var ppUsed = moveTrackRow[1];
 		var move, maxpp;
 		if (moveName.charAt(0) === '*') {
-			moveName = moveName.substr(1);
-			move = Tools.getMove(moveName);
+			move = Tools.getMove(moveName.substr(1));
 			maxpp = 5;
 		} else {
 			move = Tools.getMove(moveName);
@@ -785,8 +784,8 @@ var BattleTooltips = (function () {
 			maxpp = Math.floor(maxpp * 8 / 5);
 		}
 		if (ppUsed === Infinity) return move.name + ' <small>(0/' + maxpp + ')</small>';
-		if (!ppUsed) return move.name + (showKnown ? ' <small>(revealed)</small>' : '');
-		return move.name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
+		if (ppUsed || moveName.charAt(0) === '*') return move.name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
+		return move.name + (showKnown ? ' <small>(revealed)</small>' : '');
 	};
 
 	// Functions to calculate speed ranges of an opponent.
