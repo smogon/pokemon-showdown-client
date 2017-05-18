@@ -1624,11 +1624,11 @@
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + Tools.escapeHTML(userid) + '">';
 			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
 			var group = name.charAt(0);
-			var details = Config.groups[group] || {type: 0};
+			var details = Config.groups[group] || {type: 'user'};
 			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
-			if (details.type === 2) {
+			if (details.type === 'leadership') {
 				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</em></strong>';
-			} else if (details.type === 1) {
+			} else if (details.type === 'staff') {
 				text += '<strong style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</strong>';
 			} else {
 				text += '<span style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
@@ -1654,8 +1654,8 @@
 		},
 		comparator: function (a, b) {
 			if (a === b) return 0;
-			var aRank = (Config.groups[this.room.users[a] ? this.room.users[a].substr(0, 1) : Config.defaultGroup || ' '] || {order: 6}).order;
-			var bRank = (Config.groups[this.room.users[b] ? this.room.users[b].substr(0, 1) : Config.defaultGroup || ' '] || {order: 6}).order;
+			var aRank = (Config.groups[this.room.users[a] ? this.room.users[a].substr(0, 1) : Config.defaultGroup || ' '] || {order: (Config.defaultOrder || 6)}).order;
+			var bRank = (Config.groups[this.room.users[b] ? this.room.users[b].substr(0, 1) : Config.defaultGroup || ' '] || {order: (Config.defaultOrder || 6)}).order;
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},

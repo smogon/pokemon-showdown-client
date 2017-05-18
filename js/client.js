@@ -1028,8 +1028,7 @@
 			} catch (e) {}
 			if (!data) return; // broken JSON - keep default ranks
 
-			var authTiers = [[], [], []]; // we will be splitting them into three tiers, before compiling them back into the main tree
-
+			Config.groups = {};
 			// process the data and sort into the three auth tiers, 0, 1, and 2
 			for (var i = 0; i < data.length; i++) {
 				var entry = data[i];
@@ -1037,54 +1036,16 @@
 
 				var symbol = entry.symbol || ' ';
 				var groupName = entry.name;
-				var groupType = entry.type || 0;
+				var groupType = entry.type || 'user';
 
-				if (!groupName) this.defaultGroup = symbol;
+				if (groupType === 'user' && !Config.defaultOrder) Config.defaultOrder = i; // this is where any undeclared groups will be positioned in userlist
+				if (!groupName) Config.defaultGroup = symbol;
 
-				authTiers[groupType].push({
-					symbol: symbol,
-					data: {
-						name: groupName ? Tools.escapeHTML(groupName + ' (' + symbol + ')') : null,
-						type: groupType,
-					},
-				});
-			}
-
-			// add the 3 last groups: muted, namelocked and locked
-			authTiers[0] = authTiers[0].concat([
-				{
-					symbol: '!',
-					data: {
-						name: "<span style='color:#777777'>Muted (!)</span>",
-						type: 0,
-					},
-				},
-				{
-					symbol: '✖',
-					data: {
-						name: "<span style='color:#777777'>Namelocked (✖)</span>",
-						type: 0,
-					},
-				},
-				{
-					symbol: '‽',
-					data: {
-						name: "<span style='color:#777777'>Locked (‽)</span>",
-						type: 0,
-					},
-				}
-			]);
-
-			// now determine the order for sorting of the auth
-			Config.groups = {};
-			var index = 0;
-			for (var t = 2; t >= 0; t--) {
-				var tier = authTiers[t];
-				for (var g = 0; g < tier.length; g++) {
-					var tarGroup = tier[g];
-					Config.groups[tarGroup.symbol] = tarGroup.data;
-					Config.groups[tarGroup.symbol].order = ++index;
-				}
+				Config.groups[symbol] = {
+					name: groupName ? Tools.escapeHTML(groupName + ' (' + symbol + ')') : null,
+					type: groupType,
+					order: i + 1,
+				};
 			}
 		},
 		parseFormats: function (formatsList) {
