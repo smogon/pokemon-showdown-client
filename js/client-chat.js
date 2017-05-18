@@ -369,7 +369,7 @@
 			var cmd = '';
 			var target = '';
 			var noSpace = false;
-			if (text.substr(0, 2) !== '//' && text.substr(0, 1) === '/') {
+			if (text.substr(0, 2) !== '//' && text.charAt(0) === '/') {
 				var spaceIndex = text.indexOf(' ');
 				if (spaceIndex > 0) {
 					cmd = text.substr(1, spaceIndex - 1);
@@ -1155,7 +1155,7 @@
 		addRow: function (line) {
 			var name, name2, room, action, silent, oldid;
 			if (line && typeof line === 'string') {
-				if (line.substr(0, 1) !== '|') line = '||' + line;
+				if (line.charAt(0) !== '|') line = '||' + line;
 				var row = line.substr(1).split('|');
 				switch (row[0]) {
 				case 'init':
@@ -1654,8 +1654,15 @@
 		},
 		comparator: function (a, b) {
 			if (a === b) return 0;
-			var aRank = (Config.groups[this.room.users[a] ? this.room.users[a].substr(0, 1) : Config.defaultGroup || ' '] || {order: (Config.defaultOrder || 6)}).order;
-			var bRank = (Config.groups[this.room.users[b] ? this.room.users[b].substr(0, 1) : Config.defaultGroup || ' '] || {order: (Config.defaultOrder || 6)}).order;
+			var aRank = (
+				Config.groups[(this.room.users[a] ? this.room.users[a].charAt(0) : Config.defaultGroup || ' ')] ||
+				{order: (Config.defaultOrder || 5.5)}
+			).order;
+			var bRank = (
+				Config.groups[(this.room.users[b] ? this.room.users[b].charAt(0) : Config.defaultGroup || ' ')] ||
+				{order: (Config.defaultOrder || 5.5)}
+			).order;
+
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},

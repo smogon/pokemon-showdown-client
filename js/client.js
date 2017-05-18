@@ -768,7 +768,7 @@
 		receive: function (data) {
 			var roomid = '';
 			var autojoined = false;
-			if (data.substr(0, 1) === '>') {
+			if (data.charAt(0) === '>') {
 				var nlIndex = data.indexOf('\n');
 				if (nlIndex < 0) return;
 				roomid = toRoomid(data.substr(1, nlIndex - 1));
@@ -1028,7 +1028,7 @@
 			} catch (e) {}
 			if (!data) return; // broken JSON - keep default ranks
 
-			Config.groups = {};
+			var groups = {};
 			// process the data and sort into the three auth tiers, 0, 1, and 2
 			for (var i = 0; i < data.length; i++) {
 				var entry = data[i];
@@ -1038,15 +1038,17 @@
 				var groupName = entry.name;
 				var groupType = entry.type || 'user';
 
-				if (groupType === 'user' && !Config.defaultOrder) Config.defaultOrder = i; // this is where any undeclared groups will be positioned in userlist
+				if (groupType === 'user' && !Config.defaultOrder) Config.defaultOrder = i + 0.5; // this is where any undeclared groups will be positioned in userlist
 				if (!groupName) Config.defaultGroup = symbol;
 
-				Config.groups[symbol] = {
+				groups[symbol] = {
 					name: groupName ? Tools.escapeHTML(groupName + ' (' + symbol + ')') : null,
 					type: groupType,
 					order: i + 1,
 				};
 			}
+
+			Config.groups = groups; // if nothing from above crashes (malicious json), then the client will use the new custom groups
 		},
 		parseFormats: function (formatsList) {
 			var isSection = false;
@@ -2328,7 +2330,7 @@
 			var userid = data.userid;
 			var name = data.name;
 			var avatar = data.avatar || '';
-			var group = ((Config.groups[name.substr(0, 1)] || {}).name || '');
+			var group = ((Config.groups[name.charAt(0)] || {}).name || '');
 			var globalgroup = ((Config.groups[(data.group || Config.defaultGroup || ' ')] || {}).name || '');
 			if (globalgroup) {
 				if (!group || group === globalgroup) {
