@@ -269,7 +269,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// automatically built with githooks/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [7, -7.5, 6, -6, 5, 4, 3, 2, 1]) {
+	for (const genIdent of [7, -7.5, -7, 6, -6, 5, 4, 3, 2, 1]) {
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
@@ -286,7 +286,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (template.gen > genNum) continue;
 			const tier = (() => {
 				if (isVGC) {
-					if (template.tier === 'Illegal') return 'Illegal';
+					if (template.tier === 'Illegal' || template.tier === 'Unreleased') return 'Illegal';
 					if (template.species in alolaDex || template.baseSpecies in alolaDex) {
 						if (template.tier === 'NFE') return 'NFE';
 						if (template.tier === 'LC') return 'NFE';
@@ -295,23 +295,29 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return 'Illegal';
 				}
 				if (isDoubles) {
-					let banlist = Tools.getFormat('doublesou').banlist;
-					if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
+					if (template.tier === 'Unreleased') return 'Unreleased';
+					const genPrefix = (genNum === 6 ? '' : gen);
+					let defaultTier = "DNU";
+					let banlist = Tools.getFormat(genPrefix + 'doublesou').banlist;
+					if (!banlist) {
+						defaultTier = "DOU";
+					} else if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
 						return "DUber";
 					}
-					banlist = Tools.getFormat('doublesuu').banlist;
-					if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
+					banlist = Tools.getFormat(genPrefix + 'doublesuu').banlist;
+					if (!banlist) {
+						defaultTier = "DOU";
+					} else if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
 						return "DOU";
 					}
-					banlist = Tools.getFormat('doublesnu').banlist;
-					if (banlist) {
-						if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
-							return "DUU";
-						}
+					banlist = Tools.getFormat(genPrefix + 'doublesnu').banlist;
+					if (!banlist) {
+						defaultTier = "DUU";
+					} else if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
+						return "DUU";
 					}
-					if (template.tier === 'LC' || template.tier === 'LC Ubers' || template.tier === 'NFE') return 'NFE';
-					if (!banlist) return "DUU";
-					return "DNU";
+					if (template.tier === 'LC' || template.tier === 'LC Uber' || template.tier === 'NFE') return 'NFE';
+					return defaultTier;
 				}
 				return template.tier;
 			})();
@@ -362,6 +368,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isVGC) {
 				return ["Legal", "NFE"];
 			}
+			if (isDoubles) {
+				return ["DUber", "DOU", "DUU", "DNU", "NFE"];
+			}
 			if (gen === 'gen1' || gen === 'gen2' || gen === 'gen3') {
 				return ["Uber", "OU", "BL", "UU", "BL2", "NU", "NFE", "LC Uber", "LC"];
 			}
@@ -374,14 +383,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (gen === 'gen7') {
 				return ["CAP", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "New", "Unreleased", "NFE", "LC Uber", "LC"];
 			}
-			if (isDoubles) {
-				return ["DUber", "DOU", "DUU", "DNU", "NFE"];
-			}
 			return ["CAP", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
 		})();
 
 		for (const tier of tierOrder) {
-			if (tier === "OU" || tier === "Uber" || tier === "UU" || tier === "RU" || tier === "NU" || tier === "PU" || tier === "LC" || tier === "DOU" || tier === "DUU" || tier === "DNU" || tier === "(PU)" || tier === "New" || tier === "Legal") {
+			if (tier in {OU:1, Uber:1, UU:1, RU:1, NU:1, PU:1, LC:1, DOU:1, DUU:1, DNU:1, "(PU)":1, New:1, Legal:1}) {
 				formatSlices[tier === "(PU)" ? "FU" : tier] = tiers.length;
 			}
 			if (!tierTable[tier]) continue;
