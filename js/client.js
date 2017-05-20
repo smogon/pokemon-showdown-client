@@ -2291,17 +2291,17 @@
 		'!': {
 			name: "<span style='color:#777777'>Muted (!)</span>",
 			type: 0,
-			order: 11,
+			order: 10001,
 		},
 		'✖': {
 			name: "<span style='color:#777777'>Namelocked (✖)</span>",
 			type: 0,
-			order: 12,
+			order: 10002,
 		},
 		'‽': {
 			name: "<span style='color:#777777'>Locked (‽)</span>",
 			type: 0,
-			order: 13,
+			order: 10003,
 		}
 	};
 
