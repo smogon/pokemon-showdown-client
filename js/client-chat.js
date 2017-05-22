@@ -188,11 +188,10 @@
 			var highlights = Tools.prefs('highlights') || {};
 			if (highlights.constructor === 'Array') this.convertHighlights();
 			var thisroom = (this.type === 'battle' ? 'battle' : this.id);
+			var hlkey = Config.server.id + '-' + Config.server.port + ':' + thisroom;
 			if (!app.highlightRegExp || !app.highlightRegExp['global'] || !app.highlightRegExp[thisroom]) {
 				try {
-					if (!app.highlightRegExp) app.highlightRegExp = [];
-					if (!app.highlightRegExp['global']) this.updateHighlightRegExp(highlights['global'], 'global');
-					if (!app.highlightRegExp[thisroom]) this.updateHighlightRegExp(highlights[thisroom], thisroom);
+					this.updateHighlightRegExp(highlights[hlkey], thisroom, highlights['global']);
 				} catch (e) {
 					// If the expression above is not a regexp, we'll get here.
 					// Don't throw an exception because that would prevent the chat
@@ -204,18 +203,21 @@
 			if (!Tools.prefs('noselfhighlight') && app.user.nameRegExp) {
 				if (app.user.nameRegExp.test(message)) return true;
 			}
-			return ((highlights[(Config.server.id + 'global')].length > 0) && app.highlightRegExp['global'].test(message)) || ((highlights[(Config.server.id + thisroom)].length > 0) && app.highlightRegExp[thisroom].test(message));
+			return ((highlights['global'].length > 0) && app.highlightRegExp['global'].test(message)) || ((highlights[hlkey].length > 0) && app.highlightRegExp[thisroom].test(message));
 		},
-		updateHighlightRegExp: function (highlights, room) {
+		updateHighlightRegExp: function (roomhls, hlkey, globalhls) {
+			if (!app.highlightRegExp) app.highlightRegExp = [];
+			if (!app.highlightRegExp['global']) app.highlightRegExp['global'] = new RegExp('(?:\\b|(?!\\w))(?:' + globalhls.join('|') + ')(?:\\b|\\B(?!\\w))', 'i');
+			if (!app.highlightRegExp[hlkey]) app.highlightRegExp[hlkey] = new RegExp('(?:\\b|(?!\\w))(?:' + roomhls.join('|') + ')(?:\\b|\\B(?!\\w))', 'i');
 			// Enforce boundary for match sides, if a letter on match side is
 			// a word character. For example, regular expression "a" matches
 			// "a", but not "abc", while regular expression "!" matches
 			// "!" and "!abc".
-			app.highlightRegExp[room] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights.join('|') + ')(?:\\b|\\B(?!\\w))', 'i');
+			app.highlightRegExp[hlkey] = new RegExp('(?:\\b|(?!\\w))(?:' + roomhls.join('|') + ')(?:\\b|\\B(?!\\w))', 'i');
 		},
 		convertHighlights: function () {
 			var highlights = {};
-			highlights[(Config.server.id + 'global')] = Tools.prefs('highlights');
+			highlights['global'] = Tools.prefs('highlights');
 			Tools.prefs('highlights', highlights);
 		},
 
@@ -669,7 +671,7 @@
 					case 'add':
 					case 'roomadd':
 						var thisroom = (targets[0] === 'add' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
-						var hlkey = Config.server.id + thisroom;
+						var hlkey = (thisroom === 'global' ? 'global' : Config.server.id + '-' + Config.server.port + ':' + thisroom);
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (targets[0] === 'add' ? ' everywhere: ' : (this.type === 'battle' ? ' in all battles: ' : ' in ' + this.id + ': '));
 						for (var i = 1, len = targets.length; i < len; i++) {
@@ -689,12 +691,12 @@
 						highlights[hlkey] = highlights[hlkey].concat(targets.slice(1));
 						this.add("Now highlighting" + textending + highlights[hlkey].join(', '));
 						// We update the regex
-						this.updateHighlightRegExp(highlights[hlkey], thisroom);
+						this.updateHighlightRegExp(highlights[hlkey], thisroom, highlights['global']);
 						break;
 					case 'delete':
 					case 'roomdelete':
 						var thisroom = (targets[0] === 'delete' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
-						var hlkey = Config.server.id + thisroom;
+						var hlkey = (thisroom === 'global' ? 'global' : Config.server.id + '-' + Config.server.port + ':' + thisroom);
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (targets[0] === 'delete' ? ' everywhere: ' : (this.type === 'battle' ? ' in all battles: ' : ' in ' + this.id + ': '));
 						var newHls = [];
@@ -706,7 +708,7 @@
 						highlights[hlkey] = newHls;
 						this.add("Now highlighting" + textending + highlights[hlkey].join(', '));
 						// We update the regex
-						this.updateHighlightRegExp(highlights[hlkey], thisroom);
+						this.updateHighlightRegExp(highlights[hlkey], thisroom, highlights['global']);
 						break;
 					default:
 						// Wrong command
@@ -717,14 +719,14 @@
 					Tools.prefs('highlights', highlights);
 				} else {
 					if (target === 'delete' || target === 'roomdelete') {
-						var hlkey = Config.server.id + (target === 'delete' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
+						var hlkey = (target === 'delete' ? 'global' : (this.type === 'battle' ? Config.server.id + '-' + Config.server.port + ':' + 'battle' : Config.server.id + '-' + Config.server.port + ':' + this.id));
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (target === 'delete' ? 'All highlights cleared.' : (this.type === 'battle' ? 'All battle highlights cleared.' : 'All highlights cleared in ' + this.id + '.'));
 						highlights[hlkey] = [];
 						Tools.prefs('highlights', highlights);
 						this.add(textending);
 					} else if (target === 'show' || target === 'list' || target === 'roomshow' || target === 'roomlist') {
-						var hlkey = Config.server.id + (target === 'show' || target === 'list' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
+						var hlkey = (target === 'show' || target === 'list' ? 'global' : (this.type === 'battle' ? Config.server.id + '-' + Config.server.port + ':' + 'battle' : Config.server.id + '-' + Config.server.port + ':' + this.id));
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (target === 'show' || target === 'list' ? ' global highlight list' : ' highlight list for this room');
 						if (highlights[hlkey].length > 0) {
