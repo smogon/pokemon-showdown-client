@@ -1116,7 +1116,9 @@
 			buf += itemicon;
 			buf += '</div>';
 			buf += '<div class="setcell setcell-typeicons">';
-			var types = Tools.getTemplate(set.species).types;
+			var types = template.types;
+			var table = (this.curTeam.gen < 7 ? BattleTeambuilderTable['gen' + this.curTeam.gen] : null);
+			if (table && template.id in table.overrideType) types = table.overrideType[template.id].split('/');
 			if (types) {
 				for (var i = 0; i < types.length; i++) buf += Tools.getTypeIcon(types[i]);
 			}
