@@ -633,9 +633,6 @@ var BattleTooltips = (function () {
 		if (item === 'choiceband') {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
-		if (ability === 'toxicboost' && (pokemon.status === 'tox' || pokemon.status === 'psn')) {
-			stats.atk = Math.floor(stats.atk * 1.5);
-		}
 		if (ability === 'purepower' || ability === 'hugepower') {
 			stats.atk *= 2;
 		}
