@@ -869,13 +869,13 @@
 			}
 
 			switch (parts[0]) {
-			case 'groups':
+			case 'customgroups':
 				var nlIndex = data.indexOf('\n');
 				if (nlIndex > 0) {
 					this.receive(data.substr(nlIndex + 1));
 				}
 
-				var tarRow = data.slice(8, nlIndex);
+				var tarRow = data.slice(14, nlIndex);
 				this.parseGroups(tarRow);
 				break;
 
