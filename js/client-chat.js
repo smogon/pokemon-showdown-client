@@ -1656,11 +1656,11 @@
 			if (a === b) return 0;
 			var aRank = (
 				Config.groups[(this.room.users[a] ? this.room.users[a].charAt(0) : Config.defaultGroup || ' ')] ||
-				{order: (Config.defaultOrder || 5.5)}
+				{order: (Config.defaultOrder || 10005.5)}
 			).order;
 			var bRank = (
 				Config.groups[(this.room.users[b] ? this.room.users[b].charAt(0) : Config.defaultGroup || ' ')] ||
-				{order: (Config.defaultOrder || 5.5)}
+				{order: (Config.defaultOrder || 10005.5)}
 			).order;
 
 			if (aRank !== bRank) return aRank - bRank;

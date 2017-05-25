@@ -2242,66 +2242,66 @@
 		'~': {
 			name: "Administrator (~)",
 			type: 2,
-			order: 1,
+			order: 10001,
 		},
 		'#': {
 			name: "Room Owner (#)",
 			type: 2,
-			order: 2,
+			order: 10002,
 		},
 		'&': {
 			name: "Leader (&amp;)",
 			type: 2,
-			order: 3,
+			order: 10003,
 		},
 		'@': {
 			name: "Moderator (@)",
 			type: 1,
-			order: 4,
+			order: 10004,
 		},
 		'%': {
 			name: "Driver (%)",
 			type: 1,
-			order: 5,
+			order: 10005,
 		},
 		'*': {
 			name: "Bot (*)",
 			type: 0,
-			order: 6,
+			order: 10006,
 		},
 		'\u2606': {
 			name: "Player (\u2606)",
 			type: 0,
-			order: 7,
+			order: 10007,
 		},
 		'\u2605': {
 			name: "Player (\u2605)",
 			type: 0,
-			order: 8,
+			order: 10008,
 		},
 		'+': {
 			name: "Voice (+)",
 			type: 0,
-			order: 9,
+			order: 10009,
 		},
 		' ': {
 			type: 0,
-			order: 10,
+			order: 10010,
 		},
 		'!': {
 			name: "<span style='color:#777777'>Muted (!)</span>",
 			type: 0,
-			order: 10001,
+			order: 10011,
 		},
 		'✖': {
 			name: "<span style='color:#777777'>Namelocked (✖)</span>",
 			type: 0,
-			order: 10002,
+			order: 10012,
 		},
 		'‽': {
 			name: "<span style='color:#777777'>Locked (‽)</span>",
 			type: 0,
-			order: 10003,
+			order: 10013,
 		}
 	};
 
