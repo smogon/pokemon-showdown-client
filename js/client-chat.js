@@ -369,7 +369,7 @@
 			var cmd = '';
 			var target = '';
 			var noSpace = false;
-			if (text.substr(0, 2) !== '//' && text.substr(0, 1) === '/') {
+			if (text.substr(0, 2) !== '//' && text.charAt(0) === '/') {
 				var spaceIndex = text.indexOf(' ');
 				if (spaceIndex > 0) {
 					cmd = text.substr(1, spaceIndex - 1);
@@ -1155,7 +1155,7 @@
 		addRow: function (line) {
 			var name, name2, room, action, silent, oldid;
 			if (line && typeof line === 'string') {
-				if (line.substr(0, 1) !== '|') line = '||' + line;
+				if (line.charAt(0) !== '|') line = '||' + line;
 				var row = line.substr(1).split('|');
 				switch (row[0]) {
 				case 'init':
@@ -1570,36 +1570,6 @@
 			}
 			this.$el.html(buf);
 		},
-		ranks: {
-			'~': 2,
-			'#': 2,
-			'&': 2,
-			'@': 1,
-			'%': 1,
-			'*': 1,
-			'\u2606': 1,
-			'\u2605': 1,
-			'+': 1,
-			' ': 0,
-			'!': 0,
-			'✖': 0,
-			'‽': 0
-		},
-		rankOrder: {
-			'~': 1,
-			'#': 2,
-			'&': 3,
-			'@': 4,
-			'%': 5,
-			'*': 6,
-			'\u2606': 7,
-			'\u2605': 8,
-			'+': 9,
-			' ': 10,
-			'!': 11,
-			'✖': 12,
-			'‽': 13
-		},
 		toggleUserlist: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -1654,10 +1624,11 @@
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + Tools.escapeHTML(userid) + '">';
 			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
 			var group = name.charAt(0);
-			text += '<em class="group' + (this.ranks[group] === 2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
-			if (group === '~' || group === '&' || group === '#') {
+			var details = Config.groups[group] || {type: 'user'};
+			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
+			if (details.type === 'leadership') {
 				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</em></strong>';
-			} else if (group === '%' || group === '@') {
+			} else if (details.type === 'staff') {
 				text += '<strong style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</strong>';
 			} else {
 				text += '<span style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
@@ -1683,8 +1654,15 @@
 		},
 		comparator: function (a, b) {
 			if (a === b) return 0;
-			var aRank = (this.rankOrder[this.room.users[a] ? this.room.users[a].substr(0, 1) : ' '] || 6);
-			var bRank = (this.rankOrder[this.room.users[b] ? this.room.users[b].substr(0, 1) : ' '] || 6);
+			var aRank = (
+				Config.groups[(this.room.users[a] ? this.room.users[a].charAt(0) : Config.defaultGroup || ' ')] ||
+				{order: (Config.defaultOrder || 10005.5)}
+			).order;
+			var bRank = (
+				Config.groups[(this.room.users[b] ? this.room.users[b].charAt(0) : Config.defaultGroup || ' ')] ||
+				{order: (Config.defaultOrder || 10005.5)}
+			).order;
+
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
