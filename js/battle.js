@@ -504,12 +504,15 @@ var Pokemon = (function () {
 		this.clearTurnstatuses();
 		this.clearMovestatuses();
 	};
-	Pokemon.prototype.markMove = function (moveName, pp) {
+	Pokemon.prototype.markMove = function (moveName, pp, recursionSource) {
+		if (recursionSource === this.ident) return;
 		if (pp === undefined) pp = 1;
 		moveName = Tools.getMove(moveName).name;
 		if (moveName === 'Struggle') return;
 		if (this.volatiles.transform) {
-			this.volatiles.transform[2].markMove(moveName, 0);
+			// make sure there is no infinite recursion if both Pokemon are transformed into each other
+			if (!recursionSource) recursionSource = this.ident;
+			this.volatiles.transform[2].markMove(moveName, 0, recursionSource);
 			moveName = '*' + moveName;
 		}
 		for (var i = 0; i < this.moveTrack.length; i++) {
@@ -4689,7 +4692,7 @@ var Battle = (function () {
 				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
 				poke.volatiles.transform[2] = tpoke;
 				for (var i = 0; i < tpoke.moveTrack.length; i++) {
-					poke.moveTrack.push(['*' + tpoke.moveTrack[i][0], 0]);
+					poke.markMove(tpoke.moveTrack[i][0], 0);
 				}
 				this.resultAnim(poke, 'Transformed', 'good');
 				break;
