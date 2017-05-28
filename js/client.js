@@ -2241,66 +2241,66 @@
 	Config.groups = Config.groups || {
 		'~': {
 			name: "Administrator (~)",
-			type: 2,
+			type: 'leadership',
 			order: 10001,
 		},
 		'#': {
 			name: "Room Owner (#)",
-			type: 2,
+			type: 'leadership',
 			order: 10002,
 		},
 		'&': {
 			name: "Leader (&amp;)",
-			type: 2,
+			type: 'leadership',
 			order: 10003,
 		},
 		'@': {
 			name: "Moderator (@)",
-			type: 1,
+			type: 'staff',
 			order: 10004,
 		},
 		'%': {
 			name: "Driver (%)",
-			type: 1,
+			type: 'staff',
 			order: 10005,
 		},
 		'*': {
 			name: "Bot (*)",
-			type: 0,
+			type: 'normal',
 			order: 10006,
 		},
 		'\u2606': {
 			name: "Player (\u2606)",
-			type: 0,
+			type: 'normal',
 			order: 10007,
 		},
 		'\u2605': {
 			name: "Player (\u2605)",
-			type: 0,
+			type: 'normal',
 			order: 10008,
 		},
 		'+': {
 			name: "Voice (+)",
-			type: 0,
+			type: 'normal',
 			order: 10009,
 		},
 		' ': {
-			type: 0,
+			type: 'normal',
 			order: 10010,
 		},
 		'!': {
 			name: "<span style='color:#777777'>Muted (!)</span>",
-			type: 0,
+			type: 'punishment',
 			order: 10011,
 		},
 		'✖': {
 			name: "<span style='color:#777777'>Namelocked (✖)</span>",
-			type: 0,
+			type: 'punishment',
 			order: 10012,
 		},
 		'‽': {
 			name: "<span style='color:#777777'>Locked (‽)</span>",
-			type: 0,
+			type: 'punishment',
 			order: 10013,
 		}
 	};
