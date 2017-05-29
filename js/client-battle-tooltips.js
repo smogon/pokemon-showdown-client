@@ -880,6 +880,10 @@ var BattleTooltips = (function () {
 		return moveType;
 	};
 
+	BattleTooltips.prototype.makePercentageChangeText = function (boost, source) {
+		return ' (&times;' + boost + ' from ' + source + ')';
+	};
+
 	// Gets the current accuracy for a move.
 	BattleTooltips.prototype.getMoveAccuracy = function (move, pokemon) {
 		var pokemonData = this.room.myPokemon[pokemon.slot];
@@ -913,27 +917,27 @@ var BattleTooltips = (function () {
 		}
 		if (ability === 'Hustle' && move.category === 'Physical') {
 			accuracy *= 0.8;
-			accuracyComment += ' (Reduced by Hustle)';
+			accuracyComment += this.makePercentageChangeText(0.8, 'Hustle');
 		}
 		if (ability === 'Compound Eyes') {
 			accuracy *= 1.3;
-			accuracyComment += ' (Boosted by Compound Eyes)';
+			accuracyComment += this.makePercentageChangeText(1.3, 'Compound Eyes');
 		}
 		for (var i = 0; i < pokemon.side.active.length; i++) {
 			if (!pokemon.side.active[i] || pokemon.side.active[i].zerohp) continue;
 			ability = Tools.getAbility(pokemon.side.pokemon[i].ability).name;
 			if (ability === 'Victory Star') {
 				accuracy *= 1.1;
-				accuracyComment += ' (Boosted by Victory Star)';
+				accuracyComment += this.makePercentageChangeText(1.1, 'Victory Star');
 			}
 		}
 		if (pokemonData.item === 'widelens' && !this.battle.hasPseudoWeather('Magic Room') && !(pokemon.volatiles && pokemon.volatiles['embargo'])) {
 			accuracy *= 1.1;
-			accuracyComment += ' (Boosted by Wide Lens)';
+			accuracyComment += this.makePercentageChangeText(1.1, 'Wide Lens');
 		}
 		if (this.battle.hasPseudoWeather('Gravity')) {
 			accuracy *= 5 / 3;
-			accuracyComment += ' (Boosted by Gravity)';
+			accuracyComment += this.makePercentageChangeText(1.66, 'Gravity');
 		}
 		return Math.round(accuracy) + accuracyComment;
 	};
@@ -957,7 +961,7 @@ var BattleTooltips = (function () {
 		if (move.id === 'acrobatics') {
 			if (!pokemonData.item) {
 				basePower *= 2;
-				basePowerComment = ' (Boosted by lack of item)';
+				basePowerComment = this.makePercentageChangeText(2, 'Acrobatics + no item');
 			}
 		}
 		if (move.id === 'crushgrip' || move.id === 'wringout') {
@@ -969,7 +973,7 @@ var BattleTooltips = (function () {
 		}
 		if (move.id === 'facade' && !(pokemon.status in {'': 1, 'slp': 1, 'frz': 1})) {
 			basePower *= 2;
-			basePowerComment = ' (Boosted by status)';
+			basePowerComment = this.makePercentageChangeText(2, 'Facade + status');
 		}
 		if (move.id === 'flail' || move.id === 'reversal') {
 			if (this.battle.gen > 4) {
@@ -989,7 +993,7 @@ var BattleTooltips = (function () {
 		}
 		if (move.id === 'hex' && target.status) {
 			basePower *= 2;
-			basePowerComment = ' (Boosted by status)';
+			basePowerComment = this.makePercentageChangeText(2, 'Hex + status');
 		}
 		if (move.id === 'punishment') {
 			var boosts = Object.keys(target.boosts);
@@ -1003,7 +1007,7 @@ var BattleTooltips = (function () {
 		if (move.id === 'smellingsalts') {
 			if (target.status === 'par') {
 				basePower *= 2;
-				basePowerComment = ' (Boosted by status)';
+				basePowerComment = this.makePercentageChangeText(2, 'Smelling Salts + Paralysis');
 			}
 		}
 		if (move.id === 'storedpower' || move.id == 'powertrip') {
@@ -1024,13 +1028,13 @@ var BattleTooltips = (function () {
 		if (move.id === 'venoshock') {
 			if (target.status === 'psn' || target.status === 'tox') {
 				basePower *= 2;
-				basePowerComment = ' (Boosted by status)';
+				basePowerComment = this.makePercentageChangeText(2, 'Venoshock + Poison');
 			}
 		}
 		if (move.id === 'wakeupslap') {
 			if (target.status === 'slp') {
 				basePower *= 2;
-				basePowerComment = ' (Boosted by status)';
+				basePowerComment = this.makePercentageChangeText(2, 'Wake-Up Slap + Sleep');
 			}
 		}
 		if (move.id === 'weatherball' && thereIsWeather) {
@@ -1138,7 +1142,7 @@ var BattleTooltips = (function () {
 		}
 		if (abilityBoost) {
 			basePower = Math.floor(basePower * abilityBoost);
-			basePowerComment = ' (' + ability + ' boosted)';
+			basePowerComment = this.makePercentageChangeText(abilityBoost, ability);
 		}
 		return this.boostBasePower(move, pokemon, basePower, basePowerComment);
 	};
@@ -1205,7 +1209,7 @@ var BattleTooltips = (function () {
 		if (itemBoost) {
 			basePower = Math.floor(basePower * itemBoost);
 			var pokemonData = this.room.myPokemon[pokemon.slot];
-			basePowerComment += ' (Boosted by ' + Tools.getItem(pokemonData.item).name + ')';
+			basePowerComment += this.makePercentageChangeText(itemBoost, Tools.getItem(pokemonData.item).name);
 		}
 		return basePower + basePowerComment;
 	};
@@ -1223,8 +1227,8 @@ var BattleTooltips = (function () {
 		}
 		var basePowerComment = min === max ? '' : Math.floor(min) + ' to ';
 		basePowerComment += Math.floor(max);
-		if (technician) basePowerComment += ' (Technician boosted)';
-		if (itemBoost) basePowerComment += ' (Boosted by ' + Tools.getItem(pokemonData.item).name + ')';
+		if (technician) basePowerComment += this.makePercentageChangeText(1.5, 'Technician');
+		if (itemBoost) basePowerComment += this.makePercentageChangeText(itemBoost, Tools.getItem(pokemonData.item).name);
 		return basePowerComment;
 	};
 	return BattleTooltips;
