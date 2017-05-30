@@ -486,6 +486,7 @@
 
 			case 'autojoin':
 			case 'cmd':
+			case 'crq':
 			case 'query':
 				this.add('This is a PS system command; do not use it.');
 				return false;
