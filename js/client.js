@@ -1038,7 +1038,7 @@
 				var groupName = entry.name;
 				var groupType = entry.type || 'user';
 
-				if (groupType === 'user' && !Config.defaultOrder) Config.defaultOrder = i + 0.5; // this is where any undeclared groups will be positioned in userlist
+				if (groupType === 'normal' && !Config.defaultOrder) Config.defaultOrder = i + 0.5; // this is where any undeclared groups will be positioned in userlist
 				if (!groupName) Config.defaultGroup = symbol;
 
 				groups[symbol] = {
