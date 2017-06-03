@@ -1316,7 +1316,8 @@
 		initialize: function (data) {
 			this.room = data.room;
 			if (this.room.battle.kickingInactive) {
-				this.$el.html('<p><button name="timerOff"><strong>Stop timer</strong></button></p>');
+				this.$el.html('<p><button name="timerOff"><strong>Stop timer</strong></button></p>' +
+					'<p><button name="timerOn"><strong>Keep timer switched on</strong></button></p>');
 			} else {
 				this.$el.html('<p><button name="timerOn"><strong>Start timer</strong></button></p>');
 			}
