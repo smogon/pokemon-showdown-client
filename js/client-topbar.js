@@ -487,6 +487,10 @@
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting">Edit formatting</button></label></p>';
 
+			buf += '<hr />';
+			buf += '<p><strong>Teambuilder</strong></p>';
+			buf += '<p><label class="optlabel">Preferences: <button name="autoiv">Automatic IVs</button></label></p>';
+
 			if (window.nodewebkit) {
 				buf += '<hr />';
 				buf += '<p><strong>Desktop app</strong></p>';
@@ -567,6 +571,9 @@
 		formatting: function () {
 			app.addPopup(FormattingPopup);
 		},
+		autoiv: function () {
+			app.addPopup(AutoIVPopup);
+		},
 		login: function () {
 			app.addPopup(LoginPopup);
 		},
@@ -607,6 +614,28 @@
 			var name = $(e.currentTarget).prop('name');
 			this.chatformatting['hide' + name] = !!e.currentTarget.checked;
 			Tools.prefs('chatformatting', this.chatformatting);
+		}
+	});
+
+	var AutoIVPopup = this.TeambuilderPopup = Popup.extend({
+		events: {
+			'change input': 'setOption'
+		},
+		initialize: function () {
+			var cur = this.teambuilderprefs = Tools.prefs('autoiv') || {};
+			var canChange = (cur.neverchange ? 'disabled' : '');
+			var buf = '<p class="optlabel">Change whether the teambuilder will automatically change your IVs.</p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="neverchange"' + (cur.neverchange ? ' checked' : '') + ' /> Never automatically change my IVs (except for Hidden Powers).</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="trsingle"' + (cur.trsingle && !cur.neverchange ? ' checked' : '') + canChange + ' /> Change my speed IVs to 0 when I have Trick Room (Singles).</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="trdouble"' + (cur.trdouble && !cur.neverchange ? ' checked' : '') + canChange + ' /> Change my speed IVs to 0 when I have Trick Room (Doubles).</label></p>';
+			buf += '<p><button name="close">Close</button></p>';
+			this.$el.html(buf);
+		},
+		setOption: function (e) {
+			var name = $(e.currentTarget).prop('name');
+			this.teambuilderprefs[name] = !!e.currentTarget.checked;
+			Tools.prefs('autoiv', this.teambuilderprefs);
+			this.initialize();
 		}
 	});
 

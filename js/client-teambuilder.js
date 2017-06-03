@@ -2056,6 +2056,7 @@
 				buf += '<p><em>Protip:</em> You can also set natures by typing "+" and "-" next to a stat.</p>';
 			}
 
+			buf += '<p><button name="autoiv">Automatic IVs</button></p>';
 			buf += '</div>';
 			this.$chart.html(buf);
 			var self = this;
@@ -2074,6 +2075,30 @@
 				}
 			});
 			this.suppressSliderCallback = false;
+		},
+		autoiv: function () {
+			var AutoIVPopup = this.AutoIVPopup = Popup.extend({
+				events: {
+					'change input': 'setOption'
+				},
+				initialize: function () {
+					var cur = this.teambuilderprefs = Tools.prefs('autoiv') || {};
+					var canChange = (cur.neverchange ? 'disabled' : '');
+					var buf = '<p class="optlabel">Change whether the teambuilder will automatically change your IVs.</p>';
+					buf += '<p><label class="optlabel"><input type="checkbox" name="neverchange"' + (cur.neverchange ? ' checked' : '') + ' /> Never automatically change my IVs (except for Hidden Powers).</label></p>';
+					buf += '<p><label class="optlabel"><input type="checkbox" name="trsingle"' + (cur.trsingle && !cur.neverchange ? ' checked' : '') + canChange + ' /> Change my speed IVs to 0 when I have Trick Room (Singles).</label></p>';
+					buf += '<p><label class="optlabel"><input type="checkbox" name="trdouble"' + (cur.trdouble && !cur.neverchange ? ' checked' : '') + canChange + ' /> Change my speed IVs to 0 when I have Trick Room (Doubles).</label></p>';
+					buf += '<p><button name="close">Close</button></p>';
+					this.$el.html(buf);
+				},
+				setOption: function (e) {
+					var name = $(e.currentTarget).prop('name');
+					this.teambuilderprefs[name] = !!e.currentTarget.checked;
+					Tools.prefs('autoiv', this.teambuilderprefs);
+					this.initialize();
+				}
+			});
+			app.addPopup(this.AutoIVPopup);
 		},
 		setStatFormGuesses: function () {
 			this.updateStatForm(true);
@@ -2665,6 +2690,8 @@
 		unChooseMove: function (moveName) {
 			var set = this.curSet;
 			if (!moveName || !set || this.curTeam.format === 'gen7hiddentype') return;
+			var ivprefs = Tools.prefs('autoiv');
+			var trickroom = (this.curTeam.format.indexOf('double') !== -1 || this.curTeam.format.indexOf('vgc') !== -1 ? ivprefs.trdouble : ivprefs.trsingle);
 			if (moveName.substr(0, 13) === 'Hidden Power ') {
 				if (set.ivs) {
 					for (var i in set.ivs) {
@@ -2674,7 +2701,7 @@
 				}
 			}
 			var resetSpeed = false;
-			if (moveName === 'Gyro Ball') {
+			if ((moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) && !ivprefs.neverchange) {
 				resetSpeed = true;
 			}
 			this.chooseMove('', resetSpeed);
@@ -2692,6 +2719,8 @@
 		chooseMove: function (moveName, resetSpeed) {
 			var set = this.curSet;
 			if (!set) return;
+			var ivprefs = Tools.prefs('autoiv');
+			var trickroom = (this.curTeam.format.indexOf('double') !== -1 || this.curTeam.format.indexOf('vgc') !== -1 ? ivprefs.trdouble : ivprefs.trsingle);
 			var gen = this.curTeam.gen;
 
 			var minSpe;
@@ -2722,7 +2751,7 @@
 				this.curSet.happiness = 255;
 			} else if (moveName === 'Frustration') {
 				this.curSet.happiness = 0;
-			} else if (moveName === 'Gyro Ball') {
+			} else if ((moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) && !ivprefs.neverchange) {
 				minSpe = true;
 			}
 
@@ -2743,7 +2772,7 @@
 				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
 					minAtk = false;
 				}
-				if (minSpe === false && moveName === 'Gyro Ball') {
+				if (minSpe === false && (moveName === 'Gyro Ball' || (moveName === 'Trick Room' && trickroom)) && !ivprefs.neverchange) {
 					minSpe = undefined;
 				}
 			}
@@ -2762,7 +2791,7 @@
 			}
 			if (gen < 3) return;
 			if (!set.ivs['atk'] && set.ivs['atk'] !== 0) set.ivs['atk'] = 31;
-			if (minAtk) {
+			if (minAtk && !ivprefs.neverchange) {
 				// min Atk
 				set.ivs['atk'] = (hasHiddenPower ? set.ivs['atk'] % hpModulo : 0);
 			} else {
