@@ -1564,11 +1564,13 @@ a.ilink.yours {
 }
 
 .tournament-join,
-.tournament-leave {
+.tournament-leave,
+.tournament-validate {
 	display: none;
 }
 .tournament-join.active,
-.tournament-leave.active {
+.tournament-leave.active,
+.tournament-validate.active {
 	display: inline;
 }
 
