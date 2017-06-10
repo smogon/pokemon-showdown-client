@@ -974,7 +974,7 @@
 					if (id === 'disable' || id === 'firepunch' || id === 'icepunch' || id === 'jumpkick' || id === 'leechseed' || id === 'quickattack' || id === 'roar' || id === 'thunderpunch' || id === 'toxic' || id === 'triattack' || id === 'whirlwind') isViable = false;
 
 					// Viable only when certain moves aren't present
-					if (id === 'doubleedge') isViable = (moves.indexOf('bodyslam'));
+					if (id === 'doubleedge') isViable = (moves.indexOf('bodyslam') < 0);
 					if (id === 'hypnosis') isViable = (moves.indexOf('sleeppowder') < 0);
 					if (id === 'megadrain') isViable = (moves.indexOf('razorleaf') < 0 && moves.indexOf('surf') < 0);
 					if (id === 'megakick') isViable = (moves.indexOf('hyperbeam') < 0);
