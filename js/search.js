@@ -992,7 +992,7 @@
 					// Complicated viability
 					if (id === 'bubblebeam') isViable = ((moves.indexOf('surf') < 0 && moves.indexOf('blizzard') < 0) || toId(set.species) === 'raticate');
 					if (id === 'fireblast' || id === 'flamethrower') isViable = (template.types[0] === 'Fire' || template.types[1] === 'Fire' || toId(set.species) === 'aerodactyl');
-					if (id === 'submission') isViable = ((template.types[0] === 'Fighting' || template.types[1] === 'Fighting' || toId(set.species) === 'pinsir')) && moves.indexOf('highjumpkick') < 0);
+					if (id === 'submission') isViable = ((template.types[0] === 'Fighting' || template.types[1] === 'Fighting' || toId(set.species) === 'pinsir') && moves.indexOf('highjumpkick') < 0);
 				}
 				if (isViable) {
 					if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
