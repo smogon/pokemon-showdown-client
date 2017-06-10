@@ -960,7 +960,9 @@
 				if (id === 'hiddenpowerfire') isViable = (moves.indexOf('flamethrower') < 0);
 				if (id === 'hiddenpowergrass') isViable = (moves.indexOf('energyball') < 0 && moves.indexOf('gigadrain') < 0);
 				if (id === 'hiddenpowerice') isViable = (moves.indexOf('icebeam') < 0 && template.id !== 'xerneas');
+				if (id === 'hypnosis') isViable = (this.gen < 4 && moves.indexOf('sleeppowder') < 0);
 				if (id === 'icywind') isViable = (toId(set.species).substr(0, 6) === 'keldeo');
+				if (id === 'jumpkick') isViable = (moves.indexOf('highjumpkick') < 0);
 				if (id === 'leechlife') isViable = (this.gen > 6);
 				if (id === 'reflecttype') isViable = (toId(set.species) in {latias:1, starmie:1});
 				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
@@ -971,28 +973,22 @@
 					if (id === 'acidarmor' || id === 'amnesia' || id === 'barrier' || id === 'bind' || id === 'clamp' || id === 'confuseray' || id === 'counter' || id === 'firespin' || id === 'hyperbeam' || id === 'mirrormove' || id === 'pinmissile' || id === 'razorleaf' || id === 'sing' || id === 'slash' || id === 'sludge' || id === 'twineedle' || id === 'wrap') isViable = true;
 
 					// Usually not viable for Gen 1
-					if (id === 'disable' || id === 'firepunch' || id === 'icepunch' || id === 'jumpkick' || id === 'leechseed' || id === 'quickattack' || id === 'roar' || id === 'thunderpunch' || id === 'toxic' || id === 'triattack' || id === 'whirlwind') isViable = false;
+					if (id === 'disable' || id === 'firepunch' || id === 'icepunch' || id === 'leechseed' || id === 'quickattack' || id === 'roar' || id === 'thunderpunch' || id === 'toxic' || id === 'triattack' || id === 'whirlwind') isViable = false;
 
 					// Viable only when certain moves aren't present
 					if (id === 'doubleedge') isViable = (moves.indexOf('bodyslam') < 0);
-					if (id === 'hypnosis') isViable = (moves.indexOf('sleeppowder') < 0);
+					if (id === 'doublekick') isViable = (moves.indexOf('submission') < 0);
 					if (id === 'megadrain') isViable = (moves.indexOf('razorleaf') < 0 && moves.indexOf('surf') < 0);
 					if (id === 'megakick') isViable = (moves.indexOf('hyperbeam') < 0);
 					if (id === 'reflect') isViable = (moves.indexOf('barrier') < 0 && moves.indexOf('acidarmor') < 0);
 
 					// Viable for specific types
 					if (id === 'substitute') isViable = (template.types[0] === 'Ground' || template.types[1] === 'Ground');
-
-					// Viable for specific Pokemon
-					if (id === 'doublekick') isViable = (toId(set.species) === 'jolteon');
-					if (id === 'lightscreen') isViable = (toId(set.species) === 'zapdos');
-					if (id === 'meditate') isViable = (toId(set.species) === 'hitmonlee');
-					if (id === 'thunder') isViable = (toId(set.species) === 'zapdos');
+					if (id === 'fireblast' || id === 'flamethrower') isViable = (template.types[0] === 'Fire' || template.types[1] === 'Fire');
 
 					// Complicated viability
-					if (id === 'bubblebeam') isViable = ((moves.indexOf('surf') < 0 && moves.indexOf('blizzard') < 0) || toId(set.species) === 'raticate');
-					if (id === 'fireblast' || id === 'flamethrower') isViable = (template.types[0] === 'Fire' || template.types[1] === 'Fire' || toId(set.species) === 'aerodactyl');
-					if (id === 'submission') isViable = ((template.types[0] === 'Fighting' || template.types[1] === 'Fighting' || toId(set.species) === 'pinsir') && moves.indexOf('highjumpkick') < 0);
+					if (id === 'bubblebeam') isViable = ((moves.indexOf('surf') < 0 && moves.indexOf('blizzard') < 0));
+					if (id === 'submission') isViable = ((template.types[0] === 'Fighting' || template.types[1] === 'Fighting') && moves.indexOf('highjumpkick') < 0);
 				}
 				if (isViable) {
 					if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
