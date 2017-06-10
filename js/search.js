@@ -976,19 +976,13 @@
 					if (id === 'disable' || id === 'firepunch' || id === 'icepunch' || id === 'leechseed' || id === 'quickattack' || id === 'roar' || id === 'thunderpunch' || id === 'toxic' || id === 'triattack' || id === 'whirlwind') isViable = false;
 
 					// Viable only when certain moves aren't present
+					if (id === 'bubblebeam') isViable = ((moves.indexOf('surf') < 0 && moves.indexOf('blizzard') < 0));
 					if (id === 'doubleedge') isViable = (moves.indexOf('bodyslam') < 0);
 					if (id === 'doublekick') isViable = (moves.indexOf('submission') < 0);
 					if (id === 'megadrain') isViable = (moves.indexOf('razorleaf') < 0 && moves.indexOf('surf') < 0);
 					if (id === 'megakick') isViable = (moves.indexOf('hyperbeam') < 0);
 					if (id === 'reflect') isViable = (moves.indexOf('barrier') < 0 && moves.indexOf('acidarmor') < 0);
-
-					// Viable for specific types
-					if (id === 'substitute') isViable = (template.types[0] === 'Ground' || template.types[1] === 'Ground');
-					if (id === 'fireblast' || id === 'flamethrower') isViable = (template.types[0] === 'Fire' || template.types[1] === 'Fire');
-
-					// Complicated viability
-					if (id === 'bubblebeam') isViable = ((moves.indexOf('surf') < 0 && moves.indexOf('blizzard') < 0));
-					if (id === 'submission') isViable = ((template.types[0] === 'Fighting' || template.types[1] === 'Fighting') && moves.indexOf('highjumpkick') < 0);
+					if (id === 'submission') isViable = (moves.indexOf('highjumpkick') < 0);
 				}
 				if (isViable) {
 					if (!usableMoves.length) usableMoves.push(['header', "Moves"]);
