@@ -975,7 +975,7 @@
 					
 					//Viable only when certain moves aren't present
 					if (id === 'bubblebeam') isViable = (moves.indexOf('surf') < 0 && moves.indexOf('blizzard') < 0);
-					if (id === 'doubleedge') isViable = (moves.indexOf('bodyslam');
+					if (id === 'doubleedge') isViable = (moves.indexOf('bodyslam'));
 					if (id === 'hypnosis') isViable = (moves.indexOf('sleeppowder') < 0);
 					if (id === 'megadrain') isViable = (moves.indexOf('razorleaf') < 0 && moves.indexOf('surf') < 0);
 					if (id === 'megakick') isViable = (moves.indexOf('hyperbeam') < 0);
