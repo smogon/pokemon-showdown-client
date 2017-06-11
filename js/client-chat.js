@@ -188,7 +188,7 @@
 			var highlights = Tools.prefs('highlights') || {};
 			if (highlights.constructor === 'Array') this.convertHighlights();
 			var thisroom = (this.type === 'battle' ? 'battle' : this.id);
-			var hlkey = Config.server.id + '-' + Config.server.port + ':' + thisroom;
+			var hlkey = Config.server.id + '#' + thisroom;
 			if (!app.highlightRegExp || !app.highlightRegExp['global'] || !app.highlightRegExp[thisroom]) {
 				try {
 					this.updateHighlightRegExp(highlights[hlkey], thisroom, highlights['global']);
@@ -671,7 +671,7 @@
 					case 'add':
 					case 'roomadd':
 						var thisroom = (targets[0] === 'add' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
-						var hlkey = (thisroom === 'global' ? 'global' : Config.server.id + '-' + Config.server.port + ':' + thisroom);
+						var hlkey = (thisroom === 'global' ? 'global' : Config.server.id + '#' + thisroom);
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (targets[0] === 'add' ? ' everywhere: ' : (this.type === 'battle' ? ' in all battles: ' : ' in ' + this.id + ': '));
 						for (var i = 1, len = targets.length; i < len; i++) {
@@ -696,7 +696,7 @@
 					case 'delete':
 					case 'roomdelete':
 						var thisroom = (targets[0] === 'delete' ? 'global' : (this.type === 'battle' ? 'battle' : this.id));
-						var hlkey = (thisroom === 'global' ? 'global' : Config.server.id + '-' + Config.server.port + ':' + thisroom);
+						var hlkey = (thisroom === 'global' ? 'global' : Config.server.id + '#' + thisroom);
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (targets[0] === 'delete' ? ' everywhere: ' : (this.type === 'battle' ? ' in all battles: ' : ' in ' + this.id + ': '));
 						var newHls = [];
@@ -719,14 +719,14 @@
 					Tools.prefs('highlights', highlights);
 				} else {
 					if (target === 'delete' || target === 'roomdelete') {
-						var hlkey = (target === 'delete' ? 'global' : (this.type === 'battle' ? Config.server.id + '-' + Config.server.port + ':' + 'battle' : Config.server.id + '-' + Config.server.port + ':' + this.id));
+						var hlkey = (target === 'delete' ? 'global' : (this.type === 'battle' ? Config.server.id + '#' + 'battle' : Config.server.id + '#' + this.id));
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (target === 'delete' ? 'All highlights cleared.' : (this.type === 'battle' ? 'All battle highlights cleared.' : 'All highlights cleared in ' + this.id + '.'));
 						highlights[hlkey] = [];
 						Tools.prefs('highlights', highlights);
 						this.add(textending);
 					} else if (target === 'show' || target === 'list' || target === 'roomshow' || target === 'roomlist') {
-						var hlkey = (target === 'show' || target === 'list' ? 'global' : (this.type === 'battle' ? Config.server.id + '-' + Config.server.port + ':' + 'battle' : Config.server.id + '-' + Config.server.port + ':' + this.id));
+						var hlkey = (target === 'delete' ? 'global' : (this.type === 'battle' ? Config.server.id + '#' + 'battle' : Config.server.id + '#' + this.id));
 						if (!highlights[hlkey]) highlights[hlkey] = [];
 						var textending = (target === 'show' || target === 'list' ? ' global highlight list' : ' highlight list for this room');
 						if (highlights[hlkey].length > 0) {
