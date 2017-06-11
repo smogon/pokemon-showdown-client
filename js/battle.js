@@ -3059,16 +3059,7 @@ var Battle = (function () {
 		if (typeof weather === 'undefined') {
 			weather = this.weather;
 		}
-		if (weather === '' || weather === 'none' || weather === 'pseudo') {
-			weather = (this.pseudoWeather.length ? 'pseudo' : '');
-		}
-
-		var oldweather = this.weather;
-		this.weather = weather;
-
-		if (this.fastForward) return;
-
-		if (instant) oldweather = true;
+		var isIntense = false;
 		var weatherNameTable = {
 			sunnyday: 'Sun',
 			desolateland: 'Intense Sun',
@@ -3078,10 +3069,35 @@ var Battle = (function () {
 			hail: 'Hail',
 			deltastream: 'Strong Winds'
 		};
+		if (!(weather in weatherNameTable)) {
+			weather = (this.pseudoWeather.length ? 'pseudo' : '');
+			for (var i = 0; i < this.pseudoWeather.length; i++) {
+				var pwid = toId(this.pseudoWeather[i][0]);
+				switch (pwid) {
+				case 'electricterrain':
+				case 'grassyterrain':
+				case 'mistyterrain':
+				case 'psychicterrain':
+					weather = pwid;
+					isIntense = true;
+					break;
+				}
+			}
+		}
+		if (weather === 'desolateland' || weather === 'primordialsea' || weather === 'deltastream') {
+			isIntense = true;
+		}
+
+		var oldweather = this.weather;
+		this.weather = weather;
+
+		if (this.fastForward) return;
+
+		if (instant) oldweather = true;
 
 		var weatherhtml = '';
 		if (weather) {
-			if (weather !== 'pseudo') {
+			if (weather in weatherNameTable) {
 				weatherhtml += '<br />' + weatherNameTable[weather] + this.weatherLeft();
 			}
 			for (var i = 0; i < this.pseudoWeather.length; i++) {
@@ -3100,11 +3116,11 @@ var Battle = (function () {
 				this.weatherElem.attr('class', 'weather');
 			}
 			this.weatherElem.html('<em>' + weatherhtml + '</em>');
-			this.weatherElem.css({opacity: 0.5});
+			this.weatherElem.css({opacity: isIntense ? 0.9 : .5});
 			if (weather && !instant) this.weatherElem.animate({
 				opacity: 1.0
 			}, 400).animate({
-				opacity: .5
+				opacity: isIntense ? 0.9 : .5
 			}, 400);
 			return;
 		}
@@ -3116,7 +3132,7 @@ var Battle = (function () {
 				}, 300, function () {
 					self.weatherElem.attr('class', 'weather ' + weather + 'weather');
 					self.weatherElem.html('<em>' + weatherhtml + '</em>');
-					self.weatherElem.css({opacity: 0.5});
+					self.weatherElem.css({opacity: isIntense ? 0.9 : 0.5});
 				});
 			} else {
 				this.weatherElem.animate({
@@ -3134,7 +3150,7 @@ var Battle = (function () {
 			this.weatherElem.animate({
 				opacity: 1.0
 			}, 400).animate({
-				opacity: .5
+				opacity: isIntense ? 0.9 : .5
 			}, 400);
 		}
 	};
@@ -5740,10 +5756,13 @@ var Battle = (function () {
 				}
 				var maxTimeLeft = 0;
 				if (effect.id in {'electricterrain': 1, 'grassyterrain': 1, 'mistyterrain': 1, 'psychicterrain': 1}) {
-					this.removePseudoWeather('Electric Terrain');
-					this.removePseudoWeather('Grassy Terrain');
-					this.removePseudoWeather('Misty Terrain');
-					this.removePseudoWeather('Psychic Terrain');
+					for (var i = this.pseudoWeather.length - 1; i >= 0; i--) {
+						var pwName = this.pseudoWeather[i][0];
+						if (pwName === 'Electric Terrain' || pwName === 'Grassy Terrain' || pwName === 'Misty Terrain' || pwName === 'Psychic Terrain') {
+							this.pseudoWeather.splice(i, 1);
+							continue;
+						}
+					}
 					if (this.gen > 6) maxTimeLeft = 8;
 				}
 				this.addPseudoWeather(effect.name, 5, maxTimeLeft);

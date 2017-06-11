@@ -417,6 +417,22 @@ License: GPLv2
 	background: #AAAAAA url(../fx/weather-strongwind.png) no-repeat scroll left top;
 	color: #666666;
 }
+.mistyterrainweather {
+	background: #EEAACC url(../fx/weather-mistyterrain.png) no-repeat scroll left top;
+	color: #551144;
+}
+.electricterrainweather {
+	background: #EEEEAA url(../fx/weather-electricterrain.png) no-repeat scroll left top;
+	color: #444411;
+}
+.grassyterrainweather {
+	background: #CCEEAA url(../fx/weather-grassyterrain.png) no-repeat scroll left top;
+	color: #335511;
+}
+.psychicterrainweather {
+	background: #CCAAEE url(../fx/weather-psychicterrain.png) no-repeat scroll left top;
+	color: #441155;
+}
 .pseudoweather {
 	background: #DDAAEE url(../fx/weather-trickroom.png) no-repeat scroll left top;
 	color: #661155;
