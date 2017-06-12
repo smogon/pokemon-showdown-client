@@ -623,7 +623,7 @@ var Tools = {
 			// [[blah]]
 			str = str.replace(/\[\[(?![< ])(?:(?:(youtube|yt|wiki)\: ?)?([^<`]*?[^< ])?)\]\]/g, function (match, p1, p2) {
 				if (match === '[[]]') {
-					return (p1 ? p1 : '') + match + (p2 ? p2 : '');
+					return (p1 || '') + match + (p2 || '');
 				}
 				var query = p2;
 				if (p1 === 'wiki') {
