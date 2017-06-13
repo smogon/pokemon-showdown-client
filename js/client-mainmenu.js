@@ -1112,7 +1112,8 @@
 			buf += '<li><p><strong>Hugh Gordon</strong> [V4] <small>&ndash; Research (game mechanics), Development</small></p></li>';
 			buf += '<li><p><a href="http://www.juanmaserrano.com/" target="_blank" class="subtle"><strong>Juanma Serrano</strong> [Joim]</a> <small>&ndash; Development, Sysadmin</small></p></li></ul>';
 			buf += '<h2>Major Contributors</h2>';
-			buf += '<ul><li><p><strong>Kevin Lau</strong> [Ascriptmaster] <small>&ndash; Development, Art (battle animations)</small></p></li>';
+			buf += '<ul><li><p><strong>Bär Halberkamp</strong> [bumbadadabum] <small>&ndash; Development</small></p></li>';
+			buf += '<li><p><strong>Kevin Lau</strong> [Ascriptmaster] <small>&ndash; Development, Art (battle animations)</small></p></li>';
 			buf += '<li><p><strong>Konrad Borowski</strong> [xfix] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Quinton Lee</strong> [sirDonovan] <small>&ndash; Development</small></p></li></ul>';
 			buf += '<h2>More</h2>';
