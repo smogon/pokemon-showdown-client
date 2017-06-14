@@ -117,10 +117,10 @@ button:disabled {
 }
 
 .dark .textbox {
-    border-color: #888888;
-    box-shadow: none;
-    background: rgb(60, 59, 58);
-    color: #DDD;
+    	border-color: #888888;
+    	box-shadow: none;
+    	background: rgb(60, 59, 58);
+    	color: #DDD;
 }
 .dark .textbox:hover {
 	border-color: #BBBBBB;
