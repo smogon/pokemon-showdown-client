@@ -3343,7 +3343,7 @@ a.ilink.yours {
 }
 
 .dark .folderpane {
-    border-left-color: #484848;
+    	border-left-color: #484848;
 }
 .dark .folderlist .foldersep:before,
 .dark .folderlistafter:before,
@@ -3356,36 +3356,36 @@ a.ilink.yours {
 }
 
 .dark .folderpane h3 {
-    margin: 0;
-    padding: 13px 0 0 0;
-    height: 17px;
-    font-size: 9pt;
-    background: #d7e3ec;
-    color: #f9f9f9;
-    border-right: 1px solid #888888;
+    	margin: 0;
+    	padding: 13px 0 0 0;
+    	height: 17px;
+    	font-size: 9pt;
+    	background: #d7e3ec;
+    	color: #f9f9f9;
+    	border-right: 1px solid #888888;
 }
 .dark .folder .selectFolder {
-    display: block;
-    padding: 0 0 0 7px;
-    border: 0;
-    border-right: 1px solid #888888;
-    background: #d7e3ec;
-    color: #f9f9f9;
-    width: auto;
-    max-width: 146px;
-    padding-top: 7px;
-    height: 23px;
-    font-size: 9pt;
-    font-family: Verdana,sans-serif;
-    white-space: nowrap;
-    overflow: hidden;
-    text-align: left;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
+   	display: block;
+        padding: 0 0 0 7px;
+  	border: 0;
+	border-right: 1px solid #888888;
+  	background: #d7e3ec;
+  	color: #f9f9f9;
+  	width: auto;
+ 	max-width: 146px;
+  	padding-top: 7px;
+  	height: 23px;
+   	font-size: 9pt;
+  	font-family: Verdana,sans-serif;
+   	white-space: nowrap;
+  	overflow: hidden;
+ 	text-align: left;
+   	cursor: pointer;
+  	user-select: none;
+   	-webkit-user-select: none;
 }
 .dark .folder .selectFolder:hover {
-    background: #383838;
+    	background: #383838;
 }
 .dark .folder .selectFolder.active,
 .dark .folder .selectFolder:active {
@@ -3396,32 +3396,32 @@ a.ilink.yours {
 	background: transparent;
 }
 .dark .folderpane i {
-    display: inline-block;
-    width: 16px;
-    color: #f9f9f9;
+    	display: inline-block;
+    	width: 16px;
+    	color: #f9f9f9;
 }
 .dark .select, .dark .team {
-    border-color: #888888;
-    background: linear-gradient(to bottom,rgba(105, 103, 103, 0.6),rgba(33, 33, 33, 0.6));
-    color: #f9f9ed;
-    box-shadow: none;
+    	border-color: #888888;
+        background: linear-gradient(to bottom,rgba(105, 103, 103, 0.6),rgba(33, 33, 33, 0.6));
+    	color: #f9f9ed;
+    	box-shadow: none;
 }
 .dark .select:hover, .dark .team:hover {
-    border-color: #ffffff;
-    background: linear-gradient(to bottom,rgb(72, 72, 72),rgb(72, 72, 72));
-    color: #f9f9ed;
-    box-shadow: none;
+    	border-color: #ffffff;
+    	background: linear-gradient(to bottom,rgb(72, 72, 72),rgb(72, 72, 72));
+    	color: #f9f9ed;
+    	box-shadow: none;
 }
 .dark .select:after {
-    float: right;
-    font-size: 14px;
-    content: "\f0d7";
-    font-family: FontAwesome;
-    -webkit-font-smoothing: antialiased;
-    color: #cacaca;
+    	float: right;
+    	font-size: 14px;
+    	content: "\f0d7";
+    	font-family: FontAwesome;
+    	-webkit-font-smoothing: antialiased;
+    	color: #cacaca;
 }
 .dark .menugroup {
-    background: rgba(0, 0, 0, 0.25);
+    	background: rgba(0, 0, 0, 0.25);
 }
 
 
@@ -3473,76 +3473,76 @@ a.ilink.yours {
 /* pms */
 
 .dark .pm-window h3.pm-notifying {
-    border-color: #2b5c6f;
-    background: #65acc7;
-    color: #d4edf7;
+    	border-color: #2b5c6f;
+    	background: #65acc7;
+    	color: #d4edf7;
 }
 .dark .pm-window h3.pm-notifying:hover {
-    border-color: #2b5c6f;
-    background: #76bbd6;
-    color: #d4edf7;
+    	border-color: #2b5c6f;
+    	background: #76bbd6;
+    	color: #d4edf7;
 }
 
 .dark .pm-window h3 small {
-    color: #d4edf7;
-    font-weight: normal;
-    vertical-align: 1px;
+    	color: #d4edf7;
+    	font-weight: normal;
+    	vertical-align: 1px;
 }
 .dark .pm-log {
-    background: rgba(0, 0, 0, 0.8);
-    color: #DDD;
-    border-color: #3c3c3c;
+    	background: rgba(0, 0, 0, 0.8);
+    	color: #DDD;
+    	border-color: #3c3c3c;
 }
 .dark .pm-window.focused h3, .dark .pm-window.focused .pm-log, .dark .pm-window.focused .pm-log-add {
-    border-color: #3c3c3c;
+	border-color: #3c3c3c;
 }
 .dark .pm-window h3 {
-    background: rgb(99, 99, 99);
-    color: #f9f9f9;
-    margin: 0;
-    padding: 2px 2px 2px 5px;
-    font-size: 11pt;
-    border: 1px solid #3c3c3c;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    cursor: pointer;
+    	background: rgb(99, 99, 99);
+    	color: #f9f9f9;
+    	margin: 0;
+    	padding: 2px 2px 2px 5px;
+    	font-size: 11pt;
+    	border: 1px solid #3c3c3c;
+    	border-top-left-radius: 5px;
+    	border-top-right-radius: 5px;
+    	cursor: pointer;
 }
 .dark .pm-window h3:hover {
-    background: rgb(99, 99, 99);
-    color: #f9f9f9;
-    margin: 0;
-    padding: 2px 2px 2px 5px;
-    font-size: 11pt;
-    border: 1px solid #3c3c3c;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    cursor: pointer;
+    	background: rgb(99, 99, 99);
+    	color: #f9f9f9;
+    	margin: 0;
+    	padding: 2px 2px 2px 5px;
+    	font-size: 11pt;
+    	border: 1px solid #3c3c3c;
+    	border-top-left-radius: 5px;
+    	border-top-right-radius: 5px;
+    	cursor: pointer;
 }
 .dark .pm-window h3 small {
-    color: #f9f9f9;
-    font-weight: normal;
-    vertical-align: 1px;
+    	color: #f9f9f9;
+    	font-weight: normal;
+    	vertical-align: 1px;
 }
 .dark .pm-log-add {
-    border: 1px solid #3c3c3c;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    	border: 1px solid #3c3c3c;
+    	border-bottom-left-radius: 5px;
+    	border-bottom-right-radius: 5px;
 }
 .dark .textbox:focus {
-    background: #282b2d;
-    box-shadow: inset 0px 1px 2px rgba(40, 43, 45, 0), 1px 1px 0 rgba(40, 43, 45, 0);
+    	background: #282b2d;
+    	box-shadow: inset 0px 1px 2px rgba(40, 43, 45, 0), 1px 1px 0 rgba(40, 43, 45, 0);
 }
 
 .dark .closebutton, .dark .minimizebutton {
-    text-decoration: none;
-    font-size: 14px;
-    color: #e8e8e8;
-    text-shadow: none;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    background: transparent;
-    cursor: pointer;
+    	text-decoration: none;
+    	font-size: 14px;
+    	color: #e8e8e8;
+    	text-shadow: none;
+    	border: 0;
+    	padding: 0;
+    	margin: 0;
+    	background: transparent;
+    	cursor: pointer;
 }
 /* rooms */
 .dark .roomlist a.ilink {
