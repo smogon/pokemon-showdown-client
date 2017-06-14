@@ -3365,24 +3365,24 @@ a.ilink.yours {
     	border-right: 1px solid #888888;
 }
 .dark .folder .selectFolder {
-   	display: block;
-        padding: 0 0 0 7px;
-  	border: 0;
+	display: block;
+	padding: 0 0 0 7px;
+	border: 0;
 	border-right: 1px solid #888888;
-  	background: #d7e3ec;
-  	color: #f9f9f9;
-  	width: auto;
- 	max-width: 146px;
-  	padding-top: 7px;
-  	height: 23px;
-   	font-size: 9pt;
-  	font-family: Verdana,sans-serif;
-   	white-space: nowrap;
-  	overflow: hidden;
- 	text-align: left;
-   	cursor: pointer;
-  	user-select: none;
-   	-webkit-user-select: none;
+	background: #d7e3ec;
+	color: #f9f9f9;
+	width: auto;
+	max-width: 146px;
+	padding-top: 7px;
+	height: 23px;
+	font-size: 9pt;
+	font-family: Verdana,sans-serif;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: left;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
 }
 .dark .folder .selectFolder:hover {
     	background: #383838;
