@@ -2,6 +2,13 @@
 
 include '../pokemonshowdown.com/config/servers.inc.php';
 
+spl_autoload_register(function ($class) {
+	require_once('lib/css-sanitizer/'.$class.'.php');
+});
+
+use Wikimedia\CSS\Parser\Parser;
+use Wikimedia\CSS\Sanitizer\StylesheetSanitizer;
+
 $server = @$_REQUEST['server'];
 if ($server === 'showdown' || $server === 'smogtours') die();
 if (empty($PokemonServers[$server])) {
@@ -57,25 +64,16 @@ if ($curlret) {
 	$code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 	if ($code === 200) {
 		// Sanitise the CSS.
-		require '../pokemonshowdown.com/lib/htmlpurifier/HTMLPurifier.auto.php';
-		require '../pokemonshowdown.com/lib/csstidy/class.csstidy.php';
-
-		$config = HTMLPurifier_Config::createDefault();
-
-		$config->set('Filter.ExtractStyleBlocks', true);
-		$config->set('CSS.Proprietary', true);
-		$config->set('CSS.AllowImportant', true);
-		$config->set('CSS.AllowTricky', true);
-		$level = error_reporting(E_ALL & ~E_STRICT);
-
-		// $purifier = new HTMLPurifier($config);
-		// $html = $purifier->purify('<style>' . $curlret . '</style>');
-		// error_reporting($level);
-		// list($outputcss) = $purifier->context->get('StyleBlocks');
-
-		$context = new HTMLPurifier_Context();
-		$filter = new HTMLPurifier_Filter_ExtractStyleBlocks();
-		$outputcss = $filter->cleanCSS($curlret, $config, $context);
+		// Parse a stylesheet from a string
+		$parser = Parser::newFromString($curlret);
+		$stylesheet = $parser->parseStylesheet();
+ 
+		// Apply sanitization to the stylehseet
+		$sanitizer = StylesheetSanitizer::newDefault();
+		$newStylesheet = $sanitizer->sanitize( $stylesheet );
+ 
+		// Convert the sanitized stylesheet back to text
+		$outputcss = Wikimedia\CSS\Util::stringify( $newStylesheet, [ 'minify' => true ] );
 
 		file_put_contents($cssfile, $outputcss);
 		if (!$invalidate) echo $outputcss;
