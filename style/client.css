@@ -117,11 +117,10 @@ button:disabled {
 }
 
 .dark .textbox {
-	border-color: #888888;
-
-	box-shadow: none;
-	background: #282B2D;
-	color: #DDD;
+    border-color: #888888;
+    box-shadow: none;
+    background: rgb(60, 59, 58);
+    color: #DDD;
 }
 .dark .textbox:hover {
 	border-color: #BBBBBB;
@@ -3403,7 +3402,7 @@ a.ilink.yours {
 }
 .dark .select, .dark .team {
     border-color: #888888;
-    background: linear-gradient(to bottom,rgba(45, 45, 45, 0.6),rgba(40, 43, 45, 0.6));
+    background: linear-gradient(to bottom,rgba(105, 103, 103, 0.6),rgba(33, 33, 33, 0.6));
     color: #f9f9ed;
     box-shadow: none;
 }
