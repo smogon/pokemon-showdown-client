@@ -1718,6 +1718,19 @@ a.ilink.yours {
 .weather {
 	color: #000;
 }
+.ps-room .battle-log {
+	position: absolute;
+	top: 0;
+	left: 640px;
+	right: 0;
+	bottom: 40px;
+	height: auto;
+	width: auto;
+	word-wrap: break-word;
+	border-right: 0;
+	border-top: 0;
+	border-bottom: 0;
+}
 .ps-room .battle-log-add {
 	position: absolute;
 	bottom: 0;
