@@ -786,7 +786,18 @@ var Tools = {
 			return {attribs: attribs};
 		};
 		return function (input) {
-			return html.sanitizeWithPolicy(getString(input), tagPolicy);
+			var str = getString(input);
+
+			// Implement <pokemonicon> and <itemicon>
+			str = str.replace(/<(pokemon|item)icon>([^<]*)<\/\1icon>/g, function (match, p1, p2) {
+				if (p1 === 'pokemon') {
+					return '<span class="picon" style="display:inline-block;' + Tools.getPokemonIcon(toId(p2)) + '"></span>';
+				} else if (p1 === 'item') {
+					return '<span class="itemicon" style="display:inline-block;' + Tools.getItemIcon(toId(p2)) + '"></span>';
+				}
+			});
+
+			return html.sanitizeWithPolicy(str, tagPolicy);
 		};
 	})(),
 
