@@ -3,10 +3,11 @@
 include '../pokemonshowdown.com/config/servers.inc.php';
 
 spl_autoload_register(function ($class) {
-	require_once('lib/css-sanitizer/'.$class.'.php');
+	require_once('lib/css-sanitizer/'.str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php');
 });
 
 use Wikimedia\CSS\Parser\Parser;
+
 use Wikimedia\CSS\Sanitizer\StylesheetSanitizer;
 
 $server = @$_REQUEST['server'];
