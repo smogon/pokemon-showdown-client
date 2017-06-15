@@ -96,7 +96,7 @@
 					'<div class="tournament-bracket"></div>' +
 					'<div class="tournament-tools">' +
 						'<div class="tournament-team"></div>' +
-						'<button class="button tournament-join">Join</button><button class="button tournament-leave">Leave</button>' +
+						'<button class="button tournament-join">Join</button><button class="button tournament-validate"><i class="fa fa-check"></i> Validate</button><button class="button tournament-leave">Leave</button>' +
 						'<div class="tournament-nomatches">Waiting for battles to become available...</div>' +
 						'<div class="tournament-challenge">' +
 							'<div class="tournament-challenge-user"></div>' +
@@ -125,6 +125,7 @@
 			this.$leave = $wrapper.find('.tournament-leave');
 			this.$noMatches = $wrapper.find('.tournament-nomatches');
 			this.$teamSelect = $wrapper.find('.tournament-team');
+			this.$validate = $wrapper.find('.tournament-validate');
 			this.$challenge = $wrapper.find('.tournament-challenge');
 			this.$challengeUser = $wrapper.find('.tournament-challenge-user');
 			this.$challengeUserMenu = $wrapper.find('.tournament-challenge-user-menu');
@@ -176,6 +177,10 @@
 			this.$challengeCancel.on('click', function () {
 				self.room.send('/tournament cancelchallenge');
 			});
+			this.$validate.on('click', function () {
+				app.sendTeam(Storage.teams[self.$teamSelect.children().val()]);
+				self.room.send('/tournament vtm');
+			});
 
 			app.user.on('saveteams', this.updateTeams, this);
 		}
@@ -216,6 +221,8 @@
 			this.$teamSelect.children().data('type', 'teamSelect');
 			this.$teamSelect.children().attr('name', 'tournamentButton');
 			this.$teamSelect.show();
+			var val = this.$teamSelect.children().val();
+			this.$validate.toggleClass('disabled', !val || !val.length || val === 'random');
 		};
 
 		TournamentBox.prototype.isBoxVisible = function () {
@@ -373,6 +380,7 @@
 					if ('isStarted' in this.updates || 'isJoined' in this.updates) {
 						this.$join.toggleClass('active', !this.info.isStarted && !this.info.isJoined);
 						this.$leave.toggleClass('active', !this.info.isStarted && this.info.isJoined);
+						this.$validate.toggleClass('active', this.info.isJoined && !this.info.challenging && !this.info.challenged && !(this.info.challenges && this.info.challenges.length));
 						this.$tools.toggleClass('active', !this.info.isStarted || this.info.isJoined);
 					}
 
