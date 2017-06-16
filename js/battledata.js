@@ -786,10 +786,8 @@ var Tools = {
 			return {attribs: attribs};
 		};
 		return function (input) {
-			var str = getString(input);
-
 			// Implement <pokemonicon> and <itemicon>
-			str = str.replace(/<(pokemon|item)icon>([^<]*)<\/\1icon>/g, function (match, p1, p2) {
+			input = getString(input).replace(/<(pokemon|item)icon>([^<]*)<\/\1icon>/g, function (match, p1, p2) {
 				if (p1 === 'pokemon') {
 					return '<span class="picon" style="display:inline-block;' + Tools.getPokemonIcon(p2) + '"></span>';
 				} else if (p1 === 'item') {
@@ -797,7 +795,7 @@ var Tools = {
 				}
 			});
 
-			return html.sanitizeWithPolicy(str, tagPolicy);
+			return html.sanitizeWithPolicy(input, tagPolicy);
 		};
 	})(),
 
