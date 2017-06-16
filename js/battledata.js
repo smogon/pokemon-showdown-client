@@ -791,9 +791,9 @@ var Tools = {
 			// Implement <pokemonicon> and <itemicon>
 			str = str.replace(/<(pokemon|item)icon>([^<]*)<\/\1icon>/g, function (match, p1, p2) {
 				if (p1 === 'pokemon') {
-					return '<span class="picon" style="display:inline-block;' + Tools.getPokemonIcon(toId(p2)) + '"></span>';
+					return '<span class="picon" style="display:inline-block;' + Tools.getPokemonIcon(p2) + '"></span>';
 				} else if (p1 === 'item') {
-					return '<span class="itemicon" style="display:inline-block;' + Tools.getItemIcon(toId(p2)) + '"></span>';
+					return '<span class="itemicon" style="display:inline-block;' + Tools.getItemIcon(p2) + '"></span>';
 				}
 			});
 
