@@ -2456,6 +2456,9 @@ a.ilink.yours {
 	opacity: .5;
 	cursor: default;
 }
+.teambar .picon {
+	display: block;
+}
 .teamchart,
 .teamchart li {
 	list-style-type: none;
