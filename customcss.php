@@ -1,5 +1,7 @@
 <?php
 
+ini_set('max_execution_time', 600); //600 seconds = 10 minutes
+
 include '../pokemonshowdown.com/config/servers.inc.php';
 
 spl_autoload_register(function ($class) {
