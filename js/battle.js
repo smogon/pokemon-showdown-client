@@ -897,7 +897,7 @@ var Sprite = (function () {
 			}, sp));
 		}
 	};
-	Sprite.prototype.animSub = function () {
+	Sprite.prototype.animSub = function (instant) {
 		var subsp = Tools.getSpriteData('substitute', this.siden, {
 			afd: this.battle.tier === "[Seasonal] Fools Festival",
 			gen: this.battle.gen
@@ -905,25 +905,26 @@ var Sprite = (function () {
 		this.subsp = subsp;
 		this.iw = subsp.w;
 		this.ih = subsp.h;
-		this.battle.spriteElemsFront[this.siden].append('<img src="' + subsp.url + '" style="display:none;position:absolute" />');
+		this.battle.spriteElemsFront[this.siden].append('<img src="' + subsp.url + '" style="display:none;position:absolute"' + (subsp.pixelated ? ' class="pixelated"' : '') + ' />');
 		this.subElem = this.battle.spriteElemsFront[this.siden].children().last();
 
 		//temp//this.subElem.css({position: 'absolute', display: 'block'});
-		this.selfAnim({}, 500);
 		this.subElem.css({
 			position: 'absolute',
 			opacity: 0,
 			display: 'block'
 		});
-		if (this.battle.fastForward) {
+		if (instant || this.battle.fastForward) {
 			this.subElem.css(this.battle.pos({
 				x: this.x,
 				y: this.y,
 				z: this.z,
 				opacity: 1
 			}, subsp));
+			this.animReset();
 			return;
 		}
+		this.selfAnim({}, 500);
 		this.subElem.css(this.battle.pos({
 			x: this.x,
 			y: this.y + 50,
@@ -1915,6 +1916,9 @@ var Side = (function () {
 			oldpokemon.sprite.animUnsummon(true);
 		}
 		pokemon.sprite.animSummon(slot, true);
+		if (pokemon.hasVolatile('substitute')) {
+			pokemon.sprite.animSub(true);
+		}
 		if (oldpokemon) {
 			oldpokemon.statbarElem.remove();
 			oldpokemon.statbarElem = null;
