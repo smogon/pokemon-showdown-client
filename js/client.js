@@ -1067,7 +1067,18 @@
 			} catch (e) {}
 			if (!data) return;
 
-			Config.serverCustomColors = data;
+			var colors = {};
+
+			for (let user in data) {
+				var entry = data[user];
+				if (!entry) continue;
+
+				if (isNaN(entry[0]) || isNaN(entry[1]) || isNaN(entry[2])) continue; // should receive an array of 3 numbers
+
+				colors[user] = 'color:hsl(' + Math.round(entry[0]) + ',' + parseInt(entry[1]) + '%,' + parseInt(entry[2]) + '%);';
+			}
+
+			Config.serverCustomColors = colors;
 		},
 		parseFormats: function (formatsList) {
 			var isSection = false;
