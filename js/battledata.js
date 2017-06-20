@@ -70,6 +70,7 @@ var colorCache = {};
 
 function hashColor(name) {
 	if (colorCache[name]) return colorCache[name];
+	if (Config.serverCustomColors && Config.serverCustomColors[name]) return Config.serverCustomColors[name];
 	var hash;
 	if (window.Config && Config.customcolors && Config.customcolors[name]) {
 		if (Config.customcolors[name].color) {
