@@ -879,6 +879,16 @@
 				this.parseGroups(tarRow);
 				break;
 
+			case 'customcolors':
+				var nlIndex = data.indexOf('\n');
+				if (nlIndex > 0) {
+					this.receive(data.substr(nlIndex + 1));
+				}
+
+				var tarRow = data.slice(14, nlIndex);
+				this.parseColors(tarRow);
+				break;
+
 			case 'challstr':
 				if (parts[2]) {
 					this.user.receiveChallstr(parts[1] + '|' + parts[2]);
@@ -1049,6 +1059,15 @@
 			}
 
 			Config.groups = groups; // if nothing from above crashes (malicious json), then the client will use the new custom groups
+		},
+		parseColors: function (colorList) {
+			var data = null;
+			try {
+				data = JSON.parse(colorList);
+			} catch (e) {}
+			if (!data) return;
+
+			Config.serverCustomColors = data;
 		},
 		parseFormats: function (formatsList) {
 			var isSection = false;
