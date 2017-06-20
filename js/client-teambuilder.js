@@ -1754,7 +1754,7 @@
 		getBaseStats: function (template) {
 			var baseStats = template.baseStats;
 			var gen = this.curTeam.gen;
-			if (gen < 6) {
+			if (gen < 7) {
 				var overrideStats = BattleTeambuilderTable['gen' + gen].overrideStats[template.id];
 				if (overrideStats || gen === 1) {
 					baseStats = {
