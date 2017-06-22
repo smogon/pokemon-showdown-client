@@ -689,7 +689,11 @@ var Pokemon = (function () {
 			var template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
 			this.volatiles.typechange[2] = template.types ? template.types.join('/') : '';
 		} else {
-			this.volatiles.typechange[2] = pokemon.types ? pokemon.types.join('/') : '';
+			this.volatiles.typechange[2] = (
+				window.BattleTeambuilderTable &&
+				window.BattleTeambuilderTable['gen' + this.side.battle.gen] &&
+				window.BattleTeambuilderTable['gen' + this.side.battle.gen].overrideType[toId(pokemon.species)]
+			) || (pokemon.types ? pokemon.types.join('/') : '');
 		}
 		if (pokemon.volatiles.typeadd) {
 			this.addVolatile('typeadd');
