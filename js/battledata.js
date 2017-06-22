@@ -858,7 +858,7 @@ var Tools = {
 
 				var formattedTime;
 				// Try using Intl API if it exists
-				if (window.Intl) {
+				if (window.Intl && window.Intl.DateTimeFormat) {
 					formattedTime = new Intl.DateTimeFormat(undefined, {month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric'}).format(parsedTime);
 				} else {
 					// toLocaleString even exists in ECMAScript 1, so no need to check
