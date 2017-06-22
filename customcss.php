@@ -1,6 +1,6 @@
 <?php
 
-ini_set('max_execution_time', 600); //600 seconds = 10 minutes
+ini_set('max_execution_time', 60); // 1 minute
 
 include '../pokemonshowdown.com/config/servers.inc.php';
 
