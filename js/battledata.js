@@ -706,7 +706,7 @@ var Tools = {
 		return str;
 	},
 
-	sanitizeHTMLReturningTree: (function () {
+	htmlToSafeDOM: (function () {
 		if (!('html4' in window)) {
 			return function () {
 				throw new Error('sanitizeHTML requires caja');
@@ -883,7 +883,7 @@ var Tools = {
 	})(),
 
 	sanitizeHTML: function (input) {
-		return Tools.sanitizeHTMLReturningTree(input).innerHTML;
+		return Tools.htmlToSafeDOM(input).innerHTML;
 	},
 
 	interstice: (function () {
