@@ -384,6 +384,7 @@ License: GPLv2
 	right: 0;
 	bottom: 0;
 	text-shadow: #FFFFFF 1px 1px 0, #FFFFFF 1px -1px 0, #FFFFFF -1px 1px 0, #FFFFFF -1px -1px 0;
+	color: black;
 }
 .weather em {
 	display: block;
