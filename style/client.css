@@ -1712,6 +1712,10 @@ a.ilink.yours {
  * Battle
  *********************************************************/
 
+.weather {
+	color: #000;
+}
+
 .ps-room .battle-log {
 	position: absolute;
 	top: 0;
@@ -3210,7 +3214,7 @@ a.ilink.yours {
 .dark .battle-log-add,
 .dark .battle-controls {
 	background: #444444;
-	color: #000;
+	color: #DDD;
 }
 .dark .userlist-minimized {
 	background: #444444;
