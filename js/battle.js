@@ -2479,7 +2479,7 @@ var Battle = (function () {
 		} else {
 			this.logFrameElem.html('<div class="battle-options"></div>');
 			this.optionsElem = this.logFrameElem.children().last();
-			this.logFrameElem.append('<div class="inner" role="log"></div>');
+			this.logFrameElem.append('<div class="inner" role="log" title="Battle Log"></div>');
 			this.logElem = this.logFrameElem.children().last();
 			this.logFrameElem.append('<div class="inner-preempt"></div>');
 			this.logPreemptElem = this.logFrameElem.children().last();
@@ -2511,16 +2511,16 @@ var Battle = (function () {
 		this.spriteElem.append('<div></div>');
 		this.spriteElems[0] = this.spriteElem.children().last();
 
-		this.elem.append('<div></div>');
+		this.elem.append('<div role="complementary" title="Active Pokemon"></div>');
 		this.statElem = this.elem.children().last();
 
 		this.elem.append('<div></div>');
 		this.fxElem = this.elem.children().last();
 
-		this.elem.append('<div class="leftbar"></div>');
+		this.elem.append('<div class="leftbar" role="complementary" title="Your Team"></div>');
 		this.leftbarElem = this.elem.children().last();
 
-		this.elem.append('<div class="rightbar"></div>');
+		this.elem.append('<div class="rightbar" role="complementary" title="Opponent\'s Team"></div>');
 		this.rightbarElem = this.elem.children().last();
 
 		this.elem.append('<div></div>');
