@@ -1712,6 +1712,10 @@ a.ilink.yours {
  * Battle
  *********************************************************/
 
+.weather {
+	color: #000;
+}
+
 .ps-room .battle-log {
 	position: absolute;
 	top: 0;
