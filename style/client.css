@@ -3289,7 +3289,7 @@ a.ilink.yours {
 }
 .dark .select:hover, .dark .team.team-hover {
 	border-color: #000000;
-	background: linear-gradient(to bottom,rgba(253, 253, 253, 0.7),rgba(168, 169, 169, 0.7));
+	background: linear-gradient(to bottom,rgba(255, 255, 255, 0.85),rgba(161, 175, 189, 0.85));
 }
 .dark .select:active, .dark .team:active {
 	border-color: #000000;
