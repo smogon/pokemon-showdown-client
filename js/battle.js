@@ -2479,7 +2479,7 @@ var Battle = (function () {
 		} else {
 			this.logFrameElem.html('<div class="battle-options"></div>');
 			this.optionsElem = this.logFrameElem.children().last();
-			this.logFrameElem.append('<div class="inner" role="log" aria-label="Battle Log"></div>');
+			this.logFrameElem.append('<div class="inner" role="log"></div>');
 			this.logElem = this.logFrameElem.children().last();
 			this.logFrameElem.append('<div class="inner-preempt"></div>');
 			this.logPreemptElem = this.logFrameElem.children().last();
