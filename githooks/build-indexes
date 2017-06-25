@@ -8,10 +8,16 @@ const child_process = require("child_process");
 const rootDir = path.resolve(__dirname, '..');
 const dataDir = path.resolve(rootDir, 'data');
 
+const repositoryDir = path.resolve(dataDir, 'Pokemon-Showdown');
+
+if (!fs.existsSync(repositoryDir)) {
+	child_process.execSync('git clone https://github.com/Zarel/Pokemon-Showdown.git', {
+		cwd: dataDir,
+	});
+}
+
 process.stdout.write("Syncing data from Git repository... ");
-child_process.execSync('git pull', {
-	cwd: path.resolve(dataDir, 'Pokemon-Showdown'),
-});
+child_process.execSync('git pull', {cwd: repositoryDir});
 console.log("DONE");
 
 const Tools = require('../data/Pokemon-Showdown/sim/dex');
