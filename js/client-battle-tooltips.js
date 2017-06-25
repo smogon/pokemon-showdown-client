@@ -104,8 +104,11 @@ var BattleTooltips = (function () {
 		' ontouchleave="BattleTooltips._handleTouchLeaveFor(event)"' +
 		' ontouchcancel="BattleTooltips._handleTouchLeaveFor(event)"' +
 		' onmouseover="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
+		' onfocus="BattleTooltips.showTooltipFor(\'' + roomid + '\', \'' + Tools.escapeHTML('' + thing, true) + '\',\'' + type + '\', this, ' + (ownHeight ? 'true' : 'false') + ')"' +
 		' onmouseout="BattleTooltips.hideTooltip()"' +
-		' onmouseup="BattleTooltips._handleMouseUpFor()"';
+		' onblur="BattleTooltips.hideTooltip()"' +
+		' onmouseup="BattleTooltips._handleMouseUpFor()"' +
+		' aria-describedby="tooltipwrapper"';
 	};
 	BattleTooltips.prototype.showTooltip = function (thing, type, elem, ownHeight) {
 		var room = this.room;
@@ -156,7 +159,7 @@ var BattleTooltips = (function () {
 		if (y < 140) y = 140;
 		if (x > $(window).width() - 303) x = Math.max($(window).width() - 303, 0);
 
-		if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper" onclick="$(\'#tooltipwrapper\').html(\'\');"></div>');
+		if (!$('#tooltipwrapper').length) $(document.body).append('<div id="tooltipwrapper" onclick="$(\'#tooltipwrapper\').html(\'\');" role="tooltip"></div>');
 		$('#tooltipwrapper').css({
 			left: x,
 			top: y
