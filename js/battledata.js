@@ -322,12 +322,11 @@ var baseSpeciesChart = [
 var domainRegex = '[a-z0-9\\-]+(?:[.][a-z0-9\\-]+)*';
 var parenthesisRegex = '[(](?:[^\\s()<>&]|&amp;)*[)]';
 var linkRegex = new RegExp(
-	'\\b' +
 	'(?:' +
 		'(?:' +
 			// When using www. or http://, allow any-length TLD (like .museum)
 			'(?:https?://|www[.])' + domainRegex +
-			'|' + domainRegex + '[.]' +
+			'|\\b' + domainRegex + '[.]' +
 				// Allow a common TLD, or any 2-3 letter TLD followed by : or /
 				'(?:com?|org|net|edu|info|us|jp|[a-z]{2,3}(?=[:/]))' +
 		')' +
