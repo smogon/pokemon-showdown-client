@@ -1062,7 +1062,7 @@
 		maxWidth: 1024,
 		isSideRoom: true,
 		initialize: function () {
-			var buf = '<div class="tournament-wrapper"></div><div class="chat-log"><div class="inner"></div></div></div><div class="chat-log-add">Connecting...</div><ul class="userlist"></ul>';
+			var buf = '<div class="tournament-wrapper"></div><div class="chat-log"><div class="inner" role="log"></div></div></div><div class="chat-log-add">Connecting...</div><ul class="userlist"></ul>';
 			this.$el.addClass('ps-room-light').html(buf);
 
 			this.$chatAdd = this.$('.chat-log-add');
