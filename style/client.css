@@ -3158,19 +3158,17 @@ a.ilink.yours {
 .effect-volume,
 .music-volume,
 .notif-volume {
-	height: 39px;
+	min-height: 34px;
 }
 .effect-volume label,
 .music-volume label,
 .notif-volume label {
-	padding-bottom: 12px;
 	font-size: 8pt;
 }
 .effect-volume em,
 .music-volume em,
 .notif-volume em {
 	display: block;
-	margin-top: -6px;
 	font-size: 9pt;
 	padding-left: 5px;
 	color: #555555;
