@@ -1449,7 +1449,7 @@
 		}
 		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (basePower || '&mdash;')) : '') + '</span> ';
 		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (accuracy && accuracy !== true ? accuracy + '%' : '&mdash;') + '</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (pp !== 1 ? pp * 8 / 5 : pp) + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (pp === 1 || move.noPPBoosts ? pp : pp * 8 / 5) + '</span> ';
 
 		// desc
 		var desc = (move.shortDesc || move.desc);
@@ -1493,7 +1493,7 @@
 		// power, accuracy, pp
 		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (move.basePower || '&mdash;')) : '') + '</span> ';
 		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (move.accuracy && move.accuracy !== true ? move.accuracy + '%' : '&mdash;') + '</span> ';
-		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp !== 1 ? move.pp * 8 / 5 : move.pp) + '</span> ';
+		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5) + '</span> ';
 
 		// desc
 		buf += '<span class="col movedesccol">' + Tools.escapeHTML(move.shortDesc || move.desc) + '</span> ';
