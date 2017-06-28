@@ -10,11 +10,13 @@
   },
   "scripts": {
     "test": "eslint --config=.eslintrc.js --cache --cache-file=eslint-cache/base js/*.js data/graphics.js && eslint --config=githooks/.eslintrc.js --cache --cache-file=eslint-cache/build githooks/update githooks/build-indexes",
-    "fix": "eslint --config=.eslintrc.js --fix js/*.js data/graphics.js && eslint --config=githooks/.eslintrc.js --fix githooks/update githooks/build-indexes"
+    "fix": "eslint --config=.eslintrc.js --fix js/*.js data/graphics.js && eslint --config=githooks/.eslintrc.js --fix githooks/update githooks/build-indexes",
+    "testcafe": "githooks/build-indexes && testcafe chrome test/"
   },
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^3.2.2"
+    "eslint": "^3.2.2",
+    "testcafe": "^0.16.1"
   },
   "private": true
 }
