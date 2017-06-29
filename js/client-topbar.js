@@ -166,7 +166,7 @@
 				overflow = offset.left + width + 166 - $(window).width();
 			}
 			if (offset.top >= 37 || overflow > 0) {
-				this.$tabbar.append('<div class="overflow"><button name="tablist" class="button" aria-label="More"><i class="fa fa-caret-down"></i></button></div>');
+				this.$tabbar.append('<div class="overflow" aria-hidden="true"><button name="tablist" class="button" aria-label="More"><i class="fa fa-caret-down"></i></button></div>');
 			}
 
 			if (app.rooms['']) app.rooms[''].updateRightMenu();
