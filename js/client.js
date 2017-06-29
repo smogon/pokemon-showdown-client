@@ -432,6 +432,11 @@
 					}
 				}
 
+				if (Tools.prefs('onepanel')) {
+					self.singlePanelMode = true;
+					self.updateLayout();
+				}
+
 				if (Tools.prefs('bwgfx') || Tools.prefs('noanim')) {
 					// since xy data is loaded by default, only call
 					// loadSpriteData if we want bw sprites or if we need bw
@@ -1464,8 +1469,12 @@
 			// If we don't have any right rooms at all, just show the left
 			// room in full. Home is a left room, so we'll always have a
 			// left room.
-			if (!this.sideRoom) {
+			if (!this.sideRoom || this.singlePanelMode) {
 				this.curRoom.show('full');
+				if (this.curSideRoom) {
+					this.curSideRoom.hide();
+					this.curSideRoom = null;
+				}
 				if (this.curRoom.id === '') {
 					if ($(window).width() < this.curRoom.bestWidth) {
 						this.curRoom.$el.addClass('tiny-layout');

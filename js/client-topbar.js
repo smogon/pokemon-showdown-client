@@ -428,6 +428,7 @@
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
+			'change select[name=onepanel]': 'setOnePanel',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
 			'click img': 'avatars'
@@ -450,6 +451,10 @@
 
 			buf += '<hr />';
 			buf += '<p><strong>Graphics</strong></p>';
+			var onePanel = !!Tools.prefs('onepanel');
+			if ($(window).width() >= 660) {
+				buf += '<p><label class="optlabel">Layout: <select name="onepanel"><option value=""' + (!onePanel ? ' selected="selected"' : '') + '>&#x25EB; Left and right panels</option><option value="1"' + (onePanel ? ' selected="selected"' : '') + '>&#x25FB; Single panel</option></select></label></p>';
+			}
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Tools.prefs('dark') ? ' checked' : '') + ' /> Dark mode (beta)</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Tools.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
@@ -536,6 +541,11 @@
 		},
 		background: function (e) {
 			app.addPopup(CustomBackgroundPopup);
+		},
+		setOnePanel: function (e) {
+			app.singlePanelMode = !!e.currentTarget.value;
+			Tools.prefs('onepanel', !!e.currentTarget.value);
+			app.updateLayout();
 		},
 		setTimestampsLobby: function (e) {
 			this.timestamps.lobby = e.currentTarget.value;
