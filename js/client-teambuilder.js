@@ -720,8 +720,8 @@
 				iconCache: ''
 			};
 
-			// work around Opera 4x crashing when persist() is called
-			if (navigator.storage && navigator.storage.persist && !/ OPR\/4/.test(navigator.userAgent)) {
+			// work around Opera 42-45 crashing when persist() is called
+			if (navigator.storage && navigator.storage.persist && !/ OPR\/4[0-5]/.test(navigator.userAgent)) {
 				var self = this;
 				navigator.storage.persist().then(function (state) {
 					self.updatePersistence(state);
