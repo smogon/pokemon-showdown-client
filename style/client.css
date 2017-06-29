@@ -87,6 +87,10 @@ button {
 button:disabled {
 	cursor: default;
 }
+select {
+	font-size: 9pt;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+}
 
 .dark a {
 	color: #4488EE;
