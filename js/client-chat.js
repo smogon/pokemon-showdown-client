@@ -1162,7 +1162,7 @@
 					// ignore (handled elsewhere)
 					break;
 
-				case 'privacy':
+				case 'metadata':
 					// ignore (for bots parsing only)
 					break;
 
