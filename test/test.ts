@@ -10,7 +10,8 @@ fixture('Pokemon Showdown')
     })
     .after(async ctx => {
         ctx.process.kill();
-    });
+    })
+    .beforeEach(t => t.maximizeWindow());
 
 const expectedTeam = `=== Untitled 1 ===
 
