@@ -1,7 +1,16 @@
 import { Selector } from 'testcafe';
+import { execFile } from 'child_process';
 
 fixture('Pokemon Showdown')
-    .page('../testclient.html?~~localhost');
+    .page('../testclient.html?~~localhost')
+    .before(async ctx => {
+        ctx.process = execFile('../data/Pokemon-Showdown/pokemon-showdown', {
+            cwd: '../data/Pokemon-Showdown',
+        });
+    })
+    .after(async ctx => {
+        ctx.process.kill();
+    });
 
 const expectedTeam = `=== Untitled 1 ===
 
@@ -19,4 +28,16 @@ test('Teambuilder works', async t => {
         .click('[name="backup"]');
 
     await t.expect((await Selector('textarea').value).trim()).eql(expectedTeam);
+});
+
+test('Teambuilder shows level 50 for VGC', async t => {
+    await t.click('[name="close"]')
+        .click('[value="teambuilder"]')
+        .click('[name="newTop"]')
+        .click('.teambuilderformatselect')
+        .click('[value^="gen7vgc"]')
+        .click('[name="addPokemon"]')
+        .click('[data-entry="pokemon|Absol"]')
+        .click('.setdetails')
+        .expect(Selector('[name="level"]').value).eql('50');
 });
