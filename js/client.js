@@ -1080,6 +1080,7 @@
 					var challengeShow = true;
 					var tournamentShow = true;
 					var team = null;
+					var teambuilderLevel = null;
 					var lastCommaIndex = name.lastIndexOf(',');
 					var code = lastCommaIndex >= 0 ? parseInt(name.substr(lastCommaIndex + 1), 16) : NaN;
 					if (!isNaN(code)) {
@@ -1088,6 +1089,7 @@
 						if (!(code & 2)) searchShow = false;
 						if (!(code & 4)) challengeShow = false;
 						if (!(code & 8)) tournamentShow = false;
+						if (code & 16) teambuilderLevel = 50;
 					} else {
 						// Backwards compatibility: late 0.9.0 -> 0.10.0
 						if (name.substr(name.length - 2) === ',#') { // preset teams
@@ -1150,6 +1152,7 @@
 						challengeShow: challengeShow,
 						tournamentShow: tournamentShow,
 						rated: searchShow && id.substr(0, 7) !== 'unrated',
+						teambuilderLevel: teambuilderLevel,
 						teambuilderFormat: teambuilderFormat,
 						isTeambuilderFormat: isTeambuilderFormat,
 						effectType: 'Format'
