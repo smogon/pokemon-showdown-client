@@ -1,11 +1,13 @@
 import { Selector } from 'testcafe';
 import { execFile } from 'child_process';
 
+const showdownDirectory = __dirname + '/../data/Pokemon-Showdown';
+
 fixture('Pokemon Showdown')
     .page('../testclient.html?~~localhost')
     .before(async ctx => {
-        ctx.process = execFile('../data/Pokemon-Showdown/pokemon-showdown', {
-            cwd: '../data/Pokemon-Showdown',
+        ctx.process = execFile(showdownDirectory + '/pokemon-showdown', {
+            cwd: showdownDirectory,
         });
     })
     .after(async ctx => {
