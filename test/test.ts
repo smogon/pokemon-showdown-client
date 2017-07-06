@@ -44,3 +44,12 @@ test('Teambuilder shows level 50 for VGC', async t => {
         .click('.setdetails')
         .expect(Selector('[name="level"]').value).eql('50');
 });
+
+test('Trump Card has 5 PP', async t => {
+    await t.click('[name="close"]')
+        .click('[value="teambuilder"]')
+        .click('[name="newTop"]')
+        .click('[name="addPokemon"]')
+        .pressKey('e e v enter enter enter t c')
+        .expect(Selector('.hover .pplabelcol').textContent).eql('PP5');
+});
