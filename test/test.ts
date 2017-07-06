@@ -50,6 +50,7 @@ test('Trump Card has 5 PP', async t => {
         .click('[value="teambuilder"]')
         .click('[name="newTop"]')
         .click('[name="addPokemon"]')
+        // Eevee (e e v), Trump Card (t c)
         .pressKey('e e v enter enter enter t c')
         .expect(Selector('.hover .pplabelcol').textContent).eql('PP5');
 });
