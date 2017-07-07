@@ -305,6 +305,7 @@ var baseSpeciesChart = [
 	'meowstic',
 	'hoopa',
 	'zygarde',
+	'lycanroc',
 	'wishiwashi',
 	'minior',
 	'mimikyu',
