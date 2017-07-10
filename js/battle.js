@@ -6571,11 +6571,11 @@ var Battle = (function () {
 			break;
 		case 'fieldhtml':
 			var $element = $('.battle');
-			$element.html(args.slice(1, args.length));
+			$elements.html(Tools.sanitizeHTML(args.slice(1).join('|')));
 			break;
 		case 'controlshtml':
 			var $element = $('.battle-controls');
-			$element.html(args.slice(1, args.length));
+			$elements.html(Tools.sanitizeHTML(args.slice(1).join('|')));
 			break;
 		default:
 			this.logConsole('unknown command: ' + args[0]);
