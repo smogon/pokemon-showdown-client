@@ -6569,6 +6569,14 @@ var Battle = (function () {
 				this.log('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button></div>');
 			}
 			break;
+		case 'fieldhtml':
+			var $element = $('.battle');
+			$element.html(args.slice(1, args.length));
+			break;
+		case 'controlshtml':
+			var $element = $('.battle-controls');
+			$element.html(args.slice(1, args.length));
+			break;
 		default:
 			this.logConsole('unknown command: ' + args[0]);
 			this.log('<div>Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
