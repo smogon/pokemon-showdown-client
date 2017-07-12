@@ -209,7 +209,7 @@
 		 *     triggered if the login server did not return a response
 		 */
 		finishRename: function (name, assertion) {
-			if (assertion.slice(0, 14) === '<!DOCTYPE html') {
+			if (assertion.slice(0, 14).toLowerCase() === '<!DOCTYPE html') {
 				// some sort of MitM proxy; ignore it
 				var endIndex = assertion.indexOf('>');
 				if (endIndex > 0) assertion = assertion.slice(endIndex + 1);
@@ -222,6 +222,7 @@
 					return;
 				}
 				app.addPopupMessage("Something is interfering with our connection to the login server.");
+				assertion = assertion.replace(/[\r\n]+/g, ' ');
 				// send to server anyway in case server knows how to deal with it
 				app.send('/trn ' + name + ',0,' + assertion);
 				return;
