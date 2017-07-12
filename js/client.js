@@ -209,7 +209,7 @@
 		 *     triggered if the login server did not return a response
 		 */
 		finishRename: function (name, assertion) {
-			if (assertion.slice(0, 14).toLowerCase() === '<!DOCTYPE html') {
+			if (assertion.slice(0, 14).toLowerCase() === '<!doctype html') {
 				// some sort of MitM proxy; ignore it
 				var endIndex = assertion.indexOf('>');
 				if (endIndex > 0) assertion = assertion.slice(endIndex + 1);
