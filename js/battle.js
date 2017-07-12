@@ -6334,18 +6334,15 @@ var Battle = (function () {
 			}
 			break;
 		case 'chatmsg':
-			args.shift();
-			this.log('<div class="chat">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		case 'chatmsg-raw':
 		case 'raw':
 		case 'html':
-			args.shift();
-			this.log('<div class="chat">' + Tools.sanitizeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat">' + Tools.sanitizeHTML(args[1]) + '</div>', preempt);
 			break;
 		case 'error':
-			args.shift();
-			this.log('<div class="chat message-error">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		case 'pm':
 			this.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + Tools.parseMessage(args[4], args[1]) + '</span>');
@@ -6355,7 +6352,6 @@ var Battle = (function () {
 			break;
 		case 'inactive':
 			if (!this.kickingInactive) this.kickingInactive = true;
-			args.shift();
 			if (args[0].slice(0, 9) === "You have ") {
 				// this is ugly but parseInt is documented to work this way
 				// so I'm going to be lazy and not chop off the rest of the
@@ -6368,12 +6364,11 @@ var Battle = (function () {
 					this.kickingInactive = parseInt(args[0].slice(hasIndex + 5), 10) || true;
 				}
 			}
-			this.log('<div class="chat message-error">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		case 'inactiveoff':
 			this.kickingInactive = false;
-			args.shift();
-			this.log('<div class="chat message-error">' + Tools.escapeHTML(args.join('|')) + '</div>', preempt);
+			this.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		case 'timer':
 			break;
@@ -6537,8 +6532,7 @@ var Battle = (function () {
 			if (this.ended || this.endPrevAction()) return;
 			break;
 		case 'warning':
-			args.shift();
-			this.message('<strong>Warning:</strong> ' + Tools.escapeHTML(args.join('|')));
+			this.message('<strong>Warning:</strong> ' + Tools.escapeHTML(args[1]));
 			this.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
 			this.activityWait(1000);
 			break;
@@ -6591,15 +6585,21 @@ var Battle = (function () {
 			if (str !== '|') {
 				args = str.substr(1).split('|');
 			}
-			if (args[0] === 'c' || args[0] === 'chat' || args[0] === 'error' || args[0] === 'html') {
+			switch (args[0]) {
+			case 'c': case 'chat':
+			case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
+			case 'inactive': case 'inactiveoff': case 'warning':
 				// chat is preserved untouched
 				args = [args[0], str.slice(args[0].length + 2)];
-			} else while (args[args.length - 1] && args[args.length - 1].substr(0, 1) === '[') {
-				var bracketPos = args[args.length - 1].indexOf(']');
-				if (bracketPos <= 0) break;
-				var argstr = args.pop();
-				// default to '.' so it evaluates to boolean true
-				kwargs[argstr.substr(1, bracketPos - 1)] = ($.trim(argstr.substr(bracketPos + 1)) || '.');
+				break;
+			default:
+				while (args[args.length - 1] && args[args.length - 1].substr(0, 1) === '[') {
+					var bracketPos = args[args.length - 1].indexOf(']');
+					if (bracketPos <= 0) break;
+					var argstr = args.pop();
+					// default to '.' so it evaluates to boolean true
+					kwargs[argstr.substr(1, bracketPos - 1)] = ($.trim(argstr.substr(bracketPos + 1)) || '.');
+				}
 			}
 
 			// parse the next line if it's a minor: runMinor needs it parsed to determine when to merge minors
