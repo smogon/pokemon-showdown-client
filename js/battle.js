@@ -6593,12 +6593,15 @@ var Battle = (function () {
 				args = [args[0], str.slice(args[0].length + 2)];
 				break;
 			default:
-				while (args[args.length - 1] && args[args.length - 1].substr(0, 1) === '[') {
-					var bracketPos = args[args.length - 1].indexOf(']');
+				// parse kwargs
+				while (args.length) {
+					var argstr = args[args.length - 1];
+					if (argstr.substr(0, 1) !== '[') break;
+					var bracketPos = argstr.indexOf(']');
 					if (bracketPos <= 0) break;
-					var argstr = args.pop();
 					// default to '.' so it evaluates to boolean true
 					kwargs[argstr.substr(1, bracketPos - 1)] = ($.trim(argstr.substr(bracketPos + 1)) || '.');
+					args.pop();
 				}
 			}
 
