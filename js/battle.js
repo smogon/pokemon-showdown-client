@@ -6580,78 +6580,78 @@ var Battle = (function () {
 		if (str.charAt(0) !== '|' || str.substr(0, 2) === '||') {
 			if (str.charAt(0) === '|') str = str.substr(2);
 			this.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
-		} else {
-			var args = ['done'], kwargs = {};
-			if (str !== '|') {
-				args = str.substr(1).split('|');
+			return;
+		}
+		var args = ['done'], kwargs = {};
+		if (str !== '|') {
+			args = str.substr(1).split('|');
+		}
+		switch (args[0]) {
+		case 'c': case 'chat':
+		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
+		case 'inactive': case 'inactiveoff': case 'warning':
+			// chat is preserved untouched
+			args = [args[0], str.slice(args[0].length + 2)];
+			break;
+		default:
+			// parse kwargs
+			while (args.length) {
+				var argstr = args[args.length - 1];
+				if (argstr.substr(0, 1) !== '[') break;
+				var bracketPos = argstr.indexOf(']');
+				if (bracketPos <= 0) break;
+				// default to '.' so it evaluates to boolean true
+				kwargs[argstr.substr(1, bracketPos - 1)] = ($.trim(argstr.substr(bracketPos + 1)) || '.');
+				args.pop();
 			}
-			switch (args[0]) {
-			case 'c': case 'chat':
-			case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
-			case 'inactive': case 'inactiveoff': case 'warning':
-				// chat is preserved untouched
-				args = [args[0], str.slice(args[0].length + 2)];
-				break;
-			default:
-				// parse kwargs
-				while (args.length) {
-					var argstr = args[args.length - 1];
-					if (argstr.substr(0, 1) !== '[') break;
-					var bracketPos = argstr.indexOf(']');
-					if (bracketPos <= 0) break;
-					// default to '.' so it evaluates to boolean true
-					kwargs[argstr.substr(1, bracketPos - 1)] = ($.trim(argstr.substr(bracketPos + 1)) || '.');
-					args.pop();
-				}
-			}
+		}
 
-			// parse the next line if it's a minor: runMinor needs it parsed to determine when to merge minors
-			var nextLine = '', nextArgs = [''], nextKwargs = {};
-			nextLine = this.activityQueue[this.activityStep + 1] || '';
-			if (nextLine && nextLine.substr(0, 2) === '|-') {
-				nextLine = $.trim(nextLine.substr(1));
-				nextArgs = nextLine.split('|');
-				while (nextArgs[nextArgs.length - 1] && nextArgs[nextArgs.length - 1].substr(0, 1) === '[') {
-					var bracketPos = nextArgs[nextArgs.length - 1].indexOf(']');
-					if (bracketPos <= 0) break;
-					var argstr = nextArgs.pop();
-					// default to '.' so it evaluates to boolean true
-					nextKwargs[argstr.substr(1, bracketPos - 1)] = ($.trim(argstr.substr(bracketPos + 1)) || '.');
-				}
+		// parse the next line if it's a minor: runMinor needs it parsed to determine when to merge minors
+		var nextLine = '', nextArgs = [''], nextKwargs = {};
+		nextLine = this.activityQueue[this.activityStep + 1] || '';
+		if (nextLine && nextLine.substr(0, 2) === '|-') {
+			nextLine = $.trim(nextLine.substr(1));
+			nextArgs = nextLine.split('|');
+			while (nextArgs[nextArgs.length - 1] && nextArgs[nextArgs.length - 1].substr(0, 1) === '[') {
+				var bracketPos = nextArgs[nextArgs.length - 1].indexOf(']');
+				if (bracketPos <= 0) break;
+				var argstr = nextArgs.pop();
+				// default to '.' so it evaluates to boolean true
+				nextKwargs[argstr.substr(1, bracketPos - 1)] = ($.trim(argstr.substr(bracketPos + 1)) || '.');
 			}
+		}
 
-			if (this.debug) {
-				if (args[0].substr(0, 1) === '-') {
-					this.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
-				} else {
-					this.runMajor(args, kwargs, preempt);
-				}
-			} else try {
-				if (args[0].substr(0, 1) === '-') {
-					this.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
-				} else {
-					this.runMajor(args, kwargs, preempt);
-				}
-			} catch (e) {
-				this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + ' (' + Tools.escapeHTML('' + e) + ')</div>', preempt);
-				if (e.stack) {
-					var stack = Tools.escapeHTML('' + e.stack).split('\n');
-					for (var i = 0; i < stack.length; i++) {
-						if (/\brun\b/.test(stack[i])) {
-							stack.length = i;
-							break;
-						}
+		if (this.debug) {
+			if (args[0].substr(0, 1) === '-') {
+				this.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
+			} else {
+				this.runMajor(args, kwargs, preempt);
+			}
+		} else try {
+			if (args[0].substr(0, 1) === '-') {
+				this.runMinor(args, kwargs, preempt, nextArgs, nextKwargs);
+			} else {
+				this.runMajor(args, kwargs, preempt);
+			}
+		} catch (e) {
+			this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + ' (' + Tools.escapeHTML('' + e) + ')</div>', preempt);
+			if (e.stack) {
+				var stack = Tools.escapeHTML('' + e.stack).split('\n');
+				for (var i = 0; i < stack.length; i++) {
+					if (/\brun\b/.test(stack[i])) {
+						stack.length = i;
+						break;
 					}
-					this.log('<div class="chat">' + stack.join('<br>') + '</div>', preempt);
 				}
-				if (this.errorCallback) this.errorCallback(this);
+				this.log('<div class="chat">' + stack.join('<br>') + '</div>', preempt);
 			}
+			if (this.errorCallback) this.errorCallback(this);
+		}
 
-			if (this.fastForward > 0 && this.fastForward < 1) {
-				if (nextLine.substr(0, 6) === '|start') {
-					this.fastForwardOff();
-					if (this.endCallback) this.endCallback(this);
-				}
+		if (this.fastForward > 0 && this.fastForward < 1) {
+			if (nextLine.substr(0, 6) === '|start') {
+				this.fastForwardOff();
+				if (this.endCallback) this.endCallback(this);
 			}
 		}
 	};
