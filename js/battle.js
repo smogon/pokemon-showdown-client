@@ -6352,16 +6352,16 @@ var Battle = (function () {
 			break;
 		case 'inactive':
 			if (!this.kickingInactive) this.kickingInactive = true;
-			if (args[0].slice(0, 9) === "You have ") {
+			if (args[1].slice(0, 9) === "You have ") {
 				// this is ugly but parseInt is documented to work this way
 				// so I'm going to be lazy and not chop off the rest of the
 				// sentence
-				this.kickingInactive = parseInt(args[0].slice(9), 10) || true;
+				this.kickingInactive = parseInt(args[1].slice(9), 10) || true;
 				return;
-			} else if (args[0].slice(-14) === ' seconds left.') {
-				var hasIndex = args[0].indexOf(' has ');
-				if (toId(args[0].slice(0, hasIndex)) === app.user.get('userid')) {
-					this.kickingInactive = parseInt(args[0].slice(hasIndex + 5), 10) || true;
+			} else if (args[1].slice(-14) === ' seconds left.') {
+				var hasIndex = args[1].indexOf(' has ');
+				if (toId(args[1].slice(0, hasIndex)) === app.user.get('userid')) {
+					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
 			}
 			this.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
