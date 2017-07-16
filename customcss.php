@@ -30,7 +30,7 @@ if (empty($customcssuri)) {
 	$customcssuri = $protocol . '://'.$serverdata['server'].':'.$serverdata['port'].'/custom.css';
 }
 
-// No need to sanitise $server because it should be safe already.
+// No need to sanitize $server because it should be safe already.
 $cssfile = '../pokemonshowdown.com/config/customcss/' . $server . '.css';
 
 $lastmodified = @filemtime($cssfile);
@@ -66,7 +66,7 @@ $curlret = curl_exec($curl);
 if ($curlret) {
 	$code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 	if ($code === 200) {
-		// Sanitise the CSS.
+		// Sanitize the CSS.
 		// Parse a stylesheet from a string
 		$parser = Parser::newFromString($curlret);
 		$stylesheet = $parser->parseStylesheet();
