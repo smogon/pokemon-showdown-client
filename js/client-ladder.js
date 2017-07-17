@@ -84,7 +84,7 @@
 		COIL_B: {
 			'gen7oususpecttest': 17,
 			'gen7uususpecttest': 20,
-			'gen7rususpecttest': 11,
+			'gen7rususpecttest': 9,
 			'gen7nususpecttest': 9,
 			'gen7lcsuspecttest': 13,
 			'gen7doublesoususpecttest': 14.5,
