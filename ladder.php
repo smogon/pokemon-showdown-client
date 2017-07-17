@@ -46,7 +46,7 @@ foreach ($toplist as $row)
 			<td>
 			<?php if ($row['formatid'] == 'gen7oususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-17.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7uususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-20.0/$N) : 0,1,'.','');
-			elseif ($row['formatid'] == 'gen7rususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-11.0/$N) : 0,1,'.','');
+			elseif ($row['formatid'] == 'gen7rususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-9.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7nususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-9.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7lcsuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-13.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7doublesoususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-14.5/$N) : 0,1,'.','');
