@@ -785,7 +785,7 @@
 			if (!name && app.user.get('named')) name = app.user.get('name');
 			buf += '<p><label class="label">Username: <small class="preview" style="' + hashColor(toUserid(name)) + '">(color)</small><input class="textbox autofocus" type="text" name="username" value="' + Tools.escapeHTML(name) + '"></label></p>';
 			if (name) {
-				buf += '<p><small>Note: Other users will be able to see your name change. To change name privately, log out and back in instead.</small></p>';
+				buf += '<p><small>(Others will be able to see your name change. To change name privately, use "Log out")</small></p>';
 			}
 			buf += '<p class="buttonbar"><button type="submit"><strong>Choose name</strong></button> <button name="close">Cancel</button></p>';
 
