@@ -445,7 +445,7 @@ class NTBBSession {
 				} else if (intval(@$user['banstate']) <= -10) {
 					$usertype = '4';
 				} else if (@$user['banstate'] >= 100) {
-					return ';;Your account is disabled.';
+					return ';;Your username is no longer available.';
 				} else if (@$user['banstate'] >= 40) {
 					if ($serverhostname === 'sim2.psim.us') {
 						$usertype = '40';
@@ -484,10 +484,10 @@ class NTBBSession {
 			} else if ($row = $psdb->fetch_assoc($res)) {
 				// Username exists, but the user isn't logged in: require authentication.
 				if ($row['banstate'] >= 100) {
-					return ';;Your account is disabled.';
+					return ';;Your username is no longer available.';
 				}
 				if ($row['password'] && $row['nonce']) {
-					return ';;Your account is disabled.';
+					return ';;Your username is no longer available.';
 				}
 				return ';';
 			} else {
