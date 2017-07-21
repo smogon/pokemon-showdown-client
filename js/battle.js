@@ -6360,7 +6360,8 @@ var Battle = (function () {
 				return;
 			} else if (args[1].slice(-14) === ' seconds left.') {
 				var hasIndex = args[1].indexOf(' has ');
-				if (toId(args[1].slice(0, hasIndex)) === app.user.get('userid')) {
+				var userid = (window.app && app.user && app.user.get('userid'));
+				if (toId(args[1].slice(0, hasIndex)) === userid) {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
 			}
