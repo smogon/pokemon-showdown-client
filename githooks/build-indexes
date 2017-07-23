@@ -54,7 +54,7 @@ function requireNoCache(pathSpec) {
 	index = index.concat(Object.keys(Tools.data.TypeChart).map(x => toId(x) + ' type'));
 	index = index.concat(['physical', 'special', 'status'].map(x => toId(x) + ' category'));
 	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toId(x) + ' egggroup'));
-	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'lc', 'nfe', 'uber', 'bl', 'bl2', 'bl3', 'bl4', 'cap', 'caplc'].map(x => toId(x) + ' tier'));
+	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'lc', 'nfe', 'uber', 'bl', 'bl2', 'bl3', 'bl4', 'cap', 'caplc', 'capnfe'].map(x => toId(x) + ' tier'));
 
 	try {
 		for (const file of fs.readdirSync(path.resolve(rootDir, '../dex.pokemonshowdown.com/articles/'))) {
@@ -381,15 +381,15 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["Uber", "OU", "BL", "UU", "BL2", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen4') {
-				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "NU", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP LC", "CAP NFE", "Uber", "OU", "BL", "UU", "BL2", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen5') {
-				return ["CAP", "Uber", "OU", "BL", "UU", "BL2", "RU", "BL3", "NU", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP LC", "CAP NFE", "Uber", "OU", "BL", "UU", "BL2", "RU", "BL3", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen7') {
-				return ["CAP", "CAP LC", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "New", "Unreleased", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP LC", "CAP NFE", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "New", "Unreleased", "NFE", "LC Uber", "LC"];
 			}
-			return ["CAP", "CAP LC", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
+			return ["CAP", "CAP LC", "CAP NFE", "Uber", "OU", "BL", "(OU)", "UU", "BL2", "RU", "BL3", "NU", "BL4", "PU", "NFE", "LC Uber", "LC"];
 		})();
 
 		for (const tier of tierOrder) {
