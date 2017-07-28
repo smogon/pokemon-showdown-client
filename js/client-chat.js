@@ -1251,9 +1251,7 @@
 
 				case 'raw':
 				case 'html':
-					var sanitized = Tools.htmlToSafeDOM(row.slice(1).join('|'));
-					sanitized.setAttribute('class', 'notice');
-					this.$chat.append(sanitized);
+					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
 				case 'notify':
