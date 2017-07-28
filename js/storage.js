@@ -542,7 +542,7 @@ Storage.unpackAllTeams = function (buffer) {
 	if (buffer.charAt(0) === '[' && $.trim(buffer).indexOf('\n') < 0) {
 		// old format
 		return JSON.parse(buffer).map(function (oldTeam) {
-			var format = oldTeam.format || '';
+			var format = oldTeam.format || 'gen7';
 			if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 			return {
 				name: oldTeam.name || '',
@@ -561,7 +561,7 @@ Storage.unpackAllTeams = function (buffer) {
 		if (bracketIndex > pipeIndex) bracketIndex = -1;
 		var slashIndex = line.lastIndexOf('/', pipeIndex);
 		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
-		var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : '';
+		var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
 		if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 		return {
 			name: line.slice(slashIndex + 1, pipeIndex),
@@ -987,7 +987,7 @@ Storage.importTeam = function (text, teams) {
 		} else if (line.substr(0, 3) === '===' && teams) {
 			team = [];
 			line = $.trim(line.substr(3, line.length - 6));
-			var format = '';
+			var format = 'gen7';
 			var bracketIndex = line.indexOf(']');
 			if (bracketIndex >= 0) {
 				format = line.substr(1, bracketIndex - 1);
