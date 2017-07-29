@@ -294,7 +294,7 @@ var BattleTooltips = (function () {
 		if (additionalInfo) text += '<p>' + additionalInfo + '</p>';
 		text += '<p>Accuracy: ' + accuracy + '</p>';
 		if (move.desc) {
-			if (this.battle.gen < 7) {
+			if (this.battle.gen < 7 || this.battle.hardcoreMode) {
 				var desc = move.shortDesc;
 				for (var i = this.battle.gen; i < 7; i++) {
 					if (move.id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
@@ -417,13 +417,17 @@ var BattleTooltips = (function () {
 		text += '</h2>';
 		if (pokemon.fainted) {
 			text += '<p>HP: (fainted)</p>';
+		} else if (this.battle.hardcoreMode) {
+			if (pokemonData) {
+				text += '<p>HP: ' + pokemonData.hp + '/' + pokemonData.maxhp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
+			}
 		} else {
 			var exacthp = '';
 			if (pokemonData) exacthp = ' (' + pokemonData.hp + '/' + pokemonData.maxhp + ')';
 			else if (pokemon.maxhp == 48) exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
 			text += '<p>HP: ' + pokemon.hpDisplay() + exacthp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
 		}
-		var showOtherSees = isActive;
+		var showOtherSees = !this.battle.hardcoreMode && isActive;
 		if (pokemonData) {
 			if (this.battle.gen > 2) {
 				var abilityText = '';
@@ -448,7 +452,7 @@ var BattleTooltips = (function () {
 				text += '&nbsp;SpA /&nbsp;' + pokemonData.stats['spd'] + '&nbsp;SpD /&nbsp;';
 			}
 			text += pokemonData.stats['spe'] + '&nbsp;Spe</p>';
-			if (isActive) {
+			if (showOtherSees) {
 				if (this.battle.gen > 1) {
 					var modifiedStats = this.calculateModifiedStats(pokemon, pokemonData);
 					var statsText = this.makeModifiedStatText(pokemonData, modifiedStats);
@@ -460,7 +464,7 @@ var BattleTooltips = (function () {
 				text += '<p class="section">Opponent sees:</p>';
 			}
 		} else {
-			showOtherSees = true;
+			showOtherSees = !this.battle.hardcoreMode;
 		}
 		if (this.battle.gen > 2 && showOtherSees) {
 			if (!pokemon.baseAbility && !pokemon.ability) {
@@ -523,7 +527,7 @@ var BattleTooltips = (function () {
 				text += '&#8226; ' + name + '<br />';
 			}
 			text += '</p>';
-		} else if (pokemon.moveTrack && pokemon.moveTrack.length) {
+		} else if (!this.battle.hardcoreMode && pokemon.moveTrack && pokemon.moveTrack.length) {
 			text += '<p class="section">';
 			for (var i = 0; i < pokemon.moveTrack.length; i++) {
 				text += '&#8226; ' + this.getPPUseText(pokemon.moveTrack[i]) + '<br />';
