@@ -225,6 +225,9 @@
 			var id = '#' + this.el.id + ' ';
 			this.$('.hcmode-style').remove();
 			if (mode) this.$el.prepend('<style class="hcmode-style">' + id + '.battle .turn,' + id + '.battle-history{display:none !important;}</style>');
+			if (this.choice && this.choice.waiting) {
+				this.updateControlsForPlayer();
+			}
 		},
 
 		/*********************************************************
