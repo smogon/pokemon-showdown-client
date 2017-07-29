@@ -1396,6 +1396,12 @@ var Side = (function () {
 			var poke = this.pokemon[i];
 			if (i >= this.totalPokemon) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-none') + '"></span>';
+			} else if (this.battle.hardcoreMode && poke && poke.fainted) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-fainted') + '" title="Fainted"></span>';
+			} else if (this.battle.hardcoreMode && poke && poke.status) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-statused') + '" title="Status"></span>';
+			} else if (this.battle.hardcoreMode) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Non-statused"></span>';
 			} else if (!poke) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Not revealed"></span>';
 			} else {
@@ -2131,9 +2137,13 @@ var Side = (function () {
 	Side.prototype.updateHPText = function (pokemon) {
 		var $hptext = pokemon.statbarElem.find('.hptext');
 		var $hptextborder = pokemon.statbarElem.find('.hptextborder');
-		if (pokemon.maxhp === 48) {
+		if (pokemon.maxhp === 48 || this.battle.hardcoreMode && pokemon.maxhp === 100) {
 			$hptext.hide();
 			$hptextborder.hide();
+		} else if (this.battle.hardcoreMode) {
+			$hptext.html(pokemon.hp + '/');
+			$hptext.show();
+			$hptextborder.show();
 		} else {
 			$hptext.html(pokemon.hpWidth(100) + '%');
 			$hptext.show();
@@ -2792,7 +2802,7 @@ var Battle = (function () {
 	};
 	Battle.prototype.message = function (message, hiddenmessage) {
 		if (message && !this.messageActive) {
-			this.log('<div class="spacer"></div>');
+			this.log('<div class="spacer battle-history"></div>');
 		}
 		if (message && !this.fastForward) {
 			if (!this.messageActive) {
@@ -2827,7 +2837,7 @@ var Battle = (function () {
 			this.activityWait(messageElem);
 		}
 		this.messageActive = true;
-		this.log('<div>' + message + (hiddenmessage ? hiddenmessage : '') + '</div>');
+		this.log('<div class="battle-history">' + message + (hiddenmessage ? hiddenmessage : '') + '</div>');
 	};
 	Battle.prototype.endAction = function () {
 		if (this.messageActive) {
@@ -2865,6 +2875,12 @@ var Battle = (function () {
 			this.yourSide.updateStatbar(null, true);
 		}
 	};
+	Battle.prototype.setHardcoreMode = function (mode) {
+		this.hardcoreMode = mode;
+		this.mySide.updateSidebar();
+		this.yourSide.updateSidebar();
+		this.updateWeather(undefined, true);
+	};
 	Battle.prototype.setTurn = function (turnnum) {
 		turnnum = parseInt(turnnum, 10);
 		if (turnnum == this.turn + 1) {
@@ -2880,7 +2896,7 @@ var Battle = (function () {
 		if (this.yourSide.active[1]) this.yourSide.active[1].clearTurnstatuses();
 		if (this.yourSide.active[2]) this.yourSide.active[2].clearTurnstatuses();
 
-		this.log('<h2>Turn ' + turnnum + '</h2>');
+		this.log('<h2 class="battle-history">Turn ' + turnnum + '</h2>');
 
 		var prevTurnElem = this.turnElem.children();
 		if (this.fastForward) {
@@ -3034,6 +3050,7 @@ var Battle = (function () {
 			pWeather[1] = pWeather[2];
 			pWeather[2] = 0;
 		}
+		if (this.gen < 7 && this.hardcoreMode) return buf;
 		if (pWeather[2]) {
 			return buf + ' <small>(' + pWeather[1] + ' or ' + pWeather[2] + ' turns)</small>';
 		}
@@ -3049,12 +3066,14 @@ var Battle = (function () {
 			cond[3] = cond[4];
 			cond[4] = 0;
 		}
+		if (this.gen < 7 && this.hardcoreMode) return buf;
 		if (!cond[4]) {
 			return buf + ' <small>(' + cond[3] + ' turn' + (cond[3] == 1 ? '' : 's') + ')</small>';
 		}
 		return buf + ' <small>(' + cond[3] + ' or ' + cond[4] + ' turns)</small>';
 	};
 	Battle.prototype.weatherLeft = function () {
+		if (this.gen < 7 && this.harcoreMode) return '';
 		if (this.weatherMinTimeLeft != 0) {
 			return ' <small>(' + this.weatherMinTimeLeft + ' or ' + this.weatherTimeLeft + ' turns)</small>';
 		}
@@ -3218,7 +3237,7 @@ var Battle = (function () {
 			$hp.addClass('hp-yellow hp-red');
 		};
 
-		this.resultAnim(pokemon, '&minus;' + damage, 'bad');
+		this.resultAnim(pokemon, this.hardcoreMode ? 'Damage' : '&minus;' + damage, 'bad');
 
 		$hp.animate({
 			width: w,
@@ -3241,7 +3260,7 @@ var Battle = (function () {
 			$hp.removeClass('hp-red');
 		};
 
-		this.resultAnim(pokemon, '+' + damage, 'good');
+		this.resultAnim(pokemon, this.hardcoreMode ? 'Heal' : '+' + damage, 'good');
 
 		$hp.animate({
 			width: w,

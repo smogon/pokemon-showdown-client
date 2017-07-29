@@ -1848,6 +1848,7 @@
 
 			if (!(options && options.nojoin)) this.join();
 			if (options && options.title) this.title = options.title;
+			this.el.id = 'room-' + this.id;
 		},
 		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
