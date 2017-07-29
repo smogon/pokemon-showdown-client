@@ -3073,7 +3073,7 @@ var Battle = (function () {
 		return buf + ' <small>(' + cond[3] + ' or ' + cond[4] + ' turns)</small>';
 	};
 	Battle.prototype.weatherLeft = function () {
-		if (this.gen < 7 && this.harcoreMode) return '';
+		if (this.gen < 7 && this.hardcoreMode) return '';
 		if (this.weatherMinTimeLeft != 0) {
 			return ' <small>(' + this.weatherMinTimeLeft + ' or ' + this.weatherTimeLeft + ' turns)</small>';
 		}
