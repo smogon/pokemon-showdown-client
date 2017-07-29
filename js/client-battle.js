@@ -438,6 +438,7 @@
 				}, 1000);
 			} else if (this.battle.kickingInactive > 1) {
 				this.battle.kickingInactive--;
+				if (this.battle.totalTimeLeft) this.battle.totalTimeLeft--;
 			}
 
 			if (this.battle.kickingInactive) {
@@ -449,6 +450,13 @@
 					var minutesLeft = Math.floor(secondsLeft / 60);
 					secondsLeft -= minutesLeft * 60;
 					time = '' + minutesLeft + ':' + (secondsLeft < 10 ? '0' : '') + secondsLeft;
+
+					secondsLeft = this.battle.totalTimeLeft;
+					if (secondsLeft) {
+						minutesLeft = Math.floor(secondsLeft / 60);
+						secondsLeft -= minutesLeft * 60;
+						time += ' | ' + minutesLeft + ':' + (secondsLeft < 10 ? '0' : '') + secondsLeft + ' total';
+					}
 				} else {
 					time = '-:--';
 				}
