@@ -81,6 +81,8 @@
 			this.update();
 		},
 		refresh: function () {
+			this.$refreshButton = this.$('button[name=refresh]');
+			this.$refreshButton.fadeOut();
 			this.update();
 		}
 	}, {
