@@ -81,8 +81,7 @@
 			this.update();
 		},
 		refresh: function () {
-			this.$refreshButton = this.$('button[name=refresh]');
-			this.$refreshButton.fadeOut();
+			this.$('button[name=refresh]').addClass('disabled').prop('disabled', true);
 			this.update();
 		}
 	}, {
