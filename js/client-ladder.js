@@ -56,7 +56,7 @@
 						output: 'html'
 					}, function (data) {
 						if (self.curFormat !== format) return;
-						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p>';
+						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button></p>';
 						buf += '<h3>' + Tools.escapeFormat(format) + ' Top 500</h3>';
 						buf += data + '</div>';
 						self.$el.html(buf);
@@ -78,6 +78,10 @@
 		},
 		selectFormat: function (format) {
 			this.curFormat = format;
+			this.update();
+		},
+		refresh: function () {
+			this.$('button[name=refresh]').addClass('disabled').prop('disabled', true);
 			this.update();
 		}
 	}, {
