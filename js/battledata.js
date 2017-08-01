@@ -735,8 +735,9 @@ var Tools = {
 			'psicon::item': 0
 		});
 
-		var uriRewriter = function (uri) {
-			return uri;
+		var uriRewriter = function (urlData) {
+			if (urlData.scheme_ === 'geo' || urlData.scheme_ === 'sms' || urlData.scheme_ === 'tel') return null;
+			return urlData;
 		};
 		var tagPolicy = function (tagName, attribs) {
 			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
