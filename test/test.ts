@@ -15,7 +15,7 @@ fixture('Pokemon Showdown')
     })
     .beforeEach(t => t.maximizeWindow());
 
-const expectedTeam = `=== Untitled 1 ===
+const expectedTeam = `=== [gen7] Untitled 1 ===
 
 Abomasnow-Mega @ Abomasite\x20\x20
 Ability: Snow Warning`;
