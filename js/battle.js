@@ -1392,18 +1392,21 @@ var Side = (function () {
 	};
 	Side.prototype.updateSidebar = function () {
 		var pokemonhtml = '';
+		var noShow = this.battle.hardcoreMode && this.battle.gen < 7;
 		for (var i = 0; i < 6; i++) {
 			var poke = this.pokemon[i];
 			if (i >= this.totalPokemon) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-none') + '"></span>';
-			} else if (this.battle.hardcoreMode && poke && poke.fainted) {
+			} else if (noShow && poke && poke.fainted) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-fainted') + '" title="Fainted"></span>';
-			} else if (this.battle.hardcoreMode && poke && poke.status) {
+			} else if (noShow && poke && poke.status) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-statused') + '" title="Status"></span>';
-			} else if (this.battle.hardcoreMode) {
+			} else if (noShow) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Non-statused"></span>';
 			} else if (!poke) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Not revealed"></span>';
+			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < this.pokemon.length) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !this.n) + ';opacity:0.6" title="' + poke.getFullName(true) + '"></span>';
 			} else {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !this.n) + '" title="' + poke.getFullName(true) + '"></span>';
 			}

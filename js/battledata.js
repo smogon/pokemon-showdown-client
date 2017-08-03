@@ -1312,7 +1312,7 @@ var Tools = {
 		} else if (pokemon === 'pokeball-statused') {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
 		} else if (pokemon === 'pokeball-fainted') {
-			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
+			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
 		} else if (pokemon === 'pokeball-none') {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
 		}
@@ -1640,7 +1640,7 @@ var Tools = {
 
 		var top = Math.floor(num / 12) * 30;
 		var left = (num % 12) * 40;
-		var fainted = (pokemon && pokemon.fainted ? ';opacity:.4' : '');
+		var fainted = (pokemon && pokemon.fainted ? ';opacity:.7;filter:contrast(0)' : '');
 		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-sheet.png?a1) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
