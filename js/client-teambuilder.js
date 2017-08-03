@@ -706,11 +706,11 @@
 			this.edit(0);
 		},
 		createTeam: function () {
-			var format = this.curFolder;
+			var format = this.curFolder || 'gen7';
 			var folder = '';
 			if (format && format.charAt(format.length - 1) === '/') {
 				folder = format.slice(0, -1);
-				format = '';
+				format = 'gen7';
 			}
 			var newTeam = {
 				name: 'Untitled ' + (teams.length + 1),
@@ -1030,9 +1030,14 @@
 					this.curSetList.splice(this.curSetList.length - 1, 1);
 				}
 
+				var isGenericFormat = function (formatName) {
+					if (!formatName) return true;
+					if (/^gen\d+$/.test(formatName)) return true;
+					return false;
+				};
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select">';
-					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.format + '">' + (Tools.escapeFormat(this.curTeam.format) || '<em>Select a format</em>') + '</button>';
+					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.format + '">' + (isGenericFormat(this.curTeam.format) ? '<em>Select a format</em>' : Tools.escapeFormat(this.curTeam.format)) + '</button>';
 					var btnClass = 'button' + (!this.curSetList.length ? ' disabled' : '');
 					buf += ' <button name="validate" class="' + btnClass + '"><i class="fa fa-check"></i> Validate</button></li>';
 				}
