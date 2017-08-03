@@ -6374,7 +6374,12 @@ var Battle = (function () {
 			break;
 		case 'inactive':
 			if (!this.kickingInactive) this.kickingInactive = true;
-			if (args[1].slice(0, 9) === "You have ") {
+			if (args[1].slice(0, 11) === "Time left: ") {
+				this.kickingInactive = parseInt(args[1].slice(11), 10) || true;
+				this.totalTimeLeft = parseInt(args[1].split(' | ')[1], 10);
+				if (this.totalTimeLeft === this.kickingInactive) this.totalTimeLeft = 0;
+				return;
+			} else if (args[1].slice(0, 9) === "You have ") {
 				// this is ugly but parseInt is documented to work this way
 				// so I'm going to be lazy and not chop off the rest of the
 				// sentence
