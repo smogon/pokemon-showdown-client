@@ -1047,6 +1047,9 @@ var BattleTooltips = (function () {
 		if (move.id === 'weatherball' && thereIsWeather) {
 			basePower = 100;
 		}
+		if (move.id === 'watershuriken' && pokemon.species === 'Greninja-Ash' && pokemon.ability === 'Battle Bond') {
+			basePower += 5;
+		}
 		// Moves that check opponent speed.
 		var template = target;
 		if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
