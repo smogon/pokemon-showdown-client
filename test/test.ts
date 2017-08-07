@@ -17,15 +17,15 @@ fixture('Pokemon Showdown')
 
 const expectedTeam = `=== [gen7] Untitled 1 ===
 
-Abomasnow-Mega @ Abomasite\x20\x20
-Ability: Snow Warning`;
+Charizard-Mega-Y @ Charizardite Y\x20\x20
+Ability: Drought`;
 
 test('Teambuilder works', async t => {
     await t.click('[name="close"]')
         .click('[value="teambuilder"]')
         .click('[name="newTop"]')
         .click('[name="addPokemon"]')
-        .click('[data-entry="pokemon|Abomasnow-Mega"]')
+        .click('[data-entry="pokemon|Charizard-Mega-Y"]')
         .click('[name="back"]')
         .click('[name="back"]')
         .click('[name="backup"]');
