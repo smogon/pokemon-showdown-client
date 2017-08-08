@@ -203,7 +203,6 @@ var BattleTooltips = (function () {
 
 	BattleTooltips.prototype.showMoveTooltip = function (move, isZ) {
 		var text = '';
-		var basePower = move.basePower;
 		var basePowerText = '';
 		var additionalInfo = '';
 		var yourActive = this.battle.yourSide.active;
@@ -227,6 +226,8 @@ var BattleTooltips = (function () {
 				// TODO: Weather Ball type-changing shenanigans
 			}
 		}
+
+		var basePower = move.basePower;
 
 		// Check if there are more than one active Pokémon to check for multiple possible BPs.
 		if (yourActive.length > 1) {
