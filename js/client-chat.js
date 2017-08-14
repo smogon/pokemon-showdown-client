@@ -93,7 +93,8 @@
 			}
 			this.tabComplete.reset();
 			this.chatHistory.push(text);
-			text = this.parseCommand(text);
+			// make sure commands in multiline inputs are handled correctly
+			text = text.split('\n').map(this.parseCommand, this).filter(function (line) {return (line !== false);}).join('\n');
 			if (this.battle && this.battle.ignoreSpects && app.user.get('userid') !== this.battle.p1.id && app.user.get('userid') !== this.battle.p2.id) {
 				this.add("You can't chat in this battle as you're currently ignoring spectators");
 			} else if (text.length > 80000) {
