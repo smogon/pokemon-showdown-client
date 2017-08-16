@@ -965,7 +965,7 @@ var BattleTooltips = (function () {
 			if (move.id in table.overrideBP) basePower = table.overrideBP[move.id];
 		}
 		var basePowerComment = '';
-		var thereIsWeather = this.battle.weather;
+		var thereIsWeather = !!this.battle.weather;
 		if (move.id === 'acrobatics') {
 			if (!pokemonData.item) {
 				basePower *= 2;
