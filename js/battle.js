@@ -3376,6 +3376,8 @@ var Battle = (function () {
 				if (!fromeffect.id || fromeffect.id === 'pursuit') {
 					if (move.isZ) {
 						pokemon.item = move.isZ;
+						var item = Tools.getItem(move.isZ);
+						if (item.zMoveFrom) move = Tools.getMove(move.zMoveFrom);
 					} else if (move.name.slice(0, 2) === 'Z-') {
 						move = Tools.getMove(move.name.slice(2));
 						for (var item in window.BattleItems) {
