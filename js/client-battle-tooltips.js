@@ -932,7 +932,7 @@ var BattleTooltips = (function () {
 			accuracyComment += this.makePercentageChangeText(1.3, 'Compound Eyes');
 		}
 		for (var i = 0; i < pokemon.side.active.length; i++) {
-			if (!pokemon.side.active[i] || pokemon.side.active[i].zerohp) continue;
+			if (!pokemon.side.active[i] || pokemon.side.active[i].fainted) continue;
 			ability = Tools.getAbility(pokemon.side.pokemon[i].ability).name;
 			if (ability === 'Victory Star') {
 				accuracy *= 1.1;
