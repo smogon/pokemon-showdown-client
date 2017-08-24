@@ -192,7 +192,6 @@ var Pokemon = (function () {
 		this.prevItemEffect = '';
 		this.species = species;
 		this.fainted = false;
-		this.zerohp = false;
 
 		this.status = '';
 		this.statusStage = 0;
@@ -322,7 +321,7 @@ var Pokemon = (function () {
 			hpstring = hpstring.substr(parenIndex + 1, hpstring.length - parenIndex - 2);
 		}
 
-		var oldhp = (this.zerohp || this.fainted) ? 0 : (this.hp || 1);
+		var oldhp = this.fainted ? 0 : (this.hp || 1);
 		var oldmaxhp = this.maxhp;
 		var oldwidth = this.hpWidth(100);
 		var oldcolor = this.hpcolor;
@@ -705,7 +704,6 @@ var Pokemon = (function () {
 	Pokemon.prototype.reset = function () {
 		this.clearVolatile();
 		this.hp = this.maxhp;
-		this.zerohp = false;
 		this.fainted = false;
 		this.needsReplace = (this.details.indexOf('-*') >= 0);
 		this.status = '';
@@ -719,7 +717,7 @@ var Pokemon = (function () {
 	// This function is NOT used in the calculation of any other displayed
 	// percentages or ranges, which have their own, more complex, formulae.
 	Pokemon.prototype.hpWidth = function (maxWidth) {
-		if (this.fainted || this.zerohp) return 0;
+		if (this.fainted) return 0;
 
 		// special case for low health...
 		if (this.hp == 1 && this.maxhp > 10) return 1;
@@ -2118,7 +2116,6 @@ var Side = (function () {
 		this.battle.message('' + pokemon.getName() + ' fainted!');
 
 		pokemon.fainted = true;
-		pokemon.zerohp = true;
 		pokemon.hp = 0;
 		pokemon.side.updateStatbar(pokemon, false, true);
 		pokemon.side.updateSidebar();
@@ -6014,7 +6011,6 @@ var Battle = (function () {
 		output.hpcolor = '';
 		if (hp === '0' || hp === '0.0') {
 			output.hp = 0;
-			output.zerohp = true;
 		} else if (hp.indexOf('/') > 0) {
 			var hp = hp.split('/');
 			if (isNaN(parseFloat(hp[0])) || isNaN(parseFloat(hp[1]))) {
@@ -6026,9 +6022,6 @@ var Battle = (function () {
 			var colorchar = hp[1].substr(hp[1].length - 1);
 			if ((colorchar === 'y') || (colorchar === 'g')) {
 				output.hpcolor = colorchar;
-			}
-			if (!output.hp) {
-				output.zerohp = true;
 			}
 		} else if (!isNaN(parseFloat(hp))) {
 			output.hp = output.maxhp * parseFloat(hp) / 100;
@@ -6043,7 +6036,6 @@ var Battle = (function () {
 			output.status = status;
 		} else if (status === 'fnt') {
 			output.hp = 0;
-			output.zerohp = true;
 			output.fainted = true;
 		}
 		return output;
