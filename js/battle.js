@@ -6601,6 +6601,14 @@ var Battle = (function () {
 				this.log('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button></div>');
 			}
 			break;
+		case 'fieldhtml':
+			var $field = $('.battle');
+			$field.html(Tools.sanitizeHTML(args[1]));
+			break;
+		case 'controlshtml':
+			var $controls = $('.battle-controls');
+			$controls.html(Tools.sanitizeHTML(args[1]));
+			break;
 		default:
 			this.logConsole('unknown command: ' + args[0]);
 			this.log('<div>Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
@@ -6628,6 +6636,7 @@ var Battle = (function () {
 		case 'c': case 'chat':
 		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
 		case 'inactive': case 'inactiveoff': case 'warning':
+		case 'fieldhtml': case 'controlshtml':
 			// chat is preserved untouched
 			args = [args[0], str.slice(args[0].length + 2)];
 			break;
