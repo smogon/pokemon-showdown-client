@@ -259,7 +259,7 @@
 					this.$controls.html('<p><button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>');
 				} else {
 					// is a player
-					this.$controls.html('<p>' + this.getTimerHTML() + '<button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>');
+					this.$controls.html('<p>' + this.getTieHTML() + ' ' + this.getTimerHTML() + '<button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>');
 				}
 				return;
 
@@ -286,6 +286,7 @@
 					// don't update controls (and, therefore, side) if `this.choice === null`: causes damage miscalculations
 					this.updateControlsForPlayer();
 				} else {
+					this.updateTie();
 					this.updateTimer();
 				}
 
@@ -463,6 +464,11 @@
 			}
 			return '<button name="openTimer" class="button timerbutton' + timerTicking + '"><i class="fa fa-hourglass-start"></i> ' + time + '</button>';
 		},
+		getTieHTML: function () {
+			var canRequest = this.battle.requestingTie !== app.user.get('userid') ? '' : 'disabled ';
+			var canAccept = !canRequest && this.battle.turn === this.battle.requestingTieTurn ? 'tiebutton-offer ' : '';
+			return '<button ' + (!canRequest ? 'name="openTie"' : '') + ' class="button ' + canRequest + canAccept + 'tiebutton"><i class="fa fa-handshake-o"></i> ' + (canAccept ? 'Accept Tie' : 'Tie') + '</button>';
+		},
 		updateZMove: function () {
 			var zChecked = this.$('input[name=zmove]')[0].checked;
 			if (zChecked) {
@@ -476,8 +482,14 @@
 		updateTimer: function () {
 			this.$('.timerbutton').replaceWith(this.getTimerHTML());
 		},
+		updateTie: function () {
+			this.$('.tiebutton').replaceWith(this.getTieHTML());
+		},
 		openTimer: function () {
 			app.addPopup(TimerPopup, {room: this});
+		},
+		openTie: function () {
+			app.addPopup(TiePopup, {room: this});
 		},
 		updateMoveControls: function (type) {
 			var switchables = this.request && this.request.side ? this.myPokemon : [];
@@ -568,7 +580,7 @@
 
 				this.$controls.html(
 					'<div class="controls">' +
-					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
+					'<div class="whatdo">' + requestTitle + this.getTieHTML() + ' ' + this.getTimerHTML() + '</div>' +
 					'<div class="switchmenu" style="display:block">' + targetMenus[0] + '<div style="clear:both"></div> </div>' +
 					'<div class="switchmenu" style="display:block">' + targetMenus[1] + '</div>' +
 					'</div>'
@@ -667,7 +679,7 @@
 
 				this.$controls.html(
 					'<div class="controls">' +
-					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
+					'<div class="whatdo">' + requestTitle + this.getTieHTML() + ' ' + this.getTimerHTML() + '</div>' +
 					moveControls + shiftControls + switchControls +
 					'</div>'
 				);
@@ -708,7 +720,7 @@
 				controls += '</div>';
 				this.$controls.html(
 					'<div class="controls">' +
-					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
+					'<div class="whatdo">' + requestTitle + this.getTieHTML() + ' ' + this.getTimerHTML() + '</div>' +
 					controls +
 					'</div>'
 				);
@@ -738,7 +750,7 @@
 				);
 				this.$controls.html(
 					'<div class="controls">' +
-					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
+					'<div class="whatdo">' + requestTitle + this.getTieHTML() + ' ' + this.getTimerHTML() + '</div>' +
 					controls +
 					'</div>'
 				);
@@ -775,7 +787,7 @@
 			);
 			this.$controls.html(
 				'<div class="controls">' +
-				'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
+				'<div class="whatdo">' + requestTitle + this.getTieHTML() + ' ' + this.getTimerHTML() + '</div>' +
 				controls +
 				'</div>'
 			);
@@ -795,7 +807,7 @@
 		},
 
 		getPlayerChoicesHTML: function () {
-			var buf = '<p>' + this.getTimerHTML();
+			var buf = '<p>' + this.getTieHTML() + ' ' + this.getTimerHTML();
 			if (!this.choice || !this.choice.waiting) {
 				return buf + '<em>Waiting for opponent...</em></p>';
 			}
@@ -953,6 +965,9 @@
 		},
 		setTimer: function (setting) {
 			this.send('/timer ' + setting);
+		},
+		requestTie: function () {
+			this.send('/requesttie');
 		},
 		forfeit: function () {
 			this.send('/forfeit');
@@ -1355,6 +1370,17 @@
 		},
 		timerOn: function () {
 			this.room.setTimer('on');
+			this.close();
+		}
+	});
+
+	var TiePopup = this.TiePopup = Popup.extend({
+		initialize: function (data) {
+			this.room = data.room;
+			this.$el.html('<p><button name="requestTie"><strong>' + (this.room.battle.requestingTie !== app.user.get('userid') && this.room.battle.requestingTieTurn === this.battle.turn ? 'Accept' : 'Request') + ' Tie</strong></button></p>');
+		},
+		requestTie: function () {
+			this.room.requestTie();
 			this.close();
 		}
 	});

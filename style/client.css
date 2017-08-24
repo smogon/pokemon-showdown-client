@@ -1809,6 +1809,20 @@ a.ilink.yours {
 	text-shadow: none;
 }
 
+.tiebutton {
+	float: right;
+}
+.tiebutton-offer,
+.tiebutton-offer:hover {
+	color: #992222;
+	border-color: #992222;
+}
+.dark .tiebutton-offer,
+.dark .tiebutton-offer:hover {
+	color: #EE6666;
+	border-color: #EE6666;
+}
+
 .battle-controls p {
 	margin: 2px 0 8px 0;
 	padding: 0 8px;

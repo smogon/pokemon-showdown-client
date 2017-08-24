@@ -6410,6 +6410,10 @@ var Battle = (function () {
 			break;
 		case 'timer':
 			break;
+		case 'tierequest':
+			this.requestingTie = args[1];
+			this.requestingTieTurn = parseInt(args[2], 10);
+			break;
 		case 'join':
 		case 'j':
 			if (this.roomid) app.rooms[this.roomid].users[toUserid(args[1])] = ' ' + args[1];
