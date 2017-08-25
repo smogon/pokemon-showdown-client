@@ -1045,7 +1045,7 @@ exports.BattlePokemonSpritesBW = {
 	guzzlord:{num:799},
 	necrozma:{num:800},
 	magearna:{num:801},
-	magearna:{num:801},
+	magearnaoriginal:{num:801},
 	marshadow:{num:802},
 	missingno:{num:0},
 	tomohawk:{num:-1,front:{w:93,h:59},frontf:{w:93,h:59},back:{w:91,h:62},backf:{w:91,h:62}},
