@@ -1673,9 +1673,9 @@ var Tools = {
 		// }
 		if (Tools.prefs('nopastgens')) gen = 6;
 		var spriteDir = Tools.resourcePrefix + 'sprites/xydex';
-		if (template.gen >= 7) spriteDir = Tools.resourcePrefix + 'sprites/bw';
-		if ((!gen || gen === 6) && !template.isNonstandard && !Tools.prefs('bwgfx')) {
+		if ((!gen || gen >= 6) && !template.isNonstandard && !Tools.prefs('bwgfx')) {
 			var offset = '-2px -3px';
+			if (template.gen >= 7) offset = '-6px -7px';
 			if (id.substr(0, 6) === 'arceus') offset = '-2px 7px';
 			if (id === 'garchomp') offset = '-2px 2px';
 			if (id === 'garchompmega') offset = '-2px 0px';
