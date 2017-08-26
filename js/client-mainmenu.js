@@ -932,12 +932,12 @@
 					if (!bufs[curBuf]) {
 						bufs[curBuf] = '';
 					}
-					bufs[curBuf] += '<li><h3>' + Tools.escapeHTML(curSection) + '</li>';
+					bufs[curBuf] += '</details><details><summary style="list-style-type:none"><button class="button"><strong style="font-size: 8pt; color: #579">' + Tools.escapeHTML(curSection) + '</strong></button></summary>';
 				}
 				var formatName = Tools.escapeFormat(format.id);
 				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
 				formatName = formatName.replace('[Gen 7] ', '');
-				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';
+				bufs[curBuf] += '<button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button>';
 			}
 
 			var html = '';
