@@ -700,9 +700,6 @@ var BattleTooltips = (function () {
 		if (item === 'choicespecs') {
 			stats.spa = Math.floor(stats.spa * 1.5);
 		}
-		if (ability === 'flareboost' && pokemon.status === 'brn') {
-			stats.spa = Math.floor(stats.spa * 1.5);
-		}
 		if (item === 'deepseatooth' && species === 'Clamperl') {
 			stats.spa *= 2;
 		}
