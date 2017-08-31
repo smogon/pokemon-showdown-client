@@ -648,12 +648,21 @@ var BattleTooltips = (function () {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
 		if (weather) {
-			if (ability === 'flowergift' && (weather === 'sunnyday' || weather === 'desolateland')) {
-				stats.atk = Math.floor(stats.atk * 1.5);
-				stats.spd = Math.floor(stats.spd * 1.5);
-			}
-			if (ability === 'solarpower' && (weather === 'sunnyday' || weather === 'desolateland')) {
-				stats.spa = Math.floor(stats.spa * 1.5);
+			if (weather === 'sunnyday' || weather === 'desolateland') {
+				if (ability === 'solarpower') {
+					stats.spa = Math.floor(stats.spa * 1.5);
+				}
+				var allyActive = pokemon.side.active;
+				if (allyActive.length > 1) {
+					for (var i = 0; i < allyActive.length; i++) {
+						var ally = allyActive[i];
+						if (!ally || ally.fainted)) continue;
+						if (ally.ability === 'flowergift' && (ally.baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
+							stats.atk = Math.floor(stats.atk * 1.5);
+							stats.spd = Math.floor(stats.spd * 1.5);
+						}
+					}
+				}
 			}
 			if (this.battle.gen >= 4 && (pokemon.types[0] === 'Rock' || pokemon.types[1] === 'Rock') && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
@@ -1123,7 +1132,11 @@ var BattleTooltips = (function () {
 			(ability === 'Steelworker' && move.type === 'Steel') ||
 			(ability === 'Strong Jaw' && move.flags['bite']) ||
 			(ability === 'Technician' && basePower <= 60) ||
-			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical')) {
+			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical') ||
+			(ability === 'Overgrow' && move.type === 'Grass' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
+			(ability === 'Blaze' && move.type === 'Fire' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
+			(ability === 'Torrent' && move.type === 'Water' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
+			(ability === 'Swarm' && move.type === 'Bug' && pokemonData.hp * 3 <= pokemonData.maxhp)) {
 			abilityBoost = 1.5;
 		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel')) ||
 			(ability === 'Sheer Force' && move.secondaries) ||
@@ -1151,6 +1164,47 @@ var BattleTooltips = (function () {
 		if (abilityBoost) {
 			basePower = Math.floor(basePower * abilityBoost);
 			basePowerComment = this.makePercentageChangeText(abilityBoost, ability);
+		}
+
+		var allyActive = pokemon.side.active;
+		var auraBoosted = '';
+		var auraBroken = false;
+		if (move.category !== 'Status' && allyActive.length > 1) {
+			for (var i = 0; i < allyActive.length; i++) {
+				var ally = allyActive[i];
+				if (!ally || ally.fainted) continue;
+				if (!auraBoosted && (ally.ability === 'Fairy Aura' && move.type === 'Fairy') ||
+				    		    (ally.ability === 'Dark Aura' && move.type === 'Dark')) {
+					auraBoosted = ally.ability;
+				}
+				if (ally.ability === 'Aura Break') auraBroken = true;
+				if (ally === pokemon) continue;
+				if (ally.ability === 'Battery' && move.category === 'Special') {
+					basePower = Math.floor(basePower * 1.3);
+					basePowerComment = this.makePercentageChangeText(1.3, 'Battery');
+				}
+			}
+		}
+		var foeActive = this.battle.yourSide.active;
+		if (!auraBoosted && move.category !== 'Status' && (move.type === 'Fairy' || move.type === 'Dark')) {
+			for (var i = 0; i < foeActive.length; i++) {
+				var foe = foeActive[i];
+				if (!foe || foe.fainted) continue;
+				if (!auraBoosted && (foe.ability === 'Fairy Aura' && move.type === 'Fairy') ||
+				    		    (foe.ability === 'Dark Aura' && move.type === 'Dark')) {
+					auraBoosted = foe.ability;
+				}
+				if (foe.ability === 'Aura Break') auraBroken = true;
+			}
+		}
+		if (auraBoosted) {
+			if (auraBroken) {
+				basePower = Math.floor(basePower * 0.75);
+				basePowerComment = this.makePercentageChangeText(0.75, 'Aura Break');
+			} else {
+				basePower = Math.floor(basePower * 1.33);
+				basePowerComment = this.makePercentageChangeText(1.33, auraBoosted);
+			}
 		}
 		return this.boostBasePower(move, pokemon, basePower, basePowerComment);
 	};
