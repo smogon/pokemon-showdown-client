@@ -6467,11 +6467,13 @@ var Battle = (function () {
 			poke.removeVolatile('typeadd');
 			poke.removeVolatile('typechange');
 
-			var newSpecies;
-			var commaIndex = args[2].indexOf(',');
-			if (commaIndex === -1) {
-				newSpecies = args[2];
-			} else {
+			var newSpecies = args[2];
+			var commaIndex = newSpecies.indexOf(',');
+			if (commaIndex !== -1) {
+				var level = $.trim(newSpecies.substr(commaIndex + 1));
+				if (level.charAt(0) === 'L') {
+					poke.level = +level.substr(1);
+				}
 				newSpecies = args[2].substr(0, commaIndex);
 			}
 			var template = Tools.getTemplate(newSpecies);
