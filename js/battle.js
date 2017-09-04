@@ -339,7 +339,6 @@ var Pokemon = (function () {
 	Pokemon.prototype.checkDetails = function (details) {
 		if (!details) return false;
 		if (details === this.details) return true;
-		if (!this.needsReplace) return false;
 		// the actual forme was hidden on Team Preview
 		details = details.replace(/-[A-Za-z0-9]+(, |$)/, '$1');
 		return (details === this.details.replace(/-\*(, |$)/, '$1'));
@@ -705,7 +704,6 @@ var Pokemon = (function () {
 		this.clearVolatile();
 		this.hp = this.maxhp;
 		this.fainted = false;
-		this.needsReplace = (this.details.indexOf('-*') >= 0);
 		this.status = '';
 		this.moveTrack = [];
 		this.name = this.name || this.species;
@@ -6104,16 +6102,13 @@ var Battle = (function () {
 				}
 				if (isSwitch && pokemon == this.p1.lastPokemon && !this.p1.active[slot]) continue;
 				if ((searchid && pokemon.searchid === searchid) || // exact match
-					(!pokemon.searchid && pokemon.checkDetails(details)) || // switch-in matches Team Preview entry
 					(!searchid && pokemon.ident === pokemonid)) { // name matched, good enough
-					if (!pokemon.searchid && createIfNotFound) {
-						pokemon.name = name;
-						pokemon.searchid = searchid;
-						pokemon.ident = pokemonid;
-						if (pokemon.needsReplace) {
-							pokemon = this.p1.newPokemon(this.parseDetails(name, pokemonid, details), i);
-						}
-					}
+					if (slot >= 0) pokemon.slot = slot;
+					return pokemon;
+				}
+				if (!pokemon.searchid && (pokemon.checkDetails(details) || // switch-in matches Team Preview entry
+					pokemon.checkDetails(details.replace(', shiny', '')))) { // switch-in matches non-shiny Team Preview entry
+					pokemon = this.p1.newPokemon(this.parseDetails(name, pokemonid, details), i);
 					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
 				}
@@ -6134,16 +6129,13 @@ var Battle = (function () {
 				}
 				if (isSwitch && pokemon == this.p2.lastPokemon && !this.p2.active[slot]) continue;
 				if ((searchid && pokemon.searchid === searchid) || // exact match
-					(!pokemon.searchid && pokemon.checkDetails(details)) || // switch-in matches Team Preview entry
 					(!searchid && pokemon.ident === pokemonid)) { // name matched, good enough
-					if (!pokemon.searchid && createIfNotFound) {
-						pokemon.name = name;
-						pokemon.searchid = searchid;
-						pokemon.ident = pokemonid;
-						if (pokemon.needsReplace) {
-							pokemon = this.p2.newPokemon(this.parseDetails(name, pokemonid, details), i);
-						}
-					}
+					if (slot >= 0) pokemon.slot = slot;
+					return pokemon;
+				}
+				if (!pokemon.searchid && (pokemon.checkDetails(details) || // switch-in matches Team Preview entry
+					pokemon.checkDetails(details.replace(', shiny', '')))) { // switch-in matches non-shiny Team Preview entry
+					pokemon = this.p2.newPokemon(this.parseDetails(name, pokemonid, details), i);
 					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
 				}
