@@ -1151,10 +1151,10 @@ var BattleTooltips = (function () {
 		} else if (move.type === 'Normal' && move.category !== 'Status' &&
 			ability in {'Aerilate': 1, 'Galvanize':1, 'Pixilate': 1, 'Refrigerate': 1} &&
 			!(move.id in {'naturalgift': 1, 'struggle': 1} ||
-			  move.id === 'weatherball' && thereIsWeather ||
-			  move.id === 'multiattack' && item.onMemory ||
-			  move.id === 'judgment' && item.onPlate ||
-			  move.id === 'technoblast' && item.onDrive)) {
+				move.id === 'weatherball' && thereIsWeather ||
+				move.id === 'multiattack' && item.onMemory ||
+				move.id === 'judgment' && item.onPlate ||
+				move.id === 'technoblast' && item.onDrive)) {
 			abilityBoost = (this.battle.gen > 6 ? 1.2 : 1.3);
 		} else if ((ability === 'Iron Fist' && move.flags['punch']) ||
 			(ability === 'Reckless' && (move.recoil || move.hasCustomRecoil)) ||
@@ -1174,7 +1174,7 @@ var BattleTooltips = (function () {
 				var ally = allyActive[i];
 				if (!ally || ally.fainted) continue;
 				if (!auraBoosted && (ally.ability === 'Fairy Aura' && move.type === 'Fairy') ||
-						    (ally.ability === 'Dark Aura' && move.type === 'Dark')) {
+							(ally.ability === 'Dark Aura' && move.type === 'Dark')) {
 					auraBoosted = ally.ability;
 				}
 				if (ally.ability === 'Aura Break') auraBroken = true;
@@ -1191,7 +1191,7 @@ var BattleTooltips = (function () {
 				var foe = foeActive[i];
 				if (!foe || foe.fainted) continue;
 				if (!auraBoosted && (foe.ability === 'Fairy Aura' && move.type === 'Fairy') ||
-						    (foe.ability === 'Dark Aura' && move.type === 'Dark')) {
+							(foe.ability === 'Dark Aura' && move.type === 'Dark')) {
 					auraBoosted = foe.ability;
 				}
 				if (foe.ability === 'Aura Break') auraBroken = true;
@@ -1235,6 +1235,12 @@ var BattleTooltips = (function () {
 		'Spell Tag': 'Ghost',
 		'TwistedSpoon': 'Psychic'
 	};
+	var orbTypes = {
+		'Soul Dew': 'Psychic',
+		'Adamant Orb': 'Steel',
+		'Lustrous Orb': 'Water',
+		'Griseous Orb': 'Ghost',
+	};
 	var noGemMoves = {
 		'Fire Pledge': 1,
 		'Fling': 1,
@@ -1259,6 +1265,10 @@ var BattleTooltips = (function () {
 
 		// Type-enhancing items
 		if (itemTypes[item.name] === moveType) return this.battle.gen < 4 ? 1.1 : 1.2;
+
+		// Pokemon-specific items
+		if (item.name === 'Soul Dew' && this.battle.gen < 7) return 0;
+		if (orbTypes[item.name] === moveType || moveType === 'Dragon') return 1.2;
 
 		// Gems
 		if (moveName in noGemMoves) return 0;
