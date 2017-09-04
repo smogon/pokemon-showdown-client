@@ -1173,8 +1173,7 @@ var BattleTooltips = (function () {
 			for (var i = 0; i < allyActive.length; i++) {
 				var ally = allyActive[i];
 				if (!ally || ally.fainted) continue;
-				if (!auraBoosted && (ally.ability === 'Fairy Aura' && move.type === 'Fairy') ||
-							(ally.ability === 'Dark Aura' && move.type === 'Dark')) {
+				if (!auraBoosted && (ally.ability === 'Fairy Aura' && move.type === 'Fairy') || (ally.ability === 'Dark Aura' && move.type === 'Dark')) {
 					auraBoosted = ally.ability;
 				}
 				if (ally.ability === 'Aura Break') auraBroken = true;
@@ -1190,8 +1189,7 @@ var BattleTooltips = (function () {
 			for (var i = 0; i < foeActive.length; i++) {
 				var foe = foeActive[i];
 				if (!foe || foe.fainted) continue;
-				if (!auraBoosted && (foe.ability === 'Fairy Aura' && move.type === 'Fairy') ||
-							(foe.ability === 'Dark Aura' && move.type === 'Dark')) {
+				if (!auraBoosted && (foe.ability === 'Fairy Aura' && move.type === 'Fairy') || (foe.ability === 'Dark Aura' && move.type === 'Dark')) {
 					auraBoosted = foe.ability;
 				}
 				if (foe.ability === 'Aura Break') auraBroken = true;
