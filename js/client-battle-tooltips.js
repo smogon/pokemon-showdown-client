@@ -1173,32 +1173,39 @@ var BattleTooltips = (function () {
 			for (var i = 0; i < allyActive.length; i++) {
 				var ally = allyActive[i];
 				if (!ally || ally.fainted) continue;
-				if (!auraBoosted && ((ally.ability === 'Fairy Aura' && move.type === 'Fairy') || (ally.ability === 'Dark Aura' && move.type === 'Dark'))) {
-					auraBoosted = ally.ability;
-				}
-				if (ally.ability === 'Aura Break') auraBroken = true;
-				if (ally === pokemon) continue;
-				if (ally.ability === 'Battery' && move.category === 'Special') {
-					basePower = Math.floor(basePower * 1.3);
-					basePowerComment = this.makePercentageChangeText(1.3, 'Battery');
+				if (ally.ability === 'Fairy Aura') {
+					if (move.type === 'Fairy') auraBoosted = 'Fairy Aura';
+				} else if (ally.ability === 'Dark Aura') {
+					if (move.type === 'Dark') auraBoosted = 'Dark Aura';
+				} else if (ally.ability === 'Aura Break') {
+					auraBroken = true;
+				} else if (ally.ability === 'Battery') {
+					if (ally !== pokemon && move.category === 'Special') {
+						basePower = Math.floor(basePower * 1.3);
+						basePowerComment = this.makePercentageChangeText(1.3, 'Battery');
+					}
 				}
 			}
 		}
 		var foeActive = this.battle.yourSide.active;
-		if (!auraBoosted && move.category !== 'Status' && (move.type === 'Fairy' || move.type === 'Dark')) {
+		var doneLooking = auraBoosted && auraBroken;
+		if (!doneLooking && move.category !== 'Status' && (move.type === 'Fairy' || move.type === 'Dark')) {
 			for (var i = 0; i < foeActive.length; i++) {
 				var foe = foeActive[i];
 				if (!foe || foe.fainted) continue;
-				if (!auraBoosted && ((foe.ability === 'Fairy Aura' && move.type === 'Fairy') || (foe.ability === 'Dark Aura' && move.type === 'Dark'))) {
-					auraBoosted = foe.ability;
+				if (ally.ability === 'Fairy Aura') {
+					if (move.type === 'Fairy') auraBoosted = 'Fairy Aura';
+				} else if (ally.ability === 'Dark Aura') {
+					if (move.type === 'Dark') auraBoosted = 'Dark Aura';
+				} else if (ally.ability === 'Aura Break') {
+					auraBroken = true;
 				}
-				if (foe.ability === 'Aura Break') auraBroken = true;
 			}
 		}
 		if (auraBoosted) {
 			if (auraBroken) {
 				basePower = Math.floor(basePower * 0.75);
-				basePowerComment = this.makePercentageChangeText(0.75, 'Aura Break');
+				basePowerComment = this.makePercentageChangeText(0.75, auraBoosted + ' + Aura Break');
 			} else {
 				basePower = Math.floor(basePower * 1.33);
 				basePowerComment = this.makePercentageChangeText(1.33, auraBoosted);
