@@ -1240,6 +1240,13 @@ var BattleTooltips = (function () {
 		'Spell Tag': 'Ghost',
 		'TwistedSpoon': 'Psychic'
 	};
+	var orbUsers = {
+		'Latias': 'Soul Dew',
+		'Latios': 'Soul Dew',
+		'Dialga': 'Adamant Orb',
+		'Palkia': 'Lustrous Orb',
+		'Giratina': 'Griseous Orb',
+	};
 	var orbTypes = {
 		'Soul Dew': 'Psychic',
 		'Adamant Orb': 'Steel',
@@ -1273,7 +1280,7 @@ var BattleTooltips = (function () {
 
 		// Pokemon-specific items
 		if (item.name === 'Soul Dew' && this.battle.gen < 7) return 0;
-		if (orbTypes[item.name] === moveType || moveType === 'Dragon') return 1.2;
+		if (orbUsers[pokemonData.baseSpecies] === item.name && orbTypes[item.name] === moveType || moveType === 'Dragon') return 1.2;
 
 		// Gems
 		if (moveName in noGemMoves) return 0;
