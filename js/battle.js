@@ -338,6 +338,9 @@ var Pokemon = (function () {
 	};
 	Pokemon.prototype.checkDetails = function (details) {
 		if (!details) return false;
+		if (details.indexOf(', shiny') >= 0) {
+			if (this.checkDetails(details.replace(', shiny', ''))) return true;
+		}
 		if (details === this.details) return true;
 		// the actual forme was hidden on Team Preview
 		details = details.replace(/-[A-Za-z0-9]+(, |$)/, '$1');
@@ -6108,8 +6111,7 @@ var Battle = (function () {
 					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
 				}
-				if (!pokemon.searchid && (pokemon.checkDetails(details) || // switch-in matches Team Preview entry
-					pokemon.checkDetails(details.replace(', shiny', '')))) { // switch-in matches non-shiny Team Preview entry
+				if (!pokemon.searchid && pokemon.checkDetails(details)) { // switch-in matches Team Preview entry
 					pokemon = this.p1.newPokemon(this.parseDetails(name, pokemonid, details), i);
 					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
@@ -6135,8 +6137,7 @@ var Battle = (function () {
 					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
 				}
-				if (!pokemon.searchid && (pokemon.checkDetails(details) || // switch-in matches Team Preview entry
-					pokemon.checkDetails(details.replace(', shiny', '')))) { // switch-in matches non-shiny Team Preview entry
+				if (!pokemon.searchid && pokemon.checkDetails(details)) { // switch-in matches Team Preview entry
 					pokemon = this.p2.newPokemon(this.parseDetails(name, pokemonid, details), i);
 					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
