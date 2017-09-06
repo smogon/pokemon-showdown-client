@@ -846,8 +846,16 @@ var BattleTooltips = (function () {
 		}
 		// Weather and pseudo-weather type changes.
 		if (move.id === 'weatherball' && this.battle.weather) {
-			// Check if you have an anti weather ability to skip this.
-			var noWeatherAbility = !!(ability in {'Air Lock': 1, 'Cloud Nine': 1});
+			var noWeatherAbility = false;
+			// Check if your side has an anti weather ability to skip this.
+			if (!noWeatherAbility) {
+				for (var i = 0; i < this.battle.mySide.active.length; i++) {
+					if (this.battle.mySide.active[i] && this.battle.mySide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+						noWeatherAbility = true;
+						break;
+					}
+				}
+			}
 			// If you don't, check if the opponent has it afterwards.
 			if (!noWeatherAbility) {
 				for (var i = 0; i < this.battle.yourSide.active.length; i++) {
@@ -954,7 +962,26 @@ var BattleTooltips = (function () {
 			if (move.id in table.overrideBP) basePower = table.overrideBP[move.id];
 		}
 		var basePowerComment = '';
-		var thereIsWeather = !!this.battle.weather;
+		var noWeatherAbility = false;
+		// Check if your side has an anti weather ability to skip this.
+		if (!noWeatherAbility) {
+			for (var i = 0; i < this.battle.mySide.active.length; i++) {
+				if (this.battle.mySide.active[i] && this.battle.mySide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+					noWeatherAbility = true;
+					break;
+				}
+			}
+		}
+		// If you don't, check if the opponent has it afterwards.
+		if (!noWeatherAbility) {
+			for (var i = 0; i < this.battle.yourSide.active.length; i++) {
+				if (this.battle.yourSide.active[i] && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+					noWeatherAbility = true;
+					break;
+				}
+			}
+		}
+		var thereIsWeather = !!this.battle.weather && !noWeatherAbility;
 		if (move.id === 'acrobatics') {
 			if (!pokemonData.item) {
 				basePower *= 2;
@@ -1211,25 +1238,10 @@ var BattleTooltips = (function () {
 
 		// Field Effects
 		if (thereIsWeather) {
-			// Check if you have an anti weather ability to skip this.
-			var noWeatherAbility = !!(ability in {'Air Lock': 1, 'Cloud Nine': 1});
-			// If you don't, check if the opponent has it afterwards.
-			if (!noWeatherAbility) {
-				for (var i = 0; i < this.battle.yourSide.active.length; i++) {
-					if (this.battle.yourSide.active[i] && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
-						noWeatherAbility = true;
-						break;
-					}
-				}
-			}
-
-			// If the weather is indeed active, check it to see if it boosts this move's type
-			if (!noWeatherAbility) {
-				if ((this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland' && move.type === 'Fire') ||
-					(this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea' && move.type === 'Water')) {
-					basePower = Math.floor(basePower * 1.5);
-					basePowerComment += this.makePercentageChangeText(1.5, 'weather');
-				}
+			if ((this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland' && move.type === 'Fire') ||
+				(this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea' && move.type === 'Water')) {
+				basePower = Math.floor(basePower * 1.5);
+				basePowerComment += this.makePercentageChangeText(1.5, 'weather');
 			}
 		}
 		var isGrounded = false;
@@ -1240,7 +1252,7 @@ var BattleTooltips = (function () {
 			isGrounded = true;
 		} else if (pokemonData.volatiles && pokemonData.volatiles['smackdown']) {
 			isGrounded = true;
-		} else if (!noItem && pokemonData.item === 'ironball'){
+		} else if (!noItem && pokemonData.item === 'ironball') {
 			isGrounded = true;
 		} else if (!(pokemonData.volatiles && pokemonData.volatiles['roost'])) {
 			// If a Fire/Flying type uses Burn Up and Roost, it becomes ???/Flying-type, but it's still grounded.
@@ -1266,7 +1278,7 @@ var BattleTooltips = (function () {
 				basePowerComment += this.makePercentageChangeText(0.5, 'Misty Terrain');
 			}
 		}
-			
+
 		return this.boostBasePower(move, pokemon, basePower, basePowerComment);
 	};
 
@@ -1390,6 +1402,6 @@ var BattleTooltips = (function () {
 			if (types && types.indexOf(pokemon.volatiles.typeadd[2]) === -1) types = types.concat(pokemon.volatiles.typeadd[2]);
 		}
 		return types;
-	}
+	};
 	return BattleTooltips;
 })();
