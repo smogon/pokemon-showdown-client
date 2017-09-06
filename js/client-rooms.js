@@ -75,7 +75,8 @@
 				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button> <span style="' + Tools.getPokemonIcon('meloetta-pirouette') + '" class="picon icon-right" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span>';
 				this.$('.roomlisttop').html('<table class="roomcounters" border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td>' + leftSide + '</td><td>' + rightSide + '</td></tr></table>');
 			}
-			this.$('.roomlist').first().html('<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.official, this.renderRoomBtn).join(""));
+			this.$('.roomlist').first().html('<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.official, this.renderRoomBtn).join("") +
+				(rooms.pspl && rooms.pspl.length ? '<a href="http://www.smogon.com/forums/threads/pokemon-showdown-premier-league-v-read-the-full-post.3605826/" target="_blank"><h2 class="rooms-psplchatrooms">PSPL Winner</h2></a>' + _.map(rooms.pspl, this.renderRoomBtn).join("") : ''));
 			this.$('.roomlist').last().html('<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(rooms.chat.sort(this.compareRooms), this.renderRoomBtn).join(""));
 		},
 		roomlist: function () {
