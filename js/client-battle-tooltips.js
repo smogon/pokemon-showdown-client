@@ -648,12 +648,21 @@ var BattleTooltips = (function () {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
 		if (weather) {
-			if (ability === 'flowergift' && (weather === 'sunnyday' || weather === 'desolateland')) {
-				stats.atk = Math.floor(stats.atk * 1.5);
-				stats.spd = Math.floor(stats.spd * 1.5);
-			}
-			if (ability === 'solarpower' && (weather === 'sunnyday' || weather === 'desolateland')) {
-				stats.spa = Math.floor(stats.spa * 1.5);
+			if (weather === 'sunnyday' || weather === 'desolateland') {
+				if (ability === 'solarpower') {
+					stats.spa = Math.floor(stats.spa * 1.5);
+				}
+				var allyActive = pokemon.side.active;
+				if (allyActive.length > 1) {
+					for (var i = 0; i < allyActive.length; i++) {
+						var ally = allyActive[i];
+						if (!ally || ally.fainted) continue;
+						if (ally.ability === 'flowergift' && (ally.baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
+							stats.atk = Math.floor(stats.atk * 1.5);
+							stats.spd = Math.floor(stats.spd * 1.5);
+						}
+					}
+				}
 			}
 			if (this.battle.gen >= 4 && (pokemon.types[0] === 'Rock' || pokemon.types[1] === 'Rock') && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
@@ -1123,7 +1132,11 @@ var BattleTooltips = (function () {
 			(ability === 'Steelworker' && move.type === 'Steel') ||
 			(ability === 'Strong Jaw' && move.flags['bite']) ||
 			(ability === 'Technician' && basePower <= 60) ||
-			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical')) {
+			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical') ||
+			(ability === 'Overgrow' && move.type === 'Grass' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
+			(ability === 'Blaze' && move.type === 'Fire' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
+			(ability === 'Torrent' && move.type === 'Water' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
+			(ability === 'Swarm' && move.type === 'Bug' && pokemonData.hp * 3 <= pokemonData.maxhp)) {
 			abilityBoost = 1.5;
 		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel')) ||
 			(ability === 'Sheer Force' && move.secondaries) ||
@@ -1138,10 +1151,10 @@ var BattleTooltips = (function () {
 		} else if (move.type === 'Normal' && move.category !== 'Status' &&
 			ability in {'Aerilate': 1, 'Galvanize':1, 'Pixilate': 1, 'Refrigerate': 1} &&
 			!(move.id in {'naturalgift': 1, 'struggle': 1} ||
-			  move.id === 'weatherball' && thereIsWeather ||
-			  move.id === 'multiattack' && item.onMemory ||
-			  move.id === 'judgment' && item.onPlate ||
-			  move.id === 'technoblast' && item.onDrive)) {
+				move.id === 'weatherball' && thereIsWeather ||
+				move.id === 'multiattack' && item.onMemory ||
+				move.id === 'judgment' && item.onPlate ||
+				move.id === 'technoblast' && item.onDrive)) {
 			abilityBoost = (this.battle.gen > 6 ? 1.2 : 1.3);
 		} else if ((ability === 'Iron Fist' && move.flags['punch']) ||
 			(ability === 'Reckless' && (move.recoil || move.hasCustomRecoil)) ||
@@ -1151,6 +1164,52 @@ var BattleTooltips = (function () {
 		if (abilityBoost) {
 			basePower = Math.floor(basePower * abilityBoost);
 			basePowerComment = this.makePercentageChangeText(abilityBoost, ability);
+		}
+
+		var allyActive = pokemon.side.active;
+		var auraBoosted = '';
+		var auraBroken = false;
+		if (move.category !== 'Status' && allyActive.length > 1) {
+			for (var i = 0; i < allyActive.length; i++) {
+				var ally = allyActive[i];
+				if (!ally || ally.fainted) continue;
+				if (ally.ability === 'Fairy Aura') {
+					if (move.type === 'Fairy') auraBoosted = 'Fairy Aura';
+				} else if (ally.ability === 'Dark Aura') {
+					if (move.type === 'Dark') auraBoosted = 'Dark Aura';
+				} else if (ally.ability === 'Aura Break') {
+					auraBroken = true;
+				} else if (ally.ability === 'Battery') {
+					if (ally !== pokemon && move.category === 'Special') {
+						basePower = Math.floor(basePower * 1.3);
+						basePowerComment = this.makePercentageChangeText(1.3, 'Battery');
+					}
+				}
+			}
+		}
+		var foeActive = this.battle.yourSide.active;
+		var doneLooking = auraBoosted && auraBroken;
+		if (!doneLooking && move.category !== 'Status' && (move.type === 'Fairy' || move.type === 'Dark')) {
+			for (var i = 0; i < foeActive.length; i++) {
+				var foe = foeActive[i];
+				if (!foe || foe.fainted) continue;
+				if (ally.ability === 'Fairy Aura') {
+					if (move.type === 'Fairy') auraBoosted = 'Fairy Aura';
+				} else if (ally.ability === 'Dark Aura') {
+					if (move.type === 'Dark') auraBoosted = 'Dark Aura';
+				} else if (ally.ability === 'Aura Break') {
+					auraBroken = true;
+				}
+			}
+		}
+		if (auraBoosted) {
+			if (auraBroken) {
+				basePower = Math.floor(basePower * 0.75);
+				basePowerComment = this.makePercentageChangeText(0.75, auraBoosted + ' + Aura Break');
+			} else {
+				basePower = Math.floor(basePower * 1.33);
+				basePowerComment = this.makePercentageChangeText(1.33, auraBoosted);
+			}
 		}
 		return this.boostBasePower(move, pokemon, basePower, basePowerComment);
 	};
@@ -1181,6 +1240,19 @@ var BattleTooltips = (function () {
 		'Spell Tag': 'Ghost',
 		'TwistedSpoon': 'Psychic'
 	};
+	var orbUsers = {
+		'Latias': 'Soul Dew',
+		'Latios': 'Soul Dew',
+		'Dialga': 'Adamant Orb',
+		'Palkia': 'Lustrous Orb',
+		'Giratina': 'Griseous Orb',
+	};
+	var orbTypes = {
+		'Soul Dew': 'Psychic',
+		'Adamant Orb': 'Steel',
+		'Lustrous Orb': 'Water',
+		'Griseous Orb': 'Ghost',
+	};
 	var noGemMoves = {
 		'Fire Pledge': 1,
 		'Fling': 1,
@@ -1205,6 +1277,10 @@ var BattleTooltips = (function () {
 
 		// Type-enhancing items
 		if (itemTypes[item.name] === moveType) return this.battle.gen < 4 ? 1.1 : 1.2;
+
+		// Pokemon-specific items
+		if (item.name === 'Soul Dew' && this.battle.gen < 7) return 0;
+		if (orbUsers[pokemonData.baseSpecies] === item.name && (orbTypes[item.name] === moveType || moveType === 'Dragon')) return 1.2;
 
 		// Gems
 		if (moveName in noGemMoves) return 0;
