@@ -2185,6 +2185,10 @@ a.ilink.yours {
 	border-top: 1px solid #888888;
 }
 
+#tooltipwrapper .tooltip .itemless {
+	color: gray;
+}
+
 /*********************************************************
  * Teambuilder
  *********************************************************/

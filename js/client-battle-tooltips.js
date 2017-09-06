@@ -496,14 +496,16 @@ var BattleTooltips = (function () {
 			var item = '';
 			var itemEffect = pokemon.itemEffect || '';
 			if (pokemon.prevItem) {
-				item = 'None';
 				if (itemEffect) itemEffect += '; ';
 				var prevItem = Tools.getItem(pokemon.prevItem).name;
 				itemEffect += pokemon.prevItemEffect ? prevItem + ' was ' + pokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (pokemon.item) item = Tools.getItem(pokemon.item).name;
-			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
-			if (item) text += '<p>Item: ' + item + itemEffect + '</p>';
+			if (itemEffect) {
+				item = '<p class="itemless">Item:';
+				itemEffect = ' (' + itemEffect + ')';
+			}
+			if (pokemon.item) item = '<p>Item: ' + Tools.getItem(pokemon.item).name;
+			if (item) text += item + itemEffect + '</p>';
 
 			if (template.baseStats) {
 				text += '<p>' + this.getTemplateMinSpeed(template, pokemon.level) + ' to ' + this.getTemplateMaxSpeed(template, pokemon.level) + ' Spe (before items/abilities/modifiers)</p>';
