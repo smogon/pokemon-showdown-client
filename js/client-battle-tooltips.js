@@ -1193,11 +1193,11 @@ var BattleTooltips = (function () {
 			for (var i = 0; i < foeActive.length; i++) {
 				var foe = foeActive[i];
 				if (!foe || foe.fainted) continue;
-				if (ally.ability === 'Fairy Aura') {
+				if (foe.ability === 'Fairy Aura') {
 					if (move.type === 'Fairy') auraBoosted = 'Fairy Aura';
-				} else if (ally.ability === 'Dark Aura') {
+				} else if (foe.ability === 'Dark Aura') {
 					if (move.type === 'Dark') auraBoosted = 'Dark Aura';
-				} else if (ally.ability === 'Aura Break') {
+				} else if (foe.ability === 'Aura Break') {
 					auraBroken = true;
 				}
 			}
