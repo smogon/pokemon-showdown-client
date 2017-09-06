@@ -1280,7 +1280,7 @@ var BattleTooltips = (function () {
 
 		// Pokemon-specific items
 		if (item.name === 'Soul Dew' && this.battle.gen < 7) return 0;
-		if (orbUsers[pokemonData.baseSpecies] === item.name && orbTypes[item.name] === moveType || moveType === 'Dragon') return 1.2;
+		if (orbUsers[pokemonData.baseSpecies] === item.name && (orbTypes[item.name] === moveType || moveType === 'Dragon')) return 1.2;
 
 		// Gems
 		if (moveName in noGemMoves) return 0;
