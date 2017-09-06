@@ -1950,27 +1950,31 @@
 			} else if (window.Notification) {
 				// old one doesn't need to be closed; sending the tag should
 				// automatically replace the old notification
-				var notification = this.notifications[tag] = new Notification(title, {
-					lang: 'en',
-					body: body,
-					tag: this.id + ':' + tag
-				});
-				var self = this;
-				notification.onclose = function () {
-					self.dismissNotification(tag);
-				};
-				notification.onclick = function () {
-					window.focus();
-					self.clickNotification(tag);
-				};
-				if (Tools.prefs('temporarynotifications')) {
-					if (notification.cancel) {
-						setTimeout(function () {notification.cancel();}, 5000);
-					} else if (notification.close) {
-						setTimeout(function () {notification.close();}, 5000);
+				try {
+					var notification = this.notifications[tag] = new Notification(title, {
+						lang: 'en',
+						body: body,
+						tag: this.id + ':' + tag
+					});
+					var self = this;
+					notification.onclose = function () {
+						self.dismissNotification(tag);
+					};
+					notification.onclick = function () {
+						window.focus();
+						self.clickNotification(tag);
+					};
+					if (Tools.prefs('temporarynotifications')) {
+						if (notification.cancel) {
+							setTimeout(function () {notification.cancel();}, 5000);
+						} else if (notification.close) {
+							setTimeout(function () {notification.close();}, 5000);
+						}
 					}
+					if (once) notification.psAutoclose = true;
+				} catch (e) {
+					// Chrome mobile will leave Notification in existence but throw if you try to use it
 				}
-				if (once) notification.psAutoclose = true;
 				needsTabbarUpdate = true;
 			} else if (window.macgap) {
 				macgap.growl.notify({
