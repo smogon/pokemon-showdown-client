@@ -6460,7 +6460,7 @@ var Battle = (function () {
 			if (commaIndex !== -1) {
 				var level = $.trim(newSpecies.substr(commaIndex + 1));
 				if (level.charAt(0) === 'L') {
-					poke.level = parseInt(level.substr(1));
+					poke.level = parseInt(level.substr(1), 10);
 				}
 				newSpecies = args[2].substr(0, commaIndex);
 			}
