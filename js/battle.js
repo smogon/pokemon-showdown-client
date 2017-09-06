@@ -519,7 +519,7 @@ var Pokemon = (function () {
 		for (var i = 0; i < this.moveTrack.length; i++) {
 			if (moveName === this.moveTrack[i][0]) {
 				this.moveTrack[i][1] += pp;
-				if (pp === -100) this.moveTrack[i][1] = 0;
+				if (this.moveTrack[i][1] < 0) this.moveTrack[i][1] = 0;
 				return;
 			}
 		}
@@ -5643,7 +5643,7 @@ var Battle = (function () {
 					break;
 				case 'leppaberry':
 					actions += '' + poke.getName() + " restored PP to its " + Tools.escapeHTML(args[3]) + " move using Leppa Berry!";
-					poke.markMove(args[3], -100);
+					poke.markMove(args[3], -10);
 					break;
 				case 'focusband':
 					poke.item = 'Focus Band';
