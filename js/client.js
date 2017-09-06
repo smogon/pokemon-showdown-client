@@ -229,6 +229,8 @@
 			}
 			if (assertion === ';') {
 				this.trigger('login:authrequired', name);
+			} else if (assertion === ';;@gmail') {
+				this.trigger('login:authrequired', name, '@gmail');
 			} else if (assertion.substr(0, 2) === ';;') {
 				this.trigger('login:invalidname', name, assertion.substr(2));
 			} else if (assertion.indexOf('\n') >= 0 || !assertion) {
@@ -273,12 +275,13 @@
 				app.send('/trn ' + name);
 			}
 		},
-		passwordRename: function (name, password) {
+		passwordRename: function (name, password, email) {
 			var self = this;
 			$.post(this.getActionPHP(), {
 				act: 'login',
 				name: name,
 				pass: password,
+				email: email,
 				challstr: this.challstr
 			}, Tools.safeJSON(function (data) {
 				if (data && data.curuser && data.curuser.loggedin) {
@@ -482,8 +485,8 @@
 				self.addPopup(LoginPopup, {name: name, reason: reason});
 			});
 
-			this.user.on('login:authrequired', function (name) {
-				self.addPopup(LoginPasswordPopup, {username: name});
+			this.user.on('login:authrequired', function (name, special) {
+				self.addPopup(LoginPasswordPopup, {username: name, special: special});
 			});
 
 			this.on('response:savereplay', this.uploadReplay, this);

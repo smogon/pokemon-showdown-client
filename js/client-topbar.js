@@ -923,14 +923,49 @@
 
 			buf += '<p>Log in:</p>';
 			buf += '<p><label class="label">Username: <strong>' + Tools.escapeHTML(data.username) + '<input type="hidden" name="username" value="' + Tools.escapeHTML(data.username) + '" /></strong></label></p>';
-			buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password"></label></p>';
-			buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
+			if (data.special === '@gmail') {
+				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
+				buf += '<p class="buttonbar"><button name="close">Cancel</button></p>';
+			} else {
+				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password"></label></p>';
+				buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
+			}
 
 			buf += '<p class="or">or</p>';
 			buf += '<p class="buttonbar"><button name="login">Choose another name</button></p>';
 
 			buf += '</form>';
 			this.$el.html(buf);
+
+			if (data.special === '@gmail') {
+				var self = this;
+				window.gapiRenderButton = function () {
+					gapi.signin2.render('gapi-custom-signin', { // eslint-disable-line no-undef
+						'scope': 'email',
+						'width': 240,
+						'height': 50,
+						'longtitle': true,
+						'theme': 'dark',
+						'onsuccess': function (googleUser) {
+							var profile = googleUser.getBasicProfile();
+							var email = profile.getEmail();
+							var id_token = googleUser.getAuthResponse().id_token;
+							self.close();
+							app.user.passwordRename(data.username, id_token, email);
+						},
+						'onfailure': function (googleUser) {
+							alert('sign-in failed');
+						}
+					});
+				};
+				if (window.gapiLoaded) return setTimeout(window.gapiRenderButton, 100);
+				window.gapiLoaded = true;
+
+				var script = document.createElement('script');
+				script.async = true;
+				script.src = 'https://apis.google.com/js/platform.js?onload=gapiRenderButton';
+				document.getElementsByTagName('head')[0].appendChild(script);
+			}
 		},
 		login: function () {
 			this.close();
