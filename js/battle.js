@@ -3373,18 +3373,20 @@ var Battle = (function () {
 					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				}
 				if (!fromeffect.id || fromeffect.id === 'pursuit') {
+					var moveName = move.name;
 					if (move.isZ) {
 						pokemon.item = move.isZ;
 						var item = Tools.getItem(move.isZ);
-						if (item.zMoveFrom) move = Tools.getMove(item.zMoveFrom);
+						if (item.zMoveFrom) moveName = item.zMoveFrom;
 					} else if (move.name.slice(0, 2) === 'Z-') {
-						move = Tools.getMove(move.name.slice(2));
+						moveName = moveName.slice(2);
+						move = Tools.getMove(moveName);
 						for (var item in window.BattleItems) {
 							if (BattleItems[item].zMoveType === move.type) pokemon.item = item;
 						}
 					}
 					var pp = (target && target.side !== pokemon.side && toId(target.ability) === 'pressure' ? 2 : 1);
-					pokemon.markMove(move.name, pp);
+					pokemon.markMove(moveName, pp);
 				}
 				break;
 			}
