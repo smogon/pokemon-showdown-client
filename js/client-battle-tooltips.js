@@ -208,6 +208,7 @@ var BattleTooltips = (function () {
 		var yourActive = this.battle.yourSide.active;
 		var pokemon = this.battle.mySide.active[this.room.choice.choices.length];
 		var pokemonData = this.room.myPokemon[pokemon.slot];
+		var ability = toId(pokemonData.ability || pokemon.ability || pokemonData.baseAbility);
 
 		if (isZ) {
 			var item = Tools.getItem(pokemonData.item);
@@ -338,16 +339,16 @@ var BattleTooltips = (function () {
 				if ('powder' in move.flags) {
 					text += '<p class="movetag">&#x2713; Powder <small>(doesn\'t affect Grass, Overcoat, Safety Goggles)</small></p>';
 				}
-				if ('punch' in move.flags && (pokemonData.baseAbility === 'ironfist' || pokemon.ability === "Iron Fist")) {
+				if ('punch' in move.flags && ability === 'ironfist') {
 					text += '<p class="movetag">&#x2713; Fist <small>(boosted by Iron Fist)</small></p>';
 				}
-				if ('pulse' in move.flags && (pokemonData.baseAbility === 'megalauncher' || pokemon.ability === "Mega Launcher")) {
+				if ('pulse' in move.flags && ability === 'megalauncher') {
 					text += '<p class="movetag">&#x2713; Pulse <small>(boosted by Mega Launcher)</small></p>';
 				}
-				if ('bite' in move.flags && (pokemonData.baseAbility === 'strongjaw' || pokemon.ability === "Strong Jaw")) {
+				if ('bite' in move.flags && ability === 'strongjaw') {
 					text += '<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>';
 				}
-				if ((move.recoil || move.hasCustomRecoil) && (pokemonData.baseAbility === 'reckless' || pokemon.ability === "Reckless")) {
+				if ((move.recoil || move.hasCustomRecoil) && ability === 'reckless') {
 					text += '<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>';
 				}
 				if ('bullet' in move.flags) {
@@ -431,11 +432,10 @@ var BattleTooltips = (function () {
 		var showOtherSees = !this.battle.hardcoreMode && isActive;
 		if (pokemonData) {
 			if (this.battle.gen > 2) {
-				var abilityText = '';
-				if (pokemon.ability && (pokemon.ability !== pokemon.baseAbility)) {
-					abilityText = Tools.getAbility(pokemon.ability).name + ' (base: ' + Tools.getAbility(pokemon.baseAbility).name + ')';
-				} else {
-					abilityText = Tools.getAbility(pokemonData.baseAbility).name;
+				var abilityText = Tools.getAbility(pokemonData.baseAbility).name;
+				var ability = Tools.getAbility(pokemonData.ability || pokemon.ability).name;
+				if (ability && (ability !== abilityText)) {
+					abilityText = ability + ' (base: ' + abilityText + ')';
 				}
 				text += '<p>Ability: ' + abilityText;
 				if (pokemonData.item) {
@@ -556,7 +556,7 @@ var BattleTooltips = (function () {
 			}
 		}
 
-		var ability = toId(pokemon.ability || pokemonData.baseAbility);
+		var ability = toId(pokemonData.ability || pokemon.ability || pokemonData.baseAbility);
 		if ('gastroacid' in pokemon.volatiles) ability = '';
 
 		// check for burn, paralysis, guts, quick feet
@@ -830,7 +830,7 @@ var BattleTooltips = (function () {
 	// Gets the proper current type for moves with a variable type.
 	BattleTooltips.prototype.getMoveType = function (move, pokemon) {
 		var pokemonData = this.room.myPokemon[pokemon.slot] || pokemon;
-		var ability = Tools.getAbility(pokemonData.baseAbility).name;
+		var ability = Tools.getAbility(pokemonData.ability || pokemon.ability || pokemonData.baseAbility).name;
 		var moveType = move.type;
 		// Normalize is the first move type changing effect.
 		if (ability === 'Normalize') {
@@ -901,7 +901,7 @@ var BattleTooltips = (function () {
 	// Gets the current accuracy for a move.
 	BattleTooltips.prototype.getMoveAccuracy = function (move, pokemon) {
 		var pokemonData = this.room.myPokemon[pokemon.slot];
-		var ability = Tools.getAbility(pokemon.ability || pokemonData.baseAbility).name;
+		var ability = Tools.getAbility(pokemonData.ability || pokemon.ability || pokemonData.baseAbility).name;
 		var accuracy = move.accuracy;
 		if (this.battle.gen < 7) {
 			var table = BattleTeambuilderTable['gen' + this.battle.gen];
@@ -963,7 +963,7 @@ var BattleTooltips = (function () {
 		if (!target) target = this.room.myPokemon[0]; // fallback
 		var pokemonData = this.room.myPokemon[pokemon.slot];
 		if (!pokemonData) return '' + move.basePower;
-		var ability = Tools.getAbility(pokemonData.baseAbility).name;
+		var ability = Tools.getAbility(pokemonData.ability || pokemon.ability || pokemonData.baseAbility).name;
 		var item = {};
 		var basePower = move.basePower;
 		if (this.battle.gen < 7) {
@@ -1299,7 +1299,7 @@ var BattleTooltips = (function () {
 	};
 	BattleTooltips.prototype.boostBasePowerRange = function (move, pokemon, min, max) {
 		var pokemonData = this.room.myPokemon[pokemon.slot];
-		var technician = Tools.getAbility(pokemonData.baseAbility).name === 'Technician';
+		var technician = Tools.getAbility(pokemonData.ability || pokemon.ability || pokemonData.baseAbility).name === 'Technician';
 		if (technician) {
 			if (min <= 60) min *= 1.5;
 			if (max <= 60) max *= 1.5;
