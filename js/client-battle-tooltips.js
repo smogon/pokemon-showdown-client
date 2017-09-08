@@ -842,6 +842,9 @@ var BattleTooltips = (function () {
 		if ((move.id === 'charm' || move.id === 'moonlight' || move.id === 'sweetkiss') && this.battle.gen <= 5) {
 			moveType = 'Normal';
 		}
+		if (move.id === 'revelationdance') {
+			moveType = pokemon.types[0];
+		}
 		// Moves that require an item to change their type.
 		if (!this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
 			if (move.id === 'multiattack') {
