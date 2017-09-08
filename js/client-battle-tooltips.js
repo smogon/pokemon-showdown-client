@@ -1244,7 +1244,7 @@ var BattleTooltips = (function () {
 				basePowerComment += this.makePercentageChangeText(1.5, 'weather');
 			}
 		}
-		var isGrounded = false;
+		var isGrounded = true;
 		var noItem = !pokemonData.item || this.battle.hasPseudoWeather('Magic Room') || pokemonData.volatiles && pokemonData.volatiles['embargo'];
 		if (this.Battle.hasPseudoWeather('Gravity')) {
 			isGrounded = true;
@@ -1254,18 +1254,18 @@ var BattleTooltips = (function () {
 			isGrounded = true;
 		} else if (!noItem && pokemonData.item === 'ironball') {
 			isGrounded = true;
+		} else if (ability === 'levitate') {
+			isGrounded = false;
+		} else if (pokemonData.volatiles && (pokemonData.volatiles['magnetrise'] || pokemonData.volatiles['telekinesis'])) {
+			isGrounded = false;
+		} else if (!noItem && pokemonData.item !== 'airballoon') {
+			isGrounded = false;
 		} else if (!(pokemonData.volatiles && pokemonData.volatiles['roost'])) {
 			// If a Fire/Flying type uses Burn Up and Roost, it becomes ???/Flying-type, but it's still grounded.
 			for (var i = 0; i < types.length; i++) {
 				if (types[i] === 'Flying') isGrounded = false;
 				break;
 			}
-		} else if (ability === 'levitate') {
-			isGrounded = false;
-		} else if (pokemonData.volatiles && (pokemonData.volatiles['magnetrise'] || pokemonData.volatiles['telekinesis'])) {
-			isGrounded = false;
-		} else {
-			isGrounded = !noItem && pokemonData.item !== 'airballoon';
 		}
 		if (isGrounded) {
 			if ((this.Battle.hasPseudoWeather('Electric Terrain') && move.type === 'Electric') ||
