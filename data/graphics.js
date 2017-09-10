@@ -6070,9 +6070,6 @@ var BattleMoveAnims = {
 	milkdrink: {
 		anim: BattleOtherAnims.consume.anim
 	},
-	slackoff: {
-		anim: BattleOtherAnims.selfstatus.anim
-	},
 	happyhour: {
 		anim: BattleOtherAnims.selfstatus.anim
 	},
@@ -31420,7 +31417,7 @@ var BattleMoveAnims = {
 			}, 'linear');
 		}
 	},
-	oceanicoperatta: {
+	oceanicoperetta: {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
@@ -31991,6 +31988,20 @@ var BattleMoveAnims = {
 				z: attacker.z,
 				opacity: 0.3,
 				scale: 1,
+				time: 1900
+			}, {
+				x: attacker.x,
+				y: attacker.y + 250,
+				z: attacker.behind(-50),
+				opacity: 0,
+				time: 2300
+			}, 'accel');
+			battle.showEffect(attacker.sp, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0.3,
+				scale: 1,
 				time: 1920
 			}, {
 				x: attacker.x,
@@ -32012,20 +32023,6 @@ var BattleMoveAnims = {
 				z: attacker.behind(-50),
 				opacity: 0,
 				time: 2340
-			}, 'accel');
-			battle.showEffect(attacker.sp, {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				opacity: 0.3,
-				scale: 1,
-				time: 1960
-			}, {
-				x: attacker.x,
-				y: attacker.y + 250,
-				z: attacker.behind(-50),
-				opacity: 0,
-				time: 2360
 			}, 'accel');
 
 			battle.showEffect('shadowball', {
@@ -32407,6 +32404,7 @@ BattleMoveAnims['purify'] = {anim:BattleMoveAnims['weatherball'].anim};
 BattleMoveAnims['pollenpuff'] = {anim:BattleMoveAnims['revelationdance'].anim};
 
 BattleMoveAnims['amnesia'] = {anim:BattleMoveAnims['rest'].anim};
+BattleMoveAnims['slackoff'] = {anim:BattleMoveAnims['rest'].anim};
 
 BattleMoveAnims['secretpower'] = {anim:BattleMoveAnims['technoblast'].anim};
 BattleMoveAnims['naturalgift'] = {anim:BattleMoveAnims['technoblast'].anim};
