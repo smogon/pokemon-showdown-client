@@ -1722,12 +1722,14 @@ var Side = (function () {
 			gen: this.battle.gen
 		}), this.x, this.y, this.z, this.battle, this.n);
 
-		if (typeof replaceSlot !== 'undefined') {
+		if (typeof replaceSlot === 'undefined') replaceSlot = -1;
+		if (replaceSlot >= 0) {
 			this.pokemon[replaceSlot] = poke;
 		} else {
 			this.pokemon.push(poke);
 		}
-		if (this.pokemon.length == 7 || this.battle.speciesClause) {
+		if (replaceSlot === -2) this.battle.maxPokemon = this.pokemon.length;
+		if (this.pokemon.length > this.battle.maxPokemon || this.battle.speciesClause) {
 			// check for Illusion
 			var existingTable = {};
 			for (var i = 0; i < this.pokemon.length; i++) {
@@ -2342,7 +2344,8 @@ var Battle = (function () {
 		this.p2 = null;
 		this.sides = [];
 		this.lastMove = '';
-		this.gen = 6;
+		this.gen = 7;
+		this.maxPokemon = 6;
 		this.speciesClause = false;
 
 		this.frameElem = frame;
@@ -6185,7 +6188,7 @@ var Battle = (function () {
 			gender: gender,
 			shiny: shiny,
 			slot: slot
-		});
+		}, isNew ? -2 : -1);
 		return pokemon;
 	};
 	Battle.prototype.getSide = function (sidename) {
