@@ -386,31 +386,14 @@ var BattleTooltips = (function () {
 		var template = pokemon;
 		if (!pokemon.types) template = Tools.getTemplate(pokemon.species);
 		if (pokemon.volatiles && pokemon.volatiles.transform && pokemon.volatiles.formechange) {
-			template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
 			text += '<small>(Transformed into ' + pokemon.volatiles.formechange[2] + ')</small><br />';
 		} else if (pokemon.volatiles && pokemon.volatiles.formechange) {
-			template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
 			text += '<small>(Forme: ' + pokemon.volatiles.formechange[2] + ')</small><br />';
 		}
 
-		var types = template.types;
-		if (this.battle.gen < 7) {
-			var table = BattleTeambuilderTable['gen' + this.battle.gen];
-			if (template.speciesid in table.overrideType) types = table.overrideType[template.speciesid].split('/');
-		}
+		var types = this.getPokemonTypes(pokemon);
 
-		var isTypeChanged = false;
-		if (pokemon.volatiles && pokemon.volatiles.typechange) {
-			isTypeChanged = true;
-			types = pokemon.volatiles.typechange[2].split('/');
-		}
-		if (pokemon.volatiles && pokemon.volatiles.typeadd) {
-			isTypeChanged = true;
-			if (types && types.indexOf(pokemon.volatiles.typeadd[2]) === -1) {
-				types = types.concat(pokemon.volatiles.typeadd[2]);
-			}
-		}
-		if (isTypeChanged) text += '<small>(Type changed)</small><br />';
+		if (pokemon.volatiles && pokemon.volatiles.typechange || pokemon.volatiles.typeadd) text += '<small>(Type changed)</small><br />';
 		if (types) {
 			text += types.map(Tools.getTypeIcon).join(' ');
 		} else {
@@ -866,8 +849,16 @@ var BattleTooltips = (function () {
 		}
 		// Weather and pseudo-weather type changes.
 		if (move.id === 'weatherball' && this.battle.weather) {
-			// Check if you have an anti weather ability to skip this.
-			var noWeatherAbility = !!(ability in {'Air Lock': 1, 'Cloud Nine': 1});
+			var noWeatherAbility = false;
+			// Check if your side has an anti weather ability to skip this.
+			if (!noWeatherAbility) {
+				for (var i = 0; i < this.battle.mySide.active.length; i++) {
+					if (this.battle.mySide.active[i] && this.battle.mySide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+						noWeatherAbility = true;
+						break;
+					}
+				}
+			}
 			// If you don't, check if the opponent has it afterwards.
 			if (!noWeatherAbility) {
 				for (var i = 0; i < this.battle.yourSide.active.length; i++) {
@@ -974,7 +965,26 @@ var BattleTooltips = (function () {
 			if (move.id in table.overrideBP) basePower = table.overrideBP[move.id];
 		}
 		var basePowerComment = '';
-		var thereIsWeather = !!this.battle.weather;
+		var noWeatherAbility = false;
+		// Check if your side has an anti weather ability to skip this.
+		if (!noWeatherAbility) {
+			for (var i = 0; i < this.battle.mySide.active.length; i++) {
+				if (this.battle.mySide.active[i] && this.battle.mySide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+					noWeatherAbility = true;
+					break;
+				}
+			}
+		}
+		// If you don't, check if the opponent has it afterwards.
+		if (!noWeatherAbility) {
+			for (var i = 0; i < this.battle.yourSide.active.length; i++) {
+				if (this.battle.yourSide.active[i] && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
+					noWeatherAbility = true;
+					break;
+				}
+			}
+		}
+		var thereIsWeather = !!this.battle.weather && !noWeatherAbility;
 		if (move.id === 'acrobatics') {
 			if (!pokemonData.item) {
 				basePower *= 2;
@@ -1126,6 +1136,20 @@ var BattleTooltips = (function () {
 		}
 		if (!basePower) return basePowerComment;
 
+		// STAB (and Adaptability)
+		var types = this.getPokemonTypes(pokemon);
+		for (var i = 0; i < types.length; i++) {
+			if (move.type === types[i]) {
+				if (ability === 'Adaptability') {
+					basePower = Math.floor(basePower * 2);
+					basePowerComment += this.makePercentageChangeText(2, 'STAB + Adaptability');
+				} else {
+					basePower = Math.floor(basePower * 1.5);
+					basePowerComment += this.makePercentageChangeText(1.5, 'STAB');
+				}
+			}
+		}
+
 		// Other ability boosts.
 		var abilityBoost = 0;
 		if (ability === 'Water Bubble' && move.type === 'Water') {
@@ -1166,7 +1190,7 @@ var BattleTooltips = (function () {
 		}
 		if (abilityBoost) {
 			basePower = Math.floor(basePower * abilityBoost);
-			basePowerComment = this.makePercentageChangeText(abilityBoost, ability);
+			basePowerComment += this.makePercentageChangeText(abilityBoost, ability);
 		}
 
 		var allyActive = pokemon.side.active;
@@ -1185,7 +1209,7 @@ var BattleTooltips = (function () {
 				} else if (ally.ability === 'Battery') {
 					if (ally !== pokemon && move.category === 'Special') {
 						basePower = Math.floor(basePower * 1.3);
-						basePowerComment = this.makePercentageChangeText(1.3, 'Battery');
+						basePowerComment += this.makePercentageChangeText(1.3, 'Battery');
 					}
 				}
 			}
@@ -1208,12 +1232,56 @@ var BattleTooltips = (function () {
 		if (auraBoosted) {
 			if (auraBroken) {
 				basePower = Math.floor(basePower * 0.75);
-				basePowerComment = this.makePercentageChangeText(0.75, auraBoosted + ' + Aura Break');
+				basePowerComment += this.makePercentageChangeText(0.75, auraBoosted + ' + Aura Break');
 			} else {
 				basePower = Math.floor(basePower * 1.33);
-				basePowerComment = this.makePercentageChangeText(1.33, auraBoosted);
+				basePowerComment += this.makePercentageChangeText(1.33, auraBoosted);
 			}
 		}
+
+		// Field Effects
+		if (thereIsWeather) {
+			if ((this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland' && move.type === 'Fire') ||
+				(this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea' && move.type === 'Water')) {
+				basePower = Math.floor(basePower * 1.5);
+				basePowerComment += this.makePercentageChangeText(1.5, 'weather');
+			}
+		}
+		var isGrounded = true;
+		var noItem = !pokemonData.item || this.battle.hasPseudoWeather('Magic Room') || pokemonData.volatiles && pokemonData.volatiles['embargo'];
+		if (this.Battle.hasPseudoWeather('Gravity')) {
+			isGrounded = true;
+		} else if (pokemonData.volatiles && pokemonData.volatiles['ingrain'] && this.battle.gen >= 4) {
+			isGrounded = true;
+		} else if (pokemonData.volatiles && pokemonData.volatiles['smackdown']) {
+			isGrounded = true;
+		} else if (!noItem && pokemonData.item === 'ironball') {
+			isGrounded = true;
+		} else if (ability === 'levitate') {
+			isGrounded = false;
+		} else if (pokemonData.volatiles && (pokemonData.volatiles['magnetrise'] || pokemonData.volatiles['telekinesis'])) {
+			isGrounded = false;
+		} else if (!noItem && pokemonData.item !== 'airballoon') {
+			isGrounded = false;
+		} else if (!(pokemonData.volatiles && pokemonData.volatiles['roost'])) {
+			// If a Fire/Flying type uses Burn Up and Roost, it becomes ???/Flying-type, but it's still grounded.
+			for (var i = 0; i < types.length; i++) {
+				if (types[i] === 'Flying') isGrounded = false;
+				break;
+			}
+		}
+		if (isGrounded) {
+			if ((this.Battle.hasPseudoWeather('Electric Terrain') && move.type === 'Electric') ||
+				(this.Battle.hasPseudoWeather('Grassy Terrain') && move.type === 'Grass') ||
+				(this.Battle.hasPseudoWeather('Psychic Terrain') && move.type === 'Psychic')) {
+				basePower = Math.floor(basePower * 1.5);
+				basePowerComment += this.makePercentageChangeText(1.5, move.type + (move.type === 'Grass' ? 'y Terrain' : ' Terrain'));
+			} else if (this.Battle.hasPseudoWeather('Misty Terrain') && move.type === 'Dragon') {
+				basePower = Math.floor(basePower / 2);
+				basePowerComment += this.makePercentageChangeText(0.5, 'Misty Terrain');
+			}
+		}
+
 		return this.boostBasePower(move, pokemon, basePower, basePowerComment);
 	};
 
@@ -1317,6 +1385,26 @@ var BattleTooltips = (function () {
 		if (technician) basePowerComment += this.makePercentageChangeText(1.5, 'Technician');
 		if (itemBoost) basePowerComment += this.makePercentageChangeText(itemBoost, Tools.getItem(pokemonData.item).name);
 		return basePowerComment;
+	};
+	BattleTooltips.prototype.getPokemonTypes = function (pokemon) {
+		var template = pokemon;
+		if (!pokemon.types) template = Tools.getTemplate(pokemon.species);
+		if (pokemon.volatiles && pokemon.volatiles.transform && pokemon.volatiles.formechange) {
+			template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
+		} else if (pokemon.volatiles && pokemon.volatiles.formechange) {
+			template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
+		}
+
+		var types = template.types;
+		if (this.battle.gen < 7) {
+			var table = BattleTeambuilderTable['gen' + this.battle.gen];
+			if (template.speciesid in table.overrideType) types = table.overrideType[template.speciesid].split('/');
+		}
+
+		if (pokemon.volatiles && pokemon.volatiles.typeadd) {
+			if (types && types.indexOf(pokemon.volatiles.typeadd[2]) === -1) types = types.concat(pokemon.volatiles.typeadd[2]);
+		}
+		return types;
 	};
 	return BattleTooltips;
 })();
