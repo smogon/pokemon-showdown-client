@@ -384,7 +384,7 @@
 				if (!this.choice) {
 					this.choice = {
 						choices: null,
-						teamPreview: [1, 2, 3, 4, 5, 6].slice(0, switchables.length),
+						teamPreview: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].slice(0, switchables.length),
 						done: 0,
 						count: 1
 					};
@@ -747,7 +747,7 @@
 		},
 		updateTeamControls: function (type) {
 			var switchables = this.request && this.request.side ? this.myPokemon : [];
-			var maxIndex = Math.min(switchables.length, 6);
+			var maxIndex = Math.min(switchables.length, 24);
 
 			var requestTitle = "";
 			if (this.choice.done) {
@@ -1171,7 +1171,11 @@
 		endTurn: function () {
 			var act = this.request && this.request.requestType;
 			if (act === 'team') {
-				this.sendDecision('team ' + this.choice.teamPreview.join(''));
+				if (this.choice.teamPreview.length >= 10) {
+					this.sendDecision('team ' + this.choice.teamPreview.join(','));
+				} else {
+					this.sendDecision('team ' + this.choice.teamPreview.join(''));
+				}
 			} else {
 				if (act === 'switch') {
 					// Assert that the remaining Pokémon won't switch, even though
