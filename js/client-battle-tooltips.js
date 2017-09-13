@@ -393,7 +393,7 @@ var BattleTooltips = (function () {
 
 		var types = this.getPokemonTypes(pokemon);
 
-		if (pokemon.volatiles && pokemon.volatiles.typechange || pokemon.volatiles.typeadd) text += '<small>(Type changed)</small><br />';
+		if (pokemon.volatiles && (pokemon.volatiles.typechange || pokemon.volatiles.typeadd)) text += '<small>(Type changed)</small><br />';
 		if (types) {
 			text += types.map(Tools.getTypeIcon).join(' ');
 		} else {
@@ -1249,7 +1249,7 @@ var BattleTooltips = (function () {
 		}
 		var isGrounded = true;
 		var noItem = !pokemonData.item || this.battle.hasPseudoWeather('Magic Room') || pokemonData.volatiles && pokemonData.volatiles['embargo'];
-		if (this.Battle.hasPseudoWeather('Gravity')) {
+		if (this.battle.hasPseudoWeather('Gravity')) {
 			isGrounded = true;
 		} else if (pokemonData.volatiles && pokemonData.volatiles['ingrain'] && this.battle.gen >= 4) {
 			isGrounded = true;
@@ -1271,12 +1271,12 @@ var BattleTooltips = (function () {
 			}
 		}
 		if (isGrounded) {
-			if ((this.Battle.hasPseudoWeather('Electric Terrain') && move.type === 'Electric') ||
-				(this.Battle.hasPseudoWeather('Grassy Terrain') && move.type === 'Grass') ||
-				(this.Battle.hasPseudoWeather('Psychic Terrain') && move.type === 'Psychic')) {
+			if ((this.battle.hasPseudoWeather('Electric Terrain') && move.type === 'Electric') ||
+				(this.battle.hasPseudoWeather('Grassy Terrain') && move.type === 'Grass') ||
+				(this.battle.hasPseudoWeather('Psychic Terrain') && move.type === 'Psychic')) {
 				basePower = Math.floor(basePower * 1.5);
 				basePowerComment += this.makePercentageChangeText(1.5, move.type + (move.type === 'Grass' ? 'y Terrain' : ' Terrain'));
-			} else if (this.Battle.hasPseudoWeather('Misty Terrain') && move.type === 'Dragon') {
+			} else if (this.battle.hasPseudoWeather('Misty Terrain') && move.type === 'Dragon') {
 				basePower = Math.floor(basePower / 2);
 				basePowerComment += this.makePercentageChangeText(0.5, 'Misty Terrain');
 			}
