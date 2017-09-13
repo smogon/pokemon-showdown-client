@@ -1241,8 +1241,8 @@ var BattleTooltips = (function () {
 
 		// Field Effects
 		if (thereIsWeather) {
-			if ((this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland' && move.type === 'Fire') ||
-				(this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea' && move.type === 'Water')) {
+			if (((this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland') && move.type === 'Fire') ||
+				((this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea') && move.type === 'Water')) {
 				basePower = Math.floor(basePower * 1.5);
 				basePowerComment += this.makePercentageChangeText(1.5, 'weather');
 			}
