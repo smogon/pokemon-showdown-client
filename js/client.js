@@ -291,7 +291,7 @@
 					// wrong password
 					if (special === '@gmail') {
 						try {
-							gapi.auth2.getAuthInstance().signOut();
+							gapi.auth2.getAuthInstance().signOut(); // eslint-disable-line no-undef
 						} catch (e) {}
 					}
 					app.addPopup(LoginPasswordPopup, {
