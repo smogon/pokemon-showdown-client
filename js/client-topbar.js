@@ -5,6 +5,7 @@
 			'click a': 'click',
 			'click .username': 'clickUsername',
 			'click button': 'dispatchClickButton',
+			'dblclick button[name=openSounds]': 'toggleMute',
 
 			'dragstart .roomtab': 'dragStartRoom',
 			'dragend .roomtab': 'dragEndRoom',
@@ -54,6 +55,12 @@
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+		},
+		toggleMute: function () {
+			var muted = !Tools.prefs('mute');
+			Tools.prefs('mute', muted);
+			BattleSound.setMute(muted);
+			app.topbar.$('button[name=openSounds]').html('<i class="' + (muted ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i>');
 		},
 
 		// tabbar
