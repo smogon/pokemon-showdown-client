@@ -948,10 +948,9 @@
 						'theme': 'dark',
 						'onsuccess': function (googleUser) {
 							var profile = googleUser.getBasicProfile();
-							var email = profile.getEmail();
 							var id_token = googleUser.getAuthResponse().id_token;
 							self.close();
-							app.user.passwordRename(data.username, id_token, email);
+							app.user.passwordRename(data.username, id_token, data.special);
 						},
 						'onfailure': function (googleUser) {
 							alert('sign-in failed');

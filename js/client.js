@@ -275,13 +275,12 @@
 				app.send('/trn ' + name);
 			}
 		},
-		passwordRename: function (name, password, email) {
+		passwordRename: function (name, password, special) {
 			var self = this;
 			$.post(this.getActionPHP(), {
 				act: 'login',
 				name: name,
 				pass: password,
-				email: email,
 				challstr: this.challstr
 			}, Tools.safeJSON(function (data) {
 				if (data && data.curuser && data.curuser.loggedin) {
@@ -290,9 +289,15 @@
 					self.finishRename(name, data.assertion);
 				} else {
 					// wrong password
+					if (special === '@gmail') {
+						try {
+							gapi.auth2.getAuthInstance().signOut();
+						} catch (e) {}
+					}
 					app.addPopup(LoginPasswordPopup, {
 						username: name,
-						error: 'Wrong password.'
+						error: 'Wrong password.',
+						special: special
 					});
 				}
 			}), 'text');
