@@ -179,7 +179,7 @@ class NTBBSession {
 	}
 
 	private function passwordVerifyInner($userid, $pass, $user) {
-		global $psdb;
+		global $psdb, $psconfig;
 
 		// throttle
 		$ip = $this->getIp();
@@ -200,6 +200,18 @@ class NTBBSession {
 					'time' => time(),
 				];
 			}
+		}
+
+		if (substr(@$user['email'], -1) === '@') {
+			require_once dirname(__FILE__).'/../vendor/autoload.php';
+			$client = new Google_Client(['client_id' => $psconfig['gapi_clientid']]);
+			$payload = $client->verifyIdToken($pass);
+			if (!$payload) return false;
+			if (strpos($payload['aud'], $psconfig['gapi_clientid']) === false) return false;
+			if ($payload['email'] === substr($user['email'], 0, -1)) {
+				return true;
+			}
+			return false;
 		}
 
 		$rehash = false;
@@ -489,6 +501,7 @@ class NTBBSession {
 				if ($row['password'] && $row['nonce']) {
 					return ';;Your username is no longer available.';
 				}
+				if (substr($row['email'], -1) === '@') return ';;@gmail';
 				return ';';
 			} else {
 				// Unregistered username.
