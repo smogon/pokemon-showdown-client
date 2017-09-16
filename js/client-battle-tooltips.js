@@ -1136,20 +1136,6 @@ var BattleTooltips = (function () {
 		}
 		if (!basePower) return basePowerComment;
 
-		// STAB (and Adaptability)
-		var types = this.getPokemonTypes(pokemon);
-		for (var i = 0; i < types.length; i++) {
-			if (move.type === types[i]) {
-				if (ability === 'Adaptability') {
-					basePower = Math.floor(basePower * 2);
-					basePowerComment += this.makePercentageChangeText(2, 'STAB + Adaptability');
-				} else {
-					basePower = Math.floor(basePower * 1.5);
-					basePowerComment += this.makePercentageChangeText(1.5, 'STAB');
-				}
-			}
-		}
-
 		// Other ability boosts.
 		var abilityBoost = 0;
 		if (ability === 'Water Bubble' && move.type === 'Water') {
@@ -1240,13 +1226,7 @@ var BattleTooltips = (function () {
 		}
 
 		// Field Effects
-		if (thereIsWeather) {
-			if (((this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland') && move.type === 'Fire') ||
-				((this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea') && move.type === 'Water')) {
-				basePower = Math.floor(basePower * 1.5);
-				basePowerComment += this.makePercentageChangeText(1.5, 'weather');
-			}
-		}
+		var types = this.getPokemonTypes(pokemon);
 		var isGrounded = true;
 		var noItem = !pokemonData.item || this.battle.hasPseudoWeather('Magic Room') || pokemonData.volatiles && pokemonData.volatiles['embargo'];
 		if (this.battle.hasPseudoWeather('Gravity')) {
