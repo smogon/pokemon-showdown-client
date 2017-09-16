@@ -1,5 +1,6 @@
 Pokémon Showdown Client
 ========================================================================
+[![Build Status](https://travis-ci.org/Zarel/Pokemon-Showdown-Client.svg?branch=master)](https://travis-ci.org/Zarel/Pokemon-Showdown-Client)
 
 Navigation: [Website][1] | [Server repository][2] | **Client repository** | [Dex repository][3]
 
