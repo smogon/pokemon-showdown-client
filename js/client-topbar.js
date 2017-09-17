@@ -948,7 +948,7 @@
 				var self = this;
 				window.gapiRenderButton = function () {
 					gapi.signin2.render('gapi-custom-signin', { // eslint-disable-line no-undef
-						'scope': 'email',
+						'scope': 'profile email',
 						'width': 240,
 						'height': 50,
 						'longtitle': true,
