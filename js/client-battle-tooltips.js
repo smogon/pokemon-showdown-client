@@ -1289,7 +1289,6 @@ var BattleTooltips = (function () {
 		'SilverPowder': 'Bug',
 		'Soft Sand': 'Ground',
 		'Spell Tag': 'Ghost',
-		'TwistedSpoon': 'Psychic'
 		'Twisted Spoon': 'Psychic'
 	};
 	var orbUsers = {
