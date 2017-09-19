@@ -1290,6 +1290,7 @@ var BattleTooltips = (function () {
 		'Soft Sand': 'Ground',
 		'Spell Tag': 'Ghost',
 		'TwistedSpoon': 'Psychic'
+		'Twisted Spoon': 'Psychic'
 	};
 	var orbUsers = {
 		'Latias': 'Soul Dew',
