@@ -1734,6 +1734,7 @@ var Side = (function () {
 			var existingTable = {};
 			for (var i = 0; i < this.pokemon.length; i++) {
 				var poke1 = this.pokemon[i];
+				if (!poke1.searchid) continue;
 				if (poke1.searchid in existingTable) {
 					var j = existingTable[poke1.searchid];
 					var poke2 = this.pokemon[j];
@@ -1744,7 +1745,8 @@ var Side = (function () {
 					} else if (poke1.fainted && !poke2.fainted) {
 						this.pokemon.splice(j, 1);
 					} else {
-						this.pokemon.splice(i, 1);
+						this.pokemon.splice(j, 1);
+						poke.replacedFaintedIllusion = poke2.fainted;
 					}
 					break;
 				}
@@ -1802,6 +1804,28 @@ var Side = (function () {
 		pokemon.statbarElem = this.battle.statElem.children().last();
 		this.updateStatbar(pokemon, true);
 		pokemon.side.updateSidebar();
+
+		if (pokemon.replacedFaintedIllusion && !this.battle.hackedPokemon) {
+			var couldIllusion;
+			for (var i = 0; i < this.pokemon.length; i++) {
+				var poke = this.pokemon[i];
+				for (var i in poke.abilities) {
+					if (!poke.fainted && poke.abilities[i] === 'Illusion') {
+						couldIllusion = poke;
+					}
+				}
+				if (couldIllusion) break;
+			}
+			if (couldIllusion) {
+				// we know `something` had Illusion and fainted before, but not exactly what
+				// so mark the first found Illusion-legal Pokemon as fainted.
+				couldIllusion.hp = 0;
+				couldIllusion.fainted = true;
+
+				pokemon.side.updateSidebar();
+			}
+		}
+
 		if (this.battle.fastForward) {
 			pokemon.statbarElem.css({
 				display: 'block',
@@ -2346,7 +2370,8 @@ var Battle = (function () {
 		this.lastMove = '';
 		this.gen = 7;
 		this.maxPokemon = 6;
-		this.speciesClause = false;
+		this.speciesClause = true;
+		this.hackedPokemon = false;
 
 		this.frameElem = frame;
 		this.logFrameElem = logFrame;
@@ -6303,9 +6328,6 @@ var Battle = (function () {
 			for (var i in kwargs) args[1] += '[' + i + '] ' + kwargs[i];
 			this.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
 			this.tier = args[1];
-			if (this.tier === 'Random Battle') {
-				this.speciesClause = true;
-			}
 			break;
 		case 'gametype':
 			this.gameType = args[1];
@@ -6331,6 +6353,13 @@ var Battle = (function () {
 		case 'rule':
 			var ruleArgs = args[1].split(': ');
 			this.log('<div><small><em>' + Tools.escapeHTML(ruleArgs[0]) + (ruleArgs[1] ? ':' : '') + '</em> ' + Tools.escapeHTML(ruleArgs[1] || '') + '</div>');
+			break;
+		case 'legality':
+			// default assumption if not sent is:
+			// - Species Clause is in effect
+			// - No hacked Pokemon
+			this.speciesClause = args.indexOf('nospeciesclause') < 0;
+			this.hackedPokemon = args.indexOf('hackmons') >= 0;
 			break;
 		case 'rated':
 			this.rated = true;
@@ -6519,6 +6548,13 @@ var Battle = (function () {
 				poke.side.switchIn(poke);
 			} else if (args[0] === 'replace') {
 				poke.side.replace(poke);
+				var illusion = this.getPokemon(poke.side.lastPokemon.ident);
+				if (illusion) {
+					// reset information about the illusion since we can't know anymore
+					illusion.hp = illusion.maxhp;
+					illusion.status = '';
+					illusion.fainted = false;
+				}
 			} else {
 				poke.side.dragIn(poke);
 			}
