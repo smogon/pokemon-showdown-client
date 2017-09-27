@@ -48,11 +48,12 @@ foreach ($toplist as $row)
 			elseif ($row['formatid'] == 'gen7uususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-20.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7rususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-9.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7nususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-9.0/$N) : 0,1,'.','');
+			elseif ($row['formatid'] == 'gen7pususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-9.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7lcsuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-13.0/$N) : 0,1,'.','');
+			elseif ($row['formatid'] == 'gen7monotypesuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-10.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7doublesoususpecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-14.5/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7balancedhackmonssuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-11/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen71v1suspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-20/$N) : 0,1,'.','');
-			elseif ($row['formatid'] == 'gen7monotypesuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-10.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7mixandmegasuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-10.5/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7almostanyabilitysuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-6.0/$N) : 0,1,'.','');
 			elseif ($row['formatid'] == 'gen7sketchmonssuspecttest') echo number_format($N ? 40*$row['gxe']*pow(2.0,-6.0/$N) : 0,1,'.','');
