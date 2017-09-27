@@ -541,7 +541,6 @@ var BattleTooltips = (function () {
 
 		var ability = toId(pokemonData.ability || pokemon.ability || pokemonData.baseAbility);
 		if ('gastroacid' in pokemon.volatiles) ability = '';
-		var pokemonTypes = this.getPokemonTypes(pokemon);
 
 		// check for burn, paralysis, guts, quick feet
 		if (pokemon.status) {
