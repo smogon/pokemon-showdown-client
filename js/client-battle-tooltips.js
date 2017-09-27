@@ -1151,11 +1151,7 @@ var BattleTooltips = (function () {
 			(ability === 'Mega Launcher' && move.flags['pulse']) ||
 			(ability === 'Strong Jaw' && move.flags['bite']) ||
 			(ability === 'Technician' && basePower <= 60) ||
-			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical') ||
-			(ability === 'Overgrow' && moveType === 'Grass' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
-			(ability === 'Blaze' && moveType === 'Fire' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
-			(ability === 'Torrent' && moveType === 'Water' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
-			(ability === 'Swarm' && moveType === 'Bug' && pokemonData.hp * 3 <= pokemonData.maxhp)) {
+			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical')) {
 			abilityBoost = 1.5;
 		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (moveType === 'Rock' || moveType === 'Ground' || move.type === 'Steel')) ||
 			(ability === 'Sheer Force' && move.secondaries) ||
