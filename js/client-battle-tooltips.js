@@ -1148,11 +1148,8 @@ var BattleTooltips = (function () {
 
 		// Other ability boosts.
 		var abilityBoost = 0;
-		if (ability === 'Water Bubble' && moveType === 'Water') {
-			abilityBoost = 2;
-		} else if ((ability === 'Flare Boost' && pokemon.status === 'brn' && move.category === 'Special') ||
+		if ((ability === 'Flare Boost' && pokemon.status === 'brn' && move.category === 'Special') ||
 			(ability === 'Mega Launcher' && move.flags['pulse']) ||
-			(ability === 'Steelworker' && moveType === 'Steel') ||
 			(ability === 'Strong Jaw' && move.flags['bite']) ||
 			(ability === 'Technician' && basePower <= 60) ||
 			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical') ||
@@ -1255,8 +1252,9 @@ var BattleTooltips = (function () {
 			isGrounded = false;
 		} else if (!(terrainBuffed.volatiles && terrainBuffed.volatiles['roost'])) {
 			// If a Fire/Flying type uses Burn Up and Roost, it becomes ???/Flying-type, but it's still grounded.
-			if (this.pokemonHasType(terrainBuffed, 'Flying');
+			if (this.pokemonHasType(terrainBuffed, 'Flying')) isGrounded = false;
 		}
+
 		if (isGrounded) {
 			if ((this.battle.hasPseudoWeather('Electric Terrain') && moveType === 'Electric') ||
 				(this.battle.hasPseudoWeather('Grassy Terrain') && moveType === 'Grass') ||
@@ -1396,9 +1394,9 @@ var BattleTooltips = (function () {
 	BattleTooltips.prototype.pokemonHasType = function (pokemon, type, types) {
 		if (!types) types = this.getPokemonTypes(pokemon);
 		for (var i = 0; i < types.length; i++) {
-			if (types[i] === type) return true
+			if (types[i] === type) return true;
 		}
 		return false;
-	}
+	};
 	return BattleTooltips;
 })();
