@@ -1240,7 +1240,7 @@ var BattleTooltips = (function () {
 
 		// Field Effects
 		var terrainBuffed = this.battle.hasPseudoWeather('Misty Terrain') ? target : pokemonData;
-		var types = this.getPokemonTypes(this.battle.hasPseudoWeather('Misty Terrain') ? target : pokemon);
+		var types = this.getPokemonTypes(terrainBuffed);
 		var isGrounded = true;
 		var noItem = !terrainBuffed.item || this.battle.hasPseudoWeather('Magic Room') || terrainBuffed.volatiles && terrainBuffed.volatiles['embargo'];
 		if (this.battle.hasPseudoWeather('Gravity')) {
