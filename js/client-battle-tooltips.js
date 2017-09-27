@@ -914,6 +914,14 @@ var BattleTooltips = (function () {
 		if (ability === 'No Guard') return '&mdash; (Boosted by No Guard)';
 		if (move.ohko) {
 			if (this.battle.gen === 1) return accuracy + '% (Will fail if target\'s speed is higher)';
+			if (move.id === 'sheercold' && this.battle.gen >= 7) {
+				accuracy = 20;
+				var types = this.getPokemonTypes(pokemon);
+				for (var i = 0; i < types.length; i++) {
+					if (types[i] === 'Ice') accuracy = 30;
+					break;
+				}
+			}
 			return accuracy + '% (Will fail if target\'s level is higher, increases 1% per each level above target)';
 		}
 		if (pokemon.boosts && pokemon.boosts.accuracy) {
@@ -960,6 +968,7 @@ var BattleTooltips = (function () {
 		var ability = Tools.getAbility(pokemonData.ability || pokemon.ability || pokemonData.baseAbility).name;
 		var item = {};
 		var basePower = move.basePower;
+		var moveType = this.getMoveType(move, pokemon);
 		if (this.battle.gen < 7) {
 			var table = BattleTeambuilderTable['gen' + this.battle.gen];
 			if (move.id in table.overrideBP) basePower = table.overrideBP[move.id];
@@ -994,6 +1003,10 @@ var BattleTooltips = (function () {
 		if (move.id === 'crushgrip' || move.id === 'wringout') {
 			basePower = Math.floor(Math.floor((120 * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100) || 1;
 			basePowerComment = ' (Approximation)';
+		}
+		if (move.id === 'brine' && target.hp * 2 <= target.maxhp) {
+			basePower *= 2;
+			basePowerComment = this.makePercnetageChangeText(2, 'Brine + target below half HP');
 		}
 		if (move.id === 'eruption' || move.id === 'waterspout') {
 			basePower = Math.floor(150 * pokemon.hp / pokemon.maxhp) || 1;
@@ -1138,20 +1151,20 @@ var BattleTooltips = (function () {
 
 		// Other ability boosts.
 		var abilityBoost = 0;
-		if (ability === 'Water Bubble' && move.type === 'Water') {
+		if (ability === 'Water Bubble' && moveType === 'Water') {
 			abilityBoost = 2;
 		} else if ((ability === 'Flare Boost' && pokemon.status === 'brn' && move.category === 'Special') ||
 			(ability === 'Mega Launcher' && move.flags['pulse']) ||
-			(ability === 'Steelworker' && move.type === 'Steel') ||
+			(ability === 'Steelworker' && moveType === 'Steel') ||
 			(ability === 'Strong Jaw' && move.flags['bite']) ||
 			(ability === 'Technician' && basePower <= 60) ||
 			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical') ||
-			(ability === 'Overgrow' && move.type === 'Grass' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
-			(ability === 'Blaze' && move.type === 'Fire' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
-			(ability === 'Torrent' && move.type === 'Water' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
-			(ability === 'Swarm' && move.type === 'Bug' && pokemonData.hp * 3 <= pokemonData.maxhp)) {
+			(ability === 'Overgrow' && moveType === 'Grass' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
+			(ability === 'Blaze' && moveType === 'Fire' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
+			(ability === 'Torrent' && moveType === 'Water' && pokemonData.hp * 3 <= pokemonData.maxhp) ||
+			(ability === 'Swarm' && moveType === 'Bug' && pokemonData.hp * 3 <= pokemonData.maxhp)) {
 			abilityBoost = 1.5;
-		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel')) ||
+		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (moveType === 'Rock' || moveType === 'Ground' || move.type === 'Steel')) ||
 			(ability === 'Sheer Force' && move.secondaries) ||
 			(ability === 'Tough Claws' && move.flags['contact'])) {
 			abilityBoost = 1.3;
@@ -1187,9 +1200,9 @@ var BattleTooltips = (function () {
 				var ally = allyActive[i];
 				if (!ally || ally.fainted) continue;
 				if (ally.ability === 'Fairy Aura') {
-					if (move.type === 'Fairy') auraBoosted = 'Fairy Aura';
+					if (moveType === 'Fairy') auraBoosted = 'Fairy Aura';
 				} else if (ally.ability === 'Dark Aura') {
-					if (move.type === 'Dark') auraBoosted = 'Dark Aura';
+					if (moveType === 'Dark') auraBoosted = 'Dark Aura';
 				} else if (ally.ability === 'Aura Break') {
 					auraBroken = true;
 				} else if (ally.ability === 'Battery') {
@@ -1202,14 +1215,14 @@ var BattleTooltips = (function () {
 		}
 		var foeActive = this.battle.yourSide.active;
 		var doneLooking = auraBoosted && auraBroken;
-		if (!doneLooking && move.category !== 'Status' && (move.type === 'Fairy' || move.type === 'Dark')) {
+		if (!doneLooking && move.category !== 'Status' && (moveType === 'Fairy' || moveType === 'Dark')) {
 			for (var i = 0; i < foeActive.length; i++) {
 				var foe = foeActive[i];
 				if (!foe || foe.fainted) continue;
 				if (foe.ability === 'Fairy Aura') {
-					if (move.type === 'Fairy') auraBoosted = 'Fairy Aura';
+					if (moveType === 'Fairy') auraBoosted = 'Fairy Aura';
 				} else if (foe.ability === 'Dark Aura') {
-					if (move.type === 'Dark') auraBoosted = 'Dark Aura';
+					if (moveType === 'Dark') auraBoosted = 'Dark Aura';
 				} else if (foe.ability === 'Aura Break') {
 					auraBroken = true;
 				}
@@ -1226,24 +1239,25 @@ var BattleTooltips = (function () {
 		}
 
 		// Field Effects
-		var types = this.getPokemonTypes(pokemon);
+		var terrainBuffed = this.battle.hasPseudoWeather('Misty Terrain') ? target : pokemonData;
+		var types = this.getPokemonTypes(this.battle.hasPseudoWeather('Misty Terrain') ? target : pokemon);
 		var isGrounded = true;
-		var noItem = !pokemonData.item || this.battle.hasPseudoWeather('Magic Room') || pokemonData.volatiles && pokemonData.volatiles['embargo'];
+		var noItem = !terrainBuffed.item || this.battle.hasPseudoWeather('Magic Room') || terrainBuffed.volatiles && terrainBuffed.volatiles['embargo'];
 		if (this.battle.hasPseudoWeather('Gravity')) {
 			isGrounded = true;
-		} else if (pokemonData.volatiles && pokemonData.volatiles['ingrain'] && this.battle.gen >= 4) {
+		} else if (terrainBuffed.volatiles && terrainBuffed.volatiles['ingrain'] && this.battle.gen >= 4) {
 			isGrounded = true;
-		} else if (pokemonData.volatiles && pokemonData.volatiles['smackdown']) {
+		} else if (terrainBuffed.volatiles && terrainBuffed.volatiles['smackdown']) {
 			isGrounded = true;
-		} else if (!noItem && pokemonData.item === 'ironball') {
+		} else if (!noItem && terrainBuffed.item === 'ironball') {
 			isGrounded = true;
 		} else if (ability === 'levitate') {
 			isGrounded = false;
-		} else if (pokemonData.volatiles && (pokemonData.volatiles['magnetrise'] || pokemonData.volatiles['telekinesis'])) {
+		} else if (terrainBuffed.volatiles && (terrainBuffed.volatiles['magnetrise'] || terrainBuffed.volatiles['telekinesis'])) {
 			isGrounded = false;
-		} else if (!noItem && pokemonData.item !== 'airballoon') {
+		} else if (!noItem && terrainBuffed.item !== 'airballoon') {
 			isGrounded = false;
-		} else if (!(pokemonData.volatiles && pokemonData.volatiles['roost'])) {
+		} else if (!(terrainBuffed.volatiles && terrainBuffed.volatiles['roost'])) {
 			// If a Fire/Flying type uses Burn Up and Roost, it becomes ???/Flying-type, but it's still grounded.
 			for (var i = 0; i < types.length; i++) {
 				if (types[i] === 'Flying') isGrounded = false;
@@ -1251,14 +1265,14 @@ var BattleTooltips = (function () {
 			}
 		}
 		if (isGrounded) {
-			if ((this.battle.hasPseudoWeather('Electric Terrain') && move.type === 'Electric') ||
-				(this.battle.hasPseudoWeather('Grassy Terrain') && move.type === 'Grass') ||
-				(this.battle.hasPseudoWeather('Psychic Terrain') && move.type === 'Psychic')) {
+			if ((this.battle.hasPseudoWeather('Electric Terrain') && moveType === 'Electric') ||
+				(this.battle.hasPseudoWeather('Grassy Terrain') && moveType === 'Grass') ||
+				(this.battle.hasPseudoWeather('Psychic Terrain') && moveType === 'Psychic')) {
 				basePower = Math.floor(basePower * 1.5);
-				basePowerComment += this.makePercentageChangeText(1.5, move.type + (move.type === 'Grass' ? 'y Terrain' : ' Terrain'));
-			} else if (this.battle.hasPseudoWeather('Misty Terrain') && move.type === 'Dragon') {
+				basePowerComment += this.makePercentageChangeText(1.5, moveType + (moveType === 'Grass' ? 'y Terrain' : ' Terrain'));
+			} else if (this.battle.hasPseudoWeather('Misty Terrain') && moveType === 'Dragon') {
 				basePower = Math.floor(basePower / 2);
-				basePowerComment += this.makePercentageChangeText(0.5, 'Misty Terrain');
+				basePowerComment += this.makePercentageChangeText(0.5, 'Misty Terrain + grounded target');
 			}
 		}
 
