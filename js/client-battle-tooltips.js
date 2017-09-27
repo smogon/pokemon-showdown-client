@@ -541,6 +541,7 @@ var BattleTooltips = (function () {
 
 		var ability = toId(pokemonData.ability || pokemon.ability || pokemonData.baseAbility);
 		if ('gastroacid' in pokemon.volatiles) ability = '';
+		var pokemonTypes = this.getPokemonTypes(pokemon);
 
 		// check for burn, paralysis, guts, quick feet
 		if (pokemon.status) {
@@ -647,7 +648,7 @@ var BattleTooltips = (function () {
 					}
 				}
 			}
-			if (this.battle.gen >= 4 && (pokemon.types[0] === 'Rock' || pokemon.types[1] === 'Rock') && weather === 'sandstorm') {
+			if (this.battle.gen >= 4 && this.pokemonHasType('Rock') && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
 			if (ability === 'chlorophyll' && (weather === 'sunnyday' || weather === 'desolateland')) {
@@ -815,6 +816,7 @@ var BattleTooltips = (function () {
 		var pokemonData = this.room.myPokemon[pokemon.slot] || pokemon;
 		var ability = Tools.getAbility(pokemonData.ability || pokemon.ability || pokemonData.baseAbility).name;
 		var moveType = move.type;
+		var pokemonTypes = this.getPokemonTypes(pokemon);
 		// Normalize is the first move type changing effect.
 		if (ability === 'Normalize') {
 			moveType = 'Normal';
@@ -826,7 +828,7 @@ var BattleTooltips = (function () {
 			moveType = 'Normal';
 		}
 		if (move.id === 'revelationdance') {
-			moveType = pokemon.types[0];
+			moveType = pokemonTypes[0];
 		}
 		// Moves that require an item to change their type.
 		if (!this.battle.hasPseudoWeather('Magic Room') && (!pokemon.volatiles || !pokemon.volatiles['embargo'])) {
@@ -915,12 +917,7 @@ var BattleTooltips = (function () {
 		if (move.ohko) {
 			if (this.battle.gen === 1) return accuracy + '% (Will fail if target\'s speed is higher)';
 			if (move.id === 'sheercold' && this.battle.gen >= 7) {
-				accuracy = 20;
-				var types = this.getPokemonTypes(pokemon);
-				for (var i = 0; i < types.length; i++) {
-					if (types[i] === 'Ice') accuracy = 30;
-					break;
-				}
+				if (!this.pokemonHasType(pokemon, 'Ice')) accuracy = 20;
 			}
 			return accuracy + '% (Will fail if target\'s level is higher, increases 1% per each level above target)';
 		}
@@ -1240,7 +1237,6 @@ var BattleTooltips = (function () {
 
 		// Field Effects
 		var terrainBuffed = this.battle.hasPseudoWeather('Misty Terrain') ? target : pokemonData;
-		var types = this.getPokemonTypes(terrainBuffed);
 		var isGrounded = true;
 		var noItem = !terrainBuffed.item || this.battle.hasPseudoWeather('Magic Room') || terrainBuffed.volatiles && terrainBuffed.volatiles['embargo'];
 		if (this.battle.hasPseudoWeather('Gravity')) {
@@ -1259,10 +1255,7 @@ var BattleTooltips = (function () {
 			isGrounded = false;
 		} else if (!(terrainBuffed.volatiles && terrainBuffed.volatiles['roost'])) {
 			// If a Fire/Flying type uses Burn Up and Roost, it becomes ???/Flying-type, but it's still grounded.
-			for (var i = 0; i < types.length; i++) {
-				if (types[i] === 'Flying') isGrounded = false;
-				break;
-			}
+			if (this.pokemonHasType(terrainBuffed, 'Flying');
 		}
 		if (isGrounded) {
 			if ((this.battle.hasPseudoWeather('Electric Terrain') && moveType === 'Electric') ||
@@ -1400,5 +1393,12 @@ var BattleTooltips = (function () {
 		}
 		return types;
 	};
+	BattleTooltips.prototype.pokemonHasType = function (pokemon, type, types) {
+		if (!types) types = this.getPokemonTypes(pokemon);
+		for (var i = 0; i < types.length; i++) {
+			if (types[i] === type) return true
+		}
+		return false;
+	}
 	return BattleTooltips;
 })();
