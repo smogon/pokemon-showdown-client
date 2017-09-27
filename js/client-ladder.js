@@ -90,11 +90,12 @@
 			'gen7uususpecttest': 20,
 			'gen7rususpecttest': 9,
 			'gen7nususpecttest': 9,
+			'gen7pususpecttest': 9,
 			'gen7lcsuspecttest': 13,
+			'gen7monotypesuspecttest': 10,
 			'gen7doublesoususpecttest': 14.5,
 			'gen7balancedhackmonssuspecttest': 11,
 			'gen71v1suspecttest': 20,
-			'gen7monotypesuspecttest': 10,
 			'gen7mixandmegasuspecttest': 10.5,
 			'gen7almostanyabilitysuspecttest': 6,
 			'gen7sketchmonssuspecttest': 6
