@@ -881,7 +881,7 @@ var BattleTooltips = (function () {
 		}
 		// Other abilities that change the move type.
 		if ('sound' in move.flags && ability === 'Liquid Voice') moveType = 'Water';
-		if (moveType === 'Normal' && move.category && move.category !== 'Status' && !(move.id in {judgment:1, multiattack:1, naturalgift:1, revelationdance:1, technoblast:1, weatherball:1})) {
+		if (moveType === 'Normal' && move.category && move.category !== 'Status' && !(move.id in {judgment: 1, multiattack: 1, naturalgift: 1, revelationdance: 1, struggle: 1, technoblast: 1, weatherball: 1})) {
 			if (ability === 'Aerilate') moveType = 'Flying';
 			if (ability === 'Galvanize') moveType = 'Electric';
 			if (ability === 'Pixilate') moveType = 'Fairy';
@@ -1165,8 +1165,8 @@ var BattleTooltips = (function () {
 				abilityBoost = 0.75;
 			}
 		} else if (move.type === 'Normal' && move.category !== 'Status' &&
-			ability in {'Aerilate': 1, 'Galvanize':1, 'Pixilate': 1, 'Refrigerate': 1} &&
-			!(move.id in {judgment:1, multiattack:1, naturalgift:1, revelationdance:1, technoblast:1, weatherball:1})) {
+			ability in {'Aerilate': 1, 'Galvanize': 1, 'Pixilate': 1, 'Refrigerate': 1} &&
+			!(move.id in {judgment: 1, multiattack: 1, naturalgift: 1, revelationdance: 1, struggle: 1, technoblast: 1, weatherball: 1})) {
 			abilityBoost = (this.battle.gen > 6 ? 1.2 : 1.3);
 		} else if ((ability === 'Iron Fist' && move.flags['punch']) ||
 			(ability === 'Reckless' && (move.recoil || move.hasCustomRecoil)) ||
