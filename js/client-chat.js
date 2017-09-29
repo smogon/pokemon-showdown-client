@@ -159,7 +159,7 @@
 				e.stopPropagation();
 				var val = '/pm ' + app.user.lastPM + ', ';
 				textbox.value = val;
-				e.setSelectionRange(val.length, val.length);
+				textbox.setSelectionRange(val.length, val.length);
 			}
 		},
 		clickUsername: function (e) {
