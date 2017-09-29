@@ -385,10 +385,13 @@ var BattleTooltips = (function () {
 
 		var template = pokemon;
 		if (!pokemon.types) template = Tools.getTemplate(pokemon.species);
-		if (pokemon.volatiles && pokemon.volatiles.transform && pokemon.volatiles.formechange) {
-			text += '<small>(Transformed into ' + pokemon.volatiles.formechange[2] + ')</small><br />';
-		} else if (pokemon.volatiles && pokemon.volatiles.formechange) {
-			text += '<small>(Forme: ' + pokemon.volatiles.formechange[2] + ')</small><br />';
+		if (pokemon.volatiles && pokemon.volatiles.formechange) {
+			template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
+			if (pokemon.volatiles.transform) {
+				text += '<small>(Transformed into ' + pokemon.volatiles.formechange[2] + ')</small><br />';
+			} else {
+				text += '<small>(Forme: ' + pokemon.volatiles.formechange[2] + ')</small><br />';
+			}
 		}
 
 		var types = this.getPokemonTypes(pokemon);
