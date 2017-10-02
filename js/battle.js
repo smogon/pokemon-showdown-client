@@ -202,6 +202,7 @@ var Pokemon = (function () {
 
 		// [[moveName, ppUsed]]
 		this.moveTrack = [];
+		this.statusData = {sleepTurns: 0, toxicTurns: 0};
 
 		this.name = '';
 		this.species = '';
@@ -1970,6 +1971,8 @@ var Side = (function () {
 				this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
 			}
 		}
+		if (pokemon.statusData.toxicTurns) pokemon.statusData.toxicTurns = 1;
+		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
 		this.lastPokemon = pokemon;
 		this.active[slot] = null;
 
@@ -3482,6 +3485,7 @@ var Battle = (function () {
 			break;
 		case 'slp':
 			this.resultAnim(pokemon, 'Asleep', 'slp');
+			pokemon.statusData.sleepTurns++;
 			this.message('' + pokemon.getName() + ' is fast asleep.');
 			break;
 		case 'skydrop':
@@ -3611,6 +3615,7 @@ var Battle = (function () {
 						break;
 					case 'psn':
 						if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
+						if (poke.statusData.toxicTurns) poke.statusData.toxicTurns++;
 						actions += "" + poke.getName() + " was hurt by poison!";
 						break;
 					case 'lifeorb':
@@ -4306,6 +4311,7 @@ var Battle = (function () {
 				case 'tox':
 					this.resultAnim(poke, 'Toxic poison', 'psn');
 					if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
+					poke.statusData.toxicTurns = 1;
 					actions += "" + poke.getName() + " was badly poisoned" + effectMessage + "!";
 					break;
 				case 'psn':
@@ -4378,6 +4384,8 @@ var Battle = (function () {
 					else actions += "" + poke.getName() + " healed its burn!";
 					break;
 				case 'tox':
+					poke.statusData.toxicTurns = 0;
+					// falls through
 				case 'psn':
 					this.resultAnim(poke, 'Poison cured', 'good');
 					if (effect.effectType === 'Item') {
@@ -4388,6 +4396,7 @@ var Battle = (function () {
 					break;
 				case 'slp':
 					this.resultAnim(poke, 'Woke up', 'good');
+					poke.statusData.sleepTurns = 0;
 					if (effect.effectType === 'Item') {
 						actions += "" + poke.getName() + "'s " + effect.name + " woke it up!";
 						break;
