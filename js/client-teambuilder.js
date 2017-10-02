@@ -2567,7 +2567,11 @@
 				val = (id in BattlePokedex ? BattlePokedex[id].species : '');
 				break;
 			case 'ability':
-				val = (id in BattleAbilities ? BattleAbilities[id].name : '');
+				if (id in BattleItems && this.curTeam.format == "gen7dualwielding") {
+					val = BattleItems[id].name;
+				} else {
+					val = (id in BattleAbilities ? BattleAbilities[id].name : '');
+				}
 				break;
 			case 'item':
 				val = (id in BattleItems ? BattleItems[id].name : '');
