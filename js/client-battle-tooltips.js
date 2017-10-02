@@ -647,7 +647,7 @@ var BattleTooltips = (function () {
 					}
 				}
 			}
-			if (this.battle.gen >= 4 && this.pokemonHasType('Rock') && weather === 'sandstorm') {
+			if (this.battle.gen >= 4 && this.pokemonHasType(pokemonData, 'Rock') && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
 			if (ability === 'chlorophyll' && (weather === 'sunnyday' || weather === 'desolateland')) {
@@ -1366,9 +1366,7 @@ var BattleTooltips = (function () {
 	BattleTooltips.prototype.getPokemonTypes = function (pokemon) {
 		var template = pokemon;
 		if (!pokemon.types) template = Tools.getTemplate(pokemon.species);
-		if (pokemon.volatiles && pokemon.volatiles.transform && pokemon.volatiles.formechange) {
-			template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
-		} else if (pokemon.volatiles && pokemon.volatiles.formechange) {
+		if (pokemon.volatiles && pokemon.volatiles.formechange) {
 			template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
 		}
 
