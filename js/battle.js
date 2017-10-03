@@ -3847,7 +3847,7 @@ var Battle = (function () {
 						break;
 					}
 				} else if (kwargs.zeffect) {
-					if (minors.length) {
+					if (minors.length && minors[0][1].zeffect) {
 						actions += "" + poke.getName() + " boosted its stats" + amountString + " using its Z-Power! ";
 						for (var i = 0; i < minors.length; i++) {
 							minors[i][1].silent = '.';
