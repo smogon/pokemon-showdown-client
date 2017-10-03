@@ -975,7 +975,7 @@ Storage.importTeam = function (text, teams, curTeam) {
 	var team = [];
 	var curGen = 7;
 	if (typeof curTeam !== 'undefined') {
-		curGen = parseInt(curTeam.format.slice(3, 4));
+		curGen = parseInt(curTeam.format.slice(3, 4), 10);
 	}
 	var curSet = null;
 	if (teams === true) {
@@ -998,7 +998,7 @@ Storage.importTeam = function (text, teams, curTeam) {
 				if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 				line = $.trim(line.substr(bracketIndex + 1));
 			}
-			curGen = parseInt(format.slice(3, 4));
+			curGen = parseInt(format.slice(3, 4), 10);
 			if (teams.length) {
 				teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
 			}
