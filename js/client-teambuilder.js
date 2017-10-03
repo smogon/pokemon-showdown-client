@@ -1428,7 +1428,7 @@
 		},
 		savePokemonImport: function (i) {
 			i = +(this.$('li').attr('value'));
-			var curSet = Storage.importTeam(this.$('.pokemonedit').val())[0];
+			var curSet = Storage.importTeam(this.$('.pokemonedit').val(), '', this.curTeam)[0];
 			if (curSet) {
 				this.curSet = curSet;
 				this.curSetList[i] = curSet;

@@ -970,9 +970,13 @@ Storage.getPackedTeam = function (team) {
 	return team.team;
 };
 
-Storage.importTeam = function (text, teams) {
+Storage.importTeam = function (text, teams, curTeam) {
 	var text = text.split("\n");
 	var team = [];
+	var curGen = 7;
+	if (typeof curTeam !== 'undefined') {
+		curGen = parseInt(curTeam.format.slice(3, 4));
+	}
 	var curSet = null;
 	if (teams === true) {
 		Storage.teams = [];
@@ -994,6 +998,7 @@ Storage.importTeam = function (text, teams) {
 				if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 				line = $.trim(line.substr(bracketIndex + 1));
 			}
+			curGen = parseInt(format.slice(3, 4));
 			if (teams.length) {
 				teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
 			}
@@ -1091,7 +1096,7 @@ Storage.importTeam = function (text, teams) {
 			if (line.substr(0, 14) === 'Hidden Power [') {
 				var hptype = line.substr(14, line.length - 15);
 				line = 'Hidden Power ' + hptype;
-				if (!curSet.ivs && window.BattleTypeChart) {
+				if (!curSet.ivs && window.BattleTypeChart && curGen < 7) {
 					curSet.ivs = {};
 					for (var stat in window.BattleTypeChart[hptype].HPivs) {
 						curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
