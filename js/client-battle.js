@@ -397,7 +397,7 @@
 					// Request full team order if one of our Pokémon has Illusion
 					for (var i = 0; i < switchables.length && i < 6; i++) {
 						if (toId(switchables[i].baseAbility) === 'illusion') {
-							this.choice.count = 6;
+							this.choice.count = this.myPokemon.length;
 						}
 					}
 					if (this.battle.teamPreviewCount) {
