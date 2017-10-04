@@ -1003,7 +1003,7 @@ var BattleTooltips = (function () {
 		}
 		if (move.id === 'brine' && target.hp * 2 <= target.maxhp) {
 			basePower *= 2;
-			basePowerComment = this.makePercnetageChangeText(2, 'Brine + target below half HP');
+			basePowerComment = this.makePercentageChangeText(2, 'Brine + target below half HP');
 		}
 		if (move.id === 'eruption' || move.id === 'waterspout') {
 			basePower = Math.floor(150 * pokemon.hp / pokemon.maxhp) || 1;
@@ -1154,7 +1154,7 @@ var BattleTooltips = (function () {
 			(ability === 'Technician' && basePower <= 60) ||
 			(ability === 'Toxic Boost' && (pokemon.status === 'psn' || pokemon.status === 'tox') && move.category === 'Physical')) {
 			abilityBoost = 1.5;
-		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (moveType === 'Rock' || moveType === 'Ground' || move.type === 'Steel')) ||
+		} else if ((ability === 'Sand Force' && this.battle.weather === 'sandstorm' && (moveType === 'Rock' || moveType === 'Ground' || moveType === 'Steel')) ||
 			(ability === 'Sheer Force' && move.secondaries) ||
 			(ability === 'Tough Claws' && move.flags['contact'])) {
 			abilityBoost = 1.3;
