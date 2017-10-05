@@ -411,6 +411,9 @@
 						}
 					}
 					app.send('/autojoin ' + autojoinIds.join(','));
+
+					// HTML5 history throws exceptions when running on file://
+					Backbone.history.start({pushState: !Config.testclient});
 				});
 			}
 
@@ -614,9 +617,6 @@
 			Storage.whenAppLoaded.load(this);
 
 			this.initializeConnection();
-
-			// HTML5 history throws exceptions when running on file://
-			Backbone.history.start({pushState: !Config.testclient});
 		},
 		/**
 		 * Start up the client, including loading teams and preferences,
