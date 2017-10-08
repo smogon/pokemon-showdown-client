@@ -1115,6 +1115,7 @@
 			buf += '<ul><li><p><strong>Bär Halberkamp</strong> [bumbadadabum] <small>&ndash; Development</small></p></li>';
 			buf += '<li><p><strong>Kevin Lau</strong> [Ascriptmaster] <small>&ndash; Development, Art (battle animations)</small></p></li>';
 			buf += '<li><p><strong>Konrad Borowski</strong> [xfix] <small>&ndash; Development</small></p></li>';
+			buf += '<li><p><strong>Neil Rashbrook</strong> [urkerab] <small>&ndashl; Development</small></p></li></ul>';
 			buf += '<li><p><strong>Quinton Lee</strong> [sirDonovan] <small>&ndash; Development</small></p></li></ul>';
 			buf += '<h2>More</h2>';
 			buf += '<ul><li><p><a href="http://pokemonshowdown.com/credits" target="_blank">Full Credits List</a></p></li></ul>';
