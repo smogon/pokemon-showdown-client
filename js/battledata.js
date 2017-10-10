@@ -547,8 +547,17 @@ var Tools = {
 		var options = Tools.prefs('chatformatting') || {};
 
 		// ``code``
-		str = str.replace(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g,
-			options.hidemonospace ? '$1' : '<code>$1</code>');
+		if (!options.hidemonospace && /\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g.test(str)) {
+			var nonCodeBlocks = str.split(/\`\`[^< ](?:[^<`]*?[^< ])??\`\`/g);
+			str = str.replace(/\`\`([^< ](?:[^<`]*?[^< ])??)\`\`/g, '<code>$1</code>');
+			// Escape the other formatting that isn't in a code block
+			for (var i = 0; i < nonCodeBlocks.length; i++) {
+				if (!nonCodeBlocks[i]) continue;
+				var escapedStringPart = this.parseMessage(this.unescapeHTML(nonCodeBlocks[i]));
+				str = str.replace(nonCodeBlocks[i], escapedStringPart);
+			}
+			return str;
+		}
 		// ~~strikethrough~~
 		str = str.replace(/\~\~([^< ](?:[^<]*?[^< ])??)\~\~/g,
 			options.hidestrikethrough ? '$1' : '<s>$1</s>');
