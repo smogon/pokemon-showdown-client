@@ -1148,7 +1148,7 @@
 	Search.prototype.renderPokemonRow = function (pokemon, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		var id = toId(pokemon.species);
-		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'pokemon/' + id + '" data-target="push"';
+		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'pokemon/' + id + '" data-target="push" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="pokemon|' + Tools.escapeHTML(pokemon.species) + '">';
 
 		// number
@@ -1263,7 +1263,7 @@
 	};
 	Search.prototype.renderTaggedPokemonRowInner = function (pokemon, tag, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toId(pokemon.species) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toId(pokemon.species) + '" data-target="push" target="_blank"';
 		var buf = '<a' + attrs + ' data-entry="pokemon|' + Tools.escapeHTML(pokemon.species) + '">';
 
 		// tag
@@ -1333,7 +1333,7 @@
 	Search.prototype.renderItemRow = function (item, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		var id = toId(item.name);
-		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'items/' + id + '" data-target="push"';
+		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'items/' + id + '" data-target="push" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="item|' + Tools.escapeHTML(item.name) + '">';
 
 		// icon
@@ -1373,7 +1373,7 @@
 	Search.prototype.renderAbilityRow = function (ability, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		var id = toId(ability.name);
-		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'abilities/' + id + '" data-target="push"';
+		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'abilities/' + id + '" data-target="push" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="ability|' + Tools.escapeHTML(ability.name) + '">';
 
 		// name
@@ -1398,7 +1398,7 @@
 	Search.prototype.renderMoveRow = function (move, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		var id = toId(move.name);
-		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'moves/' + id + '" data-target="push"';
+		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'moves/' + id + '" data-target="push" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="move|' + Tools.escapeHTML(move.name) + '">';
 
 		// name
@@ -1469,7 +1469,7 @@
 	};
 	Search.prototype.renderMoveRowInner = function (move, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push" target="_blank"';
 		var buf = '<a' + attrs + ' data-entry="move|' + Tools.escapeHTML(move.name) + '">';
 
 		// name
@@ -1504,7 +1504,7 @@
 	};
 	Search.prototype.renderTaggedMoveRow = function (move, tag, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="move|' + Tools.escapeHTML(move.name) + '">';
 
 		// tag
@@ -1542,7 +1542,7 @@
 
 	Search.prototype.renderTypeRow = function (type, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'types/' + toId(type.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'types/' + toId(type.name) + '" data-target="push" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="type|' + Tools.escapeHTML(type.name) + '">';
 
 		// name
@@ -1569,7 +1569,7 @@
 	};
 	Search.prototype.renderCategoryRow = function (category, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'categories/' + category.id + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'categories/' + category.id + '" data-target="push" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="category|' + Tools.escapeHTML(category.name) + '">';
 
 		// name
@@ -1596,9 +1596,9 @@
 	};
 	Search.prototype.renderArticleRow = function (article, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'articles/' + article.id + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'articles/' + article.id + '" data-target="push" target="_blank"';
 		var isSearchType = (article.id === 'pokemon' || article.id === 'moves');
-		if (isSearchType) attrs = ' href="' + article.id + '/" data-target="replace"';
+		if (isSearchType) attrs = ' href="' + article.id + '/" data-target="replace" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="article|' + Tools.escapeHTML(article.name) + '">';
 
 		// name
@@ -1627,7 +1627,7 @@
 	};
 	Search.prototype.renderEggGroupRow = function (egggroup, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'egggroups/' + toId(egggroup.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'egggroups/' + toId(egggroup.name) + '" data-target="push" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="egggroup|' + Tools.escapeHTML(egggroup.name) + '">';
 
 		// name
@@ -1649,7 +1649,7 @@
 	};
 	Search.prototype.renderTierRow = function (tier, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'tiers/' + toId(tier.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'tiers/' + toId(tier.name) + '" data-target="push" target="_blank"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="tier|' + Tools.escapeHTML(tier.name) + '">';
 
 		// name
@@ -1671,6 +1671,7 @@
 	};
 
 	Search.gen = 7;
+	Search.urlRoot = 'https://pokemonshowdown.com/dex/';
 	Search.renderRow = Search.prototype.renderRow;
 	Search.renderPokemonRow = Search.prototype.renderPokemonRow;
 	Search.renderTaggedPokemonRowInner = Search.prototype.renderTaggedPokemonRowInner;
