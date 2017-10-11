@@ -583,6 +583,7 @@ Storage.packTeam = function (team) {
 	var buf = '';
 	if (!team) return '';
 
+	var hasHP;
 	for (var i = 0; i < team.length; i++) {
 		var set = team[i];
 		if (buf) buf += ']';
@@ -616,10 +617,12 @@ Storage.packTeam = function (team) {
 		}
 
 		// moves
-		if (set.moves) {
-			buf += '|' + set.moves.map(toId).join(',');
-		} else {
-			buf += '|';
+		buf += '|';
+		if (set.moves) for (var j = 0; j < set.moves.length; j++) {
+			var moveid = toId(set.moves[j]);
+			if (j && !moveid) continue;
+			buf += (j ? ',' : '') + moveid;
+			if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) hasHP = true;
 		}
 
 		// nature
@@ -675,6 +678,11 @@ Storage.packTeam = function (team) {
 			buf += '|' + set.happiness;
 		} else {
 			buf += '|';
+		}
+
+		if (set.pokeball || (set.hpType && !hasHP)) {
+			buf += ',' + (set.hpType || '');
+			buf += ',' + toId(set.pokeball);
 		}
 	}
 
@@ -776,13 +784,18 @@ Storage.fastUnpackTeam = function (buf) {
 
 		// happiness
 		j = buf.indexOf(']', i);
+		var misc;
 		if (j < 0) {
-			if (buf.substring(i)) {
-				set.happiness = Number(buf.substring(i));
-			}
-			break;
+			if (i < buf.length) misc = buf.substring(i).split(',', 3);
+		} else {
+			if (i !== j) misc = buf.substring(i, j).split(',', 3);
 		}
-		if (i !== j) set.happiness = Number(buf.substring(i, j));
+		if (misc) {
+			set.happiness = (misc[0] ? Number(misc[0]) : 255);
+			set.hpType = misc[1];
+			set.pokeball = misc[2];
+		}
+		if (j < 0) break;
 		i = j + 1;
 	}
 
@@ -886,13 +899,18 @@ Storage.unpackTeam = function (buf) {
 
 		// happiness
 		j = buf.indexOf(']', i);
+		var misc;
 		if (j < 0) {
-			if (buf.substring(i)) {
-				set.happiness = Number(buf.substring(i));
-			}
-			break;
+			if (i < buf.length) misc = buf.substring(i).split(',', 3);
+		} else {
+			if (i !== j) misc = buf.substring(i, j).split(',', 3);
 		}
-		if (i !== j) set.happiness = Number(buf.substring(i, j));
+		if (misc) {
+			set.happiness = (misc[0] ? Number(misc[0]) : 255);
+			set.hpType = misc[1];
+			set.pokeball = misc[2];
+		}
+		if (j < 0) break;
 		i = j + 1;
 	}
 
