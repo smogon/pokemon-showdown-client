@@ -339,10 +339,11 @@ var Pokemon = (function () {
 	};
 	Pokemon.prototype.checkDetails = function (details) {
 		if (!details) return false;
+		if (details === this.details) return true;
+		if (this.searchid) return false;
 		if (details.indexOf(', shiny') >= 0) {
 			if (this.checkDetails(details.replace(', shiny', ''))) return true;
 		}
-		if (details === this.details) return true;
 		// the actual forme was hidden on Team Preview
 		details = details.replace(/(-[A-Za-z0-9]+)?(, |$)/, '-*$2');
 		return (details === this.details);
@@ -1736,6 +1737,7 @@ var Side = (function () {
 			var existingTable = {};
 			for (var i = 0; i < this.pokemon.length; i++) {
 				var poke1 = this.pokemon[i];
+				if (!poke1.searchid) continue;
 				if (poke1.searchid in existingTable) {
 					var j = existingTable[poke1.searchid];
 					var poke2 = this.pokemon[j];
