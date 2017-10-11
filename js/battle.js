@@ -1927,6 +1927,11 @@ var Side = (function () {
 			pokemon.maxhp = oldpokemon.maxhp;
 			pokemon.status = oldpokemon.status;
 			pokemon.copyVolatileFrom(oldpokemon, true);
+			// we don't know anything about the illusioned pokemon except that it's not fainted
+			// technically we also know its status but only at the end of the turn, not here
+			oldpokemon.fainted = false;
+			oldpokemon.hp = oldpokemon.maxhp;
+			oldpokemon.status = '???';
 		}
 		this.active[slot] = pokemon;
 		pokemon.slot = slot;
