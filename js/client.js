@@ -72,6 +72,8 @@
 			} else if (file.type && file.type.substr(0, 6) === 'image/') {
 				// It's an image file, try to set it as a background
 				CustomBackgroundPopup.readFile(file);
+			} else if (file.type && file.type === 'text/html') {
+				BattleRoom.readReplayFile(file);
 			}
 		}
 	});
