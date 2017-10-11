@@ -348,6 +348,7 @@ class DefaultActionHandler {
 		if ($server['id'] !== 'showdown') {
 			$reqData['id'] = $server['id'].'-'.$reqData['id'];
 		}
+		$reqData['serverid'] = $server['id'];
 
 		include_once __DIR__.'/../../replay.pokemonshowdown.com/replays.lib.php';
 		$out = $GLOBALS['Replays']->prepUpload($reqData);
