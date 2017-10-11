@@ -1227,6 +1227,27 @@
 			this.tooltips.hideTooltip();
 			this.$controls.find('.controls').attr('class', 'controls move-controls');
 		}
+	}, {
+		readReplayFile: function (file) {
+			var reader = new FileReader();
+			reader.onload = function (e) {
+				var html = e.target.result;
+				var index1 = html.indexOf('<script type="text/plain" class="battle-log-data">');
+				var index2 = html.indexOf('<script type="text/plain" class="log">');
+				if (index1 < 0 && index2 < 0) return alert("Unrecognized HTML file: Only replay files are supported.");
+				if (index1 >= 0) {
+					html = html.slice(index1 + 50);
+				} else if (index2 >= 0) {
+					html = html.slice(index2 + 38);
+				}
+				var index3 = html.indexOf('</script>');
+				html = html.slice(0, index3);
+				html = html.replace(/\\\//g, '/');
+				app.receive('>battle-uploadedreplay\n|init|battle\n|title|Uploaded replay\n' + html);
+				app.receive('>battle-uploadedreplay\n|expire|Uploaded replay');
+			};
+			reader.readAsText(file);
+		}
 	});
 
 	var ForfeitPopup = this.ForfeitPopup = Popup.extend({
