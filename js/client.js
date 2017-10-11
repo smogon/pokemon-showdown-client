@@ -1200,9 +1200,6 @@
 				log: data.log,
 				id: id
 			}, function (data) {
-				if ((serverid === 'showdown') && (data === 'invalid id')) {
-					data = 'not found';
-				}
 				if (data === 'success') {
 					app.addPopup(ReplayUploadedPopup, {id: id});
 				} else if (data === 'hash mismatch') {
