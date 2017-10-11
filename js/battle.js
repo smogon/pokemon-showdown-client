@@ -1714,6 +1714,7 @@ var Side = (function () {
 		poke.spaStat = 10;
 		poke.spdStat = 10;
 		poke.maxhp = 1000;
+		poke.slot = 0;
 		if (pokeobj) poke = $.extend(poke, pokeobj);
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
 		poke.id = id;
