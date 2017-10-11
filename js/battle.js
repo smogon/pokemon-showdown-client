@@ -1735,24 +1735,63 @@ var Side = (function () {
 		if (this.pokemon.length > this.battle.maxPokemon || this.battle.speciesClause) {
 			// check for Illusion
 			var existingTable = {};
-			for (var i = 0; i < this.pokemon.length; i++) {
-				var poke1 = this.pokemon[i];
+			var toRemove = -1;
+			for (var poke1i = 0; poke1i < this.pokemon.length; poke1i++) {
+				var poke1 = this.pokemon[poke1i];
 				if (!poke1.searchid) continue;
 				if (poke1.searchid in existingTable) {
-					var j = existingTable[poke1.searchid];
-					var poke2 = this.pokemon[j];
-					if (this.active.indexOf(poke1) >= 0) {
-						this.pokemon.splice(j, 1);
+					var poke2i = existingTable[poke1.searchid];
+					var poke2 = this.pokemon[poke2i];
+					if (poke === poke1) {
+						toRemove = poke2i;
+					} else if (poke === poke2) {
+						toRemove = poke1i;
+					} else if (this.active.indexOf(poke1) >= 0) {
+						toRemove = poke2i;
 					} else if (this.active.indexOf(poke2) >= 0) {
-						this.pokemon.splice(i, 1);
+						toRemove = poke1i;
 					} else if (poke1.fainted && !poke2.fainted) {
-						this.pokemon.splice(j, 1);
+						toRemove = poke2i;
 					} else {
-						this.pokemon.splice(i, 1);
+						toRemove = poke1i;
 					}
 					break;
 				}
-				existingTable[poke1.searchid] = i;
+				existingTable[poke1.searchid] = poke1i;
+			}
+			if (toRemove >= 0) {
+				if (this.pokemon[toRemove].fainted) {
+					// A fainted Pokemon was actually a Zoroark
+					var illusionFound = null;
+					for (var i = 0; i < this.pokemon.length; i++) {
+						var poke = this.pokemon[i];
+						if (poke.fainted) continue;
+						if (this.active.indexOf(poke) >= 0) continue;
+						if (poke.speciesid === 'zoroark' || poke.speciesid === 'zorua' || poke.ability === 'Illusion') {
+							illusionFound = poke;
+							break;
+						}
+					}
+					if (!illusionFound) {
+						// This is Hackmons; we'll just guess a random unfainted Pokemon.
+						// This will keep the fainted Pokemon count correct, and will
+						// eventually become correct as incorrect guesses are switched in
+						// and reguessed.
+						for (var i = 0; i < this.pokemon.length; i++) {
+							var poke = this.pokemon[i];
+							if (poke.fainted) continue;
+							if (this.active.indexOf(poke) >= 0) continue;
+							illusionFound = poke;
+							break;
+						}
+					}
+					if (illusionFound) {
+						illusionFound.fainted = true;
+						illusionFound.hp = 0;
+						illusionFound.status = '';
+					}
+				}
+				this.pokemon.splice(toRemove, 1);
 			}
 		}
 		this.updateSidebar();
