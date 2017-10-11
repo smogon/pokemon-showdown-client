@@ -720,10 +720,10 @@ var Pokemon = (function () {
 	// This function is NOT used in the calculation of any other displayed
 	// percentages or ranges, which have their own, more complex, formulae.
 	Pokemon.prototype.hpWidth = function (maxWidth) {
-		if (this.fainted) return 0;
+		if (this.fainted || !this.hp) return 0;
 
 		// special case for low health...
-		if (this.hp == 1 && this.maxhp > 10) return 1;
+		if (this.hp == 1 && this.maxhp > 45) return 1;
 
 		if (this.maxhp === 48) {
 			// Draw the health bar to the middle of the range.
