@@ -1735,11 +1735,11 @@ var Side = (function () {
 					// A fainted Pokemon was actually a Zoroark
 					var illusionFound = null;
 					for (var i = 0; i < this.pokemon.length; i++) {
-						var poke = this.pokemon[i];
-						if (poke.fainted) continue;
-						if (this.active.indexOf(poke) >= 0) continue;
-						if (poke.speciesid === 'zoroark' || poke.speciesid === 'zorua' || poke.ability === 'Illusion') {
-							illusionFound = poke;
+						var curPoke = this.pokemon[i];
+						if (curPoke.fainted) continue;
+						if (this.active.indexOf(curPoke) >= 0) continue;
+						if (curPoke.speciesid === 'zoroark' || curPoke.speciesid === 'zorua' || curPoke.ability === 'Illusion') {
+							illusionFound = curPoke;
 							break;
 						}
 					}
@@ -1749,10 +1749,10 @@ var Side = (function () {
 						// eventually become correct as incorrect guesses are switched in
 						// and reguessed.
 						for (var i = 0; i < this.pokemon.length; i++) {
-							var poke = this.pokemon[i];
-							if (poke.fainted) continue;
-							if (this.active.indexOf(poke) >= 0) continue;
-							illusionFound = poke;
+							var curPoke = this.pokemon[i];
+							if (curPoke.fainted) continue;
+							if (this.active.indexOf(curPoke) >= 0) continue;
+							illusionFound = curPoke;
 							break;
 						}
 					}
