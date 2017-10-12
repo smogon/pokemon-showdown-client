@@ -164,22 +164,13 @@ var BattleSound = new BattleSoundLibrary();
 
 var Pokemon = (function () {
 	function Pokemon(species, side) {
+		this.name = '';
+		this.species = '';
+		this.searchid = '';
+
 		this.side = side;
 
-		this.atk = 0;
-		this.def = 0;
-		this.spa = 0;
-		this.spd = 0;
-		this.spe = 0;
-
-		this.atkStat = 0;
-		this.defStat = 0;
-		this.spaStat = 0;
-		this.spdStat = 0;
-		this.speStat = 0;
-
-		this.boosts = {};
-
+		this.fainted = false;
 		this.hp = 0;
 		this.maxhp = 0;
 		this.hpcolor = '';
@@ -191,8 +182,8 @@ var Pokemon = (function () {
 		this.prevItem = '';
 		this.prevItemEffect = '';
 		this.species = species;
-		this.fainted = false;
 
+		this.boosts = {};
 		this.status = '';
 		this.statusStage = 0;
 		this.volatiles = {};
@@ -204,9 +195,6 @@ var Pokemon = (function () {
 		this.moveTrack = [];
 		this.statusData = {sleepTurns: 0, toxicTurns: 0};
 
-		this.name = '';
-		this.species = '';
-		this.id = '';
 		this.statbarElem = null;
 	}
 
@@ -632,11 +620,6 @@ var Pokemon = (function () {
 	};
 	Pokemon.prototype.clearVolatile = function () {
 		this.ability = this.baseAbility;
-		this.atk = this.atkStat;
-		this.def = this.defStat;
-		this.spa = this.spaStat;
-		this.spd = this.spdStat;
-		this.spe = this.speStat;
 		this.boosts = {};
 		this.clearVolatiles();
 		for (var i = 0; i < this.moveTrack.length; i++) {
@@ -675,11 +658,6 @@ var Pokemon = (function () {
 		this.removeVolatile('transform');
 		this.removeVolatile('formechange');
 
-		pokemon.atk = pokemon.atkStat;
-		pokemon.def = pokemon.defStat;
-		pokemon.spa = pokemon.spaStat;
-		pokemon.spd = pokemon.spdStat;
-		pokemon.spe = pokemon.speStat;
 		pokemon.boosts = {};
 		pokemon.volatiles = {};
 		pokemon.sprite.removeTransform();
@@ -1701,24 +1679,17 @@ var Side = (function () {
 		delete this.sideConditions[condition];
 	};
 	Side.prototype.newPokemon = function (species, replaceSlot) {
-		var id;
 		var pokeobj;
 		if (species.species) {
 			pokeobj = species;
 			species = pokeobj.species;
-			id = pokeobj.id;
 		}
 		var poke = Tools.getTemplate(species);
 		poke = $.extend(new Pokemon(species, this), poke);
-		poke.atkStat = 10;
-		poke.defStat = 10;
-		poke.spaStat = 10;
-		poke.spdStat = 10;
 		poke.maxhp = 1000;
 		poke.slot = 0;
 		if (pokeobj) poke = $.extend(poke, pokeobj);
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
-		poke.id = id;
 		poke.reset();
 		poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {
 			afd: this.battle.tier === "[Seasonal] Fools Festival",
