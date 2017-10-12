@@ -6358,6 +6358,7 @@ var Battle = (function () {
 		case 'rule':
 			var ruleArgs = args[1].split(': ');
 			this.log('<div><small><em>' + Tools.escapeHTML(ruleArgs[0]) + (ruleArgs[1] ? ':' : '') + '</em> ' + Tools.escapeHTML(ruleArgs[1] || '') + '</div>');
+			if (ruleArgs[0] === 'Species Clause') this.speciesClause = true;
 			break;
 		case 'rated':
 			this.rated = true;
