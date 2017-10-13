@@ -414,10 +414,12 @@ var BattleTooltips = (function () {
 			if (pokemonData) exacthp = ' (' + pokemonData.hp + '/' + pokemonData.maxhp + ')';
 			else if (pokemon.maxhp == 48) exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
 			text += '<p>HP: ' + pokemon.hpDisplay() + exacthp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '');
-			if (pokemon.status === 'tox') {
-				text += ' Next damage: ' + Math.floor(100 / 16) * Math.min(pokemon.statusData.toxicTurns, 15) + '%';
-			} else if (pokemon.status === 'slp') {
-				text += ' Turns asleep: ' + pokemon.statusData.sleepTurns;
+			if (pokemon.statusData) {
+				if (pokemon.status === 'tox') {
+					text += ' Next damage: ' + Math.floor(100 / 16) * Math.min(pokemon.statusData.toxicTurns, 15) + '%';
+				} else if (pokemon.status === 'slp') {
+					text += ' Turns asleep: ' + pokemon.statusData.sleepTurns;
+				}
 			}
 			text += '</p>';
 		}
