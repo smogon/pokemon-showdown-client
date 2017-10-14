@@ -96,12 +96,14 @@ function hashColor(name) {
 	case 5: R1 = C; G1 = 0; B1 = X; break;
 	case 0: default: R1 = C; G1 = X; B1 = 0; break;
 	}
-	var lum = (R1 + m) * 0.2126 + (G1 + m) * 0.7152 + (B1 + m) * 0.0722; // 0.05 (dark blue) to 0.93 (yellow)
+	var R = R1 + m, G = G1 + m, B = B1 + m;
+	var lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
 
-	var HLmod = (lum - 0.5) * -100; // -43 (yellow) to 45 (dark blue)
-	if (HLmod > 12) HLmod -= 12;
-	else if (HLmod < -10) HLmod = (HLmod + 10) * 2 / 3;
+	var HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
+	if (HLmod > 18) HLmod = (HLmod - 18) * 2.5;
+	else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
 	else HLmod = 0;
+	// var mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
 
 	L += HLmod;
 
