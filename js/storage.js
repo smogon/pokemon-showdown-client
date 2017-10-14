@@ -286,6 +286,7 @@ Storage.initPrefs = function () {
 			'<iframe src="https://play.pokemonshowdown.com/crossdomain.php?host=' +
 			encodeURIComponent(document.location.hostname) +
 			'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
+			'&protocol=' + encodeURIComponent(document.location.protocol) +
 			'" style="display: none;"></iframe>'
 		).appendTo('body');
 	} else {
