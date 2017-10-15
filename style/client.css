@@ -3382,8 +3382,8 @@ a.ilink.yours {
 /* teambuilder set */
 
 .dark .teambuilder-results .result a.cur {
-	border-color: #999999;
-	background: rgba(40, 43, 45, 0.7);
+	border-color: rgb(158, 158, 158);
+	background: rgba(115, 115, 115, 0.6);
 	color: #FFFFFF;
 }
 
