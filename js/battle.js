@@ -1373,7 +1373,7 @@ var Side = (function () {
 	Side.prototype.updateSidebar = function () {
 		var pokemonhtml = '';
 		var noShow = this.battle.hardcoreMode && this.battle.gen < 7;
-		for (var i = 0; i < 6; i++) {
+		for (var i = 0; i < 6 || i < this.pokemon.length; i++) {
 			var poke = this.pokemon[i];
 			if (i >= this.totalPokemon) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-none') + '"></span>';
