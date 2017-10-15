@@ -3346,6 +3346,16 @@ a.ilink.yours {
 
 /* teambuilder */
 
+.dark .credits ul li p {
+	color: #B7C3CE;
+}
+
+.dark .credits li small {
+	font-size: 10pt;
+	display: block;
+	color: #8D8F90;
+}
+
 .dark .folderpane {
 	border-left-color: #484848;
 }
