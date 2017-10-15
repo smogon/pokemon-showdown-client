@@ -113,6 +113,17 @@ select {
 .dark a.button:active {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 } */
+
+.dark .button.notifying {
+	background: #6BACC5;
+	border-color: #2C9CC1;
+}
+
+.dark .button.notifying:hover {
+	background: #6BACC5;
+	border-color: #FFFFFF;
+}
+
 .dark a.button:visited {
 	color: #F9F9F9;
 }
