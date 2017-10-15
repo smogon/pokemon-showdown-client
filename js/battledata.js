@@ -107,10 +107,6 @@ function hashColor(name) {
 
 	L += HLmod;
 
-	var Smod = 10 - Math.abs(50 - L);
-	if (HLmod > 15) Smod += (HLmod - 15) / 2;
-	S -= Smod;
-
 	colorCache[name] = "color:hsl(" + H + "," + S + "%," + L + "%);";
 	return colorCache[name];
 }
