@@ -1702,8 +1702,7 @@ var Side = (function () {
 		} else {
 			this.pokemon.push(poke);
 		}
-		if (replaceSlot === -2) this.battle.maxPokemon = this.pokemon.length;
-		if (this.pokemon.length > this.battle.maxPokemon || this.battle.speciesClause) {
+		if (this.pokemon.length > this.totalPokemon || this.battle.speciesClause) {
 			// check for Illusion
 			var existingTable = {};
 			var toRemove = -1;
@@ -2366,7 +2365,6 @@ var Battle = (function () {
 		this.sides = [];
 		this.lastMove = '';
 		this.gen = 7;
-		this.maxPokemon = 6;
 		this.speciesClause = false;
 
 		this.frameElem = frame;
