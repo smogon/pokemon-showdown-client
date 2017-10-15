@@ -3318,6 +3318,14 @@ a.ilink.yours {
 	border-color: #CCC;
 }
 
+.dark .select:after {
+	color: #000000;
+}
+
+.dark .select:disabled:after {
+	color: #000000;
+}
+
 /* chat */
 
 .dark .userlist strong,
