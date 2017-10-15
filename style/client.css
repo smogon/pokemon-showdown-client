@@ -3392,6 +3392,34 @@ a.ilink.yours {
 
 /* teambuilder set */
 
+.dark .utilichart h3, .dark .dexentry h3, .dark .resultheader h3 {
+	background: #636363;
+	color: #F1F1F1;
+	border: 1px solid #A9A9A9;
+	text-shadow: 1px 1px 0 rgb(40, 43, 45);
+	box-shadow: inset 0px 1px 0 rgb(49, 49, 49);
+	border-right: none;
+}
+
+.dark .teambar button {
+	background: #5A6570;
+	color: #F1F1F1;
+	border: 1px solid #AAAAAA;
+}
+
+.dark .teambar button:hover {
+	background: #444C54;
+	color: #F1F1F1;
+	border: 1px solid #AAAAAA;
+}
+
+.dark .teambar button:disabled, .dark .teambar button:disabled:hover, .dark .teambar button:disabled:active {
+    color: #ffffff;
+    background: #2d343a;
+    border-color: #6bacc5;
+    opacity: 1;
+}
+
 .dark .teambuilder-results .result a:hover {
 	border-color: #555555;
 	background: rgba(47, 47, 47, 0.8);
@@ -3430,7 +3458,9 @@ a.ilink.yours {
 .dark .utilichart a:hover .namecol,
 .dark .utilichart a:hover .pokemonnamecol,
 .dark .utilichart a:hover .movenamecol {
-	color: #DDD;
+	color: #FFF;
+	background: #636363;
+	border: 1px solid #AAA;
 }
 
 .dark .setchart,
