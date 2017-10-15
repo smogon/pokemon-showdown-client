@@ -3381,6 +3381,18 @@ a.ilink.yours {
 
 /* teambuilder set */
 
+.dark .teambuilder-results .result a {
+	border-color: #999999;
+	background: rgba(40, 43, 45, 0.7);
+	color: #FFFFFF;
+}
+
+.dark .teambuilder-results .result a.cur {
+	border-color: #999999;
+	background: rgba(40, 43, 45, 0.7);
+	color: #FFFFFF;
+}
+
 .dark .teambuilder-results .result a:hover {
 	border-color: #555555;
 	background: rgba(47, 47, 47, 0.8);
