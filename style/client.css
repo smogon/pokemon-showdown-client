@@ -3354,6 +3354,9 @@ a.ilink.yours {
 .dark a.ilink {
 	color: #4488EE;
 }
+.dark .chat.mine {
+	background: rgba(255,255,255,0.05);
+}
 
 /* teambuilder */
 
