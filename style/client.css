@@ -3384,11 +3384,13 @@ a.ilink.yours {
 .dark .teambuilder-results .result a:hover {
 	border-color: #555555;
 	background: rgba(47, 47, 47, 0.8);
+	color: #FFFFFF;
 }
 
 .dark .teambuilder-results .result a.cur:hover {
 	border-color: #8A8A8A;
 	background: rgba(47, 47, 47, 0.8);
+	color: #FFFFFF;
 }
 
 .dark .setmenu button,
