@@ -3329,6 +3329,14 @@ a.ilink.yours {
 	border-color: #CCC;
 }
 
+.dark .select:after {
+	color: #000000;
+}
+
+.dark .select:disabled:after {
+	color: #DDDDDD;
+}
+
 /* chat */
 
 .dark .userlist strong,
