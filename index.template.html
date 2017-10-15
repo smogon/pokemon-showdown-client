@@ -152,6 +152,7 @@ ga('send', 'pageview');
 		<script src="//play.pokemonshowdown.com/js/client-battle-tooltips.js?"></script>
 		<script src="//play.pokemonshowdown.com/js/client-battle.js?"></script>
 		<script src="//play.pokemonshowdown.com/js/client-rooms.js?"></script>
+		<script src="//play.pokemonshowdown.com/js/loader.js?"></script>
 		<script src="//play.pokemonshowdown.com/data/graphics.js?"></script>
 
 		<script>
@@ -171,5 +172,18 @@ ga('send', 'pageview');
 
 		<script src="//play.pokemonshowdown.com/data/aliases.js?" async="async"></script>
 
+		<!-- // Pokemon Showdown - Loader -->
+		<script>
+			$ (document).ready(function() {
+				
+				setTimeout(function() {
+				$('body').addClass('loaded');
+			//	$('h1').css('color','#222222');
+			}, 2500);
+			
+			});
+		</script>
+		<!-- // Pokemon Showdown Loader ends -->
+			        
 	</body>
 </html>
