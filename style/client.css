@@ -1244,6 +1244,9 @@ p.or:after {
 	margin-bottom: 0;
 	color: #6688AA;
 }
+.credits p {
+	color: #555555;
+}
 .credits ul {
 	padding-left: 1.5em;
 	margin-top: 0;
@@ -1257,6 +1260,13 @@ p.or:after {
 	font-size: 10pt;
 	display: block;
 	color: #555555;
+}
+.dark .credits ul li p {
+	color: #DDD;
+}
+.dark .credits p,
+.dark .credits li small {
+	color: #989898;
 }
 
 /*********************************************************
