@@ -5683,6 +5683,10 @@ var Battle = (function () {
 					poke.item = 'Safety Goggles';
 					actions += '' + poke.getName() + " is not affected by " + Tools.escapeHTML(args[3]) + " thanks to its Safety Goggles!";
 					break;
+				case 'protectivepads':
+					poke.item = 'Protective Pads';
+					actions += '' + poke.getName() + " protected itself with the Protective Pads!";
+					break;
 				default:
 					if (kwargs.broken) { // for custom moves that break protection
 						this.resultAnim(poke, 'Protection broken', 'bad');
