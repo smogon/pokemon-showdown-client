@@ -104,6 +104,10 @@ function hashColor(name) {
 	else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
 	else HLmod = 0;
 	// var mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
+	var Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
+	if (Hdist < 15) {
+		HLmod += (15 - Hdist) / 3;
+	}
 
 	L += HLmod;
 
