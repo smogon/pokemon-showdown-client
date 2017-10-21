@@ -454,7 +454,7 @@
 				buf += '<p><button class="button" name="greeting" value="W"><i class="fa fa-question-circle"></i> Wait, who are you? Talking to a teambuilder is weird.</button></p>';
 			} else if (answer === 'W') {
 				buf += '<p>Oh, I\'m Zarel! I made a Credits button for this...</p>';
-				buf += '<div class="menugroup"><p><button class="button mainmenu4" name="credits"><i class="fa fa-info-circle"></i> Credits</button></p></div>';
+				buf += '<div class="menugroup"><p><a href="//pokemonshowdown.com/credits" target="_blank"><button class="button mainmenu4"><i class="fa fa-info-circle"></i> Credits</button></a></p></div>';
 				buf += '<p>Isn\'t it pretty? Matches your background and everything. It used to be in the Main Menu but we had to get rid of it to save space.</p>';
 				buf += '<p>Speaking of, you should try <button class="button" name="background"><i class="fa fa-picture-o"></i> changing your background</button>.';
 				buf += '<p><button class="button" name="greeting" value="B"><i class="fa fa-hand-pointer-o"></i> You might be having too much fun with these buttons and icons</button></p>';
@@ -515,9 +515,6 @@
 				buf += '<p><button class="button" name="greeting" value="SP"><i class="fa fa-caret-square-o-right"></i> I wanted to play for real...</button></p>';
 			}
 			$(button).parent().replaceWith(buf);
-		},
-		credits: function () {
-			app.addPopup(CreditsPopup);
 		},
 		background: function () {
 			app.addPopup(CustomBackgroundPopup);
