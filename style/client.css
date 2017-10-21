@@ -853,7 +853,7 @@ p.or:after {
 	top: 40px;
 }
 .mainmenu {
-	padding: 0 0 30px 0;
+	padding: 0 0 51px 0;
 }
 
 .battleform {
@@ -882,6 +882,9 @@ p.or:after {
 }
 .mainmenufooter small {
 	font-size: 9pt;
+}
+.mainmenufooter small small {
+	font-size: 8pt;
 }
 .mainmenufooter a {
 	text-decoration: underline;
@@ -1124,7 +1127,7 @@ p.or:after {
 		position: static;
 		top: 0;
 		right: 0;
-		padding-bottom: 30px;
+		padding-bottom: 51px;
 	}
 	.rightmenu {
 		width: 324px;

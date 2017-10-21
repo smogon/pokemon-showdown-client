@@ -85,27 +85,35 @@ Storage.bg = {
 			background: background,
 			'background-size': 'cover'
 		});
+		var attrib = '';
 		this.changeCount++;
 
 		if (!hues) switch (bgid) {
 		case 'horizon':
 			hues = ["318.87640449438203,35.177865612648226%", "216,46.2962962962963%", "221.25,32.25806451612904%", "197.8021978021978,52.60115606936417%", "232.00000000000003,19.480519480519483%", "228.38709677419354,60.7843137254902%"];
+			attrib = '<a href="https://vtas.deviantart.com/art/Pokemon-Horizon-312267168" target="_blank" class="subtle">"Horizon" <small>background by Vivian Zou</small></a>';
 			break;
 		case 'ocean':
 			hues = ["82.8169014084507,34.63414634146342%", "216.16438356164383,29.55465587044534%", "212.92682926829266,59.42028985507245%", "209.18918918918916,57.51295336787566%", "199.2857142857143,48.275862068965495%", "213.11999999999998,55.06607929515419%"];
+			attrib = '<a href="https://quanyails.deviantart.com/art/Sunrise-Ocean-402667154" target="_blank" class="subtle">"Sunrise Ocean" <small>background by Yijing Chen</small></a>';
 			break;
 		case 'waterfall':
 			hues = ["119.31034482758622,37.66233766233767%", "184.36363636363635,23.012552301255226%", "108.92307692307692,37.14285714285714%", "70.34482758620689,20.567375886524818%", "98.39999999999998,36.76470588235296%", "140,38.18181818181818%"];
+			attrib = '<a href="https://yilx.deviantart.com/art/Irie-372292729" target="_blank" class="subtle">"Irie" <small>background by Samuel Teo</small></a>';
 			break;
 		case 'shaymin':
 			hues = ["39.000000000000064,21.7391304347826%", "170.00000000000003,2.380952380952378%", "157.5,11.88118811881188%", "174.78260869565216,12.041884816753928%", "185.00000000000003,12.76595744680851%", "20,5.660377358490567%"];
+			attrib = '<a href="http://cargocollective.com/bluep" target="_blank" class="subtle">"Shaymin" <small>background by Daniel Kong</small></a>';
 			break;
 		case 'charizards':
 			hues = ["37.159090909090914,74.57627118644066%", "10.874999999999998,70.79646017699115%", "179.51612903225808,52.10084033613446%", "20.833333333333336,36.73469387755102%", "192.3076923076923,80.41237113402063%", "210,29.629629629629633%"];
+			attrib = '<a href="https://seiryuuden.deviantart.com/art/The-Ultimate-Mega-Showdown-Charizards-414587079" target="_blank" class="subtle">"Showdown: Charizards" <small>background by Jessica Valencia</small></a>';
 			break;
 		case 'digimon':
 			hues = ["170.45454545454544,27.500000000000004%", "84.70588235294119,13.821138211382115%", "112.50000000000001,7.8431372549019605%", "217.82608695652175,54.761904761904766%", "0,1.6949152542372816%", ""];
 		}
+		if (attrib) attrib = '<small style="display:block;padding-bottom:4px">' + attrib + '</small>';
+		$('.bgcredit').html(attrib);
 		if (!hues && bgUrl.charAt(0) === '#') {
 			var r = parseInt(bgUrl.slice(1, 3), 16) / 255;
 			var g = parseInt(bgUrl.slice(3, 5), 16) / 255;
