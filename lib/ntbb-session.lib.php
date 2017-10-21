@@ -204,6 +204,7 @@ class NTBBSession {
 
 		if (substr(@$user['email'], -1) === '@') {
 			require_once dirname(__FILE__).'/../vendor/autoload.php';
+			date_default_timezone_set('America/New_York');
 			$client = new Google_Client(['client_id' => $psconfig['gapi_clientid']]);
 			$payload = '';
 			try {
