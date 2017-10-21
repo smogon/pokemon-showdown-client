@@ -1230,36 +1230,6 @@ p.or:after {
 }
 
 /*********************************************************
- * Credits
- *********************************************************/
-
-.ps-popup.credits {
-	max-width: 380px;
-	margin-top: 20px;
-	padding: 5px 60px;
-}
-.credits h2 {
-	font-size: 11pt;
-	font-style: italic;
-	margin-bottom: 0;
-	color: #6688AA;
-}
-.credits ul {
-	padding-left: 1.5em;
-	margin-top: 0;
-	margin-bottom: 0;
-	color: #88AACC;
-}
-.credits ul li p {
-	color: black;
-}
-.credits li small {
-	font-size: 10pt;
-	display: block;
-	color: #555555;
-}
-
-/*********************************************************
  * Chat
  *********************************************************/
 
