@@ -147,3 +147,61 @@ body.dark {
 .pfx-body-padded {
 	padding: 0 10px;
 }
+
+.tabbar {
+	display: block;
+	list-style: none;
+	margin: 0;
+	padding: 5px 0 0 10px;
+	text-align: left;
+}
+.tabbar.centered {
+	padding: 5px 0 0 0;
+	text-align: center;
+}
+.tabbar:after {
+	content: "";
+	display: block;
+	height: 6px;
+	background: #f8f8f8;
+	border: solid 1px #AAAAAA;
+	margin: -1px 0 -8px -11px;
+}
+.tabbar.centered:after {
+	margin-left: 0;
+}
+.tabbar li {
+	display: inline;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.tabbar .button {
+	position: relative;
+	padding: 4px 10px 4px 10px;
+	margin: 0 -1px 0 0;
+	top: 1px;
+	border-radius: 0;
+	box-shadow: none;
+	font-size: 10pt;
+}
+.tabbar .button.cur,
+.tabbar .button.cur:hover {
+	color: #777777;
+	background: #f8f8f8;
+	box-shadow: none;
+	border-color: #AAAAAA;
+	border-bottom: 0;
+	cursor: default;
+	padding: 4px 10px 6px 10px;
+	top: 0px;
+}
+.tabbar .button:hover {
+	z-index: 10;
+}
+.tabbar .button.nav-first {
+	border-top-left-radius: 5px;
+}
+.tabbar .button.nav-last {
+	border-top-right-radius: 5px;
+}
