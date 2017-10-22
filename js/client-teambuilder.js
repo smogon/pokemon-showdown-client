@@ -842,16 +842,8 @@
 					team.format = format;
 				}
 				edited = true;
-				this.updateTeamList();
-			} else {
-				if (format.slice(-1) === '/') {
-					format = format.slice(0, -1);
-					if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
-					team.folder = format;
-					edited = true;
-				}
-				this.updateTeamList();
 			}
+			this.updateTeamList();
 
 			if (edited) {
 				Storage.saveTeam(team);
