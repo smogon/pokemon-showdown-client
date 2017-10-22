@@ -15298,7 +15298,7 @@ var BattleMoveAnims = {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
-			battle.backgroundEffect("url('fx/SPOOK1.gif')", 750, 0.8);
+
 			battle.backgroundEffect('#550000', 250, 0.3);
 			battle.backgroundEffect('#000000', 250, 0.2, 400);
 			battle.showEffect(attacker.sp, {
