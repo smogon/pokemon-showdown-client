@@ -4338,6 +4338,7 @@ var Battle = (function () {
 				case 'slp':
 					this.resultAnim(poke, 'Asleep', 'slp');
 					if (effect.id === 'rest') {
+						poke.statusData.sleepTurns = 0; // for Gen 2 use through Sleep Talk
 						actions += '' + poke.getName() + ' slept and became healthy!';
 					} else {
 						actions += "" + poke.getName() + " fell asleep!";
