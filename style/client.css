@@ -3243,13 +3243,16 @@ a.ilink.yours {
 	color: #AAA;
 	box-shadow: none;
 }
+.dark .popupmenu button.sel {
+	border-color: #A9A9A9;
+}
 .dark .popupmenu button:hover,
 .dark .popupmenu button.sel:hover,
 .dark .bglist button:hover,
 .dark .avatarlist button:hover {
-	border-color: #AAAAAA;
-	background-color: #AAAAAA;
-	color: black;
+	border-color: #A9A9A9;
+	background-color: #010810;
+	color: #A9A9A9;
 }
 .dark .changeform i {
 	border-color: #bbb;
