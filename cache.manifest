@@ -3,9 +3,8 @@ CACHE MANIFEST
 
 # Explicitly cached 'master entries'.
 CACHE:
-sim.css
-js/
 data/
+sprites/
 
 # Resources that require the user to be online.
 NETWORK:
