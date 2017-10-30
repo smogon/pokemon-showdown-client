@@ -793,7 +793,7 @@ Storage.fastUnpackTeam = function (buf) {
 
 		// happiness
 		j = buf.indexOf(']', i);
-		var misc;
+		var misc = undefined;
 		if (j < 0) {
 			if (i < buf.length) misc = buf.substring(i).split(',', 3);
 		} else {
@@ -908,7 +908,7 @@ Storage.unpackTeam = function (buf) {
 
 		// happiness
 		j = buf.indexOf(']', i);
-		var misc;
+		var misc = undefined;
 		if (j < 0) {
 			if (i < buf.length) misc = buf.substring(i).split(',', 3);
 		} else {
