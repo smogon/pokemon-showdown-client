@@ -203,8 +203,10 @@ class NTBBSession {
 		}
 
 		if (substr(@$user['email'], -1) === '@') {
+			// Timezone determined to work at 7:30 PM CDT
+			// Timezones known to fail at various times: America/Chicago, America/New_York
+			date_default_timezone_set('UTC');
 			require_once dirname(__FILE__).'/../vendor/autoload.php';
-			date_default_timezone_set('America/New_York');
 			$client = new Google_Client(['client_id' => $psconfig['gapi_clientid']]);
 			$payload = '';
 			try {
