@@ -951,7 +951,7 @@
 				var isViable = BattleMovedex[id] && BattleMovedex[id].isViable;
 				if (id === 'aerialace') isViable = (toId(set.ability) === 'technician');
 				if (id === 'bellydrum') isViable = (toId(set.species) in {azumarill:1, linoone:1, slurpuff:1});
-				if (id === 'counter') isViable = (toId(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1});
+				if (id === 'counter') isViable = (toId(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1, alakazam:1});
 				if (id === 'dynamicpunch') isViable = (toId(set.ability) === 'noguard');
 				if (id === 'focuspunch') isViable = (toId(set.species) === 'breloom');
 				if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
@@ -962,12 +962,18 @@
 				if (id === 'hiddenpowerice') isViable = (moves.indexOf('icebeam') < 0 && template.id !== 'xerneas');
 				if (id === 'hypnosis') isViable = (this.gen < 4 && moves.indexOf('sleeppowder') < 0);
 				if (id === 'icywind') isViable = (toId(set.species).substr(0, 6) === 'keldeo');
+				if (id === 'infestation') isViable = (toId(set.species) === 'shuckle');
+				if (id === 'irontail') isViable = (toId(set.species) in {absol:1, flygon:1, haxorus:1, lucario:1, mightyena:1, zygarde:1});
 				if (id === 'jumpkick') isViable = (moves.indexOf('highjumpkick') < 0);
 				if (id === 'leechlife') isViable = (this.gen > 6);
 				if (id === 'reflecttype') isViable = (toId(set.species) in {latias:1, starmie:1});
 				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
 				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
+				if (id === 'smartstrike') isViable = (toId(set.species) === 'kartana');
+				if (id === 'solarbeam') isViable = (toId(set.ability) === 'drought'); 
+				if (id === 'storedpower') isViable = (toId(set.species) === 'necrozma');
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
+				if (id === 'trickroom') isViable = (toId(set.species) in {cresselia:1, porygon2:1, magearna:1, diancie:1});
 				if (this.gen === 1) {
 					// Usually viable for Gen 1
 					if (id === 'acidarmor' || id === 'amnesia' || id === 'barrier' || id === 'bind' || id === 'clamp' || id === 'confuseray' || id === 'counter' || id === 'firespin' || id === 'hyperbeam' || id === 'mirrormove' || id === 'pinmissile' || id === 'razorleaf' || id === 'sing' || id === 'slash' || id === 'sludge' || id === 'twineedle' || id === 'wrap') isViable = true;
