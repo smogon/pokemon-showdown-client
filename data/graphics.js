@@ -2921,6 +2921,32 @@ var BattleStatusAnims = {
 			}, 'ballistic2Under', 'fade');
 		}
 	},
+	cursed: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+
+			battle.backgroundEffect('#000000', 700, 0.2);
+			battle.backgroundEffect("url('fx/spook.gif')", 700, 0.5);
+			attacker.delay(300);
+			attacker.anim({x: attacker.x - 5, time: 50});
+			attacker.anim({x: attacker.x + 5, time: 50});
+			attacker.anim({x: attacker.x - 5, time: 50});
+			attacker.anim({x: attacker.x + 5, time: 50});
+			attacker.anim({x: attacker.x, time: 50});
+
+			battle.showEffect(attacker.sp, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0.5,
+				time: 0
+			}, {
+				z: attacker.behind(20),
+				opacity: 0,
+				time: 600
+			}, 'decel');
+		}
+	},
 	confused: {
 		anim: function (battle, args) {
 			var attacker = args[0];
@@ -6831,6 +6857,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
+			battle.backgroundEffect('#000000', 1000, 0.3);
 			battle.showEffect('shadowball', {
 				x: defender.x,
 				y: defender.y,
@@ -6859,6 +6886,77 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 100
 			}, 'linear');
+			battle.showEffect('poisonwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 1,
+				time: 450
+			}, {
+				x: defender.x,
+				y: defender.y - 100,
+				scale: 2,
+				opacity: 0,
+				time: 950
+			}, 'linear', 'fade');
+			battle.showEffect('poisonwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 1,
+				time: 450
+			}, {
+				x: defender.x - 60,
+				y: defender.y + 80,
+				scale: 2,
+				opacity: 0,
+				time: 950
+			}, 'linear', 'fade');
+			battle.showEffect('poisonwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 1,
+				time: 450
+			}, {
+				x: defender.x + 60,
+				y: defender.y + 80,
+				scale: 2,
+				opacity: 0,
+				time: 950
+			}, 'linear', 'fade');
+			battle.showEffect('poisonwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 1,
+				time: 450
+			}, {
+				x: defender.x - 90,
+				y: defender.y - 40,
+				scale: 2,
+				opacity: 0,
+				time: 950
+			}, 'linear', 'fade');
+			battle.showEffect('poisonwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 1,
+				time: 450
+			}, {
+				x: defender.x + 90,
+				y: defender.y - 40,
+				scale: 2,
+				opacity: 0,
+				time: 950
+			}, 'linear', 'fade');
+
 			attacker.anim({
 				x: defender.x,
 				y: defender.y,
@@ -6900,10 +6998,17 @@ var BattleMoveAnims = {
 		prepareAnim: function (battle, args) {
 			var attacker = args[0];
 
-			attacker.anim({
-				opacity: 0.2,
-				time: 300
-			}, 'linear');
+			battle.backgroundEffect('#000000', 700, 0.3);
+			attacker.anim({opacity: 0, time: 50}, 'linear');
+			attacker.anim({opacity: 1, time: 50}, 'linear');
+			attacker.anim({opacity: 0, time: 50}, 'linear');
+			attacker.anim({opacity: 1, time: 50}, 'linear');
+			attacker.anim({opacity: 0, time: 50}, 'linear');
+			attacker.anim({opacity: 1, time: 50}, 'linear');
+			attacker.anim({opacity: 0, time: 50}, 'linear');
+			attacker.anim({opacity: 1, time: 50}, 'linear');
+			attacker.anim({opacity: 0, time: 50}, 'linear');
+			battle.activityWait(200);
 		},
 		prepareMessage: function (pokemon) {
 			return pokemon.getName() + ' vanished instantly!';
@@ -7616,6 +7721,7 @@ var BattleMoveAnims = {
 			var defender = args[1];
 
 			battle.backgroundEffect('#000000', 700, 0.3);
+			battle.backgroundEffect("url('fx/spook.gif')", 400, 0.6, 300);
 			BattleOtherAnims.clawattack.anim(battle, args);
 		}
 	},
@@ -10353,6 +10459,7 @@ var BattleMoveAnims = {
 			var defender = args[1];
 
 			battle.backgroundEffect('#000000', 700, 0.3);
+			battle.backgroundEffect("url('fx/spook.gif')", 700, 0.5);
 			battle.showEffect('wisp', {
 				x: defender.x,
 				y: defender.y,
@@ -14275,6 +14382,7 @@ var BattleMoveAnims = {
 			var defender = args[1];
 
 			battle.backgroundEffect('#000000', 600, 0.3);
+			battle.backgroundEffect("url('fx/spook.gif')", 200, 0.5, 400);
 			battle.showEffect('wisp', {
 				x: defender.x,
 				y: defender.y,
@@ -14475,6 +14583,7 @@ var BattleMoveAnims = {
 	ominouswind: {
 		anim: function (battle, args) {
 			var defender = args[1];
+			battle.backgroundEffect("url('fx/spook.gif')", 600, 0.2);
 			for (var i = 0; i < 3; i++) {
 				battle.showEffect('poisonwisp', {
 					x: defender.x + 30,
@@ -15281,6 +15390,7 @@ var BattleMoveAnims = {
 			var defender = args[1];
 			battle.backgroundEffect('#AA0000', 250, 0.3);
 			battle.backgroundEffect('#000000', 250, 0.2, 400);
+			battle.backgroundEffect("url('fx/spook.gif')", 650, 0.5);
 			battle.showEffect('stare', {
 				x: defender.x,
 				y: defender.y,
@@ -15301,6 +15411,7 @@ var BattleMoveAnims = {
 
 			battle.backgroundEffect('#550000', 250, 0.3);
 			battle.backgroundEffect('#000000', 250, 0.2, 400);
+			battle.backgroundEffect("url('fx/spook.gif')", 650, 0.5);
 			battle.showEffect(attacker.sp, {
 				x: attacker.x,
 				y: attacker.y + 30,
@@ -18756,6 +18867,7 @@ var BattleMoveAnims = {
 			var defender = args[1];
 
 			battle.backgroundEffect('#000000', 1000, 0.1);
+			battle.backgroundEffect("url('fx/spook.gif')", 200, 0.5, 800);
 			battle.showEffect('poisonwisp', {
 				x: attacker.x,
 				y: attacker.y + 100,
@@ -18895,6 +19007,7 @@ var BattleMoveAnims = {
 			var defender = args[1];
 
 			battle.backgroundEffect('#000000', 700, 0.3);
+			battle.backgroundEffect("url('fx/spook.gif')", 700, 0.5);
 			battle.showEffect('poisonwisp', {
 				x: defender.x + 40,
 				y: defender.y,
@@ -26210,7 +26323,7 @@ var BattleMoveAnims = {
 	trickortreat: {
 		anim: function (battle, args) {
 			var defender = args[1];
-
+			battle.backgroundEffect("url('fx/spook.gif')", 300, 0.3);
 			battle.showEffect('shadowball', {
 				x: defender.x,
 				y: defender.y - 50,
@@ -26311,8 +26424,8 @@ var BattleMoveAnims = {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
-
-			battle.showEffect('poisonwisp', {
+			battle.backgroundEffect("url('fx/spook.gif')", 300, 0.5);
+			battle.showEffect(attacker.sp, {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -27630,6 +27743,7 @@ var BattleMoveAnims = {
 			var defender = args[1];
 
 			battle.backgroundEffect('linear-gradient(#000000 30%, #440044', 1700, 0.5);
+			battle.backgroundEffect("url('fx/spook.gif')", 700, 0.5, 650);
 			battle.showEffect('shadowball', {
 				x: attacker.x,
 				y: attacker.y - 30,
@@ -30110,6 +30224,7 @@ var BattleMoveAnims = {
 			var defender = args[1];
 
 			battle.backgroundEffect('linear-gradient(#440044 30%, #000000', 1500, 0.6);
+			battle.backgroundEffect("url('fx/spook.gif')", 1500, 0.5);
 			var xstep = (defender.x + 200 - defender.x) / 5;
 			var ystep = (defender.x - 200 - defender.x) / 5;
 			var zstep = (defender.z - defender.z) / 5;
