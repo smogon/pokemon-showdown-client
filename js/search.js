@@ -973,7 +973,7 @@
 				if (id === 'solarbeam') isViable = (toId(set.ability) === 'drought'); 
 				if (id === 'storedpower') isViable = (toId(set.species) === 'necrozma');
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
-				if (id === 'trickroom') isViable = (toId(set.species) in {cresselia:1, porygon2:1, magearna:1, diancie:1});
+				if (id === 'trickroom') isViable = (toId(set.species) in {cresselia:1, porygon2:1, magearna:1, diancie:1, uxie:1});
 				if (this.gen === 1) {
 					// Usually viable for Gen 1
 					if (id === 'acidarmor' || id === 'amnesia' || id === 'barrier' || id === 'bind' || id === 'clamp' || id === 'confuseray' || id === 'counter' || id === 'firespin' || id === 'hyperbeam' || id === 'mirrormove' || id === 'pinmissile' || id === 'razorleaf' || id === 'sing' || id === 'slash' || id === 'sludge' || id === 'twineedle' || id === 'wrap') isViable = true;
