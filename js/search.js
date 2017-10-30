@@ -970,7 +970,7 @@
 				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
 				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
 				if (id === 'smartstrike') isViable = (toId(set.species) === 'kartana');
-				if (id === 'solarbeam') isViable = (toId(set.ability) === 'drought'); 
+				if (id === 'solarbeam') isViable = (toId(set.ability) === 'drought');
 				if (id === 'storedpower') isViable = (toId(set.species) === 'necrozma');
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
 				if (id === 'trickroom') isViable = (toId(set.species) in {cresselia:1, porygon2:1, magearna:1, diancie:1, uxie:1});
