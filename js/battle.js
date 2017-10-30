@@ -3647,9 +3647,11 @@ var Battle = (function () {
 						actions += "" + poke.getName() + " is buffeted by the hail!";
 						break;
 					case 'baddreams':
+						if (!this.fastForward) BattleStatusAnims['cursed'].anim(this, [poke.sprite]);
 						actions += "" + poke.getName() + " is tormented!";
 						break;
 					case 'curse':
+						if (!this.fastForward) BattleStatusAnims['cursed'].anim(this, [poke.sprite]);
 						actions += "" + poke.getName() + " is afflicted by the curse!";
 						break;
 					case 'nightmare':
