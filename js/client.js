@@ -392,7 +392,11 @@
 					this.addRoom('lobby', null, true);
 				}
 				Storage.whenPrefsLoaded(function () {
-					if (!Config.server.registered) return app.send('/autojoin');
+					if (!Config.server.registered) {
+						app.send('/autojoin');
+						Backbone.history.start({pushState: !Config.testclient});
+						return;
+					}
 					var autojoin = (Tools.prefs('autojoin') || '');
 					var autojoinIds = [];
 					if (typeof autojoin === 'string') {
