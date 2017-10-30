@@ -2931,7 +2931,7 @@ var BattleStatusAnims = {
 			attacker.anim({x: attacker.x - 5, time: 50});
 			attacker.anim({x: attacker.x + 5, time: 50});
 			attacker.anim({x: attacker.x - 5, time: 50});
-			attacker.anim({x: attacker.x + 5, time: 50});			
+			attacker.anim({x: attacker.x + 5, time: 50});
 			attacker.anim({x: attacker.x, time: 50});
 
 			battle.showEffect(attacker.sp, {
@@ -6886,7 +6886,7 @@ var BattleMoveAnims = {
 				opacity: 0,
 				time: 100
 			}, 'linear');
-				battle.showEffect('poisonwisp', {
+			battle.showEffect('poisonwisp', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
