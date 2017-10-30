@@ -6365,7 +6365,7 @@ var Battle = (function () {
 			break;
 		case 'rated':
 			this.rated = true;
-			this.log('<div class="rated"><strong>Rated battle</strong></div>');
+			this.log('<div class="rated"><strong>' + (Tools.escapeHTML(args[1]) || 'Rated battle') + '</strong></div>');
 			break;
 		case 'chat':
 		case 'c':
@@ -6627,11 +6627,11 @@ var Battle = (function () {
 			}
 			break;
 		case 'fieldhtml':
-			var $field = $('.battle');
-			$field.html(Tools.sanitizeHTML(args[1]));
+			this.playbackState = 5; // force seeking to prevent controls etc
+			this.frameElem.html(Tools.sanitizeHTML(args[1]));
 			break;
 		case 'controlshtml':
-			var $controls = $('.battle-controls');
+			var $controls = this.frameElem.parent().children('.battle-controls');
 			$controls.html(Tools.sanitizeHTML(args[1]));
 			break;
 		default:
