@@ -13381,7 +13381,14 @@ var BattleMoveAnims = {
 		anim: BattleOtherAnims.sneakattack.anim
 	},
 	shadowsneak: {
-		anim: BattleOtherAnims.sneakattack.anim
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender = args[1];
+
+			battle.backgroundEffect('#000000', 700, 0.3);
+			battle.backgroundEffect("url('fx/spook.gif')", 400, 0.6, 200);
+			BattleOtherAnims.sneakattack.anim(battle, args);
+		}
 	},
 	feintattack: {
 		anim: BattleOtherAnims.sneakattack.anim
