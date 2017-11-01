@@ -15390,7 +15390,6 @@ var BattleMoveAnims = {
 	meanlook: {
 		anim: function (battle, args) {
 			var defender = args[1];
-
 			battle.backgroundEffect('#AA0000', 250, 0.3);
 			battle.backgroundEffect('#000000', 250, 0.2, 400);
 			battle.showEffect('stare', {
@@ -26322,7 +26321,6 @@ var BattleMoveAnims = {
 	trickortreat: {
 		anim: function (battle, args) {
 			var defender = args[1];
-
 			battle.showEffect('shadowball', {
 				x: defender.x,
 				y: defender.y - 50,
@@ -26423,7 +26421,6 @@ var BattleMoveAnims = {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
-
 			battle.showEffect(attacker.sp, {
 				x: attacker.x,
 				y: attacker.y,
