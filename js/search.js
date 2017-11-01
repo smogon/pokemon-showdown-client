@@ -949,12 +949,17 @@
 			for (var i = 0; i < moves.length; i++) {
 				var id = moves[i];
 				var isViable = BattleMovedex[id] && BattleMovedex[id].isViable;
-				if (id === 'aerialace') isViable = (toId(set.ability) === 'technician');
+				if (id === 'aerialace') isViable = (toId(set.species) in {scyther:1, aerodactylmega:1, kricketune:1});
 				if (id === 'bellydrum') isViable = (toId(set.species) in {azumarill:1, linoone:1, slurpuff:1});
 				if (id === 'counter') isViable = (toId(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1, alakazam:1});
+				if (id === 'curse') isViable = (toId(set.species) === 'snorlax');
+				if (id === 'drainingkiss') isViable = (toId(set.ability) === 'triage');
 				if (id === 'dynamicpunch') isViable = (toId(set.ability) === 'noguard');
+				if (id === 'electroball') isViable = (toId(set.species) === 'raichualola');
+				if (id === 'endeavor') isViable = (toId(set.species) in {mamoswine:1, scolipede:1});
 				if (id === 'focuspunch') isViable = (toId(set.species) === 'breloom');
 				if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
+				if (id === 'headbutt') isViable = (toId(set.species) === 'dunsparce');
 				if (id === 'hiddenpowerelectric') isViable = (moves.indexOf('thunderbolt') < 0);
 				if (id === 'hiddenpowerfighting') isViable = (moves.indexOf('aurasphere') < 0 && moves.indexOf('focusblast') < 0);
 				if (id === 'hiddenpowerfire') isViable = (moves.indexOf('flamethrower') < 0);
@@ -967,13 +972,15 @@
 				if (id === 'jumpkick') isViable = (moves.indexOf('highjumpkick') < 0);
 				if (id === 'leechlife') isViable = (this.gen > 6);
 				if (id === 'reflecttype') isViable = (toId(set.species) in {latias:1, starmie:1});
+				if (id === 'rocktomb') isViable = (toId(set.species) === 'groudon');
 				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
 				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
+				if (id === 'smackdown') isViable = (toId(set.species) === 'landorustherian');
 				if (id === 'smartstrike') isViable = (toId(set.species) === 'kartana');
-				if (id === 'solarbeam') isViable = (toId(set.ability) === 'drought');
-				if (id === 'storedpower') isViable = (toId(set.species) === 'necrozma');
+				if (id === 'solarbeam') isViable = (toId(set.abilities) in {drought:1, chlorophyll:1});
+				if (id === 'storedpower') isViable = (toId(set.species) in {necrozma:1, espeon:1, sigilyph:1});
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
-				if (id === 'trickroom') isViable = (toId(set.species) in {cresselia:1, porygon2:1, magearna:1, diancie:1, uxie:1});
+				if (id === 'trickroom') isViable = (toId(set.species) in {cresselia:1, porygon2:1, magearna:1, diancie:1, uxie:1, dialga:1});
 				if (this.gen === 1) {
 					// Usually viable for Gen 1
 					if (id === 'acidarmor' || id === 'amnesia' || id === 'barrier' || id === 'bind' || id === 'clamp' || id === 'confuseray' || id === 'counter' || id === 'firespin' || id === 'hyperbeam' || id === 'mirrormove' || id === 'pinmissile' || id === 'razorleaf' || id === 'sing' || id === 'slash' || id === 'sludge' || id === 'twineedle' || id === 'wrap') isViable = true;
