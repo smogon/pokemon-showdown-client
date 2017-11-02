@@ -312,13 +312,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					}
 					banlist = Tools.getFormat(genPrefix + 'doublesuu').banlist;
 					if (!banlist) {
-						defaultTier = "DOU";
+						defaultTier = "DUU";
 					} else if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
 						return "DOU";
 					}
 					banlist = Tools.getFormat(genPrefix + 'doublesnu').banlist;
 					if (!banlist) {
-						defaultTier = "DUU";
+						defaultTier = "DNU";
 					} else if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
 						return "DUU";
 					}
