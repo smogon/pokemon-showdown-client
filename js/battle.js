@@ -4567,11 +4567,9 @@ var Battle = (function () {
 					poke.prevItemEffect = 'eaten';
 					if (!this.fastForward) BattleOtherAnims.consume.anim(this, [poke.sprite]);
 					actions += '' + poke.getName() + ' ate its ' + item.name + '!';
-					this.lastmove = item.id;
-				} else if (kwargs.weaken) {
+				} else if (kwargs.weaken) { // Deprecated, now uses -activate
 					poke.prevItemEffect = 'eaten';
 					actions += 'The ' + item.name + ' weakened the damage to ' + poke.getLowerName() + '!';
-					this.lastmove = item.id;
 				} else if (effect.id) switch (effect.id) {
 				case 'fling':
 					poke.prevItemEffect = 'flung';
@@ -5694,6 +5692,8 @@ var Battle = (function () {
 					if (kwargs.broken) { // for custom moves that break protection
 						this.resultAnim(poke, 'Protection broken', 'bad');
 						actions += "It broke through " + poke.getLowerName() + "'s protection!";
+					} else if (kwargs.weaken) { // for damage-reducing berries
+						actions += 'The ' + effect.name + ' weakened the damage to ' + poke.getLowerName() + '!';
 					} else if (effect.effectType !== 'Ability') {
 						actions += "" + poke.getName() + "'s " + effect.name + " activated!";
 					}
