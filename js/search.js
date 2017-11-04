@@ -980,6 +980,7 @@
 				if (id === 'storedpower') isViable = (toId(set.species) in {necrozma:1, espeon:1, sigilyph:1});
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
 				if (id === 'trickroom') isViable = (template.baseStats.spe <= 100);
+				if (this.gen === 1) {
 					// Usually viable for Gen 1
 					if (id === 'acidarmor' || id === 'amnesia' || id === 'barrier' || id === 'bind' || id === 'clamp' || id === 'confuseray' || id === 'counter' || id === 'firespin' || id === 'hyperbeam' || id === 'mirrormove' || id === 'pinmissile' || id === 'razorleaf' || id === 'sing' || id === 'slash' || id === 'sludge' || id === 'twineedle' || id === 'wrap') isViable = true;
 
