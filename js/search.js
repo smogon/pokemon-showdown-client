@@ -955,8 +955,7 @@
 				if (id === 'curse') isViable = (toId(set.species) === 'snorlax');
 				if (id === 'drainingkiss') isViable = (toId(set.ability) === 'triage');
 				if (id === 'dynamicpunch') isViable = (toId(set.ability) === 'noguard');
-				if (id === 'electroball') isViable = (toId(set.species) === 'raichualola');
-				if (id === 'endeavor') isViable = (toId(set.species) in {mamoswine:1, scolipede:1});
+				if (id === 'electroball') isViable = (toId(set.ability) === 'surgesurfer');
 				if (id === 'focuspunch') isViable = (toId(set.species) === 'breloom');
 				if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
 				if (id === 'headbutt') isViable = (toId(set.species) === 'dunsparce');
@@ -965,7 +964,7 @@
 				if (id === 'hiddenpowerfire') isViable = (moves.indexOf('flamethrower') < 0);
 				if (id === 'hiddenpowergrass') isViable = (moves.indexOf('energyball') < 0 && moves.indexOf('gigadrain') < 0);
 				if (id === 'hiddenpowerice') isViable = (moves.indexOf('icebeam') < 0 && template.id !== 'xerneas');
-				if (id === 'hypnosis') isViable = (this.gen < 4 && moves.indexOf('sleeppowder') < 0);
+				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toId(set.species) === 'darkrai')); 
 				if (id === 'icywind') isViable = (toId(set.species).substr(0, 6) === 'keldeo');
 				if (id === 'infestation') isViable = (toId(set.species) === 'shuckle');
 				if (id === 'irontail') isViable = (toId(set.species) in {absol:1, flygon:1, haxorus:1, lucario:1, mightyena:1, zygarde:1});
@@ -980,8 +979,7 @@
 				if (id === 'solarbeam') isViable = (toId(set.abilities) in {drought:1, chlorophyll:1});
 				if (id === 'storedpower') isViable = (toId(set.species) in {necrozma:1, espeon:1, sigilyph:1});
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
-				if (id === 'trickroom') isViable = (toId(set.species) in {cresselia:1, porygon2:1, magearna:1, diancie:1, uxie:1, dialga:1});
-				if (this.gen === 1) {
+				if (id === 'trickroom') isViable = (template.baseStats.spe <= 100);
 					// Usually viable for Gen 1
 					if (id === 'acidarmor' || id === 'amnesia' || id === 'barrier' || id === 'bind' || id === 'clamp' || id === 'confuseray' || id === 'counter' || id === 'firespin' || id === 'hyperbeam' || id === 'mirrormove' || id === 'pinmissile' || id === 'razorleaf' || id === 'sing' || id === 'slash' || id === 'sludge' || id === 'twineedle' || id === 'wrap') isViable = true;
 
