@@ -964,7 +964,7 @@
 				if (id === 'hiddenpowerfire') isViable = (moves.indexOf('flamethrower') < 0);
 				if (id === 'hiddenpowergrass') isViable = (moves.indexOf('energyball') < 0 && moves.indexOf('gigadrain') < 0);
 				if (id === 'hiddenpowerice') isViable = (moves.indexOf('icebeam') < 0 && template.id !== 'xerneas');
-				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toId(set.species) === 'darkrai')); 
+				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toId(set.species) === 'darkrai'));
 				if (id === 'icywind') isViable = (toId(set.species).substr(0, 6) === 'keldeo');
 				if (id === 'infestation') isViable = (toId(set.species) === 'shuckle');
 				if (id === 'irontail') isViable = (toId(set.species) in {absol:1, flygon:1, haxorus:1, lucario:1, mightyena:1, zygarde:1});
