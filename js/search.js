@@ -966,7 +966,7 @@
 				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toId(set.species) === 'darkrai'));
 				if (id === 'icywind') isViable = (toId(set.species).substr(0, 6) === 'keldeo');
 				if (id === 'infestation') isViable = (toId(set.species) === 'shuckle');
-				if (id === 'irontail') isViable = ((template.types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0) || ((template.types.indexOf('dark') > 0 || types.indexOf('dragon') > 0) && moves.indexOf('ironhead') < 0 && moves.indexOf('gunkshot') < 0));
+				if (id === 'irontail') isViable = ((template.types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0) || ((template.types.indexOf('dark') > 0 || template.types.indexOf('dragon') > 0) && moves.indexOf('ironhead') < 0 && moves.indexOf('gunkshot') < 0));
 				if (id === 'jumpkick') isViable = (moves.indexOf('highjumpkick') < 0);
 				if (id === 'leechlife') isViable = (this.gen > 6);
 				if (id === 'reflecttype') isViable = (toId(set.species) in {latias:1, starmie:1});
