@@ -957,7 +957,7 @@
 				if (id === 'dynamicpunch') isViable = (toId(set.ability) === 'noguard');
 				if (id === 'electroball') isViable = (toId(set.ability) === 'surgesurfer');
 				if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
-				if (id === 'headbutt') isViable = (toId(set.ability) === 'serenegrace' && types.indexOf('normal') > 0);
+				if (id === 'headbutt') isViable = (toId(set.ability) === 'serenegrace' && template.types.indexOf('normal') > 0);
 				if (id === 'hiddenpowerelectric') isViable = (moves.indexOf('thunderbolt') < 0);
 				if (id === 'hiddenpowerfighting') isViable = (moves.indexOf('aurasphere') < 0 && moves.indexOf('focusblast') < 0);
 				if (id === 'hiddenpowerfire') isViable = (moves.indexOf('flamethrower') < 0);
@@ -966,15 +966,15 @@
 				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toId(set.species) === 'darkrai'));
 				if (id === 'icywind') isViable = (toId(set.species).substr(0, 6) === 'keldeo');
 				if (id === 'infestation') isViable = (toId(set.species) === 'shuckle');
-				if (id === 'irontail') isViable = ((types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0) || ((types.indexOf('dark') > 0 || types.indexOf('dragon') > 0) && moves.indexOf('ironhead') < 0 && moves.indexOf('gunkshot') < 0));
+				if (id === 'irontail') isViable = ((template.types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0) || ((template.types.indexOf('dark') > 0 || types.indexOf('dragon') > 0) && moves.indexOf('ironhead') < 0 && moves.indexOf('gunkshot') < 0));
 				if (id === 'jumpkick') isViable = (moves.indexOf('highjumpkick') < 0);
 				if (id === 'leechlife') isViable = (this.gen > 6);
 				if (id === 'reflecttype') isViable = (toId(set.species) in {latias:1, starmie:1});
 				if (id === 'rocktomb') isViable = (toId(set.species) === 'groudon');
 				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
 				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
-				if (id === 'smackdown') isViable = (types.indexOf('ground') > 0);
-				if (id === 'smartstrike') isViable = (types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0);
+				if (id === 'smackdown') isViable = (template.types.indexOf('ground') > 0);
+				if (id === 'smartstrike') isViable = (template.types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0);
 				if (id === 'solarbeam') isViable = (toId(set.abilities) in {drought:1, chlorophyll:1});
 				if (id === 'storedpower') isViable = (toId(set.species) in {necrozma:1, espeon:1, sigilyph:1});
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
