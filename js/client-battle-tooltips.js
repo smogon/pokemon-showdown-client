@@ -198,7 +198,7 @@ var BattleTooltips = (function () {
 		Ice: "Subzero Slammer",
 		Flying: "Supersonic Skystrike",
 		Ground: "Tectonic Rage",
-		Fairy: "Twinkle Tackle",
+		Fairy: "Twinkle Tackle"
 	};
 
 	BattleTooltips.prototype.showMoveTooltip = function (move, isZ) {
@@ -1307,13 +1307,13 @@ var BattleTooltips = (function () {
 		'Latios': 'Soul Dew',
 		'Dialga': 'Adamant Orb',
 		'Palkia': 'Lustrous Orb',
-		'Giratina': 'Griseous Orb',
+		'Giratina': 'Griseous Orb'
 	};
 	var orbTypes = {
 		'Soul Dew': 'Psychic',
 		'Adamant Orb': 'Steel',
 		'Lustrous Orb': 'Water',
-		'Griseous Orb': 'Ghost',
+		'Griseous Orb': 'Ghost'
 	};
 	var noGemMoves = {
 		'Fire Pledge': 1,

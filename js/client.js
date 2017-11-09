@@ -1060,7 +1060,7 @@
 				groups[symbol] = {
 					name: groupName ? Tools.escapeHTML(groupName + ' (' + symbol + ')') : null,
 					type: groupType,
-					order: i + 1,
+					order: i + 1
 				};
 			}
 
@@ -2267,66 +2267,66 @@
 		'~': {
 			name: "Administrator (~)",
 			type: 'leadership',
-			order: 10001,
+			order: 10001
 		},
 		'#': {
 			name: "Room Owner (#)",
 			type: 'leadership',
-			order: 10002,
+			order: 10002
 		},
 		'&': {
 			name: "Leader (&amp;)",
 			type: 'leadership',
-			order: 10003,
+			order: 10003
 		},
 		'@': {
 			name: "Moderator (@)",
 			type: 'staff',
-			order: 10004,
+			order: 10004
 		},
 		'%': {
 			name: "Driver (%)",
 			type: 'staff',
-			order: 10005,
+			order: 10005
 		},
 		'*': {
 			name: "Bot (*)",
 			type: 'normal',
-			order: 10006,
+			order: 10006
 		},
 		'\u2606': {
 			name: "Player (\u2606)",
 			type: 'normal',
-			order: 10007,
+			order: 10007
 		},
 		'\u2605': {
 			name: "Player (\u2605)",
 			type: 'normal',
-			order: 10008,
+			order: 10008
 		},
 		'+': {
 			name: "Voice (+)",
 			type: 'normal',
-			order: 10009,
+			order: 10009
 		},
 		' ': {
 			type: 'normal',
-			order: 10010,
+			order: 10010
 		},
 		'!': {
 			name: "<span style='color:#777777'>Muted (!)</span>",
 			type: 'punishment',
-			order: 10011,
+			order: 10011
 		},
 		'✖': {
 			name: "<span style='color:#777777'>Namelocked (✖)</span>",
 			type: 'punishment',
-			order: 10012,
+			order: 10012
 		},
 		'\u203d': {
 			name: "<span style='color:#777777'>Locked (\u203d)</span>",
 			type: 'punishment',
-			order: 10013,
+			order: 10013
 		}
 	};
 

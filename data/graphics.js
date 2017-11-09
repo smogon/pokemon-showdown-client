@@ -16022,7 +16022,7 @@ var BattleMoveAnims = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.behind(70),
-				time: 300,
+				time: 300
 			}, 'accel', 'fade');
 		},
 		multihit: true
@@ -27640,7 +27640,7 @@ var BattleMoveAnims = {
 				x: attacker.x,
 				y: attacker.y - 25,
 				z: attacker.z,
-				scale: 1,
+				scale: 1
 			}, {
 				x: attacker.x + 50,
 				scale: 3,
@@ -27652,7 +27652,7 @@ var BattleMoveAnims = {
 				x: attacker.x,
 				y: attacker.y - 25,
 				z: attacker.z,
-				scale: 1,
+				scale: 1
 			}, {
 				x: attacker.x - 50,
 				scale: 3,
@@ -27667,7 +27667,7 @@ var BattleMoveAnims = {
 				z: attacker.z,
 				scale: 2,
 				opacity: 0.3,
-				time: 300,
+				time: 300
 			}, {
 				x: defender.x - 50,
 				y: defender.y - 40,
@@ -27680,7 +27680,7 @@ var BattleMoveAnims = {
 				z: attacker.z,
 				scale: 2,
 				opacity: 0.3,
-				time: 400,
+				time: 400
 			}, {
 				x: defender.x - 50,
 				y: defender.y - 40,
@@ -27693,7 +27693,7 @@ var BattleMoveAnims = {
 				z: attacker.z,
 				scale: 2,
 				opacity: 0.3,
-				time: 450,
+				time: 450
 			}, {
 				x: defender.x,
 				y: defender.y - 40,
@@ -32171,7 +32171,7 @@ var BattleMoveAnims = {
 				time: 150
 			}, 'swing');
 		}
-	},
+	}
 };
 
 // placeholder animations
