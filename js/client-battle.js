@@ -498,6 +498,7 @@
 			var trapped = curActive.trapped;
 			var canMegaEvo = curActive.canMegaEvo || switchables[pos].canMegaEvo;
 			var canZMove = curActive.canZMove || switchables[pos].canZMove;
+			var canUltraBurst = curActive.canUltraBurst || switchables[pos].canUltraBurst;
 			if (canZMove && typeof canZMove[0] === 'string') {
 				canZMove = _.map(canZMove, function (move) {
 					return {move: move, target: Tools.getMove(move).target};
@@ -622,7 +623,9 @@
 				if (canMegaEvo) {
 					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
 				} else if (canZMove) {
-					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="zmove" />&nbsp;Use Z Move</label>';
+					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="zmove" />&nbsp;Z-Power</label>';
+				} else if (canUltraBurst) {
+					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="ultraburst" />&nbsp;Ultra Burst</label>';
 				}
 				if (this.finalDecisionMove) {
 					moveMenu += '<em style="display:block;clear:both">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em><br/>';
@@ -1028,13 +1031,14 @@
 				var myActive = this.battle.mySide.active;
 				var isMega = !!(this.$('input[name=megaevo]')[0] || '').checked;
 				var isZMove = !!(this.$('input[name=zmove]')[0] || '').checked;
+				var isUltraBurst = !!(this.$('input[name=ultraburst]')[0] || '').checked;
 
 				var move = e.getAttribute('data-move');
 				var target = e.getAttribute('data-target');
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
 				var spreadTargets = {allAdjacentFoes: 1, allAdjacent: 1};
 
-				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : ''));
+				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' burst' : ''));
 				if (myActive.length > 1 && target in choosableTargets) {
 					this.choice.type = 'movetarget';
 					this.choice.moveTarget = target;
