@@ -107,7 +107,7 @@ module.exports = {
 		"no-restricted-globals": ["error", "Proxy", "Reflect", "Symbol", "WeakSet"],
 		"no-shadow-restricted-names": "error",
 		"no-shadow": "off",
-		"no-undef-init": "warn",
+		"no-undef-init": "off",
 		"no-undef": ["error", {"typeof": true}],
 		"no-undefined": "off",
 		"no-unused-vars": "off",
