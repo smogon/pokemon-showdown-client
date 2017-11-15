@@ -523,7 +523,7 @@ var Tools = {
 			if (!window.BattleSearch) return '[not supported in replays]';
 			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderMoveRow(Tools.getMove(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
 		case 'text':
-			return '<div class="chat">' + Tools.escapeHTML(target) + '</div>';
+			return '<div class="chat">' + Tools.parseMessage(target) + '</div>';
 		case 'error':
 			return '<div class="chat message-error">' + Tools.escapeHTML(target) + '</div>';
 		case 'html':
