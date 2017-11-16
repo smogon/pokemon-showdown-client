@@ -4844,6 +4844,10 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				actions += "" + poke.getName() + "'s Primal Reversion! It reverted to its primal state!";
 				break;
+			case '-burst':
+				var poke = this.getPokemon(args[1]);
+				actions += "Bright light is about to burst out of " + poke.getLowerName() + "!";
+				break;
 
 			case '-start':
 				var poke = this.getPokemon(args[1]);
@@ -6529,6 +6533,8 @@ var Battle = (function () {
 				this.message('<small>' + poke.getName() + "'s disguise was busted!</small>");
 			} else if (toId(newSpecies) === 'zygardecomplete') {
 				this.message('<small>' + poke.getName() + ' transformed into its Complete Forme!</small>');
+			} else if (toId(newSpecies) === 'necrozmaultra') {
+				this.message('<small>' + poke.getName() + ' regained its true power through Ultra Burst!</small>');
 			}
 			break;
 		case 'teampreview':
