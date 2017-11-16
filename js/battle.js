@@ -826,6 +826,9 @@ var Sprite = (function () {
 			} else if (species.id === 'groudonprimal') {
 				BattleOtherAnims.primalomega.anim(battle, [self]);
 				doCry = true;
+			} else if (species.id === 'necrozmaultra') {
+				BattleOtherAnims.primalomega.anim(battle, [self]);
+				doCry = true;
 			} else if (species.id === 'zygardecomplete') {
 				BattleOtherAnims.powerconstruct.anim(battle, [self]);
 			} else if (species.id === 'wishiwashischool' || species.id === 'greninjaash') {
