@@ -827,7 +827,7 @@ var Sprite = (function () {
 				BattleOtherAnims.primalomega.anim(battle, [self]);
 				doCry = true;
 			} else if (species.id === 'necrozmaultra') {
-				BattleOtherAnims.primalomega.anim(battle, [self]);
+				BattleOtherAnims.ultraburst.anim(battle, [self]);
 				doCry = true;
 			} else if (species.id === 'zygardecomplete') {
 				BattleOtherAnims.powerconstruct.anim(battle, [self]);
