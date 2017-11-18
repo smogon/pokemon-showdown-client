@@ -1658,7 +1658,7 @@ var Tools = {
 		var top = Math.floor(num / 12) * 30;
 		var left = (num % 12) * 40;
 		var fainted = (pokemon && pokemon.fainted ? ';opacity:.7;filter:contrast(0)' : '');
-		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-sheet.png?a2) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-sheet.png) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
 	getTeambuilderSprite: function (pokemon, gen) {
