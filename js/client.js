@@ -298,7 +298,7 @@
 					}
 					app.addPopup(LoginPasswordPopup, {
 						username: name,
-						error: 'Wrong password.',
+						error: data.error || 'Wrong password.',
 						special: special
 					});
 				}
