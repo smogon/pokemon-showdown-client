@@ -129,10 +129,14 @@ class DefaultActionHandler {
 		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
 
 		if (!$_POST || empty($reqData['name']) || empty($reqData['pass'])) die();
-		$users->login($reqData['name'], $reqData['pass']);
+		try {
+			$users->login($reqData['name'], $reqData['pass']);
+		} catch (Exception $e) {
+			$out['error'] = $e->getMessage() . "\n" . $e->getFile() . '(' . $e->getLine() . ')' . "\n" . $e->getTraceAsString();
+		}
 		unset($curuser['userdata']);
 		$out['curuser'] = $curuser;
-		$out['actionsuccess'] = !!$curuser;
+		$out['actionsuccess'] = ($curuser ? $curuser['loggedin'] : false);
 		$serverhostname = '' . $dispatcher->getServerHostName(@$reqData['serverid']);
 		$challengekeyid = !isset($reqData['challengekeyid']) ? -1 : intval($reqData['challengekeyid']);
 		$challenge = !isset($reqData['challenge']) ? '' : $reqData['challenge'];

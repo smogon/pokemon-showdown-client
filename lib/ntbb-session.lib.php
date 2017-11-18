@@ -203,15 +203,9 @@ class NTBBSession {
 		}
 
 		if (substr(@$user['email'], -1) === '@') {
-			// Timezone determined to work at 7:30 PM CDT
-			// Timezones known to fail at various times: America/Chicago, America/New_York
-			date_default_timezone_set('UTC');
-			require_once dirname(__FILE__).'/../vendor/autoload.php';
-			$client = new Google_Client(['client_id' => $psconfig['gapi_clientid']]);
-			$payload = '';
-			try {
-				$payload = $client->verifyIdToken($pass);
-			} catch (Firebase\JWT\SignatureInvalidException $e) {}
+			// Forgive me, gods, for I have hardcoded way more than I really should have
+			$valResult = shell_exec("cd /var/www/html/play.pokemonshowdown.com && node lib/validate-token.js \"$pass\"");
+			$payload = json_decode($valResult, true);
 			if (!$payload) return false;
 			if (strpos($payload['aud'], $psconfig['gapi_clientid']) === false) return false;
 			if ($payload['email'] === substr($user['email'], 0, -1)) {
