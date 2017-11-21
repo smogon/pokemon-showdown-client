@@ -726,12 +726,6 @@
 			this.socket.onclose = function () {
 				if (!socketopened) {
 					if (Config.server.altport && !altport) {
-						if (document.location.protocol === 'https:') {
-							if (confirm("Could not connect with HTTPS. Try HTTP?")) {
-								return document.location.replace('http://' +
-									document.location.host + document.location.pathname);
-							}
-						}
 						altport = true;
 						Config.server.port = Config.server.altport;
 						self.socket = reconstructSocket(self.socket);
@@ -2513,7 +2507,11 @@
 
 			if (data.cantconnect) {
 				buf += '<p class="error">Couldn\'t connect to server!</p>';
-				buf += '<p class="buttonbar"><button type="submit">Retry</button> <button name="close">Work offline</button></p>';
+				if (document.location.protocol === 'https:') {
+					buf += '<p class="buttonbar"><button type="submit"><strong>Retry</strong></button> <button name="tryhttp">Retry with HTTP</button> <button name="close">Work offline</button></p>';
+				} else {
+					buf += '<p class="buttonbar"><button type="submit"><strong>Retry</strong></button> <button name="close">Work offline</button></p>';
+				}
 			} else if (data.message && data.message !== true) {
 				buf += '<p>' + data.message + '</p>';
 				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button name="close">Work offline</button></p>';
@@ -2524,6 +2522,10 @@
 
 			buf += '</form>';
 			this.$el.html(buf);
+		},
+		tryhttp: function () {
+			document.location.replace('http://' +
+				document.location.host + document.location.pathname + '?insecure');
 		},
 		submit: function (data) {
 			document.location.reload();

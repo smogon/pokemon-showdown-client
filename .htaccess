@@ -16,8 +16,10 @@ AddType application/x-web-app-manifest+json .webapp
 <IfModule mod_rewrite.c>
 RewriteEngine on
 
-RewriteCond %{HTTP:X-Forwarded-Proto} ^https$
-RewriteRule ^(.*) - [E=P_SUFFIX:s]
+RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
+RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
+RewriteCond %{QUERY_STRING} !^insecure [NC]
+RewriteRule ^([A-Za-z0-9-]*)$ https://play.pokemonshowdown.com/$1 [R=307,NE,L]
 
 # basic stuff
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
@@ -44,20 +46,22 @@ RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^contact\/?$ http://pokemonshowdown.com/contact [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^dex\/?$ http://dex.pokemonshowdown.com/ [R=302,L]
+RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
+RewriteRule ^insecure\/?$ http://play.pokemonshowdown.com/?insecure [R=302,L]
 
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
-RewriteRule ^(.*) http%{ENV:P_SUFFIX}://play.pokemonshowdown.com/$1 [R=301,L]
+RewriteRule ^(.*) https://play.pokemonshowdown.com/$1 [R=301,L]
 
 RewriteRule ^style/fonts?/.*?\.(eot|svg|ttf|woff|woff2)$ - [E=SAFE_RESOURCE:1]
 Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
 
 # Redirect old battles to their corresponding replay
 # RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
-# RewriteRule ^battle-([a-z0-9]+-[12][0-9]{8})$ http%{ENV:P_SUFFIX}://replay.pokemonshowdown.com/$1 [R=302,L]
+# RewriteRule ^battle-([a-z0-9]+-[12][0-9]{8})$ https://replay.pokemonshowdown.com/$1 [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
-RewriteRule ^battle-([a-z0-9]+-[0-9]{8})$ http%{ENV:P_SUFFIX}://replay.pokemonshowdown.com/$1 [R=302,L]
+RewriteRule ^battle-([a-z0-9]+-[0-9]{8})$ https://replay.pokemonshowdown.com/$1 [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
-RewriteRule ^battle-([a-z0-9]+)$ http%{ENV:P_SUFFIX}://replay.pokemonshowdown.com/$1 [R=302,L]
+RewriteRule ^battle-([a-z0-9]+)$ https://replay.pokemonshowdown.com/$1 [R=302,L]
 
 # TODO: fix bug where you can't join lobby directly
 RewriteRule ^lobby/?$ / [R=301,L]
@@ -89,13 +93,13 @@ RewriteCond %{REMOTE_ADDR} !=162.243.13.96
 RewriteCond %{HTTP:CF-Connecting-IP} !=173.252.196.254
 RewriteCond %{HTTP:CF-Connecting-IP} !=198.27.67.31
 RewriteCond %{HTTP:CF-Connecting-IP} !=162.243.13.96
-RewriteRule .* http%{ENV:P_SUFFIX}://pokemonshowdown.com/ [R=303,L]
+RewriteRule ^.* https://pokemonshowdown.com/ [R=303,L]
 
-RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/replay/$1 [R=302,L]
+RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ https://replay.pokemonshowdown.com/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
 
 RewriteCond %{QUERY_STRING} !output=html
-RewriteRule ^ladder\.php$ http%{ENV:P_SUFFIX}://pokemonshowdown.com/ladder/ [R=301,L]
+RewriteRule ^ladder\.php$ https://pokemonshowdown.com/ladder/ [R=301,L]
 
 RewriteRule ^~~([^:/]*)(:[0-9]*)?/action\.php$ action.php?serverid=$1 [L,QSA]
 RewriteRule ^~~([^:/]*)(/.*)?$ http://$1.psim.us$2 [R=301,L]
