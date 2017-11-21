@@ -2157,7 +2157,7 @@ var Side = (function () {
 
 		pokemon.sprite.animFaint();
 		if (this.battle.fastForward) {
-			pokemon.statbarElem.remove();
+			if (pokemon.statbarElem) pokemon.statbarElem.remove();
 			pokemon.statbarElem = null;
 		} else {
 			pokemon.statbarElem.animate({
