@@ -69,9 +69,9 @@
 		updateLayout: function () {
 			var width = this.$el.width();
 			if (width < 950) {
-				this.battle.messageDelay = 800;
+				this.battle.messageShownTime = 500;
 			} else {
-				this.battle.messageDelay = 8;
+				this.battle.messageShownTime = 1;
 			}
 			if (width && width < 640) {
 				var scale = (width / 640);

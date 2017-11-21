@@ -2465,8 +2465,9 @@ var Battle = (function () {
 	Battle.prototype.bgm = null;
 
 	Battle.prototype.mute = false;
-	Battle.prototype.messageDelay = 8;
-
+	Battle.prototype.messageFadeTime = 300;
+	Battle.prototype.messageShownTime = 1;
+	Battle.prototype.acceleration = 1;
 
 	Battle.prototype.removePseudoWeather = function (weather) {
 		for (var i = 0; i < this.pseudoWeather.length; i++) {
@@ -2859,7 +2860,7 @@ var Battle = (function () {
 				});
 				this.messagebarElem.animate({
 					opacity: 1
-				}, 300);
+				}, this.messageFadeTime);
 			}
 			this.hiddenMessageElem.append('<p></p>');
 			var messageElem = this.hiddenMessageElem.children().last();
@@ -2877,7 +2878,7 @@ var Battle = (function () {
 					height: 'show',
 					'padding-bottom': 4,
 					opacity: 1
-				}, 300);
+				}, self.messageFadeTime);
 			});
 			this.activityWait(messageElem);
 		}
@@ -2888,10 +2889,9 @@ var Battle = (function () {
 		if (this.messageActive) {
 			this.messageActive = false;
 			if (!this.fastForward) {
-				this.messagebarElem.delay(this.messageDelay).animate({
-					height: 'toggle',
+				this.messagebarElem.delay(this.messageShownTime).animate({
 					opacity: 0
-				}, 300);
+				}, this.messageFadeTime);
 				this.activityWait(this.messagebarElem);
 			}
 		}
