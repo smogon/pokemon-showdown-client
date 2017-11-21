@@ -743,7 +743,7 @@ var Sprite = (function () {
 		var sp = null;
 		if (spriteData) {
 			sp = spriteData;
-			battle.spriteElems[siden].append('<img src="' + sp.url + '" style="display:none;position:absolute" />');
+			battle.spriteElems[siden].append('<img src="' + sp.url + '" style="display:none;position:absolute"' + (sp.pixelated ? ' class="pixelated"' : '') + ' />');
 			this.elem = battle.spriteElems[siden].children().last();
 			this.cryurl = spriteData.cryurl;
 		} else {
@@ -1027,7 +1027,7 @@ var Sprite = (function () {
 			}, this.sp));
 		}
 	};
-	Sprite.prototype.animSummon = function (slot, instant) {
+	Sprite.prototype.recalculatePos = function (slot) {
 		if (!Tools.prefs('nopastgens') && this.battle.gen <= 4 && this.battle.gameType === 'doubles') {
 			this.x = (slot - 0.52) * (this.isBackSprite ? -1 : 1) * -55;
 			this.y = (this.isBackSprite ? -1 : 1) + 1;
@@ -1041,6 +1041,18 @@ var Sprite = (function () {
 			if (!this.isBackSprite) this.statbarOffset = 17 * slot;
 			if (this.isBackSprite) this.statbarOffset = -7 * slot;
 		}
+		if (this.sp.y < 0) {
+			if (this.battle.gen <= 2) {
+				this.statbarOffset += this.isBackSprite ? 1 : 20;
+			} else if (this.battle.gen <= 3) {
+				this.statbarOffset += this.isBackSprite ? 5 : 30;
+			} else {
+				this.statbarOffset += this.isBackSprite ? 20 : 30;
+			}
+		}
+	};
+	Sprite.prototype.animSummon = function (slot, instant) {
+		this.recalculatePos(slot);
 
 		// make sure element is in the right z-order
 		if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
@@ -1112,19 +1124,7 @@ var Sprite = (function () {
 	Sprite.prototype.animDragIn = function (slot) {
 		if (this.battle.fastForward) return this.animSummon(slot, true);
 
-		if (!Tools.prefs('nopastgens') && this.battle.gen <= 4 && this.battle.gameType === 'doubles') {
-			this.x = (slot - 0.52) * (this.isBackSprite ? -1 : 1) * -55;
-			this.y = (this.isBackSprite ? -1 : 1) + 1;
-			this.statbarOffset = 0;
-			if (!this.isBackSprite) this.statbarOffset = 30 * slot;
-			if (this.isBackSprite) this.statbarOffset = -28 * slot;
-		} else {
-			this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
-			this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
-			this.statbarOffset = 0;
-			if (!this.isBackSprite) this.statbarOffset = 17 * slot;
-			if (this.isBackSprite) this.statbarOffset = -7 * slot;
-		}
+		this.recalculatePos(slot);
 
 		// make sure element is in the right z-order
 		if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
@@ -2488,9 +2488,9 @@ var Battle = (function () {
 		if (Tools.prefs('nopastgens')) gen = 6;
 		if (Tools.prefs('bwgfx') && gen > 5) gen = 5;
 		if (gen <= 5) {
-			if (gen <= 1) this.backdropImage = 'fx/bg-gen1.png';
-			else if (gen <= 2) this.backdropImage = 'fx/bg-gen2.png';
-			else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)];
+			if (gen <= 1) this.backdropImage = 'fx/bg-gen1.png?';
+			else if (gen <= 2) this.backdropImage = 'fx/bg-gen2.png?';
+			else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)] + '?';
 			else if (gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
 			else this.backdropImage = 'fx/' + BattleBackdropsFive[Math.floor(Math.random() * BattleBackdropsFive.length)];
 		}
@@ -2655,8 +2655,9 @@ var Battle = (function () {
 		top -= Math.floor(loc.y * scale /* - loc.x * scale / 4 */);
 		width = Math.floor(obj.w * scale * loc.xscale);
 		height = Math.floor(obj.h * scale * loc.yscale);
+		var hoffset = Math.floor((obj.h - (obj.y || 0) * 2) * scale * loc.yscale);
 		left -= Math.floor(width / 2);
-		top -= Math.floor(height / 2);
+		top -= Math.floor(hoffset / 2);
 
 		var pos = {
 			left: left,
