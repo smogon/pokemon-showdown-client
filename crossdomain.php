@@ -72,6 +72,7 @@ if ($config['host'] !== 'showdown') {
 		}
 	}
 }
+if ($protocol === 'https:') $config['port'] = 443;
 
 if (@$config['redirect']) {
 ?>
