@@ -1814,20 +1814,15 @@ var Side = (function () {
 		if (pokemon.statbarElem) {
 			pokemon.statbarElem.remove();
 		}
+		if (this.battle.fastForward) {
+			pokemon.statbarElem = null;
+			if (this.battle.switchCallback) this.battle.switchCallback(this.battle, this);
+			return;
+		}
 		this.battle.statElem.append(this.getStatbarHTML(pokemon));
 		pokemon.statbarElem = this.battle.statElem.children().last();
 		this.updateStatbar(pokemon, true);
 		pokemon.side.updateSidebar();
-		if (this.battle.fastForward) {
-			pokemon.statbarElem.css({
-				display: 'block',
-				left: pokemon.sprite.left - 80,
-				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-				opacity: 1
-			});
-			if (this.battle.switchCallback) this.battle.switchCallback(this.battle, this);
-			return;
-		}
 		pokemon.statbarElem.css({
 			display: 'block',
 			left: pokemon.sprite.left - 80,
@@ -1863,24 +1858,19 @@ var Side = (function () {
 		if (pokemon.statbarElem) {
 			pokemon.statbarElem.remove();
 		}
-		this.battle.statElem.append(this.getStatbarHTML(pokemon));
-		pokemon.statbarElem = this.battle.statElem.children().last();
-		this.updateStatbar(pokemon, true);
-		pokemon.side.updateSidebar();
 		if (this.battle.fastForward) {
 			if (oldpokemon) {
 				oldpokemon.statbarElem.remove();
 				oldpokemon.statbarElem = null;
 			}
-			pokemon.statbarElem.css({
-				display: 'block',
-				left: pokemon.sprite.left - 80,
-				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-				opacity: 1
-			});
+			pokemon.statbarElem = null;
 			if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
 			return;
 		}
+		this.battle.statElem.append(this.getStatbarHTML(pokemon));
+		pokemon.statbarElem = this.battle.statElem.children().last();
+		this.updateStatbar(pokemon, true);
+		pokemon.side.updateSidebar();
 		if (this.n == 0) {
 			if (oldpokemon) {
 				oldpokemon.statbarElem.animate({
@@ -1962,6 +1952,11 @@ var Side = (function () {
 		if (pokemon.statbarElem) {
 			pokemon.statbarElem.remove();
 		}
+		if (this.battle.fastForward) {
+			pokemon.statbarElem = null;
+			if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
+			return;
+		}
 		this.battle.statElem.append(this.getStatbarHTML(pokemon));
 		pokemon.statbarElem = this.battle.statElem.children().last();
 		this.updateStatbar(pokemon, true);
@@ -1996,13 +1991,14 @@ var Side = (function () {
 		this.lastPokemon = pokemon;
 		this.active[slot] = null;
 
-		this.updateStatbar(pokemon, true);
 		pokemon.sprite.animUnsummon();
 		if (this.battle.fastForward) {
+			if (!pokemon.statbarElem) return;
 			pokemon.statbarElem.remove();
 			pokemon.statbarElem = null;
 			return;
 		}
+		this.updateStatbar(pokemon, true);
 		pokemon.statbarElem.animate({
 			top: pokemon.sprite.top - 43 - pokemon.sprite.statbarOffset,
 			opacity: 0
@@ -2054,6 +2050,12 @@ var Side = (function () {
 		}
 		if (target && target.statbarElem) {
 			target.statbarElem.remove();
+		}
+
+		if (this.battle.fastForward) {
+			pokemon.statbarElem = null;
+			if (target) target.statbarElem = null;
+			return;
 		}
 
 		this.battle.statElem.append(this.getStatbarHTML(pokemon));
@@ -2113,6 +2115,12 @@ var Side = (function () {
 			target.statbarElem.remove();
 		}
 
+		if (this.battle.fastForward) {
+			pokemon.statbarElem = null;
+			target.statbarElem = null;
+			return;
+		}
+
 		this.battle.statElem.append(this.getStatbarHTML(pokemon));
 		pokemon.statbarElem = this.battle.statElem.children().last();
 		this.battle.statElem.append(this.getStatbarHTML(target));
@@ -2162,6 +2170,7 @@ var Side = (function () {
 		if (this.battle.faintCallback) this.battle.faintCallback(this.battle, this);
 	};
 	Side.prototype.updateHPText = function (pokemon) {
+		if (!pokemon.statbarElem) return;
 		var $hptext = pokemon.statbarElem.find('.hptext');
 		var $hptextborder = pokemon.statbarElem.find('.hptextborder');
 		if (pokemon.maxhp === 48 || this.battle.hardcoreMode && pokemon.maxhp === 100) {
@@ -2185,8 +2194,16 @@ var Side = (function () {
 			if (this.active[2]) this.updateStatbar(this.active[2], updatePrevhp, updateHp);
 			return;
 		}
-		if (!pokemon || !pokemon.statbarElem) {
-			return;
+		if (!pokemon) return;
+		if (!pokemon.statbarElem) {
+			this.battle.statElem.append(this.getStatbarHTML(pokemon));
+			pokemon.statbarElem = this.battle.statElem.children().last();
+			pokemon.statbarElem.css({
+				display: 'block',
+				left: pokemon.sprite.left - 80,
+				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
+				opacity: 1
+			});
 		}
 		var hpcolor;
 		if (updatePrevhp || updateHp) {
