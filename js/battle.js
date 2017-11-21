@@ -1107,19 +1107,19 @@ var Sprite = (function () {
 			x: this.x,
 			y: this.y - 10,
 			z: this.z,
-			time: 300
+			time: 300 / this.battle.acceleration
 		}, 'ballistic2', 'fade');
-		this.elem.delay(300).animate(this.battle.pos({
+		this.elem.delay(300 / this.battle.acceleration).animate(this.battle.pos({
 			x: this.x,
 			y: this.y + 30,
 			z: this.z
-		}, this.sp), 400).animate(this.battle.posT({
+		}, this.sp), 400 / this.battle.acceleration).animate(this.battle.posT({
 			x: this.x,
 			y: this.y,
 			z: this.z
-		}, this.sp, 'accel'), 300);
+		}, this.sp, 'accel'), 300 / this.battle.acceleration);
+		if (this.sp.shiny && this.battle.acceleration < 2) BattleOtherAnims.shiny.anim(this.battle, [this]);
 		this.battle.activityWait(this.elem);
-		if (!this.battle.fastForward && this.sp.shiny) BattleOtherAnims.shiny.anim(this.battle, [this]);
 	};
 	Sprite.prototype.animDragIn = function (slot) {
 		if (this.battle.fastForward) return this.animSummon(slot, true);
@@ -1186,7 +1186,7 @@ var Sprite = (function () {
 			z: this.z,
 			scale: 0,
 			opacity: 0,
-			time: 400
+			time: 400 / this.battle.acceleration
 		});
 		this.battle.showEffect('pokeball', {
 			opacity: 1,
@@ -1194,15 +1194,15 @@ var Sprite = (function () {
 			y: this.y - 40,
 			z: this.z,
 			scale: .7,
-			time: 300
+			time: 300 / this.battle.acceleration
 		}, {
 			opacity: 0,
 			x: this.x,
 			y: this.y,
 			z: this.behind(50),
-			time: 700
+			time: 700 / this.battle.acceleration
 		}, 'ballistic2');
-		this.battle.activityWait(this.elem);
+		this.battle.activityWait(400 / this.battle.acceleration);
 	};
 	Sprite.prototype.animFaint = function () {
 		this.removeSub();
@@ -1829,10 +1829,10 @@ var Side = (function () {
 			top: pokemon.sprite.top - 53 - pokemon.sprite.statbarOffset,
 			opacity: 0
 		});
-		pokemon.statbarElem.delay(300).animate({
+		pokemon.statbarElem.delay(300 / this.battle.acceleration).animate({
 			top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
 			opacity: 1
-		}, 400);
+		}, 400 / this.battle.acceleration);
 
 		this.battle.dogarsCheck(pokemon);
 
@@ -2002,7 +2002,7 @@ var Side = (function () {
 		pokemon.statbarElem.animate({
 			top: pokemon.sprite.top - 43 - pokemon.sprite.statbarOffset,
 			opacity: 0
-		}, 300, function () {
+		}, 300 / this.battle.acceleration, function () {
 			pokemon.statbarElem.remove();
 			pokemon.statbarElem = null;
 		});
@@ -2366,6 +2366,42 @@ var Side = (function () {
 
 var Battle = (function () {
 	function Battle(frame, logFrame) {
+		this.sidesSwitched = false;
+		this.messageActive = false;
+
+		// activity queue
+		this.animationDelay = 0;
+		this.activityStep = 0;
+		this.activityDelay = 0;
+		this.activityAfter = null;
+		this.activityQueueActive = false;
+		this.fastForward = false;
+
+		this.resultWaiting = false;
+		this.multiHitMove = null;
+		this.activeMoveIsSpread = null;
+
+		// callback
+		this.faintCallback = null;
+		this.switchCallback = null;
+		this.dragCallback = null;
+		this.turnCallback = null;
+		this.startCallback = null;
+		this.stagnateCallback = null;
+		this.endCallback = null;
+		this.customCallback = null;
+		this.errorCallback = null;
+
+		this.preloadDone = 0;
+		this.preloadNeeded = 0;
+		this.bgm = null;
+
+		this.mute = false;
+		this.messageFadeTime = 300;
+		this.messageShownTime = 1;
+		this.acceleration = 1;
+		this.turnsSinceMoved = 0;
+
 		frame.addClass('battle');
 
 		// turn number
@@ -2433,41 +2469,6 @@ var Battle = (function () {
 		this.preloadEffects();
 		this.init();
 	}
-
-	Battle.prototype.sidesSwitched = false;
-	Battle.prototype.messageActive = false;
-
-	// activity queue
-	Battle.prototype.animationDelay = 0;
-	Battle.prototype.activityStep = 0;
-	Battle.prototype.activityDelay = 0;
-	Battle.prototype.activityAfter = null;
-	Battle.prototype.activityQueueActive = false;
-	Battle.prototype.fastForward = false;
-
-	Battle.prototype.resultWaiting = false;
-	Battle.prototype.multiHitMove = null;
-	Battle.prototype.activeMoveIsSpread = null;
-
-	// callback
-	Battle.prototype.faintCallback = null;
-	Battle.prototype.switchCallback = null;
-	Battle.prototype.dragCallback = null;
-	Battle.prototype.turnCallback = null;
-	Battle.prototype.startCallback = null;
-	Battle.prototype.stagnateCallback = null;
-	Battle.prototype.endCallback = null;
-	Battle.prototype.customCallback = null;
-	Battle.prototype.errorCallback = null;
-
-	Battle.prototype.preloadDone = 0;
-	Battle.prototype.preloadNeeded = 0;
-	Battle.prototype.bgm = null;
-
-	Battle.prototype.mute = false;
-	Battle.prototype.messageFadeTime = 300;
-	Battle.prototype.messageShownTime = 1;
-	Battle.prototype.acceleration = 1;
 
 	Battle.prototype.removePseudoWeather = function (weather) {
 		for (var i = 0; i < this.pseudoWeather.length; i++) {
@@ -2860,7 +2861,7 @@ var Battle = (function () {
 				});
 				this.messagebarElem.animate({
 					opacity: 1
-				}, this.messageFadeTime);
+				}, this.messageFadeTime / this.acceleration);
 			}
 			this.hiddenMessageElem.append('<p></p>');
 			var messageElem = this.hiddenMessageElem.children().last();
@@ -2878,7 +2879,7 @@ var Battle = (function () {
 					height: 'show',
 					'padding-bottom': 4,
 					opacity: 1
-				}, self.messageFadeTime);
+				}, self.messageFadeTime / self.acceleration);
 			});
 			this.activityWait(messageElem);
 		}
@@ -2889,9 +2890,9 @@ var Battle = (function () {
 		if (this.messageActive) {
 			this.messageActive = false;
 			if (!this.fastForward) {
-				this.messagebarElem.delay(this.messageShownTime).animate({
+				this.messagebarElem.delay(this.messageShownTime / this.acceleration).animate({
 					opacity: 0
-				}, this.messageFadeTime);
+				}, this.messageFadeTime / this.acceleration);
 				this.activityWait(this.messagebarElem);
 			}
 		}
@@ -2973,8 +2974,18 @@ var Battle = (function () {
 		}, 500, function () {
 			prevTurnElem.remove();
 		});
-		this.activityWait(500);
+		this.turnsSinceMoved++;
+		if (this.turnsSinceMoved > 2) {
+			this.acceleration = (this.messageFadeTime < 150 ? 2 : 1) * Math.min(this.turnsSinceMoved - 1, 3);
+		} else {
+			this.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
+		}
+		this.activityWait(500 / this.acceleration);
 		if (this.turnCallback) this.turnCallback(this);
+	};
+	Battle.prototype.resetTurnsSinceMoved = function () {
+		this.turnsSinceMoved = 0;
+		this.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
 	};
 	Battle.prototype.changeWeather = function (weather, poke, isUpkeep, ability) {
 		weather = toId(weather);
@@ -3243,9 +3254,9 @@ var Battle = (function () {
 			opacity: 0,
 			top: pokemon.sprite.top - 65
 		}, 1000, 'swing');
-		this.animationDelay += 350;
+		this.animationDelay += this.acceleration < 2 ? 350 : 250;
 		pokemon.side.updateStatbar(pokemon);
-		this.activityWait(effectElem);
+		if (this.acceleration < 3) this.activityWait(effectElem);
 	};
 	Battle.prototype.abilityActivateAnim = function (pokemon, result) {
 		if (this.fastForward) return;
@@ -6574,7 +6585,6 @@ var Battle = (function () {
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot]) {
 					poke.side.switchOut(poke.side.active[slot]);
-					if (this.waitForResult()) return;
 				}
 				poke.side.switchIn(poke);
 			} else if (args[0] === 'replace') {
@@ -6600,6 +6610,7 @@ var Battle = (function () {
 		case 'move':
 			this.endLastTurn();
 			if ((!kwargs.from || kwargs.from === 'lockedmove') && this.waitForResult()) return;
+			this.resetTurnsSinceMoved();
 			var poke = this.getPokemon(args[1]);
 			var move = Tools.getMove(args[2]);
 			if (this.checkActive(poke)) return;
@@ -6610,6 +6621,7 @@ var Battle = (function () {
 			break;
 		case 'cant':
 			this.endLastTurn();
+			this.resetTurnsSinceMoved();
 			if (this.waitForResult()) return;
 			var poke = this.getPokemon(args[1]);
 			var effect = Tools.getEffect(args[2]);
