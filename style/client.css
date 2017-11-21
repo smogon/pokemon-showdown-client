@@ -1343,6 +1343,8 @@ a.ilink.yours {
 	resize: none;
 	font-size: 9pt;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
+	overflow-x: hidden;
+	overflow-wrap: break-word;
 }
 
 /* Tournaments */
