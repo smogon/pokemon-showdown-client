@@ -13,6 +13,11 @@
       "sizes": "48x48"
     },
     {
+      "src": "favicon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
       "src": "favicon-256.png",
       "type": "image/png",
       "sizes": "256x256"
