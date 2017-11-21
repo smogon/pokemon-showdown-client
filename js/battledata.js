@@ -316,6 +316,10 @@ var baseSpeciesChart = [
 	'silvally',
 	'necrozma',
 
+	// alola totems
+	'raticate',
+	'marowak',
+
 	// mega evolutions
 	'charizard',
 	'mewtwo'
@@ -1139,6 +1143,9 @@ var Tools = {
 					template.gen = 6;
 					template.isPrimal = true;
 					template.battleOnly = true;
+				} else if (template.formeid.slice(-5) === 'totem') {
+					template.gen = 7;
+					template.isTotem = true;
 				} else if (template.formeid === '-alola') {
 					template.gen = 7;
 				} else if (template.num >= 722) {
@@ -1173,6 +1180,8 @@ var Tools = {
 				}
 				template = window.BattlePokedexAltForms[speciesid];
 			}
+			if (template.spriteid.slice(-5) === 'totem') template.spriteid = template.spriteid.slice(0, -5);
+			if (template.spriteid.slice(-1) === '-') template.spriteid = template.spriteid.slice(0, -1);
 		}
 		return template;
 	},
@@ -1233,8 +1242,12 @@ var Tools = {
 		var genNum = Math.max(options.gen, pokemon.gen);
 		if (Tools.prefs('nopastgens')) genNum = 6;
 		if (Tools.prefs('bwgfx') && genNum >= 6) genNum = 5;
-		if (genNum < 5) {
-			if (!spriteData.isBackSprite) {
+		if (genNum < 5 || pokemon.isTotem) {
+			if (pokemon.isTotem) {
+				spriteData.w *= 1.5;
+				spriteData.h *= 1.5;
+				spriteData.y = -11;
+			} else if (!spriteData.isBackSprite) {
 				spriteData.w *= 2;
 				spriteData.h *= 2;
 				spriteData.y = -16;
@@ -1249,7 +1262,7 @@ var Tools = {
 
 		var animationData = null;
 		if (window.BattlePokemonSprites) {
-			animationData = BattlePokemonSprites[pokemon.speciesid];
+			animationData = BattlePokemonSprites[pokemon.speciesid] || BattlePokemonSprites[toId(name)];
 		}
 		if (gen === 'bw' && window.BattlePokemonSpritesBW) {
 			animationData = BattlePokemonSpritesBW[pokemon.speciesid];
@@ -1286,6 +1299,11 @@ var Tools = {
 
 					spriteData.w = animationData[facing].w;
 					spriteData.h = animationData[facing].h;
+					if (pokemon.isTotem) {
+						spriteData.w *= 1.5;
+						spriteData.h *= 1.5;
+						spriteData.y = -11;
+					}
 					spriteData.url += dir + '/' + name + '.gif';
 					if (genNum >= 6) spriteData.pixelated = false;
 					return spriteData;
@@ -1456,6 +1474,19 @@ var Tools = {
 			necrozmaduskmane: 816 + 161,
 			necrozmadawnwings: 816 + 162,
 			necrozmaultra: 816 + 163,
+
+			gumshoostotem: 735,
+			raticatealolatotem: 816 + 120,
+			marowakalolatotem: 816 + 136,
+			araquanidtotem: 752,
+			lurantistotem: 754,
+			salazzletotem: 758,
+			vikavolttotem: 738,
+			togedemarutotem: 777,
+			mimikyutotem: 778,
+			mimikyubustedtotem: 778,
+			ribombeetotem: 743,
+			kommoototem: 784,
 
 			venusaurmega: 984 + 0,
 			charizardmegax: 984 + 1,
