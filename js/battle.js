@@ -1109,7 +1109,7 @@ var Sprite = (function () {
 			z: this.z,
 			time: 300 / this.battle.acceleration
 		}, 'ballistic2', 'fade');
-		this.elem.delay(300 / this.battle.acceleration).animate(this.battle.pos({
+		this.elem.delay(this.battle.animationDelay + 300 / this.battle.acceleration).animate(this.battle.pos({
 			x: this.x,
 			y: this.y + 30,
 			z: this.z
@@ -1202,7 +1202,7 @@ var Sprite = (function () {
 			z: this.behind(50),
 			time: 700 / this.battle.acceleration
 		}, 'ballistic2');
-		this.battle.activityWait(400 / this.battle.acceleration);
+		if (this.battle.acceleration < 3) this.battle.animationDelay += 600 / this.battle.acceleration;
 	};
 	Sprite.prototype.animFaint = function () {
 		this.removeSub();
