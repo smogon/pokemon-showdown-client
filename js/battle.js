@@ -2848,11 +2848,9 @@ var Battle = (function () {
 		// nothing else should need updating - don't call this function after sending out pokemon
 	};
 	Battle.prototype.message = function (message, hiddenmessage) {
-		if (message && !this.messageActive) {
+		if (!this.messageActive) {
 			this.log('<div class="spacer battle-history"></div>');
-		}
-		if (message && !this.fastForward) {
-			if (!this.messageActive) {
+			if (!this.fastForward) {
 				this.messagebarElem.empty();
 				this.messagebarElem.css({
 					display: 'block',
@@ -2863,6 +2861,8 @@ var Battle = (function () {
 					opacity: 1
 				}, this.messageFadeTime / this.acceleration);
 			}
+		}
+		if (message && !this.fastForward) {
 			this.hiddenMessageElem.append('<p></p>');
 			var messageElem = this.hiddenMessageElem.children().last();
 			messageElem.html(message);
@@ -3050,7 +3050,7 @@ var Battle = (function () {
 					opacity: .4
 				}, 400);
 			}
-			if (newWeather && newWeather.upkeepMessage) this.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
+			if (newWeather && newWeather.upkeepMessage) this.message('', '<div><small>' + newWeather.upkeepMessage + '</small></div>');
 			return;
 		}
 		if (newWeather) {
@@ -4318,6 +4318,7 @@ var Battle = (function () {
 				break;
 
 			case '-zpower':
+				if (this.waitForResult()) return;
 				var poke = this.getPokemon(args[1]);
 				if (!this.fastForward) BattleOtherAnims.zpower.anim(this, [poke.sprite]);
 				actions += "" + poke.getName() + " surrounded itself with its Z-Power! ";
@@ -6524,7 +6525,6 @@ var Battle = (function () {
 			}
 			break;
 		case 'detailschange':
-			if (this.waitForResult()) return;
 			var poke = this.getPokemon(args[1]);
 			poke.removeVolatile('formechange');
 			poke.removeVolatile('typeadd');
@@ -6560,13 +6560,13 @@ var Battle = (function () {
 			poke.side.updateStatbar(poke, true);
 			poke.side.updateSidebar();
 			if (toId(newSpecies) === 'greninjaash') {
-				this.message('<small>' + poke.getName() + ' became Ash-Greninja!</small>');
+				this.message('' + poke.getName() + ' became Ash-Greninja!');
 			} else if (toId(newSpecies) === 'mimikyubusted') {
 				this.message('<small>' + poke.getName() + "'s disguise was busted!</small>");
 			} else if (toId(newSpecies) === 'zygardecomplete') {
-				this.message('<small>' + poke.getName() + ' transformed into its Complete Forme!</small>');
+				this.message('' + poke.getName() + ' transformed into its Complete Forme!');
 			} else if (toId(newSpecies) === 'necrozmaultra') {
-				this.message('<small>' + poke.getName() + ' regained its true power through Ultra Burst!</small>');
+				this.message('' + poke.getName() + ' regained its true power through Ultra Burst!');
 			}
 			break;
 		case 'teampreview':
@@ -6609,7 +6609,7 @@ var Battle = (function () {
 			break;
 		case 'move':
 			this.endLastTurn();
-			if ((!kwargs.from || kwargs.from === 'lockedmove') && this.waitForResult()) return;
+			if ((!kwargs.from || kwargs.from === 'lockedmove') && !kwargs.zeffect && this.waitForResult()) return;
 			this.resetTurnsSinceMoved();
 			var poke = this.getPokemon(args[1]);
 			var move = Tools.getMove(args[2]);
