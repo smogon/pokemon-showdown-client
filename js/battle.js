@@ -3052,7 +3052,7 @@ var Battle = (function () {
 					opacity: .4
 				}, 400);
 			}
-			if (newWeather && newWeather.upkeepMessage) this.message('', '<div><small>' + newWeather.upkeepMessage + '</small></div>');
+			if (newWeather && newWeather.upkeepMessage) this.message('<div><small>' + newWeather.upkeepMessage + '</small></div>');
 			return;
 		}
 		if (newWeather) {
