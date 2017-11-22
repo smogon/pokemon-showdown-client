@@ -3708,6 +3708,7 @@ var Battle = (function () {
 					case 'confusion':
 						actions += "It hurt itself in its confusion! ";
 						poke.sprite.animReset();
+						this.hasPreMoveMessage = false;
 						break;
 					case 'leechseed':
 						if (!this.fastForward) {
@@ -4319,7 +4320,7 @@ var Battle = (function () {
 				break;
 
 			case '-zpower':
-				if (this.waitForResult()) return;
+				if (!this.hasPreMoveMessage && this.waitForResult()) return;
 				var poke = this.getPokemon(args[1]);
 				if (!this.fastForward) BattleOtherAnims.zpower.anim(this, [poke.sprite]);
 				actions += "" + poke.getName() + " surrounded itself with its Z-Power! ";
@@ -4889,7 +4890,7 @@ var Battle = (function () {
 				var effect = Tools.getEffect(args[2]);
 				var ofpoke = this.getPokemon(kwargs.of);
 				var fromeffect = Tools.getEffect(kwargs.from);
-				if (fromeffect.id === 'protean' && this.waitForResult()) return;
+				if (fromeffect.id === 'protean' && !this.hasPreMoveMessage && this.waitForResult()) return;
 				poke.addVolatile(effect.id);
 
 				if (effect.effectType === 'Ability') {
@@ -5401,6 +5402,7 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(args[2]);
 				var ofpoke = this.getPokemon(kwargs.of);
+				if ((effect.id === 'confusion' || effect.id === 'attract') && !this.hasPreMoveMessage && this.waitForResult()) return;
 				if (effect.effectType === 'Ability') {
 					this.resultAnim(poke, effect.name, 'ability');
 					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
@@ -5412,6 +5414,7 @@ var Battle = (function () {
 					break;
 				case 'confusion':
 					actions += "" + poke.getName() + " is confused!";
+					this.hasPreMoveMessage = true;
 					break;
 				case 'destinybond':
 					actions += '' + poke.getName() + ' took its attacker down with it!';
@@ -5455,6 +5458,7 @@ var Battle = (function () {
 				case 'attract':
 					if (!this.fastForward) BattleStatusAnims['attracted'].anim(this, [poke.sprite]);
 					actions += '' + poke.getName() + ' is in love with ' + ofpoke.getLowerName() + '!';
+					this.hasPreMoveMessage = true;
 					break;
 				case 'bide':
 					if (!this.fastForward) BattleOtherAnims.bidecharge.anim(this, [poke.sprite]);
@@ -6627,7 +6631,8 @@ var Battle = (function () {
 		case 'cant':
 			this.endLastTurn();
 			this.resetTurnsSinceMoved();
-			if (this.waitForResult()) return;
+			if (!this.hasPreMoveMessage && this.waitForResult()) return;
+			this.hasPreMoveMessage = false;
 			var poke = this.getPokemon(args[1]);
 			var effect = Tools.getEffect(args[2]);
 			var move = Tools.getMove(args[3]);
