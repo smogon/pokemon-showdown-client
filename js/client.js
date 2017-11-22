@@ -2507,7 +2507,10 @@
 
 			if (data.cantconnect) {
 				buf += '<p class="error">Couldn\'t connect to server!</p>';
-				if (document.location.protocol === 'https:') {
+				if (window.wiiu && document.location.protocol === 'https:') {
+					buf += '<p class="error">The Wii U does not support secure connections.</p>';
+					buf += '<p class="buttonbar"><button name="tryhttp" autofocus><strong>Connect insecurely</button> <button name="close">Work offline</button></p>';
+				} else if (document.location.protocol === 'https:') {
 					buf += '<p class="buttonbar"><button type="submit"><strong>Retry</strong></button> <button name="tryhttp">Retry with HTTP</button> <button name="close">Work offline</button></p>';
 				} else {
 					buf += '<p class="buttonbar"><button type="submit"><strong>Retry</strong></button> <button name="close">Work offline</button></p>';
