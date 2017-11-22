@@ -743,7 +743,7 @@
 			};
 		},
 		dispatchFragment: function (fragment) {
-			if (location.search && window.history) {
+			if (!Config.testclient && location.search && window.history) {
 				history.replaceState(null, null, '/');
 			}
 			this.fragment = fragment = toRoomid(fragment || '');
