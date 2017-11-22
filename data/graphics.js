@@ -6333,7 +6333,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('fx/weather-sunnyday.jpg')", 700, 0.5);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/weather-sunnyday.jpg')", 700, 0.5);
 			battle.showEffect('wisp', {
 				x: attacker.x + 40,
 				y: attacker.y - 40,
@@ -6388,7 +6388,7 @@ var BattleMoveAnims = {
 		anim: function (battle, args) {
 			var attacker = args[0];
 
-			battle.backgroundEffect("url('fx/bg-space.jpg')", 800, 0.6);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/bg-space.jpg')", 800, 0.6);
 			battle.showEffect('shine', {
 				x: attacker.x + 40,
 				y: attacker.y - 40,
@@ -6461,7 +6461,7 @@ var BattleMoveAnims = {
 	cosmicpower: {
 		anim: function (battle, args) {
 			var attacker = args[0];
-			battle.backgroundEffect("url('fx/bg-space.jpg')", 600, 0.6);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/bg-space.jpg')", 600, 0.6);
 			battle.showEffect('wisp', {
 				x: attacker.x + 40,
 				y: attacker.y - 40,
@@ -7975,7 +7975,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('fx/bg-space.jpg')", 500, 0.6, 300);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/bg-space.jpg')", 500, 0.6, 300);
 			battle.showEffect('wisp', {
 				x: defender.x,
 				y: defender.y + 10,
@@ -10531,7 +10531,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('fx/bg-space.jpg')", 1000, 0.4);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/bg-space.jpg')", 1000, 0.4);
 			BattleOtherAnims.punchattack.anim(battle, args);
 
 			battle.showEffect(attacker.sp, {
@@ -18932,7 +18932,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('fx/weather-psychicterrain.png')", 950, 0.6);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/weather-psychicterrain.png')", 950, 0.6);
 			battle.showEffect('poisonwisp', {
 				x: defender.x - 100,
 				y: defender.y,
@@ -19534,7 +19534,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('fx/bg-space.jpg')", 800, 0.6);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/bg-space.jpg')", 800, 0.6);
 			battle.showEffect('mistball', {
 				x: attacker.x,
 				y: attacker.y,
@@ -19811,7 +19811,7 @@ var BattleMoveAnims = {
 	wish: {
 		anim: function (battle, args) {
 			var attacker = args[0];
-			battle.backgroundEffect("url('fx/bg-space.jpg')", 600, 0.4);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/bg-space.jpg')", 600, 0.4);
 
 			battle.showEffect('wisp', {
 				x: attacker.x,
@@ -20667,7 +20667,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('fx/bg-space.jpg')", 1100, 0.8);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/bg-space.jpg')", 1100, 0.8);
 			battle.showEffect('flareball', {
 				x: defender.leftof(-200),
 				y: defender.y + 175,
@@ -21988,7 +21988,7 @@ var BattleMoveAnims = {
 			var ystep = (defender.x - 200 - attacker.x) / 5;
 			var zstep = (defender.z - attacker.z) / 5;
 
-			battle.backgroundEffect("url('fx/weather-sunnyday.jpg')", 900, 0.5);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/weather-sunnyday.jpg')", 900, 0.5);
 
 			for (var i = 0; i < 5; i++) {
 				battle.showEffect('energyball', {
@@ -22138,7 +22138,7 @@ var BattleMoveAnims = {
 			var ystep = (attacker.x + 200 - attacker.x) / 5;
 			var zstep = (attacker.z - attacker.z) / 5;
 
-			battle.backgroundEffect("url('fx/weather-sunnyday.jpg')", 900, 0.5);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/weather-sunnyday.jpg')", 900, 0.5);
 
 			battle.showEffect('sword', {
 				x: attacker.leftof(10),
@@ -22491,7 +22491,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('sprites/gen6bgs/bg-icecave.jpg')", 1000, 0.6);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/sprites/gen6bgs/bg-icecave.jpg')", 1000, 0.6);
 			battle.showEffect('icicle', {
 				x: defender.x,
 				y: defender.y,
@@ -24742,7 +24742,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('fx/bg-space.jpg')", 1000, 0.7);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/bg-space.jpg')", 1000, 0.7);
 			battle.showEffect('iceball', {
 				x: attacker.leftof(-25),
 				y: attacker.y + 250,
@@ -28251,7 +28251,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('sprites/gen6bgs/bg-earthycave.jpg')", 2000, 1);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/sprites/gen6bgs/bg-earthycave.jpg')", 2000, 1);
 			battle.backgroundEffect('#000000', 1000, 0.6);
 			battle.backgroundEffect('#FFFFFF', 300, 0.6, 1000);
 			battle.showEffect('electroball', {
@@ -31980,7 +31980,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 			battle.backgroundEffect('linear-gradient(#000000 20%, #0000DD)', 2700, 0.4);
-			battle.backgroundEffect("url('fx/weather-raindance.jpg')", 700, 0.2, 2000);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/weather-raindance.jpg')", 700, 0.2, 2000);
 			battle.showEffect('iceball', {
 				x: attacker.x,
 				y: attacker.y + 120,
@@ -32312,7 +32312,7 @@ var BattleMoveAnims = {
 			var attacker = args[0];
 			var defender = args[1];
 
-			battle.backgroundEffect("url('sprites/gen6bgs/bg-earthycave.jpg')", 2700, 0.8, 300);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/sprites/gen6bgs/bg-earthycave.jpg')", 2700, 0.8, 300);
 			battle.backgroundEffect('linear-gradient(#FFC720 15%, #421800)', 2700, 0.7);
 			battle.backgroundEffect('#ffffff', 400, 0.6, 2500);
 			battle.showEffect('rock3', {
@@ -32753,7 +32753,7 @@ var BattleMoveAnims = {
 				}, 'swing');
 			}
 			battle.backgroundEffect('#000000', 300, 0.9);
-			battle.backgroundEffect("url('sprites/gen6bgs/bg-earthycave.jpg')", 2000, 0.7, 300);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/sprites/gen6bgs/bg-earthycave.jpg')", 2000, 0.7, 300);
 			battle.backgroundEffect('linear-gradient(#FB5C1E 20%, #3F1D0F', 2000, 0.6, 300);
 			battle.backgroundEffect('#FFFFFF', 1000, 0.9, 2200);
 			battle.showEffect('shine', {
@@ -33431,8 +33431,8 @@ var BattleMoveAnims = {
 			var ystep = (defender.x - 200 - attacker.x) / 5;
 			var zstep = (defender.z - attacker.z) / 5;
 
-			battle.backgroundEffect("url('fx/weather-trickroom.png')", 700, 1);
-			battle.backgroundEffect("url('fx/bg-space.jpg')", 2500, 1, 700);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/weather-trickroom.png')", 700, 1);
+			battle.backgroundEffect("url('https://play.pokemonshowdown.com/fx/bg-space.jpg')", 2500, 1, 700);
 			battle.backgroundEffect('#FFFFFF', 1500, 1, 2500);
 
 			battle.showEffect('flareball', {
