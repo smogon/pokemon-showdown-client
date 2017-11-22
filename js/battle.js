@@ -2401,6 +2401,7 @@ var Battle = (function () {
 		this.messageShownTime = 1;
 		this.acceleration = 1;
 		this.turnsSinceMoved = 0;
+		this.hasPreMoveMessage = false;
 
 		frame.addClass('battle');
 
@@ -4322,6 +4323,7 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				if (!this.fastForward) BattleOtherAnims.zpower.anim(this, [poke.sprite]);
 				actions += "" + poke.getName() + " surrounded itself with its Z-Power! ";
+				this.hasPreMoveMessage = true;
 				break;
 
 			case '-prepare':
@@ -4887,6 +4889,7 @@ var Battle = (function () {
 				var effect = Tools.getEffect(args[2]);
 				var ofpoke = this.getPokemon(kwargs.of);
 				var fromeffect = Tools.getEffect(kwargs.from);
+				if (fromeffect.id === 'protean' && this.waitForResult()) return;
 				poke.addVolatile(effect.id);
 
 				if (effect.effectType === 'Ability') {
@@ -4911,6 +4914,7 @@ var Battle = (function () {
 							this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
 							poke.markAbility(fromeffect.name);
 							actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
+							this.hasPreMoveMessage = true;
 						} else if (fromeffect.id === 'reflecttype') {
 							poke.copyTypesFrom(ofpoke);
 							if (!kwargs.silent) actions += "" + poke.getName() + "'s type became the same as " + ofpoke.getLowerName() + "'s type!";
@@ -6609,7 +6613,8 @@ var Battle = (function () {
 			break;
 		case 'move':
 			this.endLastTurn();
-			if ((!kwargs.from || kwargs.from === 'lockedmove') && !kwargs.zeffect && this.waitForResult()) return;
+			if ((!kwargs.from || kwargs.from === 'lockedmove') && !this.hasPreMoveMessage && this.waitForResult()) return;
+			this.hasPreMoveMessage = false;
 			this.resetTurnsSinceMoved();
 			var poke = this.getPokemon(args[1]);
 			var move = Tools.getMove(args[2]);
@@ -6769,6 +6774,7 @@ var Battle = (function () {
 		}
 	};
 	Battle.prototype.endPrevAction = function () {
+		this.hasPreMoveMessage = false;
 		if (this.minorQueue.length) {
 			this.runMinor();
 			this.activityStep--;
