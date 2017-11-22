@@ -330,9 +330,9 @@
 						}
 						return -1; // a comes first
 					} else if (bidx != -1) {
-						return 1;  // b comes first
+						return 1; // b comes first
 					}
-					return (a[0] < b[0]) ? -1 : 1;  // alphabetical order
+					return (a[0] < b[0]) ? -1 : 1; // alphabetical order
 				});
 				this.tabComplete.candidates = candidates;
 				this.tabComplete.index = 0;
@@ -1529,8 +1529,8 @@
 				components.push(date.getSeconds());
 			}
 			return '<small>[' + components.map(
-					function (x) { return (x < 10) ? '0' + x : x; }
-				).join(':') + '] </small>';
+				function (x) { return (x < 10) ? '0' + x : x; }
+			).join(':') + '] </small>';
 		},
 		parseBattleID: function (id) {
 			if (id.lastIndexOf('-') > 6) {

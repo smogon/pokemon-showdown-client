@@ -16,7 +16,7 @@
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^8.0.7",
-    "eslint": "^3.2.2",
+    "eslint": "^4.11.0",
     "testcafe": "^0.16.1"
   },
   "private": true
