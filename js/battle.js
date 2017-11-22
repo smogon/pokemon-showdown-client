@@ -2186,16 +2186,17 @@ var Side = (function () {
 			$hptextborder.show();
 		}
 	};
-	Side.prototype.updateStatbar = function (pokemon, updatePrevhp, updateHp) {
+	Side.prototype.updateStatbar = function (pokemon, updatePrevhp, updateHp, createIfNotExists) {
 		if (this.battle.fastForward) return;
 		if (!pokemon) {
-			if (this.active[0]) this.updateStatbar(this.active[0], updatePrevhp, updateHp);
-			if (this.active[1]) this.updateStatbar(this.active[1], updatePrevhp, updateHp);
-			if (this.active[2]) this.updateStatbar(this.active[2], updatePrevhp, updateHp);
+			if (this.active[0]) this.updateStatbar(this.active[0], updatePrevhp, updateHp, true);
+			if (this.active[1]) this.updateStatbar(this.active[1], updatePrevhp, updateHp, true);
+			if (this.active[2]) this.updateStatbar(this.active[2], updatePrevhp, updateHp, true);
 			return;
 		}
 		if (!pokemon) return;
 		if (!pokemon.statbarElem) {
+			if (!createIfNotExists) return;
 			this.battle.statElem.append(this.getStatbarHTML(pokemon));
 			pokemon.statbarElem = this.battle.statElem.children().last();
 			pokemon.statbarElem.css({
