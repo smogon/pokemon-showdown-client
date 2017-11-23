@@ -27,6 +27,8 @@ class NTBBSession {
 
 	var $sid = '';
 	var $session = 0;
+	var $cookiename = '';
+	var $scookie = '';
 
 	function __construct() {
 		global $psdb, $curuser;
@@ -34,18 +36,23 @@ class NTBBSession {
 		$curuser = $this->getGuest();
 
 		// see if we're logged in
-		$osid = @$_COOKIE['sid'];
-		if (!$osid) {
+		$scookie = @$_COOKIE['sid'];
+		if (!$scookie) {
 			// nope, not logged in
 			return;
 		}
-		$osidsplit = explode('x', $osid, 2);
-		if (count($osidsplit) !== 2) {
-			// malformed `sid` cookie
-			$this->killCookie();
+		$sid = '';
+		$session = 0;
+		$scsplit = explode(',', $scookie);
+		if (count($scsplit) === 3) {
+			$this->cookiename = $scsplit[0];
+			$session = intval($scsplit[1]);
+			$sid = $scsplit[2];
+			$this->sid = $sid;
+		}
+		if (!$session) {
 			return;
 		}
-		$session = intval($osidsplit[0]);
 		$res = $psdb->query(
 			"SELECT sid, timeout, `{$psdb->prefix}users`.* " .
 			"FROM `{$psdb->prefix}sessions`, `{$psdb->prefix}users` " .
@@ -58,7 +65,7 @@ class NTBBSession {
 			return;
 		}
 		$sess = $psdb->fetch_assoc($res);
-		if (!$sess || !password_verify(base64_decode($osidsplit[1]), $sess['sid'])) {
+		if (!$sess || !password_verify($sid, $sess['sid'])) {
 			// invalid session ID
 			$this->killCookie();
 			return;
@@ -81,7 +88,7 @@ class NTBBSession {
 		unset($curuser['nonce']);
 		unset($curuser['passwordhash']);
 
-		$this->sid = $osid;
+		$this->scookie = $scookie;
 		$this->session = $session;
 	}
 
@@ -127,21 +134,19 @@ class NTBBSession {
 		);
 	}
 
-	function qsid() { return $this->sid ? '?sid='.$this->sid : ''; }
-	function asid() { return $this->sid ? '&sid='.$this->sid : ''; }
-	function hasid() { return $this->sid ? '&amp;sid='.$this->sid : ''; }
-	function fsid() { return $this->sid ? '<input type="hidden" name="sid" id="sid" value="'.$this->sid.'" />' : ''; }
+	function qsid() { return $this->scookie ? '?sid='.$this->scookie : ''; }
+	function asid() { return $this->scookie ? '&sid='.$this->scookie : ''; }
+	function hasid() { return $this->scookie ? '&amp;sid='.$this->scookie : ''; }
+	function fsid() { return $this->scookie ? '<input type="hidden" name="sid" id="sid" value="'.$this->scookie.'" />' : ''; }
 
 	/**
 	 * New SID and password hashing functions.
 	 */
-	function mksid() {
-		global $psconfig;
-		if (!function_exists('mcrypt_create_iv')) {
-			error_log('mcrypt_create_iv is not defined!');
-			die;
+	function mksid($osid) {
+		if (function_exists('psconfig_mksid')) {
+			return psconfig_mksid($osid);
 		}
-		return mcrypt_create_iv($psconfig['sid_length'], MCRYPT_DEV_URANDOM);
+		return substr(base64_encode(random_bytes(18)), 0, 24);
 	}
 	function sidHash($sid) {
 		global $psconfig;
@@ -273,8 +278,8 @@ class NTBBSession {
 		}
 		$timeout += $ctime;
 
-		$nsid = $this->mksid();
-		$nsidhash = $this->sidHash($nsid);
+		$this->sid = $this->mksid($this->sid);
+		$nsidhash = $this->sidHash($this->sid);
 		$res = $psdb->query(
 			"INSERT INTO `{$psdb->prefix}sessions` (`userid`,`sid`,`time`,`timeout`,`ip`) VALUES (?,?,?,?,?)",
 			[$user['userid'], $nsidhash, $ctime, $timeout, $this->getIp()]
@@ -282,7 +287,7 @@ class NTBBSession {
 		if (!$res) die;
 
 		$this->session = $psdb->insert_id();
-		$this->sid = $this->session . 'x' . base64_encode($nsid);
+		$this->scookie = $name . ',' . $this->session . ',' . $this->sid;
 
 		$curuser = $user;
 		$curuser['loggedin'] = true;
@@ -292,18 +297,29 @@ class NTBBSession {
 		unset($curuser['nonce']);
 		unset($curuser['passwordhash']);
 
-		setcookie('sid', $this->sid, $timeout, '/', $this->cookiedomain, false, true);
+		setcookie('sid', $this->scookie, time() + (363)*24*60*60, '/', $this->cookiedomain, false, true);
 
 		return $curuser;
 	}
 
+	function updateCookie() {
+		if (!$this->sid) {
+			$this->sid = $this->mksid($this->sid);
+			$this->scookie = ',,' . $this->sid;
+			setcookie('sid', $this->scookie, time() + (363)*24*60*60, '/', $this->cookiedomain, false, true);
+		}
+	}
 	function killCookie() {
-		setcookie('sid', '', time()-60*60*24*2,
-				'/', $this->cookiedomain, false, true);
+		if ($this->sid) {
+			$this->scookie = ',,' . $this->sid;
+			setcookie('sid', $this->scookie, time() + (363)*24*60*60, '/', $this->cookiedomain, false, true);
+		} else {
+			setcookie('sid', '', time()-60*60*24*2, '/', $this->cookiedomain, false, true);
+		}
 	}
 
 	function csrfData() {
-		echo '<input type="hidden" name="csrf" value="'.$this->sid.'" />';
+		echo '<input type="hidden" name="csrf" value="'.$this->scookie.'" />';
 		return '';
 	}
 
@@ -322,6 +338,7 @@ class NTBBSession {
 		$curuser = $this->getGuest();
 		$psdb->query("DELETE FROM `{$psdb->prefix}sessions` WHERE `session` = ? LIMIT 1", [$this->session]);
 		$this->sid = '';
+		$this->scookie = '';
 		$this->session = 0;
 
 		$this->killCookie();
@@ -350,15 +367,15 @@ class NTBBSession {
 			);
 
 			// magical character string...
-			$nsid = bin2hex($this->mksid());
+			$token = bin2hex(random_bytes(15));
 			$res = $psdb->query(
 				"INSERT INTO `{$psdb->prefix}sessions` (`userid`,`sid`,`time`,`timeout`,`ip`) VALUES (?, ?, ?, ?, ?)",
-				[$user['userid'], $nsid, $ctime, $timeout, $this->getIp()]
+				[$user['userid'], $token, $ctime, $timeout, $this->getIp()]
 			);
 			if (!$res) die($psdb->error());
 		}
 
-		return $nsid;
+		return $token;
 	}
 
 	function validatePasswordResetToken($token) {
@@ -508,6 +525,7 @@ class NTBBSession {
 				$usertype = '1';
 				if ($forceUsertype) $usertype = $forceUsertype;
 				$data = $userid.','.$usertype.','.time().','.$serverhostname;
+				$this->updateCookie();
 			}
 		}
 
