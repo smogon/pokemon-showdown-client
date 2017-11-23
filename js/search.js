@@ -780,7 +780,7 @@
 		} else if (!format) {
 			this.gen = 7;
 		}
-		var requirePentagon = (format === 'vgc2016');
+		var requirePentagon = (format.slice(0, 3) === 'vgc' || format.slice(0, 10) === 'battlespot' || format === 'dragoncup');
 		var template;
 		this.resultSet = null;
 		this.defaultResultSet = null;
@@ -788,13 +788,13 @@
 		switch (qType) {
 		case 'pokemon':
 			var table = BattleTeambuilderTable;
-			var isDoubles = false;
-			if (this.gen === 7 && format.indexOf('vgc') >= 0) {
+			var isDoublesOrBS = false;
+			if (this.gen === 7 && requirePentagon) {
 				table = table['gen' + this.gen + 'vgc'];
-				isDoubles = true;
+				isDoublesOrBS = true;
 			} else if (table['gen' + this.gen + 'doubles'] && format.indexOf('doubles') >= 0 || format.indexOf('vgc') >= 0 || format.indexOf('triples') >= 0) {
 				table = table['gen' + this.gen + 'doubles'];
-				isDoubles = true;
+				isDoublesOrBS = true;
 			} else if (this.gen < 7) {
 				table = table['gen' + this.gen];
 			}
@@ -811,7 +811,11 @@
 			var agTierSet = [];
 			if (this.gen >= 6) agTierSet = [['header', "AG"], ['pokemon', 'rayquazamega']];
 			if (format === 'ubers' || format === 'uber') tierSet = tierSet.slice(slices.Uber);
-			else if (format === 'vgc2017') tierSet = tierSet.slice(slices.Legal);
+			else if (format === 'vgc2017') tierSet = tierSet.slice(slices.Regular);
+			else if (format === 'vgc2018') tierSet = tierSet.slice(slices.Regular);
+			else if (format === 'battlespotsingles') tierSet = tierSet.slice(slices.Regular);
+			else if (format === 'battlespotdoubles') tierSet = tierSet.slice(slices.Regular);
+			else if (format === 'dragoncup') tierSet = tierSet.slice(slices['Restricted Legendary']);
 			else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
 			else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
 			else if (format === 'ru') tierSet = tierSet.slice(slices.RU);
@@ -824,8 +828,8 @@
 			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
 			else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
 			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU);
-			// else if (isDoubles) tierSet = tierSet;
-			else if (!isDoubles) tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
+			// else if (isDoublesOrBS) tierSet = tierSet;
+			else if (!isDoublesOrBS) tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
 
 			if (format === 'vgc2016') {
 				tierSet = tierSet.filter(function (r) {
@@ -891,9 +895,9 @@
 				if (learnset) {
 					for (var moveid in learnset) {
 						var learnsetEntry = learnset[moveid];
-						if (requirePentagon && learnsetEntry.indexOf('p') < 0) {
+						/* if (requirePentagon && learnsetEntry.indexOf('p') < 0) {
 							continue;
-						} else if (learnsetEntry.indexOf(gen) < 0) {
+						} else */ if (learnsetEntry.indexOf(gen) < 0) {
 							continue;
 						}
 						if (moves.indexOf(moveid) >= 0) continue;
