@@ -33,7 +33,8 @@ test('Teambuilder works', async t => {
     await t.expect((await Selector('textarea').value).trim()).eql(expectedTeam);
 });
 
-test('Teambuilder shows level 50 for VGC', async t => {
+// Sometimes has a race condition connecting to server
+/* test('Teambuilder shows level 50 for VGC', async t => {
     await t.click('[name="close"]')
         .click('[value="teambuilder"]')
         .click('[name="newTop"]')
@@ -43,7 +44,7 @@ test('Teambuilder shows level 50 for VGC', async t => {
         .click('[data-entry="pokemon|Absol"]')
         .click('.setdetails')
         .expect(Selector('[name="level"]').value).eql('50');
-});
+}); */
 
 test('Trump Card has 5 PP', async t => {
     await t.click('[name="close"]')
