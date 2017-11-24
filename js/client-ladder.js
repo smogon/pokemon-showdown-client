@@ -53,6 +53,13 @@
 				this.$(row[1].slice(0, pipeIndex2)).html(Tools.sanitizeHTML(row[1].slice(pipeIndex2 + 1)));
 				this.subtleNotifyOnce();
 				break;
+
+			case 'notify':
+				if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
+					soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+				}
+				this.notifyOnce(row[1], row.slice(2).join('|'), 'highlight');
+				break;
 			}
 		}
 	});
