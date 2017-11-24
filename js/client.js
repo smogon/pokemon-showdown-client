@@ -1350,6 +1350,7 @@
 				'constructor': ChatRoom
 			};
 			var typeTable = {
+				'html': HTMLRoom,
 				'battle': BattleRoom,
 				'chat': ChatRoom
 			};
@@ -1362,8 +1363,10 @@
 
 			// otherwise, infer the room type
 			if (!type) {
-				if (id.substr(0, 7) === 'battle-') {
+				if (id.slice(0, 7) === 'battle-') {
 					type = BattleRoom;
+				} else if (id.slice(0, 5) === 'view-') {
+					type = HTMLRoom;
 				} else {
 					type = ChatRoom;
 				}

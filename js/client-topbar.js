@@ -76,8 +76,9 @@
 				}
 				if (title) buf += ' title="' + Tools.escapeHTML(title) + '"';
 			}
-			switch (id) {
+			switch (room ? room.type : id) {
 			case '':
+			case 'mainmenu':
 				return buf + '><i class="fa fa-home"></i> <span>Home</span></a></li>';
 			case 'teambuilder':
 				return buf + '><i class="fa fa-pencil-square-o"></i> <span>Teambuilder</span></a><button class="closebutton" name="closeRoom" value="' + 'teambuilder" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
@@ -87,25 +88,32 @@
 				return buf + '><i class="fa fa-caret-square-o-right"></i> <span>Battles</span></a><button class="closebutton" name="closeRoom" value="' + 'battles" aria-label="Close"><i class="fa fa-times-circle"></i></button></li>';
 			case 'rooms':
 				return buf + ' aria-label="Join chatroom"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
-			default:
-				if (id.substr(0, 7) === 'battle-') {
-					var name = Tools.escapeHTML(room.title);
-					var formatid = id.substr(7).split('-')[0];
-					if (!name) {
-						var p1 = (room.battle && room.battle.p1 && room.battle.p1.name) || '';
-						var p2 = (room.battle && room.battle.p2 && room.battle.p2.name) || '';
-						if (p1 && p2) {
-							name = '' + Tools.escapeHTML(p1) + ' v. ' + Tools.escapeHTML(p2);
-						} else if (p1 || p2) {
-							name = '' + Tools.escapeHTML(p1) + Tools.escapeHTML(p2);
-						} else {
-							name = '(empty room)';
-						}
+			case 'battle':
+				var name = Tools.escapeHTML(room.title);
+				var formatid = id.substr(7).split('-')[0];
+				if (!name) {
+					var p1 = (room.battle && room.battle.p1 && room.battle.p1.name) || '';
+					var p2 = (room.battle && room.battle.p2 && room.battle.p2.name) || '';
+					if (p1 && p2) {
+						name = '' + Tools.escapeHTML(p1) + ' v. ' + Tools.escapeHTML(p2);
+					} else if (p1 || p2) {
+						name = '' + Tools.escapeHTML(p1) + Tools.escapeHTML(p2);
+					} else {
+						name = '(empty room)';
 					}
-					return buf + ' draggable="true"><i class="text">' + Tools.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
-				} else {
-					return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 				}
+				return buf + ' draggable="true"><i class="text">' + Tools.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+			case 'chat':
+				return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+			case 'html':
+			default:
+				if (room.title && room.title.charAt(0) === '[') {
+					var closeBracketIndex = room.title.indexOf(']');
+					if (closeBracketIndex > 0) {
+						return buf + ' draggable="true"><i class="text">' + Tools.escapeFormat(room.title.slice(1, closeBracketIndex)) + '</i><span>' + Tools.escapeHTML(room.title.slice(closeBracketIndex + 1)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+					}
+				}
+				return buf + ' draggable="true"><i class="fa fa-file-text-o"></i> <span>' + (Tools.escapeHTML(room.title) || id) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			}
 		},
 		updateTabbar: function () {

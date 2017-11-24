@@ -1,6 +1,61 @@
 (function ($) {
 
-	var LadderRoom = this.LadderRoom = this.Room.extend({
+	var HTMLRoom = this.HTMLRoom = this.Room.extend({
+		type: 'html',
+		title: 'Page',
+		initialize: function () {
+			this.$el.addClass('ps-room-light').addClass('scrollable');
+			this.$el.html('<div class="pad"><p>Page unavailable</p></div>');
+		},
+		send: function (data) {
+			// HTML rooms don't actually exist server side, so send globally
+			app.send(data);
+		},
+		receive: function (data) {
+			this.add(data);
+		},
+		add: function (log) {
+			if (typeof log === 'string') log = log.split('\n');
+			for (var i = 0; i < log.length; i++) {
+				this.addRow(log[i]);
+			}
+		},
+		addRow: function (line) {
+			var name, name2, room, action, silent, oldid;
+			if (!line || typeof line !== 'string') return;
+			if (line.charAt(0) !== '|') line = '||' + line;
+			var pipeIndex = line.indexOf('|', 1);
+			var row;
+			if (pipeIndex >= 0) {
+				row = [line.slice(1, pipeIndex), line.slice(pipeIndex + 1)];
+			} else {
+				row = [line.slice(1), ''];
+			}
+			switch (row[0]) {
+			case 'init':
+				// ignore (handled elsewhere)
+				break;
+
+			case 'title':
+				this.title = row[1];
+				app.roomTitleChanged(this);
+				app.topbar.updateTabbar();
+				break;
+
+			case 'pagehtml':
+				this.$el.html(Tools.sanitizeHTML(row[1]));
+				break;
+
+			case 'selectorhtml':
+				var pipeIndex2 = row[1].indexOf('|');
+				if (pipeIndex2 < 0) return;
+				this.$(row[1].slice(0, pipeIndex2)).html(Tools.sanitizeHTML(row[1].slice(pipeIndex2 + 1)));
+				break;
+			}
+		}
+	});
+
+	var LadderRoom = this.LadderRoom = HTMLRoom.extend({
 		type: 'ladder',
 		title: 'Ladder',
 		initialize: function () {
