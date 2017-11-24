@@ -44,12 +44,14 @@
 
 			case 'pagehtml':
 				this.$el.html(Tools.sanitizeHTML(row[1]));
+				this.subtleNotifyOnce();
 				break;
 
 			case 'selectorhtml':
 				var pipeIndex2 = row[1].indexOf('|');
 				if (pipeIndex2 < 0) return;
 				this.$(row[1].slice(0, pipeIndex2)).html(Tools.sanitizeHTML(row[1].slice(pipeIndex2 + 1)));
+				this.subtleNotifyOnce();
 				break;
 			}
 		}
