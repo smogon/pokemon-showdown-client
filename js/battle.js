@@ -3793,13 +3793,13 @@ var Battle = (function () {
 					case 'healingwish':
 						actions += "The healing wish came true for " + poke.getLowerName() + "!";
 						this.lastmove = 'healing-wish';
-						Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
+						if (!this.fastForward) Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
 						poke.side.wisher = null;
 						break;
 					case 'lunardance':
 						actions += "" + poke.getName() + " became cloaked in mystical moonlight!";
 						this.lastmove = 'healing-wish';
-						Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
+						if (!this.fastForward) Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
 						for (var i = 0; i < poke.moveTrack.length; i++) {
 							poke.moveTrack[i][1] = 0;
 						}
@@ -3808,7 +3808,7 @@ var Battle = (function () {
 					case 'wish':
 						actions += "" + kwargs.wisher + "'s wish came true!";
 						if (!this.fastForward) this.backgroundEffect("url('fx/bg-space.jpg')", 600, 0.4);
-						Tools.getMove('wish').residualAnim(this, [poke.sprite]);
+						if (!this.fastForward) Tools.getMove('wish').residualAnim(this, [poke.sprite]);
 						this.animationDelay += 500;
 						break;
 					case 'drain':
