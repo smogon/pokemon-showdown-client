@@ -1859,7 +1859,7 @@ var Side = (function () {
 			pokemon.statbarElem.remove();
 		}
 		if (this.battle.fastForward) {
-			if (oldpokemon) {
+			if (oldpokemon && oldpokemon.statbarElem) {
 				oldpokemon.statbarElem.remove();
 				oldpokemon.statbarElem = null;
 			}
@@ -1945,7 +1945,7 @@ var Side = (function () {
 		if (pokemon.hasVolatile('substitute')) {
 			pokemon.sprite.animSub(true);
 		}
-		if (oldpokemon) {
+		if (oldpokemon && oldpokemon.statbarElem) {
 			oldpokemon.statbarElem.remove();
 			oldpokemon.statbarElem = null;
 		}
