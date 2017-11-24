@@ -32,7 +32,7 @@ module.exports = {
 		"ChatHistory": false, "Topbar": false, "UserList": false,
 
 		// Rooms
-		"Room": false, "BattleRoom": false, "ChatRoom": false, "ConsoleRoom": false, "LadderRoom": false, "MainMenuRoom": false, "RoomsRoom": false, "BattlesRoom": false, "TeambuilderRoom": false,
+		"Room": false, "BattleRoom": false, "ChatRoom": false, "ConsoleRoom": false, "HTMLRoom": false, "LadderRoom": false, "MainMenuRoom": false, "RoomsRoom": false, "BattlesRoom": false, "TeambuilderRoom": false,
 
 		// Tons of popups
 		"Popup": false, "ForfeitPopup": false, "BracketPopup": false, "LoginPasswordPopup": false, "UserPopup": false, "TeamPopup": false,
