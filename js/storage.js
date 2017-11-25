@@ -461,8 +461,20 @@ Storage.initTestClient = function () {
 			}
 			app.addPopup(ProxyPopup, {uri: uri, callback: callback});
 		};
-		$.post = function (/*uri, data, callback, type*/) {
-			app.addPopupMessage('The requested action is not supported by testclient.html. Please complete this action in the official client instead.');
+		$.post = function (uri, data, callback, type) {
+			if (type === 'html') {
+				uri += '&testclient';
+			}
+			if (uri[0] === '/') { //relative URI
+				uri = Tools.resourcePrefix + uri.substr(1);
+			}
+			var src = '<!DOCTYPE html><html><body><form action="' + Tools.escapeHTML(uri) + '" method="POST">';
+			src += '<input type="hidden" name="testclient">';
+			for (var i in data) {
+				src += '<input type=hidden name="' + i + '" value="' + Tools.escapeHTML(data[i]) + '">';
+			}
+			src += '<input type=submit value="Please click this button first."></form></body></html>';
+			app.addPopup(ProxyPopup, {uri: "data:text/html;charset=UTF-8," + encodeURIComponent(src), callback: callback});
 		};
 		Storage.whenPrefsLoaded.load();
 	});

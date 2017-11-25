@@ -266,7 +266,7 @@
 
 			if (this.get('userid') !== userid) {
 				var self = this;
-				$[Config.testclient ? 'get' : 'post'](this.getActionPHP(), {
+				$.post(this.getActionPHP(), {
 					act: 'getassertion',
 					userid: userid,
 					challstr: this.challstr
@@ -320,7 +320,7 @@
 				 */
 				this.challstr = challstr;
 				var self = this;
-				$[Config.testclient ? 'get' : 'post'](this.getActionPHP(), {
+				$.post(this.getActionPHP(), {
 					act: 'upkeep',
 					challstr: this.challstr
 				}, Tools.safeJSON(function (data) {
