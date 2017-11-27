@@ -3402,44 +3402,38 @@ var Battle = (function () {
 				this.message(pokemon.getName() + "'s attack continues!");
 				break;
 			default:
-				if (window.Config && Config.server && move.id === 'earthquake') {
+				// April Fool's 2014
+				if (window.Config && Config.server && Config.server.afd && move.id === 'earthquake') {
 					if (!this.fastForward) {
-						$(this.bgElem).css({
-							position: 'relative',
+						$('body').css({
+							position: 'absolute',
 							left: 0,
-							right: 0
+							right: 0,
+							top: 0,
+							bottom: 0
+						}).animate({
+							left: -30,
+							right: 30
 						}, 75).animate({
-							left: -5,
-							right: 5
+							left: 30,
+							right: -30
 						}, 100).animate({
-							left: 5,
-							right: -5
+							left: -30,
+							right: 30
 						}, 100).animate({
-							left: -5,
-							right: 5
-						}, 100).animate({
-							left: 5,
-							right: -5
-						}, 100).animate({
-							left: -5,
-							right: 5
-						}, 100).animate({
-							left: 2,
-							right: -2
-						}, 100).animate({
-							left: -2,
-							right: 2
+							left: 30,
+							right: -30
 						}, 100).animate({
 							left: 0,
 							right: 0
 						}, 100, function () {
+							$(this).css({
+								position: 'static'
+							});
 						});
 					}
-					// April Fool's 2014
-					if (Config.server.afd) {
-						this.message(pokemon.getName() + ' used <strong>Fissure</strong>!');
-						this.message('Just kidding! It was <strong>Earthquake</strong>!');
-					}
+					this.message(pokemon.getName() + ' used <strong>Fissure</strong>!');
+					this.message('Just kidding! It was <strong>Earthquake</strong>!');
 				} else if (window.Config && Config.server && Config.server.afd && move.id === 'stealthrock') {
 					var srNames = ['Sneaky Pebbles', 'Sly Rubble', 'Subtle Sediment', 'Buried Bedrock', 'Camouflaged Cinnabar', 'Clandestine Cobblestones', 'Cloaked Clay', 'Concealed Ore', 'Covert Crags', 'Crafty Coal', 'Discreet Bricks', 'Disguised Debris', 'Espionage Pebbles', 'Furtive Fortress', 'Hush-Hush Hardware', 'Incognito Boulders', 'Invisible Quartz', 'Masked Minerals', 'Mischievous Masonry', 'Obscure Ornaments', 'Private Paragon', 'Secret Solitaire', 'Sheltered Sand', 'Surreptitious Sapphire', 'Undercover Ultramarine'];
 					this.message(pokemon.getName() + ' used <strong>' + srNames[Math.floor(Math.random() * srNames.length)] + '</strong>!');
@@ -3736,8 +3730,8 @@ var Battle = (function () {
 					case 'solarpower':
 						break;
 					case 'confusion':
-						if (!this.fastForward) BattleStatusAnims.confusedselfhit.anim(this, [poke.sprite]);
 						actions += "It hurt itself in its confusion! ";
+						poke.sprite.animReset();
 						this.hasPreMoveMessage = false;
 						break;
 					case 'leechseed':

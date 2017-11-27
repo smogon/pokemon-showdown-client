@@ -3197,32 +3197,6 @@ var BattleStatusAnims = {
 				time: 800
 			}, 'linear', 'fade');
 		}
-	},
-	confusedselfhit: {
-		anim: function (battle, args) {
-			var attacker = args[0];
-
-			battle.showEffect('wisp', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 0,
-				opacity: 0.5
-			}, {
-				scale: 2,
-				opacity: 0,
-				time: 200
-			}, 'linear');
-			attacker.delay(50);
-			attacker.anim({
-				x: attacker.leftof(2),
-				z: attacker.behind(5),
-				time: 100
-			}, 'swing');
-			attacker.anim({
-				time: 300
-			}, 'swing');
-		}
 	}
 };
 BattleStatusAnims['focuspunch'] = {anim:BattleStatusAnims['flinch'].anim};
@@ -13677,6 +13651,262 @@ var BattleMoveAnims = {
 					x: defender.x,
 					time: 100
 				});
+
+				battle.showEffect('rock3', {
+					x: defender.x + 30,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.1,
+					opacity: 1,
+					time: 0
+				}, {
+					x: defender.x + 50,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 0,
+					time: 300
+				}, 'decel', 'fade');
+				battle.showEffect('rock3', {
+					x: defender.x - 50,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 1,
+					time: 25
+				}, {
+					x: defender.x + 70,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.3,
+					opacity: 0,
+					time: 325
+				}, 'decel', 'fade');
+				battle.showEffect('mudwisp', {
+					x: defender.x - 20,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.5,
+					opacity: 0.5,
+					time: 50
+				}, {
+					x: defender.x - 40,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.7,
+					opacity: 0,
+					time: 350
+				}, 'decel', 'fade');
+				battle.showEffect('rock3', {
+					x: defender.x - 70,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.1,
+					opacity: 1,
+					time: 75
+				}, {
+					x: defender.x - 90,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 0,
+					time: 375
+				}, 'decel', 'fade');
+				battle.showEffect('mudwisp', {
+					x: defender.x + 20,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.5,
+					opacity: 0.5,
+					time: 100
+				}, {
+					x: defender.x + 40,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.7,
+					opacity: 0,
+					time: 400
+				}, 'decel', 'fade');
+				battle.showEffect('rock2', {
+					x: defender.x + 20,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 0.5,
+					time: 125
+				}, {
+					x: defender.x + 40,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.3,
+					opacity: 0,
+					time: 425
+				}, 'decel', 'fade');
+				battle.showEffect('mudwisp', {
+					x: defender.x - 40,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.5,
+					opacity: 0.5,
+					time: 150
+				}, {
+					x: defender.x - 60,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.7,
+					opacity: 0,
+					time: 450
+				}, 'decel', 'fade');
+				battle.showEffect('rock2', {
+					x: defender.x,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.1,
+					opacity: 0.5,
+					time: 150
+				}, {
+					x: defender.x + 10,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 0,
+					time: 450
+				}, 'decel', 'fade');
+				battle.showEffect('rock3', {
+					x: defender.x + 5,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.1,
+					opacity: 1,
+					time: 175
+				}, {
+					x: defender.x + 10,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 0,
+					time: 475
+				}, 'decel', 'fade');
+				battle.showEffect('mudwisp', {
+					x: defender.x + 70,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.5,
+					opacity: 0.5,
+					time: 200
+				}, {
+					x: defender.x + 90,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.7,
+					opacity: 0,
+					time: 500
+				}, 'decel', 'fade');
+				battle.showEffect('rock1', {
+					x: defender.x - 30,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 1,
+					time: 225
+				}, {
+					x: defender.x - 55,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.3,
+					opacity: 0,
+					time: 525
+				}, 'decel', 'fade');
+				battle.showEffect('rock1', {
+					x: defender.x + 30,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.1,
+					opacity: 1,
+					time: 250
+				}, {
+					x: defender.x + 55,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 0,
+					time: 550
+				}, 'decel', 'fade');
+				battle.showEffect('rock2', {
+					x: defender.x - 50,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.1,
+					opacity: 1,
+					time: 275
+				}, {
+					x: defender.x - 60,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 0,
+					time: 475
+				}, 'decel', 'fade');
+				battle.showEffect('rock2', {
+					x: defender.x + 50,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.1,
+					opacity: 1,
+					time: 300
+				}, {
+					x: defender.x + 60,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 0,
+					time: 500
+				}, 'decel', 'fade');
+				battle.showEffect('mudwisp', {
+					x: defender.x - 70,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.5,
+					opacity: 0.5,
+					time: 325
+				}, {
+					x: defender.x - 90,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.7,
+					opacity: 0,
+					time: 525
+				}, 'decel', 'fade');
+				battle.showEffect('rock2', {
+					x: defender.x + 40,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 1,
+					time: 350
+				}, {
+					x: defender.x + 60,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.3,
+					opacity: 0,
+					time: 550
+				}, 'decel', 'fade');
+				battle.showEffect('mudwisp', {
+					x: defender.x + 10,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.5,
+					opacity: 0.5,
+					time: 375
+				}, {
+					x: defender.x + 30,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.7,
+					opacity: 0,
+					time: 575
+				}, 'decel', 'fade');
 				battle.activityWait(325);
 			}
 		}
