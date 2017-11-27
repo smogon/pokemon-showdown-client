@@ -1202,7 +1202,7 @@ var Sprite = (function () {
 				time: 400 / this.battle.acceleration
 			});
 		} else {
-				this.anim({
+			this.anim({
 				x: this.x,
 				y: this.y - 40,
 				z: this.z,
