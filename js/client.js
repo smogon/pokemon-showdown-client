@@ -744,7 +744,7 @@
 		},
 		dispatchFragment: function (fragment) {
 			if (!Config.testclient && location.search && window.history) {
-				history.replaceState(null, null, '/');
+				history.replaceState(null, null, location.pathname);
 			}
 			this.fragment = fragment = toRoomid(fragment || '');
 			if (this.initialFragment === undefined) this.initialFragment = fragment;
