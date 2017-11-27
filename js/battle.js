@@ -3300,7 +3300,7 @@ var Battle = (function () {
 		}, 400, 'swing');
 		this.animationDelay += 100;
 		pokemon.side.updateStatbar(pokemon);
-		this.activityWait(effectElem);
+		if (this.acceleration < 3) this.activityWait(effectElem);
 	};
 	Battle.prototype.damageAnim = function (pokemon, damage) {
 		if (this.fastForward) return;
