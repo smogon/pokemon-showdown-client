@@ -96,7 +96,7 @@
 					'<div class="tournament-bracket"></div>' +
 					'<div class="tournament-tools">' +
 						'<div class="tournament-team"></div>' +
-						'<button class="button tournament-join">Join</button><button class="button tournament-validate"><i class="fa fa-check"></i> Validate</button><button class="button tournament-leave">Leave</button>' +
+						'<button class="button tournament-join">Join</button><button class="button tournament-validate"><i class="fa fa-check"></i> Validate</button> <button class="button tournament-leave">Leave</button>' +
 						'<div class="tournament-nomatches">Waiting for battles to become available...</div>' +
 						'<div class="tournament-challenge">' +
 							'<div class="tournament-challenge-user"></div>' +
@@ -222,7 +222,8 @@
 			this.$teamSelect.children().attr('name', 'tournamentButton');
 			this.$teamSelect.show();
 			var val = this.$teamSelect.children().val();
-			this.$validate.toggleClass('disabled', !val || !val.length || val === 'random');
+			this.$validate.toggle(val !== 'random');
+			this.$validate.toggleClass('disabled', !val || !val.length);
 		};
 
 		TournamentBox.prototype.isBoxVisible = function () {
