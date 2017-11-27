@@ -1296,7 +1296,18 @@
 
 				case 'tournament':
 				case 'tournaments':
-					if (Tools.prefs('notournaments')) break;
+					if (Tools.prefs('notournaments')) {
+						if (row[1] === 'create') {
+							this.$chat.append('<div class="notice">' + Tools.escapeFormat(row[2]) + ' ' + Tools.escapeHTML(row[3]) + ' tournament created (and hidden because you have tournaments disabled).</div>');
+						} else if (row[1] === 'start') {
+							this.$chat.append('<div class="notice">Tournament started.</div>');
+						} else if (row[1] === 'forceend') {
+							this.$chat.append('<div class="notice">Tournament force-ended.</div>');
+						} else if (row[1] === 'end') {
+							this.$chat.append('<div class="notice">Tournament ended.</div>');
+						}
+						break;
+					}
 					if (!this.tournamentBox) this.tournamentBox = new TournamentBox(this, this.$tournamentWrapper);
 					if (!this.tournamentBox.parseMessage(row.slice(1), row[0] === 'tournaments')) break;
 					// fallthrough in case of unparsed message
