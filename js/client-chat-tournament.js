@@ -178,8 +178,7 @@
 				self.room.send('/tournament cancelchallenge');
 			});
 			this.$validate.on('click', function () {
-				if (!($wrapper.find('.tournament-validate').hasClass('disabled')))
-				{
+				if (!($wrapper.find('.tournament-validate').hasClass('disabled'))) {
 					app.sendTeam(Storage.teams[self.$teamSelect.children().val()]);
 					self.room.send('/tournament vtm');
 				}
