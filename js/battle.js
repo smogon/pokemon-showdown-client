@@ -1109,15 +1109,27 @@ var Sprite = (function () {
 			z: this.z,
 			time: 300 / this.battle.acceleration
 		}, 'ballistic2', 'fade');
-		this.elem.delay(this.battle.animationDelay + 300 / this.battle.acceleration).animate(this.battle.pos({
-			x: this.x,
-			y: this.y + 30,
-			z: this.z
-		}, this.sp), 400 / this.battle.acceleration).animate(this.battle.posT({
-			x: this.x,
-			y: this.y,
-			z: this.z
-		}, this.sp, 'accel'), 300 / this.battle.acceleration);
+		if (this.battle.gen <= 4) {
+			this.elem.delay(this.battle.animationDelay + 300 / this.battle.acceleration).animate(this.battle.pos({
+				x: this.x,
+				y: this.y,
+				z: this.z
+			}, this.sp), 400 / this.battle.acceleration).animate(this.battle.posT({
+				x: this.x,
+				y: this.y,
+				z: this.z
+			}, this.sp, 'accel'), 300 / this.battle.acceleration);
+		} else {
+			this.elem.delay(this.battle.animationDelay + 300 / this.battle.acceleration).animate(this.battle.pos({
+				x: this.x,
+				y: this.y + 30,
+				z: this.z
+			}, this.sp), 400 / this.battle.acceleration).animate(this.battle.posT({
+				x: this.x,
+				y: this.y,
+				z: this.z
+			}, this.sp, 'accel'), 300 / this.battle.acceleration);
+		}
 		if (this.sp.shiny && this.battle.acceleration < 2) BattleOtherAnims.shiny.anim(this.battle, [this]);
 		this.battle.activityWait(this.elem);
 	};
@@ -1180,14 +1192,25 @@ var Sprite = (function () {
 			this.elem.css('display', 'none');
 			return;
 		}
-		this.anim({
-			x: this.x,
-			y: this.y - 40,
-			z: this.z,
-			scale: 0,
-			opacity: 0,
-			time: 400 / this.battle.acceleration
-		});
+		if (this.battle.gen <= 4) {
+			this.anim({
+				x: this.x,
+				y: this.y - 25,
+				z: this.z,
+				scale: 0,
+				opacity: 0,
+				time: 400 / this.battle.acceleration
+			});
+		} else {
+				this.anim({
+				x: this.x,
+				y: this.y - 40,
+				z: this.z,
+				scale: 0,
+				opacity: 0,
+				time: 400 / this.battle.acceleration
+			});
+		}
 		this.battle.showEffect('pokeball', {
 			opacity: 1,
 			x: this.x,
