@@ -488,7 +488,7 @@
 			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
-			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting">Edit formatting</button></label></p>';
+			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting">Text formatting</button></label></p>';
 
 			if (window.nodewebkit) {
 				buf += '<hr />';
@@ -596,17 +596,18 @@
 		},
 		initialize: function () {
 			var cur = this.chatformatting = Tools.prefs('chatformatting') || {};
-			var buf = '<p class="optlabel">You can choose to display formatted text as normal text.</p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="bold" ' + (cur.hidebold ? 'checked' : '') + ' /> Suppress **<strong>bold</strong>**</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="italics" ' + (cur.hideitalics ? 'checked' : '') + ' /> Suppress __<em>italics</em>__</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="monospace" ' + (cur.hidemonospace ? 'checked' : '') + ' /> Suppress ``<code>code formatting</code>``</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="strikethrough" ' + (cur.hidestrikethrough ? 'checked' : '') + ' /> Suppress ~~<s>strikethrough</s>~~</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="superscript" ' + (cur.hidesuperscript ? 'checked' : '') + ' /> Suppress ^^<sup>superscript</sup>^^</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="subscript" ' + (cur.hidesubscript ? 'checked' : '') + ' /> Suppress \\\\<sub>subscript</sub>\\\\</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="me" ' + (cur.hideme ? 'checked' : '') + ' /> Suppress <kbd>/me</kbd> <em>action formatting</em></label></p>';
+			var buf = '<p>Usable formatting:</p>';
+			var ctrlPlus = '<kbd>' + (navigator.platform === 'MacIntel' ? 'Cmd' : 'Ctrl') + '</kbd> + ';
+			buf += '<p class="optlabel">**<strong>bold</strong>** (' + ctrlPlus + '<kbd>B</kbd>)</p>';
+			buf += '<p class="optlabel">__<em>italics</em>__ (' + ctrlPlus + '<bkd>I</kbd>)</p>';
+			buf += '<p class="optlabel">``<code>code formatting</code>``</p>';
+			buf += '<p class="optlabel">~~<s>strikethrough</s>~~</p>';
+			buf += '<p class="optlabel">^^<sup>superscript</sup>^^</p>';
+			buf += '<p class="optlabel">\\\\<sub>subscript</sub>\\\\</p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="greentext" ' + (cur.hidegreentext ? 'checked' : '') + ' /> Suppress <span class="greentext">&gt;' + ['meme arrows', 'greentext', 'quote formatting'][Math.floor(Math.random() * 3)] + '</span></label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="spoiler" ' + (cur.hidespoiler ? 'checked' : '') + ' /> Suppress spoiler hiding</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="links" ' + (cur.hidelinks ? 'checked' : '') + ' /> Suppress clickable links</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="me" ' + (cur.hideme ? 'checked' : '') + ' /> Suppress <kbd>/me</kbd> <em>action formatting</em></label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="spoiler" ' + (cur.hidespoiler ? 'checked' : '') + ' /> Auto-show spoilers: <span class="spoiler">these things</span></label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="links" ' + (cur.hidelinks ? 'checked' : '') + ' /> Make [[clickable links]] unclickable</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="interstice"' + (cur.hideinterstice ? 'checked' : '') + ' /> Don\'t warn for untrusted links</label></p>';
 			buf += '<p><button name="close">Close</button></p>';
 			this.$el.html(buf);
