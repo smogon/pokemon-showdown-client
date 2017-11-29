@@ -1761,6 +1761,7 @@ var Side = (function () {
 					var illusionFound = null;
 					for (var i = 0; i < this.pokemon.length; i++) {
 						var curPoke = this.pokemon[i];
+						if (curPoke === poke) continue;
 						if (curPoke.fainted) continue;
 						if (this.active.indexOf(curPoke) >= 0) continue;
 						if (curPoke.speciesid === 'zoroark' || curPoke.speciesid === 'zorua' || curPoke.ability === 'Illusion') {
@@ -1775,6 +1776,7 @@ var Side = (function () {
 						// and reguessed.
 						for (var i = 0; i < this.pokemon.length; i++) {
 							var curPoke = this.pokemon[i];
+							if (curPoke === poke) continue;
 							if (curPoke.fainted) continue;
 							if (this.active.indexOf(curPoke) >= 0) continue;
 							illusionFound = curPoke;
