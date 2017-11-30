@@ -1397,6 +1397,7 @@ var Side = (function () {
 		return "the opposing team";
 	};
 	Side.prototype.updateSidebar = function () {
+		if (this.fastForward) return;
 		var pokemonhtml = '';
 		var noShow = this.battle.hardcoreMode && this.battle.gen < 7;
 		for (var i = 0; i < 6 || i < this.pokemon.length; i++) {
@@ -6954,8 +6955,14 @@ var Battle = (function () {
 		this.fastForward = false;
 		this.elem.find('.seeking').remove();
 		$.fx.off = false;
-		if (this.p1) this.p1.updateStatbar(null, true, true);
-		if (this.p2) this.p2.updateStatbar(null, true, true);
+		if (this.p1) {
+			this.p1.updateStatbar(null, true, true);
+			this.p1.updateSidebar();
+		}
+		if (this.p2) {
+			this.p2.updateStatbar(null, true, true);
+			this.p2.updateSidebar();
+		}
 		this.updateWeather(undefined, true);
 		if (this.fastForwardWillScroll) {
 			this.logFrameElem.scrollTop(this.logElem.height() + this.logPreemptElem.height());
