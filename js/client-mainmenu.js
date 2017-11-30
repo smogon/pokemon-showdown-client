@@ -208,6 +208,8 @@
 				e.preventDefault();
 				e.stopPropagation();
 				userid = $(e.currentTarget).closest('.pm-window').data('userid');
+				// counteract jQuery auto-casting
+				if (userid !== undefined && userid !== '') userid = '' + userid;
 			} else {
 				userid = toId(e);
 			}
