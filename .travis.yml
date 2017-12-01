@@ -18,5 +18,3 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
 script:
   - "npm test"
-  - "fluxbox >/dev/null 2>&1 &"
-  - "npm run-script testcafe"
