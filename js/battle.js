@@ -3733,8 +3733,8 @@ var Battle = (function () {
 					case 'solarpower':
 						break;
 					case 'confusion':
+						if (!this.fastForward) BattleStatusAnims.confusedselfhit.anim(this, [poke.sprite]);
 						actions += "It hurt itself in its confusion! ";
-						poke.sprite.animReset();
 						this.hasPreMoveMessage = false;
 						break;
 					case 'leechseed':
