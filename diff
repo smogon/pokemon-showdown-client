@@ -1,0 +1,72 @@
+diff --git a/js/client-teambuilder.js b/js/client-teambuilder.js
+index 87ad47fd..7d3c67da 100644
+--- a/js/client-teambuilder.js
++++ b/js/client-teambuilder.js
+@@ -398,7 +398,7 @@
+ 					// support dragging and dropping buttons.
+ 					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + Tools.escapeHTML(team.name) + '</strong><br /><small>';
+ 					buf += Storage.getTeamIcons(team);
+-					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil"></i>Edit</button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i>Delete</button></li>';
++					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil"></i></button><button name="newTop" value="' + i + '"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i></button></li>';
+ 				}
+ 				if (!atLeastOne) {
+ 					if (filterFolder) {
+@@ -693,9 +693,8 @@
+ 			teams.push(newTeam);
+ 			this.edit(teams.length - 1);
+ 		},
+-		newTop: function () {
+-			var newTeam = this.createTeam();
+-
++		newTop: function (i) {
++			var newTeam = this.createTeam(i ? teams[i] : null);
+ 			teams.unshift(newTeam);
+ 			for (var room in app.rooms) {
+ 				var selection = app.rooms[room].$('button.teamselect').val();
+@@ -705,21 +704,31 @@
+ 			}
+ 			this.edit(0);
+ 		},
+-		createTeam: function () {
+-			var format = this.curFolder || 'gen7';
+-			var folder = '';
+-			if (format && format.charAt(format.length - 1) === '/') {
+-				folder = format.slice(0, -1);
+-				format = 'gen7';
+-			}
+-			var newTeam = {
+-				name: 'Untitled ' + (teams.length + 1),
+-				format: format,
+-				team: '',
+-				folder: folder,
+-				iconCache: ''
+-			};
+-
++		createTeam: function (orig) {
++			var newTeam;
++			if (orig) {
++				newTeam = {
++					name: 'Copy of  ' +  orig.name,
++					format: orig.format,
++					team: orig.team,
++					folder: orig.folder,
++					iconCache: ''
++				};
++			} else {
++				var format = this.curFolder || 'gen7';
++				var folder = '';
++				if (format && format.charAt(format.length - 1) === '/') {
++					folder = format.slice(0, -1);
++					format = 'gen7';
++				}
++				newTeam = {
++					name: 'Untitled ' + (teams.length + 1),
++					format: format,
++					team: '',
++					folder: folder,
++					iconCache: ''
++				};
++			}
+ 			// work around Opera 42-45 crashing when persist() is called
+ 			if (navigator.storage && navigator.storage.persist && !/ OPR\/4[0-5]/.test(navigator.userAgent)) {
+ 				var self = this;
