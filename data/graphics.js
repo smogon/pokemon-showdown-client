@@ -3197,6 +3197,32 @@ var BattleStatusAnims = {
 				time: 800
 			}, 'linear', 'fade');
 		}
+	},
+	confusedselfhit: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+
+			battle.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0,
+				opacity: 0.5
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 200
+			}, 'linear');
+			attacker.delay(50);
+			attacker.anim({
+				x: attacker.leftof(2),
+				z: attacker.behind(5),
+				time: 100
+			}, 'swing');
+			attacker.anim({
+				time: 300
+			}, 'swing');
+		}
 	}
 };
 BattleStatusAnims['focuspunch'] = {anim:BattleStatusAnims['flinch'].anim};
