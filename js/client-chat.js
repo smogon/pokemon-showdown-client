@@ -1266,13 +1266,19 @@
 					break;
 
 				case 'uhtml':
-					this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + Tools.sanitizeHTML(row.slice(2).join('|')) + '</div>');
-					break;
-
 				case 'uhtmlchange':
 					var $elements = this.$chat.find('div.uhtml-' + toId(row[1]));
-					if (!$elements.length) break;
-					$elements.html(Tools.sanitizeHTML(row.slice(2).join('|')));
+					var html = row.slice(2).join('|');
+					if (!html) {
+						$elements.remove();
+					} else if (!$elements.length) {
+						this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + Tools.sanitizeHTML(html) + '</div>');
+					} else if (row[0] === 'uhtmlchange') {
+						$elements.html(Tools.sanitizeHTML(html));
+					} else {
+						$elements.remove();
+						this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + Tools.sanitizeHTML(html) + '</div>');
+					}
 					break;
 
 				case 'unlink':
