@@ -708,7 +708,7 @@
 			var newTeam;
 			if (orig) {
 				newTeam = {
-					name: 'Copy of  ' +  orig.name,
+					name: 'Copy of  ' + orig.name,
 					format: orig.format,
 					team: orig.team,
 					folder: orig.folder,
