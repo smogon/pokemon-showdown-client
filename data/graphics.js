@@ -13637,32 +13637,60 @@ var BattleMoveAnims = {
 				left: -45,
 				right: -15
 			}, 100).animate({
+				left: -55,
+				right: -5
+			}, 100).animate({
+				left: -45,
+				right: -15
+			}, 100).animate({
+				left: -52.5,
+				right: -7.5
+			}, 100).animate({
+				left: -47.5,
+				right: -12.5
+			}, 100).animate({
 				left: -50,
 				right: -10,
 			}, 100);
 
 			attacker.anim({
-				x: attacker.x - 30,
+				x: attacker.x - 12,
 				time: 75
 			});
 			attacker.anim({
-				x: attacker.x + 30,
+				x: attacker.x + 12,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x - 30,
+				x: attacker.x - 12,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x + 30,
+				x: attacker.x + 12,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x - 30,
+				x: attacker.x - 12,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x + 30,
+				x: attacker.x + 12,
+				time: 100
+			});
+			attacker.anim({
+				x: attacker.x - 12,
+				time: 100
+			});
+			attacker.anim({
+				x: attacker.x + 12,
+				time: 100
+			});
+			attacker.anim({
+				x: attacker.x - 2.5,
+				time: 100
+			});
+			attacker.anim({
+				x: attacker.x + 2.5,
 				time: 100
 			});
 			attacker.anim({
@@ -13673,27 +13701,43 @@ var BattleMoveAnims = {
 			for (var i = 1; i < args.length; i++) {
 				defender = args[i];
 				defender.anim({
-					x: defender.x - 30,
+					x: defender.x - 12,
 					time: 75
 				});
 				defender.anim({
-					x: defender.x + 30,
+					x: defender.x + 12,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x - 30,
+					x: defender.x - 12,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x + 30,
+					x: defender.x + 12,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x - 30,
+					x: defender.x - 12,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x + 30,
+					x: defender.x + 12,
+					time: 100
+				});
+				defender.anim({
+					x: defender.x - 12,
+					time: 100
+				});
+				defender.anim({
+					x: defender.x + 12,
+					time: 100
+				});
+				defender.anim({
+					x: defender.x - 5,
+					time: 100
+				});
+				defender.anim({
+					x: defender.x + 5,
 					time: 100
 				});
 				defender.anim({
