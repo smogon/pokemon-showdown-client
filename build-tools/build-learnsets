@@ -23,58 +23,6 @@ const rootDir = path.resolve(thisDir, '..');
 const Tools = require('../data/Pokemon-Showdown/sim/dex');
 const toId = Tools.getId;
 
-// update version
-process.stdout.write("Updating version... ");
-
-let version = require('../package.json').version;
-
-let configBuf = fs.readFileSync(path.resolve(rootDir, 'config/config.js'), {encoding: 'utf8'});
-configBuf = configBuf.replace(/\/\* version \*\/[^;\n]*;/, `/* version */ Config.version = ${JSON.stringify(version)};`);
-
-fs.writeFileSync(path.resolve(rootDir, 'config/config.js'), configBuf);
-console.log("DONE");
-
-function updateIndex() {
-	let indexContents = fs.readFileSync(path.resolve(rootDir, 'index.template.html'), {encoding: 'utf8'});
-
-	// add hashes to js and css files
-	process.stdout.write("Updating hashes... ");
-	indexContents = indexContents.replace(/(src|href)="\/(.*?)\?[a-z0-9]*?"/g, function (a, b, c) {
-		let hash = Math.random(); // just in case creating the hash fails
-		try {
-			const filename = c.replace('/play.pokemonshowdown.com/', '');
-			const fstr = fs.readFileSync(path.resolve(rootDir, filename), {encoding: 'utf8'});
-			hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-		} catch (e) {}
-
-		return b + '="/' + c + '?' + hash + '"';
-	});
-	console.log("DONE");
-
-	// add news
-	process.stdout.write("Updating news... ");
-	exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
-		let newsData = [0, '[failed to retrieve news]'];
-		if (!error && !stderr) {
-			try {
-				newsData = JSON.parse(stdout);
-			} catch (e) {
-				console.log("git hook failed to retrieve news (parsing JSON failed):\n" + e.stack);
-			}
-		} else {
-			console.log("git hook failed to retrieve news (exec command failed):\n" + (error || stderr));
-		}
-
-		indexContents = indexContents.replace(/<!-- newsid -->/g, newsData[0]);
-		indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
-		console.log("DONE");
-
-		process.stdout.write("Writing new `index.html` file... ");
-		fs.writeFileSync(path.resolve(rootDir, 'index.html'), indexContents);
-		console.log("DONE");
-	});
-}
-
 function updateLearnsets(callback) {
 	const reservedKeywords = ['return']; // `return` is the only ES3+ reserved keyword that (currently) raises conflicts
 	const numberRegExp = new RegExp('^[0-9]*');
@@ -193,7 +141,6 @@ function updateLearnsets(callback) {
 	writeStream.end(callback);
 }
 
-let pendingFiles = 0;
 let indexStats, updateStats, indexMTime, updateMTime;
 try {
 	indexStats = fs.statSync(path.join(rootDir, 'index.html'));
@@ -213,7 +160,6 @@ try {
 // update learnsets-g6
 process.stdout.write("Updating file `data/learnsets-g6`... ");
 
-pendingFiles++;
 let learnsetsStats;
 let learnsetsG6Stats;
 let learnsetsG6ToUpdate = true;
@@ -224,7 +170,6 @@ try {
 	// Couldn't find learnsets.js, but that's not the end of the world: skip to next task.
 	console.error("Couldn't find `data/learnsets.js`. Task aborted.");
 	learnsetsG6ToUpdate = false;
-	if (!--pendingFiles) updateIndex();
 }
 if (learnsetsG6ToUpdate) {
 	try {
@@ -236,7 +181,6 @@ if (learnsetsG6ToUpdate) {
 			// Any other error is unacceptable for learnsets-g6.js update: skip to next task.
 			console.error("Failed to read `data/learnsets-g6.js`. Task aborted.");
 			learnsetsG6ToUpdate = false;
-			if (!--pendingFiles) updateIndex();
 		}
 	}
 }
@@ -252,9 +196,7 @@ if (learnsetsG6ToUpdate && (!indexStats || !learnsetsG6Stats || indexMTime < upd
 		} else {
 			console.log("DONE");
 		}
-		if (!--pendingFiles) updateIndex();
 	});
 } else {
 	console.log("CACHED");
-	if (!--pendingFiles) updateIndex();
 }
