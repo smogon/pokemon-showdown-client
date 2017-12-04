@@ -3681,31 +3681,31 @@ var Battle = (function () {
 					}
 					switch (effect.id) {
 					case 'stealthrock':
-						actions += "Pointed stones dug into " + poke.getLowerName() + "!";
+						actions += "Pointed stones dug into " + poke.getLowerName() + "! ";
 						break;
 					case 'spikes':
-						actions += "" + poke.getName() + " is hurt by the spikes!";
+						actions += "" + poke.getName() + " is hurt by the spikes! ";
 						break;
 					case 'brn':
 						if (!this.fastForward) BattleStatusAnims['brn'].anim(this, [poke.sprite]);
-						actions += "" + poke.getName() + " was hurt by its burn!";
+						actions += "" + poke.getName() + " was hurt by its burn! ";
 						break;
 					case 'psn':
 						if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
 						if (poke.statusData.toxicTurns) poke.statusData.toxicTurns++;
-						actions += "" + poke.getName() + " was hurt by poison!";
+						actions += "" + poke.getName() + " was hurt by poison! ";
 						break;
 					case 'lifeorb':
 						this.message('', '<small>' + poke.getName() + ' lost some of its HP!</small>');
 						break;
 					case 'recoil':
-						actions += "" + poke.getName() + " is damaged by the recoil!";
+						actions += "" + poke.getName() + " is damaged by the recoil! ";
 						break;
 					case 'sandstorm':
-						actions += "" + poke.getName() + " is buffeted by the sandstorm!";
+						actions += "" + poke.getName() + " is buffeted by the sandstorm! ";
 						break;
 					case 'hail':
-						actions += "" + poke.getName() + " is buffeted by the hail!";
+						actions += "" + poke.getName() + " is buffeted by the hail! ";
 						break;
 					case 'baddreams':
 						if (!this.fastForward) BattleStatusAnims['cursed'].anim(this, [poke.sprite]);
@@ -3713,22 +3713,22 @@ var Battle = (function () {
 						break;
 					case 'curse':
 						if (!this.fastForward) BattleStatusAnims['cursed'].anim(this, [poke.sprite]);
-						actions += "" + poke.getName() + " is afflicted by the curse!";
+						actions += "" + poke.getName() + " is afflicted by the curse! ";
 						break;
 					case 'nightmare':
-						actions += "" + poke.getName() + " is locked in a nightmare!";
+						actions += "" + poke.getName() + " is locked in a nightmare! ";
 						break;
 					case 'roughskin':
 					case 'ironbarbs':
 					case 'spikyshield':
-						actions += "" + poke.getName() + " was hurt!";
+						actions += "" + poke.getName() + " was hurt! ";
 						break;
 					case 'innardsout':
 					case 'aftermath':
-						actions += "" + poke.getName() + " is hurt!";
+						actions += "" + poke.getName() + " is hurt! ";
 						break;
 					case 'liquidooze':
-						actions += "" + poke.getName() + " sucked up the liquid ooze!";
+						actions += "" + poke.getName() + " sucked up the liquid ooze! ";
 						break;
 					case 'dryskin':
 					case 'solarpower':
@@ -3743,13 +3743,13 @@ var Battle = (function () {
 							BattleOtherAnims.leech.anim(this, [ofpoke.sprite, poke.sprite]);
 							// this.activityWait(500);
 						}
-						actions += "" + poke.getName() + "'s health is sapped by Leech Seed!";
+						actions += "" + poke.getName() + "'s health is sapped by Leech Seed! ";
 						break;
 					case 'flameburst':
-						actions += "The bursting flame hit " + poke.getLowerName() + "!";
+						actions += "The bursting flame hit " + poke.getLowerName() + "! ";
 						break;
 					case 'firepledge':
-						actions += "" + poke.getName() + " is hurt by the sea of fire!";
+						actions += "" + poke.getName() + " is hurt by the sea of fire! ";
 						break;
 					case 'jumpkick':
 					case 'highjumpkick':
@@ -3762,15 +3762,15 @@ var Battle = (function () {
 						break;
 					default:
 						if (ofpoke) {
-							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "!";
+							actions += "" + poke.getName() + " is hurt by " + ofpoke.getLowerName() + "'s " + effect.name + "! ";
 						} else if (effect.effectType === 'Item') {
-							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
+							actions += "" + poke.getName() + " is hurt by its " + effect.name + "! ";
 						} else if (effect.effectType === 'Ability') {
-							actions += "" + poke.getName() + " is hurt by its " + effect.name + "!";
+							actions += "" + poke.getName() + " is hurt by its " + effect.name + "! ";
 						} else if (kwargs.partiallytrapped) {
-							actions += "" + poke.getName() + ' is hurt by ' + effect.name + '!';
+							actions += "" + poke.getName() + ' is hurt by ' + effect.name + '! ';
 						} else {
-							actions += "" + poke.getName() + " lost some HP because of " + effect.name + "!";
+							actions += "" + poke.getName() + " lost some HP because of " + effect.name + "! ";
 						}
 						break;
 					}
@@ -6068,8 +6068,10 @@ var Battle = (function () {
 				if (this.errorCallback) this.errorCallback(this);
 				break;
 			}
+			if (actions && actions.slice(-1) !== '>') actions += '<br />';
 		}
 		if (actions) {
+			if (actions.slice(-6) === '<br />') actions = actions.slice(0, -6);
 			this.message('<small>' + actions + '</small>', '');
 		}
 	};
