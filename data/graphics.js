@@ -13654,11 +13654,11 @@ var BattleMoveAnims = {
 			}, 100);
 
 			attacker.anim({
-				x: attacker.x - 12,
+				x: attacker.x - 15,
 				time: 75
 			});
 			attacker.anim({
-				x: attacker.x + 12,
+				x: attacker.x + 15,
 				time: 100
 			});
 			attacker.anim({
@@ -13701,11 +13701,11 @@ var BattleMoveAnims = {
 			for (var i = 1; i < args.length; i++) {
 				defender = args[i];
 				defender.anim({
-					x: defender.x - 12,
+					x: defender.x - 15,
 					time: 75
 				});
 				defender.anim({
-					x: defender.x + 12,
+					x: defender.x + 15,
 					time: 100
 				});
 				defender.anim({
@@ -13748,6 +13748,154 @@ var BattleMoveAnims = {
 			}
 		}
 	},
+	bulldoze: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			var defender;
+
+			battle.bgElem.delay(275);
+			battle.bgElem.animate({
+				top: -90,
+				bottom: 0,
+			}, 75).animate({
+				top: -100,
+				bottom: -10
+			}, 100).animate({
+				top: -90,
+				bottom: 0
+			}, 100).animate({
+				top: -95,
+				bottom: -5
+			}, 100).animate({
+				top: -90,
+				bottom: 0
+			}, 100).animate({
+				top: -95,
+				bottom: -5
+			}, 100).animate({
+				top: -90,
+				bottom: 0
+			}, 100).animate({
+				top: -92.5,
+				bottom: -2.5
+			}, 100).animate({
+				top: -90,
+				bottom: 0
+			}, 100).animate({
+				top: -92.5,
+				bottom: -2.5
+			}, 100).animate({
+				top: -90,
+				bottom: 0,
+			}, 100);
+
+			attacker.anim({
+				y: attacker.y + 20,
+				time: 175
+			}, 'swing');
+			attacker.anim({
+				y: attacker.y,
+				time: 125
+			}, 'accel');
+			attacker.anim({
+				y: attacker.y - 10,
+				yscale: 1,
+				time: 75
+			});
+			attacker.anim({
+				y: attacker.y + 10,
+				yscale: 0.9,
+				time: 100
+			});
+			attacker.anim({
+				y: attacker.y - 5,
+				yscale: 1,
+				time: 100
+			});
+			attacker.anim({
+				y: attacker.y + 5,
+				time: 100
+			});
+			attacker.anim({
+				y: attacker.y - 5,
+				time: 100
+			});
+			attacker.anim({
+				y: attacker.y + 5,
+				time: 100
+			});
+			attacker.anim({
+				y: attacker.y - 5,
+				time: 100
+			});
+			attacker.anim({
+				y: attacker.y + 5,
+				time: 100
+			});
+			attacker.anim({
+				y: attacker.y - 2,
+				time: 100
+			});
+			attacker.anim({
+				y: attacker.y + 2,
+				time: 100
+			});
+			attacker.anim({
+				y: attacker.y,
+				time: 100
+			});
+
+			for (var i = 1; i < args.length; i++) {
+				defender = args[i];
+				defender.delay(275);
+				defender.anim({
+					y: defender.y - 10,
+					time: 75
+				});
+				defender.anim({
+					y: defender.y + 10,
+					time: 100
+				});
+				defender.anim({
+					y: defender.y - 5,
+					time: 100
+				});
+				defender.anim({
+					y: defender.y + 5,
+					time: 100
+				});
+				defender.anim({
+					y: defender.y - 5,
+					time: 100
+				});
+				defender.anim({
+					y: defender.y + 5,
+					time: 100
+				});
+				defender.anim({
+					y: defender.y - 5,
+					time: 100
+				});
+				defender.anim({
+					y: defender.y + 5,
+					time: 100
+				});
+				defender.anim({
+					y: defender.y - 2,
+					time: 100
+				});
+				defender.anim({
+					y: defender.y + 2,
+					time: 100
+				});
+				defender.anim({
+					y: defender.y,
+					time: 100
+				});
+				battle.activityWait(325);
+			}
+		}
+	},
 	tickle: {
 		anim: function (battle, args) {
 			var attacker = args[0];
@@ -13780,6 +13928,41 @@ var BattleMoveAnims = {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
+
+			battle.bgElem.animate({
+				left: -55,
+				right: -5,
+			}, 75).animate({
+				left: -45,
+				right: -15
+			}, 100).animate({
+				left: -55,
+				right: -5
+			}, 100).animate({
+				left: -45,
+				right: -15
+			}, 100).animate({
+				left: -55,
+				right: -5
+			}, 100).animate({
+				left: -45,
+				right: -15
+			}, 100).animate({
+				left: -55,
+				right: -5
+			}, 100).animate({
+				left: -45,
+				right: -15
+			}, 100).animate({
+				left: -52.5,
+				right: -7.5
+			}, 100).animate({
+				left: -47.5,
+				right: -12.5
+			}, 100).animate({
+				left: -50,
+				right: -10,
+			}, 100);
 
 			battle.showEffect('fireball', {
 				x: defender.x + 10,
@@ -13943,27 +14126,35 @@ var BattleMoveAnims = {
 			}, 'linear', 'fade');
 
 			defender.anim({
-				x: defender.x - 30,
+				x: defender.x - 15,
 				time: 75
 			});
 			defender.anim({
-				x: defender.x + 30,
+				x: defender.x + 15,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x - 30,
+				x: defender.x - 12,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x + 30,
+				x: defender.x + 12,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x - 30,
+				x: defender.x - 12,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x + 30,
+				x: defender.x + 12,
+				time: 100
+			});
+			defender.anim({
+				x: defender.x - 5,
+				time: 100
+			});
+			defender.anim({
+				x: defender.x + 5,
 				time: 100
 			});
 			defender.anim({
@@ -33601,9 +33792,8 @@ BattleMoveAnims['gastroacid'] = {anim:BattleMoveAnims['toxic'].anim};
 
 BattleMoveAnims['magnitude'] = {anim:BattleMoveAnims['earthquake'].anim};
 BattleMoveAnims['fissure'] = {anim:BattleMoveAnims['earthquake'].anim};
-BattleMoveAnims['bulldoze'] = {anim:BattleMoveAnims['earthquake'].anim};
 BattleMoveAnims['landswrath'] = {anim:BattleMoveAnims['earthquake'].anim};
-BattleMoveAnims['stompingtantrum'] = {anim:BattleMoveAnims['earthquake'].anim};
+BattleMoveAnims['stompingtantrum'] = {anim:BattleMoveAnims['bulldoze'].anim};
 
 BattleMoveAnims['mindblown'] = {anim:BattleMoveAnims['iceball'].anim};
 
