@@ -1,0 +1,35 @@
+#!/usr/bin/env node
+
+const execSync = require('child_process').execSync;
+
+const options = {cwd: __dirname, stdio: 'inherit'};
+
+switch (process.argv[2] || '') {
+case 'full':
+	execSync(`./build-tools/build-indexes`, options);
+	execSync(`./build-tools/build-learnsets`, options);
+	execSync(`./build-tools/build-minidex`, options);
+	break;
+case 'indexes':
+	execSync(`./build-tools/build-indexes`, options);
+	break;
+case 'learnsets':
+	execSync(`./build-tools/build-learnsets`, options);
+	break;
+case 'minidex':
+case 'sprites':
+	execSync(`./build-tools/build-minidex`, options);
+	break;
+case 'replays':
+	execSync(`../replay.pokemonshowdown.com/build`, options);
+	process.exit();
+	break;
+case '':
+	break;
+default:
+	console.log(`Unrecognized command ${process.argv[2]}`);
+	process.exit();
+	break;
+}
+
+execSync(`./build-tools/update`, options);

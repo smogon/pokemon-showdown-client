@@ -246,7 +246,7 @@ function requireNoCache(pathSpec) {
 		BattleSearchCountIndex[type + ' pokemon'] = Object.keys(Tools.data.Pokedex).filter(id => (Tools.data.Pokedex[id].types.indexOf(type) >= 0)).length;
 	}
 
-	let buf = '// automatically built with githooks/build-indexes\n\n';
+	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
 
 	buf += 'exports.BattleSearchIndex = ' + JSON.stringify(BattleSearchIndex) + ';\n\n';
 
@@ -271,7 +271,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 {
 	const BattleTeambuilderTable = {};
 
-	let buf = '// automatically built with githooks/build-indexes\n\n';
+	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [7, -7.5, -7, 6, -6, 5, 4, 3, 2, 1]) {
