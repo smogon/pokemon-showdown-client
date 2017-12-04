@@ -1329,7 +1329,7 @@ var Side = (function () {
 		this.pokemon = [];
 	}
 
-	Side.prototype.rollSprites = function () {
+	Side.prototype.rollTrainerSprites = function () {
 		var sprites = [1, 2, 101, 102, 169, 170];
 		this.spriteid = sprites[Math.floor(Math.random() * sprites.length)];
 	};
@@ -1378,8 +1378,8 @@ var Side = (function () {
 		if (spriteid) {
 			this.spriteid = spriteid;
 		} else {
-			this.rollSprites();
-			if (this.foe && this.spriteid === this.foe.spriteid) this.rollSprites();
+			this.rollTrainerSprites();
+			if (this.foe && this.spriteid === this.foe.spriteid) this.rollTrainerSprites();
 		}
 		this.initialized = true;
 		if (!name) {
