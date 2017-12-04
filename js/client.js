@@ -1248,7 +1248,8 @@
 					return;
 				}
 				if (this.rel === 'noopener') {
-					if (!Tools.interstice.isWhitelisted(this.href)) {
+					var formatOptions = Tools.prefs('chatformatting') || {};
+					if (!formatOptions.hideinterstice && !Tools.interstice.isWhitelisted(this.href)) {
 						this.href = Tools.interstice.getURI(this.href);
 					}
 				} else if (this.target === '_blank') {
