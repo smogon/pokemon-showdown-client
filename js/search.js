@@ -581,20 +581,14 @@
 					if (ability0 !== ability && template.abilities['1'] !== ability && template.abilities['H'] !== ability && template.abilities['S'] !== ability) break;
 				} else if (filters[i][0] === 'move') {
 					var learned = false;
-					var learnsetid = id;
-					if (!(learnsetid in BattleTeambuilderTable.learnsets)) {
-						learnsetid = toId(BattlePokedex[learnsetid].baseSpecies);
-					}
-					if (!learnsetid) continue; // Pokestar Pokemon
-					while (true) {
+					var learnsetid = this.nextLearnsetid(id);
+					while (learnsetid) {
 						var learnset = BattleTeambuilderTable.learnsets[learnsetid];
 						if (learnset && (filters[i][1] in learnset) && learnset[filters[i][1]].indexOf(genChar) >= 0) {
 							learned = true;
 							break;
 						}
-						var prevo = BattlePokedex[learnsetid].prevo;
-						if (!prevo) break;
-						learnsetid = prevo;
+						learnsetid = this.nextLearnsetid(learnsetid, id);
 					}
 					if (!learned) break;
 				}
@@ -632,6 +626,24 @@
 		this.renderingDone = false;
 		this.updateScroll();
 	};
+	Search.prototype.nextLearnsetid = function (learnsetid, speciesid) {
+		if (!speciesid) {
+			if (learnsetid in BattleTeambuilderTable.learnsets) return learnsetid;
+			learnsetid = toId(BattlePokedex[learnsetid].baseSpecies);
+			if (learnsetid in BattleTeambuilderTable.learnsets) return learnsetid;
+			return '';
+		}
+
+		if (learnsetid === 'lycanrocdusk' || (speciesid === 'rockruff' && learnsetid === 'rockruff')) return 'rockruffdusk';
+		var template = BattlePokedex[learnsetid];
+		if (!template) return '';
+		if (template.prevo) return template.prevo;
+		var baseSpecies = template.baseSpecies;
+		if (baseSpecies !== template.species && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo')) {
+			return toId(template.baseSpecies);
+		}
+		return '';
+	};
 	Search.prototype.filteredMoves = function () {
 		var resultSet = [];
 		var filters = this.filters || [];
@@ -659,19 +671,15 @@
 					if (move.category !== filters[i][1]) break;
 				} else if (filters[i][0] === 'pokemon') {
 					var learned = false;
-					var learnsetid = filters[i][1];
-					if (!(learnsetid in BattleTeambuilderTable.learnsets[learnsetid])) {
-						learnsetid = toId(BattlePokedex[learnsetid].baseSpecies);
-					}
-					while (true) {
+					var speciesid = filters[i][1];
+					var learnsetid = this.nextLearnsetid(id);
+					while (learnsetid) {
 						var learnset = BattleTeambuilderTable.learnsets[learnsetid];
 						if (learnset && (id in learnset)) {
 							learned = true;
 							break;
 						}
-						var prevo = BattlePokedex[learnsetid].prevo;
-						if (!prevo) break;
-						learnsetid = prevo;
+						learnsetid = this.nextLearnsetid(learnsetid, speciesid);
 					}
 					if (!learned) break;
 				}
@@ -882,16 +890,14 @@
 			break;
 
 		case 'move':
-			template = Tools.getTemplate(set.species);
-			if (!(template.id in BattleTeambuilderTable.learnsets) || template.form) {
-				template = Tools.getTemplate(template.baseSpecies);
-			}
+			var template = Tools.getTemplate(set.species);
+			var learnsetid = this.nextLearnsetid(template.id);
 			var moves = [];
 			var sMoves = [];
 			var sketch = false;
 			var gen = '' + this.gen;
-			while (true) {
-				var learnset = BattleTeambuilderTable.learnsets[toId(template.species)];
+			while (learnsetid) {
+				var learnset = BattleTeambuilderTable.learnsets[learnsetid];
 				if (learnset) {
 					for (var moveid in learnset) {
 						var learnsetEntry = learnset[moveid];
@@ -908,13 +914,7 @@
 						}
 					}
 				}
-				if (template.baseSpecies !== template.species && template.baseSpecies in {Rotom:1, Pumpkaboo:1}) {
-					template = BattlePokedex[toId(template.baseSpecies)];
-				} else if (template.prevo) {
-					template = BattlePokedex[template.prevo];
-				} else {
-					break;
-				}
+				learnsetid = this.nextLearnsetid(learnsetid, template.id);
 			}
 			if (sketch) {
 				for (var i in BattleMovedex) {
