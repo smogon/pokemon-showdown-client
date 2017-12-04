@@ -582,13 +582,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		for (const moveid in learnset) {
 			const gens = learnset[moveid].map(x => Number(x[0]));
 			const minGen = Math.min(...gens);
+			const vcOnly = minGen === 7 && learnset[moveid].every(x => x[0] !== '7' || x === '7V');
 			if (minGen === 7) learnsets[id][moveid] = '7';
 			if (minGen === 6) learnsets[id][moveid] = '67';
 			if (minGen === 5) learnsets[id][moveid] = '567';
 			if (minGen === 4) learnsets[id][moveid] = '4567';
 			if (minGen === 3) learnsets[id][moveid] = '34567';
 			if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
-			if (gens.indexOf(7) >= 0) learnsets[id][moveid] += 'q';
+			if (gens.indexOf(7) >= 0 && !vcOnly) learnsets[id][moveid] += 'q';
 		}
 	}
 	const G2Learnsets = Tools.mod('gen2').data.Learnsets;
