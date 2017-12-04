@@ -68,7 +68,7 @@
 		},
 		updateLayout: function () {
 			var width = this.$el.width();
-			if (width < 950) {
+			if (width < 950 || this.battle.hardcoreMode) {
 				this.battle.messageShownTime = 500;
 			} else {
 				this.battle.messageShownTime = 1;
@@ -224,6 +224,7 @@
 			this.battle.setHardcoreMode(mode);
 			var id = '#' + this.el.id + ' ';
 			this.$('.hcmode-style').remove();
+			this.updateLayout(); // set animation delay
 			if (mode) this.$el.prepend('<style class="hcmode-style">' + id + '.battle .turn,' + id + '.battle-history{display:none !important;}</style>');
 			if (this.choice && this.choice.waiting) {
 				this.updateControlsForPlayer();
