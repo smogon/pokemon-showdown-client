@@ -332,6 +332,7 @@ var baseSpeciesChart = [
 	// alola totems
 	'raticate',
 	'marowak',
+	'kommoo',
 
 	// mega evolutions
 	'charizard',
