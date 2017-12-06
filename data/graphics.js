@@ -13619,132 +13619,191 @@ var BattleMoveAnims = {
 			var defender;
 
 			battle.bgElem.animate({
-				left: -55,
-				right: -5,
+				top: -90,
+				bottom: 0,
 			}, 75).animate({
-				left: -45,
-				right: -15
+				top: -100,
+				bottom: -10
 			}, 100).animate({
-				left: -55,
-				right: -5
+				top: -90,
+				bottom: 0
 			}, 100).animate({
-				left: -45,
-				right: -15
+				top: -95,
+				bottom: -5
 			}, 100).animate({
-				left: -55,
-				right: -5
+				top: -90,
+				bottom: 0
 			}, 100).animate({
-				left: -45,
-				right: -15
+				top: -95,
+				bottom: -5
 			}, 100).animate({
-				left: -55,
-				right: -5
+				top: -90,
+				bottom: 0
 			}, 100).animate({
-				left: -45,
-				right: -15
+				top: -92,
+				bottom: -2
 			}, 100).animate({
-				left: -52.5,
-				right: -7.5
+				top: -90,
+				bottom: 0
 			}, 100).animate({
-				left: -47.5,
-				right: -12.5
+				top: -92,
+				bottom: -2
 			}, 100).animate({
-				left: -50,
-				right: -10,
+				top: -90,
+				bottom: 0,
 			}, 100);
 
 			attacker.anim({
-				x: attacker.x - 15,
+				y: attacker.y - 10,
+				yscale: 1,
 				time: 75
 			});
 			attacker.anim({
-				x: attacker.x + 15,
+				y: attacker.y + 10,
+				yscale: 0.9,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x - 12,
+				y: attacker.y - 7,
+				yscale: 1,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x + 12,
+				y: attacker.y + 7,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x - 12,
+				y: attacker.y - 7,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x + 12,
+				y: attacker.y + 7,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x - 12,
+				y: attacker.y - 7,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x + 12,
+				y: attacker.y + 7,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x - 2.5,
+				y: attacker.y - 2,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x + 2.5,
+				y: attacker.y + 2,
 				time: 100
 			});
 			attacker.anim({
-				x: attacker.x,
+				y: attacker.y,
 				time: 100
 			});
 
 			for (var i = 1; i < args.length; i++) {
 				defender = args[i];
 				defender.anim({
-					x: defender.x - 15,
+					y: defender.y - 10,
 					time: 75
 				});
 				defender.anim({
-					x: defender.x + 15,
+					y: defender.y + 10,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x - 12,
+					y: defender.y - 7,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x + 12,
+					y: defender.y + 7,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x - 12,
+					y: defender.y - 7,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x + 12,
+					y: defender.y + 7,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x - 12,
+					y: defender.y - 7,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x + 12,
+					y: defender.y + 7,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x - 5,
+					y: defender.y - 2,
 					time: 100
 				});
 				defender.anim({
-					x: defender.x + 5,
+					y: defender.y + 2,
 					time: 100
 				});
 				defender.anim({
+					y: defender.y,
+					time: 100
+				});
+
+				battle.showEffect('rock3', {
+					x: defender.x + 40,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 1,
+					time: 0
+				}, {
+					x: defender.x + 30,
+					y: defender.y,
+					scale: 0.4,
+					opacity: 0,
+					time: 300
+				}, 'ballistic2');
+				battle.showEffect('rock3', {
+					x: defender.x - 10,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 1,
+					time: 250
+				}, {
+					x: defender.x - 25,
+					y: defender.y,
+					scale: 0.3,
+					opacity: 0,
+					time: 550
+				}, 'ballistic');
+				battle.showEffect('rock3', {
+					x: defender.x + 40,
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.2,
+					opacity: 1,
+					time: 400
+				}, {
+					x: defender.x + 55,
+					y: defender.y,
+					scale: 0.3,
+					opacity: 0,
+					time: 700
+				}, 'ballistic2');
+					battle.showEffect('rock3', {
 					x: defender.x,
-					time: 100
-				});
-				battle.activityWait(325);
+					y: defender.y - 35,
+					z: defender.z,
+					scale: 0.3,
+					opacity: 1,
+					time: 500
+				}, {
+					x: defender.x + 30,
+					y: defender.y,
+					scale: 0.4,
+					opacity: 0,
+					time: 700
+				}, 'ballistic2');
 			}
 		}
 	},
@@ -13930,38 +13989,38 @@ var BattleMoveAnims = {
 			var defender = args[1];
 
 			battle.bgElem.animate({
-				left: -55,
-				right: -5,
+				top: -90,
+				bottom: 0,
 			}, 75).animate({
-				left: -45,
-				right: -15
+				top: -100,
+				bottom: -10
 			}, 100).animate({
-				left: -55,
-				right: -5
+				top: -90,
+				bottom: 0
 			}, 100).animate({
-				left: -45,
-				right: -15
+				top: -95,
+				bottom: -5
 			}, 100).animate({
-				left: -55,
-				right: -5
+				top: -90,
+				bottom: 0
 			}, 100).animate({
-				left: -45,
-				right: -15
+				top: -95,
+				bottom: -5
 			}, 100).animate({
-				left: -55,
-				right: -5
+				top: -90,
+				bottom: 0
 			}, 100).animate({
-				left: -45,
-				right: -15
+				top: -92.5,
+				bottom: -2.5
 			}, 100).animate({
-				left: -52.5,
-				right: -7.5
+				top: -90,
+				bottom: 0
 			}, 100).animate({
-				left: -47.5,
-				right: -12.5
+				top: -92.5,
+				bottom: -2.5
 			}, 100).animate({
-				left: -50,
-				right: -10,
+				top: -90,
+				bottom: 0,
 			}, 100);
 
 			battle.showEffect('fireball', {
@@ -14125,40 +14184,41 @@ var BattleMoveAnims = {
 				time: 800
 			}, 'linear', 'fade');
 
+			defender.delay(50);
 			defender.anim({
-				x: defender.x - 15,
+				y: defender.y - 10,
 				time: 75
 			});
 			defender.anim({
-				x: defender.x + 15,
+				y: defender.y + 10,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x - 12,
+				y: defender.y - 7,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x + 12,
+				y: defender.y + 7,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x - 12,
+				y: defender.y - 7,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x + 12,
+				y: defender.y + 7,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x - 5,
+				y: defender.y - 2,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x + 5,
+				y: defender.y + 2,
 				time: 100
 			});
 			defender.anim({
-				x: defender.x,
+				y: defender.y,
 				time: 100
 			});
 		}
