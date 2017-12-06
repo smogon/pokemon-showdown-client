@@ -785,6 +785,21 @@ var Sprite = (function () {
 		}
 	}
 
+	Sprite.prototype.forceReset = function () {
+		// I can rant for ages about how jQuery sucks, necessitating this function
+		// The short version is: after calling elem.finish() on an animating
+		// element, there appear to be a grand total of zero ways to hide it
+		// afterwards. I've tried `elem.css('display', 'none')`, `elem.hide()`,
+		// `elem.hide(1)`, `elem.hide(1000)`, `elem.css('opacity', 0)`,
+		// `elem.animate({opacity: 0}, 1000)`.
+		// They literally all do nothing, and the element retains
+		// a style attribute containing `display: inline-block` and `opacity: 1`
+		if (this.elem) {
+			this.elem.remove();
+			this.battle.spriteElems[this.siden].append('<img src="' + this.sp.url + '" style="display:none;position:absolute"' + (this.sp.pixelated ? ' class="pixelated"' : '') + ' />');
+			this.elem = this.battle.spriteElems[this.siden].children().last();
+		}
+	};
 	Sprite.prototype.behindx = function (offset) {
 		return this.x + (this.isBackSprite ? -1 : 1) * offset;
 	};
@@ -6963,10 +6978,22 @@ var Battle = (function () {
 		if (this.p1) {
 			this.p1.updateStatbar(null, true, true);
 			this.p1.updateSidebar();
+			for (var i = 0; i < this.p1.pokemon.length; i++) {
+				var sprite = this.p1.pokemon[i].sprite;
+				if (sprite && this.p1.active.indexOf(this.p1.pokemon[i]) < 0) {
+					sprite.forceReset();
+				}
+			}
 		}
 		if (this.p2) {
 			this.p2.updateStatbar(null, true, true);
 			this.p2.updateSidebar();
+			for (var i = 0; i < this.p2.pokemon.length; i++) {
+				var sprite = this.p2.pokemon[i].sprite;
+				if (sprite && this.p2.active.indexOf(this.p2.pokemon[i]) < 0) {
+					sprite.forceReset();
+				}
+			}
 		}
 		this.updateWeather(undefined, true);
 		if (this.fastForwardWillScroll) {
