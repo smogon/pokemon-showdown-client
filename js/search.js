@@ -1172,7 +1172,17 @@
 
 		// number
 		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
-		buf += '<span class="col numcol">' + (this.gen >= 7 ? pokemon.tier || (pokemon.baseSpecies ? Tools.getTemplate(pokemon.baseSpecies).tier : 'Illegal') : pokemon.num) + '</span> ';
+		var tier;
+		if (this.gen < 7) {
+			tier = pokemon.num;
+		} else if (pokemon.tier) {
+			tier = pokemon.tier;
+		} else if (pokemon.species.slice(-6) === '-Totem') {
+			tier = Tools.getTemplate(pokemon.species.slice(0, -6)).tier;
+		} else {
+			tier = Tools.getTemplate(pokemon.baseSpecies).tier;
+		}
+		buf += '<span class="col numcol">' + tier + '</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
