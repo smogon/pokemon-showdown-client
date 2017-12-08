@@ -6443,7 +6443,7 @@ var Battle = (function () {
 			for (var i in kwargs) args[1] += '[' + i + '] ' + kwargs[i];
 			this.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
 			this.tier = args[1];
-			if (this.tier === 'Random Battle') {
+			if (this.tier.endsWith('Random Battle')) {
 				this.speciesClause = true;
 			}
 			break;
