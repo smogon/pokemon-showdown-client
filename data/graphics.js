@@ -13790,7 +13790,7 @@ var BattleMoveAnims = {
 					opacity: 0,
 					time: 700
 				}, 'ballistic2');
-					battle.showEffect('rock3', {
+				battle.showEffect('rock3', {
 					x: defender.x,
 					y: defender.y - 35,
 					z: defender.z,
