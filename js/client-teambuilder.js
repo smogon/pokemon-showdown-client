@@ -398,7 +398,7 @@
 					// support dragging and dropping buttons.
 					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + Tools.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil"></i></button><button name="newTop" value="' + i + '"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i></button></li>';
+					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="newTop" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
 				}
 				if (!atLeastOne) {
 					if (filterFolder) {
@@ -708,7 +708,7 @@
 			var newTeam;
 			if (orig) {
 				newTeam = {
-					name: 'Copy of  ' + orig.name,
+					name: 'Copy of ' + orig.name,
 					format: orig.format,
 					team: orig.team,
 					folder: orig.folder,
