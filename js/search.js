@@ -146,6 +146,7 @@
 		// 1 - normal pass: start at i and stop when results no longer start with query
 		// 2 - alias pass: like normal, but output aliases instead of non-alias results
 		// 3 - fuzzy match pass: start at i and stop when you have two results
+		// 4 - exact pass: like normal, but stop at i
 
 		// By doing an alias pass after the normal pass, we ensure that
 		// mid-word matches only display after start matches.
@@ -164,9 +165,8 @@
 		if (query in BattleAliases) {
 			if (query === 'sub' || toId(BattleAliases[query]).slice(0, query.length) !== query) {
 				queryAlias = toId(BattleAliases[query]);
-				if (queryAlias.slice(0, 11) !== 'hiddenpower') {
-					searchPasses.unshift([1, Search.getClosest(queryAlias), queryAlias]);
-				}
+				var aliasPassType = (queryAlias === 'hiddenpower' ? 4 : 1);
+				searchPasses.unshift([aliasPassType, Search.getClosest(queryAlias), queryAlias]);
 			}
 			this.exactMatch = true;
 		}
@@ -229,6 +229,12 @@
 					continue;
 				}
 				nearMatch = true;
+			} else if (passType === 4) {
+				// exact pass; stop after 1 result
+				if (count >= 1) {
+					passType = 0;
+					continue;
+				}
 			} else if (id.substr(0, query.length) !== query) {
 				// regular pass, time to move onto our next match
 				passType = 0;
