@@ -1422,9 +1422,8 @@
 				}
 				this.curRoom = window.room = room;
 				this.updateLayout();
-				if (this.curRoom.id === id) {
+				if (this.curRoom.id === id && room.type !== 'html') {
 					this.fragment = id;
-					this.navigate(id);
 					this.updateTitle(this.curRoom);
 				}
 			}
@@ -1453,7 +1452,7 @@
 			}
 			this.curRoom = room;
 			this.updateLayout();
-			if (this.curRoom.id === id) this.navigate(id);
+			if (this.curRoom.id === id && room.type !== 'html') this.navigate(id);
 
 			room.focus();
 			return;
