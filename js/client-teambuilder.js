@@ -398,7 +398,7 @@
 					// support dragging and dropping buttons.
 					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + Tools.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil"></i>Edit</button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i>Delete</button></li>';
+					buf += '</small></div><div class="team-tools"><button name="edit" value="' + i + '"><i class="fa fa-pencil"></i>Edit</button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i>Delete</button><button name="clone" value="' + i + '"><i class="fa fa-files-o"></i>Clone</button></li></div></li>';
 				}
 				if (!atLeastOne) {
 					if (filterFolder) {
@@ -622,6 +622,19 @@
 		reloadTeamsFolder: function () {
 			Storage.nwLoadTeams();
 		},
+
+		clone: function (i) {
+			var newTeam = {
+				name: " Clone of " + teams[i].name,
+				format: teams[i].format,
+				team: teams[i].team,
+				folder: teams[i].folder,
+				iconCache: teams[i].iconCache
+			};
+			teams.unshift(newTeam);
+			this.edit(0);
+		},
+
 		edit: function (i) {
 			this.teamScrollPos = this.$('.teampane').scrollTop();
 			if (i && i.currentTarget) {
