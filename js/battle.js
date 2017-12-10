@@ -4370,6 +4370,11 @@ var Battle = (function () {
 				this.hasPreMoveMessage = true;
 				break;
 
+			case '-zbroken':
+				var poke = this.getPokemon(args[1]);
+				actions += "" + poke.getName() + " couldn't fully protect itself and got hurt!";
+				break;
+
 			case '-prepare':
 				var poke = this.getPokemon(args[1]);
 				var move = Tools.getMove(args[2]);
