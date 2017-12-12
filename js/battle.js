@@ -794,6 +794,8 @@ var Sprite = (function () {
 		// `elem.animate({opacity: 0}, 1000)`.
 		// They literally all do nothing, and the element retains
 		// a style attribute containing `display: inline-block` and `opacity: 1`
+		// Only forcibly removing the element from the DOM actually makes it
+		// disappear, so that's what we do.
 		if (this.elem) {
 			this.elem.remove();
 			this.battle.spriteElems[this.siden].append('<img src="' + this.sp.url + '" style="display:none;position:absolute"' + (this.sp.pixelated ? ' class="pixelated"' : '') + ' />');
@@ -1204,7 +1206,7 @@ var Sprite = (function () {
 	Sprite.prototype.animUnsummon = function (instant) {
 		this.removeSub();
 		if (this.battle.fastForward || instant) {
-			this.elem.css('display', 'none');
+			this.elem.hide();
 			return;
 		}
 		if (this.battle.gen <= 4) {
