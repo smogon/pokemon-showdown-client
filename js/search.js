@@ -678,7 +678,7 @@
 				} else if (filters[i][0] === 'pokemon') {
 					var learned = false;
 					var speciesid = filters[i][1];
-					var learnsetid = this.nextLearnsetid(id);
+					var learnsetid = this.nextLearnsetid(speciesid);
 					while (learnsetid) {
 						var learnset = BattleTeambuilderTable.learnsets[learnsetid];
 						if (learnset && (id in learnset)) {
