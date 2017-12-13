@@ -719,7 +719,7 @@
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
-			if (!window.BattleFormats[format].team && !team) {
+			if (format.indexOf('@@@') === -1 && !window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 				return;
 			}
@@ -804,6 +804,8 @@
 				return '<button class="select teamselect" name="team" disabled><em>Loading...</em></button>';
 			}
 			if (!formatid) formatid = this.curFormat;
+			var atIndex = formatid.indexOf('@@@');
+			if (atIndex >= 0) formatid = formatid.slice(0, atIndex);
 			if (!window.BattleFormats[formatid]) {
 				return '<button class="select teamselect" name="team" disabled></button>';
 			}
