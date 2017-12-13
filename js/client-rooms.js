@@ -60,7 +60,7 @@
 		},
 		renderRoomBtn: function (roomData) {
 			var id = toId(roomData.title);
-			return '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc || '') + (roomData.subRooms.length ? '<br/><strong>Subrooms: ' + Tools.escapeHTML(roomData.subRooms.join(', ')) + '</strong>' : '') + '</small></a></div>';
+			return '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc || '') + (roomData.subRooms && roomData.subRooms.length ? '<br/><strong>Subrooms: ' + Tools.escapeHTML(roomData.subRooms.join(', ')) + '</strong>' : '') + '</small></a></div>';
 		},
 		compareRooms: function (roomA, roomB) {
 			return roomB.userCount - roomA.userCount;
