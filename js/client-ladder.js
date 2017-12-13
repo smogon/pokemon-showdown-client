@@ -20,6 +20,12 @@
 				this.addRow(log[i]);
 			}
 		},
+		join: function () {
+			app.send('/join ' + this.id);
+		},
+		leave: function () {
+			app.send('/leave ' + this.id);
+		},
 		addRow: function (line) {
 			var name, name2, room, action, silent, oldid;
 			if (!line || typeof line !== 'string') return;
@@ -83,6 +89,8 @@
 			}, this);
 		},
 		curFormat: '',
+		join: function () {},
+		leave: function () {},
 		update: function () {
 			if (!this.curFormat) {
 				var buf = '<div class="ladder pad"><p>See a user\'s ranking with <code>/ranking <em>username</em></code></p>' +
