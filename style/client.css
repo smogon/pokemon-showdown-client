@@ -81,7 +81,7 @@ hr {
 	border-right: 0;
 }
 
-button {
+button, summary {
 	cursor: pointer;
 }
 button:disabled {
