@@ -6484,9 +6484,16 @@ var Battle = (function () {
 			this.rated = true;
 			this.log('<div class="rated"><strong>' + (Tools.escapeHTML(args[1]) || 'Rated battle') + '</strong></div>');
 			break;
+		case ':':
+			break;
 		case 'chat':
 		case 'c':
+		case 'c:':
 			var pipeIndex = args[1].indexOf('|');
+			if (args[0] === 'c:') {
+				args[1] = args[1].slice(pipeIndex + 1);
+				pipeIndex = args[1].indexOf('|');
+			}
 			var name = args[1].slice(0, pipeIndex);
 			var rank = name.charAt(0);
 			if (this.ignoreSpects && (rank === ' ' || rank === '+')) break;
@@ -6779,7 +6786,7 @@ var Battle = (function () {
 			args = str.substr(1).split('|');
 		}
 		switch (args[0]) {
-		case 'c': case 'chat':
+		case 'c': case 'c:': case 'chat':
 		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
 		case 'inactive': case 'inactiveoff': case 'warning':
 		case 'fieldhtml': case 'controlshtml':
