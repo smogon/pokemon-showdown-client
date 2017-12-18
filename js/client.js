@@ -831,6 +831,8 @@
 					this.once('init:choosename', function () {
 						self.send('/join ' + roomid);
 					});
+				} else if (data === 'rename') {
+					this.renameRoom(roomid, errormessage);
 				} else if (data !== 'namepending') {
 					if (isdeinit) { // deinit
 						if (this.rooms[roomid] && this.rooms[roomid].type === 'chat') {
@@ -1628,25 +1630,32 @@
 			if (room.requestLeave && !room.requestLeave(e)) return false;
 			return this.removeRoom(id);
 		},
+		renameRoom: function (id, newid) {
+			var room = this.rooms[id];
+			if (!room) return false;
+			if (this.rooms[newid]) return false;
+			this.rooms[newid] = room;
+			room.id = newid;
+			delete this.rooms[id];
+			this.updateLayout();
+		},
 		removeRoom: function (id, alreadyLeft) {
 			var room = this.rooms[id];
-			if (room) {
-				if (room === this.curRoom) this.focusRoom('');
-				delete this.rooms[id];
-				var index = this.roomList.indexOf(room);
-				if (index >= 0) this.roomList.splice(index, 1);
-				index = this.sideRoomList.indexOf(room);
-				if (index >= 0) this.sideRoomList.splice(index, 1);
-				room.destroy(alreadyLeft);
-				if (room === this.sideRoom) {
-					this.sideRoom = null;
-					this.curSideRoom = null;
-					this.updateSideRoom();
-				}
-				this.updateLayout();
-				return true;
+			if (!room) return false;
+			if (room === this.curRoom) this.focusRoom('');
+			delete this.rooms[id];
+			var index = this.roomList.indexOf(room);
+			if (index >= 0) this.roomList.splice(index, 1);
+			index = this.sideRoomList.indexOf(room);
+			if (index >= 0) this.sideRoomList.splice(index, 1);
+			room.destroy(alreadyLeft);
+			if (room === this.sideRoom) {
+				this.sideRoom = null;
+				this.curSideRoom = null;
+				this.updateSideRoom();
 			}
-			return false;
+			this.updateLayout();
+			return true;
 		},
 		moveRoomBy: function (room, amount) {
 			var index = this.roomList.indexOf(room);
