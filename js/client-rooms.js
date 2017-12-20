@@ -109,13 +109,13 @@
 		title: 'Battles',
 		isSideRoom: true,
 		events: {
-			'change input[name=elofilter]': 'refresh'
+			'change select[name=elofilter]': 'refresh',
 		},
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button><div class="roomlist"><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <span style="' + Tools.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="picon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span></p>';
 
-			buf += '<p><label class="label">Format:</label><button class="select formatselect" name="selectFormat">(All formats)</button></p> <label><input type="checkbox" name="elofilter" value="1300" /> Elo 1300+</label>';
+			buf += '<p><label class="label">Format:</label><button class="select formatselect" name="selectFormat">(All formats)</button></p> <label>Elo filter: <select name="elofilter"><option value="none">(none)</option><option value="1300">1300+</option><option value="1400">1400+</option><option value="1500">1500+</option><option value="1600">1600+</option><option value="1700">1700+</option></select>';
 			buf += '<div class="list"><p>Loading...</p></div>';
 			buf += '</div></div>';
 
@@ -200,8 +200,10 @@
 		},
 		refresh: function () {
 			var elofilter = '';
-			var $checkbox = this.$('input[name=elofilter]');
-			if ($checkbox.is(':checked')) elofilter = ', ' + $checkbox.val();
+			var $optionFilterValue = this.$('select[name=elofilter]').val();
+
+			if ($optionFilterValue !== 'none') elofilter = ', ' + $optionFilterValue;
+
 			app.send('/cmd roomlist ' + this.format + elofilter);
 
 			this.lastUpdate = new Date().getTime();
