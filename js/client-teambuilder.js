@@ -45,6 +45,8 @@
 			'input .statform input[type=number].numform': 'statChange',
 			'change select[name=nature]': 'natureChange',
 			'change select[name=ivspread]': 'ivSpreadChange',
+			'change .evslider': 'statSlide',
+			'input .evslider': 'statSlide',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -83,7 +85,6 @@
 				}
 				this.exportMode = false;
 			} else if (this.curSet) {
-				app.clearGlobalListeners();
 				this.curSet = null;
 				Storage.saveTeam(this.curTeam);
 			} else if (this.curTeam) {
@@ -1631,7 +1632,6 @@
 		},
 		updateChart: function (pokemonChanged, wasIncomplete) {
 			var type = this.curChartType;
-			app.clearGlobalListeners();
 			if (type === 'stats') {
 				this.search.qType = null;
 				this.search.qName = null;
@@ -1906,7 +1906,7 @@
 			buf += '<div class="col evslidercol"><div></div>';
 			for (var i in stats) {
 				if (i === 'spd' && this.curTeam.gen === 1) continue;
-				buf += '<div><input type="slider" name="evslider-' + i + '" value="' + Tools.escapeHTML(set.evs[i] === undefined ? (this.curTeam.gen > 2 ? '0' : '252') : '' + set.evs[i]) + '" min="0" max="252" step="4" class="evslider" /></div>';
+				buf += '<div><input type="range" name="evslider-' + i + '" value="' + Tools.escapeHTML(set.evs[i] === undefined ? (this.curTeam.gen > 2 ? '0' : '252') : '' + set.evs[i]) + '" min="0" max="252" step="4" class="evslider" tabindex="-1" aria-hidden="true" /></div>';
 			}
 			buf += '</div>';
 
@@ -2064,30 +2064,12 @@
 
 			buf += '</div>';
 			this.$chart.html(buf);
-			var self = this;
-			this.suppressSliderCallback = true;
-			app.clearGlobalListeners();
-			this.$chart.find('.evslider').slider({
-				from: 0,
-				to: 252,
-				step: 4,
-				skin: 'round_plastic',
-				onstatechange: function (val) {
-					if (!self.suppressSliderCallback) self.statSlide(val, this);
-				},
-				callback: function () {
-					self.save();
-				}
-			});
-			this.suppressSliderCallback = false;
 		},
 		setStatFormGuesses: function () {
 			this.updateStatForm(true);
 		},
 		setSlider: function (stat, val) {
-			this.suppressSliderCallback = true;
-			this.$chart.find('input[name=evslider-' + stat + ']').slider('value', val || 0);
-			this.suppressSliderCallback = false;
+			this.$chart.find('input[name=evslider-' + stat + ']').val(val || 0);
 		},
 		updateNature: function () {
 			var set = this.curSet;
@@ -2218,11 +2200,12 @@
 				}
 			}
 		},
-		statSlide: function (val, slider) {
-			var stat = slider.inputNode[0].name.substr(9);
+		statSlide: function (e) {
+			var slider = e.currentTarget;
+			var stat = slider.name.substr(9);
 			var set = this.curSet;
 			if (!set) return;
-			val = +val;
+			var val = +slider.value;
 			var originalVal = val;
 			var result = this.getStat(stat, set, val);
 			while (val && this.getStat(stat, set, val - 4) == result) val -= 4;
@@ -2245,7 +2228,7 @@
 
 			// Don't try this at home.
 			// I am a trained professional.
-			if (val !== originalVal) slider.o.pointers[0].set(val);
+			if (val !== originalVal) slider.value = val;
 
 			if (!set.evs) set.evs = {};
 			if (this.ignoreEVLimits) {
@@ -3360,10 +3343,6 @@
 			if (!format) return 7;
 			if (format.substr(0, 3) !== 'gen') return 6;
 			return parseInt(format.substr(3, 1), 10) || 6;
-		},
-		destroy: function () {
-			app.clearGlobalListeners();
-			Room.prototype.destroy.call(this);
 		}
 	});
 
