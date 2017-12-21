@@ -60,7 +60,17 @@
 		},
 		renderRoomBtn: function (roomData) {
 			var id = toId(roomData.title);
-			return '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc || '') + (roomData.subRooms && roomData.subRooms.length ? '<br/><strong>Subrooms: ' + Tools.escapeHTML(roomData.subRooms.join(', ')) + '</strong>' : '') + '</small></a></div>';
+			var buf = '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc || '');
+			if (roomData.subRooms && roomData.subRooms.length) {
+				buf += '<br/><i class="fa fa-level-up fa-rotate-90"></i> Subrooms: <strong>';
+				for (var i = 0; i < roomData.subRooms.length; i++) {
+					if (i) buf += ', ';
+					buf += '<i class="fa fa-comment-o"></i> ' + Tools.escapeHTML(roomData.subRooms[i]);
+				}
+				buf += '</strong>';
+			}
+			buf += '</small></a></div>';
+			return buf;
 		},
 		compareRooms: function (roomA, roomB) {
 			return roomB.userCount - roomA.userCount;
