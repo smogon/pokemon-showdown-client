@@ -66,6 +66,18 @@
 				}
 				this.notifyOnce(row[1], row.slice(2).join('|'), 'highlight');
 				break;
+
+			case 'tempnotify':
+				if (!this.notifications && !Tools.prefs('mute') && Tools.prefs('notifvolume')) {
+					soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+				}
+				this.notify(row[2], row[3], row[1]);
+				break;
+
+			case 'tempnotifyoff':
+				this.closeNotification(row[1]);
+				break;
+
 			}
 		}
 	});
