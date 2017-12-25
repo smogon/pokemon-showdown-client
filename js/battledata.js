@@ -1128,6 +1128,7 @@ var Tools = {
 		var spriteData = {
 			w: 96,
 			h: 96,
+			y: 0,
 			url: Tools.resourcePrefix + 'sprites/',
 			pixelated: true,
 			isBackSprite: false,
@@ -1146,37 +1147,28 @@ var Tools = {
 		}
 
 		// Decide what gen sprites to use.
-		var genNum = Math.max(options.gen, pokemon.gen);
-		if (Tools.prefs('nopastgens')) genNum = 6;
-		if (Tools.prefs('bwgfx') && genNum >= 6) genNum = 5;
-		if (genNum < 5 || pokemon.isTotem) {
-			if (pokemon.isTotem) {
-				spriteData.w *= 1.5;
-				spriteData.h *= 1.5;
-				spriteData.y = -11;
-			} else if (!spriteData.isBackSprite) {
-				spriteData.w *= 2;
-				spriteData.h *= 2;
-				spriteData.y = -16;
-			} else {
-				spriteData.w *= 2 / 1.5;
-				spriteData.h *= 2 / 1.5;
-				spriteData.y = -11;
-			}
-			if (genNum <= 2) spriteData.y += 2;
-		}
+		var fieldGenNum = options.gen;
+		if (Tools.prefs('nopastgens')) fieldGenNum = 6;
+		if (Tools.prefs('bwgfx') && fieldGenNum >= 6) fieldGenNum = 5;
+		var genNum = Math.max(fieldGenNum, Math.min(pokemon.gen, 5));
 		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy', 7:'xy'}[genNum];
 
 		var animationData = null;
-		if (window.BattlePokemonSprites) {
-			animationData = BattlePokemonSprites[pokemon.speciesid] || BattlePokemonSprites[toId(name)];
+		var miscData = null;
+		var speciesid = pokemon.speciesid;
+		if (pokemon.isTotem) speciesid = toId(name);
+		if (gen === 'xy' && window.BattlePokemonSprites) {
+			animationData = BattlePokemonSprites[speciesid];
 		}
 		if (gen === 'bw' && window.BattlePokemonSpritesBW) {
-			animationData = BattlePokemonSpritesBW[pokemon.speciesid];
+			animationData = BattlePokemonSpritesBW[speciesid];
 		}
+		if (window.BattlePokemonSprites) miscData = BattlePokemonSprites[speciesid];
+		if (!miscData && window.BattlePokemonSpritesBW) miscData = BattlePokemonSpritesBW[speciesid];
 		if (!animationData) animationData = {};
+		if (!miscData) miscData = {};
 
-		if (animationData.num > 0) {
+		if (miscData.num > 0) {
 			spriteData.cryurl = 'audio/cries/' + toId(pokemon.baseSpecies);
 			var formeid = pokemon.formeid;
 			if (pokemon.isMega || formeid && (formeid === '-sky' || formeid === '-therian' || formeid === '-primal' || formeid === '-eternal' || pokemon.baseSpecies === 'Kyurem' || formeid === '-super' || formeid === '-unbound' || formeid === '-midnight' || formeid === '-school' || pokemon.baseSpecies === 'Oricorio' || pokemon.baseSpecies === 'Zygarde')) {
@@ -1194,41 +1186,53 @@ var Tools = {
 			return spriteData;
 		}
 
-		// Gender differences don't exist prior to Gen 4
-		if (genNum >= 4) {
-			if (animationData[facing]) {
-				if (animationData[facing + 'f'] && pokemon.gender === 'F') {
-					name += '-f';
-					facing += 'f';
-				}
-				if (!Tools.prefs('noanim') && genNum >= 5) {
-					dir = gen + 'ani' + dir;
+		if (animationData[facing + 'f'] && pokemon.gender === 'F') facing += 'f';
+		var allowAnim = !Tools.prefs('noanim');
+		if (allowAnim && genNum >= 6) spriteData.pixelated = false;
+		if (allowAnim && animationData[facing] && genNum >= 5) {
+			if (facing.slice(-1) === 'f') name += '-f';
+			dir = gen + 'ani' + dir;
 
-					spriteData.w = animationData[facing].w;
-					spriteData.h = animationData[facing].h;
-					if (pokemon.isTotem) {
-						spriteData.w *= 1.5;
-						spriteData.h *= 1.5;
-						spriteData.y = -11;
-					}
-					spriteData.url += dir + '/' + name + '.gif';
-					if (genNum >= 6) spriteData.pixelated = false;
-					return spriteData;
-				}
-			} else if (animationData['frontf'] && pokemon.gender === 'F') {
+			spriteData.w = animationData[facing].w;
+			spriteData.h = animationData[facing].h;
+			spriteData.url += dir + '/' + name + '.gif';
+		} else {
+			// There is no entry or enough data in pokedex-mini.js
+			// Handle these in case-by-case basis; either using BW sprites or matching the played gen.
+			if (gen === 'xy') gen = 'bw';
+			dir = gen + dir;
+
+			// Gender differences don't exist prior to Gen 4,
+			// so there are no sprites for it
+			if (genNum >= 4 && miscData['frontf'] && pokemon.gender === 'F') {
 				name += '-f';
 			}
+
+			spriteData.url += dir + '/' + name + '.png';
 		}
 
-		// There is no entry or enough data in pokedex-mini.js
-		// Handle these in case-by-case basis; either using BW sprites or matching the played gen.
-		if (pokemon.speciesid !== 'substitute') {
-			if (pokemon.tier === 'CAP') gen = 'bw';
-			if (gen === 'xy') gen = 'bw';
+		if (!options.noScale) {
+			if (fieldGenNum > 5) {
+				// no scaling
+			} else if (!spriteData.isBackSprite || fieldGenNum === 5) {
+				spriteData.w *= 2;
+				spriteData.h *= 2;
+				spriteData.y += -16;
+			} else {
+				// backsprites are multiplied 1.5x by the 3D engine
+				spriteData.w *= 2 / 1.5;
+				spriteData.h *= 2 / 1.5;
+				spriteData.y += -11;
+			}
+			if (fieldGenNum === 5) spriteData.y = -35;
+			if (fieldGenNum === 5 && spriteData.isBackSprite) spriteData.y += 40;
+			if (genNum <= 2) spriteData.y += 2;
 		}
-		dir = gen + dir;
-
-		spriteData.url += dir + '/' + name + '.png';
+		if (pokemon.isTotem && !options.noScale) {
+			spriteData.w *= 1.5;
+			spriteData.h *= 1.5;
+			spriteData.y += -11;
+		}
 
 		return spriteData;
 	},
