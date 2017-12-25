@@ -468,6 +468,10 @@ var Tools = {
 	},
 
 	escapeFormat: function (formatid) {
+		var atIndex = formatid.indexOf('@@@');
+		if (atIndex >= 0) {
+			return Tools.escapeFormat(formatid.slice(0, atIndex)) + '<br />Custom rules: ' + Tools.escapeHTML(formatid.slice(atIndex + 3));
+		}
 		if (window.BattleFormats && BattleFormats[formatid]) {
 			return Tools.escapeHTML(BattleFormats[formatid].name);
 		}
