@@ -664,7 +664,7 @@ var Tools = {
 			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
 				return;
 			}
-			var targetIdx, srcIdx;
+			var targetIdx = 0, srcIdx;
 			if (tagName === 'a') {
 				// Special handling of <a> tags.
 
@@ -728,13 +728,22 @@ var Tools = {
 				}
 			}
 
+			if (attribs[targetIdx] === 'replace') {
+				targetIdx = -targetIdx;
+			}
 			attribs = html.sanitizeAttribs(tagName, attribs, uriRewriter);
+			if (targetIdx < 0) {
+				targetIdx = -targetIdx;
+				attribs[targetIdx - 1] = 'data-target';
+				attribs[targetIdx] = 'replace';
+				targetIdx = 0;
+			}
 
 			if (dataUri && tagName === 'img') {
 				attribs[srcIdx + 1] = dataUri;
 			}
 			if (tagName === 'a' || tagName === 'form') {
-				if (targetIdx !== undefined) {
+				if (targetIdx) {
 					attribs[targetIdx] = '_blank';
 				} else {
 					attribs.push('target');
