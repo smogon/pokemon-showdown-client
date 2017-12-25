@@ -1633,9 +1633,13 @@
 		renameRoom: function (id, newid) {
 			var room = this.rooms[id];
 			if (!room) return false;
-			if (this.rooms[newid]) return false;
+			if (this.rooms[newid]) {
+				this.removeRoom(id, true);
+				return false;
+			}
 			this.rooms[newid] = room;
 			room.id = newid;
+			room.$el[0].id = 'room-' + newid;
 			delete this.rooms[id];
 			this.updateLayout();
 		},
