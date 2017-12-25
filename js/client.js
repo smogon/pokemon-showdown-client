@@ -1234,6 +1234,17 @@
 						var target = this.pathname.substr(1);
 						var shortLinks = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure)$/;
 						if (target.indexOf('/') < 0 && target.indexOf('.') < 0 && !shortLinks.test(target)) {
+							if (this.dataset && this.dataset.target === 'replace') {
+								var roomEl = $(this).closest('.ps-room')[0];
+								if (roomEl && roomEl.id) {
+									var roomid = roomEl.id.slice(5);
+									window.app.renameRoom(roomid, target);
+									window.app.rooms[target].join();
+									e.preventDefault();
+									e.stopPropagation();
+									e.stopImmediatePropagation();
+								}
+							}
 							window.app.tryJoinRoom(target);
 							e.preventDefault();
 							e.stopPropagation();
