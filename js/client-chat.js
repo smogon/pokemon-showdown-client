@@ -1255,10 +1255,23 @@
 					break;
 
 				case 'notify':
+					if (row[3] && !this.getHighlight(row[3])) return;
 					if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
 					}
-					this.notifyOnce(row[1], row.slice(2).join('|'), 'highlight');
+					this.notifyOnce(row[1], row[2], 'highlight');
+					break;
+
+				case 'tempnotify':
+					if (row[4] && !this.getHighlight(row[4])) return;
+					if (!this.notifications && !Tools.prefs('mute') && Tools.prefs('notifvolume')) {
+						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+					}
+					this.notify(row[2], row[3], row[1]);
+					break;
+
+				case 'tempnotifyoff':
+					this.closeNotification(row[1]);
 					break;
 
 				case 'error':
