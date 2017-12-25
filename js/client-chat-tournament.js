@@ -222,8 +222,8 @@
 			this.$teamSelect.children().attr('name', 'tournamentButton');
 			this.$teamSelect.show();
 			var val = this.$teamSelect.children().val();
-			this.$validate.toggle(val !== 'random');
-			this.$validate.toggleClass('disabled', !val || !val.length);
+			// this.$validate.toggle(val !== 'random');
+			this.$validate.toggleClass('disabled', !val || !val.length || val === 'random');
 		};
 
 		TournamentBox.prototype.isBoxVisible = function () {
