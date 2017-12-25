@@ -278,6 +278,8 @@ var BattleStatIDs = {
 	SAtk: 'spa',
 	SpAtk: 'spa',
 	spa: 'spa',
+	spc: 'spa',
+	Spc: 'spa',
 	SpD: 'spd',
 	SDef: 'spd',
 	SpDef: 'spd',
