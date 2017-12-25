@@ -1045,27 +1045,43 @@ var Sprite = (function () {
 		}
 	};
 	Sprite.prototype.recalculatePos = function (slot) {
-		if (!Tools.prefs('nopastgens') && this.battle.gen <= 4 && this.battle.gameType === 'doubles') {
+		var moreActive = 0;
+		if (this.battle.gameType === 'doubles') moreActive = 1;
+		if (this.battle.gameType === 'triples') moreActive = 2;
+		if (!Tools.prefs('nopastgens') && this.battle.gen <= 4 && moreActive) {
 			this.x = (slot - 0.52) * (this.isBackSprite ? -1 : 1) * -55;
 			this.y = (this.isBackSprite ? -1 : 1) + 1;
 			this.statbarOffset = 0;
 			if (!this.isBackSprite) this.statbarOffset = 30 * slot;
 			if (this.isBackSprite) this.statbarOffset = -28 * slot;
 		} else {
-			this.x = slot * (this.isBackSprite ? -1 : 1) * -50;
-			this.y = slot * (this.isBackSprite ? -1 : 1) * 10;
-			this.statbarOffset = 0;
-			if (!this.isBackSprite) this.statbarOffset = 17 * slot;
-			if (this.isBackSprite) this.statbarOffset = -7 * slot;
-		}
-		if (this.sp.y < 0) {
-			if (this.battle.gen <= 2) {
-				this.statbarOffset += this.isBackSprite ? 1 : 20;
-			} else if (this.battle.gen <= 3) {
-				this.statbarOffset += this.isBackSprite ? 5 : 30;
-			} else {
-				this.statbarOffset += this.isBackSprite ? 20 : 30;
+			switch (moreActive) {
+			case 0:
+				this.x = 0;
+				break;
+			case 1:
+				if (this.sp.pixelated) {
+					this.x = (slot * -100 + 18) * (this.isBackSprite ? -1 : 1);
+				} else {
+					this.x = (slot * -75 + 18) * (this.isBackSprite ? -1 : 1);
+				}
+				break;
+			case 2:
+				this.x = (slot * -70 + 20) * (this.isBackSprite ? -1 : 1);
+				break;
 			}
+			this.y = (slot * 10) * (this.isBackSprite ? -1 : 1);
+			if (!this.isBackSprite) this.statbarOffset = 17 * slot;
+			if (!this.isBackSprite && !moreActive && this.sp.pixelated) this.statbarOffset = 15;
+			if (this.isBackSprite) this.statbarOffset = -7 * slot;
+			if (!this.isBackSprite && moreActive == 2) this.statbarOffset = 14 * slot - 10;
+		}
+		if (this.battle.gen <= 2) {
+			this.statbarOffset += this.isBackSprite ? 1 : 20;
+		} else if (this.battle.gen <= 3) {
+			this.statbarOffset += this.isBackSprite ? 5 : 30;
+		} else {
+			this.statbarOffset += this.isBackSprite ? 20 : 30;
 		}
 	};
 	Sprite.prototype.animSummon = function (slot, instant) {
@@ -6390,7 +6406,8 @@ var Battle = (function () {
 
 				var spriteData = Tools.getSpriteData(pokemon, k, {
 					afd: this.tier === "[Seasonal] Fools Festival",
-					gen: this.gen
+					gen: this.gen,
+					noScale: true
 				});
 				var y = 0;
 				var x = 0;
