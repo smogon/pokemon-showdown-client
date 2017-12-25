@@ -45,7 +45,7 @@
 			'input .statform input[type=number].numform': 'statChange',
 			'change select[name=nature]': 'natureChange',
 			'change select[name=ivspread]': 'ivSpreadChange',
-			'change .evslider': 'statSlide',
+			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
 
 			// teambuilder events
@@ -2245,6 +2245,10 @@
 			this.$('input[name=stat-' + stat + ']').val(val);
 
 			this.updateStatGraph();
+		},
+		statSlided: function (e) {
+			this.statSlide(e);
+			this.save();
 		},
 		natureChange: function (e) {
 			var set = this.curSet;
