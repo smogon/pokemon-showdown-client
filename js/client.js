@@ -147,7 +147,7 @@
 			avatar: 0
 		},
 		initialize: function () {
-			app.clearGlobalListeners();
+			app.addGlobalListeners();
 			app.on('response:userdetails', function (data) {
 				if (data.userid === this.get('userid')) {
 					this.set('avatar', data.avatar);
@@ -1221,7 +1221,7 @@
 			}
 			app.topbar.updateTabbar();
 		},
-		clearGlobalListeners: function () {
+		addGlobalListeners: function () {
 			$(document).on('click', 'a', function (e) {
 				if (this.className === 'closebutton') return; // handled elsewhere
 				if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
