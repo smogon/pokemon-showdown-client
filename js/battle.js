@@ -4468,15 +4468,24 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				var effect = Tools.getEffect(kwargs.from);
 				var ofpoke = this.getPokemon(kwargs.of);
-				poke.status = '';
+				var pokeName, pokeSideN;
+				if (poke) {
+					poke.status = '';
+					pokeName = poke.getName();
+					pokeSideN = poke.side.n;
+				} else {
+					var parseIdResult = this.parsePokemonId(args[1]);
+					pokeName = parseIdResult.name;
+					pokeSideN = parseIdResult.siden;
+				}
 
 				if (kwargs.silent) {
 					// do nothing
 				} else if (effect.id) {
 					switch (effect.id) {
 					case 'psychoshift':
-						actions += '' + poke.getName() + ' moved its status onto ' + ofpoke.getLowerName() + '!';
-						this.resultAnim(poke, 'Cured', 'good');
+						actions += '' + pokeName + ' moved its status onto ' + ofpoke.getLowerName() + '!';
+						if (poke) this.resultAnim(poke, 'Cured', 'good');
 						break;
 					case 'flamewheel':
 					case 'flareblitz':
@@ -4484,69 +4493,69 @@ var Battle = (function () {
 					case 'sacredfire':
 					case 'scald':
 					case 'steameruption':
-						this.resultAnim(poke, 'Thawed', 'good');
-						actions += "" + poke.getName() + "'s " + effect.name + " melted the ice!";
+						if (poke) this.resultAnim(poke, 'Thawed', 'good');
+						actions += "" + pokeName + "'s " + effect.name + " melted the ice!";
 						break;
 					case 'naturalcure':
-						actions += "(" + poke.getName() + "'s Natural Cure activated!)";
-						poke.markAbility('Natural Cure');
+						actions += "(" + pokeName + "'s Natural Cure activated!)";
+						if (poke) poke.markAbility('Natural Cure');
 						break;
 					default:
-						this.resultAnim(poke, 'Cured', 'good');
-						actions += "" + poke.getName() + "'s " + effect.name + " heals its status!";
+						if (poke) this.resultAnim(poke, 'Cured', 'good');
+						actions += "" + pokeName + "'s " + effect.name + " heals its status!";
 						break;
 					}
 				} else {
 					switch (args[2]) {
 					case 'brn':
-						this.resultAnim(poke, 'Burn cured', 'good');
+						if (poke) this.resultAnim(poke, 'Burn cured', 'good');
 						if (effect.effectType === 'Item') {
-							actions += "" + poke.getName() + "'s " + effect.name + " healed its burn!";
+							actions += "" + pokeName + "'s " + effect.name + " healed its burn!";
 							break;
 						}
-						if (poke.side.n === 0) actions += "" + poke.getName() + "'s burn was healed.";
-						else actions += "" + poke.getName() + " healed its burn!";
+						if (pokeSideN === 0) actions += "" + pokeName + "'s burn was healed.";
+						else actions += "" + pokeName + " healed its burn!";
 						break;
 					case 'tox':
-						poke.statusData.toxicTurns = 0;
+						if (poke) poke.statusData.toxicTurns = 0;
 						// falls through
 					case 'psn':
-						this.resultAnim(poke, 'Poison cured', 'good');
+						if (poke) this.resultAnim(poke, 'Poison cured', 'good');
 						if (effect.effectType === 'Item') {
-							actions += "" + poke.getName() + "'s " + effect.name + " cured its poison!";
+							actions += "" + pokeName + "'s " + effect.name + " cured its poison!";
 							break;
 						}
-						actions += "" + poke.getName() + " was cured of its poisoning.";
+						actions += "" + pokeName + " was cured of its poisoning.";
 						break;
 					case 'slp':
-						this.resultAnim(poke, 'Woke up', 'good');
-						poke.statusData.sleepTurns = 0;
+						if (poke) this.resultAnim(poke, 'Woke up', 'good');
+						if (poke) poke.statusData.sleepTurns = 0;
 						if (effect.effectType === 'Item') {
-							actions += "" + poke.getName() + "'s " + effect.name + " woke it up!";
+							actions += "" + pokeName + "'s " + effect.name + " woke it up!";
 							break;
 						}
-						actions += "" + poke.getName() + " woke up!";
+						actions += "" + pokeName + " woke up!";
 						break;
 					case 'par':
-						this.resultAnim(poke, 'Paralysis cured', 'good');
+						if (poke) this.resultAnim(poke, 'Paralysis cured', 'good');
 						if (effect.effectType === 'Item') {
-							actions += "" + poke.getName() + "'s " + effect.name + " cured its paralysis!";
+							actions += "" + pokeName + "'s " + effect.name + " cured its paralysis!";
 							break;
 						}
-						actions += "" + poke.getName() + " was cured of paralysis.";
+						actions += "" + pokeName + " was cured of paralysis.";
 						break;
 					case 'frz':
-						this.resultAnim(poke, 'Thawed', 'good');
+						if (poke) this.resultAnim(poke, 'Thawed', 'good');
 						if (effect.effectType === 'Item') {
-							actions += "" + poke.getName() + "'s " + effect.name + " defrosted it!";
+							actions += "" + pokeName + "'s " + effect.name + " defrosted it!";
 							break;
 						}
-						actions += "" + poke.getName() + " thawed out!";
+						actions += "" + pokeName + " thawed out!";
 						break;
 					default:
-						poke.removeVolatile('confusion');
-						this.resultAnim(poke, 'Cured', 'good');
-						actions += "" + poke.getName() + "'s status cleared!";
+						if (poke) poke.removeVolatile('confusion');
+						if (poke) this.resultAnim(poke, 'Cured', 'good');
+						actions += "" + pokeName + "'s status cleared!";
 					}
 				}
 				break;
@@ -6211,24 +6220,7 @@ var Battle = (function () {
 		}
 		return output;
 	};
-	Battle.prototype.getPokemon = function (pokemonid, details) {
-		var isNew = false; // if true, don't match any pokemon that already exists (for Team Preview)
-		var isSwitch = false; // if true, don't match an active, fainted, or immediately-previously switched-out pokemon
-		var isInactive = false; // if true, don't match an active pokemon
-		var createIfNotFound = false; // if true, create the pokemon if a match wasn't found
-
-		if (pokemonid === undefined || pokemonid === '??') return null;
-		if (pokemonid.substr(0, 5) === 'new: ') {
-			pokemonid = pokemonid.substr(5);
-			isNew = true;
-			createIfNotFound = true; // obviously
-		}
-		if (pokemonid.substr(0, 10) === 'switchin: ') {
-			pokemonid = pokemonid.substr(10);
-			isSwitch = true;
-			createIfNotFound = true;
-		}
-
+	Battle.prototype.parsePokemonId = function (pokemonid) {
 		var name = pokemonid;
 
 		var siden = -1;
@@ -6251,6 +6243,31 @@ var Battle = (function () {
 			name = name.substr(5);
 			pokemonid = 'p1: ' + name;
 		}
+		return { name: name, siden: siden, slot: slot, pokemonid: pokemonid };
+	};
+	Battle.prototype.getPokemon = function (pokemonid, details) {
+		var isNew = false; // if true, don't match any pokemon that already exists (for Team Preview)
+		var isSwitch = false; // if true, don't match an active, fainted, or immediately-previously switched-out pokemon
+		var isInactive = false; // if true, don't match an active pokemon
+		var createIfNotFound = false; // if true, create the pokemon if a match wasn't found
+
+		if (pokemonid === undefined || pokemonid === '??') return null;
+		if (pokemonid.substr(0, 5) === 'new: ') {
+			pokemonid = pokemonid.substr(5);
+			isNew = true;
+			createIfNotFound = true; // obviously
+		}
+		if (pokemonid.substr(0, 10) === 'switchin: ') {
+			pokemonid = pokemonid.substr(10);
+			isSwitch = true;
+			createIfNotFound = true;
+		}
+		var parseIdResult = this.parsePokemonId(pokemonid);
+		var name, siden, slot;
+		name = parseIdResult.name;
+		siden = parseIdResult.siden;
+		slot = parseIdResult.slot;
+		pokemonid = parseIdResult.pokemonid;
 
 		if (!details) {
 			if (siden < 0) return null;
