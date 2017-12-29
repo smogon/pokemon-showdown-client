@@ -6243,7 +6243,7 @@ var Battle = (function () {
 			name = name.substr(5);
 			pokemonid = 'p1: ' + name;
 		}
-		return { name: name, siden: siden, slot: slot, pokemonid: pokemonid };
+		return {name: name, siden: siden, slot: slot, pokemonid: pokemonid};
 	};
 	Battle.prototype.getPokemon = function (pokemonid, details) {
 		var isNew = false; // if true, don't match any pokemon that already exists (for Team Preview)
