@@ -10744,9 +10744,6 @@ var BattleMoveAnims = {
 			}, 'linear', 'fade');
 		}
 	},
-	brickbreak: {
-		anim: BattleOtherAnims.punchattack.anim
-	},
 	shadowpunch: {
 		anim: function (battle, args) {
 			var attacker = args[0];
@@ -26942,17 +26939,52 @@ var BattleMoveAnims = {
 		anim: function (battle, args) {
 			var attacker = args[0];
 			var defender = args[1];
-			battle.showEffect(attacker.sp, {
+
+			battle.backgroundEffect('#000000', 1300, 0.3);
+			battle.showEffect('poisonwisp', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				scale: 0.5
+				opacity: 1,
+				scale: 1
 			}, {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				scale: 1.5
-			}, 'decel', 'explode');
+				scale: 1.2,
+				opacity: 0,
+				time: 400
+			}, 'decel');
+			battle.showEffect(defender.sp, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				opacity: 1,
+				xscale: 1,
+				time: 200
+			}, {
+				x: defender.x + 7,
+				y: defender.y,
+				z: defender.z,
+				opacity: 0,
+				xscale: 1.5,
+				time: 800
+			}, 'accel');
+			battle.showEffect(defender.sp, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				opacity: 1,
+				xscale: 1,
+				time: 700
+			}, {
+				x: defender.x - 7,
+				y: defender.y,
+				z: defender.z,
+				opacity: 0,
+				xscale: 1.5,
+				time: 1300
+			}, 'accel');
 		}
 	},
 	lockon: {
@@ -34041,6 +34073,7 @@ BattleMoveAnims['holdhands'] = {anim:BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['lunardance'] = {anim:BattleMoveAnims['wish'].anim};
 
 BattleMoveAnims['brickbreak'] = {anim:BattleMoveAnims['karatechop'].anim};
+BattleMoveAnims['throatchop'] = {anim:BattleMoveAnims['karatechop'].anim};
 BattleMoveAnims['wringout'] = {anim:BattleMoveAnims['forcepalm'].anim};
 BattleMoveAnims['stormthrow'] = {anim:BattleMoveAnims['circlethrow'].anim};
 BattleMoveAnims['vitalthrow'] = {anim:BattleMoveAnims['circlethrow'].anim};
