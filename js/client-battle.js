@@ -195,7 +195,7 @@
 						break;
 					}
 				} else if (logLine.substr(0, 7) === '|title|') { // eslint-disable-line no-empty
-				} else if (logLine.substr(0, 5) === '|win|') {
+				} else if (logLine.substr(0, 5) === '|win|' || logLine.substr(0, 4) === '|tie') {
 					this.battleEnded = true;
 					this.battle.activityQueue.push(logLine);
 				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
