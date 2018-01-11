@@ -6241,19 +6241,7 @@ var BattleMoveAnims = {
 			}, 'accel');
 			attacker.delay(500);
 			attacker.anim({opacity: 0, time: 0});
-			attacker.anim({opacity: 1, time: 200});
-			attacker.anim({
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.behind(70),
-				opacity: 0,
-				time: 1
-			}, 'linear');
-			attacker.delay(600);
-			attacker.anim({
-				opacity: 1,
-				time: 500
-			}, 'decel');
+			attacker.anim({opacity: 1, time: 300});
 		}
 	},
 	cottonguard: {
