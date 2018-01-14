@@ -1620,6 +1620,7 @@
 		},
 		hide: function () {
 			this.$el.scrollTop(0);
+			this.$el.removeClass('userlist-maximized');
 			this.$el.addClass('userlist-minimized');
 		},
 		updateUserCount: function () {
