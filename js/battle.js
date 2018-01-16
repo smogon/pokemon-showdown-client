@@ -6593,7 +6593,11 @@ var Battle = (function () {
 			break;
 		case 'join':
 		case 'j':
-			if (this.roomid) app.rooms[this.roomid].users[toUserid(args[1])] = ' ' + args[1];
+			if (this.roomid) {
+				var user = args[1];
+				if (/^[a-z0-9]/i.test(user)) user = ' ' + user;
+				app.rooms[this.roomid].users[toUserid(user)] = user;
+			}
 			if (!this.ignoreSpects) {
 				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
 			}
