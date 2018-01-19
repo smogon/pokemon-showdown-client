@@ -201,8 +201,7 @@ module.exports = {
 		"no-var": "error",
 		"new-cap": ["error", {"newIsCap": true, "capIsNew: false}],
 		"padded-blocks": ["error", "never"],
-		"strict": ["error", "global"],
-		"validate-conditionals": "error"
+		"strict": ["error", "global"]
 		*/
 	}
 };
