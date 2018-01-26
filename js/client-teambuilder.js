@@ -2844,6 +2844,7 @@
 			var hasMove = {};
 			var template = Tools.getTemplate(set.species || set.name);
 			var stats = this.getBaseStats(template);
+			if (!stats) return '?';
 			var itemid = toId(set.item);
 			var abilityid = toId(set.ability);
 
