@@ -1132,7 +1132,7 @@ Storage.importTeam = function (text, teams) {
 			if (line.substr(0, 14) === 'Hidden Power [') {
 				var hptype = line.substr(14, line.length - 15);
 				line = 'Hidden Power ' + hptype;
-				if (!curSet.ivs && window.BattleTypeChart) {
+				if (!curSet.ivs && window.BattleTypeChart && window.BattleTypeChart[hptype]) {
 					curSet.ivs = {};
 					for (var stat in window.BattleTypeChart[hptype].HPivs) {
 						curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
@@ -1375,10 +1375,32 @@ Storage.nwLoadTeams = function () {
 			self.nwFinishedLoadingTeams(localApp);
 		}
 		for (var i = 0; i < files.length; i++) {
+			if (i >= 2000) {
+				setTimeout(function () {
+					Storage.nwLoadNextBatch(files, 2000, dirOffset);
+				}, 3000);
+				break;
+			}
 			self.nwLoadTeamFile(files[i].slice(dirOffset), localApp);
 		}
 	});
 };
+
+Storage.nwLoadNextBatch = function (files, offset, dirOffset) {
+	if (window.app) {
+		window.app.addPopupMessage("Loading " + files.length + " teams (Teams load slowly if you have over 2000 teams)");
+	}
+	var i;
+	for (i = offset; i < files.length; i++) {
+		if (i >= offset + 2000) {
+			setTimeout(function () {
+				Storage.nwLoadNextBatch(files, i);
+			}, 3000);
+			break;
+		}
+		this.nwLoadTeamFile(files[i].slice(dirOffset), window.app);
+	}
+}
 
 Storage.nwLoadTeamFile = function (filename, localApp) {
 	var self = this;
@@ -1425,9 +1447,11 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 				iconCache: '',
 				filename: filename
 			});
-			if (!--self.nwTeamsLeft) {
-				self.nwFinishedLoadingTeams(localApp);
-			}
+		} else {
+			app.popup(err);
+		}
+		if (!--self.nwTeamsLeft) {
+			self.nwFinishedLoadingTeams(localApp);
 		}
 	});
 };
