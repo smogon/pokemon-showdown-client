@@ -6707,7 +6707,7 @@ var Battle = (function () {
 			poke.removeVolatile('itemremoved');
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot]) {
-					poke.side.switchOut(poke.side.active[slot]);
+					poke.side.switchOut(poke.side.active[slot], kwargs);
 				}
 				poke.side.switchIn(poke);
 			} else if (args[0] === 'replace') {
