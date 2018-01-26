@@ -340,8 +340,6 @@
 				}
 			}
 
-			buf += '<div class="storage-warning"></div>';
-
 			var newButtonText = "New Team";
 			if (filterFolder) newButtonText = "New Team in folder";
 			if (filterFormat && filterFormat !== 'gen7') {
@@ -420,7 +418,7 @@
 			} else if (this.curFolder) {
 				buf += '<button name="backup" class="button"><i class="fa fa-upload"></i> Backup all teams from this folder</button>';
 			} else if (atLeastOne) {
-				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong></p>';
+				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong> <span class="storage-warning">Browsers sometimes randomly clear cookies - you should back up your teams or use the desktop client if you want to make sure you don\'t lose them.</span></p>';
 				buf += '<button name="backup" class="button"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
 				buf += '<p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 				var self = this;
@@ -447,7 +445,6 @@
 				this.$('.storage-warning').html('');
 				return;
 			}
-			this.$('.storage-warning').html('');
 		},
 		greeting: function (answer, button) {
 			var buf = '<p><strong>' + $(button).html() + '</p></strong>';
