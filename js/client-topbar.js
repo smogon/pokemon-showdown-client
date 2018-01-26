@@ -937,7 +937,7 @@
 				buf += '<p class="error">The name you chose is registered.</p>';
 			}
 
-			buf += '<p>Log in:</p>';
+			buf += '<p>If this is your account:</p>';
 			buf += '<p><label class="label">Username: <strong>' + Tools.escapeHTML(data.username) + '<input type="hidden" name="username" value="' + Tools.escapeHTML(data.username) + '" /></strong></label></p>';
 			if (data.special === '@gmail') {
 				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
@@ -948,6 +948,7 @@
 			}
 
 			buf += '<p class="or">or</p>';
+			buf += '<p>If this is someone else\'s account:</p>';
 			buf += '<p class="buttonbar"><button name="login">Choose another name</button></p>';
 
 			buf += '</form>';
