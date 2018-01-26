@@ -284,10 +284,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		pokemon.sort();
 		const tierTable = {};
 		for (const id of pokemon) {
-			const template = (() => {
-				if (gen === 'gen7') return Tools.getTemplate(id);
-				return Tools.mod(gen).getTemplate(id);
-			})();
+			const template = Tools.mod(gen).getTemplate(id);
 			if (template.gen > genNum) continue;
 			const tier = (() => {
 				if (template.tier === 'CAP' || template.tier === 'CAP NFE' || template.tier === 'CAP LC') {
@@ -306,29 +303,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return 'Regular';
 				}
 				if (isDoubles) {
-					if (template.tier === 'Unreleased') return 'Unreleased';
-					const genPrefix = (genNum === 6 ? '' : gen);
-					let defaultTier = "DNU";
-					let banlist = Tools.getFormat(genPrefix + 'doublesou').banlist;
-					if (!banlist) {
-						defaultTier = "DOU";
-					} else if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
-						return "DUber";
-					}
-					banlist = Tools.getFormat(genPrefix + 'doublesuu').banlist;
-					if (!banlist) {
-						defaultTier = "DOU";
-					} else if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
-						return "DOU";
-					}
-					banlist = Tools.getFormat(genPrefix + 'doublesnu').banlist;
-					if (!banlist) {
-						defaultTier = "DUU";
-					} else if (banlist.indexOf(template.species) >= 0 || banlist.indexOf(template.baseSpecies) >= 0) {
-						return "DUU";
-					}
-					if (template.tier === 'LC' || template.tier === 'LC Uber' || template.tier === 'NFE') return 'NFE';
-					return defaultTier;
+					return template.doublesTier;
 				}
 				return template.tier;
 			})();
