@@ -6756,6 +6756,9 @@ var Battle = (function () {
 		case 'message':
 			this.message(Tools.escapeHTML(args[1]));
 			break;
+		case 'bigerror':
+			this.message('<div class="broadcast-red">' + Tools.escapeHTML(args[1]).replace(/\|/g, '<br />') + '</div>');
+			break;
 		case 'done':
 		case '':
 			if (this.ended || this.endPrevAction()) return;
@@ -6827,7 +6830,7 @@ var Battle = (function () {
 		case 'c': case 'c:': case 'chat':
 		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
 		case 'inactive': case 'inactiveoff': case 'warning':
-		case 'fieldhtml': case 'controlshtml':
+		case 'fieldhtml': case 'controlshtml': case 'bigerror':
 			// chat is preserved untouched
 			args = [args[0], str.slice(args[0].length + 2)];
 			break;
