@@ -1400,7 +1400,7 @@ Storage.nwLoadNextBatch = function (files, offset, dirOffset) {
 		}
 		this.nwLoadTeamFile(files[i].slice(dirOffset), window.app);
 	}
-}
+};
 
 Storage.nwLoadTeamFile = function (filename, localApp) {
 	var self = this;
