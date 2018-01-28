@@ -892,6 +892,38 @@
 				abilitySet.push(['header', "Special Event Ability"]);
 				abilitySet.push(['ability', toId(template.abilities['S'])]);
 			}
+			if (format === 'almostanyability' || format === 'balancedhackmons' || format === 'bh') {
+				template = Tools.getTemplate(set.species);
+				let abilities = [];
+				if (template.isMega) {
+					if (format === 'almostanyability') abilitySet.unshift(['html', '<p>Will be <strong>' + Tools.escapeHTML(template.abilities['0']) + '</strong> after Mega Evolving.</p>']);
+					template = Tools.getTemplate(template.baseSpecies);
+				}
+				for (var i in BattleAbilities) {
+					if (BattleAbilities[i].isNonstandard) continue;
+					if (BattleAbilities[i].gen > this.gen) continue;
+					abilities.push(i);
+				}
+
+				abilities.sort();
+
+				let goodAbilities = [['header', "Abilities"]];
+				let poorAbilities = [['header', "Situational Abilities"]];
+				let badAbilities = [['header', "Unviable Abilities"]];
+				for (let i = 0; i < abilities.length; i++) {
+					let id = abilities[i];
+					let rating = BattleAbilities[id] && BattleAbilities[id].rating;
+					if (id === 'normalize' && (format === 'balancedhackmons' || format === 'bh')) rating = 3;
+					if (rating >= 3) {
+						goodAbilities.push(['ability', id]);
+					} else if (rating >= 2) {
+						poorAbilities.push(['ability', id]);
+					} else {
+						badAbilities.push(['ability', id]);
+					}
+				}
+				abilitySet = goodAbilities.concat(poorAbilities).concat(badAbilities);
+			}
 			this.defaultResultSet = abilitySet;
 			break;
 
@@ -914,7 +946,7 @@
 						}
 						if (moves.indexOf(moveid) >= 0) continue;
 						moves.push(moveid);
-						if (moveid === 'sketch') sketch = true;
+						if (moveid === 'sketch' && format !== 'balancedhackmons' && format !== 'bh') sketch = true;
 						if (moveid === 'hiddenpower') {
 							moves.push('hiddenpowerbug', 'hiddenpowerdark', 'hiddenpowerdragon', 'hiddenpowerelectric', 'hiddenpowerfighting', 'hiddenpowerfire', 'hiddenpowerflying', 'hiddenpowerghost', 'hiddenpowergrass', 'hiddenpowerground', 'hiddenpowerice', 'hiddenpowerpoison', 'hiddenpowerpsychic', 'hiddenpowerrock', 'hiddenpowersteel', 'hiddenpowerwater');
 						}
@@ -922,9 +954,12 @@
 				}
 				learnsetid = this.nextLearnsetid(learnsetid, template.id);
 			}
-			if (sketch) {
+			if (sketch || format === 'balancedhackmons' || format === 'bh') {
+				if (format === 'balancedhackmons' || format === 'bh') moves = [];
 				for (var i in BattleMovedex) {
-					if (i === 'chatter' || i === 'magikarpsrevenge' || (format.substr(0, 3) !== 'cap' && (i === 'paleowave' || i === 'shadowstrike'))) continue;
+					if (i === 'chatter' && format !== 'balancedhackmons' && format !== 'bh') continue;
+					if (i === 'magikarpsrevenge') continue;
+					if ((format.substr(0, 3) !== 'cap' && (i === 'paleowave' || i === 'shadowstrike'))) continue;
 					if (!BattleMovedex[i].gen) {
 						if (BattleMovedex[i].num >= 622) {
 							BattleMovedex[i].gen = 7;
@@ -946,7 +981,66 @@
 					}
 					if (BattleMovedex[i].gen > this.gen) continue;
 					if (BattleMovedex[i].isZ) continue;
-					sMoves.push(i);
+					if (format === 'balancedhackmons' || format === 'bh') {
+						moves.push(i);
+					} else {
+						sMoves.push(i);
+					}
+				}
+			}
+			if (format === 'stabmons') {
+				for (var i in BattleMovedex) {
+					var types = [];
+					for (var j = 0; j < template.types.length; j++) {
+						types.push(template.types[j]);
+					}
+					if (template.prevo) {
+						for (var j = 0; j < Tools.getTemplate(template.prevo).types.length; j++) {
+							types.push(Tools.getTemplate(template.prevo).types[j]);
+						}
+					}
+					if (Tools.getTemplate(template.prevo).prevo) {
+						for (var j = 0; j < Tools.getTemplate(Tools.getTemplate(template.prevo).prevo).types.length; j++) {
+							types.push(Tools.getTemplate(Tools.getTemplate(template.prevo).prevo).types[j]);
+						}
+					}
+					var baseTemplate = Tools.getTemplate(template.baseSpecies);
+					if (baseTemplate.otherFormes) {
+						for (var j = 0; j < baseTemplate.otherFormes.length; j++) {
+							var forme = Tools.getTemplate(baseTemplate.otherFormes[j]);
+							for (var h = 0; h < forme.types.length; h++) {
+								if (forme.battleOnly || forme.forme === 'Alola' || forme.forme === 'Alola-Totem') continue;
+								types.push(forme.types[h]);
+							}
+						}
+					}
+					for (var j = 0; j < baseTemplate.types.length; j++) {
+						types.push(baseTemplate.types[j]);
+					}
+					if (types.indexOf(BattleMovedex[i].type) < 0) continue;
+					if (moves.indexOf(i) >= 0) continue;
+					if (!BattleMovedex[i].gen) {
+						if (BattleMovedex[i].num >= 622) {
+							BattleMovedex[i].gen = 7;
+						} else if (BattleMovedex[i].num >= 560) {
+							BattleMovedex[i].gen = 6;
+						} else if (BattleMovedex[i].num >= 468) {
+							BattleMovedex[i].gen = 5;
+						} else if (BattleMovedex[i].num >= 355) {
+							BattleMovedex[i].gen = 4;
+						} else if (BattleMovedex[i].num >= 252) {
+							BattleMovedex[i].gen = 3;
+						} else if (BattleMovedex[i].num >= 166) {
+							BattleMovedex[i].gen = 2;
+						} else if (BattleMovedex[i].num >= 1) {
+							BattleMovedex[i].gen = 1;
+						} else {
+							BattleMovedex[i].gen = 0;
+						}
+					}
+					if (BattleMovedex[i].gen > this.gen) continue;
+					if (BattleMovedex[i].isZ || BattleMovedex[i].isNonstandard || BattleMovedex[i].isUnreleased) continue;
+					moves.push(i);
 				}
 			}
 
@@ -962,37 +1056,46 @@
 				if (id === 'aerialace') isViable = (toId(set.species) in {scyther:1, aerodactylmega:1, kricketune:1});
 				if (id === 'ancientpower') isViable = (toId(set.ability) === 'technician' || (toId(set.ability) === 'serenegrace') || (template.types.indexOf('rock') > 0 && moves.indexOf('powergem') < 0));
 				if (id === 'bellydrum') isViable = (toId(set.species) in {azumarill:1, linoone:1, slurpuff:1});
-				if (id === 'blizzard') isViable = (toId(set.ability) === 'snowwarning');
+				if (id === 'blizzard') isViable = (toId(set.ability) === 'snowwarning' || (format === 'mixandmega' && toId(set.item) === 'abomasite') || (format === 'mixandmega' && toId(set.item) === 'pidgeotite'));
 				if (id === 'counter') isViable = (toId(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1, alakazam:1});
 				if (id === 'curse') isViable = (toId(set.species) === 'snorlax');
 				if (id === 'drainingkiss') isViable = (toId(set.ability) === 'triage');
 				if (id === 'dynamicpunch') isViable = (toId(set.ability) === 'noguard');
 				if (id === 'electroball') isViable = (toId(set.ability) === 'surgesurfer');
+				if (id === 'feint') isViable = (format === 'mixandmega' && toId(set.species) === 'weavile');
+				if (id === 'grasswhistle') isViable = (format === 'mixandmega' && toId(set.item) === 'pidgeotite');
 				if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
 				if (id === 'headbutt') isViable = (toId(set.ability) === 'serenegrace' && template.types.indexOf('normal') > 0);
+				if (id === 'heartswap') isViable = (toId(set.species) === 'magearna');
 				if (id === 'hiddenpowerelectric') isViable = (moves.indexOf('thunderbolt') < 0);
 				if (id === 'hiddenpowerfighting') isViable = (moves.indexOf('aurasphere') < 0 && moves.indexOf('focusblast') < 0);
 				if (id === 'hiddenpowerfire') isViable = (moves.indexOf('flamethrower') < 0);
 				if (id === 'hiddenpowergrass') isViable = (moves.indexOf('energyball') < 0 && moves.indexOf('gigadrain') < 0);
 				if (id === 'hiddenpowerice') isViable = (moves.indexOf('icebeam') < 0 && template.id !== 'xerneas');
-				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toId(set.species) === 'darkrai'));
+				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toId(set.species) === 'darkrai') || (format === 'mixandmega' && toId(set.item) === 'pidgeotite'));
 				if (id === 'icywind') isViable = (toId(set.species).substr(0, 6) === 'keldeo');
+				if (id === 'inferno') isViable = (format === 'mixandmega' && toId(set.item) === 'pidgeotite' && moves.indexOf('fireblast') < 0);
 				if (id === 'infestation') isViable = (toId(set.species) === 'shuckle');
 				if (id === 'irontail') isViable = ((template.types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0) || ((template.types.indexOf('dark') > 0 || template.types.indexOf('dragon') > 0) && moves.indexOf('ironhead') < 0 && moves.indexOf('gunkshot') < 0));
 				if (id === 'jumpkick') isViable = (moves.indexOf('highjumpkick') < 0);
 				if (id === 'leechlife') isViable = (this.gen > 6);
 				if (id === 'petaldance') isViable = (toId(set.ability) === 'owntempo');
 				if (id === 'reflecttype') isViable = (toId(set.species) in {latias:1, starmie:1});
-				if (id === 'rocktomb') isViable = (toId(set.species) === 'groudon');
+				if (id === 'rocktomb') isViable = (toId(set.species) === 'groudon' || toId(set.ability) === 'technician');
 				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
+				if (id === 'sing') isViable = (format === 'mixandmega' && toId(set.item) === 'pidgeotite');
 				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
 				if (id === 'smackdown') isViable = (template.types.indexOf('ground') > 0);
 				if (id === 'smartstrike') isViable = (template.types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0);
 				if (id === 'solarbeam') isViable = (toId(set.abilities) in {drought:1, chlorophyll:1});
+				if (id === 'stompingtantrum') isViable = ((moves.indexOf('earthquake') < 0 && moves.indexOf('drillrun') < 0) || (toId(set.ability) === 'toughclaws' && moves.indexOf('drillrun') < 0 && moves.indexOf('earthquake') < 0));
 				if (id === 'storedpower') isViable = (toId(set.species) in {necrozma:1, espeon:1, sigilyph:1});
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
-				if (id === 'thunder') isViable = (toId(set.ability) === 'drizzle' || (toId(set.ability) === 'primordialsea') || (toId(set.species) === 'xerneas'));
+				if (id === 'thunder') isViable = (toId(set.ability) === 'drizzle' || (toId(set.ability) === 'primordialsea') || (toId(set.species) === 'xerneas') || (format === 'mixandmega' && toId(set.item) === 'pidgeotite' && moves.indexOf('zapcannon') < 0));
 				if (id === 'trickroom') isViable = (template.baseStats.spe <= 100);
+				if (id === 'waterpulse') isViable = ((toId(set.ability) === 'megalauncher' && moves.indexOf('primordialsea') < 0) || (format === 'mixandmega' && toId(set.item) === 'blastoisinite' && moves.indexOf('primordialsea') < 0));
+				if (id === 'weatherball') isViable = (format === 'mixandmega' && toId(set.item) === 'redorb');
+				if (id === 'zapcannon') isViable = (format === 'mixandmega' && toId(set.item) === 'pidgeotite');
 				if (this.gen === 1) {
 					// Usually viable for Gen 1
 					if (id === 'acidarmor' || id === 'amnesia' || id === 'barrier' || id === 'bind' || id === 'clamp' || id === 'confuseray' || id === 'counter' || id === 'firespin' || id === 'hyperbeam' || id === 'mirrormove' || id === 'pinmissile' || id === 'razorleaf' || id === 'sing' || id === 'slash' || id === 'sludge' || id === 'twineedle' || id === 'wrap') isViable = true;
