@@ -3048,6 +3048,14 @@ var Battle = (function () {
 		this.turnsSinceMoved = 0;
 		this.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
 	};
+	Battle.prototype.updateToxicTurns = function () {
+		for (var i = 0; i < this.sides.length; i++) {
+			for (var slot = 0; slot < this.sides[i].active.length; slot++) {
+				var poke = this.sides[i].active[slot];
+				if (poke.statusData.toxicTurns) poke.statusData.toxicTurns++;
+			}
+		}
+	};
 	Battle.prototype.changeWeather = function (weather, poke, isUpkeep, ability) {
 		weather = toId(weather);
 		var weatherTable = {
@@ -3725,7 +3733,6 @@ var Battle = (function () {
 						break;
 					case 'psn':
 						if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
-						if (poke.statusData.toxicTurns) poke.statusData.toxicTurns++;
 						actions += "" + poke.getName() + " was hurt by poison! ";
 						break;
 					case 'lifeorb':
@@ -6474,6 +6481,7 @@ var Battle = (function () {
 		case 'upkeep':
 			this.usesUpkeep = true;
 			this.updatePseudoWeatherLeft();
+			this.updateToxicTurns();
 			break;
 		case 'turn':
 			if (this.endPrevAction()) return;
