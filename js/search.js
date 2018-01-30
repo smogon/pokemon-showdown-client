@@ -894,7 +894,7 @@
 			}
 			if (format === 'almostanyability' || format === 'balancedhackmons' || format === 'bh') {
 				template = Tools.getTemplate(set.species);
-				let abilities = [];
+				var abilities = [];
 				if (template.isMega) {
 					if (format === 'almostanyability') abilitySet.unshift(['html', '<p>Will be <strong>' + Tools.escapeHTML(template.abilities['0']) + '</strong> after Mega Evolving.</p>']);
 					template = Tools.getTemplate(template.baseSpecies);
@@ -907,12 +907,12 @@
 
 				abilities.sort();
 
-				let goodAbilities = [['header', "Abilities"]];
-				let poorAbilities = [['header', "Situational Abilities"]];
-				let badAbilities = [['header', "Unviable Abilities"]];
-				for (let i = 0; i < abilities.length; i++) {
-					let id = abilities[i];
-					let rating = BattleAbilities[id] && BattleAbilities[id].rating;
+				var goodAbilities = [['header', "Abilities"]];
+				var poorAbilities = [['header', "Situational Abilities"]];
+				var badAbilities = [['header', "Unviable Abilities"]];
+				for (var i = 0; i < abilities.length; i++) {
+					var id = abilities[i];
+					var rating = BattleAbilities[id] && BattleAbilities[id].rating;
 					if (id === 'normalize' && (format === 'balancedhackmons' || format === 'bh')) rating = 3;
 					if (rating >= 3) {
 						goodAbilities.push(['ability', id]);
