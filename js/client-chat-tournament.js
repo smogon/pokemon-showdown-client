@@ -178,6 +178,7 @@
 				self.room.send('/tournament cancelchallenge');
 			});
 			this.$validate.on('click', function () {
+				if ($(this).hasClass('disabled')) return app.addPopupMessage("Please select a team.");
 				app.sendTeam(Storage.teams[self.$teamSelect.children().val()]);
 				self.room.send('/tournament vtm');
 			});
