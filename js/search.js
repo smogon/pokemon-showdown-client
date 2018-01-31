@@ -914,7 +914,7 @@
 				for (var i = 0; i < abilities.length; i++) {
 					var id = abilities[i];
 					var rating = BattleAbilities[id] && BattleAbilities[id].rating;
-					if (id === 'normalize' && isBH) rating = 3;
+					if (id === 'normalize') rating = 3;
 					if (rating >= 3) {
 						goodAbilities.push(['ability', id]);
 					} else if (rating >= 2) {
@@ -992,7 +992,9 @@
 			if (format === 'stabmons') {
 				for (var i in BattleMovedex) {
 					var types = [];
+					var baseTemplate = Tools.getTemplate(template.baseSpecies);
 					for (var j = 0; j < template.types.length; j++) {
+						if (template.battleOnly) continue;
 						types.push(template.types[j]);
 					}
 					if (template.prevo) {
@@ -1005,9 +1007,12 @@
 							types.push(Tools.getTemplate(Tools.getTemplate(template.prevo).prevo).types[j]);
 						}
 					}
-					var baseTemplate = Tools.getTemplate(template.baseSpecies);
 					if (template.battleOnly) template = baseTemplate;
 					if (baseTemplate.otherFormes) {
+						for (var j = 0; j < baseTemplate.types.length; j++) {
+							if (template.forme === 'Alola' || template.forme === 'Alola-Totem') continue;
+							types.push(baseTemplate.types[j]);
+						}
 						for (var j = 0; j < baseTemplate.otherFormes.length; j++) {
 							var forme = Tools.getTemplate(baseTemplate.otherFormes[j]);
 							for (var h = 0; h < forme.types.length; h++) {
@@ -1292,8 +1297,8 @@
 			tier = pokemon.num;
 		} else if (pokemon.tier) {
 			tier = pokemon.tier;
-		} else if (pokemon.species.slice(-6) === '-Totem') {
-			tier = Tools.getTemplate(pokemon.species.slice(0, -6)).tier;
+		} else if (pokemon.forme && pokemon.forme.endsWith('Totem')) {
+			tier = Tools.getTemplate(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1))).tier;
 		} else {
 			tier = Tools.getTemplate(pokemon.baseSpecies).tier;
 		}
