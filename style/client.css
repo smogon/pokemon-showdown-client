@@ -3289,7 +3289,7 @@ a.ilink.yours {
 .dark .select:disabled {
 	border-color: #888888;
 	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.6), rgba(193, 199, 207, 0.6));
-	color: #888888;
+	color: #444444;
 	box-shadow: none;
 }
 .dark .select:after {
