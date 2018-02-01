@@ -2675,7 +2675,7 @@
 			var format = this.curTeam.format;
 			if (!set.level || set.level === 100) return true;
 			if (format.substr(0, 3) === 'gen') format = format.substr(4);
-			if (format.substr(0, 10) === 'battlespot' || format.substr(0, 3) === 'vgc') {
+			if (format.substr(0, 10) === 'battlespot' || format.substr(0, 3) === 'vgc' || format === 'ultrasinnohclassic') {
 				if (set.level === 50) return true;
 			}
 			return false;
