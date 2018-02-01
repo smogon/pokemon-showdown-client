@@ -3052,7 +3052,7 @@ var Battle = (function () {
 		for (var i = 0; i < this.sides.length; i++) {
 			for (var slot = 0; slot < this.sides[i].active.length; slot++) {
 				var poke = this.sides[i].active[slot];
-				if (poke.statusData.toxicTurns) poke.statusData.toxicTurns++;
+				if (poke && poke.statusData && poke.statusData.toxicTurns) poke.statusData.toxicTurns++;
 			}
 		}
 	};
