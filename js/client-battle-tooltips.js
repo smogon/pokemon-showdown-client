@@ -698,10 +698,10 @@ var BattleTooltips = (function () {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
-		if (ability === 'grasspelt' && this.battle.hasPseudoWeather('grassyterrain')) {
+		if (ability === 'grasspelt' && this.battle.hasPseudoWeather('Grassy Terrain')) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		if (ability === 'surgesurfer' && this.battle.hasPseudoWeather('electricterrain')) {
+		if (ability === 'surgesurfer' && this.battle.hasPseudoWeather('Electric Terrain')) {
 			stats.spe *= 2;
 		}
 		if (item === 'choicespecs') {
