@@ -151,11 +151,10 @@
 		showHelp: function () {
 			var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p>';
 			buf += '<h3>How the ladder works</h3>';
-			buf += '<p>Our ladder displays four ratings: Elo, GXE, Glicko-1, and COIL.</p>';
+			buf += '<p>Our ladder displays three ratings: Elo, GXE, and Glicko-1.</p>';
 			buf += '<p><strong>Elo</strong> is the main ladder rating. It\'s a pretty normal ladder rating: goes up when you win and down when you lose.</p>';
 			buf += '<p><strong>GXE</strong> (Glicko X-Act Estimate) is an estimate of your win chance against an average ladder player.</p>';
 			buf += '<p><strong>Glicko-1</strong> is a different rating system. It has rating and deviation values.</p>';
-			buf += '<p><strong>COIL</strong> (Converging Order Invariant Ladder) is mainly used for suspect tests. It goes up as you play games, but not too many games.</p>';
 			buf += '<p>Note that win/loss should not be used to estimate skill, since who you play against is much more important than how many times you win or lose. Our other stats like Elo and GXE are much better for estimating skill.</p>';
 			buf += '</div>';
 			this.$el.html(buf);
@@ -167,21 +166,6 @@
 		refresh: function () {
 			this.$('button[name=refresh]').addClass('disabled').prop('disabled', true);
 			this.update();
-		}
-	}, {
-		COIL_B: {
-			'gen7oususpecttest': 17,
-			'gen7uususpecttest': 20,
-			'gen7rususpecttest': 9,
-			'gen7nususpecttest': 9,
-			'gen7pususpecttest': 9,
-			'gen7lcsuspecttest': 13,
-			'gen7monotypesuspecttest': 9,
-			'gen7doublesoususpecttest': 14.5,
-			'gen7balancedhackmonssuspecttest': 11,
-			'gen71v1suspecttest': 20,
-			'gen7mixandmegasuspecttest': 10.5,
-			'gen7almostanyabilitysuspecttest': 6
 		}
 	});
 
