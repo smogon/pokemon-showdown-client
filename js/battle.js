@@ -2908,7 +2908,7 @@ var Battle = (function () {
 		this.yourSide.updateSprites();
 		// nothing else should need updating - don't call this function after sending out pokemon
 	};
-	Battle.prototype.message = function (message, hiddenmessage) {
+	Battle.prototype.message = function (message, hiddenMessage) {
 		if (!this.messageActive) {
 			this.log('<div class="spacer battle-history"></div>');
 			if (!this.fastForward) {
@@ -2922,6 +2922,10 @@ var Battle = (function () {
 					opacity: 1
 				}, this.messageFadeTime / this.acceleration);
 			}
+		}
+		if (this.hardcoreMode && message.slice(0, 8) === '<small>(') {
+			hiddenMessage = message + hiddenMessage;
+			message = '';
 		}
 		if (message && !this.fastForward) {
 			this.hiddenMessageElem.append('<p></p>');
@@ -2945,7 +2949,7 @@ var Battle = (function () {
 			this.activityWait(messageElem);
 		}
 		this.messageActive = true;
-		this.log('<div class="battle-history">' + message + (hiddenmessage ? hiddenmessage : '') + '</div>');
+		this.log('<div class="battle-history">' + message + (hiddenMessage ? hiddenMessage : '') + '</div>');
 	};
 	Battle.prototype.endAction = function () {
 		if (this.messageActive) {
@@ -4485,6 +4489,7 @@ var Battle = (function () {
 					pokeName = parseIdResult.name;
 					pokeSideN = parseIdResult.siden;
 				}
+				if (effect.id === 'naturalcure' && !this.hasPreMoveMessage && this.waitForResult()) return;
 
 				if (kwargs.silent) {
 					// do nothing
@@ -4506,6 +4511,7 @@ var Battle = (function () {
 					case 'naturalcure':
 						actions += "(" + pokeName + "'s Natural Cure activated!)";
 						if (poke) poke.markAbility('Natural Cure');
+						this.hasPreMoveMessage = true;
 						break;
 					default:
 						if (poke) this.resultAnim(poke, 'Cured', 'good');
@@ -6708,7 +6714,8 @@ var Battle = (function () {
 		case 'drag':
 		case 'replace':
 			this.endLastTurn();
-			if (this.waitForResult()) return;
+			if (!this.hasPreMoveMessage && this.waitForResult()) return;
+			this.hasPreMoveMessage = false;
 			var poke = this.getPokemon('switchin: ' + args[1], args[2]);
 			var slot = poke.slot;
 			poke.healthParse(args[3]);
