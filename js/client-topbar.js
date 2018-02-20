@@ -433,6 +433,7 @@
 		},
 		events: {
 			'change input[name=noanim]': 'setNoanim',
+			'change input[name=nogif]': 'setNogif',
 			'change input[name=bwgfx]': 'setBwgfx',
 			'change input[name=nopastgens]': 'setNopastgens',
 			'change input[name=notournaments]': 'setNotournaments',
@@ -472,6 +473,9 @@
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Tools.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Tools.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
+			if (navigator.userAgent.includes(' Chrome/64.')) {
+				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Tools.prefs('nogif') ? ' checked' : '') + ' /> Chrome 64 lag workaround</label></p>';
+			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Tools.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Tools.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
 
@@ -522,6 +526,11 @@
 			var noanim = !!e.currentTarget.checked;
 			Tools.prefs('noanim', noanim);
 			Tools.loadSpriteData(noanim || Tools.prefs('bwgfx') ? 'bw' : 'xy');
+		},
+		setNogif: function (e) {
+			var nogif = !!e.currentTarget.checked;
+			Tools.prefs('nogif', nogif);
+			Tools.loadSpriteData(nogif || Tools.prefs('bwgfx') ? 'bw' : 'xy');
 		},
 		setDark: function (e) {
 			var dark = !!e.currentTarget.checked;

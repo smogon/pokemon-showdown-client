@@ -1203,7 +1203,7 @@ var Tools = {
 		}
 
 		if (animationData[facing + 'f'] && pokemon.gender === 'F') facing += 'f';
-		var allowAnim = !Tools.prefs('noanim');
+		var allowAnim = !Tools.prefs('noanim') && !Tools.prefs('nogif');
 		if (allowAnim && genNum >= 6) spriteData.pixelated = false;
 		if (allowAnim && animationData[facing] && genNum >= 5) {
 			if (facing.slice(-1) === 'f') name += '-f';
