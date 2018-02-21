@@ -251,10 +251,9 @@ Storage.whenPrefsLoaded = Tools.makeLoadTracker();
 Storage.whenTeamsLoaded = Tools.makeLoadTracker();
 Storage.whenAppLoaded = Tools.makeLoadTracker();
 
-var convertShowjoins = function () {
+var updatePrefs = function () {
 	var oldShowjoins = Storage.prefs('showjoins');
-	if (typeof oldShowjoins === 'undefined') return;
-	if (typeof oldShowjoins !== 'object') {
+	if (oldShowjoins !== undefined && typeof oldShowjoins !== 'object') {
 		var showjoins = {};
 		var serverShowjoins = {global: (oldShowjoins ? 1 : 0)};
 		var showroomjoins = Storage.prefs('showroomjoins');
@@ -265,8 +264,18 @@ var convertShowjoins = function () {
 		showjoins[Config.server.id] = serverShowjoins;
 		Storage.prefs('showjoins', showjoins, true);
 	}
+
+	var isChrome64 = navigator.userAgent.includes(' Chrome/64.');
+	if (Storage.prefs('nogif') !== undefined) {
+		if (!isChrome64) {
+			Storage.prefs('nogif', null);
+		}
+	} else if (isChrome64) {
+		Storage.prefs('nogif', true);
+		app.addPopupMessage('Your version of Chrome has a bug that makes animated GIFs freeze games sometimes, so certain animations have been disabled. Only some people have the problem, so you can experiment and enable them in the Options menu setting "Disable GIFs for Chrome 64 bug".');
+	}
 };
-Storage.whenPrefsLoaded(convertShowjoins);
+Storage.whenPrefsLoaded(updatePrefs);
 
 Storage.initPrefs = function () {
 	Storage.loadTeams();
