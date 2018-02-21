@@ -474,7 +474,7 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Tools.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Tools.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
-				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Tools.prefs('nogif') ? ' checked' : '') + ' /> Chrome 64 lag workaround</label></p>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Tools.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
 			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Tools.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Tools.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
