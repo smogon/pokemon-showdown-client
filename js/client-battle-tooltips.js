@@ -919,6 +919,7 @@ var BattleTooltips = (function () {
 			if (move.id in table.overrideAcc) accuracy = table.overrideAcc[move.id];
 		}
 		var accuracyComment = '%';
+		if (move.id === 'toxic' && this.battle.gen >= 6 && this.pokemonHasType(pokemon, 'Poison')) return '&mdash; (Boosted by Poison type)';
 		if (move.id === 'blizzard' && this.battle.weather === 'hail') return '&mdash; (Boosted by Hail)';
 		if (move.id === 'hurricane' || move.id === 'thunder') {
 			if (this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea') return '&mdash; (Boosted by Rain)';
