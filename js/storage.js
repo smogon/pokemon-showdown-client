@@ -272,7 +272,9 @@ var updatePrefs = function () {
 		}
 	} else if (isChrome64) {
 		Storage.prefs('nogif', true);
-		app.addPopupMessage('Your version of Chrome has a bug that makes animated GIFs freeze games sometimes, so certain animations have been disabled. Only some people have the problem, so you can experiment and enable them in the Options menu setting "Disable GIFs for Chrome 64 bug".');
+		Storage.whenAppLoaded(function () {
+			app.addPopupMessage('Your version of Chrome has a bug that makes animated GIFs freeze games sometimes, so certain animations have been disabled. Only some people have the problem, so you can experiment and enable them in the Options menu setting "Disable GIFs for Chrome 64 bug".');
+		});
 	}
 };
 Storage.whenPrefsLoaded(updatePrefs);
