@@ -1392,6 +1392,7 @@ var BattleTooltips = (function () {
 			if (template.speciesid in table.overrideType) types = table.overrideType[template.speciesid].split('/');
 		}
 
+		if (pokemon.volatiles && pokemon.volatiles.typechange) types = pokemon.volatiles.typechange[2].split('/');
 		if (pokemon.volatiles && pokemon.volatiles.typeadd) {
 			if (types && types.indexOf(pokemon.volatiles.typeadd[2]) === -1) types = types.concat(pokemon.volatiles.typeadd[2]);
 		}
