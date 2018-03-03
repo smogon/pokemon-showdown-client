@@ -737,7 +737,7 @@ var BattleTooltips = (function () {
 		if (item === 'choicescarf') {
 			stats.spe = Math.floor(stats.spe * 1.5);
 		}
-		if (item === 'ironball' || item === 'machobrace') {
+		if (item === 'ironball' || item === 'machobrace' || /power(?!herb)/.test(item)) {
 			stats.spe = Math.floor(stats.spe * 0.5);
 		}
 		if (ability === 'furcoat') {
