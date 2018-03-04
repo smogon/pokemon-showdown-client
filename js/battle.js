@@ -5766,6 +5766,7 @@ var Battle = (function () {
 					}
 					break;
 				case 'mummy':
+					if (!args[3]) break; // if Mummy activated but failed, no ability will have been sent
 					var ability = Tools.getAbility(args[3]);
 					this.resultAnim(ofpoke, ability.name, 'ability');
 					this.animationDelay += 700;
