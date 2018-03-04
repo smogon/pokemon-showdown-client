@@ -500,6 +500,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'powerband':
 			case 'powerbelt':
 			case 'poweranklet':
+			case 'powerweight':
 			case 'powerlens':
 			case 'powerbracer':
 			case 'machobrace':
