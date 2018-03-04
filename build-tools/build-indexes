@@ -501,6 +501,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'magoberry':
 			case 'pechaberry':
 			case 'persimberry':
+			case 'poweranklet':
+			case 'powerband':
+			case 'powerbelt':
+			case 'powerbracer':
+			case 'powerlens':
+			case 'powerweight':
 			case 'rawstberry':
 			case 'ringtarget':
 			case 'rowapberry':
