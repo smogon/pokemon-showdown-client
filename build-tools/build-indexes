@@ -683,6 +683,7 @@ process.stdout.write("Building `data/pokedex.js`... ");
 			const formatsEntry = Tools.data.FormatsData[id];
 			if (formatsEntry.tier) entry.tier = formatsEntry.tier;
 			if (formatsEntry.requiredItem) entry.requiredItem = formatsEntry.requiredItem;
+			if (formatsEntry.battleOnly) entry.battleOnly = formatsEntry.battleOnly;
 			if (formatsEntry.isNonstandard) entry.isNonstandard = formatsEntry.isNonstandard;
 			if (formatsEntry.unreleasedHidden) entry.unreleasedHidden = formatsEntry.unreleasedHidden;
 		}
