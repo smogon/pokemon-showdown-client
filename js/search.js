@@ -1010,13 +1010,13 @@
 					if (template.battleOnly) template = baseTemplate;
 					if (baseTemplate.otherFormes) {
 						for (var j = 0; j < baseTemplate.types.length; j++) {
-							if (template.forme === 'Alola' || template.forme === 'Alola-Totem') continue;
+							if (template.forme === 'Alola' || template.forme === 'Alola-Totem' || template.baseSpecies === 'Wormadam') continue;
 							types.push(baseTemplate.types[j]);
 						}
 						for (var j = 0; j < baseTemplate.otherFormes.length; j++) {
 							var forme = Tools.getTemplate(baseTemplate.otherFormes[j]);
 							for (var h = 0; h < forme.types.length; h++) {
-								if (forme.battleOnly || forme.forme === 'Alola' || forme.forme === 'Alola-Totem') continue;
+								if (forme.battleOnly || forme.forme === 'Alola' || forme.forme === 'Alola-Totem' || forme.baseSpecies === 'Wormadam') continue;
 								types.push(forme.types[h]);
 							}
 						}
