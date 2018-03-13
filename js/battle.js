@@ -5997,9 +5997,6 @@ var Battle = (function () {
 				this.addPseudoWeather(effect.name, 5, maxTimeLeft);
 
 				switch (effect.id) {
-				case 'trickroom':
-					actions += "" + poke.getName() + ' twisted the dimensions!';
-					break;
 				case 'wonderroom':
 					actions += "It created a bizarre area in which Defense and Sp. Def stats are swapped!";
 					break;
@@ -6037,6 +6034,12 @@ var Battle = (function () {
 				case 'psychicterrain':
 					actions += "The battlefield got weird!";
 					break;
+				case 'trickroom':
+					if (poke) {
+						actions += "" + poke.getName() + ' twisted the dimensions!';
+						break;
+					}
+					// falls through
 				default:
 					actions += effect.name + " started!";
 					break;
