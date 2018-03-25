@@ -6609,9 +6609,15 @@ var Battle = (function () {
 		case 'join':
 		case 'j':
 			if (this.roomid) {
+				var room = app.rooms[this.roomid];
 				var user = args[1];
+				var userid = toUserid(user);
 				if (/^[a-z0-9]/i.test(user)) user = ' ' + user;
-				app.rooms[this.roomid].users[toUserid(user)] = user;
+				if (!room.users[userid]) room.userCount.users++;
+				room.users[userid] = user;
+				room.userList.add(userid);
+				room.userList.updateUserCount();
+				room.userList.updateNoUsersOnline();
 			}
 			if (!this.ignoreSpects) {
 				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
@@ -6619,7 +6625,16 @@ var Battle = (function () {
 			break;
 		case 'leave':
 		case 'l':
-			if (this.roomid) delete app.rooms[this.roomid].users[toUserid(args[1])];
+			if (this.roomid) {
+				var room = app.rooms[this.roomid];
+				var user = args[1];
+				var userid = toUserid(user);
+				if (room.users[userid]) room.userCount.users--;
+				delete room.users[userid];
+				room.userList.remove(userid);
+				room.userList.updateUserCount();
+				room.userList.updateNoUsersOnline();
+			}
 			if (!this.ignoreSpects) {
 				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
 			}

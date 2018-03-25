@@ -1702,6 +1702,9 @@ a.ilink.yours {
  * Battle
  *********************************************************/
 
+.ps-room .battle-userlist {
+	left: 641px;
+}
 .ps-room .battle-log {
 	position: absolute;
 	top: 0;
@@ -1818,6 +1821,7 @@ a.ilink.yours {
 	color: #EE4433;
 	border-color: #EE4433;
 }
+.small-layout .battle-userlist,
 .small-layout .battle-log,
 .small-layout .battle-log-add {
 	display: none;
@@ -1826,7 +1830,7 @@ a.ilink.yours {
 	display: block;
 	position: absolute;
 	top: 4px;
-	left: 6px;
+	left: 151px;
 	font-size: 14px;
 	padding: 3px 6px;
 }
@@ -1838,6 +1842,7 @@ a.ilink.yours {
 .small-layout.showing-chat .battle-controls {
 	display: none;
 }
+.small-layout.showing-chat .battle-userlist,
 .small-layout.showing-chat .battle-log,
 .small-layout.showing-chat .battle-log-add {
 	left: 0;
