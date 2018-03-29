@@ -2772,6 +2772,9 @@ var Battle = (function () {
 		if (transition === 'ballistic2Under') {
 			transitionMap.top = (pos.top < oldpos.top ? 'quadDown' : 'quadUp');
 		}
+		if (transition === 'ballistic2Back') {
+			transitionMap.left = (pos.left < oldpos.left ? 'quadDown' : 'quadUp');
+		}
 		if (transition === 'swing') {
 			transitionMap.left = 'swing';
 			transitionMap.top = 'swing';
