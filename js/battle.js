@@ -3485,6 +3485,12 @@ var Battle = (function () {
 				} else if (window.Config && Config.server && Config.server.afd && move.id === 'stealthrock') {
 					var srNames = ['Sneaky Pebbles', 'Sly Rubble', 'Subtle Sediment', 'Buried Bedrock', 'Camouflaged Cinnabar', 'Clandestine Cobblestones', 'Cloaked Clay', 'Concealed Ore', 'Covert Crags', 'Crafty Coal', 'Discreet Bricks', 'Disguised Debris', 'Espionage Pebbles', 'Furtive Fortress', 'Hush-Hush Hardware', 'Incognito Boulders', 'Invisible Quartz', 'Masked Minerals', 'Mischievous Masonry', 'Obscure Ornaments', 'Private Paragon', 'Secret Solitaire', 'Sheltered Sand', 'Surreptitious Sapphire', 'Undercover Ultramarine'];
 					this.message(pokemon.getName() + ' used <strong>' + srNames[Math.floor(Math.random() * srNames.length)] + '</strong>!');
+				} else if (window.Config && Config.server && Config.server.afd && move.id === 'extremespeed') {
+					var fastWords = ['H-Hayai', 'Masaka', 'Its fast']
+					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+					this.message('<strong>' + fastWords[Math.floor(Math.random() * fastWords.length)] + '</strong>!');
+				} else if (window.Config && Config.server && Config.server.afd && move.id === 'aerialace') {
+					this.message(pokemon.getName() + ' used <strong>Tsubame Gaeshi</strong>!');
 				// } else if (window.Config && Config.server && Config.server.afd && (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist')) {
 				// 	this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 				// 	var buttons = ["A", "B", "START", "SELECT", "UP", "DOWN", "LEFT", "RIGHT", "DEMOCRACY", "ANARCHY"];
@@ -4197,6 +4203,7 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				for (var j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[i + j][0][1]);
 				if (poke) this.resultAnim(poke, 'Super-effective', 'bad');
+				if (!this.fastForward) BattleStatusAnims['hitmark'].anim(this, [poke.sprite]);
 				actions += "It's super effective" + (this.activeMoveIsSpread ? " on " + poke.getLowerName() : "") + "! ";
 				break;
 
