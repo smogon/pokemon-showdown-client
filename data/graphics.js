@@ -234,6 +234,10 @@ var BattleEffects = {
 		url: 'ultra.png', // by Pokemon Showdown user Modeling Clay
 		w: 113, h: 165
 	},
+	hitmark: {
+		url: 'hitmarker.png', // by Pokemon Showdown user Ridaz
+		w: 100, h: 100
+	},
 	none: {
 		// this is for passing to battle.pos() and battle.posT() for CSS effects
 		w: 100, h: 100
@@ -2873,6 +2877,21 @@ var BattleOtherAnims = {
 	}
 };
 var BattleStatusAnims = {
+	hitmark: {
+		anim: function (battle, args) {
+			var attacker = args[0];
+			battle.showEffect('hitmark', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 1
+			}, {
+				opacity: 0.5,
+				time: 250
+			}, 'linear', 'fade');
+		}
+	},	
 	brn: {
 		anim: function (battle, args) {
 			var attacker = args[0];
