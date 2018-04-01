@@ -22,9 +22,12 @@ setting up a server.
 Testing
 ------------------------------------------------------------------------
 
-You can make and test client changes simply by opening `testclient.html`.
+You can make and test client changes simply by renaming `testclient.html`. 
+to `index.html`. Let's check our results, obtain you're ip and port example
+ip:port in your browser and that's it, you can now tweak our for example
+styles + css though this is not global, only local but it helps because
 This will allow you to test changes to the client without setting up your
-own login server.
+own server.
 
 You can connect to an arbitrary server by navigating to
 `testclient.html?~~host:port`. For example, to connect to a server running
