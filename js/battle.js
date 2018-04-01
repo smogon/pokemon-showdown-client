@@ -2208,6 +2208,10 @@ var Side = (function () {
 		this.active[slot] = null;
 
 		this.battle.message('' + pokemon.getName() + ' fainted!');
+		if (window.Config && Config.server && Config.server.afd && !Config.server.afdFaint) {
+			this.battle.message('<div class="broadcast-red" style="font-size:10pt">Needed that one alive? Buy <strong>Max Revive DLC</strong>, yours for only $9.99!<br /> <a href="/view-dlc">CLICK HERE!</a></div>');
+			Config.server.afdFaint = true;
+		}
 
 		pokemon.fainted = true;
 		pokemon.hp = 0;
@@ -4197,6 +4201,10 @@ var Battle = (function () {
 				for (var j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[i + j][0][1]);
 				if (poke) this.resultAnim(poke, 'Critical hit', 'bad');
 				actions += "A critical hit" + (this.activeMoveIsSpread ? " on " + poke.getLowerName() : "") + "! ";
+				if (window.Config && Config.server && Config.server.afd && !Config.server.afdCrit) {
+					actions += '<div class="broadcast-red" style="font-size:10pt">Crit mattered? Buy <strong>Crit Insurance DLC</strong>, yours for only $4.99!<br /> <a href="/view-dlc">CLICK HERE!</a></div>';
+					Config.server.afdCrit = true;
+				}
 				break;
 
 			case '-supereffective':
