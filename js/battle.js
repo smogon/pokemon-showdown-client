@@ -3486,7 +3486,7 @@ var Battle = (function () {
 					var srNames = ['Sneaky Pebbles', 'Sly Rubble', 'Subtle Sediment', 'Buried Bedrock', 'Camouflaged Cinnabar', 'Clandestine Cobblestones', 'Cloaked Clay', 'Concealed Ore', 'Covert Crags', 'Crafty Coal', 'Discreet Bricks', 'Disguised Debris', 'Espionage Pebbles', 'Furtive Fortress', 'Hush-Hush Hardware', 'Incognito Boulders', 'Invisible Quartz', 'Masked Minerals', 'Mischievous Masonry', 'Obscure Ornaments', 'Private Paragon', 'Secret Solitaire', 'Sheltered Sand', 'Surreptitious Sapphire', 'Undercover Ultramarine'];
 					this.message(pokemon.getName() + ' used <strong>' + srNames[Math.floor(Math.random() * srNames.length)] + '</strong>!');
 				} else if (window.Config && Config.server && Config.server.afd && move.id === 'extremespeed') {
-					var fastWords = ['H-Hayai', 'Masaka', 'Its fast']
+					var fastWords = ['H-Hayai', 'Masaka', 'Its fast'];
 					this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
 					this.message('<strong>' + fastWords[Math.floor(Math.random() * fastWords.length)] + '</strong>!');
 				} else if (window.Config && Config.server && Config.server.afd && move.id === 'aerialace') {
