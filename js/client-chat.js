@@ -888,6 +888,17 @@
 				}
 				return text; // Send the /avatar command through to the server.
 
+			case 'afd':
+				var cleanedTarget = toId(target);
+				if (cleanedTarget === 'off' || cleanedTarget === 'disable') {
+					Config.server.afd = false;
+					this.add('April Fools\' day mode disabled.');
+				} else {
+					Config.server.afd = true;
+					this.add('April Fools\' day mode enabled.');
+				}
+				return false;
+
 			// documentation of client commands
 			case 'help':
 				switch (toId(target)) {
@@ -961,6 +972,10 @@
 				case 'ladder':
 					this.add('/rating - Get your own rating.');
 					this.add('/rating [username] - Get user [username]\'s rating.');
+					return false;
+				case 'afd':
+					this.add('/afd - Enable April Fools\' Day sprites.');
+					this.add('/afd disable - Disable April Fools\' Day sprites.');
 					return false;
 				}
 			}
