@@ -2891,7 +2891,7 @@ var BattleStatusAnims = {
 				time: 250
 			}, 'linear', 'fade');
 		}
-	},	
+	},
 	brn: {
 		anim: function (battle, args) {
 			var attacker = args[0];
