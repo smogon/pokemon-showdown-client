@@ -897,6 +897,13 @@
 					Config.server.afd = true;
 					this.add('April Fools\' day mode enabled.');
 				}
+				for (var roomid in app.rooms) {
+					var curRoom = app.rooms[roomid];
+					if (!curRoom.battle) continue;
+					var turn = curRoom.battle.turn;
+					curRoom.battle.reset(true);
+					curRoom.battle.fastForwardTo(turn);
+				}
 				return false;
 
 			// documentation of client commands
