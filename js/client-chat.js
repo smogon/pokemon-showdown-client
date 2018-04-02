@@ -1488,7 +1488,7 @@
 			var userid = toUserid(name);
 
 			var speakerHasAuth = " +\u2606".indexOf(name.charAt(0)) < 0;
-			var readerHasAuth = this.users && " +\u2606".indexOf((this.users[app.user.get('userid')] || ' ').charAt(0)) < 0;
+			var readerHasAuth = this.users && " +\u2606\u203D!".indexOf((this.users[app.user.get('userid')] || ' ').charAt(0)) < 0;
 			if (app.ignore[userid] && !speakerHasAuth && !readerHasAuth) return;
 
 			// Add this user to the list of people who have spoken recently.
