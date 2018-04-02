@@ -4203,7 +4203,9 @@ var Battle = (function () {
 				var poke = this.getPokemon(args[1]);
 				for (var j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[i + j][0][1]);
 				if (poke) this.resultAnim(poke, 'Super-effective', 'bad');
-				if (!this.fastForward) BattleStatusAnims['hitmark'].anim(this, [poke.sprite]);
+				if (!this.fastForward && window.Config && Config.server && Config.server.afd) {
+					BattleStatusAnims['hitmark'].anim(this, [poke.sprite]);
+				}
 				actions += "It's super effective" + (this.activeMoveIsSpread ? " on " + poke.getLowerName() : "") + "! ";
 				break;
 
