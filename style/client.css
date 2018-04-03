@@ -3409,6 +3409,7 @@ a.ilink.yours {
     opacity: 1;
 }
 
+.dark .teambuilder-results .result a.hover,
 .dark .teambuilder-results .result a:hover,
 .dark .setmenu button:hover,
 .dark .teamlist button:hover {
