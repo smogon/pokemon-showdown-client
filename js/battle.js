@@ -620,6 +620,9 @@ var Pokemon = (function () {
 	};
 	Pokemon.prototype.clearVolatile = function () {
 		this.ability = this.baseAbility;
+		if (window.BattlePokedex && BattlePokedex[this.species] && BattlePokedex[this.species].weightkg) {
+			this.weightkg = BattlePokedex[this.species].weightkg;
+		}
 		this.boosts = {};
 		this.clearVolatiles();
 		for (var i = 0; i < this.moveTrack.length; i++) {
@@ -4931,6 +4934,7 @@ var Battle = (function () {
 				poke.addVolatile('transform');
 				poke.addVolatile('formechange'); // the formechange volatile reminds us to revert the sprite change on switch-out
 				poke.copyTypesFrom(tpoke);
+				poke.weightkg = tpoke.weightkg;
 				poke.ability = tpoke.ability;
 				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
 				poke.volatiles.transform[2] = tpoke;
