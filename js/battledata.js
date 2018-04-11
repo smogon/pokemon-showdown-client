@@ -1513,7 +1513,15 @@ var Tools = {
 			snugglow: 1176 + 11,
 			floatoy: 1176 + 12,
 			caimanoe: 1176 + 13,
-			pluffle: 1176 + 14
+			pluffle: 1176 + 14,
+			rebble: 1176 + 15,
+			tactite: 1176 + 16,
+			privatyke: 1176 + 17,
+			nohface: 1176 + 18,
+			monohm: 1176 + 19,
+			duohm: 1176 + 20,
+			// protowatt: 1176 + 21,
+			voodoll: 1176 + 22
 		};
 
 		if (altNums[id]) {
