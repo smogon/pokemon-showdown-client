@@ -1343,25 +1343,30 @@
 			this.toggleNicknames(this.battle.yourSide);
 
 			var $log = $('.battle-log .inner');
-			if (!$log.length) return;
+			var $message = $('.battle .message');
 			if (this.battle.ignoreNicks) {
 				$log.addClass('hidenicks');
+				$message.addClass('hidenicks');
 			} else {
 				$log.removeClass('hidenicks');
+				$message.removeClass('hidenicks');
 			}
 		},
 		toggleIgnoreOpponent: function (e) {
 			this.battle.ignoreOpponent = !!e.currentTarget.checked;
 			this.battle.add('Opponent ' + (this.battle.ignoreOpponent ? '' : 'no longer ') + 'ignored.');
 			var $log = $('.battle-log .inner');
+			var $message = $('.battle .message');
 			var $messages = $log.find('.chatmessage-' + this.battle.yourSide.id);
 			if (!$messages.length) return;
 			if (this.battle.ignoreOpponent) {
 				$messages.hide();
 				$log.addClass('hidenicks');
+				$message.addClass('hidenicks');
 			} else {
 				$messages.show();
 				$log.removeClass('hidenicks');
+				$message.removeClass('hidenicks');
 			}
 		},
 		toggleNicknames: function (side) {
