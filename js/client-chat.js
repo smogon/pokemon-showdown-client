@@ -898,11 +898,16 @@
 					this.add('April Fools\' day mode enabled.');
 				}
 				for (var roomid in app.rooms) {
-					var curRoom = app.rooms[roomid];
-					if (!curRoom.battle) continue;
-					var turn = curRoom.battle.turn;
-					curRoom.battle.reset(true);
-					curRoom.battle.fastForwardTo(turn);
+					var battle = app.rooms[roomid] && app.rooms[roomid].battle;
+					if (!battle) continue;
+					var turn = battle.turn;
+					battle.reset(true);
+					battle.fastForwardTo(turn);
+					if (battle.playbackState !== 3) {
+						battle.play();
+					} else {
+						battle.pause();
+					}
 				}
 				return false;
 
