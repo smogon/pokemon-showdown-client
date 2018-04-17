@@ -2665,6 +2665,8 @@ var Battle = (function () {
 		if (this.ignoreNicks) {
 			var $log = $('.battle-log .inner');
 			if ($log.length) $log.addClass('hidenicks');
+			var $message = $('.battle .message');
+			if ($message.length) $message.addClass('hidenicks');
 		}
 
 		// activity queue state
