@@ -804,7 +804,12 @@
 		case 'pokemon':
 			var table = BattleTeambuilderTable;
 			var isDoublesOrBS = false;
-			if (this.gen === 7 && requirePentagon) {
+			if (format.endsWith('cap') || format.endsWith('caplc')) {
+				// CAP formats always use the singles table
+				if (this.gen < 7) {
+					table = table['gen' + this.gen];
+				}
+			} else if (this.gen === 7 && requirePentagon) {
 				table = table['gen' + this.gen + 'vgc'];
 				isDoublesOrBS = true;
 			} else if (table['gen' + this.gen + 'doubles'] && (format.includes('doubles') || format.includes('vgc') || format.includes('triples') || format.endsWith('lc') || format.endsWith('lcuu'))) {
@@ -838,6 +843,7 @@
 			else if (format === 'pu') tierSet = tierSet.slice(slices.PU);
 			else if (format === 'lc' || format === 'lcuu') tierSet = tierSet.slice(slices.LC);
 			else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
+			else if (format === 'caplc') tierSet = tierSet.slice(slices['CAP LC'], slices.Uber).concat(tierSet.slice(slices.LC));
 			else if (format === 'anythinggoes' || format === 'ag') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
 			else if (format === 'balancedhackmons' || format === 'bh') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
 			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
