@@ -483,6 +483,26 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'energypowder':
 			case 'electirizer':
 			case 'oldamber':
+			case 'dawnstone':
+			case 'dragonscale':
+			case 'dubiousdisc':
+			case 'duskstone':
+			case 'firestone':
+			case 'icestone':
+			case 'leafstone':
+			case 'magmarizer':
+			case 'moonstone':
+			case 'ovalstone':
+			case 'prismscale':
+			case 'protector':
+			case 'reapercloth':
+			case 'sachet':
+			case 'shinystone':
+			case 'sunstone':
+			case 'thunderstone':
+			case 'upgrade':
+			case 'waterstone':
+			case 'whippeddream':
 				badItems.push(id);
 				break;
 			// outclassed items
