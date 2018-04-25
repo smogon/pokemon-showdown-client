@@ -12,7 +12,7 @@ if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $host, $m)) {
 	die; // not authorised
 }
 
-$protocol = @$_REQUEST['protocol'] ?? 'http:';
+$protocol = @$_URI['protocol'];
 
 if ($config['host'] !== 'showdown') {
 	include_once '../pokemonshowdown.com/config/servers.inc.php';
