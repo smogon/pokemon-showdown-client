@@ -1246,10 +1246,10 @@
 				lcuber: "LC Uber",
 				lc: "LC",
 				cap: "CAP",
-				bl: "BL",
-				bl2: "BL2",
-				bl3: "BL3",
-				bl4: "BL4"
+				uubl: "UUBL",
+				rubl: "RUBL",
+				nubl: "NUBL",
+				publ: "PUBL"
 			};
 			var tier = {name: tierTable[id]};
 			return this.renderTierRow(tier, matchStart, matchLength, errorMessage);
