@@ -629,12 +629,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (!overrideStats[id]) overrideStats[id] = {};
 					overrideStats[id][stat] = pastEntry.baseStats[stat];
 				}
-				if (pastEntry.types.join('/') !== nowType) {
-					overrideType[id] = pastEntry.types.join('/');
-				}
-				if (pastEntry.abilities['0'] !== nowEntry.abilities['0']) {
-					overrideAbility[id] = pastEntry.abilities['0'];
-				}
+			}
+			if (pastEntry.types.join('/') !== nowType) {
+				overrideType[id] = pastEntry.types.join('/');
+			}
+			if (pastEntry.abilities['0'] !== nowEntry.abilities['0']) {
+				overrideAbility[id] = pastEntry.abilities['0'];
 			}
 		}
 
