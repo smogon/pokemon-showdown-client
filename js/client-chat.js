@@ -1135,6 +1135,13 @@
 			app.send('/leave ' + this.id);
 			app.updateAutojoin();
 		},
+		requestLeave: function (e) {
+			if (app.rooms[''].games && app.rooms[''].games[this.id]) {
+				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: (this.id.substring(0, 5) === 'help-' ? 'help' : 'game')});
+				return false;
+			}
+			return true;
+		},
 		receive: function (data) {
 			this.add(data);
 		},

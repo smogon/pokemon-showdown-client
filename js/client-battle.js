@@ -68,7 +68,7 @@
 		},
 		requestLeave: function (e) {
 			if (this.side && this.battle && !this.battleEnded && !this.expired && !this.battle.forfeitPending) {
-				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget});
+				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: 'battle'});
 				return false;
 			}
 			return true;
@@ -1266,12 +1266,22 @@
 		type: 'semimodal',
 		initialize: function (data) {
 			this.room = data.room;
-			var buf = '<form><p>Forfeiting makes you lose the battle. Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close after forfeiting</label></p>';
-			if (this.room.battle && this.room.battle.rated) {
-				buf += '<p><button type="submit"><strong>Forfeit</strong></button> <button name="close" class="autofocus">Cancel</button></p></form>';
+			this.gameType = data.gameType;
+			var buf = '<form><p>';
+			if (this.gameType === 'battle') {
+				buf += 'Forfeiting makes you lose the battle.';
+			} else if (this.gameType === 'help') {
+				buf += 'Leaving the room will close the ticket.';
 			} else {
-				buf += '<p><button type="submit"><strong>Forfeit</strong></button> <button name="replacePlayer">Replace player</button> <button name="close" class="autofocus">Cancel</button></p></form>';
+				// game
+				buf += 'Forfeiting makes you lose the game.';
 			}
+			buf += ' Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close after forfeiting</label></p>';
+			buf += '<p><button type="submit"><strong>Forfeit</strong></button> ';
+			if (this.gameType === 'battle' && this.room.battle && !this.room.battle.rated) {
+				buf += '<button name="replacePlayer">Replace player</button> ';
+			}
+			buf += '<button name="close" class="autofocus">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
 		replacePlayer: function (data) {
@@ -1287,7 +1297,7 @@
 		},
 		submit: function (data) {
 			this.room.send('/forfeit');
-			this.room.battle.forfeitPending = true;
+			if (this.gameType === 'battle') this.room.battle.forfeitPending = true;
 			if (this.$('input[name=closeroom]')[0].checked) {
 				app.removeRoom(this.room.id);
 			}
