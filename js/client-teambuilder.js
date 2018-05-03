@@ -1736,7 +1736,7 @@
 			var generationNumber = 7;
 			if (format.substr(0, 3) === 'gen') {
 				var number = format.charAt(3);
-				if ('1' <= number && number <= '5') {
+				if ('1' <= number && number <= '6') {
 					generationNumber = +number;
 					format = format.substr(4);
 				}
