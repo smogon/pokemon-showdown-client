@@ -653,7 +653,7 @@
 		 */
 		initializeConnection: function () {
 			Storage.whenPrefsLoaded(function () {
-				if (Config.server.id !== 'smogtours') Config.server.afd = true;
+				// if (Config.server.id !== 'smogtours') Config.server.afd = true;
 				app.connect();
 			});
 		},
