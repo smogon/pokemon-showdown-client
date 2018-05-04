@@ -4511,6 +4511,7 @@ var Battle = (function () {
 					pokeName = parseIdResult.name;
 					pokeSideN = parseIdResult.siden;
 				}
+				if (args[2] === 'slp') poke.statusData.sleepTurns = 0;
 				if (effect.id === 'naturalcure' && !this.hasPreMoveMessage && this.waitForResult()) return;
 
 				if (kwargs.silent) {
