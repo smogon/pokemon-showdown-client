@@ -1291,11 +1291,13 @@
 					break;
 
 				case 'tempnotify':
+					var notifyOnce = row[4] !== '!';
+					if (!notifyOnce) row[4] = '';
 					if (row[4] && !this.getHighlight(row[4])) return;
 					if (!this.notifications && !Tools.prefs('mute') && Tools.prefs('notifvolume')) {
 						soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
 					}
-					this.notify(row[2], row[3], row[1]);
+					this.notify(row[2], row[3], row[1], notifyOnce);
 					break;
 
 				case 'tempnotifyoff':
