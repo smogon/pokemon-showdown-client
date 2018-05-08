@@ -468,15 +468,11 @@ var BattleTooltips = (function () {
 		if (this.battle.gen > 2 && showOtherSees) {
 			if (!pokemon.baseAbility && !pokemon.ability) {
 				if (template.abilities) {
-					var ability0 = template.abilities['0'];
-					if (this.battle.gen < 7) {
-						var table = BattleTeambuilderTable['gen' + this.battle.gen];
-						if (template.speciesid in table.overrideAbility) ability0 = table.overrideAbility[template.speciesid];
-					}
-					text += '<p>Possible abilities: ' + Tools.getAbility(ability0).name;
-					if (template.abilities['1']) text += ', ' + Tools.getAbility(template.abilities['1']).name;
-					if (this.battle.gen > 4 && template.abilities['H']) text += ', ' + Tools.getAbility(template.abilities['H']).name;
-					if (this.battle.gen > 6 && template.abilities['S']) text += ', ' + Tools.getAbility(template.abilities['S']).name;
+					var abilitiesInThisGen = Tools.getAbilitiesFor(template, this.battle.gen);
+					text += '<p>Possible abilities: ' + Tools.getAbility(abilitiesInThisGen['0']).name;
+					if (abilitiesInThisGen['1']) text += ', ' + Tools.getAbility(abilitiesInThisGen['1']).name;
+					if (abilitiesInThisGen['H']) text += ', ' + Tools.getAbility(abilitiesInThisGen['H']).name;
+					if (abilitiesInThisGen['S']) text += ', ' + Tools.getAbility(abilitiesInThisGen['S']).name;
 					text += '</p>';
 				}
 			} else if (pokemon.ability) {

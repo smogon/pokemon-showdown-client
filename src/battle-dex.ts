@@ -852,6 +852,38 @@ const Tools = {
 		return type;
 	},
 
+	getAbilitiesFor(template: any, gen = 7): {[id: string]: string} {
+		template = this.getTemplate(template);
+		if (gen < 3 || !template.abilities) return {};
+		const id = template.id;
+		const templAbilities = template.abilities;
+		const table = (gen >= 7 ? null : window.BattleTeambuilderTable['gen' + gen]);
+		const abilities = {} as {[id: string]: string};
+		if (!table) return Object.assign(abilities, templAbilities);
+
+		if (table.overrideAbility && id in table.overrideAbility) {
+			abilities['0'] = table.overrideAbility[id];
+		} else {
+			abilities['0'] = templAbilities['0'];
+		}
+		const removeSecondAbility = table.removeSecondAbility && id in table.removeSecondAbility;
+		if (!removeSecondAbility && templAbilities['1']) {
+			abilities['1'] = templAbilities['1'];
+		}
+		if (gen >= 5 && templAbilities['H']) abilities['H'] = templAbilities['H'];
+		if (gen >= 7 && templAbilities['S']) abilities['S'] = templAbilities['S'];
+
+		return abilities;
+	},
+
+	hasAbility: function (template: any, ability: string, gen = 7) {
+		const abilities = this.getAbilitiesFor(template, gen);
+		for (const i in abilities) {
+			if (ability === abilities[i]) return true;
+		}
+		return false;
+	},
+
 	loadedSpriteData: {'xy':1, 'bw':0},
 	loadSpriteData(gen: 'xy' | 'bw') {
 		if (this.loadedSpriteData[gen]) return;
