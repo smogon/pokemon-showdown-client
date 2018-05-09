@@ -4994,7 +4994,7 @@ var Battle = (function () {
 			case '-mega':
 				var poke = this.getPokemon(args[1]);
 				var item = Tools.getItem(args[3]);
-				if (args[2] === 'Rayquaza') {
+				if (!item) {
 					actions += "" + Tools.escapeHTML(poke.side.name) + "'s fervent wish has reached " + poke.getLowerName() + "!";
 				} else {
 					poke.item = item.name;
@@ -5008,7 +5008,7 @@ var Battle = (function () {
 				break;
 			case '-burst':
 				var poke = this.getPokemon(args[1]);
-				actions += "Bright light is about to burst out of " + poke.getLowerName() + "!";
+				actions += "Bright light is about to burst out of " + poke.getLowerName() + "! <br />" + poke.getName() + " regained its true power through Ultra Burst!";
 				break;
 
 			case '-start':
@@ -6711,6 +6711,9 @@ var Battle = (function () {
 			poke.removeVolatile('typechange');
 
 			var newSpecies = args[2];
+			if (!newSpecies) {
+				poke.sprite.animTransform($.extend(spriteData, Tools.getTemplate(poke)), true);
+			}
 			var commaIndex = newSpecies.indexOf(',');
 			if (commaIndex !== -1) {
 				var level = $.trim(newSpecies.substr(commaIndex + 1));
@@ -6745,8 +6748,6 @@ var Battle = (function () {
 				this.message('<small>' + poke.getName() + "'s disguise was busted!</small>");
 			} else if (toId(newSpecies) === 'zygardecomplete') {
 				this.message('' + poke.getName() + ' transformed into its Complete Forme!');
-			} else if (toId(newSpecies) === 'necrozmaultra') {
-				this.message('' + poke.getName() + ' regained its true power through Ultra Burst!');
 			}
 			break;
 		case 'teampreview':
