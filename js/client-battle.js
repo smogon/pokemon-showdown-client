@@ -1244,6 +1244,19 @@
 			var reader = new FileReader();
 			reader.onload = function (e) {
 				var html = e.target.result;
+				var titleStart = html.indexOf('<title>');
+				var titleEnd = html.indexOf('</title>');
+				var title = 'Uploaded Replay';
+				if (titleStart >= 0 && titleEnd > titleStart) {
+					title = html.slice(titleStart + 7, titleEnd - 1);
+					var colonIndex = title.indexOf(':');
+					var hyphenIndex = title.lastIndexOf('-');
+					if (hyphenIndex > colonIndex + 2) {
+						title = title.substring(colonIndex + 2, hyphenIndex - 1);
+					} else {
+						title = title.substring(colonIndex + 2);
+					}
+				}
 				var index1 = html.indexOf('<script type="text/plain" class="battle-log-data">');
 				var index2 = html.indexOf('<script type="text/plain" class="log">');
 				if (index1 < 0 && index2 < 0) return alert("Unrecognized HTML file: Only replay files are supported.");
@@ -1255,7 +1268,7 @@
 				var index3 = html.indexOf('</script>');
 				html = html.slice(0, index3);
 				html = html.replace(/\\\//g, '/');
-				app.receive('>battle-uploadedreplay\n|init|battle\n|title|Uploaded replay\n' + html);
+				app.receive('>battle-uploadedreplay\n|init|battle\n|title|' + title + '\n' + html);
 				app.receive('>battle-uploadedreplay\n|expire|Uploaded replay');
 			};
 			reader.readAsText(file);
