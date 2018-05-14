@@ -5851,8 +5851,9 @@ var Battle = (function () {
 					actions += '' + poke.getName() + '\'s ' + effect.name + ' let it move first!';
 					break;
 				case 'leppaberry':
-					actions += '' + poke.getName() + " restored PP to its " + Tools.escapeHTML(args[3]) + " move using Leppa Berry!";
-					poke.markMove(args[3], -10);
+				case 'mysteryberry':
+					actions += '' + poke.getName() + " restored PP to its " + Tools.escapeHTML(args[3]) + " move using " + effect.name + "!";
+					poke.markMove(args[3], effect.id === 'leppaberry' ? -10 : -5);
 					break;
 				case 'focusband':
 					poke.item = 'Focus Band';
