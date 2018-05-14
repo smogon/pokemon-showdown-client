@@ -18,13 +18,13 @@ This is very restrictive for 2018, but fortunately, with Babel 7 and polyfills, 
 - no generators or iterables other than `Array` - they either have tons of overhead or are outright unsupported, and this lets us use `for`-`of` on arrays with zero overhead
 
 We have polyfills for:
-- `Array#includes` - Note: won't work correctly for -0
+- `Array#includes` - Note: won't be able to find `NaN`s
 - `String#startsWith`
 - `String#endsWith`
 - `String#includes`
 - `Object.assign`
 - `Object.create` - Note: second argument is unsupported
 
-These polyfills are optimized for speed, not spec-compliance. As long as you don't screw around with them, you won't have a problem. Note that `Array#includes` won't work correctly for `NaN` or `-0`.
+These polyfills are optimized for speed, not spec-compliance. As long as you don't write very nonstandard code, you won't have a problem.
 
 `Array#includes` is put directly on the `Array` prototype, so you can't use `for-in` on Arrays. Fortunately, TypeScript will complain if you try.
