@@ -1,9 +1,16 @@
-/*
-
-License: MIT License
-  <https://github.com/Zarel/Pokemon-Showdown/blob/master/LICENSE>
-
-*/
+/**
+ * Pokemon Showdown Dex
+ *
+ * Roughly equivalent to sim/dex.js in a Pokemon Showdown server, but
+ * designed for use in browsers rather than in Node.
+ *
+ * This is a generic utility library for Pokemon Showdown code: any
+ * code shared between the replay viewer and the client usually ends up
+ * here.
+ *
+ * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @license MIT
+ */
 
 if (!window.exports) window.exports = window;
 
@@ -18,93 +25,14 @@ if (window.soundManager) {
 	});
 }
 
-window.nodewebkit = false;
-if (typeof process !== 'undefined' && process.versions && process.versions['node-webkit']) window.nodewebkit = true;
+// @ts-ignore
+window.nodewebkit = !!(typeof process !== 'undefined' && process.versions && process.versions['node-webkit']);
 
-/* eslint-disable */
-// ES5 indexOf
-if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
-		"use strict";
-		if (this == null) {
-			throw new TypeError();
-		}
-		var t = Object(this);
-		var len = t.length >>> 0;
-		if (len === 0) {
-			return -1;
-		}
-		var n = 0;
-		if (arguments.length > 1) {
-			n = Number(arguments[1]);
-			if (n != n) { // shortcut for verifying if it's NaN
-				n = 0;
-			} else if (n != 0 && n != Infinity && n != -Infinity) {
-				n = (n > 0 || -1) * Math.floor(Math.abs(n));
-			}
-		}
-		if (n >= len) {
-			return -1;
-		}
-		var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
-		for (; k < len; k++) {
-			if (k in t && t[k] === searchElement) {
-				return k;
-			}
-		}
-		return -1;
-	};
-}
-if (!Array.prototype.includes) {
-	Array.prototype.includes = function (thing) {
-		return this.indexOf(thing) !== -1;
-	};
-}
-if (!String.prototype.includes) {
-	String.prototype.includes = function (thing) {
-		return this.indexOf(thing) !== -1;
-	};
-}
-if (!String.prototype.startsWith) {
-	String.prototype.startsWith = function (thing) {
-		return this.slice(0, thing.length) === thing;
-	};
-}
-if (!String.prototype.endsWith) {
-	String.prototype.endsWith = function (thing) {
-		return this.slice(-thing.length) === thing;
-	};
-}
+let colorCache = {} as {[userid: string]: string};
 
-// MD5 minified
-window.MD5=function(f){function i(b,c){var d,e,f,g,h;f=b&2147483648;g=c&2147483648;d=b&1073741824;e=c&1073741824;h=(b&1073741823)+(c&1073741823);return d&e?h^2147483648^f^g:d|e?h&1073741824?h^3221225472^f^g:h^1073741824^f^g:h^f^g}function j(b,c,d,e,f,g,h){b=i(b,i(i(c&d|~c&e,f),h));return i(b<<g|b>>>32-g,c)}function k(b,c,d,e,f,g,h){b=i(b,i(i(c&e|d&~e,f),h));return i(b<<g|b>>>32-g,c)}function l(b,c,e,d,f,g,h){b=i(b,i(i(c^e^d,f),h));return i(b<<g|b>>>32-g,c)}function m(b,c,e,d,f,g,h){b=i(b,i(i(e^(c|~d),
-f),h));return i(b<<g|b>>>32-g,c)}function n(b){var c="",e="",d;for(d=0;d<=3;d++)e=b>>>d*8&255,e="0"+e.toString(16),c+=e.substr(e.length-2,2);return c}var g=[],o,p,q,r,b,c,d,e,f=function(b){for(var b=b.replace(/\r\n/g,"\n"),c="",e=0;e<b.length;e++){var d=b.charCodeAt(e);d<128?c+=String.fromCharCode(d):(d>127&&d<2048?c+=String.fromCharCode(d>>6|192):(c+=String.fromCharCode(d>>12|224),c+=String.fromCharCode(d>>6&63|128)),c+=String.fromCharCode(d&63|128))}return c}(f),g=function(b){var c,d=b.length;c=
-d+8;for(var e=((c-c%64)/64+1)*16,f=Array(e-1),g=0,h=0;h<d;)c=(h-h%4)/4,g=h%4*8,f[c]|=b.charCodeAt(h)<<g,h++;f[(h-h%4)/4]|=128<<h%4*8;f[e-2]=d<<3;f[e-1]=d>>>29;return f}(f);b=1732584193;c=4023233417;d=2562383102;e=271733878;for(f=0;f<g.length;f+=16)o=b,p=c,q=d,r=e,b=j(b,c,d,e,g[f+0],7,3614090360),e=j(e,b,c,d,g[f+1],12,3905402710),d=j(d,e,b,c,g[f+2],17,606105819),c=j(c,d,e,b,g[f+3],22,3250441966),b=j(b,c,d,e,g[f+4],7,4118548399),e=j(e,b,c,d,g[f+5],12,1200080426),d=j(d,e,b,c,g[f+6],17,2821735955),c=
-j(c,d,e,b,g[f+7],22,4249261313),b=j(b,c,d,e,g[f+8],7,1770035416),e=j(e,b,c,d,g[f+9],12,2336552879),d=j(d,e,b,c,g[f+10],17,4294925233),c=j(c,d,e,b,g[f+11],22,2304563134),b=j(b,c,d,e,g[f+12],7,1804603682),e=j(e,b,c,d,g[f+13],12,4254626195),d=j(d,e,b,c,g[f+14],17,2792965006),c=j(c,d,e,b,g[f+15],22,1236535329),b=k(b,c,d,e,g[f+1],5,4129170786),e=k(e,b,c,d,g[f+6],9,3225465664),d=k(d,e,b,c,g[f+11],14,643717713),c=k(c,d,e,b,g[f+0],20,3921069994),b=k(b,c,d,e,g[f+5],5,3593408605),e=k(e,b,c,d,g[f+10],9,38016083),
-d=k(d,e,b,c,g[f+15],14,3634488961),c=k(c,d,e,b,g[f+4],20,3889429448),b=k(b,c,d,e,g[f+9],5,568446438),e=k(e,b,c,d,g[f+14],9,3275163606),d=k(d,e,b,c,g[f+3],14,4107603335),c=k(c,d,e,b,g[f+8],20,1163531501),b=k(b,c,d,e,g[f+13],5,2850285829),e=k(e,b,c,d,g[f+2],9,4243563512),d=k(d,e,b,c,g[f+7],14,1735328473),c=k(c,d,e,b,g[f+12],20,2368359562),b=l(b,c,d,e,g[f+5],4,4294588738),e=l(e,b,c,d,g[f+8],11,2272392833),d=l(d,e,b,c,g[f+11],16,1839030562),c=l(c,d,e,b,g[f+14],23,4259657740),b=l(b,c,d,e,g[f+1],4,2763975236),
-e=l(e,b,c,d,g[f+4],11,1272893353),d=l(d,e,b,c,g[f+7],16,4139469664),c=l(c,d,e,b,g[f+10],23,3200236656),b=l(b,c,d,e,g[f+13],4,681279174),e=l(e,b,c,d,g[f+0],11,3936430074),d=l(d,e,b,c,g[f+3],16,3572445317),c=l(c,d,e,b,g[f+6],23,76029189),b=l(b,c,d,e,g[f+9],4,3654602809),e=l(e,b,c,d,g[f+12],11,3873151461),d=l(d,e,b,c,g[f+15],16,530742520),c=l(c,d,e,b,g[f+2],23,3299628645),b=m(b,c,d,e,g[f+0],6,4096336452),e=m(e,b,c,d,g[f+7],10,1126891415),d=m(d,e,b,c,g[f+14],15,2878612391),c=m(c,d,e,b,g[f+5],21,4237533241),
-b=m(b,c,d,e,g[f+12],6,1700485571),e=m(e,b,c,d,g[f+3],10,2399980690),d=m(d,e,b,c,g[f+10],15,4293915773),c=m(c,d,e,b,g[f+1],21,2240044497),b=m(b,c,d,e,g[f+8],6,1873313359),e=m(e,b,c,d,g[f+15],10,4264355552),d=m(d,e,b,c,g[f+6],15,2734768916),c=m(c,d,e,b,g[f+13],21,1309151649),b=m(b,c,d,e,g[f+4],6,4149444226),e=m(e,b,c,d,g[f+11],10,3174756917),d=m(d,e,b,c,g[f+2],15,718787259),c=m(c,d,e,b,g[f+9],21,3951481745),b=i(b,o),c=i(c,p),d=i(d,q),e=i(e,r);return(n(b)+n(c)+n(d)+n(e)).toLowerCase()};
-
-// text formatter, transpiled from server chat-formatter.js
-var formatText = (function(){function g(d,a){a=void 0===a?!1:a;d=(""+d).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;");this.f=d=d.replace(h,function(a){if(/^[a-z0-9.]+@/ig.test(a))var c="mailto:"+a;else if(c=a.replace(/^([a-z]*[^a-z:])/g,"http://$1"),"https://docs.google.com/"===a.substr(0,24)||"docs.google.com/"===a.substr(0,16)){"https"===a.slice(0,5)&&(a=a.slice(8));if("?usp=sharing"===a.substr(-12)||"&usp=sharing"===a.substr(-12))a=a.slice(0,-12);
-"#gid=0"===a.substr(-6)&&(a=a.slice(0,-6));var b=a.lastIndexOf("/");18<a.length-b&&(b=a.length);22<b-4&&(a=a.slice(0,19)+'<small class="message-overflow">'+a.slice(19,b-4)+"</small>"+a.slice(b-4))}return'<a href="'+c+'" rel="noopener" target="_blank">'+a+"</a>"});this.b=[];this.stack=[];this.isTrusted=a;this.offset=0}var h=/(?:(?:(?:https?:\/\/|\bwww[.])[a-z0-9-]+(?:[.][a-z0-9-]+)*|\b[a-z0-9-]+(?:[.][a-z0-9-]+)*[.](?:com?|org|net|edu|info|us|jp|[a-z]{2,3}(?=[:/])))(?:[:][0-9]+)?\b(?:\/(?:(?:[^\s()&<>]|&amp;|&quot;|[(](?:[^\s()<>&]|&amp;)*[)])*(?:[^\s`()[\]{}'".,!?;:&<>*`^~\\]|[(](?:[^\s()<>&]|&amp;)*[)]))?)?|[a-z0-9.]+\b@[a-z0-9-]+(?:[.][a-z0-9-]+)*[.][a-z]{2,3})(?![^ ]*&gt;)/ig;
-g.prototype.slice=function(d,a){return this.f.slice(d,a)};g.prototype.a=function(d){return this.f.charAt(d)};g.prototype.i=function(d,a,b){this.c(a);this.stack.push([d,this.b.length]);this.b.push(this.slice(a,b));this.offset=b};g.prototype.c=function(d){d!==this.offset&&(this.b.push(this.slice(this.offset,d)),this.offset=d)};g.prototype.m=function(d){for(var a=-1,b=this.stack.length-1;0<=b;b--){var c=this.stack[b];if("("===c[0]){a=b;break}if("spoiler"!==c[0])break}if(-1!==a){for(this.c(d);this.stack.length>
-a;)this.h(d);this.offset=d}};g.prototype.o=function(d,a,b){for(var c=-1,e=this.stack.length-1;0<=e;e--)if(this.stack[e][0]===d){c=e;break}if(-1===c)return!1;for(this.c(a);this.stack.length>c+1;)this.h(a);a=this.stack.pop()[1];c="";switch(d){case "_":c="i";break;case "*":c="b";break;case "~":c="s";break;case "^":c="sup";break;case "\\":c="sub"}c&&(this.b[a]="<"+c+">",this.b.push("</"+c+">"),this.offset=b);return!0};g.prototype.h=function(d){var a=this.stack.pop();if(a)switch(this.c(d),a[0]){case "spoiler":this.b.push("</span>");
-this.b[a[1]]='<span class="spoiler">';break;case ">":this.b.push("</span>"),this.b[a[1]]='<span class="greentext">'}};g.prototype.j=function(d){for(;this.stack.length;)this.h(d);this.c(d)};g.prototype.l=function(d){d=d.replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&apos;/g,"'");return encodeURIComponent(d)};g.prototype.g=function(d,a){switch(d){case "`":for(var b=0,c=a;"`"===this.a(c);)b++,c++;for(var e=0;c<this.f.length;){var f=this.a(c);if("\n"===
-f)break;if("`"===f)e++;else{if(e===b)break;e=0}c++}if(e!==b)break;this.c(a);this.b.push("<code>");e=a+b;b=c-b;e+1>=b||(" "===this.a(e)&&" "===this.a(b-1)?(e++,b--):" "===this.a(e)&&"`"===this.a(e+1)?e++:" "===this.a(b-1)&&"`"===this.a(b-2)&&b--);this.b.push(this.slice(e,b));this.b.push("</code>");this.offset=c;break;case "[":if("[["!==this.slice(a,a+2))break;c=a+2;for(f=e=-1;c<this.f.length;){b=this.a(c);if("]"===b||"\n"===b)break;":"===b&&0>e&&(e=c);"&"===b&&"&lt;"===this.slice(c,c+4)&&(f=c);c++}if("]]"!==
-this.slice(c,c+2))break;var g=c;b="";0<=f&&"&gt;"===this.slice(c-4,c)&&(b=this.slice(f+4,c-4),g=f," "===this.a(g-1)&&g--,b=encodeURI(b.replace(/^([a-z]*[^a-z:])/g,"http://$1")));f=this.slice(a+2,g).replace(/<\/?a(?: [^>]+)?>/g,"");b&&!this.isTrusted&&(g=b.replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/$/,""),f+="<small> &lt;"+g+"&gt;</small>",b+='" rel="noopener');if(0<e)switch(e=this.slice(a+2,e).toLowerCase(),e){case "w":case "wiki":f=f.slice(" "===f.charAt(e.length+1)?e.length+2:e.length+
-1);b="//en.wikipedia.org/w/index.php?title=Special:Search&search="+this.l(f);f="wiki: "+f;break;case "pokemon":case "item":f=f.slice(" "===f.charAt(e.length+1)?e.length+2:e.length+1),g=this.isTrusted?"<psicon "+e+'="'+f+'"/>':"["+f+"]",b=e,"item"===e&&(b+="s"),b="//dex.pokemonshowdown.com/"+b+"/"+toId(f),f=g}b||(b="//www.google.com/search?ie=UTF-8&btnI&q="+this.l(f));this.c(a);this.b.push('<a href="'+b+'" target="_blank">'+f+"</a>");this.offset=c+2;break;case "<":if("&lt;&lt;"!==this.slice(a,a+8))break;
-for(c=a+8;/[a-z0-9-]/.test(this.a(c));)c++;if("&gt;&gt;"!==this.slice(c,c+8))break;this.c(a);b=this.slice(a+8,c);this.b.push('&laquo;<a href="/'+b+'" target="_blank">'+b+"</a>&raquo;");this.offset=c+8;break;case "a":for(c=a+1;"/"!==this.a(c)||"a"!==this.a(c+1)||">"!==this.a(c+2);)c++;this.c(c+3)}};g.prototype.get=function(){for(var d=this.offset,a=d;a<this.f.length;a++){var b=this.a(a);switch(b){case "_":case "*":case "~":case "^":case "\\":if(this.a(a+1)===b&&this.a(a+2)!==b&&(" "!==this.a(a-1)&&
-this.o(b,a,a+2)||" "!==this.a(a+2)&&this.i(b,a,a+2),a<this.offset)){a=this.offset-1;break}for(;this.a(a+1)===b;)a++;break;case "(":this.stack.push(["(",-1]);break;case ")":this.m(a);a<this.offset&&(a=this.offset-1);break;case "`":"`"===this.a(a+1)&&this.g("`",a);if(a<this.offset){a=this.offset-1;break}for(;"`"===this.a(a+1);)a++;break;case "[":this.g("[",a);if(a<this.offset){a=this.offset-1;break}for(;"["===this.a(a+1);)a++;break;case ":":if(7>a)break;if("spoiler:"===this.slice(a-7,a+1).toLowerCase()||
-"spoilers:"===this.slice(a-8,a+1).toLowerCase())" "===this.a(a+1)&&a++,this.i("spoiler",a+1,a+1);break;case "&":a===d&&"&gt;"===this.slice(a,a+4)?"._/=:;".includes(this.a(a+4))||["w&lt;","w&gt;"].includes(this.slice(a+4,a+9))||this.i(">",a,a):this.g("<",a);if(a<this.offset){a=this.offset-1;break}for(;"lt;&"===this.slice(a+1,a+5);)a+=4;break;case "<":this.g("a",a);a<this.offset&&(a=this.offset-1);break;case "\r":case "\n":this.j(a),d=a+1}}this.j(this.f.length);return this.b.join("")};return function(d,
-a){return(new g(d,void 0===a?!1:a)).get()}})();
-/* eslint-enable */
-
-var colorCache = {};
-
-function hashColor(name) {
+function hashColor(name: string) {
 	if (colorCache[name]) return colorCache[name];
-	var hash;
+	let hash;
 	if (window.Config && Config.customcolors && Config.customcolors[name]) {
 		if (Config.customcolors[name].color) {
 			return (colorCache[name] = 'color:' + Config.customcolors[name].color + ';');
@@ -113,15 +41,15 @@ function hashColor(name) {
 	} else {
 		hash = MD5(name);
 	}
-	var H = parseInt(hash.substr(4, 4), 16) % 360; // 0 to 360
-	var S = parseInt(hash.substr(0, 4), 16) % 50 + 40; // 40 to 89
-	var L = Math.floor(parseInt(hash.substr(8, 4), 16) % 20 + 30); // 30 to 49
+	let H = parseInt(hash.substr(4, 4), 16) % 360; // 0 to 360
+	let S = parseInt(hash.substr(0, 4), 16) % 50 + 40; // 40 to 89
+	let L = Math.floor(parseInt(hash.substr(8, 4), 16) % 20 + 30); // 30 to 49
 
-	var C = (100 - Math.abs(2 * L - 100)) * S / 100 / 100;
-	var X = C * (1 - Math.abs((H / 60) % 2 - 1));
-	var m = L / 100 - C / 2;
+	let C = (100 - Math.abs(2 * L - 100)) * S / 100 / 100;
+	let X = C * (1 - Math.abs((H / 60) % 2 - 1));
+	let m = L / 100 - C / 2;
 
-	var R1, G1, B1;
+	let R1, G1, B1;
 	switch (Math.floor(H / 60)) {
 	case 1: R1 = X; G1 = C; B1 = 0; break;
 	case 2: R1 = 0; G1 = C; B1 = X; break;
@@ -130,15 +58,15 @@ function hashColor(name) {
 	case 5: R1 = C; G1 = 0; B1 = X; break;
 	case 0: default: R1 = C; G1 = X; B1 = 0; break;
 	}
-	var R = R1 + m, G = G1 + m, B = B1 + m;
-	var lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
+	let R = R1 + m, G = G1 + m, B = B1 + m;
+	let lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
 
-	var HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
+	let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
 	if (HLmod > 18) HLmod = (HLmod - 18) * 2.5;
 	else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
 	else HLmod = 0;
-	// var mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
-	var Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
+	// let mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
+	let Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
 	if (Hdist < 15) {
 		HLmod += (15 - Hdist) / 3;
 	}
@@ -149,12 +77,12 @@ function hashColor(name) {
 	return colorCache[name];
 }
 
-function getString(str) {
+function getString(str: any) {
 	if (typeof str === 'string' || typeof str === 'number') return '' + str;
 	return '';
 }
 
-function toId(text) {
+function toId(text: any) {
 	if (text && text.id) {
 		text = text.id;
 	} else if (text && text.userid) {
@@ -164,11 +92,19 @@ function toId(text) {
 	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
-function toUserid(text) {
+function toUserid(text: any) {
 	return toId(text);
 }
 
-function toName(name) {
+/**
+ * Sanitize a room ID by removing anything that isn't alphanumeric or `-`.
+ * Shouldn't actually do anything except against malicious input.
+ */
+function toRoomid(roomid: string) {
+	return roomid.replace(/[^a-zA-Z0-9-]+/g, '').toLowerCase();
+}
+
+function toName(name: any) {
 	if (typeof name !== 'string' && typeof name !== 'number') return '';
 	name = ('' + name).replace(/[\|\s\[\]\,\u202e]+/g, ' ').trim();
 	if (name.length > 18) name = name.substr(0, 18).trim();
@@ -180,232 +116,15 @@ function toName(name) {
 	return name;
 }
 
-// miscellaneous things too minor to deserve their own resource file
-var BattleNatures = {
-	Adamant: {
-		plus: 'atk',
-		minus: 'spa'
-	},
-	Bashful: {},
-	Bold: {
-		plus: 'def',
-		minus: 'atk'
-	},
-	Brave: {
-		plus: 'atk',
-		minus: 'spe'
-	},
-	Calm: {
-		plus: 'spd',
-		minus: 'atk'
-	},
-	Careful: {
-		plus: 'spd',
-		minus: 'spa'
-	},
-	Docile: {},
-	Gentle: {
-		plus: 'spd',
-		minus: 'def'
-	},
-	Hardy: {},
-	Hasty: {
-		plus: 'spe',
-		minus: 'def'
-	},
-	Impish: {
-		plus: 'def',
-		minus: 'spa'
-	},
-	Jolly: {
-		plus: 'spe',
-		minus: 'spa'
-	},
-	Lax: {
-		plus: 'def',
-		minus: 'spd'
-	},
-	Lonely: {
-		plus: 'atk',
-		minus: 'def'
-	},
-	Mild: {
-		plus: 'spa',
-		minus: 'def'
-	},
-	Modest: {
-		plus: 'spa',
-		minus: 'atk'
-	},
-	Naive: {
-		plus: 'spe',
-		minus: 'spd'
-	},
-	Naughty: {
-		plus: 'atk',
-		minus: 'spd'
-	},
-	Quiet: {
-		plus: 'spa',
-		minus: 'spe'
-	},
-	Quirky: {},
-	Rash: {
-		plus: 'spa',
-		minus: 'spd'
-	},
-	Relaxed: {
-		plus: 'def',
-		minus: 'spe'
-	},
-	Sassy: {
-		plus: 'spd',
-		minus: 'spe'
-	},
-	Serious: {},
-	Timid: {
-		plus: 'spe',
-		minus: 'atk'
-	}
-};
-var BattleStatIDs = {
-	HP: 'hp',
-	hp: 'hp',
-	Atk: 'atk',
-	atk: 'atk',
-	Def: 'def',
-	def: 'def',
-	SpA: 'spa',
-	SAtk: 'spa',
-	SpAtk: 'spa',
-	spa: 'spa',
-	spc: 'spa',
-	Spc: 'spa',
-	SpD: 'spd',
-	SDef: 'spd',
-	SpDef: 'spd',
-	spd: 'spd',
-	Spe: 'spe',
-	Spd: 'spe',
-	spe: 'spe'
-};
-var BattlePOStatNames = { // PO style
-	hp: 'HP',
-	atk: 'Atk',
-	def: 'Def',
-	spa: 'SAtk',
-	spd: 'SDef',
-	spe: 'Spd'
-};
-var BattleStatNames = { // proper style
-	hp: 'HP',
-	atk: 'Atk',
-	def: 'Def',
-	spa: 'SpA',
-	spd: 'SpD',
-	spe: 'Spe'
-};
+const Tools = {
 
-var baseSpeciesChart = [
-	'pikachu',
-	'pichu',
-	'unown',
-	'castform',
-	'deoxys',
-	'burmy',
-	'wormadam',
-	'cherrim',
-	'shellos',
-	'gastrodon',
-	'rotom',
-	'giratina',
-	'shaymin',
-	'arceus',
-	'basculin',
-	'darmanitan',
-	'deerling',
-	'sawsbuck',
-	'tornadus',
-	'thundurus',
-	'landorus',
-	'kyurem',
-	'keldeo',
-	'meloetta',
-	'genesect',
-	'vivillon',
-	'flabebe',
-	'floette',
-	'florges',
-	'furfrou',
-	'aegislash',
-	'pumpkaboo',
-	'gourgeist',
-	'meowstic',
-	'hoopa',
-	'zygarde',
-	'lycanroc',
-	'wishiwashi',
-	'minior',
-	'mimikyu',
-	'greninja',
-	'oricorio',
-	'silvally',
-	'necrozma',
-
-	// alola totems
-	'raticate',
-	'marowak',
-	'kommoo',
-
-	// mega evolutions
-	'charizard',
-	'mewtwo'
-	// others are hardcoded by ending with 'mega'
-];
-
-// Precompile often used regular expression for links.
-var domainRegex = '[a-z0-9\\-]+(?:[.][a-z0-9\\-]+)*';
-var parenthesisRegex = '[(](?:[^\\s()<>&]|&amp;)*[)]';
-var linkRegex = new RegExp(
-	'(?:' +
-		'(?:' +
-			// When using www. or http://, allow any-length TLD (like .museum)
-			'(?:https?://|\\bwww[.])' + domainRegex +
-			'|\\b' + domainRegex + '[.]' +
-				// Allow a common TLD, or any 2-3 letter TLD followed by : or /
-				'(?:com?|org|net|edu|info|us|jp|[a-z]{2,3}(?=[:/]))' +
-		')' +
-		'(?:[:][0-9]+)?' +
-		'\\b' +
-		'(?:' +
-			'/' +
-			'(?:' +
-				'(?:' +
-					'[^\\s()&<>]|&amp;|&quot;' +
-					'|' + parenthesisRegex +
-				')*' +
-				// URLs usually don't end with punctuation, so don't allow
-				// punctuation symbols that probably aren't related to URL.
-				'(?:' +
-					'[^\\s`()\\[\\]{}\'".,!?;:&<>]' +
-					'|' + parenthesisRegex +
-				')' +
-			')?' +
-		')?' +
-		'|[a-z0-9.]+\\b@' + domainRegex + '[.][a-z]{2,3}' +
-	')',
-	'ig'
-);
-
-var Tools = {
-
-	resourcePrefix: (function () {
-		var prefix = '';
-		if (document.location.protocol === 'file:') prefix = 'https:';
+	resourcePrefix: (() => {
+		let prefix = '';
+		if (document.location.protocol !== 'http:') prefix = 'https:';
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
-	fxPrefix: (function () {
+	fxPrefix: (() => {
 		if (document.location.protocol === 'file:') {
 			if (window.Replays) return 'https://play.pokemonshowdown.com/fx/';
 			return 'fx/';
@@ -415,21 +134,28 @@ var Tools = {
 
 	/*
 	 * Load trackers are loosely based on Promises, but very simplified.
-	 * Trackers are made with: var tracker = Tools.makeLoadTracker();
+	 * Trackers are made with: let tracker = Tools.makeLoadTracker();
 	 * Pass callbacks like so: tracker(callback)
 	 * When tracker.load() is called, all callbacks are run.
 	 * If tracker.load() has already been called, tracker(callback) will
 	 * call the callback instantly.
 	 */
-	makeLoadTracker: function () {
-		var tracker = function (callback, context) {
+	makeLoadTracker() {
+		type LoadTracker = ((callback: Function, context: any) => any) & {
+			isLoaded: boolean,
+			value: any,
+			load: (value: any) => void,
+			unload: () => void,
+			callbacks: [Function, any][],
+		};
+		let tracker: LoadTracker = function (callback, context) {
 			if (tracker.isLoaded) {
 				callback.call(context, tracker.value);
 			} else {
 				tracker.callbacks.push([callback, context]);
 			}
 			return tracker;
-		};
+		} as LoadTracker;
 		tracker.callbacks = [];
 		tracker.value = undefined;
 		tracker.isLoaded = false;
@@ -437,7 +163,7 @@ var Tools = {
 			if (tracker.isLoaded) return;
 			tracker.isLoaded = true;
 			tracker.value = value;
-			for (var i = 0; i < tracker.callbacks.length; i++) {
+			for (let i = 0; i < tracker.callbacks.length; i++) {
 				tracker.callbacks[i][0].call(tracker.callbacks[i][1], value);
 			}
 		};
@@ -448,28 +174,29 @@ var Tools = {
 		return tracker;
 	},
 
-	resolveAvatar: function (avatar) {
-		var avatarnum = Number(avatar);
+	resolveAvatar(avatar: string | number): string {
+		let avatarnum = Number(avatar);
 		if (!isNaN(avatarnum)) {
 			// default avatars
 			return Tools.resourcePrefix + 'sprites/trainers/' + avatarnum + '.png';
 		}
+		avatar = '' + avatar;
 		if (avatar.charAt(0) === '#') {
 			return Tools.resourcePrefix + 'sprites/trainers/' + toId(avatar.substr(1)) + '.png';
 		}
 		if (window.Config && Config.server && Config.server.registered) {
 			// custom avatar served by the server
-			var protocol = (Config.server.port === 443) ? 'https' : 'http';
+			let protocol = (Config.server.port === 443) ? 'https' : 'http';
 			return protocol + '://' + Config.server.host + ':' + Config.server.port +
 				'/avatars/' + _.map(avatar.split('?', 2), encodeURIComponent).join('?');
 		}
 		// just pick a random avatar
-		var sprites = [1, 2, 101, 102, 169, 170];
+		let sprites = [1, 2, 101, 102, 169, 170];
 		return Tools.resolveAvatar(sprites[Math.floor(Math.random() * sprites.length)]);
 	},
 
-	escapeFormat: function (formatid) {
-		var atIndex = formatid.indexOf('@@@');
+	escapeFormat(formatid: string): string {
+		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
 			return Tools.escapeFormat(formatid.slice(0, atIndex)) + '<br />Custom rules: ' + Tools.escapeHTML(formatid.slice(atIndex + 3));
 		}
@@ -478,26 +205,26 @@ var Tools = {
 		}
 		return Tools.escapeHTML(formatid);
 	},
-	parseChatMessage: function (message, name, timestamp, isHighlighted) {
-		var showMe = !((Tools.prefs('chatformatting') || {}).hideme);
-		var group = ' ';
+	parseChatMessage(message: string, name: string, timestamp: string, isHighlighted?: boolean) {
+		let showMe = !((Tools.prefs('chatformatting') || {}).hideme);
+		let group = ' ';
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
 			// Backwards compatibility
 			group = name.charAt(0);
 			name = name.substr(1);
 		}
-		var color = hashColor(toId(name));
-		var clickableName = '<small>' + Tools.escapeHTML(group) + '</small><span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + '</span>';
-		var hlClass = isHighlighted ? ' highlighted' : '';
-		var mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
+		let color = hashColor(toId(name));
+		let clickableName = '<small>' + Tools.escapeHTML(group) + '</small><span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + '</span>';
+		let hlClass = isHighlighted ? ' highlighted' : '';
+		let mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
 
-		var cmd = '';
-		var target = '';
+		let cmd = '';
+		let target = '';
 		if (message.charAt(0) === '/') {
 			if (message.charAt(1) === '/') {
 				message = message.slice(1);
 			} else {
-				var spaceIndex = message.indexOf(' ');
+				let spaceIndex = message.indexOf(' ');
 				cmd = (spaceIndex >= 0 ? message.slice(1, spaceIndex) : message.slice(1));
 				if (spaceIndex >= 0) target = message.slice(spaceIndex + 1);
 			}
@@ -511,7 +238,7 @@ var Tools = {
 			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + Tools.parseMessage(' ' + target).slice(1) + '</em></div>';
 			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + Tools.parseMessage(' ' + target).slice(1) + '</i></em></div>';
 		case 'invite':
-			var roomid = toRoomid(target);
+			let roomid = toRoomid(target);
 			return [
 				'<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em></div>',
 				'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>'
@@ -521,14 +248,14 @@ var Tools = {
 		case 'log':
 			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + Tools.parseMessage(target) + '</span></div>';
 		case 'data-pokemon':
-			var buf = '<li class="result">';
-			var template = Tools.getTemplate(target);
+			let buf = '<li class="result">';
+			let template = Tools.getTemplate(target);
 			if (!template.abilities || !template.baseStats) return '[not supported in replays]';
 			buf += '<span class="col numcol">' + (template.tier || Tools.getTemplate(template.baseSpecies).tier) + '</span> ';
 			buf += '<span class="col iconcol"><span style="' + Tools.getPokemonIcon(template) + '"></span></span> ';
 			buf += '<span class="col pokemonnamecol" style="white-space:nowrap"><a href="https://pokemonshowdown.com/dex/pokemon/' + template.id + '" target="_blank">' + template.species + '</a></span> ';
 			buf += '<span class="col typecol">';
-			if (template.types) for (var i = 0; i < template.types.length; i++) {
+			if (template.types) for (let i = 0; i < template.types.length; i++) {
 				buf += Tools.getTypeIcon(template.types[i]);
 			}
 			buf += '</span> ';
@@ -553,8 +280,8 @@ var Tools = {
 			buf += '<span class="col statcol"><em>SpA</em><br />' + template.baseStats.spa + '</span> ';
 			buf += '<span class="col statcol"><em>SpD</em><br />' + template.baseStats.spd + '</span> ';
 			buf += '<span class="col statcol"><em>Spe</em><br />' + template.baseStats.spe + '</span> ';
-			var bst = 0;
-			for (i in template.baseStats) bst += template.baseStats[i];
+			let bst = 0;
+			for (const i in template.baseStats) bst += template.baseStats[i as StatName];
 			buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
 			buf += '</span>';
 			buf += '</li>';
@@ -585,14 +312,14 @@ var Tools = {
 		}
 	},
 
-	parseMessage: function (str) {
+	parseMessage(str: string) {
 		// Don't format console commands (>>).
 		if (str.substr(0, 3) === '>> ' || str.substr(0, 4) === '>>> ') return Tools.escapeHTML(str);
 		// Don't format console results (<<).
 		if (str.substr(0, 3) === '<< ') return Tools.escapeHTML(str);
 		str = formatText(str);
 
-		var options = Tools.prefs('chatformatting') || {};
+		let options = Tools.prefs('chatformatting') || {};
 
 		if (options.hidelinks) {
 			str = str.replace(/<a[^>]*>/g, '<u>').replace(/<\/a>/g, '</u>');
@@ -607,22 +334,22 @@ var Tools = {
 		return str;
 	},
 
-	escapeHTML: function (str, jsEscapeToo) {
+	escapeHTML(str: string, jsEscapeToo?: boolean) {
 		str = getString(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		if (jsEscapeToo) str = str.replace(/'/g, '\\\'');
 		return str;
 	},
 
-	unescapeHTML: function (str) {
+	unescapeHTML(str: string) {
 		str = (str ? '' + str : '');
 		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	},
 
-	escapeRegExp: function (str) {
+	escapeRegExp(str: string) {
 		return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 	},
 
-	escapeQuotes: function (str) {
+	escapeQuotes(str: string) {
 		str = (str ? '' + str : '');
 		str = str.replace(/'/g, '\\\'');
 		return str;
@@ -635,12 +362,12 @@ var Tools = {
 			};
 		}
 		// Add <marquee> <blink> <psicon> to the whitelist.
-		$.extend(html4.ELEMENTS, {
+		Object.assign(html4.ELEMENTS, {
 			'marquee': 0,
 			'blink': 0,
 			'psicon': html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY']
 		});
-		$.extend(html4.ATTRIBS, {
+		Object.assign(html4.ATTRIBS, {
 			// See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee
 			'marquee::behavior': 0,
 			'marquee::bgcolor': 0,
@@ -657,19 +384,19 @@ var Tools = {
 			'psicon::item': 0
 		});
 
-		var uriRewriter = function (urlData) {
+		let uriRewriter = function (urlData: any) {
 			if (urlData.scheme_ === 'geo' || urlData.scheme_ === 'sms' || urlData.scheme_ === 'tel') return null;
 			return urlData;
 		};
-		var tagPolicy = function (tagName, attribs) {
+		let tagPolicy = function (tagName: string, attribs: string[]) {
 			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
 				return;
 			}
-			var targetIdx = 0, srcIdx;
+			let targetIdx = 0, srcIdx = 0;
 			if (tagName === 'a') {
 				// Special handling of <a> tags.
 
-				for (var i = 0; i < attribs.length - 1; i += 2) {
+				for (let i = 0; i < attribs.length - 1; i += 2) {
 					switch (attribs[i]) {
 					case 'target':
 						targetIdx = i + 1;
@@ -677,9 +404,9 @@ var Tools = {
 					}
 				}
 			}
-			var dataUri = '';
+			let dataUri = '';
 			if (tagName === 'img') {
-				for (var i = 0; i < attribs.length - 1; i += 2) {
+				for (let i = 0; i < attribs.length - 1; i += 2) {
 					if (attribs[i] === 'src' && attribs[i + 1].substr(0, 11) === 'data:image/') {
 						srcIdx = i;
 						dataUri = attribs[i + 1];
@@ -693,10 +420,10 @@ var Tools = {
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>
-				var classValueIndex = -1;
-				var styleValueIndex = -1;
-				var iconAttrib = null;
-				for (var i = 0; i < attribs.length - 1; i += 2) {
+				let classValueIndex = -1;
+				let styleValueIndex = -1;
+				let iconAttrib = null;
+				for (let i = 0; i < attribs.length - 1; i += 2) {
 					if (attribs[i] === 'pokemon' || attribs[i] === 'item') {
 						// If declared more than once, use the later.
 						iconAttrib = attribs.slice(i, i + 2);
@@ -757,16 +484,16 @@ var Tools = {
 			}
 			return {tagName: tagName, attribs: attribs};
 		};
-		var localizeTime = function (full, date, time, timezone) {
-			var parsedTime = new Date(date + 'T' + time + (timezone || 'Z').toUpperCase());
+		let localizeTime = function (full: string, date: string, time: string, timezone?: string) {
+			let parsedTime = new Date(date + 'T' + time + (timezone || 'Z').toUpperCase());
 			// Very old (pre-ES5) web browsers may be incapable of parsing ISO 8601
 			// dates. In such a case, gracefully continue without replacing the date
 			// format.
 			if (!parsedTime.getTime()) return full;
 
-			var formattedTime;
+			let formattedTime;
 			// Try using Intl API if it exists
-			if (window.Intl && window.Intl.DateTimeFormat) {
+			if (window.Intl && Intl.DateTimeFormat) {
 				formattedTime = new Intl.DateTimeFormat(undefined, {month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric'}).format(parsedTime);
 			} else {
 				// toLocaleString even exists in ECMAScript 1, so no need to check
@@ -775,7 +502,7 @@ var Tools = {
 			}
 			return '<time>' + Tools.escapeHTML(formattedTime) + '</time>';
 		};
-		return function (input) {
+		return function (input: any) {
 			// <time> parsing requires ISO 8601 time. While more time formats are
 			// supported by most JavaScript implementations, it isn't required, and
 			// how to exactly enforce ignoring user agent timezone setting is not obvious.
@@ -797,9 +524,9 @@ var Tools = {
 	})(),
 
 	interstice: (function () {
-		var patterns = (function (whitelist) {
-			var patterns = [];
-			for (var i = 0; i < whitelist.length; ++i) {
+		let patterns = (function (whitelist) {
+			let patterns = [];
+			for (let i = 0; i < whitelist.length; ++i) {
 				patterns.push(new RegExp('^(https?:)?//([A-Za-z0-9-]*\\.)?' +
 					whitelist[i] +
 					'(/.*)?', 'i'));
@@ -807,48 +534,49 @@ var Tools = {
 			return patterns;
 		})((window.Config && Config.whitelist) ? Config.whitelist : []);
 		return {
-			isWhitelisted: function (uri) {
+			isWhitelisted(uri: string) {
 				if ((uri[0] === '/') && (uri[1] !== '/')) {
 					// domain-relative URIs are safe
 					return true;
 				}
-				for (var i = 0; i < patterns.length; ++i) {
+				for (let i = 0; i < patterns.length; ++i) {
 					if (patterns[i].test(uri)) {
 						return true;
 					}
 				}
 				return false;
 			},
-			getURI: function (uri) {
+			getURI(uri: string) {
 				return 'http://pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
 			}
 		};
 	})(),
 
-	safeJSON: function (f) {
-		return function (data) {
+	safeJSON(callback: (safeData: any) => void) {
+		return function (data: string) {
 			if (data.length < 1) return;
 			if (data[0] == ']') data = data.substr(1);
-			return f.call(this, $.parseJSON(data));
+			return callback($.parseJSON(data));
 		};
 	},
 
-	prefs: function (prop, value, save) {
+	prefs(prop: string, value?: any, save?: boolean) {
+		// @ts-ignore
 		if (window.Storage && Storage.prefs) return Storage.prefs(prop, value, save);
 		return undefined;
 	},
 
-	getShortName: function (name) {
-		var shortName = name.replace(/[^A-Za-z0-9]+$/, '');
+	getShortName(name: string) {
+		let shortName = name.replace(/[^A-Za-z0-9]+$/, '');
 		if (shortName.indexOf('(') >= 0) {
 			shortName += name.slice(shortName.length).replace(/[^\(\)]+/g, '').replace(/\(\)/g, '');
 		}
 		return shortName;
 	},
 
-	getEffect: function (effect) {
+	getEffect(effect: any): Effect {
 		if (!effect || typeof effect === 'string') {
-			var name = $.trim(effect || '');
+			let name = $.trim(effect || '');
 			if (name.substr(0, 5) === 'item:') {
 				return Tools.getItem(name.substr(5));
 			} else if (name.substr(0, 8) === 'ability:') {
@@ -856,7 +584,7 @@ var Tools = {
 			} else if (name.substr(0, 5) === 'move:') {
 				return Tools.getMove(name.substr(5));
 			}
-			var id = toId(name);
+			let id = toId(name);
 			effect = {};
 			if (id && window.BattleStatuses && BattleStatuses[id]) {
 				effect = BattleStatuses[id];
@@ -889,15 +617,15 @@ var Tools = {
 		return effect;
 	},
 
-	getMove: function (move) {
+	getMove(move: any): Move {
 		if (!move || typeof move === 'string') {
-			var name = $.trim(move || '');
-			var id = toId(name);
+			let name = $.trim(move || '');
+			let id = toId(name);
 			move = (window.BattleMovedex && window.BattleMovedex[id]) || {};
 			if (move.name) move.exists = true;
 
 			if (!move.exists && id.substr(0, 11) === 'hiddenpower' && id.length > 11) {
-				var matches = /([a-z]*)([0-9]*)/.exec(id);
+				let matches = /([a-z]*)([0-9]*)/.exec(id)!;
 				move = (window.BattleMovedex && window.BattleMovedex[matches[1]]) || {};
 				move = $.extend({}, move);
 				move.basePower = matches[2];
@@ -947,17 +675,17 @@ var Tools = {
 		return move;
 	},
 
-	getCategory: function (move, gen, type) {
+	getCategory(move: Move, gen: number, type?: string) {
 		if (gen <= 3 && move.category !== 'Status') {
 			return ((type || move.type) in {Fire:1, Water:1, Grass:1, Electric:1, Ice:1, Psychic:1, Dark:1, Dragon:1} ? 'Special' : 'Physical');
 		}
 		return move.category;
 	},
 
-	getItem: function (item) {
+	getItem(item: any): Item {
 		if (!item || typeof item === 'string') {
-			var name = $.trim(item || '');
-			var id = toId(name);
+			let name = $.trim(item || '');
+			let id = toId(name);
 			item = (window.BattleItems && window.BattleItems[id]) || {};
 			if (item.name) item.exists = true;
 			if (!item.id) item.id = id;
@@ -979,10 +707,10 @@ var Tools = {
 		return item;
 	},
 
-	getAbility: function (ability) {
+	getAbility(ability: any): Ability {
 		if (!ability || typeof ability === 'string') {
-			var name = $.trim(ability || '');
-			var id = toId(name);
+			let name = $.trim(ability || '');
+			let id = toId(name);
 			ability = (window.BattleAbilities && window.BattleAbilities[id]) || {};
 			if (ability.name) ability.exists = true;
 			if (!ability.id) ability.id = id;
@@ -1006,11 +734,11 @@ var Tools = {
 		return ability;
 	},
 
-	getTemplate: function (template) {
+	getTemplate(template: any): Template {
 		if (!template || typeof template === 'string') {
-			var name = template;
-			var id = toId(name);
-			var speciesid = id;
+			let name = template;
+			let id = toId(name);
+			let speciesid = id;
 			if (window.BattleAliases && BattleAliases[id]) {
 				name = BattleAliases[id];
 				id = toId(name);
@@ -1019,8 +747,8 @@ var Tools = {
 			if (!window.BattlePokedex) window.BattlePokedex = {};
 			if (!window.BattlePokedex[id]) {
 				template = window.BattlePokedex[id] = {};
-				for (var i = 0; i < baseSpeciesChart.length; i++) {
-					var baseid = baseSpeciesChart[i];
+				for (let i = 0; i < baseSpeciesChart.length; i++) {
+					let baseid = baseSpeciesChart[i];
 					if (id.length > baseid.length && id.substr(0, baseid.length) === baseid) {
 						template.baseSpecies = baseid;
 						template.forme = id.substr(baseid.length);
@@ -1049,7 +777,7 @@ var Tools = {
 			if (!template.forme) template.forme = '';
 			if (!template.formeLetter) template.formeLetter = '';
 			if (!template.formeid) {
-				var formeid = '';
+				let formeid = '';
 				if (template.baseSpecies !== name) {
 					formeid = '-' + toId(template.forme);
 				}
@@ -1093,8 +821,8 @@ var Tools = {
 				if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
 				if (!window.BattlePokedexAltForms[speciesid]) {
 					template = window.BattlePokedexAltForms[speciesid] = $.extend({}, template);
-					var form = speciesid.slice(template.baseSpecies.length);
-					var formid = '-' + form;
+					let form = speciesid.slice(template.baseSpecies.length);
+					let formid = '-' + form;
 					form = form[0].toUpperCase() + form.slice(1);
 					template.form = form;
 					template.species = template.baseSpecies + (form ? '-' + form : '');
@@ -1109,9 +837,9 @@ var Tools = {
 		return template;
 	},
 
-	getType: function (type) {
+	getType(type: any): Effect {
 		if (!type || typeof type === 'string') {
-			var id = toId(type);
+			let id = toId(type);
 			id = id.substr(0, 1).toUpperCase() + id.substr(1);
 			type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
 			if (type.damageTaken) type.exists = true;
@@ -1125,23 +853,23 @@ var Tools = {
 	},
 
 	loadedSpriteData: {'xy':1, 'bw':0},
-	loadSpriteData: function (gen) {
+	loadSpriteData(gen: 'xy' | 'bw') {
 		if (this.loadedSpriteData[gen]) return;
 		this.loadedSpriteData[gen] = 1;
 
-		var path = $('script[src*="pokedex-mini.js"]').attr('src');
-		var qs = '?' + (path.split('?')[1] || '');
+		let path = $('script[src*="pokedex-mini.js"]').attr('src') || '';
+		let qs = '?' + (path.split('?')[1] || '');
 		path = (path.match(/.+?(?=data\/pokedex-mini\.js)/) || [])[0] || '';
 
-		var el = document.createElement('script');
+		let el = document.createElement('script');
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
 	},
-	getSpriteData: function (pokemon, siden, options) {
+	getSpriteData(pokemon: any, siden: number, options?: any) {
 		if (!options) options = {gen: 6};
 		if (!options.gen) options.gen = 6;
 		pokemon = Tools.getTemplate(pokemon);
-		var spriteData = {
+		let spriteData = {
 			w: 96,
 			h: 96,
 			y: 0,
@@ -1151,8 +879,8 @@ var Tools = {
 			cryurl: '',
 			shiny: pokemon.shiny
 		};
-		var name = pokemon.spriteid;
-		var dir, facing;
+		let name = pokemon.spriteid;
+		let dir, facing;
 		if (siden) {
 			dir = '';
 			facing = 'front';
@@ -1163,15 +891,15 @@ var Tools = {
 		}
 
 		// Decide what gen sprites to use.
-		var fieldGenNum = options.gen;
+		let fieldGenNum = options.gen;
 		if (Tools.prefs('nopastgens')) fieldGenNum = 6;
 		if (Tools.prefs('bwgfx') && fieldGenNum >= 6) fieldGenNum = 5;
-		var genNum = Math.max(fieldGenNum, Math.min(pokemon.gen, 5));
-		var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy', 7:'xy'}[genNum];
+		let genNum = Math.max(fieldGenNum, Math.min(pokemon.gen, 5));
+		let gen = ['', 'rby', 'gsc', 'rse', 'dpp', 'bw', 'xy', 'xy'][genNum];
 
-		var animationData = null;
-		var miscData = null;
-		var speciesid = pokemon.speciesid;
+		let animationData = null;
+		let miscData = null;
+		let speciesid = pokemon.speciesid;
 		if (pokemon.isTotem) speciesid = toId(name);
 		if (gen === 'xy' && window.BattlePokemonSprites) {
 			animationData = BattlePokemonSprites[speciesid];
@@ -1186,7 +914,7 @@ var Tools = {
 
 		if (miscData.num > 0) {
 			spriteData.cryurl = 'audio/cries/' + toId(pokemon.baseSpecies);
-			var formeid = pokemon.formeid;
+			let formeid = pokemon.formeid;
 			if (pokemon.isMega || formeid && (formeid === '-sky' || formeid === '-therian' || formeid === '-primal' || formeid === '-eternal' || pokemon.baseSpecies === 'Kyurem' || formeid === '-super' || formeid === '-unbound' || formeid === '-midnight' || formeid === '-school' || pokemon.baseSpecies === 'Oricorio' || pokemon.baseSpecies === 'Zygarde')) {
 				spriteData.cryurl += formeid;
 			}
@@ -1203,7 +931,7 @@ var Tools = {
 		}
 
 		if (animationData[facing + 'f'] && pokemon.gender === 'F') facing += 'f';
-		var allowAnim = !Tools.prefs('noanim') && !Tools.prefs('nogif');
+		let allowAnim = !Tools.prefs('noanim') && !Tools.prefs('nogif');
 		if (allowAnim && genNum >= 6) spriteData.pixelated = false;
 		if (allowAnim && animationData[facing] && genNum >= 5) {
 			if (facing.slice(-1) === 'f') name += '-f';
@@ -1253,8 +981,8 @@ var Tools = {
 		return spriteData;
 	},
 
-	getPokemonIcon: function (pokemon, facingLeft) {
-		var num = 0;
+	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
+		let num = 0;
 		if (pokemon === 'pokeball') {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
 		} else if (pokemon === 'pokeball-statused') {
@@ -1264,7 +992,7 @@ var Tools = {
 		} else if (pokemon === 'pokeball-none') {
 			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
 		}
-		var id = toId(pokemon);
+		let id = toId(pokemon);
 		if (pokemon && pokemon.species) id = toId(pokemon.species);
 		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) id = toId(pokemon.volatiles.formechange[2]);
 		if (pokemon && pokemon.num !== undefined) num = pokemon.num;
@@ -1272,7 +1000,7 @@ var Tools = {
 		else if (window.BattlePokedex && window.BattlePokedex[id] && BattlePokedex[id].num) num = BattlePokedex[id].num;
 		if (num < 0) num = 0;
 		if (num > 807) num = 0;
-		var altNums = {
+		let altNums = {
 			egg: 816 + 1,
 			pikachubelle: 816 + 2,
 			pikachulibre: 816 + 3,
@@ -1522,7 +1250,7 @@ var Tools = {
 			duohm: 1176 + 20,
 			// protowatt: 1176 + 21,
 			voodoll: 1176 + 22
-		};
+		} as {[id: string]: number};
 
 		if (altNums[id]) {
 			num = altNums[id];
@@ -1629,17 +1357,17 @@ var Tools = {
 			}
 		}
 
-		var top = Math.floor(num / 12) * 30;
-		var left = (num % 12) * 40;
-		var fainted = (pokemon && pokemon.fainted ? ';opacity:.7;filter:contrast(0)' : '');
+		let top = Math.floor(num / 12) * 30;
+		let left = (num % 12) * 40;
+		let fainted = (pokemon && pokemon.fainted ? ';opacity:.7;filter:contrast(0)' : '');
 		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-sheet.png) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
-	getTeambuilderSprite: function (pokemon, gen) {
+	getTeambuilderSprite(pokemon: any, gen: number = 0) {
 		if (!pokemon) return '';
-		var id = toId(pokemon.species);
-		var spriteid = pokemon.spriteid;
-		var template = Tools.getTemplate(pokemon.species);
+		let id = toId(pokemon.species);
+		let spriteid = pokemon.spriteid;
+		let template = Tools.getTemplate(pokemon.species);
 		if (pokemon.species && !spriteid) {
 			if (template.spriteid) {
 				spriteid = template.spriteid;
@@ -1650,8 +1378,8 @@ var Tools = {
 		if (Tools.getTemplate(pokemon.species).exists === false) {
 			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);background-position:10px 5px;background-repeat:no-repeat';
 		}
-		var shiny = (pokemon.shiny ? '-shiny' : '');
-		// var sdata;
+		let shiny = (pokemon.shiny ? '-shiny' : '');
+		// let sdata;
 		// if (BattlePokemonSprites[id] && BattlePokemonSprites[id].front && !Tools.prefs('bwgfx')) {
 		// 	if (BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
 		// 		spriteid += '-f';
@@ -1663,9 +1391,9 @@ var Tools = {
 		// 	return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
 		// }
 		if (Tools.prefs('nopastgens')) gen = 6;
-		var spriteDir = Tools.resourcePrefix + 'sprites/xydex';
+		let spriteDir = Tools.resourcePrefix + 'sprites/xydex';
 		if ((!gen || gen >= 6) && !template.isNonstandard && !Tools.prefs('bwgfx')) {
-			var offset = '-2px -3px';
+			let offset = '-2px -3px';
 			if (template.gen >= 7) offset = '-6px -7px';
 			if (id.substr(0, 6) === 'arceus') offset = '-2px 7px';
 			if (id === 'garchomp') offset = '-2px 2px';
@@ -1678,7 +1406,7 @@ var Tools = {
 		else if (gen <= 3 && template.gen <= 3) spriteDir = Tools.resourcePrefix + 'sprites/rse';
 		else if (gen <= 4 && template.gen <= 4) spriteDir = Tools.resourcePrefix + 'sprites/dpp';
 		return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
-		// var w = Math.round(57 - sdata.w / 2), h = Math.round(57 - sdata.h / 2);
+		// let w = Math.round(57 - sdata.w / 2), h = Math.round(57 - sdata.h / 2);
 		// if (id === 'altariamega' || id === 'dianciemega' || id === 'charizardmegay') h += 15;
 		// if (id === 'gliscor' || id === 'gardevoirmega' || id === 'garchomp' || id === 'garchompmega' || id === 'lugia' || id === 'golurk') h += 8;
 		// if (id === 'manectricmega') h -= 8;
@@ -1688,19 +1416,19 @@ var Tools = {
 		// return 'background-image:url(' + Tools.resourcePrefix + 'sprites/xy' + shiny + '/' + spriteid + '.png);background-position:' + w + 'px ' + h + 'px;background-repeat:no-repeat';
 	},
 
-	getItemIcon: function (item) {
-		var num = 0;
+	getItemIcon(item: any) {
+		let num = 0;
 		if (typeof item === 'string' && exports.BattleItems) item = exports.BattleItems[toId(item)];
 		if (item && item.spritenum) num = item.spritenum;
 
-		var top = Math.floor(num / 16) * 24;
-		var left = (num % 16) * 24;
+		let top = Math.floor(num / 16) * 24;
+		let left = (num % 16) * 24;
 		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/itemicons-sheet.png) no-repeat scroll -' + left + 'px -' + top + 'px';
 	},
 
-	getTypeIcon: function (type, b) { // b is just for utilichart.js
+	getTypeIcon(type: string, b?: boolean) { // b is just for utilichart.js
 		if (!type) return '';
-		var sanitizedType = type.replace(/\?/g, '%3f');
+		let sanitizedType = type.replace(/\?/g, '%3f');
 		return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
 	},
 
@@ -1729,9 +1457,9 @@ var Tools = {
 	// This allows pretty much anything about the replay viewer to be
 	// updated as desired.
 
-	createReplayFile: function (room) {
-		var battle = room.battle;
-		var replayid = room.id;
+	createReplayFile(room: any) {
+		let battle = room.battle;
+		let replayid = room.id;
 		if (replayid) {
 			// battle room
 			replayid = replayid.slice(7);
@@ -1747,7 +1475,7 @@ var Tools = {
 			replayid = room.fragment;
 		}
 		battle.fastForwardTo(-1);
-		var buf = '<!DOCTYPE html>\n';
+		let buf = '<!DOCTYPE html>\n';
 		buf += '<meta charset="utf-8" />\n';
 		buf += '<!-- version 1 -->\n';
 		buf += '<title>' + Tools.escapeHTML(battle.tier) + ' replay: ' + Tools.escapeHTML(battle.p1.name) + ' vs. ' + Tools.escapeHTML(battle.p2.name) + '</title>\n';
@@ -1763,12 +1491,12 @@ var Tools = {
 		buf += '<div class="battle-log battle-log-inline"><div class="inner">' + battle.logElem.html() + '</div></div>\n';
 		buf += '</div>\n';
 		buf += '<script>\n';
-		buf += 'var daily = Math.floor(Date.now()/1000/60/60/24);document.write(\'<script src="https://play.pokemonshowdown.com/js/replay-embed.js?version\'+daily+\'"></\'+\'script>\');\n';
+		buf += 'let daily = Math.floor(Date.now()/1000/60/60/24);document.write(\'<script src="https://play.pokemonshowdown.com/js/replay-embed.js?version\'+daily+\'"></\'+\'script>\');\n';
 		buf += '</script>\n';
 		return buf;
 	},
 
-	createReplayFileHref: function (room) {
-		return 'data:text/plain;base64,' + encodeURIComponent(window.btoa(unescape(encodeURIComponent(Tools.createReplayFile(room)))));
+	createReplayFileHref(room: any) {
+		return 'data:text/plain;base64,' + encodeURIComponent(btoa(Tools.createReplayFile(room)));
 	}
 };
