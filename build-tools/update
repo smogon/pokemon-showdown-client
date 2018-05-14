@@ -38,7 +38,7 @@ console.log("DONE");
  * Compile TS files
  *********************************************************/
 
-child_process.execSync(`node_modules/@babel/cli/bin/babel.js src --out-dir js --extensions '.ts,.tsx'`);
+child_process.execSync(`node node_modules/@babel/cli/bin/babel.js src --out-dir js --extensions ".ts,.tsx"`);
 
 fs.writeFileSync(
 	'js/battledata.js',
