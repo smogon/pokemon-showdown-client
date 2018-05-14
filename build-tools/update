@@ -24,7 +24,7 @@ process.chdir(rootDir);
  * Update version number
  *********************************************************/
 
- process.stdout.write("Updating version... ");
+process.stdout.write("Updating version... ");
 
 let version = require('../package.json').version;
 
