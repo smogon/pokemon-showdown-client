@@ -1,3 +1,8 @@
 data/*
 !data/graphics.js
 node_modules/
+
+/js/battledata.js
+/js/battle-dex.js
+/js/battle-dex-data.js
+/js/lib/
