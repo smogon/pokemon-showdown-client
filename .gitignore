@@ -12,3 +12,7 @@ eslint-cache/
 Thumbs.db
 npm-debug.log
 /vendor/
+
+/js/battledata.js
+/js/battle-dex.js
+/js/battle-dex-data.js

@@ -121,12 +121,6 @@
 		});
 	}
 
-	// sanitize a room ID
-	// shouldn't actually do anything except against a malicious server
-	var toRoomid = this.toRoomid = function (roomid) {
-		return roomid.replace(/[^a-zA-Z0-9-]+/g, '').toLowerCase();
-	};
-
 	// support Safari 6 notifications
 	if (!window.Notification && window.webkitNotification) {
 		window.Notification = window.webkitNotification;

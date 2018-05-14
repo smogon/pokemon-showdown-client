@@ -13,7 +13,17 @@
     "fix": "eslint --config=.eslintrc.js --fix js/*.js data/graphics.js && eslint --config=build-tools/.eslintrc.js --fix build-tools/update build-tools/build-indexes",
     "testcafe": "build-tools/build-indexes && testcafe chrome test/"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@babel/cli": "^7.0.0-beta.46",
+    "@babel/core": "^7.0.0-beta.46",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.46",
+    "@babel/plugin-transform-member-expression-literals": "^7.0.0-beta.46",
+    "@babel/plugin-transform-property-literals": "^7.0.0-beta.46",
+    "@babel/plugin-transform-react-jsx": "^7.0.0-beta.46",
+    "@babel/preset-env": "^7.0.0-beta.46",
+    "@babel/preset-typescript": "^7.0.0-beta.46",
+    "@types/jquery": "^3.3.1"
+  },
   "devDependencies": {
     "@types/node": "^8.0.7",
     "eslint": "^4.11.0",

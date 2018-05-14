@@ -14,24 +14,45 @@
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const exec = require('child_process').exec;
+const child_process = require('child_process');
 
 const thisDir = __dirname;
 const rootDir = path.resolve(thisDir, '..');
+process.chdir(rootDir);
 
-// update version
-process.stdout.write("Updating version... ");
+/*********************************************************
+ * Update version number
+ *********************************************************/
+
+ process.stdout.write("Updating version... ");
 
 let version = require('../package.json').version;
 
-let configBuf = fs.readFileSync(path.resolve(rootDir, 'config/config.js'), {encoding: 'utf8'});
+let configBuf = fs.readFileSync('config/config.js', {encoding: 'utf8'});
 configBuf = configBuf.replace(/\/\* version \*\/[^;\n]*;/, `/* version */ Config.version = ${JSON.stringify(version)};`);
 
-fs.writeFileSync(path.resolve(rootDir, 'config/config.js'), configBuf);
+fs.writeFileSync('config/config.js', configBuf);
 console.log("DONE");
 
+/*********************************************************
+ * Compile TS files
+ *********************************************************/
+
+child_process.execSync(`node_modules/@babel/cli/bin/babel.js src --out-dir js --extensions '.ts,.tsx'`);
+
+fs.writeFileSync(
+	'js/battledata.js',
+	fs.readFileSync('js/battle-dex.js') + '\n\n' +
+		fs.readFileSync('js/battle-dex-data.js') + '\n\n' +
+		fs.readFileSync('src/battle-dex-misc.js')
+);
+
+/*********************************************************
+ * Update cachebuster and News
+ *********************************************************/
+
 function updateIndex() {
-	let indexContents = fs.readFileSync(path.resolve(rootDir, 'index.template.html'), {encoding: 'utf8'});
+	let indexContents = fs.readFileSync('index.template.html', {encoding: 'utf8'});
 
 	// add hashes to js and css files
 	process.stdout.write("Updating hashes... ");
@@ -39,7 +60,7 @@ function updateIndex() {
 		let hash = Math.random(); // just in case creating the hash fails
 		try {
 			const filename = c.replace('/play.pokemonshowdown.com/', '');
-			const fstr = fs.readFileSync(path.resolve(rootDir, filename), {encoding: 'utf8'});
+			const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
 			hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
 		} catch (e) {}
 
@@ -49,7 +70,7 @@ function updateIndex() {
 
 	// add news
 	process.stdout.write("Updating news... ");
-	exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
+	child_process.exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
 		let newsData = [0, '[failed to retrieve news]'];
 		if (!error && !stderr) {
 			try {
@@ -66,7 +87,7 @@ function updateIndex() {
 		console.log("DONE");
 
 		process.stdout.write("Writing new `index.html` file... ");
-		fs.writeFileSync(path.resolve(rootDir, 'index.html'), indexContents);
+		fs.writeFileSync('index.html', indexContents);
 		console.log("DONE");
 	});
 }

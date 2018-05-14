@@ -1,0 +1,28 @@
+{
+  "presets": [
+    "@babel/typescript"
+	],
+	"plugins": [
+		"@babel/plugin-transform-member-expression-literals",
+		"@babel/plugin-transform-property-literals",
+		"@babel/plugin-transform-arrow-functions",
+		["@babel/plugin-transform-block-scoping", {"throwIfClosureRequired": true}],
+		["@babel/plugin-transform-classes", {"loose": true}],
+		["@babel/plugin-transform-computed-properties", {"loose": true}],
+		"@babel/plugin-transform-destructuring",
+		["@babel/plugin-transform-for-of", {"assumeArray": true}],
+		"@babel/plugin-transform-literals",
+		"@babel/plugin-transform-parameters",
+		"@babel/plugin-transform-shorthand-properties",
+		["@babel/plugin-transform-spread", {"loose": true}],
+		["@babel/plugin-transform-template-literals", {"loose": true}],
+		"@babel/plugin-transform-exponentiation-operator",
+		["@babel/plugin-proposal-class-properties", {"loose": true}],
+		["@babel/plugin-proposal-object-rest-spread", {"useBuiltIns": true}],
+		["@babel/plugin-transform-react-jsx", {"pragma": "Preact.h", "useBuiltIns": true}]
+	],
+	"ignore": [
+		"src/globals.d.ts"
+	],
+  "retainLines": true
+}
