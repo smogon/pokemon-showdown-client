@@ -852,10 +852,13 @@
 								if (data) {
 									var players = data.split('|', 5);
 									// This shouldn't happen
-									if (players.length < 5 || !players[2].startsWith('|j') || !players[4].startsWith('|j')) return errormessage += "Error parsing replay. Please report this as a bug here: https://www.smogon.com/forums/threads/3634749/";
-									var title = Tools.escapeHTML(players[2].slice(0, -1)) + ' vs. ' +  Tools.escapeHTML(players[4].slice(0, -1));
+									if (players.length < 5 || !players[2].startsWith('|j') || !players[4].startsWith('|j')) {
+										errormessage += "Error parsing replay. Please report this as a bug here: https://www.smogon.com/forums/threads/3634749/";
+										return;
+									}
+									var title = Tools.escapeHTML(players[2].slice(0, -1)) + ' vs. ' + Tools.escapeHTML(players[4].slice(0, -1));
 									app.receive('>battle-' + replayid + '\n|init|battle\n|title|' + title + '\n' + data);
-									app.receive('>battle-' + replayid + '\n|expire|<a href=' + url + ' target="_blank">Open replay in new tab</a>');
+									app.receive('>battle-' + replayid + '\n|expire|<a href=' + replayLink + ' target="_blank">Open replay in new tab</a>');
 									replayFound = true;
 								} else {
 									app.addPopupMessage("TEST");
