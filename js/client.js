@@ -843,10 +843,31 @@
 						if (data === 'nonexistent' && Config.server.id && roomid.slice(0, 7) === 'battle-') {
 							var replayid = roomid.slice(7);
 							if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
+							var replayFound = false;
 							var replayLink = 'http://replay.pokemonshowdown.com/' + replayid;
-							errormessage += '\n\nYou might want to try the replay: ' + replayLink;
+							$.post(app.user.getActionPHP(), {
+								act: 'fetchreplay',
+								replaylogurl: replayLink + '.log'
+							}, function (data) {
+								if (data) {
+									var players = data.split('|', 5);
+									// This shouldn't happen
+									if (players.length < 5 || !players[2].startsWith('|j') || !players[4].startsWith('|j')) return;
+									var title = Tools.escapeHTML(players[2].slice(0, -1)) + ' vs. ' +  Tools.escapeHTML(players[4].slice(0, -1));
+									app.receive('>battle-' + replayid + '\n|init|battle\n|title|' + title + '\n' + data);
+									app.receive('>battle-' + replayid + '\n|expire|<a href=' + url + ' target="_blank">Open replay in new tab</a>');
+									replayFound = true;
+								} else {
+									app.addPopupMessage("TEST");
+								}
+							}, 'html');
+							if (!replayFound) {
+								errormessage += '\n\nYou might want to try the replay: ' + replayLink;
+								// this.addPopupMessage(errormessage);
+							}
+						} else {
+							this.addPopupMessage(errormessage);
 						}
-						this.addPopupMessage(errormessage);
 					}
 				}
 				return;
