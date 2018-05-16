@@ -88,8 +88,8 @@ function toId(text: any) {
 	} else if (text && text.userid) {
 		text = text.userid;
 	}
-	if (typeof text !== 'string' && typeof text !== 'number') return '';
-	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
+	if (typeof text !== 'string' && typeof text !== 'number') return '' as ID;
+	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '') as ID;
 }
 
 function toUserid(text: any) {
@@ -114,6 +114,17 @@ function toName(name: any) {
 	name = name.replace(/[\u239b-\u23b9]/g, '');
 
 	return name;
+}
+
+interface SpriteData {
+	w: number;
+	h: number;
+	y?: number;
+	url?: string;
+	pixelated?: boolean;
+	isBackSprite?: boolean;
+	cryurl?: string;
+	shiny?: boolean;
 }
 
 const Tools = {
@@ -627,17 +638,17 @@ const Tools = {
 			if (!move.exists && id.substr(0, 11) === 'hiddenpower' && id.length > 11) {
 				let matches = /([a-z]*)([0-9]*)/.exec(id)!;
 				move = (window.BattleMovedex && window.BattleMovedex[matches[1]]) || {};
-				move = $.extend({}, move);
+				move = {...move};
 				move.basePower = matches[2];
 			}
 			if (!move.exists && id.substr(0, 6) === 'return' && id.length > 6) {
 				move = (window.BattleMovedex && window.BattleMovedex['return']) || {};
-				move = $.extend({}, move);
+				move = {...move};
 				move.basePower = id.slice(6);
 			}
 			if (!move.exists && id.substr(0, 11) === 'frustration' && id.length > 11) {
 				move = (window.BattleMovedex && window.BattleMovedex['frustration']) || {};
-				move = $.extend({}, move);
+				move = {...move};
 				move.basePower = id.slice(11);
 			}
 
@@ -669,7 +680,7 @@ const Tools = {
 
 			if (window.BattleMoveAnims) {
 				if (!move.anim) move.anim = BattleOtherAnims.attack.anim;
-				$.extend(move, BattleMoveAnims[move.id]);
+				Object.assign(move, BattleMoveAnims[move.id]);
 			}
 		}
 		return move;
@@ -839,7 +850,7 @@ const Tools = {
 
 	getType(type: any): Effect {
 		if (!type || typeof type === 'string') {
-			let id = toId(type);
+			let id = toId(type) as string;
 			id = id.substr(0, 1).toUpperCase() + id.substr(1);
 			type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
 			if (type.damageTaken) type.exists = true;
@@ -865,10 +876,14 @@ const Tools = {
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
 	},
-	getSpriteData(pokemon: any, siden: number, options?: any) {
-		if (!options) options = {gen: 6};
+	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean} = {gen: 6}) {
 		if (!options.gen) options.gen = 6;
-		pokemon = Tools.getTemplate(pokemon);
+		if (pokemon instanceof Pokemon) {
+			options.shiny = pokemon.shiny;
+			options.gender = pokemon.gender;
+			pokemon = pokemon.getSpecies();
+		}
+		const template = Tools.getTemplate(pokemon);
 		let spriteData = {
 			w: 96,
 			h: 96,
@@ -877,9 +892,9 @@ const Tools = {
 			pixelated: true,
 			isBackSprite: false,
 			cryurl: '',
-			shiny: pokemon.shiny
+			shiny: options.shiny
 		};
-		let name = pokemon.spriteid;
+		let name = template.spriteid;
 		let dir, facing;
 		if (siden) {
 			dir = '';
@@ -894,13 +909,13 @@ const Tools = {
 		let fieldGenNum = options.gen;
 		if (Tools.prefs('nopastgens')) fieldGenNum = 6;
 		if (Tools.prefs('bwgfx') && fieldGenNum >= 6) fieldGenNum = 5;
-		let genNum = Math.max(fieldGenNum, Math.min(pokemon.gen, 5));
+		let genNum = Math.max(fieldGenNum, Math.min(template.gen, 5));
 		let gen = ['', 'rby', 'gsc', 'rse', 'dpp', 'bw', 'xy', 'xy'][genNum];
 
 		let animationData = null;
 		let miscData = null;
-		let speciesid = pokemon.speciesid;
-		if (pokemon.isTotem) speciesid = toId(name);
+		let speciesid = template.speciesid;
+		if (template.isTotem) speciesid = toId(name);
 		if (gen === 'xy' && window.BattlePokemonSprites) {
 			animationData = BattlePokemonSprites[speciesid];
 		}
@@ -913,15 +928,15 @@ const Tools = {
 		if (!miscData) miscData = {};
 
 		if (miscData.num > 0) {
-			spriteData.cryurl = 'audio/cries/' + toId(pokemon.baseSpecies);
-			let formeid = pokemon.formeid;
-			if (pokemon.isMega || formeid && (formeid === '-sky' || formeid === '-therian' || formeid === '-primal' || formeid === '-eternal' || pokemon.baseSpecies === 'Kyurem' || formeid === '-super' || formeid === '-unbound' || formeid === '-midnight' || formeid === '-school' || pokemon.baseSpecies === 'Oricorio' || pokemon.baseSpecies === 'Zygarde')) {
+			spriteData.cryurl = 'audio/cries/' + toId(template.baseSpecies);
+			let formeid = template.formeid;
+			if (template.isMega || formeid && (formeid === '-sky' || formeid === '-therian' || formeid === '-primal' || formeid === '-eternal' || template.baseSpecies === 'Kyurem' || formeid === '-super' || formeid === '-unbound' || formeid === '-midnight' || formeid === '-school' || template.baseSpecies === 'Oricorio' || template.baseSpecies === 'Zygarde')) {
 				spriteData.cryurl += formeid;
 			}
 			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 		}
 
-		if (pokemon.shiny && options.gen > 1) dir += '-shiny';
+		if (options.shiny && options.gen > 1) dir += '-shiny';
 
 		// April Fool's 2014
 		if (window.Config && Config.server && Config.server.afd || options.afd) {
@@ -930,7 +945,7 @@ const Tools = {
 			return spriteData;
 		}
 
-		if (animationData[facing + 'f'] && pokemon.gender === 'F') facing += 'f';
+		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
 		let allowAnim = !Tools.prefs('noanim') && !Tools.prefs('nogif');
 		if (allowAnim && genNum >= 6) spriteData.pixelated = false;
 		if (allowAnim && animationData[facing] && genNum >= 5) {
@@ -948,7 +963,7 @@ const Tools = {
 
 			// Gender differences don't exist prior to Gen 4,
 			// so there are no sprites for it
-			if (genNum >= 4 && miscData['frontf'] && pokemon.gender === 'F') {
+			if (genNum >= 4 && miscData['frontf'] && options.gender === 'F') {
 				name += '-f';
 			}
 
@@ -972,7 +987,7 @@ const Tools = {
 			if (fieldGenNum === 5 && spriteData.isBackSprite) spriteData.y += 40;
 			if (genNum <= 2) spriteData.y += 2;
 		}
-		if (pokemon.isTotem && !options.noScale) {
+		if (template.isTotem && !options.noScale) {
 			spriteData.w *= 1.5;
 			spriteData.h *= 1.5;
 			spriteData.y += -11;

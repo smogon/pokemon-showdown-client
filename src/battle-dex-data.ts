@@ -10,6 +10,8 @@
  * @license MIT
  */
 
+type ID = string & {__isID: true};
+
 const BattleNatures = {
 	Adamant: {
 		plus: 'atk',
@@ -134,6 +136,9 @@ const BattleStatNames = { // proper style
 	spd: 'SpD',
 	spe: 'Spe'
 };
+const BattleStats = {
+	atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed', accuracy: 'accuracy', evasion: 'evasiveness', spc: 'Special'
+};
 
 const baseSpeciesChart = [
 	'pikachu',
@@ -193,8 +198,12 @@ const baseSpeciesChart = [
 ];
 
 type StatName = 'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe';
+type StatusName = 'par' | 'psn' | 'frz' | 'slp' | 'brn';
+type BoostStatName = 'atk' | 'def' | 'spa' | 'spd' | 'spe' | 'evasion' | 'accuracy' | 'spc';
+type GenderName = 'M' | 'F' | '';
+
 interface Effect {
-	readonly id: string;
+	readonly id: ID;
 	readonly name: string;
 	readonly gen: number;
 	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Template';
@@ -202,11 +211,19 @@ interface Effect {
 }
 interface Item extends Effect {
 	readonly effectType: 'Item';
+	readonly zMoveFrom?: string;
 }
 interface Move extends Effect {
 	readonly effectType: 'Move';
 	readonly type: string;
 	readonly category: string;
+	readonly isZ?: string;
+
+	// TODO: move to different interface
+	readonly anim: Function;
+	readonly residualAnim: Function;
+	readonly prepareAnim: Function;
+	readonly prepareMessage: Function;
 }
 interface Ability extends Effect {
 	readonly effectType: 'Ability';
@@ -214,12 +231,19 @@ interface Ability extends Effect {
 interface Template extends Effect {
 	readonly effectType: 'Template';
 	readonly species: string;
+	readonly speciesid: ID;
 	readonly baseSpecies: string;
+	readonly forme: string;
+	readonly formeLetter: string;
+	readonly formeid: string;
 	readonly spriteid: string;
 	readonly types: string[];
 	readonly abilities: {0: string, 1?: string, H?: string, S?: string};
 	readonly baseStats: {hp: number, atk: number, def: number, spa: number, spd: number, spe: number}
 	readonly unreleasedHidden: boolean;
 	readonly tier: string;
+	readonly weightkg: number;
 	readonly isNonstandard: boolean;
+	readonly isTotem?: boolean;
+	readonly isMega?: boolean;
 }

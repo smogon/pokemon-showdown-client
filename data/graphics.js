@@ -303,9 +303,6 @@ var BattleBackdrops = [
 	'bg-orassea.jpg',
 	'bg-skypillar.jpg'
 ];
-var BattleStats = {
-	atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed', accuracy: 'accuracy', evasion: 'evasiveness', spc: 'Special'
-};
 var BattleItems = {
 };
 var BattleOtherAnims = {

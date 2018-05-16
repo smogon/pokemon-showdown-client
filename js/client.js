@@ -2326,7 +2326,7 @@
 			order: 10007
 		},
 		'\u2605': {
-			name: "Player (\u2605)",
+			name: "Host (\u2605)",
 			type: 'normal',
 			order: 10008
 		},
