@@ -28,7 +28,12 @@ process.stdout.write("Updating version... ");
 
 let version = require('../package.json').version;
 
-let configBuf = fs.readFileSync('config/config.js', {encoding: 'utf8'});
+let configBuf = '';
+try {
+	configBuf = fs.readFileSync('config/config.js', {encoding: 'utf8'});
+} catch (err) {
+	process.stdout.write("no config file found... ");
+}
 configBuf = configBuf.replace(/\/\* version \*\/[^;\n]*;/, `/* version */ Config.version = ${JSON.stringify(version)};`);
 
 fs.writeFileSync('config/config.js', configBuf);
