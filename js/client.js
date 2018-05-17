@@ -845,7 +845,7 @@
 							if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
 							var replayFound = false;
 							var replayLink = 'http://replay.pokemonshowdown.com/' + replayid;
-							$.post(app.user.getActionPHP(), {
+							var jqxhr = $.post(app.user.getActionPHP(), {
 								act: 'fetchreplay',
 								replaylogurl: replayLink + '.log'
 							}, function (data) {
@@ -853,7 +853,7 @@
 									var players = data.split('|', 5);
 									// This shouldn't happen
 									if (players.length < 5 || !players[2].startsWith('|j') || !players[4].startsWith('|j')) {
-										errormessage += "Error parsing replay. Please report this as a bug here: https://www.smogon.com/forums/threads/3634749/";
+										errormessage += "\n\nError parsing replay. Please report this as a bug here: https://www.smogon.com/forums/threads/3634749/";
 										return;
 									}
 									var title = Tools.escapeHTML(players[2].slice(0, -1)) + ' vs. ' + Tools.escapeHTML(players[4].slice(0, -1));
@@ -861,13 +861,17 @@
 									app.receive('>battle-' + replayid + '\n|expire|<a href=' + replayLink + ' target="_blank">Open replay in new tab</a>');
 									replayFound = true;
 								} else {
-									app.addPopupMessage("TEST");
+									errormessage += '\n\nResponse received, but no data.';
 								}
 							}, 'html');
-							if (!replayFound) {
+							jqxhr.fail(function () {
 								errormessage += '\n\nYou might want to try the replay: ' + replayLink;
-								// this.addPopupMessage(errormessage);
-							}
+							});
+							jqxhr.always(function () {
+								if (!replayFound) {
+									this.addPopupMessage(errormessage);
+								}
+							});
 						} else {
 							this.addPopupMessage(errormessage);
 						}
