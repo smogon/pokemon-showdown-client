@@ -2563,6 +2563,8 @@ class Battle {
 	kickingInactive: number | boolean = false;
 
 	// options
+	id = '';
+	numericId = 0;
 	roomid = '';
 	hardcoreMode = false;
 	ignoreNicks = Tools.prefs('ignorenicks');
@@ -2614,14 +2616,25 @@ class Battle {
 
 	preloadCache = {} as {[url: string]: HTMLImageElement};
 
-	constructor(frame: JQuery<HTMLElement>, logFrame: JQuery<HTMLElement>) {
+	constructor(frame: JQuery<HTMLElement>, logFrame: JQuery<HTMLElement>, id = '') {
+		let numericId = 0;
+		if (id) {
+			this.id = id;
+			numericId = parseInt(this.id.slice(this.id.lastIndexOf('-') + 1));
+		}
+		if (!numericId) {
+			numericId = Math.floor(Math.random() * 1000000);
+		}
+		if (!id) {
+			this.id = 'battle-' + this.numericId;
+		}
 		frame.addClass('battle');
 		this.frameElem = frame;
 		this.logFrameElem = logFrame;
 
 		this.activeQueue = this.queue1;
 
-		this.backdropImage = 'sprites/gen6bgs/' + BattleBackdrops[Math.floor(Math.random() * BattleBackdrops.length)];
+		this.backdropImage = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
 
 		this.preloadEffects();
 		this.init();
@@ -2666,9 +2679,9 @@ class Battle {
 		if (gen <= 5) {
 			if (gen <= 1) this.backdropImage = 'fx/bg-gen1.png?';
 			else if (gen <= 2) this.backdropImage = 'fx/bg-gen2.png?';
-			else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[Math.floor(Math.random() * BattleBackdropsThree.length)] + '?';
-			else if (gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[Math.floor(Math.random() * BattleBackdropsFour.length)];
-			else this.backdropImage = 'fx/' + BattleBackdropsFive[Math.floor(Math.random() * BattleBackdropsFive.length)];
+			else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
+			else if (gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
+			else this.backdropImage = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
 		}
 		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + '' + this.backdropImage + ')');
 	}
@@ -2826,11 +2839,11 @@ class Battle {
 		left = 210;
 		top = 245;
 		scale = 1;
-		scale = 1.5 - 0.5 * (loc.z! / 200);
+		scale = 1.5 - 0.5 * ((loc.z!) / 200);
 		if (scale < .1) scale = .1;
 
-		left += (410 - 190) * (loc.z! / 200);
-		top += (135 - 245) * (loc.z! / 200);
+		left += (410 - 190) * ((loc.z!) / 200);
+		top += (135 - 245) * ((loc.z!) / 200);
 		left += Math.floor(loc.x! * scale);
 		top -= Math.floor(loc.y! * scale /* - loc.x * scale / 4 */);
 		width = Math.floor(obj.w * scale * loc.xscale!);
@@ -7278,7 +7291,7 @@ class Battle {
 		}
 	}
 	preloadBgm() {
-		let bgmNum = Math.floor(Math.random() * 13);
+		let bgmNum = this.numericId % 13;
 
 		if (window.forceBgm || window.forceBgm === 0) bgmNum = window.forceBgm;
 		window.bgmNum = bgmNum;
@@ -7355,7 +7368,7 @@ class Battle {
 	}
 	soundStart() {
 		if (!this.bgm) this.preloadBgm();
-		BattleSound.playBgm(this.bgm);
+		BattleSound.playBgm(this.bgm!);
 	}
 	soundStop() {
 		BattleSound.stopBgm();
