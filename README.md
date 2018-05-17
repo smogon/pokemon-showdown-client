@@ -6,7 +6,7 @@ Navigation: [Website][1] | [Server repository][2] | **Client repository** | [Dex
   [1]: http://pokemonshowdown.com/
   [2]: https://github.com/Zarel/Pokemon-Showdown
   [3]: https://github.com/Zarel/Pokemon-Showdown-Dex
-  
+
 Introduction
 ------------------------------------------------------------------------
 
@@ -22,9 +22,13 @@ setting up a server.
 Testing
 ------------------------------------------------------------------------
 
-You can make and test client changes simply by opening `testclient.html`.
-This will allow you to test changes to the client without setting up your
-own login server.
+Client testing now requires a build step! Install the latest Node.js (we
+require v9 or later), and run `node build` (on Windows) or `./build` (on
+other OSes) to build.
+
+You can make and test client changes simply by building after each change,
+and opening `testclient.html`. This will allow you to test changes to the
+client without setting up your own login server.
 
 You can connect to an arbitrary server by navigating to
 `testclient.html?~~host:port`. For example, to connect to a server running
