@@ -68,28 +68,30 @@ function updateIndex() {
 	});
 	console.log("DONE");
 
-	// add news
-	process.stdout.write("Updating news... ");
-	child_process.exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
-		let newsData = [0, '[failed to retrieve news]'];
-		if (!error && !stderr) {
-			try {
-				newsData = JSON.parse(stdout);
-			} catch (e) {
-				console.log("git hook failed to retrieve news (parsing JSON failed):\n" + e.stack);
+	// add news, only if it's actually likely to exist
+	if (__dirname.endsWith('play.pokemonshowdown.com/build-tools')) {
+		process.stdout.write("Updating news... ");
+		child_process.exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
+			let newsData = [0, '[failed to retrieve news]'];
+			if (!error && !stderr) {
+				try {
+					newsData = JSON.parse(stdout);
+				} catch (e) {
+					console.log("git hook failed to retrieve news (parsing JSON failed):\n" + e.stack);
+				}
+			} else {
+				console.log("git hook failed to retrieve news (exec command failed):\n" + (error + stderr + stdout));
 			}
-		} else {
-			console.log("git hook failed to retrieve news (exec command failed):\n" + (error || stderr));
-		}
 
-		indexContents = indexContents.replace(/<!-- newsid -->/g, newsData[0]);
-		indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
-		console.log("DONE");
+			indexContents = indexContents.replace(/<!-- newsid -->/g, newsData[0]);
+			indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
+			console.log("DONE");
 
-		process.stdout.write("Writing new `index.html` file... ");
-		fs.writeFileSync('index.html', indexContents);
-		console.log("DONE");
-	});
+			process.stdout.write("Writing new `index.html` file... ");
+			fs.writeFileSync('index.html', indexContents);
+			console.log("DONE");
+		});
+	}
 }
 
 updateIndex();
