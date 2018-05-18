@@ -220,7 +220,7 @@ const Tools = {
 		}
 		return Tools.escapeHTML(formatid);
 	},
-	parseChatMessage(message: string, name: string, timestamp: string, isHighlighted?: boolean) {
+	parseChatMessage(message: string, name: string, timestamp: string, isHighlighted?: boolean, $chatElem?: any) {
 		let showMe = !((Tools.prefs('chatformatting') || {}).hideme);
 		let group = ' ';
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
@@ -316,6 +316,22 @@ const Tools = {
 			return '<div class="chat message-error">' + Tools.escapeHTML(target) + '</div>';
 		case 'html':
 			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + Tools.sanitizeHTML(target) + '</em></div>';
+		case 'uhtml':
+		case 'uhtmlchange':
+			let parts = target.split(',');
+			let $elements = $chatElem.find('div.uhtml-' + toId(parts[0]));
+			let html = parts.slice(1).join(',');
+			if (!html) {
+				$elements.remove();
+			} else if (!$elements.length) {
+				$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + Tools.sanitizeHTML(html) + '</div>');
+			} else if (cmd === 'uhtmlchange') {
+				$elements.html(Tools.sanitizeHTML(html));
+			} else {
+				$elements.remove();
+				$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + Tools.sanitizeHTML(html) + '</div>');
+			}
+			return '';
 		case 'raw':
 			return '<div class="chat">' + Tools.sanitizeHTML(target) + '</div>';
 		default:
