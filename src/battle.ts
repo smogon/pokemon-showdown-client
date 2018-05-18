@@ -3,8 +3,12 @@
  *
  * This is the main file for handling battle animations
  *
+ * Licensing note: PS's client has complicated licensing:
+ * - The client as a whole is AGPLv3
+ * - The battle replay/animation engine (battle-*.ts) by itself is MIT
+ *
  * @author Guangcong Luo <guangcongluo@gmail.com>
- * @license AGPLv3
+ * @license MIT
  */
 
 // par: -webkit-filter:  sepia(100%) hue-rotate(373deg) saturate(592%);
@@ -908,33 +912,33 @@ class Sprite {
 			if (!this.elem) return;
 			this.elem.attr('src', sp.url);
 			this.elem.css(battle.pos({
-				x: self.x,
-				y: self.y,
-				z: self.z,
+				x: this.x,
+				y: this.y,
+				z: this.z,
 				opacity: 1
 			}, sp));
 			return;
 		}
 		if (isCustomAnim) {
 			if (speciesid === 'kyogreprimal') {
-				BattleOtherAnims.primalalpha.anim(battle, [self]);
+				BattleOtherAnims.primalalpha.anim(battle, [this]);
 				doCry = true;
 			} else if (speciesid === 'groudonprimal') {
-				BattleOtherAnims.primalomega.anim(battle, [self]);
+				BattleOtherAnims.primalomega.anim(battle, [this]);
 				doCry = true;
 			} else if (speciesid === 'necrozmaultra') {
-				BattleOtherAnims.ultraburst.anim(battle, [self]);
+				BattleOtherAnims.ultraburst.anim(battle, [this]);
 				doCry = true;
 			} else if (speciesid === 'zygardecomplete') {
-				BattleOtherAnims.powerconstruct.anim(battle, [self]);
+				BattleOtherAnims.powerconstruct.anim(battle, [this]);
 			} else if (speciesid === 'wishiwashischool' || speciesid === 'greninjaash') {
-				BattleOtherAnims.schoolingin.anim(battle, [self]);
+				BattleOtherAnims.schoolingin.anim(battle, [this]);
 			} else if (speciesid === 'wishiwashi') {
-				BattleOtherAnims.schoolingout.anim(battle, [self]);
+				BattleOtherAnims.schoolingout.anim(battle, [this]);
 			} else if (speciesid === 'mimikyubusted' || speciesid === 'mimikyubustedtotem') {
 				// standard animation
 			} else {
-				BattleOtherAnims.megaevo.anim(battle, [self]);
+				BattleOtherAnims.megaevo.anim(battle, [this]);
 				doCry = true;
 			}
 		}
@@ -952,9 +956,9 @@ class Sprite {
 			}
 			this.elem.attr('src', sp.url);
 			this.elem.animate(battle.pos({
-				x: self.x,
-				y: self.y,
-				z: self.z,
+				x: this.x,
+				y: this.y,
+				z: this.z,
 				opacity: 1
 			}, sp), 300);
 		});
@@ -1069,7 +1073,7 @@ class Sprite {
 			this.subElem.delay(300);
 			this.duringMove = false;
 			this.elem.add(this.subElem).promise().done(() => {
-				if (!self.subElem || !self.elem) return;
+				if (!this.subElem || !this.elem) return;
 				this.selfAnim({time: 300});
 				this.subElem.animate(this.battle.pos({
 					x: this.x,
@@ -3617,8 +3621,10 @@ class Battle {
 					} else if (move.name.slice(0, 2) === 'Z-') {
 						moveName = moveName.slice(2);
 						move = Tools.getMove(moveName);
-						for (let item in window.BattleItems) {
-							if (BattleItems[item].zMoveType === move.type) pokemon.item = item;
+						if (window.BattleItems) {
+							for (let item in BattleItems) {
+								if (BattleItems[item].zMoveType === move.type) pokemon.item = item;
+							}
 						}
 					}
 					let pp = (target && target.side !== pokemon.side && toId(target.ability) === 'pressure' ? 2 : 1);
