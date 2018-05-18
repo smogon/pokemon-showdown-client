@@ -1173,7 +1173,7 @@
 			if (this.$chatFrame.scrollTop() + 60 >= this.$chat.height() - this.$chatFrame.height()) {
 				autoscroll = true;
 			}
-			if (!(message.substr(0, 4) === '/raw' || message.substr(0, 5) === '/html')) this.addChat(user, message, pm);
+			if (!(message.substr(0, 4) === '/raw' || message.substr(0, 5) === '/html' || message.substr(0, 6) === '/uhtml' || message.substr(0, 12) === '/uhtmlchange')) this.addChat(user, message, pm);
 			if (autoscroll) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
