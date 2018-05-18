@@ -12,6 +12,10 @@
  * - a parseText function (for converting chat text to HTML),
  *   cross-compiled from the server
  *
+ * Licensing note: PS's client has complicated licensing:
+ * - The client as a whole is AGPLv3
+ * - The battle replay/animation engine (battle-*.ts) by itself is MIT
+ *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
  */

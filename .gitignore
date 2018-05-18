@@ -4,7 +4,6 @@
 /index.php
 /index.html
 /data/*
-!/data/graphics.js
 !/data/learnsets-g6.js
 node_modules/
 eslint-cache/
@@ -18,3 +17,5 @@ package-lock.json
 /js/battledata.js
 /js/battle-dex.js
 /js/battle-dex-data.js
+/js/battle-animations-moves.js
+/js/battle-animations.js

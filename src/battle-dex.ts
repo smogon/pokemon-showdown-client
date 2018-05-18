@@ -8,6 +8,10 @@
  * code shared between the replay viewer and the client usually ends up
  * here.
  *
+ * Licensing note: PS's client has complicated licensing:
+ * - The client as a whole is AGPLv3
+ * - The battle replay/animation engine (battle-*.ts) by itself is MIT
+ *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
  */

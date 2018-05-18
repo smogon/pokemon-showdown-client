@@ -47,6 +47,12 @@ fs.writeFileSync(
 		fs.readFileSync('src/battle-dex-misc.js')
 );
 
+fs.writeFileSync(
+	'data/graphics.js',
+	fs.readFileSync('js/battle-animations.js') + '\n\n' +
+		fs.readFileSync('js/battle-animations-moves.js')
+);
+
 /*********************************************************
  * Update cachebuster and News
  *********************************************************/
