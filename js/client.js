@@ -2295,38 +2295,38 @@
 			type: 'leadership',
 			order: 10001
 		},
-		'#': {
-			name: "Room Owner (#)",
-			type: 'leadership',
-			order: 10002
-		},
 		'&': {
 			name: "Leader (&amp;)",
 			type: 'leadership',
+			order: 10002
+		},
+		'#': {
+			name: "Room Owner (#)",
+			type: 'leadership',
 			order: 10003
+		},
+		'\u2605': {
+			name: "Host (\u2605)",
+			type: 'staff',
+			order: 10004
 		},
 		'@': {
 			name: "Moderator (@)",
 			type: 'staff',
-			order: 10004
+			order: 10005
 		},
 		'%': {
 			name: "Driver (%)",
 			type: 'staff',
-			order: 10005
+			order: 10006
 		},
 		'*': {
 			name: "Bot (*)",
 			type: 'normal',
-			order: 10006
+			order: 10007
 		},
 		'\u2606': {
 			name: "Player (\u2606)",
-			type: 'normal',
-			order: 10007
-		},
-		'\u2605': {
-			name: "Host (\u2605)",
 			type: 'normal',
 			order: 10008
 		},
