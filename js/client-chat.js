@@ -1727,6 +1727,8 @@
 				{order: (Config.defaultOrder || 10005.5)}
 			).order;
 
+			if (a === 'zarel' && aRank === 10003) aRank = 10000.5;
+			if (b === 'zarel' && bRank === 10003) bRank = 10000.5;
 			if (aRank !== bRank) return aRank - bRank;
 			return (a > b ? 1 : -1);
 		},
