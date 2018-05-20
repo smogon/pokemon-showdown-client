@@ -1829,7 +1829,6 @@ class Side {
 	newPokemon(data: any, replaceSlot = -1) {
 		let pokeobj;
 		let poke = new Pokemon(data, this);
-		poke.slot = 0;
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
 		poke.reset();
 		poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {
