@@ -364,12 +364,9 @@
 			case 'ability':
 				var ability = Tools.getAbility(fId).name;
 				buf.push(['header', "" + ability + " Pok&eacute;mon"]);
-				var abilityTable = {};
-				var table = (this.gen < 7 ? BattleTeambuilderTable['gen' + this.gen] : null);
-				if (table) abilityTable = table.overrideAbility;
 				for (var id in BattlePokedex) {
 					if (!BattlePokedex[id].abilities) continue;
-					if ((abilityTable[id] || BattlePokedex[id].abilities['0']) === ability || BattlePokedex[id].abilities['1'] === ability || BattlePokedex[id].abilities['H'] === ability || BattlePokedex[id].abilities['S'] === ability) {
+					if (Tools.hasAbility(id, ability, this.gen)) {
 						(legal && !(id in legal) ? illegalBuf : buf).push(['pokemon', id]);
 					}
 				}
@@ -581,10 +578,7 @@
 					if (template.tier !== tier) break;
 				} else if (filters[i][0] === 'ability') {
 					var ability = filters[i][1];
-					var ability0 = template.abilities['0'];
-					var table = (this.gen < 7 ? BattleTeambuilderTable['gen' + this.gen] : null);
-					if (table && id in table.overrideAbility) ability0 = table.overrideAbility[id];
-					if (ability0 !== ability && template.abilities['1'] !== ability && template.abilities['H'] !== ability && template.abilities['S'] !== ability) break;
+					if (!Tools.hasAbility(id, ability, this.gen)) break;
 				} else if (filters[i][0] === 'move') {
 					var learned = false;
 					var learnsetid = this.nextLearnsetid(id);
@@ -884,20 +878,18 @@
 				abilitySet.unshift(['html', '<p>Will be <strong>' + Tools.escapeHTML(template.abilities['0']) + '</strong> after Mega Evolving.</p>']);
 				template = Tools.getTemplate(template.baseSpecies);
 			}
-			var ability0 = template.abilities['0'];
-			var table = (this.gen < 7 ? BattleTeambuilderTable['gen' + this.gen] : null);
-			if (table && template.id in table.overrideAbility) ability0 = table.overrideAbility[template.id];
-			abilitySet.push(['ability', toId(ability0)]);
-			if (template.abilities['1'] && Tools.getAbility(template.abilities['1']).gen <= this.gen) {
-				abilitySet.push(['ability', toId(template.abilities['1'])]);
+			var abilitiesInThisGen = Tools.getAbilitiesFor(template.id, this.gen);
+			abilitySet.push(['ability', toId(abilitiesInThisGen['0'])]);
+			if (abilitiesInThisGen['1']) {
+				abilitySet.push(['ability', toId(abilitiesInThisGen['1'])]);
 			}
-			if (template.abilities['H'] && this.gen >= 5) {
+			if (abilitiesInThisGen['H']) {
 				abilitySet.push(['header', "Hidden Ability"]);
-				abilitySet.push(['ability', toId(template.abilities['H'])]);
+				abilitySet.push(['ability', toId(abilitiesInThisGen['H'])]);
 			}
-			if (template.abilities['S'] && this.gen >= 7) {
+			if (abilitiesInThisGen['S']) {
 				abilitySet.push(['header', "Special Event Ability"]);
-				abilitySet.push(['ability', toId(template.abilities['S'])]);
+				abilitySet.push(['ability', toId(abilitiesInThisGen['S'])]);
 			}
 			if (format === 'almostanyability' || isBH) {
 				template = Tools.getTemplate(set.species);
@@ -1355,19 +1347,18 @@
 
 		// abilities
 		if (gen >= 3) {
-			var ability0 = pokemon.abilities['0'];
-			if (table && id in table.overrideAbility) ability0 = table.overrideAbility[id];
-			if (pokemon.abilities['1']) {
-				buf += '<span class="col twoabilitycol">' + ability0 + '<br />' +
-					pokemon.abilities['1'] + '</span>';
+			var abilities = Tools.getAbilitiesFor(id, gen);
+			if (abilities['1']) {
+				buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
+					abilities['1'] + '</span>';
 			} else {
-				buf += '<span class="col abilitycol">' + ability0 + '</span>';
+				buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
 			}
 			if (gen >= 5) {
-				if (pokemon.abilities['S']) {
-					buf += '<span class="col twoabilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + pokemon.abilities['H'] + '<br />' + pokemon.abilities['S'] + '</span>';
-				} else if (pokemon.abilities['H']) {
-					buf += '<span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + pokemon.abilities['H'] + '</span>';
+				if (abilities['S']) {
+					buf += '<span class="col twoabilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + abilities['H'] + '<br />' + abilities['S'] + '</span>';
+				} else if (abilities['H']) {
+					buf += '<span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + abilities['H'] + '</span>';
 				} else {
 					buf += '<span class="col abilitycol"></span>';
 				}

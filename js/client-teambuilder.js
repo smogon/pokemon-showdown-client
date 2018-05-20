@@ -2795,10 +2795,7 @@
 			} else {
 				set.item = '';
 			}
-			set.ability = template.abilities['0'];
-			var table = BattleTeambuilderTable['gen' + this.curTeam.gen];
-			var overrideAbility = table && table.overrideAbility[template.id];
-			if (overrideAbility) set.ability = overrideAbility;
+			set.ability = Tools.getAbilitiesFor(template.id, this.curTeam.gen)['0'];
 
 			set.moves = [];
 			set.evs = {};
