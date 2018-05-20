@@ -383,7 +383,7 @@ var BattleTooltips = (function () {
 		text = '<div class="tooltipinner"><div class="tooltip">';
 		text += '<h2>' + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
 
-		var template = Tools.getTemplate(pokemon.getSpecies());
+		var template = Tools.getTemplate(pokemon.getSpecies ? pokemon.getSpecies() : pokemon.species);
 		if (pokemon.volatiles && pokemon.volatiles.formechange) {
 			if (pokemon.volatiles.transform) {
 				text += '<small>(Transformed into ' + pokemon.volatiles.formechange[2] + ')</small><br />';
@@ -1091,8 +1091,7 @@ var BattleTooltips = (function () {
 			basePower += 5;
 		}
 		// Moves that check opponent speed.
-		var template = target;
-		if (target.volatiles && target.volatiles.formechange) template = Tools.getTemplate(target.volatiles.formechange[2]);
+		var template = Tools.getTemplate(target.getSpecies());
 		if (move.id === 'electroball') {
 			var min = 0;
 			var max = 0;
@@ -1374,22 +1373,20 @@ var BattleTooltips = (function () {
 		return basePowerComment;
 	};
 	BattleTooltips.prototype.getPokemonTypes = function (pokemon) {
-		var template = pokemon;
-		if (!pokemon.types) template = Tools.getTemplate(pokemon.species);
-		if (pokemon.volatiles && pokemon.volatiles.formechange) {
-			template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
+		if (!pokemon.types) {
+			var template = Tools.getTemplate(pokemon.species);
+
+			var types = template.types;
+			if (this.battle.gen < 7) {
+				var table = BattleTeambuilderTable['gen' + this.battle.gen];
+				if (template.speciesid in table.overrideType) types = table.overrideType[template.speciesid].split('/');
+			}
+			return types;
 		}
 
-		var types = template.types;
-		if (this.battle.gen < 7) {
-			var table = BattleTeambuilderTable['gen' + this.battle.gen];
-			if (template.speciesid in table.overrideType) types = table.overrideType[template.speciesid].split('/');
-		}
-
-		if (pokemon.volatiles && pokemon.volatiles.typechange) types = pokemon.volatiles.typechange[2].split('/');
-		if (pokemon.volatiles && pokemon.volatiles.typeadd) {
-			if (types && types.indexOf(pokemon.volatiles.typeadd[2]) === -1) types = types.concat(pokemon.volatiles.typeadd[2]);
-		}
+		var typesMap = pokemon.getTypes();
+		var types = typesMap[0];
+		if (typesMap[1]) return types.concat(typesMap[1]);
 		return types;
 	};
 	BattleTooltips.prototype.pokemonHasType = function (pokemon, type, types) {
