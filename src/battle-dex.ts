@@ -16,6 +16,53 @@
  * @license MIT
  */
 
+if (!Array.prototype.indexOf) {
+	Array.prototype.indexOf = function (searchElement, fromIndex) {
+		for (var i = (fromIndex || 0); i < this.length; i++) {
+			if (this[i] === searchElement) return i;
+		}
+		return -1;
+	};
+}
+if (!Array.prototype.includes) {
+	Array.prototype.includes = function (thing) {
+		return this.indexOf(thing) !== -1;
+	};
+}
+if (!String.prototype.includes) {
+	String.prototype.includes = function (thing) {
+		return this.indexOf(thing) !== -1;
+	};
+}
+if (!String.prototype.startsWith) {
+	String.prototype.startsWith = function (thing) {
+		return this.slice(0, thing.length) === thing;
+	};
+}
+if (!String.prototype.endsWith) {
+	String.prototype.endsWith = function (thing) {
+		return this.slice(-thing.length) === thing;
+	};
+}
+if (!Object.assign) {
+	Object.assign = function (thing, rest) {
+		for (var i = 1; i < arguments.length; i++) {
+			var source = arguments[i];
+			for (var k in source) {
+				thing[k] = source[k];
+			}
+		}
+		return thing;
+	};
+}
+// if (!Object.create) {
+// 	Object.create = function (proto) {
+// 		function F() {}
+// 		F.prototype = proto;
+// 		return new F();
+// 	};
+// }
+
 if (!window.exports) window.exports = window;
 
 if (window.soundManager) {
