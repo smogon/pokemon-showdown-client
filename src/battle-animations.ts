@@ -1251,7 +1251,7 @@ const BattleOtherAnims: AnimTable = {
 		}
 	},
 	consume: {
-		anim(battle, [attacker, defender]) {
+		anim(battle, [defender]) {
 			battle.showEffect('wisp', {
 				x: defender.leftof(-25),
 				y: defender.y + 40,
@@ -1480,7 +1480,7 @@ const BattleOtherAnims: AnimTable = {
 		}
 	},
 	futuresighthit: {
-		anim(battle, [attacker, defender]) {
+		anim(battle, [defender]) {
 			battle.backgroundEffect('#AA44BB', 250, 0.6);
 			battle.backgroundEffect('#AA44FF', 250, 0.6, 400);
 			defender.anim({
@@ -1503,7 +1503,7 @@ const BattleOtherAnims: AnimTable = {
 		}
 	},
 	doomdesirehit: {
-		anim(battle, [attacker, defender]) {
+		anim(battle, [defender]) {
 			battle.backgroundEffect('#ffffff', 600, 0.6);
 			battle.showEffect('fireball', {
 				x: defender.x + 40,
@@ -1562,7 +1562,7 @@ const BattleOtherAnims: AnimTable = {
 		}
 	},
 	itemoff: {
-		anim(battle, [attacker, defender]) {
+		anim(battle, [defender]) {
 			battle.showEffect('pokeball', {
 				x: defender.x,
 				y: defender.y,
