@@ -5024,8 +5024,8 @@ class Battle {
 				poke.ability = tpoke.ability;
 				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
 				poke.volatiles.transform[2] = tpoke;
-				for (let i = 0; i < tpoke.moveTrack.length; i++) {
-					poke.markMove(tpoke.moveTrack[i][0], 0);
+				for (const trackedMove of tpoke.moveTrack) {
+					poke.markMove(trackedMove[0], 0);
 				}
 				poke.sprite.animTransform(poke);
 				this.resultAnim(poke, 'Transformed', 'good');
