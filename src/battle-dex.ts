@@ -1580,6 +1580,7 @@ const Tools = {
 	},
 
 	createReplayFileHref(room: any) {
-		return 'data:text/plain;base64,' + encodeURIComponent(btoa(Tools.createReplayFile(room)));
+		// unescape(encodeURIComponent()) is necessary because btoa doesn't support Unicode
+		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(Tools.createReplayFile(room)))));
 	}
 };
