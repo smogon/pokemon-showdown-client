@@ -61,3 +61,7 @@ default:
 }
 
 execSync(`node ./build-tools/update`, options);
+
+if (process.argv[2] === 'full') {
+	execSync(`node ../replay.pokemonshowdown.com/build`, options);
+}
