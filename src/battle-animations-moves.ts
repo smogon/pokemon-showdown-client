@@ -19424,6 +19424,7 @@ const BattleMoveAnims: AnimTable = {
 		}
 	},
 	razorwind: {
+		anim: null!,
 		prepareAnim: BattleOtherAnims.selfstatus.anim,
 		prepareMessage(pokemon) {
 			return pokemon.getName() + ' whipped up a whirlwind!';

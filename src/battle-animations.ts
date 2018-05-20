@@ -8,6 +8,7 @@
  * - The battle replay/animation engine (battle-*.ts) by itself is MIT
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @license MIT
  */
 
 /*
