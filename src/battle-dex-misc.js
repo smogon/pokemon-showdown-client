@@ -21,53 +21,6 @@
  */
 
 /* eslint-disable */
-if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function (searchElement, fromIndex) {
-		for (var i = (fromIndex || 0); i < this.length; i++) {
-			if (this[i] === searchElement) return i;
-		}
-		return -1;
-	};
-}
-if (!Array.prototype.includes) {
-	Array.prototype.includes = function (thing) {
-		return this.indexOf(thing) !== -1;
-	};
-}
-if (!String.prototype.includes) {
-	String.prototype.includes = function (thing) {
-		return this.indexOf(thing) !== -1;
-	};
-}
-if (!String.prototype.startsWith) {
-	String.prototype.startsWith = function (thing) {
-		return this.slice(0, thing.length) === thing;
-	};
-}
-if (!String.prototype.endsWith) {
-	String.prototype.endsWith = function (thing) {
-		return this.slice(-thing.length) === thing;
-	};
-}
-if (!Object.assign) {
-	Object.assign = function (thing, rest) {
-		for (var i = 1; i < arguments.length; i++) {
-			var source = arguments[i];
-			for (var k in source) {
-				thing[k] = source[k];
-			}
-		}
-		return thing;
-	};
-}
-// if (!Object.create) {
-// 	Object.create = function (proto) {
-// 		function F() {}
-// 		F.prototype = proto;
-// 		return new F();
-// 	};
-// }
-
 
 // MD5 minified
 function MD5(f){function i(b,c){var d,e,f,g,h;f=b&2147483648;g=c&2147483648;d=b&1073741824;e=c&1073741824;h=(b&1073741823)+(c&1073741823);return d&e?h^2147483648^f^g:d|e?h&1073741824?h^3221225472^f^g:h^1073741824^f^g:h^f^g}function j(b,c,d,e,f,g,h){b=i(b,i(i(c&d|~c&e,f),h));return i(b<<g|b>>>32-g,c)}function k(b,c,d,e,f,g,h){b=i(b,i(i(c&e|d&~e,f),h));return i(b<<g|b>>>32-g,c)}function l(b,c,e,d,f,g,h){b=i(b,i(i(c^e^d,f),h));return i(b<<g|b>>>32-g,c)}function m(b,c,e,d,f,g,h){b=i(b,i(i(e^(c|~d),
