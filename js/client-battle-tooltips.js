@@ -383,10 +383,8 @@ var BattleTooltips = (function () {
 		text = '<div class="tooltipinner"><div class="tooltip">';
 		text += '<h2>' + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
 
-		var template = pokemon;
-		if (!pokemon.types) template = Tools.getTemplate(pokemon.species);
+		var template = Tools.getTemplate(pokemon.getSpecies());
 		if (pokemon.volatiles && pokemon.volatiles.formechange) {
-			template = Tools.getTemplate(pokemon.volatiles.formechange[2]);
 			if (pokemon.volatiles.transform) {
 				text += '<small>(Transformed into ' + pokemon.volatiles.formechange[2] + ')</small><br />';
 			} else {
