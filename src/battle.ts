@@ -6792,9 +6792,6 @@ class Battle {
 			}
 			let template = Tools.getTemplate(newSpecies);
 			let spriteData = {'shiny': poke.sprite.sp.shiny};
-			poke.sprite.animTransform(poke, true);
-			poke.sprite.oldsp = null;
-			poke.side.updateStatbar();
 
 			poke.species = newSpecies;
 			poke.ability = poke.baseAbility = (template.abilities ? template.abilities['0'] : '');
@@ -6802,9 +6799,13 @@ class Battle {
 
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
+
+			poke.sprite.animTransform(poke, true);
+			poke.sprite.oldsp = null;
 			if (poke.statbarElem) {
 				poke.statbarElem.html(poke.side.getStatbarHTML(poke, true));
 			}
+
 			poke.side.updateStatbar(poke, true);
 			poke.side.updateSidebar();
 			if (toId(newSpecies) === 'greninjaash') {
