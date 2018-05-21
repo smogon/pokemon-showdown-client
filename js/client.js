@@ -838,7 +838,6 @@
 									var title = Tools.escapeHTML(replay.p1) + ' vs. ' + Tools.escapeHTML(replay.p2);
 									app.receive('>battle-' + replayid + '\n|init|battle\n|title|' + title + '\n' + replay.log);
 									app.receive('>battle-' + replayid + '\n|expire|<a href=' + replayLink + ' target="_blank">Open replay in new tab</a>');
-									replayFound = true;
 								} else {
 									errormessage += '\n\nResponse received, but no data.';
 									app.addPopupMessage(errormessage);
