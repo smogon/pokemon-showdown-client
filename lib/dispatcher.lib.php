@@ -369,14 +369,6 @@ class DefaultActionHandler {
 		die($GLOBALS['Replays']->upload($reqData));
 	}
 
-	public function fetchreplay($dispatcher, &$reqData, &$out) {
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $reqData['replaylogurl']);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$out = curl_exec($ch);
-		curl_close($ch);
-	}
-
 	public function invalidatecss($dispatcher, &$reqData, &$out) {
 		$server = $dispatcher->findServer();
 		if (!$server) {
