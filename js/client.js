@@ -827,30 +827,24 @@
 					});
 				} else if (data === 'rename') {
 					this.renameRoom(roomid, errormessage);
-				} else if (data !== 'namepending') {
-					if (errormessage) {
-						if (data === 'nonexistent' && Config.server.id && roomid.slice(0, 7) === 'battle-') {
-							var replayid = roomid.slice(7);
-							if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
-							var replayLink = 'https://replay.pokemonshowdown.com/' + replayid;
-							$.ajax(replayLink + '.json', {dataType: 'json'}).done(function (replay) {
-								if (replay) {
-									var title = Tools.escapeHTML(replay.p1) + ' vs. ' + Tools.escapeHTML(replay.p2);
-									app.receive('>battle-' + replayid + '\n|init|battle\n|title|' + title + '\n' + replay.log);
-									app.receive('>battle-' + replayid + '\n|expire|<a href=' + replayLink + ' target="_blank">Open replay in new tab</a>');
-								} else {
-									errormessage += '\n\nResponse received, but no data.';
-									app.addPopupMessage(errormessage);
-								}
-								isdeinit = false;
-							}).fail(function () {
-								errormessage += "\n\nThe battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.\nIn the future, remember to click \"Save replay\" to save a replay permanently.";
-								app.addPopupMessage(errormessage);
-							});
+				} else if (data === 'nonexistent' && Config.server.id && roomid.slice(0, 7) === 'battle-' && errormessage) {
+					var replayid = roomid.slice(7);
+					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
+					var replayLink = 'https://replay.pokemonshowdown.com/' + replayid;
+					$.ajax(replayLink + '.json', {dataType: 'json'}).done(function (replay) {
+						if (replay) {
+							var title = Tools.escapeHTML(replay.p1) + ' vs. ' + Tools.escapeHTML(replay.p2);
+							app.receive('>battle-' + replayid + '\n|init|battle\n|title|' + title + '\n' + replay.log);
+							app.receive('>battle-' + replayid + '\n|expire|<a href=' + replayLink + ' target="_blank">Open replay in new tab</a>');
 						} else {
-							this.addPopupMessage(errormessage);
+							errormessage += '\n\nResponse received, but no data.';
+							app.addPopupMessage(errormessage);
 						}
-					}
+					}).fail(function () {
+						errormessage += "\n\nThe battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.\nIn the future, remember to click \"Save replay\" to save a replay permanently.";
+						app.addPopupMessage(errormessage);
+					});
+				} else if (data !== 'namepending') {
 					if (isdeinit) { // deinit
 						if (this.rooms[roomid] && this.rooms[roomid].type === 'chat') {
 							this.removeRoom(roomid, true);
@@ -862,6 +856,7 @@
 						this.unjoinRoom(roomid);
 						if (roomid === 'lobby') this.joinRoom('rooms');
 					}
+					if (errormessage) this.addPopupMessage(errormessage);
 				}
 				return;
 			} else if (data.substr(0, 3) === '|N|') {
