@@ -90,7 +90,13 @@
 				return buf + ' aria-label="Join chatroom"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			case 'battle':
 				var name = Tools.escapeHTML(room.title);
-				var formatid = id.substr(7).split('-')[0];
+				var idChunks = id.substr(7).split('-');
+				var formatid;
+				if (idChunks.length <= 1) {
+					if (idChunks[0] === 'uploadedreplay') formatid = 'Uploaded Replay';
+				} else {
+					formatid = idChunks[idChunks.length - 2];
+				}
 				if (!name) {
 					var p1 = (room.battle && room.battle.p1 && room.battle.p1.name) || '';
 					var p2 = (room.battle && room.battle.p2 && room.battle.p2.name) || '';
