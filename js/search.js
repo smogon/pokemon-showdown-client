@@ -265,6 +265,8 @@
 			if ((qType === 'ability' || qType === 'item') && typeIndex !== qTypeIndex) continue;
 			// Query was a type name followed 'type'; only show types
 			if (qFilterType === 'type' && typeIndex !== 2) continue;
+			// hardcode cases of duplicate non-consecutive aliases
+			if ((id === 'megax' || id === 'megay') && 'mega'.startsWith(query)) continue;
 
 			var matchStart = 0;
 			var matchLength = 0;
