@@ -17,7 +17,7 @@ function calculate(room, pokemonDefender, moveName) {
 	//your pokemon
 	this.attacker = new POKEMONValue(pokemonAttacker);
 	//opponent pokemon
-	this.defender = new POKEMONValue(pokemonDefender.pokemon[0]);
+	this.defender = new POKEMONValue(pokemonDefender.active[0]);
 	var damage = calculateDamage(this.attacker, this.defender);
 	var d = 0;
 	var ar = damage[0];
@@ -327,10 +327,10 @@ function calculateDamage(pokemonLeft, pokemonRight) {
 			});
 			bestMove = battling[0].maxDamages[0].moveOrder;
 			var chosenPokemon = battling[0] === p1 ? "0" : "1";
-			bestResult = $(resultLocations[chosenPokemon][bestMove].move);
+			bestResult = resultLocations[chosenPokemon][bestMove].move;
 		} else {
 			bestMove = battling[fastestSide].maxDamages[0].moveOrder;
-			bestResult = $(resultLocations[fastestSide][bestMove].move);
+			bestResult = resultLocations[fastestSide][bestMove].move;
 		}
 	}
 	// bestResult.prop("checked", true);
@@ -419,21 +419,21 @@ function Sider(format, terrain, weather, isGravity, isSR, spikes, isReflect, isL
 
 function setGenerationMoves(gen) {
 	switch (gen) {
-	case 1:
-		calculateAllMoves = CALCULATE_ALL_MOVES_RBY;
-		break;
-	case 2:
-		calculateAllMoves = CALCULATE_ALL_MOVES_GSC;
-		break;
-	case 3:
-		calculateAllMoves = CALCULATE_ALL_MOVES_ADV;
-		break;
-	case 4:
-		calculateAllMoves = CALCULATE_ALL_MOVES_DPP;
-		break;
-	default:
-		calculateAllMoves = CALCULATE_ALL_MOVES_BW;
-		break;
+		case 1:
+			calculateAllMoves = CALCULATE_ALL_MOVES_RBY;
+			break;
+		case 2:
+			calculateAllMoves = CALCULATE_ALL_MOVES_GSC;
+			break;
+		case 3:
+			calculateAllMoves = CALCULATE_ALL_MOVES_ADV;
+			break;
+		case 4:
+			calculateAllMoves = CALCULATE_ALL_MOVES_DPP;
+			break;
+		default:
+			calculateAllMoves = CALCULATE_ALL_MOVES_BW;
+			break;
 	}
 }
 
@@ -441,81 +441,81 @@ function setGeneration(gen) {
 	genWasChanged = true;
 	setGenerationMoves(gen);
 	switch (gen) {
-	case 1:
-		pokedex = POKEDEX_RBY;
-		setdex = SETDEX_RBY;
-		typeChart = TYPE_CHART_RBY;
-		moves = MOVES_RBY;
-		items = [];
-		abilities = [];
-		STATS = STATS_RBY;
-		calcHP = CALC_HP_RBY;
-		calcStat = CALC_STAT_RBY;
-		break;
-	case 2:
-		pokedex = POKEDEX_GSC;
-		setdex = SETDEX_GSC;
-		typeChart = TYPE_CHART_GSC;
-		moves = MOVES_GSC;
-		items = ITEMS_GSC;
-		abilities = [];
-		STATS = STATS_GSC;
-		calcHP = CALC_HP_RBY;
-		calcStat = CALC_STAT_RBY;
-		break;
-	case 3:
-		pokedex = POKEDEX_ADV;
-		setdex = SETDEX_ADV;
-		typeChart = TYPE_CHART_GSC;
-		moves = MOVES_ADV;
-		items = ITEMS_ADV;
-		abilities = ABILITIES_ADV;
-		STATS = STATS_GSC;
-		calcHP = CALC_HP_ADV;
-		calcStat = CALC_STAT_ADV;
-		break;
-	case 4:
-		pokedex = POKEDEX_DPP;
-		setdex = SETDEX_DPP;
-		typeChart = TYPE_CHART_GSC;
-		moves = MOVES_DPP;
-		items = ITEMS_DPP;
-		abilities = ABILITIES_DPP;
-		STATS = STATS_GSC;
-		calcHP = CALC_HP_ADV;
-		calcStat = CALC_STAT_ADV;
-		break;
-	case 5:
-		pokedex = POKEDEX_BW;
-		setdex = SETDEX_BW;
-		typeChart = TYPE_CHART_GSC;
-		moves = MOVES_BW;
-		items = ITEMS_BW;
-		abilities = ABILITIES_BW;
-		STATS = STATS_GSC;
-		calcHP = CALC_HP_ADV;
-		calcStat = CALC_STAT_ADV;
-		break;
-	case 6:
-		pokedex = POKEDEX_XY;
-		setdex = SETDEX_XY;
-		typeChart = TYPE_CHART_XY;
-		moves = MOVES_XY;
-		items = ITEMS_XY;
-		abilities = ABILITIES_XY;
-		STATS = STATS_GSC;
-		calcHP = CALC_HP_ADV;
-		calcStat = CALC_STAT_ADV;
-		break;
-	default:
-		pokedex = POKEDEX_SM;
-		setdex = SETDEX_SM;
-		typeChart = TYPE_CHART_XY;
-		moves = MOVES_SM;
-		items = ITEMS_SM;
-		abilities = ABILITIES_SM;
-		STATS = STATS_GSC;
-		calcHP = CALC_HP_ADV;
-		calcStat = CALC_STAT_ADV;
+		case 1:
+			pokedex = POKEDEX_RBY;
+			setdex = SETDEX_RBY;
+			typeChart = TYPE_CHART_RBY;
+			moves = MOVES_RBY;
+			items = [];
+			abilities = [];
+			STATS = STATS_RBY;
+			calcHP = CALC_HP_RBY;
+			calcStat = CALC_STAT_RBY;
+			break;
+		case 2:
+			pokedex = POKEDEX_GSC;
+			setdex = SETDEX_GSC;
+			typeChart = TYPE_CHART_GSC;
+			moves = MOVES_GSC;
+			items = ITEMS_GSC;
+			abilities = [];
+			STATS = STATS_GSC;
+			calcHP = CALC_HP_RBY;
+			calcStat = CALC_STAT_RBY;
+			break;
+		case 3:
+			pokedex = POKEDEX_ADV;
+			setdex = SETDEX_ADV;
+			typeChart = TYPE_CHART_GSC;
+			moves = MOVES_ADV;
+			items = ITEMS_ADV;
+			abilities = ABILITIES_ADV;
+			STATS = STATS_GSC;
+			calcHP = CALC_HP_ADV;
+			calcStat = CALC_STAT_ADV;
+			break;
+		case 4:
+			pokedex = POKEDEX_DPP;
+			setdex = SETDEX_DPP;
+			typeChart = TYPE_CHART_GSC;
+			moves = MOVES_DPP;
+			items = ITEMS_DPP;
+			abilities = ABILITIES_DPP;
+			STATS = STATS_GSC;
+			calcHP = CALC_HP_ADV;
+			calcStat = CALC_STAT_ADV;
+			break;
+		case 5:
+			pokedex = POKEDEX_BW;
+			setdex = SETDEX_BW;
+			typeChart = TYPE_CHART_GSC;
+			moves = MOVES_BW;
+			items = ITEMS_BW;
+			abilities = ABILITIES_BW;
+			STATS = STATS_GSC;
+			calcHP = CALC_HP_ADV;
+			calcStat = CALC_STAT_ADV;
+			break;
+		case 6:
+			pokedex = POKEDEX_XY;
+			setdex = SETDEX_XY;
+			typeChart = TYPE_CHART_XY;
+			moves = MOVES_XY;
+			items = ITEMS_XY;
+			abilities = ABILITIES_XY;
+			STATS = STATS_GSC;
+			calcHP = CALC_HP_ADV;
+			calcStat = CALC_STAT_ADV;
+			break;
+		default:
+			pokedex = POKEDEX_SM;
+			setdex = SETDEX_SM;
+			typeChart = TYPE_CHART_XY;
+			moves = MOVES_SM;
+			items = ITEMS_SM;
+			abilities = ABILITIES_SM;
+			STATS = STATS_GSC;
+			calcHP = CALC_HP_ADV;
+			calcStat = CALC_STAT_ADV;
 	}
 }

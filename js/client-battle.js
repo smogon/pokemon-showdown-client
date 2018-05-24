@@ -186,20 +186,20 @@
 					var requestData = this.request.active[pokemon ? pokemon.slot : 0];
 					delete this.choice;
 					switch (args[0]) {
-					case 'trapped':
-						requestData.trapped = true;
-						var pokeName = pokemon.side.n === 0 ? Tools.escapeHTML(pokemon.name) : "The opposing " + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.species : Tools.escapeHTML(pokemon.name));
-						this.battle.activityQueue.push('|message|' + pokeName + ' is trapped and cannot switch!');
-						break;
-					case 'cant':
-						for (var i = 0; i < requestData.moves.length; i++) {
-							if (requestData.moves[i].id === args[3]) {
-								requestData.moves[i].disabled = true;
+						case 'trapped':
+							requestData.trapped = true;
+							var pokeName = pokemon.side.n === 0 ? Tools.escapeHTML(pokemon.name) : "The opposing " + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.species : Tools.escapeHTML(pokemon.name));
+							this.battle.activityQueue.push('|message|' + pokeName + ' is trapped and cannot switch!');
+							break;
+						case 'cant':
+							for (var i = 0; i < requestData.moves.length; i++) {
+								if (requestData.moves[i].id === args[3]) {
+									requestData.moves[i].disabled = true;
+								}
 							}
-						}
-						args.splice(1, 1, pokemon.getIdent());
-						this.battle.activityQueue.push('|' + args.join('|'));
-						break;
+							args.splice(1, 1, pokemon.getIdent());
+							this.battle.activityQueue.push('|' + args.join('|'));
+							break;
 					}
 				} else if (logLine.substr(0, 7) === '|title|') { // eslint-disable-line no-empty
 				} else if (logLine.substr(0, 5) === '|win|' || logLine === '|tie') {
@@ -352,76 +352,76 @@
 			// this.choice.waiting = true if the choice has been sent and we're just waiting for the next turn
 
 			switch (act) {
-			case 'move':
-				if (!this.choice) {
-					this.choice = {
-						choices: [],
-						switchFlags: {},
-						switchOutFlags: {}
-					};
-				}
-				this.updateMoveControls(type);
-				break;
-
-			case 'switch':
-				if (!this.choice) {
-					this.choice = {
-						choices: [],
-						switchFlags: {},
-						switchOutFlags: {},
-						freedomDegrees: 0,
-						canSwitch: 0
-					};
-
-					if (this.request.forceSwitch !== true) {
-						var faintedLength = _.filter(this.request.forceSwitch, function (fainted) {return fainted;}).length;
-						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.active.length), function (mon) {return !mon.fainted;}).length;
-						this.choice.freedomDegrees = Math.max(freedomDegrees, 0);
-						this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
+				case 'move':
+					if (!this.choice) {
+						this.choice = {
+							choices: [],
+							switchFlags: {},
+							switchOutFlags: {}
+						};
 					}
-				}
-				this.updateSwitchControls(type);
-				break;
+					this.updateMoveControls(type);
+					break;
 
-			case 'team':
-				if (this.battle.mySide.pokemon && !this.battle.mySide.pokemon.length) {
-					// too early, we can't determine `this.choice.count` yet
-					// TODO: send teamPreviewCount in the request object
-					return;
-				}
-				if (!this.choice) {
-					this.choice = {
-						choices: null,
-						teamPreview: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].slice(0, switchables.length),
-						done: 0,
-						count: 1
-					};
-					if (this.battle.gameType === 'doubles') {
-						this.choice.count = 2;
-					}
-					if (this.battle.gameType === 'triples' || this.battle.gameType === 'rotation') {
-						this.choice.count = 3;
-					}
-					// Request full team order if one of our Pokémon has Illusion
-					for (var i = 0; i < switchables.length && i < 6; i++) {
-						if (toId(switchables[i].baseAbility) === 'illusion') {
-							this.choice.count = this.myPokemon.length;
+				case 'switch':
+					if (!this.choice) {
+						this.choice = {
+							choices: [],
+							switchFlags: {},
+							switchOutFlags: {},
+							freedomDegrees: 0,
+							canSwitch: 0
+						};
+
+						if (this.request.forceSwitch !== true) {
+							var faintedLength = _.filter(this.request.forceSwitch, function (fainted) {return fainted;}).length;
+							var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.active.length), function (mon) {return !mon.fainted;}).length;
+							this.choice.freedomDegrees = Math.max(freedomDegrees, 0);
+							this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
 						}
 					}
-					if (this.battle.teamPreviewCount) {
-						var requestCount = parseInt(this.battle.teamPreviewCount, 10);
-						if (requestCount > 0 && requestCount <= switchables.length) {
-							this.choice.count = requestCount;
-						}
-					}
-					this.choice.choices = new Array(this.choice.count);
-				}
-				this.updateTeamControls(type);
-				break;
+					this.updateSwitchControls(type);
+					break;
 
-			default:
-				this.updateWaitControls();
-				break;
+				case 'team':
+					if (this.battle.mySide.pokemon && !this.battle.mySide.pokemon.length) {
+						// too early, we can't determine `this.choice.count` yet
+						// TODO: send teamPreviewCount in the request object
+						return;
+					}
+					if (!this.choice) {
+						this.choice = {
+							choices: null,
+							teamPreview: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].slice(0, switchables.length),
+							done: 0,
+							count: 1
+						};
+						if (this.battle.gameType === 'doubles') {
+							this.choice.count = 2;
+						}
+						if (this.battle.gameType === 'triples' || this.battle.gameType === 'rotation') {
+							this.choice.count = 3;
+						}
+						// Request full team order if one of our Pokémon has Illusion
+						for (var i = 0; i < switchables.length && i < 6; i++) {
+							if (toId(switchables[i].baseAbility) === 'illusion') {
+								this.choice.count = this.myPokemon.length;
+							}
+						}
+						if (this.battle.teamPreviewCount) {
+							var requestCount = parseInt(this.battle.teamPreviewCount, 10);
+							if (requestCount > 0 && requestCount <= switchables.length) {
+								this.choice.count = requestCount;
+							}
+						}
+						this.choice.choices = new Array(this.choice.count);
+					}
+					this.updateTeamControls(type);
+					break;
+
+				default:
+					this.updateWaitControls();
+					break;
 			}
 		},
 		timerInterval: 0,
@@ -824,47 +824,47 @@
 				for (var i = 0; i < this.choice.choices.length; i++) {
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
-					case 'move':
-						var move = this.request.active[i].moves[parts[1] - 1].move;
-						var target = '';
-						buf += myActive[i].species + ' will ';
-						if (parts.length > 2) {
-							var targetPos = parts[2];
-							if (targetPos === 'mega') {
-								buf += 'mega evolve, then ';
-								targetPos = parts[3];
-							}
-							if (targetPos === 'zmove') {
-								move = this.request.active[i].canZMove[parts[1] - 1].move;
-								targetPos = parts[3];
-							}
-							if (targetPos) {
-								var targetActive = this.battle.yourSide.active;
-								// Targeting your own side in doubles / triples
-								if (targetPos < 0) {
-									targetActive = myActive;
-									targetPos = -targetPos;
-									target += 'your ';
+						case 'move':
+							var move = this.request.active[i].moves[parts[1] - 1].move;
+							var target = '';
+							buf += myActive[i].species + ' will ';
+							if (parts.length > 2) {
+								var targetPos = parts[2];
+								if (targetPos === 'mega') {
+									buf += 'mega evolve, then ';
+									targetPos = parts[3];
 								}
-								if (targetActive[targetPos - 1]) {
-									target += targetActive[targetPos - 1].species;
-								} else {
-									target = ''; // targeting an empty slot
+								if (targetPos === 'zmove') {
+									move = this.request.active[i].canZMove[parts[1] - 1].move;
+									targetPos = parts[3];
+								}
+								if (targetPos) {
+									var targetActive = this.battle.yourSide.active;
+									// Targeting your own side in doubles / triples
+									if (targetPos < 0) {
+										targetActive = myActive;
+										targetPos = -targetPos;
+										target += 'your ';
+									}
+									if (targetActive[targetPos - 1]) {
+										target += targetActive[targetPos - 1].species;
+									} else {
+										target = ''; // targeting an empty slot
+									}
 								}
 							}
-						}
-						buf += 'use ' + Tools.getMove(move).name + (target ? ' against ' + target : '') + '.<br />';
-						break;
-					case 'switch':
-						buf += '' + this.myPokemon[parts[1] - 1].species + ' will switch in';
-						if (myActive[i]) {
-							buf += ', replacing ' + myActive[i].species;
-						}
-						buf += '.<br />';
-						break;
-					case 'shift':
-						buf += myActive[i].species + ' will shift position.<br />';
-						break;
+							buf += 'use ' + Tools.getMove(move).name + (target ? ' against ' + target : '') + '.<br />';
+							break;
+						case 'switch':
+							buf += '' + this.myPokemon[parts[1] - 1].species + ' will switch in';
+							if (myActive[i]) {
+								buf += ', replacing ' + myActive[i].species;
+							}
+							buf += '.<br />';
+							break;
+						case 'shift':
+							buf += myActive[i].species + ' will shift position.<br />';
+							break;
 					}
 				}
 			}
@@ -924,15 +924,15 @@
 			var oName = this.battle.yourSide.name;
 			if (oName) oName = " against " + oName;
 			switch (this.request.requestType) {
-			case 'move':
-				this.notify("Your move!", "Move in your battle" + oName, 'choice');
-				break;
-			case 'switch':
-				this.notify("Your switch!", "Switch in your battle" + oName, 'choice');
-				break;
-			case 'team':
-				this.notify("Team preview!", "Choose your team order in your battle" + oName, 'choice');
-				break;
+				case 'move':
+					this.notify("Your move!", "Move in your battle" + oName, 'choice');
+					break;
+				case 'switch':
+					this.notify("Your switch!", "Switch in your battle" + oName, 'choice');
+					break;
+				case 'team':
+					this.notify("Team preview!", "Choose your team order in your battle" + oName, 'choice');
+					break;
 			}
 		},
 		updateSideLocation: function (sideData, midBattle) {
