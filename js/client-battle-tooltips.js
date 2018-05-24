@@ -44,7 +44,7 @@ var BattleTooltips = (function () {
 
 	// Each time a finger presses the button this function will be callled
 	// First finger starts the counter, and when last finger leaves time is checked
-	BattleTooltips._handleTouchStartFor = function (e, roomid, thing, type, elem, ownHeight) {
+	BattleTooltips.TouchStartFor = function (e, roomid, thing, type, elem, ownHeight) {
 		// Prevent default on touch events to block mouse events when touch is used
 		e.preventDefault();
 
@@ -115,32 +115,32 @@ var BattleTooltips = (function () {
 
 		var text = '';
 		switch (type) {
-			case 'move':
-			case 'zmove':
-				var move = Tools.getMove(thing);
-				if (!move) return;
-				text = this.showMoveTooltip(move, type === 'zmove');
-				break;
+		case 'move':
+		case 'zmove':
+			var move = Tools.getMove(thing);
+			if (!move) return;
+			text = this.showMoveTooltip(move, type === 'zmove');
+			break;
 
-			case 'pokemon':
-				var side = room.battle[thing.slice(0, -1) + "Side"];
-				var pokemon = side.active[thing.slice(-1)];
-				if (!pokemon) return;
-			/* falls through */
-			case 'sidepokemon':
-				var pokemonData;
-				var isActive = (type === 'pokemon');
-				if (room.myPokemon) {
-					if (!pokemon) {
-						pokemonData = room.myPokemon[parseInt(thing, 10)];
-						pokemon = pokemonData;
-					} else if (room.controlsShown && pokemon.side === room.battle.mySide) {
-						// battlePokemon = pokemon;
-						pokemonData = room.myPokemon[pokemon.slot];
-					}
+		case 'pokemon':
+			var side = room.battle[thing.slice(0, -1) + "Side"];
+			var pokemon = side.active[thing.slice(-1)];
+			if (!pokemon) return;
+		/* falls through */
+		case 'sidepokemon':
+			var pokemonData;
+			var isActive = (type === 'pokemon');
+			if (room.myPokemon) {
+				if (!pokemon) {
+					pokemonData = room.myPokemon[parseInt(thing, 10)];
+					pokemon = pokemonData;
+				} else if (room.controlsShown && pokemon.side === room.battle.mySide) {
+					// battlePokemon = pokemon;
+					pokemonData = room.myPokemon[pokemon.slot];
 				}
-				text = this.showPokemonTooltip(pokemon, pokemonData, isActive);
-				break;
+			}
+			text = this.showPokemonTooltip(pokemon, pokemonData, isActive, room.battle.yourSide.active[0]);
+			break;
 		}
 
 		var offset = {
@@ -376,12 +376,30 @@ var BattleTooltips = (function () {
 		return text;
 	};
 
-	BattleTooltips.prototype.showPokemonTooltip = function (pokemon, pokemonData, isActive) {
+	var showSpeedOnTooltip = true;
+
+	BattleTooltips.prototype.showPokemonTooltip = function (pokemon, pokemonData, isActive, theirActive) {
 		var text = '';
 		var gender = pokemon.gender;
+		var speedChar = '';
+		if (showSpeedOnTooltip && pokemonData) {
+			var theirSpeed = this.getTemplateMaxSpeed(Tools.getTemplate(theirActive.species), theirActive.level);
+			theirSpeed *= 1 + (theirActive.boosts["sd"] / 2);
+			if (theirActive.item.name == "Choice Scarf") {
+				theirSpeed *= 1.5;
+			}
+			var mySpeed = this.calculateModifiedStats(pokemon, pokemonData)["spe"];
+			if (mySpeed > theirSpeed) {
+				speedChar = '&#9650;';
+			} else if (mySpeed == theirSpeed) {
+				speedChar = '&#61';
+			} else {
+				speedChar = '&#9660;';
+			}
+		}
 		if (gender) gender = ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
 		text = '<div class="tooltipinner"><div class="tooltip">';
-		text += '<h2>' + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
+		text += '<h2>' + speedChar + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
 
 		var template = Tools.getTemplate(pokemon.species);
 		if (pokemon.volatiles && pokemon.volatiles.formechange) {
@@ -549,7 +567,7 @@ var BattleTooltips = (function () {
 		}
 
 		var ability = toId(pokemonData.ability || pokemon.ability || pokemonData.baseAbility);
-		if ('gastroacid' in pokemon.volatiles) ability = '';
+		if (pokemon.volatiles && 'gastroacid' in pokemon.volatiles) ability = '';
 
 		// check for burn, paralysis, guts, quick feet
 		if (pokemon.status) {
