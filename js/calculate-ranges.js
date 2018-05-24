@@ -15,8 +15,10 @@ function calculate(room, pokemonDefender, moveName) {
 		}
 	//TODO fix double battles
 	//your pokemon
+	pokemonAttacker.boosts = room.battle.p2.active[0].boosts;
 	this.attacker = new POKEMONValue(pokemonAttacker);
 	//opponent pokemon
+	pokemonDefender.boosts = room.battle.p1.active[0].boosts;
 	this.defender = new POKEMONValue(pokemonDefender.active[0]);
 	var damage = calculateDamage(this.attacker, this.defender);
 	var d = 0;
@@ -49,9 +51,12 @@ function POKEMONValue(pMon) {
 	this.hp = pMon.hp;
 	this.moves = pMon.moves;
 	this.stats = pMon.stats;
-
+	this.boosts = pMon.boosts;
+	if (this.boosts !== undefined)
+		for (var key in this.boosts)
+			this.boosts[key.substr(0, 2)] = this.boosts[key];
 	this.getPossibleAbilities = function () {
-		if (this.ability !== undefined  || this.ability !== "")
+		if (this.ability !== undefined || this.ability !== "")
 			return [this.ability];
 		if (this.abilities !== undefined || this.abilities !== [])
 			return abilities;
@@ -81,7 +86,6 @@ function POKEMONValue(pMon) {
 	this.type1 = this.pokemon.t1;
 	this.type2 = (this.pokemon.t2 && typeof this.pokemon.t2 !== "undefined") ? this.pokemon.t2 : "";
 	this.rawStats = [];
-	this.boosts = []; //TODO pMon.boosts
 	this.stats = [];
 	this.evs = [];
 	this.curSet = this.set[Object.keys(this.set)[0]];
@@ -100,7 +104,8 @@ function POKEMONValue(pMon) {
 	this.nature = this.curSet.nature;
 	for (var i = 0; i < STATS.length; i++) {
 		var stat = STATS[i];
-		this.boosts[stat] = 0;
+		if (this.boosts[stat] == undefined)
+			this.boosts[stat] = 0;
 		this.evs[stat] = (this.curSet.evs && typeof this.curSet.evs[stat] !== "undefined") ? this.curSet.evs[stat] : 0;
 		if (gen < 3) {
 			var dvs = 15;
@@ -132,37 +137,29 @@ function POKEMONValue(pMon) {
 			hits: defaultDetails.isMultiHit ? ((this.ability === "Skill Link" || this.item === "Grip Claw") ? 5 : 3) : defaultDetails.isTwoHit ? 2 : 1,
 			usedTimes: defaultDetails.usedTimes
 		}));
-	}
-	// else {
-	// 	for (var i = 0; i < this.moves.length; i++) {
-	// 		var move = moves[Tools.getMove(this.moves[i]).name];
-	// 		if (move === undefined)
-	// 			move = moves['(No Move)'];
-	// 		this.mymoves.push(move);
-	// 	}
-	this.weight = this.pokemon.w;
-	this.gender = this.pokemon.gender ? "genderless" : "Male";
+		this.weight = this.pokemon.w;
+		this.gender = this.pokemon.gender ? "genderless" : "Male";
 
 
-	function calcStats(poke) {
-		for (var i = 0; i < STATS.length; i++) {
-			calcStat(poke, STATS[i]);
+		function calcStats(poke) {
+			for (var i = 0; i < STATS.length; i++) {
+				calcStat(poke, STATS[i]);
+			}
 		}
-	}
 
-	function calcCurrentHP(max, percent) {
-		return Math.ceil(percent * max / 100);
-	}
+		function calcCurrentHP(max, percent) {
+			return Math.ceil(percent * max / 100);
+		}
 
-	function calcPercentHP(max, current) {
-		return Math.floor(100 * current / max);
-	}
+		function calcPercentHP(max, current) {
+			return Math.floor(100 * current / max);
+		}
 
-	this.hasType = function (type) {
-		return this.type1 === type || this.type2 === type;
-	};
+		this.hasType = function (type) {
+			return this.type1 === type || this.type2 === type;
+		};
+	}
 }
-
 function calculateDamage(pokemonLeft, pokemonRight) {
 	var p1 = pokemonLeft;//new Pokemon($("#p1"));
 	var p2 = pokemonRight;//new Pokemon($("#p2"));
@@ -183,7 +180,7 @@ function calculateDamage(pokemonLeft, pokemonRight) {
 			moveOrder : i,
 			maxDamage : maxDamage
 		});
-		p1.maxDamages.sort(function(firstMove, secondMove){
+		p1.maxDamages.sort(function (firstMove, secondMove) {
 			return secondMove.maxDamage - firstMove.maxDamage;
 		});
 		minDisplay = notation === '%' ? Math.floor(minDamage * 1000 / p2.maxHP) / 10 : Math.floor(minDamage * 48 / p2.maxHP);
@@ -194,9 +191,9 @@ function calculateDamage(pokemonLeft, pokemonRight) {
 		var recoveryText = '';
 		if (p1.mymoves[i].givesHealth) {
 			var minHealthRecovered = notation === '%' ? Math.floor(minDamage * p1.mymoves[i].percentHealed * 1000 / p1.maxHP) /
-				10 : Math.floor(minDamage * p1.mymoves[i].percentHealed * 48 / p1.maxHP);
+			10 : Math.floor(minDamage * p1.mymoves[i].percentHealed * 48 / p1.maxHP);
 			var maxHealthRecovered = notation === '%' ? Math.floor(maxDamage * p1.mymoves[i].percentHealed * 1000 / p1.maxHP) /
-				10 : Math.floor(maxDamage * p1.mymoves[i].percentHealed * 48 / p1.maxHP);
+			10 : Math.floor(maxDamage * p1.mymoves[i].percentHealed * 48 / p1.maxHP);
 			if (minHealthRecovered > 100 && notation === '%') {
 				minHealthRecovered = Math.floor(p2.maxHP * p1.mymoves[i].percentHealed * 1000 / p1.maxHP) / 10;
 				maxHealthRecovered = Math.floor(p2.maxHP * p1.mymoves[i].percentHealed * 1000 / p1.maxHP) / 10;
@@ -214,24 +211,24 @@ function calculateDamage(pokemonLeft, pokemonRight) {
 			var maxRecoilDamage = notation === '%' ? Math.floor(Math.min(maxDamage, p2.curHP) * p1.mymoves[i].hasRecoil * 10 / p1.maxHP) / 10 :
 				Math.floor(Math.min(maxDamage, p2.curHP) * p1.mymoves[i].hasRecoil * 0.48 / p1.maxHP);
 			if (damageOverflow) {
-				minRecoilDamage = notation === '%' ? Math.floor(p2.curHP * p1.mymoves[i].hasRecoil * 10 / p1.maxHP) / 10
-					: Math.floor(p2.maxHP * p1.mymoves[i].hasRecoil * 0.48 / p1.maxHP);
-				maxRecoilDamage = notation === '%' ? Math.floor(p2.curHP * p1.mymoves[i].hasRecoil * 10 / p1.maxHP) / 10
-					: Math.floor(p2.curHP * p1.mymoves[i].hasRecoil * 0.48 / p1.maxHP);
+				minRecoilDamage = notation === '%' ? Math.floor(p2.curHP * p1.mymoves[i].hasRecoil * 10 / p1.maxHP) / 10 :
+					Math.floor(p2.maxHP * p1.mymoves[i].hasRecoil * 0.48 / p1.maxHP);
+				maxRecoilDamage = notation === '%' ? Math.floor(p2.curHP * p1.mymoves[i].hasRecoil * 10 / p1.maxHP) / 10 :
+					Math.floor(p2.curHP * p1.mymoves[i].hasRecoil * 0.48 / p1.maxHP);
 			}
 			recoilText = ' (' + minRecoilDamage + ' - ' + maxRecoilDamage + notation + ' recoil damage)';
 		} else if (p1.mymoves[i].hasRecoil === 'crash') {
 			var genMultiplier = gen === 2 ? 12.5 : gen >= 3 ? 50 : 1;
 			var gen4CrashDamage = Math.floor(p2.maxHP * 0.5 / p1.maxHP * 100);
-			var minRecoilDamage = notation === '%' ? Math.floor(Math.min(minDamage, p2.maxHP) * genMultiplier * 10 / p1.maxHP) / 10
-				: Math.floor(Math.min(minDamage, p2.maxHP) * genMultiplier * 0.48 / p1.maxHP);
-			var maxRecoilDamage = notation === '%' ? Math.floor(Math.min(maxDamage, p2.maxHP) * genMultiplier * 10 / p1.maxHP) / 10
-				: Math.floor(Math.min(maxDamage, p2.maxHP) * genMultiplier * 0.48 / p1.maxHP);
+			var minRecoilDamage = notation === '%' ? Math.floor(Math.min(minDamage, p2.maxHP) * genMultiplier * 10 / p1.maxHP) / 10 :
+				Math.floor(Math.min(minDamage, p2.maxHP) * genMultiplier * 0.48 / p1.maxHP);
+			var maxRecoilDamage = notation === '%' ? Math.floor(Math.min(maxDamage, p2.maxHP) * genMultiplier * 10 / p1.maxHP) / 10 :
+				Math.floor(Math.min(maxDamage, p2.maxHP) * genMultiplier * 0.48 / p1.maxHP);
 			if (damageOverflow && gen !== 2) {
-				minRecoilDamage = notation === '%' ? Math.floor(p2.curHP * genMultiplier * 10 / p1.maxHP) / 10
-					: Math.floor(p2.curHP * genMultiplier * 0.48 / p1.maxHP);
-				maxRecoilDamage = notation === '%' ? Math.floor(p2.maxHP * genMultiplier * 10 / p1.maxHP) / 10
-					: Math.floor(Math.min(p2.maxHP, p1.maxHP) * genMultiplier * 0.48);
+				minRecoilDamage = notation === '%' ? Math.floor(p2.curHP * genMultiplier * 10 / p1.maxHP) / 10 :
+					Math.floor(p2.curHP * genMultiplier * 0.48 / p1.maxHP);
+				maxRecoilDamage = notation === '%' ? Math.floor(p2.maxHP * genMultiplier * 10 / p1.maxHP) / 10 :
+					Math.floor(Math.min(p2.maxHP, p1.maxHP) * genMultiplier * 0.48);
 			}
 			recoilText = gen === 1 ? ' (1hp damage on miss)' :
 				gen === 2 ? (p2.type1 === "Ghost" || p2.type2 === "Ghost") ? ' (no crash damage on Ghost types)' : ' (' + minRecoilDamage + ' - ' + maxRecoilDamage + notation + ' crash damage on miss)' :
@@ -257,7 +254,7 @@ function calculateDamage(pokemonLeft, pokemonRight) {
 			moveOrder : i,
 			maxDamage : maxDamage
 		});
-		p2.maxDamages.sort(function(firstMove, secondMove){
+		p2.maxDamages.sort(function (firstMove, secondMove) {
 			return secondMove.maxDamage - firstMove.maxDamage;
 		});
 		minDisplay = notation === '%' ? Math.floor(minDamage * 1000 / p1.maxHP) / 10 : Math.floor(minDamage * 48 / p1.maxHP);
@@ -267,12 +264,12 @@ function calculateDamage(pokemonLeft, pokemonRight) {
 			getKOChanceText(result.damage, p2, p1, field.getSide(0), p2.mymoves[i], p2.mymoves[i].hits, p2.ability === 'Bad Dreams');
 		if (p2.mymoves[i].givesHealth) {
 			var minHealthRecovered = notation === '%' ? Math.floor(minDamage * p2.mymoves[i].percentHealed * 1000 / p2.maxHP) /
-				10 : Math.floor(minDamage * p2.mymoves[i].percentHealed * 48 / p2.maxHP);
+			10 : Math.floor(minDamage * p2.mymoves[i].percentHealed * 48 / p2.maxHP);
 			var maxHealthRecovered = notation === '%' ? Math.floor(maxDamage * p2.mymoves[i].percentHealed * 1000 / p2.maxHP) /
-				10 : Math.floor(maxDamage * p2.mymoves[i].percentHealed * 48 / p2.maxHP);
+			10 : Math.floor(maxDamage * p2.mymoves[i].percentHealed * 48 / p2.maxHP);
 			if (minHealthRecovered > 100 && notation === '%') {
 				minHealthRecovered = Math.floor(p1.maxHP * p2.mymoves[i].percentHealed * 1000 / p2.maxHP) / 10;
-				maxHealthRecovered = Math.floor(p1.maxHP * p2.mymoves[i].percentHealed * 1000 / p2.maxHP) / 10
+				maxHealthRecovered = Math.floor(p1.maxHP * p2.mymoves[i].percentHealed * 1000 / p2.maxHP) / 10;
 			} else if (notation !== '%' && minHealthRecovered > 48) {
 				minHealthRecovered = Math.floor(p1.maxHP * p2.mymoves[i].percentHealed * 48 / p2.maxHP);
 				maxHealthRecovered = Math.floor(p1.maxHP * p2.mymoves[i].percentHealed * 48 / p2.maxHP);
@@ -287,24 +284,24 @@ function calculateDamage(pokemonLeft, pokemonRight) {
 			var maxRecoilDamage = notation === '%' ? Math.floor(Math.min(maxDamage, p1.maxHP) * p2.mymoves[i].hasRecoil * 10 / p2.maxHP) / 10 :
 				Math.floor(Math.min(maxDamage, p1.curHP) * p2.mymoves[i].hasRecoil * 0.48 / p2.maxHP);
 			if (damageOverflow) {
-				minRecoilDamage = notation === '%' ? Math.floor(Math.min(p1.maxHP * p2.mymoves[i].hasRecoil) * 10 / p2.maxHP) / 10
-					: Math.floor(p1.maxHP * p2.mymoves[i].recoilPercentage * 0.48 / p1.maxHP);
-				maxRecoilDamage = notation === '%' ? Math.floor(Math.min(p1.maxHP, p2.mymoves[i].hasRecoil) * 10 / p2.maxHP) / 10
-					: Math.floor(Math.min(p1.maxHP, p2.mymoves[i].hasRecoil) * 0.48 / p2.maxHP);
+				minRecoilDamage = notation === '%' ? Math.floor(Math.min(p1.maxHP * p2.mymoves[i].hasRecoil) * 10 / p2.maxHP) / 10 :
+					Math.floor(p1.maxHP * p2.mymoves[i].recoilPercentage * 0.48 / p1.maxHP);
+				maxRecoilDamage = notation === '%' ? Math.floor(Math.min(p1.maxHP, p2.mymoves[i].hasRecoil) * 10 / p2.maxHP) / 10 :
+					Math.floor(Math.min(p1.maxHP, p2.mymoves[i].hasRecoil) * 0.48 / p2.maxHP);
 			}
 			recoilText = ' (' + minRecoilDamage + ' - ' + maxRecoilDamage + notation + ' recoil damage)';
 		} else if (p2.mymoves[i].hasRecoil === 'crash') {
 			var genMultiplier = gen === 2 ? 12.5 : gen >= 3 ? 50 : 1;
 			var gen4CrashDamage = Math.floor(p2.maxHP * 0.5 / p1.maxHP * 100);
-			var minRecoilDamage = notation === '%' ? Math.floor(Math.min(minDamage, p1.maxHP) * genMultiplier * 10 / p2.maxHP) / 10
-				: Math.floor(Math.min(minDamage, p1.maxHP) * 0.48 / p2.maxHP);
-			var maxRecoilDamage = notation === '%' ? Math.floor(Math.min(maxDamage, p1.maxHP) * genMultiplier * 10 / p2.maxHP) / 10
-				: Math.floor(Math.min(maxDamage, p1.maxHP) * 0.48 / p2.maxHP);
+			var minRecoilDamage = notation === '%' ? Math.floor(Math.min(minDamage, p1.maxHP) * genMultiplier * 10 / p2.maxHP) / 10 :
+				Math.floor(Math.min(minDamage, p1.maxHP) * 0.48 / p2.maxHP);
+			var maxRecoilDamage = notation === '%' ? Math.floor(Math.min(maxDamage, p1.maxHP) * genMultiplier * 10 / p2.maxHP) / 10 :
+				Math.floor(Math.min(maxDamage, p1.maxHP) * 0.48 / p2.maxHP);
 			if (damageOverflow && gen !== 2) {
-				minRecoilDamage = notation === '%' ? Math.floor(Math.min(p1.maxHP, genMultiplier) * 10 / p2.maxHP) / 10
-					: Math.floor(Math.min(p1.maxHP, p1.maxHP) * genMultiplier * 0.48);
-				maxRecoilDamage = notation === '%' ? Math.floor(Math.min(p1.maxHP, genMultiplier) * 10 / p2.maxHP) / 10
-					: Math.floor(Math.min(p1.maxHP, p2.maxHP) * genMultiplier * 0.48);
+				minRecoilDamage = notation === '%' ? Math.floor(Math.min(p1.maxHP, genMultiplier) * 10 / p2.maxHP) / 10 :
+					Math.floor(Math.min(p1.maxHP, p1.maxHP) * genMultiplier * 0.48);
+				maxRecoilDamage = notation === '%' ? Math.floor(Math.min(p1.maxHP, genMultiplier) * 10 / p2.maxHP) / 10 :
+					Math.floor(Math.min(p1.maxHP, p2.maxHP) * genMultiplier * 0.48);
 			}
 			recoilText = gen === 1 ? ' (1hp damage on miss)' :
 				gen === 2 ? (p1.type1 === "Ghost" || p1.type2 === "Ghost") ? ' (no crash damage on Ghost types)' : ' (' + minRecoilDamage + ' - ' + maxRecoilDamage + notation + ' crash damage on miss)' :
@@ -419,21 +416,21 @@ function Sider(format, terrain, weather, isGravity, isSR, spikes, isReflect, isL
 
 function setGenerationMoves(gen) {
 	switch (gen) {
-		case 1:
-			calculateAllMoves = CALCULATE_ALL_MOVES_RBY;
-			break;
-		case 2:
-			calculateAllMoves = CALCULATE_ALL_MOVES_GSC;
-			break;
-		case 3:
-			calculateAllMoves = CALCULATE_ALL_MOVES_ADV;
-			break;
-		case 4:
-			calculateAllMoves = CALCULATE_ALL_MOVES_DPP;
-			break;
-		default:
-			calculateAllMoves = CALCULATE_ALL_MOVES_BW;
-			break;
+	case 1:
+		calculateAllMoves = CALCULATE_ALL_MOVES_RBY;
+		break;
+	case 2:
+		calculateAllMoves = CALCULATE_ALL_MOVES_GSC;
+		break;
+	case 3:
+		calculateAllMoves = CALCULATE_ALL_MOVES_ADV;
+		break;
+	case 4:
+		calculateAllMoves = CALCULATE_ALL_MOVES_DPP;
+		break;
+	default:
+		calculateAllMoves = CALCULATE_ALL_MOVES_BW;
+		break;
 	}
 }
 
@@ -441,81 +438,81 @@ function setGeneration(gen) {
 	genWasChanged = true;
 	setGenerationMoves(gen);
 	switch (gen) {
-		case 1:
-			pokedex = POKEDEX_RBY;
-			setdex = SETDEX_RBY;
-			typeChart = TYPE_CHART_RBY;
-			moves = MOVES_RBY;
-			items = [];
-			abilities = [];
-			STATS = STATS_RBY;
-			calcHP = CALC_HP_RBY;
-			calcStat = CALC_STAT_RBY;
-			break;
-		case 2:
-			pokedex = POKEDEX_GSC;
-			setdex = SETDEX_GSC;
-			typeChart = TYPE_CHART_GSC;
-			moves = MOVES_GSC;
-			items = ITEMS_GSC;
-			abilities = [];
-			STATS = STATS_GSC;
-			calcHP = CALC_HP_RBY;
-			calcStat = CALC_STAT_RBY;
-			break;
-		case 3:
-			pokedex = POKEDEX_ADV;
-			setdex = SETDEX_ADV;
-			typeChart = TYPE_CHART_GSC;
-			moves = MOVES_ADV;
-			items = ITEMS_ADV;
-			abilities = ABILITIES_ADV;
-			STATS = STATS_GSC;
-			calcHP = CALC_HP_ADV;
-			calcStat = CALC_STAT_ADV;
-			break;
-		case 4:
-			pokedex = POKEDEX_DPP;
-			setdex = SETDEX_DPP;
-			typeChart = TYPE_CHART_GSC;
-			moves = MOVES_DPP;
-			items = ITEMS_DPP;
-			abilities = ABILITIES_DPP;
-			STATS = STATS_GSC;
-			calcHP = CALC_HP_ADV;
-			calcStat = CALC_STAT_ADV;
-			break;
-		case 5:
-			pokedex = POKEDEX_BW;
-			setdex = SETDEX_BW;
-			typeChart = TYPE_CHART_GSC;
-			moves = MOVES_BW;
-			items = ITEMS_BW;
-			abilities = ABILITIES_BW;
-			STATS = STATS_GSC;
-			calcHP = CALC_HP_ADV;
-			calcStat = CALC_STAT_ADV;
-			break;
-		case 6:
-			pokedex = POKEDEX_XY;
-			setdex = SETDEX_XY;
-			typeChart = TYPE_CHART_XY;
-			moves = MOVES_XY;
-			items = ITEMS_XY;
-			abilities = ABILITIES_XY;
-			STATS = STATS_GSC;
-			calcHP = CALC_HP_ADV;
-			calcStat = CALC_STAT_ADV;
-			break;
-		default:
-			pokedex = POKEDEX_SM;
-			setdex = SETDEX_SM;
-			typeChart = TYPE_CHART_XY;
-			moves = MOVES_SM;
-			items = ITEMS_SM;
-			abilities = ABILITIES_SM;
-			STATS = STATS_GSC;
-			calcHP = CALC_HP_ADV;
-			calcStat = CALC_STAT_ADV;
+	case 1:
+		pokedex = POKEDEX_RBY;
+		setdex = SETDEX_RBY;
+		typeChart = TYPE_CHART_RBY;
+		moves = MOVES_RBY;
+		items = [];
+		abilities = [];
+		STATS = STATS_RBY;
+		calcHP = CALC_HP_RBY;
+		calcStat = CALC_STAT_RBY;
+		break;
+	case 2:
+		pokedex = POKEDEX_GSC;
+		setdex = SETDEX_GSC;
+		typeChart = TYPE_CHART_GSC;
+		moves = MOVES_GSC;
+		items = ITEMS_GSC;
+		abilities = [];
+		STATS = STATS_GSC;
+		calcHP = CALC_HP_RBY;
+		calcStat = CALC_STAT_RBY;
+		break;
+	case 3:
+		pokedex = POKEDEX_ADV;
+		setdex = SETDEX_ADV;
+		typeChart = TYPE_CHART_GSC;
+		moves = MOVES_ADV;
+		items = ITEMS_ADV;
+		abilities = ABILITIES_ADV;
+		STATS = STATS_GSC;
+		calcHP = CALC_HP_ADV;
+		calcStat = CALC_STAT_ADV;
+		break;
+	case 4:
+		pokedex = POKEDEX_DPP;
+		setdex = SETDEX_DPP;
+		typeChart = TYPE_CHART_GSC;
+		moves = MOVES_DPP;
+		items = ITEMS_DPP;
+		abilities = ABILITIES_DPP;
+		STATS = STATS_GSC;
+		calcHP = CALC_HP_ADV;
+		calcStat = CALC_STAT_ADV;
+		break;
+	case 5:
+		pokedex = POKEDEX_BW;
+		setdex = SETDEX_BW;
+		typeChart = TYPE_CHART_GSC;
+		moves = MOVES_BW;
+		items = ITEMS_BW;
+		abilities = ABILITIES_BW;
+		STATS = STATS_GSC;
+		calcHP = CALC_HP_ADV;
+		calcStat = CALC_STAT_ADV;
+		break;
+	case 6:
+		pokedex = POKEDEX_XY;
+		setdex = SETDEX_XY;
+		typeChart = TYPE_CHART_XY;
+		moves = MOVES_XY;
+		items = ITEMS_XY;
+		abilities = ABILITIES_XY;
+		STATS = STATS_GSC;
+		calcHP = CALC_HP_ADV;
+		calcStat = CALC_STAT_ADV;
+		break;
+	default:
+		pokedex = POKEDEX_SM;
+		setdex = SETDEX_SM;
+		typeChart = TYPE_CHART_XY;
+		moves = MOVES_SM;
+		items = ITEMS_SM;
+		abilities = ABILITIES_SM;
+		STATS = STATS_GSC;
+		calcHP = CALC_HP_ADV;
+		calcStat = CALC_STAT_ADV;
 	}
 }
