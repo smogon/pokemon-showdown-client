@@ -26,6 +26,9 @@ function calculate(room, pokemonDefender, moveName) {
 	//TODO convert to percentages; this.defender.maxHP*this.defender.hp/100
 	//TODO change defenders levels and moves, ect when it becomes available
 	//TODO ranges based on stat changes like swords dance
+	//TODO ranges for z-powers
+	//TODO ranges for pokemon in party
+	//TODO cache the ranges so it doesn't have to calculate it for each move since it does all moves at once anyways
 	for (var i = 0; i < ar.length; i++)
 		if (ar[i].description.includes(moveName)) {
 			d = "(" + ar[i].damageText.replace(/ (.*)/, "") + ")";
