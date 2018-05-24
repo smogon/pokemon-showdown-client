@@ -18,7 +18,7 @@
 				elem.src = src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/');
 				document.head.appendChild(elem);
 			}
-			var Config = {testclient: true};
+			var Config = {testclient: false};
 			(function() {
 				if (location.search !== '') {
 					var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
@@ -96,6 +96,7 @@
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading client...';
 		</script>
 
+
 		<script src="js/client.js"></script>
 		<script src="js/client-topbar.js"></script>
 		<script src="js/client-mainmenu.js"></script>
@@ -113,7 +114,16 @@
 			var app = new App();
 		</script>
 
+		<script src="data/pokedex.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/moves.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/items.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/abilities.js" onerror="loadRemoteData(this.src)"></script>
 
+		<script src="data/search-index.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/teambuilder-tables.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="js/search.js"></script>
+
+		<script src="data/aliases.js" async="async" onerror="loadRemoteData(this.src)"></script>
 
 		<!--<script type="text/javascript" src="./js/jquery-1.9.1.min.js"></script>-->
 		<!--<script type="text/javascript" src="./js/lodash.min.js"></script>-->
@@ -142,17 +152,6 @@
 		<script type="text/javascript" src="./js/ko_chance.js?"></script>
 		<script type="text/javascript" src="./js/calculate-ranges.js?"></script>
 		<!--<script type="text/javascript" src="./js/moveset_import.js?"></script>-->
-
-		<script src="data/pokedex.js" onerror="loadRemoteData(this.src)"></script>
-		<script src="data/moves.js" onerror="loadRemoteData(this.src)"></script>
-		<script src="data/items.js" onerror="loadRemoteData(this.src)"></script>
-		<script src="data/abilities.js" onerror="loadRemoteData(this.src)"></script>
-
-		<script src="data/search-index.js" onerror="loadRemoteData(this.src)"></script>
-		<script src="data/teambuilder-tables.js" onerror="loadRemoteData(this.src)"></script>
-		<script src="js/search.js"></script>
-
-		<script src="data/aliases.js" async="async" onerror="loadRemoteData(this.src)"></script>
 
 	</body>
 </html>
