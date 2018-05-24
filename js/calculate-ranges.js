@@ -23,12 +23,13 @@ function calculate(room, pokemonDefender, moveName) {
 	var ar = damage[0];
 	//TODO convert to percentages; this.defender.maxHP*this.defender.hp/100
 	//TODO change defenders levels and moves, ect when it becomes available
+	//TODO ranges based on stat changes like swords dance
 	for (var i = 0; i < ar.length; i++)
 		if (ar[i].description.includes(moveName)) {
 			d = "(" + ar[i].damageText.replace(/ (.*)/, "") + ")";
 			break;
 		}
-	if (d === "()")
+	if (d === 0)
 		return "";
 	return d;
 }
@@ -85,7 +86,6 @@ function POKEMONValue(pMon) {
 	this.evs = [];
 	this.curSet = this.set[Object.keys(this.set)[0]];
 
-	this.level = 100;
 	this.HPEVs = (this.curSet.evs && typeof this.curSet.evs.hp !== "undefined") ? this.curSet.evs.hp : 0;
 	if (gen < 3) {
 		var HPDVs = 15;
