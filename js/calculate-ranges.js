@@ -13,6 +13,28 @@ function calculate(room, pokemonDefender, moveName) {
 			pokemonAttacker = allPokemon[i];
 			break;
 		}
+	var field = new Field();
+	//p1 is opponent
+	var sideConditionsO = room.battle.p1.sideConditions;
+	if (sideConditionsO["reflect"] !== undefined)//lightscreen
+		field.isReflect = [field.isReflect[0],true];
+	if (sideConditionsO["lightscreen"] !== undefined)
+		field.isReflect = [field.isReflect[0],true];
+	if (sideConditionsO["tailwind"] !== undefined)
+		pokemonDefender.doubleSpeed = true;
+	var sideConditionsY = room.battle.p2.sideConditions;
+	if (sideConditionsY["reflect"] !== undefined)
+		field.isReflect = [true,field.isReflect[1]];
+	if (sideConditionsY["tailwind"] !== undefined)
+		pokemonAttacker.doubleSpeed = true;
+	if (sideConditionsY["lightscreen"] !== undefined)
+		field.isReflect = [true,field.isReflect[1]];
+
+	var psuedoWeather = room.battle.pseudoWeather;
+	var isTrickRoom = false;
+	for(var i = 0; i<psuedoWeather.length; i++)
+		if(psuedoWeather[i][0] === "Trick Room")
+			isTrickRoom = true;
 	//TODO fix double battles
 	//your pokemon
 	pokemonAttacker.boosts = room.battle.p2.active[0].boosts;
@@ -20,7 +42,7 @@ function calculate(room, pokemonDefender, moveName) {
 	//opponent pokemon
 	pokemonDefender.boosts = room.battle.p1.active[0].boosts;
 	this.defender = new POKEMONValue(pokemonDefender.active[0]);
-	var damage = calculateDamage(this.attacker, this.defender);
+	var damage = calculateDamage(this.attacker, this.defender, field);
 	var d = 0;
 	var ar = damage[0];
 	//TODO change defenders levels and moves, ect when it becomes available
@@ -46,9 +68,21 @@ function calculate(room, pokemonDefender, moveName) {
 function POKEMONValue(pMon) {
 	setGeneration(gen);
 	this.mon = pMon;
-	this.name = pMon.species;
+	this.name = pMon.baseSpecies === undefined ? pMon.species : pMon.baseSpecies;
 	this.set = setdex[this.name];
 	this.pokemon = pokedex[this.name];
+	if (this.pokemon === undefined) {
+		if (pokedex[pMon.name] !== undefined) {
+			this.pokemon = pokedex[pMon.name];
+			this.name = pMon.name;
+			this.set = setdex[this.name];
+		}else if (pMon.species.includes("-")) {
+			var name = pMon.replace(/-.*/,"");
+			this.pokemon = pokedex[name];
+			this.name = name;
+			this.set = setdex[name];
+		}
+	}
 	this.gravity = false;
 	this.ability = pMon.ability;
 	this.abilities = pMon.abilities;
@@ -59,6 +93,17 @@ function POKEMONValue(pMon) {
 	this.moves = pMon.moves;
 	this.stats = pMon.stats;
 	this.boosts = pMon.boosts;
+	if(this.name === "Ditto") {
+		var v = pMon.volatiles;
+		if (v !== undefined && v.transform !== undefined && v.transform[2] !== undefined) {
+			var tMon = v.transform[2];
+			this.mon.types = tMon.types;
+			var hp = this.mon.baseStats.hp;
+			this.mon.baseStats = tMon.baseStats;
+			this.mon.baseStats.hp = hp;
+		}
+	}
+
 	if (this.boosts !== undefined)
 		for (var key in this.boosts)
 			this.boosts[key.substr(0, 2)] = this.boosts[key];
@@ -90,8 +135,11 @@ function POKEMONValue(pMon) {
 	};
 
 	// var setName = pokeInfo.substring(pokeInfo.indexOf("(") + 1, pokeInfo.lastIndexOf(")"));
-	this.type1 = this.pokemon.t1;
-	this.type2 = (this.pokemon.t2 && typeof this.pokemon.t2 !== "undefined") ? this.pokemon.t2 : "";
+	var types = [this.pokemon.t1,this.pokemon.t2];
+	if(pMon.types !== undefined)
+		types = pMon.types;
+	this.type1 = types[0];
+	this.type2 = (types[1] && types[1] !== "undefined") ? types[1] : "";
 	this.rawStats = [];
 	this.stats = [];
 	this.evs = [];
@@ -167,13 +215,12 @@ function POKEMONValue(pMon) {
 		};
 	}
 }
-function calculateDamage(pokemonLeft, pokemonRight) {
+function calculateDamage(pokemonLeft, pokemonRight, field) {
 	var p1 = pokemonLeft;//new Pokemon($("#p1"));
 	var p2 = pokemonRight;//new Pokemon($("#p2"));
 	var battling = [p1, p2];
 	p1.maxDamages = [];
 	p2.maxDamages = [];
-	var field = new Field();
 	damageResults = calculateAllMoves(p1, p2, field);
 	var fastestSide = p1.stats[SP] > p2.stats[SP] ? 0 : p1.stats[SP] === p2.stats[SP] ? "tie" : 1;
 	var result, minDamage, maxDamage, minDisplay, maxDisplay;
@@ -368,37 +415,37 @@ function getZMoveName(moveName, moveType, item) {
 
 
 function Field() {
-	var format = false;//$("input:radio[name='format']:checked").val();
-	var isGravity = false;//$("#gravity").prop("checked");
+	this.format = false;//$("input:radio[name='format']:checked").val();
+	this.isGravity = false;//$("#gravity").prop("checked");
 	//stealth rocks left, right
-	var isSR = [false, false];//[$("#srL").prop("checked"), $("#srR").prop("checked")];
-	var weather;
-	var spikes;
+	this.isSR = [false, false];//[$("#srL").prop("checked"), $("#srR").prop("checked")];
+	this.weather;
+	this.spikes;
 	if (gen === 2) {
-		spikes = [0, 0];//[$("#gscSpikesL").prop("checked") ? 1 : 0, $("#gscSpikesR").prop("checked") ? 1 : 0];
-		weather = [];//$("input:radio[name='gscWeather']:checked").val();
+		this.spikes = [0, 0];//[$("#gscSpikesL").prop("checked") ? 1 : 0, $("#gscSpikesR").prop("checked") ? 1 : 0];
+		this.weather = [];//$("input:radio[name='gscWeather']:checked").val();
 	} else {
-		weather = [];//$("input:radio[name='weather']:checked").val();
-		spikes = [false, false];//[~~$("input:radio[name='spikesL']:checked").val(), ~~$("input:radio[name='spikesR']:checked").val()];
+		this.weather = [];//$("input:radio[name='weather']:checked").val();
+		this.spikes = [false, false];//[~~$("input:radio[name='spikesL']:checked").val(), ~~$("input:radio[name='spikesR']:checked").val()];
 	}
-	var terrain = "";//($("input:checkbox[name='terrain']:checked").val()) ? $("input:checkbox[name='terrain']:checked").val() : "";
-	var isReflect = [false, false];//[$("#reflectL").prop("checked"), $("#reflectR").prop("checked")];
-	var isLightScreen = [false, false];//[$("#lightScreenL").prop("checked"), $("#lightScreenR").prop("checked")];
-	var isProtected = [false, false];//[$("#protectL").prop("checked"), $("#protectR").prop("checked")];
-	var isSeeded = [false, false];//[$("#leechSeedL").prop("checked"), $("#leechSeedR").prop("checked")];
-	var isForesight = [false, false];//[$("#foresightL").prop("checked"), $("#foresightR").prop("checked")];
-	var isHelpingHand = [false, false];//[$("#helpingHandR").prop("checked"), $("#helpingHandL").prop("checked")]; // affects attacks against opposite side
-	var isFriendGuard = [false, false];//[$("#friendGuardL").prop("checked"), $("#friendGuardR").prop("checked")];
-	var isAuroraVeil = [false, false];//[$("#auroraVeilL").prop("checked"), $("#auroraVeilR").prop("checked")];
+	this.terrain = "";//($("input:checkbox[name='terrain']:checked").val()) ? $("input:checkbox[name='terrain']:checked").val() : "";
+	this.isReflect = [false, false];//[$("#reflectL").prop("checked"), $("#reflectR").prop("checked")];
+	this.isLightScreen = [false, false];//[$("#lightScreenL").prop("checked"), $("#lightScreenR").prop("checked")];
+	this.isProtected = [false, false];//[$("#protectL").prop("checked"), $("#protectR").prop("checked")];
+	this.isSeeded = [false, false];//[$("#leechSeedL").prop("checked"), $("#leechSeedR").prop("checked")];
+	this.isForesight = [false, false];//[$("#foresightL").prop("checked"), $("#foresightR").prop("checked")];
+	this.isHelpingHand = [false, false];//[$("#helpingHandR").prop("checked"), $("#helpingHandL").prop("checked")]; // affects attacks against opposite side
+	this.isFriendGuard = [false, false];//[$("#friendGuardL").prop("checked"), $("#friendGuardR").prop("checked")];
+	this.isAuroraVeil = [false, false];//[$("#auroraVeilL").prop("checked"), $("#auroraVeilR").prop("checked")];
 
 	this.getWeather = function () {
-		return weather;
+		return this.weather;
 	};
 	this.clearWeather = function () {
-		weather = "";
+		this.weather = "";
 	};
 	this.getSide = function (i) {
-		return new Sider(format, terrain, weather, isGravity, isSR[i], spikes[i], isReflect[i], isLightScreen[i], isProtected[i], isSeeded[1 - i], isSeeded[i], isForesight[i], isHelpingHand[i], isFriendGuard[i], isAuroraVeil[i]);
+		return new Sider(this.format, this.terrain, this.weather, this.isGravity, this.isSR[i], this.spikes[i], this.isReflect[i], this.isLightScreen[i], this.isProtected[i], this.isSeeded[1 - i], this.isSeeded[i], this.isForesight[i], this.isHelpingHand[i], this.isFriendGuard[i], this.isAuroraVeil[i]);
 	};
 }
 
