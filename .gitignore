@@ -13,6 +13,9 @@ npm-debug.log
 package-lock.json
 /vendor/
 
+.idea/
+*.imlc
+
 /js/battle.js
 /js/battledata.js
 /js/battle-dex.js

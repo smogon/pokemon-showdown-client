@@ -164,6 +164,7 @@
 				}
 			}
 			sideBuf += this.renderRoomTab(app.rooms['rooms'], 'rooms');
+			sideBuf += this.renderRoomTab(app.rooms['friends'], 'friends');
 			var margin = 0;
 			if (sideBuf) {
 				if (app.curSideRoom) {
