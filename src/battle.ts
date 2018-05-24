@@ -51,7 +51,7 @@ const BattleSound = new class {
 		resume: function () { return this; },
 		setVolume: function () { return this; },
 		onposition: function () { return this; }
-	}
+	};
 
 	// options
 	effectVolume = 50;

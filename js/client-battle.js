@@ -606,34 +606,7 @@
 						movebuttons += '<button class="type-' + moveType + '" name="chooseMove" value="' + (i + 1) + '" data-move="' + Tools.escapeHTML(moveData.move) + '" data-target="' + Tools.escapeHTML(moveData.target) + '"' + this.tooltips.tooltipAttrs(moveData.move, 'move') + '>';
 						hasMoves = true;
 					}
-					var types = this.battle.yourSide.active[0].types;
-					var effect1 = BattleTypeChart[types[0]].damageTaken[moveType];
-					var effect2 = 0;
-					if(types.length > 1){
-						var effect2 = BattleTypeChart[types[1]].damageTaken[moveType];
-					}
-					var shift = function(effect){
-						if(effect == 0) return 1;
-						if(effect == 1) return 2;
-						if(effect == 2) return 0.5;
-						if(effect == 3) return 0;
-					};
-					var myTypes = this.battle.mySide.active[0].types;
-					var effect = shift(effect1) * shift(effect2);
-					if(myTypes[0] == moveType || (myTypes[1] && myTypes[1] == moveType)){
-						effect = effect * 1.5;
-					}
-					var effectString;
-					var power = this.tooltips.getMoveBasePower(move, this.battle.mySide.active[0]);
-					if(power == ""){
-						effectString = '';
-					}else{
-						effect *= power;
-						effectString	= ' (' + effect + ')';
-					}
-
-					movebuttons += name + '<br /><small class="type">' + (moveType ? Tools.getType(moveType).name + effectString : "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
-
+					movebuttons += name + '<br /><small class="type">' + (moveType ? Tools.getType(moveType).name : "Unknown") + '</small><small class="type">' + calculate(this, this.battle.yourSide, moveData.move) + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 				}
 				if (!hasMoves) {
 					moveMenu += '<button class="movebutton" name="chooseMove" value="0" data-move="Struggle" data-target="randomNormal">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
@@ -1068,7 +1041,7 @@
 				var isZMove = !!(this.$('input[name=zmove]')[0] || '').checked;
 				var isUltraBurst = !!(this.$('input[name=ultraburst]')[0] || '').checked;
 
-				var move = e.getAttribute('data-move');
+				var move = e.getAttribute('data-move'); //
 				var target = e.getAttribute('data-target');
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
 				var spreadTargets = {allAdjacentFoes: 1, allAdjacent: 1};
