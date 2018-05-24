@@ -5,7 +5,7 @@ var resultLocations = [[], []];
 function calculate(room, pokemonDefender, moveName) {
 	if (room === "" || pokemonDefender === "")
 		return null;
-	//TODO tell which pokemon from entire party is best
+	//TODO tell which pokemon from entire party is best tank a hit high atk/spatk
 	var allPokemon = room.myPokemon;
 	var pokemonAttacker = undefined;
 	for (var i = 0; i < allPokemon.length; i++)
@@ -23,15 +23,19 @@ function calculate(room, pokemonDefender, moveName) {
 	var damage = calculateDamage(this.attacker, this.defender);
 	var d = 0;
 	var ar = damage[0];
-	//TODO convert to percentages; this.defender.maxHP*this.defender.hp/100
 	//TODO change defenders levels and moves, ect when it becomes available
-	//TODO ranges based on stat changes like swords dance
 	//TODO ranges for z-powers
 	//TODO ranges for pokemon in party
+	//TODO worst case scenario
 	//TODO cache the ranges so it doesn't have to calculate it for each move since it does all moves at once anyways
+	//TODO display recoil
+	//TODO display who is faster
 	for (var i = 0; i < ar.length; i++)
 		if (ar[i].description.includes(moveName)) {
-			d = "(" + ar[i].damageText.replace(/ (.*)/, "") + ")";
+			var defenderHp = this.defender.maxHP*this.defender.hp/100;
+			var dam = ar[i].damageText.replace(/ (.*)/, "").split("-");
+			var d1 = Math.round(dam[0]/defenderHp*100), d2 = Math.round(dam[1]/defenderHp*100);;
+			d = " (" + d1 + "% - " + d2 + "%" + ")";
 			break;
 		}
 	if (d === 0)
