@@ -608,7 +608,11 @@
 					}
 					var damageRange = '';
 					if (Tools.prefs('damageranges')) {
-						damageRange = calculate(this, this.battle.yourSide, moveData.move);
+						try {
+							damageRange = calculate(this, this.battle.yourSide, moveData.move);
+						}catch(err) {
+							console.log(err);
+						}
 					}
 					movebuttons += name + '<br /><small class="type">' + (moveType ? Tools.getType(moveType).name : "Unknown") + '</small><small class="type">' + damageRange + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 				}
