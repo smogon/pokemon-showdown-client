@@ -1334,7 +1334,7 @@
 			buf += '<p><strong>All battles</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorenicks"' + (Tools.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore nicknames</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="speedcheck"' + (Tools.prefs('speedcheck') ? ' checked' : '') + ' /> Speed Check</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="speedcheck"' + (Tools.prefs('damageranges') ? ' checked' : '') + ' /> DamageRanges</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="damageranges"' + (Tools.prefs('damageranges') ? ' checked' : '') + ' /> DamageRanges</label></p>';
 			if (rightPanelBattlesPossible) buf += '<p><label class="optlabel"><input type="checkbox" name="rightpanelbattles"' + (Tools.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles on the right side</label></p>';
 			buf += '<p><button name="close">Close</button></p>';
 			this.$el.html(buf);
@@ -1346,7 +1346,7 @@
 			'change input[name=hardcoremode]': 'toggleHardcoreMode',
 			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles',
 			'change input[name=speedcheck]' : 'toggleSpeedCheck',
-			'change input[name=damageranges]' : 'toggelDamageRanges'
+			'change input[name=damageranges]' : 'toggleDamageRanges'
 		},
 		toggleHardcoreMode: function (e) {
 			this.room.setHardcoreMode(!!e.currentTarget.checked);
