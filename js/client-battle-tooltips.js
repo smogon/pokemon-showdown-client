@@ -289,6 +289,19 @@ var BattleTooltips = (function () {
 		}
 
 		text = '<div class="tooltipinner"><div class="tooltip">';
+		if(Tools.prefs('mashasadvice')) {
+			if(move.flags["reflectable"] == 1) {
+				var theirAbility = yourActive[0].ability;
+				var defBounce = theirAbility == "Magic Bounce";
+				var allAbilities = yourActive[0].abilities[0] + yourActive[0].abilities[1] + yourActive[0].abilities["H"];
+				var maybeBounce = defBounce || allAbilities.indexOf("Magic Bounce") > -1 && !(theirAbility != "" && !defBounce);
+
+				if(defBounce | maybeBounce) {
+					text += '<strong>NO BITCH</strong></div></div>';
+					return text;
+				}
+			}
+		}
 		var category = Tools.getCategory(move, this.battle.gen, moveType);
 		text += '<h2>' + move.name + '<br />' + Tools.getTypeIcon(moveType) + ' <img src="' + Tools.resourcePrefix;
 		text += 'sprites/categories/' + category + '.png" alt="' + category + '" /></h2>';
