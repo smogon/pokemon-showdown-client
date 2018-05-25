@@ -2,17 +2,18 @@ var gen = 100, genWasChanged, notation, pokedex, setdex, typeChart, moves;
 var abilities, items, STATS, calcHP, calcStat, calculateAllMoves, damageResults;
 var resultLocations = [[], []];
 
-function calculate(room, pokemonDefender, moveName) {
+function calculate(room, pokemonDefender, moveName, notActivePokemon) {
 	if (room === "" || pokemonDefender === "")
 		return null;
 	//TODO tell which pokemon from entire party is best tank a hit high atk/spatk
 	var allPokemon = room.myPokemon;
-	var pokemonAttacker = undefined;
-	for (var i = 0; i < allPokemon.length; i++)
-		if (allPokemon[i].active) {
-			pokemonAttacker = allPokemon[i];
-			break;
-		}
+	var pokemonAttacker = notActivePokemon;
+	if (notActivePokemon === undefined)
+		for (var i = 0; i < allPokemon.length; i++)
+			if (allPokemon[i].active) {
+				pokemonAttacker = allPokemon[i];
+				break;
+			}
 	var field = new Field();
 	//p1 is opponent
 	var sideConditionsO = room.battle.p1.sideConditions;
