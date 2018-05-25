@@ -606,7 +606,11 @@
 						movebuttons += '<button class="type-' + moveType + '" name="chooseMove" value="' + (i + 1) + '" data-move="' + Tools.escapeHTML(moveData.move) + '" data-target="' + Tools.escapeHTML(moveData.target) + '"' + this.tooltips.tooltipAttrs(moveData.move, 'move') + '>';
 						hasMoves = true;
 					}
-					movebuttons += name + '<br /><small class="type">' + (moveType ? Tools.getType(moveType).name : "Unknown") + '</small><small class="type">' + calculate(this, this.battle.yourSide, moveData.move) + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
+					var damageRange = '';
+					if (Tools.prefs('damageranges')) {
+						damageRange = calculate(this, this.battle.yourSide, moveData.move);
+					}
+					movebuttons += name + '<br /><small class="type">' + (moveType ? Tools.getType(moveType).name : "Unknown") + '</small><small class="type">' + damageRange + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 				}
 				if (!hasMoves) {
 					moveMenu += '<button class="movebutton" name="chooseMove" value="0" data-move="Struggle" data-target="randomNormal">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
@@ -1329,6 +1333,8 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + '/> Ignore Opponent</label></p>';
 			buf += '<p><strong>All battles</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorenicks"' + (Tools.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore nicknames</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="speedcheck"' + (Tools.prefs('speedcheck') ? ' checked' : '') + ' /> Speed Check</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="speedcheck"' + (Tools.prefs('damageranges') ? ' checked' : '') + ' /> DamageRanges</label></p>';
 			if (rightPanelBattlesPossible) buf += '<p><label class="optlabel"><input type="checkbox" name="rightpanelbattles"' + (Tools.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles on the right side</label></p>';
 			buf += '<p><button name="close">Close</button></p>';
 			this.$el.html(buf);
@@ -1338,7 +1344,9 @@
 			'change input[name=ignorenicks]': 'toggleIgnoreNicks',
 			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
 			'change input[name=hardcoremode]': 'toggleHardcoreMode',
-			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles'
+			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles',
+			'change input[name=speedcheck]' : 'toggleSpeedCheck',
+			'change input[name=damageranges]' : 'toggelDamageRanges'
 		},
 		toggleHardcoreMode: function (e) {
 			this.room.setHardcoreMode(!!e.currentTarget.checked);
@@ -1403,6 +1411,12 @@
 		},
 		toggleRightPanelBattles: function (e) {
 			Tools.prefs('rightpanelbattles', !!e.currentTarget.checked);
+		},
+		toggleSpeedCheck: function (e) {
+			Tools.prefs('speedcheck', !!e.currentTarget.checked);
+		},
+		toggleDamageRanges: function (e) {
+			Tools.prefs('damageranges', !!e.currentTarget.checked);
 		}
 	});
 

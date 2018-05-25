@@ -376,19 +376,23 @@ var BattleTooltips = (function () {
 		return text;
 	};
 
-	var showSpeedOnTooltip = true;
-
 	BattleTooltips.prototype.showPokemonTooltip = function (pokemon, pokemonData, isActive, theirActive) {
 		var text = '';
 		var gender = pokemon.gender;
 		var speedChar = '';
-		if (showSpeedOnTooltip && pokemonData) {
+		if (Tools.prefs('speedcheck') && pokemonData) {
 			var theirSpeed = this.getTemplateMaxSpeed(Tools.getTemplate(theirActive.species), theirActive.level);
 			theirSpeed *= 1 + (theirActive.boosts["sd"] / 2);
 			if (theirActive.item.name == "Choice Scarf") {
 				theirSpeed *= 1.5;
 			}
 			var mySpeed = this.calculateModifiedStats(pokemon, pokemonData)["spe"];
+			if (this.room.battle.p1.sideConditions["tailwind"] != undefined ) {
+				theirSpeed *= 2;
+			}
+			if (this.room.battle.p2.sideConditions["tailwind"] != undefined ) {
+				mySpeed *= 2;
+			}
 			if (mySpeed > theirSpeed) {
 				speedChar = '&#9650;';
 			} else if (mySpeed == theirSpeed) {
