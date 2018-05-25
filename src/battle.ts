@@ -5922,6 +5922,9 @@ class Battle {
 				case 'powerconstruct':
 					actions += 'You sense the presence of many!';
 					break;
+				case 'persistent': // CAP
+					actions += '' + poke.getName() + ' extends ' + Tools.getMove(args[3]).name + ' by 2 turns!';
+					break;
 
 				// weather activations
 				case 'deltastream':
