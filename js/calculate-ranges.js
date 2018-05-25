@@ -146,7 +146,20 @@ function POKEMONValue(pMon) {
 	this.rawStats = [];
 	this.stats = [];
 	this.evs = [];
-	this.curSet = this.set[Object.keys(this.set)[0]];
+	try {
+		this.curSet = this.set[Object.keys(this.set)[0]];
+	}catch (err){
+		console.error("No setdex for: "+this.name);
+		this.curSet = {
+			ability: this.abilities[0],
+			evs: {sd: 192, df: 128, hp: 188},
+			item: "Leftovers",
+			ivs: {},
+			level: 100,
+			moves: ["Blizzard", "Giga Drain", "Ice Shard", "Protect"],
+			nature: "Hardy"
+		};
+	}
 
 	this.HPEVs = (this.curSet.evs && typeof this.curSet.evs.hp !== "undefined") ? this.curSet.evs.hp : 0;
 	if (gen < 3) {
