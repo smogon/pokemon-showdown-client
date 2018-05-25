@@ -382,7 +382,9 @@ var BattleTooltips = (function () {
 		var speedChar = '';
 		if (Tools.prefs('speedcheck') && pokemonData) {
 			var theirSpeed = this.getTemplateMaxSpeed(Tools.getTemplate(theirActive.species), theirActive.level);
-			theirSpeed *= 1 + (theirActive.boosts["sd"] / 2);
+			if(theirActive.boosts["spe"]) {
+				theirSpeed *= 1 + (theirActive.boosts["spe"] / 2);
+			}
 			if (theirActive.item.name == "Choice Scarf") {
 				theirSpeed *= 1.5;
 			}

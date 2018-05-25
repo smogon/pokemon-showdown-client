@@ -485,8 +485,7 @@ Storage.initTestClient = function () {
 				src += '<input type=hidden name="' + i + '" value="' + Tools.escapeHTML(data[i]) + '">';
 			}
 			src += '<input id ="clickfirst" type=submit value="Please click this button first."></form></body>' +
-				'<script>window.onload = function(){ document.getElementById("clickfirst").click();\n' +
-				'document.html.find};</script></html>';
+				'<script>window.onload = function(){ document.getElementById("clickfirst").click();};</script></html>';
 			app.addPopup(ProxyPopup, {uri: "data:text/html;charset=UTF-8," + encodeURIComponent(src), callback: callback});
 		};
 		Storage.whenPrefsLoaded.load();
