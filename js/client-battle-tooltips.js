@@ -554,7 +554,15 @@ var BattleTooltips = (function () {
 						}
 					}
 				}
-				text += '&#8226; ' + name + calculate(this.room,this.battle.yourSide, move.name, battlePokemon) +'<br />';
+				var ranges = "";
+				if (Tools.prefs('damageranges')) {
+					try {
+						ranges = calculate(this.room, this.battle.yourSide, move.name, battlePokemon);
+					}catch(err) {
+						console.log(err);
+					}
+				}
+				text += '&#8226; ' + name + ranges +'<br />';
 			}
 			text += '</p>';
 		} else if (!this.battle.hardcoreMode && pokemon.moveTrack && pokemon.moveTrack.length) {
