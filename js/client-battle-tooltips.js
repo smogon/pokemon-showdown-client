@@ -44,7 +44,7 @@ var BattleTooltips = (function () {
 
 	// Each time a finger presses the button this function will be callled
 	// First finger starts the counter, and when last finger leaves time is checked
-	BattleTooltips.TouchStartFor = function (e, roomid, thing, type, elem, ownHeight) {
+	BattleTooltips._handleTouchStartFor = function (e, roomid, thing, type, elem, ownHeight) {
 		// Prevent default on touch events to block mouse events when touch is used
 		e.preventDefault();
 
