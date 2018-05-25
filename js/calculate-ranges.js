@@ -30,6 +30,8 @@ function calculate(room, pokemonDefender, moveName) {
 	if (sideConditionsY["lightscreen"] !== undefined)
 		field.isReflect = [true,field.isReflect[1]];
 
+	if (room.battle.weather.includes("rain"))
+		field.weather = ['rain'];
 	var psuedoWeather = room.battle.pseudoWeather;
 	var isTrickRoom = false;
 	for(var i = 0; i<psuedoWeather.length; i++)

@@ -14,7 +14,7 @@ package-lock.json
 /vendor/
 
 .idea/
-*.imlc
+*.iml
 
 /js/battle.js
 /js/battledata.js
