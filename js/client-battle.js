@@ -845,6 +845,11 @@
 				}
 				var speedChar = '';
 				if (Tools.prefs('speedcheck') && pokemonData) {
+					var psuedoWeather = room.battle.pseudoWeather;
+					var isTrickRoom = false;
+					for(var i = 0; i<psuedoWeather.length; i++)
+						if(psuedoWeather[i][0] === "Trick Room")
+							isTrickRoom = true;
 					var theirSpeed = this.getTemplateMaxSpeed(Tools.getTemplate(theirActive.species), theirActive.level);
 					if(theirActive.boosts["spe"]) {
 						theirSpeed *= 1 + (theirActive.boosts["spe"] / 2);
@@ -860,17 +865,17 @@
 						mySpeed *= 2;
 					}
 					if (mySpeed > theirSpeed) {
-						speedChar = '&#9650;';
+						speedChar = isTrickRoom?'&#9660;':'&#9650;';
 					} else if (mySpeed == theirSpeed) {
 						speedChar = '&#61';
 					} else {
-						speedChar = '&#9660;';
+						speedChar = isTrickRoom?'&#9650;':'&#9660;';
 					}
 				}
 
 				// Move chooser
 				var hpBar = '<small class="' + (hpRatio < 0.2 ? 'critical' : hpRatio < 0.5 ? 'weak' : 'healthy') + '">HP ' + switchables[pos].hp + '/' + switchables[pos].maxhp + '</small>';
-				requestTitle += ' What will <strong>' + speedChar + Tools.escapeHTML(switchables[pos].name) + '</strong> do? ' + hpBar;
+				requestTitle += ' What will <strong>' + speedChar + Tools.escapeHTML(switchables[pos].name) + '</strong> do? ' + hpBar + ' ' + getWarnMessage(room, this.battle.yourSide);
 
 				var hasMoves = false;
 				var moveMenu = '';
@@ -1636,6 +1641,7 @@
 			buf += '<p><strong>All battles</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorenicks"' + (Tools.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore nicknames</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="speedcheck"' + (Tools.prefs('speedcheck') ? ' checked' : '') + ' /> Speed Check</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="opponentcheck"' + (Tools.prefs('opponentcheck') ? ' checked' : '') + ' /> Opponent Move Check</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="damageranges"' + (Tools.prefs('damageranges') ? ' checked' : '') + ' /> DamageRanges</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="mashasadvice"' + (Tools.prefs('mashasadvice') ? ' checked' : '') + ' /> Masha\'s Advice</label></p>';
 			if (rightPanelBattlesPossible) buf += '<p><label class="optlabel"><input type="checkbox" name="rightpanelbattles"' + (Tools.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles on the right side</label></p>';
@@ -1649,6 +1655,7 @@
 			'change input[name=hardcoremode]': 'toggleHardcoreMode',
 			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles',
 			'change input[name=speedcheck]' : 'toggleSpeedCheck',
+			'change input[name=opponentcheck]' : 'toggleOpponentCheck',
 			'change input[name=damageranges]' : 'toggleDamageRanges',
 			'change input[name=mashasadvice]' : 'toggleMashasAdvice'
 		},
@@ -1718,6 +1725,9 @@
 		},
 		toggleSpeedCheck: function (e) {
 			Tools.prefs('speedcheck', !!e.currentTarget.checked);
+		},
+		toggleOpponentCheck: function (e) {
+			Tools.prefs('opponentcheck', !!e.currentTarget.checked);
 		},
 		toggleDamageRanges: function (e) {
 			Tools.prefs('damageranges', !!e.currentTarget.checked);

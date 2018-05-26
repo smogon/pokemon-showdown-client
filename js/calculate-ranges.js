@@ -5,7 +5,6 @@ var resultLocations = [[], []];
 function calculate(room, pokemonDefender, moveName, notActivePokemon) {
 	if (room === "" || pokemonDefender === "")
 		return null;
-	//TODO tell which pokemon from entire party is best tank a hit high atk/spatk
 	var allPokemon = room.myPokemon;
 	var pokemonAttacker = notActivePokemon;
 	if (notActivePokemon === undefined)
@@ -38,7 +37,6 @@ function calculate(room, pokemonDefender, moveName, notActivePokemon) {
 	for(var i = 0; i<psuedoWeather.length; i++)
 		if(psuedoWeather[i][0] === "Trick Room")
 			isTrickRoom = true;
-	//TODO fix double battles
 	//your pokemon
 	pokemonAttacker.boosts = {};
 	if(room.battle.p2.active[0].boosts !== undefined)
@@ -52,25 +50,60 @@ function calculate(room, pokemonDefender, moveName, notActivePokemon) {
 	this.defender = new POKEMONValue(pokemonDefender.active[0]);
 	var damage = calculateDamage(this.attacker, this.defender, field);
 	var d = 0;
-	var ar = damage[0];
-	//TODO change defenders levels and moves, ect when it becomes available
+	var ar = damage[1];
+	if (moveName === undefined) {
+		for (var i = 0; i < ar.length; i++) {
+			var defenderHp = this.attacker.maxHP*this.attacker.hp/100;
+			var dam = ar[i].damageText.replace(/ (.*)/, "").split("-");
+			var d1 = Math.round(dam[0]/defenderHp*100), d2 = Math.round(dam[1]/defenderHp*100);
+			ar[i].d1 = d1;
+			ar[i].d2 = d2;
+			var moves = this.defender.moves;
+			if (moves.length === 0)
+				moves = this.defender.set[Object.keys(this.defender.set)[0]].moves;
+			ar[i].moveName = moves[i];
+		}
+		return ar;
+	}
+	ar = damage[0];
+	//TODO fix double battles
+	//TODO tell which pokemon from entire party is best tank a hit high atk/spatk
+	//TODO change defenders moves, abilities, ect when it becomes available
 	//TODO ranges for z-powers
-	//TODO ranges for pokemon in party
-	//TODO worst case scenario
+	//TODO worst case scenario to best case scenario??
 	//TODO cache the ranges so it doesn't have to calculate it for each move since it does all moves at once anyways
 	//TODO display recoil
-	//TODO display who is faster
 	for (var i = 0; i < ar.length; i++)
 		if (ar[i].description.includes(moveName)) {
 			var defenderHp = this.defender.maxHP*this.defender.hp/100;
 			var dam = ar[i].damageText.replace(/ (.*)/, "").split("-");
-			var d1 = Math.round(dam[0]/defenderHp*100), d2 = Math.round(dam[1]/defenderHp*100);;
+			var d1 = Math.round(dam[0]/defenderHp*100), d2 = Math.round(dam[1]/defenderHp*100);
 			d = " (" + d1 + "% - " + d2 + "%" + ")";
 			break;
 		}
 	if (d === 0)
 		return "";
 	return d;
+}
+
+function getWarnMessage(room, pokemonDefender, notActivePokemon) {
+	var best = "", maxDamage = 0;
+	try {
+		var damages = calculate(room, pokemonDefender, undefined, notActivePokemon);
+		for (var i = 0; i < damages.length; i++) {
+			if (damages[i].d2 > maxDamage){
+				var des = damages[i].moveName;
+				best = des+"("+damages[i].d1+"%-"+damages[i].d2+"%)";
+				maxDamage = damages[i].d2;
+			}
+		}
+
+	}catch (err){
+		console.error(err);
+	}
+	if(maxDamage === 0)
+		return "";
+	return "opponent: "+best;
 }
 
 function POKEMONValue(pMon) {

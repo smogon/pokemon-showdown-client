@@ -394,6 +394,11 @@ var BattleTooltips = (function () {
 		var gender = pokemon.gender;
 		var speedChar = '';
 		if (Tools.prefs('speedcheck') && pokemonData) {
+			var psuedoWeather = room.battle.pseudoWeather;
+			var isTrickRoom = false;
+			for(var i = 0; i<psuedoWeather.length; i++)
+				if(psuedoWeather[i][0] === "Trick Room")
+					isTrickRoom = true;
 			var theirSpeed = this.getTemplateMaxSpeed(Tools.getTemplate(theirActive.species), theirActive.level);
 			if(theirActive.boosts["spe"]) {
 				theirSpeed *= 1 + (theirActive.boosts["spe"] / 2);
@@ -409,16 +414,24 @@ var BattleTooltips = (function () {
 				mySpeed *= 2;
 			}
 			if (mySpeed > theirSpeed) {
-				speedChar = '&#9650;';
+				speedChar = isTrickRoom?'&#9660;':'&#9650;';
 			} else if (mySpeed == theirSpeed) {
 				speedChar = '&#61';
 			} else {
-				speedChar = '&#9660;';
+				speedChar = isTrickRoom?'&#9650;':'&#9660;';
+			}
+		}
+		var warnText = "";
+		if(Tools.prefs('opponentcheck')) {
+			try {
+				warnText = '<br /><small>' + getWarnMessage(this.room, this.battle.yourSide, battlePokemon === null || battlePokemon === undefined ? pokemonData : battlePokemon) + '</small>';
+			} catch (err) {
+				console.error(err);
 			}
 		}
 		if (gender) gender = ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
 		text = '<div class="tooltipinner"><div class="tooltip">';
-		text += '<h2>' + speedChar + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
+		text += '<h2>' + speedChar + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + warnText +'<br />';
 
 		var template = Tools.getTemplate(pokemon.species);
 		if (pokemon.volatiles && pokemon.volatiles.formechange) {
@@ -557,7 +570,7 @@ var BattleTooltips = (function () {
 				var ranges = "";
 				if (Tools.prefs('damageranges')) {
 					try {
-						ranges = calculate(this.room, this.battle.yourSide, move.name, battlePokemon===null?pokemonData:battlePokemon);
+						ranges = calculate(this.room, this.battle.yourSide, move.name, battlePokemon===null||battlePokemon===undefined?pokemonData:battlePokemon);
 					}catch(err) {
 						console.log(err);
 					}
