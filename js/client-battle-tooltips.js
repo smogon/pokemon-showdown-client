@@ -557,7 +557,7 @@ var BattleTooltips = (function () {
 				var ranges = "";
 				if (Tools.prefs('damageranges')) {
 					try {
-						ranges = calculate(this.room, this.battle.yourSide, move.name, battlePokemon);
+						ranges = calculate(this.room, this.battle.yourSide, move.name, battlePokemon===null?pokemonData:battlePokemon);
 					}catch(err) {
 						console.log(err);
 					}

@@ -40,9 +40,14 @@ function calculate(room, pokemonDefender, moveName, notActivePokemon) {
 			isTrickRoom = true;
 	//TODO fix double battles
 	//your pokemon
-	pokemonAttacker.boosts = room.battle.p2.active[0].boosts;
+	pokemonAttacker.boosts = {};
+	if(room.battle.p2.active[0].boosts !== undefined)
+		pokemonAttacker.boosts = room.battle.p2.active[0].boosts;
 	this.attacker = new POKEMONValue(pokemonAttacker);
 	//opponent pokemon
+	pokemonDefender.boosts = {};
+	if(room.battle.p1.active[0].boosts !== undefined)
+		pokemonDefender.boosts = room.battle.p1.active[0].boosts;
 	pokemonDefender.boosts = room.battle.p1.active[0].boosts;
 	this.defender = new POKEMONValue(pokemonDefender.active[0]);
 	var damage = calculateDamage(this.attacker, this.defender, field);
