@@ -841,6 +841,7 @@
 							app.addPopupMessage(errormessage);
 						}
 					}).fail(function () {
+						app.removeRoom(roomid, true);
 						errormessage += "\n\nThe battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.\nIn the future, remember to click \"Save replay\" to save a replay permanently.";
 						app.addPopupMessage(errormessage);
 					});
