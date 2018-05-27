@@ -850,6 +850,7 @@
 					for(var i = 0; i<psuedoWeather.length; i++)
 						if(psuedoWeather[i][0] === "Trick Room")
 							isTrickRoom = true;
+					//cannot read property species of null
 					var theirSpeed = this.getTemplateMaxSpeed(Tools.getTemplate(theirActive.species), theirActive.level);
 					if(theirActive.boosts["spe"]) {
 						theirSpeed *= 1 + (theirActive.boosts["spe"] / 2);

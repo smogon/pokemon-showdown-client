@@ -39,12 +39,13 @@ function calculate(room, pokemonDefender, moveName, notActivePokemon) {
 			isTrickRoom = true;
 	//your pokemon
 	pokemonAttacker.boosts = {};
-	if(room.battle.p2.active[0].boosts !== undefined)
+	//cannot read property boosts of null
+	if(room.battle.p2.active[0] !== null && room.battle.p2.active[0].boosts !== undefined)
 		pokemonAttacker.boosts = room.battle.p2.active[0].boosts;
 	this.attacker = new POKEMONValue(pokemonAttacker);
 	//opponent pokemon
 	pokemonDefender.boosts = {};
-	if(room.battle.p1.active[0].boosts !== undefined)
+	if(room.battle.p1.active[0] !== null && room.battle.p1.active[0].boosts !== undefined)
 		pokemonDefender.boosts = room.battle.p1.active[0].boosts;
 	pokemonDefender.boosts = room.battle.p1.active[0].boosts;
 	this.defender = new POKEMONValue(pokemonDefender.active[0]);
@@ -67,6 +68,7 @@ function calculate(room, pokemonDefender, moveName, notActivePokemon) {
 	}
 	ar = damage[0];
 	//TODO fix double battles
+	//TODO megas on both sides
 	//TODO tell which pokemon from entire party is best tank a hit high atk/spatk
 	//TODO change defenders moves, abilities, ect when it becomes available
 	//TODO ranges for z-powers
@@ -79,6 +81,8 @@ function calculate(room, pokemonDefender, moveName, notActivePokemon) {
 			var dam = ar[i].damageText.replace(/ (.*)/, "").split("-");
 			var d1 = Math.round(dam[0]/defenderHp*100), d2 = Math.round(dam[1]/defenderHp*100);
 			d = " (" + d1 + "% - " + d2 + "%" + ")";
+			if (d1 > 200 && d2 > 200)
+				d = "(OHKO)";
 			break;
 		}
 	if (d === 0)
@@ -90,14 +94,21 @@ function getWarnMessage(room, pokemonDefender, notActivePokemon) {
 	var best = "", maxDamage = 0;
 	try {
 		var damages = calculate(room, pokemonDefender, undefined, notActivePokemon);
+		var OHKO = "OHKO (";
 		for (var i = 0; i < damages.length; i++) {
 			if (damages[i].d2 > maxDamage){
 				var des = damages[i].moveName;
 				best = des+"("+damages[i].d1+"%-"+damages[i].d2+"%)";
 				maxDamage = damages[i].d2;
+				if (damages[i].d1 > 200 && damages[i].d2 > 200) {
+					var a = OHKO === "OHKO (" ? "" : ",";
+					OHKO = OHKO + a + des;
+				}
 			}
 		}
-
+		OHKO+=")";
+		if (OHKO !== "OHKO ()")
+			best = OHKO;
 	}catch (err){
 		console.error(err);
 	}
@@ -131,7 +142,13 @@ function POKEMONValue(pMon) {
 	this.gender = pMon.gender;
 	this.level = pMon.level;
 	this.hp = pMon.hp;
-	this.moves = pMon.moves;
+	if(pMon.moveTrack !== undefined) {
+		var moveTrack = pMon.moveTrack;
+		var m = [];
+		for (var i = 0; i < moveTrack.length; i++)
+			m.push(moveTrack[i][0]);
+	}
+	this.moves = pMon.moves === undefined || pMon.moves.length === 0 ? m : pMon.moves;
 	this.stats = pMon.stats;
 	this.boosts = pMon.boosts;
 	if(this.name === "Ditto") {
@@ -147,7 +164,10 @@ function POKEMONValue(pMon) {
 
 	if (this.boosts !== undefined)
 		for (var key in this.boosts)
-			this.boosts[key.substr(0, 2)] = this.boosts[key];
+			if (key === "spd")//spd is not speed it's special defense
+				this.boosts["sd"] = this.boosts[key];
+			else
+				this.boosts[key.substr(0, 2)] = this.boosts[key];
 	this.getPossibleAbilities = function () {
 		if (this.ability !== undefined || this.ability !== "")
 			return [this.ability];
@@ -187,9 +207,9 @@ function POKEMONValue(pMon) {
 	try {
 		this.curSet = this.set[Object.keys(this.set)[0]];
 	}catch (err){
-		console.error("No setdex for: "+this.name);
+		//console.error("No setdex for: "+this.name);
 		this.curSet = {
-			ability: this.abilities[0],
+			ability: this.ability===undefined?this.abilities[0]:this.ability,
 			evs: {sd: 192, df: 128, hp: 188},
 			item: "Leftovers",
 			ivs: {},
@@ -209,7 +229,12 @@ function POKEMONValue(pMon) {
 		var HPIVs = 31;
 		this.maxHP = ~~((this.pokemon.bs.hp * 2 + HPIVs + ~~(this.HPEVs / 4)) * this.level / 100) + this.level + 10;
 	}
-	this.curHP = this.maxHP;
+	if(pMon.stats === undefined || pMon.stats.length > 0)
+		this.curHP = this.maxHP*pMon.hp/pMon.maxHP;
+	else {
+		this.curHP = this.hp;
+		this.hp = this.curHP/this.maxHP*100;//needs to be a percent
+	}
 	this.nature = this.curSet.nature;
 	for (var i = 0; i < STATS.length; i++) {
 		var stat = STATS[i];
@@ -226,12 +251,19 @@ function POKEMONValue(pMon) {
 			this.rawStats[stat] = ~~((~~((this.pokemon.bs[stat] * 2 + ivs + ~~(this.evs[stat] / 4)) * this.level / 100) + 5) * nature);
 		}
 	}
-	this.ability = (this.curSet.ability && typeof this.curSet.ability !== "undefined") ? this.curSet.ability :
-		(this.pokemon.ab && typeof this.pokemon.ab !== "undefined") ? this.pokemon.ab : "";
-	this.item = (this.curSet.item && typeof this.curSet.item !== "undefined" && (this.curSet.item === "Eviolite" || this.curSet.item.indexOf("ite") < 0)) ? this.curSet.item : "";
-	this.status = "Healthy";
+	if(this.ability === undefined || this.ability === "")
+		this.ability = (this.curSet.ability && typeof this.curSet.ability !== "undefined") ? this.curSet.ability :
+			(this.pokemon.ab && typeof this.pokemon.ab !== "undefined") ? this.pokemon.ab : "";
+	if(this.item === undefined || this.item === "")
+		this.item = (this.curSet.item && typeof this.curSet.item !== "undefined" && (this.curSet.item === "Eviolite" || this.curSet.item.indexOf("ite") < 0)) ? this.curSet.item : "";
+	this.status = pMon.status === "" ? "Healthy" : pMon.status;
 	this.toxicCounter = 0;
 	this.mymoves = [];
+	if (this.moves !== undefined) {
+		var i = 0;
+		while (this.moves.length < 4)
+			this.moves.push(this.curSet.moves[i++]);
+	}
 	for (var i = 0; i < 4; i++) {
 		var moveName = this.curSet.moves[i];
 		if (this.moves !== undefined && this.moves.length !== 0)
