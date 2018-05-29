@@ -30,10 +30,2469 @@ This license DOES NOT extend to any other files in this repository.
 
 */
 
+class BattleScene {
+	battle: Battle;
+	animating = true;
+	acceleration = 1;
+
+	/** Note: Not the actual generation of the battle, but the gen of the sprites/background */
+	gen = 7;
+	/** 1 = singles, 2 = doubles, 3 = triples */
+	activeCount = 1;
+
+	numericId = 0;
+	$frame: JQuery<HTMLElement>;
+	$battle: JQuery<HTMLElement> = null!;
+	$logFrame: JQuery<HTMLElement>;
+	$options: JQuery<HTMLElement> = null!;
+	$logPreempt: JQuery<HTMLElement> = null!;
+	$log: JQuery<HTMLElement> = null!;
+	$terrain: JQuery<HTMLElement> = null!;
+	$weather: JQuery<HTMLElement> = null!;
+	$bgEffect: JQuery<HTMLElement> = null!;
+	$bg: JQuery<HTMLElement> = null!;
+	$sprite: JQuery<HTMLElement> = null!;
+	$sprites: [JQuery<HTMLElement>, JQuery<HTMLElement>] = [null!, null!];
+	$spritesFront: [JQuery<HTMLElement>, JQuery<HTMLElement>] = [null!, null!];
+	$stat: JQuery<HTMLElement> = null!;
+	$fx: JQuery<HTMLElement> = null!;
+	$leftbar: JQuery<HTMLElement> = null!;
+	$rightbar: JQuery<HTMLElement> = null!;
+	$turn: JQuery<HTMLElement> = null!;
+	$messagebar: JQuery<HTMLElement> = null!;
+	$delay: JQuery<HTMLElement> = null!;
+	$hiddenMessage: JQuery<HTMLElement> = null!;
+
+	sideConditions = [{}, {}] as [{[id: string]: Sprite[]}, {[id: string]: Sprite[]}];
+
+	preloadDone = 0;
+	preloadNeeded = 0;
+	bgm: string | null = null;
+	backdropImage: string = '';
+	preloadCache = {} as {[url: string]: HTMLImageElement};
+
+	autoScrollOnResume = false;
+	messagebarOpen = false;
+	interruptionCount = 1;
+	curWeather = '';
+	curTerrain = '';
+
+	// Animation state
+	////////////////////////////////////
+
+	timeOffset = 0;
+	pokemonTimeOffset = 0;
+	minDelay = 0;
+	/** jQuery objects that need to finish animating */
+	activeAnimations = $();
+
+	constructor(battle: Battle, $frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>) {
+		this.battle = battle;
+		$frame.addClass('battle');
+		this.$frame = $frame;
+		this.$logFrame = $logFrame;
+
+		let numericId = 0;
+		if (battle.id) {
+			numericId = parseInt(battle.id.slice(battle.id.lastIndexOf('-') + 1));
+		}
+		if (!numericId) {
+			numericId = Math.floor(Math.random() * 1000000);
+		}
+		this.numericId = numericId;
+
+		this.preloadEffects();
+		// reset() is called during battle initialization, so it doesn't need to be called here
+	}
+
+	reset() {
+		this.updateGen();
+
+		// Log frame
+		/////////////
+
+		if (this.$options) {
+			this.$log.empty();
+			this.$logPreempt.empty();
+		} else {
+			this.$logFrame.empty();
+			this.$options = $('<div class="battle-options"></div>');
+			this.$log = $('<div class="inner" role="log"></div>');
+			this.$logPreempt = $('<div class="inner-preempt"></div>');
+			this.$logFrame.append(this.$options);
+			this.$logFrame.append(this.$log);
+			this.$logFrame.append(this.$logPreempt);
+		}
+
+		// Battle frame
+		///////////////
+
+		this.$frame.empty();
+		this.$battle = $('<div class="innerbattle"></div>');
+		this.$frame.append(this.$battle);
+
+		this.$bg = $('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + this.backdropImage + ');display:block;opacity:0.8"></div>');
+		this.$terrain = $('<div class="weather"></div>');
+		this.$weather = $('<div class="weather"></div>');
+		this.$bgEffect = $('<div></div>');
+		this.$sprite = $('<div></div>');
+
+		this.$sprites = [$('<div></div>'), $('<div></div>')];
+		this.$spritesFront = [$('<div></div>'), $('<div></div>')];
+
+		this.$sprite.append(this.$sprites[1]);
+		this.$sprite.append(this.$spritesFront[1]);
+		this.$sprite.append(this.$spritesFront[0]);
+		this.$sprite.append(this.$sprites[0]);
+
+		this.$stat = $('<div role="complementary" aria-label="Active Pokemon"></div>');
+		this.$fx = $('<div></div>');
+		this.$leftbar = $('<div class="leftbar" role="complementary" aria-label="Your Team"></div>');
+		this.$rightbar = $('<div class="rightbar" role="complementary" aria-label="Opponent\'s Team"></div>');
+		this.$turn = $('<div></div>');
+		this.$messagebar = $('<div class="messagebar message"></div>');
+		this.$delay = $('<div></div>');
+		this.$hiddenMessage = $('<div class="message" style="position:absolute;display:block;visibility:hidden"></div>');
+
+		this.$battle.append(this.$bg);
+		this.$battle.append(this.$terrain);
+		this.$battle.append(this.$weather);
+		this.$battle.append(this.$bgEffect);
+		this.$battle.append(this.$sprite);
+		this.$battle.append(this.$stat);
+		this.$battle.append(this.$fx);
+		this.$battle.append(this.$leftbar);
+		this.$battle.append(this.$rightbar);
+		this.$battle.append(this.$turn);
+		this.$battle.append(this.$messagebar);
+		this.$battle.append(this.$delay);
+		this.$battle.append(this.$hiddenMessage);
+
+		if (this.battle.ignoreNicks) {
+			this.$log.addClass('hidenicks');
+			this.$messagebar.addClass('hidenicks');
+			this.$hiddenMessage.addClass('hidenicks');
+		}
+
+		if (!this.animating) {
+			this.$battle.append('<div class="seeking"><strong>seeking...</strong></div>');
+		}
+
+		this.messagebarOpen = false;
+		this.timeOffset = 0;
+		this.pokemonTimeOffset = 0;
+	}
+
+	animationOff() {
+		this.$battle.append('<div class="seeking"><strong>seeking...</strong></div>');
+		this.stopAnimation();
+
+		this.animating = false;
+		this.autoScrollOnResume = (this.$logFrame.scrollTop()! + 60 >= this.$log.height()! + this.$logPreempt.height()! - this.$options.height()! - this.$logFrame.height()!);
+		this.$messagebar.empty().css({
+			opacity: 0,
+			height: 0
+		});
+	}
+	stopAnimation() {
+		this.interruptionCount++;
+		this.$battle.find(':animated').finish();
+		this.$fx.empty();
+	}
+	animationOn() {
+		this.animating = true;
+		this.$battle.find('.seeking').remove();
+		this.updateSidebars();
+		for (const side of this.battle.sides) {
+			for (const pokemon of side.pokemon) {
+				pokemon.sprite.reset(pokemon);
+			}
+		}
+		this.updateWeather(true);
+		this.resetTurn();
+		if (this.autoScrollOnResume) {
+			this.$logFrame.scrollTop(this.$log.height()! + this.$logPreempt.height()!);
+		}
+		this.resetSideConditions();
+	}
+	pause() {
+		this.stopAnimation();
+		this.soundPause();
+		if (this.battle.resumeButton) {
+			this.$frame.append('<div class="playbutton"><button data-action="resume"><i class="fa fa-play icon-play"></i> Resume</button></div>');
+			this.$frame.find('div.playbutton button').click(this.battle.resumeButton);
+		}
+	}
+	resume() {
+		this.$frame.find('div.playbutton').remove();
+		this.soundStart();
+	}
+	wait(time: number) {
+		if (!this.animating) return;
+		this.timeOffset += time;
+	}
+
+	// Sprite handling
+	/////////////////////////////////////////////////////////////////////
+
+	addSprite(sprite: PokemonSprite) {
+		if (sprite.$el) this.$sprites[sprite.siden].append(sprite.$el);
+	}
+	showEffect(effect: string | SpriteData, start: ScenePos, end: ScenePos, transition: string, after?: string) {
+		if (typeof effect === 'string') effect = BattleEffects[effect] as SpriteData;
+		if (!start.time) start.time = 0;
+		if (!end.time) end.time = start.time + 500;
+		start.time += this.timeOffset;
+		end.time += this.timeOffset;
+		if (!end.scale && end.scale !== 0 && start.scale) end.scale = start.scale;
+		if (!end.xscale && end.xscale !== 0 && start.xscale) end.xscale = start.xscale;
+		if (!end.yscale && end.yscale !== 0 && start.yscale) end.yscale = start.yscale;
+		end = {...start, ...end};
+
+		let startpos = this.pos(start, effect);
+		let endpos = this.posT(end, effect, transition, start);
+
+		let $effect = $('<img src="' + effect.url + '" style="display:block;position:absolute" />');
+		this.$fx.append($effect);
+		$effect = this.$fx.children().last();
+
+		if (start.time) {
+			$effect.css({...startpos, opacity: 0});
+			$effect.delay(start.time).animate({
+				opacity: startpos.opacity,
+			}, 1);
+		} else {
+			$effect.css(startpos);
+		}
+		$effect.animate(endpos, end.time! - start.time);
+		if (after === 'fade') {
+			$effect.animate({
+				opacity: 0
+			}, 100);
+		}
+		if (after === 'explode') {
+			if (end.scale) end.scale *= 3;
+			if (end.xscale) end.xscale *= 3;
+			if (end.yscale) end.yscale *= 3;
+			end.opacity = 0;
+			let endendpos = this.pos(end, effect);
+			$effect.animate(endendpos, 200);
+		}
+		this.waitFor($effect);
+	}
+	backgroundEffect(bg: string, duration: number, opacity = 1, delay = 0) {
+		let $effect = $('<div class="background"></div>');
+		$effect.css({
+			background: bg,
+			display: 'block',
+			opacity: 0
+		});
+		this.$bgEffect.append($effect);
+		$effect.delay(delay).animate({
+			opacity: opacity
+		}, 250).delay(duration - 250);
+		$effect.animate({
+			opacity: 0
+		}, 250);
+	}
+
+	/**
+	 * Converts a PS location (x, y, z, scale, xscale, yscale, opacity)
+	 * to a jQuery position (top, left, width, height, opacity) suitable
+	 * for passing into `jQuery#css` or `jQuery#animate`.
+	 * The display property is passed through if it exists.
+	 */
+	pos(loc: ScenePos, obj: SpriteData) {
+		let left, top, scale, width, height;
+
+		loc = {
+			x: 0,
+			y: 0,
+			z: 0,
+			scale: 1,
+			opacity: 1,
+			...loc,
+		};
+		if (!loc.xscale && loc.xscale !== 0) loc.xscale = loc.scale;
+		if (!loc.yscale && loc.yscale !== 0) loc.yscale = loc.scale;
+
+		left = 210;
+		top = 245;
+		scale = 1;
+		scale = 1.5 - 0.5 * ((loc.z!) / 200);
+		if (scale < .1) scale = .1;
+
+		left += (410 - 190) * ((loc.z!) / 200);
+		top += (135 - 245) * ((loc.z!) / 200);
+		left += Math.floor(loc.x! * scale);
+		top -= Math.floor(loc.y! * scale /* - loc.x * scale / 4 */);
+		width = Math.floor(obj.w * scale * loc.xscale!);
+		height = Math.floor(obj.h * scale * loc.yscale!);
+		let hoffset = Math.floor((obj.h - (obj.y || 0) * 2) * scale * loc.yscale!);
+		left -= Math.floor(width / 2);
+		top -= Math.floor(hoffset / 2);
+
+		let pos = {
+			left: left,
+			top: top,
+			width: width,
+			height: height,
+			opacity: loc.opacity
+		} as JQuery.PlainObject;
+		if (loc.display) pos.display = loc.display;
+		return pos;
+	}
+	/**
+	 * Converts a PS location to a jQuery transition map (see `pos`)
+	 * suitable for passing into `jQuery#animate`.
+	 * oldLoc is required for ballistic (jumping) animations.
+	 */
+	posT(loc: ScenePos, obj: SpriteData, transition?: string, oldLoc?: ScenePos) {
+		const pos = this.pos(loc, obj);
+		const oldPos = (oldLoc ? this.pos(oldLoc, obj) : null);
+		let transitionMap = {
+			left: 'linear',
+			top: 'linear',
+			width: 'linear',
+			height: 'linear',
+			opacity: 'linear'
+		};
+		if (transition === 'ballistic') {
+			transitionMap.top = (pos.top < oldPos!.top ? 'ballisticUp' : 'ballisticDown');
+		}
+		if (transition === 'ballisticUnder') {
+			transitionMap.top = (pos.top < oldPos!.top ? 'ballisticDown' : 'ballisticUp');
+		}
+		if (transition === 'ballistic2') {
+			transitionMap.top = (pos.top < oldPos!.top ? 'quadUp' : 'quadDown');
+		}
+		if (transition === 'ballistic2Under') {
+			transitionMap.top = (pos.top < oldPos!.top ? 'quadDown' : 'quadUp');
+		}
+		if (transition === 'swing') {
+			transitionMap.left = 'swing';
+			transitionMap.top = 'swing';
+			transitionMap.width = 'swing';
+			transitionMap.height = 'swing';
+		}
+		if (transition === 'accel') {
+			transitionMap.left = 'quadDown';
+			transitionMap.top = 'quadDown';
+			transitionMap.width = 'quadDown';
+			transitionMap.height = 'quadDown';
+		}
+		if (transition === 'decel') {
+			transitionMap.left = 'quadUp';
+			transitionMap.top = 'quadUp';
+			transitionMap.width = 'quadUp';
+			transitionMap.height = 'quadUp';
+		}
+		return {
+			left: [pos.left, transitionMap.left],
+			top: [pos.top, transitionMap.top],
+			width: [pos.width, transitionMap.width],
+			height: [pos.height, transitionMap.height],
+			opacity: [pos.opacity, transitionMap.opacity]
+		} as JQuery.PlainObject;
+	}
+
+	waitFor(elem: JQuery<HTMLElement>) {
+		this.activeAnimations = this.activeAnimations.add(elem);
+	}
+
+	startAnimations() {
+		this.$fx.empty();
+		this.activeAnimations = $();
+		this.timeOffset = 0;
+		this.minDelay = 0;
+	}
+
+	finishAnimations() {
+		if (this.minDelay || (this.timeOffset && !this.activeAnimations.length)) {
+			this.$delay.delay(Math.max(this.minDelay, this.timeOffset));
+			this.activeAnimations = this.activeAnimations.add(this.$delay);
+		}
+		if (!this.activeAnimations.length) return undefined;
+		return this.activeAnimations.promise();
+	}
+
+	// Messagebar and log
+	/////////////////////////////////////////////////////////////////////
+
+	log(html: string, preempt?: boolean) {
+		let willScroll = false;
+		if (this.animating) willScroll = (this.$logFrame.scrollTop()! + 60 >= this.$log.height()! + this.$logPreempt.height()! - this.$options.height()! - this.$logFrame.height()!);
+		if (preempt) {
+			this.$logPreempt.append(html);
+		} else {
+			this.$log.append(html);
+		}
+		if (willScroll) {
+			this.$logFrame.scrollTop(this.$log.height()! + this.$logPreempt.height()!);
+		}
+	}
+	preemptCatchup() {
+		this.$log.append(this.$logPreempt.children().first());
+	}
+	message(message: string, hiddenMessage?: string) {
+		if (!this.messagebarOpen) {
+			this.log('<div class="spacer battle-history"></div>');
+			if (this.animating) {
+				this.$messagebar.empty();
+				this.$messagebar.css({
+					display: 'block',
+					opacity: 0,
+					height: 'auto'
+				});
+				this.$messagebar.animate({
+					opacity: 1
+				}, this.battle.messageFadeTime / this.acceleration);
+			}
+		}
+		if (this.battle.hardcoreMode && message.slice(0, 8) === '<small>(') {
+			hiddenMessage = message + hiddenMessage;
+			message = '';
+		}
+		if (message && this.animating) {
+			this.$hiddenMessage.append('<p></p>');
+			let $message = this.$hiddenMessage.children().last();
+			$message.html(message);
+			$message.css({
+				display: 'block',
+				opacity: 0
+			});
+			$message.animate({
+				height: 'hide'
+			}, 1, () => {
+				$message.appendTo(this.$messagebar);
+				$message.animate({
+					height: 'show',
+					'padding-bottom': 4,
+					opacity: 1
+				}, this.battle.messageFadeTime / this.acceleration);
+			});
+			this.waitFor($message);
+		}
+		this.messagebarOpen = true;
+		this.log('<div class="battle-history">' + message + (hiddenMessage ? hiddenMessage : '') + '</div>');
+	}
+	closeMessagebar() {
+		if (this.messagebarOpen) {
+			this.messagebarOpen = false;
+			if (this.animating) {
+				this.$messagebar.delay(this.battle.messageShownTime / this.acceleration).animate({
+					opacity: 0
+				}, this.battle.messageFadeTime / this.acceleration);
+				this.waitFor(this.$messagebar);
+			}
+		}
+	}
+
+	// General updating
+	/////////////////////////////////////////////////////////////////////
+
+	runMoveAnim(moveid: ID, participants: Pokemon[]) {
+		if (!this.animating) return;
+		BattleMoveAnims[moveid].anim(this, participants.map(p => p.sprite));
+	}
+
+	runOtherAnim(moveid: ID, participants: Pokemon[]) {
+		if (!this.animating) return;
+		BattleOtherAnims[moveid].anim(this, participants.map(p => p.sprite));
+	}
+
+	runStatusAnim(moveid: ID, participants: Pokemon[]) {
+		if (!this.animating) return;
+		BattleStatusAnims[moveid].anim(this, participants.map(p => p.sprite));
+	}
+
+	runResidualAnim(moveid: ID, pokemon: Pokemon) {
+		if (!this.animating) return;
+		BattleMoveAnims[moveid].residualAnim!(this, [pokemon.sprite]);
+	}
+
+	runPrepareAnim(moveid: ID, attacker: Pokemon, defender: Pokemon) {
+		if (!this.animating) return;
+		const moveAnim = BattleMoveAnims[moveid];
+		if (!moveAnim.prepareAnim) return;
+		moveAnim.prepareAnim(this, [attacker.sprite, defender.sprite]);
+		this.message('<small>' + moveAnim.prepareMessage!(attacker, defender) + '</small>');
+	}
+
+	updateGen() {
+		let gen = this.battle.gen;
+		if (Tools.prefs('nopastgens')) gen = 6;
+		if (Tools.prefs('bwgfx') && gen > 5) gen = 5;
+		this.gen = gen;
+		this.activeCount = this.battle.mySide && this.battle.mySide.active.length || 1;
+
+		if (gen <= 1) this.backdropImage = 'fx/bg-gen1.png?';
+		else if (gen <= 2) this.backdropImage = 'fx/bg-gen2.png?';
+		else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
+		else if (gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
+		else if (gen <= 5) this.backdropImage = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
+		else this.backdropImage = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
+
+		if (this.$bg) {
+			this.$bg.css('background-image', 'url(' + Tools.resourcePrefix + '' + this.backdropImage + ')');
+		}
+	}
+
+	updateSidebar(side: Side) {
+		if (!this.animating) return;
+		let pokemonhtml = '';
+		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
+		let pokemonCount = Math.max(side.pokemon.length, 6);
+		for (let i = 0; i < pokemonCount; i++) {
+			let poke = side.pokemon[i];
+			if (i >= side.totalPokemon) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-none') + '"></span>';
+			} else if (noShow && poke && poke.fainted) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-fainted') + '" title="Fainted" aria-label="Fainted"></span>';
+			} else if (noShow && poke && poke.status) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-statused') + '" title="Status" aria-label="Status"></span>';
+			} else if (noShow) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Non-statused" aria-label="Non-statused"></span>';
+			} else if (!poke) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Not revealed" aria-label="Not revealed"></span>';
+			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n) + ';opacity:0.6" title="' + poke.getFullName(true) + '" aria-label="' + poke.getFullName(true) + '"></span>';
+			} else {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n) + '" title="' + poke.getFullName(true) + '" aria-label="' + poke.getFullName(true) + '"></span>';
+			}
+			if (i % 3 === 2) pokemonhtml += '</div><div class="teamicons">';
+		}
+		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
+		const $sidebar = (side.n ? this.$rightbar : this.$leftbar);
+		if (side.name) {
+			$sidebar.html('<div class="trainer"><strong>' + Tools.escapeHTML(side.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(side.spriteid) + ')"></div>' + pokemonhtml + '</div>');
+			$sidebar.find('.trainer').css('opacity', 1);
+		} else {
+			$sidebar.find('.trainer').css('opacity', 0.4);
+		}
+	}
+	updateSidebars() {
+		for (const side of this.battle.sides) this.updateSidebar(side);
+	}
+	updateStatbars() {
+		for (const side of this.battle.sides) {
+			for (const active of side.active) if (active) {
+				active.sprite.updateStatbar(active);
+			}
+		}
+	}
+
+	teamPreview(start?: boolean) {
+		for (let siden = 0; siden < 2; siden++) {
+			let side = this.battle.sides[siden];
+			let textBuf = '';
+			let buf = '';
+			let buf2 = '';
+			this.$sprites[siden].empty();
+			if (!start) {
+				side.updateSprites();
+				continue;
+			}
+			for (let i = 0; i < side.pokemon.length; i++) {
+				let pokemon = side.pokemon[i];
+
+				let spriteData = Tools.getSpriteData(pokemon, siden, {
+					gen: this.gen,
+					noScale: true
+				});
+				let y = 0;
+				let x = 0;
+				if (siden) {
+					y = 48 + 50 + 3 * (i + 6 - side.pokemon.length);
+					x = 48 + 180 + 50 * (i + 6 - side.pokemon.length);
+				} else {
+					y = 48 + 200 + 3 * i;
+					x = 48 + 100 + 50 * i;
+				}
+				if (textBuf) textBuf += ' / ';
+				textBuf += pokemon.species;
+				let url = spriteData.url;
+				// if (this.paused) url.replace('/xyani', '/xy').replace('.gif', '.png');
+				buf += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + Math.floor(y - spriteData.h / 2) + 'px;left:' + Math.floor(x - spriteData.w / 2) + 'px" />';
+				buf2 += '<div style="position:absolute;top:' + (y + 45) + 'px;left:' + (x - 40) + 'px;width:80px;font-size:10px;text-align:center;color:#FFF;">';
+				if (pokemon.gender === 'F') {
+					buf2 += '<img src="' + Tools.resourcePrefix + 'fx/gender-f.png" width="7" height="10" alt="F" style="margin-bottom:-1px" /> ';
+				} else if (pokemon.gender === 'M') {
+					buf2 += '<img src="' + Tools.resourcePrefix + 'fx/gender-m.png" width="7" height="10" alt="M" style="margin-bottom:-1px" /> ';
+				}
+				if (pokemon.level !== 100) {
+					buf2 += '<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>' + pokemon.level + '</span>';
+				}
+				if (pokemon.item) {
+					buf2 += ' <img src="' + Tools.resourcePrefix + 'fx/item.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />';
+				}
+				buf2 += '</div>';
+			}
+			side.totalPokemon = side.pokemon.length;
+			if (textBuf) {
+				this.log('<div class="chat battle-history"><strong>' + Tools.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + Tools.escapeHTML(textBuf) + '</em></div>');
+			}
+			this.$sprites[siden].html(buf + buf2);
+		}
+		if (start) {
+			this.wait(1000);
+			this.updateSidebars();
+		}
+	}
+
+	showJoinButtons() {
+		if (!this.battle.joinButtons) return;
+		if (this.battle.ended || this.battle.rated) return;
+		if (!this.battle.p1.name) {
+			this.$battle.append('<div class="playbutton"><button name="joinBattle">Join Battle</button></div>');
+		}
+		if (!this.battle.p2.name) {
+			this.$battle.append('<div class="playbutton2"><button name="joinBattle">Join Battle</button></div>');
+		}
+	}
+	hideJoinButtons() {
+		if (!this.battle.joinButtons) return;
+		this.$battle.find('.playbutton, .playbutton2').remove();
+	}
+
+	pseudoWeatherLeft(pWeather: WeatherState) {
+		let buf = '<br />' + Tools.getMove(pWeather[0]).name;
+		if (!pWeather[1] && pWeather[2]) {
+			pWeather[1] = pWeather[2];
+			pWeather[2] = 0;
+		}
+		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
+		if (pWeather[2]) {
+			return buf + ' <small>(' + pWeather[1] + ' or ' + pWeather[2] + ' turns)</small>';
+		}
+		if (pWeather[1]) {
+			return buf + ' <small>(' + pWeather[1] + ' turn' + (pWeather[1] == 1 ? '' : 's') + ')</small>';
+		}
+		return buf; // weather not found
+	}
+	sideConditionLeft(cond: [string, number, number, number], siden: number) {
+		if (!cond[2] && !cond[3]) return '';
+		let buf = '<br />' + (siden ? "Foe's " : "") + Tools.getMove(cond[0]).name;
+		if (!cond[2] && cond[3]) {
+			cond[2] = cond[3];
+			cond[3] = 0;
+		}
+		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
+		if (!cond[3]) {
+			return buf + ' <small>(' + cond[2] + ' turn' + (cond[2] == 1 ? '' : 's') + ')</small>';
+		}
+		return buf + ' <small>(' + cond[2] + ' or ' + cond[3] + ' turns)</small>';
+	}
+	weatherLeft() {
+		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
+		if (this.battle.weatherMinTimeLeft != 0) {
+			return ' <small>(' + this.battle.weatherMinTimeLeft + ' or ' + this.battle.weatherTimeLeft + ' turns)</small>';
+		}
+		if (this.battle.weatherTimeLeft != 0) {
+			return ' <small>(' + this.battle.weatherTimeLeft + ' turn' + (this.battle.weatherTimeLeft == 1 ? '' : 's') + ')</small>';
+		}
+		return '';
+	}
+	upkeepWeather() {
+		const isIntense = (this.curWeather === 'desolateland' || this.curWeather === 'primordialsea' || this.curWeather === 'deltastream');
+		this.$weather.animate({
+			opacity: 1.0
+		}, 300).animate({
+			opacity: isIntense ? 0.9 : 0.5
+		}, 300);
+	}
+	updateWeather(instant?: boolean) {
+		if (!this.animating) return;
+		let isIntense = false;
+		let weatherNameTable = {
+			sunnyday: 'Sun',
+			desolateland: 'Intense Sun',
+			raindance: 'Rain',
+			primordialsea: 'Heavy Rain',
+			sandstorm: 'Sandstorm',
+			hail: 'Hail',
+			deltastream: 'Strong Winds'
+		} as {[id: string]: string};
+		let weather = this.battle.weather;
+		let terrain = '' as ID;
+		for (const pseudoWeatherData of this.battle.pseudoWeather) {
+			let pwid = toId(pseudoWeatherData[0]);
+			switch (pwid) {
+			case 'electricterrain':
+			case 'grassyterrain':
+			case 'mistyterrain':
+			case 'psychicterrain':
+				terrain = pwid;
+				break;
+			default:
+				if (!terrain) terrain = 'pseudo' as ID;
+				break;
+			}
+		}
+		if (weather === 'desolateland' || weather === 'primordialsea' || weather === 'deltastream') {
+			isIntense = true;
+		}
+
+		let weatherhtml = '';
+		if (weather && weather in weatherNameTable) {
+			weatherhtml += '<br />' + weatherNameTable[weather] + this.weatherLeft();
+		}
+		for (const pseudoWeather of this.battle.pseudoWeather) {
+			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
+		}
+		for (const side of this.battle.sides) {
+			for (const id in side.sideConditions) {
+				weatherhtml += this.sideConditionLeft(side.sideConditions[id], side.n);
+			}
+		}
+
+		if (instant) {
+			if (this.curWeather === weather && this.curTerrain === terrain) return;
+			this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
+			this.curTerrain = terrain;
+			this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
+			this.curWeather = weather;
+			this.$weather.html('<em>' + weatherhtml + '</em>');
+			return;
+		}
+
+		if (weather !== this.curWeather) {
+			this.$weather.animate({
+				opacity: 0,
+			}, this.curWeather ? 300 : 100, () => {
+				this.$weather.html('<em>' + weatherhtml + '</em>');
+				this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
+				this.$weather.animate({opacity: isIntense ? 0.9 : 0.5}, 300);
+			});
+			this.curWeather = weather;
+		} else {
+			this.$weather.html('<em>' + weatherhtml + '</em>');
+		}
+
+		if (terrain !== this.curTerrain) {
+			this.$terrain.animate({
+				top: 360,
+			}, this.curTerrain ? 400 : 1, () => {
+				this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
+				this.$weather.animate({top: 0}, 400);
+			});
+			this.curTerrain = terrain;
+		}
+	}
+	resetTurn() {
+		if (!this.battle.turn) {
+			this.$turn.html('');
+			return;
+		}
+		this.$turn.html('<div class="turn">Turn ' + this.battle.turn + '</div>');
+	}
+	incrementTurn() {
+		if (!this.animating) return;
+
+		const turn = this.battle.turn;
+		if (!turn) return;
+		const $prevTurn = this.$turn.children();
+		const $newTurn = $('<div class="turn">Turn ' + turn + '</div>');
+		$newTurn.css({
+			opacity: 0,
+			left: 160,
+		});
+		this.$turn.append($newTurn);
+		$newTurn.animate({
+			opacity: 1,
+			left: 110,
+		}, 500).animate({
+			opacity: .4,
+		}, 1500);
+		$prevTurn.animate({
+			opacity: 0,
+			left: 60,
+		}, 500, function () {
+			$prevTurn.remove();
+		});
+		if (this.battle.turnsSinceMoved > 2) {
+			this.acceleration = (this.battle.messageFadeTime < 150 ? 2 : 1) * Math.min(this.battle.turnsSinceMoved - 1, 3);
+		} else {
+			this.acceleration = (this.battle.messageFadeTime < 150 ? 2 : 1);
+		}
+		this.wait(500 / this.acceleration);
+	}
+
+	addPokemonSprite(pokemon: Pokemon) {
+		const siden = pokemon.side.n;
+		const sprite = new PokemonSprite(Tools.getSpriteData(pokemon, siden, {
+			gen: this.gen,
+		}), {
+			x: pokemon.side.x,
+			y: pokemon.side.y,
+			z: pokemon.side.z,
+			opacity: 0,
+		}, this, siden);
+		if (sprite.$el) this.$sprites[siden].append(sprite.$el);
+		return sprite;
+	}
+
+	addSideCondition(siden: number, id: ID, instant?: boolean) {
+		if (!this.animating) return;
+		const side = this.battle.sides[siden];
+		switch (id) {
+		case 'auroraveil':
+			const auroraveil = new Sprite(BattleEffects.auroraveil, {
+				display: 'block',
+				x: side.x,
+				y: side.y,
+				z: side.behind(-14),
+				xscale: 1,
+				yscale: 0,
+				opacity: 0.1,
+			}, this);
+			this.$spritesFront[siden].append(auroraveil.$el!);
+			this.sideConditions[siden][id] = [auroraveil];
+			auroraveil.anim({
+				opacity: 0.7,
+				time: instant ? 0 : 400,
+			}).anim({
+				opacity: 0.3,
+				time: instant ? 0 : 300,
+			});
+			break;
+		case 'reflect':
+			const reflect = new Sprite(BattleEffects.reflect, {
+				display: 'block',
+				x: side.x,
+				y: side.y,
+				z: side.behind(-17),
+				xscale: 1,
+				yscale: 0,
+				opacity: 0.1,
+			}, this);
+			this.$spritesFront[siden].append(reflect.$el!);
+			this.sideConditions[siden][id] = [reflect];
+			reflect.anim({
+				opacity: 0.7,
+				time: instant ? 0 : 400,
+			}).anim({
+				opacity: 0.3,
+				time: instant ? 0 : 300,
+			});
+			break;
+		case 'safeguard':
+			const safeguard = new Sprite(BattleEffects.safeguard, {
+				display: 'block',
+				x: side.x,
+				y: side.y,
+				z: side.behind(-20),
+				xscale: 1,
+				yscale: 0,
+				opacity: 0.1,
+			}, this);
+			this.$spritesFront[siden].append(safeguard.$el!);
+			this.sideConditions[siden][id] = [safeguard];
+			safeguard.anim({
+				opacity: 0.7,
+				time: instant ? 0 : 400,
+			}).anim({
+				opacity: 0.3,
+				time: instant ? 0 : 300,
+			});
+			break;
+		case 'lightscreen':
+			const lightscreen = new Sprite(BattleEffects.lightscreen, {
+				display: 'block',
+				x: side.x,
+				y: side.y,
+				z: side.behind(-23),
+				xscale: 1,
+				yscale: 0,
+				opacity: 0.1,
+			}, this);
+			this.$spritesFront[siden].append(lightscreen.$el!);
+			this.sideConditions[siden][id] = [lightscreen];
+			lightscreen.anim({
+				opacity: 0.7,
+				time: instant ? 0 : 400,
+			}).anim({
+				opacity: 0.3,
+				time: instant ? 0 : 300,
+			});
+			break;
+		case 'mist':
+			const mist = new Sprite(BattleEffects.mist, {
+				display: 'block',
+				x: side.x,
+				y: side.y,
+				z: side.behind(-27),
+				xscale: 1,
+				yscale: 0,
+				opacity: 0.1,
+			}, this);
+			this.$spritesFront[siden].append(mist.$el!);
+			this.sideConditions[siden][id] = [mist];
+			mist.anim({
+				opacity: 0.7,
+				time: instant ? 0 : 400,
+			}).anim({
+				opacity: 0.3,
+				time: instant ? 0 : 300,
+			});
+			break;
+		case 'stealthrock':
+			const rock1 = new Sprite(BattleEffects.rock1, {
+				display: 'block',
+				x: side.leftof(-40),
+				y: side.y - 10,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.2,
+			}, this);
+
+			const rock2 = new Sprite(BattleEffects.rock2, {
+				display: 'block',
+				x: side.leftof(-20),
+				y: side.y - 40,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.2,
+			}, this);
+
+			const rock3 = new Sprite(BattleEffects.rock1, {
+				display: 'block',
+				x: side.leftof(30),
+				y: side.y - 20,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.2,
+			}, this);
+
+			const rock4 = new Sprite(BattleEffects.rock2, {
+				display: 'block',
+				x: side.leftof(10),
+				y: side.y - 30,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.2,
+			}, this);
+
+			this.$spritesFront[siden].append(rock1.$el!);
+			this.$spritesFront[siden].append(rock2.$el!);
+			this.$spritesFront[siden].append(rock3.$el!);
+			this.$spritesFront[siden].append(rock4.$el!);
+			this.sideConditions[siden][id] = [rock1, rock2, rock3, rock4];
+			break;
+		case 'spikes':
+			let spikeArray = this.sideConditions[siden]['spikes'];
+			if (!spikeArray) {
+				spikeArray = [];
+				this.sideConditions[siden]['spikes'] = spikeArray;
+			}
+			let levels = this.battle.sides[siden].sideConditions['spikes'][1];
+			if (spikeArray.length < 1 && levels >= 1) {
+				const spike1 = new Sprite(BattleEffects.caltrop, {
+					display: 'block',
+					x: side.x - 25,
+					y: side.y - 40,
+					z: side.z,
+					scale: 0.3,
+				}, this);
+				this.$spritesFront[siden].append(spike1.$el!);
+				spikeArray.push(spike1);
+			}
+			if (spikeArray.length < 2 && levels >= 2) {
+				const spike2 = new Sprite(BattleEffects.caltrop, {
+					display: 'block',
+					x: side.x + 30,
+					y: side.y - 45,
+					z: side.z,
+					scale: .3
+				}, this);
+				this.$spritesFront[siden].append(spike2.$el!);
+				spikeArray.push(spike2);
+			}
+			if (spikeArray.length < 3 && levels >= 3) {
+				const spike3 = new Sprite(BattleEffects.caltrop, {
+					display: 'block',
+					x: side.x + 50,
+					y: side.y - 40,
+					z: side.z,
+					scale: .3
+				}, this);
+				this.$spritesFront[siden].append(spike3.$el!);
+				spikeArray.push(spike3);
+			}
+			break;
+		case 'toxicspikes':
+			let tspikeArray = this.sideConditions[siden]['toxicspikes'];
+			if (!tspikeArray) {
+				tspikeArray = [];
+				this.sideConditions[siden]['toxicspikes'] = tspikeArray;
+			}
+			let tspikeLevels = this.battle.sides[siden].sideConditions['toxicspikes'][1];
+			if (tspikeArray.length < 1 && tspikeLevels >= 1) {
+				const tspike1 = new Sprite(BattleEffects.poisoncaltrop, {
+					display: 'block',
+					x: side.x + 5,
+					y: side.y - 40,
+					z: side.z,
+					scale: 0.3,
+				}, this);
+				this.$spritesFront[siden].append(tspike1.$el!);
+				tspikeArray.push(tspike1);
+			}
+			if (tspikeArray.length < 2 && tspikeLevels >= 2) {
+				const tspike2 = new Sprite(BattleEffects.poisoncaltrop, {
+					display: 'block',
+					x: side.x - 15,
+					y: side.y - 35,
+					z: side.z,
+					scale: .3
+				}, this);
+				this.$spritesFront[siden].append(tspike2.$el!);
+				tspikeArray.push(tspike2);
+			}
+			break;
+		case 'stickyweb':
+			const web = new Sprite(BattleEffects.web, {
+				display: 'block',
+				x: side.x + 15,
+				y: side.y - 35,
+				z: side.z,
+				opacity: 0.4,
+				scale: 0.7,
+			}, this);
+			this.$spritesFront[siden].append(web.$el!);
+			this.sideConditions[siden][id] = [web];
+			break;
+		}
+	}
+	removeSideCondition(siden: number, id: ID) {
+		if (!this.animating) return;
+		if (this.sideConditions[siden][id]) {
+			for (const sprite of this.sideConditions[siden][id]) sprite.destroy();
+			delete this.sideConditions[siden][id];
+		}
+	}
+	resetSideConditions() {
+		for (let siden = 0; siden < this.sideConditions.length; siden++) {
+			for (const id in this.sideConditions[siden]) {
+				this.removeSideCondition(siden, id as ID);
+			}
+			for (const id in this.battle.sides[siden].sideConditions) {
+				this.addSideCondition(siden, id as ID);
+			}
+		}
+	}
+
+	resultAnim(pokemon: Pokemon, result: string, type: 'bad' | 'good' | 'neutral' | StatusName) {
+		if (!this.animating) return;
+		let $effect = $('<div class="result ' + type + 'result"><strong>' + result + '</strong></div>');
+		this.$fx.append($effect);
+		$effect.delay(this.timeOffset).css({
+			display: 'block',
+			opacity: 0,
+			top: pokemon.sprite.top - 5,
+			left: pokemon.sprite.left - 75
+		}).animate({
+			opacity: 1
+		}, 1);
+		$effect.animate({
+			opacity: 0,
+			top: pokemon.sprite.top - 65
+		}, 1000, 'swing');
+		this.wait(this.acceleration < 2 ? 350 : 250);
+		pokemon.sprite.updateStatbar(pokemon);
+		if (this.acceleration < 3) this.waitFor($effect);
+	}
+	abilityActivateAnim(pokemon: Pokemon, result: string) {
+		if (!this.animating) return;
+		this.$fx.append('<div class="result abilityresult"><strong>' + result + '</strong></div>');
+		let $effect = this.$fx.children().last();
+		$effect.delay(this.timeOffset).css({
+			display: 'block',
+			opacity: 0,
+			top: pokemon.sprite.top + 15,
+			left: pokemon.sprite.left - 75
+		}).animate({
+			opacity: 1
+		}, 1);
+		$effect.delay(800).animate({
+			opacity: 0
+		}, 400, 'swing');
+		this.wait(100);
+		pokemon.sprite.updateStatbar(pokemon);
+		if (this.acceleration < 3) this.waitFor($effect);
+	}
+	damageAnim(pokemon: Pokemon, damage: number | string) {
+		if (!this.animating) return;
+		if (!pokemon.sprite.$statbar) return;
+		pokemon.sprite.updateHPText(pokemon);
+
+		let $hp = pokemon.sprite.$statbar.find('div.hp');
+		let w = pokemon.hpWidth(150);
+		let hpcolor = pokemon.getHPColor();
+		let callback;
+		if (hpcolor === 'y') callback = function () {
+			$hp.addClass('hp-yellow');
+		};
+		if (hpcolor === 'r') callback = function () {
+			$hp.addClass('hp-yellow hp-red');
+		};
+
+		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Damage' : '&minus;' + damage, 'bad');
+
+		$hp.animate({
+			width: w,
+			'border-right-width': w ? 1 : 0
+		}, 350, callback);
+	}
+	healAnim(pokemon: Pokemon, damage: number | string) {
+		if (!this.animating) return;
+		if (!pokemon.sprite.$statbar) return;
+		pokemon.sprite.updateHPText(pokemon);
+
+		let $hp = pokemon.sprite.$statbar.find('div.hp');
+		let w = pokemon.hpWidth(150);
+		let hpcolor = pokemon.getHPColor();
+		let callback;
+		if (hpcolor === 'g') callback = function () {
+			$hp.removeClass('hp-yellow hp-red');
+		};
+		if (hpcolor === 'y') callback = function () {
+			$hp.removeClass('hp-red');
+		};
+
+		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Heal' : '+' + damage, 'good');
+
+		$hp.animate({
+			width: w,
+			'border-right-width': w ? 1 : 0
+		}, 350, callback);
+	}
+
+	// Misc
+	/////////////////////////////////////////////////////////////////////
+
+	preloadImage(url: string) {
+		let token = url.replace(/\.(gif|png)$/, '').replace(/\//g, '-');
+		if (this.preloadCache[token]) {
+			return;
+		}
+		this.preloadNeeded++;
+		this.preloadCache[token] = new Image();
+		this.preloadCache[token].onload = () => {
+			this.preloadDone++;
+		};
+		this.preloadCache[token].src = url;
+	}
+	preloadEffects() {
+		for (let i in BattleEffects) {
+			if (i === 'alpha' || i === 'omega') continue;
+			const url = BattleEffects[i].url;
+			if (url) this.preloadImage(url);
+		}
+		this.preloadImage(Tools.fxPrefix + 'weather-raindance.jpg'); // rain is used often enough to precache
+		this.preloadImage(Tools.resourcePrefix + 'sprites/xyani/substitute.gif');
+		this.preloadImage(Tools.resourcePrefix + 'sprites/xyani-back/substitute.gif');
+		//this.preloadImage(Tools.fxPrefix + 'bg.jpg');
+	}
+	preloadBgm() {
+		let bgmNum = this.numericId % 13;
+
+		if (window.forceBgm || window.forceBgm === 0) bgmNum = window.forceBgm;
+		window.bgmNum = bgmNum;
+		let ext = window.nodewebkit ? '.ogg' : '.mp3';
+		switch (bgmNum) {
+		case -1:
+			BattleSound.loadBgm('audio/bw2-homika-dogars' + ext, 1661, 68131);
+			this.bgm = 'audio/bw2-homika-dogars' + ext;
+			break;
+		case 0:
+			BattleSound.loadBgm('audio/hgss-kanto-trainer' + ext, 13003, 94656);
+			this.bgm = 'audio/hgss-kanto-trainer' + ext;
+			break;
+		case 1:
+			BattleSound.loadBgm('audio/bw-subway-trainer' + ext, 15503, 110984);
+			this.bgm = 'audio/bw-subway-trainer' + ext;
+			break;
+		case 2:
+			BattleSound.loadBgm('audio/bw-trainer' + ext, 14629, 110109);
+			this.bgm = 'audio/bw-trainer' + ext;
+			break;
+		case 3:
+			BattleSound.loadBgm('audio/bw-rival' + ext, 19180, 57373);
+			this.bgm = 'audio/bw-rival' + ext;
+			break;
+		case 4:
+			BattleSound.loadBgm('audio/dpp-trainer' + ext, 13440, 96959);
+			this.bgm = 'audio/dpp-trainer' + ext;
+			break;
+		case 5:
+			BattleSound.loadBgm('audio/hgss-johto-trainer' + ext, 23731, 125086);
+			this.bgm = 'audio/hgss-johto-trainer' + ext;
+			break;
+		case 6:
+			BattleSound.loadBgm('audio/dpp-rival' + ext, 13888, 66352);
+			this.bgm = 'audio/dpp-rival' + ext;
+			break;
+		case 7:
+			BattleSound.loadBgm('audio/bw2-kanto-gym-leader' + ext, 14626, 58986);
+			this.bgm = 'audio/bw2-kanto-gym-leader' + ext;
+			break;
+		case 8:
+			BattleSound.loadBgm('audio/bw2-rival' + ext, 7152, 68708);
+			this.bgm = 'audio/bw2-rival' + ext;
+			break;
+		case 9:
+			BattleSound.loadBgm('audio/xy-trainer' + ext, 7802, 82469);
+			this.bgm = 'audio/xy-trainer' + ext;
+			break;
+		case 10:
+			BattleSound.loadBgm('audio/xy-rival' + ext, 7802, 58634);
+			this.bgm = 'audio/xy-rival' + ext;
+			break;
+		case 11:
+			BattleSound.loadBgm('audio/oras-trainer' + ext, 13579, 91548);
+			this.bgm = 'audio/oras-trainer' + ext;
+			break;
+		case 12:
+			BattleSound.loadBgm('audio/sm-trainer' + ext, 8323, 89230);
+			this.bgm = 'audio/sm-trainer' + ext;
+			break;
+		case 13:
+			BattleSound.loadBgm('audio/sm-rival' + ext, 11389, 62158);
+			this.bgm = 'audio/sm-rival' + ext;
+			break;
+		default:
+			BattleSound.loadBgm('audio/oras-rival' + ext, 14303, 69149);
+			this.bgm = 'audio/oras-rival' + ext;
+			break;
+		}
+	}
+	soundStart() {
+		if (!this.bgm) this.preloadBgm();
+		BattleSound.playBgm(this.bgm!);
+	}
+	soundStop() {
+		BattleSound.stopBgm();
+	}
+	soundPause() {
+		BattleSound.pauseBgm();
+	}
+	destroy() {
+		if (this.$logFrame) this.$logFrame.empty();
+		if (this.$frame) this.$frame.empty();
+		this.soundStop();
+		this.battle = null!;
+	}
+}
+
+interface ScenePos {
+	x?: number,
+	y?: number,
+	z?: number,
+	scale?: number,
+	xscale?: number,
+	yscale?: number,
+	opacity?: number,
+	time?: number,
+	display?: string,
+}
+interface InitScenePos {
+	x: number,
+	y: number,
+	z: number,
+	scale?: number,
+	xscale?: number,
+	yscale?: number,
+	opacity?: number,
+	time?: number,
+	display?: string,
+}
+
+class Sprite {
+	scene: BattleScene;
+	$el: JQuery<HTMLElement> = null!;
+	sp: SpriteData;
+	x: number;
+	y: number;
+	z: number;
+	constructor(spriteData: SpriteData | null, pos: InitScenePos, scene: BattleScene) {
+		this.scene = scene;
+		let sp = null;
+		if (spriteData) {
+			sp = spriteData;
+			let rawHTML = sp.rawHTML || '<img src="' + sp.url + '" style="display:none;position:absolute"' + (sp.pixelated ? ' class="pixelated"' : '') + ' />';
+			this.$el = $(rawHTML);
+		} else {
+			sp = {
+				w: 0,
+				h: 0,
+				url: '',
+			};
+		}
+		this.sp = sp;
+
+		this.x = pos.x;
+		this.y = pos.y;
+		this.z = pos.z;
+		if (pos.opacity !== 0 && spriteData) this.$el!.css(scene.pos(pos, sp));
+
+		if (!spriteData) {
+			this.delay = function () { return this; };
+			this.anim = function () { return this; };
+		}
+	}
+
+	destroy() {
+		if (this.$el) this.$el.remove();
+		this.$el = null!;
+		this.scene = null!;
+	}
+	delay(time: number) {
+		this.$el!.delay(time);
+		return this;
+	}
+	anim(end: ScenePos, transition?: string) {
+		end = {
+			x: this.x,
+			y: this.y,
+			z: this.z,
+			scale: 1,
+			opacity: 1,
+			time: 500,
+			...end,
+		};
+		if (end.time === 0) {
+			this.$el!.css(this.scene.pos(end, this.sp));
+			return this;
+		}
+		this.$el!.animate(this.scene.posT(end, this.sp, transition, this), end.time!);
+		return this;
+	}
+}
+
+class PokemonSprite extends Sprite {
+	siden: number;
+	forme = '';
+	cryurl: string | undefined = undefined;
+
+	subsp: SpriteData | null = null;
+	$sub: JQuery<HTMLElement> | null = null;
+	isSubActive = false;
+
+	$statbar: JQuery<HTMLElement> | null = null;
+	isBackSprite: boolean;
+	isMissedPokemon = false;
+	/**
+	 * If the pokemon is transformed, sprite.sp will be the transformed
+	 * SpriteData and sprite.oldsp will hold the original form's SpriteData
+	 */
+	oldsp: SpriteData | null = null;
+
+	statbarLeft = 0;
+	statbarTop = 0;
+	left = 0;
+	top = 0;
+
+	effects = {} as {[id: string]: Sprite[]};
+
+	constructor(spriteData: SpriteData | null, pos: InitScenePos, scene: BattleScene, siden: number) {
+		super(spriteData, pos, scene);
+		this.siden = siden;
+
+		this.isBackSprite = !this.siden;
+	}
+	destroy() {
+		if (this.$el) this.$el.remove();
+		this.$el = null!;
+		if (this.$statbar) this.$statbar.remove();
+		this.$statbar = null;
+		if (this.$sub) this.$sub.remove();
+		this.$sub = null;
+		this.scene = null!;
+	}
+
+	delay(time: number) {
+		this.$el.delay(time);
+		if (this.$sub) this.$sub.delay(time);
+		return this;
+	}
+	anim(end: ScenePos, transition?: string) {
+		end = {
+			x: this.x,
+			y: this.y,
+			z: this.z,
+			scale: 1,
+			opacity: 1,
+			time: 500,
+			...end,
+		};
+		const $el = (this.isSubActive ? this.$sub : this.$el)!;
+		$el.animate(this.scene.posT(end, this.sp, transition, this), end.time!);
+		return this;
+	}
+
+	behindx(offset: number) {
+		return this.x + (this.isBackSprite ? -1 : 1) * offset;
+	}
+	behindy(offset: number) {
+		return this.y + (this.isBackSprite ? 1 : -1) * offset;
+	}
+	leftof(offset: number) {
+		return this.x + (this.isBackSprite ? -1 : 1) * offset;
+	}
+	behind(offset: number) {
+		return this.z + (this.isBackSprite ? -1 : 1) * offset;
+	}
+
+	removeTransform() {
+		if (!this.scene.animating) return;
+		if (!this.oldsp) return;
+		let sp = this.oldsp;
+		this.cryurl = sp.cryurl;
+		this.sp = sp;
+		this.oldsp = null;
+
+		const $el = this.isSubActive ? this.$sub! : this.$el;
+		$el.attr('src', sp.url!);
+		$el.css(this.scene.pos({
+			x: this.x,
+			y: this.y,
+			z: (this.isSubActive ? this.behind(30) : this.z),
+			opacity: (this.$sub ? .3 : 1),
+		}, sp));
+	}
+	animSub(instant?: boolean) {
+		if (!this.scene.animating) return;
+		if (this.$sub) return;
+		const subsp = Tools.getSpriteData('substitute', this.siden, {
+			gen: this.scene.gen
+		});
+		this.subsp = subsp;
+		this.$sub = $('<img src="' + subsp.url + '" style="display:block;opacity:0;position:absolute"' + (subsp.pixelated ? ' class="pixelated"' : '') + ' />');
+		this.scene.$spritesFront[this.siden].append(this.$sub);
+		this.isSubActive = true;
+		if (instant) {
+			this.animReset();
+			return;
+		}
+		this.$el.animate(this.scene.pos({
+			x: this.x,
+			y: this.y,
+			z: this.behind(30),
+			opacity: 0.3,
+		}, this.sp), 500);
+		this.$sub.css(this.scene.pos({
+			x: this.x,
+			y: this.y + 50,
+			z: this.z,
+			opacity: 0
+		}, subsp));
+		this.$sub.animate(this.scene.pos({
+			x: this.x,
+			y: this.y,
+			z: this.z
+		}, subsp), 500);
+		this.scene.waitFor(this.$sub);
+	}
+	animSubFade(instant?: boolean) {
+		if (!this.$sub || !this.scene.animating) return;
+		if (instant) {
+			this.$sub.remove();
+			this.$sub = null;
+			this.isSubActive = false;
+			this.animReset();
+			return;
+		}
+		if (this.scene.timeOffset) {
+			this.$el.delay(this.scene.timeOffset);
+			this.$sub.delay(this.scene.timeOffset);
+		}
+		this.$sub.animate(this.scene.pos({
+			x: this.x,
+			y: this.y - 50,
+			z: this.z,
+			opacity: 0
+		}, this.subsp!), 500);
+
+		this.$sub = null;
+		this.isSubActive = false;
+		this.anim({time: 500});
+		if (this.scene.animating) this.scene.waitFor(this.$el);
+	}
+	beforeMove() {
+		if (!this.scene.animating) return false;
+		if (!this.isSubActive) return false;
+		this.isSubActive = false;
+		this.anim({time: 300});
+		this.$sub!.animate(this.scene.pos({
+			x: this.leftof(-50),
+			y: this.y,
+			z: this.z,
+			opacity: 0.5
+		}, this.subsp!), 300);
+		for (const side of this.scene.battle.sides) {
+			for (const active of side.active) {
+				if (active && active.sprite !== this) {
+					active.sprite.delay(300);
+				}
+			}
+		}
+		this.scene.wait(300);
+		this.scene.waitFor(this.$el);
+
+		return true;
+	}
+	afterMove() {
+		if (!this.scene.animating) return false;
+		if (!this.$sub || this.isSubActive) return false;
+		this.isSubActive = true;
+		this.$sub.delay(300);
+		this.$el.add(this.$sub).promise().done(() => {
+			if (!this.$sub || !this.$el) return;
+			this.$el.animate(this.scene.pos({
+				x: this.x,
+				y: this.y,
+				z: this.behind(30),
+				opacity: 0.3,
+			}, this.sp), 300);
+			this.anim({time: 300});
+		});
+		return false;
+	}
+	removeSub() {
+		if (!this.$sub) return;
+		if (!this.scene.animating) {
+			this.$sub.remove();
+		} else {
+			const $sub = this.$sub;
+			$sub.animate({
+				opacity: 0
+			}, () => {
+				$sub.remove();
+			});
+		}
+		this.$sub = null;
+	}
+	reset(pokemon: Pokemon) {
+		this.clearEffects();
+
+		if (pokemon.volatiles.formechange) {
+			this.oldsp = this.sp;
+			this.sp = Tools.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
+				gen: this.scene.gen,
+			});
+		}
+
+		// I can rant for ages about how jQuery sucks, necessitating this function
+		// The short version is: after calling elem.finish() on an animating
+		// element, there appear to be a grand total of zero ways to hide it
+		// afterwards. I've tried `elem.css('display', 'none')`, `elem.hide()`,
+		// `elem.hide(1)`, `elem.hide(1000)`, `elem.css('opacity', 0)`,
+		// `elem.animate({opacity: 0}, 1000)`.
+		// They literally all do nothing, and the element retains
+		// a style attribute containing `display: inline-block` and `opacity: 1`
+		// Only forcibly removing the element from the DOM actually makes it
+		// disappear, so that's what we do.
+		if (this.$el) {
+			this.$el.stop(true, false);
+			const $newEl = $('<img src="' + this.sp.url + '" style="display:none;position:absolute"' + (this.sp.pixelated ? ' class="pixelated"' : '') + ' />');
+			this.$el.replaceWith($newEl);
+			this.$el = $newEl;
+		}
+
+		if (!pokemon.isActive()) {
+			if (this.$statbar) {
+				this.$statbar.remove();
+				this.$statbar = null;
+			}
+			return;
+		}
+
+		this.recalculatePos(pokemon.slot);
+		this.resetStatbar(pokemon);
+		this.$el.css(this.scene.pos({
+			display: 'block',
+			x: this.x,
+			y: this.y,
+			z: this.z,
+		}, this.sp));
+
+		for (const id in pokemon.volatiles) this.addEffect(id as ID, true);
+		for (const id in pokemon.turnstatuses) this.addEffect(id as ID, true);
+		for (const id in pokemon.movestatuses) this.addEffect(id as ID, true);
+	}
+	animReset() {
+		if (!this.scene.animating) return;
+		if (this.$sub) {
+			this.isSubActive = true;
+			this.$el.stop(true, false);
+			this.$sub.stop(true, false);
+			this.$el.css(this.scene.pos({
+				x: this.x,
+				y: this.y,
+				z: this.behind(30),
+				opacity: .3
+			}, this.sp));
+			this.$sub.css(this.scene.pos({
+				x: this.x,
+				y: this.y,
+				z: this.z
+			}, this.subsp!));
+		} else {
+			this.$el.stop(true, false);
+			this.$el.css(this.scene.pos({
+				x: this.x,
+				y: this.y,
+				z: this.z
+			}, this.sp));
+		}
+	}
+	recalculatePos(slot: number) {
+		let moreActive = this.scene.activeCount - 1;
+		let statbarOffset = 0;
+		if (this.scene.gen <= 4 && moreActive) {
+			this.x = (slot - 0.52) * (this.isBackSprite ? -1 : 1) * -55;
+			this.y = (this.isBackSprite ? -1 : 1) + 1;
+			if (!this.isBackSprite) statbarOffset = 30 * slot;
+			if (this.isBackSprite) statbarOffset = -28 * slot;
+		} else {
+			switch (moreActive) {
+			case 0:
+				this.x = 0;
+				break;
+			case 1:
+				if (this.sp.pixelated) {
+					this.x = (slot * -100 + 18) * (this.isBackSprite ? -1 : 1);
+				} else {
+					this.x = (slot * -75 + 18) * (this.isBackSprite ? -1 : 1);
+				}
+				break;
+			case 2:
+				this.x = (slot * -70 + 20) * (this.isBackSprite ? -1 : 1);
+				break;
+			}
+			this.y = (slot * 10) * (this.isBackSprite ? -1 : 1);
+			if (!this.isBackSprite) statbarOffset = 17 * slot;
+			if (!this.isBackSprite && !moreActive && this.sp.pixelated) statbarOffset = 15;
+			if (this.isBackSprite) statbarOffset = -7 * slot;
+			if (!this.isBackSprite && moreActive == 2) statbarOffset = 14 * slot - 10;
+		}
+		if (this.scene.gen <= 2) {
+			statbarOffset += this.isBackSprite ? 1 : 20;
+		} else if (this.scene.gen <= 3) {
+			statbarOffset += this.isBackSprite ? 5 : 30;
+		} else {
+			statbarOffset += this.isBackSprite ? 20 : 30;
+		}
+
+		let pos = this.scene.pos({
+			x: this.x,
+			y: this.y,
+			z: this.z
+		}, {
+			w: 0,
+			h: 96
+		});
+		pos.top += 40;
+
+		this.left = pos.left;
+		this.top = pos.top;
+		this.statbarLeft = pos.left - 80;
+		this.statbarTop = pos.top - 73 - statbarOffset;
+
+		if (moreActive) {
+			// make sure element is in the right z-order
+			if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
+				this.$el.prependTo(this.$el.parent());
+			} else {
+				this.$el.appendTo(this.$el.parent());
+			}
+		}
+	}
+	animSummon(pokemon: Pokemon, slot: number, instant?: boolean) {
+		if (!this.scene.animating) return;
+		this.recalculatePos(slot);
+
+		// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
+		if (instant) {
+			this.$el.css('display', 'block');
+			this.animReset();
+			this.resetStatbar(pokemon);
+			if (pokemon.hasVolatile('substitute' as ID)) this.animSub(true);
+			return;
+		}
+		if (this.cryurl) {
+			BattleSound.playEffect(this.cryurl);
+		}
+		this.$el.css(this.scene.pos({
+			display: 'block',
+			x: this.x,
+			y: this.y - 10,
+			z: this.z,
+			scale: 0,
+			opacity: 0,
+		}, this.sp));
+		this.scene.showEffect('pokeball', {
+			opacity: 0,
+			x: this.x,
+			y: this.y + 30,
+			z: this.behind(50),
+			scale: .7
+		}, {
+			opacity: 1,
+			x: this.x,
+			y: this.y - 10,
+			z: this.z,
+			time: 300 / this.scene.acceleration
+		}, 'ballistic2', 'fade');
+		if (this.scene.gen <= 4) {
+			this.delay(this.scene.timeOffset + 300 / this.scene.acceleration).anim({
+				x: this.x,
+				y: this.y,
+				z: this.z,
+				time: 400 / this.scene.acceleration,
+			});
+		} else {
+			this.delay(this.scene.timeOffset + 300 / this.scene.acceleration).anim({
+				x: this.x,
+				y: this.y + 30,
+				z: this.z,
+				time: 400 / this.scene.acceleration,
+			}).anim({
+				x: this.x,
+				y: this.y,
+				z: this.z,
+				time: 300 / this.scene.acceleration,
+			}, 'accel');
+		}
+		if (this.sp.shiny && this.scene.acceleration < 2) BattleOtherAnims.shiny.anim(this.scene, [this]);
+		this.scene.waitFor(this.$el);
+
+		if (pokemon.hasVolatile('substitute' as ID)) this.animSub();
+
+		this.resetStatbar(pokemon, true);
+		this.scene.updateSidebar(pokemon.side);
+		this.$statbar!.css({
+			display: 'block',
+			left: this.statbarLeft,
+			top: this.statbarTop + 20,
+			opacity: 0,
+		});
+		this.$statbar!.delay(300 / this.scene.acceleration).animate({
+			top: this.statbarTop,
+			opacity: 1,
+		}, 400 / this.scene.acceleration);
+
+		this.dogarsCheck(pokemon);
+	}
+	animDragIn(pokemon: Pokemon, slot: number) {
+		if (!this.scene.animating) return;
+		this.recalculatePos(slot);
+
+		// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
+		this.$el.css(this.scene.pos({
+			display: 'block',
+			x: this.leftof(-50),
+			y: this.y,
+			z: this.z,
+			opacity: 0
+		}, this.sp));
+		this.delay(300).anim({
+			x: this.x,
+			y: this.y,
+			z: this.z,
+			time: 400,
+		}, 'decel');
+		if (!!this.scene.animating && this.sp.shiny) BattleOtherAnims.shiny.anim(this.scene, [this]);
+		this.scene.waitFor(this.$el);
+		this.scene.timeOffset = 700;
+
+		this.resetStatbar(pokemon, true);
+		this.scene.updateSidebar(pokemon.side);
+		this.$statbar!.css({
+			display: 'block',
+			left: this.statbarLeft + (this.siden ? -50 : 50),
+			top: this.statbarTop,
+			opacity: 0,
+		});
+		this.$statbar!.delay(300).animate({
+			left: this.statbarLeft,
+			opacity: 1,
+		}, 400);
+
+		this.dogarsCheck(pokemon);
+	}
+	animDragOut(pokemon: Pokemon) {
+		if (!this.scene.animating) return this.animUnsummon(pokemon, true);
+		this.removeSub();
+		this.anim({
+			x: this.leftof(50),
+			y: this.y,
+			z: this.z,
+			opacity: 0,
+			time: 400,
+		}, 'accel');
+
+		this.updateStatbar(pokemon, true);
+		let $statbar = this.$statbar;
+		if ($statbar) {
+			this.$statbar = null;
+			$statbar.animate({
+				left: this.statbarTop + 30,
+				opacity: 0
+			}, 300 / this.scene.acceleration, () => {
+				$statbar!.remove();
+			});
+		}
+	}
+	animUnsummon(pokemon: Pokemon, instant?: boolean) {
+		this.removeSub();
+		if (!this.scene.animating || instant) {
+			this.$el.hide();
+			if (this.$statbar) {
+				this.$statbar.remove();
+				this.$statbar = null;
+			}
+			return;
+		}
+		if (this.scene.gen <= 4) {
+			this.anim({
+				x: this.x,
+				y: this.y - 25,
+				z: this.z,
+				scale: 0,
+				opacity: 0,
+				time: 400 / this.scene.acceleration,
+			});
+		} else {
+			this.anim({
+				x: this.x,
+				y: this.y - 40,
+				z: this.z,
+				scale: 0,
+				opacity: 0,
+				time: 400 / this.scene.acceleration,
+			});
+		}
+		this.scene.showEffect('pokeball', {
+			opacity: 1,
+			x: this.x,
+			y: this.y - 40,
+			z: this.z,
+			scale: .7,
+			time: 300 / this.scene.acceleration,
+		}, {
+			opacity: 0,
+			x: this.x,
+			y: this.y,
+			z: this.behind(50),
+			time: 700 / this.scene.acceleration,
+		}, 'ballistic2');
+		if (this.scene.acceleration < 3) this.scene.wait(600 / this.scene.acceleration);
+
+		this.updateStatbar(pokemon, true);
+		let $statbar = this.$statbar;
+		if ($statbar) {
+			this.$statbar = null;
+			$statbar.animate({
+				left: this.statbarLeft + (this.siden ? 50 : -50),
+				opacity: 0
+			}, 300 / this.scene.acceleration, () => {
+				$statbar!.remove();
+			});
+		}
+	}
+	animFaint(pokemon: Pokemon) {
+		this.removeSub();
+		if (!this.scene.animating) {
+			this.$el.remove();
+			this.$el = null!;
+			if (this.$statbar) {
+				this.$statbar.remove();
+				this.$statbar = null;
+			}
+			return;
+		}
+		this.updateStatbar(pokemon, false, true);
+		this.scene.updateSidebar(pokemon.side);
+		if (this.cryurl) {
+			BattleSound.playEffect(this.cryurl);
+		}
+		this.anim({
+			y: this.y - 80,
+			opacity: 0,
+	}, 'accel');
+		this.scene.waitFor(this.$el);
+		this.$el.promise().done(() => {
+			this.$el.remove();
+			this.$el = null!;
+		});
+
+		let $statbar = this.$statbar;
+		if ($statbar) {
+			this.$statbar = null;
+			$statbar.animate({
+				opacity: 0,
+			}, 300, () => {
+				$statbar!.remove();
+			});
+		}
+	}
+	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
+		if (!this.scene.animating && !isPermanent) return;
+		let sp = Tools.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
+			gen: this.scene.gen,
+		});
+		let oldsp = this.sp;
+		if (isPermanent) {
+			this.oldsp = null;
+		} else if (!this.oldsp) {
+			this.oldsp = oldsp;
+		}
+		this.sp = sp;
+		this.cryurl = sp.cryurl;
+
+		if (!this.scene.animating) return;
+		let speciesid = toId(pokemon.getSpecies());
+		let doCry = false;
+		const scene = this.scene;
+		if (isCustomAnim) {
+			if (speciesid === 'kyogreprimal') {
+				BattleOtherAnims.primalalpha.anim(scene, [this]);
+				doCry = true;
+			} else if (speciesid === 'groudonprimal') {
+				BattleOtherAnims.primalomega.anim(scene, [this]);
+				doCry = true;
+			} else if (speciesid === 'necrozmaultra') {
+				BattleOtherAnims.ultraburst.anim(scene, [this]);
+				doCry = true;
+			} else if (speciesid === 'zygardecomplete') {
+				BattleOtherAnims.powerconstruct.anim(scene, [this]);
+			} else if (speciesid === 'wishiwashischool' || speciesid === 'greninjaash') {
+				BattleOtherAnims.schoolingin.anim(scene, [this]);
+			} else if (speciesid === 'wishiwashi') {
+				BattleOtherAnims.schoolingout.anim(scene, [this]);
+			} else if (speciesid === 'mimikyubusted' || speciesid === 'mimikyubustedtotem') {
+				// standard animation
+			} else {
+				BattleOtherAnims.megaevo.anim(scene, [this]);
+				doCry = true;
+			}
+		}
+		// Constructing here gives us 300ms extra time to preload the new sprite
+		let $newEl = $('<img src="' + sp.url + '" style="display:block;opacity:0;position:absolute"' + (sp.pixelated ? ' class="pixelated"' : '') + ' />');
+		$newEl.css(this.scene.pos({
+			x: this.x,
+			y: this.y,
+			z: this.z,
+			yscale: 0,
+			xscale: 0,
+			opacity: 0,
+		}, sp));
+		this.$el.animate(this.scene.pos({
+			x: this.x,
+			y: this.y,
+			z: this.z,
+			yscale: 0,
+			xscale: 0,
+			opacity: 0.3,
+		}, oldsp), 300, () => {
+			if (this.cryurl && doCry) {
+				BattleSound.playEffect(this.cryurl);
+			}
+			this.$el.replaceWith($newEl);
+			this.$el = $newEl;
+			this.$el.animate(scene.pos({
+				x: this.x,
+				y: this.y,
+				z: this.z,
+				opacity: 1
+			}, sp), 300);
+		});
+		this.scene.wait(500);
+
+		if (isPermanent) {
+			this.scene.updateSidebar(pokemon.side);
+			this.resetStatbar(pokemon);
+		} else {
+			this.updateStatbar(pokemon);
+		}
+	}
+
+	pokeEffect(id: ID) {
+		if (id === 'protect' || id === 'magiccoat') {
+			this.effects[id][0].anim({
+				scale: 1.2,
+				opacity: 1,
+				time: 100,
+			}).anim({
+				opacity: .4,
+				time: 300,
+			});
+		}
+	}
+	addEffect(id: ID, instant?: boolean) {
+		if (id in this.effects) {
+			this.pokeEffect(id);
+			return;
+		}
+		if (id === 'substitute') {
+			this.animSub(instant);
+		} else if (id === 'leechseed') {
+			const pos1 = {
+				display: 'block',
+				x: this.x - 30,
+				y: this.y - 40,
+				z: this.z,
+				scale: .2,
+				opacity: .6,
+			};
+			const pos2 = {
+				display: 'block',
+				x: this.x + 40,
+				y: this.y - 35,
+				z: this.z,
+				scale: .2,
+				opacity: .6,
+			};
+			const pos3 = {
+				display: 'block',
+				x: this.x + 20,
+				y: this.y - 25,
+				z: this.z,
+				scale: .2,
+				opacity: .6,
+			};
+
+			const leechseed1 = new Sprite(BattleEffects.energyball, pos1, this.scene);
+			const leechseed2 = new Sprite(BattleEffects.energyball, pos2, this.scene);
+			const leechseed3 = new Sprite(BattleEffects.energyball, pos3, this.scene);
+			this.scene.$spritesFront[this.siden].append(leechseed1.$el!);
+			this.scene.$spritesFront[this.siden].append(leechseed2.$el!);
+			this.scene.$spritesFront[this.siden].append(leechseed3.$el!);
+			this.effects['leechseed'] = [leechseed1, leechseed2, leechseed3];
+		} else if (id === 'protect' || id === 'magiccoat') {
+			const protect = new Sprite(BattleEffects.protect, {
+				display: 'block',
+				x: this.x,
+				y: this.y,
+				z: this.behind(-15),
+				xscale: 1,
+				yscale: 0,
+				opacity: .1,
+			}, this.scene);
+			this.scene.$spritesFront[this.siden].append(protect.$el!);
+			this.effects[id] = [protect];
+			protect.anim({
+				opacity: .9,
+				time: instant ? 0 : 400,
+			}).anim({
+				opacity: .4,
+				time: instant ? 0 : 300,
+			});
+		}
+	}
+
+	removeEffect(id: ID, instant?: boolean) {
+		if (id === 'formechange') this.removeTransform();
+		if (id === 'substitute') this.animSubFade();
+		if (this.effects[id]) {
+			for (const sprite of this.effects[id]) sprite.destroy();
+			delete this.effects[id];
+		}
+	}
+	clearEffects() {
+		for (const id in this.effects) this.removeEffect(id as ID, true);
+		this.animSubFade(true);
+		this.removeTransform();
+	}
+
+	dogarsCheck(pokemon: Pokemon) {
+		if (pokemon.side.n === 1) return;
+
+		if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) {
+			if (window.forceBgm !== -1) {
+				window.originalBgm = window.bgmNum;
+				window.forceBgm = -1;
+				this.scene.preloadBgm();
+				this.scene.soundStart();
+			}
+		} else if (window.forceBgm === -1) {
+			window.forceBgm = null;
+			if (window.originalBgm || window.originalBgm === 0) {
+				window.forceBgm = window.originalBgm;
+			}
+			this.scene.preloadBgm();
+			this.scene.soundStart();
+		}
+	}
+
+	// Statbar
+	/////////////////////////////////////////////////////////////////////
+
+	getStatbarHTML(pokemon: Pokemon) {
+		let buf = '<div class="statbar' + (this.siden ? ' lstatbar' : ' rstatbar') + '" style="display: none">';
+		buf += '<strong>' + (this.siden && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks) ? pokemon.species : Tools.escapeHTML(pokemon.name));
+		let gender = pokemon.gender;
+		if (gender) buf += ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
+		buf += (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>');
+
+		let symbol = '';
+		if (pokemon.species.indexOf('-Mega') >= 0) symbol = 'mega';
+		else if (pokemon.species === 'Kyogre-Primal') symbol = 'alpha';
+		else if (pokemon.species === 'Groudon-Primal') symbol = 'omega';
+		if (symbol) buf += ' <img src="' + Tools.resourcePrefix + 'sprites/misc/' + symbol + '.png" alt="' + symbol + '" style="vertical-align:text-bottom;" />';
+
+		buf += '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div>';
+		buf += '</div>';
+		return buf;
+	}
+
+	resetStatbar(pokemon: Pokemon, startHidden?: boolean) {
+		if (this.$statbar) {
+			this.$statbar.remove();
+			this.$statbar = null;
+		}
+		this.updateStatbar(pokemon, true);
+		if (!startHidden && this.$statbar) {
+			this.$statbar!.css({
+				display: 'block',
+				left: this.statbarLeft,
+				top: this.statbarTop,
+				opacity: 1,
+			});
+		}
+	}
+
+	updateStatbar(pokemon: Pokemon, updatePrevhp?: boolean, updateHp?: boolean) {
+		if (!this.scene.animating) return;
+		if (!pokemon.isActive()) {
+			if (this.$statbar) this.$statbar.hide();
+			return;
+		}
+		if (!this.$statbar) {
+			this.$statbar = $(this.getStatbarHTML(pokemon));
+			this.scene.$stat.append(this.$statbar);
+			updatePrevhp = true;
+		}
+		let hpcolor;
+		if (updatePrevhp || updateHp) {
+			hpcolor = pokemon.getHPColor();
+			let w = pokemon.hpWidth(150);
+			let $hp = this.$statbar.find('.hp');
+			$hp.css({
+				width: w,
+				'border-right-width': (w ? 1 : 0)
+			});
+			if (hpcolor === 'g') $hp.removeClass('hp-yellow hp-red');
+			else if (hpcolor === 'y') $hp.removeClass('hp-red').addClass('hp-yellow');
+			else $hp.addClass('hp-yellow hp-red');
+			this.updateHPText(pokemon);
+		}
+		if (updatePrevhp) {
+			let $prevhp = this.$statbar.find('.prevhp');
+			$prevhp.css('width', pokemon.hpWidth(150) + 1);
+			if (hpcolor === 'g') $prevhp.removeClass('prevhp-yellow prevhp-red');
+			else if (hpcolor === 'y') $prevhp.removeClass('prevhp-red').addClass('prevhp-yellow');
+			else $prevhp.addClass('prevhp-yellow prevhp-red');
+		}
+		let status = '';
+		if (pokemon.status === 'brn') {
+			status += '<span class="brn">BRN</span> ';
+		} else if (pokemon.status === 'psn') {
+			status += '<span class="psn">PSN</span> ';
+		} else if (pokemon.status === 'tox') {
+			status += '<span class="psn">TOX</span> ';
+		} else if (pokemon.status === 'slp') {
+			status += '<span class="slp">SLP</span> ';
+		} else if (pokemon.status === 'par') {
+			status += '<span class="par">PAR</span> ';
+		} else if (pokemon.status === 'frz') {
+			status += '<span class="frz">FRZ</span> ';
+		}
+		if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[1]) {
+			let types = pokemon.volatiles.typechange[1].split('/');
+			status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[0]) + '.png" alt="' + types[0] + '" /> ';
+			if (types[1]) {
+				status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[1]) + '.png" alt="' + types[1] + '" /> ';
+			}
+		}
+		if (pokemon.volatiles.typeadd) {
+			const type = pokemon.volatiles.typeadd[1];
+			status += '+<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" /> ';
+		}
+		for (const stat in pokemon.boosts) {
+			if (pokemon.boosts[stat]) {
+				status += '<span class="' + pokemon.getBoostType(stat as BoostStatName) + '">' + pokemon.getBoost(stat as BoostStatName) + '</span> ';
+			}
+		}
+		let statusTable = {
+			throatchop: '<span class="bad">Throat&nbsp;Chop</span> ',
+			confusion: '<span class="bad">Confused</span> ',
+			healblock: '<span class="bad">Heal&nbsp;Block</span> ',
+			yawn: '<span class="bad">Drowsy</span> ',
+			flashfire: '<span class="good">Flash&nbsp;Fire</span> ',
+			imprison: '<span class="good">Imprisoning&nbsp;foe</span> ',
+			formechange: '',
+			typechange: '',
+			typeadd: '',
+			autotomize: '<span class="neutral">Lightened</span> ',
+			miracleeye: '<span class="bad">Miracle&nbsp;Eye</span> ',
+			foresight: '<span class="bad">Foresight</span> ',
+			telekinesis: '<span class="neutral">Telekinesis</span> ',
+			transform: '<span class="neutral">Transformed</span> ',
+			powertrick: '<span class="neutral">Power&nbsp;Trick</span> ',
+			curse: '<span class="bad">Curse</span> ',
+			nightmare: '<span class="bad">Nightmare</span> ',
+			attract: '<span class="bad">Attract</span> ',
+			torment: '<span class="bad">Torment</span> ',
+			taunt: '<span class="bad">Taunt</span> ',
+			disable: '<span class="bad">Disable</span> ',
+			embargo: '<span class="bad">Embargo</span> ',
+			ingrain: '<span class="good">Ingrain</span> ',
+			aquaring: '<span class="good">Aqua&nbsp;Ring</span> ',
+			stockpile1: '<span class="good">Stockpile</span> ',
+			stockpile2: '<span class="good">Stockpile&times;2</span> ',
+			stockpile3: '<span class="good">Stockpile&times;3</span> ',
+			perish0: '<span class="bad">Perish&nbsp;now</span>',
+			perish1: '<span class="bad">Perish&nbsp;next&nbsp;turn</span> ',
+			perish2: '<span class="bad">Perish&nbsp;in&nbsp;2</span> ',
+			perish3: '<span class="bad">Perish&nbsp;in&nbsp;3</span> ',
+			airballoon: '<span class="good">Balloon</span> ',
+			leechseed: '<span class="bad">Leech&nbsp;Seed</span> ',
+			encore: '<span class="bad">Encore</span> ',
+			mustrecharge: '<span class="bad">Must&nbsp;recharge</span> ',
+			bide: '<span class="good">Bide</span> ',
+			magnetrise: '<span class="good">Magnet&nbsp;Rise</span> ',
+			smackdown: '<span class="bad">Smack&nbsp;Down</span> ',
+			focusenergy: '<span class="good">Focus&nbsp;Energy</span> ',
+			slowstart: '<span class="bad">Slow&nbsp;Start</span> ',
+			doomdesire: '',
+			futuresight: '',
+			mimic: '<span class="good">Mimic</span> ',
+			watersport: '<span class="good">Water&nbsp;Sport</span> ',
+			mudsport: '<span class="good">Mud&nbsp;Sport</span> ',
+			substitute: '',
+			// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
+			uproar: '<span class="neutral">Uproar</span>',
+			rage: '<span class="neutral">Rage</span>',
+			roost: '<span class="neutral">Landed</span>',
+			protect: '<span class="good">Protect</span>',
+			quickguard: '<span class="good">Quick&nbsp;Guard</span>',
+			wideguard: '<span class="good">Wide&nbsp;Guard</span>',
+			craftyshield: '<span class="good">Crafty&nbsp;Shield</span>',
+			matblock: '<span class="good">Mat&nbsp;Block</span>',
+			helpinghand: '<span class="good">Helping&nbsp;Hand</span>',
+			magiccoat: '<span class="good">Magic&nbsp;Coat</span>',
+			destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
+			snatch: '<span class="good">Snatch</span>',
+			grudge: '<span class="good">Grudge</span>',
+			endure: '<span class="good">Endure</span>',
+			focuspunch: '<span class="neutral">Focusing</span>',
+			shelltrap: '<span class="neutral">Trap&nbsp;set</span>',
+			powder: '<span class="bad">Powder</span>',
+			electrify: '<span class="bad">Electrify</span>',
+			ragepowder: '<span class="good">Rage&nbsp;Powder</span>',
+			followme: '<span class="good">Follow&nbsp;Me</span>',
+			instruct: '<span class="neutral">Instruct</span>',
+			beakblast: '<span class="neutral">Beak&nbsp;Blast</span>',
+			laserfocus: '<span class="good">Laser&nbsp;Focus</span>',
+			spotlight: '<span class="neutral">Spotlight</span>',
+			itemremoved: '',
+			// Gen 1
+			lightscreen: '<span class="good">Light&nbsp;Screen</span>',
+			reflect: '<span class="good">Reflect</span>'
+		} as {[id: string]: string};
+		for (let i in pokemon.volatiles) {
+			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[[' + i + ']]</span>';
+			else status += statusTable[i];
+		}
+		for (let i in pokemon.turnstatuses) {
+			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[[' + i + ']]</span>';
+			else status += statusTable[i];
+		}
+		for (let i in pokemon.movestatuses) {
+			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[[' + i + ']]</span>';
+			else status += statusTable[i];
+		}
+		let statusbar = this.$statbar.find('.status');
+		statusbar.html(status);
+	}
+
+	updateHPText(pokemon: Pokemon) {
+		if (!this.$statbar) return;
+		let $hptext = this.$statbar.find('.hptext');
+		let $hptextborder = this.$statbar.find('.hptextborder');
+		if (pokemon.maxhp === 48 || this.scene.battle.hardcoreMode && pokemon.maxhp === 100) {
+			$hptext.hide();
+			$hptextborder.hide();
+		} else if (this.scene.battle.hardcoreMode) {
+			$hptext.html(pokemon.hp + '/');
+			$hptext.show();
+			$hptextborder.show();
+		} else {
+			$hptext.html(pokemon.hpWidth(100) + '%');
+			$hptext.show();
+			$hptextborder.show();
+		}
+	}
+}
+
+// par: -webkit-filter:  sepia(100%) hue-rotate(373deg) saturate(592%);
+//      -webkit-filter:  sepia(100%) hue-rotate(22deg) saturate(820%) brightness(29%);
+// psn: -webkit-filter:  sepia(100%) hue-rotate(618deg) saturate(285%);
+// brn: -webkit-filter:  sepia(100%) hue-rotate(311deg) saturate(469%);
+// slp: -webkit-filter:  grayscale(100%);
+// frz: -webkit-filter:  sepia(100%) hue-rotate(154deg) saturate(759%) brightness(23%);
+
+// @ts-ignore
+Object.assign($.easing, {
+	ballisticUp(x: number, t: number, b: number, c: number, d: number) {
+		return -3 * x * x + 4 * x;
+	},
+	ballisticDown(x: number, t: number, b: number, c: number, d: number) {
+		x = 1 - x;
+		return 1 - (-3 * x * x + 4 * x);
+	},
+	quadUp(x: number, t: number, b: number, c: number, d: number) {
+		x = 1 - x;
+		return 1 - (x * x);
+	},
+	quadDown(x: number, t: number, b: number, c: number, d: number) {
+		return x * x;
+	}
+});
+
+const BattleSound = new class {
+	effectCache = {} as {[url: string]: any};
+
+	// bgm
+	bgmCache = {} as {[url: string]: any};
+	bgm: any = null!;
+
+	// misc
+	soundPlaceholder = {
+		play: function () { return this; },
+		pause: function () { return this; },
+		stop: function () { return this; },
+		resume: function () { return this; },
+		setVolume: function () { return this; },
+		onposition: function () { return this; }
+	}
+
+	// options
+	effectVolume = 50;
+	bgmVolume = 50;
+	muted = false;
+
+	loadEffect(url: string) {
+		if (this.effectCache[url] && this.effectCache[url] !== this.soundPlaceholder) {
+			return this.effectCache[url];
+		}
+		try {
+			this.effectCache[url] = soundManager.createSound({
+				id: url,
+				url: Tools.resourcePrefix + url,
+				volume: this.effectVolume
+			});
+		} catch (e) {}
+		if (!this.effectCache[url]) {
+			this.effectCache[url] = this.soundPlaceholder;
+		}
+		return this.effectCache[url];
+	}
+	playEffect(url: string) {
+		if (!this.muted) this.loadEffect(url).setVolume(this.effectVolume).play();
+	}
+
+	loadBgm(url: string, loopstart?: number, loopend?: number) {
+		if (this.bgmCache[url]) {
+			if (this.bgmCache[url] !== this.soundPlaceholder || loopstart === undefined) {
+				return this.bgmCache[url];
+			}
+		}
+		try {
+			this.bgmCache[url] = soundManager.createSound({
+				id: url,
+				url: Tools.resourcePrefix + url,
+				volume: this.bgmVolume
+			});
+		} catch (e) {}
+		if (!this.bgmCache[url]) {
+			// couldn't load
+			// suppress crash
+			return (this.bgmCache[url] = this.soundPlaceholder);
+		}
+		this.bgmCache[url].onposition(loopend, function (this: any, evP: any) {
+			this.setPosition(this.position - (loopend! - loopstart!));
+		});
+		return this.bgmCache[url];
+	}
+	playBgm(url: string, loopstart?: number, loopstop?: number) {
+		if (this.bgm === this.loadBgm(url, loopstart, loopstop)) {
+			if (!this.bgm.paused && this.bgm.playState) {
+				return;
+			}
+		} else {
+			this.stopBgm();
+		}
+		try {
+			this.bgm = this.loadBgm(url, loopstart, loopstop).setVolume(this.bgmVolume);
+			if (!this.muted) {
+				if (this.bgm.paused) {
+					this.bgm.resume();
+				} else {
+					this.bgm.play();
+				}
+			}
+		} catch (e) {}
+	}
+	pauseBgm() {
+		if (this.bgm) {
+			this.bgm.pause();
+		}
+	}
+	stopBgm() {
+		if (this.bgm) {
+			this.bgm.stop();
+			this.bgm = null;
+		}
+	}
+
+	// setting
+	setMute(muted: boolean) {
+		muted = !!muted;
+		if (this.muted == muted) return;
+		this.muted = muted;
+		if (muted) {
+			if (this.bgm) this.bgm.pause();
+		} else {
+			if (this.bgm) this.bgm.play();
+		}
+	}
+
+	loudnessPercentToAmplitudePercent(loudnessPercent: number) {
+		// 10 dB is perceived as approximately twice as loud
+		let decibels = 10 * Math.log(loudnessPercent / 100) / Math.log(2);
+		return Math.pow(10, decibels / 20) * 100;
+	}
+	setBgmVolume(bgmVolume: number) {
+		this.bgmVolume = this.loudnessPercentToAmplitudePercent(bgmVolume);
+		if (this.bgm) {
+			try {
+				this.bgm.setVolume(this.bgmVolume);
+			} catch (e) {}
+		}
+	}
+	setEffectVolume(effectVolume: number) {
+		this.effectVolume = this.loudnessPercentToAmplitudePercent(effectVolume);
+	}
+};
+
 interface AnimData {
-	anim(battle: Battle, args: Sprite[]): void;
-	prepareAnim?(battle: Battle, args: Sprite[]): void;
-	residualAnim?(battle: Battle, args: Sprite[]): void;
+	anim(scene: BattleScene, args: PokemonSprite[]): void;
+	prepareAnim?(scene: BattleScene, args: PokemonSprite[]): void;
+	residualAnim?(scene: BattleScene, args: PokemonSprite[]): void;
 	prepareMessage?(pokemon: Pokemon, target: Pokemon): string;
 	multihit?: boolean;
 }
@@ -256,10 +2715,30 @@ var BattleEffects: {[k: string]: SpriteData} = {
 		url: 'hitmarker.png', // by Pokemon Showdown user Ridaz
 		w: 100, h: 100
 	},
-	none: {
-		// this is for passing to battle.pos() and battle.posT() for CSS effects
-		w: 100, h: 100
-	}
+	protect: {
+		rawHTML: '<div class="turnstatus-protect" style="display:none;position:absolute" />',
+		w: 100, h: 70,
+	},
+	auroraveil: {
+		rawHTML: '<div class="sidecondition-auroraveil" style="display:none;position:absolute" />',
+		w: 100, h: 50,
+	},
+	reflect: {
+		rawHTML: '<div class="sidecondition-reflect" style="display:none;position:absolute" />',
+		w: 100, h: 50,
+	},
+	safeguard: {
+		rawHTML: '<div class="sidecondition-safeguard" style="display:none;position:absolute" />',
+		w: 100, h: 50,
+	},
+	lightscreen: {
+		rawHTML: '<div class="sidecondition-lightscreen" style="display:none;position:absolute" />',
+		w: 100, h: 50,
+	},
+	mist: {
+		rawHTML: '<div class="sidecondition-mist" style="display:none;position:absolute" />',
+		w: 100, h: 50,
+	},
 };
 (function () {
 	if (!window.Tools || !Tools.resourcePrefix) return;
@@ -323,6 +2802,20 @@ var BattleBackdrops = [
 ];
 
 const BattleOtherAnims: AnimTable = {
+	hitmark: {
+		anim(battle, [attacker]) {
+			battle.showEffect('hitmark', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 1
+			}, {
+				opacity: 0.5,
+				time: 250
+			}, 'linear', 'fade');
+		}
+	},
 	attack: {
 		anim(battle, [attacker, defender]) {
 			battle.showEffect('wisp', {
@@ -365,7 +2858,7 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.activityWait(500);
+			battle.wait(500);
 		}
 	},
 	xattack: {
@@ -412,7 +2905,7 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.activityWait(800);
+			battle.wait(800);
 		}
 	},
 	slashattack: {
@@ -440,7 +2933,7 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.activityWait(500);
+			battle.wait(500);
 
 			battle.showEffect('rightslash', {
 				x: defender.x,
@@ -500,7 +2993,7 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.activityWait(800);
+			battle.wait(800);
 
 			battle.showEffect('leftclaw', {
 				x: defender.x - 20,
@@ -822,7 +3315,7 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.activityWait(350);
+			battle.wait(350);
 		}
 	},
 	spinattack: {
@@ -850,7 +3343,7 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.activityWait(500);
+			battle.wait(500);
 		}
 	},
 	bound: {
@@ -1500,7 +3993,7 @@ const BattleOtherAnims: AnimTable = {
 				scale: 1,
 				time: 150
 			});
-			battle.activityWait(700);
+			battle.wait(700);
 		}
 	},
 	doomdesirehit: {
@@ -2801,20 +5294,6 @@ const BattleOtherAnims: AnimTable = {
 	}
 };
 var BattleStatusAnims: AnimTable = {
-	hitmark: {
-		anim(battle, [attacker]) {
-			battle.showEffect('hitmark', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 0.5,
-				opacity: 1
-			}, {
-				opacity: 0.5,
-				time: 250
-			}, 'linear', 'fade');
-		}
-	},
 	brn: {
 		anim(battle, [attacker]) {
 			battle.showEffect('fireball', {

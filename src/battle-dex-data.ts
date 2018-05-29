@@ -222,12 +222,6 @@ interface Move extends Effect {
 	readonly type: string;
 	readonly category: string;
 	readonly isZ?: string;
-
-	// TODO: move to different interface
-	readonly anim: Function;
-	readonly residualAnim: Function;
-	readonly prepareAnim: Function;
-	readonly prepareMessage: Function;
 }
 interface Ability extends Effect {
 	readonly effectType: 'Ability';

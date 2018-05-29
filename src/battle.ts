@@ -11,159 +11,8 @@
  * @license MIT
  */
 
-// par: -webkit-filter:  sepia(100%) hue-rotate(373deg) saturate(592%);
-//      -webkit-filter:  sepia(100%) hue-rotate(22deg) saturate(820%) brightness(29%);
-// psn: -webkit-filter:  sepia(100%) hue-rotate(618deg) saturate(285%);
-// brn: -webkit-filter:  sepia(100%) hue-rotate(311deg) saturate(469%);
-// slp: -webkit-filter:  grayscale(100%);
-// frz: -webkit-filter:  sepia(100%) hue-rotate(154deg) saturate(759%) brightness(23%);
-
-// @ts-ignore
-Object.assign($.easing, {
-	ballisticUp(x: number, t: number, b: number, c: number, d: number) {
-		return -3 * x * x + 4 * x;
-	},
-	ballisticDown(x: number, t: number, b: number, c: number, d: number) {
-		x = 1 - x;
-		return 1 - (-3 * x * x + 4 * x);
-	},
-	quadUp(x: number, t: number, b: number, c: number, d: number) {
-		x = 1 - x;
-		return 1 - (x * x);
-	},
-	quadDown(x: number, t: number, b: number, c: number, d: number) {
-		return x * x;
-	}
-});
-
-const BattleSound = new class {
-	effectCache = {} as {[url: string]: any};
-
-	// bgm
-	bgmCache = {} as {[url: string]: any};
-	bgm: any = null!;
-
-	// misc
-	soundPlaceholder = {
-		play: function () { return this; },
-		pause: function () { return this; },
-		stop: function () { return this; },
-		resume: function () { return this; },
-		setVolume: function () { return this; },
-		onposition: function () { return this; }
-	}
-
-	// options
-	effectVolume = 50;
-	bgmVolume = 50;
-	muted = false;
-
-	loadEffect(url: string) {
-		if (this.effectCache[url] && this.effectCache[url] !== this.soundPlaceholder) {
-			return this.effectCache[url];
-		}
-		try {
-			this.effectCache[url] = soundManager.createSound({
-				id: url,
-				url: Tools.resourcePrefix + url,
-				volume: this.effectVolume
-			});
-		} catch (e) {}
-		if (!this.effectCache[url]) {
-			this.effectCache[url] = this.soundPlaceholder;
-		}
-		return this.effectCache[url];
-	}
-	playEffect(url: string) {
-		if (!this.muted) this.loadEffect(url).setVolume(this.effectVolume).play();
-	}
-
-	loadBgm(url: string, loopstart?: number, loopend?: number) {
-		if (this.bgmCache[url]) {
-			if (this.bgmCache[url] !== this.soundPlaceholder || loopstart === undefined) {
-				return this.bgmCache[url];
-			}
-		}
-		try {
-			this.bgmCache[url] = soundManager.createSound({
-				id: url,
-				url: Tools.resourcePrefix + url,
-				volume: this.bgmVolume
-			});
-		} catch (e) {}
-		if (!this.bgmCache[url]) {
-			// couldn't load
-			// suppress crash
-			return (this.bgmCache[url] = this.soundPlaceholder);
-		}
-		this.bgmCache[url].onposition(loopend, function (this: any, evP: any) {
-			this.setPosition(this.position - (loopend! - loopstart!));
-		});
-		return this.bgmCache[url];
-	}
-	playBgm(url: string, loopstart?: number, loopstop?: number) {
-		if (this.bgm === this.loadBgm(url, loopstart, loopstop)) {
-			if (!this.bgm.paused && this.bgm.playState) {
-				return;
-			}
-		} else {
-			this.stopBgm();
-		}
-		try {
-			this.bgm = this.loadBgm(url, loopstart, loopstop).setVolume(this.bgmVolume);
-			if (!this.muted) {
-				if (this.bgm.paused) {
-					this.bgm.resume();
-				} else {
-					this.bgm.play();
-				}
-			}
-		} catch (e) {}
-	}
-	pauseBgm() {
-		if (this.bgm) {
-			this.bgm.pause();
-		}
-	}
-	stopBgm() {
-		if (this.bgm) {
-			this.bgm.stop();
-			this.bgm = null;
-		}
-	}
-
-	// setting
-	setMute(muted: boolean) {
-		muted = !!muted;
-		if (this.muted == muted) return;
-		this.muted = muted;
-		if (muted) {
-			if (this.bgm) this.bgm.pause();
-		} else {
-			if (this.bgm) this.bgm.play();
-		}
-	}
-
-	loudnessPercentToAmplitudePercent(loudnessPercent: number) {
-		// 10 dB is perceived as approximately twice as loud
-		let decibels = 10 * Math.log(loudnessPercent / 100) / Math.log(2);
-		return Math.pow(10, decibels / 20) * 100;
-	}
-	setBgmVolume(bgmVolume: number) {
-		this.bgmVolume = this.loudnessPercentToAmplitudePercent(bgmVolume);
-		if (this.bgm) {
-			try {
-				this.bgm.setVolume(this.bgmVolume);
-			} catch (e) {}
-		}
-	}
-	setEffectVolume(effectVolume: number) {
-		this.effectVolume = this.loudnessPercentToAmplitudePercent(effectVolume);
-	}
-};
-
 /** [id, element?, ...misc] */
-type EffectState = any[] & {0: string, 1: JQuery<HTMLElement> | null};
+type EffectState = any[] & {0: ID};
 /** [name, minTimeLeft, maxTimeLeft] */
 type WeatherState = [string, number, number];
 type EffectTable = {[effectid: string]: EffectState};
@@ -224,7 +73,7 @@ class Pokemon {
 	prevItemEffect = '';
 
 	boosts = {} as {[stat: string]: number};
-	status = '';
+	status: StatusName | 'tox' | '' | '???' = '';
 	statusStage = 0;
 	volatiles = {} as EffectTable;
 	turnstatuses = {} as EffectTable;
@@ -236,9 +85,8 @@ class Pokemon {
 	moveTrack = [] as [string, number][];
 	statusData = {sleepTurns: 0, toxicTurns: 0};
 
-	sprite: Sprite;
+	sprite: PokemonSprite;
 
-	statbarElem: JQuery<HTMLElement> | null = null;
 	constructor(data: any, side: Side) {
 		this.side = side;
 		this.species = data.species;
@@ -246,6 +94,12 @@ class Pokemon {
 		// TODO: stop doing this
 		Object.assign(this, Tools.getTemplate(data.species));
 		Object.assign(this, data);
+
+		this.sprite = side.battle.scene.addPokemonSprite(this);
+	}
+
+	isActive() {
+		return this.side.active.includes(this);
 	}
 
 	getHPColor(): HPColor {
@@ -391,123 +245,30 @@ class Pokemon {
 		return this.ident.substr(0, 2) + slots[this.slot] + this.ident.substr(2);
 	}
 	removeVolatile(volatile: ID) {
+		this.sprite.removeEffect(volatile);
 		if (!this.hasVolatile(volatile)) return;
-		if (volatile === 'formechange') {
-			this.sprite.removeTransform();
-		}
-		if (this.volatiles[volatile][1]) this.volatiles[volatile][1]!.remove();
 		delete this.volatiles[volatile];
 	}
-	addVolatile(volatile: ID) {
+	addVolatile(volatile: ID, ...args: any[]) {
 		let battle = this.side.battle;
 		if (this.hasVolatile(volatile)) return;
-		this.volatiles[volatile] = [volatile, null];
-		if (volatile === 'leechseed') {
-			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.fxPrefix + 'energyball.png" style="display:none;position:absolute" />');
-			let curelem = this.side.battle.spriteElemsFront[this.side.n].children().last();
-			curelem.css(battle.pos({
-				display: 'block',
-				x: this.sprite.x - 30,
-				y: this.sprite.y - 40,
-				z: this.sprite.z,
-				scale: .2,
-				opacity: .6
-			}, BattleEffects.energyball));
-			let elem = curelem;
-
-			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.fxPrefix + 'energyball.png" style="display:none;position:absolute" />');
-			curelem = this.side.battle.spriteElemsFront[this.side.n].children().last();
-			curelem.css(battle.pos({
-				display: 'block',
-				x: this.sprite.x + 40,
-				y: this.sprite.y - 35,
-				z: this.sprite.z,
-				scale: .2,
-				opacity: .6
-			}, BattleEffects.energyball));
-			elem = elem.add(curelem);
-
-			this.side.battle.spriteElemsFront[this.side.n].append('<img src="' + Tools.fxPrefix + 'energyball.png" style="display:none;position:absolute" />');
-			curelem = this.side.battle.spriteElemsFront[this.side.n].children().last();
-			curelem.css(battle.pos({
-				display: 'block',
-				x: this.sprite.x + 20,
-				y: this.sprite.y - 25,
-				z: this.sprite.z,
-				scale: .2,
-				opacity: .6
-			}, BattleEffects.energyball));
-			elem = elem.add(curelem);
-			this.volatiles[volatile][1] = elem;
-		}
+		this.volatiles[volatile] = [volatile, ...args] as EffectState;
+		this.sprite.addEffect(volatile);
 	}
 	hasVolatile(volatile: ID) {
 		return !!this.volatiles[volatile];
 	}
 	removeTurnstatus(volatile: ID) {
+		this.sprite.removeEffect(volatile);
 		if (!this.hasTurnstatus(volatile)) return;
-		if (this.turnstatuses[volatile][1]) this.turnstatuses[volatile][1]!.remove();
 		delete this.turnstatuses[volatile];
 	}
 	addTurnstatus(volatile: ID) {
 		volatile = toId(volatile);
 		let battle = this.side.battle;
-		if (this.hasTurnstatus(volatile)) {
-			if ((volatile === 'protect' || volatile === 'magiccoat') && !battle.fastForward) {
-				this.turnstatuses[volatile][1]!.animate(battle.pos({
-					x: this.sprite.x,
-					y: this.sprite.y,
-					z: this.sprite.behind(-15),
-					xscale: 1 * 1.2,
-					yscale: .7 * 1.2,
-					opacity: 1
-				}, BattleEffects.none), 100).animate(battle.pos({
-					x: this.sprite.x,
-					y: this.sprite.y,
-					z: this.sprite.behind(-15),
-					xscale: 1,
-					yscale: .7,
-					opacity: .4
-				}, BattleEffects.none), 300);
-			}
-			return;
-		}
-		this.turnstatuses[volatile] = [volatile, null];
-		if (volatile === 'protect' || volatile === 'magiccoat') {
-			this.side.battle.spriteElemsFront[this.side.n].append('<div class="turnstatus-protect" style="display:none;position:absolute" />');
-			let elem = this.side.battle.spriteElemsFront[this.side.n].children().last();
-			if (!battle.fastForward) {
-				elem.css(battle.pos({
-					display: 'block',
-					x: this.sprite.x,
-					y: this.sprite.y,
-					z: this.sprite.behind(-15),
-					xscale: 1,
-					yscale: 0,
-					opacity: .1
-				}, BattleEffects.none)).animate(battle.pos({
-					x: this.sprite.x,
-					y: this.sprite.y,
-					z: this.sprite.behind(-15),
-					xscale: 1,
-					yscale: .7,
-					opacity: .9
-				}, BattleEffects.none), 300).animate({
-					opacity: .4
-				}, 300);
-			} else {
-				elem.css(battle.pos({
-					display: 'block',
-					x: this.sprite.x,
-					y: this.sprite.y,
-					z: this.sprite.behind(-15),
-					xscale: 1,
-					yscale: .7,
-					opacity: .4
-				}, BattleEffects.none));
-			}
-			this.turnstatuses[volatile][1] = elem;
-		}
+		this.sprite.addEffect(volatile);
+		if (this.hasTurnstatus(volatile)) return;
+		this.turnstatuses[volatile] = [volatile];
 	}
 	hasTurnstatus(volatile: ID) {
 		return !!this.turnstatuses[volatile];
@@ -519,14 +280,15 @@ class Pokemon {
 		this.turnstatuses = {};
 	}
 	removeMovestatus(volatile: ID) {
+		this.sprite.removeEffect(volatile);
 		if (!this.hasMovestatus(volatile)) return;
-		if (this.movestatuses[volatile][1]) this.movestatuses[volatile][1]!.remove();
 		delete this.movestatuses[volatile];
 	}
 	addMovestatus(volatile: ID) {
 		volatile = toId(volatile);
 		if (this.hasMovestatus(volatile)) return;
-		this.movestatuses[volatile] = [volatile, null];
+		this.movestatuses[volatile] = [volatile];
+		this.sprite.addEffect(volatile);
 	}
 	hasMovestatus(volatile: ID) {
 		return !!this.movestatuses[volatile];
@@ -538,12 +300,10 @@ class Pokemon {
 		this.movestatuses = {};
 	}
 	clearVolatiles() {
-		for (let id in this.volatiles) {
-			this.removeVolatile(id as ID);
-		}
 		this.volatiles = {};
 		this.clearTurnstatuses();
 		this.clearMovestatuses();
+		this.sprite.clearEffects();
 	}
 	markMove(moveName: string, pp?: number, recursionSource?: string) {
 		if (recursionSource === this.ident) return;
@@ -553,7 +313,7 @@ class Pokemon {
 		if (this.volatiles.transform) {
 			// make sure there is no infinite recursion if both Pokemon are transformed into each other
 			if (!recursionSource) recursionSource = this.ident;
-			this.volatiles.transform[2].markMove(moveName, 0, recursionSource);
+			this.volatiles.transform[1].markMove(moveName, 0, recursionSource);
 			moveName = '*' + moveName;
 		}
 		for (let i = 0; i < this.moveTrack.length; i++) {
@@ -684,32 +444,36 @@ class Pokemon {
 		//this.lastMove = '';
 		this.statusStage = 0;
 	}
+	/**
+	 * copyAll = false means Baton Pass,
+	 * copyAll = true means Illusion breaking
+	 */
 	copyVolatileFrom(pokemon: Pokemon, copyAll?: boolean) {
 		this.boosts = pokemon.boosts;
 		this.volatiles = pokemon.volatiles;
 		//this.lastMove = pokemon.lastMove; // I think
 		if (!copyAll) {
-			this.removeVolatile('airballoon' as ID);
-			this.removeVolatile('attract' as ID);
-			this.removeVolatile('autotomize' as ID);
-			this.removeVolatile('disable' as ID);
-			this.removeVolatile('encore' as ID);
-			this.removeVolatile('foresight' as ID);
-			this.removeVolatile('imprison' as ID);
-			this.removeVolatile('mimic' as ID);
-			this.removeVolatile('miracleeye' as ID);
-			this.removeVolatile('nightmare' as ID);
-			this.removeVolatile('smackdown' as ID);
-			this.removeVolatile('stockpile1' as ID);
-			this.removeVolatile('stockpile2' as ID);
-			this.removeVolatile('stockpile3' as ID);
-			this.removeVolatile('torment' as ID);
-			this.removeVolatile('typeadd' as ID);
-			this.removeVolatile('typechange' as ID);
-			this.removeVolatile('yawn' as ID);
+			delete this.volatiles['airballoon'];
+			delete this.volatiles['attract'];
+			delete this.volatiles['autotomize'];
+			delete this.volatiles['disable'];
+			delete this.volatiles['encore'];
+			delete this.volatiles['foresight'];
+			delete this.volatiles['imprison'];
+			delete this.volatiles['mimic'];
+			delete this.volatiles['miracleeye'];
+			delete this.volatiles['nightmare'];
+			delete this.volatiles['smackdown'];
+			delete this.volatiles['stockpile1'];
+			delete this.volatiles['stockpile2'];
+			delete this.volatiles['stockpile3'];
+			delete this.volatiles['torment'];
+			delete this.volatiles['typeadd'];
+			delete this.volatiles['typechange'];
+			delete this.volatiles['yawn'];
 		}
-		this.removeVolatile('transform' as ID);
-		this.removeVolatile('formechange' as ID);
+		delete this.volatiles['transform'];
+		delete this.volatiles['formechange'];
 
 		pokemon.boosts = {};
 		pokemon.volatiles = {};
@@ -717,12 +481,10 @@ class Pokemon {
 		pokemon.statusStage = 0;
 	}
 	copyTypesFrom(pokemon: Pokemon) {
-		this.addVolatile('typechange' as ID);
 		const [types, addedType] = pokemon.getTypes();
-		this.volatiles.typechange[2] = types.join('/');
+		this.addVolatile('typechange' as ID, types.join('/'));
 		if (addedType) {
-			this.addVolatile('typeadd' as ID);
-			this.volatiles.typeadd[2] = addedType;
+			this.addVolatile('typeadd' as ID, addedType);
 		} else {
 			this.removeVolatile('typeadd' as ID);
 		}
@@ -730,7 +492,7 @@ class Pokemon {
 	getTypes(): [string[], string] {
 		let types;
 		if (this.volatiles.typechange) {
-			types = this.volatiles.typechange[2].split('/');
+			types = this.volatiles.typechange[1].split('/');
 		} else {
 			const species = this.getSpecies();
 			types = (
@@ -741,11 +503,11 @@ class Pokemon {
 			if (types) types = types.split('/');
 			if (!types) types = Tools.getTemplate(species).types || [];
 		}
-		const addedType = (this.volatiles.typeadd ? this.volatiles.typeadd[2] : '');
+		const addedType = (this.volatiles.typeadd ? this.volatiles.typeadd[1] : '');
 		return [types, addedType];
 	}
-	getSpecies() {
-		return this.volatiles.formechange ? this.volatiles.formechange[2]: this.species;
+	getSpecies(): string {
+		return this.volatiles.formechange ? this.volatiles.formechange[1]: this.species;
 	}
 	reset() {
 		this.clearVolatile();
@@ -793,638 +555,18 @@ class Pokemon {
 	}
 }
 
-interface ScenePos {
-	x?: number,
-	y?: number,
-	z?: number,
-	scale?: number,
-	xscale?: number,
-	yscale?: number,
-	opacity?: number,
-	time?: number,
-	display?: string,
-}
-
-class Sprite {
-	battle: Battle;
-	siden: number;
-	forme = '';
-	elem: JQuery<HTMLElement> | null = null;
-	cryurl: string | undefined = undefined;
-	sp: SpriteData;
-	subsp: SpriteData | null = null;
-	oldsp: SpriteData | null = null;
-	subElem: JQuery<HTMLElement> | null = null;
-	iw: number;
-	ih: number;
-	w = 0;
-	h = 0;
-	x: number;
-	y: number;
-	z: number;
-	statbarOffset = 0;
-	top: number;
-	left: number;
-	isBackSprite: boolean;
-	duringMove = false;
-	isMissedPokemon = false;
-	constructor(spriteData: SpriteData, x: number, y: number, z: number, battle: Battle, siden: number) {
-		this.battle = battle;
-		this.siden = siden;
-
-		let sp = null;
-		if (spriteData) {
-			sp = spriteData;
-			battle.spriteElems[siden].append('<img src="' + sp.url + '" style="display:none;position:absolute"' + (sp.pixelated ? ' class="pixelated"' : '') + ' />');
-			this.elem = battle.spriteElems[siden].children().last();
-			this.cryurl = spriteData.cryurl;
-		} else {
-			sp = {
-				w: 0,
-				h: 0,
-				url: ''
-			};
-		}
-		this.sp = sp;
-		let pos = battle.pos({
-			x: x,
-			y: y,
-			z: z
-		}, {
-			w: 0,
-			h: 96
-		});
-
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.iw = sp.w;
-		this.ih = sp.h;
-		this.top = pos.top;
-		this.left = pos.left;
-		this.isBackSprite = !siden;
-
-		if (!spriteData) {
-			this.delay = function () { return this; };
-			this.anim = () => {};
-		}
-	}
-
-	forceReset() {
-		// I can rant for ages about how jQuery sucks, necessitating this function
-		// The short version is: after calling elem.finish() on an animating
-		// element, there appear to be a grand total of zero ways to hide it
-		// afterwards. I've tried `elem.css('display', 'none')`, `elem.hide()`,
-		// `elem.hide(1)`, `elem.hide(1000)`, `elem.css('opacity', 0)`,
-		// `elem.animate({opacity: 0}, 1000)`.
-		// They literally all do nothing, and the element retains
-		// a style attribute containing `display: inline-block` and `opacity: 1`
-		// Only forcibly removing the element from the DOM actually makes it
-		// disappear, so that's what we do.
-		if (this.elem) {
-			this.elem.remove();
-			this.battle.spriteElems[this.siden].append('<img src="' + this.sp.url + '" style="display:none;position:absolute"' + (this.sp.pixelated ? ' class="pixelated"' : '') + ' />');
-			this.elem = this.battle.spriteElems[this.siden].children().last();
-		}
-	}
-	behindx(offset: number) {
-		return this.x + (this.isBackSprite ? -1 : 1) * offset;
-	}
-	behindy(offset: number) {
-		return this.y + (this.isBackSprite ? 1 : -1) * offset;
-	}
-	leftof(offset: number) {
-		return this.x + (this.isBackSprite ? -1 : 1) * offset;
-	}
-	behind(offset: number) {
-		return this.z + (this.isBackSprite ? -1 : 1) * offset;
-	}
-	animTransform(pokemon: Pokemon, isCustomAnim?: boolean) {
-		if (!this.oldsp) this.oldsp = this.sp;
-		let speciesid = toId(pokemon.getSpecies());
-		let sp = Tools.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
-			afd: this.battle.tier === "[Seasonal] Fools Festival",
-			gen: this.battle.gen
-		});
-		this.cryurl = sp.cryurl;
-		let doCry = false;
-		this.sp = sp;
-		let battle = this.battle;
-		if (battle.fastForward) {
-			if (!this.elem) return;
-			this.elem.attr('src', sp.url);
-			this.elem.css(battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.z,
-				opacity: 1
-			}, sp));
-			return;
-		}
-		if (isCustomAnim) {
-			if (speciesid === 'kyogreprimal') {
-				BattleOtherAnims.primalalpha.anim(battle, [this]);
-				doCry = true;
-			} else if (speciesid === 'groudonprimal') {
-				BattleOtherAnims.primalomega.anim(battle, [this]);
-				doCry = true;
-			} else if (speciesid === 'necrozmaultra') {
-				BattleOtherAnims.ultraburst.anim(battle, [this]);
-				doCry = true;
-			} else if (speciesid === 'zygardecomplete') {
-				BattleOtherAnims.powerconstruct.anim(battle, [this]);
-			} else if (speciesid === 'wishiwashischool' || speciesid === 'greninjaash') {
-				BattleOtherAnims.schoolingin.anim(battle, [this]);
-			} else if (speciesid === 'wishiwashi') {
-				BattleOtherAnims.schoolingout.anim(battle, [this]);
-			} else if (speciesid === 'mimikyubusted' || speciesid === 'mimikyubustedtotem') {
-				// standard animation
-			} else {
-				BattleOtherAnims.megaevo.anim(battle, [this]);
-				doCry = true;
-			}
-		}
-		this.elem.animate(this.battle.pos({
-			x: this.x,
-			y: this.y,
-			z: this.z,
-			yscale: 0,
-			xscale: 0,
-			opacity: 0.3
-		}, this.oldsp), 300, () => {
-			if (this.cryurl && doCry) {
-				//this.battle.logConsole('cry: ' + this.cryurl);
-				BattleSound.playEffect(this.cryurl);
-			}
-			this.elem.attr('src', sp.url);
-			this.elem.animate(battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.z,
-				opacity: 1
-			}, sp), 300);
-		});
-		this.battle.activityWait(500);
-	}
-	destroy() {
-		if (this.elem) this.elem.remove();
-		if (this.subElem) this.subElem.remove();
-		delete this.battle;
-	}
-	removeTransform() {
-		if (this.oldsp) {
-			let sp = this.oldsp;
-			this.cryurl = sp.cryurl;
-			this.sp = sp;
-			this.oldsp = null;
-			this.elem.attr('src', sp.url);
-			this.elem.css(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: (this.subElem ? this.behind(30) : this.z),
-				opacity: (this.subElem ? .3 : 1)
-			}, sp));
-		}
-	}
-	animSub(instant?: boolean) {
-		let subsp = Tools.getSpriteData('substitute', this.siden, {
-			afd: this.battle.tier === "[Seasonal] Fools Festival",
-			gen: this.battle.gen
-		});
-		this.subsp = subsp;
-		this.iw = subsp.w;
-		this.ih = subsp.h;
-		this.battle.spriteElemsFront[this.siden].append('<img src="' + subsp.url + '" style="display:none;position:absolute"' + (subsp.pixelated ? ' class="pixelated"' : '') + ' />');
-		this.subElem = this.battle.spriteElemsFront[this.siden].children().last();
-
-		//temp//this.subElem.css({position: 'absolute', display: 'block'});
-		this.subElem.css({
-			position: 'absolute',
-			opacity: 0,
-			display: 'block'
-		});
-		if (instant || this.battle.fastForward) {
-			this.subElem.css(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.z,
-				opacity: 1
-			}, subsp));
-			this.animReset();
-			return;
-		}
-		this.selfAnim({time: 500});
-		this.subElem.css(this.battle.pos({
-			x: this.x,
-			y: this.y + 50,
-			z: this.z,
-			opacity: 0
-		}, subsp));
-		this.subElem.animate(this.battle.pos({
-			x: this.x,
-			y: this.y,
-			z: this.z
-		}, subsp), 500);
-		this.battle.activityWait(this.subElem);
-	}
-	animSubFade() {
-		if (!this.subElem) return;
-		if (this.battle.activityDelay) {
-			this.elem.delay(this.battle.activityDelay);
-			this.subElem.delay(this.battle.activityDelay);
-		}
-		if (this.battle.fastForward) {
-			this.subElem.remove();
-		} else {
-			this.subElem.animate(this.battle.pos({
-				x: this.x,
-				y: this.y - 50,
-				z: this.z,
-				opacity: 0
-			}, this.subsp), 500);
-		}
-
-		this.subElem = null;
-		this.selfAnim({time: 500});
-		this.iw = this.sp.w;
-		this.ih = this.sp.h;
-		if (!this.battle.fastForward) this.battle.activityWait(this.elem);
-	}
-	beforeMove() {
-		if (this.subElem && !this.duringMove && !this.battle.fastForward) {
-			this.duringMove = true;
-			this.selfAnim({time: 300});
-			this.subElem.animate(this.battle.pos({
-				x: this.leftof(-50),
-				y: this.y,
-				z: this.z,
-				opacity: 0.5
-			}, this.subsp), 300);
-			if (this.battle.sides[this.isBackSprite ? 1 : 0].active[0]) {
-				this.battle.sides[this.isBackSprite ? 1 : 0].active[0]!.sprite.delay(300);
-			}
-			this.battle.animationDelay = 500;
-			this.battle.activityWait(this.elem);
-
-			return true;
-		}
-		return false;
-	}
-	afterMove() {
-		if (this.subElem && this.duringMove && !this.battle.fastForward) {
-			this.subElem.delay(300);
-			this.duringMove = false;
-			this.elem.add(this.subElem).promise().done(() => {
-				if (!this.subElem || !this.elem) return;
-				this.selfAnim({time: 300});
-				this.subElem.animate(this.battle.pos({
-					x: this.x,
-					y: this.y,
-					z: this.z,
-					opacity: 1
-				}, this.subsp), 300);
-			});
-			return true;
-		}
-		this.duringMove = false;
-		return false;
-	}
-	removeSub() {
-		if (this.subElem) {
-			if (this.battle.fastForward) {
-				this.subElem.remove();
-			} else {
-				let temp = this.subElem;
-				this.subElem.animate({
-					opacity: 0
-				}, () => {
-					temp.remove();
-				});
-			}
-			this.subElem = null;
-		}
-	}
-	animReset() {
-		if (this.subElem) {
-			this.elem.stop(true, false);
-			this.subElem.stop(true, false);
-			this.elem.css(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.behind(30),
-				opacity: .3
-			}, this.sp));
-			this.subElem.css(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.z
-			}, this.subsp));
-		} else {
-			this.elem.stop(true, false);
-			this.elem.css(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.z
-			}, this.sp));
-		}
-	}
-	recalculatePos(slot: number) {
-		let moreActive = 0;
-		if (this.battle.gameType === 'doubles') moreActive = 1;
-		if (this.battle.gameType === 'triples') moreActive = 2;
-		if (!Tools.prefs('nopastgens') && this.battle.gen <= 4 && moreActive) {
-			this.x = (slot - 0.52) * (this.isBackSprite ? -1 : 1) * -55;
-			this.y = (this.isBackSprite ? -1 : 1) + 1;
-			this.statbarOffset = 0;
-			if (!this.isBackSprite) this.statbarOffset = 30 * slot;
-			if (this.isBackSprite) this.statbarOffset = -28 * slot;
-		} else {
-			switch (moreActive) {
-			case 0:
-				this.x = 0;
-				break;
-			case 1:
-				if (this.sp.pixelated) {
-					this.x = (slot * -100 + 18) * (this.isBackSprite ? -1 : 1);
-				} else {
-					this.x = (slot * -75 + 18) * (this.isBackSprite ? -1 : 1);
-				}
-				break;
-			case 2:
-				this.x = (slot * -70 + 20) * (this.isBackSprite ? -1 : 1);
-				break;
-			}
-			this.y = (slot * 10) * (this.isBackSprite ? -1 : 1);
-			if (!this.isBackSprite) this.statbarOffset = 17 * slot;
-			if (!this.isBackSprite && !moreActive && this.sp.pixelated) this.statbarOffset = 15;
-			if (this.isBackSprite) this.statbarOffset = -7 * slot;
-			if (!this.isBackSprite && moreActive == 2) this.statbarOffset = 14 * slot - 10;
-		}
-		if (this.battle.gen <= 2) {
-			this.statbarOffset += this.isBackSprite ? 1 : 20;
-		} else if (this.battle.gen <= 3) {
-			this.statbarOffset += this.isBackSprite ? 5 : 30;
-		} else {
-			this.statbarOffset += this.isBackSprite ? 20 : 30;
-		}
-	}
-	animSummon(slot: number, instant?: boolean) {
-		this.recalculatePos(slot);
-
-		// make sure element is in the right z-order
-		if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
-			this.elem.prependTo(this.elem.parent());
-		} else {
-			this.elem.appendTo(this.elem.parent());
-		}
-
-		let pos = this.battle.pos(this, {
-			w: 0,
-			h: 96
-		});
-		this.top = parseInt(pos.top + 40, 10);
-		this.left = parseInt(pos.left, 10);
-
-		this.anim();
-		this.w = this.sp.w;
-		this.h = this.sp.h;
-		this.elem.css({
-			// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
-			position: 'absolute',
-			display: 'block'
-		});
-		if (this.battle.fastForward || instant) {
-			this.elem.css(this.battle.pos({
-				opacity: 1,
-				x: this.x,
-				y: this.y,
-				z: this.z
-			}, this.sp));
-			return;
-		}
-		if (this.cryurl) {
-			//this.battle.logConsole('cry: ' + this.cryurl);
-			BattleSound.playEffect(this.cryurl);
-		}
-		this.elem.css(this.battle.pos({
-			x: this.x,
-			y: this.y - 10,
-			z: this.z,
-			scale: 0,
-			opacity: 0
-		}, this.sp));
-		this.battle.showEffect('pokeball', {
-			opacity: 0,
-			x: this.x,
-			y: this.y + 30,
-			z: this.behind(50),
-			scale: .7
-		}, {
-			opacity: 1,
-			x: this.x,
-			y: this.y - 10,
-			z: this.z,
-			time: 300 / this.battle.acceleration
-		}, 'ballistic2', 'fade');
-		if (this.battle.gen <= 4) {
-			this.elem.delay(this.battle.animationDelay + 300 / this.battle.acceleration).animate(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.z
-			}, this.sp), 400 / this.battle.acceleration).animate(this.battle.posT({
-				x: this.x,
-				y: this.y,
-				z: this.z
-			}, this.sp, 'accel'), 300 / this.battle.acceleration);
-		} else {
-			this.elem.delay(this.battle.animationDelay + 300 / this.battle.acceleration).animate(this.battle.pos({
-				x: this.x,
-				y: this.y + 30,
-				z: this.z
-			}, this.sp), 400 / this.battle.acceleration).animate(this.battle.posT({
-				x: this.x,
-				y: this.y,
-				z: this.z
-			}, this.sp, 'accel'), 300 / this.battle.acceleration);
-		}
-		if (this.sp.shiny && this.battle.acceleration < 2) BattleOtherAnims.shiny.anim(this.battle, [this]);
-		this.battle.activityWait(this.elem);
-	}
-	animDragIn(slot: number) {
-		if (this.battle.fastForward) return this.animSummon(slot, true);
-
-		this.recalculatePos(slot);
-
-		// make sure element is in the right z-order
-		if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
-			this.elem.prependTo(this.elem.parent());
-		} else {
-			this.elem.appendTo(this.elem.parent());
-		}
-
-		let pos = this.battle.pos(this, {
-			w: 0,
-			h: 96
-		});
-		this.top = Math.floor(pos.top + 40);
-		this.left = Math.floor(pos.left);
-
-		this.anim();
-		this.elem.css({
-			// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
-			position: 'absolute',
-			opacity: 0,
-			display: 'block'
-		});
-		this.elem.css(this.battle.pos({
-			x: this.leftof(-50),
-			y: this.y,
-			z: this.z,
-			opacity: 0
-		}, this.sp));
-		this.elem.delay(300).animate(this.battle.posT({
-			x: this.x,
-			y: this.y,
-			z: this.z
-		}, this.sp, 'decel'), 400);
-		if (!this.battle.fastForward && this.sp.shiny) BattleOtherAnims.shiny.anim(this.battle, [this]);
-		this.w = this.sp.w;
-		this.h = this.sp.h;
-		this.battle.activityWait(this.elem);
-		this.battle.animationDelay = 700;
-	}
-	animDragOut() {
-		this.removeSub();
-		if (this.battle.fastForward) return this.animUnsummon(true);
-		this.elem.animate(this.battle.posT({
-			x: this.leftof(50),
-			y: this.y,
-			z: this.z,
-			opacity: 0
-		}, this.sp, 'accel'), 400);
-	}
-	animUnsummon(instant?: boolean) {
-		this.removeSub();
-		if (this.battle.fastForward || instant) {
-			this.elem.hide();
-			return;
-		}
-		if (this.battle.gen <= 4) {
-			this.anim({
-				x: this.x,
-				y: this.y - 25,
-				z: this.z,
-				scale: 0,
-				opacity: 0,
-				time: 400 / this.battle.acceleration
-			});
-		} else {
-			this.anim({
-				x: this.x,
-				y: this.y - 40,
-				z: this.z,
-				scale: 0,
-				opacity: 0,
-				time: 400 / this.battle.acceleration
-			});
-		}
-		this.battle.showEffect('pokeball', {
-			opacity: 1,
-			x: this.x,
-			y: this.y - 40,
-			z: this.z,
-			scale: .7,
-			time: 300 / this.battle.acceleration
-		}, {
-			opacity: 0,
-			x: this.x,
-			y: this.y,
-			z: this.behind(50),
-			time: 700 / this.battle.acceleration
-		}, 'ballistic2');
-		if (this.battle.acceleration < 3) this.battle.animationDelay += 600 / this.battle.acceleration;
-	}
-	animFaint() {
-		this.removeSub();
-		if (this.battle.fastForward) {
-			this.elem.remove();
-			this.elem = null;
-			return;
-		}
-		if (this.cryurl) {
-			//this.battle.logConsole('cry: ' + this.cryurl);
-			BattleSound.playEffect(this.cryurl);
-		}
-		this.anim({
-			y: this.y - 80,
-			opacity: 0
-		}, 'accel');
-		this.battle.activityWait(this.elem);
-		this.elem.promise().done(() => {
-			this.elem.remove();
-			this.elem = null;
-		});
-	}
-	delay(time: number) {
-		this.elem.delay(time);
-		if (this.subElem) {
-			this.subElem.delay(time);
-		}
-		return this;
-	}
-	selfAnim(end?: ScenePos, transition?: string) {
-		if (!end) return;
-		end = {
-			x: this.x,
-			y: this.y,
-			z: this.z,
-			scale: 1,
-			opacity: 1,
-			time: 500,
-			...end,
-		}
-		if (this.subElem && !this.duringMove) {
-			end.z += (this.isBackSprite ? -1 : 1) * 30;
-			end.opacity *= .3;
-		}
-		if (this.battle.fastForward) {
-			this.elem.css(this.battle.pos(end, this.sp));
-			return;
-		}
-		this.elem.animate(this.battle.posT(end, this.sp, transition, this), end.time);
-	}
-	anim(end?: ScenePos, transition?: string) {
-		if (!end) return;
-		end = {
-			x: this.x,
-			y: this.y,
-			z: this.z,
-			scale: 1,
-			opacity: 1,
-			time: 500,
-			...end,
-		};
-		if (this.subElem && !this.duringMove) {
-			this.subElem.animate(this.battle.posT(end, this.subsp, transition, this), end.time);
-		} else {
-			this.elem.animate(this.battle.posT(end, this.sp, transition, this), end.time);
-		}
-	}
-}
-
 class Side {
 	battle: Battle;
 	name = '';
 	id = '';
-	initialized = false;
 	n: number;
 	foe: Side = null!;
 	spriteid: string | number = 262;
 	totalPokemon = 6;
-	x: number;
-	y: number;
-	z: number;
-	missedPokemon: Pokemon;
+	x = 0;
+	y = 0;
+	z = 0;
+	missedPokemon: Pokemon = null!;
 
 	wisher: Pokemon | null = null;
 
@@ -1432,24 +574,13 @@ class Side {
 	lastPokemon = null as Pokemon | null;
 	pokemon = [] as Pokemon[];
 
-	sideConditions = {} as EffectTable;
+	/** [effectName, levels, minDuration, maxDuration] */
+	sideConditions = {} as {[id: string]: [string, number, number, number]};
 
 	constructor(battle: Battle, n: number) {
 		this.battle = battle;
 		this.n = n;
-		if (n == 0) {
-			this.x = 0;
-			this.y = 0;
-			this.z = 0;
-		} else {
-			this.x = 0;
-			this.y = 0;
-			this.z = 200;
-		}
-		this.missedPokemon = {
-			sprite: new Sprite(null!, this.leftof(-100), this.y, this.z, this.battle, this.n)
-		} as Pokemon;
-		this.missedPokemon.sprite.isMissedPokemon = true;
+		this.updateSprites();
 	}
 
 	rollTrainerSprites() {
@@ -1471,29 +602,30 @@ class Side {
 	}
 
 	reset() {
+		for (const pokemon of this.pokemon) pokemon.destroy();
 		this.pokemon = [];
+		for (let i = 0; i < this.active.length; i++) this.active[i] = null;
 		this.updateSprites();
 		this.sideConditions = {};
 	}
 	updateSprites() {
 		this.z = (this.n ? 200 : 0);
-		this.missedPokemon.sprite.destroy();
+		if (this.missedPokemon) {
+			this.missedPokemon.sprite.destroy();
+		}
 		this.missedPokemon = {
-			sprite: new Sprite(null, this.leftof(-100), this.y, this.z, this.battle, this.n)
+			sprite: new PokemonSprite(null, {
+				x: this.leftof(-100),
+				y: this.y,
+				z: this.z,
+				opacity: 0,
+			},
+			this.battle.scene, this.n)
 		} as Pokemon;
 		this.missedPokemon.sprite.isMissedPokemon = true;
-		for (let i = 0; i < this.pokemon.length; i++) {
-			let poke = this.pokemon[i];
-			poke.sprite.destroy();
-			poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {
-				afd: this.battle.tier === "[Seasonal] Fools Festival",
-				gen: this.battle.gen
-			}), this.x, this.y, this.z, this.battle, this.n);
-		}
 	}
-	setSprite(spriteid: string) {
+	setAvatar(spriteid: string) {
 		this.spriteid = spriteid;
-		this.updateSidebar();
 	}
 	setName(name: string, spriteid?: string | number) {
 		if (name) this.name = (name || '');
@@ -1504,11 +636,6 @@ class Side {
 			this.rollTrainerSprites();
 			if (this.foe && this.spriteid === this.foe.spriteid) this.rollTrainerSprites();
 		}
-		this.initialized = true;
-		if (!name) {
-			this.initialized = false;
-		}
-		this.updateSidebar();
 		if (this.battle.stagnateCallback) this.battle.stagnateCallback(this.battle);
 	}
 	getTeamName() {
@@ -1519,324 +646,68 @@ class Side {
 		if (this === this.battle.mySide) return "your team";
 		return "the opposing team";
 	}
-	updateSidebar() {
-		if (this.battle.fastForward) return;
-		let pokemonhtml = '';
-		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
-		for (let i = 0; i < 6 || i < this.pokemon.length; i++) {
-			let poke = this.pokemon[i];
-			if (i >= this.totalPokemon) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-none') + '"></span>';
-			} else if (noShow && poke && poke.fainted) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-fainted') + '" title="Fainted" aria-label="Fainted"></span>';
-			} else if (noShow && poke && poke.status) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-statused') + '" title="Status" aria-label="Statused"></span>';
-			} else if (noShow) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Non-statused" aria-label="Non-statused"></span>';
-			} else if (!poke) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Not revealed" aria-label="Not revealed"></span>';
-			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < this.pokemon.length) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !this.n) + ';opacity:0.6" title="' + poke.getFullName(true) + '" aria-label="' + poke.getFullName(true) + '"></span>';
-			} else {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !this.n) + '" title="' + poke.getFullName(true) + '" aria-label="' + poke.getFullName(true) + '"></span>';
-			}
-			if (i % 3 === 2) pokemonhtml += '</div><div class="teamicons">';
-		}
-		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
-		if (this.n === 1) {
-			if (this.initialized) {
-				this.battle.rightbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(this.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(this.spriteid) + ')"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity', 1);
-			} else {
-				this.battle.rightbarElem.find('.trainer').css('opacity', 0.4);
-			}
-		} else {
-			if (this.initialized) {
-				this.battle.leftbarElem.html('<div class="trainer"><strong>' + Tools.escapeHTML(this.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(this.spriteid) + ')"></div>' + pokemonhtml + '</div>').find('.trainer').css('opacity', 1);
-			} else {
-				this.battle.leftbarElem.find('.trainer').css('opacity', 0.4);
-			}
-		}
-	}
 	addSideCondition(effect: Effect) {
 		let elem, curelem;
 		let condition = effect.id;
 		if (this.sideConditions[condition]) {
 			if (condition === 'spikes' || condition === 'toxicspikes') {
-				this.sideConditions[condition][2]++;
-				if (condition === 'spikes' && this.sideConditions[condition][2] == 2) {
-					this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
-					curelem = this.battle.spriteElemsFront[this.n].children().last();
-					curelem.css(this.battle.pos({
-						display: 'block',
-						x: this.x + 50,
-						y: this.y - 40,
-						z: this.z,
-						scale: .3
-					}, BattleEffects.caltrop));
-					this.sideConditions['spikes'][1] = this.sideConditions['spikes'][1]!.add(curelem);
-				} else if (condition === 'spikes') {
-					this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
-					curelem = this.battle.spriteElemsFront[this.n].children().last();
-					curelem.css(this.battle.pos({
-						display: 'block',
-						x: this.x + 30,
-						y: this.y - 45,
-						z: this.z,
-						scale: .3
-					}, BattleEffects.caltrop));
-					this.sideConditions['spikes'][1] = this.sideConditions['spikes'][1]!.add(curelem);
-				} else if (condition === 'toxicspikes') {
-					this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.poisoncaltrop.url + '" style="display:none;position:absolute" />');
-					curelem = this.battle.spriteElemsFront[this.n].children().last();
-					curelem.css(this.battle.pos({
-						display: 'block',
-						x: this.x - 15,
-						y: this.y - 35,
-						z: this.z,
-						scale: .3
-					}, BattleEffects.poisoncaltrop));
-					this.sideConditions['toxicspikes'][1] = this.sideConditions['toxicspikes'][1]!.add(curelem);
-				}
+				this.sideConditions[condition][1]++;
 			}
+			this.battle.scene.addSideCondition(this.n, condition);
 			return;
 		}
-		// Side conditions work as: [effectName, elem, levels, minDuration, maxDuration]
+		// Side conditions work as: [effectName, levels, minDuration, maxDuration]
 		switch (condition) {
 		case 'auroraveil':
-			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-auroraveil" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.x,
-				y: this.y,
-				z: this.behind(-14),
-				xscale: 1,
-				yscale: 0,
-				opacity: .1
-			}, BattleEffects.none)).animate(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.behind(-14),
-				xscale: 1,
-				yscale: .5,
-				opacity: .7
-			}, BattleEffects.none)).animate({
-				opacity: .3
-			}, 300);
-			elem = curelem;
-			this.sideConditions[condition] = [effect.name, elem, 1, 5, 8];
+			this.sideConditions[condition] = [effect.name, 1, 5, 8];
 			break;
 		case 'reflect':
-			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-reflect" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.x,
-				y: this.y,
-				z: this.behind(-17),
-				xscale: 1,
-				yscale: 0,
-				opacity: .1
-			}, BattleEffects.none)).animate(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.behind(-17),
-				xscale: 1,
-				yscale: .5,
-				opacity: .7
-			}, BattleEffects.none)).animate({
-				opacity: .3
-			}, 300);
-			elem = curelem;
-			this.sideConditions[condition] = [effect.name, elem, 1, 5, this.battle.gen >= 4 ? 8 : 0];
+			this.sideConditions[condition] = [effect.name, 1, 5, this.battle.gen >= 4 ? 8 : 0];
 			break;
 		case 'safeguard':
-			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-safeguard" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.x,
-				y: this.y,
-				z: this.behind(-20),
-				xscale: 1,
-				yscale: 0,
-				opacity: .1
-			}, BattleEffects.none)).animate(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.behind(-20),
-				xscale: 1,
-				yscale: .5,
-				opacity: .7
-			}, BattleEffects.none)).animate({
-				opacity: .2
-			}, 300);
-			elem = curelem;
-			this.sideConditions[condition] = [effect.name, elem, 1, 5, 0];
+			this.sideConditions[condition] = [effect.name, 1, 5, 0];
 			break;
 		case 'lightscreen':
-			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-lightscreen" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.x,
-				y: this.y,
-				z: this.behind(-23),
-				xscale: 1,
-				yscale: 0,
-				opacity: .1
-			}, BattleEffects.none)).animate(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.behind(-23),
-				xscale: 1,
-				yscale: .5,
-				opacity: .7
-			}, BattleEffects.none)).animate({
-				opacity: .3
-			}, 300);
-			elem = curelem;
-			this.sideConditions[condition] = [effect.name, elem, 1, 5, this.battle.gen >= 4 ? 8 : 0];
+			this.sideConditions[condition] = [effect.name, 1, 5, this.battle.gen >= 4 ? 8 : 0];
 			break;
 		case 'mist':
-			this.battle.spriteElemsFront[this.n].append('<div class="sidecondition-mist" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.x,
-				y: this.y,
-				z: this.behind(-27),
-				xscale: 1,
-				yscale: 0,
-				opacity: .1
-			}, BattleEffects.none)).animate(this.battle.pos({
-				x: this.x,
-				y: this.y,
-				z: this.behind(-27),
-				xscale: 1,
-				yscale: .5,
-				opacity: .7
-			}, BattleEffects.none)).animate({
-				opacity: .2
-			}, 300);
-			elem = curelem;
-			this.sideConditions[condition] = [effect.name, elem, 1, 5, 0];
+			this.sideConditions[condition] = [effect.name, 1, 5, 0];
 			break;
 		case 'tailwind':
-			this.sideConditions[condition] = [effect.name, null, 1, this.battle.gen >= 5 ? 4 : 3, 0];
+			this.sideConditions[condition] = [effect.name, 1, this.battle.gen >= 5 ? 4 : 3, 0];
 			break;
 		case 'luckychant':
-			this.sideConditions[condition] = [effect.name, null, 1, 5, 0];
+			this.sideConditions[condition] = [effect.name, 1, 5, 0];
 			break;
 		case 'stealthrock':
-			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock1.url + '" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.leftof(-40),
-				y: this.y - 10,
-				z: this.z,
-				opacity: .5,
-				scale: .2
-			}, BattleEffects.rock1));
-			elem = curelem;
-
-			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock2.url + '" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.leftof(-20),
-				y: this.y - 40,
-				z: this.z,
-				opacity: .5,
-				scale: .2
-			}, BattleEffects.rock2));
-			elem = elem.add(curelem);
-
-			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock1.url + '" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.leftof(30),
-				y: this.y - 20,
-				z: this.z,
-				opacity: .5,
-				scale: .2
-			}, BattleEffects.rock1));
-			elem = elem.add(curelem);
-
-			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.rock2.url + '" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.leftof(10),
-				y: this.y - 30,
-				z: this.z,
-				opacity: .5,
-				scale: .2
-			}, BattleEffects.rock2));
-			elem = elem.add(curelem);
-			this.sideConditions[condition] = [effect.name, elem, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, 1, 0, 0];
 			break;
 		case 'spikes':
-			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.caltrop.url + '" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.x - 25,
-				y: this.y - 40,
-				z: this.z,
-				scale: .3
-			}, BattleEffects.caltrop));
-			elem = curelem;
-			this.sideConditions[condition] = [effect.name, elem, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, 1, 0, 0];
 			break;
 		case 'toxicspikes':
-			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.poisoncaltrop.url + '" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.x + 5,
-				y: this.y - 40,
-				z: this.z,
-				scale: .3
-			}, BattleEffects.poisoncaltrop));
-			elem = curelem;
-			this.sideConditions[condition] = [effect.name, elem, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, 1, 0, 0];
 			break;
 		case 'stickyweb':
-			this.battle.spriteElemsFront[this.n].append('<img src="' + BattleEffects.web.url + '" style="display:none;position:absolute" />');
-			curelem = this.battle.spriteElemsFront[this.n].children().last();
-			curelem.css(this.battle.pos({
-				display: 'block',
-				x: this.x + 15,
-				y: this.y - 35,
-				z: this.z,
-				opacity: 0.4,
-				scale: 0.7
-			}, BattleEffects.web));
-			elem = curelem;
-			this.sideConditions[condition] = [effect.name, elem, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, 1, 0, 0];
 			break;
 		default:
-			this.sideConditions[condition] = [effect.name, null, 1, 0, 0];
+			this.sideConditions[condition] = [effect.name, 1, 0, 0];
+			break;
 		}
+		this.battle.scene.addSideCondition(this.n, condition);
 	}
 	removeSideCondition(condition: string) {
-		condition = toId(condition);
-		if (!this.sideConditions[condition]) return;
-		if (this.sideConditions[condition][1]) this.sideConditions[condition][1]!.remove();
-		delete this.sideConditions[condition];
+		const id = toId(condition);
+		if (!this.sideConditions[id]) return;
+		delete this.sideConditions[id];
+		this.battle.scene.removeSideCondition(this.n, id);
 	}
 	newPokemon(data: any, replaceSlot = -1) {
 		let pokeobj;
 		let poke = new Pokemon(data, this);
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
 		poke.reset();
-		poke.sprite = new Sprite(Tools.getSpriteData(poke, this.n, {
-			afd: this.battle.tier === "[Seasonal] Fools Festival",
-			gen: this.battle.gen
-		}), this.x, this.y, this.z, this.battle, this.n);
 
 		if (replaceSlot >= 0) {
 			this.pokemon[replaceSlot] = poke;
@@ -1907,29 +778,11 @@ class Side {
 				this.pokemon.splice(toRemove, 1);
 			}
 		}
-		this.updateSidebar();
+		this.battle.scene.updateSidebar(this);
 
 		return poke;
 	}
 
-	getStatbarHTML(pokemon: Pokemon, inner?: boolean) {
-		let buf = '';
-		if (!inner) buf += '<div class="statbar' + (this.n ? ' lstatbar' : ' rstatbar') + '">';
-		buf += '<strong>' + (this.n && (this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.species : Tools.escapeHTML(pokemon.name));
-		let gender = pokemon.gender;
-		if (gender) buf += ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
-		buf += (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>');
-
-		let symbol = '';
-		if (pokemon.species.indexOf('-Mega') >= 0) symbol = 'mega';
-		else if (pokemon.species === 'Kyogre-Primal') symbol = 'alpha';
-		else if (pokemon.species === 'Groudon-Primal') symbol = 'omega';
-		if (symbol) buf += ' <img src="' + Tools.resourcePrefix + 'sprites/misc/' + symbol + '.png" alt="' + symbol + '" style="vertical-align:text-bottom;" />';
-
-		buf += '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div>';
-		if (!inner) buf += '</div>';
-		return buf;
-	}
 	switchIn(pokemon: Pokemon, slot?: number) {
 		if (slot === undefined) slot = pokemon.slot;
 		this.active[slot] = pokemon;
@@ -1947,34 +800,7 @@ class Side {
 			this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
 		}
 
-		pokemon.sprite.animSummon(slot);
-		if (pokemon.hasVolatile('substitute' as ID)) {
-			pokemon.sprite.animSub();
-		}
-		if (pokemon.statbarElem) {
-			pokemon.statbarElem.remove();
-		}
-		if (this.battle.fastForward) {
-			pokemon.statbarElem = null;
-			if (this.battle.switchCallback) this.battle.switchCallback(this.battle, this);
-			return;
-		}
-		this.battle.statElem.append(this.getStatbarHTML(pokemon));
-		pokemon.statbarElem = this.battle.statElem.children().last();
-		this.updateStatbar(pokemon, true);
-		pokemon.side.updateSidebar();
-		pokemon.statbarElem.css({
-			display: 'block',
-			left: pokemon.sprite.left - 80,
-			top: pokemon.sprite.top - 53 - pokemon.sprite.statbarOffset,
-			opacity: 0
-		});
-		pokemon.statbarElem.delay(300 / this.battle.acceleration).animate({
-			top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-			opacity: 1
-		}, 400 / this.battle.acceleration);
-
-		this.battle.dogarsCheck(pokemon);
+		pokemon.sprite.animSummon(pokemon, slot);
 
 		if (this.battle.switchCallback) this.battle.switchCallback(this.battle, this);
 	}
@@ -1991,68 +817,9 @@ class Side {
 		pokemon.slot = slot;
 
 		if (oldpokemon) {
-			oldpokemon.sprite.animDragOut();
+			oldpokemon.sprite.animDragOut(oldpokemon);
 		}
-		pokemon.sprite.animDragIn(slot);
-		if (pokemon.statbarElem) {
-			pokemon.statbarElem.remove();
-		}
-		if (this.battle.fastForward) {
-			if (oldpokemon && oldpokemon.statbarElem) {
-				oldpokemon.statbarElem.remove();
-				oldpokemon.statbarElem = null;
-			}
-			pokemon.statbarElem = null;
-			if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
-			return;
-		}
-		this.battle.statElem.append(this.getStatbarHTML(pokemon));
-		pokemon.statbarElem = this.battle.statElem.children().last();
-		this.updateStatbar(pokemon, true);
-		pokemon.side.updateSidebar();
-		if (this.n == 0) {
-			if (oldpokemon) {
-				oldpokemon.statbarElem.animate({
-					left: pokemon.sprite.left - 130,
-					opacity: 0
-				}, 400, () => {
-					oldpokemon.statbarElem.remove();
-					oldpokemon.statbarElem = null;
-				});
-			}
-			pokemon.statbarElem.css({
-				display: 'block',
-				left: pokemon.sprite.left - 30,
-				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-				opacity: 0
-			});
-			pokemon.statbarElem.delay(300).animate({
-				left: pokemon.sprite.left - 80,
-				opacity: 1
-			}, 400);
-		} else {
-			if (oldpokemon) {
-				oldpokemon.statbarElem.animate({
-					left: pokemon.sprite.left - 30,
-					opacity: 0
-				}, 400, () => {
-					oldpokemon.statbarElem.remove();
-					oldpokemon.statbarElem = null;
-				});
-			}
-			pokemon.statbarElem.css({
-				display: 'block',
-				left: pokemon.sprite.left - 130,
-				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-				opacity: 0
-			});
-			pokemon.statbarElem.delay(300).animate({
-				left: pokemon.sprite.left - 80,
-				opacity: 1
-			}, 400);
-		}
-
-		this.battle.dogarsCheck(pokemon);
+		pokemon.sprite.animDragIn(pokemon, slot);
 
 		if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
 	}
@@ -2077,33 +844,9 @@ class Side {
 		pokemon.slot = slot;
 
 		if (oldpokemon) {
-			oldpokemon.sprite.animUnsummon(true);
+			oldpokemon.sprite.animUnsummon(oldpokemon, true);
 		}
-		pokemon.sprite.animSummon(slot, true);
-		if (pokemon.hasVolatile('substitute' as ID)) {
-			pokemon.sprite.animSub(true);
-		}
-		if (oldpokemon && oldpokemon.statbarElem) {
-			oldpokemon.statbarElem.remove();
-			oldpokemon.statbarElem = null;
-		}
-		if (pokemon.statbarElem) {
-			pokemon.statbarElem.remove();
-		}
-		if (this.battle.fastForward) {
-			pokemon.statbarElem = null;
-			if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
-			return;
-		}
-		this.battle.statElem.append(this.getStatbarHTML(pokemon));
-		pokemon.statbarElem = this.battle.statElem.children().last();
-		this.updateStatbar(pokemon, true);
-		pokemon.statbarElem.css({
-			display: 'block',
-			left: pokemon.sprite.left - 80,
-			top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-			opacity: 1
-		});
+		pokemon.sprite.animSummon(pokemon, slot, true);
 		// not sure if we want a different callback
 		if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
 	}
@@ -2128,22 +871,7 @@ class Side {
 		this.lastPokemon = pokemon;
 		this.active[slot] = null;
 
-		pokemon.sprite.animUnsummon();
-		if (this.battle.fastForward) {
-			if (!pokemon.statbarElem) return;
-			pokemon.statbarElem.remove();
-			pokemon.statbarElem = null;
-			return;
-		}
-		this.updateStatbar(pokemon, true);
-		pokemon.statbarElem.animate({
-			top: pokemon.sprite.top - 43 - pokemon.sprite.statbarOffset,
-			opacity: 0
-		}, 300 / this.battle.acceleration, () => {
-			pokemon.statbarElem.remove();
-			pokemon.statbarElem = null;
-		});
-		//pokemon.statbarElem.done(pokemon.statbarElem.remove());
+		pokemon.sprite.animUnsummon(pokemon);
 	}
 	swapTo(pokemon: Pokemon, slot: number, kwargs: {[k: string]: string}) {
 		if (pokemon.slot === slot) return;
@@ -2153,7 +881,7 @@ class Side {
 			let fromeffect = Tools.getEffect(kwargs.from);
 			switch (fromeffect.id) {
 			case 'allyswitch':
-				this.battle.message('<small>' + pokemon.getName() + ' and ' + target.getLowerName() + ' switched places.</small>');
+				this.battle.message('<small>' + pokemon.getName() + ' and ' + target!.getLowerName() + ' switched places.</small>');
 				break;
 			default:
 				this.battle.message('<small>' + pokemon.getName() + ' moved to the center!</small>');
@@ -2169,53 +897,11 @@ class Side {
 		this.active[slot] = pokemon;
 		this.active[oslot] = target;
 
-		if (pokemon.hasVolatile('substitute' as ID)) pokemon.sprite.animSubFade();
-		if (target && target.hasVolatile('substitute' as ID)) target.sprite.animSubFade();
+		pokemon.sprite.animUnsummon(pokemon, true);
+		if (target) target.sprite.animUnsummon(target, true);
 
-		pokemon.sprite.animUnsummon(true);
-		if (target) target.sprite.animUnsummon(true);
-
-		pokemon.sprite.animSummon(slot, true);
-		if (target) target.sprite.animSummon(oslot, true);
-
-		if (pokemon.hasVolatile('substitute' as ID)) pokemon.sprite.animSub();
-		if (target && target.hasVolatile('substitute' as ID)) target.sprite.animSub();
-
-		if (pokemon.statbarElem) {
-			pokemon.statbarElem.remove();
-		}
-		if (target && target.statbarElem) {
-			target.statbarElem.remove();
-		}
-
-		if (this.battle.fastForward) {
-			pokemon.statbarElem = null;
-			if (target) target.statbarElem = null;
-			return;
-		}
-
-		this.battle.statElem.append(this.getStatbarHTML(pokemon));
-		pokemon.statbarElem = this.battle.statElem.children().last();
-		if (target) {
-			this.battle.statElem.append(this.getStatbarHTML(target));
-			target.statbarElem = this.battle.statElem.children().last();
-		}
-
-		this.updateStatbar(pokemon, true);
-		if (target) this.updateStatbar(target, true);
-
-		pokemon.statbarElem.css({
-			display: 'block',
-			left: pokemon.sprite.left - 80,
-			top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-			opacity: 1
-		});
-		if (target) target.statbarElem.css({
-			display: 'block',
-			left: target.sprite.left - 80,
-			top: target.sprite.top - 73 - target.sprite.statbarOffset,
-			opacity: 1
-		});
+		pokemon.sprite.animSummon(pokemon, slot, true);
+		if (target) target.sprite.animSummon(target, oslot, true);
 	}
 	swapWith(pokemon: Pokemon, target: Pokemon, kwargs: {[k: string]: string}) {
 		// method provided for backwards compatibility only
@@ -2238,45 +924,11 @@ class Side {
 		this.active[nslot] = pokemon;
 		this.active[oslot] = target;
 
-		pokemon.sprite.animUnsummon(true);
-		target.sprite.animUnsummon(true);
+		pokemon.sprite.animUnsummon(pokemon, true);
+		target.sprite.animUnsummon(target, true);
 
-		pokemon.sprite.animSummon(nslot, true);
-		target.sprite.animSummon(oslot, true);
-
-		if (pokemon.statbarElem) {
-			pokemon.statbarElem.remove();
-		}
-		if (target.statbarElem) {
-			target.statbarElem.remove();
-		}
-
-		if (this.battle.fastForward) {
-			pokemon.statbarElem = null;
-			target.statbarElem = null;
-			return;
-		}
-
-		this.battle.statElem.append(this.getStatbarHTML(pokemon));
-		pokemon.statbarElem = this.battle.statElem.children().last();
-		this.battle.statElem.append(this.getStatbarHTML(target));
-		target.statbarElem = this.battle.statElem.children().last();
-
-		this.updateStatbar(pokemon, true);
-		this.updateStatbar(target, true);
-
-		pokemon.statbarElem.css({
-			display: 'block',
-			left: pokemon.sprite.left - 80,
-			top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-			opacity: 1
-		});
-		target.statbarElem.css({
-			display: 'block',
-			left: target.sprite.left - 80,
-			top: target.sprite.top - 73 - target.sprite.statbarOffset,
-			opacity: 1
-		});
+		pokemon.sprite.animSummon(pokemon, nslot, true);
+		target.sprite.animSummon(target, oslot, true);
 	}
 	faint(pokemon: Pokemon, slot = pokemon.slot) {
 		pokemon.clearVolatile();
@@ -2291,202 +943,9 @@ class Side {
 
 		pokemon.fainted = true;
 		pokemon.hp = 0;
-		pokemon.side.updateStatbar(pokemon, false, true);
-		pokemon.side.updateSidebar();
 
-		pokemon.sprite.animFaint();
-		if (this.battle.fastForward) {
-			if (pokemon.statbarElem) pokemon.statbarElem.remove();
-			pokemon.statbarElem = null;
-		} else if (pokemon.statbarElem) {
-			pokemon.statbarElem.animate({
-				opacity: 0
-			}, 300, () => {
-				pokemon.statbarElem!.remove();
-				pokemon.statbarElem = null;
-			});
-		}
+		pokemon.sprite.animFaint(pokemon);
 		if (this.battle.faintCallback) this.battle.faintCallback(this.battle, this);
-	}
-	updateHPText(pokemon: Pokemon) {
-		if (!pokemon.statbarElem) return;
-		let $hptext = pokemon.statbarElem.find('.hptext');
-		let $hptextborder = pokemon.statbarElem.find('.hptextborder');
-		if (pokemon.maxhp === 48 || this.battle.hardcoreMode && pokemon.maxhp === 100) {
-			$hptext.hide();
-			$hptextborder.hide();
-		} else if (this.battle.hardcoreMode) {
-			$hptext.html(pokemon.hp + '/');
-			$hptext.show();
-			$hptextborder.show();
-		} else {
-			$hptext.html(pokemon.hpWidth(100) + '%');
-			$hptext.show();
-			$hptextborder.show();
-		}
-	}
-	updateStatbar(pokemon?: Pokemon, updatePrevhp?: boolean, updateHp?: boolean, createIfNotExists?: boolean) {
-		if (this.battle.fastForward) return;
-		if (!pokemon) {
-			if (this.active[0]) this.updateStatbar(this.active[0]!, updatePrevhp, updateHp, true);
-			if (this.active[1]) this.updateStatbar(this.active[1]!, updatePrevhp, updateHp, true);
-			if (this.active[2]) this.updateStatbar(this.active[2]!, updatePrevhp, updateHp, true);
-			return;
-		}
-		if (!pokemon) return;
-		if (!pokemon.statbarElem) {
-			if (!createIfNotExists) return;
-			this.battle.statElem.append(this.getStatbarHTML(pokemon));
-			pokemon.statbarElem = this.battle.statElem.children().last();
-			pokemon.statbarElem.css({
-				display: 'block',
-				left: pokemon.sprite.left - 80,
-				top: pokemon.sprite.top - 73 - pokemon.sprite.statbarOffset,
-				opacity: 1
-			});
-		}
-		let hpcolor;
-		if (updatePrevhp || updateHp) {
-			hpcolor = pokemon.getHPColor();
-			let w = pokemon.hpWidth(150);
-			let $hp = pokemon.statbarElem.find('.hp');
-			$hp.css({
-				width: w,
-				'border-right-width': (w ? 1 : 0)
-			});
-			if (hpcolor === 'g') $hp.removeClass('hp-yellow hp-red');
-			else if (hpcolor === 'y') $hp.removeClass('hp-red').addClass('hp-yellow');
-			else $hp.addClass('hp-yellow hp-red');
-			this.updateHPText(pokemon);
-		}
-		if (updatePrevhp) {
-			let $prevhp = pokemon.statbarElem.find('.prevhp');
-			$prevhp.css('width', pokemon.hpWidth(150) + 1);
-			if (hpcolor === 'g') $prevhp.removeClass('prevhp-yellow prevhp-red');
-			else if (hpcolor === 'y') $prevhp.removeClass('prevhp-red').addClass('prevhp-yellow');
-			else $prevhp.addClass('prevhp-yellow prevhp-red');
-		}
-		let status = '';
-		if (pokemon.status === 'brn') {
-			status += '<span class="brn">BRN</span> ';
-		} else if (pokemon.status === 'psn') {
-			status += '<span class="psn">PSN</span> ';
-		} else if (pokemon.status === 'tox') {
-			status += '<span class="psn">TOX</span> ';
-		} else if (pokemon.status === 'slp') {
-			status += '<span class="slp">SLP</span> ';
-		} else if (pokemon.status === 'par') {
-			status += '<span class="par">PAR</span> ';
-		} else if (pokemon.status === 'frz') {
-			status += '<span class="frz">FRZ</span> ';
-		}
-		if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[2]) {
-			let types = pokemon.volatiles.typechange[2].split('/');
-			status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[0]) + '.png" alt="' + types[0] + '" /> ';
-			if (types[1]) {
-				status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[1]) + '.png" alt="' + types[1] + '" /> ';
-			}
-		}
-		if (pokemon.volatiles.typeadd) {
-			const type = pokemon.volatiles.typeadd[2];
-			status += '+<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" /> ';
-		}
-		for (const stat in pokemon.boosts) {
-			if (pokemon.boosts[stat]) {
-				status += '<span class="' + pokemon.getBoostType(stat as BoostStatName) + '">' + pokemon.getBoost(stat as BoostStatName) + '</span> ';
-			}
-		}
-		let statusTable = {
-			throatchop: '<span class="bad">Throat&nbsp;Chop</span> ',
-			confusion: '<span class="bad">Confused</span> ',
-			healblock: '<span class="bad">Heal&nbsp;Block</span> ',
-			yawn: '<span class="bad">Drowsy</span> ',
-			flashfire: '<span class="good">Flash&nbsp;Fire</span> ',
-			imprison: '<span class="good">Imprisoning&nbsp;foe</span> ',
-			formechange: '',
-			typechange: '',
-			typeadd: '',
-			autotomize: '<span class="neutral">Lightened</span> ',
-			miracleeye: '<span class="bad">Miracle&nbsp;Eye</span> ',
-			foresight: '<span class="bad">Foresight</span> ',
-			telekinesis: '<span class="neutral">Telekinesis</span> ',
-			transform: '<span class="neutral">Transformed</span> ',
-			powertrick: '<span class="neutral">Power&nbsp;Trick</span> ',
-			curse: '<span class="bad">Curse</span> ',
-			nightmare: '<span class="bad">Nightmare</span> ',
-			attract: '<span class="bad">Attract</span> ',
-			torment: '<span class="bad">Torment</span> ',
-			taunt: '<span class="bad">Taunt</span> ',
-			disable: '<span class="bad">Disable</span> ',
-			embargo: '<span class="bad">Embargo</span> ',
-			ingrain: '<span class="good">Ingrain</span> ',
-			aquaring: '<span class="good">Aqua&nbsp;Ring</span> ',
-			stockpile1: '<span class="good">Stockpile</span> ',
-			stockpile2: '<span class="good">Stockpile&times;2</span> ',
-			stockpile3: '<span class="good">Stockpile&times;3</span> ',
-			perish0: '<span class="bad">Perish&nbsp;now</span>',
-			perish1: '<span class="bad">Perish&nbsp;next&nbsp;turn</span> ',
-			perish2: '<span class="bad">Perish&nbsp;in&nbsp;2</span> ',
-			perish3: '<span class="bad">Perish&nbsp;in&nbsp;3</span> ',
-			airballoon: '<span class="good">Balloon</span> ',
-			leechseed: '<span class="bad">Leech&nbsp;Seed</span> ',
-			encore: '<span class="bad">Encore</span> ',
-			mustrecharge: '<span class="bad">Must&nbsp;recharge</span> ',
-			bide: '<span class="good">Bide</span> ',
-			magnetrise: '<span class="good">Magnet&nbsp;Rise</span> ',
-			smackdown: '<span class="bad">Smack&nbsp;Down</span> ',
-			focusenergy: '<span class="good">Focus&nbsp;Energy</span> ',
-			slowstart: '<span class="bad">Slow&nbsp;Start</span> ',
-			doomdesire: '',
-			futuresight: '',
-			mimic: '<span class="good">Mimic</span> ',
-			watersport: '<span class="good">Water&nbsp;Sport</span> ',
-			mudsport: '<span class="good">Mud&nbsp;Sport</span> ',
-			substitute: '',
-			// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
-			uproar: '<span class="neutral">Uproar</span>',
-			rage: '<span class="neutral">Rage</span>',
-			roost: '<span class="neutral">Landed</span>',
-			protect: '<span class="good">Protect</span>',
-			quickguard: '<span class="good">Quick&nbsp;Guard</span>',
-			wideguard: '<span class="good">Wide&nbsp;Guard</span>',
-			craftyshield: '<span class="good">Crafty&nbsp;Shield</span>',
-			matblock: '<span class="good">Mat&nbsp;Block</span>',
-			helpinghand: '<span class="good">Helping&nbsp;Hand</span>',
-			magiccoat: '<span class="good">Magic&nbsp;Coat</span>',
-			destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
-			snatch: '<span class="good">Snatch</span>',
-			grudge: '<span class="good">Grudge</span>',
-			endure: '<span class="good">Endure</span>',
-			focuspunch: '<span class="neutral">Focusing</span>',
-			shelltrap: '<span class="neutral">Trap&nbsp;set</span>',
-			powder: '<span class="bad">Powder</span>',
-			electrify: '<span class="bad">Electrify</span>',
-			ragepowder: '<span class="good">Rage&nbsp;Powder</span>',
-			followme: '<span class="good">Follow&nbsp;Me</span>',
-			instruct: '<span class="neutral">Instruct</span>',
-			beakblast: '<span class="neutral">Beak&nbsp;Blast</span>',
-			laserfocus: '<span class="good">Laser&nbsp;Focus</span>',
-			spotlight: '<span class="neutral">Spotlight</span>',
-			itemremoved: '',
-			// Gen 1
-			lightscreen: '<span class="good">Light&nbsp;Screen</span>',
-			reflect: '<span class="good">Reflect</span>'
-		} as {[id: string]: string};
-		for (let i in pokemon.volatiles) {
-			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[[' + i + ']]</span>';
-			else status += statusTable[i];
-		}
-		for (let i in pokemon.turnstatuses) {
-			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[[' + i + ']]</span>';
-			else status += statusTable[i];
-		}
-		for (let i in pokemon.movestatuses) {
-			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[[' + i + ']]</span>';
-			else status += statusTable[i];
-		}
-		let statusbar = pokemon.statbarElem.find('.status');
-		statusbar.html(status);
 	}
 	destroy() {
 		for (let i = 0; i < this.pokemon.length; i++) {
@@ -2502,16 +961,22 @@ class Side {
 	}
 }
 
+enum Playback {
+	Uninitialized = 0,
+	Ready = 1,
+	Playing = 2,
+	Paused = 3,
+	Finished = 4,
+	Seeking = 5,
+}
+
 class Battle {
+	scene: BattleScene;
+
 	sidesSwitched = false;
-	messageActive = false;
 
 	// activity queue
-	animationDelay = 0;
 	activityStep = 0;
-	activityDelay = 0;
-	activityAfter: (() => boolean) | null = null;
-	activityQueueActive = false;
 	fastForward = 0;
 	fastForwardWillScroll = false;
 
@@ -2529,14 +994,9 @@ class Battle {
 	customCallback: Function | null = null;
 	errorCallback: Function | null = null;
 
-	preloadDone = 0;
-	preloadNeeded = 0;
-	bgm: string | null = null;
-
 	mute = false;
 	messageFadeTime = 300;
 	messageShownTime = 1;
-	acceleration = 1;
 	turnsSinceMoved = 0;
 	hasPreMoveMessage = false;
 
@@ -2551,11 +1011,11 @@ class Battle {
 	pseudoWeather = [] as WeatherState[];
 	weatherTimeLeft = 0;
 	weatherMinTimeLeft = 0;
-	mySide: Side;
-	yourSide: Side;
+	mySide: Side = null!;
+	yourSide: Side = null!;
 	p1: Side = null!;
 	p2: Side = null!;
-	sides: [Side, Side];
+	sides: [Side, Side] = [null!, null!];
 	lastMove = '';
 	gen = 7;
 	teamPreviewCount = 0;
@@ -2569,78 +1029,28 @@ class Battle {
 
 	// options
 	id = '';
-	numericId = 0;
 	roomid = '';
 	hardcoreMode = false;
 	ignoreNicks = Tools.prefs('ignorenicks');
 	ignoreOpponent = false;
 	ignoreSpects = false;
 	debug = false;
-
-	frameElem: JQuery<HTMLElement>;
-	elem: JQuery<HTMLElement>;
-	logFrameElem: JQuery<HTMLElement>;
-	optionsElem: JQuery<HTMLElement>;
-	logPreemptElem: JQuery<HTMLElement>;
-	logElem: JQuery<HTMLElement> = null!;
-	weatherElem: JQuery<HTMLElement> = null!;
-	bgEffectElem: JQuery<HTMLElement> = null!;
-	bgElem: JQuery<HTMLElement> = null!;
-	spriteElem: JQuery<HTMLElement> = null!;
-	spriteElems: [JQuery<HTMLElement>, JQuery<HTMLElement>] = [null!, null!];
-	spriteElemsFront: [JQuery<HTMLElement>, JQuery<HTMLElement>] = [null!, null!];
-	statElem: JQuery<HTMLElement> = null!;
-	fxElem: JQuery<HTMLElement> = null!;
-	leftbarElem: JQuery<HTMLElement> = null!;
-	rightbarElem: JQuery<HTMLElement> = null!;
-	turnElem: JQuery<HTMLElement> = null!;
-	messagebarElem: JQuery<HTMLElement> = null!;
-	delayElem: JQuery<HTMLElement> = null!;
-	hiddenMessageElem: JQuery<HTMLElement> = null!;
+	joinButtons = false;
 
 	paused = true;
-	// 0 = uninitialized
-	// 1 = ready
-	// 2 = playing
-	// 3 = paused
-	// 4 = finished
-	// 5 = seeking
-	playbackState = 0;
-
-	backdropImage: string;
-
-	activeQueue: Function;
+	playbackState = Playback.Uninitialized;
 
 	activityQueue = [] as string[];
 	preemptActivityQueue = [] as string[];
-	activityAnimations = $();
 	minorQueue = [] as [string[], {[k: string]: string}][];
 
 	// external
 	resumeButton: JQuery.EventHandler<HTMLElement, null> | null = null;
 
-	preloadCache = {} as {[url: string]: HTMLImageElement};
+	constructor($frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>, id = '') {
+		this.id = id;
+		this.scene = new BattleScene(this, $frame, $logFrame);
 
-	constructor(frame: JQuery<HTMLElement>, logFrame: JQuery<HTMLElement>, id = '') {
-		if (id) {
-			this.id = id;
-			this.numericId = parseInt(this.id.slice(this.id.lastIndexOf('-') + 1));
-		}
-		if (!this.numericId) {
-			this.numericId = Math.floor(Math.random() * 1000000);
-		}
-		if (!id) {
-			this.id = 'battle-' + this.numericId;
-		}
-		frame.addClass('battle');
-		this.frameElem = frame;
-		this.logFrameElem = logFrame;
-
-		this.activeQueue = this.queue1;
-
-		this.backdropImage = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
-
-		this.preloadEffects();
 		this.init();
 	}
 
@@ -2648,14 +1058,14 @@ class Battle {
 		for (let i = 0; i < this.pseudoWeather.length; i++) {
 			if (this.pseudoWeather[i][0] === weather) {
 				this.pseudoWeather.splice(i, 1);
-				this.updateWeather();
+				this.scene.updateWeather();
 				return;
 			}
 		}
 	}
 	addPseudoWeather(weather: string, minTimeLeft: number, timeLeft: number) {
 		this.pseudoWeather.push([weather, minTimeLeft, timeLeft]);
-		this.updateWeather();
+		this.scene.updateWeather();
 	}
 	hasPseudoWeather(weather: string) {
 		for (let i = 0; i < this.pseudoWeather.length; i++) {
@@ -2676,19 +1086,6 @@ class Battle {
 		this.gen = 7;
 		this.reset();
 	}
-	updateGen() {
-		let gen = this.gen;
-		if (Tools.prefs('nopastgens')) gen = 6;
-		if (Tools.prefs('bwgfx') && gen > 5) gen = 5;
-		if (gen <= 5) {
-			if (gen <= 1) this.backdropImage = 'fx/bg-gen1.png?';
-			else if (gen <= 2) this.backdropImage = 'fx/bg-gen2.png?';
-			else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
-			else if (gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
-			else this.backdropImage = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
-		}
-		if (this.bgElem) this.bgElem.css('background-image', 'url(' + Tools.resourcePrefix + '' + this.backdropImage + ')');
-	}
 	reset(dontResetSound?: boolean) {
 		// battle state
 		this.turn = 0;
@@ -2700,73 +1097,11 @@ class Battle {
 		this.lastMove = '';
 
 		// DOM state
-		this.frameElem.empty();
-		this.frameElem.html('<div class="innerbattle"></div>');
-		this.elem = this.frameElem.children();
-		if (this.optionsElem) {
-			this.logElem.empty();
-			this.logPreemptElem.empty();
-		} else {
-			this.logFrameElem.html('<div class="battle-options"></div>');
-			this.optionsElem = this.logFrameElem.children().last();
-			this.logFrameElem.append('<div class="inner" role="log"></div>');
-			this.logElem = this.logFrameElem.children().last();
-			this.logFrameElem.append('<div class="inner-preempt"></div>');
-			this.logPreemptElem = this.logFrameElem.children().last();
-			this.logFrameElem.append('<div class="inner-after"></div>');
+		this.scene.reset();
+
+		for (const side of this.sides) {
+			if (side) side.reset();
 		}
-
-		this.updateGen();
-		this.elem.append('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + '' + this.backdropImage + ');display:block;opacity:0"></div>');
-		this.bgElem = this.elem.children().last();
-		this.bgElem.animate({
-			opacity: 0.8
-		});
-
-		this.elem.append('<div class="weather"></div>');
-		this.weatherElem = this.elem.children().last();
-
-		this.elem.append('<div></div>');
-		this.bgEffectElem = this.elem.children().last();
-
-		this.elem.append('<div></div>');
-		this.spriteElem = this.elem.children().last();
-
-		this.spriteElem.append('<div></div>');
-		this.spriteElems[1] = this.spriteElem.children().last();
-		this.spriteElem.append('<div></div>');
-		this.spriteElemsFront[1] = this.spriteElem.children().last();
-		this.spriteElem.append('<div></div>');
-		this.spriteElemsFront[0] = this.spriteElem.children().last();
-		this.spriteElem.append('<div></div>');
-		this.spriteElems[0] = this.spriteElem.children().last();
-
-		this.elem.append('<div role="complementary" aria-label="Active Pokemon"></div>');
-		this.statElem = this.elem.children().last();
-
-		this.elem.append('<div></div>');
-		this.fxElem = this.elem.children().last();
-
-		this.elem.append('<div class="leftbar" role="complementary" aria-label="Your Team"></div>');
-		this.leftbarElem = this.elem.children().last();
-
-		this.elem.append('<div class="rightbar" role="complementary" aria-label="Opponent\'s Team"></div>');
-		this.rightbarElem = this.elem.children().last();
-
-		this.elem.append('<div></div>');
-		this.turnElem = this.elem.children().last();
-
-		this.elem.append('<div class="messagebar message"></div>');
-		this.messagebarElem = this.elem.children().last();
-
-		this.elem.append('<div></div>');
-		this.delayElem = this.elem.children().last();
-
-		this.elem.append('<div class="message" style="position:absolute;display:block;visibility:hidden"></div>');
-		this.hiddenMessageElem = this.elem.children().last();
-
-		if (this.mySide) this.mySide.reset();
-		if (this.yourSide) this.yourSide.reset();
 
 		if (this.ignoreNicks) {
 			let $log = $('.battle-log .inner');
@@ -2776,27 +1111,22 @@ class Battle {
 		}
 
 		// activity queue state
-		this.animationDelay = 0;
 		this.activeMoveIsSpread = null;
 		this.activityStep = 0;
-		this.activityDelay = 0;
-		this.activityAfter = null;
-		this.activityAnimations = $();
-		this.activityQueueActive = false;
 		this.fastForwardOff();
 		$.fx.off = false;
 		this.minorQueue = [];
 		this.resultWaiting = false;
 		this.paused = true;
-		if (this.playbackState !== 5) {
-			this.playbackState = (this.activityQueue.length ? 1 : 0);
-			if (!dontResetSound) this.soundStop();
+		if (this.playbackState !== Playback.Seeking) {
+			this.playbackState = (this.activityQueue.length ? Playback.Ready : Playback.Uninitialized);
+			if (!dontResetSound) this.scene.soundStop();
 		}
+		this.resetTurnsSinceMoved();
 	}
 	destroy() {
-		if (this.logFrameElem) this.logFrameElem.remove();
+		this.scene.destroy();
 
-		this.soundStop();
 		for (let i = 0; i < this.sides.length; i++) {
 			if (this.sides[i]) this.sides[i].destroy();
 			this.sides[i] = null!;
@@ -2807,177 +1137,10 @@ class Battle {
 		this.p2 = null!;
 	}
 
-	logConsole(text: string) {
-		if (window.console && console.log) console.log(text);
-	}
-	log(html: string, preempt?: boolean) {
-		let willScroll = false;
-		if (!this.fastForward) willScroll = (this.logFrameElem.scrollTop()! + 60 >= this.logElem.height()! + this.logPreemptElem.height()! - this.optionsElem.height()! - this.logFrameElem.height()!);
-		if (preempt) {
-			this.logPreemptElem.append(html);
-		} else {
-			this.logElem.append(html);
-		}
-		if (willScroll) {
-			this.logFrameElem.scrollTop(this.logElem.height()! + this.logPreemptElem.height()!);
-		}
-	}
-	preemptCatchup() {
-		this.logElem.append(this.logPreemptElem.children().first());
+	message(message: string, hiddenMessage?: string) {
+		this.scene.message(message, hiddenMessage);
 	}
 
-	pos(loc: ScenePos, obj: SpriteData) {
-		let left, top, scale, width, height;
-
-		loc = {
-			x: 0,
-			y: 0,
-			z: 0,
-			scale: 1,
-			opacity: 1,
-			...loc,
-		};
-		if (!loc.xscale && loc.xscale !== 0) loc.xscale = loc.scale;
-		if (!loc.yscale && loc.yscale !== 0) loc.yscale = loc.scale;
-
-		left = 210;
-		top = 245;
-		scale = 1;
-		scale = 1.5 - 0.5 * ((loc.z!) / 200);
-		if (scale < .1) scale = .1;
-
-		left += (410 - 190) * ((loc.z!) / 200);
-		top += (135 - 245) * ((loc.z!) / 200);
-		left += Math.floor(loc.x! * scale);
-		top -= Math.floor(loc.y! * scale /* - loc.x * scale / 4 */);
-		width = Math.floor(obj.w * scale * loc.xscale!);
-		height = Math.floor(obj.h * scale * loc.yscale!);
-		let hoffset = Math.floor((obj.h - (obj.y || 0) * 2) * scale * loc.yscale!);
-		left -= Math.floor(width / 2);
-		top -= Math.floor(hoffset / 2);
-
-		let pos = {
-			left: left,
-			top: top,
-			width: width,
-			height: height,
-			opacity: loc.opacity
-		} as JQuery.PlainObject;
-		if (loc.display) pos.display = loc.display;
-		return pos;
-	}
-	posT(loc: ScenePos, obj: SpriteData, transition: string, oldloc?: ScenePos) {
-		let pos = this.pos(loc, obj);
-		let oldpos = null;
-		if (oldloc) oldpos = this.pos(oldloc, obj);
-		let transitionMap = {
-			left: 'linear',
-			top: 'linear',
-			width: 'linear',
-			height: 'linear',
-			opacity: 'linear'
-		};
-		if (transition === 'ballistic') {
-			transitionMap.top = (pos.top < oldpos!.top ? 'ballisticUp' : 'ballisticDown');
-		}
-		if (transition === 'ballisticUnder') {
-			transitionMap.top = (pos.top < oldpos!.top ? 'ballisticDown' : 'ballisticUp');
-		}
-		if (transition === 'ballistic2') {
-			transitionMap.top = (pos.top < oldpos!.top ? 'quadUp' : 'quadDown');
-		}
-		if (transition === 'ballistic2Under') {
-			transitionMap.top = (pos.top < oldpos!.top ? 'quadDown' : 'quadUp');
-		}
-		if (transition === 'swing') {
-			transitionMap.left = 'swing';
-			transitionMap.top = 'swing';
-			transitionMap.width = 'swing';
-			transitionMap.height = 'swing';
-		}
-		if (transition === 'accel') {
-			transitionMap.left = 'quadDown';
-			transitionMap.top = 'quadDown';
-			transitionMap.width = 'quadDown';
-			transitionMap.height = 'quadDown';
-		}
-		if (transition === 'decel') {
-			transitionMap.left = 'quadUp';
-			transitionMap.top = 'quadUp';
-			transitionMap.width = 'quadUp';
-			transitionMap.height = 'quadUp';
-		}
-		return {
-			left: [pos.left, transitionMap.left],
-			top: [pos.top, transitionMap.top],
-			width: [pos.width, transitionMap.width],
-			height: [pos.height, transitionMap.height],
-			opacity: [pos.opacity, transitionMap.opacity]
-		} as JQuery.PlainObject;
-	}
-	backgroundEffect(bg: string, duration: number, opacity = 1, delay = 0) {
-		this.bgEffectElem.append('<div class="background"></div>');
-		let elem = this.bgEffectElem.children().last();
-		elem.css({
-			background: bg,
-			display: 'block',
-			opacity: 0
-		});
-		elem.delay(delay).animate({
-			opacity: opacity
-		}, 250).delay(duration - 250);
-		elem.animate({
-			opacity: 0
-		}, 250);
-	}
-	showEffect(effect: string | SpriteData, start: ScenePos, end: ScenePos, transition: string, after?: string) {
-		if (typeof effect === 'string') effect = BattleEffects[effect] as SpriteData;
-		if (!start.time) start.time = 0;
-		if (!end.time) end.time = start.time + 500;
-		start.time += this.animationDelay;
-		end.time += this.animationDelay;
-		if (!end.scale && end.scale !== 0 && start.scale) end.scale = start.scale;
-		if (!end.xscale && end.xscale !== 0 && start.scale) end.xscale = start.xscale;
-		if (!end.yscale && end.yscale !== 0 && start.scale) end.yscale = start.yscale;
-		end = {...start, ...end};
-
-		let startpos = this.pos(start, effect);
-		let endpos = this.posT(end, effect, transition, start);
-
-		this.fxElem.append('<img src="' + effect.url + '" style="display:none;position:absolute" />');
-		let effectElem = this.fxElem.children().last();
-		effectElem.css({
-			display: 'block',
-			opacity: 0
-		});
-		effectElem.css(startpos);
-		effectElem.css({
-			opacity: 0
-		});
-
-		if (start.time) {
-			effectElem.delay(start.time).animate({
-				opacity: startpos.opacity
-			}, 1);
-		} else {
-			effectElem.css('opacity', startpos.opacity);
-		}
-		effectElem.animate(endpos, end.time! - start.time);
-		if (after === 'fade') {
-			effectElem.animate({
-				opacity: 0
-			}, 100);
-		}
-		if (after === 'explode') {
-			if (end.scale) end.scale *= 3;
-			if (end.xscale) end.xscale *= 3;
-			if (end.yscale) end.yscale *= 3;
-			end.opacity = 0;
-			let endendpos = this.pos(end, effect);
-			effectElem.animate(endendpos, 200);
-		}
-		this.activityWait(effectElem);
-	}
 	switchSides(replay?: boolean) {
 		if (replay) {
 			this.reset(true);
@@ -2989,11 +1152,11 @@ class Battle {
 			this.fastForwardTo(-1);
 		} else {
 			let turn = this.turn;
-			let playbackState = this.playbackState;
+			let paused = this.paused;
 			this.reset(true);
 			this.setSidesSwitched(!this.sidesSwitched);
 			if (turn) this.fastForwardTo(turn);
-			if (this.playbackState !== 3) {
+			if (!paused) {
 				this.play();
 			} else {
 				this.pause();
@@ -3014,71 +1177,14 @@ class Battle {
 		this.sides[0] = this.mySide;
 		this.sides[1] = this.yourSide;
 
-		this.mySide.updateSidebar();
-		this.mySide.updateSprites();
-		this.yourSide.updateSidebar();
-		this.yourSide.updateSprites();
 		// nothing else should need updating - don't call this function after sending out pokemon
-	}
-	message(message: string, hiddenMessage?: string) {
-		if (!this.messageActive) {
-			this.log('<div class="spacer battle-history"></div>');
-			if (!this.fastForward) {
-				this.messagebarElem.empty();
-				this.messagebarElem.css({
-					display: 'block',
-					opacity: 0,
-					height: 'auto'
-				});
-				this.messagebarElem.animate({
-					opacity: 1
-				}, this.messageFadeTime / this.acceleration);
-			}
-		}
-		if (this.hardcoreMode && message.slice(0, 8) === '<small>(') {
-			hiddenMessage = message + hiddenMessage;
-			message = '';
-		}
-		if (message && !this.fastForward) {
-			this.hiddenMessageElem.append('<p></p>');
-			let messageElem = this.hiddenMessageElem.children().last();
-			messageElem.html(message);
-			messageElem.css({
-				display: 'block',
-				opacity: 0
-			});
-			messageElem.animate({
-				height: 'hide'
-			}, 1, () => {
-				messageElem.appendTo(this.messagebarElem);
-				messageElem.animate({
-					height: 'show',
-					'padding-bottom': 4,
-					opacity: 1
-				}, this.messageFadeTime / this.acceleration);
-			});
-			this.activityWait(messageElem);
-		}
-		this.messageActive = true;
-		this.log('<div class="battle-history">' + message + (hiddenMessage ? hiddenMessage : '') + '</div>');
-	}
-	endAction() {
-		if (this.messageActive) {
-			this.messageActive = false;
-			if (!this.fastForward) {
-				this.messagebarElem.delay(this.messageShownTime / this.acceleration).animate({
-					opacity: 0
-				}, this.messageFadeTime / this.acceleration);
-				this.activityWait(this.messagebarElem);
-			}
-		}
 	}
 
 	//
 	// activities
 	//
 	start() {
-		this.log('<div>Battle between ' + Tools.escapeHTML(this.p1.name) + ' and ' + Tools.escapeHTML(this.p2.name) + ' started!</div>');
+		this.scene.log('<div>Battle between ' + Tools.escapeHTML(this.p1.name) + ' and ' + Tools.escapeHTML(this.p2.name) + ' started!</div>');
 		if (this.startCallback) this.startCallback(this);
 	}
 	winner(winner?: string) {
@@ -3093,23 +1199,21 @@ class Battle {
 	endLastTurn() {
 		if (this.endLastTurnPending) {
 			this.endLastTurnPending = false;
-			this.mySide.updateStatbar(undefined, true);
-			this.yourSide.updateStatbar(undefined, true);
+			this.scene.updateStatbars();
 		}
 	}
 	setHardcoreMode(mode: boolean) {
 		this.hardcoreMode = mode;
-		this.mySide.updateSidebar();
-		this.yourSide.updateSidebar();
-		this.updateWeather(undefined, true);
+		this.scene.updateSidebars();
+		this.scene.updateWeather(true);
 	}
-	setTurn(turnnum: string | number) {
-		turnnum = parseInt(turnnum as string, 10);
-		if (turnnum == this.turn + 1) {
+	setTurn(turnNum: string | number) {
+		turnNum = parseInt(turnNum as string, 10);
+		if (turnNum == this.turn + 1) {
 			this.endLastTurnPending = true;
 		}
 		if (this.turn && !this.usesUpkeep) this.updatePseudoWeatherLeft(); // for compatibility with old replays
-		this.turn = turnnum;
+		this.turn = turnNum;
 
 		if (this.mySide.active[0]) this.mySide.active[0]!.clearTurnstatuses();
 		if (this.mySide.active[1]) this.mySide.active[1]!.clearTurnstatuses();
@@ -3118,50 +1222,25 @@ class Battle {
 		if (this.yourSide.active[1]) this.yourSide.active[1]!.clearTurnstatuses();
 		if (this.yourSide.active[2]) this.yourSide.active[2]!.clearTurnstatuses();
 
-		this.log('<h2 class="battle-history">Turn ' + turnnum + '</h2>');
+		if (!this.fastForward) this.turnsSinceMoved++;
 
-		let prevTurnElem = this.turnElem.children();
+		this.scene.incrementTurn();
+		this.scene.log('<h2 class="battle-history">Turn ' + turnNum + '</h2>');
+
 		if (this.fastForward) {
-			if (prevTurnElem.length) prevTurnElem.html('Turn ' + turnnum);
-			else this.turnElem.append('<div class="turn" style="display:block;opacity:1;left:110px;">Turn ' + turnnum + '</div>');
 			if (this.turnCallback) this.turnCallback(this);
-			if (this.fastForward > -1 && turnnum >= this.fastForward) {
+			if (this.fastForward > -1 && turnNum >= this.fastForward) {
 				this.fastForwardOff();
 				if (this.endCallback) this.endCallback(this);
 			}
 			return;
 		}
-		this.turnElem.append('<div class="turn">Turn ' + turnnum + '</div>');
-		let newTurnElem = this.turnElem.children().last();
-		newTurnElem.css({
-			display: 'block',
-			opacity: 0,
-			left: 160
-		});
-		newTurnElem.animate({
-			opacity: 1,
-			left: 110
-		}, 500).animate({
-			opacity: .4
-		}, 1500);
-		prevTurnElem.animate({
-			opacity: 0,
-			left: 60
-		}, 500, function () {
-			prevTurnElem.remove();
-		});
-		this.turnsSinceMoved++;
-		if (this.turnsSinceMoved > 2) {
-			this.acceleration = (this.messageFadeTime < 150 ? 2 : 1) * Math.min(this.turnsSinceMoved - 1, 3);
-		} else {
-			this.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
-		}
-		this.activityWait(500 / this.acceleration);
+
 		if (this.turnCallback) this.turnCallback(this);
 	}
 	resetTurnsSinceMoved() {
 		this.turnsSinceMoved = 0;
-		this.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
+		this.scene.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
 	}
 	updateToxicTurns() {
 		for (let i = 0; i < this.sides.length; i++) {
@@ -3228,11 +1307,7 @@ class Battle {
 				if (this.weatherMinTimeLeft != 0) this.weatherMinTimeLeft--;
 			}
 			if (!this.fastForward) {
-				this.weatherElem.animate({
-					opacity: 1.0
-				}, 400).animate({
-					opacity: .4
-				}, 400);
+				this.scene.upkeepWeather();
 			}
 			if (newWeather && newWeather.upkeepMessage) this.message('<div><small>' + newWeather.upkeepMessage + '</small></div>');
 			return;
@@ -3241,7 +1316,7 @@ class Battle {
 			let isExtremeWeather = (weather === 'deltastream' || weather === 'desolateland' || weather === 'primordialsea');
 			if (poke) {
 				if (ability) {
-					this.resultAnim(poke, ability.name, 'ability');
+					this.scene.abilityActivateAnim(poke, ability.name);
 					this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
 					poke.markAbility(ability.name);
 					this.message('<small>' + newWeather.startMessage + '</small>');
@@ -3251,7 +1326,7 @@ class Battle {
 				this.weatherTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 8;
 				this.weatherMinTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 5;
 			} else if (isUpkeep) {
-				this.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
+				this.scene.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
 				this.weatherTimeLeft = 0;
 				this.weatherMinTimeLeft = 0;
 			} else if (isExtremeWeather) {
@@ -3267,7 +1342,8 @@ class Battle {
 		if (this.weather && !newWeather) {
 			this.message('<small>' + weatherTable[this.weather].endMessage + '</small>');
 		}
-		this.updateWeather(weather);
+		this.weather = weather;
+		this.scene.updateWeather();
 	}
 	updatePseudoWeatherLeft() {
 		for (let i = 0; i < this.pseudoWeather.length; i++) {
@@ -3278,230 +1354,11 @@ class Battle {
 		for (let i = 0; i < this.sides.length; i++) {
 			for (let id in this.sides[i].sideConditions) {
 				let cond = this.sides[i].sideConditions[id];
+				if (cond[2]) cond[2]--;
 				if (cond[3]) cond[3]--;
-				if (cond[4]) cond[4]--;
 			}
 		}
-		this.updateWeather();
-	}
-	pseudoWeatherLeft(pWeather: WeatherState) {
-		let buf = '<br />' + Tools.getMove(pWeather[0]).name;
-		if (!pWeather[1] && pWeather[2]) {
-			pWeather[1] = pWeather[2];
-			pWeather[2] = 0;
-		}
-		if (this.gen < 7 && this.hardcoreMode) return buf;
-		if (pWeather[2]) {
-			return buf + ' <small>(' + pWeather[1] + ' or ' + pWeather[2] + ' turns)</small>';
-		}
-		if (pWeather[1]) {
-			return buf + ' <small>(' + pWeather[1] + ' turn' + (pWeather[1] == 1 ? '' : 's') + ')</small>';
-		}
-		return buf; // weather not found
-	}
-	sideConditionLeft(cond: EffectState, siden: number) {
-		if (!cond[3] && !cond[4]) return '';
-		let buf = '<br />' + (siden ? "Foe's " : "") + Tools.getMove(cond[0]).name;
-		if (!cond[3] && cond[4]) {
-			cond[3] = cond[4];
-			cond[4] = 0;
-		}
-		if (this.gen < 7 && this.hardcoreMode) return buf;
-		if (!cond[4]) {
-			return buf + ' <small>(' + cond[3] + ' turn' + (cond[3] == 1 ? '' : 's') + ')</small>';
-		}
-		return buf + ' <small>(' + cond[3] + ' or ' + cond[4] + ' turns)</small>';
-	}
-	weatherLeft() {
-		if (this.gen < 7 && this.hardcoreMode) return '';
-		if (this.weatherMinTimeLeft != 0) {
-			return ' <small>(' + this.weatherMinTimeLeft + ' or ' + this.weatherTimeLeft + ' turns)</small>';
-		}
-		if (this.weatherTimeLeft != 0) {
-			return ' <small>(' + this.weatherTimeLeft + ' turn' + (this.weatherTimeLeft == 1 ? '' : 's') + ')</small>';
-		}
-		return '';
-	}
-	updateWeather(weather = this.weather, instant?: boolean) {
-		let isIntense = false;
-		let weatherNameTable = {
-			sunnyday: 'Sun',
-			desolateland: 'Intense Sun',
-			raindance: 'Rain',
-			primordialsea: 'Heavy Rain',
-			sandstorm: 'Sandstorm',
-			hail: 'Hail',
-			deltastream: 'Strong Winds'
-		} as {[id: string]: string};
-		if (!(weather in weatherNameTable)) {
-			weather = (this.pseudoWeather.length ? 'pseudo' : '') as ID;
-			for (let i = 0; i < this.pseudoWeather.length; i++) {
-				let pwid = toId(this.pseudoWeather[i][0]);
-				switch (pwid) {
-				case 'electricterrain':
-				case 'grassyterrain':
-				case 'mistyterrain':
-				case 'psychicterrain':
-					weather = pwid;
-					isIntense = true;
-					break;
-				}
-			}
-		}
-		if (weather === 'desolateland' || weather === 'primordialsea' || weather === 'deltastream') {
-			isIntense = true;
-		}
-
-		let oldweather: ID | true = this.weather;
-		this.weather = weather;
-
-		if (this.fastForward) return;
-
-		if (instant) oldweather = true;
-
-		let weatherhtml = '';
-		if (weather) {
-			if (weather in weatherNameTable) {
-				weatherhtml += '<br />' + weatherNameTable[weather] + this.weatherLeft();
-			}
-			for (const pseudoWeather of this.pseudoWeather) {
-				weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
-			}
-		}
-		for (let siden = 0; siden < this.sides.length; siden++) {
-			for (let id in this.sides[siden].sideConditions) {
-				weatherhtml += this.sideConditionLeft(this.sides[siden].sideConditions[id], siden);
-			}
-		}
-		if (instant || weather === oldweather) {
-			if (weather) {
-				this.weatherElem.attr('class', 'weather ' + weather + 'weather');
-			} else {
-				this.weatherElem.attr('class', 'weather');
-			}
-			this.weatherElem.html('<em>' + weatherhtml + '</em>');
-			this.weatherElem.css({opacity: isIntense ? 0.9 : .5});
-			if (weather && !instant) this.weatherElem.animate({
-				opacity: 1.0
-			}, 400).animate({
-				opacity: isIntense ? 0.9 : .5
-			}, 400);
-			return;
-		}
-		if (oldweather) {
-			if (weather) {
-				this.weatherElem.animate({
-					opacity: 0
-				}, 300, () => {
-					this.weatherElem.attr('class', 'weather ' + weather + 'weather');
-					this.weatherElem.html('<em>' + weatherhtml + '</em>');
-					this.weatherElem.css({opacity: isIntense ? 0.9 : 0.5});
-				});
-			} else {
-				this.weatherElem.animate({
-					opacity: 0
-				}, 500, () => {
-					this.weatherElem.attr('class', 'weather');
-					this.weatherElem.html('<em>' + weatherhtml + '</em>');
-					this.weatherElem.css({opacity: 0.5});
-				});
-			}
-		} else if (weather) {
-			this.weatherElem.css({opacity: 0});
-			this.weatherElem.attr('class', 'weather ' + weather + 'weather');
-			this.weatherElem.html('<em>' + weatherhtml + '</em>');
-			this.weatherElem.animate({
-				opacity: 1.0
-			}, 400).animate({
-				opacity: isIntense ? 0.9 : .5
-			}, 400);
-		}
-	}
-	resultAnim(pokemon: Pokemon, result: string, type: 'bad' | 'good' | 'neutral' | 'ability' | StatusName) {
-		if (this.fastForward) return;
-		if (type === 'ability') return this.abilityActivateAnim(pokemon, result);
-		this.fxElem.append('<div class="result ' + type + 'result"><strong>' + result + '</strong></div>');
-		let effectElem = this.fxElem.children().last();
-		effectElem.delay(this.animationDelay).css({
-			display: 'block',
-			opacity: 0,
-			top: pokemon.sprite.top - 5,
-			left: pokemon.sprite.left - 75
-		}).animate({
-			opacity: 1
-		}, 1);
-		effectElem.animate({
-			opacity: 0,
-			top: pokemon.sprite.top - 65
-		}, 1000, 'swing');
-		this.animationDelay += this.acceleration < 2 ? 350 : 250;
-		pokemon.side.updateStatbar(pokemon);
-		if (this.acceleration < 3) this.activityWait(effectElem);
-	}
-	abilityActivateAnim(pokemon: Pokemon, result: string) {
-		if (this.fastForward) return;
-		this.fxElem.append('<div class="result abilityresult"><strong>' + result + '</strong></div>');
-		let effectElem = this.fxElem.children().last();
-		effectElem.delay(this.animationDelay).css({
-			display: 'block',
-			opacity: 0,
-			top: pokemon.sprite.top + 15,
-			left: pokemon.sprite.left - 75
-		}).animate({
-			opacity: 1
-		}, 1);
-		effectElem.delay(800).animate({
-			opacity: 0
-		}, 400, 'swing');
-		this.animationDelay += 100;
-		pokemon.side.updateStatbar(pokemon);
-		if (this.acceleration < 3) this.activityWait(effectElem);
-	}
-	damageAnim(pokemon: Pokemon, damage: number | string) {
-		if (this.fastForward) return;
-		if (!pokemon.statbarElem) return;
-		pokemon.side.updateHPText(pokemon);
-
-		let $hp = pokemon.statbarElem.find('div.hp');
-		let w = pokemon.hpWidth(150);
-		let hpcolor = pokemon.getHPColor();
-		let callback;
-		if (hpcolor === 'y') callback = function () {
-			$hp.addClass('hp-yellow');
-		};
-		if (hpcolor === 'r') callback = function () {
-			$hp.addClass('hp-yellow hp-red');
-		};
-
-		this.resultAnim(pokemon, this.hardcoreMode ? 'Damage' : '&minus;' + damage, 'bad');
-
-		$hp.animate({
-			width: w,
-			'border-right-width': w ? 1 : 0
-		}, 350, callback);
-	}
-	healAnim(pokemon: Pokemon, damage: number | string) {
-		if (this.fastForward) return;
-		if (!pokemon.statbarElem) return;
-		pokemon.side.updateHPText(pokemon);
-
-		let $hp = pokemon.statbarElem.find('div.hp');
-		let w = pokemon.hpWidth(150);
-		let hpcolor = pokemon.getHPColor();
-		let callback;
-		if (hpcolor === 'g') callback = function () {
-			$hp.removeClass('hp-yellow hp-red');
-		};
-		if (hpcolor === 'y') callback = function () {
-			$hp.removeClass('hp-red');
-		};
-
-		this.resultAnim(pokemon, this.hardcoreMode ? 'Heal' : '+' + damage, 'good');
-
-		$hp.animate({
-			width: w,
-			'border-right-width': w ? 1 : 0
-		}, 350, callback);
+		this.scene.updateWeather();
 	}
 	useMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwargs: {[k: string]: string}) {
 		let fromeffect = Tools.getEffect(kwargs.from);
@@ -3509,7 +1366,7 @@ class Battle {
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
-		pokemon.side.updateStatbar(pokemon);
+		pokemon.sprite.updateStatbar(pokemon);
 		if (!target) {
 			target = pokemon.side.foe.active[0];
 		}
@@ -3527,10 +1384,10 @@ class Battle {
 			case 'magiccoat':
 			case 'rebound':
 				if (fromeffect.id === 'magiccoat') {
-					this.resultAnim(pokemon, "Bounced", 'good');
+					this.scene.resultAnim(pokemon, "Bounced", 'good');
 					pokemon.addTurnstatus('magiccoat' as ID);
 				} else {
-					this.resultAnim(pokemon, fromeffect.name, 'ability');
+					this.scene.abilityActivateAnim(pokemon, fromeffect.name);
 					this.message('', "<small>[" + pokemon.getName(true) + "'s " + fromeffect.name + "!]</small>");
 					pokemon.markAbility(fromeffect.name);
 				}
@@ -3606,7 +1463,7 @@ class Battle {
 				// 	for (let i = 0; i < 10; i++) {
 				// 		let name = people[Math.floor(Math.random() * people.length)];
 				// 		if (!button) button = buttons[Math.floor(Math.random() * buttons.length)];
-				// 		this.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
+				// 		this.scene.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
 				// 		button = (name === 'Diatom' ? "thanks diatom" : null);
 				// 	}
 				} else {
@@ -3648,29 +1505,29 @@ class Battle {
 			if (kwargs.miss && target.side) {
 				target = target.side.missedPokemon;
 			}
-			if (kwargs.notarget || !target || !target.sprite.elem) {
+			if (kwargs.notarget || !target) {
 				target = pokemon.side.foe.missedPokemon;
 			}
 			if (kwargs.prepare || kwargs.anim === 'prepare') {
-				this.prepareMove(pokemon, move, target);
+				this.scene.runPrepareAnim(move.id, pokemon, target);
 			} else if (!kwargs.notarget) {
 				let usedMove = kwargs.anim ? Tools.getMove(kwargs.anim) : move;
 				if (kwargs.spread) {
 					this.activeMoveIsSpread = kwargs.spread;
-					let targets = [pokemon.sprite];
+					let targets = [pokemon];
 					let hitPokemon = kwargs.spread.split(',');
 					if (hitPokemon[0] !== '.') {
-						for (let i = hitPokemon.length - 1; i >= 0; i--) {
-							targets.push(this.getPokemon(hitPokemon[i] + ': ?')!.sprite);
+						for (const target of hitPokemon) {
+							targets.push(this.getPokemon(target + ': ?')!);
 						}
 					} else {
 						// if hitPokemon[0] === '.' then no target was hit by the attack
-						targets.push(target.sprite.elem ? target.side.missedPokemon.sprite : target.sprite);
+						targets.push(target.side.missedPokemon);
 					}
 
-					usedMove.anim(this, targets);
+					this.scene.runMoveAnim(usedMove.id, targets);
 				} else {
-					usedMove.anim(this, [pokemon.sprite, target.sprite]);
+					this.scene.runMoveAnim(usedMove.id, [pokemon, target]);
 				}
 			}
 		}
@@ -3682,12 +1539,12 @@ class Battle {
 	}
 	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwargs: {[k: string]: string}) {
 		pokemon.clearMovestatuses();
-		pokemon.side.updateStatbar(pokemon);
-		if (window.BattleStatusAnims && effect.id in BattleStatusAnims && !this.fastForward) {
-			BattleStatusAnims[effect.id].anim(this, [pokemon.sprite]);
+		pokemon.sprite.updateStatbar(pokemon);
+		if (effect.id in BattleStatusAnims) {
+			this.scene.runStatusAnim(effect.id, [pokemon]);
 		}
 		if (effect.effectType === 'Ability') {
-			this.resultAnim(pokemon, effect.name, 'ability');
+			this.scene.abilityActivateAnim(pokemon, effect.name);
 			this.message('', "<small>[" + pokemon.getName(true) + "'s " + effect.name + "!]</small>");
 			pokemon.markAbility(effect.name);
 		}
@@ -3712,15 +1569,15 @@ class Battle {
 			this.message('The effects of Throat Chop prevent ' + pokemon.getName() + ' from using certain moves!');
 			break;
 		case 'par':
-			this.resultAnim(pokemon, 'Paralyzed', 'par');
+			this.scene.resultAnim(pokemon, 'Paralyzed', 'par');
 			this.message('' + pokemon.getName() + ' is paralyzed! It can\'t move!');
 			break;
 		case 'frz':
-			this.resultAnim(pokemon, 'Frozen', 'frz');
+			this.scene.resultAnim(pokemon, 'Frozen', 'frz');
 			this.message('' + pokemon.getName() + ' is frozen solid!');
 			break;
 		case 'slp':
-			this.resultAnim(pokemon, 'Asleep', 'slp');
+			this.scene.resultAnim(pokemon, 'Asleep', 'slp');
 			pokemon.statusData.sleepTurns++;
 			this.message('' + pokemon.getName() + ' is fast asleep.');
 			break;
@@ -3734,31 +1591,31 @@ class Battle {
 			this.message(ofpoke.getName() + ' cannot use ' + move.name + '!');
 			break;
 		case 'truant':
-			this.resultAnim(pokemon, 'Loafing around', 'neutral');
+			this.scene.resultAnim(pokemon, 'Loafing around', 'neutral');
 			this.message('' + pokemon.getName() + ' is loafing around!');
 			break;
 		case 'recharge':
-			if (!this.fastForward) BattleOtherAnims['selfstatus'].anim(this, [pokemon.sprite]);
-			this.resultAnim(pokemon, 'Must recharge', 'neutral');
+			this.scene.runOtherAnim('selfstatus' as ID, [pokemon]);
+			this.scene.resultAnim(pokemon, 'Must recharge', 'neutral');
 			this.message('<small>' + pokemon.getName() + ' must recharge!</small>');
 			break;
 		case 'focuspunch':
-			this.resultAnim(pokemon, 'Lost focus', 'neutral');
+			this.scene.resultAnim(pokemon, 'Lost focus', 'neutral');
 			this.message(pokemon.getName() + ' lost its focus and couldn\'t move!');
 			pokemon.removeTurnstatus('focuspunch' as ID);
 			break;
 		case 'shelltrap':
-			this.resultAnim(pokemon, 'Trap failed', 'neutral');
+			this.scene.resultAnim(pokemon, 'Trap failed', 'neutral');
 			this.message(pokemon.getName() + '\'s shell trap didn\'t work!');
 			pokemon.removeTurnstatus('shelltrap' as ID);
 			break;
 		case 'flinch':
-			this.resultAnim(pokemon, 'Flinched', 'neutral');
+			this.scene.resultAnim(pokemon, 'Flinched', 'neutral');
 			this.message(pokemon.getName() + ' flinched and couldn\'t move!');
 			pokemon.removeTurnstatus('focuspunch' as ID);
 			break;
 		case 'attract':
-			this.resultAnim(pokemon, 'Immobilized', 'neutral');
+			this.scene.resultAnim(pokemon, 'Immobilized', 'neutral');
 			this.message(pokemon.getName() + ' is immobilized by love!');
 			break;
 		case 'nopp':
@@ -3770,17 +1627,6 @@ class Battle {
 			break;
 		}
 		pokemon.sprite.animReset();
-	}
-	prepareMove(pokemon: Pokemon, move: Move, target: Pokemon | null) {
-		if (!move.prepareAnim) return;
-		if (!target) {
-			target = pokemon.side.foe.active[0];
-		}
-		if (!target) {
-			target = pokemon;
-		}
-		if (!this.fastForward) move.prepareAnim(this, [pokemon.sprite, target.sprite]);
-		this.message('<small>' + move.prepareMessage(pokemon, target) + '</small>');
 	}
 	runMinor(args?: string[], kwargs?: {[k: string]: string}, preempt?: boolean, nextArgs?: string[], nextKwargs?: {[k: string]: string}) {
 		let actions = '';
@@ -3803,7 +1649,7 @@ class Battle {
 			let row = minors.shift()!;
 			args = row[0];
 			kwargs = row[1];
-			if (kwargs.simult) this.animationDelay = 0;
+			if (kwargs.simult) this.scene.timeOffset = 0;
 
 			switch (args[0]) {
 			case '-center': {
@@ -3821,7 +1667,7 @@ class Battle {
 					let effect = Tools.getEffect(kwargs.from);
 					let ofpoke = this.getPokemon(kwargs.of);
 					if (effect.effectType === 'Ability' && ofpoke) {
-						this.resultAnim(ofpoke, effect.name, 'ability');
+						this.scene.abilityActivateAnim(ofpoke, effect.name);
 						this.message('', "<small>[" + ofpoke.getName(true) + "'s " + effect.name + "!]</small>");
 						ofpoke.markAbility(effect.name);
 					} else if (effect.effectType === 'Item') {
@@ -3835,11 +1681,11 @@ class Battle {
 						actions += "" + poke.getName() + " is hurt by the spikes! ";
 						break;
 					case 'brn':
-						if (!this.fastForward) BattleStatusAnims['brn'].anim(this, [poke.sprite]);
+						this.scene.runStatusAnim('brn' as ID, [poke]);
 						actions += "" + poke.getName() + " was hurt by its burn! ";
 						break;
 					case 'psn':
-						if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
+						this.scene.runStatusAnim('psn' as ID, [poke]);
 						actions += "" + poke.getName() + " was hurt by poison! ";
 						break;
 					case 'lifeorb':
@@ -3855,11 +1701,11 @@ class Battle {
 						actions += "" + poke.getName() + " is buffeted by the hail! ";
 						break;
 					case 'baddreams':
-						if (!this.fastForward) BattleStatusAnims['cursed'].anim(this, [poke.sprite]);
+						this.scene.runStatusAnim('cursed' as ID, [poke]);
 						actions += "" + poke.getName() + " is tormented!";
 						break;
 					case 'curse':
-						if (!this.fastForward) BattleStatusAnims['cursed'].anim(this, [poke.sprite]);
+						this.scene.runStatusAnim('cursed' as ID, [poke]);
 						actions += "" + poke.getName() + " is afflicted by the curse! ";
 						break;
 					case 'nightmare':
@@ -3881,15 +1727,12 @@ class Battle {
 					case 'solarpower':
 						break;
 					case 'confusion':
-						if (!this.fastForward) BattleStatusAnims.confusedselfhit.anim(this, [poke.sprite]);
+						this.scene.runStatusAnim('confusedselfhit' as ID, [poke]);
 						actions += "It hurt itself in its confusion! ";
 						this.hasPreMoveMessage = false;
 						break;
 					case 'leechseed':
-						if (!this.fastForward) {
-							BattleOtherAnims.leech.anim(this, [ofpoke.sprite, poke.sprite]);
-							// this.activityWait(500);
-						}
+						this.scene.runOtherAnim('leech' as ID, [ofpoke!, poke]);
 						actions += "" + poke.getName() + "'s health is sapped by Leech Seed! ";
 						break;
 					case 'flameburst':
@@ -3904,7 +1747,7 @@ class Battle {
 						break;
 					case 'bind':
 					case 'wrap':
-						if (!this.fastForward) BattleOtherAnims.bound.anim(this, [poke.sprite]);
+						this.scene.runOtherAnim('bound' as ID, [poke]);
 						actions += "" + poke.getName() + ' is hurt by ' + effect.name + '!';
 						break;
 					default:
@@ -3935,7 +1778,7 @@ class Battle {
 					this.message(actions ? '<small>' + actions + '</small>' : '', hiddenactions);
 					actions = '';
 				}
-				this.damageAnim(poke, poke.getFormattedRange(range, 0, ' to '));
+				this.scene.damageAnim(poke, poke.getFormattedRange(range, 0, ' to '));
 				break;
 			} case '-heal': {
 				let poke = this.getPokemon(args[1])!;
@@ -3949,7 +1792,7 @@ class Battle {
 					let effect = Tools.getEffect(kwargs.from);
 					let ofpoke = this.getPokemon(kwargs.of);
 					if (effect.effectType === 'Ability') {
-						this.resultAnim(poke, effect.name, 'ability');
+						this.scene.abilityActivateAnim(poke, effect.name);
 						this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
 						poke.markAbility(effect.name);
 					}
@@ -3967,13 +1810,13 @@ class Battle {
 					case 'healingwish':
 						actions += "The healing wish came true for " + poke.getLowerName() + "!";
 						this.lastMove = 'healing-wish';
-						if (!this.fastForward) Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
+						this.scene.runResidualAnim('healingwish' as ID, poke);
 						poke.side.wisher = null;
 						break;
 					case 'lunardance':
 						actions += "" + poke.getName() + " became cloaked in mystical moonlight!";
 						this.lastMove = 'healing-wish';
-						if (!this.fastForward) Tools.getMove('healingwish').residualAnim(this, [poke.sprite]);
+						this.scene.runResidualAnim('healingwish' as ID, poke);
 						for (let trackedMove of poke.moveTrack) {
 							trackedMove[1] = 0;
 						}
@@ -3981,12 +1824,10 @@ class Battle {
 						break;
 					case 'wish':
 						actions += "" + kwargs.wisher + "'s wish came true!";
-						if (!this.fastForward) this.backgroundEffect("url('fx/bg-space.jpg')", 600, 0.4);
-						if (!this.fastForward) Tools.getMove('wish').residualAnim(this, [poke.sprite]);
-						this.animationDelay += 500;
+						this.scene.runResidualAnim('wish' as ID, poke);
 						break;
 					case 'drain':
-						actions += ofpoke.getName() + ' had its energy drained!';
+						actions += ofpoke!.getName() + ' had its energy drained!';
 						break;
 					case 'leftovers':
 					case 'shellbell':
@@ -4009,8 +1850,8 @@ class Battle {
 				} else {
 					actions += poke.getName() + ' restored its HP.';
 				}
-				if (!this.fastForward) BattleOtherAnims.heal.anim(this, [poke.sprite]);
-				this.healAnim(poke, poke.getFormattedRange(range, 0, ' to '));
+				this.scene.runOtherAnim('heal' as ID, [poke]);
+				this.scene.healAnim(poke, poke.getFormattedRange(range, 0, ' to '));
 				break;
 			} case '-sethp': {
 				let effect = Tools.getEffect(kwargs.from);
@@ -4023,9 +1864,9 @@ class Battle {
 						let formattedRange = cpoke.getFormattedRange(range, 0, ' to ');
 						let diff = damage[0];
 						if (diff > 0) {
-							this.healAnim(cpoke, formattedRange);
+							this.scene.healAnim(cpoke, formattedRange);
 						} else {
-							this.damageAnim(cpoke, formattedRange);
+							this.scene.damageAnim(cpoke, formattedRange);
 						}
 					}
 					if (k == 0) poke = cpoke;
@@ -4047,7 +1888,7 @@ class Battle {
 				let amount = parseInt(args[3], 10);
 				if (amount === 0) {
 					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " won't go any higher! ";
-					this.resultAnim(poke, 'Highest ' + BattleStats[stat], 'good');
+					this.scene.resultAnim(poke, 'Highest ' + BattleStats[stat], 'good');
 					break;
 				}
 				if (!poke.boosts[stat]) {
@@ -4064,7 +1905,7 @@ class Battle {
 					let effect = Tools.getEffect(kwargs.from);
 					let ofpoke = this.getPokemon(kwargs.of);
 					if (effect.effectType === 'Ability' && !(effect.id === 'weakarmor' && stat === 'spe')) {
-						this.resultAnim(ofpoke || poke, effect.name, 'ability');
+						this.scene.abilityActivateAnim(ofpoke || poke, effect.name);
 						this.message('', "<small>[" + (ofpoke || poke).getName(true) + "'s " + effect.name + "!]</small>");
 						poke.markAbility(effect.name);
 					}
@@ -4090,7 +1931,7 @@ class Battle {
 				} else {
 					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " rose" + amountString + "! ";
 				}
-				this.resultAnim(poke, poke.getBoost(stat), 'good');
+				this.scene.resultAnim(poke, poke.getBoost(stat), 'good');
 				break;
 			} case '-unboost': {
 				let poke = this.getPokemon(args[1])!;
@@ -4100,7 +1941,7 @@ class Battle {
 				let amount = parseInt(args[3], 10);
 				if (amount === 0) {
 					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " won't go any lower! ";
-					this.resultAnim(poke, 'Lowest ' + BattleStats[stat], 'bad');
+					this.scene.resultAnim(poke, 'Lowest ' + BattleStats[stat], 'bad');
 					break;
 				}
 				if (!poke.boosts[stat]) {
@@ -4117,7 +1958,7 @@ class Battle {
 					let effect = Tools.getEffect(kwargs.from);
 					let ofpoke = this.getPokemon(kwargs.of);
 					if (effect.effectType === 'Ability') {
-						this.resultAnim(ofpoke || poke, effect.name, 'ability');
+						this.scene.abilityActivateAnim(ofpoke || poke, effect.name);
 						this.message('', "<small>[" + (ofpoke || poke).getName(true) + "'s " + effect.name + "!]</small>");
 						poke.markAbility(effect.name);
 					}
@@ -4134,7 +1975,7 @@ class Battle {
 				} else {
 					actions += "" + poke.getName() + "'s " + BattleStats[stat] + " fell" + amountString + "! ";
 				}
-				this.resultAnim(poke, poke.getBoost(stat), 'bad');
+				this.scene.resultAnim(poke, poke.getBoost(stat), 'bad');
 				break;
 			} case '-setboost': {
 				let poke = this.getPokemon(args[1])!;
@@ -4143,7 +1984,7 @@ class Battle {
 				let effect = Tools.getEffect(kwargs.from);
 				let ofpoke = this.getPokemon(kwargs.of);
 				poke.boosts[stat] = amount;
-				this.resultAnim(poke, poke.getBoost(stat), (amount > 0 ? 'good' : 'bad'));
+				this.scene.resultAnim(poke, poke.getBoost(stat), (amount > 0 ? 'good' : 'bad'));
 
 				if (kwargs.silent) {
 					// do nothing
@@ -4153,8 +1994,8 @@ class Battle {
 						actions += '' + poke.getName() + ' cut its own HP and maximized its Attack!';
 						break;
 					case 'angerpoint':
-						if (!this.fastForward) BattleOtherAnims.anger.anim(this, [poke.sprite]);
-						this.resultAnim(poke, 'Anger Point', 'ability');
+						this.scene.runOtherAnim('anger' as ID, [poke]);
+						this.scene.abilityActivateAnim(poke, 'Anger Point');
 						this.message('', "<small>[" + poke.getName(true) + "'s Anger Point!]</small>");
 						poke.markAbility('Anger Point');
 						actions += '' + poke.getName() + ' maxed its Attack!';
@@ -4174,8 +2015,8 @@ class Battle {
 					poke2.boosts[stats[i]] = tmp;
 					if (!poke2.boosts[stats[i]]) delete poke2.boosts[stats[i]];
 				}
-				this.resultAnim(poke, 'Stats swapped', 'neutral');
-				this.resultAnim(poke2, 'Stats swapped', 'neutral');
+				this.scene.resultAnim(poke, 'Stats swapped', 'neutral');
+				this.scene.resultAnim(poke2, 'Stats swapped', 'neutral');
 
 				if (kwargs.silent) {
 					// do nothing
@@ -4200,7 +2041,7 @@ class Battle {
 				for (const stat in poke.boosts) {
 					if (poke.boosts[stat] > 0) delete poke.boosts[stat];
 				}
-				this.resultAnim(poke, 'Boosts lost', 'bad');
+				this.scene.resultAnim(poke, 'Boosts lost', 'bad');
 
 				if (kwargs.silent) {
 					// do nothing
@@ -4208,8 +2049,8 @@ class Battle {
 					switch (effect.id) {
 					case 'spectralthief':
 						// todo: update StealBoosts so it animates 1st on Spectral Thief
-						if (!this.fastForward) BattleOtherAnims.spectralthiefboost.anim(this, [ofpoke.sprite, poke.sprite]);
-						actions += '' + ofpoke.getName() + ' stole the target\'s boosted stats!';
+						this.scene.runOtherAnim('spectralthiefboost' as ID, [ofpoke!, poke]);
+						actions += '' + ofpoke!.getName() + ' stole the target\'s boosted stats!';
 						break;
 					}
 				}
@@ -4219,7 +2060,7 @@ class Battle {
 				for (const stat in poke.boosts) {
 					if (poke.boosts[stat] < 0) delete poke.boosts[stat];
 				}
-				this.resultAnim(poke, 'Restored', 'good');
+				this.scene.resultAnim(poke, 'Restored', 'good');
 
 				if (kwargs.silent) {
 					// do nothing
@@ -4242,14 +2083,14 @@ class Battle {
 				if (kwargs.silent) {
 					// do nothing
 				} else {
-					this.resultAnim(poke, 'Stats copied', 'neutral');
+					this.scene.resultAnim(poke, 'Stats copied', 'neutral');
 					actions += "" + poke.getName() + " copied " + frompoke.getLowerName() + "'s stat changes!";
 				}
 				break;
 			} case '-clearboost': {
 				let poke = this.getPokemon(args[1])!;
 				poke.boosts = {};
-				this.resultAnim(poke, 'Stats reset', 'neutral');
+				this.scene.resultAnim(poke, 'Stats reset', 'neutral');
 
 				if (kwargs.silent) {
 					// do nothing
@@ -4262,7 +2103,7 @@ class Battle {
 				for (const stat in poke.boosts) {
 					poke.boosts[stat] = -poke.boosts[stat];
 				}
-				this.resultAnim(poke, 'Stats inverted', 'neutral');
+				this.scene.resultAnim(poke, 'Stats inverted', 'neutral');
 
 				if (kwargs.silent) {
 					// do nothing
@@ -4275,7 +2116,7 @@ class Battle {
 					for (const active of side.active) {
 						if (active) {
 							active.boosts = {};
-							this.resultAnim(active, 'Stats reset', 'neutral');
+							this.scene.resultAnim(active, 'Stats reset', 'neutral');
 						}
 					}
 				}
@@ -4290,7 +2131,7 @@ class Battle {
 			} case '-crit': {
 				let poke = this.getPokemon(args[1]);
 				for (let j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[j][0][1]);
-				if (poke) this.resultAnim(poke, 'Critical hit', 'bad');
+				if (poke) this.scene.resultAnim(poke, 'Critical hit', 'bad');
 				actions += "A critical hit" + (poke && this.activeMoveIsSpread ? " on " + poke.getLowerName() : "") + "! ";
 				if (window.Config && Config.server && Config.server.afd && !Config.server.afdCrit) {
 					actions += '<div class="broadcast-red" style="font-size:10pt">Crit mattered? Buy <strong>Crit Insurance DLC</strong>, yours for only $4.99!<br /> <a href="/view-dlc">CLICK HERE!</a></div>';
@@ -4301,9 +2142,11 @@ class Battle {
 			} case '-supereffective': {
 				let poke = this.getPokemon(args[1]);
 				for (let j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[j][0][1]);
-				if (poke) this.resultAnim(poke, 'Super-effective', 'bad');
-				if (!this.fastForward && window.Config && Config.server && Config.server.afd && poke) {
-					BattleStatusAnims['hitmark'].anim(this, [poke.sprite]);
+				if (poke) {
+					this.scene.resultAnim(poke, 'Super-effective', 'bad');
+					if (window.Config && Config.server && Config.server.afd) {
+						this.scene.runOtherAnim('hitmark' as ID, [poke]);
+					}
 				}
 				actions += "It's super effective" + (poke && this.activeMoveIsSpread ? " on " + poke.getLowerName() : "") + "! ";
 				break;
@@ -4311,7 +2154,7 @@ class Battle {
 			} case '-resisted': {
 				let poke = this.getPokemon(args[1]);
 				for (let j = 1; !poke && j < 10; j++) poke = this.getPokemon(minors[j][0][1]);
-				if (poke) this.resultAnim(poke, 'Resisted', 'neutral');
+				if (poke) this.scene.resultAnim(poke, 'Resisted', 'neutral');
 				actions += "It's not very effective" + (poke && this.activeMoveIsSpread ? " on " + poke.getLowerName() : "..") + ". ";
 				break;
 
@@ -4321,7 +2164,7 @@ class Battle {
 				let fromeffect = Tools.getEffect(kwargs.from);
 				if (fromeffect && fromeffect.effectType === 'Ability') {
 					let ofpoke = this.getPokemon(kwargs.of) || poke;
-					this.resultAnim(ofpoke, fromeffect.name, 'ability');
+					this.scene.abilityActivateAnim(ofpoke, fromeffect.name);
 					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + fromeffect.name + "!]</small>");
 					ofpoke.markAbility(fromeffect.name);
 				}
@@ -4334,7 +2177,7 @@ class Battle {
 				} else {
 					actions += "It had no effect! ";
 				}
-				this.resultAnim(poke, 'Immune', 'neutral');
+				this.scene.resultAnim(poke, 'Immune', 'neutral');
 				break;
 
 			} case '-miss': {
@@ -4342,7 +2185,7 @@ class Battle {
 				let target = this.getPokemon(args[2]);
 				if (target) {
 					actions += "" + target.getName() + " avoided the attack!";
-					this.resultAnim(target, 'Missed', 'neutral');
+					this.scene.resultAnim(target, 'Missed', 'neutral');
 				} else {
 					actions += "" + user.getName() + "'s attack missed!";
 				}
@@ -4354,7 +2197,7 @@ class Battle {
 				let fromeffect = Tools.getEffect(kwargs.from);
 				let ofpoke = this.getPokemon(kwargs.of);
 				if (poke) {
-					this.resultAnim(poke, 'Failed', 'neutral');
+					this.scene.resultAnim(poke, 'Failed', 'neutral');
 				}
 				// Sky Drop blocking moves takes priority over all other moves
 				if (fromeffect.id === 'skydrop') {
@@ -4363,33 +2206,33 @@ class Battle {
 				}
 				switch (effect.id) {
 				case 'brn':
-					this.resultAnim(poke, 'Already burned', 'neutral');
+					this.scene.resultAnim(poke, 'Already burned', 'neutral');
 					actions += "" + poke.getName() + " already has a burn.";
 					break;
 				case 'tox':
 				case 'psn':
-					this.resultAnim(poke, 'Already poisoned', 'neutral');
+					this.scene.resultAnim(poke, 'Already poisoned', 'neutral');
 					actions += "" + poke.getName() + " is already poisoned.";
 					break;
 				case 'slp':
 					if (fromeffect.id === 'uproar') {
-						this.resultAnim(poke, 'Failed', 'neutral');
+						this.scene.resultAnim(poke, 'Failed', 'neutral');
 						if (kwargs.msg) {
 							actions += "But " + poke.getLowerName() + " can't sleep in an uproar!";
 						} else {
 							actions += "But the uproar kept " + poke.getLowerName() + " awake!";
 						}
 					} else {
-						this.resultAnim(poke, 'Already asleep', 'neutral');
+						this.scene.resultAnim(poke, 'Already asleep', 'neutral');
 						actions += "" + poke.getName() + " is already asleep!";
 					}
 					break;
 				case 'par':
-					this.resultAnim(poke, 'Already paralyzed', 'neutral');
+					this.scene.resultAnim(poke, 'Already paralyzed', 'neutral');
 					actions += "" + poke.getName() + " is already paralyzed.";
 					break;
 				case 'frz':
-					this.resultAnim(poke, 'Already frozen', 'neutral');
+					this.scene.resultAnim(poke, 'Already frozen', 'neutral');
 					actions += "" + poke.getName() + " is already frozen solid!";
 					break;
 				case 'darkvoid':
@@ -4437,15 +2280,15 @@ class Battle {
 					break;
 				case 'unboost':
 					if (fromeffect.effectType === 'Ability') {
-						this.resultAnim(poke, fromeffect.name, 'ability');
+						this.scene.abilityActivateAnim(poke, fromeffect.name);
 						this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
 						poke.markAbility(fromeffect.name);
 					} else {
-						this.resultAnim(poke, 'Stat drop blocked', 'neutral');
+						this.scene.resultAnim(poke, 'Stat drop blocked', 'neutral');
 					}
 					switch (fromeffect.id) {
 					case 'flowerveil':
-						actions += '' + ofpoke.getName() + ' surrounded itself with a veil of petals!';
+						actions += '' + ofpoke!.getName() + ' surrounded itself with a veil of petals!';
 						break;
 					default:
 						let stat = Tools.escapeHTML(args[3]);
@@ -4501,7 +2344,7 @@ class Battle {
 			} case '-zpower': {
 				if (!this.hasPreMoveMessage && this.waitForResult()) return;
 				let poke = this.getPokemon(args[1])!;
-				if (!this.fastForward) BattleOtherAnims.zpower.anim(this, [poke.sprite]);
+				this.scene.runOtherAnim('zpower' as ID, [poke]);
 				actions += "" + poke.getName() + " surrounded itself with its Z-Power! ";
 				this.hasPreMoveMessage = true;
 				break;
@@ -4513,26 +2356,26 @@ class Battle {
 
 			} case '-prepare': {
 				let poke = this.getPokemon(args[1])!;
-				let move = Tools.getMove(args[2]);
-				let target = this.getPokemon(args[3]);
-				this.prepareMove(poke, move, target);
+				let moveid = toId(args[2]);
+				let target = this.getPokemon(args[3]) || poke.side.foe.active[0] || poke;
+				this.scene.runPrepareAnim(moveid, poke, target);
 				break;
 
 			} case '-mustrecharge': {
 				let poke = this.getPokemon(args[1])!;
 				poke.addMovestatus('mustrecharge' as ID);
-				poke.side.updateStatbar(poke);
+				poke.sprite.updateStatbar(poke);
 				break;
 
 			} case '-status': {
 				let poke = this.getPokemon(args[1])!;
 				let effect = Tools.getEffect(kwargs.from);
 				let ofpoke = this.getPokemon(kwargs.of) || poke;
-				poke.status = args[2];
+				poke.status = args[2] as StatusName;
 				poke.removeVolatile('yawn' as ID);
 				let effectMessage = "";
 				if (effect.effectType === 'Ability') {
-					this.resultAnim(ofpoke, effect.name, 'ability');
+					this.scene.abilityActivateAnim(ofpoke, effect.name);
 					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + effect.name + "!]</small>");
 					ofpoke.markAbility(effect.name);
 				} else if (effect.effectType === 'Item') {
@@ -4542,23 +2385,23 @@ class Battle {
 
 				switch (args[2]) {
 				case 'brn':
-					this.resultAnim(poke, 'Burned', 'brn');
-					if (!this.fastForward) BattleStatusAnims['brn'].anim(this, [poke.sprite]);
+					this.scene.resultAnim(poke, 'Burned', 'brn');
+					this.scene.runStatusAnim('brn' as ID, [poke]);
 					actions += "" + poke.getName() + " was burned" + effectMessage + "!";
 					break;
 				case 'tox':
-					this.resultAnim(poke, 'Toxic poison', 'psn');
-					if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
+					this.scene.resultAnim(poke, 'Toxic poison', 'psn');
+					this.scene.runStatusAnim('psn' as ID, [poke]);
 					poke.statusData.toxicTurns = 1;
 					actions += "" + poke.getName() + " was badly poisoned" + effectMessage + "!";
 					break;
 				case 'psn':
-					this.resultAnim(poke, 'Poisoned', 'psn');
-					if (!this.fastForward) BattleStatusAnims['psn'].anim(this, [poke.sprite]);
+					this.scene.resultAnim(poke, 'Poisoned', 'psn');
+					this.scene.runStatusAnim('psn' as ID, [poke]);
 					actions += "" + poke.getName() + " was poisoned!";
 					break;
 				case 'slp':
-					this.resultAnim(poke, 'Asleep', 'slp');
+					this.scene.resultAnim(poke, 'Asleep', 'slp');
 					if (effect.id === 'rest') {
 						poke.statusData.sleepTurns = 0; // for Gen 2 use through Sleep Talk
 						actions += '' + poke.getName() + ' slept and became healthy!';
@@ -4567,17 +2410,17 @@ class Battle {
 					}
 					break;
 				case 'par':
-					this.resultAnim(poke, 'Paralyzed', 'par');
-					if (!this.fastForward) BattleStatusAnims['par'].anim(this, [poke.sprite]);
+					this.scene.resultAnim(poke, 'Paralyzed', 'par');
+					this.scene.runStatusAnim('par' as ID, [poke]);
 					actions += "" + poke.getName() + " is paralyzed! It may be unable to move!";
 					break;
 				case 'frz':
-					this.resultAnim(poke, 'Frozen', 'frz');
-					if (!this.fastForward) BattleStatusAnims['frz'].anim(this, [poke.sprite]);
+					this.scene.resultAnim(poke, 'Frozen', 'frz');
+					this.scene.runStatusAnim('frz' as ID, [poke]);
 					actions += "" + poke.getName() + " was frozen solid!";
 					break;
 				default:
-					poke.side.updateStatbar(poke);
+					poke.sprite.updateStatbar(poke);
 					break;
 				}
 				break;
@@ -4604,8 +2447,8 @@ class Battle {
 				} else if (effect.id) {
 					switch (effect.id) {
 					case 'psychoshift':
-						actions += '' + pokeName + ' moved its status onto ' + ofpoke.getLowerName() + '!';
-						if (poke) this.resultAnim(poke, 'Cured', 'good');
+						actions += '' + pokeName + ' moved its status onto ' + ofpoke!.getLowerName() + '!';
+						if (poke) this.scene.resultAnim(poke, 'Cured', 'good');
 						break;
 					case 'flamewheel':
 					case 'flareblitz':
@@ -4613,7 +2456,7 @@ class Battle {
 					case 'sacredfire':
 					case 'scald':
 					case 'steameruption':
-						if (poke) this.resultAnim(poke, 'Thawed', 'good');
+						if (poke) this.scene.resultAnim(poke, 'Thawed', 'good');
 						actions += "" + pokeName + "'s " + effect.name + " melted the ice!";
 						break;
 					case 'naturalcure':
@@ -4622,14 +2465,14 @@ class Battle {
 						this.hasPreMoveMessage = true;
 						break;
 					default:
-						if (poke) this.resultAnim(poke, 'Cured', 'good');
+						if (poke) this.scene.resultAnim(poke, 'Cured', 'good');
 						actions += "" + pokeName + "'s " + effect.name + " heals its status!";
 						break;
 					}
 				} else {
 					switch (args[2]) {
 					case 'brn':
-						if (poke) this.resultAnim(poke, 'Burn cured', 'good');
+						if (poke) this.scene.resultAnim(poke, 'Burn cured', 'good');
 						if (effect.effectType === 'Item') {
 							actions += "" + pokeName + "'s " + effect.name + " healed its burn!";
 							break;
@@ -4641,7 +2484,7 @@ class Battle {
 						if (poke) poke.statusData.toxicTurns = 0;
 						// falls through
 					case 'psn':
-						if (poke) this.resultAnim(poke, 'Poison cured', 'good');
+						if (poke) this.scene.resultAnim(poke, 'Poison cured', 'good');
 						if (effect.effectType === 'Item') {
 							actions += "" + pokeName + "'s " + effect.name + " cured its poison!";
 							break;
@@ -4649,7 +2492,7 @@ class Battle {
 						actions += "" + pokeName + " was cured of its poisoning.";
 						break;
 					case 'slp':
-						if (poke) this.resultAnim(poke, 'Woke up', 'good');
+						if (poke) this.scene.resultAnim(poke, 'Woke up', 'good');
 						if (poke) poke.statusData.sleepTurns = 0;
 						if (effect.effectType === 'Item') {
 							actions += "" + pokeName + "'s " + effect.name + " woke it up!";
@@ -4658,7 +2501,7 @@ class Battle {
 						actions += "" + pokeName + " woke up!";
 						break;
 					case 'par':
-						if (poke) this.resultAnim(poke, 'Paralysis cured', 'good');
+						if (poke) this.scene.resultAnim(poke, 'Paralysis cured', 'good');
 						if (effect.effectType === 'Item') {
 							actions += "" + pokeName + "'s " + effect.name + " cured its paralysis!";
 							break;
@@ -4666,7 +2509,7 @@ class Battle {
 						actions += "" + pokeName + " was cured of paralysis.";
 						break;
 					case 'frz':
-						if (poke) this.resultAnim(poke, 'Thawed', 'good');
+						if (poke) this.scene.resultAnim(poke, 'Thawed', 'good');
 						if (effect.effectType === 'Item') {
 							actions += "" + pokeName + "'s " + effect.name + " defrosted it!";
 							break;
@@ -4675,7 +2518,7 @@ class Battle {
 						break;
 					default:
 						if (poke) poke.removeVolatile('confusion' as ID);
-						if (poke) this.resultAnim(poke, 'Cured', 'good');
+						if (poke) this.scene.resultAnim(poke, 'Cured', 'good');
 						actions += "" + pokeName + "'s status cleared!";
 					}
 				}
@@ -4683,12 +2526,12 @@ class Battle {
 
 			} case '-cureteam': { // For old gens when the whole team was always cured
 				let poke = this.getPokemon(args[1])!;
-				for (let k = 0; k < poke.side.pokemon.length; k++) {
-					poke.side.pokemon[k].status = '';
-					poke.side.updateStatbar(poke.side.pokemon[k]);
+				for (const target of poke.side.pokemon) {
+					target.status = '';
+					if (target.sprite.$statbar) target.sprite.updateStatbar(target);
 				}
 
-				this.resultAnim(poke, 'Team Cured', 'good');
+				this.scene.resultAnim(poke, 'Team Cured', 'good');
 				let effect = Tools.getEffect(kwargs.from);
 				switch (effect.id) {
 				case 'aromatherapy':
@@ -4716,71 +2559,71 @@ class Battle {
 				if (effect.id) {
 					switch (effect.id) {
 					case 'pickup':
-						this.resultAnim(poke, 'Pickup', 'ability');
+						this.scene.abilityActivateAnim(poke, 'Pickup');
 						this.message('', "<small>[" + poke.getName(true) + "'s Pickup!]</small>");
 						poke.markAbility('Pickup');
 						// falls through
 					case 'recycle':
 						poke.itemEffect = 'found';
 						actions += '' + poke.getName() + ' found one ' + item.name + '!';
-						this.resultAnim(poke, item.name, 'neutral');
+						this.scene.resultAnim(poke, item.name, 'neutral');
 						break;
 					case 'frisk':
-						this.resultAnim(ofpoke, 'Frisk', 'ability');
-						this.message('', "<small>[" + ofpoke.getName(true) + "'s Frisk!]</small>");
-						ofpoke.markAbility('Frisk');
+						this.scene.abilityActivateAnim(ofpoke!, 'Frisk');
+						this.message('', "<small>[" + ofpoke!.getName(true) + "'s Frisk!]</small>");
+						ofpoke!.markAbility('Frisk');
 						if (kwargs.identify) { // used for gen 6
 							poke.itemEffect = 'frisked';
-							actions += '' + ofpoke.getName() + ' frisked ' + poke.getLowerName() + ' and found its ' + item.name + '!';
-							this.resultAnim(poke, item.name, 'neutral');
+							actions += '' + ofpoke!.getName() + ' frisked ' + poke.getLowerName() + ' and found its ' + item.name + '!';
+							this.scene.resultAnim(poke, item.name, 'neutral');
 						} else {
-							actions += '' + ofpoke.getName() + ' frisked its target and found one ' + item.name + '!';
+							actions += '' + ofpoke!.getName() + ' frisked its target and found one ' + item.name + '!';
 						}
 						break;
 					case 'magician':
 					case 'pickpocket':
-						this.resultAnim(poke, effect.name, 'ability');
+						this.scene.abilityActivateAnim(poke, effect.name);
 						this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
 						poke.markAbility(effect.name);
 						// falls through
 					case 'thief':
 					case 'covet':
 						// simulate the removal of the item from the ofpoke
-						ofpoke.item = '';
-						ofpoke.itemEffect = '';
-						ofpoke.prevItem = item.name;
-						ofpoke.prevItemEffect = 'stolen';
-						ofpoke.addVolatile('itemremoved' as ID);
+						ofpoke!.item = '';
+						ofpoke!.itemEffect = '';
+						ofpoke!.prevItem = item.name;
+						ofpoke!.prevItemEffect = 'stolen';
+						ofpoke!.addVolatile('itemremoved' as ID);
 						poke.itemEffect = 'stolen';
-						actions += '' + poke.getName() + ' stole ' + ofpoke.getLowerName() + "'s " + item.name + "!";
-						this.resultAnim(poke, item.name, 'neutral');
-						this.resultAnim(ofpoke, 'Item Stolen', 'bad');
+						actions += '' + poke.getName() + ' stole ' + ofpoke!.getLowerName() + "'s " + item.name + "!";
+						this.scene.resultAnim(poke, item.name, 'neutral');
+						this.scene.resultAnim(ofpoke!, 'Item Stolen', 'bad');
 						break;
 					case 'harvest':
 						poke.itemEffect = 'harvested';
-						this.resultAnim(poke, 'Harvest', 'ability');
+						this.scene.abilityActivateAnim(poke, 'Harvest');
 						this.message('', "<small>[" + poke.getName(true) + "'s Harvest!]</small>");
 						poke.markAbility('Harvest');
 						actions += '' + poke.getName() + ' harvested one ' + item.name + '!';
-						this.resultAnim(poke, item.name, 'neutral');
+						this.scene.resultAnim(poke, item.name, 'neutral');
 						break;
 					case 'bestow':
 						poke.itemEffect = 'bestowed';
-						actions += '' + poke.getName() + ' received ' + item.name + ' from ' + ofpoke.getLowerName() + '!';
-						this.resultAnim(poke, item.name, 'neutral');
+						actions += '' + poke.getName() + ' received ' + item.name + ' from ' + ofpoke!.getLowerName() + '!';
+						this.scene.resultAnim(poke, item.name, 'neutral');
 						break;
 					case 'trick':
 						poke.itemEffect = 'tricked';
 						// falls through
 					default:
 						actions += '' + poke.getName() + ' obtained one ' + item.name + '.';
-						this.resultAnim(poke, item.name, 'neutral');
+						this.scene.resultAnim(poke, item.name, 'neutral');
 						break;
 					}
 				} else {
 					switch (item.id) {
 					case 'airballoon':
-						this.resultAnim(poke, 'Balloon', 'good');
+						this.scene.resultAnim(poke, 'Balloon', 'good');
 						actions += "" + poke.getName() + " floats in the air with its Air Balloon!";
 						break;
 					default:
@@ -4805,7 +2648,7 @@ class Battle {
 					// do nothing
 				} else if (kwargs.eat) {
 					poke.prevItemEffect = 'eaten';
-					if (!this.fastForward) BattleOtherAnims.consume.anim(this, [poke.sprite]);
+					this.scene.runOtherAnim('consume' as ID, [poke]);
 					actions += '' + poke.getName() + ' ate its ' + item.name + '!';
 					this.lastMove = item.id;
 				} else if (kwargs.weaken) {
@@ -4820,13 +2663,13 @@ class Battle {
 						break;
 					case 'knockoff':
 						poke.prevItemEffect = 'knocked off';
-						actions += '' + ofpoke.getName() + ' knocked off ' + poke.getLowerName() + '\'s ' + item.name + '!';
-						if (!this.fastForward) BattleOtherAnims.itemoff.anim(this, [poke.sprite]);
-						this.resultAnim(poke, 'Item knocked off', 'neutral');
+						actions += '' + ofpoke!.getName() + ' knocked off ' + poke.getLowerName() + '\'s ' + item.name + '!';
+						this.scene.runOtherAnim('itemoff' as ID, [poke]);
+						this.scene.resultAnim(poke, 'Item knocked off', 'neutral');
 						break;
 					case 'stealeat':
 						poke.prevItemEffect = 'stolen';
-						actions += '' + ofpoke.getName() + ' stole and ate its target\'s ' + item.name + '!';
+						actions += '' + ofpoke!.getName() + ' stole and ate its target\'s ' + item.name + '!';
 						break;
 					case 'gem':
 						poke.prevItemEffect = 'consumed';
@@ -4845,16 +2688,16 @@ class Battle {
 					case 'airballoon':
 						poke.prevItemEffect = 'popped';
 						poke.removeVolatile('airballoon' as ID);
-						this.resultAnim(poke, 'Balloon popped', 'neutral');
+						this.scene.resultAnim(poke, 'Balloon popped', 'neutral');
 						actions += "" + poke.getName() + "'s Air Balloon popped!";
 						break;
 					case 'focussash':
 						poke.prevItemEffect = 'consumed';
-						this.resultAnim(poke, 'Sash', 'neutral');
+						this.scene.resultAnim(poke, 'Sash', 'neutral');
 						actions += "" + poke.getName() + ' hung on using its Focus Sash!';
 						break;
 					case 'focusband':
-						this.resultAnim(poke, 'Focus Band', 'neutral');
+						this.scene.resultAnim(poke, 'Focus Band', 'neutral');
 						actions += "" + poke.getName() + ' hung on using its Focus Band!';
 						break;
 					case 'powerherb':
@@ -4871,7 +2714,7 @@ class Battle {
 						break;
 					case 'redcard':
 						poke.prevItemEffect = 'held up';
-						actions += "" + poke.getName() + " held up its Red Card against " + ofpoke.getLowerName() + "!";
+						actions += "" + poke.getName() + " held up its Red Card against " + ofpoke!.getLowerName() + "!";
 						break;
 					default:
 						poke.prevItemEffect = 'consumed';
@@ -4893,56 +2736,56 @@ class Battle {
 				} else if (effect.id) {
 					switch (effect.id) {
 					case 'trace':
-						this.resultAnim(poke, "Trace", 'ability');
-						this.animationDelay = 500;
-						this.resultAnim(poke, ability.name, 'ability');
+						this.scene.abilityActivateAnim(poke, "Trace");
+						this.scene.wait(500);
+						this.scene.abilityActivateAnim(poke, ability.name);
 						this.message('', "<small>[" + poke.getName(true) + "'s Trace!]</small>");
 						if (!poke.baseAbility) poke.baseAbility = effect.name;
-						ofpoke.markAbility(ability.name);
-						actions += '' + poke.getName() + ' traced ' + ofpoke.getLowerName() + '\'s ' + ability.name + '!';
+						ofpoke!.markAbility(ability.name);
+						actions += '' + poke.getName() + ' traced ' + ofpoke!.getLowerName() + '\'s ' + ability.name + '!';
 						break;
 					case 'powerofalchemy':
 					case 'receiver':
-						this.resultAnim(poke, effect.name, 'ability');
-						this.animationDelay = 500;
-						this.resultAnim(poke, ability.name, 'ability');
+						this.scene.abilityActivateAnim(poke, effect.name);
+						this.scene.wait(500);
+						this.scene.abilityActivateAnim(poke, ability.name);
 						this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
 						if (!poke.baseAbility) poke.baseAbility = effect.name;
-						actions += '' + ofpoke.getName() + '\'s ' + ability.name + ' was taken over!';
+						actions += '' + ofpoke!.getName() + '\'s ' + ability.name + ' was taken over!';
 						break;
 					case 'roleplay':
-						this.resultAnim(poke, ability.name, 'ability');
-						actions += '' + poke.getName() + ' copied ' + ofpoke.getLowerName() + '\'s ' + ability.name + ' Ability!';
-						ofpoke.markAbility(ability.name);
+						this.scene.abilityActivateAnim(poke, ability.name);
+						actions += '' + poke.getName() + ' copied ' + ofpoke!.getLowerName() + '\'s ' + ability.name + ' Ability!';
+						ofpoke!.markAbility(ability.name);
 						break;
 					case 'desolateland':
 						if (kwargs.fail) {
-							this.resultAnim(poke, ability.name, 'ability');
+							this.scene.abilityActivateAnim(poke, ability.name);
 							this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
 							actions += "The extremely harsh sunlight was not lessened at all!";
 						}
 						break;
 					case 'primordialsea':
 						if (kwargs.fail) {
-							this.resultAnim(poke, ability.name, 'ability');
+							this.scene.abilityActivateAnim(poke, ability.name);
 							this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
 							actions += "There's no relief from this heavy rain!";
 						}
 						break;
 					case 'deltastream':
 						if (kwargs.fail) {
-							this.resultAnim(poke, ability.name, 'ability');
+							this.scene.abilityActivateAnim(poke, ability.name);
 							this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
 							actions += "The mysterious strong winds blow on regardless!";
 						}
 						break;
 					default:
-						this.resultAnim(poke, ability.name, 'ability');
+						this.scene.abilityActivateAnim(poke, ability.name);
 						actions += "" + poke.getName() + " acquired " + ability.name + "!";
 						break;
 					}
 				} else {
-					this.resultAnim(poke, ability.name, 'ability');
+					this.scene.abilityActivateAnim(poke, ability.name);
 					this.message('', "<small>[" + poke.getName(true) + "'s " + ability.name + "!]</small>");
 					switch (ability.id) {
 					case 'airlock':
@@ -4998,7 +2841,7 @@ class Battle {
 					// do nothing
 				} else if (ability.exists) {
 					actions += "(" + poke.getName() + "'s " + ability.name + " was removed.)";
-					this.resultAnim(poke, ability.name + ' removed', 'bad');
+					this.scene.resultAnim(poke, ability.name + ' removed', 'bad');
 					if (!poke.baseAbility) poke.baseAbility = ability.name;
 				} else {
 					actions += "" + poke.getName() + "\'s Ability was suppressed!";
@@ -5011,31 +2854,31 @@ class Battle {
 				let effect = Tools.getEffect(kwargs.from);
 
 				if (!kwargs.silent && effect.effectType === 'Ability') {
-					this.resultAnim(poke, effect.name, 'ability');
+					this.scene.abilityActivateAnim(poke, effect.name);
 					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
 					poke.markAbility(effect.name);
 				}
 
 				actions += '' + poke.getName() + ' transformed into ' + tpoke.species + '!';
 				poke.boosts = {...tpoke.boosts};
-				poke.addVolatile('transform' as ID);
-				poke.addVolatile('formechange' as ID); // the formechange volatile reminds us to revert the sprite change on switch-out
 				poke.copyTypesFrom(tpoke);
 				poke.weightkg = tpoke.weightkg;
 				poke.ability = tpoke.ability;
-				poke.volatiles.formechange[2] = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[2] : tpoke.species);
-				poke.volatiles.transform[2] = tpoke;
+				const species = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[1] : tpoke.species);
+				const pokemon = tpoke;
+				const shiny = tpoke.shiny;
+				poke.addVolatile('transform' as ID, pokemon, shiny);
+				poke.addVolatile('formechange' as ID, species);
 				for (const trackedMove of tpoke.moveTrack) {
 					poke.markMove(trackedMove[0], 0);
 				}
 				poke.sprite.animTransform(poke);
-				this.resultAnim(poke, 'Transformed', 'good');
+				this.scene.resultAnim(poke, 'Transformed', 'good');
 				break;
 			} case '-formechange': {
 				let poke = this.getPokemon(args[1])!;
 				let template = Tools.getTemplate(args[2]);
 				let fromeffect = Tools.getEffect(kwargs.from);
-				let spriteData = {'shiny': poke.sprite.sp.shiny};
 				let isCustomAnim = false;
 				poke.removeVolatile('typeadd' as ID);
 				poke.removeVolatile('typechange' as ID);
@@ -5044,7 +2887,7 @@ class Battle {
 					// do nothing
 				} else {
 					if (fromeffect.effectType === 'Ability') {
-						this.resultAnim(poke, fromeffect.name, 'ability');
+						this.scene.abilityActivateAnim(poke, fromeffect.name);
 						this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
 						poke.markAbility(fromeffect.name);
 					}
@@ -5071,10 +2914,8 @@ class Battle {
 						actions += "Shields Down activated!";
 					}
 				}
-				poke.addVolatile('formechange' as ID); // the formechange volatile reminds us to revert the sprite change on switch-out
-				poke.volatiles.formechange[2] = template.species;
+				poke.addVolatile('formechange' as ID, template.species); // the formechange volatile reminds us to revert the sprite change on switch-out
 				poke.sprite.animTransform(poke, isCustomAnim);
-				poke.side.updateStatbar();
 				break;
 			} case '-mega': {
 				let poke = this.getPokemon(args[1])!;
@@ -5102,10 +2943,9 @@ class Battle {
 				let ofpoke = this.getPokemon(kwargs.of);
 				let fromeffect = Tools.getEffect(kwargs.from);
 				if (fromeffect.id === 'protean' && !this.hasPreMoveMessage && this.waitForResult()) return;
-				poke.addVolatile(effect.id);
 
 				if (effect.effectType === 'Ability') {
-					this.resultAnim(poke, effect.name, 'ability');
+					this.scene.abilityActivateAnim(poke, effect.name);
 					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
 					poke.markAbility(effect.name);
 				}
@@ -5114,61 +2954,61 @@ class Battle {
 				} else {
 					switch (effect.id) {
 					case 'typechange':
-						args[3] = Tools.escapeHTML(args[3]);
-						poke.volatiles.typechange[2] = args[3];
+						const types = Tools.escapeHTML(args[3]);
 						poke.removeVolatile('typeadd' as ID);
+						poke.addVolatile('typechange' as ID, types);
 						if (kwargs.silent) {
-							poke.side.updateStatbar(poke);
+							poke.sprite.updateStatbar(poke);
 							break;
 						}
 						if (fromeffect.id) {
 							if (fromeffect.id === 'colorchange' || fromeffect.id === 'protean') {
-								this.resultAnim(poke, fromeffect.name, 'ability');
+								this.scene.abilityActivateAnim(poke, fromeffect.name);
 								this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
 								poke.markAbility(fromeffect.name);
-								actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
+								actions += "" + poke.getName() + " transformed into the " + types + " type!";
 								this.hasPreMoveMessage = true;
 							} else if (fromeffect.id === 'reflecttype') {
-								poke.copyTypesFrom(ofpoke);
-								if (!kwargs.silent) actions += "" + poke.getName() + "'s type became the same as " + ofpoke.getLowerName() + "'s type!";
+								poke.copyTypesFrom(ofpoke!);
+								if (!kwargs.silent) actions += "" + poke.getName() + "'s type became the same as " + ofpoke!.getLowerName() + "'s type!";
 							} else if (fromeffect.id === 'burnup') {
 								actions += "" + poke.getName() + " burned itself out!";
 							} else if (!kwargs.silent) {
-								actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + args[3] + " type!";
+								actions += "" + poke.getName() + "'s " + fromeffect.name + " made it the " + types + " type!";
 							}
 						} else {
-							actions += "" + poke.getName() + " transformed into the " + args[3] + " type!";
+							actions += "" + poke.getName() + " transformed into the " + types + " type!";
 						}
-						this.resultAnim(poke, args[3].split('/').map(function (type) {
+						this.scene.resultAnim(poke, types.split('/').map(function (type) {
 							return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />';
 						}).join(' '), 'neutral');
 						break;
 					case 'typeadd':
-						args[3] = Tools.escapeHTML(args[3]);
-						poke.volatiles.typeadd[2] = args[3];
+						const type = Tools.escapeHTML(args[3]);
+						poke.addVolatile('typeadd' as ID, type);
 						if (kwargs.silent) break;
-						actions += "" + args[3] + " type was added to " + poke.getLowerName() + "!";
-						this.resultAnim(poke, '<img src="' + Tools.resourcePrefix + 'sprites/types/' + args[3] + '.png" alt="' + args[3] + '" />', 'neutral');
+						actions += "" + type + " type was added to " + poke.getLowerName() + "!";
+						this.scene.resultAnim(poke, '<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />', 'neutral');
 						break;
 					case 'powertrick':
-						this.resultAnim(poke, 'Power Trick', 'neutral');
+						this.scene.resultAnim(poke, 'Power Trick', 'neutral');
 						actions += "" + poke.getName() + " switched its Attack and Defense!";
 						break;
 					case 'foresight':
 					case 'miracleeye':
-						this.resultAnim(poke, 'Identified', 'bad');
+						this.scene.resultAnim(poke, 'Identified', 'bad');
 						actions += "" + poke.getName() + " was identified!";
 						break;
 					case 'telekinesis':
-						this.resultAnim(poke, 'Telekinesis', 'neutral');
+						this.scene.resultAnim(poke, 'Telekinesis', 'neutral');
 						actions += "" + poke.getName() + " was hurled into the air!";
 						break;
 					case 'confusion':
 						if (kwargs.already) {
 							actions += "" + poke.getName() + " is already confused!";
 						} else {
-							if (!this.fastForward) BattleStatusAnims['confused'].anim(this, [poke.sprite]);
-							this.resultAnim(poke, 'Confused', 'bad');
+							this.scene.runStatusAnim('confused' as ID, [poke]);
+							this.scene.resultAnim(poke, 'Confused', 'bad');
 							if (kwargs.fatigue) {
 								actions += "" + poke.getName() + " became confused due to fatigue!";
 							} else {
@@ -5177,73 +3017,73 @@ class Battle {
 						}
 						break;
 					case 'leechseed':
-						poke.side.updateStatbar(poke);
+						poke.sprite.updateStatbar(poke);
 						actions += '' + poke.getName() + ' was seeded!';
 						break;
 					case 'healblock':
-						this.resultAnim(poke, 'Heal Block', 'bad');
+						this.scene.resultAnim(poke, 'Heal Block', 'bad');
 						actions += "" + poke.getName() + " was prevented from healing!";
 						break;
 					case 'mudsport':
-						this.resultAnim(poke, 'Mud Sport', 'neutral');
+						this.scene.resultAnim(poke, 'Mud Sport', 'neutral');
 						actions += "Electricity's power was weakened!";
 						break;
 					case 'watersport':
-						this.resultAnim(poke, 'Water Sport', 'neutral');
+						this.scene.resultAnim(poke, 'Water Sport', 'neutral');
 						actions += "Fire's power was weakened!";
 						break;
 					case 'yawn':
-						this.resultAnim(poke, 'Drowsy', 'slp');
+						this.scene.resultAnim(poke, 'Drowsy', 'slp');
 						actions += "" + poke.getName() + ' grew drowsy!';
 						break;
 					case 'flashfire':
 						actions += 'The power of ' + poke.getLowerName() + '\'s Fire-type moves rose!';
 						break;
 					case 'taunt':
-						this.resultAnim(poke, 'Taunted', 'bad');
+						this.scene.resultAnim(poke, 'Taunted', 'bad');
 						actions += '' + poke.getName() + ' fell for the taunt!';
 						break;
 					case 'imprison':
-						this.resultAnim(poke, 'Imprisoning', 'good');
+						this.scene.resultAnim(poke, 'Imprisoning', 'good');
 						actions += "" + poke.getName() + " sealed any moves its target shares with it!";
 						break;
 					case 'disable':
 						if (fromeffect.effectType === 'Ability') {
-							this.resultAnim(ofpoke, fromeffect.name, 'ability');
-							this.message('', "<small>[" + ofpoke.getName(true) + "'s " + fromeffect.name + "!]</small>");
-							ofpoke.markAbility(fromeffect.name);
+							this.scene.abilityActivateAnim(ofpoke!, fromeffect.name);
+							this.message('', "<small>[" + ofpoke!.getName(true) + "'s " + fromeffect.name + "!]</small>");
+							ofpoke!.markAbility(fromeffect.name);
 						}
-						this.resultAnim(poke, 'Disabled', 'bad');
+						this.scene.resultAnim(poke, 'Disabled', 'bad');
 						actions += "" + poke.getName() + "'s " + Tools.escapeHTML(args[3]) + " was disabled!";
 						break;
 					case 'embargo':
-						this.resultAnim(poke, 'Embargo', 'bad');
+						this.scene.resultAnim(poke, 'Embargo', 'bad');
 						actions += "" + poke.getName() + " can't use items anymore!";
 						break;
 					case 'torment':
-						this.resultAnim(poke, 'Tormented', 'bad');
+						this.scene.resultAnim(poke, 'Tormented', 'bad');
 						actions += '' + poke.getName() + ' was subjected to torment!';
 						break;
 					case 'ingrain':
-						this.resultAnim(poke, 'Ingrained', 'good');
+						this.scene.resultAnim(poke, 'Ingrained', 'good');
 						actions += '' + poke.getName() + ' planted its roots!';
 						break;
 					case 'aquaring':
-						this.resultAnim(poke, 'Aqua Ring', 'good');
+						this.scene.resultAnim(poke, 'Aqua Ring', 'good');
 						actions += '' + poke.getName() + ' surrounded itself with a veil of water!';
 						break;
 					case 'stockpile1':
-						this.resultAnim(poke, 'Stockpile', 'good');
+						this.scene.resultAnim(poke, 'Stockpile', 'good');
 						actions += '' + poke.getName() + ' stockpiled 1!';
 						break;
 					case 'stockpile2':
 						poke.removeVolatile('stockpile1' as ID);
-						this.resultAnim(poke, 'Stockpile&times;2', 'good');
+						this.scene.resultAnim(poke, 'Stockpile&times;2', 'good');
 						actions += '' + poke.getName() + ' stockpiled 2!';
 						break;
 					case 'stockpile3':
 						poke.removeVolatile('stockpile2' as ID);
-						this.resultAnim(poke, 'Stockpile&times;3', 'good');
+						this.scene.resultAnim(poke, 'Stockpile&times;3', 'good');
 						actions += '' + poke.getName() + ' stockpiled 3!';
 						break;
 					case 'perish0':
@@ -5252,24 +3092,24 @@ class Battle {
 						break;
 					case 'perish1':
 						poke.removeVolatile('perish2' as ID);
-						this.resultAnim(poke, 'Perish next turn', 'bad');
+						this.scene.resultAnim(poke, 'Perish next turn', 'bad');
 						actions += '' + poke.getName() + "'s perish count fell to 1.";
 						break;
 					case 'perish2':
 						poke.removeVolatile('perish3' as ID);
-						this.resultAnim(poke, 'Perish in 2', 'bad');
+						this.scene.resultAnim(poke, 'Perish in 2', 'bad');
 						actions += '' + poke.getName() + "'s perish count fell to 2.";
 						break;
 					case 'perish3':
-						this.resultAnim(poke, 'Perish in 3', 'bad');
+						this.scene.resultAnim(poke, 'Perish in 3', 'bad');
 						actions += '' + poke.getName() + "'s perish count fell to 3.";
 						break;
 					case 'encore':
-						this.resultAnim(poke, 'Encored', 'bad');
+						this.scene.resultAnim(poke, 'Encored', 'bad');
 						actions += '' + poke.getName() + ' received an encore!';
 						break;
 					case 'bide':
-						this.resultAnim(poke, 'Bide', 'good');
+						this.scene.resultAnim(poke, 'Bide', 'good');
 						actions += "" + poke.getName() + " is storing energy!";
 						break;
 					case 'slowstart':
@@ -5277,11 +3117,11 @@ class Battle {
 						break;
 					case 'attract':
 						if (fromeffect.effectType === 'Ability') {
-							this.resultAnim(ofpoke, fromeffect.name, 'ability');
-							this.message('', "<small>[" + ofpoke.getName(true) + "'s " + fromeffect.name + "!]</small>");
-							ofpoke.markAbility(fromeffect.name);
+							this.scene.abilityActivateAnim(ofpoke!, fromeffect.name);
+							this.message('', "<small>[" + ofpoke!.getName(true) + "'s " + fromeffect.name + "!]</small>");
+							ofpoke!.markAbility(fromeffect.name);
 						}
-						this.resultAnim(poke, 'Attracted', 'bad');
+						this.scene.resultAnim(poke, 'Attracted', 'bad');
 						if (fromeffect.effectType === 'Item') {
 							actions += "" + poke.getName() + " fell in love from the " + fromeffect.name + "!";
 						} else {
@@ -5289,11 +3129,11 @@ class Battle {
 						}
 						break;
 					case 'autotomize':
-						this.resultAnim(poke, 'Lightened', 'good');
+						this.scene.resultAnim(poke, 'Lightened', 'good');
 						actions += "" + poke.getName() + " became nimble!";
 						break;
 					case 'focusenergy':
-						this.resultAnim(poke, '+Crit rate', 'good');
+						this.scene.resultAnim(poke, '+Crit rate', 'good');
 						if (fromeffect.effectType === 'Item') {
 							actions += "" + poke.getName() + " used the " + fromeffect.name + " to get pumped!";
 						} else if (kwargs.zeffect) {
@@ -5303,19 +3143,19 @@ class Battle {
 						}
 						break;
 					case 'curse':
-						this.resultAnim(poke, 'Cursed', 'bad');
-						actions += "" + ofpoke.getName() + " cut its own HP and put a curse on " + poke.getLowerName() + "!";
+						this.scene.resultAnim(poke, 'Cursed', 'bad');
+						actions += "" + ofpoke!.getName() + " cut its own HP and put a curse on " + poke.getLowerName() + "!";
 						break;
 					case 'nightmare':
-						this.resultAnim(poke, 'Nightmare', 'bad');
+						this.scene.resultAnim(poke, 'Nightmare', 'bad');
 						actions += "" + poke.getName() + " began having a nightmare!";
 						break;
 					case 'magnetrise':
-						this.resultAnim(poke, 'Magnet Rise', 'good');
+						this.scene.resultAnim(poke, 'Magnet Rise', 'good');
 						actions += "" + poke.getName() + " levitated with electromagnetism!";
 						break;
 					case 'smackdown':
-						this.resultAnim(poke, 'Smacked Down', 'bad');
+						this.scene.resultAnim(poke, 'Smacked Down', 'bad');
 						actions += "" + poke.getName() + " fell straight down!";
 						poke.removeVolatile('magnetrise' as ID);
 						poke.removeVolatile('telekinesis' as ID);
@@ -5323,15 +3163,14 @@ class Battle {
 						break;
 					case 'substitute':
 						if (kwargs.damage) {
-							this.resultAnim(poke, 'Damage', 'bad');
+							this.scene.resultAnim(poke, 'Damage', 'bad');
 							actions += "The substitute took damage for " + poke.getLowerName() + "!";
 						} else if (kwargs.block) {
-							this.resultAnim(poke, 'Blocked', 'neutral');
+							this.scene.resultAnim(poke, 'Blocked', 'neutral');
 							actions += 'But it failed!';
 						} else if (kwargs.already) {
 							actions += '' + poke.getName() + ' already has a substitute!';
 						} else {
-							poke.sprite.animSub();
 							actions += '' + poke.getName() + ' put in a substitute!';
 						}
 						break;
@@ -5364,11 +3203,11 @@ class Battle {
 
 					// Gen 1
 					case 'lightscreen':
-						this.resultAnim(poke, 'Light Screen', 'good');
+						this.scene.resultAnim(poke, 'Light Screen', 'good');
 						actions += '' + poke.getName() + '\'s protected against special attacks!';
 						break;
 					case 'reflect':
-						this.resultAnim(poke, 'Reflect', 'good');
+						this.scene.resultAnim(poke, 'Reflect', 'good');
 						actions += '' + poke.getName() + ' gained armor!';
 						break;
 
@@ -5376,7 +3215,8 @@ class Battle {
 						actions += "" + poke.getName() + "'s " + effect.name + " started!";
 					}
 				}
-				poke.side.updateStatbar();
+				poke.addVolatile(effect.id);
+				poke.sprite.updateStatbar(poke);
 				break;
 			} case '-end': {
 				let poke = this.getPokemon(args[1])!;
@@ -5389,11 +3229,11 @@ class Battle {
 				} else {
 					switch (effect.id) {
 					case 'powertrick':
-						this.resultAnim(poke, 'Power Trick', 'neutral');
+						this.scene.resultAnim(poke, 'Power Trick', 'neutral');
 						actions += "" + poke.getName() + " switched its Attack and Defense!";
 						break;
 					case 'telekinesis':
-						this.resultAnim(poke, 'Telekinesis&nbsp;ended', 'neutral');
+						this.scene.resultAnim(poke, 'Telekinesis&nbsp;ended', 'neutral');
 						actions += "" + poke.getName() + " was freed from the telekinesis!";
 						break;
 					case 'skydrop':
@@ -5403,7 +3243,7 @@ class Battle {
 						actions += "" + poke.getName() + " was freed from the Sky Drop!";
 						break;
 					case 'confusion':
-						this.resultAnim(poke, 'Confusion&nbsp;ended', 'good');
+						this.scene.resultAnim(poke, 'Confusion&nbsp;ended', 'good');
 						if (!kwargs.silent) {
 							if (fromeffect.effectType === 'Item') {
 								actions += "" + poke.getName() + "'s " + fromeffect.name + " snapped it out of its confusion!";
@@ -5415,16 +3255,16 @@ class Battle {
 						break;
 					case 'leechseed':
 						if (fromeffect.id === 'rapidspin') {
-							this.resultAnim(poke, 'De-seeded', 'good');
+							this.scene.resultAnim(poke, 'De-seeded', 'good');
 							actions += "" + poke.getName() + " was freed from Leech Seed!";
 						}
 						break;
 					case 'healblock':
-						this.resultAnim(poke, 'Heal Block ended', 'good');
+						this.scene.resultAnim(poke, 'Heal Block ended', 'good');
 						actions += "" + poke.getName() + "'s Heal Block wore off!";
 						break;
 					case 'attract':
-						this.resultAnim(poke, 'Attract&nbsp;ended', 'good');
+						this.scene.resultAnim(poke, 'Attract&nbsp;ended', 'good');
 						if (fromeffect.id === 'oblivious') {
 							actions += '' + poke.getName() + " got over its infatuation.";
 						}
@@ -5433,36 +3273,36 @@ class Battle {
 						}
 						break;
 					case 'taunt':
-						this.resultAnim(poke, 'Taunt&nbsp;ended', 'good');
+						this.scene.resultAnim(poke, 'Taunt&nbsp;ended', 'good');
 						actions += '' + poke.getName() + "'s taunt wore off!";
 						break;
 					case 'disable':
-						this.resultAnim(poke, 'Disable&nbsp;ended', 'good');
+						this.scene.resultAnim(poke, 'Disable&nbsp;ended', 'good');
 						actions += '' + poke.getName() + "'s move is no longer disabled!";
 						break;
 					case 'embargo':
-						this.resultAnim(poke, 'Embargo ended', 'good');
+						this.scene.resultAnim(poke, 'Embargo ended', 'good');
 						actions += "" + poke.getName() + " can use items again!";
 						break;
 					case 'torment':
-						this.resultAnim(poke, 'Torment&nbsp;ended', 'good');
+						this.scene.resultAnim(poke, 'Torment&nbsp;ended', 'good');
 						actions += '' + poke.getName() + "'s torment wore off!";
 						break;
 					case 'encore':
-						this.resultAnim(poke, 'Encore&nbsp;ended', 'good');
+						this.scene.resultAnim(poke, 'Encore&nbsp;ended', 'good');
 						actions += '' + poke.getName() + "'s encore ended!";
 						break;
 					case 'bide':
-						if (!this.fastForward) BattleOtherAnims.bideunleash.anim(this, [poke.sprite]);
+						this.scene.runOtherAnim('bideunleash' as ID, [poke]);
 						actions += "" + poke.getName() + " unleashed its energy!";
 						break;
 					case 'illusion':
-						this.resultAnim(poke, 'Illusion ended', 'bad');
+						this.scene.resultAnim(poke, 'Illusion ended', 'bad');
 						actions += "" + poke.getName() + "'s illusion wore off!";
 						poke.markAbility('Illusion');
 						break;
 					case 'slowstart':
-						this.resultAnim(poke, 'Slow Start ended', 'good');
+						this.scene.resultAnim(poke, 'Slow Start ended', 'good');
 						actions += "" + poke.getName() + " finally got its act together!";
 						break;
 					case 'magnetrise':
@@ -5473,8 +3313,7 @@ class Battle {
 						poke.removeVolatile('perish3' as ID);
 						break;
 					case 'substitute':
-						poke.sprite.animSubFade();
-						this.resultAnim(poke, 'Faded', 'bad');
+						this.scene.resultAnim(poke, 'Faded', 'bad');
 						actions += '' + poke.getName() + "'s substitute faded!";
 						break;
 					case 'uproar':
@@ -5499,10 +3338,10 @@ class Battle {
 					default:
 						if (effect.effectType === 'Move') {
 							if (effect.name === 'Doom Desire') {
-								BattleOtherAnims.doomdesirehit.anim(this, [poke.sprite]);
+								this.scene.runOtherAnim('doomdesirehit' as ID, [poke]);
 							}
 							if (effect.name === 'Future Sight') {
-								BattleOtherAnims.futuresighthit.anim(this, [poke.sprite]);
+								this.scene.runOtherAnim('futuresighthit' as ID, [poke]);
 							}
 							actions += '' + poke.getName() + " took the " + effect.name + " attack!";
 						} else {
@@ -5510,7 +3349,7 @@ class Battle {
 						}
 					}
 				}
-				poke.side.updateStatbar();
+				poke.sprite.updateStatbar(poke);
 				break;
 			} case '-singleturn': {
 				let poke = this.getPokemon(args[1])!;
@@ -5521,44 +3360,44 @@ class Battle {
 
 				switch (effect.id) {
 				case 'roost':
-					this.resultAnim(poke, 'Landed', 'neutral');
+					this.scene.resultAnim(poke, 'Landed', 'neutral');
 					//actions += '' + poke.getName() + ' landed on the ground!';
 					break;
 				case 'quickguard':
-					this.resultAnim(poke, 'Quick Guard', 'good');
+					this.scene.resultAnim(poke, 'Quick Guard', 'good');
 					actions += "Quick Guard protected " + poke.side.getLowerTeamName() + "!";
 					break;
 				case 'wideguard':
-					this.resultAnim(poke, 'Wide Guard', 'good');
+					this.scene.resultAnim(poke, 'Wide Guard', 'good');
 					actions += "Wide Guard protected " + poke.side.getLowerTeamName() + "!";
 					break;
 				case 'craftyshield':
-					this.resultAnim(poke, 'Crafty Shield', 'good');
+					this.scene.resultAnim(poke, 'Crafty Shield', 'good');
 					actions += "Crafty Shield protected " + poke.side.getLowerTeamName() + "!";
 					break;
 				case 'matblock':
-					this.resultAnim(poke, 'Mat Block', 'good');
+					this.scene.resultAnim(poke, 'Mat Block', 'good');
 					actions += '' + poke.getName() + ' intends to flip up a mat and block incoming attacks!';
 					break;
 				case 'protect':
-					this.resultAnim(poke, 'Protected', 'good');
+					this.scene.resultAnim(poke, 'Protected', 'good');
 					actions += '' + poke.getName() + ' protected itself!';
 					break;
 				case 'endure':
-					this.resultAnim(poke, 'Enduring', 'good');
+					this.scene.resultAnim(poke, 'Enduring', 'good');
 					actions += '' + poke.getName() + ' braced itself!';
 					break;
 				case 'helpinghand':
-					this.resultAnim(poke, 'Helping Hand', 'good');
-					actions += '' + ofpoke.getName() + " is ready to help " + poke.getLowerName() + "!";
+					this.scene.resultAnim(poke, 'Helping Hand', 'good');
+					actions += '' + ofpoke!.getName() + " is ready to help " + poke.getLowerName() + "!";
 					break;
 				case 'focuspunch':
-					this.resultAnim(poke, 'Focusing', 'neutral');
+					this.scene.resultAnim(poke, 'Focusing', 'neutral');
 					actions += '' + poke.getName() + ' is tightening its focus!';
 					poke.markMove(effect.name, 0);
 					break;
 				case 'shelltrap':
-					this.resultAnim(poke, 'Trap set', 'neutral');
+					this.scene.resultAnim(poke, 'Trap set', 'neutral');
 					actions += '' + poke.getName() + ' set a shell trap!';
 					poke.markMove(effect.name, 0);
 					break;
@@ -5584,15 +3423,15 @@ class Battle {
 					actions += '' + poke.getName() + ' is covered in powder!';
 					break;
 				case 'instruct':
-					actions += '' + poke.getName() + ' used the move instructed by ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' used the move instructed by ' + ofpoke!.getLowerName() + '!';
 					break;
 				case 'beakblast':
-					if (!this.fastForward) BattleOtherAnims.bidecharge.anim(this, [poke.sprite]);
-					this.resultAnim(poke, 'Beak Blast', 'neutral');
+					this.scene.runOtherAnim('bidecharge' as ID, [poke]);
+					this.scene.resultAnim(poke, 'Beak Blast', 'neutral');
 					actions += '' + poke.getName() + ' started heating up its beak!';
 					break;
 				}
-				poke.side.updateStatbar();
+				poke.sprite.updateStatbar(poke);
 				break;
 			} case '-singlemove': {
 				let poke = this.getPokemon(args[1])!;
@@ -5603,11 +3442,11 @@ class Battle {
 
 				switch (effect.id) {
 				case 'grudge':
-					this.resultAnim(poke, 'Grudge', 'neutral');
+					this.scene.resultAnim(poke, 'Grudge', 'neutral');
 					actions += '' + poke.getName() + ' wants its target to bear a grudge!';
 					break;
 				case 'destinybond':
-					this.resultAnim(poke, 'Destiny Bond', 'neutral');
+					this.scene.resultAnim(poke, 'Destiny Bond', 'neutral');
 					actions += '' + poke.getName() + ' is hoping to take its attacker down with it!';
 					break;
 				}
@@ -5619,7 +3458,7 @@ class Battle {
 				let ofpoke = this.getPokemon(kwargs.of);
 				if ((effect.id === 'confusion' || effect.id === 'attract') && !this.hasPreMoveMessage && this.waitForResult()) return;
 				if (effect.effectType === 'Ability') {
-					this.resultAnim(poke, effect.name, 'ability');
+					this.scene.abilityActivateAnim(poke, effect.name);
 					this.message('', "<small>[" + poke.getName(true) + "'s " + effect.name + "!]</small>");
 					poke.markAbility(effect.name);
 				}
@@ -5635,7 +3474,7 @@ class Battle {
 					actions += '' + poke.getName() + ' took its attacker down with it!';
 					break;
 				case 'snatch':
-					actions += "" + poke.getName() + " snatched " + ofpoke.getLowerName() + "'s move!";
+					actions += "" + poke.getName() + " snatched " + ofpoke!.getLowerName() + "'s move!";
 					break;
 				case 'grudge':
 					actions += "" + poke.getName() + "'s " + Tools.escapeHTML(args[3]) + " lost all of its PP due to the grudge!";
@@ -5643,40 +3482,40 @@ class Battle {
 					break;
 				case 'quickguard':
 					poke.addTurnstatus('quickguard' as ID);
-					this.resultAnim(poke, 'Quick Guard', 'good');
+					this.scene.resultAnim(poke, 'Quick Guard', 'good');
 					actions += "Quick Guard protected " + poke.getLowerName() + "!";
 					break;
 				case 'wideguard':
 					poke.addTurnstatus('wideguard' as ID);
-					this.resultAnim(poke, 'Wide Guard', 'good');
+					this.scene.resultAnim(poke, 'Wide Guard', 'good');
 					actions += "Wide Guard protected " + poke.getLowerName() + "!";
 					break;
 				case 'craftyshield':
 					poke.addTurnstatus('craftyshield' as ID);
-					this.resultAnim(poke, 'Crafty Shield', 'good');
+					this.scene.resultAnim(poke, 'Crafty Shield', 'good');
 					actions += "Crafty Shield protected " + poke.getLowerName() + "!";
 					break;
 				case 'protect':
 					poke.addTurnstatus('protect' as ID);
-					this.resultAnim(poke, 'Protected', 'good');
+					this.scene.resultAnim(poke, 'Protected', 'good');
 					actions += '' + poke.getName() + ' protected itself!';
 					break;
 				case 'substitute':
 					if (kwargs.damage) {
-						this.resultAnim(poke, 'Damage', 'bad');
+						this.scene.resultAnim(poke, 'Damage', 'bad');
 						actions += 'The substitute took damage for ' + poke.getLowerName() + '!';
 					} else if (kwargs.block) {
-						this.resultAnim(poke, 'Blocked', 'neutral');
+						this.scene.resultAnim(poke, 'Blocked', 'neutral');
 						actions += '' + poke.getName() + "'s Substitute blocked " + Tools.getMove(kwargs.block || args[3]).name + '!';
 					}
 					break;
 				case 'attract':
-					if (!this.fastForward) BattleStatusAnims['attracted'].anim(this, [poke.sprite]);
-					actions += '' + poke.getName() + ' is in love with ' + ofpoke.getLowerName() + '!';
+					this.scene.runStatusAnim('attracted' as ID, [poke]);
+					actions += '' + poke.getName() + ' is in love with ' + ofpoke!.getLowerName() + '!';
 					this.hasPreMoveMessage = true;
 					break;
 				case 'bide':
-					if (!this.fastForward) BattleOtherAnims.bidecharge.anim(this, [poke.sprite]);
+					this.scene.runOtherAnim('bidecharge' as ID, [poke]);
 					actions += "" + poke.getName() + " is storing energy!";
 					break;
 				case 'mist':
@@ -5700,11 +3539,11 @@ class Battle {
 
 				// move activations
 				case 'aromatherapy':
-					this.resultAnim(poke, 'Team Cured', 'good');
+					this.scene.resultAnim(poke, 'Team Cured', 'good');
 					actions += 'A soothing aroma wafted through the area!';
 					break;
 				case 'healbell':
-					this.resultAnim(poke, 'Team Cured', 'good');
+					this.scene.resultAnim(poke, 'Team Cured', 'good');
 					actions += 'A bell chimed!';
 					break;
 				case 'trick':
@@ -5712,9 +3551,9 @@ class Battle {
 					actions += '' + poke.getName() + ' switched items with its target!';
 					break;
 				case 'brickbreak':
-					actions += poke.getName() + " shattered " + ofpoke.side.getTeamName() + " protections!";
-					ofpoke.side.removeSideCondition('Reflect');
-					ofpoke.side.removeSideCondition('LightScreen');
+					actions += poke.getName() + " shattered " + ofpoke!.side.getTeamName() + " protections!";
+					ofpoke!.side.removeSideCondition('Reflect');
+					ofpoke!.side.removeSideCondition('LightScreen');
 					break;
 				case 'beatup':
 					actions += "" + Tools.escapeHTML(kwargs.of) + "'s attack!";
@@ -5727,19 +3566,19 @@ class Battle {
 				case 'phantomforce':
 				case 'shadowforce':
 				case 'feint':
-					this.resultAnim(poke, 'Protection broken', 'bad');
+					this.scene.resultAnim(poke, 'Protection broken', 'bad');
 					if (kwargs.broken) {
 						actions += "It broke through " + poke.getLowerName() + "'s protection!";
 					} else {
 						actions += "" + poke.getName() + " fell for the feint!";
 					}
 					poke.removeTurnstatus('protect' as ID);
-					for (let k = 0; k < poke.side.pokemon.length; k++) {
-						poke.side.pokemon[k].removeTurnstatus('wideguard' as ID);
-						poke.side.pokemon[k].removeTurnstatus('quickguard' as ID);
-						poke.side.pokemon[k].removeTurnstatus('craftyshield' as ID);
-						poke.side.pokemon[k].removeTurnstatus('matblock' as ID);
-						poke.side.updateStatbar(poke.side.pokemon[k]);
+					for (const target of poke.side.pokemon) {
+						target.removeTurnstatus('wideguard' as ID);
+						target.removeTurnstatus('quickguard' as ID);
+						target.removeTurnstatus('craftyshield' as ID);
+						target.removeTurnstatus('matblock' as ID);
+						target.sprite.updateStatbar(target);
 					}
 					break;
 				case 'spite':
@@ -5763,21 +3602,21 @@ class Battle {
 				case 'skillswap':
 					actions += "" + poke.getName() + " swapped Abilities with its target!";
 					if (this.gen <= 4) break;
-					let pokeability = Tools.escapeHTML(args[3]) || ofpoke.ability;
+					let pokeability = Tools.escapeHTML(args[3]) || ofpoke!.ability;
 					let ofpokeability = Tools.escapeHTML(args[4]) || poke.ability;
 					if (pokeability) {
 						poke.ability = pokeability;
-						if (!ofpoke.baseAbility) ofpoke.baseAbility = pokeability;
+						if (!ofpoke!.baseAbility) ofpoke!.baseAbility = pokeability;
 					}
 					if (ofpokeability) {
-						ofpoke.ability = ofpokeability;
+						ofpoke!.ability = ofpokeability;
 						if (!poke.baseAbility) poke.baseAbility = ofpokeability;
 					}
-					if (poke.side !== ofpoke.side) {
-						this.resultAnim(poke, pokeability, 'ability');
-						this.resultAnim(ofpoke, ofpokeability, 'ability');
+					if (poke.side !== ofpoke!.side) {
+						this.scene.abilityActivateAnim(poke, pokeability);
+						this.scene.abilityActivateAnim(ofpoke!, ofpokeability);
 						actions += "<br />" + poke.getName() + " acquired " + pokeability + "!";
-						actions += "<br />" + ofpoke.getName() + " acquired " + ofpokeability + "!";
+						actions += "<br />" + ofpoke!.getName() + " acquired " + ofpokeability + "!";
 					}
 					break;
 				case 'charge':
@@ -5787,13 +3626,13 @@ class Battle {
 					actions += "" + poke.getName() + " has no moves left!";
 					break;
 				case 'bind':
-					actions += '' + poke.getName() + ' was squeezed by ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' was squeezed by ' + ofpoke!.getLowerName() + '!';
 					break;
 				case 'wrap':
-					actions += '' + poke.getName() + ' was wrapped by ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' was wrapped by ' + ofpoke!.getLowerName() + '!';
 					break;
 				case 'clamp':
-					actions += '' + ofpoke.getName() + ' clamped down on ' + poke.getLowerName() + '!';
+					actions += '' + ofpoke!.getName() + ' clamped down on ' + poke.getLowerName() + '!';
 					break;
 				case 'whirlpool':
 					actions += '' + poke.getName() + ' became trapped in the vortex!';
@@ -5808,7 +3647,7 @@ class Battle {
 					actions += '' + poke.getName() + ' became trapped by the quicksand!';
 					break;
 				case 'infestation':
-					actions += '' + poke.getName() + ' has been afflicted with an infestation by ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' has been afflicted with an infestation by ' + ofpoke!.getLowerName() + '!';
 					break;
 				case 'afteryou':
 					actions += '' + poke.getName() + ' took the kind offer!';
@@ -5839,7 +3678,7 @@ class Battle {
 					break;
 				case 'lockon':
 				case 'mindreader':
-					actions += '' + poke.getName() + ' took aim at ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' took aim at ' + ofpoke!.getLowerName() + '!';
 					break;
 				case 'endure':
 					actions += '' + poke.getName() + ' endured the hit!';
@@ -5860,31 +3699,33 @@ class Battle {
 				case 'rebound':
 					break;
 				case 'wonderguard': // Deprecated, now uses -immune
-					this.resultAnim(poke, 'Immune', 'neutral');
+					this.scene.resultAnim(poke, 'Immune', 'neutral');
 					actions += '' + poke.getName() + '\'s Wonder Guard evades the attack!';
 					break;
 				case 'forewarn':
 					if (this.gen >= 5) {
-						actions += "It was alerted to " + ofpoke.getLowerName() + "'s " + Tools.escapeHTML(args[3]) + "!";
-						ofpoke.markMove(args[3], 0);
+						actions += "It was alerted to " + ofpoke!.getLowerName() + "'s " + Tools.escapeHTML(args[3]) + "!";
+						ofpoke!.markMove(args[3], 0);
 					} else {
 						actions += "" + poke.getName() + "'s Forewarn alerted it to " + Tools.escapeHTML(args[3]) + "!";
-						if (poke.side.foe.active.length === 1) {
-							poke.side.foe.active[0].markMove(args[3], 0);
+						let foeActive = [] as Pokemon[];
+						for (const target of poke.side.foe.active) if (target) foeActive.push(target);
+						if (foeActive.length === 1) {
+							foeActive[0].markMove(args[3], 0);
 						}
 					}
 					break;
 				case 'mummy':
 					if (!args[3]) break; // if Mummy activated but failed, no ability will have been sent
 					let ability = Tools.getAbility(args[3]);
-					this.resultAnim(ofpoke, ability.name, 'ability');
-					this.animationDelay += 700;
-					this.message('', "<small>[" + ofpoke.getName(true) + "'s " + ability.name + "!]</small>");
-					ofpoke.markAbility(ability.name);
-					this.resultAnim(ofpoke, 'Mummy', 'ability');
-					this.message('', "<small>[" + ofpoke.getName(true) + "'s Mummy!]</small>");
-					ofpoke.markAbility('Mummy', true);
-					actions += "" + ofpoke.getName() + "'s Ability became Mummy!";
+					this.scene.abilityActivateAnim(ofpoke!, ability.name);
+					this.scene.wait(700);
+					this.message('', "<small>[" + ofpoke!.getName(true) + "'s " + ability.name + "!]</small>");
+					ofpoke!.markAbility(ability.name);
+					this.scene.abilityActivateAnim(ofpoke!, 'Mummy');
+					this.message('', "<small>[" + ofpoke!.getName(true) + "'s Mummy!]</small>");
+					ofpoke!.markAbility('Mummy', true);
+					actions += "" + ofpoke!.getName() + "'s Ability became Mummy!";
 					break;
 				case 'anticipation': // Deprecated, now uses -ability. This is for replay compatability
 					actions += "" + poke.getName() + " shuddered!";
@@ -5903,16 +3744,16 @@ class Battle {
 					actions += '' + poke.getName() + ' anchors itself!';
 					break;
 				case 'symbiosis':
-					actions += '' + poke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + ofpoke.getLowerName() + '!';
+					actions += '' + poke.getName() + ' shared its ' + Tools.getItem(args[3]).name + ' with ' + ofpoke!.getLowerName() + '!';
 					break;
 				case 'aromaveil':
-					actions += '' + ofpoke.getName() + ' is protected by an aromatic veil!';
+					actions += '' + ofpoke!.getName() + ' is protected by an aromatic veil!';
 					break;
 				case 'flowerveil':
-					actions += '' + ofpoke.getName() + ' surrounded itself with a veil of petals!';
+					actions += '' + ofpoke!.getName() + ' surrounded itself with a veil of petals!';
 					break;
 				case 'sweetveil':
-					actions += '' + ofpoke.getName() + ' surrounded itself with a veil of sweetness!';
+					actions += '' + ofpoke!.getName() + ' surrounded itself with a veil of sweetness!';
 					break;
 				case 'battlebond':
 					actions += '' + poke.getName() + ' became fully charged due to its bond with its Trainer!';
@@ -5957,7 +3798,7 @@ class Battle {
 					break;
 				default:
 					if (kwargs.broken) { // for custom moves that break protection
-						this.resultAnim(poke, 'Protection broken', 'bad');
+						this.scene.resultAnim(poke, 'Protection broken', 'bad');
 						actions += "It broke through " + poke.getLowerName() + "'s protection!";
 					} else if (effect.effectType !== 'Ability') {
 						actions += "" + poke.getName() + "'s " + effect.name + " activated!";
@@ -5985,27 +3826,27 @@ class Battle {
 					break;
 				case 'tailwind':
 					actions += "The Tailwind blew from behind " + side.getLowerTeamName() + "!";
-					this.updateWeather();
+					this.scene.updateWeather();
 					break;
 				case 'auroraveil':
 					actions += "Aurora Veil made " + side.getLowerTeamName() + " stronger against physical and special moves!";
-					this.updateWeather();
+					this.scene.updateWeather();
 					break;
 				case 'reflect':
 					actions += "Reflect made " + side.getLowerTeamName() + " stronger against physical moves!";
-					this.updateWeather();
+					this.scene.updateWeather();
 					break;
 				case 'lightscreen':
 					actions += "Light Screen made " + side.getLowerTeamName() + " stronger against special moves!";
-					this.updateWeather();
+					this.scene.updateWeather();
 					break;
 				case 'safeguard':
 					actions += "" + side.getTeamName() + " cloaked itself in a mystical veil!";
-					this.updateWeather();
+					this.scene.updateWeather();
 					break;
 				case 'mist':
 					actions += "" + side.getTeamName() + " became shrouded in mist!";
-					this.updateWeather();
+					this.scene.updateWeather();
 					break;
 				case 'luckychant':
 					actions += 'Lucky Chant shielded ' + side.getLowerTeamName() + ' from critical hits!';
@@ -6082,7 +3923,7 @@ class Battle {
 
 			} case '-weather': {
 				let effect = Tools.getEffect(args[1]);
-				let poke = this.getPokemon(kwargs.of);
+				let poke = this.getPokemon(kwargs.of) || undefined;
 				let ability = Tools.getEffect(kwargs.from);
 				this.changeWeather(effect.name, poke, !!kwargs.upkeep, ability);
 				break;
@@ -6092,9 +3933,9 @@ class Battle {
 				let poke = this.getPokemon(kwargs.of);
 				let fromeffect = Tools.getEffect(kwargs.from);
 				if (fromeffect && fromeffect.effectType === 'Ability') {
-					this.resultAnim(poke, fromeffect.name, 'ability');
-					this.message('', "<small>[" + poke.getName(true) + "'s " + fromeffect.name + "!]</small>");
-					poke.markAbility(fromeffect.name);
+					this.scene.abilityActivateAnim(poke!, fromeffect.name);
+					this.message('', "<small>[" + poke!.getName(true) + "'s " + fromeffect.name + "!]</small>");
+					poke!.markAbility(fromeffect.name);
 				}
 				let maxTimeLeft = 0;
 				if (effect.id in {'electricterrain': 1, 'grassyterrain': 1, 'mistyterrain': 1, 'psychicterrain': 1}) {
@@ -6120,7 +3961,7 @@ class Battle {
 					if (!this.fastForward) {
 						for (const side of this.sides) for (const active of side.active) {
 							if (active) {
-								BattleOtherAnims.gravity.anim(this, [active.sprite]);
+								this.scene.runOtherAnim('gravity' as ID, [active]);
 							}
 						}
 					}
@@ -6203,8 +4044,7 @@ class Battle {
 				switch (effect.id) {
 				case 'perishsong':
 					actions += 'All Pok&#xE9;mon that heard the song will faint in three turns!';
-					this.mySide.updateStatbar();
-					this.yourSide.updateStatbar();
+					this.scene.updateStatbars();
 					break;
 				case 'payday':
 					actions += 'Coins were scattered everywhere!';
@@ -6238,7 +4078,6 @@ class Battle {
 				break;
 
 			} default: {
-				this.logConsole('Unknown minor: ' + args[0]);
 				if (this.errorCallback) this.errorCallback(this);
 				break;
 			}}
@@ -6511,15 +4350,14 @@ class Battle {
 	}
 
 	add(command: string, fastForward?: boolean) {
-		if (this.playbackState === 0) {
-			this.playbackState = 1;
+		if (this.playbackState === Playback.Uninitialized) {
+			this.playbackState = Playback.Ready;
 			this.activityQueue.push(command);
-		} else if (this.playbackState === 4) {
-			this.playbackState = 2;
+		} else if (this.playbackState === Playback.Finished) {
+			this.playbackState = Playback.Playing;
 			this.paused = false;
 			this.activityQueue.push(command);
-			this.activityQueueActive = true;
-			this.soundStart();
+			this.scene.soundStart();
 			if (fastForward) {
 				this.fastForwardTo(-1);
 			} else {
@@ -6534,65 +4372,10 @@ class Battle {
 		this.preemptActivityQueue.push(command);
 		this.add(command);
 	}
-	teamPreview(start?: boolean) {
-		for (let k = 0; k < 2; k++) {
-			let side = this.sides[k];
-			let textBuf = '';
-			let buf = '';
-			let buf2 = '';
-			this.spriteElems[k].empty();
-			if (!start) {
-				this.sides[k].updateSprites();
-				continue;
-			}
-			for (let i = 0; i < side.pokemon.length; i++) {
-				let pokemon = side.pokemon[i];
-
-				let spriteData = Tools.getSpriteData(pokemon, k, {
-					afd: this.tier === "[Seasonal] Fools Festival",
-					gen: this.gen,
-					noScale: true
-				});
-				let y = 0;
-				let x = 0;
-				if (k) {
-					y = 48 + 50 + 3 * (i + 6 - side.pokemon.length);
-					x = 48 + 180 + 50 * (i + 6 - side.pokemon.length);
-				} else {
-					y = 48 + 200 + 3 * i;
-					x = 48 + 100 + 50 * i;
-				}
-				if (textBuf) textBuf += ' / ';
-				textBuf += pokemon.species;
-				let url = spriteData.url;
-				// if (this.paused) url.replace('/xyani', '/xy').replace('.gif', '.png');
-				buf += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + Math.floor(y - spriteData.h / 2) + 'px;left:' + Math.floor(x - spriteData.w / 2) + 'px" />';
-				buf2 += '<div style="position:absolute;top:' + (y + 45) + 'px;left:' + (x - 40) + 'px;width:80px;font-size:10px;text-align:center;color:#FFF;">';
-				if (pokemon.gender === 'F') {
-					buf2 += '<img src="' + Tools.resourcePrefix + 'fx/gender-f.png" width="7" height="10" alt="F" style="margin-bottom:-1px" /> ';
-				} else if (pokemon.gender === 'M') {
-					buf2 += '<img src="' + Tools.resourcePrefix + 'fx/gender-m.png" width="7" height="10" alt="M" style="margin-bottom:-1px" /> ';
-				}
-				if (pokemon.level !== 100) {
-					buf2 += '<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>' + pokemon.level + '</span>';
-				}
-				if (pokemon.item) {
-					buf2 += ' <img src="' + Tools.resourcePrefix + 'fx/item.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />';
-				}
-				buf2 += '</div>';
-			}
-			side.totalPokemon = side.pokemon.length;
-			side.updateSidebar();
-			if (textBuf) {
-				this.log('<div class="chat"><strong>' + Tools.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + Tools.escapeHTML(textBuf) + '</em></div>');
-			}
-			this.spriteElems[k].html(buf + buf2);
-		}
-	}
 	runMajor(args: string[], kwargs: {[k: string]: string}, preempt?: boolean) {
 		switch (args[0]) {
 		case 'start': {
-			this.teamPreview(false);
+			this.scene.teamPreview(false);
 			this.mySide.active[0] = null;
 			this.yourSide.active[0] = null;
 			if (this.waitForResult()) return;
@@ -6610,7 +4393,7 @@ class Battle {
 		} case 'tier': {
 			if (!args[1]) args[1] = '';
 			for (let i in kwargs) args[1] += '[' + i + '] ' + kwargs[i];
-			this.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
+			this.scene.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
 			this.tier = args[1];
 			if (this.tier.slice(-13) === 'Random Battle') {
 				this.speciesClause = true;
@@ -6633,18 +4416,19 @@ class Battle {
 				this.yourSide.active = [null, null, null];
 				break;
 			}
+			this.scene.updateGen();
 			break;
 		} case 'variation': {
-			this.log('<div><small>Variation: <em>' + Tools.escapeHTML(args[1]) + '</em></small></div>');
+			this.scene.log('<div><small>Variation: <em>' + Tools.escapeHTML(args[1]) + '</em></small></div>');
 			break;
 		} case 'rule': {
 			let ruleArgs = args[1].split(': ');
-			this.log('<div><small><em>' + Tools.escapeHTML(ruleArgs[0]) + (ruleArgs[1] ? ':' : '') + '</em> ' + Tools.escapeHTML(ruleArgs[1] || '') + '</div>');
+			this.scene.log('<div><small><em>' + Tools.escapeHTML(ruleArgs[0]) + (ruleArgs[1] ? ':' : '') + '</em> ' + Tools.escapeHTML(ruleArgs[1] || '') + '</div>');
 			if (ruleArgs[0] === 'Species Clause') this.speciesClause = true;
 			break;
 		} case 'rated': {
 			this.rated = true;
-			this.log('<div class="rated"><strong>' + (Tools.escapeHTML(args[1]) || 'Rated battle') + '</strong></div>');
+			this.scene.log('<div class="rated"><strong>' + (Tools.escapeHTML(args[1]) || 'Rated battle') + '</strong></div>');
 			break;
 		} case ':': {
 			break;
@@ -6665,7 +4449,7 @@ class Battle {
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (let i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
-				this.log(parsedMessage[i], preempt);
+				this.scene.log(parsedMessage[i], preempt);
 			}
 			if (isHighlighted) {
 				let notifyTitle = "Mentioned by " + name + " in " + this.roomid;
@@ -6673,19 +4457,19 @@ class Battle {
 			}
 			break;
 		} case 'chatmsg': {
-			this.log('<div class="chat">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'chatmsg-raw': case 'raw': case 'html': {
-			this.log('<div class="chat">' + Tools.sanitizeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat">' + Tools.sanitizeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'error': {
-			this.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'pm': {
-			this.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + Tools.parseMessage(args[4]) + '</span>');
+			this.scene.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + Tools.parseMessage(args[4]) + '</span>');
 			break;
 		} case 'askreg': {
-			this.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + Tools.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
+			this.scene.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + Tools.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
 			break;
 		} case 'inactive': {
 			if (!this.kickingInactive) this.kickingInactive = true;
@@ -6707,11 +4491,11 @@ class Battle {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
 			}
-			this.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'inactiveoff': {
 			this.kickingInactive = false;
-			this.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'timer': {
 			break;
@@ -6728,7 +4512,7 @@ class Battle {
 				room.userList.updateNoUsersOnline();
 			}
 			if (!this.ignoreSpects) {
-				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
+				this.scene.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
 			}
 			break;
 		} case 'leave': case 'l': {
@@ -6743,18 +4527,22 @@ class Battle {
 				room.userList.updateNoUsersOnline();
 			}
 			if (!this.ignoreSpects) {
-				this.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
+				this.scene.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
 			}
 			break;
 		} case 'J': case 'L': case 'N': case 'n': case 'spectator': case 'spectatorleave': {
 			break;
 		} case 'player': {
-			this.getSide(args[1]).setName(args[2]);
-			this.getSide(args[1]).setSprite(args[3]);
+			let side = this.getSide(args[1]);
+			side.setName(args[2]);
+			side.setAvatar(args[3]);
+			this.scene.updateSidebar(side);
+			if (this.joinButtons) this.scene.hideJoinButtons();
 			break;
 		} case 'teamsize': {
-			this.getSide(args[1]).totalPokemon = parseInt(args[2], 10);
-			this.getSide(args[1]).updateSidebar();
+			let side = this.getSide(args[1]);
+			side.totalPokemon = parseInt(args[2], 10);
+			this.scene.updateSidebar(side);
 			break;
 		} case 'win': {
 			this.winner(args[1]);
@@ -6804,14 +4592,7 @@ class Battle {
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
 
-			poke.sprite.animTransform(poke, true);
-			poke.sprite.oldsp = null;
-			if (poke.statbarElem) {
-				poke.statbarElem.html(poke.side.getStatbarHTML(poke, true));
-			}
-
-			poke.side.updateStatbar(poke, true);
-			poke.side.updateSidebar();
+			poke.sprite.animTransform(poke, true, true);
 			if (toId(newSpecies) === 'greninjaash') {
 				this.message('' + poke.getName() + ' became Ash-Greninja!');
 			} else if (toId(newSpecies) === 'mimikyubusted') {
@@ -6823,8 +4604,8 @@ class Battle {
 			}
 			break;
 		} case 'teampreview': {
-			this.teamPreview(true);
 			this.teamPreviewCount = parseInt(args[1], 10);
+			this.scene.teamPreview(true);
 			break;
 		} case 'switch': case 'drag': case 'replace': {
 			this.endLastTurn();
@@ -6894,11 +4675,11 @@ class Battle {
 		} case 'warning': {
 			this.message('<strong>Warning:</strong> ' + Tools.escapeHTML(args[1]));
 			this.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
-			this.activityWait(1000);
+			this.scene.wait(1000);
 			break;
 		} case 'gen': {
 			this.gen = parseInt(args[1], 10);
-			this.updateGen();
+			this.scene.updateGen();
 			break;
 		} case 'callback': {
 			args.shift();
@@ -6907,7 +4688,7 @@ class Battle {
 		} case 'debug': {
 			args.shift();
 			const name = args.join(' ');
-			this.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div></div>', preempt);
+			this.scene.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div></div>', preempt);
 			break;
 		} case 'seed': case 'choice': {
 			break;
@@ -6919,20 +4700,19 @@ class Battle {
 			$messages.find('a').contents().unwrap();
 			if (window.BattleRoom && args[2]) {
 				$messages.hide().addClass('revealed').find('button').parent().remove();
-				this.log('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button></div>');
+				this.scene.log('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button></div>');
 			}
 			break;
 		} case 'fieldhtml': {
-			this.playbackState = 5; // force seeking to prevent controls etc
-			this.frameElem.html(Tools.sanitizeHTML(args[1]));
+			this.playbackState = Playback.Seeking; // force seeking to prevent controls etc
+			this.scene.$frame.html(Tools.sanitizeHTML(args[1]));
 			break;
 		} case 'controlshtml': {
-			let $controls = this.frameElem.parent().children('.battle-controls');
+			let $controls = this.scene.$frame.parent().children('.battle-controls');
 			$controls.html(Tools.sanitizeHTML(args[1]));
 			break;
 		} default: {
-			this.logConsole('unknown command: ' + args[0]);
-			this.log('<div>Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
+			this.scene.log('<div class="chat message-error">Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
 			if (this.errorCallback) this.errorCallback(this);
 			break;
 		}}
@@ -6940,13 +4720,13 @@ class Battle {
 	run(str: string, preempt?: boolean) {
 		if (this.preemptActivityQueue.length && str === this.preemptActivityQueue[0]) {
 			this.preemptActivityQueue.shift();
-			this.preemptCatchup();
+			this.scene.preemptCatchup();
 			return;
 		}
 		if (!str) return;
 		if (str.charAt(0) !== '|' || str.substr(0, 2) === '||') {
 			if (str.charAt(0) === '|') str = str.substr(2);
-			this.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
+			this.scene.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
 			return;
 		}
 		let args = ['done'];
@@ -7006,7 +4786,7 @@ class Battle {
 					this.runMajor(args, kwargs, preempt);
 				}
 			} catch (e) {
-				this.log('<div class="chat">Error parsing: ' + Tools.escapeHTML(str) + ' (' + Tools.escapeHTML('' + e) + ')</div>', preempt);
+				this.scene.log('<div class="broadcast-red">Error parsing: ' + Tools.escapeHTML(str) + ' (' + Tools.escapeHTML('' + e) + ')</div>', preempt);
 				if (e.stack) {
 					let stack = Tools.escapeHTML('' + e.stack).split('\n');
 					for (let i = 0; i < stack.length; i++) {
@@ -7015,7 +4795,7 @@ class Battle {
 							break;
 						}
 					}
-					this.log('<div class="chat">' + stack.join('<br>') + '</div>', preempt);
+					this.scene.log('<div class="broadcast-red">' + stack.join('<br>') + '</div>', preempt);
 				}
 				if (this.errorCallback) this.errorCallback(this);
 			}
@@ -7035,8 +4815,8 @@ class Battle {
 			this.activityStep--;
 			return true;
 		}
-		if (this.resultWaiting || this.messageActive) {
-			this.endAction();
+		if (this.resultWaiting || this.scene.messagebarOpen) {
+			this.scene.closeMessagebar();
 			this.activityStep--;
 			this.resultWaiting = false;
 			this.activeMoveIsSpread = null;
@@ -7056,60 +4836,22 @@ class Battle {
 		this.resultWaiting = true;
 		return false;
 	}
-	doBeforeThis(act: () => boolean) {
-		if (act()) {
-			this.activityStep--;
-			return true;
-		}
-		return false;
-	}
-	doAfterThis(act: () => boolean) {
-		this.activityAfter = act;
-	}
-
-	queue1() {
-		if (this.activeQueue === this.queue1) this.nextActivity();
-	}
-	queue2() {
-		if (this.activeQueue === this.queue2) this.nextActivity();
-	}
-	swapQueues() {
-		if (this.activeQueue === this.queue1) this.activeQueue = this.queue2;
-		else this.activeQueue = this.queue2;
-	}
 
 	pause() {
-		this.elem.find(':animated').finish();
 		this.paused = true;
-		this.playbackState = 3;
-		if (this.resumeButton) {
-			this.frameElem.append('<div class="playbutton"><button data-action="resume"><i class="fa fa-play icon-play"></i> Resume</button></div>');
-			this.frameElem.find('div.playbutton button').click(this.resumeButton);
-		}
-		this.soundPause();
+		this.playbackState = Playback.Paused;
+		this.scene.pause();
 	}
-	play(dontResetSound?: boolean) {
-		if (this.fastForward) {
-			this.paused = false;
-			this.playbackState = 5;
-		} else if (this.paused) {
-			this.paused = false;
-			if (!dontResetSound && this.playbackState === 1) {
-				this.soundStop();
-			}
-			this.playbackState = 2;
-			if (!dontResetSound && !this.ended) {
-				this.soundStart();
-			}
-			this.nextActivity();
-		}
-		this.frameElem.find('div.playbutton').remove();
+	play() {
+		this.paused = false;
+		this.playbackState = Playback.Playing;
+		this.scene.resume();
+		this.nextActivity();
 	}
 	skipTurn() {
 		this.fastForwardTo(this.turn + 1);
 	}
 	fastForwardTo(time: string | number) {
-		this.playbackState = 5;
 		if (this.fastForward) return;
 		if (time === 0 || time === '0') {
 			time = 0.5;
@@ -7117,120 +4859,60 @@ class Battle {
 			time = Math.floor(Number(time));
 		}
 		if (isNaN(time)) return;
-		if (this.activityStep >= this.activityQueue.length - 1 && time >= this.turn + 1 && !this.activityQueueActive) return;
 		if (this.ended && time >= this.turn + 1) return;
-		this.messagebarElem.empty().css({
-			opacity: 0,
-			height: 0
-		});
+
 		if (time <= this.turn && time !== -1) {
 			let paused = this.paused;
 			this.reset(true);
-			this.activityQueueActive = true;
 			if (paused) this.pause();
 			else this.paused = false;
-			if (time) {
-				this.fastForward = time;
-				this.fastForwardWillScroll = true;
-				this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
-				$.fx.off = true;
-			}
-			this.elem.find(':animated').finish();
-			this.swapQueues();
-			this.nextActivity();
-			return;
+			this.fastForwardWillScroll = true;
 		}
-		this.fxElem.empty();
+		this.scene.animationOff();
+		this.playbackState = Playback.Seeking;
 		this.fastForward = time;
-		this.fastForwardWillScroll = (this.logFrameElem.scrollTop()! + 60 >= this.logElem.height()! + this.logPreemptElem.height()! - this.optionsElem.height()! - this.logFrameElem.height()!);
-		this.elem.append('<div class="seeking"><strong>seeking...</strong></div>');
-		$.fx.off = true;
-		this.elem.find(':animated').finish();
-		for (const side of this.sides) for (const active of side.active) {
-			if (active && active.sprite) {
-				active.sprite.animReset();
-			}
-		}
-		this.swapQueues();
 		this.nextActivity();
 	}
 	fastForwardOff() {
 		this.fastForward = 0;
-		this.elem.find('.seeking').remove();
-		$.fx.off = false;
-		if (this.p1) {
-			this.p1.updateStatbar(undefined, true, true);
-			this.p1.updateSidebar();
-			for (let i = 0; i < this.p1.pokemon.length; i++) {
-				let sprite = this.p1.pokemon[i].sprite;
-				if (sprite && this.p1.active.indexOf(this.p1.pokemon[i]) < 0) {
-					sprite.forceReset();
-				}
-			}
+		this.scene.animationOn();
+		if (this.paused) {
+			this.playbackState = Playback.Paused;
+		} else {
+			this.playbackState = Playback.Playing;
 		}
-		if (this.p2) {
-			this.p2.updateStatbar(undefined, true, true);
-			this.p2.updateSidebar();
-			for (let i = 0; i < this.p2.pokemon.length; i++) {
-				let sprite = this.p2.pokemon[i].sprite;
-				if (sprite && this.p2.active.indexOf(this.p2.pokemon[i]) < 0) {
-					sprite.forceReset();
-				}
-			}
-		}
-		this.updateWeather(undefined, true);
-		if (this.fastForwardWillScroll) {
-			this.logFrameElem.scrollTop(this.logElem.height()! + this.logPreemptElem.height()!);
-			this.fastForwardWillScroll = false;
-		}
-		if (!this.paused) this.soundStart();
-		this.playbackState = 2;
 	}
 	nextActivity() {
-		if (this.paused && !this.fastForward) {
-			return;
-		}
-		this.activityQueueActive = true;
-		this.fxElem.empty();
-		this.animationDelay = 0;
-		while (true) {
-			this.activityAnimations = $();
+		this.scene.startAnimations();
+		let animations;
+		while (!animations) {
 			if (this.activityStep >= this.activityQueue.length) {
-				this.activityQueueActive = false;
-				this.paused = true;
 				this.fastForwardOff();
 				if (this.ended) {
-					this.soundStop();
+					this.paused = true;
+					this.scene.soundStop();
 				}
-				this.playbackState = 4;
+				this.playbackState = Playback.Finished;
 				if (this.endCallback) this.endCallback(this);
 				return;
 			}
 			let ret;
-			if (this.activityAfter) {
-				ret = this.activityAfter();
-				this.activityAfter = null;
-			}
 			if (this.paused && !this.fastForward) return;
 			if (!ret) {
 				this.run(this.activityQueue[this.activityStep]);
 				this.activityStep++;
 			}
-			if (this.activityDelay) {
-				this.delayElem.delay(this.activityDelay);
-				this.activityWait(this.delayElem);
-				this.activityDelay = 0;
+			animations = this.scene.finishAnimations();
+		}
+
+		if (this.playbackState === Playback.Paused) return;
+
+		const interruptionCount = this.scene.interruptionCount;
+		animations.done(() => {
+			if (interruptionCount === this.scene.interruptionCount) {
+				this.nextActivity();
 			}
-			if (this.activityAnimations.length) break;
-		}
-		this.activityAnimations.promise().done(() => this.activeQueue());
-	}
-	activityWait(elem: number | JQuery<HTMLElement>) {
-		if (typeof elem === 'number') {
-			if (elem > this.activityDelay) this.activityDelay = elem;
-			return;
-		}
-		this.activityAnimations = this.activityAnimations.add(elem);
+		});
 	}
 
 	newBattle() {
@@ -7254,136 +4936,10 @@ class Battle {
 				}
 			}
 		} */
-		this.playbackState = 1;
+		this.playbackState = Playback.Ready;
 	}
 
-	preloadImage(url: string) {
-		let token = url.replace(/\.(gif|png)$/, '').replace(/\//g, '-');
-		if (this.preloadCache[token]) {
-			return;
-		}
-		this.preloadNeeded++;
-		this.preloadCache[token] = new Image();
-		this.preloadCache[token].onload = () => {
-			this.preloadDone++;
-			this.preloadCallback(this.preloadNeeded === this.preloadDone, this.preloadDone, this.preloadNeeded);
-		};
-		this.preloadCache[token].src = url;
-	}
-	preloadCallback(finished: boolean, done: number, needed: number) {};
-	preloadEffects() {
-		for (let i in BattleEffects) {
-			if (i === 'alpha' || i === 'omega') continue;
-			if (BattleEffects[i].url) this.preloadImage(BattleEffects[i].url);
-		}
-		this.preloadImage(Tools.fxPrefix + 'weather-raindance.jpg'); // rain is used often enough to precache
-		this.preloadImage(Tools.resourcePrefix + 'sprites/xyani/substitute.gif');
-		this.preloadImage(Tools.resourcePrefix + 'sprites/xyani-back/substitute.gif');
-		//this.preloadImage(Tools.fxPrefix + 'bg.jpg');
-	}
-	dogarsCheck(pokemon: Pokemon) {
-		if (pokemon.side.n === 1) return;
-
-		if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) {
-			if (window.forceBgm !== -1) {
-				window.originalBgm = window.bgmNum;
-				window.forceBgm = -1;
-				this.preloadBgm();
-				this.soundStart();
-			}
-		} else if (window.forceBgm === -1) {
-			window.forceBgm = null;
-			if (window.originalBgm || window.originalBgm === 0) {
-				window.forceBgm = window.originalBgm;
-			}
-			this.preloadBgm();
-			this.soundStart();
-		}
-	}
-	preloadBgm() {
-		let bgmNum = this.numericId % 13;
-
-		if (window.forceBgm || window.forceBgm === 0) bgmNum = window.forceBgm;
-		window.bgmNum = bgmNum;
-		let ext = window.nodewebkit ? '.ogg' : '.mp3';
-		switch (bgmNum) {
-		case -1:
-			BattleSound.loadBgm('audio/bw2-homika-dogars' + ext, 1661, 68131);
-			this.bgm = 'audio/bw2-homika-dogars' + ext;
-			break;
-		case 0:
-			BattleSound.loadBgm('audio/hgss-kanto-trainer' + ext, 13003, 94656);
-			this.bgm = 'audio/hgss-kanto-trainer' + ext;
-			break;
-		case 1:
-			BattleSound.loadBgm('audio/bw-subway-trainer' + ext, 15503, 110984);
-			this.bgm = 'audio/bw-subway-trainer' + ext;
-			break;
-		case 2:
-			BattleSound.loadBgm('audio/bw-trainer' + ext, 14629, 110109);
-			this.bgm = 'audio/bw-trainer' + ext;
-			break;
-		case 3:
-			BattleSound.loadBgm('audio/bw-rival' + ext, 19180, 57373);
-			this.bgm = 'audio/bw-rival' + ext;
-			break;
-		case 4:
-			BattleSound.loadBgm('audio/dpp-trainer' + ext, 13440, 96959);
-			this.bgm = 'audio/dpp-trainer' + ext;
-			break;
-		case 5:
-			BattleSound.loadBgm('audio/hgss-johto-trainer' + ext, 23731, 125086);
-			this.bgm = 'audio/hgss-johto-trainer' + ext;
-			break;
-		case 6:
-			BattleSound.loadBgm('audio/dpp-rival' + ext, 13888, 66352);
-			this.bgm = 'audio/dpp-rival' + ext;
-			break;
-		case 7:
-			BattleSound.loadBgm('audio/bw2-kanto-gym-leader' + ext, 14626, 58986);
-			this.bgm = 'audio/bw2-kanto-gym-leader' + ext;
-			break;
-		case 8:
-			BattleSound.loadBgm('audio/bw2-rival' + ext, 7152, 68708);
-			this.bgm = 'audio/bw2-rival' + ext;
-			break;
-		case 9:
-			BattleSound.loadBgm('audio/xy-trainer' + ext, 7802, 82469);
-			this.bgm = 'audio/xy-trainer' + ext;
-			break;
-		case 10:
-			BattleSound.loadBgm('audio/xy-rival' + ext, 7802, 58634);
-			this.bgm = 'audio/xy-rival' + ext;
-			break;
-		case 11:
-			BattleSound.loadBgm('audio/oras-trainer' + ext, 13579, 91548);
-			this.bgm = 'audio/oras-trainer' + ext;
-			break;
-		case 12:
-			BattleSound.loadBgm('audio/sm-trainer' + ext, 8323, 89230);
-			this.bgm = 'audio/sm-trainer' + ext;
-			break;
-		case 13:
-			BattleSound.loadBgm('audio/sm-rival' + ext, 11389, 62158);
-			this.bgm = 'audio/sm-rival' + ext;
-			break;
-		default:
-			BattleSound.loadBgm('audio/oras-rival' + ext, 14303, 69149);
-			this.bgm = 'audio/oras-rival' + ext;
-			break;
-		}
-	}
 	setMute(mute: boolean) {
 		BattleSound.setMute(mute);
-	}
-	soundStart() {
-		if (!this.bgm) this.preloadBgm();
-		BattleSound.playBgm(this.bgm!);
-	}
-	soundStop() {
-		BattleSound.stopBgm();
-	}
-	soundPause() {
-		BattleSound.pauseBgm();
 	}
 }

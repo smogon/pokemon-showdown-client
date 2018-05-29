@@ -17,7 +17,6 @@
 			this.$controls = this.$el.find('.battle-controls');
 			this.$chatFrame = this.$el.find('.battle-log');
 			this.$chatAdd = this.$el.find('.battle-log-add');
-			this.$join = null;
 			this.$foeHint = this.$el.find('.foehint');
 
 			BattleSound.setMute(Tools.prefs('mute'));
@@ -25,6 +24,7 @@
 			this.tooltips = new BattleTooltips(this.battle, this);
 
 			this.battle.roomid = this.id;
+			this.battle.joinButtons = true;
 			this.users = {};
 			this.userCount = {users: 0};
 			this.$userList = this.$('.userlist');
@@ -36,7 +36,7 @@
 
 			this.$chat = this.$chatFrame.find('.inner');
 
-			this.$options = this.battle.optionsElem.html('<div style="padding-top: 3px; padding-right: 3px; text-align: right"><button class="icon button" name="openBattleOptions" title="Options">Battle Options</button></div>');
+			this.$options = this.battle.scene.$options.html('<div style="padding-top: 3px; padding-right: 3px; text-align: right"><button class="icon button" name="openBattleOptions" title="Options">Battle Options</button></div>');
 
 			var self = this;
 			this.battle.customCallback = function () { self.updateControls(); };
@@ -243,11 +243,6 @@
 		 *********************************************************/
 
 		updateControls: function (force) {
-			if (this.$join) {
-				this.$join.remove();
-				this.$join = null;
-			}
-
 			var controlsShown = this.controlsShown;
 			this.controlsShown = false;
 
@@ -297,12 +292,10 @@
 					this.updateTimer();
 				}
 
-			} else if (!this.battle.mySide.initialized || !this.battle.yourSide.initialized) {
+			} else if (!this.battle.mySide.name || !this.battle.yourSide.name) {
 
 				// empty battle
 				this.$controls.html('<p><em>Waiting for players...</em></p>');
-				this.$join = $('<div class="playbutton"><button name="joinBattle">Join Battle</button></div>');
-				this.$battle.append(this.$join);
 
 			} else {
 
@@ -795,7 +788,7 @@
 		updateWaitControls: function () {
 			var buf = '<div class="controls">';
 			buf += this.getPlayerChoicesHTML();
-			if (!this.battle.mySide.initialized || !this.battle.yourSide.initialized || !this.request) {
+			if (!this.battle.mySide.name || !this.battle.yourSide.name || !this.request) {
 				if (this.battle.kickingInactive) {
 					buf += '<p><button class="button" name="setTimer" value="off">Stop timer</button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p>';
 				} else {
