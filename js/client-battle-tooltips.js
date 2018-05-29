@@ -386,9 +386,9 @@ var BattleTooltips = (function () {
 		var template = Tools.getTemplate(pokemon.getSpecies ? pokemon.getSpecies() : pokemon.species);
 		if (pokemon.volatiles && pokemon.volatiles.formechange) {
 			if (pokemon.volatiles.transform) {
-				text += '<small>(Transformed into ' + pokemon.volatiles.formechange[2] + ')</small><br />';
+				text += '<small>(Transformed into ' + pokemon.volatiles.formechange[1] + ')</small><br />';
 			} else {
-				text += '<small>(Forme: ' + pokemon.volatiles.formechange[2] + ')</small><br />';
+				text += '<small>(Forme: ' + pokemon.volatiles.formechange[1] + ')</small><br />';
 			}
 		}
 
@@ -524,6 +524,9 @@ var BattleTooltips = (function () {
 			text += '<p class="section">';
 			for (var i = 0; i < pokemon.moveTrack.length; i++) {
 				text += '&#8226; ' + this.getPPUseText(pokemon.moveTrack[i]) + '<br />';
+			}
+			if (pokemon.moveTrack.length > 4) {
+				text += '(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.)';
 			}
 			text += '</p>';
 		}

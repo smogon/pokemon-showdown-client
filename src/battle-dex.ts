@@ -45,7 +45,7 @@ if (!String.prototype.endsWith) {
 	};
 }
 if (!Object.assign) {
-	Object.assign = function (thing, rest) {
+	Object.assign = function (thing: any, rest: any) {
 		for (var i = 1; i < arguments.length; i++) {
 			var source = arguments[i];
 			for (var k in source) {
@@ -172,6 +172,7 @@ interface SpriteData {
 	h: number;
 	y?: number;
 	url?: string;
+	rawHTML?: string;
 	pixelated?: boolean;
 	isBackSprite?: boolean;
 	cryurl?: string;
@@ -250,7 +251,7 @@ const Tools = {
 			// custom avatar served by the server
 			let protocol = (Config.server.port === 443) ? 'https' : 'http';
 			return protocol + '://' + Config.server.host + ':' + Config.server.port +
-				'/avatars/' + _.map(avatar.split('?', 2), encodeURIComponent).join('?');
+				'/avatars/' + encodeURIComponent(avatar).replace('%3F', '?');
 		}
 		// just pick a random avatar
 		let sprites = [1, 2, 101, 102, 169, 170];
@@ -744,11 +745,6 @@ const Tools = {
 					move.gen = 0;
 				}
 			}
-
-			if (window.BattleMoveAnims) {
-				if (!move.anim) move.anim = BattleOtherAnims.attack.anim;
-				Object.assign(move, BattleMoveAnims[move.id]);
-			}
 		}
 		return move;
 	},
@@ -978,7 +974,11 @@ const Tools = {
 	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean} = {gen: 6}) {
 		if (!options.gen) options.gen = 6;
 		if (pokemon instanceof Pokemon) {
-			options.shiny = pokemon.shiny;
+			if (pokemon.volatiles.transform) {
+				options.shiny = pokemon.volatiles.transform[2];
+			} else {
+				options.shiny = pokemon.shiny;
+			}
 			options.gender = pokemon.gender;
 			pokemon = pokemon.getSpecies();
 		}
@@ -1603,7 +1603,7 @@ const Tools = {
 		buf += '<h1 style="font-weight:normal;text-align:center"><strong>' + Tools.escapeHTML(battle.tier) + '</strong><br /><a href="http://pokemonshowdown.com/users/' + toId(battle.p1.name) + '" class="subtle" target="_blank">' + Tools.escapeHTML(battle.p1.name) + '</a> vs. <a href="http://pokemonshowdown.com/users/' + toId(battle.p2.name) + '" class="subtle" target="_blank">' + Tools.escapeHTML(battle.p2.name) + '</a></h1>\n';
 		buf += '<script type="text/plain" class="battle-log-data">' + battle.activityQueue.join('\n').replace(/\//g, '\\/') + '</script>\n';
 		buf += '</div>\n';
-		buf += '<div class="battle-log battle-log-inline"><div class="inner">' + battle.logElem.html() + '</div></div>\n';
+		buf += '<div class="battle-log battle-log-inline"><div class="inner">' + battle.scene.$log.html() + '</div></div>\n';
 		buf += '</div>\n';
 		buf += '<script>\n';
 		buf += 'let daily = Math.floor(Date.now()/1000/60/60/24);document.write(\'<script src="https://play.pokemonshowdown.com/js/replay-embed.js?version\'+daily+\'"></\'+\'script>\');\n';

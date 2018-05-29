@@ -91,17 +91,20 @@ License: GPLv2
 	margin-top: 0.5em;
 }
 
-.playbutton {
+.playbutton, .playbutton2 {
 	position: absolute;
 	display: block;
-	top: 160px;
-	left: 0;
-	right: 0;
-	text-align: center;
+	top: 190px;
+	left: 100px;
 	z-index: 100;
 }
-.playbutton button {
-	font-size: 20pt;
+.playbutton2 {
+	top: 130px;
+	left: 300px;
+}
+.playbutton button,
+.playbutton2 button {
+	font-size: 16pt;
 }
 
 .background {
@@ -339,7 +342,7 @@ License: GPLv2
 }
 .turn {
 	position: absolute;
-	display: none;
+	display: block;
 	top: 10px;
 	left: 110px;
 	font-size: 13pt;
