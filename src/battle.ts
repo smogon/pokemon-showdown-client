@@ -2620,13 +2620,12 @@ class Battle {
 	preloadCache = {} as {[url: string]: HTMLImageElement};
 
 	constructor(frame: JQuery<HTMLElement>, logFrame: JQuery<HTMLElement>, id = '') {
-		let numericId = 0;
 		if (id) {
 			this.id = id;
-			numericId = parseInt(this.id.slice(this.id.lastIndexOf('-') + 1));
+			this.numericId = parseInt(this.id.slice(this.id.lastIndexOf('-') + 1));
 		}
-		if (!numericId) {
-			numericId = Math.floor(Math.random() * 1000000);
+		if (!this.numericId) {
+			this.numericId = Math.floor(Math.random() * 1000000);
 		}
 		if (!id) {
 			this.id = 'battle-' + this.numericId;
