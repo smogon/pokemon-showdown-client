@@ -737,7 +737,9 @@ class Pokemon {
 				window.BattleTeambuilderTable &&
 				window.BattleTeambuilderTable['gen' + this.side.battle.gen] &&
 				window.BattleTeambuilderTable['gen' + this.side.battle.gen].overrideType[toId(species)]
-			) || (Tools.getTemplate(species).types);
+			);
+			if (types) types = types.split('/');
+			if (!types) types = Tools.getTemplate(species).types || [];
 		}
 		const addedType = (this.volatiles.typeadd ? this.volatiles.typeadd[2] : '');
 		return [types, addedType];
@@ -2934,9 +2936,9 @@ class Battle {
 		if (!end.time) end.time = start.time + 500;
 		start.time += this.animationDelay;
 		end.time += this.animationDelay;
-		if (!end.scale && end.scale !== 0) end.scale = start.scale;
-		if (!end.xscale && end.xscale !== 0) end.xscale = start.xscale;
-		if (!end.yscale && end.yscale !== 0) end.yscale = start.yscale;
+		if (!end.scale && end.scale !== 0 && start.scale) end.scale = start.scale;
+		if (!end.xscale && end.xscale !== 0 && start.scale) end.xscale = start.xscale;
+		if (!end.yscale && end.yscale !== 0 && start.scale) end.yscale = start.yscale;
 		end = {...start, ...end};
 
 		let startpos = this.pos(start, effect);
