@@ -1289,8 +1289,13 @@
 				// game
 				buf += 'Forfeiting makes you lose the game.';
 			}
-			buf += ' Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close after forfeiting</label></p>';
-			buf += '<p><button type="submit"><strong>Forfeit</strong></button> ';
+			if (this.gameType === 'help') {
+				buf += ' Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close room</label></p>';
+				buf += '<p><button type="submit"><strong>Close ticket</strong></button> ';
+			} else {
+				buf += ' Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close after forfeiting</label></p>';
+				buf += '<p><button type="submit"><strong>Forfeit</strong></button> ';
+			}
 			if (this.gameType === 'battle' && this.room.battle && !this.room.battle.rated) {
 				buf += '<button name="replacePlayer">Replace player</button> ';
 			}
