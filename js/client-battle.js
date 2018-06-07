@@ -9,6 +9,8 @@
 		initialize: function (data) {
 			this.me = {};
 
+			this.battlePaused = false;
+
 			this.isSideRoom = Tools.prefs('rightpanelbattles');
 
 			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log" aria-label="Battle Log" role="complementary"></div><div class="battle-log-add">Connecting...</div><ul class="battle-userlist userlist userlist-minimized"></ul><div class="battle-controls" role="complementary" aria-label="Battle Controls"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>');
@@ -103,7 +105,7 @@
 		},
 		focus: function () {
 			this.tooltips.hideTooltip();
-			if (this.battle.playbackState === 3) {
+			if (this.battle.playbackState === 3 && !this.battlePaused) {
 				this.battle.play();
 				if (Tools.prefs('noanim')) this.battle.fastForwardTo(-1);
 			}
@@ -123,6 +125,7 @@
 			if (this.battle.activityQueue.length) return;
 			this.battle.activityQueue = log;
 			this.battle.fastForwardTo(-1);
+			this.battle.play();
 			if (this.battle.ended) this.battleEnded = true;
 			this.updateLayout();
 			this.updateControls();
@@ -255,11 +258,15 @@
 			} else if (this.battle.playbackState === 2 || this.battle.playbackState === 3) {
 
 				// battle is playing or paused
-				if (!this.side) {
+				if (!this.side || this.battleEnded) {
 					// spectator
-					this.$controls.html('<p><button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p>');
-				} else if (this.battleEnded) {
-					this.$controls.html('<p><button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>');
+					if (this.battle.paused) {
+						// paused
+						this.$controls.html('<p><button class="button" name="resume"><i class="fa fa-play"></i><br />Play</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p>');
+					} else {
+						// playing
+						this.$controls.html('<p><button class="button" name="pause"><i class="fa fa-pause"></i><br />Pause</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p>');
+					}
 				} else {
 					// is a player
 					this.$controls.html('<p>' + this.getTimerHTML() + '<button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>');
@@ -300,7 +307,13 @@
 			} else {
 
 				// full battle
-				this.$controls.html('<p><button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button disabled" disabled><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button disabled" disabled><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p><p><em>Waiting for players...</em></p>');
+				if (this.battle.paused) {
+					// paused
+					this.$controls.html('<p><button class="button" name="resume"><i class="fa fa-play"></i><br />Play</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button disabled" disabled><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button disabled" disabled><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p><p><em>Waiting for players...</em></p>');
+				} else {
+					// playing
+					this.$controls.html('<p><button class="button" name="pause"><i class="fa fa-pause"></i><br />Pause</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button disabled" disabled><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button disabled" disabled><i class="fa fa-fast-forward"></i><br />Skip to end</button></p><p><button name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p><p><em>Waiting for players...</em></p>');
+				}
 
 			}
 
@@ -985,11 +998,25 @@
 			e.stopPropagation();
 		},
 		switchSides: function () {
+			var paused = this.battle.paused;
 			this.battle.switchSides();
+		},
+		pause: function () {
+			this.tooltips.hideTooltip();
+			this.battlePaused = true;
+			this.battle.pause();
+			this.updateControls();
+		},
+		resume: function () {
+			this.tooltips.hideTooltip();
+			this.battlePaused = false;
+			this.battle.play();
+			this.updateControls();
 		},
 		instantReplay: function () {
 			this.tooltips.hideTooltip();
 			this.request = null;
+			this.battlePaused = false;
 			this.battle.reset();
 			this.battle.play();
 		},
@@ -999,7 +1026,6 @@
 		rewindTurn: function () {
 			if (this.battle.turn) {
 				this.battle.fastForwardTo(this.battle.turn - 1);
-				this.battle.play();
 			}
 		},
 		goToEnd: function () {
