@@ -751,6 +751,7 @@ class BattleScene {
 			this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
 			this.curTerrain = terrain;
 			this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
+			this.$weather.css('opacity', isIntense ? 0.9 : 0.5);
 			this.curWeather = weather;
 			this.$weather.html('<em>' + weatherhtml + '</em>');
 			return;
@@ -774,7 +775,7 @@ class BattleScene {
 				top: 360,
 			}, this.curTerrain ? 400 : 1, () => {
 				this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
-				this.$weather.animate({top: 0}, 400);
+				this.$terrain.animate({top: 0}, 400);
 			});
 			this.curTerrain = terrain;
 		}
