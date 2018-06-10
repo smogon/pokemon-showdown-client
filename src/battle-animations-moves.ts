@@ -5868,7 +5868,6 @@ const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.wait(800);
 
 			battle.showEffect('rightslash', {
 				x: defender.x,
@@ -5906,6 +5905,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 1000
 			}, 'linear', 'fade');
+			battle.wait(800);
 		}
 	},
 	crosspoison: {
@@ -5952,7 +5952,6 @@ const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.wait(800);
 
 			battle.showEffect('rightslash', {
 				x: defender.x,
@@ -6033,6 +6032,8 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.5,
 				time: 950
 			}, 'decel', 'fade');
+
+			battle.wait(800);
 		}
 	},
 	facade: {
@@ -6099,7 +6100,6 @@ const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.wait(800);
 
 			battle.showEffect('foot', {
 				x: defender.x - 10,
@@ -6176,6 +6176,8 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 1300
 			}, 'linear');
+
+			battle.wait(800);
 		}
 	},
 	leafblade: {
@@ -6337,7 +6339,6 @@ const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.wait(800);
 
 			battle.showEffect('foot', {
 				x: defender.x - 10,
@@ -6414,6 +6415,8 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 1300
 			}, 'linear');
+
+			battle.wait(800);
 		}
 	},
 	pluck: {
@@ -6569,7 +6572,6 @@ const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.wait(800);
 
 			battle.showEffect('fist', {
 				x: defender.x,
@@ -6686,6 +6688,8 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 1050
 			}, 'linear');
+
+			battle.wait(800);
 		}
 	},
 	doublekick: {
@@ -6803,7 +6807,6 @@ const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.wait(800);
 
 			battle.showEffect('fist', {
 				x: defender.x - 10,
@@ -6957,6 +6960,8 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.2,
 				time: 1050
 			}, 'linear', 'fade');
+
+			battle.wait(800);
 		}
 	},
 	strength: {
@@ -10368,7 +10373,6 @@ const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.wait(350);
 
 			battle.showEffect('heart', {
 				x: attacker.x - 10,
@@ -10382,6 +10386,8 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 300
 			}, 'ballistic2Under', 'fade');
+
+			battle.wait(350);
 		}
 	},
 	feint: {
@@ -10732,8 +10738,8 @@ const BattleMoveAnims: AnimTable = {
 					y: defender.y,
 					time: 100
 				});
-				battle.wait(325);
 			}
+			battle.wait(325);
 		}
 	},
 	tickle: {
@@ -23396,7 +23402,6 @@ const BattleMoveAnims: AnimTable = {
 					time: 1200
 				}, 'linear');
 			}
-			battle.wait(500);
 			const defender = defenders[1] || defenders[0];
 
 			attacker.anim({
@@ -23434,6 +23439,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.1,
 				time: 1300
 			}, 'decel', 'fade');
+			battle.wait(500);
 		}
 	},
 	revelationdance: {
@@ -29430,7 +29436,6 @@ const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			battle.wait(1750);
 
 			battle.showEffect('impact', {
 				x: defender.x - 25,
@@ -29614,6 +29619,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.8,
 				time: 2575
 			}, 'linear', 'explode');
+			battle.wait(1750);
 		}
 	},
 	clangoroussoulblaze: {
