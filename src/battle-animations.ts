@@ -1427,8 +1427,8 @@ class PokemonSprite extends Sprite {
 			time: 500,
 			...end,
 		};
-		const $el = (this.isSubActive ? this.$sub : this.$el)!;
-		$el.animate(this.scene.posT(end, this.sp, transition, this), end.time!);
+		const [$el, sp] = (this.isSubActive ? [this.$sub!, this.subsp!] : [this.$el, this.sp]);
+		$el.animate(this.scene.posT(end, sp, transition, this), end.time!);
 		return this;
 	}
 
