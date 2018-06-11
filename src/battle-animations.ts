@@ -2859,7 +2859,6 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			scene.wait(500);
 		}
 	},
 	xattack: {
@@ -2906,7 +2905,6 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			scene.wait(800);
 		}
 	},
 	slashattack: {
@@ -2934,7 +2932,6 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			scene.wait(500);
 
 			scene.showEffect('rightslash', {
 				x: defender.x,
@@ -2994,7 +2991,6 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			scene.wait(800);
 
 			scene.showEffect('leftclaw', {
 				x: defender.x - 20,
@@ -3316,7 +3312,6 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			scene.wait(350);
 		}
 	},
 	spinattack: {
@@ -3344,7 +3339,6 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
-			scene.wait(500);
 		}
 	},
 	bound: {
