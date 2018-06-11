@@ -408,7 +408,7 @@ class BattleScene {
 	}
 
 	finishAnimations() {
-		if (this.minDelay || (this.timeOffset && !this.activeAnimations.length)) {
+		if (this.minDelay || this.timeOffset) {
 			this.$delay.delay(Math.max(this.minDelay, this.timeOffset));
 			this.activeAnimations = this.activeAnimations.add(this.$delay);
 		}
