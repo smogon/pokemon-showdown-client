@@ -814,16 +814,16 @@ class Side {
 		let oldpokemon = this.active[slot];
 		if (oldpokemon === pokemon) return;
 		this.lastPokemon = oldpokemon;
-		if (oldpokemon) oldpokemon.clearVolatile();
+		if (oldpokemon) {
+			oldpokemon.sprite.animDragOut(oldpokemon);
+			oldpokemon.clearVolatile();
+		}
 		pokemon.clearVolatile();
 		pokemon.lastMove = '';
 		this.battle.lastMove = 'switch-in';
 		this.active[slot] = pokemon;
 		pokemon.slot = slot;
 
-		if (oldpokemon) {
-			oldpokemon.sprite.animDragOut(oldpokemon);
-		}
 		pokemon.sprite.animDragIn(pokemon, slot);
 
 		if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
@@ -974,6 +974,9 @@ class Battle {
 	sidesSwitched = false;
 
 	// activity queue
+	activityQueue = [] as string[];
+	preemptActivityQueue = [] as string[];
+	minorQueue = [] as [string[], {[k: string]: string}][];
 	activityStep = 0;
 	fastForward = 0;
 	fastForwardWillScroll = false;
@@ -1037,10 +1040,6 @@ class Battle {
 
 	paused = true;
 	playbackState = Playback.Uninitialized;
-
-	activityQueue = [] as string[];
-	preemptActivityQueue = [] as string[];
-	minorQueue = [] as [string[], {[k: string]: string}][];
 
 	// external
 	resumeButton: JQuery.EventHandler<HTMLElement, null> | null = null;
