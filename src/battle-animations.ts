@@ -1808,7 +1808,7 @@ class PokemonSprite extends Sprite {
 		// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
 		this.$el.css(this.scene.pos({
 			display: 'block',
-			x: this.leftof(-50),
+			x: this.leftof(-100),
 			y: this.y,
 			z: this.z,
 			opacity: 0
@@ -1827,7 +1827,7 @@ class PokemonSprite extends Sprite {
 		this.scene.updateSidebar(pokemon.side);
 		this.$statbar!.css({
 			display: 'block',
-			left: this.statbarLeft + (this.siden ? -50 : 50),
+			left: this.statbarLeft + (this.siden ? -100 : 100),
 			top: this.statbarTop,
 			opacity: 0,
 		});
@@ -1840,9 +1840,22 @@ class PokemonSprite extends Sprite {
 	}
 	animDragOut(pokemon: Pokemon) {
 		if (!this.scene.animating) return this.animUnsummon(pokemon, true);
-		this.removeSub();
+		if (this.$sub) {
+			this.isSubActive = false;
+			const $sub = this.$sub;
+			$sub.animate(this.scene.pos({
+				x: this.leftof(100),
+				y: this.y,
+				z: this.z,
+				opacity: 0,
+				time: 400,
+			}, this.subsp!), () => {
+				$sub.remove();
+			});
+			this.$sub = null;
+		}
 		this.anim({
-			x: this.leftof(50),
+			x: this.leftof(100),
 			y: this.y,
 			z: this.z,
 			opacity: 0,
@@ -1854,7 +1867,7 @@ class PokemonSprite extends Sprite {
 		if ($statbar) {
 			this.$statbar = null;
 			$statbar.animate({
-				left: this.statbarLeft + 30,
+				left: this.statbarLeft - (this.siden ? -100 : 100),
 				opacity: 0
 			}, 300 / this.scene.acceleration, () => {
 				$statbar!.remove();
