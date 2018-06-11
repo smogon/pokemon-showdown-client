@@ -1497,10 +1497,10 @@ class PokemonSprite extends Sprite {
 	}
 	animSubFade(instant?: boolean) {
 		if (!this.$sub || !this.scene.animating) return;
+		this.isSubActive = false;
 		if (instant) {
 			this.$sub.remove();
 			this.$sub = null;
-			this.isSubActive = false;
 			this.animReset();
 			return;
 		}
@@ -1516,7 +1516,6 @@ class PokemonSprite extends Sprite {
 		}, this.subsp!), 500);
 
 		this.$sub = null;
-		this.isSubActive = false;
 		this.anim({time: 500});
 		if (this.scene.animating) this.scene.waitFor(this.$el);
 	}
@@ -1562,6 +1561,7 @@ class PokemonSprite extends Sprite {
 	}
 	removeSub() {
 		if (!this.$sub) return;
+		this.isSubActive = false;
 		if (!this.scene.animating) {
 			this.$sub.remove();
 		} else {
@@ -1923,7 +1923,7 @@ class PokemonSprite extends Sprite {
 		this.anim({
 			y: this.y - 80,
 			opacity: 0,
-	}, 'accel');
+		}, 'accel');
 		this.scene.waitFor(this.$el);
 		this.$el.promise().done(() => {
 			this.$el.remove();
@@ -2096,7 +2096,7 @@ class PokemonSprite extends Sprite {
 
 	removeEffect(id: ID, instant?: boolean) {
 		if (id === 'formechange') this.removeTransform();
-		if (id === 'substitute') this.animSubFade();
+		if (id === 'substitute') this.animSubFade(instant);
 		if (this.effects[id]) {
 			for (const sprite of this.effects[id]) sprite.destroy();
 			delete this.effects[id];
