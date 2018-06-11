@@ -1909,7 +1909,6 @@ class PokemonSprite extends Sprite {
 		this.removeSub();
 		if (!this.scene.animating) {
 			this.$el.remove();
-			this.$el = null!;
 			if (this.$statbar) {
 				this.$statbar.remove();
 				this.$statbar = null;
@@ -1928,7 +1927,6 @@ class PokemonSprite extends Sprite {
 		this.scene.waitFor(this.$el);
 		this.$el.promise().done(() => {
 			this.$el.remove();
-			this.$el = null!;
 		});
 
 		let $statbar = this.$statbar;
