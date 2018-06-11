@@ -1462,7 +1462,7 @@ class PokemonSprite extends Sprite {
 			opacity: (this.$sub ? .3 : 1),
 		}, sp));
 	}
-	animSub(instant?: boolean) {
+	animSub(instant?: boolean, noAnim?: boolean) {
 		if (!this.scene.animating) return;
 		if (this.$sub) return;
 		const subsp = Tools.getSpriteData('substitute', this.siden, {
@@ -1473,7 +1473,7 @@ class PokemonSprite extends Sprite {
 		this.scene.$spritesFront[this.siden].append(this.$sub);
 		this.isSubActive = true;
 		if (instant) {
-			this.animReset();
+			if (!noAnim) this.animReset();
 			return;
 		}
 		this.$el.animate(this.scene.pos({
@@ -1770,7 +1770,20 @@ class PokemonSprite extends Sprite {
 		if (this.sp.shiny && this.scene.acceleration < 2) BattleOtherAnims.shiny.anim(this.scene, [this]);
 		this.scene.waitFor(this.$el);
 
-		if (pokemon.hasVolatile('substitute' as ID)) this.animSub();
+		if (pokemon.hasVolatile('substitute' as ID)) {
+			this.animSub(true, true);
+			this.$sub!.css(this.scene.pos({
+				x: this.x,
+				y: this.y,
+				z: this.z
+			}, this.subsp!));
+			this.$el.animate(this.scene.pos({
+				x: this.x,
+				y: this.y,
+				z: this.behind(30),
+				opacity: 0.3,
+			}, this.sp), 300);
+		}
 
 		this.resetStatbar(pokemon, true);
 		this.scene.updateSidebar(pokemon.side);
