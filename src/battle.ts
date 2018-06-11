@@ -251,7 +251,7 @@ class Pokemon {
 	}
 	addVolatile(volatile: ID, ...args: any[]) {
 		let battle = this.side.battle;
-		if (this.hasVolatile(volatile)) return;
+		if (this.hasVolatile(volatile) && !args.length) return;
 		this.volatiles[volatile] = [volatile, ...args] as EffectState;
 		this.sprite.addEffect(volatile);
 	}
