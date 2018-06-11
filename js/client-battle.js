@@ -921,7 +921,7 @@
 			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = false;
 			this.request = request;
 			if (request.side) {
-				this.updateSideLocation(request.side, true);
+				this.updateSideLocation(request.side);
 			}
 			this.notifyRequest();
 			this.updateControls(true);
@@ -941,11 +941,11 @@
 				break;
 			}
 		},
-		updateSideLocation: function (sideData, midBattle) {
+		updateSideLocation: function (sideData) {
 			if (!sideData.id) return;
 			this.side = sideData.id;
 			if (this.battle.sidesSwitched !== !!(this.side === 'p2')) {
-				this.battle.switchSides(!midBattle);
+				this.battle.switchSides();
 				this.$chat = this.$chatFrame.find('.inner');
 			}
 		},

@@ -1712,6 +1712,7 @@ class PokemonSprite extends Sprite {
 	}
 	animSummon(pokemon: Pokemon, slot: number, instant?: boolean) {
 		if (!this.scene.animating) return;
+		this.scene.$sprites[this.siden].append(this.$el);
 		this.recalculatePos(slot);
 
 		// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
@@ -1788,6 +1789,7 @@ class PokemonSprite extends Sprite {
 	}
 	animDragIn(pokemon: Pokemon, slot: number) {
 		if (!this.scene.animating) return;
+		this.scene.$sprites[this.siden].append(this.$el);
 		this.recalculatePos(slot);
 
 		// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
