@@ -1854,7 +1854,7 @@ class PokemonSprite extends Sprite {
 		if ($statbar) {
 			this.$statbar = null;
 			$statbar.animate({
-				left: this.statbarTop + 30,
+				left: this.statbarLeft + 30,
 				opacity: 0
 			}, 300 / this.scene.acceleration, () => {
 				$statbar!.remove();
