@@ -747,13 +747,13 @@ class BattleScene {
 		}
 
 		if (instant) {
+			this.$weather.html('<em>' + weatherhtml + '</em>');
 			if (this.curWeather === weather && this.curTerrain === terrain) return;
 			this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
 			this.curTerrain = terrain;
 			this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
-			this.$weather.css('opacity', isIntense ? 0.9 : 0.5);
+			this.$weather.css('opacity', isIntense || !weather ? 0.9 : 0.5);
 			this.curWeather = weather;
-			this.$weather.html('<em>' + weatherhtml + '</em>');
 			return;
 		}
 
@@ -763,7 +763,7 @@ class BattleScene {
 			}, this.curWeather ? 300 : 100, () => {
 				this.$weather.html('<em>' + weatherhtml + '</em>');
 				this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
-				this.$weather.animate({opacity: isIntense ? 0.9 : 0.5}, 300);
+				this.$weather.animate({opacity: isIntense || !weather ? 0.9 : 0.5}, 300);
 			});
 			this.curWeather = weather;
 		} else {
