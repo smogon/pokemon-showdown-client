@@ -2872,6 +2872,7 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
+			scene.wait(500);
 		}
 	},
 	xattack: {
@@ -3352,6 +3353,7 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300
 			}, 'swing');
+			scene.wait(500);
 		}
 	},
 	bound: {
