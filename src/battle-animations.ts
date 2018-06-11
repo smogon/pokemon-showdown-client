@@ -1078,7 +1078,7 @@ class BattleScene {
 				this.removeSideCondition(siden, id as ID);
 			}
 			for (const id in this.battle.sides[siden].sideConditions) {
-				this.addSideCondition(siden, id as ID);
+				this.addSideCondition(siden, id as ID, true);
 			}
 		}
 	}
