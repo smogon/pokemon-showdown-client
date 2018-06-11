@@ -1142,11 +1142,7 @@ class Battle {
 	}
 
 	switchSides(replay?: boolean) {
-		if (replay) {
-			this.reset(true);
-			this.setSidesSwitched(!this.sidesSwitched);
-			this.play();
-		} else if (this.ended) {
+		if (this.ended) {
 			this.reset(true);
 			this.setSidesSwitched(!this.sidesSwitched);
 			this.fastForwardTo(-1);
@@ -1172,10 +1168,12 @@ class Battle {
 			this.mySide = this.p1;
 			this.yourSide = this.p2;
 		}
-		this.mySide.n = 0;
-		this.yourSide.n = 1;
 		this.sides[0] = this.mySide;
 		this.sides[1] = this.yourSide;
+		this.sides[0].n = 0;
+		this.sides[1].n = 1;
+		this.sides[0].updateSprites();
+		this.sides[1].updateSprites();
 
 		// nothing else should need updating - don't call this function after sending out pokemon
 	}
@@ -4535,7 +4533,7 @@ class Battle {
 		} case 'player': {
 			let side = this.getSide(args[1]);
 			side.setName(args[2]);
-			side.setAvatar(args[3]);
+			if (args[3]) side.setAvatar(args[3]);
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			break;
