@@ -551,7 +551,8 @@ class Pokemon {
 	}
 	destroy() {
 		if (this.sprite) this.sprite.destroy();
-		delete this.side;
+		this.sprite = null!;
+		this.side = null!;
 	}
 }
 
@@ -601,10 +602,14 @@ class Side {
 		return this.z + (!this.n ? -1 : 1) * offset;
 	}
 
-	reset() {
+	clearPokemon() {
 		for (const pokemon of this.pokemon) pokemon.destroy();
 		this.pokemon = [];
 		for (let i = 0; i < this.active.length; i++) this.active[i] = null;
+		this.lastPokemon = null;
+	}
+	reset() {
+		this.clearPokemon();
 		this.updateSprites();
 		this.sideConditions = {};
 	}
@@ -948,16 +953,9 @@ class Side {
 		if (this.battle.faintCallback) this.battle.faintCallback(this.battle, this);
 	}
 	destroy() {
-		for (let i = 0; i < this.pokemon.length; i++) {
-			if (this.pokemon[i]) this.pokemon[i].destroy();
-			this.pokemon[i] = null!;
-		}
-		for (let i = 0; i < this.active.length; i++) {
-			if (this.active[i]) this.active[i]!.destroy();
-			this.active[i] = null;
-		}
-		delete this.battle;
-		delete this.foe;
+		this.clearPokemon();
+		this.battle = null!;
+		this.foe = null!;
 	}
 }
 
@@ -4552,12 +4550,8 @@ class Battle {
 			this.prematureEnd();
 			break;
 		} case 'clearpoke': {
-			this.p1.pokemon = [];
-			this.p2.pokemon = [];
-			for (let i = 0; i < this.p1.active.length; i++) {
-				this.p1.active[i] = null;
-				this.p2.active[i] = null;
-			}
+			this.p1.clearPokemon();
+			this.p2.clearPokemon();
 			break;
 		} case 'poke': {
 			let pokemon = this.getPokemon('new: ' + args[1], args[2])!;
