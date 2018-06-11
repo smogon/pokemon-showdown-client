@@ -91,7 +91,15 @@ License: GPLv2
 	margin-top: 0.5em;
 }
 
-.playbutton, .playbutton2 {
+.playbutton {
+	position: absolute;
+	display: block;
+	top: 160px;
+	left: 0;
+	right: 0;
+	text-align: center;
+}
+.playbutton1, .playbutton2 {
 	position: absolute;
 	display: block;
 	top: 190px;
@@ -103,6 +111,7 @@ License: GPLv2
 	left: 300px;
 }
 .playbutton button,
+.playbutton1 button,
 .playbutton2 button {
 	font-size: 16pt;
 }

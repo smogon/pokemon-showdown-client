@@ -644,7 +644,7 @@ class BattleScene {
 		if (!this.battle.joinButtons) return;
 		if (this.battle.ended || this.battle.rated) return;
 		if (!this.battle.p1.name) {
-			this.$battle.append('<div class="playbutton"><button name="joinBattle">Join Battle</button></div>');
+			this.$battle.append('<div class="playbutton1"><button name="joinBattle">Join Battle</button></div>');
 		}
 		if (!this.battle.p2.name) {
 			this.$battle.append('<div class="playbutton2"><button name="joinBattle">Join Battle</button></div>');
@@ -652,7 +652,7 @@ class BattleScene {
 	}
 	hideJoinButtons() {
 		if (!this.battle.joinButtons) return;
-		this.$battle.find('.playbutton, .playbutton2').remove();
+		this.$battle.find('.playbutton1, .playbutton2').remove();
 	}
 
 	pseudoWeatherLeft(pWeather: WeatherState) {
