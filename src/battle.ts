@@ -1147,6 +1147,7 @@ class Battle {
 			let turn = this.turn;
 			let paused = this.paused;
 			this.reset(true);
+			this.paused = paused;
 			this.setSidesSwitched(!this.sidesSwitched);
 			if (turn) this.fastForwardTo(turn);
 			if (!paused) {
