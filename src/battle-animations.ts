@@ -773,9 +773,10 @@ class BattleScene {
 		if (terrain !== this.curTerrain) {
 			this.$terrain.animate({
 				top: 360,
+				opacity: 0,
 			}, this.curTerrain ? 400 : 1, () => {
 				this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
-				this.$terrain.animate({top: 0}, 400);
+				this.$terrain.animate({top: 0, opacity: 1}, 400);
 			});
 			this.curTerrain = terrain;
 		}
