@@ -2581,7 +2581,7 @@
 				if (baseFormat.substr(0, 3) === 'gen') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
 				if (this.curTeam && this.curTeam.format) {
-					if (baseFormat.substr(0, 10) === 'battlespot' || baseFormat.substr(0, 3) === 'vgc') set.level = 50;
+					if (baseFormat === 'battlespotsingles' || baseFormat === 'battlespotdoubles' || baseFormat.substr(0, 3) === 'vgc') set.level = 50;
 					if (baseFormat.substr(0, 2) === 'lc') set.level = 5;
 				}
 				set.gender = 'F';
