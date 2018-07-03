@@ -790,7 +790,7 @@
 		} else if (!format) {
 			this.gen = 7;
 		}
-		var requirePentagon = (format.slice(0, 3) === 'vgc' || format.slice(0, 10) === 'battlespot' || format === 'dragoncup');
+		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		var template;
 		var isBH = (format === 'balancedhackmons' || format === 'bh');
 		this.resultSet = null;
