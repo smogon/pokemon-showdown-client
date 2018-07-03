@@ -254,7 +254,7 @@
 			}
 			var userid = toUserid(name);
 			if (!userid) {
-				app.addPopupMessage("Usernames must contain at least one letter or number.");
+				app.addPopupMessage("Usernames must contain at least one letter.");
 				return;
 			}
 
