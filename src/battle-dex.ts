@@ -528,6 +528,15 @@ const Dex = new class implements ModdedDex {
 			return spriteData;
 		}
 
+		// Digimon sprites
+		if (window.location.href.includes('digimon')) {
+			dir = 'digimon/sprites/digimon' + dir;
+			spriteData.url += dir + '/' + name + '.png';
+			spriteData.w = 56;
+			spriteData.h = 56;
+			return spriteData;
+		}
+
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
 		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
 		if (allowAnim && genNum >= 6) spriteData.pixelated = false;
@@ -624,7 +633,14 @@ const Dex = new class implements ModdedDex {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		let fainted = (pokemon && pokemon.fainted ? ';opacity:.3;filter:grayscale(100%) brightness(.5)' : '');
-		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-sheet.png?a5) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		let spriteSheet = 'sprites/smicons-sheet.png?a5';
+
+		// Digimon Icons
+		if (window.location.href.includes('digimon')) {
+			spriteSheet = 'sprites/digimon/sprites/digimonicons-sheet.png';
+		}
+
+		return 'background:transparent url(' + Dex.resourcePrefix + spriteSheet + ') no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	}
 
 	getTeambuilderSprite(pokemon: any, gen: number = 0) {
