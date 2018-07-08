@@ -837,6 +837,7 @@ class Side {
 			pokemon.lastMove = oldpokemon.lastMove;
 			pokemon.hp = oldpokemon.hp;
 			pokemon.maxhp = oldpokemon.maxhp;
+			pokemon.hpcolor = oldpokemon.hpcolor;
 			pokemon.status = oldpokemon.status;
 			pokemon.copyVolatileFrom(oldpokemon, true);
 			// we don't know anything about the illusioned pokemon except that it's not fainted
