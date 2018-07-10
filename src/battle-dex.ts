@@ -976,10 +976,11 @@ const Tools = {
 		if (pokemon instanceof Pokemon) {
 			if (pokemon.volatiles.transform) {
 				options.shiny = pokemon.volatiles.transform[2];
+				options.gender = pokemon.volatiles.transform[3];
 			} else {
 				options.shiny = pokemon.shiny;
+				options.gender = pokemon.gender;
 			}
-			options.gender = pokemon.gender;
 			pokemon = pokemon.getSpecies();
 		}
 		const template = Tools.getTemplate(pokemon);
