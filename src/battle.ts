@@ -2864,7 +2864,8 @@ class Battle {
 				const species = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[1] : tpoke.species);
 				const pokemon = tpoke;
 				const shiny = tpoke.shiny;
-				poke.addVolatile('transform' as ID, pokemon, shiny);
+				const gender = tpoke.gender;
+				poke.addVolatile('transform' as ID, pokemon, shiny, gender);
 				poke.addVolatile('formechange' as ID, species);
 				for (const trackedMove of tpoke.moveTrack) {
 					poke.markMove(trackedMove[0], 0);
