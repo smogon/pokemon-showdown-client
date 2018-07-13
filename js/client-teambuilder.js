@@ -2586,7 +2586,7 @@
 		},
 		searchChange: function (e) {
 			//91 for right CMD / 93 for left / CMD 17 for CTL
-			if (e.keyCode != 91 && e.keyCode != 93 && e.keyCode != 17) {
+			if (e.keyCode !== 91 && e.keyCode !== 93 && e.keyCode !== 17) {
 				this.curSearchVal = e.currentTarget.value;
 				this.updateTeamList();
 			}
