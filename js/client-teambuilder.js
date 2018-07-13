@@ -54,6 +54,7 @@
 			'keyup .chartinput': 'chartKeyup',
 			'focus .chartinput': 'chartFocus',
 			'blur .chartinput': 'chartChange',
+			'keyup .searchinput': 'searchChange',
 
 			// drag/drop
 			'click .team': 'edit',
@@ -120,6 +121,7 @@
 		// '/' -    show teams with no folder
 		curFolder: '',
 		curFolderKeep: '',
+		curSearchVal: '',
 
 		exportMode: false,
 		update: function () {
@@ -342,7 +344,8 @@
 			if (filterFormat && filterFormat !== 'gen7') {
 				newButtonText = "New " + Tools.escapeFormat(filterFormat) + " Team";
 			}
-			buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> ' + newButtonText + '</button></p>';
+			buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> ' + newButtonText + '</button> ' +
+					 '<input type="text" id="teamSearchBar" name="search" class="textbox searchinput" value="' + this.curSearchVal + '" placeholder="search teams"/></p>';
 
 			buf += '<ul class="teamlist">';
 			var atLeastOne = false;
@@ -369,6 +372,8 @@
 
 					var team = teams[i];
 
+					var set = Storage.unpackTeam(team.team);
+
 					if (team && !team.team && team.team !== '') {
 						team = null;
 					}
@@ -383,6 +388,10 @@
 					if (filterFormat && filterFormat !== (team.format || 'gen7')) continue;
 					if (filterFolder !== undefined && filterFolder !== team.folder) continue;
 
+					if (this.curSearchVal !== '' && team.team.indexOf(this.curSearchVal) == -1) {
+						continue;
+					}
+
 					if (!atLeastOne) atLeastOne = true;
 					var formatText = '';
 					if (team.format) {
@@ -395,6 +404,7 @@
 					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + Tools.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
 					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="newTop" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
+
 				}
 				if (!atLeastOne) {
 					if (filterFolder) {
@@ -436,6 +446,12 @@
 				$pane.scrollTop(this.teamScrollPos);
 				this.teamScrollPos = 0;
 			}
+
+			//reset focus to searchbar
+			var teamSearchBar = this.$("#teamSearchBar")
+			var strLength = teamSearchBar.val().length;
+			teamSearchBar.focus();
+			teamSearchBar[0].setSelectionRange(strLength, strLength);
 		},
 		updatePersistence: function (state) {
 			if (state) {
@@ -2569,6 +2585,13 @@
 				}
 			}
 			this.chartSet(val, selectNext);
+		},
+		searchChange: function (e) {
+			//91 for right CMD / 93 for left / CMD 17 for CTL
+			if (e.keyCode != 91 && e.keyCode != 93 && e.keyCode != 17) {
+				this.curSearchVal = e.currentTarget.value;
+				this.updateTeamList();
+			}
 		},
 		chartSetCustom: function (val) {
 			val = toId(val);
