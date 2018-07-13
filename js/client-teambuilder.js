@@ -387,6 +387,7 @@
 
 					if (filterFormat && filterFormat !== (team.format || 'gen7')) continue;
 					if (filterFolder !== undefined && filterFolder !== team.folder) continue;
+					
 					if (this.curSearchVal !== '' && team.team.indexOf(this.curSearchVal) == -1) {
 						continue;
 					}
