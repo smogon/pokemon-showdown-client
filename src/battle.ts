@@ -2832,7 +2832,7 @@ class Battle {
 				let poke = this.getPokemon(args[1])!;
 				let ability = Tools.getAbility(args[2]);
 				let effect = Tools.getEffect(kwargs.from);
-				poke.ability = '';
+				poke.ability = '(suppressed)';
 
 				if (kwargs.silent) {
 					// do nothing
