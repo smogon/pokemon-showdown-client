@@ -530,8 +530,13 @@ const Dex = new class implements ModdedDex {
 
 		// Digimon sprites
 		if (window.location.href.includes('digimon')) {
-			dir = 'digimon/sprites/digimon' + dir;
-			spriteData.url += dir + '/' + name + '.png';
+			dir = 'digimon/sprites/digimon'
+			if (!Tools.prefs('noanim') && !Tools.prefs('nogif')) {
+				dir = dir + 'ani';
+				spriteData.url += dir + '/' + name + '.gif';
+			} else {
+				spriteData.url += dir + '/' + name + '.png';
+			}
 			spriteData.w = 56;
 			spriteData.h = 56;
 			return spriteData;
