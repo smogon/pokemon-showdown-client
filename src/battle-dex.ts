@@ -533,7 +533,6 @@ const Dex = new class implements ModdedDex {
 			dir = 'digimon/sprites/digimon'
 			if (!Tools.prefs('noanim') && !Tools.prefs('nogif')) {
 				dir = dir + 'ani';
-				console.log(facing.charAt(0));
 				if (facing.charAt(0) === 'b') dir += '-back';
 				spriteData.url += dir + '/' + name + '.gif';
 			} else {
