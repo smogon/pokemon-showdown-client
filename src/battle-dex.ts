@@ -533,8 +533,11 @@ const Dex = new class implements ModdedDex {
 			dir = 'digimon/sprites/digimon'
 			if (!Tools.prefs('noanim') && !Tools.prefs('nogif')) {
 				dir = dir + 'ani';
+				console.log(facing.charAt(0));
+				if (facing.charAt(0) === 'b') dir += '-back';
 				spriteData.url += dir + '/' + name + '.gif';
 			} else {
+				if (facing.charAt(0) === 'b') dir += '-back';
 				spriteData.url += dir + '/' + name + '.png';
 			}
 			spriteData.w = 56;
@@ -595,17 +598,20 @@ const Dex = new class implements ModdedDex {
 
 	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
 		let num = 0;
+		let pokeballSheet = 'sprites/smicons-pokeball-sheet.png';
+
+		if (window.location.href.includes('digimon')) {
+			pokeballSheet = 'sprites/digimon/sprites/xyicons-pokeball-sheet.png';
+		}
+
 		if (pokemon === 'pokeball') {
-			if (window.location.href.includes('digimon')) {
-				return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/digimon/sprites/xyicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
-			}
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
+			return 'background:transparent url(' + Dex.resourcePrefix + pokeballSheet + ') no-repeat scroll -0px 4px';
  		} else if (pokemon === 'pokeball-statused') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
+			return 'background:transparent url(' + Dex.resourcePrefix + pokeballSheet + ') no-repeat scroll -40px 4px';
 		} else if (pokemon === 'pokeball-fainted') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
+			return 'background:transparent url(' + Dex.resourcePrefix + pokeballSheet + ') no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
 		} else if (pokemon === 'pokeball-none') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
+			return 'background:transparent url(' + Dex.resourcePrefix + pokeballSheet + ') no-repeat scroll -80px 4px';
 		}
 		let id = toId(pokemon);
 		if (pokemon && pokemon.species) id = toId(pokemon.species);
