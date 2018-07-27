@@ -596,8 +596,11 @@ const Dex = new class implements ModdedDex {
 	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
 		let num = 0;
 		if (pokemon === 'pokeball') {
+			if (window.location.href.includes('digimon')) {
+				return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/digimon/sprites/xyicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
+			}
 			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
-		} else if (pokemon === 'pokeball-statused') {
+ 		} else if (pokemon === 'pokeball-statused') {
 			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
 		} else if (pokemon === 'pokeball-fainted') {
 			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
