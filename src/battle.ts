@@ -4881,7 +4881,7 @@ class Battle {
 		let animations;
 		while (!animations) {
 			if (this.activityStep >= this.activityQueue.length) {
-				if (this.fastForward) this.fastForwardOff();
+				this.fastForwardOff();
 				if (this.ended) {
 					this.paused = true;
 					this.scene.soundStop();
