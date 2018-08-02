@@ -200,6 +200,7 @@ class BattleScene {
 		this.$fx.empty();
 	}
 	animationOn() {
+		if (this.animating) return;
 		this.animating = true;
 		this.$battle.find('.seeking').remove();
 		this.updateSidebars();
