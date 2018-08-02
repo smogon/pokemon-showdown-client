@@ -208,6 +208,8 @@ var BattleTooltips = (function () {
 		var yourActive = this.battle.yourSide.active;
 		var pokemon = this.battle.mySide.active[this.room.choice.choices.length];
 		var pokemonData = this.room.myPokemon[pokemon.slot];
+		// TODO: move this somewhere it makes more sense
+		if (pokemon.ability === '(suppressed)') pokemonData.ability = '(suppressed)';
 		var ability = toId(pokemonData.ability || pokemon.ability || pokemonData.baseAbility);
 
 		if (isZ) {
