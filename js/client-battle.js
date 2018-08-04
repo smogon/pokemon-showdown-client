@@ -22,7 +22,7 @@
 			this.$foeHint = this.$el.find('.foehint');
 
 			BattleSound.setMute(Tools.prefs('mute'));
-			this.battle = new Battle(this.$battle, this.$chatFrame, this.id);
+			this.battle = Battle.create(this.$battle, this.$chatFrame, this.id);
 			this.tooltips = new BattleTooltips(this.battle, this);
 
 			this.battle.roomid = this.id;
