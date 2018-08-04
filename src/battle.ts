@@ -1045,11 +1045,18 @@ class Battle {
 	// external
 	resumeButton: JQuery.EventHandler<HTMLElement, null> | null = null;
 
-	constructor($frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>, id = '') {
-		this.id = id;
-		this.scene = new BattleScene(this, $frame, $logFrame);
+	static create($frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>, id = ''): Battle {
+		let scene = new BattleScene($frame, $logFrame);
+		let battle = new Battle(scene, id);
+		scene.setBattle(battle);
+		battle.init();
 
-		this.init();
+		return battle;
+	}
+
+	constructor(scene: BattleScene, id = '') {
+		this.id = id;
+		this.scene = scene;
 	}
 
 	removePseudoWeather(weather: string) {

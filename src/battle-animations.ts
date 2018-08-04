@@ -86,12 +86,17 @@ class BattleScene {
 	/** jQuery objects that need to finish animating */
 	activeAnimations = $();
 
-	constructor(battle: Battle, $frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>) {
-		this.battle = battle;
+	constructor($frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>) {
 		$frame.addClass('battle');
 		this.$frame = $frame;
 		this.$logFrame = $logFrame;
 
+		this.preloadEffects();
+		// reset() is called during battle initialization, so it doesn't need to be called here
+	}
+
+	setBattle(battle: Battle) {
+		this.battle = battle;
 		let numericId = 0;
 		if (battle.id) {
 			numericId = parseInt(battle.id.slice(battle.id.lastIndexOf('-') + 1));
@@ -100,9 +105,6 @@ class BattleScene {
 			numericId = Math.floor(Math.random() * 1000000);
 		}
 		this.numericId = numericId;
-
-		this.preloadEffects();
-		// reset() is called during battle initialization, so it doesn't need to be called here
 	}
 
 	reset() {
