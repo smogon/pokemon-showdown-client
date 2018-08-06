@@ -314,32 +314,49 @@
 			var $chat = $pmWindow.find('.inner');
 			// this.tabComplete.reset();
 			this.chatHistories[userid].push(text);
+
 			var data = '';
-			var cmd = text.toLowerCase();
-			var spaceIndex = cmd.indexOf(' ');
-			if (spaceIndex > 0) {
-				data = cmd.substr(spaceIndex + 1);
-				cmd = cmd.substr(0, spaceIndex);
+			var cmd = '';
+			var spaceIndex = text.indexOf(' ');
+			if (text.substr(0, 2) !== '//' && text.charAt(0) === '/' || text.charAt(0) === '!') {
+				if (spaceIndex > 0) {
+					data = text.substr(spaceIndex);
+					cmd = text.substr(1, spaceIndex - 1);
+				} else {
+					data = '';
+					cmd = text.substr(1);
+				}
 			}
-			if (cmd === '/ignore') {
+			switch (cmd.toLowerCase()) {
+			case 'ignore':
 				if (app.ignore[userid]) {
 					$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
 				} else {
 					app.ignore[userid] = 1;
 					$chat.append('<div class="chat">User ' + userid + ' ignored. (Moderator messages will not be ignored.)</div>');
 				}
-			} else if (cmd === '/unignore') {
+				break;
+			case 'unignore':
 				if (!app.ignore[userid]) {
 					$chat.append('<div class="chat">User ' + userid + ' isn\'t on your ignore list.</div>');
 				} else {
 					delete app.ignore[userid];
 					$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
 				}
-			} else if (cmd === '/challenge') {
+				break;
+			case 'challenge':
 				this.challenge(userid, data);
-			} else if (cmd === '/clear') {
+				break;
+			case 'clear':
 				$chat.empty();
-			} else {
+				break;
+			case 'rank':
+			case 'ranking':
+			case 'rating':
+			case 'ladder':
+				$chat.append('<div class="chat">Use this command in a proper chat room.</div>');
+				break;
+			default:
 				text = ('\n' + text).replace(/\n\n/g, '\n').replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
 				if (text.length > 80000) {
 					app.addPopupMessage("Your message is too long.");

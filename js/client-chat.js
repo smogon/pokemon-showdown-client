@@ -369,7 +369,7 @@
 			var cmd = '';
 			var target = '';
 			var noSpace = false;
-			if (text.substr(0, 2) !== '//' && text.charAt(0) === '/') {
+			if (text.substr(0, 2) !== '//' && text.charAt(0) === '/' || text.charAt(0) === '!') {
 				var spaceIndex = text.indexOf(' ');
 				if (spaceIndex > 0) {
 					cmd = text.substr(1, spaceIndex - 1);
