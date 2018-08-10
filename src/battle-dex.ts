@@ -438,7 +438,7 @@ const Dex = new class implements ModdedDex {
 		document.getElementsByTagName('body')[0].appendChild(el);
 	}
 	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {
-		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean,
+		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, digi?: boolean
 	} = {gen: 6}) {
 		if (!options.gen) options.gen = 6;
 		if (pokemon instanceof Pokemon) {
@@ -529,7 +529,7 @@ const Dex = new class implements ModdedDex {
 		}
 
 		// Digimon sprites
-		if (window.location.href.includes('digimon')) {
+		if (options.digi) {
 			spriteData.cryurl = 'digimon/audio/' + toId(template.baseSpecies);
 			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 			dir = 'digimon/sprites/digimon';
@@ -598,11 +598,11 @@ const Dex = new class implements ModdedDex {
 		return spriteData;
 	}
 
-	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
+	getPokemonIcon(pokemon: any, facingLeft?: boolean, digi?: boolean) {
 		let num = 0;
 		let pokeballSheet = 'sprites/smicons-pokeball-sheet.png';
 
-		if (window.location.href.includes('digimon')) {
+		if (digi) {
 			pokeballSheet = 'sprites/digimon/sprites/xyicons-pokeball-sheet.png';
 		}
 
@@ -652,7 +652,7 @@ const Dex = new class implements ModdedDex {
 		let spriteSheet = 'sprites/smicons-sheet.png?a5';
 
 		// Digimon Icons
-		if (window.location.href.includes('digimon')) {
+		if (digi) {
 			spriteSheet = 'sprites/digimon/sprites/digimonicons-sheet.png';
 		}
 

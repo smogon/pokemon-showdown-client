@@ -88,6 +88,7 @@ class BattleScene {
 
 	constructor(battle: Battle, $frame: JQuery, $logFrame: JQuery) {
 		this.battle = battle;
+		this.digi = false;
 		$frame.addClass('battle');
 		this.$frame = $frame;
 		this.log = new BattleLog($logFrame[0] as HTMLDivElement, this);
@@ -105,7 +106,12 @@ class BattleScene {
 
 		let numericId = 0;
 		if (battle.id) {
+<<<<<<< HEAD
 			numericId = parseInt(battle.id.slice(battle.id.lastIndexOf('-') + 1), 10);
+=======
+			numericId = parseInt(battle.id.slice(battle.id.lastIndexOf('-') + 1));
+			if (this.battle.id.includes('digimon')) this.digi = true;
+>>>>>>> Add digi backgrounds and refactor digi format checking
 		}
 		if (!numericId) {
 			numericId = Math.floor(Math.random() * 1000000);
@@ -544,6 +550,7 @@ class BattleScene {
 		this.gen = gen;
 		this.activeCount = this.battle.mySide && this.battle.mySide.active.length || 1;
 
+<<<<<<< HEAD
 		const isSPL = (typeof this.battle.rated === 'string' && this.battle.rated.startsWith("Smogon Premier League"));
 		let bg: string;
 		if (isSPL) {
@@ -561,6 +568,15 @@ class BattleScene {
 			else if (gen <= 5) bg = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
 			else bg = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
 		}
+=======
+		if (gen <= 1) this.backdropImage = 'fx/bg-gen1.png?';
+		else if (gen <= 2) this.backdropImage = 'fx/bg-gen2.png?';
+		else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
+		else if (gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
+		else if (gen <= 5) this.backdropImage = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
+		else if (this.digi) this.backdropImage = 'sprites/digimon/bg/' + BattleBackdropsDigi[this.numericId % BattleBackdropsDigi.length];
+		else this.backdropImage = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
+>>>>>>> Add digi backgrounds and refactor digi format checking
 
 		this.backdropImage = bg;
 		if (this.$bg) {
@@ -601,6 +617,7 @@ class BattleScene {
 		let pokemonCount = Math.max(side.pokemon.length, 6);
 		for (let i = 0; i < pokemonCount; i++) {
 			let poke = side.pokemon[i];
+<<<<<<< HEAD
 			if (i >= side.totalPokemon && i >= side.pokemon.length) {
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball-none') + `"></span>`;
 			} else if (noShow && poke && poke.fainted) {
@@ -617,6 +634,22 @@ class BattleScene {
 			} else {
 				const details = this.getDetailsText(poke);
 				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon(poke, !side.n) + `" title="` + details + `" aria-label="` + details + `"></span>`;
+=======
+			if (i >= side.totalPokemon) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-none', false, this.digi) + '"></span>';
+			} else if (noShow && poke && poke.fainted) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-fainted', false, this.digi) + '" title="Fainted" aria-label="Fainted"></span>';
+			} else if (noShow && poke && poke.status) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-statused', false, this.digi) + '" title="Status" aria-label="Status"></span>';
+			} else if (noShow) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball', false, this.digi) + '" title="Non-statused" aria-label="Non-statused"></span>';
+			} else if (!poke) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball', false, this.digi) + '" title="Not revealed" aria-label="Not revealed"></span>';
+			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n, this.digi) + ';opacity:0.6" title="' + poke.getFullName(true) + '" aria-label="' + poke.getFullName(true) + '"></span>';
+			} else {
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n, this.digi) + '" title="' + poke.getFullName(true) + '" aria-label="' + poke.getFullName(true) + '"></span>';
+>>>>>>> Add digi backgrounds and refactor digi format checking
 			}
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
@@ -664,6 +697,10 @@ class BattleScene {
 				let spriteData = Dex.getSpriteData(pokemon, siden, {
 					gen: this.gen,
 					noScale: true,
+<<<<<<< HEAD
+=======
+					digi: this.digi
+>>>>>>> Add digi backgrounds and refactor digi format checking
 				});
 				let y = 0;
 				let x = 0;
@@ -898,6 +935,7 @@ class BattleScene {
 		const siden = pokemon.side.n;
 		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, siden, {
 			gen: this.gen,
+			digi: this.digi
 		}), {
 			x: pokemon.side.x,
 			y: pokemon.side.y,
@@ -1642,8 +1680,14 @@ class PokemonSprite extends Sprite {
 	animSub(instant?: boolean, noAnim?: boolean) {
 		if (!this.scene.animating) return;
 		if (this.$sub) return;
+<<<<<<< HEAD
 		const subsp = Dex.getSpriteData('substitute', this.siden, {
 			gen: this.scene.gen,
+=======
+		const subsp = Tools.getSpriteData('substitute', this.siden, {
+			gen: this.scene.gen,
+			digi: this.digi
+>>>>>>> Add digi backgrounds and refactor digi format checking
 		});
 		this.subsp = subsp;
 		this.$sub = $('<img src="' + subsp.url + '" style="display:block;opacity:0;position:absolute"' + (subsp.pixelated ? ' class="pixelated"' : '') + ' />');
@@ -1758,6 +1802,7 @@ class PokemonSprite extends Sprite {
 			this.oldsp = this.sp;
 			this.sp = Dex.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
 				gen: this.scene.gen,
+				digi: this.digi
 			});
 		}
 
@@ -2147,6 +2192,7 @@ class PokemonSprite extends Sprite {
 		if (!this.scene.animating && !isPermanent) return;
 		let sp = Dex.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
 			gen: this.scene.gen,
+			digi: this.digi
 		});
 		let oldsp = this.sp;
 		if (isPermanent) {
@@ -2996,7 +3042,24 @@ const BattleBackdropsFive = [
 	'bg-icecave.png',
 	'bg-route.png',
 ];
+<<<<<<< HEAD
 const BattleBackdrops = [
+=======
+
+var BattleBackdropsDigi = [
+	'bg-digiakihabara.png',
+	'bg-digiavalon.jpg',
+	'bg-digikowloon.png',
+	'bg-digimemory.png',
+	'bg-diginetwork.png',
+	'bg-digiodaiba.png',
+	'bg-digishinjuku.png',
+	'bg-digispace.png',
+	'bg-digiueno.png',
+];
+
+var BattleBackdrops = [
+>>>>>>> Add digi backgrounds and refactor digi format checking
 	'bg-aquacordetown.jpg',
 	'bg-beach.jpg',
 	'bg-city.jpg',
