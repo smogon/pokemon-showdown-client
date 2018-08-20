@@ -546,7 +546,7 @@ class BattleScene {
 		let pokemonCount = Math.max(side.pokemon.length, 6);
 		for (let i = 0; i < pokemonCount; i++) {
 			let poke = side.pokemon[i];
-			if (i >= side.totalPokemon) {
+			if (i >= side.totalPokemon && i >= side.pokemon.length) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-none') + '"></span>';
 			} else if (noShow && poke && poke.fainted) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-fainted') + '" title="Fainted" aria-label="Fainted"></span>';
