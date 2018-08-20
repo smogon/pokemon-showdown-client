@@ -1028,9 +1028,10 @@ const Tools = {
 		if (!miscData) miscData = {};
 
 		if (miscData.num > 0) {
-			spriteData.cryurl = 'audio/cries/' + toId(template.baseSpecies);
+			let baseSpeciesid = toId(template.baseSpecies);
+			spriteData.cryurl = 'audio/cries/' + baseSpeciesid;
 			let formeid = template.formeid;
-			if (template.isMega || formeid && (formeid === '-sky' || formeid === '-therian' || formeid === '-primal' || formeid === '-eternal' || template.baseSpecies === 'Kyurem' || formeid === '-super' || formeid === '-unbound' || formeid === '-midnight' || formeid === '-school' || template.baseSpecies === 'Oricorio' || template.baseSpecies === 'Zygarde')) {
+			if (template.isMega || formeid && (formeid === '-sky' || formeid === '-therian' || formeid === '-primal' || formeid === '-eternal' || baseSpeciesid === 'kyurem' || baseSpeciesid === 'necrozma' || formeid === '-super' || formeid === '-unbound' || formeid === '-midnight' || formeid === '-school' || baseSpeciesid === 'oricorio' || baseSpeciesid === 'zygarde')) {
 				spriteData.cryurl += formeid;
 			}
 			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
