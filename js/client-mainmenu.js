@@ -310,7 +310,7 @@
 			var text = $.trim($target.val());
 			if (!text) return;
 			var $pmWindow = $target.closest('.pm-window');
-			var userid = $pmWindow.data('userid');
+			var userid = $pmWindow.attr('data-userid') || '';
 			var $chat = $pmWindow.find('.inner');
 			// this.tabComplete.reset();
 			this.chatHistories[userid].push(text);
@@ -357,6 +357,7 @@
 				$chat.append('<div class="chat">Use this command in a proper chat room.</div>');
 				break;
 			default:
+				if (!userid) userid = '~';
 				text = ('\n' + text).replace(/\n\n/g, '\n').replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
 				if (text.length > 80000) {
 					app.addPopupMessage("Your message is too long.");
