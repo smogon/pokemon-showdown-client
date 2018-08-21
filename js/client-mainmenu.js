@@ -310,7 +310,7 @@
 			var text = $.trim($target.val());
 			if (!text) return;
 			var $pmWindow = $target.closest('.pm-window');
-			var userid = $pmWindow.data('userid');
+			var userid = $pmWindow.data('userid').toString();
 			var $chat = $pmWindow.find('.inner');
 			// this.tabComplete.reset();
 			this.chatHistories[userid].push(text);
