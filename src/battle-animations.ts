@@ -69,6 +69,7 @@ class BattleScene {
 	preloadNeeded = 0;
 	bgm: string | null = null;
 	backdropImage: string = '';
+	bgmNum = 0;
 	preloadCache = {} as {[url: string]: HTMLImageElement};
 
 	autoScrollOnResume = false;
@@ -583,19 +584,26 @@ class BattleScene {
 		}
 	}
 
-	teamPreview(start?: boolean) {
+	teamPreviewEnd() {
+		for (let siden = 0; siden < 2; siden++) {
+			this.$sprites[siden].empty();
+			this.battle.sides[siden].updateSprites();
+		}
+	}
+	teamPreview() {
 		for (let siden = 0; siden < 2; siden++) {
 			let side = this.battle.sides[siden];
 			let textBuf = '';
 			let buf = '';
 			let buf2 = '';
 			this.$sprites[siden].empty();
-			if (!start) {
-				side.updateSprites();
-				continue;
-			}
+
+			let ludicoloCount = 0;
+			let lombreCount = 0;
 			for (let i = 0; i < side.pokemon.length; i++) {
 				let pokemon = side.pokemon[i];
+				if (pokemon.species === 'Ludicolo') ludicoloCount++;
+				if (pokemon.species === 'Lombre') lombreCount++;
 
 				let spriteData = Tools.getSpriteData(pokemon, siden, {
 					gen: this.gen,
@@ -634,11 +642,19 @@ class BattleScene {
 				this.log('<div class="chat battle-history"><strong>' + Tools.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + Tools.escapeHTML(textBuf) + '</em></div>');
 			}
 			this.$sprites[siden].html(buf + buf2);
+
+			if (ludicoloCount >= 2) {
+				this.bgmNum = -3;
+			} else if (ludicoloCount + lombreCount >= 2) {
+				this.bgmNum = -2;
+			}
 		}
-		if (start) {
-			this.wait(1000);
-			this.updateSidebars();
+		if (this.bgmNum < 0) {
+			this.preloadBgm(this.bgmNum);
+			this.soundStart();
 		}
+		this.wait(1000);
+		this.updateSidebars();
 	}
 
 	showJoinButtons() {
@@ -1197,70 +1213,77 @@ class BattleScene {
 		this.preloadImage(Tools.resourcePrefix + 'sprites/xyani-back/substitute.gif');
 		//this.preloadImage(Tools.fxPrefix + 'bg.jpg');
 	}
-	preloadBgm() {
-		let bgmNum = this.numericId % 13;
+	preloadBgm(bgmNum = 0) {
+		if (!bgmNum) bgmNum = this.numericId % 13;
+		this.bgmNum = bgmNum;
 
-		if (window.forceBgm || window.forceBgm === 0) bgmNum = window.forceBgm;
-		window.bgmNum = bgmNum;
 		let ext = window.nodewebkit ? '.ogg' : '.mp3';
 		switch (bgmNum) {
 		case -1:
 			BattleSound.loadBgm('audio/bw2-homika-dogars' + ext, 1661, 68131);
 			this.bgm = 'audio/bw2-homika-dogars' + ext;
 			break;
-		case 0:
+		case -2:
+			BattleSound.loadBgm('audio/xd-miror-b' + ext, 9000, 57815);
+			this.bgm = 'audio/xd-miror-b' + ext;
+			break;
+		case -3:
+			BattleSound.loadBgm('audio/colosseum-miror-b' + ext, 896, 47462);
+			this.bgm = 'audio/colosseum-miror-b' + ext;
+			break;
+		case 1:
 			BattleSound.loadBgm('audio/hgss-kanto-trainer' + ext, 13003, 94656);
 			this.bgm = 'audio/hgss-kanto-trainer' + ext;
 			break;
-		case 1:
+		case 2:
 			BattleSound.loadBgm('audio/bw-subway-trainer' + ext, 15503, 110984);
 			this.bgm = 'audio/bw-subway-trainer' + ext;
 			break;
-		case 2:
+		case 3:
 			BattleSound.loadBgm('audio/bw-trainer' + ext, 14629, 110109);
 			this.bgm = 'audio/bw-trainer' + ext;
 			break;
-		case 3:
+		case 4:
 			BattleSound.loadBgm('audio/bw-rival' + ext, 19180, 57373);
 			this.bgm = 'audio/bw-rival' + ext;
 			break;
-		case 4:
+		case 5:
 			BattleSound.loadBgm('audio/dpp-trainer' + ext, 13440, 96959);
 			this.bgm = 'audio/dpp-trainer' + ext;
 			break;
-		case 5:
+		case 6:
 			BattleSound.loadBgm('audio/hgss-johto-trainer' + ext, 23731, 125086);
 			this.bgm = 'audio/hgss-johto-trainer' + ext;
 			break;
-		case 6:
+		case 7:
 			BattleSound.loadBgm('audio/dpp-rival' + ext, 13888, 66352);
 			this.bgm = 'audio/dpp-rival' + ext;
 			break;
-		case 7:
+		case 8:
 			BattleSound.loadBgm('audio/bw2-kanto-gym-leader' + ext, 14626, 58986);
 			this.bgm = 'audio/bw2-kanto-gym-leader' + ext;
 			break;
-		case 8:
+		case 9:
 			BattleSound.loadBgm('audio/bw2-rival' + ext, 7152, 68708);
 			this.bgm = 'audio/bw2-rival' + ext;
 			break;
-		case 9:
+		case 10:
 			BattleSound.loadBgm('audio/xy-trainer' + ext, 7802, 82469);
 			this.bgm = 'audio/xy-trainer' + ext;
 			break;
-		case 10:
+		case 11:
 			BattleSound.loadBgm('audio/xy-rival' + ext, 7802, 58634);
 			this.bgm = 'audio/xy-rival' + ext;
 			break;
-		case 11:
+		case 12:
 			BattleSound.loadBgm('audio/oras-trainer' + ext, 13579, 91548);
 			this.bgm = 'audio/oras-trainer' + ext;
 			break;
-		case 12:
+		case 13:
 			BattleSound.loadBgm('audio/sm-trainer' + ext, 8323, 89230);
 			this.bgm = 'audio/sm-trainer' + ext;
 			break;
-		case 13:
+		case 14:
 			BattleSound.loadBgm('audio/sm-rival' + ext, 11389, 62158);
 			this.bgm = 'audio/sm-rival' + ext;
 			break;
@@ -2140,17 +2163,12 @@ class PokemonSprite extends Sprite {
 		if (pokemon.side.n === 1) return;
 
 		if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) {
-			if (window.forceBgm !== -1) {
-				window.originalBgm = window.bgmNum;
-				window.forceBgm = -1;
-				this.scene.preloadBgm();
+			if (this.scene.bgmNum !== -1) {
+				this.scene.preloadBgm(-1);
 				this.scene.soundStart();
 			}
-		} else if (window.forceBgm === -1) {
-			window.forceBgm = null;
-			if (window.originalBgm || window.originalBgm === 0) {
-				window.forceBgm = window.originalBgm;
-			}
+		} else if (this.scene.bgmNum === -1) {
+			this.scene.bgmNum = 0;
 			this.scene.preloadBgm();
 			this.scene.soundStart();
 		}

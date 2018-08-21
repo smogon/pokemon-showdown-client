@@ -4373,7 +4373,7 @@ class Battle {
 	runMajor(args: string[], kwargs: {[k: string]: string}, preempt?: boolean) {
 		switch (args[0]) {
 		case 'start': {
-			this.scene.teamPreview(false);
+			this.scene.teamPreviewEnd();
 			this.mySide.active[0] = null;
 			this.yourSide.active[0] = null;
 			if (this.waitForResult()) return;
@@ -4599,7 +4599,7 @@ class Battle {
 			break;
 		} case 'teampreview': {
 			this.teamPreviewCount = parseInt(args[1], 10);
-			this.scene.teamPreview(true);
+			this.scene.teamPreview();
 			break;
 		} case 'switch': case 'drag': case 'replace': {
 			this.endLastTurn();
