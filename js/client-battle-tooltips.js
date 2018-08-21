@@ -530,6 +530,9 @@ var BattleTooltips = (function () {
 			if (pokemon.moveTrack.length > 4) {
 				text += '(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.)';
 			}
+			if (this.battle.gen === 3) {
+				text += '(Pressure is not visible in Gen 3, so if you have Pressure, more PP may have been lost than shown here.)';
+			}
 			text += '</p>';
 		}
 		text += '</div></div>';
