@@ -1214,7 +1214,7 @@ class BattleScene {
 		//this.preloadImage(Tools.fxPrefix + 'bg.jpg');
 	}
 	preloadBgm(bgmNum = 0) {
-		if (!bgmNum) bgmNum = this.numericId % 13;
+		if (!bgmNum) bgmNum = 1 + this.numericId % 14;
 		this.bgmNum = bgmNum;
 
 		let ext = window.nodewebkit ? '.ogg' : '.mp3';

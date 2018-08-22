@@ -209,7 +209,7 @@ class NTBBSession {
 
 		if (substr(@$user['email'], -1) === '@') {
 			// Forgive me, gods, for I have hardcoded way more than I really should have
-			$valResult = shell_exec("cd /var/www/html/play.pokemonshowdown.com && node lib/validate-token.js \"$pass\"");
+			$valResult = shell_exec("cd /var/www/html/play.pokemonshowdown.com && node lib/validate-token.js " . escapeshellarg($pass));
 			$payload = json_decode($valResult, true);
 			if (!$payload) return false;
 			if (strpos($payload['aud'], $psconfig['gapi_clientid']) === false) return false;
