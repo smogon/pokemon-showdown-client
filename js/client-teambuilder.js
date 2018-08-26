@@ -1215,7 +1215,7 @@
 			}
 		},
 		validate: function () {
-			var format = this.curTeam.format || 'gen7pokebankanythinggoes';
+			var format = this.curTeam.format || 'gen7anythinggoes';
 
 			if (!this.curSetList.length) {
 				app.addPopupMessage("You need at least one Pokémon to validate.");
