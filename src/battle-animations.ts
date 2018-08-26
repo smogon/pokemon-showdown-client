@@ -1214,7 +1214,7 @@ class BattleScene {
 		//this.preloadImage(Tools.fxPrefix + 'bg.jpg');
 	}
 	preloadBgm(bgmNum = 0) {
-		if (!bgmNum) bgmNum = 1 + this.numericId % 14;
+		if (!bgmNum) bgmNum = 1 + this.numericId % 15;
 		this.bgmNum = bgmNum;
 
 		let ext = window.nodewebkit ? '.ogg' : '.mp3';
@@ -1232,32 +1232,32 @@ class BattleScene {
 			this.bgm = 'audio/colosseum-miror-b' + ext;
 			break;
 		case 1:
-			BattleSound.loadBgm('audio/hgss-kanto-trainer' + ext, 13003, 94656);
-			this.bgm = 'audio/hgss-kanto-trainer' + ext;
-			break;
-		case 2:
-			BattleSound.loadBgm('audio/bw-subway-trainer' + ext, 15503, 110984);
-			this.bgm = 'audio/bw-subway-trainer' + ext;
-			break;
-		case 3:
-			BattleSound.loadBgm('audio/bw-trainer' + ext, 14629, 110109);
-			this.bgm = 'audio/bw-trainer' + ext;
-			break;
-		case 4:
-			BattleSound.loadBgm('audio/bw-rival' + ext, 19180, 57373);
-			this.bgm = 'audio/bw-rival' + ext;
-			break;
-		case 5:
 			BattleSound.loadBgm('audio/dpp-trainer' + ext, 13440, 96959);
 			this.bgm = 'audio/dpp-trainer' + ext;
 			break;
-		case 6:
+		case 2:
+			BattleSound.loadBgm('audio/dpp-rival' + ext, 13888, 66352);
+			this.bgm = 'audio/dpp-rival' + ext;
+			break;
+		case 3:
 			BattleSound.loadBgm('audio/hgss-johto-trainer' + ext, 23731, 125086);
 			this.bgm = 'audio/hgss-johto-trainer' + ext;
 			break;
+		case 4:
+			BattleSound.loadBgm('audio/hgss-kanto-trainer' + ext, 13003, 94656);
+			this.bgm = 'audio/hgss-kanto-trainer' + ext;
+			break;
+		case 5:
+			BattleSound.loadBgm('audio/bw-trainer' + ext, 14629, 110109);
+			this.bgm = 'audio/bw-trainer' + ext;
+			break;
+		case 6:
+			BattleSound.loadBgm('audio/bw-rival' + ext, 19180, 57373);
+			this.bgm = 'audio/bw-rival' + ext;
+			break;
 		case 7:
-			BattleSound.loadBgm('audio/dpp-rival' + ext, 13888, 66352);
-			this.bgm = 'audio/dpp-rival' + ext;
+			BattleSound.loadBgm('audio/bw-subway-trainer' + ext, 15503, 110984);
+			this.bgm = 'audio/bw-subway-trainer' + ext;
 			break;
 		case 8:
 			BattleSound.loadBgm('audio/bw2-kanto-gym-leader' + ext, 14626, 58986);
@@ -1280,16 +1280,17 @@ class BattleScene {
 			this.bgm = 'audio/oras-trainer' + ext;
 			break;
 		case 13:
+			BattleSound.loadBgm('audio/oras-rival' + ext, 14303, 69149);
+			this.bgm = 'audio/oras-rival' + ext;
+			break;
+		case 14:
 			BattleSound.loadBgm('audio/sm-trainer' + ext, 8323, 89230);
 			this.bgm = 'audio/sm-trainer' + ext;
 			break;
-		case 14:
+		case 15:
+		default:
 			BattleSound.loadBgm('audio/sm-rival' + ext, 11389, 62158);
 			this.bgm = 'audio/sm-rival' + ext;
-			break;
-		default:
-			BattleSound.loadBgm('audio/oras-rival' + ext, 14303, 69149);
-			this.bgm = 'audio/oras-rival' + ext;
 			break;
 		}
 	}
