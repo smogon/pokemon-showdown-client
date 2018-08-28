@@ -152,7 +152,13 @@
 					buf += '<div class="teamedit"><textarea readonly class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportFolder(this.curFolder)) + '</textarea></div>';
 				} else {
 					buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
-					buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportAllTeams()) + '</textarea></div>';
+					buf += '<div class="teamedit"><textarea class="textbox" rows="17">';
+					if (Storage.teams.length > 350) {
+						buf += Tools.escapeHTML(Storage.getPackedTeams());
+					} else {
+						buf += Tools.escapeHTML(Storage.exportAllTeams());
+					}
+					buf += '</textarea></div>';
 				}
 				this.$el.html(buf);
 				this.$('.teamedit textarea').focus().select();

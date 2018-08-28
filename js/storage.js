@@ -1022,9 +1022,9 @@ Storage.getPackedTeam = function (team) {
 	return team.team;
 };
 
-Storage.importTeam = function (text, teams) {
-	var text = text.split("\n");
-	var team = [];
+Storage.importTeam = function (buffer, teams) {
+	var text = buffer.split("\n");
+	var team = teams ? null : [];
 	var curSet = null;
 	if (teams === true) {
 		Storage.teams = [];
@@ -1062,6 +1062,10 @@ Storage.importTeam = function (text, teams) {
 				folder: folder,
 				iconCache: ''
 			});
+		} else if (!team) {
+			// not in backup format
+			Storage.teams = Storage.unpackAllTeams(buffer);
+			return;
 		} else if (!curSet) {
 			curSet = {name: '', species: '', gender: ''};
 			team.push(curSet);
