@@ -224,7 +224,7 @@ class Pokemon {
 			oldmaxhp = oldhp = this.maxhp;
 		}
 
-		let oldnum = oldhp ? (Math.floor(oldhp / oldmaxhp * this.maxhp) || 1) : 0;
+		let oldnum = oldhp ? (Math.floor(this.maxhp * oldhp / oldmaxhp) || 1) : 0;
 		let delta = this.hp - oldnum;
 		let deltawidth = this.hpWidth(100) - oldwidth;
 		return [delta, this.maxhp, deltawidth, oldnum, oldcolor];
@@ -545,7 +545,7 @@ class Pokemon {
 	}
 	hpDisplay(precision = 1) {
 		if (this.maxhp === 100) return this.hp + '%';
-		if (this.maxhp !== 48) return (this.hp / this.maxhp * 100).toFixed(precision) + '%';
+		if (this.maxhp !== 48) return (100 * this.hp / this.maxhp).toFixed(precision) + '%';
 		let range = this.getPixelRange(this.hp, this.hpcolor);
 		return this.getFormattedRange(range, precision, '–');
 	}
