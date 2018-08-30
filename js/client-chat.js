@@ -183,17 +183,16 @@
 		clickAddFriend: function (e) {
 			e.stopPropagation();
 			e.preventDefault();
-				var self = this;
-				$.get(app.user.getActionPHP(), {
-					act: 'addfriend',
-					player: toUserid(e.currentTarget.name)
-				},
-				//return code here
-				function (data) {
-					if (data.charAt(0) == "]") { data = data.substr(1); }
-					self.add('|raw|' + data);
-					
-				}
+			var self = this;
+			$.get(app.user.getActionPHP(), {
+				act: 'addfriend',
+				player: toUserid(e.currentTarget.name)
+			},
+			//return code here
+			function (data) {
+				if (data.charAt(0) == "]") { data = data.substr(1); }
+				self.add('|raw|' + data);
+			}
 				, 'text');
 			return;
 		},
@@ -815,23 +814,23 @@
 					}
 					var buffer = '<div class="ladder"><table><tr><td colspan="8"><strong>Your friends:</strong></td></tr>';
 					if (friends.length === 0) { buffer += '<tr><td colspan="3">You have no friends. How sad.</td></tr>'; } else {
-					for (var i = 0; i < friends.length; i++) {
+						for (var i = 0; i < friends.length; i++) {
 							buffer += '<tr><td>' + friends[i] + '</td>';
 							buffer += '<td><button class="button removefriend" style="text-align: left" name="' + friends[i] + '" title="Remove friend"><strong>Remove</strong></button></td>';
 							buffer += '<td><button class="button pm-friend" style="text-align: left" name=" ' + friends[i] + '" title="Private message"><strong>Message</strong></button></td></tr>';
-					}}
+						}
+					}
 					if (sent_pending.length > 0) { buffer += '<tr><td colspan="8"><strong>Pending requests:</strong></td></tr>'; }
 					for (var i = 0; i < sent_pending.length; i++) {
-							buffer += '<tr><td>' + sent_pending[i] + '</td>';
-							buffer += '<td colspan="2"><button class="button removefriend" style="text-align: left" name="' + sent_pending[i] + '" title="Cancel request"><strong>Cancel</strong></button></td></tr>';
+						buffer += '<tr><td>' + sent_pending[i] + '</td>';
+						buffer += '<td colspan="2"><button class="button removefriend" style="text-align: left" name="' + sent_pending[i] + '" title="Cancel request"><strong>Cancel</strong></button></td></tr>';
 					}
 					if (pending.length > 0) { buffer += '<tr><td colspan="8"><strong>Requests:</strong></td></tr>'; }
 					for (var i = 0; i < pending.length; i++) {
-							buffer += '<tr><td>' + pending[i] + '</td>';
-							buffer += '<td><button class="button removefriend" style="text-align: left" name="' + pending[i] + '" title="Reject request"><strong>Reject</strong></button></td>';
-							buffer += '<td><button class="button addfriend" style="text-align: left" name="' + pending[i] + '" title="Accept request"><strong>Accept</strong></button></td></tr>';
+						buffer += '<tr><td>' + pending[i] + '</td>';
+						buffer += '<td><button class="button removefriend" style="text-align: left" name="' + pending[i] + '" title="Reject request"><strong>Reject</strong></button></td>';
+						buffer += '<td><button class="button addfriend" style="text-align: left" name="' + pending[i] + '" title="Accept request"><strong>Accept</strong></button></td></tr>';
 					}
-					
 					buffer += '</table></div>';
 					self.add('|raw|' + buffer);
 				}, 'text');
@@ -840,20 +839,17 @@
 			case 'removefriend':
 				if (!target) {this.add('|raw|' + "This command requires a target."); return false;}
 				var targets = target.split(',');
-
 				var self = this;
 				$.get(app.user.getActionPHP(), {
 					act: 'removefriend',
 					player: toUserid(targets[0])
-				}, 
-				
+				},
 				//return code here
 				function (data) {
 					if (data.charAt(0) == "]") { data = data.substr(1); }
 					self.add('|raw|' + data);
-					
 				}, 'text');
-				return false;		
+				return false;
 
 			case 'addfriend':
 				if (!target) {this.add('|raw|' + "This command requires a target."); return false;}
@@ -862,13 +858,12 @@
 				$.get(app.user.getActionPHP(), {
 					act: 'addfriend',
 					player: toUserid(targets[0])
-				}, 
+				},
 				//return code here
 				function (data) {
 					if (data.charAt(0) == "]") { data = data.substr(1); }
 					self.add('|raw|' + data);
-				}
-				, 'text');
+				}, 'text');
 				return false;
 
 			case 'rank':
