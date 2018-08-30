@@ -6,12 +6,15 @@
 		constructor: function () {
 			if (!this.events) this.events = {};
 			if (!this.events['click .username']) this.events['click .username'] = 'clickUsername';
+			if (!this.events['click .removefriend']) this.events['click .removefriend'] = 'clickRemoveFriend';
+			if (!this.events['click .addfriend']) this.events['click .addfriend'] = 'clickAddFriend';
 			if (!this.events['submit form']) this.events['submit form'] = 'submit';
 			if (!this.events['keydown textarea']) this.events['keydown textarea'] = 'keyDown';
 			if (!this.events['keyup textarea']) this.events['keyup textarea'] = 'keyUp';
 			if (!this.events['focus textarea']) this.events['focus textarea'] = 'focusText';
 			if (!this.events['blur textarea']) this.events['blur textarea'] = 'blurText';
 			if (!this.events['click .spoiler']) this.events['click .spoiler'] = 'clickSpoiler';
+			if (!this.events['click .pm-friend']) this.events['click .pm-friend'] = 'openPM1';
 			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
 
 			this.initializeTabComplete();
@@ -162,6 +165,42 @@
 				textbox.setSelectionRange(val.length, val.length);
 			}
 		},
+		clickRemoveFriend: function (e) {
+			e.stopPropagation();
+			e.preventDefault();
+				var self = this;
+				$.get(app.user.getActionPHP(), {
+					act: 'removefriend',
+					player: toUserid(e.currentTarget.name)
+				}, 
+				
+				//return code here
+				function(data) {
+					if (data.charAt(0) == "]") { data = data.substr(1); }
+					self.add('|raw|' + data);
+					
+				}
+				, 'text');
+			return;
+		},
+		clickAddFriend: function (e) {
+			e.stopPropagation();
+			e.preventDefault();
+				var self = this;
+				$.get(app.user.getActionPHP(), {
+					act: 'addfriend',
+					player: toUserid(e.currentTarget.name)
+				}, 
+				
+				//return code here
+				function(data) {
+					if (data.charAt(0) == "]") { data = data.substr(1); }
+					self.add('|raw|' + data);
+					
+				}
+				, 'text');
+			return;
+		},
 		clickUsername: function (e) {
 			e.stopPropagation();
 			e.preventDefault();
@@ -177,6 +216,12 @@
 			e.stopPropagation();
 			app.focusRoom('');
 			app.rooms[''].focusPM($(e.currentTarget).data('name'));
+		},
+		openPM1: function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			app.focusRoom('');
+			app.rooms[''].focusPM(e.currentTarget.name);
 		},
 		clear: function () {
 			if (this.$chat) this.$chat.html('');
@@ -748,6 +793,97 @@
 				}
 				return false;
 
+			case 'fl':
+			case 'friends':
+			case 'friendslist':
+			case 'getfriends':
+				if (!target) target = app.user.get('userid');
+
+				var targets = target.split(',');
+
+				var self = this;
+				$.get(app.user.getActionPHP(), {
+					act: 'getfriends',
+					user: targets[0]
+				}, 
+				
+				//return code here
+				function(data) {
+					if (data.charAt(0) == "]") { data = data.substr(1); }
+					var friendslist = data.split("|");
+					var friends = [];
+					var sent_pending = [];
+					var pending = [];
+					for (var i = 0; i < friendslist.length; i++) {
+						friend = friendslist[i];
+						if (friend.charAt(0) == "#") { sent_pending.push(friend.substr(1)); } else
+						if (friend.charAt(0) == ",") { pending.push(friend.substr(1)); } else
+						if (friend.length > 0) {friends.push(friend);}
+					}
+					
+					var buffer = '<div class="ladder"><table><tr><td colspan="8"><strong>Your friends:</strong></td></tr>';
+					if (friends.length === 0) { buffer += '<tr><td colspan="3">You have no friends. How sad.</td></tr>'; } else {
+					for (var i = 0; i < friends.length; i++) {
+							buffer += '<tr><td>'+friends[i]+'</td>';
+							buffer += '<td><button class="button removefriend" style="text-align: left" name="'+friends[i]+'" title="Remove friend"><strong>Remove</strong></button></td>';
+							buffer += '<td><button class="button pm-friend" style="text-align: left" name=" '+friends[i]+'" title="Private message"><strong>Message</strong></button></td></tr>';
+					}}
+					
+					if (sent_pending.length > 0) { buffer += '<tr><td colspan="8"><strong>Pending requests:</strong></td></tr>'; }
+					for (var i = 0; i < sent_pending.length; i++) {
+							buffer += '<tr><td>'+sent_pending[i]+'</td>';
+							buffer += '<td colspan="2"><button class="button removefriend" style="text-align: left" name="'+sent_pending[i]+'" title="Cancel request"><strong>Cancel</strong></button></td></tr>';
+					}
+					
+					if (pending.length > 0) { buffer += '<tr><td colspan="8"><strong>Requests:</strong></td></tr>'; }
+					for (var i = 0; i < pending.length; i++) {
+							buffer += '<tr><td>'+pending[i]+'</td>';
+							buffer += '<td><button class="button removefriend" style="text-align: left" name="'+pending[i]+'" title="Reject request"><strong>Reject</strong></button></td>';
+							buffer += '<td><button class="button addfriend" style="text-align: left" name="'+pending[i]+'" title="Accept request"><strong>Accept</strong></button></td></tr>';
+					}
+					
+					buffer += '</table></div>';
+					self.add('|raw|' + buffer);
+					
+				}
+				, 'text');
+				return false;
+				
+			case 'removefriend':
+				if (!target) {this.add('|raw|' + "This command requires a target."); return false;}
+				var targets = target.split(',');
+
+				var self = this;
+				$.get(app.user.getActionPHP(), {
+					act: 'removefriend',
+					player: toUserid(targets[0])
+				}, 
+				
+				//return code here
+				function(data) {
+					if (data.charAt(0) == "]") { data = data.substr(1); }
+					self.add('|raw|' + data);
+					
+				}
+				, 'text');
+				return false;		
+
+			case 'addfriend':
+				if (!target) {this.add('|raw|' + "This command requires a target."); return false;}
+				var targets = target.split(',');
+				var self = this;
+				$.get(app.user.getActionPHP(), {
+					act: 'addfriend',
+					player: toUserid(targets[0])
+				}, 
+				//return code here
+				function(data) {
+					if (data.charAt(0) == "]") { data = data.substr(1); }
+					self.add('|raw|' + data);
+				}
+				, 'text');
+				return false;
+				
 			case 'rank':
 			case 'ranking':
 			case 'rating':
