@@ -491,7 +491,7 @@ class DefaultActionHandler {
 
 		$userid = $psdb->escape($curuser['userid']);
 		$player = $psdb->escape($reqData['player']);
-		$res = $psdb->query(
+		if($res = $psdb->query(
 			"DELETE FROM `ntbb_friendlist` " .
 			"WHERE (" .
 				"`p1`='" . $userid . "' AND `p2`='" . $player . "'" .
@@ -500,7 +500,7 @@ class DefaultActionHandler {
 			") " .
 			"LIMIT 1"
 		);
-		if (mysqli_affected_rows($psdb->db)) die(']' . $reqData['player'] . ' has been removed from your friend list.');
+		if (mysqli_affected_rows($psdb) == 1) die(']' . $reqData['player'] . ' has been removed from your friend list.');
 		die('Could not remove ' . $reqData['player'] . ' from your friend list.');
 	}
 }
