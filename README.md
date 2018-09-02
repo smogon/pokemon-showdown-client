@@ -47,16 +47,19 @@ Warning
 ------------------------------------------------------------------------
 
 This repository is not "batteries included". It does NOT include instructions
-to run a full Pokémon Showdown client, and we will not provide them. Please
-do not ask for help on this; you will be turned away.
+to run a full Pokémon Showdown login server, and we will not provide them.
+Please do not ask for help on this; you will be turned away.
+
+If you make a mistake hosting a login server, your users' passwords can get
+stolen, so we do not want anyone to host a login server unless they can
+figure out how to do it without help.
 
 It also doesn't include several resource files (namely, the `/audio/` and
 `/sprites/` directories) for size reasons.
 
-In other words, this repository is incomplete and NOT intended for people
-who wish to serve their own Pokémon Showdown client (you can, but it'll
-require you figure it out yourself). Rather, it's intended for people who
-wish to contribute and submit pull requests to Pokémon Showdown's client.
+On the other hand, as long as you don't want to run your own login server,
+this repository contains everything you need to test changes to the client;
+just see the "Testing" section above.
 
 License
 ------------------------------------------------------------------------
