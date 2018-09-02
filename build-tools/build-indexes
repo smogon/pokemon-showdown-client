@@ -352,7 +352,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const tierOrder = (() => {
 			if (isVGC) {
-				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
+				return ["Restricted Legendary", "Regular", "NFE", "LC"];
 			}
 			if (isDoubles) {
 				return ["DUber", "DOU", "DBL", "(DOU)", "DUU", "DNU", "NFE", "LC Uber", "LC"];

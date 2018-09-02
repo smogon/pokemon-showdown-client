@@ -829,6 +829,7 @@
 			if (format === 'ubers' || format === 'uber') tierSet = tierSet.slice(slices.Uber);
 			else if (format === 'vgc2017') tierSet = tierSet.slice(slices.Regular);
 			else if (format === 'vgc2018') tierSet = tierSet.slice(slices.Regular);
+			else if (format.startsWith('vgc2019')) tierSet = tierSet.slice(slices["Restricted Legendary"]);
 			else if (format === 'battlespotsingles') tierSet = tierSet.slice(slices.Regular);
 			else if (format === 'battlespotdoubles') tierSet = tierSet.slice(slices.Regular);
 			else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
