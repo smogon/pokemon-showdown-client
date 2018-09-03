@@ -1366,7 +1366,8 @@ const Tools = {
 			monohm: 1188 + 19,
 			duohm: 1188 + 20,
 			// protowatt: 1188 + 21,
-			voodoll: 1188 + 22
+			voodoll: 1188 + 22,
+			mumbao: 1188 + 23
 		} as {[id: string]: number};
 
 		if (altNums[id]) {
@@ -1477,7 +1478,7 @@ const Tools = {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		let fainted = (pokemon && pokemon.fainted ? ';opacity:.7;filter:contrast(0)' : '');
-		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-sheet.png?a3) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-sheet.png?a4) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
 	getTeambuilderSprite(pokemon: any, gen: number = 0) {
