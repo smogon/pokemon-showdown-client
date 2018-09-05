@@ -657,7 +657,6 @@
 			if (atLeastOneGen5 && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
 		},
 		openChallenge: function (name, $pmWindow) {
-			var userid = toId(name);
 			if (!$pmWindow) $pmWindow = this.openPM(name, true);
 			var $challenge = $pmWindow.find('.challenge');
 			if (!$challenge.length) {
@@ -693,7 +692,6 @@
 		},
 		updateTeams: function () {
 			if (!window.BattleFormats) return;
-			var teams = Storage.teams;
 			var self = this;
 
 			this.$('button[name=team]').each(function (i, el) {
@@ -942,7 +940,6 @@
 			var curSection = '';
 			for (var i in BattleFormats) {
 				var format = BattleFormats[i];
-				var selected = false;
 				if (selectType === 'teambuilder') {
 					if (!format.isTeambuilderFormat) continue;
 				} else {

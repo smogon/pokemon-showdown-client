@@ -1,7 +1,5 @@
 'use strict';
 
-const os = require('os');
-
 module.exports = {
 	"root": true,
 	"parserOptions": {

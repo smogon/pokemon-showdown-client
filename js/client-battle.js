@@ -323,11 +323,7 @@
 		},
 		controlsShown: false,
 		updateControlsForPlayer: function () {
-			var battle = this.battle;
-
 			this.callbackWaiting = true;
-			var active = this.battle.mySide.active[0];
-			if (!active) active = {};
 
 			var act = '';
 			var switchables = [];
@@ -904,7 +900,6 @@
 				return;
 			}
 			request.requestType = 'move';
-			var notifyObject = null;
 			if (request.forceSwitch) {
 				request.requestType = 'switch';
 			} else if (request.teamPreview) {
@@ -998,7 +993,6 @@
 			e.stopPropagation();
 		},
 		switchSides: function () {
-			var paused = this.battle.paused;
 			this.battle.switchSides();
 		},
 		pause: function () {
@@ -1060,10 +1054,8 @@
 				var isZMove = !!(this.$('input[name=zmove]')[0] || '').checked;
 				var isUltraBurst = !!(this.$('input[name=ultraburst]')[0] || '').checked;
 
-				var move = e.getAttribute('data-move');
 				var target = e.getAttribute('data-target');
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
-				var spreadTargets = {allAdjacentFoes: 1, allAdjacent: 1};
 
 				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : ''));
 				if (myActive.length > 1 && target in choosableTargets) {

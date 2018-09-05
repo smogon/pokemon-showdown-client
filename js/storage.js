@@ -176,7 +176,6 @@ Storage.bg = {
 		var s;
 		var l = (max + min) / 2;
 		if (max === min) {
-			h = s = 0;
 			return '0, 0%';
 		} else {
 			var d = max - min;
@@ -1260,7 +1259,7 @@ Storage.exportTeam = function (team) {
 			}
 			if (defaultIvs && !hpType) {
 				for (var stat in BattleStatNames) {
-					if (curSet.ivs[stat] !== 31 && typeof curSet.ivs[stat] !== undefined) {
+					if (curSet.ivs[stat] !== 31 && curSet.ivs[stat] !== undefined) {
 						defaultIvs = false;
 						break;
 					}
@@ -1282,7 +1281,7 @@ Storage.exportTeam = function (team) {
 		if (!first) {
 			text += "  \n";
 		}
-		if (curSet.moves && curSet.moves) for (var j = 0; j < curSet.moves.length; j++) {
+		if (curSet.moves) for (var j = 0; j < curSet.moves.length; j++) {
 			var move = curSet.moves[j];
 			if (move.substr(0, 13) === 'Hidden Power ') {
 				move = move.substr(0, 13) + '[' + move.substr(13) + ']';
@@ -1506,19 +1505,16 @@ Storage.nwDeleteAllTeams = function (callback) {
 };
 
 Storage.nwDeleteTeamFile = function (filename, callback) {
-	var self = this;
-	var line = filename;
-	if (line.substr(line.length - 4).toLowerCase() === '.txt') {
-		line = line.substr(0, line.length - 4);
-	} else {
+	if (filename.slice(-4).toLowerCase() !== '.txt') {
 		// not a team file
-		self.nwTeamsLeft--;
-		if (!self.nwTeamsLeft) {
+		this.nwTeamsLeft--;
+		if (!this.nwTeamsLeft) {
 			if (callback) callback();
 			Storage.fsReady.load();
 		}
 		return;
 	}
+	var self = this;
 	fs.unlink(this.dir + 'Teams/' + filename, function (err) {
 		var directory = filename.split('/').slice(0, -1).join('/');
 		fs.rmdir(directory, function () {});
@@ -1627,7 +1623,6 @@ Storage.nwStopLoggingChat = function () {
 };
 Storage.nwLogChat = function (roomid, line) {
 	roomid = toRoomid(roomid);
-	var self = this;
 	if (!this.loggingChat) return;
 	var chatLogFdMonth = this.getLogMonth();
 	if (chatLogFdMonth !== this.chatLogFdMonth) {

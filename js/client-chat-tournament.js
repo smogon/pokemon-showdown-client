@@ -804,7 +804,7 @@
 		initialize: function (data) {
 			this.$el.html('<ul class="popupmenu">' + data.users.map(function (user) {
 				var escapedUser = Tools.escapeHTML(user);
-				return '<li><button name="selectUser" value="' + Tools.escapeQuotes(escapedUser) + '"' + (user === data.user ? ' class="sel"' : '') + '>' + escapedUser + '</button></li>';
+				return '<li><button name="selectUser" value="' + escapedUser + '"' + (user === data.user ? ' class="sel"' : '') + '>' + escapedUser + '</button></li>';
 			}).join('') + '</ul>');
 		},
 		selectUser: function (user) {
