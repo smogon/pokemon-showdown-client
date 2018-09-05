@@ -1527,7 +1527,6 @@
 			var leftMin = (this.curRoom.minWidth || this.curRoom.bestWidth);
 			var leftMinMain = (this.curRoom.minMainWidth || leftMin);
 			var rightMin = (this.sideRoom.minWidth || this.sideRoom.bestWidth);
-			var rightMinMain = (this.sideRoom.minMainWidth || leftMin);
 			var available = $(window).width();
 			if (this.curRoom.isSideRoom) {
 				// we're trying to focus a side room

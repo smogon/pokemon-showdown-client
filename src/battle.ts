@@ -250,7 +250,6 @@ class Pokemon {
 		delete this.volatiles[volatile];
 	}
 	addVolatile(volatile: ID, ...args: any[]) {
-		let battle = this.side.battle;
 		if (this.hasVolatile(volatile) && !args.length) return;
 		this.volatiles[volatile] = [volatile, ...args] as EffectState;
 		this.sprite.addEffect(volatile);
@@ -265,7 +264,6 @@ class Pokemon {
 	}
 	addTurnstatus(volatile: ID) {
 		volatile = toId(volatile);
-		let battle = this.side.battle;
 		this.sprite.addEffect(volatile);
 		if (this.hasTurnstatus(volatile)) return;
 		this.turnstatuses[volatile] = [volatile];
@@ -633,7 +631,7 @@ class Side {
 		this.spriteid = spriteid;
 	}
 	setName(name: string, spriteid?: string | number) {
-		if (name) this.name = (name || '');
+		if (name) this.name = name;
 		this.id = toId(this.name);
 		if (spriteid) {
 			this.spriteid = spriteid;
@@ -652,7 +650,6 @@ class Side {
 		return "the opposing team";
 	}
 	addSideCondition(effect: Effect) {
-		let elem, curelem;
 		let condition = effect.id;
 		if (this.sideConditions[condition]) {
 			if (condition === 'spikes' || condition === 'toxicspikes') {
@@ -709,7 +706,6 @@ class Side {
 		this.battle.scene.removeSideCondition(this.n, id);
 	}
 	newPokemon(data: any, replaceSlot = -1) {
-		let pokeobj;
 		let poke = new Pokemon(data, this);
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
 		poke.reset();
@@ -1306,7 +1302,9 @@ class Battle {
 			if (!this.fastForward) {
 				this.scene.upkeepWeather();
 			}
-			if (newWeather && newWeather.upkeepMessage) this.message('<div><small>' + newWeather.upkeepMessage + '</small></div>');
+			if (newWeather && newWeather.upkeepMessage) {
+				this.message('<div><small>' + newWeather.upkeepMessage + '</small></div>');
+			}
 			return;
 		}
 		if (newWeather) {
@@ -1322,10 +1320,6 @@ class Battle {
 				}
 				this.weatherTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 8;
 				this.weatherMinTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 5;
-			} else if (isUpkeep) {
-				this.scene.log('<div><small>' + newWeather.upkeepMessage + '</small></div>');
-				this.weatherTimeLeft = 0;
-				this.weatherMinTimeLeft = 0;
 			} else if (isExtremeWeather) {
 				this.message('<small>' + newWeather.startMessage + '</small>');
 				this.weatherTimeLeft = 0;
@@ -4577,7 +4571,6 @@ class Battle {
 				newSpecies = args[2].substr(0, commaIndex);
 			}
 			let template = Tools.getTemplate(newSpecies);
-			let spriteData = {'shiny': poke.sprite.sp.shiny};
 
 			poke.species = newSpecies;
 			poke.ability = poke.baseAbility = (template.abilities ? template.abilities['0'] : '');
@@ -4890,12 +4883,9 @@ class Battle {
 				if (this.endCallback) this.endCallback(this);
 				return;
 			}
-			let ret;
 			if (this.paused && !this.fastForward) return;
-			if (!ret) {
-				this.run(this.activityQueue[this.activityStep]);
-				this.activityStep++;
-			}
+			this.run(this.activityQueue[this.activityStep]);
+			this.activityStep++;
 			animations = this.scene.finishAnimations();
 		}
 

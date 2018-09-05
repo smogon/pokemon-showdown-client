@@ -860,14 +860,13 @@
 			case 'join':
 			case 'j':
 				if (noSpace) return text;
-				var room = toRoomid(target);
 				if (app.rooms[target]) {
 					app.focusRoom(target);
 					return false;
 				}
-				room = toId(target);
-				if (app.rooms[room]) {
-					app.focusRoom(room);
+				var roomid = toId(target);
+				if (app.rooms[roomid]) {
+					app.focusRoom(roomid);
 					return false;
 				}
 				return text; // Send the /join command through to the server.
@@ -1182,7 +1181,7 @@
 			}
 		},
 		addRow: function (line) {
-			var name, name2, room, action, silent, oldid;
+			var name, name2, silent;
 			if (line && typeof line === 'string') {
 				if (line.charAt(0) !== '|') line = '||' + line;
 				var row = line.substr(1).split('|');
@@ -1229,7 +1228,7 @@
 					if (!matches) {
 						return; // bogus room ID could be used to inject JavaScript
 					}
-					var format = Tools.escapeFormat(matches ? matches[1] : '');
+					var format = Tools.escapeFormat(matches[1]);
 
 					if (silent && !Tools.prefs('showbattles')) return;
 
@@ -1621,7 +1620,7 @@
 					return self.comparator(a, b);
 				});
 			}
-			for (var i = 0, len = users.length; i < users.length; i++) {
+			for (var i = 0; i < users.length; i++) {
 				var userid = users[i];
 				buf += this.constructItem(userid);
 			}

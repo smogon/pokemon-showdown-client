@@ -320,7 +320,6 @@ class BattleScene {
 
 		left = 210;
 		top = 245;
-		scale = 1;
 		scale = 1.5 - 0.5 * ((loc.z!) / 200);
 		if (scale < .1) scale = .1;
 

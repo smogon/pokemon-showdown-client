@@ -897,7 +897,7 @@
 				var abilities = [];
 				if (template.isMega) {
 					if (format === 'almostanyability') abilitySet.unshift(['html', '<p>Will be <strong>' + Tools.escapeHTML(template.abilities['0']) + '</strong> after Mega Evolving.</p>']);
-					template = Tools.getTemplate(template.baseSpecies);
+					// template is unused after this, so no need to replace
 				}
 				for (var i in BattleAbilities) {
 					if (BattleAbilities[i].isNonstandard) continue;

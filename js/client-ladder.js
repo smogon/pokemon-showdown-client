@@ -27,7 +27,6 @@
 			app.send('/leave ' + this.id);
 		},
 		addRow: function (line) {
-			var name, name2, room, action, silent, oldid;
 			if (!line || typeof line !== 'string') return;
 			if (line.charAt(0) !== '|') line = '||' + line;
 			var pipeIndex = line.indexOf('|', 1);

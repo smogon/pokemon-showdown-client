@@ -441,8 +441,8 @@ var BattleTooltips = (function () {
 				}
 				text += '</p>';
 			} else if (pokemonData.item) {
-				item = Tools.getItem(pokemonData.item).name;
-				text += '<p>Item: ' + item + '</p>';
+				var itemName = Tools.getItem(pokemonData.item).name;
+				text += '<p>Item: ' + itemName + '</p>';
 			}
 			text += '<p>' + pokemonData.stats['atk'] + '&nbsp;Atk /&nbsp;' + pokemonData.stats['def'] + '&nbsp;Def /&nbsp;' + pokemonData.stats['spa'];
 			if (this.battle.gen === 1) {
@@ -868,28 +868,20 @@ var BattleTooltips = (function () {
 		}
 		// Weather and pseudo-weather type changes.
 		if (move.id === 'weatherball' && this.battle.weather) {
-			var noWeatherAbility = false;
-			// Check if your side has an anti weather ability to skip this.
-			if (!noWeatherAbility) {
-				for (var i = 0; i < this.battle.mySide.active.length; i++) {
-					if (this.battle.mySide.active[i] && this.battle.mySide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
-						noWeatherAbility = true;
-						break;
-					}
-				}
-			}
-			// If you don't, check if the opponent has it afterwards.
-			if (!noWeatherAbility) {
-				for (var i = 0; i < this.battle.yourSide.active.length; i++) {
-					if (this.battle.yourSide.active[i] && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
-						noWeatherAbility = true;
-						break;
+			var antiWeatherAbility = false;
+			// Check if there's an anti weather ability to skip this.
+			abilitySearch: for (var i = 0; i < this.battle.sides.length; i++) {
+				var side = this.battle.sides[i];
+				for (var j = 0; j < side.active.length; j++) {
+					if (side.active[j] && ['Air Lock', 'Cloud Nine'].includes(side.active[j].ability)) {
+						antiWeatherAbility = true;
+						break abilitySearch;
 					}
 				}
 			}
 
 			// If the weather is indeed active, check it to see what move type weatherball gets.
-			if (!noWeatherAbility) {
+			if (!antiWeatherAbility) {
 				if (this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland') moveType = 'Fire';
 				if (this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea') moveType = 'Water';
 				if (this.battle.weather === 'sandstorm') moveType = 'Rock';
@@ -989,26 +981,18 @@ var BattleTooltips = (function () {
 			if (move.id in table.overrideBP) basePower = table.overrideBP[move.id];
 		}
 		var basePowerComment = '';
-		var noWeatherAbility = false;
-		// Check if your side has an anti weather ability to skip this.
-		if (!noWeatherAbility) {
-			for (var i = 0; i < this.battle.mySide.active.length; i++) {
-				if (this.battle.mySide.active[i] && this.battle.mySide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
-					noWeatherAbility = true;
-					break;
+		var antiWeatherAbility = false;
+		// Check if there's an anti weather ability to skip this.
+		abilitySearch2: for (var i = 0; i < this.battle.sides.length; i++) {
+			var side = this.battle.sides[i];
+			for (var j = 0; j < side.active.length; j++) {
+				if (side.active[j] && ['Air Lock', 'Cloud Nine'].includes(side.active[j].ability)) {
+					antiWeatherAbility = true;
+					break abilitySearch2;
 				}
 			}
 		}
-		// If you don't, check if the opponent has it afterwards.
-		if (!noWeatherAbility) {
-			for (var i = 0; i < this.battle.yourSide.active.length; i++) {
-				if (this.battle.yourSide.active[i] && this.battle.yourSide.active[i].ability in {'Air Lock': 1, 'Cloud Nine': 1}) {
-					noWeatherAbility = true;
-					break;
-				}
-			}
-		}
-		var thereIsWeather = !!this.battle.weather && !noWeatherAbility;
+		var thereIsWeather = !!this.battle.weather && !antiWeatherAbility;
 		if (move.id === 'acrobatics') {
 			if (!pokemonData.item) {
 				basePower *= 2;

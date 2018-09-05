@@ -283,6 +283,7 @@
 						buf += '<div class="folder"><h3>Gen ' + gen + '</h3></div>';
 					}
 				}
+				var formatName;
 				if (gen === '/') {
 					formatName = format.slice(1);
 					format = formatName + '/';
@@ -295,7 +296,7 @@
 					buf += '<div class="folder' + (this.curFolder === format ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="' + format + '"><i class="fa ' + (this.curFolder === format ? 'fa-folder-open' : 'fa-folder') + (format === '/' ? '-o' : '') + '"></i>' + formatName + '</div></div>' + (this.curFolder === format ? '</div>' : '');
 					continue;
 				}
-				var formatName = format.slice(1);
+				formatName = format.slice(1);
 				if (formatName === '~') formatName = '';
 				format = 'gen' + newGen + formatName;
 				if (format.length === 4) formatName = '(uncategorized)';
@@ -768,7 +769,6 @@
 			e.currentTarget.className = 'team';
 		},
 		dragStartTeam: function (e) {
-			var target = e.currentTarget;
 			var dataTransfer = e.originalEvent.dataTransfer;
 
 			dataTransfer.effectAllowed = 'copyMove';
@@ -836,7 +836,6 @@
 			this.$('.teamlist').css('pointer-events', 'none');
 			$(teamEl).parent().removeClass('dragging');
 
-			var format = this.curFolder;
 			if (app.draggingFolder) {
 				var $folder = $(app.draggingFolder);
 				app.draggingFolder = null;
@@ -848,7 +847,7 @@
 					var count = Number($plusOneFolder.text().substr(1)) + 1;
 					$plusOneFolder.text('+' + count);
 				}
-				format = $folder.data('value');
+				var format = $folder.data('value');
 				if (format.slice(-1) === '/') {
 					team.folder = format.slice(0, -1);
 				} else {
@@ -1873,9 +1872,6 @@
 			this.plus = '';
 			this.minus = '';
 			for (var i in stats) {
-				var width = stats[i] * 200 / 504;
-				if (i == 'hp') width = stats[i] * 200 / 704;
-				if (width > 200) width = 200;
 				var val;
 				if (this.curTeam.gen > 2) {
 					val = '' + (set.evs[i] || '');
@@ -2426,7 +2422,6 @@
 			var val = entry.slice(entry.indexOf("|") + 1);
 			if (this.curChartType === 'move' && e.currentTarget.className === 'cur') {
 				// clicked a move, remove it if we already have it
-				var $emptyEl;
 				var moves = [];
 				for (var i = 1; i <= 4; i++) {
 					var $inputEl = this.$('input[name=move' + i + ']');
@@ -2606,7 +2601,6 @@
 		},
 		chartSet: function (val, selectNext) {
 			var inputName = this.curChartName;
-			var id = toId(val);
 			var input = this.$('input[name=' + inputName + ']');
 			if (this.chartSetCustom(input.val())) return;
 			input.val(val).removeClass('incomplete');
@@ -2770,7 +2764,6 @@
 		setPokemon: function (val, selectNext) {
 			var set = this.curSet;
 			var template = Tools.getTemplate(val);
-			var newPokemon = !set.species;
 			if (!template.exists || set.species === template.species) {
 				if (selectNext) this.$('input[name=item]').select();
 				return;
@@ -3040,7 +3033,6 @@
 			else if (stats.atk > stats.spa && moveCount['Physical'] > 1) offenseBias = 'Physical';
 			else if (moveCount['Special'] > moveCount['Physical']) offenseBias = 'Special';
 			else offenseBias = 'Physical';
-			var offenseStat = stats[offenseBias === 'Special' ? 'spa' : 'atk'];
 
 			if (moveCount['Stall'] + moveCount['Support'] / 2 <= 2 && bulk < 135000 && moveCount[offenseBias] >= 1.5) {
 				if (isFast) {
