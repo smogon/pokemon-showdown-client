@@ -127,9 +127,6 @@
 			this.$('.logo').show();
 			this.$('.maintabbar').removeClass('minitabbar');
 
-			var curId = (app.curRoom ? app.curRoom.id : '');
-			var curSideId = (app.curSideRoom ? app.curSideRoom.id : '');
-
 			var buf = '<ul>' + this.renderRoomTab(app.rooms['']) + this.renderRoomTab(app.rooms['teambuilder']) + this.renderRoomTab(app.rooms['ladder']) + '</ul>';
 			var sideBuf = '';
 
@@ -719,7 +716,6 @@
 			buf += '</div><div style="clear:left"></div>';
 			buf += '<p><strong>Official</strong></p>';
 			buf += '<div class="bglist">';
-			var bgs = ['charizards', 'horizon', 'waterfall', 'ocean', 'shaymin'];
 
 			buf += '<button name="setBg" value="charizards"' + (cur === 'charizards' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 0) + 'px"></span>Charizards</button>';
 			buf += '<button name="setBg" value="horizon"' + (cur === 'horizon' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 1) + 'px"></span>Horizon</button>';
@@ -979,7 +975,7 @@
 						'longtitle': true,
 						'theme': 'dark',
 						'onsuccess': function (googleUser) {
-							var profile = googleUser.getBasicProfile();
+							// var profile = googleUser.getBasicProfile();
 							var id_token = googleUser.getAuthResponse().id_token;
 							self.close();
 							app.user.passwordRename(data.username, id_token, data.special);

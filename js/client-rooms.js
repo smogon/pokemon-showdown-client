@@ -42,7 +42,6 @@
 			});
 		},
 		update: function (rooms) {
-			var firstOpen = !app.roomsData;
 			if (rooms) {
 				this.lastUpdate = new Date().getTime();
 				app.roomsData = rooms;
