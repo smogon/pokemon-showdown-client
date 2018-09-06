@@ -1846,7 +1846,7 @@ class Battle {
 				break;
 			} case '-sethp': {
 				let effect = Tools.getEffect(kwargs.from);
-				let poke, ofpoke;
+				// let poke, ofpoke;
 				for (let k = 0; k < 2; k++) {
 					let cpoke = this.getPokemon(args[1 + 2 * k]);
 					if (cpoke) {
@@ -1860,8 +1860,8 @@ class Battle {
 							this.scene.damageAnim(cpoke, formattedRange);
 						}
 					}
-					if (k == 0) poke = cpoke;
-					if (k == 1) ofpoke = cpoke;
+					// if (k == 0) poke = cpoke;
+					// if (k == 1) ofpoke = cpoke;
 				}
 				switch (effect.id) {
 				case 'painsplit':
@@ -1973,7 +1973,7 @@ class Battle {
 				let stat = args[2] as BoostStatName;
 				let amount = parseInt(args[3], 10);
 				let effect = Tools.getEffect(kwargs.from);
-				let ofpoke = this.getPokemon(kwargs.of);
+				// let ofpoke = this.getPokemon(kwargs.of);
 				poke.boosts[stat] = amount;
 				this.scene.resultAnim(poke, poke.getBoost(stat), (amount > 0 ? 'good' : 'bad'));
 
@@ -2064,7 +2064,7 @@ class Battle {
 				let poke = this.getPokemon(args[1])!;
 				let frompoke = this.getPokemon(args[2])!;
 				let stats = args[3] ? args[3].split(', ') : ['atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion'];
-				let effect = Tools.getEffect(kwargs.from);
+				// let effect = Tools.getEffect(kwargs.from);
 				for (let i = 0; i < stats.length; i++) {
 					poke.boosts[stats[i]] = frompoke.boosts[stats[i]];
 					if (!poke.boosts[stats[i]]) delete poke.boosts[stats[i]];
@@ -2825,7 +2825,7 @@ class Battle {
 			} case '-endability': {
 				let poke = this.getPokemon(args[1])!;
 				let ability = Tools.getAbility(args[2]);
-				let effect = Tools.getEffect(kwargs.from);
+				// let effect = Tools.getEffect(kwargs.from);
 				poke.ability = '(suppressed)';
 
 				if (kwargs.silent) {
@@ -3347,7 +3347,7 @@ class Battle {
 				let poke = this.getPokemon(args[1])!;
 				let effect = Tools.getEffect(args[2]);
 				let ofpoke = this.getPokemon(kwargs.of);
-				let fromeffect = Tools.getEffect(kwargs.from);
+				// let fromeffect = Tools.getEffect(kwargs.from);
 				poke.addTurnstatus(effect.id);
 
 				switch (effect.id) {
@@ -3428,8 +3428,8 @@ class Battle {
 			} case '-singlemove': {
 				let poke = this.getPokemon(args[1])!;
 				let effect = Tools.getEffect(args[2]);
-				let ofpoke = this.getPokemon(kwargs.of);
-				let fromeffect = Tools.getEffect(kwargs.from);
+				// let ofpoke = this.getPokemon(kwargs.of);
+				// let fromeffect = Tools.getEffect(kwargs.from);
 				poke.addMovestatus(effect.id);
 
 				switch (effect.id) {
@@ -3860,8 +3860,8 @@ class Battle {
 			} case '-sideend': {
 				let side = this.getSide(args[1]);
 				let effect = Tools.getEffect(args[2]);
-				let from = Tools.getEffect(kwargs.from);
-				let ofpoke = this.getPokemon(kwargs.of);
+				// let from = Tools.getEffect(kwargs.from);
+				// let ofpoke = this.getPokemon(kwargs.of);
 				side.removeSideCondition(effect.name);
 
 				switch (effect.id) {
@@ -3991,7 +3991,7 @@ class Battle {
 
 			} case '-fieldend': {
 				let effect = Tools.getEffect(args[1]);
-				let poke = this.getPokemon(kwargs.of);
+				// let poke = this.getPokemon(kwargs.of);
 				this.removePseudoWeather(effect.name);
 
 				switch (effect.id) {
