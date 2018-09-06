@@ -13,8 +13,6 @@
 
 const path = require('path');
 const fs = require('fs');
-const crypto = require('crypto');
-const exec = require('child_process').exec;
 
 const thisFile = __filename;
 const thisDir = __dirname;
