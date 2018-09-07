@@ -18812,9 +18812,9 @@ const BattleMoveAnims: AnimTable = {
 	},
 	solarblade: {
 		anim(scene, [attacker, defender]) {
-			var xstep = (attacker.x - attacker.x) / 5;
+			var xstep = attacker.x / 5;
 			var ystep = (attacker.x + 200 - attacker.x) / 5;
-			var zstep = (attacker.z - attacker.z) / 5;
+			var zstep = attacker.z / 5;
 
 			scene.backgroundEffect("url('https://play.pokemonshowdown.com/fx/weather-sunnyday.jpg')", 900, 0.5);
 
@@ -23407,11 +23407,6 @@ const BattleMoveAnims: AnimTable = {
 				time: 500
 			}, 'ballistic2Back');
 
-			var xf = [1, -1, 1, -1];
-			var yf = [1, -1, -1, 1];
-			var xf2 = [1, 0, -1, 0];
-			var yf2 = [0, 1, 0, -1];
-
 			scene.showEffect('shadowball', {
 				x: attacker.x,
 				y: attacker.y - 50,
@@ -23424,7 +23419,7 @@ const BattleMoveAnims: AnimTable = {
 				scale: 2,
 				xscale: 8,
 				opacity: 0.1,
-				time: 1300
+				time: 700
 			}, 'decel', 'fade');
 		}
 	},
@@ -27345,7 +27340,7 @@ const BattleMoveAnims: AnimTable = {
 			scene.backgroundEffect('linear-gradient(#440044 30%, #000000', 1500, 0.6);
 			var xstep = (defender.x + 200 - defender.x) / 5;
 			var ystep = (defender.x - 200 - defender.x) / 5;
-			var zstep = (defender.z - defender.z) / 5;
+			var zstep = defender.z / 5;
 
 			for (var i = 0; i < 5; i++) {
 				scene.showEffect('poisonwisp', {
