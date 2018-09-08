@@ -18812,9 +18812,9 @@ const BattleMoveAnims: AnimTable = {
 	},
 	solarblade: {
 		anim(scene, [attacker, defender]) {
-			var xstep = attacker.x / 5;
-			var ystep = (attacker.x + 200 - attacker.x) / 5;
-			var zstep = attacker.z / 5;
+			var xstep = 0;
+			var ystep = 20;
+			var zstep = 0;
 
 			scene.backgroundEffect("url('https://play.pokemonshowdown.com/fx/weather-sunnyday.jpg')", 900, 0.5);
 
