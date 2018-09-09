@@ -180,6 +180,29 @@ var BattleTooltips = (function () {
 		BattleTooltips.hideTooltip();
 	};
 
+	BattleTooltips.prototype.zMoveEffects = {
+		'clearnegativeboost': "Restores negative stat stages to 0",
+		'crit2': "Crit ratio +2",
+		'heal': "Restores HP 100%",
+		'curse': "Restores HP 100% if user is Ghost type, otherwise Attack +1",
+		'redirect': "Redirects opposing attacks to user",
+		'healreplacement': "Restores replacement's HP 100%"
+	};
+
+	BattleTooltips.prototype.getStatusZMoveEffect = function (move) {
+		if (move.zMoveEffect in this.zMoveEffects) {
+			return this.zMoveEffects[move.zMoveEffect];
+		}
+		var boostText = '';
+		if (move.zMoveBoost) {
+			var boosts = Object.keys(move.zMoveBoost);
+			boostText = boosts.map(function (stat) {
+				return BattleStats[stat] + ' +' + move.zMoveBoost[stat];
+			}).join(', ');
+		}
+		return boostText;
+	};
+
 	BattleTooltips.prototype.zMoveTable = {
 		Poison: "Acid Downpour",
 		Fighting: "All-Out Pummeling",
@@ -205,6 +228,7 @@ var BattleTooltips = (function () {
 		var text = '';
 		var basePowerText = '';
 		var additionalInfo = '';
+		var zEffect = '';
 		var yourActive = this.battle.yourSide.active;
 		var pokemon = this.battle.mySide.active[this.room.choice.choices.length];
 		var pokemonData = this.room.myPokemon[pokemon.slot];
@@ -219,7 +243,7 @@ var BattleTooltips = (function () {
 			} else if (move.category === 'Status') {
 				move = JSON.parse(JSON.stringify(move));
 				move.name = 'Z-' + move.name;
-				// TODO: show zMoveBoost/Effect
+				zEffect = this.getStatusZMoveEffect(move);
 			} else {
 				var zmove = Tools.getMove(this.zMoveTable[item.zMoveType]);
 				zmove = JSON.parse(JSON.stringify(zmove));
@@ -297,6 +321,7 @@ var BattleTooltips = (function () {
 		text += basePowerText;
 		if (additionalInfo) text += '<p>' + additionalInfo + '</p>';
 		text += '<p>Accuracy: ' + accuracy + '</p>';
+		if (zEffect) text += '<p>Z-Effect: ' + zEffect + '</p>';
 		if (move.desc) {
 			if (this.battle.gen < 7 || this.battle.hardcoreMode) {
 				var desc = move.shortDesc;
