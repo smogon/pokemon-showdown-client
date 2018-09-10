@@ -322,80 +322,78 @@ var BattleTooltips = (function () {
 		if (additionalInfo) text += '<p>' + additionalInfo + '</p>';
 		text += '<p>Accuracy: ' + accuracy + '</p>';
 		if (zEffect) text += '<p>Z-Effect: ' + zEffect + '</p>';
-		if (move.desc) {
-			if (this.battle.gen < 7 || this.battle.hardcoreMode) {
-				var desc = move.shortDesc;
-				for (var i = this.battle.gen; i < 7; i++) {
-					if (move.id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
-						desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[move.id];
-						break;
-					}
+		if (this.battle.gen < 7 || this.battle.hardcoreMode) {
+			var desc = move.shortDesc;
+			for (var i = this.battle.gen; i < 7; i++) {
+				if (move.id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
+					desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[move.id];
+					break;
 				}
-				text += '<p class="section">' + desc + '</p>';
-			} else {
-				text += '<p class="section">';
-				if (move.priority > 1) {
-					text += 'Nearly always moves first <em>(priority +' + move.priority + ')</em>.</p><p>';
-				} else if (move.priority <= -1) {
-					text += 'Nearly always moves last <em>(priority &minus;' + (-move.priority) + ')</em>.</p><p>';
-				} else if (move.priority == 1) {
-					text += 'Usually moves first <em>(priority +' + move.priority + ')</em>.</p><p>';
-				}
+			}
+			text += '<p class="section">' + desc + '</p>';
+		} else {
+			text += '<p class="section">';
+			if (move.priority > 1) {
+				text += 'Nearly always moves first <em>(priority +' + move.priority + ')</em>.</p><p>';
+			} else if (move.priority <= -1) {
+				text += 'Nearly always moves last <em>(priority &minus;' + (-move.priority) + ')</em>.</p><p>';
+			} else if (move.priority == 1) {
+				text += 'Usually moves first <em>(priority +' + move.priority + ')</em>.</p><p>';
+			}
 
-				text += '' + (move.desc || move.shortDesc) + '</p>';
+			text += '' + (move.desc || move.shortDesc) + '</p>';
 
-				if ('defrost' in move.flags) {
-					text += '<p class="movetag">The user thaws out if it is frozen.</p>';
-				}
-				if (!('protect' in move.flags) && move.target !== 'self' && move.target !== 'allySide' && move.target !== 'allyTeam') {
-					text += '<p class="movetag">Bypasses Protect <small>(and Detect, King\'s Shield, Spiky Shield)</small></p>';
-				}
-				if ('authentic' in move.flags) {
-					text += '<p class="movetag">Bypasses Substitute <small>(but does not break it)</small></p>';
-				}
-				if (!('reflectable' in move.flags) && move.target !== 'self' && move.target !== 'allySide' && move.target !== 'allyTeam' && move.category === 'Status') {
-					text += '<p class="movetag">&#x2713; Not bounceable <small>(can\'t be bounced by Magic Coat/Bounce)</small></p>';
-				}
+			if ('defrost' in move.flags) {
+				text += '<p class="movetag">The user thaws out if it is frozen.</p>';
+			}
+			if (!('protect' in move.flags) && move.target !== 'self' && move.target !== 'allySide' && move.target !== 'allyTeam') {
+				text += '<p class="movetag">Bypasses Protect <small>(and Detect, King\'s Shield, Spiky Shield)</small></p>';
+			}
+			if ('authentic' in move.flags) {
+				text += '<p class="movetag">Bypasses Substitute <small>(but does not break it)</small></p>';
+			}
+			if (!('reflectable' in move.flags) && move.target !== 'self' && move.target !== 'allySide' && move.target !== 'allyTeam' && move.category === 'Status') {
+				text += '<p class="movetag">&#x2713; Not bounceable <small>(can\'t be bounced by Magic Coat/Bounce)</small></p>';
+			}
 
-				if ('contact' in move.flags) {
-					text += '<p class="movetag">&#x2713; Contact <small>(triggers Iron Barbs, Spiky Shield, etc)</small></p>';
-				}
-				if ('sound' in move.flags) {
-					text += '<p class="movetag">&#x2713; Sound <small>(doesn\'t affect Soundproof pokemon)</small></p>';
-				}
-				if ('powder' in move.flags) {
-					text += '<p class="movetag">&#x2713; Powder <small>(doesn\'t affect Grass, Overcoat, Safety Goggles)</small></p>';
-				}
-				if ('punch' in move.flags && ability === 'ironfist') {
-					text += '<p class="movetag">&#x2713; Fist <small>(boosted by Iron Fist)</small></p>';
-				}
-				if ('pulse' in move.flags && ability === 'megalauncher') {
-					text += '<p class="movetag">&#x2713; Pulse <small>(boosted by Mega Launcher)</small></p>';
-				}
-				if ('bite' in move.flags && ability === 'strongjaw') {
-					text += '<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>';
-				}
-				if ((move.recoil || move.hasCustomRecoil) && ability === 'reckless') {
-					text += '<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>';
-				}
-				if ('bullet' in move.flags) {
-					text += '<p class="movetag">&#x2713; Ballistic <small>(doesn\'t affect Bulletproof pokemon)</small></p>';
-				}
+			if ('contact' in move.flags) {
+				text += '<p class="movetag">&#x2713; Contact <small>(triggers Iron Barbs, Spiky Shield, etc)</small></p>';
+			}
+			if ('sound' in move.flags) {
+				text += '<p class="movetag">&#x2713; Sound <small>(doesn\'t affect Soundproof pokemon)</small></p>';
+			}
+			if ('powder' in move.flags) {
+				text += '<p class="movetag">&#x2713; Powder <small>(doesn\'t affect Grass, Overcoat, Safety Goggles)</small></p>';
+			}
+			if ('punch' in move.flags && ability === 'ironfist') {
+				text += '<p class="movetag">&#x2713; Fist <small>(boosted by Iron Fist)</small></p>';
+			}
+			if ('pulse' in move.flags && ability === 'megalauncher') {
+				text += '<p class="movetag">&#x2713; Pulse <small>(boosted by Mega Launcher)</small></p>';
+			}
+			if ('bite' in move.flags && ability === 'strongjaw') {
+				text += '<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>';
+			}
+			if ((move.recoil || move.hasCustomRecoil) && ability === 'reckless') {
+				text += '<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>';
+			}
+			if ('bullet' in move.flags) {
+				text += '<p class="movetag">&#x2713; Ballistic <small>(doesn\'t affect Bulletproof pokemon)</small></p>';
+			}
 
-				if (this.battle.gameType === 'doubles') {
-					if (move.target === 'allAdjacent') {
-						text += '<p class="movetag">&#x25ce; Hits both foes and ally.</p>';
-					} else if (move.target === 'allAdjacentFoes') {
-						text += '<p class="movetag">&#x25ce; Hits both foes.</p>';
-					}
-				} else if (this.battle.gameType === 'triples') {
-					if (move.target === 'allAdjacent') {
-						text += '<p class="movetag">&#x25ce; Hits adjacent foes and allies.</p>';
-					} else if (move.target === 'allAdjacentFoes') {
-						text += '<p class="movetag">&#x25ce; Hits adjacent foes.</p>';
-					} else if (move.target === 'any') {
-						text += '<p class="movetag">&#x25ce; Can target distant Pok&eacute;mon in Triples.</p>';
-					}
+			if (this.battle.gameType === 'doubles') {
+				if (move.target === 'allAdjacent') {
+					text += '<p class="movetag">&#x25ce; Hits both foes and ally.</p>';
+				} else if (move.target === 'allAdjacentFoes') {
+					text += '<p class="movetag">&#x25ce; Hits both foes.</p>';
+				}
+			} else if (this.battle.gameType === 'triples') {
+				if (move.target === 'allAdjacent') {
+					text += '<p class="movetag">&#x25ce; Hits adjacent foes and allies.</p>';
+				} else if (move.target === 'allAdjacentFoes') {
+					text += '<p class="movetag">&#x25ce; Hits adjacent foes.</p>';
+				} else if (move.target === 'any') {
+					text += '<p class="movetag">&#x25ce; Can target distant Pok&eacute;mon in Triples.</p>';
 				}
 			}
 		}
