@@ -393,3 +393,203 @@
 	background: linear-gradient(to bottom,  hsl(310,41%,77%),  hsl(310,41%,83%));
 	border-color: hsl(310,41%,41%);
 }
+
+//Digimon Showdown Type Colors//
+
+.movemenu button.type-Battle {
+	/* Modifed from the Dragon type color. */
+	background: hsl(224,39%,93%);
+	background: linear-gradient(to bottom,  hsl(224,39%,97%),  hsl(224,39%,84%));
+	border-color: hsl(224,26%,46%);
+}
+.movemenu button.type-Battle small {
+	color: hsl(224,39%,41%);
+}
+.movemenu button.type-Battle:hover {
+	/* Modifed from the Dragon type color. */
+	background: hsl(224,39%,87%);
+	background: linear-gradient(to bottom,  hsl(224,39%,94%),  hsl(224,39%,77%));
+	border-color: hsl(224,39%,41%);
+}
+.movemenu button.type-Battle:active {
+	/* Modifed from the Dragon type color. */
+	background: hsl(224,39%,77%);
+	background: linear-gradient(to bottom,  hsl(224,39%,77%),  hsl(224,39%,83%));
+	border-color: hsl(224,39%,41%);
+}
+
+.movemenu button.type-Flame {
+	/* Modifed from the Fire type color. */
+	background: hsl(356,40%,93%);
+	background: linear-gradient(to bottom,  hsl(356,40%,97%),  hsl(356,40%,84%));
+	border-color: hsl(356,54%,55%);
+}
+.movemenu button.type-Flame small {
+	color: hsl(356,40%,41%);
+}
+.movemenu button.type-Flame:hover {
+	/* Modifed from the Fire type color. */
+	background: hsl(356,40%,87%);
+	background: linear-gradient(to bottom,  hsl(356,40%,94%),  hsl(356,40%,77%));
+	border-color: hsl(356,40%,41%);
+}
+.movemenu button.type-Flame:active {
+	/* Modifed from the Fire type color. */
+	background: hsl(356,40%,77%);
+	background: linear-gradient(to bottom,  hsl(356,40%,77%),  hsl(356,40%,83%));
+	border-color: hsl(356,40%,41%);
+}
+
+.movemenu button.type-Aqua {
+	/* Modifed from the Ice type color. */
+	background: hsl(217,15%,93%);
+	background: linear-gradient(to bottom,  hsl(217,15%,97%),  hsl(217,15%,84%));
+	border-color: hsl(217,75%,78%);
+}
+.movemenu button.type-Aqua small {
+	color: hsl(217,15%,41%);
+}
+.movemenu button.type-Aqua:hover {
+	/* Modifed from the Ice type color. */
+	background: hsl(217,15%,87%);
+	background: linear-gradient(to bottom,  hsl(217,15%,94%),  hsl(217,15%,77%));
+	border-color: hsl(217,15%,41%);
+}
+.movemenu button.type-Aqua:active {
+	/* Modifed from the Ice type color. */
+	background: hsl(217,15%,77%);
+	background: linear-gradient(to bottom,  hsl(217,15%,77%),  hsl(217,15%,83%));
+	border-color: hsl(217,15%,41%);
+}
+
+.movemenu button.type-Nature {
+	/* Modifed from the Grass type color. */
+	background: hsl(72,30%,93%);
+	background: linear-gradient(to bottom,  hsl(72,30%,97%),  hsl(72,30%,84%));
+	border-color: hsl(72,90%,40%);
+}
+.movemenu button.type-Nature small {
+	color: hsl(72,30%,41%);
+}
+.movemenu button.type-Nature:hover {
+	/* Modifed from the Grass type color. */
+	background: hsl(72,30%,87%);
+	background: linear-gradient(to bottom,  hsl(72,30%,94%),  hsl(72,30%,77%));
+	border-color: hsl(72,30%,41%);
+}
+.movemenu button.type-Nature:active {
+	/* Modifed from the Grass type color. */
+	background: hsl(72,30%,77%);
+	background: linear-gradient(to bottom,  hsl(72,30%,77%),  hsl(72,30%,83%));
+	border-color: hsl(72,30%,41%);
+}
+
+.movemenu button.type-Air {
+	/* Modifed from the Electric type color. */
+	background: hsl(46,41%,93%);
+	background: linear-gradient(to bottom,  hsl(46,41%,97%),  hsl(46,41%,84%));
+	border-color: hsl(46,87%,77%);
+}
+.movemenu button.type-Air small {
+	color: hsl(46,41%,41%);
+}
+.movemenu button.type-Air:hover {
+	/* Modifed from the Electric type color. */
+	background: hsl(46,41%,87%);
+	background: linear-gradient(to bottom,  hsl(46,41%,94%),  hsl(46,41%,77%));
+	border-color: hsl(46,41%,41%);
+}
+.movemenu button.type-Air:active {
+	/* Modifed from the Electric type color. */
+	background: hsl(46,41%,77%);
+	background: linear-gradient(to bottom,  hsl(46,41%,77%),  hsl(46,41%,83%));
+	border-color: hsl(46,41%,41%);
+}
+
+.movemenu button.type-Holy {
+	/* Modifed from the Fairy type color. */
+	background: hsl(60,41%,93%);
+	background: linear-gradient(to bottom,  hsl(60,41%,97%),  hsl(60,41%,84%));
+	border-color: hsl(60,47%,78%);
+}
+.movemenu button.type-Holy small {
+	color: hsl(60,41%,41%);
+}
+.movemenu button.type-Holy:hover {
+	/* Modifed from the Fairy type color. */
+	background: hsl(60,41%,87%);
+	background: linear-gradient(to bottom,  hsl(60,41%,94%),  hsl(60,41%,77%));
+	border-color: hsl(60,41%,41%);
+}
+.movemenu button.type-Holy:active {
+	/* Modifed from the Fairy type color. */
+	background: hsl(60,41%,77%);
+	background: linear-gradient(to bottom,  hsl(60,41%,77%),  hsl(60,41%,83%));
+	border-color: hsl(60,41%,41%);
+}
+
+.movemenu button.type-Evil {
+	/* Modifed from the Poison type color. */
+	background: hsl(285,30%,93%);
+	background: linear-gradient(to bottom,  hsl(285,30%,97%),  hsl(285,30%,84%));
+	border-color: hsl(285,31%,61%);
+}
+.movemenu button.type-Evil small {
+	color: hsl(285,30%,41%);
+}
+.movemenu button.type-Evil:hover {
+	/* Modifed from the Poison type color. */
+	background: hsl(285,30%,87%);
+	background: linear-gradient(to bottom,  hsl(285,30%,94%),  hsl(285,30%,77%));
+	border-color: hsl(285,30%,41%);
+}
+.movemenu button.type-Evil:active {
+	/* Modifed from the Poison type color. */
+	background: hsl(285,30%,77%);
+	background: linear-gradient(to bottom,  hsl(285,30%,77%),  hsl(285,30%,83%));
+	border-color: hsl(285,30%,41%);
+}
+
+.movemenu button.type-Mech {
+	/* Modifed from the Steel type color. */
+	background: hsl(24,6%,93%);
+	background: linear-gradient(to bottom,  hsl(24,6%,97%),  hsl(24,6%,84%));
+	border-color: hsl(24,4%,66%);
+}
+.movemenu button.type-Mech small {
+	color: hsl(24,6%,41%);
+}
+.movemenu button.type-Mech:hover {
+	/* Modifed from the Steel type color. */
+	background: hsl(24,6%,87%);
+	background: linear-gradient(to bottom,  hsl(24,6%,94%),  hsl(24,6%,77%));
+	border-color: hsl(24,6%,41%);
+}
+.movemenu button.type-Mech:active {
+	/* Modifed from the Steel type color. */
+	background: hsl(24,6%,77%);
+	background: linear-gradient(to bottom,  hsl(24,6%,77%),  hsl(24,6%,83%));
+	border-color: hsl(24,6%,41%);
+}
+
+.movemenu button.type-Filth {
+	/* Modifed from the Rock type color. */
+	background: hsl(30,35%,93%);
+	background: linear-gradient(to bottom,  hsl(30,35%,97%),  hsl(30,35%,84%));
+	border-color: hsl(30,18%,49%);
+}
+.movemenu button.type-Filth small {
+	color: hsl(30,35%,41%);
+}
+.movemenu button.type-Filth:hover {
+	/* Modifed from the Rock type color. */
+	background: hsl(30,35%,87%);
+	background: linear-gradient(to bottom,  hsl(30,35%,94%),  hsl(30,35%,77%));
+	border-color: hsl(30,35%,41%);
+}
+.movemenu button.type-Filth:active {
+	/* Modifed from the Rock type color. */
+	background: hsl(30,35%,77%);
+	background: linear-gradient(to bottom,  hsl(30,35%,77%),  hsl(30,35%,83%));
+	border-color: hsl(30,35%,41%);
+}
