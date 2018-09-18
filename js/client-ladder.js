@@ -116,11 +116,11 @@
 				var curSection = '';
 				for (var i in BattleFormats) {
 					var format = BattleFormats[i];
+					if (!format.rated || !format.searchShow) continue;
 					if (format.section && format.section !== curSection) {
 						curSection = format.section;
 						buf += '</ul><h3>' + Tools.escapeHTML(curSection) + '</h3><ul style="list-style:none;margin:0;padding:0">';
 					}
-					if (!format.searchShow || !format.rated) continue;
 					buf += '<li style="margin:5px"><button name="selectFormat" value="' + i + '" class="button" style="width:320px;height:30px;text-align:left;font:12pt Verdana">' + Tools.escapeFormat(format.id) + '</button></li>';
 				}
 				buf += '</ul></div>';
