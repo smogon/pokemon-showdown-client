@@ -1171,7 +1171,7 @@
 						searchShow: searchShow,
 						challengeShow: challengeShow,
 						tournamentShow: tournamentShow,
-						rated: searchShow && id.substr(0, 7) !== 'unrated',
+						rated: searchShow && id.substr(4, 7) !== 'unrated',
 						teambuilderLevel: teambuilderLevel,
 						teambuilderFormat: teambuilderFormat,
 						isTeambuilderFormat: isTeambuilderFormat,
