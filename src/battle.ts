@@ -717,13 +717,16 @@ class Side {
 		}
 		if (this.pokemon.length > this.totalPokemon || this.battle.speciesClause) {
 			// check for Illusion
-			let existingTable = {} as {[searchid: string]: number};
+			let existingTable = {} as {[uid: string]: number};
 			let toRemove = -1;
 			for (let poke1i = 0; poke1i < this.pokemon.length; poke1i++) {
 				let poke1 = this.pokemon[poke1i];
-				if (!poke1.searchid) continue;
-				if (poke1.searchid in existingTable) {
-					let poke2i = existingTable[poke1.searchid];
+
+				let poke1uid = this.battle.speciesClause ? poke1.ident : poke1.searchid;
+
+				if (!poke1uid) continue;
+				if (poke1uid in existingTable) {
+					let poke2i = existingTable[poke1uid];
 					let poke2 = this.pokemon[poke2i];
 					if (poke === poke1) {
 						toRemove = poke2i;
@@ -740,7 +743,7 @@ class Side {
 					}
 					break;
 				}
-				existingTable[poke1.searchid] = poke1i;
+				existingTable[poke1uid] = poke1i;
 			}
 			if (toRemove >= 0) {
 				if (this.pokemon[toRemove].fainted) {
