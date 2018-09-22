@@ -587,23 +587,25 @@ Storage.unpackAllTeams = function (buffer) {
 		});
 	}
 
-	return buffer.split('\n').map(function (line) {
-		var pipeIndex = line.indexOf('|');
-		if (pipeIndex < 0) return '';
-		var bracketIndex = line.indexOf(']');
-		if (bracketIndex > pipeIndex) bracketIndex = -1;
-		var slashIndex = line.lastIndexOf('/', pipeIndex);
-		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
-		var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
-		if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
-		return {
-			name: line.slice(slashIndex + 1, pipeIndex),
-			format: format,
-			team: line.slice(pipeIndex + 1),
-			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
-			iconCache: ''
-		};
-	}).filter(function (v) { return v; });
+	return buffer.split('\n').map(Storage.unpackLine).filter(function (v) { return v; });
+};
+
+Storage.unpackLine = function (line) {
+	var pipeIndex = line.indexOf('|');
+	if (pipeIndex < 0) return null;
+	var bracketIndex = line.indexOf(']');
+	if (bracketIndex > pipeIndex) bracketIndex = -1;
+	var slashIndex = line.lastIndexOf('/', pipeIndex);
+	if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
+	var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
+	if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+	return {
+		name: line.slice(slashIndex + 1, pipeIndex),
+		format: format,
+		team: line.slice(pipeIndex + 1),
+		folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
+		iconCache: ''
+	};
 };
 
 Storage.packAllTeams = function (teams) {
@@ -1045,7 +1047,7 @@ Storage.importTeam = function (buffer, teams) {
 				if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 				line = $.trim(line.substr(bracketIndex + 1));
 			}
-			if (teams.length) {
+			if (teams.length && typeof teams[teams.length - 1].team !== 'string') {
 				teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
 			}
 			var slashIndex = line.lastIndexOf('/');
@@ -1061,10 +1063,10 @@ Storage.importTeam = function (buffer, teams) {
 				folder: folder,
 				iconCache: ''
 			});
-		} else if (!team) {
-			// not in backup format
-			Storage.teams = Storage.unpackAllTeams(buffer);
-			return;
+		} else if (line.includes('|')) {
+			// packed format
+			curSet = null;
+			teams.push(Storage.unpackLine(line));
 		} else if (!curSet) {
 			curSet = {name: '', species: '', gender: ''};
 			team.push(curSet);
@@ -1159,7 +1161,7 @@ Storage.importTeam = function (buffer, teams) {
 			curSet.moves.push(line);
 		}
 	}
-	if (teams && teams.length) {
+	if (teams && teams.length && typeof teams[teams.length - 1].team !== 'string') {
 		teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
 	}
 	return team;
