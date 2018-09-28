@@ -182,6 +182,8 @@ class BattleScene {
 		this.messagebarOpen = false;
 		this.timeOffset = 0;
 		this.pokemonTimeOffset = 0;
+		this.curTerrain = '';
+		this.curWeather = '';
 	}
 
 	animationOff() {
