@@ -31,6 +31,80 @@ This license DOES NOT extend to any other files in this repository.
 */
 
 class BattleScene {
+	setFrameHTML(html: any) {
+		this.$frame.html(html);
+	}
+	setControlsHTML(html: any) {
+		let $controls = this.$frame.parent().children('.battle-controls');
+		$controls.html(html);
+	}
+
+	// Methods defined in PokemonSprite but need to be called through BattleScene
+	removeEffect(pokemon: Pokemon, id: ID, instant?: boolean) {
+		return pokemon.sprite.removeEffect(id, instant);
+	}
+	addEffect(pokemon: Pokemon, id: ID, instant?: boolean) {
+		return pokemon.sprite.addEffect(id, instant);
+	}
+	animSummon(pokemon: Pokemon, slot: number, instant?: boolean) {
+		return pokemon.sprite.animSummon(pokemon, slot, instant);
+	}
+	animUnsummon(pokemon: Pokemon, instant?: boolean) {
+		return pokemon.sprite.animUnsummon(pokemon, instant);
+	}
+	animDragIn(pokemon: Pokemon, slot: number) {
+		return pokemon.sprite.animDragIn(pokemon, slot);
+	}
+	animDragOut(pokemon: Pokemon) {
+		return pokemon.sprite.animDragOut(pokemon);
+	}
+	updateStatbar(pokemon: Pokemon, updatePrevhp?: boolean, updateHp?: boolean) {
+		return pokemon.sprite.updateStatbar(pokemon, updatePrevhp, updateHp);
+	}
+	updateStatbarIfExists(pokemon: Pokemon, updatePrevhp?: boolean, updateHp?: boolean) {
+		return pokemon.sprite.updateStatbarIfExists(pokemon, updatePrevhp, updateHp);
+	}
+	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
+		return pokemon.sprite.animTransform(pokemon, isCustomAnim, isPermanent);
+	}
+	clearEffects(pokemon: Pokemon) {
+		return pokemon.sprite.clearEffects();
+	}
+	removeTransform(pokemon: Pokemon) {
+		return pokemon.sprite.removeTransform();
+	}
+	animFaint(pokemon: Pokemon) {
+		return pokemon.sprite.animFaint(pokemon);
+	}
+	animReset(pokemon: Pokemon) {
+		return pokemon.sprite.animReset();
+	}
+	anim(pokemon: Pokemon, end: ScenePos, transition?: string) {
+		return pokemon.sprite.anim(end, transition);
+	}
+	beforeMove(pokemon: Pokemon) {
+		return pokemon.sprite.beforeMove();
+	}
+	afterMove(pokemon: Pokemon) {
+		return pokemon.sprite.afterMove();
+	}
+	updateSpritesForSide(side: Side) {
+		if (side.missedPokemon && side.missedPokemon.sprite) {
+			side.missedPokemon.sprite.destroy();
+		}
+
+		side.missedPokemon = {
+			sprite: new PokemonSprite(null, {
+				x: side.leftof(-100),
+				y: side.y,
+				z: side.z,
+				opacity: 0,
+			}, this, side.n)
+		} as Pokemon;
+
+		side.missedPokemon.sprite.isMissedPokemon = true;
+	}
+
 	battle: Battle;
 	animating = true;
 	acceleration = 1;
@@ -2221,6 +2295,12 @@ class PokemonSprite extends Sprite {
 				top: this.statbarTop,
 				opacity: 1,
 			});
+		}
+	}
+
+	updateStatbarIfExists(pokemon: Pokemon, updatePrevhp?: boolean, updateHp?: boolean) {
+		if (this.$statbar) {
+			this.updateStatbar(pokemon, updatePrevhp, updateHp);
 		}
 	}
 

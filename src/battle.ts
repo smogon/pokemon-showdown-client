@@ -245,26 +245,26 @@ class Pokemon {
 		return this.ident.substr(0, 2) + slots[this.slot] + this.ident.substr(2);
 	}
 	removeVolatile(volatile: ID) {
-		this.sprite.removeEffect(volatile);
+		this.side.battle.scene.removeEffect(this, volatile);
 		if (!this.hasVolatile(volatile)) return;
 		delete this.volatiles[volatile];
 	}
 	addVolatile(volatile: ID, ...args: any[]) {
 		if (this.hasVolatile(volatile) && !args.length) return;
 		this.volatiles[volatile] = [volatile, ...args] as EffectState;
-		this.sprite.addEffect(volatile);
+		this.side.battle.scene.addEffect(this, volatile);
 	}
 	hasVolatile(volatile: ID) {
 		return !!this.volatiles[volatile];
 	}
 	removeTurnstatus(volatile: ID) {
-		this.sprite.removeEffect(volatile);
+		this.side.battle.scene.removeEffect(this, volatile);
 		if (!this.hasTurnstatus(volatile)) return;
 		delete this.turnstatuses[volatile];
 	}
 	addTurnstatus(volatile: ID) {
 		volatile = toId(volatile);
-		this.sprite.addEffect(volatile);
+		this.side.battle.scene.addEffect(this, volatile);
 		if (this.hasTurnstatus(volatile)) return;
 		this.turnstatuses[volatile] = [volatile];
 	}
@@ -278,7 +278,7 @@ class Pokemon {
 		this.turnstatuses = {};
 	}
 	removeMovestatus(volatile: ID) {
-		this.sprite.removeEffect(volatile);
+		this.side.battle.scene.removeEffect(this, volatile);
 		if (!this.hasMovestatus(volatile)) return;
 		delete this.movestatuses[volatile];
 	}
@@ -286,7 +286,7 @@ class Pokemon {
 		volatile = toId(volatile);
 		if (this.hasMovestatus(volatile)) return;
 		this.movestatuses[volatile] = [volatile];
-		this.sprite.addEffect(volatile);
+		this.side.battle.scene.addEffect(this, volatile);
 	}
 	hasMovestatus(volatile: ID) {
 		return !!this.movestatuses[volatile];
@@ -301,7 +301,7 @@ class Pokemon {
 		this.volatiles = {};
 		this.clearTurnstatuses();
 		this.clearMovestatuses();
-		this.sprite.clearEffects();
+		this.side.battle.scene.clearEffects(this);
 	}
 	markMove(moveName: string, pp?: number, recursionSource?: string) {
 		if (recursionSource === this.ident) return;
@@ -475,7 +475,7 @@ class Pokemon {
 
 		pokemon.boosts = {};
 		pokemon.volatiles = {};
-		pokemon.sprite.removeTransform();
+		pokemon.side.battle.scene.removeTransform(pokemon);
 		pokemon.statusStage = 0;
 	}
 	copyTypesFrom(pokemon: Pokemon) {
@@ -613,19 +613,7 @@ class Side {
 	}
 	updateSprites() {
 		this.z = (this.n ? 200 : 0);
-		if (this.missedPokemon) {
-			this.missedPokemon.sprite.destroy();
-		}
-		this.missedPokemon = {
-			sprite: new PokemonSprite(null, {
-				x: this.leftof(-100),
-				y: this.y,
-				z: this.z,
-				opacity: 0,
-			},
-			this.battle.scene, this.n)
-		} as Pokemon;
-		this.missedPokemon.sprite.isMissedPokemon = true;
+		this.battle.scene.updateSpritesForSide(this);
 	}
 	setAvatar(spriteid: string) {
 		this.spriteid = spriteid;
@@ -801,7 +789,7 @@ class Side {
 			this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
 		}
 
-		pokemon.sprite.animSummon(pokemon, slot);
+		this.battle.scene.animSummon(pokemon, slot);
 
 		if (this.battle.switchCallback) this.battle.switchCallback(this.battle, this);
 	}
@@ -811,7 +799,7 @@ class Side {
 		if (oldpokemon === pokemon) return;
 		this.lastPokemon = oldpokemon;
 		if (oldpokemon) {
-			oldpokemon.sprite.animDragOut(oldpokemon);
+			this.battle.scene.animDragOut(oldpokemon);
 			oldpokemon.clearVolatile();
 		}
 		pokemon.clearVolatile();
@@ -820,7 +808,7 @@ class Side {
 		this.active[slot] = pokemon;
 		pokemon.slot = slot;
 
-		pokemon.sprite.animDragIn(pokemon, slot);
+		this.battle.scene.animDragIn(pokemon, slot);
 
 		if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
 	}
@@ -846,9 +834,9 @@ class Side {
 		pokemon.slot = slot;
 
 		if (oldpokemon) {
-			oldpokemon.sprite.animUnsummon(oldpokemon, true);
+			this.battle.scene.animUnsummon(oldpokemon, true);
 		}
-		pokemon.sprite.animSummon(pokemon, slot, true);
+		this.battle.scene.animSummon(pokemon, slot, true);
 		// not sure if we want a different callback
 		if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
 	}
@@ -873,7 +861,7 @@ class Side {
 		this.lastPokemon = pokemon;
 		this.active[slot] = null;
 
-		pokemon.sprite.animUnsummon(pokemon);
+		this.battle.scene.animUnsummon(pokemon);
 	}
 	swapTo(pokemon: Pokemon, slot: number, kwargs: {[k: string]: string}) {
 		if (pokemon.slot === slot) return;
@@ -899,11 +887,11 @@ class Side {
 		this.active[slot] = pokemon;
 		this.active[oslot] = target;
 
-		pokemon.sprite.animUnsummon(pokemon, true);
-		if (target) target.sprite.animUnsummon(target, true);
+		this.battle.scene.animUnsummon(pokemon, true);
+		if (target) this.battle.scene.animUnsummon(target, true);
 
-		pokemon.sprite.animSummon(pokemon, slot, true);
-		if (target) target.sprite.animSummon(target, oslot, true);
+		this.battle.scene.animSummon(pokemon, slot, true);
+		if (target) this.battle.scene.animSummon(target, oslot, true);
 	}
 	swapWith(pokemon: Pokemon, target: Pokemon, kwargs: {[k: string]: string}) {
 		// method provided for backwards compatibility only
@@ -926,11 +914,11 @@ class Side {
 		this.active[nslot] = pokemon;
 		this.active[oslot] = target;
 
-		pokemon.sprite.animUnsummon(pokemon, true);
-		target.sprite.animUnsummon(target, true);
+		this.battle.scene.animUnsummon(pokemon, true);
+		this.battle.scene.animUnsummon(target, true);
 
-		pokemon.sprite.animSummon(pokemon, nslot, true);
-		target.sprite.animSummon(target, oslot, true);
+		this.battle.scene.animSummon(pokemon, nslot, true);
+		this.battle.scene.animSummon(target, oslot, true);
 	}
 	faint(pokemon: Pokemon, slot = pokemon.slot) {
 		pokemon.clearVolatile();
@@ -946,7 +934,7 @@ class Side {
 		pokemon.fainted = true;
 		pokemon.hp = 0;
 
-		pokemon.sprite.animFaint(pokemon);
+		this.battle.scene.animFaint(pokemon);
 		if (this.battle.faintCallback) this.battle.faintCallback(this.battle, this);
 	}
 	destroy() {
@@ -966,7 +954,7 @@ enum Playback {
 }
 
 class Battle {
-	scene: BattleScene;
+	scene: BattleScene | BattleSceneStub;
 
 	sidesSwitched = false;
 
@@ -1043,7 +1031,12 @@ class Battle {
 
 	constructor($frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>, id = '') {
 		this.id = id;
-		this.scene = new BattleScene(this, $frame, $logFrame);
+
+		if (!$frame && !$logFrame) {
+			this.scene = new BattleSceneStub();
+		} else {
+			this.scene = new BattleScene(this, $frame, $logFrame);
+		}
 
 		this.init();
 	}
@@ -1349,7 +1342,7 @@ class Battle {
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
-		pokemon.sprite.updateStatbar(pokemon);
+		this.scene.updateStatbar(pokemon);
 		if (!target) {
 			target = pokemon.side.foe.active[0];
 		}
@@ -1522,7 +1515,7 @@ class Battle {
 	}
 	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwargs: {[k: string]: string}) {
 		pokemon.clearMovestatuses();
-		pokemon.sprite.updateStatbar(pokemon);
+		this.scene.updateStatbar(pokemon);
 		if (effect.id in BattleStatusAnims) {
 			this.scene.runStatusAnim(effect.id, [pokemon]);
 		}
@@ -1609,7 +1602,7 @@ class Battle {
 			this.message('<small>' + pokemon.getName() + (move.name ? ' can\'t use ' + move.name + '' : ' can\'t move') + '!</small>');
 			break;
 		}
-		pokemon.sprite.animReset();
+		this.scene.animReset(pokemon);
 	}
 	runMinor(args?: string[], kwargs?: {[k: string]: string}, preempt?: boolean, nextArgs?: string[], nextKwargs?: {[k: string]: string}) {
 		let actions = '';
@@ -2347,7 +2340,7 @@ class Battle {
 			} case '-mustrecharge': {
 				let poke = this.getPokemon(args[1])!;
 				poke.addMovestatus('mustrecharge' as ID);
-				poke.sprite.updateStatbar(poke);
+				this.scene.updateStatbar(poke);
 				break;
 
 			} case '-status': {
@@ -2403,7 +2396,7 @@ class Battle {
 					actions += "" + poke.getName() + " was frozen solid!";
 					break;
 				default:
-					poke.sprite.updateStatbar(poke);
+					this.scene.updateStatbar(poke);
 					break;
 				}
 				break;
@@ -2510,7 +2503,7 @@ class Battle {
 				let poke = this.getPokemon(args[1])!;
 				for (const target of poke.side.pokemon) {
 					target.status = '';
-					if (target.sprite.$statbar) target.sprite.updateStatbar(target);
+					this.scene.updateStatbarIfExists(target);
 				}
 
 				this.scene.resultAnim(poke, 'Team Cured', 'good');
@@ -2855,7 +2848,7 @@ class Battle {
 				for (const trackedMove of tpoke.moveTrack) {
 					poke.markMove(trackedMove[0], 0);
 				}
-				poke.sprite.animTransform(poke);
+				this.scene.animTransform(poke);
 				this.scene.resultAnim(poke, 'Transformed', 'good');
 				break;
 			} case '-formechange': {
@@ -2899,7 +2892,7 @@ class Battle {
 					}
 				}
 				poke.addVolatile('formechange' as ID, template.species); // the formechange volatile reminds us to revert the sprite change on switch-out
-				poke.sprite.animTransform(poke, isCustomAnim);
+				this.scene.animTransform(poke, isCustomAnim);
 				break;
 			} case '-mega': {
 				let poke = this.getPokemon(args[1])!;
@@ -2942,7 +2935,7 @@ class Battle {
 						poke.removeVolatile('typeadd' as ID);
 						poke.addVolatile('typechange' as ID, types);
 						if (kwargs.silent) {
-							poke.sprite.updateStatbar(poke);
+							this.scene.updateStatbar(poke);
 							break;
 						}
 						if (fromeffect.id) {
@@ -3001,7 +2994,7 @@ class Battle {
 						}
 						break;
 					case 'leechseed':
-						poke.sprite.updateStatbar(poke);
+						this.scene.updateStatbar(poke);
 						actions += '' + poke.getName() + ' was seeded!';
 						break;
 					case 'healblock':
@@ -3143,7 +3136,7 @@ class Battle {
 						actions += "" + poke.getName() + " fell straight down!";
 						poke.removeVolatile('magnetrise' as ID);
 						poke.removeVolatile('telekinesis' as ID);
-						if (poke.lastMove === 'fly' || poke.lastMove === 'bounce') poke.sprite.animReset();
+						if (poke.lastMove === 'fly' || poke.lastMove === 'bounce') this.scene.animReset(poke);
 						break;
 					case 'substitute':
 						if (kwargs.damage) {
@@ -3200,7 +3193,7 @@ class Battle {
 					}
 				}
 				poke.addVolatile(effect.id);
-				poke.sprite.updateStatbar(poke);
+				this.scene.updateStatbar(poke);
 				break;
 			} case '-end': {
 				let poke = this.getPokemon(args[1])!;
@@ -3222,7 +3215,7 @@ class Battle {
 						break;
 					case 'skydrop':
 						if (kwargs.interrupt) {
-							poke.sprite.anim({time: 100});
+							this.scene.anim(poke, {time: 100});
 						}
 						actions += "" + poke.getName() + " was freed from the Sky Drop!";
 						break;
@@ -3333,7 +3326,7 @@ class Battle {
 						}
 					}
 				}
-				poke.sprite.updateStatbar(poke);
+				this.scene.updateStatbar(poke);
 				break;
 			} case '-singleturn': {
 				let poke = this.getPokemon(args[1])!;
@@ -3415,7 +3408,7 @@ class Battle {
 					actions += '' + poke.getName() + ' started heating up its beak!';
 					break;
 				}
-				poke.sprite.updateStatbar(poke);
+				this.scene.updateStatbar(poke);
 				break;
 			} case '-singlemove': {
 				let poke = this.getPokemon(args[1])!;
@@ -3562,7 +3555,7 @@ class Battle {
 						target.removeTurnstatus('quickguard' as ID);
 						target.removeTurnstatus('craftyshield' as ID);
 						target.removeTurnstatus('matblock' as ID);
-						target.sprite.updateStatbar(target);
+						this.scene.updateStatbar(target);
 					}
 					break;
 				case 'spite':
@@ -3575,7 +3568,7 @@ class Battle {
 					actions += "" + poke.getName() + " couldn't stay airborne because of gravity!";
 					poke.removeVolatile('magnetrise' as ID);
 					poke.removeVolatile('telekinesis' as ID);
-					poke.sprite.anim({time: 100});
+					this.scene.anim(poke, {time: 100});
 					break;
 				case 'magnitude':
 					actions += "Magnitude " + Tools.escapeHTML(args[3]) + "!";
@@ -4051,10 +4044,10 @@ class Battle {
 				let move = Tools.getMove(args[2]);
 				if (this.checkActive(poke)) return;
 				let poke2 = this.getPokemon(args[3]);
-				poke.sprite.beforeMove();
+				this.scene.beforeMove(poke);
 				kwargs.silent = '.';
 				this.useMove(poke, move, poke2, kwargs);
-				poke.sprite.afterMove();
+				this.scene.afterMove(poke);
 				break;
 
 			} case '-hint': {
@@ -4571,7 +4564,7 @@ class Battle {
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
 
-			poke.sprite.animTransform(poke, true, true);
+			this.scene.animTransform(poke, true, true);
 			if (toId(newSpecies) === 'greninjaash') {
 				this.message('' + poke.getName() + ' became Ash-Greninja!');
 			} else if (toId(newSpecies) === 'mimikyubusted') {
@@ -4628,9 +4621,9 @@ class Battle {
 			let move = Tools.getMove(args[2]);
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
-			poke.sprite.beforeMove();
+			this.scene.beforeMove(poke);
 			this.useMove(poke, move, poke2, kwargs);
-			poke.sprite.afterMove();
+			this.scene.afterMove(poke);
 			break;
 		} case 'cant': {
 			this.endLastTurn();
@@ -4677,11 +4670,10 @@ class Battle {
 			break;
 		} case 'fieldhtml': {
 			this.playbackState = Playback.Seeking; // force seeking to prevent controls etc
-			this.scene.$frame.html(Tools.sanitizeHTML(args[1]));
+			this.scene.setFrameHTML(Tools.sanitizeHTML(args[1]));
 			break;
 		} case 'controlshtml': {
-			let $controls = this.scene.$frame.parent().children('.battle-controls');
-			$controls.html(Tools.sanitizeHTML(args[1]));
+			this.scene.setControlsHTML(Tools.sanitizeHTML(args[1]));
 			break;
 		} default: {
 			this.scene.log('<div class="chat message-error">Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');

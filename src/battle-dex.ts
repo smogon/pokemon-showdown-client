@@ -193,12 +193,12 @@ const Tools = {
 
 	resourcePrefix: (() => {
 		let prefix = '';
-		if (document.location!.protocol !== 'http:') prefix = 'https:';
+		if (!window.document || !document.location || document.location.protocol !== 'http:') prefix = 'https:';
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
 	fxPrefix: (() => {
-		if (document.location!.protocol === 'file:') {
+		if (window.document && document.location && document.location.protocol === 'file:') {
 			if (window.Replays) return 'https://play.pokemonshowdown.com/fx/';
 			return 'fx/';
 		}
