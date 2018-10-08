@@ -868,7 +868,7 @@ class Side {
 				this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
 			}
 		}
-		if (pokemon.statusData.toxicTurns) pokemon.statusData.toxicTurns = 1;
+		if (pokemon.statusData.toxicTurns != null) pokemon.statusData.toxicTurns = 1;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
 		this.lastPokemon = pokemon;
 		this.active[slot] = null;
@@ -2473,7 +2473,7 @@ class Battle {
 						else actions += "" + pokeName + " healed its burn!";
 						break;
 					case 'tox':
-						if (poke) poke.statusData.toxicTurns = 0;
+						if (poke) poke.statusData.toxicTurns = null;
 						// falls through
 					case 'psn':
 						if (poke) this.scene.resultAnim(poke, 'Poison cured', 'good');
