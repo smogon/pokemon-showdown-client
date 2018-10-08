@@ -2875,6 +2875,7 @@ class Battle {
 				let isCustomAnim = false;
 				poke.removeVolatile('typeadd' as ID);
 				poke.removeVolatile('typechange' as ID);
+				if (this.gen >= 7) poke.removeVolatile('autotomize' as ID);
 
 				if (kwargs.silent) {
 					// do nothing
