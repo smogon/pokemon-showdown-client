@@ -2383,7 +2383,8 @@ class Battle {
 				case 'tox':
 					this.scene.resultAnim(poke, 'Toxic poison', 'psn');
 					this.scene.runStatusAnim('psn' as ID, [poke]);
-					poke.statusData.toxicTurns = 1;
+					if (effect.name === "Toxic Orb") poke.statusData.toxicTurns = 0;
+					else poke.statusData.toxicTurns = 1;
 					actions += "" + poke.getName() + " was badly poisoned" + effectMessage + "!";
 					break;
 				case 'psn':
