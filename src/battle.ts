@@ -1239,7 +1239,7 @@ class Battle {
 		for (let i = 0; i < this.sides.length; i++) {
 			for (let slot = 0; slot < this.sides[i].active.length; slot++) {
 				let poke = this.sides[i].active[slot];
-				if (poke && poke.statusData && poke.statusData.toxicTurns) poke.statusData.toxicTurns++;
+				if (poke && poke.statusData && poke.statusData.toxicTurns !== null) poke.statusData.toxicTurns++;
 			}
 		}
 	}
