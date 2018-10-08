@@ -868,7 +868,7 @@ class Side {
 				this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
 			}
 		}
-		if (pokemon.statusData.toxicTurns) pokemon.statusData.toxicTurns = 1;
+		if (pokemon.statusData.toxicTurns != null) pokemon.statusData.toxicTurns = 1;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
 		this.lastPokemon = pokemon;
 		this.active[slot] = null;
@@ -1239,7 +1239,7 @@ class Battle {
 		for (let i = 0; i < this.sides.length; i++) {
 			for (let slot = 0; slot < this.sides[i].active.length; slot++) {
 				let poke = this.sides[i].active[slot];
-				if (poke && poke.statusData && poke.statusData.toxicTurns) poke.statusData.toxicTurns++;
+				if (poke && poke.statusData && poke.statusData.toxicTurns !== null) poke.statusData.toxicTurns++;
 			}
 		}
 	}
@@ -2383,7 +2383,8 @@ class Battle {
 				case 'tox':
 					this.scene.resultAnim(poke, 'Toxic poison', 'psn');
 					this.scene.runStatusAnim('psn' as ID, [poke]);
-					poke.statusData.toxicTurns = 1;
+					if (effect.name === "Toxic Orb") poke.statusData.toxicTurns = 0;
+					else poke.statusData.toxicTurns = 1;
 					actions += "" + poke.getName() + " was badly poisoned" + effectMessage + "!";
 					break;
 				case 'psn':
@@ -2472,7 +2473,7 @@ class Battle {
 						else actions += "" + pokeName + " healed its burn!";
 						break;
 					case 'tox':
-						if (poke) poke.statusData.toxicTurns = 0;
+						if (poke) poke.statusData.toxicTurns = null;
 						// falls through
 					case 'psn':
 						if (poke) this.scene.resultAnim(poke, 'Poison cured', 'good');
