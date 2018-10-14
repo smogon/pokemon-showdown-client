@@ -27,5 +27,6 @@
 	"ignore": [
 		"src/globals.d.ts"
 	],
+	"compact": true,
   "retainLines": true
 }
