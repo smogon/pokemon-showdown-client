@@ -1097,18 +1097,10 @@ class Battle {
 			if (side) side.reset();
 		}
 
-		if (this.ignoreNicks) {
-			let $log = $('.battle-log .inner');
-			if ($log.length) $log.addClass('hidenicks');
-			let $message = $('.battle .message');
-			if ($message.length) $message.addClass('hidenicks');
-		}
-
 		// activity queue state
 		this.activeMoveIsSpread = null;
 		this.activityStep = 0;
 		this.fastForwardOff();
-		$.fx.off = false;
 		this.minorQueue = [];
 		this.resultWaiting = false;
 		this.paused = true;
@@ -1407,7 +1399,7 @@ class Battle {
 			default:
 				// April Fool's 2014
 				if (window.Config && Config.server && Config.server.afd && move.id === 'earthquake') {
-					if (!this.fastForward) {
+					if (!this.fastForward && window.$) {
 						$('body').css({
 							position: 'absolute',
 							left: 0,
@@ -4680,15 +4672,8 @@ class Battle {
 		} case 'seed': case 'choice': {
 			break;
 		} case 'unlink': {
-			if (Tools.prefs('nounlink')) return;
 			let user = toId(args[2]) || toId(args[1]);
-			let $messages = $('.chatmessage-' + user);
-			if (!$messages.length) break;
-			$messages.find('a').contents().unwrap();
-			if (window.BattleRoom && args[2]) {
-				$messages.hide().addClass('revealed').find('button').parent().remove();
-				this.scene.log('<div class="chatmessage-' + user + '"><button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button></div>');
-			}
+			this.scene.unlink(user, !!args[2]);
 			break;
 		} case 'fieldhtml': {
 			this.playbackState = Playback.Seeking; // force seeking to prevent controls etc
