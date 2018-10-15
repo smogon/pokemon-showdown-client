@@ -440,9 +440,9 @@ var BattleTooltips = (function () {
 			if (pokemon.statusData) {
 				if (pokemon.status === 'tox') {
 					if (pokemon.ability === 'Poison Heal' || pokemon.ability === 'Magic Guard') {
-						text += ' <small>Would take if ability removed: ' + Math.floor(100 / 16) * Math.min(pokemon.statusData.toxicTurns, 15) + '%</small>';
+						text += ' <small>Would take if ability removed: ' + Math.floor(100 / 16) * Math.min(pokemon.statusData.toxicTurns + 1, 15) + '%</small>';
 					} else {
-						text += ' Next damage: ' + Math.floor(100 / 16) * Math.min(pokemon.statusData.toxicTurns, 15) + '%';
+						text += ' Next damage: ' + Math.floor(100 / 16) * Math.min(pokemon.statusData.toxicTurns + 1, 15) + '%';
 					}
 				} else if (pokemon.status === 'slp') {
 					text += ' Turns asleep: ' + pokemon.statusData.sleepTurns;
