@@ -773,7 +773,7 @@
 				$.get(app.user.getActionPHP(), {
 					act: 'ladderget',
 					user: targets[0]
-				}, Tools.safeJSON(function (data) {
+				}, Storage.safeJSON(function (data) {
 					if (!data || !$.isArray(data)) return self.add('|raw|Error: corrupted ranking data');
 					var buffer = '<div class="ladder"><table><tr><td colspan="8">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
 					if (!data.length) {
