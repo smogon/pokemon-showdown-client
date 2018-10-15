@@ -19,9 +19,11 @@ This is very restrictive for 2018, but fortunately, with Babel 7 and polyfills, 
 
 We have polyfills for:
 - `Array#includes` - Note: won't be able to find `NaN`s
+- `Array.isArray`
 - `String#startsWith`
 - `String#endsWith`
 - `String#includes`
+- `String#trim`
 - `Object.assign`
 - `Object.create` - Note: second argument is unsupported
 
