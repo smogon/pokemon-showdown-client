@@ -204,6 +204,7 @@ class BattleScene {
 	}
 	animationOn() {
 		if (this.animating) return;
+		$.fx.off = false;
 		this.animating = true;
 		this.$battle.find('.seeking').remove();
 		this.updateSidebars();
@@ -488,6 +489,16 @@ class BattleScene {
 				}, this.battle.messageFadeTime / this.acceleration);
 				this.waitFor(this.$messagebar);
 			}
+		}
+	}
+	unlink(userid: string, showRevealButton = false) {
+		if (Tools.prefs('nounlink')) return;
+		let $messages = $('.chatmessage-' + userid);
+		if (!$messages.length) return;
+		$messages.find('a').contents().unwrap();
+		if (window.BattleRoom && showRevealButton) {
+			$messages.hide().addClass('revealed').find('button').parent().remove();
+			this.log('<div class="chatmessage-' + userid + '"><button name="toggleMessages" value="' + userid + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + userid + ' hidden)</small></button></div>');
 		}
 	}
 
