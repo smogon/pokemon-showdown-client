@@ -278,7 +278,7 @@
 				name: name,
 				pass: password,
 				challstr: this.challstr
-			}, Tools.safeJSON(function (data) {
+			}, Storage.safeJSON(function (data) {
 				if (data && data.curuser && data.curuser.loggedin) {
 					// success!
 					self.set('registered', data.curuser);
@@ -317,7 +317,7 @@
 				$.post(this.getActionPHP(), {
 					act: 'upkeep',
 					challstr: this.challstr
-				}, Tools.safeJSON(function (data) {
+				}, Storage.safeJSON(function (data) {
 					self.loaded = true;
 					if (!data.username) {
 						app.topbar.updateUserbar();
@@ -955,13 +955,13 @@
 
 			case 'updatechallenges':
 				if (this.rooms['']) {
-					this.rooms[''].updateChallenges($.parseJSON(data.substr(18)));
+					this.rooms[''].updateChallenges(JSON.parse(data.substr(18)));
 				}
 				break;
 
 			case 'updatesearch':
 				if (this.rooms['']) {
-					this.rooms[''].updateSearch($.parseJSON(data.substr(14)));
+					this.rooms[''].updateSearch(JSON.parse(data.substr(14)));
 				}
 				break;
 

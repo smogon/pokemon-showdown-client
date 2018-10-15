@@ -24,6 +24,14 @@ Storage.initialize = function () {
 	Storage.initPrefs();
 };
 
+Storage.safeJSON = function (callback) {
+	return function (data) {
+		if (data.length < 1) return;
+		if (data[0] == ']') data = data.substr(1);
+		return callback(JSON.parse(data));
+	};
+};
+
 /*********************************************************
  * Background
  *********************************************************/
@@ -236,13 +244,13 @@ Storage.prefs = function (prop, value, save) {
 Storage.prefs.data = {};
 try {
 	if (window.localStorage) {
-		Storage.prefs.data = $.parseJSON(localStorage.getItem('showdown_prefs')) || {};
+		Storage.prefs.data = JSON.parse(localStorage.getItem('showdown_prefs')) || {};
 	}
 } catch (e) {}
 
 Storage.prefs.save = function () {
 	try {
-		localStorage.setItem('showdown_prefs', $.toJSON(this.data));
+		localStorage.setItem('showdown_prefs', JSON.stringify(this.data));
 	} catch (e) {}
 };
 
@@ -340,7 +348,7 @@ Storage.onMessage = function ($e) {
 	var data = e.data;
 	switch (data.charAt(0)) {
 	case 'c':
-		Config.server = $.parseJSON(data.substr(1));
+		Config.server = JSON.parse(data.substr(1));
 		if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
 			var $link = $('<link rel="stylesheet" ' +
 				'href="//play.pokemonshowdown.com/customcss.php?server=' +
@@ -349,10 +357,10 @@ Storage.onMessage = function ($e) {
 		}
 		break;
 	case 'p':
-		var newData = $.parseJSON(data.substr(1));
+		var newData = JSON.parse(data.substr(1));
 		if (newData) Storage.prefs.data = newData;
 		Storage.prefs.save = function () {
-			var prefData = $.toJSON(this.data);
+			var prefData = JSON.stringify(this.data);
 			Storage.postCrossOriginMessage('P' + prefData);
 
 			// in Safari, cross-origin local storage is apparently treated as session

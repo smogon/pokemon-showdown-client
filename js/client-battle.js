@@ -164,7 +164,7 @@
 				}
 
 				try {
-					requestData = $.parseJSON(data);
+					requestData = JSON.parse(data);
 				} catch (err) {}
 				return this.receiveRequest(requestData, choiceText);
 			}

@@ -635,14 +635,6 @@ const Tools = {
 		};
 	})(),
 
-	safeJSON(callback: (safeData: any) => void) {
-		return function (data: string) {
-			if (data.length < 1) return;
-			if (data[0] == ']') data = data.substr(1);
-			return callback($.parseJSON(data));
-		};
-	},
-
 	prefs(prop: string, value?: any, save?: boolean) {
 		// @ts-ignore
 		if (window.Storage && Storage.prefs) return Storage.prefs(prop, value, save);

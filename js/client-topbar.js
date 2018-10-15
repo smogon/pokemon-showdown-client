@@ -866,7 +866,7 @@
 				oldpassword: data.oldpassword,
 				password: data.password,
 				cpassword: data.cpassword
-			}, Tools.safeJSON(function (data) {
+			}, Storage.safeJSON(function (data) {
 				if (!data) data = {};
 				if (data.actionsuccess) {
 					app.addPopupMessage("Your password was successfully changed.");
@@ -908,7 +908,7 @@
 				cpassword: data.cpassword,
 				captcha: captcha,
 				challstr: app.user.challstr
-			}, Tools.safeJSON(function (data) {
+			}, Storage.safeJSON(function (data) {
 				if (!data) data = {};
 				var token = data.assertion;
 				if (data.curuser && data.curuser.loggedin) {
