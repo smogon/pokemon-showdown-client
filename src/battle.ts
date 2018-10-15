@@ -4438,7 +4438,7 @@ class Battle {
 			let message = args[1].slice(pipeIndex + 1);
 			let isHighlighted = window.app && app.rooms && app.rooms[this.roomid].getHighlight(message);
 			let parsedMessage = Tools.parseChatMessage(message, name, '', isHighlighted);
-			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
+			if (!Array.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (let i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
 				this.scene.log(parsedMessage[i], preempt);
@@ -4564,7 +4564,7 @@ class Battle {
 			let newSpecies = args[2];
 			let commaIndex = newSpecies.indexOf(',');
 			if (commaIndex !== -1) {
-				let level = $.trim(newSpecies.substr(commaIndex + 1));
+				let level = newSpecies.substr(commaIndex + 1).trim();
 				if (level.charAt(0) === 'L') {
 					poke.level = parseInt(level.substr(1), 10);
 				}
@@ -4737,7 +4737,7 @@ class Battle {
 				let bracketPos = argstr.indexOf(']');
 				if (bracketPos <= 0) break;
 				// default to '.' so it evaluates to boolean true
-				kwargs[argstr.substr(1, bracketPos - 1)] = ($.trim(argstr.substr(bracketPos + 1)) || '.');
+				kwargs[argstr.substr(1, bracketPos - 1)] = (argstr.substr(bracketPos + 1).trim() || '.');
 				args.pop();
 			}
 		}
@@ -4748,14 +4748,14 @@ class Battle {
 		let nextKwargs = {} as {[k: string]: string};
 		nextLine = this.activityQueue[this.activityStep + 1] || '';
 		if (nextLine && nextLine.substr(0, 2) === '|-') {
-			nextLine = $.trim(nextLine.substr(1));
+			nextLine = nextLine.substr(1).trim();
 			nextArgs = nextLine.split('|');
 			while (nextArgs[nextArgs.length - 1] && nextArgs[nextArgs.length - 1].substr(0, 1) === '[') {
 				let bracketPos = nextArgs[nextArgs.length - 1].indexOf(']');
 				if (bracketPos <= 0) break;
 				let argstr = nextArgs.pop()!;
 				// default to '.' so it evaluates to boolean true
-				nextKwargs[argstr.substr(1, bracketPos - 1)] = ($.trim(argstr.substr(bracketPos + 1)) || '.');
+				nextKwargs[argstr.substr(1, bracketPos - 1)] = (argstr.substr(bracketPos + 1).trim() || '.');
 			}
 		}
 

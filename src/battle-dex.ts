@@ -29,6 +29,11 @@ if (!Array.prototype.includes) {
 		return this.indexOf(thing) !== -1;
 	};
 }
+if (!Array.isArray) {
+  Array.isArray = function (thing): thing is any[] {
+    return Object.prototype.toString.call(thing) === '[object Array]';
+  };
+}
 if (!String.prototype.includes) {
 	String.prototype.includes = function (thing) {
 		return this.indexOf(thing) !== -1;
@@ -42,6 +47,11 @@ if (!String.prototype.startsWith) {
 if (!String.prototype.endsWith) {
 	String.prototype.endsWith = function (thing) {
 		return this.slice(-thing.length) === thing;
+	};
+}
+if (!String.prototype.trim) {
+	String.prototype.trim = function () {
+		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
 	};
 }
 if (!Object.assign) {
@@ -183,12 +193,12 @@ const Tools = {
 
 	resourcePrefix: (() => {
 		let prefix = '';
-		if (document.location.protocol !== 'http:') prefix = 'https:';
+		if (document.location!.protocol !== 'http:') prefix = 'https:';
 		return prefix + '//play.pokemonshowdown.com/';
 	})(),
 
 	fxPrefix: (() => {
-		if (document.location.protocol === 'file:') {
+		if (document.location!.protocol === 'file:') {
 			if (window.Replays) return 'https://play.pokemonshowdown.com/fx/';
 			return 'fx/';
 		}
@@ -649,7 +659,7 @@ const Tools = {
 
 	getEffect(effect: any): Effect {
 		if (!effect || typeof effect === 'string') {
-			let name = $.trim(effect || '');
+			let name = (effect || '').trim();
 			if (name.substr(0, 5) === 'item:') {
 				return Tools.getItem(name.substr(5));
 			} else if (name.substr(0, 8) === 'ability:') {
@@ -692,7 +702,7 @@ const Tools = {
 
 	getMove(move: any): Move {
 		if (!move || typeof move === 'string') {
-			let name = $.trim(move || '');
+			let name = (move || '').trim();
 			let id = toId(name);
 			move = (window.BattleMovedex && window.BattleMovedex[id]) || {};
 			if (move.name) move.exists = true;
@@ -752,7 +762,7 @@ const Tools = {
 
 	getItem(item: any): Item {
 		if (!item || typeof item === 'string') {
-			let name = $.trim(item || '');
+			let name = (item || '').trim();
 			let id = toId(name);
 			item = (window.BattleItems && window.BattleItems[id]) || {};
 			if (item.name) item.exists = true;
@@ -777,7 +787,7 @@ const Tools = {
 
 	getAbility(ability: any): Ability {
 		if (!ability || typeof ability === 'string') {
-			let name = $.trim(ability || '');
+			let name = (ability || '').trim();
 			let id = toId(name);
 			ability = (window.BattleAbilities && window.BattleAbilities[id]) || {};
 			if (ability.name) ability.exists = true;
@@ -888,7 +898,7 @@ const Tools = {
 			if (template.otherForms && template.otherForms.indexOf(speciesid) >= 0) {
 				if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
 				if (!window.BattlePokedexAltForms[speciesid]) {
-					template = window.BattlePokedexAltForms[speciesid] = $.extend({}, template);
+					template = window.BattlePokedexAltForms[speciesid] = Object.assign({}, template);
 					let form = speciesid.slice(template.baseSpecies.length);
 					let formid = '-' + form;
 					form = form[0].toUpperCase() + form.slice(1);
