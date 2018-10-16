@@ -14,9 +14,8 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 		<script>
 			function loadRemoteData(src) {
-				var elem = document.createElement('script');
-				elem.src = src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/');
-				document.head.appendChild(elem);
+				// load synchronously
+				document.write('<script src="' + src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/') + '"><\/script>');
 			}
 			var Config = {testclient: true};
 			(function() {
@@ -107,7 +106,7 @@
 		<script src="js/client-battle.js"></script>
 		<script src="js/client-rooms.js"></script>
 		<script src="js/storage.js"></script>
-		<script src="data/graphics.js"></script>
+		<script src="data/graphics.js" onerror="loadRemoteData(this.src)"></script>
 
 		<script>
 			var app = new App();

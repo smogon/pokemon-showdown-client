@@ -38,7 +38,18 @@ console.log("DONE");
  * Compile TS files
  *********************************************************/
 
-child_process.execSync(`node build-tools/babel-cli/bin/babel.js src --out-dir js --extensions ".ts,.tsx" --incremental`);
+let ignoreGraphics = ' --ignore "src/battle-animations.js","src/battle-animations-moves.js"';
+if (process.argv[2] === 'full') {
+	ignoreGraphics = '';
+} else {
+	try {
+		fs.statSync('data/graphics.js');
+		// graphics.js exists, recompile it
+		ignoreGraphics = '';
+	} catch (e) {}
+}
+
+child_process.execSync(`node build-tools/babel-cli/bin/babel.js src --out-dir js --extensions ".ts,.tsx" --incremental${ignoreGraphics}`);
 
 fs.writeFileSync(
 	'js/battledata.js',
@@ -47,11 +58,13 @@ fs.writeFileSync(
 		fs.readFileSync('src/battle-dex-misc.js')
 );
 
-fs.writeFileSync(
-	'data/graphics.js',
-	fs.readFileSync('js/battle-animations.js') + '\n\n' +
-		fs.readFileSync('js/battle-animations-moves.js')
-);
+if (!ignoreGraphics) {
+	fs.writeFileSync(
+		'data/graphics.js',
+		fs.readFileSync('js/battle-animations.js') + '\n\n' +
+			fs.readFileSync('js/battle-animations-moves.js')
+	);
+}
 
 /*********************************************************
  * Update cachebuster and News
