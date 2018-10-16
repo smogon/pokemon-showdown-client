@@ -22,5 +22,9 @@ package-lock.json
 /js/battle-animations-moves.js
 /js/battle-animations.js
 /js/battle-scene-stub.js
+/js/client-core.js
+/js/client-frame.js
+/js/client-main.js
+/js/panel-mainmenu.js
 
 .vscode

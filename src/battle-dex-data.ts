@@ -14,6 +14,9 @@
  * @license MIT
  */
 
+/**
+ * String that contains only lowercase alphanumeric characters.
+ */
 type ID = string & {__isID: true};
 
 const BattleNatures = {
