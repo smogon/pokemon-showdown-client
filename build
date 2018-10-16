@@ -54,6 +54,9 @@ case 'replays':
 	execSync(`node ../replay.pokemonshowdown.com/build`, options);
 	process.exit();
 	break;
+case 'test-only':
+
+	break;
 case '':
 	break;
 default:
