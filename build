@@ -31,12 +31,14 @@ try {
 }
 
 var options = {cwd: __dirname, stdio: 'inherit'};
+var full = '';
 
 switch (process.argv[2] || '') {
 case 'full':
 	execSync(`node ./build-tools/build-indexes`, options);
 	execSync(`node ./build-tools/build-learnsets`, options);
 	execSync(`node ./build-tools/build-minidex`, options);
+	full = ' full';
 	break;
 case 'indexes':
 	execSync(`node ./build-tools/build-indexes`, options);
@@ -60,8 +62,11 @@ default:
 	break;
 }
 
-execSync(`node ./build-tools/update`, options);
+execSync(`node ./build-tools/update` + full, options);
 
 if (process.argv[2] === 'full') {
-	execSync(`node ../replay.pokemonshowdown.com/build`, options);
+	try {
+		fs.statSync('../replay.pokemonshowdown.com/build');
+		execSync(`node ../replay.pokemonshowdown.com/build`, options);
+	} catch (e) {}
 }
