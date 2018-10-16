@@ -1,13 +1,16 @@
 const fs = require('fs');
+const path = require('path');
 const assert = require('assert').strict;
+
+process.chdir(path.resolve(__dirname, '..'));
 
 window = global;
 
 // Without making these modules, the best we can do is directly include them into this workspace.
-eval('' + fs.readFileSync(`${__dirname}/../js/battle-scene-stub.js`));
-eval('' + fs.readFileSync(`${__dirname}/../js/battle-dex.js`));
-eval('' + fs.readFileSync(`${__dirname}/../js/battle-dex-data.js`));
-eval('' + fs.readFileSync(`${__dirname}/../js/battle.js`));
+eval('' + fs.readFileSync(`js/battle-scene-stub.js`));
+eval('' + fs.readFileSync(`js/battle-dex.js`));
+eval('' + fs.readFileSync(`js/battle-dex-data.js`));
+eval('' + fs.readFileSync(`js/battle.js`));
 
 describe('Battle', function () {
 
