@@ -12,6 +12,8 @@
  * - The client as a whole is AGPLv3
  * - The battle replay/animation engine (battle-*.ts) by itself is MIT
  *
+ * Compiled into battledata.js which includes all dependencies
+ *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
  */
