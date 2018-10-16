@@ -1,7 +1,7 @@
 {
 	"plugins": [
-		"@babel/plugin-transform-typescript",
-		["@babel/plugin-transform-react-jsx", {"pragma": "Preact.h", "useBuiltIns": true}],
+		["@babel/plugin-transform-typescript", {"isTSX": true}],
+		["@babel/plugin-transform-react-jsx", {"pragma": "preact.h", "useBuiltIns": true}],
 
 		["@babel/plugin-proposal-class-properties", {"loose": true}],
 
@@ -28,5 +28,6 @@
 		"src/globals.d.ts"
 	],
 	"compact": true,
-  "retainLines": true
+	"comments": false,
+	"retainLines": true
 }
