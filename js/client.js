@@ -2510,7 +2510,10 @@
 			this.update();
 		},
 		update: function () {
-			this.$el.html('<p><button name="toggleIgnoreUser">' + (app.ignore[this.userid] ? 'Unignore' : 'Ignore') + '</button></p>');
+			this.$el.html('<p><button name="toggleIgnoreUser">' + (app.ignore[this.userid] ? 'Unignore' : 'Ignore') + '</button></p><p><button name="report">Report</button></p>');
+		},
+		report: function () {
+			app.joinRoom('view-help-request-report');
 		},
 		toggleIgnoreUser: function () {
 			var buf = "User '" + this.name + "'";
