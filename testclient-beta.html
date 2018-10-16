@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html><head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<title>Showdown!</title>
+	<link rel="shortcut icon" href="favicon.ico" id="dynamic-favicon" />
+	<link rel="stylesheet" href="style/client.css" />
+	<meta id="viewport" name="viewport" content="width=640" />
+	<meta name="robots" content="noindex" />
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+	<!--[if lte IE 8]><script>
+		window.Config = {"oldie": true};
+	</script><![endif]-->
+</head><body>
+	<div id="ps-frame">
+		<div id="header" class="header">
+			<img class="logo" src="pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div>
+		</div>
+		<div class="ps-room scrollable" id="mainmenu"><div class="mainmenuwrapper">
+			<div class="leftmenu">
+				<div class="activitymenu">
+					<div class="pmbox">
+						<div class="pm-window news-embed">
+							<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button><button class="minimizebutton" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>Latest News</h3>
+							<div class="pm-log" style="max-height:none">
+								<div class="newsentry"><h4>Test client</h4><p>Welcome to the test client! You can test client changes here!</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Sep 25, 2015</small></p></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="mainmenu">
+					<div id="loading-message" class="mainmessage">Loading... <noscript>FAILED<br /><br />Pok&eacute;mon Showdown requires JavaScript.</noscript></div>
+				</div>
+			</div>
+			<div class="rightmenu">
+			</div>
+			<div class="mainmenufooter">
+				<small><a href="//pokemonshowdown.com/" target="_blank"><strong>Pok&eacute;mon Showdown</strong></a> | <a href="http://smogon.com/" target="_blank"><strong>Smogon</strong></a><br><a href="//pokemonshowdown.com/dex/" target="_blank">Pokédex</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small> | <small><a href="//pokemonshowdown.com/forums/" target="_blank">Forum</a></small>
+			</div>
+		</div></div>
+	</div>
+	<script>
+		function linkStyle(url) {
+			var linkEl = document.createElement('link');
+			linkEl.rel = 'stylesheet';
+			linkEl.href = url;
+			document.head.appendChild(linkEl);
+		}
+		linkStyle("style/sim-types.css");
+		linkStyle("style/battle.css");
+		linkStyle("style/utilichart.css");
+		linkStyle("style/font-awesome.css");
+	</script>
+	<script src="js/client-core.js"></script>
+	<script src="js/client-main.js"></script>
+	<script src="js/lib/preact.min.js"></script>
+	<script src="js/client-frame.js"></script>
+
+</body></html>
