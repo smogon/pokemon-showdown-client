@@ -4,10 +4,12 @@
         "noEmit": true,
         "target": "esnext",
         "module": "None",
+        "jsx": "preserve",
         "strict": true
     },
     "types": ["node"],
     "include": [
+        "./js/lib/preact.d.ts",
         "./src/*"
     ]
 }
