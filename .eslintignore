@@ -7,4 +7,5 @@ node_modules/
 /js/battle-dex.js
 /js/battle-dex-data.js
 /js/battle-animations-moves.js
+/js/battle-scene-stub.js
 /js/battle-animations.js

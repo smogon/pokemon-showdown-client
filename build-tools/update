@@ -4,9 +4,6 @@
  * This script parses index.html and sets the version query string of each
  * resource to be the MD5 hash of that resource.
  * It also updates news and the learnsets-g6.js file.
- *
- * On the live web server, this script is set as the following git hooks:
- *   post-commit, post-checkout, post-merge, post-rewrite
  */
 
 "use strict";
