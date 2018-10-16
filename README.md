@@ -23,7 +23,7 @@ Testing
 ------------------------------------------------------------------------
 
 Client testing now requires a build step! Install the latest Node.js (we
-require v9 or later), and run `node build` (on Windows) or `./build` (on
+require v10 or later), and run `node build` (on Windows) or `./build` (on
 other OSes) to build.
 
 You can make and test client changes simply by building after each change,
