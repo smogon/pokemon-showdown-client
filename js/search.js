@@ -6,7 +6,7 @@
  * Dependencies: jQuery, battledata, search-index
  * Optional dependencies: pokedex, moves, items, abilities
  *
- * @author  Guangcong Luo <Zarel>
+ * @author Guangcong Luo <guangcongluo@gmail.com>
  */
 
 (function (exports, $) {
