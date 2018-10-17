@@ -164,7 +164,11 @@ const PS = new class extends PSModel {
 	 * check PS.leftRoomWidth === 0
 	 */
 	onePanelMode = false;
-	/** 0 = no left room */
+	/**
+	 * 0 = no left room.
+	 * n.b. PS will only update if the left room width changes. Resizes
+	 * that don't change the left room width will not trigger an update.
+	 */
 	leftRoomWidth = 0;
 	constructor() {
 		super();
@@ -178,5 +182,104 @@ const PS = new class extends PSModel {
 		rooms.type = 'rooms';
 		this.rooms['rooms'] = this.rightRoom = rooms;
 		this.rightRoomList.push('rooms' as RoomID);
+
+		this.updateLayout();
+		window.addEventListener('resize', () => this.updateLayout);
+	}
+
+	// Panel layout
+	///////////////
+	/**
+	 * "minWidth" and "maxWidth" are a bit deceptive here - to be clear,
+	 * all PS rooms are expected to responsively support any width from
+	 * 320px up, when in single panel mode. These metrics are used purely
+	 * to calculate the location of the separator in two-panel mode.
+	 *
+	 * - `minWidth` - minimum width as a right-panel
+	 * - `width` - preferred width, minimum width as a left-panel
+	 * - `maxWidth` - maximum width as a left-panel
+	 *
+	 * PS will only show two panels if it can fit `width` in the left, and
+	 * `minWidth` in the right. Extra space will be given to to right panel
+	 * until it reaches `width`, then evenly distributed until both panels
+	 * reach `maxWidth`, and extra space above that will be given to the
+	 * right panel.
+	 */
+	getWidthFor(room: PSRoom) {
+		switch (room.type) {
+		case 'mainmenu':
+			return {
+				minWidth: 340,
+				width: 628,
+				maxWidth: 628,
+				isMainMenu: true,
+			};
+		case 'chat':
+		case 'rooms':
+			return {
+				minWidth: 320,
+				width: 640,
+				maxWidth: 640,
+			};
+		case 'battle':
+			return {
+				minWidth: 320,
+				width: 956,
+				maxWidth: 1180,
+			};
+		}
+		return {
+			minWidth: 640,
+			width: 640,
+			maxWidth: 640,
+		};
+	}
+	updateLayout() {
+		const leftRoomWidth = this.calculateLeftRoomWidth();
+		if (this.leftRoomWidth !== leftRoomWidth) {
+			this.leftRoomWidth = leftRoomWidth;
+			this.update(true);
+		}
+	}
+	update(layoutAlreadyUpdated?: boolean) {
+		if (!layoutAlreadyUpdated) this.updateLayout();
+		super.update();
+	}
+	calculateLeftRoomWidth() {
+		// If we don't have both a left room and a right room, obviously
+		// just show one room
+		if (!this.leftRoom || !this.rightRoom || this.onePanelMode) {
+			return 0;
+		}
+
+		// The rest of this code can assume we have both a left room and a
+		// right room, and also want to show both if they fit
+
+		const left = this.getWidthFor(this.leftRoom);
+		const right = this.getWidthFor(this.rightRoom);
+		const available = document.body.offsetWidth;
+
+		let excess = available - left.width + right.width;
+		if (excess >= 0) {
+			// both fit in full size
+			const leftStretch = left.maxWidth - left.width;
+			if (!leftStretch) return left.width;
+			const rightStretch = right.maxWidth - right.width;
+			if (leftStretch + rightStretch >= excess) return left.maxWidth;
+			// evenly distribute the excess
+			return left.width + Math.floor(excess * leftStretch / (leftStretch + rightStretch));
+		}
+
+		if (left.isMainMenu) {
+			if (available >= left.minWidth + right.width) {
+				return left.minWidth;
+			}
+			return 0;
+		}
+
+		if (available >= left.width + right.minWidth) {
+			return left.width;
+		}
+		return 0;
 	}
 };
