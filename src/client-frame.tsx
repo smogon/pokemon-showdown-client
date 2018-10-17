@@ -78,7 +78,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 				<ul>
 					{PS.leftRoomList.map(roomid => this.renderRoomTab(roomid))}
 				</ul>
-				<ul class="siderooms" style={{float: 'none', marginLeft: PS.leftRoomWidth}}>
+				<ul class="siderooms" style={{float: 'none', marginLeft: PS.leftRoomWidth - 144}}>
 					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
 				</ul>
 			</div></div>
@@ -102,7 +102,6 @@ class PSRoomPanel extends preact.Component<{style: {}, roomid: RoomID}> {
 class PSMain extends preact.Component {
 	constructor() {
 		super();
-		this.updateLayout();
 	}
 	posStyle(pos: PanelPosition) {
 		if (!pos) return {display: 'none'};
@@ -136,95 +135,6 @@ class PSMain extends preact.Component {
 			width: width === null ? `auto` : `${width}px`,
 			right: right === null ? `auto` : `${-right}px`,
 		};
-	}
-	/**
-	 * "minWidth" and "maxWidth" are a bit deceptive here - to be clear,
-	 * all PS rooms are expected to responsively support any width from
-	 * 320px up, when in single panel mode. These metrics are used purely
-	 * to calculate the location of the separator in two-panel mode.
-	 *
-	 * - `minWidth` - minimum width as a right-panel
-	 * - `width` - preferred width, minimum width as a left-panel
-	 * - `maxWidth` - maximum width as a left-panel
-	 *
-	 * PS will only show two panels if it can fit `width` in the left, and
-	 * `minWidth` in the right. Extra space will be given to to right panel
-	 * until it reaches `width`, then evenly distributed until both panels
-	 * reach `maxWidth`, and extra space above that will be given to the
-	 * right panel.
-	 */
-	getWidthFor(room: PSRoom) {
-		switch (room.type) {
-		case 'mainmenu':
-			return {
-				minWidth: 340,
-				width: 628,
-				maxWidth: 628,
-				isMainMenu: true,
-			};
-		case 'chat':
-		case 'rooms':
-			return {
-				minWidth: 320,
-				width: 640,
-				maxWidth: 640,
-			};
-		case 'battle':
-			return {
-				minWidth: 320,
-				width: 956,
-				maxWidth: 1180,
-			};
-		}
-		return {
-			minWidth: 640,
-			width: 640,
-			maxWidth: 640,
-		};
-	}
-	updateLayout() {
-		const leftRoomWidth = this.calculateLeftRoomWidth();
-		if (PS.leftRoomWidth !== leftRoomWidth) {
-			PS.leftRoomWidth = leftRoomWidth;
-			PS.update();
-		}
-	}
-	calculateLeftRoomWidth() {
-		// If we don't have both a left room and a right room, obviously
-		// just show one room
-		if (!PS.leftRoom || !PS.rightRoom || PS.onePanelMode) {
-			return 0;
-		}
-
-		// The rest of this code can assume we have both a left room and a
-		// right room, and also want to show both if they fit
-
-		const left = this.getWidthFor(PS.leftRoom);
-		const right = this.getWidthFor(PS.rightRoom);
-		const available = window.offsetWidth;
-
-		let excess = available - left.width + right.width;
-		if (excess >= 0) {
-			// both fit in full size
-			const leftStretch = left.maxWidth - left.width;
-			if (!leftStretch) return left.width;
-			const rightStretch = right.maxWidth - right.width;
-			if (leftStretch + rightStretch >= excess) return left.maxWidth;
-			// evenly distribute the excess
-			return left.width + Math.floor(excess * leftStretch / (leftStretch + rightStretch));
-		}
-
-		if (left.isMainMenu) {
-			if (available >= left.minWidth + right.width) {
-				return left.minWidth;
-			}
-			return 0;
-		}
-
-		if (available >= left.width + right.minWidth) {
-			return left.width;
-		}
-		return 0;
 	}
 	renderRoom(room: PSRoom) {
 		let pos = null;
