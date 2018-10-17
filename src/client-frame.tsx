@@ -83,18 +83,18 @@ class PSHeader extends preact.Component<{style: {}}> {
 				</ul>
 			</div></div>
 			<div class="userbar">
-				<span class="username" data-name=" Guest" style="color:hsl(96,67%,36%);"><i class="fa fa-user" style="color:#779EC5"></i>  Guest</span>
-				<button class="icon button" name="openSounds" title="Sound" aria-label="Sound"><i class="fa fa-volume-up"></i></button>
+				<span class="username" data-name=" Guest" style="color:hsl(96,67%,36%);"><i class="fa fa-user" style="color:#779EC5"></i>  Guest</span>{' '}
+				<button class="icon button" name="openSounds" title="Sound" aria-label="Sound"><i class="fa fa-volume-up"></i></button>{' '}
 				<button class="icon button" name="openOptions" title="Options" aria-label="Options"><i class="fa fa-cog"></i></button>
 			</div>
 		</div>;
 	}
 }
 
-class PSRoomPanel extends preact.Component<{style: {}, roomid: RoomID}> {
+class PSRoomPanel extends preact.Component<{style: {}, room: PSRoom}> {
 	render() {
-		return <div class="ps-room" id={`room-${this.props.roomid}`} style={this.props.style}>
-			<p>Loading...</p>
+		return <div class="ps-room" id={`room-${this.props.room.id}`} style={this.props.style}>
+			<div class="mainmessage"><p>Loading...</p></div>
 		</div>;
 	}
 }
@@ -141,13 +141,16 @@ class PSMain extends preact.Component {
 		if (PS.leftRoomWidth === 0) {
 			if ((PS.rightRoomFocused && room === PS.leftRoom) ||
 			(!PS.rightRoomFocused && room === PS.rightRoom)) {
-				pos = {top: 50};
+				pos = {top: 56};
 			}
 		} else {
-			if (room === PS.leftRoom) pos = {top: 50, right: PS.leftRoomWidth};
-			if (room === PS.rightRoom) pos = {top: 50, left: PS.leftRoomWidth};
+			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};
+			if (room === PS.rightRoom) pos = {top: 56, left: PS.leftRoomWidth};
 		}
-		return <PSRoomPanel style={this.posStyle(pos)} roomid={room.id} />;
+		if (room.type === 'mainmenu') {
+			return <MainMenuPanel style={this.posStyle(pos)} room={room} />;
+		}
+		return <PSRoomPanel style={this.posStyle(pos)} room={room} />;
 	}
 	render() {
 		let rooms = [] as preact.VNode[];
