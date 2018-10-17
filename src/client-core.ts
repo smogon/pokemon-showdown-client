@@ -71,7 +71,7 @@ if (!Object.create) {
 
 const PSURL = (() => {
 	let prefix = '';
-	if (document.location.protocol !== 'http:') prefix = 'https:';
+	if (document.location!.protocol !== 'http:') prefix = 'https:';
 	return prefix + '//play.pokemonshowdown.com/';
 })();
 
@@ -346,7 +346,7 @@ PSBackground.subscribe(bgUrl => {
 			buttonStyleElem = new HTMLStyleElement();
 			buttonStyleElem.id = 'mainmenubuttoncolors';
 			buttonStyleElem.textContent = cssBuf;
-			document.head.appendChild(buttonStyleElem);
+			document.head!.appendChild(buttonStyleElem);
 		}
 	} else {
 		buttonStyleElem.textContent = cssBuf;
