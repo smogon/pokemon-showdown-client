@@ -23,8 +23,8 @@ package-lock.json
 /js/battle-animations.js
 /js/battle-scene-stub.js
 /js/client-core.js
-/js/client-frame.js
 /js/client-main.js
+/js/panels.js
 /js/panel-mainmenu.js
 /js/panel-rooms.js
 
