@@ -26,5 +26,6 @@ package-lock.json
 /js/client-frame.js
 /js/client-main.js
 /js/panel-mainmenu.js
+/js/panel-rooms.js
 
 .vscode
