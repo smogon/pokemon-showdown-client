@@ -9,7 +9,7 @@
 
 class MainMenuPanel extends preact.Component<{style: {}, room: PSRoom}> {
 	render() {
-		return <div class="ps-room" id={`room-${this.props.room.id}`} style={this.props.style}>
+		return <div class="ps-room scrollable" id={`room-${this.props.room.id}`} style={this.props.style}>
 			<div class="mainmenuwrapper">
 				<div class="leftmenu">
 					<div class="activitymenu">
@@ -23,7 +23,7 @@ class MainMenuPanel extends preact.Component<{style: {}, room: PSRoom}> {
 						</div>
 					</div>
 					<div class="mainmenu">
-						<div id="loading-message" class="mainmessage">Initializing... <noscript>FAILED<br /><br />Pok&eacute;mon Showdown requires JavaScript.</noscript></div>
+						<div id="loading-message" class="mainmessage">[insert main menu here]</div>
 					</div>
 				</div>
 				<div class="rightmenu">

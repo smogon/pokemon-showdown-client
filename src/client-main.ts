@@ -184,7 +184,7 @@ const PS = new class extends PSModel {
 		this.rightRoomList.push('rooms' as RoomID);
 
 		this.updateLayout();
-		window.addEventListener('resize', () => this.updateLayout);
+		window.addEventListener('resize', () => this.updateLayout());
 	}
 
 	// Panel layout
@@ -216,9 +216,10 @@ const PS = new class extends PSModel {
 			};
 		case 'chat':
 		case 'rooms':
+		case 'battles':
 			return {
 				minWidth: 320,
-				width: 640,
+				width: 570,
 				maxWidth: 640,
 			};
 		case 'battle':
@@ -259,7 +260,7 @@ const PS = new class extends PSModel {
 		const right = this.getWidthFor(this.rightRoom);
 		const available = document.body.offsetWidth;
 
-		let excess = available - left.width + right.width;
+		let excess = available - (left.width + right.width);
 		if (excess >= 0) {
 			// both fit in full size
 			const leftStretch = left.maxWidth - left.width;
