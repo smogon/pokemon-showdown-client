@@ -102,6 +102,7 @@ class PSRoomPanel extends preact.Component<{style: {}, room: PSRoom}> {
 class PSMain extends preact.Component {
 	constructor() {
 		super();
+		PS.subscribe(() => this.forceUpdate());
 	}
 	posStyle(pos: PanelPosition) {
 		if (!pos) return {display: 'none'};
@@ -149,6 +150,9 @@ class PSMain extends preact.Component {
 		}
 		if (room.type === 'mainmenu') {
 			return <MainMenuPanel style={this.posStyle(pos)} room={room} />;
+		}
+		if (room.type === 'rooms') {
+			return <RoomsPanel style={this.posStyle(pos)} room={room} />;
 		}
 		return <PSRoomPanel style={this.posStyle(pos)} room={room} />;
 	}
