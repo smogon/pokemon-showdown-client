@@ -949,7 +949,7 @@
 			}
 
 			buf += '<p>If this is your account:</p>';
-			buf += '<p><label class="label">Username: <strong>' + Tools.escapeHTML(data.username) + '<input type="hidden" name="username" value="' + Tools.escapeHTML(data.username) + '" /></strong></label></p>';
+			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + Tools.escapeHTML(data.username) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly /></strong></label></p>';
 			if (data.special === '@gmail') {
 				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close">Cancel</button></p>';
