@@ -347,7 +347,7 @@ var BattleTooltips = (function () {
 				text += '<p class="movetag">The user thaws out if it is frozen.</p>';
 			}
 			if (!('protect' in move.flags) && move.target !== 'self' && move.target !== 'allySide' && move.target !== 'allyTeam') {
-				text += '<p class="movetag">Bypasses Protect <small>(and Detect, King\'s Shield, Spiky Shield)</small></p>';
+				text += '<p class="movetag">Not blocked by Protect <small>(and Detect, King\'s Shield, Spiky Shield)</small></p>';
 			}
 			if ('authentic' in move.flags) {
 				text += '<p class="movetag">Bypasses Substitute <small>(but does not break it)</small></p>';
