@@ -186,7 +186,7 @@ async function _default({
       return count;
     } else {
       const filename = filenameOrDir;
-      const written = await handleFile(filename, _path().default.dirname(filename), stat);
+      const written = await handleFile(filename, _path().default.dirname(filename));
       return written ? 1 : 0;
     }
   }

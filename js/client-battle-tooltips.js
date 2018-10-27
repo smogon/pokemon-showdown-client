@@ -533,7 +533,6 @@ var BattleTooltips = (function () {
 			for (var i = 0; i < pokemonData.moves.length; i++) {
 				var move = Tools.getMove(pokemonData.moves[i]);
 				var name = move.name;
-				var pp = 0, maxpp = 0;
 				if (battlePokemon && battlePokemon.moveTrack) {
 					for (var j = 0; j < battlePokemon.moveTrack.length; j++) {
 						if (name === battlePokemon.moveTrack[j][0]) {
