@@ -481,6 +481,9 @@
 						type: 'modal',
 						htmlMessage: "Extracted team data:<br /><textarea rows=\"10\" cols=\"60\">" + Tools.escapeHTML(JSON.stringify(Storage.teams)) + "</textarea>"
 					});
+				} else {
+					this.add('|error|Unknown debug command.');
+					this.add('|error|Are you looking for /showdebug and /hidedebug?');
 				}
 				return false;
 
