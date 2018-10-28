@@ -93,7 +93,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 				</ul>
 			</div></div>
 			<div class="userbar">
-				<span class="username" data-name=" Guest" style="color:hsl(96,67%,36%);"><i class="fa fa-user" style="color:#779EC5"></i>  Guest</span>{' '}
+				<span class="username" data-name={PS.user.name} style="color:hsl(96,67%,36%);"><i class="fa fa-user" style="color:#779EC5"></i> {PS.user.name}</span>{' '}
 				<button class="icon button" name="openSounds" title="Sound" aria-label="Sound"><i class="fa fa-volume-up"></i></button>{' '}
 				<button class="icon button" name="openOptions" title="Options" aria-label="Options"><i class="fa fa-cog"></i></button>
 			</div>
