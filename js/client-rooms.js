@@ -1,6 +1,6 @@
 (function ($) {
 
-	var RoomsRoom = this.RoomsRoom = Room.extend({
+	this.RoomsRoom = Room.extend({
 		minWidth: 320,
 		maxWidth: 1024,
 		type: 'rooms',
@@ -111,7 +111,7 @@
 		}
 	});
 
-	var BattlesRoom = this.BattlesRoom = Room.extend({
+	this.BattlesRoom = Room.extend({
 		minWidth: 320,
 		maxWidth: 1024,
 		type: 'battles',

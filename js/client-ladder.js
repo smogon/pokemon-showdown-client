@@ -82,7 +82,7 @@
 		}
 	});
 
-	var LadderRoom = this.LadderRoom = HTMLRoom.extend({
+	this.LadderRoom = HTMLRoom.extend({
 		type: 'ladder',
 		title: 'Ladder',
 		initialize: function () {

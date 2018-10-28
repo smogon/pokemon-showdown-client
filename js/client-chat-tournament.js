@@ -81,7 +81,7 @@
 		});
 	}
 
-	var TournamentBox = this.TournamentBox = (function () {
+	this.TournamentBox = (function () {
 		function TournamentBox(room, $wrapper) {
 			this.room = room;
 			this.$wrapper = $wrapper;

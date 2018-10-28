@@ -3,7 +3,7 @@
 	// this is a useful global
 	var teams;
 
-	var TeambuilderRoom = exports.TeambuilderRoom = exports.Room.extend({
+	exports.TeambuilderRoom = exports.Room.extend({
 		type: 'teambuilder',
 		title: 'Teambuilder',
 		initialize: function () {

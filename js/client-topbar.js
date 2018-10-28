@@ -1,6 +1,6 @@
 (function ($) {
 
-	var Topbar = this.Topbar = Backbone.View.extend({
+	this.Topbar = Backbone.View.extend({
 		events: {
 			'click a': 'click',
 			'click .username': 'clickUsername',
@@ -927,7 +927,7 @@
 		}
 	});
 
-	var LoginPasswordPopup = this.LoginPasswordPopup = Popup.extend({
+	this.LoginPasswordPopup = Popup.extend({
 		type: 'semimodal',
 		initialize: function (data) {
 			var buf = '<form>';
