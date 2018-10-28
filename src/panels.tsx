@@ -1,9 +1,19 @@
+/**
+ * Panels
+ *
+ * Main view - sets up the frame, topbar, and the generic panels.
+ *
+ * Also sets up global event listeners.
+ *
+ * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @license AGPLv3
+ */
 
 class PSHeader extends preact.Component<{style: {}}> {
 	renderRoomTab(id: RoomID) {
 		const room = PS.rooms[id];
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
-		const cur = (room === PS.leftRoom || room === PS.rightRoom ? ' cur' : '');
+		const cur = PS.isVisible(room) ? ' cur' : '';
 		let className = `roomtab button${room.notifying}${closable}${cur}`;
 		let icon = null;
 		let title = room.title;
@@ -140,21 +150,22 @@ class PSMain extends preact.Component {
 	renderRoom(room: PSRoom) {
 		let pos = null;
 		if (PS.leftRoomWidth === 0) {
-			if ((PS.rightRoomFocused && room === PS.leftRoom) ||
-			(!PS.rightRoomFocused && room === PS.rightRoom)) {
+			// one panel visible
+			if (room === (PS.rightRoomFocused ? PS.rightRoom : PS.leftRoom)) {
 				pos = {top: 56};
 			}
 		} else {
+			// both panels visible
 			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};
 			if (room === PS.rightRoom) pos = {top: 56, left: PS.leftRoomWidth};
 		}
 		if (room.type === 'mainmenu') {
-			return <MainMenuPanel style={this.posStyle(pos)} room={room} />;
+			return <MainMenuPanel key={room.id} style={this.posStyle(pos)} room={room} />;
 		}
 		if (room.type === 'rooms') {
-			return <RoomsPanel style={this.posStyle(pos)} room={room} />;
+			return <RoomsPanel key={room.id} style={this.posStyle(pos)} room={room} />;
 		}
-		return <PSRoomPanel style={this.posStyle(pos)} room={room} />;
+		return <PSRoomPanel key={room.id} style={this.posStyle(pos)} room={room} />;
 	}
 	render() {
 		let rooms = [] as preact.VNode[];
