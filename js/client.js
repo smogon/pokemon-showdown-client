@@ -213,14 +213,7 @@
 			if (assertion.charAt(0) === '\r') assertion = assertion.slice(1);
 			if (assertion.charAt(0) === '\n') assertion = assertion.slice(1);
 			if (assertion.indexOf('<') >= 0) {
-				if (assertion.indexOf('accessdenied') >= 0) {
-					app.addPopupMessage("Your internet filter is blocking Pokémon Showdown.");
-					return;
-				}
-				app.addPopupMessage("Something is interfering with our connection to the login server.");
-				assertion = assertion.replace(/[\r\n]+/g, ' ');
-				// send to server anyway in case server knows how to deal with it
-				app.send('/trn ' + name + ',0,' + assertion);
+				app.addPopupMessage("Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.");
 				return;
 			}
 			if (assertion === ';') {
