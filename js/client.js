@@ -357,7 +357,7 @@
 		}
 	});
 
-	var App = this.App = Backbone.Router.extend({
+	this.App = Backbone.Router.extend({
 		root: '/',
 		routes: {
 			'*path': 'dispatchFragment'
@@ -1884,7 +1884,7 @@
 
 	});
 
-	var Room = this.Room = Backbone.View.extend({
+	this.Room = Backbone.View.extend({
 		className: 'ps-room',
 		constructor: function (options) {
 			if (!this.events) this.events = {};
@@ -2580,7 +2580,7 @@
 		}
 	});
 
-	var ProxyPopup = this.ProxyPopup = Popup.extend({
+	this.ProxyPopup = Popup.extend({
 		type: 'modal',
 		initialize: function (data) {
 			this.callback = data.callback;
