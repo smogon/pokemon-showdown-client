@@ -9,6 +9,10 @@
  * @license AGPLv3
  */
 
+/**********************************************************************
+ * Prefs
+ *********************************************************************/
+
 /**
  * String that contains only lowercase alphanumeric characters.
  */
@@ -21,7 +25,7 @@ const PSPrefsDefaults = {} as {[key: string]: any};
  * data, with the exception of backgrounds, teams, and session data,
  * which get their own models.
  */
-const PSPrefs = new class extends PSModel {
+class PSPrefs extends PSModel {
 	/**
 	 * Dark mode!
 	 */
@@ -46,6 +50,7 @@ const PSPrefs = new class extends PSModel {
 	 */
 	onepanel = false;
 
+	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
 	storage = {} as {[k: string]: any};
 	readonly origin = 'https://play.pokemonshowdown.com';
 	constructor() {
@@ -53,7 +58,7 @@ const PSPrefs = new class extends PSModel {
 
 		for (const key in this) {
 			const value = (this as any)[key];
-			if (key === 'storage' || key === 'subscriptions' || key === 'origin') continue;
+			if (['storage', 'subscriptions', 'origin', 'storageEngine'].includes(key)) continue;
 			if (typeof value === 'function') continue;
 			PSPrefsDefaults[key] = value;
 		}
@@ -61,9 +66,7 @@ const PSPrefs = new class extends PSModel {
 		// set up local loading
 		try {
 			if (window.localStorage) {
-				this.save = () => {
-					localStorage.setItem('showdown_prefs', JSON.stringify(PSPrefs.storage));
-				};
+				this.storageEngine = 'localStorage';
 				this.load(JSON.parse(localStorage.getItem('showdown_prefs')!) || {}, true);
 			}
 		} catch (e) {}
@@ -90,7 +93,10 @@ const PSPrefs = new class extends PSModel {
 		if (!noSave) this.save();
 	}
 	save() {
-		// noop by default
+		switch (this.storageEngine) {
+		case 'localStorage':
+			localStorage.setItem('showdown_prefs', JSON.stringify(this.storage));
+		}
 	}
 	fixPrefs(newPrefs: any) {
 		const oldShowjoins = newPrefs['showjoins'];
@@ -118,6 +124,10 @@ const PSPrefs = new class extends PSModel {
 	}
 }
 
+/**********************************************************************
+ * Teams
+ *********************************************************************/
+
 interface Team {
 	name: string;
 	format: ID;
@@ -127,26 +137,100 @@ interface Team {
 	iconCache: string;
 }
 
-const PSTeams = new class extends PSModel {
+class PSTeams extends PSModel {
 	list = [] as Team[];
+	constructor() {
+		super();
+		try {
+			this.unpackAll(localStorage.getItem('showdown_teams'));
+		} catch (e) {}
+	}
 	save() {
 		// noop by default
 	}
+	unpackAll(buffer: string | null) {
+		if (!buffer) {
+			this.list = [];
+			return;
+		}
+	
+		if (buffer.charAt(0) === '[' && !buffer.trim().includes('\n')) {
+			this.unpackOldBuffer(buffer);
+			return;
+		}
+	
+		this.list = [];
+		for (const line of buffer.split('\n')) {
+			const team = this.unpackLine(line);
+			if (team) this.list.push(team);
+		}
+	}
+	unpackOldBuffer(buffer: string) {
+		alert("Your team storage format is too old for PS. You'll need to upgrade it at https://play.pokemonshowdown.com/recoverteams.html");
+		this.list = [];
+		return;
+	}
+	unpackLine(line: string) {
+		let pipeIndex = line.indexOf('|');
+		if (pipeIndex < 0) return null;
+		let bracketIndex = line.indexOf(']');
+		if (bracketIndex > pipeIndex) bracketIndex = -1;
+		let slashIndex = line.lastIndexOf('/', pipeIndex);
+		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
+		let format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
+		if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+		return {
+			name: line.slice(slashIndex + 1, pipeIndex),
+			format: format as ID,
+			team: line.slice(pipeIndex + 1),
+			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
+			iconCache: '',
+		} as Team;
+	}
 }
 
-class PSRoom {
+/**********************************************************************
+ * User
+ *********************************************************************/
+
+class PSUser extends PSModel {
+	name = "Guest";
+	userid = "guest" as ID;
+	named = false;
+	registered = false;
+	avatar = "1";
+}
+
+/**********************************************************************
+ * Rooms
+ *********************************************************************/
+
+class PSRoom extends PSStreamModel {
 	id: RoomID;
 	title: string;
 	type = '';
 	notifying: '' | ' notifying' | ' subtle-notifying' = '';
 	closable = true;
+	queue = [] as string[];
 	constructor(roomid: RoomID, title: string) {
+		super();
 		this.id = roomid;
 		this.title = title;
 	}
+	receive(message: string) {
+		throw new Error(`This room is not designed to receive messages`);
+	}
 }
 
+/**********************************************************************
+ * PS
+ *********************************************************************/
+
 const PS = new class extends PSModel {
+	prefs = new PSPrefs();
+	teams = new PSTeams();
+	user = new PSUser();
+
 	rooms = {} as {[roomid: string]: PSRoom};
 	/** List of rooms on the left side of the top tabbar */
 	leftRoomList = [] as RoomID[];

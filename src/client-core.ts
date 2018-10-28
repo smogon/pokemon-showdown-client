@@ -45,6 +45,11 @@ if (!String.prototype.endsWith) {
 		return this.slice(-thing.length) === thing;
 	};
 }
+if (!String.prototype.trim) {
+	String.prototype.trim = function () {
+		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+	};
+}
 if (!Object.assign) {
 	Object.assign = function (thing: any, rest: any) {
 		for (var i = 1; i < arguments.length; i++) {
@@ -162,7 +167,7 @@ declare const ColorThief: any;
  *
  * Streams the current URL
  */
-const PSBackground = new class extends PSStreamModel<string> {
+const PSBackground = new class extends PSStreamModel {
 	id = '';
 	curId = '';
 	attrib: {url: string, title: string, artist: string} | null = null;
