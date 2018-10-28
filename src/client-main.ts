@@ -148,10 +148,40 @@ class PSRoom {
 
 const PS = new class extends PSModel {
 	rooms = {} as {[roomid: string]: PSRoom};
+	/** List of rooms on the left side of the top tabbar */
 	leftRoomList = [] as RoomID[];
+	/** List of rooms on the right side of the top tabbar */
 	rightRoomList = [] as RoomID[];
-	leftRoom: PSRoom | null = null;
-	rightRoom: PSRoom | null = null;
+	/**
+	 * Currently active left room.
+	 *
+	 * In two-panel mode, this will be the visible left panel.
+	 *
+	 * In one-panel mode, this is the visible room only if
+	 * `PS.rightRoomFocused` is `false`. Still tracked when not visible,
+	 * so we know which panels to display if PS is resized to allow for
+	 * two panels.
+	 */
+	leftRoom: PSRoom;
+	/**
+	 * Currently active left room.
+	 *
+	 * In two-panel mode, this will be the visible left panel.
+	 *
+	 * In one-panel mode, this is the visible room only if
+	 * `PS.rightRoomFocused` is `true`. Still tracked when not visible,
+	 * so we know which panels to display if PS is resized to allow for
+	 * two panels.
+	 */
+	rightRoom: PSRoom | null;
+	/**
+	 * In one-panel mode, determines whether the left or right panel is
+	 * visible.
+	 *
+	 * Also determines which room receives keyboard shortcuts.
+	 *
+	 * Clicking on a panel will focus it, in two-panel mode.
+	 */
 	rightRoomFocused = false;
 	/**
 	 * Not to be confused with PSPrefs.onepanel, which is permanent.
@@ -165,7 +195,7 @@ const PS = new class extends PSModel {
 	 */
 	onePanelMode = false;
 	/**
-	 * 0 = no left room.
+	 * 0 = only one panel visible.
 	 * n.b. PS will only update if the left room width changes. Resizes
 	 * that don't change the left room width will not trigger an update.
 	 */
@@ -245,6 +275,15 @@ const PS = new class extends PSModel {
 	update(layoutAlreadyUpdated?: boolean) {
 		if (!layoutAlreadyUpdated) this.updateLayout();
 		super.update();
+	}
+	isVisible(room: PSRoom) {
+		if (this.leftRoomWidth === 0) {
+			// one panel visible
+			return room === (this.rightRoomFocused ? this.rightRoom : this.leftRoom);
+		} else {
+			// both panels visible
+			return room === this.rightRoom || room === this.leftRoom;
+		}
 	}
 	calculateLeftRoomWidth() {
 		// If we don't have both a left room and a right room, obviously
