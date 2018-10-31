@@ -9,6 +9,55 @@
  * @license AGPLv3
  */
 
+class PSRouter {
+	roomid = '' as RoomID;
+	panelState = '';
+	constructor() {
+		const currentRoomid = location.pathname.slice(1);
+		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
+			PS.join(currentRoomid as RoomID);
+		} else {
+			return;
+		}
+		if (!window.history) return;
+		PS.subscribeAndRun(() => {
+			const room = PS.rightRoomFocused ? PS.rightRoom! : PS.leftRoom;
+			const roomid = room.id;
+			const panelState = (PS.leftRoomWidth ?
+				PS.leftRoom.id + '..' + PS.rightRoom!.id :
+				roomid);
+			if (roomid === this.roomid && panelState === this.panelState) {
+				return;
+			}
+			if (panelState === this.panelState) {
+				history.pushState(panelState, room.title, '/' + roomid);
+			} else {
+				history.replaceState(panelState, room.title, '/' + roomid);
+			}
+			this.roomid = roomid;
+			this.panelState = panelState;
+		});
+		window.addEventListener('popstate', e => {
+			const possibleRoomid = location.pathname.slice(1);
+			let currentRoomid: RoomID | null = null;
+			if (/^[a-z0-9-]*$/.test(possibleRoomid)) {
+				currentRoomid = possibleRoomid as RoomID;
+			}
+			if (typeof e.state === 'string') {
+				const [leftRoomid, rightRoomid] = e.state.split('..') as RoomID[];
+				PS.join(leftRoomid, 'left');
+				if (rightRoomid) {
+					PS.join(rightRoomid, 'right');
+				}
+			}
+			if (currentRoomid !== null) {
+				PS.join(currentRoomid);
+			}
+		});
+	}
+}
+PS.router = new PSRouter();
+
 class PSHeader extends preact.Component<{style: {}}> {
 	renderRoomTab(id: RoomID) {
 		const room = PS.rooms[id]!;

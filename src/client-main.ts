@@ -266,6 +266,8 @@ const PS = new class extends PSModel {
 	teams = new PSTeams();
 	user = new PSUser();
 
+	router: PSRouter = null!;
+
 	rooms = {} as {[roomid: string]: PSRoom | undefined};
 	roomTypes = {} as {
 		[type: string]: RoomType | undefined,
