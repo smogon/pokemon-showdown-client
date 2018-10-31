@@ -11,7 +11,7 @@
 
 class PSHeader extends preact.Component<{style: {}}> {
 	renderRoomTab(id: RoomID) {
-		const room = PS.rooms[id];
+		const room = PS.rooms[id]!;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
 		const cur = PS.isVisible(room) ? ' cur' : '';
 		let className = `roomtab button${room.notifying}${closable}${cur}`;
@@ -103,7 +103,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 
 class PSRoomPanel extends preact.Component<{style: {}, room: PSRoom}> {
 	render() {
-		return <div class="ps-room" id={`room-${this.props.room.id}`} style={this.props.style}>
+		return <div class="ps-room ps-room-light" id={`room-${this.props.room.id}`} style={this.props.style}>
 			<div class="mainmessage"><p>Loading...</p></div>
 		</div>;
 	}
@@ -113,6 +113,61 @@ class PSMain extends preact.Component {
 	constructor() {
 		super();
 		PS.subscribe(() => this.forceUpdate());
+
+		window.addEventListener('click', e => {
+			let elem = e.target as HTMLElement | null;
+			while (elem) {
+				if (elem.tagName === 'A') {
+					const roomid = this.roomidFromLink(elem as HTMLAnchorElement);
+					if (roomid !== null) {
+						PS.join(roomid);
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						return;
+					}
+				}
+				if (elem.tagName === 'BUTTON') {
+					if (this.buttonClick(elem as HTMLButtonElement)) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						return;
+					}
+				}
+				elem = elem.parentElement;
+			}
+		});
+		PS.prefs.subscribeAndRun(() => {
+			document.body.className = PS.prefs.dark ? 'dark' : '';
+		});
+	}
+	buttonClick(elem: HTMLButtonElement) {
+		switch (elem.name) {
+		case 'closeRoom':
+			PS.leave(elem.value as RoomID);
+			return true;
+		case 'joinRoom':
+			PS.join(elem.value as RoomID);
+			return true;
+		}
+		return false;
+	}
+	roomidFromLink(elem: HTMLAnchorElement) {
+		if (PS.server.id === 'showdown') {
+			if (elem.host && elem.host !== 'play.pokemonshowdown.com' && elem.host !== 'psim.us') {
+				return null;
+			}
+		} else {
+			if (elem.host !== location.host) {
+				return null;
+			}
+		}
+		const roomid = elem.pathname.slice(1);
+		if (!/^[a-z0-9-]*$/.test(roomid)) {
+			return null; // not a roomid
+		}
+		const redirects = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure)$/;
+		if (redirects.test(roomid)) return null;
+		return roomid as RoomID;
 	}
 	posStyle(pos: PanelPosition) {
 		if (!pos) return {display: 'none'};
@@ -131,7 +186,7 @@ class PSMain extends preact.Component {
 		let width: number | null = null;
 		let right: number | null = (pos.right || 0);
 		if (right > 0 || left < 0) {
-			width = right - left;
+			width = right - left - 1;
 			if (width < 0) throw new RangeError("Invalid pos range");
 			if (left < 0) left = null;
 			else right = null;
@@ -159,18 +214,14 @@ class PSMain extends preact.Component {
 			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};
 			if (room === PS.rightRoom) pos = {top: 56, left: PS.leftRoomWidth};
 		}
-		if (room.type === 'mainmenu') {
-			return <MainMenuPanel key={room.id} style={this.posStyle(pos)} room={room} />;
-		}
-		if (room.type === 'rooms') {
-			return <RoomsPanel key={room.id} style={this.posStyle(pos)} room={room} />;
-		}
-		return <PSRoomPanel key={room.id} style={this.posStyle(pos)} room={room} />;
+		const roomType = PS.roomTypes[room.type];
+		const Panel = roomType ? roomType.Component : PSRoomPanel;
+		return <Panel key={room.id} style={this.posStyle(pos)} room={room} />;
 	}
 	render() {
 		let rooms = [] as preact.VNode[];
-		for (const k in PS.rooms) {
-			rooms.push(this.renderRoom(PS.rooms[k]));
+		for (const roomid in PS.rooms) {
+			rooms.push(this.renderRoom(PS.rooms[roomid]!));
 		}
 		return <div class="ps-frame">
 			<PSHeader style={this.posStyle({bottom: 50})} />
