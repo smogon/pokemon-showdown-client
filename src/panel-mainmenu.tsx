@@ -5,7 +5,12 @@
  * @license AGPLv3
  */
 
-// The main menu doesn't really have state, right? We'll just use no model for now
+class MainMenuRoom extends PSRoom {
+	readonly classType: string = 'mainmenu';
+	receive(msg: string) {
+		//
+	}
+}
 
 class MainMenuPanel extends preact.Component<{style: {}, room: PSRoom}> {
 	render() {
@@ -36,3 +41,8 @@ class MainMenuPanel extends preact.Component<{style: {}, room: PSRoom}> {
 		</div>;
 	}
 }
+
+PS.roomTypes['mainmenu'] = {
+	Model: MainMenuRoom,
+	Component: MainMenuPanel,
+};
