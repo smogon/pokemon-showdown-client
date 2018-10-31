@@ -5,12 +5,20 @@
  * @license AGPLv3
  */
 
-// The main menu doesn't really have state, right? We'll just use no model for now
+class RoomsRoom extends PSRoom {
+	readonly classType: string = 'mainmenu';
+}
 
 class RoomsPanel extends preact.Component<{style: {}, room: PSRoom}> {
 	render() {
 		return <div class="ps-room ps-room-light scrollabel" id={`room-${this.props.room.id}`} style={this.props.style}>
-			<div class="mainmessage"><p>[insert room list here]</p></div>
+			<div class="mainmessage"><p>[insert room list here]</p><p><a href="/lobby">Lobby</a></p></div>
 		</div>;
 	}
 }
+
+PS.roomTypes['rooms'] = {
+	Model: RoomsRoom,
+	Component: RoomsPanel,
+};
+PS.updateRoomTypes();

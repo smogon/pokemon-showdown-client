@@ -205,20 +205,53 @@ class PSUser extends PSModel {
  * Rooms
  *********************************************************************/
 
-class PSRoom extends PSStreamModel {
+type PSRoomSide = 'left' | 'right' | 'popup';
+
+interface RoomOptions {
 	id: RoomID;
-	title: string;
+	title?: string;
+	type?: string;
+	side?: PSRoomSide | null;
+	/** Handled after initialization, outside of the constructor */
+	queue?: string[];
+};
+
+class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
+	id: RoomID;
+	title = "";
 	type = '';
 	notifying: '' | ' notifying' | ' subtle-notifying' = '';
+	readonly classType: string = '';
+	side: PSRoomSide = 'left';
 	closable = true;
-	queue = [] as string[];
-	constructor(roomid: RoomID, title: string) {
+	/**
+	 * Whether the room is connected to the server. This mostly tracks
+	 * "should we send /leave if the user closes the room?"
+	 *
+	 * In particular, this is `true` after sending `/join`, and `false`
+	 * after sending `/leave`, even before the server responds.
+	 */
+	connected = false;
+	constructor(options: RoomOptions) {
 		super();
-		this.id = roomid;
-		this.title = title;
+		this.id = options.id;
+		if (options.title) this.title = options.title;
+		if (!this.title) this.title = this.id;
+		if (options.type) this.type = options.type;
+		if (options.side) this.side = options.side;
 	}
 	receive(message: string) {
 		throw new Error(`This room is not designed to receive messages`);
+	}
+	destroy() {
+	}
+}
+
+class PlaceholderRoom extends PSRoom {
+	queue = [] as string[];
+	readonly classType: 'placeholder' = 'placeholder';
+	receive(message: string) {
+		this.queue.push(message);
 	}
 }
 
@@ -226,16 +259,24 @@ class PSRoom extends PSStreamModel {
  * PS
  *********************************************************************/
 
+type RoomType = {Model: typeof PSRoom, Component: typeof PSRoomPanel};
+
 const PS = new class extends PSModel {
 	prefs = new PSPrefs();
 	teams = new PSTeams();
 	user = new PSUser();
 
-	rooms = {} as {[roomid: string]: PSRoom};
+	rooms = {} as {[roomid: string]: PSRoom | undefined};
+	roomTypes = {} as {
+		[type: string]: RoomType | undefined,
+	};
 	/** List of rooms on the left side of the top tabbar */
 	leftRoomList = [] as RoomID[];
 	/** List of rooms on the right side of the top tabbar */
 	rightRoomList = [] as RoomID[];
+	/** Currently active popups, in stack order (bottom to top) */
+	popups = [] as RoomID[];
+
 	/**
 	 * Currently active left room.
 	 *
@@ -246,7 +287,7 @@ const PS = new class extends PSModel {
 	 * so we know which panels to display if PS is resized to allow for
 	 * two panels.
 	 */
-	leftRoom: PSRoom;
+	leftRoom: PSRoom = null!;
 	/**
 	 * Currently active left room.
 	 *
@@ -257,7 +298,7 @@ const PS = new class extends PSModel {
 	 * so we know which panels to display if PS is resized to allow for
 	 * two panels.
 	 */
-	rightRoom: PSRoom | null;
+	rightRoom: PSRoom | null = null;
 	/**
 	 * In one-panel mode, determines whether the left or right panel is
 	 * visible.
@@ -284,18 +325,22 @@ const PS = new class extends PSModel {
 	 * that don't change the left room width will not trigger an update.
 	 */
 	leftRoomWidth = 0;
+	mainmenu: PSRoom = null!;
+
 	constructor() {
 		super();
 
-		const mainmenu = new PSRoom('' as RoomID, "Home");
-		mainmenu.type = 'mainmenu';
-		this.rooms[''] = this.leftRoom = mainmenu;
-		this.leftRoomList.push('' as RoomID);
+		this.addRoom({
+			id: '' as RoomID,
+			title: "Home",
+			type: 'mainmenu',
+		});
 
-		const rooms = new PSRoom('rooms' as RoomID, "Rooms");
-		rooms.type = 'rooms';
-		this.rooms['rooms'] = this.rightRoom = rooms;
-		this.rightRoomList.push('rooms' as RoomID);
+		this.addRoom({
+			id: 'rooms' as RoomID,
+			title: "Rooms",
+			type: 'rooms',
+		});
 
 		this.updateLayout();
 		window.addEventListener('resize', () => this.updateLayout());
@@ -405,5 +450,127 @@ const PS = new class extends PSModel {
 			return left.width;
 		}
 		return 0;
+	}
+	createRoom(options: RoomOptions) {
+		// type/side not defined in roomTypes because they need to be guessed before the types are loaded
+		if (!options.type) {
+			switch (options.id) {
+			case 'teambuilder': case 'ladder': case 'battles': case 'rooms':
+				options.type = options.id;
+				break;
+			default:
+				if (options.id.startsWith('battle-')) {
+					options.type = 'battle';
+				} else if (options.id.startsWith('view-')) {
+					options.type = 'html';
+				} else {
+					options.type = 'chat';
+				}
+			}
+		}
+
+		if (!options.side) {
+			switch (options.type) {
+			case 'rooms':
+			case 'chat':
+				options.side = 'right';
+				break;
+			}
+		}
+
+		const roomType = this.roomTypes[options.type];
+		const Model = roomType ? roomType.Model : PlaceholderRoom;
+		return new Model(options);
+	}
+	updateRoomTypes() {
+		for (const roomid in this.rooms) {
+			const room = this.rooms[roomid]!;
+			if (room.type === room.classType) continue;
+			const roomType = this.roomTypes[room.type];
+			if (!roomType) continue;
+
+			const options: RoomOptions = room;
+			const newRoom = new roomType.Model(options);
+			this.rooms[roomid] = newRoom;
+			if (this.leftRoom === room) this.leftRoom = newRoom;
+			if (this.rightRoom === room) this.rightRoom = newRoom;
+			if (roomid === '') this.mainmenu = newRoom;
+
+			if (options.queue) {
+				for (const line of options.queue) {
+					room.receive(line);
+				}
+			}
+		}
+	}
+	focusRoom(roomid: RoomID) {
+		if (this.leftRoomList.includes(roomid)) {
+			this.leftRoom = this.rooms[roomid]!;
+			this.rightRoomFocused = false;
+		}
+		if (this.rightRoomList.includes(roomid)) {
+			this.rightRoom = this.rooms[roomid]!;
+			this.rightRoomFocused = true;
+		}
+	}
+	addRoom(options: RoomOptions) {
+		if (this.rooms[options.id]) {
+			this.focusRoom(options.id);
+			return;
+		}
+		const room = this.createRoom(options);
+		this.rooms[room.id] = room;
+		switch (room.side) {
+		case 'left':
+			this.leftRoomList.push(room.id);
+			this.leftRoom = room;
+			break;
+		case 'right':
+			this.rightRoomList.push(room.id);
+			if (this.rightRoomList[this.rightRoomList.length - 2] === 'rooms') {
+				this.rightRoomList.splice(-2, 1);
+				this.rightRoomList.push('rooms' as RoomID);
+			}
+			this.rightRoom = room;
+			break;
+		case 'popup':
+			this.popups.push(room.id);
+			break;
+		}
+		if (options.queue) {
+			for (const line of options.queue) {
+				room.receive(line);
+			}
+		}
+	}
+	removeRoom(room: PSRoom) {
+		room.destroy();
+		delete PS.rooms[room.id];
+
+		const leftRoomIndex = PS.leftRoomList.indexOf(room.id);
+		if (leftRoomIndex >= 0) {
+			PS.leftRoomList.splice(leftRoomIndex, 1);
+		}
+		if (PS.leftRoom === room) {
+			PS.leftRoom = this.mainmenu;
+		}
+
+		const rightRoomIndex = PS.rightRoomList.indexOf(room.id);
+		if (rightRoomIndex >= 0) {
+			PS.rightRoomList.splice(rightRoomIndex, 1);
+		}
+		if (PS.rightRoom === room) {
+			let newRightRoomid = PS.rightRoomList[rightRoomIndex] || PS.rightRoomList[rightRoomIndex - 1];
+			PS.rightRoom = newRightRoomid ? PS.rooms[newRightRoomid]! : null;
+		}
+		this.update();
+	}
+	join(roomid: RoomID, side?: PSRoomSide | null) {
+		this.addRoom({id: roomid, side});
+		this.update();
+	}
+	leave(roomid: RoomID) {
+		const room = PS.rooms[roomid];
+		if (room) this.removeRoom(room);
 	}
 };
