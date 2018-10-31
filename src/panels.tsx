@@ -143,8 +143,8 @@ class PSHeader extends preact.Component<{style: {}}> {
 			</div></div>
 			<div class="userbar">
 				<span class="username" data-name={PS.user.name} style="color:hsl(96,67%,36%);"><i class="fa fa-user" style="color:#779EC5"></i> {PS.user.name}</span>{' '}
-				<button class="icon button" name="openSounds" title="Sound" aria-label="Sound"><i class="fa fa-volume-up"></i></button>{' '}
-				<button class="icon button" name="openOptions" title="Options" aria-label="Options"><i class="fa fa-cog"></i></button>
+				<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound"><i class="fa fa-volume-up"></i></button>{' '}
+				<button class="icon button" name="joinRoom" value="options" title="Options" aria-label="Options"><i class="fa fa-cog"></i></button>
 			</div>
 		</div>;
 	}
@@ -152,6 +152,11 @@ class PSHeader extends preact.Component<{style: {}}> {
 
 class PSRoomPanel extends preact.Component<{style: {}, room: PSRoom}> {
 	render() {
+		if (this.props.room.side === 'popup') {
+			return <div class="ps-popup" id={`room-${this.props.room.id}`} style={this.props.style}>
+				<div class="mainmessage"><p>Loading...</p></div>
+			</div>;
+		}
 		return <div class="ps-room ps-room-light" id={`room-${this.props.room.id}`} style={this.props.style}>
 			<div class="mainmessage"><p>Loading...</p></div>
 		</div>;
@@ -165,11 +170,21 @@ class PSMain extends preact.Component {
 
 		window.addEventListener('click', e => {
 			let elem = e.target as HTMLElement | null;
+			if (elem && elem.className === 'ps-overlay') {
+				PS.closePopup();
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				return;
+			}
 			while (elem) {
 				if (elem.tagName === 'A') {
 					const roomid = this.roomidFromLink(elem as HTMLAnchorElement);
 					if (roomid !== null) {
-						PS.join(roomid);
+						PS.addRoom({
+							id: roomid,
+							parentElem: elem,
+						});
+						PS.update();
 						e.preventDefault();
 						e.stopImmediatePropagation();
 						return;
@@ -195,7 +210,11 @@ class PSMain extends preact.Component {
 			PS.leave(elem.value as RoomID);
 			return true;
 		case 'joinRoom':
-			PS.join(elem.value as RoomID);
+			PS.addRoom({
+				id: elem.value as RoomID,
+				parentElem: elem,
+			});
+			PS.update();
 			return true;
 		}
 		return false;
@@ -267,14 +286,25 @@ class PSMain extends preact.Component {
 		const Panel = roomType ? roomType.Component : PSRoomPanel;
 		return <Panel key={room.id} style={this.posStyle(pos)} room={room} />;
 	}
+	renderPopup(room: PSRoom) {
+		const roomType = PS.roomTypes[room.type];
+		const Panel = roomType ? roomType.Component : PSRoomPanel;
+		return <div class="ps-overlay">
+			<Panel key={room.id} style={{maxWidth: 480}} room={room} />
+		</div>;
+	}
 	render() {
 		let rooms = [] as preact.VNode[];
 		for (const roomid in PS.rooms) {
-			rooms.push(this.renderRoom(PS.rooms[roomid]!));
+			const room = PS.rooms[roomid]!;
+			if (room.side !== 'popup') {
+				rooms.push(this.renderRoom(room));
+			}
 		}
 		return <div class="ps-frame">
 			<PSHeader style={this.posStyle({bottom: 50})} />
 			{rooms}
+			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
 	}
 }

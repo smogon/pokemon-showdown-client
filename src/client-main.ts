@@ -228,6 +228,7 @@ interface RoomOptions {
 	side?: PSRoomSide | null;
 	/** Handled after initialization, outside of the constructor */
 	queue?: string[];
+	parentElem?: HTMLElement,
 	connected?: boolean,
 };
 
@@ -534,6 +535,7 @@ const PS = new class extends PSModel {
 		if (!options.type) {
 			switch (options.id) {
 			case 'teambuilder': case 'ladder': case 'battles': case 'rooms':
+			case 'options': case 'volume':
 				options.type = options.id;
 				break;
 			default:
@@ -552,6 +554,10 @@ const PS = new class extends PSModel {
 			case 'rooms':
 			case 'chat':
 				options.side = 'right';
+				break;
+			case 'options':
+			case 'volume':
+				options.side = 'popup';
 				break;
 			}
 		}
@@ -641,6 +647,12 @@ const PS = new class extends PSModel {
 			let newRightRoomid = PS.rightRoomList[rightRoomIndex] || PS.rightRoomList[rightRoomIndex - 1];
 			PS.rightRoom = newRightRoomid ? PS.rooms[newRightRoomid]! : null;
 		}
+		this.update();
+	}
+	closePopup() {
+		if (!this.popups.length) return;
+		const roomid = this.popups.pop()!;
+		this.leave(roomid);
 		this.update();
 	}
 	join(roomid: RoomID, side?: PSRoomSide | null) {
