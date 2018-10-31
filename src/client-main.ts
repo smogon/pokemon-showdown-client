@@ -202,6 +202,20 @@ class PSUser extends PSModel {
 }
 
 /**********************************************************************
+ * Server
+ *********************************************************************/
+
+class PSServer {
+	id = 'showdown';
+	host = 'sim2.psim.us';
+	port = 8000;
+	altport = 80;
+	registered = true;
+	prefix = '/showdown';
+	protocol: 'http' | 'https' = 'https';
+}
+
+/**********************************************************************
  * Rooms
  *********************************************************************/
 
@@ -214,6 +228,7 @@ interface RoomOptions {
 	side?: PSRoomSide | null;
 	/** Handled after initialization, outside of the constructor */
 	queue?: string[];
+	connected?: boolean,
 };
 
 class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
@@ -239,11 +254,20 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 		if (!this.title) this.title = this.id;
 		if (options.type) this.type = options.type;
 		if (options.side) this.side = options.side;
+		if (options.connected) this.connected = true;
 	}
 	receive(message: string) {
 		throw new Error(`This room is not designed to receive messages`);
 	}
+	send(msg: string) {
+		const id = this.id === 'lobby' ? '' : this.id;
+		PS.send(id + '|' + msg);
+	}
 	destroy() {
+		if (this.connected) {
+			this.send('/leave');
+			this.connected = false;
+		}
 	}
 }
 
@@ -265,6 +289,9 @@ const PS = new class extends PSModel {
 	prefs = new PSPrefs();
 	teams = new PSTeams();
 	user = new PSUser();
+	server = new PSServer();
+	connection: PSConnection | null = null;
+	connected = false;
 
 	router: PSRouter = null!;
 
@@ -406,6 +433,55 @@ const PS = new class extends PSModel {
 	update(layoutAlreadyUpdated?: boolean) {
 		if (!layoutAlreadyUpdated) this.updateLayout();
 		super.update();
+	}
+	receive(msg: string) {
+		msg = msg.endsWith('\n') ? msg.slice(0, -1) : msg;
+		let roomid = '' as RoomID;
+		if (msg.startsWith('>')) {
+			const nlIndex = msg.indexOf('\n');
+			roomid = msg.slice(1, nlIndex) as RoomID;
+			msg = msg.slice(nlIndex + 1);
+		}
+		const roomid2 = roomid || 'lobby' as RoomID;
+		let room = PS.rooms[roomid];
+		console.log('\u2705 ' + (roomid ? '[' + roomid + '] ' : '') + '%c' + msg, "color: #007700");
+		for (const line of msg.split('\n')) {
+			if (line.startsWith('|init|')) {
+				room = PS.rooms[roomid2];
+				const type = line.slice(6);
+				if (!room) {
+					this.addRoom({
+						id: roomid2,
+						type: type,
+						connected: true,
+					});
+					room = PS.rooms[roomid2];
+				} else {
+					room.type = type;
+					this.updateRoomTypes();
+				}
+				this.update();
+				continue;
+			}
+			if ((line + '|').startsWith('|deinit|')) {
+				room = PS.rooms[roomid2];
+				if (room) {
+					room.connected = false;
+					this.removeRoom(room);
+				}
+				this.update();
+				continue;
+			}
+			if (room) room.receive(line);
+		}
+		if (room) room.update(null);
+	}
+	send(fullMsg: string) {
+		const pipeIndex = fullMsg.indexOf('|');
+		const roomid = fullMsg.slice(0, pipeIndex) as RoomID;
+		const msg = fullMsg.slice(pipeIndex + 1);
+		console.log('\u25b6\ufe0f ' + (roomid ? '[' + roomid + '] ' : '') + '%c' + msg, "color: #776677");
+		this.connection!.send(fullMsg);
 	}
 	isVisible(room: PSRoom) {
 		if (this.leftRoomWidth === 0) {

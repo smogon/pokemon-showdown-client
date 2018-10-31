@@ -68,6 +68,14 @@ if (!Object.create) {
 		return new (F as any)();
 	};
 }
+if (!window.console) {
+	// in IE8, the console object is only defined when devtools is open
+	// I don't actually know if this will cause problems when you open devtools,
+	// but that's something I can figure out if I ever bother testing in IE8
+	(window as any).console = {
+		log() {},
+	};
+}
 
 /**********************************************************************
  * PS Models
