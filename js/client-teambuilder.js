@@ -2557,7 +2557,11 @@
 				}
 				break;
 			case 'item':
-				val = (id in BattleItems ? BattleItems[id].name : '');
+				if (id in BattleMovedex && this.curTeam.format == "gen7fortemons") {
+					val = BattleMovedex[id].name;
+				} else {
+					val = (id in BattleItems ? BattleItems[id].name : '');
+				}
 				break;
 			case 'move1': case 'move2': case 'move3': case 'move4':
 				val = (id in BattleMovedex ? BattleMovedex[id].name : '');
