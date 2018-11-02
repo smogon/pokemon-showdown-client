@@ -287,6 +287,8 @@ class PlaceholderRoom extends PSRoom {
 type RoomType = {Model: typeof PSRoom, Component: typeof PSRoomPanel};
 
 const PS = new class extends PSModel {
+	down: string | boolean = false;
+
 	prefs = new PSPrefs();
 	teams = new PSTeams();
 	user = new PSUser();
@@ -374,6 +376,30 @@ const PS = new class extends PSModel {
 
 		this.updateLayout();
 		window.addEventListener('resize', () => this.updateLayout());
+	}
+
+	lineParse(str: string): [string, ...string[]] {
+		if (!str.startsWith('|')) {
+			return ['', str];
+		}
+		const index = str.indexOf('|', 1);
+		const cmd = str.slice(1, index);
+		switch (cmd) {
+		case 'html':
+		case 'raw':
+		case '':
+			return [cmd, str.slice(index + 1)];
+		case 'c':
+			// three parts
+			const index2a = str.indexOf('|', index + 1);
+			return [cmd, str.slice(index + 1, index2a), str.slice(index2a + 1)];
+		case 'c:':
+			// four parts
+			const index2b = str.indexOf('|', index + 1);
+			const index3b = str.indexOf('|', index2b + 1);
+			return [cmd, str.slice(index + 1, index2b), str.slice(index2b + 1, index3b), str.slice(index3b + 1)];
+		}
+		return str.slice(1).split('|') as [string, ...string[]];
 	}
 
 	// Panel layout
