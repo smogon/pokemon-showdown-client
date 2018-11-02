@@ -25,18 +25,23 @@ PS loads itself in phases:
   - User model
   - Generic Room model
   - PS model
-- `client-frame.tsx`
-  - Main view
+- SockJS
+- `client-connection.ts`
+  - Connect to server
 - Preact
 - SoundManager
 - `panel-mainmenu.tsx`
 - `panel-rooms.tsx`
+- `panels.tsx`
+  - URL router
+  - global listeners
+  - Main view
 
 **Phase 3:** Lightweight panels
 
+- Caja (HTML sanitizer)
 - `panel-chat.tsx`
 - `panel-ladder.tsx`
-- `panel`
 
 **Phase 4:** Heavyweight panels - loaded only when a user opens one
 

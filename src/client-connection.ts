@@ -12,7 +12,7 @@ class PSConnection {
 	connected = false;
 	queue = [] as string[];
 	constructor() {
-		// this.connect();
+		this.connect();
 	}
 	connect() {
 		const server = PS.server;

@@ -17,3 +17,4 @@ node_modules/
 /js/panels.js
 /js/panel-mainmenu.js
 /js/panel-rooms.js
+/js/panel-chat.js
