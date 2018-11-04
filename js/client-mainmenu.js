@@ -143,7 +143,7 @@
 
 			var autoscroll = ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height());
 
-			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat);
+			var parsedMessage = BattleLog.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
@@ -176,12 +176,12 @@
 				if (group === ' ') {
 					group = '';
 				} else {
-					group = '<small>' + Tools.escapeHTML(group) + '</small>';
+					group = '<small>' + BattleLog.escapeHTML(group) + '</small>';
 				}
 				var buf = '<div class="pm-window pm-window-' + userid + '" data-userid="' + userid + '" data-name="' + name + '">';
 				buf += '<h3><button class="closebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>';
 				buf += '<button class="minimizebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>';
-				buf += group + Tools.escapeHTML(name.substr(1)) + '</h3>';
+				buf += group + BattleLog.escapeHTML(name.substr(1)) + '</h3>';
 				buf += '<div class="pm-log"><div class="inner" role="log"></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
@@ -569,7 +569,7 @@
 				for (var roomid in this.games) {
 					var name = this.games[roomid];
 					if (name.slice(-1) === '*') name = name.slice(0, -1);
-					buf += '<div><a href="/' + toRoomid(roomid) + '" class="ilink" style="text-align: center">' + Tools.escapeHTML(name) + '</a></div>';
+					buf += '<div><a href="/' + toRoomid(roomid) + '" class="ilink" style="text-align: center">' + BattleLog.escapeHTML(name) + '</a></div>';
 				}
 				buf += '</div>';
 				if (!$searchGroup.is(':visible')) buf += '<p class="buttonbar"><button name="showSearchGroup">Add game</button></p>';
@@ -606,7 +606,7 @@
 				var userid = toId(name);
 				var $challenge = this.openChallenge(name);
 
-				var buf = '<form class="battleform"><p>Waiting for ' + Tools.escapeHTML(name) + '...</p>';
+				var buf = '<form class="battleform"><p>Waiting for ' + BattleLog.escapeHTML(name) + '...</p>';
 				buf += '<p><label class="label">Format:</label>' + this.renderFormats(challenge.format, true) + '</p>';
 				buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
@@ -623,10 +623,10 @@
 				if (data.challengesFrom[userid]) {
 					var format = data.challengesFrom[userid];
 					if (!$pmWindow.find('.challenge').length) {
-						self.notifyOnce("Challenge from " + name, "Format: " + Tools.escapeFormat(format), 'challenge:' + userid);
+						self.notifyOnce("Challenge from " + name, "Format: " + BattleLog.escapeFormat(format), 'challenge:' + userid);
 					}
 					var $challenge = self.openChallenge(name, $pmWindow);
-					var buf = '<form class="battleform"><p>' + Tools.escapeHTML(name) + ' wants to battle!</p>';
+					var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(name) + ' wants to battle!</p>';
 					buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
 					buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
 					buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
@@ -729,7 +729,7 @@
 			}
 
 			$challenge = this.openChallenge(name);
-			var buf = '<form class="battleform"><p>Challenge ' + Tools.escapeHTML(name) + '?</p>';
+			var buf = '<form class="battleform"><p>Challenge ' + BattleLog.escapeHTML(name) + '?</p>';
 			buf += '<p><label class="label">Format:</label>' + this.renderFormats(format) + '</p>';
 			buf += '<p><label class="label">Team:</label>' + this.renderTeams(format, teamIndex) + '</p>';
 			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p></form>';
@@ -773,7 +773,7 @@
 				return;
 			}
 
-			var buf = '<form class="battleform pending"><p>Challenging ' + Tools.escapeHTML(name) + '...</p>';
+			var buf = '<form class="battleform pending"><p>Challenging ' + BattleLog.escapeHTML(name) + '...</p>';
 			buf += '<p><label class="label">Format:</label>' + this.renderFormats(format, true) + '</p>';
 			buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
@@ -802,7 +802,7 @@
 		curFormat: '',
 		renderFormats: function (formatid, noChoice) {
 			if (!window.BattleFormats) {
-				return '<button class="select formatselect" name="format" disabled value="' + Tools.escapeHTML(formatid) + '"><em>Loading...</em></button>';
+				return '<button class="select formatselect" name="format" disabled value="' + BattleLog.escapeHTML(formatid) + '"><em>Loading...</em></button>';
 			}
 			if (_.isEmpty(BattleFormats)) {
 				return '<button class="select formatselect" name="format" disabled><em>No formats available</em></button>';
@@ -820,7 +820,7 @@
 				}
 				formatid = this.curFormat;
 			}
-			return '<button class="select formatselect' + (noChoice ? ' preselected' : '') + '" name="format" value="' + formatid + '"' + (noChoice ? ' disabled' : '') + '>' + Tools.escapeFormat(formatid) + '</button>';
+			return '<button class="select formatselect' + (noChoice ? ' preselected' : '') + '" name="format" value="' + formatid + '"' + (noChoice ? ' disabled' : '') + '>' + BattleLog.escapeFormat(formatid) + '</button>';
 		},
 		curTeamFormat: '',
 		curTeamIndex: 0,
@@ -957,9 +957,9 @@
 					if (!bufs[curBuf]) {
 						bufs[curBuf] = '';
 					}
-					bufs[curBuf] += '<li><h3>' + Tools.escapeHTML(curSection) + '</li>';
+					bufs[curBuf] += '<li><h3>' + BattleLog.escapeHTML(curSection) + '</li>';
 				}
-				var formatName = Tools.escapeFormat(format.id);
+				var formatName = BattleLog.escapeFormat(format.id);
 				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
 				formatName = formatName.replace('[Gen 7] ', '');
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';
@@ -989,7 +989,7 @@
 				var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
 				if ($teamButton.length) $teamButton.replaceWith(app.rooms[''].renderTeams(format));
 			}
-			this.sourceEl.val(format).html(Tools.escapeFormat(format) || '(Select a format)');
+			this.sourceEl.val(format).html(BattleLog.escapeFormat(format) || '(Select a format)');
 
 			this.close();
 		}
@@ -1023,22 +1023,22 @@
 
 			if (!teams.length) {
 				bufs[curBuf] = '<li><p><em>You have no teams</em></p></li>';
-				bufs[curBuf] += '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong><br />' + Tools.escapeFormat(teamFormat) + ' teams</button></li>';
+				bufs[curBuf] += '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong><br />' + BattleLog.escapeFormat(teamFormat) + ' teams</button></li>';
 			} else {
 				var curTeam = (data.team === '' ? -1 : +data.team);
 				var count = 0;
 				if (teamFormat) {
-					bufs[curBuf] = '<li><h3>' + Tools.escapeFormat(teamFormat) + ' teams</h3></li>';
+					bufs[curBuf] = '<li><h3>' + BattleLog.escapeFormat(teamFormat) + ' teams</h3></li>';
 					for (var i = 0; i < teams.length; i++) {
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
-							bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + Tools.escapeHTML(teams[i].name) + '</button></li>';
+							bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 							count++;
 							if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 						}
 					}
-					if (!count) bufs[curBuf] += '<li><p><em>You have no ' + Tools.escapeFormat(teamFormat) + ' teams</em></p></li>';
-					bufs[curBuf] += '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong><br />' + Tools.escapeFormat(teamFormat) + ' teams</button></li>';
+					if (!count) bufs[curBuf] += '<li><p><em>You have no ' + BattleLog.escapeFormat(teamFormat) + ' teams</em></p></li>';
+					bufs[curBuf] += '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong><br />' + BattleLog.escapeFormat(teamFormat) + ' teams</button></li>';
 					bufs[curBuf] += '<li><h3>Other teams</h3></li>';
 				} else {
 					bufs[curBuf] = '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong></button></li>';
@@ -1049,7 +1049,7 @@
 					for (var i = 0; i < teams.length; i++) {
 						if (teamFormat && teams[i].format === teamFormat) continue;
 						var selected = (i === curTeam);
-						bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + Tools.escapeHTML(teams[i].name) + '</button></li>';
+						bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 						count++;
 						if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 					}
@@ -1112,7 +1112,7 @@
 			}
 			var team = Storage.teams[i];
 			if (!team) return 'Error: Corrupted team';
-			var buf = '<strong>' + Tools.escapeHTML(team.name) + '</strong><small>';
+			var buf = '<strong>' + BattleLog.escapeHTML(team.name) + '</strong><small>';
 			buf += Storage.getTeamIcons(team) + '</small>';
 			return buf;
 		}

@@ -125,7 +125,7 @@ var Replays = {
 		var replayid = this.$('input[name=replayid]').val();
 		var m = /^([a-z0-9]+)-[a-z0-9]+-[0-9]+$/.exec(replayid);
 		if (m) {
-			this.battle.log('<hr /><div class="chat">This replay was uploaded from a third-party server (<code>' + Tools.escapeHTML(m[1]) + '</code>). It contains errors and cannot be viewed.</div><div class="chat">Replays uploaded from third-party servers can contain errors if the server is running custom code, or the server operator has otherwise incorrectly configured their server.</div>', true);
+			this.battle.log('<hr /><div class="chat">This replay was uploaded from a third-party server (<code>' + BattleLog.escapeHTML(m[1]) + '</code>). It contains errors and cannot be viewed.</div><div class="chat">Replays uploaded from third-party servers can contain errors if the server is running custom code, or the server operator has otherwise incorrectly configured their server.</div>', true);
 			this.battle.pause();
 		}
 	},

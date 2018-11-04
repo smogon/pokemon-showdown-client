@@ -59,12 +59,12 @@
 		},
 		renderRoomBtn: function (roomData) {
 			var id = toId(roomData.title);
-			var buf = '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + Tools.escapeHTML(roomData.title) + '<br /></strong><small>' + Tools.escapeHTML(roomData.desc || '');
+			var buf = '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '');
 			if (roomData.subRooms && roomData.subRooms.length) {
 				buf += '<br/><i class="fa fa-level-up fa-rotate-90"></i> Subrooms: <strong>';
 				for (var i = 0; i < roomData.subRooms.length; i++) {
 					if (i) buf += ', ';
-					buf += '<i class="fa fa-comment-o"></i> ' + Tools.escapeHTML(roomData.subRooms[i]);
+					buf += '<i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]);
 				}
 				buf += '</strong>';
 			}
@@ -167,14 +167,14 @@
 		renderRoomBtn: function (id, roomData, matches) {
 			var format = (matches[1] || '');
 			var formatBuf = '';
-			if (roomData.minElo) formatBuf += '<small style="float:right">(' + (typeof roomData.minElo === 'number' ? 'rated: ' : '') + Tools.escapeHTML(roomData.minElo) + ')</small>';
-			formatBuf += (format ? '<small>[' + Tools.escapeFormat(format) + ']</small><br />' : '');
-			var roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + Tools.escapeHTML(roomData.p2) + '</em>';
+			if (roomData.minElo) formatBuf += '<small style="float:right">(' + (typeof roomData.minElo === 'number' ? 'rated: ' : '') + BattleLog.escapeHTML(roomData.minElo) + ')</small>';
+			formatBuf += (format ? '<small>[' + BattleLog.escapeFormat(format) + ']</small><br />' : '');
+			var roomDesc = formatBuf + '<em class="p1">' + BattleLog.escapeHTML(roomData.p1) + '</em> <small class="vs">vs.</small> <em class="p2">' + BattleLog.escapeHTML(roomData.p2) + '</em>';
 			if (!roomData.p1) {
 				matches = id.match(/[^0-9]([0-9]*)$/);
 				roomDesc = formatBuf + 'empty room ' + matches[1];
 			} else if (!roomData.p2) {
-				roomDesc = formatBuf + '<em class="p1">' + Tools.escapeHTML(roomData.p1) + '</em>';
+				roomDesc = formatBuf + '<em class="p1">' + BattleLog.escapeHTML(roomData.p1) + '</em>';
 			}
 			return '<div><a href="' + app.root + id + '" class="ilink">' + roomDesc + '</a></div>';
 		},
@@ -204,8 +204,8 @@
 				buf.push(this.renderRoomBtn(id, roomData, matches));
 			}
 
-			if (!buf.length) return this.$list.html('<p>No ' + Tools.escapeFormat(this.format) + ' battles are going on right now.</p>');
-			return this.$list.html('<p>' + buf.length + (buf.length === 100 ? '+' : '') + ' ' + Tools.escapeFormat(this.format) + ' ' + (buf.length === 1 ? 'battle' : 'battles') + '</p>' + buf.join(""));
+			if (!buf.length) return this.$list.html('<p>No ' + BattleLog.escapeFormat(this.format) + ' battles are going on right now.</p>');
+			return this.$list.html('<p>' + buf.length + (buf.length === 100 ? '+' : '') + ' ' + BattleLog.escapeFormat(this.format) + ' ' + (buf.length === 1 ? 'battle' : 'battles') + '</p>' + buf.join(""));
 		},
 		refresh: function () {
 			var elofilter = '';

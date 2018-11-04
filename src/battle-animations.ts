@@ -657,7 +657,7 @@ class BattleScene {
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const $sidebar = (side.n ? this.$rightbar : this.$leftbar);
 		if (side.name) {
-			$sidebar.html('<div class="trainer"><strong>' + Tools.escapeHTML(side.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(side.spriteid) + ')"></div>' + pokemonhtml + '</div>');
+			$sidebar.html('<div class="trainer"><strong>' + BattleLog.escapeHTML(side.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(side.spriteid) + ')"></div>' + pokemonhtml + '</div>');
 			$sidebar.find('.trainer').css('opacity', 1);
 		} else {
 			$sidebar.find('.trainer').css('opacity', 0.4);
@@ -729,7 +729,7 @@ class BattleScene {
 			}
 			side.totalPokemon = side.pokemon.length;
 			if (textBuf) {
-				this.log('<div class="chat battle-history"><strong>' + Tools.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + Tools.escapeHTML(textBuf) + '</em></div>');
+				this.log('<div class="chat battle-history"><strong>' + BattleLog.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + BattleLog.escapeHTML(textBuf) + '</em></div>');
 			}
 			this.$sprites[siden].html(buf + buf2);
 
@@ -2270,7 +2270,7 @@ class PokemonSprite extends Sprite {
 
 	getStatbarHTML(pokemon: Pokemon) {
 		let buf = '<div class="statbar' + (this.siden ? ' lstatbar' : ' rstatbar') + '" style="display: none">';
-		buf += '<strong>' + (this.siden && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks) ? pokemon.species : Tools.escapeHTML(pokemon.name));
+		buf += '<strong>' + (this.siden && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks) ? pokemon.species : BattleLog.escapeHTML(pokemon.name));
 		let gender = pokemon.gender;
 		if (gender) buf += ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
 		buf += (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>');
