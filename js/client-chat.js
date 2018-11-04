@@ -28,7 +28,7 @@
 			var name = app.user.get('name');
 			var userid = app.user.get('userid');
 			if (this.expired) {
-				this.$chatAdd.html(this.expired === true ? 'This room is expired' : Tools.sanitizeHTML(this.expired));
+				this.$chatAdd.html(this.expired === true ? 'This room is expired' : BattleLog.sanitizeHTML(this.expired));
 				this.$chatbox = null;
 			} else if (!name) {
 				this.$chatAdd.html('Connecting...');
@@ -37,7 +37,7 @@
 				this.$chatAdd.html('<form><button name="login">Join chat</button></form>');
 				this.$chatbox = null;
 			} else {
-				this.$chatAdd.html('<form class="chatbox"><label style="' + hashColor(userid) + '">' + Tools.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
+				this.$chatAdd.html('<form class="chatbox"><label style="' + BattleLog.hashColor(userid) + '">' + BattleLog.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
 				this.$chatbox = this.$chatAdd.find('textarea');
 				this.$chatbox.autoResize({
 					animate: false,
@@ -479,7 +479,7 @@
 				if (target === 'extractteams') {
 					app.addPopup(Popup, {
 						type: 'modal',
-						htmlMessage: "Extracted team data:<br /><textarea rows=\"10\" cols=\"60\">" + Tools.escapeHTML(JSON.stringify(Storage.teams)) + "</textarea>"
+						htmlMessage: "Extracted team data:<br /><textarea rows=\"10\" cols=\"60\">" + BattleLog.escapeHTML(JSON.stringify(Storage.teams)) + "</textarea>"
 					});
 				} else {
 					this.add('|error|Unknown debug command.');
@@ -795,7 +795,7 @@
 							buffer += '<tr>';
 						} else {
 							buffer += '<tr class="hidden">';
-							hiddenFormats.push(Tools.escapeFormat(formatId));
+							hiddenFormats.push(BattleLog.escapeFormat(formatId));
 						}
 
 						// Validate all the numerical data
@@ -804,7 +804,7 @@
 							if (typeof values[j] !== 'number' && typeof values[j] !== 'string' || isNaN(values[j])) return self.add('|raw|Error: corrupted ranking data');
 						}
 
-						buffer += '<td>' + Tools.escapeFormat(formatId) + '</td><td><strong>' + Math.round(row.elo) + '</strong></td>';
+						buffer += '<td>' + BattleLog.escapeFormat(formatId) + '</td><td><strong>' + Math.round(row.elo) + '</strong></td>';
 						if (row.rprd > 100) {
 							// High rating deviation. Provisional rating.
 							buffer += '<td>&ndash;</td>';
@@ -1231,7 +1231,7 @@
 					if (!matches) {
 						return; // bogus room ID could be used to inject JavaScript
 					}
-					var format = Tools.escapeFormat(matches[1]);
+					var format = BattleLog.escapeFormat(matches[1]);
 
 					if (silent && !Tools.prefs('showbattles')) return;
 
@@ -1241,7 +1241,7 @@
 						battletype = format + ' battle';
 						if (format === 'Random Battle') battletype = 'Random Battle';
 					}
-					this.$chat.append('<div class="notice"><a href="' + app.root + id + '" class="ilink">' + battletype + ' started between <strong style="' + hashColor(toUserid(name)) + '">' + Tools.escapeHTML(name) + '</strong> and <strong style="' + hashColor(toUserid(name2)) + '">' + Tools.escapeHTML(name2) + '</strong>.</a></div>');
+					this.$chat.append('<div class="notice"><a href="' + app.root + id + '" class="ilink">' + battletype + ' started between <strong style="' + BattleLog.hashColor(toUserid(name)) + '">' + BattleLog.escapeHTML(name) + '</strong> and <strong style="' + BattleLog.hashColor(toUserid(name2)) + '">' + BattleLog.escapeHTML(name2) + '</strong>.</a></div>');
 					break;
 
 				case 'j':
@@ -1281,7 +1281,7 @@
 
 				case 'raw':
 				case 'html':
-					this.$chat.append('<div class="notice">' + Tools.sanitizeHTML(row.slice(1).join('|')) + '</div>');
+					this.$chat.append('<div class="notice">' + BattleLog.sanitizeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
 				case 'notify':
@@ -1307,7 +1307,7 @@
 					break;
 
 				case 'error':
-					this.$chat.append('<div class="notice message-error">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
+					this.$chat.append('<div class="notice message-error">' + BattleLog.escapeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
 				case 'uhtml':
@@ -1317,12 +1317,12 @@
 					if (!html) {
 						$elements.remove();
 					} else if (!$elements.length) {
-						this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + Tools.sanitizeHTML(html) + '</div>');
+						this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 					} else if (row[0] === 'uhtmlchange') {
-						$elements.html(Tools.sanitizeHTML(html));
+						$elements.html(BattleLog.sanitizeHTML(html));
 					} else {
 						$elements.remove();
-						this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + Tools.sanitizeHTML(html) + '</div>');
+						this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 					}
 					break;
 
@@ -1349,7 +1349,7 @@
 				case 'tournaments':
 					if (Tools.prefs('notournaments')) {
 						if (row[1] === 'create') {
-							this.$chat.append('<div class="notice">' + Tools.escapeFormat(row[2]) + ' ' + Tools.escapeHTML(row[3]) + ' tournament created (and hidden because you have tournaments disabled).</div>');
+							this.$chat.append('<div class="notice">' + BattleLog.escapeFormat(row[2]) + ' ' + BattleLog.escapeHTML(row[3]) + ' tournament created (and hidden because you have tournaments disabled).</div>');
 						} else if (row[1] === 'start') {
 							this.$chat.append('<div class="notice">Tournament started.</div>');
 						} else if (row[1] === 'forceend') {
@@ -1364,11 +1364,11 @@
 					// fallthrough in case of unparsed message
 
 				case '':
-					this.$chat.append('<div class="notice">' + Tools.escapeHTML(row.slice(1).join('|')) + '</div>');
+					this.$chat.append('<div class="notice">' + BattleLog.escapeHTML(row.slice(1).join('|')) + '</div>');
 					break;
 
 				default:
-					this.$chat.append('<div class="notice"><code>|' + Tools.escapeHTML(row.join('|')) + '</code></div>');
+					this.$chat.append('<div class="notice"><code>|' + BattleLog.escapeHTML(row.join('|')) + '</code></div>');
 					break;
 				}
 			}
@@ -1465,7 +1465,7 @@
 							message += ', ';
 						}
 					}
-					message += Tools.escapeHTML(list[j]);
+					message += BattleLog.escapeHTML(list[j]);
 				}
 				message += ' joined';
 			}
@@ -1494,7 +1494,7 @@
 							message += ', ';
 						}
 					}
-					message += Tools.escapeHTML(list[j]);
+					message += BattleLog.escapeHTML(list[j]);
 				}
 				message += ' left<br />';
 			}
@@ -1519,11 +1519,11 @@
 			if (pm) {
 				var pmuserid = toUserid(pm);
 				var oName = pmuserid === app.user.get('userid') ? name : pm;
-				var clickableName = '<span class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
+				var clickableName = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name.substr(1)) + '</span>';
 				this.$chat.append(
 					'<div class="chat chatmessage-' + toId(name) + '">' + ChatRoom.getTimestamp('lobby', msgTime) +
-					'<strong style="' + hashColor(userid) + '">' + clickableName + ':</strong>' +
-					'<span class="message-pm"><i class="pmnote" data-name="' + Tools.escapeHTML(oName) + '">(Private to ' + Tools.escapeHTML(pm) + ')</i> ' + Tools.parseMessage(message) + '</span>' +
+					'<strong style="' + BattleLog.hashColor(userid) + '">' + clickableName + ':</strong>' +
+					'<span class="message-pm"><i class="pmnote" data-name="' + BattleLog.escapeHTML(oName) + '">(Private to ' + BattleLog.escapeHTML(pm) + ')</i> ' + BattleLog.parseMessage(message) + '</span>' +
 					'</div>'
 				);
 				return; // PMs independently notify in the main menu; no need to make them notify again with `inchatpm`.
@@ -1546,7 +1546,7 @@
 			}
 
 			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
-			var parsedMessage = Tools.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted);
+			var parsedMessage = BattleLog.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted);
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
@@ -1687,17 +1687,17 @@
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
-			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + Tools.escapeHTML(userid) + '">';
-			text += '<button class="userbutton username" data-name="' + Tools.escapeHTML(name) + '">';
+			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + BattleLog.escapeHTML(userid) + '">';
+			text += '<button class="userbutton username" data-name="' + BattleLog.escapeHTML(name) + '">';
 			var group = name.charAt(0);
 			var details = Config.groups[group] || {type: 'user'};
-			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + Tools.escapeHTML(group) + '</em>';
+			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + BattleLog.escapeHTML(group) + '</em>';
 			if (details.type === 'leadership') {
-				text += '<strong><em style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</em></strong>';
+				text += '<strong><em style="' + BattleLog.hashColor(userid) + '">' + BattleLog.escapeHTML(name.substr(1)) + '</em></strong>';
 			} else if (details.type === 'staff') {
-				text += '<strong style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</strong>';
+				text += '<strong style="' + BattleLog.hashColor(userid) + '">' + BattleLog.escapeHTML(name.substr(1)) + '</strong>';
 			} else {
-				text += '<span style="' + hashColor(userid) + '">' + Tools.escapeHTML(name.substr(1)) + '</span>';
+				text += '<span style="' + BattleLog.hashColor(userid) + '">' + BattleLog.escapeHTML(name.substr(1)) + '</span>';
 			}
 			text += '</button>';
 			text += '</li>';

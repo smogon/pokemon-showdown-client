@@ -1,11 +1,7 @@
 /**
- * Pokemon Showdown Dex Misc
+ * Pokemon Showdown Log Misc
  *
- * Some miscellaneous helper functions for battle-dex.ts, namely:
- *
- * - polyfills, which in combination with Babel lets us write ES2018
- *   while targeting ES3 (we are in theory still IE7-compatible! I
- *   haven't tested in IE7 for years, though)
+ * Some miscellaneous helper functions for battle-log.ts, namely:
  *
  * - an MD5 hasher
  *

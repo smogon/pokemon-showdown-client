@@ -15,6 +15,7 @@ package-lock.json
 
 /js/battle.js
 /js/battledata.js
+/js/battle-log.js
 /js/battle-dex.js
 /js/battle-dex-data.js
 /js/battle-animations-moves.js

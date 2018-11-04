@@ -149,14 +149,14 @@
 			if (this.exportMode) {
 				if (this.curFolder) {
 					buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button></div>';
-					buf += '<div class="teamedit"><textarea readonly class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportFolder(this.curFolder)) + '</textarea></div>';
+					buf += '<div class="teamedit"><textarea readonly class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportFolder(this.curFolder)) + '</textarea></div>';
 				} else {
 					buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
 					buf += '<div class="teamedit"><textarea class="textbox" rows="17">';
 					if (Storage.teams.length > 350) {
-						buf += Tools.escapeHTML(Storage.getPackedTeams());
+						buf += BattleLog.escapeHTML(Storage.getPackedTeams());
 					} else {
-						buf += Tools.escapeHTML(Storage.exportAllTeams());
+						buf += BattleLog.escapeHTML(Storage.exportAllTeams());
 					}
 					buf += '</textarea></div>';
 				}
@@ -291,7 +291,7 @@
 						formatName = '(uncategorized)';
 						format = '/';
 					} else {
-						formatName = Tools.escapeHTML(formatName);
+						formatName = BattleLog.escapeHTML(formatName);
 					}
 					buf += '<div class="folder' + (this.curFolder === format ? ' cur"><div class="folderhack3"><div class="folderhack1"></div><div class="folderhack2"></div>' : '">') + '<div class="selectFolder" data-value="' + format + '"><i class="fa ' + (this.curFolder === format ? 'fa-folder-open' : 'fa-folder') + (format === '/' ? '-o' : '') + '"></i>' + formatName + '</div></div>' + (this.curFolder === format ? '</div>' : '');
 					continue;
@@ -347,7 +347,7 @@
 			var newButtonText = "New Team";
 			if (filterFolder) newButtonText = "New Team in folder";
 			if (filterFormat && filterFormat !== 'gen7') {
-				newButtonText = "New " + Tools.escapeFormat(filterFormat) + " Team";
+				newButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Team";
 			}
 			buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> ' + newButtonText + '</button></p>';
 
@@ -399,7 +399,7 @@
 
 					// teams are <div>s rather than <button>s because Firefox doesn't
 					// support dragging and dropping buttons.
-					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + Tools.escapeHTML(team.name) + '</strong><br /><small>';
+					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + BattleLog.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
 					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="newTop" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
 				}
@@ -1019,10 +1019,10 @@
 
 			var buf = '';
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + Tools.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
+				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
 			} else {
-				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + Tools.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="fa fa-upload"></i> Import/Export</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="fa fa-upload"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
@@ -1038,7 +1038,7 @@
 				};
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select">';
-					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.format + '">' + (isGenericFormat(this.curTeam.format) ? '<em>Select a format</em>' : Tools.escapeFormat(this.curTeam.format)) + '</button>';
+					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.format + '">' + (isGenericFormat(this.curTeam.format) ? '<em>Select a format</em>' : BattleLog.escapeFormat(this.curTeam.format)) + '</button>';
 					var btnClass = 'button' + (!this.curSetList.length ? ' disabled' : '');
 					buf += ' <button name="validate" class="' + btnClass + '"><i class="fa fa-check"></i> Validate</button></li>';
 				}
@@ -1081,7 +1081,7 @@
 			}
 			buf += '<div class="setmenu"><button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
-			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + Tools.escapeHTML(set.name || '') + '" placeholder="' + Tools.escapeHTML(template.baseSpecies) + '" />';
+			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(template.baseSpecies) + '" />';
 			buf += '</div>';
 			buf += '<div class="setchart" style="' + Tools.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
@@ -1092,7 +1092,7 @@
 			} else {
 				buf += '<div class="setcell-sprite"></div>';
 			}
-			buf += '<div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="' + Tools.escapeHTML(set.species) + '" /></div></div>';
+			buf += '<div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.species) + '" /></div></div>';
 
 			// details
 			buf += '<div class="setcol setcol-details"><div class="setrow">';
@@ -1131,17 +1131,17 @@
 			buf += '</div></div>';
 
 			buf += '<div class="setrow">';
-			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + Tools.escapeHTML(set.item) + '" /></div>';
-			if (this.curTeam.gen > 2) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="textbox chartinput" value="' + Tools.escapeHTML(set.ability) + '" /></div>';
+			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.item) + '" /></div>';
+			if (this.curTeam.gen > 2) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.ability) + '" /></div>';
 			buf += '</div></div>';
 
 			// moves
 			if (!set.moves) set.moves = [];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
-			buf += '<input type="text" name="move1" class="textbox chartinput" value="' + Tools.escapeHTML(set.moves[0]) + '" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move2" class="textbox chartinput" value="' + Tools.escapeHTML(set.moves[1]) + '" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move3" class="textbox chartinput" value="' + Tools.escapeHTML(set.moves[2]) + '" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + Tools.escapeHTML(set.moves[3]) + '" /></div>';
+			buf += '<input type="text" name="move1" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[0]) + '" /></div>';
+			buf += '<div class="setcell"><input type="text" name="move2" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[1]) + '" /></div>';
+			buf += '<div class="setcell"><input type="text" name="move3" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[2]) + '" /></div>';
+			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[3]) + '" /></div>';
 			buf += '</div>';
 
 			// stats
@@ -1533,9 +1533,9 @@
 					buf += '<button disabled="disabled" class="addpokemon" aria-label="Add Pok&eacute;mon"><i class="fa fa-plus"></i></button> ';
 					isAdd = true;
 				} else if (i == this.curSetLoc) {
-					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name || Tools.getTemplate(set.species).baseSpecies || '<i class="fa fa-plus"></i>') + '</button> ';
+					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Tools.getTemplate(set.species).baseSpecies || '<i class="fa fa-plus"></i>') + '</button> ';
 				} else {
-					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + Tools.escapeHTML(set.name || Tools.getTemplate(set.species).baseSpecies) + '</button> ';
+					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Tools.getTemplate(set.species).baseSpecies) + '</button> ';
 				}
 			}
 			if (this.curSetList.length < 6 && !isAdd) {
@@ -1902,7 +1902,7 @@
 			buf += '<div class="col evslidercol"><div></div>';
 			for (var i in stats) {
 				if (i === 'spd' && this.curTeam.gen === 1) continue;
-				buf += '<div><input type="range" name="evslider-' + i + '" value="' + Tools.escapeHTML(set.evs[i] === undefined ? (this.curTeam.gen > 2 ? '0' : '252') : '' + set.evs[i]) + '" min="0" max="252" step="4" class="evslider" tabindex="-1" aria-hidden="true" /></div>';
+				buf += '<div><input type="range" name="evslider-' + i + '" value="' + BattleLog.escapeHTML(set.evs[i] === undefined ? (this.curTeam.gen > 2 ? '0' : '252') : '' + set.evs[i]) + '" min="0" max="252" step="4" class="evslider" tabindex="-1" aria-hidden="true" /></div>';
 			}
 			buf += '</div>';
 
@@ -1912,7 +1912,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + (set.ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
 				}
 				var hpType = '';
 				if (set.moves) {
@@ -2032,7 +2032,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + Math.floor(set.ivs[i] / 2);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + Tools.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
 				}
 				buf += '</div>';
 			}
@@ -2304,7 +2304,7 @@
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
 			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + Tools.escapeHTML(set.level || 100) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + BattleLog.escapeHTML(set.level || 100) + '" class="textbox inputform numform" /></div></div>';
 
 			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
@@ -3354,7 +3354,7 @@
 				if (i !== data.i && i !== data.i + 1) {
 					buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
 				}
-				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="picon" style="display:inline-block;vertical-align:middle;' + Tools.getPokemonIcon(set) + '"></span> ' + Tools.escapeHTML(set.name || set.species) + '</li>';
+				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="picon" style="display:inline-block;vertical-align:middle;' + Tools.getPokemonIcon(set) + '"></span> ' + BattleLog.escapeHTML(set.name || set.species) + '</li>';
 			}
 			if (i !== data.i && i !== data.i + 1) {
 				buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
@@ -3387,7 +3387,7 @@
 		initialize: function (data) {
 			this.room = data.room;
 			this.folder = data.folder;
-			var buf = '<form><p>Remove "' + data.folder.slice(0, -1) + '"?</p><p><label><input type="checkbox" name="addname" /> Add "' + Tools.escapeHTML(this.folder.slice(0, -1)) + '" before team names</label></p>';
+			var buf = '<form><p>Remove "' + data.folder.slice(0, -1) + '"?</p><p><label><input type="checkbox" name="addname" /> Add "' + BattleLog.escapeHTML(this.folder.slice(0, -1)) + '" before team names</label></p>';
 			buf += '<p><button type="submit"><strong>Remove (keep teams)</strong></button> <!--button name="removeDelete"><strong>Remove (delete teams)</strong></button--> <button name="close" class="autofocus">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
