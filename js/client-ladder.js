@@ -48,14 +48,14 @@
 				break;
 
 			case 'pagehtml':
-				this.$el.html(Tools.sanitizeHTML(row[1]));
+				this.$el.html(BattleLog.sanitizeHTML(row[1]));
 				this.subtleNotifyOnce();
 				break;
 
 			case 'selectorhtml':
 				var pipeIndex2 = row[1].indexOf('|');
 				if (pipeIndex2 < 0) return;
-				this.$(row[1].slice(0, pipeIndex2)).html(Tools.sanitizeHTML(row[1].slice(pipeIndex2 + 1)));
+				this.$(row[1].slice(0, pipeIndex2)).html(BattleLog.sanitizeHTML(row[1].slice(pipeIndex2 + 1)));
 				this.subtleNotifyOnce();
 				break;
 
@@ -96,7 +96,7 @@
 					return;
 				}
 				if (this.curFormat !== data[0]) return;
-				buf += Tools.sanitizeHTML(data[1]) + '</div>';
+				buf += BattleLog.sanitizeHTML(data[1]) + '</div>';
 				this.$el.html(buf);
 			}, this);
 		},
@@ -119,9 +119,9 @@
 					if (!format.rated || !format.searchShow) continue;
 					if (format.section && format.section !== curSection) {
 						curSection = format.section;
-						buf += '</ul><h3>' + Tools.escapeHTML(curSection) + '</h3><ul style="list-style:none;margin:0;padding:0">';
+						buf += '</ul><h3>' + BattleLog.escapeHTML(curSection) + '</h3><ul style="list-style:none;margin:0;padding:0">';
 					}
-					buf += '<li style="margin:5px"><button name="selectFormat" value="' + i + '" class="button" style="width:320px;height:30px;text-align:left;font:12pt Verdana">' + Tools.escapeFormat(format.id) + '</button></li>';
+					buf += '<li style="margin:5px"><button name="selectFormat" value="' + i + '" class="button" style="width:320px;height:30px;text-align:left;font:12pt Verdana">' + BattleLog.escapeFormat(format.id) + '</button></li>';
 				}
 				buf += '</ul></div>';
 				this.$el.html(buf);
@@ -141,7 +141,7 @@
 					}, function (data) {
 						if (self.curFormat !== format) return;
 						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button></p>';
-						buf += '<h3>' + Tools.escapeFormat(format) + ' Top 500</h3>';
+						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top 500</h3>';
 						buf += data + '</div>';
 						self.$el.html(buf);
 					}, 'html');

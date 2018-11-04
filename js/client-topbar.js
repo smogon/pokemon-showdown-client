@@ -30,11 +30,11 @@
 		updateUserbar: function () {
 			var buf = '';
 			var name = ' ' + app.user.get('name');
-			var color = hashColor(app.user.get('userid'));
+			var color = BattleLog.hashColor(app.user.get('userid'));
 			if (!app.user.loaded) {
 				buf = '<button disabled>Loading...</button>';
 			} else if (app.user.get('named')) {
-				buf = '<span class="username" data-name="' + Tools.escapeHTML(name) + '" style="' + color + '"><i class="fa fa-user" style="color:#779EC5"></i> ' + Tools.escapeHTML(name) + '</span>';
+				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '" style="' + color + '"><i class="fa fa-user" style="color:#779EC5"></i> ' + BattleLog.escapeHTML(name) + '</span>';
 			} else {
 				buf = '<button name="login">Choose name</button>';
 			}
@@ -74,7 +74,7 @@
 					if (room.notifications[tag].title) title += room.notifications[tag].title + '\n';
 					if (room.notifications[tag].body) title += room.notifications[tag].body + '\n';
 				}
-				if (title) buf += ' title="' + Tools.escapeHTML(title) + '"';
+				if (title) buf += ' title="' + BattleLog.escapeHTML(title) + '"';
 			}
 			switch (room ? room.type : id) {
 			case '':
@@ -89,7 +89,7 @@
 			case 'rooms':
 				return buf + ' aria-label="Join chatroom"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			case 'battle':
-				var name = Tools.escapeHTML(room.title);
+				var name = BattleLog.escapeHTML(room.title);
 				var idChunks = id.substr(7).split('-');
 				var formatid;
 				if (idChunks.length <= 1) {
@@ -101,25 +101,25 @@
 					var p1 = (room.battle && room.battle.p1 && room.battle.p1.name) || '';
 					var p2 = (room.battle && room.battle.p2 && room.battle.p2.name) || '';
 					if (p1 && p2) {
-						name = '' + Tools.escapeHTML(p1) + ' v. ' + Tools.escapeHTML(p2);
+						name = '' + BattleLog.escapeHTML(p1) + ' v. ' + BattleLog.escapeHTML(p2);
 					} else if (p1 || p2) {
-						name = '' + Tools.escapeHTML(p1) + Tools.escapeHTML(p2);
+						name = '' + BattleLog.escapeHTML(p1) + BattleLog.escapeHTML(p2);
 					} else {
 						name = '(empty room)';
 					}
 				}
-				return buf + ' draggable="true"><i class="text">' + Tools.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			case 'chat':
-				return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (Tools.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			case 'html':
 			default:
 				if (room.title && room.title.charAt(0) === '[') {
 					var closeBracketIndex = room.title.indexOf(']');
 					if (closeBracketIndex > 0) {
-						return buf + ' draggable="true"><i class="text">' + Tools.escapeFormat(room.title.slice(1, closeBracketIndex)) + '</i><span>' + Tools.escapeHTML(room.title.slice(closeBracketIndex + 1)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+						return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(room.title.slice(1, closeBracketIndex)) + '</i><span>' + BattleLog.escapeHTML(room.title.slice(closeBracketIndex + 1)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 					}
 				}
-				return buf + ' draggable="true"><i class="fa fa-file-text-o"></i> <span>' + (Tools.escapeHTML(room.title) || id) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + ' draggable="true"><i class="fa fa-file-text-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || id) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			}
 		},
 		updateTabbar: function () {
@@ -456,7 +456,7 @@
 			var avatar = app.user.get('avatar');
 
 			var buf = '';
-			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Tools.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + Tools.escapeHTML(name) + '</strong></p>';
+			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Tools.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
 			buf += '<p><button name="avatars">Change avatar</button></p>';
 			if (app.user.get('named')) {
 				var registered = app.user.get('registered');
@@ -776,7 +776,7 @@
 			var buf = '<form>';
 
 			if (data.error) {
-				buf += '<p class="error">' + Tools.escapeHTML(data.error) + '</p>';
+				buf += '<p class="error">' + BattleLog.escapeHTML(data.error) + '</p>';
 				if (data.error.indexOf('inappropriate') >= 0) {
 					buf += '<p>Keep in mind these rules:</p>';
 					buf += '<ol>';
@@ -786,14 +786,14 @@
 					buf += '</ol>';
 				}
 			} else if (data.reason) {
-				buf += '<p>' + Tools.parseMessage(data.reason) + '</p>';
+				buf += '<p>' + BattleLog.parseMessage(data.reason) + '</p>';
 			} else if (!data.force) {
 				var noRenameGames = '';
 				if (app.rooms[''].games) {
 					for (var roomid in app.rooms[''].games) {
 						var title = app.rooms[''].games[roomid];
 						if (title.slice(-1) === '*') {
-							noRenameGames += '<li>' + Tools.escapeHTML(title.slice(0, -1)) + '</li>';
+							noRenameGames += '<li>' + BattleLog.escapeHTML(title.slice(0, -1)) + '</li>';
 						}
 					}
 				}
@@ -810,7 +810,7 @@
 
 			var name = (data.name || '');
 			if (!name && app.user.get('named')) name = app.user.get('name');
-			buf += '<p><label class="label">Username: <small class="preview" style="' + hashColor(toUserid(name)) + '">(color)</small><input class="textbox autofocus" type="text" name="username" value="' + Tools.escapeHTML(name) + '" autocomplete="username"></label></p>';
+			buf += '<p><label class="label">Username: <small class="preview" style="' + BattleLog.hashColor(toUserid(name)) + '">(color)</small><input class="textbox autofocus" type="text" name="username" value="' + BattleLog.escapeHTML(name) + '" autocomplete="username"></label></p>';
 			if (name) {
 				buf += '<p><small>(Others will be able to see your name change. To change name privately, use "Log out")</small></p>';
 			}
@@ -825,7 +825,7 @@
 		updateColor: function (e) {
 			var name = e.currentTarget.value;
 			var preview = this.$('.preview');
-			var css = hashColor(toUserid(name)).slice(6, -1);
+			var css = BattleLog.hashColor(toUserid(name)).slice(6, -1);
 			preview.css('color', css);
 		},
 		force: function () {
@@ -890,11 +890,11 @@
 			} else {
 				buf += '<p>Register your account:</p>';
 			}
-			buf += '<p><label class="label">Username: <strong><input type="text" name="name" value="' + Tools.escapeHTML(data.name || app.user.get('name')) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
+			buf += '<p><label class="label">Username: <strong><input type="text" name="name" value="' + BattleLog.escapeHTML(data.name || app.user.get('name')) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
 			buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="new-password" /></label></p>';
 			buf += '<p><label class="label">Password (confirm): <input class="textbox" type="password" name="cpassword" autocomplete="new-password" /></label></p>';
 			buf += '<p><label class="label"><img src="' + Tools.resourcePrefix + 'sprites/bwani/pikachu.gif" /></label></p>';
-			buf += '<p><label class="label">What is this pokemon? <input class="textbox" type="text" name="captcha" value="' + Tools.escapeHTML(data.captcha) + '" /></label></p>';
+			buf += '<p><label class="label">What is this pokemon? <input class="textbox" type="text" name="captcha" value="' + BattleLog.escapeHTML(data.captcha) + '" /></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Register</strong></button> <button name="close">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
@@ -933,7 +933,7 @@
 			var buf = '<form>';
 
 			if (data.error) {
-				buf += '<p class="error">' + Tools.escapeHTML(data.error) + '</p>';
+				buf += '<p class="error">' + BattleLog.escapeHTML(data.error) + '</p>';
 				if (data.error.indexOf(' forced you to change ') >= 0) {
 					buf += '<p>Keep in mind these rules:</p>';
 					buf += '<ol>';
@@ -943,13 +943,13 @@
 					buf += '</ol>';
 				}
 			} else if (data.reason) {
-				buf += '<p>' + Tools.escapeHTML(data.reason) + '</p>';
+				buf += '<p>' + BattleLog.escapeHTML(data.reason) + '</p>';
 			} else {
 				buf += '<p class="error">The name you chose is registered.</p>';
 			}
 
 			buf += '<p>If this is your account:</p>';
-			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + Tools.escapeHTML(data.username) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
+			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + BattleLog.escapeHTML(data.username) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
 			if (data.special === '@gmail') {
 				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close">Cancel</button></p>';

@@ -486,10 +486,10 @@ Storage.initTestClient = function () {
 			if (uri[0] === '/') { //relative URI
 				uri = Tools.resourcePrefix + uri.substr(1);
 			}
-			var src = '<!DOCTYPE html><html><body><form action="' + Tools.escapeHTML(uri) + '" method="POST">';
+			var src = '<!DOCTYPE html><html><body><form action="' + BattleLog.escapeHTML(uri) + '" method="POST">';
 			src += '<input type="hidden" name="testclient">';
 			for (var i in data) {
-				src += '<input type=hidden name="' + i + '" value="' + Tools.escapeHTML(data[i]) + '">';
+				src += '<input type=hidden name="' + i + '" value="' + BattleLog.escapeHTML(data[i]) + '">';
 			}
 			src += '<input type=submit value="Please click this button first."></form></body></html>';
 			app.addPopup(ProxyPopup, {uri: "data:text/html;charset=UTF-8," + encodeURIComponent(src), callback: callback});
@@ -529,7 +529,7 @@ Storage.loadPackedTeams = function (buffer) {
 		Storage.whenAppLoaded(function (app) {
 			app.addPopup(Popup, {
 				type: 'modal',
-				htmlMessage: "Your teams are corrupt and could not be loaded. :( We may be able to recover a team from this data:<br /><textarea rows=\"10\" cols=\"60\">" + Tools.escapeHTML(buffer) + "</textarea>"
+				htmlMessage: "Your teams are corrupt and could not be loaded. :( We may be able to recover a team from this data:<br /><textarea rows=\"10\" cols=\"60\">" + BattleLog.escapeHTML(buffer) + "</textarea>"
 			});
 		});
 	}

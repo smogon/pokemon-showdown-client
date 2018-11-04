@@ -271,7 +271,7 @@
 				case 'create':
 					var formatName = window.BattleFormats && BattleFormats[data[0]] ? BattleFormats[data[0]].name : data[0];
 					var type = data[1];
-					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + Tools.escapeHTML(formatName) + " " + Tools.escapeHTML(type) + " Tournament created.</div>");
+					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + BattleLog.escapeHTML(formatName) + " " + BattleLog.escapeHTML(type) + " Tournament created.</div>");
 					this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + formatName + "\nType: " + type, 'tournament-create');
 					this.curTeamIndex = 0;
 					this.updateTeams();
@@ -317,7 +317,7 @@
 					break;
 
 				case 'disqualify':
-					this.room.$chat.append("<div class=\"notice tournament-message-disqualify\">" + Tools.escapeHTML(data[0]) + " has been disqualified from the tournament.</div>");
+					this.room.$chat.append("<div class=\"notice tournament-message-disqualify\">" + BattleLog.escapeHTML(data[0]) + " has been disqualified from the tournament.</div>");
 					break;
 
 				case 'autodq':
@@ -448,7 +448,7 @@
 				case 'battlestart':
 					var roomid = toRoomid(data[2]).toLowerCase();
 					this.room.$chat.append('<div class="notice tournament-message-battlestart tournament-' + roomid + '"><a href="' + app.root + roomid + '" class="ilink">' +
-						"Tournament battle between " + Tools.escapeHTML(data[0]) + " and " + Tools.escapeHTML(data[1]) + " started." +
+						"Tournament battle between " + BattleLog.escapeHTML(data[0]) + " and " + BattleLog.escapeHTML(data[1]) + " started." +
 						'</a></div>');
 					break;
 
@@ -458,7 +458,7 @@
 						result = "won";
 					else if (data[2] === 'loss')
 						result = "lost";
-					var message = Tools.escapeHTML(data[0]) + " has " + result + " the match " + Tools.escapeHTML(data[3].split(',').join(' - ')) + " against " + Tools.escapeHTML(data[1]) +
+					var message = BattleLog.escapeHTML(data[0]) + " has " + result + " the match " + BattleLog.escapeHTML(data[3].split(',').join(' - ')) + " against " + BattleLog.escapeHTML(data[1]) +
 						(data[4] === 'fail' ? " but the tournament does not support drawing, so it did not count" : "") + ".";
 					var $battleMessage = data[5] ? this.room.$chat.find('.tournament-' + toRoomid(data[5]).toLowerCase()) : '';
 					if ($battleMessage && $battleMessage.length) {
@@ -483,9 +483,9 @@
 					}
 
 					var type = endData.generator;
-					this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + Tools.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + Tools.escapeFormat(endData.format) + " " + Tools.escapeHTML(type) + " Tournament!</div>");
+					this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + BattleLog.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + BattleLog.escapeFormat(endData.format) + " " + BattleLog.escapeHTML(type) + " Tournament!</div>");
 					if (endData.results[1])
-						this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") + ": " + Tools.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") + ": " + BattleLog.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
 
 					// Fallthrough
 
@@ -510,7 +510,7 @@
 
 				case 'error':
 					var appendError = function (message) {
-						this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + Tools.sanitizeHTML(message) + "</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-forceend\">" + BattleLog.sanitizeHTML(message) + "</div>");
 					}.bind(this);
 
 					switch (data[0]) {
@@ -586,7 +586,7 @@
 				if (!data.rootNode) {
 					if (!('users' in data)) return;
 					var users = data.users.length;
-					if (users) $div.html('<b>' + users + '</b> user' + (users !== 1 ? 's' : '') + ':<br />' + Tools.escapeHTML(data.users.join(", ")));
+					if (users) $div.html('<b>' + users + '</b> user' + (users !== 1 ? 's' : '') + ':<br />' + BattleLog.escapeHTML(data.users.join(", ")));
 					return $div;
 				}
 
@@ -803,7 +803,7 @@
 	var UserPopup = this.Popup.extend({
 		initialize: function (data) {
 			this.$el.html('<ul class="popupmenu">' + data.users.map(function (user) {
-				var escapedUser = Tools.escapeHTML(user);
+				var escapedUser = BattleLog.escapeHTML(user);
 				return '<li><button name="selectUser" value="' + escapedUser + '"' + (user === data.user ? ' class="sel"' : '') + '>' + escapedUser + '</button></li>';
 			}).join('') + '</ul>');
 		},

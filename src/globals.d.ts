@@ -29,7 +29,7 @@ declare var BattleStatuses: any;
 declare var BattlePokemonSprites: any;
 declare var BattlePokemonSpritesBW: any;
 
-// defined in battle-dex-misc
+// defined in battle-log-misc
 declare function MD5(input: string): string;
 declare function formatText(input: string): string;
 

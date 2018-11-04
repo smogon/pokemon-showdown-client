@@ -332,7 +332,7 @@ class Pokemon {
 		}
 	}
 	htmlName() {
-		return '<span class="battle-nickname' + (this.side.n === 0 ? '' : '-foe') + '" title="' + this.species + '">' + Tools.escapeHTML(this.name) + '</span>';
+		return '<span class="battle-nickname' + (this.side.n === 0 ? '' : '-foe') + '" title="' + this.species + '">' + BattleLog.escapeHTML(this.name) + '</span>';
 	}
 	getName(shortName?: boolean) {
 		if (this.side.n === 0) {
@@ -358,7 +358,7 @@ class Pokemon {
 		return titlestring;
 	}
 	getFullName(plaintext?: boolean) {
-		let name = this.side && this.side.n && (this.side.battle.ignoreOpponent || this.side.battle.ignoreNicks) ? this.species : Tools.escapeHTML(this.name);
+		let name = this.side && this.side.n && (this.side.battle.ignoreOpponent || this.side.battle.ignoreNicks) ? this.species : BattleLog.escapeHTML(this.name);
 		if (name !== this.species) {
 			if (plaintext) {
 				name += ' (' + this.species + ')';
@@ -787,7 +787,7 @@ class Side {
 		if (pokemon.side.n === 0) {
 			this.battle.message('Go! ' + pokemon.getFullName() + '!');
 		} else {
-			this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
+			this.battle.message('' + BattleLog.escapeHTML(pokemon.side.name) + ' sent out ' + pokemon.getFullName() + '!');
 		}
 
 		this.battle.scene.animSummon(pokemon, slot);
@@ -849,12 +849,12 @@ class Side {
 			pokemon.removeVolatile('formechange' as ID);
 		}
 		if (pokemon.lastMove === 'uturn' || pokemon.lastMove === 'voltswitch') {
-			this.battle.message('' + pokemon.getName() + ' went back to ' + Tools.escapeHTML(pokemon.side.name) + '!');
+			this.battle.message('' + pokemon.getName() + ' went back to ' + BattleLog.escapeHTML(pokemon.side.name) + '!');
 		} else if (pokemon.lastMove !== 'batonpass' && pokemon.lastMove !== 'zbatonpass') {
 			if (pokemon.side.n === 0) {
 				this.battle.message('' + pokemon.getName() + ', come back!');
 			} else {
-				this.battle.message('' + Tools.escapeHTML(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
+				this.battle.message('' + BattleLog.escapeHTML(pokemon.side.name) + ' withdrew ' + pokemon.getFullName() + '!');
 			}
 		}
 		pokemon.statusData.toxicTurns = 0;
@@ -1163,12 +1163,12 @@ class Battle {
 	// activities
 	//
 	start() {
-		this.scene.log('<div>Battle between ' + Tools.escapeHTML(this.p1.name) + ' and ' + Tools.escapeHTML(this.p2.name) + ' started!</div>');
+		this.scene.log('<div>Battle between ' + BattleLog.escapeHTML(this.p1.name) + ' and ' + BattleLog.escapeHTML(this.p2.name) + ' started!</div>');
 		if (this.startCallback) this.startCallback(this);
 	}
 	winner(winner?: string) {
-		if (winner) this.message('' + Tools.escapeHTML(winner) + ' won the battle!');
-		else this.message('Tie between ' + Tools.escapeHTML(this.p1.name) + ' and ' + Tools.escapeHTML(this.p2.name) + '!');
+		if (winner) this.message('' + BattleLog.escapeHTML(winner) + ' won the battle!');
+		else this.message('Tie between ' + BattleLog.escapeHTML(this.p1.name) + ' and ' + BattleLog.escapeHTML(this.p2.name) + '!');
 		this.ended = true;
 	}
 	prematureEnd() {
@@ -1440,7 +1440,7 @@ class Battle {
 				// 	for (let i = 0; i < 10; i++) {
 				// 		let name = people[Math.floor(Math.random() * people.length)];
 				// 		if (!button) button = buttons[Math.floor(Math.random() * buttons.length)];
-				// 		this.scene.log('<div class="chat"><strong style="' + hashColor(toUserid(name)) + '" class="username" data-name="' + Tools.escapeHTML(name) + '">' + Tools.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
+				// 		this.scene.log('<div class="chat"><strong style="' + BattleLog.hashColor(toUserid(name)) + '" class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
 				// 		button = (name === 'Diatom' ? "thanks diatom" : null);
 				// 	}
 				} else {
@@ -2268,7 +2268,7 @@ class Battle {
 						actions += '' + ofpoke!.getName() + ' surrounded itself with a veil of petals!';
 						break;
 					default:
-						let stat = Tools.escapeHTML(args[3]);
+						let stat = BattleLog.escapeHTML(args[3]);
 						actions += "" + poke.getName() + "'s " + (stat ? stat + " was" : "stats were") + " not lowered!";
 					}
 					break;
@@ -2899,10 +2899,10 @@ class Battle {
 				let poke = this.getPokemon(args[1])!;
 				let item = Tools.getItem(args[3]);
 				if (args[2] === 'Rayquaza') {
-					actions += "" + Tools.escapeHTML(poke.side.name) + "'s fervent wish has reached " + poke.getLowerName() + "!";
+					actions += "" + BattleLog.escapeHTML(poke.side.name) + "'s fervent wish has reached " + poke.getLowerName() + "!";
 				} else {
 					poke.item = item.name;
-					actions += "" + poke.getName() + "'s " + item.name + " is reacting to " + (this.gen >= 7 ? "the Key Stone" : Tools.escapeHTML(poke.side.name) + "'s Mega Bracelet") + "!";
+					actions += "" + poke.getName() + "'s " + item.name + " is reacting to " + (this.gen >= 7 ? "the Key Stone" : BattleLog.escapeHTML(poke.side.name) + "'s Mega Bracelet") + "!";
 				}
 				actions += "<br />" + poke.getName() + " has Mega Evolved into Mega " + args[2] + "!";
 				break;
@@ -2932,7 +2932,7 @@ class Battle {
 				} else {
 					switch (effect.id) {
 					case 'typechange':
-						const types = Tools.escapeHTML(args[3]);
+						const types = BattleLog.escapeHTML(args[3]);
 						poke.removeVolatile('typeadd' as ID);
 						poke.addVolatile('typechange' as ID, types);
 						if (kwargs.silent) {
@@ -2962,7 +2962,7 @@ class Battle {
 						}).join(' '), 'neutral');
 						break;
 					case 'typeadd':
-						const type = Tools.escapeHTML(args[3]);
+						const type = BattleLog.escapeHTML(args[3]);
 						poke.addVolatile('typeadd' as ID, type);
 						if (kwargs.silent) break;
 						actions += "" + type + " type was added to " + poke.getLowerName() + "!";
@@ -3032,7 +3032,7 @@ class Battle {
 							ofpoke!.markAbility(fromeffect.name);
 						}
 						this.scene.resultAnim(poke, 'Disabled', 'bad');
-						actions += "" + poke.getName() + "'s " + Tools.escapeHTML(args[3]) + " was disabled!";
+						actions += "" + poke.getName() + "'s " + BattleLog.escapeHTML(args[3]) + " was disabled!";
 						break;
 					case 'embargo':
 						this.scene.resultAnim(poke, 'Embargo', 'bad');
@@ -3166,7 +3166,7 @@ class Battle {
 						actions += '' + poke.getName() + ' foresaw an attack!';
 						break;
 					case 'mimic':
-						actions += '' + poke.getName() + ' learned ' + Tools.escapeHTML(args[3]) + '!';
+						actions += '' + poke.getName() + ' learned ' + BattleLog.escapeHTML(args[3]) + '!';
 						break;
 					case 'laserfocus':
 						actions += '' + poke.getName() + ' concentrated intensely!';
@@ -3455,7 +3455,7 @@ class Battle {
 					actions += "" + poke.getName() + " snatched " + ofpoke!.getLowerName() + "'s move!";
 					break;
 				case 'grudge':
-					actions += "" + poke.getName() + "'s " + Tools.escapeHTML(args[3]) + " lost all of its PP due to the grudge!";
+					actions += "" + poke.getName() + "'s " + BattleLog.escapeHTML(args[3]) + " lost all of its PP due to the grudge!";
 					poke.markMove(args[3], Infinity);
 					break;
 				case 'quickguard':
@@ -3512,7 +3512,7 @@ class Battle {
 					actions += 'Everyone is caught up in the happy atmosphere!';
 					break;
 				case 'celebrate':
-					actions += 'Congratulations, ' + Tools.escapeHTML(poke.side.name) + '!';
+					actions += 'Congratulations, ' + BattleLog.escapeHTML(poke.side.name) + '!';
 					break;
 
 				// move activations
@@ -3534,7 +3534,7 @@ class Battle {
 					ofpoke!.side.removeSideCondition('LightScreen');
 					break;
 				case 'beatup':
-					actions += "" + Tools.escapeHTML(kwargs.of) + "'s attack!";
+					actions += "" + BattleLog.escapeHTML(kwargs.of) + "'s attack!";
 					break;
 				case 'pursuit':
 					actions += "(" + poke.getName() + " is being withdrawn!)";
@@ -3561,7 +3561,7 @@ class Battle {
 					break;
 				case 'spite':
 					let move = Tools.getMove(args[3]).name;
-					let pp = Tools.escapeHTML(args[4]);
+					let pp = BattleLog.escapeHTML(args[4]);
 					actions += "It reduced the PP of " + poke.getLowerName() + "'s " + move + " by " + pp + "!";
 					poke.markMove(move, Number(pp));
 					break;
@@ -3572,16 +3572,16 @@ class Battle {
 					this.scene.anim(poke, {time: 100});
 					break;
 				case 'magnitude':
-					actions += "Magnitude " + Tools.escapeHTML(args[3]) + "!";
+					actions += "Magnitude " + BattleLog.escapeHTML(args[3]) + "!";
 					break;
 				case 'sketch':
-					actions += "" + poke.getName() + " sketched " + Tools.escapeHTML(args[3]) + "!";
+					actions += "" + poke.getName() + " sketched " + BattleLog.escapeHTML(args[3]) + "!";
 					break;
 				case 'skillswap':
 					actions += "" + poke.getName() + " swapped Abilities with its target!";
 					if (this.gen <= 4) break;
-					let pokeability = Tools.escapeHTML(args[3]) || ofpoke!.ability;
-					let ofpokeability = Tools.escapeHTML(args[4]) || poke.ability;
+					let pokeability = BattleLog.escapeHTML(args[3]) || ofpoke!.ability;
+					let ofpokeability = BattleLog.escapeHTML(args[4]) || poke.ability;
 					if (pokeability) {
 						poke.ability = pokeability;
 						if (!ofpoke!.baseAbility) ofpoke!.baseAbility = pokeability;
@@ -3646,7 +3646,7 @@ class Battle {
 					actions += '' + poke.getName() + ' anchored itself with its roots!';
 					break;
 				case 'matblock':
-					actions += '' + Tools.escapeHTML(args[3]) + ' was blocked by the kicked-up mat!';
+					actions += '' + BattleLog.escapeHTML(args[3]) + ' was blocked by the kicked-up mat!';
 					break;
 				case 'powder':
 					actions += 'When the flame touched the powder on the Pokémon, it exploded!';
@@ -3682,10 +3682,10 @@ class Battle {
 					break;
 				case 'forewarn':
 					if (this.gen >= 5) {
-						actions += "It was alerted to " + ofpoke!.getLowerName() + "'s " + Tools.escapeHTML(args[3]) + "!";
+						actions += "It was alerted to " + ofpoke!.getLowerName() + "'s " + BattleLog.escapeHTML(args[3]) + "!";
 						ofpoke!.markMove(args[3], 0);
 					} else {
-						actions += "" + poke.getName() + "'s Forewarn alerted it to " + Tools.escapeHTML(args[3]) + "!";
+						actions += "" + poke.getName() + "'s Forewarn alerted it to " + BattleLog.escapeHTML(args[3]) + "!";
 						let foeActive = [] as Pokemon[];
 						for (const target of poke.side.foe.active) if (target) foeActive.push(target);
 						if (foeActive.length === 1) {
@@ -3759,7 +3759,7 @@ class Battle {
 					break;
 				case 'leppaberry':
 				case 'mysteryberry':
-					actions += '' + poke.getName() + " restored PP to its " + Tools.escapeHTML(args[3]) + " move using " + effect.name + "!";
+					actions += '' + poke.getName() + " restored PP to its " + BattleLog.escapeHTML(args[3]) + " move using " + effect.name + "!";
 					poke.markMove(args[3], effect.id === 'leppaberry' ? -10 : -5);
 					break;
 				case 'focusband':
@@ -3768,7 +3768,7 @@ class Battle {
 					break;
 				case 'safetygoggles':
 					poke.item = 'Safety Goggles';
-					actions += '' + poke.getName() + " is not affected by " + Tools.escapeHTML(args[3]) + " thanks to its Safety Goggles!";
+					actions += '' + poke.getName() + " is not affected by " + BattleLog.escapeHTML(args[3]) + " thanks to its Safety Goggles!";
 					break;
 				case 'protectivepads':
 					poke.item = 'Protective Pads';
@@ -4037,7 +4037,7 @@ class Battle {
 				break;
 
 			} case '-message': {
-				actions += Tools.escapeHTML(args[1]);
+				actions += BattleLog.escapeHTML(args[1]);
 				break;
 
 			} case '-anim': {
@@ -4052,7 +4052,7 @@ class Battle {
 				break;
 
 			} case '-hint': {
-				this.message('', '<small>(' + Tools.escapeHTML(args[1]) + ')</small>');
+				this.message('', '<small>(' + BattleLog.escapeHTML(args[1]) + ')</small>');
 				break;
 
 			} default: {
@@ -4371,7 +4371,7 @@ class Battle {
 		} case 'tier': {
 			if (!args[1]) args[1] = '';
 			for (let i in kwargs) args[1] += '[' + i + '] ' + kwargs[i];
-			this.scene.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + Tools.escapeHTML(args[1]) + '</strong></div>');
+			this.scene.log('<div style="padding:5px 0"><small>Format:</small> <br /><strong>' + BattleLog.escapeHTML(args[1]) + '</strong></div>');
 			this.tier = args[1];
 			if (this.tier.slice(-13) === 'Random Battle') {
 				this.speciesClause = true;
@@ -4397,16 +4397,16 @@ class Battle {
 			this.scene.updateGen();
 			break;
 		} case 'variation': {
-			this.scene.log('<div><small>Variation: <em>' + Tools.escapeHTML(args[1]) + '</em></small></div>');
+			this.scene.log('<div><small>Variation: <em>' + BattleLog.escapeHTML(args[1]) + '</em></small></div>');
 			break;
 		} case 'rule': {
 			let ruleArgs = args[1].split(': ');
-			this.scene.log('<div><small><em>' + Tools.escapeHTML(ruleArgs[0]) + (ruleArgs[1] ? ':' : '') + '</em> ' + Tools.escapeHTML(ruleArgs[1] || '') + '</div>');
+			this.scene.log('<div><small><em>' + BattleLog.escapeHTML(ruleArgs[0]) + (ruleArgs[1] ? ':' : '') + '</em> ' + BattleLog.escapeHTML(ruleArgs[1] || '') + '</div>');
 			if (ruleArgs[0] === 'Species Clause') this.speciesClause = true;
 			break;
 		} case 'rated': {
 			this.rated = true;
-			this.scene.log('<div class="rated"><strong>' + (Tools.escapeHTML(args[1]) || 'Rated battle') + '</strong></div>');
+			this.scene.log('<div class="rated"><strong>' + (BattleLog.escapeHTML(args[1]) || 'Rated battle') + '</strong></div>');
 			break;
 		} case ':': {
 			break;
@@ -4423,7 +4423,7 @@ class Battle {
 			if (window.app && app.ignore && app.ignore[toUserid(name)] && (rank === ' ' || rank === '+' || rank === '\u2605' || rank === '\u2606')) break;
 			let message = args[1].slice(pipeIndex + 1);
 			let isHighlighted = window.app && app.rooms && app.rooms[this.roomid].getHighlight(message);
-			let parsedMessage = Tools.parseChatMessage(message, name, '', isHighlighted);
+			let parsedMessage = BattleLog.parseChatMessage(message, name, '', isHighlighted);
 			if (!Array.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (let i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
@@ -4435,19 +4435,19 @@ class Battle {
 			}
 			break;
 		} case 'chatmsg': {
-			this.scene.log('<div class="chat">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat">' + BattleLog.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'chatmsg-raw': case 'raw': case 'html': {
-			this.scene.log('<div class="chat">' + Tools.sanitizeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat">' + BattleLog.sanitizeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'error': {
-			this.scene.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat message-error">' + BattleLog.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'pm': {
-			this.scene.log('<div class="chat"><strong>' + Tools.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + Tools.escapeHTML(args[2], true) + '\')">(Private to ' + Tools.escapeHTML(args[3]) + ')</i> ' + Tools.parseMessage(args[4]) + '</span>');
+			this.scene.log('<div class="chat"><strong>' + BattleLog.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + BattleLog.escapeHTML(args[2], true) + '\')">(Private to ' + BattleLog.escapeHTML(args[3]) + ')</i> ' + BattleLog.parseMessage(args[4]) + '</span>');
 			break;
 		} case 'askreg': {
-			this.scene.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + Tools.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
+			this.scene.log('<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + BattleLog.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
 			break;
 		} case 'inactive': {
 			if (!this.kickingInactive) this.kickingInactive = true;
@@ -4469,11 +4469,11 @@ class Battle {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
 			}
-			this.scene.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat message-error">' + BattleLog.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'inactiveoff': {
 			this.kickingInactive = false;
-			this.scene.log('<div class="chat message-error">' + Tools.escapeHTML(args[1]) + '</div>', preempt);
+			this.scene.log('<div class="chat message-error">' + BattleLog.escapeHTML(args[1]) + '</div>', preempt);
 			break;
 		} case 'timer': {
 			break;
@@ -4490,7 +4490,7 @@ class Battle {
 				room.userList.updateNoUsersOnline();
 			}
 			if (!this.ignoreSpects) {
-				this.scene.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
+				this.scene.log('<div class="chat"><small>' + BattleLog.escapeHTML(args[1]) + ' joined.</small></div>', preempt);
 			}
 			break;
 		} case 'leave': case 'l': {
@@ -4505,7 +4505,7 @@ class Battle {
 				room.userList.updateNoUsersOnline();
 			}
 			if (!this.ignoreSpects) {
-				this.scene.log('<div class="chat"><small>' + Tools.escapeHTML(args[1]) + ' left.</small></div>', preempt);
+				this.scene.log('<div class="chat"><small>' + BattleLog.escapeHTML(args[1]) + ' left.</small></div>', preempt);
 			}
 			break;
 		} case 'J': case 'L': case 'N': case 'n': case 'spectator': case 'spectatorleave': {
@@ -4637,16 +4637,16 @@ class Battle {
 			this.cantUseMove(poke, effect, move, kwargs);
 			break;
 		} case 'message': {
-			this.message(Tools.escapeHTML(args[1]));
+			this.message(BattleLog.escapeHTML(args[1]));
 			break;
 		} case 'bigerror': {
-			this.message('<div class="broadcast-red">' + Tools.escapeHTML(args[1]).replace(/\|/g, '<br />') + '</div>');
+			this.message('<div class="broadcast-red">' + BattleLog.escapeHTML(args[1]).replace(/\|/g, '<br />') + '</div>');
 			break;
 		} case 'done': case '': {
 			if (this.ended || this.endPrevAction()) return;
 			break;
 		} case 'warning': {
-			this.message('<strong>Warning:</strong> ' + Tools.escapeHTML(args[1]));
+			this.message('<strong>Warning:</strong> ' + BattleLog.escapeHTML(args[1]));
 			this.message('Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer\'s Smogon thread</a>');
 			this.scene.wait(1000);
 			break;
@@ -4661,7 +4661,7 @@ class Battle {
 		} case 'debug': {
 			args.shift();
 			const name = args.join(' ');
-			this.scene.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + Tools.escapeHTML(name) + '.</small></div></div>', preempt);
+			this.scene.log('<div class="debug"><div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(name) + '.</small></div></div>', preempt);
 			break;
 		} case 'seed': case 'choice': {
 			break;
@@ -4671,13 +4671,13 @@ class Battle {
 			break;
 		} case 'fieldhtml': {
 			this.playbackState = Playback.Seeking; // force seeking to prevent controls etc
-			this.scene.setFrameHTML(Tools.sanitizeHTML(args[1]));
+			this.scene.setFrameHTML(BattleLog.sanitizeHTML(args[1]));
 			break;
 		} case 'controlshtml': {
-			this.scene.setControlsHTML(Tools.sanitizeHTML(args[1]));
+			this.scene.setControlsHTML(BattleLog.sanitizeHTML(args[1]));
 			break;
 		} default: {
-			this.scene.log('<div class="chat message-error">Unknown command: ' + Tools.escapeHTML(args[0]) + '</div>');
+			this.scene.log('<div class="chat message-error">Unknown command: ' + BattleLog.escapeHTML(args[0]) + '</div>');
 			if (this.errorCallback) this.errorCallback(this);
 			break;
 		}}
@@ -4691,7 +4691,7 @@ class Battle {
 		if (!str) return;
 		if (str.charAt(0) !== '|' || str.substr(0, 2) === '||') {
 			if (str.charAt(0) === '|') str = str.substr(2);
-			this.scene.log('<div class="chat">' + Tools.escapeHTML(str) + '</div>', preempt);
+			this.scene.log('<div class="chat">' + BattleLog.escapeHTML(str) + '</div>', preempt);
 			return;
 		}
 		let args = ['done'];
@@ -4751,9 +4751,9 @@ class Battle {
 					this.runMajor(args, kwargs, preempt);
 				}
 			} catch (e) {
-				this.scene.log('<div class="broadcast-red">Error parsing: ' + Tools.escapeHTML(str) + ' (' + Tools.escapeHTML('' + e) + ')</div>', preempt);
+				this.scene.log('<div class="broadcast-red">Error parsing: ' + BattleLog.escapeHTML(str) + ' (' + BattleLog.escapeHTML('' + e) + ')</div>', preempt);
 				if (e.stack) {
-					let stack = Tools.escapeHTML('' + e.stack).split('\n');
+					let stack = BattleLog.escapeHTML('' + e.stack).split('\n');
 					for (let i = 0; i < stack.length; i++) {
 						if (/\brun\b/.test(stack[i])) {
 							stack.length = i;

@@ -52,7 +52,8 @@ fs.writeFileSync(
 	'js/battledata.js',
 	fs.readFileSync('js/battle-dex.js') + '\n\n' +
 		fs.readFileSync('js/battle-dex-data.js') + '\n\n' +
-		fs.readFileSync('src/battle-dex-misc.js')
+		fs.readFileSync('js/battle-log.js') + '\n\n' +
+		fs.readFileSync('src/battle-log-misc.js')
 );
 
 if (!ignoreGraphics) {
