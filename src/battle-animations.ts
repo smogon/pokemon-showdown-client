@@ -2367,6 +2367,7 @@ class PokemonSprite extends Sprite {
 			}
 		}
 		let statusTable = {
+			endability: '<span class="bad">Gastro&nbsp;Acid</span> ',
 			throatchop: '<span class="bad">Throat&nbsp;Chop</span> ',
 			confusion: '<span class="bad">Confused</span> ',
 			healblock: '<span class="bad">Heal&nbsp;Block</span> ',
