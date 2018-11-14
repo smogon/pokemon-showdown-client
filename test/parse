@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+process.chdir(path.resolve(__dirname, '..'));
+
+window = global;
+eval('' + fs.readFileSync(`js/battle-dex.js`));
+eval('' + fs.readFileSync(`js/battle-dex-data.js`));
+eval('' + fs.readFileSync(`js/battle.js`));
+eval('' + fs.readFileSync(`data/text.js`));
+eval('' + fs.readFileSync(`js/battle-text-parser.js`));
+
+const parser = new BattleTextParser();
+
+const readline = require('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+rl.on('line', line => {
+  const {args, kwArgs} = Battle.lineParse(line);
+  process.stdout.write(parser.parseLine(args, kwArgs) || '');
+});
