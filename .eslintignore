@@ -5,6 +5,7 @@ node_modules/
 /js/battle.js
 /js/battledata.js
 /js/battle-log.js
+/js/battle-text-parser.js
 /js/battle-dex.js
 /js/battle-dex-data.js
 /js/battle-animations-moves.js

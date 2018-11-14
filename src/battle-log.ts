@@ -1,11 +1,296 @@
 /**
  * Battle log
- * 
+ *
+ * An exercise in minimalism! This is a dependency of the client, which
+ * requires IE9+ and uses Preact, and the replay player, which requires
+ * IE7+ and uses jQuery. Therefore, this has to be compatible with IE7+
+ * and use the DOM directly!
+ *
+ * Special thanks to PPK for QuirksMode.org, one of the few resources
+ * available for how to do web development in these conditions.
+ *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
  */
 
 class BattleLog {
+	elem: HTMLDivElement;
+	innerElem: HTMLDivElement;
+	scene: BattleScene | null = null;
+	preemptElem: HTMLDivElement = null!;
+	atBottom = true;
+	className: string;
+	battleParser: BattleTextParser | null = null;
+	/**
+	 * -1 = spectator: "Red sent out Pikachu!" "Blue's Eevee used Tackle!"
+	 * 0 = player 1: "Go! Pikachu!" "The opposing Eevee used Tackle!"
+	 * 1 = player 2: "Red sent out Pikachu!" "Eevee used Tackle!"
+	 */
+	perspective: -1 | 0 | 1 = -1;
+	constructor(elem: HTMLDivElement, scene?: BattleScene) {
+		this.elem = elem;
+
+		elem.setAttribute('role', 'log');
+		elem.innerHTML = '';
+		const innerElem = document.createElement('div');
+		innerElem.className = 'inner';
+		elem.appendChild(innerElem);
+		this.innerElem = innerElem;
+		this.className = elem.className;
+
+		if (scene) {
+			this.scene = scene;
+			const preemptElem = document.createElement('div');
+			preemptElem.className = 'inner-preempt';
+			elem.appendChild(preemptElem);
+			this.preemptElem = preemptElem;
+			this.battleParser = new BattleTextParser();
+		}
+
+		elem.onscroll = this.onScroll;
+	}
+	onScroll = () => {
+		const distanceFromBottom = this.elem.scrollHeight - this.elem.scrollTop - this.elem.clientHeight;
+		this.atBottom = (distanceFromBottom < 30);
+	};
+	reset() {
+		this.innerElem.innerHTML = '';
+		this.atBottom = true;
+	}
+	destroy() {
+		this.elem.onscroll = null;
+	}
+	setHideNicks(hideNicks: boolean) {
+		this.elem.className = this.className + (hideNicks ? ' hidenicks' : '');
+	}
+	add(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
+		if (kwArgs && kwArgs.silent) return;
+		let divClass = 'chat';
+		let divHTML = '';
+		switch (args[0]) {
+		case 'chat': case 'c': case 'c:':
+			let name, message;
+			let battle = this.scene && this.scene.battle;
+			if (args[0] === 'c:') {
+				name = args[2];
+				message = args[3];
+			} else {
+				name = args[1];
+				message = args[2];
+			}
+			let rank = name.charAt(0);
+			if (battle && battle.ignoreSpects && (rank === ' ' || rank === '+')) return;
+			if (battle && battle.ignoreOpponent && (rank === '\u2605' || rank === '\u2606') && toUserid(name) !== app.user.get('userid')) return;
+			if (window.app && app.ignore && app.ignore[toUserid(name)] && (rank === ' ' || rank === '+' || rank === '\u2605' || rank === '\u2606')) return;
+			let isHighlighted = window.app && app.rooms && app.rooms[battle!.roomid].getHighlight(message);
+			[divClass, divHTML] = this.parseChatMessage(message, name, '', isHighlighted);
+			if (isHighlighted) {
+				let notifyTitle = "Mentioned by " + name + " in " + battle!.roomid;
+				app.rooms[battle!.roomid].notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+			}
+			break;
+
+		case 'join': case 'j':
+			divHTML = '<small>' + BattleLog.escapeHTML(args[1]) + ' joined.</small>';
+			break;
+
+		case 'leave': case 'l':
+			divHTML = '<small>' + BattleLog.escapeHTML(args[1]) + ' left.</small>';
+			break;
+
+		case 'chatmsg': case '':
+			divHTML = BattleLog.escapeHTML(args[1]);
+			break;
+
+		case 'chatmsg-raw': case 'raw': case 'html':
+			divHTML = BattleLog.sanitizeHTML(args[1]);
+			break;
+
+		case 'error': case 'inactive': case 'inactiveoff':
+			divClass = 'chat message-error';
+			divHTML = BattleLog.escapeHTML(args[1]);
+			break;
+
+		case 'bigerror':
+			this.message('<div class="broadcast-red">' + BattleLog.escapeHTML(args[1]).replace(/\|/g, '<br />') + '</div>');
+			return;
+
+		case 'pm':
+			divHTML = '<strong>' + BattleLog.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + BattleLog.escapeHTML(args[2], true) + '\')">(Private to ' + BattleLog.escapeHTML(args[3]) + ')</i> ' + BattleLog.parseMessage(args[4]) + '</span>';
+			break;
+
+		case 'askreg':
+			this.addDiv('chat', '<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + BattleLog.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
+			return;
+
+		case 'unlink':
+			this.hideChatFrom(toId(args[2] || args[1]));
+			return;
+
+		case 'debug':
+			divClass = 'debug';
+			divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
+			break;
+
+		case 'seed': case 'choice': case ':': case 'timer':
+		case 'J': case 'L': case 'N': case 'n': case 'spectator': case 'spectatorleave':
+			return;
+
+		default:
+			this.addBattleMessage(args, kwArgs);
+			return;
+		}
+		if (divHTML) this.addDiv(divClass, divHTML, preempt);
+	}
+	addBattleMessage(args: Args, kwArgs?: KWArgs) {
+		switch (args[0]) {
+		case 'warning':
+			this.message('<strong>Warning:</strong> ' + BattleLog.escapeHTML(args[1]));
+			this.message(`Bug? Report it to <a href="http://www.smogon.com/forums/showthread.php?t=3453192">the replay viewer's Smogon thread</a>`);
+			if (this.scene) this.scene.wait(1000);
+			return;
+
+		case 'variation':
+			this.addDiv('', '<small>Variation: <em>' + BattleLog.escapeHTML(args[1]) + '</em></small>');
+			break;
+
+		case 'rule':
+			const ruleArgs = args[1].split(': ');
+			this.addDiv('', '<small><em>' + BattleLog.escapeHTML(ruleArgs[0]) + (ruleArgs[1] ? ':' : '') + '</em> ' + BattleLog.escapeHTML(ruleArgs[1] || '') + '</small>');
+			break;
+
+		case 'rated':
+			this.addDiv('rated', '<strong>' + (BattleLog.escapeHTML(args[1]) || 'Rated battle') + '</strong>');
+			break;
+
+		case 'tier':
+			this.addDiv('', '<small>Format:</small> <br /><strong>' + BattleLog.escapeHTML(args[1]) + '</strong>');
+			break;
+
+		case 'turn':
+			const h2elem = document.createElement('h2');
+			h2elem.className = 'battle-history';
+			let turnMessage = this.battleParser!.parseLine(args, {}).trim();
+			if (!turnMessage.startsWith('==') || !turnMessage.endsWith('==')) {
+				throw new Error("Turn message must be a heading.");
+			}
+			turnMessage = turnMessage.slice(2, -2).trim();
+			this.battleParser!.curLineSection = 'break';
+			h2elem.innerHTML = BattleLog.escapeHTML(turnMessage);
+			this.addNode(h2elem);
+			break;
+
+		default:
+			let line = null;
+			if (this.battleParser) {
+				line = this.battleParser.parseLine(args, kwArgs || {}, true);
+			}
+			if (line === null) {
+				this.addDiv('chat message-error', 'Unrecognized: |' + BattleLog.escapeHTML(args.join('|')));
+				return;
+			}
+			if (!line) return;
+			this.message(...this.parseLogMessage(line));
+			break;
+		}
+	}
+	/**
+	 * To avoid trolling with nicknames, we can't just run this through
+	 * parseMessage
+	 */
+	parseLogMessage(message: string): [string, string] {
+		const messages = message.split('\n').map(line => {
+			line = BattleLog.escapeHTML(line);
+			line = line.replace(/\*\*(.*)\*\*/, '<strong>$1</strong>');
+			line = line.replace(/\|\|([^\|]*)\|\|([^\|]*)\|\|/, '<abbr title="$1">$2</abbr>');
+			if (line.startsWith('  ')) line = '<small>' + line.trim() + '</small>';
+			return line;
+		});
+		return [
+			messages.join('<br />'),
+			messages.filter(message => !message.startsWith('<small>[')).join('<br />'),
+		];
+	}
+	message(message: string, sceneMessage = message) {
+		if (this.scene) this.scene.message(sceneMessage);
+		this.addDiv('battle-history', message);
+	}
+	addNode(node: HTMLElement, preempt?: boolean) {
+		(preempt ? this.preemptElem : this.innerElem).appendChild(node);
+		if (this.atBottom) {
+			this.elem.scrollTop = this.elem.scrollHeight;
+		}
+	}
+	addDiv(className: string, innerHTML: string, preempt?: boolean) {
+		const el = document.createElement('div');
+		el.className = className;
+		el.innerHTML = innerHTML;
+		this.addNode(el);
+	}
+	addSpacer() {
+		this.addDiv('spacer battle-history', '');
+	}
+	changeUhtml(id: string, html: string, forceAdd?: boolean) {
+		id = toId(id);
+		const classContains = ' uhtml-' + id + ' ';
+		let elements = [] as HTMLDivElement[];
+		for (const node of this.innerElem.childNodes as any) {
+			if (node.className && (' ' + node.className + ' ').includes(classContains)) {
+				elements.push(node);
+			}
+		}
+		for (const node of this.preemptElem.childNodes as any) {
+			if (node.className && (' ' + node.className + ' ').includes(classContains)) {
+				elements.push(node);
+			}
+		}
+		if (html && elements.length && !forceAdd) {
+			for (const element of elements) {
+				element.innerHTML = BattleLog.sanitizeHTML(html);
+			}
+			return;
+		}
+		for (const element of elements) {
+			element.parentElement!.removeChild(element);
+		}
+		if (html) {
+			this.addDiv('notice uhtml-' + id, BattleLog.sanitizeHTML(html));
+		}
+	}
+	hideChatFrom(userid: ID, showRevealButton = true) {
+		const classStart = 'chat chatmessage-' + userid + ' ';
+		let lastNode;
+		let count = 0;
+		for (const node of this.innerElem.childNodes as any) {
+			if (node.className && (node.className + ' ').startsWith(classStart)) {
+				node.style.display = 'none';
+				node.className = 'revealed ' + node.className;
+				count++;
+			}
+			lastNode = node;
+		}
+		for (const node of this.preemptElem.childNodes as any) {
+			if (node.className && (node.className + ' ').startsWith(classStart)) {
+				node.style.display = 'none';
+				node.className = 'revealed ' + node.className;
+				count++;
+			}
+			lastNode = node;
+		}
+		if (!count || !showRevealButton) return;
+		const button = document.createElement('button');
+		button.name = 'toggleMessages';
+		button.value = userid;
+		button.className = 'subtle';
+		button.innerHTML = '<small>(' + count + ' line' + (count > 1 ? 's' : '') + ' from ' + userid + ' hidden)</small>';
+		lastNode.appendChild(document.createTextNode(' '));
+		lastNode.appendChild(button);
+	}
+	preemptCatchup() {
+		if (!this.preemptElem.firstChild) return;
+		this.innerElem.appendChild(this.preemptElem.firstChild);
+	}
+
 	static escapeFormat(formatid: string): string {
 		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
@@ -77,16 +362,24 @@ class BattleLog {
 		return this.colorCache[name];
 	}
 
-	static parseChatMessage(message: string, name: string, timestamp: string, isHighlighted?: boolean, $chatElem?: any) {
-		let showMe = !((Tools.prefs('chatformatting') || {}).hideme);
+	static prefs(name: string) {
+		// @ts-ignore
+		if (window.Storage && Storage.prefs) return Storage.prefs(name);
+		// @ts-ignore
+		if (window.PS) return PS.prefs[name];
+		return undefined;
+	}
+
+	parseChatMessage(message: string, name: string, timestamp: string, isHighlighted?: boolean) {
+		let showMe = !(BattleLog.prefs('chatformatting') || {}).hideme;
 		let group = ' ';
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
 			// Backwards compatibility
 			group = name.charAt(0);
 			name = name.substr(1);
 		}
-		let color = this.hashColor(toId(name));
-		let clickableName = '<small>' + this.escapeHTML(group) + '</small><span class="username" data-name="' + this.escapeHTML(name) + '">' + this.escapeHTML(name) + '</span>';
+		let color = BattleLog.hashColor(toId(name));
+		let clickableName = '<small>' + BattleLog.escapeHTML(group) + '</small><span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + '</span>';
 		let hlClass = isHighlighted ? ' highlighted' : '';
 		let mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
 
@@ -104,99 +397,44 @@ class BattleLog {
 
 		switch (cmd) {
 		case 'me':
-			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + this.parseMessage(' ' + target) + '</em></div>';
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + this.parseMessage(' ' + target) + '</i></em></div>';
+			if (!showMe) return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em>'];
+			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em>'];
 		case 'mee':
-			if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + this.parseMessage(' ' + target).slice(1) + '</em></div>';
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + this.parseMessage(' ' + target).slice(1) + '</i></em></div>';
+			if (!showMe) return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em>'];
+			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em>'];
 		case 'invite':
 			let roomid = toRoomid(target);
-			return [
-				'<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em></div>',
-				'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>'
-			];
+			return ['chat', timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em>' +
+				'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>'];
 		case 'announce':
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + this.parseMessage(target) + '</span></div>';
+			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span>'];
 		case 'log':
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + this.parseMessage(target) + '</span></div>';
+			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span>'];
 		case 'data-pokemon':
-			let buf = '<li class="result">';
-			let template = Tools.getTemplate(target);
-			if (!template.abilities || !template.baseStats) return '[not supported in replays]';
-			buf += '<span class="col numcol">' + (template.tier || Tools.getTemplate(template.baseSpecies).tier) + '</span> ';
-			buf += '<span class="col iconcol"><span style="' + Tools.getPokemonIcon(template) + '"></span></span> ';
-			buf += '<span class="col pokemonnamecol" style="white-space:nowrap"><a href="https://pokemonshowdown.com/dex/pokemon/' + template.id + '" target="_blank">' + template.species + '</a></span> ';
-			buf += '<span class="col typecol">';
-			if (template.types) for (let i = 0; i < template.types.length; i++) {
-				buf += Tools.getTypeIcon(template.types[i]);
-			}
-			buf += '</span> ';
-			buf += '<span style="float:left;min-height:26px">';
-			if (template.abilities['1']) {
-				buf += '<span class="col twoabilitycol">' + template.abilities['0'] + '<br />' + template.abilities['1'] + '</span>';
-			} else {
-				buf += '<span class="col abilitycol">' + template.abilities['0'] + '</span>';
-			}
-			if (template.abilities['S']) {
-				buf += '<span class="col twoabilitycol' + (template.unreleasedHidden ? ' unreleasedhacol' : '') + '"><em>' + template.abilities['H'] + '<br />' + template.abilities['S'] + '</em></span>';
-			} else if (template.abilities['H']) {
-				buf += '<span class="col abilitycol' + (template.unreleasedHidden ? ' unreleasedhacol' : '') + '"><em>' + template.abilities['H'] + '</em></span>';
-			} else {
-				buf += '<span class="col abilitycol"></span>';
-			}
-			buf += '</span>';
-			buf += '<span style="float:left;min-height:26px">';
-			buf += '<span class="col statcol"><em>HP</em><br />' + template.baseStats.hp + '</span> ';
-			buf += '<span class="col statcol"><em>Atk</em><br />' + template.baseStats.atk + '</span> ';
-			buf += '<span class="col statcol"><em>Def</em><br />' + template.baseStats.def + '</span> ';
-			buf += '<span class="col statcol"><em>SpA</em><br />' + template.baseStats.spa + '</span> ';
-			buf += '<span class="col statcol"><em>SpD</em><br />' + template.baseStats.spd + '</span> ';
-			buf += '<span class="col statcol"><em>Spe</em><br />' + template.baseStats.spe + '</span> ';
-			let bst = 0;
-			for (const i in template.baseStats) bst += template.baseStats[i as StatName];
-			buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
-			buf += '</span>';
-			buf += '</li>';
-			return '<div class="message"><ul class="utilichart">' + buf + '<li style=\"clear:both\"></li></ul></div>';
 		case 'data-item':
-			if (!window.BattleSearch) return '[not supported in replays]';
-			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderItemRow(Tools.getItem(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
 		case 'data-ability':
-			if (!window.BattleSearch) return '[not supported in replays]';
-			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderAbilityRow(Tools.getAbility(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
 		case 'data-move':
-			if (!window.BattleSearch) return '[not supported in replays]';
-			return '<div class="message"><ul class="utilichart">' + BattleSearch.renderMoveRow(Tools.getMove(target), 0, 0) + '<li style=\"clear:both\"></li></ul></div>';
+			return ['chat message-error', '[outdated code no longer supported]'];
 		case 'text':
-			return '<div class="chat">' + this.parseMessage(target) + '</div>';
+			return ['chat', BattleLog.parseMessage(target)];
 		case 'error':
-			return '<div class="chat message-error">' + this.escapeHTML(target) + '</div>';
+			return ['chat message-error', BattleLog.escapeHTML(target)];
 		case 'html':
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>';
+			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em>'];
 		case 'uhtml':
 		case 'uhtmlchange':
 			let parts = target.split(',');
-			let $elements = $chatElem.find('div.uhtml-' + toId(parts[0]));
-			let html = parts.slice(1).join(',');
-			if (!html) {
-				$elements.remove();
-			} else if (!$elements.length) {
-				$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
-			} else if (cmd === 'uhtmlchange') {
-				$elements.html(BattleLog.sanitizeHTML(html));
-			} else {
-				$elements.remove();
-				$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
-			}
-			return '';
+			let html = parts.slice(1).join(',').trim();
+			this.changeUhtml(parts[0], html, cmd === 'uhtml');
+			return ['', ''];
 		case 'raw':
-			return '<div class="chat">' + BattleLog.sanitizeHTML(target) + '</div>';
+			return ['chat', BattleLog.sanitizeHTML(target)];
 		default:
 			// Not a command or unsupported. Parsed as a normal chat message.
 			if (!name) {
-				return '<div class="chat' + hlClass + '">' + timestamp + '<em>' + this.parseMessage(message) + '</em></div>';
+				return ['chat' + hlClass, timestamp + '<em>' + BattleLog.parseMessage(message) + '</em>'];
 			}
-			return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + this.parseMessage(message) + '</em></div>';
+			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em>'];
 		}
 	}
 
@@ -207,7 +445,7 @@ class BattleLog {
 		if (str.substr(0, 3) === '<< ') return this.escapeHTML(str);
 		str = formatText(str);
 
-		let options = Tools.prefs('chatformatting') || {};
+		let options = BattleLog.prefs('chatformatting') || {};
 
 		if (options.hidelinks) {
 			str = str.replace(/<a[^>]*>/g, '<u>').replace(/<\/a>/g, '</u>');
@@ -484,3 +722,5 @@ class BattleLog {
 		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(this.createReplayFile(room)))));
 	}
 }
+
+exports.BattleLog = BattleLog;

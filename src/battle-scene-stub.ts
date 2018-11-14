@@ -7,12 +7,14 @@ class BattleSceneStub {
 	timeOffset: number = NaN;
 	interruptionCount: number = NaN;
 	messagebarOpen: boolean = false;
+	log = {add: (args: Args, kwargs?: KWArgs) => {}} as BattleLog;
 
 	abilityActivateAnim(pokemon: Pokemon, result: string): void { }
 	addPokemonSprite(pokemon: Pokemon) { return null!; }
 	addSideCondition(siden: number, id: ID, instant?: boolean | undefined): void { }
 	animationOff(): void { }
 	animationOn(): void { }
+	maybeCloseMessagebar(args: Args, kwArgs: KWArgs): boolean { return false; }
 	closeMessagebar(): void { }
 	damageAnim(pokemon: Pokemon, damage: string | number): void { }
 	destroy(): void { }
@@ -20,7 +22,6 @@ class BattleSceneStub {
 	healAnim(pokemon: Pokemon, damage: string | number): void { }
 	hideJoinButtons(): void { }
 	incrementTurn(): void { }
-	log(html: string, preempt?: boolean | undefined): void { }
 	message(message: string, hiddenMessage?: string | undefined): void { }
 	pause(): void { }
 	preemptCatchup(): void { }

@@ -60,7 +60,9 @@ if (!ignoreGraphics) {
 	fs.writeFileSync(
 		'data/graphics.js',
 		fs.readFileSync('js/battle-animations.js') + '\n\n' +
-			fs.readFileSync('js/battle-animations-moves.js')
+			fs.readFileSync('js/battle-animations-moves.js') + '\n\n' +
+			fs.readFileSync('data/text.js') + '\n\n' +
+			fs.readFileSync('js/battle-text-parser.js')
 	);
 }
 

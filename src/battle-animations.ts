@@ -115,27 +115,25 @@ class BattleScene {
 	activeCount = 1;
 
 	numericId = 0;
-	$frame: JQuery<HTMLElement>;
-	$battle: JQuery<HTMLElement> = null!;
-	$logFrame: JQuery<HTMLElement>;
-	$options: JQuery<HTMLElement> = null!;
-	$logPreempt: JQuery<HTMLElement> = null!;
-	$log: JQuery<HTMLElement> = null!;
-	$terrain: JQuery<HTMLElement> = null!;
-	$weather: JQuery<HTMLElement> = null!;
-	$bgEffect: JQuery<HTMLElement> = null!;
-	$bg: JQuery<HTMLElement> = null!;
-	$sprite: JQuery<HTMLElement> = null!;
-	$sprites: [JQuery<HTMLElement>, JQuery<HTMLElement>] = [null!, null!];
-	$spritesFront: [JQuery<HTMLElement>, JQuery<HTMLElement>] = [null!, null!];
-	$stat: JQuery<HTMLElement> = null!;
-	$fx: JQuery<HTMLElement> = null!;
-	$leftbar: JQuery<HTMLElement> = null!;
-	$rightbar: JQuery<HTMLElement> = null!;
-	$turn: JQuery<HTMLElement> = null!;
-	$messagebar: JQuery<HTMLElement> = null!;
-	$delay: JQuery<HTMLElement> = null!;
-	$hiddenMessage: JQuery<HTMLElement> = null!;
+	$frame: JQuery;
+	$battle: JQuery = null!;
+	$options: JQuery = null!;
+	log: BattleLog;
+	$terrain: JQuery = null!;
+	$weather: JQuery = null!;
+	$bgEffect: JQuery = null!;
+	$bg: JQuery = null!;
+	$sprite: JQuery = null!;
+	$sprites: [JQuery, JQuery] = [null!, null!];
+	$spritesFront: [JQuery, JQuery] = [null!, null!];
+	$stat: JQuery = null!;
+	$fx: JQuery = null!;
+	$leftbar: JQuery = null!;
+	$rightbar: JQuery = null!;
+	$turn: JQuery = null!;
+	$messagebar: JQuery = null!;
+	$delay: JQuery = null!;
+	$hiddenMessage: JQuery = null!;
 
 	sideConditions = [{}, {}] as [{[id: string]: Sprite[]}, {[id: string]: Sprite[]}];
 
@@ -146,7 +144,6 @@ class BattleScene {
 	bgmNum = 0;
 	preloadCache = {} as {[url: string]: HTMLImageElement};
 
-	autoScrollOnResume = false;
 	messagebarOpen = false;
 	interruptionCount = 1;
 	curWeather = '';
@@ -161,11 +158,11 @@ class BattleScene {
 	/** jQuery objects that need to finish animating */
 	activeAnimations = $();
 
-	constructor(battle: Battle, $frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>) {
+	constructor(battle: Battle, $frame: JQuery, $logFrame: JQuery) {
 		this.battle = battle;
 		$frame.addClass('battle');
 		this.$frame = $frame;
-		this.$logFrame = $logFrame;
+		this.log = new BattleLog($logFrame[0] as HTMLDivElement, this);
 
 		let numericId = 0;
 		if (battle.id) {
@@ -187,16 +184,10 @@ class BattleScene {
 		/////////////
 
 		if (this.$options) {
-			this.$log.empty();
-			this.$logPreempt.empty();
+			this.log.reset();
 		} else {
-			this.$logFrame.empty();
 			this.$options = $('<div class="battle-options"></div>');
-			this.$log = $('<div class="inner" role="log"></div>');
-			this.$logPreempt = $('<div class="inner-preempt"></div>');
-			this.$logFrame.append(this.$options);
-			this.$logFrame.append(this.$log);
-			this.$logFrame.append(this.$logPreempt);
+			$(this.log.elem).prepend(this.$options);
 		}
 
 		// Battle frame
@@ -244,7 +235,7 @@ class BattleScene {
 		this.$battle.append(this.$hiddenMessage);
 
 		if (this.battle.ignoreNicks) {
-			this.$log.addClass('hidenicks');
+			this.log.setHideNicks(true);
 			this.$messagebar.addClass('hidenicks');
 			this.$hiddenMessage.addClass('hidenicks');
 		}
@@ -258,6 +249,8 @@ class BattleScene {
 		this.pokemonTimeOffset = 0;
 		this.curTerrain = '';
 		this.curWeather = '';
+
+		this.log.battleParser!.perspective = this.battle.sidesSwitched ? 1 : 0;
 	}
 
 	animationOff() {
@@ -265,7 +258,6 @@ class BattleScene {
 		this.stopAnimation();
 
 		this.animating = false;
-		this.autoScrollOnResume = (this.$logFrame.scrollTop()! + 60 >= this.$log.height()! + this.$logPreempt.height()! - this.$options.height()! - this.$logFrame.height()!);
 		this.$messagebar.empty().css({
 			opacity: 0,
 			height: 0
@@ -289,9 +281,6 @@ class BattleScene {
 		}
 		this.updateWeather(true);
 		this.resetTurn();
-		if (this.autoScrollOnResume) {
-			this.$logFrame.scrollTop(this.$log.height()! + this.$logPreempt.height()!);
-		}
 		this.resetSideConditions();
 	}
 	pause() {
@@ -474,7 +463,7 @@ class BattleScene {
 		} as JQuery.PlainObject;
 	}
 
-	waitFor(elem: JQuery<HTMLElement>) {
+	waitFor(elem: JQuery) {
 		this.activeAnimations = this.activeAnimations.add(elem);
 	}
 
@@ -497,24 +486,12 @@ class BattleScene {
 	// Messagebar and log
 	/////////////////////////////////////////////////////////////////////
 
-	log(html: string, preempt?: boolean) {
-		let willScroll = false;
-		if (this.animating) willScroll = (this.$logFrame.scrollTop()! + 60 >= this.$log.height()! + this.$logPreempt.height()! - this.$options.height()! - this.$logFrame.height()!);
-		if (preempt) {
-			this.$logPreempt.append(html);
-		} else {
-			this.$log.append(html);
-		}
-		if (willScroll) {
-			this.$logFrame.scrollTop(this.$log.height()! + this.$logPreempt.height()!);
-		}
-	}
 	preemptCatchup() {
-		this.$log.append(this.$logPreempt.children().first());
+		this.log.preemptCatchup();
 	}
 	message(message: string, hiddenMessage?: string) {
 		if (!this.messagebarOpen) {
-			this.log('<div class="spacer battle-history"></div>');
+			this.log.addSpacer();
 			if (this.animating) {
 				this.$messagebar.empty();
 				this.$messagebar.css({
@@ -552,7 +529,14 @@ class BattleScene {
 			this.waitFor($message);
 		}
 		this.messagebarOpen = true;
-		this.log('<div class="battle-history">' + message + (hiddenMessage ? hiddenMessage : '') + '</div>');
+	}
+	maybeCloseMessagebar(args: Args, kwArgs: KWArgs) {
+		if (this.log.battleParser!.sectionBreak(args, kwArgs)) {
+			if (!this.messagebarOpen) return false;
+			this.closeMessagebar();
+			return true;
+		}
+		return false;
 	}
 	closeMessagebar() {
 		if (this.messagebarOpen) {
@@ -563,17 +547,9 @@ class BattleScene {
 				}, this.battle.messageFadeTime / this.acceleration);
 				this.waitFor(this.$messagebar);
 			}
+			return true;
 		}
-	}
-	unlink(userid: string, showRevealButton = false) {
-		if (Tools.prefs('nounlink')) return;
-		let $messages = $('.chatmessage-' + userid);
-		if (!$messages.length) return;
-		$messages.find('a').contents().unwrap();
-		if (window.BattleRoom && showRevealButton) {
-			$messages.hide().addClass('revealed').find('button').parent().remove();
-			this.log('<div class="chatmessage-' + userid + '"><button name="toggleMessages" value="' + userid + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + userid + ' hidden)</small></button></div>');
-		}
+		return false;
 	}
 
 	// General updating
@@ -608,7 +584,6 @@ class BattleScene {
 		const moveAnim = BattleMoveAnims[moveid];
 		if (!moveAnim.prepareAnim) return;
 		moveAnim.prepareAnim(this, [attacker.sprite, defender.sprite]);
-		this.message('<small>' + moveAnim.prepareMessage!(attacker, defender) + '</small>');
 	}
 
 	updateGen() {
@@ -630,6 +605,31 @@ class BattleScene {
 		}
 	}
 
+	getDetailsText(pokemon: Pokemon) {
+		let name = pokemon.side && pokemon.side.n && (this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.species : pokemon.name;
+		if (name !== pokemon.species) {
+				name += ' (' + pokemon.species + ')';
+		}
+		if (pokemon === pokemon.side.active[0]) {
+			name += ' (active)';
+		} else if (pokemon.fainted) {
+			name += ' (fainted)';
+		} else {
+			let statustext = '';
+			if (pokemon.hp !== pokemon.maxhp) {
+				statustext += pokemon.hpDisplay();
+			}
+			if (pokemon.status) {
+				if (statustext) statustext += '|';
+				statustext += pokemon.status;
+			}
+			if (statustext) {
+				name += ' (' + statustext + ')';
+			}
+		}
+		return BattleLog.escapeHTML(name);
+	}
+
 	updateSidebar(side: Side) {
 		if (!this.animating) return;
 		let pokemonhtml = '';
@@ -648,9 +648,11 @@ class BattleScene {
 			} else if (!poke) {
 				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Not revealed" aria-label="Not revealed"></span>';
 			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n) + ';opacity:0.6" title="' + poke.getFullName(true) + '" aria-label="' + poke.getFullName(true) + '"></span>';
+				const details = this.getDetailsText(poke);
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n) + ';opacity:0.6" title="' + details + '" aria-label="' + details + '"></span>';
 			} else {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n) + '" title="' + poke.getFullName(true) + '" aria-label="' + poke.getFullName(true) + '"></span>';
+				const details = this.getDetailsText(poke);
+				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n) + '" title="' + details + '" aria-label="' + details + '"></span>';
 			}
 			if (i % 3 === 2) pokemonhtml += '</div><div class="teamicons">';
 		}
@@ -729,7 +731,9 @@ class BattleScene {
 			}
 			side.totalPokemon = side.pokemon.length;
 			if (textBuf) {
-				this.log('<div class="chat battle-history"><strong>' + BattleLog.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + BattleLog.escapeHTML(textBuf) + '</em></div>');
+				this.log.addDiv('chat battle-history',
+					'<strong>' + BattleLog.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + BattleLog.escapeHTML(textBuf) + '</em>'
+				);
 			}
 			this.$sprites[siden].html(buf + buf2);
 
@@ -1395,7 +1399,7 @@ class BattleScene {
 		BattleSound.pauseBgm();
 	}
 	destroy() {
-		if (this.$logFrame) this.$logFrame.empty();
+		this.log.destroy();
 		if (this.$frame) this.$frame.empty();
 		this.soundStop();
 		this.battle = null!;
@@ -1427,7 +1431,7 @@ interface InitScenePos {
 
 class Sprite {
 	scene: BattleScene;
-	$el: JQuery<HTMLElement> = null!;
+	$el: JQuery = null!;
 	sp: SpriteData;
 	x: number;
 	y: number;
@@ -1493,10 +1497,10 @@ class PokemonSprite extends Sprite {
 	cryurl: string | undefined = undefined;
 
 	subsp: SpriteData | null = null;
-	$sub: JQuery<HTMLElement> | null = null;
+	$sub: JQuery | null = null;
 	isSubActive = false;
 
-	$statbar: JQuery<HTMLElement> | null = null;
+	$statbar: JQuery | null = null;
 	isBackSprite: boolean;
 	isMissedPokemon = false;
 	/**

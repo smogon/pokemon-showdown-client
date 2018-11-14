@@ -955,7 +955,6 @@
 				pokemonData.getFormattedRange = Pokemon.prototype.getFormattedRange;
 				pokemonData.getHPColorClass = Pokemon.prototype.getHPColorClass;
 				pokemonData.getHPColor = Pokemon.prototype.getHPColor;
-				pokemonData.getFullName = Pokemon.prototype.getFullName;
 			}
 		},
 
