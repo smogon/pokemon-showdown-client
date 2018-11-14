@@ -141,7 +141,7 @@ const BattleStatNames = { // proper style
 	spe: 'Spe'
 };
 const BattleStats = {
-	atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed', accuracy: 'accuracy', evasion: 'evasiveness', spc: 'Special'
+	hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed', accuracy: 'accuracy', evasion: 'evasiveness', spc: 'Special'
 };
 
 const baseSpeciesChart = [

@@ -3366,9 +3366,6 @@ const BattleMoveAnims: AnimTable = {
 			}, 'accel');
 		},
 		prepareAnim: BattleOtherAnims.chargestatus.anim,
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' is absorbing power!';
-		}
 	},
 	magnetrise: {
 		anim(scene, [attacker]) {
@@ -3991,9 +3988,6 @@ const BattleMoveAnims: AnimTable = {
 			attacker.anim({opacity: 0, time: 50}, 'linear');
 			scene.wait(200);
 		},
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' vanished instantly!';
-		}
 	},
 	bounce: {
 		anim(scene, [attacker, defender]) {
@@ -4074,9 +4068,6 @@ const BattleMoveAnims: AnimTable = {
 				time: 300
 			}, 'linear');
 		},
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' sprang up!';
-		}
 	},
 	dig: {
 		anim(scene, [attacker, defender]) {
@@ -4157,9 +4148,6 @@ const BattleMoveAnims: AnimTable = {
 				time: 300
 			}, 'linear');
 		},
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' burrowed its way under the ground!';
-		}
 	},
 	dive: {
 		anim(scene, [attacker, defender]) {
@@ -4238,9 +4226,6 @@ const BattleMoveAnims: AnimTable = {
 				time: 300
 			}, 'swing');
 		},
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' hid underwater!';
-		}
 	},
 	fly: {
 		anim: BattleOtherAnims.flight.anim,
@@ -4251,9 +4236,6 @@ const BattleMoveAnims: AnimTable = {
 				time: 300
 			}, 'linear');
 		},
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' flew up high!';
-		}
 	},
 	skydrop: {
 		anim: BattleOtherAnims.contactattack.anim,
@@ -4269,9 +4251,6 @@ const BattleMoveAnims: AnimTable = {
 				time: 300
 			}, 'linear');
 		},
-		prepareMessage(pokemon, pokemon2) {
-			return pokemon.getName() + ' took ' + pokemon2.getLowerName() + ' into the sky!';
-		}
 	},
 	skullbash: {
 		anim: BattleOtherAnims.contactattack.anim,
@@ -4281,9 +4260,6 @@ const BattleMoveAnims: AnimTable = {
 				time: 300
 			}, 'linear');
 		},
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' tucked in its head!';
-		}
 	},
 	skyattack: {
 		anim: BattleOtherAnims.flight.anim,
@@ -4293,9 +4269,6 @@ const BattleMoveAnims: AnimTable = {
 				time: 300
 			}, 'linear');
 		},
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' became cloaked in a harsh light!';
-		}
 	},
 	hiddenpower: {
 		anim(scene, [attacker, defender]) {
@@ -9171,9 +9144,6 @@ const BattleMoveAnims: AnimTable = {
 			}, 'linear', 'explode');
 		},
 		prepareAnim: BattleOtherAnims.chargestatus.anim,
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' set a shell trap!';
-		}
 	},
 	flamecharge: {
 		anim(scene, [attacker, defender]) {
@@ -18806,9 +18776,6 @@ const BattleMoveAnims: AnimTable = {
 			}, 'linear', 'explode');
 		},
 		prepareAnim: BattleOtherAnims.chargestatus.anim,
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' absorbed light!';
-		}
 	},
 	solarblade: {
 		anim(scene, [attacker, defender]) {
@@ -18932,9 +18899,6 @@ const BattleMoveAnims: AnimTable = {
 			}, 'swing');
 		},
 		prepareAnim: BattleOtherAnims.chargestatus.anim,
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' absorbed light!';
-		}
 	},
 	lightofruin: {
 		anim(scene, [attacker, defender]) {
@@ -19294,9 +19258,6 @@ const BattleMoveAnims: AnimTable = {
 			}, 'linear');
 		},
 		prepareAnim: BattleOtherAnims.selfstatus.anim,
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' became cloaked in a freezing light!';
-		}
 	},
 	iceburn: {
 		anim(scene, [attacker, defender]) {
@@ -19416,16 +19377,10 @@ const BattleMoveAnims: AnimTable = {
 			}, 'linear');
 		},
 		prepareAnim: BattleOtherAnims.selfstatus.anim,
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' became cloaked in freezing air!';
-		}
 	},
 	razorwind: {
 		anim: null!,
 		prepareAnim: BattleOtherAnims.selfstatus.anim,
-		prepareMessage(pokemon) {
-			return pokemon.getName() + ' whipped up a whirlwind!';
-		}
 	},
 	overheat: {
 		anim(scene, [attacker, defender]) {
@@ -30711,7 +30666,7 @@ BattleMoveAnims['flatter'] = {anim:BattleMoveAnims['attract'].anim};
 
 BattleMoveAnims['armthrust'] = {anim:BattleMoveAnims['smellingsalts'].anim, multihit:true};
 
-BattleMoveAnims['phantomforce'] = {anim:BattleMoveAnims['shadowforce'].anim, prepareAnim:BattleMoveAnims['shadowforce'].prepareAnim, prepareMessage:BattleMoveAnims['shadowforce'].prepareMessage};
+BattleMoveAnims['phantomforce'] = {anim:BattleMoveAnims['shadowforce'].anim, prepareAnim:BattleMoveAnims['shadowforce'].prepareAnim};
 BattleMoveAnims['shadowstrike'] = {anim:BattleMoveAnims['shadowforce'].anim};
 
 BattleMoveAnims['smackdown'] = {anim:BattleMoveAnims['rockblast'].anim};

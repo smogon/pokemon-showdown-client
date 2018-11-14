@@ -924,6 +924,86 @@
 				app.addPopup(UserPopup, {name: target});
 			});
 		}
+	}, {
+		parseChatMessage: function (message, name, timestamp, isHighlighted, $chatElem) {
+			var showMe = !((Tools.prefs('chatformatting') || {}).hideme);
+			var group = ' ';
+			if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
+				// Backwards compatibility
+				group = name.charAt(0);
+				name = name.substr(1);
+			}
+			var color = BattleLog.hashColor(toId(name));
+			var clickableName = '<small>' + BattleLog.escapeHTML(group) + '</small><span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + '</span>';
+			var hlClass = isHighlighted ? ' highlighted' : '';
+			var mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
+
+			var cmd = '';
+			var target = '';
+			if (message.charAt(0) === '/') {
+				if (message.charAt(1) === '/') {
+					message = message.slice(1);
+				} else {
+					var spaceIndex = message.indexOf(' ');
+					cmd = (spaceIndex >= 0 ? message.slice(1, spaceIndex) : message.slice(1));
+					if (spaceIndex >= 0) target = message.slice(spaceIndex + 1);
+				}
+			}
+
+			switch (cmd) {
+			case 'me':
+				if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em></div>';
+				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em></div>';
+			case 'mee':
+				if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em></div>';
+				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em></div>';
+			case 'invite':
+				var roomid = toRoomid(target);
+				return [
+					'<div class="chat">' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em></div>',
+					'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>'
+				];
+			case 'announce':
+				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span></div>';
+			case 'log':
+				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span></div>';
+			case 'data-pokemon':
+			case 'data-item':
+			case 'data-ability':
+			case 'data-move':
+				return '[outdated message type not supported]';
+			case 'text':
+				return '<div class="chat">' + BattleLog.parseMessage(target) + '</div>';
+			case 'error':
+				return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
+			case 'html':
+				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>';
+			case 'uhtml':
+			case 'uhtmlchange':
+				var parts = target.split(',');
+				var $elements = $chatElem.find('div.uhtml-' + toId(parts[0]));
+				var html = parts.slice(1).join(',');
+				if (!html) {
+					$elements.remove();
+				} else if (!$elements.length) {
+					$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+				} else if (cmd === 'uhtmlchange') {
+					$elements.html(BattleLog.sanitizeHTML(html));
+				} else {
+					$elements.remove();
+					$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+				}
+				return '';
+			case 'raw':
+				return '<div class="chat">' + BattleLog.sanitizeHTML(target) + '</div>';
+			default:
+				// Not a command or unsupported. Parsed as a normal chat message.
+				if (!name) {
+					return '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.parseMessage(message) + '</em></div>';
+				}
+				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em></div>';
+			}
+		}
 	});
 
 	var FormatPopup = this.FormatPopup = this.Popup.extend({

@@ -406,7 +406,13 @@ var BattleTooltips = (function () {
 		var gender = pokemon.gender;
 		if (gender) gender = ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
 		text = '<div class="tooltipinner"><div class="tooltip">';
-		text += '<h2>' + pokemon.getFullName() + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
+
+		var name = BattleLog.escapeHTML(pokemon.name);
+		if (pokemon.species !== pokemon.name) {
+			name += ' <small>(' + BattleLog.escapeHTML(pokemon.species) + ')</small>';
+		}
+
+		text += '<h2>' + name + gender + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
 
 		var template = Tools.getTemplate(pokemon.getSpecies ? pokemon.getSpecies() : pokemon.species);
 		if (pokemon.volatiles && pokemon.volatiles.formechange) {
