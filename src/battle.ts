@@ -1033,15 +1033,13 @@ class Battle {
 		this.scene.log.add(args, kwArgs, preempt);
 	}
 
-	switchSides(replay?: boolean) {
+	resetToCurrentTurn() {
 		if (this.ended) {
-			this.setSidesSwitched(!this.sidesSwitched);
 			this.reset(true);
 			this.fastForwardTo(-1);
 		} else {
 			let turn = this.turn;
 			let paused = this.paused;
-			this.setSidesSwitched(!this.sidesSwitched);
 			this.reset(true);
 			this.paused = paused;
 			if (turn) this.fastForwardTo(turn);
@@ -1051,6 +1049,10 @@ class Battle {
 				this.pause();
 			}
 		}
+	}
+	switchSides() {
+		this.setSidesSwitched(!this.sidesSwitched);
+		this.resetToCurrentTurn();
 	}
 	setSidesSwitched(sidesSwitched: boolean) {
 		this.sidesSwitched = sidesSwitched;
