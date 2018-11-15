@@ -205,7 +205,6 @@ var BattleText = exports.BattleText = {
 	sandstorm: {
 		weatherName: "Sandstorm",
 		start: "  A sandstorm kicked up!",
-		startFromAbility: "  [POKEMON]'s Sand Stream whipped up a sandstorm!",
 		end: "  The sandstorm subsided.",
 		activate: "  The sandstorm is raging.",
 		damage: "  [POKEMON] is buffeted by the sandstorm!",
@@ -213,21 +212,18 @@ var BattleText = exports.BattleText = {
 	sunnyday: {
 		weatherName: "Sun",
 		start: "  The sunlight turned harsh!",
-		startFromAbility: "  [POKEMON]'s Drought intensified the sun's rays!",
 		end: "  The sunlight faded.",
 		activate: "  (The sunlight is strong!)",
 	},
 	raindance: {
 		weatherName: "Rain",
 		start: "  It started to rain!",
-		startFromAbility: "  [POKEMON]'s Drizzle made it rain!",
 		end: "  The rain stopped.",
 		activate: "  (Rain continues to fall!)",
 	},
 	hail: {
 		weatherName: "Hail",
 		start: "  It started to hail!",
-		startFromAbility: "  [POKEMON]'s Snow Warning whipped up a hailstorm!",
 		end: "  The hail stopped.",
 		activate: "  The hail is crashing down.",
 		damage: "  [POKEMON] is buffeted by the hail!",

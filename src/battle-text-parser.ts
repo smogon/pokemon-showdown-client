@@ -536,18 +536,15 @@ class BattleTextParser {
 
 		case '-weather': {
 			const [, weather] = args;
-			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
 			if (!weather || weather === 'none') {
 				return this.template('end', kwArgs.from);
 			}
 			if (kwArgs.upkeep) {
 				return this.template('activate', weather);
 			}
-			if (!kwArgs.of) {
-				return this.template('start', weather);
-			}
-			const template = this.template('startFromAbility', weather);
-			return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of));
+			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
+			const template = this.template('start', weather, 'NODEFAULT');
+			return line1 + template;
 		}
 
 		case '-fieldstart': case '-fieldactivate': {
