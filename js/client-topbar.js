@@ -810,7 +810,7 @@
 
 			var name = (data.name || '');
 			if (!name && app.user.get('named')) name = app.user.get('name');
-			buf += '<p><label class="label">Username: <small class="preview" style="' + hashColor(toUserid(name)) + '">(color)</small><input class="textbox autofocus" type="text" name="username" value="' + Tools.escapeHTML(name) + '"></label></p>';
+			buf += '<p><label class="label">Username: <small class="preview" style="' + hashColor(toUserid(name)) + '">(color)</small><input class="textbox autofocus" type="text" name="username" value="' + Tools.escapeHTML(name) + '" autocomplete="username"></label></p>';
 			if (name) {
 				buf += '<p><small>(Others will be able to see your name change. To change name privately, use "Log out")</small></p>';
 			}
@@ -853,10 +853,10 @@
 			} else {
 				buf += '<p>Change your password:</p>';
 			}
-			buf += '<p><label class="label">Username: <strong>' + app.user.get('name') + '</strong></label></p>';
-			buf += '<p><label class="label">Old password: <input class="textbox autofocus" type="password" name="oldpassword" /></label></p>';
-			buf += '<p><label class="label">New password: <input class="textbox" type="password" name="password" /></label></p>';
-			buf += '<p><label class="label">New password (confirm): <input class="textbox" type="password" name="cpassword" /></label></p>';
+			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + Tools.escapeHTML(app.user.get('name')) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
+			buf += '<p><label class="label">Old password: <input class="textbox autofocus" type="password" name="oldpassword" autocomplete="current-password" /></label></p>';
+			buf += '<p><label class="label">New password: <input class="textbox" type="password" name="password" autocomplete="new-password" /></label></p>';
+			buf += '<p><label class="label">New password (confirm): <input class="textbox" type="password" name="cpassword" autocomplete="new-password" /></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Change password</strong></button> <button name="close">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
@@ -890,9 +890,9 @@
 			} else {
 				buf += '<p>Register your account:</p>';
 			}
-			buf += '<p><label class="label">Username: <strong>' + Tools.escapeHTML(data.name || app.user.get('name')) + '</strong><input type="hidden" name="name" value="' + Tools.escapeHTML(data.name || app.user.get('name')) + '" /></label></p>';
-			buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" /></label></p>';
-			buf += '<p><label class="label">Password (confirm): <input class="textbox" type="password" name="cpassword" /></label></p>';
+			buf += '<p><label class="label">Username: <strong><input type="text" name="name" value="' + Tools.escapeHTML(data.name || app.user.get('name')) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
+			buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="new-password" /></label></p>';
+			buf += '<p><label class="label">Password (confirm): <input class="textbox" type="password" name="cpassword" autocomplete="new-password" /></label></p>';
 			buf += '<p><label class="label"><img src="' + Tools.resourcePrefix + 'sprites/bwani/pikachu.gif" /></label></p>';
 			buf += '<p><label class="label">What is this pokemon? <input class="textbox" type="text" name="captcha" value="' + Tools.escapeHTML(data.captcha) + '" /></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Register</strong></button> <button name="close">Cancel</button></p></form>';
@@ -949,12 +949,12 @@
 			}
 
 			buf += '<p>If this is your account:</p>';
-			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + Tools.escapeHTML(data.username) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly /></strong></label></p>';
+			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + Tools.escapeHTML(data.username) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
 			if (data.special === '@gmail') {
 				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close">Cancel</button></p>';
 			} else {
-				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password"></label></p>';
+				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="current-password"></label></p>';
 				buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
 			}
 
