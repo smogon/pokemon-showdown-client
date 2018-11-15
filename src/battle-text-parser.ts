@@ -129,9 +129,10 @@ class BattleTextParser {
 				return '';
 			}
 			let id = this.effectId(namespace);
-			if (BattleText[id] && BattleText[id][type]) {
+			if (BattleText[id] && type in BattleText[id]) {
 				if (BattleText[id][type].charAt(1) === '.') type = BattleText[id][type].slice(2) as ID;
 				if (BattleText[id][type].charAt(0) === '#') id = BattleText[id][type].slice(1) as ID;
+				if (!BattleText[id][type]) return '';
 				return BattleText[id][type] + '\n';
 			}
 		}
@@ -502,7 +503,8 @@ class BattleTextParser {
 				const template = this.template('endFromMove', status);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', this.effect(kwArgs.from));
 			}
-			const template = this.template('end', status);
+			let template = this.template('end', status, 'NODEFAULT');
+			if (!template) template = this.template('end').replace('[EFFECT]', status);
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
 		}
 
@@ -518,19 +520,22 @@ class BattleTextParser {
 				const template = this.template('activate', effect);
 				return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of)).replace('[TARGET]', this.pokemon(pokemon));
 			}
-			const template = this.template('start', effect);
+			let template = this.template('start', effect, 'NODEFAULT');
+			if (!template) template = this.template('start').replace('[EFFECT]', this.effect(effect));
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of));
 		}
 
 		case '-sidestart': {
 			let [, side, effect] = args;
-			const template = this.template('start', effect);
+			let template = this.template('start', effect, 'NODEFAULT');
+			if (!template) template = this.template('startTeamEffect').replace('[EFFECT]', this.effect(effect));
 			return template.replace('[TEAM]', this.team(side));
 		}
 
 		case '-sideend': {
 			let [, side, effect] = args;
-			const template = this.template('end', effect);
+			let template = this.template('end', effect, 'NODEFAULT');
+			if (!template) template = this.template('endTeamEffect').replace('[EFFECT]', this.effect(effect));
 			return template.replace('[TEAM]', this.team(side));
 		}
 
@@ -543,7 +548,8 @@ class BattleTextParser {
 				return this.template('activate', weather);
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
-			const template = this.template('start', weather, 'NODEFAULT');
+			let template = this.template('start', weather, 'NODEFAULT');
+			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(weather));
 			return line1 + template;
 		}
 
@@ -551,13 +557,16 @@ class BattleTextParser {
 			const [, effect] = args;
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
 			const templateId = cmd.slice(6);
-			const template = this.template(templateId, effect, 'NODEFAULT');
+			let template = this.template(templateId, effect, 'NODEFAULT');
+			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(effect));
 			return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of));
 		}
 
 		case '-fieldend': {
 			let [, effect] = args;
-			return this.template('end', effect, 'NODEFAULT');
+			let template = this.template('end', effect, 'NODEFAULT');
+			if (!template) template = this.template('endFieldEffect').replace('[EFFECT]', this.effect(effect));
+			return template;
 		}
 
 		case '-sethp': {
@@ -619,7 +628,7 @@ class BattleTextParser {
 			let template = this.template(templateId, effect, 'NODEFAULT');
 			if (!template) {
 				template = this.template('activate');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[EFFECT]', this.effect(effect));
+				return line1 + template.replace('[EFFECT]', this.effect(effect));
 			}
 
 			if (id === 'brickbreak') {
