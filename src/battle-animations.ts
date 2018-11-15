@@ -163,6 +163,17 @@ class BattleScene {
 		$frame.addClass('battle');
 		this.$frame = $frame;
 		this.log = new BattleLog($logFrame[0] as HTMLDivElement, this);
+		this.log.battleParser!.pokemonName = (pokemonId: string) => {
+			if (!pokemonId) return '';
+			if (battle.ignoreNicks || battle.ignoreOpponent) {
+				const pokemon = battle.getPokemon(pokemonId);
+				if (pokemon) return pokemon.species;
+			}
+			if (!pokemonId.startsWith('p1') && !pokemonId.startsWith('p2')) return '???pokemon:' + pokemonId + '???';
+			if (pokemonId.charAt(3) === ':') return pokemonId.slice(4).trim();
+			else if (pokemonId.charAt(2) === ':') return pokemonId.slice(3).trim();
+			return '???pokemon:' + pokemonId + '???';
+		};
 
 		let numericId = 0;
 		if (battle.id) {
@@ -233,12 +244,6 @@ class BattleScene {
 		this.$battle.append(this.$messagebar);
 		this.$battle.append(this.$delay);
 		this.$battle.append(this.$hiddenMessage);
-
-		if (this.battle.ignoreNicks) {
-			this.log.setHideNicks(true);
-			this.$messagebar.addClass('hidenicks');
-			this.$hiddenMessage.addClass('hidenicks');
-		}
 
 		if (!this.animating) {
 			this.$battle.append('<div class="seeking"><strong>seeking...</strong></div>');

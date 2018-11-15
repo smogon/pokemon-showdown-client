@@ -60,9 +60,6 @@ class BattleLog {
 	destroy() {
 		this.elem.onscroll = null;
 	}
-	setHideNicks(hideNicks: boolean) {
-		this.elem.className = this.className + (hideNicks ? ' hidenicks' : '');
-	}
 	add(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
 		if (kwArgs && kwArgs.silent) return;
 		let divClass = 'chat';

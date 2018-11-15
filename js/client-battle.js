@@ -1378,43 +1378,12 @@
 			this.battle.ignoreNicks = !!e.currentTarget.checked;
 			Tools.prefs('ignorenicks', this.battle.ignoreNicks);
 			this.battle.add('Nicknames ' + (this.battle.ignoreNicks ? '' : 'no longer ') + 'ignored.');
-			this.toggleNicknames(this.battle.mySide);
-			this.toggleNicknames(this.battle.yourSide);
-
-			var $log = $('.battle-log .inner');
-			var $message = $('.battle .message');
-			if (this.battle.ignoreNicks) {
-				$log.addClass('hidenicks');
-				$message.addClass('hidenicks');
-			} else {
-				$log.removeClass('hidenicks');
-				$message.removeClass('hidenicks');
-			}
+			this.battle.resetToCurrentTurn();
 		},
 		toggleIgnoreOpponent: function (e) {
 			this.battle.ignoreOpponent = !!e.currentTarget.checked;
 			this.battle.add('Opponent ' + (this.battle.ignoreOpponent ? '' : 'no longer ') + 'ignored.');
-			var $log = $('.battle-log .inner');
-			var $message = $('.battle .message');
-			var $messages = $log.find('.chatmessage-' + this.battle.yourSide.id);
-			if (!$messages.length) return;
-			if (this.battle.ignoreOpponent) {
-				$messages.hide();
-				$log.addClass('hidenicks');
-				$message.addClass('hidenicks');
-			} else {
-				$messages.show();
-				$log.removeClass('hidenicks');
-				$message.removeClass('hidenicks');
-			}
-		},
-		toggleNicknames: function (side) {
-			for (var i = 0; i < side.active.length; i++) {
-				if (!side.active[i]) continue;
-				side.active[i].statbarElem.html(side.getStatbarHTML(side.active[i], true));
-				side.updateStatbar(side.active[i], true, true);
-			}
-			side.updateSidebar();
+			this.battle.resetToCurrentTurn();
 		},
 		toggleRightPanelBattles: function (e) {
 			Tools.prefs('rightpanelbattles', !!e.currentTarget.checked);

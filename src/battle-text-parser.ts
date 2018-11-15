@@ -43,38 +43,29 @@ class BattleTextParser {
 		return input.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
 	}
 
+	pokemonName = (pokemon: string) => {
+		if (!pokemon) return '';
+		if (!pokemon.startsWith('p1') && !pokemon.startsWith('p2')) return '???pokemon:' + pokemon + '???';
+		if (pokemon.charAt(3) === ':') return pokemon.slice(4).trim();
+		else if (pokemon.charAt(2) === ':') return pokemon.slice(3).trim();
+		return '???pokemon:' + pokemon + '???';
+	};
+
 	pokemon(pokemon: string) {
 		if (!pokemon) return '';
 		let side;
 		if (pokemon.startsWith('p1')) side = 0;
 		else if (pokemon.startsWith('p2')) side = 1;
 		else return '???pokemon:' + pokemon + '???';
-		if (pokemon.charAt(3) === ':') pokemon = pokemon.slice(4).trim();
-		else if (pokemon.charAt(2) === ':') pokemon = pokemon.slice(3).trim();
-		else return '???pokemon:' + pokemon + '???';
+		const name = this.pokemonName(pokemon);
 		let template = BattleText.default[side === this.perspective ? 'pokemon' : 'opposingPokemon'];
-		return template.replace('[NICKNAME]', pokemon);
-	}
-
-	pokemonName(pokemon: string) {
-		if (!pokemon) return '';
-		if (!pokemon.startsWith('p1') && !pokemon.startsWith('p2')) return '???pokemon:' + pokemon + '???';
-		if (pokemon.charAt(3) === ':') pokemon = pokemon.slice(4).trim();
-		else if (pokemon.charAt(2) === ':') pokemon = pokemon.slice(3).trim();
-		else return '???pokemon:' + pokemon + '???';
-		return pokemon;
+		return template.replace('[NICKNAME]', name);
 	}
 
 	pokemonFull(pokemon: string, details: string) {
-		if (pokemon.startsWith('p1')) {}
-		else if (pokemon.startsWith('p2')) {}
-		else return '???pokemon:' + pokemon + '???';
-		let nickname;
-		if (pokemon.charAt(3) === ':') nickname = pokemon.slice(4).trim();
-		else if (pokemon.charAt(2) === ':') nickname = pokemon.slice(3).trim();
-		else return '???pokemon:' + pokemon + '???';
+		const nickname = this.pokemonName(pokemon);
 
-		let species = details.split(',')[0];
+		const species = details.split(',')[0];
 		if (nickname === species) return [pokemon.slice(0, 2), `**${species}**`];
 		return [pokemon.slice(0, 2), `${nickname} (**${species}**)`];
 	}
