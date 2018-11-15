@@ -9,7 +9,24 @@ class ActionDispatcher {
 
 	public function __construct($handlers) {
 		$this->handlers = $handlers;
-		$this->reqs = array($_REQUEST);
+		if (empty($_REQUEST)) {
+			$this->reqs = null;
+			if (substr($_SERVER["CONTENT_TYPE"], 0, 16) === 'application/json') {
+				// screw you too Axios
+				// also come on PHP, you could just support JSON natively instead of putting me through this
+				$input = trim(file_get_contents('php://input'));
+				if ($input[0] === '[') {
+					$this->reqs = json_decode($input, true);
+				} else if ($input[0] === '{') {
+					$this->reqs = [json_decode($input, true)];
+				}
+			}
+
+			if (empty($this->reqs)) die("no request data found - you need to send some sort of data");
+			$_POST['is_post_request'] = true;
+		} else {
+			$this->reqs = [$_REQUEST];
+		}
 		if (@$_REQUEST['json']) {
 			$this->reqs = json_decode($_REQUEST['json'], true);
 			$this->multiReqs = true;
@@ -96,8 +113,9 @@ class ActionDispatcher {
 
 		foreach ($this->reqs as $this->reqData) {
 			$this->reqData = array_merge($_REQUEST, $this->reqData);
-			$action = @$this->reqData['act'];
-			if (!ctype_alnum($action)) die("invalid action");
+			if (!isset($this->reqData['act'])) die("action not found - make sure your request data includes act=something");
+			$action = $this->reqData['act'];
+			if (!ctype_alnum($action)) die("invalid action: " . var_export($action, true));
 			$out = array();
 
 			foreach ($this->handlers as &$i) {
@@ -128,7 +146,8 @@ class DefaultActionHandler {
 		global $users, $curuser;
 		$challengeprefix = $dispatcher->verifyCrossDomainRequest();
 
-		if (!$_POST || empty($reqData['name']) || empty($reqData['pass'])) die();
+		if (!$_POST) die('for security reasons, logins must happen with POST data');
+		if (empty($reqData['name']) || empty($reqData['pass'])) die('incorrect login data, you need "name" and "pass" fields');
 		try {
 			$users->login($reqData['name'], $reqData['pass']);
 		} catch (Exception $e) {
