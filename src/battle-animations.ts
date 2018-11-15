@@ -494,7 +494,7 @@ class BattleScene {
 	preemptCatchup() {
 		this.log.preemptCatchup();
 	}
-	message(message: string, hiddenMessage?: string) {
+	message(message: string) {
 		if (!this.messagebarOpen) {
 			this.log.addSpacer();
 			if (this.animating) {
@@ -510,7 +510,6 @@ class BattleScene {
 			}
 		}
 		if (this.battle.hardcoreMode && message.slice(0, 8) === '<small>(') {
-			hiddenMessage = message + hiddenMessage;
 			message = '';
 		}
 		if (message && this.animating) {
@@ -1204,7 +1203,7 @@ class BattleScene {
 		const result = BattleLog.escapeHTML(types).split('/').map(type =>
 			'<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />'
 		).join(' ');
-		this.resultAnim(pokemon, types, 'neutral');
+		this.resultAnim(pokemon, result, 'neutral');
 	}
 	resultAnim(pokemon: Pokemon, result: string, type: 'bad' | 'good' | 'neutral' | StatusName) {
 		if (!this.animating) return;
