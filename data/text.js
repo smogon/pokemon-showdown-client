@@ -43,9 +43,13 @@ var BattleText = exports.BattleText = {
 		typeChangeFromEffect: "  [POKEMON]'s [EFFECT] made it the [TYPE] type!",
 		typeAdd: "  [TYPE] type was added to [POKEMON]!",
 
-		start: "  ([POKEMON]'s [EFFECT] started!)",
+		start: "  ([EFFECT] started on [POKEMON]!)",
 		end: "  [POKEMON] was freed from [EFFECT]!",
-		activate: "  ([POKEMON]'s [EFFECT] activated!)",
+		activate: "  ([EFFECT] activated!)",
+		startTeamEffect: "  ([EFFECT] started on [TEAM]!)",
+		endTeamEffect: "  ([EFFECT] ended on [TEAM]!)",
+		startFieldEffect: "  ([EFFECT] started!)",
+		endFieldEffect: "  ([EFFECT] ended!)",
 
 		changeAbility: "  [POKEMON] acquired [ABILITY]!",
 		addItem: "  [POKEMON] obtained one [ITEM].", // Trick, Switcheroo
@@ -165,7 +169,6 @@ var BattleText = exports.BattleText = {
 	confusion: {
 		start: "  [POKEMON] became confused!",
 		startFromFatigue: "  [POKEMON] became confused due to fatigue!",
-		// end: "  [POKEMON] snapped out of confusion!", // PO artifact?
 		end: "  [POKEMON] snapped out of its confusion!",
 		endFromItem: "  [POKEMON]'s [ITEM] snapped it out of its confusion!",
 		alreadyStarted: "  [POKEMON] is already confused!",
