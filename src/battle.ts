@@ -1506,13 +1506,12 @@ class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let poke2 = this.getPokemon(args[2])!;
 			let stats = args[3] ? args[3].split(', ') : ['atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion'];
-			let effect = Tools.getEffect(kwArgs.from);
-			for (let i = 0; i < stats.length; i++) {
-				let tmp = poke.boosts[stats[i]];
-				poke.boosts[stats[i]] = poke2.boosts[stats[i]];
-				if (!poke.boosts[stats[i]]) delete poke.boosts[stats[i]];
-				poke2.boosts[stats[i]] = tmp;
-				if (!poke2.boosts[stats[i]]) delete poke2.boosts[stats[i]];
+			for (const stat of stats) {
+				let tmp = poke.boosts[stat];
+				poke.boosts[stat] = poke2.boosts[stat];
+				if (!poke.boosts[stat]) delete poke.boosts[stat];
+				poke2.boosts[stat] = tmp;
+				if (!poke2.boosts[stat]) delete poke2.boosts[stat];
 			}
 			this.scene.resultAnim(poke, 'Stats swapped', 'neutral');
 			this.scene.resultAnim(poke2, 'Stats swapped', 'neutral');
@@ -1621,7 +1620,6 @@ class Battle {
 		}
 		case '-immune': {
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(args[2]);
 			let fromeffect = Tools.getEffect(kwArgs.from);
 			this.activateAbility(this.getPokemon(kwArgs.of) || poke, fromeffect);
 			this.log(args, kwArgs);
@@ -1874,7 +1872,6 @@ class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let item = Tools.getItem(args[2]);
 			let effect = Tools.getEffect(kwArgs.from);
-			let ofpoke = this.getPokemon(kwArgs.of);
 			poke.item = '';
 			poke.itemEffect = '';
 			poke.prevItem = item.name;
@@ -2311,8 +2308,6 @@ class Battle {
 		case '-singleturn': {
 			let poke = this.getPokemon(args[1])!;
 			let effect = Tools.getEffect(args[2]);
-			let ofpoke = this.getPokemon(kwArgs.of);
-			// let fromeffect = Tools.getEffect(kwArgs.from);
 			poke.addTurnstatus(effect.id);
 
 			switch (effect.id) {
@@ -2360,8 +2355,6 @@ class Battle {
 		case '-singlemove': {
 			let poke = this.getPokemon(args[1])!;
 			let effect = Tools.getEffect(args[2]);
-			// let ofpoke = this.getPokemon(kwArgs.of);
-			// let fromeffect = Tools.getEffect(kwArgs.from);
 			poke.addMovestatus(effect.id);
 
 			switch (effect.id) {

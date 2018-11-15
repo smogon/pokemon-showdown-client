@@ -6,11 +6,14 @@ const path = require('path');
 process.chdir(path.resolve(__dirname, '..'));
 
 window = global;
-eval('' + fs.readFileSync(`js/battle-dex.js`));
-eval('' + fs.readFileSync(`js/battle-dex-data.js`));
-eval('' + fs.readFileSync(`js/battle.js`));
-eval('' + fs.readFileSync(`data/text.js`));
-eval('' + fs.readFileSync(`js/battle-text-parser.js`));
+{
+  let exports = global;
+  eval('' + fs.readFileSync(`js/battle-dex.js`));
+  eval('' + fs.readFileSync(`js/battle-dex-data.js`));
+  eval('' + fs.readFileSync(`js/battle.js`));
+  eval('' + fs.readFileSync(`data/text.js`));
+  eval('' + fs.readFileSync(`js/battle-text-parser.js`));
+}
 
 const parser = new BattleTextParser();
 

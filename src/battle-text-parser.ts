@@ -327,12 +327,6 @@ class BattleTextParser {
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', move);
 		}
 
-		case 'faint': {
-			const [, pokemon] = args;
-			const template = this.template('faint');
-			return template.replace('[POKEMON]', this.pokemon(pokemon));
-		}
-
 		case 'message': {
 			let [, message] = args;
 			return '' + message + '\n';
@@ -367,6 +361,7 @@ class BattleTextParser {
 			if (kwArgs.damage) templateId = 'activate';
 			if (kwArgs.block) templateId = 'block';
 			if (kwArgs.upkeep) templateId = 'activate';
+			if (id === 'reflect' || id === 'lightscreen') templateId = 'startGen1';
 			let template = '';
 			if (templateId === 'start' && kwArgs.from && kwArgs.from.startsWith('item:')) {
 				template = this.template('startFromItem', effect);
@@ -449,7 +444,7 @@ class BattleTextParser {
 		}
 
 		case '-enditem': {
-			let [, pokemon, item, arg3] = args;
+			let [, pokemon, item] = args;
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (kwArgs.eat) {
 				const template = this.template('eatItem', kwArgs.from);
@@ -653,7 +648,7 @@ class BattleTextParser {
 		}
 
 		case '-damage': {
-			let [, pokemon, newHealth, percentage] = args;
+			let [, pokemon, , percentage] = args;
 			let template = this.template('damage', kwArgs.from, 'NODEFAULT');
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			const id = this.effectId(kwArgs.from);

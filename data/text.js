@@ -1,4 +1,4 @@
-var BattleText = exports.BattleText = {
+exports.BattleText = {
 	default: {
 		startBattle: "Battle started between [TRAINER] and [TRAINER]!",
 		winBattle: "**[TRAINER]** won the battle!",
@@ -552,7 +552,7 @@ var BattleText = exports.BattleText = {
 		start: "  Light Screen made [TEAM] stronger against special moves!",
 		end: "  [TEAM]'s Light Screen wore off!",
 		// gen 1
-		start: "  [POKEMON]'s protected against special attacks!",
+		startGen1: "  [POKEMON]'s protected against special attacks!",
 	},
 	lockon: {
 		start: "  [SOURCE] took aim at [POKEMON]!",
@@ -672,7 +672,7 @@ var BattleText = exports.BattleText = {
 		start: "  Reflect made [TEAM] stronger against physical moves!",
 		end: "  [TEAM]'s Reflect wore off!",
 		// gen 1
-		start: "  [POKEMON] gained armor!",
+		startGen1: "  [POKEMON] gained armor!",
 	},
 	reflecttype: {
 		typeChange: "  [POKEMON]'s type became the same as [SOURCE]'s type!",
