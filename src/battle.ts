@@ -2086,22 +2086,20 @@ class Battle {
 			this.activateAbility(ofpoke || poke, fromeffect);
 			switch (effect.id) {
 			case 'typechange':
-				const types = BattleLog.escapeHTML(args[3]);
+				const types = Tools.sanitizeName(args[3]);
 				poke.removeVolatile('typeadd' as ID);
 				poke.addVolatile('typechange' as ID, types);
 				if (kwArgs.silent) {
 					this.scene.updateStatbar(poke);
 					break;
 				}
-				this.scene.resultAnim(poke, types.split('/').map(function (type) {
-					return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />';
-				}).join(' '), 'neutral');
+				this.scene.typeAnim(poke, types);
 				break;
 			case 'typeadd':
-				const type = BattleLog.escapeHTML(args[3]);
+				const type = Tools.sanitizeName(args[3]);
 				poke.addVolatile('typeadd' as ID, type);
 				if (kwArgs.silent) break;
-				this.scene.resultAnim(poke, '<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />', 'neutral');
+				this.scene.typeAnim(poke, type);
 				break;
 			case 'powertrick':
 				this.scene.resultAnim(poke, 'Power Trick', 'neutral');
@@ -2444,8 +2442,9 @@ class Battle {
 				break;
 			case 'spite':
 				let move = Tools.getMove(args[3]).name;
-				let pp = BattleLog.escapeHTML(args[4]);
-				poke.rememberMove(move, Number(pp));
+				let pp = Number(args[4]);
+				if (isNaN(pp)) pp = 4;
+				poke.rememberMove(move, pp);
 				break;
 			case 'gravity':
 				poke.removeVolatile('magnetrise' as ID);
@@ -2454,8 +2453,8 @@ class Battle {
 				break;
 			case 'skillswap':
 				if (this.gen <= 4) break;
-				let pokeability = BattleLog.escapeHTML(args[3]) || ofpoke!.ability;
-				let ofpokeability = BattleLog.escapeHTML(args[4]) || poke.ability;
+				let pokeability = Tools.sanitizeName(args[3]) || ofpoke!.ability;
+				let ofpokeability = Tools.sanitizeName(args[4]) || poke.ability;
 				if (pokeability) {
 					poke.ability = pokeability;
 					if (!ofpoke!.baseAbility) ofpoke!.baseAbility = pokeability;

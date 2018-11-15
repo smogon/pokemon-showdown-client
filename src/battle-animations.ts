@@ -1200,6 +1200,12 @@ class BattleScene {
 		}
 	}
 
+	typeAnim(pokemon: Pokemon, types: string) {
+		const result = BattleLog.escapeHTML(types).split('/').map(type =>
+			'<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />'
+		).join(' ');
+		this.resultAnim(pokemon, types, 'neutral');
+	}
 	resultAnim(pokemon: Pokemon, result: string, type: 'bad' | 'good' | 'neutral' | StatusName) {
 		if (!this.animating) return;
 		let $effect = $('<div class="result ' + type + 'result"><strong>' + result + '</strong></div>');
