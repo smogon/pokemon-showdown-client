@@ -8,7 +8,6 @@ window = global;
 
 // Without making these modules, the best we can do is directly include them into this workspace.
 eval('' + fs.readFileSync(`js/battle-scene-stub.js`));
-eval('' + fs.readFileSync(`js/battle-log.js`));
 eval('' + fs.readFileSync(`js/battle-dex.js`));
 eval('' + fs.readFileSync(`js/battle-dex-data.js`));
 eval('' + fs.readFileSync(`js/battle.js`));
