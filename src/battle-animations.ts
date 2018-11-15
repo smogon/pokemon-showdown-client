@@ -581,6 +581,10 @@ class BattleScene {
 
 	runMoveAnim(moveid: ID, participants: Pokemon[]) {
 		if (!this.animating) return;
+		if (!BattleMoveAnims[moveid]) {
+			BattleMoveAnims['tackle'].anim(this, participants.map(p => p.sprite));
+			return;
+		}
 		BattleMoveAnims[moveid].anim(this, participants.map(p => p.sprite));
 	}
 
