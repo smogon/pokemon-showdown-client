@@ -307,6 +307,7 @@ class Pokemon {
 		if (recursionSource === this.ident) return;
 		if (pp === undefined) pp = 1;
 		moveName = Tools.getMove(moveName).name;
+		if (moveName.charAt(0) === '*') return;
 		if (moveName === 'Struggle') return;
 		if (this.volatiles.transform) {
 			// make sure there is no infinite recursion if both Pokemon are transformed into each other
