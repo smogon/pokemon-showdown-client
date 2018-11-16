@@ -319,9 +319,8 @@ class Pokemon {
 		this.clearMovestatuses();
 		this.side.battle.scene.clearEffects(this);
 	}
-	rememberMove(moveName: string, pp?: number, recursionSource?: string) {
+	rememberMove(moveName: string, pp = 1, recursionSource?: string) {
 		if (recursionSource === this.ident) return;
-		if (pp === undefined) pp = 1;
 		moveName = Tools.getMove(moveName).name;
 		if (moveName.charAt(0) === '*') return;
 		if (moveName === 'Struggle') return;
@@ -331,10 +330,10 @@ class Pokemon {
 			this.volatiles.transform[1].rememberMove(moveName, 0, recursionSource);
 			moveName = '*' + moveName;
 		}
-		for (let i = 0; i < this.moveTrack.length; i++) {
-			if (moveName === this.moveTrack[i][0]) {
-				this.moveTrack[i][1] += pp;
-				if (this.moveTrack[i][1] < 0) this.moveTrack[i][1] = 0;
+		for (const entry of this.moveTrack) {
+			if (moveName === entry[0]) {
+				entry[1] += pp;
+				if (entry[1] < 0) entry[1] = 0;
 				return;
 			}
 		}
@@ -2020,6 +2019,7 @@ class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let tpoke = this.getPokemon(args[2])!;
 			let effect = Tools.getEffect(kwArgs.from);
+			if (poke === tpoke) throw new Error("Transforming into self");
 
 			if (!kwArgs.silent) {
 				this.activateAbility(poke, effect);
