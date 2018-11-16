@@ -769,5 +769,3 @@ class BattleLog {
 		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(BattleLog.createReplayFile(room)))));
 	}
 }
-
-exports.BattleLog = BattleLog;
