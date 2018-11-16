@@ -17,48 +17,48 @@
  */
 
 if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function (searchElement, fromIndex) {
-		for (var i = (fromIndex || 0); i < this.length; i++) {
+	Array.prototype.indexOf = function indexOf(searchElement, fromIndex) {
+		for (let i = (fromIndex || 0); i < this.length; i++) {
 			if (this[i] === searchElement) return i;
 		}
 		return -1;
 	};
 }
 if (!Array.prototype.includes) {
-	Array.prototype.includes = function (thing) {
+	Array.prototype.includes = function includes(thing) {
 		return this.indexOf(thing) !== -1;
 	};
 }
 if (!Array.isArray) {
-  Array.isArray = function (thing): thing is any[] {
-    return Object.prototype.toString.call(thing) === '[object Array]';
-  };
+	Array.isArray = function isArray(thing): thing is any[] {
+		return Object.prototype.toString.call(thing) === '[object Array]';
+	};
 }
 if (!String.prototype.includes) {
-	String.prototype.includes = function (thing) {
+	String.prototype.includes = function includes(thing) {
 		return this.indexOf(thing) !== -1;
 	};
 }
 if (!String.prototype.startsWith) {
-	String.prototype.startsWith = function (thing) {
+	String.prototype.startsWith = function startsWith(thing) {
 		return this.slice(0, thing.length) === thing;
 	};
 }
 if (!String.prototype.endsWith) {
-	String.prototype.endsWith = function (thing) {
+	String.prototype.endsWith = function endsWith(thing) {
 		return this.slice(-thing.length) === thing;
 	};
 }
 if (!String.prototype.trim) {
-	String.prototype.trim = function () {
+	String.prototype.trim = function trim() {
 		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
 	};
 }
 if (!Object.assign) {
-	Object.assign = function (thing: any, rest: any) {
-		for (var i = 1; i < arguments.length; i++) {
-			var source = arguments[i];
-			for (var k in source) {
+	Object.assign = function assign(thing: any, rest: any) {
+		for (let i = 1; i < arguments.length; i++) {
+			let source = arguments[i];
+			for (let k in source) {
 				thing[k] = source[k];
 			}
 		}
@@ -76,12 +76,12 @@ if (!Object.assign) {
 if (!window.exports) window.exports = window;
 
 if (window.soundManager) {
-	soundManager.setup({url:'https://play.pokemonshowdown.com/swf/'});
+	soundManager.setup({url: 'https://play.pokemonshowdown.com/swf/'});
 	if (window.Replays) soundManager.onready(window.Replays.soundReady);
-	soundManager.onready(function () {
+	soundManager.onready(() => {
 		soundManager.createSound({
 			id: 'notif',
-			url: 'https://play.pokemonshowdown.com/audio/notification.wav'
+			url: 'https://play.pokemonshowdown.com/audio/notification.wav',
 		});
 	});
 }
@@ -157,6 +157,8 @@ const Tools = {
 	})(),
 
 	/*
+	 * DEPRECATED: use PSObservable
+	 *
 	 * Load trackers are loosely based on Promises, but very simplified.
 	 * Trackers are made with: let tracker = Tools.makeLoadTracker();
 	 * Pass callbacks like so: tracker(callback)
@@ -164,34 +166,34 @@ const Tools = {
 	 * If tracker.load() has already been called, tracker(callback) will
 	 * call the callback instantly.
 	 */
-	makeLoadTracker() {
-		type LoadTracker = ((callback: Function, context: any) => any) & {
+	makeLoadTracker<T = any, C = void>() {
+		type LoadTracker = ((callback: (this: C, value: T) => void, context: C) => LoadTracker) & {
 			isLoaded: boolean,
-			value: any,
-			load: (value: any) => void,
+			value: T | undefined,
+			load: (value: T) => void,
 			unload: () => void,
-			callbacks: [Function, any][],
+			callbacks: [(value: T) => void, C][],
 		};
-		let tracker: LoadTracker = function (callback, context) {
+		let tracker: LoadTracker = ((callback, context) => {
 			if (tracker.isLoaded) {
 				callback.call(context, tracker.value);
 			} else {
 				tracker.callbacks.push([callback, context]);
 			}
 			return tracker;
-		} as LoadTracker;
+		}) as LoadTracker;
 		tracker.callbacks = [];
 		tracker.value = undefined;
 		tracker.isLoaded = false;
-		tracker.load = function (value) {
+		tracker.load = (value: T) => {
 			if (tracker.isLoaded) return;
 			tracker.isLoaded = true;
 			tracker.value = value;
-			for (let i = 0; i < tracker.callbacks.length; i++) {
-				tracker.callbacks[i][0].call(tracker.callbacks[i][1], value);
+			for (const [callback, context] of tracker.callbacks) {
+				callback.call(context, value);
 			}
 		};
-		tracker.unload = function () {
+		tracker.unload = () => {
 			if (!tracker.isLoaded) return;
 			tracker.isLoaded = false;
 		};
@@ -263,12 +265,12 @@ const Tools = {
 				effect.exists = true;
 			} else if (id === 'recoil') {
 				effect = {
-					effectType: 'Recoil'
+					effectType: 'Recoil',
 				};
 				effect.exists = true;
 			} else if (id === 'drain') {
 				effect = {
-					effectType: 'Drain'
+					effectType: 'Drain',
 				};
 				effect.exists = true;
 			}
@@ -335,7 +337,9 @@ const Tools = {
 
 	getCategory(move: Move, gen: number, type?: string) {
 		if (gen <= 3 && move.category !== 'Status') {
-			return ((type || move.type) in {Fire:1, Water:1, Grass:1, Electric:1, Ice:1, Psychic:1, Dark:1, Dragon:1} ? 'Special' : 'Physical');
+			return [
+				'Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Psychic', 'Dark', 'Dragon',
+			].includes(type || move.type) ? 'Special' : 'Physical';
 		}
 		return move.category;
 	},
@@ -405,8 +409,7 @@ const Tools = {
 			if (!window.BattlePokedex) window.BattlePokedex = {};
 			if (!window.BattlePokedex[id]) {
 				template = window.BattlePokedex[id] = {};
-				for (let i = 0; i < baseSpeciesChart.length; i++) {
-					let baseid = baseSpeciesChart[i];
+				for (const baseid of baseSpeciesChart) {
 					if (id.length > baseid.length && id.substr(0, baseid.length) === baseid) {
 						template.baseSpecies = baseid;
 						template.forme = id.substr(baseid.length);
@@ -444,7 +447,7 @@ const Tools = {
 			if (!template.spriteid) template.spriteid = toId(template.baseSpecies) + template.formeid;
 			if (!template.effectType) template.effectType = 'Template';
 			if (!template.gen) {
-				if (template.forme && template.formeid in {'-mega':1, '-megax':1, '-megay':1}) {
+				if (template.forme && ['-mega', '-megax', '-megay'].includes(template.formeid)) {
 					template.gen = 6;
 					template.isMega = true;
 					template.battleOnly = true;
@@ -478,7 +481,7 @@ const Tools = {
 			if (template.otherForms && template.otherForms.indexOf(speciesid) >= 0) {
 				if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
 				if (!window.BattlePokedexAltForms[speciesid]) {
-					template = window.BattlePokedexAltForms[speciesid] = Object.assign({}, template);
+					template = window.BattlePokedexAltForms[speciesid] = {...template};
 					let form = speciesid.slice(template.baseSpecies.length);
 					let formid = '-' + form;
 					form = form[0].toUpperCase() + form.slice(1);
@@ -516,8 +519,8 @@ const Tools = {
 		const id = template.id;
 		const templAbilities = template.abilities;
 		const table = (gen >= 7 ? null : window.BattleTeambuilderTable['gen' + gen]);
-		const abilities = {} as {[id: string]: string};
-		if (!table) return Object.assign(abilities, templAbilities);
+		if (!table) return {...templAbilities};
+		const abilities: {[id: string]: string} = {};
 
 		if (table.overrideAbility && id in table.overrideAbility) {
 			abilities['0'] = table.overrideAbility[id];
@@ -534,7 +537,7 @@ const Tools = {
 		return abilities;
 	},
 
-	hasAbility: function (template: any, ability: string, gen = 7) {
+	hasAbility(template: any, ability: string, gen = 7) {
 		const abilities = this.getAbilitiesFor(template, gen);
 		for (const i in abilities) {
 			if (ability === abilities[i]) return true;
@@ -542,7 +545,7 @@ const Tools = {
 		return false;
 	},
 
-	loadedSpriteData: {'xy':1, 'bw':0},
+	loadedSpriteData: {xy: 1, bw: 0},
 	loadSpriteData(gen: 'xy' | 'bw') {
 		if (this.loadedSpriteData[gen]) return;
 		this.loadedSpriteData[gen] = 1;
@@ -555,7 +558,9 @@ const Tools = {
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
 	},
-	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean} = {gen: 6}) {
+	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {
+		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean,
+	} = {gen: 6}) {
 		if (!options.gen) options.gen = 6;
 		if (pokemon instanceof Pokemon) {
 			if (pokemon.volatiles.transform) {
@@ -576,10 +581,11 @@ const Tools = {
 			pixelated: true,
 			isBackSprite: false,
 			cryurl: '',
-			shiny: options.shiny
+			shiny: options.shiny,
 		};
 		let name = template.spriteid;
-		let dir, facing;
+		let dir;
+		let facing;
 		if (siden) {
 			dir = '';
 			facing = 'front';
@@ -615,7 +621,20 @@ const Tools = {
 			let baseSpeciesid = toId(template.baseSpecies);
 			spriteData.cryurl = 'audio/cries/' + baseSpeciesid;
 			let formeid = template.formeid;
-			if (template.isMega || formeid && (formeid === '-sky' || formeid === '-therian' || formeid === '-primal' || formeid === '-eternal' || baseSpeciesid === 'kyurem' || baseSpeciesid === 'necrozma' || formeid === '-super' || formeid === '-unbound' || formeid === '-midnight' || formeid === '-school' || baseSpeciesid === 'oricorio' || baseSpeciesid === 'zygarde')) {
+			if (template.isMega || formeid && (
+				formeid === '-sky' ||
+				formeid === '-therian' ||
+				formeid === '-primal' ||
+				formeid === '-eternal' ||
+				baseSpeciesid === 'kyurem' ||
+				baseSpeciesid === 'necrozma' ||
+				formeid === '-super' ||
+				formeid === '-unbound' ||
+				formeid === '-midnight' ||
+				formeid === '-school' ||
+				baseSpeciesid === 'oricorio' ||
+				baseSpeciesid === 'zygarde'
+			)) {
 				spriteData.cryurl += formeid;
 			}
 			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
@@ -694,13 +713,15 @@ const Tools = {
 		}
 		let id = toId(pokemon);
 		if (pokemon && pokemon.species) id = toId(pokemon.species);
-		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) id = toId(pokemon.volatiles.formechange[2]);
+		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) {
+			id = toId(pokemon.volatiles.formechange[2]);
+		}
 		if (pokemon && pokemon.num !== undefined) num = pokemon.num;
 		else if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) num = BattlePokemonSprites[id].num;
 		else if (window.BattlePokedex && window.BattlePokedex[id] && BattlePokedex[id].num) num = BattlePokedex[id].num;
 		if (num < 0) num = 0;
 		if (num > 807) num = 0;
-		let altNums = {
+		let altNums: {[id: string]: number} = {
 			egg: 816 + 1,
 			pikachubelle: 816 + 2,
 			pikachulibre: 816 + 3,
@@ -951,8 +972,8 @@ const Tools = {
 			duohm: 1188 + 20,
 			// protowatt: 1188 + 21,
 			voodoll: 1188 + 22,
-			mumbao: 1188 + 23
-		} as {[id: string]: number};
+			mumbao: 1188 + 23,
+		};
 
 		if (altNums[id]) {
 			num = altNums[id];
@@ -1052,7 +1073,7 @@ const Tools = {
 				necrozmadawnwings: 1044 + 102,
 				necrozmaultra: 1044 + 103,
 				stakataka: 1044 + 104,
-				blacephalon: 1044 + 105
+				blacephalon: 1044 + 105,
 			};
 			if (altNums[id]) {
 				num = altNums[id];
@@ -1071,11 +1092,7 @@ const Tools = {
 		let spriteid = pokemon.spriteid;
 		let template = Tools.getTemplate(pokemon.species);
 		if (pokemon.species && !spriteid) {
-			if (template.spriteid) {
-				spriteid = template.spriteid;
-			} else {
-				spriteid = toId(pokemon.species);
-			}
+			spriteid = template.spriteid || toId(pokemon.species);
 		}
 		if (Tools.getTemplate(pokemon.species).exists === false) {
 			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);background-position:10px 5px;background-repeat:no-repeat';
@@ -1108,14 +1125,6 @@ const Tools = {
 		else if (gen <= 3 && template.gen <= 3) spriteDir = Tools.resourcePrefix + 'sprites/rse';
 		else if (gen <= 4 && template.gen <= 4) spriteDir = Tools.resourcePrefix + 'sprites/dpp';
 		return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
-		// let w = Math.round(57 - sdata.w / 2), h = Math.round(57 - sdata.h / 2);
-		// if (id === 'altariamega' || id === 'dianciemega' || id === 'charizardmegay') h += 15;
-		// if (id === 'gliscor' || id === 'gardevoirmega' || id === 'garchomp' || id === 'garchompmega' || id === 'lugia' || id === 'golurk') h += 8;
-		// if (id === 'manectricmega') h -= 8;
-		// if (id === 'giratinaorigin' || id === 'steelixmega') h -= 15;
-		// if (id === 'lugia' || id === 'latiosmega' || id === 'latias' || id === 'garchompmega' || id === 'kyuremwhite') w += 8;
-		// if (id === 'rayquazamega' || id === 'giratinaorigin' || id === 'wailord' || id === 'latiasmega') w += 15;
-		// return 'background-image:url(' + Tools.resourcePrefix + 'sprites/xy' + shiny + '/' + spriteid + '.png);background-position:' + w + 'px ' + h + 'px;background-repeat:no-repeat';
 	},
 
 	getItemIcon(item: any) {

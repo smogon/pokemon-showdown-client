@@ -210,14 +210,14 @@ class BattleTextParser {
 		}
 
 		case 'gen': {
-			const [, number] = args;
-			this.gen = parseInt(number, 10);
+			const [, num] = args;
+			this.gen = parseInt(num, 10);
 			return '';
 		}
 
 		case 'turn': {
-			const [, number] = args;
-			return this.template('turn').replace('[NUMBER]', number) + '\n';
+			const [, num] = args;
+			return this.template('turn').replace('[NUMBER]', num) + '\n';
 		}
 
 		case 'start': {
@@ -345,14 +345,14 @@ class BattleTextParser {
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TYPE]', arg3);
 			}
 			if (id.startsWith('stockpile')) {
-				const number = id.slice(9);
+				const num = id.slice(9);
 				const template = this.template('start', 'stockpile');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[NUMBER]', number);
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[NUMBER]', num);
 			}
 			if (id.startsWith('perish')) {
-				const number = id.slice(6);
+				const num = id.slice(6);
 				const template = this.template('activate', 'perishsong');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[NUMBER]', number);
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[NUMBER]', num);
 			}
 			let templateId = 'start';
 			if (kwArgs.already) templateId = 'alreadyStarted';
@@ -578,7 +578,9 @@ class BattleTextParser {
 			}
 			if (!arg5 && (id === 'spite' || id === 'skillswap')) {
 				[target, arg4, arg5] = [pokemon, target, arg4];
-			} else if (!arg4 && ['grudge', 'forewarn', 'magnitude', 'sketch', 'persistent', 'symbiosis', 'safetygoggles', 'matblock', 'safetygoggles'].includes(id)) {
+			} else if (!arg4 && [
+				'grudge', 'forewarn', 'magnitude', 'sketch', 'persistent', 'symbiosis', 'safetygoggles', 'matblock', 'safetygoggles',
+			].includes(id)) {
 				[target, arg4] = [pokemon, target];
 			} else if (!target && ['hyperspacefury', 'hyperspacehole', 'phantomforce', 'shadowforce', 'feint'].includes(id)) {
 				[pokemon, target] = [kwArgs.of, pokemon];
@@ -591,7 +593,9 @@ class BattleTextParser {
 				return line1 + this.template('immune');
 			}
 
-			if (['bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'charge', 'fairylock', 'trapped'].includes(id)) {
+			if ([
+				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'charge', 'fairylock', 'trapped',
+			].includes(id)) {
 				const template = this.template('start', effect);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of));
 			}
@@ -602,7 +606,11 @@ class BattleTextParser {
 			if (kwArgs.block) {
 				return this.template('fail');
 			}
-			if (['ingrain', 'quickguard', 'wideguard', 'craftyshield', 'matblock', 'protect', 'mist', 'safeguard', 'electricterrain', 'mistyterrain', 'psychicterrain', 'telepathy', 'stickyhold', 'suctioncups', 'aromaveil', 'flowerveil', 'sweetveil', 'disguise', 'safetygoggles', 'protectivepads'].includes(id)) {
+			if ([
+				'ingrain', 'quickguard', 'wideguard', 'craftyshield', 'matblock', 'protect', 'mist', 'safeguard',
+				'electricterrain', 'mistyterrain', 'psychicterrain', 'telepathy', 'stickyhold', 'suctioncups', 'aromaveil',
+				'flowerveil', 'sweetveil', 'disguise', 'safetygoggles', 'protectivepads',
+			].includes(id)) {
 				const template = this.template('block', effect);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', arg4);
 			}
@@ -691,9 +699,9 @@ class BattleTextParser {
 		}
 
 		case '-boost': case '-unboost': {
-			const [, pokemon, stat, number] = args;
+			const [, pokemon, stat, num] = args;
 			const statName = BattleStats[stat as StatName] || "stats";
-			const amount = parseInt(number);
+			const amount = parseInt(num, 10);
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			let templateId = cmd.slice(1);
 			if (amount >= 3) templateId += '3';
@@ -867,11 +875,11 @@ class BattleTextParser {
 		}
 
 		case '-hitcount': {
-			const [, number] = args;
-			if (number === '1') {
+			const [, num] = args;
+			if (num === '1') {
 				return this.template('hitCountSingular');
 			}
-			return this.template('hitCount').replace('[NUMBER]', number);
+			return this.template('hitCount').replace('[NUMBER]', num);
 		}
 
 		case '-waiting': {

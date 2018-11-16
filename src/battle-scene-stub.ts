@@ -7,7 +7,7 @@ class BattleSceneStub {
 	timeOffset: number = NaN;
 	interruptionCount: number = NaN;
 	messagebarOpen: boolean = false;
-	log = {add: (args: Args, kwargs?: KWArgs) => {}} as BattleLog;
+	log: BattleLog = {add: (args: Args, kwargs?: KWArgs) => {}} as any;
 
 	abilityActivateAnim(pokemon: Pokemon, result: string): void { }
 	addPokemonSprite(pokemon: Pokemon) { return null!; }
