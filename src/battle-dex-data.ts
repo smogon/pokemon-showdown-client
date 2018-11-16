@@ -19,89 +19,89 @@ type ID = string & {__isID: true};
 const BattleNatures = {
 	Adamant: {
 		plus: 'atk',
-		minus: 'spa'
+		minus: 'spa',
 	},
 	Bashful: {},
 	Bold: {
 		plus: 'def',
-		minus: 'atk'
+		minus: 'atk',
 	},
 	Brave: {
 		plus: 'atk',
-		minus: 'spe'
+		minus: 'spe',
 	},
 	Calm: {
 		plus: 'spd',
-		minus: 'atk'
+		minus: 'atk',
 	},
 	Careful: {
 		plus: 'spd',
-		minus: 'spa'
+		minus: 'spa',
 	},
 	Docile: {},
 	Gentle: {
 		plus: 'spd',
-		minus: 'def'
+		minus: 'def',
 	},
 	Hardy: {},
 	Hasty: {
 		plus: 'spe',
-		minus: 'def'
+		minus: 'def',
 	},
 	Impish: {
 		plus: 'def',
-		minus: 'spa'
+		minus: 'spa',
 	},
 	Jolly: {
 		plus: 'spe',
-		minus: 'spa'
+		minus: 'spa',
 	},
 	Lax: {
 		plus: 'def',
-		minus: 'spd'
+		minus: 'spd',
 	},
 	Lonely: {
 		plus: 'atk',
-		minus: 'def'
+		minus: 'def',
 	},
 	Mild: {
 		plus: 'spa',
-		minus: 'def'
+		minus: 'def',
 	},
 	Modest: {
 		plus: 'spa',
-		minus: 'atk'
+		minus: 'atk',
 	},
 	Naive: {
 		plus: 'spe',
-		minus: 'spd'
+		minus: 'spd',
 	},
 	Naughty: {
 		plus: 'atk',
-		minus: 'spd'
+		minus: 'spd',
 	},
 	Quiet: {
 		plus: 'spa',
-		minus: 'spe'
+		minus: 'spe',
 	},
 	Quirky: {},
 	Rash: {
 		plus: 'spa',
-		minus: 'spd'
+		minus: 'spd',
 	},
 	Relaxed: {
 		plus: 'def',
-		minus: 'spe'
+		minus: 'spe',
 	},
 	Sassy: {
 		plus: 'spd',
-		minus: 'spe'
+		minus: 'spe',
 	},
 	Serious: {},
 	Timid: {
 		plus: 'spe',
-		minus: 'atk'
-	}
+		minus: 'atk',
+	},
 };
 const BattleStatIDs = {
 	HP: 'hp',
@@ -122,7 +122,7 @@ const BattleStatIDs = {
 	spd: 'spd',
 	Spe: 'spe',
 	Spd: 'spe',
-	spe: 'spe'
+	spe: 'spe',
 };
 const BattlePOStatNames = { // only used for interacting with PO
 	hp: 'HP',
@@ -130,7 +130,7 @@ const BattlePOStatNames = { // only used for interacting with PO
 	def: 'Def',
 	spa: 'SAtk',
 	spd: 'SDef',
-	spe: 'Spd'
+	spe: 'Spd',
 };
 const BattleStatNames = { // proper style
 	hp: 'HP',
@@ -138,10 +138,18 @@ const BattleStatNames = { // proper style
 	def: 'Def',
 	spa: 'SpA',
 	spd: 'SpD',
-	spe: 'Spe'
+	spe: 'Spe',
 };
 const BattleStats = {
-	hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Special Attack', spd: 'Special Defense', spe: 'Speed', accuracy: 'accuracy', evasion: 'evasiveness', spc: 'Special'
+	hp: 'HP',
+	atk: 'Attack',
+	def: 'Defense',
+	spa: 'Special Attack',
+	spd: 'Special Defense',
+	spe: 'Speed',
+	accuracy: 'accuracy',
+	evasion: 'evasiveness',
+	spc: 'Special',
 };
 
 const baseSpeciesChart = [
@@ -197,7 +205,7 @@ const baseSpeciesChart = [
 
 	// mega evolutions
 	'charizard',
-	'mewtwo'
+	'mewtwo',
 	// others are hardcoded by ending with 'mega'
 ];
 
@@ -237,7 +245,7 @@ interface Template extends Effect {
 	readonly spriteid: string;
 	readonly types: string[];
 	readonly abilities: {0: string, 1?: string, H?: string, S?: string};
-	readonly baseStats: {hp: number, atk: number, def: number, spa: number, spd: number, spe: number}
+	readonly baseStats: {hp: number, atk: number, def: number, spa: number, spd: number, spe: number};
 	readonly unreleasedHidden: boolean;
 	readonly tier: string;
 	readonly weightkg: number;

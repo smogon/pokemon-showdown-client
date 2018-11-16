@@ -66,8 +66,9 @@ class BattleLog {
 		let divHTML = '';
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
-			let name, message;
 			let battle = this.scene && this.scene.battle;
+			let name;
+			let message;
 			if (args[0] === 'c:') {
 				name = args[2];
 				message = args[3];
@@ -76,9 +77,9 @@ class BattleLog {
 				message = args[2];
 			}
 			let rank = name.charAt(0);
-			if (battle && battle.ignoreSpects && (rank === ' ' || rank === '+')) return;
-			if (battle && battle.ignoreOpponent && (rank === '\u2605' || rank === '\u2606') && toUserid(name) !== app.user.get('userid')) return;
-			if (window.app && app.ignore && app.ignore[toUserid(name)] && (rank === ' ' || rank === '+' || rank === '\u2605' || rank === '\u2606')) return;
+			if (battle && battle.ignoreSpects && ' +'.includes(rank)) return;
+			if (battle && battle.ignoreOpponent && '\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
+			if (window.app && app.ignore && app.ignore[toUserid(name)] && ' +\u2605\u2606'.includes(rank)) return;
 			let isHighlighted = window.app && app.rooms && app.rooms[battle!.roomid].getHighlight(message);
 			[divClass, divHTML] = this.parseChatMessage(message, name, '', isHighlighted);
 			if (isHighlighted) {
@@ -205,7 +206,7 @@ class BattleLog {
 		});
 		return [
 			messages.join('<br />'),
-			messages.filter(message => !message.startsWith('<small>[')).join('<br />'),
+			messages.filter(line => !line.startsWith('<small>[')).join('<br />'),
 		];
 	}
 	message(message: string, sceneMessage = message) {
@@ -310,7 +311,7 @@ class BattleLog {
 		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	}
 
-	static colorCache = {} as {[userid: string]: string};
+	static colorCache: {[userid: string]: string} = {};
 
 	static hashColor(name: string) {
 		if (this.colorCache[name]) return this.colorCache[name];
@@ -331,7 +332,9 @@ class BattleLog {
 		let X = C * (1 - Math.abs((H / 60) % 2 - 1));
 		let m = L / 100 - C / 2;
 
-		let R1, G1, B1;
+		let R1;
+		let G1;
+		let B1;
 		switch (Math.floor(H / 60)) {
 		case 1: R1 = X; G1 = C; B1 = 0; break;
 		case 2: R1 = 0; G1 = C; B1 = X; break;
@@ -340,7 +343,9 @@ class BattleLog {
 		case 5: R1 = C; G1 = 0; B1 = X; break;
 		case 0: default: R1 = C; G1 = X; B1 = 0; break;
 		}
-		let R = R1 + m, G = G1 + m, B = B1 + m;
+		let R = R1 + m;
+		let G = G1 + m;
+		let B = B1 + m;
 		let lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
 
 		let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
@@ -376,7 +381,8 @@ class BattleLog {
 			name = name.substr(1);
 		}
 		let color = BattleLog.hashColor(toId(name));
-		let clickableName = '<small>' + BattleLog.escapeHTML(group) + '</small><span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + '</span>';
+		let clickableName = '<small>' + BattleLog.escapeHTML(group) + '</small><span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' +
+			BattleLog.escapeHTML(name) + '</span>';
 		let hlClass = isHighlighted ? ' highlighted' : '';
 		let mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
 
@@ -394,19 +400,44 @@ class BattleLog {
 
 		switch (cmd) {
 		case 'me':
-			if (!showMe) return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em>'];
-			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em>'];
+			if (!showMe) {
+				return [
+					'chat chatmessage-' + toId(name) + hlClass + mineClass,
+					'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em>',
+				];
+			}
+			return [
+				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em>',
+			];
 		case 'mee':
-			if (!showMe) return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em>'];
-			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em>'];
+			if (!showMe) {
+				return [
+					'chat chatmessage-' + toId(name) + hlClass + mineClass,
+					'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em>',
+				];
+			}
+			return [
+				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em>',
+			];
 		case 'invite':
 			let roomid = toRoomid(target);
-			return ['chat', timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em>' +
-				'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>'];
+			return [
+				'chat',
+				'' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em>' +
+				'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>',
+			];
 		case 'announce':
-			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span>'];
+			return [
+				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span>',
+			];
 		case 'log':
-			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span>'];
+			return [
+				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'' + timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span>',
+			];
 		case 'data-pokemon':
 		case 'data-item':
 		case 'data-ability':
@@ -417,7 +448,10 @@ class BattleLog {
 		case 'error':
 			return ['chat message-error', BattleLog.escapeHTML(target)];
 		case 'html':
-			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em>'];
+			return [
+				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em>',
+			];
 		case 'uhtml':
 		case 'uhtmlchange':
 			let parts = target.split(',');
@@ -431,7 +465,10 @@ class BattleLog {
 			if (!name) {
 				return ['chat' + hlClass, timestamp + '<em>' + BattleLog.parseMessage(message) + '</em>'];
 			}
-			return ['chat chatmessage-' + toId(name) + hlClass + mineClass, timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em>'];
+			return [
+				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em>',
+			];
 		}
 	}
 
@@ -487,9 +524,9 @@ class BattleLog {
 		}
 		// Add <marquee> <blink> <psicon> to the whitelist.
 		Object.assign(html4.ELEMENTS, {
-			'marquee': 0,
-			'blink': 0,
-			'psicon': html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY']
+			marquee: 0,
+			blink: 0,
+			psicon: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
 		});
 		Object.assign(html4.ATTRIBS, {
 			// See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee
@@ -505,14 +542,15 @@ class BattleLog {
 			'marquee::vspace': 0,
 			'marquee::width': 0,
 			'psicon::pokemon': 0,
-			'psicon::item': 0
+			'psicon::item': 0,
 		});
 
 		this.tagPolicy = (tagName: string, attribs: string[]) => {
 			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
 				return;
 			}
-			let targetIdx = 0, srcIdx = 0;
+			let targetIdx = 0;
+			let srcIdx = 0;
 			if (tagName === 'a') {
 				// Special handling of <a> tags.
 
@@ -568,10 +606,14 @@ class BattleLog {
 					// Prepend all the classes and styles associated to the custom element.
 					if (iconAttrib[0] === 'pokemon') {
 						attribs[classValueIndex] = attribs[classValueIndex] ? 'picon ' + attribs[classValueIndex] : 'picon';
-						attribs[styleValueIndex] = attribs[styleValueIndex] ? Tools.getPokemonIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] : Tools.getPokemonIcon(iconAttrib[1]);
+						attribs[styleValueIndex] = attribs[styleValueIndex] ?
+							Tools.getPokemonIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
+							Tools.getPokemonIcon(iconAttrib[1]);
 					} else if (iconAttrib[0] === 'item') {
 						attribs[classValueIndex] = attribs[classValueIndex] ? 'itemicon ' + attribs[classValueIndex] : 'itemicon';
-						attribs[styleValueIndex] = attribs[styleValueIndex] ? Tools.getItemIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] : Tools.getItemIcon(iconAttrib[1]);
+						attribs[styleValueIndex] = attribs[styleValueIndex] ?
+							Tools.getItemIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
+							Tools.getItemIcon(iconAttrib[1]);
 					}
 				}
 			}
@@ -605,7 +647,7 @@ class BattleLog {
 					attribs.push('noopener');
 				}
 			}
-			return {tagName: tagName, attribs: attribs};
+			return {tagName, attribs};
 		};
 	}
 	static localizeTime(full: string, date: string, time: string, timezone?: string) {
@@ -618,7 +660,9 @@ class BattleLog {
 		let formattedTime;
 		// Try using Intl API if it exists
 		if (window.Intl && Intl.DateTimeFormat) {
-			formattedTime = new Intl.DateTimeFormat(undefined, {month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric'}).format(parsedTime);
+			formattedTime = new Intl.DateTimeFormat(undefined, {
+				month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric',
+			}).format(parsedTime);
 		} else {
 			// toLocaleString even exists in ECMAScript 1, so no need to check
 			// if it exists.

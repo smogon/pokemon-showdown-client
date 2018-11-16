@@ -79,8 +79,8 @@ class Pokemon {
 	gender: GenderName = '';
 	shiny = false;
 
-	hpcolor = 'g' as HPColor;
-	moves = [] as string[];
+	hpcolor: HPColor = 'g';
+	moves: string[] = [];
 	ability = '';
 	baseAbility = '';
 	item = '';
@@ -88,17 +88,17 @@ class Pokemon {
 	prevItem = '';
 	prevItemEffect = '';
 
-	boosts = {} as {[stat: string]: number};
+	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
 	statusStage = 0;
-	volatiles = {} as EffectTable;
-	turnstatuses = {} as EffectTable;
-	movestatuses = {} as EffectTable;
+	volatiles: EffectTable = {};
+	turnstatuses: EffectTable = {};
+	movestatuses: EffectTable = {};
 	weightkg = 0;
 	lastMove = '';
 
 	/** [[moveName, ppUsed]] */
-	moveTrack = [] as [string, number][];
+	moveTrack: [string, number][] = [];
 	statusData = {sleepTurns: 0, toxicTurns: 0};
 
 	sprite: PokemonSprite;
@@ -163,7 +163,8 @@ class Pokemon {
 			}
 			return percentage.toFixed(precision) + '%';
 		}
-		let lower, upper;
+		let lower;
+		let upper;
 		if (precision === 0) {
 			lower = Math.floor(range[0] * 100);
 			upper = Math.ceil(range[1] * 100);
@@ -171,7 +172,7 @@ class Pokemon {
 			lower = (range[0] * 100).toFixed(precision);
 			upper = (range[1] * 100).toFixed(precision);
 		}
-		return lower + separator + upper + '%';
+		return '' + lower + separator + upper + '%';
 	}
 	// Returns [min, max] damage dealt as a proportion of total HP from 0 to 1
 	getDamageRange(damage: any): [number, number] {
@@ -197,7 +198,8 @@ class Pokemon {
 		}
 		return [oldrange[0] - newrange[1], oldrange[1] - newrange[0]];
 	}
-	healthParse(hpstring: string, parsedamage?: boolean, heal?: boolean): [number, number, number] | [number, number, number, number, HPColor] | null {
+	healthParse(hpstring: string, parsedamage?: boolean, heal?: boolean):
+		[number, number, number] | [number, number, number, number, HPColor] | null {
 		// returns [delta, denominator, percent(, oldnum, oldcolor)] or null
 		if (!hpstring || !hpstring.length) return null;
 		let parenIndex = hpstring.lastIndexOf('(');
@@ -355,7 +357,7 @@ class Pokemon {
 			spe: 'Spe',
 			accuracy: 'Accuracy',
 			evasion: 'Evasion',
-			spc: 'Spc'
+			spc: 'Spc',
 		};
 		if (!this.boosts[boostStat]) {
 			return '1&times;&nbsp;' + boostStatTable[boostStat];
@@ -365,20 +367,20 @@ class Pokemon {
 		if (boostStat === 'accuracy' || boostStat === 'evasion') {
 			if (this.boosts[boostStat] > 0) {
 				let goodBoostTable = ['1&times;', '1.33&times;', '1.67&times;', '2&times;', '2.33&times;', '2.67&times;', '3&times;'];
-				//let goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
+				// let goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
 				return '' + goodBoostTable[this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 			}
 			let badBoostTable = ['1&times;', '0.75&times;', '0.6&times;', '0.5&times;', '0.43&times;', '0.38&times;', '0.33&times;'];
-			//let badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
+			// let badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
 			return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 		}
 		if (this.boosts[boostStat] > 0) {
 			let goodBoostTable = ['1&times;', '1.5&times;', '2&times;', '2.5&times;', '3&times;', '3.5&times;', '4&times;'];
-			//let goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
+			// let goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
 			return '' + goodBoostTable[this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 		}
 		let badBoostTable = ['1&times;', '0.67&times;', '0.5&times;', '0.4&times;', '0.33&times;', '0.29&times;', '0.25&times;'];
-		//let badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
+		// let badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
 		return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 	}
 	getBoostType(boostStat: BoostStatName) {
@@ -399,7 +401,7 @@ class Pokemon {
 				i--;
 			}
 		}
-		//this.lastMove = '';
+		// this.lastMove = '';
 		this.statusStage = 0;
 	}
 	/**
@@ -409,7 +411,7 @@ class Pokemon {
 	copyVolatileFrom(pokemon: Pokemon, copyAll?: boolean) {
 		this.boosts = pokemon.boosts;
 		this.volatiles = pokemon.volatiles;
-		//this.lastMove = pokemon.lastMove; // I think
+		// this.lastMove = pokemon.lastMove; // I think
 		if (!copyAll) {
 			delete this.volatiles['airballoon'];
 			delete this.volatiles['attract'];
@@ -465,7 +467,7 @@ class Pokemon {
 		return [types, addedType];
 	}
 	getSpecies(): string {
-		return this.volatiles.formechange ? this.volatiles.formechange[1]: this.species;
+		return this.volatiles.formechange ? this.volatiles.formechange[1] : this.species;
 	}
 	reset() {
 		this.clearVolatile();
@@ -485,7 +487,7 @@ class Pokemon {
 		if (this.fainted || !this.hp) return 0;
 
 		// special case for low health...
-		if (this.hp == 1 && this.maxhp > 45) return 1;
+		if (this.hp === 1 && this.maxhp > 45) return 1;
 
 		if (this.maxhp === 48) {
 			// Draw the health bar to the middle of the range.
@@ -534,7 +536,7 @@ class Side {
 	pokemon = [] as Pokemon[];
 
 	/** [effectName, levels, minDuration, maxDuration] */
-	sideConditions = {} as {[id: string]: [string, number, number, number]};
+	sideConditions: {[id: string]: [string, number, number, number]} = {};
 
 	constructor(battle: Battle, n: number) {
 		this.battle = battle;
@@ -657,7 +659,7 @@ class Side {
 		}
 		if (this.pokemon.length > this.totalPokemon || this.battle.speciesClause) {
 			// check for Illusion
-			let existingTable = {} as {[searchid: string]: number};
+			let existingTable: {[searchid: string]: number} = {};
 			let toRemove = -1;
 			for (let poke1i = 0; poke1i < this.pokemon.length; poke1i++) {
 				let poke1 = this.pokemon[poke1i];
@@ -686,8 +688,7 @@ class Side {
 				if (this.pokemon[toRemove].fainted) {
 					// A fainted Pokemon was actually a Zoroark
 					let illusionFound = null;
-					for (let i = 0; i < this.pokemon.length; i++) {
-						let curPoke = this.pokemon[i];
+					for (const curPoke of this.pokemon) {
 						if (curPoke === poke) continue;
 						if (curPoke.fainted) continue;
 						if (this.active.indexOf(curPoke) >= 0) continue;
@@ -701,8 +702,7 @@ class Side {
 						// This will keep the fainted Pokemon count correct, and will
 						// eventually become correct as incorrect guesses are switched in
 						// and reguessed.
-						for (let i = 0; i < this.pokemon.length; i++) {
-							let curPoke = this.pokemon[i];
+						for (const curPoke of this.pokemon) {
 							if (curPoke === poke) continue;
 							if (curPoke.fainted) continue;
 							if (this.active.indexOf(curPoke) >= 0) continue;
@@ -884,15 +884,15 @@ class Battle {
 	activeMoveIsSpread: string | null = null;
 
 	// callback
-	faintCallback: Function | null = null;
-	switchCallback: Function | null = null;
-	dragCallback: Function | null = null;
-	turnCallback: Function | null = null;
-	startCallback: Function | null = null;
-	stagnateCallback: Function | null = null;
-	endCallback: Function | null = null;
-	customCallback: Function | null = null;
-	errorCallback: Function | null = null;
+	faintCallback: ((battle: Battle, side: Side) => void) | null = null;
+	switchCallback: ((battle: Battle, side: Side) => void) | null = null;
+	dragCallback: ((battle: Battle, side: Side) => void) | null = null;
+	turnCallback: ((battle: Battle) => void) | null = null;
+	startCallback: ((battle: Battle) => void) | null = null;
+	stagnateCallback: ((battle: Battle) => void) | null = null;
+	endCallback: ((battle: Battle) => void) | null = null;
+	customCallback: ((battle: Battle, cmd: string, args: string[], kwArgs: KWArgs) => void) | null = null;
+	errorCallback: ((battle: Battle) => void) | null = null;
 
 	mute = false;
 	messageFadeTime = 300;
@@ -968,8 +968,8 @@ class Battle {
 		this.scene.updateWeather();
 	}
 	hasPseudoWeather(weather: string) {
-		for (let i = 0; i < this.pseudoWeather.length; i++) {
-			if (this.pseudoWeather[i][0] === weather) {
+		for (const [pseudoWeatherName] of this.pseudoWeather) {
+			if (weather === pseudoWeatherName) {
 				return true;
 			}
 		}
@@ -1098,7 +1098,7 @@ class Battle {
 	}
 	setTurn(turnNum: string | number) {
 		turnNum = parseInt(turnNum as string, 10);
-		if (turnNum == this.turn + 1) {
+		if (turnNum === this.turn + 1) {
 			this.endLastTurnPending = true;
 		}
 		if (this.turn && !this.usesUpkeep) this.updatePseudoWeatherLeft(); // for compatibility with old replays
@@ -1131,9 +1131,8 @@ class Battle {
 		this.scene.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
 	}
 	updateToxicTurns() {
-		for (let i = 0; i < this.sides.length; i++) {
-			for (let slot = 0; slot < this.sides[i].active.length; slot++) {
-				let poke = this.sides[i].active[slot];
+		for (const side of this.sides) {
+			for (const poke of side.active) {
 				if (poke && poke.status === 'tox') poke.statusData.toxicTurns++;
 			}
 		}
@@ -1146,7 +1145,7 @@ class Battle {
 		if (isUpkeep) {
 			if (this.weather && this.weatherTimeLeft) {
 				this.weatherTimeLeft--;
-				if (this.weatherMinTimeLeft != 0) this.weatherMinTimeLeft--;
+				if (this.weatherMinTimeLeft !== 0) this.weatherMinTimeLeft--;
 			}
 			if (!this.fastForward) {
 				this.scene.upkeepWeather();
@@ -1173,14 +1172,13 @@ class Battle {
 		this.scene.updateWeather();
 	}
 	updatePseudoWeatherLeft() {
-		for (let i = 0; i < this.pseudoWeather.length; i++) {
-			let pWeather = this.pseudoWeather[i];
+		for (const pWeather of this.pseudoWeather) {
 			if (pWeather[1]) pWeather[1]--;
 			if (pWeather[2]) pWeather[2]--;
 		}
-		for (let i = 0; i < this.sides.length; i++) {
-			for (let id in this.sides[i].sideConditions) {
-				let cond = this.sides[i].sideConditions[id];
+		for (const side of this.sides) {
+			for (const id in side.sideConditions) {
+				let cond = side.sideConditions[id];
 				if (cond[2]) cond[2]--;
 				if (cond[3]) cond[3]--;
 			}
@@ -1237,8 +1235,8 @@ class Battle {
 					let targets = [pokemon];
 					let hitPokemon = kwArgs.spread.split(',');
 					if (hitPokemon[0] !== '.') {
-						for (const target of hitPokemon) {
-							targets.push(this.getPokemon(target + ': ?')!);
+						for (const hitTarget of hitPokemon) {
+							targets.push(this.getPokemon(hitTarget + ': ?')!);
 						}
 					} else {
 						// if hitPokemon[0] === '.' then no target was hit by the attack
@@ -1316,7 +1314,12 @@ class Battle {
 		if (nextArgs && nextKwargs) {
 			if (args[2] === 'Sturdy' && args[0] === '-activate') args[2] = 'ability: Sturdy';
 			if (args[0] === '-crit' || args[0] === '-supereffective' || args[0] === '-resisted' || args[2] === 'ability: Sturdy') kwArgs.then = '.';
-			if (args[0] === '-damage' && !kwArgs.from && args[1] !== nextArgs[1] && (nextArgs[0] === '-crit' || nextArgs[0] === '-supereffective' || nextArgs[0] === '-resisted' || (nextArgs[0] === '-damage' && !nextKwargs.from))) kwArgs.then = '.';
+			if (args[0] === '-damage' && !kwArgs.from && args[1] !== nextArgs[1] && (
+				nextArgs[0] === '-crit' ||
+				nextArgs[0] === '-supereffective' ||
+				nextArgs[0] === '-resisted' ||
+				(nextArgs[0] === '-damage' && !nextKwargs.from)
+			)) kwArgs.then = '.';
 			if (args[0] === '-damage' && nextArgs[0] === '-damage' && kwArgs.from && kwArgs.from === nextKwargs.from) kwArgs.then = '.';
 			if (args[0] === '-ability' && (args[2] === 'Intimidate' || args[3] === 'boost')) kwArgs.then = '.';
 			if (args[0] === '-unboost' && nextArgs[0] === '-unboost') kwArgs.then = '.';
@@ -2552,7 +2555,7 @@ class Battle {
 			let fromeffect = Tools.getEffect(kwArgs.from);
 			this.activateAbility(poke, fromeffect);
 			let maxTimeLeft = 0;
-			if (effect.id in {'electricterrain': 1, 'grassyterrain': 1, 'mistyterrain': 1, 'psychicterrain': 1}) {
+			if (['electricterrain', 'grassyterrain', 'mistyterrain', 'psychicterrain'].includes(effect.id)) {
 				for (let i = this.pseudoWeather.length - 1; i >= 0; i--) {
 					let pwName = this.pseudoWeather[i][0];
 					if (pwName === 'Electric Terrain' || pwName === 'Grassy Terrain' || pwName === 'Misty Terrain' || pwName === 'Psychic Terrain') {
@@ -2567,9 +2570,9 @@ class Battle {
 			switch (effect.id) {
 			case 'gravity':
 				if (!this.fastForward) {
-					for (const side of this.sides) for (const active of side.active) {
-						if (active) {
-							this.scene.runOtherAnim('gravity' as ID, [active]);
+					for (const side of this.sides) {
+						for (const active of side.active) {
+							if (active) this.scene.runOtherAnim('gravity' as ID, [active]);
 						}
 					}
 				}
@@ -2672,7 +2675,13 @@ class Battle {
 		}
 		return output;
 	}
-	parseHealth(hpstring: string, output: any = {}): {hp: number, maxhp: number, hpcolor: HPColor | '', status: StatusName | '', fainted?: boolean} | null {
+	parseHealth(hpstring: string, output: any = {}): {
+		hp: number,
+		maxhp: number,
+		hpcolor: HPColor | '',
+		status: StatusName | '',
+		fainted?: boolean,
+	} | null {
 		let [hp, status] = hpstring.split(' ');
 
 		// hp parse
@@ -2715,7 +2724,7 @@ class Battle {
 
 		let siden = -1;
 		let slot = -1; // if there is an explicit slot for this pokemon
-		let slotChart = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5} as {[k: string]: number};
+		let slotChart: {[k: string]: number} = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
 		if (name.substr(0, 4) === 'p2: ' || name === 'p2') {
 			siden = this.p2.n;
 			name = name.substr(4);
@@ -2733,7 +2742,7 @@ class Battle {
 			name = name.substr(5);
 			pokemonid = 'p1: ' + name;
 		}
-		return {name: name, siden: siden, slot: slot, pokemonid: pokemonid};
+		return {name, siden, slot, pokemonid};
 	}
 	getPokemon(pokemonid: string, details?: string) {
 		let isNew = false; // if true, don't match any pokemon that already exists (for Team Preview)
@@ -2753,10 +2762,7 @@ class Battle {
 			createIfNotFound = true;
 		}
 		let parseIdResult = this.parsePokemonId(pokemonid);
-		let name, siden, slot;
-		name = parseIdResult.name;
-		siden = parseIdResult.siden;
-		slot = parseIdResult.slot;
+		let {name, siden, slot} = parseIdResult;
 		pokemonid = parseIdResult.pokemonid;
 
 		if (!details) {
@@ -2781,7 +2787,7 @@ class Battle {
 				if (isSwitch || isInactive) {
 					if (this.p1.active.indexOf(pokemon) >= 0) continue;
 				}
-				if (isSwitch && pokemon == this.p1.lastPokemon && !this.p1.active[slot]) continue;
+				if (isSwitch && pokemon === this.p1.lastPokemon && !this.p1.active[slot]) continue;
 				if ((searchid && pokemon.searchid === searchid) || // exact match
 					(!searchid && pokemon.ident === pokemonid)) { // name matched, good enough
 					if (slot >= 0) pokemon.slot = slot;
@@ -2808,7 +2814,7 @@ class Battle {
 				if (isSwitch || isInactive) {
 					if (this.p2.active.indexOf(pokemon) >= 0) continue;
 				}
-				if (isSwitch && pokemon == this.p2.lastPokemon && !this.p2.active[slot]) continue;
+				if (isSwitch && pokemon === this.p2.lastPokemon && !this.p2.active[slot]) continue;
 				if ((searchid && pokemon.searchid === searchid) || // exact match
 					(!searchid && pokemon.ident === pokemonid)) { // name matched, good enough
 					if (slot >= 0) pokemon.slot = slot;
@@ -2851,29 +2857,29 @@ class Battle {
 		}
 		if (slot < 0) slot = 0;
 		let pokemon = this.sides[siden].newPokemon({
-			species: species,
-			details: details,
-			name: name,
+			species,
+			details,
+			name,
 			ident: (name ? pokemonid : ''),
 			searchid: (name ? (pokemonid + '|' + details) : ''),
-			level: level,
-			gender: gender,
-			shiny: shiny,
-			slot: slot
+			level,
+			gender,
+			shiny,
+			slot,
 		}, isNew ? -2 : -1);
 		return pokemon;
 	}
-	getSide(sidename: string) {
+	getSide(sidename: string): Side {
 		if (sidename === 'p1' || sidename.substr(0, 3) === 'p1:') return this.p1;
 		if (sidename === 'p2' || sidename.substr(0, 3) === 'p2:') return this.p2;
-		if (this.mySide.id == sidename) return this.mySide;
-		if (this.yourSide.id == sidename) return this.yourSide;
-		if (this.mySide.name == sidename) return this.mySide;
-		if (this.yourSide.name == sidename) return this.yourSide;
+		if (this.mySide.id === sidename) return this.mySide;
+		if (this.yourSide.id === sidename) return this.yourSide;
+		if (this.mySide.name === sidename) return this.mySide;
+		if (this.yourSide.name === sidename) return this.yourSide;
 		return {
 			name: sidename,
-			id: sidename.replace(/ /g, '')
-		} as Side;
+			id: sidename.replace(/ /g, ''),
+		} as any;
 	}
 
 	add(command: string, fastForward?: boolean) {
@@ -3164,13 +3170,14 @@ class Battle {
 			// four parts
 			const index2b = str.indexOf('|', index + 1);
 			const index3b = str.indexOf('|', index2b + 1);
-			return {args:
-				[cmd, str.slice(index + 1, index2b), str.slice(index2b + 1, index3b), str.slice(index3b + 1)],
-			kwArgs: {}};
+			return {
+				args: [cmd, str.slice(index + 1, index2b), str.slice(index2b + 1, index3b), str.slice(index3b + 1)],
+				kwArgs: {},
+			};
 		}
-		let args = str.slice(1).split('|') as [string, ...string[]];
-		let kwArgs = {} as {[k: string]: string};
-		while (args.length) {
+		let args: Args = str.slice(1).split('|') as any;
+		let kwArgs: KWArgs = {};
+		while (args.length > 1) {
 			const lastArg = args[args.length - 1];
 			if (lastArg.charAt(0) !== '[') break;
 			const bracketPos = lastArg.indexOf(']');
@@ -3198,8 +3205,8 @@ class Battle {
 		}
 
 		// parse the next line if it's a minor: runMinor needs it parsed to determine when to merge minors
-		let nextArgs = [''] as Args;
-		let nextKwargs = {} as KWArgs;
+		let nextArgs: Args = [''];
+		let nextKwargs: KWArgs = {};
 		const nextLine = this.activityQueue[this.activityStep + 1] || '';
 		if (nextLine && nextLine.substr(0, 2) === '|-') {
 			({args: nextArgs, kwArgs: nextKwargs} = Battle.lineParse(nextLine));
@@ -3287,11 +3294,7 @@ class Battle {
 	fastForwardOff() {
 		this.fastForward = 0;
 		this.scene.animationOn();
-		if (this.paused) {
-			this.playbackState = Playback.Paused;
-		} else {
-			this.playbackState = Playback.Playing;
-		}
+		this.playbackState = this.paused ? Playback.Paused : Playback.Playing;
 	}
 	nextActivity() {
 		this.scene.startAnimations();
