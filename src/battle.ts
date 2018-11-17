@@ -3162,7 +3162,7 @@ class Battle {
 		case 'fieldhtml': case 'controlshtml': case 'bigerror':
 		case 'debug': case 'tier':
 			return {args: [cmd, str.slice(index + 1)], kwArgs: {}};
-		case 'c': case 'chat':
+		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange':
 			// three parts
 			const index2a = str.indexOf('|', index + 1);
 			return {args: [cmd, str.slice(index + 1, index2a), str.slice(index2a + 1)], kwArgs: {}};
