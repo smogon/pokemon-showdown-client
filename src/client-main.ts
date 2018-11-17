@@ -153,12 +153,12 @@ class PSTeams extends PSModel {
 			this.list = [];
 			return;
 		}
-	
+
 		if (buffer.charAt(0) === '[' && !buffer.trim().includes('\n')) {
 			this.unpackOldBuffer(buffer);
 			return;
 		}
-	
+
 		this.list = [];
 		for (const line of buffer.split('\n')) {
 			const team = this.unpackLine(line);
@@ -390,6 +390,8 @@ const PS = new class extends PSModel {
 		case '':
 			return [cmd, str.slice(index + 1)];
 		case 'c':
+		case 'uhtml':
+		case 'uhtmlchange':
 			// three parts
 			const index2a = str.indexOf('|', index + 1);
 			return [cmd, str.slice(index + 1, index2a), str.slice(index2a + 1)];
