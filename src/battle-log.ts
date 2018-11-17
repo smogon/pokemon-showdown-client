@@ -104,6 +104,10 @@ class BattleLog {
 			divHTML = BattleLog.sanitizeHTML(args[1]);
 			break;
 
+		case 'uhtml': case 'uhtmlchange':
+			this.changeUhtml(args[1], args[2], args[0] === 'uhtml');
+			return ['', ''];
+
 		case 'error': case 'inactive': case 'inactiveoff':
 			divClass = 'chat message-error';
 			divHTML = BattleLog.escapeHTML(args[1]);
@@ -237,9 +241,11 @@ class BattleLog {
 				elements.push(node);
 			}
 		}
-		for (const node of this.preemptElem.childNodes as any) {
-			if (node.className && (' ' + node.className + ' ').includes(classContains)) {
-				elements.push(node);
+		if (this.preemptElem) {
+			for (const node of this.preemptElem.childNodes as any) {
+				if (node.className && (' ' + node.className + ' ').includes(classContains)) {
+					elements.push(node);
+				}
 			}
 		}
 		if (html && elements.length && !forceAdd) {
