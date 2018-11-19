@@ -858,6 +858,8 @@ const Tools = {
 			necrozmaduskmane: 816 + 161,
 			necrozmadawnwings: 816 + 162,
 			necrozmaultra: 816 + 163,
+			pikachustarter: 816 + 164,
+			eeveestarter: 816 + 165,
 
 			gumshoostotem: 735,
 			raticatealolatotem: 816 + 120,
@@ -948,6 +950,9 @@ const Tools = {
 			kerfluffle: 1152 + 22,
 			pajantom: 1152 + 23,
 			jumbao: 1152 + 24,
+			caribolt: 1152 + 25,
+			smokomodo: 1152 + 26,
+			snaelstrom: 1152 + 27,
 
 			syclar: 1188 + 0,
 			embirch: 1188 + 1,
@@ -1083,7 +1088,7 @@ const Tools = {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		let fainted = (pokemon && pokemon.fainted ? ';opacity:.7;filter:contrast(0)' : '');
-		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-sheet.png?a4) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-sheet.png?a5) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
 	getTeambuilderSprite(pokemon: any, gen: number = 0) {
