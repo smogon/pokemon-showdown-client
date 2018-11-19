@@ -45,24 +45,26 @@ class BattleTextParser {
 
 	pokemonName = (pokemon: string) => {
 		if (!pokemon) return '';
-		if (!pokemon.startsWith('p1') && !pokemon.startsWith('p2')) return '???pokemon:' + pokemon + '???';
+		if (!pokemon.startsWith('p1') && !pokemon.startsWith('p2')) return `???pokemon:${pokemon}???`;
 		if (pokemon.charAt(3) === ':') return pokemon.slice(4).trim();
 		else if (pokemon.charAt(2) === ':') return pokemon.slice(3).trim();
-		return '???pokemon:' + pokemon + '???';
+		return `???pokemon:${pokemon}???`;
 	};
 
 	pokemon(pokemon: string) {
 		if (!pokemon) return '';
 		let side;
-		if (pokemon.startsWith('p1')) side = 0;
-		else if (pokemon.startsWith('p2')) side = 1;
-		else return '???pokemon:' + pokemon + '???';
+		switch (pokemon.slice(0, 2)) {
+		case 'p1': side = 0; break;
+		case 'p2': side = 1; break;
+		default: return `???pokemon:${pokemon}???`;
+		}
 		const name = this.pokemonName(pokemon);
-		let template = BattleText.default[side === this.perspective ? 'pokemon' : 'opposingPokemon'];
+		const template = BattleText.default[side === this.perspective ? 'pokemon' : 'opposingPokemon'];
 		return template.replace('[NICKNAME]', name);
 	}
 
-	pokemonFull(pokemon: string, details: string) {
+	pokemonFull(pokemon: string, details: string): [string, string] {
 		const nickname = this.pokemonName(pokemon);
 
 		const species = details.split(',')[0];
@@ -73,20 +75,20 @@ class BattleTextParser {
 	trainer(side: string) {
 		if (side === 'p1') return this.p1;
 		if (side === 'p2') return this.p2;
-		return '???side:' + side + '???';
+		return `???side:${side}???`;
 	}
 
 	team(side: string) {
-		if ((side === 'p1' && this.perspective === 0) ||
-			(side === 'p2' && this.perspective === 1)) {
+		if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
 			return BattleText.default.team;
 		}
 		return BattleText.default.opposingTeam;
 	}
 
 	own(side: string) {
-		if (side === 'p1' && this.perspective === 0) return 'OWN';
-		if (side === 'p2' && this.perspective === 1) return 'OWN';
+		if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
+			return 'OWN';
+		}
 		return '';
 	}
 
