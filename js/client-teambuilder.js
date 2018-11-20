@@ -1144,9 +1144,11 @@
 			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[3]) + '" /></div>';
 			buf += '</div>';
 
+			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+
 			// stats
 			buf += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="textbox setstats" name="stats">';
-			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
+			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (supportsEVs ? 'EV' : 'AV') + '</em></span>';
 			var stats = {};
 			var defaultEV = (this.curTeam.gen > 2 ? 0 : 252);
 			for (var j in BattleStatNames) {
@@ -1566,8 +1568,10 @@
 
 			var stats = {hp:'', atk:'', def:'', spa:'', spd:'', spe:''};
 
+			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+
 			// stat cell
-			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>EV</em></span>';
+			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (supportsEVs ? 'EV' : 'AV') + '</em></span>';
 			var defaultEV = (this.curTeam.gen > 2 ? 0 : 252);
 			for (var stat in stats) {
 				if (stat === 'spd' && this.curTeam.gen === 1) continue;
@@ -1609,15 +1613,18 @@
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 				totalev += (set.evs[stat] || 0);
 			}
-			if (this.curTeam.gen > 2) buf += '<div><em>Remaining:</em></div>';
+
+			if (this.curTeam.gen > 2 && supportsEVs) buf += '<div><em>Remaining:</em></div>';
 			this.$chart.find('.graphcol').html(buf);
 
 			if (this.curTeam.gen <= 2) return;
-			var maxEv = 510;
-			if (totalev <= maxEv) {
-				this.$chart.find('.totalev').html('<em>' + (totalev > (maxEv - 2) ? 0 : (maxEv - 2) - totalev) + '</em>');
-			} else {
-				this.$chart.find('.totalev').html('<b>' + (maxEv - totalev) + '</b>');
+			if (supportsEVs) {
+				var maxEv = 510;
+				if (totalev <= maxEv) {
+					this.$chart.find('.totalev').html('<em>' + (totalev > (maxEv - 2) ? 0 : (maxEv - 2) - totalev) + '</em>');
+				} else {
+					this.$chart.find('.totalev').html('<b>' + (maxEv - totalev) + '</b>');
+				}
 			}
 			this.$chart.find('select[name=nature]').val(set.nature || 'Serious');
 		},
@@ -1837,6 +1844,12 @@
 			var nature = BattleNatures[set.nature || 'Serious'];
 			if (!nature) nature = {};
 
+			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			// var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
+			var defaultEV = this.curTeam.gen <= 2 ? 252 : 0;
+			var maxEV = supportsEVs ? 252 : 200;
+			var stepEV = supportsEVs ? 4 : 1;
+
 			// label column
 			buf += '<div class="col labelcol"><div></div>';
 			buf += '<div><label>HP</label></div><div><label>Attack</label></div><div><label>Defense</label></div><div>';
@@ -1864,20 +1877,16 @@
 				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 			}
-			if (this.curTeam.gen > 2) buf += '<div><em>Remaining:</em></div>';
+			if (this.curTeam.gen > 2 && supportsEVs) buf += '<div><em>Remaining:</em></div>';
 			buf += '</div>';
 
-			buf += '<div class="col evcol"><div><strong>EVs</strong></div>';
+			buf += '<div class="col evcol"><div><strong>' + (supportsEVs ? 'EVs' : 'AVs') + '</strong></div>';
 			var totalev = 0;
 			this.plus = '';
 			this.minus = '';
 			for (var i in stats) {
 				var val;
-				if (this.curTeam.gen > 2) {
-					val = '' + (set.evs[i] || '');
-				} else {
-					val = (set.evs[i] === undefined ? '252' : '' + set.evs[i]);
-				}
+				val = '' + ((set.evs[i] === undefined ? defaultEV : set.evs[i]) || '');
 				if (nature.plus === i) {
 					val += '+';
 					this.plus = i;
@@ -1889,12 +1898,12 @@
 				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="textbox inputform numform" /></div>';
 				totalev += (set.evs[i] || 0);
 			}
-			if (this.curTeam.gen > 2) {
-				var maxEv = 510;
-				if (totalev <= maxEv) {
-					buf += '<div class="totalev"><em>' + (totalev > (maxEv - 2) ? 0 : (maxEv - 2) - totalev) + '</em></div>';
+			if (this.curTeam.gen > 2 && supportsEVs) {
+				var maxTotalEVs = 510;
+				if (totalev <= maxTotalEVs) {
+					buf += '<div class="totalev"><em>' + (totalev > (maxTotalEVs - 2) ? 0 : (maxTotalEVs - 2) - totalev) + '</em></div>';
 				} else {
-					buf += '<div class="totalev"><b>' + (maxEv - totalev) + '</b></div>';
+					buf += '<div class="totalev"><b>' + (maxTotalEVs - totalev) + '</b></div>';
 				}
 			}
 			buf += '</div>';
@@ -1902,7 +1911,7 @@
 			buf += '<div class="col evslidercol"><div></div>';
 			for (var i in stats) {
 				if (i === 'spd' && this.curTeam.gen === 1) continue;
-				buf += '<div><input type="range" name="evslider-' + i + '" value="' + BattleLog.escapeHTML(set.evs[i] === undefined ? (this.curTeam.gen > 2 ? '0' : '252') : '' + set.evs[i]) + '" min="0" max="252" step="4" class="evslider" tabindex="-1" aria-hidden="true" /></div>';
+				buf += '<div><input type="range" name="evslider-' + i + '" value="' + BattleLog.escapeHTML(set.evs[i] === undefined ? '' + defaultEV : '' + set.evs[i]) + '" min="0" max="' + maxEV + '" step="' + stepEV + '" class="evslider" tabindex="-1" aria-hidden="true" /></div>';
 			}
 			buf += '</div>';
 
@@ -3135,12 +3144,23 @@
 				}
 			}
 
-			if (this.curTeam && this.ignoreEVLimits) {
+			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
+
+			if (supportsAVs) {
+				evs = {hp:200, atk:200, def:200, spa:200, spd:200, spe:200};
+				if (!moveCount['PhysicalAttack']) evs.atk = 0;
+				if (!moveCount['PhysicalAttack']) evs.atk = 0;
+				if (!moveCount['SpecialAttack']) evs.spa = 0;
+				if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
+			} else if (!supportsEVs) {
+				evs = {};
+			} else if (this.curTeam && this.ignoreEVLimits) {
 				evs = {hp:252, atk:252, def:252, spa:252, spd:252, spe:252};
-				if (!moveCount['PhysicalAttack']) delete evs.atk;
-				if (!moveCount['SpecialAttack'] && this.curTeam.gen > 1) delete evs.spa;
-				if (hasMove['gyroball'] || hasMove['trickroom']) delete evs.spe;
-				if (this.curTeam.gen === 1) delete evs.spd;
+				if (!moveCount['PhysicalAttack']) evs.atk = 0;
+				if (!moveCount['SpecialAttack'] && this.curTeam.gen > 1) evs.spa = 0;
+				if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
+				if (this.curTeam.gen === 1) evs.spd = 0;
 				if (this.curTeam.gen < 3) return evs;
 			} else {
 				if (!statChart[role]) return {};
