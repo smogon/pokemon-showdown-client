@@ -222,7 +222,7 @@ const Tools = {
 	},
 
 	sanitizeName(name: string) {
-		return name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		return ('' + name).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 	},
 
 	prefs(prop: string, value?: any, save?: boolean) {

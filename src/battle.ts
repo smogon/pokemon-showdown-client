@@ -2086,7 +2086,7 @@ class Battle {
 			this.activateAbility(ofpoke || poke, fromeffect);
 			switch (effect.id) {
 			case 'typechange':
-				const types = Tools.sanitizeName(args[3]);
+				const types = Tools.sanitizeName(args[3] || '???');
 				poke.removeVolatile('typeadd' as ID);
 				poke.addVolatile('typechange' as ID, types);
 				if (kwArgs.silent) {
