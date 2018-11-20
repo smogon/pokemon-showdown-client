@@ -855,12 +855,13 @@ class BattleTextParser {
 			if (species === 'Rayquaza') id = 'dragonascent';
 			if (!id && cmd === '-mega' && this.gen < 7) cmd = '-megaGen6';
 			let template = this.template(cmd.slice(1));
+			const side = pokemon.slice(0, 2);
 			const pokemonName = this.pokemon(pokemon);
-			if (cmd === '-mega') {
+			if (cmd.startsWith('-mega')) {
 				const template2 = this.template('transformMega');
 				template += template2.replace('[POKEMON]', pokemonName).replace('[SPECIES]', species);
 			}
-			return template.replace('[POKEMON]', pokemonName).replace('[ITEM]', item);
+			return template.replace('[POKEMON]', pokemonName).replace('[ITEM]', item).replace('[TRAINER]', this.trainer(side));
 		}
 
 		case '-zpower': {
