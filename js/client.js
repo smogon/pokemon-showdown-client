@@ -1261,8 +1261,8 @@
 				}
 				if (this.rel === 'noopener') {
 					var formatOptions = Tools.prefs('chatformatting') || {};
-					if (!formatOptions.hideinterstice && !Tools.interstice.isWhitelisted(this.href)) {
-						this.href = Tools.interstice.getURI(this.href);
+					if (!formatOptions.hideinterstice && !BattleLog.interstice.isWhitelisted(this.href)) {
+						this.href = BattleLog.interstice.getURI(this.href);
 					}
 				} else if (this.target === '_blank') {
 					// for performance reasons, there's no reason to ever have an opener
