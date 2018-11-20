@@ -14,8 +14,9 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 		<script>
 			function loadRemoteData(src) {
-				// load synchronously
-				document.write('<script src="' + src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/') + '"><\/script>');
+				var scriptEl = document.createElement('script');
+				scriptEl.src = src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/');
+				document.head.appendChild(scriptEl);
 			}
 			var Config = {testclient: true};
 			(function() {
@@ -80,10 +81,11 @@
 
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading data...';
+			window.exports = window;
 		</script>
 
 		<script src="https://play.pokemonshowdown.com/config/config.js"></script>
-		<script src="js/battledata.js"></script>
+		<script src="js/battledata.js" onerror="alert('You must build the client with `node build` before using testclient.html')"></script>
 		<script src="data/pokedex-mini.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/pokedex-mini-bw.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/typechart.js" onerror="loadRemoteData(this.src)"></script>
@@ -108,10 +110,6 @@
 		<script src="js/storage.js"></script>
 		<script src="data/graphics.js" onerror="loadRemoteData(this.src)"></script>
 
-		<script>
-			var app = new App();
-		</script>
-
 		<script src="data/pokedex.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/moves.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/items.js" onerror="loadRemoteData(this.src)"></script>
@@ -122,6 +120,12 @@
 		<script src="js/search.js"></script>
 
 		<script src="data/aliases.js" async="async" onerror="loadRemoteData(this.src)"></script>
+
+		<script>
+			window.onload = () => {
+				window.app = new App();
+			}
+		</script>
 
 	</body>
 </html>
