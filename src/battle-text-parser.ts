@@ -852,12 +852,17 @@ class BattleTextParser {
 		case '-mega': case '-primal': {
 			const [, pokemon, species, item] = args;
 			let id = '';
-			if (species === 'Rayquaza') id = 'dragonascent';
-			if (!id && cmd === '-mega' && this.gen < 7) cmd = '-megaGen6';
-			let template = this.template(cmd.slice(1));
+			let templateId = cmd.slice(1);
+			if (species === 'Rayquaza') {
+				id = 'dragonascent';
+				templateId = 'megaNoItem';
+			}
+			if (!id && cmd === '-mega' && this.gen < 7) templateId = 'megaGen6';
+			if (!item && cmd === '-mega') templateId = 'megaNoItem';
+			let template = this.template(templateId);
 			const side = pokemon.slice(0, 2);
 			const pokemonName = this.pokemon(pokemon);
-			if (cmd.startsWith('-mega')) {
+			if (cmd === '-mega') {
 				const template2 = this.template('transformMega');
 				template += template2.replace('[POKEMON]', pokemonName).replace('[SPECIES]', species);
 			}
