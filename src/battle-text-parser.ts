@@ -286,7 +286,7 @@ class BattleTextParser {
 			const [, pokemon] = args;
 			const side = pokemon.slice(0, 2);
 			const template = this.template('switchOut', kwArgs.from, this.own(side));
-			return template.replace('[TRAINER]', this.trainer(side)).replace('[NICKNAME]', this.pokemonName(pokemon));
+			return template.replace('[TRAINER]', this.trainer(side)).replace('[NICKNAME]', this.pokemonName(pokemon)).replace('[POKEMON]', this.pokemon(pokemon));
 		}
 
 		case 'faint': {
@@ -530,10 +530,12 @@ class BattleTextParser {
 		case '-weather': {
 			const [, weather] = args;
 			if (!weather || weather === 'none') {
-				return this.template('end', kwArgs.from);
+				const template = this.template('end', kwArgs.from, 'NODEFAULT');
+				if (!template) return this.template('endFieldEffect').replace('[EFFECT]', this.effect(weather));
+				return template;
 			}
 			if (kwArgs.upkeep) {
-				return this.template('activate', weather);
+				return this.template('activate', weather, 'NODEFAULT');
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
 			let template = this.template('start', weather, 'NODEFAULT');
@@ -686,9 +688,12 @@ class BattleTextParser {
 		case '-heal': {
 			let [, pokemon] = args;
 			let template = this.template('heal', kwArgs.from, 'NODEFAULT');
+			if (['waterabsorb', 'voltabsorb'].includes(this.effectId(kwArgs.from))) {
+				kwArgs.of = '';
+			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (template) {
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of));
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[NICKNAME]', kwArgs.wisher);
 			}
 
 			if (kwArgs.from && !kwArgs.from.startsWith('ability:')) {

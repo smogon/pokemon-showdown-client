@@ -234,6 +234,8 @@ exports.BattleText = {
 	desolateland: {
 		weatherName: "Intense Sun",
 		start: "  The sunlight turned extremely harsh!",
+		end: "  The extremely harsh sunlight faded.",
+		activate: "",
 		block: "  The extremely harsh sunlight was not lessened at all!",
 		blockMove: "  The Water-type attack evaporated in the harsh sunlight!",
 	},
@@ -241,6 +243,7 @@ exports.BattleText = {
 		weatherName: "Heavy Rain",
 		start: "  A heavy rain began to fall!",
 		end: "  The heavy rain has lifted!",
+		activate: "",
 		block: "  There is no relief from this heavy rain!",
 		blockMove: "  The Fire-type attack fizzled out in the heavy rain!",
 	},
@@ -248,6 +251,7 @@ exports.BattleText = {
 		weatherName: "Strong Winds",
 		start: "  Mysterious strong winds are protecting Flying-type Pok\u00E9mon!",
 		end: "  The mysterious strong winds have dissipated!",
+		activate: "",
 		activate: "  The mysterious strong winds weakened the attack!",
 		block: "  The mysterious strong winds blow on regardless!",
 	},
@@ -838,7 +842,7 @@ exports.BattleText = {
 		block: "  Wide Guard protected [POKEMON]!",
 	},
 	wish: {
-		heal: "  [SOURCE]'s wish came true!",
+		heal: "  [NICKNAME]'s wish came true!",
 	},
 	wrap: {
 		start: "  [POKEMON] was wrapped by [SOURCE]!",

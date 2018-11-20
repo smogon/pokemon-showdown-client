@@ -3121,6 +3121,7 @@ class Battle {
 			let effect = Tools.getEffect(args[2]);
 			let move = Tools.getMove(args[3]);
 			this.cantUseMove(poke, effect, move, kwArgs);
+			this.log(args, kwArgs);
 			break;
 		}
 		case 'gen': {
