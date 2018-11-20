@@ -877,7 +877,7 @@ class BattleTextParser {
 		}
 
 		case '-hitcount': {
-			const [, num] = args;
+			const [, , num] = args;
 			if (num === '1') {
 				return this.template('hitCountSingular');
 			}
