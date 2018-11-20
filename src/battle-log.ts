@@ -674,7 +674,7 @@ class BattleLog {
 			// if it exists.
 			formattedTime = parsedTime.toLocaleString();
 		}
-		return '<time>' + this.escapeHTML(formattedTime) + '</time>';
+		return '<time>' + BattleLog.escapeHTML(formattedTime) + '</time>';
 	}
 	static sanitizeHTML(input: string) {
 		this.initSanitizeHTML();
