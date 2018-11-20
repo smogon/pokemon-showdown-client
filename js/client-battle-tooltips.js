@@ -458,7 +458,7 @@ var BattleTooltips = (function () {
 		}
 		var showOtherSees = !this.battle.hardcoreMode && isActive;
 		if (pokemonData) {
-			if (this.battle.gen > 2) {
+			if (this.battle.gen > 2 && this.battle.tier.indexOf("Let's Go") != -1) {
 				var abilityText = Tools.getAbility(pokemonData.baseAbility).name;
 				var ability = Tools.getAbility(pokemonData.ability || pokemon.ability).name;
 				if (ability && (ability !== abilityText)) {
@@ -494,7 +494,7 @@ var BattleTooltips = (function () {
 		} else {
 			showOtherSees = !this.battle.hardcoreMode;
 		}
-		if (this.battle.gen > 2 && showOtherSees) {
+		if (this.battle.gen > 2 && showOtherSees && this.battle.tier.indexOf("Let's Go") != -1) {
 			if (!pokemon.baseAbility && !pokemon.ability) {
 				if (template.abilities) {
 					var abilitiesInThisGen = Tools.getAbilitiesFor(template, this.battle.gen);
