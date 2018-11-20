@@ -874,6 +874,7 @@ class Battle {
 
 	// activity queue
 	activityQueue = [] as string[];
+	/** See battle.instantAdd */
 	preemptActivityQueue = [] as string[];
 	waitForAnimations: true | false | 'simult' = true;
 	activityStep = 0;
@@ -2883,23 +2884,29 @@ class Battle {
 	}
 
 	add(command: string, fastForward?: boolean) {
+		if (command) this.activityQueue.push(command);
+
 		if (this.playbackState === Playback.Uninitialized) {
 			this.playbackState = Playback.Ready;
-			this.activityQueue.push(command);
 		} else if (this.playbackState === Playback.Finished) {
 			this.playbackState = Playback.Playing;
 			this.paused = false;
-			this.activityQueue.push(command);
 			this.scene.soundStart();
 			if (fastForward) {
 				this.fastForwardTo(-1);
 			} else {
 				this.nextActivity();
 			}
-		} else {
-			this.activityQueue.push(command);
 		}
 	}
+	/**
+	 * PS's preempt system is intended to show chat messages immediately,
+	 * instead of waiting for the battle to get to the point where the
+	 * message was said.
+	 *
+	 * In addition to being a nice quality-of-life feature, it's also
+	 * important to make sure timer updates happen in real-time.
+	 */
 	instantAdd(command: string) {
 		this.run(command, true);
 		this.preemptActivityQueue.push(command);
@@ -3144,7 +3151,7 @@ class Battle {
 			break;
 		}
 		default: {
-			this.log(args, kwArgs);
+			this.log(args, kwArgs, preempt);
 			break;
 		}}
 	}
@@ -3191,7 +3198,7 @@ class Battle {
 	}
 
 	run(str: string, preempt?: boolean) {
-		if (this.preemptActivityQueue.length && str === this.preemptActivityQueue[0]) {
+		if (!preempt && this.preemptActivityQueue.length && str === this.preemptActivityQueue[0]) {
 			this.preemptActivityQueue.shift();
 			this.scene.preemptCatchup();
 			return;
