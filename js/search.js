@@ -793,6 +793,7 @@
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		var template;
 		var isBH = (format === 'balancedhackmons' || format === 'bh');
+		var isLetsGo = format.startsWith('letsgo');
 		this.resultSet = null;
 		this.defaultResultSet = null;
 
@@ -813,6 +814,8 @@
 				isDoublesOrBS = true;
 			} else if (this.gen < 7) {
 				table = table['gen' + this.gen];
+			} else if (isLetsGo) {
+				table = table['letsgo'];
 			}
 
 			if (!table.tierSet) {
@@ -846,6 +849,7 @@
 			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
 			else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
 			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU);
+			else if (isLetsGo) tierSet = tierSet.slice(slices.Legal);
 			// else if (isDoublesOrBS) tierSet = tierSet;
 			else if (!isDoublesOrBS) tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
 

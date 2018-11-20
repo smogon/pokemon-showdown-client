@@ -125,7 +125,7 @@
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
-				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format === 'gen7balancedhackmons');
+				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format === 'gen7balancedhackmons' || this.curTeam.format.endsWith('norestrictions'));
 				if (this.curSet) {
 					return this.updateSetView();
 				}
@@ -1069,6 +1069,7 @@
 		},
 		renderSet: function (set, i) {
 			var template = Tools.getTemplate(set.species);
+			var isNotLetsGo = !this.curTeam.format.startsWith('gen7letsgo');
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
@@ -1131,8 +1132,9 @@
 			buf += '</div></div>';
 
 			buf += '<div class="setrow">';
+			// if (this.curTeam.gen > 1 && isNotLetsGo) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.item) + '" /></div>';
 			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.item) + '" /></div>';
-			if (this.curTeam.gen > 2) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.ability) + '" /></div>';
+			if (this.curTeam.gen > 2 && isNotLetsGo) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.ability) + '" /></div>';
 			buf += '</div></div>';
 
 			// moves
@@ -1144,11 +1146,9 @@
 			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[3]) + '" /></div>';
 			buf += '</div>';
 
-			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
-
 			// stats
 			buf += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="textbox setstats" name="stats">';
-			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (supportsEVs ? 'EV' : 'AV') + '</em></span>';
+			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (isNotLetsGo ? 'EV' : 'AV') + '</em></span>';
 			var stats = {};
 			var defaultEV = (this.curTeam.gen > 2 ? 0 : 252);
 			for (var j in BattleStatNames) {
@@ -2095,6 +2095,8 @@
 			var inputName = '';
 			inputName = e.currentTarget.name;
 			var val = Math.abs(parseInt(e.currentTarget.value, 10));
+			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
 			var set = this.curSet;
 			if (!set) return;
 
@@ -2130,12 +2132,13 @@
 				if (set.evs[stat] !== val || natureChange) {
 					set.evs[stat] = val;
 					if (this.ignoreEVLimits) {
-						if (set.evs['hp'] === undefined) set.evs['hp'] = 252;
-						if (set.evs['atk'] === undefined) set.evs['atk'] = 252;
-						if (set.evs['def'] === undefined) set.evs['def'] = 252;
-						if (set.evs['spa'] === undefined) set.evs['spa'] = 252;
-						if (set.evs['spd'] === undefined) set.evs['spd'] = 252;
-						if (set.evs['spe'] === undefined) set.evs['spe'] = 252;
+						var evNum = supportsEVs ? 252 : supportsAVs ? 200 : 0;
+						if (set.evs['hp'] === undefined) set.evs['hp'] = evNum;
+						if (set.evs['atk'] === undefined) set.evs['atk'] = evNum;
+						if (set.evs['def'] === undefined) set.evs['def'] = evNum;
+						if (set.evs['spa'] === undefined) set.evs['spa'] = evNum;
+						if (set.evs['spd'] === undefined) set.evs['spd'] = evNum;
+						if (set.evs['spe'] === undefined) set.evs['spe'] = evNum;
 					}
 					this.setSlider(stat, val);
 					this.updateStatGraph();
@@ -2220,14 +2223,18 @@
 				for (var i in set.evs) {
 					total += (i === stat ? val : set.evs[i]);
 				}
-				if (total > 508 && val - total + 508 >= 0) {
+				var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+				var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
+				var totalLimit = supportsEVs ? 508 : supportsAVs ? 1200 : 0;
+				var limit = supportsEVs ? 252 : supportsAVs ? 200 : 0;
+				if (total > totalLimit && val - total + totalLimit >= 0) {
 					// don't allow dragging beyond 508 EVs
-					val = val - total + 508;
+					val = val - total + totalLimit;
 
 					// make sure val is a legal value
 					val = +val;
 					if (!val || val <= 0) val = 0;
-					if (val > 252) val = 252;
+					if (val > limit) val = limit;
 				}
 			}
 
@@ -2237,12 +2244,13 @@
 
 			if (!set.evs) set.evs = {};
 			if (this.ignoreEVLimits) {
-				if (set.evs['hp'] === undefined) set.evs['hp'] = 252;
-				if (set.evs['atk'] === undefined) set.evs['atk'] = 252;
-				if (set.evs['def'] === undefined) set.evs['def'] = 252;
-				if (set.evs['spa'] === undefined) set.evs['spa'] = 252;
-				if (set.evs['spd'] === undefined) set.evs['spd'] = 252;
-				if (set.evs['spe'] === undefined) set.evs['spe'] = 252;
+				var evNum = supportsEVs ? 252 : supportsAVs ? 200 : 0;
+				if (set.evs['hp'] === undefined) set.evs['hp'] = evNum;
+				if (set.evs['atk'] === undefined) set.evs['atk'] = evNum;
+				if (set.evs['def'] === undefined) set.evs['def'] = evNum;
+				if (set.evs['spa'] === undefined) set.evs['spa'] = evNum;
+				if (set.evs['spd'] === undefined) set.evs['spd'] = evNum;
+				if (set.evs['spe'] === undefined) set.evs['spe'] = evNum;
 			}
 			set.evs[stat] = val;
 
@@ -3150,7 +3158,6 @@
 			if (supportsAVs) {
 				evs = {hp:200, atk:200, def:200, spa:200, spd:200, spe:200};
 				if (!moveCount['PhysicalAttack']) evs.atk = 0;
-				if (!moveCount['PhysicalAttack']) evs.atk = 0;
 				if (!moveCount['SpecialAttack']) evs.spa = 0;
 				if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
 			} else if (!supportsEVs) {
@@ -3311,6 +3318,8 @@
 		// Stat calculator
 
 		getStat: function (stat, set, evOverride, natureOverride) {
+			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
 			if (!set) set = this.curSet;
 			if (!set) return 0;
 
@@ -3341,15 +3350,23 @@
 
 			if (stat === 'hp') {
 				if (baseStat === 1) return 1;
+				if (!supportsEVs) return Math.floor(Math.floor(2 * baseStat + iv + 100) * set.level / 100 + 10) + (supportsAVs ? ev : 0);
 				return Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4) + 100) * set.level / 100 + 10);
 			}
 			var val = Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4)) * set.level / 100 + 5);
+			if (!supportsEVs) {
+				val = Math.floor(Math.floor(2 * baseStat + iv) * set.level / 100 + 5);
+			}
 			if (natureOverride) {
 				val *= natureOverride;
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
 				val *= 1.1;
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
 				val *= 0.9;
+			}
+			if (!supportsEVs) {
+				var friendshipValue = Math.floor(((!set.happiness ? 255 : set.happiness > 255 ? 255 : set.happiness) / 255 / 10 + 1) * 100);
+				val = Math.floor(val * friendshipValue / 100) + (supportsAVs ? ev : 0);
 			}
 			return Math.floor(val);
 		},
