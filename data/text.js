@@ -24,6 +24,7 @@ exports.BattleText = {
 		abilityActivation: "  [[POKEMON]'s [ABILITY]]",
 
 		mega: "  [POKEMON]'s [ITEM] is reacting to the Key Stone!",
+		megaNoItem: "  [POKEMON] is reacting to [TRAINER]'s Key Stone!",
 		megaGen6: "  [POKEMON]'s [ITEM] is reacting to [TRAINER]'s Mega Bracelet!",
 		transformMega: "[POKEMON] has Mega Evolved into Mega [SPECIES]!",
 		primal: "[POKEMON]'s Primal Reversion! It reverted to its primal state!",
@@ -405,7 +406,7 @@ exports.BattleText = {
 		activate: "  [TARGET] took the Doom Desire attack!",
 	},
 	dragonascent: {
-		mega: "[TRAINER]'s fervent wish has reached [POKEMON]!\n[POKEMON] has Mega Evolved into [SPECIES]!",
+		megaNoItem: "  [TRAINER]'s fervent wish has reached [POKEMON]!",
 	},
 	electrify: {
 		start: "  [POKEMON]'s moves have been electrified!",
