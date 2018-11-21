@@ -809,7 +809,7 @@
 			} else if (this.gen === 7 && requirePentagon) {
 				table = table['gen' + this.gen + 'vgc'];
 				isDoublesOrBS = true;
-			} else if (table['gen' + this.gen + 'doubles'] && (format.includes('doubles') || format.includes('vgc') || format.includes('triples') || format.endsWith('lc') || format.endsWith('lcuu'))) {
+			} else if (table['gen' + this.gen + 'doubles'] && (format.includes('doubles') || format.includes('vgc') || format.includes('triples') || format.endsWith('lc') || format.endsWith('lcuu')) && !isLetsGo) {
 				table = table['gen' + this.gen + 'doubles'];
 				isDoublesOrBS = true;
 			} else if (this.gen < 7) {
@@ -849,7 +849,8 @@
 			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
 			else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
 			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU);
-			else if (isLetsGo) tierSet = tierSet.slice(slices.Legal);
+			else if (isLetsGo && format.includes('ou')) tierSet = tierSet.slice(slices.OU);
+			else if (isLetsGo) tierSet = tierSet.slice(slices.Uber);
 			// else if (isDoublesOrBS) tierSet = tierSet;
 			else if (!isDoublesOrBS) tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
 

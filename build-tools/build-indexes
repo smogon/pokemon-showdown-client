@@ -9,7 +9,7 @@ const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
 if (!fs.existsSync('data/Pokemon-Showdown')) {
-	child_process.execSync('git clone https://github.com/Zarel/Pokemon-Showdown.git', {
+	child_process.execSync('git clone https://github.com/KrisXV/Pokemon-Showdown.git', {
 		cwd: 'data',
 	});
 }
@@ -304,17 +304,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (isLetsGo) {
 					let baseTemplate = Tools.mod(gen).getTemplate(template.baseSpecies);
-					if (baseTemplate.num > 151 || baseTemplate.num < 1) {
-						if (baseTemplate.num === 808 || baseTemplate.num === 809) return 'Legal';
+					if ((baseTemplate.num > 151 || baseTemplate.num < 1) && baseTemplate.num !== 808 && baseTemplate.num !== 809) {
 						if (!['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(template.forme)) return 'Illegal';
 						return 'Illegal';
 					}
-					if (template.nfe) {
-						if (template.tier.startsWith('LC') || !template.prevo) return 'LC';
-						return 'NFE';
+					if (template.baseSpecies === 'Pikachu') {
+						if (template.species !== 'Pikachu-Starter' && template.species !== 'Pikachu') return 'Illegal';
 					}
-					if (template.baseSpecies === 'Pikachu' && template.forme !== 'Starter') return 'Illegal';
-					return 'Legal';
+					return template.tier;
 				}
 				if (isVGC) {
 					if (template.tier === 'NFE') return 'NFE';
@@ -382,7 +379,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const tierOrder = (() => {
 			if (isLetsGo) {
-				return ["Legal", "NFE", "LC"];
+				return ["Uber", "OU", "NFE", "LC"];
 			}
 			if (isVGC) {
 				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
