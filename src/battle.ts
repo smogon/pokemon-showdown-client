@@ -3099,11 +3099,16 @@ class Battle {
 		}
 		case 'swap': {
 			if (isNaN(Number(args[2]))) {
-				let poke = this.getPokemon(args[1])!;
+				const poke = this.getPokemon(args[1])!;
 				poke.side.swapWith(poke, this.getPokemon(args[2])!, kwArgs);
 			} else {
-				let poke = this.getPokemon(args[1])!;
-				poke.side.swapTo(poke, parseInt(args[2], 10), kwArgs);
+				const poke = this.getPokemon(args[1])!;
+				const targetIndex = parseInt(args[2], 10);
+				if (kwArgs.from) {
+					const target = poke.side.active[targetIndex];
+					if (target) args[2] = target.ident;
+				}
+				poke.side.swapTo(poke, targetIndex, kwArgs);
 			}
 			this.log(args, kwArgs);
 			break;
