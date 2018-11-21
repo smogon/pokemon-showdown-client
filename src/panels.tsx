@@ -15,6 +15,39 @@ class PSRouter {
 	constructor() {
 		const currentRoomid = location.pathname.slice(1);
 		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
+			this.subscribeHistory();
+		} else if (location.pathname.endsWith('.html')) {
+			this.subscribeHash();
+		}
+	}
+	subscribeHash() {
+		if (location.hash) {
+			const currentRoomid = location.hash.slice(1);
+			if (/^[a-z0-9-]+$/.test(currentRoomid)) {
+				PS.join(currentRoomid as RoomID);
+			} else {
+				return;
+			}
+		}
+		PS.subscribeAndRun(() => {
+			const room = PS.rightRoomFocused ? PS.rightRoom! : PS.leftRoom;
+			const roomid = room.id;
+			location.hash = roomid ? '#' + roomid : '';
+		});
+		window.addEventListener('hashchange', e => {
+			const possibleRoomid = location.hash.slice(1);
+			let currentRoomid: RoomID | null = null;
+			if (/^[a-z0-9-]*$/.test(possibleRoomid)) {
+				currentRoomid = possibleRoomid as RoomID;
+			}
+			if (currentRoomid !== null) {
+				PS.join(currentRoomid);
+			}
+		});
+	}
+	subscribeHistory() {
+		const currentRoomid = location.pathname.slice(1);
+		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
 			PS.join(currentRoomid as RoomID);
 		} else {
 			return;
