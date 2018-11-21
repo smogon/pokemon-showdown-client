@@ -1560,6 +1560,7 @@ class Battle {
 				poke.boosts[stat] = frompoke.boosts[stat];
 				if (!poke.boosts[stat]) delete poke.boosts[stat];
 			}
+			this.scene.resultAnim(poke, 'Stats copied', 'neutral');
 
 			this.log(args, kwArgs);
 			break;
