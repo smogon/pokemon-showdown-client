@@ -429,12 +429,11 @@ class BattleTextParser {
 			const [, pokemon, item] = args;
 			const id = this.effectId(kwArgs.from);
 			let target = '';
-			if (['thief', 'covet'].includes(id)) {
-				target = kwArgs.of;
-				kwArgs.of = '';
+			if (['magician', 'pickpocket'].includes(id)) {
+				[target, kwArgs.of] = [kwArgs.of, ''];
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
-			if (['thief', 'covet', 'bestow'].includes(id)) {
+			if (['thief', 'covet', 'bestow', 'magician', 'pickpocket'].includes(id)) {
 				const template = this.template('takeItem', kwArgs.from);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(item)).replace('[SOURCE]', this.pokemon(target || kwArgs.of));
 			}
