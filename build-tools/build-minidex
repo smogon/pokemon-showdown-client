@@ -35,7 +35,7 @@ function sizeObj(path) {
 		let size = imageSize(path);
 		return {
 			w: size.width,
-			h: size.height
+			h: size.height,
 		};
 	} catch (e) {}
 }
@@ -76,7 +76,6 @@ for (let baseid in Tools.data.Pokedex) {
 				g5buf += `\t${id}:` + JSON.stringify(g5row).replace(/"/g, '') + `,\n`;
 			}
 		}
-
 	}
 }
 

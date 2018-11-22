@@ -285,11 +285,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [7, -7.5, -7, 6, -6, 5, 4, 3, 2, 1]) {
+	for (const genIdent of [7, 7.1, -7.5, -7, 6, -6, 5, 4, 3, 2, 1]) {
+		const isLetsGo = (genIdent === 7.1);
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
-		const gen = 'gen' + genNum;
+		const gen = isLetsGo ? 'letsgo' : 'gen' + genNum;
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
 		const pokemon = Object.keys(Tools.data.Pokedex);
 		pokemon.sort();
@@ -299,6 +300,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (template.gen > genNum) continue;
 			const tier = (() => {
 				if (template.tier === 'CAP' || template.tier === 'CAP NFE' || template.tier === 'CAP LC') {
+					return template.tier;
+				}
+				if (isLetsGo) {
+					let baseTemplate = Tools.mod(gen).getTemplate(template.baseSpecies);
+					let validNum = (baseTemplate.num <= 151 && baseTemplate.num >= 1) || [808, 809].includes(baseTemplate.num);
+					if (!validNum) return 'Illegal';
+					if (template.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(template.forme)) return 'Illegal';
 					return template.tier;
 				}
 				if (isVGC) {
@@ -342,7 +350,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const items = [];
 		const formatSlices = {};
 
-		if (isVGC) {
+		if (isLetsGo) {
+			BattleTeambuilderTable['letsgo'] = {};
+			BattleTeambuilderTable['letsgo'].tiers = tiers;
+			BattleTeambuilderTable['letsgo'].formatSlices = formatSlices;
+		} else if (isVGC) {
 			BattleTeambuilderTable[gen + 'vgc'] = {};
 			BattleTeambuilderTable[gen + 'vgc'].tiers = tiers;
 			BattleTeambuilderTable[gen + 'vgc'].formatSlices = formatSlices;
@@ -362,6 +374,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 
 		const tierOrder = (() => {
+			if (isLetsGo) {
+				return ["Uber", "OU", "NFE", "LC"];
+			}
 			if (isVGC) {
 				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
 			}
@@ -615,6 +630,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (minGen === 1) learnsets[id][moveid] = '12' + learnsets[id][moveid];
 		}
 	}
+	/*
+	 * Commented out until it can be done without mutating main data
+	const LGLearnsets = Tools.mod('letsgo').data.Learnsets;
+	for (const id in LGLearnsets) {
+		const learnset = LGLearnsets[id].learnset;
+		learnsets[id] = {};
+		for (const moveid in learnset) {
+			learnsets[id][moveid] = '7';
+		}
+	}
+	*/
 
 	//
 	// Past gen table
