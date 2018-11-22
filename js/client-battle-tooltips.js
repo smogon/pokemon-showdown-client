@@ -853,6 +853,11 @@ var BattleTooltips = (function () {
 		var isRandomBattle = tier.indexOf('Random Battle') >= 0 || (tier.indexOf('Random') >= 0 && tier.indexOf('Battle') >= 0 && gen >= 6);
 		var value = iv + ((isRandomBattle && gen >= 3) ? 21 : 63);
 		var nature = (isRandomBattle || gen < 3) ? 1 : 1.1;
+		if (tier.indexOf("Let's Go") >= 0) {
+			var maxStat = Math.floor(Math.floor(Math.floor(Math.floor(2 * baseSpe + iv) * level / 100 + 5) * nature) * 1.1);
+			if (tier.indexOf('No Restrictions') >= 0) return maxStat + 200;
+			return maxStat;
+		}
 		return Math.floor(Math.floor(Math.floor(2 * baseSpe + value) * level / 100 + 5) * nature);
 	};
 
