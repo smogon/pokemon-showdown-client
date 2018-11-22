@@ -790,6 +790,8 @@
 		} else if (!format) {
 			this.gen = 7;
 		}
+		var isLetsGo = format.startsWith('letsgo');
+		if (isLetsGo) format = format.slice(6);
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		var template;
 		var isBH = (format === 'balancedhackmons' || format === 'bh');
