@@ -2171,7 +2171,7 @@ class Battle {
 				this.scene.resultAnim(poke, 'Perish in 2', 'bad');
 				break;
 			case 'perish3':
-				this.scene.resultAnim(poke, 'Perish in 3', 'bad');
+				if (!kwArgs.silent) this.scene.resultAnim(poke, 'Perish in 3', 'bad');
 				break;
 			case 'encore':
 				this.scene.resultAnim(poke, 'Encored', 'bad');
