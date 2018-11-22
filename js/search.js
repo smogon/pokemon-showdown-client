@@ -795,7 +795,6 @@
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		var template;
 		var isBH = (format === 'balancedhackmons' || format === 'bh');
-		var isLetsGo = format.startsWith('letsgo');
 		this.resultSet = null;
 		this.defaultResultSet = null;
 
