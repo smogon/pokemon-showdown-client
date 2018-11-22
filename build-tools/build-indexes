@@ -304,13 +304,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (isLetsGo) {
 					let baseTemplate = Tools.mod(gen).getTemplate(template.baseSpecies);
-					if ((baseTemplate.num > 151 || baseTemplate.num < 1) && baseTemplate.num !== 808 && baseTemplate.num !== 809) {
-						if (!['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(template.forme)) return 'Illegal';
-						return 'Illegal';
-					}
-					if (template.baseSpecies === 'Pikachu') {
-						if (template.species !== 'Pikachu-Starter' && template.species !== 'Pikachu') return 'Illegal';
-					}
+					let validNum = (baseTemplate.num <= 151 && baseTemplate.num >= 1) || [808, 809].includes(baseTemplate.num);
+					if (!validNum) return 'Illegal';
+					if (template.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(template.forme)) return 'Illegal';
 					return template.tier;
 				}
 				if (isVGC) {
