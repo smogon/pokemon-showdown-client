@@ -2216,17 +2216,19 @@
 			var val = +slider.value;
 			var originalVal = val;
 			var result = this.getStat(stat, set, val);
-			while (val && this.getStat(stat, set, val - 4) == result) val -= 4;
+			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
+			if (supportsEVs) {
+				while (val > 0 && this.getStat(stat, set, val - 4) == result) val -= 4;
+			}
 
-			if (!this.ignoreEVLimits && set.evs) {
+			if (supportsEVs && !this.ignoreEVLimits && set.evs) {
 				var total = 0;
 				for (var i in set.evs) {
 					total += (i === stat ? val : set.evs[i]);
 				}
-				var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
-				var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
-				var totalLimit = supportsEVs ? 508 : supportsAVs ? 1200 : 0;
-				var limit = supportsEVs ? 252 : supportsAVs ? 200 : 0;
+				var totalLimit = 508;
+				var limit = 252;
 				if (total > totalLimit && val - total + totalLimit >= 0) {
 					// don't allow dragging beyond 508 EVs
 					val = val - total + totalLimit;
