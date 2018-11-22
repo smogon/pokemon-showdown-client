@@ -426,16 +426,21 @@ class BattleTextParser {
 		}
 
 		case '-item': {
-			let [, pokemon, item] = args;
-			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
+			const [, pokemon, item] = args;
 			const id = this.effectId(kwArgs.from);
+			let target = '';
+			if (['thief', 'covet'].includes(id)) {
+				target = kwArgs.of;
+				kwArgs.of = '';
+			}
+			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			if (['thief', 'covet', 'bestow'].includes(id)) {
 				const template = this.template('takeItem', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(item)).replace('[SOURCE]', this.pokemon(kwArgs.of));
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(item)).replace('[SOURCE]', this.pokemon(target || kwArgs.of));
 			}
 			if (id === 'frisk') {
 				const template = this.template(kwArgs.of && pokemon && kwArgs.of !== pokemon ? 'activate' : 'activateNoTarget', "Frisk");
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(item)).replace('[TARGET]', this.pokemon(kwArgs.of));
+				return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of)).replace('[ITEM]', this.effect(item)).replace('[TARGET]', this.pokemon(pokemon));
 			}
 			if (kwArgs.from) {
 				const template = this.template('addItem', kwArgs.from);
