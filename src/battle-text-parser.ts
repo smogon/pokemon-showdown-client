@@ -510,7 +510,7 @@ class BattleTextParser {
 			}
 			let template = this.template('start', effect, 'NODEFAULT');
 			if (!template) template = this.template('start').replace('[EFFECT]', this.effect(effect));
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of));
+			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[TEAM]', this.team(pokemon.slice(0, 2)));
 		}
 
 		case '-sidestart': {
@@ -546,7 +546,8 @@ class BattleTextParser {
 		case '-fieldstart': case '-fieldactivate': {
 			const [, effect] = args;
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
-			const templateId = cmd.slice(6);
+			let templateId = cmd.slice(6);
+			if (this.effectId(effect) === 'perishsong') templateId = 'start';
 			let template = this.template(templateId, effect, 'NODEFAULT');
 			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(effect));
 			return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of));
@@ -583,7 +584,7 @@ class BattleTextParser {
 			if (!arg5 && (id === 'spite' || id === 'skillswap')) {
 				[target, arg4, arg5] = [pokemon, target, arg4];
 			} else if (!arg4 && [
-				'grudge', 'forewarn', 'magnitude', 'sketch', 'persistent', 'symbiosis', 'safetygoggles', 'matblock', 'safetygoggles',
+				'grudge', 'forewarn', 'magnitude', 'sketch', 'persistent', 'symbiosis', 'safetygoggles', 'matblock', 'safetygoggles', 'leppaberry',
 			].includes(id)) {
 				[target, arg4] = [pokemon, target];
 			} else if (!target && ['hyperspacefury', 'hyperspacehole', 'phantomforce', 'shadowforce', 'feint'].includes(id)) {
@@ -650,6 +651,7 @@ class BattleTextParser {
 				line1 += this.ability("Mummy", target);
 				template = this.template('changeAbility', "Mummy");
 			}
+			if (id === 'leppaberry') template = template.replace('[MOVE]', arg4);
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(target)).replace('[SOURCE]', this.pokemon(kwArgs.of));
 		}
 
@@ -706,7 +708,8 @@ class BattleTextParser {
 		}
 
 		case '-boost': case '-unboost': {
-			const [, pokemon, stat, num] = args;
+			let [, pokemon, stat, num] = args;
+			if (stat === 'spa' && this.gen === 1) stat = 'spc';
 			const statName = BattleStats[stat as StatName] || "stats";
 			const amount = parseInt(num, 10);
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);

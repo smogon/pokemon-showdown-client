@@ -286,7 +286,7 @@ exports.BattleText = {
 		activate: "[POKEMON] couldn't stay airborne because of gravity!",
 	},
 	magicroom: {
-		start: "  It created a bizarre area in which Pok&#xE9;mon's held items lose their effects!",
+		start: "  It created a bizarre area in which Pok\u00E9mon's held items lose their effects!",
 		end: "  Magic Room wore off, and held items' effects returned to normal!",
 	},
 	mudsport: {
@@ -628,7 +628,7 @@ exports.BattleText = {
 		activate: "  Coins were scattered everywhere!",
 	},
 	perishsong: {
-		start: "  All Pokémon that heard the song will faint in three turns!",
+		start: "  All Pok\u00E9mon that heard the song will faint in three turns!",
 		activate: "  [POKEMON]'s perish count fell to [NUMBER].",
 	},
 	phantomforce: {
@@ -640,7 +640,7 @@ exports.BattleText = {
 	},
 	powder: {
 		start: "  [POKEMON] is covered in powder!",
-		activate: "  When the flame touched the powder on the Pokémon, it exploded!",
+		activate: "  When the flame touched the powder on the Pok\u00E9mon, it exploded!",
 	},
 	powersplit: {
 		activate: "  [POKEMON] shared its power with the target!",
@@ -870,7 +870,7 @@ exports.BattleText = {
 		block: "  [TARGET] is protected by an aromatic veil!",
 	},
 	aurabreak: {
-		start: "  [POKEMON] reversed all other Pokémon's auras!",
+		start: "  [POKEMON] reversed all other Pok\u00E9mon's auras!",
 	},
 	baddreams: {
 		damage: "  [POKEMON] is tormented!",
