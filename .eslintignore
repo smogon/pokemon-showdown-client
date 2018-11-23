@@ -1,4 +1,5 @@
 data/*
+!data/text.js
 node_modules/
 /js/lib/
 
