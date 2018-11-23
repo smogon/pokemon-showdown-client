@@ -73,12 +73,14 @@ class BattleTextParser {
 	}
 
 	trainer(side: string) {
+		side = side.slice(0, 2);
 		if (side === 'p1') return this.p1;
 		if (side === 'p2') return this.p2;
 		return `???side:${side}???`;
 	}
 
 	team(side: string) {
+		side = side.slice(0, 2);
 		if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
 			return BattleText.default.team;
 		}
@@ -86,6 +88,7 @@ class BattleTextParser {
 	}
 
 	own(side: string) {
+		side = side.slice(0, 2);
 		if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
 			return 'OWN';
 		}
