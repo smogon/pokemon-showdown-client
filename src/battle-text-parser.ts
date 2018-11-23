@@ -362,7 +362,7 @@ class BattleTextParser {
 			if (kwArgs.zeffect) templateId = 'startFromZEffect';
 			if (kwArgs.damage) templateId = 'activate';
 			if (kwArgs.block) templateId = 'block';
-			if (kwArgs.upkeep) templateId = 'activate';
+			if (kwArgs.upkeep) templateId = 'upkeep';
 			if (id === 'reflect' || id === 'lightscreen') templateId = 'startGen1';
 			let template = '';
 			if (templateId === 'start' && kwArgs.from && kwArgs.from.startsWith('item:')) {
@@ -539,7 +539,7 @@ class BattleTextParser {
 				return template;
 			}
 			if (kwArgs.upkeep) {
-				return this.template('activate', weather, 'NODEFAULT');
+				return this.template('upkeep', weather, 'NODEFAULT');
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
 			let template = this.template('start', weather, 'NODEFAULT');
