@@ -179,6 +179,7 @@ class BattleLog {
 			turnMessage = turnMessage.slice(2, -2).trim();
 			this.battleParser!.curLineSection = 'break';
 			h2elem.innerHTML = BattleLog.escapeHTML(turnMessage);
+			this.addSpacer();
 			this.addNode(h2elem);
 			break;
 
@@ -230,7 +231,7 @@ class BattleLog {
 		this.addNode(el);
 	}
 	addSpacer() {
-		this.addDiv('spacer battle-history', '');
+		this.addDiv('spacer battle-history', '<br />');
 	}
 	changeUhtml(id: string, html: string, forceAdd?: boolean) {
 		id = toId(id);
