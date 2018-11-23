@@ -716,7 +716,7 @@ License: GPLv2
  *********************************************************/
 
 .battle-log h2 {
-	margin: 0.5em -8px;
+	margin: 0 -8px 6px;
 	padding: 4px 8px;
 	border: 1px solid #AAAAAA;
 	background: #E0E7EA;
@@ -845,7 +845,8 @@ License: GPLv2
 	border-radius: 4px;
 }
 .spacer {
-	margin-top: 0.5em;
+	margin-top: 6px;
+	font-size: 2px;
 }
 .message-announce {
 	background: #6688AA;
