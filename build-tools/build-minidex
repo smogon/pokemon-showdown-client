@@ -2,7 +2,8 @@
 'use strict';
 
 const fs = require("fs");
-process.chdir(__dirname);
+const path = require("path");
+process.chdir(path.resolve(__dirname, '..'));
 const imageSize = require('image-size');
 
 const Tools = require('./../data/Pokemon-Showdown/sim/dex');
@@ -40,53 +41,59 @@ function sizeObj(path) {
 	} catch (e) {}
 }
 
-for (let baseid in Tools.data.Pokedex) {
-	let template = Tools.getTemplate(baseid);
-	for (let formid of [''].concat(template.otherForms || [])) {
-		let spriteid = template.spriteid;
-		if (formid) spriteid += '-' + formid.slice(template.id.length);
-		let id = toId(spriteid);
+function updateSizes() {
+	for (let baseid in Tools.data.Pokedex) {
+		let template = Tools.getTemplate(baseid);
+		for (let formid of [''].concat(template.otherForms || [])) {
+			let spriteid = template.spriteid;
+			if (formid) spriteid += '-' + formid.slice(template.id.length);
+			let id = toId(spriteid);
 
-		{
-			let row = {num: template.num};
-			const frontSize = sizeObj('../sprites/xyani/' + spriteid + '.gif');
-			if (frontSize) row.front = frontSize;
-			const frontSizeF = sizeObj('../sprites/xyani/' + spriteid + '-f.gif');
-			if (frontSizeF) row.frontf = frontSizeF;
-			const backSize = sizeObj('../sprites/xyani-back/' + spriteid + '.gif');
-			if (backSize) row.back = backSize;
-			const backSizeF = sizeObj('../sprites/xyani-back/' + spriteid + '-f.gif');
-			if (backSizeF) row.backf = backSizeF;
-			if (row.front || row.back || !row.forme) {
-				buf += `\t${id}:` + JSON.stringify(row).replace(/"/g, '') + `,\n`;
+			{
+				let row = {num: template.num};
+				const frontSize = sizeObj('sprites/xyani/' + spriteid + '.gif');
+				if (frontSize) row.front = frontSize;
+				const frontSizeF = sizeObj('sprites/xyani/' + spriteid + '-f.gif');
+				if (frontSizeF) row.frontf = frontSizeF;
+				const backSize = sizeObj('sprites/xyani-back/' + spriteid + '.gif');
+				if (backSize) row.back = backSize;
+				const backSizeF = sizeObj('sprites/xyani-back/' + spriteid + '-f.gif');
+				if (backSizeF) row.backf = backSizeF;
+				if (row.front || row.back || !row.forme) {
+					buf += `\t${id}:` + JSON.stringify(row).replace(/"/g, '') + `,\n`;
+				}
 			}
-		}
 
-		{
-			let g5row = {num: template.num};
-			const frontSize = sizeObj('../sprites/bwani/' + spriteid + '.gif');
-			if (frontSize) g5row.front = frontSize;
-			const frontSizeF = sizeObj('../sprites/bwani/' + spriteid + '-f.gif');
-			if (frontSizeF) g5row.frontf = frontSizeF;
-			const backSize = sizeObj('../sprites/bwani-back/' + spriteid + '.gif');
-			if (backSize) g5row.back = backSize;
-			const backSizeF = sizeObj('../sprites/bwani-back/' + spriteid + '-f.gif');
-			if (backSizeF) g5row.backf = backSizeF;
-			if (g5row.front || g5row.back || !g5row.forme) {
-				g5buf += `\t${id}:` + JSON.stringify(g5row).replace(/"/g, '') + `,\n`;
+			{
+				let g5row = {num: template.num};
+				const frontSize = sizeObj('sprites/bwani/' + spriteid + '.gif');
+				if (frontSize) g5row.front = frontSize;
+				const frontSizeF = sizeObj('sprites/bwani/' + spriteid + '-f.gif');
+				if (frontSizeF) g5row.frontf = frontSizeF;
+				const backSize = sizeObj('sprites/bwani-back/' + spriteid + '.gif');
+				if (backSize) g5row.back = backSize;
+				const backSizeF = sizeObj('sprites/bwani-back/' + spriteid + '-f.gif');
+				if (backSizeF) g5row.backf = backSizeF;
+				if (g5row.front || g5row.back || !g5row.forme) {
+					g5buf += `\t${id}:` + JSON.stringify(g5row).replace(/"/g, '') + `,\n`;
+				}
 			}
 		}
 	}
+
+	buf = buf.slice(0, -2) + `
+};
+`;
+	g5buf = g5buf.slice(0, -2) + `
+};
+`;
+
+	fs.writeFileSync('data/pokedex-mini.js', buf);
+	fs.writeFileSync('data/pokedex-mini-bw.js', g5buf);
 }
 
-buf = buf.slice(0, -2) + `
-};
-`;
-g5buf = g5buf.slice(0, -2) + `
-};
-`;
-
-fs.writeFileSync('../data/pokedex-mini.js', buf);
-fs.writeFileSync('../data/pokedex-mini-bw.js', g5buf);
-
-console.log('DONE');
+if (fs.existsSync('sprites/')) {
+	console.log('DONE');
+} else {
+	console.log('SKIPPED');
+}
