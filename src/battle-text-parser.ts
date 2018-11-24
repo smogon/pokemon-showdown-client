@@ -826,8 +826,8 @@ class BattleTextParser {
 		}
 
 		case '-immune': {
-			let [, pokemon, effect] = args;
-			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
+			const [, pokemon] = args;
+			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			let template = this.template('block', effect);
 			if (!template) {
 				const templateId = kwArgs.ohko ? 'immuneOHKO' : 'immune';
