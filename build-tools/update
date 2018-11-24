@@ -53,16 +53,16 @@ fs.writeFileSync(
 	fs.readFileSync('js/battle-dex.js') + '\n\n' +
 		fs.readFileSync('js/battle-dex-data.js') + '\n\n' +
 		fs.readFileSync('js/battle-log.js') + '\n\n' +
-		fs.readFileSync('src/battle-log-misc.js')
+		fs.readFileSync('src/battle-log-misc.js') +
+		fs.readFileSync('data/text.js') + '\n\n' +
+		fs.readFileSync('js/battle-text-parser.js')
 );
 
 if (!ignoreGraphics) {
 	fs.writeFileSync(
 		'data/graphics.js',
 		fs.readFileSync('js/battle-animations.js') + '\n\n' +
-			fs.readFileSync('js/battle-animations-moves.js') + '\n\n' +
-			fs.readFileSync('data/text.js') + '\n\n' +
-			fs.readFileSync('js/battle-text-parser.js')
+			fs.readFileSync('js/battle-animations-moves.js')
 	);
 }
 
