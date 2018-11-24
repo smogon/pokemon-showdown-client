@@ -821,7 +821,7 @@ class BattleTextParser {
 			if (kwArgs.heavy) templateId = 'failTooHeavy';
 			if (kwArgs.weak) templateId = 'fail';
 			if (kwArgs.forme) templateId = 'failWrongForme';
-			template = this.template(templateId);
+			template = this.template(templateId, id);
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
 		}
 
