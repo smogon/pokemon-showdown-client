@@ -389,7 +389,7 @@ class BattleTextParser {
 				template = this.template('endFromItem', effect);
 			}
 			if (!template) template = this.template(templateId, effect);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[EFFECT]', this.effect(kwArgs.from)).replace('[SOURCE]', this.pokemon(kwArgs.of));
+			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[EFFECT]', this.effect(effect)).replace('[SOURCE]', this.pokemon(kwArgs.of));
 		}
 
 		case '-ability': {
