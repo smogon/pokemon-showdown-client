@@ -352,6 +352,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		if (isLetsGo) {
 			BattleTeambuilderTable['letsgo'] = {};
+			BattleTeambuilderTable['letsgo'].learnsets = {};
 			BattleTeambuilderTable['letsgo'].tiers = tiers;
 			BattleTeambuilderTable['letsgo'].formatSlices = formatSlices;
 		} else if (isVGC) {
@@ -630,17 +631,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (minGen === 1) learnsets[id][moveid] = '12' + learnsets[id][moveid];
 		}
 	}
-	/*
-	 * Commented out until it can be done without mutating main data
 	const LGLearnsets = Tools.mod('letsgo').data.Learnsets;
 	for (const id in LGLearnsets) {
 		const learnset = LGLearnsets[id].learnset;
-		learnsets[id] = {};
+		BattleTeambuilderTable['letsgo'].learnsets[id] = {};
 		for (const moveid in learnset) {
-			learnsets[id][moveid] = '7';
+			BattleTeambuilderTable['letsgo'].learnsets[id][moveid] = '7';
 		}
 	}
-	*/
 
 	//
 	// Past gen table
