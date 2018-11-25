@@ -943,6 +943,7 @@
 			var gen = '' + this.gen;
 			while (learnsetid) {
 				var learnset = BattleTeambuilderTable.learnsets[learnsetid];
+				if (isLetsGo) learnset = BattleTeambuilderTable['letsgo'].learnsets[learnsetid];
 				if (learnset) {
 					for (var moveid in learnset) {
 						var learnsetEntry = learnset[moveid];
@@ -1111,6 +1112,9 @@
 					if (id === 'waterpulse') isViable = (toId(set.item) === 'blastoisinite' && moves.indexOf('originpulse') < 0);
 					if (id === 'weatherball') isViable = (toId(set.item) === 'redorb');
 					if (id === 'zapcannon') isViable = (toId(set.item) === 'pidgeotite');
+				}
+				if (isLetsGo) {
+					if (id === 'megadrain') isViable = true;
 				}
 				if (this.gen === 1) {
 					// Usually viable for Gen 1
