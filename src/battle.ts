@@ -1400,8 +1400,7 @@ class Battle {
 
 			if (kwArgs.from) {
 				let effect = Tools.getEffect(kwArgs.from);
-				let ofpoke = this.getPokemon(kwArgs.of);
-				this.activateAbility(ofpoke || poke, effect);
+				this.activateAbility(poke, effect);
 				if (effect.effectType === 'Item') {
 					poke.item = effect.name;
 				}
