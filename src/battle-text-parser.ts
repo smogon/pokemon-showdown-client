@@ -327,7 +327,7 @@ class BattleTextParser {
 				[pokemon, kwArgs.of] = [kwArgs.of, pokemon];
 				break;
 			}
-			const template = this.template('cant', effect);
+			const template = this.template(move ? 'cant' : 'cantNoMove', effect);
 			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', move);
 		}

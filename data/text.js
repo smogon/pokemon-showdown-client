@@ -35,6 +35,7 @@ exports.BattleText = {
 		// is that the `cant` message REPLACES "Pokemon used Move!", while the `fail`
 		// message happens AFTER "Pokemon used Move!"
 		cant: "[POKEMON] can't use [MOVE]!",
+		cantNoMove: "[POKEMON] can't move!",
 		fail: "  But it failed!",
 
 		// n.b. this is the default message for in-battle forme changes
