@@ -3362,13 +3362,13 @@
 			if (natureOverride) {
 				val *= natureOverride;
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
-				val = Math.floor(val * 1.1);
+				val *= 1.1;
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
-				val *= Math.floor(val * 0.9);
+				val *= 0.9;
 			}
 			if (!supportsEVs) {
 				var friendshipValue = Math.floor(((!set.happiness ? 255 : set.happiness > 255 ? 255 : set.happiness) / 255 / 10 + 1) * 100);
-				val = Math.floor(val * friendshipValue / 100) + (supportsAVs ? ev : 0);
+				val = Math.floor(Math.floor(val) * friendshipValue / 100) + (supportsAVs ? ev : 0);
 			}
 			return Math.floor(val);
 		},
