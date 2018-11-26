@@ -577,7 +577,7 @@ exports.BattleText = {
 		start: "  [POKEMON] became trapped by swirling magma!",
 	},
 	magnitude: {
-		start: "  Magnitude [NUMBER]!",
+		activate: "  Magnitude [NUMBER]!",
 	},
 	matblock: {
 		start: "  [POKEMON] intends to flip up a mat and block incoming attacks!",
