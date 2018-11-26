@@ -3362,9 +3362,9 @@
 			if (natureOverride) {
 				val *= natureOverride;
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
-				val *= 1.1;
+				val = Math.floor(val * 1.1);
 			} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
-				val *= 0.9;
+				val *= Math.floor(val * 0.9);
 			}
 			if (!supportsEVs) {
 				var friendshipValue = Math.floor(((!set.happiness ? 255 : set.happiness > 255 ? 255 : set.happiness) / 255 / 10 + 1) * 100);
