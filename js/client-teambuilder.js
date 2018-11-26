@@ -3368,7 +3368,7 @@
 			}
 			if (!supportsEVs) {
 				var friendshipValue = Math.floor(((!set.happiness ? 255 : set.happiness > 255 ? 255 : set.happiness) / 255 / 10 + 1) * 100);
-				val = Math.floor(val * friendshipValue / 100) + (supportsAVs ? ev : 0);
+				val = Math.floor(val) * friendshipValue / 100 + (supportsAVs ? ev : 0);
 			}
 			return Math.floor(val);
 		},
