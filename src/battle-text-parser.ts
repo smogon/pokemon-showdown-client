@@ -393,13 +393,9 @@ class BattleTextParser {
 		}
 
 		case '-ability': {
-			let [, pokemon, ability, oldAbility, arg4] = args;
+			let [, pokemon, ability, foe] = args;
 			let line1 = '';
-			if (oldAbility && (oldAbility.startsWith('p1') || oldAbility.startsWith('p2') || oldAbility === 'boost')) {
-				arg4 = oldAbility;
-				oldAbility = '';
-			}
-			if (oldAbility) line1 += this.ability(oldAbility, pokemon);
+			line1 += this.maybeAbility(kwArgs.from, pokemon);
 			line1 += this.ability(ability, pokemon);
 			if (kwArgs.fail) {
 				const template = this.template('block', ability);
@@ -412,7 +408,7 @@ class BattleTextParser {
 			const id = this.effectId(ability);
 			if (id === 'unnerve') {
 				const template = this.template('start', ability);
-				return line1 + template.replace('[TEAM]', this.team(arg4 && arg4.slice(0, 2)));
+				return line1 + template.replace('[TEAM]', this.team(foe && foe.slice(0, 2)));
 			}
 			let templateId = 'start';
 			if (id === 'anticipation' || id === 'sturdy') templateId = 'activate';
