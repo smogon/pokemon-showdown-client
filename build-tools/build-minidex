@@ -93,6 +93,7 @@ function updateSizes() {
 }
 
 if (fs.existsSync('sprites/')) {
+	updateSizes();
 	console.log('DONE');
 } else {
 	console.log('SKIPPED');
