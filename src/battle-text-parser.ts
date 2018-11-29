@@ -406,6 +406,7 @@ class BattleTextParser {
 				return line1 + template;
 			}
 			if (kwArgs.from) {
+				line1 = this.maybeAbility(kwArgs.from, pokemon) + line1;
 				const template = this.template('changeAbility', kwArgs.from);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ABILITY]', this.effect(ability)).replace('[SOURCE]', this.pokemon(kwArgs.of));
 			}
