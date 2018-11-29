@@ -2087,14 +2087,17 @@ class Battle {
 			this.activateAbility(ofpoke || poke, fromeffect);
 			switch (effect.id) {
 			case 'typechange':
-				const types = Tools.sanitizeName(args[3] || '???');
-				poke.removeVolatile('typeadd' as ID);
-				poke.addVolatile('typechange' as ID, types);
-				if (kwArgs.silent) {
-					this.scene.updateStatbar(poke);
-					break;
+				if (ofpoke && fromeffect.id == 'reflecttype') {
+					poke.copyTypesFrom(ofpoke);
+				} else {
+					const types = Tools.sanitizeName(args[3] || '???');
+					poke.removeVolatile('typeadd' as ID);
+					poke.addVolatile('typechange' as ID, types);
+					if (!kwArgs.silent) {
+						this.scene.typeAnim(poke, types);
+					}
 				}
-				this.scene.typeAnim(poke, types);
+				this.scene.updateStatbar(poke);
 				break;
 			case 'typeadd':
 				const type = Tools.sanitizeName(args[3]);
