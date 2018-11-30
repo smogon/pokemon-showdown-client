@@ -859,7 +859,7 @@ class BattleTextParser {
 		}
 
 		case '-notarget': {
-			return this.template('noTarget');
+			return this.template(this.gen >= 5 ? 'fail' : 'noTarget');
 		}
 
 		case '-mega': case '-primal': {
