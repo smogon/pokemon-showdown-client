@@ -480,6 +480,10 @@ class BattleTextParser {
 		case '-status': {
 			const [, pokemon, status] = args;
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
+			if (this.effectId(kwArgs.from) === 'rest') {
+				const template = this.template('startFromRest', status);
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+			}
 			const template = this.template('start', status);
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
 		}
