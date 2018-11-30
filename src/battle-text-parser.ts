@@ -413,7 +413,7 @@ class BattleTextParser {
 			const id = this.effectId(ability);
 			if (id === 'unnerve') {
 				const template = this.template('start', ability);
-				return line1 + template.replace('[TEAM]', this.team(arg4 && arg4.slice(0, 2)));
+				return line1 + template.replace('[TEAM]', this.team(arg4));
 			}
 			let templateId = 'start';
 			if (id === 'anticipation' || id === 'sturdy') templateId = 'activate';
