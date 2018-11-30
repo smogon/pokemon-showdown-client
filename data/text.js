@@ -135,6 +135,7 @@ exports.BattleText = {
 		endFromItem: "  [POKEMON]'s [ITEM] defrosted it!",
 		endFromMove: "  [POKEMON]'s [MOVE] melted the ice!",
 		cant: "[POKEMON] is frozen solid!",
+		cantNoMove: "[POKEMON] is frozen solid!",
 	},
 	par: {
 		start: "  [POKEMON] is paralyzed! It may be unable to move!",
@@ -142,6 +143,7 @@ exports.BattleText = {
 		end: "  [POKEMON] was cured of paralysis.",
 		endFromItem: "  [POKEMON]'s [ITEM] cured its paralysis!",
 		cant: "[POKEMON] is paralyzed! It can't move!",
+		cantNoMove: "[POKEMON] is paralyzed! It can't move!",
 	},
 	psn: {
 		start: "  [POKEMON] was poisoned!",
@@ -165,6 +167,7 @@ exports.BattleText = {
 		end: "  [POKEMON] woke up!",
 		endFromItem: "  [POKEMON]'s [ITEM] woke it up!",
 		cant: "[POKEMON] is fast asleep.",
+		cantNoMove: "[POKEMON] is fast asleep.",
 	},
 
 	// misc effects
@@ -182,6 +185,7 @@ exports.BattleText = {
 	},
 	flinch: {
 		cant: "[POKEMON] flinched and couldn't move!",
+		cantNoMove: "[POKEMON] flinched and couldn't move!",
 	},
 	healreplacement: {
 		activate: "  [POKEMON] will restore its replacement's HP using its Z-Power!",
@@ -191,6 +195,7 @@ exports.BattleText = {
 	},
 	recharge: {
 		cant: "[POKEMON] must recharge!",
+		cantNoMove: "[POKEMON] must recharge!",
 	},
 	recoil: {
 		damage: "  [POKEMON] is damaged by the recoil!",
@@ -322,6 +327,7 @@ exports.BattleText = {
 		endFromItem: "  [POKEMON] cured its infatuation using its [ITEM]!",
 		activate: "  [POKEMON] is in love with [TARGET]!",
 		cant: "[POKEMON] is immobilized by love!",
+		cantNoMove: "[POKEMON] is immobilized by love!",
 	},
 	auroraveil: {
 		start: "  Aurora Veil made [TEAM] stronger against physical and special moves!",
@@ -797,6 +803,7 @@ exports.BattleText = {
 	},
 	throatchop: {
 		cant: "The effects of Throat Chop prevent [POKEMON] from using certain moves!",
+		cantNoMove: "The effects of Throat Chop prevent [POKEMON] from using certain moves!",
 	},
 	torment: {
 		start: "  [POKEMON] was subjected to torment!",
