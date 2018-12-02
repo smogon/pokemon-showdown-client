@@ -639,6 +639,7 @@ class BattleTextParser {
 			}
 			let template = this.template(templateId, effect, 'NODEFAULT');
 			if (!template) {
+				if (line1) return line1; // Abilities don't have a default template
 				template = this.template('activate');
 				return line1 + template.replace('[EFFECT]', this.effect(effect));
 			}
