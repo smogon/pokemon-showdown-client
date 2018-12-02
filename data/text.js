@@ -943,6 +943,9 @@ exports.BattleText = {
 	magicbounce: {
 		move: '#magiccoat',
 	},
+	mindblown: {
+		damage: "  ([POKEMON] cut its own HP to power up its move!)",
+	},
 	moldbreaker: {
 		start: "  [POKEMON] breaks the mold!",
 	},
