@@ -376,7 +376,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const tierOrder = (() => {
 			if (isLetsGo) {
-				return ["Uber", "OU", "NFE", "LC"];
+				return ["Uber", "OU", "UUBL", "UU", "NFE", "LC"];
 			}
 			if (isVGC) {
 				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
