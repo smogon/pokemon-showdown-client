@@ -134,7 +134,7 @@ class BattleScene {
 		this.$battle = $('<div class="innerbattle"></div>');
 		this.$frame.append(this.$battle);
 
-		this.$bg = $('<div class="backdrop" style="background-image:url(' + Tools.resourcePrefix + this.backdropImage + ');display:block;opacity:0.8"></div>');
+		this.$bg = $('<div class="backdrop" style="background-image:url(' + Dex.resourcePrefix + this.backdropImage + ');display:block;opacity:0.8"></div>');
 		this.$terrain = $('<div class="weather"></div>');
 		this.$weather = $('<div class="weather"></div>');
 		this.$bgEffect = $('<div></div>');
@@ -516,8 +516,8 @@ class BattleScene {
 
 	updateGen() {
 		let gen = this.battle.gen;
-		if (Tools.prefs('nopastgens')) gen = 6;
-		if (Tools.prefs('bwgfx') && gen > 5) gen = 5;
+		if (Dex.prefs('nopastgens')) gen = 6;
+		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
 		this.gen = gen;
 		this.activeCount = this.battle.mySide && this.battle.mySide.active.length || 1;
 
@@ -529,7 +529,7 @@ class BattleScene {
 		else this.backdropImage = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
 
 		if (this.$bg) {
-			this.$bg.css('background-image', 'url(' + Tools.resourcePrefix + '' + this.backdropImage + ')');
+			this.$bg.css('background-image', 'url(' + Dex.resourcePrefix + '' + this.backdropImage + ')');
 		}
 	}
 
@@ -566,28 +566,28 @@ class BattleScene {
 		for (let i = 0; i < pokemonCount; i++) {
 			let poke = side.pokemon[i];
 			if (i >= side.totalPokemon && i >= side.pokemon.length) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-none') + '"></span>';
+				pokemonhtml += '<span class="picon" style="' + Dex.getPokemonIcon('pokeball-none') + '"></span>';
 			} else if (noShow && poke && poke.fainted) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-fainted') + '" title="Fainted" aria-label="Fainted"></span>';
+				pokemonhtml += '<span class="picon" style="' + Dex.getPokemonIcon('pokeball-fainted') + '" title="Fainted" aria-label="Fainted"></span>';
 			} else if (noShow && poke && poke.status) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball-statused') + '" title="Status" aria-label="Status"></span>';
+				pokemonhtml += '<span class="picon" style="' + Dex.getPokemonIcon('pokeball-statused') + '" title="Status" aria-label="Status"></span>';
 			} else if (noShow) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Non-statused" aria-label="Non-statused"></span>';
+				pokemonhtml += '<span class="picon" style="' + Dex.getPokemonIcon('pokeball') + '" title="Non-statused" aria-label="Non-statused"></span>';
 			} else if (!poke) {
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon('pokeball') + '" title="Not revealed" aria-label="Not revealed"></span>';
+				pokemonhtml += '<span class="picon" style="' + Dex.getPokemonIcon('pokeball') + '" title="Not revealed" aria-label="Not revealed"></span>';
 			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
 				const details = this.getDetailsText(poke);
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n) + ';opacity:0.6" title="' + details + '" aria-label="' + details + '"></span>';
+				pokemonhtml += '<span class="picon" style="' + Dex.getPokemonIcon(poke, !side.n) + ';opacity:0.6" title="' + details + '" aria-label="' + details + '"></span>';
 			} else {
 				const details = this.getDetailsText(poke);
-				pokemonhtml += '<span class="picon" style="' + Tools.getPokemonIcon(poke, !side.n) + '" title="' + details + '" aria-label="' + details + '"></span>';
+				pokemonhtml += '<span class="picon" style="' + Dex.getPokemonIcon(poke, !side.n) + '" title="' + details + '" aria-label="' + details + '"></span>';
 			}
 			if (i % 3 === 2) pokemonhtml += '</div><div class="teamicons">';
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const $sidebar = (side.n ? this.$rightbar : this.$leftbar);
 		if (side.name) {
-			$sidebar.html('<div class="trainer"><strong>' + BattleLog.escapeHTML(side.name) + '</strong><div class="trainersprite" style="background-image:url(' + Tools.resolveAvatar(side.spriteid) + ')"></div>' + pokemonhtml + '</div>');
+			$sidebar.html('<div class="trainer"><strong>' + BattleLog.escapeHTML(side.name) + '</strong><div class="trainersprite" style="background-image:url(' + Dex.resolveAvatar(side.spriteid) + ')"></div>' + pokemonhtml + '</div>');
 			$sidebar.find('.trainer').css('opacity', 1);
 		} else {
 			$sidebar.find('.trainer').css('opacity', 0.4);
@@ -625,7 +625,7 @@ class BattleScene {
 				if (pokemon.species === 'Ludicolo') ludicoloCount++;
 				if (pokemon.species === 'Lombre') lombreCount++;
 
-				let spriteData = Tools.getSpriteData(pokemon, siden, {
+				let spriteData = Dex.getSpriteData(pokemon, siden, {
 					gen: this.gen,
 					noScale: true,
 				});
@@ -645,15 +645,15 @@ class BattleScene {
 				buf += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + Math.floor(y - spriteData.h / 2) + 'px;left:' + Math.floor(x - spriteData.w / 2) + 'px" />';
 				buf2 += '<div style="position:absolute;top:' + (y + 45) + 'px;left:' + (x - 40) + 'px;width:80px;font-size:10px;text-align:center;color:#FFF;">';
 				if (pokemon.gender === 'F') {
-					buf2 += '<img src="' + Tools.resourcePrefix + 'fx/gender-f.png" width="7" height="10" alt="F" style="margin-bottom:-1px" /> ';
+					buf2 += '<img src="' + Dex.resourcePrefix + 'fx/gender-f.png" width="7" height="10" alt="F" style="margin-bottom:-1px" /> ';
 				} else if (pokemon.gender === 'M') {
-					buf2 += '<img src="' + Tools.resourcePrefix + 'fx/gender-m.png" width="7" height="10" alt="M" style="margin-bottom:-1px" /> ';
+					buf2 += '<img src="' + Dex.resourcePrefix + 'fx/gender-m.png" width="7" height="10" alt="M" style="margin-bottom:-1px" /> ';
 				}
 				if (pokemon.level !== 100) {
 					buf2 += '<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>' + pokemon.level + '</span>';
 				}
 				if (pokemon.item) {
-					buf2 += ' <img src="' + Tools.resourcePrefix + 'fx/item.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />';
+					buf2 += ' <img src="' + Dex.resourcePrefix + 'fx/item.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />';
 				}
 				buf2 += '</div>';
 			}
@@ -695,7 +695,7 @@ class BattleScene {
 	}
 
 	pseudoWeatherLeft(pWeather: WeatherState) {
-		let buf = '<br />' + Tools.getMove(pWeather[0]).name;
+		let buf = '<br />' + Dex.getMove(pWeather[0]).name;
 		if (!pWeather[1] && pWeather[2]) {
 			pWeather[1] = pWeather[2];
 			pWeather[2] = 0;
@@ -711,7 +711,7 @@ class BattleScene {
 	}
 	sideConditionLeft(cond: [string, number, number, number], siden: number) {
 		if (!cond[2] && !cond[3]) return '';
-		let buf = '<br />' + (siden ? "Foe's " : "") + Tools.getMove(cond[0]).name;
+		let buf = '<br />' + (siden ? "Foe's " : "") + Dex.getMove(cond[0]).name;
 		if (!cond[2] && cond[3]) {
 			cond[2] = cond[3];
 			cond[3] = 0;
@@ -861,7 +861,7 @@ class BattleScene {
 
 	addPokemonSprite(pokemon: Pokemon) {
 		const siden = pokemon.side.n;
-		const sprite = new PokemonSprite(Tools.getSpriteData(pokemon, siden, {
+		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, siden, {
 			gen: this.gen,
 		}), {
 			x: pokemon.side.x,
@@ -1125,7 +1125,7 @@ class BattleScene {
 
 	typeAnim(pokemon: Pokemon, types: string) {
 		const result = BattleLog.escapeHTML(types).split('/').map(type =>
-			'<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />'
+			'<img src="' + Dex.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" />'
 		).join(' ');
 		this.resultAnim(pokemon, result, 'neutral');
 	}
@@ -1312,8 +1312,8 @@ class BattleScene {
 			const url = BattleEffects[i].url;
 			if (url) this.preloadImage(url);
 		}
-		this.preloadImage(Tools.resourcePrefix + 'sprites/xyani/substitute.gif');
-		this.preloadImage(Tools.resourcePrefix + 'sprites/xyani-back/substitute.gif');
+		this.preloadImage(Dex.resourcePrefix + 'sprites/xyani/substitute.gif');
+		this.preloadImage(Dex.resourcePrefix + 'sprites/xyani-back/substitute.gif');
 	}
 	preloadBgm(bgmNum = 0) {
 		if (!bgmNum) bgmNum = 1 + this.numericId % 15;
@@ -1594,7 +1594,7 @@ class PokemonSprite extends Sprite {
 	animSub(instant?: boolean, noAnim?: boolean) {
 		if (!this.scene.animating) return;
 		if (this.$sub) return;
-		const subsp = Tools.getSpriteData('substitute', this.siden, {
+		const subsp = Dex.getSpriteData('substitute', this.siden, {
 			gen: this.scene.gen,
 		});
 		this.subsp = subsp;
@@ -1708,7 +1708,7 @@ class PokemonSprite extends Sprite {
 
 		if (pokemon.volatiles.formechange) {
 			this.oldsp = this.sp;
-			this.sp = Tools.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
+			this.sp = Dex.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
 				gen: this.scene.gen,
 			});
 		}
@@ -2096,7 +2096,7 @@ class PokemonSprite extends Sprite {
 	}
 	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
 		if (!this.scene.animating && !isPermanent) return;
-		let sp = Tools.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
+		let sp = Dex.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
 			gen: this.scene.gen,
 		});
 		let oldsp = this.sp;
@@ -2285,7 +2285,7 @@ class PokemonSprite extends Sprite {
 		let buf = '<div class="statbar' + (this.siden ? ' lstatbar' : ' rstatbar') + '" style="display: none">';
 		buf += '<strong>' + (this.siden && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks) ? pokemon.species : BattleLog.escapeHTML(pokemon.name));
 		let gender = pokemon.gender;
-		if (gender) buf += ' <img src="' + Tools.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
+		if (gender) buf += ' <img src="' + Dex.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
 		buf += (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>');
 
 		let symbol = '';
@@ -2293,7 +2293,7 @@ class PokemonSprite extends Sprite {
 		else if (pokemon.species === 'Kyogre-Primal') symbol = 'alpha';
 		else if (pokemon.species === 'Groudon-Primal') symbol = 'omega';
 		if (symbol) {
-			buf += ' <img src="' + Tools.resourcePrefix + 'sprites/misc/' + symbol + '.png" alt="' + symbol + '" style="vertical-align:text-bottom;" />';
+			buf += ' <img src="' + Dex.resourcePrefix + 'sprites/misc/' + symbol + '.png" alt="' + symbol + '" style="vertical-align:text-bottom;" />';
 		}
 
 		buf += '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div>';
@@ -2371,14 +2371,14 @@ class PokemonSprite extends Sprite {
 		}
 		if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[1]) {
 			let types = pokemon.volatiles.typechange[1].split('/');
-			status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[0]) + '.png" alt="' + types[0] + '" /> ';
+			status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[0]) + '.png" alt="' + types[0] + '" /> ';
 			if (types[1]) {
-				status += '<img src="' + Tools.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[1]) + '.png" alt="' + types[1] + '" /> ';
+				status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[1]) + '.png" alt="' + types[1] + '" /> ';
 			}
 		}
 		if (pokemon.volatiles.typeadd) {
 			const type = pokemon.volatiles.typeadd[1];
-			status += '+<img src="' + Tools.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" /> ';
+			status += '+<img src="' + Dex.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" /> ';
 		}
 		for (const stat in pokemon.boosts) {
 			if (pokemon.boosts[stat]) {
@@ -2551,7 +2551,7 @@ const BattleSound = new class {
 		try {
 			this.effectCache[url] = soundManager.createSound({
 				id: url,
-				url: Tools.resourcePrefix + url,
+				url: Dex.resourcePrefix + url,
 				volume: this.effectVolume,
 			});
 		} catch (e) {}
@@ -2573,7 +2573,7 @@ const BattleSound = new class {
 		try {
 			this.bgmCache[url] = soundManager.createSound({
 				id: url,
-				url: Tools.resourcePrefix + url,
+				url: Dex.resourcePrefix + url,
 				volume: this.bgmVolume,
 			});
 		} catch (e) {}
@@ -2898,10 +2898,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	},
 };
 (() => {
-	if (!window.Tools || !Tools.resourcePrefix) return;
+	if (!window.Dex || !Dex.resourcePrefix) return;
 	for (const id in BattleEffects) {
 		if (!BattleEffects[id].url) continue;
-		BattleEffects[id].url = Tools.fxPrefix + BattleEffects[id].url;
+		BattleEffects[id].url = Dex.fxPrefix + BattleEffects[id].url;
 	}
 })();
 const BattleBackdropsThree = [

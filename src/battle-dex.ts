@@ -140,7 +140,7 @@ interface SpriteData {
 	shiny?: boolean;
 }
 
-const Tools = {
+const Dex = {
 
 	resourcePrefix: (() => {
 		let prefix = '';
@@ -160,7 +160,7 @@ const Tools = {
 	 * DEPRECATED: use PSObservable
 	 *
 	 * Load trackers are loosely based on Promises, but very simplified.
-	 * Trackers are made with: let tracker = Tools.makeLoadTracker();
+	 * Trackers are made with: let tracker = Dex.makeLoadTracker();
 	 * Pass callbacks like so: tracker(callback)
 	 * When tracker.load() is called, all callbacks are run.
 	 * If tracker.load() has already been called, tracker(callback) will
@@ -204,11 +204,11 @@ const Tools = {
 		let avatarnum = Number(avatar);
 		if (!isNaN(avatarnum)) {
 			// default avatars
-			return Tools.resourcePrefix + 'sprites/trainers/' + avatarnum + '.png';
+			return Dex.resourcePrefix + 'sprites/trainers/' + avatarnum + '.png';
 		}
 		avatar = '' + avatar;
 		if (avatar.charAt(0) === '#') {
-			return Tools.resourcePrefix + 'sprites/trainers/' + toId(avatar.substr(1)) + '.png';
+			return Dex.resourcePrefix + 'sprites/trainers/' + toId(avatar.substr(1)) + '.png';
 		}
 		if (window.Config && Config.server && Config.server.registered) {
 			// custom avatar served by the server
@@ -218,7 +218,7 @@ const Tools = {
 		}
 		// just pick a random avatar
 		let sprites = [1, 2, 101, 102, 169, 170];
-		return Tools.resolveAvatar(sprites[Math.floor(Math.random() * sprites.length)]);
+		return Dex.resolveAvatar(sprites[Math.floor(Math.random() * sprites.length)]);
 	},
 
 	sanitizeName(name: string) {
@@ -243,11 +243,11 @@ const Tools = {
 		if (!effect || typeof effect === 'string') {
 			let name = (effect || '').trim();
 			if (name.substr(0, 5) === 'item:') {
-				return Tools.getItem(name.substr(5));
+				return Dex.getItem(name.substr(5));
 			} else if (name.substr(0, 8) === 'ability:') {
-				return Tools.getAbility(name.substr(8));
+				return Dex.getAbility(name.substr(8));
 			} else if (name.substr(0, 5) === 'move:') {
-				return Tools.getMove(name.substr(5));
+				return Dex.getMove(name.substr(5));
 			}
 			let id = toId(name);
 			effect = {};
@@ -275,7 +275,7 @@ const Tools = {
 				effect.exists = true;
 			}
 			if (!effect.id) effect.id = id;
-			if (!effect.name) effect.name = Tools.sanitizeName(name);
+			if (!effect.name) effect.name = Dex.sanitizeName(name);
 			if (!effect.category) effect.category = 'Effect';
 			if (!effect.effectType) effect.effectType = 'Effect';
 		}
@@ -307,7 +307,7 @@ const Tools = {
 			}
 
 			if (!move.id) move.id = id;
-			if (!move.name) move.name = Tools.sanitizeName(name);
+			if (!move.name) move.name = Dex.sanitizeName(name);
 
 			if (!move.critRatio) move.critRatio = 1;
 			if (!move.baseType) move.baseType = move.type;
@@ -351,7 +351,7 @@ const Tools = {
 			item = (window.BattleItems && window.BattleItems[id]) || {};
 			if (item.name) item.exists = true;
 			if (!item.id) item.id = id;
-			if (!item.name) item.name = Tools.sanitizeName(name);
+			if (!item.name) item.name = Dex.sanitizeName(name);
 			if (!item.category) item.category = 'Effect';
 			if (!item.effectType) item.effectType = 'Item';
 			if (!item.gen) {
@@ -376,7 +376,7 @@ const Tools = {
 			ability = (window.BattleAbilities && window.BattleAbilities[id]) || {};
 			if (ability.name) ability.exists = true;
 			if (!ability.id) ability.id = id;
-			if (!ability.name) ability.name = Tools.sanitizeName(name);
+			if (!ability.name) ability.name = Dex.sanitizeName(name);
 			if (!ability.category) ability.category = 'Effect';
 			if (!ability.effectType) ability.effectType = 'Ability';
 			if (!ability.gen) {
@@ -431,7 +431,7 @@ const Tools = {
 			if (template.species) name = template.species;
 			if (template.exists === undefined) template.exists = true;
 			if (!template.id) template.id = id;
-			if (!template.name) template.name = name = Tools.sanitizeName(name);
+			if (!template.name) template.name = name = Dex.sanitizeName(name);
 			if (!template.speciesid) template.speciesid = id;
 			if (!template.species) template.species = name;
 			if (!template.baseSpecies) template.baseSpecies = name;
@@ -572,12 +572,12 @@ const Tools = {
 			}
 			pokemon = pokemon.getSpecies();
 		}
-		const template = Tools.getTemplate(pokemon);
+		const template = Dex.getTemplate(pokemon);
 		let spriteData = {
 			w: 96,
 			h: 96,
 			y: 0,
-			url: Tools.resourcePrefix + 'sprites/',
+			url: Dex.resourcePrefix + 'sprites/',
 			pixelated: true,
 			isBackSprite: false,
 			cryurl: '',
@@ -597,8 +597,8 @@ const Tools = {
 
 		// Decide what gen sprites to use.
 		let fieldGenNum = options.gen;
-		if (Tools.prefs('nopastgens')) fieldGenNum = 6;
-		if (Tools.prefs('bwgfx') && fieldGenNum >= 6) fieldGenNum = 5;
+		if (Dex.prefs('nopastgens')) fieldGenNum = 6;
+		if (Dex.prefs('bwgfx') && fieldGenNum >= 6) fieldGenNum = 5;
 		let genNum = Math.max(fieldGenNum, Math.min(template.gen, 5));
 		let gen = ['', 'rby', 'gsc', 'rse', 'dpp', 'bw', 'xy', 'xy'][genNum];
 
@@ -650,7 +650,7 @@ const Tools = {
 		}
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
-		let allowAnim = !Tools.prefs('noanim') && !Tools.prefs('nogif');
+		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
 		if (allowAnim && genNum >= 6) spriteData.pixelated = false;
 		if (allowAnim && animationData[facing] && genNum >= 5) {
 			if (facing.slice(-1) === 'f') name += '-f';
@@ -703,13 +703,13 @@ const Tools = {
 	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
 		let num = 0;
 		if (pokemon === 'pokeball') {
-			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
 		} else if (pokemon === 'pokeball-statused') {
-			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
 		} else if (pokemon === 'pokeball-fainted') {
-			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
 		} else if (pokemon === 'pokeball-none') {
-			return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
 		}
 		let id = toId(pokemon);
 		if (pokemon && pokemon.species) id = toId(pokemon.species);
@@ -1088,23 +1088,23 @@ const Tools = {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		let fainted = (pokemon && pokemon.fainted ? ';opacity:.7;filter:contrast(0)' : '');
-		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/smicons-sheet.png?a5) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-sheet.png?a5) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	},
 
 	getTeambuilderSprite(pokemon: any, gen: number = 0) {
 		if (!pokemon) return '';
 		let id = toId(pokemon.species);
 		let spriteid = pokemon.spriteid;
-		let template = Tools.getTemplate(pokemon.species);
+		let template = Dex.getTemplate(pokemon.species);
 		if (pokemon.species && !spriteid) {
 			spriteid = template.spriteid || toId(pokemon.species);
 		}
-		if (Tools.getTemplate(pokemon.species).exists === false) {
-			return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);background-position:10px 5px;background-repeat:no-repeat';
+		if (Dex.getTemplate(pokemon.species).exists === false) {
+			return 'background-image:url(' + Dex.resourcePrefix + 'sprites/bw/0.png);background-position:10px 5px;background-repeat:no-repeat';
 		}
 		let shiny = (pokemon.shiny ? '-shiny' : '');
 		// let sdata;
-		// if (BattlePokemonSprites[id] && BattlePokemonSprites[id].front && !Tools.prefs('bwgfx')) {
+		// if (BattlePokemonSprites[id] && BattlePokemonSprites[id].front && !Dex.prefs('bwgfx')) {
 		// 	if (BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
 		// 		spriteid += '-f';
 		// 		sdata = BattlePokemonSprites[id].front.anif;
@@ -1112,11 +1112,11 @@ const Tools = {
 		// 		sdata = BattlePokemonSprites[id].front.ani;
 		// 	}
 		// } else {
-		// 	return 'background-image:url(' + Tools.resourcePrefix + 'sprites/bw' + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
+		// 	return 'background-image:url(' + Dex.resourcePrefix + 'sprites/bw' + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
 		// }
-		if (Tools.prefs('nopastgens')) gen = 6;
-		let spriteDir = Tools.resourcePrefix + 'sprites/xydex';
-		if ((!gen || gen >= 6) && !template.isNonstandard && !Tools.prefs('bwgfx')) {
+		if (Dex.prefs('nopastgens')) gen = 6;
+		let spriteDir = Dex.resourcePrefix + 'sprites/xydex';
+		if ((!gen || gen >= 6) && !template.isNonstandard && !Dex.prefs('bwgfx')) {
 			let offset = '-2px -3px';
 			if (template.gen >= 7) offset = '-6px -7px';
 			if (id.substr(0, 6) === 'arceus') offset = '-2px 7px';
@@ -1124,11 +1124,11 @@ const Tools = {
 			if (id === 'garchompmega') offset = '-2px 0px';
 			return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:' + offset + ';background-repeat:no-repeat';
 		}
-		spriteDir = Tools.resourcePrefix + 'sprites/bw';
-		if (gen <= 1 && template.gen <= 1) spriteDir = Tools.resourcePrefix + 'sprites/rby';
-		else if (gen <= 2 && template.gen <= 2) spriteDir = Tools.resourcePrefix + 'sprites/gsc';
-		else if (gen <= 3 && template.gen <= 3) spriteDir = Tools.resourcePrefix + 'sprites/rse';
-		else if (gen <= 4 && template.gen <= 4) spriteDir = Tools.resourcePrefix + 'sprites/dpp';
+		spriteDir = Dex.resourcePrefix + 'sprites/bw';
+		if (gen <= 1 && template.gen <= 1) spriteDir = Dex.resourcePrefix + 'sprites/rby';
+		else if (gen <= 2 && template.gen <= 2) spriteDir = Dex.resourcePrefix + 'sprites/gsc';
+		else if (gen <= 3 && template.gen <= 3) spriteDir = Dex.resourcePrefix + 'sprites/rse';
+		else if (gen <= 4 && template.gen <= 4) spriteDir = Dex.resourcePrefix + 'sprites/dpp';
 		return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
 	},
 
@@ -1139,12 +1139,12 @@ const Tools = {
 
 		let top = Math.floor(num / 16) * 24;
 		let left = (num % 16) * 24;
-		return 'background:transparent url(' + Tools.resourcePrefix + 'sprites/itemicons-sheet.png) no-repeat scroll -' + left + 'px -' + top + 'px';
+		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/itemicons-sheet.png) no-repeat scroll -' + left + 'px -' + top + 'px';
 	},
 
 	getTypeIcon(type: string, b?: boolean) { // b is just for utilichart.js
 		if (!type) return '';
 		let sanitizedType = type.replace(/\?/g, '%3f');
-		return '<img src="' + Tools.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
+		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
 	},
 };

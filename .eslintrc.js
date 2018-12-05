@@ -25,7 +25,7 @@ module.exports = {
 		"BattleSearchIndexOffset": false, "BattleSearchIndexType": false, "BattleStatIDs": false, "BattleStatNames": false, "BattleStats": false, "BattleStatusAnims": false, "BattleStatuses": false, "BattleTeambuilderTable": false,
 
 		// Generic global variables
-		"Config": false, "BattleSearch": false, "soundManager": false, "Storage": false, "Tools": false,
+		"Config": false, "BattleSearch": false, "soundManager": false, "Storage": false, "Dex": false,
 		"app": false, "toId": false, "toRoomid": false, "toUserid": false, "toName": false, "getString": false, "MD5": false,
 		"ChatHistory": false, "Topbar": false, "UserList": false,
 

@@ -18,10 +18,10 @@ process.stdout.write("Syncing data from Git repository... ");
 child_process.execSync('git pull', {cwd: 'data/Pokemon-Showdown'});
 console.log("DONE");
 
-const Tools = require('../data/Pokemon-Showdown/sim/dex');
-const toId = Tools.getId;
+const Dex = require('../data/Pokemon-Showdown/sim/dex');
+const toId = Dex.getId;
 process.stdout.write("Loading gen 6 data... ");
-Tools.includeData();
+Dex.includeData();
 console.log("DONE");
 
 function es3stringify(obj) {
@@ -45,11 +45,11 @@ function requireNoCache(pathSpec) {
 
 	let index = [];
 
-	index = index.concat(Object.keys(Tools.data.Pokedex).map(x => x + ' pokemon'));
-	index = index.concat(Object.keys(Tools.data.Movedex).map(x => x + ' move'));
-	index = index.concat(Object.keys(Tools.data.Items).map(x => x + ' item'));
-	index = index.concat(Object.keys(Tools.data.Abilities).map(x => x + ' ability'));
-	index = index.concat(Object.keys(Tools.data.TypeChart).map(x => toId(x) + ' type'));
+	index = index.concat(Object.keys(Dex.data.Pokedex).map(x => x + ' pokemon'));
+	index = index.concat(Object.keys(Dex.data.Movedex).map(x => x + ' move'));
+	index = index.concat(Object.keys(Dex.data.Items).map(x => x + ' item'));
+	index = index.concat(Object.keys(Dex.data.Abilities).map(x => x + ' ability'));
+	index = index.concat(Object.keys(Dex.data.TypeChart).map(x => toId(x) + ' type'));
 	index = index.concat(['physical', 'special', 'status'].map(x => toId(x) + ' category'));
 	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toId(x) + ' egggroup'));
 	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'lc', 'nfe', 'uber', 'uubl', 'rubl', 'nubl', 'publ', 'cap', 'caplc', 'capnfe'].map(x => toId(x) + ' tier'));
@@ -172,20 +172,20 @@ function requireNoCache(pathSpec) {
 			index.push('' + toId(name.slice(i2)) + ' ' + type + ' ' + id + ' ' + toId(name.slice(0, i2)).length);
 		}
 	}
-	for (const id in Tools.data.Pokedex) {
-		const name = Tools.data.Pokedex[id].species;
+	for (const id in Dex.data.Pokedex) {
+		const name = Dex.data.Pokedex[id].species;
 		generateAlias(id, name, 'pokemon');
 	}
-	for (const id in Tools.data.Movedex) {
-		const name = Tools.data.Movedex[id].name;
+	for (const id in Dex.data.Movedex) {
+		const name = Dex.data.Movedex[id].name;
 		generateAlias(id, name, 'move');
 	}
-	for (const id in Tools.data.Items) {
-		const name = Tools.data.Items[id].name;
+	for (const id in Dex.data.Items) {
+		const name = Dex.data.Items[id].name;
 		generateAlias(id, name, 'item');
 	}
-	for (const id in Tools.data.Abilities) {
-		const name = Tools.data.Abilities[id].name;
+	for (const id in Dex.data.Abilities) {
+		const name = Dex.data.Abilities[id].name;
 		generateAlias(id, name, 'ability');
 	}
 
@@ -227,10 +227,10 @@ function requireNoCache(pathSpec) {
 		const id = entry[0];
 		let name = '';
 		switch (entry[1]) {
-		case 'pokemon': name = Tools.getTemplate(id).species; break;
-		case 'move': name = Tools.getMove(id).name; break;
-		case 'item': name = Tools.getItem(id).name; break;
-		case 'ability': name = Tools.getAbility(id).name; break;
+		case 'pokemon': name = Dex.getTemplate(id).species; break;
+		case 'move': name = Dex.getMove(id).name; break;
+		case 'item': name = Dex.getItem(id).name; break;
+		case 'ability': name = Dex.getAbility(id).name; break;
 		case 'article': name = BattleArticleTitles[id] || ''; break;
 		}
 		let res = '';
@@ -247,12 +247,12 @@ function requireNoCache(pathSpec) {
 	});
 
 	let BattleSearchCountIndex = {};
-	for (const type in Tools.data.TypeChart) {
-		BattleSearchCountIndex[type + ' move'] = Object.keys(Tools.data.Movedex).filter(id => (Tools.data.Movedex[id].type === type)).length;
+	for (const type in Dex.data.TypeChart) {
+		BattleSearchCountIndex[type + ' move'] = Object.keys(Dex.data.Movedex).filter(id => (Dex.data.Movedex[id].type === type)).length;
 	}
 
-	for (const type in Tools.data.TypeChart) {
-		BattleSearchCountIndex[type + ' pokemon'] = Object.keys(Tools.data.Pokedex).filter(id => (Tools.data.Pokedex[id].types.indexOf(type) >= 0)).length;
+	for (const type in Dex.data.TypeChart) {
+		BattleSearchCountIndex[type + ' pokemon'] = Object.keys(Dex.data.Pokedex).filter(id => (Dex.data.Pokedex[id].types.indexOf(type) >= 0)).length;
 	}
 
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
@@ -292,18 +292,18 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
 		const gen = isLetsGo ? 'letsgo' : 'gen' + genNum;
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
-		const pokemon = Object.keys(Tools.data.Pokedex);
+		const pokemon = Object.keys(Dex.data.Pokedex);
 		pokemon.sort();
 		const tierTable = {};
 		for (const id of pokemon) {
-			const template = Tools.mod(gen).getTemplate(id);
+			const template = Dex.mod(gen).getTemplate(id);
 			if (template.gen > genNum) continue;
 			const tier = (() => {
 				if (template.tier === 'CAP' || template.tier === 'CAP NFE' || template.tier === 'CAP LC') {
 					return template.tier;
 				}
 				if (isLetsGo) {
-					let baseTemplate = Tools.mod(gen).getTemplate(template.baseSpecies);
+					let baseTemplate = Dex.mod(gen).getTemplate(template.baseSpecies);
 					let validNum = (baseTemplate.num <= 151 && baseTemplate.num >= 1) || [808, 809].includes(baseTemplate.num);
 					if (!validNum) return 'Illegal';
 					if (template.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(template.forme)) return 'Illegal';
@@ -421,7 +421,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		if (isDoubles) continue;
 
-		const itemList = Object.keys(Tools.data.Items);
+		const itemList = Object.keys(Dex.data.Items);
 		itemList.sort();
 
 		const greatItems = [['header', "Popular items"]];
@@ -432,7 +432,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const unreleasedItems = [];
 		if (genNum === 6) unreleasedItems.push(['header', "Unreleased"]);
 		for (const id of itemList) {
-			const item = Tools.getItem(id);
+			const item = Dex.getItem(id);
 			if (item.gen > genNum) {
 				continue;
 			}
@@ -604,8 +604,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 	const learnsets = {};
 	BattleTeambuilderTable.learnsets = learnsets;
-	for (const id in Tools.data.Learnsets) {
-		const learnset = Tools.data.Learnsets[id].learnset;
+	for (const id in Dex.data.Learnsets) {
+		const learnset = Dex.data.Learnsets[id].learnset;
 		learnsets[id] = {};
 		for (const moveid in learnset) {
 			const gens = learnset[moveid].map(x => Number(x[0]));
@@ -620,7 +620,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (gens.indexOf(7) >= 0 && !vcOnly) learnsets[id][moveid] += 'q';
 		}
 	}
-	const G2Learnsets = Tools.mod('gen2').data.Learnsets;
+	const G2Learnsets = Dex.mod('gen2').data.Learnsets;
 	for (const id in G2Learnsets) {
 		const learnset = G2Learnsets[id].learnset;
 		for (const moveid in learnset) {
@@ -631,7 +631,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (minGen === 1) learnsets[id][moveid] = '12' + learnsets[id][moveid];
 		}
 	}
-	const LGLearnsets = Tools.mod('letsgo').data.Learnsets;
+	const LGLearnsets = Dex.mod('letsgo').data.Learnsets;
 	for (const id in LGLearnsets) {
 		const learnset = LGLearnsets[id].learnset;
 		BattleTeambuilderTable['letsgo'].learnsets[id] = {};
@@ -646,8 +646,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 	for (const genNum of [6, 5, 4, 3, 2, 1]) {
 		const gen = 'gen' + genNum;
-		const genData = Tools.mod(gen).data;
-		const nextGenData = Tools.mod('gen' + (genNum + 1)).data;
+		const genData = Dex.mod(gen).data;
+		const nextGenData = Dex.mod('gen' + (genNum + 1)).data;
 		const overrideStats = {};
 		BattleTeambuilderTable[gen].overrideStats = overrideStats;
 		const overrideType = {};
@@ -658,7 +658,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].removeSecondAbility = removeSecondAbility;
 		for (const id in genData.Pokedex) {
 			const pastEntry = genData.Pokedex[id];
-			const nowEntry = Tools.data.Pokedex[id];
+			const nowEntry = Dex.data.Pokedex[id];
 			const nowType = nowEntry.types.join('/');
 			for (const stat in pastEntry.baseStats) {
 				if (stat === 'spd' && genNum === 1) continue;
@@ -674,7 +674,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				overrideAbility[id] = pastEntry.abilities['0'];
 			}
 			// in the gen 3 dex, Pokemon already have the abilities that were added in gen 4
-			const hasAbilityFromNewerGen = Tools.getTemplate(id).gen <= genNum && Tools.getAbility(pastEntry.abilities['1']).gen > genNum;
+			const hasAbilityFromNewerGen = Dex.getTemplate(id).gen <= genNum && Dex.getAbility(pastEntry.abilities['1']).gen > genNum;
 			if ((!pastEntry.abilities['1'] && nowEntry.abilities['1']) || hasAbilityFromNewerGen) {
 				removeSecondAbility[id] = true;
 			}
@@ -692,7 +692,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideMoveType = overrideMoveType;
 		for (const id in genData.Movedex) {
 			const pastEntry = genData.Movedex[id];
-			const nowEntry = Tools.data.Movedex[id];
+			const nowEntry = Dex.data.Movedex[id];
 			const nextEntry = nextGenData.Movedex[id];
 			if (pastEntry.basePower !== nowEntry.basePower) {
 				overrideBP[id] = pastEntry.basePower;
@@ -740,9 +740,9 @@ process.stdout.write("Building `data/pokedex.js`... ");
 	const Pokedex = requireNoCache('../data/Pokemon-Showdown/data/pokedex.js').BattlePokedex;
 	for (const id in Pokedex) {
 		const entry = Pokedex[id];
-		if (Tools.data.FormatsData[id]) {
+		if (Dex.data.FormatsData[id]) {
 			// console.log('formatsentry:' + id);
-			const formatsEntry = Tools.data.FormatsData[id];
+			const formatsEntry = Dex.data.FormatsData[id];
 			if (formatsEntry.tier) entry.tier = formatsEntry.tier;
 			if (formatsEntry.requiredItem) entry.requiredItem = formatsEntry.requiredItem;
 			if (formatsEntry.battleOnly) entry.battleOnly = formatsEntry.battleOnly;

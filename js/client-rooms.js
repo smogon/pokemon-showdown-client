@@ -80,8 +80,8 @@
 			if (rooms.userCount) {
 				var userCount = Number(rooms.userCount);
 				var battleCount = Number(rooms.battleCount);
-				var leftSide = '<span style="' + Tools.getPokemonIcon('meloetta', true) + ';" class="picon icon-left" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms."></span> <button class="button" name="finduser" title="Find an online user"><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button>';
-				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button> <span style="' + Tools.getPokemonIcon('meloetta-pirouette') + '" class="picon icon-right" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span>';
+				var leftSide = '<span style="' + Dex.getPokemonIcon('meloetta', true) + ';" class="picon icon-left" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms."></span> <button class="button" name="finduser" title="Find an online user"><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button>';
+				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button> <span style="' + Dex.getPokemonIcon('meloetta-pirouette') + '" class="picon icon-right" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span>';
 				this.$('.roomlisttop').html('<table class="roomcounters" border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td>' + leftSide + '</td><td>' + rightSide + '</td></tr></table>');
 			}
 			this.$('.roomlist').first().html('<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.official, this.renderRoomBtn).join("") +
@@ -122,7 +122,7 @@
 		},
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
-			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button><div class="roomlist"><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <span style="' + Tools.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="picon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span></p>';
+			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button><div class="roomlist"><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <span style="' + Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="picon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span></p>';
 
 			buf += '<p><label class="label">Format:</label><button class="select formatselect" name="selectFormat">(All formats)</button></p> <label><input type="checkbox" name="elofilter" value="1300" /> Elo 1300+</label>';
 			buf += '<div class="list"><p>Loading...</p></div>';

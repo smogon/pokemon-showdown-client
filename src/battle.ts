@@ -108,7 +108,7 @@ class Pokemon {
 		this.species = data.species;
 
 		// TODO: stop doing this
-		Object.assign(this, Tools.getTemplate(data.species));
+		Object.assign(this, Dex.getTemplate(data.species));
 		Object.assign(this, data);
 
 		this.sprite = side.battle.scene.addPokemonSprite(this);
@@ -323,7 +323,7 @@ class Pokemon {
 	}
 	rememberMove(moveName: string, pp = 1, recursionSource?: string) {
 		if (recursionSource === this.ident) return;
-		moveName = Tools.getMove(moveName).name;
+		moveName = Dex.getMove(moveName).name;
 		if (moveName.charAt(0) === '*') return;
 		if (moveName === 'Struggle') return;
 		if (this.volatiles.transform) {
@@ -342,7 +342,7 @@ class Pokemon {
 		this.moveTrack.push([moveName, pp]);
 	}
 	rememberAbility(ability: string, isNotBase?: boolean) {
-		ability = Tools.getAbility(ability).name;
+		ability = Dex.getAbility(ability).name;
 		this.ability = ability;
 		if (!this.baseAbility && !isNotBase) {
 			this.baseAbility = ability;
@@ -461,7 +461,7 @@ class Pokemon {
 				window.BattleTeambuilderTable['gen' + this.side.battle.gen].overrideType[toId(species)]
 			);
 			if (types) types = types.split('/');
-			if (!types) types = Tools.getTemplate(species).types || [];
+			if (!types) types = Dex.getTemplate(species).types || [];
 		}
 		const addedType = (this.volatiles.typeadd ? this.volatiles.typeadd[1] : '');
 		return [types, addedType];
@@ -931,7 +931,7 @@ class Battle {
 	id = '';
 	roomid = '';
 	hardcoreMode = false;
-	ignoreNicks = Tools.prefs('ignorenicks');
+	ignoreNicks = Dex.prefs('ignorenicks');
 	ignoreOpponent = false;
 	ignoreSpects = false;
 	debug = false;
@@ -1187,7 +1187,7 @@ class Battle {
 		this.scene.updateWeather();
 	}
 	useMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: {[k: string]: string}) {
-		let fromeffect = Tools.getEffect(kwArgs.from);
+		let fromeffect = Dex.getEffect(kwArgs.from);
 		pokemon.clearMovestatuses();
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
@@ -1205,11 +1205,11 @@ class Battle {
 			let moveName = move.name;
 			if (move.isZ) {
 				pokemon.item = move.isZ;
-				let item = Tools.getItem(move.isZ);
+				let item = Dex.getItem(move.isZ);
 				if (item.zMoveFrom) moveName = item.zMoveFrom;
 			} else if (move.name.slice(0, 2) === 'Z-') {
 				moveName = moveName.slice(2);
-				move = Tools.getMove(moveName);
+				move = Dex.getMove(moveName);
 				if (window.BattleItems) {
 					for (let item in BattleItems) {
 						if (BattleItems[item].zMoveType === move.type) pokemon.item = item;
@@ -1230,7 +1230,7 @@ class Battle {
 			if (kwArgs.prepare || kwArgs.anim === 'prepare') {
 				this.scene.runPrepareAnim(move.id, pokemon, target);
 			} else if (!kwArgs.notarget) {
-				let usedMove = kwArgs.anim ? Tools.getMove(kwArgs.anim) : move;
+				let usedMove = kwArgs.anim ? Dex.getMove(kwArgs.anim) : move;
 				if (kwArgs.spread) {
 					this.activeMoveIsSpread = kwArgs.spread;
 					let targets = [pokemon];
@@ -1345,7 +1345,7 @@ class Battle {
 			let range = poke.getDamageRange(damage);
 
 			if (kwArgs.from) {
-				let effect = Tools.getEffect(kwArgs.from);
+				let effect = Dex.getEffect(kwArgs.from);
 				let ofpoke = this.getPokemon(kwArgs.of);
 				this.activateAbility(ofpoke, effect);
 				if (effect.effectType === 'Item') {
@@ -1399,7 +1399,7 @@ class Battle {
 			let range = poke.getDamageRange(damage);
 
 			if (kwArgs.from) {
-				let effect = Tools.getEffect(kwArgs.from);
+				let effect = Dex.getEffect(kwArgs.from);
 				this.activateAbility(poke, effect);
 				if (effect.effectType === 'Item') {
 					poke.item = effect.name;
@@ -1460,7 +1460,7 @@ class Battle {
 			poke.boosts[stat] += amount;
 
 			if (!kwArgs.silent && kwArgs.from) {
-				let effect = Tools.getEffect(kwArgs.from);
+				let effect = Dex.getEffect(kwArgs.from);
 				let ofpoke = this.getPokemon(kwArgs.of);
 				if (!(effect.id === 'weakarmor' && stat === 'spe')) {
 					this.activateAbility(ofpoke || poke, effect);
@@ -1487,7 +1487,7 @@ class Battle {
 			poke.boosts[stat] -= amount;
 
 			if (!kwArgs.silent && kwArgs.from) {
-				let effect = Tools.getEffect(kwArgs.from);
+				let effect = Dex.getEffect(kwArgs.from);
 				let ofpoke = this.getPokemon(kwArgs.of);
 				this.activateAbility(ofpoke || poke, effect);
 			}
@@ -1524,7 +1524,7 @@ class Battle {
 		case '-clearpositiveboost': {
 			let poke = this.getPokemon(args[1])!;
 			let ofpoke = this.getPokemon(args[2]);
-			let effect = Tools.getEffect(args[3]);
+			let effect = Dex.getEffect(args[3]);
 			for (const stat in poke.boosts) {
 				if (poke.boosts[stat] > 0) delete poke.boosts[stat];
 			}
@@ -1623,7 +1623,7 @@ class Battle {
 		}
 		case '-immune': {
 			let poke = this.getPokemon(args[1])!;
-			let fromeffect = Tools.getEffect(kwArgs.from);
+			let fromeffect = Dex.getEffect(kwArgs.from);
 			this.activateAbility(this.getPokemon(kwArgs.of) || poke, fromeffect);
 			this.log(args, kwArgs);
 			this.scene.resultAnim(poke, 'Immune', 'neutral');
@@ -1639,8 +1639,8 @@ class Battle {
 		}
 		case '-fail': {
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(args[2]);
-			let fromeffect = Tools.getEffect(kwArgs.from);
+			let effect = Dex.getEffect(args[2]);
+			let fromeffect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
 			this.activateAbility(ofpoke || poke, fromeffect);
 			switch (effect.id) {
@@ -1703,7 +1703,7 @@ class Battle {
 		}
 		case '-status': {
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(kwArgs.from);
+			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of) || poke;
 			poke.status = args[2] as StatusName;
 			poke.removeVolatile('yawn' as ID);
@@ -1749,7 +1749,7 @@ class Battle {
 		}
 		case '-curestatus': {
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(kwArgs.from);
+			let effect = Dex.getEffect(kwArgs.from);
 
 			if (effect.id) {
 				switch (effect.id) {
@@ -1806,8 +1806,8 @@ class Battle {
 		}
 		case '-item': {
 			let poke = this.getPokemon(args[1])!;
-			let item = Tools.getItem(args[2]);
-			let effect = Tools.getEffect(kwArgs.from);
+			let item = Dex.getItem(args[2]);
+			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
 			poke.item = item.name;
 			poke.itemEffect = '';
@@ -1873,8 +1873,8 @@ class Battle {
 		}
 		case '-enditem': {
 			let poke = this.getPokemon(args[1])!;
-			let item = Tools.getItem(args[2]);
-			let effect = Tools.getEffect(kwArgs.from);
+			let item = Dex.getItem(args[2]);
+			let effect = Dex.getEffect(kwArgs.from);
 			poke.item = '';
 			poke.itemEffect = '';
 			poke.prevItem = item.name;
@@ -1935,8 +1935,8 @@ class Battle {
 		}
 		case '-ability': {
 			let poke = this.getPokemon(args[1])!;
-			let ability = Tools.getAbility(args[2]);
-			let effect = Tools.getEffect(kwArgs.from);
+			let ability = Dex.getAbility(args[2]);
+			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
 			poke.rememberAbility(ability.name, effect.id && !kwArgs.fail);
 
@@ -1982,7 +1982,7 @@ class Battle {
 			// deprecated; use |-start| for Gastro Acid
 			// and the third arg of |-ability| for Entrainment et al
 			let poke = this.getPokemon(args[1])!;
-			let ability = Tools.getAbility(args[2]);
+			let ability = Dex.getAbility(args[2]);
 			poke.ability = '(suppressed)';
 
 			if (ability.id) {
@@ -2006,7 +2006,7 @@ class Battle {
 				}
 				newSpecies = args[2].substr(0, commaIndex);
 			}
-			let template = Tools.getTemplate(newSpecies);
+			let template = Dex.getTemplate(newSpecies);
 
 			poke.species = newSpecies;
 			poke.ability = poke.baseAbility = (template.abilities ? template.abilities['0'] : '');
@@ -2022,7 +2022,7 @@ class Battle {
 		case '-transform': {
 			let poke = this.getPokemon(args[1])!;
 			let tpoke = this.getPokemon(args[2])!;
-			let effect = Tools.getEffect(kwArgs.from);
+			let effect = Dex.getEffect(kwArgs.from);
 			if (poke === tpoke) throw new Error("Transforming into self");
 
 			if (!kwArgs.silent) {
@@ -2049,8 +2049,8 @@ class Battle {
 		}
 		case '-formechange': {
 			let poke = this.getPokemon(args[1])!;
-			let template = Tools.getTemplate(args[2]);
-			let fromeffect = Tools.getEffect(kwArgs.from);
+			let template = Dex.getTemplate(args[2]);
+			let fromeffect = Dex.getEffect(kwArgs.from);
 			let isCustomAnim = false;
 			poke.removeVolatile('typeadd' as ID);
 			poke.removeVolatile('typechange' as ID);
@@ -2066,7 +2066,7 @@ class Battle {
 		}
 		case '-mega': {
 			let poke = this.getPokemon(args[1])!;
-			let item = Tools.getItem(args[3]);
+			let item = Dex.getItem(args[3]);
 			if (args[3]) {
 				poke.item = item.name;
 			}
@@ -2079,9 +2079,9 @@ class Battle {
 		}
 		case '-start': {
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(args[2]);
+			let effect = Dex.getEffect(args[2]);
 			let ofpoke = this.getPokemon(kwArgs.of);
-			let fromeffect = Tools.getEffect(kwArgs.from);
+			let fromeffect = Dex.getEffect(kwArgs.from);
 
 			this.activateAbility(poke, effect);
 			this.activateAbility(ofpoke || poke, fromeffect);
@@ -2090,7 +2090,7 @@ class Battle {
 				if (ofpoke && fromeffect.id == 'reflecttype') {
 					poke.copyTypesFrom(ofpoke);
 				} else {
-					const types = Tools.sanitizeName(args[3] || '???');
+					const types = Dex.sanitizeName(args[3] || '???');
 					poke.removeVolatile('typeadd' as ID);
 					poke.addVolatile('typechange' as ID, types);
 					if (!kwArgs.silent) {
@@ -2100,7 +2100,7 @@ class Battle {
 				this.scene.updateStatbar(poke);
 				break;
 			case 'typeadd':
-				const type = Tools.sanitizeName(args[3]);
+				const type = Dex.sanitizeName(args[3]);
 				poke.addVolatile('typeadd' as ID, type);
 				if (kwArgs.silent) break;
 				this.scene.typeAnim(poke, type);
@@ -2228,8 +2228,8 @@ class Battle {
 		}
 		case '-end': {
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(args[2]);
-			let fromeffect = Tools.getEffect(kwArgs.from);
+			let effect = Dex.getEffect(args[2]);
+			let fromeffect = Dex.getEffect(kwArgs.from);
 			poke.removeVolatile(effect.id);
 
 			if (kwArgs.silent) {
@@ -2314,7 +2314,7 @@ class Battle {
 		}
 		case '-singleturn': {
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(args[2]);
+			let effect = Dex.getEffect(args[2]);
 			poke.addTurnstatus(effect.id);
 
 			switch (effect.id) {
@@ -2361,7 +2361,7 @@ class Battle {
 		}
 		case '-singlemove': {
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(args[2]);
+			let effect = Dex.getEffect(args[2]);
 			poke.addMovestatus(effect.id);
 
 			switch (effect.id) {
@@ -2377,7 +2377,7 @@ class Battle {
 		}
 		case '-activate': {
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(args[2]);
+			let effect = Dex.getEffect(args[2]);
 			let ofpoke = this.getPokemon(kwArgs.of);
 			this.activateAbility(poke, effect);
 			switch (effect.id) {
@@ -2441,7 +2441,7 @@ class Battle {
 				}
 				break;
 			case 'spite':
-				let move = Tools.getMove(args[3]).name;
+				let move = Dex.getMove(args[3]).name;
 				let pp = Number(args[4]);
 				if (isNaN(pp)) pp = 4;
 				poke.rememberMove(move, pp);
@@ -2453,8 +2453,8 @@ class Battle {
 				break;
 			case 'skillswap':
 				if (this.gen <= 4) break;
-				let pokeability = Tools.sanitizeName(args[3]) || ofpoke!.ability;
-				let ofpokeability = Tools.sanitizeName(args[4]) || poke.ability;
+				let pokeability = Dex.sanitizeName(args[3]) || ofpoke!.ability;
+				let ofpokeability = Dex.sanitizeName(args[4]) || poke.ability;
 				if (pokeability) {
 					poke.ability = pokeability;
 					if (!ofpoke!.baseAbility) ofpoke!.baseAbility = pokeability;
@@ -2486,7 +2486,7 @@ class Battle {
 				break;
 			case 'mummy':
 				if (!args[3]) break; // if Mummy activated but failed, no ability will have been sent
-				let ability = Tools.getAbility(args[3]);
+				let ability = Dex.getAbility(args[3]);
 				this.activateAbility(ofpoke, ability.name);
 				this.activateAbility(poke, "Mummy");
 				this.scene.wait(700);
@@ -2517,7 +2517,7 @@ class Battle {
 		}
 		case '-sidestart': {
 			let side = this.getSide(args[1]);
-			let effect = Tools.getEffect(args[2]);
+			let effect = Dex.getEffect(args[2]);
 			side.addSideCondition(effect);
 
 			switch (effect.id) {
@@ -2535,17 +2535,17 @@ class Battle {
 		}
 		case '-sideend': {
 			let side = this.getSide(args[1]);
-			let effect = Tools.getEffect(args[2]);
-			// let from = Tools.getEffect(kwArgs.from);
+			let effect = Dex.getEffect(args[2]);
+			// let from = Dex.getEffect(kwArgs.from);
 			// let ofpoke = this.getPokemon(kwArgs.of);
 			side.removeSideCondition(effect.name);
 			this.log(args, kwArgs);
 			break;
 		}
 		case '-weather': {
-			let effect = Tools.getEffect(args[1]);
+			let effect = Dex.getEffect(args[1]);
 			let poke = this.getPokemon(kwArgs.of) || undefined;
-			let ability = Tools.getEffect(kwArgs.from);
+			let ability = Dex.getEffect(kwArgs.from);
 			if (!effect.id || effect.id === 'none') {
 				kwArgs.from = this.weather;
 			}
@@ -2554,9 +2554,9 @@ class Battle {
 			break;
 		}
 		case '-fieldstart': {
-			let effect = Tools.getEffect(args[1]);
+			let effect = Dex.getEffect(args[1]);
 			let poke = this.getPokemon(kwArgs.of);
-			let fromeffect = Tools.getEffect(kwArgs.from);
+			let fromeffect = Dex.getEffect(kwArgs.from);
 			this.activateAbility(poke, fromeffect);
 			let maxTimeLeft = 0;
 			if (['electricterrain', 'grassyterrain', 'mistyterrain', 'psychicterrain'].includes(effect.id)) {
@@ -2586,14 +2586,14 @@ class Battle {
 			break;
 		}
 		case '-fieldend': {
-			let effect = Tools.getEffect(args[1]);
+			let effect = Dex.getEffect(args[1]);
 			// let poke = this.getPokemon(kwArgs.of);
 			this.removePseudoWeather(effect.name);
 			this.log(args, kwArgs);
 			break;
 		}
 		case '-fieldactivate': {
-			let effect = Tools.getEffect(args[1]);
+			let effect = Dex.getEffect(args[1]);
 			switch (effect.id) {
 			case 'perishsong':
 				this.scene.updateStatbars();
@@ -2604,7 +2604,7 @@ class Battle {
 		}
 		case '-anim': {
 			let poke = this.getPokemon(args[1])!;
-			let move = Tools.getMove(args[2]);
+			let move = Dex.getMove(args[2]);
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
 			this.scene.beforeMove(poke);
@@ -2649,7 +2649,7 @@ class Battle {
 		}
 		if (foe) siden = (siden ? 0 : 1);
 
-		let data = Tools.getTemplate(name);
+		let data = Dex.getTemplate(name);
 		return data.spriteData[siden];
 	}
 	*/
@@ -3120,7 +3120,7 @@ class Battle {
 			this.endLastTurn();
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
-			let move = Tools.getMove(args[2]);
+			let move = Dex.getMove(args[2]);
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
 			this.scene.beforeMove(poke);
@@ -3133,8 +3133,8 @@ class Battle {
 			this.endLastTurn();
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
-			let effect = Tools.getEffect(args[2]);
-			let move = Tools.getMove(args[3]);
+			let effect = Dex.getEffect(args[2]);
+			let move = Dex.getMove(args[3]);
 			this.cantUseMove(poke, effect, move, kwArgs);
 			this.log(args, kwArgs);
 			break;

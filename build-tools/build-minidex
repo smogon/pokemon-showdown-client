@@ -6,8 +6,8 @@ const path = require("path");
 process.chdir(path.resolve(__dirname, '..'));
 const imageSize = require('image-size');
 
-const Tools = require('./../data/Pokemon-Showdown/sim/dex');
-const toId = Tools.getId;
+const Dex = require('./../data/Pokemon-Showdown/sim/dex');
+const toId = Dex.getId;
 
 process.stdout.write("Updating animated sprite dimensions... ");
 
@@ -42,8 +42,8 @@ function sizeObj(path) {
 }
 
 function updateSizes() {
-	for (let baseid in Tools.data.Pokedex) {
-		let template = Tools.getTemplate(baseid);
+	for (let baseid in Dex.data.Pokedex) {
+		let template = Dex.getTemplate(baseid);
 		for (let formid of [''].concat(template.otherForms || [])) {
 			let spriteid = template.spriteid;
 			if (formid) spriteid += '-' + formid.slice(template.id.length);

@@ -60,16 +60,16 @@
 				break;
 
 			case 'notify':
-				if (!Tools.prefs('mute') && Tools.prefs('notifvolume')) {
-					soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+				if (!Dex.prefs('mute') && Dex.prefs('notifvolume')) {
+					soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
 				}
 				this.notifyOnce(row[1], row.slice(2).join('|'), 'highlight');
 				break;
 
 			case 'tempnotify':
 				var notifyOnce = row[4] !== '!';
-				if (!this.notifications && !Tools.prefs('mute') && Tools.prefs('notifvolume')) {
-					soundManager.getSoundById('notif').setVolume(Tools.prefs('notifvolume')).play();
+				if (!this.notifications && !Dex.prefs('mute') && Dex.prefs('notifvolume')) {
+					soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
 				}
 				this.notify(row[2], row[3], row[1], notifyOnce);
 				break;
