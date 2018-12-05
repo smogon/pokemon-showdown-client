@@ -176,7 +176,7 @@ const Tools = {
 		};
 		let tracker: LoadTracker = ((callback, context) => {
 			if (tracker.isLoaded) {
-				callback.call(context, tracker.value);
+				callback.call(context, tracker.value!);
 			} else {
 				tracker.callbacks.push([callback, context]);
 			}
