@@ -403,7 +403,7 @@ class BattleTextParser {
 			if (oldAbility) line1 += this.ability(oldAbility, pokemon);
 			line1 += this.ability(ability, pokemon);
 			if (kwArgs.fail) {
-				const template = this.template('block', ability);
+				const template = this.template('block', kwArgs.from);
 				return line1 + template;
 			}
 			if (kwArgs.from) {
