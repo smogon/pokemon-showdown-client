@@ -364,11 +364,11 @@
 				}
 				break;
 			case 'ability':
-				var ability = Tools.getAbility(fId).name;
+				var ability = Dex.getAbility(fId).name;
 				buf.push(['header', "" + ability + " Pok&eacute;mon"]);
 				for (var id in BattlePokedex) {
 					if (!BattlePokedex[id].abilities) continue;
-					if (Tools.hasAbility(id, ability, this.gen)) {
+					if (Dex.hasAbility(id, ability, this.gen)) {
 						(legal && !(id in legal) ? illegalBuf : buf).push(['pokemon', id]);
 					}
 				}
@@ -539,8 +539,8 @@
 		var buf = '<p>Filters: ';
 		for (var i = 0; i < this.filters.length; i++) {
 			var text = this.filters[i][1];
-			if (this.filters[i][0] === 'move') text = Tools.getMove(text).name;
-			if (this.filters[i][0] === 'pokemon') text = Tools.getTemplate(text).name;
+			if (this.filters[i][0] === 'move') text = Dex.getMove(text).name;
+			if (this.filters[i][0] === 'pokemon') text = Dex.getTemplate(text).name;
 			buf += '<button class="filter" value="' + BattleLog.escapeHTML(this.filters[i].join(':')) + '">' + text + ' <i class="fa fa-times-circle"></i></button> ';
 		}
 		if (!q) buf += '<small style="color: #888">(backspace = delete filter)</small>';
@@ -580,7 +580,7 @@
 					if (template.tier !== tier) break;
 				} else if (filters[i][0] === 'ability') {
 					var ability = filters[i][1];
-					if (!Tools.hasAbility(id, ability, this.gen)) break;
+					if (!Dex.hasAbility(id, ability, this.gen)) break;
 				} else if (filters[i][0] === 'move') {
 					var learned = false;
 					var learnsetid = this.nextLearnsetid(id);
@@ -880,13 +880,13 @@
 			break;
 
 		case 'ability':
-			template = Tools.getTemplate(set.species);
+			template = Dex.getTemplate(set.species);
 			var abilitySet = [['header', "Abilities"]];
 			if (template.isMega) {
 				abilitySet.unshift(['html', '<p>Will be <strong>' + BattleLog.escapeHTML(template.abilities['0']) + '</strong> after Mega Evolving.</p>']);
-				template = Tools.getTemplate(template.baseSpecies);
+				template = Dex.getTemplate(template.baseSpecies);
 			}
-			var abilitiesInThisGen = Tools.getAbilitiesFor(template.id, this.gen);
+			var abilitiesInThisGen = Dex.getAbilitiesFor(template.id, this.gen);
 			abilitySet.push(['ability', toId(abilitiesInThisGen['0'])]);
 			if (abilitiesInThisGen['1']) {
 				abilitySet.push(['ability', toId(abilitiesInThisGen['1'])]);
@@ -900,7 +900,7 @@
 				abilitySet.push(['ability', toId(abilitiesInThisGen['S'])]);
 			}
 			if (format === 'almostanyability' || isBH) {
-				template = Tools.getTemplate(set.species);
+				template = Dex.getTemplate(set.species);
 				var abilities = [];
 				if (template.isMega) {
 					if (format === 'almostanyability') abilitySet.unshift(['html', '<p>Will be <strong>' + BattleLog.escapeHTML(template.abilities['0']) + '</strong> after Mega Evolving.</p>']);
@@ -935,7 +935,7 @@
 			break;
 
 		case 'move':
-			template = Tools.getTemplate(set.species);
+			template = Dex.getTemplate(set.species);
 			var learnsetid = this.nextLearnsetid(template.id);
 			var moves = [];
 			var sMoves = [];
@@ -999,19 +999,19 @@
 			if (format === 'stabmons') {
 				for (var i in BattleMovedex) {
 					var types = [];
-					var baseTemplate = Tools.getTemplate(template.baseSpecies);
+					var baseTemplate = Dex.getTemplate(template.baseSpecies);
 					for (var j = 0; j < template.types.length; j++) {
 						if (template.battleOnly) continue;
 						types.push(template.types[j]);
 					}
 					if (template.prevo) {
-						for (var j = 0; j < Tools.getTemplate(template.prevo).types.length; j++) {
-							types.push(Tools.getTemplate(template.prevo).types[j]);
+						for (var j = 0; j < Dex.getTemplate(template.prevo).types.length; j++) {
+							types.push(Dex.getTemplate(template.prevo).types[j]);
 						}
 					}
-					if (Tools.getTemplate(template.prevo).prevo) {
-						for (var j = 0; j < Tools.getTemplate(Tools.getTemplate(template.prevo).prevo).types.length; j++) {
-							types.push(Tools.getTemplate(Tools.getTemplate(template.prevo).prevo).types[j]);
+					if (Dex.getTemplate(template.prevo).prevo) {
+						for (var j = 0; j < Dex.getTemplate(Dex.getTemplate(template.prevo).prevo).types.length; j++) {
+							types.push(Dex.getTemplate(Dex.getTemplate(template.prevo).prevo).types[j]);
 						}
 					}
 					if (template.battleOnly) template = baseTemplate;
@@ -1021,7 +1021,7 @@
 							types.push(baseTemplate.types[j]);
 						}
 						for (var j = 0; j < baseTemplate.otherFormes.length; j++) {
-							var forme = Tools.getTemplate(baseTemplate.otherFormes[j]);
+							var forme = Dex.getTemplate(baseTemplate.otherFormes[j]);
 							for (var h = 0; h < forme.types.length; h++) {
 								if (forme.battleOnly || forme.forme === 'Alola' || forme.forme === 'Alola-Totem' || forme.baseSpecies === 'Wormadam') continue;
 								types.push(forme.types[h]);
@@ -1209,7 +1209,7 @@
 			return this.renderMoveSortRow();
 		case 'pokemon':
 			var pokemon = BattlePokedex[id];
-			if (!pokemon) pokemon = BattlePokedex[toId(Tools.getTemplate(id).baseSpecies)];
+			if (!pokemon) pokemon = BattlePokedex[toId(Dex.getTemplate(id).baseSpecies)];
 			return this.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage, attrs);
 		case 'move':
 			var move = BattleMovedex[id];
@@ -1312,15 +1312,15 @@
 		} else if (pokemon.tier) {
 			tier = pokemon.tier;
 		} else if (pokemon.forme && pokemon.forme.endsWith('Totem')) {
-			tier = Tools.getTemplate(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1))).tier;
+			tier = Dex.getTemplate(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1))).tier;
 		} else {
-			tier = Tools.getTemplate(pokemon.baseSpecies).tier;
+			tier = Dex.getTemplate(pokemon.baseSpecies).tier;
 		}
 		buf += '<span class="col numcol">' + tier + '</span> ';
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="' + Tools.getPokemonIcon(pokemon) + '"></span>';
+		buf += '<span style="' + Dex.getPokemonIcon(pokemon) + '"></span>';
 		buf += '</span> ';
 
 		// name
@@ -1357,13 +1357,13 @@
 		var types = pokemon.types;
 		if (table && id in table.overrideType) types = table.overrideType[id].split('/');
 		for (var i = 0; i < types.length; i++) {
-			buf += Tools.getTypeIcon(types[i]);
+			buf += Dex.getTypeIcon(types[i]);
 		}
 		buf += '</span> ';
 
 		// abilities
 		if (gen >= 3) {
-			var abilities = Tools.getAbilitiesFor(id, gen);
+			var abilities = Dex.getAbilitiesFor(id, gen);
 			if (abilities['1']) {
 				buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
 					abilities['1'] + '</span>';
@@ -1433,7 +1433,7 @@
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="' + Tools.getPokemonIcon(pokemon) + '"></span>';
+		buf += '<span style="' + Dex.getPokemonIcon(pokemon) + '"></span>';
 		buf += '</span> ';
 
 		// name
@@ -1451,7 +1451,7 @@
 		// type
 		buf += '<span class="col typecol">';
 		for (var i = 0; i < pokemon.types.length; i++) {
-			buf += Tools.getTypeIcon(pokemon.types[i]);
+			buf += Dex.getTypeIcon(pokemon.types[i]);
 		}
 		buf += '</span> ';
 
@@ -1501,7 +1501,7 @@
 
 		// icon
 		buf += '<span class="col itemiconcol">';
-		buf += '<span style="' + Tools.getItemIcon(item) + '"></span>';
+		buf += '<span style="' + Dex.getItemIcon(item) + '"></span>';
 		buf += '</span> ';
 
 		// name
@@ -1598,9 +1598,9 @@
 		buf += '<span class="col typecol">';
 		var type = move.type;
 		if (table && id in table.overrideMoveType) type = table.overrideMoveType[id];
-		buf += Tools.getTypeIcon(type);
-		var category = Tools.getCategory(move, this.gen, type);
-		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32" />';
+		buf += Dex.getTypeIcon(type);
+		var category = Dex.getCategory(move, this.gen, type);
+		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// power, accuracy, pp
@@ -1651,8 +1651,8 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		buf += Tools.getTypeIcon(move.type);
-		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
+		buf += Dex.getTypeIcon(move.type);
+		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// power, accuracy, pp
@@ -1688,8 +1688,8 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		buf += Tools.getTypeIcon(move.type);
-		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
+		buf += Dex.getTypeIcon(move.type);
+		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// power, accuracy, pp
@@ -1719,7 +1719,7 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		buf += Tools.getTypeIcon(type.name);
+		buf += Dex.getTypeIcon(type.name);
 		buf += '</span> ';
 
 		// error
@@ -1746,7 +1746,7 @@
 
 		// category
 		buf += '<span class="col typecol">';
-		buf += '<img src="' + Tools.resourcePrefix + 'sprites/categories/' + category.name + '.png" alt="' + category.name + '" height="14" width="32" />';
+		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + category.name + '.png" alt="' + category.name + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// error

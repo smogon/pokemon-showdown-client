@@ -115,7 +115,7 @@
 
 		addNews: function () {
 			var newsId = '1990';
-			if (newsId === '' + Tools.prefs('readnews')) return;
+			if (newsId === '' + Dex.prefs('readnews')) return;
 			this.addPseudoPM({
 				title: 'Latest News',
 				html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:' ? '&amp;https' : '') + '" width="270" height="400" border="0" style="border:0;width:100%;height:100%;display:block"></iframe>',
@@ -152,7 +152,7 @@
 
 			var $lastMessage = $chat.children().last();
 			var textContent = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
-			if (textContent && app.curSideRoom && app.curSideRoom.addPM && Tools.prefs('inchatpm')) {
+			if (textContent && app.curSideRoom && app.curSideRoom.addPM && Dex.prefs('inchatpm')) {
 				app.curSideRoom.addPM(name, message, target);
 			}
 
@@ -545,8 +545,8 @@
 				var searchEntries = $.isArray(this.searching) ? this.searching : [this.searching];
 				for (var i = 0; i < searchEntries.length; i++) {
 					var format = searchEntries[i].format || searchEntries[i];
-					if (format.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) {
-						Tools.loadSpriteData('bw');
+					if (format.substr(0, 4) === 'gen5' && !Dex.loadedSpriteData['bw']) {
+						Dex.loadSpriteData('bw');
 						break;
 					}
 				}
@@ -654,7 +654,7 @@
 				}
 			});
 
-			if (atLeastOneGen5 && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
+			if (atLeastOneGen5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
 		},
 		openChallenge: function (name, $pmWindow) {
 			if (!$pmWindow) $pmWindow = this.openPM(name, true);
@@ -926,7 +926,7 @@
 		}
 	}, {
 		parseChatMessage: function (message, name, timestamp, isHighlighted, $chatElem) {
-			var showMe = !((Tools.prefs('chatformatting') || {}).hideme);
+			var showMe = !((Dex.prefs('chatformatting') || {}).hideme);
 			var group = ' ';
 			if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
 				// Backwards compatibility
@@ -1183,7 +1183,7 @@
 			if (i === 'random') {
 				var buf = '<strong>Random team</strong><small>';
 				for (var i = 0; i < 6; i++) {
-					buf += '<span class="picon" style="float:left;' + Tools.getPokemonIcon() + '"></span>';
+					buf += '<span class="picon" style="float:left;' + Dex.getPokemonIcon() + '"></span>';
 				}
 				buf += '</small>';
 				return buf;

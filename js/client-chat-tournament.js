@@ -310,8 +310,8 @@
 					this.room.closeNotification('tournament-create');
 					if (!this.info.isJoined) {
 						this.toggleBoxVisibility(false);
-					} else if (this.info.teambuilderFormat.substr(0, 4) === 'gen5' && !Tools.loadedSpriteData['bw']) {
-						Tools.loadSpriteData('bw');
+					} else if (this.info.teambuilderFormat.substr(0, 4) === 'gen5' && !Dex.loadedSpriteData['bw']) {
+						Dex.loadSpriteData('bw');
 					}
 					this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
 					break;

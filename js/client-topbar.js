@@ -14,8 +14,8 @@
 		},
 		initialize: function () {
 			// April Fool's 2016 - Digimon Showdown
-			// this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'sprites/afd/digimonshowdown.png" alt="Digimon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
-			this.$el.html('<img class="logo" src="' + Tools.resourcePrefix + 'pokemonshowdownbeta.png" srcset="' + Tools.resourcePrefix + 'pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
+			// this.$el.html('<img class="logo" src="' + Dex.resourcePrefix + 'sprites/afd/digimonshowdown.png" alt="Digimon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
+			this.$el.html('<img class="logo" src="' + Dex.resourcePrefix + 'pokemonshowdownbeta.png" srcset="' + Dex.resourcePrefix + 'pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			this.$tabbar = this.$('.maintabbar .inner');
 			// this.$sidetabbar = this.$('.sidetabbar');
 			this.$userbar = this.$('.userbar');
@@ -38,7 +38,7 @@
 			} else {
 				buf = '<button name="login">Choose name</button>';
 			}
-			buf += ' <button class="icon button" name="openSounds" title="Sound" aria-label="Sound"><i class="' + (Tools.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon button" name="openOptions" title="Options" aria-label="Options"><i class="fa fa-cog"></i></button>';
+			buf += ' <button class="icon button" name="openSounds" title="Sound" aria-label="Sound"><i class="' + (Dex.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon button" name="openOptions" title="Options" aria-label="Options"><i class="fa fa-cog"></i></button>';
 			this.$userbar.html(buf);
 		},
 		login: function () {
@@ -57,8 +57,8 @@
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
 		},
 		toggleMute: function () {
-			var muted = !Tools.prefs('mute');
-			Tools.prefs('mute', muted);
+			var muted = !Dex.prefs('mute');
+			Dex.prefs('mute', muted);
 			BattleSound.setMute(muted);
 			app.topbar.$('button[name=openSounds]').html('<i class="' + (muted ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i>');
 		},
@@ -152,10 +152,10 @@
 				var $favicon = $('#dynamic-favicon');
 				if (!!$favicon.data('on') !== !!notificationCount) {
 					if (notificationCount) {
-						$favicon.attr('href', Tools.resourcePrefix + '/favicon-notify.ico');
+						$favicon.attr('href', Dex.resourcePrefix + '/favicon-notify.ico');
 						$favicon.data('on', '1');
 					} else {
-						$favicon.attr('href', Tools.resourcePrefix + '/favicon.ico');
+						$favicon.attr('href', Dex.resourcePrefix + '/favicon.ico');
 						$favicon.data('on', '');
 					}
 				}
@@ -196,7 +196,7 @@
 			for (var i in app.rooms) {
 				if (app.rooms[i] !== app.curRoom && app.rooms[i].notificationClass === ' notifying') notificationClass = ' notifying';
 			}
-			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="' + Tools.resourcePrefix + 'favicon-128.png" width="32" height="32" alt="Pok&eacute;mon Showdown! (beta)" /><i class="fa fa-caret-down" style="display:inline-block"></i></a></li></ul>';
+			var buf = '<ul><li><a class="button minilogo' + notificationClass + '" href="' + app.root + '"><img src="' + Dex.resourcePrefix + 'favicon-128.png" width="32" height="32" alt="Pok&eacute;mon Showdown! (beta)" /><i class="fa fa-caret-down" style="display:inline-block"></i></a></li></ul>';
 
 			buf += '<ul>' + this.renderRoomTab(app.curRoom) + '</ul>';
 
@@ -371,10 +371,10 @@
 	var SoundsPopup = this.SoundsPopup = Popup.extend({
 		initialize: function (data) {
 			var buf = '';
-			var muted = !!Tools.prefs('mute');
-			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="effectvolume" value="' + (Tools.prefs('effectvolume') || 50) + '" />') + '</p>';
-			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="musicvolume" value="' + (Tools.prefs('musicvolume') || 50) + '" />') + '</p>';
-			buf += '<p class="notif-volume"><label class="optlabel">Notification volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="notifvolume" value="' + (Tools.prefs('notifvolume') || 50) + '" />') + '</p>';
+			var muted = !!Dex.prefs('mute');
+			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="effectvolume" value="' + (Dex.prefs('effectvolume') || 50) + '" />') + '</p>';
+			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="musicvolume" value="' + (Dex.prefs('musicvolume') || 50) + '" />') + '</p>';
+			buf += '<p class="notif-volume"><label class="optlabel">Notification volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="notifvolume" value="' + (Dex.prefs('notifvolume') || 50) + '" />') + '</p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="muted"' + (muted ? ' checked' : '') + ' /> Mute sounds</label></p>';
 			this.$el.html(buf).css('min-width', 160);
 		},
@@ -400,13 +400,13 @@
 		},
 		setMute: function (e) {
 			var muted = !!e.currentTarget.checked;
-			Tools.prefs('mute', muted);
+			Dex.prefs('mute', muted);
 			BattleSound.setMute(muted);
 
 			if (!muted) {
-				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><input type="range" min="0" max="100" step="1" name="effectvolume" value="' + (Tools.prefs('effectvolume') || 50) + '" />');
-				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><input type="range" min="0" max="100" step="1" name="musicvolume" value="' + (Tools.prefs('musicvolume') || 50) + '" />');
-				this.$('.notif-volume').html('<label class="optlabel">Notification volume:</label><input type="range" min="0" max="100" step="1" name="notifvolume" value="' + (Tools.prefs('notifvolume') || 50) + '" />');
+				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><input type="range" min="0" max="100" step="1" name="effectvolume" value="' + (Dex.prefs('effectvolume') || 50) + '" />');
+				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><input type="range" min="0" max="100" step="1" name="musicvolume" value="' + (Dex.prefs('musicvolume') || 50) + '" />');
+				this.$('.notif-volume').html('<label class="optlabel">Notification volume:</label><input type="range" min="0" max="100" step="1" name="notifvolume" value="' + (Dex.prefs('notifvolume') || 50) + '" />');
 			} else {
 				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><em>(muted)</em>');
 				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><em>(muted)</em>');
@@ -417,14 +417,14 @@
 		},
 		setEffectVolume: function (volume) {
 			BattleSound.setEffectVolume(volume);
-			Tools.prefs('effectvolume', volume);
+			Dex.prefs('effectvolume', volume);
 		},
 		setMusicVolume: function (volume) {
 			BattleSound.setBgmVolume(volume);
-			Tools.prefs('musicvolume', volume);
+			Dex.prefs('musicvolume', volume);
 		},
 		setNotifVolume: function (volume) {
-			Tools.prefs('notifvolume', volume);
+			Dex.prefs('notifvolume', volume);
 		}
 	});
 
@@ -456,7 +456,7 @@
 			var avatar = app.user.get('avatar');
 
 			var buf = '';
-			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Tools.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
+			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Dex.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
 			buf += '<p><button name="avatars">Change avatar</button></p>';
 			if (app.user.get('named')) {
 				var registered = app.user.get('registered');
@@ -469,30 +469,30 @@
 
 			buf += '<hr />';
 			buf += '<p><strong>Graphics</strong></p>';
-			var onePanel = !!Tools.prefs('onepanel');
+			var onePanel = !!Dex.prefs('onepanel');
 			if ($(window).width() >= 660) {
 				buf += '<p><label class="optlabel">Layout: <select name="onepanel"><option value=""' + (!onePanel ? ' selected="selected"' : '') + '>&#x25EB; Left and right panels</option><option value="1"' + (onePanel ? ' selected="selected"' : '') + '>&#x25FB; Single panel</option></select></label></p>';
 			}
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Tools.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Tools.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Dex.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
-				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Tools.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
 			}
-			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Tools.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Tools.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Dex.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
 
 			buf += '<hr />';
 			buf += '<p><strong>Chat</strong></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"' + (Tools.prefs('notournaments') ? ' checked' : '') + ' /> Ignore tournaments</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="inchatpm"' + (Tools.prefs('inchatpm') ? ' checked' : '') + ' /> Show PMs in chat rooms</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"' + (!Tools.prefs('noselfhighlight') ? ' checked' : '') + '> Highlight when your name is said in chat</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"' + (Dex.prefs('notournaments') ? ' checked' : '') + ' /> Ignore tournaments</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="inchatpm"' + (Dex.prefs('inchatpm') ? ' checked' : '') + ' /> Show PMs in chat rooms</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"' + (!Dex.prefs('noselfhighlight') ? ' checked' : '') + '> Highlight when your name is said in chat</label></p>';
 
 			if (window.Notification) {
-				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Tools.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
 			}
 
-			var timestamps = this.timestamps = (Tools.prefs('timestamps') || {});
+			var timestamps = this.timestamps = (Dex.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting">Text formatting</button></label></p>';
@@ -500,7 +500,7 @@
 			if (window.nodewebkit) {
 				buf += '<hr />';
 				buf += '<p><strong>Desktop app</strong></p>';
-				buf += '<p><label class="optlabel"><input type="checkbox" name="logchat"' + (Tools.prefs('logchat') ? ' checked' : '') + '> Log chat</label></p>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="logchat"' + (Dex.prefs('logchat') ? ' checked' : '') + '> Log chat</label></p>';
 				buf += '<p id="openLogFolderButton"' + (Storage.dir ? '' : ' style="display:none"') + '><button name="openLogFolder">Open log folder</button></p>';
 			}
 
@@ -523,63 +523,63 @@
 			} else {
 				Storage.stopLoggingChat();
 			}
-			Tools.prefs('logchat', logchat);
+			Dex.prefs('logchat', logchat);
 		},
 		setNoanim: function (e) {
 			var noanim = !!e.currentTarget.checked;
-			Tools.prefs('noanim', noanim);
-			Tools.loadSpriteData(noanim || Tools.prefs('bwgfx') ? 'bw' : 'xy');
+			Dex.prefs('noanim', noanim);
+			Dex.loadSpriteData(noanim || Dex.prefs('bwgfx') ? 'bw' : 'xy');
 		},
 		setNogif: function (e) {
 			var nogif = !!e.currentTarget.checked;
-			Tools.prefs('nogif', nogif);
-			Tools.loadSpriteData(nogif || Tools.prefs('bwgfx') ? 'bw' : 'xy');
+			Dex.prefs('nogif', nogif);
+			Dex.loadSpriteData(nogif || Dex.prefs('bwgfx') ? 'bw' : 'xy');
 		},
 		setDark: function (e) {
 			var dark = !!e.currentTarget.checked;
-			Tools.prefs('dark', dark);
+			Dex.prefs('dark', dark);
 			$('html').toggleClass('dark', dark);
 		},
 		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;
-			Tools.prefs('bwgfx', bwgfx);
-			Tools.loadSpriteData(bwgfx || Tools.prefs('noanim') ? 'bw' : 'xy');
+			Dex.prefs('bwgfx', bwgfx);
+			Dex.loadSpriteData(bwgfx || Dex.prefs('noanim') ? 'bw' : 'xy');
 		},
 		setNopastgens: function (e) {
 			var nopastgens = !!e.currentTarget.checked;
-			Tools.prefs('nopastgens', nopastgens);
+			Dex.prefs('nopastgens', nopastgens);
 		},
 		setNotournaments: function (e) {
 			var notournaments = !!e.currentTarget.checked;
-			Tools.prefs('notournaments', notournaments);
+			Dex.prefs('notournaments', notournaments);
 		},
 		setSelfHighlight: function (e) {
 			var noselfhighlight = !e.currentTarget.checked;
-			Tools.prefs('noselfhighlight', noselfhighlight);
+			Dex.prefs('noselfhighlight', noselfhighlight);
 		},
 		setInchatpm: function (e) {
 			var inchatpm = !!e.currentTarget.checked;
-			Tools.prefs('inchatpm', inchatpm);
+			Dex.prefs('inchatpm', inchatpm);
 		},
 		setTemporaryNotifications: function (e) {
 			var temporarynotifications = !!e.currentTarget.checked;
-			Tools.prefs('temporarynotifications', temporarynotifications);
+			Dex.prefs('temporarynotifications', temporarynotifications);
 		},
 		background: function (e) {
 			app.addPopup(CustomBackgroundPopup);
 		},
 		setOnePanel: function (e) {
 			app.singlePanelMode = !!e.currentTarget.value;
-			Tools.prefs('onepanel', !!e.currentTarget.value);
+			Dex.prefs('onepanel', !!e.currentTarget.value);
 			app.updateLayout();
 		},
 		setTimestampsLobby: function (e) {
 			this.timestamps.lobby = e.currentTarget.value;
-			Tools.prefs('timestamps', this.timestamps);
+			Dex.prefs('timestamps', this.timestamps);
 		},
 		setTimestampsPMs: function (e) {
 			this.timestamps.pms = e.currentTarget.value;
-			Tools.prefs('timestamps', this.timestamps);
+			Dex.prefs('timestamps', this.timestamps);
 		},
 		avatars: function () {
 			app.addPopup(AvatarsPopup);
@@ -607,7 +607,7 @@
 			'change input': 'setOption'
 		},
 		initialize: function () {
-			var cur = this.chatformatting = Tools.prefs('chatformatting') || {};
+			var cur = this.chatformatting = Dex.prefs('chatformatting') || {};
 			var buf = '<p>Usable formatting:</p>';
 			var ctrlPlus = '<kbd>' + (navigator.platform === 'MacIntel' ? 'Cmd' : 'Ctrl') + '</kbd> + ';
 			buf += '<p class="optlabel">**<strong>bold</strong>** (' + ctrlPlus + '<kbd>B</kbd>)</p>';
@@ -627,7 +627,7 @@
 		setOption: function (e) {
 			var name = $(e.currentTarget).prop('name');
 			this.chatformatting['hide' + name] = !!e.currentTarget.checked;
-			Tools.prefs('chatformatting', this.chatformatting);
+			Dex.prefs('chatformatting', this.chatformatting);
 		}
 	});
 
@@ -651,7 +651,7 @@
 		setAvatar: function (i) {
 			app.send('/avatar ' + i);
 			app.send('/cmd userdetails ' + app.user.get('userid'));
-			Tools.prefs('avatar', i);
+			Dex.prefs('avatar', i);
 			this.close();
 		}
 	});
@@ -739,7 +739,7 @@
 			this.$el.html(buf);
 		},
 		setBg: function (bgid) {
-			var bgUrl = (bgid === 'solidblue' ? '#344b6c' : Tools.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg');
+			var bgUrl = (bgid === 'solidblue' ? '#344b6c' : Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg');
 			Storage.bg.set(bgUrl, bgid);
 			this.$('.cur').removeClass('cur');
 			this.$('button[value="' + bgid + '"]').addClass('cur');
@@ -893,7 +893,7 @@
 			buf += '<p><label class="label">Username: <strong><input type="text" name="name" value="' + BattleLog.escapeHTML(data.name || app.user.get('name')) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
 			buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="new-password" /></label></p>';
 			buf += '<p><label class="label">Password (confirm): <input class="textbox" type="password" name="cpassword" autocomplete="new-password" /></label></p>';
-			buf += '<p><label class="label"><img src="' + Tools.resourcePrefix + 'sprites/bwani/pikachu.gif" alt="An Electric-type mouse that is the mascot of the Pok\u00E9mon franchise." /></label></p>';
+			buf += '<p><label class="label"><img src="' + Dex.resourcePrefix + 'sprites/bwani/pikachu.gif" alt="An Electric-type mouse that is the mascot of the Pok\u00E9mon franchise." /></label></p>';
 			buf += '<p><label class="label">What is this pokemon? <input class="textbox" type="text" name="captcha" value="' + BattleLog.escapeHTML(data.captcha) + '" /></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Register</strong></button> <button name="close">Cancel</button></p></form>';
 			this.$el.html(buf);

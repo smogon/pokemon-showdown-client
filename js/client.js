@@ -384,7 +384,7 @@
 						Backbone.history.start({pushState: !Config.testclient});
 						return;
 					}
-					var autojoin = (Tools.prefs('autojoin') || '');
+					var autojoin = (Dex.prefs('autojoin') || '');
 					var autojoinIds = [];
 					if (typeof autojoin === 'string') {
 						// Use the existing autojoin string for showdown, and an empty string for other servers.
@@ -415,19 +415,19 @@
 			Storage.whenPrefsLoaded(function () {
 				Storage.prefs('bg', null);
 
-				var muted = Tools.prefs('mute');
+				var muted = Dex.prefs('mute');
 				BattleSound.setMute(muted);
 
-				$('html').toggleClass('dark', !!Tools.prefs('dark'));
+				$('html').toggleClass('dark', !!Dex.prefs('dark'));
 
-				var effectVolume = Tools.prefs('effectvolume');
+				var effectVolume = Dex.prefs('effectvolume');
 				if (effectVolume !== undefined) BattleSound.setEffectVolume(effectVolume);
 
-				var musicVolume = Tools.prefs('musicvolume');
+				var musicVolume = Dex.prefs('musicvolume');
 				if (musicVolume !== undefined) BattleSound.setBgmVolume(musicVolume);
 
-				if (Tools.prefs('logchat')) Storage.startLoggingChat();
-				if (Tools.prefs('showdebug')) {
+				if (Dex.prefs('logchat')) Storage.startLoggingChat();
+				if (Dex.prefs('showdebug')) {
 					var debugStyle = $('#debugstyle').get(0);
 					var onCSS = '.debug {display: block;}';
 					if (!debugStyle) {
@@ -437,16 +437,16 @@
 					}
 				}
 
-				if (Tools.prefs('onepanel')) {
+				if (Dex.prefs('onepanel')) {
 					self.singlePanelMode = true;
 					self.updateLayout();
 				}
 
-				if (Tools.prefs('bwgfx') || Tools.prefs('noanim')) {
+				if (Dex.prefs('bwgfx') || Dex.prefs('noanim')) {
 					// since xy data is loaded by default, only call
 					// loadSpriteData if we want bw sprites or if we need bw
 					// sprite data (if animations are disabled)
-					Tools.loadSpriteData('bw');
+					Dex.loadSpriteData('bw');
 				}
 			});
 
@@ -682,7 +682,7 @@
 				}
 				self.trigger('init:socketopened');
 
-				var avatar = Tools.prefs('avatar');
+				var avatar = Dex.prefs('avatar');
 				if (avatar) {
 					// This will be compatible even with servers that don't support
 					// the second argument for /avatar yet.
@@ -1260,7 +1260,7 @@
 					return;
 				}
 				if (this.rel === 'noopener') {
-					var formatOptions = Tools.prefs('chatformatting') || {};
+					var formatOptions = Dex.prefs('chatformatting') || {};
 					if (!formatOptions.hideinterstice && !BattleLog.interstice.isWhitelisted(this.href)) {
 						this.href = BattleLog.interstice.getURI(this.href);
 					}
@@ -1310,7 +1310,7 @@
 				if (this.rooms[id].rejoin) this.rooms[id].rejoin();
 				return this.rooms[id];
 			}
-			if (id.substr(0, 11) === 'battle-gen5' && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
+			if (id.substr(0, 11) === 'battle-gen5' && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
 
 			var room = this._addRoom(id, type, nojoin);
 			this.focusRoom(id);
@@ -1759,7 +1759,7 @@
 				autojoinCount++;
 				if (autojoinCount >= 10) break;
 			}
-			var curAutojoin = (Tools.prefs('autojoin') || '');
+			var curAutojoin = (Dex.prefs('autojoin') || '');
 			if (typeof curAutojoin !== 'string') {
 				if (curAutojoin[Config.server.id] === autojoins.join(',')) return;
 				if (!autojoins.length) {
@@ -1786,7 +1786,7 @@
 					curAutojoin = autojoins.join(',');
 				}
 			}
-			Tools.prefs('autojoin', curAutojoin);
+			Dex.prefs('autojoin', curAutojoin);
 		},
 
 		/*********************************************************
@@ -2004,7 +2004,7 @@
 						window.focus();
 						self.clickNotification(tag);
 					};
-					if (Tools.prefs('temporarynotifications')) {
+					if (Dex.prefs('temporarynotifications')) {
 						if (notification.cancel) {
 							setTimeout(function () {notification.cancel();}, 5000);
 						} else if (notification.close) {
@@ -2091,7 +2091,7 @@
 
 			if (this.lastMessageDate) {
 				// Mark chat messages as read to avoid double-notifying on reload
-				var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
+				var lastMessageDates = Dex.prefs('logtimes') || (Dex.prefs('logtimes', {}), Dex.prefs('logtimes'));
 				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
 				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
 				Storage.prefs.save();
@@ -2120,7 +2120,7 @@
 
 			if (this.lastMessageDate) {
 				// Mark chat messages as read to avoid double-notifying on reload
-				var lastMessageDates = Tools.prefs('logtimes') || (Tools.prefs('logtimes', {}), Tools.prefs('logtimes'));
+				var lastMessageDates = Dex.prefs('logtimes') || (Dex.prefs('logtimes', {}), Dex.prefs('logtimes'));
 				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
 				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
 				Storage.prefs.save();
@@ -2402,7 +2402,7 @@
 			var ownUserid = app.user.get('userid');
 
 			var buf = '<div class="userdetails">';
-			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Tools.resolveAvatar(avatar) + '" />';
+			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Dex.resolveAvatar(avatar) + '" />';
 			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (globalgroup) buf += '<br /><small>' + globalgroup + '</small>';

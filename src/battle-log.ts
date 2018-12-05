@@ -614,13 +614,13 @@ class BattleLog {
 					if (iconAttrib[0] === 'pokemon') {
 						attribs[classValueIndex] = attribs[classValueIndex] ? 'picon ' + attribs[classValueIndex] : 'picon';
 						attribs[styleValueIndex] = attribs[styleValueIndex] ?
-							Tools.getPokemonIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
-							Tools.getPokemonIcon(iconAttrib[1]);
+							Dex.getPokemonIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
+							Dex.getPokemonIcon(iconAttrib[1]);
 					} else if (iconAttrib[0] === 'item') {
 						attribs[classValueIndex] = attribs[classValueIndex] ? 'itemicon ' + attribs[classValueIndex] : 'itemicon';
 						attribs[styleValueIndex] = attribs[styleValueIndex] ?
-							Tools.getItemIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
-							Tools.getItemIcon(iconAttrib[1]);
+							Dex.getItemIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
+							Dex.getItemIcon(iconAttrib[1]);
 					}
 				}
 			}

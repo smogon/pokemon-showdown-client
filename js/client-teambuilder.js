@@ -1068,7 +1068,7 @@
 			if ($(window).width() < 640) this.show();
 		},
 		renderSet: function (set, i) {
-			var template = Tools.getTemplate(set.species);
+			var template = Dex.getTemplate(set.species);
 			var isLetsGo = this.curTeam.format.startsWith('gen7letsgo');
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
@@ -1076,7 +1076,7 @@
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart" style="background-image:url(' + Tools.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" /></div></div></div>';
+				buf += '<div class="setchart" style="background-image:url(' + Dex.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
@@ -1084,7 +1084,7 @@
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(template.baseSpecies) + '" />';
 			buf += '</div>';
-			buf += '<div class="setchart" style="' + Tools.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
+			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
 			// icon
 			buf += '<div class="setcol setcol-icon">';
@@ -1117,8 +1117,8 @@
 			buf += '<div class="setcell">';
 			var itemicon = '<span class="itemicon"></span>';
 			if (set.item) {
-				var item = Tools.getItem(set.item);
-				itemicon = '<span class="itemicon" style="' + Tools.getItemIcon(item) + '"></span>';
+				var item = Dex.getItem(set.item);
+				itemicon = '<span class="itemicon" style="' + Dex.getItemIcon(item) + '"></span>';
 			}
 			buf += itemicon;
 			buf += '</div>';
@@ -1127,7 +1127,7 @@
 			var table = (this.curTeam.gen < 7 ? BattleTeambuilderTable['gen' + this.curTeam.gen] : null);
 			if (table && template.id in table.overrideType) types = table.overrideType[template.id].split('/');
 			if (types) {
-				for (var i = 0; i < types.length; i++) buf += Tools.getTypeIcon(types[i]);
+				for (var i = 0; i < types.length; i++) buf += Dex.getTypeIcon(types[i]);
 			}
 			buf += '</div></div>';
 
@@ -1262,7 +1262,7 @@
 			this.curTeam.format = format;
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.save();
-			if (this.curTeam.gen === 5 && !Tools.loadedSpriteData['bw']) Tools.loadSpriteData('bw');
+			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
 			this.update();
 		},
 		nicknameChange: function (e) {
@@ -1305,10 +1305,10 @@
 			var buf = '';
 			for (var i = 0; i < this.clipboardCount(); i++) {
 				var res = this.clipboard[i];
-				var pokemon = Tools.getTemplate(res.species);
+				var pokemon = Dex.getTemplate(res.species);
 
 				buf += '<div class="result" data-id="' + i + '">';
-				buf += '<div class="section"><span class="icon" style="' + Tools.getPokemonIcon(res.species) + '"></span>';
+				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(res.species) + '"></span>';
 				buf += '<span class="species">' + (pokemon.species === pokemon.baseSpecies ? pokemon.species : (pokemon.baseSpecies + '-<small>' + pokemon.species.substr(pokemon.baseSpecies.length + 1) + '</small>')) + '</span></div>';
 				buf += '<div class="section"><span class="ability-item">' + (res.ability || '<i>No ability</i>') + '<br />' + (res.item || '<i>No item</i>') + '</span></div>';
 				buf += '<div class="section no-border">';
@@ -1530,14 +1530,14 @@
 			}
 			for (var i = 0; i < this.curSetList.length; i++) {
 				var set = this.curSetList[i];
-				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + Tools.getPokemonIcon(set) + '"></span>';
+				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + Dex.getPokemonIcon(set) + '"></span>';
 				if (!set.species) {
 					buf += '<button disabled="disabled" class="addpokemon" aria-label="Add Pok&eacute;mon"><i class="fa fa-plus"></i></button> ';
 					isAdd = true;
 				} else if (i == this.curSetLoc) {
-					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Tools.getTemplate(set.species).baseSpecies || '<i class="fa fa-plus"></i>') + '</button> ';
+					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Dex.getTemplate(set.species).baseSpecies || '<i class="fa fa-plus"></i>') + '</button> ';
 				} else {
-					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Tools.getTemplate(set.species).baseSpecies) + '</button> ';
+					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Dex.getTemplate(set.species).baseSpecies) + '</button> ';
 				}
 			}
 			if (this.curSetList.length < 6 && !isAdd) {
@@ -1549,13 +1549,13 @@
 			var set = this.curSet;
 			if (!set) return;
 
-			this.$('.setchart').attr('style', Tools.getTeambuilderSprite(set, this.curTeam.gen));
+			this.$('.setchart').attr('style', Dex.getTeambuilderSprite(set, this.curTeam.gen));
 
-			this.$('.pokemonicon-' + this.curSetLoc).css('background', Tools.getPokemonIcon(set).substr(11));
+			this.$('.pokemonicon-' + this.curSetLoc).css('background', Dex.getPokemonIcon(set).substr(11));
 
-			var item = Tools.getItem(set.item);
+			var item = Dex.getItem(set.item);
 			if (item.id) {
-				this.$('.setcol-details .itemicon').css('background', Tools.getItemIcon(item).substr(11));
+				this.$('.setcol-details .itemicon').css('background', Dex.getItemIcon(item).substr(11));
 			} else {
 				this.$('.setcol-details .itemicon').css('background', 'none');
 			}
@@ -1722,7 +1722,7 @@
 		plus: '',
 		minus: '',
 		smogdexLink: function (template) {
-			var template = Tools.getTemplate(template);
+			var template = Dex.getTemplate(template);
 			var format = this.curTeam && this.curTeam.format;
 			var smogdexid = toId(template.baseSpecies);
 			if (template.isNonstandard) {
@@ -1793,7 +1793,7 @@
 		updateStatForm: function (setGuessed) {
 			var buf = '';
 			var set = this.curSet;
-			var template = Tools.getTemplate(this.curSet.species);
+			var template = Dex.getTemplate(this.curSet.species);
 
 			var baseStats = this.getBaseStats(template);
 
@@ -2318,7 +2318,7 @@
 		updateDetailsForm: function () {
 			var buf = '';
 			var set = this.curSet;
-			var template = Tools.getTemplate(set.species);
+			var template = Dex.getTemplate(set.species);
 			if (!set) return;
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
 			buf += '<form class="detailsform">';
@@ -2750,8 +2750,8 @@
 			for (var i = 0; i < moves.length; ++i) {
 				if (!moves[i]) continue;
 				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
-				var move = Tools.getMove(moves[i]);
-				if (Tools.getCategory(move, this.curTeam.gen) === 'Physical' &&
+				var move = Dex.getMove(moves[i]);
+				if (Dex.getCategory(move, this.curTeam.gen) === 'Physical' &&
 						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
 					minAtk = false;
 				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
@@ -2786,7 +2786,7 @@
 		},
 		setPokemon: function (val, selectNext) {
 			var set = this.curSet;
-			var template = Tools.getTemplate(val);
+			var template = Dex.getTemplate(val);
 			if (!template.exists || set.species === template.species) {
 				if (selectNext) this.$('input[name=item]').select();
 				return;
@@ -2817,7 +2817,7 @@
 			} else {
 				set.item = '';
 			}
-			set.ability = Tools.getAbilitiesFor(template.id, this.curTeam.gen)['0'];
+			set.ability = Dex.getAbilitiesFor(template.id, this.curTeam.gen)['0'];
 
 			set.moves = [];
 			set.evs = {};
@@ -2855,7 +2855,7 @@
 				'Ultrafast': 0
 			};
 			var hasMove = {};
-			var template = Tools.getTemplate(set.species || set.name);
+			var template = Dex.getTemplate(set.species || set.name);
 			var stats = this.getBaseStats(template);
 			if (!stats) return '?';
 			var itemid = toId(set.item);
@@ -2864,7 +2864,7 @@
 			if (set.moves.length < 4 && template.id !== 'unown' && template.id !== 'ditto' && this.curTeam.gen > 2) return '?';
 
 			for (var i = 0, len = set.moves.length; i < len; i++) {
-				var move = Tools.getMove(set.moves[i]);
+				var move = Dex.getMove(set.moves[i]);
 				hasMove[move.id] = 1;
 				if (move.category === 'Status') {
 					if (move.id === 'batonpass' || move.id === 'healingwish' || move.id === 'lunardance') {
@@ -3112,7 +3112,7 @@
 		guessEVs: function (role) {
 			var set = this.curSet;
 			if (!set) return {};
-			var template = Tools.getTemplate(set.species || set.name);
+			var template = Dex.getTemplate(set.species || set.name);
 			var stats = this.getBaseStats(template);
 
 			var hasMove = this.hasMove;
@@ -3337,7 +3337,7 @@
 
 			// do this after setting set.evs because it's assumed to exist
 			// after getStat is run
-			var template = Tools.getTemplate(set.species);
+			var template = Dex.getTemplate(set.species);
 			if (!template.exists) return 0;
 
 			if (!set.level) set.level = 100;
@@ -3393,7 +3393,7 @@
 				if (i !== data.i && i !== data.i + 1) {
 					buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
 				}
-				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="picon" style="display:inline-block;vertical-align:middle;' + Tools.getPokemonIcon(set) + '"></span> ' + BattleLog.escapeHTML(set.name || set.species) + '</li>';
+				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="picon" style="display:inline-block;vertical-align:middle;' + Dex.getPokemonIcon(set) + '"></span> ' + BattleLog.escapeHTML(set.name || set.species) + '</li>';
 			}
 			if (i !== data.i && i !== data.i + 1) {
 				buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
@@ -3441,16 +3441,16 @@
 			this.room = data.room;
 			this.curSet = data.curSet;
 			this.chartIndex = data.index;
-			var template = Tools.getTemplate(this.curSet.species);
+			var template = Dex.getTemplate(this.curSet.species);
 			var baseid = toId(template.baseSpecies);
 			var forms = [baseid].concat(template.otherForms);
-			var spriteDir = Tools.resourcePrefix + 'sprites/';
+			var spriteDir = Dex.resourcePrefix + 'sprites/';
 			var spriteSize = 96;
 			var spriteDim = 'width: 96px; height: 96px;';
 
 			var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy', 7:'xy'}[Math.max(this.room.curTeam.gen, template.gen)];
-			if (Tools.prefs('nopastgens')) gen = 'xy';
-			if (Tools.prefs('bwgfx') && gen === 'xy') gen = 'bw';
+			if (Dex.prefs('nopastgens')) gen = 'xy';
+			if (Dex.prefs('bwgfx') && gen === 'xy') gen = 'bw';
 			if (gen === 'xy') {
 				spriteDir += 'xydex';
 				spriteSize = 120;
@@ -3479,9 +3479,9 @@
 			this.$el.html(buf).css({'max-width': (4 + spriteSize) * width, 'height': 42 + (4 + spriteSize) * height});
 		},
 		setForm: function (form) {
-			var template = Tools.getTemplate(this.curSet.species);
+			var template = Dex.getTemplate(this.curSet.species);
 			if (form && form !== template.form) {
-				this.curSet.species = Tools.getTemplate(template.baseSpecies + form).species;
+				this.curSet.species = Dex.getTemplate(template.baseSpecies + form).species;
 			} else if (!form) {
 				this.curSet.species = template.baseSpecies;
 			}

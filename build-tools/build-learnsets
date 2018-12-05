@@ -18,8 +18,8 @@ const thisFile = __filename;
 const thisDir = __dirname;
 const rootDir = path.resolve(thisDir, '..');
 
-const Tools = require('../data/Pokemon-Showdown/sim/dex');
-const toId = Tools.getId;
+const Dex = require('../data/Pokemon-Showdown/sim/dex');
+const toId = Dex.getId;
 
 function updateLearnsets(callback) {
 	const reservedKeywords = ['return']; // `return` is the only ES3+ reserved keyword that (currently) raises conflicts
@@ -58,8 +58,8 @@ function updateLearnsets(callback) {
 		return firstFragment + padNumString(levelFragment) + sortFragment;
 	};
 
-	const Pokedex = Tools.data.Pokedex;
-	const Learnsets = Tools.data.Learnsets;
+	const Pokedex = Dex.data.Pokedex;
+	const Learnsets = Dex.data.Learnsets;
 	const newLearnsetsG6 = {};
 
 	let oldLearnsetsG6;
