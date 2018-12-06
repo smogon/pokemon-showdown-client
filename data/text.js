@@ -865,7 +865,7 @@ exports.BattleText = {
 		activate: "  [POKEMON] shuddered!",
 	},
 	aromaveil: {
-		block: "  [TARGET] is protected by an aromatic veil!",
+		block: "  [POKEMON] is protected by an aromatic veil!",
 	},
 	aurabreak: {
 		start: "  [POKEMON] reversed all other Pok\u00E9mon's auras!",
@@ -909,7 +909,7 @@ exports.BattleText = {
 		start: "  The power of [POKEMON]'s Fire-type moves rose'!",
 	},
 	flowerveil: {
-		block: "  [TARGET] surrounded itself with a veil of petals!",
+		block: "  [POKEMON] surrounded itself with a veil of petals!",
 	},
 	forewarn: {
 		activate: "  It was alerted to [TARGET]'s [MOVE]!",
@@ -1026,7 +1026,7 @@ exports.BattleText = {
 		block: "  [POKEMON] anchors itself!",
 	},
 	sweetveil: {
-		block: "  [TARGET] surrounded itself with a veil of sweetness!",
+		block: "  [POKEMON] surrounded itself with a veil of sweetness!",
 	},
 	symbiosis: {
 		activate: "  [POKEMON] shared its [ITEM] with [TARGET]!",
