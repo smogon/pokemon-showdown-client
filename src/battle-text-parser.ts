@@ -382,7 +382,7 @@ class BattleTextParser {
 			let id = this.effectId(effect);
 			if (id === 'doomdesire' || id === 'futuresight') {
 				const template = this.template('activate', effect);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(kwArgs.of));
+				return line1 + template.replace('[TARGET]', this.pokemon(pokemon));
 			}
 			let templateId = 'end';
 			let template = '';
