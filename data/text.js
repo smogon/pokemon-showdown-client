@@ -887,13 +887,13 @@ exports.BattleText = {
 		start: "  [POKEMON] is drowsing!",
 	},
 	damp: {
-		cant: "[POKEMON] cannot use [MOVE]!",
+		block: "  [POKEMON] cannot use [MOVE]!",
 	},
 	darkaura: {
 		start: "  [POKEMON] is radiating a dark aura!",
 	},
 	dazzling: {
-		cant: "#damp",
+		block: "#damp",
 	},
 	disguise: {
 		block: "  Its disguise served it as a decoy!",
@@ -975,7 +975,7 @@ exports.BattleText = {
 		start: "  [POKEMON] is exerting its pressure!",
 	},
 	queenlymajesty: {
-		cant: "#damp",
+		block: "#damp",
 	},
 	rebound: {
 		move: '#magiccoat',

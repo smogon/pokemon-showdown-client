@@ -321,12 +321,6 @@ class BattleTextParser {
 		case 'cant': {
 			let [, pokemon, effect, move] = args;
 			let id = this.effectId(effect);
-			switch (id) {
-			case 'damp': case 'dazzling': case 'queenlymajesty':
-				// thanks Marty
-				[pokemon, kwArgs.of] = [kwArgs.of, pokemon];
-				break;
-			}
 			const template = this.template('cant', effect, 'NODEFAULT') ||
 				this.template(move ? 'cant' : 'cantNoMove');
 			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
@@ -806,7 +800,7 @@ class BattleTextParser {
 			}
 			let template = this.template(templateId, kwArgs.from);
 			if (template) {
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', effect);
 			}
 
 			if (id === 'unboost') {
