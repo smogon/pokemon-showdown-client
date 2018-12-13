@@ -320,7 +320,6 @@ class BattleTextParser {
 
 		case 'cant': {
 			let [, pokemon, effect, move] = args;
-			let id = this.effectId(effect);
 			const template = this.template('cant', effect, 'NODEFAULT') ||
 				this.template(move ? 'cant' : 'cantNoMove');
 			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
