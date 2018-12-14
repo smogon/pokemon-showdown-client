@@ -438,7 +438,7 @@ const Dex = new class implements ModdedDex {
 		document.getElementsByTagName('body')[0].appendChild(el);
 	}
 	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {
-		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, digi?: boolean
+		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, digi?: boolean,
 	} = {gen: 6}) {
 		if (!options.gen) options.gen = 6;
 		if (pokemon instanceof Pokemon) {
@@ -534,7 +534,7 @@ const Dex = new class implements ModdedDex {
 			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 			dir = 'digimon/sprites/digimon';
 
-			if (!Tools.prefs('noanim') && !Tools.prefs('nogif')) {
+			if (!Dex.prefs('noanim') && !Dex.prefs('nogif')) {
 				dir = dir + 'ani';
 				if (facing.charAt(0) === 'b') dir += '-back';
 				spriteData.url += dir + '/' + name + '.gif';
