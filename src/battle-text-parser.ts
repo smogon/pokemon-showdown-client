@@ -171,7 +171,7 @@ class BattleTextParser {
 			if (id === 'protean') return 'preMajor';
 		}
 		case '-activate': {
-			const id = this.effectId(kwArgs.from);
+			const id = this.effectId(args[2]);
 			if (id === 'confusion' || id === 'attract') return 'preMajor';
 		}
 		}
