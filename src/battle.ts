@@ -1220,43 +1220,40 @@ class Battle {
 		}
 	}
 	animateMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: {[k: string]: string}) {
-		if (!target) {
-			target = pokemon.side.foe.active[0];
-		}
-		if (!target) {
-			target = pokemon.side.foe.missedPokemon;
-		}
-		if (!this.fastForward && !kwArgs.still) {
-			// skip
-			if (kwArgs.miss && target.side) {
-				target = target.side.missedPokemon;
-			}
-			if (kwArgs.notarget || !target) {
-				target = pokemon.side.foe.missedPokemon;
-			}
-			if (kwArgs.prepare || kwArgs.anim === 'prepare') {
-				this.scene.runPrepareAnim(move.id, pokemon, target);
-			} else if (!kwArgs.notarget) {
-				let usedMove = kwArgs.anim ? Dex.getMove(kwArgs.anim) : move;
-				if (kwArgs.spread) {
-					this.activeMoveIsSpread = kwArgs.spread;
-					let targets = [pokemon];
-					let hitPokemon = kwArgs.spread.split(',');
-					if (hitPokemon[0] !== '.') {
-						for (const hitTarget of hitPokemon) {
-							targets.push(this.getPokemon(hitTarget + ': ?')!);
-						}
-					} else {
-						// if hitPokemon[0] === '.' then no target was hit by the attack
-						targets.push(target.side.missedPokemon);
-					}
+		if (this.fastForward || kwArgs.still) return;
 
-					this.scene.runMoveAnim(usedMove.id, targets);
-				} else {
-					this.scene.runMoveAnim(usedMove.id, [pokemon, target]);
-				}
+		if (!target) target = pokemon.side.foe.active[0];
+		if (!target) target = pokemon.side.foe.missedPokemon;
+		if (kwArgs.miss && target.side) {
+			target = target.side.missedPokemon;
+		}
+		if (kwArgs.notarget) {
+			return;
+		}
+
+		if (kwArgs.prepare || kwArgs.anim === 'prepare') {
+			this.scene.runPrepareAnim(move.id, pokemon, target);
+			return;
+		}
+
+		let usedMove = kwArgs.anim ? Dex.getMove(kwArgs.anim) : move;
+		if (!kwArgs.spread) {
+			this.scene.runMoveAnim(usedMove.id, [pokemon, target]);
+			return;
+		}
+
+		this.activeMoveIsSpread = kwArgs.spread;
+		let targets = [pokemon];
+		if (kwArgs.spread === '.') {
+			//  no target was hit by the attack
+			targets.push(target.side.missedPokemon);
+		} else {
+			for (const hitTarget of kwArgs.spread.split(',')) {
+				targets.push(this.getPokemon(hitTarget + ': ?')!);
 			}
 		}
+
+		this.scene.runMoveAnim(usedMove.id, targets);
 	}
 	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwArgs: {[k: string]: string}) {
 		pokemon.clearMovestatuses();
