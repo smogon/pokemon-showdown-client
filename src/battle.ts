@@ -76,7 +76,7 @@ class Pokemon {
 	hp = 0;
 	maxhp = 1000;
 	level = 100;
-	gender: GenderName = '';
+	gender: GenderName = 'N';
 	shiny = false;
 
 	hpcolor: HPColor = 'g';
@@ -807,7 +807,7 @@ class Side {
 
 		this.battle.scene.animUnsummon(pokemon);
 	}
-	swapTo(pokemon: Pokemon, slot: number, kwArgs: {[k: string]: string}) {
+	swapTo(pokemon: Pokemon, slot: number, kwArgs: KWArgs) {
 		if (pokemon.slot === slot) return;
 		let target = this.active[slot];
 
@@ -825,7 +825,7 @@ class Side {
 		this.battle.scene.animSummon(pokemon, slot, true);
 		if (target) this.battle.scene.animSummon(target, oslot, true);
 	}
-	swapWith(pokemon: Pokemon, target: Pokemon, kwArgs: {[k: string]: string}) {
+	swapWith(pokemon: Pokemon, target: Pokemon, kwArgs: KWArgs) {
 		// method provided for backwards compatibility only
 		if (pokemon === target) return;
 
@@ -1189,7 +1189,7 @@ class Battle {
 		}
 		this.scene.updateWeather();
 	}
-	useMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: {[k: string]: string}) {
+	useMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
 		let fromeffect = Dex.getEffect(kwArgs.from);
 		pokemon.clearMovestatuses();
 		if (move.id === 'focuspunch') {
@@ -1222,7 +1222,7 @@ class Battle {
 			pokemon.side.wisher = pokemon;
 		}
 	}
-	animateMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: {[k: string]: string}) {
+	animateMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
 		if (this.fastForward || kwArgs.still) return;
 
 		if (!target) target = pokemon.side.foe.active[0];
@@ -1258,7 +1258,7 @@ class Battle {
 
 		this.scene.runMoveAnim(usedMove.id, targets);
 	}
-	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwArgs: {[k: string]: string}) {
+	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwArgs: KWArgs) {
 		pokemon.clearMovestatuses();
 		this.scene.updateStatbar(pokemon);
 		if (effect.id in BattleStatusAnims) {
