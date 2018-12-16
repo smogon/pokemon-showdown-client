@@ -1193,12 +1193,6 @@ class Battle {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
 		this.scene.updateStatbar(pokemon);
-		if (!target) {
-			target = pokemon.side.foe.active[0];
-		}
-		if (!target) {
-			target = pokemon.side.foe.missedPokemon;
-		}
 		if (fromeffect.id === 'sleeptalk') {
 			pokemon.rememberMove(move.name, 0);
 		} else if (!fromeffect.id || fromeffect.id === 'pursuit') {
@@ -1218,6 +1212,19 @@ class Battle {
 			}
 			let pp = (target && target.side !== pokemon.side && toId(target.ability) === 'pressure' ? 2 : 1);
 			pokemon.rememberMove(moveName, pp);
+		}
+		pokemon.lastMove = move.id;
+		this.lastMove = move.id;
+		if (move.id === 'wish' || move.id === 'healingwish') {
+			pokemon.side.wisher = pokemon;
+		}
+	}
+	animateMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: {[k: string]: string}) {
+		if (!target) {
+			target = pokemon.side.foe.active[0];
+		}
+		if (!target) {
+			target = pokemon.side.foe.missedPokemon;
 		}
 		if (!this.fastForward && !kwArgs.still) {
 			// skip
@@ -1249,11 +1256,6 @@ class Battle {
 					this.scene.runMoveAnim(usedMove.id, [pokemon, target]);
 				}
 			}
-		}
-		pokemon.lastMove = move.id;
-		this.lastMove = move.id;
-		if (move.id === 'wish' || move.id === 'healingwish') {
-			pokemon.side.wisher = pokemon;
 		}
 	}
 	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwArgs: {[k: string]: string}) {
@@ -2608,8 +2610,7 @@ class Battle {
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
 			this.scene.beforeMove(poke);
-			kwArgs.silent = '.';
-			this.useMove(poke, move, poke2, kwArgs);
+			this.animateMove(poke, move, poke2, kwArgs);
 			this.scene.afterMove(poke);
 			break;
 		}
@@ -3125,6 +3126,7 @@ class Battle {
 			let poke2 = this.getPokemon(args[3]);
 			this.scene.beforeMove(poke);
 			this.useMove(poke, move, poke2, kwArgs);
+			this.animateMove(poke, move, poke2, kwArgs);
 			this.log(args, kwArgs);
 			this.scene.afterMove(poke);
 			break;
