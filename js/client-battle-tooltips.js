@@ -854,7 +854,7 @@ var BattleTooltips = (function () {
 		var value = iv + ((isRandomBattle && gen >= 3) ? 21 : 63);
 		var nature = (isRandomBattle || gen < 3) ? 1 : 1.1;
 		if (tier.indexOf("Let's Go") >= 0) {
-			var maxStat = Math.floor(Math.floor(Math.floor(Math.floor(2 * baseSpe + iv) * level / 100 + 5) * nature) * 1.1);
+			var maxStat = Math.floor(Math.floor(Math.floor(Math.floor(2 * baseSpe + iv) * level / 100 + 5) * nature) * Math.floor((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.indexOf('No Restrictions') >= 0) return maxStat + 200;
 			return maxStat;
 		}

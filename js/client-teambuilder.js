@@ -1107,7 +1107,7 @@
 			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level || 100) + '</span>';
 			if (this.curTeam.gen > 1) {
 				buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender || template.gender || 'N'] + '</span>';
-				buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
+				buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' && !isLetsGo ? set.happiness : isLetsGo ? 70 : 255) + '</span>';
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 			}
 			buf += '</button></div></div>';
@@ -2318,6 +2318,7 @@
 		updateDetailsForm: function () {
 			var buf = '';
 			var set = this.curSet;
+			var isLetsGo = this.curTeam.format.startsWith('gen7letsgo');
 			var template = Dex.getTemplate(set.species);
 			if (!set) return;
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
@@ -2341,7 +2342,11 @@
 				}
 				buf += '</div></div>';
 
-				buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
+				if (!isLetsGo) {
+					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
+				} else {
+					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" /></div></div>';
+				}
 
 				buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
 				buf += '<label><input type="radio" name="shiny" value="yes"' + (set.shiny ? ' checked' : '') + ' /> Yes</label> ';
@@ -2398,7 +2403,11 @@
 			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level || 100) + '</span>';
 			if (this.curTeam.gen > 1) {
 				buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender || 'N'] + '</span>';
-				buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
+				if (!this.curTeam.format.startsWith('gen7letsgo')) {
+					buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
+				} else {
+					buf += '<span class="detailcell"><label>Happiness</label>70</span>';
+				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 			}
 			this.$('button[name=details]').html(buf);
@@ -3367,7 +3376,7 @@
 				val *= 0.9;
 			}
 			if (!supportsEVs) {
-				var friendshipValue = Math.floor(((!set.happiness ? 255 : set.happiness > 255 ? 255 : set.happiness) / 255 / 10 + 1) * 100);
+				var friendshipValue = Math.floor((70 / 255 / 10 + 1) * 100);
 				val = Math.floor(val) * friendshipValue / 100 + (supportsAVs ? ev : 0);
 			}
 			return Math.floor(val);
