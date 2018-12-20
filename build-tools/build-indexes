@@ -633,6 +633,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	}
 	const LGLearnsets = Dex.mod('letsgo').data.Learnsets;
 	for (const id in LGLearnsets) {
+		const template = Dex.mod('letsgo').getTemplate(id);
+		const baseTemplate = Dex.mod('letsgo').getTemplate(template.baseSpecies);
+		const validNum = (baseTemplate.num <= 151 && baseTemplate.num >= 1) || [808, 809].includes(baseTemplate.num);
+		if (!validNum) continue;
+		if (template.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(template.forme)) continue;
 		const learnset = LGLearnsets[id].learnset;
 		BattleTeambuilderTable['letsgo'].learnsets[id] = {};
 		for (const moveid in learnset) {
