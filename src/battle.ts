@@ -1195,6 +1195,8 @@ class Battle {
 		this.scene.updateStatbar(pokemon);
 		if (fromeffect.id === 'sleeptalk') {
 			pokemon.rememberMove(move.name, 0);
+		} else if (fromeffect.id === 'magicbounce' || fromeffect.id === 'rebound') {
+			this.activateAbility(pokemon, kwArgs.from);
 		} else if (!fromeffect.id || fromeffect.id === 'pursuit') {
 			let moveName = move.name;
 			if (move.isZ) {

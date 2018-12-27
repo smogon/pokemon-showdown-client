@@ -310,9 +310,12 @@ class BattleTextParser {
 
 		case 'move': {
 			const [, pokemon, move] = args;
+			let id = this.effectId(kwArgs.from);
 			let line1 = '';
 			if (kwArgs.zEffect) {
 				line1 = this.template('zEffect').replace('[POKEMON]', this.pokemon(pokemon));
+			} else if (id === 'magicbounce' || id === 'rebound') {
+				line1 = this.ability(kwArgs.from, pokemon);
 			}
 			const template = this.template('move', kwArgs.from);
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', move);
