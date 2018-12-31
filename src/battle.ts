@@ -403,6 +403,8 @@ class Pokemon {
 		}
 		// this.lastMove = '';
 		this.statusStage = 0;
+		this.statusData.toxicTurns = 0;
+		if (this.side.battle.gen === 5) this.statusData.sleepTurns = 0;
 	}
 	/**
 	 * copyAll = false means Baton Pass,
@@ -769,6 +771,7 @@ class Side {
 			pokemon.hpcolor = oldpokemon.hpcolor;
 			pokemon.status = oldpokemon.status;
 			pokemon.copyVolatileFrom(oldpokemon, true);
+			pokemon.statusData = {...oldpokemon.statusData};
 			// we don't know anything about the illusioned pokemon except that it's not fainted
 			// technically we also know its status but only at the end of the turn, not here
 			oldpokemon.fainted = false;
