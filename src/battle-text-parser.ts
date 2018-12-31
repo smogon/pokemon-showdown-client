@@ -599,7 +599,7 @@ class BattleTextParser {
 			} else if (!arg4 && [
 				'grudge', 'forewarn', 'magnitude', 'sketch', 'persistent', 'symbiosis', 'safetygoggles', 'matblock', 'safetygoggles', 'leppaberry',
 			].includes(id)) {
-				[target, arg4] = [pokemon, target];
+				[target, arg4] = [kwArgs.of, target];
 			} else if (!target && ['hyperspacefury', 'hyperspacehole', 'phantomforce', 'shadowforce', 'feint'].includes(id)) {
 				[pokemon, target] = [kwArgs.of, pokemon];
 				if (!pokemon) pokemon = target;
