@@ -689,8 +689,8 @@ class BattleTextParser {
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[PERCENTAGE]', percentage);
 			}
 			if (kwArgs.from.startsWith('item:')) {
-				template = this.template('damageFromItem');
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(kwArgs.from));
+				template = this.template(kwArgs.of ? 'damageFromPokemon' : 'damageFromItem');
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(kwArgs.from)).replace('[SOURCE]', this.pokemon(kwArgs.of));
 			}
 			if (kwArgs.partiallytrapped || id === 'bind' || id === 'wrap') {
 				template = this.template('damageFromPartialTrapping');
