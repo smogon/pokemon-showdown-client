@@ -838,10 +838,10 @@
 			else if (format === 'battlespotdoubles') tierSet = tierSet.slice(slices.Regular);
 			else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
 			else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
-			else if (format === 'ru') tierSet = tierSet.slice(slices.RU);
+			else if (format === 'ru' && this.gen >= 5) tierSet = tierSet.slice(slices.RU);
 			else if (format === 'nu') tierSet = tierSet.slice(slices.NU);
-			else if (format === 'pu') tierSet = tierSet.slice(slices.PU);
-			else if (format === 'zu') tierSet = tierSet.slice(slices.ZU);
+			else if (format === 'pu' && this.gen >= 6) tierSet = tierSet.slice(slices.PU);
+			else if (format === 'zu' && this.gen >= 7) tierSet = tierSet.slice(slices.ZU);
 			else if (format === 'lc' || format === 'lcuu') tierSet = tierSet.slice(slices.LC);
 			else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
 			else if (format === 'caplc') tierSet = tierSet.slice(slices['CAP LC'], slices.Uber).concat(tierSet.slice(slices.LC));
