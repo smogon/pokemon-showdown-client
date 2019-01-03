@@ -12,13 +12,13 @@ eval('' + fs.readFileSync(`js/battle-dex.js`));
 eval('' + fs.readFileSync(`js/battle-dex-data.js`));
 eval('' + fs.readFileSync(`js/battle.js`));
 
-describe('Battle', function () {
+describe('Battle', () => {
 
-	it('should instantiate without issue', function () {
+	it('should instantiate without issue', () => {
 		var battle = new Battle();
 	});
 
-	it('should process a bunch of messages properly', function () {
+	it('should process a bunch of messages properly', () => {
 		var battle = new Battle();
 		battle.debug = true;
 
@@ -68,7 +68,7 @@ describe('Battle', function () {
 		assert(p2gliscor.isActive());
 		assert.deepEqual(p2gliscor.moveTrack, []);
 
-		[
+		for (const line of [
 			"|",
 			"|switch|p2a: Kyurem|Kyurem-White, L73|303/303",
 			"|-ability|p2a: Kyurem|Turboblaze",
@@ -79,7 +79,9 @@ describe('Battle', function () {
 			"|upkeep",
 			"|turn|2",
 			"|inactive|Time left: 150 sec this turn | 740 sec total",
-		].forEach(msg => battle.add(msg));
+		]) {
+			battle.add(line);
+		}
 		battle.fastForwardTo(-1);
 
 		assert(!p2gliscor.isActive());
