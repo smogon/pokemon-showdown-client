@@ -68,3 +68,8 @@ class BattleSceneStub {
 	updateSpritesForSide(side: Side) { }
 	unlink(userid: string, showRevealButton = false) { }
 }
+
+if (typeof require === 'function') {
+	// in Node
+	(global as any).BattleSceneStub = BattleSceneStub;
+}

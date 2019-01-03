@@ -253,3 +253,8 @@ interface Template extends Effect {
 	readonly isTotem?: boolean;
 	readonly isMega?: boolean;
 }
+
+if (typeof require === 'function') {
+	// in Node
+	(global as any).baseSpeciesChart = baseSpeciesChart;
+}
