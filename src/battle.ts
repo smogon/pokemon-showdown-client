@@ -3377,3 +3377,8 @@ class Battle {
 		BattleSound.setMute(mute);
 	}
 }
+
+if (typeof require === 'function') {
+	// in Node
+	(global as any).Battle = Battle;
+}

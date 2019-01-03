@@ -1148,3 +1148,9 @@ const Dex = {
 		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
 	},
 };
+
+if (typeof require === 'function') {
+	// in Node
+	(global as any).Dex = Dex;
+	(global as any).toId = toId;
+}
