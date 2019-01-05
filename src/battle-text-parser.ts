@@ -368,12 +368,11 @@ class BattleTextParser {
 			if (kwArgs.block) templateId = 'block';
 			if (kwArgs.upkeep) templateId = 'upkeep';
 			if (id === 'reflect' || id === 'lightscreen') templateId = 'startGen1';
-			let template = '';
 			if (templateId === 'start' && kwArgs.from && kwArgs.from.startsWith('item:')) {
-				template = this.template('startFromItem', effect);
+				templateId += 'FromItem';
 			}
-			if (!template) template = this.template(templateId, effect);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[EFFECT]', this.effect(kwArgs.from)).replace('[MOVE]', arg3).replace('[SOURCE]', this.pokemon(kwArgs.of));
+			const template = this.template(templateId, effect);
+			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[EFFECT]', this.effect(effect)).replace('[MOVE]', arg3).replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[ITEM]', this.effect(kwArgs.from));
 		}
 
 		case '-end': {
