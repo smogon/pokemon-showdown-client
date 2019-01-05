@@ -632,11 +632,11 @@ Storage.packTeam = function (team) {
 		if (buf) buf += ']';
 
 		// name
-		buf += set.name;
+		buf += set.name || set.species;
 
 		// species
 		var id = toId(set.species);
-		buf += '|' + (toId(set.name) === id ? '' : id);
+		buf += '|' + (toId(set.name || set.species) === id ? '' : id);
 
 		// item
 		buf += '|' + toId(set.item);
