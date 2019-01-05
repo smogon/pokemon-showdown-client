@@ -1,3 +1,5 @@
+window.exports = window;
+
 function linkStyle(url) {
 	var linkEl = document.createElement('link');
 	linkEl.rel = 'stylesheet';
