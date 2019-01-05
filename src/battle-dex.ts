@@ -381,12 +381,11 @@ const Dex = {
 		let template = new Template(id, name, data);
 		window.BattlePokedex[id] = template;
 		if (formid !== id && template.otherForms && template.otherForms.includes(formid)) {
-			id = formid;
 			let forme = formid.slice(id.length);
 			forme = forme[0].toUpperCase() + forme.slice(1);
 			name = template.baseSpecies + (forme ? '-' + forme : '');
 
-			template = window.BattlePokedexAltForms[formid] = new Template(id, name, {
+			template = window.BattlePokedexAltForms[formid] = new Template(formid, name, {
 				...template,
 				name,
 				forme,
