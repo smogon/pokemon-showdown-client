@@ -610,6 +610,9 @@ class Item implements Effect {
 	readonly zMoveType: TypeName | '';
 	readonly zMoveFrom: string;
 	readonly zMoveUser: string[] | null;
+	readonly onPlate: string;
+	readonly onMemory: string;
+	readonly onDrive: string;
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
@@ -630,6 +633,9 @@ class Item implements Effect {
 		this.zMoveType = data.zMoveType || '';
 		this.zMoveFrom = data.zMoveFrom || '';
 		this.zMoveUser = data.zMoveUser || null;
+		this.onPlate = data.onPlate || '';
+		this.onMemory = data.onMemory || '';
+		this.onDrive = data.onDrive || '';
 
 		if (!this.gen) {
 			if (this.num >= 577) {
