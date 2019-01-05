@@ -3165,51 +3165,6 @@ class Battle {
 			break;
 		}}
 	}
-	static lineParse(line: string): {args: Args, kwArgs: KWArgs} {
-		if (!line.startsWith('|')) {
-			return {args: ['', line], kwArgs: {}};
-		}
-		if (line === '|') {
-			return {args: ['done'], kwArgs: {}};
-		}
-		const index = line.indexOf('|', 1);
-		const cmd = line.slice(1, index);
-		switch (cmd) {
-		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
-		case 'inactive': case 'inactiveoff': case 'warning':
-		case 'fieldhtml': case 'controlshtml': case 'bigerror':
-		case 'debug': case 'tier':
-			return {args: [cmd, line.slice(index + 1)], kwArgs: {}};
-		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange':
-			// three parts
-			const index2a = line.indexOf('|', index + 1);
-			return {args: [cmd, line.slice(index + 1, index2a), line.slice(index2a + 1)], kwArgs: {}};
-		case 'c:':
-			// four parts
-			const index2b = line.indexOf('|', index + 1);
-			const index3b = line.indexOf('|', index2b + 1);
-			return {
-				args: [cmd, line.slice(index + 1, index2b), line.slice(index2b + 1, index3b), line.slice(index3b + 1)],
-				kwArgs: {},
-			};
-		}
-		let args: Args = line.slice(1).split('|') as any;
-		let kwArgs: KWArgs = {};
-		while (args.length > 1) {
-			const lastArg = args[args.length - 1];
-			if (lastArg.charAt(0) !== '[') break;
-			const bracketPos = lastArg.indexOf(']');
-			if (bracketPos <= 0) break;
-			// default to '.' so it evaluates to boolean true
-			kwArgs[lastArg.slice(1, bracketPos)] = lastArg.slice(bracketPos + 1).trim() || '.';
-			args.pop();
-		}
-		return {args, kwArgs};
-	}
-	static extractMessage(line: string, parser: BattleTextParser) {
-		const {args, kwArgs} = Battle.lineParse(line);
-		return parser.parseLine(args, kwArgs) || '';
-	}
 
 	run(str: string, preempt?: boolean) {
 		if (!preempt && this.preemptActivityQueue.length && str === this.preemptActivityQueue[0]) {
@@ -3218,7 +3173,7 @@ class Battle {
 			return;
 		}
 		if (!str) return;
-		const {args, kwArgs} = Battle.lineParse(str);
+		const {args, kwArgs} = BattleTextParser.parseLine(str);
 
 		if (this.scene.maybeCloseMessagebar(args, kwArgs)) {
 			this.activityStep--;
@@ -3231,7 +3186,7 @@ class Battle {
 		let nextKwargs: KWArgs = {};
 		const nextLine = this.activityQueue[this.activityStep + 1] || '';
 		if (nextLine && nextLine.substr(0, 2) === '|-') {
-			({args: nextArgs, kwArgs: nextKwargs} = Battle.lineParse(nextLine));
+			({args: nextArgs, kwArgs: nextKwargs} = BattleTextParser.parseLine(nextLine));
 		}
 
 		if (this.debug) {

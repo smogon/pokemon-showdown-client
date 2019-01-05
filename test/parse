@@ -5,9 +5,7 @@ const path = require('path');
 
 process.chdir(path.resolve(__dirname, '..'));
 
-require(`../js/battle-dex.js`);
-require(`../js/battle-dex-data.js`);
-require(`../js/battle.js`);
+require(`../js/battle-dex.js`); // only needed for toId
 global.BattleText = require(`../data/text.js`).BattleText;
 require(`../js/battle-text-parser.js`);
 
@@ -21,5 +19,5 @@ const rl = readline.createInterface({
 });
 
 rl.on('line', line => {
-  process.stdout.write(Battle.extractMessage(line, parser));
+  process.stdout.write(parser.extractMessage(line));
 });

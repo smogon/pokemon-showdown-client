@@ -15,6 +15,53 @@ class BattleTextParser {
 		this.perspective = perspective;
 	}
 
+	static parseLine(line: string): {args: Args, kwArgs: KWArgs} {
+		if (!line.startsWith('|')) {
+			return {args: ['', line], kwArgs: {}};
+		}
+		if (line === '|') {
+			return {args: ['done'], kwArgs: {}};
+		}
+		const index = line.indexOf('|', 1);
+		const cmd = line.slice(1, index);
+		switch (cmd) {
+		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
+		case 'inactive': case 'inactiveoff': case 'warning':
+		case 'fieldhtml': case 'controlshtml': case 'bigerror':
+		case 'debug': case 'tier':
+			return {args: [cmd, line.slice(index + 1)], kwArgs: {}};
+		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange':
+			// three parts
+			const index2a = line.indexOf('|', index + 1);
+			return {args: [cmd, line.slice(index + 1, index2a), line.slice(index2a + 1)], kwArgs: {}};
+		case 'c:':
+			// four parts
+			const index2b = line.indexOf('|', index + 1);
+			const index3b = line.indexOf('|', index2b + 1);
+			return {
+				args: [cmd, line.slice(index + 1, index2b), line.slice(index2b + 1, index3b), line.slice(index3b + 1)],
+				kwArgs: {},
+			};
+		}
+		let args: Args = line.slice(1).split('|') as any;
+		let kwArgs: KWArgs = {};
+		while (args.length > 1) {
+			const lastArg = args[args.length - 1];
+			if (lastArg.charAt(0) !== '[') break;
+			const bracketPos = lastArg.indexOf(']');
+			if (bracketPos <= 0) break;
+			// default to '.' so it evaluates to boolean true
+			kwArgs[lastArg.slice(1, bracketPos)] = lastArg.slice(bracketPos + 1).trim() || '.';
+			args.pop();
+		}
+		return {args, kwArgs};
+	}
+
+	extractMessage(line: string) {
+		const {args, kwArgs} = BattleTextParser.parseLine(line);
+		return this.parseArgs(args, kwArgs) || '';
+	}
+
 	fixLowercase(input: string) {
 		if (this.lowercaseRegExp === undefined) {
 			const prefixes = ['pokemon', 'opposingPokemon', 'team', 'opposingTeam'].map(templateId => {
@@ -202,12 +249,12 @@ class BattleTextParser {
 		}
 	}
 
-	parseLine(args: Args, kwArgs: KWArgs, noSectionBreak?: boolean) {
+	parseArgs(args: Args, kwArgs: KWArgs, noSectionBreak?: boolean) {
 		let buf = !noSectionBreak && this.sectionBreak(args, kwArgs) ? '\n' : '';
-		return buf + this.fixLowercase(this.parseLineInner(args, kwArgs) || '');
+		return buf + this.fixLowercase(this.parseArgsInner(args, kwArgs) || '');
 	}
 
-	parseLineInner(args: Args, kwArgs: KWArgs) {
+	parseArgsInner(args: Args, kwArgs: KWArgs) {
 		let cmd = args[0];
 		switch (cmd) {
 		case 'player': {

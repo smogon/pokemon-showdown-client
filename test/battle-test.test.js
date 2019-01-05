@@ -9,6 +9,7 @@ window = global;
 require('../js/battle-dex-data.js');
 require('../js/battle-dex.js');
 require('../js/battle-scene-stub.js');
+require('../js/battle-text-parser.js');
 require('../js/battle.js');
 
 describe('Battle', () => {
