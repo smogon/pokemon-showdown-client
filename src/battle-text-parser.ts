@@ -147,6 +147,12 @@ class BattleTextParser {
 		return BattleText.default.abilityActivation.replace('[POKEMON]', this.pokemon(holder)).replace('[ABILITY]', this.effect(name)) + '\n';
 	}
 
+	stat(stat: string) {
+		const entry = BattleText[stat || "stats"];
+		if (!entry || !entry.statName) return `???stat:${stat}???`;
+		return entry.statName;
+	}
+
 	lineSection(args: Args, kwArgs: KWArgs) {
 		const cmd = args[0];
 		switch (cmd) {
@@ -721,7 +727,6 @@ class BattleTextParser {
 		case '-boost': case '-unboost': {
 			let [, pokemon, stat, num] = args;
 			if (stat === 'spa' && this.gen === 1) stat = 'spc';
-			const statName = BattleStats[stat as StatName] || "stats";
 			const amount = parseInt(num, 10);
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			let templateId = cmd.slice(1);
@@ -734,7 +739,7 @@ class BattleTextParser {
 				templateId += 'FromItem';
 			}
 			const template = this.template(templateId, kwArgs.from);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', statName);
+			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', this.stat(stat));
 		}
 
 		case '-setboost': {
