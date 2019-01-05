@@ -73,7 +73,13 @@ if (!Object.assign) {
 // 	};
 // }
 
-if (!window.exports) window.exports = window;
+if (typeof window === 'undefined') {
+	// Node
+	(global as any).window = global;
+} else {
+	// browser (possibly NW.js!)
+	window.exports = window;
+}
 
 if (window.soundManager) {
 	soundManager.setup({url: 'https://play.pokemonshowdown.com/swf/'});
