@@ -11,7 +11,7 @@ class ActionDispatcher {
 		$this->handlers = $handlers;
 		if (empty($_REQUEST)) {
 			$this->reqs = null;
-			if (substr($_SERVER["CONTENT_TYPE"], 0, 16) === 'application/json') {
+			if (substr($_SERVER["CONTENT_TYPE"] ?? '', 0, 16) === 'application/json') {
 				// screw you too Axios
 				// also come on PHP, you could just support JSON natively instead of putting me through this
 				$input = trim(file_get_contents('php://input'));
