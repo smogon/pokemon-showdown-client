@@ -120,6 +120,38 @@ exports.BattleText = {
 		hitCountSingular: "  Hit 1 time!",
 	},
 
+	// stats
+	hp: {
+		statName: "HP",
+	},
+	atk: {
+		statName: "Attack",
+	},
+	def: {
+		statName: "Defense",
+	},
+	spa: {
+		statName: "Special Attack",
+	},
+	spd: {
+		statName: "Special Defense",
+	},
+	spe: {
+		statName: "Speed",
+	},
+	accuracy: {
+		statName: "accuracy",
+	},
+	evasion: {
+		statName: "evasiveness",
+	},
+	spc: {
+		statName: "Special",
+	},
+	stats: {
+		statName: "stats",
+	},
+
 	// statuses
 	brn: {
 		start: "  [POKEMON] was burned!",
