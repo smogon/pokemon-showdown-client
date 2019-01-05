@@ -926,4 +926,7 @@ class BattleTextParser {
 	}
 }
 
-exports.BattleTextParser = BattleTextParser;
+if (typeof require === 'function') {
+	// in Node
+	(global as any).BattleTextParser = BattleTextParser;
+}

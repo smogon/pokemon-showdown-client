@@ -3165,35 +3165,35 @@ class Battle {
 			break;
 		}}
 	}
-	static lineParse(str: string): {args: Args, kwArgs: KWArgs} {
-		if (!str.startsWith('|')) {
-			return {args: ['', str], kwArgs: {}};
+	static lineParse(line: string): {args: Args, kwArgs: KWArgs} {
+		if (!line.startsWith('|')) {
+			return {args: ['', line], kwArgs: {}};
 		}
-		if (str === '|') {
+		if (line === '|') {
 			return {args: ['done'], kwArgs: {}};
 		}
-		const index = str.indexOf('|', 1);
-		const cmd = str.slice(1, index);
+		const index = line.indexOf('|', 1);
+		const cmd = line.slice(1, index);
 		switch (cmd) {
 		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
 		case 'inactive': case 'inactiveoff': case 'warning':
 		case 'fieldhtml': case 'controlshtml': case 'bigerror':
 		case 'debug': case 'tier':
-			return {args: [cmd, str.slice(index + 1)], kwArgs: {}};
+			return {args: [cmd, line.slice(index + 1)], kwArgs: {}};
 		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange':
 			// three parts
-			const index2a = str.indexOf('|', index + 1);
-			return {args: [cmd, str.slice(index + 1, index2a), str.slice(index2a + 1)], kwArgs: {}};
+			const index2a = line.indexOf('|', index + 1);
+			return {args: [cmd, line.slice(index + 1, index2a), line.slice(index2a + 1)], kwArgs: {}};
 		case 'c:':
 			// four parts
-			const index2b = str.indexOf('|', index + 1);
-			const index3b = str.indexOf('|', index2b + 1);
+			const index2b = line.indexOf('|', index + 1);
+			const index3b = line.indexOf('|', index2b + 1);
 			return {
-				args: [cmd, str.slice(index + 1, index2b), str.slice(index2b + 1, index3b), str.slice(index3b + 1)],
+				args: [cmd, line.slice(index + 1, index2b), line.slice(index2b + 1, index3b), line.slice(index3b + 1)],
 				kwArgs: {},
 			};
 		}
-		let args: Args = str.slice(1).split('|') as any;
+		let args: Args = line.slice(1).split('|') as any;
 		let kwArgs: KWArgs = {};
 		while (args.length > 1) {
 			const lastArg = args[args.length - 1];
@@ -3205,6 +3205,10 @@ class Battle {
 			args.pop();
 		}
 		return {args, kwArgs};
+	}
+	static extractMessage(line: string, parser: BattleTextParser) {
+		const {args, kwArgs} = Battle.lineParse(line);
+		return parser.parseLine(args, kwArgs) || '';
 	}
 
 	run(str: string, preempt?: boolean) {
