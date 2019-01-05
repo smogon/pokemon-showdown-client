@@ -26,6 +26,9 @@
 		leave: function () {
 			app.send('/leave ' + this.id);
 		},
+		login: function () {
+			app.addPopup(LoginPopup);
+		},
 		addRow: function (line) {
 			if (!line || typeof line !== 'string') return;
 			if (line.charAt(0) !== '|') line = '||' + line;
