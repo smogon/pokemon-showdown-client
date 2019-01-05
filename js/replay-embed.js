@@ -44,7 +44,7 @@ var Replays = {
 		//this.battle.preloadCallback = updateProgress;
 		this.battle.errorCallback = this.errorCallback.bind(this);
 		this.battle.resumeButton = this.resume.bind(this);
-		
+
 		this.setlog(log);
 	},
 	setlog: function (log) {
