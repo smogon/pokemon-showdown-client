@@ -473,7 +473,8 @@ class BattleTextParser {
 				const template = this.template('removeItem', kwArgs.from);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(item)).replace('[SOURCE]', this.pokemon(kwArgs.of));
 			}
-			const template = this.template('end', item, 'NODEFAULT');
+			let template = this.template('end', item, 'NODEFAULT');
+			if (!template) template = this.template('activateItem').replace('[ITEM]', this.effect(item));
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(kwArgs.of));
 		}
 

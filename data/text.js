@@ -60,6 +60,7 @@ exports.BattleText = {
 		useGem: "  The [ITEM] strengthened [POKEMON]'s power!",
 		eatItemWeaken: "  The [ITEM] weakened damage to [POKEMON]!",
 		removeItem: "  [POKEMON] lost its [ITEM]!",
+		activateItem: "  ([POKEMON] used its [ITEM]!)",
 
 		damage: "  ([POKEMON] was hurt!)",
 		damagePercentage: "  ([POKEMON] lost [PERCENTAGE] of its health!)",
