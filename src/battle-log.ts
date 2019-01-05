@@ -172,7 +172,7 @@ class BattleLog {
 		case 'turn':
 			const h2elem = document.createElement('h2');
 			h2elem.className = 'battle-history';
-			let turnMessage = this.battleParser!.parseLine(args, {}).trim();
+			let turnMessage = this.battleParser!.parseArgs(args, {}).trim();
 			if (!turnMessage.startsWith('==') || !turnMessage.endsWith('==')) {
 				throw new Error("Turn message must be a heading.");
 			}
@@ -186,7 +186,7 @@ class BattleLog {
 		default:
 			let line = null;
 			if (this.battleParser) {
-				line = this.battleParser.parseLine(args, kwArgs || {}, true);
+				line = this.battleParser.parseArgs(args, kwArgs || {}, true);
 			}
 			if (line === null) {
 				this.addDiv('chat message-error', 'Unrecognized: |' + BattleLog.escapeHTML(args.join('|')));
