@@ -838,6 +838,9 @@ var BattleTooltips = (function () {
 		}
 
 		var nature = (tier.indexOf('Random Battle') >= 0 || (tier.indexOf('Random') >= 0 && tier.indexOf('Battle') >= 0 && gen >= 6) || gen < 3) ? 1 : 0.9;
+		if (tier.indexOf("Let's Go") >= 0) {
+			return Math.floor(Math.floor(Math.floor(2 * baseSpe * level / 100 + 5) * nature) * Math.floor((70 / 255 / 10 + 1) * 100) / 100);
+		}
 		return Math.floor(Math.floor(2 * baseSpe * level / 100 + 5) * nature);
 	};
 	BattleTooltips.prototype.getTemplateMaxSpeed = function (template, level) {
@@ -856,6 +859,7 @@ var BattleTooltips = (function () {
 		if (tier.indexOf("Let's Go") >= 0) {
 			var maxStat = Math.floor(Math.floor(Math.floor(Math.floor(2 * baseSpe + iv) * level / 100 + 5) * nature) * Math.floor((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.indexOf('No Restrictions') >= 0) return maxStat + 200;
+			if (tier.indexOf('Random') >= 0) return maxStat + 20;
 			return maxStat;
 		}
 		return Math.floor(Math.floor(Math.floor(2 * baseSpe + value) * level / 100 + 5) * nature);
