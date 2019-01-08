@@ -110,9 +110,13 @@ class BattleTextParser {
 		return {args, kwArgs};
 	}
 
-	extractMessage(line: string) {
-		const {args, kwArgs} = BattleTextParser.parseLine(line);
-		return this.parseArgs(args, kwArgs) || '';
+	extractMessage(buf: string) {
+		let out = '';
+		for (const line of buf.split('\n')) {
+			const {args, kwArgs} = BattleTextParser.parseLine(line);
+			out += this.parseArgs(args, kwArgs) || '';
+		}
+		return out;
 	}
 
 	fixLowercase(input: string) {
@@ -267,18 +271,22 @@ class BattleTextParser {
 		case '-damage': {
 			const id = BattleTextParser.effectId(kwArgs.from);
 			if (id === 'confusion') return 'major';
+			return 'postMajor';
 		}
 		case '-curestatus': {
 			const id = BattleTextParser.effectId(kwArgs.from);
 			if (id === 'naturalcure') return 'preMajor';
+			return 'postMajor';
 		}
 		case '-start': {
 			const id = BattleTextParser.effectId(kwArgs.from);
 			if (id === 'protean') return 'preMajor';
+			return 'postMajor';
 		}
 		case '-activate': {
 			const id = BattleTextParser.effectId(args[2]);
 			if (id === 'confusion' || id === 'attract') return 'preMajor';
+			return 'postMajor';
 		}
 		}
 		return (cmd.charAt(0) === '-' ? 'postMajor' : '');
