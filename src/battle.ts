@@ -1678,7 +1678,40 @@ class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
-		case '-center': case '-notarget': case '-ohko': case '-nothing':
+		case '-block': {
+			let poke = this.getPokemon(args[1])!;
+			let effect = Dex.getEffect(args[2]);
+			let ofpoke = this.getPokemon(kwArgs.of);
+			this.activateAbility(ofpoke || poke, effect);
+			switch (effect.id) {
+			case 'quickguard':
+				poke.addTurnstatus('quickguard' as ID);
+				this.scene.resultAnim(poke, 'Quick Guard', 'good');
+				break;
+			case 'wideguard':
+				poke.addTurnstatus('wideguard' as ID);
+				this.scene.resultAnim(poke, 'Wide Guard', 'good');
+				break;
+			case 'craftyshield':
+				poke.addTurnstatus('craftyshield' as ID);
+				this.scene.resultAnim(poke, 'Crafty Shield', 'good');
+				break;
+			case 'protect':
+				poke.addTurnstatus('protect' as ID);
+				this.scene.resultAnim(poke, 'Protected', 'good');
+				break;
+
+			case 'safetygoggles':
+				poke.item = 'Safety Goggles';
+				break;
+			case 'protectivepads':
+				poke.item = 'Protective Pads';
+				break;
+			}
+			this.log(args, kwArgs);
+			break;
+		}
+		case '-center': case '-notarget': case '-ohko':
 		case '-combine': case '-hitcount': case '-waiting': case '-zbroken': {
 			this.log(args, kwArgs);
 			break;
@@ -2380,27 +2413,11 @@ class Battle {
 		case '-activate': {
 			let poke = this.getPokemon(args[1])!;
 			let effect = Dex.getEffect(args[2]);
-			let ofpoke = this.getPokemon(kwArgs.of);
+			let target = this.getPokemon(args[3]);
 			this.activateAbility(poke, effect);
 			switch (effect.id) {
 			case 'grudge':
-				poke.rememberMove(args[3], Infinity);
-				break;
-			case 'quickguard':
-				poke.addTurnstatus('quickguard' as ID);
-				this.scene.resultAnim(poke, 'Quick Guard', 'good');
-				break;
-			case 'wideguard':
-				poke.addTurnstatus('wideguard' as ID);
-				this.scene.resultAnim(poke, 'Wide Guard', 'good');
-				break;
-			case 'craftyshield':
-				poke.addTurnstatus('craftyshield' as ID);
-				this.scene.resultAnim(poke, 'Crafty Shield', 'good');
-				break;
-			case 'protect':
-				poke.addTurnstatus('protect' as ID);
-				this.scene.resultAnim(poke, 'Protected', 'good');
+				poke.rememberMove(kwArgs.move, Infinity);
 				break;
 			case 'substitute':
 				if (kwArgs.damage) {
@@ -2424,8 +2441,8 @@ class Battle {
 				this.scene.resultAnim(poke, 'Team Cured', 'good');
 				break;
 			case 'brickbreak':
-				ofpoke!.side.removeSideCondition('Reflect');
-				ofpoke!.side.removeSideCondition('LightScreen');
+				target!.side.removeSideCondition('Reflect');
+				target!.side.removeSideCondition('LightScreen');
 				break;
 			case 'hyperspacefury':
 			case 'hyperspacehole':
@@ -2434,17 +2451,17 @@ class Battle {
 			case 'feint':
 				this.scene.resultAnim(poke, 'Protection broken', 'bad');
 				poke.removeTurnstatus('protect' as ID);
-				for (const target of poke.side.pokemon) {
-					target.removeTurnstatus('wideguard' as ID);
-					target.removeTurnstatus('quickguard' as ID);
-					target.removeTurnstatus('craftyshield' as ID);
-					target.removeTurnstatus('matblock' as ID);
-					this.scene.updateStatbar(target);
+				for (const curTarget of poke.side.pokemon) {
+					curTarget.removeTurnstatus('wideguard' as ID);
+					curTarget.removeTurnstatus('quickguard' as ID);
+					curTarget.removeTurnstatus('craftyshield' as ID);
+					curTarget.removeTurnstatus('matblock' as ID);
+					this.scene.updateStatbar(curTarget);
 				}
 				break;
 			case 'spite':
-				let move = Dex.getMove(args[3]).name;
-				let pp = Number(args[4]);
+				let move = Dex.getMove(kwArgs.move).name;
+				let pp = Number(kwArgs.number);
 				if (isNaN(pp)) pp = 4;
 				poke.rememberMove(move, pp);
 				break;
@@ -2455,59 +2472,52 @@ class Battle {
 				break;
 			case 'skillswap':
 				if (this.gen <= 4) break;
-				let pokeability = Dex.sanitizeName(args[3]) || ofpoke!.ability;
-				let ofpokeability = Dex.sanitizeName(args[4]) || poke.ability;
+				let pokeability = Dex.sanitizeName(kwArgs.ability) || target!.ability;
+				let targetability = Dex.sanitizeName(kwArgs.ability2) || poke.ability;
 				if (pokeability) {
 					poke.ability = pokeability;
-					if (!ofpoke!.baseAbility) ofpoke!.baseAbility = pokeability;
+					if (!target!.baseAbility) target!.baseAbility = pokeability;
 				}
-				if (ofpokeability) {
-					ofpoke!.ability = ofpokeability;
-					if (!poke.baseAbility) poke.baseAbility = ofpokeability;
+				if (targetability) {
+					target!.ability = targetability;
+					if (!poke.baseAbility) poke.baseAbility = targetability;
 				}
-				if (poke.side !== ofpoke!.side) {
+				if (poke.side !== target!.side) {
 					this.activateAbility(poke, pokeability, true);
-					this.activateAbility(ofpoke, ofpokeability, true);
+					this.activateAbility(target, targetability, true);
 				}
 				break;
 
 			// ability activations
-			case 'wonderguard': // Deprecated, now uses -immune
-				this.scene.resultAnim(poke, 'Immune', 'neutral');
-				break;
 			case 'forewarn':
-				if (ofpoke) {
-					ofpoke.rememberMove(args[3], 0);
+				if (target) {
+					target.rememberMove(kwArgs.move, 0);
 				} else {
 					let foeActive = [] as Pokemon[];
-					for (const target of poke.side.foe.active) if (target) foeActive.push(target);
+					for (const maybeTarget of poke.side.foe.active) {
+						if (maybeTarget && !maybeTarget.fainted) foeActive.push(maybeTarget);
+					}
 					if (foeActive.length === 1) {
-						foeActive[0].rememberMove(args[3], 0);
+						foeActive[0].rememberMove(kwArgs.move, 0);
 					}
 				}
 				break;
 			case 'mummy':
-				if (!args[3]) break; // if Mummy activated but failed, no ability will have been sent
-				let ability = Dex.getAbility(args[3]);
-				this.activateAbility(ofpoke, ability.name);
+				if (!kwArgs.ability) break; // if Mummy activated but failed, no ability will have been sent
+				let ability = Dex.getAbility(kwArgs.ability);
+				this.activateAbility(target, ability.name);
 				this.activateAbility(poke, "Mummy");
 				this.scene.wait(700);
-				this.activateAbility(ofpoke, "Mummy", true);
+				this.activateAbility(target, "Mummy", true);
 				break;
 
 			// item activations
 			case 'leppaberry':
 			case 'mysteryberry':
-				poke.rememberMove(args[3], effect.id === 'leppaberry' ? -10 : -5);
+				poke.rememberMove(kwArgs.move, effect.id === 'leppaberry' ? -10 : -5);
 				break;
 			case 'focusband':
 				poke.item = 'Focus Band';
-				break;
-			case 'safetygoggles':
-				poke.item = 'Safety Goggles';
-				break;
-			case 'protectivepads':
-				poke.item = 'Protective Pads';
 				break;
 			default:
 				if (kwArgs.broken) { // for custom moves that break protection

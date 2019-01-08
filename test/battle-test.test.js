@@ -9,6 +9,7 @@ window = global;
 require('../js/battle-dex-data.js');
 require('../js/battle-dex.js');
 require('../js/battle-scene-stub.js');
+global.BattleText = require('../data/text.js').BattleText;
 require('../js/battle-text-parser.js');
 require('../js/battle.js');
 
@@ -91,5 +92,20 @@ describe('Battle', () => {
 		assert(p2kyurem.prevItem === 'Leftovers');
 
 		assert.deepEqual(p1leafeon.moveTrack, [['Knock Off', 1]]);
+	});
+});
+
+describe('Text parser', () => {
+	it('should process messages correctly', () => {
+		let parser = new BattleTextParser();
+
+		assert.equal(parser.extractMessage('|-activate|p2a: Cool.|move: Skill Swap|Speed Boost|Cute Charm|[of] p1a: Speedy'), `  [The opposing Cool.'s Speed Boost]
+  [Speedy's Cute Charm]
+  The opposing Cool. swapped Abilities with its target!
+`);
+		assert.equal(parser.extractMessage('|-activate|p2a: Cool.|move: Skill Swap|p1a: Speedy|[ability]Speed Boost|[ability2]Cute Charm'), `  [The opposing Cool.'s Speed Boost]
+  [Speedy's Cute Charm]
+  The opposing Cool. swapped Abilities with its target!
+`);
 	});
 });
