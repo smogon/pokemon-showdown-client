@@ -150,6 +150,7 @@ interface SpriteData {
 }
 
 const Dex = {
+	gen: 7,
 
 	resourcePrefix: (() => {
 		let prefix = '';
@@ -164,6 +165,15 @@ const Dex = {
 		}
 		return '//play.pokemonshowdown.com/fx/';
 	})(),
+
+	moddedDexes: {} as any as {[mod: string]: ModdedDex},
+	mod(modid: ID) {
+		if (modid in this.moddedDexes) {
+			return this.moddedDexes[modid];
+		}
+		this.moddedDexes[modid] = new ModdedDex(modid);
+		return this.moddedDexes[modid];
+	},
 
 	resolveAvatar(avatar: string): string {
 		if (avatar in BattleAvatarNumbers) {
@@ -669,6 +679,98 @@ const Dex = {
 		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
 	},
 };
+
+class ModdedDex {
+	readonly gen: number;
+	readonly modid: ID;
+	readonly cache = {
+		Moves: {} as any as {[k: string]: Move},
+		Items: {} as any as {[k: string]: Item},
+		Templates: {} as any as {[k: string]: Template},
+	};
+	getAbility = Dex.getAbility;
+	constructor(modid: ID) {
+		this.modid = modid;
+		let gen = parseInt(modid.slice(3));
+		if (!modid.startsWith('gen') || !gen) throw new Error("Unsupported modid");
+		this.gen = gen;
+	}
+	getMove(name: string): Move {
+		let id = toId(name);
+		if (window.BattleAliases && id in BattleAliases) {
+			name = BattleAliases[id];
+			id = toId(name);
+		}
+		if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
+
+		let data = {...Dex.getMove(name)};
+
+		const table = window.BattleTeambuilderTable[this.modid];
+		if (id in table.overrideAcc) data.accuracy = table.overrideAcc[id];
+		if (id in table.overrideBP) data.basePower = table.overrideBP[id];
+		if (id in table.overridePP) data.pp = table.overridePP[id];
+		if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
+		for (let i = this.gen; i < 7; i++) {
+			if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
+				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
+				break;
+			}
+		}
+
+		const move = new Move(id, name, data);
+		this.cache.Moves[id] = move;
+		return move;
+	}
+	getItem(name: string): Item {
+		let id = toId(name);
+		if (window.BattleAliases && id in BattleAliases) {
+			name = BattleAliases[id];
+			id = toId(name);
+		}
+		if (this.cache.Items.hasOwnProperty(id)) return this.cache.Items[id];
+
+		let data = {...Dex.getItem(name)};
+
+		for (let i = this.gen; i < 7; i++) {
+			if (id in window.BattleTeambuilderTable['gen' + i].overrideItemDesc) {
+				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideItemDesc[id];
+				break;
+			}
+		}
+
+		const item = new Item(id, name, data);
+		this.cache.Items[id] = item;
+		return item;
+	}
+	getTemplate(name: string): Template {
+		let id = toId(name);
+		if (window.BattleAliases && id in BattleAliases) {
+			name = BattleAliases[id];
+			id = toId(name);
+		}
+		if (this.cache.Templates.hasOwnProperty(id)) return this.cache.Templates[id];
+
+		let data = {...Dex.getTemplate(name)};
+
+		const table = window.BattleTeambuilderTable[this.modid];
+		if (id in table.overrideAbility) {
+			data.abilities = {...data.abilities, 0: table.overrideAbility[id]};
+		}
+		if (id in table.overrideStats) {
+			data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
+		}
+		if (id in table.overrideType) data.types = table.overrideType[id].split('/');
+		if (id in table.removeSecondAbility) {
+			data.abilities = {...data.abilities};
+			// @ts-ignore
+			delete data.abilities['1'];
+		}
+
+		const template = new Template(id, name, data);
+		this.cache.Templates[id] = template;
+		return template;
+	}
+}
 
 if (typeof require === 'function') {
 	// in Node
