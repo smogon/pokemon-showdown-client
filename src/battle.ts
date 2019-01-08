@@ -1191,6 +1191,7 @@ class Battle {
 	}
 	useMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
 		let fromeffect = Dex.getEffect(kwArgs.from);
+		this.activateAbility(pokemon, fromeffect);
 		pokemon.clearMovestatuses();
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
