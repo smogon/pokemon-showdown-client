@@ -99,13 +99,26 @@ describe('Text parser', () => {
 	it('should process messages correctly', () => {
 		let parser = new BattleTextParser();
 
-		assert.equal(parser.extractMessage('|-activate|p2a: Cool.|move: Skill Swap|Speed Boost|Cute Charm|[of] p1a: Speedy'), `  [The opposing Cool.'s Speed Boost]
+		assert.equal(parser.extractMessage(`|-activate|p2a: Cool.|move: Skill Swap|Speed Boost|Cute Charm|[of] p1a: Speedy`), `  [The opposing Cool.'s Speed Boost]
   [Speedy's Cute Charm]
   The opposing Cool. swapped Abilities with its target!
 `);
-		assert.equal(parser.extractMessage('|-activate|p2a: Cool.|move: Skill Swap|p1a: Speedy|[ability]Speed Boost|[ability2]Cute Charm'), `  [The opposing Cool.'s Speed Boost]
+		assert.equal(parser.extractMessage(`|-activate|p2a: Cool.|move: Skill Swap|p1a: Speedy|[ability]Speed Boost|[ability2]Cute Charm`), `  [The opposing Cool.'s Speed Boost]
   [Speedy's Cute Charm]
   The opposing Cool. swapped Abilities with its target!
+`);
+		assert.equal(parser.extractMessage(`|move|p2a: Palkia|Swagger|p1a: Shroomish
+|-boost|p1a: Shroomish|atk|2
+|-start|p1a: Shroomish|confusion
+|-activate|p1a: Shroomish|confusion
+|move|p1a: Shroomish|Power-Up Punch|p2a: Palkia
+`), `
+The opposing Palkia used **Swagger**!
+  Shroomish's Attack rose sharply!
+  Shroomish became confused!
+
+  Shroomish is confused!
+Shroomish used **Power-Up Punch**!
 `);
 	});
 });
