@@ -73,7 +73,7 @@ class BattleTextParser {
 				'electricterrain', 'mistyterrain', 'psychicterrain', 'telepathy', 'stickyhold', 'suctioncups', 'aromaveil',
 				'flowerveil', 'sweetveil', 'disguise', 'safetygoggles', 'protectivepads',
 			].includes(id)) {
-				return {args: ['-block', target, effect, arg3], kwArgs: {}};
+				return {args: ['-block', target || pokemon, effect, arg3], kwArgs: {}};
 			}
 
 			if ([
