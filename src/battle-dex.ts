@@ -394,6 +394,17 @@ const Dex = {
 		return template;
 	},
 
+	getTier(pokemon: Pokemon, gen = 7, isDoubles = false): string {
+		let table = window.BattleTeambuilderTable;
+		gen = Math.floor(gen);
+		if (gen < 0 || gen > 7) gen = 7;
+		if (gen < 7 && !isDoubles) table = table['gen' + gen];
+		if (isDoubles) table = table['gen' + gen + 'doubles'];
+		// Prevents Pokemon from having their tier displayed as 'undefined' when they're in a previous generation teambuilder
+		if (this.getTemplate(pokemon.species).gen > gen) return 'Illegal';
+		return table.tierStorage[toId(pokemon.species)];
+	},
+
 	getType(type: any): Effect {
 		if (!type || typeof type === 'string') {
 			let id = toId(type) as string;
