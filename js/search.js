@@ -34,6 +34,7 @@
 		this.cur = {};
 		this.$inputEl = null;
 		this.gen = 7;
+		this.isDoubles = false;
 
 		var self = this;
 		this.$el.on('click', '.more button', function (e) {
@@ -790,6 +791,7 @@
 		} else if (!format) {
 			this.gen = 7;
 		}
+		if (format.includes('doubles')) this.isDoubles = true;
 		var isLetsGo = format.startsWith('letsgo');
 		if (isLetsGo) format = format.slice(6);
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
@@ -1307,14 +1309,12 @@
 		// number
 		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
 		var tier;
-		if (this.gen < 7) {
-			tier = pokemon.num;
-		} else if (pokemon.tier) {
-			tier = pokemon.tier;
+		if (pokemon.tier) {
+			tier = Dex.getTier(pokemon, this.gen, this.isDoubles);
 		} else if (pokemon.forme && pokemon.forme.endsWith('Totem')) {
-			tier = Dex.getTemplate(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1))).tier;
+			tier = Dex.getTier(BattlePokedex[toId(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1)))], this.gen, this.isDoubles);
 		} else {
-			tier = Dex.getTemplate(pokemon.baseSpecies).tier;
+			tier = Dex.getTier(BattlePokedex[toId(pokemon.baseSpecies)], this.gen, this.isDoubles);
 		}
 		buf += '<span class="col numcol">' + tier + '</span> ';
 
