@@ -2458,6 +2458,15 @@ class PokemonSprite extends Sprite {
 			laserfocus: '<span class="good">Laser&nbsp;Focus</span>',
 			spotlight: '<span class="neutral">Spotlight</span>',
 			itemremoved: '',
+			// partial trapping
+			bind: '<span class="bad">Bind</span>',
+			clamp: '<span class="bad">Clamp</span>',
+			firespin: '<span class="bad">Fire Spin</span>',
+			infestation: '<span class="bad">Infestation</span>',
+			magmastorm: '<span class="bad">Magma Storm</span>',
+			sandtomb: '<span class="bad">Sand Tomb</span>',
+			whirlpool: '<span class="bad">Whirlpool</span>',
+			wrap: '<span class="bad">Wrap</span>',
 			// Gen 1
 			lightscreen: '<span class="good">Light&nbsp;Screen</span>',
 			reflect: '<span class="good">Reflect</span>',
