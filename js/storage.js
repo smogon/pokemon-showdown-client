@@ -254,9 +254,46 @@ Storage.prefs.save = function () {
 	} catch (e) {}
 };
 
-Storage.whenPrefsLoaded = Dex.makeLoadTracker();
-Storage.whenTeamsLoaded = Dex.makeLoadTracker();
-Storage.whenAppLoaded = Dex.makeLoadTracker();
+/**
+ * Load trackers are loosely based on Promises, but very simplified.
+ * Trackers are made with: let tracker = Dex.makeLoadTracker();
+ * Pass callbacks like so: tracker(callback)
+ * When tracker.load() is called, all callbacks are run.
+ * If tracker.load() has already been called, tracker(callback) will
+ * call the callback instantly.
+ */
+Storage.makeLoadTracker = function () {
+	/** @type {(callback: (this: C, value: T) => void, context: C) => LoadTracker) & {isLoaded: boolean, value: T | undefined, load: (value: T) => void, unload: () => void, callbacks: [(value: T) => void, C][]}} */
+	var tracker = function (callback, context) {
+		if (tracker.isLoaded) {
+			callback.call(context, tracker.value);
+		} else {
+			tracker.callbacks.push([callback, context]);
+		}
+		return tracker;
+	};
+	tracker.callbacks = [];
+	tracker.value = undefined;
+	tracker.isLoaded = false;
+	tracker.load = function (value) {
+		if (tracker.isLoaded) return;
+		tracker.isLoaded = true;
+		tracker.value = value;
+		for (var i = 0; i < tracker.callbacks.length; i++) {
+			var callback = tracker.callbacks[i];
+			callback[0].call(callback[1], value);
+		}
+	};
+	tracker.unload = function () {
+		if (!tracker.isLoaded) return;
+		tracker.isLoaded = false;
+	};
+	return tracker;
+};
+
+Storage.whenPrefsLoaded = Storage.makeLoadTracker();
+Storage.whenTeamsLoaded = Storage.makeLoadTracker();
+Storage.whenAppLoaded = Storage.makeLoadTracker();
 
 var updatePrefs = function () {
 	var oldShowjoins = Storage.prefs('showjoins');
@@ -1491,7 +1528,7 @@ Storage.teamCompare = function (a, b) {
 	return 0;
 };
 
-Storage.fsReady = Dex.makeLoadTracker();
+Storage.fsReady = Storage.makeLoadTracker();
 Storage.fsReady.load();
 
 Storage.nwDeleteAllTeams = function (callback) {
