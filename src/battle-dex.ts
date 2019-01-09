@@ -402,7 +402,7 @@ const Dex = {
 		if (isDoubles) table = table['gen' + gen + 'doubles'];
 		// Prevents Pokemon from having their tier displayed as 'undefined' when they're in a previous generation teambuilder
 		if (this.getTemplate(pokemon.species).gen > gen) return 'Illegal';
-		return table.tierStorage[toId(pokemon.species)];
+		return table.overrideTier[toId(pokemon.species)];
 	},
 
 	getType(type: any): Effect {
