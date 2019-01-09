@@ -376,21 +376,28 @@ const Dex = {
 		}
 		if (!window.BattlePokedex) window.BattlePokedex = {};
 		let data = window.BattlePokedex[id];
-		if (data && typeof data.exists === 'boolean') return data;
-		if (!data) data = {exists: false};
-		let template = new Template(id, name, data);
-		window.BattlePokedex[id] = template;
-		if (formid !== id && template.otherForms && template.otherForms.includes(formid)) {
-			let forme = formid.slice(id.length);
-			forme = forme[0].toUpperCase() + forme.slice(1);
-			name = template.baseSpecies + (forme ? '-' + forme : '');
 
-			template = window.BattlePokedexAltForms[formid] = new Template(formid, name, {
-				...template,
-				name,
-				forme,
-			});
+		let template: Template;
+		if (data && typeof data.exists === 'boolean') {
+			template = data;
+		} else {
+			if (!data) data = {exists: false};
+			template = new Template(id, name, data);
+			window.BattlePokedex[id] = template;
 		}
+
+		if (formid === id || !template.otherForms || !template.otherForms.includes(formid)) {
+			return template;
+		}
+		let forme = formid.slice(id.length);
+		forme = forme[0].toUpperCase() + forme.slice(1);
+		name = template.baseSpecies + (forme ? '-' + forme : '');
+
+		template = window.BattlePokedexAltForms[formid] = new Template(formid, name, {
+			...template,
+			name,
+			forme,
+		});
 		return template;
 	},
 
