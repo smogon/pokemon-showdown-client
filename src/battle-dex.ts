@@ -162,50 +162,6 @@ const Dex = {
 		return '//play.pokemonshowdown.com/fx/';
 	})(),
 
-	/*
-	 * DEPRECATED: use PSObservable
-	 *
-	 * Load trackers are loosely based on Promises, but very simplified.
-	 * Trackers are made with: let tracker = Dex.makeLoadTracker();
-	 * Pass callbacks like so: tracker(callback)
-	 * When tracker.load() is called, all callbacks are run.
-	 * If tracker.load() has already been called, tracker(callback) will
-	 * call the callback instantly.
-	 */
-	makeLoadTracker<T = any, C = void>() {
-		type LoadTracker = ((callback: (this: C, value: T) => void, context: C) => LoadTracker) & {
-			isLoaded: boolean,
-			value: T | undefined,
-			load: (value: T) => void,
-			unload: () => void,
-			callbacks: [(value: T) => void, C][],
-		};
-		let tracker: LoadTracker = ((callback, context) => {
-			if (tracker.isLoaded) {
-				callback.call(context, tracker.value!);
-			} else {
-				tracker.callbacks.push([callback, context]);
-			}
-			return tracker;
-		}) as LoadTracker;
-		tracker.callbacks = [];
-		tracker.value = undefined;
-		tracker.isLoaded = false;
-		tracker.load = (value: T) => {
-			if (tracker.isLoaded) return;
-			tracker.isLoaded = true;
-			tracker.value = value;
-			for (const [callback, context] of tracker.callbacks) {
-				callback.call(context, value);
-			}
-		};
-		tracker.unload = () => {
-			if (!tracker.isLoaded) return;
-			tracker.isLoaded = false;
-		};
-		return tracker;
-	},
-
 	resolveAvatar(avatar: string | number): string {
 		let avatarnum = Number(avatar);
 		if (!isNaN(avatarnum)) {
