@@ -1586,10 +1586,12 @@ class Battle {
 			break;
 		}
 		case '-clearallboost': {
+			let timeOffset = this.scene.timeOffset;
 			for (const side of this.sides) {
 				for (const active of side.active) {
 					if (active) {
 						active.boosts = {};
+						this.scene.timeOffset = timeOffset;
 						this.scene.resultAnim(active, 'Stats reset', 'neutral');
 					}
 				}
