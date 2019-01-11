@@ -2386,15 +2386,16 @@ class PokemonSprite extends Sprite {
 			}
 		}
 		let statusTable: {[id: string]: string} = {
+			formechange: '',
+			typechange: '',
+			typeadd: '',
+			trapped: '', // linked volatiles are not implemented yet
 			throatchop: '<span class="bad">Throat&nbsp;Chop</span> ',
 			confusion: '<span class="bad">Confused</span> ',
 			healblock: '<span class="bad">Heal&nbsp;Block</span> ',
 			yawn: '<span class="bad">Drowsy</span> ',
 			flashfire: '<span class="good">Flash&nbsp;Fire</span> ',
 			imprison: '<span class="good">Imprisoning&nbsp;foe</span> ',
-			formechange: '',
-			typechange: '',
-			typeadd: '',
 			autotomize: '<span class="neutral">Lightened</span> ',
 			miracleeye: '<span class="bad">Miracle&nbsp;Eye</span> ',
 			foresight: '<span class="bad">Foresight</span> ',
