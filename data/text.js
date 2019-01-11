@@ -939,7 +939,7 @@ exports.BattleText = {
 		start: "  [POKEMON] is radiating a fairy aura!",
 	},
 	flashfire: {
-		start: "  The power of [POKEMON]'s Fire-type moves rose'!",
+		start: "  The power of [POKEMON]'s Fire-type moves rose!",
 	},
 	flowerveil: {
 		block: "  [POKEMON] surrounded itself with a veil of petals!",
