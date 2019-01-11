@@ -308,6 +308,73 @@ class DefaultActionHandler {
 		}
 	}
 
+	public function serverinfo($dispatcher, &$reqData, &$out) {
+		if (empty($reqData['server'])) die('incorrect serverinfo data, you need a "server" field');
+
+		$out['host'] = strtolower($reqData['server']);
+		if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $out['host'], $m) {
+			$out['host'] = $m[1];
+			if ($out['host'] === 'logs') die; // not authorized
+			if ($out['host'] === 'sim')  die; // not authorized
+		} else if ($out['host'] === 'play.pokemonshowdown.com') {
+			$out['host'] = 'showdown';
+		} else {
+			die; // not authorized
+		}
+
+		include_once dirname(__FILE__) '../../pokemonshowdown.com/config/servers.inc.php';
+		if ($out['host'] === 'showdown') {
+			$server =& $PokemonServers[$out['host']];
+			$out['host'] = $server['server'];
+			$out['id']   = $server['id'];
+			$out['port'] = $server['port'];
+			if (isset($server['altport'])) $out['altport'] = $server['altport'];
+			$out['banned'] = false;
+		} else {
+			$hyphenpos = strrpos($out['host'], '-');
+			if ($hyphenpos) {
+				$postfix = substr($out['host'], $hyphenpos + 1);
+				if ($postfix === 'afd') {
+					$out['host'] = substr($out['host'], 0, $hyphenpos);
+				} else if (ctype_digit($postfix)) {
+					$out['port'] = intval(substr($out['host'], $hyphenpos + 1);
+					$out['host'] = substr($out['host'], 0, $hyphenpos);
+				}
+			}
+
+			$out['id'] = $out['host'];
+			if (isset($PokemonServers[$out['host']])) {
+				$server =& $PokemonServers[$out['host']];
+				if (@$server['banned']) {
+					$out['banned'] = true;
+				} else {
+					$out['banned'] = false;
+					$out['host']   = $server['server'];
+					if (!isset($out['port'])) {
+						$out['port'] = $server['port'];
+					} else if ($out['port'] !== $server['port']) {
+						$out['id'] = ':' . $out['port'];
+					}
+
+					if (isset($server['altport'])) $out['altport'] = $server['altport'];
+
+					// $yourip = $_SERVER['REMOTE_ADDR'];
+					$yourip = @$_SERVER['HTTP_X_FORWARDED_FOR'];
+					if (substr($out['host'] . ':', 0, strlen($yourip) + 1) === $yourip . ':') {
+						$out['host'] = 'localhost' . substr($out['host'], strlen($yourip));
+					}
+				}
+			} else {
+				$out['banned'] = false;
+				if (isset($out['port'])) {
+					$out['id'] .= ':' . $out['port'];
+				} else {
+					$out['port'] = 8000; // default port
+				}
+			}
+		}
+	}
+
 	public function updateuserstats($dispatcher, &$reqData, &$out) {
 		global $psdb;
 
