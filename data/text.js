@@ -456,7 +456,7 @@ exports.BattleText = {
 		activate: "  [POKEMON] endured the hit!",
 	},
 	fairylock: {
-		start: "  No one will be able to run away during the next turn!",
+		activate: "  No one will be able to run away during the next turn!",
 	},
 	feint: {
 		activate: "  [TARGET] fell for the feint!",
