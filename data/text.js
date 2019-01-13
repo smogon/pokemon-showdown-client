@@ -411,6 +411,9 @@ exports.BattleText = {
 		start: "  Crafty Shield protected [TEAM]!",
 		block: "  Crafty Shield protected [POKEMON]!",
 	},
+	crash: {
+		damage: "  [POKEMON] kept going and crashed!",
+	},
 	curse: {
 		start: "  [SOURCE] cut its own HP and put a curse on [POKEMON]!",
 		damage: "  [POKEMON] is afflicted by the curse!",
@@ -538,7 +541,7 @@ exports.BattleText = {
 		start: "  [SOURCE] is ready to help [POKEMON]!",
 	},
 	highjumpkick: {
-		damage: "  [POKEMON] kept going and crashed!",
+		damage: "#crash",
 	},
 	hyperspacefury: {
 		activate: "#shadowforce",
@@ -572,7 +575,7 @@ exports.BattleText = {
 		activate: "  A deluge of ions showers the battlefield!",
 	},
 	jumpkick: {
-		damage: "#highjumpkick",
+		damage: "#crash",
 	},
 	knockoff: {
 		removeItem: "  [SOURCE] knocked off [POKEMON]'s [ITEM]!",
