@@ -77,9 +77,13 @@ class BattleTextParser {
 			}
 
 			if ([
-				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'charge', 'fairylock', 'trapped',
+				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'charge', 'trapped',
 			].includes(id)) {
 				return {args: ['-start', pokemon, effect], kwArgs: {of: target}};
+			}
+
+			if (id === 'fairylock') {
+				return {args: ['-fieldactivate', effect], kwArgs: {}};
 			}
 
 			if (id === 'symbiosis') {
