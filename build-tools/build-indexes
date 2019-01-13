@@ -458,8 +458,16 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				break;
 			case 'lumberry':
 			case 'sitrusberry':
-				if (genNum === 2) goodItems.push(id);
+				if (genNum === 2 || genNum >= 7) goodItems.push(id);
 				else greatItems.push(id);
+				break;
+			case 'aguavberry':
+			case 'figyberry':
+			case 'iapapaberry':
+			case 'magoberry':
+			case 'wikiberry':
+				if (genNum >= 7) greatItems.push(id);
+				else poorItems.push(id);
 				break;
 			case 'berryjuice':
 				if (genNum === 2) poorItems.push(id);
@@ -538,19 +546,16 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				badItems.push(id);
 				break;
 			// outclassed items
-			case 'aguavberry':
 			case 'aspearberry':
 			case 'bindingband':
 			case 'cheriberry':
 			case 'destinyknot':
 			case 'enigmaberry':
-			case 'figyberry':
 			case 'floatstone':
 			case 'ironball':
 			case 'jabocaberry':
 			case 'oranberry':
 			case 'machobrace':
-			case 'magoberry':
 			case 'pechaberry':
 			case 'persimberry':
 			case 'poweranklet':
@@ -562,7 +567,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'rawstberry':
 			case 'ringtarget':
 			case 'rowapberry':
-			case 'wikiberry':
 			// gen 2
 			// fallsthrough
 			case 'psncureberry':
