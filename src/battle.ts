@@ -294,6 +294,7 @@ class Pokemon {
 			this.removeTurnstatus(id as ID);
 		}
 		this.turnstatuses = {};
+		this.side.battle.scene.updateStatbar(this);
 	}
 	removeMovestatus(volatile: ID) {
 		this.side.battle.scene.removeEffect(this, volatile);
