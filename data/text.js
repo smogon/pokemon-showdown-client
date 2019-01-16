@@ -518,6 +518,7 @@ exports.BattleText = {
 		end: "  The swamp around [TEAM] disappeared!",
 	},
 	grudge: {
+		activate: "  [POKEMON]'s [MOVE] lost all of its PP due to the grudge!",
 		start: "[POKEMON] wants its target to bear a grudge!",
 	},
 	guardsplit: {
