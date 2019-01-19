@@ -632,8 +632,11 @@
 	Search.prototype.nextLearnsetid = function (learnsetid, speciesid) {
 		if (!speciesid) {
 			if (learnsetid in BattleTeambuilderTable.learnsets) return learnsetid;
-			learnsetid = toId(BattlePokedex[learnsetid].baseSpecies);
-			if (learnsetid in BattleTeambuilderTable.learnsets) return learnsetid;
+			var baseLearnsetid = BattlePokedex[learnsetid] && toId(BattlePokedex[learnsetid].baseSpecies);
+			if (!baseLearnsetid) {
+				baseLearnsetid = toId(BattleAliases[learnsetid]);
+			}
+			if (baseLearnsetid in BattleTeambuilderTable.learnsets) return baseLearnsetid;
 			return '';
 		}
 
