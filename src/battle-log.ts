@@ -232,7 +232,7 @@ class BattleLog {
 		const el = document.createElement('div');
 		el.className = className;
 		el.innerHTML = innerHTML;
-		this.addNode(el);
+		this.addNode(el, preempt);
 	}
 	addSpacer() {
 		this.addDiv('spacer battle-history', '<br />');
