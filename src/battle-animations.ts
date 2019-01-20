@@ -2477,6 +2477,7 @@ class PokemonSprite extends Sprite {
 			else status += statusTable[i];
 		}
 		for (let i in pokemon.turnstatuses) {
+			if (i === 'roost' && !pokemon.getTypeList().includes('Flying')) continue;
 			if (typeof statusTable[i] === 'undefined') status += '<span class="neutral">[[' + i + ']]</span>';
 			else status += statusTable[i];
 		}

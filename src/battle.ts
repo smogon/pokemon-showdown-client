@@ -469,6 +469,10 @@ class Pokemon {
 		const addedType = (this.volatiles.typeadd ? this.volatiles.typeadd[1] : '');
 		return [types, addedType];
 	}
+	getTypeList() {
+		const [types, addedType] = this.getTypes();
+		return types.concat(addedType);
+	}
 	getSpecies(): string {
 		return this.volatiles.formechange ? this.volatiles.formechange[1] : this.species;
 	}
@@ -2357,6 +2361,9 @@ class Battle {
 			let effect = Dex.getEffect(args[2]);
 			poke.addTurnstatus(effect.id);
 
+			if (effect.id === 'roost' && !poke.getTypeList().includes('Flying')) {
+				break;
+			}
 			switch (effect.id) {
 			case 'roost':
 				this.scene.resultAnim(poke, 'Landed', 'neutral');
