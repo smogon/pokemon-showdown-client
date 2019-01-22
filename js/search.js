@@ -164,7 +164,7 @@
 		// the alias text before any other passes.
 		var queryAlias;
 		if (query in BattleAliases) {
-			if (query === 'sub' || toId(BattleAliases[query]).slice(0, query.length) !== query) {
+			if (['sub', 'tr'].includes(query) || toId(BattleAliases[query]).slice(0, query.length) !== query) {
 				queryAlias = toId(BattleAliases[query]);
 				var aliasPassType = (queryAlias === 'hiddenpower' ? 4 : 1);
 				searchPasses.unshift([aliasPassType, Search.getClosest(queryAlias), queryAlias]);
