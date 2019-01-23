@@ -125,7 +125,7 @@
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
-				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format === 'gen7balancedhackmons' || this.curTeam.format.endsWith('norestrictions'));
+				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format === 'gen7balancedhackmons' || this.curTeam.format === 'gen7metronomebattle' || this.curTeam.format.endsWith('norestrictions'));
 				if (this.curSet) {
 					return this.updateSetView();
 				}
@@ -2883,7 +2883,7 @@
 			var itemid = toId(set.item);
 			var abilityid = toId(set.ability);
 
-			if (set.moves.length < 4 && template.id !== 'unown' && template.id !== 'ditto' && this.curTeam.gen > 2) return '?';
+			if (set.moves.length < 4 && template.id !== 'unown' && template.id !== 'ditto' && this.curTeam.gen > 2 && this.curTeam.format !== 'gen7metronomebattle') return '?';
 
 			for (var i = 0, len = set.moves.length; i < len; i++) {
 				var move = Dex.getMove(set.moves[i]);
@@ -2963,7 +2963,7 @@
 				specialBulk *= 1.3;
 				moveCount['SpecialStall']++;
 			}
-			if (template.id === 'tyranitar') specialBulk *= 1.5;
+			if (abilityid === 'sandstream' && (template.types[0] === 'Rock' || template.types[1] === 'Rock')) specialBulk *= 1.5;
 
 			if (hasMove['bellydrum']) {
 				physicalBulk *= 0.6;
