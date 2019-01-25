@@ -929,6 +929,7 @@ class Battle {
 	rated = false;
 	endLastTurnPending = false;
 	totalTimeLeft = 0;
+	graceTimeLeft = 0;
 	kickingInactive: number | boolean = false;
 
 	// options
@@ -2992,8 +2993,10 @@ class Battle {
 		case 'inactive': {
 			if (!this.kickingInactive) this.kickingInactive = true;
 			if (args[1].slice(0, 11) === "Time left: ") {
-				this.kickingInactive = parseInt(args[1].slice(11), 10) || true;
-				this.totalTimeLeft = parseInt(args[1].split(' | ')[1], 10);
+				let [time, totalTime, graceTime] = args[1].split(' | ');
+				this.kickingInactive = parseInt(time.slice(11), 10) || true;
+				this.totalTimeLeft = parseInt(totalTime, 10);
+				this.graceTimeLeft = parseInt(graceTime || '', 10) || 0;
 				if (this.totalTimeLeft === this.kickingInactive) this.totalTimeLeft = 0;
 				return;
 			} else if (args[1].slice(0, 9) === "You have ") {

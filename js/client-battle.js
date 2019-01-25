@@ -448,7 +448,8 @@
 				}, 1000);
 			} else if (this.battle.kickingInactive > 1) {
 				this.battle.kickingInactive--;
-				if (this.battle.totalTimeLeft) this.battle.totalTimeLeft--;
+				if (this.battle.graceTimeLeft) this.battle.graceTimeLeft--;
+				else if (this.battle.totalTimeLeft) this.battle.totalTimeLeft--;
 			}
 
 			if (this.battle.kickingInactive) {
