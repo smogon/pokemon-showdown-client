@@ -261,6 +261,14 @@
 				}
 				folders.push(format);
 			}
+			if (!folderTable['Boxes/']) {
+				folders.push('ZBoxes');
+				folderTable['Boxes/'] = 1;
+				if (!('/' in folderTable)) {
+					folders.push('Z~');
+					folderTable['/'] = 1;
+				}
+			}
 			folders.sort();
 			var gen = '';
 			var formatFolderBuf = '<div class="foldersep"></div>';
@@ -345,7 +353,11 @@
 				if (this.curFolder.slice(-1) === '/') {
 					filterFolder = this.curFolder.slice(0, -1);
 					if (filterFolder) {
-						buf += '<h2><i class="fa fa-folder-open"></i> ' + filterFolder + ' <button class="button small" style="margin-left:5px" name="renameFolder"><i class="fa fa-pencil"></i> Rename</button> <button class="button small" style="margin-left:5px" name="promptDeleteFolder"><i class="fa fa-times"></i> Remove</button></h2>';
+						if (filterFolder === 'Boxes') {
+							buf += '<h2><i class="fa fa-folder-open"></i> ' + filterFolder + ' <button class="button small disabled" style="margin-left:5px" name="renameFolder" disabled="disabled" title="(Do not rename or delete this folder.)"><i class="fa fa-pencil"></i> Rename</button> <button class="button small disabled" style="margin-left:5px" name="promptDeleteFolder" disabled="disabled" title="(Do not rename or delete this folder.)"><i class="fa fa-times"></i> Remove</button></h2>';
+						} else {
+							buf += '<h2><i class="fa fa-folder-open"></i> ' + filterFolder + ' <button class="button small" style="margin-left:5px" name="renameFolder"><i class="fa fa-pencil"></i> Rename</button> <button class="button small" style="margin-left:5px" name="promptDeleteFolder"><i class="fa fa-times"></i> Remove</button></h2>';
+						}
 					} else {
 						buf += '<h2><i class="fa fa-folder-open-o"></i> Teams not in any folders</h2>';
 					}
@@ -355,12 +367,12 @@
 				}
 			}
 
-			var newButtonText = "New Team";
-			if (filterFolder) newButtonText = "New Team in folder";
+			var newTeamButtonText = "New Team";
+			if (filterFolder) newTeamButtonText = filterFolder === 'Boxes' ? "New Box" : "New Team in folder";
 			if (filterFormat && filterFormat !== 'gen8') {
-				newButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Team";
+				newTeamButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Team";
 			}
-			buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> ' + newButtonText + '</button> ' +
+			buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button> ' +
 					 '<input type="text" id="teamSearchBar" name="search" class="textbox searchinput" value="' + this.curSearchVal + '" placeholder="search teams"/></p>';
 
 			buf += '<ul class="teamlist">';
@@ -429,16 +441,22 @@
 					}
 					if (team.folder) formatText += team.folder + '/';
 
-					// teams are <div>s rather than <button>s because Firefox doesn't
+					// teams and boxes are <div>s rather than <button>s because Firefox doesn't
 					// support dragging and dropping buttons.
-					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + BattleLog.escapeHTML(team.name) + '</strong><br /><small>';
+					buf += '<li><div name="edit" data-value="' + i + '" class="team';
+					if (team.folder === 'Boxes') buf += ' pc-box';
+					buf += '" draggable="true">' + formatText + '<strong>' + BattleLog.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
 					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="newTop" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
 
 				}
 				if (!atLeastOne) {
 					if (filterFolder) {
-						buf += '<li><p><em>you don\'t have any teams in this folder lol</em></p></li>';
+						if (filterFolder === 'Boxes') {
+							buf += '<li><p><em>you don\'t have any boxes lol</em></p></li>';
+						} else {
+							buf += '<li><p><em>you don\'t have any teams in this folder lol</em></p></li>';
+						}
 					} else {
 						buf += '<li><p><em>you don\'t have any ' + this.curFolder + ' teams lol</em></p></li>';
 					}
@@ -447,7 +465,7 @@
 
 			buf += '</ul>';
 			if (atLeastOne) {
-				buf += '<p><button name="new" class="button"><i class="fa fa-plus-circle"></i> ' + newButtonText + '</button></p>';
+				buf += '<p><button name="new" class="button"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button></p>';
 			}
 
 			if (window.nodewebkit) {
@@ -765,7 +783,7 @@
 					format = 'gen8';
 				}
 				newTeam = {
-					name: 'Untitled ' + (teams.length + 1),
+					name: (folder === 'Boxes' ? 'Box ' : 'Untitled ') + (teams.length + 1),
 					format: format,
 					team: '',
 					folder: folder,
@@ -812,10 +830,10 @@
 		//   https://code.google.com/p/chromium/issues/detail?id=410328
 		// we can't use CSS :hover
 		mouseOverTeam: function (e) {
-			e.currentTarget.className = 'team team-hover';
+			if (!e.currentTarget.className.endsWith('team-hover')) e.currentTarget.className += ' team-hover';
 		},
 		mouseOutTeam: function (e) {
-			e.currentTarget.className = 'team';
+			if (e.currentTarget.className.endsWith('team-hover')) e.currentTarget.className = e.currentTarget.className.slice(0, -11);
 		},
 		dragStartTeam: function (e) {
 			var dataTransfer = e.originalEvent.dataTransfer;
@@ -1108,7 +1126,7 @@
 				if (i === 0) {
 					buf += '<li><button name="import" class="button big"><i class="fa fa-upload"></i> Import from text or URL</button></li>';
 				}
-				if (i < 6) {
+				if (i < (this.curTeam.folder === 'Boxes' ? 24 : 6)) {
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
 				}
 				buf += '</ol>';
