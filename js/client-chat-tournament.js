@@ -223,6 +223,7 @@
 			this.$teamSelect.show();
 			var val = this.$teamSelect.children().val();
 			// this.$validate.toggle(val !== 'random');
+			this.$validate.attr('disabled', !val || !val.length || val === 'random' ? 'disabled' : null);
 			this.$validate.toggleClass('disabled', !val || !val.length || val === 'random');
 		};
 
