@@ -162,25 +162,20 @@ const Dex = {
 		return '//play.pokemonshowdown.com/fx/';
 	})(),
 
-	resolveAvatar(avatar: string | number): string {
-		let avatarnum = Number(avatar);
-		if (!isNaN(avatarnum)) {
-			// default avatars
-			return Dex.resourcePrefix + 'sprites/trainers/' + avatarnum + '.png';
+	resolveAvatar(avatar: string): string {
+		if (avatar in BattleAvatarNumbers) {
+			avatar = BattleAvatarNumbers[avatar];
 		}
-		avatar = '' + avatar;
 		if (avatar.charAt(0) === '#') {
-			return Dex.resourcePrefix + 'sprites/trainers/' + toId(avatar.substr(1)) + '.png';
+			return Dex.resourcePrefix + 'sprites/trainers-custom/' + toId(avatar.substr(1)) + '.png';
 		}
-		if (window.Config && Config.server && Config.server.registered) {
+		if (avatar.includes('.') && window.Config && Config.server && Config.server.registered) {
 			// custom avatar served by the server
 			let protocol = (Config.server.port === 443) ? 'https' : 'http';
 			return protocol + '://' + Config.server.host + ':' + Config.server.port +
 				'/avatars/' + encodeURIComponent(avatar).replace(/\%3F/g, '?');
 		}
-		// just pick a random avatar
-		let sprites = [1, 2, 101, 102, 169, 170];
-		return Dex.resolveAvatar(sprites[Math.floor(Math.random() * sprites.length)]);
+		return Dex.resourcePrefix + 'sprites/trainers/' + Dex.sanitizeName(avatar || 'unknown') + '.png';
 	},
 
 	/**
