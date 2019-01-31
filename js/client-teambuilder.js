@@ -1725,9 +1725,6 @@
 			var template = Dex.getTemplate(template);
 			var format = this.curTeam && this.curTeam.format;
 			var smogdexid = toId(template.baseSpecies);
-			if (template.isNonstandard) {
-				return 'http://www.smogon.com/cap/pokemon/strategies/' + smogdexid;
-			}
 
 			if (template.speciesid === 'meowstic') {
 				smogdexid = 'meowstic-m';
