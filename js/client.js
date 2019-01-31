@@ -144,7 +144,7 @@
 			app.addGlobalListeners();
 			app.on('response:userdetails', function (data) {
 				if (data.userid === this.get('userid')) {
-					this.set('avatar', data.avatar);
+					this.set('avatar', '' + data.avatar);
 				}
 			}, this);
 			var self = this;

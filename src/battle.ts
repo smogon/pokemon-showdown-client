@@ -529,7 +529,7 @@ class Side {
 	id = '';
 	n: number;
 	foe: Side = null!;
-	spriteid: string | number = 262;
+	avatar: string = 'unknown';
 	totalPokemon = 6;
 	x = 0;
 	y = 0;
@@ -552,8 +552,8 @@ class Side {
 	}
 
 	rollTrainerSprites() {
-		let sprites = [1, 2, 101, 102, 169, 170];
-		this.spriteid = sprites[Math.floor(Math.random() * sprites.length)];
+		let sprites = ['lucas', 'dawn', 'ethan', 'lyra', 'hilbert', 'hilda'];
+		this.avatar = sprites[Math.floor(Math.random() * sprites.length)];
 	}
 
 	behindx(offset: number) {
@@ -584,17 +584,17 @@ class Side {
 		this.z = (this.n ? 200 : 0);
 		this.battle.scene.updateSpritesForSide(this);
 	}
-	setAvatar(spriteid: string) {
-		this.spriteid = spriteid;
+	setAvatar(avatar: string) {
+		this.avatar = avatar;
 	}
-	setName(name: string, spriteid?: string | number) {
+	setName(name: string, avatar?: string) {
 		if (name) this.name = name;
 		this.id = toId(this.name);
-		if (spriteid) {
-			this.spriteid = spriteid;
+		if (avatar) {
+			this.setAvatar(avatar);
 		} else {
 			this.rollTrainerSprites();
-			if (this.foe && this.spriteid === this.foe.spriteid) this.rollTrainerSprites();
+			if (this.foe && this.avatar === this.foe.avatar) this.rollTrainerSprites();
 		}
 		if (this.battle.stagnateCallback) this.battle.stagnateCallback(this.battle);
 	}
