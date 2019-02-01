@@ -521,13 +521,25 @@ class BattleScene {
 		this.gen = gen;
 		this.activeCount = this.battle.mySide && this.battle.mySide.active.length || 1;
 
-		if (gen <= 1) this.backdropImage = 'fx/bg-gen1.png?';
-		else if (gen <= 2) this.backdropImage = 'fx/bg-gen2.png?';
-		else if (gen <= 3) this.backdropImage = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
-		else if (gen <= 4) this.backdropImage = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
-		else if (gen <= 5) this.backdropImage = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
-		else this.backdropImage = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
+		const isSPL = (typeof this.battle.rated === 'string' && this.battle.rated.startsWith("Smogon Premier League"));
+		let bg: string;
+		if (isSPL) {
+			if (gen <= 1) bg = 'fx/bg-gen1-spl.png';
+			else if (gen <= 2) bg = 'fx/bg-gen2-spl.png';
+			else if (gen <= 3) bg = 'fx/bg-gen3-spl.png';
+			else if (gen <= 4) bg = 'fx/bg-gen4-spl.png';
+			else bg = 'fx/bg-spl.png';
+			this.setBgm(-101);
+		} else {
+			if (gen <= 1) bg = 'fx/bg-gen1.png?';
+			else if (gen <= 2) bg = 'fx/bg-gen2.png?';
+			else if (gen <= 3) bg = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
+			else if (gen <= 4) bg = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
+			else if (gen <= 5) bg = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
+			else bg = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
+		}
 
+		this.backdropImage = bg;
 		if (this.$bg) {
 			this.$bg.css('background-image', 'url(' + Dex.resourcePrefix + '' + this.backdropImage + ')');
 		}
@@ -672,8 +684,7 @@ class BattleScene {
 			}
 		}
 		if (this.bgmNum < 0) {
-			this.preloadBgm(this.bgmNum);
-			this.soundStart();
+			this.setBgm(this.bgmNum);
 		}
 		this.wait(1000);
 		this.updateSidebars();
@@ -1315,8 +1326,17 @@ class BattleScene {
 		this.preloadImage(Dex.resourcePrefix + 'sprites/xyani/substitute.gif');
 		this.preloadImage(Dex.resourcePrefix + 'sprites/xyani-back/substitute.gif');
 	}
+	setBgm(bgmNum: number) {
+		if (!bgmNum) bgmNum = (1 + this.numericId % 15);
+		if (this.bgmNum === bgmNum) return;
+		this.bgmNum = bgmNum;
+		if (this.bgm) {
+			this.preloadBgm();
+			if (this.animating) this.soundStart();
+		}
+	}
 	preloadBgm(bgmNum = 0) {
-		if (!bgmNum) bgmNum = 1 + this.numericId % 15;
+		if (bgmNum === 0) bgmNum = this.bgmNum || (1 + this.numericId % 15);
 		this.bgmNum = bgmNum;
 
 		let ext = window.nodewebkit ? '.ogg' : '.mp3';
@@ -1388,6 +1408,10 @@ class BattleScene {
 		case 14:
 			BattleSound.loadBgm('audio/sm-trainer' + ext, 8323, 89230);
 			this.bgm = 'audio/sm-trainer' + ext;
+			break;
+		case -101:
+			BattleSound.loadBgm('audio/spl-elite4' + ext, 3962, 152509);
+			this.bgm = 'audio/spl-elite4' + ext;
 			break;
 		case 15:
 		default:
@@ -2267,14 +2291,9 @@ class PokemonSprite extends Sprite {
 		if (pokemon.side.n === 1) return;
 
 		if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) {
-			if (this.scene.bgmNum !== -1) {
-				this.scene.preloadBgm(-1);
-				this.scene.soundStart();
-			}
+			this.scene.setBgm(-1);
 		} else if (this.scene.bgmNum === -1) {
-			this.scene.bgmNum = 0;
-			this.scene.preloadBgm();
-			this.scene.soundStart();
+			this.scene.setBgm(0);
 		}
 	}
 
@@ -2548,6 +2567,7 @@ const BattleSound = new class {
 		resume() { return this; },
 		setVolume() { return this; },
 		onposition() { return this; },
+		isSoundPlaceholder: true,
 	};
 
 	// options
@@ -2556,7 +2576,7 @@ const BattleSound = new class {
 	muted = false;
 
 	loadEffect(url: string) {
-		if (this.effectCache[url] && this.effectCache[url] !== this.soundPlaceholder) {
+		if (this.effectCache[url] && !this.effectCache[url].isSoundPlaceholder) {
 			return this.effectCache[url];
 		}
 		try {
@@ -2575,9 +2595,10 @@ const BattleSound = new class {
 		if (!this.muted) this.loadEffect(url).setVolume(this.effectVolume).play();
 	}
 
+	/** loopstart and loopend are in milliseconds */
 	loadBgm(url: string, loopstart?: number, loopend?: number) {
 		if (this.bgmCache[url]) {
-			if (this.bgmCache[url] !== this.soundPlaceholder || loopstart === undefined) {
+			if (!this.bgmCache[url].isSoundPlaceholder || loopstart === undefined) {
 				return this.bgmCache[url];
 			}
 		}

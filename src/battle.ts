@@ -930,7 +930,7 @@ class Battle {
 	speciesClause = false;
 	tier = '';
 	gameType: 'singles' | 'doubles' | 'triples' = 'singles';
-	rated = false;
+	rated: string | boolean = false;
 	endLastTurnPending = false;
 	totalTimeLeft = 0;
 	graceTimeLeft = 0;
@@ -2993,7 +2993,8 @@ class Battle {
 			break;
 		}
 		case 'rated': {
-			this.rated = true;
+			this.rated = args[1] || true;
+			this.scene.updateGen();
 			this.log(args);
 			break;
 		}
