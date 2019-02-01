@@ -2713,7 +2713,7 @@
 			this.chooseMove('', resetSpeed);
 		},
 		canHyperTrain: function (set) {
-			if (this.curTeam.gen < 7) return false;
+			if (this.curTeam.gen < 7 || this.curTeam.format === 'gen7hiddentype') return false;
 			var format = this.curTeam.format;
 			if (!set.level || set.level === 100) return true;
 			if (format.substr(0, 3) === 'gen') format = format.substr(4);
