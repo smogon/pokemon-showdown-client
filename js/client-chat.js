@@ -881,13 +881,8 @@
 
 			case 'avatar':
 				var parts = target.split(',');
-				var avatarString = toId(parts[0]);
-				var avatar = parseInt(avatarString, 10);
-				if (avatar) {
-					Dex.prefs('avatar', avatar);
-				} else if (['bw2elesa', 'teamrocket', 'yellow', 'zinnia', 'clemont'].indexOf(avatarString) > -1) { // custom avatar exceptions
-					Dex.prefs('avatar', '#' + avatarString);
-				}
+				var avatar = parts[0].toLowerCase().replace(/[^a-z0-9-]+/g, '');
+				Dex.prefs('avatar', avatar);
 				return text; // Send the /avatar command through to the server.
 
 			case 'afd':
