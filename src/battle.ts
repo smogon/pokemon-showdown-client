@@ -1220,7 +1220,16 @@ class Battle {
 					}
 				}
 			}
-			let pp = (target && target.side !== pokemon.side && toId(target.ability) === 'pressure' ? 2 : 1);
+			let pp = 1;
+			if (move.target === "all") {
+				for (const active of pokemon.side.foe.active) {
+					if (active && toId(active.ability) === 'pressure') {
+						pp += 1;
+					}
+				}
+			} else if (target && target.side !== pokemon.side && toId(target.ability) === 'pressure') {
+				pp += 1;
+			}
 			pokemon.rememberMove(moveName, pp);
 		}
 		pokemon.lastMove = move.id;
