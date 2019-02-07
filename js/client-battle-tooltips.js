@@ -820,10 +820,10 @@ var BattleTooltips = (function () {
 				var table = BattleTeambuilderTable['gen' + this.battle.gen];
 				if (move.id in table.overridePP) maxpp = table.overridePP[move.id];
 			}
-			maxpp = Math.floor(maxpp * 8 / 5);
+			if (!move.noPPBoosts) maxpp = Math.floor(maxpp * 8 / 5);
 		}
 		if (ppUsed === Infinity) return move.name + ' <small>(0/' + maxpp + ')</small>';
-		if (ppUsed || moveName.charAt(0) === '*') return move.name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
+		if (ppUsed || moveName.charAt(0) === '*') return move.name + ' <small>(' + Math.max(maxpp - ppUsed, 0) + '/' + maxpp + ')</small>';
 		return move.name + (showKnown ? ' <small>(revealed)</small>' : '');
 	};
 
