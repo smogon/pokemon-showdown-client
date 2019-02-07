@@ -798,7 +798,8 @@ Storage.fastUnpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		var ability = buf.substring(i, j);
 		var template = Dex.getTemplate(set.species);
-		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability || '0'] : ability);
+		if (template.baseSpecies === 'Zygarde' && ability === 'H') ability = 'Power Construct';
+		set.ability = (template.abilities && ['', '0', '1', 'H', 'S'].includes(ability) ? template.abilities[ability] || '!!!ERROR!!!' : ability);
 		i = j + 1;
 
 		// moves

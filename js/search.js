@@ -1375,7 +1375,7 @@
 			}
 			if (gen >= 5) {
 				if (abilities['S']) {
-					buf += '<span class="col twoabilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + abilities['H'] + '<br />' + abilities['S'] + '</span>';
+					buf += '<span class="col twoabilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />' + abilities['S'] + '</span>';
 				} else if (abilities['H']) {
 					buf += '<span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + abilities['H'] + '</span>';
 				} else {
