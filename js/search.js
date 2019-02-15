@@ -846,7 +846,7 @@
 			else if (format === 'ru') tierSet = tierSet.slice(slices.RU || slices.UU);
 			else if (format === 'nu') tierSet = tierSet.slice(slices.NU);
 			else if (format === 'pu') tierSet = tierSet.slice(slices.PU || slices.NU);
-			else if (format === 'zu') tierSet = tierSet.slice(slices.ZU || slices.PU || slices.NU);
+			else if (format === 'zu') tierSet = tierSet.slice(slices["Untiered Singles"] || slices.PU || slices.NU);
 			else if (format === 'lc' || format === 'lcuu') tierSet = tierSet.slice(slices.LC);
 			else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
 			else if (format === 'caplc') tierSet = tierSet.slice(slices['CAP LC'], slices.Uber).concat(tierSet.slice(slices.LC));
@@ -854,10 +854,17 @@
 			else if (format === 'balancedhackmons' || format === 'bh') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
 			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
 			else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
-			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.Untiered || slices.DUU);
+			else if (format === 'doublesnu') tierSet = tierSet.slice(slices["Untiered Doubles"] || slices.DUU);
 			else if (isLetsGo) tierSet = tierSet.slice(slices.Uber);
 			// else if (isDoublesOrBS) tierSet = tierSet;
 			else if (!isDoublesOrBS) tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
+
+			if (format === 'zu' && this.gen === 7) {
+				tierSet = tierSet.filter(function (r) {
+					if (r[1] in table.zuBans) return false;
+					return true;
+				});
+			}
 
 			if (format === 'vgc2016') {
 				tierSet = tierSet.filter(function (r) {
@@ -1251,7 +1258,7 @@
 				ru: "RU",
 				nu: "NU",
 				pu: "PU",
-				zu: "(PU)",
+				zu: "Untiered",
 				nfe: "NFE",
 				lcuber: "LC Uber",
 				lc: "LC",
