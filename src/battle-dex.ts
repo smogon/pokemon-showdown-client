@@ -579,7 +579,7 @@ const Dex = {
 		let id = toId(pokemon);
 		if (pokemon && pokemon.species) id = toId(pokemon.species);
 		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) {
-			id = toId(pokemon.volatiles.formechange[2]);
+			id = toId(pokemon.volatiles.formechange[1]);
 		}
 		if (pokemon && pokemon.num) num = pokemon.num;
 		else if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) num = BattlePokemonSprites[id].num;
