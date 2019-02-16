@@ -870,6 +870,7 @@ const BattleAvatarNumbers: {[k: string]: string} = {
 };
 
 type StatName = 'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe';
+type StatNameExceptHP = 'atk' | 'def' | 'spa' | 'spd' | 'spe';
 type TypeName = 'Normal' | 'Fighting' | 'Flying' | 'Poison' | 'Ground' | 'Rock' | 'Bug' | 'Ghost' | 'Steel' |
 	'Fire' | 'Water' | 'Grass' | 'Electric' | 'Psychic' | 'Ice' | 'Dragon' | 'Dark' | 'Fairy' | '???';
 type StatusName = 'par' | 'psn' | 'frz' | 'slp' | 'brn';
@@ -921,9 +922,11 @@ class Item implements Effect {
 	readonly zMoveType: TypeName | '';
 	readonly zMoveFrom: string;
 	readonly zMoveUser: string[] | null;
-	readonly onPlate: string;
-	readonly onMemory: string;
-	readonly onDrive: string;
+	readonly onPlate: TypeName;
+	readonly onMemory: TypeName;
+	readonly onDrive: TypeName;
+	readonly fling: any;
+	readonly naturalGift: any;
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
@@ -947,6 +950,8 @@ class Item implements Effect {
 		this.onPlate = data.onPlate || '';
 		this.onMemory = data.onMemory || '';
 		this.onDrive = data.onDrive || '';
+		this.fling = data.fling || null;
+		this.naturalGift = data.naturalGift || null;
 
 		if (!this.gen) {
 			if (this.num >= 577) {
@@ -1037,6 +1042,11 @@ class Move implements Effect {
 	readonly zMovePower: number;
 	readonly zMoveEffect: string;
 	readonly zMoveBoost: {[stat in StatName]?: number} | null;
+	readonly ohko: true | 'Ice' | null;
+	readonly recoil: number[] | null;
+	readonly hasCustomRecoil: boolean;
+	readonly noPPBoosts: boolean;
+	readonly secondaries: ReadonlyArray<any> | null;
 	readonly num: number;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1066,6 +1076,11 @@ class Move implements Effect {
 		this.zMovePower = data.zMovePower || 0;
 		this.zMoveEffect = data.zMoveEffect || '';
 		this.zMoveBoost = data.zMoveBoost || null;
+		this.ohko = data.ohko || null;
+		this.recoil = data.recoil || null;
+		this.hasCustomRecoil = data.hasCustomRecoil || false;
+		this.noPPBoosts = data.noPPBoosts || false;
+		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
 
 		this.num = data.num || 0;
 		if (!this.gen) {
@@ -1135,6 +1150,7 @@ class Template implements Effect {
 	readonly forme: string;
 	readonly formeid: string;
 	readonly spriteid: string;
+	readonly baseForme: string;
 
 	// basic data
 	readonly num: number;
@@ -1160,6 +1176,8 @@ class Template implements Effect {
 	readonly otherForms: ReadonlyArray<ID> | null;
 	readonly evos: ReadonlyArray<ID> | null;
 	readonly prevo: ID;
+	readonly evoLevel: number;
+	readonly evoType: 'trade' | 'stone' | 'levelMove' | 'levelExtra' | '';
 	readonly requiredItem: string;
 	readonly tier: string;
 	readonly isTotem: boolean;
@@ -1215,6 +1233,7 @@ class Template implements Effect {
 		this.spriteid = baseId + this.formeid;
 		if (this.spriteid.slice(-5) === 'totem') this.spriteid = this.spriteid.slice(0, -5);
 		if (this.spriteid.slice(-1) === '-') this.spriteid = this.spriteid.slice(0, -1);
+		this.baseForme = data.baseForme || '';
 
 		this.num = data.num || 0;
 		this.types = data.types || ['???'];
@@ -1233,6 +1252,8 @@ class Template implements Effect {
 		this.otherForms = data.otherForms || null;
 		this.evos = data.evos || null;
 		this.prevo = data.prevo || '';
+		this.evoLevel = data.evoLevel || 0;
+		this.evoType = data.evoType || '';
 		this.requiredItem = data.requiredItem || '';
 		this.tier = data.tier || '';
 
