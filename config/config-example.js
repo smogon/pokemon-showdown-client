@@ -68,6 +68,7 @@ Config.whitelist = [
 	'gamepress\\.gg',
 	'trainertower\\.com',
 	'pokepast\\.es',
+	'randbatscalc\\.github\\.io',
 
 	// personal sites
 	'breakdown\\.forumotion\\.com',
