@@ -16,6 +16,9 @@
  * @license MIT
  */
 
+declare var require: any;
+declare var global: any;
+
 if (!Array.prototype.indexOf) {
 	Array.prototype.indexOf = function indexOf(searchElement, fromIndex) {
 		for (let i = (fromIndex || 0); i < this.length; i++) {

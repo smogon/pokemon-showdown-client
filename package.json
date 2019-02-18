@@ -29,7 +29,6 @@
   "devDependencies": {
     "@types/jquery": "^3.3.1",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^8.0.7",
     "eslint": "^4.11.0",
     "mocha": "^5.2.0",
     "preact": "^8.3.1",
