@@ -21,6 +21,7 @@ package-lock.json
 /js/battle-dex-data.js
 /js/battle-animations-moves.js
 /js/battle-animations.js
+/js/battle-tooltips.js
 /js/battle-scene-stub.js
 
 .vscode

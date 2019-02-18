@@ -7,7 +7,7 @@
         "jsx": "preserve",
         "strict": true
     },
-    "types": ["node"],
+    "types": [],
     "include": [
         "./js/lib/preact.d.ts",
         "./src/*"

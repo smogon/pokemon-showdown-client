@@ -1970,12 +1970,12 @@ a.ilink.yours {
 .movemenu button small.type {
 	padding-top: 3px;
 	float: left;
-	font-size: 7pt;
+	font-size: 8pt;
 }
 .movemenu button small.pp {
-	padding-top: 3px;
+	padding-top: 2px;
 	float: right;
-	font-size: 7pt;
+	font-size: 8pt;
 }
 .megaevo {
     clear: both;
@@ -2133,48 +2133,6 @@ a.ilink.yours {
 		float: right;
 		margin-top: -25px;
 	}
-}
-
-/****************/
-
-#tooltipwrapper {
-	position: absolute;
-	top: 400px;
-	left: 100px;
-	text-align: left;
-	color: black;
-	pointer-events: none;
-}
-#tooltipwrapper .tooltipinner {
-	position: relative;
-}
-#tooltipwrapper .tooltip {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	width: 300px;
-	border: 1px solid #888888;
-	background: #EEEEEE;
-	background: rgba(240,240,240,.9);
-	border-radius: 5px;
-	z-index: 50;
-}
-#tooltipwrapper .tooltip h2 {
-	padding: 2px 4px;
-	margin: 0;
-	border-bottom: 1px solid #888888;
-	font-size: 10pt;
-}
-#tooltipwrapper .tooltip h2 small {
-	font-weight: normal;
-}
-#tooltipwrapper .tooltip p {
-	padding: 2px 4px;
-	margin: 0;
-	font-size: 8pt;
-}
-#tooltipwrapper .tooltip p.section {
-	border-top: 1px solid #888888;
 }
 
 /*********************************************************

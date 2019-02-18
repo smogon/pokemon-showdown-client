@@ -124,21 +124,27 @@ exports.BattleText = {
 	// stats
 	hp: {
 		statName: "HP",
+		statShortName: "HP",
 	},
 	atk: {
 		statName: "Attack",
+		statShortName: "Atk",
 	},
 	def: {
 		statName: "Defense",
+		statShortName: "Def",
 	},
 	spa: {
 		statName: "Special Attack",
+		statShortName: "SpA",
 	},
 	spd: {
 		statName: "Special Defense",
+		statShortName: "SpD",
 	},
 	spe: {
 		statName: "Speed",
+		statShortName: "Spe",
 	},
 	accuracy: {
 		statName: "accuracy",
@@ -148,6 +154,7 @@ exports.BattleText = {
 	},
 	spc: {
 		statName: "Special",
+		statShortName: "Spc",
 	},
 	stats: {
 		statName: "stats",

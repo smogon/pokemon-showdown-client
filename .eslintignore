@@ -12,3 +12,4 @@ node_modules/
 /js/battle-animations-moves.js
 /js/battle-scene-stub.js
 /js/battle-animations.js
+/js/battle-tooltips.js
