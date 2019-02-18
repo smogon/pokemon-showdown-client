@@ -106,6 +106,14 @@ class BattleTextParser {
 			return {args, kwArgs};
 		}
 
+		case 'cant': {
+			let [, pokemon, effect] = args;
+			if (['ability: Queenly Majesty', 'ability: Damp', 'ability: Dazzling'].includes(effect)) {
+				args[0] = '-block';
+			}
+			return {args, kwArgs};
+		}
+
 		case '-nothing':
 			// OLD: |-nothing
 			// NEW: |-activate||move:Splash
@@ -438,13 +446,6 @@ class BattleTextParser {
 
 		case 'cant': {
 			let [, pokemon, effect, move] = args;
-			let id = BattleTextParser.effectId(effect);
-			switch (id) {
-			case 'damp': case 'dazzling': case 'queenlymajesty':
-				// thanks Marty
-				[pokemon, kwArgs.of] = [kwArgs.of, pokemon];
-				break;
-			}
 			const template = this.template('cant', effect, 'NODEFAULT') ||
 				this.template(move ? 'cant' : 'cantNoMove');
 			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
@@ -883,9 +884,9 @@ class BattleTextParser {
 
 		case '-block': {
 			let [, pokemon, effect, move] = args;
-			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
+			const line1 = this.maybeAbility(effect, pokemon);
 			const template = this.template('block', effect);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', move);
+			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[MOVE]', move);
 		}
 
 		case '-fail': {
