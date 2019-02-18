@@ -712,6 +712,60 @@ License: GPLv2
 }
 
 /*********************************************************
+ * Tooltips
+ *********************************************************/
+
+#tooltipwrapper {
+	position: absolute;
+	top: 400px;
+	left: 100px;
+	text-align: left;
+	color: black;
+	pointer-events: none;
+}
+#tooltipwrapper .tooltipinner {
+	position: relative;
+}
+#tooltipwrapper .tooltip {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 300px;
+	border: 1px solid #888888;
+	background: #EEEEEE;
+	background: rgba(240,240,240,.9);
+	border-radius: 5px;
+	z-index: 50;
+}
+#tooltipwrapper .tooltip h2 {
+	padding: 2px 4px;
+	margin: 0;
+	border-bottom: 1px solid #888888;
+	font-size: 10pt;
+}
+#tooltipwrapper .tooltip h2 small {
+	font-weight: normal;
+}
+#tooltipwrapper .tooltip p {
+	padding: 2px 4px;
+	margin: 0;
+	font-size: 9pt;
+}
+#tooltipwrapper .tooltip p small {
+	font-size: 8pt;
+}
+#tooltipwrapper .tooltip p.section {
+	border-top: 1px solid #888888;
+}
+#tooltipwrapper.tooltip-locked {
+	pointer-events: auto;
+}
+#tooltipwrapper.tooltip-locked .tooltip {
+	border: 2px solid #888888;
+	background: #DEDEDE;
+}
+
+/*********************************************************
  * Message log styling
  *********************************************************/
 
@@ -829,7 +883,7 @@ License: GPLv2
 	color: #DDD;
 }
 .stat-boosted {
-	color: #119911;
+	color: #117911;
 }
 .stat-lowered {
 	color: #991111;

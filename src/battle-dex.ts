@@ -68,6 +68,15 @@ if (!Object.assign) {
 		return thing;
 	};
 }
+if (!Object.values) {
+	Object.values = function values(thing: any) {
+		let out: any[] = [];
+		for (let k in thing) {
+			out.push(thing[k]);
+		}
+		return out;
+	};
+}
 // if (!Object.create) {
 // 	Object.create = function (proto) {
 // 		function F() {}
@@ -149,31 +158,39 @@ interface SpriteData {
 	shiny?: boolean;
 }
 
-const Dex = {
-	gen: 7,
+const Dex = new class implements ModdedDex {
+	readonly gen = 7;
+	readonly modid = 'gen7' as ID;
+	readonly cache = null!;
 
-	resourcePrefix: (() => {
+	readonly statNames: ReadonlyArray<StatName> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+	readonly statNamesExceptHP: ReadonlyArray<StatNameExceptHP> = ['atk', 'def', 'spa', 'spd', 'spe'];
+
+	resourcePrefix = (() => {
 		let prefix = '';
 		if (!window.document || !document.location || document.location.protocol !== 'http:') prefix = 'https:';
 		return prefix + '//play.pokemonshowdown.com/';
-	})(),
+	})();
 
-	fxPrefix: (() => {
+	fxPrefix = (() => {
 		if (window.document && document.location && document.location.protocol === 'file:') {
 			if (window.Replays) return 'https://play.pokemonshowdown.com/fx/';
 			return 'fx/';
 		}
 		return '//play.pokemonshowdown.com/fx/';
-	})(),
+	})();
 
-	moddedDexes: {} as any as {[mod: string]: ModdedDex},
-	mod(modid: ID) {
+	loadedSpriteData = {xy: 1, bw: 0};
+	moddedDexes: {[mod: string]: ModdedDex} = {};
+
+	mod(modid: ID): ModdedDex {
+		if (modid === 'gen7') return this;
 		if (modid in this.moddedDexes) {
 			return this.moddedDexes[modid];
 		}
 		this.moddedDexes[modid] = new ModdedDex(modid);
 		return this.moddedDexes[modid];
-	},
+	}
 
 	resolveAvatar(avatar: string): string {
 		if (avatar in BattleAvatarNumbers) {
@@ -189,7 +206,7 @@ const Dex = {
 				'/avatars/' + encodeURIComponent(avatar).replace(/\%3F/g, '?');
 		}
 		return Dex.resourcePrefix + 'sprites/trainers/' + Dex.sanitizeName(avatar || 'unknown') + '.png';
-	},
+	}
 
 	/**
 	 * This is used to sanitize strings from data files like `moves.js` and
@@ -205,13 +222,13 @@ const Dex = {
 	sanitizeName(name: any) {
 		if (!name) return '';
 		return ('' + name).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').slice(0, 50);
-	},
+	}
 
 	prefs(prop: string, value?: any, save?: boolean) {
 		// @ts-ignore
 		if (window.Storage && Storage.prefs) return Storage.prefs(prop, value, save);
 		return undefined;
-	},
+	}
 
 	getShortName(name: string) {
 		let shortName = name.replace(/[^A-Za-z0-9]+$/, '');
@@ -219,7 +236,7 @@ const Dex = {
 			shortName += name.slice(shortName.length).replace(/[^\(\)]+/g, '').replace(/\(\)/g, '');
 		}
 		return shortName;
-	},
+	}
 
 	getEffect(name: string | null | undefined): PureEffect | Item | Ability | Move {
 		name = (name || '').trim();
@@ -232,7 +249,7 @@ const Dex = {
 		}
 		let id = toId(name);
 		return new PureEffect(id, name);
-	},
+	}
 
 	getMove(nameOrMove: string | Move | null | undefined): Move {
 		if (nameOrMove && typeof nameOrMove !== 'string') {
@@ -273,16 +290,13 @@ const Dex = {
 		let move = new Move(id, name, data);
 		window.BattleMovedex[id] = move;
 		return move;
-	},
+	}
 
-	getCategory(move: Move, gen: number, type?: string) {
-		if (gen <= 3 && move.category !== 'Status') {
-			return [
-				'Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Psychic', 'Dark', 'Dragon',
-			].includes(type || move.type) ? 'Special' : 'Physical';
-		}
-		return move.category;
-	},
+	getGen3Category(type: string) {
+		return [
+			'Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Psychic', 'Dark', 'Dragon',
+		].includes(type) ? 'Special' : 'Physical';
+	}
 
 	getItem(nameOrItem: string | Item | null | undefined): Item {
 		if (nameOrItem && typeof nameOrItem !== 'string') {
@@ -302,7 +316,7 @@ const Dex = {
 		let item = new Item(id, name, data);
 		window.BattleItems[id] = item;
 		return item;
-	},
+	}
 
 	getAbility(nameOrAbility: string | Ability | null | undefined): Ability {
 		if (nameOrAbility && typeof nameOrAbility !== 'string') {
@@ -322,7 +336,7 @@ const Dex = {
 		let ability = new Ability(id, name, data);
 		window.BattleAbilities[id] = ability;
 		return ability;
-	},
+	}
 
 	getTemplate(nameOrTemplate: string | Template | null | undefined): Template {
 		if (nameOrTemplate && typeof nameOrTemplate !== 'string') {
@@ -363,7 +377,7 @@ const Dex = {
 			forme,
 		});
 		return template;
-	},
+	}
 
 	getTier(pokemon: Pokemon, gen = 7, isDoubles = false): string {
 		let table = window.BattleTeambuilderTable;
@@ -374,7 +388,7 @@ const Dex = {
 		// Prevents Pokemon from having their tier displayed as 'undefined' when they're in a previous generation teambuilder
 		if (this.getTemplate(pokemon.species).gen > gen) return 'Illegal';
 		return table.overrideTier[toId(pokemon.species)];
-	},
+	}
 
 	getType(type: any): Effect {
 		if (!type || typeof type === 'string') {
@@ -389,41 +403,16 @@ const Dex = {
 			}
 		}
 		return type;
-	},
+	}
 
-	getAbilitiesFor(template: any, gen = 7): {[id: string]: string} {
-		template = this.getTemplate(template);
-		if (gen < 3 || !template.abilities) return {};
-		const id = template.id;
-		const templAbilities = template.abilities;
-		const table = (gen >= 7 ? null : window.BattleTeambuilderTable['gen' + gen]);
-		if (!table) return {...templAbilities};
-		const abilities: {[id: string]: string} = {};
-
-		if (table.overrideAbility && id in table.overrideAbility) {
-			abilities['0'] = table.overrideAbility[id];
-		} else {
-			abilities['0'] = templAbilities['0'];
-		}
-		const removeSecondAbility = table.removeSecondAbility && id in table.removeSecondAbility;
-		if (!removeSecondAbility && templAbilities['1']) {
-			abilities['1'] = templAbilities['1'];
-		}
-		if (gen >= 5 && templAbilities['H']) abilities['H'] = templAbilities['H'];
-		if (gen >= 7 && templAbilities['S']) abilities['S'] = templAbilities['S'];
-
-		return abilities;
-	},
-
-	hasAbility(template: any, ability: string, gen = 7) {
-		const abilities = this.getAbilitiesFor(template, gen);
-		for (const i in abilities) {
-			if (ability === abilities[i]) return true;
+	hasAbility(template: Template, ability: string) {
+		for (const i in template.abilities) {
+			// @ts-ignore
+			if (ability === template.abilities[i]) return true;
 		}
 		return false;
-	},
+	}
 
-	loadedSpriteData: {xy: 1, bw: 0},
 	loadSpriteData(gen: 'xy' | 'bw') {
 		if (this.loadedSpriteData[gen]) return;
 		this.loadedSpriteData[gen] = 1;
@@ -435,7 +424,7 @@ const Dex = {
 		let el = document.createElement('script');
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
-	},
+	}
 	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {
 		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean,
 	} = {gen: 6}) {
@@ -576,7 +565,7 @@ const Dex = {
 		}
 
 		return spriteData;
-	},
+	}
 
 	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
 		let num = 0;
@@ -620,7 +609,7 @@ const Dex = {
 		let left = (num % 12) * 40;
 		let fainted = (pokemon && pokemon.fainted ? ';opacity:.3;filter:grayscale(100%) brightness(.5)' : '');
 		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-sheet.png?a5) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
-	},
+	}
 
 	getTeambuilderSprite(pokemon: any, gen: number = 0) {
 		if (!pokemon) return '';
@@ -661,7 +650,7 @@ const Dex = {
 		else if (gen <= 3 && template.gen <= 3) spriteDir = Dex.resourcePrefix + 'sprites/rse';
 		else if (gen <= 4 && template.gen <= 4) spriteDir = Dex.resourcePrefix + 'sprites/dpp';
 		return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
-	},
+	}
 
 	getItemIcon(item: any) {
 		let num = 0;
@@ -671,13 +660,13 @@ const Dex = {
 		let top = Math.floor(num / 16) * 24;
 		let left = (num % 16) * 24;
 		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/itemicons-sheet.png) no-repeat scroll -' + left + 'px -' + top + 'px';
-	},
+	}
 
 	getTypeIcon(type: string, b?: boolean) { // b is just for utilichart.js
 		if (!type) return '';
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
-	},
+	}
 };
 
 class ModdedDex {
@@ -688,10 +677,10 @@ class ModdedDex {
 		Items: {} as any as {[k: string]: Item},
 		Templates: {} as any as {[k: string]: Template},
 	};
-	getAbility = Dex.getAbility;
+	getAbility: (nameOrAbility: string | Ability | null | undefined) => Ability = Dex.getAbility;
 	constructor(modid: ID) {
 		this.modid = modid;
-		let gen = parseInt(modid.slice(3));
+		let gen = parseInt(modid.slice(3), 10);
 		if (!modid.startsWith('gen') || !gen) throw new Error("Unsupported modid");
 		this.gen = gen;
 	}
@@ -715,6 +704,9 @@ class ModdedDex {
 				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
 				break;
 			}
+		}
+		if (this.gen <= 3 && data.category !== 'Status') {
+			data.category = Dex.getGen3Category(data.type);
 		}
 
 		const move = new Move(id, name, data);
@@ -753,18 +745,25 @@ class ModdedDex {
 		let data = {...Dex.getTemplate(name)};
 
 		const table = window.BattleTeambuilderTable[this.modid];
-		if (id in table.overrideAbility) {
-			data.abilities = {...data.abilities, 0: table.overrideAbility[id]};
+		if (this.gen < 3) {
+			data.abilities = {0: "None"};
+		} else {
+			let abilities = {...data.abilities};
+			if (id in table.overrideAbility) {
+				abilities['0'] = table.overrideAbility[id];
+			}
+			if (id in table.removeSecondAbility) {
+				delete abilities['1'];
+			}
+			if (this.gen < 5) delete abilities['H'];
+			if (this.gen < 7) delete abilities['S'];
 		}
 		if (id in table.overrideStats) {
 			data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
 		}
 		if (id in table.overrideType) data.types = table.overrideType[id].split('/');
-		if (id in table.removeSecondAbility) {
-			data.abilities = {...data.abilities};
-			// @ts-ignore
-			delete data.abilities['1'];
-		}
+
+		if (id in table.overrideTier) data.tier = table.overrideTier[id];
 
 		const template = new Template(id, name, data);
 		this.cache.Templates[id] = template;

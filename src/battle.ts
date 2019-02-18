@@ -34,7 +34,7 @@ type WeatherState = [string, number, number];
 type EffectTable = {[effectid: string]: EffectState};
 type HPColor = 'r' | 'y' | 'g';
 
-class Pokemon {
+class Pokemon implements PokemonDetails, PokemonHealth {
 	name = '';
 	species = '';
 
@@ -94,7 +94,6 @@ class Pokemon {
 	volatiles: EffectTable = {};
 	turnstatuses: EffectTable = {};
 	movestatuses: EffectTable = {};
-	weightkg = 0;
 	lastMove = '';
 
 	/** [[moveName, ppUsed]] */
@@ -132,7 +131,7 @@ class Pokemon {
 		}
 		return '';
 	}
-	getPixelRange(pixels: number, color: HPColor): [number, number] {
+	static getPixelRange(pixels: number, color: HPColor | ''): [number, number] {
 		let epsilon = 0.5 / 714;
 
 		if (pixels === 0) return [0, 0];
@@ -155,7 +154,7 @@ class Pokemon {
 
 		return [pixels / 48, (pixels + 1) / 48 - epsilon];
 	}
-	getFormattedRange(range: [number, number], precision: number, separator: string) {
+	static getFormattedRange(range: [number, number], precision: number, separator: string) {
 		if (range[0] === range[1]) {
 			let percentage = Math.abs(range[0] * 100);
 			if (Math.floor(percentage) === percentage) {
@@ -185,8 +184,8 @@ class Pokemon {
 			return [damage[2] / 100, damage[2] / 100];
 		}
 		// pixel damage
-		let oldrange = this.getPixelRange(damage[3], damage[4]);
-		let newrange = this.getPixelRange(damage[3] + damage[0], this.hpcolor);
+		let oldrange = Pokemon.getPixelRange(damage[3], damage[4]);
+		let newrange = Pokemon.getPixelRange(damage[3] + damage[0], this.hpcolor);
 		if (damage[0] === 0) {
 			// no change in displayed pixel width
 			return [0, newrange[1] - newrange[0]];
@@ -384,6 +383,10 @@ class Pokemon {
 		// let badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
 		return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 	}
+	getWeightKg(serverPokemon?: ServerPokemon) {
+		let autotomizeFactor = this.volatiles.autotomize ? this.volatiles.autotomize[1] * 100 : 0;
+		return Math.max(this.getTemplate(serverPokemon).weightkg - autotomizeFactor, 0.1);
+	}
 	getBoostType(boostStat: BoostStatName) {
 		if (!this.boosts[boostStat]) return 'neutral';
 		if (this.boosts[boostStat] > 0) return 'good';
@@ -391,9 +394,6 @@ class Pokemon {
 	}
 	clearVolatile() {
 		this.ability = this.baseAbility;
-		if (window.BattlePokedex && BattlePokedex[this.species] && BattlePokedex[this.species].weightkg) {
-			this.weightkg = BattlePokedex[this.species].weightkg;
-		}
 		this.boosts = {};
 		this.clearVolatiles();
 		for (let i = 0; i < this.moveTrack.length; i++) {
@@ -452,29 +452,59 @@ class Pokemon {
 			this.removeVolatile('typeadd' as ID);
 		}
 	}
-	getTypes(): [string[], string] {
-		let types;
+	getTypes(serverPokemon?: ServerPokemon): [ReadonlyArray<TypeName>, TypeName | ''] {
+		let types: ReadonlyArray<TypeName>;
 		if (this.volatiles.typechange) {
 			types = this.volatiles.typechange[1].split('/');
 		} else {
-			const species = this.getSpecies();
-			types = (
-				window.BattleTeambuilderTable &&
-				window.BattleTeambuilderTable['gen' + this.side.battle.gen] &&
-				window.BattleTeambuilderTable['gen' + this.side.battle.gen].overrideType[toId(species)]
-			);
-			if (types) types = types.split('/');
-			if (!types) types = Dex.getTemplate(species).types || [];
+			types = this.getTemplate(serverPokemon).types;
+		}
+		if (this.volatiles.roost && types.includes('Flying')) {
+			types = types.filter(typeName => typeName !== 'Flying');
+			if (!types.length) types = ['Normal'];
 		}
 		const addedType = (this.volatiles.typeadd ? this.volatiles.typeadd[1] : '');
 		return [types, addedType];
 	}
-	getTypeList() {
-		const [types, addedType] = this.getTypes();
-		return types.concat(addedType);
+	isGrounded(serverPokemon?: ServerPokemon) {
+		const battle = this.side.battle;
+		if (battle.hasPseudoWeather('Gravity')) {
+			return true;
+		} else if (this.volatiles['ingrain'] && battle.gen >= 4) {
+			return true;
+		} else if (this.volatiles['smackdown']) {
+			return true;
+		}
+
+		let item = toId(serverPokemon ? serverPokemon.item : this.item);
+		let ability = toId(this.ability || (serverPokemon && serverPokemon.ability));
+		if (battle.hasPseudoWeather('Magic Room') || this.volatiles['embargo'] || ability === 'klutz') {
+			item = '' as ID;
+		}
+
+		if (item === 'ironball') {
+			return true;
+		}
+		if (ability === 'levitate') {
+			return false;
+		}
+		if (this.volatiles['magnetrise'] || this.volatiles['telekinesis']) {
+			return false;
+		} else if (item !== 'airballoon') {
+			return false;
+		}
+		return !this.getTypeList(serverPokemon).includes('Flying');
 	}
-	getSpecies(): string {
-		return this.volatiles.formechange ? this.volatiles.formechange[1] : this.species;
+	getTypeList(serverPokemon?: ServerPokemon) {
+		const [types, addedType] = this.getTypes(serverPokemon);
+		return addedType ? types.concat(addedType) : types;
+	}
+	getSpecies(serverPokemon?: ServerPokemon): string {
+		return this.volatiles.formechange ? this.volatiles.formechange[1] :
+			(serverPokemon ? serverPokemon.species : this.species);
+	}
+	getTemplate(serverPokemon?: ServerPokemon) {
+		return this.side.battle.dex.getTemplate(this.getSpecies(serverPokemon));
 	}
 	reset() {
 		this.clearVolatile();
@@ -500,7 +530,7 @@ class Pokemon {
 			// Draw the health bar to the middle of the range.
 			// This affects the width of the visual health bar *only*; it
 			// does not affect the ranges displayed in any way.
-			let range = this.getPixelRange(this.hp, this.hpcolor);
+			let range = Pokemon.getPixelRange(this.hp, this.hpcolor);
 			let ratio = (range[0] + range[1]) / 2;
 			return Math.round(maxWidth * ratio) || 1;
 		}
@@ -510,11 +540,11 @@ class Pokemon {
 		}
 		return percentage * maxWidth / 100;
 	}
-	hpDisplay(precision = 1) {
-		if (this.maxhp === 100) return this.hp + '%';
-		if (this.maxhp !== 48) return (100 * this.hp / this.maxhp).toFixed(precision) + '%';
-		let range = this.getPixelRange(this.hp, this.hpcolor);
-		return this.getFormattedRange(range, precision, '–');
+	static getHPText(pokemon: PokemonHealth, precision = 1) {
+		if (pokemon.maxhp === 100) return pokemon.hp + '%';
+		if (pokemon.maxhp !== 48) return (100 * pokemon.hp / pokemon.maxhp).toFixed(precision) + '%';
+		let range = Pokemon.getPixelRange(pokemon.hp, pokemon.hpcolor);
+		return Pokemon.getFormattedRange(range, precision, '–');
 	}
 	destroy() {
 		if (this.sprite) this.sprite.destroy();
@@ -875,6 +905,48 @@ enum Playback {
 	Seeking = 5,
 }
 
+interface PokemonDetails {
+	details: string;
+	name: string;
+	species: string;
+	level: number;
+	shiny: boolean;
+	gender: GenderName | '';
+	ident: string;
+	searchid: string;
+}
+interface PokemonHealth {
+	hp: number;
+	maxhp: number;
+	hpcolor: HPColor | '';
+	status: StatusName | 'tox' | '' | '???';
+	fainted?: boolean;
+}
+interface ServerPokemon extends PokemonDetails, PokemonHealth {
+	ident: string;
+	details: string;
+	condition: string;
+	active: boolean;
+	/** unboosted stats */
+	stats: {
+		atk: number,
+		def: number,
+		spa: number,
+		spd: number,
+		spe: number,
+	};
+	/** currently an ID, will revise to name */
+	moves: string[];
+	/** currently an ID, will revise to name */
+	baseAbility: string;
+	/** currently an ID, will revise to name */
+	ability?: string;
+	/** currently an ID, will revise to name */
+	item: string;
+	/** currently an ID, will revise to name */
+	pokeball: string;
+}
+
 class Battle {
 	scene: BattleScene | BattleSceneStub;
 
@@ -923,9 +995,12 @@ class Battle {
 	yourSide: Side = null!;
 	p1: Side = null!;
 	p2: Side = null!;
+	myPokemon: ServerPokemon[] | null = null;
 	sides: [Side, Side] = [null!, null!];
 	lastMove = '';
+
 	gen = 7;
+	dex: ModdedDex = Dex;
 	teamPreviewCount = 0;
 	speciesClause = false;
 	tier = '';
@@ -934,6 +1009,11 @@ class Battle {
 	endLastTurnPending = false;
 	totalTimeLeft = 0;
 	graceTimeLeft = 0;
+	/**
+	 * true: timer on, state unknown
+	 * false: timer off
+	 * number: seconds left this turn
+	 */
 	kickingInactive: number | boolean = false;
 
 	// options
@@ -1394,7 +1474,7 @@ class Battle {
 					break;
 				}
 			} else {
-				let damageinfo = '' + poke.getFormattedRange(range, damage[1] === 100 ? 0 : 1, '\u2013');
+				let damageinfo = '' + Pokemon.getFormattedRange(range, damage[1] === 100 ? 0 : 1, '\u2013');
 				if (damage[1] !== 100) {
 					let hover = '' + ((damage[0] < 0) ? '\u2212' : '') +
 						Math.abs(damage[0]) + '/' + damage[1];
@@ -1406,7 +1486,7 @@ class Battle {
 				}
 				args[3] = damageinfo;
 			}
-			this.scene.damageAnim(poke, poke.getFormattedRange(range, 0, ' to '));
+			this.scene.damageAnim(poke, Pokemon.getFormattedRange(range, 0, ' to '));
 			this.log(args, kwArgs);
 			break;
 		}
@@ -1439,7 +1519,7 @@ class Battle {
 				}
 			}
 			this.scene.runOtherAnim('heal' as ID, [poke]);
-			this.scene.healAnim(poke, poke.getFormattedRange(range, 0, ' to '));
+			this.scene.healAnim(poke, Pokemon.getFormattedRange(range, 0, ' to '));
 			this.log(args, kwArgs);
 			break;
 		}
@@ -1449,7 +1529,7 @@ class Battle {
 				if (cpoke) {
 					let damage = cpoke.healthParse(args[2 + 2 * k])!;
 					let range = cpoke.getDamageRange(damage);
-					let formattedRange = cpoke.getFormattedRange(range, 0, ' to ');
+					let formattedRange = Pokemon.getFormattedRange(range, 0, ' to ');
 					let diff = damage[0];
 					if (diff > 0) {
 						this.scene.healAnim(cpoke, formattedRange);
@@ -2059,11 +2139,10 @@ class Battle {
 				}
 				newSpecies = args[2].substr(0, commaIndex);
 			}
-			let template = Dex.getTemplate(newSpecies);
+			let template = this.dex.getTemplate(newSpecies);
 
 			poke.species = newSpecies;
 			poke.ability = poke.baseAbility = (template.abilities ? template.abilities['0'] : '');
-			poke.weightkg = template.weightkg;
 
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
@@ -2084,7 +2163,6 @@ class Battle {
 
 			poke.boosts = {...tpoke.boosts};
 			poke.copyTypesFrom(tpoke);
-			poke.weightkg = tpoke.weightkg;
 			poke.ability = tpoke.ability;
 			const species = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[1] : tpoke.species);
 			const pokemon = tpoke;
@@ -2188,6 +2266,7 @@ class Battle {
 				break;
 			case 'imprison':
 				this.scene.resultAnim(poke, 'Imprisoning', 'good');
+				break;
 			case 'disable':
 				this.scene.resultAnim(poke, 'Disabled', 'bad');
 				break;
@@ -2239,6 +2318,11 @@ class Battle {
 				break;
 			case 'autotomize':
 				this.scene.resultAnim(poke, 'Lightened', 'good');
+				if (poke.volatiles.autotomize) {
+					poke.volatiles.autotomize[1]++;
+				} else {
+					poke.addVolatile('autotomize' as ID, 1);
+				}
 				break;
 			case 'focusenergy':
 				this.scene.resultAnim(poke, '+Crit rate', 'good');
@@ -2685,7 +2769,7 @@ class Battle {
 		return data.spriteData[siden];
 	}
 	*/
-	parseDetails(name: string, pokemonid: string, details = "", output: any = {}) {
+	parseDetails(name: string, pokemonid: string, details = "", output: PokemonDetails = {} as any) {
 		output.details = details;
 		output.name = name;
 		output.species = name;
@@ -2700,7 +2784,7 @@ class Battle {
 			splitDetails.pop();
 		}
 		if (splitDetails[splitDetails.length - 1] === 'M' || splitDetails[splitDetails.length - 1] === 'F') {
-			output.gender = splitDetails[splitDetails.length - 1];
+			output.gender = splitDetails[splitDetails.length - 1] as GenderName;
 			splitDetails.pop();
 		}
 		if (splitDetails[1]) {
@@ -2711,13 +2795,7 @@ class Battle {
 		}
 		return output;
 	}
-	parseHealth(hpstring: string, output: any = {}): {
-		hp: number,
-		maxhp: number,
-		hpcolor: HPColor | '',
-		status: StatusName | '',
-		fainted?: boolean,
-	} | null {
+	parseHealth(hpstring: string, output: PokemonHealth = {} as any) {
 		let [hp, status] = hpstring.split(' ');
 
 		// hp parse
@@ -3177,6 +3255,7 @@ class Battle {
 		}
 		case 'gen': {
 			this.gen = parseInt(args[1], 10);
+			this.dex = Dex.mod(`gen${this.gen}` as ID);
 			this.scene.updateGen();
 			this.log(args);
 			break;

@@ -32,8 +32,9 @@
         "no-bitwise": false,
         "prefer-conditional-expression": false,
         "no-shadowed-variable": [true, {"temporalDeadZone": false}],
+        "no-switch-case-fall-through": true,
         "object-literal-sort-keys": false,
-        "object-literal-key-quotes": [true, "as-needed"],
+        "object-literal-key-quotes": false,
         "trailing-comma": [
             true,
             {
