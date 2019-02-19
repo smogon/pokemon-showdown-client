@@ -1213,7 +1213,7 @@ class BattleTooltips {
 		}
 		if (['storedpower', 'powertrip'].includes(move.id) && target) {
 			let boostCount = 0;
-			for (const boost of Object.values(target.boosts)) {
+			for (const boost of Object.values(pokemon.boosts)) {
 				if (boost > 0) boostCount += boost;
 			}
 			value.set(20 + 20 * boostCount);
@@ -1338,9 +1338,9 @@ class BattleTooltips {
 		}
 		if (target) {
 			if (["MF", "FM"].includes(pokemon.gender + target.gender)) {
-				value.abilityModify(1.25, "Rivalry");
-			} else if (["MM", "FF"].includes(pokemon.gender + target.gender)) {
 				value.abilityModify(0.75, "Rivalry");
+			} else if (["MM", "FF"].includes(pokemon.gender + target.gender)) {
+				value.abilityModify(1.25, "Rivalry");
 			}
 		}
 		const noTypeOverride = ['judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball'];
