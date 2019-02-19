@@ -17,9 +17,9 @@
  * Polyfills
  *********************************************************************/
 
- if (!Array.prototype.indexOf) {
+if (!Array.prototype.indexOf) {
 	Array.prototype.indexOf = function (searchElement, fromIndex) {
-		for (var i = (fromIndex || 0); i < this.length; i++) {
+		for (let i = (fromIndex || 0); i < this.length; i++) {
 			if (this[i] === searchElement) return i;
 		}
 		return -1;
@@ -52,9 +52,9 @@ if (!String.prototype.trim) {
 }
 if (!Object.assign) {
 	Object.assign = function (thing: any, rest: any) {
-		for (var i = 1; i < arguments.length; i++) {
-			var source = arguments[i];
-			for (var k in source) {
+		for (let i = 1; i < arguments.length; i++) {
+			let source = arguments[i];
+			for (let k in source) {
 				thing[k] = source[k];
 			}
 		}
@@ -90,8 +90,8 @@ const PSURL = (() => {
 
 class PSSubscription {
 	observable: PSModel | PSStreamModel<any>;
-	listener: Function;
-	constructor(observable: PSModel | PSStreamModel<any>, listener: Function) {
+	listener: (value?: any) => void;
+	constructor(observable: PSModel | PSStreamModel<any>, listener: (value?: any) => void) {
 		this.observable = observable;
 		this.listener = listener;
 	}
@@ -233,27 +233,89 @@ const PSBackground = new class extends PSStreamModel {
 		let attrib = null;
 		switch (bgid) {
 		case 'horizon':
-			menuColors = ["318.87640449438203,35.177865612648226%", "216,46.2962962962963%", "221.25,32.25806451612904%", "197.8021978021978,52.60115606936417%", "232.00000000000003,19.480519480519483%", "228.38709677419354,60.7843137254902%"];
-			attrib = {url: 'https://vtas.deviantart.com/art/Pokemon-Horizon-312267168', title: 'Horizon', artist: 'Vivian Zou'};
+			menuColors = [
+				"318.87640449438203,35.177865612648226%",
+				"216,46.2962962962963%",
+				"221.25,32.25806451612904%",
+				"197.8021978021978,52.60115606936417%",
+				"232.00000000000003,19.480519480519483%",
+				"228.38709677419354,60.7843137254902%",
+			];
+			attrib = {
+				url: 'https://vtas.deviantart.com/art/Pokemon-Horizon-312267168',
+				title: 'Horizon',
+				artist: 'Vivian Zou',
+			};
 			break;
 		case 'ocean':
-			menuColors = ["82.8169014084507,34.63414634146342%", "216.16438356164383,29.55465587044534%", "212.92682926829266,59.42028985507245%", "209.18918918918916,57.51295336787566%", "199.2857142857143,48.275862068965495%", "213.11999999999998,55.06607929515419%"];
-			attrib = {url: 'https://quanyails.deviantart.com/art/Sunrise-Ocean-402667154', title: 'Sunrise Ocean', artist: 'Yijing Chen'};
+			menuColors = [
+				"82.8169014084507,34.63414634146342%",
+				"216.16438356164383,29.55465587044534%",
+				"212.92682926829266,59.42028985507245%",
+				"209.18918918918916,57.51295336787566%",
+				"199.2857142857143,48.275862068965495%",
+				"213.11999999999998,55.06607929515419%",
+			];
+			attrib = {
+				url: 'https://quanyails.deviantart.com/art/Sunrise-Ocean-402667154',
+				title: 'Sunrise Ocean',
+				artist: 'Yijing Chen',
+			};
 			break;
 		case 'waterfall':
-			menuColors = ["119.31034482758622,37.66233766233767%", "184.36363636363635,23.012552301255226%", "108.92307692307692,37.14285714285714%", "70.34482758620689,20.567375886524818%", "98.39999999999998,36.76470588235296%", "140,38.18181818181818%"];
-			attrib = {url: 'https://yilx.deviantart.com/art/Irie-372292729', title: 'Irie', artist: 'Samuel Teo'};
+			menuColors = [
+				"119.31034482758622,37.66233766233767%",
+				"184.36363636363635,23.012552301255226%",
+				"108.92307692307692,37.14285714285714%",
+				"70.34482758620689,20.567375886524818%",
+				"98.39999999999998,36.76470588235296%",
+				"140,38.18181818181818%",
+			];
+			attrib = {
+				url: 'https://yilx.deviantart.com/art/Irie-372292729',
+				title: 'Irie',
+				artist: 'Samuel Teo',
+			};
 			break;
 		case 'shaymin':
-			menuColors = ["39.000000000000064,21.7391304347826%", "170.00000000000003,2.380952380952378%", "157.5,11.88118811881188%", "174.78260869565216,12.041884816753928%", "185.00000000000003,12.76595744680851%", "20,5.660377358490567%"];
-			attrib = {url: 'http://cargocollective.com/bluep', title: 'Shaymin', artist: 'Daniel Kong'};
+			menuColors = [
+				"39.000000000000064,21.7391304347826%",
+				"170.00000000000003,2.380952380952378%",
+				"157.5,11.88118811881188%",
+				"174.78260869565216,12.041884816753928%",
+				"185.00000000000003,12.76595744680851%",
+				"20,5.660377358490567%",
+			];
+			attrib = {
+				url: 'http://cargocollective.com/bluep',
+				title: 'Shaymin',
+				artist: 'Daniel Kong',
+			};
 			break;
 		case 'charizards':
-			menuColors = ["37.159090909090914,74.57627118644066%", "10.874999999999998,70.79646017699115%", "179.51612903225808,52.10084033613446%", "20.833333333333336,36.73469387755102%", "192.3076923076923,80.41237113402063%", "210,29.629629629629633%"];
-			attrib = {url: 'https://seiryuuden.deviantart.com/art/The-Ultimate-Mega-Showdown-Charizards-414587079', title: 'Charizards', artist: 'Jessica Valencia'};
+			menuColors = [
+				"37.159090909090914,74.57627118644066%",
+				"10.874999999999998,70.79646017699115%",
+				"179.51612903225808,52.10084033613446%",
+				"20.833333333333336,36.73469387755102%",
+				"192.3076923076923,80.41237113402063%",
+				"210,29.629629629629633%",
+			];
+			attrib = {
+				url: 'https://seiryuuden.deviantart.com/art/The-Ultimate-Mega-Showdown-Charizards-414587079',
+				title: 'Charizards',
+				artist: 'Jessica Valencia',
+			};
 			break;
 		case 'digimon':
-			menuColors = ["170.45454545454544,27.500000000000004%", "84.70588235294119,13.821138211382115%", "112.50000000000001,7.8431372549019605%", "217.82608695652175,54.761904761904766%", "0,1.6949152542372816%", ""];
+			menuColors = [
+				"170.45454545454544,27.500000000000004%",
+				"84.70588235294119,13.821138211382115%",
+				"112.50000000000001,7.8431372549019605%",
+				"217.82608695652175,54.761904761904766%",
+				"0,1.6949152542372816%",
+				"",
+			];
 		}
 		if (!menuColors && bgUrl.charAt(0) === '#') {
 			const r = parseInt(bgUrl.slice(1, 3), 16) / 255;
@@ -347,11 +409,13 @@ PSBackground.subscribe(bgUrl => {
 	// main menu button colors
 	let cssBuf = ``;
 	let n = 0;
-	if (PSBackground.menuColors) for (const hs of PSBackground.menuColors) {
-		n++;
-		cssBuf += `body .button.mainmenu${n} { background: linear-gradient(to bottom,  hsl(${hs},72%),  hsl(${hs},52%)); border-color: hsl(${hs},40%); }\n`;
-		cssBuf += `body .button.mainmenu${n}:hover { background: linear-gradient(to bottom,  hsl(${hs},62%),  hsl(${hs},42%)); border-color: hsl(${hs},21%); }\n`;
-		cssBuf += `body .button.mainmenu${n}:active { background: linear-gradient(to bottom,  hsl(${hs},42%),  hsl(${hs},58%)); border-color: hsl(${hs},21%); }\n`;
+	if (PSBackground.menuColors) {
+		for (const hs of PSBackground.menuColors) {
+			n++;
+			cssBuf += `body .button.mainmenu${n} { background: linear-gradient(to bottom,  hsl(${hs},72%),  hsl(${hs},52%)); border-color: hsl(${hs},40%); }\n`;
+			cssBuf += `body .button.mainmenu${n}:hover { background: linear-gradient(to bottom,  hsl(${hs},62%),  hsl(${hs},42%)); border-color: hsl(${hs},21%); }\n`;
+			cssBuf += `body .button.mainmenu${n}:active { background: linear-gradient(to bottom,  hsl(${hs},42%),  hsl(${hs},58%)); border-color: hsl(${hs},21%); }\n`;
+		}
 	}
 	let buttonStyleElem = document.getElementById('mainmenubuttoncolors');
 	if (!buttonStyleElem) {
