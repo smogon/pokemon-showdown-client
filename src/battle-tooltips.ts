@@ -116,13 +116,15 @@ class ModifiableValue {
 	}
 	toString() {
 		let valueString;
+		const roundedValue = this.value ? Number(this.value.toFixed(2)) : 0;
+		const roundedMaxValue = this.maxValue ? Number(this.maxValue.toFixed(2)) : 0;
 		if (this.isAccuracy) {
-			valueString = this.value ? `${this.value}%` : `can't miss`;
+			valueString = this.value ? `${roundedValue}%` : `can't miss`;
 		} else {
-			valueString = this.value ? `${this.value}` : ``;
+			valueString = this.value ? `${roundedValue}` : ``;
 		}
 		if (this.maxValue) {
-			valueString += ` to ${this.maxValue}` + (this.isAccuracy ? '%' : '');
+			valueString += ` to ${roundedMaxValue}` + (this.isAccuracy ? '%' : '');
 		}
 		return valueString + this.comment.join('');
 	}
