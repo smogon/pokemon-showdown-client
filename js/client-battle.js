@@ -606,9 +606,9 @@
 					if (name.substr(0, 12) === 'Hidden Power') name = 'Hidden Power';
 					var moveType = this.tooltips.getMoveType(move, typeValueTracker)[0];
 					if (moveData.disabled) {
-						movebuttons += '<button disabled="disabled" class="has-tooltip" data-tooltip="move|' + move.id + '|' + pos + '">';
+						movebuttons += '<button disabled="disabled" class="has-tooltip" data-tooltip="move|' + BattleLog.escapeHTML(moveData.move) + '|' + pos + '">';
 					} else {
-						movebuttons += '<button class="type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(moveData.move) + '" data-target="' + BattleLog.escapeHTML(moveData.target) + '" data-tooltip="move|' + name + '|' + pos + '">';
+						movebuttons += '<button class="type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(moveData.move) + '" data-target="' + BattleLog.escapeHTML(moveData.target) + '" data-tooltip="move|' + BattleLog.escapeHTML(moveData.move) + '|' + pos + '">';
 						hasMoves = true;
 					}
 					movebuttons += name + '<br /><small class="type">' + (moveType ? Dex.getType(moveType).name : "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
