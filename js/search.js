@@ -565,8 +565,9 @@
 
 		var illegalResultSet = [];
 		var genChar = '' + this.gen;
+		var dex = Dex.mod('gen' + genChar);
 		for (var id in BattlePokedex) {
-			var template = BattlePokedex[id];
+			var template = dex.getTemplate(id);
 			if (template.exists === false) continue;
 			for (var i = 0; i < filters.length; i++) {
 				if (filters[i][0] === 'type') {
@@ -581,7 +582,7 @@
 					if (template.tier !== tier) break;
 				} else if (filters[i][0] === 'ability') {
 					var ability = filters[i][1];
-					if (!Dex.hasAbility(id, ability, this.gen)) break;
+					if (!Dex.hasAbility(template, ability)) break;
 				} else if (filters[i][0] === 'move') {
 					var learned = false;
 					var learnsetid = this.nextLearnsetid(id);
