@@ -761,7 +761,7 @@ License: GPLv2
 	pointer-events: auto;
 }
 #tooltipwrapper.tooltip-locked .tooltip {
-	border: 2px solid #888888;
+	border: 2px solid #444444;
 	background: #DEDEDE;
 }
 

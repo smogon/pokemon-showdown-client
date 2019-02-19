@@ -1609,7 +1609,7 @@
 		var type = move.type;
 		if (table && id in table.overrideMoveType) type = table.overrideMoveType[id];
 		buf += Dex.getTypeIcon(type);
-		var category = Dex.getCategory(move, this.gen, type);
+		var category = this.gen > 3 ? move.category : Dex.getGen3Category(type);
 		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32" />';
 		buf += '</span> ';
 
