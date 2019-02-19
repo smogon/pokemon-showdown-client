@@ -185,6 +185,7 @@ const Dex = new class implements ModdedDex {
 
 	mod(modid: ID): ModdedDex {
 		if (modid === 'gen7') return this;
+		if (!window.BattleTeambuilderTable) return this;
 		if (modid in this.moddedDexes) {
 			return this.moddedDexes[modid];
 		}
@@ -336,6 +337,10 @@ const Dex = new class implements ModdedDex {
 		let ability = new Ability(id, name, data);
 		window.BattleAbilities[id] = ability;
 		return ability;
+	}
+
+	getAbilitiesFor(id: ID, gen: number) {
+		return this.mod(`gen${gen}`).getTemplate(id).abilities;
 	}
 
 	getTemplate(nameOrTemplate: string | Template | null | undefined): Template {
