@@ -72,9 +72,9 @@ class PSRouter {
 		});
 		window.addEventListener('popstate', e => {
 			const possibleRoomid = location.pathname.slice(1);
-			let currentRoomid: RoomID | null = null;
+			let roomid: RoomID | null = null;
 			if (/^[a-z0-9-]*$/.test(possibleRoomid)) {
-				currentRoomid = possibleRoomid as RoomID;
+				roomid = possibleRoomid as RoomID;
 			}
 			if (typeof e.state === 'string') {
 				const [leftRoomid, rightRoomid] = e.state.split('..') as RoomID[];
@@ -83,8 +83,8 @@ class PSRouter {
 					PS.join(rightRoomid, 'right');
 				}
 			}
-			if (currentRoomid !== null) {
-				PS.join(currentRoomid);
+			if (roomid !== null) {
+				PS.join(roomid);
 			}
 		});
 	}

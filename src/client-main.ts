@@ -18,7 +18,7 @@
  */
 type RoomID = string & {__isRoomID: true};
 
-const PSPrefsDefaults = {} as {[key: string]: any};
+const PSPrefsDefaults: {[key: string]: any} = {};
 
 /**
  * Tracks user preferences, stored in localStorage. Contains most local
@@ -51,7 +51,7 @@ class PSPrefs extends PSModel {
 	onepanel = false;
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
-	storage = {} as {[k: string]: any};
+	storage: {[k: string]: any} = {};
 	readonly origin = 'https://play.pokemonshowdown.com';
 	constructor() {
 		super();
@@ -170,7 +170,7 @@ class PSTeams extends PSModel {
 		this.list = [];
 		return;
 	}
-	unpackLine(line: string) {
+	unpackLine(line: string): Team | null {
 		let pipeIndex = line.indexOf('|');
 		if (pipeIndex < 0) return null;
 		let bracketIndex = line.indexOf(']');
@@ -185,7 +185,7 @@ class PSTeams extends PSModel {
 			team: line.slice(pipeIndex + 1),
 			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
 			iconCache: '',
-		} as Team;
+		};
 	}
 }
 
@@ -228,9 +228,9 @@ interface RoomOptions {
 	side?: PSRoomSide | null;
 	/** Handled after initialization, outside of the constructor */
 	queue?: string[];
-	parentElem?: HTMLElement,
-	connected?: boolean,
-};
+	parentElem?: HTMLElement;
+	connected?: boolean;
+}
 
 class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	id: RoomID;
@@ -298,16 +298,16 @@ const PS = new class extends PSModel {
 
 	router: PSRouter = null!;
 
-	rooms = {} as {[roomid: string]: PSRoom | undefined};
-	roomTypes = {} as {
+	rooms: {[roomid: string]: PSRoom | undefined} = {};
+	roomTypes: {
 		[type: string]: RoomType | undefined,
-	};
+	} = {};
 	/** List of rooms on the left side of the top tabbar */
-	leftRoomList = [] as RoomID[];
+	leftRoomList: RoomID[] = [];
 	/** List of rooms on the right side of the top tabbar */
-	rightRoomList = [] as RoomID[];
+	rightRoomList: RoomID[] = [];
 	/** Currently active popups, in stack order (bottom to top) */
-	popups = [] as RoomID[];
+	popups: RoomID[] = [];
 
 	/**
 	 * Currently active left room.
@@ -481,7 +481,7 @@ const PS = new class extends PSModel {
 				if (!room) {
 					this.addRoom({
 						id: roomid2,
-						type: type,
+						type,
 						connected: true,
 					});
 					room = PS.rooms[roomid2];

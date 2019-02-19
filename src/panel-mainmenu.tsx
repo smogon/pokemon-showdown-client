@@ -19,7 +19,10 @@ class MainMenuPanel extends preact.Component<{style: {}, room: PSRoom}> {
 			{PS.down === 'ddos' ?
 				<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p> :
 				<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>}
-			<p><div style={{textAlign: 'center'}}><img width="96" height="96" src="//play.pokemonshowdown.com/sprites/bw/teddiursa.png" alt="" /></div> Bear with us as we freak out.</p>
+			<p>
+				<div style={{textAlign: 'center'}}><img width="96" height="96" src="//play.pokemonshowdown.com/sprites/bw/teddiursa.png" alt="" /></div>
+				Bear with us as we freak out.
+			</p>
 			<p>(We'll be back up in a few hours.)</p>
 		</div> : <div class="menugroup">
 			<p><button class="button mainmenu1 big" name="search"><strong>Battle!</strong><br /><small>Find a random opponent</small></button></p>
