@@ -2769,7 +2769,7 @@
 			for (var i = 0; i < moves.length; ++i) {
 				if (!moves[i]) continue;
 				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
-				var move = Dex.mod(`gen${this.curTeam.gen}`).getMove(moves[i]);
+				var move = Dex.mod('gen' + this.curTeam.gen).getMove(moves[i]);
 				if (move.category === 'Physical' &&
 						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
 					minAtk = false;

@@ -340,7 +340,7 @@ const Dex = new class implements ModdedDex {
 	}
 
 	getAbilitiesFor(id: ID, gen: number) {
-		return this.mod(`gen${gen}`).getTemplate(id).abilities;
+		return this.mod(`gen${gen}` as ID).getTemplate(id).abilities;
 	}
 
 	getTemplate(nameOrTemplate: string | Template | null | undefined): Template {
