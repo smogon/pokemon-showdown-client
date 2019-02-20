@@ -95,8 +95,8 @@ License: GPLv2
 	position: absolute;
 	display: block;
 	top: 160px;
-	left: 0;
-	right: 0;
+	left: 120px;
+	right: 120px;
 	text-align: center;
 }
 .playbutton1, .playbutton2 {
