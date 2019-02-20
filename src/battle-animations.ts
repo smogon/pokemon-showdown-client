@@ -1772,8 +1772,8 @@ class PokemonSprite extends Sprite {
 		// disappear, so that's what we do.
 		if (this.$el) {
 			this.$el.stop(true, false);
+			this.$el.remove();
 			const $newEl = $('<img src="' + this.sp.url + '" style="display:none;position:absolute"' + (this.sp.pixelated ? ' class="pixelated"' : '') + ' />');
-			this.$el.replaceWith($newEl);
 			this.$el = $newEl;
 		}
 
@@ -1785,6 +1785,7 @@ class PokemonSprite extends Sprite {
 			return;
 		}
 
+		if (this.$el) this.scene.$sprites[this.siden].append(this.$el);
 		this.recalculatePos(pokemon.slot);
 		this.resetStatbar(pokemon);
 		this.$el.css(this.scene.pos({
