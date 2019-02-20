@@ -1076,7 +1076,7 @@ class BattleTooltips {
 		if (move.id === 'multiattack' && item.onMemory) {
 			if (value.itemModify(0)) moveType = item.onMemory;
 		}
-		if (move.id === 'judgment' && item.onPlate) {
+		if (move.id === 'judgment' && item.onPlate && !item.zMoveType) {
 			if (value.itemModify(0)) moveType = item.onPlate;
 		}
 		if (move.id === 'technoblast' && item.onDrive) {
