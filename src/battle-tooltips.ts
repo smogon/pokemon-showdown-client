@@ -1063,6 +1063,9 @@ class BattleTooltips {
 	getMoveType(move: Move, value: ModifiableValue): [TypeName, 'Physical' | 'Special' | 'Status'] {
 		let moveType = move.type;
 		let category = move.category;
+		// can happen in obscure situations
+		if (!value.pokemon) return [moveType, category];
+
 		let pokemonTypes = value.pokemon!.getTypeList(value.serverPokemon);
 		value.reset();
 		if (move.id === 'revelationdance') {
