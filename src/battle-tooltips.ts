@@ -145,6 +145,7 @@ class BattleTooltips {
 	static elem: HTMLDivElement | null = null;
 	static parentElem: HTMLElement | null = null;
 	static isLocked = false;
+	static isPressed = false;
 
 	static hideTooltip() {
 		if (!BattleTooltips.elem) return;
@@ -166,6 +167,10 @@ class BattleTooltips {
 	lockTooltip() {
 		if (BattleTooltips.elem && !BattleTooltips.isLocked) {
 			BattleTooltips.isLocked = true;
+			if (BattleTooltips.isPressed) {
+				$(BattleTooltips.parentElem!).removeClass('pressed');
+				BattleTooltips.isPressed = false;
+			}
 			$('#tooltipwrapper').addClass('tooltip-locked');
 		}
 	}
@@ -180,15 +185,29 @@ class BattleTooltips {
 		const $elem = $(elem);
 		$elem.on('mouseover', '.has-tooltip', this.showTooltipEvent);
 		$elem.on('click', '.has-tooltip', this.clickTooltipEvent);
-		$elem.on('touchstart', '.has-tooltip', this.holdLockTooltipEvent);
-		$elem.on('touchend', '.has-tooltip', BattleTooltips.unshowTooltip);
-		$elem.on('touchleave', '.has-tooltip', BattleTooltips.unshowTooltip);
-		$elem.on('touchcancel', '.has-tooltip', BattleTooltips.unshowTooltip);
 		$elem.on('focus', '.has-tooltip', this.showTooltipEvent);
 		$elem.on('mouseout', '.has-tooltip', BattleTooltips.unshowTooltip);
 		$elem.on('mousedown', '.has-tooltip', this.holdLockTooltipEvent);
 		$elem.on('blur', '.has-tooltip', BattleTooltips.unshowTooltip);
 		$elem.on('mouseup', '.has-tooltip', BattleTooltips.unshowTooltip);
+
+		$elem.on('touchstart', '.has-tooltip', e => {
+			e.preventDefault();
+			this.holdLockTooltipEvent(e);
+			if (e.currentTarget === BattleTooltips.parentElem && BattleTooltips.parentElem!.tagName === 'BUTTON') {
+				$(BattleTooltips.parentElem!).addClass('pressed');
+				BattleTooltips.isPressed = true;
+			}
+		});
+		$elem.on('touchend', '.has-tooltip', e => {
+			e.preventDefault();
+			if (e.currentTarget === BattleTooltips.parentElem && BattleTooltips.isPressed) {
+				BattleTooltips.parentElem!.click();
+			}
+			BattleTooltips.unshowTooltip();
+		});
+		$elem.on('touchleave', '.has-tooltip', BattleTooltips.unshowTooltip);
+		$elem.on('touchcancel', '.has-tooltip', BattleTooltips.unshowTooltip);
 	}
 
 	clickTooltipEvent = (e: Event) => {
@@ -202,7 +221,7 @@ class BattleTooltips {
 	 *
 	 * (Namely, a long-tap or long-click)
 	 */
-	holdLockTooltipEvent = (e: Event) => {
+	holdLockTooltipEvent = (e: JQuery.TriggeredEvent) => {
 		if (BattleTooltips.isLocked) BattleTooltips.hideTooltip();
 		const target = e.currentTarget as HTMLElement;
 		this.showTooltip(target);
@@ -224,6 +243,10 @@ class BattleTooltips {
 	 */
 	static unshowTooltip() {
 		if (BattleTooltips.isLocked) return;
+		if (BattleTooltips.isPressed) {
+			$(BattleTooltips.parentElem!).removeClass('pressed');
+			BattleTooltips.isPressed = false;
+		}
 		BattleTooltips.hideTooltip();
 	}
 
@@ -310,6 +333,13 @@ class BattleTooltips {
 		if (!$wrapper.length) {
 			$wrapper = $(`<div id="tooltipwrapper" role="tooltip"></div>`);
 			$(document.body).append($wrapper);
+			$wrapper.on('click', e => {
+				try {
+					const selection = window.getSelection();
+					if (selection.type === 'Range') return;
+				} catch (err) {}
+				BattleTooltips.hideTooltip();
+			});
 		} else {
 			$wrapper.removeClass('tooltip-locked');
 		}
