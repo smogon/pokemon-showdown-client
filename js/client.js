@@ -1234,7 +1234,8 @@
 						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure)$/;
 						if (target === 'appeal' || target === 'appeals') target = 'view-help-request--appeal';
 						if (target === 'report') target = 'view-help-request--report';
-						if (this.host === 'replay.pokemonshowdown.com' && target !== 'search') {
+						if (this.host === 'replay.pokemonshowdown.com') {
+							if (!target || target === 'search') return;
 							target = 'battle-' + target;
 						}
 						if (target.indexOf('/') < 0 && target.indexOf('.') < 0 && !shortLinks.test(target)) {
