@@ -13,7 +13,7 @@
 	background: linear-gradient(to bottom,  hsl(60,14%,94%),  hsl(60,14%,77%));
 	border-color: hsl(60,14%,41%);
 }
-.movemenu button.type-Normal:active {
+.movemenu button.type-Normal:active, .movemenu button.type-Normal.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(60,14%,77%);
 	background: linear-gradient(to bottom,  hsl(60,14%,77%),  hsl(60,14%,83%));
@@ -35,7 +35,7 @@
 	background: linear-gradient(to bottom,  hsl(3,40%,94%),  hsl(3,40%,77%));
 	border-color: hsl(3,40%,41%);
 }
-.movemenu button.type-Fighting:active {
+.movemenu button.type-Fighting:active, .movemenu button.type-Fighting.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(342, 16%, 77%);
 	background: linear-gradient(to bottom,  hsl(3,40%,77%),  hsl(3,40%,83%));
@@ -57,7 +57,7 @@
 	background: linear-gradient(to bottom,  hsl(255,20%,94%),  hsl(255,20%,77%));
 	border-color: hsl(255,20%,41%);
 }
-.movemenu button.type-Flying:active {
+.movemenu button.type-Flying:active, .movemenu button.type-Flying.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(255,20%,77%);
 	background: linear-gradient(to bottom,  hsl(255,20%,77%),  hsl(255,20%,83%));
@@ -79,7 +79,7 @@
 	background: linear-gradient(to bottom,  hsl(300,30%,94%),  hsl(300,30%,77%));
 	border-color: hsl(300,30%,41%);
 }
-.movemenu button.type-Poison:active {
+.movemenu button.type-Poison:active, .movemenu button.type-Poison.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(300,30%,77%);
 	background: linear-gradient(to bottom,  hsl(300,30%,77%),  hsl(300,30%,83%));
@@ -101,7 +101,7 @@
 	background: linear-gradient(to bottom,  hsl(44,27%,94%),  hsl(44,27%,77%));
 	border-color: hsl(44,27%,41%);
 }
-.movemenu button.type-Ground:active {
+.movemenu button.type-Ground:active, .movemenu button.type-Ground.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(44,27%,77%);
 	background: linear-gradient(to bottom,  hsl(44,27%,77%),  hsl(44,27%,83%));
@@ -123,7 +123,7 @@
 	background: linear-gradient(to bottom,  hsl(49,35%,94%),  hsl(49,35%,77%));
 	border-color: hsl(49,35%,41%);
 }
-.movemenu button.type-Rock:active {
+.movemenu button.type-Rock:active, .movemenu button.type-Rock.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(49,35%,77%);
 	background: linear-gradient(to bottom,  hsl(49,35%,77%),  hsl(49,35%,83%));
@@ -145,7 +145,7 @@
 	background: linear-gradient(to bottom,  hsl(66,42%,94%),  hsl(66,42%,77%));
 	border-color: hsl(66,42%,41%);
 }
-.movemenu button.type-Bug:active {
+.movemenu button.type-Bug:active, .movemenu button.type-Bug.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(66,42%,77%);
 	background: linear-gradient(to bottom,  hsl(66,42%,77%),  hsl(66,42%,83%));
@@ -167,7 +167,7 @@
 	background: linear-gradient(to bottom,  hsl(262,21%,94%),  hsl(262,21%,77%));
 	border-color: hsl(262,21%,41%);
 }
-.movemenu button.type-Ghost:active {
+.movemenu button.type-Ghost:active, .movemenu button.type-Ghost.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(262,21%,77%);
 	background: linear-gradient(to bottom,  hsl(262,21%,77%),  hsl(262,21%,83%));
@@ -189,7 +189,7 @@
 	background: linear-gradient(to bottom,  hsl(240,6%,94%),  hsl(240,6%,77%));
 	border-color: hsl(240,6%,41%);
 }
-.movemenu button.type-Steel:active {
+.movemenu button.type-Steel:active, .movemenu button.type-Steel.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(240,6%,77%);
 	background: linear-gradient(to bottom,  hsl(240,6%,77%),  hsl(240,6%,83%));
@@ -211,7 +211,7 @@
 	background: linear-gradient(to bottom,  hsl(25,40%,94%),  hsl(25,40%,77%));
 	border-color: hsl(25,40%,41%);
 }
-.movemenu button.type-Fire:active {
+.movemenu button.type-Fire:active, .movemenu button.type-Fire.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(25,40%,77%);
 	background: linear-gradient(to bottom,  hsl(25,40%,77%),  hsl(25,40%,83%));
@@ -233,7 +233,7 @@
 	background: linear-gradient(to bottom,  hsl(222,29%,94%),  hsl(222,29%,77%));
 	border-color: hsl(222,29%,41%);
 }
-.movemenu button.type-Water:active {
+.movemenu button.type-Water:active, .movemenu button.type-Water.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(222,29%,77%);
 	background: linear-gradient(to bottom,  hsl(222,29%,77%),  hsl(222,29%,83%));
@@ -255,7 +255,7 @@
 	background: linear-gradient(to bottom,  hsl(100,30%,94%),  hsl(100,30%,77%));
 	border-color: hsl(100,30%,41%);
 }
-.movemenu button.type-Grass:active {
+.movemenu button.type-Grass:active, .movemenu button.type-Grass.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(100,30%,77%);
 	background: linear-gradient(to bottom,  hsl(100,30%,77%),  hsl(100,30%,83%));
@@ -277,7 +277,7 @@
 	background: linear-gradient(to bottom,  hsl(48,41%,94%),  hsl(48,41%,77%));
 	border-color: hsl(48,41%,41%);
 }
-.movemenu button.type-Electric:active {
+.movemenu button.type-Electric:active, .movemenu button.type-Electric.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(48,41%,77%);
 	background: linear-gradient(to bottom,  hsl(48,41%,77%),  hsl(48,41%,83%));
@@ -299,7 +299,7 @@
 	background: linear-gradient(to bottom,  hsl(342,33%,94%),  hsl(342,33%,77%));
 	border-color: hsl(342,33%,41%);
 }
-.movemenu button.type-Psychic:active {
+.movemenu button.type-Psychic:active, .movemenu button.type-Psychic.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(342,33%,77%);
 	background: linear-gradient(to bottom,  hsl(342,33%,77%),  hsl(342,33%,83%));
@@ -321,7 +321,7 @@
 	background: linear-gradient(to bottom,  hsl(180,15%,94%),  hsl(180,15%,77%));
 	border-color: hsl(180,15%,41%);
 }
-.movemenu button.type-Ice:active {
+.movemenu button.type-Ice:active, .movemenu button.type-Ice.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(180,15%,77%);
 	background: linear-gradient(to bottom,  hsl(180,15%,77%),  hsl(180,15%,83%));
@@ -343,7 +343,7 @@
 	background: linear-gradient(to bottom,  hsl(257,39%,94%),  hsl(257,39%,77%));
 	border-color: hsl(257,39%,41%);
 }
-.movemenu button.type-Dragon:active {
+.movemenu button.type-Dragon:active, .movemenu button.type-Dragon.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(257,39%,77%);
 	background: linear-gradient(to bottom,  hsl(257,39%,77%),  hsl(257,39%,83%));
@@ -365,7 +365,7 @@
 	background: linear-gradient(to bottom,  hsl(24,18%,94%),  hsl(24,18%,77%));
 	border-color: hsl(24,18%,41%);
 }
-.movemenu button.type-Dark:active {
+.movemenu button.type-Dark:active, .movemenu button.type-Dark.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(24,18%,77%);
 	background: linear-gradient(to bottom,  hsl(24,18%,77%),  hsl(24,18%,83%));
@@ -387,7 +387,7 @@
 	background: linear-gradient(to bottom,  hsl(310,41%,94%),  hsl(310,41%,77%));
 	border-color: hsl(310,41%,41%);
 }
-.movemenu button.type-Fairy:active {
+.movemenu button.type-Fairy:active, .movemenu button.type-Fairy.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(310,41%,77%);
 	background: linear-gradient(to bottom,  hsl(310,41%,77%),  hsl(310,41%,83%));

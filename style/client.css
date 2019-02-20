@@ -2032,7 +2032,9 @@ a.ilink.yours {
 	border-color: #606060;
 }
 .switchmenu button:active,
-.movemenu button:active {
+.movemenu button:active,
+.switchmenu button.pressed,
+.movemenu button.pressed {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
