@@ -2907,7 +2907,7 @@ class Battle {
 					return pokemon;
 				}
 				if (!pokemon.searchid && pokemon.checkDetails(details)) { // switch-in matches Team Preview entry
-					pokemon = this.p1.newPokemon(this.parseDetails(name, pokemonid, details), i);
+					pokemon = this.p1.newPokemon(this.parseDetails(name, pokemonid, details, {item: pokemon.item} as any), i);
 					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
 				}
@@ -2934,7 +2934,7 @@ class Battle {
 					return pokemon;
 				}
 				if (!pokemon.searchid && pokemon.checkDetails(details)) { // switch-in matches Team Preview entry
-					pokemon = this.p2.newPokemon(this.parseDetails(name, pokemonid, details), i);
+					pokemon = this.p2.newPokemon(this.parseDetails(name, pokemonid, details, {item: pokemon.item} as any), i);
 					if (slot >= 0) pokemon.slot = slot;
 					return pokemon;
 				}
