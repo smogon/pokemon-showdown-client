@@ -1260,7 +1260,7 @@ class Template implements Effect {
 		this.isTotem = false;
 		this.isMega = false;
 		this.isPrimal = false;
-		this.battleOnly = false;
+		this.battleOnly = !!data.battleOnly;
 		this.isNonstandard = !!data.isNonstandard;
 		this.unreleasedHidden = !!data.unreleasedHidden;
 		if (!this.gen) {
