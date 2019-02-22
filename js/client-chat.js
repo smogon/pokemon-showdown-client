@@ -381,7 +381,7 @@
 				}
 			}
 
-			switch (cmd.toLowerCase()) {
+			switch ($.trim(cmd.toLowerCase())) {
 			case 'chall':
 			case 'challenge':
 				var targets = target.split(',');
