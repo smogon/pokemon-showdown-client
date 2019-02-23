@@ -762,6 +762,8 @@ class ModdedDex {
 			}
 			if (this.gen < 5) delete abilities['H'];
 			if (this.gen < 7) delete abilities['S'];
+
+			data.abilities = abilities;
 		}
 		if (id in table.overrideStats) {
 			data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
