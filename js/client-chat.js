@@ -475,6 +475,18 @@
 				openUser(target);
 				return false;
 
+			case 'pm':
+			case 'whisper':
+			case 'w':
+			case 'msg':
+				var commaIndex = target.indexOf(',');
+				if (commaIndex < 0) break;
+				if (!$.trim(target.slice(commaIndex + 1))) {
+					app.rooms[''].focusPM(target.slice(0, commaIndex));
+					return false;
+				}
+				break;
+
 			case 'debug':
 				if (target === 'extractteams') {
 					app.addPopup(Popup, {
