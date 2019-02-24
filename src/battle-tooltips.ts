@@ -168,7 +168,7 @@ class BattleTooltips {
 		if (BattleTooltips.elem && !BattleTooltips.isLocked) {
 			BattleTooltips.isLocked = true;
 			if (BattleTooltips.isPressed) {
-				$(BattleTooltips.parentElem).removeClass('pressed');
+				$(BattleTooltips.parentElem!).removeClass('pressed');
 				BattleTooltips.isPressed = false;
 			}
 			$('#tooltipwrapper').addClass('tooltip-locked');
@@ -194,15 +194,15 @@ class BattleTooltips {
 		$elem.on('touchstart', '.has-tooltip', e => {
 			e.preventDefault();
 			this.holdLockTooltipEvent(e);
-			if (e.currentTarget == BattleTooltips.parentElem && BattleTooltips.parentElem.tagName === 'BUTTON') {
-				$(BattleTooltips.parentElem).addClass('pressed');
+			if (e.currentTarget === BattleTooltips.parentElem && BattleTooltips.parentElem!.tagName === 'BUTTON') {
+				$(BattleTooltips.parentElem!).addClass('pressed');
 				BattleTooltips.isPressed = true;
 			}
 		});
 		$elem.on('touchend', '.has-tooltip', e => {
 			e.preventDefault();
 			if (e.currentTarget === BattleTooltips.parentElem && BattleTooltips.isPressed) {
-				BattleTooltips.parentElem.click();
+				BattleTooltips.parentElem!.click();
 			}
 			BattleTooltips.unshowTooltip();
 		});
@@ -244,7 +244,7 @@ class BattleTooltips {
 	static unshowTooltip() {
 		if (BattleTooltips.isLocked) return;
 		if (BattleTooltips.isPressed) {
-			$(BattleTooltips.parentElem).removeClass('pressed');
+			$(BattleTooltips.parentElem!).removeClass('pressed');
 			BattleTooltips.isPressed = false;
 		}
 		BattleTooltips.hideTooltip();
