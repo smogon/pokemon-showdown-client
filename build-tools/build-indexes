@@ -335,9 +335,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 			}
 
-			const untierCheck = !tier.startsWith('Untiered') ? tier : !isDoubles ? tier + " Singles" : tier + " Doubles";
-			if (!tierTable[untierCheck]) tierTable[untierCheck] = [];
-			tierTable[untierCheck].push(id);
+			if (!tierTable[tier]) tierTable[tier] = [];
+			tierTable[tier].push(id);
 			if (gen === 'gen6' && id in {ferroseed:1, pawniard:1, vullaby:1} && tier !== 'LC') {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
@@ -354,9 +353,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				for (const ban of banlist) {
 					let baseTemplate = Dex.mod(gen).getTemplate(ban.endsWith('-Base') ? ban.slice(0, -5) : ban);
 					if (!baseTemplate.exists) continue;
-					const tierRank = {AG:1, Uber:1, OU:1, UUBL:1, UU:1, RUBL:1, RU:1, NUBL:1, NU:1, PUBL:1, PU:1, Untiered:0, NFE:0, "LC Uber":0, LC:0};
+					const tierRank = {AG:1, Uber:1, OU:1, UUBL:1, UU:1, RUBL:1, RU:1, NUBL:1, NU:1, PUBL:1, PU:1, "(PU)":0, NFE:0, "LC Uber":0, LC:0};
 					let baseTier = baseTemplate.tier;
-					if (baseTier !== "Untiered" && baseTier in tierRank && tierRank[baseTier] > 0) continue;
+					if (baseTier !== "(PU)" && baseTier in tierRank && tierRank[baseTier] > 0) continue;
 					zuBans[baseTemplate.speciesid] = 1;
 				}
 			}
@@ -402,7 +401,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
 			}
 			if (isDoubles) {
-				return ["DUber", "DOU", "DBL", "(DOU)", "DUU", "(DUU)", "Untiered Doubles", "NFE", "LC Uber", "LC"];
+				return ["DUber", "DOU", "DBL", "(DOU)", "DUU", "(DUU)", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen1' || gen === 'gen2' || gen === 'gen3') {
 				return ["Uber", "OU", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
@@ -414,18 +413,21 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen7') {
-				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "Untiered Singles", "New", "Unreleased", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "Unreleased", "NFE", "LC Uber", "LC"];
 			}
-			return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "Untiered Singles", "NFE", "LC Uber", "LC"];
+			return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC Uber", "LC"];
 		})();
 
 		for (const tier of tierOrder) {
-			if (tier in {OU:1, Uber:1, UU:1, RU:1, NU:1, PU:1, "Untiered Singles":1, LC:1, DOU:1, DUU:1, "Untiered Doubles":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
-				formatSlices[tier] = tiers.length;
+			if (tier in {OU:1, Uber:1, UU:1, RU:1, NU:1, PU:1, "(PU)":1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
+				let usedTier = tier;
+				if (usedTier === "(PU)") usedTier = "ZU";
+				if (usedTier === "(DUU)") usedTier = "DNU";
+				formatSlices[usedTier] = tiers.length;
 			}
 			if (!tierTable[tier]) continue;
-			if (tier.startsWith('Untiered')) {
-				tiers.push(['header', "Untiered"]);
+			if (tier === "(PU)" || tier === "(DUU)") {
+				tiers.push(['header', "Below " + tier === "(PU)" ? "PU" : "DUU"]);
 			} else if (tier.charAt(0) === '(') {
 				tiers.push(['header', tier.slice(1, -1) + " by technicality"]);
 			} else if (tier === "NFE") {
