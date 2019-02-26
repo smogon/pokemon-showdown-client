@@ -69,7 +69,7 @@ class PSPrefs extends PSModel {
 				this.storageEngine = 'localStorage';
 				this.load(JSON.parse(localStorage.getItem('showdown_prefs')!) || {}, true);
 			}
-		} catch (e) {}
+		} catch {}
 	}
 	/**
 	 * Change a preference.
@@ -143,7 +143,7 @@ class PSTeams extends PSModel {
 		super();
 		try {
 			this.unpackAll(localStorage.getItem('showdown_teams'));
-		} catch (e) {}
+		} catch {}
 	}
 	save() {
 		// noop by default
@@ -387,6 +387,7 @@ const PS = new class extends PSModel {
 		switch (cmd) {
 		case 'html':
 		case 'raw':
+		case 'challstr':
 		case '':
 			return [cmd, str.slice(index + 1)];
 		case 'c':

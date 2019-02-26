@@ -193,7 +193,7 @@ const PSBackground = new class extends PSStreamModel {
 			} else if (bg.length >= 7) {
 				this.set(bg[0], bg[1], bg.slice(2));
 			}
-		} catch (e) {}
+		} catch {}
 	}
 	save(bgUrl: string) {
 		if (this.id !== 'custom') {
@@ -356,7 +356,7 @@ const PSBackground = new class extends PSStreamModel {
 				}
 				this.menuColors = menuColors;
 				PSBackground.save(bgUrl);
-			} catch (e) {}
+			} catch {}
 		};
 		img.src = bgUrl;
 	}

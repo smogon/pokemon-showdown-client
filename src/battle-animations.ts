@@ -2609,7 +2609,7 @@ const BattleSound = new class {
 				url: Dex.resourcePrefix + url,
 				volume: this.effectVolume,
 			});
-		} catch (e) {}
+		} catch {}
 		if (!this.effectCache[url]) {
 			this.effectCache[url] = this.soundPlaceholder;
 		}
@@ -2632,7 +2632,7 @@ const BattleSound = new class {
 				url: Dex.resourcePrefix + url,
 				volume: this.bgmVolume,
 			});
-		} catch (e) {}
+		} catch {}
 		if (!this.bgmCache[url]) {
 			// couldn't load
 			// suppress crash
@@ -2660,7 +2660,7 @@ const BattleSound = new class {
 					this.bgm.play();
 				}
 			}
-		} catch (e) {}
+		} catch {}
 	}
 	pauseBgm() {
 		if (this.bgm) {
@@ -2696,7 +2696,7 @@ const BattleSound = new class {
 		if (this.bgm) {
 			try {
 				this.bgm.setVolume(this.bgmVolume);
-			} catch (e) {}
+			} catch {}
 		}
 	}
 	setEffectVolume(effectVolume: number) {

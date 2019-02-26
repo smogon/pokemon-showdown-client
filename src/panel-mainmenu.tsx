@@ -8,6 +8,19 @@
 class MainMenuRoom extends PSRoom {
 	readonly classType: string = 'mainmenu';
 	receive(line: string) {
+		const tokens = PS.lineParse(line);
+		switch (tokens[0]) {
+		case 'challstr':
+			PSLoginServer.query({
+				act: 'upkeep',
+				challstr: tokens[1],
+			}, res => {
+				if (!res) return;
+				if (!res.loggedin) return;
+				this.send(`/trn ${res.username},0,${res.assertion}`);
+			});
+			return;
+		}
 		const lobby = PS.rooms['lobby'];
 		if (lobby) lobby.receive(line);
 	}
