@@ -20,6 +20,9 @@ class MainMenuRoom extends PSRoom {
 				this.send(`/trn ${res.username},0,${res.assertion}`);
 			});
 			return;
+		case 'updateuser':
+			PS.user.setName(tokens[1], tokens[2] === '1', tokens[3]);
+			return;
 		}
 		const lobby = PS.rooms['lobby'];
 		if (lobby) lobby.receive(line);

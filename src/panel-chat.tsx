@@ -19,12 +19,62 @@ class ChatRoom extends PSRoom {
 	}
 }
 
+class ChatTextEntry extends preact.Component<{onMessage: (msg: string) => void}> {
+	subscription: PSSubscription | null = null;
+	componentDidMount() {
+		this.subscription = PS.user.subscribe(() => {
+			this.forceUpdate();
+		});
+		if (this.base) this.update();
+	}
+	componentWillUnmount() {
+		if (this.subscription) {
+			this.subscription.unsubscribe();
+			this.subscription = null;
+		}
+	}
+	update = (e?: Event) => {
+		let elem;
+		if (e) {
+			elem = e.currentTarget as HTMLTextAreaElement;
+		} else if (this.base) {
+			elem = this.base.children[0].children[1] as HTMLTextAreaElement;
+		} else {
+			return;
+		}
+		elem.style.height = '12px';
+		const newHeight = Math.min(Math.max(elem.scrollHeight - 2, 16), 600);
+		elem.style.height = '' + newHeight + 'px';
+	};
+	keyPress = (e: KeyboardEvent) => {
+		let elem = e.currentTarget as HTMLTextAreaElement;
+		if (e.keyCode === 13 && !e.shiftKey) {
+			this.props.onMessage(elem.value);
+			elem.value = '';
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			return;
+		}
+	};
+	render() {
+		return <div class="chat-log-add hasuserlist">
+			<form class="chatbox">
+				<label>{PS.user.name}</label>
+				<textarea class="textbox" rows={1} onInput={this.update} onKeyPress={this.keyPress} style={{resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px'}} />
+			</form>
+		</div>;
+	}
+}
+
 class ChatPanel extends preact.Component<{style: {}, room: PSRoom}> {
+	send = (text: string) => {
+		this.props.room.send(text);
+	};
 	render() {
 		return <div class="ps-room ps-room-light scrollabel" id={`room-${this.props.room.id}`} style={this.props.style}>
 			<div class="tournament-wrapper hasuserlist"></div>
 			<ChatLog class="chat-log hasuserlist" room={this.props.room} />
-			<div class="chat-log-add hasuserlist"></div>
+			<ChatTextEntry onMessage={this.send} />
 			<ul class="userlist"></ul>
 		</div>;
 	}

@@ -58,7 +58,10 @@ const PSLoginServer = new class {
 		if (location.pathname.endsWith('.html')) {
 			url = 'https://play.pokemonshowdown.com' + url;
 			// @ts-ignore
-			data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY;
+			if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
+				// @ts-ignore
+				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/\%2C/g, ',');
+			}
 		}
 		this.request(url, data, res => {
 			if (!res) callback(null);
@@ -68,7 +71,7 @@ const PSLoginServer = new class {
 	request(url: string, data: {} | null, callback: (res: string | null) => void) {
 		const xhr = new XMLHttpRequest();
 		xhr.open(data ? 'POST' : 'GET', url);
-		xhr.onreadystatechange = function() { // Call a function when the state changes.
+		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
 				try {
 					callback(xhr.responseText || null);
@@ -89,4 +92,4 @@ const PSLoginServer = new class {
 			xhr.send();
 		}
 	}
-}
+};
