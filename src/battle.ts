@@ -3329,10 +3329,10 @@ class Battle {
 				} else {
 					this.runMajor(args, kwArgs, preempt);
 				}
-			} catch (e) {
-				this.log(['majorerror', 'Error parsing: ' + str + ' (' + e + ')']);
-				if (e.stack) {
-					let stack = ('' + e.stack).split('\n');
+			} catch (err) {
+				this.log(['majorerror', 'Error parsing: ' + str + ' (' + err + ')']);
+				if (err.stack) {
+					let stack = ('' + err.stack).split('\n');
 					for (const line of stack) {
 						if (/\brun\b/.test(line)) {
 							break;

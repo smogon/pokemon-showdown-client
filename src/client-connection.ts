@@ -51,3 +51,42 @@ class PSConnection {
 }
 
 PS.connection = new PSConnection();
+
+const PSLoginServer = new class {
+	query(data: {}, callback: (res: {[k: string]: any} | null) => void) {
+		let url = '/~~' + PS.server.id + '/action.php';
+		if (location.pathname.endsWith('.html')) {
+			url = 'https://play.pokemonshowdown.com' + url;
+			// @ts-ignore
+			data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY;
+		}
+		this.request(url, data, res => {
+			if (!res) callback(null);
+			else callback(JSON.parse(res.slice(1)));
+		});
+	}
+	request(url: string, data: {} | null, callback: (res: string | null) => void) {
+		const xhr = new XMLHttpRequest();
+		xhr.open(data ? 'POST' : 'GET', url);
+		xhr.onreadystatechange = function() { // Call a function when the state changes.
+			if (xhr.readyState === 4) {
+				try {
+					callback(xhr.responseText || null);
+				} catch {
+					callback(null);
+				}
+			}
+		};
+		if (data) {
+			let urlencodedData = '';
+			for (const key in data) {
+				if (urlencodedData) urlencodedData += '&';
+				urlencodedData += encodeURIComponent(key) + '=' + encodeURIComponent((data as any)[key]);
+			}
+			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			xhr.send(urlencodedData);
+		} else {
+			xhr.send();
+		}
+	}
+}
