@@ -1442,6 +1442,9 @@ class BattleTooltips {
 			}
 		}
 
+		// Item
+		value = this.getItemBoost(move, value, moveType);
+
 		return value;
 	}
 
