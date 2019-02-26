@@ -126,12 +126,13 @@ class NTBBSession {
 			$username = 'Guest';
 			$userid = 'guest';
 		}
-		return array(
+		return [
 			'username' => $username,
 			'userid' => $userid,
 			'group' => 0,
-			'loggedin' => false
-		);
+			'loggedin' => false,
+			'ip' => $this->getIp(),
+		];
 	}
 
 	function qsid() { return $this->scookie ? '?sid='.$this->scookie : ''; }
@@ -461,6 +462,7 @@ class NTBBSession {
 		}
 		$ip = $this->getIp();
 		$forceUsertype = false;
+		if (in_array($ip, $psconfig['autolock_ip']) || in_array($user['ip'], $psconfig['autolock_ip'])) $forceUsertype = '5';
 
 		if (($user['userid'] === $userid) && !empty($user['loggedin'])) {
 			// already logged in
