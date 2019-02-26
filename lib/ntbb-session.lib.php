@@ -36,7 +36,7 @@ class NTBBSession {
 		$curuser = $this->getGuest();
 
 		// see if we're logged in
-		$scookie = @$_COOKIE['sid'];
+		$scookie = $_POST['sid'] ?? $_COOKIE['sid'] ?? null;
 		if (!$scookie) {
 			// nope, not logged in
 			return;
