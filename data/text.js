@@ -1019,6 +1019,9 @@ exports.BattleText = {
 	pressure: {
 		start: "  [POKEMON] is exerting its pressure!",
 	},
+	queenlymajesty: {
+		block: "#damp",
+	},
 	rebound: {
 		move: '#magiccoat',
 	},
