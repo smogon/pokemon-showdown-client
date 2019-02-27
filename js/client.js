@@ -1235,7 +1235,7 @@
 						if (target === 'appeal' || target === 'appeals') target = 'view-help-request--appeal';
 						if (target === 'report') target = 'view-help-request--report';
 						if (this.host === 'replay.pokemonshowdown.com') {
-							if (!target || target === 'search') {
+							if (!target || target === 'search' || this.text === 'Open replay in new tab') {
 								target = '.';
 							} else {
 								target = 'battle-' + target;
