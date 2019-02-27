@@ -64,6 +64,7 @@ var Replays = {
 
 		// this works around a WebKit/Blink bug relating to float layout
 		var rc2 = this.$('.replay-controls-2')[0];
+		// eslint-disable-next-line no-self-assign
 		if (rc2) rc2.innerHTML = rc2.innerHTML;
 
 		if (window.soundManager && soundManager.ready) this.soundReady();
