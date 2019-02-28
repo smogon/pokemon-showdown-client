@@ -18,7 +18,7 @@ process.stdout.write("Syncing data from Git repository... ");
 child_process.execSync('git pull', {cwd: 'data/Pokemon-Showdown'});
 console.log("DONE");
 
-const Dex = require('../data/Pokemon-Showdown/sim/dex');
+const Dex = require('../data/Pokemon-Showdown/.sim-dist/dex');
 const toId = Dex.getId;
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
