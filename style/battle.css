@@ -861,6 +861,7 @@ License: GPLv2
 	background: #EEEEEE;
 	color: black;
 	padding: 0 2px;
+	tab-size: 4;
 }
 .greentext {
 	color: #187902;
