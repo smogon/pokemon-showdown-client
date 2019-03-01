@@ -1101,13 +1101,15 @@ class BattleTooltips {
 		if (allowTypeOverride && move.flags['sound'] && value.abilityModify(0, 'Liquid Voice')) {
 			moveType = 'Water';
 		}
-		if (allowTypeOverride && moveType === 'Normal' && category !== 'Status') {
-			if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
-			if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
-			if (value.abilityModify(0, 'Pixilate')) moveType = 'Fairy';
-			if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
-			if (value.abilityModify(0, 'Normalize')) moveType = 'Normal';
+		if (allowTypeOverride && category !== 'Status') {
+			if (moveType === 'Normal') {
+				if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
+				if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
+				if (value.abilityModify(0, 'Pixilate')) moveType = 'Fairy';
+				if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
 			}
+			if (value.abilityModify(0, 'Normalize')) moveType = 'Normal';
+		}
 		if (this.battle.gen <= 3 && category !== 'Status') {
 			category = Dex.getGen3Category(moveType);
 		}
@@ -1377,11 +1379,13 @@ class BattleTooltips {
 			}
 		}
 		const noTypeOverride = ['judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball'];
-		if (move.type === 'Normal' && move.category !== 'Status' && !noTypeOverride.includes(move.id)) {
-			value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Aerilate");
-			value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Galvanize");
-			value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Pixilate");
-			value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Refrigerate");
+		if (move.category !== 'Status' && !noTypeOverride.includes(move.id)) {
+			if (move.type === 'Normal') {
+				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Aerilate");
+				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Galvanize");
+				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Pixilate");
+				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Refrigerate");
+			}
 			if (this.battle.gen > 6) {
 				value.abilityModify(1.2, "Normalize");
 			}
