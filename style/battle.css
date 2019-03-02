@@ -710,6 +710,17 @@ License: GPLv2
 	image-rendering: pixelated;
 	-ms-interpolation-mode: nearest-neighbor;
 }
+@media (-webkit-min-device-pixel-ratio: 1.05), (min-resolution: 1.05dppx) {
+	.pixelated, .itemicon, .picon, .trainersprite {
+		image-rendering: auto;
+	}
+}
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+	.pixelated, .itemicon, .picon, .trainersprite {
+		image-rendering: pixelated;
+	}
+}
+
 
 /*********************************************************
  * Tooltips
