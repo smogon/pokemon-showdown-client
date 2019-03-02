@@ -73,7 +73,7 @@ class BattleTextParser {
 				'electricterrain', 'mistyterrain', 'psychicterrain', 'telepathy', 'stickyhold', 'suctioncups', 'aromaveil',
 				'flowerveil', 'sweetveil', 'disguise', 'safetygoggles', 'protectivepads',
 			].includes(id)) {
-				return {args: ['-block', target || pokemon, effect, arg3], kwArgs: {}};
+				return {args: ['-block', target || pokemon, effect, arg3], kwArgs: {of: pokemon || target}};
 			}
 
 			if ([
@@ -109,7 +109,7 @@ class BattleTextParser {
 		case 'cant': {
 			let [, pokemon, effect] = args;
 			if (['ability: Queenly Majesty', 'ability: Damp', 'ability: Dazzling'].includes(effect)) {
-				args[0] = '-block';
+				return {args: ['-block', kwArgs.of, effect], kwArgs: {of: pokemon}};
 			}
 			return {args, kwArgs};
 		}
@@ -884,7 +884,7 @@ class BattleTextParser {
 
 		case '-block': {
 			let [, pokemon, effect, move] = args;
-			const line1 = this.maybeAbility(effect, pokemon);
+			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
 			const template = this.template('block', effect);
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[MOVE]', move);
 		}
@@ -893,7 +893,7 @@ class BattleTextParser {
 			let [, pokemon, effect, stat] = args;
 			let id = BattleTextParser.effectId(effect);
 			let blocker = BattleTextParser.effectId(kwArgs.from);
-			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
+			const line1 = this.maybeAbility(kwArgs.from, pokemon);
 			let templateId = 'block';
 			if (['desolateland', 'primordialsea'].includes(blocker) &&
 				!['sunnyday', 'raindance', 'sandstorm', 'hail'].includes(id)) {
@@ -903,15 +903,14 @@ class BattleTextParser {
 			}
 			let template = this.template(templateId, kwArgs.from);
 			if (template) {
+				if (id === 'unboost' && BattleTextParser.effectId(kwArgs.from) === 'flowerveil') {
+					pokemon = kwArgs.of;
+				}
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
 			}
 
 			if (id === 'unboost') {
 				template = this.template(stat ? 'failSingular' : 'fail', 'unboost');
-				if (BattleTextParser.effectId(kwArgs.from) === 'flowerveil') {
-					template = this.template('block', kwArgs.from);
-					pokemon = kwArgs.of;
-				}
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', stat);
 			}
 

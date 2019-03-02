@@ -932,7 +932,7 @@ exports.BattleText = {
 		start: "  [POKEMON] is drowsing!",
 	},
 	damp: {
-		block: "  [SOURCE] cannot use [MOVE]!",
+		block: "  [POKEMON] cannot use [MOVE]!",
 	},
 	darkaura: {
 		start: "  [POKEMON] is radiating a dark aura!",
