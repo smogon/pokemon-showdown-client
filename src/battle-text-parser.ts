@@ -101,6 +101,11 @@ class BattleTextParser {
 			return {args, kwArgs};
 		}
 
+		case '-start': {
+			if (kwArgs.from === 'Protean' || kwArgs.from === 'Color Change') kwArgs.from = 'ability:' + kwArgs.from;
+			return {args, kwArgs};
+		}
+
 		case 'move': {
 			if (kwArgs.from === 'Magic Bounce') kwArgs.from = 'ability:Magic Bounce';
 			return {args, kwArgs};
