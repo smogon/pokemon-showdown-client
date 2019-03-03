@@ -833,7 +833,7 @@
 						if (replay) {
 							var title = BattleLog.escapeHTML(replay.p1) + ' vs. ' + BattleLog.escapeHTML(replay.p2);
 							app.receive('>battle-' + replayid + '\n|init|battle\n|title|' + title + '\n' + replay.log);
-							app.receive('>battle-' + replayid + '\n|expire|<a href=' + replayLink + ' target="_blank">Open replay in new tab</a>');
+							app.receive('>battle-' + replayid + '\n|expire|<a href=' + replayLink + ' target="_blank" class="no-panel-intercept">Open replay in new tab</a>');
 						} else {
 							errormessage += '\n\nResponse received, but no data.';
 							app.addPopupMessage(errormessage);
@@ -1228,7 +1228,7 @@
 				if (this.className === 'closebutton') return; // handled elsewhere
 				if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
 				if (!this.href) return; // should never happen
-				if (this.host === 'play.pokemonshowdown.com' || this.host === 'replay.pokemonshowdown.com' || this.host === 'psim.us' || this.host === location.host) {
+				if ((this.host === 'play.pokemonshowdown.com' || this.host === 'replay.pokemonshowdown.com' || this.host === 'psim.us' || this.host === location.host) && this.className !== 'no-panel-intercept') {
 					if (!e.cmdKey && !e.metaKey && !e.ctrlKey) {
 						var target = this.pathname.substr(1);
 						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure)$/;
