@@ -69,6 +69,10 @@ body {
 .textbox:focus {
 	background: #FFFFFF;
 }
+.textbox.disabled, .textbox:disabled {
+	background: #CCCCCC;
+	color: #555555;
+}
 .buttonbar {
 	margin-top: 1em;
 	text-align: center;

@@ -30,8 +30,7 @@ class PSRouter {
 			}
 		}
 		PS.subscribeAndRun(() => {
-			const room = PS.rightRoomFocused ? PS.rightRoom! : PS.leftRoom;
-			const roomid = room.id;
+			const roomid = PS.room.id;
 			location.hash = roomid ? '#' + roomid : '';
 		});
 		window.addEventListener('hashchange', e => {
@@ -54,7 +53,7 @@ class PSRouter {
 		}
 		if (!window.history) return;
 		PS.subscribeAndRun(() => {
-			const room = PS.rightRoomFocused ? PS.rightRoom! : PS.leftRoom;
+			const room = PS.room;
 			const roomid = room.id;
 			const panelState = (PS.leftRoomWidth ?
 				PS.leftRoom.id + '..' + PS.rightRoom!.id :
@@ -233,6 +232,36 @@ class PSMain extends preact.Component {
 				elem = elem.parentElement;
 			}
 		});
+
+		window.addEventListener('keydown', e => {
+			let elem = e.target as HTMLInputElement | null;
+			if (elem) {
+				let isTextInput = (elem.tagName === 'INPUT' || elem.tagName === 'TEXTAREA');
+				if (isTextInput && (elem.type === 'button' || elem.type === 'radio' || elem.type === 'checkbox' || elem.type === 'file')) {
+					isTextInput = false;
+				}
+				if (isTextInput && elem.value) {
+					return;
+				}
+			}
+			if (PS.room.onParentEvent) {
+				if (PS.room.onParentEvent('keydown', e) === false) {
+					e.stopImmediatePropagation();
+					e.preventDefault();
+					return;
+				}
+			}
+			let modifierKey = e.ctrlKey || e.altKey || e.metaKey || e.shiftKey;
+			if (modifierKey) return;
+			if (e.keyCode === 37) { // left
+				PS.arrowKeysUsed = true;
+				PS.focusLeftRoom();
+			} else if (e.keyCode === 39) { // right
+				PS.arrowKeysUsed = true;
+				PS.focusRightRoom();
+			}
+		});
+
 		PS.prefs.subscribeAndRun(() => {
 			document.body.className = PS.prefs.dark ? 'dark' : '';
 		});
@@ -307,9 +336,7 @@ class PSMain extends preact.Component {
 		let pos = null;
 		if (PS.leftRoomWidth === 0) {
 			// one panel visible
-			if (room === (PS.rightRoomFocused ? PS.rightRoom : PS.leftRoom)) {
-				pos = {top: 56};
-			}
+			if (room === PS.room) pos = {top: 56};
 		} else {
 			// both panels visible
 			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};

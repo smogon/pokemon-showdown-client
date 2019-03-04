@@ -255,6 +255,7 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	 * after sending `/leave`, even before the server responds.
 	 */
 	connected = false;
+	onParentEvent: ((eventId: 'focus' | 'keydown', e?: Event) => false | void) | null = null;
 	constructor(options: RoomOptions) {
 		super();
 		this.id = options.id;
@@ -321,10 +322,9 @@ const PS = new class extends PSModel {
 	 *
 	 * In two-panel mode, this will be the visible left panel.
 	 *
-	 * In one-panel mode, this is the visible room only if
-	 * `PS.rightRoomFocused` is `false`. Still tracked when not visible,
-	 * so we know which panels to display if PS is resized to allow for
-	 * two panels.
+	 * In one-panel mode, this is the visible room only if it is
+	 * `PS.room`. Still tracked when not visible, so we know which
+	 * panels to display if PS is resized to two-panel mode.
 	 */
 	leftRoom: PSRoom = null!;
 	/**
@@ -332,21 +332,23 @@ const PS = new class extends PSModel {
 	 *
 	 * In two-panel mode, this will be the visible left panel.
 	 *
-	 * In one-panel mode, this is the visible room only if
-	 * `PS.rightRoomFocused` is `true`. Still tracked when not visible,
-	 * so we know which panels to display if PS is resized to allow for
-	 * two panels.
+	 * In one-panel mode, this is the visible room only if it is
+	 * `PS.room`. Still tracked when not visible, so we know which
+	 * panels to display if PS is resized to two-panel mode.
 	 */
 	rightRoom: PSRoom | null = null;
 	/**
+	 * The currently focused room. Should always be either `PS.leftRoom`
+	 * or `PS.rightRoom`.
+	 *
 	 * In one-panel mode, determines whether the left or right panel is
 	 * visible.
 	 *
 	 * Also determines which room receives keyboard shortcuts.
 	 *
-	 * Clicking on a panel will focus it, in two-panel mode.
+	 * Clicking inside a panel will focus it, in two-panel mode.
 	 */
-	rightRoomFocused = false;
+	room: PSRoom = null!;
 	/**
 	 * Not to be confused with PSPrefs.onepanel, which is permanent.
 	 * PS.onePanelMode will be true if one-panel mode is on, but it will
@@ -364,7 +366,10 @@ const PS = new class extends PSModel {
 	 * that don't change the left room width will not trigger an update.
 	 */
 	leftRoomWidth = 0;
-	mainmenu: PSRoom = null!;
+	mainmenu: MainMenuRoom = null!;
+
+	/** Tracks whether or not to display the "Use arrow keys" hint */
+	arrowKeysUsed = false;
 
 	constructor() {
 		super();
@@ -495,6 +500,7 @@ const PS = new class extends PSModel {
 					room = PS.rooms[roomid2];
 				} else {
 					room.type = type;
+					room.connected = true;
 					this.updateRoomTypes();
 				}
 				this.update();
@@ -523,7 +529,7 @@ const PS = new class extends PSModel {
 	isVisible(room: PSRoom) {
 		if (this.leftRoomWidth === 0) {
 			// one panel visible
-			return room === (this.rightRoomFocused ? this.rightRoom : this.leftRoom);
+			return room === this.room;
 		} else {
 			// both panels visible
 			return room === this.rightRoom || room === this.leftRoom;
@@ -614,6 +620,7 @@ const PS = new class extends PSModel {
 			this.rooms[roomid] = newRoom;
 			if (this.leftRoom === room) this.leftRoom = newRoom;
 			if (this.rightRoom === room) this.rightRoom = newRoom;
+			if (this.room === room) this.room = newRoom;
 			if (roomid === '') this.mainmenu = newRoom;
 
 			if (options.queue) {
@@ -626,12 +633,60 @@ const PS = new class extends PSModel {
 	focusRoom(roomid: RoomID) {
 		if (this.leftRoomList.includes(roomid)) {
 			this.leftRoom = this.rooms[roomid]!;
-			this.rightRoomFocused = false;
-		}
-		if (this.rightRoomList.includes(roomid)) {
+			this.room = this.leftRoom;
+		} else if (this.rightRoomList.includes(roomid)) {
 			this.rightRoom = this.rooms[roomid]!;
-			this.rightRoomFocused = true;
+			this.room = this.rightRoom;
+		} else {
+			return false;
 		}
+		this.update();
+		if (this.room.onParentEvent) this.room.onParentEvent('focus', undefined);
+		return true;
+	}
+	focusLeftRoom() {
+		const allRooms = this.leftRoomList.concat(this.rightRoomList);
+		let roomIndex = allRooms.indexOf(this.room.id);
+		if (roomIndex === -1) {
+			// inconsistent state: should not happen
+			return this.focusRoom('' as RoomID);
+		}
+		if (roomIndex === 0) {
+			return this.focusRoom(allRooms[allRooms.length - 1]);
+		}
+		return this.focusRoom(allRooms[roomIndex - 1]);
+	}
+	focusRightRoom() {
+		const allRooms = this.leftRoomList.concat(this.rightRoomList);
+		let roomIndex = allRooms.indexOf(this.room.id);
+		if (roomIndex === -1) {
+			// inconsistent state: should not happen
+			return this.focusRoom('' as RoomID);
+		}
+		if (roomIndex === allRooms.length - 1) {
+			return this.focusRoom(allRooms[0]);
+		}
+		return this.focusRoom(allRooms[roomIndex + 1]);
+	}
+	focusPreview(room: PSRoom) {
+		if (room !== this.room) return '';
+		const allRooms = this.leftRoomList.concat(this.rightRoomList);
+		let roomIndex = allRooms.indexOf(this.room.id);
+		if (roomIndex === -1) {
+			// inconsistent state: should not happen
+			return '';
+		}
+		let buf = '  ';
+		if (roomIndex > 1) { // don't show Home
+			const leftRoom = this.rooms[allRooms[roomIndex - 1]]!;
+			buf += `\u2190 ${leftRoom.title}`;
+		}
+		buf += (this.arrowKeysUsed ? " | " : " (use arrow keys) ");
+		if (roomIndex < allRooms.length - 1) {
+			const rightRoom = this.rooms[allRooms[roomIndex + 1]]!;
+			buf += `${rightRoom.title} \u2192`;
+		}
+		return buf;
 	}
 	addRoom(options: RoomOptions) {
 		if (this.rooms[options.id]) {
@@ -644,6 +699,7 @@ const PS = new class extends PSModel {
 		case 'left':
 			this.leftRoomList.push(room.id);
 			this.leftRoom = room;
+			this.room = room;
 			break;
 		case 'right':
 			this.rightRoomList.push(room.id);
@@ -652,6 +708,7 @@ const PS = new class extends PSModel {
 				this.rightRoomList.push('rooms' as RoomID);
 			}
 			this.rightRoom = room;
+			this.room = room;
 			break;
 		case 'popup':
 			this.popups.push(room.id);
@@ -673,6 +730,7 @@ const PS = new class extends PSModel {
 		}
 		if (PS.leftRoom === room) {
 			PS.leftRoom = this.mainmenu;
+			if (PS.room === room) PS.room = this.mainmenu;
 		}
 
 		const rightRoomIndex = PS.rightRoomList.indexOf(room.id);
@@ -682,6 +740,7 @@ const PS = new class extends PSModel {
 		if (PS.rightRoom === room) {
 			let newRightRoomid = PS.rightRoomList[rightRoomIndex] || PS.rightRoomList[rightRoomIndex - 1];
 			PS.rightRoom = newRightRoomid ? PS.rooms[newRightRoomid]! : null;
+			if (PS.room === room) PS.room = PS.rightRoom || PS.leftRoom;
 		}
 		this.update();
 	}
