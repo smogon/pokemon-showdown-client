@@ -30,6 +30,18 @@ class MainMenuRoom extends PSRoom {
 }
 
 class MainMenuPanel extends preact.Component<{style: {}, room: PSRoom}> {
+	componentDidMount() {
+		if (PS.room === this.props.room) this.focus();
+		this.props.room.onParentEvent = (id: string, e?: Event) => {
+			if (id === 'focus') this.focus();
+		};
+	}
+	componentWillUnmount() {
+		this.props.room.onParentEvent = null;
+	}
+	focus() {
+		(this.base!.querySelector('button.big') as HTMLButtonElement).focus();
+	}
 	render() {
 		const searchButton = (PS.down ? <div class="menugroup" style="background: rgba(10,10,10,.6)">
 			{PS.down === 'ddos' ?
