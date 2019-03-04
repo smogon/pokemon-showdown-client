@@ -3147,6 +3147,21 @@ class Battle {
 			}
 			break;
 		}
+		case 'name': case 'n': {
+			if (this.roomid) {
+				let room = app.rooms[this.roomid];
+				let newuser = args[1];
+				let olduser = args[2];
+				let userid = toUserid(newuser);
+				room.users[userid] = newuser;
+				room.userList.remove(olduser);
+				room.userList.add(userid);
+			}
+			if (!this.ignoreSpects) {
+				this.log(args, undefined, preempt);
+			}
+			break;
+		}
 		case 'player': {
 			let side = this.getSide(args[1]);
 			side.setName(args[2]);
