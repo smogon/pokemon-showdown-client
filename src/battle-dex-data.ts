@@ -16,7 +16,7 @@
 
 type ID = string & {__isID: true};
 
-const BattleNatures = {
+const BattleNatures: {[k in NatureName]: {plus?: StatName, minus?: StatName}} = {
 	Adamant: {
 		plus: 'atk',
 		minus: 'spa',
@@ -870,6 +870,9 @@ const BattleAvatarNumbers: {[k: string]: string} = {
 };
 
 type StatName = 'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe';
+type NatureName = 'Adamant' | 'Bashful' | 'Bold' | 'Brave' | 'Calm' | 'Careful' | 'Docile' | 'Gentle' |
+	'Hardy' | 'Hasty' | 'Impish' | 'Jolly' | 'Lax' | 'Lonely' | 'Mild' | 'Modest' | 'Naive' | 'Naughty' |
+	'Quiet' | 'Quirky' | 'Rash' | 'Relaxed' | 'Sassy' | 'Serious' | 'Timid';
 type StatNameExceptHP = 'atk' | 'def' | 'spa' | 'spd' | 'spe';
 type TypeName = 'Normal' | 'Fighting' | 'Flying' | 'Poison' | 'Ground' | 'Rock' | 'Bug' | 'Ghost' | 'Steel' |
 	'Fire' | 'Water' | 'Grass' | 'Electric' | 'Psychic' | 'Ice' | 'Dragon' | 'Dark' | 'Fairy' | '???';
@@ -1044,6 +1047,7 @@ class Move implements Effect {
 	readonly zMoveBoost: {[stat in StatName]?: number} | null;
 	readonly ohko: true | 'Ice' | null;
 	readonly recoil: number[] | null;
+	readonly heal: number[] | null;
 	readonly hasCustomRecoil: boolean;
 	readonly noPPBoosts: boolean;
 	readonly secondaries: ReadonlyArray<any> | null;
@@ -1078,6 +1082,7 @@ class Move implements Effect {
 		this.zMoveBoost = data.zMoveBoost || null;
 		this.ohko = data.ohko || null;
 		this.recoil = data.recoil || null;
+		this.heal = data.heal || null;
 		this.hasCustomRecoil = data.hasCustomRecoil || false;
 		this.noPPBoosts = data.noPPBoosts || false;
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
