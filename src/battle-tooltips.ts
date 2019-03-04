@@ -1553,3 +1553,576 @@ class BattleTooltips {
 		return false;
 	}
 }
+
+type StatsTable = {hp: number, atk: number, def: number, spa: number, spd: number, spe: number};
+type PokemonSet = {
+	name: string,
+	species: string,
+	item: string,
+	ability: string,
+	moves: string[],
+	nature: NatureName,
+	gender: string,
+	evs: StatsTable,
+	ivs: StatsTable,
+	level: number,
+	shiny?: boolean,
+	happiness?: number,
+	pokeball?: string,
+	hpType?: string,
+};
+
+class BattleStatGuesser {
+	formatid: ID;
+	dex: ModdedDex;
+	moveCount: any = null;
+	hasMove: any = null;
+
+	ignoreEVLimits: boolean;
+	supportsEVs: boolean;
+	supportsAVs: boolean;
+
+	constructor(formatid: ID) {
+		this.formatid = formatid;
+		this.dex = formatid ? Dex.mod(formatid.slice(0, 4) as ID) : Dex;
+		this.ignoreEVLimits = (this.dex.gen < 3 || this.formatid.endsWith('hackmons') || this.formatid === 'gen7metronomebattle' || this.formatid.endsWith('norestrictions'));
+		this.supportsEVs = !this.formatid.startsWith('gen7letsgo');
+		this.supportsAVs = !this.supportsEVs && this.formatid.endsWith('norestrictions');
+	}
+	guess(set: PokemonSet) {
+		let role = this.guessRole(set);
+		let comboEVs = this.guessEVs(set, role);
+		let evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+		for (let stat in evs) {
+			evs[stat as StatName] = comboEVs[stat as StatName] || 0;
+		}
+		let plusStat = comboEVs.plusStat || '';
+		let minusStat = comboEVs.minusStat || '';
+		return {role, evs, plusStat, minusStat, moveCount: this.moveCount, hasMove: this.hasMove};
+	}
+	guessRole(set: PokemonSet) {
+		if (!set) return '?';
+		if (!set.moves) return '?';
+
+		let moveCount = {
+			'Physical': 0,
+			'Special': 0,
+			'PhysicalAttack': 0,
+			'SpecialAttack': 0,
+			'PhysicalSetup': 0,
+			'SpecialSetup': 0,
+			'Support': 0,
+			'Setup': 0,
+			'Restoration': 0,
+			'Offense': 0,
+			'Stall': 0,
+			'SpecialStall': 0,
+			'PhysicalStall': 0,
+			'Fast': 0,
+			'Ultrafast': 0,
+			'bulk': 0,
+			'specialBulk': 0,
+			'physicalBulk': 0,
+		};
+		let hasMove: {[moveid: string]: 1} = {};
+		let template = this.dex.getTemplate(set.species || set.name);
+		let stats = template.baseStats;
+		if (!stats) return '?';
+		let itemid = toId(set.item);
+		let abilityid = toId(set.ability);
+
+		if (set.moves.length < 4 && template.id !== 'unown' && template.id !== 'ditto' && this.dex.gen > 2 && this.formatid !== 'gen7metronomebattle') return '?';
+
+		for (let i = 0, len = set.moves.length; i < len; i++) {
+			let move = Dex.getMove(set.moves[i]);
+			hasMove[move.id] = 1;
+			if (move.category === 'Status') {
+				if (move.id === 'batonpass' || move.id === 'healingwish' || move.id === 'lunardance') {
+					moveCount['Support']++;
+				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
+					moveCount['Physical'] += 0.5;
+					moveCount['Special'] += 0.5;
+				} else if (move.id === 'naturepower') {
+					moveCount['Special']++;
+				} else if (move.id === 'protect' || move.id === 'detect' || move.id === 'spikyshield' || move.id === 'kingsshield') {
+					moveCount['Stall']++;
+				} else if (move.id === 'wish') {
+					moveCount['Restoration']++;
+					moveCount['Stall']++;
+					moveCount['Support']++;
+				} else if (move.heal) {
+					moveCount['Restoration']++;
+					moveCount['Stall']++;
+				} else if (move.target === 'self') {
+					if (move.id === 'agility' || move.id === 'rockpolish' || move.id === 'shellsmash' || move.id === 'growth' || move.id === 'workup') {
+						moveCount['PhysicalSetup']++;
+						moveCount['SpecialSetup']++;
+					} else if (move.id === 'dragondance' || move.id === 'swordsdance' || move.id === 'coil' || move.id === 'bulkup' || move.id === 'curse' || move.id === 'bellydrum') {
+						moveCount['PhysicalSetup']++;
+					} else if (move.id === 'nastyplot' || move.id === 'tailglow' || move.id === 'quiverdance' || move.id === 'calmmind' || move.id === 'geomancy') {
+						moveCount['SpecialSetup']++;
+					}
+					if (move.id === 'substitute') moveCount['Stall']++;
+					moveCount['Setup']++;
+				} else {
+					if (move.id === 'toxic' || move.id === 'leechseed' || move.id === 'willowisp') moveCount['Stall']++;
+					moveCount['Support']++;
+				}
+			} else if (move.id === 'counter' || move.id === 'endeavor' || move.id === 'metalburst' || move.id === 'mirrorcoat' || move.id === 'rapidspin') {
+				moveCount['Support']++;
+			} else if (move.id === 'nightshade' || move.id === 'seismictoss' || move.id === 'psywave' || move.id === 'superfang' || move.id === 'naturesmadness' || move.id === 'foulplay' || move.id === 'endeavor' || move.id === 'finalgambit') {
+				moveCount['Offense']++;
+			} else if (move.id === 'fellstinger') {
+				moveCount['PhysicalSetup']++;
+				moveCount['Setup']++;
+			} else {
+				moveCount[move.category]++;
+				moveCount['Offense']++;
+				if (move.id === 'knockoff') moveCount['Support']++;
+				if (move.id === 'scald' || move.id === 'voltswitch' || move.id === 'uturn') moveCount[move.category] -= 0.2;
+			}
+		}
+		if (hasMove['batonpass']) moveCount['Support'] += moveCount['Setup'];
+		moveCount['PhysicalAttack'] = moveCount['Physical'];
+		moveCount['Physical'] += moveCount['PhysicalSetup'];
+		moveCount['SpecialAttack'] = moveCount['Special'];
+		moveCount['Special'] += moveCount['SpecialSetup'];
+
+		if (hasMove['dragondance'] || hasMove['quiverdance']) moveCount['Ultrafast'] = 1;
+
+		let isFast = (stats.spe > 95);
+		let physicalBulk = (stats.hp + 75) * (stats.def + 87);
+		let specialBulk = (stats.hp + 75) * (stats.spd + 87);
+
+		if (hasMove['willowisp'] || hasMove['acidarmor'] || hasMove['irondefense'] || hasMove['cottonguard']) {
+			physicalBulk *= 1.6;
+			moveCount['PhysicalStall']++;
+		} else if (hasMove['scald'] || hasMove['bulkup'] || hasMove['coil'] || hasMove['cosmicpower']) {
+			physicalBulk *= 1.3;
+			if (hasMove['scald']) { // partial stall goes in reverse
+				moveCount['SpecialStall']++;
+			} else {
+				moveCount['PhysicalStall']++;
+			}
+		}
+		if (abilityid === 'flamebody') physicalBulk *= 1.1;
+
+		if (hasMove['calmmind'] || hasMove['quiverdance'] || hasMove['geomancy']) {
+			specialBulk *= 1.3;
+			moveCount['SpecialStall']++;
+		}
+		if (abilityid === 'sandstream' && (template.types[0] === 'Rock' || template.types[1] === 'Rock')) specialBulk *= 1.5;
+
+		if (hasMove['bellydrum']) {
+			physicalBulk *= 0.6;
+			specialBulk *= 0.6;
+		}
+		if (moveCount['Restoration']) {
+			physicalBulk *= 1.5;
+			specialBulk *= 1.5;
+		} else if (hasMove['painsplit'] && hasMove['substitute']) {
+			// SubSplit isn't generally a stall set
+			moveCount['Stall']--;
+		} else if (hasMove['painsplit'] || hasMove['rest']) {
+			physicalBulk *= 1.4;
+			specialBulk *= 1.4;
+		}
+		if ((hasMove['bodyslam'] || hasMove['thunder']) && abilityid === 'serenegrace' || hasMove['thunderwave']) {
+			physicalBulk *= 1.1;
+			specialBulk *= 1.1;
+		}
+		if ((hasMove['ironhead'] || hasMove['airslash']) && abilityid === 'serenegrace') {
+			physicalBulk *= 1.1;
+			specialBulk *= 1.1;
+		}
+		if (hasMove['gigadrain'] || hasMove['drainpunch'] || hasMove['hornleech']) {
+			physicalBulk *= 1.15;
+			specialBulk *= 1.15;
+		}
+		if (itemid === 'leftovers' || itemid === 'blacksludge') {
+			physicalBulk *= 1 + 0.1 * (1 + moveCount['Stall'] / 1.5);
+			specialBulk *= 1 + 0.1 * (1 + moveCount['Stall'] / 1.5);
+		}
+		if (hasMove['leechseed']) {
+			physicalBulk *= 1 + 0.1 * (1 + moveCount['Stall'] / 1.5);
+			specialBulk *= 1 + 0.1 * (1 + moveCount['Stall'] / 1.5);
+		}
+		if ((itemid === 'flameorb' || itemid === 'toxicorb') && abilityid !== 'magicguard') {
+			if (itemid === 'toxicorb' && abilityid === 'poisonheal') {
+				physicalBulk *= 1 + 0.1 * (2 + moveCount['Stall']);
+				specialBulk *= 1 + 0.1 * (2 + moveCount['Stall']);
+			} else {
+				physicalBulk *= 0.8;
+				specialBulk *= 0.8;
+			}
+		}
+		if (itemid === 'lifeorb') {
+			physicalBulk *= 0.7;
+			specialBulk *= 0.7;
+		}
+		if (abilityid === 'multiscale' || abilityid === 'magicguard' || abilityid === 'regenerator') {
+			physicalBulk *= 1.4;
+			specialBulk *= 1.4;
+		}
+		if (itemid === 'eviolite') {
+			physicalBulk *= 1.5;
+			specialBulk *= 1.5;
+		}
+		if (itemid === 'assaultvest') specialBulk *= 1.5;
+
+		let bulk = physicalBulk + specialBulk;
+		if (bulk < 46000 && stats.spe >= 70) isFast = true;
+		if (hasMove['trickroom']) isFast = false;
+		moveCount['bulk'] = bulk;
+		moveCount['physicalBulk'] = physicalBulk;
+		moveCount['specialBulk'] = specialBulk;
+
+		if (hasMove['agility'] || hasMove['dragondance'] || hasMove['quiverdance'] || hasMove['rockpolish'] || hasMove['shellsmash'] || hasMove['flamecharge']) {
+			isFast = true;
+		} else if (abilityid === 'unburden' || abilityid === 'speedboost' || abilityid === 'motordrive') {
+			isFast = true;
+			moveCount['Ultrafast'] = 1;
+		} else if (abilityid === 'chlorophyll' || abilityid === 'swiftswim' || abilityid === 'sandrush') {
+			isFast = true;
+			moveCount['Ultrafast'] = 2;
+		} else if (itemid === 'salacberry') {
+			isFast = true;
+		}
+		if (hasMove['agility'] || hasMove['shellsmash'] || hasMove['autotomize'] || hasMove['shiftgear'] || hasMove['rockpolish']) moveCount['Ultrafast'] = 2;
+		moveCount['Fast'] = isFast ? 1 : 0;
+
+		this.moveCount = moveCount;
+		this.hasMove = hasMove;
+
+		if (template.id === 'ditto') return abilityid === 'imposter' ? 'Physically Defensive' : 'Fast Bulky Support';
+		if (template.id === 'shedinja') return 'Fast Physical Sweeper';
+
+		if (itemid === 'choiceband' && moveCount['PhysicalAttack'] >= 2) {
+			if (!isFast) return 'Bulky Band';
+			return 'Fast Band';
+		} else if (itemid === 'choicespecs' && moveCount['SpecialAttack'] >= 2) {
+			if (!isFast) return 'Bulky Specs';
+			return 'Fast Specs';
+		} else if (itemid === 'choicescarf') {
+			if (moveCount['PhysicalAttack'] === 0) return 'Special Scarf';
+			if (moveCount['SpecialAttack'] === 0) return 'Physical Scarf';
+			if (moveCount['PhysicalAttack'] > moveCount['SpecialAttack']) return 'Physical Biased Mixed Scarf';
+			if (moveCount['PhysicalAttack'] < moveCount['SpecialAttack']) return 'Special Biased Mixed Scarf';
+			if (stats.atk < stats.spa) return 'Special Biased Mixed Scarf';
+			return 'Physical Biased Mixed Scarf';
+		}
+
+		if (template.id === 'unown') return 'Fast Special Sweeper';
+
+		if (moveCount['PhysicalStall'] && moveCount['Restoration']) {
+			return 'Specially Defensive';
+		}
+		if (moveCount['SpecialStall'] && moveCount['Restoration'] && itemid !== 'lifeorb') {
+			return 'Physically Defensive';
+		}
+
+		let offenseBias: 'Physical' | 'Special' = 'Physical';
+		if (stats.spa > stats.atk && moveCount['Special'] > 1) offenseBias = 'Special';
+		else if (stats.atk > stats.spa && moveCount['Physical'] > 1) offenseBias = 'Physical';
+		else if (moveCount['Special'] > moveCount['Physical']) offenseBias = 'Special';
+
+		if (moveCount['Stall'] + moveCount['Support'] / 2 <= 2 && bulk < 135000 && moveCount[offenseBias] >= 1.5) {
+			if (isFast) {
+				if (bulk > 80000 && !moveCount['Ultrafast']) return 'Bulky ' + offenseBias + ' Sweeper';
+				return 'Fast ' + offenseBias + ' Sweeper';
+			} else {
+				if (moveCount[offenseBias] >= 3 || moveCount['Stall'] <= 0) {
+					return 'Bulky ' + offenseBias + ' Sweeper';
+				}
+			}
+		}
+
+		if (isFast && abilityid !== 'prankster') {
+			if (stats.spe > 100 || bulk < 55000 || moveCount['Ultrafast']) {
+				return 'Fast Bulky Support';
+			}
+		}
+		if (moveCount['SpecialStall']) return 'Physically Defensive';
+		if (moveCount['PhysicalStall']) return 'Specially Defensive';
+		if (template.id === 'blissey' || template.id === 'chansey') return 'Physically Defensive';
+		if (specialBulk >= physicalBulk) return 'Specially Defensive';
+		return 'Physically Defensive';
+	}
+	ensureMinEVs(evs: StatsTable, stat: StatName, min: number, evTotal: number) {
+		if (!evs[stat]) evs[stat] = 0;
+		let diff = min - evs[stat];
+		if (diff <= 0) return evTotal;
+		if (evTotal <= 504) {
+			let change = Math.min(508 - evTotal, diff);
+			evTotal += change;
+			evs[stat] += change;
+			diff -= change;
+		}
+		if (diff <= 0) return evTotal;
+		let evPriority = {def: 1, spd: 1, hp: 1, atk: 1, spa: 1, spe: 1};
+		let prioStat: StatName;
+		for (prioStat in evPriority) {
+			if (prioStat === stat) continue;
+			if (evs[prioStat] && evs[prioStat] > 128) {
+				evs[prioStat] -= diff;
+				evs[stat] += diff;
+				return evTotal;
+			}
+		}
+		return evTotal; // can't do it :(
+	}
+	ensureMaxEVs(evs: StatsTable, stat: StatName, min: number, evTotal: number) {
+		if (!evs[stat]) evs[stat] = 0;
+		let diff = evs[stat] - min;
+		if (diff <= 0) return evTotal;
+		evs[stat] -= diff;
+		evTotal -= diff;
+		return evTotal; // can't do it :(
+	}
+	guessEVs(set: PokemonSet, role: string): Partial<StatsTable> & {plusStat?: StatName | '', minusStat?: StatName | ''} {
+		if (!set) return {};
+		let template = this.dex.getTemplate(set.species || set.name);
+		let stats = template.baseStats;
+
+		let hasMove = this.hasMove;
+		let moveCount = this.moveCount;
+
+		let evs: StatsTable & {plusStat?: StatName | '', minusStat?: StatName | ''} = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+		let plusStat: StatName | '' = '';
+		let minusStat: StatName | '' = '';
+
+		let statChart: {[role: string]: [StatName, StatName]} = {
+			'Bulky Band': ['atk', 'hp'],
+			'Fast Band': ['spe', 'atk'],
+			'Bulky Specs': ['spa', 'hp'],
+			'Fast Specs': ['spe', 'spa'],
+			'Physical Scarf': ['spe', 'atk'],
+			'Special Scarf': ['spe', 'spa'],
+			'Physical Biased Mixed Scarf': ['spe', 'atk'],
+			'Special Biased Mixed Scarf': ['spe', 'spa'],
+			'Fast Physical Sweeper': ['spe', 'atk'],
+			'Fast Special Sweeper': ['spe', 'spa'],
+			'Bulky Physical Sweeper': ['atk', 'hp'],
+			'Bulky Special Sweeper': ['spa', 'hp'],
+			'Fast Bulky Support': ['spe', 'hp'],
+			'Physically Defensive': ['def', 'hp'],
+			'Specially Defensive': ['spd', 'hp']
+		};
+
+		plusStat = statChart[role][0];
+		if (role === 'Fast Bulky Support') moveCount['Ultrafast'] = 0;
+		if (plusStat === 'spe') {
+			if (statChart[role][1] === 'atk' || statChart[role][1] == 'spa') {
+				plusStat = statChart[role][1];
+			} else if (moveCount['Physical'] >= 3) {
+				plusStat = 'atk';
+			} else if (stats.spd > stats.def) {
+				plusStat = 'spd';
+			} else {
+				plusStat = 'def';
+			}
+		}
+
+		if (this.supportsAVs) {
+			// Let's Go, AVs enabled
+			evs = {hp: 200, atk: 200, def: 200, spa: 200, spd: 200, spe: 200};
+			if (!moveCount['PhysicalAttack']) evs.atk = 0;
+			if (!moveCount['SpecialAttack']) evs.spa = 0;
+			if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
+		} else if (!this.supportsEVs) {
+			// Let's Go, AVs disabled
+			// no change
+		} else if (this.ignoreEVLimits) {
+			// Gen 1-2, hackable EVs (like Hackmons)
+			evs = {hp: 252, atk: 252, def: 252, spa: 252, spd: 252, spe: 252};
+			if (!moveCount['PhysicalAttack']) evs.atk = 0;
+			if (!moveCount['SpecialAttack'] && this.dex.gen > 1) evs.spa = 0;
+			if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
+			if (this.dex.gen === 1) evs.spd = 0;
+			if (this.dex.gen < 3) return evs;
+		} else {
+			// Normal Gen 3-7
+			if (!statChart[role]) return {};
+
+			let evTotal = 0;
+
+			let primaryStat = statChart[role][0];
+			let stat = this.getStat(primaryStat, set, 252, plusStat === primaryStat ? 1.1 : 1.0);
+			let ev = 252;
+			while (ev > 0 && stat <= this.getStat(primaryStat, set, ev - 4, plusStat === primaryStat ? 1.1 : 1.0)) ev -= 4;
+			evs[primaryStat] = ev;
+			evTotal += ev;
+
+			let secondaryStat: StatName | null = statChart[role][1];
+			if (secondaryStat === 'hp' && set.level && set.level < 20) secondaryStat = 'spd';
+			stat = this.getStat(secondaryStat, set, 252, plusStat === secondaryStat ? 1.1 : 1.0);
+			ev = 252;
+			while (ev > 0 && stat <= this.getStat(secondaryStat, set, ev - 4, plusStat === secondaryStat ? 1.1 : 1.0)) ev -= 4;
+			evs[secondaryStat] = ev;
+			evTotal += ev;
+
+			let SRweaknesses = ['Fire', 'Flying', 'Bug', 'Ice'];
+			let SRresistances = ['Ground', 'Steel', 'Fighting'];
+			let SRweak = 0;
+			if (set.ability !== 'Magic Guard' && set.ability !== 'Mountaineer') {
+				if (SRweaknesses.indexOf(template.types[0]) >= 0) {
+					SRweak++;
+				} else if (SRresistances.indexOf(template.types[0]) >= 0) {
+					SRweak--;
+				}
+				if (SRweaknesses.indexOf(template.types[1]) >= 0) {
+					SRweak++;
+				} else if (SRresistances.indexOf(template.types[1]) >= 0) {
+					SRweak--;
+				}
+			}
+			let hpDivisibility = 0;
+			let hpShouldBeDivisible = false;
+			let hp = evs['hp'] || 0;
+			stat = this.getStat('hp', set, hp, 1);
+			if ((set.item === 'Leftovers' || set.item === 'Black Sludge') && hasMove['substitute'] && stat !== 404) {
+				hpDivisibility = 4;
+			} else if (set.item === 'Leftovers' || set.item === 'Black Sludge') {
+				hpDivisibility = 0;
+			} else if (hasMove['bellydrum'] && (set.item || '').slice(-5) === 'Berry') {
+				hpDivisibility = 2;
+				hpShouldBeDivisible = true;
+			} else if (hasMove['substitute'] && (set.item || '').slice(-5) === 'Berry') {
+				hpDivisibility = 4;
+				hpShouldBeDivisible = true;
+			} else if (SRweak >= 2 || hasMove['bellydrum']) {
+				hpDivisibility = 2;
+			} else if (SRweak >= 1 || hasMove['substitute'] || hasMove['transform']) {
+				hpDivisibility = 4;
+			} else if (set.ability !== 'Magic Guard') {
+				hpDivisibility = 8;
+			}
+
+			if (hpDivisibility) {
+				while (hp < 252 && evTotal < 508 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
+					hp += 4;
+					stat = this.getStat('hp', set, hp, 1);
+					evTotal += 4;
+				}
+				while (hp > 0 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
+					hp -= 4;
+					stat = this.getStat('hp', set, hp, 1);
+					evTotal -= 4;
+				}
+				while (hp > 0 && stat === this.getStat('hp', set, hp - 4, 1)) {
+					hp -= 4;
+					evTotal -= 4;
+				}
+				if (hp || evs['hp']) evs['hp'] = hp;
+			}
+
+			if (template.id === 'tentacruel') evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
+			if (template.id === 'skarmory') evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
+			if (template.id === 'jirachi') evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
+			if (template.id === 'celebi') evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
+			if (template.id === 'volcarona') evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
+			if (template.id === 'gliscor') evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
+			if (template.id === 'dragonite' && evs['hp']) evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
+			if (evTotal < 508) {
+				let remaining = 508 - evTotal;
+				if (remaining > 252) remaining = 252;
+				secondaryStat = null;
+				if (!evs['atk'] && moveCount['PhysicalAttack'] >= 1) {
+					secondaryStat = 'atk';
+				} else if (!evs['spa'] && moveCount['SpecialAttack'] >= 1) {
+					secondaryStat = 'spa';
+				} else if (stats.hp == 1 && !evs['def']) {
+					secondaryStat = 'def';
+				} else if (stats.def === stats.spd && !evs['spd']) {
+					secondaryStat = 'spd';
+				} else if (!evs['spd']) {
+					secondaryStat = 'spd';
+				} else if (!evs['def']) {
+					secondaryStat = 'def';
+				}
+				if (secondaryStat) {
+					ev = remaining;
+					stat = this.getStat(secondaryStat, set, ev);
+					while (ev > 0 && stat === this.getStat(secondaryStat, set, ev - 4)) ev -= 4;
+					if (ev) evs[secondaryStat] = ev;
+					remaining -= ev;
+				}
+				if (remaining && !evs['spe']) {
+					ev = remaining;
+					stat = this.getStat('spe', set, ev);
+					while (ev > 0 && stat === this.getStat('spe', set, ev - 4)) ev -= 4;
+					if (ev) evs['spe'] = ev;
+				}
+			}
+
+		}
+
+		if (hasMove['gyroball'] || hasMove['trickroom']) {
+			minusStat = 'spe';
+		} else if (!moveCount['PhysicalAttack']) {
+			minusStat = 'atk';
+		} else if (moveCount['SpecialAttack'] < 1 && !evs['spa']) {
+			if (moveCount['SpecialAttack'] < moveCount['PhysicalAttack']) {
+				minusStat = 'spa';
+			} else if (!evs['atk']) {
+				minusStat = 'atk';
+			}
+		} else if (moveCount['PhysicalAttack'] < 1 && !evs['atk']) {
+			minusStat = 'atk';
+		} else if (stats.def > stats.spe && stats.spd > stats.spe && !evs['spe']) {
+			minusStat = 'spe';
+		} else if (stats.def > stats.spd) {
+			minusStat = 'spd';
+		} else {
+			minusStat = 'def';
+		}
+
+		if (plusStat === minusStat) {
+			minusStat = (plusStat === 'spe' ? 'spd' : 'spe');
+		}
+
+		evs.plusStat = plusStat;
+		evs.minusStat = minusStat;
+
+		return evs;
+	}
+
+	getStat(stat: StatName, set: PokemonSet, evOverride?: number, natureOverride?: number) {
+		let template = this.dex.getTemplate(set.species);
+		if (!template.exists) return 0;
+
+		let level = set.level || 100;
+
+		let baseStat = template.baseStats[stat];
+
+		let iv = (set.ivs && set.ivs[stat]);
+		if (typeof iv !== 'number') iv = 31;
+		if (this.dex.gen <= 2) iv &= 30;
+
+		let ev = (set.evs && set.evs[stat]);
+		if (typeof ev !== 'number') ev = (this.dex.gen > 2 ? 0 : 252);
+		if (evOverride !== undefined) ev = evOverride;
+
+		if (stat === 'hp') {
+			if (baseStat === 1) return 1;
+			if (!this.supportsEVs) return Math.floor(Math.floor(2 * baseStat + iv + 100) * level / 100 + 10) + (this.supportsAVs ? ev : 0);
+			return Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4) + 100) * level / 100 + 10);
+		}
+		let val = Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4)) * level / 100 + 5);
+		if (!this.supportsEVs) {
+			val = Math.floor(Math.floor(2 * baseStat + iv) * level / 100 + 5);
+		}
+		if (natureOverride) {
+			val *= natureOverride;
+		} else if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
+			val *= 1.1;
+		} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
+			val *= 0.9;
+		}
+		if (!this.supportsEVs) {
+			let friendshipValue = Math.floor((70 / 255 / 10 + 1) * 100);
+			val = Math.floor(val) * friendshipValue / 100 + (this.supportsAVs ? ev : 0);
+		}
+		return Math.floor(val);
+	}
+}
