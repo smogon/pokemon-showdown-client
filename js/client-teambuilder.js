@@ -1815,9 +1815,9 @@
 			var guessedEVs = guess.evs;
 			var guessedPlus = guess.plusStat;
 			var guessedMinus = guess.minusStat;
-			buf += '<p class="suggested"><small>Suggested spread:';
+			buf += '<p class="suggested"><small>Guessed spread:';
 			if (role === '?') {
-				buf += ' (Please choose 4 moves to get a suggested spread) (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
+				buf += ' (Please choose 4 moves to get a guessed spread) (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
 			} else {
 				buf += ' </small><button name="setStatFormGuesses">' + role + ': ';
 				for (var i in BattleStatNames) {
@@ -1829,7 +1829,7 @@
 				if (guessedPlus && guessedMinus) buf += ' (+' + BattleStatNames[guessedPlus] + ', -' + BattleStatNames[guessedMinus] + ')';
 				else buf = buf.slice(0, -3);
 				buf += '</button><small> (<a target="_blank" href="' + this.smogdexLink(template) + '">Smogon&nbsp;analysis</a>)</small></p>';
-				//buf += ' <small>(' + role + ' | bulk: phys ' + Math.round(guess.moveCount.physicalBulk/1000) + ' + spec ' + Math.round(guess.moveCount.specialBulk/1000) + ' = ' + Math.round(guess.moveCount.bulk/1000) + ')</small>';
+				// buf += ' <small>(' + role + ' | bulk: phys ' + Math.round(guess.moveCount.physicalBulk/1000) + ' + spec ' + Math.round(guess.moveCount.specialBulk/1000) + ' = ' + Math.round(guess.moveCount.bulk/1000) + ')</small>';
 			}
 
 			if (setGuessed) {
