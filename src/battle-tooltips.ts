@@ -1585,7 +1585,12 @@ class BattleStatGuesser {
 	constructor(formatid: ID) {
 		this.formatid = formatid;
 		this.dex = formatid ? Dex.mod(formatid.slice(0, 4) as ID) : Dex;
-		this.ignoreEVLimits = (this.dex.gen < 3 || this.formatid.endsWith('hackmons') || this.formatid === 'gen7metronomebattle' || this.formatid.endsWith('norestrictions'));
+		this.ignoreEVLimits = (
+			this.dex.gen < 3 ||
+			this.formatid.endsWith('hackmons') ||
+			this.formatid === 'gen7metronomebattle' ||
+			this.formatid.endsWith('norestrictions')
+		);
 		this.supportsEVs = !this.formatid.startsWith('gen7letsgo');
 		this.supportsAVs = !this.supportsEVs && this.formatid.endsWith('norestrictions');
 	}
@@ -1625,26 +1630,35 @@ class BattleStatGuesser {
 			'physicalBulk': 0,
 		};
 		let hasMove: {[moveid: string]: 1} = {};
-		let template = this.dex.getTemplate(set.species || set.name);
-		let stats = template.baseStats;
-		if (!stats) return '?';
 		let itemid = toId(set.item);
+		let item = this.dex.getItem(itemid);
 		let abilityid = toId(set.ability);
 
-		if (set.moves.length < 4 && template.id !== 'unown' && template.id !== 'ditto' && this.dex.gen > 2 && this.formatid !== 'gen7metronomebattle') return '?';
+		let template = this.dex.getTemplate(set.species || set.name);
+		if (item.megaEvolves === template.species) template = this.dex.getTemplate(item.megaStone);
+		if (!template.exists) return '?';
+		let stats = template.baseStats;
+
+		if (set.moves.length < 1) return '?';
+		let needsFourMoves = !['unown', 'ditto'].includes(template.id);
+		let moveids = set.moves.map(toId);
+		if (moveids.includes('lastresort' as ID)) needsFourMoves = false;
+		if (set.moves.length < 4 && needsFourMoves && this.formatid !== 'gen7metronomebattle') {
+			return '?';
+		}
 
 		for (let i = 0, len = set.moves.length; i < len; i++) {
 			let move = Dex.getMove(set.moves[i]);
 			hasMove[move.id] = 1;
 			if (move.category === 'Status') {
-				if (move.id === 'batonpass' || move.id === 'healingwish' || move.id === 'lunardance') {
+				if (['batonpass', 'healingwish', 'lunardance'].includes(move.id)) {
 					moveCount['Support']++;
-				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
+				} else if (['metronome', 'assist', 'copycat', 'mefirst'].includes(move.id)) {
 					moveCount['Physical'] += 0.5;
 					moveCount['Special'] += 0.5;
 				} else if (move.id === 'naturepower') {
 					moveCount['Special']++;
-				} else if (move.id === 'protect' || move.id === 'detect' || move.id === 'spikyshield' || move.id === 'kingsshield') {
+				} else if (['protect', 'detect', 'spikyshield', 'kingsshield'].includes(move.id)) {
 					moveCount['Stall']++;
 				} else if (move.id === 'wish') {
 					moveCount['Restoration']++;
@@ -1654,23 +1668,27 @@ class BattleStatGuesser {
 					moveCount['Restoration']++;
 					moveCount['Stall']++;
 				} else if (move.target === 'self') {
-					if (move.id === 'agility' || move.id === 'rockpolish' || move.id === 'shellsmash' || move.id === 'growth' || move.id === 'workup') {
+					if (['agility', 'rockpolish', 'shellsmash', 'growth', 'workup'].includes(move.id)) {
 						moveCount['PhysicalSetup']++;
 						moveCount['SpecialSetup']++;
-					} else if (move.id === 'dragondance' || move.id === 'swordsdance' || move.id === 'coil' || move.id === 'bulkup' || move.id === 'curse' || move.id === 'bellydrum') {
+					} else if (['dragondance', 'swordsdance', 'coil', 'bulkup', 'curse', 'bellydrum'].includes(move.id)) {
 						moveCount['PhysicalSetup']++;
-					} else if (move.id === 'nastyplot' || move.id === 'tailglow' || move.id === 'quiverdance' || move.id === 'calmmind' || move.id === 'geomancy') {
+					} else if (['nastyplot', 'tailglow', 'quiverdance', 'calmmind', 'geomancy'].includes(move.id)) {
 						moveCount['SpecialSetup']++;
 					}
 					if (move.id === 'substitute') moveCount['Stall']++;
 					moveCount['Setup']++;
 				} else {
-					if (move.id === 'toxic' || move.id === 'leechseed' || move.id === 'willowisp') moveCount['Stall']++;
+					if (['toxic', 'leechseed', 'willowisp'].includes(move.id)) {
+						moveCount['Stall']++;
+					}
 					moveCount['Support']++;
 				}
-			} else if (move.id === 'counter' || move.id === 'endeavor' || move.id === 'metalburst' || move.id === 'mirrorcoat' || move.id === 'rapidspin') {
+			} else if (['counter', 'endeavor', 'metalburst', 'mirrorcoat', 'rapidspin'].includes(move.id)) {
 				moveCount['Support']++;
-			} else if (move.id === 'nightshade' || move.id === 'seismictoss' || move.id === 'psywave' || move.id === 'superfang' || move.id === 'naturesmadness' || move.id === 'foulplay' || move.id === 'endeavor' || move.id === 'finalgambit') {
+			} else if ([
+				'nightshade', 'seismictoss', 'psywave', 'superfang', 'naturesmadness', 'foulplay', 'endeavor', 'finalgambit',
+			].includes(move.id)) {
 				moveCount['Offense']++;
 			} else if (move.id === 'fellstinger') {
 				moveCount['PhysicalSetup']++;
@@ -1678,8 +1696,12 @@ class BattleStatGuesser {
 			} else {
 				moveCount[move.category]++;
 				moveCount['Offense']++;
-				if (move.id === 'knockoff') moveCount['Support']++;
-				if (move.id === 'scald' || move.id === 'voltswitch' || move.id === 'uturn') moveCount[move.category] -= 0.2;
+				if (move.id === 'knockoff') {
+					moveCount['Support']++;
+				}
+				if (['scald', 'voltswitch', 'uturn'].includes(move.id)) {
+					moveCount[move.category] -= 0.2;
+				}
 			}
 		}
 		if (hasMove['batonpass']) moveCount['Support'] += moveCount['Setup'];
@@ -1690,7 +1712,7 @@ class BattleStatGuesser {
 
 		if (hasMove['dragondance'] || hasMove['quiverdance']) moveCount['Ultrafast'] = 1;
 
-		let isFast = (stats.spe > 95);
+		let isFast = (stats.spe >= 80);
 		let physicalBulk = (stats.hp + 75) * (stats.def + 87);
 		let specialBulk = (stats.hp + 75) * (stats.spd + 87);
 
@@ -1711,7 +1733,9 @@ class BattleStatGuesser {
 			specialBulk *= 1.3;
 			moveCount['SpecialStall']++;
 		}
-		if (abilityid === 'sandstream' && (template.types[0] === 'Rock' || template.types[1] === 'Rock')) specialBulk *= 1.5;
+		if (abilityid === 'sandstream' && template.types.includes('Rock')) {
+			specialBulk *= 1.5;
+		}
 
 		if (hasMove['bellydrum']) {
 			physicalBulk *= 0.6;
@@ -1768,7 +1792,9 @@ class BattleStatGuesser {
 			physicalBulk *= 1.5;
 			specialBulk *= 1.5;
 		}
-		if (itemid === 'assaultvest') specialBulk *= 1.5;
+		if (itemid === 'assaultvest') {
+			specialBulk *= 1.5;
+		}
 
 		let bulk = physicalBulk + specialBulk;
 		if (bulk < 46000 && stats.spe >= 70) isFast = true;
@@ -1777,7 +1803,10 @@ class BattleStatGuesser {
 		moveCount['physicalBulk'] = physicalBulk;
 		moveCount['specialBulk'] = specialBulk;
 
-		if (hasMove['agility'] || hasMove['dragondance'] || hasMove['quiverdance'] || hasMove['rockpolish'] || hasMove['shellsmash'] || hasMove['flamecharge']) {
+		if (
+			hasMove['agility'] || hasMove['dragondance'] || hasMove['quiverdance'] ||
+			hasMove['rockpolish'] || hasMove['shellsmash'] || hasMove['flamecharge']
+		) {
 			isFast = true;
 		} else if (abilityid === 'unburden' || abilityid === 'speedboost' || abilityid === 'motordrive') {
 			isFast = true;
@@ -1788,7 +1817,9 @@ class BattleStatGuesser {
 		} else if (itemid === 'salacberry') {
 			isFast = true;
 		}
-		if (hasMove['agility'] || hasMove['shellsmash'] || hasMove['autotomize'] || hasMove['shiftgear'] || hasMove['rockpolish']) moveCount['Ultrafast'] = 2;
+		if (hasMove['agility'] || hasMove['shellsmash'] || hasMove['autotomize'] || hasMove['shiftgear'] || hasMove['rockpolish']) {
+			moveCount['Ultrafast'] = 2;
+		}
 		moveCount['Fast'] = isFast ? 1 : 0;
 
 		this.moveCount = moveCount;
@@ -1813,6 +1844,8 @@ class BattleStatGuesser {
 		}
 
 		if (template.id === 'unown') return 'Fast Special Sweeper';
+
+		if (stats.spe > 110 && abilityid !== 'prankster') return 'Fast Bulky Support';
 
 		if (moveCount['PhysicalStall'] && moveCount['Restoration']) {
 			return 'Specially Defensive';
@@ -1881,6 +1914,7 @@ class BattleStatGuesser {
 	}
 	guessEVs(set: PokemonSet, role: string): Partial<StatsTable> & {plusStat?: StatName | '', minusStat?: StatName | ''} {
 		if (!set) return {};
+		if (role === '?') return {};
 		let template = this.dex.getTemplate(set.species || set.name);
 		let stats = template.baseStats;
 
@@ -1906,13 +1940,13 @@ class BattleStatGuesser {
 			'Bulky Special Sweeper': ['spa', 'hp'],
 			'Fast Bulky Support': ['spe', 'hp'],
 			'Physically Defensive': ['def', 'hp'],
-			'Specially Defensive': ['spd', 'hp']
+			'Specially Defensive': ['spd', 'hp'],
 		};
 
 		plusStat = statChart[role][0];
 		if (role === 'Fast Bulky Support') moveCount['Ultrafast'] = 0;
 		if (plusStat === 'spe') {
-			if (statChart[role][1] === 'atk' || statChart[role][1] == 'spa') {
+			if (statChart[role][1] === 'atk' || statChart[role][1] === 'spa') {
 				plusStat = statChart[role][1];
 			} else if (moveCount['Physical'] >= 3) {
 				plusStat = 'atk';
@@ -2031,7 +2065,7 @@ class BattleStatGuesser {
 					secondaryStat = 'atk';
 				} else if (!evs['spa'] && moveCount['SpecialAttack'] >= 1) {
 					secondaryStat = 'spa';
-				} else if (stats.hp == 1 && !evs['def']) {
+				} else if (stats.hp === 1 && !evs['def']) {
 					secondaryStat = 'def';
 				} else if (stats.def === stats.spd && !evs['spd']) {
 					secondaryStat = 'spd';
