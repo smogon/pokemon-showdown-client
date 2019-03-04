@@ -278,13 +278,15 @@ class BattleLog {
 			}
 			lastNode = node;
 		}
-		for (const node of this.preemptElem.childNodes as any) {
-			if (node.className && (node.className + ' ').startsWith(classStart)) {
-				node.style.display = 'none';
-				node.className = 'revealed ' + node.className;
-				count++;
+		if (this.preemptElem) {
+			for (const node of this.preemptElem.childNodes as any) {
+				if (node.className && (node.className + ' ').startsWith(classStart)) {
+					node.style.display = 'none';
+					node.className = 'revealed ' + node.className;
+					count++;
+				}
+				lastNode = node;
 			}
-			lastNode = node;
 		}
 		if (!count || !showRevealButton) return;
 		const button = document.createElement('button');
@@ -295,31 +297,32 @@ class BattleLog {
 		lastNode.appendChild(document.createTextNode(' '));
 		lastNode.appendChild(button);
 	}
+	static unlinkNodeList(nodeList: ArrayLike<HTMLElement>, classStart: string) {
+		for (const node of nodeList as HTMLElement[]) {
+			if (node.className && (node.className + ' ').startsWith(classStart)) {
+				const linkList = node.getElementsByTagName('a');
+				// iterate in reverse because linkList will update as links are removed
+				for (let i = linkList.length - 1; i >= 0; i--) {
+					const linkNode = linkList[i];
+					const parent = linkNode.parentElement;
+					if (!parent) continue;
+					for (const childNode of linkNode.childNodes as any) {
+						parent.insertBefore(childNode, linkNode);
+					}
+					parent.removeChild(linkNode);
+				}
+			}
+		}
+	}
 	unlinkChatFrom(userid: ID) {
 		const classStart = 'chat chatmessage-' + userid + ' ';
 		const innerNodeList = this.innerElem.childNodes;
-		const preemptNodeList = this.preemptElem.childNodes;
+		BattleLog.unlinkNodeList(innerNodeList as NodeListOf<HTMLElement>, classStart);
 
-		const unlinkNodeList = (nodeList: ArrayLike<HTMLElement>) => {
-			for (const node of nodeList as HTMLElement[]) {
-				if (node.className && (node.className + ' ').startsWith(classStart)) {
-					const linkList = node.getElementsByTagName('a');
-					// iterate in reverse because linkList will update as links are removed
-					for (let i = linkList.length - 1; i >= 0; i--) {
-						const linkNode = linkList[i];
-						const parent = linkNode.parentElement;
-						if (!parent) continue;
-						for (const childNode of linkNode.childNodes as any) {
-							parent.insertBefore(childNode, linkNode);
-						}
-						parent.removeChild(linkNode);
-					}
-				}
-			}
-		};
-
-		unlinkNodeList(innerNodeList as NodeListOf<HTMLElement>);
-		unlinkNodeList(preemptNodeList as NodeListOf<HTMLElement>);
+		if (this.preemptElem) {
+			const preemptNodeList = this.preemptElem.childNodes;
+			BattleLog.unlinkNodeList(preemptNodeList as NodeListOf<HTMLElement>, classStart);
+		}
 	}
 
 	preemptCatchup() {
