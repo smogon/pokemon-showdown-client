@@ -2160,3 +2160,8 @@ class BattleStatGuesser {
 		return Math.floor(val);
 	}
 }
+
+if (typeof require === 'function') {
+	// in Node
+	(global as any).BattleStatGuesser = BattleStatGuesser;
+}
