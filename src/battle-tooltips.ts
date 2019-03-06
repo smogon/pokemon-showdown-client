@@ -1845,12 +1845,12 @@ class BattleStatGuesser {
 
 		if (template.id === 'unown') return 'Fast Special Sweeper';
 
-		if (stats.spe > 110 && abilityid !== 'prankster') return 'Fast Bulky Support';
-
 		if (moveCount['PhysicalStall'] && moveCount['Restoration']) {
+			if (stats.spe > 110 && abilityid !== 'prankster') return 'Fast Bulky Support';
 			return 'Specially Defensive';
 		}
 		if (moveCount['SpecialStall'] && moveCount['Restoration'] && itemid !== 'lifeorb') {
+			if (stats.spe > 110 && abilityid !== 'prankster') return 'Fast Bulky Support';
 			return 'Physically Defensive';
 		}
 
