@@ -1228,13 +1228,16 @@
 				if (this.className === 'closebutton') return; // handled elsewhere
 				if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
 				if (!this.href) return; // should never happen
-				if ((this.host === 'play.pokemonshowdown.com' || this.host === 'replay.pokemonshowdown.com' || this.host === 'psim.us' || this.host === location.host) && this.className !== 'no-panel-intercept') {
+				var isReplayLink = this.host === 'replay.pokemonshowdown.com' && Config.server.id === 'showdown';
+				if ((
+					isReplayLink || ['play.pokemonshowdown.com', 'psim.us', location.host].includes(this.host)
+				) && this.className !== 'no-panel-intercept') {
 					if (!e.cmdKey && !e.metaKey && !e.ctrlKey) {
 						var target = this.pathname.substr(1);
 						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure)$/;
 						if (target === 'appeal' || target === 'appeals') target = 'view-help-request--appeal';
 						if (target === 'report') target = 'view-help-request--report';
-						if (this.host === 'replay.pokemonshowdown.com') {
+						if (isReplayLink) {
 							if (!target || target === 'search') {
 								target = '.';
 							} else {
