@@ -1,8 +1,4 @@
-const fs = require('fs');
-const path = require('path');
 const assert = require('assert').strict;
-
-process.chdir(path.resolve(__dirname, '..'));
 
 window = global;
 

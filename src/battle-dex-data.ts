@@ -1305,6 +1305,7 @@ if (typeof require === 'function') {
 	// in Node
 	(global as any).BattleBaseSpeciesChart = BattleBaseSpeciesChart;
 	(global as any).BattleStats = BattleStats;
+	(global as any).BattleNatures = BattleNatures;
 	(global as any).PureEffect = PureEffect;
 	(global as any).Template = Template;
 	(global as any).Ability = Ability;
