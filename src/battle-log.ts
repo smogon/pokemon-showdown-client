@@ -96,6 +96,12 @@ class BattleLog {
 			divHTML = '<small>' + BattleLog.escapeHTML(args[1]) + ' left.</small>';
 			break;
 
+		case 'name': case 'n':
+			if (toId(args[2]) !== toId(args[1])) {
+				divHTML = '<small>' + BattleLog.escapeHTML(args[1]) + ' renamed from ' + BattleLog.escapeHTML(args[2]) + '.</small>';
+			}
+			break;
+
 		case 'chatmsg': case '':
 			divHTML = BattleLog.escapeHTML(args[1]);
 			break;
@@ -139,7 +145,7 @@ class BattleLog {
 			break;
 
 		case 'seed': case 'choice': case ':': case 'timer':
-		case 'J': case 'L': case 'N': case 'n': case 'spectator': case 'spectatorleave':
+		case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
 			return;
 
 		default:
