@@ -716,7 +716,7 @@ class BattleTooltips {
 			let battlePokemon = this.battle.getPokemon(pokemon.ident, pokemon.details);
 			for (const moveid of serverPokemon.moves) {
 				let move = Dex.getMove(moveid);
-				let moveName = move.name;
+				let moveName = '&#8226; ' + move.name;
 				if (battlePokemon && battlePokemon.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
 						if (moveName === row[0]) {
@@ -725,16 +725,18 @@ class BattleTooltips {
 						}
 					}
 				}
-				text += '&#8226; ' + moveName + '<br />';
+				text += moveName + '<br />';
 			}
 			text += '</p>';
 		} else if (!this.battle.hardcoreMode && clientPokemon && clientPokemon.moveTrack.length) {
 			// move list (guessed)
 			text += '<p class="section">';
 			for (const row of clientPokemon.moveTrack) {
-				text += '&#8226; ' + this.getPPUseText(row) + '<br />';
+				text += this.getPPUseText(row) + '<br />';
 			}
-			if (clientPokemon.moveTrack.length > 4) {
+			if (clientPokemon.moveTrack.filter(([moveName]) =>
+				moveName.charAt(0) !== '*' && !this.battle.dex.getMove(moveName).isZ
+			).length > 4) {
 				text += '(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.)';
 			}
 			if (this.battle.gen === 3) {
@@ -1011,13 +1013,14 @@ class BattleTooltips {
 			move = this.battle.dex.getMove(moveName);
 			maxpp = move.noPPBoosts ? move.pp : Math.floor(move.pp * 8 / 5);
 		}
+		const bullet = moveName.charAt(0) === '*' || move.isZ ? '<span style="color:#888">&#8226;</span>' : '&#8226;';
 		if (ppUsed === Infinity) {
-			return move.name + ' <small>(0/' + maxpp + ')</small>';
+			return `${bullet} ${move.name} <small>(0/${maxpp})</small>`;
 		}
 		if (ppUsed || moveName.charAt(0) === '*') {
-			return move.name + ' <small>(' + (maxpp - ppUsed) + '/' + maxpp + ')</small>';
+			return `${bullet} ${move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
 		}
-		return move.name + (showKnown ? ' <small>(revealed)</small>' : '');
+		return `${bullet} ${move.name} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
 	}
 
 	ppUsed(move: Move, pokemon: Pokemon) {
