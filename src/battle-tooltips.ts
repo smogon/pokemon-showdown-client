@@ -1949,7 +1949,7 @@ class BattleStatGuesser {
 
 		plusStat = statChart[role][0];
 		if (role === 'Fast Bulky Support') moveCount['Ultrafast'] = 0;
-		if (plusStat === 'spe') {
+		if (plusStat === 'spe' && moveCount['Ultrafast']) {
 			if (statChart[role][1] === 'atk' || statChart[role][1] === 'spa') {
 				plusStat = statChart[role][1];
 			} else if (moveCount['Physical'] >= 3) {
