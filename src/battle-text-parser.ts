@@ -735,6 +735,13 @@ class BattleTextParser {
 				return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of)).replace('[SOURCE]', this.pokemon(pokemon));
 			}
 
+			if (id === 'mummy') {
+				line1 += this.ability(kwArgs.ability, target);
+				line1 += this.ability('Mummy', target);
+				const template = this.template('changeAbility', 'mummy');
+				return line1 + template.replace('[TARGET]', this.pokemon(target));
+			}
+
 			let templateId = 'activate';
 			if (id === 'forewarn' && pokemon === target) {
 				templateId = 'activateNoTarget';
@@ -754,10 +761,6 @@ class BattleTextParser {
 			}
 			if (kwArgs.ability2) {
 				line1 += this.ability(kwArgs.ability2, target);
-			}
-			if (id === 'mummy') {
-				line1 += this.ability("Mummy", target);
-				template = this.template('changeAbility', "Mummy");
 			}
 			if (kwArgs.move || kwArgs.number || kwArgs.item) {
 				template = template.replace('[MOVE]', kwArgs.move).replace('[NUMBER]', kwArgs.number).replace('[ITEM]', kwArgs.item);
