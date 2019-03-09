@@ -147,7 +147,7 @@
 				sideBuf += this.renderRoomTab(room);
 			}
 			if (window.nodewebkit) {
-				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount || '');
+				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel('' + notificationCount || '');
 			} else {
 				var $favicon = $('#dynamic-favicon');
 				if (!!$favicon.data('on') !== !!notificationCount) {

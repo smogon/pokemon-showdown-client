@@ -1594,7 +1594,7 @@ Storage.nwSaveTeam = function (team) {
 		this.nwDeleteTeam(team);
 	}
 	team.filename = filename;
-	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'));
+	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
 };
 
 Storage.nwSaveTeams = function () {
@@ -1630,7 +1630,7 @@ Storage.nwDoSaveAllTeams = function () {
 		filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 		team.filename = filename;
-		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'));
+		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
 	}
 };
 
