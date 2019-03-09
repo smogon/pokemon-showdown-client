@@ -858,10 +858,10 @@ class BattleTooltips {
 					stats.spa = Math.floor(stats.spa * 1.5);
 				}
 				let allyActive = clientPokemon && clientPokemon.side.active;
-				if (allyActive && allyActive.length > 1) {
+				if (allyActive) {
 					for (const ally of allyActive) {
 						if (!ally || ally.fainted) continue;
-						if (ally.ability === 'flowergift' && (ally.getTemplate().baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
+						if (ally.ability === 'Flower Gift' && (ally.getTemplate().baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
 							stats.atk = Math.floor(stats.atk * 1.5);
 							stats.spd = Math.floor(stats.spd * 1.5);
 						}
