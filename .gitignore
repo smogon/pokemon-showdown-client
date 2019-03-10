@@ -27,6 +27,8 @@ package-lock.json
 /js/client-main.js
 /js/client-connection.js
 /js/panels.js
+/js/panel-topbar.js
+/js/panel-example.js
 /js/panel-mainmenu.js
 /js/panel-rooms.js
 /js/panel-chat.js

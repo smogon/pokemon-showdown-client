@@ -212,6 +212,12 @@ class PSUser extends PSModel {
  * Server
  *********************************************************************/
 
+interface PSGroup {
+	name?: string;
+	type?: 'leadership' | 'staff' | 'punishment';
+	order: number;
+}
+
 class PSServer {
 	id = 'showdown';
 	host = 'sim2.psim.us';
@@ -220,23 +226,94 @@ class PSServer {
 	registered = true;
 	prefix = '/showdown';
 	protocol: 'http' | 'https' = 'https';
+	groups: {[symbol: string]: PSGroup} = {
+		'~': {
+			name: "Administrator (~)",
+			type: 'leadership',
+			order: 10001,
+		},
+		'&': {
+			name: "Leader (&)",
+			type: 'leadership',
+			order: 10002,
+		},
+		'#': {
+			name: "Room Owner (#)",
+			type: 'leadership',
+			order: 10003,
+		},
+		'\u2605': {
+			name: "Host (\u2605)",
+			type: 'staff',
+			order: 10004,
+		},
+		'@': {
+			name: "Moderator (@)",
+			type: 'staff',
+			order: 10005,
+		},
+		'%': {
+			name: "Driver (%)",
+			type: 'staff',
+			order: 10006,
+		},
+		'*': {
+			name: "Bot (*)",
+			order: 10007,
+		},
+		'\u2606': {
+			name: "Player (\u2606)",
+			order: 10008,
+		},
+		'+': {
+			name: "Voice (+)",
+			order: 10009,
+		},
+		' ': {
+			order: 10010,
+		},
+		'!': {
+			name: "Muted (!)",
+			type: 'punishment',
+			order: 10011,
+		},
+		'✖': {
+			name: "Namelocked (\u2716)",
+			type: 'punishment',
+			order: 10012,
+		},
+		'\u203d': {
+			name: "Locked (\u203d)",
+			type: 'punishment',
+			order: 10013,
+		},
+	};
+	defaultGroup: PSGroup = {
+		order: 10006.5,
+	};
+	getGroup(symbol: string | undefined) {
+		return this.groups[(symbol || ' ').charAt(0)] || this.defaultGroup;
+	}
 }
 
 /**********************************************************************
  * Rooms
  *********************************************************************/
 
-type PSRoomSide = 'left' | 'right' | 'popup';
+type PSRoomLocation = 'left' | 'right' | 'popup' | 'modal-popup' | 'semimodal-popup';
 
 interface RoomOptions {
 	id: RoomID;
 	title?: string;
 	type?: string;
-	side?: PSRoomSide | null;
+	location?: PSRoomLocation | null;
 	/** Handled after initialization, outside of the constructor */
 	queue?: string[];
-	parentElem?: HTMLElement;
+	parentElem?: HTMLElement | null;
+	parentRoomid?: RoomID | null;
+	rightPopup?: boolean;
 	connected?: boolean;
+	[k: string]: unknown;
 }
 
 class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
@@ -245,7 +322,7 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	type = '';
 	notifying: '' | ' notifying' | ' subtle-notifying' = '';
 	readonly classType: string = '';
-	side: PSRoomSide = 'left';
+	location: PSRoomLocation = 'left';
 	closable = true;
 	/**
 	 * Whether the room is connected to the server. This mostly tracks
@@ -256,14 +333,29 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	 */
 	connected = false;
 	onParentEvent: ((eventId: 'focus' | 'keydown', e?: Event) => false | void) | null = null;
+
+	width = 0;
+	height = 0;
+	parentElem: HTMLElement | null = null;
+	rightPopup = false;
+
 	constructor(options: RoomOptions) {
 		super();
 		this.id = options.id;
 		if (options.title) this.title = options.title;
 		if (!this.title) this.title = this.id;
 		if (options.type) this.type = options.type;
-		if (options.side) this.side = options.side;
+		if (options.location) this.location = options.location;
+		if (options.parentElem) this.parentElem = options.parentElem;
+		if (this.location !== 'popup' && this.location !== 'semimodal-popup') this.parentElem = null;
+		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = true;
+	}
+	setDimensions(width: number, height: number) {
+		if (this.width === width && this.height === height) return;
+		this.width = width;
+		this.height = height;
+		this.update('');
 	}
 	receive(message: string) {
 		throw new Error(`This room is not designed to receive messages`);
@@ -292,7 +384,7 @@ class PlaceholderRoom extends PSRoom {
  * PS
  *********************************************************************/
 
-type RoomType = {Model: typeof PSRoom, Component: typeof PSRoomPanel};
+type RoomType = {Model: typeof PSRoom, Component: any};
 
 const PS = new class extends PSModel {
 	down: string | boolean = false;
@@ -583,6 +675,8 @@ const PS = new class extends PSModel {
 			default:
 				if (options.id.startsWith('battle-')) {
 					options.type = 'battle';
+				} else if (options.id.startsWith('user-')) {
+					options.type = 'user';
 				} else if (options.id.startsWith('view-')) {
 					options.type = 'html';
 				} else {
@@ -591,15 +685,16 @@ const PS = new class extends PSModel {
 			}
 		}
 
-		if (!options.side) {
+		if (!options.location) {
 			switch (options.type) {
 			case 'rooms':
 			case 'chat':
-				options.side = 'right';
+				options.location = 'right';
 				break;
 			case 'options':
 			case 'volume':
-				options.side = 'popup';
+			case 'user':
+				options.location = 'popup';
 				break;
 			}
 		}
@@ -621,7 +716,7 @@ const PS = new class extends PSModel {
 			if (this.leftRoom === room) this.leftRoom = newRoom;
 			if (this.rightRoom === room) this.rightRoom = newRoom;
 			if (this.room === room) this.room = newRoom;
-			if (roomid === '') this.mainmenu = newRoom;
+			if (roomid === '') this.mainmenu = newRoom as MainMenuRoom;
 
 			if (options.queue) {
 				for (const line of options.queue) {
@@ -637,6 +732,8 @@ const PS = new class extends PSModel {
 		} else if (this.rightRoomList.includes(roomid)) {
 			this.rightRoom = this.rooms[roomid]!;
 			this.room = this.rightRoom;
+		} else if (this.rooms[roomid]) { // popup
+			this.room = this.rooms[roomid]!;
 		} else {
 			return false;
 		}
@@ -688,18 +785,33 @@ const PS = new class extends PSModel {
 		}
 		return buf;
 	}
-	addRoom(options: RoomOptions) {
+	addRoom(options: RoomOptions, noFocus?: boolean) {
 		if (this.rooms[options.id]) {
-			this.focusRoom(options.id);
+			for (let i = 0; i < this.popups.length; i++) {
+				const popup = this.rooms[this.popups[i]]!;
+				if (popup.parentElem === options.parentElem) {
+					while (this.popups.length > i) {
+						const popupid = this.popups.pop()!;
+						this.leave(popupid);
+					}
+					return;
+				}
+			}
+			if (!noFocus) this.focusRoom(options.id);
 			return;
+		}
+		if (!noFocus) {
+			while (this.popups.length && this.popups[this.popups.length - 1] !== options.parentRoomid) {
+				const popupid = this.popups.pop()!;
+				this.leave(popupid);
+			}
 		}
 		const room = this.createRoom(options);
 		this.rooms[room.id] = room;
-		switch (room.side) {
+		switch (room.location) {
 		case 'left':
 			this.leftRoomList.push(room.id);
-			this.leftRoom = room;
-			this.room = room;
+			if (!noFocus) this.leftRoom = room;
 			break;
 		case 'right':
 			this.rightRoomList.push(room.id);
@@ -707,13 +819,15 @@ const PS = new class extends PSModel {
 				this.rightRoomList.splice(-2, 1);
 				this.rightRoomList.push('rooms' as RoomID);
 			}
-			this.rightRoom = room;
-			this.room = room;
+			if (!noFocus || !this.rightRoom) this.rightRoom = room;
 			break;
 		case 'popup':
+		case 'semimodal-popup':
+		case 'modal-popup':
 			this.popups.push(room.id);
 			break;
 		}
+		if (!noFocus) this.room = room;
 		if (options.queue) {
 			for (const line of options.queue) {
 				room.receive(line);
@@ -744,13 +858,13 @@ const PS = new class extends PSModel {
 		}
 		this.update();
 	}
-	closePopup() {
+	closePopup(skipUpdate?: boolean) {
 		if (!this.popups.length) return;
 		const roomid = this.popups.pop()!;
 		this.leave(roomid);
-		this.update();
+		if (!skipUpdate) this.update();
 	}
-	join(roomid: RoomID, side?: PSRoomSide | null) {
+	join(roomid: RoomID, side?: PSRoomLocation | null) {
 		this.addRoom({id: roomid, side});
 		this.update();
 	}
