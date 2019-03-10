@@ -1,7 +1,7 @@
 /**
  * Panels
  *
- * Main view - sets up the frame, topbar, and the generic panels.
+ * Main view - sets up the frame, and the generic panels.
  *
  * Also sets up global event listeners.
  *
@@ -90,109 +90,49 @@ class PSRouter {
 }
 PS.router = new PSRouter();
 
-class PSHeader extends preact.Component<{style: {}}> {
-	renderRoomTab(id: RoomID) {
-		const room = PS.rooms[id]!;
-		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
-		const cur = PS.isVisible(room) ? ' cur' : '';
-		let className = `roomtab button${room.notifying}${closable}${cur}`;
-		let icon = null;
-		let title = room.title;
-		let closeButton = null;
-		switch (room.type) {
-		case '':
-		case 'mainmenu':
-			icon = <i class="fa fa-home"></i>;
-			break;
-		case 'teambuilder':
-			icon = <i class="fa fa-pencil-square-o"></i>;
-			break;
-		case 'ladder':
-			icon = <i class="fa fa-list-ol"></i>;
-			break;
-		case 'battles':
-			icon = <i class="fa fa-caret-square-o-right"></i>;
-			break;
-		case 'rooms':
-			icon = <i class="fa fa-plus" style="margin:7px auto -6px auto"></i>;
-			title = '';
-			break;
-		case 'battle':
-			let idChunks = id.substr(7).split('-');
-			let formatid;
-			// TODO: relocate to room implementation
-			if (idChunks.length <= 1) {
-				if (idChunks[0] === 'uploadedreplay') formatid = 'Uploaded Replay';
-			} else {
-				formatid = idChunks[idChunks.length - 2];
-			}
-			if (!title) {
-				let battle = (room as any).battle;
-				let p1 = (battle && battle.p1 && battle.p1.name) || '';
-				let p2 = (battle && battle.p2 && battle.p2.name) || '';
-				if (p1 && p2) {
-					title = '' + p1 + ' v. ' + p2;
-				} else if (p1 || p2) {
-					title = '' + p1 + p2;
-				} else {
-					title = '(empty room)';
-				}
-			}
-			icon = <i class="text">{formatid}</i>;
-			break;
-		case 'chat':
-			icon = <i class="fa fa-comment-o"></i>;
-			break;
-		case 'html':
-		default:
-			if (title.charAt(0) === '[') {
-				let closeBracketIndex = title.indexOf(']');
-				if (closeBracketIndex > 0) {
-					icon = <i class="text">{title.slice(1, closeBracketIndex)}</i>;
-					title = title.slice(closeBracketIndex + 1);
-					break;
-				}
-			}
-			icon = <i class="fa fa-file-text-o"></i>;
-			break;
+class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}> {
+	subscriptions: PSSubscription[] = [];
+	componentDidMount() {
+		if (PS.room === this.props.room) this.focus();
+		this.props.room.onParentEvent = (id: string, e?: Event) => {
+			if (id === 'focus') this.focus();
+		};
+		this.subscriptions.push(this.props.room.subscribe(message => {
+			if (!message) this.forceUpdate();
+			else this.receive(message);
+		}));
+		if (this.base) {
+			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
 		}
-		if (closable) {
-			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label="Close"><i class="fa fa-times-circle"></i></button>;
-		}
-		return <li><a class={className} href={`/${id}`} draggable={true}>{icon} <span>{title}</span></a>{closeButton}</li>;
 	}
+	componentWillUnmount() {
+		this.props.room.onParentEvent = null;
+		for (const subscription of this.subscriptions) {
+			subscription.unsubscribe();
+		}
+		this.subscriptions = [];
+	}
+	receive(message: string) {}
+	focus() {}
 	render() {
-		return <div id="header" class="header" style={this.props.style}>
-			<img class="logo" src="https://play.pokemonshowdown.com/pokemonshowdownbeta.png" srcset="https://play.pokemonshowdown.com/pokemonshowdownbeta@2x.png 2x" alt="Pokémon Showdown! (beta)" width="146" height="44" />
-			<div class="maintabbarbottom"></div>
-			<div class="tabbar maintabbar"><div class="inner">
-				<ul>
-					{PS.leftRoomList.map(roomid => this.renderRoomTab(roomid))}
-				</ul>
-				<ul class="siderooms" style={{float: 'none', marginLeft: PS.leftRoomWidth - 144}}>
-					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
-				</ul>
-			</div></div>
-			<div class="userbar">
-				<span class="username" data-name={PS.user.name} style="color:hsl(96,67%,36%);"><i class="fa fa-user" style="color:#779EC5"></i> {PS.user.name}</span>{' '}
-				<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound"><i class="fa fa-volume-up"></i></button>{' '}
-				<button class="icon button" name="joinRoom" value="options" title="Options" aria-label="Options"><i class="fa fa-cog"></i></button>
-			</div>
-		</div>;
+		return <PSPanelWrapper room={this.props.room}>
+			<div class="mainmessage"><p>Loading...</p></div>
+		</PSPanelWrapper>;
 	}
 }
 
-class PSRoomPanel extends preact.Component<{style: {}, room: PSRoom}> {
-	render() {
-		if (this.props.room.side === 'popup') {
-			return <div class="ps-popup" id={`room-${this.props.room.id}`} style={this.props.style}>
-				<div class="mainmessage"><p>Loading...</p></div>
-			</div>;
-		}
-		return <div class="ps-room ps-room-light" id={`room-${this.props.room.id}`} style={this.props.style}>
-			<div class="mainmessage"><p>Loading...</p></div>
+function PSPanelWrapper(props: {room: PSRoom, children: preact.ComponentChildren}) {
+	const room = props.room;
+	if (room.location !== 'left' && room.location !== 'right') {
+		const style = PSMain.getPopupStyle(room);
+		return <div class="ps-popup" id={`room-${room.id}`} style={style}>
+			{props.children}
 		</div>;
 	}
+	const style = PSMain.posStyle(room);
+	return <div class={'ps-room' + (room.id === '' ? '' : ' ps-room-light')} id={`room-${room.id}`} style={style}>
+		{props.children}
+	</div>;
 }
 
 class PSMain extends preact.Component {
@@ -208,7 +148,24 @@ class PSMain extends preact.Component {
 				e.stopImmediatePropagation();
 				return;
 			}
+			let clickedRoom = null;
 			while (elem) {
+				if (` ${elem.className} `.includes(' username ')) {
+					const name = elem.getAttribute('data-name');
+					const userid = toId(name);
+					const roomid = `user-${userid}` as RoomID;
+					PS.addRoom({
+						id: roomid,
+						parentElem: elem,
+						parentRoomid: PSMain.containingRoomid(elem),
+						rightPopup: elem.className === 'userbutton username',
+						username: name,
+					});
+					PS.update();
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					return;
+				}
 				if (elem.tagName === 'A') {
 					const roomid = this.roomidFromLink(elem as HTMLAnchorElement);
 					if (roomid !== null) {
@@ -219,17 +176,28 @@ class PSMain extends preact.Component {
 						PS.update();
 						e.preventDefault();
 						e.stopImmediatePropagation();
-						return;
 					}
+					return;
 				}
 				if (elem.tagName === 'BUTTON') {
-					if (this.buttonClick(elem as HTMLButtonElement)) {
+					if (this.handleButtonClick(elem as HTMLButtonElement)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
-						return;
 					}
+					return;
+				}
+				if (elem.id.startsWith('room-')) {
+					clickedRoom = PS.rooms[elem.id.slice(5)];
+					break;
 				}
 				elem = elem.parentElement;
+			}
+			if (PS.room !== clickedRoom) {
+				if (clickedRoom) PS.room = clickedRoom;
+				while (PS.popups.length && (!clickedRoom || clickedRoom.id !== PS.popups[PS.popups.length - 1])) {
+					PS.closePopup();
+				}
+				PS.update();
 			}
 		});
 
@@ -266,7 +234,7 @@ class PSMain extends preact.Component {
 			document.body.className = PS.prefs.dark ? 'dark' : '';
 		});
 	}
-	buttonClick(elem: HTMLButtonElement) {
+	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
 		case 'closeRoom':
 			PS.leave(elem.value as RoomID);
@@ -299,7 +267,34 @@ class PSMain extends preact.Component {
 		if (redirects.test(roomid)) return null;
 		return roomid as RoomID;
 	}
-	posStyle(pos: PanelPosition) {
+	static containingRoomid(elem: HTMLElement) {
+		let curElem: HTMLElement | null = elem;
+		while (curElem) {
+			if (curElem.id.startsWith('room-')) {
+				return curElem.id.slice(5) as RoomID;
+			}
+			curElem = curElem.parentElement;
+		}
+		return null;
+	}
+	static isEmptyClick(e: MouseEvent) {
+		try {
+			const selection = window.getSelection();
+			if (selection.type === 'Range') return false;
+		} catch (err) {}
+		BattleTooltips.hideTooltip();
+	}
+	static posStyle(room: PSRoom) {
+		let pos: PanelPosition | null = null;
+		if (PS.leftRoomWidth === 0) {
+			// one panel visible
+			if (room === PS.room) pos = {top: 56};
+		} else {
+			// both panels visible
+			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};
+			if (room === PS.rightRoom) pos = {top: 56, left: PS.leftRoomWidth};
+		}
+
 		if (!pos) return {display: 'none'};
 
 		let top: number | null = (pos.top || 0);
@@ -332,37 +327,96 @@ class PSMain extends preact.Component {
 			right: right === null ? `auto` : `${-right}px`,
 		};
 	}
-	renderRoom(room: PSRoom) {
-		let pos = null;
-		if (PS.leftRoomWidth === 0) {
-			// one panel visible
-			if (room === PS.room) pos = {top: 56};
-		} else {
-			// both panels visible
-			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};
-			if (room === PS.rightRoom) pos = {top: 56, left: PS.leftRoomWidth};
+	static getPopupStyle(room: PSRoom): any {
+		if (room.location === 'modal-popup' || !room.parentElem) {
+			return {width: 480};
 		}
+		if (!room.width || !room.height) {
+			return {
+				position: 'absolute',
+				visibility: 'hidden',
+				margin: 0,
+				top: 0,
+				left: 0,
+			};
+		}
+		// nonmodal popup: should be positioned near source element
+		let style: any = {
+			position: 'absolute',
+			margin: 0,
+		};
+		let offset = room.parentElem.getBoundingClientRect();
+		let sourceWidth = offset.width;
+		let sourceHeight = offset.height;
+
+		let availableHeight = document.documentElement.clientHeight;
+		let height = room.height;
+		let width = room.width;
+
+		if (room.rightPopup) {
+
+			if (availableHeight > offset.top + height + 5 &&
+				(offset.top < availableHeight * 2 / 3 || offset.top + 200 < availableHeight)) {
+				style.top = offset.top;
+			} else {
+				style.bottom = Math.max(availableHeight - offset.top - sourceHeight, 0);
+			}
+			let offsetLeft = offset.left + sourceWidth;
+			if (offsetLeft + width > document.documentElement.clientWidth) {
+				style.right = 1;
+			} else {
+				style.left = offsetLeft;
+			}
+
+		} else {
+
+			if (availableHeight > offset.top + sourceHeight + height + 5 &&
+				(offset.top + sourceHeight < availableHeight * 2 / 3 || offset.top + sourceHeight + 200 < availableHeight)) {
+				style.top = offset.top + sourceHeight;
+			} else if (height + 5 <= offset.top) {
+				style.bottom = Math.max(availableHeight - offset.top, 0);
+			} else if (height + 10 < availableHeight) {
+				style.bottom = 5;
+			} else {
+				style.top = 0;
+			}
+
+			let availableWidth = document.documentElement.clientWidth - offset.left;
+			if (availableWidth < width + 10) {
+				style.right = 10;
+			} else {
+				style.left = offset.left;
+			}
+
+		}
+
+		return style;
+	}
+	renderRoom(room: PSRoom) {
 		const roomType = PS.roomTypes[room.type];
 		const Panel = roomType ? roomType.Component : PSRoomPanel;
-		return <Panel key={room.id} style={this.posStyle(pos)} room={room} />;
+		return <Panel key={room.id} room={room} />;
 	}
 	renderPopup(room: PSRoom) {
 		const roomType = PS.roomTypes[room.type];
 		const Panel = roomType ? roomType.Component : PSRoomPanel;
-		return <div class="ps-overlay">
-			<Panel key={room.id} style={{maxWidth: 480}} room={room} />
+		if (room.location === 'popup' && room.parentElem) {
+			return <Panel key={room.id} room={room} />;
+		}
+		return <div key={room.id} class="ps-overlay">
+			<Panel room={room} />
 		</div>;
 	}
 	render() {
 		let rooms = [] as preact.VNode[];
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
-			if (room.side !== 'popup') {
+			if (room.location === 'left' || room.location === 'right') {
 				rooms.push(this.renderRoom(room));
 			}
 		}
 		return <div class="ps-frame">
-			<PSHeader style={this.posStyle({bottom: 50})} />
+			<PSHeader style={{top: 0, left: 0, right: 0, height: '50px'}} />
 			{rooms}
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
@@ -370,5 +424,3 @@ class PSMain extends preact.Component {
 }
 
 type PanelPosition = {top?: number, bottom?: number, left?: number, right?: number} | null;
-
-preact.render(<PSMain />, document.body, document.getElementById('ps-frame')!);

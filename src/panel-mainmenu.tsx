@@ -7,6 +7,12 @@
 
 class MainMenuRoom extends PSRoom {
 	readonly classType: string = 'mainmenu';
+	userdetailsCache: {[userid: string]: {
+		userid: ID,
+		avatar?: string | number,
+		group?: string,
+		rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
+	}} = {};
 	receive(line: string) {
 		const tokens = PS.lineParse(line);
 		switch (tokens[0]) {
@@ -23,22 +29,31 @@ class MainMenuRoom extends PSRoom {
 		case 'updateuser':
 			PS.user.setName(tokens[1], tokens[2] === '1', tokens[3]);
 			return;
+		case 'queryresponse':
+			this.handleQueryResponse(tokens[1] as ID, JSON.parse(tokens[2]));
+			return;
 		}
 		const lobby = PS.rooms['lobby'];
 		if (lobby) lobby.receive(line);
 	}
+	handleQueryResponse(id: ID, response: any) {
+		switch (id) {
+		case 'userdetails':
+			let userid = response.userid;
+			let userdetails = this.userdetailsCache[userid];
+			if (!userdetails) {
+				this.userdetailsCache[userid] = response;
+			} else {
+				Object.assign(userdetails, response);
+			}
+			const room = PS.rooms[`user-${userid}`] as UserRoom;
+			if (room) room.update('');
+			break;
+		}
+	}
 }
 
-class MainMenuPanel extends preact.Component<{style: {}, room: PSRoom}> {
-	componentDidMount() {
-		if (PS.room === this.props.room) this.focus();
-		this.props.room.onParentEvent = (id: string, e?: Event) => {
-			if (id === 'focus') this.focus();
-		};
-	}
-	componentWillUnmount() {
-		this.props.room.onParentEvent = null;
-	}
+class MainMenuPanel extends PSRoomPanel {
 	focus() {
 		(this.base!.querySelector('button.big') as HTMLButtonElement).focus();
 	}
@@ -56,7 +71,7 @@ class MainMenuPanel extends preact.Component<{style: {}, room: PSRoom}> {
 			<p><button class="button mainmenu1 big" name="search"><strong>Battle!</strong><br /><small>Find a random opponent</small></button></p>
 		</div>);
 		const onlineButton = ' button' + (PS.connected ? '' : ' disabled');
-		return <div class="ps-room scrollable" id={`room-${this.props.room.id}`} style={this.props.style}>
+		return <PSPanelWrapper room={this.props.room}>
 			<div class="mainmenuwrapper">
 				<div class="leftmenu">
 					<div class="activitymenu">
@@ -93,7 +108,7 @@ class MainMenuPanel extends preact.Component<{style: {}, room: PSRoom}> {
 					<small><a href="//dex.pokemonshowdown.com/" target="_blank">Pok&eacute;dex</a> | <a href="//replay.pokemonshowdown.com/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a> | <a href="//pokemonshowdown.com/credits" target="_blank">Credits</a> | <a href="http://smogon.com/forums/" target="_blank">Forum</a></small>
 				</div>
 			</div>
-		</div>;
+		</PSPanelWrapper>;
 	}
 }
 

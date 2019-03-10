@@ -196,7 +196,7 @@ const Dex = new class implements ModdedDex {
 	}
 
 	resolveAvatar(avatar: string): string {
-		if (avatar in BattleAvatarNumbers) {
+		if (window.BattleAvatarNumbers && avatar in BattleAvatarNumbers) {
 			avatar = BattleAvatarNumbers[avatar];
 		}
 		if (avatar.charAt(0) === '#') {
