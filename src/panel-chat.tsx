@@ -7,6 +7,8 @@
 
 class ChatRoom extends PSRoom {
 	readonly classType: string = 'chat';
+	users: {[userid: string]: string} = {};
+	userCount = 0;
 	constructor(options: RoomOptions) {
 		super(options);
 		if (!this.connected && PS.connected) {
@@ -16,6 +18,34 @@ class ChatRoom extends PSRoom {
 	}
 	receive(line: string) {
 		this.update(line);
+	}
+	setUsers(count: number, usernames: string[]) {
+		this.userCount = count;
+		this.users = {};
+		for (const username of usernames) {
+			const userid = toId(username);
+			this.users[userid] = username;
+		}
+		this.update('');
+	}
+	addUser(username: string) {
+		const userid = toId(username);
+		if (!(userid in this.users)) this.userCount++;
+		this.users[userid] = username;
+		this.update('');
+	}
+	removeUser(username: string, noUpdate?: boolean) {
+		const userid = toId(username);
+		if (userid in this.users) {
+			this.userCount--;
+			delete this.users[userid];
+		}
+		if (!noUpdate) this.update('');
+	}
+	renameUser(username: string, oldUsername: string) {
+		this.removeUser(oldUsername, true);
+		this.addUser(username);
+		this.update('');
 	}
 }
 
@@ -82,19 +112,10 @@ class ChatTextEntry extends preact.Component<{room: PSRoom, onMessage: (msg: str
 	}
 }
 
-class ChatPanel extends preact.Component<{style: {}, room: PSRoom}> {
+class ChatPanel extends PSRoomPanel<ChatRoom> {
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
-	componentDidMount() {
-		if (PS.room === this.props.room) this.focus();
-		this.props.room.onParentEvent = (id: string, e?: Event) => {
-			if (id === 'focus') this.focus();
-		};
-	}
-	componentWillUnmount() {
-		this.props.room.onParentEvent = null;
-	}
 	focus() {
 		this.base!.querySelector('textarea')!.focus();
 	}
@@ -104,20 +125,72 @@ class ChatPanel extends preact.Component<{style: {}, room: PSRoom}> {
 		this.focus();
 	};
 	render() {
-		return <div class="ps-room ps-room-light scrollabel" id={`room-${this.props.room.id}`} style={this.props.style}>
+		return <PSPanelWrapper room={this.props.room}>
 			<div class="tournament-wrapper hasuserlist"></div>
 			<ChatLog class="chat-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection} />
 			<ChatTextEntry room={this.props.room} onMessage={this.send} />
-			<ul class="userlist"></ul>
-		</div>;
+			<ChatUserList room={this.props.room} />
+		</PSPanelWrapper>;
 	}
 }
 
-class ChatLog extends preact.Component<{class: string, room: PSRoom, onClick?: (e: Event) => void}> {
+class ChatUserList extends preact.Component<{room: ChatRoom}> {
+	subscription: PSSubscription | null = null;
+	componentDidMount() {
+		this.subscription = this.props.room.subscribe(msg => {
+			if (!msg) this.forceUpdate();
+		});
+	}
+	componentWillUnmount() {
+		if (this.subscription) this.subscription.unsubscribe();
+	}
+	render() {
+		const room = this.props.room;
+		let userList = Object.entries(room.users) as [ID, string][];
+		userList.sort(ChatUserList.compareUsers);
+		function colorStyle(userid: ID) {
+			return {color: BattleLog.hashColor(userid).slice(6, -1)};
+		}
+		return <ul class="userlist">
+			<li class="userlist-count" style="text-align:center;padding:2px 0"><small>{room.userCount} users</small></li>
+			{userList.map(([userid, name]) => {
+				const groupSymbol = name.charAt(0);
+				const group = PS.server.groups[groupSymbol] || {type: 'user', order: 0};
+				return <li key={userid}><button class="userbutton username" data-name={name}>
+					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>{groupSymbol}</em>
+					{group.type === 'leadership' ?
+						<strong><em style={colorStyle(userid)}>{name.substr(1)}</em></strong>
+					: group.type === 'staff' ?
+						<strong style={colorStyle(userid)}>{name.substr(1)}</strong>
+				:
+						<span style={colorStyle(userid)}>{name.substr(1)}</span>
+				}
+				</button></li>;
+			})}
+		</ul>;
+	}
+	static compareUsers([userid1, name1]: [ID, string], [userid2, name2]: [ID, string]) {
+		if (userid1 === userid2) return 0;
+		let rank1 = (
+			PS.server.groups[name1.charAt(0)] || {order: 10006.5}
+		).order;
+		let rank2 = (
+			PS.server.groups[name2.charAt(0)] || {order: 10006.5}
+		).order;
+
+		if (userid1 === 'zarel' && rank1 === 10003) rank1 = 10000.5;
+		if (userid2 === 'zarel' && rank2 === 10003) rank2 = 10000.5;
+		if (rank1 !== rank2) return rank1 - rank2;
+		return (userid1 > userid2 ? 1 : -1);
+	}
+}
+
+class ChatLog extends preact.Component<{class: string, room: ChatRoom, onClick?: (e: Event) => void}> {
 	log: BattleLog = null!;
+	subscription: PSSubscription | null = null;
 	componentDidMount() {
 		this.log = new BattleLog(this.base! as HTMLDivElement);
-		this.props.room.subscribe(msg => {
+		this.subscription = this.props.room.subscribe(msg => {
 			if (!msg) return;
 			const tokens = PS.lineParse(msg);
 			switch (tokens[0]) {
@@ -125,9 +198,26 @@ class ChatLog extends preact.Component<{class: string, room: PSRoom, onClick?: (
 				this.props.room.title = tokens[1];
 				PS.update();
 				return;
+			case 'users':
+				const usernames = tokens[1].split(',');
+				const count = parseInt(usernames.shift()!, 10);
+				this.props.room.setUsers(count, usernames);
+				return;
+			case 'join': case 'j': case 'J':
+				this.props.room.addUser(tokens[1]);
+				break;
+			case 'leave': case 'l': case 'L':
+				this.props.room.removeUser(tokens[1]);
+				break;
+			case 'name': case 'n': case 'N':
+				this.props.room.renameUser(tokens[1], tokens[2]);
+				break;
 			}
 			this.log.add(tokens);
 		});
+	}
+	componentWillUnmount() {
+		if (this.subscription) this.subscription.unsubscribe();
 	}
 	shouldComponentUpdate(props: {class: string}) {
 		if (props.class !== this.props.class) {
