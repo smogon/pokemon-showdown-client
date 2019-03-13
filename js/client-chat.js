@@ -129,6 +129,11 @@
 					e.preventDefault();
 					e.stopPropagation();
 				}
+			} else if (e.keyCode === 192 && cmdKey) { // Ctrl + ` key
+				if (ConsoleRoom.toggleFormatChar(textbox, '`')) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
 			} else if (e.keyCode === 33) { // Pg Up key
 				this.$chatFrame.scrollTop(this.$chatFrame.scrollTop() - this.$chatFrame.height() + 60);
 			} else if (e.keyCode === 34) { // Pg Dn key
