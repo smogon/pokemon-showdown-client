@@ -864,16 +864,43 @@ License: GPLv2
 	color: #BBBBBB;
 }
 .chat code,
+.chat .code,
 .ps-popup code,
 .chat .spoiler:hover code,
 .chat .spoiler:active code,
 .chat .spoiler-shown code {
+	font-family: monospace;
 	border: 1px solid #C0C0C0;
 	background: #EEEEEE;
 	color: black;
 	padding: 0 2px;
 	tab-size: 4;
 }
+
+details.readmore {
+	position: relative;
+}
+details.readmore summary {
+	display: block;
+	list-style: none;
+}
+details.readmore summary::-webkit-details-marker {
+	display:none;
+}
+details.readmore summary:after {
+	content: '[read more]';
+	font-family: Verdana, sans-serif;
+	margin-left: 1en;
+	color: #888;
+}
+details.readmore summary:hover:after {
+	text-decoration: underline;
+	color: #68B;
+}
+details.readmore[open] summary:after {
+	content: '';
+}
+
 .greentext {
 	color: #187902;
 }
@@ -886,6 +913,7 @@ License: GPLv2
 	color: #777;
 }
 .dark .chat code,
+.dark .chat .code,
 .dark .ps-popup code,
 .dark .chat .spoiler:hover code,
 .dark .chat .spoiler:active code,
