@@ -35,6 +35,7 @@
         "prefer-conditional-expression": false,
         "no-shadowed-variable": [true, {"temporalDeadZone": false}],
         "no-switch-case-fall-through": true,
+        "no-unnecessary-initializer": false,
         "object-literal-sort-keys": false,
         "object-literal-key-quotes": false,
         "trailing-comma": [

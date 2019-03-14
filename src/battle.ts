@@ -3101,7 +3101,7 @@ class Battle {
 				return;
 			} else if (args[1].slice(-14) === ' seconds left.') {
 				let hasIndex = args[1].indexOf(' has ');
-				let userid = (window.app && app.user && app.user.get('userid'));
+				let userid = (window.app && app!.user && app!.user.get('userid'));
 				if (toId(args[1].slice(0, hasIndex)) === userid) {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
@@ -3116,7 +3116,7 @@ class Battle {
 		}
 		case 'join': case 'j': {
 			if (this.roomid) {
-				let room = app.rooms[this.roomid];
+				let room = app!.rooms[this.roomid];
 				let user = args[1];
 				let userid = toUserid(user);
 				if (/^[a-z0-9]/i.test(user)) user = ' ' + user;
@@ -3133,7 +3133,7 @@ class Battle {
 		}
 		case 'leave': case 'l': {
 			if (this.roomid) {
-				let room = app.rooms[this.roomid];
+				let room = app!.rooms[this.roomid];
 				let user = args[1];
 				let userid = toUserid(user);
 				if (room.users[userid]) room.userCount.users--;
@@ -3149,7 +3149,7 @@ class Battle {
 		}
 		case 'name': case 'n': {
 			if (this.roomid) {
-				let room = app.rooms[this.roomid];
+				let room = app!.rooms[this.roomid];
 				let newuser = args[1];
 				let olduser = args[2];
 				let userid = toUserid(newuser);

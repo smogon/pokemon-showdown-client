@@ -22,3 +22,4 @@ node_modules/
 /js/panel-mainmenu.js
 /js/panel-rooms.js
 /js/panel-chat.js
+/js/panel-teambuilder.js
