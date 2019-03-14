@@ -3076,6 +3076,51 @@ const BattleOtherAnims: AnimTable = {
 	},
 	xattack: {
 		anim(scene, [attacker, defender]) {
+			scene.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 400,
+			}, {
+				x: defender.leftof(-20),
+				y: defender.y,
+				z: defender.behind(20),
+				scale: 3,
+				opacity: 0,
+				time: 700,
+			}, 'linear');
+			scene.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 700,
+			}, {
+				x: defender.leftof(-20),
+				y: defender.y,
+				z: defender.behind(20),
+				scale: 3,
+				opacity: 0,
+				time: 1000,
+			}, 'linear');
+			defender.delay(480);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 200,
+			}, 'swing');
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
 			attacker.anim({
 				x: defender.leftof(-30),
 				y: defender.y + 80,
@@ -3103,21 +3148,6 @@ const BattleOtherAnims: AnimTable = {
 			attacker.anim({
 				time: 500,
 			}, 'ballistic2Back');
-			defender.delay(450);
-			defender.anim({
-				z: defender.behind(20),
-				time: 100,
-			}, 'swing');
-			defender.anim({
-				time: 200,
-			}, 'swing');
-			defender.anim({
-				z: defender.behind(20),
-				time: 100,
-			}, 'swing');
-			defender.anim({
-				time: 300,
-			}, 'swing');
 		},
 	},
 	slashattack: {
