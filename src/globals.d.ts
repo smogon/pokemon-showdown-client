@@ -39,7 +39,8 @@ declare function formatText(input: string): string;
 declare var Config: any;
 declare var Replays: any;
 declare var exports: any;
-declare var app: any;
+type AnyObject = {[k: string]: any};
+declare var app: {user: AnyObject, rooms: AnyObject, ignore?: AnyObject};
 
 declare var BattleSearch: any;
 

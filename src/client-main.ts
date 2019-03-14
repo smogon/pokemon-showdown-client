@@ -131,19 +131,30 @@ class PSPrefs extends PSModel {
 interface Team {
 	name: string;
 	format: ID;
-	/** In packed format */
-	team: string;
+	packedTeam: string;
 	folder: string;
 	iconCache: string;
+	key: string;
 }
 
 class PSTeams extends PSModel {
-	list = [] as Team[];
+	list: Team[] = [];
+	byKey: {[key: string]: Team | undefined} = {};
 	constructor() {
 		super();
 		try {
 			this.unpackAll(localStorage.getItem('showdown_teams'));
 		} catch {}
+	}
+	getKey(team: Team) {
+		if (team.key) return team.key;
+		let key = Math.random().toString().substr(2, 1);
+		for (let i = 2; key in this.byKey; i++) {
+			key = Math.random().toString().substr(2, i);
+		}
+		team.key = key;
+		this.byKey[key] = team;
+		return key;
 	}
 	save() {
 		// noop by default
@@ -182,9 +193,10 @@ class PSTeams extends PSModel {
 		return {
 			name: line.slice(slashIndex + 1, pipeIndex),
 			format: format as ID,
-			team: line.slice(pipeIndex + 1),
+			packedTeam: line.slice(pipeIndex + 1),
 			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
 			iconCache: '',
+			key: '',
 		};
 	}
 }
@@ -384,7 +396,7 @@ class PlaceholderRoom extends PSRoom {
  * PS
  *********************************************************************/
 
-type RoomType = {Model: typeof PSRoom, Component: any};
+type RoomType = {Model: typeof PSRoom, Component: any, title?: string};
 
 const PS = new class extends PSModel {
 	down: string | boolean = false;
@@ -667,21 +679,21 @@ const PS = new class extends PSModel {
 	createRoom(options: RoomOptions) {
 		// type/side not defined in roomTypes because they need to be guessed before the types are loaded
 		if (!options.type) {
-			switch (options.id) {
+			const hyphenIndex = options.id.indexOf('-');
+			switch (hyphenIndex < 0 ? options.id : options.id.slice(0, hyphenIndex + 1)) {
 			case 'teambuilder': case 'ladder': case 'battles': case 'rooms':
 			case 'options': case 'volume':
 				options.type = options.id;
 				break;
+			case 'battle-': case 'user-': case 'team-':
+				options.type = options.id.slice(0, hyphenIndex);
+				break;
+			case 'view-':
+				options.type = 'html';
+				break;
 			default:
-				if (options.id.startsWith('battle-')) {
-					options.type = 'battle';
-				} else if (options.id.startsWith('user-')) {
-					options.type = 'user';
-				} else if (options.id.startsWith('view-')) {
-					options.type = 'html';
-				} else {
-					options.type = 'chat';
-				}
+				options.type = 'chat';
+				break;
 			}
 		}
 
@@ -700,10 +712,12 @@ const PS = new class extends PSModel {
 		}
 
 		const roomType = this.roomTypes[options.type];
+		if (roomType && roomType.title) options.title = roomType.title;
 		const Model = roomType ? roomType.Model : PlaceholderRoom;
 		return new Model(options);
 	}
 	updateRoomTypes() {
+		let updated = false;
 		for (const roomid in this.rooms) {
 			const room = this.rooms[roomid]!;
 			if (room.type === room.classType) continue;
@@ -711,6 +725,7 @@ const PS = new class extends PSModel {
 			if (!roomType) continue;
 
 			const options: RoomOptions = room;
+			if (roomType.title) options.title = roomType.title;
 			const newRoom = new roomType.Model(options);
 			this.rooms[roomid] = newRoom;
 			if (this.leftRoom === room) this.leftRoom = newRoom;
@@ -723,7 +738,9 @@ const PS = new class extends PSModel {
 					room.receive(line);
 				}
 			}
+			updated = true;
 		}
+		if (updated) this.update();
 	}
 	focusRoom(roomid: RoomID) {
 		if (this.leftRoomList.includes(roomid)) {
@@ -864,8 +881,8 @@ const PS = new class extends PSModel {
 		this.leave(roomid);
 		if (!skipUpdate) this.update();
 	}
-	join(roomid: RoomID, side?: PSRoomLocation | null) {
-		this.addRoom({id: roomid, side});
+	join(roomid: RoomID, side?: PSRoomLocation | null, noFocus?: boolean) {
+		this.addRoom({id: roomid, side}, noFocus);
 		this.update();
 	}
 	leave(roomid: RoomID) {
