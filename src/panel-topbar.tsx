@@ -86,7 +86,10 @@ class PSHeader extends preact.Component<{style: {}}> {
 			<div class="maintabbarbottom"></div>
 			<div class="tabbar maintabbar"><div class="inner">
 				<ul>
-					{PS.leftRoomList.map(roomid => this.renderRoomTab(roomid))}
+					{this.renderRoomTab('' as RoomID)}
+				</ul>
+				<ul>
+					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
 				</ul>
 				<ul class="siderooms" style={{float: 'none', marginLeft: PS.leftRoomWidth - 144}}>
 					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}

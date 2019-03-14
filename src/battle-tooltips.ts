@@ -1559,22 +1559,40 @@ class BattleTooltips {
 }
 
 type StatsTable = {hp: number, atk: number, def: number, spa: number, spd: number, spe: number};
-type PokemonSet = {
-	name: string,
-	species: string,
-	item: string,
-	ability: string,
-	moves: string[],
-	nature: NatureName,
-	gender: string,
-	evs: StatsTable,
-	ivs: StatsTable,
-	level: number,
-	shiny?: boolean,
-	happiness?: number,
-	pokeball?: string,
-	hpType?: string,
-};
+
+/**
+ * PokemonSet can be sparse, in which case that entry should be
+ * inferred from the rest of the set, according to sensible
+ * defaults.
+ */
+interface PokemonSet {
+	/** Defaults to species name (not including forme), like in games */
+	name?: string;
+	species: string;
+	/** Defaults to no item */
+	item?: string;
+	/** Defaults to no ability (error in Gen 3+) */
+	ability?: string;
+	moves: string[];
+	/** Defaults to no nature (error in Gen 3+) */
+	nature?: NatureName;
+	/** Defaults to random legal gender, NOT subject to gender ratios */
+	gender?: string;
+	/** Defaults to flat 252's (200's/0's in Let's Go) (error in gen 3+) */
+	evs?: StatsTable;
+	/** Defaults to whatever makes sense - flat 31's unless you have Gyro Ball etc */
+	ivs?: StatsTable;
+	/** Defaults as you'd expect (100 normally, 50 in VGC-likes, 5 in LC) */
+	level?: number;
+	/** Defaults to no (error if shiny event) */
+	shiny?: boolean;
+	/** Defaults to 255 unless you have Frustration, in which case 0 */
+	happiness?: number;
+	/** Defaults to event required ball, otherwise Poké Ball */
+	pokeball?: string;
+	/** Defaults to the type of your Hidden Power in Moves, otherwise Dark */
+	hpType?: string;
+}
 
 class BattleStatGuesser {
 	formatid: ID;
@@ -1638,7 +1656,7 @@ class BattleStatGuesser {
 		let item = this.dex.getItem(itemid);
 		let abilityid = toId(set.ability);
 
-		let template = this.dex.getTemplate(set.species || set.name);
+		let template = this.dex.getTemplate(set.species || set.name!);
 		if (item.megaEvolves === template.species) template = this.dex.getTemplate(item.megaStone);
 		if (!template.exists) return '?';
 		let stats = template.baseStats;
@@ -1919,7 +1937,7 @@ class BattleStatGuesser {
 	guessEVs(set: PokemonSet, role: string): Partial<StatsTable> & {plusStat?: StatName | '', minusStat?: StatName | ''} {
 		if (!set) return {};
 		if (role === '?') return {};
-		let template = this.dex.getTemplate(set.species || set.name);
+		let template = this.dex.getTemplate(set.species || set.name!);
 		let stats = template.baseStats;
 
 		let hasMove = this.hasMove;
@@ -2152,9 +2170,9 @@ class BattleStatGuesser {
 		}
 		if (natureOverride) {
 			val *= natureOverride;
-		} else if (BattleNatures[set.nature] && BattleNatures[set.nature].plus === stat) {
+		} else if (BattleNatures[set.nature!] && BattleNatures[set.nature!].plus === stat) {
 			val *= 1.1;
-		} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
+		} else if (BattleNatures[set.nature!] && BattleNatures[set.nature!].minus === stat) {
 			val *= 0.9;
 		}
 		if (!this.supportsEVs) {

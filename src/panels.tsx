@@ -121,7 +121,7 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 	}
 }
 
-function PSPanelWrapper(props: {room: PSRoom, children: preact.ComponentChildren}) {
+function PSPanelWrapper(props: {room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean}) {
 	const room = props.room;
 	if (room.location !== 'left' && room.location !== 'right') {
 		const style = PSMain.getPopupStyle(room);
@@ -130,7 +130,11 @@ function PSPanelWrapper(props: {room: PSRoom, children: preact.ComponentChildren
 		</div>;
 	}
 	const style = PSMain.posStyle(room);
-	return <div class={'ps-room' + (room.id === '' ? '' : ' ps-room-light')} id={`room-${room.id}`} style={style}>
+	return <div
+		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable ? ' scrollable' : '')}
+		id={`room-${room.id}`}
+		style={style}
+	>
 		{props.children}
 	</div>;
 }
@@ -166,7 +170,7 @@ class PSMain extends preact.Component {
 					e.stopImmediatePropagation();
 					return;
 				}
-				if (elem.tagName === 'A') {
+				if (elem.tagName === 'A' || elem.className === 'team') {
 					const roomid = this.roomidFromLink(elem as HTMLAnchorElement);
 					if (roomid !== null) {
 						PS.addRoom({
@@ -250,16 +254,21 @@ class PSMain extends preact.Component {
 		return false;
 	}
 	roomidFromLink(elem: HTMLAnchorElement) {
-		if (PS.server.id === 'showdown') {
+		let href = elem.getAttribute('data-href');
+		if (href) {
+			// yes that's what we needed
+		} else if (PS.server.id === 'showdown') {
 			if (elem.host && elem.host !== 'play.pokemonshowdown.com' && elem.host !== 'psim.us') {
 				return null;
 			}
+			href = elem.pathname;
 		} else {
 			if (elem.host !== location.host) {
 				return null;
 			}
+			href = elem.pathname;
 		}
-		const roomid = elem.pathname.slice(1);
+		const roomid = href.slice(1);
 		if (!/^[a-z0-9-]*$/.test(roomid)) {
 			return null; // not a roomid
 		}
