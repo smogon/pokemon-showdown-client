@@ -501,7 +501,13 @@
 			}
 
 			var moveTarget = this.choice ? this.choice.moveTarget : '';
-			var pos = this.choice.choices.length - (type === 'movetarget' ? 1 : 0);
+			var pos = this.choice.choices.length;
+			if (type === 'movetarget') {
+				pos--;
+				if (this.request && this.request.side) { 
+					pos += Math.floor((parseInt(this.side.charAt(1), 10) - 1) / 2);
+				}
+			}
 
 			var hpRatio = switchables[pos].hp / switchables[pos].maxhp;
 
@@ -664,8 +670,8 @@
 					for (var i = 0; i < switchables.length; i++) {
 						var pokemon = switchables[i];
 						pokemon.name = pokemon.ident.substr(4);
-						if (pokemon.fainted || i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
-							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '" data-tooltip="switchpokemon|' + i + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
+						if (pokemon.fainted || i < (this.battle.pokemonControlled || this.battle.mySide.active.length) || this.choice.switchFlags[i]) {
+							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '') + '" data-tooltip="switchpokemon|' + i + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 						} else {
 							switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="switchpokemon|' + i + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 						}
@@ -738,8 +744,8 @@
 				var switchMenu = '';
 				for (var i = 0; i < switchables.length; i++) {
 					var pokemon = switchables[i];
-					if (pokemon.fainted || i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
-						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '" data-tooltip="switchpokemon|' + i + '">';
+					if (pokemon.fainted || i < this.battle.pokemonControlled || this.battle.mySide.active.length || this.choice.switchFlags[i]) {
+						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '') + '" data-tooltip="switchpokemon|' + i + '">';
 					} else {
 						switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="switchpokemon|' + i + '">';
 					}
@@ -818,14 +824,14 @@
 			buf += '<small>';
 
 			if (this.choice.teamPreview) {
-				var myPokemon = this.battle.mySide.pokemon;
+				var myPokemon = this.battle.myPokemon;
 				var leads = [];
 				for (var i = 0; i < this.choice.count; i++) {
 					leads.push(myPokemon[this.choice.teamPreview[i] - 1].species);
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
 			} else if (this.choice.choices) {
-				var myActive = this.battle.mySide.active;
+				var myActive = this.battle.myPokemon;
 				for (var i = 0; i < this.choice.choices.length; i++) {
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
@@ -942,7 +948,7 @@
 		updateSideLocation: function (sideData) {
 			if (!sideData.id) return;
 			this.side = sideData.id;
-			if (this.battle.sidesSwitched !== !!(this.side === 'p2')) {
+			if (this.battle.sidesSwitched !== !(parseInt(this.side.charAt(1), 10) % 2)) {
 				this.battle.switchSides();
 				this.$chat = this.$chatFrame.find('.inner');
 			}
@@ -1168,7 +1174,7 @@
 		},
 		nextChoice: function () {
 			var choices = this.choice.choices;
-			var myActive = this.battle.mySide.active;
+			var myActive = this.request.active || this.battle.mySide.active;
 
 			if (this.request.requestType === 'switch' && this.request.forceSwitch !== true) {
 				while (choices.length < myActive.length && !this.request.forceSwitch[choices.length]) {
@@ -1210,7 +1216,7 @@
 					}
 				}
 
-				if (this.choice.choices.length >= (this.choice.count || this.battle.mySide.active.length)) {
+				if (this.choice.choices.length >= (this.choice.count || (this.request.active || this.battle.mySide.active).length)) {
 					this.sendDecision(this.choice.choices);
 				}
 

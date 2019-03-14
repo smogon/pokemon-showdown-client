@@ -597,6 +597,7 @@ class BattleScene {
 		if (!this.animating) return;
 		let pokemonhtml = '';
 		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
+		let sliceCount = 0;
 		let pokemonCount = Math.max(side.pokemon.length, 6);
 		for (let i = 0; i < pokemonCount; i++) {
 			let poke = side.pokemon[i];
@@ -616,6 +617,10 @@ class BattleScene {
 			} else {
 				const details = this.getDetailsText(poke);
 				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon(poke, !side.n) + `" title="` + details + `" aria-label="` + details + `"></span>`;
+			}
+			if (i === side.teamSliceIndicies[sliceCount]) {
+				sliceCount++;
+				pokemonhtml += `</div><div class="teamicons">`;
 			}
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
