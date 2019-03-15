@@ -628,6 +628,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Learnset table
 	//
 
+	const gen3HMs = new Set(['cut', 'fly', 'surf', 'strength', 'flash', 'rocksmash', 'waterfall', 'dive']);
+	const gen4HMs = new Set(['cut', 'fly', 'surf', 'strength', 'rocksmash', 'waterfall', 'rockclimb']);
+
 	const learnsets = {};
 	BattleTeambuilderTable.learnsets = learnsets;
 	for (const id in Dex.data.Learnsets) {
@@ -637,11 +640,32 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const gens = learnset[moveid].map(x => Number(x[0]));
 			const minGen = Math.min(...gens);
 			const vcOnly = minGen === 7 && learnset[moveid].every(x => x[0] !== '7' || x === '7V');
-			if (minGen === 7) learnsets[id][moveid] = '7';
-			if (minGen === 6) learnsets[id][moveid] = '67';
-			if (minGen === 5) learnsets[id][moveid] = '567';
-			if (minGen === 4) learnsets[id][moveid] = '4567';
-			if (minGen === 3) learnsets[id][moveid] = '34567';
+
+			if (minGen <= 4 && (gen3HMs.has(moveid) || gen4HMs.has(moveid))) {
+				let legalGens = '';
+				let available = false;
+
+				if (minGen === 3) {
+					legalGens += '3';
+					available = true;
+				}
+				if (available) available = !gen3HMs.has(moveid);
+
+				if (available || gens.includes(4)) {
+					legalGens += '4';
+					available = true;
+				}
+				if (available) available = !gen4HMs.has(moveid);
+
+				let minUpperGen = available ? 5 : Math.min(
+					...gens.filter(gen => gen > 4)
+				);
+				legalGens += '01234567'.slice(minUpperGen);
+				learnsets[id][moveid] = legalGens;
+			} else {
+				learnsets[id][moveid] = '01234567'.slice(minGen);
+			}
+
 			if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
 			if (gens.indexOf(7) >= 0 && !vcOnly) learnsets[id][moveid] += 'q';
 		}
