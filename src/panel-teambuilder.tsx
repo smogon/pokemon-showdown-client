@@ -532,8 +532,12 @@ class TeambuilderPanel extends PSRoomPanel {
 				{filterFolder ?
 					<h2>
 						<i class="fa fa-folder-open"></i> {filterFolder} {}
-						<button class="button small" style="margin-left:5px" name="renameFolder"><i class="fa fa-pencil"></i> Rename</button> {}
-						<button class="button small" style="margin-left:5px" name="promptDeleteFolder"><i class="fa fa-times"></i> Remove</button>
+						<button class="button small" style="margin-left:5px" name="renameFolder">
+							<i class="fa fa-pencil"></i> Rename
+						</button> {}
+						<button class="button small" style="margin-left:5px" name="promptDeleteFolder">
+							<i class="fa fa-times"></i> Remove
+						</button>
 					</h2>
 				: filterFolder === '' ?
 					<h2><i class="fa fa-folder-open-o"></i> Teams not in any folders</h2>

@@ -27,7 +27,9 @@ class BattleSceneStub {
 	preemptCatchup(): void { }
 	removeSideCondition(siden: number, id: ID): void { }
 	reset(): void { }
-	resultAnim(pokemon: Pokemon, result: string, type: "bad" | "good" | "neutral" | "par" | "psn" | "frz" | "slp" | "brn"): void { }
+	resultAnim(
+		pokemon: Pokemon, result: string, type: "bad" | "good" | "neutral" | "par" | "psn" | "frz" | "slp" | "brn"
+	): void { }
 	typeAnim(pokemon: Pokemon, types: string): void { }
 	resume(): void { }
 	runMoveAnim(moveid: ID, participants: Pokemon[]): void { }

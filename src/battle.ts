@@ -366,20 +366,28 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		if (this.boosts[boostStat] < -6) this.boosts[boostStat] = -6;
 		if (boostStat === 'accuracy' || boostStat === 'evasion') {
 			if (this.boosts[boostStat] > 0) {
-				let goodBoostTable = ['1&times;', '1.33&times;', '1.67&times;', '2&times;', '2.33&times;', '2.67&times;', '3&times;'];
+				let goodBoostTable = [
+					'1&times;', '1.33&times;', '1.67&times;', '2&times;', '2.33&times;', '2.67&times;', '3&times;',
+				];
 				// let goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
 				return '' + goodBoostTable[this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 			}
-			let badBoostTable = ['1&times;', '0.75&times;', '0.6&times;', '0.5&times;', '0.43&times;', '0.38&times;', '0.33&times;'];
+			let badBoostTable = [
+				'1&times;', '0.75&times;', '0.6&times;', '0.5&times;', '0.43&times;', '0.38&times;', '0.33&times;',
+			];
 			// let badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
 			return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 		}
 		if (this.boosts[boostStat] > 0) {
-			let goodBoostTable = ['1&times;', '1.5&times;', '2&times;', '2.5&times;', '3&times;', '3.5&times;', '4&times;'];
+			let goodBoostTable = [
+				'1&times;', '1.5&times;', '2&times;', '2.5&times;', '3&times;', '3.5&times;', '4&times;',
+			];
 			// let goodBoostTable = ['Normal', '+1', '+2', '+3', '+4', '+5', '+6'];
 			return '' + goodBoostTable[this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 		}
-		let badBoostTable = ['1&times;', '0.67&times;', '0.5&times;', '0.4&times;', '0.33&times;', '0.29&times;', '0.25&times;'];
+		let badBoostTable = [
+			'1&times;', '0.67&times;', '0.5&times;', '0.4&times;', '0.33&times;', '0.29&times;', '0.25&times;',
+		];
 		// let badBoostTable = ['Normal', '&minus;1', '&minus;2', '&minus;3', '&minus;4', '&minus;5', '&minus;6'];
 		return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 	}
@@ -1411,19 +1419,33 @@ class Battle {
 
 	runMinor(args: Args, kwArgs: KWArgs, nextArgs?: Args, nextKwargs?: KWArgs) {
 		if (nextArgs && nextKwargs) {
-			if (args[2] === 'Sturdy' && args[0] === '-activate') args[2] = 'ability: Sturdy';
-			if (args[0] === '-crit' || args[0] === '-supereffective' || args[0] === '-resisted' || args[2] === 'ability: Sturdy') kwArgs.then = '.';
+			if (args[2] === 'Sturdy' && args[0] === '-activate') {
+				args[2] = 'ability: Sturdy';
+			}
+			if (['-crit', '-supereffective', '-resisted'].includes(args[0]) || args[2] === 'ability: Sturdy') {
+				kwArgs.then = '.';
+			}
 			if (args[0] === '-damage' && !kwArgs.from && args[1] !== nextArgs[1] && (
-				nextArgs[0] === '-crit' ||
-				nextArgs[0] === '-supereffective' ||
-				nextArgs[0] === '-resisted' ||
+				['-crit', '-supereffective', '-resisted'].includes(nextArgs[0]) ||
 				(nextArgs[0] === '-damage' && !nextKwargs.from)
-			)) kwArgs.then = '.';
-			if (args[0] === '-damage' && nextArgs[0] === '-damage' && kwArgs.from && kwArgs.from === nextKwargs.from) kwArgs.then = '.';
-			if (args[0] === '-ability' && (args[2] === 'Intimidate' || args[3] === 'boost')) kwArgs.then = '.';
-			if (args[0] === '-unboost' && nextArgs[0] === '-unboost') kwArgs.then = '.';
-			if (args[0] === '-boost' && nextArgs[0] === '-boost') kwArgs.then = '.';
-			if (args[0] === '-damage' && kwArgs.from === 'Leech Seed' && nextArgs[0] === '-heal' && nextKwargs.silent) kwArgs.then = '.';
+			)) {
+				kwArgs.then = '.';
+			}
+			if (args[0] === '-damage' && nextArgs[0] === '-damage' && kwArgs.from && kwArgs.from === nextKwargs.from) {
+				kwArgs.then = '.';
+			}
+			if (args[0] === '-ability' && (args[2] === 'Intimidate' || args[3] === 'boost')) {
+				kwArgs.then = '.';
+			}
+			if (args[0] === '-unboost' && nextArgs[0] === '-unboost') {
+				kwArgs.then = '.';
+			}
+			if (args[0] === '-boost' && nextArgs[0] === '-boost') {
+				kwArgs.then = '.';
+			}
+			if (args[0] === '-damage' && kwArgs.from === 'Leech Seed' && nextArgs[0] === '-heal' && nextKwargs.silent) {
+				kwArgs.then = '.';
+			}
 			if (args[0] === 'detailschange' && nextArgs[0] === '-mega') {
 				if (this.scene.closeMessagebar()) {
 					this.activityStep--;
@@ -2678,7 +2700,7 @@ class Battle {
 			if (['electricterrain', 'grassyterrain', 'mistyterrain', 'psychicterrain'].includes(effect.id)) {
 				for (let i = this.pseudoWeather.length - 1; i >= 0; i--) {
 					let pwName = this.pseudoWeather[i][0];
-					if (pwName === 'Electric Terrain' || pwName === 'Grassy Terrain' || pwName === 'Misty Terrain' || pwName === 'Psychic Terrain') {
+					if (['Electric Terrain', 'Grassy Terrain', 'Misty Terrain', 'Psychic Terrain'].includes(pwName)) {
 						this.pseudoWeather.splice(i, 1);
 						continue;
 					}
