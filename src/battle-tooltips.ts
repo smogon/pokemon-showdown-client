@@ -26,7 +26,8 @@ class ModifiableValue {
 		this.serverPokemon = serverPokemon;
 
 		this.itemName = Dex.getItem(serverPokemon.item).name;
-		this.abilityName = Dex.getAbility(serverPokemon.ability || (pokemon && pokemon.ability) || serverPokemon.baseAbility).name;
+		const ability = serverPokemon.ability || (pokemon && pokemon.ability) || serverPokemon.baseAbility;
+		this.abilityName = Dex.getAbility(ability).name;
 		this.weatherName = Dex.getMove(battle.weather).name;
 	}
 	reset(value = 0, isAccuracy?: boolean) {
@@ -45,7 +46,9 @@ class ModifiableValue {
 			this.comment.push(` (${itemName} suppressed by Embargo)`);
 			return false;
 		}
-		const ignoreKlutz = ["Macho Brace", "Power Anklet", "Power Band", "Power Belt", "Power Bracer", "Power Lens", "Power Weight"];
+		const ignoreKlutz = [
+			"Macho Brace", "Power Anklet", "Power Band", "Power Belt", "Power Bracer", "Power Lens", "Power Weight",
+		];
 		if (this.tryAbility('Klutz') && !ignoreKlutz.includes(itemName)) {
 			this.comment.push(` (${itemName} suppressed by Klutz)`);
 			return false;
@@ -544,42 +547,42 @@ class BattleTooltips {
 				}
 			}
 
-			if ('defrost' in move.flags) {
-				text += '<p class="movetag">The user thaws out if it is frozen.</p>';
+			if (move.flags.defrost) {
+				text += `<p class="movetag">The user thaws out if it is frozen.</p>`;
 			}
-			if (!('protect' in move.flags) && move.target !== 'self' && move.target !== 'allySide') {
-				text += '<p class="movetag">Not blocked by Protect <small>(and Detect, King\'s Shield, Spiky Shield)</small></p>';
+			if (!move.flags.protect && !['self', 'allySide'].includes(move.target)) {
+				text += `<p class="movetag">Not blocked by Protect <small>(and Detect, King's Shield, Spiky Shield)</small></p>`;
 			}
-			if ('authentic' in move.flags) {
-				text += '<p class="movetag">Bypasses Substitute <small>(but does not break it)</small></p>';
+			if (move.flags.authentic) {
+				text += `<p class="movetag">Bypasses Substitute <small>(but does not break it)</small></p>`;
 			}
-			if (!('reflectable' in move.flags) && move.target !== 'self' && move.target !== 'allySide' && move.category === 'Status') {
-				text += '<p class="movetag">&#x2713; Not bounceable <small>(can\'t be bounced by Magic Coat/Bounce)</small></p>';
+			if (!move.flags.reflectable && !['self', 'allySide'].includes(move.target) && move.category === 'Status') {
+				text += `<p class="movetag">&#x2713; Not bounceable <small>(can't be bounced by Magic Coat/Bounce)</small></p>`;
 			}
 
-			if ('contact' in move.flags) {
-				text += '<p class="movetag">&#x2713; Contact <small>(triggers Iron Barbs, Spiky Shield, etc)</small></p>';
+			if (move.flags.contact) {
+				text += `<p class="movetag">&#x2713; Contact <small>(triggers Iron Barbs, Spiky Shield, etc)</small></p>`;
 			}
-			if ('sound' in move.flags) {
-				text += '<p class="movetag">&#x2713; Sound <small>(doesn\'t affect Soundproof pokemon)</small></p>';
+			if (move.flags.sound) {
+				text += `<p class="movetag">&#x2713; Sound <small>(doesn't affect Soundproof pokemon)</small></p>`;
 			}
-			if ('powder' in move.flags) {
-				text += '<p class="movetag">&#x2713; Powder <small>(doesn\'t affect Grass, Overcoat, Safety Goggles)</small></p>';
+			if (move.flags.powder) {
+				text += `<p class="movetag">&#x2713; Powder <small>(doesn't affect Grass, Overcoat, Safety Goggles)</small></p>`;
 			}
-			if ('punch' in move.flags && ability === 'ironfist') {
-				text += '<p class="movetag">&#x2713; Fist <small>(boosted by Iron Fist)</small></p>';
+			if (move.flags.punch && ability === 'ironfist') {
+				text += `<p class="movetag">&#x2713; Fist <small>(boosted by Iron Fist)</small></p>`;
 			}
-			if ('pulse' in move.flags && ability === 'megalauncher') {
-				text += '<p class="movetag">&#x2713; Pulse <small>(boosted by Mega Launcher)</small></p>';
+			if (move.flags.pulse && ability === 'megalauncher') {
+				text += `<p class="movetag">&#x2713; Pulse <small>(boosted by Mega Launcher)</small></p>`;
 			}
-			if ('bite' in move.flags && ability === 'strongjaw') {
-				text += '<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>';
+			if (move.flags.bite && ability === 'strongjaw') {
+				text += `<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>`;
 			}
 			if ((move.recoil || move.hasCustomRecoil) && ability === 'reckless') {
-				text += '<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>';
+				text += `<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>`;
 			}
-			if ('bullet' in move.flags) {
-				text += '<p class="movetag">&#x2713; Bullet-like <small>(doesn\'t affect Bulletproof pokemon)</small></p>';
+			if (move.flags.bullet) {
+				text += `<p class="movetag">&#x2713; Bullet-like <small>(doesn't affect Bulletproof pokemon)</small></p>`;
 			}
 		}
 		return text;
@@ -1039,7 +1042,8 @@ class BattleTooltips {
 		let baseSpe = pokemon.getTemplate().baseStats['spe'];
 		let tier = this.battle.tier;
 		let gen = this.battle.gen;
-		let isRandomBattle = tier.includes('Random Battle') || (tier.includes('Random') && tier.includes('Battle') && gen >= 6);
+		let isRandomBattle = tier.includes('Random Battle') ||
+			(tier.includes('Random') && tier.includes('Battle') && gen >= 6);
 
 		let minNature = (isRandomBattle || gen < 3) ? 1 : 0.9;
 		let maxNature = (isRandomBattle || gen < 3) ? 1 : 1.1;
@@ -1099,7 +1103,9 @@ class BattleTooltips {
 			}
 		}
 		// Other abilities that change the move type.
-		const noTypeOverride = ['judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball'];
+		const noTypeOverride = [
+			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball',
+		];
 		const allowTypeOverride = !noTypeOverride.includes(move.id);
 
 		if (allowTypeOverride && move.flags['sound'] && value.abilityModify(0, 'Liquid Voice')) {
@@ -1382,7 +1388,9 @@ class BattleTooltips {
 				value.abilityModify(1.25, "Rivalry");
 			}
 		}
-		const noTypeOverride = ['judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball'];
+		const noTypeOverride = [
+			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball',
+		];
 		if (move.category !== 'Status' && !noTypeOverride.includes(move.id)) {
 			if (move.type === 'Normal') {
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Aerilate");
@@ -1839,7 +1847,9 @@ class BattleStatGuesser {
 		} else if (itemid === 'salacberry') {
 			isFast = true;
 		}
-		if (hasMove['agility'] || hasMove['shellsmash'] || hasMove['autotomize'] || hasMove['shiftgear'] || hasMove['rockpolish']) {
+		const ultrafast = hasMove['agility'] || hasMove['shellsmash'] ||
+			hasMove['autotomize'] || hasMove['shiftgear'] || hasMove['rockpolish'];
+		if (ultrafast) {
 			moveCount['Ultrafast'] = 2;
 		}
 		moveCount['Fast'] = isFast ? 1 : 0;
@@ -1943,7 +1953,9 @@ class BattleStatGuesser {
 		let hasMove = this.hasMove;
 		let moveCount = this.moveCount;
 
-		let evs: StatsTable & {plusStat?: StatName | '', minusStat?: StatName | ''} = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+		let evs: StatsTable & {plusStat?: StatName | '', minusStat?: StatName | ''} = {
+			hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0,
+		};
 		let plusStat: StatName | '' = '';
 		let minusStat: StatName | '' = '';
 
@@ -2161,12 +2173,12 @@ class BattleStatGuesser {
 
 		if (stat === 'hp') {
 			if (baseStat === 1) return 1;
-			if (!this.supportsEVs) return Math.floor(Math.floor(2 * baseStat + iv + 100) * level / 100 + 10) + (this.supportsAVs ? ev : 0);
-			return Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4) + 100) * level / 100 + 10);
+			if (!this.supportsEVs) return ~~(~~(2 * baseStat + iv + 100) * level / 100 + 10) + (this.supportsAVs ? ev : 0);
+			return ~~(~~(2 * baseStat + iv + ~~(ev / 4) + 100) * level / 100 + 10);
 		}
-		let val = Math.floor(Math.floor(2 * baseStat + iv + Math.floor(ev / 4)) * level / 100 + 5);
+		let val = ~~(~~(2 * baseStat + iv + ~~(ev / 4)) * level / 100 + 5);
 		if (!this.supportsEVs) {
-			val = Math.floor(Math.floor(2 * baseStat + iv) * level / 100 + 5);
+			val = ~~(~~(2 * baseStat + iv) * level / 100 + 5);
 		}
 		if (natureOverride) {
 			val *= natureOverride;
@@ -2176,10 +2188,10 @@ class BattleStatGuesser {
 			val *= 0.9;
 		}
 		if (!this.supportsEVs) {
-			let friendshipValue = Math.floor((70 / 255 / 10 + 1) * 100);
-			val = Math.floor(val) * friendshipValue / 100 + (this.supportsAVs ? ev : 0);
+			let friendshipValue = ~~((70 / 255 / 10 + 1) * 100);
+			val = ~~(val) * friendshipValue / 100 + (this.supportsAVs ? ev : 0);
 		}
-		return Math.floor(val);
+		return ~~(val);
 	}
 }
 

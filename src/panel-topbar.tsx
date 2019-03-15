@@ -76,13 +76,21 @@ class PSHeader extends preact.Component<{style: {}}> {
 			break;
 		}
 		if (closable) {
-			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label="Close"><i class="fa fa-times-circle"></i></button>;
+			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label="Close">
+				<i class="fa fa-times-circle"></i>
+			</button>;
 		}
 		return <li><a class={className} href={`/${id}`} draggable={true}>{icon} <span>{title}</span></a>{closeButton}</li>;
 	}
 	render() {
 		return <div id="header" class="header" style={this.props.style}>
-			<img class="logo" src="https://play.pokemonshowdown.com/pokemonshowdownbeta.png" srcset="https://play.pokemonshowdown.com/pokemonshowdownbeta@2x.png 2x" alt="Pokémon Showdown! (beta)" width="146" height="44" />
+			<img
+				class="logo"
+				src="https://play.pokemonshowdown.com/pokemonshowdownbeta.png"
+				srcset="https://play.pokemonshowdown.com/pokemonshowdownbeta@2x.png 2x"
+				alt="Pokémon Showdown! (beta)"
+				width="146" height="44"
+			/>
 			<div class="maintabbarbottom"></div>
 			<div class="tabbar maintabbar"><div class="inner">
 				<ul>
@@ -98,10 +106,10 @@ class PSHeader extends preact.Component<{style: {}}> {
 			<div class="userbar">
 				<span class="username" data-name={PS.user.name} style="color:hsl(96,67%,36%);">
 					<i class="fa fa-user" style="color:#779EC5"></i> {PS.user.name}
-				</span>{' '}
+				</span> {}
 				<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
 					<i class="fa fa-volume-up"></i>
-				</button>{' '}
+				</button> {}
 				<button class="icon button" name="joinRoom" value="options" title="Options" aria-label="Options">
 					<i class="fa fa-cog"></i>
 				</button>
@@ -179,7 +187,9 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 						battlebuf.push(roomLink);
 					}
 				} else {
-					const roomLink = <a href={`/${roomid}`} class={'ilink' + (roomid in PS.rooms ? ' yours' : '')}>{roomrank}{roomid}</a>;
+					const roomLink = <a href={`/${roomid}`} class={'ilink' + (roomid in PS.rooms ? ' yours' : '')}>
+						{roomrank}{roomid}
+					</a>;
 					if (curRoom.isPrivate) {
 						if (privatebuf.length) privatebuf.push(", ");
 						privatebuf.push(roomLink);
@@ -204,7 +214,10 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		return <PSPanelWrapper room={room}>
 			<div class="userdetails">
 				{user.avatar !== '[loading]' &&
-					<img class={'trainersprite' + (room.isSelf ? ' yours' : '')} src={Dex.resolveAvatar('' + (user.avatar || 'unknown'))} />
+					<img
+						class={'trainersprite' + (room.isSelf ? ' yours' : '')}
+						src={Dex.resolveAvatar('' + (user.avatar || 'unknown'))}
+					/>
 				}
 				<strong><a href={`//pokemonshowdown.com/users/${user.userid}`} target="_blank">{name}</a></strong><br />
 				{groupName && <small>{groupName}</small>}
@@ -214,19 +227,19 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			</div>
 			{isSelf || !PS.user.named ?
 				<p class="buttonbar">
-					<button class="button disabled" disabled>Challenge</button>{' '}
+					<button class="button disabled" disabled>Challenge</button> {}
 					<button class="button disabled" disabled>Chat</button>
 				</p>
 			:
 				<p class="buttonbar">
-					<button class="button" name="challenge">Challenge</button>{' '}
-					<button class="button" name="pm">Chat</button>{' '}
+					<button class="button" name="challenge">Challenge</button> {}
+					<button class="button" name="pm">Chat</button> {}
 					<button class="button" name="userOptions">{'\u2026'}</button>
 				</p>
 			}
 			{isSelf && <hr />}
 			{isSelf && <p class="buttonbar" style="text-align: right">
-				<button class="button" name="login"><i class="fa fa-pencil"></i> Change name</button>{' '}
+				<button class="button" name="login"><i class="fa fa-pencil"></i> Change name</button> {}
 				<button class="button" name="logout"><i class="fa fa-power-off"></i> Log out</button>
 			</p>}
 		</PSPanelWrapper>;

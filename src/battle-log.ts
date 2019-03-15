@@ -78,7 +78,9 @@ class BattleLog {
 			}
 			let rank = name.charAt(0);
 			if (battle && battle.ignoreSpects && ' +'.includes(rank)) return;
-			if (battle && battle.ignoreOpponent && '\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
+			if (battle && battle.ignoreOpponent) {
+				if ('\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
+			}
 			if (window.app && app.ignore && app.ignore[toUserid(name)] && ' +\u2605\u2606'.includes(rank)) return;
 			let isHighlighted = window.app && app.rooms && app.rooms[battle!.roomid].getHighlight(message);
 			[divClass, divHTML] = this.parseChatMessage(message, name, '', isHighlighted);
@@ -339,7 +341,8 @@ class BattleLog {
 	static escapeFormat(formatid: string): string {
 		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
-			return this.escapeFormat(formatid.slice(0, atIndex)) + '<br />Custom rules: ' + this.escapeHTML(formatid.slice(atIndex + 3));
+			return this.escapeFormat(formatid.slice(0, atIndex)) +
+				'<br />Custom rules: ' + this.escapeHTML(formatid.slice(atIndex + 3));
 		}
 		if (window.BattleFormats && BattleFormats[formatid]) {
 			return this.escapeHTML(BattleFormats[formatid].name);
