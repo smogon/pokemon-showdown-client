@@ -669,8 +669,9 @@
 					for (var i = 0; i < switchables.length; i++) {
 						var pokemon = switchables[i];
 						pokemon.name = pokemon.ident.substr(4);
-						if (pokemon.fainted || i < (this.battle.pokemonControlled || this.battle.mySide.active.length) || this.choice.switchFlags[i]) {
-							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '') + '" data-tooltip="switchpokemon|' + i + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
+						if (pokemon.fainted || i < this.battle.pokemonControlled && i < this.battle.mySide.active.length || pokemon.notMine || this.choice.switchFlags[i]) {
+							var disabledReason =  pokemon.notMine ? ',notMine': pokemon.fainted ? ',fainted' : i < this.battle.mySide.active.length && i < this.battle.pokemonControlled ? ',active' : '';
+							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + disabledReason + '" data-tooltip="switchpokemon|' + i + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 						} else {
 							switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="switchpokemon|' + i + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '<span class="hpbar' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 						}
@@ -743,8 +744,9 @@
 				var switchMenu = '';
 				for (var i = 0; i < switchables.length; i++) {
 					var pokemon = switchables[i];
-					if (pokemon.fainted || i < this.battle.pokemonControlled || this.battle.mySide.active.length || this.choice.switchFlags[i]) {
-						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '') + '" data-tooltip="switchpokemon|' + i + '">';
+					if (pokemon.fainted || i < this.battle.pokemonControlled && i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
+						var disabledReason = pokemon.notMine ? ',notMine' : pokemon.fainted ? ',fainted' : i < this.battle.mySide.active.length && i < this.battle.pokemonControlled ? ',active' : '';
+						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + disabledReason + '" data-tooltip="switchpokemon|' + i + '">';
 					} else {
 						switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="switchpokemon|' + i + '">';
 					}
@@ -1153,11 +1155,17 @@
 		chooseDisabled: function (data) {
 			this.tooltips.hideTooltip();
 			data = data.split(',');
-			if (data[1] === 'fainted') {
+			switch (data[1]) {
+			case 'notMine':
+				app.addPopupMessage("You cannot decide for your partner!");
+				break;
+			case 'fainted':
 				app.addPopupMessage("" + data[0] + " has no energy left to battle!");
-			} else if (data[1] === 'active') {
+				break;
+			case 'active':
 				app.addPopupMessage("" + data[0] + " is already in battle!");
-			} else {
+				break;
+			default:
 				app.addPopupMessage("" + data[0] + " is already selected!");
 			}
 		},
