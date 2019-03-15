@@ -209,7 +209,7 @@ class PSMain extends preact.Component {
 			let elem = e.target as HTMLInputElement | null;
 			if (elem) {
 				let isTextInput = (elem.tagName === 'INPUT' || elem.tagName === 'TEXTAREA');
-				if (isTextInput && (elem.type === 'button' || elem.type === 'radio' || elem.type === 'checkbox' || elem.type === 'file')) {
+				if (isTextInput && ['button', 'radio', 'checkbox', 'file'].includes(elem.type)) {
 					isTextInput = false;
 				}
 				if (isTextInput && elem.value) {
