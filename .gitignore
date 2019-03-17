@@ -3,6 +3,7 @@
 /config/
 /index.php
 /index.html
+/preactalpha.html
 /data/*
 !/data/learnsets-g6.js
 node_modules/

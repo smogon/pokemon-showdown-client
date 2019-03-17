@@ -3,7 +3,7 @@ AddType application/x-tgz .tgz
 AddType application/x-chrome-extension .crx
 AddType application/x-web-app-manifest+json .webapp
 
-<filesMatch "^index\.html$">
+<filesMatch "^(index|preactalpha)\.html$">
   FileETag None
   <ifModule mod_headers.c>
      Header unset ETag
@@ -75,6 +75,7 @@ RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
 # Anything that looks like a roomid: connect to the server
 RewriteRule ^$ - [E=INDEX_PAGE:1]
+RewriteRule ^preactalpha$ ./preactalpha.html [L,E=INDEX_PAGE:1]
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
 
 # RewriteRule ^crossprotocol\.html$ - [E=CROSSPROTOCOL:1]
@@ -116,7 +117,9 @@ RewriteRule ^githooks/ - [F]
 RewriteRule ^\.gitignore$ - [F]
 RewriteRule ^README\.md$ - [F]
 RewriteRule ^index\.template\.html$ - [F]
+RewriteRule ^preactalpha\.template\.html$ - [F]
 RewriteRule ^testclient\.html$ - [F]
+RewriteRule ^testclient-beta\.html$ - [F]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(apple-touch-icon-precomposed\.png)$ - [R=404,L]
