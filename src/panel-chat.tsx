@@ -9,12 +9,36 @@ class ChatRoom extends PSRoom {
 	readonly classType: string = 'chat';
 	users: {[userid: string]: string} = {};
 	userCount = 0;
+	pmTarget: string | null = null;
 	constructor(options: RoomOptions) {
 		super(options);
+		if (options.pmTarget) this.pmTarget = options.pmTarget as string;
+		this.updateTarget(true);
 		if (!this.connected && PS.connected) {
-			PS.send(`|/join ${this.id}`);
+			if (!this.pmTarget) PS.send(`|/join ${this.id}`);
 			this.connected = true;
 		}
+	}
+	updateTarget(force?: boolean) {
+		if (this.id.startsWith('pm-')) {
+			const [id1, id2] = this.id.slice(3).split('-');
+			if (id1 === PS.user.userid && toId(this.pmTarget) !== id2) {
+				this.pmTarget = id2;
+			} else if (id2 === PS.user.userid && toId(this.pmTarget) !== id1) {
+				this.pmTarget = id1;
+			} else if (!force) {
+				return;
+			}
+			this.title = `[PM] ${this.pmTarget}`;
+		}
+	}
+	send(line: string) {
+		this.updateTarget();
+		if (this.pmTarget) {
+			PS.send(`|/pm ${this.pmTarget}, ${line}`);
+			return;
+		}
+		super.send(line);
 	}
 	receive(line: string) {
 		this.update(line);
