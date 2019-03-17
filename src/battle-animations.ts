@@ -605,7 +605,11 @@ class BattleScene {
 		for (let i = 0; i < pokemonCount; i++) {
 			let poke = side.pokemon[i];
 			if (i >= side.totalPokemon && i >= side.pokemon.length) {
+<<<<<<< HEAD
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball-none', false, this.digi) + `"></span>`;
+=======
+				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball-none') + `"></span>`;
+>>>>>>> Fix errors
 			} else if (noShow && poke && poke.fainted) {
 				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon('pokeball-fainted', false, this.digi) + `" title="Fainted" aria-label="Fainted"></span>`;
 			} else if (noShow && poke && poke.status) {
@@ -613,7 +617,11 @@ class BattleScene {
 			} else if (noShow) {
 				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon('pokeball', false, this.digi) + `" title="Non-statused" aria-label="Non-statused"></span>`;
 			} else if (!poke) {
+<<<<<<< HEAD
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball', false, this.digi) + `" title="Not revealed" aria-label="Not revealed"></span>`;
+=======
+				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball',false, this.digi ) + `" title="Not revealed" aria-label="Not revealed"></span>`;
+>>>>>>> Fix errors
 			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
 				const details = this.getDetailsText(poke);
 				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon(poke, !side.n, this.digi) + `;opacity:0.6" title="` + details + `" aria-label="` + details + `"></span>`;
