@@ -32,9 +32,28 @@ class MainMenuRoom extends PSRoom {
 		case 'queryresponse':
 			this.handleQueryResponse(tokens[1] as ID, JSON.parse(tokens[2]));
 			return;
+		case 'pm':
+			this.handlePM(tokens[1], tokens[2], tokens[3]);
+			return;
 		}
 		const lobby = PS.rooms['lobby'];
 		if (lobby) lobby.receive(line);
+	}
+	handlePM(user1: string, user2: string, message: string) {
+		const userid1 = toId(user1);
+		const userid2 = toId(user2);
+		const roomid = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
+		let room = PS.rooms[roomid];
+		if (!room) {
+			const pmTarget = PS.user.userid === userid1 ? userid2 : userid1;
+			PS.addRoom({
+				id: roomid,
+				pmTarget,
+			}, true);
+			room = PS.rooms[roomid]!;
+		}
+		room.receive(`|c|${user1}|${message}`);
+		PS.update();
 	}
 	handleQueryResponse(id: ID, response: any) {
 		switch (id) {

@@ -850,6 +850,7 @@ const PS = new class extends PSModel {
 				room.receive(line);
 			}
 		}
+		return room;
 	}
 	removeRoom(room: PSRoom) {
 		room.destroy();
