@@ -45,7 +45,7 @@ class MainMenuRoom extends PSRoom {
 		const roomid = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
 		let room = PS.rooms[roomid];
 		if (!room) {
-			const pmTarget = PS.user.userid === userid1 ? userid2 : userid1;
+			const pmTarget = PS.user.userid === userid1 ? user2 : user1;
 			PS.addRoom({
 				id: roomid,
 				pmTarget,

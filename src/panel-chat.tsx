@@ -71,6 +71,10 @@ class ChatRoom extends PSRoom {
 		this.addUser(username);
 		this.update('');
 	}
+	destroy() {
+		if (this.pmTarget) this.connected = false;
+		super.destroy();
+	}
 }
 
 class ChatTextEntry extends preact.Component<{room: PSRoom, onMessage: (msg: string) => void}> {
