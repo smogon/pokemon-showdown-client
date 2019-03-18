@@ -426,8 +426,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				formatSlices[usedTier] = tiers.length;
 			}
 			if (!tierTable[tier]) continue;
-			if (tier === "(PU)" || tier === "(DUU)") {
-				tiers.push(['header', "Below " + tier === "(PU)" ? "PU" : "DUU"]);
+			if (tier === "(PU)") {
+				tiers.push(['header', "Below PU"]);
+			} else if (tier === "(DUU)") {
+				tiers.push(['header', "Below DUU"]);
 			} else if (tier.charAt(0) === '(') {
 				tiers.push(['header', tier.slice(1, -1) + " by technicality"]);
 			} else if (tier === "NFE") {
