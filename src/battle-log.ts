@@ -472,7 +472,7 @@ class BattleLog {
 			}
 			return [
 				'chat chatmessage-' + toId(name) + hlClass + mineClass,
-				`${timestamp}<strong${colorStyle}>&bull;</strong> <em>${clickableName}<i>${parsedMessage}</i></em>`,
+				`${timestamp}<em><i><strong${colorStyle}>&bull; ${clickableName}</strong>${parsedMessage}</i></em>`,
 			];
 		case 'invite':
 			let roomid = toRoomid(target);
