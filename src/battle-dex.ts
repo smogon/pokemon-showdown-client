@@ -652,7 +652,7 @@ const Dex = new class implements ModdedDex {
 		let spriteSheet = 'sprites/smicons-sheet.png?a5';
 
 		// Digimon Icons
-		if (digi) {
+		if (digi || id.endsWith('mon')) {
 			spriteSheet = 'sprites/digimon/sprites/digimonicons-sheet.png';
 		}
 
@@ -713,7 +713,9 @@ const Dex = new class implements ModdedDex {
 	getTypeIcon(type: string, b?: boolean) { // b is just for utilichart.js
 		if (!type) return '';
 		let sanitizedType = type.replace(/\?/g, '%3f');
-		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
+		let isDigimon = ['Air', 'Aqua', 'Battle', 'Evil', 'Filth', 'Flame', 'Holy', 'Mech', 'Nature'].includes(type);
+		let typeFolder = isDigimon ? 'digimon/sprites/types/' : 'types/';
+		return '<img src="' + Dex.resourcePrefix + 'sprites/' + typeFolder + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
 	}
 };
 

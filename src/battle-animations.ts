@@ -1164,8 +1164,9 @@ class BattleScene {
 	}
 
 	typeAnim(pokemon: Pokemon, types: string) {
+		const typesFolder = this.digi ? 'digimon/sprites/types/' : 'types/';
 		const result = BattleLog.escapeHTML(types).split('/').map(type =>
-			'<img src="' + Dex.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" class="pixelated" />'
+			'<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + '.png" alt="' + type + '" class="pixelated" />'
 		).join(' ');
 		this.resultAnim(pokemon, result, 'neutral');
 	}
@@ -1556,8 +1557,8 @@ class Sprite {
 class PokemonSprite extends Sprite {
 	siden: number;
 	forme = '';
-	digi = false;
 	cryurl: string | undefined = undefined;
+	digi = false;
 
 	subsp: SpriteData | null = null;
 	$sub: JQuery | null = null;
@@ -1584,6 +1585,7 @@ class PokemonSprite extends Sprite {
 		this.siden = siden;
 		this.cryurl = this.sp.cryurl;
 		this.isBackSprite = !this.siden;
+		this.digi = !!scene.digi;
 	}
 	destroy() {
 		if (this.$el) this.$el.remove();
@@ -2427,14 +2429,16 @@ class PokemonSprite extends Sprite {
 		}
 		if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[1]) {
 			let types = pokemon.volatiles.typechange[1].split('/');
-			status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[0]) + '.png" alt="' + types[0] + '" class="pixelated" /> ';
+			const typesFolder = this.scene.digi ? 'digimon/sprites/types/' : 'types/';
+			status += '<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + encodeURIComponent(types[0]) + '.png" alt="' + types[0] + '" class="pixelated" /> ';
 			if (types[1]) {
-				status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[1]) + '.png" alt="' + types[1] + '" class="pixelated" /> ';
+				status += '<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + encodeURIComponent(types[1]) + '.png" alt="' + types[1] + '" class="pixelated" /> ';
 			}
 		}
 		if (pokemon.volatiles.typeadd) {
 			const type = pokemon.volatiles.typeadd[1];
-			status += '+<img src="' + Dex.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" class="pixelated" /> ';
+			const typesFolder = this.scene.digi ? 'digimon/sprites/types/' : 'types/';
+			status += '+<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + type + '.png" alt="' + type + '" class="pixelated" /> ';
 		}
 		for (const stat in pokemon.boosts) {
 			if (pokemon.boosts[stat]) {
