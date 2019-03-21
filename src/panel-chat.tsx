@@ -112,16 +112,77 @@ class ChatTextEntry extends preact.Component<{room: PSRoom, onMessage: (msg: str
 		elem.focus();
 	};
 	keyPress = (e: KeyboardEvent) => {
+		const cmdKey = (((e.cmdKey || e.metaKey) ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
 		let elem = e.currentTarget as HTMLTextAreaElement;
-		if (e.keyCode === 13 && !e.shiftKey) {
+		if (e.key === 'Enter' && !e.shiftKey) {
 			this.props.onMessage(elem.value);
 			elem.value = '';
 			this.update();
 			e.preventDefault();
 			e.stopImmediatePropagation();
-			return;
+		} else if (e.key === 'i' && cmdKey) {
+			if (ChatTextEntry.toggleFormatChar(elem, '_')) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+			}
+		} else if (e.key === 'b' && cmdKey) {
+			if (ChatTextEntry.toggleFormatChar(elem, '*')) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+			}
+		} else if (e.key === '`' && cmdKey) {
+			// FIXME: doesn't work :(
+			if (ChatTextEntry.toggleFormatChar(elem, '`')) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+			}
 		}
 	};
+	static toggleFormatChar(elem, formatChar) {
+		if (!elem.setSelectionRange) return false;
+
+		let value = elem.value;
+		let start = elem.selectionStart;
+		let end = elem.selectionEnd;
+
+		// make sure start and end aren't midway through the syntax
+		if (value.charAt(start) === formatChar && value.charAt(start - 1) === formatChar &&
+			value.charAt(start - 2) !== formatChar) {
+			start++;
+		}
+		if (value.charAt(end) === formatChar && value.charAt(end - 1) === formatChar &&
+			value.charAt(end - 2) !== formatChar) {
+			end--;
+		}
+
+		// wrap in doubled format char
+		const wrap = formatChar + formatChar;
+		value = value.substr(0, start) + wrap + value.substr(start, end - start) + wrap + value.substr(end);
+		start += 2;
+		end += 2;
+
+		// prevent nesting
+		var nesting = wrap + wrap;
+		if (value.substr(start - 4, 4) === nesting) {
+			value = value.substr(0, start - 4) + value.substr(start);
+			start -= 4;
+			end -= 4;
+		} else if (start !== end && value.substr(start - 2, 4) === nesting) {
+			value = value.substr(0, start - 2) + value.substr(start + 2);
+			start -= 2;
+			end -= 4;
+		}
+		if (value.substr(end, 4) === nesting) {
+			value = value.substr(0, end) + value.substr(end + 4);
+		} else if (start !== end && value.substr(end - 2, 4) === nesting) {
+			value = value.substr(0, end - 2) + value.substr(end + 2);
+			end -= 2;
+		}
+
+		elem.value = value;
+		elem.setSelectionRange(start, end);
+		return true;
+	}
 	render() {
 		return <div class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection}>
 			<form class="chatbox">
