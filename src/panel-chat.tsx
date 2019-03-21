@@ -251,6 +251,7 @@ class ChatLog extends preact.Component<{class: string, room: ChatRoom, onClick?:
 		if (props.class !== this.props.class) {
 			this.base!.className = props.class;
 		}
+		this.log.updateScroll();
 		return false;
 	}
 	render() {

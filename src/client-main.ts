@@ -398,6 +398,12 @@ class PlaceholderRoom extends PSRoom {
 
 type RoomType = {Model: typeof PSRoom, Component: any, title?: string};
 
+/**
+ * This model updates:
+ * - when a room is joined or left
+ * - changing which room is focused
+ * - changing the width of the left room, in two-panel mode
+ */
 const PS = new class extends PSModel {
 	down: string | boolean = false;
 

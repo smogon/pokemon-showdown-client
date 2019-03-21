@@ -108,10 +108,10 @@ class PSHeader extends preact.Component<{style: {}}> {
 				<span class="username" data-name={PS.user.name} style={userColor}>
 					<i class="fa fa-user" style="color:#779EC5"></i> {PS.user.name}
 				</span> {}
-				<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
+				<button class="icon button disabled" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
 					<i class="fa fa-volume-up"></i>
 				</button> {}
-				<button class="icon button" name="joinRoom" value="options" title="Options" aria-label="Options">
+				<button class="icon button disabled" name="joinRoom" value="options" title="Options" aria-label="Options">
 					<i class="fa fa-cog"></i>
 				</button>
 			</div>
@@ -212,6 +212,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 
 		const isSelf = user.userid === PS.user.userid;
 
+		const pmLink = '/pm-' + [user.userid, PS.user.userid].sort().join('-');
+
 		return <PSPanelWrapper room={room}>
 			<div class="userdetails">
 				{user.avatar !== '[loading]' &&
@@ -233,15 +235,15 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				</p>
 			:
 				<p class="buttonbar">
-					<button class="button" name="challenge">Challenge</button> {}
-					<button class="button" name="pm">Chat</button> {}
-					<button class="button" name="userOptions">{'\u2026'}</button>
+					<button class="button disabled" data-href={pmLink}>Challenge</button> {}
+					<button class="button" data-href={pmLink}>Chat</button> {}
+					<button class="button disabled" name="userOptions">{'\u2026'}</button>
 				</p>
 			}
 			{isSelf && <hr />}
 			{isSelf && <p class="buttonbar" style="text-align: right">
-				<button class="button" name="login"><i class="fa fa-pencil"></i> Change name</button> {}
-				<button class="button" name="logout"><i class="fa fa-power-off"></i> Log out</button>
+				<button class="button disabled" name="login"><i class="fa fa-pencil"></i> Change name</button> {}
+				<button class="button disabled" name="logout"><i class="fa fa-power-off"></i> Log out</button>
 			</p>}
 		</PSPanelWrapper>;
 	}
