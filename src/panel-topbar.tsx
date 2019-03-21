@@ -83,6 +83,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 		return <li><a class={className} href={`/${id}`} draggable={true}>{icon} <span>{title}</span></a>{closeButton}</li>;
 	}
 	render() {
+		const userColor = window.BattleLog && {color: BattleLog.usernameColor(PS.user.userid)};
 		return <div id="header" class="header" style={this.props.style}>
 			<img
 				class="logo"
@@ -104,7 +105,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 				</ul>
 			</div></div>
 			<div class="userbar">
-				<span class="username" data-name={PS.user.name} style="color:hsl(96,67%,36%);">
+				<span class="username" data-name={PS.user.name} style={userColor}>
 					<i class="fa fa-user" style="color:#779EC5"></i> {PS.user.name}
 				</span> {}
 				<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
