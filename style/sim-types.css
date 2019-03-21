@@ -411,7 +411,7 @@
 	background: linear-gradient(to bottom,  hsl(224,39%,94%),  hsl(224,39%,77%));
 	border-color: hsl(224,39%,41%);
 }
-.movemenu button.type-Battle:active {
+.movemenu button.type-Battle:active, .movemenu button.type-Battle.pressed {
 	/* Modifed from the Dragon type color. */
 	background: hsl(224,39%,77%);
 	background: linear-gradient(to bottom,  hsl(224,39%,77%),  hsl(224,39%,83%));
@@ -433,7 +433,7 @@
 	background: linear-gradient(to bottom,  hsl(356,40%,94%),  hsl(356,40%,77%));
 	border-color: hsl(356,40%,41%);
 }
-.movemenu button.type-Flame:active {
+.movemenu button.type-Flame:active, .movemenu button.type-Flame.pressed {
 	/* Modifed from the Fire type color. */
 	background: hsl(356,40%,77%);
 	background: linear-gradient(to bottom,  hsl(356,40%,77%),  hsl(356,40%,83%));
@@ -455,7 +455,7 @@
 	background: linear-gradient(to bottom,  hsl(217,15%,94%),  hsl(217,15%,77%));
 	border-color: hsl(217,15%,41%);
 }
-.movemenu button.type-Aqua:active {
+.movemenu button.type-Aqua:active, .movemenu button.type-Aqua.pressed {
 	/* Modifed from the Ice type color. */
 	background: hsl(217,15%,77%);
 	background: linear-gradient(to bottom,  hsl(217,15%,77%),  hsl(217,15%,83%));
@@ -477,7 +477,7 @@
 	background: linear-gradient(to bottom,  hsl(72,30%,94%),  hsl(72,30%,77%));
 	border-color: hsl(72,30%,41%);
 }
-.movemenu button.type-Nature:active {
+.movemenu button.type-Nature:active, .movemenu button.type-Nature.pressed {
 	/* Modifed from the Grass type color. */
 	background: hsl(72,30%,77%);
 	background: linear-gradient(to bottom,  hsl(72,30%,77%),  hsl(72,30%,83%));
@@ -499,7 +499,7 @@
 	background: linear-gradient(to bottom,  hsl(46,41%,94%),  hsl(46,41%,77%));
 	border-color: hsl(46,41%,41%);
 }
-.movemenu button.type-Air:active {
+.movemenu button.type-Air:active, .movemenu button.type-Air.pressed {
 	/* Modifed from the Electric type color. */
 	background: hsl(46,41%,77%);
 	background: linear-gradient(to bottom,  hsl(46,41%,77%),  hsl(46,41%,83%));
@@ -521,7 +521,7 @@
 	background: linear-gradient(to bottom,  hsl(60,41%,94%),  hsl(60,41%,77%));
 	border-color: hsl(60,41%,41%);
 }
-.movemenu button.type-Holy:active {
+.movemenu button.type-Holy:active, .movemenu button.type-Holy.pressed {
 	/* Modifed from the Fairy type color. */
 	background: hsl(60,41%,77%);
 	background: linear-gradient(to bottom,  hsl(60,41%,77%),  hsl(60,41%,83%));
@@ -543,7 +543,7 @@
 	background: linear-gradient(to bottom,  hsl(285,30%,94%),  hsl(285,30%,77%));
 	border-color: hsl(285,30%,41%);
 }
-.movemenu button.type-Evil:active {
+.movemenu button.type-Evil:active, .movemenu button.type-Evil.pressed {
 	/* Modifed from the Poison type color. */
 	background: hsl(285,30%,77%);
 	background: linear-gradient(to bottom,  hsl(285,30%,77%),  hsl(285,30%,83%));
@@ -565,7 +565,7 @@
 	background: linear-gradient(to bottom,  hsl(24,6%,94%),  hsl(24,6%,77%));
 	border-color: hsl(24,6%,41%);
 }
-.movemenu button.type-Mech:active {
+.movemenu button.type-Mech:active, .movemenu button.type-Mech.pressed {
 	/* Modifed from the Steel type color. */
 	background: hsl(24,6%,77%);
 	background: linear-gradient(to bottom,  hsl(24,6%,77%),  hsl(24,6%,83%));
@@ -587,7 +587,7 @@
 	background: linear-gradient(to bottom,  hsl(30,35%,94%),  hsl(30,35%,77%));
 	border-color: hsl(30,35%,41%);
 }
-.movemenu button.type-Filth:active {
+.movemenu button.type-Filth:active, .movemenu button.type-Filth.pressed {
 	/* Modifed from the Rock type color. */
 	background: hsl(30,35%,77%);
 	background: linear-gradient(to bottom,  hsl(30,35%,77%),  hsl(30,35%,83%));
