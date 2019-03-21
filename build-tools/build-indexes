@@ -820,9 +820,19 @@ console.log("DONE");
 process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.js`...");
 
 {
+	const importMods = ['digimon'];
 	const Movedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
-	const DigiMovedex = requireNoCache('../data/Pokemon-Showdown/data/mods/digimon/moves.js').BattleMovedex;
-	const buf = 'exports.BattleMovedex = ' + es3stringify(Object.assign({}, DigiMovedex, Movedex)) + ';';
+
+	const MovedexMerged = {};
+	for (const modName of importMods) {
+		const moddedData = requireNoCache('../data/Pokemon-Showdown/data/mods/' + modName + '/moves.js').BattleMovedex;
+		for (const dataEntry in moddedData) {
+			moddedData[dataEntry].isNonstandard = modName;
+		}
+		Object.assign(MovedexMerged, moddedData);
+	}
+
+	const buf = 'exports.BattleMovedex = ' + es3stringify(Object.assign(MovedexMerged, Movedex)) + ';';
 	fs.writeFileSync('data/moves.js', buf);
 }
 
