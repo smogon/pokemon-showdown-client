@@ -5,6 +5,8 @@
  * @license AGPLv3
  */
 
+type RoomInfo = {title: string, desc: string, userCount: number, subRooms?: string[]};
+
 class MainMenuRoom extends PSRoom {
 	readonly classType: string = 'mainmenu';
 	userdetailsCache: {[userid: string]: {
@@ -13,6 +15,13 @@ class MainMenuRoom extends PSRoom {
 		group?: string,
 		rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
 	}} = {};
+	roomsCache: {
+		battleCount?: number,
+		userCount?: number,
+		chat?: RoomInfo[],
+		official?: RoomInfo[],
+		pspl?: RoomInfo[],
+	} = {};
 	receive(line: string) {
 		const tokens = PS.lineParse(line);
 		switch (tokens[0]) {
@@ -65,8 +74,13 @@ class MainMenuRoom extends PSRoom {
 			} else {
 				Object.assign(userdetails, response);
 			}
-			const room = PS.rooms[`user-${userid}`] as UserRoom;
-			if (room) room.update('');
+			const userRoom = PS.rooms[`user-${userid}`] as UserRoom;
+			if (userRoom) userRoom.update('');
+			break;
+		case 'rooms':
+			this.roomsCache = response;
+			const roomsRoom = PS.rooms[`rooms`] as RoomsRoom;
+			if (roomsRoom) roomsRoom.update('');
 			break;
 		}
 	}

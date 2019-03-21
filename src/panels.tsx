@@ -170,7 +170,7 @@ class PSMain extends preact.Component {
 					e.stopImmediatePropagation();
 					return;
 				}
-				if (elem.tagName === 'A' || elem.className === 'team') {
+				if (elem.tagName === 'A' || elem.getAttribute('data-href')) {
 					const roomid = this.roomidFromLink(elem as HTMLAnchorElement);
 					if (roomid !== null) {
 						PS.addRoom({
