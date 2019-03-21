@@ -821,7 +821,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 
 {
 	const Movedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
-	const DigiMovedex = requireNoCache('../data/Pokemon-Showdown/mods/digimon/moves.js').BattleMovedex;
+	const DigiMovedex = requireNoCache('../data/Pokemon-Showdown/data/mods/digimon/moves.js').BattleMovedex;
 	const buf = 'exports.BattleMovedex = ' + es3stringify(Object.assign({}, DigiMovedex, Movedex)) + ';';
 	fs.writeFileSync('data/moves.js', buf);
 }
