@@ -600,7 +600,7 @@ const PS = new class extends PSModel {
 						id: roomid2,
 						type,
 						connected: true,
-					});
+					}, roomid === 'staff' || roomid === 'upperstaff');
 					room = PS.rooms[roomid2];
 				} else {
 					room.type = type;

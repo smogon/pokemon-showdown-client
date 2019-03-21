@@ -14,7 +14,7 @@ class ChatRoom extends PSRoom {
 		super(options);
 		if (options.pmTarget) this.pmTarget = options.pmTarget as string;
 		this.updateTarget(true);
-		if (!this.connected && PS.connected) {
+		if (!this.connected) {
 			if (!this.pmTarget) PS.send(`|/join ${this.id}`);
 			this.connected = true;
 		}
