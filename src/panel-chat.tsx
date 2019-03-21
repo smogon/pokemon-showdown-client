@@ -125,7 +125,7 @@ class ChatTextEntry extends preact.Component<{room: PSRoom, onMessage: (msg: str
 	render() {
 		return <div class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection}>
 			<form class="chatbox">
-				<label>{PS.user.name}</label>
+				<label style={{color: BattleLog.usernameColor(PS.user.userid)}}>{PS.user.name}:</label>
 				<textarea
 					class={this.props.room.connected ? 'textbox' : 'textbox disabled'}
 					autofocus
@@ -177,7 +177,7 @@ class ChatUserList extends preact.Component<{room: ChatRoom}> {
 		let userList = Object.entries(room.users) as [ID, string][];
 		userList.sort(ChatUserList.compareUsers);
 		function colorStyle(userid: ID) {
-			return {color: BattleLog.hashColor(userid).slice(6, -1)};
+			return {color: BattleLog.usernameColor(userid)};
 		}
 		return <ul class="userlist">
 			<li class="userlist-count" style="text-align:center;padding:2px 0"><small>{room.userCount} users</small></li>
