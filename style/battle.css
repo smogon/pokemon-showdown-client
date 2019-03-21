@@ -890,7 +890,7 @@ details.readmore summary::-webkit-details-marker {
 details.readmore summary:after {
 	content: '[read more]';
 	font-family: Verdana, sans-serif;
-	margin-left: 1en;
+	margin-left: 0.5em;
 	color: #888;
 }
 details.readmore summary:hover:after {
@@ -899,6 +899,14 @@ details.readmore summary:hover:after {
 }
 details.readmore[open] summary:after {
 	content: '';
+}
+details.readmore[open] summary:hover:before {
+	position: absolute;
+	top: 0;
+	right: 0;
+	content: '[-]';
+	font-family: Verdana, sans-serif;
+	color: #68B;
 }
 
 .greentext {
