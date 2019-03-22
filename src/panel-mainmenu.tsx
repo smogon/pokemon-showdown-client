@@ -5,7 +5,7 @@
  * @license AGPLv3
  */
 
-type RoomInfo = {title: string, desc: string, userCount: number, subRooms?: string[]};
+type RoomInfo = {title: string, desc?: string, userCount?: number, subRooms?: string[]};
 
 class MainMenuRoom extends PSRoom {
 	readonly classType: string = 'mainmenu';
