@@ -36,6 +36,8 @@ function requireNoCache(pathSpec) {
 	return require(pathSpec);
 }
 
+const IMPORT_MODS = ['digimon'];
+
 /*********************************************************
  * Build search-index.js
  *********************************************************/
@@ -794,9 +796,9 @@ console.log("DONE");
 process.stdout.write("Building `data/pokedex.js`... ");
 
 {
-	const Pokedex = requireNoCache('../data/Pokemon-Showdown/data/pokedex.js').BattlePokedex;
-	for (const id in Pokedex) {
-		const entry = Pokedex[id];
+	const BasePokedex = requireNoCache('../data/Pokemon-Showdown/data/pokedex.js').BattlePokedex;
+	for (const id in BasePokedex) {
+		const entry = BasePokedex[id];
 		if (Dex.data.FormatsData[id]) {
 			// console.log('formatsentry:' + id);
 			const formatsEntry = Dex.data.FormatsData[id];
@@ -807,6 +809,22 @@ process.stdout.write("Building `data/pokedex.js`... ");
 			if (formatsEntry.unreleasedHidden) entry.unreleasedHidden = formatsEntry.unreleasedHidden;
 		}
 	}
+	const ModdedPokedex = {};
+	for (const modName of IMPORT_MODS) {
+		let moddedDex;
+		try {
+			moddedDex = requireNoCache('../data/Pokemon-Showdown/data/mods/' + modName + '/pokedex.js').BattlePokedex;
+		} catch (err) {
+			continue;
+		}
+	
+		for (const id in moddedDex) {
+			const entry = moddedDex[id];
+			entry.isNonstandard = modName;
+		}
+		Object.assign(ModdedPokedex, moddedDex);
+	}
+	const Pokedex = Object.assign({}, ModdedPokedex, BasePokedex);
 	const buf = 'exports.BattlePokedex = ' + es3stringify(Pokedex) + ';';
 	fs.writeFileSync('data/pokedex.js', buf);
 }
@@ -820,19 +838,25 @@ console.log("DONE");
 process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.js`...");
 
 {
-	const importMods = ['digimon'];
-	const Movedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
-
-	const MovedexMerged = {};
-	for (const modName of importMods) {
-		const moddedData = requireNoCache('../data/Pokemon-Showdown/data/mods/' + modName + '/moves.js').BattleMovedex;
-		for (const dataEntry in moddedData) {
-			moddedData[dataEntry].isNonstandard = modName;
+	const BaseMovedex = requireNoCache('../data/Pokemon-Showdown/data/moves.js').BattleMovedex;
+	const ModdedMovedex = {};
+	for (const modName of IMPORT_MODS) {
+		let moddedDex;
+		try {
+			moddedDex = requireNoCache('../data/Pokemon-Showdown/data/mods/' + modName + '/moves.js').BattleMovedex;
+		} catch (err) {
+			continue;
 		}
-		Object.assign(MovedexMerged, moddedData);
-	}
 
-	const buf = 'exports.BattleMovedex = ' + es3stringify(Object.assign(MovedexMerged, Movedex)) + ';';
+		for (const id in moddedDex) {
+			const moveEntry = moddedDex[id];
+			moveEntry.isNonstandard = modName;
+		}
+		Object.assign(ModdedMovedex, moddedDex);
+	}
+	const Movedex = Object.assign({}, ModdedMovedex, BaseMovedex);
+
+	const buf = 'exports.BattleMovedex = ' + es3stringify(Movedex) + ';';
 	fs.writeFileSync('data/moves.js', buf);
 }
 
