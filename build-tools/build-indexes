@@ -817,7 +817,7 @@ process.stdout.write("Building `data/pokedex.js`... ");
 		} catch (err) {
 			continue;
 		}
-	
+
 		for (const id in moddedDex) {
 			const entry = moddedDex[id];
 			entry.isNonstandard = modName;
