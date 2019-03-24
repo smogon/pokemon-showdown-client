@@ -3069,6 +3069,7 @@ class Battle {
 			case 'multi':
 			case 'free-for-all':
 				this.pokemonControlled = 1;
+				// falls through
 			case 'doubles':
 				this.mySide.active = [null, null];
 				this.yourSide.active = [null, null];
