@@ -652,7 +652,9 @@ const Dex = new class implements ModdedDex {
 		let spriteSheet = 'sprites/smicons-sheet.png?a5';
 
 		// Digimon Icons
-		if (digi || id.endsWith('mon') || id.startsWith('meicrackmon') || id.startsWith('metalgreymon') || id.startsWith('cherubimon')) {
+		if (digi || id.endsWith('mon') ||
+			id.startsWith('meicrackmon') || id.startsWith('metalgreymon') || id.startsWith('cherubimon')
+		) {
 			spriteSheet = 'sprites/digimon/sprites/digimonicons-sheet.png';
 		}
 
