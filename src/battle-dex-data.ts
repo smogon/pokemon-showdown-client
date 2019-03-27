@@ -570,7 +570,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	redvegiemon: 84 + 5,
 	rockmon: 84 + 6,
 	saberdramon: 84 + 7,
-	sandyamamon: 84 + 8,
+	sandyanmamon: 84 + 8,
 	seadramon: 84 + 9,
 	shellmon: 84 + 10,
 	shimaunimon: 84 + 11,
