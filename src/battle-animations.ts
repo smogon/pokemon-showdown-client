@@ -1166,7 +1166,7 @@ class BattleScene {
 	typeAnim(pokemon: Pokemon, types: string) {
 		const typesFolder = this.digi ? 'digimon/sprites/types/' : 'types/';
 		const result = BattleLog.escapeHTML(types).split('/').map(type =>
-			'<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + '.png" alt="' + type + '" class="pixelated" />'
+			'<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + type + '.png" alt="' + type + '" class="pixelated" />'
 		).join(' ');
 		this.resultAnim(pokemon, result, 'neutral');
 	}
