@@ -1166,7 +1166,7 @@ class BattleScene {
 	typeAnim(pokemon: Pokemon, types: string) {
 		const typesFolder = this.digi ? 'digimon/sprites/types/' : 'types/';
 		const result = BattleLog.escapeHTML(types).split('/').map(type =>
-			'<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + type + '.png" alt="' + type + '" class="pixelated" />'
+			'<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + (this.digi ? type.toLowerCase() : type) + '.png" alt="' + type + '" class="pixelated" />'
 		).join(' ');
 		this.resultAnim(pokemon, result, 'neutral');
 	}
@@ -2428,17 +2428,17 @@ class PokemonSprite extends Sprite {
 			status += '<span class="frz">FRZ</span> ';
 		}
 		if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[1]) {
-			let types = pokemon.volatiles.typechange[1].split('/');
+			const types = pokemon.volatiles.typechange[1].split('/');
 			const typesFolder = this.scene.digi ? 'digimon/sprites/types/' : 'types/';
-			status += '<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + encodeURIComponent(types[0]) + '.png" alt="' + types[0] + '" class="pixelated" /> ';
+			status += '<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + encodeURIComponent(this.scene.digi ? types[0].toLowerCase() : types[0]) + '.png" alt="' + types[0] + '" class="pixelated" /> ';
 			if (types[1]) {
-				status += '<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + encodeURIComponent(types[1]) + '.png" alt="' + types[1] + '" class="pixelated" /> ';
+				status += '<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + encodeURIComponent(this.scene.digi ? types[1].toLowerCase() : types[1]) + '.png" alt="' + types[1] + '" class="pixelated" /> ';
 			}
 		}
 		if (pokemon.volatiles.typeadd) {
 			const type = pokemon.volatiles.typeadd[1];
 			const typesFolder = this.scene.digi ? 'digimon/sprites/types/' : 'types/';
-			status += '+<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + type + '.png" alt="' + type + '" class="pixelated" /> ';
+			status += '+<img src="' + Dex.resourcePrefix + 'sprites/' + typesFolder + (this.scene.digi ? type.toLowerCase() : type) + '.png" alt="' + type + '" class="pixelated" /> ';
 		}
 		for (const stat in pokemon.boosts) {
 			if (pokemon.boosts[stat]) {
