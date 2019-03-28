@@ -583,7 +583,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	unimon: 96 + 5,
 	vegiemon: 96 + 6,
 	weedmon: 96 + 7,
-	yamamon: 96 + 8,
+	yanmamon: 96 + 8,
 	andromon: 96 + 9,
 	angewomon: 96 + 10,
 	beastmon: 96 + 11,
