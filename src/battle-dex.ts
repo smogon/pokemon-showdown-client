@@ -717,7 +717,6 @@ const Dex = new class implements ModdedDex {
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		let isDigimon = ['Air', 'Aqua', 'Battle', 'Evil', 'Filth', 'Flame', 'Holy', 'Mech', 'Nature'].includes(type);
 		let typeFolder = isDigimon ? 'digimon/sprites/types/' : 'types/';
-		if (isDigimon) sanitizedType = sanitizedType.toLowerCase();
 		return '<img src="' + Dex.resourcePrefix + 'sprites/' + typeFolder + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
 	}
 };
