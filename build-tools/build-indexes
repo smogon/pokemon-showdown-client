@@ -497,7 +497,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				else goodItems.push(id);
 				break;
 			case 'mail':
-				if (genNum === 6) unreleasedItems.push(id);
+				if (genNum >= 6) unreleasedItems.push(id);
 				else goodItems.push(id);
 				break;
 			// Legendaries
@@ -562,6 +562,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'upgrade':
 			case 'waterstone':
 			case 'whippeddream':
+			case 'bottlecap':
+			case 'goldbottlecap':
 				badItems.push(id);
 				break;
 			// outclassed items
@@ -610,6 +612,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						goodItems.push(id);
 					}
 				} else if (item.name.endsWith(" Drive")) {
+					specificItems.push(id);
+				} else if (item.name.endsWith(" Memory")) {
+					specificItems.push(id);
+				} else if (item.zMoveUser) {
 					specificItems.push(id);
 				} else if (item.megaStone) {
 					specificItems.push(id);
