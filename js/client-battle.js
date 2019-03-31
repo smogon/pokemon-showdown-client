@@ -378,8 +378,8 @@
 
 					if (this.request.forceSwitch !== true) {
 						var faintedLength = _.filter(this.request.forceSwitch, function (fainted) {return fainted;}).length;
-						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.active.length), function (mon) {return !mon.fainted;}).length;
-						this.choice.freedomDegrees = Math.min(Math.max(freedomDegrees, 0), this.battle.pokemonControlled);
+						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.active.length), function (mon) {return !mon.fainted && !mon.notMine;}).length;
+						this.choice.freedomDegrees = Math.max(freedomDegrees, 0);
 						this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
 					}
 				}
@@ -744,7 +744,7 @@
 				var switchMenu = '';
 				for (var i = 0; i < switchables.length; i++) {
 					var pokemon = switchables[i];
-					if (pokemon.fainted || i < (this.battle.pokemonControlled || this.battle.mySide.active.length) || this.choice.switchFlags[i]) {
+					if (pokemon.fainted || i < (this.battle.pokemonControlled || this.battle.mySide.active.length) || pokemon.notMine || this.choice.switchFlags[i]) {
 						var disabledReason = pokemon.notMine ? ',notMine' : pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '';
 						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + disabledReason + '" data-tooltip="switchpokemon|' + i + '">';
 					} else {
