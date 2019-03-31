@@ -350,7 +350,7 @@
 			// this.choice.choices = array of choice strings
 			// this.choice.switchFlags = dict of pokemon indexes that have a switch pending
 			// this.choice.switchOutFlags = ???
-			// this.choice.freedomDegrees = in a switch request: number of Pokemon that can't switch
+			// this.choice.freedomDegrees = in a switch request: number of empty slots that can't be replaced
 			// this.choice.type = determines what the current choice screen to be displayed is
 			// this.choice.waiting = true if the choice has been sent and we're just waiting for the next turn
 
