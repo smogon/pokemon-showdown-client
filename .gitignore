@@ -3,6 +3,7 @@
 /config/
 /index.php
 /index.html
+/preactalpha.html
 /data/*
 !/data/learnsets-g6.js
 node_modules/
@@ -23,5 +24,15 @@ package-lock.json
 /js/battle-animations.js
 /js/battle-tooltips.js
 /js/battle-scene-stub.js
+/js/client-core.js
+/js/client-main.js
+/js/client-connection.js
+/js/panels.js
+/js/panel-topbar.js
+/js/panel-example.js
+/js/panel-mainmenu.js
+/js/panel-rooms.js
+/js/panel-chat.js
+/js/panel-teambuilder.js
 
 .vscode

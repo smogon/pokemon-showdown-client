@@ -18,8 +18,8 @@
         "max-line-length": {
             "severity": "warning",
             "options": {
-                "limit": 140,
-                "ignore-pattern": "\\.replace\\(('\\[|/)|^\\s*(// \\s*)?(return |(let |const )?[a-zA-Z0-9$.]+ \\+?= (\\$\\()?|[a-zA-Z0-9$.]+\\()?['\"`]"
+                "limit": 120,
+                "ignore-pattern": "template\\.replace\\(('\\[|/)|[a-z0-9]=|^\\s*(// \\s*)?((let |const )?[a-zA-Z0-9$.]+ \\+?= (\\$\\()?|(return |throw )?(new )?([a-zA-Z0-9$.]+\\()?)?['\"`/]"
             }
         },
         "interface-name": false,
@@ -35,6 +35,7 @@
         "prefer-conditional-expression": false,
         "no-shadowed-variable": [true, {"temporalDeadZone": false}],
         "no-switch-case-fall-through": true,
+        "no-unnecessary-initializer": false,
         "object-literal-sort-keys": false,
         "object-literal-key-quotes": false,
         "trailing-comma": [

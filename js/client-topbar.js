@@ -147,7 +147,7 @@
 				sideBuf += this.renderRoomTab(room);
 			}
 			if (window.nodewebkit) {
-				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel('' + notificationCount || '');
+				if (nwWindow.setBadgeLabel) nwWindow.setBadgeLabel(notificationCount ? '' + notificationCount : '');
 			} else {
 				var $favicon = $('#dynamic-favicon');
 				if (!!$favicon.data('on') !== !!notificationCount) {
@@ -612,7 +612,7 @@
 			var ctrlPlus = '<kbd>' + (navigator.platform === 'MacIntel' ? 'Cmd' : 'Ctrl') + '</kbd> + ';
 			buf += '<p class="optlabel">**<strong>bold</strong>** (' + ctrlPlus + '<kbd>B</kbd>)</p>';
 			buf += '<p class="optlabel">__<em>italics</em>__ (' + ctrlPlus + '<bkd>I</kbd>)</p>';
-			buf += '<p class="optlabel">``<code>code formatting</code>``</p>';
+			buf += '<p class="optlabel">``<code>code formatting</code>`` (<kbd>Ctrl</kbd> + <kbd>`</kbd>)</p>';
 			buf += '<p class="optlabel">~~<s>strikethrough</s>~~</p>';
 			buf += '<p class="optlabel">^^<sup>superscript</sup>^^</p>';
 			buf += '<p class="optlabel">\\\\<sub>subscript</sub>\\\\</p>';

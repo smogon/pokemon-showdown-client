@@ -569,7 +569,8 @@ class BattleScene {
 	}
 
 	getDetailsText(pokemon: Pokemon) {
-		let name = pokemon.side && pokemon.side.n && (this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.species : pokemon.name;
+		let name = pokemon.side && pokemon.side.n &&
+			(this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.species : pokemon.name;
 		if (name !== pokemon.species) {
 				name += ' (' + pokemon.species + ')';
 		}
@@ -764,15 +765,15 @@ class BattleScene {
 	weatherLeft() {
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
 		if (this.battle.weatherMinTimeLeft !== 0) {
-			return ' <small>(' + this.battle.weatherMinTimeLeft + ' or ' + this.battle.weatherTimeLeft + ' turns)</small>';
+			return ` <small>(${this.battle.weatherMinTimeLeft} or ${this.battle.weatherTimeLeft} turns)</small>`;
 		}
 		if (this.battle.weatherTimeLeft !== 0) {
-			return ' <small>(' + this.battle.weatherTimeLeft + ' turn' + (this.battle.weatherTimeLeft === 1 ? '' : 's') + ')</small>';
+			return ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
 		}
 		return '';
 	}
 	upkeepWeather() {
-		const isIntense = (this.curWeather === 'desolateland' || this.curWeather === 'primordialsea' || this.curWeather === 'deltastream');
+		const isIntense = ['desolateland', 'primordialsea', 'deltastream'].includes(this.curWeather);
 		this.$weather.animate({
 			opacity: 1.0,
 		}, 300).animate({
@@ -2331,21 +2332,24 @@ class PokemonSprite extends Sprite {
 
 	getStatbarHTML(pokemon: Pokemon) {
 		let buf = '<div class="statbar' + (this.siden ? ' lstatbar' : ' rstatbar') + '" style="display: none">';
-		buf += '<strong>' + (this.siden && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks) ? pokemon.species : BattleLog.escapeHTML(pokemon.name));
+		const ignoreNick = this.siden && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks);
+		buf += `<strong>${BattleLog.escapeHTML(ignoreNick ? pokemon.species : pokemon.name)}`;
 		let gender = pokemon.gender;
-		if (gender) buf += ' <img src="' + Dex.resourcePrefix + 'fx/gender-' + gender.toLowerCase() + '.png" alt="' + gender + '" />';
-		buf += (pokemon.level === 100 ? '' : ' <small>L' + pokemon.level + '</small>');
+		if (gender) {
+			buf += ` <img src="${Dex.resourcePrefix}fx/gender-${gender.toLowerCase()}.png" alt="${gender}" />`;
+		}
+		buf += (pokemon.level === 100 ? `` : ` <small>L${pokemon.level}</small>`);
 
 		let symbol = '';
 		if (pokemon.species.indexOf('-Mega') >= 0) symbol = 'mega';
 		else if (pokemon.species === 'Kyogre-Primal') symbol = 'alpha';
 		else if (pokemon.species === 'Groudon-Primal') symbol = 'omega';
 		if (symbol) {
-			buf += ' <img src="' + Dex.resourcePrefix + 'sprites/misc/' + symbol + '.png" alt="' + symbol + '" style="vertical-align:text-bottom;" />';
+			buf += ` <img src="${Dex.resourcePrefix}sprites/misc/${symbol}.png" alt="${symbol}" style="vertical-align:text-bottom;" />`;
 		}
 
-		buf += '</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div>';
-		buf += '</div>';
+		buf += `</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div>`;
+		buf += `</div>`;
 		return buf;
 	}
 
@@ -2614,7 +2618,7 @@ const BattleSound = new class {
 				url: Dex.resourcePrefix + url,
 				volume: this.effectVolume,
 			});
-		} catch (e) {}
+		} catch {}
 		if (!this.effectCache[url]) {
 			this.effectCache[url] = this.soundPlaceholder;
 		}
@@ -2637,7 +2641,7 @@ const BattleSound = new class {
 				url: Dex.resourcePrefix + url,
 				volume: this.bgmVolume,
 			});
-		} catch (e) {}
+		} catch {}
 		if (!this.bgmCache[url]) {
 			// couldn't load
 			// suppress crash
@@ -2665,7 +2669,7 @@ const BattleSound = new class {
 					this.bgm.play();
 				}
 			}
-		} catch (e) {}
+		} catch {}
 	}
 	pauseBgm() {
 		if (this.bgm) {
@@ -2701,7 +2705,7 @@ const BattleSound = new class {
 		if (this.bgm) {
 			try {
 				this.bgm.setVolume(this.bgmVolume);
-			} catch (e) {}
+			} catch {}
 		}
 	}
 	setEffectVolume(effectVolume: number) {
@@ -3081,6 +3085,51 @@ const BattleOtherAnims: AnimTable = {
 	},
 	xattack: {
 		anim(scene, [attacker, defender]) {
+			scene.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 400,
+			}, {
+				x: defender.leftof(-20),
+				y: defender.y,
+				z: defender.behind(20),
+				scale: 3,
+				opacity: 0,
+				time: 700,
+			}, 'linear');
+			scene.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 700,
+			}, {
+				x: defender.leftof(-20),
+				y: defender.y,
+				z: defender.behind(20),
+				scale: 3,
+				opacity: 0,
+				time: 1000,
+			}, 'linear');
+			defender.delay(480);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 200,
+			}, 'swing');
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
 			attacker.anim({
 				x: defender.leftof(-30),
 				y: defender.y + 80,
@@ -3108,21 +3157,6 @@ const BattleOtherAnims: AnimTable = {
 			attacker.anim({
 				time: 500,
 			}, 'ballistic2Back');
-			defender.delay(450);
-			defender.anim({
-				z: defender.behind(20),
-				time: 100,
-			}, 'swing');
-			defender.anim({
-				time: 200,
-			}, 'swing');
-			defender.anim({
-				z: defender.behind(20),
-				time: 100,
-			}, 'swing');
-			defender.anim({
-				time: 300,
-			}, 'swing');
 		},
 	},
 	slashattack: {

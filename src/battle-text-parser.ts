@@ -568,7 +568,8 @@ class BattleTextParser {
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(item)).replace('[SOURCE]', this.pokemon(target || kwArgs.of));
 			}
 			if (id === 'frisk') {
-				const template = this.template(kwArgs.of && pokemon && kwArgs.of !== pokemon ? 'activate' : 'activateNoTarget', "Frisk");
+				const hasTarget = kwArgs.of && pokemon && kwArgs.of !== pokemon;
+				const template = this.template(hasTarget ? 'activate' : 'activateNoTarget', "Frisk");
 				return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of)).replace('[ITEM]', this.effect(item)).replace('[TARGET]', this.pokemon(pokemon));
 			}
 			if (kwArgs.from) {
@@ -645,7 +646,8 @@ class BattleTextParser {
 
 		case '-singleturn': case '-singlemove': {
 			const [, pokemon, effect] = args;
-			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon) || this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
+			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon) ||
+				this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			let id = BattleTextParser.effectId(effect);
 			if (id === 'instruct') {
 				const template = this.template('activate', effect);

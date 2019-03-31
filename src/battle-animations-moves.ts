@@ -30650,7 +30650,10 @@ BattleMoveAnims['flatter'] = {anim: BattleMoveAnims['attract'].anim};
 
 BattleMoveAnims['armthrust'] = {anim: BattleMoveAnims['smellingsalts'].anim};
 
-BattleMoveAnims['phantomforce'] = {anim: BattleMoveAnims['shadowforce'].anim, prepareAnim: BattleMoveAnims['shadowforce'].prepareAnim};
+BattleMoveAnims['phantomforce'] = {
+	anim: BattleMoveAnims['shadowforce'].anim,
+	prepareAnim: BattleMoveAnims['shadowforce'].prepareAnim,
+};
 BattleMoveAnims['shadowstrike'] = {anim: BattleMoveAnims['shadowforce'].anim};
 
 BattleMoveAnims['smackdown'] = {anim: BattleMoveAnims['rockblast'].anim};

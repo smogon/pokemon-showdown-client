@@ -78,7 +78,9 @@ class BattleLog {
 			}
 			let rank = name.charAt(0);
 			if (battle && battle.ignoreSpects && ' +'.includes(rank)) return;
-			if (battle && battle.ignoreOpponent && '\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
+			if (battle && battle.ignoreOpponent) {
+				if ('\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
+			}
 			if (window.app && app.ignore && app.ignore[toUserid(name)] && ' +\u2605\u2606'.includes(rank)) return;
 			let isHighlighted = window.app && app.rooms && app.rooms[battle!.roomid].getHighlight(message);
 			[divClass, divHTML] = this.parseChatMessage(message, name, '', isHighlighted);
@@ -234,6 +236,11 @@ class BattleLog {
 			this.elem.scrollTop = this.elem.scrollHeight;
 		}
 	}
+	updateScroll() {
+		if (this.atBottom) {
+			this.elem.scrollTop = this.elem.scrollHeight;
+		}
+	}
 	addDiv(className: string, innerHTML: string, preempt?: boolean) {
 		const el = document.createElement('div');
 		el.className = className;
@@ -339,7 +346,8 @@ class BattleLog {
 	static escapeFormat(formatid: string): string {
 		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
-			return this.escapeFormat(formatid.slice(0, atIndex)) + '<br />Custom rules: ' + this.escapeHTML(formatid.slice(atIndex + 3));
+			return this.escapeFormat(formatid.slice(0, atIndex)) +
+				'<br />Custom rules: ' + this.escapeHTML(formatid.slice(atIndex + 3));
 		}
 		if (window.BattleFormats && BattleFormats[formatid]) {
 			return this.escapeHTML(BattleFormats[formatid].name);
@@ -360,12 +368,17 @@ class BattleLog {
 
 	static colorCache: {[userid: string]: string} = {};
 
-	static hashColor(name: string) {
+	/** @deprecated */
+	static hashColor(name: ID) {
+		return `color:${this.usernameColor(name)};`;
+	}
+
+	static usernameColor(name: ID) {
 		if (this.colorCache[name]) return this.colorCache[name];
 		let hash;
 		if (window.Config && Config.customcolors && Config.customcolors[name]) {
 			if (Config.customcolors[name].color) {
-				return (this.colorCache[name] = 'color:' + Config.customcolors[name].color + ';');
+				return (this.colorCache[name] = Config.customcolors[name].color);
 			}
 			hash = MD5(Config.customcolors[name]);
 		} else {
@@ -407,7 +420,7 @@ class BattleLog {
 
 		L += HLmod;
 
-		this.colorCache[name] = "color:hsl(" + H + "," + S + "%," + L + "%);";
+		this.colorCache[name] = `hsl(${H},${S}%,${L}%)`;
 		return this.colorCache[name];
 	}
 
@@ -427,11 +440,12 @@ class BattleLog {
 			group = name.charAt(0);
 			name = name.substr(1);
 		}
-		let color = BattleLog.hashColor(toId(name));
-		let clickableName = '<small>' + BattleLog.escapeHTML(group) + '</small><span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' +
-			BattleLog.escapeHTML(name) + '</span>';
+		const colorStyle = ` style="color:${BattleLog.usernameColor(toId(name))}"`;
+		const clickableName = `<small>${BattleLog.escapeHTML(group)}</small><span class="username" data-name="${BattleLog.escapeHTML(name)}">${BattleLog.escapeHTML(name)}</span>`;
 		let hlClass = isHighlighted ? ' highlighted' : '';
-		let mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
+		let isMine = (window.app && app.user && app.user.get('name') === name) ||
+			(window.PS && PS.user.name === name);
+		let mineClass = isMine ? ' mine' : '';
 
 		let cmd = '';
 		let target = '';
@@ -447,43 +461,35 @@ class BattleLog {
 
 		switch (cmd) {
 		case 'me':
-			if (!showMe) {
-				return [
-					'chat chatmessage-' + toId(name) + hlClass + mineClass,
-					'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em>',
-				];
-			}
-			return [
-				'chat chatmessage-' + toId(name) + hlClass + mineClass,
-				'' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em>',
-			];
 		case 'mee':
+			let parsedMessage = BattleLog.parseMessage(' ' + target);
+			if (cmd === 'mee') parsedMessage = parsedMessage.slice(1);
 			if (!showMe) {
 				return [
 					'chat chatmessage-' + toId(name) + hlClass + mineClass,
-					'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em>',
+					`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>/me${parsedMessage}</em>`,
 				];
 			}
 			return [
 				'chat chatmessage-' + toId(name) + hlClass + mineClass,
-				'' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em>',
+				`${timestamp}<em><i><strong${colorStyle}>&bull; ${clickableName}</strong>${parsedMessage}</i></em>`,
 			];
 		case 'invite':
 			let roomid = toRoomid(target);
 			return [
 				'chat',
-				'' + timestamp + '<em>' + clickableName + ' invited you to join the room "' + roomid + '"</em>' +
-				'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>',
+				`${timestamp}<em>${clickableName} invited you to join the room "${roomid}"</em>' +
+				'<div class="notice"><button name="joinRoom" value="${roomid}">Join ${roomid}</button></div>`,
 			];
 		case 'announce':
 			return [
 				'chat chatmessage-' + toId(name) + hlClass + mineClass,
-				'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span>',
+				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <span class="message-announce">${BattleLog.parseMessage(target)}</span>`,
 			];
 		case 'log':
 			return [
 				'chat chatmessage-' + toId(name) + hlClass + mineClass,
-				'' + timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span>',
+				`${timestamp}<span class="message-log">${BattleLog.parseMessage(target)}</span>`,
 			];
 		case 'data-pokemon':
 		case 'data-item':
@@ -497,7 +503,7 @@ class BattleLog {
 		case 'html':
 			return [
 				'chat chatmessage-' + toId(name) + hlClass + mineClass,
-				'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em>',
+				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>${BattleLog.sanitizeHTML(target)}</em>`,
 			];
 		case 'uhtml':
 		case 'uhtmlchange':
@@ -510,11 +516,14 @@ class BattleLog {
 		default:
 			// Not a command or unsupported. Parsed as a normal chat message.
 			if (!name) {
-				return ['chat' + hlClass, timestamp + '<em>' + BattleLog.parseMessage(message) + '</em>'];
+				return [
+					'chat' + hlClass,
+					`${timestamp}<em>${BattleLog.parseMessage(message)}</em>`,
+				];
 			}
 			return [
 				'chat chatmessage-' + toId(name) + hlClass + mineClass,
-				'' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em>',
+				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>${BattleLog.parseMessage(message)}</em>`,
 			];
 		}
 	}
@@ -810,5 +819,3 @@ class BattleLog {
 		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(BattleLog.createReplayFile(room)))));
 	}
 }
-
-exports.BattleLog = BattleLog;

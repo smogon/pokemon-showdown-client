@@ -2,7 +2,7 @@
  * Global
  *********************************************************/
 
-html, body {
+ html, body {
 	margin: 0;
 	padding: 0;
 	height: 100%;
@@ -1171,16 +1171,10 @@ p.or:after {
  * Room list
  *********************************************************/
 
-.roomlisttop {
-	max-width: 480px;
-	margin-bottom: 10px;
-}
 .roomcounters {
-	margin: 4px auto;
-	max-width: 400px;
-}
-.roomcounters td {
-	text-align: center;
+	max-width: 480px;
+  margin: 4px 0 10px;
+  text-align: center;
 }
 .roomcounters button {
 	margin: 0 auto;
@@ -1198,8 +1192,8 @@ p.or:after {
 .roomcounters .icon-left {
 	display: inline-block;
 	vertical-align: middle;
-	transform:scaleX(-1);
-	webkit-transform:scaleX(-1);
+	transform: scaleX(-1);
+	-webkit-transform: scaleX(-1);
 }
 .roomcounters .icon-right {
 	display: inline-block;

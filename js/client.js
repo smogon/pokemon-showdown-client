@@ -2060,7 +2060,15 @@
 			if (!tag) return this.closeAllNotifications();
 			if (window.nodewebkit) nwWindow.requestAttention(false);
 			if (!this.notifications || !this.notifications[tag]) return;
-			if (!alreadyClosed && this.notifications[tag].close) this.notifications[tag].close();
+			if (!alreadyClosed) {
+				try {
+					// Edge will expose a close function and crash when you try to use it
+					// It seems to be a permission error - sometimes it crashes, sometimes
+					// it doesn't.
+					// "Unexpected call to method or property access"
+					this.notifications[tag].close();
+				} catch (err) {}
+			}
 			delete this.notifications[tag];
 			if (_.isEmpty(this.notifications)) {
 				this.notifications = null;
@@ -2076,7 +2084,10 @@
 			this.subtleNotification = false;
 			if (this.notifications) {
 				for (var tag in this.notifications) {
-					if (this.notifications[tag].close) this.notifications[tag].close();
+					try {
+						// Edge bug? - see closeNotification
+						this.notifications[tag].close();
+					} catch (err) {}
 				}
 				this.notifications = null;
 			}
@@ -2088,7 +2099,10 @@
 			if (!tag) return this.dismissAllNotifications();
 			if (window.nodewebkit) nwWindow.requestAttention(false);
 			if (!this.notifications || !this.notifications[tag]) return;
-			if (this.notifications[tag].close) this.notifications[tag].close();
+			try {
+				// Edge bug? - see closeNotification
+				this.notifications[tag].close();
+			} catch (err) {}
 			if (!this.notifications || this.notifications[tag]) return; // avoid infinite recursion
 			if (this.notifications[tag].psAutoclose) {
 				delete this.notifications[tag];
@@ -2118,7 +2132,10 @@
 			if (this.notifications) {
 				for (var tag in this.notifications) {
 					if (!this.notifications[tag].psAutoclose) continue;
-					if (this.notifications[tag].close) this.notifications[tag].close();
+					try {
+						// Edge bug? - see closeNotification
+						this.notifications[tag].close();
+					} catch (err) {}
 					delete this.notifications[tag];
 				}
 				if (!this.notifications || _.isEmpty(this.notifications)) {

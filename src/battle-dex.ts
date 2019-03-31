@@ -12,6 +12,8 @@
  * - The client as a whole is AGPLv3
  * - The battle replay/animation engine (battle-*.ts) by itself is MIT
  *
+ * Compiled into battledata.js which includes all dependencies
+ *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
  */
@@ -140,7 +142,10 @@ function toName(name: any) {
 	if (name.length > 18) name = name.substr(0, 18).trim();
 
 	// remove zalgo
-	name = name.replace(/[\u0300-\u036f\u0483-\u0489\u0610-\u0615\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06ED\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{3,}/g, '');
+	name = name.replace(
+		/[\u0300-\u036f\u0483-\u0489\u0610-\u0615\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06ED\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{3,}/g,
+		''
+	);
 	name = name.replace(/[\u239b-\u23b9]/g, '');
 
 	return name;
@@ -194,7 +199,7 @@ const Dex = new class implements ModdedDex {
 	}
 
 	resolveAvatar(avatar: string): string {
-		if (avatar in BattleAvatarNumbers) {
+		if (window.BattleAvatarNumbers && avatar in BattleAvatarNumbers) {
 			avatar = BattleAvatarNumbers[avatar];
 		}
 		if (avatar.charAt(0) === '#') {
@@ -222,7 +227,9 @@ const Dex = new class implements ModdedDex {
 	 */
 	sanitizeName(name: any) {
 		if (!name) return '';
-		return ('' + name).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').slice(0, 50);
+		return ('' + name)
+			.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+			.slice(0, 50);
 	}
 
 	prefs(prop: string, value?: any, save?: boolean) {
@@ -588,9 +595,13 @@ const Dex = new class implements ModdedDex {
 		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) {
 			id = toId(pokemon.volatiles.formechange[1]);
 		}
-		if (pokemon && pokemon.num) num = pokemon.num;
-		else if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) num = BattlePokemonSprites[id].num;
-		else if (window.BattlePokedex && window.BattlePokedex[id] && BattlePokedex[id].num) num = BattlePokedex[id].num;
+		if (pokemon && pokemon.num) {
+			num = pokemon.num;
+		} else if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) {
+			num = BattlePokemonSprites[id].num;
+		} else if (window.BattlePokedex && window.BattlePokedex[id] && BattlePokedex[id].num) {
+			num = BattlePokedex[id].num;
+		}
 		if (num < 0) num = 0;
 		if (num > 809) num = 0;
 
