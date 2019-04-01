@@ -55,6 +55,7 @@ fs.writeFileSync(
 		fs.readFileSync('js/battle-log.js') + '\n\n' +
 		fs.readFileSync('src/battle-log-misc.js') +
 		fs.readFileSync('data/text.js') + '\n\n' +
+		fs.readFileSync('data/text-afd.js') + '\n\n' +
 		fs.readFileSync('js/battle-text-parser.js')
 );
 

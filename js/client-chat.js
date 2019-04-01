@@ -906,9 +906,11 @@
 				var cleanedTarget = toId(target);
 				if (cleanedTarget === 'off' || cleanedTarget === 'disable') {
 					Config.server.afd = false;
+					if (typeof BattleTextNotAFD !== 'undefined') BattleText = BattleTextNotAFD;
 					this.add('April Fools\' day mode disabled.');
 				} else {
 					Config.server.afd = true;
+					if (typeof BattleTextAFD !== 'undefined') BattleText = BattleTextAFD;
 					this.add('April Fools\' day mode enabled.');
 				}
 				for (var roomid in app.rooms) {
