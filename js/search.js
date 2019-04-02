@@ -849,7 +849,7 @@
 			else if (format === 'pu') tierSet = tierSet.slice(slices.PU || slices.NU);
 			else if (format === 'zu') tierSet = tierSet.slice(slices.ZU || slices.PU || slices.NU);
 			else if (format === 'lc' || format === 'lcuu') tierSet = tierSet.slice(slices.LC);
-			else if (format.includes('lc')) tierSet = tierSet.slice(slices["LC Uber"]);
+			else if (format.startsWith('lc') || format.endsWith('lc')) tierSet = tierSet.slice(slices["LC Uber"]);
 			else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
 			else if (format === 'caplc') tierSet = tierSet.slice(slices['CAP LC'], slices.Uber).concat(tierSet.slice(slices.LC));
 			else if (format === 'anythinggoes' || format === 'ag') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
