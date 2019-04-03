@@ -34,5 +34,6 @@ package-lock.json
 /js/panel-rooms.js
 /js/panel-chat.js
 /js/panel-teambuilder.js
+/js/panel-teamdropdown.js
 
 .vscode
