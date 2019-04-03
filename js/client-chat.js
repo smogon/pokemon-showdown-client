@@ -917,9 +917,11 @@
 					var battle = app.rooms[roomid] && app.rooms[roomid].battle;
 					if (!battle) continue;
 					var turn = battle.turn;
+					var oldState = battle.playbackState;
+					if (oldState === 4) turn = -1;
 					battle.reset(true);
 					battle.fastForwardTo(turn);
-					if (battle.playbackState !== 3) {
+					if (oldState !== 3) {
 						battle.play();
 					} else {
 						battle.pause();
