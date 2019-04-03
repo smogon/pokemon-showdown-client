@@ -866,7 +866,8 @@ class BattleTooltips {
 				if (allyActive) {
 					for (const ally of allyActive) {
 						if (!ally || ally.fainted) continue;
-						if (ally.ability === 'Flower Gift' && (ally.getTemplate().baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
+						let allyAbility = this.getAllyAbility(ally);
+						if (allyAbility === 'Flower Gift' && (ally.getTemplate().baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
 							stats.atk = Math.floor(stats.atk * 1.5);
 							stats.spd = Math.floor(stats.spd * 1.5);
 						}
@@ -930,9 +931,10 @@ class BattleTooltips {
 			if (allyActive.length > 1) {
 				let abilityName = (ability === 'plus' ? 'Plus' : 'Minus');
 				for (const ally of allyActive) {
-					if (!(ally && ally !== clientPokemon && !ally.fainted)) continue;
-					if (!(ally.ability === 'Plus' || ally.ability === 'Minus')) continue;
-					if (this.battle.gen <= 4 && ally.ability === abilityName) continue;
+					if (!ally || ally === clientPokemon || ally.fainted) continue;
+					let allyAbility = this.getAllyAbility(ally);
+					if (allyAbility !== 'Plus' && allyAbility !== 'Minus') continue;
+					if (this.battle.gen <= 4 && allyAbility === abilityName) continue;
 					stats.spa = Math.floor(stats.spa * 1.5);
 					break;
 				}
@@ -1180,7 +1182,7 @@ class BattleTooltips {
 		value.abilityModify(1.3, "Compound Eyes");
 		for (const active of pokemon.side.active) {
 			if (!active || active.fainted) continue;
-			let ability = Dex.getAbility(active.ability).name;
+			let ability = this.getAllyAbility(active);
 			if (ability === 'Victory Star') {
 				value.modify(1.1, "Victory Star");
 			}
@@ -1414,13 +1416,14 @@ class BattleTooltips {
 			let auraBroken = false;
 			for (const ally of pokemon.side.active) {
 				if (!ally || ally.fainted) continue;
-				if (moveType === 'Fairy' && ally.ability === 'Fairy Aura') {
+				let allyAbility = this.getAllyAbility(ally);
+				if (moveType === 'Fairy' && allyAbility === 'Fairy Aura') {
 					auraBoosted = 'Fairy Aura';
-				} else if (moveType === 'Dark' && ally.ability === 'Dark Aura') {
+				} else if (moveType === 'Dark' && allyAbility === 'Dark Aura') {
 					auraBoosted = 'Dark Aura';
-				} else if (ally.ability === 'Aura Break') {
+				} else if (allyAbility === 'Aura Break') {
 					auraBroken = true;
-				} else if (ally.ability === 'Battery') {
+				} else if (allyAbility === 'Battery') {
 					if (ally !== pokemon && move.category === 'Special') {
 						value.modify(1.3, 'Battery');
 					}
@@ -1563,6 +1566,15 @@ class BattleTooltips {
 			if (curType === type) return true;
 		}
 		return false;
+	}
+	getAllyAbility(ally: Pokemon) {
+		// this will only be available if the ability announced itself in some way
+		let allyAbility = Dex.getAbility(ally.ability).name;
+		// otherwise fall back on the original set data sent from the server
+		if (!allyAbility && this.battle.myPokemon) {
+			allyAbility = Dex.getAbility(this.battle.myPokemon[ally.slot].ability).name;
+		}
+		return allyAbility;
 	}
 }
 
