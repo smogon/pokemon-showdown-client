@@ -133,7 +133,8 @@ interface Team {
 	format: ID;
 	packedTeam: string;
 	folder: string;
-	iconCache: string;
+	/** The icon cache must be cleared (to `null`) whenever `packedTeam` is modified */
+	iconCache: preact.ComponentChildren;
 	key: string;
 }
 
@@ -146,7 +147,8 @@ class PSTeams extends PSModel {
 			this.unpackAll(localStorage.getItem('showdown_teams'));
 		} catch {}
 	}
-	getKey(team: Team) {
+	getKey(team: Team | null) {
+		if (!team) return '';
 		if (team.key) return team.key;
 		let key = Math.random().toString().substr(2, 1);
 		for (let i = 2; key in this.byKey; i++) {
@@ -448,17 +450,22 @@ const PS = new class extends PSModel {
 	 */
 	rightRoom: PSRoom | null = null;
 	/**
-	 * The currently focused room. Should always be either `PS.leftRoom`
-	 * or `PS.rightRoom`.
+	 * The currently focused room. Should always be the topmost popup,
+	 * or either `PS.leftRoom` or `PS.rightRoom`.
 	 *
-	 * In one-panel mode, determines whether the left or right panel is
-	 * visible.
-	 *
-	 * Also determines which room receives keyboard shortcuts.
+	 * Determines which room receives keyboard shortcuts.
 	 *
 	 * Clicking inside a panel will focus it, in two-panel mode.
 	 */
 	room: PSRoom = null!;
+	/**
+	 * The currently active panel. Should always be either `PS.leftRoom`
+	 * or `PS.rightRoom`. If no popups are open, should be `PS.room`.
+	 *
+	 * In one-panel mode, determines whether the left or right panel is
+	 * visible.
+	 */
+	activePanel: PSRoom = null!;
 	/**
 	 * Not to be confused with PSPrefs.onepanel, which is permanent.
 	 * PS.onePanelMode will be true if one-panel mode is on, but it will
@@ -688,7 +695,7 @@ const PS = new class extends PSModel {
 			const hyphenIndex = options.id.indexOf('-');
 			switch (hyphenIndex < 0 ? options.id : options.id.slice(0, hyphenIndex + 1)) {
 			case 'teambuilder': case 'ladder': case 'battles': case 'rooms':
-			case 'options': case 'volume':
+			case 'options': case 'volume': case 'teamdropdown':
 				options.type = options.id;
 				break;
 			case 'battle-': case 'user-': case 'team-':
@@ -714,6 +721,9 @@ const PS = new class extends PSModel {
 			case 'user':
 				options.location = 'popup';
 				break;
+			case 'teamdropdown':
+				options.location = 'semimodal-popup';
+				break;
 			}
 		}
 
@@ -736,6 +746,7 @@ const PS = new class extends PSModel {
 			this.rooms[roomid] = newRoom;
 			if (this.leftRoom === room) this.leftRoom = newRoom;
 			if (this.rightRoom === room) this.rightRoom = newRoom;
+			if (this.activePanel === room) this.activePanel = newRoom;
 			if (this.room === room) this.room = newRoom;
 			if (roomid === '') this.mainmenu = newRoom as MainMenuRoom;
 
@@ -751,9 +762,13 @@ const PS = new class extends PSModel {
 	focusRoom(roomid: RoomID) {
 		if (this.leftRoomList.includes(roomid)) {
 			this.leftRoom = this.rooms[roomid]!;
+			this.activePanel = this.leftRoom;
+			while (this.popups.length) this.leave(this.popups.pop()!);
 			this.room = this.leftRoom;
 		} else if (this.rightRoomList.includes(roomid)) {
 			this.rightRoom = this.rooms[roomid]!;
+			this.activePanel = this.rightRoom;
+			while (this.popups.length) this.leave(this.popups.pop()!);
 			this.room = this.rightRoom;
 		} else if (this.rooms[roomid]) { // popup
 			this.room = this.rooms[roomid]!;
@@ -850,7 +865,10 @@ const PS = new class extends PSModel {
 			this.popups.push(room.id);
 			break;
 		}
-		if (!noFocus) this.room = room;
+		if (!noFocus) {
+			if (!this.popups.length) this.activePanel = room;
+			this.room = room;
+		}
 		if (options.queue) {
 			for (const line of options.queue) {
 				room.receive(line);
@@ -868,6 +886,7 @@ const PS = new class extends PSModel {
 		}
 		if (PS.leftRoom === room) {
 			PS.leftRoom = this.mainmenu;
+			if (PS.activePanel === room) PS.activePanel = this.mainmenu;
 			if (PS.room === room) PS.room = this.mainmenu;
 		}
 
@@ -878,14 +897,20 @@ const PS = new class extends PSModel {
 		if (PS.rightRoom === room) {
 			let newRightRoomid = PS.rightRoomList[rightRoomIndex] || PS.rightRoomList[rightRoomIndex - 1];
 			PS.rightRoom = newRightRoomid ? PS.rooms[newRightRoomid]! : null;
-			if (PS.room === room) PS.room = PS.rightRoom || PS.leftRoom;
+			if (PS.activePanel === room) PS.activePanel = PS.rightRoom || PS.leftRoom;
+			if (PS.room === room) PS.room = PS.activePanel;
 		}
+
+		if (this.popups.length && room.id === this.popups[this.popups.length - 1]) {
+			this.popups.pop();
+			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! : PS.activePanel;
+		}
+
 		this.update();
 	}
 	closePopup(skipUpdate?: boolean) {
 		if (!this.popups.length) return;
-		const roomid = this.popups.pop()!;
-		this.leave(roomid);
+		this.leave(this.popups[this.popups.length - 1]);
 		if (!skipUpdate) this.update();
 	}
 	join(roomid: RoomID, side?: PSRoomLocation | null, noFocus?: boolean) {

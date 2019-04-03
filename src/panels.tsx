@@ -105,6 +105,11 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
 		}
 	}
+	componentDidUpdate() {
+		if (this.base && ['popup', 'semimodal-popup'].includes(this.props.room.location)) {
+			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
+		}
+	}
 	componentWillUnmount() {
 		this.props.room.onParentEvent = null;
 		for (const subscription of this.subscriptions) {
@@ -121,10 +126,12 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 	}
 }
 
-function PSPanelWrapper(props: {room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean}) {
+function PSPanelWrapper(props: {
+	room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean, width?: number,
+}) {
 	const room = props.room;
 	if (room.location !== 'left' && room.location !== 'right') {
-		const style = PSMain.getPopupStyle(room);
+		const style = PSMain.getPopupStyle(room, props.width);
 		return <div class="ps-popup" id={`room-${room.id}`} style={style}>
 			{props.children}
 		</div>;
@@ -297,7 +304,7 @@ class PSMain extends preact.Component {
 		let pos: PanelPosition | null = null;
 		if (PS.leftRoomWidth === 0) {
 			// one panel visible
-			if (room === PS.room) pos = {top: 56};
+			if (room === PS.activePanel) pos = {top: 56};
 		} else {
 			// both panels visible
 			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};
@@ -336,9 +343,9 @@ class PSMain extends preact.Component {
 			right: right === null ? `auto` : `${-right}px`,
 		};
 	}
-	static getPopupStyle(room: PSRoom): any {
+	static getPopupStyle(room: PSRoom, width?: number): any {
 		if (room.location === 'modal-popup' || !room.parentElem) {
-			return {width: 480};
+			return {width: width || 480};
 		}
 		if (!room.width || !room.height) {
 			return {
@@ -360,7 +367,7 @@ class PSMain extends preact.Component {
 
 		let availableHeight = document.documentElement.clientHeight;
 		let height = room.height;
-		let width = room.width;
+		width = width || room.width;
 
 		if (room.rightPopup) {
 
@@ -398,6 +405,8 @@ class PSMain extends preact.Component {
 			}
 
 		}
+
+		if (width) style.maxWidth = width;
 
 		return style;
 	}

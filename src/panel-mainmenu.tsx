@@ -103,6 +103,9 @@ class MainMenuPanel extends PSRoomPanel {
 			</p>
 			<p>(We'll be back up in a few hours.)</p>
 		</div> : <div class="menugroup">
+			<p>
+				<TeamDropdown format="gen7ou" />
+			</p>
 			<p><button class="button mainmenu1 big" name="search">
 				<strong>Battle!</strong><br />
 				<small>Find a random opponent</small>
@@ -165,6 +168,31 @@ class MainMenuPanel extends PSRoomPanel {
 				</div>
 			</div>
 		</PSPanelWrapper>;
+	}
+}
+
+class TeamDropdown extends preact.Component<{format: string}> {
+	getTeam() {
+		if (this.base) {
+			const key = (this.base as HTMLButtonElement).value;
+			return PS.teams.byKey[key] || null;
+		}
+		for (const team of PS.teams.list) {
+			if (team.format === this.props.format) return team;
+		}
+		return null;
+	}
+	change = () => this.forceUpdate();
+	render() {
+		const format = this.props.format;
+		const team = this.getTeam();
+		let teambox = null;
+		if (PS.roomTypes['teamdropdown']) {
+			teambox = <TeamBox team={team} noLink />;
+		}
+		return <button class="select teamselect" name="team" data-href="/teamdropdown" data-format={format} onChange={this.change}>
+			{teambox}
+		</button>;
 	}
 }
 

@@ -757,87 +757,6 @@ p.or:after {
 	margin: 2px auto 5px;
 	width: 184px;
 }
-.select, .team {
-	width: 230px;
-	height: 32px;
-	padding: 0 5px;
-	font-size: 9pt;
-	text-align: left;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-	cursor: pointer;
-
-	border-radius: 4px;
-	border: 1px solid #888888;
-	background: #EEEEEE;
-	box-shadow: inset 0 1px 0 #FFFFFF;
-	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
-	color: black;
-	box-sizing: border-box;
-}
-.team:focus {
-	outline: 0 none;
-	border: 1px solid #004488;
-	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
-}
-.select.teamselect {
-	height: 50px;
-	white-space: nowrap;
-	overflow: hidden;
-}
-.teamselect strong {
-	display: block;
-	font-size: 8pt;
-	margin-right: 15px;
-	text-align: center;
-}
-.teamselect:disabled strong {
-	color: #777777;
-}
-.dark .teamselect:disabled strong {
-	color: #505050;
-}
-.teamselect small {
-	margin: -1px 0 0 -3px;
-	display: block;
-}
-.teamselect small .picon {
-	margin: 0 -3px;
-}
-.select:hover, .team.team-hover {
-	border-color: #555555;
-	background: #FFFFFF;
-	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
-}
-.select:active, .team:active {
-	border-color: #777777;
-	background: #DDDDDD;
-	box-shadow: none;
-	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
-}
-.select:after {
-	float: right;
-	font-size: 14px;
-	content: "\f0d7";
-	font-family: FontAwesome;
-	-webkit-font-smoothing: antialiased;
-	color: #777777;
-}
-.select:disabled {
-	border-color: #999999;
-	background: rgba(220,220,220,.65);
-	color: #555555;
-	box-shadow: none;
-}
-.select:disabled:after {
-	color: #AAAAAA;
-}
-.select:disabled small {
-	opacity: 0.7;
-}
-.select.preselected,
-.select:disabled.preselected {
-	color: black;
-}
 
 /*********************************************************
  * Main menu
@@ -2136,6 +2055,124 @@ a.ilink.yours {
 }
 
 /*********************************************************
+ * Team Selector
+ *********************************************************/
+
+.select, .team {
+	width: 265px;
+	height: 32px;
+	padding: 0 5px;
+	font-size: 9pt;
+	text-align: left;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	white-space: nowrap;
+	cursor: pointer;
+
+	border-radius: 4px;
+	border: 1px solid #888888;
+	background: #EEEEEE;
+	box-shadow: inset 0 1px 0 #FFFFFF;
+	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
+	color: black;
+	box-sizing: border-box;
+}
+.team {
+	height: 49px;
+	overflow: hidden;
+}
+.team:focus {
+	outline: 0 none;
+	border: 1px solid #004488;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
+}
+.select.teamselect {
+	height: 49px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.teamselect .team {
+	margin: -1px 0 0 -6px;
+	width: 240px;
+}
+.team strong {
+	display: block;
+	font-size: 8pt;
+	padding-top: 2px;
+	text-align: center;
+}
+.team em {
+	display: block;
+	padding-top: 16px;
+}
+.team strong span {
+	font-style: normal;
+	font-weight: normal;
+}
+.teamselect:disabled strong {
+	color: #777777;
+}
+.dark .teamselect:disabled strong {
+	color: #505050;
+}
+.team small {
+	display: block;
+	text-align: center;
+}
+.team small span {
+	margin-right: -4px;
+}
+.select:hover, .team.team-hover, button.team:hover {
+	border-color: #555555;
+	background: #FFFFFF;
+	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
+}
+.select:active, .team:active, button.team:active {
+	border-color: #777777;
+	background: #DDDDDD;
+	box-shadow: none;
+	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
+}
+.select:before {
+	float: right;
+	padding: 16px 4px 16px 0;
+	font-size: 14px;
+	content: "\f0d7";
+	font-family: FontAwesome;
+	-webkit-font-smoothing: antialiased;
+	color: #777777;
+}
+.select:disabled {
+	border-color: #999999;
+	background: rgba(220,220,220,.65);
+	color: #555555;
+	box-shadow: none;
+}
+.select:disabled:before {
+	color: #AAAAAA;
+}
+.select:disabled small {
+	opacity: 0.7;
+}
+.select.preselected,
+.select:disabled.preselected {
+	color: black;
+}
+
+.teamlist .team, .teamdropdown .team {
+	display: inline-block;
+	width: 300px;
+}
+.teamlist .dragging button {
+	visibility: hidden;
+}
+.teamlist .dragging .team {
+	opacity: 0.4;
+}
+.teamlist .team small {
+	display: block;
+}
+
+/*********************************************************
  * Teambuilder
  *********************************************************/
 
@@ -2303,7 +2340,7 @@ a.ilink.yours {
 	height: 30px;
 }
 
-.teamlist {
+.teamlist, .teamdropdown {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -2312,39 +2349,12 @@ a.ilink.yours {
 	margin: 3px 0;
 	padding: 0;
 }
-
-.teamlist .team {
+.teamdropdown li {
 	display: inline-block;
-	white-space: nowrap;
-	width: 350px;
-	height: 49px;
-	padding: 1px 6px 1px 6px;
-	font-size: 8pt;
-	vertical-align: middle;
-	text-align: center;
+	margin: 3px;
+	padding: 0;
 }
-.teamlist .dragging button {
-	visibility: hidden;
-}
-.teamlist .dragging .team {
-	opacity: 0.4;
-}
-.teamlist .team small {
-	display: block;
-	padding: 0 45px 0 55px;
-}
-.teamlist .team .picon {
-	margin: 0 -2px;
-}
-.teamlist .team .picon span {
-	font-size: 9px !important;
-	display: block;
-	overflow: visible;
-	position: relative;
-	width: 32px;
-	top: 22px;
-	color: transparent;
-}
+
 
 .teamedit {
 	position: absolute;
@@ -3239,13 +3249,13 @@ a.ilink.yours {
 	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.85), rgba(118, 128, 140, 0.85));
 	color: black;
 }
-.dark .select:hover, .dark .team.team-hover {
+.dark .select:hover, .dark .team.team-hover, .dark button.team:hover {
 	border-color: #000000;
 	background: #FFFFFF;
 	color: black;
 	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(161, 175, 189, 0.85));
 }
-.dark .select:active, .dark .team:active {
+.dark .select:active, .dark .team:active, .dark button.team:active {
 	border-color: #000000;
 	box-shadow: none;
 	background: linear-gradient(to bottom, rgba(161, 175, 189, 0.85), rgba(255, 255, 255, 0.85));
@@ -3256,10 +3266,10 @@ a.ilink.yours {
 	color: #444444;
 	box-shadow: none;
 }
-.dark .select:after {
+.dark .select:before {
 	color: #000000;
 }
-.dark .select:disabled:after {
+.dark .select:disabled:before {
 	color: #888888;
 }
 
