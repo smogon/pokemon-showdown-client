@@ -103,6 +103,8 @@ class BattleScene {
 			else if (pokemonId.charAt(2) === ':') return pokemonId.slice(3).trim();
 			return '???pokemon:' + pokemonId + '???';
 		};
+		
+		/* Digimon Showdown Animation Code */
 
 		let numericId = 0;
 		if (battle.id) {
@@ -119,6 +121,7 @@ class BattleScene {
 		this.preloadEffects();
 		// reset() is called during battle initialization, so it doesn't need to be called here
 	}
+	/* End of Digimon Showdown Animation Code */
 
 	reset() {
 		this.updateGen();
