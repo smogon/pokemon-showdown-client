@@ -914,7 +914,7 @@
 				if (nlIndex > 0) {
 					this.receive(data.substr(nlIndex + 1));
 					nlIndex = parts[3].indexOf('\n');
-					parts[3] = parts[3].substr(0, nlIndex);
+					if (nlIndex >= 0) parts[3] = parts[3].substr(0, nlIndex);
 				}
 				var name = parts[1];
 				var named = !!+parts[2];
