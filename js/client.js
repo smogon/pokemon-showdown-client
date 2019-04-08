@@ -139,7 +139,7 @@
 			registered: false,
 			named: false,
 			avatar: 0,
-			settings: {},
+			settings: {}
 		},
 		initialize: function () {
 			app.addGlobalListeners();
@@ -954,7 +954,7 @@
 					userid: userid,
 					named: named,
 					avatar: parts[3],
-					settings: JSON.parse(parts[4]),
+					settings: JSON.parse(parts[4])
 				});
 				this.user.setPersistentName(named ? name : null);
 				if (named) {
