@@ -488,8 +488,10 @@
 			buf += '<hr />';
 			buf += '<p><strong>Chat</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"' + (Dex.prefs('notournaments') ? ' checked' : '') + ' /> Ignore tournaments</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="blockpms"' + (settings.blockPMs ? ' checked' : '') + ' /> Block PMs</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="blockchallenges"' + (settings.blockChallenges ? ' checked' : '') + ' /> Block Challenges</label></p>';
+			if (Object.keys(settings).length) {
+				buf += '<p><label class="optlabel"><input type="checkbox" name="blockpms"' + (settings.blockPMs ? ' checked' : '') + ' /> Block PMs</label></p>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="blockchallenges"' + (settings.blockChallenges ? ' checked' : '') + ' /> Block Challenges</label></p>';
+			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="inchatpm"' + (Dex.prefs('inchatpm') ? ' checked' : '') + ' /> Show PMs in chat rooms</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"' + (!Dex.prefs('noselfhighlight') ? ' checked' : '') + '> Highlight when your name is said in chat</label></p>';
 
