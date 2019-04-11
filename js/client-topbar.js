@@ -440,6 +440,8 @@
 			'change input[name=bwgfx]': 'setBwgfx',
 			'change input[name=nopastgens]': 'setNopastgens',
 			'change input[name=notournaments]': 'setNotournaments',
+			'change input[name=blockchallenges]': 'setBlockchallenges',
+			'change input[name=blockpms]': 'setBlockpms',
 			'change input[name=inchatpm]': 'setInchatpm',
 			'change input[name=dark]': 'setDark',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
@@ -454,6 +456,7 @@
 		update: function () {
 			var name = app.user.get('name');
 			var avatar = app.user.get('avatar');
+			var settings = app.user.get('settings');
 
 			var buf = '';
 			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Dex.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
@@ -485,6 +488,10 @@
 			buf += '<hr />';
 			buf += '<p><strong>Chat</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"' + (Dex.prefs('notournaments') ? ' checked' : '') + ' /> Ignore tournaments</label></p>';
+			if (Object.keys(settings).length) {
+				buf += '<p><label class="optlabel"><input type="checkbox" name="blockpms"' + (settings.blockPMs ? ' checked' : '') + ' /> Block PMs</label></p>';
+				buf += '<p><label class="optlabel"><input type="checkbox" name="blockchallenges"' + (settings.blockChallenges ? ' checked' : '') + ' /> Block Challenges</label></p>';
+			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="inchatpm"' + (Dex.prefs('inchatpm') ? ' checked' : '') + ' /> Show PMs in chat rooms</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"' + (!Dex.prefs('noselfhighlight') ? ' checked' : '') + '> Highlight when your name is said in chat</label></p>';
 
@@ -552,6 +559,12 @@
 		setNotournaments: function (e) {
 			var notournaments = !!e.currentTarget.checked;
 			Dex.prefs('notournaments', notournaments);
+		},
+		setBlockpms: function (e) {
+			app.user.updateSetting('blockPMs', !!e.currentTarget.checked);
+		},
+		setBlockchallenges: function (e) {
+			app.user.updateSetting('blockChallenges', !!e.currentTarget.checked);
 		},
 		setSelfHighlight: function (e) {
 			var noselfhighlight = !e.currentTarget.checked;
