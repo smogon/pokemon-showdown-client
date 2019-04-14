@@ -119,7 +119,7 @@ class BattleScene {
 		this.preloadEffects();
 		// reset() is called during battle initialization, so it doesn't need to be called here
 	}
-	
+
 	reset() {
 		this.updateGen();
 
