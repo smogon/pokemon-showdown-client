@@ -599,6 +599,8 @@ class BattleLog {
 			'marquee::width': 0,
 			'psicon::pokemon': 0,
 			'psicon::item': 0,
+			'*::aria-label': 0,
+			'*::aria-hidden': 0,
 		});
 
 		this.tagPolicy = (tagName: string, attribs: string[]) => {
