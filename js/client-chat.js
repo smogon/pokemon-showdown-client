@@ -1757,11 +1757,11 @@
 			if (aUser.away !== bUser.away) return aUser.away - bUser.away;
 
 			var aRank = (
-				Config.groups[(aUser ? aUser.name.charAt(0) : Config.defaultGroup || ' ')] ||
+				Config.groups[aUser ? aUser.name.charAt(0) : Config.defaultGroup || ' '] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 			var bRank = (
-				Config.groups[(bUser ? bUser.name.charAt(0) : Config.defaultGroup || ' ')] ||
+				Config.groups[bUser ? bUser.name.charAt(0) : Config.defaultGroup || ' '] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 
