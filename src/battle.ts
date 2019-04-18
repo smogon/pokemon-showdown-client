@@ -1356,7 +1356,7 @@ class Battle {
 			targets.push(target.side.missedPokemon);
 		} else {
 			for (const hitTarget of kwArgs.spread.split(',')) {
-				targets.push(this.getPokemon(hitTarget + ': ?')!);
+				targets.push(this.getPokemon(hitTarget)!);
 			}
 		}
 
