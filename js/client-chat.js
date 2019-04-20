@@ -1414,7 +1414,7 @@
 				var users = userList.substr(commaIndex + 1).split(',');
 				for (var i = 0, len = users.length; i < len; i++) {
 					if (users[i]) {
-						var user = parseNameParts(users[i]);
+						var user = BattleTextParser.parseNameParts(users[i]);
 						this.users[toUserid(user.name)] = user;
 					}
 				}
@@ -1425,7 +1425,7 @@
 			this.userList.construct();
 		},
 		addJoinLeave: function (action, name, oldid, silent) {
-			var user = parseNameParts(name);
+			var user = BattleTextParser.parseNameParts(name);
 			var userid = toUserid(user.name);
 			if (!action) {
 				this.$joinLeave = null;

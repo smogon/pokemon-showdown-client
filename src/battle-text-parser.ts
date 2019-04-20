@@ -56,6 +56,23 @@ class BattleTextParser {
 		}
 		return BattleTextParser.upgradeArgs({args, kwArgs});
 	}
+
+	static parseNameParts(text: string) {
+		const atIndex = text.indexOf('@');
+		let name = text;
+		let status = '';
+		let away = false;
+		if (atIndex > 0) {
+			name = text.substr(0, atIndex);
+			status = text.substr(atIndex + 1);
+			if (status.startsWith('!')) {
+				away = true;
+				status = status.substr(1);
+			}
+		}
+		return {name, status, away};
+	}
+
 	static upgradeArgs({args, kwArgs}: {args: Args, kwArgs: KWArgs}): {args: Args, kwArgs: KWArgs} {
 		switch (args[0]) {
 		case '-activate': {

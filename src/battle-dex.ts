@@ -128,22 +128,6 @@ function toUserid(text: any) {
 	return toId(text);
 }
 
-function parseNameParts(text: string) {
-	const atIndex = text.indexOf('@');
-	let name = text;
-	let status = '';
-	let away = false;
-	if (atIndex > 0) {
-		name = text.substr(0, atIndex);
-		status = text.substr(atIndex + 1);
-		if (status.startsWith('!')) {
-			away = true;
-			status = status.substr(1);
-		}
-	}
-	return {name, status, away};
-}
-
 /**
  * Sanitize a room ID by removing anything that isn't alphanumeric or `-`.
  * Shouldn't actually do anything except against malicious input.
