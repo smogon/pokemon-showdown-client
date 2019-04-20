@@ -771,6 +771,9 @@ class ModdedDex {
 			if (id in table.removeSecondAbility) {
 				delete abilities['1'];
 			}
+			if (id in table.overrideHiddenAbility) {
+				abilities['H'] = table.overrideHiddenAbility[id];
+			}
 			if (this.gen < 5) delete abilities['H'];
 			if (this.gen < 7) delete abilities['S'];
 
