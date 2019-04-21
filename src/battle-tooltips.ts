@@ -133,12 +133,6 @@ class ModifiableValue {
 	}
 }
 
-interface AbilityData {
-	ability: string;
-	baseAbility: string;
-	possibilities: string[];
-}
-
 class BattleTooltips {
 	battle: Battle;
 
@@ -668,14 +662,15 @@ class BattleTooltips {
 		}
 
 		const supportsAbilities = this.battle.gen > 2 && !this.battle.tier.includes("Let's Go");
+
+		let abilityText = '';
 		if (supportsAbilities) {
-			text += this.getPokemonAbilityText(clientPokemon, serverPokemon);
+			abilityText = this.getPokemonAbilityText(clientPokemon, serverPokemon, isActive);
 		}
-		if (serverPokemon) {
-			if (serverPokemon.item) {
-				let itemName = Dex.getItem(serverPokemon.item).name;
-				text += '<p><small>Item:</small> ' + itemName + '</p>';
-			}
+
+		let itemText = '';
+		if (serverPokemon && serverPokemon.item) {
+			itemText = '<small>Item:</small> ' + Dex.getItem(serverPokemon.item).name;
 		} else if (clientPokemon) {
 			let item = '';
 			let itemEffect = clientPokemon.itemEffect || '';
@@ -687,8 +682,17 @@ class BattleTooltips {
 			}
 			if (pokemon.item) item = Dex.getItem(pokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
-			if (item) text += '<p><small>Item:</small> ' + item + itemEffect + '</p>';
+			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		}
+
+		text += '<p>';
+		text += abilityText;
+		if (itemText) {
+			// ability/item on one line for your own switch tooltips, two lines everywhere else
+			text += (!isActive && serverPokemon ? ' / ' : '</p><p>');
+			text += itemText;
+		}
+		text += '</p>';
 
 		text += this.renderStats(clientPokemon, serverPokemon, !isActive);
 
@@ -1555,8 +1559,10 @@ class BattleTooltips {
 		}
 		return allyAbility;
 	}
-	getPokemonAbilityData(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined): AbilityData {
-		const abilityData: AbilityData = {ability: '', baseAbility: '', possibilities: []};
+	getPokemonAbilityData(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined) {
+		const abilityData: {ability: string, baseAbility: string, possibilities: string[]} = {
+			ability: '', baseAbility: '', possibilities: [],
+		};
 		if (clientPokemon) {
 			if (clientPokemon.ability) {
 				abilityData.ability = clientPokemon.ability || clientPokemon.baseAbility;
@@ -1581,15 +1587,25 @@ class BattleTooltips {
 		}
 		return abilityData;
 	}
-	getPokemonAbilityText(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined) {
+	getPokemonAbilityText(
+		clientPokemon: Pokemon | null,
+		serverPokemon: ServerPokemon | null | undefined,
+		isActive: boolean | undefined
+	) {
 		let text = '';
 		const abilityData = this.getPokemonAbilityData(clientPokemon, serverPokemon);
-		if (abilityData.ability) {
-			text = '<p><small>Ability:</small> ' + Dex.getAbility(abilityData.ability).name;
-			if (abilityData.baseAbility) text += ' (base: ' + Dex.getAbility(abilityData.baseAbility).name + ')';
-			text += '</p>';
-		} else if (abilityData.possibilities && abilityData.possibilities.length) {
-			text = '<p><small>Possible abilities:</small> ' + abilityData.possibilities.join(', ') + '</p>';
+		if (!isActive) {
+			// for switch tooltips, only show the original ability
+			const ability = abilityData.baseAbility || abilityData.ability;
+			if (ability) text = '<small>Ability:</small> ' + Dex.getAbility(ability).name;
+		} else {
+			if (abilityData.ability) {
+				text = '<small>Ability:</small> ' + Dex.getAbility(abilityData.ability).name;
+				if (abilityData.baseAbility) text += ' (base: ' + Dex.getAbility(abilityData.baseAbility).name + ')';
+			}
+		}
+		if (!text && abilityData.possibilities.length) {
+			text = '<small>Possible abilities:</small> ' + abilityData.possibilities.join(', ');
 		}
 		return text;
 	}
