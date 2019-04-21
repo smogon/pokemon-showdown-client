@@ -24,6 +24,7 @@ module.exports = {
 		"BattleOtherAnims": false,  "BattlePokedex": false,"BattlePokemonSprites": false, "BattlePokemonSpritesBW": false, "BattleSearchCountIndex": false, "BattleSearchIndex": false, "BattleArticleTitles": false,
 		"BattleSearchIndexOffset": false, "BattleSearchIndexType": false, "BattleStatIDs": false, "BattleStatNames": false, "BattleStats": false, "BattleStatusAnims": false, "BattleStatuses": false, "BattleTeambuilderTable": false,
 		"ModifiableValue": false, "BattleStatGuesser": false, "BattleText": true, "BattleTextAFD": false, "BattleTextNotAFD": false,
+		"BattleTextParser": false,
 
 		// Generic global variables
 		"Config": false, "BattleSearch": false, "soundManager": false, "Storage": false, "Dex": false,
