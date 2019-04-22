@@ -935,7 +935,7 @@
 				var nlIndex = data.indexOf('\n');
 				if (nlIndex > 0) {
 					this.receive(data.substr(nlIndex + 1));
-					parts = data.substr(0, nlIndex).split('|');
+					parts = data.slice(1, nlIndex).split('|');
 				}
 				var name = parts[1];
 				var named = !!+parts[2];
