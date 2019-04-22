@@ -30,11 +30,13 @@
 		updateUserbar: function () {
 			var buf = '';
 			var name = ' ' + app.user.get('name');
-			var color = BattleLog.hashColor(app.user.get('userid'));
+			var away = app.user.get('away');
+			var status = app.user.get('status');
+			var color = away ? 'color:#AAA;' : BattleLog.hashColor(app.user.get('userid'));
 			if (!app.user.loaded) {
 				buf = '<button disabled>Loading...</button>';
 			} else if (app.user.get('named')) {
-				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '" style="' + color + '"><i class="fa fa-user" style="color:#779EC5"></i> ' + BattleLog.escapeHTML(name) + '</span>';
+				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '"' + (away ? ' data-away=true' : '') + (status ? 'data-status="' + status + '"' : '') + ' style="' + color + '"><i class="fa fa-user" style="color:' + (away ? '#AAA;' : '#779EC5') + '"></i> ' + BattleLog.escapeHTML(name) + '</span>';
 			} else {
 				buf = '<button name="login">Choose name</button>';
 			}
