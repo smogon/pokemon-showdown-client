@@ -937,6 +937,7 @@
 					this.receive(data.substr(nlIndex + 1));
 					parts = data.substr(0, nlIndex).split('|');
 				}
+				if (!parts[0]) parts.shift();
 				var name = parts[1];
 				var named = !!+parts[2];
 
