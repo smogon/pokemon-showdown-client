@@ -314,7 +314,7 @@
 				if (m2 && (m2[0] === '/' || m2[0] === '!')) spaceprefix = '';
 
 				for (var i in users) {
-					if (spaceprefix && users[i].substr(1).replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase().substr(0, spaceprefix.length) === spaceprefix) {
+					if (spaceprefix && users[i].name.substr(1).replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase().substr(0, spaceprefix.length) === spaceprefix) {
 						candidates.push([i, m2[1].length]);
 					} else if (idprefix && i.substr(0, idprefix.length) === idprefix) {
 						candidates.push([i, m1[1].length]);
@@ -352,8 +352,9 @@
 			// Substitute in the tab-completed name.
 			var candidate = this.tabComplete.candidates[this.tabComplete.index];
 			var substituteUserId = candidate[0];
-			if (!users[substituteUserId]) return true;
-			var name = users[substituteUserId].substr(1);
+			var substituteUser = users[substituteUserId];
+			if (!substituteUser) return true;
+			var name = substituteUser.name.substr(1);
 			name = Dex.getShortName(name);
 			var fullPrefix = this.tabComplete.prefix.substr(0, candidate[1]) + name;
 			$textbox.val(fullPrefix + text.substr(idx));
