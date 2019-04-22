@@ -26,6 +26,7 @@
 		},
 		updateUser: function () {
 			var name = app.user.get('name');
+			var userid = app.user.get('userid');
 			if (this.expired) {
 				this.$chatAdd.html(this.expired === true ? 'This room is expired' : BattleLog.sanitizeHTML(this.expired));
 				this.$chatbox = null;
@@ -36,8 +37,7 @@
 				this.$chatAdd.html('<form><button name="login">Join chat</button></form>');
 				this.$chatbox = null;
 			} else {
-				var color = app.user.get('away') ? 'color:#AAA;' : BattleLog.hashColor(app.user.get('userid'));
-				this.$chatAdd.html('<form class="chatbox"><label style="' + color + '">' + BattleLog.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
+				this.$chatAdd.html('<form class="chatbox"><label style="' + BattleLog.hashColor(userid) + '">' + BattleLog.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
 				this.$chatbox = this.$chatAdd.find('textarea');
 				this.$chatbox.autoResize({
 					animate: false,
@@ -175,9 +175,7 @@
 				position = 'right';
 			}
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
-			var away = $(e.currentTarget).data('away') || false;
-			var status = $(e.currentTarget).data('status');
-			app.addPopup(UserPopup, {name: name, away: away, status: status, sourceEl: e.currentTarget, position: position});
+			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget, position: position});
 		},
 		openPM: function (e) {
 			e.preventDefault();
@@ -1413,10 +1411,7 @@
 				this.userCount.users = parseInt(userList.substr(0, commaIndex), 10);
 				var users = userList.substr(commaIndex + 1).split(',');
 				for (var i = 0, len = users.length; i < len; i++) {
-					if (users[i]) {
-						var user = BattleTextParser.parseNameParts(users[i]);
-						this.users[toUserid(user.name)] = user;
-					}
+					if (users[i]) this.users[toId(users[i])] = users[i];
 				}
 			} else {
 				this.userCount.users = parseInt(userList, 10);
@@ -1425,8 +1420,7 @@
 			this.userList.construct();
 		},
 		addJoinLeave: function (action, name, oldid, silent) {
-			var user = BattleTextParser.parseNameParts(name);
-			var userid = toUserid(user.name);
+			var userid = toUserid(name);
 			if (!action) {
 				this.$joinLeave = null;
 				this.joinLeave = {
@@ -1437,7 +1431,7 @@
 			} else if (action === 'join') {
 				if (oldid) delete this.users[toUserid(oldid)];
 				if (!this.users[userid]) this.userCount.users++;
-				this.users[userid] = user;
+				this.users[userid] = name;
 				this.userList.add(userid);
 				this.userList.updateUserCount();
 				this.userList.updateNoUsersOnline();
@@ -1449,13 +1443,7 @@
 				this.userList.updateNoUsersOnline();
 			} else if (action === 'rename') {
 				if (oldid) delete this.users[toUserid(oldid)];
-				if (toUserid(oldid) === app.user.get('userid')) {
-					app.user.set({
-						away: user.away,
-						status: user.status
-					});
-				}
-				this.users[userid] = user;
+				this.users[userid] = name;
 				this.userList.remove(oldid);
 				this.userList.add(userid);
 				return;
@@ -1469,7 +1457,7 @@
 				this.$chat.append('<div class="message"><small>Loading...</small></div>');
 				this.$joinLeave = this.$chat.children().last();
 			}
-			this.joinLeave[action].push(user.name);
+			this.joinLeave[action].push(name);
 			var message = '';
 			if (this.joinLeave['join'].length) {
 				var preList = this.joinLeave['join'];
@@ -1532,8 +1520,7 @@
 			var userid = toUserid(name);
 
 			var speakerHasAuth = " +\u2606".indexOf(name.charAt(0)) < 0;
-			var user = (this.users && this.users[app.user.get('userid')]) || {};
-			var readerHasAuth = user.name && " +\u2606\u203D!".indexOf((user.name || ' ').charAt(0)) < 0;
+			var readerHasAuth = this.users && " +\u2606\u203D!".indexOf((this.users[app.user.get('userid')] || ' ').charAt(0)) < 0;
 			if (app.ignore[userid] && !speakerHasAuth && !readerHasAuth) return;
 
 			// Add this user to the list of people who have spoken recently.
@@ -1712,23 +1699,21 @@
 			$('#' + this.room.id + '-userlist-user-' + userid).remove();
 		},
 		constructItem: function (userid) {
-			var user = this.room.users[userid];
+			var name = this.room.users[userid];
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + BattleLog.escapeHTML(userid) + '">';
-			text += '<button class="userbutton username" data-name="' + BattleLog.escapeHTML(user.name) + '"';
-			text += (user.away ? ' data-away=true' : '') + (user.status ? ' data.status="' + user.status + '"' : '') + '>';
-			var group = user.name.charAt(0);
+			text += '<button class="userbutton username" data-name="' + BattleLog.escapeHTML(name) + '">';
+			var group = name.charAt(0);
 			var details = Config.groups[group] || {type: 'user'};
-			var color = user.away ? 'color:#AAA;' : BattleLog.hashColor(userid);
 			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + BattleLog.escapeHTML(group) + '</em>';
 			if (details.type === 'leadership') {
-				text += '<strong><em style="' + color + '">' + BattleLog.escapeHTML(user.name.substr(1)) + '</em></strong>';
+				text += '<strong><em style="' + BattleLog.hashColor(userid) + '">' + BattleLog.escapeHTML(name.substr(1)) + '</em></strong>';
 			} else if (details.type === 'staff') {
-				text += '<strong style="' + color + '">' + BattleLog.escapeHTML(user.name.substr(1)) + '</strong>';
+				text += '<strong style="' + BattleLog.hashColor(userid) + '">' + BattleLog.escapeHTML(name.substr(1)) + '</strong>';
 			} else {
-				text += '<span style="' + color + '">' + BattleLog.escapeHTML(user.name.substr(1)) + '</span>';
+				text += '<span style="' + BattleLog.hashColor(userid) + '">' + BattleLog.escapeHTML(name.substr(1)) + '</span>';
 			}
 			text += '</button>';
 			text += '</li>';
@@ -1751,17 +1736,12 @@
 		},
 		comparator: function (a, b) {
 			if (a === b) return 0;
-
-			var aUser = this.room.users[a];
-			var bUser = this.room.users[b];
-			if (aUser.away !== bUser.away) return aUser.away - bUser.away;
-
 			var aRank = (
-				Config.groups[aUser ? aUser.name.charAt(0) : Config.defaultGroup || ' '] ||
+				Config.groups[(this.room.users[a] ? this.room.users[a].charAt(0) : Config.defaultGroup || ' ')] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 			var bRank = (
-				Config.groups[bUser ? bUser.name.charAt(0) : Config.defaultGroup || ' '] ||
+				Config.groups[(this.room.users[b] ? this.room.users[b].charAt(0) : Config.defaultGroup || ' ')] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 
