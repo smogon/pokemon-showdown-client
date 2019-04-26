@@ -90,20 +90,23 @@ class BattleLog {
 			}
 			break;
 
-		case 'join': case 'j':
-			divHTML = '<small>' + BattleLog.escapeHTML(args[1]) + ' joined.</small>';
+		case 'join': case 'j': {
+			const user = BattleTextParser.parseNameParts(args[1]);
+			divHTML = '<small>' + BattleLog.escapeHTML(user.name) + ' joined.</small>';
 			break;
-
-		case 'leave': case 'l':
-			divHTML = '<small>' + BattleLog.escapeHTML(args[1]) + ' left.</small>';
+		}
+		case 'leave': case 'l': {
+			const user = BattleTextParser.parseNameParts(args[1]);
+			divHTML = '<small>' + BattleLog.escapeHTML(user.name) + ' left.</small>';
 			break;
-
-		case 'name': case 'n':
-			if (toId(args[2]) !== toId(args[1])) {
-				divHTML = '<small>' + BattleLog.escapeHTML(args[1]) + ' renamed from ' + BattleLog.escapeHTML(args[2]) + '.</small>';
+		}
+		case 'name': case 'n': {
+			const user = BattleTextParser.parseNameParts(args[1]);
+			if (toId(args[2]) !== toId(user.name)) {
+				divHTML = '<small>' + BattleLog.escapeHTML(user.name) + ' renamed from ' + BattleLog.escapeHTML(args[2]) + '.</small>';
 			}
 			break;
-
+		}
 		case 'chatmsg': case '':
 			divHTML = BattleLog.escapeHTML(args[1]);
 			break;
@@ -133,14 +136,14 @@ class BattleLog {
 			this.addDiv('chat', '<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + BattleLog.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
 			return;
 
-		case 'unlink':
+		case 'unlink': {
 			const user = toId(args[2]) || toId(args[1]);
 			this.unlinkChatFrom(user);
 			if (args[2]) {
 				this.hideChatFrom(user);
 			}
 			return;
-
+		}
 		case 'debug':
 			divClass = 'debug';
 			divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
