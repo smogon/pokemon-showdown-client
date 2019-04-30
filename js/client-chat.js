@@ -1426,8 +1426,6 @@
 			this.userList.construct();
 		},
 		addJoinLeave: function (action, name, oldid, silent) {
-			var user = BattleTextParser.parseNameParts(name);
-			var userid = toUserid(user.name);
 			if (!action) {
 				this.$joinLeave = null;
 				this.joinLeave = {
@@ -1435,7 +1433,10 @@
 					'leave': []
 				};
 				return;
-			} else if (action === 'join') {
+			}
+			var user = BattleTextParser.parseNameParts(name);
+			var userid = toUserid(user.name);
+			if (action === 'join') {
 				if (oldid) delete this.users[toUserid(oldid)];
 				if (!this.users[userid]) this.userCount.users++;
 				this.users[userid] = user;
