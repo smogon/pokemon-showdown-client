@@ -2586,6 +2586,8 @@
 			case 'ability':
 				if (id in BattleItems && this.curTeam.format == "gen7dualwielding") {
 					val = BattleItems[id].name;
+				} else if (id in BattleMovedex && this.curTeam.format == "gen7trademarked") {
+					val = BattleMovedex[id].name;
 				} else {
 					val = (id in BattleAbilities ? BattleAbilities[id].name : '');
 				}
