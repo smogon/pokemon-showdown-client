@@ -3049,6 +3049,11 @@ a.ilink.yours {
 	width: 200px;
 }
 
+.userstatus {
+	font-style: italic;
+	font-size: 8pt;
+}
+
 .userdetails {
 	min-height: 80px;
 	width: 191px;
