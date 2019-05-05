@@ -3139,9 +3139,9 @@ class Battle {
 		case 'join': case 'j': {
 			if (this.roomid) {
 				let room = app!.rooms[this.roomid];
-				let user = args[1];
-				let userid = toUserid(user);
-				if (/^[a-z0-9]/i.test(user)) user = ' ' + user;
+				let user = BattleTextParser.parseNameParts(args[1]);
+				let userid = toUserid(user.name);
+				if (/^[a-z0-9]/i.test(user.name)) user.name = ' ' + user.name;
 				if (!room.users[userid]) room.userCount.users++;
 				room.users[userid] = user;
 				room.userList.add(userid);
@@ -3172,11 +3172,17 @@ class Battle {
 		case 'name': case 'n': {
 			if (this.roomid) {
 				let room = app!.rooms[this.roomid];
-				let newuser = args[1];
-				let olduser = args[2];
-				let userid = toUserid(newuser);
-				room.users[userid] = newuser;
-				room.userList.remove(olduser);
+				let user = BattleTextParser.parseNameParts(args[1]);
+				let oldid = args[2];
+				if (toUserid(oldid) === app!.user.get('userid')) {
+					app!.user.set({
+						away: user.away,
+						status: user.status,
+					});
+				}
+				let userid = toUserid(user.name);
+				room.users[userid] = user;
+				room.userList.remove(oldid);
 				room.userList.add(userid);
 			}
 			if (!this.ignoreSpects) {
