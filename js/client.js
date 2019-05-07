@@ -911,13 +911,14 @@
 			}
 
 			switch (parts[0]) {
+			case 'groups':
 			case 'customgroups':
 				var nlIndex = data.indexOf('\n');
 				if (nlIndex > 0) {
 					this.receive(data.substr(nlIndex + 1));
 				}
 
-				var tarRow = data.slice(14, nlIndex);
+				var tarRow = data.slice(parts[0].length + 2, nlIndex);
 				this.parseGroups(tarRow);
 				break;
 
@@ -1093,8 +1094,12 @@
 				var groupName = entry.name;
 				var groupType = entry.type || 'user';
 
-				if (groupType === 'normal' && !Config.defaultOrder) Config.defaultOrder = i + 0.5; // this is where any undeclared groups will be positioned in userlist
-				if (!groupName) Config.defaultGroup = symbol;
+				if (groupType === 'normal') {
+					if (!Config.defaultOrder) Config.defaultOrder = i + 0.5; // this is where any undeclared groups will be positioned in userlist
+				} else if (groupType === 'default') {
+					Config.defaultGroup = symbol;
+					if (!Config.defaultOrder) Config.defaultOrder = i + 0.5; // this is where any undeclared groups will be positioned in userlist
+				}
 
 				groups[symbol] = {
 					name: groupName ? BattleLog.escapeHTML(groupName + ' (' + symbol + ')') : null,
