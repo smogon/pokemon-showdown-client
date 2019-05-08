@@ -527,8 +527,8 @@ const Dex = new class implements ModdedDex {
 			spriteData.url += dir + '/' + name + '.png';
 			return spriteData;
 		}
-		
-		//Digimon Crys
+
+		// Digimon Crys
 		if (options.digi) {
 		spriteData.cryurl = 'sprites/digimon/audio/' + toId(template.baseSpecies);
 		spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
