@@ -607,6 +607,7 @@
 						nodesByDepth.push(0);
 					++nodesByDepth[frame.depth];
 
+					if (!frame.node.children) frame.node.children = [];
 					frame.node.children.forEach(function (child) {
 						stack.push({node: child, depth: frame.depth + 1});
 					});
