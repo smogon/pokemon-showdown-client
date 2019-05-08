@@ -528,10 +528,10 @@ const Dex = new class implements ModdedDex {
 			return spriteData;
 		}
 
-		// Digimon Crys
+		// Digimon Cries
 		if (options.digi) {
-		spriteData.cryurl = 'sprites/digimon/audio/' + toId(template.baseSpecies);
-		spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
+			spriteData.cryurl = 'sprites/digimon/audio/' + toId(template.baseSpecies);
+			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 		}
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
