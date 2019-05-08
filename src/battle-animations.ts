@@ -37,6 +37,7 @@ class BattleScene {
 
 	/** Note: Not the actual generation of the battle, but the gen of the sprites/background */
 	gen = 7;
+	digi = false;
 	/** 1 = singles, 2 = doubles, 3 = triples */
 	activeCount = 1;
 
@@ -106,6 +107,7 @@ class BattleScene {
 		let numericId = 0;
 		if (battle.id) {
 			numericId = parseInt(battle.id.slice(battle.id.lastIndexOf('-') + 1), 10);
+			if (this.battle.id.includes('digimon')) this.digi = true;
 		}
 		if (!numericId) {
 			numericId = Math.floor(Math.random() * 1000000);

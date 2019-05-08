@@ -438,7 +438,7 @@ const Dex = new class implements ModdedDex {
 		document.getElementsByTagName('body')[0].appendChild(el);
 	}
 	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {
-		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean,
+		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, digi?: boolean,
 	} = {gen: 6}) {
 		if (!options.gen) options.gen = 6;
 		if (pokemon instanceof Pokemon) {
@@ -526,6 +526,12 @@ const Dex = new class implements ModdedDex {
 			dir = 'afd' + dir;
 			spriteData.url += dir + '/' + name + '.png';
 			return spriteData;
+		}
+		
+		//Digimon Crys
+		if (options.digi) {
+		spriteData.cryurl = 'sprites/digimon/audio/' + toId(template.baseSpecies);
+		spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 		}
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
