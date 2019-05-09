@@ -599,7 +599,7 @@
 				var typeValueTracker = new ModifiableValue(this.battle, this.battle.mySide.active[pos], this.battle.myPokemon[pos]);
 				for (var i = 0; i < curActive.moves.length; i++) {
 					var moveData = curActive.moves[i];
-					var move = Dex.getMove(moveData.move);
+					var move = this.battle.dex.getMove(moveData.move);
 					var name = move.name;
 					var pp = moveData.pp + '/' + moveData.maxpp;
 					if (!moveData.maxpp) pp = '&ndash;';
@@ -623,7 +623,7 @@
 						movebuttons = '<div class="movebuttons-noz">' + movebuttons + '</div><div class="movebuttons-z" style="display:none">';
 						for (var i = 0; i < curActive.moves.length; i++) {
 							var moveData = curActive.moves[i];
-							var move = Dex.getMove(moveData.move);
+							var move = this.battle.dex.getMove(moveData.move);
 							var moveType = this.tooltips.getMoveType(move, typeValueTracker)[0];
 							if (canZMove[i]) {
 								var tooltipArgs = 'zmove|' + move.id + '|' + pos;
