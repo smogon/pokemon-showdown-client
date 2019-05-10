@@ -736,18 +736,22 @@ class BattleTooltips {
 	calculateModifiedStats(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon) {
 		let stats = {...serverPokemon.stats};
 		let pokemon = clientPokemon || serverPokemon;
-		for (const statName of Dex.statNamesExceptHP) {
-			stats[statName] = serverPokemon.stats[statName];
-
-			if (clientPokemon && clientPokemon.boosts[statName]) {
-				let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
-				if (clientPokemon.boosts[statName] > 0) {
-					stats[statName] *= boostTable[clientPokemon.boosts[statName]];
-				} else {
-					if (this.battle.gen <= 2) boostTable = [1, 100 / 66, 2, 2.5, 100 / 33, 100 / 28, 4];
-					stats[statName] /= boostTable[-clientPokemon.boosts[statName]];
+		
+		if (clientPokemon && clientPokemon.boosts) {
+      	for (const statName in clientPokemon.boosts) {
+      		const boost = clientPokemon.boosts[statName];
+      		const targetStat = statName == 'spc' ? 'spa' : statName;
+      		
+				if (stats[targetStat]) {
+      			let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
+					if (boost > 0) {
+						stats[targetStat] *= boostTable[boost];
+					} else {
+						if (this.battle.gen <= 2) boostTable = [1, 100 / 66, 2, 2.5, 100 / 33, 100 / 28, 4];
+						stats[targetStat] /= boostTable[-boost];
+					}
+      			stats[targetStat] = Math.floor(stats[targetStat]);
 				}
-				stats[statName] = Math.floor(stats[statName]);
 			}
 		}
 
