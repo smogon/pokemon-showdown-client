@@ -37,7 +37,7 @@ class BattleScene {
 
 	/** Note: Not the actual generation of the battle, but the gen of the sprites/background */
 	gen = 7;
-	mod: string = '';
+	mod = '';
 	/** 1 = singles, 2 = doubles, 3 = triples */
 	activeCount = 1;
 
