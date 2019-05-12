@@ -144,6 +144,11 @@
 			var autoscroll = ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height());
 
 			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat);
+			var mayNotify = true;
+			if (typeof parsedMessage === 'object' && 'noNotify' in parsedMessage) {
+				mayNotify = !parsedMessage.noNotify;
+				parsedMessage = parsedMessage.message;
+			}
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
@@ -156,7 +161,7 @@
 				app.curSideRoom.addPM(name, message, target);
 			}
 
-			if (!isSelf && textContent) {
+			if (mayNotify && !isSelf && textContent) {
 				this.notifyOnce("PM from " + name, "\"" + textContent + "\"", 'pm');
 			}
 
@@ -996,6 +1001,8 @@
 				return '';
 			case 'raw':
 				return '<div class="chat">' + BattleLog.sanitizeHTML(target) + '</div>';
+			case 'nonotify':
+				return {message: '<div class="chat">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
 			default:
 				// Not a command or unsupported. Parsed as a normal chat message.
 				if (!name) {
