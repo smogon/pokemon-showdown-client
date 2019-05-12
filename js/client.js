@@ -2472,7 +2472,7 @@
 			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
 			var offline = data.rooms === false;
 			if (data.status || offline) {
-				buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + (offline ? 'Offline' : data.status) + '</span><br />';
+				buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + (offline ? 'Offline' : BattleLog.escapeHTML(data.status)) + '</span><br />';
 			}
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (globalgroup) buf += '<br /><small>' + globalgroup + '</small>';

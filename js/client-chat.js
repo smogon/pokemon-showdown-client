@@ -1724,7 +1724,7 @@
 			// IDs can't contain anything dangerous.
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + BattleLog.escapeHTML(userid) + '">';
 			text += '<button class="userbutton username" data-name="' + BattleLog.escapeHTML(user.name) + '"';
-			text += (user.away ? ' data-away=true' : '') + (user.status ? ' data.status="' + user.status + '"' : '') + '>';
+			text += (user.away ? ' data-away=true' : '') + (user.status ? ' data-status="' + BattleLog.escapeHTML(user.status) + '"' : '') + '>';
 			var group = user.name.charAt(0);
 			var details = Config.groups[group] || {type: 'user'};
 			var color = user.away ? 'color:#AAA;' : BattleLog.hashColor(userid);
