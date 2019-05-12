@@ -1578,6 +1578,10 @@
 
 			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
 			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted);
+			if (typeof parsedMessage === 'object' && 'noNotify' in parsedMessage) {
+				mayNotify = mayNotify && !parsedMessage.noNotify;
+				parsedMessage = parsedMessage.message;
+			}
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;

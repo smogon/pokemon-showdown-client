@@ -64,6 +64,7 @@ class BattleLog {
 		if (kwArgs && kwArgs.silent) return;
 		let divClass = 'chat';
 		let divHTML = '';
+		let noNotify: boolean | undefined;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
 			let battle = this.scene && this.scene.battle;
@@ -83,8 +84,8 @@ class BattleLog {
 			}
 			if (window.app && app.ignore && app.ignore[toUserid(name)] && ' +\u2605\u2606'.includes(rank)) return;
 			let isHighlighted = window.app && app.rooms && app.rooms[battle!.roomid].getHighlight(message);
-			[divClass, divHTML] = this.parseChatMessage(message, name, '', isHighlighted);
-			if (isHighlighted) {
+			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, '', isHighlighted);
+			if (!noNotify && isHighlighted) {
 				let notifyTitle = "Mentioned by " + name + " in " + battle!.roomid;
 				app.rooms[battle!.roomid].notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
 			}
@@ -435,7 +436,9 @@ class BattleLog {
 		return undefined;
 	}
 
-	parseChatMessage(message: string, name: string, timestamp: string, isHighlighted?: boolean) {
+	parseChatMessage(
+		message: string, name: string, timestamp: string, isHighlighted?: boolean
+	): [string, string, boolean?] {
 		let showMe = !(BattleLog.prefs('chatformatting') || {}).hideme;
 		let group = ' ';
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
@@ -516,6 +519,8 @@ class BattleLog {
 			return ['', ''];
 		case 'raw':
 			return ['chat', BattleLog.sanitizeHTML(target)];
+		case 'nonotify':
+			return ['chat', BattleLog.sanitizeHTML(target), true];
 		default:
 			// Not a command or unsupported. Parsed as a normal chat message.
 			if (!name) {
