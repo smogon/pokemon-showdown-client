@@ -438,7 +438,7 @@ const Dex = new class implements ModdedDex {
 		document.getElementsByTagName('body')[0].appendChild(el);
 	}
 	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {
-		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean,
+		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, mod?: string,
 	} = {gen: 6}) {
 		if (!options.gen) options.gen = 6;
 		if (pokemon instanceof Pokemon) {
@@ -526,6 +526,12 @@ const Dex = new class implements ModdedDex {
 			dir = 'afd' + dir;
 			spriteData.url += dir + '/' + name + '.png';
 			return spriteData;
+		}
+
+		// Mod Cries
+		if (options.mod) {
+			spriteData.cryurl = `sprites/${options.mod}/audio/${toId(template.baseSpecies)}`;
+			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 		}
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
