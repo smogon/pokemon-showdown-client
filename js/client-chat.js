@@ -306,7 +306,7 @@
 				if (!m1 && !m2) return true;
 
 				this.tabComplete.prefix = prefix;
-				var idprefix = (m1 ? toId(m1[2]) : '');
+				var idprefix = (m1 ? toID(m1[2]) : '');
 				var spaceprefix = (m2 ? m2[2].replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase() : '');
 				var candidates = []; // array of [candidate userid, prefix length]
 
@@ -399,7 +399,7 @@
 
 				var self = this;
 				var challenge = function (targets) {
-					target = toId(targets[0]);
+					target = toID(targets[0]);
 					self.challengeData = {userid: target, format: targets[1] || '', team: targets[2] || ''};
 					app.on('response:userdetails', self.challengeUserdetails, self);
 					app.send('/cmd userdetails ' + target);
@@ -416,7 +416,7 @@
 				return false;
 
 			case 'accept':
-				var userid = toId(target);
+				var userid = toID(target);
 				if (userid) {
 					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="acceptChallenge"]');
 					if (!$challenge.length) {
@@ -441,7 +441,7 @@
 				$challenges[0].click();
 				return false;
 			case 'reject':
-				var userid = toId(target);
+				var userid = toID(target);
 				if (userid) {
 					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="rejectChallenge"]');
 					if (!$challenge.length) {
@@ -620,7 +620,7 @@
 				var showjoins = Dex.prefs('showjoins') || {};
 				var serverShowjoins = showjoins[Config.server.id] || {};
 				if (target) {
-					var room = toId(target);
+					var room = toID(target);
 					if (serverShowjoins['global']) {
 						delete serverShowjoins[room];
 					} else {
@@ -638,7 +638,7 @@
 				var showjoins = Dex.prefs('showjoins') || {};
 				var serverShowjoins = showjoins[Config.server.id] || {};
 				if (target) {
-					var room = toId(target);
+					var room = toID(target);
 					if (!serverShowjoins['global']) {
 						delete serverShowjoins[room];
 					} else {
@@ -787,7 +787,7 @@
 					if (targets[i].length === 4 && targets[i].substr(0, 3) === 'gen') {
 						gens[targets[i]] = 1;
 					} else {
-						formats[toId(targets[i])] = 1;
+						formats[toID(targets[i])] = 1;
 					}
 					formatTargeting = true;
 				}
@@ -810,7 +810,7 @@
 					for (var i = 0; i < data.length; i++) {
 						var row = data[i];
 						if (!row) return self.add('|raw|Error: corrupted ranking data');
-						var formatId = toId(row.formatid);
+						var formatId = toID(row.formatid);
 						if (!formatTargeting || formats[formatId] || gens[formatId.slice(0, 4)] || (gens['gen6'] && formatId.substr(0, 3) !== 'gen')) {
 							buffer += '<tr>';
 						} else {
@@ -843,7 +843,7 @@
 						}
 						buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
 					}
-					var userid = toId(targets[0]);
+					var userid = toID(targets[0]);
 					var registered = app.user.get('registered');
 					if (registered && registered.userid === userid) {
 						buffer += '<tr><td colspan="8" style="text-align:right"><a href="//pokemonshowdown.com/users/' + userid + '">Reset W/L</a></tr></td>';
@@ -887,7 +887,7 @@
 					app.focusRoom(target);
 					return false;
 				}
-				var roomid = toId(target);
+				var roomid = toID(target);
 				if (app.rooms[roomid]) {
 					app.focusRoom(roomid);
 					return false;
@@ -906,7 +906,7 @@
 				return text; // Send the /avatar command through to the server.
 
 			case 'afd':
-				var cleanedTarget = toId(target);
+				var cleanedTarget = toID(target);
 				if (cleanedTarget === 'off' || cleanedTarget === 'disable') {
 					Config.server.afd = false;
 					if (typeof BattleTextNotAFD !== 'undefined') BattleText = BattleTextNotAFD;
@@ -934,7 +934,7 @@
 
 			// documentation of client commands
 			case 'help':
-				switch (toId(target)) {
+				switch (toID(target)) {
 				case 'challenge':
 					this.add('/challenge - Open a prompt to challenge a user to a battle.');
 					this.add('/challenge [user] - Challenge the user [user] to a battle.');
@@ -1331,17 +1331,17 @@
 
 				case 'uhtml':
 				case 'uhtmlchange':
-					var $elements = this.$chat.find('div.uhtml-' + toId(row[1]));
+					var $elements = this.$chat.find('div.uhtml-' + toID(row[1]));
 					var html = row.slice(2).join('|');
 					if (!html) {
 						$elements.remove();
 					} else if (!$elements.length) {
-						this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+						this.$chat.append('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 					} else if (row[0] === 'uhtmlchange') {
 						$elements.html(BattleLog.sanitizeHTML(html));
 					} else {
 						$elements.remove();
-						this.$chat.append('<div class="notice uhtml-' + toId(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+						this.$chat.append('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 					}
 					break;
 
@@ -1349,7 +1349,7 @@
 					// note: this message has global effects, but it's handled here
 					// so that it can be included in the scrollback buffer.
 					if (Dex.prefs('nounlink')) return;
-					var user = toId(row[2]) || toId(row[1]);
+					var user = toID(row[2]) || toID(row[1]);
 					var $messages = $('.chatmessage-' + user);
 					if (!$messages.length) break;
 					$messages.find('a').contents().unwrap();
@@ -1552,7 +1552,7 @@
 				var oName = pmuserid === app.user.get('userid') ? name : pm;
 				var clickableName = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name.substr(1)) + '</span>';
 				this.$chat.append(
-					'<div class="chat chatmessage-' + toId(name) + '">' + ChatRoom.getTimestamp('lobby', msgTime) +
+					'<div class="chat chatmessage-' + toID(name) + '">' + ChatRoom.getTimestamp('lobby', msgTime) +
 					'<strong style="' + BattleLog.hashColor(userid) + '">' + clickableName + ':</strong>' +
 					'<span class="message-pm"><i class="pmnote" data-name="' + BattleLog.escapeHTML(oName) + '">(Private to ' + BattleLog.escapeHTML(pm) + ')</i> ' + BattleLog.parseMessage(message) + '</span>' +
 					'</div>'

@@ -103,7 +103,7 @@ class BattleLog {
 		}
 		case 'name': case 'n': {
 			const user = BattleTextParser.parseNameParts(args[1]);
-			if (toId(args[2]) !== toId(user.name)) {
+			if (toID(args[2]) !== toID(user.name)) {
 				divHTML = '<small>' + BattleLog.escapeHTML(user.name) + ' renamed from ' + BattleLog.escapeHTML(args[2]) + '.</small>';
 			}
 			break;
@@ -138,7 +138,7 @@ class BattleLog {
 			return;
 
 		case 'unlink': {
-			const user = toId(args[2]) || toId(args[1]);
+			const user = toID(args[2]) || toID(args[1]);
 			this.unlinkChatFrom(user);
 			if (args[2]) {
 				this.hideChatFrom(user);
@@ -255,7 +255,7 @@ class BattleLog {
 		this.addDiv('spacer battle-history', '<br />');
 	}
 	changeUhtml(id: string, html: string, forceAdd?: boolean) {
-		id = toId(id);
+		id = toID(id);
 		const classContains = ' uhtml-' + id + ' ';
 		let elements = [] as HTMLDivElement[];
 		for (const node of this.innerElem.childNodes as any) {
@@ -446,7 +446,7 @@ class BattleLog {
 			group = name.charAt(0);
 			name = name.substr(1);
 		}
-		const colorStyle = ` style="color:${BattleLog.usernameColor(toId(name))}"`;
+		const colorStyle = ` style="color:${BattleLog.usernameColor(toID(name))}"`;
 		const clickableName = `<small>${BattleLog.escapeHTML(group)}</small><span class="username" data-name="${BattleLog.escapeHTML(name)}">${BattleLog.escapeHTML(name)}</span>`;
 		let hlClass = isHighlighted ? ' highlighted' : '';
 		let isMine = (window.app && app.user && app.user.get('name') === name) ||
@@ -472,12 +472,12 @@ class BattleLog {
 			if (cmd === 'mee') parsedMessage = parsedMessage.slice(1);
 			if (!showMe) {
 				return [
-					'chat chatmessage-' + toId(name) + hlClass + mineClass,
+					'chat chatmessage-' + toID(name) + hlClass + mineClass,
 					`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>/me${parsedMessage}</em>`,
 				];
 			}
 			return [
-				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
 				`${timestamp}<em><i><strong${colorStyle}>&bull; ${clickableName}</strong>${parsedMessage}</i></em>`,
 			];
 		case 'invite':
@@ -489,12 +489,12 @@ class BattleLog {
 			];
 		case 'announce':
 			return [
-				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
 				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <span class="message-announce">${BattleLog.parseMessage(target)}</span>`,
 			];
 		case 'log':
 			return [
-				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
 				`${timestamp}<span class="message-log">${BattleLog.parseMessage(target)}</span>`,
 			];
 		case 'data-pokemon':
@@ -508,7 +508,7 @@ class BattleLog {
 			return ['chat message-error', BattleLog.escapeHTML(target)];
 		case 'html':
 			return [
-				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
 				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>${BattleLog.sanitizeHTML(target)}</em>`,
 			];
 		case 'uhtml':
@@ -530,7 +530,7 @@ class BattleLog {
 				];
 			}
 			return [
-				'chat chatmessage-' + toId(name) + hlClass + mineClass,
+				'chat chatmessage-' + toID(name) + hlClass + mineClass,
 				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>${BattleLog.parseMessage(message)}</em>`,
 			];
 		}
@@ -812,7 +812,7 @@ class BattleLog {
 		buf += '<div class="wrapper replay-wrapper" style="max-width:1180px;margin:0 auto">\n';
 		buf += '<input type="hidden" name="replayid" value="' + replayid + '" />\n';
 		buf += '<div class="battle"></div><div class="battle-log"></div><div class="replay-controls"></div><div class="replay-controls-2"></div>\n';
-		buf += '<h1 style="font-weight:normal;text-align:center"><strong>' + BattleLog.escapeHTML(battle.tier) + '</strong><br /><a href="http://pokemonshowdown.com/users/' + toId(battle.p1.name) + '" class="subtle" target="_blank">' + BattleLog.escapeHTML(battle.p1.name) + '</a> vs. <a href="http://pokemonshowdown.com/users/' + toId(battle.p2.name) + '" class="subtle" target="_blank">' + BattleLog.escapeHTML(battle.p2.name) + '</a></h1>\n';
+		buf += '<h1 style="font-weight:normal;text-align:center"><strong>' + BattleLog.escapeHTML(battle.tier) + '</strong><br /><a href="http://pokemonshowdown.com/users/' + toID(battle.p1.name) + '" class="subtle" target="_blank">' + BattleLog.escapeHTML(battle.p1.name) + '</a> vs. <a href="http://pokemonshowdown.com/users/' + toID(battle.p2.name) + '" class="subtle" target="_blank">' + BattleLog.escapeHTML(battle.p2.name) + '</a></h1>\n';
 		buf += '<script type="text/plain" class="battle-log-data">' + battle.activityQueue.join('\n').replace(/\//g, '\\/') + '</script>\n'; // lgtm [js/incomplete-sanitization]
 		buf += '</div>\n';
 		buf += '<div class="battle-log battle-log-inline"><div class="inner">' + battle.scene.log.elem.innerHTML + '</div></div>\n';

@@ -163,7 +163,7 @@ class PSMain extends preact.Component {
 			while (elem) {
 				if (` ${elem.className} `.includes(' username ')) {
 					const name = elem.getAttribute('data-name');
-					const userid = toId(name);
+					const userid = toID(name);
 					const roomid = `user-${userid}` as RoomID;
 					PS.addRoom({
 						id: roomid,

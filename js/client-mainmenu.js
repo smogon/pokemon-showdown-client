@@ -133,9 +133,9 @@
 			var userid = toUserid(name);
 			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '!': 1, '✖': 1, '‽': 1}) return;
 
-			var isSelf = (toId(name) === app.user.get('userid'));
+			var isSelf = (toID(name) === app.user.get('userid'));
 			var oName = isSelf ? target : name;
-			Storage.logChat('pm-' + toId(oName), '' + name + ': ' + message);
+			Storage.logChat('pm-' + toID(oName), '' + name + ': ' + message);
 
 			var $pmWindow = this.openPM(oName, true);
 			var $chatFrame = $pmWindow.find('.pm-log');
@@ -174,7 +174,7 @@
 			}
 		},
 		openPM: function (name, dontFocus) {
-			var userid = toId(name);
+			var userid = toID(name);
 			var $pmWindow = this.$pmBox.find('.pm-window-' + userid);
 			if (!$pmWindow.length) {
 				var group = name.charAt(0);
@@ -216,7 +216,7 @@
 				// counteract jQuery auto-casting
 				if (userid !== undefined && userid !== '') userid = '' + userid;
 			} else {
-				userid = toId(e);
+				userid = toID(e);
 			}
 			var $pmWindow;
 			if (!userid) {
@@ -608,7 +608,7 @@
 			if (data.challengeTo) {
 				var challenge = data.challengeTo;
 				var name = challenge.to;
-				var userid = toId(name);
+				var userid = toID(name);
 				var $challenge = this.openChallenge(name);
 
 				var buf = '<form class="battleform"><p>Waiting for ' + BattleLog.escapeHTML(name) + '...</p>';
@@ -715,18 +715,18 @@
 
 		// challenge buttons
 		challenge: function (name, format, team) {
-			var userid = toId(name);
+			var userid = toID(name);
 			var $challenge = this.$('.pm-window-' + userid + ' .challenge');
 			if ($challenge.length && !$challenge.find('button[name=dismissChallenge]').length) {
 				return;
 			}
 
-			if (format) format = toId(format);
+			if (format) format = toID(format);
 			var teamIndex;
 			if (Storage.teams && team) {
-				team = toId(team);
+				team = toID(team);
 				for (var i = 0; i < Storage.teams.length; i++) {
-					if (team === toId(Storage.teams[i].name || '')) {
+					if (team === toID(Storage.teams[i].name || '')) {
 						teamIndex = i;
 						break;
 					}
@@ -922,7 +922,7 @@
 			}
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
-				if (toId(target) === 'zarel') {
+				if (toID(target) === 'zarel') {
 					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
 					return;
 				}
@@ -938,7 +938,7 @@
 				group = name.charAt(0);
 				name = name.substr(1);
 			}
-			var color = BattleLog.hashColor(toId(name));
+			var color = BattleLog.hashColor(toID(name));
 			var clickableName = '<small>' + BattleLog.escapeHTML(group) + '</small><span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + '</span>';
 			var hlClass = isHighlighted ? ' highlighted' : '';
 			var mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
@@ -957,11 +957,11 @@
 
 			switch (cmd) {
 			case 'me':
-				if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em></div>';
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em></div>';
+				if (!showMe) return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em></div>';
 			case 'mee':
-				if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em></div>';
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em></div>';
+				if (!showMe) return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em></div>';
 			case 'invite':
 				var roomid = toRoomid(target);
 				return [
@@ -969,9 +969,9 @@
 					'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>'
 				];
 			case 'announce':
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span></div>';
 			case 'log':
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span></div>';
 			case 'data-pokemon':
 			case 'data-item':
 			case 'data-ability':
@@ -982,21 +982,21 @@
 			case 'error':
 				return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
 			case 'html':
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>';
 			case 'uhtml':
 			case 'uhtmlchange':
 				var parts = target.split(',');
-				var $elements = $chatElem.find('div.uhtml-' + toId(parts[0]));
+				var $elements = $chatElem.find('div.uhtml-' + toID(parts[0]));
 				var html = parts.slice(1).join(',');
 				if (!html) {
 					$elements.remove();
 				} else if (!$elements.length) {
-					$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				} else if (cmd === 'uhtmlchange') {
 					$elements.html(BattleLog.sanitizeHTML(html));
 				} else {
 					$elements.remove();
-					$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				}
 				return '';
 			case 'raw':
@@ -1008,7 +1008,7 @@
 				if (!name) {
 					return '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.parseMessage(message) + '</em></div>';
 				}
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em></div>';
 			}
 		}
 	});

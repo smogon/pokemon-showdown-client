@@ -280,7 +280,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		delete this.turnstatuses[volatile];
 	}
 	addTurnstatus(volatile: ID) {
-		volatile = toId(volatile);
+		volatile = toID(volatile);
 		this.side.battle.scene.addEffect(this, volatile);
 		if (this.hasTurnstatus(volatile)) return;
 		this.turnstatuses[volatile] = [volatile];
@@ -301,7 +301,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		delete this.movestatuses[volatile];
 	}
 	addMovestatus(volatile: ID) {
-		volatile = toId(volatile);
+		volatile = toID(volatile);
 		if (this.hasMovestatus(volatile)) return;
 		this.movestatuses[volatile] = [volatile];
 		this.side.battle.scene.addEffect(this, volatile);
@@ -484,8 +484,8 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 			return true;
 		}
 
-		let item = toId(serverPokemon ? serverPokemon.item : this.item);
-		let ability = toId(this.ability || (serverPokemon && serverPokemon.ability));
+		let item = toID(serverPokemon ? serverPokemon.item : this.item);
+		let ability = toID(this.ability || (serverPokemon && serverPokemon.ability));
 		if (battle.hasPseudoWeather('Magic Room') || this.volatiles['embargo'] || ability === 'klutz') {
 			item = '' as ID;
 		}
@@ -627,7 +627,7 @@ class Side {
 	}
 	setName(name: string, avatar?: string) {
 		if (name) this.name = name;
-		this.id = toId(this.name);
+		this.id = toID(this.name);
 		if (avatar) {
 			this.setAvatar(avatar);
 		} else {
@@ -687,7 +687,7 @@ class Side {
 		this.battle.scene.addSideCondition(this.n, condition);
 	}
 	removeSideCondition(condition: string) {
-		const id = toId(condition);
+		const id = toID(condition);
 		if (!this.sideConditions[id]) return;
 		delete this.sideConditions[id];
 		this.battle.scene.removeSideCondition(this.n, id);
@@ -1236,7 +1236,7 @@ class Battle {
 		}
 	}
 	changeWeather(weatherName: string, poke?: Pokemon, isUpkeep?: boolean, ability?: Effect) {
-		let weather = toId(weatherName);
+		let weather = toID(weatherName);
 		if (!weather || weather === 'none') {
 			weather = '' as ID;
 		}
@@ -1311,11 +1311,11 @@ class Battle {
 			let pp = 1;
 			if (move.target === "all") {
 				for (const active of pokemon.side.foe.active) {
-					if (active && toId(active.ability) === 'pressure') {
+					if (active && toID(active.ability) === 'pressure') {
 						pp += 1;
 					}
 				}
-			} else if (target && target.side !== pokemon.side && toId(target.ability) === 'pressure') {
+			} else if (target && target.side !== pokemon.side && toID(target.ability) === 'pressure') {
 				pp += 1;
 			}
 			pokemon.rememberMove(moveName, pp);
@@ -1843,7 +1843,7 @@ class Battle {
 		}
 		case '-prepare': {
 			let poke = this.getPokemon(args[1])!;
-			let moveid = toId(args[2]);
+			let moveid = toID(args[2]);
 			let target = this.getPokemon(args[3]) || poke.side.foe.active[0] || poke;
 			this.scene.runPrepareAnim(moveid, poke, target);
 			this.log(args, kwArgs);
@@ -3124,7 +3124,7 @@ class Battle {
 			} else if (args[1].slice(-14) === ' seconds left.') {
 				let hasIndex = args[1].indexOf(' has ');
 				let userid = (window.app && app!.user && app!.user.get('userid'));
-				if (toId(args[1].slice(0, hasIndex)) === userid) {
+				if (toID(args[1].slice(0, hasIndex)) === userid) {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
 			}

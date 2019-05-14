@@ -792,7 +792,7 @@ class BattleScene {
 		let weather = this.battle.weather;
 		let terrain = '' as ID;
 		for (const pseudoWeatherData of this.battle.pseudoWeather) {
-			let pwid = toId(pseudoWeatherData[0]);
+			let pwid = toID(pseudoWeatherData[0]);
 			switch (pwid) {
 			case 'electricterrain':
 			case 'grassyterrain':
@@ -2160,7 +2160,7 @@ class PokemonSprite extends Sprite {
 		this.cryurl = sp.cryurl;
 
 		if (!this.scene.animating) return;
-		let speciesid = toId(pokemon.getSpecies());
+		let speciesid = toID(pokemon.getSpecies());
 		let doCry = false;
 		const scene = this.scene;
 		if (isCustomAnim) {

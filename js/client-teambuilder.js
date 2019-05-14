@@ -1656,12 +1656,12 @@
 
 			if (pokemonChanged || this.search.qName !== this.curChartName) {
 				var cur = {};
-				cur[toId(q)] = 1; // make sure selected one is first
+				cur[toID(q)] = 1; // make sure selected one is first
 				if (type === 'move') {
-					cur[toId(this.$('input[name=move1]').val())] = 1;
-					cur[toId(this.$('input[name=move2]').val())] = 1;
-					cur[toId(this.$('input[name=move3]').val())] = 1;
-					cur[toId(this.$('input[name=move4]').val())] = 1;
+					cur[toID(this.$('input[name=move1]').val())] = 1;
+					cur[toID(this.$('input[name=move2]').val())] = 1;
+					cur[toID(this.$('input[name=move3]').val())] = 1;
+					cur[toID(this.$('input[name=move4]').val())] = 1;
 				}
 				if (type !== this.search.qType) {
 					this.$chart.scrollTop(0);
@@ -1724,7 +1724,7 @@
 		smogdexLink: function (template) {
 			var template = Dex.getTemplate(template);
 			var format = this.curTeam && this.curTeam.format;
-			var smogdexid = toId(template.baseSpecies);
+			var smogdexid = toID(template.baseSpecies);
 
 			if (template.speciesid === 'meowstic') {
 				smogdexid = 'meowstic-m';
@@ -1750,7 +1750,7 @@
 				case 'Vivillon':
 					break;
 				default:
-					smogdexid += '-' + toId(template.forme);
+					smogdexid += '-' + toID(template.forme);
 					break;
 				}
 			}
@@ -1932,7 +1932,7 @@
 				var hpType = '';
 				if (set.moves) {
 					for (var i = 0; i < set.moves.length; i++) {
-						var moveid = toId(set.moves[i]);
+						var moveid = toID(set.moves[i]);
 						if (moveid.slice(0, 11) === 'hiddenpower') {
 							hpType = moveid.slice(11);
 						}
@@ -2175,7 +2175,7 @@
 			if (!set.moves || this.canHyperTrain(set)) return;
 			var hasHiddenPower = false;
 			for (var i = 0; i < set.moves.length; i++) {
-				if (toId(set.moves[i]).slice(0, 11) === 'hiddenpower') {
+				if (toID(set.moves[i]).slice(0, 11) === 'hiddenpower') {
 					hasHiddenPower = true;
 					break;
 				}
@@ -2208,7 +2208,7 @@
 				hpType = hpTypes[Math.floor(hpTypeX * 15 / 63)];
 			}
 			for (var i = 0; i < set.moves.length; i++) {
-				if (toId(set.moves[i]).slice(0, 11) === 'hiddenpower') {
+				if (toID(set.moves[i]).slice(0, 11) === 'hiddenpower') {
 					set.moves[i] = "Hidden Power " + hpType;
 					if (i < 4) this.$('input[name=move' + (i + 1) + ']').val("Hidden Power " + hpType);
 				}
@@ -2463,7 +2463,7 @@
 					if (curVal === val) {
 						this.unChooseMove(curVal);
 						$inputEl.val('');
-						delete this.search.cur[toId(val)];
+						delete this.search.cur[toID(val)];
 					} else if (curVal) {
 						moves.push(curVal);
 					}
@@ -2577,7 +2577,7 @@
 		chartChange: function (e, selectNext) {
 			var name = e.currentTarget.name;
 			if (this.curChartName !== name) return;
-			var id = toId(e.currentTarget.value);
+			var id = toID(e.currentTarget.value);
 			var val = '';
 			switch (name) {
 			case 'pokemon':
@@ -2612,7 +2612,7 @@
 			this.chartSet(val, selectNext);
 		},
 		chartSetCustom: function (val) {
-			val = toId(val);
+			val = toID(val);
 			if (val === 'cathy') {
 				var set = this.curSet;
 				set.name = "Cathy";
@@ -2973,7 +2973,7 @@
 			this.curSet = data.curSet;
 			this.chartIndex = data.index;
 			var template = Dex.getTemplate(this.curSet.species);
-			var baseid = toId(template.baseSpecies);
+			var baseid = toID(template.baseSpecies);
 			var forms = [baseid].concat(template.otherForms);
 			var spriteDir = Dex.resourcePrefix + 'sprites/';
 			var spriteSize = 96;

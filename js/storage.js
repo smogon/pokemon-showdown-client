@@ -672,22 +672,22 @@ Storage.packTeam = function (team) {
 		buf += set.name || set.species;
 
 		// species
-		var id = toId(set.species);
-		buf += '|' + (toId(set.name || set.species) === id ? '' : id);
+		var id = toID(set.species);
+		buf += '|' + (toID(set.name || set.species) === id ? '' : id);
 
 		// item
-		buf += '|' + toId(set.item);
+		buf += '|' + toID(set.item);
 
 		// ability
 		var template = Dex.getTemplate(set.species || set.name);
 		var abilities = template.abilities;
-		id = toId(set.ability);
+		id = toID(set.ability);
 		if (abilities) {
-			if (id == toId(abilities['0'])) {
+			if (id == toID(abilities['0'])) {
 				buf += '|';
-			} else if (id === toId(abilities['1'])) {
+			} else if (id === toID(abilities['1'])) {
 				buf += '|1';
-			} else if (id === toId(abilities['H'])) {
+			} else if (id === toID(abilities['H'])) {
 				buf += '|H';
 			} else {
 				buf += '|' + id;
@@ -699,7 +699,7 @@ Storage.packTeam = function (team) {
 		// moves
 		buf += '|';
 		if (set.moves) for (var j = 0; j < set.moves.length; j++) {
-			var moveid = toId(set.moves[j]);
+			var moveid = toID(set.moves[j]);
 			if (j && !moveid) continue;
 			buf += (j ? ',' : '') + moveid;
 			if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) hasHP = true;
@@ -762,7 +762,7 @@ Storage.packTeam = function (team) {
 
 		if (set.pokeball || (set.hpType && !hasHP)) {
 			buf += ',' + (set.hpType || '');
-			buf += ',' + toId(set.pokeball);
+			buf += ',' + toID(set.pokeball);
 		}
 	}
 
@@ -1026,7 +1026,7 @@ Storage.packedTeamIcons = function (buf) {
 	if (!buf) return '<em>(empty team)</em>';
 
 	return this.packedTeamNames(buf).map(function (species) {
-		return '<span class="picon" style="' + Dex.getPokemonIcon(species) + ';float:left;overflow:visible"><span style="font-size:0px">' + toId(species) + '</span></span>';
+		return '<span class="picon" style="' + Dex.getPokemonIcon(species) + ';float:left;overflow:visible"><span style="font-size:0px">' + toID(species) + '</span></span>';
 	}).join('');
 };
 
@@ -1119,7 +1119,7 @@ Storage.importTeam = function (buffer, teams) {
 			var atIndex = line.lastIndexOf(' @ ');
 			if (atIndex !== -1) {
 				curSet.item = line.substr(atIndex + 3);
-				if (toId(curSet.item) === 'noitem') curSet.item = '';
+				if (toID(curSet.item) === 'noitem') curSet.item = '';
 				line = line.substr(0, atIndex);
 			}
 			if (line.substr(line.length - 4) === ' (M)') {

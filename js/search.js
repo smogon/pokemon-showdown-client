@@ -91,7 +91,7 @@
 		article: 'Article'
 	};
 	Search.prototype.find = function (query) {
-		query = toId(query);
+		query = toID(query);
 
 		if (query === this.q) {
 			return false;
@@ -164,8 +164,8 @@
 		// the alias text before any other passes.
 		var queryAlias;
 		if (query in BattleAliases) {
-			if (['sub', 'tr'].includes(query) || toId(BattleAliases[query]).slice(0, query.length) !== query) {
-				queryAlias = toId(BattleAliases[query]);
+			if (['sub', 'tr'].includes(query) || toID(BattleAliases[query]).slice(0, query.length) !== query) {
+				queryAlias = toID(BattleAliases[query]);
 				var aliasPassType = (queryAlias === 'hiddenpower' ? 4 : 1);
 				searchPasses.unshift([aliasPassType, Search.getClosest(queryAlias), queryAlias]);
 			}
@@ -405,7 +405,7 @@
 		if (this.qType === 'pokemon') {
 			if (entry[0] === this.sortCol) this.sortCol = null;
 			if (entry[0] !== 'type' && entry[0] !== 'move' && entry[0] !== 'ability' && entry[0] !== 'egggroup' && entry[0] !== 'tier') return;
-			if (entry[0] === 'move') entry[1] = toId(entry[1]);
+			if (entry[0] === 'move') entry[1] = toID(entry[1]);
 			if (!this.filters) this.filters = [];
 			this.q = undefined;
 			for (var i = 0; i < this.filters.length; i++) {
@@ -418,7 +418,7 @@
 		} else if (this.qType === 'move') {
 			if (entry[0] === this.sortCol) this.sortCol = null;
 			if (entry[0] !== 'type' && entry[0] !== 'category' && entry[0] !== 'pokemon') return;
-			if (entry[0] === 'pokemon') entry[1] = toId(entry[1]);
+			if (entry[0] === 'pokemon') entry[1] = toID(entry[1]);
 			if (!this.filters) this.filters = [];
 			this.filters.push(entry);
 			this.q = undefined;
@@ -633,9 +633,9 @@
 	Search.prototype.nextLearnsetid = function (learnsetid, speciesid) {
 		if (!speciesid) {
 			if (learnsetid in BattleTeambuilderTable.learnsets) return learnsetid;
-			var baseLearnsetid = BattlePokedex[learnsetid] && toId(BattlePokedex[learnsetid].baseSpecies);
+			var baseLearnsetid = BattlePokedex[learnsetid] && toID(BattlePokedex[learnsetid].baseSpecies);
 			if (!baseLearnsetid) {
-				baseLearnsetid = toId(BattleAliases[learnsetid]);
+				baseLearnsetid = toID(BattleAliases[learnsetid]);
 			}
 			if (baseLearnsetid in BattleTeambuilderTable.learnsets) return baseLearnsetid;
 			return '';
@@ -647,7 +647,7 @@
 		if (template.prevo) return template.prevo;
 		var baseSpecies = template.baseSpecies;
 		if (baseSpecies !== template.species && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo')) {
-			return toId(template.baseSpecies);
+			return toID(template.baseSpecies);
 		}
 		return '';
 	};
@@ -901,17 +901,17 @@
 				template = Dex.getTemplate(template.baseSpecies);
 			}
 			var abilitiesInThisGen = Dex.getAbilitiesFor(template.id, this.gen);
-			abilitySet.push(['ability', toId(abilitiesInThisGen['0'])]);
+			abilitySet.push(['ability', toID(abilitiesInThisGen['0'])]);
 			if (abilitiesInThisGen['1']) {
-				abilitySet.push(['ability', toId(abilitiesInThisGen['1'])]);
+				abilitySet.push(['ability', toID(abilitiesInThisGen['1'])]);
 			}
 			if (abilitiesInThisGen['H']) {
 				abilitySet.push(['header', "Hidden Ability"]);
-				abilitySet.push(['ability', toId(abilitiesInThisGen['H'])]);
+				abilitySet.push(['ability', toID(abilitiesInThisGen['H'])]);
 			}
 			if (abilitiesInThisGen['S']) {
 				abilitySet.push(['header', "Special Event Ability"]);
-				abilitySet.push(['ability', toId(abilitiesInThisGen['S'])]);
+				abilitySet.push(['ability', toID(abilitiesInThisGen['S'])]);
 			}
 			if (format === 'almostanyability' || isBH) {
 				template = Dex.getTemplate(set.species);
@@ -1078,54 +1078,54 @@
 			for (var i = 0; i < moves.length; i++) {
 				var id = moves[i];
 				var isViable = BattleMovedex[id] && BattleMovedex[id].isViable;
-				if (id === 'aerialace') isViable = (toId(set.species) in {scyther:1, aerodactylmega:1, kricketune:1});
-				if (id === 'ancientpower') isViable = (toId(set.ability) === 'technician' || (toId(set.ability) === 'serenegrace') || (template.types.indexOf('rock') > 0 && moves.indexOf('powergem') < 0));
-				if (id === 'bellydrum') isViable = (toId(set.species) in {azumarill:1, linoone:1, slurpuff:1});
-				if (id === 'blizzard') isViable = (toId(set.ability) === 'snowwarning');
-				if (id === 'counter') isViable = (toId(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1, alakazam:1});
-				if (id === 'curse') isViable = (toId(set.species) === 'snorlax');
-				if (id === 'drainingkiss') isViable = (toId(set.ability) === 'triage');
-				if (id === 'dynamicpunch') isViable = (toId(set.ability) === 'noguard');
-				if (id === 'electroball') isViable = (toId(set.ability) === 'surgesurfer');
+				if (id === 'aerialace') isViable = (toID(set.species) in {scyther:1, aerodactylmega:1, kricketune:1});
+				if (id === 'ancientpower') isViable = (toID(set.ability) === 'technician' || (toID(set.ability) === 'serenegrace') || (template.types.indexOf('rock') > 0 && moves.indexOf('powergem') < 0));
+				if (id === 'bellydrum') isViable = (toID(set.species) in {azumarill:1, linoone:1, slurpuff:1});
+				if (id === 'blizzard') isViable = (toID(set.ability) === 'snowwarning');
+				if (id === 'counter') isViable = (toID(set.species) in {chansey:1, skarmory:1, clefable:1, wobbuffet:1, alakazam:1});
+				if (id === 'curse') isViable = (toID(set.species) === 'snorlax');
+				if (id === 'drainingkiss') isViable = (toID(set.ability) === 'triage');
+				if (id === 'dynamicpunch') isViable = (toID(set.ability) === 'noguard');
+				if (id === 'electroball') isViable = (toID(set.ability) === 'surgesurfer');
 				if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
-				if (id === 'headbutt') isViable = (toId(set.ability) === 'serenegrace' && template.types.indexOf('normal') > 0);
-				if (id === 'heartswap') isViable = (toId(set.species) === 'magearna');
+				if (id === 'headbutt') isViable = (toID(set.ability) === 'serenegrace' && template.types.indexOf('normal') > 0);
+				if (id === 'heartswap') isViable = (toID(set.species) === 'magearna');
 				if (id === 'hiddenpowerelectric') isViable = (moves.indexOf('thunderbolt') < 0);
 				if (id === 'hiddenpowerfighting') isViable = (moves.indexOf('aurasphere') < 0 && moves.indexOf('focusblast') < 0);
 				if (id === 'hiddenpowerfire') isViable = (moves.indexOf('flamethrower') < 0);
 				if (id === 'hiddenpowergrass') isViable = (moves.indexOf('energyball') < 0 && moves.indexOf('gigadrain') < 0);
 				if (id === 'hiddenpowerice') isViable = (moves.indexOf('icebeam') < 0 && template.id !== 'xerneas');
-				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toId(set.species) === 'darkrai'));
-				if (id === 'icywind') isViable = (toId(set.species).substr(0, 6) === 'keldeo');
-				if (id === 'infestation') isViable = (toId(set.species) === 'shuckle');
+				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toID(set.species) === 'darkrai'));
+				if (id === 'icywind') isViable = (toID(set.species).substr(0, 6) === 'keldeo');
+				if (id === 'infestation') isViable = (toID(set.species) === 'shuckle');
 				if (id === 'irontail') isViable = ((template.types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0) || ((template.types.indexOf('dark') > 0 || template.types.indexOf('dragon') > 0) && moves.indexOf('ironhead') < 0 && moves.indexOf('gunkshot') < 0));
 				if (id === 'jumpkick') isViable = (moves.indexOf('highjumpkick') < 0);
 				if (id === 'leechlife') isViable = (this.gen > 6);
-				if (id === 'petaldance') isViable = (toId(set.ability) === 'owntempo');
-				if (id === 'reflecttype') isViable = (toId(set.species) in {latias:1, starmie:1});
-				if (id === 'rocktomb') isViable = (toId(set.species) === 'groudon' || toId(set.ability) === 'technician');
+				if (id === 'petaldance') isViable = (toID(set.ability) === 'owntempo');
+				if (id === 'reflecttype') isViable = (toID(set.species) in {latias:1, starmie:1});
+				if (id === 'rocktomb') isViable = (toID(set.species) === 'groudon' || toID(set.ability) === 'technician');
 				if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
-				if (id === 'skyattack') isViable = (toId(set.species) === 'hawlucha');
+				if (id === 'skyattack') isViable = (toID(set.species) === 'hawlucha');
 				if (id === 'smackdown') isViable = (template.types.indexOf('ground') > 0);
 				if (id === 'smartstrike') isViable = (template.types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0);
-				if (id === 'solarbeam') isViable = (toId(set.abilities) in {drought:1, chlorophyll:1});
-				if (id === 'stompingtantrum') isViable = ((moves.indexOf('earthquake') < 0 && moves.indexOf('drillrun') < 0) || (toId(set.ability) === 'toughclaws' && moves.indexOf('drillrun') < 0 && moves.indexOf('earthquake') < 0));
-				if (id === 'storedpower') isViable = (toId(set.species) in {necrozma:1, espeon:1, sigilyph:1});
+				if (id === 'solarbeam') isViable = (toID(set.abilities) in {drought:1, chlorophyll:1});
+				if (id === 'stompingtantrum') isViable = ((moves.indexOf('earthquake') < 0 && moves.indexOf('drillrun') < 0) || (toID(set.ability) === 'toughclaws' && moves.indexOf('drillrun') < 0 && moves.indexOf('earthquake') < 0));
+				if (id === 'storedpower') isViable = (toID(set.species) in {necrozma:1, espeon:1, sigilyph:1});
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
-				if (id === 'thunder') isViable = (toId(set.ability) === 'drizzle' || (toId(set.ability) === 'primordialsea') || (toId(set.species) === 'xerneas'));
+				if (id === 'thunder') isViable = (toID(set.ability) === 'drizzle' || (toID(set.ability) === 'primordialsea') || (toID(set.species) === 'xerneas'));
 				if (id === 'trickroom') isViable = (template.baseStats.spe <= 100);
-				if (id === 'waterpulse') isViable = (toId(set.ability) === 'megalauncher' && moves.indexOf('originpulse') < 0);
+				if (id === 'waterpulse') isViable = (toID(set.ability) === 'megalauncher' && moves.indexOf('originpulse') < 0);
 				if (format === 'mixandmega') {
-					if (id === 'blizzard') isViable = (toId(set.item) === 'abomasite' || toId(set.item) === 'pidgeotite');
-					if (id === 'feint') isViable = (toId(set.species) === 'weavile');
-					if (id === 'grasswhistle') isViable = (toId(set.item) === 'pidgeotite');
-					if (id === 'hypnosis') isViable = (toId(set.item) === 'pidgeotite');
-					if (id === 'inferno') isViable = (toId(set.item) === 'pidgeotite' && moves.indexOf('fireblast') < 0);
-					if (id === 'sing') isViable = (toId(set.item) === 'pidgeotite');
-					if (id === 'thunder') isViable = (toId(set.item) === 'pidgeotite' && moves.indexOf('zapcannon') < 0);
-					if (id === 'waterpulse') isViable = (toId(set.item) === 'blastoisinite' && moves.indexOf('originpulse') < 0);
-					if (id === 'weatherball') isViable = (toId(set.item) === 'redorb');
-					if (id === 'zapcannon') isViable = (toId(set.item) === 'pidgeotite');
+					if (id === 'blizzard') isViable = (toID(set.item) === 'abomasite' || toID(set.item) === 'pidgeotite');
+					if (id === 'feint') isViable = (toID(set.species) === 'weavile');
+					if (id === 'grasswhistle') isViable = (toID(set.item) === 'pidgeotite');
+					if (id === 'hypnosis') isViable = (toID(set.item) === 'pidgeotite');
+					if (id === 'inferno') isViable = (toID(set.item) === 'pidgeotite' && moves.indexOf('fireblast') < 0);
+					if (id === 'sing') isViable = (toID(set.item) === 'pidgeotite');
+					if (id === 'thunder') isViable = (toID(set.item) === 'pidgeotite' && moves.indexOf('zapcannon') < 0);
+					if (id === 'waterpulse') isViable = (toID(set.item) === 'blastoisinite' && moves.indexOf('originpulse') < 0);
+					if (id === 'weatherball') isViable = (toID(set.item) === 'redorb');
+					if (id === 'zapcannon') isViable = (toID(set.item) === 'pidgeotite');
 				}
 				if (isLetsGo) {
 					if (id === 'megadrain') isViable = true;
@@ -1223,7 +1223,7 @@
 			return this.renderMoveSortRow();
 		case 'pokemon':
 			var pokemon = BattlePokedex[id];
-			if (!pokemon) pokemon = BattlePokedex[toId(Dex.getTemplate(id).baseSpecies)];
+			if (!pokemon) pokemon = BattlePokedex[toID(Dex.getTemplate(id).baseSpecies)];
 			return this.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage, attrs);
 		case 'move':
 			var move = BattleMovedex[id];
@@ -1314,7 +1314,7 @@
 	Search.prototype.renderPokemonRow = function (pokemon, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		if (!pokemon) return '<li class="result">Unrecognized pokemon</li>';
-		var id = toId(pokemon.species);
+		var id = toID(pokemon.species);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'pokemon/' + id + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="pokemon|' + BattleLog.escapeHTML(pokemon.species) + '">';
 
@@ -1324,9 +1324,9 @@
 		if (pokemon.tier) {
 			tier = Dex.getTier(pokemon, this.gen, this.isDoubles);
 		} else if (pokemon.forme && pokemon.forme.endsWith('Totem')) {
-			tier = Dex.getTier(BattlePokedex[toId(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1)))], this.gen, this.isDoubles);
+			tier = Dex.getTier(BattlePokedex[toID(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1)))], this.gen, this.isDoubles);
 		} else {
-			tier = Dex.getTier(BattlePokedex[toId(pokemon.baseSpecies)], this.gen, this.isDoubles);
+			tier = Dex.getTier(BattlePokedex[toID(pokemon.baseSpecies)], this.gen, this.isDoubles);
 		}
 		buf += '<span class="col numcol">' + tier + '</span> ';
 
@@ -1437,7 +1437,7 @@
 	};
 	Search.prototype.renderTaggedPokemonRowInner = function (pokemon, tag, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toId(pokemon.species) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toID(pokemon.species) + '" data-target="push"';
 		var buf = '<a' + attrs + ' data-entry="pokemon|' + BattleLog.escapeHTML(pokemon.species) + '">';
 
 		// tag
@@ -1507,7 +1507,7 @@
 	Search.prototype.renderItemRow = function (item, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		if (!item) return '<li class="result">Unrecognized item</li>';
-		var id = toId(item.name);
+		var id = toID(item.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'items/' + id + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="item|' + BattleLog.escapeHTML(item.name) + '">';
 
@@ -1548,7 +1548,7 @@
 	Search.prototype.renderAbilityRow = function (ability, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		if (!ability) return '<li class="result">Unrecognized ability</li>';
-		var id = toId(ability.name);
+		var id = toID(ability.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'abilities/' + id + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="ability|' + BattleLog.escapeHTML(ability.name) + '">';
 
@@ -1574,7 +1574,7 @@
 	Search.prototype.renderMoveRow = function (move, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		if (!move) return '<li class="result">Unrecognized move</li>';
-		var id = toId(move.name);
+		var id = toID(move.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'moves/' + id + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="move|' + BattleLog.escapeHTML(move.name) + '">';
 
@@ -1646,7 +1646,7 @@
 	};
 	Search.prototype.renderMoveRowInner = function (move, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toID(move.name) + '" data-target="push"';
 		var buf = '<a' + attrs + ' data-entry="move|' + BattleLog.escapeHTML(move.name) + '">';
 
 		// name
@@ -1681,7 +1681,7 @@
 	};
 	Search.prototype.renderTaggedMoveRow = function (move, tag, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toId(move.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'moves/' + toID(move.name) + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="move|' + BattleLog.escapeHTML(move.name) + '">';
 
 		// tag
@@ -1719,7 +1719,7 @@
 
 	Search.prototype.renderTypeRow = function (type, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'types/' + toId(type.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'types/' + toID(type.name) + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="type|' + BattleLog.escapeHTML(type.name) + '">';
 
 		// name
@@ -1804,7 +1804,7 @@
 	};
 	Search.prototype.renderEggGroupRow = function (egggroup, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'egggroups/' + toId(egggroup.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'egggroups/' + toID(egggroup.name) + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="egggroup|' + BattleLog.escapeHTML(egggroup.name) + '">';
 
 		// name
@@ -1826,7 +1826,7 @@
 	};
 	Search.prototype.renderTierRow = function (tier, matchStart, matchLength, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'tiers/' + toId(tier.name) + '" data-target="push"';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'tiers/' + toID(tier.name) + '" data-target="push"';
 		var buf = '<li class="result"><a' + attrs + ' data-entry="tier|' + BattleLog.escapeHTML(tier.name) + '">';
 
 		// name

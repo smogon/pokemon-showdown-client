@@ -19,7 +19,7 @@ const thisDir = __dirname;
 const rootDir = path.resolve(thisDir, '..');
 
 const Dex = require('../data/Pokemon-Showdown/.sim-dist/dex');
-const toId = Dex.getId;
+const toID = Dex.getId;
 
 function updateLearnsets(callback) {
 	const reservedKeywords = ['return']; // `return` is the only ES3+ reserved keyword that (currently) raises conflicts
@@ -123,7 +123,7 @@ function updateLearnsets(callback) {
 		if (b.num <= 0 && a.num > 0) return 1;
 		if (a.num <= 0 && b.num <= 0) return b.num - a.num;
 		return a.num - b.num;
-	}).map(template => toId(template.species));
+	}).map(template => toID(template.species));
 
 	for (let i = 0, len = pokemonList.length; i < len; i++) {
 		const entry = newLearnsetsG6[pokemonList[i]];
