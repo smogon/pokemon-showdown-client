@@ -50,6 +50,8 @@ RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^dex\/?$ http://dex.pokemonshowdown.com/ [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^insecure\/?$ http://play.pokemonshowdown.com/?insecure [R=302,L]
+RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
+RewriteRule ^replays?\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
 
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) https://play.pokemonshowdown.com/$1 [R=301,L]
