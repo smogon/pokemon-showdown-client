@@ -1236,8 +1236,8 @@ class Template implements Effect {
 		}
 		this.baseSpecies = data.baseSpecies || name;
 		this.forme = data.forme || '';
-		const baseId = toId(this.baseSpecies);
-		this.formeid = (baseId === this.id ? '' : '-' + toId(this.forme));
+		const baseId = toID(this.baseSpecies);
+		this.formeid = (baseId === this.id ? '' : '-' + toID(this.forme));
 		this.spriteid = baseId + this.formeid;
 		if (this.spriteid.slice(-5) === 'totem') this.spriteid = this.spriteid.slice(0, -5);
 		if (this.spriteid.slice(-1) === '-') this.spriteid = this.spriteid.slice(0, -1);

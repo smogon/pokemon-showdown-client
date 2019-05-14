@@ -240,7 +240,7 @@ class BattleTextParser {
 		} else if (effect.startsWith('ability:')) {
 			effect = effect.slice(8);
 		}
-		return toId(effect);
+		return toID(effect);
 	}
 
 	effect(effect?: string) {
@@ -407,7 +407,7 @@ class BattleTextParser {
 			case '-transform': newSpecies = arg3; break;
 			case '-formechange': newSpecies = arg2; break;
 			}
-			let newSpeciesId = toId(newSpecies);
+			let newSpeciesId = toID(newSpecies);
 			let id = '';
 			let templateName = 'transform';
 			if (cmd !== '-transform') {

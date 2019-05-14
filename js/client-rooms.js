@@ -58,7 +58,7 @@
 			}
 		},
 		renderRoomBtn: function (roomData) {
-			var id = toId(roomData.title);
+			var id = toID(roomData.title);
 			var buf = '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '');
 			if (roomData.subRooms && roomData.subRooms.length) {
 				buf += '<br/><i class="fa fa-level-up fa-rotate-90"></i> Subrooms: <strong>';
@@ -102,7 +102,7 @@
 			}
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
-				if (toId(target) === 'zarel') {
+				if (toID(target) === 'zarel') {
 					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
 					return;
 				}

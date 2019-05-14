@@ -809,7 +809,7 @@
 				var roomType = data.substr(6);
 				var roomTypeLFIndex = roomType.indexOf('\n');
 				if (roomTypeLFIndex >= 0) roomType = roomType.substr(0, roomTypeLFIndex);
-				roomType = toId(roomType);
+				roomType = toID(roomType);
 				if (this.rooms[roomid] || roomid === 'staff' || roomid === 'upperstaff') {
 					// autojoin rooms are joined in background
 					this.addRoom(roomid, roomType, true);
@@ -1159,7 +1159,7 @@
 							name = name.substr(0, name.length - 1);
 						}
 					}
-					var id = toId(name);
+					var id = toID(name);
 					var isTeambuilderFormat = !team && name.slice(-11) !== 'Custom Game';
 					var teambuilderFormat = '';
 					var teambuilderFormatName = '';
@@ -1174,7 +1174,7 @@
 							teambuilderFormatName = $.trim(teambuilderFormatName.slice(0, parenPos));
 						}
 						if (teambuilderFormatName !== name) {
-							teambuilderFormat = toId(teambuilderFormatName);
+							teambuilderFormat = toID(teambuilderFormatName);
 							if (BattleFormats[teambuilderFormat]) {
 								BattleFormats[teambuilderFormat].isTeambuilderFormat = true;
 							} else {
@@ -1235,7 +1235,7 @@
 		},
 		uploadReplay: function (data) {
 			var id = data.id;
-			var serverid = Config.server.id && toId(Config.server.id.split(':')[0]);
+			var serverid = Config.server.id && toID(Config.server.id.split(':')[0]);
 			if (serverid && serverid !== 'showdown') id = serverid + '-' + id;
 			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
@@ -2431,7 +2431,7 @@
 
 	var UserPopup = this.UserPopup = Popup.extend({
 		initialize: function (data) {
-			data.userid = toId(data.name);
+			data.userid = toID(data.name);
 			var name = data.name;
 			if (/[a-zA-Z0-9]/.test(name.charAt(0))) name = ' ' + name;
 			this.data = data = _.extend(data, UserPopup.dataCache[data.userid]);

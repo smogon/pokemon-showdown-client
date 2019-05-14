@@ -407,7 +407,7 @@
 					}
 					// Request full team order if one of our Pokémon has Illusion
 					for (var i = 0; i < switchables.length && i < 6; i++) {
-						if (toId(switchables[i].baseAbility) === 'illusion') {
+						if (toID(switchables[i].baseAbility) === 'illusion') {
 							this.choice.count = this.battle.myPokemon.length;
 						}
 					}
@@ -994,8 +994,8 @@
 			filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
 			filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
 
-			filename += '-' + toId(this.battle.p1.name);
-			filename += '-' + toId(this.battle.p2.name);
+			filename += '-' + toID(this.battle.p1.name);
+			filename += '-' + toID(this.battle.p2.name);
 
 			e.currentTarget.href = BattleLog.createReplayFileHref(this);
 			e.currentTarget.download = filename + '.html';

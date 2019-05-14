@@ -215,7 +215,7 @@ class PSUser extends PSModel {
 	avatar = "1";
 	setName(name: string, named: boolean, avatar: string) {
 		this.name = name;
-		this.userid = toId(name);
+		this.userid = toID(name);
 		this.named = named;
 		this.avatar = avatar;
 		this.update();

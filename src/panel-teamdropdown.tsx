@@ -18,22 +18,22 @@ class PSTeambuilder {
 			buf += set.name || set.species;
 
 			// species
-			let id = toId(set.species);
-			buf += '|' + (toId(set.name || set.species) === id ? '' : id);
+			let id = toID(set.species);
+			buf += '|' + (toID(set.name || set.species) === id ? '' : id);
 
 			// item
-			buf += '|' + toId(set.item);
+			buf += '|' + toID(set.item);
 
 			// ability
 			let template = Dex.getTemplate(set.species || set.name);
 			let abilities = template.abilities;
-			id = toId(set.ability);
+			id = toID(set.ability);
 			if (abilities) {
-				if (id === toId(abilities['0'])) {
+				if (id === toID(abilities['0'])) {
 					buf += '|';
-				} else if (id === toId(abilities['1'])) {
+				} else if (id === toID(abilities['1'])) {
 					buf += '|1';
-				} else if (id === toId(abilities['H'])) {
+				} else if (id === toID(abilities['H'])) {
 					buf += '|H';
 				} else {
 					buf += '|' + id;
@@ -46,7 +46,7 @@ class PSTeambuilder {
 			buf += '|';
 			if (set.moves) {
 				for (let j = 0; j < set.moves.length; j++) {
-					let moveid = toId(set.moves[j]);
+					let moveid = toID(set.moves[j]);
 					if (j && !moveid) continue;
 					buf += (j ? ',' : '') + moveid;
 					if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) {
@@ -110,9 +110,9 @@ class PSTeambuilder {
 				buf += '|';
 			}
 
-			if (set.pokeball || (set.hpType && toId(set.hpType) !== hasHP)) {
+			if (set.pokeball || (set.hpType && toID(set.hpType) !== hasHP)) {
 				buf += ',' + (set.hpType || '');
-				buf += ',' + toId(set.pokeball);
+				buf += ',' + toID(set.pokeball);
 			}
 		}
 

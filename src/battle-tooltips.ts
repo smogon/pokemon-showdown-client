@@ -423,7 +423,7 @@ class BattleTooltips {
 		let foeActive = pokemon.side.foe.active;
 		// TODO: move this somewhere it makes more sense
 		if (pokemon.ability === '(suppressed)') serverPokemon.ability = '(suppressed)';
-		let ability = toId(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
+		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
 
@@ -754,7 +754,7 @@ class BattleTooltips {
 			}
 		}
 
-		let ability = toId(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
+		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
 		if (clientPokemon && 'gastroacid' in clientPokemon.volatiles) ability = '' as ID;
 
 		// check for burn, paralysis, guts, quick feet
@@ -784,7 +784,7 @@ class BattleTooltips {
 			return stats;
 		}
 
-		let item = toId(serverPokemon.item);
+		let item = toID(serverPokemon.item);
 		if (ability === 'klutz' && item !== 'machobrace') item = '' as ID;
 		let species = Dex.getTemplate(clientPokemon ? clientPokemon.getSpecies() : serverPokemon.species).baseSpecies;
 
@@ -1708,9 +1708,9 @@ class BattleStatGuesser {
 			'physicalBulk': 0,
 		};
 		let hasMove: {[moveid: string]: 1} = {};
-		let itemid = toId(set.item);
+		let itemid = toID(set.item);
 		let item = this.dex.getItem(itemid);
-		let abilityid = toId(set.ability);
+		let abilityid = toID(set.ability);
 
 		let template = this.dex.getTemplate(set.species || set.name!);
 		if (item.megaEvolves === template.species) template = this.dex.getTemplate(item.megaStone);
@@ -1719,7 +1719,7 @@ class BattleStatGuesser {
 
 		if (set.moves.length < 1) return '?';
 		let needsFourMoves = !['unown', 'ditto'].includes(template.id);
-		let moveids = set.moves.map(toId);
+		let moveids = set.moves.map(toID);
 		if (moveids.includes('lastresort' as ID)) needsFourMoves = false;
 		if (set.moves.length < 4 && needsFourMoves && this.formatid !== 'gen7metronomebattle') {
 			return '?';

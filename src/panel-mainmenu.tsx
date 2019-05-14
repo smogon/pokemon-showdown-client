@@ -49,8 +49,8 @@ class MainMenuRoom extends PSRoom {
 		if (lobby) lobby.receive(line);
 	}
 	handlePM(user1: string, user2: string, message: string) {
-		const userid1 = toId(user1);
-		const userid2 = toId(user2);
+		const userid1 = toID(user1);
+		const userid2 = toID(user2);
 		const roomid = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
 		let room = PS.rooms[roomid];
 		if (!room) {

@@ -789,7 +789,7 @@
 		};
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
-			return ' <button class="button" value="' + toId(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">Change opponent</button>';
+			return ' <button class="button" value="' + toID(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">Change opponent</button>';
 		};
 		TournamentBox.prototype.challengeUser = function (user, button) {
 			app.addPopup(UserPopup, {user: user, users: this.info.challenges, sourceEl: button});
@@ -810,7 +810,7 @@
 			}).join('') + '</ul>');
 		},
 		selectUser: function (user) {
-			this.sourceEl.val(toId(user));
+			this.sourceEl.val(toID(user));
 			this.sourceEl.parent().parent().find('.tournament-challenge-user').text('vs. ' + user);
 			this.close();
 		}

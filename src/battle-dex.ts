@@ -114,7 +114,7 @@ function getString(str: any) {
 	return '';
 }
 
-function toId(text: any) {
+function toID(text: any) {
 	if (text && text.id) {
 		text = text.id;
 	} else if (text && text.userid) {
@@ -125,7 +125,7 @@ function toId(text: any) {
 }
 
 function toUserid(text: any) {
-	return toId(text);
+	return toID(text);
 }
 
 /**
@@ -203,7 +203,7 @@ const Dex = new class implements ModdedDex {
 			avatar = BattleAvatarNumbers[avatar];
 		}
 		if (avatar.charAt(0) === '#') {
-			return Dex.resourcePrefix + 'sprites/trainers-custom/' + toId(avatar.substr(1)) + '.png';
+			return Dex.resourcePrefix + 'sprites/trainers-custom/' + toID(avatar.substr(1)) + '.png';
 		}
 		if (avatar.includes('.') && window.Config && Config.server && Config.server.registered) {
 			// custom avatar served by the server
@@ -255,7 +255,7 @@ const Dex = new class implements ModdedDex {
 		} else if (name.substr(0, 5) === 'move:') {
 			return Dex.getMove(name.substr(5).trim());
 		}
-		let id = toId(name);
+		let id = toID(name);
 		return new PureEffect(id, name);
 	}
 
@@ -265,10 +265,10 @@ const Dex = new class implements ModdedDex {
 			return nameOrMove;
 		}
 		let name = nameOrMove || '';
-		let id = toId(nameOrMove);
+		let id = toID(nameOrMove);
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
-			id = toId(name);
+			id = toID(name);
 		}
 		if (!window.BattleMovedex) window.BattleMovedex = {};
 		let data = window.BattleMovedex[id];
@@ -312,10 +312,10 @@ const Dex = new class implements ModdedDex {
 			return nameOrItem;
 		}
 		let name = nameOrItem || '';
-		let id = toId(nameOrItem);
+		let id = toID(nameOrItem);
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
-			id = toId(name);
+			id = toID(name);
 		}
 		if (!window.BattleItems) window.BattleItems = {};
 		let data = window.BattleItems[id];
@@ -332,10 +332,10 @@ const Dex = new class implements ModdedDex {
 			return nameOrAbility;
 		}
 		let name = nameOrAbility || '';
-		let id = toId(nameOrAbility);
+		let id = toID(nameOrAbility);
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
-			id = toId(name);
+			id = toID(name);
 		}
 		if (!window.BattleAbilities) window.BattleAbilities = {};
 		let data = window.BattleAbilities[id];
@@ -356,13 +356,13 @@ const Dex = new class implements ModdedDex {
 			return nameOrTemplate;
 		}
 		let name = nameOrTemplate || '';
-		let id = toId(nameOrTemplate);
+		let id = toID(nameOrTemplate);
 		let formid = id;
 		if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
 		if (formid in window.BattlePokedexAltForms) return window.BattlePokedexAltForms[formid];
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
-			id = toId(name);
+			id = toID(name);
 		}
 		if (!window.BattlePokedex) window.BattlePokedex = {};
 		let data = window.BattlePokedex[id];
@@ -399,12 +399,12 @@ const Dex = new class implements ModdedDex {
 		if (isDoubles) table = table['gen' + gen + 'doubles'];
 		// Prevents Pokemon from having their tier displayed as 'undefined' when they're in a previous generation teambuilder
 		if (this.getTemplate(pokemon.species).gen > gen) return 'Illegal';
-		return table.overrideTier[toId(pokemon.species)];
+		return table.overrideTier[toID(pokemon.species)];
 	}
 
 	getType(type: any): Effect {
 		if (!type || typeof type === 'string') {
-			let id = toId(type) as string;
+			let id = toID(type) as string;
 			id = id.substr(0, 1).toUpperCase() + id.substr(1);
 			type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
 			if (type.damageTaken) type.exists = true;
@@ -484,7 +484,7 @@ const Dex = new class implements ModdedDex {
 		let animationData = null;
 		let miscData = null;
 		let speciesid = template.speciesid;
-		if (template.isTotem) speciesid = toId(name);
+		if (template.isTotem) speciesid = toID(name);
 		if (gen === 'xy' && window.BattlePokemonSprites) {
 			animationData = BattlePokemonSprites[speciesid];
 		}
@@ -497,7 +497,7 @@ const Dex = new class implements ModdedDex {
 		if (!miscData) miscData = {};
 
 		if (miscData.num > 0) {
-			let baseSpeciesid = toId(template.baseSpecies);
+			let baseSpeciesid = toID(template.baseSpecies);
 			spriteData.cryurl = 'audio/cries/' + baseSpeciesid;
 			let formeid = template.formeid;
 			if (template.isMega || formeid && (
@@ -530,7 +530,7 @@ const Dex = new class implements ModdedDex {
 
 		// Mod Cries
 		if (options.mod) {
-			spriteData.cryurl = `sprites/${options.mod}/audio/${toId(template.baseSpecies)}`;
+			spriteData.cryurl = `sprites/${options.mod}/audio/${toID(template.baseSpecies)}`;
 			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 		}
 
@@ -596,10 +596,10 @@ const Dex = new class implements ModdedDex {
 		} else if (pokemon === 'pokeball-none') {
 			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
 		}
-		let id = toId(pokemon);
-		if (pokemon && pokemon.species) id = toId(pokemon.species);
+		let id = toID(pokemon);
+		if (pokemon && pokemon.species) id = toID(pokemon.species);
 		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) {
-			id = toId(pokemon.volatiles.formechange[1]);
+			id = toID(pokemon.volatiles.formechange[1]);
 		}
 		if (pokemon && pokemon.num) {
 			num = pokemon.num;
@@ -635,11 +635,11 @@ const Dex = new class implements ModdedDex {
 
 	getTeambuilderSprite(pokemon: any, gen: number = 0) {
 		if (!pokemon) return '';
-		let id = toId(pokemon.species);
+		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
 		let template = Dex.getTemplate(pokemon.species);
 		if (pokemon.species && !spriteid) {
-			spriteid = template.spriteid || toId(pokemon.species);
+			spriteid = template.spriteid || toID(pokemon.species);
 		}
 		if (Dex.getTemplate(pokemon.species).exists === false) {
 			return 'background-image:url(' + Dex.resourcePrefix + 'sprites/bw/0.png);background-position:10px 5px;background-repeat:no-repeat';
@@ -676,7 +676,7 @@ const Dex = new class implements ModdedDex {
 
 	getItemIcon(item: any) {
 		let num = 0;
-		if (typeof item === 'string' && exports.BattleItems) item = exports.BattleItems[toId(item)];
+		if (typeof item === 'string' && exports.BattleItems) item = exports.BattleItems[toID(item)];
 		if (item && item.spritenum) num = item.spritenum;
 
 		let top = Math.floor(num / 16) * 24;
@@ -707,10 +707,10 @@ class ModdedDex {
 		this.gen = gen;
 	}
 	getMove(name: string): Move {
-		let id = toId(name);
+		let id = toID(name);
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
-			id = toId(name);
+			id = toID(name);
 		}
 		if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
 
@@ -736,10 +736,10 @@ class ModdedDex {
 		return move;
 	}
 	getItem(name: string): Item {
-		let id = toId(name);
+		let id = toID(name);
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
-			id = toId(name);
+			id = toID(name);
 		}
 		if (this.cache.Items.hasOwnProperty(id)) return this.cache.Items[id];
 
@@ -757,10 +757,10 @@ class ModdedDex {
 		return item;
 	}
 	getTemplate(name: string): Template {
-		let id = toId(name);
+		let id = toID(name);
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
-			id = toId(name);
+			id = toID(name);
 		}
 		if (this.cache.Templates.hasOwnProperty(id)) return this.cache.Templates[id];
 
@@ -801,5 +801,5 @@ class ModdedDex {
 if (typeof require === 'function') {
 	// in Node
 	(global as any).Dex = Dex;
-	(global as any).toId = toId;
+	(global as any).toID = toID;
 }

@@ -22,9 +22,9 @@ class ChatRoom extends PSRoom {
 	updateTarget(force?: boolean) {
 		if (this.id.startsWith('pm-')) {
 			const [id1, id2] = this.id.slice(3).split('-');
-			if (id1 === PS.user.userid && toId(this.pmTarget) !== id2) {
+			if (id1 === PS.user.userid && toID(this.pmTarget) !== id2) {
 				this.pmTarget = id2;
-			} else if (id2 === PS.user.userid && toId(this.pmTarget) !== id1) {
+			} else if (id2 === PS.user.userid && toID(this.pmTarget) !== id1) {
 				this.pmTarget = id1;
 			} else if (!force) {
 				return;
@@ -47,19 +47,19 @@ class ChatRoom extends PSRoom {
 		this.userCount = count;
 		this.users = {};
 		for (const username of usernames) {
-			const userid = toId(username);
+			const userid = toID(username);
 			this.users[userid] = username;
 		}
 		this.update('');
 	}
 	addUser(username: string) {
-		const userid = toId(username);
+		const userid = toID(username);
 		if (!(userid in this.users)) this.userCount++;
 		this.users[userid] = username;
 		this.update('');
 	}
 	removeUser(username: string, noUpdate?: boolean) {
-		const userid = toId(username);
+		const userid = toID(username);
 		if (userid in this.users) {
 			this.userCount--;
 			delete this.users[userid];
