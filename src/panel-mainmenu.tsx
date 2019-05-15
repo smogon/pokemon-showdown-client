@@ -91,6 +91,7 @@ class MainMenuPanel extends PSRoomPanel {
 		(this.base!.querySelector('button.big') as HTMLButtonElement).focus();
 	}
 	render() {
+		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		const searchButton = (PS.down ? <div class="menugroup" style="background: rgba(10,10,10,.6)">
 			{PS.down === 'ddos' ?
 				<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p> :
@@ -106,12 +107,11 @@ class MainMenuPanel extends PSRoomPanel {
 			<p>
 				<TeamDropdown format="gen7ou" />
 			</p>
-			<p><button class="button mainmenu1 big" name="search">
+			<p><button class={"mainmenu1 big" + onlineButton} name="search">
 				<strong>Battle!</strong><br />
 				<small>Find a random opponent</small>
 			</button></p>
 		</div>);
-		const onlineButton = ' button' + (PS.connected ? '' : ' disabled');
 		return <PSPanelWrapper room={this.props.room}>
 			<div class="mainmenuwrapper">
 				<div class="leftmenu">
@@ -138,7 +138,7 @@ class MainMenuPanel extends PSRoomPanel {
 
 						<div class="menugroup">
 							<p><button class="mainmenu2 button" name="joinRoom" value="teambuilder">Teambuilder</button></p>
-							<p><button class="mainmenu3 button" name="joinRoom" value="ladder">Ladder</button></p>
+							<p><button class={"mainmenu3" + onlineButton} name="joinRoom" value="ladder">Ladder</button></p>
 						</div>
 
 						<div class="menugroup">

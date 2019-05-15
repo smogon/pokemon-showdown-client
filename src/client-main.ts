@@ -415,6 +415,15 @@ const PS = new class extends PSModel {
 	server = new PSServer();
 	connection: PSConnection | null = null;
 	connected = false;
+	/**
+	 * While PS is technically disconnected while it's trying to connect,
+	 * it still shows UI like it's connected, so you can click buttons
+	 * before the server connection is established.
+	 *
+	 * `isOffline` is only set if PS is neither connected nor trying to
+	 * connect.
+	 */
+	isOffline = false;
 
 	router: PSRouter = null!;
 
