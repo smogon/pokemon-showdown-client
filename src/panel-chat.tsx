@@ -106,7 +106,7 @@ class ChatTextEntry extends preact.Component<{room: PSRoom, onMessage: (msg: str
 	};
 	focusIfNoSelection = (e: Event) => {
 		if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
-		const selection = window.getSelection();
+		const selection = window.getSelection()!;
 		if (selection.type === 'Range') return;
 		const elem = this.base!.children[0].children[1] as HTMLTextAreaElement;
 		elem.focus();

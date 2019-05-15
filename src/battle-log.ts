@@ -22,21 +22,22 @@ class BattleLog {
 	className: string;
 	battleParser: BattleTextParser | null = null;
 	/**
-	 * -1 = spectator: "Red sent out Pikachu!" "Blue's Eevee used Tackle!"
-	 * 0 = player 1: "Go! Pikachu!" "The opposing Eevee used Tackle!"
-	 * 1 = player 2: "Red sent out Pikachu!" "Eevee used Tackle!"
+	 * * -1 = spectator: "Red sent out Pikachu!" "Blue's Eevee used Tackle!"
+	 * * 0 = player 1: "Go! Pikachu!" "The opposing Eevee used Tackle!"
+	 * * 1 = player 2: "Red sent out Pikachu!" "Eevee used Tackle!"
 	 */
 	perspective: -1 | 0 | 1 = -1;
-	constructor(elem: HTMLDivElement, scene?: BattleScene) {
+	constructor(elem: HTMLDivElement, scene?: BattleScene | null, innerElem?: HTMLDivElement) {
 		this.elem = elem;
 
-		elem.setAttribute('role', 'log');
-		elem.innerHTML = '';
-		const innerElem = document.createElement('div');
-		innerElem.className = 'inner';
-		elem.appendChild(innerElem);
+		if (!innerElem) {
+			elem.setAttribute('role', 'log');
+			elem.innerHTML = '';
+			innerElem = document.createElement('div');
+			innerElem.className = 'inner';
+			elem.appendChild(innerElem);
+		}
 		this.innerElem = innerElem;
-		this.className = elem.className;
 
 		if (scene) {
 			this.scene = scene;
@@ -47,6 +48,7 @@ class BattleLog {
 			this.battleParser = new BattleTextParser();
 		}
 
+		this.className = elem.className;
 		elem.onscroll = this.onScroll;
 	}
 	onScroll = () => {
