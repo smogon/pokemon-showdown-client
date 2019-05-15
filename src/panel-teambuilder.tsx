@@ -137,8 +137,11 @@ class TeambuilderPanel extends PSRoomPanel {
 				} else {
 					formatName = BattleLog.escapeHTML(formatName);
 				}
-				renderedFolders.push(<TeamFolder cur={this.curFolder === format} value={format}>
-					<i class={'fa ' + (this.curFolder === format ? 'fa-folder-open' : 'fa-folder') + (format === '/' ? '-o' : '')}></i>
+				const isCurFolder = this.curFolder === format;
+				renderedFolders.push(<TeamFolder cur={isCurFolder} value={format}>
+					<i class={
+						`fa ${isCurFolder ? 'fa-folder-open' : 'fa-folder'}${format === '/' ? '-o' : ''}`
+					}></i>
 					{formatName}
 				</TeamFolder>);
 				continue;
@@ -217,6 +220,64 @@ class TeambuilderPanel extends PSRoomPanel {
 	}
 }
 
+class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
+	separators: number[] = [];
+	textbox: HTMLTextAreaElement = null!;
+	heightTester: HTMLTextAreaElement = null!;
+	update = () => {
+		const textbox = this.textbox;
+		const heightTester = this.heightTester;
+		heightTester.style.width = `${textbox.offsetWidth}px`;
+		const value = textbox.value;
+
+		let separatorIndex = value.indexOf('\n\n');
+		const separators: number[] = [];
+		while (separatorIndex >= 0) {
+			while (value.charAt(separatorIndex + 2) === '\n') separatorIndex++;
+			heightTester.value = value.slice(0, separatorIndex);
+			separators.push(heightTester.scrollHeight);
+
+			separatorIndex = value.indexOf('\n\n', separatorIndex + 1);
+		}
+
+		heightTester.value = textbox.value;
+		textbox.style.height = `${heightTester.scrollHeight + 100}px`;
+		this.separators = separators;
+		this.forceUpdate();
+	};
+	componentDidMount() {
+		this.textbox = this.base!.getElementsByClassName('teamtextbox')[0] as HTMLTextAreaElement;
+		this.heightTester = this.base!.getElementsByClassName('heighttester')[0] as HTMLTextAreaElement;
+
+		const exportedTeam = PSTeambuilder.exportTeam(this.props.sets);
+		this.textbox.value = exportedTeam;
+		this.update();
+	}
+	componentWillUnmount() {
+		this.textbox = null!;
+		this.heightTester = null!;
+	}
+	render() {
+		return <div class="teameditor">
+			<textarea class="textbox teamtextbox" onInput={this.update} />
+			<textarea
+				class="textbox teamtextbox heighttester" style="visibility:hidden" tabIndex={-1} aria-hidden={true}
+			/>
+			<div class="teamoverlays">
+				{this.separators.map(offset =>
+					<hr style={`top:${offset}px`} />
+				)}
+				{this.props.sets.map((set, i) => {
+					const prevOffset = i === 0 ? -5 : this.separators[i - 1];
+					return <span class="picon" style={
+						`top:${prevOffset + 10}px;left:50px;position:absolute;` + Dex.getPokemonIcon(set.species)
+					}></span>;
+				})}
+			</div>
+		</div>;
+	}
+}
+
 class TeamPanel extends PSRoomPanel {
 	sets: PokemonSet[] | null = null;
 	backToList = () => {
@@ -240,13 +301,15 @@ class TeamPanel extends PSRoomPanel {
 		const sets = this.sets || PSTeambuilder.unpackTeam(team!.packedTeam);
 		if (!this.sets) this.sets = sets;
 		return <PSPanelWrapper room={room} scrollable>
-			<button class="button" onClick={this.backToList}>
-				<i class="fa fa-chevron-left"></i> List
-			</button>
-			<h2>
-				{team.name}
-			</h2>
-			<pre>{PSTeambuilder.exportTeam(sets)}</pre>
+			<div class="pad">
+				<button class="button" onClick={this.backToList}>
+					<i class="fa fa-chevron-left"></i> List
+				</button>
+				<h2>
+					{team.name}
+				</h2>
+				<TeamTextbox sets={sets} />
+			</div>
 		</PSPanelWrapper>;
 	}
 }
