@@ -32,8 +32,9 @@ class PSConnection {
 		};
 		socket.onclose = () => {
 			console.log('\u2705 (DISCONNECTED)');
-			PS.connected = false;
 			this.connected = false;
+			PS.connected = false;
+			PS.isOffline = true;
 			for (const roomid in PS.rooms) {
 				PS.rooms[roomid]!.connected = false;
 			}

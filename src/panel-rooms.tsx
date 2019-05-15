@@ -160,7 +160,7 @@ class RoomsPanel extends PSRoomPanel {
 					onInput={this.changeSearch} onKeyDown={this.keyDownSearch}
 				/>
 			</div>
-			{rooms.userCount === undefined && <h2>Connecting...</h2>}
+			{PS.isOffline ? <h2>(offline)</h2> : rooms.userCount === undefined && <h2>Connecting...</h2>}
 			{roomList}
 		</div></PSPanelWrapper>;
 	}
