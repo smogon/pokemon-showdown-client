@@ -736,8 +736,14 @@ class BattleTooltips {
 	calculateModifiedStats(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon) {
 		let stats = {...serverPokemon.stats};
 		let pokemon = clientPokemon || serverPokemon;
+		const isPowerTrick = clientPokemon && clientPokemon.volatiles['powertrick'];
 		for (const statName of Dex.statNamesExceptHP) {
-			stats[statName] = serverPokemon.stats[statName];
+			let sourceStatName = statName;
+			if (isPowerTrick) {
+				if (statName === 'atk') sourceStatName = 'def';
+				if (statName === 'def') sourceStatName = 'atk';
+			}
+			stats[statName] = serverPokemon.stats[sourceStatName];
 			if (!clientPokemon) continue;
 
 			const clientStatName = clientPokemon.boosts.spc && (statName === 'spa' || statName === 'spd') ? 'spc' : statName;
