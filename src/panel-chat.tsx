@@ -77,12 +77,16 @@ class ChatRoom extends PSRoom {
 	}
 }
 
-class ChatTextEntry extends preact.Component<{room: PSRoom, onMessage: (msg: string) => void}> {
+class ChatTextEntry extends preact.Component<{
+	room: PSRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
+}> {
 	subscription: PSSubscription | null = null;
+	textbox: HTMLTextAreaElement = null!;
 	componentDidMount() {
 		this.subscription = PS.user.subscribe(() => {
 			this.forceUpdate();
 		});
+		this.textbox = this.base!.children[0].children[1] as HTMLTextAreaElement;
 		if (this.base) this.update();
 	}
 	componentWillUnmount() {
@@ -91,18 +95,11 @@ class ChatTextEntry extends preact.Component<{room: PSRoom, onMessage: (msg: str
 			this.subscription = null;
 		}
 	}
-	update = (e?: Event) => {
-		let elem;
-		if (e) {
-			elem = e.currentTarget as HTMLTextAreaElement;
-		} else if (this.base) {
-			elem = this.base.children[0].children[1] as HTMLTextAreaElement;
-		} else {
-			return;
-		}
-		elem.style.height = '12px';
-		const newHeight = Math.min(Math.max(elem.scrollHeight - 2, 16), 600);
-		elem.style.height = '' + newHeight + 'px';
+	update = () => {
+		const textbox = this.textbox;
+		textbox.style.height = `12px`;
+		const newHeight = Math.min(Math.max(textbox.scrollHeight - 2, 16), 600);
+		textbox.style.height = `${newHeight}px`;
 	};
 	focusIfNoSelection = (e: Event) => {
 		if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
@@ -111,17 +108,90 @@ class ChatTextEntry extends preact.Component<{room: PSRoom, onMessage: (msg: str
 		const elem = this.base!.children[0].children[1] as HTMLTextAreaElement;
 		elem.focus();
 	};
-	keyPress = (e: KeyboardEvent) => {
-		let elem = e.currentTarget as HTMLTextAreaElement;
-		if (e.keyCode === 13 && !e.shiftKey) {
-			this.props.onMessage(elem.value);
-			elem.value = '';
-			this.update();
+	submit() {
+		this.props.onMessage(this.textbox.value);
+		this.textbox.value = '';
+		this.update();
+		return true;
+	}
+	keyDown = (e: KeyboardEvent) => {
+		if (this.handleKey(e) || this.props.onKey(e)) {
 			e.preventDefault();
 			e.stopImmediatePropagation();
-			return;
 		}
 	};
+	handleKey(e: KeyboardEvent) {
+		const cmdKey = ((e.metaKey ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
+		const textbox = this.textbox;
+		if (e.keyCode === 13 && !e.shiftKey) { // Enter key
+			return this.submit();
+		} else if (e.keyCode === 73 && cmdKey) { // Ctrl + I key
+			return this.toggleFormatChar('_');
+		} else if (e.keyCode === 66 && cmdKey) { // Ctrl + B key
+			return this.toggleFormatChar('*');
+		} else if (e.keyCode === 192 && cmdKey) { // Ctrl + ` key
+			return this.toggleFormatChar('`');
+		// } else if (e.keyCode === 9 && !e.ctrlKey) { // Tab key
+		// 	const reverse = !!e.shiftKey; // Shift+Tab reverses direction
+		// 	return this.handleTabComplete(this.$chatbox, reverse);
+		// } else if (e.keyCode === 38 && !e.shiftKey && !e.altKey) { // Up key
+		// 	return this.chatHistoryUp(this.$chatbox, e);
+		// } else if (e.keyCode === 40 && !e.shiftKey && !e.altKey) { // Down key
+		// 	return this.chatHistoryDown(this.$chatbox, e);
+		// } else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r' || textbox.value === '/R') && e.keyCode === 32) { // '/reply ' is being written
+		// 	var val = '/pm ' + app.user.lastPM + ', ';
+		// 	textbox.value = val;
+		// 	textbox.setSelectionRange(val.length, val.length);
+		// 	return true;
+		}
+		return false;
+	}
+	toggleFormatChar(formatChar: string) {
+		const textbox = this.textbox;
+		if (!textbox.setSelectionRange) return false;
+
+		let value = textbox.value;
+		let start = textbox.selectionStart;
+		let end = textbox.selectionEnd;
+
+		// make sure start and end aren't midway through the syntax
+		if (value.charAt(start) === formatChar && value.charAt(start - 1) === formatChar &&
+			value.charAt(start - 2) !== formatChar) {
+			start++;
+		}
+		if (value.charAt(end) === formatChar && value.charAt(end - 1) === formatChar &&
+			value.charAt(end - 2) !== formatChar) {
+			end--;
+		}
+
+		// wrap in doubled format char
+		const wrap = formatChar + formatChar;
+		value = value.substr(0, start) + wrap + value.substr(start, end - start) + wrap + value.substr(end);
+		start += 2;
+		end += 2;
+
+		// prevent nesting
+		const nesting = wrap + wrap;
+		if (value.substr(start - 4, 4) === nesting) {
+			value = value.substr(0, start - 4) + value.substr(start);
+			start -= 4;
+			end -= 4;
+		} else if (start !== end && value.substr(start - 2, 4) === nesting) {
+			value = value.substr(0, start - 2) + value.substr(start + 2);
+			start -= 2;
+			end -= 4;
+		}
+		if (value.substr(end, 4) === nesting) {
+			value = value.substr(0, end) + value.substr(end + 4);
+		} else if (start !== end && value.substr(end - 2, 4) === nesting) {
+			value = value.substr(0, end - 2) + value.substr(end + 2);
+			end -= 2;
+		}
+
+		textbox.value = value;
+		textbox.setSelectionRange(start, end);
+		return true;
+	}
 	render() {
 		return <div class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection}>
 			<form class="chatbox">
@@ -131,7 +201,7 @@ class ChatTextEntry extends preact.Component<{room: PSRoom, onMessage: (msg: str
 					autofocus
 					rows={1}
 					onInput={this.update}
-					onKeyPress={this.keyPress}
+					onKeyDown={this.keyDown}
 					style={{resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px'}}
 					placeholder={PS.focusPreview(this.props.room)}
 				/>
@@ -148,15 +218,27 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		this.base!.querySelector('textarea')!.focus();
 	}
 	focusIfNoSelection = () => {
-		const selection = window.getSelection();
+		const selection = window.getSelection()!;
 		if (selection.type === 'Range') return;
 		this.focus();
+	};
+	onKey = (e: KeyboardEvent) => {
+		if (e.keyCode === 33) { // Pg Up key
+			const chatLog = this.base!.getElementsByClassName('chat-log')[0] as HTMLDivElement;
+			chatLog.scrollTop = chatLog.scrollTop - chatLog.offsetHeight + 60;
+			return true;
+		} else if (e.keyCode === 34) { // Pg Dn key
+			const chatLog = this.base!.getElementsByClassName('chat-log')[0] as HTMLDivElement;
+			chatLog.scrollTop = chatLog.scrollTop + chatLog.offsetHeight - 60;
+			return true;
+		}
+		return false;
 	};
 	render() {
 		return <PSPanelWrapper room={this.props.room}>
 			<div class="tournament-wrapper hasuserlist"></div>
 			<ChatLog class="chat-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection} />
-			<ChatTextEntry room={this.props.room} onMessage={this.send} />
+			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} />
 			<ChatUserList room={this.props.room} />
 		</PSPanelWrapper>;
 	}
