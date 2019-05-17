@@ -166,9 +166,14 @@ class RoomsPanel extends PSRoomPanel {
 	}
 	renderRoomList(title: string, rooms?: RoomInfo[]) {
 		if (!rooms || !rooms.length) return null;
+		const sortedRooms = rooms.sort((a, b) => {
+			if (!b.userCount || !a.userCount) return 0;
+			// ascending order
+			return b.userCount - a.userCount;
+		});
 		return <div class="roomlist">
 			<h2>{title}</h2>
-			{rooms.map(roomInfo => <div>
+			{sortedRooms.map(roomInfo => <div>
 				<a href={`/${toID(roomInfo.title)}`} class="ilink">
 					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
 					<strong><i class="fa fa-comment-o"></i> {roomInfo.title}<br /></strong>
