@@ -166,7 +166,8 @@ class RoomsPanel extends PSRoomPanel {
 	}
 	renderRoomList(title: string, rooms?: RoomInfo[]) {
 		if (!rooms || !rooms.length) return null;
-		const sortedRooms = rooms.sort((a, b) => /* Ascending order */ (b.userCount || 0) - (a.userCount || 0));
+		// Ascending order
+		const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 		return <div class="roomlist">
 			<h2>{title}</h2>
 			{sortedRooms.map(roomInfo => <div>
