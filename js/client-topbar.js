@@ -480,7 +480,7 @@
 			}
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Dex.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable battle animations</label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
 			}
@@ -537,7 +537,6 @@
 		setNoanim: function (e) {
 			var noanim = !!e.currentTarget.checked;
 			Dex.prefs('noanim', noanim);
-			Dex.loadSpriteData(noanim || Dex.prefs('bwgfx') ? 'bw' : 'xy');
 		},
 		setNogif: function (e) {
 			var nogif = !!e.currentTarget.checked;
@@ -552,7 +551,7 @@
 		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;
 			Dex.prefs('bwgfx', bwgfx);
-			Dex.loadSpriteData(bwgfx || Dex.prefs('noanim') ? 'bw' : 'xy');
+			Dex.loadSpriteData(bwgfx ? 'bw' : 'xy');
 		},
 		setNopastgens: function (e) {
 			var nopastgens = !!e.currentTarget.checked;
