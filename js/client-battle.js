@@ -108,7 +108,8 @@
 			this.tooltips.hideTooltip();
 			if (this.battle.playbackState === 3 && !this.battlePaused) {
 				this.battle.play();
-				if (Dex.prefs('noanim')) this.battle.fastForwardTo(-1);
+				var animations = Dex.prefs('animations');
+				if (animations === 'none' || animations === 'sprites') this.battle.fastForwardTo(-1);
 			}
 			ConsoleRoom.prototype.focus.call(this);
 		},
@@ -215,7 +216,8 @@
 					this.battle.activityQueue.push(logLine);
 				}
 			}
-			this.battle.add('', Dex.prefs('noanim'));
+			var animations = Dex.prefs('animations');
+			this.battle.add('', animations === 'none' || animations === 'sprites');
 			this.updateControls();
 		},
 		toggleMessages: function (user) {

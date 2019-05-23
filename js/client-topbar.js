@@ -437,7 +437,7 @@
 			this.update();
 		},
 		events: {
-			'change input[name=noanim]': 'setNoanim',
+			'change select[name=animations]': 'setAnimations',
 			'change input[name=nogif]': 'setNogif',
 			'change input[name=bwgfx]': 'setBwgfx',
 			'change input[name=nopastgens]': 'setNopastgens',
@@ -480,7 +480,8 @@
 			}
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Dex.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
+			var animation = Dex.prefs('animations');
+			buf += '<p><label class="optlabel">Animations: <select name="animations"><option value="none"' + (animation === 'none' ? ' selected="selected"' : '') + '> None</option><option value="sprites"' + (animation === 'sprites' ? ' selected="selected"' : '') + '>Sprites</option><option value="all"' + (animation === 'all' ? ' selected="selected"' : '') + '>All</option></select></label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
 			}
@@ -534,10 +535,10 @@
 			}
 			Dex.prefs('logchat', logchat);
 		},
-		setNoanim: function (e) {
-			var noanim = !!e.currentTarget.checked;
-			Dex.prefs('noanim', noanim);
-			Dex.loadSpriteData(noanim || Dex.prefs('bwgfx') ? 'bw' : 'xy');
+		setAnimations: function (e) {
+			var animations = e.currentTarget.value;
+			Dex.prefs('animations', animations);
+			Dex.loadSpriteData(animations === 'none' || Dex.prefs('bwgfx') ? 'bw' : 'xy');
 		},
 		setNogif: function (e) {
 			var nogif = !!e.currentTarget.checked;
@@ -552,7 +553,7 @@
 		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;
 			Dex.prefs('bwgfx', bwgfx);
-			Dex.loadSpriteData(bwgfx || Dex.prefs('noanim') ? 'bw' : 'xy');
+			Dex.loadSpriteData(bwgfx || Dex.prefs('animations') === 'none' ? 'bw' : 'xy');
 		},
 		setNopastgens: function (e) {
 			var nopastgens = !!e.currentTarget.checked;

@@ -407,6 +407,11 @@
 						Backbone.history.start({pushState: !Config.testclient});
 						return;
 					}
+					// Support legacy animation setting and migrate to new pref
+					if (Dex.prefs('noanim')) {
+						Dex.prefs('animations', Dex.prefs('noanim') ? 'none' : 'all');
+						Storage.removeItem('noanim');
+					}
 					var autojoin = (Dex.prefs('autojoin') || '');
 					var autojoinIds = [];
 					if (typeof autojoin === 'string') {
@@ -466,10 +471,10 @@
 					self.updateLayout();
 				}
 
-				if (Dex.prefs('bwgfx') || Dex.prefs('noanim')) {
-					// since xy data is loaded by default, only call
+				if (Dex.prefs('bwgfx') || Dex.prefs('animations') === 'none') {
+					// since  data is loaded by default, only call
 					// loadSpriteData if we want bw sprites or if we need bw
-					// sprite data (if animations are disabled)
+					// sprite data (if sprite animations are disabled)
 					Dex.loadSpriteData('bw');
 				}
 			});
