@@ -29,7 +29,7 @@ RewriteRule ^report\/?$ https://play.pokemonshowdown.com/view-help-request--repo
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^rooms?suggestions?\/?$ http://www.smogon.com/forums/threads/room-suggestions-are-no-longer-being-taken.3522130/ [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
-RewriteRule ^suggestions?\/?$ http://www.smogon.com/forums/threads/suggestions.3534365/ [R=302,L]
+RewriteRule ^suggestions?\/?$ https://www.smogon.com/forums/forums/517/ [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^adminrequests?\/?$ http://www.smogon.com/forums/threads/names-rooms-and-servers-contacting-senior-staff.3538721/ [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
