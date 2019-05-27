@@ -1226,7 +1226,7 @@ class Battle {
 	}
 	resetTurnsSinceMoved() {
 		this.turnsSinceMoved = 0;
-		this.scene.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
+		this.scene.acceleration = Dex.prefs('animations') === 'fast' ? 3 : (this.messageFadeTime < 150 ? 2 : 1);
 	}
 	updateToxicTurns() {
 		for (const side of this.sides) {

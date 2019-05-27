@@ -481,7 +481,7 @@
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Dex.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
 			var animation = Dex.prefs('animations');
-			buf += '<p><label class="optlabel">Animations: <select name="animations"><option value="none"' + (animation === 'none' ? ' selected="selected"' : '') + '> None</option><option value="sprites"' + (animation === 'sprites' ? ' selected="selected"' : '') + '>Sprites</option><option value="all"' + (animation === 'all' ? ' selected="selected"' : '') + '>All</option></select></label></p>';
+			buf += '<p><label class="optlabel">Animations: <select name="animations"><option value="none"' + (animation === 'none' ? ' selected="selected"' : '') + '> None</option><option value="fast"' + (animation === 'fast' ? ' selected="selected"' : '') + '>Fast</option><option value="all"' + (animation === 'all' ? ' selected="selected"' : '') + '>All</option></select></label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
 			}

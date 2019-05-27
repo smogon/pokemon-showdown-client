@@ -888,7 +888,9 @@ class BattleScene {
 		}, 500, () => {
 			$prevTurn.remove();
 		});
-		if (this.battle.turnsSinceMoved > 2) {
+		if (Dex.prefs('animations') === 'fast') {
+			this.acceleration = 3;
+		} else if (this.battle.turnsSinceMoved > 2) {
 			this.acceleration = (this.battle.messageFadeTime < 150 ? 2 : 1) * Math.min(this.battle.turnsSinceMoved - 1, 3);
 		} else {
 			this.acceleration = (this.battle.messageFadeTime < 150 ? 2 : 1);
