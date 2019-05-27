@@ -2009,6 +2009,7 @@ class Battle {
 					poke.itemEffect = 'bestowed';
 					this.scene.resultAnim(poke, item.name, 'neutral');
 					break;
+				case 'switcheroo':
 				case 'trick':
 					poke.itemEffect = 'tricked';
 					// falls through
