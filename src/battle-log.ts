@@ -381,9 +381,6 @@ class BattleLog {
 		if (this.colorCache[name]) return this.colorCache[name];
 		let hash;
 		if (window.Config && Config.customcolors && Config.customcolors[name]) {
-			if (Config.customcolors[name].color) {
-				return (this.colorCache[name] = Config.customcolors[name].color);
-			}
 			hash = MD5(Config.customcolors[name]);
 		} else {
 			hash = MD5(name);
