@@ -58,6 +58,12 @@ class BattleTextParser {
 	}
 
 	static parseNameParts(text: string) {
+		let rank: string | undefined;
+		// Names cannot start with symbols, so if we do see a symbol then we know it is the user's rank.
+		if (text.match(/^A-Za-z0-9/)) {
+			rank = text.charAt(0);
+			text = text.slice(1);
+		}
 		const atIndex = text.indexOf('@');
 		let name = text;
 		let status = '';
@@ -70,7 +76,7 @@ class BattleTextParser {
 				status = status.substr(1);
 			}
 		}
-		return {name, status, away};
+		return {rank, name, status, away};
 	}
 
 	static upgradeArgs({args, kwArgs}: {args: Args, kwArgs: KWArgs}): {args: Args, kwArgs: KWArgs} {
