@@ -940,13 +940,14 @@
 					parts = data.slice(1, nlIndex).split('|');
 				}
 				var parsed = BattleTextParser.parseNameParts(parts[1]);
+				var name = parsed.name.substr(1);
 				var named = !!+parts[2];
 
-				var userid = toUserid(parsed.name);
-				if (userid === this.user.get('userid') && parsed.name !== this.user.get('name')) {
+				var userid = toUserid(name);
+				if (userid === this.user.get('userid') && name !== this.user.get('name')) {
 					$.post(app.user.getActionPHP(), {
 						act: 'changeusername',
-						username: parsed.name
+						username: name,
 					}, function () {}, 'text');
 				}
 
@@ -962,7 +963,7 @@
 				}
 
 				this.user.set({
-					name: parsed.name,
+					name: name,
 					userid: userid,
 					named: named,
 					avatar: parts[3],
@@ -970,7 +971,7 @@
 					status: parsed.status,
 					away: parsed.away
 				});
-				this.user.setPersistentName(named ? parsed.name : null);
+				this.user.setPersistentName(named ? name : null);
 				if (named) {
 					this.trigger('init:choosename');
 				}
@@ -2472,7 +2473,8 @@
 			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
 			var offline = data.rooms === false;
 			if (data.status || offline) {
-				buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + (offline ? '(Offline)' : BattleLog.escapeHTML(data.status)) + '</span><br />';
+				var status = offline ? '(Offline)' : data.status.startsWith('!') ? data.status.substr(1) : data.status;
+				buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + BattleLog.escapeHTML(status) + '</span><br />';
 			}
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (globalgroup) buf += '<br /><small>' + globalgroup + '</small>';
