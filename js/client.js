@@ -939,7 +939,7 @@
 					this.receive(data.substr(nlIndex + 1));
 					parts = data.slice(1, nlIndex).split('|');
 				}
-				var parsed = BattleTextParser.parseNameParts(parts[1]);
+				var parsed = BattleTextParser.parseNameParts(parts[1].slice(1));
 				var named = !!+parts[2];
 
 				var userid = toUserid(parsed.name);
