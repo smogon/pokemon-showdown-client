@@ -702,11 +702,12 @@ class BattleTooltips {
 			let battlePokemon = this.battle.getPokemon(pokemon.ident, pokemon.details);
 			for (const moveid of serverPokemon.moves) {
 				let move = Dex.getMove(moveid);
-				let moveName = '&#8226; ' + move.name;
+				let moveDisplay = this.getMoveDisplay(move, serverPokemon);
+				let moveName = '&#8226; ' + moveDisplay;
 				if (battlePokemon && battlePokemon.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
 						if (moveName === row[0]) {
-							moveName = this.getPPUseText(row, true);
+							moveName = this.getPPUseText(row, true, moveDisplay);
 							break;
 						}
 					}
@@ -731,6 +732,14 @@ class BattleTooltips {
 			text += '</p>';
 		}
 		return text;
+	}
+
+	getMoveDisplay(move: Move, pokemon: ServerPokemon) {
+		if (((move.id === 'frustration' || move.id === 'return') && move.basePower !== 102) ||
+			(move.id.startsWith('hiddenpower') && this.battle.gen < 7 && move.basePower !== 70)) {
+			return `${move.name} - ${move.basePower}BP`;
+		}
+		return move.name;
 	}
 
 	calculateModifiedStats(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon) {
@@ -998,7 +1007,7 @@ class BattleTooltips {
 		return buf;
 	}
 
-	getPPUseText(moveTrackRow: [string, number], showKnown?: boolean) {
+	getPPUseText(moveTrackRow: [string, number], showKnown?: boolean, moveDisplay?: string) {
 		let [moveName, ppUsed] = moveTrackRow;
 		let move;
 		let maxpp;
@@ -1012,12 +1021,12 @@ class BattleTooltips {
 		}
 		const bullet = moveName.charAt(0) === '*' || move.isZ ? '<span style="color:#888">&#8226;</span>' : '&#8226;';
 		if (ppUsed === Infinity) {
-			return `${bullet} ${move.name} <small>(0/${maxpp})</small>`;
+			return `${bullet} ${moveDisplay || move.name} <small>(0/${maxpp})</small>`;
 		}
 		if (ppUsed || moveName.charAt(0) === '*') {
-			return `${bullet} ${move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
+			return `${bullet} ${moveDisplay || move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
 		}
-		return `${bullet} ${move.name} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
+		return `${bullet} ${moveDisplay || move.name} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
 	}
 
 	ppUsed(move: Move, pokemon: Pokemon) {
