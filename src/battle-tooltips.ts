@@ -737,7 +737,7 @@ class BattleTooltips {
 	getMoveDisplay(move: Move, pokemon: ServerPokemon) {
 		if (((move.id === 'frustration' || move.id === 'return') && move.basePower !== 102) ||
 			(move.id.startsWith('hiddenpower') && this.battle.gen < 7 && move.basePower !== 70)) {
-			return `${move.name} - ${move.basePower}BP`;
+			return `${move.name} ${move.basePower}`;
 		}
 		return move.name;
 	}
