@@ -4,8 +4,7 @@
 	Config.root = '/';
 
 	if (window.nodewebkit) {
-		window.gui = require('nw.gui');
-		window.nwWindow = gui.Window.get();
+		window.nwWindow = nw.Window.get();
 	}
 	if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
 		// Android mobile-web-app-capable doesn't support it very well, but iOS
@@ -82,34 +81,34 @@
 			e.preventDefault();
 			var target = e.target;
 			var isEditable = (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT');
-			var menu = new gui.Menu();
+			var menu = new nw.Menu();
 
-			if (isEditable) menu.append(new gui.MenuItem({
+			if (isEditable) menu.append(new nw.MenuItem({
 				label: "Cut",
 				click: function () {
 					document.execCommand("cut");
 				}
 			}));
 			var link = $(target).closest('a')[0];
-			if (link) menu.append(new gui.MenuItem({
+			if (link) menu.append(new nw.MenuItem({
 				label: "Copy Link URL",
 				click: function () {
 					gui.Clipboard.get().set(link.href);
 				}
 			}));
-			if (target.tagName === 'IMG') menu.append(new gui.MenuItem({
+			if (target.tagName === 'IMG') menu.append(new nw.MenuItem({
 				label: "Copy Image URL",
 				click: function () {
 					gui.Clipboard.get().set(target.src);
 				}
 			}));
-			menu.append(new gui.MenuItem({
+			menu.append(new nw.MenuItem({
 				label: "Copy",
 				click: function () {
 					document.execCommand("copy");
 				}
 			}));
-			if (isEditable) menu.append(new gui.MenuItem({
+			if (isEditable) menu.append(new nw.MenuItem({
 				label: "Paste",
 				enabled: !!gui.Clipboard.get().get(),
 				click: function () {
