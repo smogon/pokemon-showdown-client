@@ -79,13 +79,31 @@ if (!Object.values) {
 		return out;
 	};
 }
-// if (!Object.create) {
-// 	Object.create = function (proto) {
-// 		function F() {}
-// 		F.prototype = proto;
-// 		return new F();
-// 	};
-// }
+if (!Object.keys) {
+	Object.keys = function keys(thing: any) {
+		let out: any[] = [];
+		for (let k in thing) {
+			out.push(k);
+		}
+		return out;
+	};
+}
+if (!Object.entries) {
+	Object.entries = function entries(thing: any) {
+		let out: any[] = [];
+		for (let k in thing) {
+			out.push([k, thing[k]]);
+		}
+		return out;
+	};
+}
+if (!Object.create) {
+	Object.create = function (proto: any) {
+		function F() {}
+		F.prototype = proto;
+		return new (F as any)();
+	};
+}
 
 if (typeof window === 'undefined') {
 	// Node
@@ -196,6 +214,9 @@ const Dex = new class implements ModdedDex {
 		}
 		this.moddedDexes[modid] = new ModdedDex(modid);
 		return this.moddedDexes[modid];
+	}
+	forGen(gen: number) {
+		return this.mod(`gen${gen}` as ID);
 	}
 
 	resolveAvatar(avatar: string): string {
@@ -346,10 +367,6 @@ const Dex = new class implements ModdedDex {
 		return ability;
 	}
 
-	getAbilitiesFor(id: ID, gen: number) {
-		return this.mod(`gen${gen}` as ID).getTemplate(id).abilities;
-	}
-
 	getTemplate(nameOrTemplate: string | Template | null | undefined): Template {
 		if (nameOrTemplate && typeof nameOrTemplate !== 'string') {
 			// TODO: don't accept Templates here
@@ -372,6 +389,12 @@ const Dex = new class implements ModdedDex {
 			template = data;
 		} else {
 			if (!data) data = {exists: false};
+			if (!data.tier && id.slice(-5) === 'totem') {
+				data.tier = this.getTemplate(id.slice(0, -5)).tier;
+			}
+			if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
+				data.tier = this.getTemplate(data.baseSpecies).tier;
+			}
 			template = new Template(id, name, data);
 			window.BattlePokedex[id] = template;
 		}
@@ -391,15 +414,29 @@ const Dex = new class implements ModdedDex {
 		return template;
 	}
 
-	getTier(pokemon: Pokemon, gen = 7, isDoubles = false): string {
+	/** @deprecated */
+	getTier(pokemon: Template, gen = 7, isDoubles = false): string {
+		if (gen < 7) pokemon = this.forGen(gen).getTemplate(pokemon.id);
+		if (!isDoubles) return pokemon.tier;
 		let table = window.BattleTeambuilderTable;
-		gen = Math.floor(gen);
-		if (gen < 0 || gen > 7) gen = 7;
-		if (gen < 7 && !isDoubles) table = table['gen' + gen];
-		if (isDoubles) table = table['gen' + gen + 'doubles'];
-		// Prevents Pokemon from having their tier displayed as 'undefined' when they're in a previous generation teambuilder
-		if (this.getTemplate(pokemon.species).gen > gen) return 'Illegal';
-		return table.overrideTier[toID(pokemon.species)];
+		if (table && table[`gen${this.gen}doubles`]) {
+			table = table[`gen${this.gen}doubles`];
+		}
+		if (!table) return pokemon.tier;
+
+		let id = pokemon.id;
+		if (id in table.overrideTier) {
+			return table.overrideTier[id];
+		}
+		if (id.slice(-5) === 'totem' && id.slice(0, -5) in table.overrideTier) {
+			return table.overrideTier[id.slice(0, -5)];
+		}
+		id = toID(pokemon.baseSpecies);
+		if (id in table.overrideTier) {
+			return table.overrideTier[id];
+		}
+
+		return pokemon.tier;
 	}
 
 	getType(type: any): Effect {
@@ -791,6 +828,13 @@ class ModdedDex {
 		if (id in table.overrideType) data.types = table.overrideType[id].split('/');
 
 		if (id in table.overrideTier) data.tier = table.overrideTier[id];
+		if (!data.tier && id.slice(-5) === 'totem') {
+			data.tier = this.getTemplate(id.slice(0, -5)).tier;
+		}
+		if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
+			data.tier = this.getTemplate(data.baseSpecies).tier;
+		}
+		if (data.gen > this.gen) data.tier = 'Illegal';
 
 		const template = new Template(id, name, data);
 		this.cache.Templates[id] = template;

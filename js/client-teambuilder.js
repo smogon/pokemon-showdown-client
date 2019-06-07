@@ -2767,7 +2767,7 @@
 			for (var i = 0; i < moves.length; ++i) {
 				if (!moves[i]) continue;
 				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
-				var move = Dex.mod('gen' + this.curTeam.gen).getMove(moves[i]);
+				var move = Dex.forGen(this.curTeam.gen).getMove(moves[i]);
 				if (move.category === 'Physical' &&
 						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
 					minAtk = false;
@@ -2803,7 +2803,7 @@
 		},
 		setPokemon: function (val, selectNext) {
 			var set = this.curSet;
-			var template = Dex.getTemplate(val);
+			var template = Dex.forGen(this.curTeam.gen).getTemplate(val);
 			if (!template.exists || set.species === template.species) {
 				if (selectNext) this.$('input[name=item]').select();
 				return;
@@ -2834,7 +2834,7 @@
 			} else {
 				set.item = '';
 			}
-			set.ability = Dex.getAbilitiesFor(template.id, this.curTeam.gen)['0'];
+			set.ability = template.abilities['0'];
 
 			set.moves = [];
 			set.evs = {};

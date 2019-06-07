@@ -295,7 +295,7 @@ class PSMain extends preact.Component {
 	}
 	static isEmptyClick(e: MouseEvent) {
 		try {
-			const selection = window.getSelection();
+			const selection = window.getSelection()!;
 			if (selection.type === 'Range') return false;
 		} catch (err) {}
 		BattleTooltips.hideTooltip();
