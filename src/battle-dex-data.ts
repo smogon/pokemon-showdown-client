@@ -1118,6 +1118,7 @@ class Ability implements Effect {
 	readonly exists: boolean;
 
 	readonly num: number;
+	readonly shortDesc: string;
 	readonly desc: string;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1128,6 +1129,7 @@ class Ability implements Effect {
 		this.gen = data.gen || 0;
 		this.exists = ('exists' in data ? !!data.exists : true);
 		this.num = data.num || 0;
+		this.shortDesc = data.shortDesc || data.desc || '';
 		this.desc = data.desc || data.shortDesc || '';
 		if (!this.gen) {
 			if (this.num >= 165) {

@@ -208,9 +208,6 @@ class PSTeambuilder {
 			}
 			i = j + 1;
 
-			// 1 + 'WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140 WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140 WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140';
-			// throw new Error('WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140 WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140 WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140');
-
 			// shiny
 			j = buf.indexOf('|', i);
 			if (i !== j) set.shiny = true;

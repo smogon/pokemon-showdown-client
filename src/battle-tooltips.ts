@@ -338,7 +338,7 @@ class BattleTooltips {
 			$(document.body).append($wrapper);
 			$wrapper.on('click', e => {
 				try {
-					const selection = window.getSelection();
+					const selection = window.getSelection()!;
 					if (selection.type === 'Range') return;
 				} catch (err) {}
 				BattleTooltips.hideTooltip();

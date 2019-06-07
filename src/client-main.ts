@@ -353,6 +353,9 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	parentElem: HTMLElement | null = null;
 	rightPopup = false;
 
+	// for compatibility with RoomOptions
+	[k: string]: unknown;
+
 	constructor(options: RoomOptions) {
 		super();
 		this.id = options.id;
