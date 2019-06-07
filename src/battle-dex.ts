@@ -259,7 +259,7 @@ const Dex = new class implements ModdedDex {
 		return new PureEffect(id, name);
 	}
 
-	getMove(nameOrMove: string | Move | null | undefined): Move {
+	getMove(nameOrMove: string | Move | null | undefined, gen = 7): Move {
 		if (nameOrMove && typeof nameOrMove !== 'string') {
 			// TODO: don't accept Moves here
 			return nameOrMove;
@@ -278,7 +278,7 @@ const Dex = new class implements ModdedDex {
 			let [, hpWithType, hpPower] = /([a-z]*)([0-9]*)/.exec(id)!;
 			data = {
 				...(window.BattleMovedex[hpWithType] || {}),
-				basePower: Number(hpPower) || 60,
+				basePower: Number(hpPower) || (gen < 6 ? 70 : 60),
 			};
 		}
 		if (!data && id.substr(0, 6) === 'return' && id.length > 6) {
@@ -714,7 +714,7 @@ class ModdedDex {
 		}
 		if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
 
-		let data = {...Dex.getMove(name)};
+		let data = {...Dex.getMove(name, this.gen)};
 
 		const table = window.BattleTeambuilderTable[this.modid];
 		if (id in table.overrideAcc) data.accuracy = table.overrideAcc[id];

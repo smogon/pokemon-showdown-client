@@ -701,8 +701,8 @@ class BattleTooltips {
 			text += '<p class="section">';
 			let battlePokemon = this.battle.getPokemon(pokemon.ident, pokemon.details);
 			for (const moveid of serverPokemon.moves) {
-				let move = Dex.getMove(moveid);
-				let moveDisplay = this.getMoveDisplay(move, serverPokemon);
+				let move = this.battle.dex.getMove(moveid);
+				let moveDisplay = this.getMoveDisplay(move);
 				let moveName = '&#8226; ' + moveDisplay;
 				if (battlePokemon && battlePokemon.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
@@ -734,10 +734,10 @@ class BattleTooltips {
 		return text;
 	}
 
-	getMoveDisplay(move: Move, pokemon: ServerPokemon) {
+	getMoveDisplay(move: Move) {
 		if (((move.id === 'frustration' || move.id === 'return') && move.basePower !== 102) ||
-			(move.id.startsWith('hiddenpower') && this.battle.gen < 7 && move.basePower !== 70)) {
-			return `${move.name} - ${move.basePower}BP`;
+			(move.id.startsWith('hiddenpower') && this.battle.gen < 6 && move.basePower !== 70)) {
+			return `${move.name} ${move.basePower}`;
 		}
 		return move.name;
 	}
