@@ -63,14 +63,20 @@ class BattleTextParser {
 		let status = '';
 		let away = false;
 		if (atIndex > 0) {
-			name = text.substr(0, atIndex);
-			status = text.substr(atIndex + 1);
+			name = text.slice(0, atIndex);
+			status = text.slice(atIndex + 1);
 			if (status.startsWith('!')) {
 				away = true;
-				status = status.substr(1);
+				status = status.slice(1);
 			}
 		}
-		return {name, status, away};
+		let group = '';
+		// names can't start with a symbol
+		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
+			group = name.charAt(0);
+			name = name.slice(1);
+		}
+		return {name, status, away, group};
 	}
 
 	static upgradeArgs({args, kwArgs}: {args: Args, kwArgs: KWArgs}): {args: Args, kwArgs: KWArgs} {

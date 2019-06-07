@@ -2571,7 +2571,7 @@
 
 	var UserOptionsPopup = this.UserOptions = Popup.extend({
 		initialize: function (data) {
-			this.name = data.name.substr(1);
+			this.name = data.name;
 			this.userid = data.userid;
 			this.update();
 		},
