@@ -498,7 +498,8 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		if (this.volatiles['magnetrise'] || this.volatiles['telekinesis']) {
 			return false;
-		} else if (item !== 'airballoon') {
+		}
+		if (item === 'airballoon') {
 			return false;
 		}
 		return !this.getTypeList(serverPokemon).includes('Flying');
