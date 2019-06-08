@@ -58,11 +58,11 @@ class BattleTextParser {
 	}
 
 	static parseNameParts(text: string) {
-		let rank: string | undefined;
-		// Names cannot start with symbols, so if we do see a symbol then we know it is the user's rank.
-		if (text.match(/^A-Za-z0-9/)) {
-			rank = text.charAt(0);
-			text = text.slice(1);
+		let group = ' ';
+		// Names cannot start with symbols, so if we do see a symbol then we know it is the user's group.
+		if (!/[A-Za-z0-9]/.test(text.charAt(0))) {
+			group = text.charAt(0);
+			text = text.substr(1);
 		}
 		const atIndex = text.indexOf('@');
 		let name = text;
@@ -76,7 +76,9 @@ class BattleTextParser {
 				status = status.substr(1);
 			}
 		}
-		return {rank, name, status, away};
+		// TODO: stop prefixing name with group and update callers
+		name = group + name;
+		return {group, name, away, status};
 	}
 
 	static upgradeArgs({args, kwArgs}: {args: Args, kwArgs: KWArgs}): {args: Args, kwArgs: KWArgs} {
