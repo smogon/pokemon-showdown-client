@@ -58,14 +58,15 @@ class BattleTextParser {
 	}
 
 	static parseNameParts(text: string) {
-		let group = ' ';
+		let group = '';
 		// names can't start with a symbol
 		if (!/[A-Za-z0-9]/.test(text.charAt(0))) {
 			group = text.charAt(0);
 			text = text.slice(1);
 		}
-		const atIndex = text.indexOf('@');
+
 		let name = text;
+		const atIndex = text.indexOf('@');
 		let status = '';
 		let away = false;
 		if (atIndex > 0) {
