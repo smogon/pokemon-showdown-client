@@ -498,7 +498,8 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		if (this.volatiles['magnetrise'] || this.volatiles['telekinesis']) {
 			return false;
-		} else if (item !== 'airballoon') {
+		}
+		if (item === 'airballoon') {
 			return false;
 		}
 		return !this.getTypeList(serverPokemon).includes('Flying');
@@ -3298,7 +3299,7 @@ class Battle {
 		}
 		case 'gen': {
 			this.gen = parseInt(args[1], 10);
-			this.dex = Dex.mod(`gen${this.gen}` as ID);
+			this.dex = Dex.forGen(this.gen);
 			this.scene.updateGen();
 			this.log(args);
 			break;

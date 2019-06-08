@@ -894,24 +894,23 @@
 			break;
 
 		case 'ability':
-			template = Dex.getTemplate(set.species);
+			template = Dex.forGen(this.gen).getTemplate(set.species);
 			var abilitySet = [['header', "Abilities"]];
 			if (template.isMega) {
 				abilitySet.unshift(['html', '<p>Will be <strong>' + BattleLog.escapeHTML(template.abilities['0']) + '</strong> after Mega Evolving.</p>']);
 				template = Dex.getTemplate(template.baseSpecies);
 			}
-			var abilitiesInThisGen = Dex.getAbilitiesFor(template.id, this.gen);
-			abilitySet.push(['ability', toID(abilitiesInThisGen['0'])]);
-			if (abilitiesInThisGen['1']) {
-				abilitySet.push(['ability', toID(abilitiesInThisGen['1'])]);
+			abilitySet.push(['ability', toID(template.abilities['0'])]);
+			if (template.abilities['1']) {
+				abilitySet.push(['ability', toID(template.abilities['1'])]);
 			}
-			if (abilitiesInThisGen['H']) {
+			if (template.abilities['H']) {
 				abilitySet.push(['header', "Hidden Ability"]);
-				abilitySet.push(['ability', toID(abilitiesInThisGen['H'])]);
+				abilitySet.push(['ability', toID(template.abilities['H'])]);
 			}
-			if (abilitiesInThisGen['S']) {
+			if (template.abilities['S']) {
 				abilitySet.push(['header', "Special Event Ability"]);
-				abilitySet.push(['ability', toID(abilitiesInThisGen['S'])]);
+				abilitySet.push(['ability', toID(template.abilities['S'])]);
 			}
 			if (format === 'almostanyability' || isBH) {
 				template = Dex.getTemplate(set.species);
@@ -1353,7 +1352,7 @@
 				name += '<small>' + pokemon.species.substr(tagStart) + '</small>';
 			}
 		}
-		buf += '<span class="col pokemonnamecol" style="white-space:nowrap">' + name + '</span> ';
+		buf += '<span class="col pokemonnamecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {
@@ -1375,7 +1374,7 @@
 
 		// abilities
 		if (gen >= 3) {
-			var abilities = Dex.getAbilitiesFor(id, gen);
+			var abilities = Dex.forGen(gen).getTemplate(id).abilities;
 			if (abilities['1']) {
 				buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
 					abilities['1'] + '</span>';
@@ -1452,7 +1451,7 @@
 		var name = pokemon.species;
 		var tagStart = (pokemon.forme ? name.length - pokemon.forme.length - 1 : 0);
 		if (tagStart) name = name.substr(0, tagStart) + '<small>' + pokemon.species.substr(tagStart) + '</small>';
-		buf += '<span class="col shortpokemonnamecol" style="white-space:nowrap">' + name + '</span> ';
+		buf += '<span class="col shortpokemonnamecol">' + name + '</span> ';
 
 		// error
 		if (errorMessage) {

@@ -314,7 +314,7 @@
 				if (m2 && (m2[0] === '/' || m2[0] === '!')) spaceprefix = '';
 
 				for (var i in users) {
-					if (spaceprefix && users[i].name.substr(1).replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase().substr(0, spaceprefix.length) === spaceprefix) {
+					if (spaceprefix && users[i].name.replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase().substr(0, spaceprefix.length) === spaceprefix) {
 						candidates.push([i, m2[1].length]);
 					} else if (idprefix && i.substr(0, idprefix.length) === idprefix) {
 						candidates.push([i, m1[1].length]);
@@ -354,7 +354,7 @@
 			var substituteUserId = candidate[0];
 			var substituteUser = users[substituteUserId];
 			if (!substituteUser) return true;
-			var name = substituteUser.name.substr(1);
+			var name = substituteUser.name;
 			name = Dex.getShortName(name);
 			var fullPrefix = this.tabComplete.prefix.substr(0, candidate[1]) + name;
 			$textbox.val(fullPrefix + text.substr(idx));
@@ -1535,7 +1535,7 @@
 
 			var speakerHasAuth = " +\u2606".indexOf(name.charAt(0)) < 0;
 			var user = (this.users && this.users[app.user.get('userid')]) || {};
-			var readerHasAuth = user.name && " +\u2606\u203D!".indexOf((user.name || ' ').charAt(0)) < 0;
+			var readerHasAuth = !" +\u2606\u203D!".includes(user.group || ' ');
 			if (app.ignore[userid] && !speakerHasAuth && !readerHasAuth) return;
 
 			// Add this user to the list of people who have spoken recently.
@@ -1725,16 +1725,16 @@
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + BattleLog.escapeHTML(userid) + '">';
 			text += '<button class="userbutton username" data-name="' + BattleLog.escapeHTML(user.name) + '"';
 			text += (user.away ? ' data-away=true' : '') + (user.status ? ' data-status="' + BattleLog.escapeHTML(user.status) + '"' : '') + '>';
-			var group = user.name.charAt(0);
+			var group = user.group;
 			var details = Config.groups[group] || {type: 'user'};
 			var color = user.away ? 'color:#AAA;' : BattleLog.hashColor(userid);
 			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + BattleLog.escapeHTML(group) + '</em>';
 			if (details.type === 'leadership') {
-				text += '<strong><em style="' + color + '">' + BattleLog.escapeHTML(user.name.substr(1)) + '</em></strong>';
+				text += '<strong><em style="' + color + '">' + BattleLog.escapeHTML(user.name) + '</em></strong>';
 			} else if (details.type === 'staff') {
-				text += '<strong style="' + color + '">' + BattleLog.escapeHTML(user.name.substr(1)) + '</strong>';
+				text += '<strong style="' + color + '">' + BattleLog.escapeHTML(user.name) + '</strong>';
 			} else {
-				text += '<span style="' + color + '">' + BattleLog.escapeHTML(user.name.substr(1)) + '</span>';
+				text += '<span style="' + color + '">' + BattleLog.escapeHTML(user.name) + '</span>';
 			}
 			text += '</button>';
 			text += '</li>';
@@ -1763,11 +1763,11 @@
 			if (aUser.away !== bUser.away) return aUser.away - bUser.away;
 
 			var aRank = (
-				Config.groups[aUser ? aUser.name.charAt(0) : Config.defaultGroup || ' '] ||
+				Config.groups[aUser ? aUser.group : Config.defaultGroup || ' '] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 			var bRank = (
-				Config.groups[bUser ? bUser.name.charAt(0) : Config.defaultGroup || ' '] ||
+				Config.groups[bUser ? bUser.group : Config.defaultGroup || ' '] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 

@@ -59,25 +59,23 @@ class BattleTextParser {
 
 	static parseNameParts(text: string) {
 		let group = ' ';
-		// Names cannot start with symbols, so if we do see a symbol then we know it is the user's group.
+		// names can't start with a symbol
 		if (!/[A-Za-z0-9]/.test(text.charAt(0))) {
 			group = text.charAt(0);
-			text = text.substr(1);
+			text = text.slice(1);
 		}
 		const atIndex = text.indexOf('@');
 		let name = text;
 		let status = '';
 		let away = false;
 		if (atIndex > 0) {
-			name = text.substr(0, atIndex);
-			status = text.substr(atIndex + 1);
+			name = text.slice(0, atIndex);
+			status = text.slice(atIndex + 1);
 			if (status.startsWith('!')) {
 				away = true;
-				status = status.substr(1);
+				status = status.slice(1);
 			}
 		}
-		// TODO: stop prefixing name with group and update callers
-		name = group + name;
 		return {group, name, away, status};
 	}
 

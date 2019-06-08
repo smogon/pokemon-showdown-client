@@ -1201,7 +1201,7 @@ Storage.importTeam = function (buffer, teams) {
 					}
 				}
 			}
-			if (line === 'Frustration') {
+			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
 			}
 			curSet.moves.push(line);
