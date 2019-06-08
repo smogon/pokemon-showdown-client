@@ -58,8 +58,15 @@ class BattleTextParser {
 	}
 
 	static parseNameParts(text: string) {
-		const atIndex = text.indexOf('@');
+		let group = '';
+		// names can't start with a symbol
+		if (!/[A-Za-z0-9]/.test(text.charAt(0))) {
+			group = text.charAt(0);
+			text = text.slice(1);
+		}
+
 		let name = text;
+		const atIndex = text.indexOf('@');
 		let status = '';
 		let away = false;
 		if (atIndex > 0) {
@@ -70,13 +77,7 @@ class BattleTextParser {
 				status = status.slice(1);
 			}
 		}
-		let group = '';
-		// names can't start with a symbol
-		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
-			group = name.charAt(0);
-			name = name.slice(1);
-		}
-		return {name, status, away, group};
+		return {group, name, away, status};
 	}
 
 	static upgradeArgs({args, kwArgs}: {args: Args, kwArgs: KWArgs}): {args: Args, kwArgs: KWArgs} {
