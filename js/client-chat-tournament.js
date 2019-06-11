@@ -245,6 +245,7 @@
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
+			var notify = Dex.prefs('tournaments') === 'notify';
 			var cmd = data.shift().toLowerCase();
 			if (isBroadcast) {
 				switch (cmd) {
@@ -273,7 +274,7 @@
 					var formatName = window.BattleFormats && BattleFormats[data[0]] ? BattleFormats[data[0]].name : data[0];
 					var type = data[1];
 					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + BattleLog.escapeHTML(formatName) + " " + BattleLog.escapeHTML(type) + " Tournament created.</div>");
-					this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + formatName + "\nType: " + type, 'tournament-create');
+					if (notify) this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + formatName + "\nType: " + type, 'tournament-create');
 					this.curTeamIndex = 0;
 					this.updateTeams();
 					break;
@@ -330,7 +331,7 @@
 					} else {
 						var seconds = Math.floor(data[1] / 1000);
 						app.addPopupMessage("Please respond to the tournament within " + seconds + " seconds or you may be automatically disqualified.");
-						this.room.notifyOnce("Tournament Automatic Disqualification Warning", "Room: " + this.room.title + "\nSeconds: " + seconds, 'tournament-autodq-warning');
+						if (notify) this.room.notifyOnce("Tournament Automatic Disqualification Warning", "Room: " + this.room.title + "\nSeconds: " + seconds, 'tournament-autodq-warning');
 					}
 					break;
 
@@ -409,7 +410,7 @@
 								this.$challengeUserMenu.html(this.renderChallengeUsers());
 								this.toggleBoxVisibility(true);
 								if (!this.$challenge.hasClass('active')) {
-									this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
+									if (notify) this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
 								}
 							}
 							this.$challenge.toggleClass('active', this.info.challenges.length > 0);
@@ -433,7 +434,7 @@
 								this.$challengedMessage.text("vs. " + this.info.challenged);
 								this.toggleBoxVisibility(true);
 								if (!this.$challenged.hasClass('active')) {
-									this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
+									if (notify) this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
 								}
 							}
 							this.$challenged.toggleClass('active', !!this.info.challenged);

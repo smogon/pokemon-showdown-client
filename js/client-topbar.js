@@ -441,7 +441,7 @@
 			'change input[name=nogif]': 'setNogif',
 			'change input[name=bwgfx]': 'setBwgfx',
 			'change input[name=nopastgens]': 'setNopastgens',
-			'change input[name=notournaments]': 'setNotournaments',
+			'change select[name=tournaments]': 'setTournaments',
 			'change input[name=blockchallenges]': 'setBlockchallenges',
 			'change input[name=blockpms]': 'setBlockpms',
 			'change input[name=inchatpm]': 'setInchatpm',
@@ -489,7 +489,6 @@
 
 			buf += '<hr />';
 			buf += '<p><strong>Chat</strong></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"' + (Dex.prefs('notournaments') ? ' checked' : '') + ' /> Ignore tournaments</label></p>';
 			if (Object.keys(settings).length) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="blockpms"' + (settings.blockPMs ? ' checked' : '') + ' /> Block PMs</label></p>';
 				buf += '<p><label class="optlabel"><input type="checkbox" name="blockchallenges"' + (settings.blockChallenges ? ' checked' : '') + ' /> Block Challenges</label></p>';
@@ -501,6 +500,8 @@
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
 			}
 
+			var tours = Dex.prefs('tournaments') || 'notify';
+			buf += '<p><label class="optlabel">Tournaments: <select name="tournaments"><option value="notify"' + (tours === 'notify' ? ' selected="selected"' : '') + '>Notifications</option><option value="nonotify"' + (tours === 'nonotify' ? ' selected="selected"' : '') + '>No Notifications</option><option value="hide"' + (tours === 'hide' ? ' selected="selected"' : '') + '>Hide</option></select></label></p>';
 			var timestamps = this.timestamps = (Dex.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
@@ -558,9 +559,9 @@
 			var nopastgens = !!e.currentTarget.checked;
 			Dex.prefs('nopastgens', nopastgens);
 		},
-		setNotournaments: function (e) {
-			var notournaments = !!e.currentTarget.checked;
-			Dex.prefs('notournaments', notournaments);
+		setTournaments: function (e) {
+			var tournaments = e.currentTarget.value;
+			Dex.prefs('tournaments', tournaments);
 		},
 		setBlockpms: function (e) {
 			app.user.updateSetting('blockPMs', !!e.currentTarget.checked);
