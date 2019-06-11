@@ -444,6 +444,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	caribolt: 1152 + 25,
 	smokomodo: 1152 + 26,
 	snaelstrom: 1152 + 27,
+	equilibra: 1152 + 28,
 
 	syclar: 1188 + 0,
 	embirch: 1188 + 1,
@@ -469,6 +470,12 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	// protowatt: 1188 + 21,
 	voodoll: 1188 + 22,
 	mumbao: 1188 + 23,
+	fawnifer: 1188 + 24,
+	electrelk: 1188 + 25,
+	smogecko: 1188 + 26,
+	smoguana: 1188 + 27,
+	swirlpool: 1188 + 28,
+	coribalis: 1188 + 29,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
