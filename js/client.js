@@ -1,3 +1,8 @@
+function toId() {
+	// toId has been renamed toID
+	alert("You have an old extension/script for Pokemon Showdown which is incompatible with this client. It needs to be removed or updated.");
+}
+
 (function ($) {
 
 	Config.sockjsprefix = '/showdown';
