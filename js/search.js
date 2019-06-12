@@ -1321,11 +1321,11 @@
 		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
 		var tier;
 		if (pokemon.tier) {
-			tier = Dex.getTier(pokemon, this.gen, this.isDoubles);
+			tier = Dex.getTier(Dex.forGen(this.gen).getTemplate(id), this.gen, this.isDoubles);
 		} else if (pokemon.forme && pokemon.forme.endsWith('Totem')) {
-			tier = Dex.getTier(BattlePokedex[toID(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1)))], this.gen, this.isDoubles);
+			tier = Dex.getTier(Dex.forGen(this.gen).getTemplate(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1))), this.gen, this.isDoubles);
 		} else {
-			tier = Dex.getTier(BattlePokedex[toID(pokemon.baseSpecies)], this.gen, this.isDoubles);
+			tier = Dex.getTier(Dex.forGen(this.gen).getTemplate(pokemon.baseSpecies), this.gen, this.isDoubles);
 		}
 		buf += '<span class="col numcol">' + tier + '</span> ';
 
