@@ -95,18 +95,18 @@ class BattleLog {
 
 		case 'join': case 'j': {
 			const user = BattleTextParser.parseNameParts(args[1]);
-			divHTML = '<small>' + BattleLog.escapeHTML(user.name) + ' joined.</small>';
+			divHTML = '<small>' + user.group + BattleLog.escapeHTML(user.name) + ' joined.</small>';
 			break;
 		}
 		case 'leave': case 'l': {
 			const user = BattleTextParser.parseNameParts(args[1]);
-			divHTML = '<small>' + BattleLog.escapeHTML(user.name) + ' left.</small>';
+			divHTML = '<small>' + user.group + BattleLog.escapeHTML(user.name) + ' left.</small>';
 			break;
 		}
 		case 'name': case 'n': {
 			const user = BattleTextParser.parseNameParts(args[1]);
 			if (toID(args[2]) !== toID(user.name)) {
-				divHTML = '<small>' + BattleLog.escapeHTML(user.name) + ' renamed from ' + BattleLog.escapeHTML(args[2]) + '.</small>';
+				divHTML = '<small>' + user.group + BattleLog.escapeHTML(user.name) + ' renamed from ' + BattleLog.escapeHTML(args[2]) + '.</small>';
 			}
 			break;
 		}
