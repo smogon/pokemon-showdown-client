@@ -1366,7 +1366,7 @@
 
 				case 'tournament':
 				case 'tournaments':
-					if (Dex.prefs('notournaments')) {
+					if (Dex.prefs('tournaments') === 'hide') {
 						if (row[1] === 'create') {
 							this.$chat.append('<div class="notice">' + BattleLog.escapeFormat(row[2]) + ' ' + BattleLog.escapeHTML(row[3]) + ' tournament created (and hidden because you have tournaments disabled).</div>');
 						} else if (row[1] === 'start') {
