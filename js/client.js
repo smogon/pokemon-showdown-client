@@ -410,7 +410,7 @@
 					// Support legacy tournament setting and migrate to new pref
 					if (Dex.prefs('notournaments')) {
 						Dex.prefs('tournaments', Dex.prefs('notournaments') ? 'hide' : 'notify');
-						Storage.removeItem('notournaments');
+						Dex.prefs('notournaments', null);
 					}
 					var autojoin = (Dex.prefs('autojoin') || '');
 					var autojoinIds = [];
