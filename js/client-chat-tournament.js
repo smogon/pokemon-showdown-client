@@ -245,6 +245,8 @@
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
+			var hide = Dex.prefs('tournaments') === 'hide';
+			if (hide) return;
 			var notify = Dex.prefs('tournaments') === 'notify';
 			var cmd = data.shift().toLowerCase();
 			if (isBroadcast) {
