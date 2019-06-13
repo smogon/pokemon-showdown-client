@@ -421,31 +421,6 @@ const Dex = new class implements ModdedDex {
 		return template;
 	}
 
-	/** @deprecated */
-	getTier(pokemon: Template, gen = 7, isDoubles = false): string {
-		if (gen < 7) pokemon = this.forGen(gen).getTemplate(pokemon.id);
-		if (!isDoubles) return pokemon.tier;
-		let table = window.BattleTeambuilderTable;
-		if (table && table[`gen${this.gen}doubles`]) {
-			table = table[`gen${this.gen}doubles`];
-		}
-		if (!table) return pokemon.tier;
-
-		let id = pokemon.id;
-		if (id in table.overrideTier) {
-			return table.overrideTier[id];
-		}
-		if (id.slice(-5) === 'totem' && id.slice(0, -5) in table.overrideTier) {
-			return table.overrideTier[id.slice(0, -5)];
-		}
-		id = toID(pokemon.baseSpecies);
-		if (id in table.overrideTier) {
-			return table.overrideTier[id];
-		}
-
-		return pokemon.tier;
-	}
-
 	getType(type: any): Effect {
 		if (!type || typeof type === 'string') {
 			let id = toID(type) as string;
