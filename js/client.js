@@ -413,9 +413,9 @@ function toId() {
 						return;
 					}
 					// Support legacy tournament setting and migrate to new pref
-					if (Dex.prefs('notournaments')) {
+					if (Dex.prefs('notournaments') !== undefined) {
 						Dex.prefs('tournaments', Dex.prefs('notournaments') ? 'hide' : 'notify');
-						Dex.prefs('notournaments', null);
+						Dex.prefs('notournaments', null, true);
 					}
 					var autojoin = (Dex.prefs('autojoin') || '');
 					var autojoinIds = [];
