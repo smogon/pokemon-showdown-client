@@ -367,7 +367,7 @@ const Dex = new class implements ModdedDex {
 		return ability;
 	}
 
-	getTemplate(nameOrTemplate: string | Template | null | undefined): Template {
+	getTemplate(nameOrTemplate: string | Template | null | undefined, isDoubles: boolean = false): Template {
 		if (nameOrTemplate && typeof nameOrTemplate !== 'string') {
 			// TODO: don't accept Templates here
 			return nameOrTemplate;
@@ -397,6 +397,13 @@ const Dex = new class implements ModdedDex {
 			}
 			template = new Template(id, name, data);
 			window.BattlePokedex[id] = template;
+		}
+
+		if (isDoubles) {
+			const table = window.BattleTeambuilderTable[`gen${this.gen}doubles`];
+			if (table && id in table.overrideTier) {
+				template = {...template, tier: table.overrideTier[id]};
+			}
 		}
 
 		if (formid === id || !template.otherForms || !template.otherForms.includes(formid)) {
