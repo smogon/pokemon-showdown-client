@@ -373,7 +373,7 @@ class DefaultActionHandler {
 		}
 		$reqData['serverid'] = $server['id'];
 
-		include_once __DIR__.'/../../replay.pokemonshowdown.com/replays.lib.php';
+		include_once __DIR__.'/../replays/replays.lib.php';
 		$out = $GLOBALS['Replays']->prepUpload($reqData);
 
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
@@ -384,7 +384,7 @@ class DefaultActionHandler {
 
 		header('Content-Type: text/plain; charset=utf-8');
 
-		include __DIR__.'/../../replay.pokemonshowdown.com/replays.lib.php';
+		include __DIR__.'/../replays/replays.lib.php';
 		die($GLOBALS['Replays']->upload($reqData));
 	}
 
