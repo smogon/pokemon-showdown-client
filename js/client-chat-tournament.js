@@ -245,7 +245,7 @@
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
-			var notify = Dex.prefs('tournaments') === 'notify';
+			var notify = !Dex.prefs('tournaments') || Dex.prefs('tournaments') === 'notify';
 			var cmd = data.shift().toLowerCase();
 			if (isBroadcast) {
 				switch (cmd) {
