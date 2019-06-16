@@ -2464,7 +2464,7 @@ function toId() {
 			var userid = data.userid;
 			var name = data.name;
 			var avatar = data.avatar || '';
-			var group = ((Config.groups[name.charAt(0)] || {}).name || '');
+			var group = ((Config.groups[data.roomGroup] || {}).name || '');
 			var globalgroup = ((Config.groups[(data.group || Config.defaultGroup || ' ')] || {}).name || '');
 			if (globalgroup) {
 				if (!group || group === globalgroup) {
