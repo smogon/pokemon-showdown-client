@@ -174,10 +174,11 @@
 			if (e.currentTarget.className === 'userbutton username') {
 				position = 'right';
 			}
+			var roomGroup = $(e.currentTarget).data('roomgroup');
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
 			var away = $(e.currentTarget).data('away') || false;
 			var status = $(e.currentTarget).data('status');
-			app.addPopup(UserPopup, {name: name, away: away, status: status, sourceEl: e.currentTarget, position: position});
+			app.addPopup(UserPopup, {roomGroup: roomGroup, name: name, away: away, status: status, sourceEl: e.currentTarget, position: position});
 		},
 		openPM: function (e) {
 			e.preventDefault();
@@ -1723,7 +1724,7 @@
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + BattleLog.escapeHTML(userid) + '">';
-			text += '<button class="userbutton username" data-name="' + BattleLog.escapeHTML(user.name) + '"';
+			text += '<button class="userbutton username" data-roomgroup="' + user.group + '" data-name="' + BattleLog.escapeHTML(user.name) + '"';
 			text += (user.away ? ' data-away=true' : '') + (user.status ? ' data-status="' + BattleLog.escapeHTML(user.status) + '"' : '') + '>';
 			var group = user.group;
 			var details = Config.groups[group] || {type: 'user'};
