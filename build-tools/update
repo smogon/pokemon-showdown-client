@@ -24,6 +24,12 @@ process.chdir(rootDir);
 process.stdout.write("Updating version... ");
 
 let version = require('../package.json').version;
+try {
+	const out = child_process.execSync('git rev-parse --short HEAD', {
+		stdio: ['ignore', 'pipe', 'ignore'],
+	});
+	version += ` (${('' + out).trim()})`;
+} catch (e) {}
 
 let configBuf = fs.readFileSync('config/config.js', {encoding: 'utf8'});
 configBuf = configBuf.replace(/\/\* version \*\/[^;\n]*;/, `/* version */ Config.version = ${JSON.stringify(version)};`);
