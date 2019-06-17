@@ -2457,7 +2457,9 @@ function toId() {
 		update: function (data) {
 			if (data && data.userid === this.data.userid) {
 				data = _.extend(this.data, data);
-				UserPopup.dataCache[data.userid] = data;
+				// Don't cache the roomGroup
+				UserPopup.dataCache[data.userid] = _.clone(data);
+				delete UserPopup.dataCache[data.userid].roomGroup
 			} else {
 				data = this.data;
 			}
