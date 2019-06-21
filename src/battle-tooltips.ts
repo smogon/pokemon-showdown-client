@@ -1575,11 +1575,11 @@ class BattleTooltips {
 		if (clientPokemon) {
 			if (clientPokemon.ability) {
 				abilityData.ability = clientPokemon.ability || clientPokemon.baseAbility;
-				if (clientPokemon.baseAbility && clientPokemon.baseAbility !== clientPokemon.ability) {
+				if (clientPokemon.baseAbility && clientPokemon.baseAbility !== abilityData.ability) {
 					abilityData.baseAbility = clientPokemon.baseAbility;
 				}
 			} else {
-				const template = Dex.getTemplate(clientPokemon.getSpecies() || (serverPokemon && serverPokemon.species));
+				const template = this.battle.dex.getTemplate(clientPokemon.getSpecies() || (serverPokemon && serverPokemon.species) || '');
 				if (template.exists && template.abilities) {
 					abilityData.possibilities = [template.abilities['0']];
 					if (template.abilities['1']) abilityData.possibilities.push(template.abilities['1']);
@@ -1590,7 +1590,7 @@ class BattleTooltips {
 		}
 		if (serverPokemon) {
 			if (!abilityData.ability) abilityData.ability = serverPokemon.ability || serverPokemon.baseAbility;
-			if (!abilityData.baseAbility && serverPokemon.baseAbility && serverPokemon.baseAbility !== serverPokemon.ability) {
+			if (!abilityData.baseAbility && serverPokemon.baseAbility && serverPokemon.baseAbility !== abilityData.ability) {
 				abilityData.baseAbility = serverPokemon.baseAbility;
 			}
 		}
