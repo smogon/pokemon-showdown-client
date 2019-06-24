@@ -42,8 +42,6 @@ declare var exports: any;
 type AnyObject = {[k: string]: any};
 declare var app: {user: AnyObject, rooms: AnyObject, ignore?: AnyObject};
 
-declare var BattleSearch: any;
-
 interface Window {
 	[k: string]: any;
 }

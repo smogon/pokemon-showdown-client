@@ -24,6 +24,8 @@ package-lock.json
 /js/battle-animations.js
 /js/battle-tooltips.js
 /js/battle-scene-stub.js
+/js/battle-search.js
+/js/battle-searchresults.js
 /js/client-core.js
 /js/client-main.js
 /js/client-connection.js
@@ -34,6 +36,7 @@ package-lock.json
 /js/panel-rooms.js
 /js/panel-chat.js
 /js/panel-teambuilder.js
+/js/panel-teambuilder-team.js
 /js/panel-teamdropdown.js
 
 /replays/caches/

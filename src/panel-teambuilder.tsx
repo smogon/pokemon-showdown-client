@@ -1,5 +1,5 @@
 /**
- * Teambuilder Panel
+ * Teambuilder panel
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
@@ -38,7 +38,7 @@ class TeambuilderPanel extends PSRoomPanel {
 		/**
 		 * Folders, in a format where lexical sort will sort correctly.
 		 */
-		let folders = [];
+		let folders: string[] = [];
 		for (let i = -2; i < PS.teams.list.length; i++) {
 			const team = i >= 0 ? PS.teams.list[i] : null;
 			if (team) {
@@ -99,7 +99,7 @@ class TeambuilderPanel extends PSRoomPanel {
 			</TeamFolder>,
 		];
 
-		let renderedFolders = [];
+		let renderedFolders: preact.ComponentChild[] = [];
 
 		for (let format of folders) {
 			let newGen = '';
@@ -220,108 +220,8 @@ class TeambuilderPanel extends PSRoomPanel {
 	}
 }
 
-class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
-	separators: number[] = [];
-	textbox: HTMLTextAreaElement = null!;
-	heightTester: HTMLTextAreaElement = null!;
-	update = () => {
-		const textbox = this.textbox;
-		const heightTester = this.heightTester;
-		heightTester.style.width = `${textbox.offsetWidth}px`;
-		const value = textbox.value;
-
-		let separatorIndex = value.indexOf('\n\n');
-		const separators: number[] = [];
-		while (separatorIndex >= 0) {
-			while (value.charAt(separatorIndex + 2) === '\n') separatorIndex++;
-			heightTester.value = value.slice(0, separatorIndex);
-			separators.push(heightTester.scrollHeight);
-
-			separatorIndex = value.indexOf('\n\n', separatorIndex + 1);
-		}
-
-		heightTester.value = textbox.value;
-		textbox.style.height = `${heightTester.scrollHeight + 100}px`;
-		this.separators = separators;
-		this.forceUpdate();
-	};
-	componentDidMount() {
-		this.textbox = this.base!.getElementsByClassName('teamtextbox')[0] as HTMLTextAreaElement;
-		this.heightTester = this.base!.getElementsByClassName('heighttester')[0] as HTMLTextAreaElement;
-
-		const exportedTeam = PSTeambuilder.exportTeam(this.props.sets);
-		this.textbox.value = exportedTeam;
-		this.update();
-	}
-	componentWillUnmount() {
-		this.textbox = null!;
-		this.heightTester = null!;
-	}
-	render() {
-		return <div class="teameditor">
-			<textarea class="textbox teamtextbox" onInput={this.update} />
-			<textarea
-				class="textbox teamtextbox heighttester" style="visibility:hidden" tabIndex={-1} aria-hidden={true}
-			/>
-			<div class="teamoverlays">
-				{this.separators.map(offset =>
-					<hr style={`top:${offset}px`} />
-				)}
-				{this.props.sets.map((set, i) => {
-					const prevOffset = i === 0 ? -5 : this.separators[i - 1];
-					return <span class="picon" style={
-						`top:${prevOffset + 10}px;left:50px;position:absolute;` + Dex.getPokemonIcon(set.species)
-					}></span>;
-				})}
-			</div>
-		</div>;
-	}
-}
-
-class TeamPanel extends PSRoomPanel {
-	sets: PokemonSet[] | null = null;
-	backToList = () => {
-		PS.removeRoom(this.props.room);
-		PS.join('teambuilder' as RoomID);
-	};
-	render() {
-		const room = this.props.room;
-		const team = PS.teams.byKey[room.id.slice(5)];
-		if (!team) {
-			return <PSPanelWrapper room={room}>
-				<button class="button" onClick={this.backToList}>
-					<i class="fa fa-chevron-left"></i> List
-				</button>
-				<p class="error">
-					Team doesn't exist
-				</p>
-			</PSPanelWrapper>;
-		}
-
-		const sets = this.sets || PSTeambuilder.unpackTeam(team!.packedTeam);
-		if (!this.sets) this.sets = sets;
-		return <PSPanelWrapper room={room} scrollable>
-			<div class="pad">
-				<button class="button" onClick={this.backToList}>
-					<i class="fa fa-chevron-left"></i> List
-				</button>
-				<h2>
-					{team.name}
-				</h2>
-				<TeamTextbox sets={sets} />
-			</div>
-		</PSPanelWrapper>;
-	}
-}
-
 PS.roomTypes['teambuilder'] = {
 	Model: PSRoom,
 	Component: TeambuilderPanel,
 	title: "Teambuilder",
 };
-PS.roomTypes['team'] = {
-	Model: PSRoom,
-	Component: TeamPanel,
-	title: "Team",
-};
-PS.updateRoomTypes();
