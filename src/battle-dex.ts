@@ -622,25 +622,9 @@ const Dex = new class implements ModdedDex {
 		return spriteData;
 	}
 
-	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
+	getPokemonIconNum(id: ID, isFemale?: boolean, facingLeft?: boolean) {
 		let num = 0;
-		if (pokemon === 'pokeball') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
-		} else if (pokemon === 'pokeball-statused') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
-		} else if (pokemon === 'pokeball-fainted') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
-		} else if (pokemon === 'pokeball-none') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
-		}
-		let id = toID(pokemon);
-		if (pokemon && pokemon.species) id = toID(pokemon.species);
-		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) {
-			id = toID(pokemon.volatiles.formechange[1]);
-		}
-		if (pokemon && pokemon.num) {
-			num = pokemon.num;
-		} else if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) {
+		if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) {
 			num = BattlePokemonSprites[id].num;
 		} else if (window.BattlePokedex && window.BattlePokedex[id] && BattlePokedex[id].num) {
 			num = BattlePokedex[id].num;
@@ -652,17 +636,36 @@ const Dex = new class implements ModdedDex {
 			num = BattlePokemonIconIndexes[id];
 		}
 
-		if (pokemon && pokemon.gender === 'F') {
-			if (id === 'unfezant' || id === 'frillish' || id === 'jellicent' || id === 'meowstic' || id === 'pyroar') {
+		if (isFemale) {
+			if (['unfezant', 'frillish', 'jellicent', 'meowstic', 'pyroar'].includes(id)) {
 				num = BattlePokemonIconIndexes[id + 'f'];
 			}
 		}
-
 		if (facingLeft) {
 			if (BattlePokemonIconIndexesLeft[id]) {
 				num = BattlePokemonIconIndexesLeft[id];
 			}
 		}
+		return num;
+	}
+
+	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
+		if (pokemon === 'pokeball') {
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
+		} else if (pokemon === 'pokeball-statused') {
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
+		} else if (pokemon === 'pokeball-fainted') {
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
+		} else if (pokemon === 'pokeball-none') {
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
+		}
+
+		let id = toID(pokemon);
+		if (pokemon && pokemon.species) id = toID(pokemon.species);
+		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) {
+			id = toID(pokemon.volatiles.formechange[1]);
+		}
+		let num = this.getPokemonIconNum(id, pokemon && pokemon.gender === 'F', facingLeft);
 
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
