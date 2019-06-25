@@ -73,7 +73,7 @@ if ($username || $format || $contains) {
 		<h1>Search results for "<?php echo htmlspecialchars($username ? $username : ($contains ? $contains : $format)); ?>"</h1>
 <?php
 		if ($format) {
-			$format = $Replays->toId($format);
+			$format = $Replays->toID($format);
 ?>
 		<ul class="tabbar centered" style="margin-bottom: 18px"><li><a class="button nav-first<?= $byRating ? '' : ' cur' ?>" href="/search/?format=<?= $format ?>" data-target="replace">Newest</a></li><li><a class="button nav-last<?= $byRating ? ' cur' : '' ?>" href="/search/?format=<?= $format ?>&amp;rating" data-target="replace">Highest rated</a></li></ul>
 <?php

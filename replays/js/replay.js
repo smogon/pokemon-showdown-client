@@ -172,8 +172,8 @@ var ReplayPanel = Panels.StaticPanel.extend({
 		filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
 		filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
 
-		filename += '-' + toId(this.battle.p1.name);
-		filename += '-' + toId(this.battle.p2.name);
+		filename += '-' + toID(this.battle.p1.name);
+		filename += '-' + toID(this.battle.p2.name);
 
 		e.currentTarget.href = BattleLog.createReplayFileHref(this);
 		e.currentTarget.download = filename + '.html';
