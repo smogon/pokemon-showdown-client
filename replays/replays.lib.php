@@ -56,7 +56,7 @@ class Replays {
 		return;
 	}
 
-	function toId($name) {
+	function toID($name) {
 		if (!$name) $name = '';
 		$name = strtr($name, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz");
 		return preg_replace('/[^a-z0-9]+/','',$name);
@@ -68,7 +68,7 @@ class Replays {
 
 		$limit1 = intval(50*($page-1));
 		if ($limit1 < 0) $limit1 = 0;
-		$term = $this->toId($term);
+		$term = $this->toID($term);
 		$isPrivate = $isPrivate ? 1 : 0;
 		// $res = $this->db->prepare("SELECT uploadtime, id, format, p1, p2 FROM ps_replays WHERE private = 0 AND (p1id = ? OR p2id = ?) ORDER BY uploadtime DESC LIMIT ?, 51");
 		$res = $this->db->prepare("(SELECT uploadtime, id, format, p1, p2 FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? ORDER BY uploadtime DESC) UNION (SELECT uploadtime, id, format, p1, p2 FROM ps_replays FORCE INDEX (p2) WHERE private = ? AND p2id = ? ORDER BY uploadtime DESC) ORDER BY uploadtime DESC LIMIT ?, 51;");
@@ -113,7 +113,7 @@ class Replays {
 
 		$limit1 = intval(50*($page-1));
 		if ($limit1 < 0) $limit1 = 0;
-		$term = $this->toId($term);
+		$term = $this->toID($term);
 		$res = null;
 		if ($byRating) {
 			$res = $this->db->prepare("SELECT uploadtime, id, format, p1, p2, rating FROM ps_replays FORCE INDEX (top) WHERE private = 0 AND formatid = ? ORDER BY rating DESC LIMIT ?, 51");
@@ -202,9 +202,9 @@ class Replays {
 			}
 		}
 
-		$p1id = $this->toId($replay['p1']);
-		$p2id = $this->toId($replay['p2']);
-		$formatid = $this->toId($replay['format']);
+		$p1id = $this->toID($replay['p1']);
+		$p2id = $this->toID($replay['p2']);
+		$formatid = $this->toID($replay['format']);
 
 		$res = $this->db->prepare("INSERT INTO ps_replays (id, p1, p2, format, p1id, p2id, formatid, uploadtime, private, rating, log, inputlog) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE log = ?, inputlog = ?, rating = ?");
 		$res->execute([$id, $replay['p1'], $replay['p2'], $replay['format'], $p1id, $p2id, $formatid, $replay['uploadtime'], $replay['private'], $replay['rating'], $reqData['log'], $replay['inputlog'], $reqData['log'], $replay['inputlog'], $replay['rating']]);
