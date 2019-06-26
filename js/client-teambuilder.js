@@ -114,7 +114,7 @@
 
 		// This is used in the search bar in attempt of figuring
 		// out when the user has 'finished' typing, it has a timer
-		// of 5ms which starts on a 'keyup' and on every 'keyup'
+		// of 500ms which starts on a 'keyup' and on every 'keyup'
 		// it is reset
 		searchTimer: null,
 
