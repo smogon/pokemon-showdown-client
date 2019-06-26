@@ -112,6 +112,12 @@
 		curSet: null,
 		curSetLoc: 0,
 
+		// This is used in the search bar in attempt of figuring
+		// out when the user has 'finished' typing, it has a timer
+		// of 5ms which starts on a 'keyup' and on every 'keyup'
+		// it is reset
+		searchTimer: null,
+
 		// curFolder will have '/' at the end if it's a folder, but
 		// it will be alphanumeric (so guaranteed no '/') if it's a
 		// format
@@ -393,8 +399,14 @@
 					if (filterFormat && filterFormat !== (team.format || 'gen7')) continue;
 					if (filterFolder !== undefined && filterFolder !== team.folder) continue;
 
-					if (this.curSearchVal !== '' && team.team.indexOf(this.curSearchVal) == -1) {
-						continue;
+					if (this.curSearchVal) {
+						var pokemon = team.team.split(']').map(function (el) {
+							return toID(splitFirst(el, '|')[0]);
+						});
+						var curSearchValID = toID(this.curSearchVal);
+						if (!pokemon.includes(curSearchValID) && team.team.indexOf(curSearchValID) === -1) {
+							continue;
+						}
 					}
 
 					if (!atLeastOne) atLeastOne = true;
@@ -452,7 +464,7 @@
 				this.teamScrollPos = 0;
 			}
 
-			//reset focus to searchbar
+			// reset focus to searchbar
 			var teamSearchBar = this.$("#teamSearchBar");
 			var strLength = teamSearchBar.val().length;
 			teamSearchBar.focus();
@@ -2626,10 +2638,11 @@
 			this.chartSet(val, selectNext);
 		},
 		searchChange: function (e) {
-			//91 for right CMD / 93 for left CMD / 17 for CTL
+			// 91 for right CMD / 93 for left CMD / 17 for CTL
 			if (e.keyCode !== 91 && e.keyCode !== 93 && e.keyCode !== 17) {
 				this.curSearchVal = e.currentTarget.value;
-				this.updateTeamList();
+				clearTimeout(this.searchTimer);
+				this.searchTimer = setTimeout(this.updateTeamList.bind(this), 500);
 			}
 		},
 		chartSetCustom: function (val) {
