@@ -112,10 +112,11 @@
 		curSet: null,
 		curSetLoc: 0,
 
-		// This is used in the search bar in attempt of figuring
-		// out when the user has 'finished' typing, it has a timer
-		// of 500ms which starts on a 'keyup' and on every 'keyup'
-		// it is reset
+		// Instead of running a search after each character typed
+		// in the search bar we instead use a timer to only kick off
+		// a search 500ms after the last 'keyup' event
+		// (which is intended to approximate running a search only
+		//  after the user has 'finished' typing).
 		searchTimer: null,
 
 		// curFolder will have '/' at the end if it's a folder, but
@@ -400,6 +401,13 @@
 					if (filterFolder !== undefined && filterFolder !== team.folder) continue;
 
 					if (this.curSearchVal) {
+						// If a Pokemon hasn't been given a nickname, species is omitted
+						// from the packed team.team in favor of the name field
+						// since the name defaults to the species' display name.
+						// While eliminating this redundancy between name and species
+						// helps with packed team size, the display name unfortunately
+						// won't match the ID search term and so we need to special case
+						// searching for Pokemon here
 						var pokemon = team.team.split(']').map(function (el) {
 							return toID(splitFirst(el, '|')[0]);
 						});
