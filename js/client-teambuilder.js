@@ -455,8 +455,10 @@
 			//reset focus to searchbar
 			var teamSearchBar = this.$("#teamSearchBar");
 			var strLength = teamSearchBar.val().length;
-			teamSearchBar.focus();
-			teamSearchBar[0].setSelectionRange(strLength, strLength);
+			if (strLength) {
+				teamSearchBar.focus();
+				teamSearchBar[0].setSelectionRange(strLength, strLength);
+			}
 		},
 		updatePersistence: function (state) {
 			if (state) {
