@@ -1472,7 +1472,7 @@
 				this.$chat.append('<div class="message"><small>Loading...</small></div>');
 				this.$joinLeave = this.$chat.children().last();
 			}
-			this.joinLeave[action].push(user.name);
+			this.joinLeave[action].push(user.group + user.name);
 			var message = '';
 			if (this.joinLeave['join'].length) {
 				var preList = this.joinLeave['join'];
