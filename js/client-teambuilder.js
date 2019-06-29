@@ -471,6 +471,14 @@
 				$pane.scrollTop(this.teamScrollPos);
 				this.teamScrollPos = 0;
 			}
+
+			//reset focus to searchbar
+			var teamSearchBar = this.$("#teamSearchBar");
+			var strLength = teamSearchBar.val().length;
+			if (strLength) {
+				teamSearchBar.focus();
+				teamSearchBar[0].setSelectionRange(strLength, strLength);
+			}
 		},
 		updatePersistence: function (state) {
 			if (state) {
@@ -2646,11 +2654,6 @@
 				if (this.searchTimer) clearTimeout(this.searchTimer);
 				this.searchTimer = setTimeout(function () {
 					this.updateTeamList();
-					// reset focus to searchbar
-					var teamSearchBar = this.$("#teamSearchBar");
-					var strLength = teamSearchBar.val().length;
-					teamSearchBar.focus();
-					teamSearchBar[0].setSelectionRange(strLength, strLength);
 				}.bind(this), 500);
 			}
 		},
