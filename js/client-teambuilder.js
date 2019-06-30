@@ -411,10 +411,13 @@
 						var pokemon = team.team.split(']').map(function (el) {
 							return toID(splitFirst(el, '|')[0]);
 						});
-						var curSearchValID = toID(this.curSearchVal);
-						if (!pokemon.includes(curSearchValID) && team.team.indexOf(curSearchValID) === -1) {
-							continue;
-						}
+						var searchVal = this.curSearchVal.split(',').map(function (el) {
+							return toID(el);
+						});
+						var meetsCriteria = searchVal.every(function (el) {
+							return team.team.indexOf(el) > -1 || pokemon.includes(el);
+						});
+						if (!meetsCriteria) continue;
 					}
 
 					if (!atLeastOne) atLeastOne = true;
