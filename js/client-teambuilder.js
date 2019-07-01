@@ -112,13 +112,6 @@
 		curSet: null,
 		curSetLoc: 0,
 
-		// Instead of running a search after each character typed
-		// in the search bar we instead use a timer to only kick off
-		// a search 500ms after the last 'keyup' event
-		// (which is intended to approximate running a search only
-		//  after the user has 'finished' typing).
-		searchTimer: null,
-
 		// curFolder will have '/' at the end if it's a folder, but
 		// it will be alphanumeric (so guaranteed no '/') if it's a
 		// format
@@ -2654,10 +2647,7 @@
 			// 91 for right CMD / 93 for left CMD / 17 for CTL
 			if (e.keyCode !== 91 && e.keyCode !== 93 && e.keyCode !== 17) {
 				this.curSearchVal = e.currentTarget.value;
-				if (this.searchTimer) clearTimeout(this.searchTimer);
-				this.searchTimer = setTimeout(function () {
-					this.updateTeamList();
-				}.bind(this), 500);
+				this.updateTeamList();
 			}
 		},
 		chartSetCustom: function (val) {
