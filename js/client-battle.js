@@ -47,6 +47,8 @@
 			this.battle.startCallback = function () { self.updateControls(); };
 			this.battle.stagnateCallback = function () { self.updateControls(); };
 
+			if (window.ga) ga('send', 'event', 'Battle', 'join');
+
 			this.battle.play();
 		},
 		events: {
