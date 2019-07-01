@@ -393,8 +393,24 @@
 					if (filterFormat && filterFormat !== (team.format || 'gen7')) continue;
 					if (filterFolder !== undefined && filterFolder !== team.folder) continue;
 
-					if (this.curSearchVal !== '' && team.team.indexOf(this.curSearchVal) == -1) {
-						continue;
+					if (this.curSearchVal) {
+						// If a Pokemon hasn't been given a nickname, species is omitted
+						// from the packed team.team in favor of the name field
+						// since the name defaults to the species' display name.
+						// While eliminating this redundancy between name and species
+						// helps with packed team size, the display name unfortunately
+						// won't match the ID search term and so we need to special case
+						// searching for Pokemon here
+						var pokemon = team.team.split(']').map(function (el) {
+							return toID(splitFirst(el, '|')[0]);
+						});
+						var searchVal = this.curSearchVal.split(',').map(function (el) {
+							return toID(el);
+						});
+						var meetsCriteria = searchVal.every(function (el) {
+							return team.team.indexOf(el) > -1 || pokemon.includes(el);
+						});
+						if (!meetsCriteria) continue;
 					}
 
 					if (!atLeastOne) atLeastOne = true;
@@ -2628,7 +2644,7 @@
 			this.chartSet(val, selectNext);
 		},
 		searchChange: function (e) {
-			//91 for right CMD / 93 for left CMD / 17 for CTL
+			// 91 for right CMD / 93 for left CMD / 17 for CTL
 			if (e.keyCode !== 91 && e.keyCode !== 93 && e.keyCode !== 17) {
 				this.curSearchVal = e.currentTarget.value;
 				this.updateTeamList();
