@@ -147,6 +147,32 @@ function toUserid(text: any) {
 }
 
 /**
+ * Like string.split(delimiter), but only recognizes the first `limit`
+ * delimiters (default 1).
+ *
+ * `"1 2 3 4".split(" ", 2) => ["1", "2"]`
+ *
+ * `splitFirst("1 2 3 4", " ", 1) => ["1", "2 3 4"]`
+ *
+ * Returns an array of length exactly limit + 1.
+ */
+function splitFirst(str: string, delimiter: string, limit: number = 1) {
+	let splitStr: string[] = [];
+	while (splitStr.length < limit) {
+		let delimiterIndex = str.indexOf(delimiter);
+		if (delimiterIndex >= 0) {
+			splitStr.push(str.slice(0, delimiterIndex));
+			str = str.slice(delimiterIndex + delimiter.length);
+		} else {
+			splitStr.push(str);
+			str = '';
+		}
+	}
+	splitStr.push(str);
+	return splitStr;
+}
+
+/**
  * Sanitize a room ID by removing anything that isn't alphanumeric or `-`.
  * Shouldn't actually do anything except against malicious input.
  */
