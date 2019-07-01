@@ -451,6 +451,7 @@ function toId() {
 
 				var muted = Dex.prefs('mute');
 				BattleSound.setMute(muted);
+				if (window.ga) ga('set', /* mute */ 'dimension1', muted);
 
 				$('html').toggleClass('dark', !!Dex.prefs('dark'));
 
