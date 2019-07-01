@@ -631,12 +631,14 @@
 						self.notifyOnce("Challenge from " + name, "Format: " + BattleLog.escapeFormat(format), 'challenge:' + userid);
 					}
 					var $challenge = self.openChallenge(name, $pmWindow);
-					var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(name) + ' wants to battle!</p>';
-					buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
-					buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
-					buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
-					$challenge.html(buf);
-					if (format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
+					if (!$challenge.find('button[name=makeChallenge]').length) {
+						var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(name) + ' wants to battle!</p>';
+						buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
+						buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
+						buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
+						$challenge.html(buf);
+						if (format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
+					}
 				} else {
 					var $challenge = $pmWindow.find('.challenge');
 					if ($challenge.length) {
