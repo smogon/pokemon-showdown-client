@@ -1761,7 +1761,6 @@
 
 			var aUser = this.room.users[a];
 			var bUser = this.room.users[b];
-			if (aUser.away !== bUser.away) return aUser.away - bUser.away;
 
 			var aRank = (
 				Config.groups[aUser ? aUser.group : Config.defaultGroup || ' '] ||
@@ -1775,6 +1774,7 @@
 			if (a === 'zarel' && aRank === 10003) aRank = 10000.5;
 			if (b === 'zarel' && bRank === 10003) bRank = 10000.5;
 			if (aRank !== bRank) return aRank - bRank;
+			if (aUser.away !== bUser.away) return aUser.away - bUser.away;
 			return (a > b ? 1 : -1);
 		},
 		getNoNamedUsersOnline: function () {
