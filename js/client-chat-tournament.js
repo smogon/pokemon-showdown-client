@@ -315,7 +315,7 @@
 					} else if (this.info.teambuilderFormat.substr(0, 4) === 'gen5' && !Dex.loadedSpriteData['bw']) {
 						Dex.loadSpriteData('bw');
 					}
-					var participants = data[0] ? " (" + data[0] + " participants)" : "";
+					var participants = data[0] ? " (" + data[0] + " players)" : "";
 					this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!" + participants + "</div>");
 					break;
 
