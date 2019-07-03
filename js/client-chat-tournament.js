@@ -315,7 +315,8 @@
 					} else if (this.info.teambuilderFormat.substr(0, 4) === 'gen5' && !Dex.loadedSpriteData['bw']) {
 						Dex.loadSpriteData('bw');
 					}
-					this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
+					var participants = data[0] ? " (" + data[0] + " participants)" : "";
+					this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!" + participants + "</div>");
 					break;
 
 				case 'disqualify':
