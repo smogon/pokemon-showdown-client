@@ -1579,7 +1579,8 @@ class BattleTooltips {
 					abilityData.baseAbility = clientPokemon.baseAbility;
 				}
 			} else {
-				const template = this.battle.dex.getTemplate(clientPokemon.getSpecies() || (serverPokemon && serverPokemon.species) || '');
+				const species = clientPokemon.getSpecies() || (serverPokemon && serverPokemon.species) || '';
+				const template = this.battle.dex.getTemplate(species);
 				if (template.exists && template.abilities) {
 					abilityData.possibilities = [template.abilities['0']];
 					if (template.abilities['1']) abilityData.possibilities.push(template.abilities['1']);
