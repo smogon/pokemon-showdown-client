@@ -449,6 +449,7 @@
 			'change input[name=inchatpm]': 'setInchatpm',
 			'change input[name=dark]': 'setDark',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
+			'change input[name=refreshprompt]': 'setRefreshprompt',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
@@ -501,6 +502,7 @@
 			if (window.Notification) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
 			}
+			buf +=' <p><label class="optlabel"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Prompt on refresh</label></p>';
 
 			var tours = Dex.prefs('tournaments') || 'notify';
 			buf += '<p><label class="optlabel">Tournaments: <select name="tournaments"><option value="notify"' + (tours === 'notify' ? ' selected="selected"' : '') + '>Notifications</option><option value="nonotify"' + (tours === 'nonotify' ? ' selected="selected"' : '') + '>No Notifications</option><option value="hide"' + (tours === 'hide' ? ' selected="selected"' : '') + '>Hide</option></select></label></p>';
@@ -582,6 +584,10 @@
 		setTemporaryNotifications: function (e) {
 			var temporarynotifications = !!e.currentTarget.checked;
 			Dex.prefs('temporarynotifications', temporarynotifications);
+		},
+		setRefreshprompt: function (e) {
+			var refreshprompt = !!e.currentTarget.checked;
+			Dex.prefs('refreshprompt', refreshprompt);
 		},
 		background: function (e) {
 			app.addPopup(CustomBackgroundPopup);
