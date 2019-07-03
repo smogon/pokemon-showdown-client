@@ -558,7 +558,15 @@ function toId() {
 				if (app.isDisconnected) return;
 				for (var id in self.rooms) {
 					var room = self.rooms[id];
-					if (room && room.requestLeave && !room.requestLeave()) return "You have active battles.";
+					if (room && room.requestLeave && !room.requestLeave()) {
+						e.returnValue = "You have active battles.";
+						return e.returnValue;
+					}
+				}
+
+				if (Dex.prefs('refreshprompt')) {
+					e.returnValue = "Are you sure you want to refresh?";
+					return e.returnValue;
 				}
 			});
 
