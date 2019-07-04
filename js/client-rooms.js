@@ -125,7 +125,7 @@
 			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button><div class="roomlist"><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button> <span style="' + Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle" class="picon" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles."></span></p>';
 
 			buf += '<p><label class="label">Format:</label><button class="select formatselect" name="selectFormat">(All formats)</button></p>';
-			buf += '<label>Minimum Elo: <select name="elofilter"><option value="1000">1000</option><option value="1200">1200</option><option value="1400">1400</option><option value="1800">1800</option></select></label>';
+			buf += '<label>Minimum Elo: <select name="elofilter"><option value="none">None</option><option value="1200">1200</option><option value="1400">1400</option><option value="1800">1800</option></select></label>';
 			buf += '<div class="list"><p>Loading...</p></div>';
 			buf += '</div></div>';
 
@@ -211,7 +211,7 @@
 		refresh: function () {
 			var elofilter = '';
 			var elo = this.$('select[name=elofilter]').val();
-			if (elo !== '1000') elofilter = ', ' + elo;
+			if (elo !== 'none') elofilter = ', ' + elo;
 			app.send('/cmd roomlist ' + this.format + elofilter);
 
 			this.lastUpdate = new Date().getTime();
