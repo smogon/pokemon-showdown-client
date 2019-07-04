@@ -269,8 +269,9 @@ class BattleTooltips {
 		case 'zmove': { // move|MOVE|ACTIVEPOKEMON
 			let move = this.battle.dex.getMove(args[1]);
 			let index = parseInt(args[2], 10);
-			let pokemon = this.battle.mySide.active[index]!;
+			let pokemon = this.battle.mySide.active[index];
 			let serverPokemon = this.battle.myPokemon![index];
+			if (!pokemon) return false;
 			buf = this.showMoveTooltip(move, type === 'zmove', pokemon, serverPokemon);
 			break;
 		}
