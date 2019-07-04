@@ -62,7 +62,6 @@
 			var muted = !Dex.prefs('mute');
 			Dex.prefs('mute', muted);
 			BattleSound.setMute(muted);
-			if (window.ga) ga('set', /* mute */ 'dimension1', muted);
 			app.topbar.$('button[name=openSounds]').html('<i class="' + (muted ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i>');
 		},
 
@@ -405,7 +404,6 @@
 			var muted = !!e.currentTarget.checked;
 			Dex.prefs('mute', muted);
 			BattleSound.setMute(muted);
-			if (window.ga) ga('set', /* mute */ 'dimension1', muted);
 
 			if (!muted) {
 				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><input type="range" min="0" max="100" step="1" name="effectvolume" value="' + (Dex.prefs('effectvolume') || 50) + '" />');
