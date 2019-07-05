@@ -41,5 +41,6 @@ package-lock.json
 
 /replays/caches/
 /replays/replay-config.inc.php
+/replays/theme/wrapper.inc.php
 
 .vscode
