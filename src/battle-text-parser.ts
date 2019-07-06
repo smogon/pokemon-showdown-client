@@ -72,9 +72,11 @@ class BattleTextParser {
 		if (atIndex > 0) {
 			name = text.slice(0, atIndex);
 			status = text.slice(atIndex + 1);
-			if (status.startsWith('!')) {
+			if (status.charAt(0) === '!') {
 				away = true;
-				status = status.slice(1);
+				status = `(Away) ${status.slice(1)}`;
+			} else {
+				status = `(Online) ${status.slice(1)}`;
 			}
 		}
 		return {group, name, away, status};

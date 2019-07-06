@@ -2492,7 +2492,13 @@ function toId() {
 			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
 			var offline = data.rooms === false;
 			var status = offline ? '(Offline)' : '(Online)';
-			if (data.status) status = data.status.startsWith('!') ? data.status.slice(1) : data.status;
+			if (data.status) {
+				if (data.status.charAt(0) === '!') {
+					status = "(Away) " + data.status.slice(1);
+				} else {
+					status = "(Online) " + data.status.slice(1);
+				}
+			}
 			buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + BattleLog.escapeHTML(status) + '</span><br />';
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (globalgroup) buf += '<br /><small>' + globalgroup + '</small>';
