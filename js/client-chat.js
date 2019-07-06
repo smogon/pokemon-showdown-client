@@ -1475,61 +1475,39 @@
 			this.joinLeave[action].push(user.group + user.name);
 			var message = '';
 			if (this.joinLeave['join'].length) {
-				var preList = this.joinLeave['join'];
-				var list = [];
-				var named = {};
-				for (var j = 0; j < preList.length; j++) {
-					if (!named[preList[j]]) list.push(preList[j]);
-					named[preList[j]] = true;
-				}
-				for (var j = 0; j < list.length; j++) {
-					if (j >= 5) {
-						message += ', and ' + (list.length - 5) + ' others';
-						break;
-					}
-					if (j > 0) {
-						if (j == 1 && list.length == 2) {
-							message += ' and ';
-						} else if (j == list.length - 1) {
-							message += ', and ';
-						} else {
-							message += ', ';
-						}
-					}
-					message += BattleLog.escapeHTML(list[j]);
-				}
-				message += ' joined';
+				message += this.displayJoinLeaves(this.joinLeave['join'], 'joined');
 			}
 			if (this.joinLeave['leave'].length) {
-				if (this.joinLeave['join'].length) {
-					message += '; ';
-				}
-				var preList = this.joinLeave['leave'];
-				var list = [];
-				var named = {};
-				for (var j = 0; j < preList.length; j++) {
-					if (!named[preList[j]]) list.push(preList[j]);
-					named[preList[j]] = true;
-				}
-				for (var j = 0; j < list.length; j++) {
-					if (j >= 5) {
-						message += ', and ' + (list.length - 5) + ' others';
-						break;
-					}
-					if (j > 0) {
-						if (j == 1 && list.length == 2) {
-							message += ' and ';
-						} else if (j == list.length - 1) {
-							message += ', and ';
-						} else {
-							message += ', ';
-						}
-					}
-					message += BattleLog.escapeHTML(list[j]);
-				}
-				message += ' left<br />';
+				if (this.joinLeave['join'].length) message += '; ';
+				message += this.displayJoinLeaves(this.joinLeave['leave'], 'left') + '<br />';
 			}
 			this.$joinLeave.html('<small style="color: #555555">' + message + '</small>');
+		},
+		displayJoinLeaves: function (preList, action) {
+			var message = '';
+			var list = [];
+			var named = {};
+			for (var j = 0; j < preList.length; j++) {
+				if (!named[preList[j]]) list.push(preList[j]);
+				named[preList[j]] = true;
+			}
+			for (var j = 0; j < list.length; j++) {
+				if (j >= 5) {
+					message += ', and ' + (list.length - 5) + ' others';
+					break;
+				}
+				if (j > 0) {
+					if (j == 1 && list.length == 2) {
+						message += ' and ';
+					} else if (j == list.length - 1) {
+						message += ', and ';
+					} else {
+						message += ', ';
+					}
+				}
+				message += BattleLog.escapeHTML(list[j]);
+			}
+			return message + ' ' + action;
 		},
 		addChat: function (name, message, pm, msgTime) {
 			var userid = toUserid(name);
