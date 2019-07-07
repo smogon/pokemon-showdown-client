@@ -1130,7 +1130,11 @@ class Battle {
 	log(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
 		this.scene.log.add(args, kwArgs, preempt);
 	}
-
+	showElo(name: string, elo: string) {
+		this.scene.log.addDiv('chat battle-history',
+			'<strong>' + BattleLog.escapeHTML(name) + (name.endsWith('s') ? '\'' : '\'s') + ' Elo: ' + elo + '</strong>'
+		);
+	}
 	resetToCurrentTurn() {
 		if (this.ended) {
 			this.reset(true);
@@ -3190,6 +3194,11 @@ class Battle {
 			if (!this.ignoreSpects) {
 				this.log(args, undefined, preempt);
 			}
+			break;
+		}
+		case 'elo': {
+			const [, name, elo] = args;
+			this.showElo(name, elo);
 			break;
 		}
 		case 'player': {
