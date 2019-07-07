@@ -637,10 +637,10 @@ class Side {
 		}
 		if (this.battle.stagnateCallback) this.battle.stagnateCallback(this.battle);
 	}
-	showElo(elo: string) {
-		if (elo !== '0') {
+	showRating(rating: string) {
+		if (rating !== '0') {
 			this.battle.scene.log.addDiv('chat battle-history',
-				'<strong>' + BattleLog.escapeHTML(this.name) + (this.name.endsWith('s') ? '\'' : '\'s') + ' rating: ' + elo + '</strong>'
+				'<strong>' + BattleLog.escapeHTML(this.name) + (this.name.endsWith('s') ? '\'' : '\'s') + ' rating: ' + rating + '</strong>'
 			);
 		}
 	}
@@ -3203,7 +3203,7 @@ class Battle {
 			let side = this.getSide(args[1]);
 			side.setName(args[2]);
 			if (args[3]) side.setAvatar(args[3]);
-			if (args[4]) side.showElo(args[4]);
+			if (args[4]) side.showRating(args[4]);
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
