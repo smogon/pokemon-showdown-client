@@ -638,11 +638,9 @@ class Side {
 		if (this.battle.stagnateCallback) this.battle.stagnateCallback(this.battle);
 	}
 	showRating(rating: string) {
-		if (rating !== '0') {
-			this.battle.scene.log.addDiv('chat battle-history',
-				'<strong>' + BattleLog.escapeHTML(this.name) + (this.name.endsWith('s') ? '\'' : '\'s') + ' rating: ' + rating + '</strong>'
-			);
-		}
+		this.battle.scene.log.addDiv('chat battle-history',
+			'<strong>' + BattleLog.escapeHTML(this.name) + (this.name.endsWith('s') ? '\'' : '\'s') + ' rating: ' + rating + '</strong>'
+		);
 	}
 	addSideCondition(effect: Effect) {
 		let condition = effect.id;
