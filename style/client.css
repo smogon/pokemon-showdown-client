@@ -3057,7 +3057,7 @@ a.ilink.yours {
 }
 .usergroup {
 	border: 1px solid #000;
-	padding: 4px;
+	padding: 2px 4px;
 	border-radius: 11px;
 	display: inline-block;
 }
