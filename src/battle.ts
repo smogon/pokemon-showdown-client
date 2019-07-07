@@ -637,6 +637,13 @@ class Side {
 		}
 		if (this.battle.stagnateCallback) this.battle.stagnateCallback(this.battle);
 	}
+	showElo(elo: string) {
+		if (elo !== '0') {
+			this.battle.scene.log.addDiv('chat battle-history',
+				'<strong>' + BattleLog.escapeHTML(this.name) + (this.name.endsWith('s') ? '\'' : '\'s') + ' rating: ' + elo + '</strong>'
+			);
+		}
+	}
 	addSideCondition(effect: Effect) {
 		let condition = effect.id;
 		if (this.sideConditions[condition]) {
@@ -1130,11 +1137,7 @@ class Battle {
 	log(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
 		this.scene.log.add(args, kwArgs, preempt);
 	}
-	showElo(name: string, elo: string) {
-		this.scene.log.addDiv('chat battle-history',
-			'<strong>' + BattleLog.escapeHTML(name) + (name.endsWith('s') ? '\'' : '\'s') + ' Elo: ' + elo + '</strong>'
-		);
-	}
+
 	resetToCurrentTurn() {
 		if (this.ended) {
 			this.reset(true);
@@ -3196,15 +3199,11 @@ class Battle {
 			}
 			break;
 		}
-		case 'elo': {
-			const [, name, elo] = args;
-			this.showElo(name, elo);
-			break;
-		}
 		case 'player': {
 			let side = this.getSide(args[1]);
 			side.setName(args[2]);
 			if (args[3]) side.setAvatar(args[3]);
+			if (args[4]) side.showElo(args[4]);
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
