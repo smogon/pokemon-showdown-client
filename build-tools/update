@@ -41,6 +41,9 @@ configBuf = configBuf.replace(/\/\* version \*\/[^;\n]*;/, `/* version */ Config
 
 fs.writeFileSync('config/config.js', configBuf);
 console.log("DONE");
+const context = {Config: {}};
+require('vm').runInNewContext(configBuf, context);
+const Config = context.Config;
 
 /*********************************************************
  * Compile TS files
@@ -82,31 +85,42 @@ if (!ignoreGraphics) {
  * Update cachebuster and News
  *********************************************************/
 
+const URL_REGEX = /(src|href)="\/(.*?)(\?[a-z0-9]*?)?"/g;
+
+function updateURL(a, b, c, d) {
+	c = c.replace('/replay.pokemonshowdown.com/', '/' + Config.routes.replays + '/');
+	c = c.replace('/dex.pokemonshowdown.com/', '/' + Config.routes.dex + '/');
+	c = c.replace('/play.pokemonshowdown.com/', '/' + Config.routes.client + '/');
+	c = c.replace('/pokemonshowdown.com/', '/' + Config.routes.root + '/');
+
+	if (d) {
+		let hash = Math.random(); // just in case creating the hash fails
+		try {
+			const filename = c.replace('/' + Config.routes.client + '/', '');
+			const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
+			hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
+		} catch (e) {}
+
+		return b + '="/' + c + '?' + hash + '"';
+	} else {
+		return b + '="/' + c + '"';
+	}
+}
+
+function writeIndex(indexContents, indexContents2) {
+	process.stdout.write("Writing new `index.html` file... ");
+	fs.writeFileSync('index.html', indexContents);
+	fs.writeFileSync('preactalpha.html', indexContents2);
+	console.log("DONE");
+}
+
 function updateIndex() {
-	// add hashes to js and css files
-	process.stdout.write("Updating hashes... ");
+	// add hashes to js and css files and rewrite URLs
+	process.stdout.write("Updating hashes and URLs... ");
 	let indexContents = fs.readFileSync('index.template.html', {encoding: 'utf8'});
-	indexContents = indexContents.replace(/(src|href)="\/(.*?)\?[a-z0-9]*?"/g, function (a, b, c) {
-		let hash = Math.random(); // just in case creating the hash fails
-		try {
-			const filename = c.replace('/play.pokemonshowdown.com/', '');
-			const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
-			hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-		} catch (e) {}
-
-		return b + '="/' + c + '?' + hash + '"';
-	});
+	indexContents = indexContents.replace(URL_REGEX, updateURL);
 	let indexContents2 = fs.readFileSync('preactalpha.template.html', {encoding: 'utf8'});
-	indexContents2 = indexContents2.replace(/(src|href)="\/(.*?)\?[a-z0-9]*?"/g, function (a, b, c) {
-		let hash = Math.random(); // just in case creating the hash fails
-		try {
-			const filename = c.replace('/play.pokemonshowdown.com/', '');
-			const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
-			hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-		} catch (e) {}
-
-		return b + '="/' + c + '?' + hash + '"';
-	});
+	indexContents2 = indexContents2.replace(URL_REGEX, updateURL);
 	console.log("DONE");
 
 	// add news, only if it's actually likely to exist
@@ -128,11 +142,10 @@ function updateIndex() {
 			indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
 			console.log("DONE");
 
-			process.stdout.write("Writing new `index.html` file... ");
-			fs.writeFileSync('index.html', indexContents);
-			fs.writeFileSync('preactalpha.html', indexContents2);
-			console.log("DONE");
+			writeIndex(indexContents, indexContents2);
 		});
+	} else {
+		writeIndex(indexContents, indexContents2);
 	}
 }
 
