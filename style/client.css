@@ -3057,8 +3057,8 @@ a.ilink.yours {
 }
 .usergroup {
 	border: 1px solid #000;
-	padding: 2px 4px;
-	border-radius: 11px;
+	padding: 1px 5px;
+	border-radius: 5px;
 	display: inline-block;
 }
 .roomgroup {
