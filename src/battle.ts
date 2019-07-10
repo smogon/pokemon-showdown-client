@@ -627,9 +627,6 @@ class Side {
 	setAvatar(avatar: string) {
 		this.avatar = avatar;
 	}
-	setRating(rating: string) {
-		this.rating = rating;
-	}
 	setName(name: string, avatar?: string) {
 		if (name) this.name = name;
 		this.id = toID(this.name);
@@ -3200,7 +3197,7 @@ class Battle {
 			let side = this.getSide(args[1]);
 			side.setName(args[2]);
 			if (args[3]) side.setAvatar(args[3]);
-			if (args[4]) side.setRating(args[4]);
+			if (args[4]) side.rating = args[4];
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
