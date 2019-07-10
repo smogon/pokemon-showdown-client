@@ -569,6 +569,7 @@ class Side {
 	n: number;
 	foe: Side = null!;
 	avatar: string = 'unknown';
+	rating: string = '';
 	totalPokemon = 6;
 	x = 0;
 	y = 0;
@@ -626,6 +627,9 @@ class Side {
 	setAvatar(avatar: string) {
 		this.avatar = avatar;
 	}
+	setRating(rating: string) {
+		this.rating = rating;
+	}
 	setName(name: string, avatar?: string) {
 		if (name) this.name = name;
 		this.id = toID(this.name);
@@ -636,11 +640,6 @@ class Side {
 			if (this.foe && this.avatar === this.foe.avatar) this.rollTrainerSprites();
 		}
 		if (this.battle.stagnateCallback) this.battle.stagnateCallback(this.battle);
-	}
-	showRating(rating: string) {
-		this.battle.scene.log.addDiv('chat battle-history',
-			'<strong>' + BattleLog.escapeHTML(this.name) + (this.name.endsWith('s') ? '\'' : '\'s') + ' rating: ' + rating + '</strong>'
-		);
 	}
 	addSideCondition(effect: Effect) {
 		let condition = effect.id;
@@ -3201,7 +3200,7 @@ class Battle {
 			let side = this.getSide(args[1]);
 			side.setName(args[2]);
 			if (args[3]) side.setAvatar(args[3]);
-			if (args[4]) side.showRating(args[4]);
+			if (args[4]) side.setRating(args[4]);
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
