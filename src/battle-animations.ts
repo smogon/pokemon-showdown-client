@@ -625,8 +625,8 @@ class BattleScene {
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const $sidebar = (side.n ? this.$rightbar : this.$leftbar);
 		if (side.name) {
-			const ratinghtml = side.rating ? `title="Rating: ${BattleLog.escapeHTML(side.rating)}` : ``;
-			$sidebar.html(`<div class="trainer" ${ratinghtml}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite" style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
+			const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}` : ``;
+			$sidebar.html(`<div class="trainer"${ratinghtml}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite" style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
 			$sidebar.find('.trainer').css('opacity', 1);
 		} else {
 			$sidebar.find('.trainer').css('opacity', 0.4);
