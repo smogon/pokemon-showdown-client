@@ -3052,6 +3052,7 @@ a.ilink.yours {
 .userstatus {
 	font-style: italic;
 	font-size: 8pt;
+	word-wrap: break-word;
 }
 
 .userdetails {
