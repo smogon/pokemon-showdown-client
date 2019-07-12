@@ -137,8 +137,14 @@ interface Team {
 	iconCache: preact.ComponentChildren;
 	key: string;
 }
+if (!window.BattleFormats) window.BattleFormats = {};
 
-class PSTeams extends PSModel {
+/**
+ * This model tracks teams and formats, updating when either is updated.
+ */
+class PSTeams extends PSStreamModel<'team' | 'format'> {
+	/** false if it uses the ladder in the website */
+	usesLocalLadder = false;
 	list: Team[] = [];
 	byKey: {[key: string]: Team | undefined} = {};
 	constructor() {
@@ -177,6 +183,7 @@ class PSTeams extends PSModel {
 			const team = this.unpackLine(line);
 			if (team) this.list.push(team);
 		}
+		this.update('team');
 	}
 	unpackOldBuffer(buffer: string) {
 		alert("Your team storage format is too old for PS. You'll need to upgrade it at https://play.pokemonshowdown.com/recoverteams.html");
@@ -707,7 +714,7 @@ const PS = new class extends PSModel {
 			const hyphenIndex = options.id.indexOf('-');
 			switch (hyphenIndex < 0 ? options.id : options.id.slice(0, hyphenIndex + 1)) {
 			case 'teambuilder': case 'ladder': case 'battles': case 'rooms':
-			case 'options': case 'volume': case 'teamdropdown':
+			case 'options': case 'volume': case 'teamdropdown': case 'formatdropdown':
 				options.type = options.id;
 				break;
 			case 'battle-': case 'user-': case 'team-':
@@ -734,6 +741,7 @@ const PS = new class extends PSModel {
 				options.location = 'popup';
 				break;
 			case 'teamdropdown':
+			case 'formatdropdown':
 				options.location = 'semimodal-popup';
 				break;
 			}
