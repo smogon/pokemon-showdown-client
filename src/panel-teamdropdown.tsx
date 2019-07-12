@@ -412,22 +412,7 @@ function TeamBox(props: {team: Team | null, noLink?: boolean, button?: boolean})
  * Team selector popup
  */
 
-class TeamDropdownRoom extends PSRoom {
-	readonly classType: string = 'user';
-	userid: ID;
-	name: string;
-	isSelf: boolean;
-	constructor(options: RoomOptions) {
-		super(options);
-		this.userid = this.id.slice(5) as ID;
-		this.isSelf = (this.userid === PS.user.userid);
-		this.name = options.username as string || this.userid;
-		if (/[a-zA-Z0-9]/.test(this.name.charAt(0))) this.name = ' ' + this.name;
-		PS.send(`|/cmd userdetails ${this.userid}`);
-	}
-}
-
-class TeamDropdownPanel extends PSRoomPanel<TeamDropdownRoom> {
+class TeamDropdownPanel extends PSRoomPanel {
 	gen = '';
 	format: string | null = null;
 	getTeams() {
@@ -553,7 +538,87 @@ class TeamDropdownPanel extends PSRoomPanel<TeamDropdownRoom> {
 	}
 }
 
+interface FormatData {
+	id: ID;
+	name: string;
+	team?: 'preset' | null;
+	section: string;
+	column: number;
+	searchShow?: boolean;
+	challengeShow?: boolean;
+	tournamentShow?: boolean;
+	rated: boolean;
+	teambuilderLevel?: number | null;
+	teambuilderFormat?: string;
+	battleFormat?: string;
+	isTeambuilderFormat: boolean;
+	effectType: 'Format';
+}
+
+declare var BattleFormats: {[id: string]: FormatData};
+
+class FormatDropdownPanel extends PSRoomPanel {
+	gen = '';
+	format: string | null = null;
+	click = (e: MouseEvent) => {
+		let curTarget = e.target as HTMLElement | null;
+		let target;
+		while (curTarget && curTarget !== e.currentTarget) {
+			if (curTarget.tagName === 'BUTTON') {
+				target = curTarget as HTMLButtonElement;
+			}
+			curTarget = curTarget.parentElement;
+		}
+		if (!target) return;
+
+		(this.props.room.parentElem as HTMLButtonElement).value = target.value;
+		PS.closePopup();
+	};
+	render() {
+		const room = this.props.room;
+		if (!room.parentElem) {
+			return <PSPanelWrapper room={room}>
+				<p>Error: You tried to open a format selector, but you have nothing to select a format for.</p>
+			</PSPanelWrapper>;
+		}
+
+		if (!window.BattleFormats) {
+			return <PSPanelWrapper room={room}>
+				<p>Loading...</p>
+			</PSPanelWrapper>;
+		}
+
+		/**
+		 * 'challenge' hides search-only formats, and 'search' hides challenge-only
+		 * formats. 'teambuilder' shows teambuilder formats (removing parentheses
+		 * from format names).
+		 */
+		const selectType: 'teambuilder' | 'challenge' | 'search' = (
+			room.parentElem.getAttribute('data-selecttype') as any || 'challenge'
+		);
+
+		const formats = Object.values(BattleFormats).filter(format => {
+			if (selectType === 'challenge' && format.challengeShow === false) return false;
+			if (selectType === 'search' && format.searchShow === false) return false;
+			return true;
+		});
+
+		return <PSPanelWrapper room={room} width={320}>
+			<ul onClick={this.click}>
+				{formats.map(format => <li><button value={format.name}>
+					{format.name}
+				</button></li>)}
+			</ul>
+		</PSPanelWrapper>;
+	}
+}
+
 PS.roomTypes['teamdropdown'] = {
-	Model: TeamDropdownRoom,
+	Model: PSRoom,
 	Component: TeamDropdownPanel,
+};
+
+PS.roomTypes['formatdropdown'] = {
+	Model: PSRoom,
+	Component: FormatDropdownPanel,
 };
