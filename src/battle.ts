@@ -569,6 +569,7 @@ class Side {
 	n: number;
 	foe: Side = null!;
 	avatar: string = 'unknown';
+	rating: string = '';
 	totalPokemon = 6;
 	x = 0;
 	y = 0;
@@ -3196,6 +3197,7 @@ class Battle {
 			let side = this.getSide(args[1]);
 			side.setName(args[2]);
 			if (args[3]) side.setAvatar(args[3]);
+			if (args[4]) side.rating = args[4];
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
