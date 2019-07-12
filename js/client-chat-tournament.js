@@ -307,9 +307,11 @@
 					if (leaves.length > 0) message.push(arrayToPhrase(leaves) + " left the tournament");
 					this.$lastJoinLeaveMessage.text(message.join("; ") + ".");
 					break;
+
 				case 'replace':
 					this.room.$chat.append("<div class=\"notice\">" + BattleLog.escapeHTML(data[1]) + " has joined the tournament, replacing " + BattleLog.escapeHTML(data[0]) + ".</div>");
 					break;
+
 				case 'start':
 					this.room.closeNotification('tournament-create');
 					if (!this.info.isJoined) {
