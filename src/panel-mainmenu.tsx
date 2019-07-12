@@ -44,9 +44,135 @@ class MainMenuRoom extends PSRoom {
 		case 'pm':
 			this.handlePM(tokens[1], tokens[2], tokens[3]);
 			return;
+		case 'formats':
+			this.parseFormats(tokens);
+			return;
 		}
 		const lobby = PS.rooms['lobby'];
 		if (lobby) lobby.receive(line);
+	}
+	parseFormats(formatsList: string[]) {
+		let isSection = false;
+		let section = '';
+
+		let column = 0;
+
+		window.BattleFormats = {};
+		for (let j = 1; j < formatsList.length; j++) {
+			const entry = formatsList[j];
+			if (isSection) {
+				section = entry;
+				isSection = false;
+			} else if (entry === ',LL') {
+				PS.teams.usesLocalLadder = true;
+			} else if (entry === '' || (entry.charAt(0) === ',' && !isNaN(Number(entry.slice(1))))) {
+				isSection = true;
+
+				if (entry) {
+					column = parseInt(entry.slice(1), 10) || 0;
+				}
+			} else {
+				let name = entry;
+				let searchShow = true;
+				let challengeShow = true;
+				let tournamentShow = true;
+				let team: 'preset' | null = null;
+				let teambuilderLevel: number | null = null;
+				let lastCommaIndex = name.lastIndexOf(',');
+				let code = lastCommaIndex >= 0 ? parseInt(name.substr(lastCommaIndex + 1), 16) : NaN;
+				if (!isNaN(code)) {
+					name = name.substr(0, lastCommaIndex);
+					if (code & 1) team = 'preset';
+					if (!(code & 2)) searchShow = false;
+					if (!(code & 4)) challengeShow = false;
+					if (!(code & 8)) tournamentShow = false;
+					if (code & 16) teambuilderLevel = 50;
+				} else {
+					// Backwards compatibility: late 0.9.0 -> 0.10.0
+					if (name.substr(name.length - 2) === ',#') { // preset teams
+						team = 'preset';
+						name = name.substr(0, name.length - 2);
+					}
+					if (name.substr(name.length - 2) === ',,') { // search-only
+						challengeShow = false;
+						name = name.substr(0, name.length - 2);
+					} else if (name.substr(name.length - 1) === ',') { // challenge-only
+						searchShow = false;
+						name = name.substr(0, name.length - 1);
+					}
+				}
+				let id = toID(name);
+				let isTeambuilderFormat = !team && name.slice(-11) !== 'Custom Game';
+				let teambuilderFormat = '' as ID;
+				let teambuilderFormatName = '';
+				if (isTeambuilderFormat) {
+					teambuilderFormatName = name;
+					if (id.slice(0, 3) !== 'gen') {
+						teambuilderFormatName = '[Gen 6] ' + name;
+					}
+					let parenPos = teambuilderFormatName.indexOf('(');
+					if (parenPos > 0 && name.slice(-1) === ')') {
+						// variation of existing tier
+						teambuilderFormatName = teambuilderFormatName.slice(0, parenPos).trim();
+					}
+					if (teambuilderFormatName !== name) {
+						teambuilderFormat = toID(teambuilderFormatName);
+						if (BattleFormats[teambuilderFormat]) {
+							BattleFormats[teambuilderFormat].isTeambuilderFormat = true;
+						} else {
+							BattleFormats[teambuilderFormat] = {
+								id: teambuilderFormat,
+								name: teambuilderFormatName,
+								team,
+								section,
+								column,
+								rated: false,
+								isTeambuilderFormat: true,
+								effectType: 'Format',
+							};
+						}
+						isTeambuilderFormat = false;
+					}
+				}
+				if (BattleFormats[id] && BattleFormats[id].isTeambuilderFormat) {
+					isTeambuilderFormat = true;
+				}
+				// make sure formats aren't out-of-order
+				if (BattleFormats[id]) delete BattleFormats[id];
+				BattleFormats[id] = {
+					id,
+					name,
+					team,
+					section,
+					column,
+					searchShow,
+					challengeShow,
+					tournamentShow,
+					rated: searchShow && id.substr(4, 7) !== 'unrated',
+					teambuilderLevel,
+					teambuilderFormat,
+					isTeambuilderFormat,
+					effectType: 'Format',
+				};
+			}
+		}
+
+		// Match base formats to their variants, if they are unavailable in the server.
+		let multivariantFormats: {[id: string]: 1} = {};
+		for (let id in BattleFormats) {
+			let teambuilderFormat = BattleFormats[BattleFormats[id].teambuilderFormat!];
+			if (!teambuilderFormat || multivariantFormats[teambuilderFormat.id]) continue;
+			if (!teambuilderFormat.searchShow && !teambuilderFormat.challengeShow && !teambuilderFormat.tournamentShow) {
+				// The base format is not available.
+				if (teambuilderFormat.battleFormat) {
+					multivariantFormats[teambuilderFormat.id] = 1;
+					teambuilderFormat.battleFormat = '';
+				} else {
+					teambuilderFormat.battleFormat = id;
+				}
+			}
+		}
+		PS.teams.update('format');
 	}
 	handlePM(user1: string, user2: string, message: string) {
 		const userid1 = toID(user1);
@@ -104,6 +230,9 @@ class MainMenuPanel extends PSRoomPanel {
 			</p>
 			<p>(We'll be back up in a few hours.)</p>
 		</div> : <div class="menugroup">
+			<p>
+				<FormatDropdown />
+			</p>
 			<p>
 				<TeamDropdown format="gen7ou" />
 			</p>
@@ -168,6 +297,22 @@ class MainMenuPanel extends PSRoomPanel {
 				</div>
 			</div>
 		</PSPanelWrapper>;
+	}
+}
+
+class FormatDropdown extends preact.Component<{}> {
+	getFormat() {
+		if (this.base) {
+			return (this.base as HTMLButtonElement).value;
+		}
+		return 'gen7randombattle';
+	}
+	change = () => this.forceUpdate();
+	render() {
+		const format = this.getFormat();
+		return <button class="select formatselect" name="format" data-href="/formatdropdown" onChange={this.change}>
+			{format}
+		</button>;
 	}
 }
 
