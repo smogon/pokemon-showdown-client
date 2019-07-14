@@ -28,7 +28,8 @@ class ModifiableValue {
 		this.itemName = Dex.getItem(serverPokemon.item).name;
 		const ability = serverPokemon.ability || (pokemon && pokemon.ability) || serverPokemon.baseAbility;
 		this.abilityName = Dex.getAbility(ability).name;
-		this.weatherName = Dex.getMove(battle.weather).name;
+		this.weatherName = Dex.getMove(battle.weather).exists ?
+			Dex.getMove(battle.weather).name : Dex.getAbility(battle.weather).name;
 	}
 	reset(value = 0, isAccuracy?: boolean) {
 		this.value = value;
