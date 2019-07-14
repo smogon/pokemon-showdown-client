@@ -1131,7 +1131,7 @@
 				}
 				if (this.gen === 1) {
 					// Usually viable for Gen 1
-					if (id === 'acidarmor' || id === 'amnesia' || id === 'barrier' || id === 'bind' || id === 'clamp' || id === 'confuseray' || id === 'counter' || id === 'firespin' || id === 'hyperbeam' || id === 'mirrormove' || id === 'pinmissile' || id === 'razorleaf' || id === 'sing' || id === 'slash' || id === 'sludge' || id === 'twineedle' || id === 'wrap') isViable = true;
+					if (id === 'acidarmor' || id === 'amnesia' || id === 'barrier' || id === 'bind' || id === 'blizzard' || id === 'clamp' || id === 'confuseray' || id === 'counter' || id === 'firespin' || id === 'hyperbeam' || id === 'mirrormove' || id === 'pinmissile' || id === 'razorleaf' || id === 'sing' || id === 'slash' || id === 'sludge' || id === 'twineedle' || id === 'wrap') isViable = true;
 
 					// Usually not viable for Gen 1
 					if (id === 'disable' || id === 'firepunch' || id === 'icepunch' || id === 'leechseed' || id === 'quickattack' || id === 'roar' || id === 'thunderpunch' || id === 'toxic' || id === 'triattack' || id === 'whirlwind') isViable = false;
