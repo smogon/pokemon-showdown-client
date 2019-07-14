@@ -47,9 +47,6 @@
 			this.battle.startCallback = function () { self.updateControls(); };
 			this.battle.stagnateCallback = function () { self.updateControls(); };
 
-			var hasSound = (BattleSound.muted || (!BattleSound.bgmVolume && !BattleSound.effectVolume)) ? 0 : 1;
-			if (window.ga) ga('send', 'event', 'Battle', 'join', 'sounds', hasSound);
-
 			this.battle.play();
 		},
 		events: {
