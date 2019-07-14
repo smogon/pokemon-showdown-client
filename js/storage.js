@@ -999,7 +999,7 @@ Storage.unpackTeam = function (buf) {
 };
 
 Storage.packedTeamNames = function (buf) {
-	if (!buf) return '';
+	if (!buf) return [];
 
 	var team = [];
 	var i = 0;
@@ -1007,11 +1007,13 @@ Storage.packedTeamNames = function (buf) {
 	while (true) {
 		var name = buf.substring(i, buf.indexOf('|', i));
 		i = buf.indexOf('|', i) + 1;
+		if (!i) return [];
 
 		team.push(buf.substring(i, buf.indexOf('|', i)) || name);
 
 		for (var k = 0; k < 9; k++) {
 			i = buf.indexOf('|', i) + 1;
+			if (!i) return [];
 		}
 
 		i = buf.indexOf(']', i) + 1;
