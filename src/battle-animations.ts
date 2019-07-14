@@ -387,6 +387,13 @@ class BattleScene {
 		if (transition === 'ballistic2') {
 			transitionMap.top = (pos.top < oldPos!.top ? 'quadUp' : 'quadDown');
 		}
+		if (transition === 'ballistic2Back') {
+			// This _should_ be the same as ballistic2.
+			// Unfortunately, oldLoc is the original loc, rather than the
+			// previous loc, so when you're "going back", loc === oldLoc, and
+			// the direction has to instead be inferred from the destination.
+			transitionMap.top = (loc.z! > 0 ? 'quadUp' : 'quadDown');
+		}
 		if (transition === 'ballistic2Under') {
 			transitionMap.top = (pos.top < oldPos!.top ? 'quadDown' : 'quadUp');
 		}
@@ -1466,8 +1473,11 @@ class BattleScene {
 }
 
 interface ScenePos {
+	/** - left, + right */
 	x?: number;
+	/** - down, + up */
 	y?: number;
+	/** - player, + opponent */
 	z?: number;
 	scale?: number;
 	xscale?: number;
