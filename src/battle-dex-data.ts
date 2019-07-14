@@ -500,7 +500,7 @@ const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
 	roselia: 1044 + 37,
 	zangoose: 1044 + 38,
 	seviper: 1044 + 39,
-	castformrainy: 1044 + 40,
+	castformsnowy: 1044 + 40,
 	absolmega: 1044 + 41,
 	absol: 1044 + 42,
 	regirock: 1044 + 43,
