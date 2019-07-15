@@ -2493,7 +2493,7 @@ function toId() {
 			var offline = data.rooms === false;
 			var status = offline ? '(Offline)' : '(Online)';
 			if (data.status && !offline) status = data.status.startsWith('!') ? data.status.slice(1) : data.status;
-			buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + BattleLog.escapeHTML(status) + '</span><br />';
+			buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + BattleLog.escapeHTML(status) + '<br /></span>';
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (globalgroup) buf += '<br /><small>' + globalgroup + '</small>';
 			if (data.rooms) {
