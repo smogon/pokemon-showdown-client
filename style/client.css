@@ -3053,6 +3053,9 @@ a.ilink.yours {
 	font-style: italic;
 	font-size: 8pt;
 	word-wrap: break-word;
+	overflow: hidden;
+	max-height: 18pt;
+	display: block;
 }
 
 .userdetails {
