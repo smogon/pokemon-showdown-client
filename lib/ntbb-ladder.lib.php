@@ -206,7 +206,7 @@ class NTBBLadder {
 		return true;
 	}
 
-	function getTop() {
+	function getTop($prefix) {
 		global $ladderdb;
 		$needUpdate = true;
 		$top = array();
@@ -224,7 +224,11 @@ class NTBBLadder {
 			// 	$limit = 1000;
 			// }
 
-			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' ORDER BY `elo` DESC LIMIT $limit");
+			if ($prefix) {
+				$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' AND `userid` LIKE '{$prefix}%' ORDER BY `elo` DESC LIMIT $limit");
+			} else {
+				$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' ORDER BY `elo` DESC LIMIT $limit");
+			}
 
 			$j = 0;
 			while ($row = $ladderdb->fetch_assoc($res)) {

@@ -86,6 +86,9 @@
 	});
 
 	this.LadderRoom = HTMLRoom.extend({
+		events: {
+			'keyup .searchinput': 'searchChange',
+		},
 		type: 'ladder',
 		title: 'Ladder',
 		initialize: function () {
@@ -104,6 +107,7 @@
 			}, this);
 		},
 		curFormat: '',
+		curSearchVal: '',
 		join: function () {},
 		leave: function () {},
 		update: function () {
@@ -135,20 +139,29 @@
 				var self = this;
 				this.$el.html('<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p></div>');
 				if (app.localLadder) {
-					app.send('/cmd laddertop ' + format);
+					app.send('/cmd laddertop ' + format + (this.curSearchVal ? ' ,' + this.curSearchVal : ''));
 				} else {
 					$.get('/ladder.php', {
 						format: format,
 						server: Config.server.id.split(':')[0],
-						output: 'html'
+						output: 'html',
+						prefix: this.curSearchVal
 					}, function (data) {
 						if (self.curFormat !== format) return;
-						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button></p>';
+						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button>';
+						buf += '<input type="text" id="ladderSearchBar" name="search" class="textbox searchinput" value="' + (this.curSearchVal || '') + '" placeholder="username prefix"/></p>';
 						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top 500</h3>';
 						buf += data + '</div>';
 						self.$el.html(buf);
 					}, 'html');
 				}
+			}
+		},
+		searchChange: function (e) {
+			// 91 for right CMD / 93 for left CMD / 17 for CTL
+			if (e.keyCode !== 91 && e.keyCode !== 93 && e.keyCode !== 17) {
+				this.curSearchVal = e.currentTarget.value;
+				this.update();
 			}
 		},
 		showHelp: function () {
