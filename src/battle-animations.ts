@@ -517,11 +517,15 @@ class BattleScene {
 
 	runMoveAnim(moveid: ID, participants: Pokemon[]) {
 		if (!this.animating) return;
-		if (!BattleMoveAnims[moveid]) {
-			BattleMoveAnims['tackle'].anim(this, participants.map(p => p.sprite));
-			return;
+		let animEntry = BattleOtherAnims[moveid];
+		if (this.acceleration >= 3) {
+			const targetsSelf = !participants[1] || participants[0] === participants[1];
+			const isSpecial = !targetsSelf && this.battle.dex.getMove(moveid).category === 'Special';
+			animEntry = BattleOtherAnims[targetsSelf ? 'fastanimself' : isSpecial ? 'fastanimspecial' : 'fastanimattack'];
+		} else if (!animEntry) {
+			animEntry = BattleMoveAnims['tackle'];
 		}
-		BattleMoveAnims[moveid].anim(this, participants.map(p => p.sprite));
+		animEntry.anim(this, participants.map(p => p.sprite));
 	}
 
 	runOtherAnim(moveid: ID, participants: Pokemon[]) {
@@ -540,7 +544,7 @@ class BattleScene {
 	}
 
 	runPrepareAnim(moveid: ID, attacker: Pokemon, defender: Pokemon) {
-		if (!this.animating) return;
+		if (!this.animating || this.acceleration >= 3) return;
 		const moveAnim = BattleMoveAnims[moveid];
 		if (!moveAnim.prepareAnim) return;
 		moveAnim.prepareAnim(this, [attacker.sprite, defender.sprite]);
@@ -896,12 +900,16 @@ class BattleScene {
 		}, 500, () => {
 			$prevTurn.remove();
 		});
+		this.updateAcceleration();
+		this.wait(500 / this.acceleration);
+	}
+	updateAcceleration() {
 		if (this.battle.turnsSinceMoved > 2) {
 			this.acceleration = (this.battle.messageFadeTime < 150 ? 2 : 1) * Math.min(this.battle.turnsSinceMoved - 1, 3);
 		} else {
 			this.acceleration = (this.battle.messageFadeTime < 150 ? 2 : 1);
+			if (this.battle.messageFadeTime < 50) this.acceleration = 3;
 		}
-		this.wait(500 / this.acceleration);
 	}
 
 	addPokemonSprite(pokemon: Pokemon) {
@@ -3524,6 +3532,74 @@ const BattleOtherAnims: AnimTable = {
 			defender.anim({
 				time: 300,
 			}, 'swing');
+		},
+	},
+	fastanimattack: {
+		anim(scene, [attacker, defender]) {
+			attacker.anim({
+				z: attacker.behind(-70),
+				time: 50,
+				opacity: 1,
+			}, 'decel');
+			attacker.anim({
+				opacity: 1,
+				time: 150,
+			}, 'accel');
+			defender.anim({
+				z: defender.behind(30),
+				time: 70,
+			}, 'decel');
+			defender.anim({
+				time: 170,
+			}, 'accel');
+		},
+	},
+	fastanimspecial: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('shadowball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.8,
+				time: 0,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 100,
+			}, 'decel');
+			scene.showEffect('shadowball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.8,
+				time: 70,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 170,
+			}, 'decel');
+			defender.anim({
+				z: defender.behind(30),
+				time: 70,
+			}, 'decel');
+			defender.anim({
+				time: 170,
+			}, 'accel');
+		},
+	},
+	fastanimself: {
+		anim(scene, [attacker, defender]) {
+			attacker.anim({
+				scale: 1.5,
+				time: 50,
+			}, 'decel');
+			attacker.anim({
+				time: 170,
+			}, 'accel');
 		},
 	},
 	sneakattack: {
