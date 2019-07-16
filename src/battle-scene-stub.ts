@@ -22,6 +22,7 @@ class BattleSceneStub {
 	healAnim(pokemon: Pokemon, damage: string | number): void { }
 	hideJoinButtons(): void { }
 	incrementTurn(): void { }
+	updateAcceleration(): void { }
 	message(message: string, hiddenMessage?: string | undefined): void { }
 	pause(): void { }
 	preemptCatchup(): void { }
