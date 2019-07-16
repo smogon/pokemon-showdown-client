@@ -229,9 +229,15 @@ class NTBBLadder {
 				// an indexed query for additional rows and filter them down further. This is obviously *not* guaranteed
 				// to return exactly $limit results, but should be 'good enough' in practice.
 				$overfetch = $limit * 4;
-				$res = $ladderdb->query("SELECT * (SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' ORDER BY `elo` DESC LIMIT $overfetch) WHERE `userid` LIKE '{$prefix}%' LIMIT $limit)");
+				$res = $ladderdb->query(
+					"SELECT * (SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT ?) WHERE `userid` LIKE ? LIMIT ?)",
+					[$this->formatid, $overfetch, "{$prefix}%", $limit]
+				);
 			} else {
-				$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' ORDER BY `elo` DESC LIMIT $limit");
+				$res = $ladderdb->query(
+					"SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT ?",
+					[$this->formatid, $limit]
+				);
 			}
 
 			$j = 0;
