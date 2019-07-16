@@ -1175,6 +1175,7 @@ class Battle {
 	//
 	start() {
 		this.log(['start']);
+		this.resetTurnsSinceMoved();
 		if (this.startCallback) this.startCallback(this);
 	}
 	winner(winner?: string) {
@@ -1228,7 +1229,7 @@ class Battle {
 	}
 	resetTurnsSinceMoved() {
 		this.turnsSinceMoved = 0;
-		this.scene.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
+		this.scene.updateAcceleration();
 	}
 	updateToxicTurns() {
 		for (const side of this.sides) {
@@ -3073,6 +3074,9 @@ class Battle {
 			this.tier = args[1];
 			if (this.tier.slice(-13) === 'Random Battle') {
 				this.speciesClause = true;
+			}
+			if (this.tier.slice(-8) === ' (Blitz)') {
+				this.messageFadeTime = 40;
 			}
 			this.log(args);
 			break;
