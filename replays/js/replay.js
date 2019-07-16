@@ -115,12 +115,14 @@ var ReplayPanel = Panels.StaticPanel.extend({
 
 		case 'speed':
 			var fadeTable = {
+				hyperfast: 40,
 				fast: 50,
 				normal: 300,
 				slow: 500,
 				reallyslow: 1000
 			};
 			var delayTable = {
+				hyperfast: 1,
 				fast: 1,
 				normal: 1,
 				slow: 1000,
@@ -128,6 +130,7 @@ var ReplayPanel = Panels.StaticPanel.extend({
 			};
 			this.battle.messageShownTime = delayTable[value];
 			this.battle.messageFadeTime = fadeTable[value];
+			this.battle.scene.updateAcceleration();
 			break;
 		}
 	},

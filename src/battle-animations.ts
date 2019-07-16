@@ -517,7 +517,7 @@ class BattleScene {
 
 	runMoveAnim(moveid: ID, participants: Pokemon[]) {
 		if (!this.animating) return;
-		let animEntry = BattleOtherAnims[moveid];
+		let animEntry = BattleMoveAnims[moveid];
 		if (this.acceleration >= 3) {
 			const targetsSelf = !participants[1] || participants[0] === participants[1];
 			const isSpecial = !targetsSelf && this.battle.dex.getMove(moveid).category === 'Special';
