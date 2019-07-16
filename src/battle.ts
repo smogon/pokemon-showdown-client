@@ -1016,6 +1016,7 @@ class Battle {
 	tier = '';
 	gameType: 'singles' | 'doubles' | 'triples' = 'singles';
 	rated: string | boolean = false;
+	isBlitz = false;
 	endLastTurnPending = false;
 	totalTimeLeft = 0;
 	graceTimeLeft = 0;
@@ -3077,6 +3078,7 @@ class Battle {
 			}
 			if (this.tier.slice(-8) === ' (Blitz)') {
 				this.messageFadeTime = 40;
+				this.isBlitz = true;
 			}
 			this.log(args);
 			break;
@@ -3134,6 +3136,8 @@ class Battle {
 				if (toID(args[1].slice(0, hasIndex)) === userid) {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
+			} else if (args[1].slice(-27) === ' 15 seconds left this turn.') {
+				if (this.isBlitz) return;
 			}
 			this.log(args, undefined, preempt);
 			break;
