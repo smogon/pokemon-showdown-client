@@ -225,7 +225,11 @@ class NTBBLadder {
 			// }
 
 			if ($prefix) {
-				$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' AND `userid` LIKE '{$prefix}%' ORDER BY `elo` DESC LIMIT $limit");
+				// The ladder database can't really handle large queries which aren't indexed, so we instead perform
+				// an indexed query for additional rows and filter them down further. This is obviously *not* guaranteed
+				// to return exactly $limit results, but should be 'good enough' in practice.
+				$overfetch = $limit * 4;
+				$res = $ladderdb->query("SELECT * (SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' ORDER BY `elo` DESC LIMIT $overfetch) WHERE `userid` LIKE '{$prefix}%' LIMIT $limit)");
 			} else {
 				$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' ORDER BY `elo` DESC LIMIT $limit");
 			}

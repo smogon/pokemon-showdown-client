@@ -150,7 +150,7 @@
 						if (self.curFormat !== format) return;
 						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button>';
 						buf += '<input type="text" id="ladderSearchBar" name="search" class="textbox searchinput" value="' + (this.curSearchVal || '') + '" placeholder="username prefix"/></p>';
-						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top 500</h3>';
+						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top ' + (this.curSearchVal ? "- '" + this.curSearchValue + "'" : '500') + '</h3>';
 						buf += data + '</div>';
 						self.$el.html(buf);
 					}, 'html');
