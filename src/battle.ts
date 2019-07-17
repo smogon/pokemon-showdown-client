@@ -1683,6 +1683,16 @@ class Battle {
 				poke.boosts[stat] = frompoke.boosts[stat];
 				if (!poke.boosts[stat]) delete poke.boosts[stat];
 			}
+			if (this.gen >= 6) {
+				const volatilesToCopy = ['focusenergy', 'laserfocus'];
+				for (const volatile of volatilesToCopy) {
+					if (frompoke.volatiles[volatile]) {
+						poke.addVolatile(volatile as ID);
+					} else {
+						poke.removeVolatile(volatile as ID);
+					}
+				}
+			}
 			this.scene.resultAnim(poke, 'Stats copied', 'neutral');
 
 			this.log(args, kwArgs);
@@ -3106,6 +3116,7 @@ class Battle {
 		case 'rule': {
 			let ruleName = args[1].split(': ')[0];
 			if (ruleName === 'Species Clause') this.speciesClause = true;
+			if (ruleName === 'Blitz') this.isBlitz = true;
 			this.log(args);
 			break;
 		}
