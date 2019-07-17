@@ -86,6 +86,9 @@
 	});
 
 	this.LadderRoom = HTMLRoom.extend({
+		events: {
+			'submit .search': 'submitSearch'
+		},
 		type: 'ladder',
 		title: 'Ladder',
 		initialize: function () {
@@ -146,7 +149,7 @@
 					}, function (data) {
 						if (self.curFormat !== format) return;
 						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button>';
-						buf += '<form class="search"><input type="text" name="searchval" class="textbox searchinput" value="' + BattleLog.escapeHTML(self.curSearchVal || '') + '" placeholder="username prefix"/><button type="submit"> Search</button></form></p>';
+						buf += '<form class="search"><input type="text" name="searchval" class="textbox searchinput" value="' + BattleLog.escapeHTML(self.curSearchVal || '') + '" placeholder="username prefix" /><button type="submit"> Search</button></form></p>';
 						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top ' + BattleLog.escapeHTML(self.curSearchVal ? "- '" + self.curSearchVal + "'" : '500') + '</h3>';
 						buf += data + '</div>';
 						self.$el.html(buf);
