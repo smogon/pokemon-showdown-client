@@ -1198,7 +1198,8 @@ Storage.importTeam = function (buffer, format, teams) {
 			if (line.substr(0, 14) === 'Hidden Power [') {
 				var hptype = line.substr(14, line.length - 15);
 				line = 'Hidden Power ' + hptype;
-				if (!curSet.ivs && !format.startsWith('gen7') && window.BattleTypeChart && window.BattleTypeChart[hptype]) {
+				var shouldChangeIVs = !curSet.ivs && (!format.startsWith('gen7') || (curSet.level && curSet.level !== 100));
+				if (shouldChangeIVs && window.BattleTypeChart && window.BattleTypeChart[hptype]) {
 					curSet.ivs = {};
 					for (var stat in window.BattleTypeChart[hptype].HPivs) {
 						curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
