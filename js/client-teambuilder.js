@@ -710,8 +710,7 @@
 		},
 		saveBackup: function () {
 			Storage.deleteAllTeams();
-			// XXX
-			Storage.importTeam(this.$('.teamedit textarea').val(), this.curTeam.format, true);
+			Storage.importTeam(this.$('.teamedit textarea').val(), '', true);
 			teams = Storage.teams;
 			Storage.saveAllTeams();
 			for (var room in app.rooms) {
@@ -1011,7 +1010,7 @@
 				reader.onload = function (e) {
 					var team;
 					try {
-						team = Storage.packTeam(Storage.importTeam(e.target.result), this.curTeam.format);
+						team = Storage.packTeam(Storage.importTeam(e.target.result));
 					} catch (err) {
 						app.addPopupMessage("Your file is not a valid team.");
 						self.updateTeamList();
