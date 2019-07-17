@@ -158,6 +158,7 @@
 			}
 		},
 		submitSearch: function (e) {
+			e.preventDefault();
 			this.curSearchVal = this.$('input[name=searchval]').val();
 			this.update();
 		},
