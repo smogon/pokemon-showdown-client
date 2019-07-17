@@ -146,7 +146,7 @@
 					}, function (data) {
 						if (self.curFormat !== format) return;
 						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button>';
-						buf += '<form><input type="text" id="ladderSearchBar" name="search" class="textbox searchinput" value="' + (self.curSearchVal || '') + '" placeholder="username prefix"/><button name="search" type="submit"> Search</button></form></p>';
+						buf += '<form class="search"><input type="text" name="searchval" class="textbox searchinput" value="' + (self.curSearchVal || '') + '" placeholder="username prefix"/><button type="submit"> Search</button></form></p>';
 						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top ' + (self.curSearchVal ? "- '" + self.curSearchVal + "'" : '500') + '</h3>';
 						buf += data + '</div>';
 						self.$el.html(buf);
@@ -154,8 +154,8 @@
 				}
 			}
 		},
-		search: function (e) {
-			this.curSearchVal = $('#ladderSearchBar').val();
+		submitSearch: function (e) {
+			this.curSearchVal = this.$('input[name=searchval]').val();
 			this.update();
 		},
 		showHelp: function () {
