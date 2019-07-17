@@ -86,9 +86,6 @@
 	});
 
 	this.LadderRoom = HTMLRoom.extend({
-		events: {
-			'input .searchinput': 'searchChange',
-		},
 		type: 'ladder',
 		title: 'Ladder',
 		initialize: function () {
@@ -149,19 +146,17 @@
 					}, function (data) {
 						if (self.curFormat !== format) return;
 						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button>';
-						buf += '<input type="text" id="ladderSearchBar" name="search" class="textbox searchinput" value="' + (this.curSearchVal || '') + '" placeholder="username prefix"/></p>';
-						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top ' + (this.curSearchVal ? "- '" + this.curSearchVal + "'" : '500') + '</h3>';
+						buf += '<form><input type="text" id="ladderSearchBar" name="search" class="textbox searchinput" value="' + (self.curSearchVal || '') + '" placeholder="username prefix"/><button name="search" type="submit"> Search</button></form></p>';
+						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top ' + (self.curSearchVal ? "- '" + self.curSearchVal + "'" : '500') + '</h3>';
 						buf += data + '</div>';
 						self.$el.html(buf);
 					}, 'html');
 				}
 			}
 		},
-		searchChange: function (e) {
-			if (this.curSearchVal !== e.currentTarget.value) {
-				this.curSearchVal = e.currentTarget.value;
-				this.update();
-			}
+		search: function (e) {
+			this.curSearchVal = $('#ladderSearchBar').val();
+			this.update();
 		},
 		showHelp: function () {
 			var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p>';
