@@ -3,8 +3,7 @@
   "version": "0.3.0",
 
   "main": "index.html",
-  "node-remote": "*://play.pokemonshowdown.com/*",
-  "no-edit-menu": false,
+  "node-remote": "https://play.pokemonshowdown.com/*",
   "window": {
 	  "icon": "icons/icon_32x32.png",
     "title": "Loading...",
