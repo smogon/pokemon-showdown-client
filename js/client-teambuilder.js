@@ -710,7 +710,8 @@
 		},
 		saveBackup: function () {
 			Storage.deleteAllTeams();
-			Storage.importTeam(this.$('.teamedit textarea').val(), true);
+			// XXX
+			Storage.importTeam(this.$('.teamedit textarea').val(), true, this.curTeam.format);
 			teams = Storage.teams;
 			Storage.saveAllTeams();
 			for (var room in app.rooms) {
@@ -1010,7 +1011,7 @@
 				reader.onload = function (e) {
 					var team;
 					try {
-						team = Storage.packTeam(Storage.importTeam(e.target.result));
+						team = Storage.packTeam(Storage.importTeam(e.target.result), null, this.curTeam.format);
 					} catch (err) {
 						app.addPopupMessage("Your file is not a valid team.");
 						self.updateTeamList();
@@ -1208,7 +1209,7 @@
 		},
 
 		saveImport: function () {
-			Storage.activeSetList = this.curSetList = Storage.importTeam(this.$('.teamedit textarea').val());
+			Storage.activeSetList = this.curSetList = Storage.importTeam(this.$('.teamedit textarea').val(), null, this.curTeam.format);
 			this.back();
 		},
 		addPokemon: function () {
@@ -1463,7 +1464,7 @@
 		},
 		savePokemonImport: function (i) {
 			i = +(this.$('li').attr('value'));
-			var curSet = Storage.importTeam(this.$('.pokemonedit').val())[0];
+			var curSet = Storage.importTeam(this.$('.pokemonedit').val(), null, this.curTeam.format)[0];
 			if (curSet) {
 				this.curSet = curSet;
 				this.curSetList[i] = curSet;

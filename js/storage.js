@@ -1071,9 +1071,12 @@ Storage.getPackedTeam = function (team) {
 	return team.team;
 };
 
-Storage.importTeam = function (buffer, teams) {
+Storage.importTeam = function (buffer, teams, format) {
 	var text = buffer.split("\n");
 	var team = teams ? null : [];
+	if (!format) {
+		format = 'gen7';
+	}
 	var curSet = null;
 	if (teams === true) {
 		Storage.teams = [];
@@ -1088,7 +1091,6 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 3) === '===' && teams) {
 			team = [];
 			line = $.trim(line.substr(3, line.length - 6));
-			var format = 'gen7';
 			var bracketIndex = line.indexOf(']');
 			if (bracketIndex >= 0) {
 				format = line.substr(1, bracketIndex - 1);
@@ -1196,7 +1198,7 @@ Storage.importTeam = function (buffer, teams) {
 			if (line.substr(0, 14) === 'Hidden Power [') {
 				var hptype = line.substr(14, line.length - 15);
 				line = 'Hidden Power ' + hptype;
-				if (!curSet.ivs && window.BattleTypeChart && window.BattleTypeChart[hptype]) {
+				if (!curSet.ivs && !format.startsWith('gen7') && window.BattleTypeChart && window.BattleTypeChart[hptype]) {
 					curSet.ivs = {};
 					for (var stat in window.BattleTypeChart[hptype].HPivs) {
 						curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
@@ -1506,6 +1508,7 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 			self.teams.push({
 				name: line,
 				format: format,
+				// XXX
 				team: Storage.packTeam(Storage.importTeam('' + data)),
 				folder: folder,
 				iconCache: '',
