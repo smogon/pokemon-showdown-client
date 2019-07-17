@@ -1071,12 +1071,12 @@ Storage.getPackedTeam = function (team) {
 	return team.team;
 };
 
-Storage.importTeam = function (buffer, teams, format) {
+Storage.importTeam = function (buffer, format, teams) {
 	var text = buffer.split("\n");
-	var team = teams ? null : [];
 	if (!format) {
 		format = 'gen7';
 	}
+	var team = teams ? null : [];
 	var curSet = null;
 	if (teams === true) {
 		Storage.teams = [];
@@ -1508,8 +1508,7 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 			self.teams.push({
 				name: line,
 				format: format,
-				// XXX
-				team: Storage.packTeam(Storage.importTeam('' + data)),
+				team: Storage.packTeam(Storage.importTeam('' + data), format),
 				folder: folder,
 				iconCache: '',
 				filename: filename
