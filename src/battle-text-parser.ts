@@ -97,7 +97,11 @@ class BattleTextParser {
 				'electricterrain', 'mistyterrain', 'psychicterrain', 'telepathy', 'stickyhold', 'suctioncups', 'aromaveil',
 				'flowerveil', 'sweetveil', 'disguise', 'safetygoggles', 'protectivepads',
 			].includes(id)) {
-				return {args: ['-block', target || pokemon, effect, arg3], kwArgs: {}};
+				if (target) {
+					kwArgs.of = pokemon;
+					return {args: ['-block', target, effect, arg3], kwArgs};
+				}
+				return {args: ['-block', pokemon, effect, arg3], kwArgs};
 			}
 
 			if ([
@@ -122,25 +126,26 @@ class BattleTextParser {
 				kwArgs.number = arg4;
 			}
 			args = ['-activate', pokemon, effect, target || ''];
-			return {args, kwArgs};
+			break;
 		}
 
 		case '-start': {
 			if (kwArgs.from === 'Protean' || kwArgs.from === 'Color Change') kwArgs.from = 'ability:' + kwArgs.from;
-			return {args, kwArgs};
+			break;
 		}
 
 		case 'move': {
 			if (kwArgs.from === 'Magic Bounce') kwArgs.from = 'ability:Magic Bounce';
-			return {args, kwArgs};
+			break;
 		}
 
 		case 'cant': {
 			let [, pokemon, effect] = args;
 			if (['ability: Queenly Majesty', 'ability: Damp', 'ability: Dazzling'].includes(effect)) {
 				args[0] = '-block';
+				return {args: ['-block', pokemon, effect, kwArgs.of], kwArgs: {}};
 			}
-			return {args, kwArgs};
+			break;
 		}
 
 		case '-nothing':
@@ -917,10 +922,10 @@ class BattleTextParser {
 		}
 
 		case '-block': {
-			let [, pokemon, effect, move] = args;
-			const line1 = this.maybeAbility(effect, pokemon);
+			let [, pokemon, effect, move, attacker] = args;
+			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
 			const template = this.template('block', effect);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[MOVE]', move);
+			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(attacker || kwArgs.of)).replace('[MOVE]', move);
 		}
 
 		case '-fail': {
