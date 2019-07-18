@@ -206,7 +206,7 @@ class NTBBLadder {
 		return true;
 	}
 
-	function getTop() {
+	function getTop($prefix) {
 		global $ladderdb;
 		$needUpdate = true;
 		$top = array();
@@ -224,7 +224,21 @@ class NTBBLadder {
 			// 	$limit = 1000;
 			// }
 
-			$res = $ladderdb->query("SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = '{$this->formatid}' ORDER BY `elo` DESC LIMIT $limit");
+			if ($prefix) {
+				// The ladder database can't really handle large queries which aren't indexed, so we instead perform
+				// an indexed query for additional rows and filter them down further. This is obviously *not* guaranteed
+				// to return exactly $limit results, but should be 'good enough' in practice.
+				$overfetch = $limit * 4;
+				$res = $ladderdb->query(
+					"SELECT * (SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT ?) WHERE `userid` LIKE ? LIMIT ?)",
+					[$this->formatid, $overfetch, "{$prefix}%", $limit]
+				);
+			} else {
+				$res = $ladderdb->query(
+					"SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT ?",
+					[$this->formatid, $limit]
+				);
+			}
 
 			$j = 0;
 			while ($row = $ladderdb->fetch_assoc($res)) {
