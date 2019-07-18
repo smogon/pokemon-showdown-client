@@ -3117,7 +3117,10 @@ class Battle {
 		case 'rule': {
 			let ruleName = args[1].split(': ')[0];
 			if (ruleName === 'Species Clause') this.speciesClause = true;
-			if (ruleName === 'Blitz') this.isBlitz = true;
+			if (ruleName === 'Blitz') {
+				this.messageFadeTime = 40;
+				this.isBlitz = true;
+			}
 			this.log(args);
 			break;
 		}
