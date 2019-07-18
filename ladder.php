@@ -5,6 +5,7 @@ include 'lib/ntbb-ladder.lib.php';
 $formatid = 'OU';
 
 if (@$_REQUEST['format']) $formatid = $_REQUEST['format'];
+if (@$_REQUEST['format']) $prefix = $_REQUEST['prefix'];
 
 if (!ctype_alnum($formatid)) {
 	die('denied');
@@ -22,7 +23,7 @@ $ladder = new NTBBLadder($formatid);
 		</tr>
 <?php
 
-$toplist = $ladder->getTop();
+$toplist = $ladder->getTop($prefix);
 
 $i=0;
 
