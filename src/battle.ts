@@ -1814,8 +1814,9 @@ class Battle {
 		}
 		case '-block': {
 			let poke = this.getPokemon(args[1])!;
+			let ofpoke = this.getPokemon(kwArgs.of);
 			let effect = Dex.getEffect(args[2]);
-			this.activateAbility(poke, effect);
+			this.activateAbility(ofpoke || poke, effect);
 			switch (effect.id) {
 			case 'quickguard':
 				poke.addTurnstatus('quickguard' as ID);
