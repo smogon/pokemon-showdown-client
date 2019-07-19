@@ -137,15 +137,16 @@
 			} else {
 				var format = this.curFormat;
 				var self = this;
+				var prefix = this.curSearchVal && toID(this.curSearchVal);
 				this.$el.html('<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p></div>');
 				if (app.localLadder) {
-					app.send('/cmd laddertop ' + format + (this.curSearchVal ? ' ,' + this.curSearchVal : ''));
+					app.send('/cmd laddertop ' + format + (prefix ? ' ,' + prefix : ''));
 				} else {
 					$.get('/ladder.php', {
 						format: format,
 						server: Config.server.id.split(':')[0],
 						output: 'html',
-						prefix: this.curSearchVal
+						prefix: prefix
 					}, function (data) {
 						if (self.curFormat !== format) return;
 						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button>';
