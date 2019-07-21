@@ -47,7 +47,7 @@
 			'change select[name=ivspread]': 'ivSpreadChange',
 			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
-			'change .autoivs': 'autoIVsChange',
+			'change .autoivs': 'useAutoIVsChange',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -2074,7 +2074,7 @@
 
 					buf += '</select>';
 				}
-				buf += '<input type="checkbox" name="autoivs" checked> Automatic IVs'
+				buf += '<input type="checkbox" name="autoivs" chekced> Use automatic IVs'
 				buf += '</div>';
 				buf += '</div>';
 			} else {
@@ -2318,16 +2318,32 @@
 			this.save();
 			this.updateStatGraph();
 		},
-		autoIVsChange: function (e) {
-			if (!e.currentTarget.checked) {
-				// Was unchecked
-				// Explicitly encode as 31 / 31 / 31 ... etc
-				// assert(this.curSet.ivs === null)
-				// TODO
+		useAutoIVsChange: function (e) {
+			var set = this.curSet;
+			var newValue = e.currentTarget.checked;
+			if (newValue) {
+				set.ivs = {};
+				var autoIVs = this.getAutoIVs();
+				for (var stat in autoIVs) {
+					var iv = '' + autoIVs[stat];
+					this.$chart.find('input[name=iv-' + stat + ']').val(iv);
+				}
+				
+				this.save();
+				this.updateStatGraph();
 			} else {
-				// Was checked
-				// Reset all IVs to defaults, inferring from context
-				// TODO
+				if (!isEmpty(set.ivs)) return; // TODO: Should never happen
+
+				var autoIVs = this.getAutoIVs();
+				for (var stat in autoIVs) {
+					var iv = autoIVs[stat];
+					if (iv !== 31) {
+						set.ivs[stat] = iv;
+					}
+				}
+
+				this.save();
+				// We don't have to update the stat graph since we're not actually changing the IVs, just how they're stored
 			}
 		},
 
