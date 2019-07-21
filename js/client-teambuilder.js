@@ -2231,7 +2231,24 @@
 			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
 			var hpType;
 			if (this.curTeam.gen <= 2) {
-				// TODO: Old gens
+				var autoIVs = this.getAutoIVs();
+				var hpDV = Math.floor(autoIVs.hp / 2);
+				var atkDV = Math.floor(autoIVs.atk / 2);
+				var defDV = Math.floor(autoIVs.def / 2);
+				var speDV = Math.floor(autoIVs.spe / 2);
+				var spcDV = Math.floor(autoIVs.spa / 2);
+				hpType = hpTypes[4 * (atkDV % 4) + (defDV % 4)];
+
+				var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
+				if (expectedHpDV !== hpDV) {
+					var newHpIV = expectedHpDV * 2;
+					if (newHpIV === 30) {
+						delete set.ivs.hp;
+					} else {
+						set.ivs.hp = newHpIV;
+					}
+					this.$chart.find('input[name=iv-hp]').val(expectedHpDV);
+				}
 			} else {
 				var hpTypeX = 0;
 				var i = 1;
@@ -2904,20 +2921,17 @@
 			if (hpType) {
 				if (gen > 2) {
 					minValue = (exports.BattleTypeChart[hpType].HPivs[stat] || 31) % 2;
-				} else {
-					// TODO: Old gens
+					if (!canHyperTrain) {
+						// Must have matching parity for the correct Hidden Power type
+						maxValue = 30 + minValue;
+					}
+				} else if (stat === 'atk' || stat === 'def') { // Gen 2 only uses atk/def to calc HP type
+					minValue = ((exports.BattleTypeChart[hpType].HPdvs[stat] || 15) % 4) * 2; // Results in 0, 2, 4, or 6
+					maxValue = (minValue === 6 ? 31 : 24 + minValue);
 				}
 			}
 
-			// TODO: Old gens
-			if (hpType && !canHyperTrain) {
-				// Must have matching parity for the correct Hidden Power type
-				maxValue = 30 + minValue;
-			}
-
-			if (stat === 'hp') {
-				// TODO: Old gens
-			} else if (stat === 'atk') {
+			if (stat === 'atk') {
 				if (gen > 2) {
 					useMaxValue = false; // Default to 0 Atk IVs if we don't have a physical attacking move
 					for (var i = 0; i < moves.length; ++i) {
