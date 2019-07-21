@@ -2218,7 +2218,36 @@
 			this.save();
 		},
 		updateIVs: function () {
-			// TODO: What to do with this code
+			var set = this.curSet;
+			if (!set.moves || this.canHyperTrain(set)) return;
+			var hasHiddenPower = false;
+			for (var i = 0; i < set.moves.length; i++) {
+				if (toID(set.moves[i]).slice(0, 11) === 'hiddenpower') {
+					hasHiddenPower = true;
+					break;
+				}
+			}
+			if (!hasHiddenPower) return;
+			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
+			var hpType;
+			if (this.curTeam.gen <= 2) {
+				// TODO: Old gens
+			} else {
+				var hpTypeX = 0;
+				var i = 1;
+				var autoIVs = this.getAutoIVs();
+				for (var stat in autoIVs) {
+					hpTypeX += i * (autoIVs[stat] % 2);
+					i *= 2;
+				}
+				hpType = hpTypes[Math.floor(hpTypeX * 15 / 63)];
+			}
+			for (var i = 0; i < set.moves.length; i++) {
+				if (toID(set.moves[i]).slice(0, 11) === 'hiddenpower') {
+					set.moves[i] = "Hidden Power " + hpType;
+					if (i < 4) this.$('input[name=move' + (i + 1) + ']').val("Hidden Power " + hpType);
+				}
+			}
 		},
 		statSlide: function (e) {
 			var slider = e.currentTarget;
