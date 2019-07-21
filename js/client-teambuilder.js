@@ -2006,7 +2006,8 @@
 					case 'fighting':
 						hpIVs = ['001000', '110000', '100000']; break;
 					}
-					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread">';
+					buf += '<div style="display:inline-block;margin-left:-80px;text-align:right">';
+					buf += '<select name="ivspread">';
 					buf += '<option value="" selected>HP ' + hpType.charAt(0).toUpperCase() + hpType.slice(1) + ' IVs</option>';
 
 					var minStat = this.curTeam.gen >= 6 ? 0 : 2;
@@ -2052,9 +2053,10 @@
 					}
 					buf += '</optgroup>';
 
-					buf += '</select></div>';
+					buf += '</select>';
 				} else {
-					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread">';
+					buf += '<div style="display:inline-block;margin-left:-80px;text-align:right">';
+					buf += '<select name="ivspread">';
 					buf += '<option value="" selected>IV spreads</option>';
 
 					buf += '<optgroup label="min Atk">';
@@ -2070,8 +2072,10 @@
 					buf += '<option value="31/31/31/31/31/0">31/31/31/31/31/0</option>';
 					buf += '</optgroup>';
 
-					buf += '</select></div>';
+					buf += '</select>';
 				}
+				buf += '<input type="checkbox"> Automatic IVs'
+				buf += '</div>';
 				buf += '</div>';
 			} else {
 				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
