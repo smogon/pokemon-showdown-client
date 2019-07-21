@@ -2864,56 +2864,56 @@
 			if (!set) set = this.curSet;
 			if (set.ivs[stat] !== undefined) return set.ivs[stat];
 
-			var iv = 31;
+			var minValue = 0;
+			var maxValue = 31;
+			var useMaxValue = true;
 
 			var moves = set.moves;
 			var gen = this.curTeam.gen;
 			var hpType = this.getHPTypeFromMoves(moves);
-			if (hpType && !this.canHyperTrain(set)) {
+			var canHyperTrain = this.canHyperTrain(set);
+
+			if (hpType) {
 				if (gen > 2) {
-					iv = exports.BattleTypeChart[hpType].HPivs[stat];
+					minValue = (exports.BattleTypeChart[hpType].HPivs[stat] || 31) % 2;
 				} else {
-					iv = exports.BattleTypeChart[hpType].HPdvs[stat] * 2;
+					// TODO: Old gens
 				}
 			}
 
+			// TODO: Old gens
+			if (hpType && !canHyperTrain) {
+				maxValue = 30 + minValue;
+			}
+
 			if (stat === 'hp') {
-				// TODO: Gen 1/2 stuff
+				// TODO: Old gens
 			} else if (stat === 'atk') {
 				if (gen > 2) {
-					var minAtk = true;
+					useMaxValue = false; // Default to 0 Atk IVs if we don't have a physical attacking move
 					for (var i = 0; i < moves.length; ++i) {
 						if (!moves[i]) continue;
 						var move = Dex.forGen(gen).getMove(moves[i]);
 						if (move.category === 'Physical' &&
 							!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
-							minAtk = false;
+							useMaxValue = true;
 							break;
 						} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
-							minAtk = false;
+							useMaxValue = true;
 							break;
 						}
 					}
-
-					if (minAtk) {
-						iv = (hpType ? iv % 2 : 0);
-					}
 				}
 			} else if (stat === 'spe') {
-				var minSpe = false;
 				for (var i = 0; i < moves.length; ++i) {
 					if (moves[i] === 'Gyro Ball') {
-						minSpe = true;
+						useMaxValue = false;
 						break;
 					}
 				}
-
-				if (minSpe) {
-					iv = (hpType ? iv % 2 : 0);
-				}
 			}
 
-			return iv;
+			return useMaxValue ? maxValue : minValue;
 		},
 
 		getHPTypeFromMoves: function (moves) {
