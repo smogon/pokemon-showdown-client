@@ -2926,7 +2926,7 @@
 			}
 
 			if (stat === 'atk') {
-				if (gen > 2) {
+				if (gen > 2 && set.ability !== 'Battle Bond') { // Ash-Greninja is only available through an event with 31 Atk IVs
 					useMaxValue = false; // Default to 0 Atk IVs if we don't have a physical attacking move
 					for (var i = 0; i < moves.length; ++i) {
 						if (!moves[i]) continue;
