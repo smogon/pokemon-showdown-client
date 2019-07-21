@@ -2074,7 +2074,7 @@
 
 					buf += '</select>';
 				}
-				buf += '<input type="checkbox" name="autoivs" ' + (this.isEmpty(set.ivs) ? 'checked' : '') + '> Use automatic IVs';
+				buf += '<input type="checkbox" name="autoivs" ' + (Object.keys(set.ivs).length ? '' : 'checked') + '> Use automatic IVs';
 				buf += '</div>';
 				buf += '</div>';
 			} else {
@@ -2373,7 +2373,7 @@
 				// We are currently using the default IVs (and still will), but transcribe any
 				// non-31 default IVs into `ivs` so that they will be included in the export
 
-				if (!this.isEmpty(set.ivs)) return; // Should never happen
+				if (Object.keys(set.ivs).length !== 0) return; // Should never happen
 
 				var autoIVs = this.getAutoIVs();
 				for (var stat in autoIVs) {
@@ -2782,8 +2782,6 @@
 			} else if (moveName === 'Frustration') {
 				set.happiness = 0;
 			}
-
-			// TODO: Finish moving IV logic to getAutoIVs
 		},
 		setPokemon: function (val, selectNext) {
 			var set = this.curSet;
@@ -2955,11 +2953,6 @@
 			}
 
 			return '';
-		},
-
-		// TODO: This should be a static helper function elsewhere?
-		isEmpty: function (obj) {
-			return Object.keys(obj).length === 0;
 		},
 
 		// initialization
