@@ -1956,11 +1956,9 @@
 
 			if (this.curTeam.gen > 2) {
 				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
-				var displayIvs = Object.assign({}, set.ivs);
+				var autoIVs = this.getAutoIVs();
 				for (var i in stats) {
-					// TODO: 31 may not always be the appropriate IV
-					if (displayIvs[i] === undefined || isNaN(displayIvs[i])) displayIvs[i] = 31;
-					var val = '' + (displayIvs[i]);
+					var val = '' + (autoIVs[i]);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
 				}
 				var hpType = '';
@@ -2081,11 +2079,9 @@
 				buf += '</div>';
 			} else {
 				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
-				var displayIvs = Object.assign({}, set.ivs);
+				var autoIVs = this.getAutoIVs();
 				for (var i in stats) {
-					// TODO: 31 may not always be the appropriate IV
-					if (displayIvs[i] === undefined || isNaN(displayIvs[i])) displayIvs[i] = 31;
-					var val = '' + Math.floor(displayIvs[i] / 2);
+					var val = '' + Math.floor(autoIVs[i] / 2);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
 				}
 				buf += '</div>';
@@ -2200,8 +2196,13 @@
 				if (val > 31 || isNaN(val)) val = 31;
 				if (val < 0) val = 0;
 
-				if (set.ivs[stat] !== val) {
-					set.ivs[stat] = val;
+				var changed = set.ivs[stat] !== val && (val !== 31 || set.ivs[stat] !== undefined);
+				if (changed) {
+					if (val === 31) {
+						delete set.ivs[stat];
+					} else {
+						set.ivs[stat] = val;
+					}
 					this.updateIVs();
 					this.updateStatGraph();
 				}
@@ -2209,50 +2210,7 @@
 			this.save();
 		},
 		updateIVs: function () {
-			var set = this.curSet;
-			if (!set.moves || this.canHyperTrain(set)) return;
-			var hasHiddenPower = false;
-			for (var i = 0; i < set.moves.length; i++) {
-				if (toID(set.moves[i]).slice(0, 11) === 'hiddenpower') {
-					hasHiddenPower = true;
-					break;
-				}
-			}
-			if (!hasHiddenPower) return;
-			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
-			var hpType;
-			if (this.curTeam.gen <= 2) {
-				// TODO
-				var hpDV = Math.floor(set.ivs.hp / 2);
-				var atkDV = Math.floor(set.ivs.atk / 2);
-				var defDV = Math.floor(set.ivs.def / 2);
-				var speDV = Math.floor(set.ivs.spe / 2);
-				var spcDV = Math.floor(set.ivs.spa / 2);
-				hpType = hpTypes[4 * (atkDV % 4) + (defDV % 4)];
-				var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
-				if (expectedHpDV !== hpDV) {
-					set.ivs.hp = expectedHpDV * 2;
-					if (set.ivs.hp === 30) set.ivs.hp = 31;
-					this.$chart.find('input[name=iv-hp]').val(expectedHpDV);
-				}
-			} else {
-				var hpTypeX = 0;
-				var i = 1;
-				var stats = {hp: 31, atk: 31, def: 31, spe: 31, spa: 31, spd: 31};
-				for (var s in stats) {
-					// TODO
-					if (set.ivs[s] === undefined) set.ivs[s] = 31;
-					hpTypeX += i * (set.ivs[s] % 2);
-					i *= 2;
-				}
-				hpType = hpTypes[Math.floor(hpTypeX * 15 / 63)];
-			}
-			for (var i = 0; i < set.moves.length; i++) {
-				if (toID(set.moves[i]).slice(0, 11) === 'hiddenpower') {
-					set.moves[i] = "Hidden Power " + hpType;
-					if (i < 4) this.$('input[name=move' + (i + 1) + ']').val("Hidden Power " + hpType);
-				}
-			}
+			// TODO: The logic that was here should be moved to getAutoIV
 		},
 		statSlide: function (e) {
 			var slider = e.currentTarget;
@@ -2349,7 +2307,11 @@
 			for (var i = 0; i < 6; i++) {
 				this.$chart.find('input[name=iv-' + stats[i] + ']').val(spread[i]);
 				var iv = parseInt(spread[i], 10);
-				if (iv !== 31) set.ivs[stats[i]] = iv;
+				if (iv === 31) {
+					delete set.ivs[stats[i]];
+				} else {
+					set.ivs[stats[i]] = iv;
+				}
 			}
 			$(e.currentTarget).val('');
 
@@ -2767,87 +2729,15 @@
 			return false;
 		},
 		chooseMove: function (moveName, resetSpeed) {
+			// TODO: resetSpeed isn't being used anymore
 			var set = this.curSet;
-			if (!set) return;
-			var gen = this.curTeam.gen;
-
-			var minSpe;
-			if (resetSpeed) minSpe = false;
-			if (moveName.substr(0, 13) === 'Hidden Power ') {
-				if (!this.canHyperTrain(set)) {
-					var hpType = moveName.substr(13);
-
-					// TODO: IV-changing logic should be decided lazily
-					set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
-					if (this.curTeam.gen > 2) {
-						for (var i in exports.BattleTypeChart[hpType].HPivs) {
-							set.ivs[i] = exports.BattleTypeChart[hpType].HPivs[i];
-						}
-					} else {
-						for (var i in exports.BattleTypeChart[hpType].HPdvs) {
-							set.ivs[i] = exports.BattleTypeChart[hpType].HPdvs[i] * 2;
-						}
-						var atkDV = Math.floor(set.ivs.atk / 2);
-						var defDV = Math.floor(set.ivs.def / 2);
-						var speDV = Math.floor(set.ivs.spe / 2);
-						var spcDV = Math.floor(set.ivs.spa / 2);
-						var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
-						set.ivs.hp = expectedHpDV * 2;
-						if (set.ivs.hp === 30) set.ivs.hp = 31;
-					}
-				}
-			} else if (moveName === 'Return') {
-				this.curSet.happiness = 255;
+			if (moveName === 'Return') {
+				set.happiness = 255;
 			} else if (moveName === 'Frustration') {
-				this.curSet.happiness = 0;
-			} else if (moveName === 'Gyro Ball') {
-				minSpe = true;
+				set.happiness = 0;
 			}
 
-			if (this.curTeam.format === 'gen7hiddentype') return;
-
-			var minAtk = true;
-			if (set.ability === 'Battle Bond') minAtk = false; // only available through an event with 31 Atk IVs
-			var hpModulo = (this.curTeam.gen >= 6 ? 2 : 4);
-			var hasHiddenPower = false;
-			var moves = set.moves;
-			for (var i = 0; i < moves.length; ++i) {
-				if (!moves[i]) continue;
-				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
-				var move = Dex.forGen(this.curTeam.gen).getMove(moves[i]);
-				if (move.category === 'Physical' &&
-						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
-					minAtk = false;
-				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
-					minAtk = false;
-				}
-				if (minSpe === false && moveName === 'Gyro Ball') {
-					minSpe = undefined;
-				}
-			}
-
-			// TODO: IV-changing logic should be decided lazily
-			if (!set.ivs) {
-				if (minSpe === undefined && (!minAtk || gen < 3)) return;
-				set.ivs = {};
-			}
-			if (!set.ivs['spe'] && set.ivs['spe'] !== 0) set.ivs['spe'] = 31;
-			if (minSpe) {
-				// min Spe
-				set.ivs['spe'] = (hasHiddenPower ? set.ivs['spe'] % hpModulo : 0);
-			} else if (minSpe === false) {
-				// max Spe
-				set.ivs['spe'] = (hasHiddenPower ? 30 + (set.ivs['spe'] % 2) : 31);
-			}
-			if (gen < 3) return;
-			if (!set.ivs['atk'] && set.ivs['atk'] !== 0) set.ivs['atk'] = 31;
-			if (minAtk) {
-				// min Atk
-				set.ivs['atk'] = (hasHiddenPower ? set.ivs['atk'] % hpModulo : 0);
-			} else {
-				// max Atk
-				set.ivs['atk'] = (hasHiddenPower ? 30 + (set.ivs['atk'] % 2) : 31);
-			}
+			// TODO: IV logic should be moved to getAutoIVs
 		},
 		setPokemon: function (val, selectNext) {
 			var set = this.curSet;
@@ -2903,7 +2793,6 @@
 			var supportsAVs = !supportsEVs;
 			if (!set) set = this.curSet;
 			if (!set) return 0;
-
 			if (!set.evs) set.evs = {};
 
 			// do this after setting set.evs because it's assumed to exist
@@ -2912,12 +2801,10 @@
 			if (!template.exists) return 0;
 
 			if (!set.level) set.level = 100;
-			// TODO
-			if (set.ivs[stat] === undefined) set.ivs[stat] = 31;
 
 			var baseStat = (this.getBaseStats(template))[stat];
 			// TODO
-			var iv = set.ivs[stat];
+			var iv = this.getAutoIV(stat);
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
 			if (evOverride !== undefined) ev = evOverride;
@@ -2944,6 +2831,26 @@
 				val = Math.floor(val) * friendshipValue / 100 + (supportsAVs ? ev : 0);
 			}
 			return Math.floor(val);
+		},
+
+		getAutoIVs: function () {
+			return {
+				hp: this.getAutoIV('hp'),
+				atk: this.getAutoIV('atk'),
+				def: this.getAutoIV('def'),
+				spa: this.getAutoIV('spa'),
+				spd: this.getAutoIV('spd'),
+				spe: this.getAutoIV('spe')
+			};
+		},
+
+		getAutoIV: function (stat) {
+			var set = this.curSet;
+			if (set.ivs[stat] !== undefined) return set.ivs[stat];
+
+			// TODO
+
+			return 31;
 		},
 
 		// initialization
