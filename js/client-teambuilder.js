@@ -2074,7 +2074,7 @@
 
 					buf += '</select>';
 				}
-				buf += '<input type="checkbox" name="autoivs" chekced> Use automatic IVs'
+				buf += '<input type="checkbox" name="autoivs" ' + (isEmpty(set.ivs) ? 'checked' : '') + '> Use automatic IVs';
 				buf += '</div>';
 				buf += '</div>';
 			} else {
@@ -2206,6 +2206,7 @@
 					this.updateIVs();
 					this.updateStatGraph();
 				}
+				$(".autoivs").prop("checked", false);
 			}
 			this.save();
 		},
@@ -2328,7 +2329,7 @@
 					var iv = '' + autoIVs[stat];
 					this.$chart.find('input[name=iv-' + stat + ']').val(iv);
 				}
-				
+
 				this.save();
 				this.updateStatGraph();
 			} else {

@@ -1172,7 +1172,7 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 5) === 'IVs: ') {
 			line = line.substr(5);
 			var ivLines = line.split(' / ');
-			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+			curSet.ivs = {};
 			for (var j = 0; j < ivLines.length; j++) {
 				var ivLine = ivLines[j];
 				var spaceIndex = ivLine.indexOf(' ');
@@ -1181,6 +1181,8 @@ Storage.importTeam = function (buffer, teams) {
 				var statval = parseInt(ivLine.substr(0, spaceIndex), 10);
 				if (!statid) continue;
 				if (isNaN(statval)) statval = 31;
+				// NOTE: We intentionally do not check for 31 here, so if "31 HP" is explicitly given
+				// that will be reflected if this Pokemon is exported later
 				curSet.ivs[statid] = statval;
 			}
 		} else if (line.match(/^[A-Za-z]+ (N|n)ature/)) {
@@ -1193,22 +1195,13 @@ Storage.importTeam = function (buffer, teams) {
 			line = line.substr(1);
 			if (line.substr(0, 1) === ' ') line = line.substr(1);
 			if (!curSet.moves) curSet.moves = [];
-			if (line.substr(0, 14) === 'Hidden Power [') {
-				var hptype = line.substr(14, line.length - 15);
-				line = 'Hidden Power ' + hptype;
-				if (!curSet.ivs && window.BattleTypeChart && window.BattleTypeChart[hptype]) {
-					curSet.ivs = {};
-					for (var stat in window.BattleTypeChart[hptype].HPivs) {
-						curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
-					}
-				}
-			}
 			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
 			}
 			curSet.moves.push(line);
 		}
 	}
+	if (!curSet.ivs) curSet.ivs = {};
 	if (teams && teams.length && typeof teams[teams.length - 1].team !== 'string') {
 		teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
 	}
@@ -1268,78 +1261,54 @@ Storage.exportTeam = function (team) {
 		if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
 			text += 'Happiness: ' + curSet.happiness + "  \n";
 		}
-		var first = true;
+
+		var firstEV = true;
 		if (curSet.evs) {
 			for (var j in BattleStatNames) {
 				if (!curSet.evs[j]) continue;
-				if (first) {
+				if (firstEV) {
 					text += 'EVs: ';
-					first = false;
+					firstEV = false;
 				} else {
 					text += ' / ';
 				}
 				text += '' + curSet.evs[j] + ' ' + BattleStatNames[j];
 			}
 		}
-		if (!first) {
+		if (!firstEV) {
 			text += "  \n";
 		}
 		if (curSet.nature) {
 			text += '' + curSet.nature + ' Nature' + "  \n";
 		}
-		var first = true;
-		if (curSet.ivs) {
-			var defaultIvs = true;
-			var hpType = false;
-			for (var j = 0; j < curSet.moves.length; j++) {
-				var move = curSet.moves[j];
-				if (move.substr(0, 13) === 'Hidden Power ' && move.substr(0, 14) !== 'Hidden Power [') {
-					hpType = move.substr(13);
-					if (!exports.BattleTypeChart[hpType].HPivs) {
-						alert("That is not a valid Hidden Power type.");
-						continue;
-					}
-					for (var stat in BattleStatNames) {
-						if ((curSet.ivs[stat] === undefined ? 31 : curSet.ivs[stat]) !== (exports.BattleTypeChart[hpType].HPivs[stat] || 31)) {
-							defaultIvs = false;
-							break;
-						}
-					}
-				}
+
+		var firstIV = true;
+		for (var j in BattleStatNames) {
+			if (curSet.ivs[j] === undefined) continue;
+			if (firstIV) {
+				text += 'IVs: ';
+				firstIV = false;
+			} else {
+				text += ' / ';
 			}
-			if (defaultIvs && !hpType) {
-				for (var stat in BattleStatNames) {
-					if (curSet.ivs[stat] !== 31 && curSet.ivs[stat] !== undefined) {
-						defaultIvs = false;
-						break;
-					}
-				}
-			}
-			if (!defaultIvs) {
-				for (var stat in BattleStatNames) {
-					if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] == 31) continue;
-					if (first) {
-						text += 'IVs: ';
-						first = false;
-					} else {
-						text += ' / ';
-					}
-					text += '' + curSet.ivs[stat] + ' ' + BattleStatNames[stat];
-				}
-			}
+			text += '' + curSet.ivs[j] + ' ' + BattleStatNames[j];
 		}
-		if (!first) {
+		if (!firstIV) {
 			text += "  \n";
 		}
-		if (curSet.moves) for (var j = 0; j < curSet.moves.length; j++) {
-			var move = curSet.moves[j];
-			if (move.substr(0, 13) === 'Hidden Power ') {
-				move = move.substr(0, 13) + '[' + move.substr(13) + ']';
-			}
-			if (move) {
-				text += '- ' + move + "  \n";
+
+		if (curSet.moves) {
+			for (var j = 0; j < curSet.moves.length; j++) {
+				var move = curSet.moves[j];
+				if (move.substr(0, 13) === 'Hidden Power ') {
+					move = move.substr(0, 13) + '[' + move.substr(13) + ']';
+				}
+				if (move) {
+					text += '- ' + move + "  \n";
+				}
 			}
 		}
+
 		text += "\n";
 	}
 	return text;
