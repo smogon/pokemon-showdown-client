@@ -47,6 +47,7 @@
 			'change select[name=ivspread]': 'ivSpreadChange',
 			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
+			'change .autoivs': 'autoIVsChange',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -2074,7 +2075,7 @@
 
 					buf += '</select>';
 				}
-				buf += '<input type="checkbox"> Automatic IVs'
+				buf += '<input type="checkbox" name="autoivs" checked> Automatic IVs'
 				buf += '</div>';
 				buf += '</div>';
 			} else {
@@ -2351,6 +2352,18 @@
 
 			this.save();
 			this.updateStatGraph();
+		},
+		autoIVsChange: function (e) {
+			if (!e.currentTarget.checked) {
+				// Was unchecked
+				// Explicitly encode as 31 / 31 / 31 ... etc
+				// assert(this.curSet.ivs === null)
+				// TODO
+			} else {
+				// Was checked
+				// Reset all IVs to defaults, inferring from context
+				// TODO
+			}
 		},
 
 		/*********************************************************
