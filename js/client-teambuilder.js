@@ -2199,6 +2199,13 @@
 				var changed = set.ivs[stat] !== val && (val !== 31 || set.ivs[stat] !== undefined);
 				if (changed) {
 					if (val === 31) {
+						// We don't store 31 IVs in the `ivs` structure so that it won't show up in the export.
+						// If the user accidentally adjusts the HP IV and readjusts it to 31, there is no reason to
+						// add "IVs: 31 HP" to the export.
+						// The only way we will export an explicit 31 IVs in a stat is if the user imported the set
+						// from text with "IVs: 31 <stat>" in the first place, as we don't check for 31 in importTeam.
+						// They may want to do this if (for example) they wanted to give a Pokemon w/ Gyro Ball max
+						// speed IVs for some reason. But this doesn't represent the majority use case.
 						delete set.ivs[stat];
 					} else {
 						set.ivs[stat] = val;
@@ -2323,6 +2330,7 @@
 			var set = this.curSet;
 			var newValue = e.currentTarget.checked;
 			if (newValue) {
+				// Reset the IVs to their defaults
 				set.ivs = {};
 				var autoIVs = this.getAutoIVs();
 				for (var stat in autoIVs) {
@@ -2333,18 +2341,20 @@
 				this.save();
 				this.updateStatGraph();
 			} else {
-				if (!this.isEmpty(set.ivs)) return; // TODO: Should never happen
+				// We are currently using the default IVs (and still will), but transcribe any
+				// non-31 default IVs into `ivs` so that they will be included in the export
+
+				if (!this.isEmpty(set.ivs)) return; // Should never happen
 
 				var autoIVs = this.getAutoIVs();
 				for (var stat in autoIVs) {
 					var iv = autoIVs[stat];
-					if (iv !== 31) {
-						set.ivs[stat] = iv;
-					}
+					if (iv !== 31) set.ivs[stat] = iv;
 				}
 
 				this.save();
-				// We don't have to update the stat graph since we're not actually changing the IVs, just how they're stored
+				// We don't have to update the stat graph here since we're not actually
+				// changing the IVs, just how they're stored
 			}
 		},
 
@@ -2732,8 +2742,7 @@
 			this.save();
 		},
 		unChooseMove: function (moveName) {
-			// TODO: Before we were undoing any IV changes we made in the process of choosing Hidden Power / Gyro Ball,
-			// but we don't make such changes anymore. So now, we don't have to do anything here.
+			// TODO: Delete this and usage sites
 		},
 		canHyperTrain: function (set) {
 			if (this.curTeam.gen < 7 || this.curTeam.format === 'gen7hiddentype') return false;
@@ -2745,8 +2754,7 @@
 			}
 			return false;
 		},
-		chooseMove: function (moveName, resetSpeed) {
-			// TODO: resetSpeed isn't being used anymore
+		chooseMove: function (moveName) {
 			var set = this.curSet;
 			if (moveName === 'Return') {
 				set.happiness = 255;
@@ -2754,7 +2762,7 @@
 				set.happiness = 0;
 			}
 
-			// TODO: IV logic should be moved to getAutoIVs
+			// TODO: Finish moving IV logic to getAutoIVs
 		},
 		setPokemon: function (val, selectNext) {
 			var set = this.curSet;
@@ -2864,13 +2872,14 @@
 			if (!set) set = this.curSet;
 			if (set.ivs[stat] !== undefined) return set.ivs[stat];
 
+			// The user didn't specify an IV for this stat, so infer it from context
 			var minValue = 0;
 			var maxValue = 31;
 			var useMaxValue = true;
 
 			var moves = set.moves;
 			var gen = this.curTeam.gen;
-			var hpType = this.getHPTypeFromMoves(moves);
+			var hpType = this.getDesiredHPType(moves);
 			var canHyperTrain = this.canHyperTrain(set);
 
 			if (hpType) {
@@ -2883,6 +2892,7 @@
 
 			// TODO: Old gens
 			if (hpType && !canHyperTrain) {
+				// Must have matching parity for the correct Hidden Power type
 				maxValue = 30 + minValue;
 			}
 
@@ -2916,7 +2926,7 @@
 			return useMaxValue ? maxValue : minValue;
 		},
 
-		getHPTypeFromMoves: function (moves) {
+		getDesiredHPType: function (moves) {
 			for (var i = 0; i < moves.length; ++i) {
 				if (moves[i] && moves[i].substr(0, 13) === 'Hidden Power ') {
 					return moves[i].substr(13);
@@ -2926,7 +2936,7 @@
 			return '';
 		},
 
-		// TODO: This should be a static helper function
+		// TODO: This should be a static helper function elsewhere?
 		isEmpty: function (obj) {
 			return Object.keys(obj).length === 0;
 		},

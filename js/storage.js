@@ -850,6 +850,8 @@ Storage.fastUnpackTeam = function (buf) {
 				spd: ivs[4] === '' ? 31 : Number(ivs[4]),
 				spe: ivs[5] === '' ? 31 : Number(ivs[5])
 			};
+		} else {
+			set.ivs = {};
 		}
 		i = j + 1;
 
@@ -1183,8 +1185,8 @@ Storage.importTeam = function (buffer, teams) {
 				var statval = parseInt(ivLine.substr(0, spaceIndex), 10);
 				if (!statid) continue;
 				if (isNaN(statval)) statval = 31;
-				// NOTE: We intentionally do not check for 31 here, so if "31 HP" is explicitly given
-				// that will be reflected if this Pokemon is exported later
+				// We intentionally do not check for 31 here. If "31 HP" is explicitly specified,
+				// that will be reflected if the user tries to export the Pokemon later.
 				curSet.ivs[statid] = statval;
 			}
 		} else if (line.match(/^[A-Za-z]+ (N|n)ature/)) {
