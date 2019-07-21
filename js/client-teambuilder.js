@@ -2084,6 +2084,9 @@
 					var val = '' + Math.floor(autoIVs[i] / 2);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
 				}
+				buf += '<div style="display:inline-block;margin-left:-80px;text-align:right">';
+				buf += '<input type="checkbox" name="autoivs" ' + (Object.keys(set.ivs).length ? '' : 'checked') + '> Use automatic DVs';
+				buf += '</div>';
 				buf += '</div>';
 			}
 
@@ -2232,23 +2235,9 @@
 			var hpType;
 			if (this.curTeam.gen <= 2) {
 				var autoIVs = this.getAutoIVs();
-				var hpDV = Math.floor(autoIVs.hp / 2);
 				var atkDV = Math.floor(autoIVs.atk / 2);
 				var defDV = Math.floor(autoIVs.def / 2);
-				var speDV = Math.floor(autoIVs.spe / 2);
-				var spcDV = Math.floor(autoIVs.spa / 2);
 				hpType = hpTypes[4 * (atkDV % 4) + (defDV % 4)];
-
-				var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
-				if (expectedHpDV !== hpDV) {
-					var newHpIV = expectedHpDV * 2;
-					if (newHpIV === 30) {
-						delete set.ivs.hp;
-					} else {
-						set.ivs.hp = newHpIV;
-					}
-					this.$chart.find('input[name=iv-hp]').val(expectedHpDV);
-				}
 			} else {
 				var hpTypeX = 0;
 				var i = 1;
@@ -2380,8 +2369,13 @@
 				set.ivs = {};
 				var autoIVs = this.getAutoIVs();
 				for (var stat in autoIVs) {
-					var iv = '' + autoIVs[stat];
-					this.$chart.find('input[name=iv-' + stat + ']').val(iv);
+					if (this.curTeam.gen > 2) {
+						var iv = '' + autoIVs[stat];
+						this.$chart.find('input[name=iv-' + stat + ']').val(iv);
+					} else {
+						var dv = '' + Math.floor(autoIVs[stat] / 2);
+						this.$chart.find('input[name=iv-' + stat + ']').val(dv);
+					}
 				}
 
 				this.save();
