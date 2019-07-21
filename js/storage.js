@@ -840,18 +840,15 @@ Storage.fastUnpackTeam = function (buf) {
 
 		// ivs
 		j = buf.indexOf('|', i);
+		set.ivs = {};
 		if (j !== i) {
 			var ivs = buf.substring(i, j).split(',');
-			set.ivs = {
-				hp: ivs[0] === '' ? 31 : Number(ivs[0]),
-				atk: ivs[1] === '' ? 31 : Number(ivs[1]),
-				def: ivs[2] === '' ? 31 : Number(ivs[2]),
-				spa: ivs[3] === '' ? 31 : Number(ivs[3]),
-				spd: ivs[4] === '' ? 31 : Number(ivs[4]),
-				spe: ivs[5] === '' ? 31 : Number(ivs[5])
-			};
-		} else {
-			set.ivs = {};
+			if (ivs[0] !== '') set.ivs.hp = Number(ivs[0]);
+			if (ivs[1] !== '') set.ivs.atk = Number(ivs[1]);
+			if (ivs[2] !== '') set.ivs.def = Number(ivs[2]);
+			if (ivs[3] !== '') set.ivs.spa = Number(ivs[3]);
+			if (ivs[4] !== '') set.ivs.spd = Number(ivs[4]);
+			if (ivs[5] !== '') set.ivs.spe = Number(ivs[5]);
 		}
 		i = j + 1;
 
@@ -957,18 +954,15 @@ Storage.unpackTeam = function (buf) {
 
 		// ivs
 		j = buf.indexOf('|', i);
+		set.ivs = {};
 		if (j !== i) {
 			var ivs = buf.substring(i, j).split(',');
-			set.ivs = {
-				hp: ivs[0] === '' ? 31 : Number(ivs[0]),
-				atk: ivs[1] === '' ? 31 : Number(ivs[1]),
-				def: ivs[2] === '' ? 31 : Number(ivs[2]),
-				spa: ivs[3] === '' ? 31 : Number(ivs[3]),
-				spd: ivs[4] === '' ? 31 : Number(ivs[4]),
-				spe: ivs[5] === '' ? 31 : Number(ivs[5])
-			};
-		} else {
-			set.ivs = {};
+			if (ivs[0] !== '') set.ivs.hp = Number(ivs[0]);
+			if (ivs[1] !== '') set.ivs.atk = Number(ivs[1]);
+			if (ivs[2] !== '') set.ivs.def = Number(ivs[2]);
+			if (ivs[3] !== '') set.ivs.spa = Number(ivs[3]);
+			if (ivs[4] !== '') set.ivs.spd = Number(ivs[4]);
+			if (ivs[5] !== '') set.ivs.spe = Number(ivs[5]);
 		}
 		i = j + 1;
 
@@ -1209,7 +1203,7 @@ Storage.importTeam = function (buffer, teams) {
 			curSet.moves.push(line);
 		}
 	}
-	if (!curSet.ivs) curSet.ivs = {};
+	if (curSet && !curSet.ivs) curSet.ivs = {};
 	if (teams && teams.length && typeof teams[teams.length - 1].team !== 'string') {
 		teams[teams.length - 1].team = Storage.packTeam(teams[teams.length - 1].team);
 	}
