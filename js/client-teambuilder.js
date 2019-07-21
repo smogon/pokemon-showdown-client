@@ -1956,10 +1956,11 @@
 
 			if (this.curTeam.gen > 2) {
 				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
-				if (!set.ivs) set.ivs = {};
+				var displayIvs = Object.assign({}, set.ivs);
 				for (var i in stats) {
-					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
-					var val = '' + (set.ivs[i]);
+					// TODO: 31 may not always be the appropriate IV
+					if (displayIvs[i] === undefined || isNaN(displayIvs[i])) displayIvs[i] = 31;
+					var val = '' + (displayIvs[i]);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
 				}
 				var hpType = '';
@@ -2080,10 +2081,11 @@
 				buf += '</div>';
 			} else {
 				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
-				if (!set.ivs) set.ivs = {};
+				var displayIvs = Object.assign({}, set.ivs);
 				for (var i in stats) {
-					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
-					var val = '' + Math.floor(set.ivs[i] / 2);
+					// TODO: 31 may not always be the appropriate IV
+					if (displayIvs[i] === undefined || isNaN(displayIvs[i])) displayIvs[i] = 31;
+					var val = '' + Math.floor(displayIvs[i] / 2);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
 				}
 				buf += '</div>';
@@ -2198,7 +2200,6 @@
 				if (val > 31 || isNaN(val)) val = 31;
 				if (val < 0) val = 0;
 
-				if (!set.ivs) set.ivs = {};
 				if (set.ivs[stat] !== val) {
 					set.ivs[stat] = val;
 					this.updateIVs();
@@ -2221,6 +2222,7 @@
 			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
 			var hpType;
 			if (this.curTeam.gen <= 2) {
+				// TODO
 				var hpDV = Math.floor(set.ivs.hp / 2);
 				var atkDV = Math.floor(set.ivs.atk / 2);
 				var defDV = Math.floor(set.ivs.def / 2);
@@ -2238,6 +2240,7 @@
 				var i = 1;
 				var stats = {hp: 31, atk: 31, def: 31, spe: 31, spa: 31, spd: 31};
 				for (var s in stats) {
+					// TODO
 					if (set.ivs[s] === undefined) set.ivs[s] = 31;
 					hpTypeX += i * (set.ivs[s] % 2);
 					i *= 2;
@@ -2340,13 +2343,13 @@
 			if (!set) return;
 
 			var spread = e.currentTarget.value.split('/');
-			if (!set.ivs) set.ivs = {};
 			if (spread.length !== 6) return;
 
 			var stats = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 			for (var i = 0; i < 6; i++) {
 				this.$chart.find('input[name=iv-' + stats[i] + ']').val(spread[i]);
-				set.ivs[stats[i]] = parseInt(spread[i], 10);
+				var iv = parseInt(spread[i], 10);
+				if (iv !== 31) set.ivs[stats[i]] = iv;
 			}
 			$(e.currentTarget).val('');
 
@@ -2750,21 +2753,8 @@
 			this.save();
 		},
 		unChooseMove: function (moveName) {
-			var set = this.curSet;
-			if (!moveName || !set || this.curTeam.format === 'gen7hiddentype') return;
-			if (moveName.substr(0, 13) === 'Hidden Power ') {
-				if (set.ivs) {
-					for (var i in set.ivs) {
-						if (set.ivs[i] === 30) set.ivs[i] = 31;
-						if (set.ivs[i] <= 3) set.ivs[i] = 0;
-					}
-				}
-			}
-			var resetSpeed = false;
-			if (moveName === 'Gyro Ball') {
-				resetSpeed = true;
-			}
-			this.chooseMove('', resetSpeed);
+			// Before we were undoing any IV changes we made in the process of choosing Hidden Power / Gyro Ball, however now, we don't make any such changes.
+			// So now, we don't have to do anything here.
 		},
 		canHyperTrain: function (set) {
 			if (this.curTeam.gen < 7 || this.curTeam.format === 'gen7hiddentype') return false;
@@ -2787,6 +2777,7 @@
 				if (!this.canHyperTrain(set)) {
 					var hpType = moveName.substr(13);
 
+					// TODO: IV-changing logic should be decided lazily
 					set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
 					if (this.curTeam.gen > 2) {
 						for (var i in exports.BattleTypeChart[hpType].HPivs) {
@@ -2835,6 +2826,7 @@
 				}
 			}
 
+			// TODO: IV-changing logic should be decided lazily
 			if (!set.ivs) {
 				if (minSpe === undefined && (!minAtk || gen < 3)) return;
 				set.ivs = {};
@@ -2912,14 +2904,6 @@
 			if (!set) set = this.curSet;
 			if (!set) return 0;
 
-			if (!set.ivs) set.ivs = {
-				hp: 31,
-				atk: 31,
-				def: 31,
-				spa: 31,
-				spd: 31,
-				spe: 31
-			};
 			if (!set.evs) set.evs = {};
 
 			// do this after setting set.evs because it's assumed to exist
@@ -2928,10 +2912,12 @@
 			if (!template.exists) return 0;
 
 			if (!set.level) set.level = 100;
-			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
+			// TODO
+			if (set.ivs[stat] === undefined) set.ivs[stat] = 31;
 
 			var baseStat = (this.getBaseStats(template))[stat];
-			var iv = (set.ivs[stat] || 0);
+			// TODO
+			var iv = set.ivs[stat];
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
 			if (evOverride !== undefined) ev = evOverride;
