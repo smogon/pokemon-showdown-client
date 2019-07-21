@@ -2074,7 +2074,7 @@
 
 					buf += '</select>';
 				}
-				buf += '<input type="checkbox" name="autoivs" ' + (isEmpty(set.ivs) ? 'checked' : '') + '> Use automatic IVs';
+				buf += '<input type="checkbox" name="autoivs" ' + (this.isEmpty(set.ivs) ? 'checked' : '') + '> Use automatic IVs';
 				buf += '</div>';
 				buf += '</div>';
 			} else {
@@ -2206,7 +2206,7 @@
 					this.updateIVs();
 					this.updateStatGraph();
 				}
-				$(".autoivs").prop("checked", false);
+				$("input[name=autoivs]").prop("checked", false);
 			}
 			this.save();
 		},
@@ -2333,7 +2333,7 @@
 				this.save();
 				this.updateStatGraph();
 			} else {
-				if (!isEmpty(set.ivs)) return; // TODO: Should never happen
+				if (!this.isEmpty(set.ivs)) return; // TODO: Should never happen
 
 				var autoIVs = this.getAutoIVs();
 				for (var stat in autoIVs) {
@@ -2820,8 +2820,7 @@
 			if (!set.level) set.level = 100;
 
 			var baseStat = (this.getBaseStats(template))[stat];
-			// TODO
-			var iv = this.getAutoIV(stat);
+			var iv = this.getAutoIV(stat, set);
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
 			if (evOverride !== undefined) ev = evOverride;
@@ -2850,24 +2849,29 @@
 			return Math.floor(val);
 		},
 
-		getAutoIVs: function () {
+		getAutoIVs: function (set) {
 			return {
-				hp: this.getAutoIV('hp'),
-				atk: this.getAutoIV('atk'),
-				def: this.getAutoIV('def'),
-				spa: this.getAutoIV('spa'),
-				spd: this.getAutoIV('spd'),
-				spe: this.getAutoIV('spe')
+				hp: this.getAutoIV('hp', set),
+				atk: this.getAutoIV('atk', set),
+				def: this.getAutoIV('def', set),
+				spa: this.getAutoIV('spa', set),
+				spd: this.getAutoIV('spd', set),
+				spe: this.getAutoIV('spe', set)
 			};
 		},
 
-		getAutoIV: function (stat) {
-			var set = this.curSet;
+		getAutoIV: function (stat, set) {
+			if (!set) set = this.curSet;
 			if (set.ivs[stat] !== undefined) return set.ivs[stat];
 
 			// TODO
 
 			return 31;
+		},
+
+		// TODO: This should be a static helper function
+		isEmpty: function (obj) {
+			return Object.keys(obj).length === 0;
 		},
 
 		// initialization
