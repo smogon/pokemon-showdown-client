@@ -2502,7 +2502,6 @@
 					var $inputEl = this.$('input[name=move' + i + ']');
 					var curVal = $inputEl.val();
 					if (curVal === val) {
-						this.unChooseMove(curVal);
 						$inputEl.val('');
 						delete this.search.cur[toID(val)];
 					} else if (curVal) {
@@ -2706,14 +2705,12 @@
 				if (selectNext) this.$('input[name=move1]').select();
 				break;
 			case 'move1':
-				this.unChooseMove(this.curSet.moves[0]);
 				this.curSet.moves[0] = val;
 				this.chooseMove(val);
 				if (selectNext) this.$('input[name=move2]').select();
 				break;
 			case 'move2':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
-				this.unChooseMove(this.curSet.moves[1]);
 				this.curSet.moves[1] = val;
 				this.chooseMove(val);
 				if (selectNext) this.$('input[name=move3]').select();
@@ -2721,7 +2718,6 @@
 			case 'move3':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
 				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
-				this.unChooseMove(this.curSet.moves[2]);
 				this.curSet.moves[2] = val;
 				this.chooseMove(val);
 				if (selectNext) this.$('input[name=move4]').select();
@@ -2730,7 +2726,6 @@
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
 				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
 				if (!this.curSet.moves[2]) this.curSet.moves[2] = '';
-				this.unChooseMove(this.curSet.moves[3]);
 				this.curSet.moves[3] = val;
 				this.chooseMove(val);
 				if (selectNext) {
@@ -2740,9 +2735,6 @@
 				break;
 			}
 			this.save();
-		},
-		unChooseMove: function (moveName) {
-			// TODO: Delete this and usage sites
 		},
 		canHyperTrain: function (set) {
 			if (this.curTeam.gen < 7 || this.curTeam.format === 'gen7hiddentype') return false;
