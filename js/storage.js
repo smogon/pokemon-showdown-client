@@ -965,6 +965,8 @@ Storage.unpackTeam = function (buf) {
 				spd: ivs[4] === '' ? 31 : Number(ivs[4]),
 				spe: ivs[5] === '' ? 31 : Number(ivs[5])
 			};
+		} else {
+			set.ivs = {};
 		}
 		i = j + 1;
 
@@ -1195,6 +1197,10 @@ Storage.importTeam = function (buffer, teams) {
 			line = line.substr(1);
 			if (line.substr(0, 1) === ' ') line = line.substr(1);
 			if (!curSet.moves) curSet.moves = [];
+			if (line.substr(0, 14) === 'Hidden Power [') {
+				var hptype = line.substr(14, line.length - 15);
+				line = 'Hidden Power ' + hptype;
+			}
 			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
 			}

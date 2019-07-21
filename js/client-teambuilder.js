@@ -47,7 +47,7 @@
 			'change select[name=ivspread]': 'ivSpreadChange',
 			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
-			'change .autoivs': 'useAutoIVsChange',
+			'change input[name=autoivs]': 'useAutoIVsChange',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -2211,7 +2211,7 @@
 			this.save();
 		},
 		updateIVs: function () {
-			// TODO: The logic that was here should be moved to getAutoIV
+			// TODO: What to do with this code
 		},
 		statSlide: function (e) {
 			var slider = e.currentTarget;
@@ -2732,8 +2732,8 @@
 			this.save();
 		},
 		unChooseMove: function (moveName) {
-			// Before we were undoing any IV changes we made in the process of choosing Hidden Power / Gyro Ball, however now, we don't make any such changes.
-			// So now, we don't have to do anything here.
+			// TODO: Before we were undoing any IV changes we made in the process of choosing Hidden Power / Gyro Ball,
+			// but we don't make such changes anymore. So now, we don't have to do anything here.
 		},
 		canHyperTrain: function (set) {
 			if (this.curTeam.gen < 7 || this.curTeam.format === 'gen7hiddentype') return false;
@@ -2864,9 +2864,66 @@
 			if (!set) set = this.curSet;
 			if (set.ivs[stat] !== undefined) return set.ivs[stat];
 
-			// TODO
+			var iv = 31;
 
-			return 31;
+			var moves = set.moves;
+			var gen = this.curTeam.gen;
+			var hpType = this.getHPTypeFromMoves(moves);
+			if (hpType && !this.canHyperTrain(set)) {
+				if (gen > 2) {
+					iv = exports.BattleTypeChart[hpType].HPivs[stat];
+				} else {
+					iv = exports.BattleTypeChart[hpType].HPdvs[stat] * 2;
+				}
+			}
+
+			if (stat === 'hp') {
+				// TODO: Gen 1/2 stuff
+			} else if (stat === 'atk') {
+				if (gen > 2) {
+					var minAtk = true;
+					for (var i = 0; i < moves.length; ++i) {
+						if (!moves[i]) continue;
+						var move = Dex.forGen(gen).getMove(moves[i]);
+						if (move.category === 'Physical' &&
+							!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
+							minAtk = false;
+							break;
+						} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
+							minAtk = false;
+							break;
+						}
+					}
+
+					if (minAtk) {
+						iv = (hpType ? iv % 2 : 0);
+					}
+				}
+			} else if (stat === 'spe') {
+				var minSpe = false;
+				for (var i = 0; i < moves.length; ++i) {
+					if (moves[i] === 'Gyro Ball') {
+						minSpe = true;
+						break;
+					}
+				}
+
+				if (minSpe) {
+					iv = (hpType ? iv % 2 : 0);
+				}
+			}
+
+			return iv;
+		},
+
+		getHPTypeFromMoves: function (moves) {
+			for (var i = 0; i < moves.length; ++i) {
+				if (moves[i] && moves[i].substr(0, 13) === 'Hidden Power ') {
+					return moves[i].substr(13);
+				}
+			}
+
+			return '';
 		},
 
 		// TODO: This should be a static helper function
