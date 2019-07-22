@@ -761,7 +761,7 @@ const Dex = new class implements ModdedDex {
 		if (!window.BattleItems) window.BattleItems = {};
 		for (const item of Object.values(window.BattleItems) as Item[]) {
 			// TODO: add isPokeball to data
-			if (!item.id.endsWith('ball') || item.id === 'ironball') continue;
+			if (!item.id.endsWith('ball') || item.id === 'ironball' || item.id === 'lightball') continue;
 			balls[item.id] = item;
 		}
 		return balls;
@@ -887,7 +887,7 @@ class ModdedDex {
 		for (const item of Object.values(window.BattleItems) as Item[]) {
 			if (item.gen && item.gen > this.gen) continue;
 			// TODO: add isPokeball to data
-			if (!item.id.endsWith('ball') || item.id === 'ironball') continue;
+			if (!item.id.endsWith('ball') || item.id === 'ironball' || item.id === 'lightball') continue;
 			balls[item.id] = item;
 		}
 		return balls;
