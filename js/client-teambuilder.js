@@ -2229,16 +2229,16 @@
 				var defDV = Math.floor(ivs.def / 2);
 				hpType = hpTypes[4 * (atkDV % 4) + (defDV % 4)];
 
-				// If the user opts for manual DVs then verify that the HP DV is correct according to the other DVs
+				// If the user opts for manual DVs, then verify that the HP DV is correct according to the other DVs.
 				// XXX: This behavior should be enabled even when the moveset does not have Hidden Power
-				if (set.ivs) {
-					var speDV = Math.floor(set.ivs.spe / 2);
-					var spcDV = Math.floor(set.ivs.spa / 2);
+				if (ivs === set.ivs) {
+					var speDV = Math.floor(ivs.spe / 2);
+					var spcDV = Math.floor(ivs.spa / 2);
 
 					var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
 					if (expectedHpDV !== hpDV) {
-						set.ivs.hp = expectedHpDV * 2;
-						if (set.ivs.hp === 30) set.ivs.hp = 31;
+						ivs.hp = expectedHpDV * 2;
+						if (ivs.hp === 30) ivs.hp = 31;
 						this.$chart.find('input[name=iv-hp]').val(expectedHpDV);
 					}
 				}
@@ -2353,8 +2353,7 @@
 			if (!set.ivs) set.ivs = {};
 			var stats = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 			for (var i = 0; i < 6; i++) {
-				var iv = parseInt(spread[i], 10);
-				set.ivs[stats[i]] = iv;
+				set.ivs[stats[i]] = parseInt(spread[i], 10);
 				this.$chart.find('input[name=iv-' + stats[i] + ']').val(spread[i]);
 			}
 			$(e.currentTarget).val('');
