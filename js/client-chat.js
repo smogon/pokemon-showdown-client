@@ -232,10 +232,7 @@
 			return ((highlights.length > 0) && highlighRegExp.test(message));
 		},
 		convertHighlights: function (highlights) {
-			var newHLs = {global: []};
-			for (var i = 0; i < highlights.length; i++) {
-				newHLs.global.push(highlights[i]);
-			}
+			var newHLs = {global: highlights};
 			Dex.prefs('highlights', newHLs);
 		},
 		getHighlightRegExp: function (highlights) {
