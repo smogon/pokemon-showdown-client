@@ -209,35 +209,40 @@
 
 		getHighlight: function (message) {
 			if (Array.isArray(Dex.prefs('highlights'))) {
-				var newHLs = {global: Dex.prefs('highlights')};
-				Dex.prefs('highlights', newHLs);
+				// Migrate from the old highlight system
+				Dex.prefs('highlights', {global: Dex.prefs('highlights')});
 			}
-			var id = Config.server.id + '#' + this.id;
-			var allHighlights = Dex.prefs('highlights') || {};
-			var roomHighlights = allHighlights[id] || [];
-			var globalHighlights = allHighlights['global'] || [];
-			var highlights = roomHighlights.concat(globalHighlights);
 			if (!Dex.prefs('noselfhighlight') && app.user.nameRegExp) {
 				if (app.user.nameRegExp.test(message)) return true;
 			}
-			var highlighRegExp;
-			try {
-				highlighRegExp = this.getHighlightRegExp(highlights);
-			} catch (e) {
-				// If the expression above is not a regexp, we'll get here.
-				// Don't throw an exception because that would prevent the chat
-				// message from showing up, or, when the lobby is initialising,
-				// it will prevent the initialisation from completing.
-				return false;
+			var highlights = Dex.prefs('highlights') || {};
+			if (!app.highlightRegExp) {
+				try {
+					this.updateHighlightRegExp(highlights);
+				} catch (e) {
+					// If the expression above is not a regexp, we'll get here.
+					// Don't throw an exception because that would prevent the chat
+					// message from showing up, or, when the lobby is initialising,
+					// it will prevent the initialisation from completing.
+					return false;
+				}
 			}
-			return ((highlights.length > 0) && highlighRegExp.test(message));
+			var id = Config.server.id + '#' + this.id;
+			var globalHighlightsRegExp = app.highlightRegExp['global'];
+			var roomHighlightsRegExp = app.highlightRegExp[id];
+			return (((globalHighlightsRegExp && globalHighlightsRegExp.test(message)) || (roomHighlightsRegExp && roomHighlightsRegExp.test(message))));
 		},
-		getHighlightRegExp: function (highlights) {
+		updateHighlightRegExp: function (highlights) {
 			// Enforce boundary for match sides, if a letter on match side is
 			// a word character. For example, regular expression "a" matches
 			// "a", but not "abc", while regular expression "!" matches
 			// "!" and "!abc".
-			return new RegExp('(?:\\b|(?!\\w))(?:' + highlights.join('|') + ')(?:\\b|(?!\\w))', 'i');
+			if (!app.highlightRegExp) {
+				app.highlightRegExp = {};
+			}
+			for (var i in highlights) {
+				app.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
+			}
 		},
 
 		// chat history
@@ -739,6 +744,8 @@
 						}
 						highlights[key] = highlightList.concat(targets.slice(1));
 						this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
+						// We update the regex
+						this.updateHighlightRegExp(highlights);
 						break;
 					case 'delete': case 'roomdelete':
 						var key = targets[0] === 'roomdelete' ? Config.server.id + '#' + this.id : 'global';
@@ -751,6 +758,8 @@
 						}
 						highlights[key] = newHls;
 						this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
+						// We update the regex
+						this.updateHighlightRegExp(highlights);
 						break;
 					default:
 						// Wrong command
