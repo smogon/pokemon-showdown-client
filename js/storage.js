@@ -1296,7 +1296,7 @@ Storage.exportTeam = function (team) {
 				}
 				text += '' + val + ' ' + BattleStatNames[j];
 			}
-			if (!firstIV) {
+			if (firstIV) {
 				text += '31 all';
 			}
 			text += '  \n';
