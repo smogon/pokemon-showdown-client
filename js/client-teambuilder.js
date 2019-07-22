@@ -47,7 +47,7 @@
 			'change select[name=ivspread]': 'ivSpreadChange',
 			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
-			'click input[name=autoivs]': 'useAutoIVsClick', // We bind to click instead of change since sometimes we uncheck the box ourselves
+			'change input[name=autoivs]': 'useAutoIVsChange',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -1959,7 +1959,7 @@
 				var ivs = set.ivs || this.getAutoIVs();
 				for (var i in stats) {
 					var val = '' + (ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" ' + (set.ivs ? '' : 'disabled') + ' /></div>';
 				}
 				var hpType = '';
 				if (set.moves) {
@@ -2082,7 +2082,7 @@
 				var ivs = set.ivs || this.getAutoIVs();
 				for (var i in stats) {
 					var val = '' + Math.floor(ivs[i] / 2);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" ' + (set.ivs ? '' : 'disabled') + ' /></div>';
 				}
 				buf += '<div style="display:inline-block;margin-left:-80px;text-align:right">';
 				buf += '<input type="checkbox" name="autoivs" ' + (set.ivs ? '' : 'checked') + '> Use automatic DVs';
@@ -2199,14 +2199,16 @@
 				if (val > 31 || isNaN(val)) val = 31;
 				if (val < 0) val = 0;
 
-				var changed = !set.ivs || set.ivs[stat] !== val;
-				if (changed) {
-					if (!set.ivs) set.ivs = this.getAutoIVs();
-					set.ivs[stat] = val;
-					this.updateIVs();
-					this.updateStatGraph();
+				// This check shouldn't fail under normal circumstances, since the IVs can only be changed if
+				// the auto IVs box is unchecked meaning set.ivs isn't null.
+				if (set.ivs) {
+					var changed = set.ivs[stat] !== val;
+					if (changed) {
+						set.ivs[stat] = val;
+						this.updateIVs();
+						this.updateStatGraph();
+					}
 				}
-				$("input[name=autoivs]").prop("checked", false);
 			}
 			this.save();
 		},
@@ -2358,12 +2360,13 @@
 				this.$chart.find('input[name=iv-' + stats[i] + ']').val(spread[i]);
 			}
 			$(e.currentTarget).val('');
-			$("input[name=autoivs]").prop("checked", false);
+			$('input[name=autoivs]').prop('checked', false);
+			$('input[name=autoivs]').trigger('change');
 
 			this.save();
 			this.updateStatGraph();
 		},
-		useAutoIVsClick: function (e) {
+		useAutoIVsChange: function (e) {
 			var set = this.curSet;
 			var newValue = e.currentTarget.checked;
 			if (newValue) {
@@ -2371,23 +2374,25 @@
 				set.ivs = null;
 				var autoIVs = this.getAutoIVs();
 				for (var stat in autoIVs) {
-					if (this.curTeam.gen > 2) {
-						var iv = '' + autoIVs[stat];
-						this.$chart.find('input[name=iv-' + stat + ']').val(iv);
-					} else {
-						var dv = '' + Math.floor(autoIVs[stat] / 2);
-						this.$chart.find('input[name=iv-' + stat + ']').val(dv);
-					}
+					var val = this.curTeam.gen > 2 ? autoIVs[stat] : Math.floor(autoIVs[stat] / 2);
+					var input = this.$chart.find('input[name=iv-' + stat + ']');
+					input.val('' + val);
+					input.prop('disabled', true);
 				}
 
 				this.save();
 				this.updateStatGraph();
 			} else {
-				if (set.ivs) return; // Should never happen
 				// We are still using the same IVs, but this causes them to become "hardcoded" instead
 				// of automatically inferred. For example, if the user adds Gyro Ball to the moveset afterwards,
 				// we will not adjust their speed. Also, we will include any non-31 IVs in the export.
-				set.ivs = this.getAutoIVs();
+				if (!set.ivs) set.ivs = this.getAutoIVs();
+
+				for (var stat in set.ivs) {
+					var input = this.$chart.find('input[name=iv-' + stat + ']');
+					input.val('' + set.ivs[stat])
+					input.prop('disabled', false);
+				}
 
 				this.save();
 				// We don't have to update the stat graph here since we're not actually changing the IVs, just how they're stored
