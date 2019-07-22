@@ -2390,7 +2390,7 @@
 
 				for (var stat in set.ivs) {
 					var input = this.$chart.find('input[name=iv-' + stat + ']');
-					input.val('' + set.ivs[stat])
+					input.val('' + set.ivs[stat]);
 					input.prop('disabled', false);
 				}
 
