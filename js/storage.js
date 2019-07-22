@@ -1283,20 +1283,22 @@ Storage.exportTeam = function (team) {
 			text += '' + curSet.nature + ' Nature' + "  \n";
 		}
 
-		var firstIV = true;
-		for (var j in BattleStatNames) {
-			var val = curSet.ivs[j];
-			if (val === undefined || isNaN(val) || val === 31) continue;
-			if (firstIV) {
-				text += 'IVs: ';
-				firstIV = false;
-			} else {
-				text += ' / ';
+		if (curSet.ivs) {
+			var firstIV = true;
+			for (var j in BattleStatNames) {
+				var val = curSet.ivs[j];
+				if (val === undefined || isNaN(val) || val === 31) continue;
+				if (firstIV) {
+					text += 'IVs: ';
+					firstIV = false;
+				} else {
+					text += ' / ';
+				}
+				text += '' + val + ' ' + BattleStatNames[j];
 			}
-			text += '' + val + ' ' + BattleStatNames[j];
-		}
-		if (!firstIV) {
-			text += "  \n";
+			if (!firstIV) {
+				text += "  \n";
+			}
 		}
 
 		if (curSet.moves) {

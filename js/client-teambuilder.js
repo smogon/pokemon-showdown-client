@@ -2201,7 +2201,7 @@
 
 				var changed = !set.ivs || set.ivs[stat] !== val;
 				if (changed) {
-					if (!set.ivs) set.ivs = {};
+					if (!set.ivs) set.ivs = this.getAutoIVs();
 					set.ivs[stat] = val;
 					this.updateIVs();
 					this.updateStatGraph();
@@ -2246,8 +2246,8 @@
 				var hpTypeX = 0;
 				var i = 1;
 				var ivs = set.ivs || this.getAutoIVs();
-				for (var s in stats) {
-					hpTypeX += i * (set.ivs[s] % 2);
+				for (var s in ivs) {
+					hpTypeX += i * (ivs[s] % 2);
 					i *= 2;
 				}
 				hpType = hpTypes[Math.floor(hpTypeX * 15 / 63)];
@@ -2365,8 +2365,7 @@
 		},
 		useAutoIVsClick: function (e) {
 			var set = this.curSet;
-			var oldValue = e.currentTarget.checked;
-			var newValue = !oldValue;
+			var newValue = e.currentTarget.checked;
 			if (newValue) {
 				// Reset the IVs to their defaults
 				set.ivs = null;
@@ -2716,7 +2715,7 @@
 				set.ability = 'Harvest';
 				set.moves = ['Substitute', 'Horn Leech', 'Earthquake', 'Phantom Force'];
 				set.evs = {hp: 36, atk: 252, def: 0, spa: 0, spd: 0, spe: 220};
-				set.ivs = {};
+				set.ivs = null;
 				set.nature = 'Jolly';
 				this.updateSetTop();
 				this.$(!this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
@@ -2828,7 +2827,7 @@
 
 			set.moves = [];
 			set.evs = {};
-			set.ivs = {};
+			set.ivs = null;
 			set.nature = '';
 			this.updateSetTop();
 			if (selectNext) this.$(set.item || !this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
