@@ -211,9 +211,8 @@
 			if (Array.isArray(Dex.prefs('highlights'))) {
 				this.convertHighlights(Dex.prefs('highlights'));
 			}
-			var roomid = this.id;
 			var allHighlights = Dex.prefs('highlights') || {};
-			var roomHighlights = allHighlights[roomid] || [];
+			var roomHighlights = allHighlights[this.id] || [];
 			var globalHighlights = allHighlights['global'] || [];
 			var highlights = roomHighlights.concat(globalHighlights);
 			if (!Dex.prefs('noselfhighlight') && app.user.nameRegExp) {
