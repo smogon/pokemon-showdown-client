@@ -1285,25 +1285,21 @@ Storage.exportTeam = function (team) {
 		if (ivs) {
 			text += 'IVs: ';
 
-			var all31 = (ivs.hp === 31 && ivs.atk === 31 && ivs.def === 31 && ivs.spa === 31 && ivs.spd === 31 && ivs.spe === 31);
-			if (all31) {
-				text += '31 all';
-			} else {
-				var firstIV = true;
-				for (var j in BattleStatNames) {
-					var val = curSet.ivs[j];
-					if (val === 31) continue;
-					if (firstIV) {
-						firstIV = false;
-					} else {
-						text += ' / ';
-					}
-					text += '' + val + ' ' + BattleStatNames[j];
+			var firstIV = true;
+			for (var j in BattleStatNames) {
+				var val = curSet.ivs[j];
+				if (val === 31) continue;
+				if (firstIV) {
+					firstIV = false;
+				} else {
+					text += ' / ';
 				}
+				text += '' + val + ' ' + BattleStatNames[j];
 			}
 			if (!firstIV) {
-				text += "  \n";
+				text += '31 all';
 			}
+			text += '  \n';
 		}
 
 		if (curSet.moves) {
