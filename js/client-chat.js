@@ -208,14 +208,15 @@
 		// highlight
 
 		getHighlight: function (message) {
-			if (Array.isArray(Dex.prefs('highlights'))) {
+			var highlights = Dex.prefs('highlights') || {};
+			if (Array.isArray(highlights)) {
+				highlights = {global: highlights};
 				// Migrate from the old highlight system
-				Dex.prefs('highlights', {global: Dex.prefs('highlights')});
+				Dex.prefs('highlights', highlights);
 			}
 			if (!Dex.prefs('noselfhighlight') && app.user.nameRegExp) {
 				if (app.user.nameRegExp.test(message)) return true;
 			}
-			var highlights = Dex.prefs('highlights') || {};
 			if (!app.highlightRegExp) {
 				try {
 					this.updateHighlightRegExp(highlights);
