@@ -755,6 +755,17 @@ const Dex = new class implements ModdedDex {
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
 	}
+
+	getPokeballs() {
+		const balls: { [id: string]: Item } = {};
+		if (!window.BattleItems) window.BattleItems = {};
+		for (const item of Object.values(window.BattleItems) as Item[]) {
+			// TODO: add isPokeball to data
+			if (!item.id.endsWith('ball') || item.id === 'ironball') continue;
+			balls[item.id] = item;
+		}
+		return balls;
+	}
 };
 
 class ModdedDex {
@@ -868,6 +879,18 @@ class ModdedDex {
 		const template = new Template(id, name, data);
 		this.cache.Templates[id] = template;
 		return template;
+	}
+
+	getPokeballs() {
+		const balls: { [id: string]: Item } = {};
+		if (!window.BattleItems) window.BattleItems = {};
+		for (const item of Object.values(window.BattleItems) as Item[]) {
+			if (item.gen && item.gen > this.gen) continue;
+			// TODO: add isPokeball to data
+			if (!item.id.endsWith('ball') || item.id === 'ironball') continue;
+			balls[item.id] = item;
+		}
+		return balls;
 	}
 }
 

@@ -2393,6 +2393,16 @@
 				buf += '</div></div>';
 			}
 
+			if (this.curTeam.gen > 2) {
+				buf += '<div class="formrow"><label class="formlabel">Pokeball</label><div><select name="pokeball">';
+				buf += '<option value=""' + (!set.pokeball ? ' selected="selected"' : '') + '></option>'; // unset
+				var balls = Dex.forGen(this.curTeam.gen).getPokeballs();
+				for (var id in balls) {
+					buf += '<option value="' + id + '"' + (set.pokeball === id ? ' selected="selected"' : '') + '>'+ balls[id].name + '</option>';
+				}
+				buf += '</select></div></div>';
+			}
+
 			if (this.curTeam.gen > 6) {
 				buf += '<div class="formrow"><label class="formlabel">HP Type:</label><div><select name="hptype">';
 				buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '></option>'; // unset
@@ -2440,6 +2450,15 @@
 				set.gender = gender;
 			} else {
 				delete set.gender;
+			}
+
+			// pokeball
+			var pokeball = this.$chart.find('select[name=pokeball]').val();
+			// TODO: add isPokeball and use getItem(pokeball).isPokeball instead
+			if (pokeball && Dex.forGen(this.curTeam.gen).getPokeballs()[pokeball]) {
+				set.pokeball = pokeball;
+			} else {
+				delete set.pokeball;
 			}
 
 			// HP type
