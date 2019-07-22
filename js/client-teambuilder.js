@@ -2202,13 +2202,8 @@
 				var changed = set.ivs[stat] !== val && (val !== 31 || set.ivs[stat] !== undefined);
 				if (changed) {
 					if (val === 31) {
-						// We don't store 31 IVs in the `ivs` structure so that it won't show up in the export.
-						// If the user accidentally adjusts the HP IV and readjusts it to 31, there is no reason to
-						// add "IVs: 31 HP" to the export.
-						// The only way we will export an explicit 31 IVs in a stat is if the user imported the set
-						// from text with "IVs: 31 <stat>" in the first place, as we don't check for 31 in importTeam.
-						// They may want to do this if (for example) they wanted to give a Pokemon w/ Gyro Ball max
-						// speed IVs for some reason. But this doesn't represent the majority use case.
+						// Assume the user wants to keep this IV implicit (eg. if they change to 31 speed
+						// but add Gyro Ball later, they would want it adjusted to 0 speed)
 						delete set.ivs[stat];
 					} else {
 						set.ivs[stat] = val;

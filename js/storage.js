@@ -731,7 +731,7 @@ Storage.packTeam = function (team) {
 		// ivs
 		var ivs = '|';
 		if (set.ivs) {
-			ivs = '|' + (set.ivs['hp'] === undefined ? '' : set.ivs['hp']) + ',' + (set.ivs['atk'] === undefined ? '' : set.ivs['atk']) + ',' + (set.ivs['def'] === undefined ? '' : set.ivs['def']) + ',' + (set.ivs['spa'] === undefined ? '' : set.ivs['spa']) + ',' + (set.ivs['spd'] === undefined ? '' : set.ivs['spd']) + ',' + (set.ivs['spe'] === undefined ? '' : set.ivs['spe']);
+			ivs = '|' + (set.ivs['hp'] === 31 || set.ivs['hp'] === undefined ? '' : set.ivs['hp']) + ',' + (set.ivs['atk'] === 31 || set.ivs['atk'] === undefined ? '' : set.ivs['atk']) + ',' + (set.ivs['def'] === 31 || set.ivs['def'] === undefined ? '' : set.ivs['def']) + ',' + (set.ivs['spa'] === 31 || set.ivs['spa'] === undefined ? '' : set.ivs['spa']) + ',' + (set.ivs['spd'] === 31 || set.ivs['spd'] === undefined ? '' : set.ivs['spd']) + ',' + (set.ivs['spe'] === 31 || set.ivs['spe'] === undefined ? '' : set.ivs['spe']);
 		}
 		if (ivs === '|,,,,,') {
 			buf += '|';
@@ -1178,9 +1178,7 @@ Storage.importTeam = function (buffer, teams) {
 				var statid = BattleStatIDs[ivLine.substr(spaceIndex + 1)];
 				var statval = parseInt(ivLine.substr(0, spaceIndex), 10);
 				if (!statid) continue;
-				if (!isNaN(statval)) {
-					// We intentionally do not check for 31 here. If "31 HP" is explicitly specified,
-					// that will be reflected if the user tries to export the Pokemon later.
+				if (!isNaN(statval) && statval !== 31) {
 					curSet.ivs[statid] = statval;
 				}
 			}
@@ -1287,14 +1285,15 @@ Storage.exportTeam = function (team) {
 
 		var firstIV = true;
 		for (var j in BattleStatNames) {
-			if (curSet.ivs[j] === undefined) continue;
+			var val = curSet.ivs[j];
+			if (val === undefined || isNaN(val) || val === 31) continue;
 			if (firstIV) {
 				text += 'IVs: ';
 				firstIV = false;
 			} else {
 				text += ' / ';
 			}
-			text += '' + curSet.ivs[j] + ' ' + BattleStatNames[j];
+			text += '' + val + ' ' + BattleStatNames[j];
 		}
 		if (!firstIV) {
 			text += "  \n";
