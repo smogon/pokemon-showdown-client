@@ -760,7 +760,6 @@
 						this.parseCommand('/help highlight'); // show help
 						return false;
 					}
-					console.log(highlights);
 					Dex.prefs('highlights', highlights);
 				} else {
 					if (target === 'delete') {
