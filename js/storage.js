@@ -1283,16 +1283,17 @@ Storage.exportTeam = function (team) {
 
 		var ivs = curSet.ivs;
 		if (ivs) {
-			var firstIV = true;
+			text += 'IVs: ';
+
 			var all31 = (ivs.hp === 31 && ivs.atk === 31 && ivs.def === 31 && ivs.spa === 31 && ivs.spd === 31 && ivs.spe === 31);
 			if (all31) {
-				text += 'IVs: 31 all';
+				text += '31 all';
 			} else {
+				var firstIV = true;
 				for (var j in BattleStatNames) {
 					var val = curSet.ivs[j];
-					if (val === undefined || isNaN(val) || val === 31) continue;
+					if (val === 31) continue;
 					if (firstIV) {
-						text += 'IVs: ';
 						firstIV = false;
 					} else {
 						text += ' / ';
