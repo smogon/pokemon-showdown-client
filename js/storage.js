@@ -733,11 +733,7 @@ Storage.packTeam = function (team) {
 		if (set.ivs) {
 			ivs = '|' + (set.ivs['hp'] === 31 || set.ivs['hp'] === undefined ? '' : set.ivs['hp']) + ',' + (set.ivs['atk'] === 31 || set.ivs['atk'] === undefined ? '' : set.ivs['atk']) + ',' + (set.ivs['def'] === 31 || set.ivs['def'] === undefined ? '' : set.ivs['def']) + ',' + (set.ivs['spa'] === 31 || set.ivs['spa'] === undefined ? '' : set.ivs['spa']) + ',' + (set.ivs['spd'] === 31 || set.ivs['spd'] === undefined ? '' : set.ivs['spd']) + ',' + (set.ivs['spe'] === 31 || set.ivs['spe'] === undefined ? '' : set.ivs['spe']);
 		}
-		if (ivs === '|,,,,,') {
-			buf += '|';
-		} else {
-			buf += ivs;
-		}
+		buf += ivs;
 
 		// shiny
 		if (set.shiny) {
@@ -1171,8 +1167,10 @@ Storage.importTeam = function (buffer, teams) {
 			}
 		} else if (line.substr(0, 5) === 'IVs: ') {
 			line = line.substr(5);
-			var ivLines = line.split(' / ');
 			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+			if (line.trim() === '31 all') continue;
+
+			var ivLines = line.split(' / ');
 			for (var j = 0; j < ivLines.length; j++) {
 				var ivLine = ivLines[j];
 				var spaceIndex = ivLine.indexOf(' ');
@@ -1283,18 +1281,24 @@ Storage.exportTeam = function (team) {
 			text += '' + curSet.nature + ' Nature' + "  \n";
 		}
 
-		if (curSet.ivs) {
+		var ivs = curSet.ivs;
+		if (ivs) {
 			var firstIV = true;
-			for (var j in BattleStatNames) {
-				var val = curSet.ivs[j];
-				if (val === undefined || isNaN(val) || val === 31) continue;
-				if (firstIV) {
-					text += 'IVs: ';
-					firstIV = false;
-				} else {
-					text += ' / ';
+			var all31 = (ivs.hp === 31 && ivs.atk === 31 && ivs.def === 31 && ivs.spa === 31 && ivs.spd === 31 && ivs.spe === 31);
+			if (all31) {
+				text += 'IVs: 31 all';
+			} else {
+				for (var j in BattleStatNames) {
+					var val = curSet.ivs[j];
+					if (val === undefined || isNaN(val) || val === 31) continue;
+					if (firstIV) {
+						text += 'IVs: ';
+						firstIV = false;
+					} else {
+						text += ' / ';
+					}
+					text += '' + val + ' ' + BattleStatNames[j];
 				}
-				text += '' + val + ' ' + BattleStatNames[j];
 			}
 			if (!firstIV) {
 				text += "  \n";
