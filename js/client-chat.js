@@ -726,7 +726,7 @@
 					}
 					switch (targets[0]) {
 					case 'add': case 'roomadd':
-						var key = targets[0] === 'roomadd' ? Config.server.id + '#' + this.id : 'global';
+						var key = targets[0] === 'roomadd' ? (Config.server.id + '#' + this.id) : 'global';
 						var highlightList = highlights[key] || [];
 						for (var i = 1, len = targets.length; i < len; i++) {
 							if (!targets[i]) continue;
@@ -748,7 +748,7 @@
 						this.updateHighlightRegExp(highlights);
 						break;
 					case 'delete': case 'roomdelete':
-						var key = targets[0] === 'roomdelete' ? Config.server.id + '#' + this.id : 'global';
+						var key = targets[0] === 'roomdelete' ? (Config.server.id + '#' + this.id) : 'global';
 						var highlightList = highlights[key] || [];
 						var newHls = [];
 						for (var i = 0, len = highlightList.length; i < len; i++) {
@@ -774,7 +774,7 @@
 						this.add("All highlights cleared");
 					} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
 						// Shows a list of the current highlighting words
-						var key = target.startsWith('room') ? Config.server.id + '#' + this.id : 'global';
+						var key = target.startsWith('room') ? (Config.server.id + '#' + this.id) : 'global';
 						if (highlights[key].length > 0) {
 							this.add("Current highlight list " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(", "));
 						} else {
