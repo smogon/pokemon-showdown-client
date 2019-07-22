@@ -2232,6 +2232,7 @@
 				// If the user opts for manual DVs, then verify that the HP DV is correct according to the other DVs.
 				// XXX: This behavior should be enabled even when the moveset does not have Hidden Power
 				if (ivs === set.ivs) {
+					var hpDV = Math.floor(ivs.hp / 2);
 					var speDV = Math.floor(ivs.spe / 2);
 					var spcDV = Math.floor(ivs.spa / 2);
 
