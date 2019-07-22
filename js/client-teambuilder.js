@@ -47,7 +47,7 @@
 			'change select[name=ivspread]': 'ivSpreadChange',
 			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
-			'change input[name=autoivs]': 'useAutoIVsChange',
+			'click input[name=autoivs]': 'useAutoIVsClick', // We bind to click instead of change since sometimes we uncheck the box ourselves
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -1956,9 +1956,9 @@
 
 			if (this.curTeam.gen > 2) {
 				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
-				var autoIVs = this.getAutoIVs();
+				var ivs = set.ivs || this.getAutoIVs();
 				for (var i in stats) {
-					var val = '' + (autoIVs[i]);
+					var val = '' + (ivs[i]);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
 				}
 				var hpType = '';
@@ -2074,18 +2074,18 @@
 
 					buf += '</select>';
 				}
-				buf += '<input type="checkbox" name="autoivs" ' + (Object.keys(set.ivs).length ? '' : 'checked') + '> Use automatic IVs';
+				buf += '<input type="checkbox" name="autoivs" ' + (set.ivs ? '' : 'checked') + '> Use automatic IVs';
 				buf += '</div>';
 				buf += '</div>';
 			} else {
 				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
-				var autoIVs = this.getAutoIVs();
+				var ivs = set.ivs || this.getAutoIVs();
 				for (var i in stats) {
-					var val = '' + Math.floor(autoIVs[i] / 2);
+					var val = '' + Math.floor(ivs[i] / 2);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
 				}
 				buf += '<div style="display:inline-block;margin-left:-80px;text-align:right">';
-				buf += '<input type="checkbox" name="autoivs" ' + (Object.keys(set.ivs).length ? '' : 'checked') + '> Use automatic DVs';
+				buf += '<input type="checkbox" name="autoivs" ' + (set.ivs ? '' : 'checked') + '> Use automatic DVs';
 				buf += '</div>';
 				buf += '</div>';
 			}
@@ -2199,15 +2199,10 @@
 				if (val > 31 || isNaN(val)) val = 31;
 				if (val < 0) val = 0;
 
-				var changed = set.ivs[stat] !== val && (val !== 31 || set.ivs[stat] !== undefined);
+				var changed = !set.ivs || set.ivs[stat] !== val;
 				if (changed) {
-					if (val === 31) {
-						// Assume the user wants to keep this IV implicit (eg. if they change to 31 speed
-						// but add Gyro Ball later, they would want it adjusted to 0 speed)
-						delete set.ivs[stat];
-					} else {
-						set.ivs[stat] = val;
-					}
+					if (!set.ivs) set.ivs = {};
+					set.ivs[stat] = val;
 					this.updateIVs();
 					this.updateStatGraph();
 				}
@@ -2229,16 +2224,30 @@
 			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
 			var hpType;
 			if (this.curTeam.gen <= 2) {
-				var autoIVs = this.getAutoIVs();
-				var atkDV = Math.floor(autoIVs.atk / 2);
-				var defDV = Math.floor(autoIVs.def / 2);
+				var ivs = set.ivs || this.getAutoIVs();
+				var atkDV = Math.floor(ivs.atk / 2);
+				var defDV = Math.floor(ivs.def / 2);
 				hpType = hpTypes[4 * (atkDV % 4) + (defDV % 4)];
+
+				// If the user opts for manual DVs then verify that the HP DV is correct according to the other DVs
+				// XXX: This behavior should be enabled even when the moveset does not have Hidden Power
+				if (set.ivs) {
+					var speDV = Math.floor(set.ivs.spe / 2);
+					var spcDV = Math.floor(set.ivs.spa / 2);
+
+					var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
+					if (expectedHpDV !== hpDV) {
+						set.ivs.hp = expectedHpDV * 2;
+						if (set.ivs.hp === 30) set.ivs.hp = 31;
+						this.$chart.find('input[name=iv-hp]').val(expectedHpDV);
+					}
+				}
 			} else {
 				var hpTypeX = 0;
 				var i = 1;
-				var autoIVs = this.getAutoIVs();
-				for (var stat in autoIVs) {
-					hpTypeX += i * (autoIVs[stat] % 2);
+				var ivs = set.ivs || this.getAutoIVs();
+				for (var s in stats) {
+					hpTypeX += i * (set.ivs[s] % 2);
 					i *= 2;
 				}
 				hpType = hpTypes[Math.floor(hpTypeX * 15 / 63)];
@@ -2341,27 +2350,26 @@
 			var spread = e.currentTarget.value.split('/');
 			if (spread.length !== 6) return;
 
+			if (!set.ivs) set.ivs = {};
 			var stats = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 			for (var i = 0; i < 6; i++) {
-				this.$chart.find('input[name=iv-' + stats[i] + ']').val(spread[i]);
 				var iv = parseInt(spread[i], 10);
-				if (iv === 31) {
-					delete set.ivs[stats[i]];
-				} else {
-					set.ivs[stats[i]] = iv;
-				}
+				set.ivs[stats[i]] = iv;
+				this.$chart.find('input[name=iv-' + stats[i] + ']').val(spread[i]);
 			}
 			$(e.currentTarget).val('');
+			$("input[name=autoivs]").prop("checked", false);
 
 			this.save();
 			this.updateStatGraph();
 		},
-		useAutoIVsChange: function (e) {
+		useAutoIVsClick: function (e) {
 			var set = this.curSet;
-			var newValue = e.currentTarget.checked;
+			var oldValue = e.currentTarget.checked;
+			var newValue = !oldValue;
 			if (newValue) {
 				// Reset the IVs to their defaults
-				set.ivs = {};
+				set.ivs = null;
 				var autoIVs = this.getAutoIVs();
 				for (var stat in autoIVs) {
 					if (this.curTeam.gen > 2) {
@@ -2376,20 +2384,14 @@
 				this.save();
 				this.updateStatGraph();
 			} else {
-				// We are currently using the default IVs (and still will), but transcribe any
-				// non-31 default IVs into `ivs` so that they will be included in the export
-
-				if (Object.keys(set.ivs).length !== 0) return; // Should never happen
-
-				var autoIVs = this.getAutoIVs();
-				for (var stat in autoIVs) {
-					var iv = autoIVs[stat];
-					if (iv !== 31) set.ivs[stat] = iv;
-				}
+				if (set.ivs) return; // Should never happen
+				// We are still using the same IVs, but this causes them to become "hardcoded" instead
+				// of automatically inferred. For example, if the user adds Gyro Ball to the moveset afterwards,
+				// we will not adjust their speed. Also, we will include any non-31 IVs in the export.
+				set.ivs = this.getAutoIVs();
 
 				this.save();
-				// We don't have to update the stat graph here since we're not actually
-				// changing the IVs, just how they're stored
+				// We don't have to update the stat graph here since we're not actually changing the IVs, just how they're stored
 			}
 		},
 
@@ -2853,7 +2855,7 @@
 			if (!set.level) set.level = 100;
 
 			var baseStat = (this.getBaseStats(template))[stat];
-			var iv = this.getAutoIV(stat, set);
+			var iv = set.ivs ? set.ivs[stat] : this.getAutoIV(stat, set);
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
 			if (evOverride !== undefined) ev = evOverride;
@@ -2895,9 +2897,6 @@
 
 		getAutoIV: function (stat, set) {
 			if (!set) set = this.curSet;
-			if (set.ivs[stat] !== undefined) return set.ivs[stat];
-
-			// The user didn't specify an IV for this stat, so infer it from context
 			var minValue = 0;
 			var maxValue = 31;
 			var useMaxValue = true;
