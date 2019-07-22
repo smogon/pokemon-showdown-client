@@ -209,7 +209,8 @@
 
 		getHighlight: function (message) {
 			if (Array.isArray(Dex.prefs('highlights'))) {
-				this.convertHighlights(Dex.prefs('highlights'));
+				var newHLs = {global: Dex.prefs('highlights')};
+				Dex.prefs('highlights', newHLs);
 			}
 			var id = Config.server.id + '#' + this.id;
 			var allHighlights = Dex.prefs('highlights') || {};
@@ -230,10 +231,6 @@
 				return false;
 			}
 			return ((highlights.length > 0) && highlighRegExp.test(message));
-		},
-		convertHighlights: function (highlights) {
-			var newHLs = {global: highlights};
-			Dex.prefs('highlights', newHLs);
 		},
 		getHighlightRegExp: function (highlights) {
 			// Enforce boundary for match sides, if a letter on match side is
