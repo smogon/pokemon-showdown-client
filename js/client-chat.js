@@ -208,29 +208,42 @@
 		// highlight
 
 		getHighlight: function (message) {
-			var highlights = Dex.prefs('highlights') || [];
-			if (!app.highlightRegExp) {
-				try {
-					this.updateHighlightRegExp(highlights);
-				} catch (e) {
-					// If the expression above is not a regexp, we'll get here.
-					// Don't throw an exception because that would prevent the chat
-					// message from showing up, or, when the lobby is initialising,
-					// it will prevent the initialisation from completing.
-					return false;
-				}
+			if (Array.isArray(Dex.prefs('highlights'))) {
+				this.convertHighlights(Dex.prefs('highlights'));
 			}
+			var roomid = toID(this.title);
+			var allHighlights = Dex.prefs('highlights') || {};
+			var roomHighlights = allHighlights[roomid] || [];
+			var globalHighlights = allHighlights['global'] || [];
+			var highlights = roomHighlights.concat(globalHighlights);
 			if (!Dex.prefs('noselfhighlight') && app.user.nameRegExp) {
 				if (app.user.nameRegExp.test(message)) return true;
 			}
-			return ((highlights.length > 0) && app.highlightRegExp.test(message));
+			var highlighRegExp;
+			try {
+				highlighRegExp = this.getHighlightRegExp(highlights);
+			} catch (e) {
+				// If the expression above is not a regexp, we'll get here.
+				// Don't throw an exception because that would prevent the chat
+				// message from showing up, or, when the lobby is initialising,
+				// it will prevent the initialisation from completing.
+				return false;
+			}
+			return ((highlights.length > 0) && highlighRegExp.test(message));
 		},
-		updateHighlightRegExp: function (highlights) {
+		convertHighlights: function (highlights) {
+			var newHLs = {global: []};
+			for (var i = 0; i < highlights.length; i++) {
+				newHLs.global.push(highlights[i]);
+			}
+			Dex.prefs('highlights', newHLs);
+		},
+		getHighlightRegExp: function (highlights) {
 			// Enforce boundary for match sides, if a letter on match side is
 			// a word character. For example, regular expression "a" matches
 			// "a", but not "abc", while regular expression "!" matches
 			// "!" and "!abc".
-			app.highlightRegExp = new RegExp('(?:\\b|(?!\\w))(?:' + highlights.join('|') + ')(?:\\b|(?!\\w))', 'i');
+			return new RegExp('(?:\\b|(?!\\w))(?:' + highlights.join('|') + ')(?:\\b|(?!\\w))', 'i');
 		},
 
 		// chat history
@@ -705,7 +718,7 @@
 
 			case 'hl':
 			case 'highlight':
-				var highlights = Dex.prefs('highlights') || [];
+				var highlights = Dex.prefs('highlights') || {};
 				if (target.indexOf(',') > -1) {
 					var targets = target.match(/([^,]+?({\d*,\d*})?)+/g);
 					// trim the targets to be safe
@@ -713,7 +726,9 @@
 						targets[i] = targets[i].replace(/\n/g, '').trim();
 					}
 					switch (targets[0]) {
-					case 'add':
+					case 'add': case 'roomadd':
+						var key = targets[0] === 'roomadd' ? toID(this.title) : 'global';
+						var highlightList = highlights[key] || [];
 						for (var i = 1, len = targets.length; i < len; i++) {
 							if (!targets[i]) continue;
 							if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
@@ -724,26 +739,24 @@
 									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);
 								}
 							}
-							if (highlights.indexOf(targets[i]) > -1) {
+							if (highlightList.indexOf(targets[i]) > -1) {
 								return this.add(targets[i] + ' is already on your highlights list.');
 							}
 						}
-						highlights = highlights.concat(targets.slice(1));
-						this.add("Now highlighting on: " + highlights.join(', '));
-						// We update the regex
-						this.updateHighlightRegExp(highlights);
+						highlights[key] = highlightList.concat(targets.slice(1));
+						this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
 						break;
-					case 'delete':
+					case 'delete': case 'roomdelete':
+						var key = targets[0] === 'roomdelete' ? toID(this.title) : 'global';
+						var highlightList = highlights[key] || [];
 						var newHls = [];
-						for (var i = 0, len = highlights.length; i < len; i++) {
-							if (targets.indexOf(highlights[i]) === -1) {
-								newHls.push(highlights[i]);
+						for (var i = 0, len = highlightList.length; i < len; i++) {
+							if (targets.indexOf(highlightList[i]) === -1) {
+								newHls.push(highlightList[i]);
 							}
 						}
-						highlights = newHls;
-						this.add("Now highlighting on: " + highlights.join(', '));
-						// We update the regex
-						this.updateHighlightRegExp(highlights);
+						highlights[key] = newHls;
+						this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
 						break;
 					default:
 						// Wrong command
@@ -751,15 +764,17 @@
 						this.parseCommand('/help highlight'); // show help
 						return false;
 					}
+					console.log(highlights);
 					Dex.prefs('highlights', highlights);
 				} else {
 					if (target === 'delete') {
 						Dex.prefs('highlights', false);
 						this.add("All highlights cleared");
-					} else if (target === 'show' || target === 'list') {
+					} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
 						// Shows a list of the current highlighting words
-						if (highlights.length > 0) {
-							this.add("Current highlight list: " + highlights.join(", "));
+						var key = target.startsWith('room') ? toID(this.title) : 'global';
+						if (highlights[key].length > 0) {
+							this.add("Current highlight list " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(", "));
 						} else {
 							this.add('Your highlight list is empty.');
 						}
@@ -996,8 +1011,11 @@
 				case 'hl':
 					this.add('Set up highlights:');
 					this.add('/highlight add, [word] - Add the word [word] to the highlight list.');
+					this.add('/highlight roomadd, [word] - Add the word [word] to the highlight list of whichever room you used the command in.');
 					this.add('/highlight list - List all words that currently highlight you.');
-					this.add('/highlight delete, [word] - Delete the word [word] from the highlight list.');
+					this.add('/highlight roomlist - List all words that currently highlight you in whichever room you used the command in.');
+					this.add('/highlight delete, [word] - Delete the word [word] from your entire highlight list.');
+					this.add('/highlight roomdelete, [word] - Delete the word [word] from the highlight list of whichever room you used the command in.');
 					this.add('/highlight delete - Clear the highlight list.');
 					return false;
 				case 'rank':
