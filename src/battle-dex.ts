@@ -215,7 +215,7 @@ const Dex = new class implements ModdedDex {
 	readonly statNames: ReadonlyArray<StatName> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 	readonly statNamesExceptHP: ReadonlyArray<StatNameExceptHP> = ['atk', 'def', 'spa', 'spd', 'spe'];
 
-	pokeballs: {[k: string]: Item} = null!;
+	pokeballs: string[] = null!;
 
 	resourcePrefix = (() => {
 		let prefix = '';
@@ -760,11 +760,11 @@ const Dex = new class implements ModdedDex {
 
 	getPokeballs() {
 		if (this.pokeballs) return this.pokeballs;
-		this.pokeballs = {};
+		this.pokeballs = [];
 		if (!window.BattleItems) window.BattleItems = {};
 		for (const data of Object.values(window.BattleItems) as AnyObject[]) {
 			if (!data.isPokeball) continue;
-			this.pokeballs[data.id] = new Item(data.id, data.name, data);
+			this.pokeballs.push(data.name);
 		}
 		return this.pokeballs;
 	}
@@ -778,7 +778,7 @@ class ModdedDex {
 		Items: {} as any as {[k: string]: Item},
 		Templates: {} as any as {[k: string]: Template},
 	};
-	pokeballs: {[k: string]: Item} = null!;
+	pokeballs: string[] = null!;
 	getAbility: (nameOrAbility: string | Ability | null | undefined) => Ability = Dex.getAbility;
 	constructor(modid: ID) {
 		this.modid = modid;
@@ -886,12 +886,12 @@ class ModdedDex {
 
 	getPokeballs() {
 		if (this.pokeballs) return this.pokeballs;
-		this.pokeballs = {};
+		this.pokeballs = [];
 		if (!window.BattleItems) window.BattleItems = {};
 		for (const data of Object.values(window.BattleItems) as AnyObject[]) {
 			if (data.gen && data.gen > this.gen) continue;
 			if (!data.isPokeball) continue;
-			this.pokeballs[data.id] = new Item(data.id, data.name, data);
+			this.pokeballs.push(data.name);
 		}
 		return this.pokeballs;
 	}
