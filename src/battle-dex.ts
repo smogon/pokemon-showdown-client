@@ -215,6 +215,8 @@ const Dex = new class implements ModdedDex {
 	readonly statNames: ReadonlyArray<StatName> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 	readonly statNamesExceptHP: ReadonlyArray<StatNameExceptHP> = ['atk', 'def', 'spa', 'spd', 'spe'];
 
+	pokeballs: {[k: string]: Item} = null!;
+
 	resourcePrefix = (() => {
 		let prefix = '';
 		if (!window.document || !document.location || document.location.protocol !== 'http:') prefix = 'https:';
@@ -757,14 +759,14 @@ const Dex = new class implements ModdedDex {
 	}
 
 	getPokeballs() {
-		const balls: { [id: string]: Item } = {};
+		if (this.pokeballs) return this.pokeballs;
+		this.pokeballs = {};
 		if (!window.BattleItems) window.BattleItems = {};
-		for (const item of Object.values(window.BattleItems) as Item[]) {
-			// TODO: add isPokeball to data
-			if (!item.id.endsWith('ball') || item.id === 'ironball' || item.id === 'lightball') continue;
-			balls[item.id] = item;
+		for (const data of Object.values(window.BattleItems) as AnyObject[]) {
+			if (!data.isPokeball) continue;
+			this.pokeballs[data.id] = new Item(data.id, data.name, data);
 		}
-		return balls;
+		return this.pokeballs;
 	}
 };
 
@@ -776,6 +778,7 @@ class ModdedDex {
 		Items: {} as any as {[k: string]: Item},
 		Templates: {} as any as {[k: string]: Template},
 	};
+	pokeballs: {[k: string]: Item} = null!;
 	getAbility: (nameOrAbility: string | Ability | null | undefined) => Ability = Dex.getAbility;
 	constructor(modid: ID) {
 		this.modid = modid;
@@ -882,15 +885,15 @@ class ModdedDex {
 	}
 
 	getPokeballs() {
-		const balls: { [id: string]: Item } = {};
+		if (this.pokeballs) return this.pokeballs;
+		this.pokeballs = {};
 		if (!window.BattleItems) window.BattleItems = {};
-		for (const item of Object.values(window.BattleItems) as Item[]) {
-			if (item.gen && item.gen > this.gen) continue;
-			// TODO: add isPokeball to data
-			if (!item.id.endsWith('ball') || item.id === 'ironball' || item.id === 'lightball') continue;
-			balls[item.id] = item;
+		for (const data of Object.values(window.BattleItems) as AnyObject[]) {
+			if (data.gen && data.gen > this.gen) continue;
+			if (!data.isPokeball) continue;
+			this.pokeballs[data.id] = new Item(data.id, data.name, data);
 		}
-		return balls;
+		return this.pokeballs;
 	}
 }
 

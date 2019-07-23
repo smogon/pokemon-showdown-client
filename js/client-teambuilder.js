@@ -2454,8 +2454,7 @@
 
 			// pokeball
 			var pokeball = this.$chart.find('select[name=pokeball]').val();
-			// TODO: add isPokeball and use getItem(pokeball).isPokeball instead
-			if (pokeball && Dex.forGen(this.curTeam.gen).getPokeballs()[pokeball]) {
+			if (pokeball && Dex.forGen(this.curTeam.gen).getItem(pokeball).isPokeball) {
 				set.pokeball = pokeball;
 			} else {
 				delete set.pokeball;
