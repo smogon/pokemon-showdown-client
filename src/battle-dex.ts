@@ -215,7 +215,7 @@ const Dex = new class implements ModdedDex {
 	readonly statNames: ReadonlyArray<StatName> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 	readonly statNamesExceptHP: ReadonlyArray<StatNameExceptHP> = ['atk', 'def', 'spa', 'spd', 'spe'];
 
-	pokeballs: string[] = null!;
+	pokeballs: string[] | null = null;
 
 	resourcePrefix = (() => {
 		let prefix = '';
@@ -778,7 +778,7 @@ class ModdedDex {
 		Items: {} as any as {[k: string]: Item},
 		Templates: {} as any as {[k: string]: Template},
 	};
-	pokeballs: string[] = null!;
+	pokeballs: string[] | null = null;
 	getAbility: (nameOrAbility: string | Ability | null | undefined) => Ability = Dex.getAbility;
 	constructor(modid: ID) {
 		this.modid = modid;
