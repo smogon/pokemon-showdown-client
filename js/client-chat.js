@@ -778,10 +778,10 @@
 					} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
 						// Shows a list of the current highlighting words
 						var key = target.startsWith('room') ? (Config.server.id + '#' + this.id) : 'global';
-						if (highlights[key].length > 0) {
+						if (highlights[key] && highlights[key].length > 0) {
 							this.add("Current highlight list " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(", "));
 						} else {
-							this.add('Your highlight list is empty.');
+							this.add('Your highlight list' + (key === 'global' ? '' : ' in ' + this.id) + ' is empty.');
 						}
 					} else {
 						// Wrong command
