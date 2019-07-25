@@ -238,10 +238,12 @@
 			// a word character. For example, regular expression "a" matches
 			// "a", but not "abc", while regular expression "!" matches
 			// "!" and "!abc".
-			if (!app.highlightRegExp) {
-				app.highlightRegExp = {};
-			}
+			app.highlightRegExp = {};
 			for (var i in highlights) {
+				if (!highlights[i].length) {
+					app.highlightRegExp[i] = null;
+					continue;
+				}
 				app.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
 			}
 		},
