@@ -781,7 +781,7 @@
 						if (highlights[key] && highlights[key].length > 0) {
 							this.add("Current highlight list " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(", "));
 						} else {
-							this.add('Your highlight list ' + (key === 'global' ? 'everywhere' : 'in ' + this.id) + ' is empty.');
+							this.add('Your highlight list' + (key === 'global' ? '' : ' in ' + this.id) + ' is empty.');
 						}
 					} else {
 						// Wrong command
