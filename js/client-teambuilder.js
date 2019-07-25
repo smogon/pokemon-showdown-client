@@ -37,6 +37,7 @@
 
 			// details
 			'change .detailsform input': 'detailsChange',
+			'change .detailsform select': 'detailsChange',
 			'click .changeform' : 'altForm',
 			'click .altform' : 'altForm',
 
@@ -2392,6 +2393,26 @@
 				buf += '</div></div>';
 			}
 
+			if (this.curTeam.gen > 2) {
+				buf += '<div class="formrow"><label class="formlabel">Pokeball</label><div><select name="pokeball">';
+				buf += '<option value=""' + (!set.pokeball ? ' selected="selected"' : '') + '></option>'; // unset
+				var balls = Dex.forGen(this.curTeam.gen).getPokeballs();
+				for (var i = 0; i < balls.length; i++) {
+					var id = toID(balls[i]);
+					buf += '<option value="' + id + '"' + (set.pokeball === id ? ' selected="selected"' : '') + '>' + balls[i] + '</option>';
+				}
+				buf += '</select></div></div>';
+			}
+
+			if (this.curTeam.gen > 6) {
+				buf += '<div class="formrow"><label class="formlabel">HP Type:</label><div><select name="hptype">';
+				buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '></option>'; // unset
+				for (var type in exports.BattleTypeChart) {
+					buf += '<option value="' + type + '"' + (set.hpType === type ? ' selected="selected"' : '') + '>' + type + '</option>';
+				}
+				buf += '</select></div></div>';
+			}
+
 			buf += '</form>';
 			if (template.otherForms && template.baseSpecies !== 'Unown') {
 				buf += '<button class="altform">Change sprite</button>';
@@ -2424,11 +2445,28 @@
 				delete set.shiny;
 			}
 
+			// gender
 			var gender = this.$chart.find('input[name=gender]:checked').val();
 			if (gender === 'M' || gender === 'F') {
 				set.gender = gender;
 			} else {
 				delete set.gender;
+			}
+
+			// pokeball
+			var pokeball = this.$chart.find('select[name=pokeball]').val();
+			if (pokeball && Dex.forGen(this.curTeam.gen).getItem(pokeball).isPokeball) {
+				set.pokeball = pokeball;
+			} else {
+				delete set.pokeball;
+			}
+
+			// HP type
+			var hpType = this.$chart.find('select[name=hptype]').val();
+			if (hpType && exports.BattleTypeChart[hpType]) {
+				set.hpType = hpType;
+			} else {
+				delete set.hpType;
 			}
 
 			// update details cell
