@@ -31,6 +31,15 @@ class Replays {
 		$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
 	}
 
+	function genPassword() {
+		$alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
+		$password = '';
+		for ($i = 0; $i < 31; $i++) {
+			$password .= $alphabet{mt_rand(0, 35)};
+		}
+		return $password;
+	}
+
 	function get($id, $force = false) {
 		if (!$this->db) {
 			// if (!$force) return false;
@@ -45,8 +54,14 @@ class Replays {
 		if ($replay['p1'][0] === '!') $replay['p1'] = substr($replay['p1'], 1);
 		if ($replay['p2'][0] === '!') $replay['p2'] = substr($replay['p2'], 1);
 
-		$res = $this->db->prepare("UPDATE ps_replays SET views = views + 1 WHERE id = ? LIMIT 1");
-		$res->execute([$id]);
+		// if ($replay['private'] && !($replay['password'] ?? null)) {
+		// 	$replay['password'] = $this->genPassword();
+		// 	$res = $this->db->prepare("UPDATE ps_replays SET views = views + 1, `password` = ? WHERE id = ? LIMIT 1");
+		// 	$res->execute([$replay['password'], $id]);
+		// } else {
+			$res = $this->db->prepare("UPDATE ps_replays SET views = views + 1 WHERE id = ? LIMIT 1");
+			$res->execute([$id]);
+		// }
 
 		return $replay;
 	}
@@ -71,7 +86,7 @@ class Replays {
 		$term = $this->toID($term);
 		$isPrivate = $isPrivate ? 1 : 0;
 		// $res = $this->db->prepare("SELECT uploadtime, id, format, p1, p2 FROM ps_replays WHERE private = 0 AND (p1id = ? OR p2id = ?) ORDER BY uploadtime DESC LIMIT ?, 51");
-		$res = $this->db->prepare("(SELECT uploadtime, id, format, p1, p2 FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? ORDER BY uploadtime DESC) UNION (SELECT uploadtime, id, format, p1, p2 FROM ps_replays FORCE INDEX (p2) WHERE private = ? AND p2id = ? ORDER BY uploadtime DESC) ORDER BY uploadtime DESC LIMIT ?, 51;");
+		$res = $this->db->prepare("(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? ORDER BY uploadtime DESC) UNION (SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p2) WHERE private = ? AND p2id = ? ORDER BY uploadtime DESC) ORDER BY uploadtime DESC LIMIT ?, 51;");
 		$res->execute([$isPrivate, $term, $isPrivate, $term, $limit1]);
 
 		return $res->fetchAll();
@@ -93,11 +108,11 @@ class Replays {
 		$res = null;
 		switch (count($patterns)) {
 		case 1:
-			$res = $this->db->prepare("SELECT /*+ MAX_EXECUTION_TIME(10000) */ uploadtime, id, format, p1, p2 FROM ps_replays FORCE INDEX (recent) WHERE private = 0 AND log LIKE ? ORDER BY uploadtime DESC LIMIT 10;");
+			$res = $this->db->prepare("SELECT /*+ MAX_EXECUTION_TIME(10000) */ uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (recent) WHERE private = 0 AND log LIKE ? ORDER BY uploadtime DESC LIMIT 10;");
 			$res->execute($patterns);
 			break;
 		case 2:
-			$res = $this->db->prepare("SELECT /*+ MAX_EXECUTION_TIME(10000) */ uploadtime, id, format, p1, p2 FROM ps_replays FORCE INDEX (recent) WHERE private = 0 AND log LIKE ? AND log LIKE ? ORDER BY uploadtime DESC LIMIT 10;");
+			$res = $this->db->prepare("SELECT /*+ MAX_EXECUTION_TIME(10000) */ uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (recent) WHERE private = 0 AND log LIKE ? AND log LIKE ? ORDER BY uploadtime DESC LIMIT 10;");
 			$res->execute($patterns);
 			break;
 		default;
@@ -116,9 +131,9 @@ class Replays {
 		$term = $this->toID($term);
 		$res = null;
 		if ($byRating) {
-			$res = $this->db->prepare("SELECT uploadtime, id, format, p1, p2, rating FROM ps_replays FORCE INDEX (top) WHERE private = 0 AND formatid = ? ORDER BY rating DESC LIMIT ?, 51");
+			$res = $this->db->prepare("SELECT uploadtime, id, format, p1, p2, rating, password FROM ps_replays FORCE INDEX (top) WHERE private = 0 AND formatid = ? ORDER BY rating DESC LIMIT ?, 51");
 		} else {
-			$res = $this->db->prepare("SELECT uploadtime, id, format, p1, p2 FROM ps_replays FORCE INDEX (format) WHERE private = 0 AND formatid = ? ORDER BY uploadtime DESC LIMIT ?, 51");
+			$res = $this->db->prepare("SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (format) WHERE private = 0 AND formatid = ? ORDER BY uploadtime DESC LIMIT ?, 51");
 		}
 		$res->execute([$term, $limit1]);
 
@@ -138,6 +153,7 @@ class Replays {
 
 		$id = $reqData['id'];
 		$private = (@$reqData['hidden'] ? 1 : 0);
+		if ($reqData['hidden'] ?? null === '2') $private = 2;
 		$p1 = $users->wordfilter($reqData['p1']);
 		$p2 = $users->wordfilter($reqData['p2']);
 		$format = $reqData['format'];
@@ -177,42 +193,58 @@ class Replays {
 			return 'database error for ' . $id . ': ' . $res->errorInfo();
 		}
 
+		$pReplay = $res->fetch();
+
+		$res = $this->db->prepare("SELECT id, `password` FROM ps_replays WHERE id = ?");
+		$res->execute([$id]);
 		$replay = $res->fetch();
-		if (!$replay) {
-			$res = $this->db->prepare("SELECT id FROM ps_replays WHERE id = ?");
-			$res->execute([$id]);
-			if ($res->fetch()) {
+
+		if (!$pReplay) {
+			if ($replay) {
 				// Someone else uploaded a replay while we were trying to upload it
-				return 'success';
+				if ($replay['password']) $id .= '-' . $replay['password'] . 'pw';
+				return 'success:' . $id;
 			}
 			if (!preg_match('/^[a-z0-9]+-[a-z0-9]+-[0-9]+$/', $id)) {
 				return 'invalid id';
 			}
 			return 'not found';
 		}
-		if (md5($this->stripNonAscii($reqData['log'])) !== $replay['loghash']) {
+
+		$password = null;
+		if ($pReplay['private'] && $pReplay['private'] !== 2) {
+			if ($replay && $replay['password']) {
+				$password = $replay['password'];
+			} else if (!($replay && $replay['private'])) {
+				$password = $this->genPassword();
+			}
+		}
+		$fullid = $id;
+		if ($password) $fullid .= '-' . $password . 'pw';
+
+		if (md5($this->stripNonAscii($reqData['log'])) !== $pReplay['loghash']) {
 			$reqData['log'] = str_replace("\r",'', $reqData['log']);
-			if (md5($this->stripNonAscii($reqData['log'])) !== $replay['loghash']) {
+			if (md5($this->stripNonAscii($reqData['log'])) !== $pReplay['loghash']) {
 				// Hashes don't match.
 
 				// Someone else tried to upload a replay of the same battle,
 				// while we were uploading this
 				// ...pretend it was a success
-				return 'success';
+				return 'success' . $fullid;
 			}
 		}
 
-		$p1id = $this->toID($replay['p1']);
-		$p2id = $this->toID($replay['p2']);
-		$formatid = $this->toID($replay['format']);
+		$p1id = $this->toID($pReplay['p1']);
+		$p2id = $this->toID($pReplay['p2']);
+		$formatid = $this->toID($pReplay['format']);
 
-		$res = $this->db->prepare("INSERT INTO ps_replays (id, p1, p2, format, p1id, p2id, formatid, uploadtime, private, rating, log, inputlog) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE log = ?, inputlog = ?, rating = ?");
-		$res->execute([$id, $replay['p1'], $replay['p2'], $replay['format'], $p1id, $p2id, $formatid, $replay['uploadtime'], $replay['private'], $replay['rating'], $reqData['log'], $replay['inputlog'], $reqData['log'], $replay['inputlog'], $replay['rating']]);
+		$res = $this->db->prepare("INSERT INTO ps_replays (id, p1, p2, format, p1id, p2id, formatid, uploadtime, private, rating, log, inputlog, `password`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE log = ?, inputlog = ?, rating = ?, private = ?, `password` = ?");
+		$res->execute([$id, $pReplay['p1'], $pReplay['p2'], $pReplay['format'], $p1id, $p2id, $formatid, $pReplay['uploadtime'], $pReplay['private'] ? 1 : 0, $pReplay['rating'], $reqData['log'], $pReplay['inputlog'], $password, $reqData['log'], $pReplay['inputlog'], $pReplay['rating'], $pReplay['private'] ? 1 : 0, $password]);
 
 		$res = $this->db->prepare("DELETE FROM ps_prepreplays WHERE id = ? AND loghash = ?");
-		$res->execute([$id, $replay['loghash']]);
+		$res->execute([$id, $pReplay['loghash']]);
 
-		return 'success';
+		return 'success:' . $fullid;
 	}
 
 	function userid($username) {
