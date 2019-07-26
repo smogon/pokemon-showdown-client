@@ -6,7 +6,10 @@ ini_set('display_startup_errors', TRUE);
 
 include_once 'theme/panels.lib.php';
 
-if (!@$_REQUEST['name']) {
+$id = $_REQUEST['name'] ?? '';
+$password = '';
+
+if (!$id) {
 	include '404.php';
 	die();
 }
@@ -20,7 +23,15 @@ if (isset($_REQUEST['manage'])) {
 	$manage = true;
 }
 
-if (preg_match('/[^A-Za-z0-9-]/', $_REQUEST['name'])) die("access denied");
+if (preg_match('/[^A-Za-z0-9-]/', $id)) die("access denied");
+
+$fullid = $id;
+if (substr($id, -2) === 'pw') {
+	$dashpos = strrpos($id, '-');
+	$password = substr($id, $dashpos + 1, -2);
+	$id = substr($id, 0, $dashpos);
+	// die($id . ' ' . $password);
+}
 
 $replay = null;
 $cached = false;
@@ -28,8 +39,8 @@ $cached = false;
 // $forcecache = isset($_REQUEST['forcecache8723']);
 $forcecache = false;
 
-if (file_exists('caches/' . $_REQUEST['name'] . '.inc.php')) {
-	include 'caches/' . $_REQUEST['name'] . '.inc.php';
+if (file_exists('caches/' . $id . '.inc.php')) {
+	include 'caches/' . $id . '.inc.php';
 	$replay['formatid'] = '';
 	$cached = true;
 } else {
@@ -38,17 +49,34 @@ if (file_exists('caches/' . $_REQUEST['name'] . '.inc.php')) {
 		include '503.php';
 		die();
 	}
-	$replay = $Replays->get($_REQUEST['name'], $forcecache);
+	$replay = $Replays->get($id, $forcecache);
 }
 if (!$replay) {
 	include '404.php';
 	die();
 }
 
-if (@$replay['private']) header('X-Robots-Tag: noindex');
+if (@$replay['private']) {
+	header('X-Robots-Tag: noindex');
+}
+if (@$replay['password']) {
+	if (!$password && !$manage) {
+		require_once '../lib/ntbb-session.lib.php';
+		if ($curuser['userid'] !== $replay['p1id'] && $curuser['userid'] !== $replay['p2id']) {
+			die("Access denied (you must be logged into " . $replay['p1id'] . " or " . $replay['p2id'] . ")");
+		}
+		$url = '/' . $id . '-' . $replay['password'] . 'pw';
+		echo '<p>This private replay now has a new harder-to-guess URL:</p>';
+		echo '<p><a href="' . $url . '" data-target="replace">https://replay.pokemonshowdown.com' . $url . '</a></p>';
+		die();
+	}
+	if ($password !== $replay['password'] && !$manage) {
+		die("Access denied (please ask " . $replay['p1id'] . " or " . $replay['p2id'] . " for the password)");
+	}
+}
 
 if ($forcecache) {
-	file_put_contents('caches/' . $_REQUEST['name'] . '.inc.php', '<?php $replay = ' . var_export($replay, true) . ';');
+	file_put_contents('caches/' . $id . '.inc.php', '<?php $replay = ' . var_export($replay, true) . ';');
 }
 
 function userid($username) {
@@ -100,7 +128,7 @@ $panels->start();
 
 			<?php if (@$replay['private']) echo '<strong>THIS REPLAY IS PRIVATE</strong> - make sure you have the owner\'s permission to share<br />'; ?>
 
-			<pre class="urlbox" style="word-wrap: break-word;"><?php echo htmlspecialchars('http://replay.pokemonshowdown.com/'.$_REQUEST['name']); ?></pre>
+			<pre class="urlbox" style="word-wrap: break-word;"><?php echo htmlspecialchars('http://replay.pokemonshowdown.com/'.$fullid); ?></pre>
 
 			<h1 style="font-weight:normal;text-align:left"><strong><?= htmlspecialchars($format) ?></strong>: <a href="//pokemonshowdown.com/users/<?= userid($replay['p1']) ?>" class="subtle"><?= htmlspecialchars($replay['p1']) ?></a> vs. <a href="//pokemonshowdown.com/users/<?= userid($replay['p2']) ?>" class="subtle"><?= htmlspecialchars($replay['p2']) ?></a></h1>
 			<p style="padding:0 1em;margin-top:0">

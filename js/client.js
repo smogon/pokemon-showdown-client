@@ -1262,8 +1262,9 @@ function toId() {
 				log: data.log,
 				id: id
 			}, function (data) {
-				if (data === 'success') {
-					app.addPopup(ReplayUploadedPopup, {id: id});
+				var sData = data.split(':');
+				if (sData[0] === 'success') {
+					app.addPopup(ReplayUploadedPopup, {id: sData[1] || id});
 				} else if (data === 'hash mismatch') {
 					app.addPopupMessage("Someone else is already uploading a replay of this battle. Try again in five seconds.");
 				} else if (data === 'not found') {

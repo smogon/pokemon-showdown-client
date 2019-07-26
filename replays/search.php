@@ -237,8 +237,10 @@ if ($username || $format || $contains) {
 			if ($prevtimeoffset === $timeoffset) break;
 		}
 		echo $timetext;
+		$replayid = $replay['id'];
+		if ($replay['password'] ?? null) $replayid .= '-' . $replay['password'] . 'pw';
 ?>
-		<li><a href="/<?php echo $replay['id']; ?>" data-target="push"><small>[<?php echo $replay['format']; ?>]<?php if (@$replay['rating']) echo ' rating: '.$replay['rating']; ?><br /></small> <strong><?php echo htmlspecialchars($replay['p1']); ?></strong> vs. <strong><?php echo htmlspecialchars($replay['p2']); ?></strong></a></li>
+		<li><a href="/<?php echo $replayid; ?>" data-target="push"><small>[<?php echo $replay['format']; ?>]<?php if (@$replay['rating']) echo ' rating: '.$replay['rating']; ?><br /></small> <strong><?php echo htmlspecialchars($replay['p1']); ?></strong> vs. <strong><?php echo htmlspecialchars($replay['p2']); ?></strong></a></li>
 <?php
 		$count++;
 	}
