@@ -2405,7 +2405,7 @@
 			}
 
 			if (this.curTeam.gen > 6) {
-				buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">HP Type:</label><div><select name="hptype">';
+				buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">Hidden Power:</label><div><select name="hptype">';
 				buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '></option>'; // unset
 				for (var type in exports.BattleTypeChart) {
 					if (exports.BattleTypeChart[type].HPivs) {
