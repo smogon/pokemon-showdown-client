@@ -2398,8 +2398,7 @@
 				buf += '<option value=""' + (!set.pokeball ? ' selected="selected"' : '') + '></option>'; // unset
 				var balls = Dex.forGen(this.curTeam.gen).getPokeballs();
 				for (var i = 0; i < balls.length; i++) {
-					var id = toID(balls[i]);
-					buf += '<option value="' + id + '"' + (set.pokeball === id ? ' selected="selected"' : '') + '>' + balls[i] + '</option>';
+					buf += '<option value="' + balls[i] + '"' + (set.pokeball === balls[i] ? ' selected="selected"' : '') + '>' + balls[i] + '</option>';
 				}
 				buf += '</select></div></div>';
 			}
