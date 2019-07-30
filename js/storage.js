@@ -1167,6 +1167,8 @@ Storage.importTeam = function (buffer, teams) {
 			}
 		} else if (line.substr(0, 5) === 'IVs: ') {
 			line = line.substr(5);
+			if (line.trim().endsWith('(auto)')) continue;
+
 			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
 			if (line.trim() === '31 all') continue;
 
@@ -1300,7 +1302,7 @@ Storage.exportTeam = function (team) {
 				text += '31 all';
 			}
 			text += '  \n';
-		}
+		} // else if auto IVs aren't all 31, append them and add (auto)
 
 		if (curSet.moves) {
 			for (var j = 0; j < curSet.moves.length; j++) {
