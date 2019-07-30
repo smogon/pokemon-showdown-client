@@ -1,3 +1,98 @@
+// TODO: Move these helper fns elsewhere
+
+function getGen(format) {
+	format = '' + format;
+	if (!format) return 7;
+	if (format.substr(0, 3) !== 'gen') return 6;
+	return parseInt(format.substr(3, 1), 10) || 6;
+}
+
+function canHyperTrain(set, format) {
+	var gen = getGen(format);
+	if (gen < 7 || format === 'gen7hiddentype') return false;
+	if (!set.level || set.level === 100) return true;
+	if (format.substr(0, 3) === 'gen') format = format.substr(4);
+	if (format.substr(0, 10) === 'battlespot' || format.substr(0, 3) === 'vgc' || format === 'ultrasinnohclassic') {
+		if (set.level === 50) return true;
+	}
+	return false;
+}
+
+function getDesiredHPType(moves) {
+	for (var i = 0; i < moves.length; ++i) {
+		if (moves[i] && moves[i].substr(0, 13) === 'Hidden Power ') {
+			return moves[i].substr(13);
+		}
+	}
+	return '';
+}
+
+function getAutoIVs(set, format) {
+	return {
+		hp: getAutoIV('hp', set, format),
+		atk: getAutoIV('atk', set, format),
+		def: getAutoIV('def', set, format),
+		spa: getAutoIV('spa', set, format),
+		spd: getAutoIV('spd', set, format),
+		spe: getAutoIV('spe', set, format)
+	};
+}
+
+function getAutoIV(stat, set, format) {
+	// TODO Modify the caller to acct for this
+	// if (!set) set = this.curSet;
+	var minValue = 0;
+	var maxValue = 31;
+	var useMaxValue = true;
+
+	var moves = set.moves;
+	var gen = getGen(format);
+	var hpType = getDesiredHPType(moves);
+	var canHyperTrain = canHyperTrain(set, format);
+
+	if (hpType) {
+		if (gen > 2) {
+			minValue = (exports.BattleTypeChart[hpType].HPivs[stat] || 31) % 2;
+			if (!canHyperTrain) {
+				// Must have matching parity for the correct Hidden Power type
+				maxValue = 30 + minValue;
+			}
+		} else if (stat === 'atk' || stat === 'def') { // Gen 2 only uses atk/def to calc HP type
+			minValue = ((exports.BattleTypeChart[hpType].HPdvs[stat] || 15) % 4) * 2; // Results in 0, 2, 4, or 6
+			maxValue = (minValue === 6 ? 31 : 24 + minValue);
+		}
+	}
+
+	if (stat === 'atk') {
+		if (gen > 2 && set.ability !== 'Battle Bond') { // Ash-Greninja is only available through an event with 31 Atk IVs
+			useMaxValue = false; // Default to 0 Atk IVs if we don't have a physical attacking move
+			for (var i = 0; i < moves.length; ++i) {
+				if (!moves[i]) continue;
+				var move = Dex.forGen(gen).getMove(moves[i]);
+				if (move.category === 'Physical' &&
+					!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
+					useMaxValue = true;
+					break;
+				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
+					useMaxValue = true;
+					break;
+				}
+			}
+		}
+	} else if (stat === 'spe') {
+		for (var i = 0; i < moves.length; ++i) {
+			if (moves[i] === 'Gyro Ball') {
+				useMaxValue = false;
+				break;
+			}
+		}
+	}
+
+	return useMaxValue ? maxValue : minValue;
+}
+
+// END TODO
+
 Config.origindomain = 'play.pokemonshowdown.com';
 // `defaultserver` specifies the server to use when the domain name in the
 // address bar is `Config.origindomain`.

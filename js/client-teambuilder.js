@@ -19,7 +19,7 @@
 		focus: function () {
 			if (this.curTeam) {
 				this.curTeam.iconCache = '!';
-				this.curTeam.gen = this.getGen(this.curTeam.format);
+				this.curTeam.gen = getGen(this.curTeam.format);
 				Storage.activeSetList = this.curSetList;
 			}
 		},
@@ -665,7 +665,7 @@
 			i = +i;
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
-			this.curTeam.gen = this.getGen(this.curTeam.format);
+			this.curTeam.gen = getGen(this.curTeam.format);
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -1293,7 +1293,7 @@
 		},
 		changeFormat: function (format) {
 			this.curTeam.format = format;
-			this.curTeam.gen = this.getGen(this.curTeam.format);
+			this.curTeam.gen = getGen(this.curTeam.format);
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
 			this.update();
@@ -1956,7 +1956,7 @@
 
 			if (this.curTeam.gen > 2) {
 				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
-				var ivs = set.ivs || this.getAutoIVs();
+				var ivs = set.ivs || getAutoIVs(set, this.curTeam.format);
 				for (var i in stats) {
 					var val = '' + (ivs[i]);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" ' + (set.ivs ? '' : 'disabled') + ' /></div>';
@@ -1970,7 +1970,7 @@
 						}
 					}
 				}
-				if (hpType && !this.canHyperTrain(set)) {
+				if (hpType && !canHyperTrain(set, this.curTeam.format)) {
 					var hpIVs;
 					switch (hpType) {
 					case 'dark':
@@ -2079,7 +2079,7 @@
 				buf += '</div>';
 			} else {
 				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
-				var ivs = set.ivs || this.getAutoIVs();
+				var ivs = set.ivs || getAutoIVs(set, this.curTeam.format);
 				for (var i in stats) {
 					var val = '' + Math.floor(ivs[i] / 2);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" ' + (set.ivs ? '' : 'disabled') + ' /></div>';
@@ -2214,7 +2214,7 @@
 		},
 		updateIVs: function () {
 			var set = this.curSet;
-			if (!set.moves || this.canHyperTrain(set)) return;
+			if (!set.moves || canHyperTrain(set, this.curTeam.format)) return;
 			var hasHiddenPower = false;
 			for (var i = 0; i < set.moves.length; i++) {
 				if (toID(set.moves[i]).slice(0, 11) === 'hiddenpower') {
@@ -2226,7 +2226,7 @@
 			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
 			var hpType;
 			if (this.curTeam.gen <= 2) {
-				var ivs = set.ivs || this.getAutoIVs();
+				var ivs = set.ivs || getAutoIVs(set, this.curTeam.format);
 				var atkDV = Math.floor(ivs.atk / 2);
 				var defDV = Math.floor(ivs.def / 2);
 				hpType = hpTypes[4 * (atkDV % 4) + (defDV % 4)];
@@ -2248,7 +2248,7 @@
 			} else {
 				var hpTypeX = 0;
 				var i = 1;
-				var ivs = set.ivs || this.getAutoIVs();
+				var ivs = set.ivs || getAutoIVs(set, this.curTeam.format);
 				for (var s in ivs) {
 					hpTypeX += i * (ivs[s] % 2);
 					i *= 2;
@@ -2372,7 +2372,7 @@
 			if (newValue) {
 				// Reset the IVs to their defaults
 				set.ivs = null;
-				var autoIVs = this.getAutoIVs();
+				var autoIVs = getAutoIVs(set, this.curTeam.format);
 				for (var stat in autoIVs) {
 					var val = this.curTeam.gen > 2 ? autoIVs[stat] : Math.floor(autoIVs[stat] / 2);
 					var input = this.$chart.find('input[name=iv-' + stat + ']');
@@ -2386,7 +2386,7 @@
 				// We are still using the same IVs, but this causes them to become "hardcoded" instead
 				// of automatically inferred. For example, if the user adds Gyro Ball to the moveset afterwards,
 				// we will not adjust their speed. Also, we will include any non-31 IVs in the export.
-				if (!set.ivs) set.ivs = this.getAutoIVs();
+				if (!set.ivs) set.ivs = getAutoIVs(set, this.curTeam.format);
 
 				for (var stat in set.ivs) {
 					var input = this.$chart.find('input[name=iv-' + stat + ']');
@@ -2777,16 +2777,6 @@
 			}
 			this.save();
 		},
-		canHyperTrain: function (set) {
-			if (this.curTeam.gen < 7 || this.curTeam.format === 'gen7hiddentype') return false;
-			var format = this.curTeam.format;
-			if (!set.level || set.level === 100) return true;
-			if (format.substr(0, 3) === 'gen') format = format.substr(4);
-			if (format.substr(0, 10) === 'battlespot' || format.substr(0, 3) === 'vgc' || format === 'ultrasinnohclassic') {
-				if (set.level === 50) return true;
-			}
-			return false;
-		},
 		chooseMove: function (moveName) {
 			var set = this.curSet;
 			if (moveName === 'Return') {
@@ -2887,88 +2877,6 @@
 			}
 			return Math.floor(val);
 		},
-
-		getAutoIVs: function (set) {
-			return {
-				hp: this.getAutoIV('hp', set),
-				atk: this.getAutoIV('atk', set),
-				def: this.getAutoIV('def', set),
-				spa: this.getAutoIV('spa', set),
-				spd: this.getAutoIV('spd', set),
-				spe: this.getAutoIV('spe', set)
-			};
-		},
-
-		getAutoIV: function (stat, set) {
-			if (!set) set = this.curSet;
-			var minValue = 0;
-			var maxValue = 31;
-			var useMaxValue = true;
-
-			var moves = set.moves;
-			var gen = this.curTeam.gen;
-			var hpType = this.getDesiredHPType(moves);
-			var canHyperTrain = this.canHyperTrain(set);
-
-			if (hpType) {
-				if (gen > 2) {
-					minValue = (exports.BattleTypeChart[hpType].HPivs[stat] || 31) % 2;
-					if (!canHyperTrain) {
-						// Must have matching parity for the correct Hidden Power type
-						maxValue = 30 + minValue;
-					}
-				} else if (stat === 'atk' || stat === 'def') { // Gen 2 only uses atk/def to calc HP type
-					minValue = ((exports.BattleTypeChart[hpType].HPdvs[stat] || 15) % 4) * 2; // Results in 0, 2, 4, or 6
-					maxValue = (minValue === 6 ? 31 : 24 + minValue);
-				}
-			}
-
-			if (stat === 'atk') {
-				if (gen > 2 && set.ability !== 'Battle Bond') { // Ash-Greninja is only available through an event with 31 Atk IVs
-					useMaxValue = false; // Default to 0 Atk IVs if we don't have a physical attacking move
-					for (var i = 0; i < moves.length; ++i) {
-						if (!moves[i]) continue;
-						var move = Dex.forGen(gen).getMove(moves[i]);
-						if (move.category === 'Physical' &&
-							!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
-							useMaxValue = true;
-							break;
-						} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
-							useMaxValue = true;
-							break;
-						}
-					}
-				}
-			} else if (stat === 'spe') {
-				for (var i = 0; i < moves.length; ++i) {
-					if (moves[i] === 'Gyro Ball') {
-						useMaxValue = false;
-						break;
-					}
-				}
-			}
-
-			return useMaxValue ? maxValue : minValue;
-		},
-
-		getDesiredHPType: function (moves) {
-			for (var i = 0; i < moves.length; ++i) {
-				if (moves[i] && moves[i].substr(0, 13) === 'Hidden Power ') {
-					return moves[i].substr(13);
-				}
-			}
-
-			return '';
-		},
-
-		// initialization
-
-		getGen: function (format) {
-			format = '' + format;
-			if (!format) return 7;
-			if (format.substr(0, 3) !== 'gen') return 6;
-			return parseInt(format.substr(3, 1), 10) || 6;
-		}
 	});
 
 	var MoveSetPopup = exports.MoveSetPopup = Popup.extend({
