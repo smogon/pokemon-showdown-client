@@ -39,8 +39,7 @@ function getAutoIVs(set, format) {
 }
 
 function getAutoIV(stat, set, format) {
-	// TODO Modify the caller to acct for this
-	// if (!set) set = this.curSet;
+	if (!format) format = 'gen7';
 	var minValue = 0;
 	var maxValue = 31;
 	var useMaxValue = true;
@@ -48,17 +47,17 @@ function getAutoIV(stat, set, format) {
 	var moves = set.moves;
 	var gen = getGen(format);
 	var hpType = getDesiredHPType(moves);
-	var canHyperTrain = canHyperTrain(set, format);
+	var _canHyperTrain = canHyperTrain(set, format);
 
-	if (hpType) {
+	if (hpType && window.BattleTypeChart) {
 		if (gen > 2) {
-			minValue = (exports.BattleTypeChart[hpType].HPivs[stat] || 31) % 2;
-			if (!canHyperTrain) {
+			minValue = (window.BattleTypeChart[hpType].HPivs[stat] || 31) % 2;
+			if (!_canHyperTrain) {
 				// Must have matching parity for the correct Hidden Power type
 				maxValue = 30 + minValue;
 			}
 		} else if (stat === 'atk' || stat === 'def') { // Gen 2 only uses atk/def to calc HP type
-			minValue = ((exports.BattleTypeChart[hpType].HPdvs[stat] || 15) % 4) * 2; // Results in 0, 2, 4, or 6
+			minValue = ((window.BattleTypeChart[hpType].HPdvs[stat] || 15) % 4) * 2; // Results in 0, 2, 4, or 6
 			maxValue = (minValue === 6 ? 31 : 24 + minValue);
 		}
 	}
@@ -1308,7 +1307,7 @@ Storage.exportAllTeams = function () {
 	for (var i = 0, len = Storage.teams.length; i < len; i++) {
 		var team = Storage.teams[i];
 		buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
-		buf += Storage.exportTeam(team.team);
+		buf += Storage.exportTeam(team.team, team.format);
 		buf += '\n';
 	}
 	return buf;
@@ -1319,13 +1318,13 @@ Storage.exportFolder = function (folder) {
 		var team = Storage.teams[i];
 		if (team.folder + "/" === folder || team.format === folder) {
 			buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
-			buf += Storage.exportTeam(team.team);
+			buf += Storage.exportTeam(team.team, team.format);
 			buf += '\n';
 		}
 	}
 	return buf;
 };
-Storage.exportTeam = function (team) {
+Storage.exportTeam = function (team, format) {
 	if (!team) return "";
 	if (typeof team === 'string') {
 		if (team.indexOf('\n') >= 0) return team;
@@ -1398,7 +1397,7 @@ Storage.exportTeam = function (team) {
 			}
 			text += '  \n';
 		} else { // Automatic IVs
-			ivs = getAutoIVs(curSet, team.format);
+			ivs = getAutoIVs(curSet, format);
 			for (var j in BattleStatNames) {
 				var val = ivs[j];
 				if (val === 31) continue;
@@ -1683,7 +1682,7 @@ Storage.nwSaveTeam = function (team) {
 		this.nwDeleteTeam(team);
 	}
 	team.filename = filename;
-	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
+	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.format).replace(/\n/g, '\r\n'), function () {});
 };
 
 Storage.nwSaveTeams = function () {
@@ -1719,7 +1718,7 @@ Storage.nwDoSaveAllTeams = function () {
 		filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 		team.filename = filename;
-		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
+		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.format).replace(/\n/g, '\r\n'), function () {});
 	}
 };
 

@@ -817,7 +817,7 @@
 				// Chrome is dumb and doesn't support data URLs in HTTPS
 				urlprefix = "https://play.pokemonshowdown.com/action.php?act=dlteam&team=";
 			}
-			var contents = Storage.exportTeam(team.team).replace(/\n/g, '\r\n');
+			var contents = Storage.exportTeam(team.team, team.format).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
 			dataTransfer.setData("DownloadURL", downloadurl);
@@ -1053,7 +1053,7 @@
 			var buf = '';
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList, this.curTeam.format)) + '</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="fa fa-upload"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
@@ -1447,7 +1447,7 @@
 			this.$('.teambuilder-pokemon-import')
 				.show()
 				.find('textarea')
-				.val(Storage.exportTeam([this.curSet]).trim())
+				.val(Storage.exportTeam([this.curSet], this.curTeam.format).trim())
 				.focus()
 				.select();
 		},
@@ -2849,7 +2849,7 @@
 			if (!set.level) set.level = 100;
 
 			var baseStat = (this.getBaseStats(template))[stat];
-			var iv = set.ivs ? set.ivs[stat] : this.getAutoIV(stat, set);
+			var iv = set.ivs ? set.ivs[stat] : getAutoIV(stat, set, this.curTeam.format);
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
 			if (evOverride !== undefined) ev = evOverride;
