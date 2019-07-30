@@ -1222,7 +1222,7 @@
 					item: '',
 					nature: '',
 					evs: {},
-					ivs: {},
+					ivs: null,
 					moves: []
 				};
 				team.push(newPokemon);
