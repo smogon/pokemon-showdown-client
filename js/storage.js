@@ -1379,12 +1379,12 @@ Storage.exportTeam = function (team) {
 		}
 
 		var ivs = curSet.ivs;
-		if (ivs) {
+		var firstIV = true;
+		if (ivs) { // Explicitly specified IVs
 			text += 'IVs: ';
 
-			var firstIV = true;
 			for (var j in BattleStatNames) {
-				var val = curSet.ivs[j];
+				var val = ivs[j];
 				if (val === 31) continue;
 				if (firstIV) {
 					firstIV = false;
@@ -1397,7 +1397,23 @@ Storage.exportTeam = function (team) {
 				text += '31 all';
 			}
 			text += '  \n';
-		} // else if auto IVs aren't all 31, append them and add (auto)
+		} else { // Automatic IVs
+			ivs = getAutoIVs(curSet, team.format);
+			for (var j in BattleStatNames) {
+				var val = ivs[j];
+				if (val === 31) continue;
+				if (firstIV) {
+					text += 'IVs: ';
+					firstIV = false;
+				} else {
+					text += ' / ';
+				}
+				text += '' + val + ' ' + BattleStatNames[j];
+			}
+			if (!firstIV) {
+				text += ' (auto)  \n';
+			}
+		}
 
 		if (curSet.moves) {
 			for (var j = 0; j < curSet.moves.length; j++) {
