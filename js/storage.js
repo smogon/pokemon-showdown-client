@@ -1,97 +1,3 @@
-// TODO: Move these helper fns elsewhere
-
-function getGen(format) {
-	format = '' + format;
-	if (!format) return 7;
-	if (format.substr(0, 3) !== 'gen') return 6;
-	return parseInt(format.substr(3, 1), 10) || 6;
-}
-
-function canHyperTrain(set, format) {
-	var gen = getGen(format);
-	if (gen < 7 || format === 'gen7hiddentype') return false;
-	if (!set.level || set.level === 100) return true;
-	if (format.substr(0, 3) === 'gen') format = format.substr(4);
-	if (format.substr(0, 10) === 'battlespot' || format.substr(0, 3) === 'vgc' || format === 'ultrasinnohclassic') {
-		if (set.level === 50) return true;
-	}
-	return false;
-}
-
-function getDesiredHPType(moves) {
-	for (var i = 0; i < moves.length; ++i) {
-		if (moves[i] && moves[i].substr(0, 13) === 'Hidden Power ') {
-			return moves[i].substr(13);
-		}
-	}
-	return '';
-}
-
-function getAutoIVs(set, format) {
-	return {
-		hp: getAutoIV('hp', set, format),
-		atk: getAutoIV('atk', set, format),
-		def: getAutoIV('def', set, format),
-		spa: getAutoIV('spa', set, format),
-		spd: getAutoIV('spd', set, format),
-		spe: getAutoIV('spe', set, format)
-	};
-}
-
-function getAutoIV(stat, set, format) {
-	if (!format) format = 'gen7';
-	var minValue = 0;
-	var maxValue = 31;
-	var useMaxValue = true;
-
-	var moves = set.moves;
-	var gen = getGen(format);
-	var hpType = getDesiredHPType(moves);
-	var _canHyperTrain = canHyperTrain(set, format);
-
-	if (hpType && window.BattleTypeChart) {
-		if (gen > 2) {
-			minValue = (window.BattleTypeChart[hpType].HPivs[stat] || 31) % 2;
-			if (!_canHyperTrain) {
-				// Must have matching parity for the correct Hidden Power type
-				maxValue = 30 + minValue;
-			}
-		} else if (stat === 'atk' || stat === 'def') { // Gen 2 only uses atk/def to calc HP type
-			minValue = ((window.BattleTypeChart[hpType].HPdvs[stat] || 15) % 4) * 2; // Results in 0, 2, 4, or 6
-			maxValue = (minValue === 6 ? 31 : 24 + minValue);
-		}
-	}
-
-	if (stat === 'atk') {
-		if (gen > 2 && set.ability !== 'Battle Bond') { // Ash-Greninja is only available through an event with 31 Atk IVs
-			useMaxValue = false; // Default to 0 Atk IVs if we don't have a physical attacking move
-			for (var i = 0; i < moves.length; ++i) {
-				if (!moves[i]) continue;
-				var move = Dex.forGen(gen).getMove(moves[i]);
-				if (move.category === 'Physical' &&
-					!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
-					useMaxValue = true;
-					break;
-				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
-					useMaxValue = true;
-					break;
-				}
-			}
-		}
-	} else if (stat === 'spe') {
-		for (var i = 0; i < moves.length; ++i) {
-			if (moves[i] === 'Gyro Ball') {
-				useMaxValue = false;
-				break;
-			}
-		}
-	}
-
-	return useMaxValue ? maxValue : minValue;
-}
-
-// END TODO
-
 Config.origindomain = 'play.pokemonshowdown.com';
 // `defaultserver` specifies the server to use when the domain name in the
 // address bar is `Config.origindomain`.
@@ -1261,8 +1167,6 @@ Storage.importTeam = function (buffer, teams) {
 			}
 		} else if (line.substr(0, 5) === 'IVs: ') {
 			line = line.substr(5);
-			if (line.trim().endsWith('(auto)')) continue;
-
 			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
 			if (line.trim() === '31 all') continue;
 
@@ -1307,7 +1211,7 @@ Storage.exportAllTeams = function () {
 	for (var i = 0, len = Storage.teams.length; i < len; i++) {
 		var team = Storage.teams[i];
 		buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
-		buf += Storage.exportTeam(team.team, team.format);
+		buf += Storage.exportTeam(team.team);
 		buf += '\n';
 	}
 	return buf;
@@ -1318,13 +1222,13 @@ Storage.exportFolder = function (folder) {
 		var team = Storage.teams[i];
 		if (team.folder + "/" === folder || team.format === folder) {
 			buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
-			buf += Storage.exportTeam(team.team, team.format);
+			buf += Storage.exportTeam(team.team);
 			buf += '\n';
 		}
 	}
 	return buf;
 };
-Storage.exportTeam = function (team, format) {
+Storage.exportTeam = function (team) {
 	if (!team) return "";
 	if (typeof team === 'string') {
 		if (team.indexOf('\n') >= 0) return team;
@@ -1378,12 +1282,12 @@ Storage.exportTeam = function (team, format) {
 		}
 
 		var ivs = curSet.ivs;
-		var firstIV = true;
-		if (ivs) { // Explicitly specified IVs
+		if (ivs) {
 			text += 'IVs: ';
 
+			var firstIV = true;
 			for (var j in BattleStatNames) {
-				var val = ivs[j];
+				var val = curSet.ivs[j];
 				if (val === 31) continue;
 				if (firstIV) {
 					firstIV = false;
@@ -1396,22 +1300,6 @@ Storage.exportTeam = function (team, format) {
 				text += '31 all';
 			}
 			text += '  \n';
-		} else { // Automatic IVs
-			ivs = getAutoIVs(curSet, format);
-			for (var j in BattleStatNames) {
-				var val = ivs[j];
-				if (val === 31) continue;
-				if (firstIV) {
-					text += 'IVs: ';
-					firstIV = false;
-				} else {
-					text += ' / ';
-				}
-				text += '' + val + ' ' + BattleStatNames[j];
-			}
-			if (!firstIV) {
-				text += ' (auto)  \n';
-			}
 		}
 
 		if (curSet.moves) {
@@ -1682,7 +1570,7 @@ Storage.nwSaveTeam = function (team) {
 		this.nwDeleteTeam(team);
 	}
 	team.filename = filename;
-	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.format).replace(/\n/g, '\r\n'), function () {});
+	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
 };
 
 Storage.nwSaveTeams = function () {
@@ -1718,7 +1606,7 @@ Storage.nwDoSaveAllTeams = function () {
 		filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 		team.filename = filename;
-		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.format).replace(/\n/g, '\r\n'), function () {});
+		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
 	}
 };
 
