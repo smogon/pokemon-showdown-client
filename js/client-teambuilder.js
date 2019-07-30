@@ -817,6 +817,10 @@
 				// Chrome is dumb and doesn't support data URLs in HTTPS
 				urlprefix = "https://play.pokemonshowdown.com/action.php?act=dlteam&team=";
 			}
+			for (var i = 0; i < team.team.length; i++) {
+				var set = team.team[i];
+				set.autoIVs = this.getAutoIVs(set);
+			}
 			var contents = Storage.exportTeam(team.team).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
@@ -1052,6 +1056,11 @@
 
 			var buf = '';
 			if (this.exportMode) {
+				for (var i = 0; i < this.curSetList.length; i++) {
+					var set = this.curSetList[i];
+					set.autoIVs = this.getAutoIVs(set);
+				}
+
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
 			} else {
@@ -1441,6 +1450,8 @@
 				this.wasViewingPokemon = false;
 				this.selectPokemon(i);
 			}
+
+			this.curSet.autoIVs = this.getAutoIVs();
 
 			this.$('li').find('input, button').prop('disabled', true);
 			this.$chart.hide();
