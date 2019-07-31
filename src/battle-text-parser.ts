@@ -1005,7 +1005,7 @@ class BattleTextParser {
 			}
 			if (!id && cmd === '-mega' && this.gen < 7) templateId = 'megaGen6';
 			if (!item && cmd === '-mega') templateId = 'megaNoItem';
-			let template = this.template(templateId);
+			let template = this.template(templateId, id);
 			const side = pokemon.slice(0, 2);
 			const pokemonName = this.pokemon(pokemon);
 			if (cmd === '-mega') {
