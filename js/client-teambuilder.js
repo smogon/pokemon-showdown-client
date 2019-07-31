@@ -2394,7 +2394,7 @@
 			}
 
 			if (this.curTeam.gen > 2) {
-				buf += '<div class="formrow"><label class="formlabel">Pokeball:</label><div><select name="pokeball">';
+				buf += '<div class="formrow" style="display:none"><label class="formlabel">Pokeball:</label><div><select name="pokeball">';
 				buf += '<option value=""' + (!set.pokeball ? ' selected="selected"' : '') + '></option>'; // unset
 				var balls = Dex.forGen(this.curTeam.gen).getPokeballs();
 				for (var i = 0; i < balls.length; i++) {
@@ -2405,7 +2405,7 @@
 
 			if (this.curTeam.gen > 6) {
 				buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">Hidden Power:</label><div><select name="hptype">';
-				buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '></option>'; // unset
+				buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
 				for (var type in exports.BattleTypeChart) {
 					if (exports.BattleTypeChart[type].HPivs) {
 						buf += '<option value="' + type + '"' + (set.hpType === type ? ' selected="selected"' : '') + '>' + type + '</option>';
