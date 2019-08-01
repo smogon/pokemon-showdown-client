@@ -253,6 +253,17 @@ class BattleLog {
 		el.innerHTML = innerHTML;
 		this.addNode(el, preempt);
 	}
+	prependDiv(className: string, innerHTML: string, preempt?: boolean) {
+		const el = document.createElement('div');
+		el.className = className;
+		el.innerHTML = innerHTML;
+		if (this.innerElem.childNodes.length) {
+			this.innerElem.insertBefore(el, this.innerElem.childNodes[0]);
+		} else {
+			this.innerElem.appendChild(el);
+		}
+		this.updateScroll();
+	}
 	addSpacer() {
 		this.addDiv('spacer battle-history', '<br />');
 	}
@@ -276,13 +287,17 @@ class BattleLog {
 			for (const element of elements) {
 				element.innerHTML = BattleLog.sanitizeHTML(html);
 			}
+			this.updateScroll();
 			return;
 		}
 		for (const element of elements) {
 			element.parentElement!.removeChild(element);
 		}
-		if (html) {
+		if (!html) return;
+		if (forceAdd) {
 			this.addDiv('notice uhtml-' + id, BattleLog.sanitizeHTML(html));
+		} else {
+			this.prependDiv('notice uhtml-' + id, BattleLog.sanitizeHTML(html));
 		}
 	}
 	hideChatFrom(userid: ID, showRevealButton = true) {

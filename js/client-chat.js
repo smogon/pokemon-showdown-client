@@ -1360,7 +1360,11 @@
 					if (!html) {
 						$elements.remove();
 					} else if (!$elements.length) {
-						this.$chat.append('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+						if (row[0] === 'uhtmlchange') {
+							this.$chat.prepend('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+						} else {
+							this.$chat.append('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+						}
 					} else if (row[0] === 'uhtmlchange') {
 						$elements.html(BattleLog.sanitizeHTML(html));
 					} else {
