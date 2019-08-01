@@ -118,7 +118,8 @@
 		title: 'Battles',
 		isSideRoom: true,
 		events: {
-			'change select[name=elofilter]': 'refresh'
+			'change select[name=elofilter]': 'refresh',
+			'click .search': 'refresh'
 		},
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
@@ -126,6 +127,7 @@
 
 			buf += '<p><label class="label">Format:</label><button class="select formatselect" name="selectFormat">(All formats)</button></p>';
 			buf += '<label>Minimum Elo: <select name="elofilter"><option value="none">None</option><option value="1100">1100</option><option value="1300">1300</option><option value="1500">1500</option><option value="1700">1700</option><option value="1900">1900</option></select></label>';
+			buf += '<p><input type="text" name="prefixsearch" class="textbox" value="' + BattleLog.escapeHTML(this.usernamePrefix) + '" placeholder="username prefix"/><button class="button search">Search</button></p>';
 			buf += '<div class="list"><p>Loading...</p></div>';
 			buf += '</div></div>';
 
@@ -154,6 +156,7 @@
 			this.refresh();
 		},
 		focus: function (e) {
+			if (e && $(e.target).is('input')) return;
 			if (e && $(e.target).closest('select, a').length) return;
 			if (new Date().getTime() - this.lastUpdate > 60 * 1000) {
 				this.refresh();
@@ -209,10 +212,10 @@
 			return this.$list.html('<p>' + buf.length + (buf.length === 100 ? '+' : '') + ' ' + BattleLog.escapeFormat(this.format) + ' ' + (buf.length === 1 ? 'battle' : 'battles') + '</p>' + buf.join(""));
 		},
 		refresh: function () {
-			var elofilter = '';
-			var elo = this.$('select[name=elofilter]').val();
-			if (elo !== 'none') elofilter = ', ' + elo;
-			app.send('/cmd roomlist ' + this.format + elofilter);
+			var usernamePrefix = this.$('input[name=prefixsearch]').val();
+			var elofilter = this.$('select[name=elofilter]').val();
+			var searchParams = [this.format, elofilter, usernamePrefix];
+			app.send('/cmd roomlist ' + searchParams.join(','));
 
 			this.lastUpdate = new Date().getTime();
 			// Prevent further refreshes until we get a response.
