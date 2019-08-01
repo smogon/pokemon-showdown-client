@@ -119,7 +119,7 @@
 		isSideRoom: true,
 		events: {
 			'change select[name=elofilter]': 'refresh',
-			'click .search': 'refresh'
+			'submit .search': 'submitSearch'
 		},
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
@@ -127,7 +127,7 @@
 
 			buf += '<p><label class="label">Format:</label><button class="select formatselect" name="selectFormat">(All formats)</button></p>';
 			buf += '<label>Minimum Elo: <select name="elofilter"><option value="none">None</option><option value="1100">1100</option><option value="1300">1300</option><option value="1500">1500</option><option value="1700">1700</option><option value="1900">1900</option></select></label>';
-			buf += '<p><input type="text" name="prefixsearch" class="textbox" value="' + BattleLog.escapeHTML(this.usernamePrefix) + '" placeholder="username prefix"/><button class="button search">Search</button></p>';
+			buf += '<p><form class="search"><input type="text" name="prefixsearch" class="textbox" value="' + BattleLog.escapeHTML(this.usernamePrefix) + '" placeholder="username prefix"/><button type="submit" class="button">Search</button></form></p>';
 			buf += '<div class="list"><p>Loading...</p></div>';
 			buf += '</div></div>';
 
@@ -182,6 +182,10 @@
 			}
 			return '<div><a href="' + app.root + id + '" class="ilink">' + roomDesc + '</a></div>';
 		},
+		submitSearch: function(e) {
+			e.preventDefault();
+			this.refresh();
+		},
 		update: function (data) {
 			if (!data && !this.data) {
 				if (app.isDisconnected) {
@@ -214,7 +218,7 @@
 		refresh: function () {
 			var usernamePrefix = this.$('input[name=prefixsearch]').val();
 			var elofilter = this.$('select[name=elofilter]').val();
-			var searchParams = [this.format, elofilter, usernamePrefix];
+			var searchParams = [this.format, elofilter, toID(usernamePrefix)];
 			app.send('/cmd roomlist ' + searchParams.join(','));
 
 			this.lastUpdate = new Date().getTime();
