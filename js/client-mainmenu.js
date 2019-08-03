@@ -1122,58 +1122,48 @@
 					for (var i = 0; i < teams.length; i++) {
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
-							if (this.folderToggleOn !== true) {
+							if (!this.folderToggleOn) {
 								bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 								count++;
 								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 							} else {
 								var folderName = teams[i].folder || "";
-								if (folderName !== "") {
-									if (folders[folderName] === undefined) folders[folderName] = []; // create empty array to push to
+								if (folderName) {
+									if (folders[folderName] === undefined) folders[folderName] = [];
 									var thisTeam = teams[i];
-									thisTeam.id = i; // create this ID for future sorting purposes, with respect to storage
-									folders[folderName].push(thisTeam); // shows the folders with only the content of format, move out if needed
+									thisTeam.id = i;
+									folders[folderName].push(thisTeam);
 								}
 							}
 						}
 					}
 					if (this.folderToggleOn) {
 						var keys = Object.keys(folders);
-						for (var i = 0; i < keys.length; i++) {
-							var folderData = folders[keys[i]];
+						for (keyIndex in keys) {
+							var key = keys[keyIndex];
+							var folderData = folders[key];
 							var exists = false;
-							for (var j = 0; j < this.folderExpanded.length; j++) {
-								if (this.folderExpanded[j] === keys[i]) {
+							for (folderExpTempIndex in this.folderExpanded) {
+								if (this.folderExpanded[folderExpTempIndex] === key) {
 									exists = true;
+									break;
 								}
 							}
 							if (exists) {
-								for (var j = 0; j < folderData.length; j++) { // fuck i need to compare with teams
-									var selected = (folderData[j].id === curTeam);
-									bufs[curBuf] += '<li><button name="selectTeam" value="' + folders[keys[i]][j].id + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(folderData[j].name) + '</button></li>';
+								for (folderDataTempIndex in folderData) {
+									var folderDataTemp = folderData[folderDataTempIndex];
+									var selected = (folderDataTemp.id === curTeam);
+									bufs[curBuf] += '<li><button name="selectTeam" value="' + folderDataTemp.id + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(folderDataTemp.name) + '</button></li>';
 									count++;
 									if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 								}
 							} else {
-								bufs[curBuf] += '<li><button name="selectFolder" class="button" value="' + keys[i] + '">' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectFolder" class="button" value="' + key + '">' + BattleLog.escapeHTML(key) + '</button></li>';
 								count++;
 								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 							}
 						}
-						// for (var i = 0; i < teams.length; i++) { // shows the other teams not in folders, for later changes
-						// 	if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
-						// 		var selected = (i === curTeam);
-						// 		if (teams[i].folder === "") {
-						// 			bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
-						// 			count++;
-						// 		}
-						// 		if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
-						// 	}
-						// }
 					}
-					// if (Object.keys(folders).length === this.folderExpanded.length) { potential toggle if needed
-					// 	this.folderToggleOn = false;
-					// }
 					if (!count) bufs[curBuf] += '<li><p><em>You have no ' + BattleLog.escapeFormat(teamFormat) + ' teams</em></p></li>';
 					bufs[curBuf] += '<li><button name="foldersToggle" class="button"><strong>' + (this.folderToggleOn ? 'Show All' : 'Show Folders') + '</strong></button></li>';
 					bufs[curBuf] += '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong><br />' + BattleLog.escapeFormat(teamFormat) + ' teams</button></li>';
@@ -1192,7 +1182,7 @@
 						if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 					}
 				} else {
-					bufs[curBuf] += '<li><button name="moreTeamsPress" class="button">Show all teams</button></li>'; // its here
+					bufs[curBuf] += '<li><button name="moreTeamsPress" class="button">Show all teams</button></li>';
 				}
 			}
 			if (format.canUseRandomTeam) {
