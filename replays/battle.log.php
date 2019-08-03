@@ -20,12 +20,29 @@ $manage = false;
 require_once 'replays.lib.php';
 
 $replay = null;
-if (@$_REQUEST['name']) {
-	$replay = $Replays->get($_REQUEST['name']);
+$id = $_REQUEST['name'] ?? '';
+$password = '';
+
+$fullid = $id;
+if (substr($id, -2) === 'pw') {
+	$dashpos = strrpos($id, '-');
+	$password = substr($id, $dashpos + 1, -2);
+	$id = substr($id, 0, $dashpos);
+	// die($id . ' ' . $password);
+}
+
+if ($id) {
+	$replay = $Replays->get($id);
 }
 if (!$replay) {
 	header('HTTP/1.1 404 Not Found');
 	die();
+}
+if ($replay['password'] ?? null) {
+	if ($password !== $replay['password']) {
+		header('HTTP/1.1 404 Not Found');
+		die();
+	}
 }
 
 $replay['log'] = str_replace("\r","",$replay['log']);

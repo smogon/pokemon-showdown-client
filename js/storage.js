@@ -1152,6 +1152,12 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 11) === 'Happiness: ') {
 			line = line.substr(11);
 			curSet.happiness = +line;
+		} else if (line.substr(0, 10) === 'Pokeball: ') {
+			line = line.substr(10);
+			curSet.pokeball = line;
+		} else if (line.substr(0, 14) === 'Hidden Power: ') {
+			line = line.substr(14);
+			curSet.hpType = line;
 		} else if (line.substr(0, 5) === 'EVs: ') {
 			line = line.substr(5);
 			var evLines = line.split('/');
@@ -1262,7 +1268,13 @@ Storage.exportTeam = function (team, format) {
 		if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
 			text += 'Happiness: ' + curSet.happiness + "  \n";
 		}
-
+		if (curSet.pokeball) {
+			text += 'Pokeball: ' + curSet.pokeball + "  \n";
+		}
+		if (curSet.hpType) {
+			text += 'Hidden Power: ' + curSet.hpType + "  \n";
+		}
+    
 		var firstEV = true;
 		if (curSet.evs) {
 			for (var j in BattleStatNames) {

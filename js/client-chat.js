@@ -208,7 +208,15 @@
 		// highlight
 
 		getHighlight: function (message) {
-			var highlights = Dex.prefs('highlights') || [];
+			var highlights = Dex.prefs('highlights') || {};
+			if (Array.isArray(highlights)) {
+				highlights = {global: highlights};
+				// Migrate from the old highlight system
+				Dex.prefs('highlights', highlights);
+			}
+			if (!Dex.prefs('noselfhighlight') && app.user.nameRegExp) {
+				if (app.user.nameRegExp.test(message)) return true;
+			}
 			if (!app.highlightRegExp) {
 				try {
 					this.updateHighlightRegExp(highlights);
@@ -220,17 +228,24 @@
 					return false;
 				}
 			}
-			if (!Dex.prefs('noselfhighlight') && app.user.nameRegExp) {
-				if (app.user.nameRegExp.test(message)) return true;
-			}
-			return ((highlights.length > 0) && app.highlightRegExp.test(message));
+			var id = Config.server.id + '#' + this.id;
+			var globalHighlightsRegExp = app.highlightRegExp['global'];
+			var roomHighlightsRegExp = app.highlightRegExp[id];
+			return (((globalHighlightsRegExp && globalHighlightsRegExp.test(message)) || (roomHighlightsRegExp && roomHighlightsRegExp.test(message))));
 		},
 		updateHighlightRegExp: function (highlights) {
 			// Enforce boundary for match sides, if a letter on match side is
 			// a word character. For example, regular expression "a" matches
 			// "a", but not "abc", while regular expression "!" matches
 			// "!" and "!abc".
-			app.highlightRegExp = new RegExp('(?:\\b|(?!\\w))(?:' + highlights.join('|') + ')(?:\\b|(?!\\w))', 'i');
+			app.highlightRegExp = {};
+			for (var i in highlights) {
+				if (!highlights[i].length) {
+					app.highlightRegExp[i] = null;
+					continue;
+				}
+				app.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
+			}
 		},
 
 		// chat history
@@ -705,7 +720,7 @@
 
 			case 'hl':
 			case 'highlight':
-				var highlights = Dex.prefs('highlights') || [];
+				var highlights = Dex.prefs('highlights') || {};
 				if (target.indexOf(',') > -1) {
 					var targets = target.match(/([^,]+?({\d*,\d*})?)+/g);
 					// trim the targets to be safe
@@ -713,7 +728,9 @@
 						targets[i] = targets[i].replace(/\n/g, '').trim();
 					}
 					switch (targets[0]) {
-					case 'add':
+					case 'add': case 'roomadd':
+						var key = targets[0] === 'roomadd' ? (Config.server.id + '#' + this.id) : 'global';
+						var highlightList = highlights[key] || [];
 						for (var i = 1, len = targets.length; i < len; i++) {
 							if (!targets[i]) continue;
 							if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
@@ -724,24 +741,26 @@
 									return this.add(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message);
 								}
 							}
-							if (highlights.indexOf(targets[i]) > -1) {
+							if (highlightList.indexOf(targets[i]) > -1) {
 								return this.add(targets[i] + ' is already on your highlights list.');
 							}
 						}
-						highlights = highlights.concat(targets.slice(1));
-						this.add("Now highlighting on: " + highlights.join(', '));
+						highlights[key] = highlightList.concat(targets.slice(1));
+						this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
 						// We update the regex
 						this.updateHighlightRegExp(highlights);
 						break;
-					case 'delete':
+					case 'delete': case 'roomdelete':
+						var key = targets[0] === 'roomdelete' ? (Config.server.id + '#' + this.id) : 'global';
+						var highlightList = highlights[key] || [];
 						var newHls = [];
-						for (var i = 0, len = highlights.length; i < len; i++) {
-							if (targets.indexOf(highlights[i]) === -1) {
-								newHls.push(highlights[i]);
+						for (var i = 0, len = highlightList.length; i < len; i++) {
+							if (targets.indexOf(highlightList[i]) === -1) {
+								newHls.push(highlightList[i]);
 							}
 						}
-						highlights = newHls;
-						this.add("Now highlighting on: " + highlights.join(', '));
+						highlights[key] = newHls;
+						this.add("Now highlighting on " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(', '));
 						// We update the regex
 						this.updateHighlightRegExp(highlights);
 						break;
@@ -756,12 +775,13 @@
 					if (target === 'delete') {
 						Dex.prefs('highlights', false);
 						this.add("All highlights cleared");
-					} else if (target === 'show' || target === 'list') {
+					} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
 						// Shows a list of the current highlighting words
-						if (highlights.length > 0) {
-							this.add("Current highlight list: " + highlights.join(", "));
+						var key = target.startsWith('room') ? (Config.server.id + '#' + this.id) : 'global';
+						if (highlights[key] && highlights[key].length > 0) {
+							this.add("Current highlight list " + (key === 'global' ? "(everywhere): " : "(in " + key + "): ") + highlights[key].join(", "));
 						} else {
-							this.add('Your highlight list is empty.');
+							this.add('Your highlight list' + (key === 'global' ? '' : ' in ' + this.id) + ' is empty.');
 						}
 					} else {
 						// Wrong command
@@ -996,8 +1016,11 @@
 				case 'hl':
 					this.add('Set up highlights:');
 					this.add('/highlight add, [word] - Add the word [word] to the highlight list.');
+					this.add('/highlight roomadd, [word] - Add the word [word] to the highlight list of whichever room you used the command in.');
 					this.add('/highlight list - List all words that currently highlight you.');
-					this.add('/highlight delete, [word] - Delete the word [word] from the highlight list.');
+					this.add('/highlight roomlist - List all words that currently highlight you in whichever room you used the command in.');
+					this.add('/highlight delete, [word] - Delete the word [word] from your entire highlight list.');
+					this.add('/highlight roomdelete, [word] - Delete the word [word] from the highlight list of whichever room you used the command in.');
 					this.add('/highlight delete - Clear the highlight list.');
 					return false;
 				case 'rank':
@@ -1337,7 +1360,11 @@
 					if (!html) {
 						$elements.remove();
 					} else if (!$elements.length) {
-						this.$chat.append('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+						if (row[0] === 'uhtmlchange') {
+							this.$chat.prepend('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+						} else {
+							this.$chat.append('<div class="notice uhtml-' + toID(row[1]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+						}
 					} else if (row[0] === 'uhtmlchange') {
 						$elements.html(BattleLog.sanitizeHTML(html));
 					} else {

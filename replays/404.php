@@ -22,7 +22,7 @@ $panels->start();
 				The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.
 			</p>
 			<p>
-				In the future, remember to click <strong>Save replay</strong> to save a replay permanently.
+				In the future, remember to click <strong>Upload and share replay</strong> to save a replay permanently.
 			</p>
 
 <script type="text/javascript"><!--

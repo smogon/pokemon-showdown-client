@@ -400,6 +400,9 @@ function toId() {
 			this.topbar = new Topbar({el: $('#header')});
 			if (this.down) {
 				this.isDisconnected = true;
+			} else if (location.origin === 'https://smogtours.psim.us') {
+				this.isDisconnected = true;
+				alert("The Smogtours server does not support HTTPS. Please use http://smogtours.psim.us");
 			} else {
 				if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
 					this.addRoom('rooms', null, true);
@@ -1259,8 +1262,9 @@ function toId() {
 				log: data.log,
 				id: id
 			}, function (data) {
-				if (data === 'success') {
-					app.addPopup(ReplayUploadedPopup, {id: id});
+				var sData = data.split(':');
+				if (sData[0] === 'success') {
+					app.addPopup(ReplayUploadedPopup, {id: sData[1] || id});
 				} else if (data === 'hash mismatch') {
 					app.addPopupMessage("Someone else is already uploading a replay of this battle. Try again in five seconds.");
 				} else if (data === 'not found') {

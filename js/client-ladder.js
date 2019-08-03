@@ -86,6 +86,9 @@
 	});
 
 	this.LadderRoom = HTMLRoom.extend({
+		events: {
+			'submit .search': 'submitSearch'
+		},
 		type: 'ladder',
 		title: 'Ladder',
 		initialize: function () {
@@ -104,6 +107,7 @@
 			}, this);
 		},
 		curFormat: '',
+		curSearchVal: '',
 		join: function () {},
 		leave: function () {},
 		update: function () {
@@ -133,23 +137,31 @@
 			} else {
 				var format = this.curFormat;
 				var self = this;
+				var prefix = this.curSearchVal && toID(this.curSearchVal);
 				this.$el.html('<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p></div>');
 				if (app.localLadder) {
-					app.send('/cmd laddertop ' + format);
+					app.send('/cmd laddertop ' + format + (prefix ? ' ,' + prefix : ''));
 				} else {
 					$.get('/ladder.php', {
 						format: format,
 						server: Config.server.id.split(':')[0],
-						output: 'html'
+						output: 'html',
+						prefix: prefix
 					}, function (data) {
 						if (self.curFormat !== format) return;
-						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button></p>';
-						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top 500</h3>';
+						var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button>';
+						buf += '<form class="search"><input type="text" name="searchval" class="textbox searchinput" value="' + BattleLog.escapeHTML(self.curSearchVal || '') + '" placeholder="username prefix" /><button type="submit"> Search</button></form></p>';
+						buf += '<h3>' + BattleLog.escapeFormat(format) + ' Top ' + BattleLog.escapeHTML(self.curSearchVal ? "- '" + self.curSearchVal + "'" : '500') + '</h3>';
 						buf += data + '</div>';
 						self.$el.html(buf);
 					}, 'html');
 				}
 			}
+		},
+		submitSearch: function (e) {
+			e.preventDefault();
+			this.curSearchVal = this.$('input[name=searchval]').val();
+			this.update();
 		},
 		showHelp: function () {
 			var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p>';

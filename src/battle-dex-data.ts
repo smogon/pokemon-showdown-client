@@ -940,6 +940,7 @@ class Item implements Effect {
 	readonly onDrive: TypeName;
 	readonly fling: any;
 	readonly naturalGift: any;
+	readonly isPokeball: boolean;
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
@@ -965,6 +966,7 @@ class Item implements Effect {
 		this.onDrive = data.onDrive || '';
 		this.fling = data.fling || null;
 		this.naturalGift = data.naturalGift || null;
+		this.isPokeball = !!data.isPokeball;
 
 		if (!this.gen) {
 			if (this.num >= 577) {
