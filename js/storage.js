@@ -1356,7 +1356,7 @@ Storage.getGen = function (format) {
 	if (!format) return 7;
 	if (format.substr(0, 3) !== 'gen') return 6;
 	return parseInt(format.substr(3, 1), 10) || 6;
-}
+};
 
 Storage.canHyperTrain = function (set, format) {
 	var gen = Storage.getGen(format);
@@ -1367,7 +1367,7 @@ Storage.canHyperTrain = function (set, format) {
 		if (set.level === 50) return true;
 	}
 	return false;
-}
+};
 
 Storage.getDesiredHPType = function (moves) {
 	for (var i = 0; i < moves.length; ++i) {
@@ -1376,7 +1376,7 @@ Storage.getDesiredHPType = function (moves) {
 		}
 	}
 	return '';
-}
+};
 
 Storage.getAutoIVs = function (set, format) {
 	return {
@@ -1387,7 +1387,7 @@ Storage.getAutoIVs = function (set, format) {
 		spd: Storage.getAutoIV('spd', set, format),
 		spe: Storage.getAutoIV('spe', set, format)
 	};
-}
+};
 
 Storage.getAutoIV = function (stat, set, format) {
 	if (!format) format = 'gen7';
@@ -1439,7 +1439,7 @@ Storage.getAutoIV = function (stat, set, format) {
 	}
 
 	return useMaxValue ? maxValue : minValue;
-}
+};
 
 /*********************************************************
  * Node-webkit
