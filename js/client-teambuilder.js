@@ -19,7 +19,7 @@
 		focus: function () {
 			if (this.curTeam) {
 				this.curTeam.iconCache = '!';
-				this.curTeam.gen = getGen(this.curTeam.format);
+				this.curTeam.gen = Storage.getGen(this.curTeam.format);
 				Storage.activeSetList = this.curSetList;
 			}
 		},
@@ -665,7 +665,7 @@
 			i = +i;
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
-			this.curTeam.gen = getGen(this.curTeam.format);
+			this.curTeam.gen = Storage.getGen(this.curTeam.format);
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -1293,7 +1293,7 @@
 		},
 		changeFormat: function (format) {
 			this.curTeam.format = format;
-			this.curTeam.gen = getGen(this.curTeam.format);
+			this.curTeam.gen = Storage.getGen(this.curTeam.format);
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
 			this.update();
@@ -1956,7 +1956,7 @@
 
 			if (this.curTeam.gen > 2) {
 				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
-				var ivs = set.ivs || getAutoIVs(set, this.curTeam.format);
+				var ivs = set.ivs || Storage.getAutoIVs(set, this.curTeam.format);
 				for (var i in stats) {
 					var val = '' + (ivs[i]);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" ' + (set.ivs ? '' : 'disabled') + ' /></div>';
@@ -1970,7 +1970,7 @@
 						}
 					}
 				}
-				if (hpType && !canHyperTrain(set, this.curTeam.format)) {
+				if (hpType && !Storage.canHyperTrain(set, this.curTeam.format)) {
 					var hpIVs;
 					switch (hpType) {
 					case 'dark':
@@ -2079,7 +2079,7 @@
 				buf += '</div>';
 			} else {
 				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
-				var ivs = set.ivs || getAutoIVs(set, this.curTeam.format);
+				var ivs = set.ivs || Storage.getAutoIVs(set, this.curTeam.format);
 				for (var i in stats) {
 					var val = '' + Math.floor(ivs[i] / 2);
 					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" ' + (set.ivs ? '' : 'disabled') + ' /></div>';
@@ -2214,7 +2214,7 @@
 		},
 		updateIVs: function () {
 			var set = this.curSet;
-			if (!set.moves || canHyperTrain(set, this.curTeam.format)) return;
+			if (!set.moves || Storage.canHyperTrain(set, this.curTeam.format)) return;
 			var hasHiddenPower = false;
 			for (var i = 0; i < set.moves.length; i++) {
 				if (toID(set.moves[i]).slice(0, 11) === 'hiddenpower') {
@@ -2226,7 +2226,7 @@
 			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
 			var hpType;
 			if (this.curTeam.gen <= 2) {
-				var ivs = set.ivs || getAutoIVs(set, this.curTeam.format);
+				var ivs = set.ivs || Storage.getAutoIVs(set, this.curTeam.format);
 				var atkDV = Math.floor(ivs.atk / 2);
 				var defDV = Math.floor(ivs.def / 2);
 				hpType = hpTypes[4 * (atkDV % 4) + (defDV % 4)];
@@ -2248,7 +2248,7 @@
 			} else {
 				var hpTypeX = 0;
 				var i = 1;
-				var ivs = set.ivs || getAutoIVs(set, this.curTeam.format);
+				var ivs = set.ivs || Storage.getAutoIVs(set, this.curTeam.format);
 				for (var s in ivs) {
 					hpTypeX += i * (ivs[s] % 2);
 					i *= 2;
@@ -2372,7 +2372,7 @@
 			if (newValue) {
 				// Reset the IVs to their defaults
 				set.ivs = null;
-				var autoIVs = getAutoIVs(set, this.curTeam.format);
+				var autoIVs = Storage.getAutoIVs(set, this.curTeam.format);
 				for (var stat in autoIVs) {
 					var val = this.curTeam.gen > 2 ? autoIVs[stat] : Math.floor(autoIVs[stat] / 2);
 					var input = this.$chart.find('input[name=iv-' + stat + ']');
@@ -2386,7 +2386,7 @@
 				// We are still using the same IVs, but this causes them to become "hardcoded" instead
 				// of automatically inferred. For example, if the user adds Gyro Ball to the moveset afterwards,
 				// we will not adjust their speed. Also, we will include any non-31 IVs in the export.
-				if (!set.ivs) set.ivs = getAutoIVs(set, this.curTeam.format);
+				if (!set.ivs) set.ivs = Storage.getAutoIVs(set, this.curTeam.format);
 
 				for (var stat in set.ivs) {
 					var input = this.$chart.find('input[name=iv-' + stat + ']');
@@ -2849,7 +2849,7 @@
 			if (!set.level) set.level = 100;
 
 			var baseStat = (this.getBaseStats(template))[stat];
-			var iv = set.ivs ? set.ivs[stat] : getAutoIV(stat, set, this.curTeam.format);
+			var iv = set.ivs ? set.ivs[stat] : Storage.getAutoIV(stat, set, this.curTeam.format);
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
 			if (evOverride !== undefined) ev = evOverride;
