@@ -801,7 +801,7 @@
 		},
 		team: function (team, button) {
 			var format = $(button).closest('form').find('button[name=format]').val();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: button});
+			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: button, folderToggleOn: false, folderExpanded: []});
 		},
 
 		// format/team selection
@@ -1090,7 +1090,6 @@
 			var bufs = ['', '', '', '', ''];
 			var curBuf = 0;
 			var teams = Storage.teams;
-
 			var bufBoundary = 128;
 			if (teams.length > 128 && $(window).width() > 1080) {
 				bufBoundary = Math.ceil(teams.length / 5);
@@ -1101,16 +1100,17 @@
 			} else if (teams.length > 27) {
 				bufBoundary = Math.ceil(teams.length / 2);
 			}
-
+			this.folderExpanded = data.folderExpanded || [];
+			this.folderToggleOn = data.folderToggleOn || false;
+			var folders = {};
 			this.team = data.team;
 			this.format = data.format;
 			this.room = data.room;
-
+			this.moreTeams = data.moreTeams || false;
 			var format = BattleFormats[data.format];
 
 			var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
 			this.teamFormat = teamFormat;
-
 			if (!teams.length) {
 				bufs[curBuf] = '<li><p><em>You have no teams</em></p></li>';
 				bufs[curBuf] += '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong><br />' + BattleLog.escapeFormat(teamFormat) + ' teams</button></li>';
@@ -1122,12 +1122,60 @@
 					for (var i = 0; i < teams.length; i++) {
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
-							bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
-							count++;
-							if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+							if (this.folderToggleOn !== true) {
+								bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+								count++;
+								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+							} else {
+								var folderName = teams[i].folder || "";
+								if (folderName !== "") {
+									if (folders[folderName] === undefined) folders[folderName] = []; // create empty array to push to
+									var thisTeam = teams[i];
+									thisTeam.id = i; // create this ID for future sorting purposes, with respect to storage
+									folders[folderName].push(thisTeam); // shows the folders with only the content of format, move out if needed
+								}
+							}
 						}
 					}
+					if (this.folderToggleOn) {
+						var keys = Object.keys(folders);
+						for (var i = 0; i < keys.length; i++) {
+							var folderData = folders[keys[i]];
+							var exists = false;
+							for (var j = 0; j < this.folderExpanded.length; j++) {
+								if (this.folderExpanded[j] === keys[i]) {
+									exists = true;
+								}
+							}
+							if (exists) {
+								for (var j = 0; j < folderData.length; j++) { // fuck i need to compare with teams
+									var selected = (folderData[j].id === curTeam);
+									bufs[curBuf] += '<li><button name="selectTeam" value="' + folders[keys[i]][j].id + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(folderData[j].name) + '</button></li>';
+									count++;
+									if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+								}
+							} else {
+								bufs[curBuf] += '<li><button name="selectFolder" class="button" value="' + keys[i] + '">' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
+								count++;
+								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+							}
+						}
+						// for (var i = 0; i < teams.length; i++) { // shows the other teams not in folders, for later changes
+						// 	if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
+						// 		var selected = (i === curTeam);
+						// 		if (teams[i].folder === "") {
+						// 			bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+						// 			count++;
+						// 		}
+						// 		if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+						// 	}
+						// }
+					}
+					// if (Object.keys(folders).length === this.folderExpanded.length) { potential toggle if needed
+					// 	this.folderToggleOn = false;
+					// }
 					if (!count) bufs[curBuf] += '<li><p><em>You have no ' + BattleLog.escapeFormat(teamFormat) + ' teams</em></p></li>';
+					bufs[curBuf] += '<li><button name="foldersToggle" class="button"><strong>' + (this.folderToggleOn ? 'Show All' : 'Show Folders') + '</strong></button></li>';
 					bufs[curBuf] += '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong><br />' + BattleLog.escapeFormat(teamFormat) + ' teams</button></li>';
 					bufs[curBuf] += '<li><h3>Other teams</h3></li>';
 				} else {
@@ -1144,7 +1192,7 @@
 						if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 					}
 				} else {
-					bufs[curBuf] += '<li><button name="moreTeams" class="button">Show all teams</button></li>';
+					bufs[curBuf] += '<li><button name="moreTeamsPress" class="button">Show all teams</button></li>'; // its here
 				}
 			}
 			if (format.canUseRandomTeam) {
@@ -1158,13 +1206,15 @@
 				this.$el.html('<ul class="popupmenu">' + bufs[0] + '</ul>');
 			}
 		},
-		moreTeams: function () {
+		moreTeamsPress: function () {
 			var sourceEl = this.sourceEl;
 			var team = this.team;
 			var format = this.format;
 			var room = this.room;
+			var folderToggleOn = this.folderToggleOn;
+			var folderExpanded = this.folderExpanded;
 			this.close();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeams: true});
+			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeams: true, folderToggleOn: folderToggleOn, folderExpanded: folderExpanded});
 		},
 		teambuilder: function () {
 			var teamFormat = this.teamFormat;
@@ -1174,6 +1224,29 @@
 			if (!teambuilder.exportMode && !teambuilder.curTeam && teamFormat) {
 				teambuilder.selectFolder(teamFormat);
 			}
+		},
+		selectFolder: function (key) {
+			var sourceEl = this.sourceEl;
+			var team = this.team;
+			var format = this.format;
+			var room = this.room;
+			var folderToggleOn = this.folderToggleOn;
+			var folderExpanded = this.folderExpanded;
+			var moreTeams = this.moreTeams;
+			folderExpanded.push(key);
+			this.close();
+			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeams: moreTeams, folderToggleOn: folderToggleOn, folderExpanded: folderExpanded});
+		},
+		foldersToggle: function () {
+			var sourceEl = this.sourceEl;
+			var team = this.team;
+			var format = this.format;
+			var room = this.room;
+			var moreTeams = this.moreTeams;
+			var folderToggleOn = !this.folderToggleOn;
+			var folderExpanded = [];
+			this.close();
+			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeams: moreTeams, folderToggleOn: folderToggleOn, folderExpanded: folderExpanded});
 		},
 		selectTeam: function (i) {
 			i = +i;

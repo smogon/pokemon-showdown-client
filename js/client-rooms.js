@@ -182,7 +182,7 @@
 			}
 			return '<div><a href="' + app.root + id + '" class="ilink">' + roomDesc + '</a></div>';
 		},
-		submitSearch: function(e) {
+		submitSearch: function (e) {
 			e.preventDefault();
 			this.refresh();
 		},
