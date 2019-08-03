@@ -1139,26 +1139,23 @@
 					}
 					if (this.folderToggleOn) {
 						var keys = Object.keys(folders);
-						for (keyIndex in keys) {
-							var key = keys[keyIndex];
-							var folderData = folders[key];
+						for (var i = 0; i < keys.length; i++) {
+							var folderData = folders[keys[i]];
 							var exists = false;
-							for (folderExpTempIndex in this.folderExpanded) {
-								if (this.folderExpanded[folderExpTempIndex] === key) {
+							for (var j = 0; j < this.folderExpanded.length; j++) {
+								if (this.folderExpanded[j] === keys[i]) {
 									exists = true;
-									break;
 								}
 							}
 							if (exists) {
-								for (folderDataTempIndex in folderData) {
-									var folderDataTemp = folderData[folderDataTempIndex];
-									var selected = (folderDataTemp.id === curTeam);
-									bufs[curBuf] += '<li><button name="selectTeam" value="' + folderDataTemp.id + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(folderDataTemp.name) + '</button></li>';
+								for (var j = 0; j < folderData.length; j++) {
+									var selected = (folderData[j].id === curTeam);
+									bufs[curBuf] += '<li><button name="selectTeam" value="' + folders[keys[i]][j].id + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(folderData[j].name) + '</button></li>';
 									count++;
 									if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 								}
 							} else {
-								bufs[curBuf] += '<li><button name="selectFolder" class="button" value="' + key + '">' + BattleLog.escapeHTML(key) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectFolder" class="button" value="' + keys[i] + '">' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
 								count++;
 								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 							}
