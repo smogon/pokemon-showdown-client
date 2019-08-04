@@ -2694,7 +2694,7 @@ function toId() {
 		initialize: function (data) {
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
-			buf += '<p><a href="http://replay.pokemonshowdown.com/' + data.id + '" target="_blank" class="no-panel-intercept">http://replay.pokemonshowdown.com/' + data.id + '</a></p>';
+			buf += '<p><a href="https://replay.pokemonshowdown.com/' + data.id + '" target="_blank" class="no-panel-intercept">https://replay.pokemonshowdown.com/' + data.id + '</a></p>';
 			buf += '<p><button class="autofocus" name="close">Close</button></p>';
 			this.$el.html(buf).css('max-width', 620);
 		},
