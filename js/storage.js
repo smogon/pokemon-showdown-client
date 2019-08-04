@@ -1274,7 +1274,7 @@ Storage.exportTeam = function (team, format) {
 		if (curSet.hpType) {
 			text += 'Hidden Power: ' + curSet.hpType + "  \n";
 		}
-    
+
 		var firstEV = true;
 		if (curSet.evs) {
 			for (var j in BattleStatNames) {
