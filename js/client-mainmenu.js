@@ -801,7 +801,7 @@
 		},
 		team: function (team, button) {
 			var format = $(button).closest('form').find('button[name=format]').val();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: button, folderToggleOn: false, folderExpanded: []});
+			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: button, folderToggleOn: true, folderExpanded: []});
 		},
 
 		// format/team selection
@@ -1101,7 +1101,11 @@
 				bufBoundary = Math.ceil(teams.length / 2);
 			}
 			this.folderExpanded = data.folderExpanded || [];
-			this.folderToggleOn = data.folderToggleOn || false;
+			if (data.folderToggleOn === undefined) {
+				this.folderToggleOn = true;
+			} else {
+				this.folderToggleOn = data.folderToggleOn;
+			}
 			var folders = {};
 			this.team = data.team;
 			this.format = data.format;
@@ -1139,7 +1143,7 @@
 					}
 					if (this.folderToggleOn) {
 						var keys = Object.keys(folders);
-						for (var i = 0; i < keys.length; i++) {
+						for (var i = keys.length - 1; i > -1; i--) {
 							var folderData = folders[keys[i]];
 							var exists = false;
 							for (var j = 0; j < this.folderExpanded.length; j++) {
@@ -1148,6 +1152,9 @@
 								}
 							}
 							if (exists) {
+								bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen" value="' + keys[i] + '"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
+								count++;
+								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 								for (var j = 0; j < folderData.length; j++) {
 									var selected = (folderData[j].id === curTeam);
 									bufs[curBuf] += '<li><button name="selectTeam" value="' + folders[keys[i]][j].id + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(folderData[j].name) + '</button></li>';
@@ -1155,9 +1162,32 @@
 									if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 								}
 							} else {
-								bufs[curBuf] += '<li><button name="selectFolder" class="button" value="' + keys[i] + '">' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="' + keys[i] + '"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
 								count++;
 								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+							}
+						}
+						var noFolderTemp = false;
+						for (var i = 0; i < this.folderExpanded.length; i++) {
+							if (this.folderExpanded[i] === "(No Folder)") {
+								noFolderTemp = true;
+							}
+						}
+						if (noFolderTemp) {
+							bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
+						} else {
+							bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px; opacity: 1 important;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
+						}
+						if (noFolderTemp) {
+							for (var i = 0; i < teams.length; i++) {
+								if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
+									var selected = (i === curTeam);
+									if (teams[i].folder === "") {
+										bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+										count++;
+									}
+									if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+								}
 							}
 						}
 					}
@@ -1220,7 +1250,16 @@
 			var folderToggleOn = this.folderToggleOn;
 			var folderExpanded = this.folderExpanded;
 			var moreTeams = this.moreTeams;
-			folderExpanded.push(key);
+			var keyExists = false;
+			for (var i = folderExpanded.length - 1; i > -1; i--) {
+				if (folderExpanded[i] === key) {
+					keyExists = true;
+					folderExpanded.splice(i, 1);
+				}
+			}
+			if (!keyExists) {
+				folderExpanded.push(key);
+			}
 			this.close();
 			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeams: moreTeams, folderToggleOn: folderToggleOn, folderExpanded: folderExpanded});
 		},

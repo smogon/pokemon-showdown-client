@@ -375,6 +375,58 @@ select {
 	font-size: 9pt;
 	padding: 3px 8px;
 }
+
+.popupmenu i {
+	display: inline-block;
+	width: 16px;
+	color: #777777;
+}
+
+.popupmenu button.folderButton {
+	width: 172px;
+	outline: none;
+	cursor: pointer;
+	text-decoration: none;
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	border-radius: 5px;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	display: inline-block;
+	/* default colors */
+	color: #222222;
+	text-shadow: 0 1px 0 white;
+	border: solid 1px #AAAAAA;
+	background: #e3e3e3;
+	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
+	font-size: 9pt;
+	padding: 3px 8px;
+}
+
+.popupmenu button.folderButtonOpen {
+	width: 172px;
+	outline: none;
+	cursor: pointer;
+	text-decoration: none;
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	border-radius: 5px;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	display: inline-block;
+	/* default colors */
+	color: #222222;
+	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
+	text-shadow: 0 1px 0 white;
+	border: solid 1px #AAAAAA;
+	background: #e3e3e3;
+	
+	font-size: 9pt;
+	padding: 3px 8px;
+}
+
 .button.small,
 .button.small {
 	font-size: 8pt;
@@ -421,6 +473,7 @@ select {
 	background: #cfaf8f;
 }
 .button.cur,
+.folderButton.cur,
 .button.cur:hover {
 	color: #777777;
 	background: #f8f8f8;
