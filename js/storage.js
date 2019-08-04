@@ -1369,13 +1369,13 @@ Storage.canHyperTrain = function (set, format) {
 	return false;
 };
 
-Storage.getDesiredHPType = function (moves) {
+Storage.inferHPType = function (moves) {
 	for (var i = 0; i < moves.length; ++i) {
 		if (moves[i] && moves[i].substr(0, 13) === 'Hidden Power ') {
 			return moves[i].substr(13);
 		}
 	}
-	return '';
+	return null;
 };
 
 Storage.getAutoIVs = function (set, format) {
@@ -1397,7 +1397,7 @@ Storage.getAutoIV = function (stat, set, format) {
 
 	var moves = set.moves;
 	var gen = Storage.getGen(format);
-	var hpType = Storage.getDesiredHPType(moves);
+	var hpType = set.hpType || Storage.inferHPType(moves);
 	var _canHyperTrain = Storage.canHyperTrain(set, format);
 
 	if (hpType && window.BattleTypeChart) {
