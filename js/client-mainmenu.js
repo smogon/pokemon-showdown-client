@@ -1143,7 +1143,7 @@
 					}
 					if (this.folderToggleOn) {
 						var keys = Object.keys(folders);
-						for (var i = keys.length - 1; i > -1; i--) {
+						for (var i = 0; i < keys.length; i++) {
 							var folderData = folders[keys[i]];
 							var exists = false;
 							for (var j = 0; j < this.folderExpanded.length; j++) {
