@@ -200,6 +200,7 @@ select {
 .dark .folderButton,
 .dark .tabbar a.button,
 .dark .popupmenu button.folderButton,
+.dark .popupmenu button.folderButtonOpen,
 .dark .popupmenu button.button {
 	background: #484848;
 	box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.25);
@@ -209,37 +210,29 @@ select {
 }
 
 .dark .popupmenu button.folderButtonOpen {
-	box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.25);
-	border-color: #A9A9A9;
-	text-shadow: none;
-	color: #F9F9F9;
-	background: linear-gradient(to bottom, #2a2a2a, #313131);
+	background: linear-gradient(to bottom, #2a2a2a, #313131) !important;
 }
 
 .dark .popupmenu button.folderButtonOpen:hover {
 	color: #F9F9F9;
-	background: #606060;
-	border-color: #EEEEEE;
 }
 
 .dark .button:hover,
+.dark .popupmenu button.folderButtonOpen:hover,
+.dark .folderButton:hover,
+.dark .popupmenu button.folderButton:hover,
+.dark .popupmenu button.button:hover,
 .dark .tabbar a.button:hover {
-	background: #606060;
+	background: #606060 !important;
 	border-color: #EEEEEE;
 }
 
-.dark .folderButton:hover {
-	background: #606060;
-	border-color: #EEEEEE;
-	color: #F9F9F9;
-}
-
+.dark .folderButton:hover,
 .dark .popupmenu button.folderButton:hover,
 .dark .popupmenu button.button:hover {
-	background: #606060;
-	border-color: #EEEEEE;
 	color: #F9F9F9;
 }
+
 .dark .tabbar a.button.notifying:hover {
 	background: #92C2D3;
 }
@@ -407,7 +400,8 @@ select {
 	color: #777777;
 }
 
-.popupmenu button.folderButton {
+.popupmenu button.folderButton,
+.popupmenu button.folderButtonOpen {
 	width: 172px;
 	outline: none;
 	cursor: pointer;
@@ -430,26 +424,7 @@ select {
 }
 
 .popupmenu button.folderButtonOpen {
-	width: 172px;
-	outline: none;
-	cursor: pointer;
-	text-decoration: none;
-	border-radius: 5px;
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	border-radius: 5px;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-	display: inline-block;
-	/* default colors */
-	color: #222222;
-	background: linear-gradient(to bottom,  #dfdfdf,  #cacaca);
-	text-shadow: 0 1px 0 white;
-	border: solid 1px #AAAAAA;
-	background: #e3e3e3;
-	
-	font-size: 9pt;
-	padding: 3px 8px;
+	background: linear-gradient(to bottom,  #e4e4e4,  #d3d3d3);
 }
 
 .button.small,
@@ -463,6 +438,8 @@ select {
 	padding: 5px 10px;
 }
 .button:hover,
+.popupmenu button.folderButton:hover,
+.popupmenu button.folderButtonOpen:hover,
 .popupmenu button.button:hover {
 	background: #cfcfcf;
 	background: linear-gradient(to bottom,  #f2f2f2,  #c2c2c2);
