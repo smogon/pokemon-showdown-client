@@ -1149,6 +1149,7 @@
 							for (var j = 0; j < this.folderExpanded.length; j++) {
 								if (this.folderExpanded[j] === keys[i]) {
 									exists = true;
+									break;
 								}
 							}
 							if (exists) {
@@ -1171,6 +1172,7 @@
 						for (var i = 0; i < this.folderExpanded.length; i++) {
 							if (this.folderExpanded[i] === "(No Folder)") {
 								noFolderTemp = true;
+								break;
 							}
 						}
 						if (noFolderTemp) {
