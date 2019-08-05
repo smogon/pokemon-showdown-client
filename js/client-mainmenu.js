@@ -1150,7 +1150,7 @@
 								}
 							}
 							if (!exists) {
-								bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="' + keys[i] + '"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="' + keys[i] + '"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
 								count++;
 								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 								for (var j = 0; j < folderData.length; j++) {
@@ -1160,7 +1160,7 @@
 									if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 								}
 							} else {
-								bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="' + keys[i] + '"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="' + keys[i] + '"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
 								count++;
 								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 							}
@@ -1173,9 +1173,9 @@
 							}
 						}
 						if (!noFolderTemp) {
-							bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
+							bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
 						} else {
-							bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px; opacity: 1 important;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
+							bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
 						}
 						if (!noFolderTemp) {
 							for (var i = 0; i < teams.length; i++) {
@@ -1225,14 +1225,8 @@
 			'click [type="checkbox"]':'foldersToggle',
 		},
 		moreTeams: function () {
-			var sourceEl = this.sourceEl;
-			var team = this.team;
-			var format = this.format;
-			var room = this.room;
-			var folderToggleOn = this.folderToggleOn;
-			var folderNotExpanded = this.folderNotExpanded;
 			this.close();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeamsTemp: true, folderToggleOn: folderToggleOn, folderNotExpanded: folderNotExpanded});
+			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, moreTeamsTemp: true, folderToggleOn: this.folderToggleOn, folderNotExpanded: this.folderNotExpanded});
 		},
 		teambuilder: function () {
 			var teamFormat = this.teamFormat;
@@ -1244,13 +1238,7 @@
 			}
 		},
 		selectFolder: function (key) {
-			var sourceEl = this.sourceEl;
-			var team = this.team;
-			var format = this.format;
-			var room = this.room;
-			var folderToggleOn = this.folderToggleOn;
 			var folderNotExpanded = this.folderNotExpanded;
-			var moreTeamsTemp = this.moreTeamsTemp;
 			var keyExists = false;
 			for (var i = folderNotExpanded.length - 1; i > -1; i--) {
 				if (folderNotExpanded[i] === key) {
@@ -1262,18 +1250,11 @@
 				folderNotExpanded.push(key);
 			}
 			this.close();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeamsTemp: moreTeamsTemp, folderToggleOn: folderToggleOn, folderNotExpanded: folderNotExpanded});
+			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, moreTeamsTemp: this.moreTeamsTemp, folderToggleOn: this.folderToggleOn, folderNotExpanded: folderNotExpanded});
 		},
 		foldersToggle: function () {
-			var sourceEl = this.sourceEl;
-			var team = this.team;
-			var format = this.format;
-			var room = this.room;
-			var moreTeamsTemp = this.moreTeamsTemp;
-			var folderToggleOn = !this.folderToggleOn;
-			var folderNotExpanded = this.folderNotExpanded;
 			this.close();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeamsTemp: moreTeamsTemp, folderToggleOn: folderToggleOn, folderNotExpanded: folderNotExpanded});
+			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, moreTeamsTemp: this.moreTeamsTemp, folderToggleOn: !this.folderToggleOn, folderNotExpanded: this.folderNotExpanded});
 		},
 		selectTeam: function (i) {
 			i = +i;
