@@ -1479,12 +1479,6 @@
 				this.userList.updateNoUsersOnline();
 			} else if (action === 'rename') {
 				if (oldid) delete this.users[toUserid(oldid)];
-				if (toUserid(oldid) === app.user.get('userid')) {
-					app.user.set({
-						away: user.away,
-						status: user.status
-					});
-				}
 				this.users[userid] = user;
 				this.userList.remove(oldid);
 				this.userList.add(userid);
