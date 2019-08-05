@@ -1150,7 +1150,7 @@
 								}
 							}
 							if (!exists) {
-								bufs[curBuf] += '<li><button name="selectFolder" id="folderButtonOpen" class="folderButtonOpen" value="' + keys[i] + '"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="' + keys[i] + '"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML(keys[i]) + '</button></li>';
 								count++;
 								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
 								for (var j = 0; j < folderData.length; j++) {
@@ -1173,7 +1173,7 @@
 							}
 						}
 						if (!noFolderTemp) {
-							bufs[curBuf] += '<li><button name="selectFolder" id="folderButtonOpenNF" class="folderButtonOpen" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
+							bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px; opacity: 1 !important;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
 						} else {
 							bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px; opacity: 1 important;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
 						}

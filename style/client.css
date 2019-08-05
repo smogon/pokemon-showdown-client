@@ -199,8 +199,8 @@ select {
 .dark .button,
 .dark .folderButton,
 .dark .tabbar a.button,
-.dark .popupmenu button.folderButton,
-.dark .popupmenu button.folderButtonOpen,
+.dark .popupmenu .folderButton,
+.dark .popupmenu .folderButtonOpen,
 .dark .popupmenu button.button {
 	background: #484848;
 	box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.25);
@@ -209,8 +209,7 @@ select {
 	color: #F9F9F9;
 }
 
-.dark .popupmenu button#folderButtonOpenNF,
-.dark .popupmenu button#folderButtonOpen {
+.dark .popupmenu button.folderButtonOver {
 	background: linear-gradient(to bottom, #2a2a2a, #313131);
 }
 
@@ -219,8 +218,7 @@ select {
 }
 
 .dark .button:hover,
-.dark .popupmenu button#folderButtonOpenNF:hover,
-.dark .popupmenu button#folderButtonOpen:hover,
+.dark .popupmenu button.folderButtonOpen:hover,
 .dark .folderButton:hover,
 .dark .popupmenu button.folderButton:hover,
 .dark .popupmenu button.button:hover,
