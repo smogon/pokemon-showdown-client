@@ -209,8 +209,9 @@ select {
 	color: #F9F9F9;
 }
 
-.dark .popupmenu button.folderButtonOpen {
-	background: linear-gradient(to bottom, #2a2a2a, #313131) !important;
+.dark .popupmenu button#folderButtonOpenNF,
+.dark .popupmenu button#folderButtonOpen {
+	background: linear-gradient(to bottom, #2a2a2a, #313131);
 }
 
 .dark .popupmenu button.folderButtonOpen:hover {
@@ -218,12 +219,13 @@ select {
 }
 
 .dark .button:hover,
-.dark .popupmenu button.folderButtonOpen:hover,
+.dark .popupmenu button#folderButtonOpenNF:hover,
+.dark .popupmenu button#folderButtonOpen:hover,
 .dark .folderButton:hover,
 .dark .popupmenu button.folderButton:hover,
 .dark .popupmenu button.button:hover,
 .dark .tabbar a.button:hover {
-	background: #606060 !important;
+	background: #606060;
 	border-color: #EEEEEE;
 }
 
