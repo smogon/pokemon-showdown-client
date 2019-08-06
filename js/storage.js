@@ -679,22 +679,7 @@ Storage.packTeam = function (team) {
 		buf += '|' + toID(set.item);
 
 		// ability
-		var template = Dex.getTemplate(set.species || set.name);
-		var abilities = template.abilities;
-		id = toID(set.ability);
-		if (abilities) {
-			if (id == toID(abilities['0'])) {
-				buf += '|';
-			} else if (id === toID(abilities['1'])) {
-				buf += '|1';
-			} else if (id === toID(abilities['H'])) {
-				buf += '|H';
-			} else {
-				buf += '|' + id;
-			}
-		} else {
-			buf += '|' + id;
-		}
+		buf += '|' + toID(set.ability);
 
 		// moves
 		buf += '|';
@@ -722,7 +707,7 @@ Storage.packTeam = function (team) {
 		}
 
 		// gender
-		if (set.gender && set.gender !== template.gender) {
+		if (set.gender) {
 			buf += '|' + set.gender;
 		} else {
 			buf += '|';
