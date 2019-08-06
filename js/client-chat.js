@@ -642,10 +642,10 @@
 					} else {
 						serverShowjoins[room] = 1;
 					}
-					this.add('Join/leave messages on room ' + room + ': ON');
+					this.add('Join/leave messages on room ' + room + ': ALWAYS ON');
 				} else {
 					serverShowjoins = {global: 1};
-					this.add('Join/leave messages: ON');
+					this.add('Join/leave messages: ALWAYS ON');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
 				Dex.prefs('showjoins', showjoins);
@@ -660,10 +660,10 @@
 					} else {
 						serverShowjoins[room] = 0;
 					}
-					this.add('Join/leave messages on room ' + room + ': HIDDEN');
+					this.add('Join/leave messages on room ' + room + ': AUTOMATIC');
 				} else {
 					serverShowjoins = {global: 0};
-					this.add('Join/leave messages: HIDDEN');
+					this.add('Join/leave messages: AUTOMATIC');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
 				Dex.prefs('showjoins', showjoins);
