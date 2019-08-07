@@ -13,6 +13,9 @@ $byRating = isset($_REQUEST['rating']);
 $isPrivate = isset($_REQUEST['private']);
 
 $noRequest = (!$username && !$format && !$contains);
+if (!$noRequest) {
+	header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate');
+}
 
 if ($username) {
 	$panels->setPageTitle($username."'s replays");
