@@ -33,6 +33,8 @@ RewriteRule ^suggestions?\/?$ https://www.smogon.com/forums/forums/517/ [R=302,L
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^adminrequests?\/?$ http://www.smogon.com/forums/threads/names-rooms-and-servers-contacting-senior-staff.3538721/ [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
+RewriteRule ^forgotpassword\/?$ https://www.smogon.com/forums/password-reset-form/ [R=302,L]
+RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^bugs?(reports?)?\/?$ https://www.smogon.com/forums/threads/3634749/ [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^rules?\/?$ http://pokemonshowdown.com/rules [R=302,L]
