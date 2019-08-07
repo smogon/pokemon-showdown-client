@@ -1241,19 +1241,18 @@
 			}
 		},
 		selectFolder: function (key) {
-			var folderNotExpanded = this.folderNotExpanded;
 			var keyExists = false;
-			for (var i = folderNotExpanded.length - 1; i > -1; i--) {
-				if (folderNotExpanded[i] === key) {
+			for (var i = this.folderNotExpanded.length - 1; i > -1; i--) {
+				if (this.folderNotExpanded[i] === key) {
 					keyExists = true;
-					folderNotExpanded.splice(i, 1);
+					this.folderNotExpanded.splice(i, 1);
 				}
 			}
 			if (!keyExists) {
-				folderNotExpanded.push(key);
+				this.folderNotExpanded.push(key);
 			}
 			this.close();
-			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: this.folderToggleOn, folderNotExpanded: folderNotExpanded});
+			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: this.folderToggleOn, folderNotExpanded: this.folderNotExpanded});
 		},
 		foldersToggle: function () {
 			this.close();
