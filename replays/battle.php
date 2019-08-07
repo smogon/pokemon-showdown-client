@@ -21,6 +21,7 @@ if (isset($_REQUEST['manage'])) {
 	if ($curuser['group'] != 2 && $curuser['group'] != 6) die("access denied");
 	$csrfOk = !!$users->csrfCheck();
 	$manage = true;
+	header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate');
 }
 
 if (preg_match('/[^A-Za-z0-9-]/', $id)) die("access denied");
@@ -61,6 +62,7 @@ if (@$replay['private']) {
 }
 if (@$replay['password']) {
 	if (!$password && !$manage) {
+		header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate');
 		require_once '../lib/ntbb-session.lib.php';
 		if ($curuser['userid'] !== $replay['p1id'] && $curuser['userid'] !== $replay['p2id']) {
 			die("Access denied (you must be logged into " . $replay['p1id'] . " or " . $replay['p2id'] . ")");
