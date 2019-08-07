@@ -195,7 +195,7 @@ class Replays {
 
 		$pReplay = $res->fetch();
 
-		$res = $this->db->prepare("SELECT id, `password` FROM ps_replays WHERE id = ?");
+		$res = $this->db->prepare("SELECT id, `password`, `private` FROM ps_replays WHERE id = ?");
 		$res->execute([$id]);
 		$replay = $res->fetch();
 
