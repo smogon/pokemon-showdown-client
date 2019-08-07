@@ -1240,7 +1240,7 @@
 		},
 		selectFolder: function (key) {
 			var keyExists = false;
-			var folderNotExpandedTemp = this.folderNotExpanded.filter(function (folder) {
+			var folderNotExpanded = this.folderNotExpanded.filter(function (folder) {
 				if (folder === key) {
 					keyExists = true;
 					return false;
@@ -1249,10 +1249,10 @@
 				}
 			});
 			if (!keyExists) {
-				folderNotExpandedTemp.push(key);
+				folderNotExpanded.push(key);
 			}
 			this.close();
-			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: this.folderToggleOn, folderNotExpanded: folderNotExpandedTemp});
+			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: this.folderToggleOn, folderNotExpanded: folderNotExpanded});
 		},
 		foldersToggle: function () {
 			this.close();
