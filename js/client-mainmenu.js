@@ -1126,7 +1126,7 @@
 							if (!this.folderToggleOn) {
 								bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 								count++;
-								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 							} else {
 								var folderName = teams[i].folder || "";
 								if (folderName) {
@@ -1151,17 +1151,17 @@
 							if (!exists) {
 								bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="' + key + '"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(key) + '</button></li>';
 								count++;
-								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 								for (var j = 0; j < folderData.length; j++) {
 									var selected = (folderData[j].id === curTeam);
 									bufs[curBuf] += '<li><button name="selectTeam" value="' + folders[key][j].id + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(folderData[j].name) + '</button></li>';
 									count++;
-									if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+									if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 								}
 							} else {
 								bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="' + key + '"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(key) + '</button></li>';
 								count++;
-								if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 							}
 						}
 						var isNoFolder = false;
@@ -1172,11 +1172,11 @@
 							}
 						}
 						if (!isNoFolder) {
-							bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
+							bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
 						} else {
-							bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
+							bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
 							count++;
-							if (count % bufBoundary == 0 && count != 0 && curBuf < 4) curBuf++;
+							if (count % bufBoundary === 0 && count != 0 && curBuf < 4) curBuf++;
 						}
 						if (!isNoFolder) {
 							for (var i = 0; i < teams.length; i++) {
@@ -1185,7 +1185,7 @@
 									if (teams[i].folder === "") {
 										bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 										count++;
-										if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+										if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 									}
 								}
 							}
@@ -1205,7 +1205,7 @@
 						var selected = (i === curTeam);
 						bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 						count++;
-						if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+						if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 					}
 				} else {
 					bufs[curBuf] += '<li><button name="moreTeams" class="button">Show all teams</button></li>';
@@ -1240,17 +1240,19 @@
 		},
 		selectFolder: function (key) {
 			var keyExists = false;
-			for (var i = this.folderNotExpanded.length - 1; i > -1; i--) {
-				if (this.folderNotExpanded[i] === key) {
+			var folderNotExpandedTemp = this.folderNotExpanded.filter(function (folder) {
+				if (folder === key) {
 					keyExists = true;
-					this.folderNotExpanded.splice(i, 1);
+					return false;
+				} else {
+					return true;
 				}
-			}
+			});
 			if (!keyExists) {
-				this.folderNotExpanded.push(key);
+				folderNotExpandedTemp.push(key);
 			}
 			this.close();
-			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: this.folderToggleOn, folderNotExpanded: this.folderNotExpanded});
+			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: this.folderToggleOn, folderNotExpanded: folderNotExpandedTemp});
 		},
 		foldersToggle: function () {
 			this.close();
