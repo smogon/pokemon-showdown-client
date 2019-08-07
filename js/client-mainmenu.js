@@ -1173,12 +1173,11 @@
 						}
 						if (!isNoFolder) {
 							bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
-							count++;
-							if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+							if (count % bufBoundary == 0 && count != 0 && curBuf < 4) curBuf++;
 						} else {
 							bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML("(No Folder)") + '</button></li>';
 							count++;
-							if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+							if (count % bufBoundary == 0 && count != 0 && curBuf < 4) curBuf++;
 						}
 						if (!isNoFolder) {
 							for (var i = 0; i < teams.length; i++) {
