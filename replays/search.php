@@ -92,12 +92,12 @@ if ($username || $format || $contains) {
 		// no
 	} else if ($username) {
 		if (!$isPrivate || $isPrivateAllowed) {
-			$replays = $Replays->search($username, NULL, NULL, false, $isPrivate, $page);
+			$replays = $Replays->search(array("p1" => $username, "isPrivate" => $isPrivate, "page" => $page));
 		}
 	} else if ($contains) {
 		$replays = $Replays->fullSearch($contains, $page);
 	} else {
-		$replays = $Replays->search(NULL, NULL, $format, $byRating, false, $page);
+		$replays = $Replays->search(array("format" => $format, "byRating" => $byRating, "page" => $page));
 	}
 
 	$time = time();
