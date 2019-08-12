@@ -89,26 +89,26 @@ class Replays {
 		$isPrivate = ($args["isPrivate"] ?? null) ? 1 : 0;
 		$byRating = args["byRating"] ?? null;
 
-		if ($args["p1"] ?? null) {
+		if ($args["username"] ?? null) {
 			$order = $byRating ? "rating" : "uploadtime";
-			$p1id = $this->toId($args["p1"]);
-			if ($args["p2"] ?? null) {
-				$p2id = $this->toId($args["p2"]);
+			$userid = $this->toId($args["username"]);
+			if ($args["username2"] ?? null) {
+				$userid2 = $this->toId($args["username2"]);
 				if ($args["format"] ?? null) {
 					$format = $this->toId($args["format"]);
 					$res = $this->db->prepare("(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? AND p2id = ? AND format = ? ORDER BY ? DESC) UNION (SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? AND p2id = ? AND format = ? ORDER BY ? DESC) ORDER BY ? DESC LIMIT ?, 51;");
-					$res->execute([$isPrivate, $p1id, $p2id, $format, $order, $isPrivate, $p2id, $p1id, $format, $order, $limit1]);
+					$res->execute([$isPrivate, $userid, $userid2, $format, $order, $isPrivate, $userid2, $userid, $format, $order, $limit1]);
 				} else {
 					$res = $this->db->prepare("(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? AND p2id = ? ORDER BY ? DESC) UNION (SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? AND p2id = ? ORDER BY ? DESC) ORDER BY ? DESC LIMIT ?, 51;");
-					$res->execute([$isPrivate, $p1id, $p2id, $order, $isPrivate, $p2id, $p1id, $order, $limit1]);
+					$res->execute([$isPrivate, $userid, $userid2, $order, $isPrivate, $userid2, $userid, $order, $limit1]);
 				}
 			} else {
 				if ($args["format"] ?? null) {
 					$res = $this->db->prepare("(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? AND format = ? ORDER BY ? DESC) UNION (SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p2) WHERE private = ? AND p2id = ? AND format = ? ORDER BY uploadtime DESC) ORDER BY ? DESC LIMIT ?, 51;");
-					$res->execute([$isPrivate, $p1id, $this->toId($args["format"]), $order, $isPrivate, $p1id, $format, $order, $limit1]);
+					$res->execute([$isPrivate, $userid, $this->toId($args["format"]), $order, $isPrivate, $userid, $format, $order, $limit1]);
 				} else {
 					$res = $this->db->prepare("(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? ORDER BY ? DESC) UNION (SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p2) WHERE private = ? AND p2id = ? ORDER BY uploadtime DESC) ORDER BY ? DESC LIMIT ?, 51;");
-					$res->execute([$isPrivate, $p1id, $order, $isPrivate, $p1id, $order, $limit1]);
+					$res->execute([$isPrivate, $userid, $order, $isPrivate, $userid, $order, $limit1]);
 				}
 			}
 			return $res->fetchAll();
