@@ -1004,7 +1004,7 @@
 			case 'raw':
 				return '<div class="chat">' + BattleLog.sanitizeHTML(target) + '</div>';
 			case 'nonotify':
-				return {message: '<div class="chat">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
+				return {message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
 			default:
 				// Not a command or unsupported. Parsed as a normal chat message.
 				if (!name) {
