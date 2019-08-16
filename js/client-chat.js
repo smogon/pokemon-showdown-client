@@ -635,17 +635,22 @@
 			case 'showjoins':
 				var showjoins = Dex.prefs('showjoins') || {};
 				var serverShowjoins = showjoins[Config.server.id] || {};
-				if (target) {
-					var room = toID(target);
-					if (serverShowjoins['global']) {
-						delete serverShowjoins[room];
-					} else {
-						serverShowjoins[room] = 1;
-					}
-					this.add('Join/leave messages on room ' + room + ': ALWAYS ON');
-				} else {
-					serverShowjoins = {global: 1};
-					this.add('Join/leave messages: ALWAYS ON');
+				switch (target) {
+				case 'global':
+					serverShowjoins['global'] = 1;
+					this.add('Join/leave messages' + ': ALWAYS ON');
+					break;
+				case 'chatrooms':
+					serverShowjoins['chatrooms'] = 1;
+					this.add('Join/leave messages in chatrooms' + ': ALWAYS ON');
+					break;
+				case 'battles':
+					serverShowjoins['battles'] = 1;
+					this.add('Join/leave messages in battle' + ': ALWAYS ON');
+					break;
+				default:
+					serverShowjoins[this.id] = 1;
+					this.add('Join/leave messages in ' + this.title + ': ALWAYS ON');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
 				Dex.prefs('showjoins', showjoins);
@@ -653,17 +658,22 @@
 			case 'hidejoins':
 				var showjoins = Dex.prefs('showjoins') || {};
 				var serverShowjoins = showjoins[Config.server.id] || {};
-				if (target) {
-					var room = toID(target);
-					if (!serverShowjoins['global']) {
-						delete serverShowjoins[room];
-					} else {
-						serverShowjoins[room] = 0;
-					}
-					this.add('Join/leave messages on room ' + room + ': AUTOMATIC');
-				} else {
-					serverShowjoins = {global: 0};
-					this.add('Join/leave messages: AUTOMATIC');
+				switch (target) {
+				case 'global':
+					serverShowjoins['global'] = 0;
+					this.add('Join/leave messages ' + ': AUTOMATIC');
+					break;
+				case 'chatrooms':
+					serverShowjoins['chatrooms'] = 0;
+					this.add('Join/leave messages in chatrooms ' + ': AUTOMATIC');
+					break;
+				case 'battles':
+					serverShowjoins['battles'] = 0;
+					this.add('Join/leave messages in battles ' + ': AUTOMATIC');
+					break;
+				default:
+					serverShowjoins[this.id] = 0;
+					this.add('Join/leave messages in ' + this.title + ': AUTOMATIC');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
 				Dex.prefs('showjoins', showjoins);
@@ -1486,7 +1496,7 @@
 			}
 			var allShowjoins = Dex.prefs('showjoins') || {};
 			var showjoins = allShowjoins[Config.server.id];
-			if (silent && (!showjoins || (!showjoins['global'] && !showjoins[this.id]) || showjoins[this.id] === 0)) {
+			if (silent && (!showjoins || (!showjoins['global'] && !showjoins['chatrooms'] && !showjoins[this.id]) || showjoins[this.id] === 0)) {
 				return;
 			}
 			if (!this.$joinLeave) {
