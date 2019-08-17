@@ -78,7 +78,7 @@ class Replays {
 	}
 
 	function search($args) {
-		$page = args["page"] ?? 0;
+		$page = $args["page"] ?? 0;
 
 		if (!$this->db) return [];
 		if ($page > 100) return [];
@@ -87,7 +87,7 @@ class Replays {
 		if ($limit1 < 0) $limit1 = 0;
 
 		$isPrivate = ($args["isPrivate"] ?? null) ? 1 : 0;
-		$byRating = args["byRating"] ?? null;
+		$byRating = $args["byRating"] ?? null;
 
 		if ($args["username"] ?? null) {
 			$order = $byRating ? "rating" : "uploadtime";
