@@ -168,7 +168,7 @@ class Replays {
 
 		$id = $reqData['id'];
 		$private = (@$reqData['hidden'] ? 1 : 0);
-		if ($reqData['hidden'] ?? null === '2') $private = 2;
+		if (($reqData['hidden'] ?? null) === '2') $private = 2;
 		$p1 = $users->wordfilter($reqData['p1']);
 		$p2 = $users->wordfilter($reqData['p2']);
 		$format = $reqData['format'];
