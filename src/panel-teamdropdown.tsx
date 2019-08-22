@@ -440,8 +440,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 		}
 		if (!target) return;
 
-		(this.props.room.parentElem as HTMLButtonElement).value = target.value;
-		PS.closePopup();
+		this.chooseParentValue(target.value);
 	};
 	render() {
 		const room = this.props.room;
@@ -451,19 +450,20 @@ class TeamDropdownPanel extends PSRoomPanel {
 			</PSPanelWrapper>;
 		}
 		const baseFormat = room.parentElem.getAttribute('data-format') || Dex.modid;
-		if (this.format === null) {
+		let isFirstLoad = this.format === null;
+		if (isFirstLoad) {
 			this.format = baseFormat;
 		}
 		let teams = this.getTeams();
-		if (!teams.length && this.format) {
+		if (!teams.length && this.format && isFirstLoad) {
 			this.gen = this.format.slice(0, 4);
 			this.format = '';
+			teams = this.getTeams();
 		}
-		teams = this.getTeams();
-		if (!teams.length && this.gen) {
+		if (!teams.length && this.gen && isFirstLoad) {
 			this.gen = '';
+			teams = this.getTeams();
 		}
-		teams = this.getTeams();
 
 		let availableWidth = document.body.offsetWidth;
 		let width = 307;
@@ -506,6 +506,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 			])}</p>);
 		}
 
+		let isEmpty = true;
 		for (let folder in teamBuckets) {
 			if (folder && (this.gen || this.format)) {
 				teamList.push(<h2>
@@ -530,10 +531,12 @@ class TeamDropdownPanel extends PSRoomPanel {
 					<TeamBox team={team} button />
 				</li>)}
 			</ul>);
+			isEmpty = false;
 		}
 
 		return <PSPanelWrapper room={room} width={width}>
 			{teamList}
+			{isEmpty && <p><em>No teams found</em></p>}
 		</PSPanelWrapper>;
 	}
 }
@@ -549,7 +552,7 @@ interface FormatData {
 	tournamentShow?: boolean;
 	rated: boolean;
 	teambuilderLevel?: number | null;
-	teambuilderFormat?: string;
+	teambuilderFormat?: ID;
 	battleFormat?: string;
 	isTeambuilderFormat: boolean;
 	effectType: 'Format';
@@ -571,8 +574,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 		}
 		if (!target) return;
 
-		(this.props.room.parentElem as HTMLButtonElement).value = target.value;
-		PS.closePopup();
+		this.chooseParentValue(target.value);
 	};
 	render() {
 		const room = this.props.room;
@@ -582,7 +584,15 @@ class FormatDropdownPanel extends PSRoomPanel {
 			</PSPanelWrapper>;
 		}
 
-		if (!window.BattleFormats) {
+		let formatsLoaded = !!window.BattleFormats;
+		if (formatsLoaded) {
+			formatsLoaded = false;
+			for (let i in window.BattleFormats) {
+				formatsLoaded = true;
+				break;
+			}
+		}
+		if (!formatsLoaded) {
 			return <PSPanelWrapper room={room}>
 				<p>Loading...</p>
 			</PSPanelWrapper>;

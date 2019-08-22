@@ -118,6 +118,18 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 		this.subscriptions = [];
 	}
 	receive(message: string) {}
+	/**
+	 * PS has "fake select menus", buttons that act like <select> dropdowns.
+	 * This function is used by the popups they open to change the button
+	 * values.
+	 */
+	chooseParentValue(value: string) {
+		const dropdownButton = this.props.room.parentElem as HTMLButtonElement;
+		dropdownButton.value = value;
+		const changeEvent = new Event('change');
+		dropdownButton.dispatchEvent(changeEvent);
+		PS.closePopup();
+	}
 	focus() {}
 	render() {
 		return <PSPanelWrapper room={this.props.room}>

@@ -153,6 +153,17 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			this.unpackAll(localStorage.getItem('showdown_teams'));
 		} catch {}
 	}
+	teambuilderFormat(format: string): ID {
+		const ruleSepIndex = format.indexOf('@@@');
+		if (ruleSepIndex >= 0) format = format.slice(0, ruleSepIndex);
+		const formatid = toID(format);
+		if (!window.BattleFormats) return formatid;
+		const formatEntry = BattleFormats[formatid];
+		if (formatEntry && formatEntry.teambuilderFormat) {
+			return formatEntry.teambuilderFormat;
+		}
+		return formatid;
+	}
 	getKey(team: Team | null) {
 		if (!team) return '';
 		if (team.key) return team.key;
