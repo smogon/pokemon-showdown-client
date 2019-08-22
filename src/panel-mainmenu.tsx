@@ -229,18 +229,12 @@ class MainMenuPanel extends PSRoomPanel {
 				Bear with us as we freak out.
 			</p>
 			<p>(We'll be back up in a few hours.)</p>
-		</div> : <div class="menugroup">
-			<p>
-				<FormatDropdown />
-			</p>
-			<p>
-				<TeamDropdown format="gen7ou" />
-			</p>
-			<p><button class={"mainmenu1 big" + onlineButton} name="search">
+		</div> : <TeamForm class="menugroup">
+			<button class={"mainmenu1 big" + onlineButton} name="search">
 				<strong>Battle!</strong><br />
 				<small>Find a random opponent</small>
-			</button></p>
-		</div>);
+			</button>
+		</TeamForm>);
 		return <PSPanelWrapper room={this.props.room}>
 			<div class="mainmenuwrapper">
 				<div class="leftmenu">
@@ -300,15 +294,24 @@ class MainMenuPanel extends PSRoomPanel {
 	}
 }
 
-class FormatDropdown extends preact.Component<{}> {
+class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.EventHandler<Event>}> {
+	base?: HTMLButtonElement;
 	getFormat() {
-		if (this.base) {
-			return (this.base as HTMLButtonElement).value;
+		if (this.base && this.base.value) {
+			return this.base.value;
 		}
-		return 'gen7randombattle';
+		return '[Gen 7] Random Battle';
 	}
-	change = () => this.forceUpdate();
+	change = (e: Event) => {
+		this.forceUpdate();
+		if (this.props.onChange) this.props.onChange(e);
+	};
 	render() {
+		if (this.props.format) {
+			return <button
+				class="select formatselect preselected" name="format" value={this.props.format} disabled
+			>{this.props.format}</button>;
+		}
 		const format = this.getFormat();
 		return <button class="select formatselect" name="format" data-href="/formatdropdown" onChange={this.change}>
 			{format}
@@ -322,22 +325,57 @@ class TeamDropdown extends preact.Component<{format: string}> {
 			const key = (this.base as HTMLButtonElement).value;
 			return PS.teams.byKey[key] || null;
 		}
+		const formatid = PS.teams.teambuilderFormat(this.props.format);
 		for (const team of PS.teams.list) {
-			if (team.format === this.props.format) return team;
+			if (team.format === formatid) return team;
 		}
 		return null;
 	}
 	change = () => this.forceUpdate();
 	render() {
-		const format = this.props.format;
+		const formatid = PS.teams.teambuilderFormat(this.props.format);
+		const formatData = window.BattleFormats && BattleFormats[formatid];
+		if (formatData && formatData.team) {
+			return <button class="select teamselect preselected" name="team" value="random" disabled>
+				<div class="team">
+					<strong>Random team</strong>
+					<small>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+					</small>
+				</div>
+			</button>;
+		}
 		const team = this.getTeam();
 		let teambox = null;
 		if (PS.roomTypes['teamdropdown']) {
 			teambox = <TeamBox team={team} noLink />;
 		}
-		return <button class="select teamselect" name="team" data-href="/teamdropdown" data-format={format} onChange={this.change}>
+		return <button class="select teamselect" name="team" data-href="/teamdropdown" data-format={formatid} onChange={this.change}>
 			{teambox}
 		</button>;
+	}
+}
+
+class TeamForm extends preact.Component<{children: preact.ComponentChildren, class?: string, format?: string}> {
+	state = {format: '[Gen 7] Random Battle'};
+	changeFormat = (e: Event) => {
+		this.setState({format: (e.target as HTMLButtonElement).value});
+	};
+	render() {
+		return <div class={this.props.class}>
+			<p>
+				<label class="label">Format: <FormatDropdown onChange={this.changeFormat} format={this.props.format} /></label>
+			</p>
+			<p>
+				<label class="label">Team: <TeamDropdown format={this.state.format} /></label>
+			</p>
+			<p>{this.props.children}</p>
+		</div>;
 	}
 }
 
