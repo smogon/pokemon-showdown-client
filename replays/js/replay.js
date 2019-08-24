@@ -154,7 +154,6 @@ var ReplayPanel = Panels.StaticPanel.extend({
 		this.battle.setQueue((this.$('script.log').text()||'').replace(/\\\//g,'/').split('\n'));
 
 		this.battle.reset();
-		this.battle.fastForwardTo(0);
 		$battle.append('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button><br /><br /><button data-action="startMuted" class="startsoundchooser" style="font-size:10pt;display:none">Play (music off)</button></div>');
 
 		this.$('.urlbox').css('margin-right', 120).before('<a class="button replayDownloadButton" style="float:right;margin-top:7px;margin-right:7px" href="#"><i class="fa fa-download"></i> Download</a>');
@@ -197,7 +196,6 @@ var ReplayPanel = Panels.StaticPanel.extend({
 	},
 	reset: function() {
 		this.battle.reset();
-		this.battle.fastForwardTo(0);
 		this.$('.battle').append('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button></div>');
 		// this.$('.battle-log').html('');
 		this.$('.replay-controls').html('<button data-action="start"><i class="fa fa-play"></i> Play</button><button data-action="reset" disabled="disabled"><i class="fa fa-undo"></i> Reset</button>');
@@ -222,6 +220,10 @@ var ReplayPanel = Panels.StaticPanel.extend({
 	start: function() {
 		this.battle.play();
 		this.$('.replay-controls').html('<button data-action="pause"><i class="fa fa-pause"></i> Pause</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
+	},
+	remove: function() {
+		this.battle.destroy();
+		Panels.StaticPanel.prototype.remove.call(this);
 	},
 	startMuted: function() {
 		this.changeSetting('sound', 'off');

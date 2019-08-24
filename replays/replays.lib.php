@@ -66,8 +66,13 @@ class Replays {
 		return $replay;
 	}
 	function edit($replay) {
-		$res = $this->db->prepare("UPDATE ps_replays SET private = ? WHERE id = ? LIMIT 1");
-		$res->execute([$replay['private'], $replay['id']]);
+		if ($replay['private']) {
+			$res = $this->db->prepare("UPDATE ps_replays SET private = ? WHERE id = ? LIMIT 1");
+			$res->execute([$replay['private'], $replay['id']]);
+		} else {
+			$res = $this->db->prepare("UPDATE ps_replays SET private = ?, password = NULL WHERE id = ? LIMIT 1");
+			$res->execute([$replay['private'], $replay['id']]);
+		}
 		return;
 	}
 

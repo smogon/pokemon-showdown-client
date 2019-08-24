@@ -28,6 +28,8 @@ class BattleSceneStub {
 	preemptCatchup(): void { }
 	removeSideCondition(siden: number, id: ID): void { }
 	reset(): void { }
+	resetBgm(): void { }
+	updateBgm(): void { }
 	resultAnim(
 		pokemon: Pokemon, result: string, type: "bad" | "good" | "neutral" | "par" | "psn" | "frz" | "slp" | "brn"
 	): void { }
@@ -38,8 +40,6 @@ class BattleSceneStub {
 	runPrepareAnim(moveid: ID, attacker: Pokemon, defender: Pokemon): void { }
 	runResidualAnim(moveid: ID, pokemon: Pokemon): void { }
 	runStatusAnim(moveid: ID, participants: Pokemon[]): void { }
-	soundStart(): void { }
-	soundStop(): void { }
 	startAnimations(): void { }
 	teamPreview(): void { }
 	teamPreviewEnd(): void { }

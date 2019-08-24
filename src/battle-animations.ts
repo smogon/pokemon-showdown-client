@@ -68,7 +68,7 @@ class BattleScene {
 
 	preloadDone = 0;
 	preloadNeeded = 0;
-	bgm: string | null = null;
+	bgm: BattleBGM | null = null;
 	backdropImage: string = '';
 	bgmNum = 0;
 	preloadCache: {[url: string]: HTMLImageElement} = {};
@@ -241,7 +241,7 @@ class BattleScene {
 	}
 	pause() {
 		this.stopAnimation();
-		this.soundPause();
+		this.updateBgm();
 		if (this.battle.resumeButton) {
 			this.$frame.append('<div class="playbutton"><button data-action="resume"><i class="fa fa-play icon-play"></i> Resume</button></div>');
 			this.$frame.find('div.playbutton button').click(this.battle.resumeButton);
@@ -249,7 +249,7 @@ class BattleScene {
 	}
 	resume() {
 		this.$frame.find('div.playbutton').remove();
-		this.soundStart();
+		this.updateBgm();
 	}
 	wait(time: number) {
 		if (!this.animating) return;
@@ -1368,114 +1368,105 @@ class BattleScene {
 		this.preloadImage(Dex.resourcePrefix + 'sprites/xyani/substitute.gif');
 		this.preloadImage(Dex.resourcePrefix + 'sprites/xyani-back/substitute.gif');
 	}
-	setBgm(bgmNum: number) {
-		if (!bgmNum) bgmNum = (1 + this.numericId % 15);
-		if (this.bgmNum === bgmNum) return;
-		this.bgmNum = bgmNum;
-		if (this.bgm) {
-			this.preloadBgm();
-			if (this.animating) this.soundStart();
-		}
+	rollBgm() {
+		this.setBgm(1 + this.numericId % 15);
 	}
-	preloadBgm(bgmNum = 0) {
-		if (bgmNum === 0) bgmNum = this.bgmNum || (1 + this.numericId % 15);
+	setBgm(bgmNum: number) {
+		if (this.bgmNum === bgmNum) return;
 		this.bgmNum = bgmNum;
 
 		let ext = window.nodewebkit ? '.ogg' : '.mp3';
 		switch (bgmNum) {
 		case -1:
-			BattleSound.loadBgm('audio/bw2-homika-dogars' + ext, 1661, 68131);
-			this.bgm = 'audio/bw2-homika-dogars' + ext;
+			this.bgm = BattleSound.loadBgm('audio/bw2-homika-dogars' + ext, 1661, 68131, this.bgm);
 			break;
 		case -2:
-			BattleSound.loadBgm('audio/xd-miror-b' + ext, 9000, 57815);
-			this.bgm = 'audio/xd-miror-b' + ext;
+			this.bgm = BattleSound.loadBgm('audio/xd-miror-b' + ext, 9000, 57815, this.bgm);
 			break;
 		case -3:
-			BattleSound.loadBgm('audio/colosseum-miror-b' + ext, 896, 47462);
-			this.bgm = 'audio/colosseum-miror-b' + ext;
+			this.bgm = BattleSound.loadBgm('audio/colosseum-miror-b' + ext, 896, 47462, this.bgm);
 			break;
 		case 1:
-			BattleSound.loadBgm('audio/dpp-trainer' + ext, 13440, 96959);
-			this.bgm = 'audio/dpp-trainer' + ext;
+			this.bgm = BattleSound.loadBgm('audio/dpp-trainer' + ext, 13440, 96959, this.bgm);
 			break;
 		case 2:
-			BattleSound.loadBgm('audio/dpp-rival' + ext, 13888, 66352);
-			this.bgm = 'audio/dpp-rival' + ext;
+			this.bgm = BattleSound.loadBgm('audio/dpp-rival' + ext, 13888, 66352, this.bgm);
 			break;
 		case 3:
-			BattleSound.loadBgm('audio/hgss-johto-trainer' + ext, 23731, 125086);
-			this.bgm = 'audio/hgss-johto-trainer' + ext;
+			this.bgm = BattleSound.loadBgm('audio/hgss-johto-trainer' + ext, 23731, 125086, this.bgm);
 			break;
 		case 4:
-			BattleSound.loadBgm('audio/hgss-kanto-trainer' + ext, 13003, 94656);
-			this.bgm = 'audio/hgss-kanto-trainer' + ext;
+			this.bgm = BattleSound.loadBgm('audio/hgss-kanto-trainer' + ext, 13003, 94656, this.bgm);
 			break;
 		case 5:
-			BattleSound.loadBgm('audio/bw-trainer' + ext, 14629, 110109);
-			this.bgm = 'audio/bw-trainer' + ext;
+			this.bgm = BattleSound.loadBgm('audio/bw-trainer' + ext, 14629, 110109, this.bgm);
 			break;
 		case 6:
-			BattleSound.loadBgm('audio/bw-rival' + ext, 19180, 57373);
-			this.bgm = 'audio/bw-rival' + ext;
+			this.bgm = BattleSound.loadBgm('audio/bw-rival' + ext, 19180, 57373, this.bgm);
 			break;
 		case 7:
-			BattleSound.loadBgm('audio/bw-subway-trainer' + ext, 15503, 110984);
-			this.bgm = 'audio/bw-subway-trainer' + ext;
+			this.bgm = BattleSound.loadBgm('audio/bw-subway-trainer' + ext, 15503, 110984, this.bgm);
 			break;
 		case 8:
-			BattleSound.loadBgm('audio/bw2-kanto-gym-leader' + ext, 14626, 58986);
-			this.bgm = 'audio/bw2-kanto-gym-leader' + ext;
+			this.bgm = BattleSound.loadBgm('audio/bw2-kanto-gym-leader' + ext, 14626, 58986, this.bgm);
 			break;
 		case 9:
-			BattleSound.loadBgm('audio/bw2-rival' + ext, 7152, 68708);
-			this.bgm = 'audio/bw2-rival' + ext;
+			this.bgm = BattleSound.loadBgm('audio/bw2-rival' + ext, 7152, 68708, this.bgm);
 			break;
 		case 10:
-			BattleSound.loadBgm('audio/xy-trainer' + ext, 7802, 82469);
-			this.bgm = 'audio/xy-trainer' + ext;
+			this.bgm = BattleSound.loadBgm('audio/xy-trainer' + ext, 7802, 82469, this.bgm);
 			break;
 		case 11:
-			BattleSound.loadBgm('audio/xy-rival' + ext, 7802, 58634);
-			this.bgm = 'audio/xy-rival' + ext;
+			this.bgm = BattleSound.loadBgm('audio/xy-rival' + ext, 7802, 58634, this.bgm);
 			break;
 		case 12:
-			BattleSound.loadBgm('audio/oras-trainer' + ext, 13579, 91548);
-			this.bgm = 'audio/oras-trainer' + ext;
+			this.bgm = BattleSound.loadBgm('audio/oras-trainer' + ext, 13579, 91548, this.bgm);
 			break;
 		case 13:
-			BattleSound.loadBgm('audio/oras-rival' + ext, 14303, 69149);
-			this.bgm = 'audio/oras-rival' + ext;
+			this.bgm = BattleSound.loadBgm('audio/oras-rival' + ext, 14303, 69149, this.bgm);
 			break;
 		case 14:
-			BattleSound.loadBgm('audio/sm-trainer' + ext, 8323, 89230);
-			this.bgm = 'audio/sm-trainer' + ext;
+			this.bgm = BattleSound.loadBgm('audio/sm-trainer' + ext, 8323, 89230, this.bgm);
 			break;
 		case -101:
-			BattleSound.loadBgm('audio/spl-elite4' + ext, 3962, 152509);
-			this.bgm = 'audio/spl-elite4' + ext;
+			this.bgm = BattleSound.loadBgm('audio/spl-elite4' + ext, 3962, 152509, this.bgm);
 			break;
 		case 15:
 		default:
-			BattleSound.loadBgm('audio/sm-rival' + ext, 11389, 62158);
-			this.bgm = 'audio/sm-rival' + ext;
+			this.bgm = BattleSound.loadBgm('audio/sm-rival' + ext, 11389, 62158, this.bgm);
 			break;
 		}
 	}
-	soundStart() {
-		if (!this.bgm) this.preloadBgm();
-		BattleSound.playBgm(this.bgm!);
+	updateBgm() {
+		/**
+		 * - not playing in non-battle RoomGames (Playback.Uninitialized)
+		 * - not playing at team preview in replays (Playback.Ready)
+		 * - playing at team preview in games (Playback.Playing)
+		 * - playing during the game (Playback.Playing)
+		 * - not playing while paused
+		 * - playing while waiting for players to choose moves (Playback.Finished)
+		 * - not playing after the game has ended
+		 */
+		const nowPlaying = this.battle.playbackState > Playback.Ready && (
+			this.battle.started && !this.battle.ended && !this.battle.paused
+		);
+		if (nowPlaying) {
+			if (!this.bgm) this.rollBgm();
+			this.bgm!.play();
+		} else if (this.bgm) {
+			this.bgm.pause();
+		}
 	}
-	soundStop() {
-		BattleSound.stopBgm();
-	}
-	soundPause() {
-		BattleSound.pauseBgm();
+	resetBgm() {
+		if (this.bgm) this.bgm.stop();
 	}
 	destroy() {
 		this.log.destroy();
 		if (this.$frame) this.$frame.empty();
-		this.soundStop();
+		if (this.bgm) {
+			this.bgm.destroy();
+			this.bgm = null;
+		}
 		this.battle = null!;
 	}
 }
@@ -2339,7 +2330,7 @@ class PokemonSprite extends Sprite {
 		if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) {
 			this.scene.setBgm(-1);
 		} else if (this.scene.bgmNum === -1) {
-			this.scene.setBgm(0);
+			this.scene.rollBgm();
 		}
 	}
 
@@ -2601,15 +2592,92 @@ Object.assign($.easing, {
 	},
 });
 
+interface SMSound {
+	play(): this;
+	pause(): this;
+	stop(): this;
+	resume(): this;
+	setVolume(volume: number): this;
+	setPosition(position: number): this;
+	onposition(position: number, callback: (this: this) => void): this;
+	position: number;
+	readonly paused: boolean;
+	playState: 0 | 1;
+	isSoundPlaceholder?: boolean;
+}
+class BattleBGM {
+	/**
+	 * May be shared with other BGM objects: every battle has its own BattleBGM
+	 * object, but two battles with the same music will have the same SMSound
+	 * object.
+	 */
+	sound: SMSound;
+	isPlaying = false;
+	constructor(sound: SMSound) {
+		this.sound = sound;
+	}
+	play() {
+		if (this.isPlaying) return;
+		this.isPlaying = true;
+		if (BattleSound.muted || !BattleSound.bgmVolume) return;
+		let thisIsFirst = false;
+		for (const bgm of BattleSound.bgm) {
+			if (bgm === this) {
+				thisIsFirst = true;
+			} else if (bgm.isPlaying) {
+				if (!thisIsFirst) return;
+				bgm.sound.pause();
+				break;
+			}
+		}
+		this.sound.setVolume(BattleSound.bgmVolume);
+		// SoundManager bugs out if you call .play() while it's already playing
+		if (!this.sound.playState || this.sound.paused) {
+			this.sound.play();
+		}
+	}
+	pause() {
+		this.isPlaying = false;
+		this.sound.pause();
+		BattleBGM.update();
+	}
+	stop() {
+		this.isPlaying = false;
+		this.sound.stop();
+	}
+	destroy() {
+		this.isPlaying = false;
+		this.sound.stop();
+		const soundIndex = BattleSound.bgm.indexOf(this);
+		if (soundIndex >= 0) BattleSound.bgm.splice(soundIndex, 1);
+		BattleBGM.update();
+	}
+	static update() {
+		for (const bgm of BattleSound.bgm) {
+			if (bgm.isPlaying) {
+				if (BattleSound.muted || !BattleSound.bgmVolume) {
+					bgm.sound.pause();
+				} else {
+					bgm.sound.setVolume(BattleSound.bgmVolume);
+					// SoundManager bugs out if you call .play() while it's already playing
+					if (!bgm.sound.playState || bgm.sound.paused) {
+						bgm.sound.play();
+					}
+				}
+				break;
+			}
+		}
+	}
+}
 const BattleSound = new class {
-	effectCache: {[url: string]: any} = {};
+	effectCache: {[url: string]: SMSound} = {};
 
 	// bgm
-	bgmCache: {[url: string]: any} = {};
-	bgm: any = null!;
+	bgmCache: {[url: string]: SMSound} = {};
+	bgm: BattleBGM[] = [];
 
 	// misc
-	soundPlaceholder = {
+	soundPlaceholder: SMSound = {
 		play() { return this; },
 		pause() { return this; },
 		stop() { return this; },
@@ -2617,7 +2685,7 @@ const BattleSound = new class {
 		setVolume() { return this; },
 		onposition() { return this; },
 		isSoundPlaceholder: true,
-	};
+	} as any;
 
 	// options
 	effectVolume = 50;
@@ -2633,7 +2701,7 @@ const BattleSound = new class {
 				id: url,
 				url: Dex.resourcePrefix + url,
 				volume: this.effectVolume,
-			});
+			}) as SMSound;
 		} catch {}
 		if (!this.effectCache[url]) {
 			this.effectCache[url] = this.soundPlaceholder;
@@ -2644,59 +2712,43 @@ const BattleSound = new class {
 		if (!this.muted) this.loadEffect(url).setVolume(this.effectVolume).play();
 	}
 
+	addBgm(sound: SMSound, replaceBGM?: BattleBGM | null) {
+		if (replaceBGM) {
+			replaceBGM.sound.stop();
+			replaceBGM.sound = sound;
+			BattleBGM.update();
+			return replaceBGM;
+		}
+		const bgm = new BattleBGM(sound);
+		this.bgm.push(bgm);
+		return bgm;
+	}
+
 	/** loopstart and loopend are in milliseconds */
-	loadBgm(url: string, loopstart?: number, loopend?: number) {
-		if (this.bgmCache[url]) {
-			if (!this.bgmCache[url].isSoundPlaceholder || loopstart === undefined) {
-				return this.bgmCache[url];
+	loadBgm(url: string, loopstart: number, loopend: number, replaceBGM?: BattleBGM | null) {
+		let sound = this.bgmCache[url];
+		if (sound) {
+			if (!sound.isSoundPlaceholder) {
+				return this.addBgm(sound, replaceBGM);
 			}
 		}
 		try {
-			this.bgmCache[url] = soundManager.createSound({
+			sound = soundManager.createSound({
 				id: url,
 				url: Dex.resourcePrefix + url,
 				volume: this.bgmVolume,
 			});
 		} catch {}
-		if (!this.bgmCache[url]) {
+		if (!sound) {
 			// couldn't load
 			// suppress crash
-			return (this.bgmCache[url] = this.soundPlaceholder);
+			return this.addBgm(this.bgmCache[url] = this.soundPlaceholder, replaceBGM);
 		}
-		this.bgmCache[url].onposition(loopend, function (this: any, evP: any) {
-			this.setPosition(this.position - (loopend! - loopstart!));
+		sound.onposition(loopend, function () {
+			this.setPosition(this.position - (loopend - loopstart));
 		});
-		return this.bgmCache[url];
-	}
-	playBgm(url: string, loopstart?: number, loopstop?: number) {
-		if (this.bgm === this.loadBgm(url, loopstart, loopstop)) {
-			if (!this.bgm.paused && this.bgm.playState) {
-				return;
-			}
-		} else {
-			this.stopBgm();
-		}
-		try {
-			this.bgm = this.loadBgm(url, loopstart, loopstop).setVolume(this.bgmVolume);
-			if (!this.muted) {
-				if (this.bgm.paused) {
-					this.bgm.resume();
-				} else {
-					this.bgm.play();
-				}
-			}
-		} catch {}
-	}
-	pauseBgm() {
-		if (this.bgm) {
-			this.bgm.pause();
-		}
-	}
-	stopBgm() {
-		if (this.bgm) {
-			this.bgm.stop();
-			this.bgm = null;
-		}
+		this.bgmCache[url] = sound;
+		return this.addBgm(sound, replaceBGM);
 	}
 
 	// setting
@@ -2704,11 +2756,7 @@ const BattleSound = new class {
 		muted = !!muted;
 		if (this.muted === muted) return;
 		this.muted = muted;
-		if (muted) {
-			if (this.bgm) this.bgm.pause();
-		} else {
-			if (this.bgm) this.bgm.play();
-		}
+		BattleBGM.update();
 	}
 
 	loudnessPercentToAmplitudePercent(loudnessPercent: number) {
@@ -2718,11 +2766,7 @@ const BattleSound = new class {
 	}
 	setBgmVolume(bgmVolume: number) {
 		this.bgmVolume = this.loudnessPercentToAmplitudePercent(bgmVolume);
-		if (this.bgm) {
-			try {
-				this.bgm.setVolume(this.bgmVolume);
-			} catch {}
-		}
+		BattleBGM.update();
 	}
 	setEffectVolume(effectVolume: number) {
 		this.effectVolume = this.loudnessPercentToAmplitudePercent(effectVolume);

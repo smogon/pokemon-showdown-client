@@ -907,11 +907,35 @@ class Side {
 }
 
 enum Playback {
+	/**
+	 * Battle is at the end of the queue. `|start` is not in the queue.
+	 * Battle is waiting for `.add()` or `.setQueue()` to add `|start` to
+	 * the queue. Adding other queue entries will happen immediately,
+	 * bringing the state back to Uninitialized.
+	 */
 	Uninitialized = 0,
+	/**
+	 * Battle is at `|start` and hasn't been started yet.
+	 * Battle is paused, waiting for `.play()`.
+	 */
 	Ready = 1,
+	/**
+	 * `.play()` has been called. Battle should be animating
+	 * normally.
+	 */
 	Playing = 2,
+	/**
+	 * `.pause()` has been called. Battle is waiting for `.play()`.
+	 */
 	Paused = 3,
+	/**
+	 * Battle is at the end of the queue. Battle is waiting for
+	 * `.add()` for further battle progress.
+	 */
 	Finished = 4,
+	/**
+	 * Battle is fast forwarding through the queue, with animations off.
+	 */
 	Seeking = 5,
 }
 
@@ -992,6 +1016,11 @@ class Battle {
 
 	turn = 0;
 	/**
+	 * Has playback gotten to Team Preview or `|start` yet?
+	 * (Affects whether BGM is playing)
+	 */
+	started = false;
+	/**
 	 * Has playback gotten to the point where a player has won or tied?
 	 * (Affects whether BGM is playing)
 	 */
@@ -1037,6 +1066,10 @@ class Battle {
 	debug = false;
 	joinButtons = false;
 
+	/**
+	 * The actual pause state. Will only be true if playback is actually
+	 * paused, not just waiting for the opponent to make a move.
+	 */
 	paused = true;
 	playbackState = Playback.Uninitialized;
 
@@ -1090,6 +1123,7 @@ class Battle {
 	reset(dontResetSound?: boolean) {
 		// battle state
 		this.turn = 0;
+		this.started = false;
 		this.ended = false;
 		this.weather = '' as ID;
 		this.weatherTimeLeft = 0;
@@ -1111,10 +1145,11 @@ class Battle {
 		this.resultWaiting = false;
 		this.paused = true;
 		if (this.playbackState !== Playback.Seeking) {
-			this.playbackState = (this.activityQueue.length ? Playback.Ready : Playback.Uninitialized);
-			if (!dontResetSound) this.scene.soundStop();
+			this.playbackState = Playback.Uninitialized;
+			if (!dontResetSound) this.scene.resetBgm();
 		}
 		this.resetTurnsSinceMoved();
+		this.nextActivity();
 	}
 	destroy() {
 		this.scene.destroy();
@@ -3037,11 +3072,11 @@ class Battle {
 		if (command) this.activityQueue.push(command);
 
 		if (this.playbackState === Playback.Uninitialized) {
-			this.playbackState = Playback.Ready;
+			this.nextActivity();
 		} else if (this.playbackState === Playback.Finished) {
-			this.playbackState = Playback.Playing;
-			this.paused = false;
-			this.scene.soundStart();
+			this.playbackState = this.paused ? Playback.Paused : Playback.Playing;
+			if (this.paused) return;
+			this.scene.updateBgm();
 			if (fastForward) {
 				this.fastForwardTo(-1);
 			} else {
@@ -3399,11 +3434,11 @@ class Battle {
 			}
 		}
 
-		if (this.fastForward > 0 && this.fastForward < 1) {
-			if (nextLine.substr(0, 6) === '|start') {
-				this.fastForwardOff();
-				if (this.endCallback) this.endCallback(this);
-			}
+		if (this.playbackState === Playback.Uninitialized && (
+			nextLine.startsWith('|start') || args[0] === 'teampreview'
+		)) {
+			this.started = true;
+			this.playbackState = Playback.Ready;
 		}
 	}
 	checkActive(poke: Pokemon) {
@@ -3430,11 +3465,7 @@ class Battle {
 	}
 	fastForwardTo(time: string | number) {
 		if (this.fastForward) return;
-		if (time === 0 || time === '0') {
-			time = 0.5;
-		} else {
-			time = Math.floor(Number(time));
-		}
+		time = Math.floor(Number(time));
 		if (isNaN(time)) return;
 		if (this.ended && time >= this.turn + 1) return;
 
@@ -3445,6 +3476,7 @@ class Battle {
 			else this.paused = false;
 			this.fastForwardWillScroll = true;
 		}
+		if (!time) return;
 		this.scene.animationOff();
 		this.playbackState = Playback.Seeking;
 		this.fastForward = time;
@@ -3456,21 +3488,27 @@ class Battle {
 		this.playbackState = this.paused ? Playback.Paused : Playback.Playing;
 	}
 	nextActivity() {
+		if (this.playbackState === Playback.Ready || this.playbackState === Playback.Paused) {
+			return;
+		}
+
 		this.scene.startAnimations();
-		let animations;
+		let animations = undefined;
 		while (!animations) {
 			this.waitForAnimations = true;
 			if (this.activityStep >= this.activityQueue.length) {
 				this.fastForwardOff();
-				if (this.ended) {
-					this.paused = true;
-					this.scene.soundStop();
-				}
 				this.playbackState = Playback.Finished;
+				if (this.ended) {
+					this.scene.updateBgm();
+				}
 				if (this.endCallback) this.endCallback(this);
 				return;
 			}
-			if (this.paused && !this.fastForward) return;
+			// @ts-ignore property modified in method
+			if (this.playbackState === Playback.Ready || this.playbackState === Playback.Paused) {
+				return;
+			}
 			this.run(this.activityQueue[this.activityStep]);
 			this.activityStep++;
 			if (this.waitForAnimations === true) {
@@ -3480,7 +3518,10 @@ class Battle {
 			}
 		}
 
-		if (this.playbackState === Playback.Paused) return;
+		// @ts-ignore property modified in method
+		if (this.playbackState === Playback.Ready || this.playbackState === Playback.Paused) {
+			return;
+		}
 
 		const interruptionCount = this.scene.interruptionCount;
 		animations.done(() => {
@@ -3490,28 +3531,9 @@ class Battle {
 		});
 	}
 
-	newBattle() {
-		this.reset();
-		this.activityQueue = [];
-	}
 	setQueue(queue: string[]) {
-		this.reset();
 		this.activityQueue = queue;
-
-		/* for (let i = 0; i < queue.length && i < 20; i++) {
-			if (queue[i].substr(0, 8) === 'pokemon ') {
-				let sp = this.parseSpriteData(queue[i].substr(8));
-				BattleSound.loadEffect(sp.cryurl);
-				this.preloadImage(sp.url);
-				if (sp.url === '/sprites/bwani/meloetta.gif') {
-					this.preloadImage('/sprites/bwani/meloetta-pirouette.gif');
-				}
-				if (sp.url === '/sprites/bwani-back/meloetta.gif') {
-					this.preloadImage('/sprites/bwani-back/meloetta-pirouette.gif');
-				}
-			}
-		} */
-		this.playbackState = Playback.Ready;
+		this.reset();
 	}
 
 	setMute(mute: boolean) {
