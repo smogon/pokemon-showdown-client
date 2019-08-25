@@ -1395,12 +1395,12 @@ class Battle {
 			targets.push(target.side.missedPokemon);
 		} else {
 			for (const hitTarget of kwArgs.spread.split(',')) {
-				const target = this.getPokemon(hitTarget + ': ?');
-				if (!target) {
+				const curTarget = this.getPokemon(hitTarget + ': ?');
+				if (!curTarget) {
 					this.log(['error', `Invalid spread move target: "${hitTarget}"`]);
 					continue;
 				}
-				targets.push(target);
+				targets.push(curTarget);
 			}
 		}
 
@@ -3439,11 +3439,12 @@ class Battle {
 			}
 		}
 
-		if (this.playbackState === Playback.Uninitialized && (
-			nextLine.startsWith('|start') || args[0] === 'teampreview'
-		)) {
+		if (nextLine.startsWith('|start') || args[0] === 'teampreview') {
 			this.started = true;
-			this.playbackState = Playback.Ready;
+			if (this.playbackState === Playback.Uninitialized) {
+				this.playbackState = Playback.Ready;
+			}
+			this.scene.updateBgm();
 		}
 	}
 	checkActive(poke: Pokemon) {
