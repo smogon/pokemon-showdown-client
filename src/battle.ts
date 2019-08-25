@@ -1395,7 +1395,12 @@ class Battle {
 			targets.push(target.side.missedPokemon);
 		} else {
 			for (const hitTarget of kwArgs.spread.split(',')) {
-				targets.push(this.getPokemon(hitTarget + ': ?')!);
+				const target = this.getPokemon(hitTarget + ': ?');
+				if (!target) {
+					this.log(['error', `Invalid spread move target: "${hitTarget}"`]);
+					continue;
+				}
+				targets.push(target);
 			}
 		}
 
