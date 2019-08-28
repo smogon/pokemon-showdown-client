@@ -822,8 +822,8 @@ class BattleScene {
 		}
 
 		let weatherhtml = '';
-		if (weather && weather in weatherNameTable) {
-			weatherhtml += '<br />' + weatherNameTable[weather] + this.weatherLeft();
+		if (weather) {
+			weatherhtml += '<br />' + (weatherNameTable[weather] || weather) + this.weatherLeft();
 		}
 		for (const pseudoWeather of this.battle.pseudoWeather) {
 			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
