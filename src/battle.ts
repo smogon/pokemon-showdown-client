@@ -581,6 +581,7 @@ class Side {
 	active = [null] as (Pokemon | null)[];
 	lastPokemon = null as Pokemon | null;
 	pokemon = [] as Pokemon[];
+	teamSliceIndicies = [] as number[];
 
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};
@@ -1035,6 +1036,7 @@ class Battle {
 	p1: Side = null!;
 	p2: Side = null!;
 	myPokemon: ServerPokemon[] | null = null;
+	pokemonControlled = 0;
 	sides: [Side, Side] = [null!, null!];
 	lastMove = '';
 
@@ -2916,22 +2918,20 @@ class Battle {
 		let siden = -1;
 		let slot = -1; // if there is an explicit slot for this pokemon
 		let slotChart: {[k: string]: number} = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
-		if (name.substr(0, 4) === 'p2: ' || name === 'p2') {
-			siden = this.p2.n;
-			name = name.substr(4);
-		} else if (name.substr(0, 4) === 'p1: ' || name === 'p1') {
-			siden = this.p1.n;
-			name = name.substr(4);
-		} else if (name.substr(0, 2) === 'p2' && name.substr(3, 2) === ': ') {
-			slot = slotChart[name.substr(2, 1)];
-			siden = this.p2.n;
-			name = name.substr(5);
-			pokemonid = 'p2: ' + name;
-		} else if (name.substr(0, 2) === 'p1' && name.substr(3, 2) === ': ') {
-			slot = slotChart[name.substr(2, 1)];
-			siden = this.p1.n;
-			name = name.substr(5);
-			pokemonid = 'p1: ' + name;
+		if (name.match(/^p[0-9]$|p[0-9]: |p[0-9][a-f]: /)) {
+			const serverSideN = parseInt(name.charAt(1), 10) - 1;
+			if (this.sidesSwitched) {
+				siden = serverSideN + ((serverSideN % 2) ? -1 : 1);
+			} else {
+				siden = serverSideN;
+			}
+			if (name.match(/^p[0-9]$|p[0-9]: /)) {
+				name = name.substr(4);
+			} else {
+				slot = slotChart[name.charAt(2)];
+				name = name.substr(5);
+				pokemonid = 'p' + (serverSideN + 1) + ': ' + name;
+			}
 		}
 		return {name, siden, slot, pokemonid};
 	}
@@ -2955,10 +2955,11 @@ class Battle {
 		let parseIdResult = this.parsePokemonId(pokemonid);
 		let {name, siden, slot} = parseIdResult;
 		pokemonid = parseIdResult.pokemonid;
+		const teamn = siden % 2;
 
 		if (!details) {
 			if (siden < 0) return null;
-			if (this.sides[siden].active[slot]) return this.sides[siden].active[slot];
+			if (this.sides[teamn].active[slot]) return this.sides[teamn].active[slot];
 			if (slot >= 0) isInactive = true;
 		}
 
@@ -2966,7 +2967,7 @@ class Battle {
 		if (details) searchid = pokemonid + '|' + details;
 
 		// search p1's pokemon
-		if (siden !== this.p2.n && !isNew) {
+		if ((teamn === this.p1.n || siden === -1) && !isNew) {
 			const active = this.p1.active[slot];
 			if (active && active.searchid === searchid && !isSwitch) {
 				active.slot = slot;
@@ -2993,7 +2994,7 @@ class Battle {
 		}
 
 		// search p2's pokemon
-		if (siden !== this.p1.n && !isNew) {
+		if ((teamn === this.p2.n || siden === -1) && !isNew) {
 			const active = this.p2.active[slot];
 			if (active && active.searchid === searchid && !isSwitch) {
 				if (slot >= 0) active.slot = slot;
@@ -3025,6 +3026,12 @@ class Battle {
 
 		if (siden < 0) throw new Error("Invalid pokemonid passed to getPokemon");
 
+		if (siden > 1) {
+			if (this.sides[teamn].teamSliceIndicies[slot] === undefined) {
+				this.sides[teamn].teamSliceIndicies[slot] = this.sides[teamn].pokemon.length;
+			}
+		}
+
 		let species = name;
 		let gender = '';
 		let level = 100;
@@ -3047,7 +3054,7 @@ class Battle {
 			}
 		}
 		if (slot < 0) slot = 0;
-		let pokemon = this.sides[siden].newPokemon({
+		let pokemon = this.sides[teamn].newPokemon({
 			species,
 			details,
 			name,
@@ -3141,6 +3148,10 @@ class Battle {
 				this.mySide.active = [null];
 				this.yourSide.active = [null];
 				break;
+			case 'multi':
+			case 'free-for-all':
+				this.pokemonControlled = 1;
+				// falls through
 			case 'doubles':
 				this.mySide.active = [null, null];
 				this.yourSide.active = [null, null];
