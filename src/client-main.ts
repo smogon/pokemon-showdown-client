@@ -395,13 +395,13 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	receive(message: string) {
 		throw new Error(`This room is not designed to receive messages`);
 	}
-	send(msg: string) {
+	send(msg: string, direct?: boolean) {
 		const id = this.id === 'lobby' ? '' : this.id;
 		PS.send(id + '|' + msg);
 	}
 	destroy() {
 		if (this.connected) {
-			this.send('/leave');
+			this.send('/leave', true);
 			this.connected = false;
 		}
 	}
@@ -556,6 +556,7 @@ const PS = new class extends PSModel {
 			const index2a = str.indexOf('|', index + 1);
 			return [cmd, str.slice(index + 1, index2a), str.slice(index2a + 1)];
 		case 'c:':
+		case 'pm':
 			// four parts
 			const index2b = str.indexOf('|', index + 1);
 			const index3b = str.indexOf('|', index2b + 1);
@@ -855,6 +856,17 @@ const PS = new class extends PSModel {
 		return buf;
 	}
 	addRoom(options: RoomOptions, noFocus?: boolean) {
+		// support hardcoded PM room-IDs
+		if (options.id.startsWith('challenge-')) {
+			options.id = `pm-${options.id.slice(10)}` as RoomID;
+			options.challenging = true;
+		}
+		if (options.id.startsWith('pm-') && options.id.indexOf('-', 3) < 0) {
+			const userid1 = PS.user.userid;
+			const userid2 = options.id.slice(3);
+			options.id = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
+		}
+
 		if (this.rooms[options.id]) {
 			for (let i = 0; i < this.popups.length; i++) {
 				const popup = this.rooms[this.popups[i]]!;
@@ -866,7 +878,12 @@ const PS = new class extends PSModel {
 					return;
 				}
 			}
-			if (!noFocus) this.focusRoom(options.id);
+			if (!noFocus) {
+				if (options.challenging) {
+					(this.rooms[options.id] as ChatRoom).openChallenge();
+				}
+				this.focusRoom(options.id);
+			}
 			return;
 		}
 		if (!noFocus) {
