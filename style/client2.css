@@ -406,7 +406,7 @@ select {
 	background: #EEEEEE;
 	border-color: #CCCCCC;
 	border-style: solid;
-	border-size: 1px;
+	border-width: 1px;
 	color: #999999;
 	text-shadow: none;
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
@@ -903,7 +903,7 @@ p.or:after {
 	color: #222222;
 }
 .challenge {
-	margin-top: -1px;
+	margin: 0 5px;
 	background: #fcd2b3;
 	border: 1px solid #f57b21;
 	color: #682f05;
@@ -2731,8 +2731,6 @@ a.ilink.yours {
 .setchart input.incomplete {
 	color: #CC3311;
 	border-color: #CC3311;
-}
-.setchart-nickname input {
 }
 .setchart .setcell-details input {
 	width: 216px;

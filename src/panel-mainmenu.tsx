@@ -216,12 +216,17 @@ class MainMenuPanel extends PSRoomPanel {
 	focus() {
 		(this.base!.querySelector('button.big') as HTMLButtonElement).focus();
 	}
+	submit = (e: Event) => {
+		alert('todo: implement');
+	};
 	render() {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		const searchButton = (PS.down ? <div class="menugroup" style="background: rgba(10,10,10,.6)">
 			{PS.down === 'ddos' ?
-				<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p> :
-				<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>}
+				<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p>
+			:
+				<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>
+			}
 			<p>
 				<div style={{textAlign: 'center'}}>
 					<img width="96" height="96" src="//play.pokemonshowdown.com/sprites/bw/teddiursa.png" alt="" />
@@ -229,7 +234,7 @@ class MainMenuPanel extends PSRoomPanel {
 				Bear with us as we freak out.
 			</p>
 			<p>(We'll be back up in a few hours.)</p>
-		</div> : <TeamForm class="menugroup">
+		</div> : <TeamForm class="menugroup" onSubmit={this.submit}>
 			<button class={"mainmenu1 big" + onlineButton} name="search">
 				<strong>Battle!</strong><br />
 				<small>Find a random opponent</small>
@@ -302,6 +307,9 @@ class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.E
 		}
 		return '[Gen 7] Random Battle';
 	}
+	componentDidMount() {
+		this.base!.value = this.getFormat();
+	}
 	change = (e: Event) => {
 		this.forceUpdate();
 		if (this.props.onChange) this.props.onChange(e);
@@ -320,9 +328,10 @@ class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.E
 }
 
 class TeamDropdown extends preact.Component<{format: string}> {
+	base?: HTMLButtonElement;
 	getTeam() {
 		if (this.base) {
-			const key = (this.base as HTMLButtonElement).value;
+			const key = this.base.value;
 			return PS.teams.byKey[key] || null;
 		}
 		const formatid = PS.teams.teambuilderFormat(this.props.format);
@@ -330,6 +339,12 @@ class TeamDropdown extends preact.Component<{format: string}> {
 			if (team.format === formatid) return team;
 		}
 		return null;
+	}
+	componentDidMount() {
+		const team = this.getTeam();
+		if (team) {
+			this.base!.value = team.key;
+		}
 	}
 	change = () => this.forceUpdate();
 	render() {
@@ -361,21 +376,37 @@ class TeamDropdown extends preact.Component<{format: string}> {
 	}
 }
 
-class TeamForm extends preact.Component<{children: preact.ComponentChildren, class?: string, format?: string}> {
+class TeamForm extends preact.Component<{
+	children: preact.ComponentChildren, class?: string, format?: string,
+	onSubmit: (e: Event, format: string, team?: Team) => void,
+}> {
 	state = {format: '[Gen 7] Random Battle'};
 	changeFormat = (e: Event) => {
 		this.setState({format: (e.target as HTMLButtonElement).value});
 	};
+	submit = (e: Event) => {
+		e.preventDefault();
+		const format = (this.base!.querySelector('button[name=format]') as HTMLButtonElement).value;
+		const teamKey = (this.base!.querySelector('button[name=team]') as HTMLButtonElement).value;
+		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
+		this.props.onSubmit(e, format, team);
+	};
 	render() {
-		return <div class={this.props.class}>
+		return <form class={this.props.class} onSubmit={this.submit}>
 			<p>
-				<label class="label">Format: <FormatDropdown onChange={this.changeFormat} format={this.props.format} /></label>
+				<label class="label">
+					Format:<br />
+					<FormatDropdown onChange={this.changeFormat} format={this.props.format} />
+				</label>
 			</p>
 			<p>
-				<label class="label">Team: <TeamDropdown format={this.state.format} /></label>
+				<label class="label">
+					Team:<br />
+					<TeamDropdown format={this.state.format} />
+				</label>
 			</p>
 			<p>{this.props.children}</p>
-		</div>;
+		</form>;
 	}
 }
 

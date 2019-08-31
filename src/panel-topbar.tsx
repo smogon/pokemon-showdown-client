@@ -212,8 +212,6 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 
 		const isSelf = user.userid === PS.user.userid;
 
-		const pmLink = '/pm-' + [user.userid, PS.user.userid].sort().join('-');
-
 		return <PSPanelWrapper room={room}>
 			<div class="userdetails">
 				{user.avatar !== '[loading]' &&
@@ -235,8 +233,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				</p>
 			:
 				<p class="buttonbar">
-					<button class="button disabled" data-href={pmLink}>Challenge</button> {}
-					<button class="button" data-href={pmLink}>Chat</button> {}
+					<button class="button" data-href={`/challenge-${user.userid}`}>Challenge</button> {}
+					<button class="button" data-href={`/pm-${user.userid}`}>Chat</button> {}
 					<button class="button disabled" name="userOptions">{'\u2026'}</button>
 				</p>
 			}

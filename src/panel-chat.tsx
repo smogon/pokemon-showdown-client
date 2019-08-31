@@ -10,9 +10,11 @@ class ChatRoom extends PSRoom {
 	users: {[userid: string]: string} = {};
 	userCount = 0;
 	pmTarget: string | null = null;
+	challenging = false;
 	constructor(options: RoomOptions) {
 		super(options);
 		if (options.pmTarget) this.pmTarget = options.pmTarget as string;
+		if (options.challenging) this.challenging = true;
 		this.updateTarget(true);
 		if (!this.connected) {
 			if (!this.pmTarget) PS.send(`|/join ${this.id}`);
@@ -28,12 +30,46 @@ class ChatRoom extends PSRoom {
 				this.pmTarget = id1;
 			} else if (!force) {
 				return;
+			} else {
+				this.pmTarget = id1;
+			}
+			if (!this.userCount) {
+				this.setUsers(2, [` ${id1}`, ` ${id2}`]);
 			}
 			this.title = `[PM] ${this.pmTarget}`;
 		}
 	}
-	send(line: string) {
+	handleMessage(line: string) {
+		if (!line.startsWith('/') || line.startsWith('//')) return false;
+		const spaceIndex = line.indexOf(' ');
+		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
+		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
+		switch (cmd) {
+		case 'j': case 'join': {
+			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
+			PS.join(roomid);
+			return true;
+		} case 'part': case 'leave': {
+			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
+			PS.leave(roomid || this.id);
+			return true;
+		} case 'chall': case 'challenge': {
+			if (!this.pmTarget) {
+				this.receive(`|error|Can only be used in a PM.`);
+				return true;
+			}
+			this.openChallenge();
+			return true;
+		}}
+		return false;
+	}
+	openChallenge() {
+		this.challenging = true;
+		this.update('');
+	}
+	send(line: string, direct?: boolean) {
 		this.updateTarget();
+		if (!direct && this.handleMessage(line)) return;
 		if (this.pmTarget) {
 			PS.send(`|/pm ${this.pmTarget}, ${line}`);
 			return;
@@ -234,10 +270,34 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		}
 		return false;
 	};
+	challenge = (e: Event, format: string, team?: Team) => {
+		const room = this.props.room;
+		const packedTeam = team ? team.packedTeam : '';
+		room.challenging = false;
+		if (!room.pmTarget) throw new Error("Not a PM room");
+		PS.send(`|/utm ${packedTeam}`);
+		PS.send(`|/challenge ${room.pmTarget}, ${format}`);
+	};
+	cancelChallenge = (e: Event) => {
+		const room = this.props.room;
+		room.challenging = false;
+		room.update('');
+	};
 	render() {
+		const room = this.props.room;
+
+		const challenge = room.challenging ? <div class="challenge">
+			<TeamForm onSubmit={this.challenge}>
+				<button type="submit" class="button disabled"><strong>Challenge</strong></button> {}
+				<button onClick={this.cancelChallenge} class="button">Cancel</button>
+			</TeamForm>
+		</div> : null;
+
 		return <PSPanelWrapper room={this.props.room}>
 			<div class="tournament-wrapper hasuserlist"></div>
-			<ChatLog class="chat-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection} />
+			<ChatLog class="chat-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection}>
+				{challenge}
+			</ChatLog>
 			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} />
 			<ChatUserList room={this.props.room} />
 		</PSPanelWrapper>;
@@ -267,14 +327,16 @@ class ChatUserList extends preact.Component<{room: ChatRoom}> {
 				const groupSymbol = name.charAt(0);
 				const group = PS.server.groups[groupSymbol] || {type: 'user', order: 0};
 				return <li key={userid}><button class="userbutton username" data-name={name}>
-					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>{groupSymbol}</em>
+					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
+						{groupSymbol}
+					</em>
 					{group.type === 'leadership' ?
 						<strong><em style={colorStyle(userid)}>{name.substr(1)}</em></strong>
 					: group.type === 'staff' ?
 						<strong style={colorStyle(userid)}>{name.substr(1)}</strong>
-				:
+					:
 						<span style={colorStyle(userid)}>{name.substr(1)}</span>
-				}
+					}
 				</button></li>;
 			})}
 		</ul>;
@@ -295,7 +357,9 @@ class ChatUserList extends preact.Component<{room: ChatRoom}> {
 	}
 }
 
-class ChatLog extends preact.Component<{class: string, room: ChatRoom, onClick?: (e: Event) => void}> {
+class ChatLog extends preact.Component<{
+	class: string, room: ChatRoom, onClick?: (e: Event) => void, children?: preact.ComponentChildren,
+}> {
 	log: BattleLog = null!;
 	subscription: PSSubscription | null = null;
 	componentDidMount() {
@@ -325,16 +389,31 @@ class ChatLog extends preact.Component<{class: string, room: ChatRoom, onClick?:
 			}
 			this.log.add(tokens);
 		});
+		this.setControlsJSX(this.props.children);
 	}
 	componentWillUnmount() {
 		if (this.subscription) this.subscription.unsubscribe();
 	}
-	shouldComponentUpdate(props: {class: string}) {
+	shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
 		if (props.class !== this.props.class) {
 			this.base!.className = props.class;
 		}
+		this.setControlsJSX(props.children);
 		this.log.updateScroll();
 		return false;
+	}
+	setControlsJSX(jsx: preact.ComponentChildren | undefined) {
+		const children = this.base!.children;
+		let controlsElem: HTMLDivElement | undefined = children[children.length - 1] as HTMLDivElement;
+		if (controlsElem.className !== 'controls') controlsElem = undefined;
+		if (!jsx) {
+			if (!controlsElem) return;
+			preact.render(null, this.base!, controlsElem);
+			this.log.updateScroll();
+			return;
+		}
+		preact.render(<div class="controls">{jsx}</div>, this.base!, controlsElem);
+		this.log.updateScroll();
 	}
 	render() {
 		return <div class={this.props.class} role="log" onClick={this.props.onClick}></div>;
