@@ -232,11 +232,18 @@ class PSUser extends PSModel {
 	registered = false;
 	avatar = "1";
 	setName(name: string, named: boolean, avatar: string) {
+		const loggingIn = (!this.named && named);
 		this.name = name;
 		this.userid = toID(name);
 		this.named = named;
 		this.avatar = avatar;
 		this.update();
+		if (loggingIn) {
+			for (const roomid in PS.rooms) {
+				const room = PS.rooms[roomid]!;
+				if (room.connectWhenLoggedIn) room.connect();
+			}
+		}
 	}
 }
 
@@ -363,7 +370,8 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	 * In particular, this is `true` after sending `/join`, and `false`
 	 * after sending `/leave`, even before the server responds.
 	 */
-	connected = false;
+	connected: boolean = false;
+	connectWhenLoggedIn: boolean = false;
 	onParentEvent: ((eventId: 'focus' | 'keydown', e?: Event) => false | void) | null = null;
 
 	width = 0;
@@ -392,7 +400,10 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 		this.height = height;
 		this.update('');
 	}
-	receive(message: string) {
+	connect(): void {
+		throw new Error(`This room is not designed to connect to a server room`);
+	}
+	receive(message: string): void {
 		throw new Error(`This room is not designed to receive messages`);
 	}
 	send(msg: string, direct?: boolean) {
@@ -470,9 +481,9 @@ const PS = new class extends PSModel {
 	 */
 	leftRoom: PSRoom = null!;
 	/**
-	 * Currently active left room.
+	 * Currently active right room.
 	 *
-	 * In two-panel mode, this will be the visible left panel.
+	 * In two-panel mode, this will be the visible right panel.
 	 *
 	 * In one-panel mode, this is the visible room only if it is
 	 * `PS.room`. Still tracked when not visible, so we know which
@@ -480,8 +491,9 @@ const PS = new class extends PSModel {
 	 */
 	rightRoom: PSRoom | null = null;
 	/**
-	 * The currently focused room. Should always be the topmost popup,
-	 * or either `PS.leftRoom` or `PS.rightRoom`.
+	 * The currently focused room. Should always be the topmost popup
+	 * if it exists. If no popups are open, it should be
+	 * `PS.activePanel`.
 	 *
 	 * Determines which room receives keyboard shortcuts.
 	 *
@@ -504,7 +516,7 @@ const PS = new class extends PSModel {
 	 *
 	 * Will NOT be true if only one panel fits onto the screen at the
 	 * moment, but resizing will display multiple panels – for that,
-	 * check PS.leftRoomWidth === 0
+	 * check `PS.leftRoomWidth === 0`
 	 */
 	onePanelMode = false;
 	/**
@@ -659,6 +671,17 @@ const PS = new class extends PSModel {
 				if (room) {
 					room.connected = false;
 					this.removeRoom(room);
+				}
+				this.update();
+				continue;
+			}
+			if ((line + '|').startsWith('|noinit|')) {
+				room = PS.rooms[roomid2];
+				if (room) {
+					room.connected = false;
+					if ((line + '|').startsWith('|noinit|namerequired|')) {
+						room.connectWhenLoggedIn = true;
+					}
 				}
 				this.update();
 				continue;
