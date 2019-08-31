@@ -126,6 +126,8 @@ class ChatTextEntry extends preact.Component<{
 }> {
 	subscription: PSSubscription | null = null;
 	textbox: HTMLTextAreaElement = null!;
+	history: string[] = [];
+	historyIndex = 0;
 	componentDidMount() {
 		this.subscription = PS.user.subscribe(() => {
 			this.forceUpdate();
@@ -154,6 +156,7 @@ class ChatTextEntry extends preact.Component<{
 	};
 	submit() {
 		this.props.onMessage(this.textbox.value);
+		this.historyPush(this.textbox.value);
 		this.textbox.value = '';
 		this.update();
 		return true;
@@ -164,6 +167,33 @@ class ChatTextEntry extends preact.Component<{
 			e.stopImmediatePropagation();
 		}
 	};
+	historyUp() {
+		if (this.historyIndex === 0) return false;
+		const line = this.textbox.value;
+		if (line !== '') this.history[this.historyIndex] = line;
+		this.textbox.value = this.history[--this.historyIndex];
+		return true;
+	}
+	historyDown() {
+		const line = this.textbox.value;
+		if (line !== '') this.history[this.historyIndex] = line;
+		if (this.historyIndex === this.history.length) {
+			if (!line) return false;
+			this.textbox.value = '';
+		} else if (++this.historyIndex === this.history.length) {
+			this.textbox.value = '';
+		} else {
+			this.textbox.value = this.history[this.historyIndex];
+		}
+		return true;
+	}
+	historyPush(line: string) {
+		const duplicateIndex = this.history.lastIndexOf(line);
+		if (duplicateIndex >= 0) this.history.splice(duplicateIndex, 1);
+		if (this.history.length > 100) this.history.splice(0, 20);
+		this.history.push(line);
+		this.historyIndex = this.history.length;
+	}
 	handleKey(e: KeyboardEvent) {
 		const cmdKey = ((e.metaKey ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
 		if (e.keyCode === 13 && !e.shiftKey) { // Enter key
@@ -177,10 +207,10 @@ class ChatTextEntry extends preact.Component<{
 		// } else if (e.keyCode === 9 && !e.ctrlKey) { // Tab key
 		// 	const reverse = !!e.shiftKey; // Shift+Tab reverses direction
 		// 	return this.handleTabComplete(this.$chatbox, reverse);
-		// } else if (e.keyCode === 38 && !e.shiftKey && !e.altKey) { // Up key
-		// 	return this.chatHistoryUp(this.$chatbox, e);
-		// } else if (e.keyCode === 40 && !e.shiftKey && !e.altKey) { // Down key
-		// 	return this.chatHistoryDown(this.$chatbox, e);
+		} else if (e.keyCode === 38 && !e.shiftKey && !e.altKey) { // Up key
+			return this.historyUp();
+		} else if (e.keyCode === 40 && !e.shiftKey && !e.altKey) { // Down key
+			return this.historyDown();
 		// } else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r' || textbox.value === '/R') && e.keyCode === 32) { // '/reply ' is being written
 		// 	var val = '/pm ' + app.user.lastPM + ', ';
 		// 	textbox.value = val;
