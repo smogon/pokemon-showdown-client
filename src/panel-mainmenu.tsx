@@ -240,7 +240,7 @@ class MainMenuPanel extends PSRoomPanel {
 				<small>Find a random opponent</small>
 			</button>
 		</TeamForm>);
-		return <PSPanelWrapper room={this.props.room}>
+		return <PSPanelWrapper room={this.props.room} scrollable>
 			<div class="mainmenuwrapper">
 				<div class="leftmenu">
 					<div class="activitymenu">

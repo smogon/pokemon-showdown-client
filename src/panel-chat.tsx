@@ -16,9 +16,13 @@ class ChatRoom extends PSRoom {
 		if (options.pmTarget) this.pmTarget = options.pmTarget as string;
 		if (options.challenging) this.challenging = true;
 		this.updateTarget(true);
+		this.connect();
+	}
+	connect() {
 		if (!this.connected) {
 			if (!this.pmTarget) PS.send(`|/join ${this.id}`);
 			this.connected = true;
+			this.connectWhenLoggedIn = false;
 		}
 	}
 	updateTarget(force?: boolean) {
@@ -54,8 +58,8 @@ class ChatRoom extends PSRoom {
 			PS.leave(roomid || this.id);
 			return true;
 		} case 'chall': case 'challenge': {
-			if (!this.pmTarget) {
-				this.receive(`|error|Can only be used in a PM.`);
+			if (target) {
+				PS.join(`challenge-${toID(target)}` as RoomID);
 				return true;
 			}
 			this.openChallenge();
@@ -64,6 +68,10 @@ class ChatRoom extends PSRoom {
 		return false;
 	}
 	openChallenge() {
+		if (!this.pmTarget) {
+			this.receive(`|error|Can only be used in a PM.`);
+			return;
+		}
 		this.challenging = true;
 		this.update('');
 	}
@@ -158,7 +166,6 @@ class ChatTextEntry extends preact.Component<{
 	};
 	handleKey(e: KeyboardEvent) {
 		const cmdKey = ((e.metaKey ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
-		const textbox = this.textbox;
 		if (e.keyCode === 13 && !e.shiftKey) { // Enter key
 			return this.submit();
 		} else if (e.keyCode === 73 && cmdKey) { // Ctrl + I key
