@@ -11,6 +11,7 @@ class PSConnection {
 	socket: any = null;
 	connected = false;
 	queue = [] as string[];
+	hostCheckInterval: number | undefined | null;
 	constructor() {
 		this.connect();
 	}
@@ -33,8 +34,10 @@ class PSConnection {
 		};
 		socket.onclose = () => {
 			console.log('\u2705 (DISCONNECTED)');
-			clearTimeout(this.hostCheckInterval);
-			this.hostCheckInterval = null;
+			if (this.hostCheckInterval !== null) {
+				clearTimeout(this.hostCheckInterval);
+				this.hostCheckInterval = null;
+			}
 			this.connected = false;
 			PS.connected = false;
 			PS.isOffline = true;
