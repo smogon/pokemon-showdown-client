@@ -32,11 +32,11 @@
 			var name = ' ' + app.user.get('name');
 			var away = app.user.get('away');
 			var status = app.user.get('status');
-			var color = away ? 'color:#AAA;' : BattleLog.hashColor(app.user.get('userid'));
+			var color = away ? 'color:#888;' : BattleLog.hashColor(app.user.get('userid'));
 			if (!app.user.loaded) {
 				buf = '<button disabled>Loading...</button>';
 			} else if (app.user.get('named')) {
-				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '"' + (away ? ' data-away="true"' : '') + (status ? 'data-status="' + BattleLog.escapeHTML(status) + '"' : '') + ' style="' + color + '"><i class="fa fa-user" style="color:' + (away ? '#AAA;' : '#779EC5') + '"></i> ' + BattleLog.escapeHTML(name) + '</span>';
+				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '"' + (away ? ' data-away="true"' : '') + (status ? 'data-status="' + BattleLog.escapeHTML(status) + '"' : '') + ' style="' + color + '"><i class="fa fa-user" style="color:' + (away ? '#888;' : '#779EC5') + '"></i> ' + BattleLog.escapeHTML(name) + '</span>';
 			} else {
 				buf = '<button name="login">Choose name</button>';
 			}
