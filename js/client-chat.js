@@ -36,7 +36,7 @@
 				this.$chatAdd.html('<form><button name="login">Join chat</button></form>');
 				this.$chatbox = null;
 			} else {
-				var color = app.user.get('away') ? 'color:#AAA;' : BattleLog.hashColor(app.user.get('userid'));
+				var color = app.user.get('away') ? 'color:#888;' : BattleLog.hashColor(app.user.get('userid'));
 				this.$chatAdd.html('<form class="chatbox"><label style="' + color + '">' + BattleLog.escapeHTML(name) + ':</label> <textarea class="textbox" type="text" size="70" autocomplete="off"></textarea></form>');
 				this.$chatbox = this.$chatAdd.find('textarea');
 				this.$chatbox.autoResize({
@@ -1727,7 +1727,7 @@
 			text += (user.away ? ' data-away=true' : '') + (user.status ? ' data-status="' + BattleLog.escapeHTML(user.status) + '"' : '') + '>';
 			var group = user.group;
 			var details = Config.groups[group] || {type: 'user'};
-			var color = user.away ? 'color:#AAA;' : BattleLog.hashColor(userid);
+			var color = user.away ? 'color:#888;' : BattleLog.hashColor(userid);
 			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + BattleLog.escapeHTML(group) + '</em>';
 			if (details.type === 'leadership') {
 				text += '<strong><em style="' + color + '">' + BattleLog.escapeHTML(user.name) + '</em></strong>';
