@@ -18,13 +18,14 @@ class PSConnection {
 		const server = PS.server;
 		const port = server.protocol === 'https' ? '' : ':' + server.port;
 		const url = server.protocol + '://' + server.host + port + server.prefix;
-		const socket = this.socket = new SockJS(url);
+		const socket = this.socket = new SockJS(url, [], {timeout: 5 * 60 * 1000});
 		socket.onopen = () => {
 			console.log('\u2705 (CONNECTED)');
 			this.connected = true;
 			PS.connected = true;
 			for (const msg of this.queue) socket.send(msg);
 			this.queue = [];
+			this.hostCheckInterval = setTimeout(() => this.doHostCheck(), 500);
 			PS.update();
 		};
 		socket.onmessage = (e: MessageEvent) => {
@@ -32,6 +33,8 @@ class PSConnection {
 		};
 		socket.onclose = () => {
 			console.log('\u2705 (DISCONNECTED)');
+			clearTimeout(this.hostCheckInterval);
+			this.hostCheckInterval = null;
 			this.connected = false;
 			PS.connected = false;
 			PS.isOffline = true;
@@ -41,6 +44,13 @@ class PSConnection {
 			this.socket = null;
 			PS.update();
 		};
+	}
+	doHostCheck() {
+		if (PS.server.host !== $.trim(PS.server.host)) {
+			this.socket.close();
+		} else {
+			this.hostCheckInterval = setTimeout(() => this.doHostCheck(), 500);
+		}
 	}
 	send(msg: string) {
 		if (!this.connected) {
