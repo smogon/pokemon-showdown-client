@@ -726,8 +726,10 @@ const Dex = new class implements ModdedDex {
 		// }
 		if (Dex.prefs('nopastgens')) gen = 6;
 		let spriteDir = Dex.resourcePrefix + 'sprites/xydex';
-		let modelExists = !template.isNonstandard || ['pikachustarter', 'eeveestarter', 'meltan', 'melmetal'].includes(template.id);
-		if ((!gen || gen >= 6) && modelExists && !Dex.prefs('bwgfx')) {
+		let xydexExists = !template.isNonstandard || [
+			"pikachustarter", "eeveestarter", "meltan", "melmetal", "fidgit", "stratagem", "tomohawk", "mollux", "crucibelle", "crucibellemega", "kerfluffle", "pajantom", "jumbao", "caribolt", "smokomodo", "snaelstrom", "equilibra", "scratchet", "pluffle", "smogecko", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
+		].includes(template.id);
+		if ((!gen || gen >= 6) && xydexExists && !Dex.prefs('bwgfx')) {
 			let offset = '-2px -3px';
 			if (template.gen >= 7) offset = '-6px -7px';
 			if (id.substr(0, 6) === 'arceus') offset = '-2px 7px';
