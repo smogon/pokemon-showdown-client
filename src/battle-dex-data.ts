@@ -1294,7 +1294,7 @@ class Template implements Effect {
 			} else if (this.formeid === '-totem' || this.formeid === '-alolatotem') {
 				this.gen = 7;
 				this.isTotem = true;
-			} else if (this.formeid === '-alola') {
+			} else if (this.formeid === '-alola' || this.formeid === '-starter') {
 				this.gen = 7;
 			} else if (this.num >= 722) {
 				this.gen = 7;
