@@ -48,6 +48,9 @@ class ChatRoom extends PSRoom {
 			this.title = `[PM] ${this.pmTarget}`;
 		}
 	}
+	/**
+	 * @return true to prevent line from being sent to server
+	 */
 	handleMessage(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
@@ -72,6 +75,10 @@ class ChatRoom extends PSRoom {
 		} case 'cchall': case 'cancelchallenge': {
 			this.cancelChallenge();
 			return true;
+		} case 'reject': {
+			this.challengedFormat = null;
+			this.update('');
+			return false;
 		}}
 		return false;
 	}
@@ -329,7 +336,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		}
 		return false;
 	};
-	challenge = (e: Event, format: string, team?: Team) => {
+	makeChallenge = (e: Event, format: string, team?: Team) => {
 		const room = this.props.room;
 		const packedTeam = team ? team.packedTeam : '';
 		if (!room.pmTarget) throw new Error("Not a PM room");
@@ -348,34 +355,24 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		room.challengedFormat = null;
 		room.update('');
 	};
-	cancelChallenge = (e: Event) => {
-		e.preventDefault();
-		e.stopImmediatePropagation();
-		this.props.room.cancelChallenge();
-	};
-	rejectChallenge = (e: Event) => {
-		const room = this.props.room;
-		room.challengedFormat = null;
-		room.send(`/reject`);
-	};
 	render() {
 		const room = this.props.room;
 
 		const challengeTo = room.challengingFormat ? <div class="challenge">
 			<TeamForm format={room.challengingFormat} onSubmit={null}>
-				<button onClick={this.cancelChallenge} class="button">Cancel</button>
+				<button name="cmd" value="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
-			<TeamForm onSubmit={this.challenge}>
+			<TeamForm onSubmit={this.makeChallenge}>
 				<button type="submit" class="button disabled"><strong>Challenge</strong></button> {}
-				<button onClick={this.cancelChallenge} class="button">Cancel</button>
+				<button name="cmd" value="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;
 
 		const challengeFrom = room.challengedFormat ? <div class="challenge">
 			<TeamForm format={room.challengedFormat} onSubmit={this.acceptChallenge}>
 				<button type="submit" class="button disabled"><strong>Accept</strong></button> {}
-				<button onClick={this.rejectChallenge} class="button">Reject</button>
+				<button name="cmd" value="/reject" class="button">Reject</button>
 			</TeamForm>
 		</div> : null;
 

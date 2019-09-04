@@ -321,7 +321,7 @@ class MainMenuPanel extends PSRoomPanel {
 						<a href="//replay.pokemonshowdown.com/" target="_blank">Replays</a> | {}
 						<a href="//pokemonshowdown.com/rules" target="_blank">Rules</a> | {}
 						<a href="//pokemonshowdown.com/credits" target="_blank">Credits</a> | {}
-						<a href="http://smogon.com/forums/" target="_blank">Forum</a>
+						<a href="//smogon.com/forums/" target="_blank">Forum</a>
 					</small>
 				</div>
 			</div>

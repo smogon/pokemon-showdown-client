@@ -257,6 +257,15 @@ class PSMain extends preact.Component {
 			document.body.className = PS.prefs.dark ? 'dark' : '';
 		});
 	}
+	getRoom(elem: HTMLElement) {
+		let curElem: HTMLElement | null = elem;
+		while (curElem) {
+			if (curElem.id.startsWith('room-')) {
+				return PS.rooms[curElem.id.slice(5)];
+			}
+			curElem = curElem.parentElement;
+		}
+	}
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
 		case 'closeRoom':
@@ -268,6 +277,11 @@ class PSMain extends preact.Component {
 				parentElem: elem,
 			});
 			PS.update();
+			return true;
+		case 'send':
+		case 'cmd':
+			const room = this.getRoom(elem) || PS.mainmenu;
+			room.send(elem.value, elem.name === 'send');
 			return true;
 		}
 		return false;
