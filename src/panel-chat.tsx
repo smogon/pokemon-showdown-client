@@ -9,12 +9,17 @@ class ChatRoom extends PSRoom {
 	readonly classType: string = 'chat';
 	users: {[userid: string]: string} = {};
 	userCount = 0;
+
+	// PM-only properties
 	pmTarget: string | null = null;
-	challenging = false;
+	challengeMenuOpen = false;
+	challengingFormat: string | null = null;
+	challengedFormat: string | null = null;
+
 	constructor(options: RoomOptions) {
 		super(options);
 		if (options.pmTarget) this.pmTarget = options.pmTarget as string;
-		if (options.challenging) this.challenging = true;
+		if (options.challengeMenuOpen) this.challengeMenuOpen = true;
 		this.updateTarget(true);
 		this.connect();
 	}
@@ -64,6 +69,9 @@ class ChatRoom extends PSRoom {
 			}
 			this.openChallenge();
 			return true;
+		} case 'cchall': case 'cancelchallenge': {
+			this.cancelChallenge();
+			return true;
 		}}
 		return false;
 	}
@@ -72,7 +80,21 @@ class ChatRoom extends PSRoom {
 			this.receive(`|error|Can only be used in a PM.`);
 			return;
 		}
-		this.challenging = true;
+		this.challengeMenuOpen = true;
+		this.update('');
+	}
+	cancelChallenge() {
+		if (!this.pmTarget) {
+			this.receive(`|error|Can only be used in a PM.`);
+			return;
+		}
+		if (this.challengingFormat) {
+			this.send('/cancelchallenge', true);
+			this.challengingFormat = null;
+			this.challengeMenuOpen = true;
+		} else {
+			this.challengeMenuOpen = false;
+		}
 		this.update('');
 	}
 	send(line: string, direct?: boolean) {
@@ -310,30 +332,57 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	challenge = (e: Event, format: string, team?: Team) => {
 		const room = this.props.room;
 		const packedTeam = team ? team.packedTeam : '';
-		room.challenging = false;
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`|/utm ${packedTeam}`);
 		PS.send(`|/challenge ${room.pmTarget}, ${format}`);
+		room.challengeMenuOpen = false;
+		room.challengingFormat = format;
+		room.update('');
+	};
+	acceptChallenge = (e: Event, format: string, team?: Team) => {
+		const room = this.props.room;
+		const packedTeam = team ? team.packedTeam : '';
+		if (!room.pmTarget) throw new Error("Not a PM room");
+		PS.send(`|/utm ${packedTeam}`);
+		this.props.room.send(`/accept`);
+		room.challengedFormat = null;
+		room.update('');
 	};
 	cancelChallenge = (e: Event) => {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		this.props.room.cancelChallenge();
+	};
+	rejectChallenge = (e: Event) => {
 		const room = this.props.room;
-		room.challenging = false;
-		room.update('');
+		room.challengedFormat = null;
+		room.send(`/reject`);
 	};
 	render() {
 		const room = this.props.room;
 
-		const challenge = room.challenging ? <div class="challenge">
+		const challengeTo = room.challengingFormat ? <div class="challenge">
+			<TeamForm format={room.challengingFormat} onSubmit={null}>
+				<button onClick={this.cancelChallenge} class="button">Cancel</button>
+			</TeamForm>
+		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.challenge}>
 				<button type="submit" class="button disabled"><strong>Challenge</strong></button> {}
 				<button onClick={this.cancelChallenge} class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;
 
+		const challengeFrom = room.challengedFormat ? <div class="challenge">
+			<TeamForm format={room.challengedFormat} onSubmit={this.acceptChallenge}>
+				<button type="submit" class="button disabled"><strong>Accept</strong></button> {}
+				<button onClick={this.rejectChallenge} class="button">Reject</button>
+			</TeamForm>
+		</div> : null;
+
 		return <PSPanelWrapper room={this.props.room}>
 			<div class="tournament-wrapper hasuserlist"></div>
 			<ChatLog class="chat-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection}>
-				{challenge}
+				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
 			</ChatLog>
 			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} />
 			<ChatUserList room={this.props.room} />

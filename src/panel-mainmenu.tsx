@@ -38,6 +38,9 @@ class MainMenuRoom extends PSRoom {
 		case 'updateuser':
 			PS.user.setName(tokens[1], tokens[2] === '1', tokens[3]);
 			return;
+		case 'updatechallenges':
+			this.receiveChallenges(tokens[1]);
+			return;
 		case 'queryresponse':
 			this.handleQueryResponse(tokens[1] as ID, JSON.parse(tokens[2]));
 			return;
@@ -47,9 +50,36 @@ class MainMenuRoom extends PSRoom {
 		case 'formats':
 			this.parseFormats(tokens);
 			return;
+		case 'popup':
+			alert(tokens[1]);
+			return;
 		}
 		const lobby = PS.rooms['lobby'];
 		if (lobby) lobby.receive(line);
+	}
+	receiveChallenges(dataBuf: string) {
+		let json;
+		try {
+			json = JSON.parse(dataBuf);
+		} catch {}
+		for (const userid in json.challengesFrom) {
+			PS.getPMRoom(toID(userid));
+		}
+		if (json.challengeTo) {
+			PS.getPMRoom(toID(json.challengeTo.to));
+		}
+		for (const roomid in PS.rooms) {
+			const room = PS.rooms[roomid] as ChatRoom;
+			if (!room.pmTarget) continue;
+			const targetUserid = toID(room.pmTarget);
+			if (!room.challengedFormat && !(targetUserid in json.challengesFrom) &&
+				!room.challengingFormat && (json.challengeTo || {}).to !== targetUserid) {
+				continue;
+			}
+			room.challengedFormat = json.challengesFrom[targetUserid] || null;
+			room.challengingFormat = json.challengeTo.to === targetUserid ? json.challengeTo.format : null;
+			room.update('');
+		}
 	}
 	parseFormats(formatsList: string[]) {
 		let isSection = false;
@@ -378,7 +408,7 @@ class TeamDropdown extends preact.Component<{format: string}> {
 
 class TeamForm extends preact.Component<{
 	children: preact.ComponentChildren, class?: string, format?: string,
-	onSubmit: (e: Event, format: string, team?: Team) => void,
+	onSubmit: null | ((e: Event, format: string, team?: Team) => void),
 }> {
 	state = {format: '[Gen 7] Random Battle'};
 	changeFormat = (e: Event) => {
@@ -389,7 +419,7 @@ class TeamForm extends preact.Component<{
 		const format = (this.base!.querySelector('button[name=format]') as HTMLButtonElement).value;
 		const teamKey = (this.base!.querySelector('button[name=team]') as HTMLButtonElement).value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-		this.props.onSubmit(e, format, team);
+		if (this.props.onSubmit) this.props.onSubmit(e, format, team);
 	};
 	render() {
 		return <form class={this.props.class} onSubmit={this.submit}>

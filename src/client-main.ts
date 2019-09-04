@@ -559,6 +559,7 @@ const PS = new class extends PSModel {
 		case 'html':
 		case 'raw':
 		case 'challstr':
+		case 'popup':
 		case '':
 			return [cmd, str.slice(index + 1)];
 		case 'c':
@@ -878,11 +879,18 @@ const PS = new class extends PSModel {
 		}
 		return buf;
 	}
+	getPMRoom(userid: ID) {
+		const myUserid = PS.user.userid;
+		const roomid = `pm-${[userid, myUserid].sort().join('-')}` as RoomID;
+		if (this.rooms[roomid]) return this.rooms[roomid] as ChatRoom;
+		this.join(roomid);
+		return this.rooms[roomid] as ChatRoom;
+	}
 	addRoom(options: RoomOptions, noFocus?: boolean) {
 		// support hardcoded PM room-IDs
 		if (options.id.startsWith('challenge-')) {
 			options.id = `pm-${options.id.slice(10)}` as RoomID;
-			options.challenging = true;
+			options.challengeMenuOpen = true;
 		}
 		if (options.id.startsWith('pm-') && options.id.indexOf('-', 3) < 0) {
 			const userid1 = PS.user.userid;
@@ -902,7 +910,7 @@ const PS = new class extends PSModel {
 				}
 			}
 			if (!noFocus) {
-				if (options.challenging) {
+				if (options.challengeMenuOpen) {
 					(this.rooms[options.id] as ChatRoom).openChallenge();
 				}
 				this.focusRoom(options.id);
