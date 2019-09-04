@@ -726,7 +726,8 @@ const Dex = new class implements ModdedDex {
 		// }
 		if (Dex.prefs('nopastgens')) gen = 6;
 		let spriteDir = Dex.resourcePrefix + 'sprites/xydex';
-		if ((!gen || gen >= 6) && !template.isNonstandard && !Dex.prefs('bwgfx')) {
+		let modelExists = !template.isNonstandard || ['pikachustarter', 'eeveestarter', 'meltan', 'melmetal'].includes(template.id);
+		if ((!gen || gen >= 6) && modelExists && !Dex.prefs('bwgfx')) {
 			let offset = '-2px -3px';
 			if (template.gen >= 7) offset = '-6px -7px';
 			if (id.substr(0, 6) === 'arceus') offset = '-2px 7px';
