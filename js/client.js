@@ -498,7 +498,11 @@ function toId() {
 			this.on('init:socketclosed', function (message, showNotification) {
 				// Display a desktop notification if the user won't immediately see the popup.
 				if (self.isDisconnected) return;
+
+				clearTimeout(this.hostCheckInterval);
+				this.hostCheckInterval = null;
 				self.isDisconnected = true;
+
 				if (showNotification !== false && (self.popups.length || !self.focused) && window.Notification) {
 					self.rooms[''].requestNotifications();
 					var disconnect = new Notification("Disconnected!", {lang: 'en', body: "You have been disconnected from Pokémon Showdown."});
@@ -506,9 +510,11 @@ function toId() {
 						window.focus();
 					};
 				}
+
 				self.rooms[''].updateFormats();
 				$('.pm-log-add form').html('<small>You are disconnected and cannot chat.</small>');
 				$('.chat-log-add').html('<small>You are disconnected and cannot chat.</small>');
+
 				self.reconnectPending = (message || true);
 				if (!self.popups.length) self.addPopup(ReconnectPopup, {message: message});
 			});
@@ -707,14 +713,9 @@ function toId() {
 				var protocol = (Config.server.port === 443) ? 'https' : 'http';
 				Config.server.host = $.trim(Config.server.host);
 				return new SockJS(protocol + '://' + Config.server.host + ':' +
-					Config.server.port + Config.sockjsprefix);
+					Config.server.port + Config.sockjsprefix, [], {timeout: 5 * 60 * 1000});
 			};
 			this.socket = constructSocket();
-			setInterval(function () {
-				if (Config.server.host !== $.trim(Config.server.host)) {
-					app.socket.close();
-				}
-			}, 500);
 
 			var socketopened = false;
 			var altport = (Config.server.port === Config.server.altport);
@@ -741,6 +742,14 @@ function toId() {
 						self.send(queue[i], true);
 					}
 				}
+
+				this.hostCheckInterval = setTimeout(function checkHost() {
+					if (Config.server.host !== $.trim(Config.server.host)) {
+						app.socket.close();
+					} else {
+						app.hostCheckInterval = setTimeout(checkHost, 500);
+					}
+				}, 500);
 			};
 			this.socket.onmessage = function (msg) {
 				if (window.console && console.log) {
