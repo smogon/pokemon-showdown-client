@@ -832,7 +832,7 @@
 					leads.push(myPokemon[this.choice.teamPreview[i] - 1].species);
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
-			} else if (this.choice.choices) {
+			} else if (this.choice.choices && this.request) {
 				var myActive = this.battle.mySide.active;
 				for (var i = 0; i < this.choice.choices.length; i++) {
 					var parts = this.choice.choices[i].split(' ');
