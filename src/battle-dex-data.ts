@@ -444,6 +444,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	caribolt: 1152 + 25,
 	smokomodo: 1152 + 26,
 	snaelstrom: 1152 + 27,
+	equilibra: 1152 + 28,
 
 	syclar: 1188 + 0,
 	embirch: 1188 + 1,
@@ -469,6 +470,12 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	// protowatt: 1188 + 21,
 	voodoll: 1188 + 22,
 	mumbao: 1188 + 23,
+	fawnifer: 1188 + 24,
+	electrelk: 1188 + 25,
+	smogecko: 1188 + 26,
+	smoguana: 1188 + 27,
+	swirlpool: 1188 + 28,
+	coribalis: 1188 + 29,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
@@ -493,7 +500,7 @@ const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
 	roselia: 1044 + 37,
 	zangoose: 1044 + 38,
 	seviper: 1044 + 39,
-	castformrainy: 1044 + 40,
+	castformsnowy: 1044 + 40,
 	absolmega: 1044 + 41,
 	absol: 1044 + 42,
 	regirock: 1044 + 43,
@@ -933,6 +940,7 @@ class Item implements Effect {
 	readonly onDrive: TypeName;
 	readonly fling: any;
 	readonly naturalGift: any;
+	readonly isPokeball: boolean;
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
@@ -958,6 +966,7 @@ class Item implements Effect {
 		this.onDrive = data.onDrive || '';
 		this.fling = data.fling || null;
 		this.naturalGift = data.naturalGift || null;
+		this.isPokeball = !!data.isPokeball;
 
 		if (!this.gen) {
 			if (this.num >= 577) {
@@ -1118,6 +1127,7 @@ class Ability implements Effect {
 	readonly exists: boolean;
 
 	readonly num: number;
+	readonly shortDesc: string;
 	readonly desc: string;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1128,6 +1138,7 @@ class Ability implements Effect {
 		this.gen = data.gen || 0;
 		this.exists = ('exists' in data ? !!data.exists : true);
 		this.num = data.num || 0;
+		this.shortDesc = data.shortDesc || data.desc || '';
 		this.desc = data.desc || data.shortDesc || '';
 		if (!this.gen) {
 			if (this.num >= 165) {
@@ -1236,8 +1247,8 @@ class Template implements Effect {
 		}
 		this.baseSpecies = data.baseSpecies || name;
 		this.forme = data.forme || '';
-		const baseId = toId(this.baseSpecies);
-		this.formeid = (baseId === this.id ? '' : '-' + toId(this.forme));
+		const baseId = toID(this.baseSpecies);
+		this.formeid = (baseId === this.id ? '' : '-' + toID(this.forme));
 		this.spriteid = baseId + this.formeid;
 		if (this.spriteid.slice(-5) === 'totem') this.spriteid = this.spriteid.slice(0, -5);
 		if (this.spriteid.slice(-1) === '-') this.spriteid = this.spriteid.slice(0, -1);
@@ -1283,7 +1294,7 @@ class Template implements Effect {
 			} else if (this.formeid === '-totem' || this.formeid === '-alolatotem') {
 				this.gen = 7;
 				this.isTotem = true;
-			} else if (this.formeid === '-alola') {
+			} else if (this.formeid === '-alola' || this.formeid === '-starter') {
 				this.gen = 7;
 			} else if (this.num >= 722) {
 				this.gen = 7;

@@ -407,7 +407,7 @@
 					}
 					// Request full team order if one of our Pokémon has Illusion
 					for (var i = 0; i < switchables.length && i < 6; i++) {
-						if (toId(switchables[i].baseAbility) === 'illusion') {
+						if (toID(switchables[i].baseAbility) === 'illusion') {
 							this.choice.count = this.battle.myPokemon.length;
 						}
 					}
@@ -599,7 +599,7 @@
 				var typeValueTracker = new ModifiableValue(this.battle, this.battle.mySide.active[pos], this.battle.myPokemon[pos]);
 				for (var i = 0; i < curActive.moves.length; i++) {
 					var moveData = curActive.moves[i];
-					var move = Dex.getMove(moveData.move);
+					var move = this.battle.dex.getMove(moveData.move);
 					var name = move.name;
 					var pp = moveData.pp + '/' + moveData.maxpp;
 					if (!moveData.maxpp) pp = '&ndash;';
@@ -623,7 +623,7 @@
 						movebuttons = '<div class="movebuttons-noz">' + movebuttons + '</div><div class="movebuttons-z" style="display:none">';
 						for (var i = 0; i < curActive.moves.length; i++) {
 							var moveData = curActive.moves[i];
-							var move = Dex.getMove(moveData.move);
+							var move = this.battle.dex.getMove(moveData.move);
 							var moveType = this.tooltips.getMoveType(move, typeValueTracker)[0];
 							if (canZMove[i]) {
 								var tooltipArgs = 'zmove|' + move.id + '|' + pos;
@@ -832,7 +832,7 @@
 					leads.push(myPokemon[this.choice.teamPreview[i] - 1].species);
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
-			} else if (this.choice.choices) {
+			} else if (this.choice.choices && this.request) {
 				var myActive = this.battle.mySide.active;
 				for (var i = 0; i < this.choice.choices.length; i++) {
 					var parts = this.choice.choices[i].split(' ');
@@ -994,8 +994,8 @@
 			filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
 			filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
 
-			filename += '-' + toId(this.battle.p1.name);
-			filename += '-' + toId(this.battle.p2.name);
+			filename += '-' + toID(this.battle.p1.name);
+			filename += '-' + toID(this.battle.p2.name);
 
 			e.currentTarget.href = BattleLog.createReplayFileHref(this);
 			e.currentTarget.download = filename + '.html';

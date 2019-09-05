@@ -6,8 +6,8 @@ const path = require("path");
 process.chdir(path.resolve(__dirname, '..'));
 const imageSize = require('image-size');
 
-const Dex = require('./../data/Pokemon-Showdown/.sim-dist/dex');
-const toId = Dex.getId;
+const Dex = require('./../data/Pokemon-Showdown/.sim-dist/dex').Dex;
+const toID = Dex.getId;
 
 process.stdout.write("Updating animated sprite dimensions... ");
 
@@ -47,7 +47,7 @@ function updateSizes() {
 		for (let formid of [''].concat(template.otherForms || [])) {
 			let spriteid = template.spriteid;
 			if (formid) spriteid += '-' + formid.slice(template.id.length);
-			let id = toId(spriteid);
+			let id = toID(spriteid);
 
 			{
 				let row = {num: template.num};

@@ -56,6 +56,30 @@ class BattleTextParser {
 		}
 		return BattleTextParser.upgradeArgs({args, kwArgs});
 	}
+
+	static parseNameParts(text: string) {
+		let group = '';
+		// names can't start with a symbol
+		if (!/[A-Za-z0-9]/.test(text.charAt(0))) {
+			group = text.charAt(0);
+			text = text.slice(1);
+		}
+
+		let name = text;
+		const atIndex = text.indexOf('@');
+		let status = '';
+		let away = false;
+		if (atIndex > 0) {
+			name = text.slice(0, atIndex);
+			status = text.slice(atIndex + 1);
+			if (status.startsWith('!')) {
+				away = true;
+				status = status.slice(1);
+			}
+		}
+		return {group, name, away, status};
+	}
+
 	static upgradeArgs({args, kwArgs}: {args: Args, kwArgs: KWArgs}): {args: Args, kwArgs: KWArgs} {
 		switch (args[0]) {
 		case '-activate': {
@@ -73,7 +97,11 @@ class BattleTextParser {
 				'electricterrain', 'mistyterrain', 'psychicterrain', 'telepathy', 'stickyhold', 'suctioncups', 'aromaveil',
 				'flowerveil', 'sweetveil', 'disguise', 'safetygoggles', 'protectivepads',
 			].includes(id)) {
-				return {args: ['-block', target || pokemon, effect, arg3], kwArgs: {}};
+				if (target) {
+					kwArgs.of = pokemon;
+					return {args: ['-block', target, effect, arg3], kwArgs};
+				}
+				return {args: ['-block', pokemon, effect, arg3], kwArgs};
 			}
 
 			if ([
@@ -98,25 +126,26 @@ class BattleTextParser {
 				kwArgs.number = arg4;
 			}
 			args = ['-activate', pokemon, effect, target || ''];
-			return {args, kwArgs};
+			break;
 		}
 
 		case '-start': {
 			if (kwArgs.from === 'Protean' || kwArgs.from === 'Color Change') kwArgs.from = 'ability:' + kwArgs.from;
-			return {args, kwArgs};
+			break;
 		}
 
 		case 'move': {
 			if (kwArgs.from === 'Magic Bounce') kwArgs.from = 'ability:Magic Bounce';
-			return {args, kwArgs};
+			break;
 		}
 
 		case 'cant': {
-			let [, pokemon, effect] = args;
+			let [, pokemon, effect, move] = args;
 			if (['ability: Queenly Majesty', 'ability: Damp', 'ability: Dazzling'].includes(effect)) {
 				args[0] = '-block';
+				return {args: ['-block', pokemon, effect, move, kwArgs.of], kwArgs: {}};
 			}
-			return {args, kwArgs};
+			break;
 		}
 
 		case '-nothing':
@@ -223,7 +252,7 @@ class BattleTextParser {
 		} else if (effect.startsWith('ability:')) {
 			effect = effect.slice(8);
 		}
-		return toId(effect);
+		return toID(effect);
 	}
 
 	effect(effect?: string) {
@@ -390,7 +419,7 @@ class BattleTextParser {
 			case '-transform': newSpecies = arg3; break;
 			case '-formechange': newSpecies = arg2; break;
 			}
-			let newSpeciesId = toId(newSpecies);
+			let newSpeciesId = toID(newSpecies);
 			let id = '';
 			let templateName = 'transform';
 			if (cmd !== '-transform') {
@@ -893,10 +922,10 @@ class BattleTextParser {
 		}
 
 		case '-block': {
-			let [, pokemon, effect, move] = args;
-			const line1 = this.maybeAbility(effect, pokemon);
+			let [, pokemon, effect, move, attacker] = args;
+			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
 			const template = this.template('block', effect);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[MOVE]', move);
+			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(attacker || kwArgs.of)).replace('[MOVE]', move);
 		}
 
 		case '-fail': {
@@ -976,7 +1005,7 @@ class BattleTextParser {
 			}
 			if (!id && cmd === '-mega' && this.gen < 7) templateId = 'megaGen6';
 			if (!item && cmd === '-mega') templateId = 'megaNoItem';
-			let template = this.template(templateId);
+			let template = this.template(templateId, id);
 			const side = pokemon.slice(0, 2);
 			const pokemonName = this.pokemon(pokemon);
 			if (cmd === '-mega') {

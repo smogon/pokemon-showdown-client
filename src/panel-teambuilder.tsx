@@ -1,5 +1,5 @@
 /**
- * Teambuilder Panel
+ * Teambuilder panel
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
@@ -38,7 +38,7 @@ class TeambuilderPanel extends PSRoomPanel {
 		/**
 		 * Folders, in a format where lexical sort will sort correctly.
 		 */
-		let folders = [];
+		let folders: string[] = [];
 		for (let i = -2; i < PS.teams.list.length; i++) {
 			const team = i >= 0 ? PS.teams.list[i] : null;
 			if (team) {
@@ -99,7 +99,7 @@ class TeambuilderPanel extends PSRoomPanel {
 			</TeamFolder>,
 		];
 
-		let renderedFolders = [];
+		let renderedFolders: preact.ComponentChild[] = [];
 
 		for (let format of folders) {
 			let newGen = '';
@@ -137,8 +137,11 @@ class TeambuilderPanel extends PSRoomPanel {
 				} else {
 					formatName = BattleLog.escapeHTML(formatName);
 				}
-				renderedFolders.push(<TeamFolder cur={this.curFolder === format} value={format}>
-					<i class={'fa ' + (this.curFolder === format ? 'fa-folder-open' : 'fa-folder') + (format === '/' ? '-o' : '')}></i>
+				const isCurFolder = this.curFolder === format;
+				renderedFolders.push(<TeamFolder cur={isCurFolder} value={format}>
+					<i class={
+						`fa ${isCurFolder ? 'fa-folder-open' : 'fa-folder'}${format === '/' ? '-o' : ''}`
+					}></i>
 					{formatName}
 				</TeamFolder>);
 				continue;
@@ -217,48 +220,8 @@ class TeambuilderPanel extends PSRoomPanel {
 	}
 }
 
-class TeamPanel extends PSRoomPanel {
-	sets: PokemonSet[] | null = null;
-	backToList = () => {
-		PS.removeRoom(this.props.room);
-		PS.join('teambuilder' as RoomID);
-	};
-	render() {
-		const room = this.props.room;
-		const team = PS.teams.byKey[room.id.slice(5)];
-		if (!team) {
-			return <PSPanelWrapper room={room}>
-				<button class="button" onClick={this.backToList}>
-					<i class="fa fa-chevron-left"></i> List
-				</button>
-				<p class="error">
-					Team doesn't exist
-				</p>
-			</PSPanelWrapper>;
-		}
-
-		const sets = this.sets || PSTeambuilder.unpackTeam(team!.packedTeam);
-		if (!this.sets) this.sets = sets;
-		return <PSPanelWrapper room={room} scrollable>
-			<button class="button" onClick={this.backToList}>
-				<i class="fa fa-chevron-left"></i> List
-			</button>
-			<h2>
-				{team.name}
-			</h2>
-			<pre>{PSTeambuilder.exportTeam(sets)}</pre>
-		</PSPanelWrapper>;
-	}
-}
-
 PS.roomTypes['teambuilder'] = {
 	Model: PSRoom,
 	Component: TeambuilderPanel,
 	title: "Teambuilder",
 };
-PS.roomTypes['team'] = {
-	Model: PSRoom,
-	Component: TeamPanel,
-	title: "Team",
-};
-PS.updateRoomTypes();

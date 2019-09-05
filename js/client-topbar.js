@@ -30,11 +30,13 @@
 		updateUserbar: function () {
 			var buf = '';
 			var name = ' ' + app.user.get('name');
-			var color = BattleLog.hashColor(app.user.get('userid'));
+			var away = app.user.get('away');
+			var status = app.user.get('status');
+			var color = away ? 'color:#888;' : BattleLog.hashColor(app.user.get('userid'));
 			if (!app.user.loaded) {
 				buf = '<button disabled>Loading...</button>';
 			} else if (app.user.get('named')) {
-				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '" style="' + color + '"><i class="fa fa-user" style="color:#779EC5"></i> ' + BattleLog.escapeHTML(name) + '</span>';
+				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '"' + (away ? ' data-away="true"' : '') + (status ? 'data-status="' + BattleLog.escapeHTML(status) + '"' : '') + ' style="' + color + '"><i class="fa fa-user" style="color:' + (away ? '#888;' : '#779EC5') + '"></i> ' + BattleLog.escapeHTML(name) + '</span>';
 			} else {
 				buf = '<button name="login">Choose name</button>';
 			}
@@ -439,12 +441,13 @@
 			'change input[name=nogif]': 'setNogif',
 			'change input[name=bwgfx]': 'setBwgfx',
 			'change input[name=nopastgens]': 'setNopastgens',
-			'change input[name=notournaments]': 'setNotournaments',
+			'change select[name=tournaments]': 'setTournaments',
 			'change input[name=blockchallenges]': 'setBlockchallenges',
 			'change input[name=blockpms]': 'setBlockpms',
 			'change input[name=inchatpm]': 'setInchatpm',
 			'change input[name=dark]': 'setDark',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
+			'change input[name=refreshprompt]': 'setRefreshprompt',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
@@ -487,7 +490,6 @@
 
 			buf += '<hr />';
 			buf += '<p><strong>Chat</strong></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="notournaments"' + (Dex.prefs('notournaments') ? ' checked' : '') + ' /> Ignore tournaments</label></p>';
 			if (Object.keys(settings).length) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="blockpms"' + (settings.blockPMs ? ' checked' : '') + ' /> Block PMs</label></p>';
 				buf += '<p><label class="optlabel"><input type="checkbox" name="blockchallenges"' + (settings.blockChallenges ? ' checked' : '') + ' /> Block Challenges</label></p>';
@@ -498,7 +500,10 @@
 			if (window.Notification) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
 			}
+			buf += '<p><label class="optlabel"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Prompt on refresh</label></p>';
 
+			var tours = Dex.prefs('tournaments') || 'notify';
+			buf += '<p><label class="optlabel">Tournaments: <select name="tournaments"><option value="notify"' + (tours === 'notify' ? ' selected="selected"' : '') + '>Notifications</option><option value="nonotify"' + (tours === 'nonotify' ? ' selected="selected"' : '') + '>No Notifications</option><option value="hide"' + (tours === 'hide' ? ' selected="selected"' : '') + '>Hide</option></select></label></p>';
 			var timestamps = this.timestamps = (Dex.prefs('timestamps') || {});
 			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
 			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
@@ -556,9 +561,9 @@
 			var nopastgens = !!e.currentTarget.checked;
 			Dex.prefs('nopastgens', nopastgens);
 		},
-		setNotournaments: function (e) {
-			var notournaments = !!e.currentTarget.checked;
-			Dex.prefs('notournaments', notournaments);
+		setTournaments: function (e) {
+			var tournaments = e.currentTarget.value;
+			Dex.prefs('tournaments', tournaments);
 		},
 		setBlockpms: function (e) {
 			app.user.updateSetting('blockPMs', !!e.currentTarget.checked);
@@ -577,6 +582,10 @@
 		setTemporaryNotifications: function (e) {
 			var temporarynotifications = !!e.currentTarget.checked;
 			Dex.prefs('temporarynotifications', temporarynotifications);
+		},
+		setRefreshprompt: function (e) {
+			var refreshprompt = !!e.currentTarget.checked;
+			Dex.prefs('refreshprompt', refreshprompt);
 		},
 		background: function (e) {
 			app.addPopup(CustomBackgroundPopup);

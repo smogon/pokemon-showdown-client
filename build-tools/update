@@ -24,6 +24,17 @@ process.chdir(rootDir);
 process.stdout.write("Updating version... ");
 
 let version = require('../package.json').version;
+try {
+	let commit = child_process.execSync('git rev-parse HEAD', {
+		stdio: ['ignore', 'pipe', 'ignore'],
+	});
+	const head = ('' + commit).trim();
+	commit = child_process.execSync('git merge-base origin/master HEAD', {
+		stdio: ['ignore', 'pipe', 'ignore'],
+	});
+	const origin = ('' + commit).trim();
+	version += ` (${head.slice(0, 8)}${head !== origin ? `/${origin.slice(0, 8)}` : ''})`;
+} catch (e) {}
 
 let configBuf = fs.readFileSync('config/config.js', {encoding: 'utf8'});
 configBuf = configBuf.replace(/\/\* version \*\/[^;\n]*;/, `/* version */ Config.version = ${JSON.stringify(version)};`);

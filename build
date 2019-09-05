@@ -7,7 +7,8 @@ if (!require('assert').strict) {
 
 var execSync = require('child_process').execSync;
 var fs = require('fs');
-var path = require('path');
+
+process.chdir(__dirname);
 
 try {
 	require.resolve('@babel/core');
@@ -23,8 +24,8 @@ try {
 
 	console.log('config.js does not exist. Creating one with default settings...');
 	fs.writeFileSync(
-		path.resolve(__dirname, 'config/config.js'),
-		fs.readFileSync(path.resolve(__dirname, 'config/config-example.js'))
+		'config/config.js',
+		fs.readFileSync('config/config-example.js')
 	);
 }
 
@@ -36,6 +37,7 @@ case 'full':
 	execSync(`node ./build-tools/build-indexes`, options);
 	execSync(`node ./build-tools/build-learnsets`, options);
 	execSync(`node ./build-tools/build-minidex`, options);
+	execSync(`node ./replays/build`, options);
 	full = ' full';
 	break;
 case 'indexes':
@@ -49,7 +51,7 @@ case 'sprites':
 	execSync(`node ./build-tools/build-minidex`, options);
 	break;
 case 'replays':
-	execSync(`node ../replay.pokemonshowdown.com/build`, options);
+	execSync(`node ./replays/build`, options);
 	process.exit();
 	break;
 case 'test-only':
@@ -67,7 +69,7 @@ execSync(`node ./build-tools/update` + full, options);
 
 if (process.argv[2] === 'full') {
 	try {
-		fs.statSync('../replay.pokemonshowdown.com/build');
-		execSync(`node ../replay.pokemonshowdown.com/build`, options);
+		fs.statSync('../replays/build');
+		execSync(`node ../replays/build`, options);
 	} catch (e) {}
 }

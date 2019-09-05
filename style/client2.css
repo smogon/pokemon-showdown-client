@@ -406,7 +406,7 @@ select {
 	background: #EEEEEE;
 	border-color: #CCCCCC;
 	border-style: solid;
-	border-size: 1px;
+	border-width: 1px;
 	color: #999999;
 	text-shadow: none;
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
@@ -903,7 +903,7 @@ p.or:after {
 	color: #222222;
 }
 .challenge {
-	margin-top: -1px;
+	margin: 0 5px;
 	background: #fcd2b3;
 	border: 1px solid #f57b21;
 	color: #682f05;
@@ -956,13 +956,13 @@ p.or:after {
 	max-width: 270px;
 	border-radius: 20px;
 
-	background: rgba(201, 207, 219, .6);
+	background: rgba(201, 207, 219, .4);
 	color: white;
 	text-shadow: 0 1px 0 black;
-}
-.menugroup {
-	background: rgba(201, 207, 219, .4);
 	text-align: center;
+}
+.menugroup .label {
+	padding: 0 0 0 7px;
 }
 
 .mainmessage p,
@@ -2059,7 +2059,7 @@ a.ilink.yours {
  *********************************************************/
 
 .select, .team {
-	width: 265px;
+	width: 256px;
 	height: 32px;
 	padding: 0 5px;
 	font-size: 9pt;
@@ -2075,6 +2075,8 @@ a.ilink.yours {
 	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
 	color: black;
 	box-sizing: border-box;
+
+	position: relative;
 }
 .team {
 	height: 49px;
@@ -2092,7 +2094,11 @@ a.ilink.yours {
 }
 .teamselect .team {
 	margin: -1px 0 0 -6px;
-	width: 240px;
+	width: 236px;
+}
+.teamselect:disabled .team {
+	background: transparent;
+	box-shadow: none;
 }
 .team strong {
 	display: block;
@@ -2133,13 +2139,19 @@ a.ilink.yours {
 	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
 }
 .select:before {
-	float: right;
-	padding: 16px 4px 16px 0;
+	position: absolute;
+	top: 8px;
+	right: 6px;
+	padding: 0;
+
 	font-size: 14px;
 	content: "\f0d7";
 	font-family: FontAwesome;
 	-webkit-font-smoothing: antialiased;
 	color: #777777;
+}
+.select.teamselect:before {
+	top: 16px;
 }
 .select:disabled {
 	border-color: #999999;
@@ -2698,6 +2710,7 @@ a.ilink.yours {
 	font-size: 9pt;
 	font-weight: bold;
 	display: block;
+	text-align: left;
 }
 .optlabel {
 	font-size: 9pt;
@@ -2718,8 +2731,6 @@ a.ilink.yours {
 .setchart input.incomplete {
 	color: #CC3311;
 	border-color: #CC3311;
-}
-.setchart-nickname input {
 }
 .setchart .setcell-details input {
 	width: 216px;
@@ -3014,7 +3025,7 @@ a.ilink.yours {
 .detailsform .formrow .formlabel {
 	float: left;
 	margin-left: -100px;
-	width: 95px;
+	width: 110px;
 	text-align: right;
 }
 .changeform i {

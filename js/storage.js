@@ -672,34 +672,19 @@ Storage.packTeam = function (team) {
 		buf += set.name || set.species;
 
 		// species
-		var id = toId(set.species);
-		buf += '|' + (toId(set.name || set.species) === id ? '' : id);
+		var id = toID(set.species);
+		buf += '|' + (toID(set.name || set.species) === id ? '' : id);
 
 		// item
-		buf += '|' + toId(set.item);
+		buf += '|' + toID(set.item);
 
 		// ability
-		var template = Dex.getTemplate(set.species || set.name);
-		var abilities = template.abilities;
-		id = toId(set.ability);
-		if (abilities) {
-			if (id == toId(abilities['0'])) {
-				buf += '|';
-			} else if (id === toId(abilities['1'])) {
-				buf += '|1';
-			} else if (id === toId(abilities['H'])) {
-				buf += '|H';
-			} else {
-				buf += '|' + id;
-			}
-		} else {
-			buf += '|' + id;
-		}
+		buf += '|' + toID(set.ability);
 
 		// moves
 		buf += '|';
 		if (set.moves) for (var j = 0; j < set.moves.length; j++) {
-			var moveid = toId(set.moves[j]);
+			var moveid = toID(set.moves[j]);
 			if (j && !moveid) continue;
 			buf += (j ? ',' : '') + moveid;
 			if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) hasHP = true;
@@ -722,7 +707,7 @@ Storage.packTeam = function (team) {
 		}
 
 		// gender
-		if (set.gender && set.gender !== template.gender) {
+		if (set.gender) {
 			buf += '|' + set.gender;
 		} else {
 			buf += '|';
@@ -762,7 +747,7 @@ Storage.packTeam = function (team) {
 
 		if (set.pokeball || (set.hpType && !hasHP)) {
 			buf += ',' + (set.hpType || '');
-			buf += ',' + toId(set.pokeball);
+			buf += ',' + toID(set.pokeball);
 		}
 	}
 
@@ -999,7 +984,7 @@ Storage.unpackTeam = function (buf) {
 };
 
 Storage.packedTeamNames = function (buf) {
-	if (!buf) return '';
+	if (!buf) return [];
 
 	var team = [];
 	var i = 0;
@@ -1007,11 +992,13 @@ Storage.packedTeamNames = function (buf) {
 	while (true) {
 		var name = buf.substring(i, buf.indexOf('|', i));
 		i = buf.indexOf('|', i) + 1;
+		if (!i) return [];
 
 		team.push(buf.substring(i, buf.indexOf('|', i)) || name);
 
 		for (var k = 0; k < 9; k++) {
 			i = buf.indexOf('|', i) + 1;
+			if (!i) return [];
 		}
 
 		i = buf.indexOf(']', i) + 1;
@@ -1026,7 +1013,7 @@ Storage.packedTeamIcons = function (buf) {
 	if (!buf) return '<em>(empty team)</em>';
 
 	return this.packedTeamNames(buf).map(function (species) {
-		return '<span class="picon" style="' + Dex.getPokemonIcon(species) + ';float:left;overflow:visible"><span style="font-size:0px">' + toId(species) + '</span></span>';
+		return '<span class="picon" style="' + Dex.getPokemonIcon(species) + ';float:left;overflow:visible"><span style="font-size:0px">' + toID(species) + '</span></span>';
 	}).join('');
 };
 
@@ -1119,7 +1106,7 @@ Storage.importTeam = function (buffer, teams) {
 			var atIndex = line.lastIndexOf(' @ ');
 			if (atIndex !== -1) {
 				curSet.item = line.substr(atIndex + 3);
-				if (toId(curSet.item) === 'noitem') curSet.item = '';
+				if (toID(curSet.item) === 'noitem') curSet.item = '';
 				line = line.substr(0, atIndex);
 			}
 			if (line.substr(line.length - 4) === ' (M)') {
@@ -1154,6 +1141,12 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 11) === 'Happiness: ') {
 			line = line.substr(11);
 			curSet.happiness = +line;
+		} else if (line.substr(0, 10) === 'Pokeball: ') {
+			line = line.substr(10);
+			curSet.pokeball = line;
+		} else if (line.substr(0, 14) === 'Hidden Power: ') {
+			line = line.substr(14);
+			curSet.hpType = line;
 		} else if (line.substr(0, 5) === 'EVs: ') {
 			line = line.substr(5);
 			var evLines = line.split('/');
@@ -1201,7 +1194,7 @@ Storage.importTeam = function (buffer, teams) {
 					}
 				}
 			}
-			if (line === 'Frustration') {
+			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
 			}
 			curSet.moves.push(line);
@@ -1265,6 +1258,12 @@ Storage.exportTeam = function (team) {
 		}
 		if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
 			text += 'Happiness: ' + curSet.happiness + "  \n";
+		}
+		if (curSet.pokeball) {
+			text += 'Pokeball: ' + curSet.pokeball + "  \n";
+		}
+		if (curSet.hpType) {
+			text += 'Hidden Power: ' + curSet.hpType + "  \n";
 		}
 		var first = true;
 		if (curSet.evs) {

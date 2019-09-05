@@ -245,6 +245,7 @@
 		};
 
 		TournamentBox.prototype.parseMessage = function (data, isBroadcast) {
+			var notify = !Dex.prefs('tournaments') || Dex.prefs('tournaments') === 'notify';
 			var cmd = data.shift().toLowerCase();
 			if (isBroadcast) {
 				switch (cmd) {
@@ -273,7 +274,7 @@
 					var formatName = window.BattleFormats && BattleFormats[data[0]] ? BattleFormats[data[0]].name : data[0];
 					var type = data[1];
 					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + BattleLog.escapeHTML(formatName) + " " + BattleLog.escapeHTML(type) + " Tournament created.</div>");
-					this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + formatName + "\nType: " + type, 'tournament-create');
+					if (notify) this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + formatName + "\nType: " + type, 'tournament-create');
 					this.curTeamIndex = 0;
 					this.updateTeams();
 					break;
@@ -307,6 +308,10 @@
 					this.$lastJoinLeaveMessage.text(message.join("; ") + ".");
 					break;
 
+				case 'replace':
+					this.room.$chat.append("<div class=\"notice\">" + BattleLog.escapeHTML(data[1]) + " has joined the tournament, replacing " + BattleLog.escapeHTML(data[0]) + ".</div>");
+					break;
+
 				case 'start':
 					this.room.closeNotification('tournament-create');
 					if (!this.info.isJoined) {
@@ -314,7 +319,8 @@
 					} else if (this.info.teambuilderFormat.substr(0, 4) === 'gen5' && !Dex.loadedSpriteData['bw']) {
 						Dex.loadSpriteData('bw');
 					}
-					this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!</div>");
+					var participants = data[0] ? " (" + data[0] + " players)" : "";
+					this.room.$chat.append("<div class=\"notice tournament-message-start\">The tournament has started!" + participants + "</div>");
 					break;
 
 				case 'disqualify':
@@ -330,7 +336,7 @@
 					} else {
 						var seconds = Math.floor(data[1] / 1000);
 						app.addPopupMessage("Please respond to the tournament within " + seconds + " seconds or you may be automatically disqualified.");
-						this.room.notifyOnce("Tournament Automatic Disqualification Warning", "Room: " + this.room.title + "\nSeconds: " + seconds, 'tournament-autodq-warning');
+						if (notify) this.room.notifyOnce("Tournament Automatic Disqualification Warning", "Room: " + this.room.title + "\nSeconds: " + seconds, 'tournament-autodq-warning');
 					}
 					break;
 
@@ -409,7 +415,7 @@
 								this.$challengeUserMenu.html(this.renderChallengeUsers());
 								this.toggleBoxVisibility(true);
 								if (!this.$challenge.hasClass('active')) {
-									this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
+									if (notify) this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
 								}
 							}
 							this.$challenge.toggleClass('active', this.info.challenges.length > 0);
@@ -433,7 +439,7 @@
 								this.$challengedMessage.text("vs. " + this.info.challenged);
 								this.toggleBoxVisibility(true);
 								if (!this.$challenged.hasClass('active')) {
-									this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
+									if (notify) this.room.notifyOnce("Tournament challenge from " + this.info.challenged, "Room: " + this.room.title, 'tournament-challenged');
 								}
 							}
 							this.$challenged.toggleClass('active', !!this.info.challenged);
@@ -486,7 +492,7 @@
 					var type = endData.generator;
 					this.room.$chat.append("<div class=\"notice tournament-message-end-winner\">Congratulations to " + BattleLog.escapeHTML(arrayToPhrase(endData.results[0])) + " for winning the " + BattleLog.escapeFormat(endData.format) + " " + BattleLog.escapeHTML(type) + " Tournament!</div>");
 					if (endData.results[1])
-						this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner-up" + (endData.results[1].length > 1 ? "s" : "") + ": " + BattleLog.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
+						this.room.$chat.append("<div class=\"notice tournament-message-end-runnerup\">Runner" + (endData.results[1].length > 1 ? "s" : "") + "-up: " + BattleLog.escapeHTML(arrayToPhrase(endData.results[1])) + "</div>");
 
 					// Fallthrough
 
@@ -607,6 +613,7 @@
 						nodesByDepth.push(0);
 					++nodesByDepth[frame.depth];
 
+					if (!frame.node.children) frame.node.children = [];
 					frame.node.children.forEach(function (child) {
 						stack.push({node: child, depth: frame.depth + 1});
 					});
@@ -788,14 +795,14 @@
 		};
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
-			return ' <button class="button" value="' + toId(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">Change opponent</button>';
+			return ' <button class="button" value="' + toID(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">Change opponent</button>';
 		};
 		TournamentBox.prototype.challengeUser = function (user, button) {
 			app.addPopup(UserPopup, {user: user, users: this.info.challenges, sourceEl: button});
 		};
 
 		TournamentBox.prototype.teamSelect = function (team, button) {
-			app.addPopup(TeamPopup, {team: team, format: this.info.teambuilderFormat, sourceEl: button, room: this.room.id});
+			app.addPopup(TeamPopup, {team: team, format: this.info.teambuilderFormat, sourceEl: button, room: this.room.id, isMoreTeams: false, folderToggleOn: true, folderNotExpanded: []});
 		};
 
 		return TournamentBox;
@@ -809,7 +816,7 @@
 			}).join('') + '</ul>');
 		},
 		selectUser: function (user) {
-			this.sourceEl.val(toId(user));
+			this.sourceEl.val(toID(user));
 			this.sourceEl.parent().parent().find('.tournament-challenge-user').text('vs. ' + user);
 			this.close();
 		}

@@ -43,7 +43,7 @@ class RoomsPanel extends PSRoomPanel {
 			let value = target.value;
 			const arrowIndex = value.indexOf(' \u21d2 ');
 			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
-			if (!/^[a-z0-9-]$/.test(value)) value = toId(value);
+			if (!/^[a-z0-9-]$/.test(value)) value = toID(value);
 
 			e.preventDefault();
 			e.stopImmediatePropagation();
@@ -53,7 +53,7 @@ class RoomsPanel extends PSRoomPanel {
 		}
 	};
 	runSearch() {
-		const searchid = toId(this.search);
+		const searchid = toID(this.search);
 		let exactMatch = false;
 
 		const rooms = PS.mainmenu.roomsCache;
@@ -69,15 +69,15 @@ class RoomsPanel extends PSRoomPanel {
 		}
 
 		let start = roomList.filter(room => {
-			const titleid = toId(room.title);
+			const titleid = toID(room.title);
 			if (titleid === searchid) exactMatch = true;
 			return titleid.startsWith(searchid) ||
-				toId(room.title.replace(/^The /, '')).startsWith(searchid);
+				toID(room.title.replace(/^The /, '')).startsWith(searchid);
 		});
 		roomList = roomList.filter(room => !start.includes(room));
 
 		let abbr = roomList.filter(room =>
-			toId(room.title.toLowerCase().replace(/\b([a-z0-9])[a-z0-9]*\b/g, '$1')).startsWith(searchid) ||
+			toID(room.title.toLowerCase().replace(/\b([a-z0-9])[a-z0-9]*\b/g, '$1')).startsWith(searchid) ||
 			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase().startsWith(searchid)
 		);
 
@@ -88,13 +88,13 @@ class RoomsPanel extends PSRoomPanel {
 			const firstTitle = (start[0] || abbr[0] || hidden[0]).title;
 			let firstTitleOffset = 0;
 			while (
-				searchid !== toId(firstTitle.slice(0, firstTitleOffset)) &&
+				searchid !== toID(firstTitle.slice(0, firstTitleOffset)) &&
 				firstTitleOffset < firstTitle.length // should never happen, but sanity against infinite loop
 			) {
 				firstTitleOffset++;
 			}
 			let autoFillValue = firstTitle.slice(firstTitleOffset);
-			if (!autoFillValue && toId(firstTitle) !== searchid) {
+			if (!autoFillValue && toID(firstTitle) !== searchid) {
 				autoFillValue = ' \u21d2 ' + firstTitle;
 			}
 			const oldSearch = this.search;
@@ -160,16 +160,18 @@ class RoomsPanel extends PSRoomPanel {
 					onInput={this.changeSearch} onKeyDown={this.keyDownSearch}
 				/>
 			</div>
-			{rooms.userCount === undefined && <h2>Connecting...</h2>}
+			{PS.isOffline ? <h2>(offline)</h2> : rooms.userCount === undefined && <h2>Connecting...</h2>}
 			{roomList}
 		</div></PSPanelWrapper>;
 	}
 	renderRoomList(title: string, rooms?: RoomInfo[]) {
 		if (!rooms || !rooms.length) return null;
+		// Descending order
+		const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 		return <div class="roomlist">
 			<h2>{title}</h2>
-			{rooms.map(roomInfo => <div>
-				<a href={`/${toId(roomInfo.title)}`} class="ilink">
+			{sortedRooms.map(roomInfo => <div>
+				<a href={`/${toID(roomInfo.title)}`} class="ilink">
 					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
 					<strong><i class="fa fa-comment-o"></i> {roomInfo.title}<br /></strong>
 					<small>{roomInfo.desc || ''}</small>

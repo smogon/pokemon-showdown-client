@@ -137,8 +137,14 @@ interface Team {
 	iconCache: preact.ComponentChildren;
 	key: string;
 }
+if (!window.BattleFormats) window.BattleFormats = {};
 
-class PSTeams extends PSModel {
+/**
+ * This model tracks teams and formats, updating when either is updated.
+ */
+class PSTeams extends PSStreamModel<'team' | 'format'> {
+	/** false if it uses the ladder in the website */
+	usesLocalLadder = false;
 	list: Team[] = [];
 	byKey: {[key: string]: Team | undefined} = {};
 	constructor() {
@@ -146,6 +152,17 @@ class PSTeams extends PSModel {
 		try {
 			this.unpackAll(localStorage.getItem('showdown_teams'));
 		} catch {}
+	}
+	teambuilderFormat(format: string): ID {
+		const ruleSepIndex = format.indexOf('@@@');
+		if (ruleSepIndex >= 0) format = format.slice(0, ruleSepIndex);
+		const formatid = toID(format);
+		if (!window.BattleFormats) return formatid;
+		const formatEntry = BattleFormats[formatid];
+		if (formatEntry && formatEntry.teambuilderFormat) {
+			return formatEntry.teambuilderFormat;
+		}
+		return formatid;
 	}
 	getKey(team: Team | null) {
 		if (!team) return '';
@@ -177,6 +194,7 @@ class PSTeams extends PSModel {
 			const team = this.unpackLine(line);
 			if (team) this.list.push(team);
 		}
+		this.update('team');
 	}
 	unpackOldBuffer(buffer: string) {
 		alert("Your team storage format is too old for PS. You'll need to upgrade it at https://play.pokemonshowdown.com/recoverteams.html");
@@ -214,11 +232,18 @@ class PSUser extends PSModel {
 	registered = false;
 	avatar = "1";
 	setName(name: string, named: boolean, avatar: string) {
+		const loggingIn = (!this.named && named);
 		this.name = name;
-		this.userid = toId(name);
+		this.userid = toID(name);
 		this.named = named;
 		this.avatar = avatar;
 		this.update();
+		if (loggingIn) {
+			for (const roomid in PS.rooms) {
+				const room = PS.rooms[roomid]!;
+				if (room.connectWhenLoggedIn) room.connect();
+			}
+		}
 	}
 }
 
@@ -345,13 +370,17 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	 * In particular, this is `true` after sending `/join`, and `false`
 	 * after sending `/leave`, even before the server responds.
 	 */
-	connected = false;
+	connected: boolean = false;
+	connectWhenLoggedIn: boolean = false;
 	onParentEvent: ((eventId: 'focus' | 'keydown', e?: Event) => false | void) | null = null;
 
 	width = 0;
 	height = 0;
 	parentElem: HTMLElement | null = null;
 	rightPopup = false;
+
+	// for compatibility with RoomOptions
+	[k: string]: unknown;
 
 	constructor(options: RoomOptions) {
 		super();
@@ -371,16 +400,19 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 		this.height = height;
 		this.update('');
 	}
-	receive(message: string) {
+	connect(): void {
+		throw new Error(`This room is not designed to connect to a server room`);
+	}
+	receive(message: string): void {
 		throw new Error(`This room is not designed to receive messages`);
 	}
-	send(msg: string) {
+	send(msg: string, direct?: boolean) {
 		const id = this.id === 'lobby' ? '' : this.id;
 		PS.send(id + '|' + msg);
 	}
 	destroy() {
 		if (this.connected) {
-			this.send('/leave');
+			this.send('/leave', true);
 			this.connected = false;
 		}
 	}
@@ -415,6 +447,15 @@ const PS = new class extends PSModel {
 	server = new PSServer();
 	connection: PSConnection | null = null;
 	connected = false;
+	/**
+	 * While PS is technically disconnected while it's trying to connect,
+	 * it still shows UI like it's connected, so you can click buttons
+	 * before the server connection is established.
+	 *
+	 * `isOffline` is only set if PS is neither connected nor trying to
+	 * connect.
+	 */
+	isOffline = false;
 
 	router: PSRouter = null!;
 
@@ -440,9 +481,9 @@ const PS = new class extends PSModel {
 	 */
 	leftRoom: PSRoom = null!;
 	/**
-	 * Currently active left room.
+	 * Currently active right room.
 	 *
-	 * In two-panel mode, this will be the visible left panel.
+	 * In two-panel mode, this will be the visible right panel.
 	 *
 	 * In one-panel mode, this is the visible room only if it is
 	 * `PS.room`. Still tracked when not visible, so we know which
@@ -450,8 +491,9 @@ const PS = new class extends PSModel {
 	 */
 	rightRoom: PSRoom | null = null;
 	/**
-	 * The currently focused room. Should always be the topmost popup,
-	 * or either `PS.leftRoom` or `PS.rightRoom`.
+	 * The currently focused room. Should always be the topmost popup
+	 * if it exists. If no popups are open, it should be
+	 * `PS.activePanel`.
 	 *
 	 * Determines which room receives keyboard shortcuts.
 	 *
@@ -474,7 +516,7 @@ const PS = new class extends PSModel {
 	 *
 	 * Will NOT be true if only one panel fits onto the screen at the
 	 * moment, but resizing will display multiple panels – for that,
-	 * check PS.leftRoomWidth === 0
+	 * check `PS.leftRoomWidth === 0`
 	 */
 	onePanelMode = false;
 	/**
@@ -517,6 +559,7 @@ const PS = new class extends PSModel {
 		case 'html':
 		case 'raw':
 		case 'challstr':
+		case 'popup':
 		case '':
 			return [cmd, str.slice(index + 1)];
 		case 'c':
@@ -526,6 +569,7 @@ const PS = new class extends PSModel {
 			const index2a = str.indexOf('|', index + 1);
 			return [cmd, str.slice(index + 1, index2a), str.slice(index2a + 1)];
 		case 'c:':
+		case 'pm':
 			// four parts
 			const index2b = str.indexOf('|', index + 1);
 			const index3b = str.indexOf('|', index2b + 1);
@@ -632,6 +676,17 @@ const PS = new class extends PSModel {
 				this.update();
 				continue;
 			}
+			if ((line + '|').startsWith('|noinit|')) {
+				room = PS.rooms[roomid2];
+				if (room) {
+					room.connected = false;
+					if ((line + '|').startsWith('|noinit|namerequired|')) {
+						room.connectWhenLoggedIn = true;
+					}
+				}
+				this.update();
+				continue;
+			}
 			if (room) room.receive(line);
 		}
 		if (room) room.update(null);
@@ -695,7 +750,7 @@ const PS = new class extends PSModel {
 			const hyphenIndex = options.id.indexOf('-');
 			switch (hyphenIndex < 0 ? options.id : options.id.slice(0, hyphenIndex + 1)) {
 			case 'teambuilder': case 'ladder': case 'battles': case 'rooms':
-			case 'options': case 'volume': case 'teamdropdown':
+			case 'options': case 'volume': case 'teamdropdown': case 'formatdropdown':
 				options.type = options.id;
 				break;
 			case 'battle-': case 'user-': case 'team-':
@@ -722,6 +777,7 @@ const PS = new class extends PSModel {
 				options.location = 'popup';
 				break;
 			case 'teamdropdown':
+			case 'formatdropdown':
 				options.location = 'semimodal-popup';
 				break;
 			}
@@ -823,7 +879,25 @@ const PS = new class extends PSModel {
 		}
 		return buf;
 	}
+	getPMRoom(userid: ID) {
+		const myUserid = PS.user.userid;
+		const roomid = `pm-${[userid, myUserid].sort().join('-')}` as RoomID;
+		if (this.rooms[roomid]) return this.rooms[roomid] as ChatRoom;
+		this.join(roomid);
+		return this.rooms[roomid] as ChatRoom;
+	}
 	addRoom(options: RoomOptions, noFocus?: boolean) {
+		// support hardcoded PM room-IDs
+		if (options.id.startsWith('challenge-')) {
+			options.id = `pm-${options.id.slice(10)}` as RoomID;
+			options.challengeMenuOpen = true;
+		}
+		if (options.id.startsWith('pm-') && options.id.indexOf('-', 3) < 0) {
+			const userid1 = PS.user.userid;
+			const userid2 = options.id.slice(3);
+			options.id = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
+		}
+
 		if (this.rooms[options.id]) {
 			for (let i = 0; i < this.popups.length; i++) {
 				const popup = this.rooms[this.popups[i]]!;
@@ -835,7 +909,12 @@ const PS = new class extends PSModel {
 					return;
 				}
 			}
-			if (!noFocus) this.focusRoom(options.id);
+			if (!noFocus) {
+				if (options.challengeMenuOpen) {
+					(this.rooms[options.id] as ChatRoom).openChallenge();
+				}
+				this.focusRoom(options.id);
+			}
 			return;
 		}
 		if (!noFocus) {

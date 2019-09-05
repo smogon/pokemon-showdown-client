@@ -1,3 +1,8 @@
+function toId() {
+	// toId has been renamed toID
+	alert("You have an old extension/script for Pokemon Showdown which is incompatible with this client. It needs to be removed or updated.");
+}
+
 (function ($) {
 
 	Config.sockjsprefix = '/showdown';
@@ -139,7 +144,9 @@
 			registered: false,
 			named: false,
 			avatar: 0,
-			settings: {}
+			settings: {},
+			status: '',
+			away: false
 		},
 		initialize: function () {
 			app.addGlobalListeners();
@@ -393,6 +400,9 @@
 			this.topbar = new Topbar({el: $('#header')});
 			if (this.down) {
 				this.isDisconnected = true;
+			} else if (location.origin === 'https://smogtours.psim.us') {
+				this.isDisconnected = true;
+				alert("The Smogtours server does not support HTTPS. Please use http://smogtours.psim.us");
 			} else {
 				if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
 					this.addRoom('rooms', null, true);
@@ -404,6 +414,11 @@
 						app.send('/autojoin');
 						Backbone.history.start({pushState: !Config.testclient});
 						return;
+					}
+					// Support legacy tournament setting and migrate to new pref
+					if (Dex.prefs('notournaments') !== undefined) {
+						Dex.prefs('tournaments', Dex.prefs('notournaments') ? 'hide' : 'notify');
+						Dex.prefs('notournaments', null, true);
 					}
 					var autojoin = (Dex.prefs('autojoin') || '');
 					var autojoinIds = [];
@@ -483,7 +498,11 @@
 			this.on('init:socketclosed', function (message, showNotification) {
 				// Display a desktop notification if the user won't immediately see the popup.
 				if (self.isDisconnected) return;
+
+				clearTimeout(this.hostCheckInterval);
+				this.hostCheckInterval = null;
 				self.isDisconnected = true;
+
 				if (showNotification !== false && (self.popups.length || !self.focused) && window.Notification) {
 					self.rooms[''].requestNotifications();
 					var disconnect = new Notification("Disconnected!", {lang: 'en', body: "You have been disconnected from Pokémon Showdown."});
@@ -491,9 +510,11 @@
 						window.focus();
 					};
 				}
+
 				self.rooms[''].updateFormats();
 				$('.pm-log-add form').html('<small>You are disconnected and cannot chat.</small>');
 				$('.chat-log-add').html('<small>You are disconnected and cannot chat.</small>');
+
 				self.reconnectPending = (message || true);
 				if (!self.popups.length) self.addPopup(ReconnectPopup, {message: message});
 			});
@@ -545,7 +566,15 @@
 				if (app.isDisconnected) return;
 				for (var id in self.rooms) {
 					var room = self.rooms[id];
-					if (room && room.requestLeave && !room.requestLeave()) return "You have active battles.";
+					if (room && room.requestLeave && !room.requestLeave()) {
+						e.returnValue = "You have active battles.";
+						return e.returnValue;
+					}
+				}
+
+				if (Dex.prefs('refreshprompt')) {
+					e.returnValue = "Are you sure you want to refresh?";
+					return e.returnValue;
 				}
 			});
 
@@ -684,14 +713,9 @@
 				var protocol = (Config.server.port === 443) ? 'https' : 'http';
 				Config.server.host = $.trim(Config.server.host);
 				return new SockJS(protocol + '://' + Config.server.host + ':' +
-					Config.server.port + Config.sockjsprefix);
+					Config.server.port + Config.sockjsprefix, [], {timeout: 5 * 60 * 1000});
 			};
 			this.socket = constructSocket();
-			setInterval(function () {
-				if (Config.server.host !== $.trim(Config.server.host)) {
-					app.socket.close();
-				}
-			}, 500);
 
 			var socketopened = false;
 			var altport = (Config.server.port === Config.server.altport);
@@ -718,6 +742,14 @@
 						self.send(queue[i], true);
 					}
 				}
+
+				this.hostCheckInterval = setTimeout(function checkHost() {
+					if (Config.server.host !== $.trim(Config.server.host)) {
+						app.socket.close();
+					} else {
+						app.hostCheckInterval = setTimeout(checkHost, 500);
+					}
+				}, 500);
 			};
 			this.socket.onmessage = function (msg) {
 				if (window.console && console.log) {
@@ -807,7 +839,7 @@
 				var roomType = data.substr(6);
 				var roomTypeLFIndex = roomType.indexOf('\n');
 				if (roomTypeLFIndex >= 0) roomType = roomType.substr(0, roomTypeLFIndex);
-				roomType = toId(roomType);
+				roomType = toID(roomType);
 				if (this.rooms[roomid] || roomid === 'staff' || roomid === 'upperstaff') {
 					// autojoin rooms are joined in background
 					this.addRoom(roomid, roomType, true);
@@ -865,7 +897,7 @@
 						errormessage += "\n\nThe battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.\nIn the future, remember to click \"Save replay\" to save a replay permanently.";
 						app.addPopupMessage(errormessage);
 					});
-				} else if (data !== 'namepending') {
+				} else {
 					if (isdeinit) { // deinit
 						if (this.rooms[roomid] && this.rooms[roomid].type === 'chat') {
 							this.removeRoom(roomid, true);
@@ -935,16 +967,16 @@
 				var nlIndex = data.indexOf('\n');
 				if (nlIndex > 0) {
 					this.receive(data.substr(nlIndex + 1));
-					parts = data.substr(0, nlIndex).split('|');
+					parts = data.slice(1, nlIndex).split('|');
 				}
-				var name = parts[1];
+				var parsed = BattleTextParser.parseNameParts(parts[1]);
 				var named = !!+parts[2];
 
-				var userid = toUserid(name);
-				if (userid === this.user.get('userid') && name !== this.user.get('name')) {
+				var userid = toUserid(parsed.name);
+				if (userid === this.user.get('userid') && parsed.name !== this.user.get('name')) {
 					$.post(app.user.getActionPHP(), {
 						act: 'changeusername',
-						username: name
+						username: parsed.name
 					}, function () {}, 'text');
 				}
 
@@ -960,18 +992,20 @@
 				}
 
 				this.user.set({
-					name: name,
+					name: parsed.name,
 					userid: userid,
 					named: named,
 					avatar: parts[3],
-					settings: settings
+					settings: settings,
+					status: parsed.status,
+					away: parsed.away
 				});
-				this.user.setPersistentName(named ? name : null);
+				this.user.setPersistentName(named ? parsed.name : null);
 				if (named) {
 					this.trigger('init:choosename');
 				}
-				if (app.ignore[toUserid(name)]) {
-					delete app.ignore[toUserid(name)];
+				if (app.ignore[userid]) {
+					delete app.ignore[userid];
 				}
 				break;
 
@@ -1155,7 +1189,7 @@
 							name = name.substr(0, name.length - 1);
 						}
 					}
-					var id = toId(name);
+					var id = toID(name);
 					var isTeambuilderFormat = !team && name.slice(-11) !== 'Custom Game';
 					var teambuilderFormat = '';
 					var teambuilderFormatName = '';
@@ -1170,7 +1204,7 @@
 							teambuilderFormatName = $.trim(teambuilderFormatName.slice(0, parenPos));
 						}
 						if (teambuilderFormatName !== name) {
-							teambuilderFormat = toId(teambuilderFormatName);
+							teambuilderFormat = toID(teambuilderFormatName);
 							if (BattleFormats[teambuilderFormat]) {
 								BattleFormats[teambuilderFormat].isTeambuilderFormat = true;
 							} else {
@@ -1231,14 +1265,15 @@
 		},
 		uploadReplay: function (data) {
 			var id = data.id;
-			var serverid = Config.server.id && toId(Config.server.id.split(':')[0]);
+			var serverid = Config.server.id && toID(Config.server.id.split(':')[0]);
 			if (serverid && serverid !== 'showdown') id = serverid + '-' + id;
 			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
 				id: id
 			}, function (data) {
-				if (data === 'success') {
-					app.addPopup(ReplayUploadedPopup, {id: id});
+				var sData = data.split(':');
+				if (sData[0] === 'success') {
+					app.addPopup(ReplayUploadedPopup, {id: sData[1] || id});
 				} else if (data === 'hash mismatch') {
 					app.addPopupMessage("Someone else is already uploading a replay of this battle. Try again in five seconds.");
 				} else if (data === 'not found') {
@@ -1267,7 +1302,7 @@
 				) && this.className !== 'no-panel-intercept') {
 					if (!e.cmdKey && !e.metaKey && !e.ctrlKey) {
 						var target = this.pathname.substr(1);
-						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure)$/;
+						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure|replays?|forgotpassword)$/;
 						if (target === 'appeal' || target === 'appeals') target = 'view-help-request--appeal';
 						if (target === 'report') target = 'view-help-request--report';
 						if (isReplayLink) {
@@ -2427,7 +2462,7 @@
 
 	var UserPopup = this.UserPopup = Popup.extend({
 		initialize: function (data) {
-			data.userid = toId(data.name);
+			data.userid = toID(data.name);
 			var name = data.name;
 			if (/[a-zA-Z0-9]/.test(name.charAt(0))) name = ' ' + name;
 			this.data = data = _.extend(data, UserPopup.dataCache[data.userid]);
@@ -2443,14 +2478,16 @@
 		update: function (data) {
 			if (data && data.userid === this.data.userid) {
 				data = _.extend(this.data, data);
-				UserPopup.dataCache[data.userid] = data;
+				// Don't cache the roomGroup
+				UserPopup.dataCache[data.userid] = _.clone(data);
+				delete UserPopup.dataCache[data.userid].roomGroup;
 			} else {
 				data = this.data;
 			}
 			var userid = data.userid;
 			var name = data.name;
 			var avatar = data.avatar || '';
-			var group = ((Config.groups[name.charAt(0)] || {}).name || '');
+			var group = ((Config.groups[data.roomGroup] || {}).name || '');
 			var globalgroup = ((Config.groups[(data.group || Config.defaultGroup || ' ')] || {}).name || '');
 			if (globalgroup) {
 				if (!group || group === globalgroup) {
@@ -2466,6 +2503,11 @@
 			var buf = '<div class="userdetails">';
 			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Dex.resolveAvatar(avatar) + '" />';
 			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
+			var offline = data.rooms === false;
+			if (data.status || offline) {
+				var status = offline ? '(Offline)' : data.status.startsWith('!') ? data.status.slice(1) : data.status;
+				buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + BattleLog.escapeHTML(status) + '<br /></span>';
+			}
 			buf += '<small>' + (group || '&nbsp;') + '</small>';
 			if (globalgroup) buf += '<br /><small>' + globalgroup + '</small>';
 			if (data.rooms) {
@@ -2507,8 +2549,6 @@
 					}
 				}
 				buf += '<small class="rooms">' + battlebuf + chatbuf + privatebuf + '</small>';
-			} else if (data.rooms === false) {
-				buf += '<strong class="offline">OFFLINE</strong>';
 			}
 			buf += '</div>';
 
@@ -2565,7 +2605,7 @@
 
 	var UserOptionsPopup = this.UserOptions = Popup.extend({
 		initialize: function (data) {
-			this.name = data.name.substr(1);
+			this.name = data.name;
 			this.userid = data.userid;
 			this.update();
 		},
@@ -2663,7 +2703,7 @@
 		initialize: function (data) {
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
-			buf += '<p><a href="http://replay.pokemonshowdown.com/' + data.id + '" target="_blank" class="no-panel-intercept">http://replay.pokemonshowdown.com/' + data.id + '</a></p>';
+			buf += '<p><a href="https://replay.pokemonshowdown.com/' + data.id + '" target="_blank" class="no-panel-intercept">https://replay.pokemonshowdown.com/' + data.id + '</a></p>';
 			buf += '<p><button class="autofocus" name="close">Close</button></p>';
 			this.$el.html(buf).css('max-width', 620);
 		},

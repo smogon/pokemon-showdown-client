@@ -24,10 +24,11 @@ module.exports = {
 		"BattleOtherAnims": false,  "BattlePokedex": false,"BattlePokemonSprites": false, "BattlePokemonSpritesBW": false, "BattleSearchCountIndex": false, "BattleSearchIndex": false, "BattleArticleTitles": false,
 		"BattleSearchIndexOffset": false, "BattleSearchIndexType": false, "BattleStatIDs": false, "BattleStatNames": false, "BattleStats": false, "BattleStatusAnims": false, "BattleStatuses": false, "BattleTeambuilderTable": false,
 		"ModifiableValue": false, "BattleStatGuesser": false, "BattleText": true, "BattleTextAFD": false, "BattleTextNotAFD": false,
+		"BattleTextParser": false,
 
 		// Generic global variables
 		"Config": false, "BattleSearch": false, "soundManager": false, "Storage": false, "Dex": false,
-		"app": false, "toId": false, "toRoomid": false, "toUserid": false, "toName": false, "getString": false, "MD5": false,
+		"app": false, "toID": false, "toRoomid": false, "toUserid": false, "toName": false, "splitFirst": false, "getString": false, "MD5": false,
 		"ChatHistory": false, "Topbar": false, "UserList": false,
 
 		// Rooms

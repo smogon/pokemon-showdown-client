@@ -16,7 +16,6 @@ declare var BattleMovedex: any;
 declare var BattleAbilities: any;
 declare var BattleItems: any;
 declare var BattleAliases: any;
-declare var BattleFormats: any;
 declare var BattleStatuses: any;
 // declare var BattleMoveAnims: any;
 // declare var BattleStatusAnims: any;
@@ -41,8 +40,6 @@ declare var Replays: any;
 declare var exports: any;
 type AnyObject = {[k: string]: any};
 declare var app: {user: AnyObject, rooms: AnyObject, ignore?: AnyObject};
-
-declare var BattleSearch: any;
 
 interface Window {
 	[k: string]: any;

@@ -19,8 +19,8 @@ child_process.execSync('git pull', {cwd: 'data/Pokemon-Showdown'});
 child_process.execSync('npm run build', {cwd: 'data/Pokemon-Showdown'});
 console.log("DONE");
 
-const Dex = require('../data/Pokemon-Showdown/.sim-dist/dex');
-const toId = Dex.getId;
+const Dex = require('../data/Pokemon-Showdown/.sim-dist/dex').Dex;
+const toID = Dex.getId;
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
 console.log("DONE");
@@ -50,10 +50,10 @@ function requireNoCache(pathSpec) {
 	index = index.concat(Object.keys(Dex.data.Movedex).map(x => x + ' move'));
 	index = index.concat(Object.keys(Dex.data.Items).map(x => x + ' item'));
 	index = index.concat(Object.keys(Dex.data.Abilities).map(x => x + ' ability'));
-	index = index.concat(Object.keys(Dex.data.TypeChart).map(x => toId(x) + ' type'));
-	index = index.concat(['physical', 'special', 'status'].map(x => toId(x) + ' category'));
-	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toId(x) + ' egggroup'));
-	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'lc', 'nfe', 'uber', 'uubl', 'rubl', 'nubl', 'publ', 'cap', 'caplc', 'capnfe'].map(x => toId(x) + ' tier'));
+	index = index.concat(Object.keys(Dex.data.TypeChart).map(x => toID(x) + ' type'));
+	index = index.concat(['physical', 'special', 'status'].map(x => toID(x) + ' category'));
+	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toID(x) + ' egggroup'));
+	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'lc', 'nfe', 'uber', 'uubl', 'rubl', 'nubl', 'publ', 'cap', 'caplc', 'capnfe'].map(x => toID(x) + ' tier'));
 
 	let BattleArticleTitles = {};
 
@@ -82,18 +82,18 @@ function requireNoCache(pathSpec) {
 		let i = name.lastIndexOf(' ');
 		if (i < 0) i = name.lastIndexOf('-');
 		if (name.endsWith('-Mega-X') || name.endsWith('-Mega-Y')) {
-			index.push('mega' + toId(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
-			index.push('m' + toId(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
-			index.push('mega' + toId(name.slice(-1)) + ' ' + type + ' ' + id + ' ' + toId(name.slice(0, -7)).length);
+			index.push('mega' + toID(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
+			index.push('m' + toID(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
+			index.push('mega' + toID(name.slice(-1)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, -7)).length);
 			return;
 		}
 		if (name.endsWith('-Mega')) {
-			index.push('mega' + toId(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
-			index.push('m' + toId(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
+			index.push('mega' + toID(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
+			index.push('m' + toID(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
 			return;
 		}
 		if (name.endsWith('-Alola')) {
-			index.push('alolan' + toId(name.slice(0, -6)) + ' ' + type + ' ' + id + ' 0');
+			index.push('alolan' + toID(name.slice(0, -6)) + ' ' + type + ' ' + id + ' 0');
 			return;
 		}
 		let oldI = i;
@@ -140,19 +140,19 @@ function requireNoCache(pathSpec) {
 		if (name === 'Whirlwind') i = 5;
 		let acronym;
 		if (oldI < 0 && i > 0) {
-			acronym = toId(name.charAt(0) + name.slice(i));
+			acronym = toID(name.charAt(0) + name.slice(i));
 		}
 		if (i < 0) return;
-		index.push('' + toId(name.slice(i)) + ' ' + type + ' ' + id + ' ' + toId(name.slice(0, i)).length);
+		index.push('' + toID(name.slice(i)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, i)).length);
 		if (name.startsWith('Hidden Power ')) {
-			acronym = 'hp' + toId(name.substr(13));
+			acronym = 'hp' + toID(name.substr(13));
 			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
 		} else if (name === 'Hidden Power') {
 			index.push('hp ' + type + ' ' + id + ' 0');
 		} else if (name.includes(' ')) {
-			acronym = toId(name.split(' ').map((x, i) => i !== 0 ? x : x.charAt(0)).join(''));
+			acronym = toID(name.split(' ').map((x, i) => i !== 0 ? x : x.charAt(0)).join(''));
 		} else if (name.includes('-') && name.charAt(1) !== '-') {
-			acronym = toId(name.split('-').map((x, i) => i !== 0 ? x : x.charAt(0)).join(''));
+			acronym = toID(name.split('-').map((x, i) => i !== 0 ? x : x.charAt(0)).join(''));
 		}
 		if (acronym) {
 			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
@@ -170,7 +170,7 @@ function requireNoCache(pathSpec) {
 		if (i2 < 0) i2 = name.lastIndexOf('-', i - 1);
 		if (name === 'Zen Headbutt') i2 = 8;
 		if (i2 >= 0) {
-			index.push('' + toId(name.slice(i2)) + ' ' + type + ' ' + id + ' ' + toId(name.slice(0, i2)).length);
+			index.push('' + toID(name.slice(i2)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, i2)).length);
 		}
 	}
 	for (const id in Dex.data.Pokedex) {
@@ -718,6 +718,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideType = overrideType;
 		const overrideAbility = {};
 		BattleTeambuilderTable[gen].overrideAbility = overrideAbility;
+		const overrideHiddenAbility = {};
+		BattleTeambuilderTable[gen].overrideHiddenAbility = overrideHiddenAbility;
 		const removeSecondAbility = {};
 		BattleTeambuilderTable[gen].removeSecondAbility = removeSecondAbility;
 		for (const id in genData.Pokedex) {
@@ -736,6 +738,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			if (pastEntry.abilities['0'] !== nowEntry.abilities['0']) {
 				overrideAbility[id] = pastEntry.abilities['0'];
+			}
+			if (pastEntry.abilities['H'] !== nowEntry.abilities['H']) {
+				overrideHiddenAbility[id] = pastEntry.abilities['H'];
 			}
 			// in the gen 3 dex, Pokemon already have the abilities that were added in gen 4
 			const hasAbilityFromNewerGen = Dex.getTemplate(id).gen <= genNum && Dex.getAbility(pastEntry.abilities['1']).gen > genNum;

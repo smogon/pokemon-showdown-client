@@ -18,22 +18,22 @@ class PSTeambuilder {
 			buf += set.name || set.species;
 
 			// species
-			let id = toId(set.species);
-			buf += '|' + (toId(set.name || set.species) === id ? '' : id);
+			let id = toID(set.species);
+			buf += '|' + (toID(set.name || set.species) === id ? '' : id);
 
 			// item
-			buf += '|' + toId(set.item);
+			buf += '|' + toID(set.item);
 
 			// ability
 			let template = Dex.getTemplate(set.species || set.name);
 			let abilities = template.abilities;
-			id = toId(set.ability);
+			id = toID(set.ability);
 			if (abilities) {
-				if (id === toId(abilities['0'])) {
+				if (id === toID(abilities['0'])) {
 					buf += '|';
-				} else if (id === toId(abilities['1'])) {
+				} else if (id === toID(abilities['1'])) {
 					buf += '|1';
-				} else if (id === toId(abilities['H'])) {
+				} else if (id === toID(abilities['H'])) {
 					buf += '|H';
 				} else {
 					buf += '|' + id;
@@ -46,7 +46,7 @@ class PSTeambuilder {
 			buf += '|';
 			if (set.moves) {
 				for (let j = 0; j < set.moves.length; j++) {
-					let moveid = toId(set.moves[j]);
+					let moveid = toID(set.moves[j]);
 					if (j && !moveid) continue;
 					buf += (j ? ',' : '') + moveid;
 					if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) {
@@ -110,9 +110,9 @@ class PSTeambuilder {
 				buf += '|';
 			}
 
-			if (set.pokeball || (set.hpType && toId(set.hpType) !== hasHP)) {
+			if (set.pokeball || (set.hpType && toID(set.hpType) !== hasHP)) {
 				buf += ',' + (set.hpType || '');
-				buf += ',' + toId(set.pokeball);
+				buf += ',' + toID(set.pokeball);
 			}
 		}
 
@@ -208,9 +208,6 @@ class PSTeambuilder {
 			}
 			i = j + 1;
 
-			// 1 + 'WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140 WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140 WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140';
-			// throw new Error('WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140 WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140 WARNING: /Users/zarel/Documents/psclient/src/panel-mainmenu.tsx:80:1 - Exceeds maximum line length of 140');
-
 			// shiny
 			j = buf.indexOf('|', i);
 			if (i !== j) set.shiny = true;
@@ -240,84 +237,97 @@ class PSTeambuilder {
 
 		return team;
 	}
+	/**
+	 * (Exports end with two spaces so linebreaks are preserved in Markdown;
+	 * I assume mostly for Reddit.)
+	 */
+	static exportSet(set: PokemonSet) {
+		let text = '';
+
+		// core
+		if (set.name && set.name !== set.species) {
+			text += `${set.name} (${set.species})`;
+		} else {
+			text += `${set.species}`;
+		}
+		if (set.gender === 'M') text += ` (M)`;
+		if (set.gender === 'F') text += ` (F)`;
+		if (set.item) {
+			text += ` @ ${set.item}`;
+		}
+		text += `  \n`;
+		if (set.ability) {
+			text += `Ability: ${set.ability}  \n`;
+		}
+		if (set.moves) {
+			for (let move of set.moves) {
+				if (move.substr(0, 13) === 'Hidden Power ') {
+					const hpType = move.slice(13);
+					move = move.slice(0, 13);
+					move = `${move}[${hpType}]`;
+				}
+				if (move) {
+					text += `- ${move}  \n`;
+				}
+			}
+		}
+
+		// stats
+		let first = true;
+		if (set.evs) {
+			for (const stat of Dex.statNames) {
+				if (!set.evs[stat]) continue;
+				if (first) {
+					text += `EVs: `;
+					first = false;
+				} else {
+					text += ` / `;
+				}
+				text += `${set.evs[stat]} ${BattleStatNames[stat]}`;
+			}
+		}
+		if (!first) {
+			text += `  \n`;
+		}
+		if (set.nature) {
+			text += `${set.nature} Nature  \n`;
+		}
+		first = true;
+		if (set.ivs) {
+			for (const stat of Dex.statNames) {
+				if (set.ivs[stat] === undefined || isNaN(set.ivs[stat]) || set.ivs[stat] === 31) continue;
+				if (first) {
+					text += `IVs: `;
+					first = false;
+				} else {
+					text += ` / `;
+				}
+				text += `${set.ivs[stat]} ${BattleStatNames[stat]}`;
+			}
+		}
+		if (!first) {
+			text += `  \n`;
+		}
+
+		// details
+		if (set.level && set.level !== 100) {
+			text += `Level: ${set.level}  \n`;
+		}
+		if (set.shiny) {
+			text += `Shiny: Yes  \n`;
+		}
+		if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
+			text += `Happiness: ${set.happiness}  \n`;
+		}
+
+		text += `\n`;
+		return text;
+	}
 	static exportTeam(sets: PokemonSet[]) {
 		let text = '';
 		for (const set of sets) {
 			// core
-			if (set.name && set.name !== set.species) {
-				text += '' + set.name + ' (' + set.species + ')';
-			} else {
-				text += '' + set.species;
-			}
-			if (set.gender === 'M') text += ' (M)';
-			if (set.gender === 'F') text += ' (F)';
-			if (set.item) {
-				text += ' @ ' + set.item;
-			}
-			text += "  \n";
-			if (set.ability) {
-				text += 'Ability: ' + set.ability + "  \n";
-			}
-			if (set.moves) {
-				for (let move of set.moves) {
-					if (move.substr(0, 13) === 'Hidden Power ') {
-						move = move.substr(0, 13) + '[' + move.substr(13) + ']';
-					}
-					if (move) {
-						text += '- ' + move + "  \n";
-					}
-				}
-			}
-
-			// stats
-			let first = true;
-			if (set.evs) {
-				for (const stat of Dex.statNames) {
-					if (!set.evs[stat]) continue;
-					if (first) {
-						text += 'EVs: ';
-						first = false;
-					} else {
-						text += ' / ';
-					}
-					text += '' + set.evs[stat] + ' ' + BattleStatNames[stat];
-				}
-			}
-			if (!first) {
-				text += "  \n";
-			}
-			if (set.nature) {
-				text += '' + set.nature + ' Nature' + "  \n";
-			}
-			first = true;
-			if (set.ivs) {
-				for (const stat of Dex.statNames) {
-					if (set.ivs[stat] === undefined || isNaN(set.ivs[stat]) || set.ivs[stat] === 31) continue;
-					if (first) {
-						text += 'IVs: ';
-						first = false;
-					} else {
-						text += ' / ';
-					}
-					text += '' + set.ivs[stat] + ' ' + BattleStatNames[stat];
-				}
-			}
-			if (!first) {
-				text += "  \n";
-			}
-
-			// details
-			if (set.level && set.level !== 100) {
-				text += 'Level: ' + set.level + "  \n";
-			}
-			if (set.shiny) {
-				text += 'Shiny: Yes  \n';
-			}
-			if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
-				text += 'Happiness: ' + set.happiness + "  \n";
-			}
-
-			text += "\n";
+			text += PSTeambuilder.exportSet(set);
 		}
 		return text;
 	}
@@ -402,22 +412,7 @@ function TeamBox(props: {team: Team | null, noLink?: boolean, button?: boolean})
  * Team selector popup
  */
 
-class TeamDropdownRoom extends PSRoom {
-	readonly classType: string = 'user';
-	userid: ID;
-	name: string;
-	isSelf: boolean;
-	constructor(options: RoomOptions) {
-		super(options);
-		this.userid = this.id.slice(5) as ID;
-		this.isSelf = (this.userid === PS.user.userid);
-		this.name = options.username as string || this.userid;
-		if (/[a-zA-Z0-9]/.test(this.name.charAt(0))) this.name = ' ' + this.name;
-		PS.send(`|/cmd userdetails ${this.userid}`);
-	}
-}
-
-class TeamDropdownPanel extends PSRoomPanel<TeamDropdownRoom> {
+class TeamDropdownPanel extends PSRoomPanel {
 	gen = '';
 	format: string | null = null;
 	getTeams() {
@@ -445,8 +440,7 @@ class TeamDropdownPanel extends PSRoomPanel<TeamDropdownRoom> {
 		}
 		if (!target) return;
 
-		(this.props.room.parentElem as HTMLButtonElement).value = target.value;
-		PS.closePopup();
+		this.chooseParentValue(target.value);
 	};
 	render() {
 		const room = this.props.room;
@@ -456,19 +450,20 @@ class TeamDropdownPanel extends PSRoomPanel<TeamDropdownRoom> {
 			</PSPanelWrapper>;
 		}
 		const baseFormat = room.parentElem.getAttribute('data-format') || Dex.modid;
-		if (this.format === null) {
+		let isFirstLoad = this.format === null;
+		if (isFirstLoad) {
 			this.format = baseFormat;
 		}
 		let teams = this.getTeams();
-		if (!teams.length && this.format) {
+		if (!teams.length && this.format && isFirstLoad) {
 			this.gen = this.format.slice(0, 4);
 			this.format = '';
+			teams = this.getTeams();
 		}
-		teams = this.getTeams();
-		if (!teams.length && this.gen) {
+		if (!teams.length && this.gen && isFirstLoad) {
 			this.gen = '';
+			teams = this.getTeams();
 		}
-		teams = this.getTeams();
 
 		let availableWidth = document.body.offsetWidth;
 		let width = 307;
@@ -511,6 +506,7 @@ class TeamDropdownPanel extends PSRoomPanel<TeamDropdownRoom> {
 			])}</p>);
 		}
 
+		let isEmpty = true;
 		for (let folder in teamBuckets) {
 			if (folder && (this.gen || this.format)) {
 				teamList.push(<h2>
@@ -535,15 +531,104 @@ class TeamDropdownPanel extends PSRoomPanel<TeamDropdownRoom> {
 					<TeamBox team={team} button />
 				</li>)}
 			</ul>);
+			isEmpty = false;
 		}
 
 		return <PSPanelWrapper room={room} width={width}>
 			{teamList}
+			{isEmpty && <p><em>No teams found</em></p>}
+		</PSPanelWrapper>;
+	}
+}
+
+interface FormatData {
+	id: ID;
+	name: string;
+	team?: 'preset' | null;
+	section: string;
+	column: number;
+	searchShow?: boolean;
+	challengeShow?: boolean;
+	tournamentShow?: boolean;
+	rated: boolean;
+	teambuilderLevel?: number | null;
+	teambuilderFormat?: ID;
+	battleFormat?: string;
+	isTeambuilderFormat: boolean;
+	effectType: 'Format';
+}
+
+declare var BattleFormats: {[id: string]: FormatData};
+
+class FormatDropdownPanel extends PSRoomPanel {
+	gen = '';
+	format: string | null = null;
+	click = (e: MouseEvent) => {
+		let curTarget = e.target as HTMLElement | null;
+		let target;
+		while (curTarget && curTarget !== e.currentTarget) {
+			if (curTarget.tagName === 'BUTTON') {
+				target = curTarget as HTMLButtonElement;
+			}
+			curTarget = curTarget.parentElement;
+		}
+		if (!target) return;
+
+		this.chooseParentValue(target.value);
+	};
+	render() {
+		const room = this.props.room;
+		if (!room.parentElem) {
+			return <PSPanelWrapper room={room}>
+				<p>Error: You tried to open a format selector, but you have nothing to select a format for.</p>
+			</PSPanelWrapper>;
+		}
+
+		let formatsLoaded = !!window.BattleFormats;
+		if (formatsLoaded) {
+			formatsLoaded = false;
+			for (let i in window.BattleFormats) {
+				formatsLoaded = true;
+				break;
+			}
+		}
+		if (!formatsLoaded) {
+			return <PSPanelWrapper room={room}>
+				<p>Loading...</p>
+			</PSPanelWrapper>;
+		}
+
+		/**
+		 * 'challenge' hides search-only formats, and 'search' hides challenge-only
+		 * formats. 'teambuilder' shows teambuilder formats (removing parentheses
+		 * from format names).
+		 */
+		const selectType: 'teambuilder' | 'challenge' | 'search' = (
+			room.parentElem.getAttribute('data-selecttype') as any || 'challenge'
+		);
+
+		const formats = Object.values(BattleFormats).filter(format => {
+			if (selectType === 'challenge' && format.challengeShow === false) return false;
+			if (selectType === 'search' && format.searchShow === false) return false;
+			return true;
+		});
+
+		return <PSPanelWrapper room={room} width={320}>
+			<ul onClick={this.click}>
+				{formats.map(format => <li><button value={format.name}>
+					{format.name}
+				</button></li>)}
+			</ul>
 		</PSPanelWrapper>;
 	}
 }
 
 PS.roomTypes['teamdropdown'] = {
-	Model: TeamDropdownRoom,
+	Model: PSRoom,
 	Component: TeamDropdownPanel,
+};
+
+PS.roomTypes['formatdropdown'] = {
+	Model: PSRoom,
+	Component: FormatDropdownPanel,
 };

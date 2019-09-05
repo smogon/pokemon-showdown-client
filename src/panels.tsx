@@ -118,6 +118,18 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 		this.subscriptions = [];
 	}
 	receive(message: string) {}
+	/**
+	 * PS has "fake select menus", buttons that act like <select> dropdowns.
+	 * This function is used by the popups they open to change the button
+	 * values.
+	 */
+	chooseParentValue(value: string) {
+		const dropdownButton = this.props.room.parentElem as HTMLButtonElement;
+		dropdownButton.value = value;
+		const changeEvent = new Event('change');
+		dropdownButton.dispatchEvent(changeEvent);
+		PS.closePopup();
+	}
 	focus() {}
 	render() {
 		return <PSPanelWrapper room={this.props.room}>
@@ -163,7 +175,7 @@ class PSMain extends preact.Component {
 			while (elem) {
 				if (` ${elem.className} `.includes(' username ')) {
 					const name = elem.getAttribute('data-name');
-					const userid = toId(name);
+					const userid = toID(name);
 					const roomid = `user-${userid}` as RoomID;
 					PS.addRoom({
 						id: roomid,
@@ -245,6 +257,15 @@ class PSMain extends preact.Component {
 			document.body.className = PS.prefs.dark ? 'dark' : '';
 		});
 	}
+	getRoom(elem: HTMLElement) {
+		let curElem: HTMLElement | null = elem;
+		while (curElem) {
+			if (curElem.id.startsWith('room-')) {
+				return PS.rooms[curElem.id.slice(5)];
+			}
+			curElem = curElem.parentElement;
+		}
+	}
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
 		case 'closeRoom':
@@ -256,6 +277,11 @@ class PSMain extends preact.Component {
 				parentElem: elem,
 			});
 			PS.update();
+			return true;
+		case 'send':
+		case 'cmd':
+			const room = this.getRoom(elem) || PS.mainmenu;
+			room.send(elem.value, elem.name === 'send');
 			return true;
 		}
 		return false;
@@ -295,7 +321,7 @@ class PSMain extends preact.Component {
 	}
 	static isEmptyClick(e: MouseEvent) {
 		try {
-			const selection = window.getSelection();
+			const selection = window.getSelection()!;
 			if (selection.type === 'Range') return false;
 		} catch (err) {}
 		BattleTooltips.hideTooltip();

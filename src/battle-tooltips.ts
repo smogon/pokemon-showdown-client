@@ -28,7 +28,8 @@ class ModifiableValue {
 		this.itemName = Dex.getItem(serverPokemon.item).name;
 		const ability = serverPokemon.ability || (pokemon && pokemon.ability) || serverPokemon.baseAbility;
 		this.abilityName = Dex.getAbility(ability).name;
-		this.weatherName = Dex.getMove(battle.weather).name;
+		this.weatherName = Dex.getMove(battle.weather).exists ?
+			Dex.getMove(battle.weather).name : Dex.getAbility(battle.weather).name;
 	}
 	reset(value = 0, isAccuracy?: boolean) {
 		this.value = value;
@@ -269,8 +270,9 @@ class BattleTooltips {
 		case 'zmove': { // move|MOVE|ACTIVEPOKEMON
 			let move = this.battle.dex.getMove(args[1]);
 			let index = parseInt(args[2], 10);
-			let pokemon = this.battle.mySide.active[index]!;
+			let pokemon = this.battle.mySide.active[index];
 			let serverPokemon = this.battle.myPokemon![index];
+			if (!pokemon) return false;
 			buf = this.showMoveTooltip(move, type === 'zmove', pokemon, serverPokemon);
 			break;
 		}
@@ -338,7 +340,7 @@ class BattleTooltips {
 			$(document.body).append($wrapper);
 			$wrapper.on('click', e => {
 				try {
-					const selection = window.getSelection();
+					const selection = window.getSelection()!;
 					if (selection.type === 'Range') return;
 				} catch (err) {}
 				BattleTooltips.hideTooltip();
@@ -423,7 +425,7 @@ class BattleTooltips {
 		let foeActive = pokemon.side.foe.active;
 		// TODO: move this somewhere it makes more sense
 		if (pokemon.ability === '(suppressed)') serverPokemon.ability = '(suppressed)';
-		let ability = toId(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
+		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
 
@@ -617,7 +619,6 @@ class BattleTooltips {
 
 		text += '<h2>' + name + genderBuf + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
 
-		let template = this.battle.dex.getTemplate(clientPokemon ? clientPokemon.getSpecies() : pokemon.species);
 		if (clientPokemon && clientPokemon.volatiles.formechange) {
 			if (clientPokemon.volatiles.transform) {
 				text += '<small>(Transformed into ' + clientPokemon.volatiles.formechange[1] + ')</small><br />';
@@ -663,41 +664,16 @@ class BattleTooltips {
 		}
 
 		const supportsAbilities = this.battle.gen > 2 && !this.battle.tier.includes("Let's Go");
-		if (serverPokemon) {
-			if (supportsAbilities) {
-				let abilityText = Dex.getAbility(serverPokemon.baseAbility).name;
-				let ability = Dex.getAbility(serverPokemon.ability || pokemon.ability).name;
-				if (ability && (ability !== abilityText)) {
-					abilityText = ability + ' (base: ' + abilityText + ')';
-				}
-				text += '<p><small>Ability:</small> ' + abilityText;
-				if (serverPokemon.item) {
-					text += ' / <small>Item:</small> ' + Dex.getItem(serverPokemon.item).name;
-				}
-				text += '</p>';
-			} else if (serverPokemon.item) {
-				let itemName = Dex.getItem(serverPokemon.item).name;
-				text += '<p><small>Item:</small> ' + itemName + '</p>';
-			}
+
+		let abilityText = '';
+		if (supportsAbilities) {
+			abilityText = this.getPokemonAbilityText(clientPokemon, serverPokemon, isActive);
+		}
+
+		let itemText = '';
+		if (serverPokemon && serverPokemon.item) {
+			itemText = '<small>Item:</small> ' + Dex.getItem(serverPokemon.item).name;
 		} else if (clientPokemon) {
-			if (supportsAbilities) {
-				if (!pokemon.baseAbility && !pokemon.ability) {
-					let abilities = template.abilities;
-					text += '<p><small>Possible abilities:</small> ' + abilities['0'];
-					if (abilities['1']) text += ', ' + abilities['1'];
-					if (abilities['H']) text += ', ' + abilities['H'];
-					if (abilities['S']) text += ', ' + abilities['S'];
-					text += '</p>';
-				} else if (pokemon.ability) {
-					if (pokemon.ability === pokemon.baseAbility) {
-						text += '<p><small>Ability:</small> ' + Dex.getAbility(pokemon.ability).name + '</p>';
-					} else {
-						text += '<p><small>Ability:</small> ' + Dex.getAbility(pokemon.ability).name + ' (base: ' + Dex.getAbility(pokemon.baseAbility).name + ')' + '</p>';
-					}
-				} else if (pokemon.baseAbility) {
-					text += '<p><small>Ability:</small> ' + Dex.getAbility(pokemon.baseAbility).name + '</p>';
-				}
-			}
 			let item = '';
 			let itemEffect = clientPokemon.itemEffect || '';
 			if (clientPokemon.prevItem) {
@@ -708,8 +684,17 @@ class BattleTooltips {
 			}
 			if (pokemon.item) item = Dex.getItem(pokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
-			if (item) text += '<p><small>Item:</small> ' + item + itemEffect + '</p>';
+			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		}
+
+		text += '<p>';
+		text += abilityText;
+		if (itemText) {
+			// ability/item on one line for your own switch tooltips, two lines everywhere else
+			text += (!isActive && serverPokemon ? ' / ' : '</p><p>');
+			text += itemText;
+		}
+		text += '</p>';
 
 		text += this.renderStats(clientPokemon, serverPokemon, !isActive);
 
@@ -753,22 +738,31 @@ class BattleTooltips {
 	calculateModifiedStats(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon) {
 		let stats = {...serverPokemon.stats};
 		let pokemon = clientPokemon || serverPokemon;
+		const isPowerTrick = clientPokemon && clientPokemon.volatiles['powertrick'];
 		for (const statName of Dex.statNamesExceptHP) {
-			stats[statName] = serverPokemon.stats[statName];
+			let sourceStatName = statName;
+			if (isPowerTrick) {
+				if (statName === 'atk') sourceStatName = 'def';
+				if (statName === 'def') sourceStatName = 'atk';
+			}
+			stats[statName] = serverPokemon.stats[sourceStatName];
+			if (!clientPokemon) continue;
 
-			if (clientPokemon && clientPokemon.boosts[statName]) {
+			const clientStatName = clientPokemon.boosts.spc && (statName === 'spa' || statName === 'spd') ? 'spc' : statName;
+			const boostLevel = clientPokemon.boosts[clientStatName];
+			if (boostLevel) {
 				let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
-				if (clientPokemon.boosts[statName] > 0) {
-					stats[statName] *= boostTable[clientPokemon.boosts[statName]];
+				if (boostLevel > 0) {
+					stats[statName] *= boostTable[boostLevel];
 				} else {
 					if (this.battle.gen <= 2) boostTable = [1, 100 / 66, 2, 2.5, 100 / 33, 100 / 28, 4];
-					stats[statName] /= boostTable[-clientPokemon.boosts[statName]];
+					stats[statName] /= boostTable[-boostLevel];
 				}
 				stats[statName] = Math.floor(stats[statName]);
 			}
 		}
 
-		let ability = toId(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
+		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
 		if (clientPokemon && 'gastroacid' in clientPokemon.volatiles) ability = '' as ID;
 
 		// check for burn, paralysis, guts, quick feet
@@ -798,7 +792,7 @@ class BattleTooltips {
 			return stats;
 		}
 
-		let item = toId(serverPokemon.item);
+		let item = toID(serverPokemon.item);
 		if (ability === 'klutz' && item !== 'machobrace') item = '' as ID;
 		let species = Dex.getTemplate(clientPokemon ? clientPokemon.getSpecies() : serverPokemon.species).baseSpecies;
 
@@ -1576,6 +1570,57 @@ class BattleTooltips {
 		}
 		return allyAbility;
 	}
+	getPokemonAbilityData(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined) {
+		const abilityData: {ability: string, baseAbility: string, possibilities: string[]} = {
+			ability: '', baseAbility: '', possibilities: [],
+		};
+		if (clientPokemon) {
+			if (clientPokemon.ability) {
+				abilityData.ability = clientPokemon.ability || clientPokemon.baseAbility;
+				if (clientPokemon.baseAbility && clientPokemon.baseAbility !== abilityData.ability) {
+					abilityData.baseAbility = clientPokemon.baseAbility;
+				}
+			} else {
+				const species = clientPokemon.getSpecies() || (serverPokemon && serverPokemon.species) || '';
+				const template = this.battle.dex.getTemplate(species);
+				if (template.exists && template.abilities) {
+					abilityData.possibilities = [template.abilities['0']];
+					if (template.abilities['1']) abilityData.possibilities.push(template.abilities['1']);
+					if (template.abilities['H']) abilityData.possibilities.push(template.abilities['H']);
+					if (template.abilities['S']) abilityData.possibilities.push(template.abilities['S']);
+				}
+			}
+		}
+		if (serverPokemon) {
+			if (!abilityData.ability) abilityData.ability = serverPokemon.ability || serverPokemon.baseAbility;
+			if (!abilityData.baseAbility && serverPokemon.baseAbility && serverPokemon.baseAbility !== abilityData.ability) {
+				abilityData.baseAbility = serverPokemon.baseAbility;
+			}
+		}
+		return abilityData;
+	}
+	getPokemonAbilityText(
+		clientPokemon: Pokemon | null,
+		serverPokemon: ServerPokemon | null | undefined,
+		isActive: boolean | undefined
+	) {
+		let text = '';
+		const abilityData = this.getPokemonAbilityData(clientPokemon, serverPokemon);
+		if (!isActive) {
+			// for switch tooltips, only show the original ability
+			const ability = abilityData.baseAbility || abilityData.ability;
+			if (ability) text = '<small>Ability:</small> ' + Dex.getAbility(ability).name;
+		} else {
+			if (abilityData.ability) {
+				text = '<small>Ability:</small> ' + Dex.getAbility(abilityData.ability).name;
+				if (abilityData.baseAbility) text += ' (base: ' + Dex.getAbility(abilityData.baseAbility).name + ')';
+			}
+		}
+		if (!text && abilityData.possibilities.length) {
+			text = '<small>Possible abilities:</small> ' + abilityData.possibilities.join(', ');
+		}
+		return text;
+	}
 }
 
 type StatsTable = {hp: number, atk: number, def: number, spa: number, spd: number, spe: number};
@@ -1672,9 +1717,9 @@ class BattleStatGuesser {
 			'physicalBulk': 0,
 		};
 		let hasMove: {[moveid: string]: 1} = {};
-		let itemid = toId(set.item);
+		let itemid = toID(set.item);
 		let item = this.dex.getItem(itemid);
-		let abilityid = toId(set.ability);
+		let abilityid = toID(set.ability);
 
 		let template = this.dex.getTemplate(set.species || set.name!);
 		if (item.megaEvolves === template.species) template = this.dex.getTemplate(item.megaStone);
@@ -1683,7 +1728,7 @@ class BattleStatGuesser {
 
 		if (set.moves.length < 1) return '?';
 		let needsFourMoves = !['unown', 'ditto'].includes(template.id);
-		let moveids = set.moves.map(toId);
+		let moveids = set.moves.map(toID);
 		if (moveids.includes('lastresort' as ID)) needsFourMoves = false;
 		if (set.moves.length < 4 && needsFourMoves && this.formatid !== 'gen7metronomebattle') {
 			return '?';

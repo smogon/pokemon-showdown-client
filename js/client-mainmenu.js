@@ -133,9 +133,9 @@
 			var userid = toUserid(name);
 			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '!': 1, '✖': 1, '‽': 1}) return;
 
-			var isSelf = (toId(name) === app.user.get('userid'));
+			var isSelf = (toID(name) === app.user.get('userid'));
 			var oName = isSelf ? target : name;
-			Storage.logChat('pm-' + toId(oName), '' + name + ': ' + message);
+			Storage.logChat('pm-' + toID(oName), '' + name + ': ' + message);
 
 			var $pmWindow = this.openPM(oName, true);
 			var $chatFrame = $pmWindow.find('.pm-log');
@@ -144,6 +144,11 @@
 			var autoscroll = ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height());
 
 			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat);
+			var mayNotify = true;
+			if (typeof parsedMessage === 'object' && 'noNotify' in parsedMessage) {
+				mayNotify = !parsedMessage.noNotify;
+				parsedMessage = parsedMessage.message;
+			}
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
 			for (var i = 0; i < parsedMessage.length; i++) {
 				if (!parsedMessage[i]) continue;
@@ -156,7 +161,7 @@
 				app.curSideRoom.addPM(name, message, target);
 			}
 
-			if (!isSelf && textContent) {
+			if (mayNotify && !isSelf && textContent) {
 				this.notifyOnce("PM from " + name, "\"" + textContent + "\"", 'pm');
 			}
 
@@ -169,7 +174,7 @@
 			}
 		},
 		openPM: function (name, dontFocus) {
-			var userid = toId(name);
+			var userid = toID(name);
 			var $pmWindow = this.$pmBox.find('.pm-window-' + userid);
 			if (!$pmWindow.length) {
 				var group = name.charAt(0);
@@ -211,7 +216,7 @@
 				// counteract jQuery auto-casting
 				if (userid !== undefined && userid !== '') userid = '' + userid;
 			} else {
-				userid = toId(e);
+				userid = toID(e);
 			}
 			var $pmWindow;
 			if (!userid) {
@@ -603,7 +608,7 @@
 			if (data.challengeTo) {
 				var challenge = data.challengeTo;
 				var name = challenge.to;
-				var userid = toId(name);
+				var userid = toID(name);
 				var $challenge = this.openChallenge(name);
 
 				var buf = '<form class="battleform"><p>Waiting for ' + BattleLog.escapeHTML(name) + '...</p>';
@@ -626,12 +631,14 @@
 						self.notifyOnce("Challenge from " + name, "Format: " + BattleLog.escapeFormat(format), 'challenge:' + userid);
 					}
 					var $challenge = self.openChallenge(name, $pmWindow);
-					var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(name) + ' wants to battle!</p>';
-					buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
-					buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
-					buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
-					$challenge.html(buf);
-					if (format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
+					if (!$challenge.find('button[name=makeChallenge]').length) {
+						var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(name) + ' wants to battle!</p>';
+						buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
+						buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
+						buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
+						$challenge.html(buf);
+						if (format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
+					}
 				} else {
 					var $challenge = $pmWindow.find('.challenge');
 					if ($challenge.length) {
@@ -710,18 +717,18 @@
 
 		// challenge buttons
 		challenge: function (name, format, team) {
-			var userid = toId(name);
+			var userid = toID(name);
 			var $challenge = this.$('.pm-window-' + userid + ' .challenge');
 			if ($challenge.length && !$challenge.find('button[name=dismissChallenge]').length) {
 				return;
 			}
 
-			if (format) format = toId(format);
+			if (format) format = toID(format);
 			var teamIndex;
 			if (Storage.teams && team) {
-				team = toId(team);
+				team = toID(team);
 				for (var i = 0; i < Storage.teams.length; i++) {
-					if (team === toId(Storage.teams[i].name || '')) {
+					if (team === toID(Storage.teams[i].name || '')) {
 						teamIndex = i;
 						break;
 					}
@@ -794,7 +801,7 @@
 		},
 		team: function (team, button) {
 			var format = $(button).closest('form').find('button[name=format]').val();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: button});
+			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: button, folderToggleOn: true, folderNotExpanded: []});
 		},
 
 		// format/team selection
@@ -917,7 +924,7 @@
 			}
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
-				if (toId(target) === 'zarel') {
+				if (toID(target) === 'zarel') {
 					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
 					return;
 				}
@@ -933,8 +940,8 @@
 				group = name.charAt(0);
 				name = name.substr(1);
 			}
-			var color = BattleLog.hashColor(toId(name));
-			var clickableName = '<small>' + BattleLog.escapeHTML(group) + '</small><span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + '</span>';
+			var color = BattleLog.hashColor(toID(name));
+			var clickableName = '<small>' + BattleLog.escapeHTML(group) + '</small><span class="username" data-roomgroup="' + BattleLog.escapeHTML(group) + '" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + '</span>';
 			var hlClass = isHighlighted ? ' highlighted' : '';
 			var mineClass = (window.app && app.user && app.user.get('name') === name ? ' mine' : '');
 
@@ -952,11 +959,11 @@
 
 			switch (cmd) {
 			case 'me':
-				if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em></div>';
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em></div>';
+				if (!showMe) return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target) + '</i></em></div>';
 			case 'mee':
-				if (!showMe) return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em></div>';
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em></div>';
+				if (!showMe) return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>/me' + BattleLog.parseMessage(' ' + target).slice(1) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">&bull;</strong> <em>' + clickableName + '<i>' + BattleLog.parseMessage(' ' + target).slice(1) + '</i></em></div>';
 			case 'invite':
 				var roomid = toRoomid(target);
 				return [
@@ -964,9 +971,9 @@
 					'<div class="notice"><button name="joinRoom" value="' + roomid + '">Join ' + roomid + '</button></div>'
 				];
 			case 'announce':
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <span class="message-announce">' + BattleLog.parseMessage(target) + '</span></div>';
 			case 'log':
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<span class="message-log">' + BattleLog.parseMessage(target) + '</span></div>';
 			case 'data-pokemon':
 			case 'data-item':
 			case 'data-ability':
@@ -977,31 +984,33 @@
 			case 'error':
 				return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
 			case 'html':
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>';
 			case 'uhtml':
 			case 'uhtmlchange':
 				var parts = target.split(',');
-				var $elements = $chatElem.find('div.uhtml-' + toId(parts[0]));
+				var $elements = $chatElem.find('div.uhtml-' + toID(parts[0]));
 				var html = parts.slice(1).join(',');
 				if (!html) {
 					$elements.remove();
 				} else if (!$elements.length) {
-					$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				} else if (cmd === 'uhtmlchange') {
 					$elements.html(BattleLog.sanitizeHTML(html));
 				} else {
 					$elements.remove();
-					$chatElem.append('<div class="chat uhtml-' + toId(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				}
 				return '';
 			case 'raw':
 				return '<div class="chat">' + BattleLog.sanitizeHTML(target) + '</div>';
+			case 'nonotify':
+				return {message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
 			default:
 				// Not a command or unsupported. Parsed as a normal chat message.
 				if (!name) {
 					return '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.parseMessage(message) + '</em></div>';
 				}
-				return '<div class="chat chatmessage-' + toId(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em></div>';
 			}
 		}
 	});
@@ -1081,7 +1090,6 @@
 			var bufs = ['', '', '', '', ''];
 			var curBuf = 0;
 			var teams = Storage.teams;
-
 			var bufBoundary = 128;
 			if (teams.length > 128 && $(window).width() > 1080) {
 				bufBoundary = Math.ceil(teams.length / 5);
@@ -1092,16 +1100,17 @@
 			} else if (teams.length > 27) {
 				bufBoundary = Math.ceil(teams.length / 2);
 			}
-
+			this.folderNotExpanded = data.folderNotExpanded || [];
+			this.folderToggleOn = data.folderToggleOn;
+			var folders = {};
 			this.team = data.team;
 			this.format = data.format;
 			this.room = data.room;
-
+			this.isMoreTeams = data.isMoreTeams || false;
 			var format = BattleFormats[data.format];
 
 			var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
 			this.teamFormat = teamFormat;
-
 			if (!teams.length) {
 				bufs[curBuf] = '<li><p><em>You have no teams</em></p></li>';
 				bufs[curBuf] += '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong><br />' + BattleLog.escapeFormat(teamFormat) + ' teams</button></li>';
@@ -1109,13 +1118,77 @@
 				var curTeam = (data.team === '' ? -1 : +data.team);
 				var count = 0;
 				if (teamFormat) {
-					bufs[curBuf] = '<li><h3>' + BattleLog.escapeFormat(teamFormat) + ' teams</h3></li>';
+					bufs[curBuf] = '<li><h3 style="margin-bottom: 5px;">' + BattleLog.escapeFormat(teamFormat) + ' teams</h3></li>';
+					bufs[curBuf] += '<li style="padding-bottom: 5px;"><input type="checkbox"' + (this.folderToggleOn ? ' checked' : '') + '><strong>Group by folders</strong></button></li>';
 					for (var i = 0; i < teams.length; i++) {
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
-							bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+							if (!this.folderToggleOn) {
+								bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+								count++;
+								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
+							} else {
+								var folderName = teams[i].folder || "";
+								if (folderName) {
+									if (folders[folderName] === undefined) folders[folderName] = [];
+									var thisTeam = teams[i];
+									thisTeam.id = i;
+									folders[folderName].push(thisTeam);
+								}
+							}
+						}
+					}
+					if (this.folderToggleOn) {
+						for (var key in folders) {
+							var folderData = folders[key];
+							var exists = false;
+							for (var j = 0; j < this.folderNotExpanded.length; j++) {
+								if (this.folderNotExpanded[j] === key) {
+									exists = true;
+									break;
+								}
+							}
+							if (!exists) {
+								bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="' + key + '"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(key) + '</button></li>';
+								count++;
+								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
+								for (var j = 0; j < folderData.length; j++) {
+									var selected = (folderData[j].id === curTeam);
+									bufs[curBuf] += '<li><button name="selectTeam" value="' + folders[key][j].id + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(folderData[j].name) + '</button></li>';
+									count++;
+									if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
+								}
+							} else {
+								bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="' + key + '"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(key) + '</button></li>';
+								count++;
+								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
+							}
+						}
+						var isNoFolder = false;
+						for (var i = 0; i < this.folderNotExpanded.length; i++) {
+							if (this.folderNotExpanded[i] === "(No Folder)") {
+								isNoFolder = true;
+								break;
+							}
+						}
+						if (!isNoFolder) {
+							bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
+						} else {
+							bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
 							count++;
-							if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+							if (count % bufBoundary === 0 && count != 0 && curBuf < 4) curBuf++;
+						}
+						if (!isNoFolder) {
+							for (var i = 0; i < teams.length; i++) {
+								if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
+									var selected = (i === curTeam);
+									if (teams[i].folder === "") {
+										bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+										count++;
+										if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
+									}
+								}
+							}
 						}
 					}
 					if (!count) bufs[curBuf] += '<li><p><em>You have no ' + BattleLog.escapeFormat(teamFormat) + ' teams</em></p></li>';
@@ -1124,15 +1197,15 @@
 				} else {
 					bufs[curBuf] = '<li><button name="teambuilder" class="button"><strong>Teambuilder</strong></button></li>';
 					bufs[curBuf] += '<li><h3>All teams</h3></li>';
-					data.moreTeams = true;
+					this.isMoreTeams = true;
 				}
-				if (data.moreTeams) {
+				if (this.isMoreTeams) {
 					for (var i = 0; i < teams.length; i++) {
 						if (teamFormat && teams[i].format === teamFormat) continue;
 						var selected = (i === curTeam);
 						bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 						count++;
-						if (count % bufBoundary == 0 && curBuf < 4) curBuf++;
+						if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 					}
 				} else {
 					bufs[curBuf] += '<li><button name="moreTeams" class="button">Show all teams</button></li>';
@@ -1149,13 +1222,12 @@
 				this.$el.html('<ul class="popupmenu">' + bufs[0] + '</ul>');
 			}
 		},
+		events: {
+			'click [type="checkbox"]': 'foldersToggle',
+		},
 		moreTeams: function () {
-			var sourceEl = this.sourceEl;
-			var team = this.team;
-			var format = this.format;
-			var room = this.room;
 			this.close();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: sourceEl, room: room, moreTeams: true});
+			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: true, folderToggleOn: this.folderToggleOn, folderNotExpanded: this.folderNotExpanded});
 		},
 		teambuilder: function () {
 			var teamFormat = this.teamFormat;
@@ -1165,6 +1237,26 @@
 			if (!teambuilder.exportMode && !teambuilder.curTeam && teamFormat) {
 				teambuilder.selectFolder(teamFormat);
 			}
+		},
+		selectFolder: function (key) {
+			var keyExists = false;
+			var folderNotExpanded = this.folderNotExpanded.filter(function (folder) {
+				if (folder === key) {
+					keyExists = true;
+					return false;
+				} else {
+					return true;
+				}
+			});
+			if (!keyExists) {
+				folderNotExpanded.push(key);
+			}
+			this.close();
+			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: this.folderToggleOn, folderNotExpanded: folderNotExpanded});
+		},
+		foldersToggle: function () {
+			this.close();
+			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: !this.folderToggleOn, folderNotExpanded: this.folderNotExpanded});
 		},
 		selectTeam: function (i) {
 			i = +i;

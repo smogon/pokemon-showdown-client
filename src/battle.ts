@@ -280,7 +280,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		delete this.turnstatuses[volatile];
 	}
 	addTurnstatus(volatile: ID) {
-		volatile = toId(volatile);
+		volatile = toID(volatile);
 		this.side.battle.scene.addEffect(this, volatile);
 		if (this.hasTurnstatus(volatile)) return;
 		this.turnstatuses[volatile] = [volatile];
@@ -301,7 +301,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		delete this.movestatuses[volatile];
 	}
 	addMovestatus(volatile: ID) {
-		volatile = toId(volatile);
+		volatile = toID(volatile);
 		if (this.hasMovestatus(volatile)) return;
 		this.movestatuses[volatile] = [volatile];
 		this.side.battle.scene.addEffect(this, volatile);
@@ -484,8 +484,8 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 			return true;
 		}
 
-		let item = toId(serverPokemon ? serverPokemon.item : this.item);
-		let ability = toId(this.ability || (serverPokemon && serverPokemon.ability));
+		let item = toID(serverPokemon ? serverPokemon.item : this.item);
+		let ability = toID(this.ability || (serverPokemon && serverPokemon.ability));
 		if (battle.hasPseudoWeather('Magic Room') || this.volatiles['embargo'] || ability === 'klutz') {
 			item = '' as ID;
 		}
@@ -498,7 +498,8 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		if (this.volatiles['magnetrise'] || this.volatiles['telekinesis']) {
 			return false;
-		} else if (item !== 'airballoon') {
+		}
+		if (item === 'airballoon') {
 			return false;
 		}
 		return !this.getTypeList(serverPokemon).includes('Flying');
@@ -568,6 +569,7 @@ class Side {
 	n: number;
 	foe: Side = null!;
 	avatar: string = 'unknown';
+	rating: string = '';
 	totalPokemon = 6;
 	x = 0;
 	y = 0;
@@ -627,7 +629,7 @@ class Side {
 	}
 	setName(name: string, avatar?: string) {
 		if (name) this.name = name;
-		this.id = toId(this.name);
+		this.id = toID(this.name);
 		if (avatar) {
 			this.setAvatar(avatar);
 		} else {
@@ -687,7 +689,7 @@ class Side {
 		this.battle.scene.addSideCondition(this.n, condition);
 	}
 	removeSideCondition(condition: string) {
-		const id = toId(condition);
+		const id = toID(condition);
 		if (!this.sideConditions[id]) return;
 		delete this.sideConditions[id];
 		this.battle.scene.removeSideCondition(this.n, id);
@@ -905,11 +907,35 @@ class Side {
 }
 
 enum Playback {
+	/**
+	 * Battle is at the end of the queue. `|start` is not in the queue.
+	 * Battle is waiting for `.add()` or `.setQueue()` to add `|start` to
+	 * the queue. Adding other queue entries will happen immediately,
+	 * bringing the state back to Uninitialized.
+	 */
 	Uninitialized = 0,
+	/**
+	 * Battle is at `|start` and hasn't been started yet.
+	 * Battle is paused, waiting for `.play()`.
+	 */
 	Ready = 1,
+	/**
+	 * `.play()` has been called. Battle should be animating
+	 * normally.
+	 */
 	Playing = 2,
+	/**
+	 * `.pause()` has been called. Battle is waiting for `.play()`.
+	 */
 	Paused = 3,
+	/**
+	 * Battle is at the end of the queue. Battle is waiting for
+	 * `.add()` for further battle progress.
+	 */
 	Finished = 4,
+	/**
+	 * Battle is fast forwarding through the queue, with animations off.
+	 */
 	Seeking = 5,
 }
 
@@ -990,6 +1016,11 @@ class Battle {
 
 	turn = 0;
 	/**
+	 * Has playback gotten to Team Preview or `|start` yet?
+	 * (Affects whether BGM is playing)
+	 */
+	started = false;
+	/**
 	 * Has playback gotten to the point where a player has won or tied?
 	 * (Affects whether BGM is playing)
 	 */
@@ -1014,6 +1045,7 @@ class Battle {
 	tier = '';
 	gameType: 'singles' | 'doubles' | 'triples' = 'singles';
 	rated: string | boolean = false;
+	isBlitz = false;
 	endLastTurnPending = false;
 	totalTimeLeft = 0;
 	graceTimeLeft = 0;
@@ -1034,6 +1066,10 @@ class Battle {
 	debug = false;
 	joinButtons = false;
 
+	/**
+	 * The actual pause state. Will only be true if playback is actually
+	 * paused, not just waiting for the opponent to make a move.
+	 */
 	paused = true;
 	playbackState = Playback.Uninitialized;
 
@@ -1087,6 +1123,7 @@ class Battle {
 	reset(dontResetSound?: boolean) {
 		// battle state
 		this.turn = 0;
+		this.started = false;
 		this.ended = false;
 		this.weather = '' as ID;
 		this.weatherTimeLeft = 0;
@@ -1108,10 +1145,11 @@ class Battle {
 		this.resultWaiting = false;
 		this.paused = true;
 		if (this.playbackState !== Playback.Seeking) {
-			this.playbackState = (this.activityQueue.length ? Playback.Ready : Playback.Uninitialized);
-			if (!dontResetSound) this.scene.soundStop();
+			this.playbackState = Playback.Uninitialized;
+			if (!dontResetSound) this.scene.resetBgm();
 		}
 		this.resetTurnsSinceMoved();
+		this.nextActivity();
 	}
 	destroy() {
 		this.scene.destroy();
@@ -1173,6 +1211,7 @@ class Battle {
 	//
 	start() {
 		this.log(['start']);
+		this.resetTurnsSinceMoved();
 		if (this.startCallback) this.startCallback(this);
 	}
 	winner(winner?: string) {
@@ -1226,7 +1265,7 @@ class Battle {
 	}
 	resetTurnsSinceMoved() {
 		this.turnsSinceMoved = 0;
-		this.scene.acceleration = (this.messageFadeTime < 150 ? 2 : 1);
+		this.scene.updateAcceleration();
 	}
 	updateToxicTurns() {
 		for (const side of this.sides) {
@@ -1236,7 +1275,7 @@ class Battle {
 		}
 	}
 	changeWeather(weatherName: string, poke?: Pokemon, isUpkeep?: boolean, ability?: Effect) {
-		let weather = toId(weatherName);
+		let weather = toID(weatherName);
 		if (!weather || weather === 'none') {
 			weather = '' as ID;
 		}
@@ -1311,11 +1350,11 @@ class Battle {
 			let pp = 1;
 			if (move.target === "all") {
 				for (const active of pokemon.side.foe.active) {
-					if (active && toId(active.ability) === 'pressure') {
+					if (active && toID(active.ability) === 'pressure') {
 						pp += 1;
 					}
 				}
-			} else if (target && target.side !== pokemon.side && toId(target.ability) === 'pressure') {
+			} else if (target && target.side !== pokemon.side && toID(target.ability) === 'pressure') {
 				pp += 1;
 			}
 			pokemon.rememberMove(moveName, pp);
@@ -1356,7 +1395,12 @@ class Battle {
 			targets.push(target.side.missedPokemon);
 		} else {
 			for (const hitTarget of kwArgs.spread.split(',')) {
-				targets.push(this.getPokemon(hitTarget + ': ?')!);
+				const curTarget = this.getPokemon(hitTarget + ': ?');
+				if (!curTarget) {
+					this.log(['error', `Invalid spread move target: "${hitTarget}"`]);
+					continue;
+				}
+				targets.push(curTarget);
 			}
 		}
 
@@ -1679,6 +1723,16 @@ class Battle {
 				poke.boosts[stat] = frompoke.boosts[stat];
 				if (!poke.boosts[stat]) delete poke.boosts[stat];
 			}
+			if (this.gen >= 6) {
+				const volatilesToCopy = ['focusenergy', 'laserfocus'];
+				for (const volatile of volatilesToCopy) {
+					if (frompoke.volatiles[volatile]) {
+						poke.addVolatile(volatile as ID);
+					} else {
+						poke.removeVolatile(volatile as ID);
+					}
+				}
+			}
 			this.scene.resultAnim(poke, 'Stats copied', 'neutral');
 
 			this.log(args, kwArgs);
@@ -1800,8 +1854,9 @@ class Battle {
 		}
 		case '-block': {
 			let poke = this.getPokemon(args[1])!;
+			let ofpoke = this.getPokemon(kwArgs.of);
 			let effect = Dex.getEffect(args[2]);
-			this.activateAbility(poke, effect);
+			this.activateAbility(ofpoke || poke, effect);
 			switch (effect.id) {
 			case 'quickguard':
 				poke.addTurnstatus('quickguard' as ID);
@@ -1843,7 +1898,7 @@ class Battle {
 		}
 		case '-prepare': {
 			let poke = this.getPokemon(args[1])!;
-			let moveid = toId(args[2]);
+			let moveid = toID(args[2]);
 			let target = this.getPokemon(args[3]) || poke.side.foe.active[0] || poke;
 			this.scene.runPrepareAnim(moveid, poke, target);
 			this.log(args, kwArgs);
@@ -2009,6 +2064,7 @@ class Battle {
 					poke.itemEffect = 'bestowed';
 					this.scene.resultAnim(poke, item.name, 'neutral');
 					break;
+				case 'switcheroo':
 				case 'trick':
 					poke.itemEffect = 'tricked';
 					// falls through
@@ -3021,11 +3077,11 @@ class Battle {
 		if (command) this.activityQueue.push(command);
 
 		if (this.playbackState === Playback.Uninitialized) {
-			this.playbackState = Playback.Ready;
+			this.nextActivity();
 		} else if (this.playbackState === Playback.Finished) {
-			this.playbackState = Playback.Playing;
-			this.paused = false;
-			this.scene.soundStart();
+			this.playbackState = this.paused ? Playback.Paused : Playback.Playing;
+			if (this.paused) return;
+			this.scene.updateBgm();
 			if (fastForward) {
 				this.fastForwardTo(-1);
 			} else {
@@ -3071,6 +3127,10 @@ class Battle {
 			if (this.tier.slice(-13) === 'Random Battle') {
 				this.speciesClause = true;
 			}
+			if (this.tier.slice(-8) === ' (Blitz)') {
+				this.messageFadeTime = 40;
+				this.isBlitz = true;
+			}
 			this.log(args);
 			break;
 		}
@@ -3097,6 +3157,10 @@ class Battle {
 		case 'rule': {
 			let ruleName = args[1].split(': ')[0];
 			if (ruleName === 'Species Clause') this.speciesClause = true;
+			if (ruleName === 'Blitz') {
+				this.messageFadeTime = 40;
+				this.isBlitz = true;
+			}
 			this.log(args);
 			break;
 		}
@@ -3124,9 +3188,11 @@ class Battle {
 			} else if (args[1].slice(-14) === ' seconds left.') {
 				let hasIndex = args[1].indexOf(' has ');
 				let userid = (window.app && app!.user && app!.user.get('userid'));
-				if (toId(args[1].slice(0, hasIndex)) === userid) {
+				if (toID(args[1].slice(0, hasIndex)) === userid) {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
+			} else if (args[1].slice(-27) === ' 15 seconds left this turn.') {
+				if (this.isBlitz) return;
 			}
 			this.log(args, undefined, preempt);
 			break;
@@ -3139,9 +3205,9 @@ class Battle {
 		case 'join': case 'j': {
 			if (this.roomid) {
 				let room = app!.rooms[this.roomid];
-				let user = args[1];
-				let userid = toUserid(user);
-				if (/^[a-z0-9]/i.test(user)) user = ' ' + user;
+				let user = BattleTextParser.parseNameParts(args[1]);
+				let userid = toUserid(user.name);
+				if (/^[a-z0-9]/i.test(user.name)) user.name = ' ' + user.name;
 				if (!room.users[userid]) room.userCount.users++;
 				room.users[userid] = user;
 				room.userList.add(userid);
@@ -3172,11 +3238,17 @@ class Battle {
 		case 'name': case 'n': {
 			if (this.roomid) {
 				let room = app!.rooms[this.roomid];
-				let newuser = args[1];
-				let olduser = args[2];
-				let userid = toUserid(newuser);
-				room.users[userid] = newuser;
-				room.userList.remove(olduser);
+				let user = BattleTextParser.parseNameParts(args[1]);
+				let oldid = args[2];
+				if (toUserid(oldid) === app!.user.get('userid')) {
+					app!.user.set({
+						away: user.away,
+						status: user.status,
+					});
+				}
+				let userid = toUserid(user.name);
+				room.users[userid] = user;
+				room.userList.remove(oldid);
 				room.userList.add(userid);
 			}
 			if (!this.ignoreSpects) {
@@ -3188,6 +3260,7 @@ class Battle {
 			let side = this.getSide(args[1]);
 			side.setName(args[2]);
 			if (args[3]) side.setAvatar(args[3]);
+			if (args[4]) side.rating = args[4];
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
@@ -3291,7 +3364,7 @@ class Battle {
 		}
 		case 'gen': {
 			this.gen = parseInt(args[1], 10);
-			this.dex = Dex.mod(`gen${this.gen}` as ID);
+			this.dex = Dex.forGen(this.gen);
 			this.scene.updateGen();
 			this.log(args);
 			break;
@@ -3366,11 +3439,12 @@ class Battle {
 			}
 		}
 
-		if (this.fastForward > 0 && this.fastForward < 1) {
-			if (nextLine.substr(0, 6) === '|start') {
-				this.fastForwardOff();
-				if (this.endCallback) this.endCallback(this);
+		if (nextLine.startsWith('|start') || args[0] === 'teampreview') {
+			this.started = true;
+			if (this.playbackState === Playback.Uninitialized) {
+				this.playbackState = Playback.Ready;
 			}
+			this.scene.updateBgm();
 		}
 	}
 	checkActive(poke: Pokemon) {
@@ -3397,11 +3471,7 @@ class Battle {
 	}
 	fastForwardTo(time: string | number) {
 		if (this.fastForward) return;
-		if (time === 0 || time === '0') {
-			time = 0.5;
-		} else {
-			time = Math.floor(Number(time));
-		}
+		time = Math.floor(Number(time));
 		if (isNaN(time)) return;
 		if (this.ended && time >= this.turn + 1) return;
 
@@ -3412,6 +3482,7 @@ class Battle {
 			else this.paused = false;
 			this.fastForwardWillScroll = true;
 		}
+		if (!time) return;
 		this.scene.animationOff();
 		this.playbackState = Playback.Seeking;
 		this.fastForward = time;
@@ -3423,21 +3494,27 @@ class Battle {
 		this.playbackState = this.paused ? Playback.Paused : Playback.Playing;
 	}
 	nextActivity() {
+		if (this.playbackState === Playback.Ready || this.playbackState === Playback.Paused) {
+			return;
+		}
+
 		this.scene.startAnimations();
-		let animations;
+		let animations = undefined;
 		while (!animations) {
 			this.waitForAnimations = true;
 			if (this.activityStep >= this.activityQueue.length) {
 				this.fastForwardOff();
-				if (this.ended) {
-					this.paused = true;
-					this.scene.soundStop();
-				}
 				this.playbackState = Playback.Finished;
+				if (this.ended) {
+					this.scene.updateBgm();
+				}
 				if (this.endCallback) this.endCallback(this);
 				return;
 			}
-			if (this.paused && !this.fastForward) return;
+			// @ts-ignore property modified in method
+			if (this.playbackState === Playback.Ready || this.playbackState === Playback.Paused) {
+				return;
+			}
 			this.run(this.activityQueue[this.activityStep]);
 			this.activityStep++;
 			if (this.waitForAnimations === true) {
@@ -3447,7 +3524,10 @@ class Battle {
 			}
 		}
 
-		if (this.playbackState === Playback.Paused) return;
+		// @ts-ignore property modified in method
+		if (this.playbackState === Playback.Ready || this.playbackState === Playback.Paused) {
+			return;
+		}
 
 		const interruptionCount = this.scene.interruptionCount;
 		animations.done(() => {
@@ -3457,28 +3537,9 @@ class Battle {
 		});
 	}
 
-	newBattle() {
-		this.reset();
-		this.activityQueue = [];
-	}
 	setQueue(queue: string[]) {
-		this.reset();
 		this.activityQueue = queue;
-
-		/* for (let i = 0; i < queue.length && i < 20; i++) {
-			if (queue[i].substr(0, 8) === 'pokemon ') {
-				let sp = this.parseSpriteData(queue[i].substr(8));
-				BattleSound.loadEffect(sp.cryurl);
-				this.preloadImage(sp.url);
-				if (sp.url === '/sprites/bwani/meloetta.gif') {
-					this.preloadImage('/sprites/bwani/meloetta-pirouette.gif');
-				}
-				if (sp.url === '/sprites/bwani-back/meloetta.gif') {
-					this.preloadImage('/sprites/bwani-back/meloetta-pirouette.gif');
-				}
-			}
-		} */
-		this.playbackState = Playback.Ready;
+		this.reset();
 	}
 
 	setMute(mute: boolean) {
