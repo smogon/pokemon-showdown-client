@@ -400,8 +400,10 @@ class PSMain extends preact.Component {
 			if (availableHeight > offset.top + height + 5 &&
 				(offset.top < availableHeight * 2 / 3 || offset.top + 200 < availableHeight)) {
 				style.top = offset.top;
-			} else {
+			} else if (offset.top + sourceHeight >= height) {
 				style.bottom = Math.max(availableHeight - offset.top - sourceHeight, 0);
+			} else {
+				style.top = Math.max(0, availableHeight - height);
 			}
 			let offsetLeft = offset.left + sourceWidth;
 			if (offsetLeft + width > document.documentElement.clientWidth) {
