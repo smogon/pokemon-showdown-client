@@ -3482,7 +3482,11 @@ class Battle {
 			else this.paused = false;
 			this.fastForwardWillScroll = true;
 		}
-		if (!time) return;
+		if (!time) {
+			this.fastForwardOff();
+			this.nextActivity();
+			return;
+		}
 		this.scene.animationOff();
 		this.playbackState = Playback.Seeking;
 		this.fastForward = time;

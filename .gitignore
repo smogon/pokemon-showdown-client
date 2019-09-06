@@ -38,6 +38,7 @@ package-lock.json
 /js/panel-teambuilder.js
 /js/panel-teambuilder-team.js
 /js/panel-teamdropdown.js
+/js/panel-battle.js
 
 /replays/caches/
 /replays/replay-config.inc.php

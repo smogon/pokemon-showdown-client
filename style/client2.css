@@ -1567,7 +1567,6 @@ a.ilink.yours {
 	text-align: left;
 }
 .userlist li {
-	border-bottom: 1px solid #CCCCCC;
 	height: 19px;
 	font: 10pt Verdana, sans-serif;
 	white-space: nowrap;
@@ -1669,7 +1668,6 @@ a.ilink.yours {
 	top: 370px;
 	left: 0;
 	width: 640px;
-	background: #EEF2F5;
 }
 .battle-chat-toggle {
 	display: none;
@@ -3180,8 +3178,7 @@ a.ilink.yours {
 	color: #DDD;
 }
 .dark .ps-room.ps-room-opaque,
-.dark .battle-log-add,
-.dark .battle-controls {
+.dark .battle-log-add {
 	background: #444444;
 	color: #DDD;
 }
@@ -3300,9 +3297,6 @@ a.ilink.yours {
 .dark .userlist strong,
 .dark .userlist span {
 	text-shadow: 1px 1px 0 #222222;
-}
-.dark .userlist li {
-	border-bottom-color: #444;
 }
 .dark .userlist li button:hover {
 	background: #222222;

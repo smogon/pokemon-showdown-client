@@ -6,7 +6,7 @@
  */
 
 class ChatRoom extends PSRoom {
-	readonly classType: string = 'chat';
+	readonly classType: 'chat' | 'battle' = 'chat';
 	users: {[userid: string]: string} = {};
 	userCount = 0;
 
@@ -152,6 +152,7 @@ class ChatRoom extends PSRoom {
 
 class ChatTextEntry extends preact.Component<{
 	room: PSRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
+	left?: number,
 }> {
 	subscription: PSSubscription | null = null;
 	textbox: HTMLTextAreaElement = null!;
@@ -295,7 +296,9 @@ class ChatTextEntry extends preact.Component<{
 		return true;
 	}
 	render() {
-		return <div class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection}>
+		return <div
+			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{left: this.props.left || 0}}
+		>
 			<form class="chatbox">
 				<label style={{color: BattleLog.usernameColor(PS.user.userid)}}>{PS.user.name}:</label>
 				<textarea
@@ -376,18 +379,18 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : null;
 
-		return <PSPanelWrapper room={this.props.room}>
+		return <PSPanelWrapper room={room}>
 			<div class="tournament-wrapper hasuserlist"></div>
-			<ChatLog class="chat-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection}>
+			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={146}>
 				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
 			</ChatLog>
-			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} />
+			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={146} />
 			<ChatUserList room={this.props.room} />
 		</PSPanelWrapper>;
 	}
 }
 
-class ChatUserList extends preact.Component<{room: ChatRoom}> {
+class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, minimized?: boolean}> {
 	subscription: PSSubscription | null = null;
 	componentDidMount() {
 		this.subscription = this.props.room.subscribe(msg => {
@@ -404,7 +407,7 @@ class ChatUserList extends preact.Component<{room: ChatRoom}> {
 		function colorStyle(userid: ID) {
 			return {color: BattleLog.usernameColor(userid)};
 		}
-		return <ul class="userlist">
+		return <ul class={'userlist' + (this.props.minimized ? ' userlist-minimized' : '')} style={{left: this.props.left || 0}}>
 			<li class="userlist-count" style="text-align:center;padding:2px 0"><small>{room.userCount} users</small></li>
 			{userList.map(([userid, name]) => {
 				const groupSymbol = name.charAt(0);
@@ -442,11 +445,14 @@ class ChatUserList extends preact.Component<{room: ChatRoom}> {
 
 class ChatLog extends preact.Component<{
 	class: string, room: ChatRoom, onClick?: (e: Event) => void, children?: preact.ComponentChildren,
+	left?: number, top?: number, noSubscription?: boolean;
 }> {
-	log: BattleLog = null!;
+	log: BattleLog | null = null;
 	subscription: PSSubscription | null = null;
 	componentDidMount() {
-		this.log = new BattleLog(this.base! as HTMLDivElement);
+		if (!this.props.noSubscription) {
+			this.log = new BattleLog(this.base! as HTMLDivElement);
+		}
 		this.subscription = this.props.room.subscribe(msg => {
 			if (!msg) return;
 			const tokens = PS.lineParse(msg);
@@ -470,7 +476,7 @@ class ChatLog extends preact.Component<{
 				this.props.room.renameUser(tokens[1], tokens[2]);
 				break;
 			}
-			this.log.add(tokens);
+			if (!this.props.noSubscription) this.log!.add(tokens);
 		});
 		this.setControlsJSX(this.props.children);
 	}
@@ -481,25 +487,37 @@ class ChatLog extends preact.Component<{
 		if (props.class !== this.props.class) {
 			this.base!.className = props.class;
 		}
+		if (props.left !== this.props.left) this.base!.style.left = `${props.left || 0}px`;
+		if (props.top !== this.props.top) this.base!.style.top = `${props.top || 0}px`;
 		this.setControlsJSX(props.children);
-		this.log.updateScroll();
+		this.updateScroll();
 		return false;
 	}
 	setControlsJSX(jsx: preact.ComponentChildren | undefined) {
 		const children = this.base!.children;
-		let controlsElem: HTMLDivElement | undefined = children[children.length - 1] as HTMLDivElement;
-		if (controlsElem.className !== 'controls') controlsElem = undefined;
+		let controlsElem = children[children.length - 1] as HTMLDivElement | undefined;
+		if (controlsElem && controlsElem.className !== 'controls') controlsElem = undefined;
 		if (!jsx) {
 			if (!controlsElem) return;
 			preact.render(null, this.base!, controlsElem);
-			this.log.updateScroll();
+			this.updateScroll();
 			return;
 		}
 		preact.render(<div class="controls">{jsx}</div>, this.base!, controlsElem);
-		this.log.updateScroll();
+		this.updateScroll();
+	}
+	updateScroll() {
+		if (this.log) {
+			this.log.updateScroll();
+		} else if (this.props.room.battle) {
+			this.log = (this.props.room.battle as Battle).scene.log;
+			this.log.updateScroll();
+		}
 	}
 	render() {
-		return <div class={this.props.class} role="log" onClick={this.props.onClick}></div>;
+		return <div class={this.props.class} role="log" onClick={this.props.onClick} style={{
+			left: this.props.left || 0, top: this.props.top || 0,
+		}}></div>;
 	}
 }
 
