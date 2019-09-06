@@ -154,6 +154,7 @@ class BattleLog {
 
 		case 'seed': case 'choice': case ':': case 'timer':
 		case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
+		case 'initdone':
 			return;
 
 		default:
@@ -190,12 +191,17 @@ class BattleLog {
 		case 'turn':
 			const h2elem = document.createElement('h2');
 			h2elem.className = 'battle-history';
-			let turnMessage = this.battleParser!.parseArgs(args, {}).trim();
-			if (!turnMessage.startsWith('==') || !turnMessage.endsWith('==')) {
-				throw new Error("Turn message must be a heading.");
+			let turnMessage;
+			if (this.battleParser) {
+				turnMessage = this.battleParser.parseArgs(args, {}).trim();
+				if (!turnMessage.startsWith('==') || !turnMessage.endsWith('==')) {
+					throw new Error("Turn message must be a heading.");
+				}
+				turnMessage = turnMessage.slice(2, -2).trim();
+				this.battleParser.curLineSection = 'break';
+			} else {
+				turnMessage = `Turn ${args[1]}`;
 			}
-			turnMessage = turnMessage.slice(2, -2).trim();
-			this.battleParser!.curLineSection = 'break';
 			h2elem.innerHTML = BattleLog.escapeHTML(turnMessage);
 			this.addSpacer();
 			this.addNode(h2elem);

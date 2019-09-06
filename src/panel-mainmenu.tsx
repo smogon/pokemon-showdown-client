@@ -77,7 +77,7 @@ class MainMenuRoom extends PSRoom {
 				continue;
 			}
 			room.challengedFormat = json.challengesFrom[targetUserid] || null;
-			room.challengingFormat = json.challengeTo.to === targetUserid ? json.challengeTo.format : null;
+			room.challengingFormat = (json.challengeTo || {}).to === targetUserid ? json.challengeTo.format : null;
 			room.update('');
 		}
 	}

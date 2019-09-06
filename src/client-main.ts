@@ -648,8 +648,10 @@ const PS = new class extends PSModel {
 		const roomid2 = roomid || 'lobby' as RoomID;
 		let room = PS.rooms[roomid];
 		console.log('\u2705 ' + (roomid ? '[' + roomid + '] ' : '') + '%c' + msg, "color: #007700");
+		let isInit = false;
 		for (const line of msg.split('\n')) {
 			if (line.startsWith('|init|')) {
+				isInit = true;
 				room = PS.rooms[roomid2];
 				const type = line.slice(6);
 				if (!room) {
@@ -689,7 +691,7 @@ const PS = new class extends PSModel {
 			}
 			if (room) room.receive(line);
 		}
-		if (room) room.update(null);
+		if (room) room.update(isInit ? `|initdone` : null);
 	}
 	send(fullMsg: string) {
 		const pipeIndex = fullMsg.indexOf('|');
