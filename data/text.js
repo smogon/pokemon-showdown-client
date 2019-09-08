@@ -224,6 +224,9 @@ exports.BattleText = {
 	flinch: {
 		cant: "[POKEMON] flinched and couldn't move!",
 	},
+	heal: {
+		fail: "[POKEMON]'s HP is full!",
+	},
 	healreplacement: {
 		activate: "  [POKEMON] will restore its replacement's HP using its Z-Power!",
 	},
