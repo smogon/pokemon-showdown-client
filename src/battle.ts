@@ -430,8 +430,8 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 			delete this.volatiles['disable'];
 			delete this.volatiles['encore'];
 			delete this.volatiles['foresight'];
-			delete this.volatiles['laserfocus'];
 			delete this.volatiles['imprison'];
+			delete this.volatiles['laserfocus'];
 			delete this.volatiles['mimic'];
 			delete this.volatiles['miracleeye'];
 			delete this.volatiles['nightmare'];
