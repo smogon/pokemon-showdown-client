@@ -2462,12 +2462,12 @@ function toId() {
 
 	var UserPopup = this.UserPopup = Popup.extend({
 		initialize: function (data) {
-			data.userid = toID(data.name);
-			var name = data.name;
+			data.userid = toID(data.username);
+			var username = data.username;
 			this.data = data = _.extend(data, UserPopup.dataCache[data.userid]);
-			data.name = name;
+			data.username = username;
 			app.on('response:userdetails', this.update, this);
-			app.send('/cmd userdetails ' + data.name);
+			app.send('/cmd userdetails ' + data.userid);
 			this.update();
 		},
 		events: {
@@ -2484,7 +2484,7 @@ function toId() {
 				data = this.data;
 			}
 			var userid = data.userid;
-			var name = data.name;
+			var username = data.username;
 			var avatar = data.avatar || '';
 			var group = ((Config.groups[data.roomGroup] || {}).name || '');
 			var globalgroup = ((Config.groups[(data.group || Config.defaultGroup || ' ')] || {}).name || '');
@@ -2500,7 +2500,7 @@ function toId() {
 
 			var buf = '<div class="userdetails">';
 			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Dex.resolveAvatar(avatar) + '" />';
-			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
+			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + BattleLog.escapeHTML(username) + '</a></strong><br />';
 			var offline = data.rooms === false;
 			if (data.status || offline) {
 				var status = offline ? '(Offline)' : data.status.startsWith('!') ? data.status.slice(1) : data.status;

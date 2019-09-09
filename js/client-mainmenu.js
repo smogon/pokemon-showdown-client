@@ -458,7 +458,7 @@
 		clickUsername: function (e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
-			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, {username: name, sourceEl: e.currentTarget});
 		},
 		clickPMBackground: function (e) {
 			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
@@ -931,7 +931,7 @@
 					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
 					return;
 				}
-				app.addPopup(UserPopup, {name: target});
+				app.addPopup(UserPopup, {username: target});
 			});
 		}
 	}, {
