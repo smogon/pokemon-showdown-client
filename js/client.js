@@ -2467,7 +2467,7 @@ function toId() {
 			this.data = data = _.extend(data, UserPopup.dataCache[data.userid]);
 			data.name = name;
 			app.on('response:userdetails', this.update, this);
-			app.send('/cmd userdetails ' + data.userid);
+			app.send('/cmd userdetails ' + data.name);
 			this.update();
 		},
 		events: {
