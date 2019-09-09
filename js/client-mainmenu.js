@@ -180,6 +180,9 @@
 				var group = name.charAt(0);
 				if (group === ' ') {
 					group = '';
+				} else if (/[a-zA-Z0-9]/.test(group)) {
+					group = '';
+					name = ' ' + name;
 				} else {
 					group = '<small>' + BattleLog.escapeHTML(group) + '</small>';
 				}
