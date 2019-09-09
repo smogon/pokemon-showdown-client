@@ -2464,7 +2464,6 @@ function toId() {
 		initialize: function (data) {
 			data.userid = toID(data.name);
 			var name = data.name;
-			if (/[a-zA-Z0-9]/.test(name.charAt(0))) name = ' ' + name;
 			this.data = data = _.extend(data, UserPopup.dataCache[data.userid]);
 			data.name = name;
 			app.on('response:userdetails', this.update, this);
@@ -2497,7 +2496,6 @@ function toId() {
 					globalgroup = "Global " + globalgroup;
 				}
 			}
-			if (group || name.charAt(0) === ' ') name = name.substr(1);
 			var ownUserid = app.user.get('userid');
 
 			var buf = '<div class="userdetails">';
