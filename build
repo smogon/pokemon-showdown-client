@@ -37,7 +37,6 @@ case 'full':
 	execSync(`node ./build-tools/build-indexes`, options);
 	execSync(`node ./build-tools/build-learnsets`, options);
 	execSync(`node ./build-tools/build-minidex`, options);
-	execSync(`node ./build-tools/build-sets`, options);
 	execSync(`node ./replays/build`, options);
 	full = ' full';
 	break;
