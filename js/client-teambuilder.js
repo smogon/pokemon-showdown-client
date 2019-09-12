@@ -1109,7 +1109,7 @@
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart" style="background-image:url(' + Dex.resourcePrefix + 'sprites/bw/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" autocomplete="off" /></div></div></div>';
+				buf += '<div class="setchart" style="background-image:url(' + Dex.resourcePrefix + 'sprites/gen5/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" autocomplete="off" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
@@ -3058,15 +3058,13 @@
 			var spriteSize = 96;
 			var spriteDim = 'width: 96px; height: 96px;';
 
-			var gen = {1:'rby', 2:'gsc', 3:'rse', 4:'dpp', 5:'bw', 6:'xy', 7:'xy'}[Math.max(this.room.curTeam.gen, template.gen)];
-			if (Dex.prefs('nopastgens')) gen = 'xy';
-			if (Dex.prefs('bwgfx') && gen === 'xy') gen = 'bw';
-			if (gen === 'xy') {
-				spriteDir += 'xydex';
+			var gen = {1:'gen1', 2:'gen2', 3:'gen3', 4:'gen4', 5:'gen5', 6:'dex', 7:'dex'}[Math.max(this.room.curTeam.gen, template.gen)];
+			if (Dex.prefs('nopastgens')) gen = 'dex';
+			if (Dex.prefs('bwgfx') && gen === 'dex') gen = 'gen5';
+			spriteDir += gen;
+			if (gen === 'dex') {
 				spriteSize = 120;
 				spriteDim = 'width: 120px; height: 120px;';
-			} else {
-				spriteDir += gen;
 			}
 
 			var buf = '';

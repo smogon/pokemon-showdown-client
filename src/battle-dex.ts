@@ -544,16 +544,16 @@ const Dex = new class implements ModdedDex {
 		if (Dex.prefs('nopastgens')) fieldGenNum = 6;
 		if (Dex.prefs('bwgfx') && fieldGenNum >= 6) fieldGenNum = 5;
 		let genNum = Math.max(fieldGenNum, Math.min(template.gen, 5));
-		let gen = ['', 'rby', 'gsc', 'rse', 'dpp', 'bw', 'xy', 'xy'][genNum];
+		let gen = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', ''][genNum];
 
 		let animationData = null;
 		let miscData = null;
 		let speciesid = template.speciesid;
 		if (template.isTotem) speciesid = toID(name);
-		if (gen === 'xy' && window.BattlePokemonSprites) {
+		if (gen === '' && window.BattlePokemonSprites) {
 			animationData = BattlePokemonSprites[speciesid];
 		}
-		if (gen === 'bw' && window.BattlePokemonSpritesBW) {
+		if (gen === 'gen5' && window.BattlePokemonSpritesBW) {
 			animationData = BattlePokemonSpritesBW[speciesid];
 		}
 		if (window.BattlePokemonSprites) miscData = BattlePokemonSprites[speciesid];
@@ -612,7 +612,7 @@ const Dex = new class implements ModdedDex {
 		} else {
 			// There is no entry or enough data in pokedex-mini.js
 			// Handle these in case-by-case basis; either using BW sprites or matching the played gen.
-			if (gen === 'xy') gen = 'bw';
+			if (gen === '') gen = 'gen5';
 			dir = gen + dir;
 
 			// Gender differences don't exist prior to Gen 4,
@@ -679,13 +679,13 @@ const Dex = new class implements ModdedDex {
 
 	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
 		if (pokemon === 'pokeball') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
 		} else if (pokemon === 'pokeball-statused') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
 		} else if (pokemon === 'pokeball-fainted') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
 		} else if (pokemon === 'pokeball-none') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
+			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
 		}
 
 		let id = toID(pokemon);
@@ -698,7 +698,7 @@ const Dex = new class implements ModdedDex {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		let fainted = (pokemon && pokemon.fainted ? ';opacity:.3;filter:grayscale(100%) brightness(.5)' : '');
-		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/smicons-sheet.png?a6) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-sheet.png?a6) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
 	}
 
 	getTeambuilderSprite(pokemon: any, gen: number = 0) {
@@ -710,7 +710,7 @@ const Dex = new class implements ModdedDex {
 			spriteid = template.spriteid || toID(pokemon.species);
 		}
 		if (Dex.getTemplate(pokemon.species).exists === false) {
-			return 'background-image:url(' + Dex.resourcePrefix + 'sprites/bw/0.png);background-position:10px 5px;background-repeat:no-repeat';
+			return 'background-image:url(' + Dex.resourcePrefix + 'sprites/gen5/0.png);background-position:10px 5px;background-repeat:no-repeat';
 		}
 		let shiny = (pokemon.shiny ? '-shiny' : '');
 		// let sdata;
@@ -722,10 +722,10 @@ const Dex = new class implements ModdedDex {
 		// 		sdata = BattlePokemonSprites[id].front.ani;
 		// 	}
 		// } else {
-		// 	return 'background-image:url(' + Dex.resourcePrefix + 'sprites/bw' + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
+		// 	return 'background-image:url(' + Dex.resourcePrefix + 'sprites/gen5' + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
 		// }
 		if (Dex.prefs('nopastgens')) gen = 6;
-		let spriteDir = Dex.resourcePrefix + 'sprites/xydex';
+		let spriteDir = Dex.resourcePrefix + 'sprites/dex';
 		let xydexExists = !template.isNonstandard || [
 			"pikachustarter", "eeveestarter", "meltan", "melmetal", "fidgit", "stratagem", "tomohawk", "mollux", "crucibelle", "crucibellemega", "kerfluffle", "pajantom", "jumbao", "caribolt", "smokomodo", "snaelstrom", "equilibra", "scratchet", "pluffle", "smogecko", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
 		].includes(template.id);
@@ -737,11 +737,11 @@ const Dex = new class implements ModdedDex {
 			if (id === 'garchompmega') offset = '-2px 0px';
 			return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:' + offset + ';background-repeat:no-repeat';
 		}
-		spriteDir = Dex.resourcePrefix + 'sprites/bw';
-		if (gen <= 1 && template.gen <= 1) spriteDir = Dex.resourcePrefix + 'sprites/rby';
-		else if (gen <= 2 && template.gen <= 2) spriteDir = Dex.resourcePrefix + 'sprites/gsc';
-		else if (gen <= 3 && template.gen <= 3) spriteDir = Dex.resourcePrefix + 'sprites/rse';
-		else if (gen <= 4 && template.gen <= 4) spriteDir = Dex.resourcePrefix + 'sprites/dpp';
+		spriteDir = Dex.resourcePrefix + 'sprites/gen5';
+		if (gen <= 1 && template.gen <= 1) spriteDir = Dex.resourcePrefix + 'sprites/gen1';
+		else if (gen <= 2 && template.gen <= 2) spriteDir = Dex.resourcePrefix + 'sprites/gen2';
+		else if (gen <= 3 && template.gen <= 3) spriteDir = Dex.resourcePrefix + 'sprites/gen3';
+		else if (gen <= 4 && template.gen <= 4) spriteDir = Dex.resourcePrefix + 'sprites/gen4';
 		return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
 	}
 

@@ -85,15 +85,15 @@ imagedestroy($srcim);
 
 if ($Ahp)
 {
-$srcim = @imagecreatefrompng('../sprites/bw/'.$A.'.png') or $srcim = imagecreatefrompng('../sprites/bw/0.png');
+$srcim = @imagecreatefrompng('../sprites/gen5/'.$A.'.png') or $srcim = imagecreatefrompng('../sprites/gen5/0.png');
 //imagecopymerge($im, $srcim, 124, 4, 0,0, 96,96, $Ahp?100:30);
 imagecopyresampled($im, $srcim, 124,4, 96,0, 96,96, -96,96);
 imagedestroy($srcim);
 }
 else
 {
-	$srcim = @imagecreatefrompng('../sprites/bw/'.$A.'.png') or $srcim = imagecreatefrompng('../sprites/bw/0.png');
-	
+	$srcim = @imagecreatefrompng('../sprites/gen5/'.$A.'.png') or $srcim = imagecreatefrompng('../sprites/gen5/0.png');
+
 	$srcim2 = imagecreatetruecolor(96,96);
 	$s2t = imagecolorallocate($srcim2, 246, 234, 252);
     imagealphablending($srcim2, false);
@@ -104,7 +104,7 @@ else
     imagealphablending($srcim2, true);
     imagealphablending($srcim, true);
 	imagecopyresampled($srcim2, $srcim, 0,0, 96,0, 96,96, -96,96);
-    
+
 	imagecopymerge($im, $srcim2, 124, 4, 0,0, 96,96, 30);
 	imagedestroy($srcim);
 	imagedestroy($srcim2);
@@ -130,8 +130,8 @@ else
 
 if ($oA)
 {
-	$srcim = @imagecreatefrompng('../sprites/bw/'.$oA.'.png') or $srcim = imagecreatefrompng('../sprites/bw/0.png');
-	
+	$srcim = @imagecreatefrompng('../sprites/gen5/'.$oA.'.png') or $srcim = imagecreatefrompng('../sprites/gen5/0.png');
+
 	$srcim2 = imagecreatetruecolor(96,96);
 	$s2t = imagecolorallocate($srcim2, 246, 234, 252);
     imagealphablending($srcim2, false);
@@ -142,7 +142,7 @@ if ($oA)
     imagealphablending($srcim2, true);
     imagealphablending($srcim, true);
 	imagecopyresampled($srcim2, $srcim, 0,0, 96,0, 96,96, -96,96);
-    
+
 	imagecopymerge($im, $srcim2, 24, 4, 0,0, 96,96, 30);
 	imagedestroy($srcim);
 	imagedestroy($srcim2);
@@ -171,7 +171,7 @@ if ($oA)
 
 // Pokemon B
 
-$srcim = @imagecreatefrompng('../sprites/bw/'.$B.'.png') or $srcim = imagecreatefrompng('../sprites/bw/0.png');
+$srcim = @imagecreatefrompng('../sprites/gen5/'.$B.'.png') or $srcim = imagecreatefrompng('../sprites/gen5/0.png');
 imagecopymerge($im, $srcim, 284, 4, 0,0, 96,96, $Bhp?100:30);
 imagedestroy($srcim);
 
@@ -194,7 +194,7 @@ else
 
 if ($oB)
 {
-	$srcim = @imagecreatefrompng('../sprites/bw/'.$oB.'.png') or $srcim = imagecreatefrompng('../sprites/bw/0.png');
+	$srcim = @imagecreatefrompng('../sprites/gen5/'.$oB.'.png') or $srcim = imagecreatefrompng('../sprites/gen5/0.png');
 	imagecopymerge($im, $srcim, 384, 4, 0,0, 96,96, 30);
 	imagedestroy($srcim);
 
