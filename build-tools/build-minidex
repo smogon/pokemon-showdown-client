@@ -51,13 +51,13 @@ function updateSizes() {
 
 			{
 				let row = {num: template.num};
-				const frontSize = sizeObj('sprites/xyani/' + spriteid + '.gif');
+				const frontSize = sizeObj('sprites/ani/' + spriteid + '.gif');
 				if (frontSize) row.front = frontSize;
-				const frontSizeF = sizeObj('sprites/xyani/' + spriteid + '-f.gif');
+				const frontSizeF = sizeObj('sprites/ani/' + spriteid + '-f.gif');
 				if (frontSizeF) row.frontf = frontSizeF;
-				const backSize = sizeObj('sprites/xyani-back/' + spriteid + '.gif');
+				const backSize = sizeObj('sprites/ani-back/' + spriteid + '.gif');
 				if (backSize) row.back = backSize;
-				const backSizeF = sizeObj('sprites/xyani-back/' + spriteid + '-f.gif');
+				const backSizeF = sizeObj('sprites/ani-back/' + spriteid + '-f.gif');
 				if (backSizeF) row.backf = backSizeF;
 				if (row.front || row.back || !row.forme) {
 					buf += `\t${id}:` + JSON.stringify(row).replace(/"/g, '') + `,\n`;
@@ -66,13 +66,13 @@ function updateSizes() {
 
 			{
 				let g5row = {num: template.num};
-				const frontSize = sizeObj('sprites/bwani/' + spriteid + '.gif');
+				const frontSize = sizeObj('sprites/gen5ani/' + spriteid + '.gif');
 				if (frontSize) g5row.front = frontSize;
-				const frontSizeF = sizeObj('sprites/bwani/' + spriteid + '-f.gif');
+				const frontSizeF = sizeObj('sprites/gen5ani/' + spriteid + '-f.gif');
 				if (frontSizeF) g5row.frontf = frontSizeF;
-				const backSize = sizeObj('sprites/bwani-back/' + spriteid + '.gif');
+				const backSize = sizeObj('sprites/gen5ani-back/' + spriteid + '.gif');
 				if (backSize) g5row.back = backSize;
-				const backSizeF = sizeObj('sprites/bwani-back/' + spriteid + '-f.gif');
+				const backSizeF = sizeObj('sprites/gen5ani-back/' + spriteid + '-f.gif');
 				if (backSizeF) g5row.backf = backSizeF;
 				if (g5row.front || g5row.back || !g5row.forme) {
 					g5buf += `\t${id}:` + JSON.stringify(g5row).replace(/"/g, '') + `,\n`;

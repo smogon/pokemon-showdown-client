@@ -40,7 +40,7 @@ function doSubmit()
 		val = val.substr('replay.pokemonshowdown.com/'.length);
 		ok = true;
 	}
-	
+
 	if (!ok) return false;
 	else
 	{
@@ -261,22 +261,22 @@ function endCallback(battle)
 	bbcode = bbcode.replace(/<\/small>/g, '[/size]');
 	bbcode = bbcode.replace(/<img[^>]* src="([^"]*)"[^>]*\/?>/g, "[img]$1[/img]\n");
 	bbcode = bbcode.replace(/&amp;/g, '&');
-	
+
 	var teamcode = '[hide="'+battle.mySide.name+'\'s team"]';
 	for (var i=0; i<battle.mySide.pokemon.length && i<6; i++)
 	{
-		teamcode += '[img]http://play.pokemonshowdown.com/sprites/bw/'+battle.mySide.pokemon[i].spriteid+'.png[/img]';
+		teamcode += '[img]http://play.pokemonshowdown.com/sprites/gen5/'+battle.mySide.pokemon[i].spriteid+'.png[/img]';
 	}
 	teamcode += '[/hide]'+"\n";
 	teamcode += '[hide="'+battle.yourSide.name+'\'s team"]';
 	for (var i=0; i<battle.yourSide.pokemon.length && i<6; i++)
 	{
-		teamcode += '[img]http://play.pokemonshowdown.com/sprites/bw/'+battle.yourSide.pokemon[i].spriteid+'.png[/img]';
+		teamcode += '[img]http://play.pokemonshowdown.com/sprites/gen5/'+battle.yourSide.pokemon[i].spriteid+'.png[/img]';
 	}
 	teamcode += '[/hide]'+"\n\n";
-	
+
 	bbcode = teamcode + bbcode;
-	
+
 	bbcode = "[indent]>>>[url=\"http://play.pokemonshowdown.com/replay/battle-<?php echo $name ?>\"][size=\"3\"]Click to [b]watch this replay[/b]![/size][/url]<<<[/indent]\n\n"+bbcode;
 	bbcode += "\n\n[indent]>>>[url=\"http://play.pokemonshowdown.com/replay/battle-<?php echo $name ?>\"][size=\"3\"]Click to [b]watch this replay[/b]![/size][/url]<<<[/indent]";
 	$('#warstory').prepend('<textarea rows="20" cols="90"></textarea>');
