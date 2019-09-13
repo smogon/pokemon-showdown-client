@@ -1365,8 +1365,8 @@ class BattleScene {
 			const url = BattleEffects[i].url;
 			if (url) this.preloadImage(url);
 		}
-		this.preloadImage(Dex.resourcePrefix + 'sprites/xyani/substitute.gif');
-		this.preloadImage(Dex.resourcePrefix + 'sprites/xyani-back/substitute.gif');
+		this.preloadImage(Dex.resourcePrefix + 'sprites/ani/substitute.gif');
+		this.preloadImage(Dex.resourcePrefix + 'sprites/ani-back/substitute.gif');
 	}
 	rollBgm() {
 		this.setBgm(1 + this.numericId % 15);

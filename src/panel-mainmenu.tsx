@@ -259,7 +259,7 @@ class MainMenuPanel extends PSRoomPanel {
 			}
 			<p>
 				<div style={{textAlign: 'center'}}>
-					<img width="96" height="96" src="//play.pokemonshowdown.com/sprites/bw/teddiursa.png" alt="" />
+					<img width="96" height="96" src="//play.pokemonshowdown.com/sprites/gen5/teddiursa.png" alt="" />
 				</div>
 				Bear with us as we freak out.
 			</p>
@@ -385,12 +385,12 @@ class TeamDropdown extends preact.Component<{format: string}> {
 				<div class="team">
 					<strong>Random team</strong>
 					<small>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
 					</small>
 				</div>
 			</button>;

@@ -137,7 +137,7 @@ class RoomsPanel extends PSRoomPanel {
 			</button>
 			<div class="roomcounters">
 				<span
-					style="background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a5) no-repeat scroll -0px -2790px;"
+					style="background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a5) no-repeat scroll -0px -2790px;"
 					class="picon icon-left"
 					title="Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms."
 				></span> {}
@@ -148,7 +148,7 @@ class RoomsPanel extends PSRoomPanel {
 					<strong>{rooms.battleCount || '-'}</strong> active battles
 				</button> {}
 				<span
-					style="background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a5) no-repeat scroll -0px -2220px"
+					style="background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a5) no-repeat scroll -0px -2220px"
 					class="picon icon-right"
 					title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
 				></span>
