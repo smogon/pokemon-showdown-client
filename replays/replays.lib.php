@@ -231,7 +231,7 @@ class Replays {
 			return 'not found';
 		}
 
-		$smogtours = preg_match('/^[a-z0-9]+-smogtours-[0-9]+$/', $id);
+		$smogtours = preg_match('/^smogtours-[a-z0-9]+-[0-9]+$/', $id);
 		$password = null;
 		if ($pReplay['private'] && $pReplay['private'] !== 2) {
 			if ($replay && $replay['password']) {
