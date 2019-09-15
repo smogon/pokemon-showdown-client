@@ -601,7 +601,7 @@ const Dex = new class implements ModdedDex {
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
 		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
-		if (allowAnim && genNum >= 6) spriteData.pixelated = false;
+		if (fieldGenNum === 5 || allowAnim && genNum >= 6) spriteData.pixelated = false;
 		if (allowAnim && animationData[facing] && genNum >= 5) {
 			if (facing.slice(-1) === 'f') name += '-f';
 			dir = gen + 'ani' + dir;
@@ -625,9 +625,9 @@ const Dex = new class implements ModdedDex {
 		}
 
 		if (!options.noScale) {
-			if (fieldGenNum > 5) {
+			if (fieldGenNum > 4) {
 				// no scaling
-			} else if (!spriteData.isBackSprite || fieldGenNum === 5) {
+			} else if (!spriteData.isBackSprite) {
 				spriteData.w *= 2;
 				spriteData.h *= 2;
 				spriteData.y += -16;
@@ -637,8 +637,6 @@ const Dex = new class implements ModdedDex {
 				spriteData.h *= 2 / 1.5;
 				spriteData.y += -11;
 			}
-			if (fieldGenNum === 5) spriteData.y = -35;
-			if (fieldGenNum === 5 && spriteData.isBackSprite) spriteData.y += 40;
 			if (genNum <= 2) spriteData.y += 2;
 		}
 		if (template.isTotem && !options.noScale) {
