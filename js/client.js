@@ -2611,7 +2611,7 @@ function toId() {
 			this.$el.html('<p><button name="toggleIgnoreUser">' + (app.ignore[this.userid] ? 'Unignore' : 'Ignore') + '</button></p><p><button name="report">Report</button></p>');
 		},
 		report: function () {
-			app.joinRoom('view-help-request-report');
+			app.joinRoom('view-help-request-report-user-' + this.userid);
 		},
 		toggleIgnoreUser: function () {
 			var buf = "User '" + this.name + "'";
