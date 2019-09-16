@@ -43,7 +43,7 @@
 					animate: false,
 					extraSpace: 0
 				});
-				if (this === app.curSideRoom || this === app.curRoom) {
+				if (document.activeElement.tagName.toLowerCase() !== 'textarea' && (this === app.curSideRoom || this === app.curRoom)) {
 					this.$chatbox.focus();
 				}
 			}
