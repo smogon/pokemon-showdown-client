@@ -636,7 +636,7 @@ const Dex = new class implements ModdedDex {
 		}
 
 		if (!options.noScale) {
-			if (graphicsGen > 4) { // TODO: should this be spriteData.gen?
+			if (graphicsGen > 4) {
 				// no scaling
 			} else if (!spriteData.isBackSprite) {
 				spriteData.w *= 2;
@@ -649,7 +649,6 @@ const Dex = new class implements ModdedDex {
 				spriteData.y += -11;
 			}
 			if (spriteData.gen <= 2) spriteData.y += 2;
-			if (spriteData.gen === 5 && spriteData.isBackSprite) spriteData.y += 40; // TODO: determine correct offset
 		}
 		if (template.isTotem && !options.noScale) {
 			spriteData.w *= 1.5;
