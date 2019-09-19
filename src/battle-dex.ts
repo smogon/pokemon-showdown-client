@@ -199,6 +199,7 @@ interface SpriteData {
 	w: number;
 	h: number;
 	y?: number;
+	gen?: number;
 	url?: string;
 	rawHTML?: string;
 	pixelated?: boolean;
@@ -505,7 +506,7 @@ const Dex = new class implements ModdedDex {
 	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {
 		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, mod?: string,
 	} = {gen: 6}) {
-		if (!options.gen) options.gen = 6;
+		const mechanicsGen = options.gen || 6;
 		if (pokemon instanceof Pokemon) {
 			if (pokemon.volatiles.transform) {
 				options.shiny = pokemon.volatiles.transform[2];
@@ -518,6 +519,7 @@ const Dex = new class implements ModdedDex {
 		}
 		const template = Dex.getTemplate(pokemon);
 		let spriteData = {
+			gen: mechanicsGen,
 			w: 96,
 			h: 96,
 			y: 0,
@@ -539,21 +541,31 @@ const Dex = new class implements ModdedDex {
 			facing = 'back';
 		}
 
-		// Decide what gen sprites to use.
-		let fieldGenNum = options.gen;
-		if (Dex.prefs('nopastgens')) fieldGenNum = 6;
-		if (Dex.prefs('bwgfx') && fieldGenNum >= 6) fieldGenNum = 5;
-		let genNum = Math.max(fieldGenNum, Math.min(template.gen, 5));
-		let gen = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', ''][genNum];
+		// Decide which gen sprites to use.
+		//
+		// There are several different generations we care about here:
+		//
+		//   - mechanicsGen: the generation number of the mechanics and battle (options.gen)
+		//   - graphicsGen: the generation number of sprite/field graphics the user has requested.
+		//     This will default to mechanicsGen, but may be altered depending on user preferences.
+		//   - spriteData.gen: the generation number of a the specific Pokemon sprite in question.
+		//     This defaults to graphicsGen, but if the graphicsGen doesn't have a sprite for the Pokemon
+		//     (eg. Darmanitan in graphicsGen 2) then we go up gens until it exists.
+		//
+		let graphicsGen = mechanicsGen;
+		if (Dex.prefs('nopastgens')) graphicsGen = 6;
+		if (Dex.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
+		spriteData.gen = Math.max(graphicsGen, Math.min(template.gen, 5));
+		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', ''][spriteData.gen];
 
 		let animationData = null;
 		let miscData = null;
 		let speciesid = template.speciesid;
 		if (template.isTotem) speciesid = toID(name);
-		if (gen === '' && window.BattlePokemonSprites) {
+		if (baseDir === '' && window.BattlePokemonSprites) {
 			animationData = BattlePokemonSprites[speciesid];
 		}
-		if (gen === 'gen5' && window.BattlePokemonSpritesBW) {
+		if (baseDir === 'gen5' && window.BattlePokemonSpritesBW) {
 			animationData = BattlePokemonSpritesBW[speciesid];
 		}
 		if (window.BattlePokemonSprites) miscData = BattlePokemonSprites[speciesid];
@@ -584,7 +596,7 @@ const Dex = new class implements ModdedDex {
 			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 		}
 
-		if (options.shiny && options.gen > 1) dir += '-shiny';
+		if (options.shiny && mechanicsGen > 1) dir += '-shiny';
 
 		// April Fool's 2014
 		if (window.Config && Config.server && Config.server.afd || options.afd) {
@@ -601,10 +613,10 @@ const Dex = new class implements ModdedDex {
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
 		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
-		if (allowAnim && genNum >= 6) spriteData.pixelated = false;
-		if (allowAnim && animationData[facing] && genNum >= 5) {
+		if (allowAnim && spriteData.gen >= 6) spriteData.pixelated = false;
+		if (allowAnim && animationData[facing] && spriteData.gen >= 5) {
 			if (facing.slice(-1) === 'f') name += '-f';
-			dir = gen + 'ani' + dir;
+			dir = baseDir + 'ani' + dir;
 
 			spriteData.w = animationData[facing].w;
 			spriteData.h = animationData[facing].h;
@@ -612,12 +624,11 @@ const Dex = new class implements ModdedDex {
 		} else {
 			// There is no entry or enough data in pokedex-mini.js
 			// Handle these in case-by-case basis; either using BW sprites or matching the played gen.
-			if (gen === '') gen = 'gen5';
-			dir = gen + dir;
+			dir = (baseDir || 'gen5') + dir;
 
 			// Gender differences don't exist prior to Gen 4,
 			// so there are no sprites for it
-			if (genNum >= 4 && miscData['frontf'] && options.gender === 'F') {
+			if (spriteData.gen >= 4 && miscData['frontf'] && options.gender === 'F') {
 				name += '-f';
 			}
 
@@ -625,21 +636,19 @@ const Dex = new class implements ModdedDex {
 		}
 
 		if (!options.noScale) {
-			if (fieldGenNum > 5) {
+			if (graphicsGen > 4) {
 				// no scaling
-			} else if (!spriteData.isBackSprite || fieldGenNum === 5) {
+			} else if (!spriteData.isBackSprite) {
 				spriteData.w *= 2;
 				spriteData.h *= 2;
 				spriteData.y += -16;
 			} else {
-				// backsprites are multiplied 1.5x by the 3D engine
+				// old gen backsprites are multiplied by 1.5x by the 3D engine
 				spriteData.w *= 2 / 1.5;
 				spriteData.h *= 2 / 1.5;
 				spriteData.y += -11;
 			}
-			if (fieldGenNum === 5) spriteData.y = -35;
-			if (fieldGenNum === 5 && spriteData.isBackSprite) spriteData.y += 40;
-			if (genNum <= 2) spriteData.y += 2;
+			if (spriteData.gen <= 2) spriteData.y += 2;
 		}
 		if (template.isTotem && !options.noScale) {
 			spriteData.w *= 1.5;

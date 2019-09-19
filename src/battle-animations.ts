@@ -340,7 +340,9 @@ class BattleScene {
 
 		let left = 210;
 		let top = 245;
-		let scale = 1.5 - 0.5 * ((loc.z!) / 200);
+		let scale = (obj.gen === 5
+			? 2.0 - ((loc.z!) / 200)
+			: 1.5 - 0.5 * ((loc.z!) / 200));
 		if (scale < .1) scale = .1;
 
 		left += (410 - 190) * ((loc.z!) / 200);
@@ -1872,7 +1874,7 @@ class PokemonSprite extends Sprite {
 			statbarOffset += this.isBackSprite ? 1 : 20;
 		} else if (this.scene.gen <= 3) {
 			statbarOffset += this.isBackSprite ? 5 : 30;
-		} else {
+		} else if (this.scene.gen !== 5) {
 			statbarOffset += this.isBackSprite ? 20 : 30;
 		}
 
