@@ -3208,7 +3208,6 @@ class Battle {
 				let room = app!.rooms[this.roomid];
 				let user = BattleTextParser.parseNameParts(args[1]);
 				let userid = toUserid(user.name);
-				if (/^[a-z0-9]/i.test(user.name)) user.name = ' ' + user.name;
 				if (!room.users[userid]) room.userCount.users++;
 				room.users[userid] = user;
 				room.userList.add(userid);
