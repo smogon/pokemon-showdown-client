@@ -2754,10 +2754,10 @@ class Battle {
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			this.activateAbility(poke, fromeffect);
 			let maxTimeLeft = 0;
-			if (['electricterrain', 'grassyterrain', 'mistyterrain', 'psychicterrain'].includes(effect.id)) {
+			if (effect.id.endsWith('terrain')) {
 				for (let i = this.pseudoWeather.length - 1; i >= 0; i--) {
-					let pwName = this.pseudoWeather[i][0];
-					if (['Electric Terrain', 'Grassy Terrain', 'Misty Terrain', 'Psychic Terrain'].includes(pwName)) {
+					let pwID = toID(this.pseudoWeather[i][0]);
+					if (pwID.endsWith('terrain')) {
 						this.pseudoWeather.splice(i, 1);
 						continue;
 					}
