@@ -3203,7 +3203,7 @@ class Battle {
 			this.log(args, undefined, preempt);
 			break;
 		}
-		case 'join': case 'j': {
+		case 'join': case 'j': case 'J': {
 			if (this.roomid) {
 				let room = app!.rooms[this.roomid];
 				let user = BattleTextParser.parseNameParts(args[1]);
@@ -3219,7 +3219,7 @@ class Battle {
 			}
 			break;
 		}
-		case 'leave': case 'l': {
+		case 'leave': case 'l': case 'L': {
 			if (this.roomid) {
 				let room = app!.rooms[this.roomid];
 				let user = args[1];
@@ -3235,7 +3235,7 @@ class Battle {
 			}
 			break;
 		}
-		case 'name': case 'n': {
+		case 'name': case 'n': case 'N': {
 			if (this.roomid) {
 				let room = app!.rooms[this.roomid];
 				let user = BattleTextParser.parseNameParts(args[1]);
