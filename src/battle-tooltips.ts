@@ -101,7 +101,7 @@ class ModifiableValue {
 			this.maxValue = 0;
 			return true;
 		}
-		if (name) this.comment.push(` (${factor}&times; from ${name})`);
+		if (name) this.comment.push(` (${this.round(factor)}&times; from ${name})`);
 		this.value *= factor;
 		if (!(name === 'Technician' && this.maxValue > 60)) this.maxValue *= factor;
 		return true;
@@ -118,17 +118,18 @@ class ModifiableValue {
 		this.maxValue = maxValue;
 		return true;
 	}
+	round(value: number) {
+		return value ? Number(value.toFixed(2)) : 0;
+	}
 	toString() {
 		let valueString;
-		const roundedValue = this.value ? Number(this.value.toFixed(2)) : 0;
-		const roundedMaxValue = this.maxValue ? Number(this.maxValue.toFixed(2)) : 0;
 		if (this.isAccuracy) {
-			valueString = this.value ? `${roundedValue}%` : `can't miss`;
+			valueString = this.value ? `${this.round(this.value)}%` : `can't miss`;
 		} else {
-			valueString = this.value ? `${roundedValue}` : ``;
+			valueString = this.value ? `${this.round(this.value)}` : ``;
 		}
 		if (this.maxValue) {
-			valueString += ` to ${roundedMaxValue}` + (this.isAccuracy ? '%' : '');
+			valueString += ` to ${this.round(this.maxValue)}` + (this.isAccuracy ? '%' : '');
 		}
 		return valueString + this.comment.join('');
 	}
