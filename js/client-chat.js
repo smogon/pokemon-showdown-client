@@ -923,8 +923,12 @@
 			case 'avatar':
 				var parts = target.split(',');
 				var avatar = parts[0].toLowerCase().replace(/[^a-z0-9-]+/g, '');
+				// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
+				if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
+					avatar = window.BattleAvatarNumbers[avatar];
+				}
 				Dex.prefs('avatar', avatar);
-				return text; // Send the /avatar command through to the server.
+				return '/avatar ' + avatar; // Send the command through to the server.
 
 			case 'afd':
 				var cleanedTarget = toID(target);
