@@ -670,10 +670,14 @@
 			buf += '<p><button name="close">Cancel</button></p>';
 			this.$el.html(buf).css('max-width', 780);
 		},
-		setAvatar: function (i) {
-			app.send('/avatar ' + i);
+		setAvatar: function (avatar) {
+			// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
+			if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
+				avatar = window.BattleAvatarNumbers[avatar];
+			}
+			app.send('/avatar ' + avatar);
 			app.send('/cmd userdetails ' + app.user.get('userid'));
-			Dex.prefs('avatar', i);
+			Dex.prefs('avatar', avatar);
 			this.close();
 		}
 	});
