@@ -412,6 +412,31 @@ class BattleLog {
 		let S = parseInt(hash.substr(0, 4), 16) % 50 + 40; // 40 to 89
 		let L = Math.floor(parseInt(hash.substr(8, 4), 16) % 20 + 30); // 30 to 49
 
+		let {R, G, B} = this.HSLToRGB(H, S, L);
+		let lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
+
+		let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
+		if (HLmod > 18) HLmod = (HLmod - 18) * 2.5;
+		else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
+		else HLmod = 0;
+		// let mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
+		let Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
+		if (Hdist < 15) {
+			HLmod += (15 - Hdist) / 3;
+		}
+
+		L += HLmod;
+
+		let {R: r, G: g, B: b} = this.HSLToRGB(H, S, L);
+		const toHex = (x: number) => {
+			const hex = Math.round(x * 255).toString(16);
+			return hex.length === 1 ? '0' + hex : hex;
+		};
+		this.colorCache[name] = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+		return this.colorCache[name];
+	}
+
+	static HSLToRGB(H: number, S: number, L: number) {
 		let C = (100 - Math.abs(2 * L - 100)) * S / 100 / 100;
 		let X = C * (1 - Math.abs((H / 60) % 2 - 1));
 		let m = L / 100 - C / 2;
@@ -430,22 +455,7 @@ class BattleLog {
 		let R = R1 + m;
 		let G = G1 + m;
 		let B = B1 + m;
-		let lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
-
-		let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
-		if (HLmod > 18) HLmod = (HLmod - 18) * 2.5;
-		else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
-		else HLmod = 0;
-		// let mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
-		let Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
-		if (Hdist < 15) {
-			HLmod += (15 - Hdist) / 3;
-		}
-
-		L += HLmod;
-
-		this.colorCache[name] = `hsl(${H},${S}%,${L}%)`;
-		return this.colorCache[name];
+		return {R, G, B};
 	}
 
 	static prefs(name: string) {
