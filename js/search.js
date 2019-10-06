@@ -646,7 +646,7 @@
 		if (!template) return '';
 		if (template.prevo) return template.prevo;
 		var baseSpecies = template.baseSpecies;
-		if (baseSpecies !== template.species && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo')) {
+		if (baseSpecies !== template.species && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo' || baseSpecies === 'Necrozma')) {
 			return toID(template.baseSpecies);
 		}
 		return '';
