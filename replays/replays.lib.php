@@ -250,7 +250,7 @@ class Replays {
 				// Someone else tried to upload a replay of the same battle,
 				// while we were uploading this
 				// ...pretend it was a success
-				return 'success' . $fullid;
+				return 'success:' . $fullid;
 			}
 		}
 
