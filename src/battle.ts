@@ -1367,6 +1367,7 @@ class Battle {
 		}
 	}
 	animateMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
+		this.activeMoveIsSpread = kwArgs.spread;
 		if (this.fastForward || kwArgs.still) return;
 
 		if (!target) target = pokemon.side.foe.active[0];
@@ -1389,7 +1390,6 @@ class Battle {
 			return;
 		}
 
-		this.activeMoveIsSpread = kwArgs.spread;
 		let targets = [pokemon];
 		if (kwArgs.spread === '.') {
 			//  no target was hit by the attack
