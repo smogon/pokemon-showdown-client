@@ -70,7 +70,7 @@ exports.BattleText = {
 		damageFromPartialTrapping: "  [POKEMON] is hurt by [MOVE]!",
 		heal: "  [POKEMON] restored its HP.",
 		healFromZEffect: "  [POKEMON] restored its HP using its Z-Power!",
-		healFromEffect: "  [POKEMON] restored HP using its [EFFECT]!",
+		healFromEffect: "  [POKEMON]'s HP was restored.",
 
 		boost: "  [POKEMON]'s [STAT] rose!",
 		boost2: "  [POKEMON]'s [STAT] rose sharply!",
