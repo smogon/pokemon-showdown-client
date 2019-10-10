@@ -70,7 +70,7 @@ exports.BattleTextAFD = {
 		damageFromPartialTrapping: "  [POKEMON] is hurt by [MOVE]!",
 		heal: "  [POKEMON] restored its HP.",
 		healFromZEffect: "  [POKEMON] restored its HP using its Z-Power!",
-		healFromEffect: "  [POKEMON]'s HP was restored.",
+		healFromEffect: "  [POKEMON] restored HP using its [EFFECT]!",
 
 		boost: "  [POKEMON]'s [STAT] increased!",
 		boost2: "  [POKEMON]'s [STAT] increased twice!",
@@ -305,6 +305,7 @@ exports.BattleTextAFD = {
 	grassyterrain: {
 		start: "  Grass grew to cover the battlefield!",
 		end: "  The grass disappeared from the battlefield.",
+		heal: "  [POKEMON]'s HP was restored.",
 	},
 	mistyterrain: {
 		start: "  Mist swirls around the battlefield!",
