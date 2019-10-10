@@ -305,6 +305,7 @@ exports.BattleTextAFD = {
 	grassyterrain: {
 		start: "  Grass grew to cover the battlefield!",
 		end: "  The grass disappeared from the battlefield.",
+		heal: "  [POKEMON]'s HP was restored.",
 	},
 	mistyterrain: {
 		start: "  Mist swirls around the battlefield!",
