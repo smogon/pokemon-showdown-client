@@ -1266,11 +1266,13 @@ function toId() {
 		uploadReplay: function (data) {
 			var id = data.id;
 			var serverid = Config.server.id && toID(Config.server.id.split(':')[0]);
+			var silent = data.silent;
 			if (serverid && serverid !== 'showdown') id = serverid + '-' + id;
 			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
 				id: id
 			}, function (data) {
+				if (silent) return;
 				var sData = data.split(':');
 				if (sData[0] === 'success') {
 					app.addPopup(ReplayUploadedPopup, {id: sData[1] || id});
