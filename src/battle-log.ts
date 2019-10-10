@@ -68,7 +68,7 @@ class BattleLog {
 		let divHTML = '';
 		let noNotify: boolean | undefined;
 		switch (args[0]) {
-		case 'chat': case 'c': case 'c:':
+		case 'chat': case 'c': case 'c:': {
 			let battle = this.scene && this.scene.battle;
 			let name;
 			let message;
@@ -92,14 +92,28 @@ class BattleLog {
 				app.rooms[battle!.roomid].notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
 			}
 			break;
-
+		}
 		case 'join': case 'j': {
+			const battle = this.scene && this.scene.battle;
 			const user = BattleTextParser.parseNameParts(args[1]);
+			const allShowjoins = Dex.prefs('showjoins') || {};
+			const showjoins = allShowjoins[Config.server.id];
+			if (!showjoins || (!showjoins['global'] && !showjoins['battles']
+				&& !showjoins[battle!.roomid]) || showjoins[battle!.roomid] === 0) {
+				return;
+			}
 			divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' joined.</small>';
 			break;
 		}
 		case 'leave': case 'l': {
+			const battle = this.scene && this.scene.battle;
 			const user = BattleTextParser.parseNameParts(args[1]);
+			const allShowjoins = Dex.prefs('showjoins') || {};
+			const showjoins = allShowjoins[Config.server.id];
+			if (!showjoins || (!showjoins['global'] && !showjoins['battles']
+				&& !showjoins[battle!.roomid]) || showjoins[battle!.roomid] === 0) {
+				return;
+			}
 			divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' left.</small>';
 			break;
 		}
