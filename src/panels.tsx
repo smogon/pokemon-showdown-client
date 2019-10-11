@@ -165,7 +165,7 @@ class PSMain extends preact.Component {
 
 		window.addEventListener('click', e => {
 			let elem = e.target as HTMLElement | null;
-			if (elem && elem.className === 'ps-overlay') {
+			if (elem?.className === 'ps-overlay') {
 				PS.closePopup();
 				e.preventDefault();
 				e.stopImmediatePropagation();

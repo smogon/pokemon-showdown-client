@@ -732,7 +732,7 @@ class BattleSearch {
 		let uselessMoves: SearchRow[] = [];
 		let sketchedMoves: SearchRow[] = [];
 		for (const id of moves) {
-			let isViable: boolean = BattleMovedex[id] && BattleMovedex[id].isViable;
+			let isViable: boolean = BattleMovedex[id]?.isViable;
 			if (id === 'aerialace') isViable = ['scyther', 'aerodactylmega', 'kricketune'].includes(toID(set.species));
 			if (id === 'ancientpower') {
 				isViable = (
@@ -813,7 +813,7 @@ class BattleSearch {
 					'acidarmor', 'amnesia', 'barrier', 'bind', 'clamp', 'confuseray', 'counter', 'firespin',
 					'hyperbeam', 'mirrormove', 'pinmissile', 'razorleaf', 'sing', 'slash', 'sludge',
 					'twineedle', 'wrap',
-				].includes) {
+				].includes(id)) {
 					isViable = true;
 				}
 
@@ -904,7 +904,7 @@ class BattleSearch {
 			let poorAbilities: SearchRow[] = [['header', "Situational Abilities"]];
 			let badAbilities: SearchRow[] = [['header', "Unviable Abilities"]];
 			for (const id of abilities) {
-				let rating = BattleAbilities[id] && BattleAbilities[id].rating;
+				let rating = BattleAbilities[id]?.rating;
 				if (id === 'normalize') rating = 3;
 				if (rating >= 3) {
 					goodAbilities.push(['ability', id]);

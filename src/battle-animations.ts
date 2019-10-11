@@ -557,7 +557,7 @@ class BattleScene {
 		if (Dex.prefs('nopastgens')) gen = 6;
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
 		this.gen = gen;
-		this.activeCount = this.battle.mySide && this.battle.mySide.active.length || 1;
+		this.activeCount = this.battle.mySide?.active.length || 1;
 
 		const isSPL = (typeof this.battle.rated === 'string' && this.battle.rated.startsWith("Smogon Premier League"));
 		let bg: string;
@@ -584,7 +584,7 @@ class BattleScene {
 	}
 
 	getDetailsText(pokemon: Pokemon) {
-		let name = pokemon.side && pokemon.side.n &&
+		let name = pokemon.side?.n &&
 			(this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.species : pokemon.name;
 		if (name !== pokemon.species) {
 				name += ' (' + pokemon.species + ')';
@@ -618,9 +618,9 @@ class BattleScene {
 			let poke = side.pokemon[i];
 			if (i >= side.totalPokemon && i >= side.pokemon.length) {
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball-none') + `"></span>`;
-			} else if (noShow && poke && poke.fainted) {
+			} else if (noShow && poke?.fainted) {
 				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon('pokeball-fainted') + `" title="Fainted" aria-label="Fainted"></span>`;
-			} else if (noShow && poke && poke.status) {
+			} else if (noShow && poke?.status) {
 				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon('pokeball-statused') + `" title="Status" aria-label="Status"></span>`;
 			} else if (noShow) {
 				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon('pokeball') + `" title="Non-statused" aria-label="Non-statused"></span>`;
@@ -1322,9 +1322,7 @@ class BattleScene {
 		return pokemon.sprite.afterMove();
 	}
 	updateSpritesForSide(side: Side) {
-		if (side.missedPokemon && side.missedPokemon.sprite) {
-			side.missedPokemon.sprite.destroy();
-		}
+		side.missedPokemon?.sprite?.destroy();
 
 		side.missedPokemon = {
 			sprite: new PokemonSprite(null, {

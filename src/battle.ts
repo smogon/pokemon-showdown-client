@@ -392,7 +392,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		return '' + badBoostTable[-this.boosts[boostStat]] + '&nbsp;' + boostStatTable[boostStat];
 	}
 	getWeightKg(serverPokemon?: ServerPokemon) {
-		let autotomizeFactor = this.volatiles.autotomize ? this.volatiles.autotomize[1] * 100 : 0;
+		let autotomizeFactor = this.volatiles.autotomize?.[1] * 100 || 0;
 		return Math.max(this.getTemplate(serverPokemon).weightkg - autotomizeFactor, 0.1);
 	}
 	getBoostType(boostStat: BoostStatName) {
@@ -486,7 +486,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 
 		let item = toID(serverPokemon ? serverPokemon.item : this.item);
-		let ability = toID(this.ability || (serverPokemon && serverPokemon.ability));
+		let ability = toID(this.ability || serverPokemon?.ability);
 		if (battle.hasPseudoWeather('Magic Room') || this.volatiles['embargo'] || ability === 'klutz') {
 			item = '' as ID;
 		}
@@ -779,8 +779,8 @@ class Side {
 		pokemon.clearVolatile();
 		pokemon.lastMove = '';
 		this.battle.lastMove = 'switch-in';
-		if (this.lastPokemon && (this.lastPokemon.lastMove === 'batonpass' || this.lastPokemon.lastMove === 'zbatonpass')) {
-			pokemon.copyVolatileFrom(this.lastPokemon);
+		if (['batonpass', 'zbatonpass'].includes(this.lastPokemon?.lastMove!)) {
+			pokemon.copyVolatileFrom(this.lastPokemon!);
 		}
 
 		this.battle.scene.animSummon(pokemon, slot);
@@ -1271,7 +1271,7 @@ class Battle {
 	updateToxicTurns() {
 		for (const side of this.sides) {
 			for (const poke of side.active) {
-				if (poke && poke.status === 'tox') poke.statusData.toxicTurns++;
+				if (poke?.status === 'tox') poke.statusData.toxicTurns++;
 			}
 		}
 	}
@@ -1783,7 +1783,7 @@ class Battle {
 			let poke = this.getPokemon(args[1]);
 			if (poke) {
 				this.scene.resultAnim(poke, 'Super-effective', 'bad');
-				if (window.Config && Config.server && Config.server.afd) {
+				if (window.Config?.server?.afd) {
 					this.scene.runOtherAnim('hitmark' as ID, [poke]);
 				}
 			}
@@ -2969,7 +2969,7 @@ class Battle {
 		// search p1's pokemon
 		if (siden !== this.p2.n && !isNew) {
 			const active = this.p1.active[slot];
-			if (active && active.searchid === searchid && !isSwitch) {
+			if (active?.searchid === searchid && !isSwitch) {
 				active.slot = slot;
 				return active;
 			}
@@ -2996,7 +2996,7 @@ class Battle {
 		// search p2's pokemon
 		if (siden !== this.p1.n && !isNew) {
 			const active = this.p2.active[slot];
-			if (active && active.searchid === searchid && !isSwitch) {
+			if (active?.searchid === searchid && !isSwitch) {
 				if (slot >= 0) active.slot = slot;
 				return active;
 			}
@@ -3188,7 +3188,7 @@ class Battle {
 				return;
 			} else if (args[1].slice(-14) === ' seconds left.') {
 				let hasIndex = args[1].indexOf(' has ');
-				let userid = (window.app && app!.user && app!.user.get('userid'));
+				let userid = window.app?.user?.get('userid');
 				if (toID(args[1].slice(0, hasIndex)) === userid) {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
@@ -3407,7 +3407,7 @@ class Battle {
 		let nextArgs: Args = [''];
 		let nextKwargs: KWArgs = {};
 		const nextLine = this.activityQueue[this.activityStep + 1] || '';
-		if (nextLine && nextLine.substr(0, 2) === '|-') {
+		if (nextLine.slice(0, 2) === '|-') {
 			({args: nextArgs, kwArgs: nextKwargs} = BattleTextParser.parseLine(nextLine));
 		}
 

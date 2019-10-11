@@ -63,13 +63,13 @@ class BattleLog {
 		this.elem.onscroll = null;
 	}
 	add(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
-		if (kwArgs && kwArgs.silent) return;
+		if (kwArgs?.silent) return;
 		let divClass = 'chat';
 		let divHTML = '';
 		let noNotify: boolean | undefined;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
-			let battle = this.scene && this.scene.battle;
+			let battle = this.scene?.battle;
 			let name;
 			let message;
 			if (args[0] === 'c:') {
@@ -80,12 +80,12 @@ class BattleLog {
 				message = args[2];
 			}
 			let rank = name.charAt(0);
-			if (battle && battle.ignoreSpects && ' +'.includes(rank)) return;
-			if (battle && battle.ignoreOpponent) {
+			if (battle?.ignoreSpects && ' +'.includes(rank)) return;
+			if (battle?.ignoreOpponent) {
 				if ('\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
 			}
-			if (window.app && app.ignore && app.ignore[toUserid(name)] && ' +\u2605\u2606'.includes(rank)) return;
-			let isHighlighted = window.app && app.rooms && app.rooms[battle!.roomid].getHighlight(message);
+			if (window.app?.ignore?.[toUserid(name)] && ' +\u2605\u2606'.includes(rank)) return;
+			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, '', isHighlighted);
 			if (!noNotify && isHighlighted) {
 				let notifyTitle = "Mentioned by " + name + " in " + battle!.roomid;
@@ -403,7 +403,7 @@ class BattleLog {
 	static usernameColor(name: ID) {
 		if (this.colorCache[name]) return this.colorCache[name];
 		let hash;
-		if (window.Config && Config.customcolors && Config.customcolors[name]) {
+		if (window.Config?.customcolors?.[name]) {
 			hash = MD5(Config.customcolors[name]);
 		} else {
 			hash = MD5(name);
@@ -460,7 +460,7 @@ class BattleLog {
 
 	static prefs(name: string) {
 		// @ts-ignore
-		if (window.Storage && Storage.prefs) return Storage.prefs(name);
+		if (window.Storage?.prefs) return Storage.prefs(name);
 		// @ts-ignore
 		if (window.PS) return PS.prefs[name];
 		return undefined;
@@ -469,7 +469,7 @@ class BattleLog {
 	parseChatMessage(
 		message: string, name: string, timestamp: string, isHighlighted?: boolean
 	): [string, string, boolean?] {
-		let showMe = !(BattleLog.prefs('chatformatting') || {}).hideme;
+		let showMe = !BattleLog.prefs('chatformatting')?.hideme;
 		let group = ' ';
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
 			// Backwards compatibility
@@ -479,8 +479,7 @@ class BattleLog {
 		const colorStyle = ` style="color:${BattleLog.usernameColor(toID(name))}"`;
 		const clickableName = `<small>${BattleLog.escapeHTML(group)}</small><span class="username" data-name="${BattleLog.escapeHTML(name)}">${BattleLog.escapeHTML(name)}</span>`;
 		let hlClass = isHighlighted ? ' highlighted' : '';
-		let isMine = (window.app && app.user && app.user.get('name') === name) ||
-			(window.PS && PS.user.name === name);
+		let isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
 		let mineClass = isMine ? ' mine' : '';
 
 		let cmd = '';
@@ -589,7 +588,7 @@ class BattleLog {
 	}
 
 	static interstice = (() => {
-		const whitelist: string[] = (window.Config && Config.whitelist) ? Config.whitelist : [];
+		const whitelist: string[] = window.Config?.whitelist || [];
 		const patterns = whitelist.map(entry => new RegExp(
 			`^(https?:)?//([A-Za-z0-9-]*\\.)?${entry}(/.*)?`,
 		'i'));
@@ -610,7 +609,7 @@ class BattleLog {
 		};
 	})();
 
-	static tagPolicy: (tagName: string, attribs: string[]) => any = null!;
+	static tagPolicy: ((tagName: string, attribs: string[]) => any) | null = null;
 	static initSanitizeHTML() {
 		if (this.tagPolicy) return;
 		if (!('html4' in window)) {
@@ -755,7 +754,7 @@ class BattleLog {
 
 		let formattedTime;
 		// Try using Intl API if it exists
-		if (window.Intl && Intl.DateTimeFormat) {
+		if (window.Intl?.DateTimeFormat) {
 			formattedTime = new Intl.DateTimeFormat(undefined, {
 				month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric',
 			}).format(parsedTime);
