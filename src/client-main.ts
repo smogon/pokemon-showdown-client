@@ -159,10 +159,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		const formatid = toID(format);
 		if (!window.BattleFormats) return formatid;
 		const formatEntry = BattleFormats[formatid];
-		if (formatEntry && formatEntry.teambuilderFormat) {
-			return formatEntry.teambuilderFormat;
-		}
-		return formatid;
+		return formatEntry?.teambuilderFormat || formatid;
 	}
 	getKey(team: Team | null) {
 		if (!team) return '';
@@ -209,7 +206,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		let slashIndex = line.lastIndexOf('/', pipeIndex);
 		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
 		let format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
-		if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+		if (format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 		return {
 			name: line.slice(slashIndex + 1, pipeIndex),
 			format: format as ID,
@@ -786,7 +783,7 @@ const PS = new class extends PSModel {
 		}
 
 		const roomType = this.roomTypes[options.type];
-		if (roomType && roomType.title) options.title = roomType.title;
+		if (roomType?.title) options.title = roomType.title;
 		const Model = roomType ? roomType.Model : PlaceholderRoom;
 		return new Model(options);
 	}

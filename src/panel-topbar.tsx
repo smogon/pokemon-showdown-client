@@ -46,15 +46,15 @@ class PSHeader extends preact.Component<{style: {}}> {
 				formatid = idChunks[idChunks.length - 2];
 			}
 			if (!title) {
-				let battle = (room as any).battle;
-				let p1 = (battle && battle.p1 && battle.p1.name) || '';
-				let p2 = (battle && battle.p2 && battle.p2.name) || '';
+				let battle = (room as any).battle as Battle | undefined;
+				let p1 = battle?.p1?.name || '';
+				let p2 = battle?.p2?.name || '';
 				if (p1 && p2) {
-					title = '' + p1 + ' v. ' + p2;
+					title = `${p1} v. ${p2}`;
 				} else if (p1 || p2) {
-					title = '' + p1 + p2;
+					title = `${p1}${p2}`;
 				} else {
-					title = '(empty room)';
+					title = `(empty room)`;
 				}
 			}
 			icon = <i class="text">{formatid}</i>;

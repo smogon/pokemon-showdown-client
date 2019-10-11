@@ -73,11 +73,11 @@ class MainMenuRoom extends PSRoom {
 			if (!room.pmTarget) continue;
 			const targetUserid = toID(room.pmTarget);
 			if (!room.challengedFormat && !(targetUserid in json.challengesFrom) &&
-				!room.challengingFormat && (json.challengeTo || {}).to !== targetUserid) {
+				!room.challengingFormat && json.challengeTo?.to !== targetUserid) {
 				continue;
 			}
 			room.challengedFormat = json.challengesFrom[targetUserid] || null;
-			room.challengingFormat = (json.challengeTo || {}).to === targetUserid ? json.challengeTo.format : null;
+			room.challengingFormat = json.challengeTo?.to === targetUserid ? json.challengeTo.format : null;
 			room.update('');
 		}
 	}
@@ -164,7 +164,7 @@ class MainMenuRoom extends PSRoom {
 						isTeambuilderFormat = false;
 					}
 				}
-				if (BattleFormats[id] && BattleFormats[id].isTeambuilderFormat) {
+				if (BattleFormats[id]?.isTeambuilderFormat) {
 					isTeambuilderFormat = true;
 				}
 				// make sure formats aren't out-of-order
@@ -332,10 +332,7 @@ class MainMenuPanel extends PSRoomPanel {
 class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.EventHandler<Event>}> {
 	base?: HTMLButtonElement;
 	getFormat() {
-		if (this.base && this.base.value) {
-			return this.base.value;
-		}
-		return '[Gen 7] Random Battle';
+		return this.base?.value || '[Gen 7] Random Battle';
 	}
 	componentDidMount() {
 		this.base!.value = this.getFormat();
@@ -379,7 +376,7 @@ class TeamDropdown extends preact.Component<{format: string}> {
 	change = () => this.forceUpdate();
 	render() {
 		const formatid = PS.teams.teambuilderFormat(this.props.format);
-		const formatData = window.BattleFormats && BattleFormats[formatid];
+		const formatData = window.BattleFormats?.[formatid];
 		if (formatData && formatData.team) {
 			return <button class="select teamselect preselected" name="team" value="random" disabled>
 				<div class="team">

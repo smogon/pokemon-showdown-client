@@ -133,9 +133,9 @@ function getString(str: any) {
 }
 
 function toID(text: any) {
-	if (text && text.id) {
+	if (text?.id) {
 		text = text.id;
-	} else if (text && text.userid) {
+	} else if (text?.userid) {
 		text = text.userid;
 	}
 	if (typeof text !== 'string' && typeof text !== 'number') return '' as ID;
@@ -220,16 +220,16 @@ const Dex = new class implements ModdedDex {
 
 	resourcePrefix = (() => {
 		let prefix = '';
-		if (!window.document || !document.location || document.location.protocol !== 'http:') prefix = 'https:';
-		return prefix + '//play.pokemonshowdown.com/';
+		if (window.document?.location?.protocol !== 'http:') prefix = 'https:';
+		return `${prefix}//play.pokemonshowdown.com/`;
 	})();
 
 	fxPrefix = (() => {
-		if (window.document && document.location && document.location.protocol === 'file:') {
-			if (window.Replays) return 'https://play.pokemonshowdown.com/fx/';
-			return 'fx/';
+		if (window.document?.location?.protocol === 'file:') {
+			if (window.Replays) return `https://play.pokemonshowdown.com/fx/`;
+			return `fx/`;
 		}
-		return '//play.pokemonshowdown.com/fx/';
+		return `//play.pokemonshowdown.com/fx/`;
 	})();
 
 	loadedSpriteData = {xy: 1, bw: 0};
@@ -255,7 +255,7 @@ const Dex = new class implements ModdedDex {
 		if (avatar.charAt(0) === '#') {
 			return Dex.resourcePrefix + 'sprites/trainers-custom/' + toID(avatar.substr(1)) + '.png';
 		}
-		if (avatar.includes('.') && window.Config && Config.server && Config.server.registered) {
+		if (avatar.includes('.') && window.Config?.server?.registered) {
 			// custom avatar served by the server
 			let protocol = (Config.server.port === 443) ? 'https' : 'http';
 			return protocol + '://' + Config.server.host + ':' + Config.server.port +
@@ -284,8 +284,7 @@ const Dex = new class implements ModdedDex {
 
 	prefs(prop: string, value?: any, save?: boolean) {
 		// @ts-ignore
-		if (window.Storage && Storage.prefs) return Storage.prefs(prop, value, save);
-		return undefined;
+		return window.Storage?.prefs?.(prop, value, save);
 	}
 
 	getShortName(name: string) {
@@ -661,9 +660,9 @@ const Dex = new class implements ModdedDex {
 
 	getPokemonIconNum(id: ID, isFemale?: boolean, facingLeft?: boolean) {
 		let num = 0;
-		if (window.BattlePokemonSprites && BattlePokemonSprites[id] && BattlePokemonSprites[id].num) {
+		if (window.BattlePokemonSprites?.[id]?.num) {
 			num = BattlePokemonSprites[id].num;
-		} else if (window.BattlePokedex && window.BattlePokedex[id] && BattlePokedex[id].num) {
+		} else if (window.BattlePokedex?.[id]?.num) {
 			num = BattlePokedex[id].num;
 		}
 		if (num < 0) num = 0;
@@ -688,26 +687,26 @@ const Dex = new class implements ModdedDex {
 
 	getPokemonIcon(pokemon: any, facingLeft?: boolean) {
 		if (pokemon === 'pokeball') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -0px 4px';
+			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -0px 4px`;
 		} else if (pokemon === 'pokeball-statused') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -40px 4px';
+			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -40px 4px`;
 		} else if (pokemon === 'pokeball-fainted') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)';
+			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)`;
 		} else if (pokemon === 'pokeball-none') {
-			return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px';
+			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px`;
 		}
 
 		let id = toID(pokemon);
-		if (pokemon && pokemon.species) id = toID(pokemon.species);
-		if (pokemon && pokemon.volatiles && pokemon.volatiles.formechange && !pokemon.volatiles.transform) {
+		if (pokemon?.species) id = toID(pokemon.species);
+		if (pokemon?.volatiles?.formechange && !pokemon.volatiles.transform) {
 			id = toID(pokemon.volatiles.formechange[1]);
 		}
-		let num = this.getPokemonIconNum(id, pokemon && pokemon.gender === 'F', facingLeft);
+		let num = this.getPokemonIconNum(id, pokemon?.gender === 'F', facingLeft);
 
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
-		let fainted = (pokemon && pokemon.fainted ? ';opacity:.3;filter:grayscale(100%) brightness(.5)' : '');
-		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/pokemonicons-sheet.png?a6) no-repeat scroll -' + left + 'px -' + top + 'px' + fainted;
+		let fainted = (pokemon?.fainted ? `;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
+		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?a6) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
 	getTeambuilderSprite(pokemon: any, gen: number = 0) {
@@ -723,7 +722,7 @@ const Dex = new class implements ModdedDex {
 		}
 		let shiny = (pokemon.shiny ? '-shiny' : '');
 		// let sdata;
-		// if (BattlePokemonSprites[id] && BattlePokemonSprites[id].front && !Dex.prefs('bwgfx')) {
+		// if (BattlePokemonSprites[id]?.front && !Dex.prefs('bwgfx')) {
 		// 	if (BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
 		// 		spriteid += '-f';
 		// 		sdata = BattlePokemonSprites[id].front.anif;
@@ -757,7 +756,7 @@ const Dex = new class implements ModdedDex {
 	getItemIcon(item: any) {
 		let num = 0;
 		if (typeof item === 'string' && exports.BattleItems) item = exports.BattleItems[toID(item)];
-		if (item && item.spritenum) num = item.spritenum;
+		if (item?.spritenum) num = item.spritenum;
 
 		let top = Math.floor(num / 16) * 24;
 		let left = (num % 16) * 24;

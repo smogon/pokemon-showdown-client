@@ -521,7 +521,7 @@ class BattleTextParser {
 			if (kwArgs.block) templateId = 'block';
 			if (kwArgs.upkeep) templateId = 'upkeep';
 			if (id === 'reflect' || id === 'lightscreen') templateId = 'startGen1';
-			if (templateId === 'start' && kwArgs.from && kwArgs.from.startsWith('item:')) {
+			if (templateId === 'start' && kwArgs.from?.startsWith('item:')) {
 				templateId += 'FromItem';
 			}
 			const template = this.template(templateId, effect);
@@ -538,7 +538,7 @@ class BattleTextParser {
 			}
 			let templateId = 'end';
 			let template = '';
-			if (kwArgs.from && kwArgs.from.startsWith('item:')) {
+			if (kwArgs.from?.startsWith('item:')) {
 				template = this.template('endFromItem', effect);
 			}
 			if (!template) template = this.template(templateId, effect);
@@ -654,7 +654,7 @@ class BattleTextParser {
 				return template.replace('[POKEMON]', this.pokemon(pokemon));
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
-			if (kwArgs.from && kwArgs.from.startsWith('item:')) {
+			if (kwArgs.from?.startsWith('item:')) {
 				const template = this.template('endFromItem', status);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(kwArgs.from));
 			}
@@ -859,7 +859,7 @@ class BattleTextParser {
 			else if (amount === 0) templateId += '0';
 			if (amount && kwArgs.zeffect) {
 				templateId += (kwArgs.multiple ? 'MultipleFromZEffect' : 'FromZEffect');
-			} else if (amount && kwArgs.from && kwArgs.from.startsWith('item:')) {
+			} else if (amount && kwArgs.from?.startsWith('item:')) {
 				templateId += 'FromItem';
 			}
 			const template = this.template(templateId, kwArgs.from);
