@@ -1,3 +1,13 @@
+/**
+ * Text parser
+ *
+ * No dependencies
+ * Optional dependency: BattleText
+ *
+ * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @license MIT
+ */
+
 declare const BattleText: {[id: string]: {[templateName: string]: string}};
 
 type Args = [string, ...string[]];
@@ -15,12 +25,14 @@ class BattleTextParser {
 		this.perspective = perspective;
 	}
 
-	static parseLine(line: string): {args: Args, kwArgs: KWArgs} {
+	static parseLine(line: string, noDefault: true): Args | null;
+	static parseLine(line: string): Args;
+	static parseLine(line: string, noDefault?: boolean): Args | null {
 		if (!line.startsWith('|')) {
-			return {args: ['', line], kwArgs: {}};
+			return ['', line];
 		}
 		if (line === '|') {
-			return {args: ['done'], kwArgs: {}};
+			return ['done'];
 		}
 		const index = line.indexOf('|', 1);
 		const cmd = line.slice(1, index);
@@ -28,23 +40,28 @@ class BattleTextParser {
 		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
 		case 'inactive': case 'inactiveoff': case 'warning':
 		case 'fieldhtml': case 'controlshtml': case 'bigerror':
-		case 'debug': case 'tier':
-			return {args: [cmd, line.slice(index + 1)], kwArgs: {}};
+		case 'debug': case 'tier': case 'challstr': case 'popup': case '':
+			return [cmd, line.slice(index + 1)];
 		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange':
 			// three parts
 			const index2a = line.indexOf('|', index + 1);
-			return {args: [cmd, line.slice(index + 1, index2a), line.slice(index2a + 1)], kwArgs: {}};
-		case 'c:':
+			return [cmd, line.slice(index + 1, index2a), line.slice(index2a + 1)];
+		case 'c:': case 'pm':
 			// four parts
 			const index2b = line.indexOf('|', index + 1);
 			const index3b = line.indexOf('|', index2b + 1);
-			return {
-				args: [cmd, line.slice(index + 1, index2b), line.slice(index2b + 1, index3b), line.slice(index3b + 1)],
-				kwArgs: {},
-			};
+			return [cmd, line.slice(index + 1, index2b), line.slice(index2b + 1, index3b), line.slice(index3b + 1)];
 		}
-		let args: Args = line.slice(1).split('|') as any;
-		let kwArgs: KWArgs = {};
+		if (noDefault) return null;
+		return line.slice(1).split('|') as [string, ...string[]];
+	}
+
+	static parseBattleLine(line: string): {args: Args, kwArgs: KWArgs} {
+		let args = this.parseLine(line, true);
+		if (args) return {args, kwArgs: {}};
+
+		args = line.slice(1).split('|') as [string, ...string[]];
+		const kwArgs: KWArgs = {};
 		while (args.length > 1) {
 			const lastArg = args[args.length - 1];
 			if (lastArg.charAt(0) !== '[') break;
@@ -159,7 +176,7 @@ class BattleTextParser {
 	extractMessage(buf: string) {
 		let out = '';
 		for (const line of buf.split('\n')) {
-			const {args, kwArgs} = BattleTextParser.parseLine(line);
+			const {args, kwArgs} = BattleTextParser.parseBattleLine(line);
 			out += this.parseArgs(args, kwArgs) || '';
 		}
 		return out;

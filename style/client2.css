@@ -531,10 +531,10 @@ select {
 	color: #BB2222;
 }
 .minimizebutton:hover,
-.pm-window h3:hover .minimizebutton {
+.mini-window h3:hover .minimizebutton {
 	color: #333333;
 }
-.pm-window h3 .closebutton:hover + .minimizebutton {
+.mini-window h3 .closebutton:hover + .minimizebutton {
 	color: #999999 !important;
 }
 .closebutton:active,
@@ -624,11 +624,11 @@ select {
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
 }
-.ps-room.ps-room-light {
+.ps-room.ps-room-light, .ps-room-light {
 	background: rgba(242,247,250,.85);
 	color: black;
 }
-.ps-room.ps-room-opaque {
+.ps-room.ps-room-opaque, .ps-room-opaque {
 	background: #EEF2F5;
 	color: black;
 }
@@ -824,13 +824,13 @@ p.or:after {
 	margin: 0 auto;
 	min-height: 2px;
 }
-.pm-window {
+.mini-window {
 	margin: 0 -12px 12px -10px;
 }
-.tiny-layout .pm-window {
+.tiny-layout .mini-window {
 	margin: 0 0 12px 0;
 }
-.pm-window h3 {
+.mini-window h3 {
 	background: rgba(248,248,248,.8);
 	color: #777777;
 	margin: 0;
@@ -841,33 +841,41 @@ p.or:after {
 	border-top-right-radius: 5px;
 	cursor: pointer;
 }
-.pm-window h3:hover {
+.mini-window h3:hover {
 	color: #333333;
 }
-.pm-window h3.pm-minimized {
+.mini-window h3.pm-minimized {
 	border-radius: 5px;
 }
-.pm-window h3.pm-notifying {
+.mini-window h3.pm-notifying {
 	border-color: #AA8866;
 	background: #E3C3A3;
 }
-.pm-window h3.pm-notifying:hover {
+.mini-window h3.pm-notifying:hover {
 	border-color: #604020;
 	background: #CFAF8F;
 }
-.pm-window h3 .closebutton,
-.pm-window h3 .minimizebutton {
+.mini-window h3 .closebutton,
+.mini-window h3 .minimizebutton {
 	float: right;
 	margin: -3px -3px;
 	width: 22px;
 	height: 22px;
 }
-.pm-window h3 small {
+.mini-window h3 small {
 	color: #888888;
 	font-weight: normal;
 	vertical-align: 1px;
 }
-.pm-log {
+.mini-window .mini-window-contents {
+	position: relative;
+	height: 300px;
+	border: 1px solid #AAAAAA;
+	border-top: 0;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+.mini-window-body, .pm-log {
 	min-height: 100px;
 	max-height: 300px;
 	background: rgba(242,247,250,.925);
@@ -875,11 +883,17 @@ p.or:after {
 	word-wrap: break-word;
 	border: 1px solid #AAAAAA;
 	border-top: 0;
-	border-bottom: 0;
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+}
+.mini-window-body {
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+.pm-log {
+	border-bottom: 0;
 }
 .pm-log-add {
 	color: black;
@@ -888,17 +902,17 @@ p.or:after {
 	border-bottom-right-radius: 5px;
 	background: rgba(242,247,250,.85);
 }
-.pm-window.collapsed .pm-log,
-.pm-window.collapsed .pm-log-add {
+.mini-window.collapsed .pm-log,
+.mini-window.collapsed .pm-log-add {
 	display: none;
 }
-.pm-window.focused h3,
-.pm-window.focused .pm-log,
-.pm-window.focused .pm-log-add {
+.mini-window.focused h3,
+.mini-window.focused .pm-log,
+.mini-window.focused .pm-log-add {
 	border-color: #555555;
 }
-.pm-window.focused h3,
-.pm-window.focused h3:hover {
+.mini-window.focused h3,
+.mini-window.focused h3:hover {
 	background: #f8f8f8;
 	color: #222222;
 }
@@ -916,6 +930,7 @@ p.or:after {
 	font-size: 9pt;
 	padding: 1px 10px;
 	border-bottom: 1px solid #AAAAAA;
+	margin-bottom: -1px;
 }
 .unread {
 	background: rgba(255,240,130,0.33);
@@ -1220,7 +1235,7 @@ p.or:after {
 }
 .chat-log .inner,
 .pm-log .inner {
-	padding: 4px 8px 6px 8px;
+	padding: 24px 8px 6px 8px;
 }
 a.ilink {
 	text-decoration: none;
@@ -3286,9 +3301,9 @@ a.ilink.yours {
 .dark .menugroup {
 	background: rgba(0,0,0,.2);
 }
-.dark .pm-window.focused h3,
-.dark .pm-window.focused .pm-log,
-.dark .pm-window.focused .pm-log-add {
+.dark .mini-window.focused h3,
+.dark .mini-window.focused .pm-log,
+.dark .mini-window.focused .pm-log-add {
 	border-color: #CCC;
 }
 

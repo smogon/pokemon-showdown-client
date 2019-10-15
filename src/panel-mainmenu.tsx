@@ -23,7 +23,7 @@ class MainMenuRoom extends PSRoom {
 		pspl?: RoomInfo[],
 	} = {};
 	receive(line: string) {
-		const tokens = PS.lineParse(line);
+		const tokens = BattleTextParser.parseLine(line);
 		switch (tokens[0]) {
 		case 'challstr':
 			PSLoginServer.query({
@@ -242,13 +242,41 @@ class MainMenuRoom extends PSRoom {
 	}
 }
 
-class MainMenuPanel extends PSRoomPanel {
+class NewsPanel extends PSRoomPanel {
+	render() {
+		return <PSPanelWrapper room={this.props.room} scrollable>
+			<div class="mini-window-body" dangerouslySetInnerHTML={{__html: PS.newsHTML}}></div>
+		</PSPanelWrapper>;
+	}
+}
+
+class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	focus() {
 		(this.base!.querySelector('button.big') as HTMLButtonElement).focus();
 	}
 	submit = (e: Event) => {
 		alert('todo: implement');
 	};
+	renderMiniRoom(room: PSRoom) {
+		const roomType = PS.roomTypes[room.type];
+		const Panel = roomType ? roomType.Component : PSRoomPanel;
+		return <Panel key={room.id} room={room} />;
+	}
+	renderMiniRooms() {
+		return PS.miniRoomList.map(roomid => {
+			const room = PS.rooms[roomid]!;
+			return <div class="pmbox">
+				<div class="mini-window">
+					<h3>
+						<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}><i class="fa fa-times-circle"></i></button>
+						<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
+						{room.title}
+					</h3>
+					{this.renderMiniRoom(room)}
+				</div>
+			</div>;
+		});
+	}
 	render() {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		const searchButton = (PS.down ? <div class="menugroup" style="background: rgba(10,10,10,.6)">
@@ -274,22 +302,7 @@ class MainMenuPanel extends PSRoomPanel {
 			<div class="mainmenuwrapper">
 				<div class="leftmenu">
 					<div class="activitymenu">
-						<div class="pmbox">
-							<div class="pm-window news-embed" data-newsid="<!-- newsid -->">
-								<h3>
-									<button class="closebutton" tabIndex={-1}><i class="fa fa-times-circle"></i></button>
-									<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
-									News
-								</h3>
-								<div class="pm-log" style="max-height:none">
-									<div class="newsentry">
-										<h4>Test client</h4>
-										<p>Welcome to the test client! You can test client changes here!</p>
-										<p>&mdash;<strong>Zarel</strong> <small class="date">on Sep 25, 2015</small></p>
-									</div>
-								</div>
-							</div>
-						</div>
+						{this.renderMiniRooms()}
 					</div>
 					<div class="mainmenu">
 						{searchButton}
@@ -436,6 +449,10 @@ class TeamForm extends preact.Component<{
 		</form>;
 	}
 }
+
+PS.roomTypes['news'] = {
+	Component: NewsPanel,
+};
 
 PS.roomTypes['mainmenu'] = {
 	Model: MainMenuRoom,

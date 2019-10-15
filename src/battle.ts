@@ -3395,7 +3395,7 @@ class Battle {
 			return;
 		}
 		if (!str) return;
-		const {args, kwArgs} = BattleTextParser.parseLine(str);
+		const {args, kwArgs} = BattleTextParser.parseBattleLine(str);
 
 		if (this.scene.maybeCloseMessagebar(args, kwArgs)) {
 			this.activityStep--;
@@ -3408,7 +3408,7 @@ class Battle {
 		let nextKwargs: KWArgs = {};
 		const nextLine = this.activityQueue[this.activityStep + 1] || '';
 		if (nextLine.slice(0, 2) === '|-') {
-			({args: nextArgs, kwArgs: nextKwargs} = BattleTextParser.parseLine(nextLine));
+			({args: nextArgs, kwArgs: nextKwargs} = BattleTextParser.parseBattleLine(nextLine));
 		}
 
 		if (this.debug) {

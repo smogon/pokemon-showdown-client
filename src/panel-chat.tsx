@@ -360,6 +360,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	};
 	render() {
 		const room = this.props.room;
+		const isPM = !!room.pmTarget;
 
 		const challengeTo = room.challengingFormat ? <div class="challenge">
 			<TeamForm format={room.challengingFormat} onSubmit={null}>
@@ -381,11 +382,11 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 
 		return <PSPanelWrapper room={room}>
 			<div class="tournament-wrapper hasuserlist"></div>
-			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={146}>
+			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={isPM ? 0 : 146}>
 				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
 			</ChatLog>
-			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={146} />
-			<ChatUserList room={this.props.room} />
+			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={isPM ? 0 : 146} />
+			<ChatUserList room={this.props.room} minimized={isPM} />
 		</PSPanelWrapper>;
 	}
 }
@@ -455,7 +456,7 @@ class ChatLog extends preact.Component<{
 		}
 		this.subscription = this.props.room.subscribe(msg => {
 			if (!msg) return;
-			const tokens = PS.lineParse(msg);
+			const tokens = BattleTextParser.parseLine(msg);
 			switch (tokens[0]) {
 			case 'title':
 				this.props.room.title = tokens[1];
