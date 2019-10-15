@@ -624,11 +624,9 @@ class FormatDropdownPanel extends PSRoomPanel {
 }
 
 PS.roomTypes['teamdropdown'] = {
-	Model: PSRoom,
 	Component: TeamDropdownPanel,
 };
 
 PS.roomTypes['formatdropdown'] = {
-	Model: PSRoom,
 	Component: FormatDropdownPanel,
 };

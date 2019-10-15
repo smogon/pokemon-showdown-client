@@ -221,7 +221,6 @@ class TeambuilderPanel extends PSRoomPanel {
 }
 
 PS.roomTypes['teambuilder'] = {
-	Model: PSRoom,
 	Component: TeambuilderPanel,
 	title: "Teambuilder",
 };

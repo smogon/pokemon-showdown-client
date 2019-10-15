@@ -142,6 +142,12 @@ function PSPanelWrapper(props: {
 	room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean, width?: number,
 }) {
 	const room = props.room;
+	if (room.location === 'mini-window') {
+		if (room.id === 'news') {
+			return <div>{props.children}</div>;
+		}
+		return <div id={`room-${room.id}`} class="mini-window-contents ps-room-light">{props.children}</div>;
+	}
 	if (room.location !== 'left' && room.location !== 'right') {
 		const style = PSMain.getPopupStyle(room, props.width);
 		return <div class="ps-popup" id={`room-${room.id}`} style={style}>
