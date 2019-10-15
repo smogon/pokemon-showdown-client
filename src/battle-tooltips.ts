@@ -441,10 +441,13 @@ class BattleTooltips {
 				zEffect = this.getStatusZMoveEffect(move);
 			} else {
 				const zMove = this.battle.dex.getMove(BattleTooltips.zMoveTable[item.zMoveType as TypeName]);
+				let zMovePower = move.zMovePower;
+				// the different Hidden Power types don't have a Z power set, fall back on base move
+				if (move.id.startsWith('hiddenpower')) zMovePower = this.battle.dex.getMove('hiddenpower').zMovePower;
 				move = new Move(zMove.id, zMove.name, {
 					...zMove,
 					category: move.category,
-					basePower: move.zMovePower,
+					basePower: zMovePower,
 				});
 				// TODO: Weather Ball type-changing shenanigans
 			}
