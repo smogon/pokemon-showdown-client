@@ -622,11 +622,13 @@
 					if (canZMove) {
 						movebuttons = '<div class="movebuttons-noz">' + movebuttons + '</div><div class="movebuttons-z" style="display:none">';
 						for (var i = 0; i < curActive.moves.length; i++) {
-							var moveData = curActive.moves[i];
-							var move = this.battle.dex.getMove(moveData.move);
-							var moveType = this.tooltips.getMoveType(move, typeValueTracker)[0];
 							if (canZMove[i]) {
-								var tooltipArgs = 'zmove|' + move.id + '|' + pos;
+								// when possible, use Z move to decide type, for cases like Z-Hidden Power
+								var baseMove = this.battle.dex.getMove(curActive.moves[i].move);
+								// might not exist, such as for Z status moves - fall back on base move to determine type then
+								var zMove = this.battle.dex.getMove(canZMove[i].move);
+								var moveType = this.tooltips.getMoveType(zMove.exists ? zMove : baseMove, typeValueTracker)[0];
+								var tooltipArgs = 'zmove|' + baseMove.id + '|' + pos;
 								movebuttons += '<button class="type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(canZMove[i].move) + '" data-target="' + BattleLog.escapeHTML(canZMove[i].target) + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 								movebuttons += canZMove[i].move + '<br /><small class="type">' + (moveType ? Dex.getType(moveType).name : "Unknown") + '</small> <small class="pp">1/1</small>&nbsp;</button> ';
 							} else {
