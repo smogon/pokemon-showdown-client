@@ -1850,6 +1850,7 @@ class Battle {
 				}
 				break;
 			}
+			this.scene.animReset(poke);
 			this.log(args, kwArgs);
 			break;
 		}
