@@ -8,6 +8,7 @@
 			'keydown textarea': 'keyDown',
 			'keyup textarea': 'keyUp',
 			'click .username': 'clickUsername',
+			'click .header-username': 'clickUsername',
 			'click .closebutton': 'closePM',
 			'click .minimizebutton': 'minimizePM',
 			'click .pm-window': 'clickPMBackground',
@@ -189,7 +190,7 @@
 				var buf = '<div class="pm-window pm-window-' + userid + '" data-userid="' + userid + '" data-name="' + name + '">';
 				buf += '<h3><button class="closebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>';
 				buf += '<button class="minimizebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>';
-				buf += group + '<span class="username">' + BattleLog.escapeHTML(name.substr(1)) + '</span> </h3>';
+				buf += group + '<span class="header-username" tabIndex="-1">' + BattleLog.escapeHTML(name.substr(1)) + '</span> </h3>';
 				buf += '<div class="pm-log"><div class="inner" role="log"></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
