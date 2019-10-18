@@ -2813,7 +2813,7 @@ class Battle {
 			break;
 		}
 		default: {
-			if (this.errorCallback) this.errorCallback(this);
+			throw new Error(`Unrecognized minor action: ${args[0]}`);
 			break;
 		}}
 	}
