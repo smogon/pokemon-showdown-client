@@ -35,7 +35,10 @@ class PSDatabase {
 		$this->connect();
 		if ($params) {
 			$stmt = $this->db->prepare($query);
-			$stmt->execute($params);
+			$execution_result = $stmt->execute($params);
+			if (!$execution_result) {
+				return null;
+			}
 			return $stmt;
 		} else {
 			return $this->db->query($query);
