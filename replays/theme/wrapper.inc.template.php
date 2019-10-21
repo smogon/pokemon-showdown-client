@@ -25,7 +25,7 @@ function ThemeHeaderTemplate() {
 
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=IE8" />
 	<link rel="stylesheet" href="//play.pokemonshowdown.com/style/font-awesome.css" />
-	<link rel="stylesheet" href="//pokemonshowdown.com/forum/theme/panels.css" />
+	<link rel="stylesheet" href="//pokemonshowdown.com/theme/panels.css" />
 	<link rel="stylesheet" href="//pokemonshowdown.com/theme/main.css" />
 	<link rel="stylesheet" href="//play.pokemonshowdown.com/style/battle.css?" />
 	<link rel="stylesheet" href="//play.pokemonshowdown.com/style/replay.css?" />
