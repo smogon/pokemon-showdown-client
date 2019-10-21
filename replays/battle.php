@@ -130,7 +130,7 @@ $panels->start();
 
 			<?php if (@$replay['private']) echo '<strong>THIS REPLAY IS PRIVATE</strong> - make sure you have the owner\'s permission to share<br />'; ?>
 
-			<pre class="urlbox" style="word-wrap: break-word;"><?php echo htmlspecialchars('http://replay.pokemonshowdown.com/'.$fullid); ?></pre>
+			<pre class="urlbox" style="word-wrap: break-word;"><?php echo htmlspecialchars('https://replay.pokemonshowdown.com/'.$fullid); ?></pre>
 
 			<h1 style="font-weight:normal;text-align:left"><strong><?= htmlspecialchars($format) ?></strong>: <a href="//pokemonshowdown.com/users/<?= userid($replay['p1']) ?>" class="subtle"><?= htmlspecialchars($replay['p1']) ?></a> vs. <a href="//pokemonshowdown.com/users/<?= userid($replay['p2']) ?>" class="subtle"><?= htmlspecialchars($replay['p2']) ?></a></h1>
 			<p style="padding:0 1em;margin-top:0">
