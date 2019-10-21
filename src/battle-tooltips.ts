@@ -284,7 +284,19 @@ class BattleTooltips {
 			let sideIndex = parseInt(args[1], 10);
 			let side = this.battle.sides[sideIndex];
 			let pokemon = side.pokemon[parseInt(args[2], 10)];
-			buf = this.showPokemonTooltip(pokemon);
+			if (args[3] === 'illusion') {
+				buf = '';
+				const species = pokemon.getBaseTemplate().baseSpecies;
+				let index = 1;
+				for (const otherPokemon of side.pokemon) {
+					if (otherPokemon.getBaseTemplate().baseSpecies === species) {
+						buf += this.showPokemonTooltip(otherPokemon, null, false, index);
+						index++;
+					}
+				}
+			} else {
+				buf = this.showPokemonTooltip(pokemon);
+			}
 			break;
 		}
 		case 'activepokemon': { // activepokemon|SIDE|ACTIVE
@@ -363,6 +375,7 @@ class BattleTooltips {
 				y += height + 10;
 				if (ownHeight) y += $(elem).height()!;
 				else y += $(elem).parent().height()!;
+				y = Math.min(y, document.documentElement.clientHeight);
 				$wrapper.css('top', y);
 			}
 		}
@@ -608,12 +621,14 @@ class BattleTooltips {
 	 * @param serverPokemon
 	 * @param isActive
 	 */
-	showPokemonTooltip(clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null, isActive?: boolean) {
+	showPokemonTooltip(
+		clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null, isActive?: boolean, illusionIndex?: number
+	) {
 		const pokemon = clientPokemon || serverPokemon!;
 		let text = '';
 		let genderBuf = '';
 		if (pokemon.gender) {
-			genderBuf = ' <img src="' + Dex.resourcePrefix + 'fx/gender-' + pokemon.gender.toLowerCase() + '.png" alt="' + pokemon.gender + '" />';
+			genderBuf = ` <img src="${Dex.resourcePrefix}fx/gender-${pokemon.gender.toLowerCase()}.png" alt="${pokemon.gender}" />`;
 		}
 
 		let name = BattleLog.escapeHTML(pokemon.name);
@@ -621,23 +636,30 @@ class BattleTooltips {
 			name += ' <small>(' + BattleLog.escapeHTML(pokemon.species) + ')</small>';
 		}
 
-		text += '<h2>' + name + genderBuf + (pokemon.level !== 100 ? ' <small>L' + pokemon.level + '</small>' : '') + '<br />';
+		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
+		if (!illusionIndex || illusionIndex === 1) {
+			text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}<br />`;
 
-		if (clientPokemon?.volatiles.formechange) {
-			if (clientPokemon.volatiles.transform) {
-				text += '<small>(Transformed into ' + clientPokemon.volatiles.formechange[1] + ')</small><br />';
-			} else {
-				text += '<small>(Changed forme: ' + clientPokemon.volatiles.formechange[1] + ')</small><br />';
+			if (clientPokemon?.volatiles.formechange) {
+				if (clientPokemon.volatiles.transform) {
+					text += `<small>(Transformed into ${clientPokemon.volatiles.formechange[1]}</small><br />`;
+				} else {
+					text += `<small>(Changed forme: ${clientPokemon.volatiles.formechange[1]}</small><br />`;
+				}
 			}
+
+			let types = this.getPokemonTypes(pokemon);
+
+			if (clientPokemon && (clientPokemon.volatiles.typechange || clientPokemon.volatiles.typeadd)) {
+				text += `<small>(Type changed)</small><br />`;
+			}
+			text += types.map(type => Dex.getTypeIcon(type)).join(' ');
+			text += `</h2>`;
 		}
 
-		let types = this.getPokemonTypes(pokemon);
-
-		if (clientPokemon && (clientPokemon.volatiles.typechange || clientPokemon.volatiles.typeadd)) {
-			text += '<small>(Type changed)</small><br />';
+		if (illusionIndex) {
+			text += `<p class="section"><strong>Possible Illusion #${illusionIndex}</strong>${levelBuf}</p>`;
 		}
-		text += types.map(type => Dex.getTypeIcon(type)).join(' ');
-		text += '</h2>';
 
 		if (pokemon.fainted) {
 			text += '<p><small>HP:</small> (fainted)</p>';
@@ -671,7 +693,9 @@ class BattleTooltips {
 
 		let abilityText = '';
 		if (supportsAbilities) {
-			abilityText = this.getPokemonAbilityText(clientPokemon, serverPokemon, isActive);
+			abilityText = this.getPokemonAbilityText(
+				clientPokemon, serverPokemon, isActive, !!illusionIndex && illusionIndex > 1
+			);
 		}
 
 		let itemText = '';
@@ -1606,7 +1630,8 @@ class BattleTooltips {
 	getPokemonAbilityText(
 		clientPokemon: Pokemon | null,
 		serverPokemon: ServerPokemon | null | undefined,
-		isActive: boolean | undefined
+		isActive: boolean | undefined,
+		hidePossible?: boolean
 	) {
 		let text = '';
 		const abilityData = this.getPokemonAbilityData(clientPokemon, serverPokemon);
@@ -1622,7 +1647,7 @@ class BattleTooltips {
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}
 		}
-		if (!text && abilityData.possibilities.length) {
+		if (!text && abilityData.possibilities.length && !hidePossible) {
 			text = '<small>Possible abilities:</small> ' + abilityData.possibilities.join(', ');
 		}
 		return text;

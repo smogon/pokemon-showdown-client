@@ -611,27 +611,76 @@ class BattleScene {
 
 	updateSidebar(side: Side) {
 		if (!this.animating) return;
-		let pokemonhtml = '';
 		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
-		let pokemonCount = Math.max(side.pokemon.length, 6);
-		for (let i = 0; i < pokemonCount; i++) {
-			let poke = side.pokemon[i];
-			if (i >= side.totalPokemon && i >= side.pokemon.length) {
+
+		let speciesOverage = this.battle.speciesClause ? Infinity : Math.max(side.pokemon.length - side.totalPokemon, 0);
+		const sidebarIcons: (
+			['pokemon' | 'pokemon-illusion', number] | ['unrevealed' | 'empty' | 'pseudo-zoroark', null]
+		)[] = [];
+		const speciesTable: string[] = [];
+		let zoroarkRevealed = false;
+		let hasIllusion = false;
+		if (speciesOverage) {
+			for (let i = 0; i < side.pokemon.length; i++) {
+				const species = side.pokemon[i].getBaseTemplate().baseSpecies;
+				if (speciesOverage && speciesTable.includes(species)) {
+					for (const sidebarIcon of sidebarIcons) {
+						if (side.pokemon[sidebarIcon[1]!].getBaseTemplate().baseSpecies === species) {
+							sidebarIcon[0] = 'pokemon-illusion';
+						}
+					}
+					hasIllusion = true;
+					speciesOverage--;
+				} else {
+					sidebarIcons.push(['pokemon', i]);
+					speciesTable.push(species);
+					if (['Zoroark', 'Zorua'].includes(species)) {
+						zoroarkRevealed = true;
+					}
+				}
+			}
+		} else {
+			for (let i = 0; i < side.pokemon.length; i++) {
+				sidebarIcons.push(['pokemon', i]);
+			}
+		}
+		if (!zoroarkRevealed && hasIllusion) {
+			sidebarIcons.push(['pseudo-zoroark', null]);
+		}
+		while (sidebarIcons.length < side.totalPokemon) {
+			sidebarIcons.push(['unrevealed', null]);
+		}
+		while (sidebarIcons.length < 6) {
+			sidebarIcons.push(['empty', null]);
+		}
+
+		let pokemonhtml = '';
+		for (let i = 0; i < sidebarIcons.length; i++) {
+			const [iconType, pokeIndex] = sidebarIcons[i];
+			const poke = pokeIndex !== null ? side.pokemon[pokeIndex] : null;
+			const tooltipCode = ` class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${pokeIndex}${iconType === 'pokemon-illusion' ? '|illusion' : ''}"`;
+			if (iconType === 'empty') {
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball-none') + `"></span>`;
-			} else if (noShow && poke?.fainted) {
-				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon('pokeball-fainted') + `" title="Fainted" aria-label="Fainted"></span>`;
-			} else if (noShow && poke?.status) {
-				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon('pokeball-statused') + `" title="Status" aria-label="Status"></span>`;
 			} else if (noShow) {
-				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon('pokeball') + `" title="Non-statused" aria-label="Non-statused"></span>`;
+				if (poke?.fainted) {
+					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball-fainted') + `" aria-label="Fainted"></span>`;
+				} else if (poke?.status) {
+					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball-statused') + `" aria-label="Statused"></span>`;
+				} else {
+					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball') + `" aria-label="Non-statused"></span>`;
+				}
+			} else if (iconType === 'pseudo-zoroark') {
+				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('zoroark') + `" title="Unrevealed Illusion user" aria-label="Unrevealed Illusion user"></span>`;
 			} else if (!poke) {
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball') + `" title="Not revealed" aria-label="Not revealed"></span>`;
 			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
+				// in VGC (bring 6 pick 4) and other pick-less-than-you-bring formats, this is
+				// a pokemon that's been brought but not necessarily picked
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon(poke, !side.n) + `;opacity:0.6" title="` + details + `" aria-label="` + details + `"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.n) + `;opacity:0.6" aria-label="${details}"></span>`;
 			} else {
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${i}" style="` + Dex.getPokemonIcon(poke, !side.n) + `" title="` + details + `" aria-label="` + details + `"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.n) + `" aria-label="${details}"></span>`;
 			}
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
@@ -639,7 +688,7 @@ class BattleScene {
 		const $sidebar = (side.n ? this.$rightbar : this.$leftbar);
 		if (side.name) {
 			const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
-			$sidebar.html(`<div class="trainer"${ratinghtml}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite" style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
+			$sidebar.html(`<div class="trainer"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
 			$sidebar.find('.trainer').css('opacity', 1);
 		} else {
 			$sidebar.find('.trainer').css('opacity', 0.4);
