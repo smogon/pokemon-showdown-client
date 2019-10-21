@@ -516,6 +516,9 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 	getTemplate(serverPokemon?: ServerPokemon) {
 		return this.side.battle.dex.getTemplate(this.getSpecies(serverPokemon));
 	}
+	getBaseTemplate() {
+		return this.side.battle.dex.getTemplate(this.species);
+	}
 	reset() {
 		this.clearVolatile();
 		this.hp = this.maxhp;
