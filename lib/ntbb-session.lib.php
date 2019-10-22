@@ -72,8 +72,6 @@ class NTBBSession {
 		}
 		if (intval($sess['timeout'])<$ctime) {
 			// session expired
-			// delete all sessions that will expire within 30 minutes
-			$ctime += 60 * 30;
 			$psdb->query("DELETE FROM `{$psdb->prefix}sessions` WHERE `timeout` < ?", [$ctime]);
 			$this->killCookie();
 			return;
@@ -274,8 +272,8 @@ class NTBBSession {
 			return $curuser;
 		}
 		if (!$timeout) {
-			// expire in a week and 30 minutes
-			$timeout = (14*24*60+30)*60;
+			// expire in two weeks
+			$timeout = 2*7*24*60*60;
 		}
 		$timeout += $ctime;
 
@@ -706,4 +704,3 @@ class NTBBSession {
 }
 
 $users = new NTBBSession();
-
