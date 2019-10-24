@@ -56,7 +56,7 @@
 			e.preventDefault();
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
-			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, {username: name, sourceEl: e.currentTarget});
 		},
 		toggleMute: function () {
 			var muted = !Dex.prefs('mute');

@@ -178,7 +178,7 @@
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
 			var away = $(e.currentTarget).data('away') || false;
 			var status = $(e.currentTarget).data('status');
-			app.addPopup(UserPopup, {roomGroup: roomGroup, name: name, away: away, status: status, sourceEl: e.currentTarget, position: position});
+			app.addPopup(UserPopup, {roomGroup: roomGroup, username: name, away: away, status: status, sourceEl: e.currentTarget, position: position});
 		},
 		openPM: function (e) {
 			e.preventDefault();
@@ -486,7 +486,7 @@
 			case 'user':
 			case 'open':
 				var openUser = function (target) {
-					app.addPopup(UserPopup, {name: target});
+					app.addPopup(UserPopup, {username: target});
 				};
 				target = toName(target);
 				if (!target) {
