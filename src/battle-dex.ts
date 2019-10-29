@@ -668,7 +668,7 @@ const Dex = new class implements ModdedDex {
 		if (num < 0) num = 0;
 		if (num > 809) num = 0;
 
-		if (BattlePokemonIconIndexes[id]) {
+		if (window.BattlePokemonIconIndexes?.[id]) {
 			num = BattlePokemonIconIndexes[id];
 		}
 

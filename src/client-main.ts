@@ -807,6 +807,7 @@ const PS = new class extends PSModel {
 		if (updated) this.update();
 	}
 	focusRoom(roomid: RoomID) {
+		if (this.room.id === roomid) return;
 		if (this.leftRoomList.includes(roomid)) {
 			this.leftRoom = this.rooms[roomid]!;
 			this.activePanel = this.leftRoom;
@@ -994,6 +995,7 @@ const PS = new class extends PSModel {
 		if (!skipUpdate) this.update();
 	}
 	join(roomid: RoomID, side?: PSRoomLocation | null, noFocus?: boolean) {
+		if (this.room.id === roomid) return;
 		this.addRoom({id: roomid, side}, noFocus);
 		this.update();
 	}

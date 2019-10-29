@@ -126,7 +126,7 @@ preact.render(<PSMain />, document.body, document.getElementById('ps-frame')!);
  */
 
 class UserRoom extends PSRoom {
-	readonly classType: string = 'user';
+	readonly classType = 'user';
 	userid: ID;
 	name: string;
 	isSelf: boolean;
