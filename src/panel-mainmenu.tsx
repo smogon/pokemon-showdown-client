@@ -238,6 +238,18 @@ class MainMenuRoom extends PSRoom {
 			const roomsRoom = PS.rooms[`rooms`] as RoomsRoom;
 			if (roomsRoom) roomsRoom.update('');
 			break;
+		case 'roomlist':
+			const battlesRoom = PS.rooms[`battles`] as BattlesRoom;
+			if (battlesRoom) {
+				const battleTable = response.rooms;
+				const battles = [];
+				for (const battleid in battleTable) {
+					battleTable[battleid].id = battleid;
+					battles.push(battleTable[battleid]);
+				}
+				battlesRoom.battles = battles;
+				battlesRoom.update('');
+			}
 		}
 	}
 }
