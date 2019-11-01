@@ -2849,7 +2849,7 @@
 				if (move.category === 'Physical' &&
 						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
 					minAtk = false;
-				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
+				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst' || move.id === 'transform') {
 					minAtk = false;
 				}
 				if (minSpe === false && moveName === 'Gyro Ball') {
