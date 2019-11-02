@@ -8,6 +8,7 @@
 			'keydown textarea': 'keyDown',
 			'keyup textarea': 'keyUp',
 			'click .username': 'clickUsername',
+			'click .header-username': 'clickUsername',
 			'click .closebutton': 'closePM',
 			'click .minimizebutton': 'minimizePM',
 			'click .pm-challenge': 'clickPMButtonBarChallenge',
