@@ -1024,6 +1024,9 @@ p.or:after {
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
 }
+.pm-buttonbar {
+	padding-bottom: 3px;
+}
 .pm-log-add {
 	color: black;
 	border: 1px solid #AAAAAA;

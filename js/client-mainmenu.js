@@ -11,6 +11,8 @@
 			'click .header-username': 'clickUsername',
 			'click .closebutton': 'closePM',
 			'click .minimizebutton': 'minimizePM',
+			'click .pm-challenge': 'clickPMButtonBarChallenge',
+			'click .pm-userOptions':'clickPMButtonBarUserOptions',
 			'click .pm-window': 'clickPMBackground',
 			'dblclick .pm-window h3': 'dblClickPMHeader',
 			'focus textarea': 'onFocusPM',
@@ -190,8 +192,8 @@
 				var buf = '<div class="pm-window pm-window-' + userid + '" data-userid="' + userid + '" data-name="' + name + '">';
 				buf += '<h3><button class="closebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>';
 				buf += '<button class="minimizebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>';
-				buf += group + '<span class="header-username" tabIndex="-1">' + BattleLog.escapeHTML(name.substr(1)) + '</span> </h3>';
-				buf += '<div class="pm-log"><div class="inner" role="log"></div></div>';
+				buf += group + BattleLog.escapeHTML(name.substr(1)) + '</h3>';
+				buf += '<div class="pm-log"><div class="inner" role="log"><div class="pm-buttonbar"><button class="pm-challenge">Challenge</button> <button class="pm-userOptions">...</button></div></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
 				$pmWindow.find('textarea').autoResize({
@@ -279,18 +281,37 @@
 			}
 
 			var $pmHeader = $pmWindow.find('h3');
-			var $pmContent = $pmWindow.find('.pm-log, .pm-log-add');
+			var $pmContent = $pmWindow.find('.pm-log, .pm-log-add, .pm-buttonbar');
 			if (!$pmWindow.data('minimized')) {
 				$pmContent.hide();
 				$pmHeader.addClass('pm-minimized');
 				$pmWindow.data('minimized', true);
 			} else {
+			
 				$pmContent.show();
 				$pmHeader.removeClass('pm-minimized');
 				$pmWindow.data('minimized', false);
 			}
 
 			$pmWindow.find('h3').removeClass('pm-notifying');
+		},
+		clickUsername: function (e) {
+			e.stopPropagation();
+			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
+			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+		},
+		clickPMButtonBarChallenge: function (e) {
+			var name = $(e.currentTarget).closest('.pm-window').data('name');
+			app.rooms[''].requestNotifications();
+			console.log(name);
+			app.focusRoom('');
+			app.rooms[''].challenge(name);
+		},
+		clickPMButtonBarUserOptions: function (e) {
+			e.stopPropagation();
+			var name = $(e.currentTarget).closest('.pm-window').data('name');
+			var userid = $(e.currentTarget).closest('.pm-window').data('name');
+			app.addPopup(UserOptions, {name: name, userid: userid, sourceEl: e.currentTarget});
 		},
 		focusPM: function (name) {
 			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
@@ -456,12 +477,8 @@
 			return true;
 		},
 		chatHistories: {},
-		clickUsername: function (e) {
-			e.stopPropagation();
-			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
-			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
-		},
 		clickPMBackground: function (e) {
+			console.log("BG Clicked");
 			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
 				if (window.getSelection && !window.getSelection().isCollapsed) {
 					return;
