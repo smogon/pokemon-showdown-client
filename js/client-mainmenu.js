@@ -287,7 +287,6 @@
 				$pmHeader.addClass('pm-minimized');
 				$pmWindow.data('minimized', true);
 			} else {
-			
 				$pmContent.show();
 				$pmHeader.removeClass('pm-minimized');
 				$pmWindow.data('minimized', false);
