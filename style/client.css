@@ -570,6 +570,7 @@ select {
 .tabbar a.cur + .closebutton {
 	top: 2px;
 }
+.header-username,
 .closebutton,
 .minimizebutton {
 	text-decoration: none;
@@ -585,11 +586,17 @@ select {
 .closebutton:hover {
 	color: #BB2222;
 }
+span.header-username:hover {
+	color: #333333;
+}
 .minimizebutton:hover,
 .pm-window h3:hover .minimizebutton {
 	color: #333333;
 }
 .pm-window h3 .closebutton:hover + .minimizebutton {
+	color: #999999 !important;
+}
+.pm-window h3 span.header-username:hover + .minimizebutton {
 	color: #999999 !important;
 }
 .closebutton:active,
@@ -1016,6 +1023,9 @@ p.or:after {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+}
+.pm-buttonbar {
+	padding-bottom: 3px;
 }
 .pm-log-add {
 	color: black;
