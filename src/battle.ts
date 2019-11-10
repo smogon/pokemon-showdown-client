@@ -1517,7 +1517,10 @@ class Battle {
 				let ofpoke = this.getPokemon(kwArgs.of);
 				this.activateAbility(ofpoke, effect);
 				if (effect.effectType === 'Item') {
-					(ofpoke || poke).item = effect.name;
+					const itemPoke = ofpoke || poke;
+					if (itemPoke.prevItem !== effect.name) {
+						itemPoke.item = effect.name;
+					}
 				}
 				switch (effect.id) {
 				case 'brn':
