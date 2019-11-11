@@ -722,11 +722,7 @@ Storage.packTeam = function (team) {
 		if (set.ivs) {
 			ivs = '|' + (set.ivs['hp'] === 31 || set.ivs['hp'] === undefined ? '' : set.ivs['hp']) + ',' + (set.ivs['atk'] === 31 || set.ivs['atk'] === undefined ? '' : set.ivs['atk']) + ',' + (set.ivs['def'] === 31 || set.ivs['def'] === undefined ? '' : set.ivs['def']) + ',' + (set.ivs['spa'] === 31 || set.ivs['spa'] === undefined ? '' : set.ivs['spa']) + ',' + (set.ivs['spd'] === 31 || set.ivs['spd'] === undefined ? '' : set.ivs['spd']) + ',' + (set.ivs['spe'] === 31 || set.ivs['spe'] === undefined ? '' : set.ivs['spe']);
 		}
-		if (ivs === '|,,,,,') {
-			buf += '|';
-		} else {
-			buf += ivs;
-		}
+		buf += ivs;
 
 		// shiny
 		if (set.shiny) {
@@ -1166,8 +1162,12 @@ Storage.importTeam = function (buffer, teams) {
 			}
 		} else if (line.substr(0, 5) === 'IVs: ') {
 			line = line.substr(5);
-			var ivLines = line.split(' / ');
+			if (line.trim().endsWith('(auto)')) continue;
+
 			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+			if (line.trim() === '31 all') continue;
+
+			var ivLines = line.split(' / ');
 			for (var j = 0; j < ivLines.length; j++) {
 				var ivLine = ivLines[j];
 				var spaceIndex = ivLine.indexOf(' ');
@@ -1191,12 +1191,6 @@ Storage.importTeam = function (buffer, teams) {
 			if (line.substr(0, 14) === 'Hidden Power [') {
 				var hptype = line.substr(14, line.length - 15);
 				line = 'Hidden Power ' + hptype;
-				if (!curSet.ivs && window.BattleTypeChart && window.BattleTypeChart[hptype]) {
-					curSet.ivs = {};
-					for (var stat in window.BattleTypeChart[hptype].HPivs) {
-						curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
-					}
-				}
 			}
 			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
@@ -1214,7 +1208,7 @@ Storage.exportAllTeams = function () {
 	for (var i = 0, len = Storage.teams.length; i < len; i++) {
 		var team = Storage.teams[i];
 		buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
-		buf += Storage.exportTeam(team.team);
+		buf += Storage.exportTeam(team.team, team.format);
 		buf += '\n';
 	}
 	return buf;
@@ -1225,13 +1219,13 @@ Storage.exportFolder = function (folder) {
 		var team = Storage.teams[i];
 		if (team.folder + "/" === folder || team.format === folder) {
 			buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
-			buf += Storage.exportTeam(team.team);
+			buf += Storage.exportTeam(team.team, team.format);
 			buf += '\n';
 		}
 	}
 	return buf;
 };
-Storage.exportTeam = function (team) {
+Storage.exportTeam = function (team, format) {
 	if (!team) return "";
 	if (typeof team === 'string') {
 		if (team.indexOf('\n') >= 0) return team;
@@ -1269,81 +1263,171 @@ Storage.exportTeam = function (team) {
 		if (curSet.hpType) {
 			text += 'Hidden Power: ' + curSet.hpType + "  \n";
 		}
-		var first = true;
+
+		var firstEV = true;
 		if (curSet.evs) {
 			for (var j in BattleStatNames) {
 				if (!curSet.evs[j]) continue;
-				if (first) {
+				if (firstEV) {
 					text += 'EVs: ';
-					first = false;
+					firstEV = false;
 				} else {
 					text += ' / ';
 				}
 				text += '' + curSet.evs[j] + ' ' + BattleStatNames[j];
 			}
 		}
-		if (!first) {
+		if (!firstEV) {
 			text += "  \n";
 		}
 		if (curSet.nature) {
 			text += '' + curSet.nature + ' Nature' + "  \n";
 		}
-		var first = true;
-		if (curSet.ivs) {
-			var defaultIvs = true;
-			var hpType = false;
+
+		var ivs = curSet.ivs;
+		var firstIV = true;
+		if (ivs) { // Explicitly specified IVs
+			text += 'IVs: ';
+
+			for (var j in BattleStatNames) {
+				var val = ivs[j];
+				if (val === 31) continue;
+				if (firstIV) {
+					firstIV = false;
+				} else {
+					text += ' / ';
+				}
+				text += '' + val + ' ' + BattleStatNames[j];
+			}
+			if (firstIV) {
+				text += '31 all';
+			}
+			text += '  \n';
+		} else { // Automatic IVs
+			ivs = Storage.getAutoIVs(curSet, format);
+			for (var j in BattleStatNames) {
+				var val = ivs[j];
+				if (val === 31) continue;
+				if (firstIV) {
+					text += 'IVs: ';
+					firstIV = false;
+				} else {
+					text += ' / ';
+				}
+				text += '' + val + ' ' + BattleStatNames[j];
+			}
+			if (!firstIV) {
+				text += ' (auto)  \n';
+			}
+		}
+
+		if (curSet.moves) {
 			for (var j = 0; j < curSet.moves.length; j++) {
 				var move = curSet.moves[j];
-				if (move.substr(0, 13) === 'Hidden Power ' && move.substr(0, 14) !== 'Hidden Power [') {
-					hpType = move.substr(13);
-					if (!exports.BattleTypeChart[hpType].HPivs) {
-						alert("That is not a valid Hidden Power type.");
-						continue;
-					}
-					for (var stat in BattleStatNames) {
-						if ((curSet.ivs[stat] === undefined ? 31 : curSet.ivs[stat]) !== (exports.BattleTypeChart[hpType].HPivs[stat] || 31)) {
-							defaultIvs = false;
-							break;
-						}
-					}
+				if (move.substr(0, 13) === 'Hidden Power ') {
+					move = move.substr(0, 13) + '[' + move.substr(13) + ']';
 				}
-			}
-			if (defaultIvs && !hpType) {
-				for (var stat in BattleStatNames) {
-					if (curSet.ivs[stat] !== 31 && curSet.ivs[stat] !== undefined) {
-						defaultIvs = false;
-						break;
-					}
-				}
-			}
-			if (!defaultIvs) {
-				for (var stat in BattleStatNames) {
-					if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] == 31) continue;
-					if (first) {
-						text += 'IVs: ';
-						first = false;
-					} else {
-						text += ' / ';
-					}
-					text += '' + curSet.ivs[stat] + ' ' + BattleStatNames[stat];
+				if (move) {
+					text += '- ' + move + "  \n";
 				}
 			}
 		}
-		if (!first) {
-			text += "  \n";
-		}
-		if (curSet.moves) for (var j = 0; j < curSet.moves.length; j++) {
-			var move = curSet.moves[j];
-			if (move.substr(0, 13) === 'Hidden Power ') {
-				move = move.substr(0, 13) + '[' + move.substr(13) + ']';
-			}
-			if (move) {
-				text += '- ' + move + "  \n";
-			}
-		}
+
 		text += "\n";
 	}
 	return text;
+};
+
+// helper functions for import/export team
+
+Storage.getGen = function (format) {
+	format = '' + format;
+	if (!format) return 7;
+	if (format.substr(0, 3) !== 'gen') return 6;
+	return parseInt(format.substr(3, 1), 10) || 6;
+};
+
+Storage.canHyperTrain = function (set, format) {
+	var gen = Storage.getGen(format);
+	if (gen < 7 || format === 'gen7hiddentype') return false;
+	if (!set.level || set.level === 100) return true;
+	if (format.substr(0, 3) === 'gen') format = format.substr(4);
+	if (format.substr(0, 10) === 'battlespot' || format.substr(0, 3) === 'vgc' || format === 'ultrasinnohclassic') {
+		if (set.level === 50) return true;
+	}
+	return false;
+};
+
+Storage.inferHPType = function (moves) {
+	for (var i = 0; i < moves.length; ++i) {
+		if (moves[i] && moves[i].substr(0, 13) === 'Hidden Power ') {
+			return moves[i].substr(13);
+		}
+	}
+	return null;
+};
+
+Storage.getAutoIVs = function (set, format) {
+	return {
+		hp: Storage.getAutoIV('hp', set, format),
+		atk: Storage.getAutoIV('atk', set, format),
+		def: Storage.getAutoIV('def', set, format),
+		spa: Storage.getAutoIV('spa', set, format),
+		spd: Storage.getAutoIV('spd', set, format),
+		spe: Storage.getAutoIV('spe', set, format)
+	};
+};
+
+Storage.getAutoIV = function (stat, set, format) {
+	if (!format) format = 'gen7';
+	var minValue = 0;
+	var maxValue = 31;
+	var useMaxValue = true;
+
+	var moves = set.moves;
+	var gen = Storage.getGen(format);
+	var hpType = set.hpType || Storage.inferHPType(moves);
+	var _canHyperTrain = Storage.canHyperTrain(set, format);
+
+	if (hpType && window.BattleTypeChart) {
+		if (gen > 2) {
+			minValue = (window.BattleTypeChart[hpType].HPivs[stat] || 31) % 2;
+			if (!_canHyperTrain) {
+				// Must have matching parity for the correct Hidden Power type
+				maxValue = 30 + minValue;
+			}
+		} else if (stat === 'atk' || stat === 'def') { // Gen 2 only uses atk/def to calc HP type
+			minValue = ((window.BattleTypeChart[hpType].HPdvs[stat] || 15) % 4) * 2; // Results in 0, 2, 4, or 6
+			maxValue = (minValue === 6 ? 31 : 24 + minValue);
+		}
+	}
+
+	if (stat === 'atk') {
+		if (gen > 2 && set.ability !== 'Battle Bond') { // Ash-Greninja is only available through an event with 31 Atk IVs
+			useMaxValue = false; // Default to 0 Atk IVs if we don't have a physical attacking move
+			for (var i = 0; i < moves.length; ++i) {
+				if (!moves[i]) continue;
+				var move = Dex.forGen(gen).getMove(moves[i]);
+				if (move.category === 'Physical' &&
+					!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
+					useMaxValue = true;
+					break;
+				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
+					useMaxValue = true;
+					break;
+				}
+			}
+		}
+	} else if (stat === 'spe') {
+		for (var i = 0; i < moves.length; ++i) {
+			if (moves[i] === 'Gyro Ball') {
+				useMaxValue = false;
+				break;
+			}
+		}
+	}
+
+	return useMaxValue ? maxValue : minValue;
 };
 
 /*********************************************************
@@ -1597,7 +1681,7 @@ Storage.nwSaveTeam = function (team) {
 		this.nwDeleteTeam(team);
 	}
 	team.filename = filename;
-	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
+	fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.format).replace(/\n/g, '\r\n'), function () {});
 };
 
 Storage.nwSaveTeams = function () {
@@ -1633,7 +1717,7 @@ Storage.nwDoSaveAllTeams = function () {
 		filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 		team.filename = filename;
-		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team).replace(/\n/g, '\r\n'), function () {});
+		fs.writeFile(this.dir + 'Teams/' + filename, Storage.exportTeam(team.team, team.format).replace(/\n/g, '\r\n'), function () {});
 	}
 };
 

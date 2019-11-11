@@ -19,7 +19,7 @@
 		focus: function () {
 			if (this.curTeam) {
 				this.curTeam.iconCache = '!';
-				this.curTeam.gen = this.getGen(this.curTeam.format);
+				this.curTeam.gen = Storage.getGen(this.curTeam.format);
 				Storage.activeSetList = this.curSetList;
 			}
 		},
@@ -48,6 +48,7 @@
 			'change select[name=ivspread]': 'ivSpreadChange',
 			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
+			'change input[name=autoivs]': 'useAutoIVsChange',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -665,7 +666,7 @@
 			i = +i;
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
-			this.curTeam.gen = this.getGen(this.curTeam.format);
+			this.curTeam.gen = Storage.getGen(this.curTeam.format);
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -817,7 +818,7 @@
 				// Chrome is dumb and doesn't support data URLs in HTTPS
 				urlprefix = "https://play.pokemonshowdown.com/action.php?act=dlteam&team=";
 			}
-			var contents = Storage.exportTeam(team.team).replace(/\n/g, '\r\n');
+			var contents = Storage.exportTeam(team.team, team.format).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
 			dataTransfer.setData("DownloadURL", downloadurl);
@@ -1053,7 +1054,7 @@
 			var buf = '';
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList, this.curTeam.format)) + '</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="fa fa-upload"></i> Import/Export</button></div>';
 				buf += '<div class="teamchartbox">';
@@ -1222,7 +1223,7 @@
 					item: '',
 					nature: '',
 					evs: {},
-					ivs: {},
+					ivs: null,
 					moves: []
 				};
 				team.push(newPokemon);
@@ -1293,7 +1294,7 @@
 		},
 		changeFormat: function (format) {
 			this.curTeam.format = format;
-			this.curTeam.gen = this.getGen(this.curTeam.format);
+			this.curTeam.gen = Storage.getGen(this.curTeam.format);
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
 			this.update();
@@ -1447,7 +1448,7 @@
 			this.$('.teambuilder-pokemon-import')
 				.show()
 				.find('textarea')
-				.val(Storage.exportTeam([this.curSet]).trim())
+				.val(Storage.exportTeam([this.curSet], this.curTeam.format).trim())
 				.focus()
 				.select();
 		},
@@ -1956,11 +1957,10 @@
 
 			if (this.curTeam.gen > 2) {
 				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
-				if (!set.ivs) set.ivs = {};
+				var ivs = set.ivs || Storage.getAutoIVs(set, this.curTeam.format);
 				for (var i in stats) {
-					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
-					var val = '' + (set.ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
+					var val = '' + (ivs[i]);
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" ' + (set.ivs ? '' : 'disabled') + ' /></div>';
 				}
 				var hpType = '';
 				if (set.moves) {
@@ -1971,7 +1971,7 @@
 						}
 					}
 				}
-				if (hpType && !this.canHyperTrain(set)) {
+				if (hpType && !Storage.canHyperTrain(set, this.curTeam.format)) {
 					var hpIVs;
 					switch (hpType) {
 					case 'dark':
@@ -2007,7 +2007,8 @@
 					case 'fighting':
 						hpIVs = ['001000', '110000', '100000']; break;
 					}
-					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread">';
+					buf += '<div style="display:inline-block;margin-left:-80px;text-align:right">';
+					buf += '<select name="ivspread">';
 					buf += '<option value="" selected>HP ' + hpType.charAt(0).toUpperCase() + hpType.slice(1) + ' IVs</option>';
 
 					var minStat = this.curTeam.gen >= 6 ? 0 : 2;
@@ -2053,9 +2054,10 @@
 					}
 					buf += '</optgroup>';
 
-					buf += '</select></div>';
+					buf += '</select>';
 				} else {
-					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread">';
+					buf += '<div style="display:inline-block;margin-left:-80px;text-align:right">';
+					buf += '<select name="ivspread">';
 					buf += '<option value="" selected>IV spreads</option>';
 
 					buf += '<optgroup label="min Atk">';
@@ -2071,17 +2073,21 @@
 					buf += '<option value="31/31/31/31/31/0">31/31/31/31/31/0</option>';
 					buf += '</optgroup>';
 
-					buf += '</select></div>';
+					buf += '</select>';
 				}
+				buf += '<input type="checkbox" name="autoivs" ' + (set.ivs ? '' : 'checked') + '> Use automatic IVs';
+				buf += '</div>';
 				buf += '</div>';
 			} else {
 				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
-				if (!set.ivs) set.ivs = {};
+				var ivs = set.ivs || Storage.getAutoIVs(set, this.curTeam.format);
 				for (var i in stats) {
-					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
-					var val = '' + Math.floor(set.ivs[i] / 2);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
+					var val = '' + Math.floor(ivs[i] / 2);
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" ' + (set.ivs ? '' : 'disabled') + ' /></div>';
 				}
+				buf += '<div style="display:inline-block;margin-left:-80px;text-align:right">';
+				buf += '<input type="checkbox" name="autoivs" ' + (set.ivs ? '' : 'checked') + '> Use automatic DVs';
+				buf += '</div>';
 				buf += '</div>';
 			}
 
@@ -2194,18 +2200,22 @@
 				if (val > 31 || isNaN(val)) val = 31;
 				if (val < 0) val = 0;
 
-				if (!set.ivs) set.ivs = {};
-				if (set.ivs[stat] !== val) {
-					set.ivs[stat] = val;
-					this.updateIVs();
-					this.updateStatGraph();
+				// This check shouldn't fail under normal circumstances, since the IVs can only be changed if
+				// the auto IVs box is unchecked meaning set.ivs isn't null.
+				if (set.ivs) {
+					var changed = set.ivs[stat] !== val;
+					if (changed) {
+						set.ivs[stat] = val;
+						this.updateIVs();
+						this.updateStatGraph();
+					}
 				}
 			}
 			this.save();
 		},
 		updateIVs: function () {
 			var set = this.curSet;
-			if (!set.moves || this.canHyperTrain(set)) return;
+			if (!set.moves || Storage.canHyperTrain(set, this.curTeam.format)) return;
 			var hasHiddenPower = false;
 			for (var i = 0; i < set.moves.length; i++) {
 				if (toID(set.moves[i]).slice(0, 11) === 'hiddenpower') {
@@ -2217,25 +2227,31 @@
 			var hpTypes = ['Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark'];
 			var hpType;
 			if (this.curTeam.gen <= 2) {
-				var hpDV = Math.floor(set.ivs.hp / 2);
-				var atkDV = Math.floor(set.ivs.atk / 2);
-				var defDV = Math.floor(set.ivs.def / 2);
-				var speDV = Math.floor(set.ivs.spe / 2);
-				var spcDV = Math.floor(set.ivs.spa / 2);
+				var ivs = set.ivs || Storage.getAutoIVs(set, this.curTeam.format);
+				var atkDV = Math.floor(ivs.atk / 2);
+				var defDV = Math.floor(ivs.def / 2);
 				hpType = hpTypes[4 * (atkDV % 4) + (defDV % 4)];
-				var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
-				if (expectedHpDV !== hpDV) {
-					set.ivs.hp = expectedHpDV * 2;
-					if (set.ivs.hp === 30) set.ivs.hp = 31;
-					this.$chart.find('input[name=iv-hp]').val(expectedHpDV);
+
+				// If the user opts for manual DVs, then verify that the HP DV is correct according to the other DVs.
+				// XXX: This behavior should be enabled even when the moveset does not have Hidden Power
+				if (ivs === set.ivs) {
+					var hpDV = Math.floor(ivs.hp / 2);
+					var speDV = Math.floor(ivs.spe / 2);
+					var spcDV = Math.floor(ivs.spa / 2);
+
+					var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
+					if (expectedHpDV !== hpDV) {
+						ivs.hp = expectedHpDV * 2;
+						if (ivs.hp === 30) ivs.hp = 31;
+						this.$chart.find('input[name=iv-hp]').val(expectedHpDV);
+					}
 				}
 			} else {
 				var hpTypeX = 0;
 				var i = 1;
-				var stats = {hp: 31, atk: 31, def: 31, spe: 31, spa: 31, spd: 31};
-				for (var s in stats) {
-					if (set.ivs[s] === undefined) set.ivs[s] = 31;
-					hpTypeX += i * (set.ivs[s] % 2);
+				var ivs = set.ivs || Storage.getAutoIVs(set, this.curTeam.format);
+				for (var s in ivs) {
+					hpTypeX += i * (ivs[s] % 2);
 					i *= 2;
 				}
 				hpType = hpTypes[Math.floor(hpTypeX * 15 / 63)];
@@ -2336,18 +2352,52 @@
 			if (!set) return;
 
 			var spread = e.currentTarget.value.split('/');
-			if (!set.ivs) set.ivs = {};
 			if (spread.length !== 6) return;
 
+			if (!set.ivs) set.ivs = {};
 			var stats = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 			for (var i = 0; i < 6; i++) {
-				this.$chart.find('input[name=iv-' + stats[i] + ']').val(spread[i]);
 				set.ivs[stats[i]] = parseInt(spread[i], 10);
+				this.$chart.find('input[name=iv-' + stats[i] + ']').val(spread[i]);
 			}
 			$(e.currentTarget).val('');
+			$('input[name=autoivs]').prop('checked', false);
+			$('input[name=autoivs]').trigger('change');
 
 			this.save();
 			this.updateStatGraph();
+		},
+		useAutoIVsChange: function (e) {
+			var set = this.curSet;
+			var newValue = e.currentTarget.checked;
+			if (newValue) {
+				// Reset the IVs to their defaults
+				set.ivs = null;
+				var autoIVs = Storage.getAutoIVs(set, this.curTeam.format);
+				for (var stat in autoIVs) {
+					var val = this.curTeam.gen > 2 ? autoIVs[stat] : Math.floor(autoIVs[stat] / 2);
+					var input = this.$chart.find('input[name=iv-' + stat + ']');
+					input.val('' + val);
+					input.prop('disabled', true);
+				}
+
+				this.save();
+				this.updateStatGraph();
+			} else {
+				// We are still using the same IVs, but this causes them to become "hardcoded" instead
+				// of automatically inferred. For example, if the user adds Gyro Ball to the moveset afterwards,
+				// we will not adjust their speed. Also, we will include any non-31 IVs in the export.
+				if (!set.ivs) set.ivs = Storage.getAutoIVs(set, this.curTeam.format);
+
+				for (var stat in set.ivs) {
+					var input = this.$chart.find('input[name=iv-' + stat + ']');
+					input.val('' + set.ivs[stat]);
+					input.prop('disabled', false);
+				}
+
+				this.save();
+				// We don't have to update the stat graph here since we're not actually changing the IVs, just how they're stored
+			}
 		},
 
 		/*********************************************************
@@ -2532,7 +2582,6 @@
 					var $inputEl = this.$('input[name=move' + i + ']');
 					var curVal = $inputEl.val();
 					if (curVal === val) {
-						this.unChooseMove(curVal);
 						$inputEl.val('');
 						delete this.search.cur[toID(val)];
 					} else if (curVal) {
@@ -2710,7 +2759,7 @@
 				set.ability = 'Harvest';
 				set.moves = ['Substitute', 'Horn Leech', 'Earthquake', 'Phantom Force'];
 				set.evs = {hp: 36, atk: 252, def: 0, spa: 0, spd: 0, spe: 220};
-				set.ivs = {};
+				set.ivs = null;
 				set.nature = 'Jolly';
 				this.updateSetTop();
 				this.$(!this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
@@ -2736,14 +2785,12 @@
 				if (selectNext) this.$('input[name=move1]').select();
 				break;
 			case 'move1':
-				this.unChooseMove(this.curSet.moves[0]);
 				this.curSet.moves[0] = val;
 				this.chooseMove(val);
 				if (selectNext) this.$('input[name=move2]').select();
 				break;
 			case 'move2':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
-				this.unChooseMove(this.curSet.moves[1]);
 				this.curSet.moves[1] = val;
 				this.chooseMove(val);
 				if (selectNext) this.$('input[name=move3]').select();
@@ -2751,7 +2798,6 @@
 			case 'move3':
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
 				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
-				this.unChooseMove(this.curSet.moves[2]);
 				this.curSet.moves[2] = val;
 				this.chooseMove(val);
 				if (selectNext) this.$('input[name=move4]').select();
@@ -2760,7 +2806,6 @@
 				if (!this.curSet.moves[0]) this.curSet.moves[0] = '';
 				if (!this.curSet.moves[1]) this.curSet.moves[1] = '';
 				if (!this.curSet.moves[2]) this.curSet.moves[2] = '';
-				this.unChooseMove(this.curSet.moves[3]);
 				this.curSet.moves[3] = val;
 				this.chooseMove(val);
 				if (selectNext) {
@@ -2771,112 +2816,12 @@
 			}
 			this.save();
 		},
-		unChooseMove: function (moveName) {
+		chooseMove: function (moveName) {
 			var set = this.curSet;
-			if (!moveName || !set || this.curTeam.format === 'gen7hiddentype') return;
-			if (moveName.substr(0, 13) === 'Hidden Power ') {
-				if (set.ivs) {
-					for (var i in set.ivs) {
-						if (set.ivs[i] === 30) set.ivs[i] = 31;
-						if (set.ivs[i] <= 3) set.ivs[i] = 0;
-					}
-				}
-			}
-			var resetSpeed = false;
-			if (moveName === 'Gyro Ball') {
-				resetSpeed = true;
-			}
-			this.chooseMove('', resetSpeed);
-		},
-		canHyperTrain: function (set) {
-			if (this.curTeam.gen < 7 || this.curTeam.format === 'gen7hiddentype') return false;
-			var format = this.curTeam.format;
-			if (!set.level || set.level === 100) return true;
-			if (format.substr(0, 3) === 'gen') format = format.substr(4);
-			if (format.substr(0, 10) === 'battlespot' || format.substr(0, 3) === 'vgc' || format === 'ultrasinnohclassic') {
-				if (set.level === 50) return true;
-			}
-			return false;
-		},
-		chooseMove: function (moveName, resetSpeed) {
-			var set = this.curSet;
-			if (!set) return;
-			var gen = this.curTeam.gen;
-
-			var minSpe;
-			if (resetSpeed) minSpe = false;
-			if (moveName.substr(0, 13) === 'Hidden Power ') {
-				if (!this.canHyperTrain(set)) {
-					var hpType = moveName.substr(13);
-
-					set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
-					if (this.curTeam.gen > 2) {
-						for (var i in exports.BattleTypeChart[hpType].HPivs) {
-							set.ivs[i] = exports.BattleTypeChart[hpType].HPivs[i];
-						}
-					} else {
-						for (var i in exports.BattleTypeChart[hpType].HPdvs) {
-							set.ivs[i] = exports.BattleTypeChart[hpType].HPdvs[i] * 2;
-						}
-						var atkDV = Math.floor(set.ivs.atk / 2);
-						var defDV = Math.floor(set.ivs.def / 2);
-						var speDV = Math.floor(set.ivs.spe / 2);
-						var spcDV = Math.floor(set.ivs.spa / 2);
-						var expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
-						set.ivs.hp = expectedHpDV * 2;
-						if (set.ivs.hp === 30) set.ivs.hp = 31;
-					}
-				}
-			} else if (moveName === 'Return') {
-				this.curSet.happiness = 255;
+			if (moveName === 'Return') {
+				set.happiness = 255;
 			} else if (moveName === 'Frustration') {
-				this.curSet.happiness = 0;
-			} else if (moveName === 'Gyro Ball') {
-				minSpe = true;
-			}
-
-			if (this.curTeam.format === 'gen7hiddentype') return;
-
-			var minAtk = true;
-			if (set.ability === 'Battle Bond') minAtk = false; // only available through an event with 31 Atk IVs
-			var hpModulo = (this.curTeam.gen >= 6 ? 2 : 4);
-			var hasHiddenPower = false;
-			var moves = set.moves;
-			for (var i = 0; i < moves.length; ++i) {
-				if (!moves[i]) continue;
-				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
-				var move = Dex.forGen(this.curTeam.gen).getMove(moves[i]);
-				if (move.category === 'Physical' &&
-						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
-					minAtk = false;
-				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
-					minAtk = false;
-				}
-				if (minSpe === false && moveName === 'Gyro Ball') {
-					minSpe = undefined;
-				}
-			}
-
-			if (!set.ivs) {
-				if (minSpe === undefined && (!minAtk || gen < 3)) return;
-				set.ivs = {};
-			}
-			if (!set.ivs['spe'] && set.ivs['spe'] !== 0) set.ivs['spe'] = 31;
-			if (minSpe) {
-				// min Spe
-				set.ivs['spe'] = (hasHiddenPower ? set.ivs['spe'] % hpModulo : 0);
-			} else if (minSpe === false) {
-				// max Spe
-				set.ivs['spe'] = (hasHiddenPower ? 30 + (set.ivs['spe'] % 2) : 31);
-			}
-			if (gen < 3) return;
-			if (!set.ivs['atk'] && set.ivs['atk'] !== 0) set.ivs['atk'] = 31;
-			if (minAtk) {
-				// min Atk
-				set.ivs['atk'] = (hasHiddenPower ? set.ivs['atk'] % hpModulo : 0);
-			} else {
-				// max Atk
-				set.ivs['atk'] = (hasHiddenPower ? 30 + (set.ivs['atk'] % 2) : 31);
+				set.happiness = 0;
 			}
 		},
 		setPokemon: function (val, selectNext) {
@@ -2917,7 +2862,7 @@
 
 			set.moves = [];
 			set.evs = {};
-			set.ivs = {};
+			set.ivs = null;
 			set.nature = '';
 			this.updateSetTop();
 			if (selectNext) this.$(set.item || !this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
@@ -2934,15 +2879,6 @@
 			var supportsAVs = !supportsEVs;
 			if (!set) set = this.curSet;
 			if (!set) return 0;
-
-			if (!set.ivs) set.ivs = {
-				hp: 31,
-				atk: 31,
-				def: 31,
-				spa: 31,
-				spd: 31,
-				spe: 31
-			};
 			if (!set.evs) set.evs = {};
 
 			// do this after setting set.evs because it's assumed to exist
@@ -2951,10 +2887,9 @@
 			if (!template.exists) return 0;
 
 			if (!set.level) set.level = 100;
-			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
 
 			var baseStat = (this.getBaseStats(template))[stat];
-			var iv = (set.ivs[stat] || 0);
+			var iv = set.ivs ? set.ivs[stat] : Storage.getAutoIV(stat, set, this.curTeam.format);
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
 			if (evOverride !== undefined) ev = evOverride;
@@ -2982,15 +2917,6 @@
 			}
 			return Math.floor(val);
 		},
-
-		// initialization
-
-		getGen: function (format) {
-			format = '' + format;
-			if (!format) return 7;
-			if (format.substr(0, 3) !== 'gen') return 6;
-			return parseInt(format.substr(3, 1), 10) || 6;
-		}
 	});
 
 	var MoveSetPopup = exports.MoveSetPopup = Popup.extend({
