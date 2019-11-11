@@ -302,14 +302,13 @@
 		clickPMButtonBarChallenge: function (e) {
 			var name = $(e.currentTarget).closest('.pm-window').data('name');
 			app.rooms[''].requestNotifications();
-			console.log(name);
 			app.focusRoom('');
 			app.rooms[''].challenge(name);
 		},
 		clickPMButtonBarUserOptions: function (e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).closest('.pm-window').data('name');
-			var userid = $(e.currentTarget).closest('.pm-window').data('name');
+			var userid = toID($(e.currentTarget).closest('.pm-window').data('name'));
 			app.addPopup(UserOptions, {name: name, userid: userid, sourceEl: e.currentTarget});
 		},
 		focusPM: function (name) {
@@ -477,7 +476,6 @@
 		},
 		chatHistories: {},
 		clickPMBackground: function (e) {
-			console.log("BG Clicked");
 			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
 				if (window.getSelection && !window.getSelection().isCollapsed) {
 					return;
