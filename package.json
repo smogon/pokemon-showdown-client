@@ -25,7 +25,8 @@
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-typescript": "^7.3.3",
     "google-auth-library": "^3.1.0",
-    "image-size": "^0.7.2"
+    "image-size": "^0.7.2",
+    "output-file-sync": "^2.0.1"
   },
   "devDependencies": {
     "@types/jquery": "^3.3.29",
@@ -34,7 +35,7 @@
     "mocha": "^6.0.2",
     "preact": "^8.3.1",
     "tslint": "^5.13.0",
-    "typescript": "^3.7.0-dev.20191011"
+    "typescript": "^3.7.0"
   },
   "private": true
 }
