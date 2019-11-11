@@ -1223,6 +1223,9 @@ class BattleTooltips {
 		const pokemon = value.pokemon!;
 		const serverPokemon = value.serverPokemon;
 
+		// apply modifiers for moves that depend on the actual stats
+		const modifiedStats = this.calculateModifiedStats(pokemon, serverPokemon);
+
 		value.reset(move.basePower);
 
 		if (move.id === 'acrobatics') {
@@ -1315,8 +1318,8 @@ class BattleTooltips {
 		// Moves that check opponent speed
 		if (move.id === 'electroball' && target) {
 			let [minSpe, maxSpe] = this.getSpeedRange(target);
-			let minRatio = (serverPokemon.stats['spe'] / maxSpe);
-			let maxRatio = (serverPokemon.stats['spe'] / minSpe);
+			let minRatio = (modifiedStats.spe / maxSpe);
+			let maxRatio = (modifiedStats.spe / minSpe);
 			let min;
 			let max;
 
@@ -1336,9 +1339,9 @@ class BattleTooltips {
 		}
 		if (move.id === 'gyroball' && target) {
 			let [minSpe, maxSpe] = this.getSpeedRange(target);
-			let min = (Math.floor(25 * minSpe / serverPokemon.stats['spe']) || 1);
+			let min = (Math.floor(25 * minSpe / modifiedStats.spe) || 1);
 			if (min > 150) min = 150;
-			let max = (Math.floor(25 * maxSpe / serverPokemon.stats['spe']) || 1);
+			let max = (Math.floor(25 * maxSpe / modifiedStats.spe) || 1);
 			if (max > 150) max = 150;
 			value.setRange(min, max);
 		}
