@@ -49,7 +49,7 @@ var Replays = {
 		this.battle = new Battle(this.$('.battle'), this.$('.battle-log'));
 		//this.battle.preloadCallback = updateProgress;
 		this.battle.errorCallback = this.errorCallback.bind(this);
-		this.battle.resumeButton = this.resume.bind(this);
+		//this.battle.resumeButton = this.resume.bind(this);
 
 		this.setlog(log);
 	},
@@ -144,6 +144,7 @@ var Replays = {
 	},
 	pause: function () {
 		this.$('.replay-controls').html('<button data-action="play"><i class="fa fa-play"></i> Play</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
+		this.battle.resumeButton = this.resume.bind(this);
 		this.battle.pause();
 	},
 	play: function () {
