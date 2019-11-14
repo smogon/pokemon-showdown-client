@@ -360,7 +360,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	};
 	render() {
 		const room = this.props.room;
-		const isPM = !!room.pmTarget;
+		const tinyLayout = room.width < 450;
 
 		const challengeTo = room.challengingFormat ? <div class="challenge">
 			<TeamForm format={room.challengingFormat} onSubmit={null}>
@@ -382,17 +382,23 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 
 		return <PSPanelWrapper room={room}>
 			<div class="tournament-wrapper hasuserlist"></div>
-			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={isPM ? 0 : 146}>
+			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={tinyLayout ? 0 : 146}>
 				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
 			</ChatLog>
-			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={isPM ? 0 : 146} />
-			<ChatUserList room={this.props.room} minimized={isPM} />
+			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={tinyLayout ? 0 : 146} />
+			<ChatUserList room={this.props.room} minimized={tinyLayout} />
 		</PSPanelWrapper>;
 	}
 }
 
 class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, minimized?: boolean}> {
 	subscription: PSSubscription | null = null;
+	state = {
+		expanded: false,
+	};
+	toggleExpanded = () => {
+		this.setState({expanded: !this.state.expanded});
+	};
 	componentDidMount() {
 		this.subscription = this.props.room.subscribe(msg => {
 			if (!msg) this.forceUpdate();
@@ -408,8 +414,8 @@ class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, mini
 		function colorStyle(userid: ID) {
 			return {color: BattleLog.usernameColor(userid)};
 		}
-		return <ul class={'userlist' + (this.props.minimized ? ' userlist-minimized' : '')} style={{left: this.props.left || 0}}>
-			<li class="userlist-count" style="text-align:center;padding:2px 0"><small>{room.userCount} users</small></li>
+		return <ul class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')} style={{left: this.props.left || 0}}>
+			<li class="userlist-count" style="text-align:center;padding:2px 0" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
 			{userList.map(([userid, name]) => {
 				const groupSymbol = name.charAt(0);
 				const group = PS.server.groups[groupSymbol] || {type: 'user', order: 0};

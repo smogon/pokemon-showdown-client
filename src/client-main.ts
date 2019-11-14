@@ -606,15 +606,27 @@ const PS = new class extends PSModel {
 			maxWidth: 640,
 		};
 	}
-	updateLayout() {
+	updateLayout(alreadyUpdating?: boolean) {
 		const leftRoomWidth = this.calculateLeftRoomWidth();
+		let roomHeight = document.body.offsetHeight - 56;
+		let totalWidth = document.body.offsetWidth;
+		if (leftRoomWidth) {
+			this.leftRoom.width = leftRoomWidth;
+			this.leftRoom.height = roomHeight;
+			this.rightRoom!.width = totalWidth + 1 - leftRoomWidth;
+			this.rightRoom!.height = roomHeight;
+		} else {
+			this.activePanel.width = totalWidth;
+			this.activePanel.height = roomHeight;
+		}
+
 		if (this.leftRoomWidth !== leftRoomWidth) {
 			this.leftRoomWidth = leftRoomWidth;
-			this.update(true);
+			if (!alreadyUpdating) this.update(true);
 		}
 	}
 	update(layoutAlreadyUpdated?: boolean) {
-		if (!layoutAlreadyUpdated) this.updateLayout();
+		if (!layoutAlreadyUpdated) this.updateLayout(true);
 		super.update();
 	}
 	receive(msg: string) {
