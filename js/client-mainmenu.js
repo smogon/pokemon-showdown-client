@@ -193,7 +193,7 @@
 				buf += '<h3><button class="closebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>';
 				buf += '<button class="minimizebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>';
 				buf += group + BattleLog.escapeHTML(name.substr(1)) + '</h3>';
-				buf += '<div class="pm-log"><div class="inner" role="log"><div class="pm-buttonbar"><button class="pm-challenge">Challenge</button> <button class="pm-userOptions">...</button></div></div></div>';
+				buf += '<div class="pm-log"><div class="pm-buttonbar"><button class="pm-challenge">Challenge</button><button class="pm-userOptions">...</button></div><div class="inner" role="log"></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
 				$pmWindow.find('textarea').autoResize({

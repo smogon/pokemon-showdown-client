@@ -1684,6 +1684,19 @@ a.ilink.yours {
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
 }
+.pm-buttonbar {
+	height: 21px;
+}
+.pm-buttonbar button {
+	float: left;
+	font: 8pt Verdana, sans-serif;
+	height: 21px;
+	background: #EEF2F5;
+	color: black;
+	border: 0;
+	border-right: 1px solid #AAAAAA;
+	border-bottom: 1px solid #AAAAAA;
+}
 .userlist-minimized {
 	height: 21px;
 	bottom: auto;
@@ -1702,7 +1715,8 @@ a.ilink.yours {
 	cursor: pointer;
 }
 .userlist-minimized .userlist-count:hover,
-.userlist-maximized .userlist-count:hover {
+.userlist-maximized .userlist-count:hover,
+.pm-buttonbar button:hover {
 	background: #DEE4EA;
 }
 .chat-log.hasuserlist,
@@ -3244,12 +3258,14 @@ a.ilink.yours {
 	background: #444444;
 	color: #DDD;
 }
-.dark .userlist-minimized {
+.dark .userlist-minimized,
+.dark .pm-buttonbar button {
 	background: #444444;
 	color: #4488EE;
 }
 .dark .userlist-minimized .userlist-count:hover,
-.dark .userlist-maximized .userlist-count:hover {
+.dark .userlist-maximized .userlist-count:hover,
+.dark .pm-buttonbar button:hover {
 	background: #666666;
 }
 
