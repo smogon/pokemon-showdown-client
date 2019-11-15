@@ -209,8 +209,8 @@ interface SpriteData {
 }
 
 const Dex = new class implements ModdedDex {
-	readonly gen = 7;
-	readonly modid = 'gen7' as ID;
+	readonly gen = 8;
+	readonly modid = 'gen8' as ID;
 	readonly cache = null!;
 
 	readonly statNames: ReadonlyArray<StatName> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
@@ -236,7 +236,7 @@ const Dex = new class implements ModdedDex {
 	moddedDexes: {[mod: string]: ModdedDex} = {};
 
 	mod(modid: ID): ModdedDex {
-		if (modid === 'gen7') return this;
+		if (modid === 'gen8') return this;
 		if (!window.BattleTeambuilderTable) return this;
 		if (modid in this.moddedDexes) {
 			return this.moddedDexes[modid];

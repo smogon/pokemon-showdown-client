@@ -33,7 +33,7 @@
 		this.externalFilter = false;
 		this.cur = {};
 		this.$inputEl = null;
-		this.gen = 7;
+		this.gen = 8;
 		this.isDoubles = false;
 
 		var self = this;
@@ -257,7 +257,7 @@
 
 			// For pokemon queries, accept types/tier/abilities/moves/eggroups as filters
 			if (qType === 'pokemon' && (typeIndex === 5 || typeIndex > 7)) continue;
-			if (qType === 'pokemon' && typeIndex === 3 && this.gen < 7) continue;
+			if (qType === 'pokemon' && typeIndex === 3 && this.gen < 8) continue;
 			// For move queries, accept types/categories as filters
 			if (qType === 'move' && ((typeIndex !== 8 && typeIndex > 4) || typeIndex === 3)) continue;
 			// For move queries in the teambuilder, don't accept pokemon as filters
@@ -470,6 +470,9 @@
 				break;
 			case 'rowlet':
 				resultSet.push(['header', "Generation 7"]);
+				break;
+			case 'grookey':
+				resultSet.push(['header', "Generation 8"]);
 				break;
 			case 'missingno':
 				resultSet.push(['header', "Glitch"]);
@@ -793,7 +796,7 @@
 			this.gen = (Number(format.charAt(3)) || 6);
 			format = format.slice(4);
 		} else if (!format) {
-			this.gen = 7;
+			this.gen = 8;
 		}
 		if (format.includes('doubles')) this.isDoubles = true;
 		var isLetsGo = format.startsWith('letsgo');
@@ -810,7 +813,7 @@
 			var isDoublesOrBS = false;
 			if (format.endsWith('cap') || format.endsWith('caplc')) {
 				// CAP formats always use the singles table
-				if (this.gen < 7) {
+				if (this.gen < 8) {
 					table = table['gen' + this.gen];
 				}
 			} else if (this.gen === 7 && requirePentagon) {
@@ -819,7 +822,7 @@
 			} else if (table['gen' + this.gen + 'doubles'] && (format.includes('doubles') || format.includes('vgc') || format.includes('triples') || format.endsWith('lc') || format.endsWith('lcuu')) && !isLetsGo) {
 				table = table['gen' + this.gen + 'doubles'];
 				isDoublesOrBS = true;
-			} else if (this.gen < 7) {
+			} else if (this.gen < 8) {
 				table = table['gen' + this.gen];
 			} else if (isLetsGo) {
 				table = table['letsgo'];
@@ -861,7 +864,7 @@
 			// else if (isDoublesOrBS) tierSet = tierSet;
 			else if (!isDoublesOrBS) tierSet = tierSet.slice(slices.OU, slices.UU).concat(agTierSet).concat(tierSet.slice(slices.Uber, slices.OU)).concat(tierSet.slice(slices.UU));
 
-			if (format === 'zu' && this.gen === 7) {
+			if (format === 'zu' && this.gen >= 7) {
 				tierSet = tierSet.filter(function (r) {
 					if (r[1] in table.zuBans) return false;
 					return true;
@@ -882,7 +885,7 @@
 
 		case 'item':
 			var table = BattleTeambuilderTable;
-			if (this.gen < 7) table = table['gen' + this.gen];
+			if (this.gen < 8) table = table['gen' + this.gen];
 			if (!table.itemSet) {
 				table.itemSet = table.items.map(function (r) {
 					if (typeof r === 'string') return ['item', r];
@@ -1361,7 +1364,7 @@
 		}
 
 		var gen = this.gen;
-		var table = (gen < 7 ? BattleTeambuilderTable['gen' + gen] : null);
+		var table = (gen < 8 ? BattleTeambuilderTable['gen' + gen] : null);
 
 		// type
 		buf += '<span class="col typecol">';
@@ -1530,8 +1533,8 @@
 
 		// desc
 		var desc = (item.shortDesc || item.desc);
-		if (this.gen < 7) {
-			for (var i = this.gen; i < 7; i++) {
+		if (this.gen < 8) {
+			for (var i = this.gen; i < 8; i++) {
 				if (id in BattleTeambuilderTable['gen' + i].overrideItemDesc) {
 					desc = BattleTeambuilderTable['gen' + i].overrideItemDesc[id];
 					break;
@@ -1603,7 +1606,7 @@
 			return buf;
 		}
 
-		var table = (this.gen < 7 ? BattleTeambuilderTable['gen' + this.gen] : null);
+		var table = (this.gen < 8 ? BattleTeambuilderTable['gen' + this.gen] : null);
 
 		// type
 		buf += '<span class="col typecol">';
@@ -1629,8 +1632,8 @@
 
 		// desc
 		var desc = (move.shortDesc || move.desc);
-		if (this.gen < 7) {
-			for (var i = this.gen; i < 7; i++) {
+		if (this.gen < 8) {
+			for (var i = this.gen; i < 8; i++) {
 				if (id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
 					desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
 					break;
@@ -1846,7 +1849,7 @@
 		return buf;
 	};
 
-	Search.gen = 7;
+	Search.gen = 8;
 	Search.renderRow = Search.prototype.renderRow;
 	Search.renderPokemonRow = Search.prototype.renderPokemonRow;
 	Search.renderTaggedPokemonRowInner = Search.prototype.renderTaggedPokemonRowInner;
