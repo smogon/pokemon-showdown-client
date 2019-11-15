@@ -46,13 +46,13 @@ class BattleSearch {
 	filters: string[][] | null = null;
 	sortCol: string | null = null;
 	cur: ID[] = [];
-	gen = 7;
+	gen = 8;
 	dex: ModdedDex = Dex;
 	private isDoubles = false;
 	private isLetsGo = false;
 	urlRoot = '//dex.pokemonshowdown.com/';
 
-	static gen = 7;
+	static gen = 8;
 
 	static typeTable = {
 		pokemon: 1,
@@ -260,7 +260,7 @@ class BattleSearch {
 
 			// For pokemon queries, accept types/tier/abilities/moves/eggroups as filters
 			if (qType === 'pokemon' && (typeIndex === 5 || typeIndex > 7)) continue;
-			if (qType === 'pokemon' && typeIndex === 3 && this.gen < 7) continue;
+			if (qType === 'pokemon' && typeIndex === 3 && this.gen < 8) continue;
 			// For move queries, accept types/categories as filters
 			if (qType === 'move' && ((typeIndex !== 8 && typeIndex > 4) || typeIndex === 3)) continue;
 			// For move queries in the teambuilder, don't accept pokemon as filters
@@ -477,6 +477,9 @@ class BattleSearch {
 			case 'rowlet':
 				results.push(['header', "Generation 7"]);
 				break;
+			case 'grookey':
+				results.push(['header', "Generation 8"]);
+				break;
 			case 'missingno':
 				results.push(['header', "Glitch"]);
 				break;
@@ -497,7 +500,7 @@ class BattleSearch {
 		let table = BattleTeambuilderTable;
 		if (format.endsWith('cap') || format.endsWith('caplc')) {
 			// CAP formats always use the singles table
-			if (this.gen < 7) {
+			if (this.gen < 8) {
 				table = table['gen' + this.gen];
 			}
 		} else if (this.gen === 7 && requirePentagon) {
@@ -509,7 +512,7 @@ class BattleSearch {
 		)) {
 			table = table['gen' + this.gen + 'doubles'];
 			isDoublesOrBS = true;
-		} else if (this.gen < 7) {
+		} else if (this.gen < 8) {
 			table = table['gen' + this.gen];
 		} else if (this.isLetsGo) {
 			table = table['letsgo'];
@@ -558,7 +561,7 @@ class BattleSearch {
 			];
 		}
 
-		if (format === 'zu' && this.gen === 7) {
+		if (format === 'zu' && this.gen >= 7) {
 			tierSet = tierSet.filter(function (r) {
 				if (r[1] in table.zuBans) return false;
 				return true;
@@ -1165,7 +1168,7 @@ class BattleSearch {
 
 		case 'item':
 			let table = BattleTeambuilderTable;
-			if (this.gen < 7) table = table['gen' + this.gen];
+			if (this.gen < 8) table = table['gen' + this.gen];
 			if (!table.itemSet) {
 				table.itemSet = table.items.map((r: any) => {
 					if (typeof r === 'string') return ['item', r];
