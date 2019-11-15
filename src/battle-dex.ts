@@ -555,7 +555,7 @@ const Dex = new class implements ModdedDex {
 		if (Dex.prefs('nopastgens')) graphicsGen = 6;
 		if (Dex.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
 		spriteData.gen = Math.max(graphicsGen, Math.min(template.gen, 5));
-		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', ''][spriteData.gen];
+		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', '', ''][spriteData.gen];
 
 		let animationData = null;
 		let miscData = null;
@@ -812,7 +812,7 @@ class ModdedDex {
 		if (id in table.overrideBP) data.basePower = table.overrideBP[id];
 		if (id in table.overridePP) data.pp = table.overridePP[id];
 		if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
-		for (let i = this.gen; i < 7; i++) {
+		for (let i = this.gen; i < 8; i++) {
 			if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
 				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
 				break;
@@ -836,7 +836,7 @@ class ModdedDex {
 
 		let data = {...Dex.getItem(name)};
 
-		for (let i = this.gen; i < 7; i++) {
+		for (let i = this.gen; i < 8; i++) {
 			if (id in window.BattleTeambuilderTable['gen' + i].overrideItemDesc) {
 				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideItemDesc[id];
 				break;
