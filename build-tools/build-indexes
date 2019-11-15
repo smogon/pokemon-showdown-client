@@ -419,7 +419,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (gen === 'gen7') {
 				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "Unreleased", "NFE", "LC Uber", "LC"];
 			}
-			return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC Uber", "LC"];
+			return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "NFE", "LC Uber", "LC"];
 		})();
 
 		for (const tier of tierOrder) {
@@ -672,10 +672,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				let minUpperGen = available ? 5 : Math.min(
 					...gens.filter(gen => gen > 4)
 				);
-				legalGens += '01234567'.slice(minUpperGen);
+				legalGens += '012345678'.slice(minUpperGen);
 				learnsets[id][moveid] = legalGens;
 			} else {
-				learnsets[id][moveid] = '01234567'.slice(minGen);
+				learnsets[id][moveid] = '012345678'.slice(minGen);
 			}
 
 			if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
