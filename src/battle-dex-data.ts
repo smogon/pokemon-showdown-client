@@ -1052,7 +1052,7 @@ class Move implements Effect {
 	readonly desc: string;
 	readonly shortDesc: string;
 	readonly isViable: boolean;
-	readonly isNonstandard: boolean;
+	readonly isNonstandard: string | null;
 	readonly isZ: ID;
 	readonly zMovePower: number;
 	readonly zMoveEffect: string;
@@ -1087,7 +1087,7 @@ class Move implements Effect {
 		this.desc = data.desc;
 		this.shortDesc = data.shortDesc;
 		this.isViable = !!data.isViable;
-		this.isNonstandard = !!data.isNonstandard;
+		this.isNonstandard = data.isNonstandard || null;
 		this.isZ = data.isZ || '';
 		this.zMovePower = data.zMovePower || 0;
 		this.zMoveEffect = data.zMoveEffect || '';
@@ -1141,7 +1141,11 @@ class Ability implements Effect {
 		this.shortDesc = data.shortDesc || data.desc || '';
 		this.desc = data.desc || data.shortDesc || '';
 		if (!this.gen) {
-			if (this.num >= 165) {
+			if (this.num >= 234) {
+				this.gen = 8;
+			} else if (this.num >= 192) {
+				this.gen = 7;
+			} else if (this.num >= 165) {
 				this.gen = 6;
 			} else if (this.num >= 124) {
 				this.gen = 5;
@@ -1201,9 +1205,10 @@ class Template implements Effect {
 	readonly tier: string;
 	readonly isTotem: boolean;
 	readonly isMega: boolean;
+	readonly isGigantamax: boolean;
 	readonly isPrimal: boolean;
 	readonly battleOnly: boolean;
-	readonly isNonstandard: boolean;
+	readonly isNonstandard: string | null;
 	readonly unreleasedHidden: boolean;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1278,12 +1283,17 @@ class Template implements Effect {
 
 		this.isTotem = false;
 		this.isMega = false;
+		this.isGigantamax = !!(this.forme && this.forme.endsWith('Gmax'));
 		this.isPrimal = false;
 		this.battleOnly = !!data.battleOnly;
-		this.isNonstandard = !!data.isNonstandard;
+		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = !!data.unreleasedHidden;
 		if (!this.gen) {
-			if (this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid)) {
+			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
+				this.gen = 8;
+			} else if (this.num >= 722 || this.formeid === '-alola' || this.formeid === '-starter') {
+				this.gen = 7;
+			} else if (this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid)) {
 				this.gen = 6;
 				this.isMega = true;
 				this.battleOnly = true;
@@ -1294,10 +1304,6 @@ class Template implements Effect {
 			} else if (this.formeid === '-totem' || this.formeid === '-alolatotem') {
 				this.gen = 7;
 				this.isTotem = true;
-			} else if (this.formeid === '-alola' || this.formeid === '-starter') {
-				this.gen = 7;
-			} else if (this.num >= 722) {
-				this.gen = 7;
 			} else if (this.num >= 650) {
 				this.gen = 6;
 			} else if (this.num >= 494) {
