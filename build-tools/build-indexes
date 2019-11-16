@@ -333,7 +333,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (template.forme) {
 				if (
 					[
-						'Aegislash', 'Castform', 'Cherrim', 'Meloetta', 'Mimikyu', 'Minior', 'Wishiwashi'
+						'Aegislash', 'Castform', 'Cherrim', 'Cramorant', 'Eiscue', 'Meloetta', 'Mimikyu', 'Minior', 'Morpeko', 'Wishiwashi'
 					].includes(template.baseSpecies) || template.forme.includes('Totem') || template.forme.includes('Zen')
 				) {
 					continue;
