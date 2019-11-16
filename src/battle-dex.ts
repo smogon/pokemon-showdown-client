@@ -788,10 +788,10 @@ class ModdedDex {
 	readonly cache = {
 		Moves: {} as any as {[k: string]: Move},
 		Items: {} as any as {[k: string]: Item},
+		Abilities: {} as any as {[k: string]: Ability},
 		Templates: {} as any as {[k: string]: Template},
 	};
 	pokeballs: string[] | null = null;
-	getAbility: (nameOrAbility: string | Ability | null | undefined) => Ability = Dex.getAbility;
 	constructor(modid: ID) {
 		this.modid = modid;
 		let gen = parseInt(modid.slice(3), 10);
@@ -847,6 +847,27 @@ class ModdedDex {
 		const item = new Item(id, name, data);
 		this.cache.Items[id] = item;
 		return item;
+	}
+	getAbility(name: string): Ability {
+		let id = toID(name);
+		if (window.BattleAliases && id in BattleAliases) {
+			name = BattleAliases[id];
+			id = toID(name);
+		}
+		if (this.cache.Abilities.hasOwnProperty(id)) return this.cache.Abilities[id];
+
+		let data = {...Dex.getAbility(name)};
+
+		for (let i = this.gen; i < 8; i++) {
+			if (id in window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc) {
+				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc[id];
+				break;
+			}
+		}
+
+		const ability = new Ability(id, name, data);
+		this.cache.Abilities[id] = ability;
+		return ability;
 	}
 	getTemplate(name: string): Template {
 		let id = toID(name);

@@ -1567,7 +1567,17 @@
 			return buf;
 		}
 
-		buf += '<span class="col abilitydesccol">' + BattleLog.escapeHTML(ability.shortDesc || ability.desc) + '</span> ';
+		var desc = (ability.shortDesc || ability.desc);
+		if (this.gen < 8) {
+			for (var i = this.gen; i < 8; i++) {
+				if (id in BattleTeambuilderTable['gen' + i].overrideAbilityDesc) {
+					desc = BattleTeambuilderTable['gen' + i].overrideAbilityDesc[id];
+					break;
+				}
+			}
+		}
+
+		buf += '<span class="col abilitydesccol">' + BattleLog.escapeHTML(desc) + '</span> ';
 
 		buf += '</a></li>';
 

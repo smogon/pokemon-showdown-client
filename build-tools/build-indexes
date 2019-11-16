@@ -797,6 +797,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				overrideItemDesc[id] = pastEntry.desc;
 			}
 		}
+
+		const overrideAbilityDesc = {};
+		BattleTeambuilderTable[gen].overrideAbilityDesc = overrideAbilityDesc;
+		for (const id in genData.Abilities) {
+			const pastEntry = genData.Abilities[id];
+			const nextEntry = nextGenData.Abilities[id];
+			if (!nextEntry) continue; // amulet coin
+			if (pastEntry.desc !== nextEntry.desc) {
+				overrideAbilityDesc[id] = pastEntry.desc;
+			}
+		}
 	}
 
 	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
