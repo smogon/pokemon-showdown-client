@@ -1057,6 +1057,7 @@ class Move implements Effect {
 	readonly zMovePower: number;
 	readonly zMoveEffect: string;
 	readonly zMoveBoost: {[stat in StatName]?: number} | null;
+	readonly gmaxPower: number;
 	readonly ohko: true | 'Ice' | null;
 	readonly recoil: number[] | null;
 	readonly heal: number[] | null;
@@ -1098,6 +1099,43 @@ class Move implements Effect {
 		this.hasCustomRecoil = data.hasCustomRecoil || false;
 		this.noPPBoosts = data.noPPBoosts || false;
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
+
+		this.gmaxPower = data.gmaxPower || 0;
+		if (this.category !== 'Status' && !this.gmaxPower) {
+			if (!this.basePower) {
+				this.gmaxPower = 100;
+			} else if (['Fighting', 'Poison'].includes(this.type)) {
+				if (this.basePower >= 150) {
+					this.gmaxPower = 100;
+				} else if (this.basePower >= 110) {
+					this.gmaxPower = 95;
+				} else if (this.basePower >= 75) {
+					this.gmaxPower = 95;
+				} else if (this.basePower >= 65) {
+					this.gmaxPower = 85;
+				} else if (this.basePower >= 45) {
+					this.gmaxPower = 75;
+				} else  {
+					this.gmaxPower = 10;
+				}
+			} else {
+				if (this.basePower >= 150) {
+					this.gmaxPower = 150;
+				} else if (this.basePower >= 110) {
+					this.gmaxPower = 140;
+				} else if (this.basePower >= 75) {
+					this.gmaxPower = 130;
+				} else if (this.basePower >= 65) {
+					this.gmaxPower = 120;
+				} else if (this.basePower >= 55) {
+					this.gmaxPower = 110;
+				} else if (this.basePower >= 45) {
+					this.gmaxPower = 100;
+				} else  {
+					this.gmaxPower = 90;
+				}
+			}
+		}
 
 		this.num = data.num || 0;
 		if (!this.gen) {
