@@ -28,13 +28,7 @@ function updateLearnsets(callback) {
 	const alphabetize = (a, b) => a.localeCompare(b);
 	const getLsetGen = lset => lset.charAt(0);
 
-	const padNumString = function (str) {
-		switch (str.length) {
-		case 1: return '00' + str;
-		case 2: return '0' + str;
-		case 3: return '' + str;
-		}
-	};
+	const padNumString = str => str.padStart(3, '0');
 	const inLearnset = function (lset, learnset) {
 		const secondChar = lset.charAt(1);
 		if (secondChar !== 'L') return learnset.indexOf(lset) >= 0;
@@ -105,7 +99,7 @@ function updateLearnsets(callback) {
 			if (!newLearnset[moveid]) newLearnset[moveid] = [];
 			newLearnset[moveid] = newLearnset[moveid].map(formatLset);
 			for (let i = 0, len = fullLearnset[moveid].length; i < len; i++) {
-				if (getLsetGen(fullLearnset[moveid][i]) !== '7') continue;
+				if (getLsetGen(fullLearnset[moveid][i]) !== '8') continue;
 				if (inLearnset(fullLearnset[moveid][i], newLearnset[moveid])) continue;
 				newLearnset[moveid].push(formatLset(fullLearnset[moveid][i]));
 			}

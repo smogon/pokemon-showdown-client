@@ -444,7 +444,7 @@ const Dex = new class implements ModdedDex {
 
 	/** @deprecated */
 	getTier(pokemon: Template, gen = 7, isDoubles = false): string {
-		if (gen < 7) pokemon = this.forGen(gen).getTemplate(pokemon.id);
+		if (gen < 8) pokemon = this.forGen(gen).getTemplate(pokemon.id);
 		if (!isDoubles) return pokemon.tier;
 		let table = window.BattleTeambuilderTable;
 		if (table && table[`gen${this.gen}doubles`]) {
@@ -717,7 +717,7 @@ const Dex = new class implements ModdedDex {
 		if (pokemon.species && !spriteid) {
 			spriteid = template.spriteid || toID(pokemon.species);
 		}
-		if (Dex.getTemplate(pokemon.species).exists === false) {
+		if (template.exists === false) {
 			return 'background-image:url(' + Dex.resourcePrefix + 'sprites/gen5/0.png);background-position:10px 5px;background-repeat:no-repeat';
 		}
 		let shiny = (pokemon.shiny ? '-shiny' : '');
@@ -737,6 +737,7 @@ const Dex = new class implements ModdedDex {
 		let xydexExists = !template.isNonstandard || [
 			"pikachustarter", "eeveestarter", "meltan", "melmetal", "fidgit", "stratagem", "tomohawk", "mollux", "crucibelle", "crucibellemega", "kerfluffle", "pajantom", "jumbao", "caribolt", "smokomodo", "snaelstrom", "equilibra", "scratchet", "pluffle", "smogecko", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
 		].includes(template.id);
+		if (template.gen === 8) xydexExists = false;
 		if ((!gen || gen >= 6) && xydexExists && !Dex.prefs('bwgfx')) {
 			let offset = '-2px -3px';
 			if (template.gen >= 7) offset = '-6px -7px';
