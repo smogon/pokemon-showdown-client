@@ -331,7 +331,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			})();
 			overrideTier[template.speciesid] = tier;
 			if (template.forme) {
-				if (template.baseSpecies in {Aegislash:1, Castform:1, Cherrim:1, Darmanitan:1, Meloetta:1, Mimikyu:1, Minior:1, Wishiwashi:1} || template.forme.includes('Totem')) {
+				if (
+					[
+						'Aegislash', 'Castform', 'Cherrim', 'Meloetta', 'Mimikyu', 'Minior', 'Wishiwashi'
+					].includes(template.baseSpecies) || template.forme.includes('Totem') || template.forme.includes('Zen')
+				) {
 					continue;
 				}
 			}
