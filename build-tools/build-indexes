@@ -286,7 +286,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [8, 7, 7.1, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
+	for (const genIdent of [-8, 8, 7, 7.1, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
 		const isLetsGo = (genIdent === 7.1);
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
@@ -447,11 +447,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			tiers.push(...tierTable[tier]);
 		}
-		if (!formatSlices['OU'] && !isDoubles) formatSlices['OU'] = formatSlices['New'];
-		if (!formatSlices['UU'] && !isDoubles) formatSlices['UU'] = formatSlices['New'];
-		if (!formatSlices['RU'] && !isDoubles) formatSlices['RU'] = formatSlices['New'];
-
-		if (isDoubles) continue;
+		if (!isDoubles) {
+			if (!formatSlices['OU']) formatSlices['OU'] = formatSlices['New'];
+			if (!formatSlices['UU']) formatSlices['UU'] = formatSlices['New'];
+			if (!formatSlices['RU']) formatSlices['RU'] = formatSlices['New'];
+		} else {
+			if (!formatSlices['DOU']) formatSlices['DOU'] = formatSlices['New'];
+			if (!formatSlices['DUU']) formatSlices['DUU'] = formatSlices['New'];
+		}
 
 		const itemList = Object.keys(Dex.data.Items);
 		itemList.sort();
