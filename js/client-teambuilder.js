@@ -244,13 +244,15 @@
 					continue;
 				}
 				switch (format.slice(0, 4)) {
-				case 'gen1': format = 'G' + format.slice(4); break;
-				case 'gen2': format = 'F' + format.slice(4); break;
-				case 'gen3': format = 'E' + format.slice(4); break;
-				case 'gen4': format = 'D' + format.slice(4); break;
-				case 'gen5': format = 'C' + format.slice(4); break;
-				case 'gen6': format = 'B' + format.slice(4); break;
-				case 'gen7': format = 'A' + format.slice(4); break;
+				case 'gen1': format = 'I' + format.slice(4); break;
+				case 'gen2': format = 'H' + format.slice(4); break;
+				case 'gen3': format = 'G' + format.slice(4); break;
+				case 'gen4': format = 'F' + format.slice(4); break;
+				case 'gen5': format = 'E' + format.slice(4); break;
+				case 'gen6': format = 'D' + format.slice(4); break;
+				case 'gen7': format = 'C' + format.slice(4); break;
+				case 'gen8': format = 'B' + format.slice(4); break;
+				case 'gen9': format = 'A' + format.slice(4); break;
 				default: format = 'X' + format; break;
 				}
 				folders.push(format);
@@ -263,13 +265,15 @@
 				var format = folders[i];
 				var newGen;
 				switch (format.charAt(0)) {
-				case 'G': newGen = '1'; break;
-				case 'F': newGen = '2'; break;
-				case 'E': newGen = '3'; break;
-				case 'D': newGen = '4'; break;
-				case 'C': newGen = '5'; break;
-				case 'B': newGen = '6'; break;
-				case 'A': newGen = '7'; break;
+				case 'I': newGen = '1'; break;
+				case 'H': newGen = '2'; break;
+				case 'G': newGen = '3'; break;
+				case 'F': newGen = '4'; break;
+				case 'E': newGen = '5'; break;
+				case 'D': newGen = '6'; break;
+				case 'C': newGen = '7'; break;
+				case 'B': newGen = '8'; break;
+				case 'A': newGen = '9'; break;
 				case 'X': newGen = 'X'; break;
 				case 'Z': newGen = '/'; break;
 				}
