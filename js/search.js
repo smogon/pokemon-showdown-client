@@ -968,6 +968,7 @@
 						} else */ if (learnsetEntry.indexOf(gen) < 0) {
 							continue;
 						}
+						if (this.gen === 8 && BattleMovedex[moveid].isNonstandard === "Past" && format.indexOf('nationaldex') < 0) continue;
 						if (moves.indexOf(moveid) >= 0) continue;
 						moves.push(moveid);
 						if (moveid === 'sketch') sketch = true;
@@ -985,7 +986,9 @@
 					if (i === 'magikarpsrevenge') continue;
 					if ((format.substr(0, 3) !== 'cap' && (i === 'paleowave' || i === 'shadowstrike'))) continue;
 					if (!BattleMovedex[i].gen) {
-						if (BattleMovedex[i].num >= 622) {
+						if (BattleMovedex[i].num >= 745) {
+							BattleMovedex[i].gen = 8;
+						} else if (BattleMovedex[i].num >= 622) {
 							BattleMovedex[i].gen = 7;
 						} else if (BattleMovedex[i].num >= 560) {
 							BattleMovedex[i].gen = 6;
@@ -1005,7 +1008,9 @@
 					}
 					if (BattleMovedex[i].gen > this.gen) continue;
 					if (BattleMovedex[i].isZ) continue;
+					if (BattleMovedex[i].isMax) continue;
 					if (isBH) {
+						if (BattleMovedex[i].isNonstandard) continue;
 						moves.push(i);
 					} else {
 						sMoves.push(i);
@@ -1033,13 +1038,13 @@
 					if (template.battleOnly) template = baseTemplate;
 					if (baseTemplate.otherFormes) {
 						for (var j = 0; j < baseTemplate.types.length; j++) {
-							if (template.forme === 'Alola' || template.forme === 'Alola-Totem' || template.baseSpecies === 'Wormadam') continue;
+							if (template.forme.indexOf('Alola') >= 0 || template.forme.indexOf('Galar') > 0 || template.baseSpecies === 'Wormadam') continue;
 							types.push(baseTemplate.types[j]);
 						}
 						for (var j = 0; j < baseTemplate.otherFormes.length; j++) {
 							var forme = Dex.getTemplate(baseTemplate.otherFormes[j]);
 							for (var h = 0; h < forme.types.length; h++) {
-								if (forme.battleOnly || forme.forme === 'Alola' || forme.forme === 'Alola-Totem' || forme.baseSpecies === 'Wormadam') continue;
+								if (template.forme.indexOf('Alola') >= 0 || template.forme.indexOf('Galar') > 0 || forme.baseSpecies === 'Wormadam') continue;
 								types.push(forme.types[h]);
 							}
 						}
@@ -1047,7 +1052,9 @@
 					if (types.indexOf(BattleMovedex[i].type) < 0) continue;
 					if (moves.indexOf(i) >= 0) continue;
 					if (!BattleMovedex[i].gen) {
-						if (BattleMovedex[i].num >= 622) {
+						if (BattleMovedex[i].num >= 745) {
+							BattleMovedex[i].gen = 8;
+						} else if (BattleMovedex[i].num >= 622) {
 							BattleMovedex[i].gen = 7;
 						} else if (BattleMovedex[i].num >= 560) {
 							BattleMovedex[i].gen = 6;
@@ -1066,7 +1073,7 @@
 						}
 					}
 					if (BattleMovedex[i].gen > this.gen) continue;
-					if (BattleMovedex[i].isZ || BattleMovedex[i].isNonstandard || BattleMovedex[i].isUnreleased) continue;
+					if (BattleMovedex[i].isZ || BattleMovedex[i].isMax || BattleMovedex[i].isNonstandard || BattleMovedex[i].isUnreleased) continue;
 					moves.push(i);
 				}
 			}
