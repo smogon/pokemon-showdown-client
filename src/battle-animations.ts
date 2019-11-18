@@ -1815,11 +1815,14 @@ class PokemonSprite extends Sprite {
 	reset(pokemon: Pokemon) {
 		this.clearEffects();
 
-		if (pokemon.volatiles.formechange) {
-			this.oldsp = this.sp;
+		if (pokemon.volatiles.formechange || pokemon.volatiles.dynamax) {
+			if (!this.oldsp) this.oldsp = this.sp;
 			this.sp = Dex.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
 				gen: this.scene.gen,
 			});
+		} else if (this.oldsp) {
+			this.sp = this.oldsp;
+			this.oldsp = null;
 		}
 
 		// I can rant for ages about how jQuery sucks, necessitating this function
