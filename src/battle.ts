@@ -2321,6 +2321,10 @@ class Battle {
 				if (kwArgs.silent) break;
 				this.scene.typeAnim(poke, type);
 				break;
+			case 'dynamax':
+				poke.addVolatile('dynamax' as ID);
+				this.scene.animTransform(poke, true);
+				break;
 			case 'powertrick':
 				this.scene.resultAnim(poke, 'Power Trick', 'neutral');
 				break;
@@ -2458,6 +2462,9 @@ class Battle {
 				// do nothing
 			} else {
 				switch (effect.id) {
+				case 'dynamax':
+					this.scene.animTransform(poke);
+					break;
 				case 'powertrick':
 					this.scene.resultAnim(poke, 'Power Trick', 'neutral');
 					break;

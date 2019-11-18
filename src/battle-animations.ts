@@ -2497,6 +2497,7 @@ class PokemonSprite extends Sprite {
 			formechange: '',
 			typechange: '',
 			typeadd: '',
+			dynamax: '<span class="good">Dynamaxed</span> ',
 			trapped: '', // linked volatiles are not implemented yet
 			throatchop: '<span class="bad">Throat&nbsp;Chop</span> ',
 			confusion: '<span class="bad">Confused</span> ',
