@@ -240,7 +240,7 @@
 					continue;
 				}
 				if (format === 'gen7') {
-					folders.push('A~');
+					folders.push('C~');
 					continue;
 				}
 				switch (format.slice(0, 4)) {
