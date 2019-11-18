@@ -506,6 +506,7 @@ const Dex = new class implements ModdedDex {
 		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, mod?: string,
 	} = {gen: 6}) {
 		const mechanicsGen = options.gen || 6;
+		let isDynamax = false;
 		if (pokemon instanceof Pokemon) {
 			if (pokemon.volatiles.transform) {
 				options.shiny = pokemon.volatiles.transform[2];
@@ -514,6 +515,7 @@ const Dex = new class implements ModdedDex {
 				options.shiny = pokemon.shiny;
 				options.gender = pokemon.gender;
 			}
+			if (pokemon.volatiles.dynamax) isDynamax = true;
 			pokemon = pokemon.getSpecies();
 		}
 		const template = Dex.getTemplate(pokemon);
@@ -649,7 +651,11 @@ const Dex = new class implements ModdedDex {
 			}
 			if (spriteData.gen <= 2) spriteData.y += 2;
 		}
-		if (template.isTotem && !options.noScale) {
+		if (isDynamax && !options.noScale) {
+			spriteData.w *= 2;
+			spriteData.h *= 2;
+			spriteData.y += -22;
+		} else if ((template.isTotem || isDynamax) && !options.noScale) {
 			spriteData.w *= 1.5;
 			spriteData.h *= 1.5;
 			spriteData.y += -11;
