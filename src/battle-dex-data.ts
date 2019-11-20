@@ -1237,8 +1237,11 @@ class Template implements Effect {
 	readonly otherForms: ReadonlyArray<ID> | null;
 	readonly evos: ReadonlyArray<ID> | null;
 	readonly prevo: ID;
+	readonly evoType: 'trade' | 'useItem' | 'levelMove' | 'levelExtra' | 'levelFriendship' | 'levelHold' | 'other' | '';
 	readonly evoLevel: number;
-	readonly evoType: 'trade' | 'stone' | 'levelMove' | 'levelExtra' | '';
+	readonly evoMove: string;
+	readonly evoItem: string;
+	readonly evoCondition: string;
 	readonly requiredItem: string;
 	readonly tier: string;
 	readonly isTotem: boolean;
@@ -1299,7 +1302,6 @@ class Template implements Effect {
 
 		this.num = data.num || 0;
 		this.types = data.types || ['???'];
-		let abilities: any = {0: "No Ability"};
 		this.abilities = data.abilities || {0: "No Ability"};
 		this.baseStats = data.baseStats || {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
 		this.weightkg = data.weightkg || 0;
@@ -1314,8 +1316,11 @@ class Template implements Effect {
 		this.otherForms = data.otherForms || null;
 		this.evos = data.evos || null;
 		this.prevo = data.prevo || '';
-		this.evoLevel = data.evoLevel || 0;
 		this.evoType = data.evoType || '';
+		this.evoLevel = data.evoLevel || 0;
+		this.evoMove = data.evoMove || '';
+		this.evoItem = data.evoItem || '';
+		this.evoCondition = data.evoCondition || '';
 		this.requiredItem = data.requiredItem || '';
 		this.tier = data.tier || '';
 
