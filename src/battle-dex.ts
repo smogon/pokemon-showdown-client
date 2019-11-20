@@ -740,7 +740,7 @@ const Dex = new class implements ModdedDex {
 		// }
 		if (Dex.prefs('nopastgens')) gen = 6;
 		let spriteDir = Dex.resourcePrefix + 'sprites/dex';
-		let xydexExists = !template.isNonstandard || [
+		let xydexExists = (!template.isNonstandard || template.isNonstandard === 'Past') || [
 			"pikachustarter", "eeveestarter", "meltan", "melmetal", "fidgit", "stratagem", "tomohawk", "mollux", "crucibelle", "crucibellemega", "kerfluffle", "pajantom", "jumbao", "caribolt", "smokomodo", "snaelstrom", "equilibra", "scratchet", "pluffle", "smogecko", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
 		].includes(template.id);
 		if (template.gen === 8) xydexExists = false;
