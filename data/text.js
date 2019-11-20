@@ -68,7 +68,7 @@ exports.BattleText = {
 		damageFromPokemon: "  [POKEMON] was hurt by [SOURCE]'s [ITEM]!", // Jaboca/Rowap Berry
 		damageFromItem: "  [POKEMON] was hurt by its [ITEM]!", // Sticky Barb
 		damageFromPartialTrapping: "  [POKEMON] is hurt by [MOVE]!",
-		heal: "  [POKEMON] restored its HP.",
+		heal: "  [POKEMON] had its HP restored.",
 		healFromZEffect: "  [POKEMON] restored its HP using its Z-Power!",
 		healFromEffect: "  [POKEMON] restored HP using its [EFFECT]!",
 
