@@ -432,6 +432,28 @@ class BattleTooltips {
 		"???": "",
 	};
 
+	static maxMoveTable: {[type in TypeName]: string} = {
+		Poison: "Max Ooze",
+		Fighting: "Max Knuckle",
+		Dark: "Max Darkness",
+		Grass: "Max Overgrowth",
+		Normal: "Max Strike",
+		Rock: "Max Rockfall",
+		Steel: "Max Steelspike",
+		Dragon: "Max Wyrmwind",
+		Electric: "Max Lightning",
+		Water: "Max Geyser",
+		Fire: "Max Flare",
+		Ghost: "Max Phantasm",
+		Bug: "Max Flutterby",
+		Psychic: "Max Mindstorm",
+		Ice: "Max Hailstorm",
+		Flying: "Max Airstream",
+		Ground: "Max Quake",
+		Fairy: "Max Starfall",
+		"???": "",
+	};
+
 	showMoveTooltip(move: Move, isZ: boolean, pokemon: Pokemon, serverPokemon: ServerPokemon) {
 		let text = '';
 
@@ -454,14 +476,22 @@ class BattleTooltips {
 				});
 				zEffect = this.getStatusZMoveEffect(move);
 			} else {
-				const zMove = this.battle.dex.getMove(BattleTooltips.zMoveTable[item.zMoveType as TypeName]);
-				let zMovePower = move.zMovePower;
+				let moveid;
+				if (item.zMoveType) {
+					moveid = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
+				} else {
+					moveid = BattleTooltips.maxMoveTable[move.type as TypeName];
+				}
+				const zMove = this.battle.dex.getMove(moveid);
+				let movePower = zMove.isZ ? move.zMovePower : move.gmaxPower;
 				// the different Hidden Power types don't have a Z power set, fall back on base move
-				if (move.id.startsWith('hiddenpower')) zMovePower = this.battle.dex.getMove('hiddenpower').zMovePower;
+				if (!movePower && move.id.startsWith('hiddenpower')) {
+					movePower = this.battle.dex.getMove('hiddenpower').zMovePower;
+				}
 				move = new Move(zMove.id, zMove.name, {
 					...zMove,
 					category: move.category,
-					basePower: zMovePower,
+					basePower: movePower,
 				});
 				// TODO: Weather Ball type-changing shenanigans
 			}

@@ -610,9 +610,10 @@
 				var moveMenu = '';
 				var movebuttons = '';
 				var typeValueTracker = new ModifiableValue(this.battle, this.battle.mySide.active[pos], this.battle.myPokemon[pos]);
+				var currentlyDynamaxed = (!canDynamax && maxMoves);
 				for (var i = 0; i < curActive.moves.length; i++) {
 					var moveData = curActive.moves[i];
-					var move = this.battle.dex.getMove((!canDynamax && maxMoves) ? maxMoves.maxMoves[i].move : moveData.move);
+					var move = this.battle.dex.getMove(moveData.move);
 					var name = move.name;
 					var pp = moveData.pp + '/' + moveData.maxpp;
 					if (!moveData.maxpp) pp = '&ndash;';
@@ -632,9 +633,13 @@
 				if (!hasMoves) {
 					moveMenu += '<button class="movebutton" name="chooseMove" value="0" data-move="Struggle" data-target="randomNormal">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
 				} else {
-					if (canZMove || canDynamax) {
+					if (canZMove || canDynamax || currentlyDynamaxed) {
 						var classType = canZMove ? 'z' : 'max';
-						movebuttons = '<div class="movebuttons-no' + classType + '">' + movebuttons + '</div><div class="movebuttons-' + classType + '" style="display:none">';
+						if (currentlyDynamaxed) {
+							movebuttons = '';
+						} else {
+							movebuttons = '<div class="movebuttons-no' + classType + '">' + movebuttons + '</div><div class="movebuttons-' + classType + '" style="display:none">';
+						}
 						var specialMoves = canZMove ? canZMove : maxMoves.maxMoves;
 						for (var i = 0; i < curActive.moves.length; i++) {
 							if (specialMoves[i]) {
@@ -656,7 +661,7 @@
 								movebuttons += '<button disabled="disabled">&nbsp;</button>';
 							}
 						}
-						movebuttons += '</div>';
+						if (!currentlyDynamaxed) movebuttons += '</div>';
 					}
 					moveMenu += movebuttons;
 				}
