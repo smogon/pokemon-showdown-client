@@ -802,6 +802,7 @@
 		var isLetsGo = format.startsWith('letsgo');
 		if (isLetsGo) format = format.slice(6);
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
+		var requireGalar = (this.gen === 8 && format.indexOf('nationaldex') < 0);
 		var template;
 		var isBH = (format === 'balancedhackmons' || format === 'bh');
 		this.resultSet = null;
@@ -965,7 +966,9 @@
 						var learnsetEntry = learnset[moveid];
 						/* if (requirePentagon && learnsetEntry.indexOf('p') < 0) {
 							continue;
-						} else */ if (learnsetEntry.indexOf(gen) < 0) {
+						} else */ if (requireGalar && learnsetEntry.indexOf('g') < 0) {
+							continue;
+						} else if (learnsetEntry.indexOf(gen) < 0) {
 							continue;
 						}
 						if (this.gen === 8 && BattleMovedex[moveid].isNonstandard === "Past" && format.indexOf('nationaldex') < 0) continue;
