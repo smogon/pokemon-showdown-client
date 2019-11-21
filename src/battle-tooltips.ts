@@ -1739,7 +1739,7 @@ class BattleStatGuesser {
 		this.ignoreEVLimits = (
 			this.dex.gen < 3 ||
 			this.formatid.endsWith('hackmons') ||
-			this.formatid === 'gen7metronomebattle' ||
+			this.formatid === 'gen8metronomebattle' ||
 			this.formatid.endsWith('norestrictions')
 		);
 		this.supportsEVs = !this.formatid.startsWith('gen7letsgo');
