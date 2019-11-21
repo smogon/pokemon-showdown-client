@@ -249,6 +249,11 @@ exports.BattleText = {
 	trapped: {
 		start: "  [POKEMON] can no longer escape!",
 	},
+	dynamax: {
+		start: "  ([POKEMON]'s Dynamax!)",
+		end: "  ([POKEMON] returned to normal!)",
+		fail: "  The move was blocked by the power of Dynamax!",
+	},
 
 	// weather
 	sandstorm: {
