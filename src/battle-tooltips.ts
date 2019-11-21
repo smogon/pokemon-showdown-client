@@ -1739,7 +1739,7 @@ class BattleStatGuesser {
 		this.ignoreEVLimits = (
 			this.dex.gen < 3 ||
 			this.formatid.endsWith('hackmons') ||
-			this.formatid === 'gen7metronomebattle' ||
+			this.formatid === 'gen8metronomebattle' ||
 			this.formatid.endsWith('norestrictions')
 		);
 		this.supportsEVs = !this.formatid.startsWith('gen7letsgo');
@@ -1794,7 +1794,7 @@ class BattleStatGuesser {
 		let needsFourMoves = !['unown', 'ditto'].includes(template.id);
 		let moveids = set.moves.map(toID);
 		if (moveids.includes('lastresort' as ID)) needsFourMoves = false;
-		if (set.moves.length < 4 && needsFourMoves && this.formatid !== 'gen7metronomebattle') {
+		if (set.moves.length < 4 && needsFourMoves && this.formatid !== 'gen8metronomebattle') {
 			return '?';
 		}
 
