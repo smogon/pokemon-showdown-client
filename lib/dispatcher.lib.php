@@ -601,31 +601,191 @@ class LadderActionHandler {
 }
 
 class TeamsActionHandler {
-	var $PAGESIZE = 50;
-
 	/**
-	 * This function fetches all published teams uploaded by the user.
+	 * Fetches all published teams uploaded by the user.
+	 * Mandatory request args: page, pagesize: control the range of data that is returned.
+	 * Optional request args: match: string to regex match teamname against.
+	 * Server only.
 	 */
 	public function getuploadedteams($dispatcher, &$reqData, &$out) {
 		global $psdb, $teams, $curuser;
+
+		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out['errorip'] = $dispatcher->getIp();
+			return;
+		}
 		// A valid curuser array is needed
 		if (!@$curuser['loggedin'] || !@$curuser['userid']) {
-		   die('Not using a valid nick; you should be registered and logged in in order to view your published teams.');
+		   $out = 0;
+		   return;
 		}
 		$userid = $psdb->escape($curuser['userid']);
+		$pagesize = intval(@$reqData['pagesize']);
+		$page = intval(@$reqData['page']);
+		if($pagesize <= 0 || $page < 0) {
+			$out = 0;
+			return;
+		}
+
+		$matchstr = @$reqData['match'];
+		$sqlclause = "";
+		if($matchstr) {
+			$sqlclause = " AND LOWER(`teamname`) REGEXP '" . $matchstr . "'";
+		}
+
 		$res = $psdb.query(
 			"SELECT `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` WHERE (`ownerid` = '" . $userid . "')" .
-			" ORDER BY `teamid` DESC"
+			$sqlclause . " ORDER BY `teamid` DESC LIMIT " . $page * $pagesize . "," . $pagesize
 		);
 		$out = array();
-		$i = 0;
-		while($i < $PAGESIZE && $team = $psdb->fetch_assoc($res)) {
-			$i += 1;
+		while($team = $psdb->fetch_assoc($res)) {
 			$out[] = $team;
 		}
 	}
 
 	/**
-	 * This function
+	 * Fetches all teams shared with the user.
+	 * Mandatory request args: page, pagesize: control the range of data that is returned.
+	 * Optional request args: teammatch, usermatch: string to regex match teamname and owner name against.
+	 * Server only.
 	 */
+	public function getsharedteams($dispatcher, &$reqData, &$out) {
+	 	global $psdb, $teams, $curuser;
+
+		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out['errorip'] = $dispatcher->getIp();
+			return;
+		}
+		// A valid curuser array is needed
+		if (!@$curuser['loggedin'] || !@$curuser['userid']) {
+		   $out = 0;
+		   return;
+		}
+
+		$userid = $psdb->escape($curuser['userid']);
+		$pagesize = intval(@$reqData['pagesize']);
+		$page = intval(@$reqData['page']);
+		if($pagesize <= 0 || $page < 0) {
+			$out = 0;
+			return;
+		}
+
+		$tmatchstr = $psdb->escape(@$reqData['teammatch']);
+		$sqlclause1 = "";
+		if($tmatchstr) {
+			$sqlclause1 = " AND LOWER(`t.teamname`) REGEXP '" . $tmatchstr . "'";
+		}
+		$umatchstr = $psdb->escape(@$reqData['usermatch']);
+		$sqlclause2 = "";
+		if($umatchstr) {
+			$sqlclause2 = " AND `u.userid` = `t.ownerid` AND LOWER(`u.username`) REGEXP '" . $umatchstr . "'";
+		}
+
+		$res = $psdb.query(
+			"SELECT `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` t, `ntbb_sharelist` s, `ntbb_users` u"
+			. " WHERE `t.teamid` = `s.teamid` AND `s.userid` = '" . $userid . "'"
+			. $sqlclause1 . $sqlclause2
+			" ORDER BY `t.teamid` DESC LIMIT " . $page * $pagesize . "," . $pagesize
+		);
+		$out = array();
+		while($team = $psdb->fetch_assoc($res)) {
+			$out[] = $team;
+		}
+	}
+
+	/**
+	 * Fetches all public teams.
+	 * Mandatory request args: page, pagesize: control the range of data that is returned.
+	 * Optional request args: teammatch, usermatch: string to regex match teamname and owner name against.
+	 * Server only.
+	 */
+
+	public function getpublicteams($dispatcher, &$reqData, &$out) {
+	 	global $psdb, $teams, $curuser;
+
+		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out['errorip'] = $dispatcher->getIp();
+			return;
+		}
+
+		$pagesize = intval(@$reqData['pagesize']);
+		$page = intval(@$reqData['page']);
+		if($pagesize <= 0 || $page < 0) {
+			$out = 0;
+			return;
+		}
+
+		$tmatchstr = $psdb->escape(@$reqData['teammatch']);
+		$sqlclause1 = "";
+		if($tmatchstr) {
+			$sqlclause1 = " AND LOWER(`t.teamname`) REGEXP '" . $tmatchstr . "'";
+		}
+		$umatchstr = $psdb->escape(@$reqData['usermatch']);
+		$sqlclause2 = "";
+		if($umatchstr) {
+			$sqlclause2 = " AND `u.userid` = `t.ownerid` AND LOWER(`u.username`) REGEXP '" . $umatchstr . "'";
+		}
+
+		$res = $psdb.query(
+			"SELECT `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` t, `ntbb_users` u"
+			. " WHERE `t.public` = true"
+			. $sqlclause1 . $sqlclause2
+			" ORDER BY `t.teamid` DESC LIMIT " . $page * $pagesize . "," . $pagesize
+		);
+		$out = array();
+		while($team = $psdb->fetch_assoc($res)) {
+			$out[] = $team;
+		}
+	}
+
+	/**
+	 * Uploads a new team. out is 0 for args error, 1 for duplicate, 2 for success.
+	 * Mandatory request args: teamname, format, packedteam, public (int either 0 or 1)
+	 * Server only.
+	 */
+	public function uploadteam($dispatcher, &$reqData, &$out) {
+	 	global $psdb, $teams, $curuser;
+
+		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out['errorip'] = $dispatcher->getIp();
+			return;
+		}
+		// A valid curuser array is needed
+		if (!@$curuser['loggedin'] || !@$curuser['userid']) {
+		   $out = 0;
+		   return;
+		}
+
+		$userid = $psdb->escape($curuser['userid']);
+		$teamname = $psdb->escape(@$reqData['teamname']);
+		$format = $psdb->escape(@$reqData['format']);
+		$packedteam = $psdb->escape(@$reqData['packedteam']);
+		$public = intval(@$reqData['public']);
+		if(!$public || $public > 1 || !$packedteam || !$format || !$teamname) {
+			$out = 0;
+			return;
+		}
+
+		// search for dupes
+		$res = $psdb.query(
+			"SELECT COUNT(*) FROM `ntbb_teams` WHERE `packedteam` = ? AND `userid` = ?"
+			. " AND `format` = ? AND `public` = ?",
+			array($packedteam, $userid, $format, $public)
+		);
+		$count = $psdb->fetch_assoc($res);
+		if($count > 0) {
+			$out = 1;
+			return;
+		}
+		$psdb.query(
+			"INSERT INTO `ntbb_teams` (`ownerid`, `teamname`, `format`, `packedteam`, `public`) VALUES (?, ?, ?, ?, ?)",
+			array($ownerid, $teamname, $format, $packedteam, $public)
+		);
+
+	}
+
 }
