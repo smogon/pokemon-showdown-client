@@ -496,7 +496,7 @@ class DefaultActionHandler {
 		// The ] denotes that it was successful
 		die(']A friend request has been sent to ' . $player['username'] . '!');
 	}
-	
+
 	/**
 	 * This function simply removes the friend given in the query string.
 	 */
@@ -598,4 +598,34 @@ class LadderActionHandler {
 			}
 		}
 	}
+}
+
+class TeamsActionHandler {
+	var $PAGESIZE = 50;
+
+	/**
+	 * This function fetches all published teams uploaded by the user.
+	 */
+	public function getuploadedteams($dispatcher, &$reqData, &$out) {
+		global $psdb, $teams, $curuser;
+		// A valid curuser array is needed
+		if (!@$curuser['loggedin'] || !@$curuser['userid']) {
+		   die('Not using a valid nick; you should be registered and logged in in order to view your published teams.');
+		}
+		$userid = $psdb->escape($curuser['userid']);
+		$res = $psdb.query(
+			"SELECT `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` WHERE (`ownerid` = '" . $userid . "')" .
+			" ORDER BY `teamid` DESC"
+		);
+		$out = array();
+		$i = 0;
+		while($i < $PAGESIZE && $team = $psdb->fetch_assoc($res)) {
+			$i += 1;
+			$out[] = $team;
+		}
+	}
+
+	/**
+	 * This function
+	 */
 }
