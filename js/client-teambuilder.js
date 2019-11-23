@@ -1810,39 +1810,12 @@
 			}
 			return 'http://smogon.com/dex/' + generation + '/pokemon/' + smogdexid + '/';
 		},
-		getBaseStats: function (template) {
-			var baseStats = template.baseStats;
-			var gen = this.curTeam.gen;
-			if (gen < 7) {
-				var overrideStats = BattleTeambuilderTable['gen' + gen].overrideStats[template.id];
-				if (overrideStats || gen === 1) {
-					baseStats = {
-						hp: template.baseStats.hp,
-						atk: template.baseStats.atk,
-						def: template.baseStats.def,
-						spa: template.baseStats.spa,
-						spd: template.baseStats.spd,
-						spe: template.baseStats.spe
-					};
-				}
-				if (overrideStats) {
-					if ('hp' in overrideStats) baseStats.hp = overrideStats.hp;
-					if ('atk' in overrideStats) baseStats.atk = overrideStats.atk;
-					if ('def' in overrideStats) baseStats.def = overrideStats.def;
-					if ('spa' in overrideStats) baseStats.spa = overrideStats.spa;
-					if ('spd' in overrideStats) baseStats.spd = overrideStats.spd;
-					if ('spe' in overrideStats) baseStats.spe = overrideStats.spe;
-				}
-				if (gen === 1) baseStats.spd = 0;
-			}
-			return baseStats;
-		},
 		updateStatForm: function (setGuessed) {
 			var buf = '';
 			var set = this.curSet;
-			var template = Dex.getTemplate(this.curSet.species);
+			var template = Dex.forGen(this.curTeam.gen).getTemplate(this.curSet.species);
 
-			var baseStats = this.getBaseStats(template);
+			var baseStats = template.baseStats;
 
 			buf += '<div class="resultheader"><h3>EVs</h3></div>';
 			buf += '<div class="statform">';
@@ -2951,13 +2924,13 @@
 
 			// do this after setting set.evs because it's assumed to exist
 			// after getStat is run
-			var template = Dex.getTemplate(set.species);
+			var template = Dex.forGen(this.curTeam.gen).getTemplate(set.species);
 			if (!template.exists) return 0;
 
 			if (!set.level) set.level = 100;
 			if (typeof set.ivs[stat] === 'undefined') set.ivs[stat] = 31;
 
-			var baseStat = (this.getBaseStats(template))[stat];
+			var baseStat = template.baseStats[stat];
 			var iv = (set.ivs[stat] || 0);
 			if (this.curTeam.gen <= 2) iv &= 30;
 			var ev = set.evs[stat];
