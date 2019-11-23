@@ -245,6 +245,7 @@ const Dex = new class implements ModdedDex {
 		return this.moddedDexes[modid];
 	}
 	forGen(gen: number) {
+		if (!gen) return this;
 		return this.mod(`gen${gen}` as ID);
 	}
 
