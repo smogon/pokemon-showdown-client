@@ -802,7 +802,8 @@
 		var isLetsGo = format.startsWith('letsgo');
 		if (isLetsGo) format = format.slice(6);
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
-		var requireGalar = (this.gen === 8 && format.indexOf('nationaldex') < 0);
+		 // CAP check is temporary
+		var requireGalar = (this.gen === 8 && format.indexOf('nationaldex') < 0 && format.indexOf('cap') < 0);
 		var template;
 		var isBH = (format === 'balancedhackmons' || format === 'bh');
 		this.resultSet = null;
@@ -1047,7 +1048,7 @@
 						for (var j = 0; j < baseTemplate.otherFormes.length; j++) {
 							var forme = Dex.getTemplate(baseTemplate.otherFormes[j]);
 							for (var h = 0; h < forme.types.length; h++) {
-								if (template.forme.indexOf('Alola') >= 0 || template.forme.indexOf('Galar') > 0 || forme.baseSpecies === 'Wormadam') continue;
+								if (template.forme.indexOf('Alola') >= 0 || template.forme.indexOf('Galar') > 0 || forme.baseSpecies === 'Wormadam' || forme.battleOnly) continue;
 								types.push(forme.types[h]);
 							}
 						}
