@@ -634,8 +634,8 @@ class TeamsActionHandler {
 			$sqlclause = " AND LOWER(`teamname`) REGEXP '" . $matchstr . "'";
 		}
 
-		$res = $psdb.query(
-			"SELECT `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` WHERE (`ownerid` = '" . $userid . "')" .
+		$res = $psdb->query(
+			"SELECT `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` WHERE (`ownerid` = '$userid')" .
 			$sqlclause . " ORDER BY `teamid` DESC LIMIT " . $page * $pagesize . "," . $pagesize
 		);
 		$out = array();
@@ -675,19 +675,21 @@ class TeamsActionHandler {
 		$tmatchstr = $psdb->escape(@$reqData['teammatch']);
 		$sqlclause1 = "";
 		if($tmatchstr) {
-			$sqlclause1 = " AND LOWER(`t.teamname`) REGEXP '" . $tmatchstr . "'";
+			$sqlclause1 = " AND LOWER(t.teamname) REGEXP '$tmatchstr'";
 		}
 		$umatchstr = $psdb->escape(@$reqData['usermatch']);
 		$sqlclause2 = "";
+		$addl_table = "";
 		if($umatchstr) {
-			$sqlclause2 = " AND `u.userid` = `t.ownerid` AND LOWER(`u.username`) REGEXP '" . $umatchstr . "'";
+			$sqlclause2 = " AND u.userid = t.ownerid AND LOWER(u.username) REGEXP '" . $umatchstr . "'";
+			$addl_table = ", `ntbb_users` `u`";
 		}
 
-		$res = $psdb.query(
-			"SELECT `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` t, `ntbb_sharelist` s, `ntbb_users` u"
-			. " WHERE `t.teamid` = `s.teamid` AND `s.userid` = '" . $userid . "'"
+		$res = $psdb->query(
+			"SELECT `teamname`, `ownerid`, `format`, `packedteam`, `public` FROM `ntbb_teams` `t`, `ntbb_sharelist` `s`$addl_table"
+			. " WHERE t.teamid = s.teamid AND s.userid = '$userid'"
 			. $sqlclause1 . $sqlclause2
-			" ORDER BY `t.teamid` DESC LIMIT " . $page * $pagesize . "," . $pagesize
+			. " ORDER BY t.teamid DESC LIMIT " . $page * $pagesize . "," . $pagesize
 		);
 		$out = array();
 		while($team = $psdb->fetch_assoc($res)) {
@@ -721,20 +723,30 @@ class TeamsActionHandler {
 		$tmatchstr = $psdb->escape(@$reqData['teammatch']);
 		$sqlclause1 = "";
 		if($tmatchstr) {
-			$sqlclause1 = " AND LOWER(`t.teamname`) REGEXP '" . $tmatchstr . "'";
+			$sqlclause1 = " AND LOWER(`t.teamname`) REGEXP '$tmatchstr'";
 		}
 		$umatchstr = $psdb->escape(@$reqData['usermatch']);
 		$sqlclause2 = "";
+		$addl_table = "";
 		if($umatchstr) {
-			$sqlclause2 = " AND `u.userid` = `t.ownerid` AND LOWER(`u.username`) REGEXP '" . $umatchstr . "'";
+			$sqlclause2 = " AND u.userid = t.ownerid AND LOWER(u.username) REGEXP '$umatchstr'";
+			$addl_table = ", `ntbb_users` `u`";
 		}
-
-		$res = $psdb.query(
-			"SELECT `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` t, `ntbb_users` u"
-			. " WHERE `t.public` = true"
+		print("SELECT `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` `t`$addl_table"
+			. " WHERE t.public = 1"
 			. $sqlclause1 . $sqlclause2
-			" ORDER BY `t.teamid` DESC LIMIT " . $page * $pagesize . "," . $pagesize
+			. " ORDER BY t.teamid DESC LIMIT " . $page * $pagesize . "," . $pagesize);
+		$res = $psdb->query(
+			"SELECT `teamname`, `ownerid`, `format`, `packedteam`, `public` FROM `ntbb_teams` `t`$addl_table"
+			. " WHERE t.public = 1"
+			. $sqlclause1 . $sqlclause2
+			. " ORDER BY t.teamid DESC LIMIT " . $page * $pagesize . "," . $pagesize
 		);
+		if(!$res) {
+			print(mysqli_error($psdb->db));
+			$out = mysqli_error($psdb->db);
+			return;
+		}
 		$out = array();
 		while($team = $psdb->fetch_assoc($res)) {
 			$out[] = $team;
@@ -765,27 +777,67 @@ class TeamsActionHandler {
 		$format = $psdb->escape(@$reqData['format']);
 		$packedteam = $psdb->escape(@$reqData['packedteam']);
 		$public = intval(@$reqData['public']);
-		if(!$public || $public > 1 || !$packedteam || !$format || !$teamname) {
+		if($public < 0 || $public > 1 || !$packedteam || !$format || !$teamname) {
 			$out = 0;
 			return;
 		}
 
 		// search for dupes
-		$res = $psdb.query(
-			"SELECT COUNT(*) FROM `ntbb_teams` WHERE `packedteam` = ? AND `userid` = ?"
+		$res = $psdb->query(
+			"SELECT COUNT(*) as count FROM `ntbb_teams` WHERE `packedteam` = ? AND `ownerid` = ?"
 			. " AND `format` = ? AND `public` = ?",
 			array($packedteam, $userid, $format, $public)
 		);
-		$count = $psdb->fetch_assoc($res);
+		$count = $psdb->fetch_assoc($res)['count'];
 		if($count > 0) {
 			$out = 1;
 			return;
 		}
-		$psdb.query(
-			"INSERT INTO `ntbb_teams` (`ownerid`, `teamname`, `format`, `packedteam`, `public`) VALUES (?, ?, ?, ?, ?)",
-			array($ownerid, $teamname, $format, $packedteam, $public)
+		$psdb->query(
+			"INSERT INTO `ntbb_teams` (`ownerid`, `teamname`, `format`, `packedteam`, `public`) VALUES ('$userid', '$teamname', '$format', '$packedteam', $public)"
 		);
+		$out = 2;
+	}
 
+	/**
+	 * Shares a team with a player. 1 = we don't own the team. 2 = success.
+	 */
+	public function shareteam($dispatcher, &$reqData, &$out) {
+	 	global $psdb, $teams, $curuser;
+
+		$server = $dispatcher->findServer();
+		if (!$server) {
+			$out['errorip'] = $dispatcher->getIp();
+			return;
+		}
+
+		// A valid curuser array is needed
+		if (!@$curuser['loggedin'] || !@$curuser['userid']) {
+		   $out = 0;
+		   return;
+		}
+
+		$ownerid = $psdb->escape($curuser['userid']);
+		$teamid = $psdb->escape(@$reqData['teamid']);
+		$userid = $psdb->escape(@$reqData['userid']);
+		if(!$teamid || !$userid) {
+			$out = 0;
+			return;
+		}
+
+		// make sure we own the team
+		$res = $psdb->query(
+			"SELECT COUNT(*) as count FROM `ntbb_teams` WHERE `teamid` = '$teamid' AND `ownerid` = '$ownerid'"
+		);
+		$count = $psdb->fetch_assoc($res)['count'];
+		if($count == 0) {
+			$out = 1;
+			return;
+		}
+		$psdb->query(
+			"INSERT INTO `ntbb_sharelist` (`teamid`, `userid`) VALUES ('$teamid', '$userid')"
+		);
+		$out = 2;
 	}
 
 }
