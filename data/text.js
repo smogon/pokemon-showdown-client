@@ -36,6 +36,7 @@ exports.BattleText = {
 		// message happens AFTER "Pokemon used Move!"
 		cant: "[POKEMON] can't use [MOVE]!",
 		cantNoMove: "[POKEMON] can't move!",
+		block: "  ([POKEMON] blocked the effect!)",
 		fail: "  But it failed!",
 
 		// n.b. this is the default message for in-battle forme changes
@@ -528,6 +529,9 @@ exports.BattleText = {
 	geomancy: {
 		prepare: "[POKEMON] is absorbing power!",
 	},
+	grassknot: {
+		fail: "  [POKEMON] shook its head. It seems like it can’t use this move...",
+	},
 	grasspledge: {
 		activate: "#waterpledge",
 		start: "  A swamp enveloped [TEAM]!",
@@ -613,6 +617,9 @@ exports.BattleText = {
 	},
 	lockon: {
 		start: "  [SOURCE] took aim at [POKEMON]!",
+	},
+	lowkick: {
+		fail: "#grassknot",
 	},
 	luckychant: {
 		start: "  Lucky Chant shielded [TEAM] from critical hits!",
