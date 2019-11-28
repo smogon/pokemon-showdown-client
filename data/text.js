@@ -558,6 +558,12 @@ exports.BattleText = {
 	healingwish: {
 		heal: "  The healing wish came true for [POKEMON]!",
 	},
+	heatcrash: {
+		fail: "#grassknot",
+	},
+	heavyslam: {
+		fail: "#grassknot",
+	},
 	helpinghand: {
 		start: "  [SOURCE] is ready to help [POKEMON]!",
 	},
@@ -779,6 +785,7 @@ exports.BattleText = {
 	skydrop: {
 		prepare: "[POKEMON] took [TARGET] into the sky!",
 		end: "  [POKEMON] was freed from the Sky Drop!",
+		fail: "#grassknot",
 		failSelect: "Sky Drop won't let [POKEMON] go!",
 		failTooHeavy: "  [POKEMON] is too heavy to be lifted!",
 	},
