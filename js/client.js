@@ -2508,8 +2508,13 @@ function toId() {
 				var status = offline ? '(Offline)' : data.status.startsWith('!') ? data.status.slice(1) : data.status;
 				buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + BattleLog.escapeHTML(status) + '<br /></span>';
 			}
-			buf += '<small>' + (group || '&nbsp;') + '</small>';
-			if (globalgroup) buf += '<br /><small>' + globalgroup + '</small>';
+			if (group) {
+				buf += '<small class="usergroup roomgroup">' + group + '</small>';
+				if (globalgroup) buf += '<br />';
+			}
+			if (globalgroup) {
+				buf += '<small class="usergroup globalgroup">' + globalgroup + '</small>';
+			}
 			if (data.rooms) {
 				var battlebuf = '';
 				var chatbuf = '';

@@ -3136,6 +3136,11 @@ a.ilink.yours {
 	max-height: 21pt;
 	display: block;
 }
+.usergroup {
+	color: #333;
+	font-size: 8pt;
+	font-weight: bold;
+}
 
 .userdetails {
 	min-height: 80px;
@@ -3297,6 +3302,10 @@ a.ilink.yours {
 	border-color: #888;
 
 	box-shadow: 2px 2px 3px rgba(0,0,0,.2);
+}
+
+.dark .usergroup {
+	color: #BBB;
 }
 
 .dark .popupmenu button,
