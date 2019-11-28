@@ -253,7 +253,7 @@ exports.BattleText = {
 	dynamax: {
 		start: "  ([POKEMON]'s Dynamax!)",
 		end: "  ([POKEMON] returned to normal!)",
-		fail: "  The move was blocked by the power of Dynamax!",
+		block: "  The move was blocked by the power of Dynamax!",
 	},
 
 	// weather
@@ -530,7 +530,7 @@ exports.BattleText = {
 		prepare: "[POKEMON] is absorbing power!",
 	},
 	grassknot: {
-		fail: "  [POKEMON] shook its head. It seems like it can’t use this move...",
+		fail: "  [POKEMON] shook its head. It seems like it can't use this move...",
 	},
 	grasspledge: {
 		activate: "#waterpledge",
@@ -557,6 +557,12 @@ exports.BattleText = {
 	},
 	healingwish: {
 		heal: "  The healing wish came true for [POKEMON]!",
+	},
+	heatcrash: {
+		fail: "#grassknot",
+	},
+	heavyslam: {
+		fail: "#grassknot",
 	},
 	helpinghand: {
 		start: "  [SOURCE] is ready to help [POKEMON]!",
