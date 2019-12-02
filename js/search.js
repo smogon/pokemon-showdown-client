@@ -1043,13 +1043,13 @@
 					if (template.battleOnly) template = baseTemplate;
 					if (baseTemplate.otherFormes) {
 						for (var j = 0; j < baseTemplate.types.length; j++) {
-							if (template.forme.indexOf('Alola') >= 0 || template.forme.indexOf('Galar') > 0 || template.baseSpecies === 'Wormadam') continue;
+							if (template.forme.indexOf('Alola') >= 0 || template.forme.indexOf('Galar') >= 0 || template.baseSpecies === 'Wormadam') continue;
 							types.push(baseTemplate.types[j]);
 						}
 						for (var j = 0; j < baseTemplate.otherFormes.length; j++) {
 							var forme = Dex.getTemplate(baseTemplate.otherFormes[j]);
 							for (var h = 0; h < forme.types.length; h++) {
-								if (template.forme.indexOf('Alola') >= 0 || template.forme.indexOf('Galar') > 0 || forme.baseSpecies === 'Wormadam' || forme.battleOnly) continue;
+								if (template.forme.indexOf('Alola') >= 0 || template.forme.indexOf('Galar') >= 0 || forme.baseSpecies === 'Wormadam' || forme.battleOnly) continue;
 								types.push(forme.types[h]);
 							}
 						}
