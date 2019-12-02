@@ -1767,6 +1767,7 @@
 				smogdexid = 'meowstic-m';
 			} else if (template.forme) {
 				switch (template.baseSpecies) {
+				case 'Alcremie':
 				case 'Basculin':
 				case 'Burmy':
 				case 'Castform':
@@ -1782,8 +1783,10 @@
 				case 'Mimikyu':
 				case 'Minior':
 				case 'Pikachu':
+				case 'Polteageist':
 				case 'Sawsbuck':
 				case 'Shellos':
+				case 'Sinistea':
 				case 'Vivillon':
 					break;
 				default:
@@ -1792,7 +1795,7 @@
 				}
 			}
 
-			var generationNumber = 7;
+			var generationNumber = 8;
 			if (format.substr(0, 3) === 'gen') {
 				var number = format.charAt(3);
 				if ('1' <= number && number <= '6') {
@@ -1800,7 +1803,7 @@
 					format = format.substr(4);
 				}
 			}
-			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm'][generationNumber - 1];
+			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss'][generationNumber - 1];
 			if (format === 'battlespotdoubles') {
 				smogdexid += '/vgc15';
 			} else if (format === 'doublesou' || format === 'doublesuu') {
