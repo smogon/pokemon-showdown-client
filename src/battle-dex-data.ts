@@ -362,7 +362,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	linoonegalar: 900 + 174,
 	darumakagalar: 900 + 175,
 	darmanitangalar: 900 + 176,
-	darmanitangalarzen: 900 + 177,
+	darmanitanzengalar: 900 + 177,
 	yamaskgalar: 900 + 178,
 	stunfiskgalar: 900 + 179,
 	cramorantgulping: 900 + 180,
@@ -391,7 +391,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	vikavolttotem: 738,
 	togedemarutotem: 777,
 	mimikyutotem: 778,
-	mimikyutotembusted: 778,
+	mimikyubustedtotem: 778,
 	ribombeetotem: 743,
 	kommoototem: 784,
 
