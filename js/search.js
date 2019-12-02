@@ -649,7 +649,8 @@
 		if (!template) return '';
 		if (template.prevo) return template.prevo;
 		var baseSpecies = template.baseSpecies;
-		if (baseSpecies !== template.species && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo' || baseSpecies === 'Necrozma')) {
+		if ((template.forme && template.forme.indexOf('Gmax') >= 0) ||
+			(baseSpecies !== template.species && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo' || baseSpecies === 'Necrozma'))) {
 			return toID(template.baseSpecies);
 		}
 		return '';
