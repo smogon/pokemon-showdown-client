@@ -603,9 +603,8 @@ class LadderActionHandler {
 class TeamsActionHandler {
 	const MAXPAGESIZE = 50;
 	/**
-	 * Fetches all published teams uploaded by the user.
-	 * Mandatory request args: userid: user id; page, pagesize: control the range of data that is returned.
-	 * Server only.
+	 * Fetches all published teams uploaded by the user (must be logged in).
+	 * Mandatory request args: page, pagesize: control the range of data that is returned.
 	 */
 	public function getuploadedteams($dispatcher, &$reqData, &$out) {
 		global $psdb, $teams, $curuser;
@@ -631,9 +630,8 @@ class TeamsActionHandler {
 	}
 
 	/**
-	 * Fetches all teams shared with the user.
-	 * Mandatory request args: userid: user id; page, pagesize: control the range of data that is returned.
-	 * Server only.
+	 * Fetches all teams shared with the user (must be logged in).
+	 * Mandatory request args: page, pagesize: control the range of data that is returned.
 	 */
 	public function getsharedteams($dispatcher, &$reqData, &$out) {
 	 	global $psdb, $teams, $curuser;
@@ -662,7 +660,6 @@ class TeamsActionHandler {
 	/**
 	 * Fetches all public teams.
 	 * Mandatory request args: page, pagesize: control the range of data that is returned.
-	 * Server only.
 	 */
 
 	public function getpublicteams($dispatcher, &$reqData, &$out) {
@@ -726,7 +723,7 @@ class TeamsActionHandler {
 	/**
 	 * Shares a team with a player. 1 = user doesn't own the team. 2 = success.
 	 * Mandatory request args: ownerid: owner's id; teamid: team id; userid: user to share with
-	 * Server only
+	 * Server only.
 	 */
 	public function shareteam($dispatcher, &$reqData, &$out) {
 	 	global $psdb, $teams;
