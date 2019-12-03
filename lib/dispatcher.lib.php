@@ -601,7 +601,7 @@ class LadderActionHandler {
 }
 
 class TeamsActionHandler {
-	$MAXPAGESIZE = 50;
+	const MAXPAGESIZE = 50;
 	/**
 	 * Fetches all published teams uploaded by the user.
 	 * Mandatory request args: userid: user id; page, pagesize: control the range of data that is returned.
@@ -618,8 +618,8 @@ class TeamsActionHandler {
 		}
 
 		$userid = $psdb->escape($curuser['userid']);
-		$pagesize = min($MAXPAGESIZE, intval(@$reqData['pagesize']));
-		$pagesize = $pagesize == 0 ? $MAXPAGESIZE : $pagesize;
+		$pagesize = min(self::MAXPAGESIZE, intval(@$reqData['pagesize']));
+		$pagesize = $pagesize == 0 ? self::MAXPAGESIZE : $pagesize;
 		$page = intval(@$reqData['page']);
 		if($pagesize <= 0 || $page < 0) {
 			$out = 0;
@@ -658,10 +658,10 @@ class TeamsActionHandler {
 		}
 
 		$userid = $psdb->escape($curuser['userid']);
-		$pagesize = min($MAXPAGESIZE, intval(@$reqData['pagesize']));
-		$pagesize = $pagesize == 0 ? $MAXPAGESIZE : $pagesize;
+		$pagesize = min(self::MAXPAGESIZE, intval(@$reqData['pagesize']));
+		$pagesize = $pagesize == 0 ? self::MAXPAGESIZE : $pagesize;
 		$page = intval(@$reqData['page']);
-		if($pagesize <= 0 || $page < 0) {
+		if($pagesize <= 0 || $page < 0 || !$userid) {
 			$out = 0;
 			return;
 		}
@@ -701,8 +701,8 @@ class TeamsActionHandler {
 	public function getpublicteams($dispatcher, &$reqData, &$out) {
 	 	global $psdb, $teams;
 
-		$pagesize = min($MAXPAGESIZE, intval(@$reqData['pagesize']));
-		$pagesize = $pagesize == 0 ? $MAXPAGESIZE : $pagesize;
+		$pagesize = min(self::MAXPAGESIZE, intval(@$reqData['pagesize']));
+		$pagesize = $pagesize == 0 ? self::MAXPAGESIZE : $pagesize;
 		$page = intval(@$reqData['page']);
 		if($pagesize <= 0 || $page < 0) {
 			$out = 0;
