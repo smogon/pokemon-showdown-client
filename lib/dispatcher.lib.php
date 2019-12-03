@@ -681,7 +681,7 @@ class TeamsActionHandler {
 
 	/**
 	 * Uploads a new team. out is 0 for args error, 1 for duplicate, 2 for success.
-	 * Mandatory request args: teamname, format, packedteam, public (int either 0 or 1)
+	 * Mandatory request args: userid, teamname, format, packedteam, public (int either 0 or 1)
 	 * Server only.
 	 */
 	public function uploadteam($dispatcher, &$reqData, &$out) {
