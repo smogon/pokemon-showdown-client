@@ -605,7 +605,6 @@ class TeamsActionHandler {
 	/**
 	 * Fetches all published teams uploaded by the user.
 	 * Mandatory request args: userid: user id; page, pagesize: control the range of data that is returned.
-	 * Optional request args: match: string to regex match teamname against.
 	 * Server only.
 	 */
 	public function getuploadedteams($dispatcher, &$reqData, &$out) {
@@ -618,23 +617,12 @@ class TeamsActionHandler {
 		}
 
 		$userid = $psdb->escape($curuser['userid']);
-		$pagesize = min(self::MAXPAGESIZE, intval(@$reqData['pagesize']));
-		$pagesize = $pagesize == 0 ? self::MAXPAGESIZE : $pagesize;
-		$page = intval(@$reqData['page']);
-		if($pagesize <= 0 || $page < 0) {
-			$out = 0;
-			return;
-		}
-
-		$matchstr = @$reqData['match'];
-		$sqlclause = "";
-		if($matchstr) {
-			$sqlclause = " AND LOWER(`teamname`) REGEXP '" . $matchstr . "'";
-		}
+		$pagesize = max(min(self::MAXPAGESIZE, intval(@$reqData['pagesize'])), 1);
+		$page = max(intval(@$reqData['page']), 0);
 
 		$res = $psdb->query(
-			"SELECT `teamid`, `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` WHERE (`ownerid` = '$userid')" .
-			$sqlclause . " ORDER BY `teamid` DESC LIMIT " . $page * $pagesize . "," . $pagesize
+			"SELECT `teamid`, `teamname`, `format`, `packedteam`, `public` FROM `ntbb_teams` WHERE (`ownerid` = '$userid')"
+			. " ORDER BY `teamid` DESC LIMIT " . $page * $pagesize . "," . $pagesize
 		);
 		$out = array();
 		while($team = $psdb->fetch_assoc($res)) {
@@ -645,7 +633,6 @@ class TeamsActionHandler {
 	/**
 	 * Fetches all teams shared with the user.
 	 * Mandatory request args: userid: user id; page, pagesize: control the range of data that is returned.
-	 * Optional request args: teammatch, usermatch: string to regex match teamname and owner name against.
 	 * Server only.
 	 */
 	public function getsharedteams($dispatcher, &$reqData, &$out) {
@@ -658,31 +645,12 @@ class TeamsActionHandler {
 		}
 
 		$userid = $psdb->escape($curuser['userid']);
-		$pagesize = min(self::MAXPAGESIZE, intval(@$reqData['pagesize']));
-		$pagesize = $pagesize == 0 ? self::MAXPAGESIZE : $pagesize;
-		$page = intval(@$reqData['page']);
-		if($pagesize <= 0 || $page < 0 || !$userid) {
-			$out = 0;
-			return;
-		}
-
-		$tmatchstr = $psdb->escape(@$reqData['teammatch']);
-		$sqlclause1 = "";
-		if($tmatchstr) {
-			$sqlclause1 = " AND LOWER(t.teamname) REGEXP '$tmatchstr'";
-		}
-		$umatchstr = $psdb->escape(@$reqData['usermatch']);
-		$sqlclause2 = "";
-		$addl_table = "";
-		if($umatchstr) {
-			$sqlclause2 = " AND u.userid = t.ownerid AND LOWER(u.username) REGEXP '" . $umatchstr . "'";
-			$addl_table = ", `ntbb_users` `u`";
-		}
+		$pagesize = max(min(self::MAXPAGESIZE, intval(@$reqData['pagesize'])), 1);
+		$page = max(intval(@$reqData['page']), 0);
 
 		$res = $psdb->query(
-			"SELECT t.teamid, t.teamname, t.ownerid, t.format, t.packedteam, t.public FROM `ntbb_teams` `t`, `ntbb_sharelist` `s`$addl_table"
+			"SELECT t.teamid, t.teamname, t.ownerid, t.format, t.packedteam, t.public FROM `ntbb_teams` `t`, `ntbb_sharelist` `s`"
 			. " WHERE t.teamid = s.teamid AND s.userid = '$userid'"
-			. $sqlclause1 . $sqlclause2
 			. " ORDER BY t.teamid DESC LIMIT " . $page * $pagesize . "," . $pagesize
 		);
 		$out = array();
@@ -694,38 +662,19 @@ class TeamsActionHandler {
 	/**
 	 * Fetches all public teams.
 	 * Mandatory request args: page, pagesize: control the range of data that is returned.
-	 * Optional request args: teammatch, usermatch: string to regex match teamname and owner name against.
 	 * Server only.
 	 */
 
 	public function getpublicteams($dispatcher, &$reqData, &$out) {
 	 	global $psdb, $teams;
 
-		$pagesize = min(self::MAXPAGESIZE, intval(@$reqData['pagesize']));
-		$pagesize = $pagesize == 0 ? self::MAXPAGESIZE : $pagesize;
-		$page = intval(@$reqData['page']);
-		if($pagesize <= 0 || $page < 0) {
-			$out = 0;
-			return;
-		}
+		$pagesize = max(min(self::MAXPAGESIZE, intval(@$reqData['pagesize'])), 1);
+		$page = max(intval(@$reqData['page']), 0);
 
-		$tmatchstr = $psdb->escape(@$reqData['teammatch']);
-		$sqlclause1 = "";
-		if($tmatchstr) {
-			$sqlclause1 = " AND LOWER(`t.teamname`) REGEXP '$tmatchstr'";
-		}
-		$umatchstr = $psdb->escape(@$reqData['usermatch']);
-		$sqlclause2 = "";
-		$addl_table = "";
-		if($umatchstr) {
-			$sqlclause2 = " AND u.userid = t.ownerid AND LOWER(u.username) REGEXP '$umatchstr'";
-			$addl_table = ", `ntbb_users` `u`";
-		}
 		$res = $psdb->query(
-			"SELECT `teamid`, `teamname`, `ownerid`, `format`, `packedteam`, `public` FROM `ntbb_teams` `t`$addl_table"
-			. " WHERE t.public = 1"
-			. $sqlclause1 . $sqlclause2
-			. " ORDER BY t.teamid DESC LIMIT " . $page * $pagesize . "," . $pagesize
+			"SELECT `teamid`, `teamname`, `ownerid`, `format`, `packedteam`, `public` FROM `ntbb_teams`"
+			. " WHERE `public` = 1"
+			. " ORDER BY `teamid` DESC LIMIT " . $page * $pagesize . "," . $pagesize
 		);
 		$out = array();
 		while($team = $psdb->fetch_assoc($res)) {
@@ -777,6 +726,7 @@ class TeamsActionHandler {
 	/**
 	 * Shares a team with a player. 1 = user doesn't own the team. 2 = success.
 	 * Mandatory request args: ownerid: owner's id; teamid: team id; userid: user to share with
+	 * Server only
 	 */
 	public function shareteam($dispatcher, &$reqData, &$out) {
 	 	global $psdb, $teams;
