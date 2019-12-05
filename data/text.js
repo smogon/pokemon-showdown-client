@@ -36,7 +36,6 @@ exports.BattleText = {
 		// message happens AFTER "Pokemon used Move!"
 		cant: "[POKEMON] can't use [MOVE]!",
 		cantNoMove: "[POKEMON] can't move!",
-		block: "  ([POKEMON] blocked the effect!)",
 		fail: "  But it failed!",
 
 		// n.b. this is the default message for in-battle forme changes
