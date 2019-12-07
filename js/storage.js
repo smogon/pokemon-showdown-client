@@ -539,6 +539,64 @@ Storage.initTestClient = function () {
 	});
 };
 
+//Saved users
+Storage.favedUsers = [];
+Storage.addUser = function(user){
+	if (localStorage.getItem('saved_users') != null)
+	{
+		Storage.favedUsers = JSON.parse(localStorage.getItem('saved_users'));
+	}
+	Storage.favedUsers.push(user);
+	console.log(localStorage.getItem('saved_users'));
+	try {
+		if (window.localStorage) {
+			console.log("SAVED");
+			localStorage.setItem('saved_users', JSON.stringify(Storage.favedUsers));
+			Storage.cantSave = false;
+		}
+	} catch (e) {
+		console.log("NOT SAVED");
+		if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
+			Storage.cantSave = true;
+		} else {
+			throw e;
+		}
+	}
+};
+Storage.removeUser = function(user){
+	if (localStorage.getItem('saved_users') != null)
+	{
+		Storage.favedUsers = JSON.parse(localStorage.getItem('saved_users'));
+	}
+	var index = Storage.favedUsers.indexOf(user);
+	if (index > -1)
+	{
+		Storage.favedUsers.splice(index, 1);
+	}
+	try {
+		if (window.localStorage) {
+			console.log("REMOVED");
+			localStorage.setItem('saved_users', JSON.stringify(Storage.favedUsers));
+			Storage.cantSave = false;
+		}
+	} catch (e) {
+		console.log("NOT REMOVED");
+		if (e.code === DOMException.QUOTA_EXCEEDED_ERR) {
+			Storage.cantSave = true;
+		} else {
+			throw e;
+		}
+	}
+};
+
+Storage.getUsers = function() {
+	Storage.favedUsers = JSON.parse(localStorage.getItem('saved_users'));
+	if (Storage.favedUsers == null)
+	{
+		Storage.favedUsers = [];
+	}
+}
+
 /*********************************************************
  * Teams
  *********************************************************/

@@ -2,6 +2,7 @@
 
 	this.MainMenuRoom = this.Room.extend({
 		type: 'mainmenu',
+		title: 'mainmenu',
 		tinyWidth: 340,
 		bestWidth: 628,
 		events: {
@@ -50,7 +51,8 @@
 			buf += '<p><button class="button mainmenu3" name="joinRoom" value="ladder">Ladder</button></p></div>';
 
 			buf += '<div class="menugroup"><p><button class="button mainmenu4 onlineonly disabled" name="joinRoom" value="battles">Watch a battle</button></p>';
-			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser">Find a user</button></p></div>';
+			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser">Find a user</button></p>';
+			buf += '<p><button class="button mainmenu7 onlineonly disabled" name="favoritedUsers">Favorited users</button></p></div>'
 
 			this.$('.mainmenu').html(buf);
 
@@ -953,8 +955,43 @@
 				}
 				app.addPopup(UserPopup, {name: target});
 			});
-		}
+		},
+
+		favoritedUsers: function () {
+			Storage.getUsers();
+			var $favUserWindow = this.$pmBox.find('.fav-user-window');
+			if (!$favUserWindow.length) {
+				var buf = '<div class="pm-window fav-user-window">';
+				buf += '<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>';
+				buf += '<button class="minimizebutton tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>';
+				buf += 'Favourited Users</h3>';
+				buf += '<div id="favorited-users" class="pm-log">';
+				buf += '</div></div>';
+				$favUserWindow = $(buf).appendTo(this.$pmBox);
+				MainMenuRoom.refreshFavUsers();
+			} else {
+				$favUserWindow.show();
+			}
+		},
+
 	}, {
+		refreshFavUsers: function () {
+			var $activityMenu = $('.activitymenu');
+			var $pmBox = $activityMenu.find('.pmbox');
+			var $favUserWindow = $pmBox.find('.fav-user-window');
+			var $usernames = $favUserWindow.find('.pm-log');
+
+			var buf = "";
+			for (var i = 0 ; i < Storage.favedUsers.length; i++)
+			{
+				var color = BattleLog.hashColor(toID(Storage.favedUsers[i]));
+				buf += '<div class="favUser"><strong style="' + color + '"><span class="username" data-roomgroup=" " data-name="' + Storage.favedUsers[i] + '">'  + Storage.favedUsers[i] + '</span></strong></div>';
+			}
+			$usernames.empty();
+			$usernames.append(buf);
+
+		},
+
 		parseChatMessage: function (message, name, timestamp, isHighlighted, $chatElem) {
 			var showMe = !((Dex.prefs('chatformatting') || {}).hideme);
 			var group = ' ';
