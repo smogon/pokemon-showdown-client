@@ -541,9 +541,8 @@ Storage.initTestClient = function () {
 
 //Saved users
 Storage.favedUsers = [];
-Storage.addUser = function(user){
-	if (localStorage.getItem('saved_users') != null)
-	{
+Storage.addUser = function (user) {
+	if (localStorage.getItem('saved_users') != null) {
 		Storage.favedUsers = JSON.parse(localStorage.getItem('saved_users'));
 	}
 	Storage.favedUsers.push(user);
@@ -563,14 +562,12 @@ Storage.addUser = function(user){
 		}
 	}
 };
-Storage.removeUser = function(user){
-	if (localStorage.getItem('saved_users') != null)
-	{
+Storage.removeUser = function (user) {
+	if (localStorage.getItem('saved_users') != null) {
 		Storage.favedUsers = JSON.parse(localStorage.getItem('saved_users'));
 	}
 	var index = Storage.favedUsers.indexOf(user);
-	if (index > -1)
-	{
+	if (index > -1) {
 		Storage.favedUsers.splice(index, 1);
 	}
 	try {
@@ -589,13 +586,12 @@ Storage.removeUser = function(user){
 	}
 };
 
-Storage.getUsers = function() {
+Storage.getUsers = function () {
 	Storage.favedUsers = JSON.parse(localStorage.getItem('saved_users'));
-	if (Storage.favedUsers == null)
-	{
+	if (Storage.favedUsers == null) {
 		Storage.favedUsers = [];
 	}
-}
+};
 
 /*********************************************************
  * Teams

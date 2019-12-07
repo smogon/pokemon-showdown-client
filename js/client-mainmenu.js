@@ -52,7 +52,7 @@
 
 			buf += '<div class="menugroup"><p><button class="button mainmenu4 onlineonly disabled" name="joinRoom" value="battles">Watch a battle</button></p>';
 			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser">Find a user</button></p>';
-			buf += '<p><button class="button mainmenu7 onlineonly disabled" name="favoritedUsers">Favorited users</button></p></div>'
+			buf += '<p><button class="button mainmenu7 onlineonly disabled" name="favoritedUsers">Favorited users</button></p></div>';
 
 			this.$('.mainmenu').html(buf);
 
@@ -982,10 +982,9 @@
 			var $usernames = $favUserWindow.find('.pm-log');
 
 			var buf = "";
-			for (var i = 0 ; i < Storage.favedUsers.length; i++)
-			{
+			for (var i = 0; i < Storage.favedUsers.length; i++) {
 				var color = BattleLog.hashColor(toID(Storage.favedUsers[i]));
-				buf += '<div class="favUser"><strong style="' + color + '"><span class="username" data-roomgroup=" " data-name="' + Storage.favedUsers[i] + '">'  + Storage.favedUsers[i] + '</span></strong></div>';
+				buf += '<div class="favUser"><strong style="' + color + '"><span class="username" data-roomgroup=" " data-name="' + Storage.favedUsers[i] + '">' + Storage.favedUsers[i] + '</span></strong></div>';
 			}
 			$usernames.empty();
 			$usernames.append(buf);

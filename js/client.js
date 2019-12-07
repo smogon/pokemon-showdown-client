@@ -2584,16 +2584,15 @@ function toId() {
 			app.addPopup(AvatarsPopup);
 		},
 
-		toggleFavorite: function() {
-			if(!Storage.favedUsers.includes(this.data.name)) {
+		toggleFavorite: function () {
+			if (!Storage.favedUsers.includes(this.data.name)) {
 				console.log("ADD " + this.data.name);
-				
+
 				Storage.addUser(this.data.name);
 				Storage.getUsers();
 				this.update();
 				console.log(Storage.favedUsers);
-			}
-			else {
+			} else {
 				console.log("REMOVE " + this.data.name);
 				Storage.removeUser(this.data.name);
 				Storage.getUsers();
