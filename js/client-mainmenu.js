@@ -964,7 +964,7 @@
 				var buf = '<div class="pm-window fav-user-window">';
 				buf += '<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>';
 				buf += '<button class="minimizebutton tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>';
-				buf += 'Favourited Users</h3>';
+				buf += 'Favorited Users</h3>';
 				buf += '<div id="favorited-users" class="pm-log">';
 				buf += '</div></div>';
 				$favUserWindow = $(buf).appendTo(this.$pmBox);
