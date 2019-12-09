@@ -253,6 +253,7 @@ exports.BattleText = {
 		start: "  ([POKEMON]'s Dynamax!)",
 		end: "  ([POKEMON] returned to normal!)",
 		block: "  The move was blocked by the power of Dynamax!",
+		fail: "  [POKEMON] shook its head. It seems like it can't use this move...",
 	},
 
 	// weather
@@ -528,9 +529,6 @@ exports.BattleText = {
 	geomancy: {
 		prepare: "[POKEMON] is absorbing power!",
 	},
-	grassknot: {
-		fail: "  [POKEMON] shook its head. It seems like it can't use this move...",
-	},
 	grasspledge: {
 		activate: "#waterpledge",
 		start: "  A swamp enveloped [TEAM]!",
@@ -556,12 +554,6 @@ exports.BattleText = {
 	},
 	healingwish: {
 		heal: "  The healing wish came true for [POKEMON]!",
-	},
-	heatcrash: {
-		fail: "#grassknot",
-	},
-	heavyslam: {
-		fail: "#grassknot",
 	},
 	helpinghand: {
 		start: "  [SOURCE] is ready to help [POKEMON]!",
@@ -622,9 +614,6 @@ exports.BattleText = {
 	},
 	lockon: {
 		start: "  [SOURCE] took aim at [POKEMON]!",
-	},
-	lowkick: {
-		fail: "#grassknot",
 	},
 	luckychant: {
 		start: "  Lucky Chant shielded [TEAM] from critical hits!",
