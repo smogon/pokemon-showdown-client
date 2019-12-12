@@ -2700,6 +2700,30 @@
 				this.$(!this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
 				return true;
 			}
+			if (val === 'citizensnips' || val === 'snips') {
+				var set = this.curSet;
+				set.name = "citizen snips";
+				set.species = 'Drapion';
+				delete set.level;
+				var baseFormat = this.curTeam.format;
+				if (baseFormat.substr(0, 3) === 'gen') baseFormat = baseFormat.substr(4);
+				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
+				if (this.curTeam && this.curTeam.format) {
+					if (baseFormat === 'battlespotsingles' || baseFormat === 'battlespotdoubles' || baseFormat.substr(0, 3) === 'vgc') set.level = 50;
+					if (baseFormat.substr(0, 2) === 'lc') set.level = 5;
+				}
+				if (set.happiness) delete set.happiness;
+				if (set.shiny) delete set.shiny;
+				set.item = 'Leftovers';
+				set.ability = 'Battle Armor';
+				set.moves = ['Acupressure', 'Knock Off', 'Rest', 'Sleep Talk'];
+				set.evs = {hp: 248, atk: 0, def: 96, spa: 0, spd: 108, spe: 56};
+				set.ivs = {};
+				set.nature = 'Impish';
+				this.updateSetTop();
+				this.$(!this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
+				return true;
+			}
 		},
 		chartSet: function (val, selectNext) {
 			var inputName = this.curChartName;
