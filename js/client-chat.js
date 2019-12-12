@@ -49,12 +49,42 @@
 			}
 		},
 
-		focus: function () {
-			if (this.$chatbox) {
-				this.$chatbox.focus();
-			} else {
-				this.$('button[name=login]').focus();
+		focus: function (e, focusTextbox) {
+			var target = e && e.target;
+			if (target && target.tagName === 'TEXTAREA') {
+				// this workaround works for iOS 12 but not iOS 13
+				/* if (window.isiOS) {
+					// iOS will not bring up a keyboard unless you manually blur and refocus
+					$(target).blur();
+					setTimeout(function () {
+						$(target).focus();
+					}, 0);
+				} */
+				return;
 			}
+			if (!this.$chatbox) {
+				this.$('button[name=login]').focus();
+				return;
+			}
+			if (focusTextbox || $(target).closest('.chat-log-add, .battle-log-add').length) {
+				this.$chatbox.focus();
+				return;
+			}
+
+			if (window.isiOS) {
+				// Preventing the on-screen keyboard leads to other bugs, so we have to
+				// avoid focusing the textbox altogether. Sorry, Bluetooth keyboard users!
+				return;
+			}
+			// this will prevent a on-screen keyboard from appearing (in Android and iOS,
+			// and hopefully also Windows and Chrome OS in tablet mode)
+			this.$chatbox.blur();
+			this.$chatbox[0].readOnly = true;
+			this.$chatbox.focus();
+			var chatbox = this.$chatbox[0];
+			setTimeout(function () {
+				chatbox.readOnly = false;
+			}, 0);
 		},
 
 		focusText: function () {
