@@ -105,13 +105,13 @@
 		receive: function (data) {
 			this.add(data);
 		},
-		focus: function () {
+		focus: function (e) {
 			this.tooltips.hideTooltip();
 			if (this.battle.playbackState === 3 && !this.battlePaused) {
 				this.battle.play();
 				if (Dex.prefs('noanim')) this.battle.fastForwardTo(-1);
 			}
-			ConsoleRoom.prototype.focus.call(this);
+			ConsoleRoom.prototype.focus.call(this, e);
 		},
 		blur: function () {
 			this.battle.pause();

@@ -15,6 +15,7 @@ function toId() {
 	if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
 		// Android mobile-web-app-capable doesn't support it very well, but iOS
 		// does it fine, so we're only going to show this to iOS for now
+		window.isiOS = true;
 		$('head').append('<meta name="apple-mobile-web-app-capable" content="yes" />');
 	}
 
@@ -1496,12 +1497,12 @@ function toId() {
 			}
 			return room;
 		},
-		focusRoom: function (id) {
+		focusRoom: function (id, focusTextbox) {
 			var room = this.rooms[id];
 			if (!room) return false;
 			BattleTooltips.hideTooltip();
 			if (this.curRoom === room || this.curSideRoom === room) {
-				room.focus();
+				room.focus(null, focusTextbox);
 				return true;
 			}
 
@@ -1523,14 +1524,14 @@ function toId() {
 				}
 			}
 
-			room.focus();
+			room.focus(null, focusTextbox);
 			return;
 		},
 		focusRoomLeft: function (id) {
 			var room = this.rooms[id];
 			if (!room) return false;
 			if (this.curRoom === room) {
-				room.focus();
+				room.focus(null, true);
 				return true;
 			}
 
@@ -1549,14 +1550,14 @@ function toId() {
 			this.updateLayout();
 			if (this.curRoom.id === id) this.navigate(id);
 
-			room.focus();
+			room.focus(null, true);
 			return;
 		},
 		focusRoomRight: function (id) {
 			var room = this.rooms[id];
 			if (!room) return false;
 			if (this.curSideRoom === room) {
-				room.focus();
+				room.focus(null, true);
 				return true;
 			}
 
@@ -1573,7 +1574,7 @@ function toId() {
 			this.updateLayout();
 			// if (this.curRoom.id === id) this.navigate(id);
 
-			room.focus();
+			room.focus(null, true);
 			return;
 		},
 		/**
@@ -1789,12 +1790,12 @@ function toId() {
 			}
 			return false;
 		},
-		focusRoomBy: function (room, amount) {
+		focusRoomBy: function (room, amount, focusTextbox) {
 			this.arrowKeysUsed = true;
 			var rooms = this.roomList.concat(this.sideRoomList);
 			if (room && room.id === 'rooms') {
 				if (!rooms.length) return false;
-				this.focusRoom(rooms[amount < 0 ? rooms.length - 1 : 0].id);
+				this.focusRoom(rooms[amount < 0 ? rooms.length - 1 : 0].id, focusTextbox);
 				return true;
 			}
 			var index = rooms.indexOf(room);
@@ -1804,7 +1805,7 @@ function toId() {
 					this.joinRoom('rooms');
 					return true;
 				}
-				this.focusRoom(rooms[newIndex].id);
+				this.focusRoom(rooms[newIndex].id, focusTextbox);
 				return true;
 			}
 			return false;
