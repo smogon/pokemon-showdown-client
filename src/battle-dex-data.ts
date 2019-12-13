@@ -1119,6 +1119,7 @@ class Move implements Effect {
 	readonly ohko: true | 'Ice' | null;
 	readonly recoil: number[] | null;
 	readonly heal: number[] | null;
+	readonly multihit: number[] | number | null;
 	readonly hasCustomRecoil: boolean;
 	readonly noPPBoosts: boolean;
 	readonly secondaries: ReadonlyArray<any> | null;
@@ -1154,6 +1155,7 @@ class Move implements Effect {
 		this.ohko = data.ohko || null;
 		this.recoil = data.recoil || null;
 		this.heal = data.heal || null;
+		this.multihit = data.multihit || null;
 		this.hasCustomRecoil = data.hasCustomRecoil || false;
 		this.noPPBoosts = data.noPPBoosts || false;
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
@@ -1192,6 +1194,33 @@ class Move implements Effect {
 				} else  {
 					this.gmaxPower = 90;
 				}
+			}
+		}
+		if (this.category !== 'Status' && !this.zMovePower) {
+			let basePower = this.basePower;
+			if (Array.isArray(this.multihit)) basePower *= 3;
+			if (!basePower) {
+				this.zMovePower = 100;
+			} else if (basePower >= 140) {
+				this.zMovePower = 200;
+			} else if (basePower >= 130) {
+				this.zMovePower = 195;
+			} else if (basePower >= 120) {
+				this.zMovePower = 190;
+			} else if (basePower >= 110) {
+				this.zMovePower = 185;
+			} else if (basePower >= 100) {
+				this.zMovePower = 180;
+			} else if (basePower >= 90) {
+				this.zMovePower = 175;
+			} else if (basePower >= 80) {
+				this.zMovePower = 160;
+			} else if (basePower >= 70) {
+				this.zMovePower = 140;
+			} else if (basePower >= 60) {
+				this.zMovePower = 120;
+			} else  {
+				this.zMovePower = 100;
 			}
 		}
 

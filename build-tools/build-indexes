@@ -800,8 +800,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const pastEntry = genData.Items[id];
 			const nextEntry = nextGenData.Items[id];
 			if (!nextEntry) continue; // amulet coin
-			if (pastEntry.desc !== nextEntry.desc) {
-				overrideItemDesc[id] = pastEntry.desc;
+			if ((pastEntry.shortDesc || pastEntry.desc) !== (nextEntry.shortDesc || nextEntry.desc)) {
+				overrideItemDesc[id] = (pastEntry.shortDesc || pastEntry.desc);
 			}
 		}
 
@@ -811,8 +811,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const pastEntry = genData.Abilities[id];
 			const nextEntry = nextGenData.Abilities[id];
 			if (!nextEntry) continue; // amulet coin
-			if (pastEntry.desc !== nextEntry.desc) {
-				overrideAbilityDesc[id] = pastEntry.desc;
+			if ((pastEntry.shortDesc || pastEntry.desc) !== (nextEntry.shortDesc || nextEntry.desc)) {
+				overrideAbilityDesc[id] = (pastEntry.shortDesc || pastEntry.desc);
 			}
 		}
 	}
