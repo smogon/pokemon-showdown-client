@@ -67,6 +67,19 @@ RewriteRule ^sprites\/bw(.*)?$ sprites/gen5$1 [L,QSA]
 RewriteRule ^sprites\/xy(.*)?$ sprites/gen6$1 [L,QSA]
 RewriteRule ^sprites\/sm(.*)?$ sprites/gen7$1 [L,QSA]
 
+# fill in missing backsprites
+RewriteRule ^sprites\/gen1rg-back(.*)?$ sprites/gen1-back$1 [L,QSA]
+RewriteRule ^sprites\/gen1rb-back(.*)?$ sprites/gen1-back$1 [L,QSA]
+RewriteRule ^sprites\/gen2g-back(.*)?$ sprites/gen2-back$1 [L,QSA]
+RewriteRule ^sprites\/gen2s-back(.*)?$ sprites/gen2-back$1 [L,QSA]
+RewriteRule ^sprites\/gen3rs-back(.*)?$ sprites/gen3-back$1 [L,QSA]
+RewriteRule ^sprites\/gen3frlg-back(.*)?$ sprites/gen3-back$1 [L,QSA]
+RewriteRule ^sprites\/gen4dp-back(.*)?$ sprites/gen4-back$1 [L,QSA]
+RewriteRule ^sprites\/gen4dp-2-back(.*)?$ sprites/gen4-back$1 [L,QSA]
+
+# FRLG only added new sprites for Kanto Pokemon
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^sprites\/gen3frlg(.*)?$ sprites/gen3$1 [L,QSA]
 
 RewriteRule ^replays?\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
 
