@@ -259,7 +259,7 @@ interface PSGroup {
 
 class PSServer {
 	id = 'showdown';
-	host = 'sim2.psim.us';
+	host = 'sim3.psim.us';
 	port = 8000;
 	altport = 80;
 	registered = true;
