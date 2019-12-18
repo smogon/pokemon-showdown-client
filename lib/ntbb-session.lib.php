@@ -476,7 +476,7 @@ class NTBBSession {
 				} else if (@$user['banstate'] >= 100) {
 					return ';;Your username is no longer available.';
 				} else if (@$user['banstate'] >= 40) {
-					if ($serverhostname === 'sim2.psim.us') {
+					if ($serverhostname === 'sim3.psim.us') {
 						$usertype = '40';
 					} else {
 						$usertype = '2';
