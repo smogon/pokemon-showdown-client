@@ -1213,8 +1213,43 @@
 		},
 
 		saveImport: function () {
-			Storage.activeSetList = this.curSetList = Storage.importTeam(this.$('.teamedit textarea').val());
-			this.back();
+			var text = this.$('.teamedit textarea').val();
+			var url = this.importableUrl(text);
+
+			if (url) {
+				this.$('.teamedit textarea, .teamedit .savebutton').attr('disabled', true);
+				var self = this;
+				$.ajax({
+					type: 'GET',
+					url: url,
+					success: function (data) {
+						Storage.activeSetList = self.curSetList = Storage.importTeam(data);
+						self.$('.teamedit textarea, .teamedit .savebutton').attr('disabled', null);
+						self.back();
+					},
+					error: function () {
+						self.$('.teamedit textarea, .teamedit .savebutton').attr('disabled', null);
+					}
+				});
+			} else {
+				Storage.activeSetList = this.curSetList = Storage.importTeam(text);
+				this.back();
+			}
+		},
+		importableUrl: function (value) {
+			var match = value.match(/^https?:\/\/(pokepast\.es|gist\.github(?:usercontent)?\.com)\/(.*)\s*$/);
+			if (!match) return;
+
+			var host = match[1];
+			var path = match[2];
+
+			switch (host) {
+			case 'pokepast.es':
+				return 'https://pokepast.es/' + path.replace(/\/.*/, '') + '/raw';
+			default: // gist
+				var split = path.split('/');
+				return split.length < 2 ? undefined : 'https://gist.githubusercontent.com/' + split[0] + '/' + split[1] + '/raw';
+			}
 		},
 		addPokemon: function () {
 			if (!this.curTeam) return;
