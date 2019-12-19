@@ -292,7 +292,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
-		const gen = isLetsGo ? 'letsgo' : isNatDex ? 'natdex' : 'gen' + genNum;
+		const gen = isLetsGo ? 'letsgo' : 'gen' + genNum;
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
 		const pokemon = Object.keys(Dex.data.Pokedex);
 		pokemon.sort();
@@ -307,8 +307,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return template.tier;
 				}
 				if (isNatDex) {
-					if (['LC', 'LC Uber', 'NFE', 'Uber', 'AG', 'Illegal', 'Unreleased'].includes(template.tier) || template.tier.includes('CAP')) return template.tier;
-					return 'OU';
+					return template.natDexTier;
 				}
 				if (isLetsGo) {
 					let baseTemplate = Dex.mod(gen).getTemplate(template.baseSpecies);
@@ -417,7 +416,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const tierOrder = (() => {
 			if (isNatDex) {
-				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "NFE", "LC Uber", "LC", "Unreleased"];
+				return ["AG", "Uber", "OU", "NFE", "LC Uber", "LC", "Unreleased"];
 			}
 			if (isLetsGo) {
 				return ["Uber", "OU", "UU", "NFE", "LC"];
