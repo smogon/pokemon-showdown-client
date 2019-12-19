@@ -35,6 +35,7 @@
 		this.$inputEl = null;
 		this.gen = 8;
 		this.isDoubles = false;
+		this.isNatDex = false;
 
 		var self = this;
 		this.$el.on('click', '.more button', function (e) {
@@ -802,6 +803,12 @@
 		if (format.includes('doubles')) this.isDoubles = true;
 		var isLetsGo = format.startsWith('letsgo');
 		if (isLetsGo) format = format.slice(6);
+		var isNatDex = format.startsWith('nationaldex');
+		if (isNatDex) {
+			format = format.slice(11);
+			this.isNatDex = true;
+		}
+		if (format === 'beta') format = 'ou';
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		 // CAP check is temporary
 		var requireGalar = (this.gen === 8 && format.indexOf('nationaldex') < 0 && format.indexOf('cap') < 0);
@@ -829,6 +836,8 @@
 				table = table['gen' + this.gen];
 			} else if (isLetsGo) {
 				table = table['letsgo'];
+			} else if (isNatDex) {
+				table = table['natdex'];
 			}
 
 			if (!table.tierSet) {
@@ -972,7 +981,7 @@
 						} else if (learnsetEntry.indexOf(gen) < 0) {
 							continue;
 						}
-						if (this.gen === 8 && BattleMovedex[moveid].isNonstandard === "Past" && format.indexOf('nationaldex') < 0) continue;
+						if (this.gen === 8 && BattleMovedex[moveid].isNonstandard === "Past" && !isNatDex) continue;
 						if (moves.indexOf(moveid) >= 0) continue;
 						moves.push(moveid);
 						if (moveid === 'sketch') sketch = true;
@@ -1341,6 +1350,7 @@
 		} else {
 			tier = Dex.getTier(Dex.forGen(this.gen).getTemplate(pokemon.baseSpecies), this.gen, this.isDoubles);
 		}
+		if (this.isNatDex) tier = "ND";
 		buf += '<span class="col numcol">' + tier + '</span> ';
 
 		// icon
