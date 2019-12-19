@@ -1092,7 +1092,7 @@
 					buf += '<li><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 				}
 				if (i === 0) {
-					buf += '<li><button name="import" class="button big"><i class="fa fa-upload"></i> Import from text</button></li>';
+					buf += '<li><button name="import" class="button big"><i class="fa fa-upload"></i> Import from text or URL</button></li>';
 				}
 				if (i < 6) {
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
@@ -1228,6 +1228,7 @@
 						self.back();
 					},
 					error: function () {
+						app.addPopupMessage("Could not fetch a team from this URL. Make sure you copied the full link, or paste the team in by hand.");
 						self.$('.teamedit textarea, .teamedit .savebutton').attr('disabled', null);
 					}
 				});
