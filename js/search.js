@@ -1110,7 +1110,7 @@
 				if (id === 'hiddenpowerfire') isViable = (moves.indexOf('flamethrower') < 0);
 				if (id === 'hiddenpowergrass') isViable = (moves.indexOf('energyball') < 0 && moves.indexOf('gigadrain') < 0);
 				if (id === 'hiddenpowerice') isViable = (moves.indexOf('icebeam') < 0 && template.id !== 'xerneas');
-				if (id === 'hyperspacefury') isViable = (toID(set.species) === 'hoopaunbound')
+				if (id === 'hyperspacefury') isViable = (toID(set.species) === 'hoopaunbound');
 				if (id === 'hypnosis') isViable = ((this.gen < 4 && moves.indexOf('sleeppowder') < 0) || (toID(set.species) === 'darkrai'));
 				if (id === 'icywind') isViable = (toID(set.species).substr(0, 6) === 'keldeo');
 				if (id === 'infestation') isViable = (toID(set.species) === 'shuckle');
