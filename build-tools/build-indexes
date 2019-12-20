@@ -629,7 +629,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					specificItems.push(id);
 				} else if (item.name.endsWith(" Memory")) {
 					specificItems.push(id);
-				} else if (item.zMoveUser) {
+				} else if (item.name.startsWith("Rusted")) {
+					specificItems.push(id);
+				} else if (item.itemUser) {
 					specificItems.push(id);
 				} else if (item.megaStone) {
 					specificItems.push(id);
