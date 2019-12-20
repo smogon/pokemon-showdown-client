@@ -1350,7 +1350,7 @@
 		} else {
 			tier = Dex.getTier(Dex.forGen(this.gen).getTemplate(pokemon.baseSpecies), this.gen, this.isDoubles);
 		}
-		if (this.isNatDex) tier = "ND";
+		if (this.isNatDex) tier = (pokemon.num >= 0 ? pokemon.num : 'CAP');
 		buf += '<span class="col numcol">' + tier + '</span> ';
 
 		// icon
