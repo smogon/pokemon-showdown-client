@@ -307,7 +307,28 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return template.tier;
 				}
 				if (isNatDex) {
-					return template.natDexTier;
+					let banlist = Dex.getFormat('gen8nationaldexou').banlist;
+					if (banlist.includes(template.species)) return 'Uber';
+					if (banlist.includes(template.species + '-Base')) return 'Uber';
+					if (template.species === 'Zygarde-Complete') return 'Uber';
+					if (template.species === 'Necrozma-Ultra') return 'Uber';
+					if (template.species === 'Eternatus-Eternamax') return 'Illegal';
+					if (template.isNonstandard) {
+						const unobtainables = [
+							'Eevee-Starter', 'Floette-Eternal', 'Magearna-Original', 'Pichu-Spiky-eared', 'Pikachu-Belle', 'Pikachu-Cosplay', 'Pikachu-Libre', 'Pikachu-PhD', 'Pikachu-Pop-Star', 'Pikachu-Rock-Star', 'Pikachu-Starter', 'Eternatus-Eternamax',
+						];
+						if (template.isNonstandard !== 'Past' || unobtainables.includes(template.species) || template.num <= 0) {
+							return 'Illegal';
+						}
+					}
+					if (banlist.includes(template.baseSpecies)) return 'Uber';
+					if (template.nfe) {
+						if (!template.prevo) return 'LC';
+						return 'NFE';
+					}
+					if (['Meltan', 'Melmetal'].includes(template.species)) return 'OU';
+					if (template.isUnreleased && template.isUnreleased !== "Past") return 'Illegal';
+					return 'OU';
 				}
 				if (isLetsGo) {
 					let baseTemplate = Dex.mod(gen).getTemplate(template.baseSpecies);
@@ -380,7 +401,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		if (isNatDex) {
 			BattleTeambuilderTable['natdex'] = {};
 			BattleTeambuilderTable['natdex'].tiers = tiers;
-			BattleTeambuilderTable['natdex'].overrideTier = overrideTier;
 			BattleTeambuilderTable['natdex'].formatSlices = formatSlices;
 		} else if (isLetsGo) {
 			BattleTeambuilderTable['letsgo'] = {};
@@ -416,7 +436,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const tierOrder = (() => {
 			if (isNatDex) {
-				return ["AG", "Uber", "OU", "NFE", "LC Uber", "LC", "Unreleased"];
+				return ["AG", "Uber", "OU", "NFE", "LC"];
 			}
 			if (isLetsGo) {
 				return ["Uber", "OU", "UU", "NFE", "LC"];

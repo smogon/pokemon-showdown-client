@@ -808,7 +808,6 @@
 			format = format.slice(11);
 			this.isNatDex = true;
 		}
-		if (format === 'beta') format = 'ou';
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		 // CAP check is temporary
 		var requireGalar = (this.gen === 8 && format.indexOf('nationaldex') < 0 && format.indexOf('cap') < 0);
