@@ -307,28 +307,18 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return template.tier;
 				}
 				if (isNatDex) {
-					let banlist = Dex.getFormat('gen8nationaldexou').banlist;
-					if (banlist.includes(template.species)) return 'Uber';
-					if (banlist.includes(template.species + '-Base')) return 'Uber';
-					if (template.species === 'Zygarde-Complete') return 'Uber';
-					if (template.species === 'Necrozma-Ultra') return 'Uber';
-					if (template.species === 'Eternatus-Eternamax') return 'Illegal';
-					if (template.isNonstandard) {
-						const unobtainables = [
-							'Eevee-Starter', 'Floette-Eternal', 'Magearna-Original', 'Pichu-Spiky-eared', 'Pikachu-Belle', 'Pikachu-Cosplay', 'Pikachu-Libre', 'Pikachu-PhD', 'Pikachu-Pop-Star', 'Pikachu-Rock-Star', 'Pikachu-Starter', 'Eternatus-Eternamax',
-						];
-						if (template.isNonstandard !== 'Past' || unobtainables.includes(template.species) || template.num <= 0) {
-							return 'Illegal';
-						}
+					let tier = template.tier;
+					if (template.tier === 'Illegal' || template.isNonstandard === 'Past' || template.isUnreleased === 'Past') tier = Dex.mod('gen7').getTemplate(template.species).tier;
+					let banlist = Dex.getFormat('gen8nationaldex').banlist;
+					if (tier === 'Uber') {
+						if (banlist.includes(template.species) || banlist.includes(template.species + '-Base')) return tier;
+						if (banlist.includes(template.baseSpecies)) return tier;
+						if (['Zygarde-Complete', 'Necrozma-Ultra'].includes(template.species)) return tier;
+						tier = 'OU';
 					}
-					if (banlist.includes(template.baseSpecies)) return 'Uber';
-					if (template.nfe) {
-						if (!template.prevo) return 'LC';
-						return 'NFE';
-					}
-					if (['Meltan', 'Melmetal'].includes(template.species)) return 'OU';
-					if (template.isUnreleased && template.isUnreleased !== "Past") return 'Illegal';
-					return 'OU';
+					if (['Meltan', 'Melmetal', 'Melmetal-Gmax'].includes(template.species)) tier = 'OU';
+					if (template.species === 'Toxtricity-Gmax') tier = Dex.getTemplate('toxtricity').tier;
+					return tier;
 				}
 				if (isLetsGo) {
 					let baseTemplate = Dex.mod(gen).getTemplate(template.baseSpecies);
@@ -436,7 +426,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const tierOrder = (() => {
 			if (isNatDex) {
-				return ["AG", "Uber", "OU", "NFE", "LC"];
+				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "NFE", "LC Uber", "LC", "Unreleased"];
 			}
 			if (isLetsGo) {
 				return ["Uber", "OU", "UU", "NFE", "LC"];

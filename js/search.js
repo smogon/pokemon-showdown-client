@@ -807,6 +807,7 @@
 		if (isNatDex) {
 			format = format.slice(11);
 			this.isNatDex = true;
+			if (!format) format = 'ou';
 		}
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		 // CAP check is temporary
