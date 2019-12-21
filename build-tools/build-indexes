@@ -9,7 +9,7 @@ const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
 if (!fs.existsSync('data/Pokemon-Showdown')) {
-	child_process.execSync('git clone https://github.com/Zarel/Pokemon-Showdown.git', {
+	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
 		cwd: 'data',
 	});
 }
@@ -286,8 +286,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [8, -8, 7, 7.1, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
+	for (const genIdent of [8.1, 8, -8, 7.1, 7, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
 		const isLetsGo = (genIdent === 7.1);
+		const isNatDex = (genIdent === 8.1);
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
@@ -304,6 +305,20 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const tier = (() => {
 				if (template.tier === 'CAP' || template.tier === 'CAP NFE' || template.tier === 'CAP LC') {
 					return template.tier;
+				}
+				if (isNatDex) {
+					let tier = template.tier;
+					if (template.tier === 'Illegal' || template.isNonstandard === 'Past' || template.isUnreleased === 'Past') tier = Dex.mod('gen7').getTemplate(template.species).tier;
+					let banlist = Dex.getFormat('gen8nationaldex').banlist;
+					if (tier === 'Uber') {
+						if (banlist.includes(template.species) || banlist.includes(template.species + '-Base')) return tier;
+						if (banlist.includes(template.baseSpecies)) return tier;
+						if (['Zygarde-Complete', 'Necrozma-Ultra'].includes(template.species)) return tier;
+						tier = 'OU';
+					}
+					if (['Meltan', 'Melmetal', 'Melmetal-Gmax'].includes(template.species)) tier = 'OU';
+					if (template.species === 'Toxtricity-Gmax') tier = Dex.getTemplate('toxtricity').tier;
+					return tier;
 				}
 				if (isLetsGo) {
 					let baseTemplate = Dex.mod(gen).getTemplate(template.baseSpecies);
@@ -373,10 +388,15 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const items = [];
 		const formatSlices = {};
 
-		if (isLetsGo) {
+		if (isNatDex) {
+			BattleTeambuilderTable['natdex'] = {};
+			BattleTeambuilderTable['natdex'].tiers = tiers;
+			BattleTeambuilderTable['natdex'].formatSlices = formatSlices;
+		} else if (isLetsGo) {
 			BattleTeambuilderTable['letsgo'] = {};
 			BattleTeambuilderTable['letsgo'].learnsets = {};
 			BattleTeambuilderTable['letsgo'].tiers = tiers;
+			BattleTeambuilderTable['letsgo'].overrideTier = overrideTier;
 			BattleTeambuilderTable['letsgo'].formatSlices = formatSlices;
 		} else if (isVGC) {
 			BattleTeambuilderTable[gen + 'vgc'] = {};
@@ -405,6 +425,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 
 		const tierOrder = (() => {
+			if (isNatDex) {
+				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC Uber", "LC"];
+			}
 			if (isLetsGo) {
 				return ["Uber", "OU", "UU", "NFE", "LC"];
 			}
@@ -470,7 +493,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const unreleasedItems = [];
 		if (genNum === 6) unreleasedItems.push(['header', "Unreleased"]);
 		for (const id of itemList) {
-			const item = Dex.getItem(id);
+			const item = Dex.mod(gen).getItem(id);
 			if (item.gen > genNum) {
 				continue;
 			}
