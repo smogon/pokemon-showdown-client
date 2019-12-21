@@ -1107,6 +1107,7 @@
 		renderSet: function (set, i) {
 			var template = Dex.getTemplate(set.species);
 			var isLetsGo = this.curTeam.format.startsWith('gen7letsgo');
+			var isNatDex = this.curTeam.format.includes('nationaldex');
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
@@ -1144,8 +1145,27 @@
 			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level || 100) + '</span>';
 			if (this.curTeam.gen > 1) {
 				buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender || template.gender || 'N'] + '</span>';
-				buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' && !isLetsGo ? set.happiness : isLetsGo ? 70 : this.curTeam.format.startsWith('gen8') ? 160 : 255) + '</span>';
+				if (this.curTeam.gen === 8) {
+					if (!isNatDex) {
+						// Happiness is useless in normal National Dex metas
+					} else {
+						buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 160) + '</span>';
+					}
+				} else {
+					if (!isLetsGo) {
+						buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
+					} else {
+						buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 70) + '</span>';
+					}
+				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
+				if (!isLetsGo) {
+					if (this.curTeam.gen === 8 && !isNatDex) {
+						// Hidden Power isn't in normal Gen 8
+					} else {
+						buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
+					}
+				}
 			}
 			buf += '</button></div></div>';
 
@@ -2374,6 +2394,7 @@
 			var buf = '';
 			var set = this.curSet;
 			var isLetsGo = this.curTeam.format.startsWith('gen7letsgo');
+			var isNatDex = this.curTeam.gen === 8 && this.curTeam.format.includes('nationaldex');
 			var template = Dex.getTemplate(set.species);
 			if (!set) return;
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
@@ -2397,7 +2418,7 @@
 				}
 				buf += '</div></div>';
 
-				if (this.curTeam.format.startsWith('gen8')) {
+				if (this.curTeam.gen === 8) {
 					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="160" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 160) + '" class="textbox inputform numform" /></div></div>';
 				} else if (!isLetsGo) {
 					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
@@ -2421,7 +2442,7 @@
 				buf += '</select></div></div>';
 			}
 
-			if (this.curTeam.gen > 6) {
+			if (this.curTeam.gen === 7 || isNatDex) {
 				buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">Hidden Power:</label><div><select name="hptype">';
 				buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
 				for (var type in exports.BattleTypeChart) {
@@ -2498,7 +2519,7 @@
 			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level || 100) + '</span>';
 			if (this.curTeam.gen > 1) {
 				buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender || 'N'] + '</span>';
-				if (this.curTeam.format.startsWith('gen8')) {
+				if (this.curTeam.gen === 8) {
 					 buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 160) + '</span>';
 				} else if (!this.curTeam.format.startsWith('gen7letsgo')) {
 					buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
@@ -2506,6 +2527,7 @@
 					buf += '<span class="detailcell"><label>Happiness</label>70</span>';
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
+				buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
 			}
 			this.$('button[name=details]').html(buf);
 
