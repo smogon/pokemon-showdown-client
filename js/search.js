@@ -981,7 +981,7 @@
 						} else if (learnsetEntry.indexOf(gen) < 0) {
 							continue;
 						}
-						if (this.gen === 8 && BattleMovedex[moveid].isNonstandard === "Past" && !format.indexOf('nationaldex') < 0) continue;
+						if (this.gen === 8 && BattleMovedex[moveid].isNonstandard === "Past" && !isNatDex) continue;
 						if (moves.indexOf(moveid) >= 0) continue;
 						moves.push(moveid);
 						if (moveid === 'sketch') sketch = true;

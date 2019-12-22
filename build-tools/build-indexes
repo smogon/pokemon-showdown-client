@@ -310,11 +310,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					let tier = template.tier;
 					if (template.tier === 'Illegal' || template.isNonstandard === 'Past' || template.isUnreleased === 'Past') tier = Dex.mod('gen7').getTemplate(template.species).tier;
 					let banlist = Dex.getFormat('gen8nationaldex').banlist;
-					if (tier === 'Uber') {
-						if (banlist.includes(template.species) || banlist.includes(template.species + '-Base')) return tier;
-						if (banlist.includes(template.baseSpecies)) return tier;
-						if (['Zygarde-Complete', 'Necrozma-Ultra'].includes(template.species)) return tier;
+					if (
+						banlist.includes(template.species) ||
+						banlist.includes(template.species + '-Base') ||
+						banlist.includes(template.baseSpecies) ||
+						['Zygarde-Complete', 'Necrozma-Ultra'].includes(template.species)
+					)  {
+						tier = 'Uber';
+						return tier;
+					} else if (tier === 'Uber') { // This check is for Pokemon tiered as Uber but aren't in the banlist for National Dex
 						tier = 'OU';
+						 return tier;
 					}
 					if (['Meltan', 'Melmetal', 'Melmetal-Gmax'].includes(template.species)) tier = 'OU';
 					if (template.species === 'Toxtricity-Gmax') tier = Dex.getTemplate('toxtricity').tier;
