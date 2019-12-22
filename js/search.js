@@ -811,7 +811,7 @@
 		}
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		 // CAP check is temporary
-		var requireGalar = (this.gen === 8 && format.indexOf('nationaldex') < 0 && format.indexOf('cap') < 0);
+		var requireGalar = (this.gen === 8 && !isNatDex && format.indexOf('cap') < 0);
 		var template;
 		var isBH = (format === 'balancedhackmons' || format === 'bh');
 		this.resultSet = null;
@@ -981,7 +981,7 @@
 						} else if (learnsetEntry.indexOf(gen) < 0) {
 							continue;
 						}
-						if (this.gen === 8 && BattleMovedex[moveid].isNonstandard === "Past" && !isNatDex) continue;
+						if (this.gen === 8 && BattleMovedex[moveid].isNonstandard === "Past" && !format.indexOf('nationaldex') < 0) continue;
 						if (moves.indexOf(moveid) >= 0) continue;
 						moves.push(moveid);
 						if (moveid === 'sketch') sketch = true;
