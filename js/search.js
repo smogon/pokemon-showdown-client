@@ -1124,7 +1124,7 @@
 				if (id === 'skyattack') isViable = (toID(set.species) === 'hawlucha');
 				if (id === 'smackdown') isViable = (template.types.indexOf('ground') > 0);
 				if (id === 'smartstrike') isViable = (template.types.indexOf('steel') > 0 && moves.indexOf('ironhead') < 0);
-				if (id === 'solarbeam' || id === 'solarblade') isViable = (toID(set.ability) in {desolateland:1, drought:1, chlorophyll:1});
+				if (id === 'solarbeam' || id === 'solarblade') isViable = ['desolateland', 'drought', 'chlorophyll'].includes(toID(set.ability));
 				if (id === 'stompingtantrum') isViable = ((moves.indexOf('earthquake') < 0 && moves.indexOf('drillrun') < 0) || (toID(set.ability) === 'toughclaws' && moves.indexOf('drillrun') < 0 && moves.indexOf('earthquake') < 0));
 				if (id === 'storedpower') isViable = (toID(set.species) in {necrozma:1, espeon:1, sigilyph:1});
 				if (id === 'stunspore') isViable = (moves.indexOf('thunderwave') < 0);
