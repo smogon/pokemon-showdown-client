@@ -626,10 +626,10 @@ class BattleScene {
 				if (speciesOverage && speciesTable.includes(species)) {
 					for (const sidebarIcon of sidebarIcons) {
 						if (side.pokemon[sidebarIcon[1]!].getBaseTemplate().baseSpecies === species) {
-							sidebarIcon[0] = 'pokemon-illusion';
+							if (this.gen < 8) sidebarIcon[0] = 'pokemon-illusion';
 						}
 					}
-					hasIllusion = true;
+					if (this.gen < 8) hasIllusion = true;
 					speciesOverage--;
 				} else {
 					sidebarIcons.push(['pokemon', i]);
@@ -669,7 +669,7 @@ class BattleScene {
 				} else {
 					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball') + `" aria-label="Non-statused"></span>`;
 				}
-			} else if (iconType === 'pseudo-zoroark') {
+			} else if (iconType === 'pseudo-zoroark' && this.gen < 8) {
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('zoroark') + `" title="Unrevealed Illusion user" aria-label="Unrevealed Illusion user"></span>`;
 			} else if (!poke) {
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball') + `" title="Not revealed" aria-label="Not revealed"></span>`;
