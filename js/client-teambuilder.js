@@ -1487,16 +1487,18 @@
 			var formatSets = this.smogonSets[this.curTeam.format];
 			var species = this.curSet.species;
 
-			var setDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets');
-			setDiv.empty();
+			var $setDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets');
+			$setDiv.empty();
 
 			if (!formatSets) {
 				return;
 			}
 
 			var sets = $.extend({}, formatSets['smogon.com/dex'][species], formatSets['smogon.com/stats'][species]);
+
+			$setDiv.text('Sample sets: ');
 			for (var set in sets) {
-				setDiv.append('<button name="importSmogonSet">' + set + '</button>');
+				$setDiv.append('<button name="importSmogonSet">' + BattleLog.escapeHTML(set) + '</button>');
 			}
 		},
 		importSmogonSet: function (i, button) {
