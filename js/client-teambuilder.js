@@ -1510,6 +1510,63 @@
 				.val(Storage.exportTeam([this.curSet]).trim())
 				.focus()
 				.select();
+
+			this.getSmogonSets();
+		},
+		getSmogonSets: function () {
+			this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets').empty();
+
+			var format = this.curTeam.format;
+			// If we don't have a specific format, don't try and guess which sets to use.
+			if (format.match(/gen\d$/)) {
+				return false;
+			}
+
+			var self = this;
+			this.smogonSets = this.smogonSets || {};
+			if (this.smogonSets[format] !== undefined) {
+				this.importSetButtons();
+				return;
+			}
+			$.get('https://play.pokemonshowdown.com/data/sets/' + format + '.json', {}, function (data) {
+				try {
+					self.smogonSets[format] = JSON.parse(data);
+				} catch (e) {
+					// An error occured. Mark this as false, so that we don't try to reimport sets for this format
+					// in the future.
+					self.smogonSets[format] = false;
+				}
+				self.importSetButtons();
+			});
+		},
+		importSetButtons: function () {
+			var formatSets = this.smogonSets[this.curTeam.format];
+			var species = this.curSet.species;
+
+			var $setDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets');
+			$setDiv.empty();
+
+			if (!formatSets) {
+				return;
+			}
+
+			var sets = $.extend({}, formatSets['smogon.com/dex'][species], formatSets['smogon.com/stats'][species]);
+
+			$setDiv.text('Sample sets: ');
+			for (var set in sets) {
+				$setDiv.append('<button name="importSmogonSet">' + BattleLog.escapeHTML(set) + '</button>');
+			}
+		},
+		importSmogonSet: function (i, button) {
+			var formatSets = this.smogonSets[this.curTeam.format];
+			var species = this.curSet.species;
+
+			var setName = this.$(button).text();
+			var smogonSet = formatSets['smogon.com/dex'][species][setName] || formatSets['smogon.com/stats'][species][setName];
+			var curSet = $.extend({}, this.curSet, smogonSet);
+
+			var text = Storage.exportTeam([curSet]);
+			this.$('.teambuilder-pokemon-import .pokemonedit').val(text);
 		},
 		closePokemonImport: function (force) {
 			if (!this.wasViewingPokemon) return this.back();
@@ -1596,6 +1653,7 @@
 			buf += '<div class="teambuilder-pokemon-import">';
 			buf += '<div class="pokemonedit-buttons"><button name="closePokemonImport"><i class="fa fa-chevron-left"></i> Back</button> <button name="savePokemonImport"><i class="fa fa-floppy-o"></i> Save</button></div>';
 			buf += '<textarea class="pokemonedit textbox" rows="14"></textarea>';
+			buf += '<div class="teambuilder-import-smogon-sets"></div>';
 			buf += '</div>';
 
 			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
