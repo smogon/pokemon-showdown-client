@@ -96,6 +96,13 @@
 				}
 				if (!hasUnread) self.minimizePM($news);
 			});
+
+			if (!app.roomsFirstOpen && window.location.host !== 'demo.psim.us' && window.innerWidth < 630) {
+				if (Config.roomsFirstOpenScript) {
+					Config.roomsFirstOpenScript(true);
+				}
+				app.roomsFirstOpen = 2;
+			}
 		},
 
 		addPseudoPM: function (options) {
