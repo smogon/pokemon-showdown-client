@@ -263,12 +263,12 @@ class BattleTextParser {
 	}
 
 	party(side: string) {
-        side = side.slice(0, 2);
-        if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
-            return BattleText.default.party;
-        }
-        return BattleText.default.opposingParty;
-    }
+		side = side.slice(0, 2);
+		if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
+			return BattleText.default.party;
+		}
+		return BattleText.default.opposingParty;
+	}
 
 	static effectId(effect?: string) {
 		if (!effect) return '';
