@@ -536,6 +536,10 @@ exports.BattleText = {
 		end: "  The pieces of steel surrounding [PARTY] disappeared!",
 		damage: "  The sharp steel bit into [POKEMON]!",
 	},
+	gmaxwildfire: {
+		start: "  [PARTY] were surrounded by fire!",
+		damage: "  [POKEMON] is burning up within G-Max Wildfire’s flames!",
+	},
 	grasspledge: {
 		activate: "#waterpledge",
 		start: "  A swamp enveloped [TEAM]!",
