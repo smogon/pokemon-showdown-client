@@ -426,6 +426,9 @@ exports.BattleText = {
 		start: "  [SOURCE] clamped down on [POKEMON]!",
 		move: "#wrap", // gen 1 only
 	},
+	courtchange: {
+		activate: "  [POKEMON] swapped the battle effects affecting each side of the field!",
+	},
 	craftyshield: {
 		start: "  Crafty Shield protected [TEAM]!",
 		block: "  Crafty Shield protected [POKEMON]!",
@@ -656,7 +659,7 @@ exports.BattleText = {
 		block: "  [MOVE] was blocked by the kicked-up mat!",
 	},
 	maxguard: {
-		block: "  [POKEMON] protected itself!",
+		block: "#protect",
 	},
 	memento: {
 		heal: "  [POKEMON]'s HP was restored by the Z-Power!",
