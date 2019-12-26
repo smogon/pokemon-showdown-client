@@ -8,6 +8,8 @@ exports.BattleText = {
 		opposingPokemon: "the opposing [NICKNAME]",
 		team: "your team",
 		opposingTeam: "the opposing team",
+		party: "your ally Pok\u00E9mon",
+		opposingParty: "the opposing Pok\u00E9mon",
 
 		turn: "== Turn [NUMBER] ==",
 		switchIn: "[TRAINER] sent out [FULLNAME]!",
@@ -528,6 +530,11 @@ exports.BattleText = {
 	},
 	geomancy: {
 		prepare: "[POKEMON] is absorbing power!",
+	},
+	gmaxsteelsurge: {
+		start: "  Sharp-pointed pieces of steel started floating around [PARTY]!",
+		end: "  The pieces of steel surrounding [PARTY] disappeared!",
+		damage: "  The sharp steel bit into [POKEMON]!",
 	},
 	grasspledge: {
 		activate: "#waterpledge",
