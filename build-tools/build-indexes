@@ -315,7 +315,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						banlist.includes(template.species + '-Base') ||
 						banlist.includes(template.baseSpecies) ||
 						['Zygarde-Complete', 'Necrozma-Ultra'].includes(template.species)
-					)  {
+					) {
 						tier = 'Uber';
 						return tier;
 					} else if (tier === 'Uber') { // This check is for Pokemon tiered as Uber but aren't in the banlist for National Dex
