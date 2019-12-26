@@ -639,6 +639,11 @@ exports.BattleText = {
 	magmastorm: {
 		start: "  [POKEMON] became trapped by swirling magma!",
 	},
+	magnetrise: {
+		start: "  [POKEMON] levitated with electromagnetism!",
+		end: "  [POKEMON]'s electromagnetism wore off!",
+		// "The electromagnetism of [POKEMON] wore off!" // PO artifact?
+	},
 	magnitude: {
 		activate: "  Magnitude [NUMBER]!",
 	},
@@ -646,10 +651,8 @@ exports.BattleText = {
 		start: "  [POKEMON] intends to flip up a mat and block incoming attacks!",
 		block: "  [MOVE] was blocked by the kicked-up mat!",
 	},
-	magnetrise: {
-		start: "  [POKEMON] levitated with electromagnetism!",
-		end: "  [POKEMON]'s electromagnetism wore off!",
-		// "The electromagnetism of [POKEMON] wore off!" // PO artifact?
+	maxguard: {
+		block: "  [POKEMON] protected itself!",
 	},
 	memento: {
 		heal: "  [POKEMON]'s HP was restored by the Z-Power!",
