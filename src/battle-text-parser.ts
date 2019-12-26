@@ -184,7 +184,7 @@ class BattleTextParser {
 
 	fixLowercase(input: string) {
 		if (this.lowercaseRegExp === undefined) {
-			const prefixes = ['pokemon', 'opposingPokemon', 'team', 'opposingTeam'].map(templateId => {
+			const prefixes = ['pokemon', 'opposingPokemon', 'team', 'opposingTeam', 'party', 'opposingParty'].map(templateId => {
 				const template = BattleText.default[templateId];
 				if (template.charAt(0) === template.charAt(0).toUpperCase()) return '';
 				const bracketIndex = template.indexOf('[');
@@ -261,6 +261,14 @@ class BattleTextParser {
 		}
 		return '';
 	}
+
+	party(side: string) {
+        side = side.slice(0, 2);
+        if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
+            return BattleText.default.party;
+        }
+        return BattleText.default.opposingParty;
+    }
 
 	static effectId(effect?: string) {
 		if (!effect) return '';
@@ -706,14 +714,14 @@ class BattleTextParser {
 			let [, side, effect] = args;
 			let template = this.template('start', effect, 'NODEFAULT');
 			if (!template) template = this.template('startTeamEffect').replace('[EFFECT]', this.effect(effect));
-			return template.replace('[TEAM]', this.team(side));
+			return template.replace('[TEAM]', this.team(side)).replace('[PARTY]', this.party(side));
 		}
 
 		case '-sideend': {
 			let [, side, effect] = args;
 			let template = this.template('end', effect, 'NODEFAULT');
 			if (!template) template = this.template('endTeamEffect').replace('[EFFECT]', this.effect(effect));
-			return template.replace('[TEAM]', this.team(side));
+			return template.replace('[TEAM]', this.team(side)).replace('[PARTY]', this.party(side));
 		}
 
 		case '-weather': {
