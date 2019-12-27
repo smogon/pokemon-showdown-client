@@ -137,11 +137,11 @@ exports.BattleText = {
 		statShortName: "Def",
 	},
 	spa: {
-		statName: "Special Attack",
+		statName: "Sp. Atk",
 		statShortName: "SpA",
 	},
 	spd: {
-		statName: "Special Defense",
+		statName: "Sp. Def",
 		statShortName: "SpD",
 	},
 	spe: {
