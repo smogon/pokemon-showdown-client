@@ -900,17 +900,17 @@ class BattleTooltips {
 			}
 		}
 
-		if (item === 'choiceband') {
+		if (item === 'choiceband' && !clientPokemon?.volatiles['dynamax']) {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
 		if (ability === 'purepower' || ability === 'hugepower') {
 			stats.atk *= 2;
 		}
-		if (ability === 'hustle' || ability === 'gorillatactics') {
+		if (ability === 'hustle' || (ability === 'gorillatactics' && !clientPokemon?.volatiles['dynamax'])) {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
 		if (weather) {
-			if (weather === 'sunnyday' || weather === 'desolateland') {
+			if ((weather === 'sunnyday' || weather === 'desolateland') && item !== 'utilityumbrella') {
 				if (ability === 'solarpower') {
 					stats.spa = Math.floor(stats.spa * 1.5);
 				}
@@ -929,10 +929,10 @@ class BattleTooltips {
 			if (this.battle.gen >= 4 && this.pokemonHasType(serverPokemon, 'Rock') && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
-			if (ability === 'chlorophyll' && (weather === 'sunnyday' || weather === 'desolateland')) {
+			if (ability === 'chlorophyll' && (weather === 'sunnyday' || weather === 'desolateland') && item !== 'utilityumbrella') {
 				stats.spe *= 2;
 			}
-			if (ability === 'swiftswim' && (weather === 'raindance' || weather === 'primordialsea')) {
+			if (ability === 'swiftswim' && (weather === 'raindance' || weather === 'primordialsea') && item !== 'utilityumbrella') {
 				stats.spe *= 2;
 			}
 			if (ability === 'sandrush' && weather === 'sandstorm') {
@@ -968,7 +968,7 @@ class BattleTooltips {
 		if (ability === 'surgesurfer' && this.battle.hasPseudoWeather('Electric Terrain')) {
 			stats.spe *= 2;
 		}
-		if (item === 'choicespecs') {
+		if (item === 'choicespecs' && !clientPokemon?.volatiles['dynamax']) {
 			stats.spa = Math.floor(stats.spa * 1.5);
 		}
 		if (item === 'deepseatooth' && species === 'Clamperl') {
@@ -998,7 +998,7 @@ class BattleTooltips {
 		if (item === 'deepseascale' && species === 'Clamperl') {
 			stats.spd *= 2;
 		}
-		if (item === 'choicescarf') {
+		if (item === 'choicescarf' && !clientPokemon?.volatiles['dynamax']) {
 			stats.spe = Math.floor(stats.spe * 1.5);
 		}
 		if (item === 'ironball' || item === 'machobrace' || /power(?!herb)/.test(item)) {
@@ -1150,10 +1150,22 @@ class BattleTooltips {
 		// Weather and pseudo-weather type changes.
 		if (move.id === 'weatherball' && value.weatherModify(0)) {
 			switch (this.battle.weather) {
-			case 'sunnyday': case 'desolateland': moveType = 'Fire'; break;
-			case 'raindance': case 'primordialsea': moveType = 'Water'; break;
-			case 'sandstorm': moveType = 'Rock'; break;
-			case 'hail': moveType = 'Ice'; break;
+			case 'sunnyday':
+			case 'desolateland':
+				if (item.id === 'utilityumbrella') break;
+				moveType = 'Fire';
+				break;
+			case 'raindance':
+			case 'primordialsea':
+				if (item.id === 'utilityumbrella') break;
+				moveType = 'Water';
+				break;
+			case 'sandstorm':
+				moveType = 'Rock';
+				break;
+			case 'hail':
+				moveType = 'Ice';
+				break;
 			}
 		}
 		// Other abilities that change the move type.
