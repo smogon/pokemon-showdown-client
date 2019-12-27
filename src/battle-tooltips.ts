@@ -1204,7 +1204,7 @@ class BattleTooltips {
 		if (move.id === 'blizzard') {
 			value.weatherModify(0, 'Hail');
 		}
-		if ((move.id === 'hurricane' || move.id === 'thunder')) {
+		if (move.id === 'hurricane' || move.id === 'thunder') {
 			value.weatherModify(0, 'Rain Dance');
 			value.weatherModify(0, 'Primordial Sea');
 			if (value.tryWeather('Sunny Day')) value.set(50, 'Sunny Day');
