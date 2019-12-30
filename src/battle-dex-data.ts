@@ -362,7 +362,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	linoonegalar: 900 + 174,
 	darumakagalar: 900 + 175,
 	darmanitangalar: 900 + 176,
-	darmanitanzengalar: 900 + 177,
+	darmanitangalarzen: 900 + 177,
 	yamaskgalar: 900 + 178,
 	stunfiskgalar: 900 + 179,
 	cramorantgulping: 900 + 180,
