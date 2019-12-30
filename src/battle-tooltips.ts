@@ -910,36 +910,38 @@ class BattleTooltips {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
 		if (weather) {
-			if ((weather === 'sunnyday' || weather === 'desolateland') && item !== 'utilityumbrella') {
-				if (ability === 'solarpower') {
-					stats.spa = Math.floor(stats.spa * 1.5);
-				}
-				let allyActive = clientPokemon?.side.active;
-				if (allyActive) {
-					for (const ally of allyActive) {
-						if (!ally || ally.fainted) continue;
-						let allyAbility = this.getAllyAbility(ally);
-						if (allyAbility === 'Flower Gift' && (ally.getTemplate().baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
-							stats.atk = Math.floor(stats.atk * 1.5);
-							stats.spd = Math.floor(stats.spd * 1.5);
-						}
-					}
-				}
-			}
 			if (this.battle.gen >= 4 && this.pokemonHasType(serverPokemon, 'Rock') && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
-			}
-			if (ability === 'chlorophyll' && (weather === 'sunnyday' || weather === 'desolateland') && item !== 'utilityumbrella') {
-				stats.spe *= 2;
-			}
-			if (ability === 'swiftswim' && (weather === 'raindance' || weather === 'primordialsea') && item !== 'utilityumbrella') {
-				stats.spe *= 2;
 			}
 			if (ability === 'sandrush' && weather === 'sandstorm') {
 				stats.spe *= 2;
 			}
 			if (ability === 'slushrush' && weather === 'hail') {
 				stats.spe *= 2;
+			}
+			if (item !== 'utilityumbrella') {
+				if (weather === 'sunnyday' || weather === 'desolateland') {
+					if (ability === 'solarpower') {
+						stats.spa = Math.floor(stats.spa * 1.5);
+					}
+					let allyActive = clientPokemon?.side.active;
+					if (allyActive) {
+						for (const ally of allyActive) {
+							if (!ally || ally.fainted) continue;
+							let allyAbility = this.getAllyAbility(ally);
+							if (allyAbility === 'Flower Gift' && (ally.getTemplate().baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
+								stats.atk = Math.floor(stats.atk * 1.5);
+								stats.spd = Math.floor(stats.spd * 1.5);
+							}
+						}
+					}
+				}
+				if (ability === 'chlorophyll' && (weather === 'sunnyday' || weather === 'desolateland')) {
+					stats.spe *= 2;
+				}
+				if (ability === 'swiftswim' && (weather === 'raindance' || weather === 'primordialsea')) {
+					stats.spe *= 2;
+				}
 			}
 		}
 		if (ability === 'defeatist' && serverPokemon.hp <= serverPokemon.maxhp / 2) {
