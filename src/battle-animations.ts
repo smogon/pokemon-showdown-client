@@ -644,7 +644,7 @@ class BattleScene {
 				sidebarIcons.push(['pokemon', i]);
 			}
 		}
-		if (!zoroarkRevealed && hasIllusion) {
+		if (!zoroarkRevealed && hasIllusion && sidebarIcons.length < side.totalPokemon) {
 			sidebarIcons.push(['pseudo-zoroark', null]);
 		}
 		while (sidebarIcons.length < side.totalPokemon) {
