@@ -1386,7 +1386,7 @@
 
 		var gen = this.gen;
 		var table = (gen < 8 ? BattleTeambuilderTable['gen' + gen] : null);
-		
+
 		// type
 		buf += '<span class="col typecol">';
 		var types = pokemon.types;
