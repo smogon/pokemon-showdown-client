@@ -1386,7 +1386,7 @@
 
 		var gen = this.gen;
 		var table = (gen < 8 ? BattleTeambuilderTable['gen' + gen] : null);
-
+		
 		// type
 		buf += '<span class="col typecol">';
 		var types = pokemon.types;
@@ -1406,10 +1406,17 @@
 				buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
 			}
 			if (gen >= 5) {
+				var unreleasedHidden = pokemon.unreleasedHidden;
+				if (table && id in table.unreleasedHiddenAbility) {
+					unreleasedHidden = table.unreleasedHiddenAbility[id];
+				}
+				if (this.isNatDex && pokemon.unreleasedHidden === "Past") {
+					unreleasedHidden = false;
+				}
 				if (abilities['S']) {
-					buf += '<span class="col twoabilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />' + abilities['S'] + '</span>';
+					buf += '<span class="col twoabilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />' + abilities['S'] + '</span>';
 				} else if (abilities['H']) {
-					buf += '<span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + abilities['H'] + '</span>';
+					buf += '<span class="col abilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + abilities['H'] + '</span>';
 				} else {
 					buf += '<span class="col abilitycol"></span>';
 				}

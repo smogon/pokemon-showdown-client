@@ -1338,8 +1338,12 @@ class Template implements Effect {
 	readonly isPrimal: boolean;
 	readonly battleOnly: boolean;
 	readonly isNonstandard: string | null;
+<<<<<<< HEAD
 	readonly unreleasedHidden: boolean;
 	readonly inheritsFrom: string | null;
+=======
+	readonly unreleasedHidden: boolean | 'Past';
+>>>>>>> Fix unreleased hidden abilities in past gens
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
@@ -1419,8 +1423,12 @@ class Template implements Effect {
 		this.isPrimal = false;
 		this.battleOnly = !!data.battleOnly;
 		this.isNonstandard = data.isNonstandard || null;
+<<<<<<< HEAD
 		this.unreleasedHidden = !!data.unreleasedHidden;
 		this.inheritsFrom = (Array.isArray(data.inheritsFrom) ? this.baseSpecies : data.inheritsFrom) || null;
+=======
+		this.unreleasedHidden = data.unreleasedHidden || false;
+>>>>>>> Fix unreleased hidden abilities in past gens
 		if (!this.gen) {
 			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
 				this.gen = 8;
