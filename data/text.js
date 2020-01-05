@@ -1027,6 +1027,10 @@ exports.BattleText = {
 	naturalcure: {
 		activate: "  ([POKEMON] is cured by its Natural Cure!)",
 	},
+	neutralizinggas: {
+		start: "  Neutralizing gas filled the area!",
+		end: "  The effects of the neutralizing gas wore off!",
+	},
 	owntempo: {
 		block: "  [POKEMON] cannot be confused!",
 	},
