@@ -672,9 +672,9 @@ class BattleTooltips {
 
 			if (clientPokemon?.volatiles.formechange) {
 				if (clientPokemon.volatiles.transform) {
-					text += `<small>(Transformed into ${clientPokemon.volatiles.formechange[1]}</small><br />`;
+					text += `<small>(Transformed into ${clientPokemon.volatiles.formechange[1]})</small><br />`;
 				} else {
-					text += `<small>(Changed forme: ${clientPokemon.volatiles.formechange[1]}</small><br />`;
+					text += `<small>(Changed forme: ${clientPokemon.volatiles.formechange[1]})</small><br />`;
 				}
 			}
 
