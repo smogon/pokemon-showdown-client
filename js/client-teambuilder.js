@@ -118,7 +118,7 @@
 		// format
 		// Special values:
 		// '' -     show all
-		// 'gen7' - show teams with no format
+		// 'gen8' - show teams with no format
 		// '/' -    show teams with no folder
 		curFolder: '',
 		curFolderKeep: '',
@@ -226,7 +226,7 @@
 					format = this.curFolder;
 				} else {
 					format = Storage.teams[i].format;
-					if (!format) format = 'gen7';
+					if (!format) format = 'gen8';
 				}
 				if (!format) continue;
 				if (format in folderTable) continue;
@@ -239,8 +239,8 @@
 					}
 					continue;
 				}
-				if (format === 'gen7') {
-					folders.push('C~');
+				if (format === 'gen8') {
+					folders.push('B~');
 					continue;
 				}
 				switch (format.slice(0, 4)) {
@@ -353,7 +353,7 @@
 
 			var newButtonText = "New Team";
 			if (filterFolder) newButtonText = "New Team in folder";
-			if (filterFormat && filterFormat !== 'gen7') {
+			if (filterFormat && filterFormat !== 'gen8') {
 				newButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Team";
 			}
 			buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> ' + newButtonText + '</button> ' +
@@ -395,7 +395,7 @@
 						continue;
 					}
 
-					if (filterFormat && filterFormat !== (team.format || 'gen7')) continue;
+					if (filterFormat && filterFormat !== (team.format || 'gen8')) continue;
 					if (filterFolder !== undefined && filterFolder !== team.folder) continue;
 
 					if (this.curSearchVal) {
@@ -754,11 +754,11 @@
 					iconCache: ''
 				};
 			} else {
-				var format = this.curFolder || 'gen7';
+				var format = this.curFolder || 'gen8';
 				var folder = '';
 				if (format && format.charAt(format.length - 1) === '/') {
 					folder = format.slice(0, -1);
-					format = 'gen7';
+					format = 'gen8';
 				}
 				newTeam = {
 					name: 'Untitled ' + (teams.length + 1),
