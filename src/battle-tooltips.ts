@@ -268,13 +268,16 @@ class BattleTooltips {
 		let buf: string;
 		switch (type) {
 		case 'move':
-		case 'zmove': { // move|MOVE|ACTIVEPOKEMON
+		case 'zmove':
+		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON
 			let move = this.battle.dex.getMove(args[1]);
 			let index = parseInt(args[2], 10);
 			let pokemon = this.battle.mySide.active[index];
 			let serverPokemon = this.battle.myPokemon![index];
+			let gmaxMove;
+			if (args[3]) gmaxMove = this.battle.dex.getMove(args[3]);
 			if (!pokemon) return false;
-			buf = this.showMoveTooltip(move, type === 'zmove', pokemon, serverPokemon);
+			buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
 			break;
 		}
 
@@ -454,7 +457,7 @@ class BattleTooltips {
 		"???": "",
 	};
 
-	showMoveTooltip(move: Move, isZ: boolean, pokemon: Pokemon, serverPokemon: ServerPokemon) {
+	showMoveTooltip(move: Move, isZOrMax: string, pokemon: Pokemon, serverPokemon: ServerPokemon, gmaxMove?: Move) {
 		let text = '';
 
 		let zEffect = '';
@@ -465,7 +468,7 @@ class BattleTooltips {
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
 
-		if (isZ) {
+		if (isZOrMax === 'zmove') {
 			let item = this.battle.dex.getItem(serverPokemon.item);
 			if (item.zMoveFrom === move.name) {
 				move = this.battle.dex.getMove(item.zMove as string);
@@ -476,14 +479,9 @@ class BattleTooltips {
 				});
 				zEffect = this.getStatusZMoveEffect(move);
 			} else {
-				let moveid;
-				if (item.zMoveType) {
-					moveid = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
-				} else {
-					moveid = BattleTooltips.maxMoveTable[move.type as TypeName];
-				}
+				let moveid = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
 				const zMove = this.battle.dex.getMove(moveid);
-				let movePower = zMove.isZ ? move.zMovePower : move.gmaxPower;
+				let movePower = move.zMovePower;
 				// the different Hidden Power types don't have a Z power set, fall back on base move
 				if (!movePower && move.id.startsWith('hiddenpower')) {
 					movePower = this.battle.dex.getMove('hiddenpower').zMovePower;
@@ -494,6 +492,20 @@ class BattleTooltips {
 					basePower: movePower,
 				});
 				// TODO: Weather Ball type-changing shenanigans
+			}
+		} else if (isZOrMax === 'maxmove') {
+			if (move.category === 'Status') {
+				move = this.battle.dex.getMove('Max Guard');
+			} else {
+				// TODO look into if client knows if a pokemon (on its side) can gmax rather than dynamax.
+				// If not, tell client so we can use it for tooltips.
+				const maxMove = gmaxMove ? gmaxMove :
+					this.battle.dex.getMove(BattleTooltips.maxMoveTable[move.type as TypeName]);
+				move = new Move(maxMove.id, maxMove.name, {
+					...maxMove,
+					category: move.category,
+					basePower: move.gmaxPower,
+				});
 			}
 		}
 
