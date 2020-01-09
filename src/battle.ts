@@ -2667,7 +2667,7 @@ class Battle {
 				poke.removeVolatile('telekinesis' as ID);
 				this.scene.anim(poke, {time: 100});
 				break;
-			case 'skillswap':
+			case 'skillswap': case 'wanderingspirit':
 				if (this.gen <= 4) break;
 				let pokeability = Dex.sanitizeName(kwArgs.ability) || target!.ability;
 				let targetability = Dex.sanitizeName(kwArgs.ability2) || poke.ability;
