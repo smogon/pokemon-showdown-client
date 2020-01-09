@@ -135,7 +135,7 @@ class BattleTextParser {
 				kwArgs.item = arg3;
 			} else if (id === 'magnitude') {
 				kwArgs.number = arg3;
-			} else if (id === 'skillswap' || id === 'mummy') {
+			} else if (id === 'skillswap' || id === 'mummy' || id === 'wanderingspirit') {
 				kwArgs.ability = arg3;
 				kwArgs.ability2 = arg4;
 			} else if (['spite', 'grudge', 'forewarn', 'sketch', 'leppaberry', 'mysteryberry'].includes(id)) {
