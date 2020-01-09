@@ -1125,6 +1125,9 @@ exports.BattleText = {
 	unnerve: {
 		start: "  [TEAM] is too nervous to eat Berries!",
 	},
+	wanderingspirit: {
+		activate: "#skillswap",
+	},
 	zenmode: {
 		transform: 'Zen Mode triggered!',
 		transformEnd: 'Zen Mode ended!',
