@@ -381,6 +381,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	morpekohangry: 900 + 193,
 	zaciancrowned: 900 + 194,
 	zamazentacrowned: 900 + 195,
+	slowpokegalar: 900 + 196,
 
 	gumshoostotem: 735,
 	raticatealolatotem: 900 + 120,
