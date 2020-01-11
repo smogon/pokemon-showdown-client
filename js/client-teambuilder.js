@@ -2844,9 +2844,11 @@
 			var moves = set.moves;
 			for (var i = 0; i < moves.length; ++i) {
 				if (!moves[i]) continue;
-				if (moves[i].substr(0, 13) === 'Hidden Power ' || move.id === 'transform') hasHiddenPower = true;
+				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
 				var move = Dex.forGen(this.curTeam.gen).getMove(moves[i]);
-				if (move.category === 'Physical' &&
+				if (move.id === 'transform') {
+					hasHiddenPower = true;
+				} else if (move.category === 'Physical' &&
 						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
 					minAtk = false;
 				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
