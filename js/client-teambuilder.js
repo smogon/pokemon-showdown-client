@@ -2961,7 +2961,9 @@
 				if (!moves[i]) continue;
 				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
 				var move = Dex.forGen(this.curTeam.gen).getMove(moves[i]);
-				if (move.category === 'Physical' &&
+				if (move.id === 'transform') {
+					hasHiddenPower = true; // A Pokemon with Transform can copy another Pokemon that knows Hidden Power
+				} else if (move.category === 'Physical' &&
 						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
 					minAtk = false;
 				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
