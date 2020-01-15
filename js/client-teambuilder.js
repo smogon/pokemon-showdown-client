@@ -2963,6 +2963,7 @@
 				var move = Dex.forGen(this.curTeam.gen).getMove(moves[i]);
 				if (move.id === 'transform') {
 					hasHiddenPower = true; // A Pokemon with Transform can copy another Pokemon that knows Hidden Power
+					if (moves.length === 1) minAtk = false;
 				} else if (move.category === 'Physical' &&
 						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter') {
 					minAtk = false;
