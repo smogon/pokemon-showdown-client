@@ -5,7 +5,7 @@ exports.BattleText = {
 		tieBattle: "Tie between [TRAINER] and [TRAINER]!",
 
 		pokemon: "[NICKNAME]",
-		opposingPokemon: "the opposing [NICKNAME]",
+		opposingPokemon: "The opposing [NICKNAME]",
 		team: "your team",
 		opposingTeam: "the opposing team",
 		party: "your ally Pok\u00E9mon",
