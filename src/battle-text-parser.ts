@@ -192,7 +192,7 @@ class BattleTextParser {
 				return template;
 			}).filter(prefix => prefix);
 			if (prefixes.length) {
-				let buf = `((?:^|\n)(?:  |  \\\(|  \\\[)?)(` +
+				let buf = `((?:^|\n)(?:  |  \\\(|\\\[)?)(` +
 					prefixes.map(BattleTextParser.escapeRegExp).join('|') +
 					`)`;
 				this.lowercaseRegExp = new RegExp(buf, 'g');
