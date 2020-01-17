@@ -23,7 +23,7 @@ exports.BattleText = {
 
 		zEffect: "  [POKEMON] unleases its full-force Z-Move!",
 		move: "[POKEMON] used **[MOVE]**!",
-		abilityActivation: "  [[POKEMON]'s [ABILITY]]",
+		abilityActivation: "[[POKEMON]'s [ABILITY]]",
 
 		mega: "  [POKEMON]'s [ITEM] is reacting to the Key Stone!",
 		megaNoItem: "  [POKEMON] is reacting to [TRAINER]'s Key Stone!",
@@ -445,7 +445,7 @@ exports.BattleText = {
 		failWrongForme: "But [POKEMON] can't use it the way it is now!",
 	},
 	destinybond: {
-		start: "[POKEMON] is hoping to take its attacker down with it!",
+		start: "  [POKEMON] is hoping to take its attacker down with it!",
 		activate: "  [POKEMON] took its attacker down with it!",
 	},
 	dig: {
@@ -659,7 +659,7 @@ exports.BattleText = {
 		block: "  [MOVE] was blocked by the kicked-up mat!",
 	},
 	maxguard: {
-		block: "#protect",
+		activate: "  [POKEMON] protected itself!",
 	},
 	memento: {
 		heal: "  [POKEMON]'s HP was restored by the Z-Power!",
@@ -1081,9 +1081,6 @@ exports.BattleText = {
 	slowstart: {
 		start: "  [POKEMON] can't get it going!",
 		end: "  [POKEMON] finally got its act together!",
-	},
-	solarpower: {
-		damage: "  ([POKEMON] was hurt by its Solar Power.)",
 	},
 	stancechange: {
 		transform: "Changed to Blade Forme!",
