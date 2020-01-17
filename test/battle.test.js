@@ -95,12 +95,12 @@ describe('Text parser', () => {
 	it('should process messages correctly', () => {
 		let parser = new BattleTextParser();
 
-		assert.equal(parser.extractMessage(`|-activate|p2a: Cool.|move: Skill Swap|Speed Boost|Cute Charm|[of] p1a: Speedy`), `  [The opposing Cool.'s Speed Boost]
-  [Speedy's Cute Charm]
+		assert.equal(parser.extractMessage(`|-activate|p2a: Cool.|move: Skill Swap|Speed Boost|Cute Charm|[of] p1a: Speedy`), `[The opposing Cool.'s Speed Boost]
+[Speedy's Cute Charm]
   The opposing Cool. swapped Abilities with its target!
 `);
-		assert.equal(parser.extractMessage(`|-activate|p2a: Cool.|move: Skill Swap|p1a: Speedy|[ability]Speed Boost|[ability2]Cute Charm`), `  [The opposing Cool.'s Speed Boost]
-  [Speedy's Cute Charm]
+		assert.equal(parser.extractMessage(`|-activate|p2a: Cool.|move: Skill Swap|p1a: Speedy|[ability]Speed Boost|[ability2]Cute Charm`), `[The opposing Cool.'s Speed Boost]
+[Speedy's Cute Charm]
   The opposing Cool. swapped Abilities with its target!
 `);
 		assert.equal(parser.extractMessage(`|move|p2a: Palkia|Swagger|p1a: Shroomish
