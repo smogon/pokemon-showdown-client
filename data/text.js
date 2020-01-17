@@ -446,7 +446,7 @@ exports.BattleText = {
 	},
 	destinybond: {
 		start: "  [POKEMON] is hoping to take its attacker down with it!",
-		activate: "  [POKEMON] took its attacker down with it!",
+		activate: "[POKEMON] took its attacker down with it!",
 	},
 	dig: {
 		prepare: "[POKEMON] burrowed its way under the ground!",
@@ -538,6 +538,10 @@ exports.BattleText = {
 		start: "  Sharp-pointed pieces of steel started floating around [PARTY]!",
 		end: "  The pieces of steel surrounding [PARTY] disappeared!",
 		damage: "  The sharp steel bit into [POKEMON]!",
+	},
+	gmaxvolcalith: {
+		start: "  [PARTY] became surrounded by rocks!",
+		damage: "  [POKEMON] is hurt by the rocks thrown out by G-Max Volcalith!",
 	},
 	gmaxwildfire: {
 		start: "  [PARTY] were surrounded by fire!",
@@ -649,7 +653,6 @@ exports.BattleText = {
 	magnetrise: {
 		start: "  [POKEMON] levitated with electromagnetism!",
 		end: "  [POKEMON]'s electromagnetism wore off!",
-		// "The electromagnetism of [POKEMON] wore off!" // PO artifact?
 	},
 	magnitude: {
 		activate: "  Magnitude [NUMBER]!",
@@ -1033,6 +1036,9 @@ exports.BattleText = {
 	},
 	owntempo: {
 		block: "  [POKEMON] cannot be confused!",
+	},
+	perishbody: {
+		start: "  Both Pok\u00E9mon will faint in three turns!",
 	},
 	persistent: {
 		activate: "  [POKEMON] extends [MOVE] by 2 turns!",
