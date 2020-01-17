@@ -286,8 +286,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [8.1, 8, -8, 7.1, 7, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
+	for (const genIdent of [8.2, 8.1, 8, -8, 7.1, 7, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
 		const isLetsGo = (genIdent === 7.1);
+		const isMetBattle = (genIdent === 8.2);
 		const isNatDex = (genIdent === 8.1);
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
@@ -303,9 +304,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const template = Dex.mod(gen).getTemplate(id);
 			if (template.gen > genNum) continue;
 			const tier = (() => {
-				if (template.tier === 'CAP' || template.tier === 'CAP NFE' || template.tier === 'CAP LC') {
-					return template.tier;
-				}
 				if (isNatDex) {
 					let tier = template.tier;
 					if (template.tier === 'Illegal' || template.isNonstandard === 'Past' || template.isUnreleased === 'Past') tier = Dex.mod('gen7').getTemplate(template.species).tier;
@@ -317,6 +315,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						['Zygarde-Complete', 'Necrozma-Ultra'].includes(template.species)
 					) {
 						tier = 'Uber';
+						if (template.species === 'Eternatus-Eternamax') tier = 'Illegal';
 						return tier;
 					} else if (tier === 'Uber' && !template.isGigantamax) { // This check is for Pokemon tiered as Uber but aren't in the banlist for National Dex
 						tier = 'OU';
@@ -324,6 +323,35 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					}
 					if (['Meltan', 'Melmetal'].includes(template.species)) tier = 'OU';
 					if (template.isGigantamax) tier = 'Uber';
+					return tier;
+				}
+				if (isMetBattle) {
+					let tier = template.tier;
+					if (template.isNonstandard) {
+						if (template.isNonstandard === 'Past') {
+							tier = Dex.mod('gen7').getTemplate(template.species).tier;
+						} else {
+							tier = 'OU';
+						}
+					}
+					if (template.tier === 'CAP LC') tier = 'LC';
+					if (template.tier === 'CAP NFE') tier = 'NFE';
+					if (template.tier === 'CAP') tier = 'OU';
+					if (template.isUnreleased) {
+						if (template.isUnreleased === 'Past') {
+							tier = Dex.mod('gen7').getTemplate(template.species).tier;
+						} else {
+							tier = 'Unreleased';
+						}
+					}
+					let banlist = Dex.getFormat('gen8metronomebattle').banlist;
+					let bst = 0;
+					for(const stat of Object.values(template.baseStats)) {
+						bst += stat;
+					}
+					if (bst > 625) tier = 'Illegal';
+					if (banlist.includes(template.species) || banlist.includes(template.species + '-Base')) tier = 'Illegal';
+					if (template.types.includes('Steel')) tier = 'Illegal';
 					return tier;
 				}
 				if (isLetsGo) {
@@ -344,6 +372,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						return 'Mythical';
 					}
 					return 'Regular';
+				}
+				if (template.tier === 'CAP' || template.tier === 'CAP NFE' || template.tier === 'CAP LC') {
+					return template.tier;
 				}
 				if (isDoubles) {
 					return template.doublesTier;
@@ -399,6 +430,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['natdex'].tiers = tiers;
 			BattleTeambuilderTable['natdex'].items = items;
 			BattleTeambuilderTable['natdex'].formatSlices = formatSlices;
+		} else if (isMetBattle) {
+			BattleTeambuilderTable['metronome'] = {};
+			BattleTeambuilderTable['metronome'].tiers = tiers;
+			BattleTeambuilderTable['metronome'].formatSlices = formatSlices;
 		} else if (isLetsGo) {
 			BattleTeambuilderTable['letsgo'] = {};
 			BattleTeambuilderTable['letsgo'].learnsets = {};
