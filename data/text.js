@@ -1018,6 +1018,9 @@ exports.BattleText = {
 	magicbounce: {
 		move: '#magiccoat',
 	},
+	mimicry: {
+		activate: "  [POKEMON] returned to its original type!",
+	},
 	mindblown: {
 		damage: "  ([POKEMON] cut its own HP to power up its move!)",
 	},
