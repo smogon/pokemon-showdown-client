@@ -861,6 +861,9 @@ exports.BattleText = {
 		start: "  The Tailwind blew from behind [TEAM]!",
 		end: "  [TEAM]'s Tailwind petered out!",
 	},
+	tarshot: {
+		start: "  [POKEMON] became weaker to fire!",
+	},
 	taunt: {
 		start: "  [POKEMON] fell for the taunt!",
 		end: "  [POKEMON] shook off the taunt!",
