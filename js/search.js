@@ -649,11 +649,7 @@
 		var template = BattlePokedex[learnsetid];
 		if (!template) return '';
 		if (template.prevo) return template.prevo;
-		var baseSpecies = template.baseSpecies;
-		if ((template.forme && (template.forme.indexOf('Gmax') >= 0 || template.forme.indexOf('Crowned') >= 0)) ||
-			(baseSpecies !== template.species && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo' || baseSpecies === 'Necrozma'))) {
-			return toID(template.baseSpecies);
-		}
+		if (template.inheritsFrom) return template.inheritsFrom;
 		return '';
 	};
 	Search.prototype.filteredMoves = function () {
