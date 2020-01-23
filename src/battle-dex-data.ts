@@ -1116,6 +1116,7 @@ class Move implements Effect {
 	readonly zMovePower: number;
 	readonly zMoveEffect: string;
 	readonly zMoveBoost: {[stat in StatName]?: number} | null;
+	readonly isMax: string;
 	readonly gmaxPower: number;
 	readonly ohko: true | 'Ice' | null;
 	readonly recoil: number[] | null;
@@ -1161,6 +1162,7 @@ class Move implements Effect {
 		this.noPPBoosts = data.noPPBoosts || false;
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
 
+		this.isMax = data.isMax || undefined;
 		this.gmaxPower = data.gmaxPower || 0;
 		if (this.category !== 'Status' && !this.gmaxPower) {
 			if (!this.basePower) {

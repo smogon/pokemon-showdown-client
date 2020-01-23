@@ -470,19 +470,26 @@ class BattleTooltips {
 			if (item.zMoveFrom === move.name) {
 				move = this.battle.dex.getMove(item.zMove as string);
 			} else if (move.category === 'Status') {
-				move = new Move(move.id, "", {
-					...move,
-					name: 'Z-' + move.name,
-				});
-				zEffect = this.getStatusZMoveEffect(move);
-			} else {
-				let moveid;
-				if (item.zMoveType) {
-					moveid = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
+				if (item.zMove && item.zMoveType === move.type) {
+					move = new Move(move.id, "", {
+						...move,
+						name: 'Z-' + move.name,
+					});
+					zEffect = this.getStatusZMoveEffect(move);
 				} else {
-					moveid = BattleTooltips.maxMoveTable[move.type as TypeName];
+					move = this.battle.dex.getMove('maxguard');
 				}
-				const zMove = this.battle.dex.getMove(moveid);
+			} else {
+				let moveName;
+				if (item.zMoveType) {
+					moveName = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
+				} else {
+					moveName = BattleTooltips.maxMoveTable[move.type as TypeName];
+				}
+				if (pokemon.species.includes('Gmax')) {
+					if (toID(move.isMax) === toID(pokemon.species).slice(0, -4)) moveName = move.name;
+				}
+				const zMove = this.battle.dex.getMove(moveName as string);
 				let movePower = zMove.isZ ? move.zMovePower : move.gmaxPower;
 				// the different Hidden Power types don't have a Z power set, fall back on base move
 				if (!movePower && move.id.startsWith('hiddenpower')) {
