@@ -346,7 +346,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					}
 					let banlist = Dex.getFormat('gen8metronomebattle').banlist;
 					let bst = 0;
-					for(const stat of Object.values(template.baseStats)) {
+					for (const stat of Object.values(template.baseStats)) {
 						bst += stat;
 					}
 					if (bst > 625) tier = 'Illegal';
