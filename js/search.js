@@ -649,10 +649,7 @@
 		var template = BattlePokedex[learnsetid];
 		if (!template) return '';
 		if (template.prevo) return template.prevo;
-		var baseSpecies = template.baseSpecies;
-		if (template.inheritsFrom) {
-			return template.inheritsFrom;
-		}
+		if (template.inheritsFrom) return template.inheritsFrom;
 		return '';
 	};
 	Search.prototype.filteredMoves = function () {
