@@ -489,7 +489,7 @@ class BattleTooltips {
 				if (pokemon.species.includes('Gmax')) {
 					if (toID(move.isMax) === toID(pokemon.species).slice(0, -4)) moveName = move.name;
 				}
-				const zMove = this.battle.dex.getMove(moveName as string);
+				const zMove = this.battle.dex.getMove(moveName);
 				let movePower = zMove.isZ ? move.zMovePower : move.gmaxPower;
 				// the different Hidden Power types don't have a Z power set, fall back on base move
 				if (!movePower && move.id.startsWith('hiddenpower')) {
