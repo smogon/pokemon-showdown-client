@@ -1172,12 +1172,8 @@ class BattleTooltips {
 		}
 
 		// Aura Wheel as Morpeko-Hangry changes the type to Dark
-		if (move.id === 'aurawheel') {
-			if (value.pokemon.getTemplate().species === 'Morpeko-Hangry') {
-				moveType = 'Dark';
-			} else {
-				moveType = 'Electric';
-			}
+		if (move.id === 'aurawheel' && value.pokemon.getTemplate().species === 'Morpeko-Hangry') {
+			moveType = 'Dark';
 		}
 
 		// Other abilities that change the move type.
