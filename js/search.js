@@ -896,7 +896,12 @@
 
 		case 'item':
 			var table = BattleTeambuilderTable;
-			if (this.gen < 8) table = table['gen' + this.gen];
+			if (this.gen < 8) {
+				table = table['gen' + this.gen];
+			} else if (isNatDex) {
+				table = table['natdex'];
+			}
+
 			if (!table.itemSet) {
 				table.itemSet = table.items.map(function (r) {
 					if (typeof r === 'string') return ['item', r];
