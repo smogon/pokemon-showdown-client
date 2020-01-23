@@ -1426,7 +1426,11 @@ class BattleTooltips {
 					else if (pokemonWeight > targetWeight * 3) basePower = 80;
 					else if (pokemonWeight > targetWeight * 2) basePower = 60;
 				}
-				value.set(basePower);
+				if (target.volatiles['dynamax']) {
+					value.set(0, 'blocked by target\'s Dynamax');
+				} else {
+					value.set(basePower);
+				}
 			} else {
 				value.setRange(isGKLK ? 20 : 40, 120);
 			}
