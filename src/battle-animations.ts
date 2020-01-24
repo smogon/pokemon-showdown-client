@@ -2539,6 +2539,7 @@ class PokemonSprite extends Sprite {
 			smackdown: '<span class="bad">Smack&nbsp;Down</span> ',
 			focusenergy: '<span class="good">Focus&nbsp;Energy</span> ',
 			slowstart: '<span class="bad">Slow&nbsp;Start</span> ',
+			noretreat: '<span class="bad">No&nbsp;Retreat</span> ',
 			doomdesire: '',
 			futuresight: '',
 			mimic: '<span class="good">Mimic</span> ',
