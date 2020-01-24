@@ -269,13 +269,12 @@ class BattleTooltips {
 		switch (type) {
 		case 'move':
 		case 'zmove':
-		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON
+		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON|[GMAXMOVE]
 			let move = this.battle.dex.getMove(args[1]);
 			let index = parseInt(args[2], 10);
 			let pokemon = this.battle.mySide.active[index];
 			let serverPokemon = this.battle.myPokemon![index];
-			let gmaxMove;
-			if (args[3]) gmaxMove = this.battle.dex.getMove(args[3]);
+			let gmaxMove = args[3] ? this.battle.dex.getMove(args[3]) : undefined;
 			if (!pokemon) return false;
 			buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
 			break;
@@ -479,8 +478,8 @@ class BattleTooltips {
 				});
 				zEffect = this.getStatusZMoveEffect(move);
 			} else {
-				let moveid = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
-				const zMove = this.battle.dex.getMove(moveid);
+				let moveName = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
+				const zMove = this.battle.dex.getMove(moveName);
 				let movePower = move.zMovePower;
 				// the different Hidden Power types don't have a Z power set, fall back on base move
 				if (!movePower && move.id.startsWith('hiddenpower')) {
