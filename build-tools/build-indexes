@@ -767,15 +767,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideHiddenAbility = overrideHiddenAbility;
 		const removeSecondAbility = {};
 		BattleTeambuilderTable[gen].removeSecondAbility = removeSecondAbility;
-		const unreleasedHiddenAbility = {};
-		BattleTeambuilderTable[gen].unreleasedHiddenAbility = unreleasedHiddenAbility;
-		for (const id in genData.FormatsData) {
-			const pastEntry = genData.FormatsData[id];
-			unreleasedHiddenAbility[id] = true;
-			if (!pastEntry.unreleasedHidden) {
-				unreleasedHiddenAbility[id] = false;
-			}
-		}
 		for (const id in genData.Pokedex) {
 			const pastEntry = genData.Pokedex[id];
 			const nowEntry = Dex.data.Pokedex[id];

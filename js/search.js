@@ -1407,12 +1407,7 @@
 			}
 			if (gen >= 5) {
 				var unreleasedHidden = pokemon.unreleasedHidden;
-				if (table && id in table.unreleasedHiddenAbility) {
-					unreleasedHidden = table.unreleasedHiddenAbility[id];
-				}
-				if (this.isNatDex && pokemon.unreleasedHidden === "Past") {
-					unreleasedHidden = false;
-				}
+				if (unreleasedHidden === 'Past' && (this.isNatDex || gen < 8)) unreleasedHidden = false;
 				if (abilities['S']) {
 					buf += '<span class="col twoabilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />' + abilities['S'] + '</span>';
 				} else if (abilities['H']) {
