@@ -879,7 +879,8 @@ function toId() {
 						self.send('/join ' + roomid);
 					});
 				} else if (data === 'rename') {
-					this.renameRoom(roomid, errormessage);
+					var parts = errormessage.split('|');
+					this.renameRoom(roomid, parts[0], parts[1]);
 				} else if (data === 'nonexistent' && Config.server.id && roomid.slice(0, 7) === 'battle-' && errormessage) {
 					var replayid = roomid.slice(7);
 					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
@@ -1722,8 +1723,8 @@ function toId() {
 			if (room.requestLeave && !room.requestLeave(e)) return false;
 			return this.removeRoom(id);
 		},
-		renameRoom: function (id, newtitle) {
-			var newid = toRoomid(newtitle);
+		renameRoom: function (id, newtitle, newid) {
+			var newid = newid || toRoomid(newtitle);
 			var room = this.rooms[id];
 			if (!room) return false;
 			if (this.rooms[newid]) {
