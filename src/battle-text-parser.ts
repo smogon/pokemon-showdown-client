@@ -885,7 +885,8 @@ class BattleTextParser {
 			if (amount && kwArgs.zeffect) {
 				templateId += (kwArgs.multiple ? 'MultipleFromZEffect' : 'FromZEffect');
 			} else if (amount && kwArgs.from?.startsWith('item:')) {
-				templateId += 'FromItem';
+				const template = this.template(templateId + 'FromItem', kwArgs.from);
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', this.stat(stat)).replace('[ITEM]', this.effect(kwArgs.from));
 			}
 			const template = this.template(templateId, kwArgs.from);
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', this.stat(stat));
