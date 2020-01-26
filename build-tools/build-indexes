@@ -397,6 +397,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		if (isNatDex) {
 			BattleTeambuilderTable['natdex'] = {};
 			BattleTeambuilderTable['natdex'].tiers = tiers;
+			BattleTeambuilderTable['natdex'].items = items;
 			BattleTeambuilderTable['natdex'].formatSlices = formatSlices;
 		} else if (isLetsGo) {
 			BattleTeambuilderTable['letsgo'] = {};
@@ -503,7 +504,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (item.gen > genNum) {
 				continue;
 			}
-			if (item.isNonstandard && genNum !== 2) continue;
+			if (item.isNonstandard) {
+				if (isNatDex) {
+					if (item.isNonstandard !== "Past") continue;
+					if (!item.itemUser && !item.zMove) continue;
+				} else if (genNum !== 2) {
+					continue;
+				}
+			}
 			switch (id) {
 			case 'leftovers':
 			case 'lifeorb':
