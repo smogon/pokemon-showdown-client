@@ -879,9 +879,9 @@ function toId() {
 						self.send('/join ' + roomid);
 					});
 				} else if (data === 'rename') {
-					// |newtitle|newid
+					// |newid|newtitle
 					var parts = errormessage.split('|');
-					this.renameRoom(roomid, parts[1], parts[0]);
+					this.renameRoom(roomid, parts[0], parts[1]);
 				} else if (data === 'nonexistent' && Config.server.id && roomid.slice(0, 7) === 'battle-' && errormessage) {
 					var replayid = roomid.slice(7);
 					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
