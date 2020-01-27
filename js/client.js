@@ -879,7 +879,9 @@ function toId() {
 						self.send('/join ' + roomid);
 					});
 				} else if (data === 'rename') {
-					this.renameRoom(roomid, errormessage);
+					// |newid|newtitle
+					var parts = errormessage.split('|');
+					this.renameRoom(roomid, parts[0], parts[1]);
 				} else if (data === 'nonexistent' && Config.server.id && roomid.slice(0, 7) === 'battle-' && errormessage) {
 					var replayid = roomid.slice(7);
 					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
@@ -1722,18 +1724,25 @@ function toId() {
 			if (room.requestLeave && !room.requestLeave(e)) return false;
 			return this.removeRoom(id);
 		},
-		renameRoom: function (id, newid) {
+		renameRoom: function (id, newid, newtitle) {
+			var newtitle = newtitle || newid;
 			var room = this.rooms[id];
 			if (!room) return false;
 			if (this.rooms[newid]) {
 				this.removeRoom(id, true);
 				return false;
 			}
-			this.rooms[newid] = room;
 			room.id = newid;
+			room.title = newtitle;
 			room.$el[0].id = 'room-' + newid;
+			this.rooms[newid] = room;
 			delete this.rooms[id];
 			this.updateLayout();
+			this.topbar.updateTabbar();
+			if (this.rooms[newid] === this.curRoom) {
+				this.updateTitle(this.rooms[newid]);
+			}
+			this.updateAutojoin();
 		},
 		removeRoom: function (id, alreadyLeft) {
 			var room = this.rooms[id];
