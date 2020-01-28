@@ -58,7 +58,7 @@ exports.BattleText = {
 		changeAbility: "  [POKEMON] acquired [ABILITY]!",
 		addItem: "  [POKEMON] obtained one [ITEM].", // Trick, Switcheroo
 		takeItem: "  [POKEMON] stole [SOURCE]'s [ITEM]!", // Thief, Covet, Magician, Pickpocket
-		eatItem: "  [POKEMON] ate its [ITEM]!",
+		eatItem: "  ([POKEMON] ate its [ITEM]!)",
 		useGem: "  The [ITEM] strengthened [POKEMON]'s power!",
 		eatItemWeaken: "  The [ITEM] weakened damage to [POKEMON]!",
 		removeItem: "  [POKEMON] lost its [ITEM]!",
