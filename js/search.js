@@ -34,8 +34,7 @@
 		this.cur = {};
 		this.$inputEl = null;
 		this.gen = 8;
-		this.isDoubles = false;
-		this.isNatDex = false;
+		this.mod = null;
 
 		var self = this;
 		this.$el.on('click', '.more button', function (e) {
@@ -796,13 +795,16 @@
 		} else if (!format) {
 			this.gen = 8;
 		}
-		if (format.includes('doubles')) this.isDoubles = true;
+		if (format.includes('doubles')) this.mod = 'doubles';
 		var isLetsGo = format.startsWith('letsgo');
-		if (isLetsGo) format = format.slice(6);
+		if (isLetsGo) {
+			format = format.slice(6);
+			this.mod = 'letsgo';
+		}
 		var isNatDex = format.startsWith('nationaldex');
 		if (isNatDex) {
 			format = format.slice(11);
-			this.isNatDex = true;
+			this.mod = 'natdex';
 			if (!format) format = 'ou';
 		}
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
@@ -1349,13 +1351,13 @@
 		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
 		var tier;
 		if (pokemon.tier) {
-			tier = Dex.getTier(Dex.forGen(this.gen).getTemplate(id), this.gen, this.isDoubles);
+			tier = Dex.getTier(pokemon.species, this.gen, this.mod);
 		} else if (pokemon.forme && pokemon.forme.endsWith('Totem')) {
-			tier = Dex.getTier(Dex.forGen(this.gen).getTemplate(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1))), this.gen, this.isDoubles);
+			tier = Dex.getTier(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1)), this.gen, this.mod);
 		} else {
-			tier = Dex.getTier(Dex.forGen(this.gen).getTemplate(pokemon.baseSpecies), this.gen, this.isDoubles);
+			tier = Dex.getTier(pokemon.baseSpecies, this.gen, this.mod);
 		}
-		if (this.isNatDex) tier = (pokemon.num >= 0 ? pokemon.num : 'CAP');
+		if (this.mod === 'natdex') tier = (pokemon.num >= 0 ? pokemon.num : 'CAP');
 		buf += '<span class="col numcol">' + tier + '</span> ';
 
 		// icon
