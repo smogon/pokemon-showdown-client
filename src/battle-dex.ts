@@ -443,6 +443,7 @@ const Dex = new class implements ModdedDex {
 		return template;
 	}
 
+	/** @deprecated */
 	getTier(pokemon: string, genNum = 8, mod?: string): string {
 		let template = this.getTemplate(pokemon);
 		if (genNum < 8) template = this.forGen(genNum).getTemplate(pokemon);
