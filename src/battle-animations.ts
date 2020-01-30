@@ -2555,6 +2555,7 @@ class PokemonSprite extends Sprite {
 			wideguard: '<span class="good">Wide&nbsp;Guard</span>',
 			craftyshield: '<span class="good">Crafty&nbsp;Shield</span>',
 			matblock: '<span class="good">Mat&nbsp;Block</span>',
+			maxguard: '<span class="good">Max&nbsp;Guard</span>',
 			helpinghand: '<span class="good">Helping&nbsp;Hand</span>',
 			magiccoat: '<span class="good">Magic&nbsp;Coat</span>',
 			destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
