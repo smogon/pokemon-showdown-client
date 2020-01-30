@@ -808,7 +808,7 @@
 			if (!format) format = 'ou';
 		}
 		var isMetBattle = format.includes('metronome');
-		if (isMetBattle) this.isNatDex = true;
+		if (isMetBattle) this.mod = 'natdex';
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		 // CAP check is temporary
 		var requireGalar = (this.gen === 8 && !isNatDex && format.indexOf('cap') < 0);
