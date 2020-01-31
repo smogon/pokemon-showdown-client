@@ -2746,16 +2746,16 @@
 				val = (id in BattlePokedex ? BattlePokedex[id].species : '');
 				break;
 			case 'ability':
-				if (id in BattleItems && this.curTeam.format == "gen7dualwielding") {
+				if (id in BattleItems && this.curTeam.format == "gen8dualwielding") {
 					val = BattleItems[id].name;
-				} else if (id in BattleMovedex && this.curTeam.format == "gen7trademarked") {
+				} else if (id in BattleMovedex && this.curTeam.format == "gen8trademarked") {
 					val = BattleMovedex[id].name;
 				} else {
 					val = (id in BattleAbilities ? BattleAbilities[id].name : '');
 				}
 				break;
 			case 'item':
-				if (id in BattleMovedex && this.curTeam.format == "gen7fortemons") {
+				if (id in BattleMovedex && this.curTeam.format == "gen8fortemons") {
 					val = BattleMovedex[id].name;
 				} else {
 					val = (id in BattleItems ? BattleItems[id].name : '');
