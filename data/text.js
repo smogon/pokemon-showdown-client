@@ -691,6 +691,9 @@ exports.BattleText = {
 		start: "  [POKEMON] began having a nightmare!",
 		damage: "  [POKEMON] is locked in a nightmare!",
 	},
+	noretreat: {
+		start: "  [POKEMON] can no longer escape because it used No Retreat!",
+	},
 	painsplit: {
 		activate: "  The battlers shared their pain!",
 	},
