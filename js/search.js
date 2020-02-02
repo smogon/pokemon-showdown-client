@@ -1413,10 +1413,12 @@
 				buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
 			}
 			if (gen >= 5) {
+				var unreleasedHidden = pokemon.unreleasedHidden;
+				if (unreleasedHidden === 'Past' && (this.isNatDex || gen < 8)) unreleasedHidden = false;
 				if (abilities['S']) {
-					buf += '<span class="col twoabilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />' + abilities['S'] + '</span>';
+					buf += '<span class="col twoabilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />' + abilities['S'] + '</span>';
 				} else if (abilities['H']) {
-					buf += '<span class="col abilitycol' + (pokemon.unreleasedHidden ? ' unreleasedhacol' : '') + '">' + abilities['H'] + '</span>';
+					buf += '<span class="col abilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + abilities['H'] + '</span>';
 				} else {
 					buf += '<span class="col abilitycol"></span>';
 				}
