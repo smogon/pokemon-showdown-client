@@ -808,7 +808,6 @@
 			if (!format) format = 'ou';
 		}
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
-		 // CAP check is temporary
 		var requireGalar = (format.indexOf('battlestadium') >= 0 || (format.slice(0, 3) === 'vgc' && this.gen === 8));
 		var template;
 		var isBH = (format === 'balancedhackmons' || format === 'bh');
