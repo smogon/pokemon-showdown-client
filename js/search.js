@@ -902,6 +902,8 @@
 				table = table['gen' + this.gen];
 			} else if (isNatDex) {
 				table = table['natdex'];
+			} else if (isMetBattle) {
+				table = table['metronome'];
 			}
 
 			if (!table.itemSet) {

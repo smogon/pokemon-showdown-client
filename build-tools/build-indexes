@@ -433,6 +433,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		} else if (isMetBattle) {
 			BattleTeambuilderTable['metronome'] = {};
 			BattleTeambuilderTable['metronome'].tiers = tiers;
+			BattleTeambuilderTable['metronome'].items = items;
 			BattleTeambuilderTable['metronome'].formatSlices = formatSlices;
 		} else if (isLetsGo) {
 			BattleTeambuilderTable['letsgo'] = {};
@@ -539,13 +540,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (item.gen > genNum) {
 				continue;
 			}
-			if (item.isNonstandard) {
+			if (item.isNonstandard && !isMetBattle) {
 				if (isNatDex) {
 					if (item.isNonstandard !== "Past") continue;
 					if (!item.itemUser && !item.zMove) continue;
 				} else if (genNum !== 2) {
 					continue;
 				}
+			}
+			if (isMetBattle) {
+				const banlist = Dex.getFormat('gen8metronomebattle').banlist;
+				if (banlist.includes(item.name)) continue;
 			}
 			switch (id) {
 			case 'leftovers':
