@@ -8,6 +8,8 @@ exports.BattleTextAFD = {
 		opposingPokemon: "a villainous [NICKNAME]",
 		team: "your faithful alliance",
 		opposingTeam: "the forces of evil",
+		party: "your ally Pok\u00E9mon",
+		opposingParty: "the opposing Pok\u00E9mon",
 
 		turn: "== Phase [NUMBER] ==",
 		switchIn: "[TRAINER] would have us contend with [FULLNAME]!",
