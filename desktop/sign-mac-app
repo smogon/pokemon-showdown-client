@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+
+const APP = "path/to/Pokemon Showdown.app";
+const IDENTITY = "identity of Developer ID cert";
+
+/****************************************************************************/
+
+console.log("### finding things to sign");
+
+const fs = require('fs');
+const child_process = require('child_process');
+
+const items = [];
+
+const frameworksDir = `${APP}/Contents/Frameworks/nwjs Framework.framework`;
+
+let currentVersionDir;
+for (const dir of fs.readdirSync(`${frameworksDir}/Versions`)) {
+    if (fs.statSync(`${frameworksDir}/Versions/${dir}`).isDirectory) {
+        currentVersionDir = `${frameworksDir}/Versions/${dir}`;
+        break;
+    }
+}
+if (!currentVersionDir) {
+    console.error(`couldn't find "${frameworksDir}/Versions/[version]"`);
+    process.exit(1);
+}
+for (const file of fs.readdirSync(`${currentVersionDir}`)) {
+    if (file.endsWith('.dylib')) {
+        items.push(`${currentVersionDir}/${file}`);
+    }
+}
+for (const file of fs.readdirSync(`${currentVersionDir}/Helpers`)) {
+    if (/^[a-z0-9_]*$/.test(file) || file.endsWith('.app')) {
+        items.push(`${currentVersionDir}/Helpers/${file}`);
+    }
+}
+for (const file of fs.readdirSync(`${currentVersionDir}/Libraries`)) {
+    if (file.endsWith('.dylib')) {
+        items.push(`${currentVersionDir}/Libraries/${file}`);
+    }
+}
+for (const file of fs.readdirSync(`${currentVersionDir}/XPCServices`)) {
+    if (file.endsWith('.xpc')) {
+        items.push(`${currentVersionDir}/XPCServices/${file}`);
+    }
+}
+items.push(frameworksDir);
+
+/****************************************************************************/
+
+console.log("");
+console.log("### signing");
+
+function exec(cmd) {
+    console.log(cmd);
+    const result = child_process.spawnSync(cmd, {shell: true, stdio: 'inherit'});
+    if (result.status !== 0) {
+        console.log(`Command failed with status ${result.status}`);
+        if (result.error) console.log(result.error);
+        process.exit(1);
+    }
+}
+
+for (const item of items) {
+    exec(`codesign --verbose --force --deep --strict --options runtime --timestamp --sign "${IDENTITY}" --entitlements nwjs-entitlements.entitlements "${item}"`);
+}
+
+exec(`codesign --verbose --force --deep --strict --options runtime --timestamp --sign "${IDENTITY}" --entitlements nwjs-entitlements.entitlements "${APP}"`);
+
+/****************************************************************************/
+
+console.log("");
+console.log("### verifying signature");
+
+exec(`codesign --verify -vvvv "${APP}"`);

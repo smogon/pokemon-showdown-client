@@ -3,46 +3,19 @@
 <plist version="1.0">
 <dict>
 	<key>BuildMachineOSBuild</key>
-	<string>12F45</string>
+	<string>17G3025</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Pokemon Showdown</string>
 	<key>CFBundleDocumentTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeIconFile</key>
-			<string>nw.icns</string>
-			<key>CFBundleTypeName</key>
-			<string>nwjs App</string>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>LSHandlerRank</key>
-			<string>Owner</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>io.nwjs.nw.app</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeName</key>
-			<string>Folder</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>fold</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>LSHandlerRank</key>
-			<string>None</string>
-		</dict>
-	</array>
+	<array></array>
 	<key>CFBundleExecutable</key>
 	<string>nwjs</string>
 	<key>CFBundleIconFile</key>
-	<string>nw.icns</string>
+	<string>app.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>io.nwjs.nw</string>
+	<string>com.pokemonshowdown.pokemonshowdown</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -50,54 +23,53 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.3.0</string>
+	<string>0.11</string>
+	<key>CFBundleSignature</key>
+	<string>NWJS</string>
+	<key>CFBundleURLTypes</key>
+	<array></array>
 	<key>CFBundleVersion</key>
-	<string>2236.2</string>
+	<string>bf46c879d0</string>
+	<key>DTCompiler</key>
+	<string>com.apple.compilers.llvm.clang.1_0</string>
 	<key>DTSDKBuild</key>
-	<string>12F37</string>
+	<string>10.14</string>
 	<key>DTSDKName</key>
-	<string>macosx10.8</string>
+	<string>macosx10.14</string>
 	<key>DTXcode</key>
-	<string>0511</string>
+	<string>1000</string>
 	<key>DTXcodeBuild</key>
-	<string>5B1008</string>
+	<string>10A255</string>
+	<key>LSEnvironment</key>
+	<dict>
+		<key>MallocNanoZone</key>
+		<string>0</string>
+	</dict>
 	<key>LSFileQuarantineEnabled</key>
-	<false/>
+	<true/>
+	<key>LSHasLocalizedDisplayName</key>
+	<string>1</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.6.0</string>
+	<string>10.10.0</string>
+	<key>NSAppleScriptEnabled</key>
+	<true/>
 	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
+	<string>BrowserCrApplication</string>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<false/>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
-	<key>SCMRevision</key>
-	<string>df30fb73b312044486237d93cf96f3606862f2a3</string>
-	<key>UTExportedTypeDeclarations</key>
+	<key>NSUserActivityTypes</key>
 	<array>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>com.pkware.zip-archive</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>nwjs App</string>
-			<key>UTTypeIconFile</key>
-			<string>nw.icns</string>
-			<key>UTTypeIdentifier</key>
-			<string>io.nwjs.nw.app</string>
-			<key>UTTypeReferenceURL</key>
-			<string>https://github.com/rogerwang/node-webkit/wiki/How-to-package-and-distribute-your-apps</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>com.apple.ostype</key>
-				<string>nwjs</string>
-				<key>public.filename-extension</key>
-				<array>
-					<string>nw</string>
-				</array>
-				<key>public.mime-type</key>
-				<string>application/x-nwjs-app</string>
-			</dict>
-		</dict>
+		<string>NSUserActivityTypeBrowsingWeb</string>
 	</array>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>banner</string>
+	<key>OSAScriptingDefinition</key>
+	<string>scripting.sdef</string>
+	<key>SCMRevision</key>
+	<string>ac9418ba9c3bd7f6baaffa0b055dfe147e0f8364-refs/branch-heads/3538@{#468}</string>
+	<key>UTExportedTypeDeclarations</key>
+	<array></array>
 </dict>
 </plist>
