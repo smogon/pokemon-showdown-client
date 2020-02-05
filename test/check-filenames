@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
+
+const dir = path.resolve(process.argv[2]);
+const ext = process.argv[3];
+
+process.chdir(`${__dirname}/..`);
+
+const files = fs.readdirSync(dir);
+
+for (file of files) {
+    if (file === '.DS_Store') {
+        // silently remove cruft
+        fs.unlinkSync(`${dir}/${file}`);
+        continue;
+    }
+    if (!file.endsWith(ext)) {
+        console.log(`${file}: bad extension`);
+        continue;
+    }
+    const speciesid = file.slice(0, -ext.length);
+    const pokemon = Dex.getTemplate(speciesid);
+    if (!pokemon.exists) {
+        console.log(`${file}: not a pokemon`);
+    } else if (pokemon.spriteid !== speciesid) {
+        console.log(`${file}: spriteid should be ${pokemon.spriteid}`);
+    }
+}
