@@ -16615,7 +16615,7 @@ const BattleMoveAnims: AnimTable = {
 	},
 	gmaxsteelsurge: {
 		anim(scene, [attacker, defender]) {
-			scene.showEffect('steelcaltrop', {
+			scene.showEffect('steelsurgecaltrop', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -16628,7 +16628,7 @@ const BattleMoveAnims: AnimTable = {
 				scale: 0.3,
 				opacity: 1,
 			}, 'ballistic');
-			scene.showEffect('steelcaltrop', {
+			scene.showEffect('steelsurgecaltrop', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -16642,7 +16642,7 @@ const BattleMoveAnims: AnimTable = {
 				scale: 0.3,
 				opacity: 1,
 			}, 'ballistic');
-			scene.showEffect('steelcaltrop', {
+			scene.showEffect('steelsurgecaltrop', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,

@@ -1125,7 +1125,7 @@ class BattleScene {
 			this.sideConditions[siden][id] = [rock1, rock2, rock3, rock4];
 			break;
 		case 'gmaxsteelsurge':
-			const surge1 = new Sprite(BattleEffects.steelcaltrop, {
+			const surge1 = new Sprite(BattleEffects.steelsurgecaltrop, {
 				display: 'block',
 				x: side.leftof(-30),
 				y: side.y - 20,
@@ -1133,7 +1133,7 @@ class BattleScene {
 				opacity: 0.5,
 				scale: 0.3,
 			}, this);
-			const surge2 = new Sprite(BattleEffects.steelcaltrop, {
+			const surge2 = new Sprite(BattleEffects.steelsurgecaltrop, {
 				display: 'block',
 				x: side.leftof(50),
 				y: side.y - 10,
@@ -1141,7 +1141,7 @@ class BattleScene {
 				opacity: 0.5,
 				scale: 0.3,
 			}, this);
-			const surge3 = new Sprite(BattleEffects.steelcaltrop, {
+			const surge3 = new Sprite(BattleEffects.steelsurgecaltrop, {
 				display: 'block',
 				x: side.leftof(40),
 				y: side.y - 20,
@@ -2935,8 +2935,8 @@ const BattleEffects: {[k: string]: SpriteData} = {
 		url: 'caltrop.png', // by Pokemon Showdown user SailorCosmos
 		w: 80, h: 80,
 	},
-	steelcaltrop: {
-		url: 'steelcaltrop.png', // by Pokemon Showdown user SailorCosmos, recolored by Pokemon Showdown user Kalalokki
+	steelsurgecaltrop: {
+		url: 'steelsurgecaltrop.png', // by Pokemon Showdown user Kalalokki
 		w: 80, h: 80,
 	},
 	poisoncaltrop: {
