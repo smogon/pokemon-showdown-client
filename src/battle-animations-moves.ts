@@ -16615,7 +16615,7 @@ const BattleMoveAnims: AnimTable = {
 	},
 	gmaxsteelsurge: {
 		anim(scene, [attacker, defender]) {
-			scene.showEffect('steelsurgecaltrop', {
+			scene.showEffect('greenmetal1', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -16628,7 +16628,21 @@ const BattleMoveAnims: AnimTable = {
 				scale: 0.3,
 				opacity: 1,
 			}, 'ballistic');
-			scene.showEffect('steelsurgecaltrop', {
+			scene.showEffect('greenmetal2', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 250,
+			}, {
+				x: defender.leftof(35),
+				y: defender.y - 15,
+				z: defender.z,
+				scale: 0.3,
+				opacity: 1,
+			}, 'ballistic');
+			scene.showEffect('greenmetal1', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -16638,20 +16652,6 @@ const BattleMoveAnims: AnimTable = {
 			}, {
 				x: defender.leftof(50),
 				y: defender.y - 10,
-				z: defender.z,
-				scale: 0.3,
-				opacity: 1,
-			}, 'ballistic');
-			scene.showEffect('steelsurgecaltrop', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 0.1,
-				opacity: 0.5,
-				time: 250,
-			}, {
-				x: defender.leftof(40),
-				y: defender.y - 20,
 				z: defender.z,
 				scale: 0.3,
 				opacity: 1,
