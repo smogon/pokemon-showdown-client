@@ -466,6 +466,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	appletungmax: 1104 + 67,
 	sandacondagmax: 1104 + 68,
 	toxtricitygmax: 1104 + 69,
+	toxtricitylowkeygmax: 1104 + 69,
 	centiskorchgmax: 1104 + 70,
 	hatterenegmax: 1104 + 71,
 	grimmsnarlgmax: 1104 + 72,
