@@ -16613,6 +16613,51 @@ const BattleMoveAnims: AnimTable = {
 			}, 'ballistic');
 		},
 	},
+	gmaxsteelsurge: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('steelcaltrop', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+			}, {
+				x: defender.leftof(-30),
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0.3,
+				opacity: 1,
+			}, 'ballistic');
+			scene.showEffect('steelcaltrop', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 125,
+			}, {
+				x: defender.leftof(50),
+				y: defender.y - 10,
+				z: defender.z,
+				scale: 0.3,
+				opacity: 1,
+			}, 'ballistic');
+			scene.showEffect('steelcaltrop', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 250,
+			}, {
+				x: defender.leftof(40),
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0.3,
+				opacity: 1,
+			}, 'ballistic');
+		},
+	},
 	spikes: {
 		anim(scene, [attacker, defender]) {
 			scene.showEffect('caltrop', {

@@ -1124,6 +1124,37 @@ class BattleScene {
 			this.$spritesFront[siden].append(rock4.$el!);
 			this.sideConditions[siden][id] = [rock1, rock2, rock3, rock4];
 			break;
+		case 'gmaxsteelsurge':
+			const surge1 = new Sprite(BattleEffects.steelcaltrop, {
+				display: 'block',
+				x: side.leftof(-30),
+				y: side.y - 20,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.3,
+			}, this);
+			const surge2 = new Sprite(BattleEffects.steelcaltrop, {
+				display: 'block',
+				x: side.leftof(50),
+				y: side.y - 10,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.3,
+			}, this);
+			const surge3 = new Sprite(BattleEffects.steelcaltrop, {
+				display: 'block',
+				x: side.leftof(40),
+				y: side.y - 20,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.3,
+			}, this);
+
+			this.$spritesFront[siden].append(surge1.$el!);
+			this.$spritesFront[siden].append(surge2.$el!);
+			this.$spritesFront[siden].append(surge3.$el!);
+			this.sideConditions[siden][id] = [surge1, surge2, surge3];
+			break;
 		case 'spikes':
 			let spikeArray = this.sideConditions[siden]['spikes'];
 			if (!spikeArray) {
@@ -2902,6 +2933,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	},
 	caltrop: {
 		url: 'caltrop.png', // by Pokemon Showdown user SailorCosmos
+		w: 80, h: 80,
+	},
+	steelcaltrop: {
+		url: 'steelcaltrop.png', // by Pokemon Showdown user SailorCosmos, recolored by Pokemon Showdown user Kalalokki
 		w: 80, h: 80,
 	},
 	poisoncaltrop: {
