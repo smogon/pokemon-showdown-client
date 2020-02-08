@@ -1124,6 +1124,37 @@ class BattleScene {
 			this.$spritesFront[siden].append(rock4.$el!);
 			this.sideConditions[siden][id] = [rock1, rock2, rock3, rock4];
 			break;
+		case 'gmaxsteelsurge':
+			const surge1 = new Sprite(BattleEffects.greenmetal1, {
+				display: 'block',
+				x: side.leftof(-30),
+				y: side.y - 20,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.8,
+			}, this);
+			const surge2 = new Sprite(BattleEffects.greenmetal2, {
+				display: 'block',
+				x: side.leftof(35),
+				y: side.y - 15,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.8,
+			}, this);
+			const surge3 = new Sprite(BattleEffects.greenmetal1, {
+				display: 'block',
+				x: side.leftof(50),
+				y: side.y - 10,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.8,
+			}, this);
+
+			this.$spritesFront[siden].append(surge1.$el!);
+			this.$spritesFront[siden].append(surge2.$el!);
+			this.$spritesFront[siden].append(surge3.$el!);
+			this.sideConditions[siden][id] = [surge1, surge2, surge3];
+			break;
 		case 'spikes':
 			let spikeArray = this.sideConditions[siden]['spikes'];
 			if (!spikeArray) {
@@ -2903,6 +2934,14 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	caltrop: {
 		url: 'caltrop.png', // by Pokemon Showdown user SailorCosmos
 		w: 80, h: 80,
+	},
+	greenmetal1: {
+		url: 'greenmetal1.png', // by Pokemon Showdown user Kalalokki
+		w: 45, h: 45,
+	},
+	greenmetal2: {
+		url: 'greenmetal2.png', // by Pokemon Showdown user Kalalokki
+		w: 45, h: 45,
 	},
 	poisoncaltrop: {
 		url: 'poisoncaltrop.png', // by Pokemon Showdown user SailorCosmos
