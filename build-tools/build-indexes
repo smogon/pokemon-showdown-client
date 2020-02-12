@@ -299,6 +299,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const tierTable = {};
 		const overrideTier = {};
 		const zuBans = {};
+		const nfeBans = {};
 		for (const id of pokemon) {
 			const template = Dex.mod(gen).getTemplate(id);
 			if (template.gen > genNum) continue;
@@ -363,6 +364,24 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 			if (!tierTable[tier]) tierTable[tier] = [];
 			tierTable[tier].push(id);
+
+			const nfeBanlist = Dex.getFormat('gen8nfe').banlist;
+			if (gen === 'gen8' && template.nfe && !template.isNonstandard && !template.isUnreleased && !['NFE', 'LC', 'LC Uber'].includes(template.tier) && !nfeBanlist.includes(template.species) && !nfeBanlist.includes(template.species + '-Base')) {
+				if (!tierTable['LC']) tierTable['LC'] = [];
+				if (!tierTable['LC Uber']) tierTable['LC Uber'] = [];
+				if (!tierTable['NFE']) tierTable['NFE'] = [];
+				if (template.prevo) {
+					tierTable['NFE'].push(id);
+				} else {
+					let lcBanlist = Dex.getFormat(gen + 'lc').banlist;
+					if (lcBanlist.includes(template.species) || lcBanlist.includes(template.species + '-Base')) {
+						tierTable['LC Uber'].push(id);
+					} else {
+						tierTable['LC'].push(id);
+					}
+				}
+			}
+
 			if (gen === 'gen7' && id in {ferroseed:1} && tier !== 'LC') {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
@@ -386,6 +405,18 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					let baseTier = baseTemplate.tier;
 					if (baseTier !== "(PU)" && baseTier in tierRank && tierRank[baseTier] > 0) continue;
 					zuBans[baseTemplate.speciesid] = 1;
+				}
+			}
+
+			if (genNum >= 8) {
+				let banlist = Dex.getFormat(gen + 'nfe').banlist;
+				for (const ban of banlist) {
+					let baseTemplate = Dex.mod(gen).getTemplate(ban.endsWith('-Base') ? ban.slice(0, -5) : ban);
+					if (!baseTemplate.exists) continue;
+					const tierRank = {AG:1, Uber:1, OU:1, UUBL:1, UU:1, RUBL:1, RU:1, NUBL:1, NU:1, PUBL:1, PU:1, "(PU)":1, NFE:0, "LC Uber":0, LC:0};
+					let baseTier = baseTemplate.tier;
+					if (!['NFE', 'LC Uber', 'LC'].includes(baseTier) && baseTier in tierRank && tierRank[baseTier] > 0) continue;
+					nfeBans[baseTemplate.speciesid] = 1;
 				}
 			}
 		}
@@ -419,6 +450,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable.items = items;
 			BattleTeambuilderTable.overrideTier = overrideTier;
 			BattleTeambuilderTable.zuBans = zuBans;
+			BattleTeambuilderTable.nfeBans = nfeBans;
 			BattleTeambuilderTable.formatSlices = formatSlices;
 		} else {
 			BattleTeambuilderTable[gen] = {};
