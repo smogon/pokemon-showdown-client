@@ -758,11 +758,11 @@ class BattleTooltips {
 
 		if (serverPokemon && !isActive) {
 			// move list
-			text += '<p class="section">';
+			text += `<p class="section">`;
 			let battlePokemon = this.battle.getPokemon(pokemon.ident, pokemon.details);
 			for (const moveid of serverPokemon.moves) {
 				let move = Dex.getMove(moveid);
-				let moveName = '&#8226; ' + move.name;
+				let moveName = `&#8226; ${move.name}`;
 				if (battlePokemon?.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
 						if (moveName === row[0]) {
@@ -771,26 +771,45 @@ class BattleTooltips {
 						}
 					}
 				}
-				text += moveName + '<br />';
+				text += `${moveName}<br />`;
 			}
 			text += '</p>';
 		} else if (!this.battle.hardcoreMode && clientPokemon?.moveTrack.length) {
 			// move list (guessed)
-			text += '<p class="section">';
+			text += `<p class="section">`;
 			for (const row of clientPokemon.moveTrack) {
-				text += this.getPPUseText(row) + '<br />';
+				text += `${this.getPPUseText(row)}<br />`;
 			}
 			if (clientPokemon.moveTrack.filter(([moveName]) =>
 				moveName.charAt(0) !== '*' && !this.battle.dex.getMove(moveName).isZ
 			).length > 4) {
-				text += '(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.)';
+				text += `(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.) `;
 			}
 			if (this.battle.gen === 3) {
-				text += '(Pressure is not visible in Gen 3, so in certain situations, more PP may have been lost than shown here.)';
+				text += `(Pressure is not visible in Gen 3, so in certain situations, more PP may have been lost than shown here.) `;
 			}
-			text += '</p>';
+			if (this.pokemonHasClones(clientPokemon)) {
+				text += `(Your opponent has two indistinguishable Pokémon, making it impossible for you to tell which one has which moves/ability/item.) `;
+			}
+			text += `</p>`;
 		}
 		return text;
+	}
+
+	/**
+	 * Does this Pokémon's trainer have two of these Pokémon that are
+	 * indistinguishable? (Same nickname, species, forme, level, gender,
+	 * and shininess.)
+	 */
+	pokemonHasClones(pokemon: Pokemon) {
+		const side = pokemon.side;
+		if (side.battle.speciesClause) return false;
+		for (const ally of side.pokemon) {
+			if (pokemon !== ally && pokemon.searchid === ally.searchid) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	calculateModifiedStats(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon) {
