@@ -648,7 +648,8 @@
 								// might not exist, such as for Z status moves - fall back on base move to determine type then
 								var specialMove = this.battle.dex.getMove(specialMoves[i].move);
 								var moveType = this.tooltips.getMoveType(specialMove.exists ? specialMove : baseMove, typeValueTracker)[0];
-								var tooltipArgs = 'zmove|' + baseMove.id + '|' + pos;
+								var tooltipArgs = classType + 'move|' + baseMove.id + '|' + pos;
+								if (specialMove.id.startsWith('gmax')) tooltipArgs += '|' + specialMove.id;
 								movebuttons += '<button class="type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(specialMoves[i].move) + '" data-target="' + BattleLog.escapeHTML(specialMoves[i].target) + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 								var pp = curActive.moves[i].pp + '/' + curActive.moves[i].maxpp;
 								if (canZMove) {
