@@ -146,6 +146,13 @@ class BattleTextParser {
 			break;
 		}
 
+		case '-fail': {
+			if (kwArgs.from === 'ability: Flower Veil') {
+				return {args: ['-block', kwArgs.of, 'ability: Flower Veil'], kwArgs: {of: args[1]}};
+			}
+			break;
+		}
+
 		case '-start': {
 			if (kwArgs.from === 'Protean' || kwArgs.from === 'Color Change') kwArgs.from = 'ability:' + kwArgs.from;
 			break;
@@ -973,10 +980,6 @@ class BattleTextParser {
 
 			if (id === 'unboost') {
 				template = this.template(stat ? 'failSingular' : 'fail', 'unboost');
-				if (BattleTextParser.effectId(kwArgs.from) === 'flowerveil') {
-					template = this.template('block', kwArgs.from);
-					pokemon = kwArgs.of;
-				}
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', stat);
 			}
 
