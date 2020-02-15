@@ -879,6 +879,13 @@
 				});
 			}
 
+			if (format === 'nfe' && this.gen >= 8) {
+				tierSet = tierSet.filter(function (r) {
+					if (r[1] in table.nfeBans) return false;
+					return true;
+				});
+			}
+
 			if (format === 'vgc2016') {
 				tierSet = tierSet.filter(function (r) {
 					var banned = {deoxys:1, deoxysattack:1, deoxysdefense:1, deoxysspeed:1, mew:1, celebi:1, shaymin:1, shayminsky:1, darkrai:1, victini:1, keldeo:1, keldeoresolute:1, meloetta:1, arceus:1, genesect:1, jirachi:1, manaphy:1, phione:1, hoopa:1, hoopaunbound:1, diancie:1, dianciemega:1};
