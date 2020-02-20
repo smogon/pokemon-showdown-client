@@ -596,6 +596,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'powerherb':
 			case 'mentalherb':
 			case 'rockyhelmet':
+			case 'heavydutyboots':
 				greatItems.push(id);
 				break;
 			case 'lumberry':
