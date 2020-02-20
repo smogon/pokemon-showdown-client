@@ -807,6 +807,8 @@
 			this.mod = 'natdex';
 			if (!format) format = 'ou';
 		}
+		var isMetBattle = format.includes('metronome');
+		if (isMetBattle) this.mod = 'natdex';
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
 		var requireGalar = (format.indexOf('battlestadium') >= 0 || (format.slice(0, 3) === 'vgc' && this.gen === 8));
 		var template;
@@ -835,6 +837,8 @@
 				table = table['letsgo'];
 			} else if (isNatDex) {
 				table = table['natdex'];
+			} else if (isMetBattle) {
+				table = table['metronome'];
 			}
 
 			if (!table.tierSet) {
@@ -904,6 +908,8 @@
 				table = table['gen' + this.gen];
 			} else if (isNatDex) {
 				table = table['natdex'];
+			} else if (isMetBattle) {
+				table = table['metronome'];
 			}
 
 			if (!table.itemSet) {
@@ -935,7 +941,7 @@
 				abilitySet.push(['header', "Special Event Ability"]);
 				abilitySet.push(['ability', toID(template.abilities['S'])]);
 			}
-			if (format === 'almostanyability' || isBH) {
+			if (format === 'almostanyability' || isBH || isMetBattle) {
 				template = Dex.getTemplate(set.species);
 				var abilities = [];
 				if (template.isMega) {
@@ -1001,6 +1007,7 @@
 				}
 				learnsetid = this.nextLearnsetid(learnsetid, template.id);
 			}
+			if (isMetBattle) moves = ['metronome'];
 			if (sketch || isBH) {
 				if (isBH) moves = [];
 				for (var i in BattleMovedex) {
