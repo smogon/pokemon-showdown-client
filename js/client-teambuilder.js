@@ -1510,9 +1510,7 @@
 
 			var format = this.curTeam.format;
 			// If we don't have a specific format, don't try and guess which sets to use.
-			if (format.match(/gen\d$/)) {
-				return false;
-			}
+			if (format.match(/gen\d$/)) return;
 
 			var self = this;
 			this.smogonSets = this.smogonSets || {};
@@ -1541,9 +1539,7 @@
 			var $setDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets');
 			$setDiv.empty();
 
-			if (!formatSets) {
-				return;
-			}
+			if (!formatSets) return;
 
 			var sets = $.extend({}, formatSets['smogon.com/dex'][species], formatSets['smogon.com/stats'][species]);
 
@@ -1551,6 +1547,7 @@
 			for (var set in sets) {
 				$setDiv.append('<button name="importSmogonSet">' + BattleLog.escapeHTML(set) + '</button>');
 			}
+			$setDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
 		},
 		importSmogonSet: function (i, button) {
 			var formatSets = this.smogonSets[this.curTeam.format];
