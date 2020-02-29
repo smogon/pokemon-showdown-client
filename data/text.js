@@ -694,6 +694,9 @@ exports.BattleText = {
 	noretreat: {
 		start: "  [POKEMON] can no longer escape because it used No Retreat!",
 	},
+	octolock: {
+		start: "  [POKEMON] can no longer escape because of Octolock!",
+	},
 	painsplit: {
 		activate: "  The battlers shared their pain!",
 	},

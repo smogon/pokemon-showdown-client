@@ -2571,6 +2571,7 @@ class PokemonSprite extends Sprite {
 			focusenergy: '<span class="good">Focus&nbsp;Energy</span> ',
 			slowstart: '<span class="bad">Slow&nbsp;Start</span> ',
 			noretreat: '<span class="bad">No&nbsp;Retreat</span> ',
+			octolock: '<span class="bad">Octolock</span> ',
 			doomdesire: '',
 			futuresight: '',
 			mimic: '<span class="good">Mimic</span> ',
