@@ -2269,13 +2269,22 @@ class BattleStatGuesser {
 				if (hp || evs['hp']) evs['hp'] = hp;
 			}
 
-			if (template.id === 'tentacruel') evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
-			if (template.id === 'skarmory') evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
-			if (template.id === 'jirachi') evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
-			if (template.id === 'celebi') evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
-			if (template.id === 'volcarona') evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
-			if (template.id === 'gliscor') evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
-			if (template.id === 'dragonite' && evs['hp']) evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
+			if (template.id === 'tentacruel') {
+				evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
+			} else if (template.id === 'skarmory') {
+				evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
+			} else if (template.id === 'jirachi') {
+				evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
+			} else if (template.id === 'celebi') {
+				evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
+			} else if (template.id === 'volcarona') {
+				evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
+			} else if (template.id === 'gliscor') {
+				evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
+			} else if (template.id === 'dragonite' && evs['hp']) {
+				evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
+			}
+
 			if (evTotal < 508) {
 				let remaining = 508 - evTotal;
 				if (remaining > 252) remaining = 252;
