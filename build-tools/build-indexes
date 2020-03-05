@@ -396,23 +396,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (!tierTable[tier]) tierTable[tier] = [];
 			tierTable[tier].push(id);
 
-			const nfeBanlist = Dex.getFormat('gen8nfe').banlist;
-			if (gen === 'gen8' && template.nfe && !template.isNonstandard && !template.isUnreleased && !['NFE', 'LC', 'LC Uber'].includes(template.tier) && !nfeBanlist.includes(template.species) && !nfeBanlist.includes(template.species + '-Base')) {
-				if (!tierTable['LC']) tierTable['LC'] = [];
-				if (!tierTable['LC Uber']) tierTable['LC Uber'] = [];
-				if (!tierTable['NFE']) tierTable['NFE'] = [];
-				if (template.prevo) {
-					tierTable['NFE'].push(id);
-				} else {
-					let lcBanlist = Dex.getFormat(gen + 'lc').banlist;
-					if (lcBanlist.includes(template.species) || lcBanlist.includes(template.species + '-Base')) {
-						tierTable['LC Uber'].push(id);
-					} else {
-						tierTable['LC'].push(id);
-					}
-				}
-			}
-
 			if (gen === 'gen7' && id in {ferroseed:1} && tier !== 'LC') {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
