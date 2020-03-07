@@ -29,7 +29,7 @@ other OSes) to build.
 You can make and test client changes simply by building after each change,
 and opening `testclient.html`. This will allow you to test changes to the
 client without setting up your own login server. For security reasons, browsers
-[restrict cross-origin HTTP requests][4] initiated from scripts (CORS), and as
+[restrict cross-origin HTTP requests][5] initiated from scripts (CORS), and as
 such to log in to the current test client you will be prompted to copy and
 paste the required information obtained via an iframe. Alternatively, you may
 all you need is to add a `config/testclient-key.js file`, with the contents:
@@ -43,6 +43,8 @@ access this on Chrome through the URL bar:
 ![image](https://user-images.githubusercontent.com/551184/53414760-119e2d00-3995-11e9-80f8-ecd17467310a.png)
 
 This is the only supported method of logging in on the beta Preact client.
+
+  [5]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 
 You can connect to an arbitrary server by navigating to
 `testclient.html?~~host:port`. For example, to connect to a server running
@@ -62,8 +64,6 @@ The following things will fail in `testclient.html`:
   you can even change back to your original registered name afterward)
 
 Everything else can be tested, though.
-
-  [5]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 
 Warning
 ------------------------------------------------------------------------
@@ -86,7 +86,7 @@ just see the "Testing" section above.
 License
 ------------------------------------------------------------------------
 
-Pokémon Showdown's client is distributed under the terms of the [AGPLv3][5].
+Pokémon Showdown's client is distributed under the terms of the [AGPLv3][6].
 
 The reason is mostly because I don't want low-effort proprietary forks that add bad code that steals everyone's passwords, or something like that.
 
