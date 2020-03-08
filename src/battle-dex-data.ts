@@ -368,6 +368,8 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	cramorantgulping: 900 + 180,
 	cramorantgorging: 900 + 181,
 	toxtricitylowkey: 900 + 182,
+	sinisteaantique: 854,
+	polteageistantique: 855,
 	// alcremie2: 900 + 183,
 	// alcremie3: 900 + 184,
 	// alcremie4: 900 + 185,
