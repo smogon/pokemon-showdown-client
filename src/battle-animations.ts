@@ -712,6 +712,7 @@ class BattleScene {
 		}
 	}
 	teamPreview() {
+		let newBGNum = 0;
 		for (let siden = 0; siden < 2; siden++) {
 			let side = this.battle.sides[siden];
 			let textBuf = '';
@@ -766,14 +767,16 @@ class BattleScene {
 			}
 			this.$sprites[siden].html(buf + buf2);
 
-			if (ludicoloCount >= 2) {
-				this.bgmNum = -3;
-			} else if (ludicoloCount + lombreCount >= 2) {
-				this.bgmNum = -2;
+			if (!newBGNum) {
+				if (ludicoloCount >= 2) {
+					newBGNum = -3;
+				} else if (ludicoloCount + lombreCount >= 2) {
+					newBGNum = -2;
+				}
 			}
 		}
-		if (this.bgmNum < 0) {
-			this.setBgm(this.bgmNum);
+		if (newBGNum !== 0) {
+			this.setBgm(newBGNum);
 		}
 		this.wait(1000);
 		this.updateSidebars();
