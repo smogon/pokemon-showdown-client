@@ -39,7 +39,10 @@ module.exports = {
 		"AvatarsPopup": false, "CreditsPopup": false, "FormatPopup": false, "FormattingPopup": false, "LoginPopup": false,
 		"MovePopup": false, "SoundsPopup": false, "OptionsPopup": false, "PromptPopup": false, "ProxyPopup": false, "ReconnectPopup": false,
 		"RegisterPopup": false, "ReplayUploadedPopup": false, "RulesPopup": false, "TabListPopup": false, "TournamentBox": false,
-		"CustomBackgroundPopup": false
+		"CustomBackgroundPopup": false,
+
+		// Test client
+		"POKEMON_SHOWDOWN_TESTCLIENT_KEY": false
 	},
 	"extends": "eslint:recommended",
 	"rules": {

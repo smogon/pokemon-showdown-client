@@ -28,7 +28,23 @@ other OSes) to build.
 
 You can make and test client changes simply by building after each change,
 and opening `testclient.html`. This will allow you to test changes to the
-client without setting up your own login server.
+client without setting up your own login server. For security reasons, browsers
+[restrict cross-origin HTTP requests][5] initiated from scripts (CORS), and as
+such to log in to the current test client you will be prompted to copy and
+paste the required information obtained via an iframe. Alternatively, you may
+all you need is to add a `config/testclient-key.js file`, with the contents:
+
+    const POKEMON_SHOWDOWN_TESTCLIENT_KEY = 'sid';
+
+Replace `sid` with the contents of your actual PS `sid` cookie. You can quickly
+access this on Chrome through the URL bar:
+
+![image](https://user-images.githubusercontent.com/551184/53414680-def43480-3994-11e9-89d0-c06098c23fa0.png)
+![image](https://user-images.githubusercontent.com/551184/53414760-119e2d00-3995-11e9-80f8-ecd17467310a.png)
+
+This is the only supported method of logging in on the beta Preact client.
+
+  [5]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 
 You can connect to an arbitrary server by navigating to
 `testclient.html?~~host:port`. For example, to connect to a server running
@@ -70,12 +86,12 @@ just see the "Testing" section above.
 License
 ------------------------------------------------------------------------
 
-Pokémon Showdown's client is distributed under the terms of the [AGPLv3][5].
+Pokémon Showdown's client is distributed under the terms of the [AGPLv3][6].
 
 The reason is mostly because I don't want low-effort proprietary forks that add bad code that steals everyone's passwords, or something like that.
 
 If you're doing _anything_ else other than forking, _especially_ if you want to some client code files in your own open-source project that you want to release under a more permissive license (like, if you want to make your own multiplayer open-source game client for a different game), please ask at `staff@pokemonshowdown.com`. I hold all the copyright to the AGPLv3 parts and can relicense them to MIT for you.
 
-  [5]: http://www.gnu.org/licenses/agpl-3.0.html
+  [6]: http://www.gnu.org/licenses/agpl-3.0.html
 
 **WARNING:** This is **NOT** the same license as Pokémon Showdown's server.
