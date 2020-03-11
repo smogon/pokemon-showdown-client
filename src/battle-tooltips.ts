@@ -770,9 +770,9 @@ class BattleTooltips {
 		if (serverPokemon && !isActive) {
 			// move list
 			text += `<p class="section">`;
-			let battlePokemon = this.battle.getPokemon(pokemon.ident, pokemon.details);
+			const battlePokemon = clientPokemon || this.battle.findCorrespondingPokemon(pokemon);
 			for (const moveid of serverPokemon.moves) {
-				let move = Dex.getMove(moveid);
+				const move = Dex.getMove(moveid);
 				let moveName = `&#8226; ${move.name}`;
 				if (battlePokemon?.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
