@@ -1023,16 +1023,16 @@
 				if (!html) {
 					$elements.remove();
 				} else if (!$elements.length) {
-					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				} else if (cmd === 'uhtmlchange') {
 					$elements.html(BattleLog.sanitizeHTML(html));
 				} else {
 					$elements.remove();
-					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				}
 				return '';
 			case 'raw':
-				return '<div class="chat">' + BattleLog.sanitizeHTML(target) + '</div>';
+				return '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>';
 			case 'nonotify':
 				return {message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
 			default:
