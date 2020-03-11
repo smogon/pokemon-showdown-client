@@ -804,6 +804,12 @@
 			if (data.error) {
 				buf += '<p class="error">' + BattleLog.escapeHTML(data.error) + '</p>';
 				if (data.error.indexOf('inappropriate') >= 0) {
+					// log out so we don't autologin to a bad name if we refresh
+					$.post(app.user.getActionPHP(), {
+						act: 'logout',
+						userid: app.user.get('userid')
+					});
+
 					buf += '<p>Keep in mind these rules:</p>';
 					buf += '<ol>';
 					buf += '<li>Usernames may not impersonate a recognized user (a user with %, @, &, or ~ next to their name).</li>';
