@@ -462,12 +462,16 @@ class BattleTextParser {
 				case 'necrozmaultra': id = 'ultranecroziumz'; break;
 				case 'darmanitanzen': id = 'zenmode'; break;
 				case 'darmanitan': id = 'zenmode'; templateName = 'transformEnd'; break;
+				case 'darmanitangalarzen': id = 'zenmode'; break;
+				case 'darmanitangalar': id = 'zenmode'; templateName = 'transformEnd'; break;
 				case 'aegislashblade': id = 'stancechange'; break;
 				case 'aegislash': id = 'stancechange'; templateName = 'transformEnd'; break;
 				case 'wishiwashischool': id = 'schooling'; break;
 				case 'wishiwashi': id = 'schooling'; templateName = 'transformEnd'; break;
 				case 'miniormeteor': id = 'shieldsdown'; break;
 				case 'minior': id = 'shieldsdown'; templateName = 'transformEnd'; break;
+				case 'eiscuenoice': id = 'iceface'; break;
+				case 'eiscue': id = 'iceface'; templateName = 'transformEnd'; break;
 				}
 			} else if (newSpecies) {
 				id = 'transform';
