@@ -746,10 +746,9 @@ class BattleScene {
 				// if (this.paused) url.replace('/xyani', '/xy').replace('.gif', '.png');
 				buf += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + Math.floor(y - spriteData.h / 2) + 'px;left:' + Math.floor(x - spriteData.w / 2) + 'px" />';
 				buf2 += '<div style="position:absolute;top:' + (y + 45) + 'px;left:' + (x - 40) + 'px;width:80px;font-size:10px;text-align:center;color:#FFF;">';
-				if (pokemon.gender === 'F') {
-					buf2 += '<img src="' + Dex.resourcePrefix + 'fx/gender-f.png" width="7" height="10" alt="F" style="margin-bottom:-1px" /> ';
-				} else if (pokemon.gender === 'M') {
-					buf2 += '<img src="' + Dex.resourcePrefix + 'fx/gender-m.png" width="7" height="10" alt="M" style="margin-bottom:-1px" /> ';
+				const gender = pokemon.gender;
+				if (gender === 'M' || gender === 'F') {
+					buf2 += `<img src="${Dex.resourcePrefix}fx/gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" style="margin-bottom:-1px" /> `;
 				}
 				if (pokemon.level !== 100) {
 					buf2 += '<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>' + pokemon.level + '</span>';
@@ -2427,9 +2426,9 @@ class PokemonSprite extends Sprite {
 		let buf = '<div class="statbar' + (this.siden ? ' lstatbar' : ' rstatbar') + '" style="display: none">';
 		const ignoreNick = this.siden && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks);
 		buf += `<strong>${BattleLog.escapeHTML(ignoreNick ? pokemon.species : pokemon.name)}`;
-		let gender = pokemon.gender;
-		if (gender) {
-			buf += ` <img src="${Dex.resourcePrefix}fx/gender-${gender.toLowerCase()}.png" alt="${gender}" />`;
+		const gender = pokemon.gender;
+		if (gender === 'M' || gender === 'F') {
+			buf += ` <img src="${Dex.resourcePrefix}fx/gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" />`;
 		}
 		buf += (pokemon.level === 100 ? `` : ` <small>L${pokemon.level}</small>`);
 
