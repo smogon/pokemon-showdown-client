@@ -668,8 +668,9 @@ class BattleTooltips {
 		const pokemon = clientPokemon || serverPokemon!;
 		let text = '';
 		let genderBuf = '';
-		if (pokemon.gender) {
-			genderBuf = ` <img src="${Dex.resourcePrefix}fx/gender-${pokemon.gender.toLowerCase()}.png" alt="${pokemon.gender}" />`;
+		const gender = pokemon.gender;
+		if (gender === 'M' || gender === 'F') {
+			genderBuf = ` <img src="${Dex.resourcePrefix}fx/gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
 		}
 
 		let name = BattleLog.escapeHTML(pokemon.name);

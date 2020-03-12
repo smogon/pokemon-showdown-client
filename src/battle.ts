@@ -706,10 +706,10 @@ class Side {
 		this.battle.scene.removeSideCondition(this.n, id);
 	}
 	addPokemon(name: string, ident: string, details: string, replaceSlot = -1) {
-		const oldItem = replaceSlot ? this.pokemon[replaceSlot].item : undefined;
+		const oldItem = replaceSlot >= 0 ? this.pokemon[replaceSlot].item : undefined;
 
 		const data = this.battle.parseDetails(name, ident, details);
-		let poke = new Pokemon(data, this);
+		const poke = new Pokemon(data, this);
 		if (oldItem) poke.item = oldItem;
 
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
@@ -2993,7 +2993,7 @@ class Battle {
 			}
 			if (!pokemon.searchid && pokemon.checkDetails(details)) {
 				// switch-in matches Team Preview entry
-				pokemon = this.p1.addPokemon(name, pokemonid, details, i);
+				pokemon = side.addPokemon(name, pokemonid, details, i);
 				if (slot >= 0) pokemon.slot = slot;
 				return pokemon;
 			}
@@ -3025,7 +3025,7 @@ class Battle {
 		pokemonid = parsedPokemonid;
 
 		/** if true, don't match an active pokemon */
-		const isInactive = (slot >= 0);
+		const isInactive = (slot < 0);
 		const side = this.sides[siden];
 
 		// search player's pokemon
