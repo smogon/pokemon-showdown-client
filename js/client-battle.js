@@ -22,7 +22,10 @@
 			this.$foeHint = this.$el.find('.foehint');
 
 			BattleSound.setMute(Dex.prefs('mute'));
-			this.battle = new Battle(this.$battle, this.$chatFrame, this.id);
+			var self = this;
+			this.battle = new Battle(this.id, function (b) {
+				return new BattleScene(b, self.$battle, self.$chatFrame);
+			});
 			this.tooltips = this.battle.scene.tooltips;
 			this.tooltips.listen(this.$controls);
 
@@ -41,7 +44,7 @@
 
 			this.$options = this.battle.scene.$options.html('<div style="padding-top: 3px; padding-right: 3px; text-align: right"><button class="icon button" name="openBattleOptions" title="Options">Battle Options</button></div>');
 
-			var self = this;
+
 			this.battle.customCallback = function () { self.updateControls(); };
 			this.battle.endCallback = function () { self.updateControls(); };
 			this.battle.startCallback = function () { self.updateControls(); };

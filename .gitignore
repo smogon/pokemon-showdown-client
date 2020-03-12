@@ -5,6 +5,7 @@
 /index.html
 /preactalpha.html
 /data/*
+/package/
 !/data/learnsets-g6.js
 node_modules/
 eslint-cache/

@@ -147,7 +147,10 @@ var ReplayPanel = Panels.StaticPanel.extend({
 		this.$el.css('overflow-x', 'hidden');
 		var $battle = this.$('.battle');
 		if (!$battle.length) return;
-		this.battle = new Battle($battle, this.$('.battle-log'));
+		var self = this;
+		this.battle = new Battle(function (b) {
+			return new BattleScene(b, battle, self.$('.battle-log'));
+		});
 		//this.battle.preloadCallback = updateProgress;
 		// this.battle.errorCallback = this.errorCallback.bind(this);
 		this.battle.resumeButton = this.resume.bind(this);

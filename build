@@ -56,6 +56,11 @@ case 'replays':
 	execSync(`node ./replays/build`, options);
 	process.exit();
 	break;
+case 'package':
+	execSync(`node ./build-tools/build-indexes`, options);
+	execSync(`node ./build-tools/build-package ${process.argv[3]}`, options);
+	process.exit();
+	break;
 case 'test-only':
 
 	break;

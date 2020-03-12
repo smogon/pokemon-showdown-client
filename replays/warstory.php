@@ -153,7 +153,9 @@ function start()
 	battle.fastForwardTo(-2);
 }
 
-battle = new Battle($('#battle'), $('#battle-log'));
+this.battle = new Battle(function (b) {
+	return new BattleScene(b, $('#battle'), $('.battle-log'));
+});
 battle.setQueue(newlog);
 
 var Aswitch = null;

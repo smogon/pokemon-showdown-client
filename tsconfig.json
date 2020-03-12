@@ -5,6 +5,7 @@
         "target": "esnext",
         "module": "None",
         "jsx": "preserve",
+        "types": ["jquery", "mocha"],
         "strict": true
     },
     "types": [],

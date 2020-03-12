@@ -1,0 +1,527 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const child_process = require('child_process');
+
+const shell = cmd => {
+	try {
+		child_process.execSync(
+			cmd, {
+				stdio: ['ignore', 'ignore', 'pipe'],
+				cwd: path.resolve(__dirname, '..'),
+			});
+	} catch (err) {
+		console.log("FAILED");
+		console.error(err.stderr.toString());
+		process.exit(1);
+	}
+};
+
+const PACKAGE = 'client';
+
+process.stdout.write(`Initializing package @pokemon-showdown/${PACKAGE}... `);
+
+// A version number is required (or inferred) because there needs to
+// be a publishable package at the end of all of this
+let version = process.argv[2];
+if (!version || version.match(/^[^\d]/)) {
+	try {
+		const current = require(`../package/package.json`).version;
+		const [major, minor, patch] = current.split('.');
+		if (version === 'major' || version === 'breaking') {
+			version = `${Number(major) + 1}.0.0`;
+		} else if (version === 'minor') {
+			version = `${major}.${Number(minor) + 1}.0`;
+		} else {
+			version = `${major}.${minor}.${Number(patch) + 1}`;
+		}
+	} catch (err) {
+		console.log("FAILED");
+		console.error(`Version required to create @pokemon-showdown/${PACKAGE} package`);
+		process.exit(1);
+	}
+}
+
+const ROOT = path.resolve(__dirname, '..');
+const DIR = path.resolve(ROOT, 'package');
+
+if (!fs.existsSync(DIR)) fs.mkdirSync(DIR);
+// Delete the existing package.json so that if this process fails it makes
+// it more difficult to accidentally publish the corrupted state
+if (fs.existsSync(path.resolve(DIR, 'package.json'))) {
+	fs.unlinkSync(path.resolve(DIR, 'package.json'));
+}
+
+const DATA = path.resolve(DIR, 'data');
+if (!fs.existsSync(DATA)) fs.mkdirSync(DATA);
+
+// Due to circular dependencies caused by the nature of how PS is architected around
+// globals the sanest way to create a usable package is to concatenate all of the
+// logic together. The data files are bulkier and would benefit from being downloaded
+// in parallel (or elided completely), so we break these out into their own data files
+// to let the consumer decide how/if they should be included.
+const cpdata = (name, type) => {
+	const o = `Battle${type}`;
+	const t = require(`../data/${Array.isArray(name) ? name[0] : name}`, 'utf8')[o];
+	fs.writeFileSync(path.resolve(DATA, `${Array.isArray(name) ? name[1] : name}.json`), JSON.stringify(t));
+};
+
+cpdata('abilities', 'Abilities');
+cpdata('aliases', 'Aliases');
+cpdata('items', 'Items');
+cpdata('moves', 'Movedex');
+cpdata(['pokedex', 'species'], 'Pokedex');
+cpdata('text', 'Text');
+cpdata(['typechart', 'types'], 'TypeChart');
+
+// BattleTeambuilderTable gets special treatment to remove the fields only relevant to PS's
+// teambuilder internals and preserve the more general fields required for ModdedDex to work
+const BattleTeambuilderTable = require('../data/teambuilder-tables.js').BattleTeambuilderTable;
+
+const table = {};
+// The 'lite' learnsets included in the BattleTeambuilderTable are not required for regular
+// operation but are collected separately to write to a 'learnsets.json' file that is not
+// part of the default exports but may be loaded on demand
+const learnsets = {};
+const SKIP = new Set(['tiers', 'items', 'formatSlices']);
+for (const m in BattleTeambuilderTable) {
+	if (SKIP.has(m)) continue;
+	if (m === 'learnsets') {
+		learnsets[m] = BattleTeambuilderTable[m];
+		continue;
+	}
+	const mod = {};
+	const ls = {};
+	for (const f in BattleTeambuilderTable[m]) {
+		if (SKIP.has(f)) continue;
+		if (f === 'learnsets') {
+			ls[f] = BattleTeambuilderTable[m][f];
+			continue;
+		}
+		mod[f] = BattleTeambuilderTable[m][f];
+	}
+	if (Object.keys(mod).length) table[m] = mod;
+	if (Object.keys(ls).length) learnsets[m] = ls;
+}
+
+fs.writeFileSync(path.resolve(DATA, 'formats-data.json'), JSON.stringify(table));
+fs.writeFileSync(path.resolve(DATA, 'learnsets.json'), JSON.stringify(learnsets));
+
+// TypeScript assumes each individual entry is its own type and doesn't attempt
+// to perform unification to end up with a more general type. As such, the JSON
+// data is cast to slightly simplified versions of the types lifted from the
+// server code in our main bundle. When then set up each of the constants on
+// window where some of the code looks for it.
+let index =
+`import * as abilitiesJSON from './data/abilities.json';
+import * as aliasesJSON from './data/aliases.json';
+import * as formatsDataJSON from './data/formats-data.json';
+import * as itemsJSON from './data/items.json';
+import * as movesJSON from './data/moves.json';
+import * as speciesJSON from './data/species.json';
+import * as textJSON from './data/text.json';
+import * as typesJSON from './data/types.json';
+
+type DeepReadonly<T> = T extends primitive ? T : DeepReadonlyObject<T>;
+type primitive = string | number | boolean | undefined | null | Function | ID;
+type DeepReadonlyObject<T> = {
+	readonly [P in keyof T]: DeepReadonly<T[P]>;
+};
+
+export interface EffectData {
+	effectType?: 'Item' | 'Move' | 'Ability';
+	num: number;
+	affectsFainted?: boolean;
+	counterMax?: number;
+	desc?: string;
+	drain?: number[]; // [number, number]
+	duration?: number;
+	effect?: Partial<PureEffect>;
+	infiltrates?: boolean;
+	isNonstandard?: string | null;
+	isUnreleased?: boolean | 'Past';
+	isZ?: boolean | string;
+	isMax?: boolean | string;
+	noCopy?: boolean;
+	recoil?: number[]; // [number, number]
+	shortDesc?: string;
+	status?: string;
+	weather?: string;
+}
+
+export interface AbilityData extends EffectData {
+	name: string;
+	rating: number;
+	isUnbreakable?: boolean;
+	suppressWeather?: boolean;
+}
+
+export interface ItemData extends EffectData {
+	name: string;
+	gen: number;
+	fling?: {[k: string]: any};
+	forcedForme?: string;
+	ignoreKlutz?: boolean;
+	isBerry?: boolean;
+	isChoice?: boolean;
+	isGem?: boolean;
+	isPokeball?: boolean;
+	megaStone?: string;
+	megaEvolves?: string;
+	naturalGift?: {basePower: number, type: string};
+	onDrive?: string;
+	onMemory?: string;
+	onPlate?: string;
+	spritenum?: number;
+	zMove?: string | true;
+	zMoveFrom?: string;
+	zMoveType?: string;
+	itemUser?: string[];
+	boosts?: {[boost in BoostStatName]?: number} | false;
+}
+
+export interface MoveData extends EffectData {
+	name: string;
+	accuracy: true | number;
+	basePower: number;
+	category: 'Physical' | 'Special' | 'Status';
+	flags: { [k: string]: any };
+	pp: number;
+	priority: number;
+	target: string;
+	type: string;
+	alwaysHit?: boolean;
+	baseMoveType?: string;
+	basePowerModifier?: number;
+	boosts?: { [boost in BoostStatName]?: number } | false;
+	breaksProtect?: boolean;
+	contestType?: string;
+	critModifier?: number;
+	critRatio?: number;
+	damage?: number | 'level' | false | null;
+	defensiveCategory?: 'Physical' | 'Special' | 'Status';
+	forceSwitch?: boolean;
+	hasCustomRecoil?: boolean;
+	heal?: number[] | null;
+	ignoreAbility?: boolean;
+	ignoreAccuracy?: boolean;
+	ignoreDefensive?: boolean;
+	ignoreEvasion?: boolean;
+	ignoreImmunity?: boolean | { [k: string]: boolean };
+	ignoreNegativeOffensive?: boolean;
+	ignoreOffensive?: boolean;
+	ignorePositiveDefensive?: boolean;
+	ignorePositiveEvasion?: boolean;
+	isSelfHit?: boolean;
+	isFutureMove?: boolean;
+	isViable?: boolean;
+	isMax?: boolean | string;
+	mindBlownRecoil?: boolean;
+	multiaccuracy?: boolean;
+	multihit?: number | number[];
+	multihitType?: string;
+	noDamageVariance?: boolean;
+	noFaint?: boolean;
+	noMetronome?: string[];
+	nonGhostTarget?: string;
+	noPPBoosts?: boolean;
+	noSketch?: boolean;
+	ohko?: boolean | string;
+	pressureTarget?: string;
+	pseudoWeather?: string;
+	selfBoost?: { boosts?: { [boost in BoostStatName]?: number } };
+	selfdestruct?: string | boolean;
+	selfSwitch?: string | boolean;
+	sideCondition?: string;
+	sleepUsable?: boolean;
+	slotCondition?: string;
+	spreadModifier?: number;
+	stallingMove?: boolean;
+	stealsBoosts?: boolean;
+	struggleRecoil?: boolean;
+	terrain?: string;
+	thawsTarget?: boolean;
+	tracksTarget?: boolean;
+	smartTarget?: boolean;
+	useTargetOffensive?: boolean;
+	useSourceDefensiveAsOffensive?: boolean;
+	volatileStatus?: string;
+	weather?: string;
+	willCrit?: boolean;
+	forceSTAB?: boolean;
+	zMovePower?: number;
+	zMoveEffect?: string;
+	zMoveBoost?: { [boost in BoostStatName]?: number };
+	gmaxPower?: number;
+	baseMove?: string;
+	isZPowered?: boolean;
+	maxPowered?: boolean;
+}
+
+export type SpeciesAbility = {0: string, 1?: string, H?: string, S?: string};
+export interface SpeciesData extends EffectData {
+	abilities: SpeciesAbility;
+	baseStats: {[stat in StatName]: number};
+	canHatch?: boolean;
+	color: string;
+	eggGroups: string[];
+	heightm: number;
+	num: number;
+	species: string;
+	types: string[];
+	weightkg: number;
+	baseForme?: string;
+	baseSpecies?: string;
+	evoLevel?: number;
+	evoMove?: string;
+	evoCondition?: string;
+	evoItem?: string;
+	evos?: string[];
+	evoType?: string;
+	forme?: string;
+	gender?: GenderName;
+	genderRatio?: {[k in GenderName]?: number};
+	maxHP?: number;
+	otherForms?: string[];
+	otherFormes?: string[];
+	prevo?: string;
+	inheritsFrom?: string | string[];
+}
+
+export interface TypeData {
+	damageTaken: {[t in Exclude<TypeName, '???'>]: number} & {[key: string]: number};
+	HPdvs?: {[stat in StatName]?: number};
+	HPivs?: {[stat in StatName]?: number};
+}
+
+export interface Tiering {
+	overrideTier: {[id: string]: string};
+	zuBans?: {[id: string]: 1};
+	nfeBans: {[id: string]: 1};
+}
+
+export interface Overrides {
+	overrideStats: {[id: string]: {[stat in StatName]?: number}};
+	overrideType: {[id: string]: string};
+	overrideAbility: {[id: string]: string};
+	overrideHiddenAbility: {[id: string]: string};
+	removeSecondAbility: {[id: string]: true};
+	overrideAcc: {[id: string]: true | number};
+	overridePP: {[id: string]: number};
+	overrideMoveDesc: {[id: string]: string};
+	overrideMoveType: {[id: string]: TypeName};
+	overrideItemDesc: {[id: string]: string};
+	overrideAbilityDesc: {[id: string]: string};
+}
+export type PastGens = 'gen1' | 'gen2' | 'gen3' | 'gen4' | 'gen5' | 'gen6' | 'gen7';
+
+const BattleAbilities = abilitiesJSON as DeepReadonly<{[id: string]: AbilityData}>;
+const BattleAliases = aliasesJSON as DeepReadonly<{[id: string]: string}>;
+const BattleItems = itemsJSON as DeepReadonly<{[id: string]: ItemData}>;
+const BattleMovedex = movesJSON as DeepReadonly<{[id: string]: MoveData}>;
+const BattlePokedex = speciesJSON as DeepReadonly<{[id: string]: SpeciesData}>;
+const BattleText = textJSON as DeepReadonly<{[id: string]: {[templateName: string]: string}}>;
+const BattleTypeChart = typesJSON as DeepReadonly<{[type in Exclude<TypeName, '???'>]: TypeData}>;
+const BattleTeambuilderTable = formatsDataJSON as
+	DeepReadonly<Tiering & {[mod: string]: Partial<Tiering>} & {[gen in PastGens]: Overrides}>;
+
+if (typeof window === 'undefined') {
+	(global as any).window = global; // Node
+} else {
+	window.exports = window; 	// browser (possibly NW.js!)
+}
+
+window.BattleAbilities = BattleAbilities;
+window.BattleAliases = BattleAliases;
+window.BattleItems = BattleItems;
+window.BattleMovedex = BattleMovedex;
+window.BattlePokedex = BattlePokedex;
+window.BattleText = BattleText;
+window.BattleTypeChart = BattleTypeChart;
+window.BattleTeambuilderTable = BattleTeambuilderTable;
+
+type JQuery<T> = any;
+declare namespace JQuery {
+	export type EventHandler<T, U> = any;
+	export type Promise<T, U, V> = any;
+}
+type HTMLElement = any;
+type AnyObject = {[k: string]: any};
+
+declare var exports: any;
+declare var window: AnyObject;
+declare var document: any;
+declare var soundManager: any;
+declare var BattlePokemonSprites: any;
+declare var BattlePokemonSpritesBW: any;
+declare var Config: any;
+declare function $(a: any): any;
+declare var app: {user: AnyObject, rooms: AnyObject, ignore?: AnyObject};
+
+type ScenePos = any;
+type PokemonSprite = any;
+const BattleStatusAnims = {};
+class BattleSound {
+	static setMute(_: any) { /* noop */}
+}
+export class BattleLog {
+	static sanitizeHTML(s: any) {
+		return s;
+	}
+	add(...a: any[]) { /* noop */ }
+}
+`;
+// FIXME: should really be piping a read stream into a write stream but...  ¯\_(ツ)_/¯
+const concat = name => index += fs.readFileSync(path.resolve(ROOT, `src/${name}`), 'utf8');
+concat('battle-dex-data.ts');
+concat('battle-dex.ts');
+concat('battle-scene-stub.ts');
+index += `
+class BattleScene extends BattleSceneStub {
+	constructor(...a: any[]) {
+		super();
+	}
+}
+`;
+concat('battle.ts');
+concat('battle-text-parser.ts');
+index += `
+export type Learnset = {[move: string]: string};
+export type Learnsets = {
+	learnsets: {[id: string]: Learnset};
+} & {
+	[mod: string]: {learnsets: {[id: string]: Learnset}};
+};
+var LEARNSETS: Promise<DeepReadonly<Learnsets>> | null = null;
+(Dex as any).getLearnsets = () => {
+	if (LEARNSETS) return LEARNSETS;
+	if (typeof window === "undefined") {
+		LEARNSETS = Promise.resolve(require('./data/learnsets.json') as DeepReadonly<Learnsets>);
+	} else {
+		LEARNSETS = import('./data/learnsets.json') as unknown as Promise<DeepReadonly<Learnsets>>;
+	}
+	return LEARNSETS;
+};`;
+const exportsFooter = o => `\nexport {\n \t${o.join(',\n\t')}\n};\n`;
+index += exportsFooter([
+	'Ability',
+	'Args',
+	'Battle',
+	'BattleAbilities as Abilities',
+	'BattleAliases as Aliases',
+	'BattleAvatarNumbers as AvatarNumbers',
+	'BattleBaseSpeciesChart as BaseSpeciesChart',
+	'BattleItems as Items',
+	'BattleMovedex as Moves',
+	'BattleNatures as Natures',
+	'BattlePokedex as Species',
+	'BattlePokemonIconIndexes as PokemonIconIndexes',
+	'BattlePokemonIconIndexesLeft as PokemonIconIndexesLeft',
+	'BattleSceneStub as BattleScene',
+	'BattleStatNames as StatNames',
+	'BattleStats as Stats',
+	'BattleTeambuilderTable as FormatsData',
+	'BattleTextParser as TextParser',
+	'BattleTypeChart as TypeChart',
+	'BoostStatName as BootName',
+	'Dex',
+	'Effect',
+	'EffectState',
+	'EffectTable',
+	'GenderName',
+	'getString',
+	'HPColor',
+	'ID',
+	'Item',
+	'KWArgs',
+	'ModdedDex',
+	'Move',
+	'NatureName',
+	'Playback',
+	'Pokemon',
+	'PokemonDetails',
+	'PokemonHealth',
+	'PureEffect',
+	'ServerPokemon',
+	'Side',
+	'splitFirst',
+	'SpriteData',
+	'StatName',
+	'StatNameExceptHP',
+	'StatusName',
+	'Template',
+	'toID',
+	'toName',
+	'toRoomid',
+	'toUserid',
+	'TypeName',
+	'WeatherState',
+]);
+fs.writeFileSync(path.resolve(DIR, 'index.ts'), index);
+
+console.log("DONE");
+process.stdout.write(`Preparing to compile @pokemon-showdown/${PACKAGE}... `);
+
+// Temporarily install @types/node to get TypeScript to work
+shell(`npm install --quiet --no-progress --no-audit --no-save @types/node`);
+
+console.log("DONE");
+fs.writeFileSync(path.resolve(DIR, 'tsconfig.json'), JSON.stringify({
+	"compilerOptions": {
+		"resolveJsonModule": true,
+		"rootDir": DIR,
+		"outDir": path.resolve(DIR, "build"),
+		"declaration": true,
+		"lib": ["es6", "es2016.array.include", "es2017.object"],
+		"target": "es2017",
+		"module": "commonjs",
+		"noImplicitReturns": true,
+		"pretty": true,
+		"sourceMap": true,
+		"strict": true,
+		"types": ["node"],
+	},
+}, null, 2));
+
+process.stdout.write(`Compiling @pokemon-showdown/${PACKAGE}... `);
+// TypeScript frustratingly directs compilation errors to stdout...
+shell(`npx tsc -p package >&2`);
+console.log("DONE");
+
+process.stdout.write(`Creating @pokemon-showdown/${PACKAGE} package... `);
+const packageJSON = {
+	"name": `@pokemon-showdown/${PACKAGE}`,
+	"version": version,
+	"description": "Pokémon Showdown's generic client engine.",
+	"main": "build/index.js",
+	"types": "build/index.d.ts",
+	"repository": "github:smogon/pokemon-showdown-client",
+	"author": "Guangcong Luo <guangcongluo@gmail.com> (http://guangcongluo.com)",
+	"license": "MIT",
+};
+fs.writeFileSync(path.resolve(DIR, 'package.json'), JSON.stringify(packageJSON, null, 2));
+// Copy the MIT LICENSE file from the server repo (which was required to build-indexes)
+// as the local LICENSE is AGPLv3 and doesn't apply to the battle engine files
+fs.copyFileSync(path.resolve(ROOT, 'data/Pokemon-Showdown/LICENSE'), path.resolve(DIR, 'LICENSE'));
+
+fs.writeFileSync(path.resolve(DIR, 'README.md'), `
+# \`@pokemon-showdown/${PACKAGE}\`
+
+Package encapsulating the generic parts of [Pokémon Showdown's client][0]'s engine,
+distributed under the terms of the MIT License.
+
+To use, simply \`npm install @pokemon-showdown/${PACKAGE}\` and import:
+
+\`\`\`ts
+import {Dex} from '@pokemon-showdown/${PACKAGE}';
+console.log(Dex.forGen(4).getMove('DracoMeteor').basePower); // => 140
+\`\`\`
+
+  [0]: https://github.com/smogon/pokemon-showdown-client
+`);
+
+// To publish the package you must be a member of the @pokemon-showdown org on npm and
+// then use `npm publish --access public` after verifying everything works as expected
+console.log("DONE");

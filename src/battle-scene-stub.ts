@@ -10,12 +10,12 @@ class BattleSceneStub {
 	log: BattleLog = {add: (args: Args, kwargs?: KWArgs) => {}} as any;
 
 	abilityActivateAnim(pokemon: Pokemon, result: string): void { }
-	addPokemonSprite(pokemon: Pokemon) { return null!; }
+	addPokemonSprite(pokemon: Pokemon): PokemonSprite { return null!; }
 	addSideCondition(siden: number, id: ID, instant?: boolean | undefined): void { }
 	animationOff(): void { }
 	animationOn(): void { }
 	maybeCloseMessagebar(args: Args, kwArgs: KWArgs): boolean { return false; }
-	closeMessagebar(): void { }
+	closeMessagebar(): boolean { return false; }
 	damageAnim(pokemon: Pokemon, damage: string | number): void { }
 	destroy(): void { }
 	finishAnimations(): JQuery.Promise<JQuery<HTMLElement>, any, any> | undefined { return void(0); }
@@ -69,7 +69,6 @@ class BattleSceneStub {
 	beforeMove(pokemon: Pokemon) { }
 	afterMove(pokemon: Pokemon) { }
 	updateSpritesForSide(side: Side) { }
-	unlink(userid: string, showRevealButton = false) { }
 }
 
 if (typeof require === 'function') {

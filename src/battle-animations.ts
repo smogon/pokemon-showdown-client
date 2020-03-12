@@ -30,7 +30,7 @@ This license DOES NOT extend to any other files in this repository.
 
 */
 
-class BattleScene {
+class BattleScene implements BattleSceneStub {
 	battle: Battle;
 	animating = true;
 	acceleration = 1;

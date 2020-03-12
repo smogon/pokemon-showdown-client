@@ -8,8 +8,6 @@
  * @license MIT
  */
 
-declare const BattleText: {[id: string]: {[templateName: string]: string}};
-
 type Args = [string, ...string[]];
 type KWArgs = {[kw: string]: string};
 

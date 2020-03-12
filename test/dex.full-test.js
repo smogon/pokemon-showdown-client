@@ -2,6 +2,10 @@ const assert = require('assert').strict;
 
 window = global;
 
+// For testing @pokemon-showdown/client
+// const client = require('../package/build');
+// const Dex = client.Dex;
+
 window.BattleTeambuilderTable = require('../data/teambuilder-tables.js').BattleTeambuilderTable;
 window.BattleAbilities = require('../data/abilities.js').BattleAbilities;
 window.BattleItems = require('../data/items.js').BattleItems;
@@ -11,10 +15,6 @@ window.BattleTypeChart = require('../data/typechart.js').BattleTypeChart;
 
 require('../js/battle-dex-data.js');
 require('../js/battle-dex.js');
-require('../js/battle-scene-stub.js');
-global.BattleText = require('../data/text.js').BattleText;
-require('../js/battle-text-parser.js');
-require('../js/battle.js');
 
 const withPrefs = (prefs, fn) => {
 	const saved = Dex.prefs;

@@ -499,16 +499,20 @@ const Dex = new class implements ModdedDex {
 	}
 
 	loadSpriteData(gen: 'xy' | 'bw') {
-		if (this.loadedSpriteData[gen]) return;
-		this.loadedSpriteData[gen] = 1;
+		if (typeof document !== undefined) {
+			if (this.loadedSpriteData[gen]) return;
+			this.loadedSpriteData[gen] = 1;
 
-		let path = $('script[src*="pokedex-mini.js"]').attr('src') || '';
-		let qs = '?' + (path.split('?')[1] || '');
-		path = (path.match(/.+?(?=data\/pokedex-mini\.js)/) || [])[0] || '';
+			let path = $('script[src*="pokedex-mini.js"]').attr('src') || '';
+			let qs = '?' + (path.split('?')[1] || '');
+			path = (path.match(/.+?(?=data\/pokedex-mini\.js)/) || [])[0] || '';
 
-		let el = document.createElement('script');
-		el.src = path + 'data/pokedex-mini-bw.js' + qs;
-		document.getElementsByTagName('body')[0].appendChild(el);
+			let el = document.createElement('script');
+			el.src = path + 'data/pokedex-mini-bw.js' + qs;
+			document.getElementsByTagName('body')[0].appendChild(el);
+		} else {
+			throw new Error('Unsupported operation');
+		}
 	}
 	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {
 		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, mod?: string,

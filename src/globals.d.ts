@@ -27,6 +27,7 @@ declare var BattleStatuses: any;
 // declare var BattleEffects: any;
 declare var BattlePokemonSprites: any;
 declare var BattlePokemonSpritesBW: any;
+declare var BattleText: {[id: string]: {[templateName: string]: string}};
 
 // defined in battle-log-misc
 declare function MD5(input: string): string;

@@ -166,7 +166,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return false;
 	};
 	componentDidMount() {
-		const battle = new Battle($(this.base!).find('.battle'), $(this.base!).find('.battle-log'));
+		const battle = new Battle(
+			b => new BattleScene(b, $(this.base!).find('.battle'), $(this.base!).find('.battle-log')));
 		this.props.room.battle = battle;
 		battle.endCallback = () => this.forceUpdate();
 		battle.play();

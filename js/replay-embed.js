@@ -46,7 +46,9 @@ var Replays = {
 			if (action) self[action]();
 		});
 
-		this.battle = new Battle(this.$('.battle'), this.$('.battle-log'));
+		this.battle = new Battle(function (b) {
+			return new BattleScene(b, self.$('.battle'), self.$('.battle-log'));
+		});
 		//this.battle.preloadCallback = updateProgress;
 		this.battle.errorCallback = this.errorCallback.bind(this);
 		this.battle.resumeButton = this.resume.bind(this);

@@ -570,6 +570,8 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 	}
 }
 
+type PokemonProvider = (s: Side, d: PokemonDetails) => Pokemon;
+
 class Side {
 	battle: Battle;
 	name = '';
@@ -593,9 +595,14 @@ class Side {
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};
 
-	constructor(battle: Battle, n: number) {
+	pokemonProvider: PokemonProvider;
+
+	constructor(battle: Battle, n: number, pokemonProvider?: PokemonProvider) {
 		this.battle = battle;
 		this.n = n;
+		this.pokemonProvider = pokemonProvider === undefined
+			? ((s: Side, d: PokemonDetails) => new Pokemon(d, s))
+			: pokemonProvider;
 		this.updateSprites();
 	}
 
@@ -706,7 +713,7 @@ class Side {
 		const oldItem = replaceSlot >= 0 ? this.pokemon[replaceSlot].item : undefined;
 
 		const data = this.battle.parseDetails(name, ident, details);
-		const poke = new Pokemon(data, this);
+		const poke = this.pokemonProvider(this, data);
 		if (oldItem) poke.item = oldItem;
 
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
@@ -994,8 +1001,11 @@ interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	pokeball: string;
 }
 
+type SceneProvider = (b: Battle) => BattleSceneStub;
+type SideProvider = (b: Battle, n: number) => Side;
+
 class Battle {
-	scene: BattleScene | BattleSceneStub;
+	scene: BattleSceneStub;
 
 	sidesSwitched = false;
 
@@ -1089,14 +1099,25 @@ class Battle {
 	// external
 	resumeButton: JQuery.EventHandler<HTMLElement, null> | null = null;
 
-	constructor($frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>, id = '') {
+	sideProvider: SideProvider;
+
+	constructor(id?: string | SceneProvider, sceneProvider?: SceneProvider, sideProvider?: SideProvider) {
+		if (typeof id !== 'string') {
+			sceneProvider = id;
+			id = '';
+		}
+
 		this.id = id;
 
-		if (!$frame && !$logFrame) {
-			this.scene = new BattleSceneStub();
+		if (sceneProvider) {
+			this.scene = sceneProvider(this);
 		} else {
-			this.scene = new BattleScene(this, $frame, $logFrame);
+			this.scene = new BattleSceneStub();
 		}
+
+		this.sideProvider = sideProvider === undefined
+			? ((b: Battle, n: number) => new Side(b, n))
+			: sideProvider;
 
 		this.init();
 	}
@@ -1123,8 +1144,8 @@ class Battle {
 		return false;
 	}
 	init() {
-		this.mySide = new Side(this, 0);
-		this.yourSide = new Side(this, 1);
+		this.mySide = this.sideProvider(this, 0);
+		this.yourSide = this.sideProvider(this, 1);
 		this.mySide.foe = this.yourSide;
 		this.yourSide.foe = this.mySide;
 		this.sides = [this.mySide, this.yourSide];
@@ -3180,8 +3201,8 @@ class Battle {
 			break;
 		}
 		case 'join': case 'j': case 'J': {
-			if (this.roomid) {
-				let room = app!.rooms[this.roomid];
+			if (this.roomid && window.app) {
+				let room = app.rooms[this.roomid];
 				let user = BattleTextParser.parseNameParts(args[1]);
 				let userid = toUserid(user.name);
 				if (!room.users[userid]) room.userCount.users++;
@@ -3196,8 +3217,8 @@ class Battle {
 			break;
 		}
 		case 'leave': case 'l': case 'L': {
-			if (this.roomid) {
-				let room = app!.rooms[this.roomid];
+			if (this.roomid && window.app) {
+				let room = app.rooms[this.roomid];
 				let user = args[1];
 				let userid = toUserid(user);
 				if (room.users[userid]) room.userCount.users--;
@@ -3212,12 +3233,12 @@ class Battle {
 			break;
 		}
 		case 'name': case 'n': case 'N': {
-			if (this.roomid) {
-				let room = app!.rooms[this.roomid];
+			if (this.roomid && window.app) {
+				let room = app.rooms[this.roomid];
 				let user = BattleTextParser.parseNameParts(args[1]);
 				let oldid = args[2];
-				if (toUserid(oldid) === app!.user.get('userid')) {
-					app!.user.set({
+				if (toUserid(oldid) === app.user.get('userid')) {
+					app.user.set({
 						away: user.away,
 						status: user.status,
 					});
