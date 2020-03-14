@@ -547,6 +547,12 @@
 						type: 'modal',
 						htmlMessage: "Extracted team data:<br /><textarea rows=\"10\" cols=\"60\">" + BattleLog.escapeHTML(JSON.stringify(Storage.teams)) + "</textarea>"
 					});
+				} else if (target === 'nw') {
+					try {
+						nw.Window.get().showDevTools();
+					} catch (e) {
+						this.add('|error|' + e.message);
+					}
 				} else {
 					this.add('|error|Unknown debug command.');
 					this.add('|error|Are you looking for /showdebug and /hidedebug?');
