@@ -812,6 +812,7 @@ class ModdedDex {
 		Items: {} as any as {[k: string]: Item},
 		Abilities: {} as any as {[k: string]: Ability},
 		Templates: {} as any as {[k: string]: Template},
+		Types: {} as any as {[k: string]: Effect},
 	};
 	pokeballs: string[] | null = null;
 	constructor(modid: ID) {
@@ -938,7 +939,28 @@ class ModdedDex {
 		this.cache.Templates[id] = template;
 		return template;
 	}
+	getType(name: string): Effect {
+		let id = toID(name) as string;
+		id = id.substr(0, 1).toUpperCase() + id.substr(1);
 
+		if (this.cache.Types.hasOwnProperty(id)) return this.cache.Types[id];
+
+		let data = {...Dex.getType(name)};
+
+		for (let i = 7; i >= this.gen; i--) {
+			if (id in window.BattleTeambuilderTable['gen' + i].removeType) {
+				data.exists = false;
+				// don't bother correcting its attributes given it doesn't exist
+				break;
+			}
+			if (id in window.BattleTeambuilderTable['gen' + i].overrideTypeChart) {
+				data = {...data, ...window.BattleTeambuilderTable['gen' + i].overrideTypeChart[id]};
+			}
+		}
+
+		this.cache.Types[id] = data;
+		return data;
+	}
 	getPokeballs() {
 		if (this.pokeballs) return this.pokeballs;
 		this.pokeballs = [];
