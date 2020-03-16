@@ -38,6 +38,32 @@ const spriteData = override => {
 };
 
 describe('Dex', () => {
+	it('getAbility', () => {
+		assert.equal(Dex.getAbility('Sturdy').shortDesc, 'If this Pokemon is at full HP, it survives one hit with at least 1 HP. Immune to OHKO.');
+		assert.equal(Dex.forGen(3).getAbility('s turdy').shortDesc, 'OHKO moves fail when used against this Pokemon.');
+	});
+	it('getItem', () => {
+		assert(Dex.getItem('Aerodactylite').megaEvolves, 'Aerodactyl');
+	});
+	it('getMove', () => {
+		assert(Dex.getMove('Draco Meteor').basePower, 130);
+		assert(Dex.forGen(4).getMove('DracoMeteor').basePower, 140);
+		assert(Dex.getMove('Crunch').category, 'Physical');
+		assert(Dex.forGen(2).getMove('CRUNCH').category, 'Special');
+	});
+	it('getTemplate', () => {
+		assert.equal(Dex.getTemplate('Alakazam').baseStats.spd, 95);
+		assert.equal(Dex.forGen(3).getTemplate('Alakazam').baseStats.spd, 85);
+	});
+	it('getType', () => {
+		assert(Dex.getType('Fairy').exists);
+		assert(!Dex.forGen(1).getType('steel').exists);
+		assert.equal(Dex.forGen(1).getType('Psychic').damageTaken['Ghost'], 3);
+		assert.equal(Dex.getType('Psychic').damageTaken['Ghost'], 1);
+		assert.equal(Dex.getType('Fire').damageTaken['Water'], 1);
+		assert.equal(Dex.getType('Water').damageTaken['Fire'], 2);
+		assert.equal(Dex.getType('Ground').damageTaken['Electric'], 3);
+	});
 	it('getSpriteData', () => {
 		// TODO Transform
 		// TODO Dynamax
@@ -56,7 +82,6 @@ describe('Dex', () => {
 		assert.equal(Dex.getTeambuilderSprite({species: 'pikachu'}, 1), 'background-image:url(https://play.pokemonshowdown.com/sprites/gen1/pikachu.png);background-position:10px 5px;background-repeat:no-repeat');
 		assert.equal(Dex.getTeambuilderSprite({species: 'gyarados', shiny: true}, 3), 'background-image:url(https://play.pokemonshowdown.com/sprites/gen3-shiny/gyarados.png);background-position:10px 5px;background-repeat:no-repeat');
 	});
-
 	it('getTeambuilderSpriteData', () => {
 		// Basic
 		assert.deepEqual(Dex.getTeambuilderSpriteData({species: 'foobar'}), {spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5});
