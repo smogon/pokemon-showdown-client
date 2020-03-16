@@ -208,6 +208,14 @@ interface SpriteData {
 	shiny?: boolean;
 }
 
+interface TeambuilderSpriteData {
+	x: number;
+	y: number;
+	spriteDir: string;
+	spriteid: string;
+	shiny?: boolean;
+}
+
 const Dex = new class implements ModdedDex {
 	readonly gen = 8;
 	readonly modid = 'gen8' as ID;
@@ -715,49 +723,57 @@ const Dex = new class implements ModdedDex {
 		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?g8) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
-	getTeambuilderSprite(pokemon: any, gen: number = 0) {
-		if (!pokemon) return '';
+	getTeambuilderSpriteData(pokemon: any, gen: number = 0): TeambuilderSpriteData {
 		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
 		let template = Dex.getTemplate(pokemon.species);
 		if (pokemon.species && !spriteid) {
 			spriteid = template.spriteid || toID(pokemon.species);
 		}
-		if (template.exists === false) {
-			return 'background-image:url(' + Dex.resourcePrefix + 'sprites/gen5/0.png);background-position:10px 5px;background-repeat:no-repeat';
-		}
-		let shiny = (pokemon.shiny ? '-shiny' : '');
-		// let sdata;
-		// if (BattlePokemonSprites[id]?.front && !Dex.prefs('bwgfx')) {
-		// 	if (BattlePokemonSprites[id].front.anif && pokemon.gender === 'F') {
-		// 		spriteid += '-f';
-		// 		sdata = BattlePokemonSprites[id].front.anif;
-		// 	} else {
-		// 		sdata = BattlePokemonSprites[id].front.ani;
-		// 	}
-		// } else {
-		// 	return 'background-image:url(' + Dex.resourcePrefix + 'sprites/gen5' + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
-		// }
+		if (template.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
+		const spriteData: TeambuilderSpriteData = {
+			spriteid,
+			spriteDir: 'sprites/dex',
+			x: -2,
+			y: -3,
+		};
+		if (pokemon.shiny) spriteData.shiny = true;
 		if (Dex.prefs('nopastgens')) gen = 6;
-		let spriteDir = Dex.resourcePrefix + 'sprites/dex';
 		let xydexExists = (!template.isNonstandard || template.isNonstandard === 'Past') || [
 			"pikachustarter", "eeveestarter", "meltan", "melmetal", "fidgit", "stratagem", "tomohawk", "mollux", "crucibelle", "crucibellemega", "kerfluffle", "pajantom", "jumbao", "caribolt", "smokomodo", "snaelstrom", "equilibra", "scratchet", "pluffle", "smogecko", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
 		].includes(template.id);
 		if (template.gen === 8) xydexExists = false;
-		if ((!gen || gen >= 6) && xydexExists && !Dex.prefs('bwgfx')) {
-			let offset = '-2px -3px';
-			if (template.gen >= 7) offset = '-6px -7px';
-			if (id.substr(0, 6) === 'arceus') offset = '-2px 7px';
-			if (id === 'garchomp') offset = '-2px 2px';
-			if (id === 'garchompmega') offset = '-2px 0px';
-			return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:' + offset + ';background-repeat:no-repeat';
+		if ((!gen || gen >= 6) && xydexExists) {
+			if (template.gen >= 7) {
+				spriteData.x = -6;
+				spriteData.y = -7;
+			} else if (id.substr(0, 6) === 'arceus') {
+				spriteData.x = -2;
+				spriteData.y = 7;
+			} else if (id === 'garchomp') {
+				spriteData.x = -2;
+				spriteData.y = 2;
+			} else if (id === 'garchompmega') {
+				spriteData.x = -2;
+				spriteData.y = 0;
+			}
+			return spriteData;
 		}
-		spriteDir = Dex.resourcePrefix + 'sprites/gen5';
-		if (gen <= 1 && template.gen <= 1) spriteDir = Dex.resourcePrefix + 'sprites/gen1';
-		else if (gen <= 2 && template.gen <= 2) spriteDir = Dex.resourcePrefix + 'sprites/gen2';
-		else if (gen <= 3 && template.gen <= 3) spriteDir = Dex.resourcePrefix + 'sprites/gen3';
-		else if (gen <= 4 && template.gen <= 4) spriteDir = Dex.resourcePrefix + 'sprites/gen4';
-		return 'background-image:url(' + spriteDir + shiny + '/' + spriteid + '.png);background-position:10px 5px;background-repeat:no-repeat';
+		spriteData.spriteDir = 'sprites/gen5';
+		if (gen <= 1 && template.gen <= 1) spriteData.spriteDir = 'sprites/gen1';
+		else if (gen <= 2 && template.gen <= 2) spriteData.spriteDir = 'sprites/gen2';
+		else if (gen <= 3 && template.gen <= 3) spriteData.spriteDir = 'sprites/gen3';
+		else if (gen <= 4 && template.gen <= 4) spriteData.spriteDir = 'sprites/gen4';
+		spriteData.x = 10;
+		spriteData.y = 5;
+		return spriteData;
+	}
+
+	getTeambuilderSprite(pokemon: any, gen: number = 0) {
+		if (!pokemon) return '';
+		const data = this.getTeambuilderSpriteData(pokemon, gen);
+		const shiny = (data.shiny ? '-shiny' : '');
+		return 'background-image:url(' + Dex.resourcePrefix + data.spriteDir + shiny + '/' + data.spriteid + '.png);background-position:' + data.x + 'px ' + data.y + 'px;background-repeat:no-repeat';
 	}
 
 	getItemIcon(item: any) {
