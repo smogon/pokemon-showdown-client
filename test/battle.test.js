@@ -7,13 +7,6 @@ window = global;
 // const Battle = client.Battle;
 // const BattleTextParser = client.TextParser;
 
-window.BattleTeambuilderTable = require('../data/teambuilder-tables.js').BattleTeambuilderTable;
-window.BattleAbilities = require('../data/abilities.js').BattleAbilities;
-window.BattleItems = require('../data/items.js').BattleItems;
-window.BattleMovedex = require('../data/moves.js').BattleMovedex;
-window.BattlePokdex = require('../data/pokedex.js').BattlePokdex;
-window.BattleTypeChart = require('../data/typechart.js').BattleTypeChart;
-
 require('../js/battle-dex-data.js');
 require('../js/battle-dex.js');
 require('../js/battle-scene-stub.js');
