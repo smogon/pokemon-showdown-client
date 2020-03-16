@@ -3533,4 +3533,5 @@ class Battle {
 if (typeof require === 'function') {
 	// in Node
 	(global as any).Battle = Battle;
+	(global as any).Pokemon = Pokemon;
 }
