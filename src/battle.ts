@@ -106,9 +106,6 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		this.side = side;
 		this.species = data.species;
 
-		// TODO: stop doing this
-		Object.assign(this, Dex.getTemplate(data.species));
-
 		this.details = data.details;
 		this.name = data.name;
 		this.level = data.level;
