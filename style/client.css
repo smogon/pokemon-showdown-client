@@ -85,23 +85,11 @@ hr {
 	border-right: 0;
 }
 
-button, summary {
-	cursor: pointer;
-}
-button:disabled {
-	cursor: default;
-}
 select {
 	font-size: 9pt;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
-.dark a {
-	color: #4488EE;
-}
-.dark a:visited {
-	color: #AA81F2;
-}
 /* .dark a.button {
 	color: #222222;
 	text-shadow: 0 1px 0 white;
@@ -196,7 +184,6 @@ select {
 	border-radius: 5px;
 }
 */
-.dark .button,
 .dark .folderButton,
 .dark .tabbar a.button,
 .dark .popupmenu .folderButton,
@@ -217,7 +204,6 @@ select {
 	color: #F9F9F9;
 }
 
-.dark .button:hover,
 .dark .popupmenu button.folderButtonOpen:hover,
 .dark .folderButton:hover,
 .dark .popupmenu button.folderButton:hover,
@@ -236,7 +222,6 @@ select {
 .dark .tabbar a.button.notifying:hover {
 	background: #92C2D3;
 }
-.dark .button:active,
 .dark .tabbar a.button:active {
 	background: #3A3A3A;
 	border-color: #EEEEEE;
@@ -369,7 +354,6 @@ select {
 	border-radius: 0;
 }
 
-.button,
 .popupmenu button.button {
 	outline: none;
 	cursor: pointer;
@@ -437,7 +421,6 @@ select {
 	font-size: 12pt;
 	padding: 5px 10px;
 }
-.button:hover,
 .popupmenu button.folderButton:hover,
 .popupmenu button.folderButtonOpen:hover,
 .popupmenu button.button:hover {
@@ -445,14 +428,10 @@ select {
 	background: linear-gradient(to bottom,  #f2f2f2,  #c2c2c2);
 	border-color: #606060;
 }
-.button:active,
 .popupmenu button.button:active {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
-.button.disabled,
-.button.disabled:hover,
-.button.disabled:active,
 .mainmenuwrapper .menugroup .button.disabled,
 .mainmenuwrapper .menugroup .button.disabled:hover,
 .mainmenuwrapper .menugroup .button.disabled:active {
@@ -1336,6 +1315,13 @@ p.or:after {
 .pm-log .chat {
 	padding: 3px 0 3px 0;
 	font-size: 9pt;
+}
+.chat-log .chat.mine,
+.pm-log .chat.mine {
+	margin-left: -8px;
+	margin-right: -8px;
+	padding-left: 8px;
+	padding-right: 8px;
 }
 .chat em {
 	padding: 0 4px 0 3px;

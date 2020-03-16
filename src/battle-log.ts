@@ -34,7 +34,7 @@ class BattleLog {
 			elem.setAttribute('role', 'log');
 			elem.innerHTML = '';
 			innerElem = document.createElement('div');
-			innerElem.className = 'inner';
+			innerElem.className = 'inner message-log';
 			elem.appendChild(innerElem);
 		}
 		this.innerElem = innerElem;
@@ -42,7 +42,7 @@ class BattleLog {
 		if (scene) {
 			this.scene = scene;
 			const preemptElem = document.createElement('div');
-			preemptElem.className = 'inner-preempt';
+			preemptElem.className = 'inner-preempt message-log';
 			elem.appendChild(preemptElem);
 			this.preemptElem = preemptElem;
 			this.battleParser = new BattleTextParser();
