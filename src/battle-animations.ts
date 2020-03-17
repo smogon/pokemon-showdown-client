@@ -730,6 +730,7 @@ class BattleScene {
 				let spriteData = Dex.getSpriteData(pokemon, siden, {
 					gen: this.gen,
 					noScale: true,
+					mod: this.mod,
 				});
 				let y = 0;
 				let x = 0;
@@ -969,6 +970,7 @@ class BattleScene {
 		const siden = pokemon.side.n;
 		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, siden, {
 			gen: this.gen,
+			mod: this.mod,
 		}), {
 			x: pokemon.side.x,
 			y: pokemon.side.y,
@@ -1738,6 +1740,7 @@ class PokemonSprite extends Sprite {
 		if (this.$sub) return;
 		const subsp = Dex.getSpriteData('substitute', this.siden, {
 			gen: this.scene.gen,
+			mod: this.scene.mod,
 		});
 		this.subsp = subsp;
 		this.$sub = $('<img src="' + subsp.url + '" style="display:block;opacity:0;position:absolute"' + (subsp.pixelated ? ' class="pixelated"' : '') + ' />');
@@ -1852,6 +1855,7 @@ class PokemonSprite extends Sprite {
 			if (!this.oldsp) this.oldsp = this.sp;
 			this.sp = Dex.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
 				gen: this.scene.gen,
+				mod: this.scene.mod,
 			});
 		} else if (this.oldsp) {
 			this.sp = this.oldsp;
@@ -2244,6 +2248,7 @@ class PokemonSprite extends Sprite {
 		if (!this.scene.animating && !isPermanent) return;
 		let sp = Dex.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
 			gen: this.scene.gen,
+			mod: this.scene.mod,
 		});
 		let oldsp = this.sp;
 		if (isPermanent) {
