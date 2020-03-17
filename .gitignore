@@ -5,7 +5,6 @@
 /index.html
 /preactalpha.html
 /data/*
-!/data/learnsets-g6.js
 node_modules/
 eslint-cache/
 .DS_Store
