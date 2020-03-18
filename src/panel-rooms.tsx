@@ -171,7 +171,7 @@ class RoomsPanel extends PSRoomPanel {
 		return <div class="roomlist">
 			<h2>{title}</h2>
 			{sortedRooms.map(roomInfo => <div>
-				<a href={`/${toID(roomInfo.title)}`} class="ilink">
+				<a href={`/${toID(roomInfo.title)}`} class="blocklink">
 					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
 					<strong><i class="fa fa-comment-o"></i> {roomInfo.title}<br /></strong>
 					<small>{roomInfo.desc || ''}</small>
