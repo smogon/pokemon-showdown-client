@@ -3017,7 +3017,7 @@ class Battle {
 		return null;
 	}
 	getPokemon(pokemonid: string | undefined) {
-		if (!pokemonid || pokemonid === '??') return null;
+		if (!pokemonid || pokemonid === '??' || pokemonid === 'null') return null;
 		const {siden, slot, pokemonid: parsedPokemonid} = this.parsePokemonId(pokemonid);
 		pokemonid = parsedPokemonid;
 
