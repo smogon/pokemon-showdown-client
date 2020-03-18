@@ -614,8 +614,8 @@ class FormatDropdownPanel extends PSRoomPanel {
 		});
 
 		return <PSPanelWrapper room={room} width={320}>
-			<ul onClick={this.click}>
-				{formats.map(format => <li><button value={format.name}>
+			<ul class="options" onClick={this.click}>
+				{formats.map(format => <li><button value={format.name} class="option">
 					{format.name}
 				</button></li>)}
 			</ul>

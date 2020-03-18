@@ -39,9 +39,6 @@
 .dark .blocklink {
 	box-shadow: none;
 	text-shadow: none;
-}
-
-.dark .blocklink {
 	border-color: #7799BB;
 	background: rgba(30, 40, 50, .5);
 	color: #7799BB;
