@@ -1343,7 +1343,7 @@ class Template implements Effect {
 	readonly isMega: boolean;
 	readonly isGigantamax: boolean;
 	readonly isPrimal: boolean;
-	readonly battleOnly: boolean;
+	readonly battleOnly: string | string[];
 	readonly isNonstandard: string | null;
 	readonly unreleasedHidden: boolean | 'Past';
 	readonly inheritsFrom: string | null;
@@ -1424,7 +1424,7 @@ class Template implements Effect {
 		this.isMega = false;
 		this.isGigantamax = !!(this.forme && this.forme.endsWith('Gmax'));
 		this.isPrimal = false;
-		this.battleOnly = !!data.battleOnly;
+		this.battleOnly = data.battleOnly || (data.requiredAbility || !!this.isGigantamax ? this.baseSpecies : null);
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
 		this.inheritsFrom = (Array.isArray(data.inheritsFrom) ? this.baseSpecies : data.inheritsFrom) || null;
@@ -1436,11 +1436,11 @@ class Template implements Effect {
 			} else if (this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid)) {
 				this.gen = 6;
 				this.isMega = true;
-				this.battleOnly = true;
+				this.battleOnly = this.baseSpecies;
 			} else if (this.formeid === '-primal') {
 				this.gen = 6;
 				this.isPrimal = true;
-				this.battleOnly = true;
+				this.battleOnly = this.baseSpecies;
 			} else if (this.formeid === '-totem' || this.formeid === '-alolatotem') {
 				this.gen = 7;
 				this.isTotem = true;
