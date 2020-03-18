@@ -1343,7 +1343,7 @@ class Template implements Effect {
 	readonly isMega: boolean;
 	readonly isGigantamax: boolean;
 	readonly isPrimal: boolean;
-	readonly battleOnly: string | string[];
+	readonly battleOnly: string | string[] | null;
 	readonly isNonstandard: string | null;
 	readonly unreleasedHidden: boolean | 'Past';
 	readonly inheritsFrom: string | null;
