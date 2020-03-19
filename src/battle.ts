@@ -1144,12 +1144,13 @@ class Battle {
 		this.pseudoWeather = [];
 		this.lastMove = '';
 
-		// DOM state
-		this.scene.reset();
-
 		for (const side of this.sides) {
 			if (side) side.reset();
 		}
+		this.myPokemon = null;
+
+		// DOM state
+		this.scene.reset();
 
 		// activity queue state
 		this.activeMoveIsSpread = null;
