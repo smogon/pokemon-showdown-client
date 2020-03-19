@@ -141,9 +141,9 @@ class BattleLog {
 
 		case 'unlink': {
 			const user = toID(args[2]) || toID(args[1]);
-			this.unlinkChatFrom(user);
+			this.unlinkChatFrom(user, args[args.length]);
 			if (args[2]) {
-				this.hideChatFrom(user);
+				this.hideChatFrom(user, args[args.length]);
 			}
 			return;
 		}
@@ -306,7 +306,7 @@ class BattleLog {
 			this.prependDiv('notice uhtml-' + id, BattleLog.sanitizeHTML(html));
 		}
 	}
-	hideChatFrom(userid: ID, showRevealButton = true) {
+	hideChatFrom(userid: ID, showRevealButton = true, lineCount = 0) {
 		const classStart = 'chat chatmessage-' + userid + ' ';
 		let lastNode;
 		let count = 0;
@@ -315,6 +315,7 @@ class BattleLog {
 				node.style.display = 'none';
 				node.className = 'revealed ' + node.className;
 				count++;
+				if (count >= lineCount && lineCount !== 0) break;
 			}
 			lastNode = node;
 		}
