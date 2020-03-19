@@ -1427,7 +1427,7 @@
 						// but it's now always applied
 						$messages = this.$chat.find('.chatmessage-' + user);
 						if (!$messages.length) break;
-						if (row[3]) $messages = $messages.slice(-parseInt(row[3]);
+						if (row[3]) $messages = $messages.slice(-parseInt(row[3]));
 						$messages.hide().addClass('revealed').find('button').parent().remove();
 						this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
 					}
