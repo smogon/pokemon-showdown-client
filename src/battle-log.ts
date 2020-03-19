@@ -141,9 +141,9 @@ class BattleLog {
 
 		case 'unlink': {
 			const user = toID(args[2]) || toID(args[1]);
-			this.unlinkChatFrom(user, parseInt(args[args.length], 10));
+			this.unlinkChatFrom(user, parseInt(args[args.length]));
 			if (args[2]) {
-				this.hideChatFrom(user, parseInt(args[args.length], 10));
+				this.hideChatFrom(user, parseInt(args[args.length]));
 			}
 			return;
 		}
