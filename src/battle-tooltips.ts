@@ -1515,7 +1515,7 @@ class BattleTooltips {
 		if (move.category !== 'Status' && !noTypeOverride.includes(move.id)) {
 			if (move.type === 'Normal') {
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Aerilate");
-				value.abilityModify(1.2, "Galvanize");
+				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Galvanize");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Pixilate");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Refrigerate");
 			}
