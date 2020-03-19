@@ -1428,7 +1428,7 @@
 						$messages = this.$chat.find('.chatmessage-' + user);
 						if (!$messages.length) break;
 						$messages.slice(-row[3]).hide().addClass('revealed').find('button').parent().remove();
-						this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
+						this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.slice(-row[3]).length + ' line' + ($messages.slice(-row[3]).length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
 					}
 					break;
 
