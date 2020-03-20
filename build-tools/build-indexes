@@ -914,6 +914,39 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				overrideAbilityDesc[id] = (pastEntry.shortDesc || pastEntry.desc);
 			}
 		}
+
+		const overrideTypeChart = {};
+		BattleTeambuilderTable[gen].overrideTypeChart = overrideTypeChart;
+		const removeType = {};
+		BattleTeambuilderTable[gen].removeType = removeType;
+		for (const id in nextGenData.TypeChart) {
+			const nextEntry = nextGenData.TypeChart[id];
+			const pastEntry = genData.TypeChart[id];
+			if (!pastEntry) {
+				removeType[id] = true;
+				continue;
+			}
+			if (Object.keys(pastEntry).length !== Object.keys(nextEntry).length) {
+				overrideTypeChart[id] = pastEntry;
+				continue;
+			}
+			let diff = false;
+			for (const key in pastEntry) {
+				if ((typeof pastEntry[key] === 'string' && pastEntry[key] !== nextEntry[key]) ||
+					Object.keys(pastEntry[key]).length !== Object.keys(nextEntry[key]).length) {
+					diff = true;
+					break;
+				}
+				for (const k in pastEntry[key]) {
+					if (nextEntry[key][k] !== pastEntry[key][k]) {
+						diff = true;
+						break;
+					}
+				}
+				if (diff) break;
+			}
+			if (diff) overrideTypeChart[id] = pastEntry;
+		}
 	}
 
 	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
