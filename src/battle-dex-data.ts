@@ -1424,10 +1424,10 @@ class Template implements Effect {
 		this.isMega = false;
 		this.isGigantamax = !!(this.forme && this.forme.endsWith('Gmax'));
 		this.isPrimal = false;
-		this.battleOnly = data.battleOnly || (data.requiredAbility || !!this.isGigantamax ? this.baseSpecies : null);
+		this.battleOnly = data.battleOnly || (this.isGigantamax ? this.baseSpecies : null);
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
-		this.inheritsFrom = (Array.isArray(data.inheritsFrom) ? this.baseSpecies : data.inheritsFrom) || null;
+		this.inheritsFrom = data.inheritsFrom || null;
 		if (!this.gen) {
 			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
 				this.gen = 8;
