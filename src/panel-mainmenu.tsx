@@ -22,40 +22,46 @@ class MainMenuRoom extends PSRoom {
 		official?: RoomInfo[],
 		pspl?: RoomInfo[],
 	} = {};
-	receive(line: string) {
-		const tokens = BattleTextParser.parseLine(line);
-		switch (tokens[0]) {
-		case 'challstr':
+	receiveLine(args: Args) {
+		const [cmd] = args;
+		switch (cmd) {
+		case 'challstr': {
+			const [, challstr] = args;
 			PSLoginServer.query({
 				act: 'upkeep',
-				challstr: tokens[1],
+				challstr,
 			}, res => {
 				if (!res) return;
 				if (!res.loggedin) return;
 				this.send(`/trn ${res.username},0,${res.assertion}`);
 			});
 			return;
-		case 'updateuser':
-			PS.user.setName(tokens[1], tokens[2] === '1', tokens[3]);
+		} case 'updateuser': {
+			const [, fullName, namedCode, avatar] = args;
+			PS.user.setName(fullName, namedCode === '1', avatar);
 			return;
-		case 'updatechallenges':
-			this.receiveChallenges(tokens[1]);
+		} case 'updatechallenges': {
+			const [, challengesBuf] = args;
+			this.receiveChallenges(challengesBuf);
 			return;
-		case 'queryresponse':
-			this.handleQueryResponse(tokens[1] as ID, JSON.parse(tokens[2]));
+		} case 'queryresponse': {
+			const [, queryId, responseJSON] = args;
+			this.handleQueryResponse(queryId as ID, JSON.parse(responseJSON));
 			return;
-		case 'pm':
-			this.handlePM(tokens[1], tokens[2], tokens[3]);
+		} case 'pm': {
+			const [, user1, user2, message] = args;
+			this.handlePM(user1, user2, message);
 			return;
-		case 'formats':
-			this.parseFormats(tokens);
+		} case 'formats': {
+			this.parseFormats(args);
 			return;
-		case 'popup':
-			alert(tokens[1]);
+		} case 'popup': {
+			const [, message] = args;
+			alert(message);
 			return;
-		}
+		}}
 		const lobby = PS.rooms['lobby'];
-		if (lobby) lobby.receive(line);
+		if (lobby) lobby.receiveLine(args);
 	}
 	receiveChallenges(dataBuf: string) {
 		let json;
@@ -78,7 +84,7 @@ class MainMenuRoom extends PSRoom {
 			}
 			room.challengedFormat = json.challengesFrom[targetUserid] || null;
 			room.challengingFormat = json.challengeTo?.to === targetUserid ? json.challengeTo.format : null;
-			room.update('');
+			room.update(null);
 		}
 	}
 	parseFormats(formatsList: string[]) {
@@ -217,7 +223,7 @@ class MainMenuRoom extends PSRoom {
 			}, true);
 			room = PS.rooms[roomid]!;
 		}
-		room.receive(`|c|${user1}|${message}`);
+		room.receiveLine([`c`, user1, message]);
 		PS.update();
 	}
 	handleQueryResponse(id: ID, response: any) {
@@ -231,12 +237,12 @@ class MainMenuRoom extends PSRoom {
 				Object.assign(userdetails, response);
 			}
 			const userRoom = PS.rooms[`user-${userid}`] as UserRoom;
-			if (userRoom) userRoom.update('');
+			if (userRoom) userRoom.update(null);
 			break;
 		case 'rooms':
 			this.roomsCache = response;
 			const roomsRoom = PS.rooms[`rooms`] as RoomsRoom;
-			if (roomsRoom) roomsRoom.update('');
+			if (roomsRoom) roomsRoom.update(null);
 			break;
 		case 'roomlist':
 			const battlesRoom = PS.rooms[`battles`] as BattlesRoom;
@@ -248,7 +254,7 @@ class MainMenuRoom extends PSRoom {
 					battles.push(battleTable[battleid]);
 				}
 				battlesRoom.battles = battles;
-				battlesRoom.update('');
+				battlesRoom.update(null);
 			}
 		}
 	}

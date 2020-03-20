@@ -97,9 +97,9 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 		this.props.room.onParentEvent = (id: string, e?: Event) => {
 			if (id === 'focus') this.focus();
 		};
-		this.subscriptions.push(this.props.room.subscribe(message => {
-			if (!message) this.forceUpdate();
-			else this.receive(message);
+		this.subscriptions.push(this.props.room.subscribe(args => {
+			if (!args) this.forceUpdate();
+			else this.receiveLine(args);
 		}));
 		if (this.base) {
 			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
@@ -117,7 +117,7 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 		}
 		this.subscriptions = [];
 	}
-	receive(message: string) {}
+	receiveLine(args: Args) {}
 	/**
 	 * PS has "fake select menus", buttons that act like <select> dropdowns.
 	 * This function is used by the popups they open to change the button

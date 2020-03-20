@@ -25,7 +25,7 @@ class BattlesRoom extends PSRoom {
 		if (format === this.format) return this.refresh();
 		this.battles = null;
 		this.format = format;
-		this.update('');
+		this.update(null);
 		this.refresh();
 	}
 	refresh() {
@@ -83,14 +83,10 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 
 class BattleRoom extends ChatRoom {
 	readonly classType = 'battle';
-	// @ts-ignore assigned in parent constructor
-	pmTarget: null;
-	// @ts-ignore assigned in parent constructor
-	challengeMenuOpen: false;
-	// @ts-ignore assigned in parent constructor
-	challengingFormat: null;
-	// @ts-ignore assigned in parent constructor
-	challengedFormat: null;
+	pmTarget!: null;
+	challengeMenuOpen!: false;
+	challengingFormat!: null;
+	challengedFormat!: null;
 	battle: Battle = null!;
 	/**
 	 * @return true to prevent line from being sent to server
@@ -103,11 +99,11 @@ class BattleRoom extends ChatRoom {
 		switch (cmd) {
 		case 'play': {
 			this.battle.play();
-			this.update('');
+			this.update(null);
 			return true;
 		} case 'pause': {
 			this.battle.pause();
-			this.update('');
+			this.update(null);
 			return true;
 		} case 'ffto': case 'fastfowardto': {
 			let turnNum = Number(target);
@@ -118,11 +114,11 @@ class BattleRoom extends ChatRoom {
 				turnNum = -1;
 			}
 			if (isNaN(turnNum)) {
-				this.receive(`|error|/ffto - Invalid turn number: ${target}`);
+				this.receiveLine([`error`, `/ffto - Invalid turn number: ${target}`]);
 				return true;
 			}
 			this.battle.fastForwardTo(turnNum);
-			this.update('');
+			this.update(null);
 			return true;
 		} case 'switchsides': {
 			this.battle.switchSides();
@@ -172,12 +168,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		battle.play();
 		super.componentDidMount();
 	}
-	receive(line: string) {
-		if (line === `|initdone`) {
+	receiveLine(args: Args) {
+		if (args[0] === `initdone`) {
 			this.props.room.battle.fastForwardTo(-1);
 			return;
 		}
-		this.props.room.battle.add(line);
+		this.props.room.battle.add('|' + args.join('|'));
 	}
 	renderControls() {
 		const battle = this.props.room.battle;

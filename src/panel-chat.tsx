@@ -9,6 +9,7 @@ class ChatRoom extends PSRoom {
 	readonly classType: 'chat' | 'battle' = 'chat';
 	users: {[userid: string]: string} = {};
 	userCount = 0;
+	readonly canConnect = true;
 
 	// PM-only properties
 	pmTarget: string | null = null;
@@ -77,22 +78,22 @@ class ChatRoom extends PSRoom {
 			return true;
 		} case 'reject': {
 			this.challengedFormat = null;
-			this.update('');
+			this.update(null);
 			return false;
 		}}
 		return false;
 	}
 	openChallenge() {
 		if (!this.pmTarget) {
-			this.receive(`|error|Can only be used in a PM.`);
+			this.receiveLine([`error`, `Can only be used in a PM.`]);
 			return;
 		}
 		this.challengeMenuOpen = true;
-		this.update('');
+		this.update(null);
 	}
 	cancelChallenge() {
 		if (!this.pmTarget) {
-			this.receive(`|error|Can only be used in a PM.`);
+			this.receiveLine([`error`, `Can only be used in a PM.`]);
 			return;
 		}
 		if (this.challengingFormat) {
@@ -102,7 +103,7 @@ class ChatRoom extends PSRoom {
 		} else {
 			this.challengeMenuOpen = false;
 		}
-		this.update('');
+		this.update(null);
 	}
 	send(line: string, direct?: boolean) {
 		this.updateTarget();
@@ -113,9 +114,6 @@ class ChatRoom extends PSRoom {
 		}
 		super.send(line);
 	}
-	receive(line: string) {
-		this.update(line);
-	}
 	setUsers(count: number, usernames: string[]) {
 		this.userCount = count;
 		this.users = {};
@@ -123,13 +121,13 @@ class ChatRoom extends PSRoom {
 			const userid = toID(username);
 			this.users[userid] = username;
 		}
-		this.update('');
+		this.update(null);
 	}
 	addUser(username: string) {
 		const userid = toID(username);
 		if (!(userid in this.users)) this.userCount++;
 		this.users[userid] = username;
-		this.update('');
+		this.update(null);
 	}
 	removeUser(username: string, noUpdate?: boolean) {
 		const userid = toID(username);
@@ -137,12 +135,12 @@ class ChatRoom extends PSRoom {
 			this.userCount--;
 			delete this.users[userid];
 		}
-		if (!noUpdate) this.update('');
+		if (!noUpdate) this.update(null);
 	}
 	renameUser(username: string, oldUsername: string) {
 		this.removeUser(oldUsername, true);
 		this.addUser(username);
-		this.update('');
+		this.update(null);
 	}
 	destroy() {
 		if (this.pmTarget) this.connected = false;
@@ -347,7 +345,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		PS.send(`|/challenge ${room.pmTarget}, ${format}`);
 		room.challengeMenuOpen = false;
 		room.challengingFormat = format;
-		room.update('');
+		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
 		const room = this.props.room;
@@ -356,7 +354,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		PS.send(`|/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
 		room.challengedFormat = null;
-		room.update('');
+		room.update(null);
 	};
 	render() {
 		const room = this.props.room;
@@ -460,14 +458,9 @@ class ChatLog extends preact.Component<{
 		if (!this.props.noSubscription) {
 			this.log = new BattleLog(this.base! as HTMLDivElement);
 		}
-		this.subscription = this.props.room.subscribe(msg => {
-			if (!msg) return;
-			const tokens = BattleTextParser.parseLine(msg);
+		this.subscription = this.props.room.subscribe(tokens => {
+			if (!tokens) return;
 			switch (tokens[0]) {
-			case 'title':
-				this.props.room.title = tokens[1];
-				PS.update();
-				return;
 			case 'users':
 				const usernames = tokens[1].split(',');
 				const count = parseInt(usernames.shift()!, 10);

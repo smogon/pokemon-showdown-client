@@ -347,7 +347,7 @@ interface RoomOptions {
 	type?: string;
 	location?: PSRoomLocation | null;
 	/** Handled after initialization, outside of the constructor */
-	queue?: string[];
+	queue?: Args[];
 	parentElem?: HTMLElement | null;
 	parentRoomid?: RoomID | null;
 	rightPopup?: boolean;
@@ -355,11 +355,23 @@ interface RoomOptions {
 	[k: string]: unknown;
 }
 
-class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
+interface PSNotificationState {
+	title: string;
+	body?: string;
+	/** Used to identify notifications to be dismissed - '' if you only want to autodismiss */
+	id: string;
+	/** normally: automatically dismiss the notification when viewing the room; set this to require manual dismissing */
+	noAutoDismiss: boolean;
+}
+
+/**
+ * As a PSStreamModel, PSRoom can emit `Args` to mean "we received a message",
+ * and `null` to mean "tell Preact to re-render this room"
+ */
+class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	id: RoomID;
 	title = "";
 	type = '';
-	notifying: '' | ' notifying' | ' subtle-notifying' = '';
 	readonly classType: string = '';
 	location: PSRoomLocation = 'left';
 	closable = true;
@@ -371,6 +383,12 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	 * after sending `/leave`, even before the server responds.
 	 */
 	connected: boolean = false;
+	/**
+	 * Can this room even be connected to at all?
+	 * `true` = pass messages from the server to subscribers
+	 * `false` = throw an error if we receive messages from the server
+	 */
+	readonly canConnect: boolean = false;
 	connectWhenLoggedIn: boolean = false;
 	onParentEvent: ((eventId: 'focus' | 'keydown', e?: Event) => false | void) | null = null;
 
@@ -378,6 +396,9 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 	height = 0;
 	parentElem: HTMLElement | null = null;
 	rightPopup = false;
+
+	notifications: PSNotificationState[] = [];
+	isSubtleNotifying = false;
 
 	// for compatibility with RoomOptions
 	[k: string]: unknown;
@@ -394,17 +415,56 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = true;
 	}
+	notify(options: {title: string, body?: string, noAutoDismiss?: boolean, id?: string}) {
+		if (options.noAutoDismiss && !options.id) {
+			throw new Error(`Must specify id for manual dismissing`);
+		}
+		this.notifications.push({
+			title: options.title,
+			body: options.body,
+			id: options.id || '',
+			noAutoDismiss: options.noAutoDismiss || false,
+		});
+		PS.update();
+	}
+	dismissNotification(id: string) {
+		this.notifications = this.notifications.filter(notification => notification.id !== id);
+		PS.update();
+	}
+	autoDismissNotifications() {
+		this.notifications = this.notifications.filter(notification => notification.noAutoDismiss);
+		this.isSubtleNotifying = false;
+	}
 	setDimensions(width: number, height: number) {
 		if (this.width === width && this.height === height) return;
 		this.width = width;
 		this.height = height;
-		this.update('');
+		this.update(null);
 	}
 	connect(): void {
 		throw new Error(`This room is not designed to connect to a server room`);
 	}
-	receive(message: string): void {
-		throw new Error(`This room is not designed to receive messages`);
+	receiveLine(args: Args): void {
+		switch (args[0]) {
+		case 'title': {
+			this.title = args[1];
+			PS.update();
+			break;
+		} case 'tempnotify': {
+			const [, id, title, body, toHighlight] = args;
+			this.notify({title, body, id});
+			break;
+		} case 'tempnotifyoff': {
+			const [, id] = args;
+			this.dismissNotification(id);
+			break;
+		} default: {
+			if (this.canConnect) {
+				this.update(args);
+			} else {
+				throw new Error(`This room is not designed to receive messages`);
+			}
+		}}
 	}
 	send(msg: string, direct?: boolean) {
 		const id = this.id === 'lobby' ? '' : this.id;
@@ -419,10 +479,10 @@ class PSRoom extends PSStreamModel<string | null> implements RoomOptions {
 }
 
 class PlaceholderRoom extends PSRoom {
-	queue = [] as string[];
+	queue = [] as Args[];
 	readonly classType: 'placeholder' = 'placeholder';
-	receive(message: string) {
-		this.queue.push(message);
+	receiveLine(args: Args) {
+		this.queue.push(args);
 	}
 }
 
@@ -642,10 +702,12 @@ const PS = new class extends PSModel {
 		console.log('\u2705 ' + (roomid ? '[' + roomid + '] ' : '') + '%c' + msg, "color: #007700");
 		let isInit = false;
 		for (const line of msg.split('\n')) {
-			if (line.startsWith('|init|')) {
+			const args = BattleTextParser.parseLine(line);
+			switch (args[0]) {
+			case 'init': {
 				isInit = true;
 				room = PS.rooms[roomid2];
-				const type = line.slice(6);
+				const [, type] = args;
 				if (!room) {
 					this.addRoom({
 						id: roomid2,
@@ -660,8 +722,7 @@ const PS = new class extends PSModel {
 				}
 				this.update();
 				continue;
-			}
-			if ((line + '|').startsWith('|deinit|')) {
+			} case 'deinit': {
 				room = PS.rooms[roomid2];
 				if (room) {
 					room.connected = false;
@@ -669,21 +730,20 @@ const PS = new class extends PSModel {
 				}
 				this.update();
 				continue;
-			}
-			if ((line + '|').startsWith('|noinit|')) {
+			} case 'noinit': {
 				room = PS.rooms[roomid2];
 				if (room) {
 					room.connected = false;
-					if ((line + '|').startsWith('|noinit|namerequired|')) {
+					if (args[1] === 'namerequired') {
 						room.connectWhenLoggedIn = true;
 					}
 				}
 				this.update();
 				continue;
-			}
-			if (room) room.receive(line);
+			}}
+			if (room) room.receiveLine(args);
 		}
-		if (room) room.update(isInit ? `|initdone` : null);
+		if (room) room.update(isInit ? [`initdone`] : null);
 	}
 	send(fullMsg: string) {
 		const pipeIndex = fullMsg.indexOf('|');
@@ -810,8 +870,8 @@ const PS = new class extends PSModel {
 			if (roomid === '') this.mainmenu = newRoom as MainMenuRoom;
 
 			if (options.queue) {
-				for (const line of options.queue) {
-					room.receive(line);
+				for (const args of options.queue) {
+					room.receiveLine(args);
 				}
 			}
 			updated = true;
@@ -835,6 +895,7 @@ const PS = new class extends PSModel {
 		} else {
 			return false;
 		}
+		this.room.autoDismissNotifications();
 		this.update();
 		if (this.room.onParentEvent) this.room.onParentEvent('focus', undefined);
 		return true;
@@ -956,8 +1017,8 @@ const PS = new class extends PSModel {
 			this.room = room;
 		}
 		if (options.queue) {
-			for (const line of options.queue) {
-				room.receive(line);
+			for (const args of options.queue) {
+				room.receiveLine(args);
 			}
 		}
 		return room;
