@@ -14,7 +14,8 @@ class PSHeader extends preact.Component<{style: {}}> {
 		const room = PS.rooms[id]!;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
 		const cur = PS.isVisible(room) ? ' cur' : '';
-		let className = `roomtab button${room.notifying}${closable}${cur}`;
+		const notifying = room.notifications.length ? ' notifying' : room.isSubtleNotifying ? ' subtle-notifying' : '';
+		let className = `roomtab button${notifying}${closable}${cur}`;
 		let icon = null;
 		let title = room.title;
 		let closeButton = null;
