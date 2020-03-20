@@ -325,10 +325,8 @@ class BattleLog {
 		if (lineCount) nodes = nodes.slice(-lineCount);
 
 		for (const node of nodes) {
-			if (node.className && (node.className + ' ').startsWith(classStart)) {
-				node.style.display = 'none';
-				node.className = 'revealed ' + node.className;
-			}
+			node.style.display = 'none';
+			node.className = 'revealed ' + node.className;
 		}
 		if (!nodes.length || !showRevealButton) return;
 		const button = document.createElement('button');
