@@ -141,7 +141,7 @@ class BattleLog {
 
 		case 'unlink': {
 			const user = toID(args[2]) || toID(args[1]);
-			this.unlinkChatFrom(user, parseInt(args[args.length], 10));
+			this.unlinkChatFrom(user);
 			if (args[2]) {
 				const lineCount = parseInt(args[3], 10);
 				this.hideChatFrom(user, true, lineCount);
