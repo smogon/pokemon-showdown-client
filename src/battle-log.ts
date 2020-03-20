@@ -309,36 +309,38 @@ class BattleLog {
 	}
 	hideChatFrom(userid: ID, showRevealButton = true, lineCount = 0) {
 		const classStart = 'chat chatmessage-' + userid + ' ';
-		let lastNode;
-		let count = 0;
-		for (const node of this.innerElem.childNodes as any) {
+		let nodes: HTMLElement[] = [];
+		for (const node of this.innerElem.childNodes as any as HTMLElement[]) {
+			if (node.className && (node.className + ' ').startsWith(classStart)) {
+				nodes.push(node);
+			}
+		}
+		if (this.preemptElem) {
+			for (const node of this.preemptElem.childNodes as any as HTMLElement[]) {
+				if (node.className && (node.className + ' ').startsWith(classStart)) {
+					nodes.push(node);
+				}
+			}
+		}
+		if (lineCount) nodes = nodes.slice(-lineCount);
+
+		for (const node of nodes) {
 			if (node.className && (node.className + ' ').startsWith(classStart)) {
 				node.style.display = 'none';
 				node.className = 'revealed ' + node.className;
-				count++;
-				if (count >= lineCount && lineCount !== 0) break;
-			}
-			lastNode = node;
-		}
-		if (this.preemptElem) {
-			for (const node of this.preemptElem.childNodes as any) {
-				if (node.className && (node.className + ' ').startsWith(classStart)) {
-					node.style.display = 'none';
-					node.className = 'revealed ' + node.className;
-					count++;
-				}
-				lastNode = node;
 			}
 		}
-		if (!count || !showRevealButton) return;
+		if (!nodes.length || !showRevealButton) return;
 		const button = document.createElement('button');
 		button.name = 'toggleMessages';
 		button.value = userid;
 		button.className = 'subtle';
-		button.innerHTML = '<small>(' + count + ' line' + (count > 1 ? 's' : '') + ' from ' + userid + ' hidden)</small>';
+		button.innerHTML = `<small>(${nodes.length} line${nodes.length > 1 ? 's' : ''} from ${userid} hidden)</small>`;
+		const lastNode = nodes[nodes.length - 1];
 		lastNode.appendChild(document.createTextNode(' '));
 		lastNode.appendChild(button);
 	}
+
 	static unlinkNodeList(nodeList: ArrayLike<HTMLElement>, classStart: string) {
 		for (const node of nodeList as HTMLElement[]) {
 			if (node.className && (node.className + ' ').startsWith(classStart)) {
@@ -356,6 +358,7 @@ class BattleLog {
 			}
 		}
 	}
+
 	unlinkChatFrom(userid: ID) {
 		const classStart = 'chat chatmessage-' + userid + ' ';
 		const innerNodeList = this.innerElem.childNodes;
