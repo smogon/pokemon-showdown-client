@@ -387,7 +387,7 @@ exports.BattleText = {
 		start: "  [POKEMON] started heating up its beak!",
 	},
 	beatup: {
-		activate: "  [TARGET]'s attack!", // past gen only
+		activate: "  [NAME]'s attack!", // past gen only
 	},
 	bestow: {
 		takeItem: "  [SOURCE] gave [POKEMON] its [ITEM]!",

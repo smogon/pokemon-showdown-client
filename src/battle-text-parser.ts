@@ -109,6 +109,8 @@ class BattleTextParser {
 
 			if (id === 'wonderguard') return {args: ['-immune', pokemon], kwArgs: {from: 'ability:Wonder Guard'}};
 
+			if (id === 'beatup' && kwArgs.of) return {args, kwArgs: {name: kwArgs.of}};
+
 			if ([
 				'ingrain', 'quickguard', 'wideguard', 'craftyshield', 'matblock', 'protect', 'mist', 'safeguard',
 				'electricterrain', 'mistyterrain', 'psychicterrain', 'telepathy', 'stickyhold', 'suctioncups', 'aromaveil',
@@ -829,8 +831,8 @@ class BattleTextParser {
 			if (kwArgs.ability2) {
 				line1 += this.ability(kwArgs.ability2, target);
 			}
-			if (kwArgs.move || kwArgs.number || kwArgs.item) {
-				template = template.replace('[MOVE]', kwArgs.move).replace('[NUMBER]', kwArgs.number).replace('[ITEM]', kwArgs.item);
+			if (kwArgs.move || kwArgs.number || kwArgs.item || kwArgs.name) {
+				template = template.replace('[MOVE]', kwArgs.move).replace('[NUMBER]', kwArgs.number).replace('[ITEM]', kwArgs.item).replace('[NAME]', kwArgs.name);
 			}
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(target)).replace('[SOURCE]', this.pokemon(kwArgs.of));
 		}
