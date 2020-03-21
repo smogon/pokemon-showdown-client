@@ -1084,7 +1084,7 @@
 		challengeUserdetails: function (data) {
 			app.off('response:userdetails', this.challengeUserdetails);
 
-			if (!data || this.challengeData.userid !== data.userid) return;
+			if (!data) return;
 
 			if (data.rooms === false) {
 				this.add('This player does not exist or is not online.');
@@ -1092,7 +1092,8 @@
 			}
 
 			app.focusRoom('');
-			var name = data.name || this.challengeData.userid;
+			// if foe has changed name, challengeData.userid will be wrong, so defer to data
+			var name = data.name || data.userid;
 			if (/^[a-z0-9]/i.test(name)) name = ' ' + name;
 			app.rooms[''].challenge(name, this.challengeData.format, this.challengeData.team);
 		},
