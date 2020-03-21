@@ -800,7 +800,9 @@
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
-			if (!window.BattleFormats[format].team && !team) {
+
+			// if it's a custom format, let the user figure it out
+			if (window.BattleFormats[format] && !window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 				return;
 			}
