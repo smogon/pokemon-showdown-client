@@ -748,7 +748,13 @@
 				return;
 			}
 
-			if (format && !format.includes('@@@')) format = toID(format);
+			if (format) {
+				var formatParts = format.split('@@@');
+				formatParts[0] = toID(formatParts[0]);
+				if (!formatParts[0].startsWith('gen')) formatParts[0] = 'gen8' + formatParts[0];
+				format = formatParts[1] ? formatParts[0] + '@@@' + formatParts[1] : formatParts[0];
+			}
+
 			var teamIndex;
 			if (Storage.teams && team) {
 				team = toID(team);
@@ -1140,8 +1146,11 @@
 			this.room = data.room;
 			this.isMoreTeams = data.isMoreTeams || false;
 			var format = BattleFormats[data.format];
+			if (data.format.includes('@@@')) {
+				format = BattleFormats[toID(data.format.split('@@@')[0])];
+			}
 
-			var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
+			var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? format.id : false));
 			this.teamFormat = teamFormat;
 			if (!teams.length) {
 				bufs[curBuf] = '<li><p><em>You have no teams</em></p></li>';
