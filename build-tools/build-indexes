@@ -929,26 +929,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				removeType[id] = true;
 				continue;
 			}
-			if (Object.keys(pastEntry).length !== Object.keys(nextEntry).length) {
+			if (JSON.stringify(nextEntry) !== JSON.stringify(pastEntry)) {
 				overrideTypeChart[id] = pastEntry;
-				continue;
 			}
-			let diff = false;
-			for (const key in pastEntry) {
-				if ((typeof pastEntry[key] === 'string' && pastEntry[key] !== nextEntry[key]) ||
-					Object.keys(pastEntry[key]).length !== Object.keys(nextEntry[key]).length) {
-					diff = true;
-					break;
-				}
-				for (const k in pastEntry[key]) {
-					if (nextEntry[key][k] !== pastEntry[key][k]) {
-						diff = true;
-						break;
-					}
-				}
-				if (diff) break;
-			}
-			if (diff) overrideTypeChart[id] = pastEntry;
 		}
 	}
 
