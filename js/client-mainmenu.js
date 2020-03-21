@@ -748,7 +748,7 @@
 				return;
 			}
 
-			if (format) format = toID(format);
+			if (format && !format.includes('@@@')) format = toID(format);
 			var teamIndex;
 			if (Storage.teams && team) {
 				team = toID(team);
