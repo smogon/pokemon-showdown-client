@@ -1126,7 +1126,7 @@
 
 			// icon
 			buf += '<div class="setcol setcol-icon">';
-			if (template.otherForms && template.baseSpecies !== 'Unown') {
+			if (template.cosmeticFormes && template.baseSpecies !== 'Unown') {
 				buf += '<div class="setcell-sprite changeform"><i class="fa fa-caret-down"></i></div>';
 			} else {
 				buf += '<div class="setcell-sprite"></div>';
@@ -2502,7 +2502,7 @@
 			}
 
 			buf += '</form>';
-			if (template.otherForms && template.baseSpecies !== 'Unown') {
+			if (template.cosmeticFormes && template.baseSpecies !== 'Unown') {
 				buf += '<button class="altform">Change sprite</button>';
 			}
 
@@ -3176,7 +3176,7 @@
 			this.chartIndex = data.index;
 			var template = Dex.getTemplate(this.curSet.species);
 			var baseid = toID(template.baseSpecies);
-			var forms = [baseid].concat(template.otherForms);
+			var forms = [baseid].concat(template.cosmeticFormes);
 			var spriteDir = Dex.resourcePrefix + 'sprites/';
 			var spriteSize = 96;
 			var spriteDim = 'width: 96px; height: 96px;';

@@ -1301,8 +1301,6 @@ class Template implements Effect {
 	readonly exists: boolean;
 
 	// name
-	readonly species: string;
-	readonly speciesid: ID;
 	readonly baseSpecies: string;
 	readonly forme: string;
 	readonly formeid: string;
@@ -1330,7 +1328,7 @@ class Template implements Effect {
 	// format data
 	readonly otherFormes: ReadonlyArray<ID> | null;
 	// TODO: rename to cosmeticForms
-	readonly otherForms: ReadonlyArray<ID> | null;
+	readonly cosmeticFormes: ReadonlyArray<ID> | null;
 	readonly evos: ReadonlyArray<ID> | null;
 	readonly prevo: ID;
 	readonly evoType: 'trade' | 'useItem' | 'levelMove' | 'levelExtra' | 'levelFriendship' | 'levelHold' | 'other' | '';
@@ -1356,8 +1354,6 @@ class Template implements Effect {
 		this.id = id;
 		this.gen = data.gen || 0;
 		this.exists = ('exists' in data ? !!data.exists : true);
-		this.species = this.name;
-		this.speciesid = this.id;
 		if (!data.abilities &&
 			!['hooh', 'hakamoo', 'jangmoo', 'kommoo', 'porygonz'].includes(this.id)) {
 			const dashIndex = name.indexOf('-');
@@ -1410,7 +1406,7 @@ class Template implements Effect {
 		this.eggGroups = data.eggGroups || [];
 
 		this.otherFormes = data.otherFormes || null;
-		this.otherForms = data.otherForms || null;
+		this.cosmeticFormes = data.cosmeticFormes || null;
 		this.evos = data.evos || null;
 		this.prevo = data.prevo || '';
 		this.evoType = data.evoType || '';

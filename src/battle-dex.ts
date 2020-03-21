@@ -484,7 +484,7 @@ const Dex = new class implements ModdedDex {
 			window.BattlePokedex[id] = template;
 		}
 
-		if (formid === id || !template.otherForms || !template.otherForms.includes(formid)) {
+		if (formid === id || !template.cosmeticFormes || !template.cosmeticFormes.includes(formid)) {
 			return template;
 		}
 		let forme = formid.slice(id.length);
@@ -617,7 +617,7 @@ const Dex = new class implements ModdedDex {
 
 		let animationData = null;
 		let miscData = null;
-		let speciesid = template.speciesid;
+		let speciesid = template.id;
 		if (template.isTotem) speciesid = toID(name);
 		if (baseDir === '' && window.BattlePokemonSprites) {
 			animationData = BattlePokemonSprites[speciesid];

@@ -2287,7 +2287,7 @@ class Battle {
 			if (!kwArgs.silent) {
 				this.activateAbility(poke, fromeffect);
 			}
-			poke.addVolatile('formechange' as ID, template.species); // the formechange volatile reminds us to revert the sprite change on switch-out
+			poke.addVolatile('formechange' as ID, template.name); // the formechange volatile reminds us to revert the sprite change on switch-out
 			this.scene.animTransform(poke, isCustomAnim);
 			this.log(args, kwArgs);
 			break;

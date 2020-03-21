@@ -137,7 +137,7 @@ class PSTeambuilder {
 
 			// species
 			j = buf.indexOf('|', i);
-			set.species = Dex.getTemplate(buf.substring(i, j)).species || set.name;
+			set.species = Dex.getTemplate(buf.substring(i, j)).name || set.name;
 			i = j + 1;
 
 			// item

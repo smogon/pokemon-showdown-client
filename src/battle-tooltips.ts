@@ -1203,7 +1203,7 @@ class BattleTooltips {
 		}
 
 		// Aura Wheel as Morpeko-Hangry changes the type to Dark
-		if (move.id === 'aurawheel' && value.pokemon.getTemplate().species === 'Morpeko-Hangry') {
+		if (move.id === 'aurawheel' && value.pokemon.getTemplate().name === 'Morpeko-Hangry') {
 			moveType = 'Dark';
 		}
 
@@ -1854,7 +1854,7 @@ class BattleStatGuesser {
 		let abilityid = toID(set.ability);
 
 		let template = this.dex.getTemplate(set.species || set.name!);
-		if (item.megaEvolves === template.species) template = this.dex.getTemplate(item.megaStone);
+		if (item.megaEvolves === template.name) template = this.dex.getTemplate(item.megaStone);
 		if (!template.exists) return '?';
 		let stats = template.baseStats;
 

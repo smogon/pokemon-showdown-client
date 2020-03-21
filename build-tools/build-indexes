@@ -174,7 +174,7 @@ function requireNoCache(pathSpec) {
 		}
 	}
 	for (const id in Dex.data.Pokedex) {
-		const name = Dex.data.Pokedex[id].species;
+		const name = Dex.data.Pokedex[id].name;
 		generateAlias(id, name, 'pokemon');
 	}
 	for (const id in Dex.data.Movedex) {
@@ -228,7 +228,7 @@ function requireNoCache(pathSpec) {
 		const id = entry[0];
 		let name = '';
 		switch (entry[1]) {
-		case 'pokemon': name = Dex.getTemplate(id).species; break;
+		case 'pokemon': name = Dex.getTemplate(id).name; break;
 		case 'move': name = Dex.getMove(id).name; break;
 		case 'item': name = Dex.getItem(id).name; break;
 		case 'ability': name = Dex.getAbility(id).name; break;
@@ -307,22 +307,22 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const tier = (() => {
 				if (isNatDex) {
 					let tier = template.tier;
-					if (template.tier === 'Illegal' || template.isNonstandard === 'Past' || template.isUnreleased === 'Past') tier = Dex.mod('gen7').getTemplate(template.species).tier;
+					if (template.tier === 'Illegal' || template.isNonstandard === 'Past' || template.isUnreleased === 'Past') tier = Dex.mod('gen7').getTemplate(template.name).tier;
 					let banlist = Dex.getFormat('gen8nationaldex').banlist;
 					if (
-						banlist.includes(template.species) ||
-						banlist.includes(template.species + '-Base') ||
+						banlist.includes(template.name) ||
+						banlist.includes(template.name + '-Base') ||
 						banlist.includes(template.baseSpecies) ||
-						['Zygarde-Complete', 'Necrozma-Ultra'].includes(template.species)
+						['Zygarde-Complete', 'Necrozma-Ultra'].includes(template.name)
 					) {
 						tier = 'Uber';
-						if (template.species === 'Eternatus-Eternamax') tier = 'Illegal';
+						if (template.name === 'Eternatus-Eternamax') tier = 'Illegal';
 						return tier;
 					} else if (tier === 'Uber' && !template.isGigantamax) { // This check is for Pokemon tiered as Uber but aren't in the banlist for National Dex
 						tier = 'OU';
 						return tier;
 					}
-					if (['Meltan', 'Melmetal'].includes(template.species)) tier = 'OU';
+					if (['Meltan', 'Melmetal'].includes(template.name)) tier = 'OU';
 					if (template.isGigantamax) tier = 'Uber';
 					return tier;
 				}
@@ -330,7 +330,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					let tier = template.tier;
 					if (template.isNonstandard) {
 						if (template.isNonstandard === 'Past') {
-							tier = Dex.mod('gen7').getTemplate(template.species).tier;
+							tier = Dex.mod('gen7').getTemplate(template.name).tier;
 						} else {
 							tier = 'OU';
 						}
@@ -340,7 +340,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (template.tier === 'CAP') tier = 'OU';
 					if (template.isUnreleased) {
 						if (template.isUnreleased === 'Past') {
-							tier = Dex.mod('gen7').getTemplate(template.species).tier;
+							tier = Dex.mod('gen7').getTemplate(template.name).tier;
 						} else {
 							tier = 'Unreleased';
 						}
@@ -351,7 +351,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						bst += stat;
 					}
 					if (bst > 625) tier = 'Illegal';
-					if (banlist.includes(template.species) || banlist.includes(template.species + '-Base')) tier = 'Illegal';
+					if (banlist.includes(template.name) || banlist.includes(template.name + '-Base')) tier = 'Illegal';
 					if (template.types.includes('Steel')) tier = 'Illegal';
 					return tier;
 				}
@@ -366,10 +366,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (template.tier === 'NFE') return 'NFE';
 					if (template.tier === 'LC') return 'NFE';
 					if (template.tier === 'Illegal' || template.tier === 'Unreleased') return 'Illegal';
-					if (restrictedLegends.includes(template.species) || restrictedLegends.includes(template.baseSpecies)) {
+					if (restrictedLegends.includes(template.name) || restrictedLegends.includes(template.baseSpecies)) {
 						return 'Restricted Legendary';
 					}
-					if (mythicals.includes(template.species) || mythicals.includes(template.baseSpecies)) {
+					if (mythicals.includes(template.name) || mythicals.includes(template.baseSpecies)) {
 						return 'Mythical';
 					}
 					return 'Regular';
@@ -382,7 +382,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				return template.tier;
 			})();
-			overrideTier[template.speciesid] = tier;
+			overrideTier[template.id] = tier;
 			if (template.forme) {
 				if (
 					[
@@ -418,7 +418,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					const tierRank = {AG:1, Uber:1, OU:1, UUBL:1, UU:1, RUBL:1, RU:1, NUBL:1, NU:1, PUBL:1, PU:1, "(PU)":0, NFE:0, "LC Uber":0, LC:0};
 					let baseTier = baseTemplate.tier;
 					if (baseTier !== "(PU)" && baseTier in tierRank && tierRank[baseTier] > 0) continue;
-					zuBans[baseTemplate.speciesid] = 1;
+					zuBans[baseTemplate.id] = 1;
 				}
 			}
 
@@ -430,7 +430,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					const tierRank = {AG:1, Uber:1, OU:1, UUBL:1, UU:1, RUBL:1, RU:1, NUBL:1, NU:1, PUBL:1, PU:1, "(PU)":1, NFE:0, "LC Uber":0, LC:0};
 					let baseTier = baseTemplate.tier;
 					if (!['NFE', 'LC Uber', 'LC'].includes(baseTier) && baseTier in tierRank && tierRank[baseTier] > 0) continue;
-					nfeBans[baseTemplate.speciesid] = 1;
+					nfeBans[baseTemplate.id] = 1;
 				}
 			}
 		}
