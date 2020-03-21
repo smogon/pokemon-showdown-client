@@ -402,7 +402,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			} else if (gen === 'gen6' && id in {ferroseed:1, pawniard:1, vullaby:1} && tier !== 'LC') {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
-			} else if (gen === 'gen5' && id in {misdreavus:1, munchlax:1, ferroseed:1} && tier !== 'LC') {
+			} else if (gen === 'gen5' && id in {misdreavus:1, ferroseed:1} && tier !== 'LC') {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
 			} else if (gen === 'gen4' && id in {clamperl:1, diglett:1, gligar:1, hippopotas:1, snover:1, wynaut:1} && tier !== 'LC') {
@@ -502,7 +502,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen5') {
-				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "(NU)", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen7') {
 				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC Uber", "LC", "Unreleased"];
@@ -511,14 +511,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		})();
 
 		for (const tier of tierOrder) {
-			if (tier in {OU:1, AG:1, Uber:1, UU:1, RU:1, NU:1, PU:1, "(PU)":1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
+			if (tier in {OU:1, AG:1, Uber:1, UU:1, RU:1, NU:1, "(NU)":1, PU:1, "(PU)":1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
 				let usedTier = tier;
+				if (usedTier === "(NU)") usedTier = "PU";
 				if (usedTier === "(PU)") usedTier = "ZU";
 				if (usedTier === "(DUU)") usedTier = "DNU";
 				formatSlices[usedTier] = tiers.length;
 			}
 			if (!tierTable[tier]) continue;
-			if (tier === "(PU)") {
+			if (tier === "(NU)") {
+				tiers.push(['header', "Below NU"]);
+			} else if (tier === "(PU)") {
 				tiers.push(['header', "Below PU"]);
 			} else if (tier === "(DUU)") {
 				tiers.push(['header', "Below DUU"]);
