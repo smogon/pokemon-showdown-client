@@ -153,7 +153,7 @@
 
 			var autoscroll = ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height());
 
-			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat);
+			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat, false);
 			var mayNotify = true;
 			if (typeof parsedMessage === 'object' && 'noNotify' in parsedMessage) {
 				mayNotify = !parsedMessage.noNotify;
@@ -970,7 +970,7 @@
 			});
 		}
 	}, {
-		parseChatMessage: function (message, name, timestamp, isHighlighted, $chatElem) {
+		parseChatMessage: function (message, name, timestamp, isHighlighted, $chatElem, isChat) {
 			var showMe = !((Dex.prefs('chatformatting') || {}).hideme);
 			var group = ' ';
 			if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
@@ -1022,7 +1022,7 @@
 			case 'error':
 				return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
 			case 'html':
-				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>';
+				return {message: '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isChat};
 			case 'uhtml':
 			case 'uhtmlchange':
 				var parts = target.split(',');
@@ -1040,7 +1040,7 @@
 				}
 				return '';
 			case 'raw':
-				return '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>';
+				return {message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isChat};
 			case 'nonotify':
 				return {message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
 			default:
