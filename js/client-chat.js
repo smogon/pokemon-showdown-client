@@ -810,6 +810,7 @@
 				} else {
 					if (target === 'delete') {
 						Dex.prefs('highlights', false);
+						this.updateHighlightRegExp({});
 						this.add("All highlights cleared");
 					} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
 						// Shows a list of the current highlighting words
