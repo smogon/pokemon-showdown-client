@@ -121,19 +121,21 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		return this.side.active.includes(this);
 	}
 
-	getHPColor(): HPColor {
+	/** @deprecated */
+	private getHPColor(): HPColor {
 		if (this.hpcolor) return this.hpcolor;
 		let ratio = this.hp / this.maxhp;
 		if (ratio > 0.5) return 'g';
 		if (ratio > 0.2) return 'y';
 		return 'r';
 	}
-	getHPColorClass() {
+	/** @deprecated */
+	private getHPColorClass() {
 		switch (this.getHPColor()) {
-		case 'y': return ' hpbar-yellow';
-		case 'r': return ' hpbar-red';
+		case 'y': return 'hpbar hpbar-yellow';
+		case 'r': return 'hpbar hpbar-red';
 		}
-		return '';
+		return 'hpbar';
 	}
 	static getPixelRange(pixels: number, color: HPColor | ''): [number, number] {
 		let epsilon = 0.5 / 714;

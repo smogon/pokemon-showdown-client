@@ -1089,6 +1089,11 @@ interface MoveFlags {
 	sound?: 1 | 0;
 }
 
+type MoveTarget = 'normal' | 'any' | 'adjacentAlly' | 'adjacentFoe' | 'adjacentAllyOrSelf' | // single-target
+	'self' | 'randomNormal' | // single-target, automatic
+	'allAdjacent' | 'allAdjacentFoes' | // spread
+	'allySide' | 'foeSide' | 'all'; // side and field
+
 class Move implements Effect {
 	// effect
 	readonly effectType = 'Move';
@@ -1103,11 +1108,7 @@ class Move implements Effect {
 	readonly type: TypeName;
 	readonly category: 'Physical' | 'Special' | 'Status';
 	readonly priority: number;
-	readonly target:
-		'normal' | 'any' | 'adjacentAlly' | 'adjacentFoe' | 'adjacentAllyOrSelf' | // single-target
-		'self' | 'randomNormal' | // single-target, automatic
-		'allAdjacent' | 'allAdjacentFoes' | // spread
-		'allySide' | 'foeSide' | 'all'; // side and field
+	readonly target: MoveTarget;
 	readonly flags: Readonly<MoveFlags>;
 	readonly critRatio: number;
 
