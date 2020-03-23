@@ -1314,7 +1314,7 @@ class BattleScene {
 
 		let $hp = pokemon.sprite.$statbar.find('div.hp');
 		let w = pokemon.hpWidth(150);
-		let hpcolor = pokemon.getHPColor();
+		let hpcolor = BattleScene.getHPColor(pokemon);
 		let callback;
 		if (hpcolor === 'y') {
 			callback = () => { $hp.addClass('hp-yellow'); };
@@ -1337,7 +1337,7 @@ class BattleScene {
 
 		let $hp = pokemon.sprite.$statbar.find('div.hp');
 		let w = pokemon.hpWidth(150);
-		let hpcolor = pokemon.getHPColor();
+		let hpcolor = BattleScene.getHPColor(pokemon);
 		let callback;
 		if (hpcolor === 'g') {
 			callback = () => { $hp.removeClass('hp-yellow hp-red'); };
@@ -1552,6 +1552,12 @@ class BattleScene {
 			this.bgm = null;
 		}
 		this.battle = null!;
+	}
+	static getHPColor(pokemon: {hp: number, maxhp: number}) {
+		let ratio = pokemon.hp / pokemon.maxhp;
+		if (ratio > 0.5) return 'g';
+		if (ratio > 0.2) return 'y';
+		return 'r';
 	}
 }
 
@@ -2485,7 +2491,7 @@ class PokemonSprite extends Sprite {
 		}
 		let hpcolor;
 		if (updatePrevhp || updateHp) {
-			hpcolor = pokemon.getHPColor();
+			hpcolor = BattleScene.getHPColor(pokemon);
 			let w = pokemon.hpWidth(150);
 			let $hp = this.$statbar.find('.hp');
 			$hp.css({

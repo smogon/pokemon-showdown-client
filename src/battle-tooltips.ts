@@ -186,7 +186,7 @@ class BattleTooltips {
 		if (!BattleTooltips.isLocked) BattleTooltips.hideTooltip();
 	}
 
-	listen(elem: HTMLElement) {
+	listen(elem: HTMLElement | JQuery<HTMLElement>) {
 		const $elem = $(elem);
 		$elem.on('mouseover', '.has-tooltip', this.showTooltipEvent);
 		$elem.on('click', '.has-tooltip', this.clickTooltipEvent);

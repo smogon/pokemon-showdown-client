@@ -107,6 +107,7 @@ class ChatRoom extends PSRoom {
 	}
 	send(line: string, direct?: boolean) {
 		this.updateTarget();
+		if (!direct && !line) return;
 		if (!direct && this.handleMessage(line)) return;
 		if (this.pmTarget) {
 			PS.send(`|/pm ${this.pmTarget}, ${line}`);
@@ -366,14 +367,14 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.makeChallenge}>
-				<button type="submit" class="button disabled"><strong>Challenge</strong></button> {}
+				<button type="submit" class="button"><strong>Challenge</strong></button> {}
 				<button name="cmd" value="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;
 
 		const challengeFrom = room.challengedFormat ? <div class="challenge">
 			<TeamForm format={room.challengedFormat} onSubmit={this.acceptChallenge}>
-				<button type="submit" class="button disabled"><strong>Accept</strong></button> {}
+				<button type="submit" class="button"><strong>Accept</strong></button> {}
 				<button name="cmd" value="/reject" class="button">Reject</button>
 			</TeamForm>
 		</div> : null;
