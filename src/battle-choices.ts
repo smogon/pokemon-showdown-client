@@ -85,12 +85,15 @@ interface BattleMoveChoice {
 	max: boolean;
 	z: boolean;
 }
+interface BattleShiftChoice {
+	choiceType: 'shift';
+}
 interface BattleSwitchChoice {
 	choiceType: 'switch' | 'team';
 	/** 1-based pokemon */
 	targetPokemon: number;
 }
-type BattleChoice = BattleMoveChoice | BattleSwitchChoice;
+type BattleChoice = BattleMoveChoice | BattleShiftChoice | BattleSwitchChoice;
 
 /**
  * Tracks a partial choice, allowing you to build it up one step at a time,
@@ -104,17 +107,16 @@ class BattleChoiceBuilder {
 	choices: string[] = [];
 	/** Currently active partial move choice - not used for other choices, which don't have partial states */
 	current: BattleMoveChoice = {
-		choiceType: 'move', // unused
+		choiceType: 'move',
 		/** if nonzero, show target screen; if zero, show move screen */
 		move: 0,
-		targetLoc: 0, // unused
+		targetLoc: 0, // should always be 0: is not partial if `targetLoc` is known
 		mega: false,
 		ultra: false,
 		z: false,
 		max: false,
 	};
-	/** Indexes of Pokémon already chosen to switch in */
-	plannedToSwitchIn: number[] = [];
+	alreadySwitchingIn: number[] = [];
 	alreadyMega = false;
 	alreadyMax = false;
 	alreadyZ = false;
@@ -196,21 +198,25 @@ class BattleChoiceBuilder {
 			this.current.z = false;
 			this.current.max = false;
 		} else if (choice.choiceType === 'switch' || choice.choiceType === 'team') {
-			if (this.plannedToSwitchIn.includes(choice.targetPokemon)) {
+			if (this.alreadySwitchingIn.includes(choice.targetPokemon)) {
 				if (choice.choiceType === 'switch') {
 					return "You've already chosen to switch that Pokémon in";
 				}
 				// remove choice instead
-				for (let i = 0; i < this.plannedToSwitchIn.length; i++) {
-					if (this.plannedToSwitchIn[i] === choice.targetPokemon) {
-						this.plannedToSwitchIn.splice(i, 1);
+				for (let i = 0; i < this.alreadySwitchingIn.length; i++) {
+					if (this.alreadySwitchingIn[i] === choice.targetPokemon) {
+						this.alreadySwitchingIn.splice(i, 1);
 						this.choices.splice(i, 1);
 						return null;
 					}
 				}
 				return "Unexpected bug, please report this";
 			}
-			this.plannedToSwitchIn.push(choice.targetPokemon);
+			this.alreadySwitchingIn.push(choice.targetPokemon);
+		} else if (choice.choiceType === 'shift') {
+			if (this.index() === 1) {
+				return "Only Pokémon not already in the center can shift to the center";
+			}
 		}
 		this.choices.push(this.stringChoice(choice));
 		this.fillPasses();
@@ -253,11 +259,13 @@ class BattleChoiceBuilder {
 	/**
 	 * Parses a choice from string form to BattleChoice form
 	 */
-	parseChoice(choice: string) {
+	parseChoice(choice: string): BattleChoice | null {
 		const request = this.request;
 		if (request.requestType === 'wait') throw new Error(`It's not your turn to choose anything`);
 
 		const index = this.choices.length;
+
+		if (choice === 'shift') return {choiceType: 'shift'};
 
 		if (choice.startsWith('move ')) {
 			if (request.requestType !== 'move') {
@@ -396,7 +404,8 @@ class BattleChoiceBuilder {
 	/**
 	 * Converts a choice from `BattleChoice` into string form
 	 */
-	stringChoice(choice: BattleChoice) {
+	stringChoice(choice: BattleChoice | null) {
+		if (!choice) return `pass`;
 		switch (choice.choiceType) {
 		case 'move':
 			const target = choice.targetLoc ? ` ${choice.targetLoc > 0 ? '+' : ''}${choice.targetLoc}` : ``;
@@ -405,6 +414,8 @@ class BattleChoiceBuilder {
 		case 'switch':
 		case 'team':
 			return `${choice.choiceType} ${choice.targetPokemon}`;
+		case 'shift':
+			return `shift`;
 		}
 	}
 
