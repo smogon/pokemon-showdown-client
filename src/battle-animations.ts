@@ -2796,9 +2796,9 @@ const BattleSound = new class {
 		if (typeof PS === 'object') {
 			PS.prefs.subscribeAndRun(key => {
 				if (!key || key === 'musicvolume' || key === 'effectvolume' || key === 'mute') {
-					BattleSound.effectVolume = PS.prefs.effectvolume;
-					BattleSound.bgmVolume = PS.prefs.musicvolume;
-					BattleSound.muted = PS.prefs.mute;
+					this.effectVolume = PS.prefs.effectvolume;
+					this.bgmVolume = PS.prefs.musicvolume;
+					this.muted = PS.prefs.mute;
 					BattleBGM.update();
 				}
 			});
