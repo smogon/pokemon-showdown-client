@@ -17,6 +17,7 @@ function customCssSuccess() { customCssLoaded = 'success'; updateCustomCss(); }
 
 <link rel="stylesheet" href="./battle.css" />
 <link rel="stylesheet" href="./custom.css" onerror="customCssErrored()" onload="customCssSuccess()" />
+<link rel="stylesheet" href="./font-awesome.css" />
 <style>
 html {
   background: #EEE;
@@ -227,6 +228,23 @@ h1, h2, p {
     &lt;button class="option sel">Do the first thing&lt;/button>
     &lt;button class="option">Do the second thing&lt;/button>
     &lt;button class="option">Do the third thing&lt;/button>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.checkbox</code></p>
+
+  <p>
+    This makes checkboxes look slightly nicer. We don't currently try to override the built-in checkbox widget, just make it a bit bigger, add the usual finger-cursor, and add a hover effect.
+  </p>
+
+  <div class="light-container">
+    <label class="checkbox"><input type="checkbox" /> This is a checkbox</label>
+  </div>
+  <div class="dark-container dark">
+    <label class="checkbox"><input type="checkbox" /> This is a checkbox</label>
+  </div>
+  <div class="dark-container code dark">
+    &lt;label class="checkbox">&lt;input type="checkbox" /> This is a checkbox&lt;/label>
   </div>
   <div class="clear"></div>
 

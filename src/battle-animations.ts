@@ -2792,6 +2792,19 @@ const BattleSound = new class {
 	bgmVolume = 50;
 	muted = false;
 
+	constructor() {
+		if (typeof PS === 'object') {
+			PS.prefs.subscribeAndRun(key => {
+				if (!key || key === 'musicvolume' || key === 'effectvolume' || key === 'mute') {
+					BattleSound.effectVolume = PS.prefs.effectvolume;
+					BattleSound.bgmVolume = PS.prefs.musicvolume;
+					BattleSound.muted = PS.prefs.mute;
+					BattleBGM.update();
+				}
+			});
+		}
+	}
+
 	loadEffect(url: string) {
 		if (this.effectCache[url] && !this.effectCache[url].isSoundPlaceholder) {
 			return this.effectCache[url];

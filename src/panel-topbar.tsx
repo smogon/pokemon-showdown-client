@@ -109,10 +109,10 @@ class PSHeader extends preact.Component<{style: {}}> {
 				<span class="username" data-name={PS.user.name} style={userColor}>
 					<i class="fa fa-user" style="color:#779EC5"></i> {PS.user.name}
 				</span> {}
-				<button class="icon button disabled" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
-					<i class="fa fa-volume-up"></i>
+				<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
+					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
-				<button class="icon button disabled" name="joinRoom" value="options" title="Options" aria-label="Options">
+				<button class="icon button" name="joinRoom" value="options" title="Options" aria-label="Options">
 					<i class="fa fa-cog"></i>
 				</button>
 			</div>
@@ -251,4 +251,84 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 PS.roomTypes['user'] = {
 	Model: UserRoom,
 	Component: UserPanel,
+};
+
+class VolumePanel extends PSRoomPanel {
+	setVolume = (e: Event) => {
+		const slider = e.currentTarget as HTMLInputElement;
+		PS.prefs.set(slider.name as 'effectvolume', Number(slider.value));
+		this.forceUpdate();
+	};
+	setMute = (e: Event) => {
+		const checkbox = e.currentTarget as HTMLInputElement;
+		PS.prefs.set('mute', !!checkbox.checked);
+		PS.update();
+	};
+	componentDidMount() {
+		super.componentDidMount();
+		this.subscriptions.push(PS.prefs.subscribe(() => {
+			this.forceUpdate();
+		}));
+	}
+	render() {
+		const room = this.props.room;
+		return <PSPanelWrapper room={room}>
+			<h3>Volume</h3>
+			<p class="volume">
+				<label class="optlabel">Effects: <span class="value">{!PS.prefs.mute && PS.prefs.effectvolume ? `${PS.prefs.effectvolume}%` : `muted`}</span></label>
+				{PS.prefs.mute ?
+					<em>(muted)</em> :
+					<input
+						type="range" min="0" max="100" step="1" name="effectvolume" value={PS.prefs.effectvolume}
+						onChange={this.setVolume} onInput={this.setVolume} onKeyUp={this.setVolume}
+					/>}
+			</p>
+			<p class="volume">
+				<label class="optlabel">Music: <span class="value">{!PS.prefs.mute && PS.prefs.musicvolume ? `${PS.prefs.musicvolume}%` : `muted`}</span></label>
+				{PS.prefs.mute ?
+					<em>(muted)</em> :
+					<input
+						type="range" min="0" max="100" step="1" name="musicvolume" value={PS.prefs.musicvolume}
+						onChange={this.setVolume} onInput={this.setVolume} onKeyUp={this.setVolume}
+					/>}
+			</p>
+			<p class="volume">
+				<label class="optlabel">Notifications: <span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `muted`}</span></label>
+				{PS.prefs.mute ?
+					<em>(muted)</em> :
+					<input
+						type="range" min="0" max="100" step="1" name="notifvolume" value={PS.prefs.notifvolume}
+						onChange={this.setVolume} onInput={this.setVolume} onKeyUp={this.setVolume}
+					/>}
+			</p>
+			<p>
+				<label class="checkbox"><input type="checkbox" name="mute" checked={PS.prefs.mute} onChange={this.setMute} /> Mute all</label>
+			</p>
+		</PSPanelWrapper>;
+	}
+}
+
+PS.roomTypes['volume'] = {
+	Component: VolumePanel,
+};
+
+class OptionsPanel extends PSRoomPanel {
+	setCheckbox = (e: Event) => {
+		const checkbox = e.currentTarget as HTMLInputElement;
+		PS.prefs.set(checkbox.name as 'dark', !!checkbox.checked);
+		this.forceUpdate();
+	};
+	render() {
+		const room = this.props.room;
+		return <PSPanelWrapper room={room}>
+			<h3>Graphics</h3>
+			<p>
+				<label class="checkbox"><input type="checkbox" name="dark" checked={PS.prefs.dark} onChange={this.setCheckbox} /> Dark mode</label>
+			</p>
+		</PSPanelWrapper>;
+	}
+}
+
+PS.roomTypes['options'] = {
+	Component: OptionsPanel,
 };

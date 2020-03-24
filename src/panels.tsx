@@ -259,8 +259,10 @@ class PSMain extends preact.Component {
 			}
 		});
 
-		PS.prefs.subscribeAndRun(() => {
-			document.body.className = PS.prefs.dark ? 'dark' : '';
+		PS.prefs.subscribeAndRun(key => {
+			if (!key || key === 'dark') {
+				document.body.className = PS.prefs.dark ? 'dark' : '';
+			}
 		});
 	}
 	getRoom(elem: HTMLElement) {
