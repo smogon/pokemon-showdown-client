@@ -140,7 +140,7 @@ class BattleRoom extends ChatRoom {
 			this.choices = new BattleChoiceBuilder(this.request);
 			this.update(null);
 			return true;
-		} case 'move': case 'switch': case 'team': case 'choose': {
+		} case 'move': case 'switch': case 'team': case 'pass': case 'shift': case 'choose': {
 			if (!this.choices) {
 				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
 				return true;
@@ -423,7 +423,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const trapped = choices.currentMoveRequest()?.trapped;
 
 		return request.side.pokemon.map((serverPokemon, i) => {
-			const cantSwitch = trapped || i < numActive || choices.plannedToSwitchIn.includes(i + 1);
+			const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1);
 			return <PokemonButton
 				pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
 			/>;
@@ -431,7 +431,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	renderTeamControls(request: | BattleTeamRequest, choices: BattleChoiceBuilder) {
 		return request.side.pokemon.map((serverPokemon, i) => {
-			const cantSwitch = choices.plannedToSwitchIn.includes(i + 1);
+			const cantSwitch = choices.alreadySwitchingIn.includes(i + 1);
 			return <PokemonButton
 				pokemon={serverPokemon} cmd={`/switch ${i + 1}`} noHPBar disabled={cantSwitch && 'fade'} tooltip={`switchpokemon|${i}`}
 			/>;
@@ -452,7 +452,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		</div>;
 	}
 	renderChosenTeam(request: BattleTeamRequest, choices: BattleChoiceBuilder) {
-		return choices.plannedToSwitchIn.map(slot => {
+		return choices.alreadySwitchingIn.map(slot => {
 			const serverPokemon = request.side.pokemon[slot - 1];
 			return <PokemonButton
 				pokemon={serverPokemon} cmd={`/switch ${slot}`} disabled tooltip={`switchpokemon|${slot - 1}`}
@@ -502,6 +502,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			} else if (choice.choiceType === 'switch') {
 				const target = request.side.pokemon[choice.targetPokemon - 1];
 				buf.push(`${pokemon.name} will switch to `, <strong>{target.name}</strong>);
+			} else if (choice.choiceType === 'shift') {
+				buf.push(`${pokemon.name} will `, <strong>shift</strong>, ` to the center`);
 			}
 			buf.push(<br />);
 		}
@@ -557,6 +559,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>;
 			}
 
+			const canShift = room.battle.gameType === 'triples' && index !== 1;
+
 			return <div class="controls">
 				<div class="whatdo">
 					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
@@ -587,6 +591,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					</div>
 				</div>
 				<div class="switchcontrols">
+					{canShift && [
+						<h3 class="shiftselect">Shift</h3>,
+						<button name="cmd" value="/shift">Move to center</button>,
+					]}
 					<h3 class="switchselect">Switch</h3>
 					<div class="switchmenu">
 						{this.renderSwitchControls(request, choices)}
@@ -612,7 +620,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <div class="controls">
 				<div class="whatdo">
 					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
-					{choices.plannedToSwitchIn.length > 0 ?
+					{choices.alreadySwitchingIn.length > 0 ?
 						[<button name="cmd" value="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>,
 						" What about the rest of your team? "]
 					:
@@ -620,14 +628,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					}
 				</div>
 				<div class="switchcontrols">
-					<h3 class="switchselect">Choose {choices.plannedToSwitchIn.length <= 0 ? `lead` : `slot ${choices.plannedToSwitchIn.length + 1}`}</h3>
+					<h3 class="switchselect">Choose {choices.alreadySwitchingIn.length <= 0 ? `lead` : `slot ${choices.alreadySwitchingIn.length + 1}`}</h3>
 					<div class="switchmenu">
 						{this.renderTeamControls(request, choices)}
 						<div style="clear:left"></div>
 					</div>
 				</div>
 				<div class="switchcontrols">
-					{choices.plannedToSwitchIn.length > 0 && <h3 class="switchselect">Team so far</h3>}
+					{choices.alreadySwitchingIn.length > 0 && <h3 class="switchselect">Team so far</h3>}
 					<div class="switchmenu">
 						{this.renderChosenTeam(request, choices)}
 					</div>
