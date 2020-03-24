@@ -24,8 +24,10 @@ const PSPrefsDefaults: {[key: string]: any} = {};
  * Tracks user preferences, stored in localStorage. Contains most local
  * data, with the exception of backgrounds, teams, and session data,
  * which get their own models.
+ *
+ * Updates will name the key updated, so you don't need to overreact.
  */
-class PSPrefs extends PSModel {
+class PSPrefs extends PSStreamModel<string | null> {
 	/**
 	 * Dark mode!
 	 */
@@ -49,6 +51,11 @@ class PSPrefs extends PSModel {
 	 * true = one panel, false = two panels, left and right
 	 */
 	onepanel = false;
+
+	mute = false;
+	effectvolume = 50;
+	musicvolume = 50;
+	notifvolume = 50;
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
 	storage: {[k: string]: any} = {};
@@ -74,7 +81,7 @@ class PSPrefs extends PSModel {
 	/**
 	 * Change a preference.
 	 */
-	set(key: string, value: any) {
+	set<T extends keyof PSPrefs>(key: T, value: PSPrefs[T]) {
 		if (value === null) {
 			delete this.storage[key];
 			(this as any)[key] = PSPrefsDefaults[key];
@@ -82,14 +89,14 @@ class PSPrefs extends PSModel {
 			this.storage[key] = value;
 			(this as any)[key] = value;
 		}
-		this.update();
+		this.update(key);
 		this.save();
 	}
 	load(newPrefs: object, noSave?: boolean) {
 		this.fixPrefs(newPrefs);
 		Object.assign(this, PSPrefsDefaults);
 		this.storage = newPrefs;
-		this.update();
+		this.update(null);
 		if (!noSave) this.save();
 	}
 	save() {

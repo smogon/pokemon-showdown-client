@@ -146,6 +146,11 @@ class PSStreamModel<T = string> {
 		}
 		return subscription;
 	}
+	subscribeAndRun(listener: (value: T) => void) {
+		const subscription = this.subscribe(listener);
+		subscription.listener(null);
+		return subscription;
+	}
 	update(value: T) {
 		if (!this.subscriptions.length) {
 			// save updates for later

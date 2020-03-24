@@ -132,7 +132,7 @@ button:disabled {
  * Forms
  *********************************************************/
 
- .label {
+.label {
 	font-size: 9pt;
 	font-weight: bold;
 	display: block;
@@ -140,6 +140,39 @@ button:disabled {
 .optlabel {
 	font-size: 9pt;
 	display: block;
+}
+.value {
+	float: right;
+}
+.checkbox {
+	background: transparent;
+	color: inherit;
+	border: 0 none;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 10pt;
+	display: block;
+	cursor: pointer;
+	padding: 1px 6px 3px 2px;
+	border-radius: 4px;
+}
+.checkbox input {
+	width: 14px;
+	height: 14px;
+	vertical-align: 1px;
+	cursor: pointer;
+}
+.checkbox i {
+	font-size: 12pt;
+	vertical-align: -2px;
+	margin: 0 2px;
+}
+.checkbox:hover {
+	background: #D5D5D5;
+	color: black;
+}
+.dark .checkbox:hover {
+	background: #383838;
+	color: white;
 }
 .label strong {
 	font-size: 11pt;
