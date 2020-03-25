@@ -407,7 +407,7 @@
 						// won't match the ID search term and so we need to special case
 						// searching for Pokemon here
 						var pokemon = team.team.split(']').map(function (el) {
-							return toID(splitFirst(el, '|')[0]);
+							return toID(PSUtils.splitFirst(el, '|')[0]);
 						});
 						var searchVal = this.curSearchVal.split(',').map(function (el) {
 							return toID(el);

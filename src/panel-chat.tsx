@@ -409,43 +409,35 @@ class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, mini
 	render() {
 		const room = this.props.room;
 		let userList = Object.entries(room.users) as [ID, string][];
-		userList.sort(ChatUserList.compareUsers);
-		function colorStyle(userid: ID) {
-			return {color: BattleLog.usernameColor(userid)};
-		}
+		PSUtils.sortBy(userList, ([id, name]) => (
+			[name === '#Zarel', PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
+		));
 		return <ul class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')} style={{left: this.props.left || 0}}>
 			<li class="userlist-count" style="text-align:center;padding:2px 0" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
 			{userList.map(([userid, name]) => {
 				const groupSymbol = name.charAt(0);
 				const group = PS.server.groups[groupSymbol] || {type: 'user', order: 0};
+				let color;
+				if (name.endsWith('@!')) {
+					name = name.slice(0, -2);
+					color = '#888888';
+				} else {
+					color = BattleLog.usernameColor(userid);
+				}
 				return <li key={userid}><button class="userbutton username" data-name={name}>
 					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
 						{groupSymbol}
 					</em>
 					{group.type === 'leadership' ?
-						<strong><em style={colorStyle(userid)}>{name.substr(1)}</em></strong>
+						<strong><em style={{color}}>{name.substr(1)}</em></strong>
 					: group.type === 'staff' ?
-						<strong style={colorStyle(userid)}>{name.substr(1)}</strong>
+						<strong style={{color}}>{name.substr(1)}</strong>
 					:
-						<span style={colorStyle(userid)}>{name.substr(1)}</span>
+						<span style={{color}}>{name.substr(1)}</span>
 					}
 				</button></li>;
 			})}
 		</ul>;
-	}
-	static compareUsers([userid1, name1]: [ID, string], [userid2, name2]: [ID, string]) {
-		if (userid1 === userid2) return 0;
-		let rank1 = (
-			PS.server.groups[name1.charAt(0)] || {order: 10006.5}
-		).order;
-		let rank2 = (
-			PS.server.groups[name2.charAt(0)] || {order: 10006.5}
-		).order;
-
-		if (userid1 === 'zarel' && rank1 === 10003) rank1 = 10000.5;
-		if (userid2 === 'zarel' && rank2 === 10003) rank2 = 10000.5;
-		if (rank1 !== rank2) return rank1 - rank2;
-		return (userid1 > userid2 ? 1 : -1);
 	}
 }
 

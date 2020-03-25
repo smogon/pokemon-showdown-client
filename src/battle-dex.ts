@@ -127,11 +127,6 @@ if (window.soundManager) {
 // @ts-ignore
 window.nodewebkit = !!(typeof process !== 'undefined' && process.versions && process.versions['node-webkit']);
 
-function getString(str: any) {
-	if (typeof str === 'string' || typeof str === 'number') return '' + str;
-	return '';
-}
-
 function toID(text: any) {
 	if (text?.id) {
 		text = text.id;
@@ -146,31 +141,84 @@ function toUserid(text: any) {
 	return toID(text);
 }
 
-/**
- * Like string.split(delimiter), but only recognizes the first `limit`
- * delimiters (default 1).
- *
- * `"1 2 3 4".split(" ", 2) => ["1", "2"]`
- *
- * `splitFirst("1 2 3 4", " ", 1) => ["1", "2 3 4"]`
- *
- * Returns an array of length exactly limit + 1.
- */
-function splitFirst(str: string, delimiter: string, limit: number = 1) {
-	let splitStr: string[] = [];
-	while (splitStr.length < limit) {
-		let delimiterIndex = str.indexOf(delimiter);
-		if (delimiterIndex >= 0) {
-			splitStr.push(str.slice(0, delimiterIndex));
-			str = str.slice(delimiterIndex + delimiter.length);
-		} else {
-			splitStr.push(str);
-			str = '';
+type Comparable = number | string | boolean | Comparable[] | {reverse: Comparable};
+const PSUtils = new class {
+	/**
+	 * Like string.split(delimiter), but only recognizes the first `limit`
+	 * delimiters (default 1).
+	 *
+	 * `"1 2 3 4".split(" ", 2) => ["1", "2"]`
+	 *
+	 * `splitFirst("1 2 3 4", " ", 1) => ["1", "2 3 4"]`
+	 *
+	 * Returns an array of length exactly limit + 1.
+	 */
+	splitFirst(str: string, delimiter: string, limit: number = 1) {
+		let splitStr: string[] = [];
+		while (splitStr.length < limit) {
+			let delimiterIndex = str.indexOf(delimiter);
+			if (delimiterIndex >= 0) {
+				splitStr.push(str.slice(0, delimiterIndex));
+				str = str.slice(delimiterIndex + delimiter.length);
+			} else {
+				splitStr.push(str);
+				str = '';
+			}
 		}
+		splitStr.push(str);
+		return splitStr;
 	}
-	splitStr.push(str);
-	return splitStr;
-}
+
+	/**
+	 * Compares two variables; intended to be used as a smarter comparator.
+	 * The two variables must be the same type (TypeScript will not check this).
+	 *
+	 * - Numbers are sorted low-to-high, use `-val` to reverse
+	 * - Strings are sorted A to Z case-semi-insensitively, use `{reverse: val}` to reverse
+	 * - Booleans are sorted true-first (REVERSE of casting to numbers), use `!val` to reverse
+	 * - Arrays are sorted lexically in the order of their elements
+	 *
+	 * In other words: `[num, str]` will be sorted A to Z, `[num, {reverse: str}]` will be sorted Z to A.
+	 */
+	compare(a: Comparable, b: Comparable): number {
+		if (typeof a === 'number') {
+			return a - (b as number);
+		}
+		if (typeof a === 'string') {
+			return a.localeCompare(b as string);
+		}
+		if (typeof a === 'boolean') {
+			return (a ? 1 : 2) - (b ? 1 : 2);
+		}
+		if (Array.isArray(a)) {
+			for (let i = 0; i < a.length; i++) {
+				const comparison = PSUtils.compare(a[i], (b as Comparable[])[i]);
+				if (comparison) return comparison;
+			}
+			return 0;
+		}
+		if (a.reverse) {
+			return PSUtils.compare((b as {reverse: string}).reverse, a.reverse);
+		}
+		throw new Error(`Passed value ${a} is not comparable`);
+	}
+	/**
+	 * Sorts an array according to the callback's output on its elements.
+	 *
+	 * The callback's output is compared according to `PSUtils.compare` (in
+	 * particular, it supports arrays so you can sort by multiple things).
+	 */
+	sortBy<T>(array: T[], callback: (a: T) => Comparable): T[];
+	/**
+	 * Sorts an array according to `PSUtils.compare`. (Correctly sorts numbers,
+	 * unlike `array.sort`)
+	 */
+	sortBy<T extends Comparable>(array: T[]): T[];
+	sortBy<T>(array: T[], callback?: (a: T) => Comparable) {
+		if (!callback) return (array as any[]).sort(PSUtils.compare);
+		return array.sort((a, b) => PSUtils.compare(callback(a), callback(b)));
+	}
+};
 
 /**
  * Sanitize a room ID by removing anything that isn't alphanumeric or `-`.
