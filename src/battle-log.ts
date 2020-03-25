@@ -386,7 +386,8 @@ class BattleLog {
 	}
 
 	static escapeHTML(str: string, jsEscapeToo?: boolean) {
-		str = getString(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		if (typeof str !== 'string') return '';
+		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		if (jsEscapeToo) str = str.replace(/\\/g, '\\\\').replace(/'/g, '\\\'');
 		return str;
 	}
@@ -769,8 +770,9 @@ class BattleLog {
 		return '<time>' + BattleLog.escapeHTML(formattedTime) + '</time>';
 	}
 	static sanitizeHTML(input: string) {
+		if (typeof input !== 'string') return '';
 		this.initSanitizeHTML();
-		const sanitized = html.sanitizeWithPolicy(getString(input), this.tagPolicy) as string;
+		const sanitized = html.sanitizeWithPolicy(input, this.tagPolicy) as string;
 		// <time> parsing requires ISO 8601 time. While more time formats are
 		// supported by most JavaScript implementations, it isn't required, and
 		// how to exactly enforce ignoring user agent timezone setting is not obvious.

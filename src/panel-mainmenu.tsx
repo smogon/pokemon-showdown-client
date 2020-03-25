@@ -12,6 +12,7 @@ class MainMenuRoom extends PSRoom {
 	userdetailsCache: {[userid: string]: {
 		userid: ID,
 		avatar?: string | number,
+		status?: string,
 		group?: string,
 		rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
 	}} = {};

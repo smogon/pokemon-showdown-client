@@ -276,66 +276,67 @@ class PSServer {
 		'~': {
 			name: "Administrator (~)",
 			type: 'leadership',
-			order: 10001,
+			order: 101,
 		},
 		'&': {
 			name: "Leader (&)",
 			type: 'leadership',
-			order: 10002,
+			order: 102,
 		},
 		'#': {
 			name: "Room Owner (#)",
 			type: 'leadership',
-			order: 10003,
+			order: 103,
 		},
 		'\u2605': {
 			name: "Host (\u2605)",
 			type: 'staff',
-			order: 10004,
+			order: 104,
 		},
 		'@': {
 			name: "Moderator (@)",
 			type: 'staff',
-			order: 10005,
+			order: 105,
 		},
 		'%': {
 			name: "Driver (%)",
 			type: 'staff',
-			order: 10006,
+			order: 106,
 		},
+		// by default, unrecognized ranks go here, between driver and bot
 		'*': {
 			name: "Bot (*)",
-			order: 10007,
+			order: 108,
 		},
 		'\u2606': {
 			name: "Player (\u2606)",
-			order: 10008,
+			order: 109,
 		},
 		'+': {
 			name: "Voice (+)",
-			order: 10009,
+			order: 200,
 		},
 		' ': {
-			order: 10010,
+			order: 201,
 		},
 		'!': {
 			name: "Muted (!)",
 			type: 'punishment',
-			order: 10011,
+			order: 301,
 		},
 		'✖': {
 			name: "Namelocked (\u2716)",
 			type: 'punishment',
-			order: 10012,
+			order: 302,
 		},
 		'\u203d': {
 			name: "Locked (\u203d)",
 			type: 'punishment',
-			order: 10013,
+			order: 303,
 		},
 	};
 	defaultGroup: PSGroup = {
-		order: 10006.5,
+		order: 107,
 	};
 	getGroup(symbol: string | undefined) {
 		return this.groups[(symbol || ' ').charAt(0)] || this.defaultGroup;

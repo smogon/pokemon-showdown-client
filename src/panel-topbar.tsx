@@ -212,6 +212,12 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		}
 
 		const isSelf = user.userid === PS.user.userid;
+		let away = false;
+		let status = null;
+		if (user.status) {
+			away = user.status.startsWith('!');
+			status = away ? user.status.slice(1) : user.status;
+		}
 
 		return <PSPanelWrapper room={room}>
 			<div class="userdetails">
@@ -221,10 +227,10 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 						src={Dex.resolveAvatar('' + (user.avatar || 'unknown'))}
 					/>
 				}
-				<strong><a href={`//pokemonshowdown.com/users/${user.userid}`} target="_blank">{name}</a></strong><br />
-				{groupName && <small>{groupName}</small>}
-				{groupName && globalGroupName && <br />}
-				{globalGroupName && <small>{globalGroupName}</small>}
+				<strong><a href={`//pokemonshowdown.com/users/${user.userid}`} target="_blank" style={away ? {color: '#888888'} : null}>{name}</a></strong><br />
+				{status && <div class="userstatus">{status}</div>}
+				{groupName && <div class="usergroup roomgroup">{groupName}</div>}
+				{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
 				{roomsList}
 			</div>
 			{isSelf || !PS.user.named ?
