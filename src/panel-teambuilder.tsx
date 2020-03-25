@@ -6,7 +6,16 @@
  */
 
 class TeambuilderPanel extends PSRoomPanel {
+	readonly DEFAULT_FORMAT = 'gen8';
+
 	curFolderKeep = '';
+	/**
+	 * - `""` - all
+	 * - `"gen[NUMBER][ID]"` - format folder
+	 * - `"gen[NUMBER]"` - uncategorized gen folder
+	 * - `"[ID]/"` - folder
+	 * - `"/"` - not in folder
+	 */
 	curFolder = '';
 	selectFolder = (e: MouseEvent) => {
 		let elem = e.target as HTMLElement | null;
@@ -34,64 +43,39 @@ class TeambuilderPanel extends PSRoomPanel {
 		// (This is why folders you create will automatically disappear
 		// if you leave them without adding anything to them.)
 
-		let folderTable: {[folder: string]: 1 | undefined} = {};
-		/**
-		 * Folders, in a format where lexical sort will sort correctly.
-		 */
-		let folders: string[] = [];
-		for (let i = -2; i < PS.teams.list.length; i++) {
-			const team = i >= 0 ? PS.teams.list[i] : null;
-			if (team) {
-				let folder = team.folder;
-				if (folder && !(`${folder}/` in folderTable)) {
-					folders.push('Z' + folder);
-					folderTable[folder + '/'] = 1;
-					if (!('/' in folderTable)) {
-						folders.push('Z~');
-						folderTable['/'] = 1;
-					}
-				}
-			}
-
-			let format;
-			if (i === -2) {
-				format = this.curFolderKeep;
-			} else if (i === -1) {
-				format = this.curFolder;
-			} else if (team) {
-				format = team.format;
-				if (!format) format = 'gen7';
-			}
-			if (!format) continue;
-			if (format in folderTable) continue;
-			folderTable[format] = 1;
-			if (format.slice(-1) === '/') {
-				folders.push('Z' + (format.slice(0, -1) || '~'));
+		const folderTable: {[folder: string]: 1 | undefined} = {'': 1};
+		const folders: string[] = [];
+		for (const team of PS.teams.list) {
+			const folder = team.folder;
+			if (folder && !(`${folder}/` in folderTable)) {
+				folders.push(`${folder}/`);
+				folderTable[`${folder}/`] = 1;
 				if (!('/' in folderTable)) {
-					folders.push('Z~');
+					folders.push('/');
 					folderTable['/'] = 1;
 				}
-				continue;
 			}
-			if (format === 'gen7') {
-				folders.push('A~');
-				continue;
-			}
-			switch (format.slice(0, 4)) {
-			case 'gen1': format = 'G' + format.slice(4); break;
-			case 'gen2': format = 'F' + format.slice(4); break;
-			case 'gen3': format = 'E' + format.slice(4); break;
-			case 'gen4': format = 'D' + format.slice(4); break;
-			case 'gen5': format = 'C' + format.slice(4); break;
-			case 'gen6': format = 'B' + format.slice(4); break;
-			case 'gen7': format = 'A' + format.slice(4); break;
-			default: format = 'X' + format; break;
-			}
-			folders.push(format);
-		}
-		folders.sort();
 
-		let gen = '';
+			const format = team.format || this.DEFAULT_FORMAT;
+			if (!(format in folderTable)) {
+				folders.push(format);
+				folderTable[format] = 1;
+			}
+		}
+		if (!(this.curFolderKeep in folderTable)) {
+			folderTable[this.curFolderKeep] = 1;
+			folders.push(this.curFolderKeep);
+		}
+		if (!(this.curFolder in folderTable)) {
+			folderTable[this.curFolder] = 1;
+			folders.push(this.curFolder);
+		}
+
+		PSUtils.sortBy(folders, folder => [
+			folder.endsWith('/') ? 10 : -parseInt(folder.charAt(3), 10),
+			folder,
+		]);
+
 		let renderedFormatFolders = [
 			<div class="foldersep"></div>,
 			<TeamFolder cur={false} value="+">
@@ -101,58 +85,34 @@ class TeambuilderPanel extends PSRoomPanel {
 
 		let renderedFolders: preact.ComponentChild[] = [];
 
+		let gen = -1;
 		for (let format of folders) {
-			let newGen = '';
-			switch (format.charAt(0)) {
-			case 'G': newGen = '1'; break;
-			case 'F': newGen = '2'; break;
-			case 'E': newGen = '3'; break;
-			case 'D': newGen = '4'; break;
-			case 'C': newGen = '5'; break;
-			case 'B': newGen = '6'; break;
-			case 'A': newGen = '7'; break;
-			case 'X': newGen = 'X'; break;
-			case 'Z': newGen = '/'; break;
-			}
+			const newGen = format.endsWith('/') ? 0 : parseInt(format.charAt(3), 10);
 			if (gen !== newGen) {
 				gen = newGen;
-				if (gen === '/') {
+				if (gen === 0) {
 					renderedFolders.push(...renderedFormatFolders);
 					renderedFormatFolders = [];
 					renderedFolders.push(<div class="foldersep"></div>);
 					renderedFolders.push(<div class="folder"><h3>Folders</h3></div>);
-				} else if (gen === 'X') {
-					renderedFolders.push(<div class="folder"><h3>???</h3></div>);
 				} else {
 					renderedFolders.push(<div class="folder"><h3>Gen {gen}</h3></div>);
 				}
 			}
-			let formatName;
-			if (gen === '/') {
-				formatName = format.slice(1);
-				format = formatName + '/';
-				if (formatName === '~') {
-					formatName = '(uncategorized)';
-					format = '/';
-				} else {
-					formatName = BattleLog.escapeHTML(formatName);
-				}
-				const isCurFolder = this.curFolder === format;
-				renderedFolders.push(<TeamFolder cur={isCurFolder} value={format}>
+			const folderOpenIcon = this.curFolder === format ? 'fa-folder-open' : 'fa-folder';
+			if (gen === 0) {
+				renderedFolders.push(<TeamFolder cur={this.curFolder === format} value={format}>
 					<i class={
-						`fa ${isCurFolder ? 'fa-folder-open' : 'fa-folder'}${format === '/' ? '-o' : ''}`
+						`fa ${folderOpenIcon}${format === '/' ? '-o' : ''}`
 					}></i>
-					{formatName}
+					{format.slice(0, -1) || '(uncategorized)'}
 				</TeamFolder>);
 				continue;
 			}
-			formatName = format.slice(1);
-			if (formatName === '~') formatName = '';
-			format = 'gen' + newGen + formatName;
-			if (format.length === 4) formatName = '(uncategorized)';
+
 			renderedFolders.push(<TeamFolder cur={this.curFolder === format} value={format}>
-				<i class={'fa ' + (this.curFolder === format ? 'fa-folder-open-o' : 'fa-folder-o')}></i>
-				{formatName}
+				<i class={`fa ${folderOpenIcon}-o`}></i>
+				{format.slice(4) || '(uncategorized)'}
 			</TeamFolder>);
 		}
 		renderedFolders.push(...renderedFormatFolders);
