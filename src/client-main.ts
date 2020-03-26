@@ -168,15 +168,14 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		const formatEntry = BattleFormats[formatid];
 		return formatEntry?.teambuilderFormat || formatid;
 	}
-	getKey(team: Team | null) {
-		if (!team) return '';
-		if (team.key) return team.key;
-		let key = Math.random().toString().substr(2, 1);
-		for (let i = 2; key in this.byKey; i++) {
-			key = Math.random().toString().substr(2, i);
+	getKey(name: string) {
+		const baseKey: string = toID(name) || '0';
+		let key = baseKey;
+		let i = 1;
+		while (key in this.byKey) {
+			i++;
+			key = `${baseKey}-${i}`;
 		}
-		team.key = key;
-		this.byKey[key] = team;
 		return key;
 	}
 	save() {
@@ -196,7 +195,10 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.list = [];
 		for (const line of buffer.split('\n')) {
 			const team = this.unpackLine(line);
-			if (team) this.list.push(team);
+			if (team) {
+				this.list.push(team);
+				this.byKey[team.key] = team;
+			}
 		}
 		this.update('team');
 	}
@@ -214,13 +216,15 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
 		let format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
 		if (format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+		const name = line.slice(slashIndex + 1, pipeIndex);
+		const key = this.getKey(name);
 		return {
-			name: line.slice(slashIndex + 1, pipeIndex),
+			name,
 			format: format as ID,
 			packedTeam: line.slice(pipeIndex + 1),
 			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
 			iconCache: '',
-			key: '',
+			key,
 		};
 	}
 }
