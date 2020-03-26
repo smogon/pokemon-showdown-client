@@ -288,10 +288,10 @@ class BattleTooltips {
 			let pokemon = side.pokemon[parseInt(args[2], 10)];
 			if (args[3] === 'illusion') {
 				buf = '';
-				const species = pokemon.getBaseTemplate().baseSpecies;
+				const species = pokemon.getBaseSpecies().baseSpecies;
 				let index = 1;
 				for (const otherPokemon of side.pokemon) {
-					if (otherPokemon.getBaseTemplate().baseSpecies === species) {
+					if (otherPokemon.getBaseSpecies().baseSpecies === species) {
 						buf += this.showPokemonTooltip(otherPokemon, null, false, index);
 						index++;
 					}
@@ -674,8 +674,8 @@ class BattleTooltips {
 		}
 
 		let name = BattleLog.escapeHTML(pokemon.name);
-		if (pokemon.species !== pokemon.name) {
-			name += ' <small>(' + BattleLog.escapeHTML(pokemon.species) + ')</small>';
+		if (pokemon.cosmeticFormeName !== pokemon.name) {
+			name += ' <small>(' + BattleLog.escapeHTML(pokemon.cosmeticFormeName) + ')</small>';
 		}
 
 		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
@@ -883,7 +883,7 @@ class BattleTooltips {
 
 		let item = toID(serverPokemon.item);
 		if (ability === 'klutz' && item !== 'machobrace') item = '' as ID;
-		let species = Dex.getTemplate(clientPokemon ? clientPokemon.getSpecies() : serverPokemon.species).baseSpecies;
+		let species = Dex.getSpecies(clientPokemon ? clientPokemon.getCosmeticFormeName() : serverPokemon.cosmeticFormeName).baseSpecies;
 
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
@@ -960,7 +960,7 @@ class BattleTooltips {
 						for (const ally of allyActive) {
 							if (!ally || ally.fainted) continue;
 							let allyAbility = this.getAllyAbility(ally);
-							if (allyAbility === 'Flower Gift' && (ally.getTemplate().baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
+							if (allyAbility === 'Flower Gift' && (ally.getSpecies().baseSpecies === 'Cherrim' || this.battle.gen <= 4)) {
 								stats.atk = Math.floor(stats.atk * 1.5);
 								stats.spd = Math.floor(stats.spd * 1.5);
 							}
@@ -991,7 +991,7 @@ class BattleTooltips {
 		if (ability === 'marvelscale' && pokemon.status) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		if (item === 'eviolite' && Dex.getTemplate(pokemon.species).evos) {
+		if (item === 'eviolite' && Dex.getSpecies(pokemon.cosmeticFormeName).evos) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
@@ -1126,7 +1126,7 @@ class BattleTooltips {
 	 */
 	getSpeedRange(pokemon: Pokemon): [number, number] {
 		let level = pokemon.level;
-		let baseSpe = pokemon.getTemplate().baseStats['spe'];
+		let baseSpe = pokemon.getSpecies().baseStats['spe'];
 		let tier = this.battle.tier;
 		let gen = this.battle.gen;
 		let isRandomBattle = tier.includes('Random Battle') ||
@@ -1203,7 +1203,7 @@ class BattleTooltips {
 		}
 
 		// Aura Wheel as Morpeko-Hangry changes the type to Dark
-		if (move.id === 'aurawheel' && value.pokemon.getTemplate().species === 'Morpeko-Hangry') {
+		if (move.id === 'aurawheel' && value.pokemon.getSpecies().name === 'Morpeko-Hangry') {
 			moveType = 'Dark';
 		}
 
@@ -1393,7 +1393,7 @@ class BattleTooltips {
 		if (move.id === 'weatherball') {
 			value.weatherModify(2);
 		}
-		if (move.id === 'watershuriken' && pokemon.getSpecies() === 'Greninja-Ash' && pokemon.ability === 'Battle Bond') {
+		if (move.id === 'watershuriken' && pokemon.getCosmeticFormeName() === 'Greninja-Ash' && pokemon.ability === 'Battle Bond') {
 			value.set(20, 'Battle Bond');
 		}
 		// Moves that check opponent speed
@@ -1616,7 +1616,7 @@ class BattleTooltips {
 		'Spell Tag': 'Ghost',
 		'Twisted Spoon': 'Psychic',
 	};
-	static orbUsers: {[speciesName: string]: string} = {
+	static orbUsers: {[cosmeticFormeName: string]: string} = {
 		'Latias': 'Soul Dew',
 		'Latios': 'Soul Dew',
 		'Dialga': 'Adamant Orb',
@@ -1661,7 +1661,7 @@ class BattleTooltips {
 
 		// Pokemon-specific items
 		if (item.name === 'Soul Dew' && this.battle.gen < 7) return value;
-		if (BattleTooltips.orbUsers[Dex.getTemplate(value.serverPokemon.species).baseSpecies] === item.name &&
+		if (BattleTooltips.orbUsers[Dex.getSpecies(value.serverPokemon.cosmeticFormeName).baseSpecies] === item.name &&
 			[BattleTooltips.orbTypes[item.name], 'Dragon'].includes(moveType)) {
 			value.itemModify(1.2);
 			return value;
@@ -1678,7 +1678,7 @@ class BattleTooltips {
 	}
 	getPokemonTypes(pokemon: Pokemon | ServerPokemon): ReadonlyArray<TypeName> {
 		if (!(pokemon as Pokemon).getTypes) {
-			return this.battle.dex.getTemplate(pokemon.species).types;
+			return this.battle.dex.getSpecies(pokemon.cosmeticFormeName).types;
 		}
 
 		return (pokemon as Pokemon).getTypeList();
@@ -1710,13 +1710,13 @@ class BattleTooltips {
 					abilityData.baseAbility = clientPokemon.baseAbility;
 				}
 			} else {
-				const species = clientPokemon.getSpecies() || serverPokemon?.species || '';
-				const template = this.battle.dex.getTemplate(species);
-				if (template.exists && template.abilities) {
-					abilityData.possibilities = [template.abilities['0']];
-					if (template.abilities['1']) abilityData.possibilities.push(template.abilities['1']);
-					if (template.abilities['H']) abilityData.possibilities.push(template.abilities['H']);
-					if (template.abilities['S']) abilityData.possibilities.push(template.abilities['S']);
+				const cosmeticFormeName = clientPokemon.getCosmeticFormeName() || serverPokemon?.cosmeticFormeName || '';
+				const species = this.battle.dex.getSpecies(cosmeticFormeName);
+				if (species.exists && species.abilities) {
+					abilityData.possibilities = [species.abilities['0']];
+					if (species.abilities['1']) abilityData.possibilities.push(species.abilities['1']);
+					if (species.abilities['H']) abilityData.possibilities.push(species.abilities['H']);
+					if (species.abilities['S']) abilityData.possibilities.push(species.abilities['S']);
 				}
 			}
 		}
@@ -1853,13 +1853,13 @@ class BattleStatGuesser {
 		let item = this.dex.getItem(itemid);
 		let abilityid = toID(set.ability);
 
-		let template = this.dex.getTemplate(set.species || set.name!);
-		if (item.megaEvolves === template.species) template = this.dex.getTemplate(item.megaStone);
-		if (!template.exists) return '?';
-		let stats = template.baseStats;
+		let species = this.dex.getSpecies(set.species || set.name!);
+		if (item.megaEvolves === species.name) species = this.dex.getSpecies(item.megaStone);
+		if (!species.exists) return '?';
+		let stats = species.baseStats;
 
 		if (set.moves.length < 1) return '?';
-		let needsFourMoves = !['unown', 'ditto'].includes(template.id);
+		let needsFourMoves = !['unown', 'ditto'].includes(species.id);
 		let moveids = set.moves.map(toID);
 		if (moveids.includes('lastresort' as ID)) needsFourMoves = false;
 		if (set.moves.length < 4 && needsFourMoves && this.formatid !== 'gen8metronomebattle') {
@@ -1952,7 +1952,7 @@ class BattleStatGuesser {
 			specialBulk *= 1.3;
 			moveCount['SpecialStall']++;
 		}
-		if (abilityid === 'sandstream' && template.types.includes('Rock')) {
+		if (abilityid === 'sandstream' && species.types.includes('Rock')) {
 			specialBulk *= 1.5;
 		}
 
@@ -2046,8 +2046,8 @@ class BattleStatGuesser {
 		this.moveCount = moveCount;
 		this.hasMove = hasMove;
 
-		if (template.id === 'ditto') return abilityid === 'imposter' ? 'Physically Defensive' : 'Fast Bulky Support';
-		if (template.id === 'shedinja') return 'Fast Physical Sweeper';
+		if (species.id === 'ditto') return abilityid === 'imposter' ? 'Physically Defensive' : 'Fast Bulky Support';
+		if (species.id === 'shedinja') return 'Fast Physical Sweeper';
 
 		if (itemid === 'choiceband' && moveCount['PhysicalAttack'] >= 2) {
 			if (!isFast) return 'Bulky Band';
@@ -2064,7 +2064,7 @@ class BattleStatGuesser {
 			return 'Physical Biased Mixed Scarf';
 		}
 
-		if (template.id === 'unown') return 'Fast Special Sweeper';
+		if (species.id === 'unown') return 'Fast Special Sweeper';
 
 		if (moveCount['PhysicalStall'] && moveCount['Restoration']) {
 			if (stats.spe > 110 && abilityid !== 'prankster') return 'Fast Bulky Support';
@@ -2098,7 +2098,7 @@ class BattleStatGuesser {
 		}
 		if (moveCount['SpecialStall']) return 'Physically Defensive';
 		if (moveCount['PhysicalStall']) return 'Specially Defensive';
-		if (template.id === 'blissey' || template.id === 'chansey') return 'Physically Defensive';
+		if (species.id === 'blissey' || species.id === 'chansey') return 'Physically Defensive';
 		if (specialBulk >= physicalBulk) return 'Specially Defensive';
 		return 'Physically Defensive';
 	}
@@ -2136,8 +2136,8 @@ class BattleStatGuesser {
 	guessEVs(set: PokemonSet, role: string): Partial<StatsTable> & {plusStat?: StatName | '', minusStat?: StatName | ''} {
 		if (!set) return {};
 		if (role === '?') return {};
-		let template = this.dex.getTemplate(set.species || set.name!);
-		let stats = template.baseStats;
+		let species = this.dex.getSpecies(set.species || set.name!);
+		let stats = species.baseStats;
 
 		let hasMove = this.hasMove;
 		let moveCount = this.moveCount;
@@ -2222,14 +2222,14 @@ class BattleStatGuesser {
 			let SRresistances = ['Ground', 'Steel', 'Fighting'];
 			let SRweak = 0;
 			if (set.ability !== 'Magic Guard' && set.ability !== 'Mountaineer') {
-				if (SRweaknesses.indexOf(template.types[0]) >= 0) {
+				if (SRweaknesses.indexOf(species.types[0]) >= 0) {
 					SRweak++;
-				} else if (SRresistances.indexOf(template.types[0]) >= 0) {
+				} else if (SRresistances.indexOf(species.types[0]) >= 0) {
 					SRweak--;
 				}
-				if (SRweaknesses.indexOf(template.types[1]) >= 0) {
+				if (SRweaknesses.indexOf(species.types[1]) >= 0) {
 					SRweak++;
-				} else if (SRresistances.indexOf(template.types[1]) >= 0) {
+				} else if (SRresistances.indexOf(species.types[1]) >= 0) {
 					SRweak--;
 				}
 			}
@@ -2273,19 +2273,19 @@ class BattleStatGuesser {
 				if (hp || evs['hp']) evs['hp'] = hp;
 			}
 
-			if (template.id === 'tentacruel') {
+			if (species.id === 'tentacruel') {
 				evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
-			} else if (template.id === 'skarmory') {
+			} else if (species.id === 'skarmory') {
 				evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
-			} else if (template.id === 'jirachi') {
+			} else if (species.id === 'jirachi') {
 				evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
-			} else if (template.id === 'celebi') {
+			} else if (species.id === 'celebi') {
 				evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
-			} else if (template.id === 'volcarona') {
+			} else if (species.id === 'volcarona') {
 				evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
-			} else if (template.id === 'gliscor') {
+			} else if (species.id === 'gliscor') {
 				evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
-			} else if (template.id === 'dragonite' && evs['hp']) {
+			} else if (species.id === 'dragonite' && evs['hp']) {
 				evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
 			}
 
@@ -2354,12 +2354,12 @@ class BattleStatGuesser {
 	}
 
 	getStat(stat: StatName, set: PokemonSet, evOverride?: number, natureOverride?: number) {
-		let template = this.dex.getTemplate(set.species);
-		if (!template.exists) return 0;
+		let species = this.dex.getSpecies(set.species);
+		if (!species.exists) return 0;
 
 		let level = set.level || 100;
 
-		let baseStat = template.baseStats[stat];
+		let baseStat = species.baseStats[stat];
 
 		let iv = (set.ivs && set.ivs[stat]);
 		if (typeof iv !== 'number') iv = 31;
