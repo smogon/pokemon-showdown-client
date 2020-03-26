@@ -393,6 +393,13 @@ class BattleChoiceBuilder {
 			if (!isTeamPreview && current.targetPokemon - 1 < this.requestLength()) {
 				throw new Error(`That Pokémon is already in battle!`);
 			}
+			const target = request.side.pokemon[current.targetPokemon - 1];
+			if (!target) {
+				throw new Error(`Couldn't find Pokémon "${choice}" to switch to!`);
+			}
+			if (target.fainted) {
+				throw new Error(`${target} is fainted and cannot battle!`);
+			}
 			return current;
 		}
 
@@ -442,6 +449,7 @@ class BattleChoiceBuilder {
 			}
 		}
 
+		if (request.requestType === 'wait') request.noCancel = true;
 		if (request.side) {
 			for (const serverPokemon of request.side.pokemon) {
 				battle.parseDetails(serverPokemon.ident.substr(4), serverPokemon.ident, serverPokemon.details, serverPokemon);

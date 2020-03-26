@@ -42,7 +42,7 @@ class BattleTextParser {
 		case 'fieldhtml': case 'controlshtml': case 'bigerror':
 		case 'debug': case 'tier': case 'challstr': case 'popup': case '':
 			return [cmd, line.slice(index + 1)];
-		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange':
+		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange': case 'queryresponse':
 			// three parts
 			const index2a = line.indexOf('|', index + 1);
 			return [cmd, line.slice(index + 1, index2a), line.slice(index2a + 1)];
