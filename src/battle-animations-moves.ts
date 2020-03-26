@@ -2238,6 +2238,7 @@ const BattleMoveAnims: AnimTable = {
 			}, 'decel', 'fade');
 		},
 	},
+
 	craftyshield: {
 		anim: BattleOtherAnims.selfstatus.anim,
 	},
@@ -30831,6 +30832,7 @@ BattleMoveAnims['gravapple'] = {anim: BattleMoveAnims['energyball'].anim};
 BattleMoveAnims['spiritbreak'] = {anim: BattleMoveAnims['moonblast'].anim};
 BattleMoveAnims['lifedew'] = {anim: BattleMoveAnims['bubblebeam'].anim};
 BattleMoveAnims['obstruct'] = {anim: BattleMoveAnims['kingsshield'].anim};
+BattleMoveAnims['maxguard'] = {anim: BattleMoveAnims['banefulbunker'].anim};
 BattleMoveAnims['falsesurrender'] = {anim: BattleMoveAnims['feintattack'].anim};
 BattleMoveAnims['meteorassault'] = {anim: BattleMoveAnims['aurasphere'].anim};
 BattleMoveAnims['eternabeam'] = {anim: BattleMoveAnims['roaroftime'].anim};

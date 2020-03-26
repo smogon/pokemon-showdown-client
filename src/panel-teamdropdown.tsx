@@ -25,8 +25,8 @@ class PSTeambuilder {
 			buf += '|' + toID(set.item);
 
 			// ability
-			let template = Dex.getTemplate(set.species || set.name);
-			let abilities = template.abilities;
+			let species = Dex.getSpecies(set.species || set.name);
+			let abilities = species.abilities;
 			id = toID(set.ability);
 			if (abilities) {
 				if (id === toID(abilities['0'])) {
@@ -71,7 +71,7 @@ class PSTeambuilder {
 			}
 
 			// gender
-			if (set.gender && set.gender !== template.gender) {
+			if (set.gender && set.gender !== species.gender) {
 				buf += '|' + set.gender;
 			} else {
 				buf += '|';
@@ -137,7 +137,7 @@ class PSTeambuilder {
 
 			// species
 			j = buf.indexOf('|', i);
-			set.species = Dex.getTemplate(buf.substring(i, j)).species || set.name;
+			set.species = Dex.getSpecies(buf.substring(i, j)).name || set.name;
 			i = j + 1;
 
 			// item
@@ -148,10 +148,10 @@ class PSTeambuilder {
 			// ability
 			j = buf.indexOf('|', i);
 			let ability = Dex.getAbility(buf.substring(i, j)).name;
-			let template = Dex.getTemplate(set.species);
-			if (template.baseSpecies === 'Zygarde' && ability === 'H') ability = 'Power Construct';
+			let species = Dex.getSpecies(set.species);
+			if (species.baseSpecies === 'Zygarde' && ability === 'H') ability = 'Power Construct';
 			set.ability = ['', '0', '1', 'H', 'S'].includes(ability) ?
-				template.abilities[ability as '0' || '0'] || (ability === '' ? '' : '!!!ERROR!!!') :
+				species.abilities[ability as '0' || '0'] || (ability === '' ? '' : '!!!ERROR!!!') :
 				ability;
 			i = j + 1;
 

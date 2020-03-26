@@ -806,9 +806,9 @@ Storage.fastUnpackTeam = function (buf) {
 		// ability
 		j = buf.indexOf('|', i);
 		var ability = buf.substring(i, j);
-		var template = Dex.getTemplate(set.species);
-		if (template.baseSpecies === 'Zygarde' && ability === 'H') ability = 'Power Construct';
-		set.ability = (template.abilities && ['', '0', '1', 'H', 'S'].includes(ability) ? template.abilities[ability] || '!!!ERROR!!!' : ability);
+		var species = Dex.getSpecies(set.species);
+		if (species.baseSpecies === 'Zygarde' && ability === 'H') ability = 'Power Construct';
+		set.ability = (species.abilities && ['', '0', '1', 'H', 'S'].includes(ability) ? species.abilities[ability] || '!!!ERROR!!!' : ability);
 		i = j + 1;
 
 		// moves
@@ -909,7 +909,7 @@ Storage.unpackTeam = function (buf) {
 
 		// species
 		j = buf.indexOf('|', i);
-		set.species = Dex.getTemplate(buf.substring(i, j)).species || set.name;
+		set.species = Dex.getSpecies(buf.substring(i, j)).species || set.name;
 		i = j + 1;
 
 		// item
@@ -920,8 +920,8 @@ Storage.unpackTeam = function (buf) {
 		// ability
 		j = buf.indexOf('|', i);
 		var ability = Dex.getAbility(buf.substring(i, j)).name;
-		var template = Dex.getTemplate(set.species);
-		set.ability = (template.abilities && ability in {'':1, 0:1, 1:1, H:1} ? template.abilities[ability || '0'] : ability);
+		var species = Dex.getSpecies(set.species);
+		set.ability = (species.abilities && ability in {'':1, 0:1, 1:1, H:1} ? species.abilities[ability || '0'] : ability);
 		i = j + 1;
 
 		// moves
@@ -1144,11 +1144,11 @@ Storage.importTeam = function (buffer, teams) {
 			var parenIndex = line.lastIndexOf(' (');
 			if (line.substr(line.length - 1) === ')' && parenIndex !== -1) {
 				line = line.substr(0, line.length - 1);
-				curSet.species = Dex.getTemplate(line.substr(parenIndex + 2)).species;
+				curSet.species = Dex.getSpecies(line.substr(parenIndex + 2)).species;
 				line = line.substr(0, parenIndex);
 				curSet.name = line;
 			} else {
-				curSet.species = Dex.getTemplate(line).species;
+				curSet.species = Dex.getSpecies(line).species;
 				curSet.name = '';
 			}
 		} else if (line.substr(0, 7) === 'Trait: ') {

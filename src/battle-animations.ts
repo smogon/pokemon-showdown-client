@@ -96,7 +96,7 @@ class BattleScene {
 			if (!pokemonId) return '';
 			if (battle.ignoreNicks || battle.ignoreOpponent) {
 				const pokemon = battle.getPokemon(pokemonId);
-				if (pokemon) return pokemon.species;
+				if (pokemon) return pokemon.cosmeticFormeName;
 			}
 			if (!pokemonId.startsWith('p1') && !pokemonId.startsWith('p2')) return '???pokemon:' + pokemonId + '???';
 			if (pokemonId.charAt(3) === ':') return pokemonId.slice(4).trim();
@@ -585,9 +585,9 @@ class BattleScene {
 
 	getDetailsText(pokemon: Pokemon) {
 		let name = pokemon.side?.n &&
-			(this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.species : pokemon.name;
-		if (name !== pokemon.species) {
-				name += ' (' + pokemon.species + ')';
+			(this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.cosmeticFormeName : pokemon.name;
+		if (name !== pokemon.cosmeticFormeName) {
+				name += ' (' + pokemon.cosmeticFormeName + ')';
 		}
 		if (pokemon === pokemon.side.active[0]) {
 			name += ' (active)';
@@ -622,10 +622,10 @@ class BattleScene {
 		let hasIllusion = false;
 		if (speciesOverage) {
 			for (let i = 0; i < side.pokemon.length; i++) {
-				const species = side.pokemon[i].getBaseTemplate().baseSpecies;
+				const species = side.pokemon[i].getBaseSpecies().baseSpecies;
 				if (speciesOverage && speciesTable.includes(species)) {
 					for (const sidebarIcon of sidebarIcons) {
-						if (side.pokemon[sidebarIcon[1]!].getBaseTemplate().baseSpecies === species) {
+						if (side.pokemon[sidebarIcon[1]!].getBaseSpecies().baseSpecies === species) {
 							sidebarIcon[0] = 'pokemon-illusion';
 						}
 					}
@@ -724,8 +724,8 @@ class BattleScene {
 			let lombreCount = 0;
 			for (let i = 0; i < side.pokemon.length; i++) {
 				let pokemon = side.pokemon[i];
-				if (pokemon.species === 'Ludicolo') ludicoloCount++;
-				if (pokemon.species === 'Lombre') lombreCount++;
+				if (pokemon.cosmeticFormeName === 'Ludicolo') ludicoloCount++;
+				if (pokemon.cosmeticFormeName === 'Lombre') lombreCount++;
 
 				let spriteData = Dex.getSpriteData(pokemon, siden, {
 					gen: this.gen,
@@ -742,7 +742,7 @@ class BattleScene {
 					x = 48 + 100 + 50 * i;
 				}
 				if (textBuf) textBuf += ' / ';
-				textBuf += pokemon.species;
+				textBuf += pokemon.cosmeticFormeName;
 				let url = spriteData.url;
 				// if (this.paused) url.replace('/xyani', '/xy').replace('.gif', '.png');
 				buf += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + Math.floor(y - spriteData.h / 2) + 'px;left:' + Math.floor(x - spriteData.w / 2) + 'px" />';
@@ -2266,7 +2266,7 @@ class PokemonSprite extends Sprite {
 		this.cryurl = sp.cryurl;
 
 		if (!this.scene.animating) return;
-		let speciesid = toID(pokemon.getSpecies());
+		let speciesid = toID(pokemon.getCosmeticFormeName());
 		let doCry = false;
 		const scene = this.scene;
 		if (isCustomAnim) {
@@ -2423,7 +2423,7 @@ class PokemonSprite extends Sprite {
 	dogarsCheck(pokemon: Pokemon) {
 		if (pokemon.side.n === 1) return;
 
-		if (pokemon.species === 'Koffing' && pokemon.name.match(/dogars/i)) {
+		if (pokemon.cosmeticFormeName === 'Koffing' && pokemon.name.match(/dogars/i)) {
 			this.scene.setBgm(-1);
 		} else if (this.scene.bgmNum === -1) {
 			this.scene.rollBgm();
@@ -2436,7 +2436,7 @@ class PokemonSprite extends Sprite {
 	getStatbarHTML(pokemon: Pokemon) {
 		let buf = '<div class="statbar' + (this.siden ? ' lstatbar' : ' rstatbar') + '" style="display: none">';
 		const ignoreNick = this.siden && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks);
-		buf += `<strong>${BattleLog.escapeHTML(ignoreNick ? pokemon.species : pokemon.name)}`;
+		buf += `<strong>${BattleLog.escapeHTML(ignoreNick ? pokemon.cosmeticFormeName : pokemon.name)}`;
 		const gender = pokemon.gender;
 		if (gender === 'M' || gender === 'F') {
 			buf += ` <img src="${Dex.resourcePrefix}fx/gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" />`;
@@ -2444,9 +2444,9 @@ class PokemonSprite extends Sprite {
 		buf += (pokemon.level === 100 ? `` : ` <small>L${pokemon.level}</small>`);
 
 		let symbol = '';
-		if (pokemon.species.indexOf('-Mega') >= 0) symbol = 'mega';
-		else if (pokemon.species === 'Kyogre-Primal') symbol = 'alpha';
-		else if (pokemon.species === 'Groudon-Primal') symbol = 'omega';
+		if (pokemon.cosmeticFormeName.indexOf('-Mega') >= 0) symbol = 'mega';
+		else if (pokemon.cosmeticFormeName === 'Kyogre-Primal') symbol = 'alpha';
+		else if (pokemon.cosmeticFormeName === 'Groudon-Primal') symbol = 'omega';
 		if (symbol) {
 			buf += ` <img src="${Dex.resourcePrefix}sprites/misc/${symbol}.png" alt="${symbol}" style="vertical-align:text-bottom;" />`;
 		}

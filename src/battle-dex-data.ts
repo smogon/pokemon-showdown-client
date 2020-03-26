@@ -956,9 +956,9 @@ interface Effect {
 	readonly id: ID;
 	readonly name: string;
 	readonly gen: number;
-	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Template' | 'PureEffect';
+	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Species' | 'PureEffect';
 	/**
-	 * Do we have data on this item/move/ability/template?
+	 * Do we have data on this item/move/ability/species?
 	 * WARNING: Always false if the relevant data files aren't loaded.
 	 */
 	readonly exists: boolean;
@@ -1292,17 +1292,15 @@ class Ability implements Effect {
 	}
 }
 
-class Template implements Effect {
+class Species implements Effect {
 	// effect
-	readonly effectType = 'Template';
+	readonly effectType = 'Species';
 	readonly id: ID;
 	readonly name: string;
 	readonly gen: number;
 	readonly exists: boolean;
 
 	// name
-	readonly species: string;
-	readonly speciesid: ID;
 	readonly baseSpecies: string;
 	readonly forme: string;
 	readonly formeid: string;
@@ -1330,7 +1328,7 @@ class Template implements Effect {
 	// format data
 	readonly otherFormes: ReadonlyArray<ID> | null;
 	// TODO: rename to cosmeticForms
-	readonly otherForms: ReadonlyArray<ID> | null;
+	readonly cosmeticFormes: ReadonlyArray<ID> | null;
 	readonly evos: ReadonlyArray<ID> | null;
 	readonly prevo: ID;
 	readonly evoType: 'trade' | 'useItem' | 'levelMove' | 'levelExtra' | 'levelFriendship' | 'levelHold' | 'other' | '';
@@ -1351,13 +1349,11 @@ class Template implements Effect {
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
-		if (data.name || data.species) name = data.name || data.species;
+		if (data.name) name = data.name;
 		this.name = Dex.sanitizeName(name);
 		this.id = id;
 		this.gen = data.gen || 0;
 		this.exists = ('exists' in data ? !!data.exists : true);
-		this.species = this.name;
-		this.speciesid = this.id;
 		if (!data.abilities &&
 			!['hooh', 'hakamoo', 'jangmoo', 'kommoo', 'porygonz'].includes(this.id)) {
 			const dashIndex = name.indexOf('-');
@@ -1410,7 +1406,7 @@ class Template implements Effect {
 		this.eggGroups = data.eggGroups || [];
 
 		this.otherFormes = data.otherFormes || null;
-		this.otherForms = data.otherForms || null;
+		this.cosmeticFormes = data.cosmeticFormes || null;
 		this.evos = data.evos || null;
 		this.prevo = data.prevo || '';
 		this.evoType = data.evoType || '';
@@ -1468,7 +1464,7 @@ if (typeof require === 'function') {
 	(global as any).BattleStats = BattleStats;
 	(global as any).BattleNatures = BattleNatures;
 	(global as any).PureEffect = PureEffect;
-	(global as any).Template = Template;
+	(global as any).Species = Species;
 	(global as any).Ability = Ability;
 	(global as any).Item = Item;
 	(global as any).Move = Move;
