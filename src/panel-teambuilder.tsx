@@ -171,7 +171,7 @@ class TeambuilderPanel extends PSRoomPanel {
 					<h2>All Teams</h2>
 				}
 				<ul class="teamlist">
-					{teams.map(team => <li key={PS.teams.getKey(team)}>
+					{teams.map(team => <li key={team.key}>
 						<TeamBox team={team} />
 					</li>)}
 				</ul>

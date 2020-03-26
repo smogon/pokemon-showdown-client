@@ -5,6 +5,10 @@
  * @license AGPLv3
  */
 
+class TeamRoom extends PSRoom {
+	sets: PokemonSet[] | null = null;
+}
+
 class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 	setInfo: {
 		species: string,
@@ -57,6 +61,9 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 				if (!cursorOnly) {
 					const atIndex = line.indexOf('@');
 					let species = atIndex >= 0 ? line.slice(0, atIndex).trim() : line;
+					if (species.endsWith(' (M)') || species.endsWith(' (F)')) {
+						species = species.slice(0, -4);
+					}
 					if (species.endsWith(')')) {
 						const parenIndex = species.lastIndexOf(' (');
 						if (parenIndex >= 0) {
@@ -153,8 +160,7 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 	}
 }
 
-class TeamPanel extends PSRoomPanel {
-	sets: PokemonSet[] | null = null;
+class TeamPanel extends PSRoomPanel<TeamRoom> {
 	backToList = () => {
 		PS.removeRoom(this.props.room);
 		PS.join('teambuilder' as RoomID);
@@ -173,8 +179,8 @@ class TeamPanel extends PSRoomPanel {
 			</PSPanelWrapper>;
 		}
 
-		const sets = this.sets || PSTeambuilder.unpackTeam(team!.packedTeam);
-		if (!this.sets) this.sets = sets;
+		const sets = room.sets || PSTeambuilder.unpackTeam(team!.packedTeam);
+		if (!room.sets) room.sets = sets;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="pad">
 				<button class="button" onClick={this.backToList}>
@@ -190,6 +196,7 @@ class TeamPanel extends PSRoomPanel {
 }
 
 PS.roomTypes['team'] = {
+	Model: TeamRoom,
 	Component: TeamPanel,
 	title: "Team",
 };

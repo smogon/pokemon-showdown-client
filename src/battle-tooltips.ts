@@ -883,7 +883,8 @@ class BattleTooltips {
 
 		let item = toID(serverPokemon.item);
 		if (ability === 'klutz' && item !== 'machobrace') item = '' as ID;
-		let species = Dex.getSpecies(clientPokemon ? clientPokemon.getCosmeticFormeName() : serverPokemon.cosmeticFormeName).baseSpecies;
+		const cosmeticFormeName = clientPokemon ? clientPokemon.getCosmeticFormeName() : serverPokemon.cosmeticFormeName;
+		let species = Dex.getSpecies(cosmeticFormeName).baseSpecies;
 
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder

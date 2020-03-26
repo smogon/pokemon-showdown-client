@@ -399,11 +399,11 @@ function TeamBox(props: {team: Team | null, noLink?: boolean, button?: boolean})
 		];
 	}
 	if (props.button) {
-		return <button class="team" value={PS.teams.getKey(team)}>
+		return <button class="team" value={team ? team.key : ''}>
 			{contents}
 		</button>;
 	}
-	return <div data-href={props.noLink ? '' : `/team-${PS.teams.getKey(team)}`} class="team" draggable>
+	return <div data-href={props.noLink ? '' : `/team-${team ? team.key : ''}`} class="team" draggable>
 		{contents}
 	</div>;
 }
@@ -527,7 +527,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 				</h2>);
 			}
 			teamList.push(<ul class="teamdropdown" onClick={this.click}>
-				{teamBuckets[folder].map(team => <li key={PS.teams.getKey(team)} style={"display:inline-block"}>
+				{teamBuckets[folder].map(team => <li key={team.key} style={"display:inline-block"}>
 					<TeamBox team={team} button />
 				</li>)}
 			</ul>);
