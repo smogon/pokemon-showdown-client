@@ -1390,11 +1390,11 @@
 			var buf = '';
 			for (var i = 0; i < this.clipboardCount(); i++) {
 				var res = this.clipboard[i];
-				var pokemon = Dex.getSpecies(res.species);
+				var species = Dex.getSpecies(res.name);
 
 				buf += '<div class="result" data-id="' + i + '">';
-				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(res.species) + '"></span>';
-				buf += '<span class="species">' + (pokemon.species === pokemon.baseSpecies ? pokemon.species : (pokemon.baseSpecies + '-<small>' + pokemon.species.substr(pokemon.baseSpecies.length + 1) + '</small>')) + '</span></div>';
+				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(res.name) + '"></span>';
+				buf += '<span class="species">' + (species.name === species.baseSpecies ? species.name : (species.baseSpecies + '-<small>' + species.name.substr(pokemon.baseSpecies.length + 1) + '</small>')) + '</span></div>';
 				buf += '<div class="section"><span class="ability-item">' + (res.ability || '<i>No ability</i>') + '<br />' + (res.item || '<i>No item</i>') + '</span></div>';
 				buf += '<div class="section no-border">';
 				for (var j = 0; j < 4; j++) {
