@@ -452,13 +452,13 @@ const Dex = new class implements ModdedDex {
 		return ability;
 	}
 
-	getTemplate(nameOrTemplate: string | Template | null | undefined): Template {
-		if (nameOrTemplate && typeof nameOrTemplate !== 'string') {
-			// TODO: don't accept Templates here
-			return nameOrTemplate;
+	getSpecies(nameOrSpecies: string | Species | null | undefined): Species {
+		if (nameOrSpecies && typeof nameOrSpecies !== 'string') {
+			// TODO: don't accept Species' here
+			return nameOrSpecies;
 		}
-		let name = nameOrTemplate || '';
-		let id = toID(nameOrTemplate);
+		let name = nameOrSpecies || '';
+		let id = toID(nameOrSpecies);
 		let formid = id;
 		if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
 		if (formid in window.BattlePokedexAltForms) return window.BattlePokedexAltForms[formid];
@@ -469,42 +469,42 @@ const Dex = new class implements ModdedDex {
 		if (!window.BattlePokedex) window.BattlePokedex = {};
 		let data = window.BattlePokedex[id];
 
-		let template: Template;
+		let species: Species;
 		if (data && typeof data.exists === 'boolean') {
-			template = data;
+			species = data;
 		} else {
 			if (!data) data = {exists: false};
 			if (!data.tier && id.slice(-5) === 'totem') {
-				data.tier = this.getTemplate(id.slice(0, -5)).tier;
+				data.tier = this.getSpecies(id.slice(0, -5)).tier;
 			}
 			if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
-				data.tier = this.getTemplate(data.baseSpecies).tier;
+				data.tier = this.getSpecies(data.baseSpecies).tier;
 			}
-			template = new Template(id, name, data);
-			window.BattlePokedex[id] = template;
+			species = new Species(id, name, data);
+			window.BattlePokedex[id] = species;
 		}
 
-		if (formid === id || !template.cosmeticFormes || !template.cosmeticFormes.includes(formid)) {
-			return template;
+		if (formid === id || !species.cosmeticFormes || !species.cosmeticFormes.includes(formid)) {
+			return species;
 		}
 		let forme = formid.slice(id.length);
 		forme = forme[0].toUpperCase() + forme.slice(1);
-		name = template.baseSpecies + (forme ? '-' + forme : '');
+		name = species.baseSpecies + (forme ? '-' + forme : '');
 
-		template = window.BattlePokedexAltForms[formid] = new Template(formid, name, {
-			...template,
+		species = window.BattlePokedexAltForms[formid] = new Species(formid, name, {
+			...species,
 			name,
 			forme,
 		});
-		return template;
+		return species;
 	}
 
 	/** @deprecated */
 	getTier(pokemon: string, genNum = 8, mod?: string): string {
-		let template = this.getTemplate(pokemon);
-		if (genNum < 8) template = this.forGen(genNum).getTemplate(pokemon);
+		let species = this.getSpecies(pokemon);
+		if (genNum < 8) species = this.forGen(genNum).getSpecies(pokemon);
 		let table = window.BattleTeambuilderTable;
-		if (!table) return template.tier;
+		if (!table) return species.tier;
 		if (mod === 'doubles') {
 			table = table[`gen${genNum}doubles`];
 		} else if (genNum < 8) {
@@ -513,14 +513,14 @@ const Dex = new class implements ModdedDex {
 			table = table[toID(mod)];
 		}
 
-		if (!table.overrideTier) return template.tier;
+		if (!table.overrideTier) return species.tier;
 
-		let id = template.id;
+		let id = species.id;
 		if (id in table.overrideTier) {
 			return table.overrideTier[id];
 		}
 
-		return template.tier;
+		return species.tier;
 	}
 
 	getType(type: any): Effect {
@@ -538,10 +538,10 @@ const Dex = new class implements ModdedDex {
 		return type;
 	}
 
-	hasAbility(template: Template, ability: string) {
-		for (const i in template.abilities) {
+	hasAbility(species: Species, ability: string) {
+		for (const i in species.abilities) {
 			// @ts-ignore
-			if (ability === template.abilities[i]) return true;
+			if (ability === species.abilities[i]) return true;
 		}
 		return false;
 	}
@@ -558,7 +558,7 @@ const Dex = new class implements ModdedDex {
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
 	}
-	getSpriteData(pokemon: Pokemon | Template | string, siden: number, options: {
+	getSpriteData(pokemon: Pokemon | Species | string, siden: number, options: {
 		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, mod?: string,
 	} = {gen: 6}) {
 		const mechanicsGen = options.gen || 6;
@@ -572,9 +572,9 @@ const Dex = new class implements ModdedDex {
 				options.gender = pokemon.gender;
 			}
 			if (pokemon.volatiles.dynamax) isDynamax = true;
-			pokemon = pokemon.getSpecies();
+			pokemon = pokemon.getSpeciesName();
 		}
-		const template = Dex.getTemplate(pokemon);
+		const species = Dex.getSpecies(pokemon);
 		let spriteData = {
 			gen: mechanicsGen,
 			w: 96,
@@ -586,7 +586,7 @@ const Dex = new class implements ModdedDex {
 			cryurl: '',
 			shiny: options.shiny,
 		};
-		let name = template.spriteid;
+		let name = species.spriteid;
 		let dir;
 		let facing;
 		if (siden) {
@@ -612,13 +612,13 @@ const Dex = new class implements ModdedDex {
 		let graphicsGen = mechanicsGen;
 		if (Dex.prefs('nopastgens')) graphicsGen = 6;
 		if (Dex.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
-		spriteData.gen = Math.max(graphicsGen, Math.min(template.gen, 5));
+		spriteData.gen = Math.max(graphicsGen, Math.min(species.gen, 5));
 		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', '', ''][spriteData.gen];
 
 		let animationData = null;
 		let miscData = null;
-		let speciesid = template.id;
-		if (template.isTotem) speciesid = toID(name);
+		let speciesid = species.id;
+		if (species.isTotem) speciesid = toID(name);
 		if (baseDir === '' && window.BattlePokemonSprites) {
 			animationData = BattlePokemonSprites[speciesid];
 		}
@@ -631,10 +631,10 @@ const Dex = new class implements ModdedDex {
 		if (!miscData) miscData = {};
 
 		if (miscData.num > 0) {
-			let baseSpeciesid = toID(template.baseSpecies);
+			let baseSpeciesid = toID(species.baseSpecies);
 			spriteData.cryurl = 'audio/cries/' + baseSpeciesid;
-			let formeid = template.formeid;
-			if (template.isMega || formeid && (
+			let formeid = species.formeid;
+			if (species.isMega || formeid && (
 				formeid === '-sky' ||
 				formeid === '-therian' ||
 				formeid === '-primal' ||
@@ -664,7 +664,7 @@ const Dex = new class implements ModdedDex {
 
 		// Mod Cries
 		if (options.mod) {
-			spriteData.cryurl = `sprites/${options.mod}/audio/${toID(template.baseSpecies)}`;
+			spriteData.cryurl = `sprites/${options.mod}/audio/${toID(species.baseSpecies)}`;
 			spriteData.cryurl += (window.nodewebkit ? '.ogg' : '.mp3');
 		}
 
@@ -711,7 +711,7 @@ const Dex = new class implements ModdedDex {
 			spriteData.w *= 2;
 			spriteData.h *= 2;
 			spriteData.y += -22;
-		} else if ((template.isTotem || isDynamax) && !options.noScale) {
+		} else if ((species.isTotem || isDynamax) && !options.noScale) {
 			spriteData.w *= 1.5;
 			spriteData.h *= 1.5;
 			spriteData.y += -11;
@@ -760,7 +760,7 @@ const Dex = new class implements ModdedDex {
 
 		let id = toID(pokemon);
 		if (!pokemon || typeof pokemon === 'string') pokemon = null;
-		if (pokemon?.species) id = toID(pokemon.species);
+		if (pokemon?.speciesName) id = toID(pokemon.speciesName);
 		// @ts-ignore
 		if (pokemon?.volatiles?.formechange && !pokemon.volatiles.transform) {
 			// @ts-ignore
@@ -777,11 +777,11 @@ const Dex = new class implements ModdedDex {
 	getTeambuilderSpriteData(pokemon: any, gen: number = 0): TeambuilderSpriteData {
 		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
-		let template = Dex.getTemplate(pokemon.species);
+		let species = Dex.getSpecies(pokemon.species);
 		if (pokemon.species && !spriteid) {
-			spriteid = template.spriteid || toID(pokemon.species);
+			spriteid = species.spriteid || toID(pokemon.species);
 		}
-		if (template.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
+		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
 		const spriteData: TeambuilderSpriteData = {
 			spriteid,
 			spriteDir: 'sprites/dex',
@@ -790,12 +790,12 @@ const Dex = new class implements ModdedDex {
 		};
 		if (pokemon.shiny) spriteData.shiny = true;
 		if (Dex.prefs('nopastgens')) gen = 6;
-		let xydexExists = (!template.isNonstandard || template.isNonstandard === 'Past') || [
+		let xydexExists = (!species.isNonstandard || species.isNonstandard === 'Past') || [
 			"pikachustarter", "eeveestarter", "meltan", "melmetal", "fidgit", "stratagem", "tomohawk", "mollux", "crucibelle", "crucibellemega", "kerfluffle", "pajantom", "jumbao", "caribolt", "smokomodo", "snaelstrom", "equilibra", "scratchet", "pluffle", "smogecko", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
-		].includes(template.id);
-		if (template.gen === 8) xydexExists = false;
+		].includes(species.id);
+		if (species.gen === 8) xydexExists = false;
 		if ((!gen || gen >= 6) && xydexExists) {
-			if (template.gen >= 7) {
+			if (species.gen >= 7) {
 				spriteData.x = -6;
 				spriteData.y = -7;
 			} else if (id.substr(0, 6) === 'arceus') {
@@ -811,10 +811,10 @@ const Dex = new class implements ModdedDex {
 			return spriteData;
 		}
 		spriteData.spriteDir = 'sprites/gen5';
-		if (gen <= 1 && template.gen <= 1) spriteData.spriteDir = 'sprites/gen1';
-		else if (gen <= 2 && template.gen <= 2) spriteData.spriteDir = 'sprites/gen2';
-		else if (gen <= 3 && template.gen <= 3) spriteData.spriteDir = 'sprites/gen3';
-		else if (gen <= 4 && template.gen <= 4) spriteData.spriteDir = 'sprites/gen4';
+		if (gen <= 1 && species.gen <= 1) spriteData.spriteDir = 'sprites/gen1';
+		else if (gen <= 2 && species.gen <= 2) spriteData.spriteDir = 'sprites/gen2';
+		else if (gen <= 3 && species.gen <= 3) spriteData.spriteDir = 'sprites/gen3';
+		else if (gen <= 4 && species.gen <= 4) spriteData.spriteDir = 'sprites/gen4';
 		spriteData.x = 10;
 		spriteData.y = 5;
 		return spriteData;
@@ -862,7 +862,7 @@ class ModdedDex {
 		Moves: {} as any as {[k: string]: Move},
 		Items: {} as any as {[k: string]: Item},
 		Abilities: {} as any as {[k: string]: Ability},
-		Templates: {} as any as {[k: string]: Template},
+		Species: {} as any as {[k: string]: Species},
 		Types: {} as any as {[k: string]: Effect},
 	};
 	pokeballs: string[] | null = null;
@@ -943,15 +943,15 @@ class ModdedDex {
 		this.cache.Abilities[id] = ability;
 		return ability;
 	}
-	getTemplate(name: string): Template {
+	getSpecies(name: string): Species {
 		let id = toID(name);
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
 			id = toID(name);
 		}
-		if (this.cache.Templates.hasOwnProperty(id)) return this.cache.Templates[id];
+		if (this.cache.Species.hasOwnProperty(id)) return this.cache.Species[id];
 
-		let data = {...Dex.getTemplate(name)};
+		let data = {...Dex.getSpecies(name)};
 
 		const table = window.BattleTeambuilderTable[this.modid];
 		if (this.gen < 3) {
@@ -979,16 +979,16 @@ class ModdedDex {
 
 		if (id in table.overrideTier) data.tier = table.overrideTier[id];
 		if (!data.tier && id.slice(-5) === 'totem') {
-			data.tier = this.getTemplate(id.slice(0, -5)).tier;
+			data.tier = this.getSpecies(id.slice(0, -5)).tier;
 		}
 		if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
-			data.tier = this.getTemplate(data.baseSpecies).tier;
+			data.tier = this.getSpecies(data.baseSpecies).tier;
 		}
 		if (data.gen > this.gen) data.tier = 'Illegal';
 
-		const template = new Template(id, name, data);
-		this.cache.Templates[id] = template;
-		return template;
+		const species = new Species(id, name, data);
+		this.cache.Species[id] = species;
+		return species;
 	}
 	getType(name: string): Effect {
 		let id = toID(name) as string;

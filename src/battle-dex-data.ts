@@ -956,9 +956,9 @@ interface Effect {
 	readonly id: ID;
 	readonly name: string;
 	readonly gen: number;
-	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Template' | 'PureEffect';
+	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Species' | 'PureEffect';
 	/**
-	 * Do we have data on this item/move/ability/template?
+	 * Do we have data on this item/move/ability/species?
 	 * WARNING: Always false if the relevant data files aren't loaded.
 	 */
 	readonly exists: boolean;
@@ -1292,9 +1292,9 @@ class Ability implements Effect {
 	}
 }
 
-class Template implements Effect {
+class Species implements Effect {
 	// effect
-	readonly effectType = 'Template';
+	readonly effectType = 'Species';
 	readonly id: ID;
 	readonly name: string;
 	readonly gen: number;
@@ -1349,7 +1349,7 @@ class Template implements Effect {
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
-		if (data.name || data.species) name = data.name || data.species;
+		if (data.name) name = data.name;
 		this.name = Dex.sanitizeName(name);
 		this.id = id;
 		this.gen = data.gen || 0;
@@ -1464,7 +1464,7 @@ if (typeof require === 'function') {
 	(global as any).BattleStats = BattleStats;
 	(global as any).BattleNatures = BattleNatures;
 	(global as any).PureEffect = PureEffect;
-	(global as any).Template = Template;
+	(global as any).Species = Species;
 	(global as any).Ability = Ability;
 	(global as any).Item = Item;
 	(global as any).Move = Move;

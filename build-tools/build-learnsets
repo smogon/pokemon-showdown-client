@@ -64,7 +64,7 @@ function updateLearnsets(callback) {
 		if (b.num <= 0 && a.num > 0) return 1;
 		if (a.num <= 0 && b.num <= 0) return b.num - a.num;
 		return a.num - b.num;
-	}).map(template => toID(template.name));
+	}).map(species => toID(species.name));
 
 	for (const speciesid of pokemonList) {
 		const entry = newLearnsetsG6[speciesid];

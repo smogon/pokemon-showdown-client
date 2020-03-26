@@ -362,7 +362,7 @@ class BattleSearch {
 				buf.push(['header', `${type}-type Pok&eacute;mon`]);
 				for (let id in BattlePokedex) {
 					if (!BattlePokedex[id].types) continue;
-					if (this.dex.getTemplate(id).types.includes(type)) {
+					if (this.dex.getSpecies(id).types.includes(type)) {
 						(legal && !(id in legal) ? illegalBuf : buf).push(['pokemon', id as ID]);
 					}
 				}
@@ -372,7 +372,7 @@ class BattleSearch {
 				buf.push(['header', `${ability} Pok&eacute;mon`]);
 				for (let id in BattlePokedex) {
 					if (!BattlePokedex[id].abilities) continue;
-					if (Dex.hasAbility(this.dex.getTemplate(id), ability)) {
+					if (Dex.hasAbility(this.dex.getSpecies(id), ability)) {
 						(legal && !(id in legal) ? illegalBuf : buf).push(['pokemon', id as ID]);
 					}
 				}
@@ -598,10 +598,10 @@ class BattleSearch {
 		this.results = results;
 	}
 	private teambuilderMoves(format: ID, set: PokemonSet) {
-		let template = Dex.getTemplate(set.species);
+		let species = Dex.getSpecies(set.species);
 		const isBH = (format === 'balancedhackmons' || format === 'bh');
 
-		let learnsetid = this.nextLearnsetid(template.id);
+		let learnsetid = this.nextLearnsetid(species.id);
 		let moves: string[] = [];
 		let sMoves: string[] = [];
 		let sketch = false;
@@ -628,7 +628,7 @@ class BattleSearch {
 					}
 				}
 			}
-			learnsetid = this.nextLearnsetid(learnsetid, template.id);
+			learnsetid = this.nextLearnsetid(learnsetid, species.id);
 		}
 		if (sketch || isBH) {
 			if (isBH) moves = [];
@@ -667,34 +667,34 @@ class BattleSearch {
 		if (format === 'stabmons') {
 			for (let i in BattleMovedex) {
 				let types = [];
-				let baseTemplate = Dex.getTemplate(template.baseSpecies);
-				for (const type of template.types) {
-					if (template.battleOnly) continue;
+				let baseSpecies = Dex.getSpecies(species.baseSpecies);
+				for (const type of species.types) {
+					if (species.battleOnly) continue;
 					types.push(type);
 				}
-				if (template.prevo) {
-					const prevoTemplate = Dex.getTemplate(template.prevo);
-					for (const type of prevoTemplate.types) {
+				if (species.prevo) {
+					const prevoSpecies = Dex.getSpecies(species.prevo);
+					for (const type of prevoSpecies.types) {
 						types.push(type);
 					}
-					if (prevoTemplate.prevo) {
-						for (const type of Dex.getTemplate(prevoTemplate.prevo).types) {
+					if (prevoSpecies.prevo) {
+						for (const type of Dex.getSpecies(prevoSpecies.prevo).types) {
 							types.push(type);
 						}
 					}
 				}
-				if (template.battleOnly) template = baseTemplate;
-				if (baseTemplate.otherFormes && baseTemplate.baseSpecies !== 'Wormadam') {
-					for (const type of baseTemplate.types) {
-						if (template.forme === 'Alola' || template.forme === 'Alola-Totem') {
+				if (species.battleOnly) species = baseSpecies;
+				if (baseSpecies.otherFormes && baseSpecies.baseSpecies !== 'Wormadam') {
+					for (const type of baseSpecies.types) {
+						if (['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(species.forme)) {
 							continue;
 						}
 						types.push(type);
 					}
-					for (const formeid of baseTemplate.otherFormes) {
-						const forme = Dex.getTemplate(formeid);
+					for (const formeid of baseSpecies.otherFormes) {
+						const forme = Dex.getSpecies(formeid);
 						for (const type of forme.types) {
-							if (forme.battleOnly || forme.forme === 'Alola' || forme.forme === 'Alola-Totem') {
+							if (forme.battleOnly || ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(species.forme)) {
 								continue;
 							}
 							types.push(type);
@@ -723,7 +723,10 @@ class BattleSearch {
 					}
 				}
 				if (BattleMovedex[i].gen > this.gen) continue;
-				if (BattleMovedex[i].isZ || BattleMovedex[i].isNonstandard || BattleMovedex[i].isUnreleased) continue;
+				if (
+					BattleMovedex[i].isZ || BattleMovedex[i].isMax ||
+					BattleMovedex[i].isNonstandard || BattleMovedex[i].isUnreleased
+				) continue;
 				moves.push(i);
 			}
 		}
@@ -740,7 +743,7 @@ class BattleSearch {
 			if (id === 'ancientpower') {
 				isViable = (
 					toID(set.ability) === 'technician' || (toID(set.ability) === 'serenegrace') ||
-					(template.types.includes('Rock') && moves.includes('powergem'))
+					(species.types.includes('Rock') && moves.includes('powergem'))
 				);
 			}
 			if (id === 'bellydrum') isViable = ['azumarill', 'linoone', 'slurpuff'].includes(toID(set.species));
@@ -752,23 +755,23 @@ class BattleSearch {
 			if (id === 'drainingkiss') isViable = (toID(set.ability) === 'triage');
 			if (id === 'dynamicpunch') isViable = (toID(set.ability) === 'noguard');
 			if (id === 'electroball') isViable = (toID(set.ability) === 'surgesurfer');
-			if (id === 'gyroball') isViable = (template.baseStats.spe <= 60);
-			if (id === 'headbutt') isViable = (toID(set.ability) === 'serenegrace' && template.types.includes('Normal'));
+			if (id === 'gyroball') isViable = (species.baseStats.spe <= 60);
+			if (id === 'headbutt') isViable = (toID(set.ability) === 'serenegrace' && species.types.includes('Normal'));
 			if (id === 'heartswap') isViable = (toID(set.species) === 'magearna');
 			if (id === 'hiddenpowerelectric') isViable = !moves.includes('thunderbolt');
 			if (id === 'hiddenpowerfighting') isViable = (!moves.includes('aurasphere') && !moves.includes('focusblast'));
 			if (id === 'hiddenpowerfire') isViable = !moves.includes('flamethrower');
 			if (id === 'hiddenpowergrass') isViable = (!moves.includes('energyball') && !moves.includes('gigadrain'));
-			if (id === 'hiddenpowerice') isViable = (!moves.includes('icebeam') && template.id !== 'xerneas');
+			if (id === 'hiddenpowerice') isViable = (!moves.includes('icebeam') && species.id !== 'xerneas');
 			if (id === 'hypnosis') {
 				isViable = ((this.gen < 4 && !moves.includes('sleeppowder')) || toID(set.species) === 'darkrai');
 			}
 			if (id === 'icywind') isViable = toID(set.species).startsWith('keldeo');
 			if (id === 'infestation') isViable = (toID(set.species) === 'shuckle');
 			if (id === 'irontail') {
-				isViable = (template.types.includes('Steel') && moves.indexOf('ironhead') < 0) ||
+				isViable = (species.types.includes('Steel') && moves.indexOf('ironhead') < 0) ||
 					(
-						(template.types.includes('Dark') || template.types.includes('Dragon')) &&
+						(species.types.includes('Dark') || species.types.includes('Dragon')) &&
 						!moves.includes('ironhead') && !moves.indexOf('gunkshot')
 					);
 			}
@@ -779,8 +782,8 @@ class BattleSearch {
 			if (id === 'rocktomb') isViable = (toID(set.species) === 'groudon' || toID(set.ability) === 'technician');
 			if (id === 'selfdestruct') isViable = (this.gen < 5 && moves.indexOf('explosion') < 0);
 			if (id === 'skyattack') isViable = (toID(set.species) === 'hawlucha');
-			if (id === 'smackdown') isViable = (template.types.indexOf('Ground') > 0);
-			if (id === 'smartstrike') isViable = (template.types.indexOf('Steel') > 0 && moves.indexOf('ironhead') < 0);
+			if (id === 'smackdown') isViable = (species.types.indexOf('Ground') > 0);
+			if (id === 'smartstrike') isViable = (species.types.indexOf('Steel') > 0 && moves.indexOf('ironhead') < 0);
 			if (id === 'solarbeam') isViable = ['drought', 'chlorophyll'].includes(toID(set.ability));
 			if (id === 'stompingtantrum') {
 				isViable = (
@@ -793,7 +796,7 @@ class BattleSearch {
 			if (id === 'thunder') {
 				isViable = (['drizzle', 'primordialsea'].includes(toID(set.ability)) || (toID(set.species) === 'xerneas'));
 			}
-			if (id === 'trickroom') isViable = (template.baseStats.spe <= 100);
+			if (id === 'trickroom') isViable = (species.baseStats.spe <= 100);
 			if (id === 'waterpulse') isViable = (toID(set.ability) === 'megalauncher' && moves.indexOf('originpulse') < 0);
 			if (format === 'mixandmega') {
 				if (id === 'blizzard') isViable = (toID(set.item) === 'abomasite' || toID(set.item) === 'pidgeotite');
@@ -867,33 +870,33 @@ class BattleSearch {
 	}
 	private teambuilderAbilities(format: ID, set: PokemonSet) {
 		const isBH = (format === 'balancedhackmons' || format === 'bh');
-		let template = this.dex.getTemplate(set.species);
+		let species = this.dex.getSpecies(set.species);
 		let abilitySet: SearchRow[] = [['header', "Abilities"]];
 
-		if (template.isMega) {
-			abilitySet.unshift(['html', `Will be <strong>${template.abilities['0']}</strong> after Mega Evolving.`]);
-			template = this.dex.getTemplate(template.baseSpecies);
+		if (species.isMega) {
+			abilitySet.unshift(['html', `Will be <strong>${species.abilities['0']}</strong> after Mega Evolving.`]);
+			species = this.dex.getSpecies(species.baseSpecies);
 		}
-		abilitySet.push(['ability', toID(template.abilities['0'])]);
-		if (template.abilities['1']) {
-			abilitySet.push(['ability', toID(template.abilities['1'])]);
+		abilitySet.push(['ability', toID(species.abilities['0'])]);
+		if (species.abilities['1']) {
+			abilitySet.push(['ability', toID(species.abilities['1'])]);
 		}
-		if (template.abilities['H']) {
+		if (species.abilities['H']) {
 			abilitySet.push(['header', "Hidden Ability"]);
-			abilitySet.push(['ability', toID(template.abilities['H'])]);
+			abilitySet.push(['ability', toID(species.abilities['H'])]);
 		}
-		if (template.abilities['S']) {
+		if (species.abilities['S']) {
 			abilitySet.push(['header', "Special Event Ability"]);
-			abilitySet.push(['ability', toID(template.abilities['S'])]);
+			abilitySet.push(['ability', toID(species.abilities['S'])]);
 		}
 		if (format === 'almostanyability' || isBH) {
-			template = Dex.getTemplate(set.species);
+			species = Dex.getSpecies(set.species);
 			let abilities: ID[] = [];
-			if (template.isMega) {
+			if (species.isMega) {
 				if (format === 'almostanyability') {
-					abilitySet.unshift(['html', `Will be <strong>${template.abilities['0']}</strong> after Mega Evolving.`]);
+					abilitySet.unshift(['html', `Will be <strong>${species.abilities['0']}</strong> after Mega Evolving.`]);
 				}
-				// template is unused after this, so no need to replace
+				// species is unused after this, so no need to replace
 			}
 			for (let i in BattleAbilities) {
 				if (BattleAbilities[i].isNonstandard) continue;
@@ -928,8 +931,8 @@ class BattleSearch {
 		results.push(['category', 'status' as ID]);
 		this.results = results;
 	}
-	getTier(pokemon: Template) {
-		if (!this.isDoubles) return pokemon.tier;
+	getTier(pokemon: Species) {
+		if (this.isLetsGo) return pokemon.tier;
 		let table = window.BattleTeambuilderTable;
 		if (table && table[`gen${this.gen}doubles`]) {
 			table = table[`gen${this.gen}doubles`];
@@ -969,22 +972,22 @@ class BattleSearch {
 		const genChar = '' + this.gen;
 		let i;
 		for (let id in BattlePokedex) {
-			let template = this.dex.getTemplate(id);
-			if (template.exists === false) continue;
+			let species = this.dex.getSpecies(id);
+			if (species.exists === false) continue;
 			for (i = 0; i < filters.length; i++) {
 				if (filters[i][0] === 'type') {
 					let type = filters[i][1];
-					if (template.types[0] !== type && template.types[1] !== type) break;
+					if (species.types[0] !== type && species.types[1] !== type) break;
 				} else if (filters[i][0] === 'egggroup') {
 					let egggroup = filters[i][1];
-					if (!template.eggGroups) continue;
-					if (template.eggGroups[0] !== egggroup && template.eggGroups[1] !== egggroup) break;
+					if (!species.eggGroups) continue;
+					if (species.eggGroups[0] !== egggroup && species.eggGroups[1] !== egggroup) break;
 				} else if (filters[i][0] === 'tier') {
 					let tier = filters[i][1];
-					if (this.getTier(template) !== tier) break;
+					if (this.getTier(species) !== tier) break;
 				} else if (filters[i][0] === 'ability') {
 					let ability = filters[i][1];
-					if (!Dex.hasAbility(template, ability)) break;
+					if (!Dex.hasAbility(species, ability)) break;
 				} else if (filters[i][0] === 'move') {
 					let learned = false;
 					let learnsetid = this.nextLearnsetid(id as ID);
@@ -1043,12 +1046,12 @@ class BattleSearch {
 		if (learnsetid === 'lycanrocdusk' || (speciesid === 'rockruff' && learnsetid === 'rockruff')) {
 			return 'rockruffdusk' as ID;
 		}
-		let template = BattlePokedex[learnsetid];
-		if (!template) return '' as ID;
-		if (template.prevo) return template.prevo as ID;
-		let baseSpecies = template.baseSpecies;
-		if (baseSpecies !== template.species && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo')) {
-			return toID(template.baseSpecies);
+		let species = BattlePokedex[learnsetid];
+		if (!species) return '' as ID;
+		if (species.prevo) return species.prevo as ID;
+		let baseSpecies = species.baseSpecies;
+		if (baseSpecies !== species.name && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo')) {
+			return toID(species.baseSpecies);
 		}
 		return '' as ID;
 	}

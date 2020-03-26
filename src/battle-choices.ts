@@ -375,9 +375,9 @@ class BattleChoiceBuilder {
 						curMatchLevel = 9;
 					} else if (choiceid === toID(serverPokemon.name)) {
 						curMatchLevel = 8;
-					} else if (choiceid === toID(serverPokemon.species)) {
+					} else if (choiceid === toID(serverPokemon.speciesName)) {
 						curMatchLevel = 7;
-					} else if (choiceid === toID(Dex.getTemplate(serverPokemon.species).baseSpecies)) {
+					} else if (choiceid === toID(Dex.getSpecies(serverPokemon.speciesName).baseSpecies)) {
 						curMatchLevel = 6;
 					}
 					if (curMatchLevel > matchLevel) {

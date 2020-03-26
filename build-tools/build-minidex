@@ -43,14 +43,14 @@ function sizeObj(path) {
 
 function updateSizes() {
 	for (let baseid in Dex.data.Pokedex) {
-		let template = Dex.getTemplate(baseid);
-		for (let formid of [''].concat(template.cosmeticFormes || [])) {
-			let spriteid = template.spriteid;
-			if (formid) spriteid += '-' + formid.slice(template.id.length);
+		let species = Dex.getSpecies(baseid);
+		for (let formid of [''].concat(species.cosmeticFormes || [])) {
+			let spriteid = species.spriteid;
+			if (formid) spriteid += '-' + formid.slice(species.id.length);
 			let id = toID(spriteid);
 
 			{
-				let row = {num: template.num};
+				let row = {num: species.num};
 				const frontSize = sizeObj('sprites/ani/' + spriteid + '.gif');
 				if (frontSize) row.front = frontSize;
 				const frontSizeF = sizeObj('sprites/ani/' + spriteid + '-f.gif');
@@ -65,7 +65,7 @@ function updateSizes() {
 			}
 
 			{
-				let g5row = {num: template.num};
+				let g5row = {num: species.num};
 				const frontSize = sizeObj('sprites/gen5ani/' + spriteid + '.gif');
 				if (frontSize) g5row.front = frontSize;
 				const frontSizeF = sizeObj('sprites/gen5ani/' + spriteid + '-f.gif');
