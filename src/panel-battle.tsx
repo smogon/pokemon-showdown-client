@@ -273,6 +273,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'request':
 			this.receiveRequest(args[1] ? JSON.parse(args[1]) : null);
 			return;
+		case 'win': case 'tie':
+			this.receiveRequest(null);
+			break;
+		case 'c': case 'c:': case 'chat': case 'chatmsg': case 'inactive':
+			room.battle.instantAdd('|' + args.join('|'));
+			return;
 		case 'error':
 			if (args[1].startsWith('[Invalid choice]') && room.request) {
 				room.choices = new BattleChoiceBuilder(room.request);
@@ -423,7 +429,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const trapped = choices.currentMoveRequest()?.trapped;
 
 		return request.side.pokemon.map((serverPokemon, i) => {
-			const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1);
+			const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
 			return <PokemonButton
 				pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
 			/>;
@@ -468,7 +474,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<button name="cmd" value="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>, ' ',
 		];
 		if (choices.isDone() && request.noCancel) {
-			buf = [];
+			buf = ['Waiting for opponent...'];
 		}
 
 		const battle = this.props.room.battle;

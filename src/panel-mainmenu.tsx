@@ -58,7 +58,7 @@ class MainMenuRoom extends PSRoom {
 			return;
 		} case 'popup': {
 			const [, message] = args;
-			alert(message);
+			alert(message.replace(/\|\|/g, '\n'));
 			return;
 		}}
 		const lobby = PS.rooms['lobby'];
