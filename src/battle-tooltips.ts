@@ -674,8 +674,8 @@ class BattleTooltips {
 		}
 
 		let name = BattleLog.escapeHTML(pokemon.name);
-		if (pokemon.speciesName !== pokemon.name) {
-			name += ' <small>(' + BattleLog.escapeHTML(pokemon.speciesName) + ')</small>';
+		if (pokemon.cosmeticFormeName !== pokemon.name) {
+			name += ' <small>(' + BattleLog.escapeHTML(pokemon.cosmeticFormeName) + ')</small>';
 		}
 
 		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
@@ -883,7 +883,7 @@ class BattleTooltips {
 
 		let item = toID(serverPokemon.item);
 		if (ability === 'klutz' && item !== 'machobrace') item = '' as ID;
-		let species = Dex.getSpecies(clientPokemon ? clientPokemon.getSpeciesName() : serverPokemon.speciesName).baseSpecies;
+		let species = Dex.getSpecies(clientPokemon ? clientPokemon.getCosmeticFormeName() : serverPokemon.cosmeticFormeName).baseSpecies;
 
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
@@ -991,7 +991,7 @@ class BattleTooltips {
 		if (ability === 'marvelscale' && pokemon.status) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		if (item === 'eviolite' && Dex.getSpecies(pokemon.speciesName).evos) {
+		if (item === 'eviolite' && Dex.getSpecies(pokemon.cosmeticFormeName).evos) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
@@ -1393,7 +1393,7 @@ class BattleTooltips {
 		if (move.id === 'weatherball') {
 			value.weatherModify(2);
 		}
-		if (move.id === 'watershuriken' && pokemon.getSpeciesName() === 'Greninja-Ash' && pokemon.ability === 'Battle Bond') {
+		if (move.id === 'watershuriken' && pokemon.getCosmeticFormeName() === 'Greninja-Ash' && pokemon.ability === 'Battle Bond') {
 			value.set(20, 'Battle Bond');
 		}
 		// Moves that check opponent speed
@@ -1616,7 +1616,7 @@ class BattleTooltips {
 		'Spell Tag': 'Ghost',
 		'Twisted Spoon': 'Psychic',
 	};
-	static orbUsers: {[speciesName: string]: string} = {
+	static orbUsers: {[cosmeticFormeName: string]: string} = {
 		'Latias': 'Soul Dew',
 		'Latios': 'Soul Dew',
 		'Dialga': 'Adamant Orb',
@@ -1661,7 +1661,7 @@ class BattleTooltips {
 
 		// Pokemon-specific items
 		if (item.name === 'Soul Dew' && this.battle.gen < 7) return value;
-		if (BattleTooltips.orbUsers[Dex.getSpecies(value.serverPokemon.speciesName).baseSpecies] === item.name &&
+		if (BattleTooltips.orbUsers[Dex.getSpecies(value.serverPokemon.cosmeticFormeName).baseSpecies] === item.name &&
 			[BattleTooltips.orbTypes[item.name], 'Dragon'].includes(moveType)) {
 			value.itemModify(1.2);
 			return value;
@@ -1678,7 +1678,7 @@ class BattleTooltips {
 	}
 	getPokemonTypes(pokemon: Pokemon | ServerPokemon): ReadonlyArray<TypeName> {
 		if (!(pokemon as Pokemon).getTypes) {
-			return this.battle.dex.getSpecies(pokemon.speciesName).types;
+			return this.battle.dex.getSpecies(pokemon.cosmeticFormeName).types;
 		}
 
 		return (pokemon as Pokemon).getTypeList();
@@ -1710,8 +1710,8 @@ class BattleTooltips {
 					abilityData.baseAbility = clientPokemon.baseAbility;
 				}
 			} else {
-				const speciesName = clientPokemon.getSpeciesName() || serverPokemon?.speciesName || '';
-				const species = this.battle.dex.getSpecies(speciesName);
+				const cosmeticFormeName = clientPokemon.getCosmeticFormeName() || serverPokemon?.cosmeticFormeName || '';
+				const species = this.battle.dex.getSpecies(cosmeticFormeName);
 				if (species.exists && species.abilities) {
 					abilityData.possibilities = [species.abilities['0']];
 					if (species.abilities['1']) abilityData.possibilities.push(species.abilities['1']);
