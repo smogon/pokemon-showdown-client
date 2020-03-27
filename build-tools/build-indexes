@@ -801,7 +801,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		for (const moveid in learnset) {
 			const gens = learnset[moveid].map(x => Number(x[0]));
 			const minGen = Math.min(...gens);
-			if (!learnsets[id][moveid]) learnsets[id][moveid] = ''; // should never happen
+			if (!learnsets[id]) {
+				throw new Error(`${id} has a Gen 2 learnset but not a modern learnset`);
+			}
+			if (!learnsets[id][moveid]) learnsets[id][moveid] = '';
 			if (minGen === 2) learnsets[id][moveid] = '2' + learnsets[id][moveid];
 			if (minGen === 1) learnsets[id][moveid] = '12' + learnsets[id][moveid];
 		}
