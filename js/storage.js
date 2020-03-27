@@ -909,7 +909,7 @@ Storage.unpackTeam = function (buf) {
 
 		// species
 		j = buf.indexOf('|', i);
-		set.species = Dex.getSpecies(buf.substring(i, j)).species || set.name;
+		set.species = Dex.getSpecies(buf.substring(i, j)).name || set.name;
 		i = j + 1;
 
 		// item
@@ -1144,11 +1144,11 @@ Storage.importTeam = function (buffer, teams) {
 			var parenIndex = line.lastIndexOf(' (');
 			if (line.substr(line.length - 1) === ')' && parenIndex !== -1) {
 				line = line.substr(0, line.length - 1);
-				curSet.species = Dex.getSpecies(line.substr(parenIndex + 2)).species;
+				curSet.species = Dex.getSpecies(line.substr(parenIndex + 2)).name;
 				line = line.substr(0, parenIndex);
 				curSet.name = line;
 			} else {
-				curSet.species = Dex.getSpecies(line).species;
+				curSet.species = Dex.getSpecies(line).name;
 				curSet.name = '';
 			}
 		} else if (line.substr(0, 7) === 'Trait: ') {
