@@ -1356,17 +1356,17 @@
 	Search.prototype.renderPokemonRow = function (pokemon, matchStart, matchLength, errorMessage, attrs) {
 		if (!attrs) attrs = '';
 		if (!pokemon) return '<li class="result">Unrecognized pokemon</li>';
-		var id = toID(pokemon.species);
+		var id = toID(pokemon.name);
 		if (Search.urlRoot) attrs += ' href="' + Search.urlRoot + 'pokemon/' + id + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="pokemon|' + BattleLog.escapeHTML(pokemon.species) + '">';
+		var buf = '<li class="result"><a' + attrs + ' data-entry="pokemon|' + BattleLog.escapeHTML(pokemon.name) + '">';
 
 		// number
 		// buf += '<span class="col numcol">' + (pokemon.num >= 0 ? pokemon.num : 'CAP') + '</span> ';
 		var tier;
 		if (pokemon.tier) {
-			tier = Dex.getTier(pokemon.species, this.gen, this.mod);
+			tier = Dex.getTier(pokemon.name, this.gen, this.mod);
 		} else if (pokemon.forme && pokemon.forme.endsWith('Totem')) {
-			tier = Dex.getTier(pokemon.species.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1)), this.gen, this.mod);
+			tier = Dex.getTier(pokemon.name.slice(0, (pokemon.forme.startsWith('Alola') ? -6 : pokemon.baseSpecies.length + 1)), this.gen, this.mod);
 		} else {
 			tier = Dex.getTier(pokemon.baseSpecies, this.gen, this.mod);
 		}
@@ -1379,7 +1379,7 @@
 		buf += '</span> ';
 
 		// name
-		var name = pokemon.species;
+		var name = pokemon.name;
 		var tagStart = (pokemon.forme ? name.length - pokemon.forme.length - 1 : 0);
 		if (tagStart) name = name.substr(0, tagStart);
 		if (matchLength) {
@@ -1391,9 +1391,9 @@
 					matchLength -= tagStart - matchStart;
 					matchStart = tagStart;
 				}
-				name += '<small>' + pokemon.species.substr(tagStart, matchStart - tagStart) + '<b>' + pokemon.species.substr(matchStart, matchLength) + '</b>' + pokemon.species.substr(matchStart + matchLength) + '</small>';
+				name += '<small>' + pokemon.name.substr(tagStart, matchStart - tagStart) + '<b>' + pokemon.name.substr(matchStart, matchLength) + '</b>' + pokemon.name.substr(matchStart + matchLength) + '</small>';
 			} else {
-				name += '<small>' + pokemon.species.substr(tagStart) + '</small>';
+				name += '<small>' + pokemon.name.substr(tagStart) + '</small>';
 			}
 		}
 		buf += '<span class="col pokemonnamecol">' + name + '</span> ';
@@ -1482,8 +1482,8 @@
 	};
 	Search.prototype.renderTaggedPokemonRowInner = function (pokemon, tag, errorMessage) {
 		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toID(pokemon.species) + '" data-target="push"';
-		var buf = '<a' + attrs + ' data-entry="pokemon|' + BattleLog.escapeHTML(pokemon.species) + '">';
+		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'pokemon/' + toID(pokemon.name) + '" data-target="push"';
+		var buf = '<a' + attrs + ' data-entry="pokemon|' + BattleLog.escapeHTML(pokemon.name) + '">';
 
 		// tag
 		buf += '<span class="col tagcol shorttagcol">' + tag + '</span> ';
@@ -1494,9 +1494,9 @@
 		buf += '</span> ';
 
 		// name
-		var name = pokemon.species;
+		var name = pokemon.name;
 		var tagStart = (pokemon.forme ? name.length - pokemon.forme.length - 1 : 0);
-		if (tagStart) name = name.substr(0, tagStart) + '<small>' + pokemon.species.substr(tagStart) + '</small>';
+		if (tagStart) name = name.substr(0, tagStart) + '<small>' + pokemon.name.substr(tagStart) + '</small>';
 		buf += '<span class="col shortpokemonnamecol">' + name + '</span> ';
 
 		// error
