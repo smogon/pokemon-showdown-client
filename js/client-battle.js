@@ -193,7 +193,7 @@
 					switch (args[0]) {
 					case 'trapped':
 						requestData.trapped = true;
-						var pokeName = pokemon.side.n === 0 ? BattleLog.escapeHTML(pokemon.name) : "The opposing " + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.cosmeticFormeName : BattleLog.escapeHTML(pokemon.name));
+						var pokeName = pokemon.side.n === 0 ? BattleLog.escapeHTML(pokemon.name) : "The opposing " + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.speciesForme : BattleLog.escapeHTML(pokemon.name));
 						this.battle.activityQueue.push('|message|' + pokeName + ' is trapped and cannot switch!');
 						break;
 					case 'cant':
@@ -570,7 +570,7 @@
 					} else if (!pokemon || pokemon.fainted) {
 						targetMenus[0] += '<button name="chooseMoveTarget" value="' + (i + 1) + '"><span class="picon" style="' + Dex.getPokemonIcon('missingno') + '"></span></button> ';
 					} else {
-						targetMenus[0] += '<button name="chooseMoveTarget" value="' + (i + 1) + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.cosmeticFormeName : BattleLog.escapeHTML(pokemon.name)) + '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
+						targetMenus[0] += '<button name="chooseMoveTarget" value="' + (i + 1) + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.speciesForme : BattleLog.escapeHTML(pokemon.name)) + '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 					}
 				}
 				for (var i = 0; i < myActive.length; i++) {
@@ -860,7 +860,7 @@
 				var myPokemon = this.battle.mySide.pokemon;
 				var leads = [];
 				for (var i = 0; i < this.choice.count; i++) {
-					leads.push(myPokemon[this.choice.teamPreview[i] - 1].species);
+					leads.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
 			} else if (this.choice.choices && this.request) {
@@ -871,7 +871,7 @@
 					case 'move':
 						var move = this.request.active[i].moves[parseInt(parts[1], 10) - 1].move;
 						var target = '';
-						buf += myActive[i].species + ' will ';
+						buf += myActive[i].speciesForme + ' will ';
 						if (parts.length > 2) {
 							var targetPos = parts[2];
 							if (targetPos === 'mega') {
@@ -896,7 +896,7 @@
 									target += 'your ';
 								}
 								if (targetActive[targetPos - 1]) {
-									target += targetActive[targetPos - 1].species;
+									target += targetActive[targetPos - 1].speciesForme;
 								} else {
 									target = ''; // targeting an empty slot
 								}
@@ -909,14 +909,14 @@
 						buf += 'use ' + Dex.getMove(move).name + (target ? ' against ' + target : '') + '.<br />';
 						break;
 					case 'switch':
-						buf += '' + this.battle.myPokemon[parts[1] - 1].species + ' will switch in';
+						buf += '' + this.battle.myPokemon[parts[1] - 1].speciesForme + ' will switch in';
 						if (myActive[i]) {
-							buf += ', replacing ' + myActive[i].species;
+							buf += ', replacing ' + myActive[i].speciesForme;
 						}
 						buf += '.<br />';
 						break;
 					case 'shift':
-						buf += myActive[i].species + ' will shift position.<br />';
+						buf += myActive[i].speciesForme + ' will shift position.<br />';
 						break;
 					}
 				}
