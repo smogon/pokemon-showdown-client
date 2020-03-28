@@ -779,12 +779,42 @@ class FormatDropdownPanel extends PSRoomPanel {
 			return true;
 		});
 
-		return <PSPanelWrapper room={room} width={320}>
-			<ul class="options" onClick={this.click}>
-				{formats.map(format => <li><button value={format.name} class="option">
-					{format.name}
-				</button></li>)}
-			</ul>
+		let curSection = '';
+		let curColumnNum = 0;
+		let curColumn: (FormatData | {id: '', section: string})[] = [];
+		const columns = [curColumn];
+		for (const format of formats) {
+			if (format.column !== curColumnNum) {
+				if (curColumn.length) {
+					curColumn = [];
+					columns.push(curColumn);
+				}
+				curColumnNum = format.column;
+			}
+			if (format.section !== curSection) {
+				curSection = format.section;
+				if (curSection) {
+					curColumn.push({id: '', section: curSection});
+				}
+			}
+			curColumn.push(format);
+		}
+
+		const width = columns.length * 225 + 10;
+
+		return <PSPanelWrapper room={room} width={width}>
+			{columns.map(column => <ul class="options" onClick={this.click}>
+				{column.map(format => format.id ? (
+					<li><button value={format.name} class="option">
+						{format.name.replace('[Gen 8] ', '').replace('[Gen 7 ', '[')}
+					</button></li>
+				) : (
+					<li><h3>
+						{format.section}
+					</h3></li>
+				))}
+			</ul>)}
+			<div style="float: left"></div>
 		</PSPanelWrapper>;
 	}
 }
